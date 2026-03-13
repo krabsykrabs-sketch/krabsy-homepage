@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Krabsy – Air Control!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+  :root { --hud-bg:rgba(20,40,70,0.85); --teal:#00c49a; --coral:#ff6b6b; --white:#fff; --strip-active:#ffcc00; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;background:#111}
+  canvas{display:block;width:100vw;height:100svh;touch-action:none}
+
+  .screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,25,50,0.92);backdrop-filter:blur(12px);padding:30px;text-align:center;gap:12px}
+  .screen.hidden{display:none}
+  .screen-title{font-family:'Fredoka One',cursive;font-size:clamp(32px,8vw,52px);color:var(--white);line-height:1.1}
+  .screen-title span{color:var(--coral)}
+  .screen-sub{font-size:15px;color:rgba(255,255,255,0.6);max-width:360px;line-height:1.5}
+  .screen-stat{font-family:'Fredoka One',cursive;font-size:22px;color:var(--strip-active)}
+  .screen-emoji{font-size:56px;line-height:1}
+  .btn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 36px;border-radius:50px;border:none;cursor:pointer;letter-spacing:1px;transition:transform 0.15s;margin-top:6px}
+  .btn:active{transform:scale(0.95)}
+  .btn-primary{background:linear-gradient(135deg,#ff6b6b,#e04848);color:white;box-shadow:0 4px 20px rgba(255,107,107,0.4)}
+  .btn-secondary{background:linear-gradient(135deg,var(--teal),#00a882);color:white;box-shadow:0 4px 16px rgba(0,196,154,0.3);font-size:15px;padding:10px 26px}
+  .logo-text{font-family:'Fredoka One',cursive;font-size:18px;color:rgba(255,255,255,0.3);margin-top:8px;letter-spacing:1px}
+  .logo-text em{font-style:normal;color:rgba(255,107,107,0.5)}
+
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;z-index:50;background:var(--hud-bg);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Share Tech Mono',monospace;color:var(--white);font-size:14px;pointer-events:none}
+  #hud.hidden{display:none}
+  .hud-section{display:flex;align-items:center;gap:8px}
+  .hud-label{color:rgba(255,255,255,0.4);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+  .hud-value{font-family:'Fredoka One',cursive;font-size:20px}
+  .hud-score{color:var(--strip-active)} .hud-verbs{color:var(--teal)}
+  #hud-logo{font-family:'Fredoka One',cursive;font-size:16px;color:rgba(255,255,255,0.5)}
+  #hud-logo span{color:rgba(255,107,107,0.6)}
+
+  #strip-panels{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:12px;padding:8px 14px 12px;z-index:50;pointer-events:none}
+  #strip-panels.hidden{display:none}
+  .strip-panel{background:var(--hud-bg);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 14px;min-width:140px;text-align:center}
+  .strip-panel-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .strip-panel-chain{font-family:'Fredoka One',cursive;font-size:16px;color:var(--white);display:flex;align-items:center;justify-content:center;gap:4px;min-height:24px}
+  .chain-slot{padding:1px 6px;border-radius:6px;font-size:14px}
+  .chain-filled-base{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
+  .chain-filled-past{background:rgba(0,196,154,0.25);color:#00e5bb}
+  .chain-filled-pp{background:rgba(255,107,107,0.25);color:#ff8a8a}
+  .chain-empty{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.2)}
+  .chain-arrow{color:rgba(255,255,255,0.2);font-size:12px}
+  .strip-panel-label{font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px}
+  .strip-panel.strip-free{border-color:rgba(255,255,255,0.05)}
+  .strip-panel.strip-active{border-color:rgba(255,204,0,0.3)}
+  .strip-panel.strip-complete{border-color:rgba(0,196,154,0.4);animation:stripDone 0.6s ease-out}
+  @keyframes stripDone{0%{transform:scale(1)}30%{transform:scale(1.05);border-color:rgba(0,229,187,0.6)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="hud-section"><div id="hud-logo">Krab<span>sy</span></div></div>
+  <div class="hud-section"><div><div class="hud-label">Score</div><div class="hud-value hud-score" id="hud-score">0</div></div></div>
+  <div class="hud-section"><div><div class="hud-label">Verbs</div><div class="hud-value hud-verbs" id="hud-verbs">0</div></div></div>
+</div>
+
+<div id="strip-panels" class="hidden">
+  <div class="strip-panel strip-free" id="strip-panel-0">
+    <div class="strip-panel-title">Strip 1</div>
+    <div class="strip-panel-chain" id="strip-chain-0"><span class="strip-panel-label">Empty</span></div>
+  </div>
+  <div class="strip-panel strip-free" id="strip-panel-1">
+    <div class="strip-panel-title">Strip 2</div>
+    <div class="strip-panel-chain" id="strip-chain-1"><span class="strip-panel-label">Empty</span></div>
+  </div>
+</div>
+
+<div class="screen" id="start-screen">
+  <div class="screen-emoji">✈️</div>
+  <div class="screen-title">Air <span>Control!</span></div>
+  <div class="screen-sub">Guide planes to runways to complete verb chains. Route helicopters to the helipad. <b>Draw flight paths</b> — don't let anything collide!</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.35);max-width:320px;line-height:1.4;margin-top:4px">
+    Land all 3 verb forms (base → past → participle) on the same strip. Bonus for correct order!
+  </div>
+  <button class="btn btn-primary" id="start-btn">Take Off! ✈️</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<div class="screen hidden" id="gameover-screen">
+  <div class="screen-emoji">💥</div>
+  <div class="screen-title">Game <span>Over!</span></div>
+  <div id="go-score" class="screen-stat"></div>
+  <div id="go-verbs" class="screen-sub"></div>
+  <div id="go-best" class="screen-sub"></div>
+  <button class="btn btn-primary" id="restart-btn">Try Again ✈️</button>
+  <button class="btn btn-secondary" id="menu-btn">Menu</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// KRABSY AIR CONTROL v3
+// ════════════════════════════════════════
+
+const VERBS=[
+  {verb:"go",past:"went",pp:"gone"},{verb:"run",past:"ran",pp:"run"},
+  {verb:"eat",past:"ate",pp:"eaten"},{verb:"swim",past:"swam",pp:"swum"},
+  {verb:"fly",past:"flew",pp:"flown"},{verb:"see",past:"saw",pp:"seen"},
+  {verb:"write",past:"wrote",pp:"written"},{verb:"sing",past:"sang",pp:"sung"},
+  {verb:"drive",past:"drove",pp:"driven"},{verb:"break",past:"broke",pp:"broken"},
+  {verb:"take",past:"took",pp:"taken"},{verb:"give",past:"gave",pp:"given"},
+  {verb:"know",past:"knew",pp:"known"},{verb:"come",past:"came",pp:"come"},
+  {verb:"think",past:"thought",pp:"thought"},{verb:"buy",past:"bought",pp:"bought"},
+  {verb:"make",past:"made",pp:"made"},{verb:"find",past:"found",pp:"found"},
+  {verb:"tell",past:"told",pp:"told"},{verb:"drink",past:"drank",pp:"drunk"},
+  {verb:"begin",past:"began",pp:"begun"},{verb:"speak",past:"spoke",pp:"spoken"},
+  {verb:"fall",past:"fell",pp:"fallen"},{verb:"grow",past:"grew",pp:"grown"},
+  {verb:"throw",past:"threw",pp:"thrown"},{verb:"wear",past:"wore",pp:"worn"},
+  {verb:"ride",past:"rode",pp:"ridden"},{verb:"choose",past:"chose",pp:"chosen"},
+  {verb:"forget",past:"forgot",pp:"forgotten"},{verb:"draw",past:"drew",pp:"drawn"},
+];
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+
+// ── Layout ──
+let LY={};
+const STRIP_ANGLE=30*Math.PI/180; // 30 degrees for angled strip
+
+function computeLayout(){
+  const hudH=44, panelH=70;
+  const rwW=Math.min(W*0.48,280), rwH=28;
+
+  // Airport area: center-right of screen, lower half
+  const airportCX=W*0.55, airportCY=H*0.62;
+
+  // Strip 0: horizontal, positioned to the right
+  const s0x=airportCX-rwW*0.3, s0y=airportCY;
+
+  // Strip 1: angled 30°, starts near the junction and goes up-left
+  // The approach end (left/bottom of the angled strip) is near the airport center
+  const s1startX=airportCX-rwW*0.15;
+  const s1startY=airportCY+rwH+15;
+  // End point goes up-left at 30° angle
+  const s1endX=s1startX-Math.cos(STRIP_ANGLE)*rwW;
+  const s1endY=s1startY-Math.sin(STRIP_ANGLE)*rwW;
+
+  // Heliport: circle pad near the junction
+  const heliX=airportCX+rwW*0.4;
+  const heliY=airportCY-50;
+  const heliR=22;
+
+  const funnelHalf=(135/2)*Math.PI/180;
+  const approachLen=60;
+
+  LY={
+    hudH, panelH,
+    playTop:hudH, playBottom:H-panelH,
+    // Strip 0: horizontal (approach from left, land going right)
+    strips:[
+      {
+        x:s0x, y:s0y, w:rwW, h:rwH, angle:0,
+        approachX:s0x, approachY:s0y+rwH/2,
+        approachAngle:0, // planes approach heading right
+        funnelHalf, approachLen,
+        landX:s0x+rwW*0.85, landY:s0y+rwH/2,
+        cosA:1, sinA:0,
+      },
+      {
+        // Strip 1: angled — approach from the bottom-left end heading upper-right
+        x:s1startX, y:s1startY, w:rwW, h:rwH,
+        angle:-STRIP_ANGLE, // negative because canvas Y is down
+        // Approach point: the "start" end (lower-left)
+        approachX:s1endX, approachY:s1endY,
+        approachAngle:-STRIP_ANGLE, // heading upper-right along the strip
+        funnelHalf, approachLen,
+        // Land point: far end (upper right toward junction)
+        landX:s1startX, landY:s1startY,
+        cosA:Math.cos(-STRIP_ANGLE), sinA:Math.sin(-STRIP_ANGLE),
+        // For drawing: we draw as a rotated rect from the approach end
+        drawX:s1endX, drawY:s1endY,
+      },
+    ],
+    heli:{x:heliX, y:heliY, r:heliR},
+    // Terminal building area (decorative)
+    termX:airportCX+rwW*0.15, termY:airportCY-15, termW:50, termH:35,
+  };
+}
+
+// ── Game state ──
+const G={
+  running:false, score:0, verbsCompleted:0,
+  bestScore:parseInt(localStorage.getItem('krabsy_ac_best')||'0'),
+  aircraft:[], // planes AND helicopters
+  strips:[null,null],
+  verbQueue:[], usedVerbs:new Set(),
+  spawnTimer:0, spawnInterval:220, minSpawnInterval:75,
+  frame:0, difficulty:0,
+  drawingAC:null, drawPath:[], drawPathValid:false, drawPathStripIdx:-1, drawPathHeli:false,
+  clouds:[], maxAircraft:8,
+  // Edge warnings: {x,y,edge,age,maxAge,type}
+  warnings:[],
+  // Spawn queue: upcoming aircraft with delay timers
+  spawnQueue:[],
+  heliLanded:0, planesSinceHeli:0,
+};
+let activeVerbs=[];
+let completions=[];
+
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  computeLayout();
+}
+window.addEventListener('resize',resize);
+resize();
+
+// ── Helpers ──
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function dist(x1,y1,x2,y2){return Math.sqrt((x1-x2)**2+(y1-y2)**2)}
+function lerpAngle(a,b,t){let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return a+d*t}
+function normAngle(a){while(a>Math.PI)a-=Math.PI*2;while(a<=-Math.PI)a+=Math.PI*2;return a}
+function fillQueue(){
+  let av=VERBS.filter((_,i)=>!G.usedVerbs.has(i));
+  if(av.length<3){G.usedVerbs.clear();av=[...VERBS];}
+  shuffle(av);G.verbQueue.push(...av);
+}
+function getNextVerb(){
+  if(!G.verbQueue.length)fillQueue();
+  const v=G.verbQueue.shift();
+  const i=VERBS.indexOf(v);if(i>=0)G.usedVerbs.add(i);return v;
+}
+
+// ════════════════════════════════════
+// APPROACH / LANDING SYSTEM
+// ════════════════════════════════════
+
+function checkApproach(px,py,pAngle,si){
+  const s=LY.strips[si];
+  const dx=px-s.approachX, dy=py-s.approachY;
+  const d=Math.sqrt(dx*dx+dy*dy);
+  if(d>s.approachLen+20) return false;
+  // Check heading aligns with strip approach angle
+  const diff=Math.abs(normAngle(pAngle-s.approachAngle));
+  return diff<=s.funnelHalf;
+}
+
+function pathHitsApproach(path,si){
+  if(!path||path.length<4) return false;
+  const check=Math.min(path.length-1,20);
+  for(let i=path.length-1-check;i<path.length-1;i++){
+    if(i<0)continue;
+    const p=path[i],pN=path[i+1];
+    const angle=Math.atan2(pN.y-p.y,pN.x-p.x);
+    if(checkApproach(p.x,p.y,angle,si)) return true;
+  }
+  return false;
+}
+
+function pathHitsHeli(path){
+  if(!path||path.length<3) return false;
+  const h=LY.heli;
+  // Check if path end is near heliport
+  const last=path[path.length-1];
+  return dist(last.x,last.y,h.x,h.y)<h.r+25;
+}
+
+function canLandOnStrip(ac,si){
+  const sd=G.strips[si];
+  if(!sd) return true;
+  if(sd.verbObj!==ac.verbObj) return false;
+  if(sd.landed[ac.form]) return false;
+  return true;
+}
+
+function evaluatePath(path,ac){
+  // Helicopter → check heliport
+  if(ac.isHeli){
+    if(pathHitsHeli(path)) return {stripIdx:-1,valid:true,heli:true};
+    return {stripIdx:-1,valid:false,heli:false};
+  }
+  // Plane → check strips
+  for(let si=0;si<2;si++){
+    if(pathHitsApproach(path,si)){
+      return {stripIdx:si,valid:canLandOnStrip(ac,si),heli:false};
+    }
+  }
+  return {stripIdx:-1,valid:false,heli:false};
+}
+
+// ════════════════════════════════════
+// EDGE WARNINGS
+// ════════════════════════════════════
+
+function addWarning(x,y,edge,type){
+  // Clamp to screen edges
+  let wx,wy;
+  const m=20;
+  if(edge==='top'){wx=Math.max(m,Math.min(W-m,x));wy=LY.hudH+m;}
+  else if(edge==='left'){wx=m;wy=Math.max(LY.hudH+m,Math.min(H-m,y));}
+  else if(edge==='right'){wx=W-m;wy=Math.max(LY.hudH+m,Math.min(H-m,y));}
+  else{wx=Math.max(m,Math.min(W-m,x));wy=H-m;}
+  G.warnings.push({x:wx,y:wy,edge,type,age:0,maxAge:90}); // ~1.5 sec at 60fps
+}
+
+// ════════════════════════════════════
+// SPAWNING
+// ════════════════════════════════════
+
+function flyingCount(){
+  return G.aircraft.filter(a=>a.state!=='landed'&&a.state!=='gone').length;
+}
+
+function pickSpawnEdge(){
+  const edge=['top','left','right'][Math.floor(Math.random()*3)];
+  let x,y,angle;
+  if(edge==='top'){
+    x=50+Math.random()*(W-100);y=-25;
+    angle=Math.PI/2+(Math.random()-0.5)*0.5;
+  }else if(edge==='left'){
+    x=-25;y=LY.hudH+40+Math.random()*(H*0.3);
+    angle=(Math.random()-0.5)*0.6;
+  }else{
+    x=W+25;y=LY.hudH+40+Math.random()*(H*0.3);
+    angle=Math.PI+(Math.random()-0.5)*0.6;
+  }
+  return {x,y,angle,edge};
+}
+
+function queueSpawn(type,verbObj,form){
+  const spawn=pickSpawnEdge();
+  // Add warning first
+  addWarning(spawn.x,spawn.y,spawn.edge,type);
+  // Queue the actual spawn after warning finishes
+  G.spawnQueue.push({
+    type,verbObj,form,
+    x:spawn.x,y:spawn.y,angle:spawn.angle,
+    delay:90, // frames until spawn (matches warning duration)
+  });
+}
+
+function doSpawn(sq){
+  const speed=0.5+G.difficulty*0.03;
+  const ac={
+    x:sq.x, y:sq.y, angle:sq.angle,
+    speed:Math.min(sq.type==='heli'?0.4+G.difficulty*0.02:speed,1.1),
+    isHeli:sq.type==='heli',
+    verbObj:sq.verbObj||null, form:sq.form||null,
+    text:sq.type==='heli'?null:(sq.form==='base'?sq.verbObj.verb:sq.form==='past'?sq.verbObj.past:sq.verbObj.pp),
+    path:null, pathIndex:0,
+    state:'flying', stripIdx:-1, radius:sq.type==='heli'?16:18,
+    trail:[],
+    formColor:sq.type==='heli'?'#ff9800':
+      (sq.form==='base'?'#ffffff':sq.form==='past'?'#00e5bb':'#ff8a8a'),
+    spawnTime:G.frame, warningLevel:0,
+    frozenGlow:0, landingProgress:0, landingStripIdx:-1,
+    targetStripIdx:-1, targetHeli:false,
+    heliRotor:0,
+  };
+  G.aircraft.push(ac);
+}
+
+function spawnNextWave(){
+  if(flyingCount()>=G.maxAircraft) return;
+
+  // Check if we should spawn a helicopter (1 per 3 planes)
+  if(G.planesSinceHeli>=3){
+    G.planesSinceHeli=0;
+    queueSpawn('heli',null,null);
+    return;
+  }
+
+  const maxGroups=G.difficulty<3?1:2;
+
+  // Spawn missing forms for existing verb groups
+  for(const av of activeVerbs){
+    if(av.formsSpawned.size<3 && flyingCount()<G.maxAircraft){
+      const forms=['base','past','pp'].filter(f=>!av.formsSpawned.has(f));
+      if(forms.length){
+        const f=forms[Math.floor(Math.random()*forms.length)];
+        av.formsSpawned.add(f);
+        queueSpawn('plane',av.verbObj,f);
+        G.planesSinceHeli++;
+        return;
+      }
+    }
+  }
+
+  // New verb group
+  const current=activeVerbs.filter(av=>av.formsLanded.size<3);
+  if(current.length<maxGroups && flyingCount()<G.maxAircraft){
+    const verbObj=getNextVerb();
+    const av={verbObj,formsSpawned:new Set(),formsLanded:new Set()};
+    activeVerbs.push(av);
+    const f=['base','past','pp'][Math.floor(Math.random()*3)];
+    av.formsSpawned.add(f);
+    queueSpawn('plane',verbObj,f);
+    G.planesSinceHeli++;
+  }
+}
+
+// ════════════════════════════════════
+// INPUT
+// ════════════════════════════════════
+
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return{x:t.clientX-r.left,y:t.clientY-r.top};
+}
+
+function findACAt(x,y){
+  let best=null,bestD=40;
+  for(const a of G.aircraft){
+    if(a.state==='landed'||a.state==='gone'||a.state==='landing') continue;
+    const d=dist(x,y,a.x,a.y);
+    if(d<bestD){best=a;bestD=d;}
+  }
+  return best;
+}
+
+function onInputStart(e){
+  e.preventDefault();
+  if(!G.running) return;
+  const pos=getPos(e);
+  const ac=findACAt(pos.x,pos.y);
+  if(ac){
+    ac.state='frozen';ac.frozenGlow=0;
+    ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;
+    G.drawingAC=ac;
+    G.drawPath=[{x:ac.x,y:ac.y}];
+    G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
+  }
+}
+
+function onInputMove(e){
+  e.preventDefault();
+  if(!G.running||!G.drawingAC) return;
+  const pos=getPos(e);
+  const last=G.drawPath[G.drawPath.length-1];
+  if(dist(pos.x,pos.y,last.x,last.y)>5){
+    G.drawPath.push(pos);
+    const ev=evaluatePath(G.drawPath,G.drawingAC);
+    G.drawPathValid=ev.valid;
+    G.drawPathStripIdx=ev.stripIdx;
+    G.drawPathHeli=ev.heli;
+
+    if(G.drawingAC.state==='frozen'&&G.drawPath.length>4){
+      G.drawingAC.state='following';
+      G.drawingAC.path=G.drawPath;
+      G.drawingAC.pathIndex=0;
+    }
+  }
+}
+
+function onInputEnd(e){
+  e.preventDefault();
+  if(!G.running||!G.drawingAC) return;
+  const ac=G.drawingAC;
+
+  if(G.drawPath.length>=3){
+    const ev=evaluatePath(G.drawPath,ac);
+    ac.path=[...G.drawPath];
+    ac.pathIndex=Math.max(0,ac.pathIndex);
+    ac.state='following';
+    if(ev.valid&&ev.heli){ac.targetHeli=true;ac.targetStripIdx=-1;}
+    else if(ev.valid){ac.targetStripIdx=ev.stripIdx;ac.targetHeli=false;}
+    else{ac.targetStripIdx=-1;ac.targetHeli=false;}
+  }else{
+    ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;
+  }
+
+  G.drawingAC=null;G.drawPath=[];
+  G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
+}
+
+// ════════════════════════════════════
+// AIRCRAFT UPDATE
+// ════════════════════════════════════
+
+function updateAC(a){
+  if(a.state==='landed'||a.state==='gone') return;
+
+  if(a.isHeli) a.heliRotor+=0.3;
+
+  if(a.state==='frozen'){a.frozenGlow+=0.08;return;}
+
+  if(a.state==='landing'){
+    a.landingProgress+=0.015;
+    if(a.isHeli){
+      // Helicopter lands toward heliport center
+      const h=LY.heli;
+      const startX=a._landStartX, startY=a._landStartY;
+      const t=Math.min(1,a.landingProgress);
+      a.x=startX+(h.x-startX)*t;
+      a.y=startY+(h.y-startY)*t;
+      a.angle=Math.atan2(h.y-startY,h.x-startX);
+      if(t>=1){a.state='landed';a.x=h.x;a.y=h.y;completeHeliLanding(a);}
+    }else{
+      const s=LY.strips[a.landingStripIdx];
+      const t=Math.min(1,a.landingProgress);
+      a.x=s.approachX+(s.landX-s.approachX)*t;
+      a.y=s.approachY+(s.landY-s.approachY)*t;
+      a.angle=s.approachAngle;
+      if(t>=1){a.state='landed';a.x=s.landX;a.y=s.landY;completePlaneLanding(a);}
+    }
+    return;
+  }
+
+  // Trail
+  if(G.frame%2===0){
+    a.trail.push({x:a.x,y:a.y,age:0});
+    if(a.trail.length>25) a.trail.shift();
+  }
+  a.trail.forEach(t=>t.age++);
+
+  if(a.state==='following'&&a.path&&a.path.length>1){
+    const target=a.path[a.pathIndex+1];
+    if(!target){
+      // End of path
+      if(a.targetHeli&&a.isHeli){
+        initiateHeliLanding(a);
+      }else if(a.targetStripIdx>=0&&!a.isHeli&&canLandOnStrip(a,a.targetStripIdx)){
+        initiatePlaneLanding(a,a.targetStripIdx);
+      }else{
+        a.state='flying';a.path=null;a.targetStripIdx=-1;a.targetHeli=false;
+      }
+    }else{
+      const dx=target.x-a.x, dy=target.y-a.y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      const tAngle=Math.atan2(dy,dx);
+      a.angle=lerpAngle(a.angle,tAngle,0.15);
+      a.x+=Math.cos(a.angle)*a.speed;
+      a.y+=Math.sin(a.angle)*a.speed;
+      if(d<a.speed*2.5) a.pathIndex++;
+
+      // Check early approach
+      if(!a.isHeli&&a.targetStripIdx>=0&&checkApproach(a.x,a.y,a.angle,a.targetStripIdx)){
+        if(canLandOnStrip(a,a.targetStripIdx)) initiatePlaneLanding(a,a.targetStripIdx);
+      }
+      if(a.isHeli&&a.targetHeli&&dist(a.x,a.y,LY.heli.x,LY.heli.y)<LY.heli.r+20){
+        initiateHeliLanding(a);
+      }
+    }
+  }else{
+    // Free flying
+    a.x+=Math.cos(a.angle)*a.speed;
+    a.y+=Math.sin(a.angle)*a.speed;
+    if(G.frame%90===0) a.angle+=(Math.random()-0.5)*0.25;
+
+    const m=50;
+    if(a.x<m) a.angle=lerpAngle(a.angle,0,0.04);
+    if(a.x>W-m) a.angle=lerpAngle(a.angle,Math.PI,0.04);
+    if(a.y<LY.hudH+20) a.angle=lerpAngle(a.angle,Math.PI/2,0.04);
+    if(a.y>LY.playBottom-40) a.angle=lerpAngle(a.angle,-Math.PI/2,0.04);
+  }
+
+  const flyTime=G.frame-a.spawnTime;
+  a.warningLevel=flyTime>600?2:flyTime>400?1:0;
+
+  const off=60;
+  if(a.x<-off) a.x=W+off/2;
+  if(a.x>W+off) a.x=-off/2;
+  if(a.y<-off) a.y=H*0.3;
+  if(a.y>H+off) a.y=-off/2;
+}
+
+function initiatePlaneLanding(ac,si){
+  if(!canLandOnStrip(ac,si)){
+    ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.angle=0;return;
+  }
+  ac.state='landing';ac.landingStripIdx=si;ac.landingProgress=0;ac.path=null;
+  if(!G.strips[si]){
+    G.strips[si]={verbObj:ac.verbObj,landed:{base:false,past:false,pp:false},landOrder:[]};
+    updateStripPanels();
+  }
+}
+
+function completePlaneLanding(ac){
+  const si=ac.landingStripIdx;
+  const sd=G.strips[si];if(!sd) return;
+  sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
+  const av=activeVerbs.find(a=>a.verbObj===ac.verbObj);
+  if(av) av.formsLanded.add(ac.form);
+  updateStripPanels();
+
+  if(sd.landed.base&&sd.landed.past&&sd.landed.pp){
+    const ordered=sd.landOrder[0]==='base'&&sd.landOrder[1]==='past'&&sd.landOrder[2]==='pp';
+    const pts=ordered?30:15;
+    G.score+=pts;G.verbsCompleted++;
+    showCompletion(si,sd.verbObj,ordered,pts);
+    G.aircraft=G.aircraft.filter(p=>!(p.state==='landed'&&p.landingStripIdx===si));
+    setTimeout(()=>{
+      G.strips[si]=null;
+      activeVerbs=activeVerbs.filter(av=>av.verbObj!==sd.verbObj);
+      updateStripPanels();
+    },800);
+    updateHUD();
+  }
+}
+
+function initiateHeliLanding(ac){
+  // Check if heliport is free
+  const heliOnPad=G.aircraft.some(a=>a.isHeli&&a.state==='landed');
+  if(heliOnPad){
+    ac.state='flying';ac.path=null;ac.targetHeli=false;
+    ac.angle+=(Math.random()-0.5)*1;return;
+  }
+  ac.state='landing';ac.landingProgress=0;ac.path=null;
+  ac._landStartX=ac.x;ac._landStartY=ac.y;
+}
+
+function completeHeliLanding(ac){
+  G.score+=5;G.heliLanded++;updateHUD();
+  // Helicopter departs after a short time
+  setTimeout(()=>{
+    if(ac.state==='landed'){ac.state='gone';}
+  },2000);
+}
+
+// ── Collisions ──
+function checkCollisions(){
+  const active=G.aircraft.filter(a=>a.state==='flying'||a.state==='following'||a.state==='frozen');
+  for(let i=0;i<active.length;i++){
+    for(let j=i+1;j<active.length;j++){
+      if(dist(active[i].x,active[i].y,active[j].x,active[j].y)<active[i].radius+active[j].radius){
+        gameOver(active[i],active[j]);return;
+      }
+    }
+  }
+}
+
+// ── Completions ──
+function showCompletion(si,verbObj,ordered,pts){
+  const s=LY.strips[si];
+  completions.push({
+    x:s.landX,y:s.landY-20,
+    text:`${verbObj.verb} → ${verbObj.past} → ${verbObj.pp}`,
+    bonus:ordered?`✨ +${pts} ORDER BONUS!`:`+${pts}`,
+    ordered,age:0,maxAge:120,
+  });
+  document.getElementById(`strip-panel-${si}`).className='strip-panel strip-complete';
+}
+
+// ── Clouds ──
+function initClouds(){
+  G.clouds=[];
+  for(let i=0;i<8;i++){
+    G.clouds.push({
+      x:Math.random()*W,y:LY.hudH+Math.random()*(H*0.4),
+      w:60+Math.random()*100,h:20+Math.random()*25,
+      speed:0.08+Math.random()*0.12,opacity:0.05+Math.random()*0.08,
+    });
+  }
+}
+
+// ── HUD ──
+function updateHUD(){
+  document.getElementById('hud-score').textContent=G.score;
+  document.getElementById('hud-verbs').textContent=G.verbsCompleted;
+}
+function updateStripPanels(){
+  for(let i=0;i<2;i++){
+    const panel=document.getElementById(`strip-panel-${i}`);
+    const chainEl=document.getElementById(`strip-chain-${i}`);
+    const s=G.strips[i];
+    if(!s){
+      panel.className='strip-panel strip-free';
+      chainEl.innerHTML='<span class="strip-panel-label">Empty</span>';
+    }else{
+      panel.className='strip-panel strip-active';
+      const v=s.verbObj;
+      const mk=(filled,cls,text)=>filled
+        ?`<span class="chain-slot chain-filled-${cls}">${text}</span>`
+        :`<span class="chain-slot chain-empty">???</span>`;
+      chainEl.innerHTML=mk(s.landed.base,'base',v.verb)+
+        '<span class="chain-arrow">→</span>'+mk(s.landed.past,'past',v.past)+
+        '<span class="chain-arrow">→</span>'+mk(s.landed.pp,'pp',v.pp);
+    }
+  }
+}
+
+// ═══════════════════════════════════
+// DRAWING
+// ═══════════════════════════════════
+
+function drawBackground(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#1a3a5c');g.addColorStop(0.4,'#2d6a9f');
+  g.addColorStop(0.7,'#4a90c4');g.addColorStop(1,'#5ba3d1');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  const gy=H*0.50;
+  const gg=ctx.createLinearGradient(0,gy,0,H);
+  gg.addColorStop(0,'#3d7a3d');gg.addColorStop(0.3,'#357035');gg.addColorStop(1,'#2d602d');
+  ctx.fillStyle=gg;ctx.fillRect(0,gy,W,H-gy);
+
+  ctx.fillStyle='rgba(74,143,74,0.25)';
+  for(let i=0;i<12;i++){if(i%2===0)ctx.fillRect(0,gy+i*18,W,9);}
+
+  for(const c of G.clouds){
+    c.x+=c.speed;if(c.x>W+c.w)c.x=-c.w;
+    ctx.fillStyle=`rgba(255,255,255,${c.opacity})`;
+    ctx.beginPath();ctx.ellipse(c.x,c.y,c.w/2,c.h/2,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(c.x-c.w*0.25,c.y+c.h*0.1,c.w*0.3,c.h*0.4,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(c.x+c.w*0.2,c.y+c.h*0.05,c.w*0.35,c.h*0.35,0,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawRunways(){
+  // Terminal building (decorative)
+  const t=LY;
+  ctx.fillStyle='rgba(120,100,80,0.6)';
+  ctx.fillRect(t.termX,t.termY,t.termW,t.termH);
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.strokeRect(t.termX,t.termY,t.termW,t.termH);
+
+  for(let i=0;i<LY.strips.length;i++){
+    const s=LY.strips[i];
+    const sd=G.strips[i];
+
+    ctx.save();
+
+    if(i===0){
+      // Horizontal strip — draw approach funnel
+      ctx.globalAlpha=sd?0.12:0.06;
+      ctx.fillStyle=sd?'#ffcc00':'#ffffff';
+      ctx.beginPath();ctx.moveTo(s.approachX,s.approachY);
+      const fL=s.approachLen;
+      ctx.lineTo(s.approachX-fL,s.approachY-Math.tan(s.funnelHalf)*fL);
+      ctx.lineTo(s.approachX-fL,s.approachY+Math.tan(s.funnelHalf)*fL);
+      ctx.closePath();ctx.fill();
+      ctx.globalAlpha=1;
+
+      // Runway rect
+      ctx.fillStyle='#3a3a3a';ctx.fillRect(s.x,s.y,s.w,s.h);
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.strokeRect(s.x,s.y,s.w,s.h);
+
+      // Dashes
+      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.setLineDash([12,8]);
+      ctx.beginPath();ctx.moveTo(s.x+15,s.y+s.h/2);ctx.lineTo(s.x+s.w-15,s.y+s.h/2);ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label
+      ctx.fillStyle='rgba(255,255,255,0.25)';
+      ctx.font='700 10px "Share Tech Mono",monospace';ctx.textAlign='center';
+      ctx.fillText('RWY 1',s.x+30,s.y+s.h/2+3);
+
+      // Approach arrow
+      const ax=s.x+8,ay=s.y+s.h/2;
+      ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
+      ctx.beginPath();ctx.moveTo(ax+8,ay);ctx.lineTo(ax-2,ay-5);ctx.lineTo(ax-2,ay+5);ctx.closePath();ctx.fill();
+
+    }else{
+      // Angled strip — rotate canvas
+      ctx.translate(s.drawX,s.drawY);
+      ctx.rotate(-STRIP_ANGLE);
+
+      // Funnel (at the approach end = origin after rotation)
+      ctx.globalAlpha=sd?0.12:0.06;
+      ctx.fillStyle=sd?'#ffcc00':'#ffffff';
+      ctx.beginPath();ctx.moveTo(0,0);
+      const fL=s.approachLen;
+      ctx.lineTo(-fL,-Math.tan(s.funnelHalf)*fL);
+      ctx.lineTo(-fL,Math.tan(s.funnelHalf)*fL);
+      ctx.closePath();ctx.fill();
+      ctx.globalAlpha=1;
+
+      // Runway
+      ctx.fillStyle='#3a3a3a';ctx.fillRect(0,-s.h/2,s.w,s.h);
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.strokeRect(0,-s.h/2,s.w,s.h);
+
+      // Dashes
+      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.setLineDash([12,8]);
+      ctx.beginPath();ctx.moveTo(15,0);ctx.lineTo(s.w-15,0);ctx.stroke();ctx.setLineDash([]);
+
+      // Label
+      ctx.fillStyle='rgba(255,255,255,0.25)';
+      ctx.font='700 10px "Share Tech Mono",monospace';ctx.textAlign='center';
+      ctx.fillText('RWY 2',30,3);
+
+      // Arrow
+      ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
+      ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-2,-5);ctx.lineTo(-2,5);ctx.closePath();ctx.fill();
+    }
+
+    // Active glow
+    if(sd){
+      ctx.shadowColor='rgba(255,204,0,0.25)';ctx.shadowBlur=12;
+      if(i===0){
+        ctx.strokeStyle='rgba(255,204,0,0.3)';ctx.lineWidth=2;
+        ctx.strokeRect(s.x-2,s.y-2,s.w+4,s.h+4);
+      }else{
+        ctx.strokeStyle='rgba(255,204,0,0.3)';ctx.lineWidth=2;
+        ctx.strokeRect(-2,-s.h/2-2,s.w+4,s.h+4);
+      }
+      ctx.shadowBlur=0;
+
+      // Verb name
+      ctx.font='700 11px "Fredoka One",cursive';ctx.textAlign='center';
+      ctx.fillStyle='rgba(255,204,0,0.35)';
+      if(i===0) ctx.fillText(sd.verbObj.verb.toUpperCase(),s.x+s.w/2,s.y+s.h/2+4);
+      else ctx.fillText(sd.verbObj.verb.toUpperCase(),s.w/2,4);
+    }
+
+    ctx.restore();
+  }
+
+  // Heliport
+  const h=LY.heli;
+  ctx.strokeStyle='rgba(0,200,255,0.4)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(60,60,60,0.7)';
+  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();
+  // H
+  ctx.font='700 16px "Share Tech Mono",monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,200,255,0.6)';ctx.fillText('H',h.x,h.y+5);
+  // Circle outline glow
+  const heliOcc=G.aircraft.some(a=>a.isHeli&&a.state==='landed');
+  if(!heliOcc){
+    ctx.strokeStyle='rgba(0,200,255,0.15)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r+8,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawPlaneShape(a){
+  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);
+  ctx.fillStyle='rgba(0,0,0,0.12)';
+  ctx.beginPath();ctx.ellipse(2,3,16,6,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=a.formColor;ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(16,0);ctx.lineTo(-10,-3);ctx.lineTo(-14,0);ctx.lineTo(-10,3);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(2,-2);ctx.lineTo(-4,-12);ctx.lineTo(-8,-11);ctx.lineTo(-4,-2);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(2,2);ctx.lineTo(-4,12);ctx.lineTo(-8,11);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(-16,-6);ctx.lineTo(-18,-5);ctx.lineTo(-14,0);ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+
+function drawHeliShape(a){
+  ctx.save();ctx.translate(a.x,a.y);
+  // Body
+  ctx.fillStyle='rgba(0,0,0,0.1)';
+  ctx.beginPath();ctx.ellipse(1,2,12,8,0,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle=a.formColor;ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1;
+  // Body ellipse
+  ctx.beginPath();ctx.ellipse(0,0,10,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // Tail boom
+  ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(-18,-2);ctx.lineTo(-18,2);ctx.closePath();ctx.fill();ctx.stroke();
+  // Tail rotor
+  ctx.strokeStyle=a.formColor;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(-18,-6);ctx.lineTo(-18,6);ctx.stroke();
+  // Skids
+  ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(-6,7);ctx.lineTo(6,7);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-6,8);ctx.lineTo(8,8);ctx.stroke();
+
+  // Main rotor (spinning)
+  ctx.strokeStyle=`rgba(255,255,255,0.5)`;ctx.lineWidth=1.5;
+  const rLen=16;
+  ctx.beginPath();
+  ctx.moveTo(Math.cos(a.heliRotor)*rLen,Math.sin(a.heliRotor)*rLen*0.3);
+  ctx.lineTo(Math.cos(a.heliRotor+Math.PI)*rLen,Math.sin(a.heliRotor+Math.PI)*rLen*0.3);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(Math.cos(a.heliRotor+Math.PI/2)*rLen,Math.sin(a.heliRotor+Math.PI/2)*rLen*0.3);
+  ctx.lineTo(Math.cos(a.heliRotor+Math.PI*1.5)*rLen,Math.sin(a.heliRotor+Math.PI*1.5)*rLen*0.3);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawAircraft(){
+  for(const a of G.aircraft){
+    if(a.state==='gone') continue;
+    if(a.state==='landed'){
+      ctx.globalAlpha=0.5;
+      if(a.isHeli) drawHeliShape(a); else drawPlaneShape(a);
+      ctx.globalAlpha=1;continue;
+    }
+
+    // Trail
+    for(const t of a.trail){
+      const al=Math.max(0,0.25-t.age*0.01);
+      ctx.fillStyle=`rgba(255,255,255,${al})`;
+      ctx.beginPath();ctx.arc(t.x,t.y,1.5,0,Math.PI*2);ctx.fill();
+    }
+
+    // Frozen glow
+    if(a.state==='frozen'){
+      const pulse=Math.sin(a.frozenGlow)*0.5+0.5;
+      ctx.strokeStyle=`rgba(255,255,255,${0.3+pulse*0.4})`;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(a.x,a.y,26+pulse*4,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle=`rgba(255,255,255,${0.04+pulse*0.04})`;
+      ctx.beginPath();ctx.arc(a.x,a.y,24,0,Math.PI*2);ctx.fill();
+    }
+
+    // Warning ring
+    if(a.warningLevel>0&&a.state!=='frozen'){
+      const pulse=Math.sin(G.frame*0.1)*0.5+0.5;
+      ctx.strokeStyle=a.warningLevel>=2?`rgba(255,68,68,${0.4+pulse*0.4})`:`rgba(255,204,0,${0.3+pulse*0.3})`;
+      ctx.lineWidth=2;ctx.beginPath();ctx.arc(a.x,a.y,24+pulse*4,0,Math.PI*2);ctx.stroke();
+    }
+
+    if(a.isHeli) drawHeliShape(a); else drawPlaneShape(a);
+
+    // Label (only for planes with verbs)
+    if(a.text){
+      const ly=a.y-22;
+      ctx.font='700 12px "Fredoka One",cursive';ctx.textAlign='center';
+      const tw=ctx.measureText(a.text).width;
+      const lbw=tw+12,lbh=18,lbx=a.x-lbw/2,lby=ly-lbh/2;
+      ctx.fillStyle='rgba(10,25,50,0.75)';
+      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,4);ctx.fill();
+      ctx.strokeStyle=a.formColor;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,4);ctx.stroke();
+      ctx.fillStyle=a.formColor;ctx.fillText(a.text.toUpperCase(),a.x,ly+4);
+    }
+  }
+}
+
+function drawDrawingPath(){
+  if(G.drawPath.length<2) return;
+  let color;
+  if(G.drawPathHeli||G.drawPathStripIdx>=0){
+    color=G.drawPathValid?'rgba(0,229,187,0.7)':'rgba(255,68,68,0.6)';
+  }else{
+    color='rgba(255,255,255,0.5)';
+  }
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(G.drawPath[0].x,G.drawPath[0].y);
+  for(let i=1;i<G.drawPath.length;i++) ctx.lineTo(G.drawPath[i].x,G.drawPath[i].y);
+  ctx.stroke();ctx.setLineDash([]);
+
+  if(G.drawPathValid){
+    const last=G.drawPath[G.drawPath.length-1];
+    ctx.fillStyle='rgba(0,229,187,0.6)';
+    ctx.beginPath();ctx.arc(last.x,last.y,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='700 8px "Fredoka One",cursive';ctx.textAlign='center';
+    ctx.fillText('✓',last.x,last.y+3);
+  }
+}
+
+function drawFollowingPaths(){
+  for(const a of G.aircraft){
+    if(a.state!=='following'||!a.path) continue;
+    const valid=a.targetStripIdx>=0||a.targetHeli;
+    ctx.strokeStyle=valid?'rgba(0,229,187,0.2)':'rgba(255,255,255,0.12)';
+    ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    const si=Math.max(0,a.pathIndex);
+    ctx.moveTo(a.path[si].x,a.path[si].y);
+    for(let i=si+1;i<a.path.length;i++) ctx.lineTo(a.path[i].x,a.path[i].y);
+    ctx.stroke();ctx.setLineDash([]);
+  }
+}
+
+function drawWarnings(){
+  for(let i=G.warnings.length-1;i>=0;i--){
+    const w=G.warnings[i];w.age++;
+    if(w.age>w.maxAge){G.warnings.splice(i,1);continue;}
+
+    const blink=Math.sin(w.age*0.25)>0;
+    if(!blink) continue;
+
+    const alpha=0.6+Math.sin(w.age*0.15)*0.3;
+    const sz=16;
+
+    ctx.save();ctx.translate(w.x,w.y);
+
+    // Red circle with exclamation
+    ctx.fillStyle=`rgba(255,60,60,${alpha})`;
+    ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=`rgba(255,255,255,${alpha*0.8})`;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.stroke();
+
+    // !
+    ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+    ctx.font=`700 ${sz}px "Fredoka One",cursive`;ctx.textAlign='center';
+    ctx.fillText('!',0,sz*0.35);
+
+    // Arrow pointing inward
+    let arrowAngle=0;
+    if(w.edge==='top') arrowAngle=Math.PI/2;
+    else if(w.edge==='left') arrowAngle=0;
+    else if(w.edge==='right') arrowAngle=Math.PI;
+
+    ctx.rotate(arrowAngle);
+    ctx.fillStyle=`rgba(255,255,255,${alpha*0.5})`;
+    ctx.beginPath();ctx.moveTo(sz+6,0);ctx.lineTo(sz+14,-5);ctx.lineTo(sz+14,5);ctx.closePath();ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+function drawCompletions(){
+  for(let i=completions.length-1;i>=0;i--){
+    const c=completions[i];c.age++;
+    if(c.age>c.maxAge){completions.splice(i,1);continue;}
+    const pr=c.age/c.maxAge;
+    const al=pr<0.2?pr/0.2:pr>0.7?1-(pr-0.7)/0.3:1;
+    const yOff=-pr*40;
+    ctx.globalAlpha=al;
+    ctx.font='700 16px "Fredoka One",cursive';ctx.textAlign='center';
+    ctx.fillStyle='#fff';ctx.fillText(c.text,c.x,c.y+yOff-10);
+    ctx.font='700 13px "Fredoka One",cursive';
+    ctx.fillStyle=c.ordered?'#ffd166':'#00e5bb';
+    ctx.fillText(c.bonus,c.x,c.y+yOff+8);
+    ctx.globalAlpha=1;
+  }
+}
+
+// ═══════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════
+
+function gameLoop(){
+  if(!G.running) return;
+  G.frame++;
+  G.difficulty=Math.floor(G.verbsCompleted/2);
+
+  // Process spawn queue
+  for(let i=G.spawnQueue.length-1;i>=0;i--){
+    G.spawnQueue[i].delay--;
+    if(G.spawnQueue[i].delay<=0){
+      doSpawn(G.spawnQueue[i]);
+      G.spawnQueue.splice(i,1);
+    }
+  }
+
+  // Spawn timer
+  G.spawnTimer++;
+  const interval=Math.max(G.minSpawnInterval,G.spawnInterval-G.difficulty*12);
+  if(G.spawnTimer>=interval){G.spawnTimer=0;spawnNextWave();}
+
+  for(const a of G.aircraft) updateAC(a);
+  G.aircraft=G.aircraft.filter(a=>a.state!=='gone');
+  checkCollisions();
+
+  drawBackground();
+  drawRunways();
+  drawFollowingPaths();
+  drawDrawingPath();
+  drawAircraft();
+  drawWarnings();
+  drawCompletions();
+
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame(){
+  G.running=true;G.score=0;G.verbsCompleted=0;
+  G.aircraft=[];G.strips=[null,null];
+  G.verbQueue=[];G.usedVerbs=new Set();
+  G.spawnTimer=150;G.frame=0;G.difficulty=0;
+  G.drawingAC=null;G.drawPath=[];
+  G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
+  G.warnings=[];G.spawnQueue=[];
+  G.heliLanded=0;G.planesSinceHeli=0;
+  activeVerbs=[];completions.length=0;
+
+  fillQueue();initClouds();computeLayout();updateHUD();updateStripPanels();
+
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+  document.getElementById('strip-panels').classList.remove('hidden');
+
+  requestAnimationFrame(gameLoop);
+}
+
+function gameOver(pA,pB){
+  G.running=false;
+  if(G.score>G.bestScore){G.bestScore=G.score;localStorage.setItem('krabsy_ac_best',G.bestScore);}
+  ctx.fillStyle='rgba(255,100,50,0.4)';ctx.fillRect(0,0,W,H);
+
+  setTimeout(()=>{
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('strip-panels').classList.add('hidden');
+    document.getElementById('go-score').textContent=`Score: ${G.score}`;
+    document.getElementById('go-verbs').textContent=`Verbs completed: ${G.verbsCompleted}`;
+    document.getElementById('go-best').textContent=`Best: ${G.bestScore}`;
+    document.getElementById('gameover-screen').classList.remove('hidden');
+  },800);
+}
+
+// ── Events ──
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
+document.getElementById('menu-btn').addEventListener('click',()=>{
+  document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+});
+
+canvas.addEventListener('touchstart',onInputStart,{passive:false});
+canvas.addEventListener('touchmove',onInputMove,{passive:false});
+canvas.addEventListener('touchend',onInputEnd,{passive:false});
+canvas.addEventListener('mousedown',onInputStart);
+canvas.addEventListener('mousemove',e=>{if(e.buttons===1)onInputMove(e);});
+canvas.addEventListener('mouseup',onInputEnd);
+document.addEventListener('touchmove',e=>{if(G.running)e.preventDefault();},{passive:false});
+</script>
+</body>
+</html>

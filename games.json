@@ -1,0 +1,76 @@
+{
+  "games": [
+    {
+      "id": "verb-slash",
+      "title_de": "Verb Slash!",
+      "title_es": "Verb Slash!",
+      "description_de": "Zerschlage die richtigen Verbformen!",
+      "description_es": "¡Corta las formas verbales correctas!",
+      "thumbnail": "thumbnails/verb-slash.png",
+      "file": "games/verb-slash.html",
+      "topic": "irregular_verbs",
+      "status": "beta",
+      "aspect_ratio": "16:9"
+    },
+    {
+      "id": "crab-slash",
+      "title_de": "Crab Slash!",
+      "title_es": "Crab Slash!",
+      "description_de": "Schlage die Krabben mit den richtigen Verben!",
+      "description_es": "¡Golpea los cangrejos con los verbos correctos!",
+      "thumbnail": "thumbnails/crab-slash.png",
+      "file": "games/crab-slash.html",
+      "topic": "irregular_verbs",
+      "status": "beta",
+      "aspect_ratio": "16:9"
+    },
+    {
+      "id": "air-control",
+      "title_de": "Air Control!",
+      "title_es": "Air Control!",
+      "description_de": "Lotse die Flugzeuge sicher mit Englisch!",
+      "description_es": "¡Guía los aviones con tu inglés!",
+      "thumbnail": "thumbnails/air-control.png",
+      "file": "games/air-control.html",
+      "topic": "irregular_verbs",
+      "status": "beta",
+      "aspect_ratio": "16:9"
+    },
+    {
+      "id": "verb-cards",
+      "title_de": "Verb Cards",
+      "title_es": "Verb Cards",
+      "description_de": "Finde die passenden Verbpaare!",
+      "description_es": "¡Encuentra las parejas de verbos!",
+      "thumbnail": null,
+      "file": null,
+      "topic": "irregular_verbs",
+      "status": "coming_soon",
+      "aspect_ratio": "16:9"
+    },
+    {
+      "id": "astro-verbs",
+      "title_de": "Astro Verbs",
+      "title_es": "Astro Verbs",
+      "description_de": "Verteidige die Galaxie mit Verben!",
+      "description_es": "¡Defiende la galaxia con verbos!",
+      "thumbnail": null,
+      "file": null,
+      "topic": "irregular_verbs",
+      "status": "coming_soon",
+      "aspect_ratio": "16:9"
+    },
+    {
+      "id": "tense-tower",
+      "title_de": "Tense Tower",
+      "title_es": "Tense Tower",
+      "description_de": "Verteidige deinen Turm mit den richtigen Zeiten!",
+      "description_es": "¡Defiende tu torre con los tiempos correctos!",
+      "thumbnail": null,
+      "file": null,
+      "topic": "tenses",
+      "status": "coming_soon",
+      "aspect_ratio": "16:9"
+    }
+  ]
+}
