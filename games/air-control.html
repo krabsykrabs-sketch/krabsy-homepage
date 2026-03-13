@@ -138,8 +138,8 @@ function computeLayout(){
   const hudH=44, panelH=70;
   const rwW=Math.min(W*0.52,320), rwH=36;
 
-  // Junction point: where both runways meet (right end of horizontal, right end of angled)
-  const jx=W*0.58, jy=H*0.58;
+  // Junction point: where both runways meet — pushed to lower-right
+  const jx=W*0.72, jy=H*0.72;
 
   // Strip 0: horizontal, extends LEFT from junction
   // Approach from left, land going right toward junction
@@ -194,7 +194,7 @@ const G={
   bestScore:parseInt(localStorage.getItem('krabsy_ac_best')||'0'),
   aircraft:[], strips:[null,null], // strip data: {verbObj, landed:{past,pp}, landOrder[]}
   verbQueue:[], usedVerbs:new Set(),
-  spawnTimer:0, spawnInterval:200, minSpawnInterval:70,
+  spawnTimer:0, spawnInterval:380, minSpawnInterval:80,
   frame:0, difficulty:0,
   drawingAC:null, drawPath:[], drawPathValid:false, drawPathStripIdx:-1, drawPathHeli:false,
   clouds:[], maxAircraft:7,
@@ -204,12 +204,15 @@ const G={
 let activeVerbs=[]; // {verbObj, formsSpawned:Set, formsLanded:Set}
 let completions=[];
 
+let bgCanvas=null, bgCtx=null, bgDirty=true;
+
 function resize(){
   dpr=Math.min(window.devicePixelRatio||1,2);
   W=window.innerWidth;H=window.innerHeight;
   canvas.width=W*dpr;canvas.height=H*dpr;
   ctx.setTransform(dpr,0,0,dpr,0,0);
   computeLayout();
+  bgDirty=true;
 }
 window.addEventListener('resize',resize);
 resize();
@@ -242,8 +245,8 @@ function segmentCrossesStartLine(p1,p2,si){
   const ux=rdx/rLen, uy=rdy/rLen; // unit along runway
   const nx=-uy, ny=ux; // perpendicular (start line direction)
 
-  // Start line segment: centered at (ax,ay), extending ±halfH perpendicular
-  const halfH=s.h*0.8; // slightly wider than runway for forgiveness
+  // Start line segment: centered at (ax,ay), narrow — must cross near center
+  const halfH=s.h*0.4;
   const lx1=s.ax+nx*halfH, ly1=s.ay+ny*halfH;
   const lx2=s.ax-nx*halfH, ly2=s.ay-ny*halfH;
 
@@ -523,32 +526,44 @@ function updateAC(a){
   if(a.state==='frozen'){a.frozenGlow+=0.08;return;}
 
   if(a.state==='landing'){
-    // Landing: speed up slightly (1.3x) and shrink (scale to 0.5)
     const s_=a.isHeli?null:LY.strips[a.landingStripIdx];
-    const landDist=a.isHeli?dist(a._lsx,a._lsy,LY.heli.x,LY.heli.y):dist(s_.ax,s_.ay,s_.lx,s_.ly);
-    const progressPerFrame=landDist>0?(a.speed*1.3)/landDist:0.01;
+    const landDist=a.isHeli?dist(a._lsx,a._lsy,LY.heli.x,LY.heli.y):
+      (dist(a._lsx,a._lsy,s_.ax,s_.ay)+dist(s_.ax,s_.ay,s_.lx,s_.ly));
+    const progressPerFrame=landDist>0?(a.speed*1.2)/landDist:0.01;
     a.landingProgress+=progressPerFrame;
     const t=Math.min(1,a.landingProgress);
-    // Scale shrinks from 1.0 to 0.6 in first 20% of landing, then stays stable
-    const scaleT=Math.min(1,t/0.2); // 0→1 over first 20% of progress
+
+    // Scale shrinks from 1.0 to 0.6 in first 15% then stays stable
+    const scaleT=Math.min(1,t/0.15);
     a.landingScale=1.0-scaleT*0.4;
+
     if(a.isHeli){
       a.x=lerp(a._lsx,LY.heli.x,t);
       a.y=lerp(a._lsy,LY.heli.y,t);
       a.angle=Math.atan2(LY.heli.y-a._lsy,LY.heli.x-a._lsx);
       if(t>=1){a.state='landed';a.landingScale=0.6;completeHeliLanding(a);}
     }else{
-      const s=LY.strips[a.landingStripIdx];
-      a.x=lerp(s.ax,s.lx,t);
-      a.y=lerp(s.ay,s.ly,t);
-      a.angle=s.approachAngle;
+      const s=s_;
+      // Phase 1 (0-20%): smooth from current pos to runway approach point
+      // Phase 2 (20-100%): roll down runway
+      if(t<0.2){
+        const pt=t/0.2;
+        a.x=lerp(a._lsx,s.ax,pt);
+        a.y=lerp(a._lsy,s.ay,pt);
+        a.angle=lerpAngle(a._lsa,s.approachAngle,pt);
+      }else{
+        const pt=(t-0.2)/0.8;
+        a.x=lerp(s.ax,s.lx,pt);
+        a.y=lerp(s.ay,s.ly,pt);
+        a.angle=s.approachAngle;
+      }
       if(t>=1){a.state='landed';a.landingScale=0.6;a.x=s.lx;a.y=s.ly;completePlaneLanding(a);}
     }
     return;
   }
 
-  // Trail
-  if(G.frame%2===0){a.trail.push({x:a.x,y:a.y,age:0});if(a.trail.length>25)a.trail.shift();}
+  // Trail (reduced frequency for performance)
+  if(G.frame%4===0){a.trail.push({x:a.x,y:a.y,age:0});if(a.trail.length>15)a.trail.shift();}
   a.trail.forEach(t=>t.age++);
 
   if(a.state==='following'&&a.path&&a.path.length>1){
@@ -602,10 +617,22 @@ function updateAC(a){
 function initiatePlaneLanding(ac,si){
   if(!canLandOnStrip(ac,si)){ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.lockedIn=false;return;}
   ac.state='landing';ac.landingStripIdx=si;ac.landingProgress=0;ac.path=null;
+  ac._lsx=ac.x;ac._lsy=ac.y;ac._lsa=ac.angle;
 
-  // Mark as landed immediately in the UI
   const sd=G.strips[si];if(!sd) return;
-  sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
+
+  // When past and pp are the same word (e.g. bought/bought),
+  // first plane always counts as "past", second as "pp"
+  if(sd.verbObj.past===sd.verbObj.pp){
+    if(!sd.landed.past){
+      sd.landed.past=true;sd.landOrder.push('past');
+    }else{
+      sd.landed.pp=true;sd.landOrder.push('pp');
+    }
+  }else{
+    sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
+  }
+
   const av=activeVerbs.find(a=>a.verbObj===ac.verbObj);
   if(av) av.formsLanded.add(ac.form);
   updateStripPanels();
@@ -613,10 +640,11 @@ function initiatePlaneLanding(ac,si){
 
 function completePlaneLanding(ac){
   const si=ac.landingStripIdx;const sd=G.strips[si];if(!sd) return;
-  // Already marked landed in initiate — just check completion
 
   if(sd.landed.past&&sd.landed.pp){
-    const ordered=sd.landOrder[0]==='past'&&sd.landOrder[1]==='pp';
+    // Auto-bonus when past===pp (no order penalty possible)
+    const sameForm=sd.verbObj.past===sd.verbObj.pp;
+    const ordered=sameForm||(sd.landOrder[0]==='past'&&sd.landOrder[1]==='pp');
     const pts=ordered?25:12;
     G.score+=pts;G.verbsCompleted++;
     showCompletion(si,sd.verbObj,ordered,pts);
@@ -701,46 +729,53 @@ function updateStripPanels(){
 // DRAWING
 // ═══════════════════════════════════
 
-function drawBackground(){
-  // Top-down grass field
-  const g=ctx.createLinearGradient(0,0,W,H);
-  g.addColorStop(0,'#2d6b1e');g.addColorStop(0.5,'#347a24');g.addColorStop(1,'#2a5f1a');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+// Offscreen background cache — static elements drawn once
 
-  // Grass stripes (mowing pattern)
+function renderBgCache(){
+  if(!bgCanvas){bgCanvas=document.createElement('canvas');bgCtx=bgCanvas.getContext('2d');}
+  bgCanvas.width=canvas.width;bgCanvas.height=canvas.height;
+  bgCtx.setTransform(dpr,0,0,dpr,0,0);
+
+  // Grass
+  bgCtx.fillStyle='#307520';
+  bgCtx.fillRect(0,0,W,H);
+
+  // Grass stripes
   for(let i=0;i<Math.ceil(H/30)+1;i++){
-    ctx.fillStyle=i%2===0?'rgba(50,130,35,0.15)':'rgba(30,90,20,0.1)';
-    ctx.fillRect(0,i*30,W,15);
+    bgCtx.fillStyle=i%2===0?'rgba(50,130,35,0.15)':'rgba(30,90,20,0.1)';
+    bgCtx.fillRect(0,i*30,W,15);
   }
 
-  // Some "city" blocks in corners (top-down buildings)
-  ctx.fillStyle='rgba(80,80,80,0.25)';
-  // Top-left cluster
+  // City blocks
+  bgCtx.fillStyle='rgba(80,80,80,0.25)';
   for(let i=0;i<4;i++){for(let j=0;j<3;j++){
-    const bx=15+i*28+Math.sin(i*3)*5, by=LY.hudH+12+j*22+Math.cos(j*2)*3;
-    const bw=18+Math.random()*8, bh=14+Math.random()*6;
-    ctx.fillRect(bx,by,bw,bh);
+    bgCtx.fillRect(15+i*28+(i%2)*5,LY.hudH+12+j*22+(j%2)*3,22,16);
   }}
-  // Bottom-right cluster
   for(let i=0;i<3;i++){for(let j=0;j<3;j++){
-    const bx=W-120+i*30, by=H-100+j*22;
-    ctx.fillRect(bx,by,20,15);
+    bgCtx.fillRect(W-120+i*30,H-100+j*22,20,15);
   }}
 
-  // Roads (thin lines connecting to airport)
-  ctx.strokeStyle='rgba(100,100,100,0.3)';ctx.lineWidth=4;
-  ctx.beginPath();ctx.moveTo(0,LY.jy);ctx.lineTo(LY.strips[0].ax-10,LY.jy);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(LY.jx+60,LY.jy);ctx.lineTo(W,LY.jy);ctx.stroke();
+  // Roads
+  bgCtx.strokeStyle='rgba(100,100,100,0.3)';bgCtx.lineWidth=4;
+  bgCtx.beginPath();bgCtx.moveTo(0,LY.jy);bgCtx.lineTo(LY.strips[0].ax-10,LY.jy);bgCtx.stroke();
+  bgCtx.beginPath();bgCtx.moveTo(LY.jx+60,LY.jy);bgCtx.lineTo(W,LY.jy);bgCtx.stroke();
 
-  // Trees (small circles)
-  ctx.fillStyle='rgba(20,80,15,0.4)';
+  // Trees
+  bgCtx.fillStyle='rgba(20,80,15,0.4)';
   const treeSeed=[0.1,0.15,0.8,0.85,0.05,0.92,0.12,0.88];
   for(let i=0;i<treeSeed.length;i++){
     const tx=treeSeed[i]*W, ty=LY.hudH+50+((i*137)%300);
-    // Don't draw on airport area
     if(dist(tx,ty,LY.jx,LY.jy)<180) continue;
-    ctx.beginPath();ctx.arc(tx,ty,6+i%3*2,0,Math.PI*2);ctx.fill();
+    bgCtx.beginPath();bgCtx.arc(tx,ty,6+i%3*2,0,Math.PI*2);bgCtx.fill();
   }
+
+  bgDirty=false;
+}
+
+function drawBackground(){
+  if(bgDirty||!bgCanvas) renderBgCache();
+  // Blit cached background in one call
+  ctx.drawImage(bgCanvas,0,0,canvas.width,canvas.height,0,0,W,H);
 }
 
 function drawRunway(si){
@@ -791,7 +826,7 @@ function drawRunway(si){
   ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
   ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(2,-5);ctx.lineTo(2,5);ctx.closePath();ctx.fill();
 
-  // VERB INFINITIVE on runway — BIG and visible
+  // VERB FORMS on runway — all three: infinitive, past, participle
   if(sd){
     // Glow
     ctx.shadowColor='rgba(255,204,0,0.4)';ctx.shadowBlur=15;
@@ -799,18 +834,46 @@ function drawRunway(si){
     ctx.strokeRect(-2,-s.h/2-2,len+4,s.h+4);
     ctx.shadowBlur=0;
 
-    // Background pill behind text
-    ctx.font='900 20px "Fredoka One",cursive';ctx.textAlign='center';
-    const vText=sd.verbObj.verb.toUpperCase();
-    const tw=ctx.measureText(vText).width;
-    const px=len/2, py=1;
-    const pillW=tw+16, pillH=22;
-    ctx.fillStyle='rgba(0,0,0,0.45)';
-    ctx.beginPath();ctx.roundRect(px-pillW/2,py-pillH/2,pillW,pillH,6);ctx.fill();
+    const v=sd.verbObj;
+    const pastText=sd.landed.past?v.past.toUpperCase():'???';
+    const ppText=sd.landed.pp?v.pp.toUpperCase():'???';
+    const parts=[
+      {text:v.verb.toUpperCase(), color:'rgba(255,220,80,0.9)'},
+      {text:pastText, color:sd.landed.past?'rgba(0,229,187,0.9)':'rgba(255,255,255,0.25)'},
+      {text:ppText, color:sd.landed.pp?'rgba(255,140,140,0.9)':'rgba(255,255,255,0.25)'},
+    ];
 
-    // Text
-    ctx.fillStyle='rgba(255,220,80,0.9)';
-    ctx.fillText(vText,px,py+7);
+    // Measure total width to center the group
+    ctx.font='900 16px "Fredoka One",cursive';
+    const arrowW=18;
+    let totalW=0;
+    const widths=parts.map(p=>{const w=ctx.measureText(p.text).width;totalW+=w;return w;});
+    totalW+=arrowW*2; // two arrows between three words
+
+    const startX=len/2-totalW/2;
+    const py=1;
+
+    // Background pill
+    const pillW=totalW+18, pillH=24;
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    ctx.beginPath();ctx.roundRect(len/2-pillW/2,py-pillH/2,pillW,pillH,6);ctx.fill();
+
+    // Draw each part
+    let cx=startX;
+    ctx.textAlign='left';
+    for(let pi=0;pi<parts.length;pi++){
+      ctx.font='900 16px "Fredoka One",cursive';
+      ctx.fillStyle=parts[pi].color;
+      ctx.fillText(parts[pi].text,cx,py+6);
+      cx+=widths[pi];
+      if(pi<2){
+        // Arrow
+        ctx.fillStyle='rgba(255,255,255,0.2)';
+        ctx.font='900 12px "Fredoka One",cursive';
+        ctx.fillText('→',cx+3,py+5);
+        cx+=arrowW;
+      }
+    }
   }
 
   ctx.restore();
@@ -1034,7 +1097,7 @@ function drawCompletions(){
 function gameLoop(){
   if(!G.running) return;
   G.frame++;
-  G.difficulty=Math.floor(G.verbsCompleted/2);
+  G.difficulty=Math.floor(G.verbsCompleted/3);
 
   for(let i=G.spawnQueue.length-1;i>=0;i--){
     G.spawnQueue[i].delay--;
@@ -1042,7 +1105,7 @@ function gameLoop(){
   }
 
   G.spawnTimer++;
-  const interval=Math.max(G.minSpawnInterval,G.spawnInterval-G.difficulty*12);
+  const interval=Math.max(G.minSpawnInterval,G.spawnInterval-G.difficulty*25);
   if(G.spawnTimer>=interval){G.spawnTimer=0;spawnNextWave();}
 
   for(const a of G.aircraft) updateAC(a);
@@ -1064,7 +1127,7 @@ function startGame(){
   G.running=true;G.score=0;G.verbsCompleted=0;
   G.aircraft=[];G.strips=[null,null];
   G.verbQueue=[];G.usedVerbs=new Set();
-  G.spawnTimer=120;G.frame=0;G.difficulty=0;
+  G.spawnTimer=280;G.frame=0;G.difficulty=0;
   G.drawingAC=null;G.drawPath=[];
   G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
   G.warnings=[];G.spawnQueue=[];G.heliLanded=0;G.planesSinceHeli=0;

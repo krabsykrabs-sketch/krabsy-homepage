@@ -14,8 +14,7 @@
 
   /* ── Beach background — top-down sandy beach ── */
   #bg{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,#87ceeb 0%,#a8dce8 8%,#c2e0b4 12%,#e8d9a0 18%,#edd9a3 25%,#e8cc88 50%,#dfc078 75%,#d4b36a 100%)}
-  #wave-top{position:absolute;top:0;left:0;right:0;height:90px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(41,182,246,0.3) 0%,rgba(41,182,246,0.15) 40%,rgba(41,182,246,0.05) 70%,transparent 100%);animation:waveShimmer 4s ease-in-out infinite}
-  @keyframes waveShimmer{0%,100%{opacity:0.8}50%{opacity:1}}
+  #wave-top{position:absolute;top:0;left:0;right:0;height:90px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(41,182,246,0.3) 0%,rgba(41,182,246,0.15) 40%,rgba(41,182,246,0.05) 70%,transparent 100%)}
   .beach-deco{position:absolute;z-index:2;pointer-events:none;font-size:24px}
   #d1{top:620px;left:100px;font-size:20px}#d2{top:580px;right:150px;font-size:18px;transform:rotate(15deg)}
   #d3{top:650px;left:500px;font-size:16px}#d4{top:600px;left:850px;font-size:22px;transform:rotate(-10deg)}
@@ -23,7 +22,7 @@
   #d7{top:640px;right:600px;font-size:20px}#d8{top:580px;left:700px;font-size:16px;transform:rotate(-20deg)}
 
   /* ── Top bar ── */
-  #top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;z-index:30;background:rgba(255,255,255,0.55);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,0.06);gap:12px}
+  #top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;z-index:30;background:rgba(245,240,230,0.92);border-bottom:1px solid rgba(0,0,0,0.06);gap:12px}
   #logo{font-family:'Fredoka One',cursive;font-size:32px;color:var(--ocean-deep);letter-spacing:2px}
   #logo span{color:var(--coral)}
   #streak-box{display:flex;align-items:center;gap:4px}
@@ -38,7 +37,7 @@
   /* ── Verb tracker panel ── */
   #verb-panel{position:absolute;top:70px;left:0;right:0;z-index:25;pointer-events:none;display:flex;justify-content:center;gap:24px;padding:8px 20px}
   .verb-card{
-    background:rgba(255,255,255,0.75);backdrop-filter:blur(6px);border-radius:20px;padding:14px 32px;
+    background:rgba(255,255,255,0.88);border-radius:20px;padding:14px 32px;
     font-family:'Fredoka One',cursive;font-size:36px;text-transform:uppercase;
     display:flex;align-items:center;gap:14px;
     border:2px solid rgba(0,0,0,0.06);box-shadow:0 3px 14px rgba(0,0,0,0.08);
@@ -56,13 +55,12 @@
   #slash-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
 
   /* ── Crabs ── */
-  .crab{position:absolute;z-index:15;pointer-events:none;will-change:transform;transition:none}
+  .crab{position:absolute;z-index:15;pointer-events:none;will-change:transform;left:0;top:0}
   .crab-inner{display:flex;flex-direction:column;align-items:center;gap:2px}
   .crab-sign{
     background:linear-gradient(135deg,#C4A24E,#8B6914);
     border:2px solid rgba(255,255,255,0.3);border-radius:8px;
     padding:6px 14px;position:relative;
-    box-shadow:0 2px 8px rgba(0,0,0,0.15);
     min-width:60px;text-align:center;
   }
   .crab-sign::after{
@@ -71,10 +69,9 @@
   }
   .crab-sign-text{
     font-family:'Fredoka One',cursive;font-size:20px;color:white;
-    text-shadow:0 1px 3px rgba(0,0,0,0.4);text-transform:uppercase;white-space:nowrap;
-    line-height:1.1;
+    text-transform:uppercase;white-space:nowrap;line-height:1.1;
   }
-  .crab-emoji{font-size:44px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))}
+  .crab-emoji{font-size:44px;line-height:1}
   .crab.facing-left .crab-emoji{transform:scaleX(-1)}
 
   /* Sign colors by type */
@@ -83,8 +80,10 @@
   /* All signs look the same — player can't tell by color */
 
   /* Crab exit animation */
-  .crab.exit-right{transition:transform 0.8s ease-in,opacity 0.8s;transform:translateX(200px);opacity:0}
-  .crab.exit-left{transition:transform 0.8s ease-in,opacity 0.8s;transform:translateX(-200px);opacity:0}
+  .crab.exit-right{animation:exitRight 0.8s ease-in forwards}
+  .crab.exit-left{animation:exitLeft 0.8s ease-in forwards}
+  @keyframes exitRight{to{transform:translate(1400px,var(--cy));opacity:0}}
+  @keyframes exitLeft{to{transform:translate(-200px,var(--cy));opacity:0}}
   .crab.exit-celebrate{animation:crabYay 0.5s ease-out}
   @keyframes crabYay{0%{transform:scale(1)}30%{transform:scale(1.2) translateY(-15px)}60%{transform:scale(1.1) translateY(-10px)}100%{transform:scale(1)}}
 
@@ -108,7 +107,7 @@
   @keyframes comboFlash{0%{opacity:1;transform:translateX(-50%) scale(0.5)}10%{opacity:1;transform:translateX(-50%) scale(1.15)}60%{opacity:0.9;transform:translateX(-50%) scale(1.05)}100%{opacity:0;transform:translateX(-50%) scale(1.1) translateY(-12px)}}
 
   /* ── Screens ── */
-  .screen{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(232,209,160,0.92);backdrop-filter:blur(12px);padding:30px;text-align:center;gap:16px}
+  .screen{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(232,209,160,0.95);padding:30px;text-align:center;gap:16px}
   .screen.hidden{display:none}
   .screen-title{font-family:'Fredoka One',cursive;font-size:56px;line-height:1;margin-bottom:4px}
   .screen-sub{font-size:18px;color:rgba(0,0,0,0.5);max-width:460px;line-height:1.5}
@@ -317,7 +316,7 @@ function spawnCrab(word,verbId,type,isCorrect){
     alive:true, exiting:false,
   };
 
-  el.style.left=crab.x+'px';el.style.top=crab.y+'px';
+  el.style.transform=`translate(${crab.x}px,${crab.y}px)`;
   if(crab.facing==='left')el.classList.add('facing-left');
 
   S.crabs.push(crab);
@@ -379,9 +378,13 @@ function slashHitsRect(pts,rx,ry,rw,rh){
 }
 
 function onStart(e){e.preventDefault();if(!S.running)return;S.isSlashing=true;S.slashPoints=[getPos(e)];clearTimeout(S.slashTimeout);updSvg()}
-function onMove(e){e.preventDefault();if(!S.running||!S.isSlashing)return;const p=getPos(e);S.slashPoints.push(p);if(S.slashPoints.length>30)S.slashPoints.shift();updSvg();if(slashDist()>=MIN_SLASH_DIST)checkSlash()}
+function onMove(e){e.preventDefault();if(!S.running||!S.isSlashing)return;const p=getPos(e);
+  // Skip if too close to last point (reduces DOM work)
+  const last=S.slashPoints[S.slashPoints.length-1];
+  if(last&&Math.abs(p.x-last.x)<3&&Math.abs(p.y-last.y)<3)return;
+  S.slashPoints.push(p);if(S.slashPoints.length>20)S.slashPoints.shift();updSvg();if(slashDist()>=MIN_SLASH_DIST)checkSlash()}
 function onEnd(e){e.preventDefault();if(!S.running)return;S.isSlashing=false;S.slashTimeout=setTimeout(()=>{S.slashPoints=[];updSvg()},180)}
-function updSvg(){const p=S.slashPoints;if(p.length<2){slashSvg.innerHTML='';return}const d=p.map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');slashSvg.innerHTML=`<defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:rgba(255,255,255,0)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.8)"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="${d}" stroke="rgba(255,255,255,0.15)" stroke-width="14" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#sg)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow)"/>`}
+function updSvg(){const p=S.slashPoints;if(p.length<2){slashSvg.innerHTML='';return}const d=p.map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');slashSvg.innerHTML=`<path d="${d}" stroke="rgba(255,255,255,0.12)" stroke-width="12" fill="none" stroke-linecap="round"/><path d="${d}" stroke="rgba(255,255,255,0.6)" stroke-width="2.5" fill="none" stroke-linecap="round"/>`}
 
 function checkSlash(){
   for(const c of S.crabs){
@@ -450,6 +453,7 @@ function handleSlash(crab){
 
 function exitCrab(crab,style){
   crab.exiting=true;crab.alive=false;
+  crab.el.style.setProperty('--cy',crab.y+'px');
   if(style==='celebrate'){
     crab.el.classList.add('exit-celebrate');
     setTimeout(()=>{
@@ -465,7 +469,7 @@ function exitCrab(crab,style){
 // ═══════════════════════════════════════════════════
 //  EFFECTS
 // ═══════════════════════════════════════════════════
-function spawnParticles(cx,cy,ok){const cols=ok?['#00e5bb','#43d9a2','#fff','#ffd166']:['#ff4444','#ff9a9a','#ffaa00'];for(let i=0;i<10;i++){const p=document.createElement('div');p.className='particle';const s=4+Math.random()*8,a=Math.random()*Math.PI*2,d=30+Math.random()*60;p.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;background:${cols[Math.floor(Math.random()*cols.length)]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${0.3+Math.random()*0.3}s`;gameArea.appendChild(p);setTimeout(()=>p.remove(),700)}}
+function spawnParticles(cx,cy,ok){const cols=ok?['#00e5bb','#43d9a2','#fff','#ffd166']:['#ff4444','#ff9a9a','#ffaa00'];for(let i=0;i<7;i++){const p=document.createElement('div');p.className='particle';const s=4+Math.random()*8,a=Math.random()*Math.PI*2,d=30+Math.random()*60;p.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;background:${cols[Math.floor(Math.random()*cols.length)]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${0.3+Math.random()*0.3}s`;gameArea.appendChild(p);setTimeout(()=>p.remove(),600)}}
 function spawnFlash(cx,cy,ok){const f=document.createElement('div');f.className=ok?'correct-flash':'wrong-flash';const s=120;f.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px`;gameArea.appendChild(f);setTimeout(()=>f.remove(),400)}
 function spawnScorePop(cx,cy,t){const p=document.createElement('div');p.className='score-pop';p.textContent=t;p.style.cssText=`left:${cx}px;top:${cy-15}px;color:${S.streak>4?'#ffd166':'#00c49a'};text-shadow:0 2px 4px rgba(0,0,0,0.2)`;gameArea.appendChild(p);setTimeout(()=>p.remove(),700)}
 function showCombo(c){comboEl.textContent=`🔥 ${c}x Streak!`;comboEl.style.color=c>=9?'#ffd166':c>=6?'#ff6b6b':'#00c49a';comboEl.classList.remove('show');void comboEl.offsetWidth;comboEl.classList.add('show')}
@@ -515,25 +519,28 @@ function gameLoop(){
     if(c.y<PLAY_TOP+40){c.y=PLAY_TOP+40;c.vy=Math.abs(c.vy)}
     if(c.y>PLAY_BOTTOM-CRAB_H){c.y=PLAY_BOTTOM-CRAB_H;c.vy=-Math.abs(c.vy)}
 
-    c.el.style.left=c.x+'px';c.el.style.top=c.y+'px';
+    c.el.style.transform=`translate(${c.x}px,${c.y}px)`;
   });
 
-  // Crab-crab collision (gentle push)
-  for(let i=0;i<S.crabs.length;i++){
-    const a=S.crabs[i];if(!a.alive||a.exiting)continue;
-    for(let j=i+1;j<S.crabs.length;j++){
-      const b=S.crabs[j];if(!b.alive||b.exiting)continue;
-      const dx=b.x-a.x,dy=b.y-a.y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const minDist=CRAB_W*0.85;
-      if(dist<minDist&&dist>0){
-        const push=(minDist-dist)*0.02;
-        const nx=dx/dist,ny=dy/dist;
-        a.x-=nx*push;a.y-=ny*push;
-        b.x+=nx*push;b.y+=ny*push;
-        // Bounce velocities slightly
-        a.vx-=nx*0.05;a.vy-=ny*0.05;
-        b.vx+=nx*0.05;b.vy+=ny*0.05;
+  // Crab-crab collision — only check every 3rd frame
+  if(S.frame%3===0){
+    for(let i=0;i<S.crabs.length;i++){
+      const a=S.crabs[i];if(!a.alive||a.exiting)continue;
+      for(let j=i+1;j<S.crabs.length;j++){
+        const b=S.crabs[j];if(!b.alive||b.exiting)continue;
+        const dx=b.x-a.x,dy=b.y-a.y;
+        const distSq=dx*dx+dy*dy; // skip sqrt
+        const minDist=CRAB_W*0.85;
+        const minDistSq=minDist*minDist;
+        if(distSq<minDistSq&&distSq>0){
+          const dist=Math.sqrt(distSq);
+          const push=(minDist-dist)*0.03;
+          const nx=dx/dist,ny=dy/dist;
+          a.x-=nx*push;a.y-=ny*push;
+          b.x+=nx*push;b.y+=ny*push;
+          a.vx-=nx*0.05;a.vy-=ny*0.05;
+          b.vx+=nx*0.05;b.vy+=ny*0.05;
+        }
       }
     }
   }
@@ -544,7 +551,7 @@ function gameLoop(){
   }
 
   // Clean up dead crabs from array periodically
-  if(S.frame%120===0){
+  if(S.frame%60===0){
     S.crabs=S.crabs.filter(c=>c.alive||c.exiting);
   }
 

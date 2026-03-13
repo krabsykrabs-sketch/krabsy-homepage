@@ -29,12 +29,10 @@
   @keyframes cloudDrift{from{transform:translateX(-150px)}to{transform:translateX(1430px)}}
   #sun{position:absolute;top:30px;right:100px;width:70px;height:70px;background:radial-gradient(circle,#fff7a1,#ffd54f 50%,rgba(255,213,79,0) 70%);border-radius:50%;z-index:1;pointer-events:none;box-shadow:0 0 50px rgba(255,213,79,0.5)}
   #sand-floor{position:absolute;bottom:0;left:0;right:0;height:216px;background:linear-gradient(180deg,transparent 0%,rgba(237,208,140,0.3) 15%,rgba(237,208,140,0.6) 40%,#edd08c 70%,#e2c47a 100%);z-index:2;pointer-events:none}
-  #sand-floor::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(200,170,100,0.2) 1px,transparent 1px);background-size:10px 10px;opacity:0.5}
   #waterline{position:absolute;bottom:200px;left:0;right:0;height:36px;z-index:2;pointer-events:none;overflow:hidden}
-  #waterline::before{content:'';position:absolute;bottom:0;left:-5%;right:-5%;height:100%;background:linear-gradient(180deg,rgba(41,182,246,0) 0%,rgba(41,182,246,0.15) 40%,rgba(41,182,246,0.25) 70%,rgba(41,182,246,0.1) 100%);animation:waveSway 3s ease-in-out infinite}
-  @keyframes waveSway{0%,100%{transform:translateX(0) scaleY(1)}50%{transform:translateX(10px) scaleY(1.15)}}
+  #waterline::before{content:'';position:absolute;bottom:0;left:-5%;right:-5%;height:100%;background:linear-gradient(180deg,rgba(41,182,246,0) 0%,rgba(41,182,246,0.15) 40%,rgba(41,182,246,0.25) 70%,rgba(41,182,246,0.1) 100%)}
   .beach-deco{position:absolute;z-index:3;pointer-events:none}
-  #crab-mascot{position:absolute;bottom:15px;left:40px;z-index:22;font-size:80px;pointer-events:none;animation:crabIdle 2s ease-in-out infinite;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2))}
+  #crab-mascot{position:absolute;bottom:15px;left:40px;z-index:22;font-size:80px;pointer-events:none;animation:crabIdle 2s ease-in-out infinite}
   @keyframes crabIdle{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(2deg)}}
   #crab-mascot.celebrate{animation:crabCelebrate 0.8s ease-out !important}
   @keyframes crabCelebrate{0%{transform:translateY(0) rotate(0) scale(1)}25%{transform:translateY(-15px) rotate(-10deg) scale(1.2)}50%{transform:translateY(-10px) rotate(10deg) scale(1.15)}100%{transform:translateY(0) rotate(0) scale(1)}}
@@ -43,7 +41,7 @@
   #deco-palm{bottom:110px;right:-20px;font-size:60px;transform:scaleX(-1);opacity:0.3}
 
   /* ── Top bar ── */
-  #top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:16px 28px;z-index:20;background:rgba(255,255,255,0.6);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,0.06);gap:14px}
+  #top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:16px 28px;z-index:20;background:rgba(245,240,230,0.92);border-bottom:1px solid rgba(0,0,0,0.06);gap:14px}
   #logo{font-family:'Fredoka One',cursive;font-size:36px;color:var(--ocean-deep);letter-spacing:2px}
   #logo span{color:var(--coral)}
   #lives{display:flex;gap:5px;font-size:36px}
@@ -68,39 +66,37 @@
   .chain-pop{display:block;animation:chainPop 0.35s ease-out}
   @keyframes chainPop{0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
   .chain-complete{animation:chainGlow 2.2s ease-out forwards}
-  @keyframes chainGlow{0%{opacity:0.18}10%{opacity:0.9;filter:drop-shadow(0 0 15px rgba(255,209,102,0.5))}30%{opacity:0.75}70%{opacity:0.5}100%{opacity:0}}
+  @keyframes chainGlow{0%{opacity:0.18}10%{opacity:0.9}30%{opacity:0.75}70%{opacity:0.5}100%{opacity:0}}
 
   /* ── Game area ── */
   #game-area{position:absolute;inset:0;overflow:hidden;z-index:10}
   #slash-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
 
   /* ── Balloons ── */
-  .balloon{position:absolute;pointer-events:none;z-index:15;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 5px 12px rgba(0,0,0,0.12));will-change:transform}
+  .balloon{position:absolute;left:0;top:0;pointer-events:none;z-index:15;display:flex;flex-direction:column;align-items:center;will-change:transform}
   .balloon-body{width:120px;height:145px;border-radius:50% 50% 50% 50% / 55% 55% 45% 45%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-  .balloon-body::before{content:'';position:absolute;top:12%;left:18%;width:30%;height:22%;border-radius:50%;background:rgba(255,255,255,0.45);filter:blur(5px);z-index:2}
+  .balloon-body::before{content:'';position:absolute;top:12%;left:18%;width:30%;height:22%;border-radius:50%;background:rgba(255,255,255,0.35);z-index:2}
   .balloon-knot{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid;margin-top:-1px}
   .balloon-string{width:1px;height:40px;background:rgba(0,0,0,0.15)}
-  .balloon-text{font-family:'Fredoka One',cursive;font-size:28px;color:white;text-align:center;line-height:1.1;text-shadow:0 2px 4px rgba(0,0,0,0.3);position:relative;z-index:3;padding:0 10px;text-transform:uppercase}
+  .balloon-text{font-family:'Fredoka One',cursive;font-size:28px;color:white;text-align:center;line-height:1.1;position:relative;z-index:3;padding:0 10px;text-transform:uppercase}
   .balloon-0 .balloon-body{background:linear-gradient(160deg,#ff8fab,#e84393);border:2px solid rgba(255,255,255,0.35)}
   .balloon-0 .balloon-knot{border-top-color:#c0356e}
   .balloon-1 .balloon-body{background:linear-gradient(160deg,#74b9ff,#0984e3);border:2px solid rgba(255,255,255,0.35)}
   .balloon-1 .balloon-knot{border-top-color:#0767b0}
   .balloon-2 .balloon-body{background:linear-gradient(160deg,#a29bfe,#6c5ce7);border:2px solid rgba(255,255,255,0.35)}
   .balloon-2 .balloon-knot{border-top-color:#5a4bd1}
-  .balloon-hover{animation:balloonBob 2.5s ease-in-out infinite}
-  @keyframes balloonBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-  .balloon-pop{animation:balloonPop 0.25s ease-out forwards}
-  @keyframes balloonPop{0%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:0.5}100%{transform:scale(0);opacity:0}}
+  /* balloon bob handled in JS game loop */
+  /* balloon pop handled via inline styles */
 
   /* ── Beachballs ── */
-  .verb-fruit{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:15;will-change:transform;filter:drop-shadow(0 5px 10px rgba(0,0,0,0.15))}
+  .verb-fruit{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:15;will-change:transform}
   .verb-fruit .fruit-body{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-  .verb-fruit .fruit-body::before{content:'';position:absolute;top:8%;left:15%;width:40%;height:28%;border-radius:50%;background:rgba(255,255,255,0.4);filter:blur(6px);z-index:3}
-  .verb-fruit .fruit-body::after{content:'';position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,0.1) 0deg 30deg,transparent 30deg 60deg);z-index:1}
-  .fruit-text{font-family:'Fredoka One',cursive;color:var(--white);text-align:center;line-height:1.1;text-shadow:0 2px 4px rgba(0,0,0,0.35);position:relative;z-index:4;padding:3px 6px;text-transform:uppercase;white-space:nowrap}
-  .fruit-correct .fruit-body{background:linear-gradient(145deg,#43d9a2,#00b377);border:3px solid rgba(255,255,255,0.5);box-shadow:inset 0 -5px 10px rgba(0,0,0,0.12),inset 0 3px 5px rgba(255,255,255,0.2)}
-  .fruit-wrong .fruit-body{background:linear-gradient(145deg,#ff8fab,#e0527b);border:3px solid rgba(255,255,255,0.4);box-shadow:inset 0 -5px 10px rgba(0,0,0,0.12),inset 0 3px 5px rgba(255,255,255,0.2)}
-  .fruit-wrong-alt .fruit-body{background:linear-gradient(145deg,#ffb347,#e88a20);border:3px solid rgba(255,255,255,0.4);box-shadow:inset 0 -5px 10px rgba(0,0,0,0.12),inset 0 3px 5px rgba(255,255,255,0.2)}
+  .verb-fruit .fruit-body::before{content:'';position:absolute;top:8%;left:15%;width:40%;height:28%;border-radius:50%;background:rgba(255,255,255,0.3);z-index:3}
+  .verb-fruit .fruit-body::after{content:none}
+  .fruit-text{font-family:'Fredoka One',cursive;color:var(--white);text-align:center;line-height:1.1;position:relative;z-index:4;padding:3px 6px;text-transform:uppercase;white-space:nowrap}
+  .fruit-correct .fruit-body{background:linear-gradient(145deg,#43d9a2,#00b377);border:3px solid rgba(255,255,255,0.5)}
+  .fruit-wrong .fruit-body{background:linear-gradient(145deg,#ff8fab,#e0527b);border:3px solid rgba(255,255,255,0.4)}
+  .fruit-wrong-alt .fruit-body{background:linear-gradient(145deg,#ffb347,#e88a20);border:3px solid rgba(255,255,255,0.4)}
   .phase-pp-ball.fruit-correct .fruit-body{background:linear-gradient(145deg,#64b5f6,#1e88e5) !important}
   .phase-pp-ball.fruit-wrong .fruit-body{background:linear-gradient(145deg,#ce93d8,#9c27b0) !important}
   .phase-pp-ball.fruit-wrong-alt .fruit-body{background:linear-gradient(145deg,#ffab91,#e64a19) !important}
@@ -108,8 +104,6 @@
   /* ── Effects ── */
   .particle{position:absolute;border-radius:50%;pointer-events:none;z-index:35;animation:explode 0.5s ease-out forwards}
   @keyframes explode{from{transform:translate(0,0) scale(1);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-  .juice-drop{position:absolute;border-radius:50%;pointer-events:none;z-index:34;animation:juiceFall 0.7s ease-in forwards}
-  @keyframes juiceFall{from{transform:translate(0,0) scale(1);opacity:0.8}to{transform:translate(var(--dx),var(--dy)) scale(0.3);opacity:0}}
   .score-pop{position:absolute;font-family:'Fredoka One',cursive;font-size:36px;pointer-events:none;z-index:40;animation:scorePop 0.7s ease-out forwards}
   @keyframes scorePop{from{transform:translateY(0) scale(0.8);opacity:1}to{transform:translateY(-60px) scale(1.3);opacity:0}}
   .correct-flash,.wrong-flash{position:absolute;border-radius:50%;pointer-events:none;z-index:25;animation:flashOut 0.4s ease-out forwards}
@@ -125,13 +119,13 @@
   /* ── Swipe tutorial ── */
   #swipe-tutorial{position:absolute;z-index:45;pointer-events:none;opacity:0;transition:opacity 0.4s}
   #swipe-tutorial.visible{opacity:1}
-  #swipe-tutorial .swipe-hand{font-size:70px;position:absolute;animation:swipeAcross 1.8s ease-in-out infinite;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.2))}
+  #swipe-tutorial .swipe-hand{font-size:70px;position:absolute;animation:swipeAcross 1.8s ease-in-out infinite}
   #swipe-tutorial .swipe-text{position:absolute;top:-65px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'Fredoka One',cursive;font-size:30px;color:var(--ocean-deep);text-shadow:0 1px 0 rgba(255,255,255,0.5);background:rgba(255,255,255,0.8);padding:12px 28px;border-radius:30px;box-shadow:0 3px 15px rgba(0,0,0,0.1)}
   #swipe-tutorial .swipe-line{position:absolute;top:30px;left:0;width:100%;height:6px;background:linear-gradient(90deg,transparent,rgba(2,136,209,0.5),transparent);border-radius:3px}
   @keyframes swipeAcross{0%{left:-15px;top:20px;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% - 50px);top:-10px;opacity:0}}
 
   /* ── Screens ── */
-  .screen{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(135,206,235,0.92);backdrop-filter:blur(12px);padding:30px;text-align:center;gap:16px}
+  .screen{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(135,206,235,0.95);padding:30px;text-align:center;gap:16px}
   .screen.hidden{display:none}
   .screen-title{font-family:'Fredoka One',cursive;font-size:60px;line-height:1;margin-bottom:4px}
   .screen-sub{font-size:20px;color:rgba(0,0,0,0.5);max-width:500px;line-height:1.5}
@@ -258,7 +252,7 @@ const VERBS=[
 // ═══════════════════════════════════════════════════
 //  CONSTANTS — all in fixed 1280×720 pixels
 // ═══════════════════════════════════════════════════
-const FRUIT_SIZE=140,GRAVITY=0.025,LAUNCH_VY_MIN=-5,LAUNCH_VY_MAX=-6,MAX_ROT=18;
+const FRUIT_SIZE=140,GRAVITY=0.018,LAUNCH_VY_MIN=-4.5,LAUNCH_VY_MAX=-5.5,MAX_ROT=18;
 const MIN_SLASH_DIST=30;
 
 function getBalloonCount(){return 2}
@@ -280,25 +274,25 @@ const PATTERNS_2=[
   {name:'2-04 Parallel left',   spawns:[0.65,0.75], apexes:[{x:0.45,vy:-0.5},{x:0.25,vy:0}]},
   {name:'2-05 Wide V',          spawns:[0.45,0.55], apexes:[{x:0.15,vy:-0.3},{x:0.85,vy:0.3}]},
   {name:'2-06 Converge',        spawns:[0.15,0.85], apexes:[{x:0.42,vy:0},{x:0.58,vy:-0.6}]},
-  {name:'2-07 High-low',        spawns:[0.35,0.65], apexes:[{x:0.3,vy:-1.2},{x:0.7,vy:0.5}]},
-  {name:'2-08 Chase right',     spawns:[0.2,0.3],  apexes:[{x:0.6,vy:0},{x:0.8,vy:-0.8}]},
-  {name:'2-09 Chase left',      spawns:[0.7,0.8],  apexes:[{x:0.4,vy:-0.8},{x:0.2,vy:0}]},
+  {name:'2-07 High-low',        spawns:[0.35,0.65], apexes:[{x:0.3,vy:-0.7},{x:0.7,vy:0.5}]},
+  {name:'2-08 Chase right',     spawns:[0.2,0.3],  apexes:[{x:0.6,vy:0},{x:0.8,vy:-0.5}]},
+  {name:'2-09 Chase left',      spawns:[0.7,0.8],  apexes:[{x:0.4,vy:-0.5},{x:0.2,vy:0}]},
   {name:'2-10 Tight cross',     spawns:[0.35,0.65], apexes:[{x:0.6,vy:-0.4},{x:0.4,vy:0.4}]},
-  {name:'2-11 Steep & shallow', spawns:[0.5,0.3],  apexes:[{x:0.5,vy:-1.0},{x:0.7,vy:0.6}]},
+  {name:'2-11 Steep & shallow', spawns:[0.5,0.3],  apexes:[{x:0.5,vy:-0.6},{x:0.7,vy:0.5}]},
   {name:'2-12 Mirror arc',      spawns:[0.3,0.7],  apexes:[{x:0.55,vy:0.3},{x:0.45,vy:-0.3}]},
 ];
 const PATTERNS_3=[
-  {name:'3-01 Fan from center', spawns:[0.4,0.5,0.6],   apexes:[{x:0.2,vy:0},{x:0.5,vy:-0.8},{x:0.8,vy:0.3}]},
-  {name:'3-02 Triple cross',    spawns:[0.2,0.5,0.8],   apexes:[{x:0.7,vy:-0.2},{x:0.5,vy:-0.8},{x:0.3,vy:-0.4}]},
+  {name:'3-01 Fan from center', spawns:[0.4,0.5,0.6],   apexes:[{x:0.2,vy:0},{x:0.5,vy:-0.5},{x:0.8,vy:0.3}]},
+  {name:'3-02 Triple cross',    spawns:[0.2,0.5,0.8],   apexes:[{x:0.7,vy:-0.2},{x:0.5,vy:-0.5},{x:0.3,vy:-0.3}]},
   {name:'3-03 Drift right',     spawns:[0.15,0.3,0.45], apexes:[{x:0.4,vy:0},{x:0.6,vy:-0.6},{x:0.8,vy:0.3}]},
   {name:'3-04 Drift left',      spawns:[0.55,0.7,0.85], apexes:[{x:0.6,vy:0.3},{x:0.4,vy:-0.6},{x:0.2,vy:0}]},
-  {name:'3-05 V formation',     spawns:[0.3,0.5,0.7],   apexes:[{x:0.25,vy:0.3},{x:0.5,vy:-1.0},{x:0.75,vy:0.3}]},
-  {name:'3-06 Inverted V',      spawns:[0.3,0.5,0.7],   apexes:[{x:0.25,vy:-0.8},{x:0.5,vy:0.5},{x:0.75,vy:-0.8}]},
-  {name:'3-07 Cascade down',    spawns:[0.25,0.45,0.65], apexes:[{x:0.2,vy:-1.0},{x:0.5,vy:0},{x:0.8,vy:0.6}]},
-  {name:'3-08 Cascade up',      spawns:[0.35,0.55,0.75], apexes:[{x:0.8,vy:-1.0},{x:0.5,vy:0},{x:0.2,vy:0.6}]},
+  {name:'3-05 V formation',     spawns:[0.3,0.5,0.7],   apexes:[{x:0.25,vy:0.3},{x:0.5,vy:-0.6},{x:0.75,vy:0.3}]},
+  {name:'3-06 Inverted V',      spawns:[0.3,0.5,0.7],   apexes:[{x:0.25,vy:-0.5},{x:0.5,vy:0.4},{x:0.75,vy:-0.5}]},
+  {name:'3-07 Cascade down',    spawns:[0.25,0.45,0.65], apexes:[{x:0.2,vy:-0.6},{x:0.5,vy:0},{x:0.8,vy:0.5}]},
+  {name:'3-08 Cascade up',      spawns:[0.35,0.55,0.75], apexes:[{x:0.8,vy:-0.6},{x:0.5,vy:0},{x:0.2,vy:0.5}]},
   {name:'3-09 Weave',           spawns:[0.2,0.5,0.8],   apexes:[{x:0.6,vy:0},{x:0.3,vy:-0.5},{x:0.5,vy:0.5}]},
   {name:'3-10 Tight cluster',   spawns:[0.4,0.5,0.6],   apexes:[{x:0.35,vy:0},{x:0.5,vy:-0.6},{x:0.65,vy:0.3}]},
-  {name:'3-11 Wide spread',     spawns:[0.1,0.5,0.9],   apexes:[{x:0.15,vy:0.3},{x:0.5,vy:-0.8},{x:0.85,vy:0}]},
+  {name:'3-11 Wide spread',     spawns:[0.1,0.5,0.9],   apexes:[{x:0.15,vy:0.3},{x:0.5,vy:-0.5},{x:0.85,vy:0}]},
   {name:'3-12 Two close one far',spawns:[0.55,0.65,0.2], apexes:[{x:0.6,vy:0},{x:0.75,vy:-0.5},{x:0.3,vy:0.4}]},
   {name:'3-13 Full cross',      spawns:[0.15,0.5,0.85], apexes:[{x:0.8,vy:0.3},{x:0.45,vy:-0.7},{x:0.2,vy:0}]},
   {name:'3-14 Asymmetric fan',  spawns:[0.3,0.35,0.7],  apexes:[{x:0.15,vy:-0.5},{x:0.5,vy:0.3},{x:0.8,vy:-0.3}]},
@@ -365,10 +359,9 @@ function spawnBalloons(verbs){
     if(count===1) targetX=GW/2-60;
     else if(count===2) targetX=zoneLeft+i*(maxSpread-120);
     else targetX=zoneLeft+i*((maxSpread-120)/2);
-    const targetY=140+Math.random()*80;
+    const targetY=260+Math.random()*80;
 
-    el.style.left=targetX+'px';
-    el.style.top=(GH+160)+'px';
+    el.style.transform=`translate(${targetX}px,${GH+160}px)`;
 
     S.balloons.push({el,verb:v,x:targetX,y:GH+160,targetY,rising:true,hovering:false,alive:true,hoverDelay:i*10,bobOffset:Math.random()*Math.PI*2});
   });
@@ -396,6 +389,9 @@ function launchBalls(labels,correctLabel,extraClass){
 
   const baseVy=LAUNCH_VY_MIN+Math.random()*(LAUNCH_VY_MAX-LAUNCH_VY_MIN);
   const minVy=-Math.sqrt(2*GRAVITY*GH*0.70);
+  // Max power cap — apex must not go above y=80 (below top bar)
+  // apex_y = launch_y - vy²/(2*g), so vy_max = -sqrt(2*g*(launch_y - 80))
+  const maxPower=-Math.sqrt(2*GRAVITY*(GH+FRUIT_SIZE-80));
 
   let wrongIdx=0;
   answers.forEach((ans,i)=>{
@@ -415,11 +411,11 @@ function launchBalls(labels,correctLabel,extraClass){
     const p=pattern.apexes[i]||pattern.apexes[0];
     const sx=Math.max(10,Math.min(GW-FRUIT_SIZE-10, pattern.spawns[i]*GW-FRUIT_SIZE/2));
     const apexX=Math.max(FRUIT_SIZE/2,Math.min(GW-FRUIT_SIZE/2, p.x*GW));
-    const ballVy=Math.min(baseVy+(p.vy||0), minVy);
+    const ballVy=Math.max(maxPower, Math.min(baseVy+(p.vy||0), minVy));
     const tApex=Math.abs(ballVy)/GRAVITY;
     const vx=(apexX-sx-FRUIT_SIZE/2)/tApex;
 
-    el.style.left=sx+'px';el.style.top=(GH+FRUIT_SIZE)+'px';
+    el.style.transform=`translate(${sx}px,${GH+FRUIT_SIZE}px)`;
     S.fruits.push({el,ans,x:sx,y:GH+FRUIT_SIZE,vx,vy:ballVy,rot:0,rotSpeed:(Math.random()-0.5)*0.4,
       isCorrect,alive:true,slashed:false,hasBeenOnScreen:false,launchDelay:0,launched:true});
   });
@@ -484,9 +480,12 @@ function slashHitsCircle(pts,cx,cy,r){
 }
 
 function onStart(e){e.preventDefault();if(!S.running)return;const p=getPos(e);S.isSlashing=true;S.slashPoints=[p];clearTimeout(S.slashTimeout);updSvg()}
-function onMove(e){e.preventDefault();if(!S.running||!S.isSlashing)return;const p=getPos(e);S.slashPoints.push(p);if(S.slashPoints.length>30)S.slashPoints.shift();updSvg();if(slashDist()>=MIN_SLASH_DIST)checkSlash()}
+function onMove(e){e.preventDefault();if(!S.running||!S.isSlashing)return;const p=getPos(e);
+  const last=S.slashPoints[S.slashPoints.length-1];
+  if(last&&Math.abs(p.x-last.x)<3&&Math.abs(p.y-last.y)<3)return;
+  S.slashPoints.push(p);if(S.slashPoints.length>20)S.slashPoints.shift();updSvg();if(slashDist()>=MIN_SLASH_DIST)checkSlash()}
 function onEnd(e){e.preventDefault();if(!S.running)return;S.isSlashing=false;S.slashTimeout=setTimeout(()=>{S.slashPoints=[];updSvg()},180)}
-function updSvg(){const p=S.slashPoints;if(p.length<2){slashSvg.innerHTML='';return}const d=p.map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');slashSvg.innerHTML=`<defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:rgba(255,255,255,0)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.8)"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="${d}" stroke="rgba(255,255,255,0.15)" stroke-width="14" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#sg)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow)"/>`}
+function updSvg(){const p=S.slashPoints;if(p.length<2){slashSvg.innerHTML='';return}const d=p.map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');slashSvg.innerHTML=`<path d="${d}" stroke="rgba(255,255,255,0.12)" stroke-width="12" fill="none" stroke-linecap="round"/><path d="${d}" stroke="rgba(255,255,255,0.6)" stroke-width="2.5" fill="none" stroke-linecap="round"/>`}
 
 function checkSlash(){
   S.balloons.forEach(b=>{if(!b.alive)return;if(slashHitsCircle(S.slashPoints,b.x+60,b.y+72,65)){b.alive=false;handleBalloonPop(b)}});
@@ -499,7 +498,9 @@ function checkSlash(){
 function handleBalloonPop(b){
   const cx=b.x+60,cy=b.y+72;
   spawnParticles(cx,cy,true);spawnFlash(cx,cy,true);
-  b.el.classList.add('balloon-pop');setTimeout(()=>b.el.remove(),300);
+  b.el.style.transition='transform 0.25s ease-out,opacity 0.25s ease-out';
+  b.el.style.transform=`translate(${b.x}px,${b.y}px) scale(0)`;b.el.style.opacity='0';
+  setTimeout(()=>b.el.remove(),300);
   S.balloons.forEach(ob=>{if(ob.alive){ob.alive=false;ob.el.style.transition='opacity 0.3s';ob.el.style.opacity='0';setTimeout(()=>ob.el.remove(),300)}});
   S.chosenVerb=b.verb;
   const unchosen=S.pickVerbs.filter(v=>v!==b.verb);
@@ -553,7 +554,7 @@ function fruitMissed(f){if(f.isCorrect&&!S.phaseLost){loseLife();S.phaseLost=tru
 // ═══════════════════════════════════════════════════
 //  EFFECTS
 // ═══════════════════════════════════════════════════
-function spawnParticles(cx,cy,ok){const cols=ok?['#00e5bb','#43d9a2','#fff','#ffd166','#87ceeb']:['#ff4444','#ff9a9a','#ffaa00','#fff'];for(let i=0;i<14;i++){const p=document.createElement('div');p.className='particle';const s=4+Math.random()*9;const a=Math.random()*Math.PI*2,d=40+Math.random()*80;p.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;background:${cols[Math.floor(Math.random()*cols.length)]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${0.3+Math.random()*0.3}s`;gameArea.appendChild(p);setTimeout(()=>p.remove(),700)}if(ok)for(let i=0;i<6;i++){const d=document.createElement('div');d.className='juice-drop';const s=5+Math.random()*6;d.style.cssText=`width:${s}px;height:${s}px;left:${cx}px;top:${cy}px;background:#43d9a2;--dx:${(Math.random()-0.5)*70}px;--dy:${35+Math.random()*90}px`;gameArea.appendChild(d);setTimeout(()=>d.remove(),700)}}
+function spawnParticles(cx,cy,ok){const cols=ok?['#00e5bb','#43d9a2','#fff','#ffd166']:['#ff4444','#ff9a9a','#ffaa00'];for(let i=0;i<7;i++){const p=document.createElement('div');p.className='particle';const s=4+Math.random()*9;const a=Math.random()*Math.PI*2,d=40+Math.random()*80;p.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;background:${cols[Math.floor(Math.random()*cols.length)]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${0.3+Math.random()*0.3}s`;gameArea.appendChild(p);setTimeout(()=>p.remove(),600)}}
 function spawnFlash(cx,cy,ok){const f=document.createElement('div');f.className=ok?'correct-flash':'wrong-flash';const s=FRUIT_SIZE*1.5;f.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px`;gameArea.appendChild(f);setTimeout(()=>f.remove(),400)}
 function spawnScorePop(cx,cy,t){const p=document.createElement('div');p.className='score-pop';p.textContent=t;p.style.cssText=`left:${cx}px;top:${cy-25}px;color:${S.streak>4?'#ffd166':'#00c49a'};text-shadow:0 2px 4px rgba(0,0,0,0.2)`;gameArea.appendChild(p);setTimeout(()=>p.remove(),700)}
 function showCombo(c){comboEl.textContent=`🔥 ${c}x Streak!`;comboEl.style.color=c>=9?'#ffd166':c>=6?'#ff6b6b':'#00c49a';comboEl.style.textShadow='0 3px 10px rgba(0,0,0,0.15)';comboEl.classList.remove('show');void comboEl.offsetWidth;comboEl.classList.add('show')}
@@ -577,9 +578,12 @@ function gameLoop(){
       const dist=b.y-b.targetY;
       const speed=Math.max(0.08,dist*0.006+0.08);
       b.y-=speed;
-      if(dist<2){b.y=b.targetY;b.rising=false;b.hovering=true;b.el.classList.add('balloon-hover')}
-      b.el.style.top=b.y+'px';
+      if(dist<2){b.y=b.targetY;b.rising=false;b.hovering=true}
     }
+    // Bob when hovering
+    let bobY=0;
+    if(b.hovering){bobY=Math.sin(S.frame*0.025+b.bobOffset)*10}
+    b.el.style.transform=`translate(${b.x}px,${b.y+bobY}px)`;
   });
 
   if(S.showingTutorial&&S.balloons.length>0){
@@ -606,7 +610,7 @@ function gameLoop(){
     if(f.x>GW-FRUIT_SIZE){f.x=GW-FRUIT_SIZE;f.vx=-Math.abs(f.vx)*0.3}
     if(f.y<0){f.y=0;f.vy=Math.abs(f.vy)*0.3}
     if(f.y<GH-10)f.hasBeenOnScreen=true;
-    f.el.style.left=f.x+'px';f.el.style.top=f.y+'px';f.el.style.transform=`rotate(${f.rot}deg)`;
+    f.el.style.transform=`translate(${f.x}px,${f.y}px) rotate(${f.rot}deg)`;
     if(f.hasBeenOnScreen&&f.y>GH+FRUIT_SIZE+20){f.alive=false;fruitMissed(f)}
   });
 
