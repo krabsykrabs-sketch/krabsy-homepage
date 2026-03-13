@@ -38,15 +38,15 @@
   /* ── Verb tracker panel ── */
   #verb-panel{position:absolute;top:70px;left:0;right:0;z-index:25;pointer-events:none;display:flex;justify-content:center;gap:24px;padding:8px 20px}
   .verb-card{
-    background:rgba(255,255,255,0.7);backdrop-filter:blur(6px);border-radius:16px;padding:10px 20px;
-    font-family:'Fredoka One',cursive;font-size:24px;text-transform:uppercase;
-    display:flex;align-items:center;gap:10px;
-    border:2px solid rgba(0,0,0,0.06);box-shadow:0 2px 10px rgba(0,0,0,0.06);
+    background:rgba(255,255,255,0.75);backdrop-filter:blur(6px);border-radius:20px;padding:14px 32px;
+    font-family:'Fredoka One',cursive;font-size:36px;text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;
+    border:2px solid rgba(0,0,0,0.06);box-shadow:0 3px 14px rgba(0,0,0,0.08);
     transition:all 0.3s;
   }
   .verb-card .vc-inf{color:var(--ocean-deep)}
-  .verb-card .vc-arrow{color:rgba(0,0,0,0.15);font-size:18px}
-  .verb-card .vc-slot{color:rgba(0,0,0,0.12);font-size:20px}
+  .verb-card .vc-arrow{color:rgba(0,0,0,0.15);font-size:24px}
+  .verb-card .vc-slot{color:rgba(0,0,0,0.12);font-size:32px}
   .verb-card .vc-slot.found{color:var(--teal-dark)}
   .verb-card .vc-slot.found-pp{color:var(--coral)}
   .verb-card.complete{opacity:0;transform:scale(0.9);transition:all 0.5s}
@@ -238,8 +238,8 @@ const CRAB_W=100,CRAB_H=80; // collision box
 const PLAY_TOP=120,PLAY_BOTTOM=680; // play area (below top bar, above bottom edge)
 const PLAY_LEFT=20,PLAY_RIGHT=GW-20;
 const MIN_SLASH_DIST=30;
-const MAX_ACTIVE_VERBS=3;
-const CRABS_PER_VERB=4; // 1 correct past + 1 wrong past + 1 correct pp + 1 wrong pp
+const CRABS_PER_VERB=4;
+const TOTAL_VERB_SLOTS=3; // 1 active + 2 preloaded = 12 crabs
 
 // ═══════════════════════════════════════════════════
 //  STATE
@@ -342,14 +342,13 @@ function spawnVerbCrabs(verb){
 //  VERB PANEL UI
 // ═══════════════════════════════════════════════════
 function updateVerbPanel(){
-  verbPanel.innerHTML=S.activeVerbs.map(av=>{
-    const pastText=av.pastFound?av.verb.past:'???';
-    const ppText=av.ppFound?av.verb.pp:'???';
-    const pastClass=av.pastFound?'found':'';
-    const ppClass=av.ppFound?'found-pp':'';
-    const complete=(av.pastFound&&av.ppFound)?'complete':'';
-    return `<div class="verb-card ${complete}"><span class="vc-inf">${av.verb.verb}</span><span class="vc-arrow">→</span><span class="vc-slot ${pastClass}">${pastText}</span><span class="vc-arrow">/</span><span class="vc-slot ${ppClass}">${ppText}</span></div>`;
-  }).join('');
+  const av=S.activeVerbs[0]; // only show the current verb
+  if(!av){verbPanel.innerHTML='';return}
+  const pastText=av.pastFound?av.verb.past:'???';
+  const ppText=av.ppFound?av.verb.pp:'???';
+  const pastClass=av.pastFound?'found':'';
+  const ppClass=av.ppFound?'found-pp':'';
+  verbPanel.innerHTML=`<div class="verb-card"><span class="vc-inf">${av.verb.verb}</span><span class="vc-arrow">→</span><span class="vc-slot ${pastClass}">${pastText}</span><span class="vc-arrow">/</span><span class="vc-slot ${ppClass}">${ppText}</span></div>`;
 }
 
 // ═══════════════════════════════════════════════════
@@ -401,9 +400,10 @@ function checkSlash(){
 // ═══════════════════════════════════════════════════
 function handleSlash(crab){
   const cx=crab.x+CRAB_W/2,cy=crab.y+20;
+  const currentVerb=S.activeVerbs[0]; // only the first verb is active
 
-  if(crab.isCorrect){
-    // Correct!
+  if(crab.isCorrect && currentVerb && crab.verbId===currentVerb.id){
+    // Correct — this crab belongs to the current active verb!
     const mult=getMult();
     const pts=Math.round((10+S.streak*3)*mult);
     S.score+=pts;S.streak++;if(S.streak>S.maxStreak)S.maxStreak=S.streak;
@@ -412,41 +412,37 @@ function handleSlash(crab){
     spawnScorePop(cx,cy,mult>1?`+${pts} x${mult}`:`+${pts}`);
 
     if(S.streak>=3)showCombo(S.streak);
-
-    // Hide tutorial
     if(S.showingTutorial){swipeTut.classList.remove('visible');S.showingTutorial=false}
 
-    // Mark verb progress
-    const av=S.activeVerbs.find(v=>v.id===crab.verbId);
-    if(av){
-      if(crab.type==='past')av.pastFound=true;
-      else av.ppFound=true;
-      updateVerbPanel();
-    }
+    // Mark progress
+    if(crab.type==='past')currentVerb.pastFound=true;
+    else currentVerb.ppFound=true;
+    updateVerbPanel();
 
-    // Exit this crab (celebrate)
+    // Exit this crab + same-type wrong crabs for this verb
     exitCrab(crab,'celebrate');
-
-    // Exit all same-type crabs for this verb (the wrong ones)
     S.crabs.filter(c=>c.alive&&!c.exiting&&c.verbId===crab.verbId&&c.type===crab.type&&c!==crab)
       .forEach(c=>exitCrab(c,'walk'));
 
     // Check if verb complete
-    if(av&&av.pastFound&&av.ppFound){
+    if(currentVerb.pastFound&&currentVerb.ppFound){
       S.verbsCompleted++;updateHUD();
-      const vi=VERBS.indexOf(av.verb);if(vi>=0)S.usedVerbSet.add(vi);
+      const vi=VERBS.indexOf(currentVerb.verb);if(vi>=0)S.usedVerbSet.add(vi);
       setTimeout(()=>{
-        S.activeVerbs=S.activeVerbs.filter(v=>v.id!==av.id);
+        // Remove completed verb, next preloaded becomes active
+        S.activeVerbs.shift();
+        // Spawn a new preloaded verb to keep slots filled
+        if(S.usedVerbSet.size<VERBS.length&&S.activeVerbs.length<TOTAL_VERB_SLOTS){
+          spawnVerbCrabs(nextVerb());
+        }
         updateVerbPanel();
-        if(S.verbsCompleted>=VERBS.length){setTimeout(gameOver,500);return}
-        if(S.running&&S.activeVerbs.length<MAX_ACTIVE_VERBS)spawnVerbCrabs(nextVerb());
+        if(S.verbsCompleted>=VERBS.length){setTimeout(gameOver,500)}
       },600);
     }
   } else {
-    // Wrong!
+    // Wrong — either a wrong answer or a future verb's crab
     S.streak=0;updateHUD();
     spawnParticles(cx,cy,false);spawnFlash(cx,cy,false);
-    // Wobble the sign
     const sign=crab.el.querySelector('.crab-sign');
     sign.classList.remove('wobble');void sign.offsetWidth;sign.classList.add('wobble');
   }
@@ -567,8 +563,9 @@ function startGame(){
   S.verbQueue=[];S.usedVerbSet=new Set();S.showingTutorial=true;
   fillQ();
 
-  // Spawn initial verbs
-  for(let i=0;i<MAX_ACTIVE_VERBS;i++){
+  // Spawn initial verbs — 1 active + 2 preloaded = 12 crabs
+  const initialCount=Math.min(TOTAL_VERB_SLOTS,VERBS.length);
+  for(let i=0;i<initialCount;i++){
     spawnVerbCrabs(nextVerb());
   }
 

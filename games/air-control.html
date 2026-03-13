@@ -6,11 +6,10 @@
 <title>Krabsy – Air Control!</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-  :root { --hud-bg:rgba(20,40,70,0.85); --teal:#00c49a; --coral:#ff6b6b; --white:#fff; --strip-active:#ffcc00; }
+  :root{--hud-bg:rgba(20,40,70,0.85);--teal:#00c49a;--coral:#ff6b6b;--white:#fff;--strip-active:#ffcc00}
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;background:#111}
+  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;background:#2a5a1a}
   canvas{display:block;width:100vw;height:100svh;touch-action:none}
-
   .screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,25,50,0.92);backdrop-filter:blur(12px);padding:30px;text-align:center;gap:12px}
   .screen.hidden{display:none}
   .screen-title{font-family:'Fredoka One',cursive;font-size:clamp(32px,8vw,52px);color:var(--white);line-height:1.1}
@@ -24,31 +23,34 @@
   .btn-secondary{background:linear-gradient(135deg,var(--teal),#00a882);color:white;box-shadow:0 4px 16px rgba(0,196,154,0.3);font-size:15px;padding:10px 26px}
   .logo-text{font-family:'Fredoka One',cursive;font-size:18px;color:rgba(255,255,255,0.3);margin-top:8px;letter-spacing:1px}
   .logo-text em{font-style:normal;color:rgba(255,107,107,0.5)}
-
   #hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;z-index:50;background:var(--hud-bg);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Share Tech Mono',monospace;color:var(--white);font-size:14px;pointer-events:none}
   #hud.hidden{display:none}
   .hud-section{display:flex;align-items:center;gap:8px}
   .hud-label{color:rgba(255,255,255,0.4);font-size:10px;text-transform:uppercase;letter-spacing:1px}
   .hud-value{font-family:'Fredoka One',cursive;font-size:20px}
-  .hud-score{color:var(--strip-active)} .hud-verbs{color:var(--teal)}
+  .hud-score{color:var(--strip-active)}.hud-verbs{color:var(--teal)}
   #hud-logo{font-family:'Fredoka One',cursive;font-size:16px;color:rgba(255,255,255,0.5)}
   #hud-logo span{color:rgba(255,107,107,0.6)}
-
-  #strip-panels{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:12px;padding:8px 14px 12px;z-index:50;pointer-events:none}
+  #strip-panels{position:fixed;top:0;left:0;right:0;z-index:50;pointer-events:none;display:flex;justify-content:space-between;padding:0}
   #strip-panels.hidden{display:none}
-  .strip-panel{background:var(--hud-bg);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 14px;min-width:140px;text-align:center}
-  .strip-panel-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .strip-panel-chain{font-family:'Fredoka One',cursive;font-size:16px;color:var(--white);display:flex;align-items:center;justify-content:center;gap:4px;min-height:24px}
-  .chain-slot{padding:1px 6px;border-radius:6px;font-size:14px}
-  .chain-filled-base{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
-  .chain-filled-past{background:rgba(0,196,154,0.25);color:#00e5bb}
-  .chain-filled-pp{background:rgba(255,107,107,0.25);color:#ff8a8a}
-  .chain-empty{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.2)}
-  .chain-arrow{color:rgba(255,255,255,0.2);font-size:12px}
-  .strip-panel-label{font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px}
-  .strip-panel.strip-free{border-color:rgba(255,255,255,0.05)}
-  .strip-panel.strip-active{border-color:rgba(255,204,0,0.3)}
-  .strip-panel.strip-complete{border-color:rgba(0,196,154,0.4);animation:stripDone 0.6s ease-out}
+  .verb-status{
+    padding:12px 18px 14px;
+    margin-top:44px;
+  }
+  .verb-status-left{text-align:left}
+  .verb-status-right{text-align:right}
+  .verb-inf{font-family:'Fredoka One',cursive;font-size:28px;color:rgba(255,204,0,0.55);text-transform:uppercase;line-height:1;margin-bottom:2px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
+  .verb-forms{display:flex;flex-direction:column;gap:0}
+  .verb-status-right .verb-forms{align-items:flex-end}
+  .verb-form{
+    font-family:'Fredoka One',cursive;font-size:20px;
+    color:rgba(255,255,255,0.15);
+    text-transform:uppercase;
+    text-shadow:0 1px 3px rgba(0,0,0,0.2);
+    transition:all 0.3s ease;
+  }
+  .verb-form.landed-past{color:rgba(0,229,187,0.7)}
+  .verb-form.landed-pp{color:rgba(255,130,130,0.7)}
   @keyframes stripDone{0%{transform:scale(1)}30%{transform:scale(1.05);border-color:rgba(0,229,187,0.6)}100%{transform:scale(1)}}
 </style>
 </head>
@@ -62,13 +64,19 @@
 </div>
 
 <div id="strip-panels" class="hidden">
-  <div class="strip-panel strip-free" id="strip-panel-0">
-    <div class="strip-panel-title">Strip 1</div>
-    <div class="strip-panel-chain" id="strip-chain-0"><span class="strip-panel-label">Empty</span></div>
+  <div class="verb-status verb-status-left" id="strip-panel-0">
+    <div class="verb-inf" id="verb-inf-0">—</div>
+    <div class="verb-forms">
+      <div class="verb-form" id="verb-past-0">???</div>
+      <div class="verb-form" id="verb-pp-0">???</div>
+    </div>
   </div>
-  <div class="strip-panel strip-free" id="strip-panel-1">
-    <div class="strip-panel-title">Strip 2</div>
-    <div class="strip-panel-chain" id="strip-chain-1"><span class="strip-panel-label">Empty</span></div>
+  <div class="verb-status verb-status-right" id="strip-panel-1">
+    <div class="verb-inf" id="verb-inf-1">—</div>
+    <div class="verb-forms">
+      <div class="verb-form" id="verb-past-1">???</div>
+      <div class="verb-form" id="verb-pp-1">???</div>
+    </div>
   </div>
 </div>
 
@@ -77,7 +85,7 @@
   <div class="screen-title">Air <span>Control!</span></div>
   <div class="screen-sub">Guide planes to runways to complete verb chains. Route helicopters to the helipad. <b>Draw flight paths</b> — don't let anything collide!</div>
   <div style="font-size:13px;color:rgba(255,255,255,0.35);max-width:320px;line-height:1.4;margin-top:4px">
-    Land all 3 verb forms (base → past → participle) on the same strip. Bonus for correct order!
+    Each runway shows a verb. Land its <b>simple past</b> and <b>past participle</b> forms to clear it. Bonus for correct order!
   </div>
   <button class="btn btn-primary" id="start-btn">Take Off! ✈️</button>
   <div class="logo-text">Krab<em>sy</em></div>
@@ -96,7 +104,7 @@
 
 <script>
 // ════════════════════════════════════════
-// KRABSY AIR CONTROL v3
+// KRABSY AIR CONTROL v4
 // ════════════════════════════════════════
 
 const VERBS=[
@@ -123,65 +131,60 @@ let W,H,dpr;
 
 // ── Layout ──
 let LY={};
-const STRIP_ANGLE=30*Math.PI/180; // 30 degrees for angled strip
+const ANG=30*Math.PI/180; // 30° for angled strip
+const cosA=Math.cos(ANG), sinA=Math.sin(ANG);
 
 function computeLayout(){
   const hudH=44, panelH=70;
-  const rwW=Math.min(W*0.48,280), rwH=28;
+  const rwW=Math.min(W*0.52,320), rwH=36;
 
-  // Airport area: center-right of screen, lower half
-  const airportCX=W*0.55, airportCY=H*0.62;
+  // Junction point: where both runways meet (right end of horizontal, right end of angled)
+  const jx=W*0.58, jy=H*0.58;
 
-  // Strip 0: horizontal, positioned to the right
-  const s0x=airportCX-rwW*0.3, s0y=airportCY;
+  // Strip 0: horizontal, extends LEFT from junction
+  // Approach from left, land going right toward junction
+  const s0={
+    // Start (approach end, LEFT) and end (junction, RIGHT)
+    ax: jx-rwW, ay: jy,  // approach point
+    lx: jx,     ly: jy,  // land point (junction end)
+    w:rwW, h:rwH, angle:0,
+  };
 
-  // Strip 1: angled 30°, starts near the junction and goes up-left
-  // The approach end (left/bottom of the angled strip) is near the airport center
-  const s1startX=airportCX-rwW*0.15;
-  const s1startY=airportCY+rwH+15;
-  // End point goes up-left at 30° angle
-  const s1endX=s1startX-Math.cos(STRIP_ANGLE)*rwW;
-  const s1endY=s1startY-Math.sin(STRIP_ANGLE)*rwW;
+  // Strip 1: angled, extends from junction going UP-LEFT at 30°
+  // Approach from the far end (up-left), land at junction
+  const s1ax=jx-cosA*rwW, s1ay=jy-sinA*rwW; // approach end (far, up-left)
+  const s1={
+    ax:s1ax, ay:s1ay,   // approach point (far end)
+    lx:jx,   ly:jy,     // land point (junction)
+    w:rwW, h:rwH, angle:-ANG,
+  };
 
-  // Heliport: circle pad near the junction
-  const heliX=airportCX+rwW*0.4;
-  const heliY=airportCY-50;
-  const heliR=22;
+  // Funnel settings — tight approach zone
+  const funnelHalf=(90/2)*Math.PI/180; // 90° total cone (was 135°)
+  const approachLen=35; // shorter detection zone (was 65)
 
-  const funnelHalf=(135/2)*Math.PI/180;
-  const approachLen=60;
+  // Compute approach angles (direction plane must fly to approach)
+  // Strip 0: must fly rightward (angle=0)
+  s0.approachAngle=0;
+  // Strip 1: must fly toward junction from far end — direction is (jx-s1ax, jy-s1ay)
+  s1.approachAngle=Math.atan2(jy-s1ay, jx-s1ax);
+
+  s0.funnelHalf=funnelHalf; s0.approachLen=approachLen;
+  s1.funnelHalf=funnelHalf; s1.approachLen=approachLen;
+
+  // Heliport: offset from junction
+  const heliX=jx+45, heliY=jy-50;
+
+  // Terminal building
+  const termX=jx+15, termY=jy-30, termW=40, termH=55;
 
   LY={
     hudH, panelH,
-    playTop:hudH, playBottom:H-panelH,
-    // Strip 0: horizontal (approach from left, land going right)
-    strips:[
-      {
-        x:s0x, y:s0y, w:rwW, h:rwH, angle:0,
-        approachX:s0x, approachY:s0y+rwH/2,
-        approachAngle:0, // planes approach heading right
-        funnelHalf, approachLen,
-        landX:s0x+rwW*0.85, landY:s0y+rwH/2,
-        cosA:1, sinA:0,
-      },
-      {
-        // Strip 1: angled — approach from the bottom-left end heading upper-right
-        x:s1startX, y:s1startY, w:rwW, h:rwH,
-        angle:-STRIP_ANGLE, // negative because canvas Y is down
-        // Approach point: the "start" end (lower-left)
-        approachX:s1endX, approachY:s1endY,
-        approachAngle:-STRIP_ANGLE, // heading upper-right along the strip
-        funnelHalf, approachLen,
-        // Land point: far end (upper right toward junction)
-        landX:s1startX, landY:s1startY,
-        cosA:Math.cos(-STRIP_ANGLE), sinA:Math.sin(-STRIP_ANGLE),
-        // For drawing: we draw as a rotated rect from the approach end
-        drawX:s1endX, drawY:s1endY,
-      },
-    ],
-    heli:{x:heliX, y:heliY, r:heliR},
-    // Terminal building area (decorative)
-    termX:airportCX+rwW*0.15, termY:airportCY-15, termW:50, termH:35,
+    playTop:hudH, playBottom:H-20,
+    jx, jy,
+    strips:[s0,s1],
+    heli:{x:heliX,y:heliY,r:22},
+    termX, termY, termW, termH,
   };
 }
 
@@ -189,20 +192,16 @@ function computeLayout(){
 const G={
   running:false, score:0, verbsCompleted:0,
   bestScore:parseInt(localStorage.getItem('krabsy_ac_best')||'0'),
-  aircraft:[], // planes AND helicopters
-  strips:[null,null],
+  aircraft:[], strips:[null,null], // strip data: {verbObj, landed:{past,pp}, landOrder[]}
   verbQueue:[], usedVerbs:new Set(),
-  spawnTimer:0, spawnInterval:220, minSpawnInterval:75,
+  spawnTimer:0, spawnInterval:200, minSpawnInterval:70,
   frame:0, difficulty:0,
   drawingAC:null, drawPath:[], drawPathValid:false, drawPathStripIdx:-1, drawPathHeli:false,
-  clouds:[], maxAircraft:8,
-  // Edge warnings: {x,y,edge,age,maxAge,type}
-  warnings:[],
-  // Spawn queue: upcoming aircraft with delay timers
-  spawnQueue:[],
+  clouds:[], maxAircraft:7,
+  warnings:[], spawnQueue:[],
   heliLanded:0, planesSinceHeli:0,
 };
-let activeVerbs=[];
+let activeVerbs=[]; // {verbObj, formsSpawned:Set, formsLanded:Set}
 let completions=[];
 
 function resize(){
@@ -220,68 +219,95 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);
 function dist(x1,y1,x2,y2){return Math.sqrt((x1-x2)**2+(y1-y2)**2)}
 function lerpAngle(a,b,t){let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return a+d*t}
 function normAngle(a){while(a>Math.PI)a-=Math.PI*2;while(a<=-Math.PI)a+=Math.PI*2;return a}
-function fillQueue(){
-  let av=VERBS.filter((_,i)=>!G.usedVerbs.has(i));
-  if(av.length<3){G.usedVerbs.clear();av=[...VERBS];}
-  shuffle(av);G.verbQueue.push(...av);
-}
-function getNextVerb(){
-  if(!G.verbQueue.length)fillQueue();
-  const v=G.verbQueue.shift();
-  const i=VERBS.indexOf(v);if(i>=0)G.usedVerbs.add(i);return v;
-}
+function lerp(a,b,t){return a+(b-a)*t}
+function fillQueue(){let av=VERBS.filter((_,i)=>!G.usedVerbs.has(i));if(av.length<2){G.usedVerbs.clear();av=[...VERBS];}shuffle(av);G.verbQueue.push(...av)}
+function getNextVerb(){if(!G.verbQueue.length)fillQueue();const v=G.verbQueue.shift();const i=VERBS.indexOf(v);if(i>=0)G.usedVerbs.add(i);return v}
 
 // ════════════════════════════════════
-// APPROACH / LANDING SYSTEM
+// LANDING SYSTEM
 // ════════════════════════════════════
 
-function checkApproach(px,py,pAngle,si){
+// Landing detection: the path must cross the runway START LINE
+// at roughly the correct angle, and continue a bit past it.
+// The start line is a perpendicular line at the approach end of the runway.
+
+// Check if a line segment (p1→p2) crosses the start line of strip si
+// and is heading in roughly the right direction
+function segmentCrossesStartLine(p1,p2,si){
   const s=LY.strips[si];
-  const dx=px-s.approachX, dy=py-s.approachY;
-  const d=Math.sqrt(dx*dx+dy*dy);
-  if(d>s.approachLen+20) return false;
-  // Check heading aligns with strip approach angle
-  const diff=Math.abs(normAngle(pAngle-s.approachAngle));
-  return diff<=s.funnelHalf;
+  // Start line: perpendicular to runway at the approach point (ax,ay)
+  // Runway direction vector (normalized)
+  const rdx=s.lx-s.ax, rdy=s.ly-s.ay;
+  const rLen=Math.sqrt(rdx*rdx+rdy*rdy);
+  const ux=rdx/rLen, uy=rdy/rLen; // unit along runway
+  const nx=-uy, ny=ux; // perpendicular (start line direction)
+
+  // Start line segment: centered at (ax,ay), extending ±halfH perpendicular
+  const halfH=s.h*0.8; // slightly wider than runway for forgiveness
+  const lx1=s.ax+nx*halfH, ly1=s.ay+ny*halfH;
+  const lx2=s.ax-nx*halfH, ly2=s.ay-ny*halfH;
+
+  // Check if segment p1→p2 crosses line lx1,ly1→lx2,ly2
+  const d1=cross(lx2-lx1,ly2-ly1,p1.x-lx1,p1.y-ly1);
+  const d2=cross(lx2-lx1,ly2-ly1,p2.x-lx1,p2.y-ly1);
+  const d3=cross(p2.x-p1.x,p2.y-p1.y,lx1-p1.x,ly1-p1.y);
+  const d4=cross(p2.x-p1.x,p2.y-p1.y,lx2-p1.x,ly2-p1.y);
+
+  if(((d1>0&&d2<0)||(d1<0&&d2>0))&&((d3>0&&d4<0)||(d3<0&&d4>0))){
+    // Segments cross! Now check approach angle
+    const pathAngle=Math.atan2(p2.y-p1.y,p2.x-p1.x);
+    const angleDiff=Math.abs(normAngle(pathAngle-s.approachAngle));
+    // Must be within ~60° of correct approach direction
+    return angleDiff<Math.PI/3;
+  }
+  return false;
 }
 
-function pathHitsApproach(path,si){
+function cross(ax,ay,bx,by){return ax*by-ay*bx}
+
+// Does this path cross the start line of strip si at the right angle?
+function pathCrossesStartLine(path,si){
   if(!path||path.length<4) return false;
-  const check=Math.min(path.length-1,20);
-  for(let i=path.length-1-check;i<path.length-1;i++){
-    if(i<0)continue;
-    const p=path[i],pN=path[i+1];
-    const angle=Math.atan2(pN.y-p.y,pN.x-p.x);
-    if(checkApproach(p.x,p.y,angle,si)) return true;
+  // Check all segments
+  for(let i=0;i<path.length-1;i++){
+    if(segmentCrossesStartLine(path[i],path[i+1],si)) return true;
+  }
+  return false;
+}
+
+// Also check the path continues a bit past the start line (at least 2 more points)
+function pathLandsOnStrip(path,si){
+  if(!path||path.length<5) return false;
+  for(let i=0;i<path.length-3;i++){
+    if(segmentCrossesStartLine(path[i],path[i+1],si)){
+      return true; // crossed start line and has points after
+    }
   }
   return false;
 }
 
 function pathHitsHeli(path){
   if(!path||path.length<3) return false;
-  const h=LY.heli;
-  // Check if path end is near heliport
   const last=path[path.length-1];
-  return dist(last.x,last.y,h.x,h.y)<h.r+25;
+  return dist(last.x,last.y,LY.heli.x,LY.heli.y)<LY.heli.r; // must end inside the heliport circle
 }
 
 function canLandOnStrip(ac,si){
   const sd=G.strips[si];
-  if(!sd) return true;
+  if(!sd) return false;
   if(sd.verbObj!==ac.verbObj) return false;
-  if(sd.landed[ac.form]) return false;
+  if(ac.form==='past'&&sd.landed.past) return false;
+  if(ac.form==='pp'&&sd.landed.pp) return false;
   return true;
 }
 
 function evaluatePath(path,ac){
-  // Helicopter → check heliport
   if(ac.isHeli){
     if(pathHitsHeli(path)) return {stripIdx:-1,valid:true,heli:true};
     return {stripIdx:-1,valid:false,heli:false};
   }
-  // Plane → check strips
   for(let si=0;si<2;si++){
-    if(pathHitsApproach(path,si)){
+    if(pathLandsOnStrip(path,si)){
       return {stripIdx:si,valid:canLandOnStrip(ac,si),heli:false};
     }
   }
@@ -289,113 +315,106 @@ function evaluatePath(path,ac){
 }
 
 // ════════════════════════════════════
-// EDGE WARNINGS
+// STRIP ASSIGNMENT
+// ════════════════════════════════════
+
+// When a verb group is created, auto-assign it to a free strip
+function assignVerbToStrip(verbObj){
+  for(let i=0;i<2;i++){
+    if(!G.strips[i]){
+      G.strips[i]={verbObj, landed:{past:false,pp:false}, landOrder:[]};
+      updateStripPanels();
+      return i;
+    }
+  }
+  return -1; // no free strip
+}
+
+// ════════════════════════════════════
+// WARNINGS
 // ════════════════════════════════════
 
 function addWarning(x,y,edge,type){
-  // Clamp to screen edges
   let wx,wy;
-  const m=20;
+  const m=22;
   if(edge==='top'){wx=Math.max(m,Math.min(W-m,x));wy=LY.hudH+m;}
   else if(edge==='left'){wx=m;wy=Math.max(LY.hudH+m,Math.min(H-m,y));}
   else if(edge==='right'){wx=W-m;wy=Math.max(LY.hudH+m,Math.min(H-m,y));}
   else{wx=Math.max(m,Math.min(W-m,x));wy=H-m;}
-  G.warnings.push({x:wx,y:wy,edge,type,age:0,maxAge:90}); // ~1.5 sec at 60fps
+  G.warnings.push({x:wx,y:wy,edge,type,age:0,maxAge:80});
 }
 
 // ════════════════════════════════════
 // SPAWNING
 // ════════════════════════════════════
 
-function flyingCount(){
-  return G.aircraft.filter(a=>a.state!=='landed'&&a.state!=='gone').length;
-}
+function flyingCount(){return G.aircraft.filter(a=>a.state!=='landed'&&a.state!=='gone').length}
 
 function pickSpawnEdge(){
   const edge=['top','left','right'][Math.floor(Math.random()*3)];
   let x,y,angle;
+  // Keep spawns away from corners — use middle 60% of each edge
+  const marginX=W*0.2, marginY=H*0.2;
   if(edge==='top'){
-    x=50+Math.random()*(W-100);y=-25;
-    angle=Math.PI/2+(Math.random()-0.5)*0.5;
+    x=marginX+Math.random()*(W-marginX*2);y=-25;
+    angle=Math.PI/2+(Math.random()-0.5)*0.4;
   }else if(edge==='left'){
-    x=-25;y=LY.hudH+40+Math.random()*(H*0.3);
-    angle=(Math.random()-0.5)*0.6;
+    x=-25;y=LY.hudH+marginY+Math.random()*(H*0.3);
+    angle=(Math.random()-0.5)*0.5;
   }else{
-    x=W+25;y=LY.hudH+40+Math.random()*(H*0.3);
-    angle=Math.PI+(Math.random()-0.5)*0.6;
+    x=W+25;y=LY.hudH+marginY+Math.random()*(H*0.3);
+    angle=Math.PI+(Math.random()-0.5)*0.5;
   }
   return {x,y,angle,edge};
 }
 
 function queueSpawn(type,verbObj,form){
-  const spawn=pickSpawnEdge();
-  // Add warning first
-  addWarning(spawn.x,spawn.y,spawn.edge,type);
-  // Queue the actual spawn after warning finishes
-  G.spawnQueue.push({
-    type,verbObj,form,
-    x:spawn.x,y:spawn.y,angle:spawn.angle,
-    delay:90, // frames until spawn (matches warning duration)
-  });
+  const sp=pickSpawnEdge();
+  addWarning(sp.x,sp.y,sp.edge,type);
+  G.spawnQueue.push({type,verbObj,form,x:sp.x,y:sp.y,angle:sp.angle,delay:80});
 }
 
 function doSpawn(sq){
   const speed=0.5+G.difficulty*0.03;
-  const ac={
+  G.aircraft.push({
     x:sq.x, y:sq.y, angle:sq.angle,
     speed:Math.min(sq.type==='heli'?0.4+G.difficulty*0.02:speed,1.1),
     isHeli:sq.type==='heli',
     verbObj:sq.verbObj||null, form:sq.form||null,
-    text:sq.type==='heli'?null:(sq.form==='base'?sq.verbObj.verb:sq.form==='past'?sq.verbObj.past:sq.verbObj.pp),
+    text:sq.type==='heli'?null:(sq.form==='past'?sq.verbObj.past:sq.verbObj.pp),
     path:null, pathIndex:0,
     state:'flying', stripIdx:-1, radius:sq.type==='heli'?16:18,
     trail:[],
-    formColor:sq.type==='heli'?'#ff9800':
-      (sq.form==='base'?'#ffffff':sq.form==='past'?'#00e5bb':'#ff8a8a'),
+    formColor:sq.type==='heli'?'#ff9800':'#ffffff',
     spawnTime:G.frame, warningLevel:0,
     frozenGlow:0, landingProgress:0, landingStripIdx:-1,
     targetStripIdx:-1, targetHeli:false,
-    heliRotor:0,
-  };
-  G.aircraft.push(ac);
+    heliRotor:0, lockedIn:false, landingScale:1,
+  });
 }
 
 function spawnNextWave(){
   if(flyingCount()>=G.maxAircraft) return;
 
-  // Check if we should spawn a helicopter (1 per 3 planes)
+  // Helicopter ratio: 1 per 3 planes
   if(G.planesSinceHeli>=3){
     G.planesSinceHeli=0;
     queueSpawn('heli',null,null);
     return;
   }
 
-  const maxGroups=G.difficulty<3?1:2;
-
-  // Spawn missing forms for existing verb groups
-  for(const av of activeVerbs){
-    if(av.formsSpawned.size<3 && flyingCount()<G.maxAircraft){
-      const forms=['base','past','pp'].filter(f=>!av.formsSpawned.has(f));
-      if(forms.length){
-        const f=forms[Math.floor(Math.random()*forms.length)];
-        av.formsSpawned.add(f);
-        queueSpawn('plane',av.verbObj,f);
-        G.planesSinceHeli++;
-        return;
-      }
+  // Spawn forms for active verb groups (both strips always have verbs)
+  // Pick a random active verb that still needs forms spawned
+  const needsForms=activeVerbs.filter(av=>av.formsSpawned.size<2);
+  if(needsForms.length>0 && flyingCount()<G.maxAircraft){
+    const av=needsForms[Math.floor(Math.random()*needsForms.length)];
+    const forms=['past','pp'].filter(f=>!av.formsSpawned.has(f));
+    if(forms.length){
+      const f=forms[Math.floor(Math.random()*forms.length)];
+      av.formsSpawned.add(f);
+      queueSpawn('plane',av.verbObj,f);
+      G.planesSinceHeli++;
     }
-  }
-
-  // New verb group
-  const current=activeVerbs.filter(av=>av.formsLanded.size<3);
-  if(current.length<maxGroups && flyingCount()<G.maxAircraft){
-    const verbObj=getNextVerb();
-    const av={verbObj,formsSpawned:new Set(),formsLanded:new Set()};
-    activeVerbs.push(av);
-    const f=['base','past','pp'][Math.floor(Math.random()*3)];
-    av.formsSpawned.add(f);
-    queueSpawn('plane',verbObj,f);
-    G.planesSinceHeli++;
   }
 }
 
@@ -404,8 +423,7 @@ function spawnNextWave(){
 // ════════════════════════════════════
 
 function getPos(e){
-  const r=canvas.getBoundingClientRect();
-  const t=e.touches?e.touches[0]:e;
+  const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;
   return{x:t.clientX-r.left,y:t.clientY-r.top};
 }
 
@@ -413,63 +431,84 @@ function findACAt(x,y){
   let best=null,bestD=40;
   for(const a of G.aircraft){
     if(a.state==='landed'||a.state==='gone'||a.state==='landing') continue;
-    const d=dist(x,y,a.x,a.y);
-    if(d<bestD){best=a;bestD=d;}
+    const d=dist(x,y,a.x,a.y);if(d<bestD){best=a;bestD=d;}
   }
   return best;
 }
 
 function onInputStart(e){
-  e.preventDefault();
-  if(!G.running) return;
-  const pos=getPos(e);
-  const ac=findACAt(pos.x,pos.y);
+  e.preventDefault();if(!G.running) return;
+  const pos=getPos(e);const ac=findACAt(pos.x,pos.y);
   if(ac){
-    ac.state='frozen';ac.frozenGlow=0;
-    ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;
-    G.drawingAC=ac;
-    G.drawPath=[{x:ac.x,y:ac.y}];
+    ac.state='frozen';ac.frozenGlow=0;ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;ac.lockedIn=false;
+    G.drawingAC=ac;G.drawPath=[{x:ac.x,y:ac.y}];
     G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
   }
 }
 
 function onInputMove(e){
-  e.preventDefault();
-  if(!G.running||!G.drawingAC) return;
-  const pos=getPos(e);
-  const last=G.drawPath[G.drawPath.length-1];
-  if(dist(pos.x,pos.y,last.x,last.y)>5){
-    G.drawPath.push(pos);
-    const ev=evaluatePath(G.drawPath,G.drawingAC);
-    G.drawPathValid=ev.valid;
-    G.drawPathStripIdx=ev.stripIdx;
-    G.drawPathHeli=ev.heli;
+  e.preventDefault();if(!G.running||!G.drawingAC) return;
+  const pos=getPos(e);const last=G.drawPath[G.drawPath.length-1];
+  const d=dist(pos.x,pos.y,last.x,last.y);
 
-    if(G.drawingAC.state==='frozen'&&G.drawPath.length>4){
+  // Minimum distance between path points — prevents jitter
+  if(d<12) return;
+
+  // Smooth: average with last point to reduce jaggedness
+  let px=pos.x, py=pos.y;
+  if(G.drawPath.length>=2){
+    const prev=G.drawPath[G.drawPath.length-1];
+    px=prev.x*0.3+pos.x*0.7;
+    py=prev.y*0.3+pos.y*0.7;
+  }
+  G.drawPath.push({x:px,y:py});
+
+  const ev=evaluatePath(G.drawPath,G.drawingAC);
+  G.drawPathValid=ev.valid;G.drawPathStripIdx=ev.stripIdx;G.drawPathHeli=ev.heli;
+
+  // Start plane moving — need larger dead zone (>25px from start AND enough points)
+  if(G.drawingAC.state==='frozen'){
+    const startDist=dist(G.drawingAC.x,G.drawingAC.y,px,py);
+    if(G.drawPath.length>6 && startDist>25){
       G.drawingAC.state='following';
       G.drawingAC.path=G.drawPath;
       G.drawingAC.pathIndex=0;
     }
   }
+
+  // AUTO-RELEASE on valid lock-in
+  if(ev.valid){
+    finalizePath(G.drawingAC, ev);
+  }
 }
 
 function onInputEnd(e){
-  e.preventDefault();
-  if(!G.running||!G.drawingAC) return;
+  e.preventDefault();if(!G.running||!G.drawingAC) return;
   const ac=G.drawingAC;
 
-  if(G.drawPath.length>=3){
-    const ev=evaluatePath(G.drawPath,ac);
-    ac.path=[...G.drawPath];
-    ac.pathIndex=Math.max(0,ac.pathIndex);
-    ac.state='following';
-    if(ev.valid&&ev.heli){ac.targetHeli=true;ac.targetStripIdx=-1;}
-    else if(ev.valid){ac.targetStripIdx=ev.stripIdx;ac.targetHeli=false;}
-    else{ac.targetStripIdx=-1;ac.targetHeli=false;}
-  }else{
-    ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;
+  if(!ac.lockedIn){
+    // Not locked in — set path but no landing target
+    if(G.drawPath.length>=3){
+      ac.path=[...G.drawPath];ac.pathIndex=Math.max(0,ac.pathIndex);
+      ac.state='following';ac.targetStripIdx=-1;ac.targetHeli=false;
+    }else{
+      ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.targetHeli=false;
+    }
   }
 
+  G.drawingAC=null;G.drawPath=[];
+  G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
+}
+
+function finalizePath(ac, ev){
+  // Lock in the path — stop drawing
+  ac.path=[...G.drawPath];
+  ac.pathIndex=Math.max(0,ac.pathIndex);
+  ac.state='following';ac.lockedIn=true;
+  if(ev.heli){ac.targetHeli=true;ac.targetStripIdx=-1;}
+  else{ac.targetStripIdx=ev.stripIdx;ac.targetHeli=false;}
+
+  // Release drawing
   G.drawingAC=null;G.drawPath=[];
   G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
 }
@@ -480,65 +519,63 @@ function onInputEnd(e){
 
 function updateAC(a){
   if(a.state==='landed'||a.state==='gone') return;
-
   if(a.isHeli) a.heliRotor+=0.3;
-
   if(a.state==='frozen'){a.frozenGlow+=0.08;return;}
 
   if(a.state==='landing'){
-    a.landingProgress+=0.015;
+    // Landing: speed up slightly (1.3x) and shrink (scale to 0.5)
+    const s_=a.isHeli?null:LY.strips[a.landingStripIdx];
+    const landDist=a.isHeli?dist(a._lsx,a._lsy,LY.heli.x,LY.heli.y):dist(s_.ax,s_.ay,s_.lx,s_.ly);
+    const progressPerFrame=landDist>0?(a.speed*1.3)/landDist:0.01;
+    a.landingProgress+=progressPerFrame;
+    const t=Math.min(1,a.landingProgress);
+    // Scale shrinks from 1.0 to 0.6 in first 20% of landing, then stays stable
+    const scaleT=Math.min(1,t/0.2); // 0→1 over first 20% of progress
+    a.landingScale=1.0-scaleT*0.4;
     if(a.isHeli){
-      // Helicopter lands toward heliport center
-      const h=LY.heli;
-      const startX=a._landStartX, startY=a._landStartY;
-      const t=Math.min(1,a.landingProgress);
-      a.x=startX+(h.x-startX)*t;
-      a.y=startY+(h.y-startY)*t;
-      a.angle=Math.atan2(h.y-startY,h.x-startX);
-      if(t>=1){a.state='landed';a.x=h.x;a.y=h.y;completeHeliLanding(a);}
+      a.x=lerp(a._lsx,LY.heli.x,t);
+      a.y=lerp(a._lsy,LY.heli.y,t);
+      a.angle=Math.atan2(LY.heli.y-a._lsy,LY.heli.x-a._lsx);
+      if(t>=1){a.state='landed';a.landingScale=0.6;completeHeliLanding(a);}
     }else{
       const s=LY.strips[a.landingStripIdx];
-      const t=Math.min(1,a.landingProgress);
-      a.x=s.approachX+(s.landX-s.approachX)*t;
-      a.y=s.approachY+(s.landY-s.approachY)*t;
+      a.x=lerp(s.ax,s.lx,t);
+      a.y=lerp(s.ay,s.ly,t);
       a.angle=s.approachAngle;
-      if(t>=1){a.state='landed';a.x=s.landX;a.y=s.landY;completePlaneLanding(a);}
+      if(t>=1){a.state='landed';a.landingScale=0.6;a.x=s.lx;a.y=s.ly;completePlaneLanding(a);}
     }
     return;
   }
 
   // Trail
-  if(G.frame%2===0){
-    a.trail.push({x:a.x,y:a.y,age:0});
-    if(a.trail.length>25) a.trail.shift();
-  }
+  if(G.frame%2===0){a.trail.push({x:a.x,y:a.y,age:0});if(a.trail.length>25)a.trail.shift();}
   a.trail.forEach(t=>t.age++);
 
   if(a.state==='following'&&a.path&&a.path.length>1){
     const target=a.path[a.pathIndex+1];
     if(!target){
-      // End of path
-      if(a.targetHeli&&a.isHeli){
-        initiateHeliLanding(a);
-      }else if(a.targetStripIdx>=0&&!a.isHeli&&canLandOnStrip(a,a.targetStripIdx)){
-        initiatePlaneLanding(a,a.targetStripIdx);
-      }else{
-        a.state='flying';a.path=null;a.targetStripIdx=-1;a.targetHeli=false;
-      }
+      if(a.targetHeli&&a.isHeli) initiateHeliLanding(a);
+      else if(a.targetStripIdx>=0&&!a.isHeli&&canLandOnStrip(a,a.targetStripIdx)) initiatePlaneLanding(a,a.targetStripIdx);
+      else{a.state='flying';a.path=null;a.targetStripIdx=-1;a.targetHeli=false;a.lockedIn=false;}
     }else{
       const dx=target.x-a.x, dy=target.y-a.y;
       const d=Math.sqrt(dx*dx+dy*dy);
       const tAngle=Math.atan2(dy,dx);
-      a.angle=lerpAngle(a.angle,tAngle,0.15);
+      // Snap harder when close to avoid spinning on tight points
+      const snapT=d<20?0.4:0.18;
+      a.angle=lerpAngle(a.angle,tAngle,snapT);
       a.x+=Math.cos(a.angle)*a.speed;
       a.y+=Math.sin(a.angle)*a.speed;
-      if(d<a.speed*2.5) a.pathIndex++;
+      if(d<a.speed*3) a.pathIndex++;
 
-      // Check early approach
-      if(!a.isHeli&&a.targetStripIdx>=0&&checkApproach(a.x,a.y,a.angle,a.targetStripIdx)){
-        if(canLandOnStrip(a,a.targetStripIdx)) initiatePlaneLanding(a,a.targetStripIdx);
+      // Early landing trigger: plane reaches near the approach point of target strip
+      if(!a.isHeli&&a.targetStripIdx>=0){
+        const s=LY.strips[a.targetStripIdx];
+        if(dist(a.x,a.y,s.ax,s.ay)<30){
+          if(canLandOnStrip(a,a.targetStripIdx)) initiatePlaneLanding(a,a.targetStripIdx);
+        }
       }
-      if(a.isHeli&&a.targetHeli&&dist(a.x,a.y,LY.heli.x,LY.heli.y)<LY.heli.r+20){
+      if(a.isHeli&&a.targetHeli&&dist(a.x,a.y,LY.heli.x,LY.heli.y)<LY.heli.r+5){
         initiateHeliLanding(a);
       }
     }
@@ -547,7 +584,6 @@ function updateAC(a){
     a.x+=Math.cos(a.angle)*a.speed;
     a.y+=Math.sin(a.angle)*a.speed;
     if(G.frame%90===0) a.angle+=(Math.random()-0.5)*0.25;
-
     const m=50;
     if(a.x<m) a.angle=lerpAngle(a.angle,0,0.04);
     if(a.x>W-m) a.angle=lerpAngle(a.angle,Math.PI,0.04);
@@ -555,44 +591,44 @@ function updateAC(a){
     if(a.y>LY.playBottom-40) a.angle=lerpAngle(a.angle,-Math.PI/2,0.04);
   }
 
-  const flyTime=G.frame-a.spawnTime;
-  a.warningLevel=flyTime>600?2:flyTime>400?1:0;
+  const ft=G.frame-a.spawnTime;
+  a.warningLevel=ft>600?2:ft>400?1:0;
 
   const off=60;
-  if(a.x<-off) a.x=W+off/2;
-  if(a.x>W+off) a.x=-off/2;
-  if(a.y<-off) a.y=H*0.3;
-  if(a.y>H+off) a.y=-off/2;
+  if(a.x<-off)a.x=W+off/2;if(a.x>W+off)a.x=-off/2;
+  if(a.y<-off)a.y=H*0.3;if(a.y>H+off)a.y=-off/2;
 }
 
 function initiatePlaneLanding(ac,si){
-  if(!canLandOnStrip(ac,si)){
-    ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.angle=0;return;
-  }
+  if(!canLandOnStrip(ac,si)){ac.state='flying';ac.path=null;ac.targetStripIdx=-1;ac.lockedIn=false;return;}
   ac.state='landing';ac.landingStripIdx=si;ac.landingProgress=0;ac.path=null;
-  if(!G.strips[si]){
-    G.strips[si]={verbObj:ac.verbObj,landed:{base:false,past:false,pp:false},landOrder:[]};
-    updateStripPanels();
-  }
-}
 
-function completePlaneLanding(ac){
-  const si=ac.landingStripIdx;
+  // Mark as landed immediately in the UI
   const sd=G.strips[si];if(!sd) return;
   sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
   const av=activeVerbs.find(a=>a.verbObj===ac.verbObj);
   if(av) av.formsLanded.add(ac.form);
   updateStripPanels();
+}
 
-  if(sd.landed.base&&sd.landed.past&&sd.landed.pp){
-    const ordered=sd.landOrder[0]==='base'&&sd.landOrder[1]==='past'&&sd.landOrder[2]==='pp';
-    const pts=ordered?30:15;
+function completePlaneLanding(ac){
+  const si=ac.landingStripIdx;const sd=G.strips[si];if(!sd) return;
+  // Already marked landed in initiate — just check completion
+
+  if(sd.landed.past&&sd.landed.pp){
+    const ordered=sd.landOrder[0]==='past'&&sd.landOrder[1]==='pp';
+    const pts=ordered?25:12;
     G.score+=pts;G.verbsCompleted++;
     showCompletion(si,sd.verbObj,ordered,pts);
     G.aircraft=G.aircraft.filter(p=>!(p.state==='landed'&&p.landingStripIdx===si));
     setTimeout(()=>{
       G.strips[si]=null;
       activeVerbs=activeVerbs.filter(av=>av.verbObj!==sd.verbObj);
+      // Immediately assign a new verb to the freed strip
+      const newVerb=getNextVerb();
+      const newAv={verbObj:newVerb,formsSpawned:new Set(),formsLanded:new Set()};
+      activeVerbs.push(newAv);
+      assignVerbToStrip(newVerb);
       updateStripPanels();
     },800);
     updateHUD();
@@ -600,22 +636,15 @@ function completePlaneLanding(ac){
 }
 
 function initiateHeliLanding(ac){
-  // Check if heliport is free
   const heliOnPad=G.aircraft.some(a=>a.isHeli&&a.state==='landed');
-  if(heliOnPad){
-    ac.state='flying';ac.path=null;ac.targetHeli=false;
-    ac.angle+=(Math.random()-0.5)*1;return;
-  }
+  if(heliOnPad){ac.state='flying';ac.path=null;ac.targetHeli=false;ac.lockedIn=false;ac.angle+=(Math.random()-0.5);return;}
   ac.state='landing';ac.landingProgress=0;ac.path=null;
-  ac._landStartX=ac.x;ac._landStartY=ac.y;
+  ac._lsx=ac.x;ac._lsy=ac.y;
 }
 
 function completeHeliLanding(ac){
   G.score+=5;G.heliLanded++;updateHUD();
-  // Helicopter departs after a short time
-  setTimeout(()=>{
-    if(ac.state==='landed'){ac.state='gone';}
-  },2000);
+  setTimeout(()=>{if(ac.state==='landed')ac.state='gone';},2000);
 }
 
 // ── Collisions ──
@@ -633,25 +662,13 @@ function checkCollisions(){
 // ── Completions ──
 function showCompletion(si,verbObj,ordered,pts){
   const s=LY.strips[si];
-  completions.push({
-    x:s.landX,y:s.landY-20,
+  completions.push({x:(s.ax+s.lx)/2,y:(s.ay+s.ly)/2-25,
     text:`${verbObj.verb} → ${verbObj.past} → ${verbObj.pp}`,
     bonus:ordered?`✨ +${pts} ORDER BONUS!`:`+${pts}`,
-    ordered,age:0,maxAge:120,
-  });
-  document.getElementById(`strip-panel-${si}`).className='strip-panel strip-complete';
-}
-
-// ── Clouds ──
-function initClouds(){
-  G.clouds=[];
-  for(let i=0;i<8;i++){
-    G.clouds.push({
-      x:Math.random()*W,y:LY.hudH+Math.random()*(H*0.4),
-      w:60+Math.random()*100,h:20+Math.random()*25,
-      speed:0.08+Math.random()*0.12,opacity:0.05+Math.random()*0.08,
-    });
-  }
+    ordered,age:0,maxAge:120});
+  const panel=document.getElementById(`strip-panel-${si}`);
+  panel.classList.add('complete');
+  setTimeout(()=>panel.classList.remove('complete'),600);
 }
 
 // ── HUD ──
@@ -661,21 +678,21 @@ function updateHUD(){
 }
 function updateStripPanels(){
   for(let i=0;i<2;i++){
-    const panel=document.getElementById(`strip-panel-${i}`);
-    const chainEl=document.getElementById(`strip-chain-${i}`);
+    const infEl=document.getElementById(`verb-inf-${i}`);
+    const pastEl=document.getElementById(`verb-past-${i}`);
+    const ppEl=document.getElementById(`verb-pp-${i}`);
     const s=G.strips[i];
     if(!s){
-      panel.className='strip-panel strip-free';
-      chainEl.innerHTML='<span class="strip-panel-label">Empty</span>';
+      infEl.textContent='—';
+      pastEl.textContent='???';pastEl.className='verb-form';
+      ppEl.textContent='???';ppEl.className='verb-form';
     }else{
-      panel.className='strip-panel strip-active';
       const v=s.verbObj;
-      const mk=(filled,cls,text)=>filled
-        ?`<span class="chain-slot chain-filled-${cls}">${text}</span>`
-        :`<span class="chain-slot chain-empty">???</span>`;
-      chainEl.innerHTML=mk(s.landed.base,'base',v.verb)+
-        '<span class="chain-arrow">→</span>'+mk(s.landed.past,'past',v.past)+
-        '<span class="chain-arrow">→</span>'+mk(s.landed.pp,'pp',v.pp);
+      infEl.textContent=v.verb;
+      if(s.landed.past){pastEl.textContent=v.past;pastEl.className='verb-form landed-past';}
+      else{pastEl.textContent='???';pastEl.className='verb-form';}
+      if(s.landed.pp){ppEl.textContent=v.pp;ppEl.className='verb-form landed-pp';}
+      else{ppEl.textContent='???';ppEl.className='verb-form';}
     }
   }
 }
@@ -685,146 +702,161 @@ function updateStripPanels(){
 // ═══════════════════════════════════
 
 function drawBackground(){
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#1a3a5c');g.addColorStop(0.4,'#2d6a9f');
-  g.addColorStop(0.7,'#4a90c4');g.addColorStop(1,'#5ba3d1');
+  // Top-down grass field
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#2d6b1e');g.addColorStop(0.5,'#347a24');g.addColorStop(1,'#2a5f1a');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
-  const gy=H*0.50;
-  const gg=ctx.createLinearGradient(0,gy,0,H);
-  gg.addColorStop(0,'#3d7a3d');gg.addColorStop(0.3,'#357035');gg.addColorStop(1,'#2d602d');
-  ctx.fillStyle=gg;ctx.fillRect(0,gy,W,H-gy);
+  // Grass stripes (mowing pattern)
+  for(let i=0;i<Math.ceil(H/30)+1;i++){
+    ctx.fillStyle=i%2===0?'rgba(50,130,35,0.15)':'rgba(30,90,20,0.1)';
+    ctx.fillRect(0,i*30,W,15);
+  }
 
-  ctx.fillStyle='rgba(74,143,74,0.25)';
-  for(let i=0;i<12;i++){if(i%2===0)ctx.fillRect(0,gy+i*18,W,9);}
+  // Some "city" blocks in corners (top-down buildings)
+  ctx.fillStyle='rgba(80,80,80,0.25)';
+  // Top-left cluster
+  for(let i=0;i<4;i++){for(let j=0;j<3;j++){
+    const bx=15+i*28+Math.sin(i*3)*5, by=LY.hudH+12+j*22+Math.cos(j*2)*3;
+    const bw=18+Math.random()*8, bh=14+Math.random()*6;
+    ctx.fillRect(bx,by,bw,bh);
+  }}
+  // Bottom-right cluster
+  for(let i=0;i<3;i++){for(let j=0;j<3;j++){
+    const bx=W-120+i*30, by=H-100+j*22;
+    ctx.fillRect(bx,by,20,15);
+  }}
 
-  for(const c of G.clouds){
-    c.x+=c.speed;if(c.x>W+c.w)c.x=-c.w;
-    ctx.fillStyle=`rgba(255,255,255,${c.opacity})`;
-    ctx.beginPath();ctx.ellipse(c.x,c.y,c.w/2,c.h/2,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(c.x-c.w*0.25,c.y+c.h*0.1,c.w*0.3,c.h*0.4,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(c.x+c.w*0.2,c.y+c.h*0.05,c.w*0.35,c.h*0.35,0,0,Math.PI*2);ctx.fill();
+  // Roads (thin lines connecting to airport)
+  ctx.strokeStyle='rgba(100,100,100,0.3)';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(0,LY.jy);ctx.lineTo(LY.strips[0].ax-10,LY.jy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(LY.jx+60,LY.jy);ctx.lineTo(W,LY.jy);ctx.stroke();
+
+  // Trees (small circles)
+  ctx.fillStyle='rgba(20,80,15,0.4)';
+  const treeSeed=[0.1,0.15,0.8,0.85,0.05,0.92,0.12,0.88];
+  for(let i=0;i<treeSeed.length;i++){
+    const tx=treeSeed[i]*W, ty=LY.hudH+50+((i*137)%300);
+    // Don't draw on airport area
+    if(dist(tx,ty,LY.jx,LY.jy)<180) continue;
+    ctx.beginPath();ctx.arc(tx,ty,6+i%3*2,0,Math.PI*2);ctx.fill();
   }
 }
 
-function drawRunways(){
-  // Terminal building (decorative)
-  const t=LY;
-  ctx.fillStyle='rgba(120,100,80,0.6)';
-  ctx.fillRect(t.termX,t.termY,t.termW,t.termH);
-  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
-  ctx.strokeRect(t.termX,t.termY,t.termW,t.termH);
+function drawRunway(si){
+  const s=LY.strips[si];
+  const sd=G.strips[si];
+  const dx=s.lx-s.ax, dy=s.ly-s.ay;
+  const len=Math.sqrt(dx*dx+dy*dy);
+  const ang=Math.atan2(dy,dx);
 
-  for(let i=0;i<LY.strips.length;i++){
-    const s=LY.strips[i];
-    const sd=G.strips[i];
+  // Start line + approach indicator
+  ctx.save();
+  ctx.translate(s.ax,s.ay);ctx.rotate(ang);
 
-    ctx.save();
+  // Start line (perpendicular white line at runway entrance)
+  ctx.strokeStyle=sd?'rgba(255,204,0,0.6)':'rgba(255,255,255,0.35)';
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(0,-s.h/2-4);ctx.lineTo(0,s.h/2+4);ctx.stroke();
 
-    if(i===0){
-      // Horizontal strip — draw approach funnel
-      ctx.globalAlpha=sd?0.12:0.06;
-      ctx.fillStyle=sd?'#ffcc00':'#ffffff';
-      ctx.beginPath();ctx.moveTo(s.approachX,s.approachY);
-      const fL=s.approachLen;
-      ctx.lineTo(s.approachX-fL,s.approachY-Math.tan(s.funnelHalf)*fL);
-      ctx.lineTo(s.approachX-fL,s.approachY+Math.tan(s.funnelHalf)*fL);
-      ctx.closePath();ctx.fill();
-      ctx.globalAlpha=1;
-
-      // Runway rect
-      ctx.fillStyle='#3a3a3a';ctx.fillRect(s.x,s.y,s.w,s.h);
-      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.strokeRect(s.x,s.y,s.w,s.h);
-
-      // Dashes
-      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.setLineDash([12,8]);
-      ctx.beginPath();ctx.moveTo(s.x+15,s.y+s.h/2);ctx.lineTo(s.x+s.w-15,s.y+s.h/2);ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Label
-      ctx.fillStyle='rgba(255,255,255,0.25)';
-      ctx.font='700 10px "Share Tech Mono",monospace';ctx.textAlign='center';
-      ctx.fillText('RWY 1',s.x+30,s.y+s.h/2+3);
-
-      // Approach arrow
-      const ax=s.x+8,ay=s.y+s.h/2;
-      ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
-      ctx.beginPath();ctx.moveTo(ax+8,ay);ctx.lineTo(ax-2,ay-5);ctx.lineTo(ax-2,ay+5);ctx.closePath();ctx.fill();
-
-    }else{
-      // Angled strip — rotate canvas
-      ctx.translate(s.drawX,s.drawY);
-      ctx.rotate(-STRIP_ANGLE);
-
-      // Funnel (at the approach end = origin after rotation)
-      ctx.globalAlpha=sd?0.12:0.06;
-      ctx.fillStyle=sd?'#ffcc00':'#ffffff';
-      ctx.beginPath();ctx.moveTo(0,0);
-      const fL=s.approachLen;
-      ctx.lineTo(-fL,-Math.tan(s.funnelHalf)*fL);
-      ctx.lineTo(-fL,Math.tan(s.funnelHalf)*fL);
-      ctx.closePath();ctx.fill();
-      ctx.globalAlpha=1;
-
-      // Runway
-      ctx.fillStyle='#3a3a3a';ctx.fillRect(0,-s.h/2,s.w,s.h);
-      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.strokeRect(0,-s.h/2,s.w,s.h);
-
-      // Dashes
-      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.setLineDash([12,8]);
-      ctx.beginPath();ctx.moveTo(15,0);ctx.lineTo(s.w-15,0);ctx.stroke();ctx.setLineDash([]);
-
-      // Label
-      ctx.fillStyle='rgba(255,255,255,0.25)';
-      ctx.font='700 10px "Share Tech Mono",monospace';ctx.textAlign='center';
-      ctx.fillText('RWY 2',30,3);
-
-      // Arrow
-      ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
-      ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-2,-5);ctx.lineTo(-2,5);ctx.closePath();ctx.fill();
-    }
-
-    // Active glow
-    if(sd){
-      ctx.shadowColor='rgba(255,204,0,0.25)';ctx.shadowBlur=12;
-      if(i===0){
-        ctx.strokeStyle='rgba(255,204,0,0.3)';ctx.lineWidth=2;
-        ctx.strokeRect(s.x-2,s.y-2,s.w+4,s.h+4);
-      }else{
-        ctx.strokeStyle='rgba(255,204,0,0.3)';ctx.lineWidth=2;
-        ctx.strokeRect(-2,-s.h/2-2,s.w+4,s.h+4);
-      }
-      ctx.shadowBlur=0;
-
-      // Verb name
-      ctx.font='700 11px "Fredoka One",cursive';ctx.textAlign='center';
-      ctx.fillStyle='rgba(255,204,0,0.35)';
-      if(i===0) ctx.fillText(sd.verbObj.verb.toUpperCase(),s.x+s.w/2,s.y+s.h/2+4);
-      else ctx.fillText(sd.verbObj.verb.toUpperCase(),s.w/2,4);
-    }
-
-    ctx.restore();
+  // Small approach chevrons before start line
+  ctx.strokeStyle=sd?'rgba(255,204,0,0.25)':'rgba(255,255,255,0.1)';
+  ctx.lineWidth=1.5;
+  for(let ci=1;ci<=3;ci++){
+    const cx=-ci*12;
+    ctx.beginPath();ctx.moveTo(cx-5,-6);ctx.lineTo(cx,0);ctx.lineTo(cx-5,6);ctx.stroke();
   }
+
+  // Runway body
+  ctx.fillStyle='#3a3a3a';
+  ctx.fillRect(0,-s.h/2,len,s.h);
+  ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1;
+  ctx.strokeRect(0,-s.h/2,len,s.h);
+
+  // Edge markings
+  ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(4,-s.h/2+2);ctx.lineTo(len-4,-s.h/2+2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(4,s.h/2-2);ctx.lineTo(len-4,s.h/2-2);ctx.stroke();
+
+  // Center dashes
+  ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.setLineDash([12,8]);
+  ctx.beginPath();ctx.moveTo(15,0);ctx.lineTo(len-15,0);ctx.stroke();ctx.setLineDash([]);
+
+  // RWY label at approach end
+  ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.font='700 9px "Share Tech Mono",monospace';ctx.textAlign='center';
+  ctx.fillText(`RWY ${si+1}`,22,3);
+
+  // Approach arrow
+  ctx.fillStyle=sd?'rgba(255,204,0,0.5)':'rgba(255,255,255,0.2)';
+  ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(2,-5);ctx.lineTo(2,5);ctx.closePath();ctx.fill();
+
+  // VERB INFINITIVE on runway — BIG and visible
+  if(sd){
+    // Glow
+    ctx.shadowColor='rgba(255,204,0,0.4)';ctx.shadowBlur=15;
+    ctx.strokeStyle='rgba(255,204,0,0.35)';ctx.lineWidth=2;
+    ctx.strokeRect(-2,-s.h/2-2,len+4,s.h+4);
+    ctx.shadowBlur=0;
+
+    // Background pill behind text
+    ctx.font='900 20px "Fredoka One",cursive';ctx.textAlign='center';
+    const vText=sd.verbObj.verb.toUpperCase();
+    const tw=ctx.measureText(vText).width;
+    const px=len/2, py=1;
+    const pillW=tw+16, pillH=22;
+    ctx.fillStyle='rgba(0,0,0,0.45)';
+    ctx.beginPath();ctx.roundRect(px-pillW/2,py-pillH/2,pillW,pillH,6);ctx.fill();
+
+    // Text
+    ctx.fillStyle='rgba(255,220,80,0.9)';
+    ctx.fillText(vText,px,py+7);
+  }
+
+  ctx.restore();
+}
+
+function drawRunways(){
+  // Terminal building
+  ctx.fillStyle='rgba(100,85,70,0.7)';
+  ctx.fillRect(LY.termX,LY.termY,LY.termW,LY.termH);
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+  ctx.strokeRect(LY.termX,LY.termY,LY.termW,LY.termH);
+  // Terminal windows
+  ctx.fillStyle='rgba(200,200,150,0.3)';
+  for(let i=0;i<3;i++){for(let j=0;j<4;j++){
+    ctx.fillRect(LY.termX+5+j*10,LY.termY+5+i*14,6,8);
+  }}
+
+  // Draw both runways
+  drawRunway(0);
+  drawRunway(1);
+
+  // Junction circle (where they connect)
+  ctx.fillStyle='rgba(58,58,58,0.8)';
+  ctx.beginPath();ctx.arc(LY.jx,LY.jy,18,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(LY.jx,LY.jy,18,0,Math.PI*2);ctx.stroke();
 
   // Heliport
   const h=LY.heli;
-  ctx.strokeStyle='rgba(0,200,255,0.4)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='rgba(60,60,60,0.7)';
-  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();
-  // H
-  ctx.font='700 16px "Share Tech Mono",monospace';ctx.textAlign='center';
-  ctx.fillStyle='rgba(0,200,255,0.6)';ctx.fillText('H',h.x,h.y+5);
-  // Circle outline glow
   const heliOcc=G.aircraft.some(a=>a.isHeli&&a.state==='landed');
+  ctx.fillStyle='rgba(50,50,50,0.75)';
+  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=heliOcc?'rgba(255,152,0,0.4)':'rgba(0,200,255,0.4)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.stroke();
+  ctx.font='700 16px "Share Tech Mono",monospace';ctx.textAlign='center';
+  ctx.fillStyle=heliOcc?'rgba(255,152,0,0.5)':'rgba(0,200,255,0.5)';
+  ctx.fillText('H',h.x,h.y+5);
   if(!heliOcc){
-    ctx.strokeStyle='rgba(0,200,255,0.15)';ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(0,200,255,0.1)';ctx.lineWidth=1;
     ctx.beginPath();ctx.arc(h.x,h.y,h.r+8,0,Math.PI*2);ctx.stroke();
   }
 }
 
 function drawPlaneShape(a){
-  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);
+  const sc=(a.landingScale||1)*1.35;
+  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);ctx.scale(sc,sc);
   ctx.fillStyle='rgba(0,0,0,0.12)';
   ctx.beginPath();ctx.ellipse(2,3,16,6,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle=a.formColor;ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=1;
@@ -836,37 +868,32 @@ function drawPlaneShape(a){
 }
 
 function drawHeliShape(a){
-  ctx.save();ctx.translate(a.x,a.y);
-  // Body
+  const sc=(a.landingScale||1)*1.3;
+  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);ctx.scale(sc,sc);
   ctx.fillStyle='rgba(0,0,0,0.1)';
   ctx.beginPath();ctx.ellipse(1,2,12,8,0,0,Math.PI*2);ctx.fill();
-
   ctx.fillStyle=a.formColor;ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1;
-  // Body ellipse
   ctx.beginPath();ctx.ellipse(0,0,10,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-  // Tail boom
   ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(-18,-2);ctx.lineTo(-18,2);ctx.closePath();ctx.fill();ctx.stroke();
-  // Tail rotor
   ctx.strokeStyle=a.formColor;ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(-18,-6);ctx.lineTo(-18,6);ctx.stroke();
-  // Skids
   ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(-6,7);ctx.lineTo(6,7);ctx.stroke();
   ctx.beginPath();ctx.moveTo(-6,8);ctx.lineTo(8,8);ctx.stroke();
-
-  // Main rotor (spinning)
-  ctx.strokeStyle=`rgba(255,255,255,0.5)`;ctx.lineWidth=1.5;
-  const rLen=16;
-  ctx.beginPath();
-  ctx.moveTo(Math.cos(a.heliRotor)*rLen,Math.sin(a.heliRotor)*rLen*0.3);
-  ctx.lineTo(Math.cos(a.heliRotor+Math.PI)*rLen,Math.sin(a.heliRotor+Math.PI)*rLen*0.3);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(Math.cos(a.heliRotor+Math.PI/2)*rLen,Math.sin(a.heliRotor+Math.PI/2)*rLen*0.3);
-  ctx.lineTo(Math.cos(a.heliRotor+Math.PI*1.5)*rLen,Math.sin(a.heliRotor+Math.PI*1.5)*rLen*0.3);
-  ctx.stroke();
-
   ctx.restore();
+
+  // Rotor (drawn in world space, spinning, scaled with landing)
+  const rSc=a.landingScale||1;
+  ctx.strokeStyle='rgba(255,255,255,0.45)';ctx.lineWidth=1.5;
+  const rLen=16*rSc;
+  ctx.beginPath();
+  ctx.moveTo(a.x+Math.cos(a.heliRotor)*rLen, a.y+Math.sin(a.heliRotor)*rLen*0.3);
+  ctx.lineTo(a.x+Math.cos(a.heliRotor+Math.PI)*rLen, a.y+Math.sin(a.heliRotor+Math.PI)*rLen*0.3);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(a.x+Math.cos(a.heliRotor+Math.PI/2)*rLen, a.y+Math.sin(a.heliRotor+Math.PI/2)*rLen*0.3);
+  ctx.lineTo(a.x+Math.cos(a.heliRotor+Math.PI*1.5)*rLen, a.y+Math.sin(a.heliRotor+Math.PI*1.5)*rLen*0.3);
+  ctx.stroke();
 }
 
 function drawAircraft(){
@@ -880,7 +907,7 @@ function drawAircraft(){
 
     // Trail
     for(const t of a.trail){
-      const al=Math.max(0,0.25-t.age*0.01);
+      const al=Math.max(0,0.2-t.age*0.008);
       ctx.fillStyle=`rgba(255,255,255,${al})`;
       ctx.beginPath();ctx.arc(t.x,t.y,1.5,0,Math.PI*2);ctx.fill();
     }
@@ -889,13 +916,20 @@ function drawAircraft(){
     if(a.state==='frozen'){
       const pulse=Math.sin(a.frozenGlow)*0.5+0.5;
       ctx.strokeStyle=`rgba(255,255,255,${0.3+pulse*0.4})`;ctx.lineWidth=2;
-      ctx.beginPath();ctx.arc(a.x,a.y,26+pulse*4,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(a.x,a.y,30+pulse*4,0,Math.PI*2);ctx.stroke();
       ctx.fillStyle=`rgba(255,255,255,${0.04+pulse*0.04})`;
-      ctx.beginPath();ctx.arc(a.x,a.y,24,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(a.x,a.y,28,0,Math.PI*2);ctx.fill();
+    }
+
+    // Locked-in glow (green pulsing ring)
+    if(a.lockedIn&&(a.state==='following')){
+      const pulse=Math.sin(G.frame*0.12)*0.5+0.5;
+      ctx.strokeStyle=`rgba(0,229,187,${0.4+pulse*0.4})`;ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.arc(a.x,a.y,28+pulse*3,0,Math.PI*2);ctx.stroke();
     }
 
     // Warning ring
-    if(a.warningLevel>0&&a.state!=='frozen'){
+    if(a.warningLevel>0&&a.state!=='frozen'&&!a.lockedIn){
       const pulse=Math.sin(G.frame*0.1)*0.5+0.5;
       ctx.strokeStyle=a.warningLevel>=2?`rgba(255,68,68,${0.4+pulse*0.4})`:`rgba(255,204,0,${0.3+pulse*0.3})`;
       ctx.lineWidth=2;ctx.beginPath();ctx.arc(a.x,a.y,24+pulse*4,0,Math.PI*2);ctx.stroke();
@@ -903,17 +937,18 @@ function drawAircraft(){
 
     if(a.isHeli) drawHeliShape(a); else drawPlaneShape(a);
 
-    // Label (only for planes with verbs)
+    // Label
     if(a.text){
-      const ly=a.y-22;
-      ctx.font='700 12px "Fredoka One",cursive';ctx.textAlign='center';
+      const ly=a.y-28;
+      ctx.font='700 14px "Fredoka One",cursive';ctx.textAlign='center';
       const tw=ctx.measureText(a.text).width;
-      const lbw=tw+12,lbh=18,lbx=a.x-lbw/2,lby=ly-lbh/2;
-      ctx.fillStyle='rgba(10,25,50,0.75)';
-      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,4);ctx.fill();
-      ctx.strokeStyle=a.formColor;ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,4);ctx.stroke();
-      ctx.fillStyle=a.formColor;ctx.fillText(a.text.toUpperCase(),a.x,ly+4);
+      const lbw=tw+14,lbh=22,lbx=a.x-lbw/2,lby=ly-lbh/2;
+      ctx.fillStyle='rgba(10,25,50,0.8)';
+      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,5);ctx.fill();
+      ctx.strokeStyle=a.lockedIn?'rgba(0,229,187,0.8)':'rgba(255,255,255,0.4)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect(lbx,lby,lbw,lbh,5);ctx.stroke();
+      ctx.fillStyle=a.lockedIn?'#00e5bb':'#fff';
+      ctx.fillText(a.text.toUpperCase(),a.x,ly+5);
     }
   }
 }
@@ -921,31 +956,25 @@ function drawAircraft(){
 function drawDrawingPath(){
   if(G.drawPath.length<2) return;
   let color;
-  if(G.drawPathHeli||G.drawPathStripIdx>=0){
-    color=G.drawPathValid?'rgba(0,229,187,0.7)':'rgba(255,68,68,0.6)';
-  }else{
-    color='rgba(255,255,255,0.5)';
-  }
+  if(G.drawPathHeli||G.drawPathStripIdx>=0) color=G.drawPathValid?'rgba(0,229,187,0.7)':'rgba(255,68,68,0.6)';
+  else color='rgba(255,255,255,0.5)';
+
   ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.setLineDash([6,4]);
   ctx.beginPath();ctx.moveTo(G.drawPath[0].x,G.drawPath[0].y);
   for(let i=1;i<G.drawPath.length;i++) ctx.lineTo(G.drawPath[i].x,G.drawPath[i].y);
   ctx.stroke();ctx.setLineDash([]);
-
-  if(G.drawPathValid){
-    const last=G.drawPath[G.drawPath.length-1];
-    ctx.fillStyle='rgba(0,229,187,0.6)';
-    ctx.beginPath();ctx.arc(last.x,last.y,6,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font='700 8px "Fredoka One",cursive';ctx.textAlign='center';
-    ctx.fillText('✓',last.x,last.y+3);
-  }
 }
 
 function drawFollowingPaths(){
   for(const a of G.aircraft){
     if(a.state!=='following'||!a.path) continue;
     const valid=a.targetStripIdx>=0||a.targetHeli;
-    ctx.strokeStyle=valid?'rgba(0,229,187,0.2)':'rgba(255,255,255,0.12)';
-    ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    // Locked-in paths: solid green. Others: dashed white
+    if(a.lockedIn){
+      ctx.strokeStyle='rgba(0,229,187,0.35)';ctx.lineWidth=2;ctx.setLineDash([]);
+    }else{
+      ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    }
     ctx.beginPath();
     const si=Math.max(0,a.pathIndex);
     ctx.moveTo(a.path[si].x,a.path[si].y);
@@ -958,36 +987,25 @@ function drawWarnings(){
   for(let i=G.warnings.length-1;i>=0;i--){
     const w=G.warnings[i];w.age++;
     if(w.age>w.maxAge){G.warnings.splice(i,1);continue;}
-
-    const blink=Math.sin(w.age*0.25)>0;
-    if(!blink) continue;
-
+    const blink=Math.sin(w.age*0.25)>0;if(!blink) continue;
     const alpha=0.6+Math.sin(w.age*0.15)*0.3;
-    const sz=16;
 
     ctx.save();ctx.translate(w.x,w.y);
-
-    // Red circle with exclamation
     ctx.fillStyle=`rgba(255,60,60,${alpha})`;
-    ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle=`rgba(255,255,255,${alpha*0.8})`;ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.stroke();
-
-    // !
+    ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.stroke();
     ctx.fillStyle=`rgba(255,255,255,${alpha})`;
-    ctx.font=`700 ${sz}px "Fredoka One",cursive`;ctx.textAlign='center';
-    ctx.fillText('!',0,sz*0.35);
+    ctx.font='700 14px "Fredoka One",cursive';ctx.textAlign='center';
+    ctx.fillText('!',0,5);
 
-    // Arrow pointing inward
     let arrowAngle=0;
     if(w.edge==='top') arrowAngle=Math.PI/2;
     else if(w.edge==='left') arrowAngle=0;
     else if(w.edge==='right') arrowAngle=Math.PI;
-
     ctx.rotate(arrowAngle);
     ctx.fillStyle=`rgba(255,255,255,${alpha*0.5})`;
-    ctx.beginPath();ctx.moveTo(sz+6,0);ctx.lineTo(sz+14,-5);ctx.lineTo(sz+14,5);ctx.closePath();ctx.fill();
-
+    ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(24,-4);ctx.lineTo(24,4);ctx.closePath();ctx.fill();
     ctx.restore();
   }
 }
@@ -1018,16 +1036,11 @@ function gameLoop(){
   G.frame++;
   G.difficulty=Math.floor(G.verbsCompleted/2);
 
-  // Process spawn queue
   for(let i=G.spawnQueue.length-1;i>=0;i--){
     G.spawnQueue[i].delay--;
-    if(G.spawnQueue[i].delay<=0){
-      doSpawn(G.spawnQueue[i]);
-      G.spawnQueue.splice(i,1);
-    }
+    if(G.spawnQueue[i].delay<=0){doSpawn(G.spawnQueue[i]);G.spawnQueue.splice(i,1);}
   }
 
-  // Spawn timer
   G.spawnTimer++;
   const interval=Math.max(G.minSpawnInterval,G.spawnInterval-G.difficulty*12);
   if(G.spawnTimer>=interval){G.spawnTimer=0;spawnNextWave();}
@@ -1051,14 +1064,23 @@ function startGame(){
   G.running=true;G.score=0;G.verbsCompleted=0;
   G.aircraft=[];G.strips=[null,null];
   G.verbQueue=[];G.usedVerbs=new Set();
-  G.spawnTimer=150;G.frame=0;G.difficulty=0;
+  G.spawnTimer=120;G.frame=0;G.difficulty=0;
   G.drawingAC=null;G.drawPath=[];
   G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
-  G.warnings=[];G.spawnQueue=[];
-  G.heliLanded=0;G.planesSinceHeli=0;
+  G.warnings=[];G.spawnQueue=[];G.heliLanded=0;G.planesSinceHeli=0;
   activeVerbs=[];completions.length=0;
 
-  fillQueue();initClouds();computeLayout();updateHUD();updateStripPanels();
+  fillQueue();computeLayout();
+
+  // Pre-assign verbs to BOTH strips immediately
+  for(let i=0;i<2;i++){
+    const verbObj=getNextVerb();
+    const av={verbObj,formsSpawned:new Set(),formsLanded:new Set()};
+    activeVerbs.push(av);
+    assignVerbToStrip(verbObj);
+  }
+
+  updateHUD();updateStripPanels();
 
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('gameover-screen').classList.add('hidden');
@@ -1071,8 +1093,7 @@ function startGame(){
 function gameOver(pA,pB){
   G.running=false;
   if(G.score>G.bestScore){G.bestScore=G.score;localStorage.setItem('krabsy_ac_best',G.bestScore);}
-  ctx.fillStyle='rgba(255,100,50,0.4)';ctx.fillRect(0,0,W,H);
-
+  ctx.fillStyle='rgba(255,50,20,0.3)';ctx.fillRect(0,0,W,H);
   setTimeout(()=>{
     document.getElementById('hud').classList.add('hidden');
     document.getElementById('strip-panels').classList.add('hidden');
@@ -1090,7 +1111,6 @@ document.getElementById('menu-btn').addEventListener('click',()=>{
   document.getElementById('gameover-screen').classList.add('hidden');
   document.getElementById('start-screen').classList.remove('hidden');
 });
-
 canvas.addEventListener('touchstart',onInputStart,{passive:false});
 canvas.addEventListener('touchmove',onInputMove,{passive:false});
 canvas.addEventListener('touchend',onInputEnd,{passive:false});
