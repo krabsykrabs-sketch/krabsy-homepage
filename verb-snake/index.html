@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Verb Snake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    overflow: hidden;
+    font-family: 'Press Start 2P', monospace;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+  }
+  #wrap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    max-width: 100%;
+    max-height: 100%;
+    background: #000;
+  }
+  #loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    color: #9ef39e;
+    font-size: 14px;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap"><canvas id="game" width="1752" height="832"></canvas></div>
+  <div id="loading">Loading…</div>
+<script>
+'use strict';
+
+// ============================================================
+// Constants
+// ============================================================
+const ASSET_BASE = 'pack2/';
+const CELL = 64;
+// The original asset grid is 21×16. We crop 3 rows + 3 cols from the centre and
+// stitch the four surviving quadrants together so the borders stay intact.
+const ORIG_GRID_W = 21;
+const ORIG_GRID_H = 16;
+const REMOVED_COLS = { start: 9, count: 3 };  // remove cols 9, 10, 11
+const REMOVED_ROWS = { start: 6, count: 3 };  // remove rows 6, 7, 8
+const GRID_W = ORIG_GRID_W - REMOVED_COLS.count; // 18
+const GRID_H = ORIG_GRID_H - REMOVED_ROWS.count; // 13
+const MAP_W = GRID_W * CELL;   // 1152
+const MAP_H = GRID_H * CELL;   // 832
+const HUD_W = 600;
+const HUD_X = MAP_W;           // HUD starts at x=1152
+const WORLD_W = MAP_W + HUD_W; // 1752
+const WORLD_H = MAP_H;         // 832
+const GRID_OFFSET_Y = 0;
+// Background image grid area starts at bg-y=200 (worldY=-200 in source coords).
+const BG_GRID_Y = 200;
+// Map a new (col, row) back to the original asset coordinates so we can use
+// the bundled collision data and crop the bg correctly.
+function origCol(c) { return c < REMOVED_COLS.start ? c : c + REMOVED_COLS.count; }
+function origRow(r) { return r < REMOVED_ROWS.start ? r : r + REMOVED_ROWS.count; }
+
+// All forms ≤ 7 characters so they fit the HUD chain font and the on-fruit
+// label. No "forget/forgotten"-style long PPs.
+const VERBS = [
+  { v: 'go',    past: 'went',    pp: 'gone' },
+  { v: 'eat',   past: 'ate',     pp: 'eaten' },
+  { v: 'run',   past: 'ran',     pp: 'run' },
+  { v: 'see',   past: 'saw',     pp: 'seen' },
+  { v: 'come',  past: 'came',    pp: 'come' },
+  { v: 'take',  past: 'took',    pp: 'taken' },
+  { v: 'give',  past: 'gave',    pp: 'given' },
+  { v: 'know',  past: 'knew',    pp: 'known' },
+  { v: 'make',  past: 'made',    pp: 'made' },
+  { v: 'do',    past: 'did',     pp: 'done' },
+  { v: 'have',  past: 'had',     pp: 'had' },
+  { v: 'get',   past: 'got',     pp: 'got' },
+  { v: 'find',  past: 'found',   pp: 'found' },
+  { v: 'say',   past: 'said',    pp: 'said' },
+  { v: 'tell',  past: 'told',    pp: 'told' },
+  { v: 'feel',  past: 'felt',    pp: 'felt' },
+  { v: 'keep',  past: 'kept',    pp: 'kept' },
+  { v: 'leave', past: 'left',    pp: 'left' },
+  { v: 'win',   past: 'won',     pp: 'won' },
+  { v: 'lose',  past: 'lost',    pp: 'lost' },
+  { v: 'send',  past: 'sent',    pp: 'sent' },
+  { v: 'spend', past: 'spent',   pp: 'spent' },
+  { v: 'pay',   past: 'paid',    pp: 'paid' },
+  { v: 'meet',  past: 'met',     pp: 'met' },
+  { v: 'think', past: 'thought', pp: 'thought' },
+  { v: 'bring', past: 'brought', pp: 'brought' },
+  { v: 'write', past: 'wrote',   pp: 'written' },
+  { v: 'speak', past: 'spoke',   pp: 'spoken' },
+  { v: 'drink', past: 'drank',   pp: 'drunk' },
+  { v: 'break', past: 'broke',   pp: 'broken' },
+  { v: 'fly',   past: 'flew',    pp: 'flown' },
+  { v: 'grow',  past: 'grew',    pp: 'grown' },
+  { v: 'fall',  past: 'fell',    pp: 'fallen' },
+  { v: 'ride',  past: 'rode',    pp: 'ridden' },
+];
+const VERB_BY_NAME = {};
+VERBS.forEach(v => { VERB_BY_NAME[v.v] = v; });
+function formText(verb, idx) {
+  if (idx === 0) return verb.v;
+  if (idx === 1) return verb.past;
+  return verb.pp;
+}
+
+const FRUIT_SPRITES = [
+  'gameObjects/Apple_Red/default.png',
+  'gameObjects/Apple_Yellow/default.png',
+  'gameObjects/Orange/default.png',
+  'gameObjects/Pear/default.png',
+  'gameObjects/Plum/default.png',
+  'gameObjects/aubergine/default.png',
+  'gameObjects/beetroot/default.png',
+  'gameObjects/bellpepper_orange/default.png',
+  'gameObjects/bellpepper_red/default.png',
+  'gameObjects/bellpepper_yellow/default.png',
+  'gameObjects/blueberry/default.png',
+  'gameObjects/carrot/default.png',
+  'gameObjects/chili_red/default.png',
+  'gameObjects/corn/default.png',
+  'gameObjects/grapes_red/default.png',
+  'gameObjects/potato/default.png',
+  'gameObjects/pumpkin/default.png',
+  'gameObjects/radish/default.png',
+  'gameObjects/strawberry/default.png',
+  'gameObjects/tomato/default.png',
+  'gameObjects/watermelon/default.png',
+];
+
+// Speed curve — gentler ramp than the original spec (score thresholds doubled
+// and final stage smaller), so the early-game stays slow and readable while
+// the player learns the verb forms.
+function tickIntervalForScore(score) {
+  if (score < 200)  return 250;
+  if (score < 400)  return 230;
+  if (score < 600)  return 210;
+  if (score < 800)  return 190;
+  if (score < 1000) return 170;
+  if (score < 1300) return 155;
+  return 140;
+}
+
+// ============================================================
+// Settings — fixed in code now that the on-screen controls are gone.
+// ============================================================
+const settings = {
+  animFps: 5,         // animation playback rate for character walk/eat
+  eatAnim: 'attack',  // played on the head only, the moment a fruit is eaten
+  sound: true,
+};
+
+// ============================================================
+// Procedural sound effects (Web Audio API — no asset files)
+// ============================================================
+let audioCtx = null;
+function ensureAudio() {
+  if (!settings.sound) return null;
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { return null; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function tone({ freq, duration, type = 'square', volume = 0.15, attack = 0.005, when = 0 }) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const t0 = ctx.currentTime + when;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(volume, t0 + attack);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.02);
+}
+
+function sweep({ from, to, duration, type = 'sawtooth', volume = 0.18 }) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const t0 = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(from, t0);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(20, to), t0 + duration);
+  gain.gain.setValueAtTime(volume, t0);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.02);
+}
+
+function sfxCorrect() {
+  tone({ freq: 660, duration: 0.08, type: 'square', volume: 0.14 });
+  tone({ freq: 880, duration: 0.10, type: 'square', volume: 0.14, when: 0.07 });
+}
+function sfxComplete() {
+  const notes = [523, 659, 784, 1047];
+  notes.forEach((n, i) => tone({ freq: n, duration: 0.16, type: 'square', volume: 0.18, when: i * 0.09 }));
+}
+function sfxAbandon() {
+  // Softer "boop" — clearly not the harsh wrong-eat buzz, but not as celebratory as correct
+  tone({ freq: 523, duration: 0.10, type: 'triangle', volume: 0.13 });
+  tone({ freq: 415, duration: 0.14, type: 'triangle', volume: 0.13, when: 0.08 });
+}
+function sfxWrong() {
+  tone({ freq: 110, duration: 0.30, type: 'sawtooth', volume: 0.20 });
+}
+function sfxDeath() {
+  sweep({ from: 440, to: 55, duration: 0.85, type: 'sawtooth', volume: 0.22 });
+}
+
+// ============================================================
+// Asset loading
+// ============================================================
+const assets = {
+  bg: null,
+  collision: null,
+  slimeWalk: null,
+  slimeDie: null,
+  slimeAttack: null,
+  slimeJump: null,
+  slimeSpit: null,
+  fruits: {}, // path -> Image
+};
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Failed to load image: ' + src));
+    img.src = src;
+  });
+}
+function loadJson(src) {
+  return fetch(src).then(r => {
+    if (!r.ok) throw new Error('Failed to load ' + src + ' (' + r.status + ')');
+    return r.json();
+  });
+}
+
+async function loadAll() {
+  const [bg, slimeWalk, slimeDie, slimeAttack, slimeJump, slimeSpit, collision] = await Promise.all([
+    loadImage(ASSET_BASE + 'map/background.png'),
+    loadImage(ASSET_BASE + 'characters/Slippery_Slime_Green/walk.png'),
+    loadImage(ASSET_BASE + 'characters/Slippery_Slime_Green/die.png'),
+    loadImage(ASSET_BASE + 'characters/Slippery_Slime_Green/attack.png'),
+    loadImage(ASSET_BASE + 'characters/Slippery_Slime_Green/jump.png'),
+    loadImage(ASSET_BASE + 'characters/Slippery_Slime_Green/spit.png'),
+    loadJson(ASSET_BASE + 'map/collision.json'),
+  ]);
+  assets.bg = bg;
+  assets.slimeWalk = slimeWalk;
+  assets.slimeDie = slimeDie;
+  assets.slimeAttack = slimeAttack;
+  assets.slimeJump = slimeJump;
+  assets.slimeSpit = slimeSpit;
+  assets.collision = collision;
+  for (const path of FRUIT_SPRITES) {
+    assets.fruits[path] = await loadImage(ASSET_BASE + path);
+  }
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch (e) {}
+  }
+}
+
+// ============================================================
+// Game state
+// ============================================================
+const state = {
+  mode: 'menu', // menu | playing | paused | gameover
+  snake: [],    // [{col,row}, ...] — index 0 = head
+  dir: 'right',
+  queuedDirs: [],
+  triples: [],  // [{verb, fruits: [{cell, formIdx, sprite}, ...]}]
+  chain: { verb: null, step: 0 },
+  score: 0,
+  combo: 0,
+  bestScore: 0,
+  recentlyUsed: new Set(),
+  effects: [],
+  lastTickTime: 0,
+  tickInterval: 250,
+  animTime: 0,
+  dieAnimStart: 0,
+  newBest: false,
+  chainCompleteFlash: 0,
+};
+
+function loadBest() {
+  const v = parseInt(localStorage.getItem('verbsnake.bestScore') || '0', 10);
+  state.bestScore = isFinite(v) ? v : 0;
+}
+function saveBest() {
+  if (state.score > state.bestScore) {
+    state.bestScore = state.score;
+    state.newBest = true;
+    try { localStorage.setItem('verbsnake.bestScore', String(state.bestScore)); } catch (e) {}
+  }
+}
+
+// ============================================================
+// Helpers: cells, walkability, spawn
+// ============================================================
+function cellWalkable(col, row) {
+  if (row < 0 || row >= GRID_H || col < 0 || col >= GRID_W) return false;
+  return assets.collision.data[origRow(row)][origCol(col)] === 1;
+}
+function cellEqual(a, b) { return a.col === b.col && a.row === b.row; }
+function cellOccupiedBySnake(col, row) {
+  return state.snake.some(c => c.col === col && c.row === row);
+}
+function cellOccupiedByFruit(col, row) {
+  return state.fruits.some(f => f.cell.col === col && f.cell.row === row);
+}
+function randInt(n) { return Math.floor(Math.random() * n); }
+
+// Circular spawn-free zone (Euclidean) around the snake head — no new fruit
+// appears within this radius. Used once the field has more than one fruit;
+// in the single-fruit warmup we'd cut out too much of the map, so we use
+// `isMapEdge` instead (keep the lone fruit away from the walls).
+const SPAWN_FREE_RADIUS = 4;
+function inSpawnFreeZone(col, row) {
+  if (state.snake.length === 0) return false;
+  const head = state.snake[0];
+  const dx = col - head.col;
+  const dy = row - head.row;
+  return (dx * dx + dy * dy) <= SPAWN_FREE_RADIUS * SPAWN_FREE_RADIUS;
+}
+
+// A cell is "on the edge" of the walkable area when at least one of its
+// orthogonal neighbours is a wall. Used in the 1-fruit warmup so the lone
+// fruit is never tucked right against the border.
+function isMapEdge(col, row) {
+  return !cellWalkable(col - 1, row)
+      || !cellWalkable(col + 1, row)
+      || !cellWalkable(col, row - 1)
+      || !cellWalkable(col, row + 1);
+}
+
+// Reject placements adjacent to an existing fruit (Chebyshev distance < 2)
+// so the field doesn't form impassable clusters.
+const MIN_FRUIT_SEPARATION = 2;
+function clustersWithExistingFruit(col, row) {
+  for (const f of state.fruits) {
+    const dx = Math.abs(col - f.cell.col);
+    const dy = Math.abs(row - f.cell.row);
+    if (Math.max(dx, dy) < MIN_FRUIT_SEPARATION) return true;
+  }
+  return false;
+}
+
+// Word labels can be wider than a tile (up to ~110 px for "BROUGHT" or
+// "WRITTEN"), so two fruits in the same row at adjacent columns visibly
+// overlap. Treat horizontal adjacency as a hard rule that survives every
+// fallback tier.
+function isHorizontallyAdjacent(col, row) {
+  for (const f of state.fruits) {
+    if (f.cell.row === row && Math.abs(col - f.cell.col) <= 1) return true;
+  }
+  return false;
+}
+
+function pickRandomCell() {
+  // Single-fruit warmup uses the edge-avoidance rule; once the field
+  // expands to 3 fruits the radius-zone rule (plus the 3-fruit cohort)
+  // kicks in for every spawn — including the moment the field jumps
+  // from 1 to 3 and all three new fruits spawn at once.
+  const useEdgeRule = targetFieldSize() === 1;
+  const earlyExclusion = useEdgeRule
+    ? (col, row) => isMapEdge(col, row)
+    : (col, row) => inSpawnFreeZone(col, row);
+
+  // Tier 1: full constraints — exclusion rule + no clusters
+  for (let i = 0; i < 200; i++) {
+    const col = randInt(GRID_W), row = randInt(GRID_H);
+    if (!cellWalkable(col, row)) continue;
+    if (cellOccupiedBySnake(col, row)) continue;
+    if (cellOccupiedByFruit(col, row)) continue;
+    if (earlyExclusion(col, row)) continue;
+    if (clustersWithExistingFruit(col, row)) continue;
+    return { col, row };
+  }
+  // Tier 2: drop the diagonal/vertical cluster constraint, keep exclusion + horizontal
+  for (let i = 0; i < 100; i++) {
+    const col = randInt(GRID_W), row = randInt(GRID_H);
+    if (!cellWalkable(col, row)) continue;
+    if (cellOccupiedBySnake(col, row)) continue;
+    if (cellOccupiedByFruit(col, row)) continue;
+    if (earlyExclusion(col, row)) continue;
+    if (isHorizontallyAdjacent(col, row)) continue;
+    return { col, row };
+  }
+  // Tier 3: drop exclusion too — but still NEVER allow horizontal adjacency
+  for (let i = 0; i < 100; i++) {
+    const col = randInt(GRID_W), row = randInt(GRID_H);
+    if (!cellWalkable(col, row)) continue;
+    if (cellOccupiedBySnake(col, row)) continue;
+    if (cellOccupiedByFruit(col, row)) continue;
+    if (isHorizontallyAdjacent(col, row)) continue;
+    return { col, row };
+  }
+  return null;
+}
+
+function pickRandomVerb(excludeNames) {
+  const available = VERBS.filter(v => !excludeNames.has(v.v) && !state.recentlyUsed.has(v.v));
+  if (available.length === 0) {
+    state.recentlyUsed.clear();
+    return pickRandomVerb(excludeNames);
+  }
+  return available[randInt(available.length)];
+}
+
+// Choose a sprite that no on-screen fruit is currently using, so the player
+// never sees the same icon twice at once.
+function pickUniqueSprite() {
+  const used = new Set(state.fruits.map(f => f.sprite));
+  const free = FRUIT_SPRITES.filter(s => !used.has(s));
+  if (free.length === 0) return FRUIT_SPRITES[randInt(FRUIT_SPRITES.length)];
+  return free[randInt(free.length)];
+}
+
+function makeFruit(verbName, formIdx) {
+  const cell = pickRandomCell();
+  if (!cell) return null;
+  return { cell, formIdx, sprite: pickUniqueSprite(), verb: verbName };
+}
+
+// Field size by sets completed:
+//   sets 0–1 → 1 fruit
+//   sets 2+  → 3 fruits (capped — full triples roll into view)
+function targetFieldSize() {
+  const sets = state.setsCompleted || 0;
+  if (sets < 2) return 1;
+  return 3;
+}
+
+// Rolling form queue: the field is a sliding window over the sequence
+// V.v, V.past, V.pp, W.v, W.past, W.pp, X.v, … . When the player eats a
+// fruit, the next form in the sequence pops onto the field, so completing a
+// chain naturally rolls a full new triple into view.
+function nextScheduledForm() {
+  const q = state.formQueue;
+  if (q.nextTripleIdx >= q.verbs.length) {
+    const onField = new Set(state.fruits.map(f => f.verb));
+    const v = pickRandomVerb(onField);
+    if (!v) return null;
+    q.verbs.push(v.v);
+    state.recentlyUsed.add(v.v);
+  }
+  const verb = q.verbs[q.nextTripleIdx];
+  const formIdx = q.nextFormInTriple;
+  q.nextFormInTriple++;
+  if (q.nextFormInTriple >= 3) {
+    q.nextFormInTriple = 0;
+    q.nextTripleIdx++;
+  }
+  return { verb, formIdx };
+}
+
+// Walk the queue pointer back by one slot — used when we evict a freshly
+// spawned filler to make room for the chain's needed form.
+function rewindQueueBy1() {
+  const q = state.formQueue;
+  if (q.nextFormInTriple === 0) {
+    if (q.nextTripleIdx > 0) {
+      q.nextTripleIdx--;
+      q.nextFormInTriple = 2;
+    }
+  } else {
+    q.nextFormInTriple--;
+  }
+}
+
+function rebuildField() {
+  const fieldSize = targetFieldSize();
+
+  // Top up to target by pulling the next forms in the queue.
+  let safety = 50;
+  while (state.fruits.length < fieldSize && safety-- > 0) {
+    const next = nextScheduledForm();
+    if (!next) break;
+    const f = makeFruit(next.verb, next.formIdx);
+    if (!f) break;
+    state.fruits.push(f);
+  }
+
+  // Safety net: if the chain's needed form ever goes missing (e.g. the player
+  // wrong-ate it earlier), evict the most-recently-spawned filler and force
+  // the needed form back onto the field so the chain can still complete.
+  // Text-based, matching resolveEat — for verbs like say/said/said either
+  // formIdx satisfies the chain, so we must not force-respawn just because
+  // the *slot* index doesn't match.
+  const ch = state.chain;
+  if (ch.step >= 1) {
+    const V = VERB_BY_NAME[ch.verb];
+    const neededText = ch.step === 1 ? V.past : V.pp;
+    const has = state.fruits.some(f =>
+      f.verb === ch.verb && formText(VERB_BY_NAME[f.verb], f.formIdx) === neededText
+    );
+    if (!has && state.fruits.length > 0) {
+      state.fruits.pop();
+      rewindQueueBy1();
+      const f = makeFruit(ch.verb, ch.step);
+      if (f) state.fruits.push(f);
+    }
+  }
+}
+
+// ============================================================
+// New game / state transitions
+// ============================================================
+function startNewGame() {
+  state.dir = 'right';
+  state.snake = [{ col: Math.floor(GRID_W / 2) - 1, row: Math.floor(GRID_H / 2), dir: state.dir }];
+  state.queuedDirs = [];
+  state.fruits = [];
+  state.chain = { verb: null, step: 0 };
+  state.score = 0;
+  state.combo = 0;
+  state.recentlyUsed = new Set();
+  state.effects = [];
+  state.tickInterval = 250;
+  state.lastTickTime = performance.now();
+  state.animTime = 0;
+  state.newBest = false;
+  state.chainCompleteFlash = 0;
+  state.eatAnim = null;
+  state.setsCompleted = 0;
+  state.lastCompletedVerb = null;
+  state.formQueue = { verbs: [], nextTripleIdx: 0, nextFormInTriple: 0 };
+  rebuildField();
+  state.mode = 'playing';
+}
+
+function endGame() {
+  state.mode = 'gameover';
+  state.dieAnimStart = performance.now();
+  saveBest();
+  sfxDeath();
+}
+
+// ============================================================
+// Input
+// ============================================================
+const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+function gameOverReady() {
+  return state.mode === 'gameover' && (performance.now() - state.dieAnimStart >= 1000);
+}
+function queueDirection(d) {
+  if (state.mode !== 'playing') return;
+  // Compare against the most recent committed/queued direction
+  const last = state.queuedDirs.length > 0
+    ? state.queuedDirs[state.queuedDirs.length - 1]
+    : state.dir;
+  if (OPP[last] === d) return;
+  if (last === d) return;
+  if (state.queuedDirs.length < 2) state.queuedDirs.push(d);
+}
+
+window.addEventListener('keydown', (e) => {
+  ensureAudio();
+  const k = e.key;
+  if (k === 'ArrowUp' || k === 'w' || k === 'W') { queueDirection('up'); e.preventDefault(); }
+  else if (k === 'ArrowDown' || k === 's' || k === 'S') { queueDirection('down'); e.preventDefault(); }
+  else if (k === 'ArrowLeft' || k === 'a' || k === 'A') { queueDirection('left'); e.preventDefault(); }
+  else if (k === 'ArrowRight' || k === 'd' || k === 'D') { queueDirection('right'); e.preventDefault(); }
+  else if (k === ' ' || k === 'Enter') {
+    if (state.mode === 'menu') {
+      startNewGame();
+    } else if (state.mode === 'gameover') {
+      if (gameOverReady()) startNewGame();
+    } else if (state.mode === 'paused') {
+      state.mode = 'playing';
+      state.lastTickTime = performance.now();
+    }
+    e.preventDefault();
+  }
+  else if (k === 'Escape') {
+    if (state.mode === 'playing') state.mode = 'paused';
+    else if (state.mode === 'paused') {
+      state.mode = 'playing';
+      state.lastTickTime = performance.now();
+    }
+  }
+});
+
+// Touch swipe
+let touchStartX = 0, touchStartY = 0, touchActive = false;
+const canvas = document.getElementById('game');
+canvas.addEventListener('touchstart', (e) => {
+  ensureAudio();
+  if (e.touches.length === 0) return;
+  const t = e.touches[0];
+  touchStartX = t.clientX; touchStartY = t.clientY; touchActive = true;
+  if (state.mode === 'menu') {
+    startNewGame();
+    e.preventDefault();
+  } else if (state.mode === 'gameover') {
+    if (gameOverReady()) { startNewGame(); e.preventDefault(); }
+  } else if (state.mode === 'paused') {
+    state.mode = 'playing';
+    state.lastTickTime = performance.now();
+    e.preventDefault();
+  }
+}, { passive: false });
+canvas.addEventListener('touchmove', (e) => {
+  if (!touchActive || e.touches.length === 0) return;
+  const t = e.touches[0];
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+  if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+    if (Math.abs(dx) > Math.abs(dy)) queueDirection(dx > 0 ? 'right' : 'left');
+    else queueDirection(dy > 0 ? 'down' : 'up');
+    touchStartX = t.clientX; touchStartY = t.clientY;
+  }
+  e.preventDefault();
+}, { passive: false });
+canvas.addEventListener('touchend', () => { touchActive = false; });
+canvas.addEventListener('click', () => {
+  ensureAudio();
+  if (state.mode === 'menu') startNewGame();
+  else if (state.mode === 'gameover') {
+    if (gameOverReady()) startNewGame();
+  } else if (state.mode === 'paused') {
+    state.mode = 'playing';
+    state.lastTickTime = performance.now();
+  }
+});
+
+// ============================================================
+// Tick / update
+// ============================================================
+const DIR_DELTA = {
+  up: { dc: 0, dr: -1 },
+  down: { dc: 0, dr: 1 },
+  left: { dc: -1, dr: 0 },
+  right: { dc: 1, dr: 0 },
+};
+
+// Resolve what happens when the snake eats `fruit`.
+// Returns one of:
+//   { type: 'correct-start', verbName }
+//   { type: 'correct-advance' }
+//   { type: 'correct-complete' }
+//   { type: 'abandon', verbName }
+//   { type: 'wrong' }
+// Matching is text-based, so for verbs with identical forms (run/ran/run, come/came/come,
+// make/made/made, do/did/done) either fruit with the duplicated text counts for either role.
+function resolveEat(fruit) {
+  const V = VERB_BY_NAME[fruit.verb];
+  const T = formText(V, fruit.formIdx);
+  const ch = state.chain;
+
+  if (ch.step === 0) {
+    // No active chain — only an infinitive-text fruit can start one.
+    if (T === V.v) return { type: 'correct-start', verbName: fruit.verb };
+    return { type: 'wrong' };
+  }
+  // Chain active.
+  const cv = VERB_BY_NAME[ch.verb];
+  if (fruit.verb === ch.verb) {
+    if (ch.step === 1 && T === cv.past) return { type: 'correct-advance' };
+    if (ch.step === 2 && T === cv.pp)   return { type: 'correct-complete' };
+    return { type: 'wrong' };
+  }
+  // Different verb — only a fresh infinitive abandons cleanly.
+  if (T === V.v) return { type: 'abandon', verbName: fruit.verb };
+  return { type: 'wrong' };
+}
+
+function findFruitAt(col, row) {
+  for (let i = 0; i < state.fruits.length; i++) {
+    const f = state.fruits[i];
+    if (f.cell.col === col && f.cell.row === row) {
+      return { fruit: f, idx: i };
+    }
+  }
+  return null;
+}
+
+function triggerFlyWord(verbName, slotIdx, color) {
+  const verb = VERB_BY_NAME[verbName];
+  if (!verb) return;
+  state.effects.push({
+    type: 'flyword',
+    text: formText(verb, slotIdx).toUpperCase(),
+    slotIndex: slotIdx,
+    start: performance.now(),
+    duration: 800,
+    color: color || '#9ef39e',
+  });
+}
+
+function flashAt(col, row, color) {
+  state.effects.push({
+    type: 'flash',
+    color,
+    col, row,
+    start: performance.now(),
+    duration: 400,
+  });
+}
+function scorePop(col, row, text, color) {
+  state.effects.push({
+    type: 'pop',
+    text, color,
+    col, row,
+    start: performance.now(),
+    duration: 900,
+  });
+}
+function screenGlow(color) {
+  state.effects.push({
+    type: 'glow',
+    color,
+    start: performance.now(),
+    duration: 350,
+  });
+}
+
+function loseSegments(n) {
+  // Keep head, remove n from tail tip
+  const kept = Math.max(1, state.snake.length - n);
+  state.snake.length = kept;
+}
+
+function tick() {
+  if (state.mode !== 'playing') return;
+
+  // Apply queued direction
+  if (state.queuedDirs.length > 0) {
+    const next = state.queuedDirs.shift();
+    if (OPP[state.dir] !== next) state.dir = next;
+  }
+
+  const head = state.snake[0];
+  const d = DIR_DELTA[state.dir];
+  const nc = { col: head.col + d.dc, row: head.row + d.dr };
+
+  // Wall check
+  if (!cellWalkable(nc.col, nc.row)) {
+    endGame();
+    return;
+  }
+  // Self-collision check (against tail; tail tip will move so allow that cell)
+  for (let i = 1; i < state.snake.length - 1; i++) {
+    if (state.snake[i].col === nc.col && state.snake[i].row === nc.row) {
+      endGame();
+      return;
+    }
+  }
+  // Edge case: at length>=2, the new cell could equal the current tail tip. Tail moves, so ok.
+  // But if growing (eat correct), tail tip stays — colliding with tail tip is bad.
+  const fruitHit = findFruitAt(nc.col, nc.row);
+  let willGrow = false;
+  let segmentsLost = 0;
+
+  let isWrongEatWhileHeadOnly = false;
+  if (fruitHit) {
+    const { fruit: f, idx: fruitIdx } = fruitHit;
+    const result = resolveEat(f);
+    state.fruits.splice(fruitIdx, 1); // remove eaten fruit from the field
+
+    if (result.type === 'correct-start') {
+      state.chain.verb = result.verbName;
+      state.chain.step = 1;
+      state.score += 10;
+      willGrow = true;
+      flashAt(nc.col, nc.row, '#7eea7e');
+      scorePop(nc.col, nc.row, '+10', '#9ef39e');
+      screenGlow('rgba(120,255,120,0.18)');
+      triggerFlyWord(result.verbName, 0);
+      sfxCorrect();
+    } else if (result.type === 'correct-advance') {
+      state.score += 10;
+      willGrow = true;
+      const slotEaten = state.chain.step;
+      triggerFlyWord(state.chain.verb, slotEaten);
+      state.chain.step++;
+      flashAt(nc.col, nc.row, '#7eea7e');
+      scorePop(nc.col, nc.row, '+10', '#9ef39e');
+      screenGlow('rgba(120,255,120,0.18)');
+      sfxCorrect();
+    } else if (result.type === 'correct-complete') {
+      state.score += 10;
+      const slotEaten = state.chain.step;
+      triggerFlyWord(state.chain.verb, slotEaten);
+      state.chain.step++;
+      // Triple complete!
+      state.score += 50;
+      state.combo++;
+      state.setsCompleted++;
+      state.chainCompleteFlash = performance.now();
+      state.lastCompletedVerb = state.chain.verb;
+      scorePop(nc.col, nc.row, '+60!', '#ffd95a');
+      flashAt(nc.col, nc.row, '#ffd95a');
+      screenGlow('rgba(255,217,90,0.25)');
+      sfxComplete();
+      state.chain = { verb: null, step: 0 };
+      willGrow = true; // <-- the only path that grows the tail
+    } else if (result.type === 'abandon') {
+      const lostN = state.chain.step;
+      const oldChainVerb = state.chain.verb;
+      segmentsLost = lostN;
+      state.score = Math.max(0, state.score - 5 * lostN);
+      scorePop(nc.col, nc.row, `-${lostN} seg`, '#ffe066');
+      flashAt(nc.col, nc.row, '#ffe066');
+      screenGlow('rgba(255,224,102,0.25)');
+      // Drop the abandoned chain's leftover forms — they'd otherwise sit on
+      // screen as out-of-order landmines.
+      state.fruits = state.fruits.filter(f => f.verb !== oldChainVerb);
+      state.chain.verb = result.verbName;
+      state.chain.step = 1;
+      state.combo = 0;
+      triggerFlyWord(result.verbName, 0, '#ffe066');
+      sfxAbandon();
+    } else {
+      // wrong: out of order — possible in triple modes (sets ≥ 2)
+      applyWrongEat(nc, null, f);
+      segmentsLost = 3;
+      sfxWrong();
+      // Re-spawn the SAME form rather than letting rebuildField roll the
+      // queue forward, so the visible triple stays coherent (no "next
+      // triple" form sneaking in to replace the wrong-eaten slot).
+      const respawn = makeFruit(f.verb, f.formIdx);
+      if (respawn) state.fruits.push(respawn);
+      if (state.snake.length === 1) isWrongEatWhileHeadOnly = true;
+    }
+  }
+
+  // Apply movement: grow only on triple-complete; otherwise the head moves
+  // forward and (typically) the tail tip is popped. Abandon penalties trim
+  // extra segments off the tail tip.
+  // Record the direction the head was facing when entering this cell.
+  state.snake.unshift({ col: nc.col, row: nc.row, dir: state.dir });
+  if (willGrow) {
+    // grow: don't pop the tail tip
+  } else if (segmentsLost > 0) {
+    const targetLen = Math.max(1, state.snake.length - 1 - segmentsLost);
+    state.snake.length = targetLen;
+    if (isWrongEatWhileHeadOnly) {
+      // Spec: wrong eat while head-only ends the game.
+      endGame();
+      return;
+    }
+  } else {
+    state.snake.pop();
+  }
+
+  // Replenish the field — the new fruit (or fruits, if a set just completed
+  // and the field grew) appears immediately so the count stays constant.
+  rebuildField();
+
+  // Update tick speed
+  state.tickInterval = tickIntervalForScore(state.score);
+}
+
+function applyWrongEat(nc, _triple, _fruit) {
+  state.score = Math.max(0, state.score - 10);
+  state.combo = 0;
+  flashAt(nc.col, nc.row, '#ff5a5a');
+  scorePop(nc.col, nc.row, '-10  -3', '#ff8888');
+  screenGlow('rgba(255,80,80,0.28)');
+  // (Eaten fruit was already removed by tick().)
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+function cellPx(col, row) {
+  return { x: col * CELL, y: GRID_OFFSET_Y + row * CELL };
+}
+
+function drawBackground() {
+  // Solid backdrop for HUD + any letterboxing
+  ctx.fillStyle = '#0a1408';
+  ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+  // Map background — stitch four bg quadrants with the centre rows/cols cropped.
+  // Source pixels (px = cell × 64), with grid origin at bg-y=200:
+  //   left  src cols 0..9   → src x [0..576],   dst x [0..576]
+  //   right src cols 12..21 → src x [768..1344], dst x [576..1152]
+  //   top   src rows 0..6   → src y [200..584], dst y [0..384]
+  //   bot   src rows 9..16  → src y [776..1224], dst y [384..832]
+  const bg = assets.bg;
+  const lW = REMOVED_COLS.start * CELL;            // 576
+  const rW = (ORIG_GRID_W - REMOVED_COLS.start - REMOVED_COLS.count) * CELL; // 576
+  const tH = REMOVED_ROWS.start * CELL;            // 384
+  const bH = (ORIG_GRID_H - REMOVED_ROWS.start - REMOVED_ROWS.count) * CELL; // 448
+  const srcRightX = (REMOVED_COLS.start + REMOVED_COLS.count) * CELL; // 768
+  const srcBotY  = BG_GRID_Y + (REMOVED_ROWS.start + REMOVED_ROWS.count) * CELL; // 776
+  // Top-left
+  ctx.drawImage(bg, 0,         BG_GRID_Y, lW, tH, 0,  0,  lW, tH);
+  // Top-right
+  ctx.drawImage(bg, srcRightX, BG_GRID_Y, rW, tH, lW, 0,  rW, tH);
+  // Bottom-left
+  ctx.drawImage(bg, 0,         srcBotY,   lW, bH, 0,  tH, lW, bH);
+  // Bottom-right
+  ctx.drawImage(bg, srcRightX, srcBotY,   rW, bH, lW, tH, rW, bH);
+
+  // Right-side HUD panel
+  ctx.fillStyle = 'rgba(8, 18, 10, 0.97)';
+  ctx.fillRect(HUD_X, 0, HUD_W, WORLD_H);
+  ctx.fillStyle = '#3a5c3a';
+  ctx.fillRect(HUD_X - 2, 0, 4, WORLD_H);
+}
+
+function drawFruits(now) {
+  for (const f of state.fruits) {
+    const px = cellPx(f.cell.col, f.cell.row);
+    const img = assets.fruits[f.sprite];
+    if (img) {
+      const drawSize = 48;
+      const dx = px.x + (CELL - drawSize) / 2;
+      const dy = px.y + (CELL - drawSize) / 2 + 6;
+      ctx.drawImage(img, dx, dy, drawSize, drawSize);
+    }
+    const text = formText(VERB_BY_NAME[f.verb], f.formIdx).toUpperCase();
+    const fontSize = 14;
+    ctx.font = `${fontSize}px "Press Start 2P", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const tw = ctx.measureText(text).width;
+    const tx = px.x + CELL / 2;
+    const ty = px.y + 2;
+    const padX = 4, padY = 3;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
+    ctx.fillRect(tx - tw / 2 - padX, ty - padY, tw + padX * 2, fontSize + padY * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(text, tx, ty);
+  }
+}
+
+function drawPixelText(text, x, y, size, fill, stroke) {
+  ctx.font = `${size}px "Press Start 2P", monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  if (stroke) {
+    ctx.lineWidth = Math.max(2, size / 5);
+    ctx.strokeStyle = stroke;
+    ctx.strokeText(text, x, y);
+  }
+  ctx.fillStyle = fill;
+  ctx.fillText(text, x, y);
+}
+
+// The slime sprite only occupies a small portion of its 64×64 frame, so we
+// upscale the destination so the visible body roughly fills a tile.
+// Tail is 75% of head (head fills the cell; tail blobs are visibly smaller).
+const HEAD_RENDER_SCALE = 2.25;
+const TAIL_RENDER_SCALE = HEAD_RENDER_SCALE * 0.75;
+
+// Slime walk frame indices on the 8×8 sheet, per facing direction.
+const WALK_FRAMES_BY_DIR = {
+  down:  [0, 1, 2, 3],
+  up:    [8, 9, 10, 11],
+  right: [16, 17, 18, 19],
+  left:  [24, 25, 26, 27],
+};
+
+// Draw a single 64×64 frame from the given slime sheet, scaled and centered
+// on the cell.
+function drawSlimeFrame(sheet, frameIdx, cell, scale) {
+  const cols = 8;
+  const sx = (frameIdx % cols) * 64;
+  const sy = Math.floor(frameIdx / cols) * 64;
+  const px = cellPx(cell.col, cell.row);
+  const drawSize = CELL * scale;
+  const dx = px.x + (CELL - drawSize) / 2;
+  const dy = px.y + (CELL - drawSize) / 2;
+  ctx.drawImage(sheet, sx, sy, 64, 64, dx, dy, drawSize, drawSize);
+}
+
+// Draw a frame rotated to face `dir`. The slime's authored pose is "down"
+// (eyes south); we rotate around the cell center to fake the other facings
+// for animations (jump, spit, die) that only have a down-direction sequence.
+const TAIL_DIR_ROTATION = { down: 0, left: Math.PI / 2, up: Math.PI, right: -Math.PI / 2 };
+function drawSlimeFrameRotated(sheet, frameIdx, cell, scale, dir) {
+  const rot = TAIL_DIR_ROTATION[dir] || 0;
+  if (rot === 0) {
+    drawSlimeFrame(sheet, frameIdx, cell, scale);
+    return;
+  }
+  const cols = 8;
+  const sx = (frameIdx % cols) * 64;
+  const sy = Math.floor(frameIdx / cols) * 64;
+  const px = cellPx(cell.col, cell.row);
+  const drawSize = CELL * scale;
+  const cx = px.x + CELL / 2;
+  const cy = px.y + CELL / 2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
+  ctx.drawImage(sheet, sx, sy, 64, 64, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+  ctx.restore();
+}
+
+// Eat-animation configurations. `attack` follows the head's direction;
+// the others are single-direction sequences from the slime sheet.
+function eatAnimConfig(type, dir) {
+  if (type === 'attack') {
+    const byDir = {
+      down:  [4, 5, 6, 7],
+      up:    [12, 13, 14, 15],
+      right: [20, 21, 22, 23],
+      left:  [28, 29, 30, 31],
+    };
+    return { sheet: assets.slimeAttack, frames: byDir[dir] || byDir.down };
+  }
+  if (type === 'spit') return { sheet: assets.slimeSpit, frames: [40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55] };
+  if (type === 'jump') return { sheet: assets.slimeJump, frames: [32, 33, 34, 35] };
+  if (type === 'die')  return { sheet: assets.slimeDie,  frames: [59, 60, 61, 62, 63] };
+  return null;
+}
+
+function triggerEatAnim() {
+  if (settings.eatAnim === 'none') return;
+  state.eatAnim = { type: settings.eatAnim, dir: state.dir, start: performance.now() };
+}
+
+function drawSnake(now) {
+  const fps = Math.max(1, settings.animFps);
+  const walkFrame = Math.floor(now * fps / 1000) % 4;
+
+  // Tail back-to-front, each in its own recorded direction.
+  for (let i = state.snake.length - 1; i >= 1; i--) {
+    const seg = state.snake[i];
+    const segDir = seg.dir || 'down';
+    drawSlimeFrame(assets.slimeWalk, WALK_FRAMES_BY_DIR[segDir][walkFrame], seg, TAIL_RENDER_SCALE);
+  }
+
+  // Head
+  if (state.snake.length === 0) return;
+  const head = state.snake[0];
+  drawSlimeFrame(assets.slimeWalk, WALK_FRAMES_BY_DIR[head.dir || state.dir][walkFrame], head, HEAD_RENDER_SCALE);
+}
+
+function drawDieAnim(now) {
+  if (state.snake.length === 0) return;
+  const elapsed = now - state.dieAnimStart;
+  const frameIdx = Math.min(4, Math.floor(elapsed / 120)); // 5 frames at 120ms
+  const framesArr = [59, 60, 61, 62, 63];
+  drawSlimeFrame(assets.slimeDie, framesArr[frameIdx], state.snake[0], HEAD_RENDER_SCALE);
+}
+
+function drawHud(now) {
+  const cx = HUD_X + HUD_W / 2;
+
+  // SCORE block
+  drawPixelText('SCORE', cx, 30, 22, '#9ef39e', '#000');
+  drawPixelText(String(state.score), cx, 64, 60, '#ffffff', '#000');
+
+  // LENGTH (left of center) and COMBO/BEST (right of center) on one row
+  const rowY = 170;
+  const colLen = HUD_X + HUD_W * 0.30;
+  const colCombo = HUD_X + HUD_W * 0.70;
+  drawPixelText('LENGTH', colLen, rowY, 16, '#9ef39e', '#000');
+  drawPixelText(String(state.snake.length), colLen, rowY + 24, 30, '#ffffff', '#000');
+  if (state.combo > 1) {
+    drawPixelText('COMBO', colCombo, rowY, 16, '#ffd95a', '#000');
+    drawPixelText('x' + state.combo, colCombo, rowY + 24, 30, '#ffd95a', '#000');
+  } else {
+    drawPixelText('BEST', colCombo, rowY, 16, '#cccccc', '#000');
+    drawPixelText(String(state.bestScore), colCombo, rowY + 24, 26, '#cccccc', '#000');
+  }
+
+  if (state.combo > 1) {
+    // Show BEST below when COMBO took the right slot
+    drawPixelText('BEST   ' + state.bestScore, cx, 250, 16, '#cccccc', '#000');
+  }
+}
+
+function drawDownArrow(cx, cy, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2, cy);
+  ctx.lineTo(cx + w / 2, cy);
+  ctx.lineTo(cx, cy + h);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Horizontal chain banner across the top water zone (rows 0–1, y 0–128).
+// Three slots — eaten word, in-progress placeholder, future placeholder —
+// laid out left-to-right with arrow markers between them.
+const TOP_CHAIN_SLOT_X = [MAP_W * 0.22, MAP_W * 0.5, MAP_W * 0.78];
+const TOP_CHAIN_Y = 64; // visual middle of the top water band
+const TOP_CHAIN_FONT = 38;
+
+function drawRightArrow(cx, cy, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2, cy - h / 2);
+  ctx.lineTo(cx - w / 2, cy + h / 2);
+  ctx.lineTo(cx + w / 2, cy);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawTopChainBar(now) {
+  const ch = state.chain;
+  const flashing = state.chainCompleteFlash && (now - state.chainCompleteFlash) < 1100;
+
+  let verb = null;
+  let step = 0;
+  let overrideColor = null;
+  if (ch.step >= 1) {
+    verb = VERB_BY_NAME[ch.verb];
+    step = ch.step;
+  } else if (flashing && state.lastCompletedVerb) {
+    verb = VERB_BY_NAME[state.lastCompletedVerb];
+    step = 3;
+    overrideColor = '#ffd95a';
+  } else {
+    return; // nothing to show
+  }
+
+  ctx.font = `${TOP_CHAIN_FONT}px "Press Start 2P", monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (let i = 0; i < 3; i++) {
+    let display, color;
+    if (overrideColor) {
+      display = formText(verb, i).toUpperCase();
+      color = overrideColor;
+    } else if (i < step) {
+      display = formText(verb, i).toUpperCase();
+      color = '#ff5a5a';
+    } else if (i === step) {
+      display = '___';
+      color = '#ffe066';
+    } else {
+      display = '???';
+      color = '#777';
+    }
+    // Dark plate for legibility against the water tile
+    const tw = ctx.measureText(display).width;
+    const padX = 10, padY = 7;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(
+      TOP_CHAIN_SLOT_X[i] - tw / 2 - padX,
+      TOP_CHAIN_Y - TOP_CHAIN_FONT / 2 - padY,
+      tw + padX * 2,
+      TOP_CHAIN_FONT + padY * 2,
+    );
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#000';
+    ctx.strokeText(display, TOP_CHAIN_SLOT_X[i], TOP_CHAIN_Y);
+    ctx.fillStyle = color;
+    ctx.fillText(display, TOP_CHAIN_SLOT_X[i], TOP_CHAIN_Y);
+  }
+
+  // Arrows between slots
+  drawRightArrow((TOP_CHAIN_SLOT_X[0] + TOP_CHAIN_SLOT_X[1]) / 2, TOP_CHAIN_Y, 22, 22, '#5a8a5a');
+  drawRightArrow((TOP_CHAIN_SLOT_X[1] + TOP_CHAIN_SLOT_X[2]) / 2, TOP_CHAIN_Y, 22, 22, '#5a8a5a');
+
+  if (overrideColor) {
+    drawPixelText('COMPLETE!', MAP_W / 2, TOP_CHAIN_Y + 50, 18, '#ffd95a', '#000');
+  }
+}
+
+function drawEffects(now) {
+  state.effects = state.effects.filter(e => (now - e.start) < e.duration);
+  for (const e of state.effects) {
+    if (e.type === 'flyword') continue; // rendered after the HUD so it lands on top
+    const t = (now - e.start) / e.duration;
+    if (e.type === 'flash') {
+      const px = cellPx(e.col, e.row);
+      const cx = px.x + CELL / 2;
+      const cy = px.y + CELL / 2;
+      const radius = CELL * (0.3 + t * 0.7);
+      const alpha = 1 - t;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      grad.addColorStop(0, e.color + '');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = alpha * 0.7;
+      ctx.fillStyle = grad;
+      ctx.fillRect(px.x - radius, py(cy, radius), radius * 2 + CELL, radius * 2 + CELL);
+      ctx.globalAlpha = 1;
+    } else if (e.type === 'pop') {
+      const px = cellPx(e.col, e.row);
+      const x = px.x + CELL / 2;
+      const y = px.y + CELL / 2 - t * 60;
+      ctx.globalAlpha = 1 - t;
+      drawPixelText(e.text, x, y, 18, e.color, '#000');
+      ctx.globalAlpha = 1;
+    } else if (e.type === 'glow') {
+      ctx.globalAlpha = (1 - t) * 0.6;
+      const grad = ctx.createRadialGradient(MAP_W / 2, WORLD_H / 2, MAP_W * 0.3,
+                                            MAP_W / 2, WORLD_H / 2, MAP_W * 0.7);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, e.color);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, MAP_W, WORLD_H);
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+function py(cy, radius) { return cy - radius; }
+
+function drawFlyWords(now) {
+  for (const e of state.effects) {
+    if (e.type !== 'flyword') continue;
+    drawFlyWord(e, now);
+  }
+}
+
+// Big-word fly-out: text appears at the centre of the map, then arcs up to
+// its slot in the top chain banner.
+function drawFlyWord(e, now) {
+  const t = (now - e.start) / e.duration;
+  if (t >= 1) return;
+  const SRC_FONT = 100;
+  const startX = MAP_W / 2;
+  const startY = MAP_H / 2;
+  const endX = TOP_CHAIN_SLOT_X[e.slotIndex];
+  const endY = TOP_CHAIN_Y;
+
+  let x, y, fontSize;
+  if (t < 0.30) {
+    const sub = t / 0.30;
+    x = startX;
+    y = startY;
+    fontSize = SRC_FONT * Math.min(1, 0.4 + sub * 0.8);
+  } else {
+    const sub = (t - 0.30) / 0.70;
+    const eased = 1 - Math.pow(1 - sub, 3);
+    x = startX + (endX - startX) * eased;
+    y = startY + (endY - startY) * eased;
+    fontSize = SRC_FONT - (SRC_FONT - TOP_CHAIN_FONT) * eased;
+  }
+
+  ctx.font = `${fontSize}px "Press Start 2P", monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = Math.max(3, fontSize / 14);
+  ctx.strokeStyle = '#000';
+  ctx.strokeText(e.text, x, y);
+  ctx.fillStyle = e.color;
+  ctx.fillText(e.text, x, y);
+}
+
+function drawMenu() {
+  // Dim only the map area so the HUD panel stays clean
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0, 0, MAP_W, WORLD_H);
+  const cx = MAP_W / 2;
+  drawPixelText('VERB SNAKE', cx, 280, 64, '#9ef39e', '#000');
+  drawPixelText('eat verb forms in order', cx, 400, 22, '#fff', '#000');
+  drawPixelText('infinitive  →  past  →  past participle', cx, 440, 18, '#ffe066', '#000');
+
+  drawPixelText('press SPACE / tap to play', cx, 600, 22, '#9ef39e', '#000');
+  drawPixelText('arrows / WASD / swipe to steer', cx, 645, 16, '#cccccc', '#000');
+  drawPixelText('escape to pause', cx, 680, 14, '#aaaaaa', '#000');
+  if (state.bestScore > 0) {
+    drawPixelText('best: ' + state.bestScore, cx, 770, 18, '#ffd95a', '#000');
+  }
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0, 0, MAP_W, WORLD_H);
+  const cx = MAP_W / 2;
+  drawPixelText('GAME OVER', cx, 320, 56, '#ff5a5a', '#000');
+  drawPixelText('score: ' + state.score, cx, 430, 24, '#fff', '#000');
+  drawPixelText('length: ' + state.snake.length, cx, 470, 20, '#cccccc', '#000');
+  if (state.newBest) {
+    drawPixelText('* NEW BEST! *', cx, 540, 28, '#ffd95a', '#000');
+  } else {
+    drawPixelText('best: ' + state.bestScore, cx, 540, 20, '#ffd95a', '#000');
+  }
+  drawPixelText('press SPACE / tap to restart', cx, 680, 22, '#9ef39e', '#000');
+}
+
+function drawPause() {
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, MAP_W, WORLD_H);
+  const cx = MAP_W / 2;
+  drawPixelText('PAUSED', cx, 460, 48, '#fff', '#000');
+  drawPixelText('press ESC / tap to resume', cx, 540, 18, '#cccccc', '#000');
+}
+
+// ============================================================
+// Main loop
+// ============================================================
+function frame(now) {
+  // Tick logic
+  if (state.mode === 'playing') {
+    if (now - state.lastTickTime >= state.tickInterval) {
+      state.lastTickTime = now;
+      tick();
+    }
+  }
+  state.animTime = now;
+
+  // Render
+  ctx.clearRect(0, 0, WORLD_W, WORLD_H);
+  drawBackground();
+
+  if (state.mode === 'menu') {
+    drawHud(now);
+    drawMenu();
+  } else if (state.mode === 'playing' || state.mode === 'paused') {
+    drawFruits(now);
+    drawSnake(now);
+    drawEffects(now);
+    drawHud(now);
+    drawTopChainBar(now);
+    drawFlyWords(now); // overlay so flying words land on top of the bar
+    if (state.mode === 'paused') drawPause();
+  } else if (state.mode === 'gameover') {
+    drawFruits(now);
+    drawDieAnim(now);
+    drawEffects(now);
+    drawHud(now);
+    drawTopChainBar(now);
+    drawFlyWords(now);
+    // Hold the death animation on screen for ~1s before showing the overlay
+    if (now - state.dieAnimStart >= 1000) drawGameOver();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// ============================================================
+// Boot
+// ============================================================
+async function boot() {
+  try {
+    await loadAll();
+    loadBest();
+    document.getElementById('loading').style.display = 'none';
+    state.mode = 'menu';
+    requestAnimationFrame(frame);
+  } catch (err) {
+    document.getElementById('loading').textContent = 'Asset load failed: ' + err.message;
+    console.error(err);
+  }
+}
+boot();
+</script>
+</body>
+</html>
