@@ -8,14 +8,437 @@
   <meta property="og:title" content="Krabsy — Englisch lernen mit Spielen">
   <meta property="og:description" content="Lerne englische Grammatik mit kostenlosen Browser-Spielen.">
   <meta property="og:type" content="website">
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
+  <style>
+    /* ── Brand Tokens ── */
+    :root {
+      --lavender: #babfd8;
+      --sage: #cdd9b4;
+      --coral: #f2937e;
+      --coral-dark: #e07a64;
+      --black: #1a1a1a;
+      --white: #ffffff;
+      --bg: #faf9f7;
+      --lavender-light: #e8e9f0;
+      --sage-light: #e9eede;
+      --coral-light: #fbe4de;
+      --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.14);
+      --radius: 16px;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Verdana, Geneva, sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--white);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Limelight', cursive;
+      font-size: 1.8rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      line-height: 1;
+      color: var(--black);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text { color: var(--black); }
+
+    .logo-crab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 1.1em;
+      height: 1em;
+      margin: 0 -0.05em;
+    }
+
+    /* CSS Crab mascot for the logo "a" */
+    .logo-crab-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: var(--lavender-light);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      font-family: Verdana, Geneva, sans-serif;
+      font-weight: bold;
+      font-size: 0.75rem;
+      padding: 6px 14px;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .lang-btn.active {
+      background: var(--coral);
+      color: var(--white);
+      border-radius: 20px;
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--black);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 48px 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: -40px;
+      width: 220px;
+      height: 220px;
+      background: var(--lavender);
+      border-radius: 50%;
+      opacity: 0.2;
+      z-index: 0;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -30px;
+      width: 180px;
+      height: 180px;
+      background: var(--sage);
+      border-radius: 50%;
+      opacity: 0.2;
+      z-index: 0;
+    }
+
+    .hero-mascot {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 12px;
+    }
+
+    .hero-mascot svg {
+      width: 120px;
+      height: 110px;
+      filter: drop-shadow(0 4px 12px rgba(242, 147, 126, 0.3));
+    }
+
+    .tagline {
+      font-family: 'Limelight', cursive;
+      font-size: 1.5rem;
+      color: var(--black);
+      position: relative;
+      z-index: 1;
+      line-height: 1.3;
+    }
+
+    .tagline-sub {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-family: 'Limelight', cursive;
+      font-size: 1.15rem;
+      color: var(--black);
+      padding: 0 24px 12px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: var(--lavender);
+      border-radius: 1px;
+    }
+
+    /* ── Game Grid ── */
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 0 24px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (min-width: 540px) {
+      .game-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 860px) {
+      .game-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+    }
+
+    /* ── Game Card ── */
+    .game-card {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      background: var(--white);
+      border: 2px solid transparent;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--coral);
+    }
+
+    .game-card:active {
+      transform: translateY(-2px);
+    }
+
+    .game-card.coming-soon {
+      cursor: default;
+      opacity: 0.75;
+    }
+
+    .game-card.coming-soon:hover {
+      transform: none;
+      box-shadow: var(--card-shadow);
+      border-color: transparent;
+    }
+
+    .card-visual {
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Placeholder backgrounds per topic */
+    .card-visual.topic-irregular_verbs {
+      background: linear-gradient(135deg, var(--coral-light), var(--lavender-light));
+    }
+
+    .card-visual.topic-tenses {
+      background: linear-gradient(135deg, var(--sage-light), var(--lavender-light));
+    }
+
+    .card-visual.topic-vocabulary {
+      background: linear-gradient(135deg, var(--coral-light), var(--sage-light));
+    }
+
+    .card-visual-emoji {
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+
+    .card-body {
+      padding: 12px 14px;
+    }
+
+    .card-title {
+      font-family: 'Limelight', cursive;
+      font-size: 1rem;
+      color: var(--black);
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+
+    .badge-beta {
+      background: var(--sage-light);
+      color: #5a7a3a;
+    }
+
+    .badge-coming-soon {
+      background: var(--lavender-light);
+      color: #6b6f8d;
+    }
+
+    /* ── Decorative wave divider ── */
+    .wave-divider {
+      width: 100%;
+      height: 40px;
+      overflow: hidden;
+      margin-bottom: -1px;
+    }
+
+    .wave-divider svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.75rem;
+      color: #888;
+      background: var(--lavender-light);
+      border-top: none;
+    }
+
+    .site-footer a {
+      color: #666;
+      text-decoration: none;
+      margin: 0 8px;
+      transition: color 0.2s;
+    }
+
+    .site-footer a:hover {
+      color: var(--coral);
+    }
+
+    .footer-sep {
+      margin: 0 4px;
+      color: #bbb;
+    }
+
+    .footer-built {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+
+    /* ── Responsive tweaks ── */
+    @media (max-width: 539px) {
+      .hero { padding: 32px 20px 24px; }
+      .tagline { font-size: 1.25rem; }
+      .hero-mascot svg { width: 90px; height: 82px; }
+      .game-grid { padding: 0 16px 32px; gap: 12px; }
+      .section-heading { padding: 0 16px 10px; font-size: 1rem; }
+    }
+
+    @media (min-width: 860px) {
+      .hero { padding: 56px 24px 36px; }
+      .tagline { font-size: 1.75rem; }
+      .hero-mascot svg { width: 140px; height: 128px; }
+    }
+  </style>
 </head>
 <body data-page="home">
 
   <header class="site-header">
     <a href="index.html" class="logo">
-      <span class="logo-krab">Krab</span><span class="logo-sy">sy</span>
-      <span class="logo-crab">🦀</span>
+      <span class="logo-text">kr</span>
+      <span class="logo-crab">
+        <!-- Inline SVG crab as the "a" in krabsy -->
+        <svg class="logo-crab-svg" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Legs -->
+          <ellipse cx="25" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(-20 25 72)"/>
+          <ellipse cx="15" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(-35 15 65)"/>
+          <ellipse cx="75" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(20 75 72)"/>
+          <ellipse cx="85" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(35 85 65)"/>
+          <ellipse cx="18" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(-50 18 58)"/>
+          <ellipse cx="82" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(50 82 58)"/>
+          <!-- Claws arms -->
+          <rect x="12" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(-30 12 30)"/>
+          <rect x="74" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(30 88 30)"/>
+          <!-- Left claw -->
+          <ellipse cx="10" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(-15 10 22)"/>
+          <path d="M5 16 C8 10, 16 12, 14 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Right claw -->
+          <ellipse cx="90" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(15 90 22)"/>
+          <path d="M95 16 C92 10, 84 12, 86 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Body -->
+          <ellipse cx="50" cy="55" rx="30" ry="24" fill="#f2937e"/>
+          <!-- Face highlight -->
+          <ellipse cx="50" cy="52" rx="24" ry="18" fill="#f7b0a0" opacity="0.5"/>
+          <!-- Eyes -->
+          <circle cx="40" cy="46" r="6" fill="white"/>
+          <circle cx="60" cy="46" r="6" fill="white"/>
+          <circle cx="41.5" cy="47" r="3" fill="#1a1a1a"/>
+          <circle cx="61.5" cy="47" r="3" fill="#1a1a1a"/>
+          <circle cx="42.5" cy="45.5" r="1" fill="white"/>
+          <circle cx="62.5" cy="45.5" r="1" fill="white"/>
+          <!-- Mouth -->
+          <path d="M44 56 Q50 61 56 56" stroke="#c96b58" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Cheek blush -->
+          <ellipse cx="35" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
+          <ellipse cx="65" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
+        </svg>
+      </span>
+      <span class="logo-text">bsy</span>
     </a>
     <div class="lang-toggle">
       <button class="lang-btn active" data-lang="de">DE</button>
@@ -23,9 +446,55 @@
     </div>
   </header>
 
-  <p class="tagline" data-i18n="tagline">Meistere Englisch — Spiel für Spiel!</p>
+  <section class="hero">
+    <div class="hero-mascot">
+      <!-- Large mascot crab -->
+      <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Legs -->
+        <ellipse cx="50" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(-20 50 144)"/>
+        <ellipse cx="30" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(-35 30 130)"/>
+        <ellipse cx="150" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(20 150 144)"/>
+        <ellipse cx="170" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(35 170 130)"/>
+        <ellipse cx="36" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(-50 36 116)"/>
+        <ellipse cx="164" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(50 164 116)"/>
+        <!-- Claw arms -->
+        <rect x="24" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(-30 24 60)"/>
+        <rect x="148" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(30 176 60)"/>
+        <!-- Left claw -->
+        <ellipse cx="20" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(-15 20 44)"/>
+        <path d="M10 32 C16 20, 32 24, 28 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <!-- Right claw -->
+        <ellipse cx="180" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(15 180 44)"/>
+        <path d="M190 32 C184 20, 168 24, 172 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <!-- Body -->
+        <ellipse cx="100" cy="110" rx="60" ry="48" fill="#f2937e"/>
+        <!-- Face highlight -->
+        <ellipse cx="100" cy="104" rx="48" ry="36" fill="#f7b0a0" opacity="0.5"/>
+        <!-- Eyes -->
+        <circle cx="80" cy="92" r="12" fill="white"/>
+        <circle cx="120" cy="92" r="12" fill="white"/>
+        <circle cx="83" cy="94" r="6" fill="#1a1a1a"/>
+        <circle cx="123" cy="94" r="6" fill="#1a1a1a"/>
+        <circle cx="85" cy="91" r="2" fill="white"/>
+        <circle cx="125" cy="91" r="2" fill="white"/>
+        <!-- Mouth -->
+        <path d="M88 112 Q100 122 112 112" stroke="#c96b58" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Cheek blush -->
+        <ellipse cx="70" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
+        <ellipse cx="130" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
+      </svg>
+    </div>
+    <p class="tagline" data-i18n="tagline">Meistere Englisch — Spiel für Spiel!</p>
+  </section>
 
+  <div class="section-heading" data-i18n="section_games">Spiele</div>
   <main class="game-grid"></main>
+
+  <div class="wave-divider">
+    <svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z" fill="#e8e9f0"/>
+    </svg>
+  </div>
 
   <footer class="site-footer">
     <a href="#" data-i18n="footer_imprint">Impressum</a>
@@ -34,6 +503,140 @@
     <span class="footer-built" data-i18n="footer_built_with">Made with 🦀</span>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var TOPIC_EMOJI = {
+        irregular_verbs: '✏️',
+        tenses: '⏰',
+        vocabulary: '📚'
+      };
+
+      var i18n = {};
+      var games = [];
+      var currentLang = localStorage.getItem('krabsy-lang') || 'de';
+
+      /* ── Bootstrap ── */
+      async function init() {
+        var [i18nData, gamesData] = await Promise.all([
+          fetch('i18n.json').then(function(r) { return r.json(); }),
+          fetch('games.json').then(function(r) { return r.json(); })
+        ]);
+        i18n = i18nData;
+        games = gamesData.games;
+
+        applyLang(currentLang);
+        setupLangToggle();
+        renderGrid(document.querySelector('.game-grid'));
+      }
+
+      /* ── Language ── */
+      function applyLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('krabsy-lang', lang);
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll('.lang-btn').forEach(function (btn) {
+          btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          var key = el.dataset.i18n;
+          if (i18n[lang] && i18n[lang][key]) {
+            el.textContent = i18n[lang][key];
+          }
+        });
+
+        var titleEl = document.querySelector('title');
+        var metaDesc = document.querySelector('meta[name="description"]');
+        if (i18n[lang]) {
+          titleEl.textContent = i18n[lang].meta_title;
+          if (metaDesc) metaDesc.content = i18n[lang].meta_description;
+        }
+
+        // Re-render grid
+        renderGrid(document.querySelector('.game-grid'));
+      }
+
+      function setupLangToggle() {
+        document.querySelectorAll('.lang-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            applyLang(btn.dataset.lang);
+          });
+        });
+      }
+
+      /* ── Game Grid ── */
+      function renderGrid(container) {
+        if (!container) return;
+        container.innerHTML = '';
+
+        games.forEach(function (game) {
+          var card = document.createElement('div');
+          card.className = 'game-card';
+
+          var title = currentLang === 'de' ? game.title_de : game.title_es;
+          var desc = currentLang === 'de' ? game.description_de : game.description_es;
+
+          if (game.status === 'coming_soon') {
+            card.classList.add('coming-soon');
+            var emoji = TOPIC_EMOJI[game.topic] || '🎮';
+            var comingSoonText = i18n[currentLang] ? i18n[currentLang].coming_soon : 'Coming soon';
+            card.innerHTML =
+              '<div class="card-visual topic-' + game.topic + '">' +
+                '<span class="card-visual-emoji">' + emoji + '</span>' +
+              '</div>' +
+              '<div class="card-body">' +
+                '<div class="card-title">' + title + '</div>' +
+                '<div class="card-desc">' + desc + '</div>' +
+                '<span class="card-badge badge-coming-soon">' + comingSoonText + '</span>' +
+              '</div>';
+          } else {
+            var visualContent;
+            if (game.thumbnail) {
+              visualContent =
+                '<div class="card-visual topic-' + game.topic + '">' +
+                  '<img src="' + game.thumbnail + '" alt="' + escapeAttr(title) + '" loading="lazy" ' +
+                    'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+                  '<span class="card-visual-emoji" style="display:none;position:absolute;">' + (TOPIC_EMOJI[game.topic] || '🎮') + '</span>' +
+                '</div>';
+            } else {
+              var emoji2 = TOPIC_EMOJI[game.topic] || '🎮';
+              visualContent =
+                '<div class="card-visual topic-' + game.topic + '">' +
+                  '<span class="card-visual-emoji">' + emoji2 + '</span>' +
+                '</div>';
+            }
+
+            card.innerHTML =
+              visualContent +
+              '<div class="card-body">' +
+                '<div class="card-title">' + title + '</div>' +
+                '<div class="card-desc">' + desc + '</div>' +
+                '<span class="card-badge badge-beta">Beta</span>' +
+              '</div>';
+
+            card.addEventListener('click', function () {
+              window.location.href = 'game.html?id=' + game.id;
+            });
+          }
+
+          container.appendChild(card);
+        });
+      }
+
+      function escapeAttr(s) {
+        return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
+      }
+
+      /* ── Start ── */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
 </body>
 </html>

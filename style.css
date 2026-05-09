@@ -1,17 +1,20 @@
-/* ── Krabsy — Shared Styles ── */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&display=swap');
+/* ── Krabsy — Shared Styles (Brand v2) ── */
+@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
 
 :root {
-  --ocean-deep: #0288d1;
-  --coral: #ff6b6b;
-  --teal: #00c49a;
-  --teal-dark: #00a882;
-  --sand-gold: #ffd166;
-  --white: #fff;
-  --bg: #f0f7fa;
-  --card-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.18);
-  --radius: 12px;
+  --lavender: #babfd8;
+  --sage: #cdd9b4;
+  --coral: #f2937e;
+  --coral-dark: #e07a64;
+  --black: #1a1a1a;
+  --white: #ffffff;
+  --bg: #faf9f7;
+  --lavender-light: #e8e9f0;
+  --sage-light: #e9eede;
+  --coral-light: #fbe4de;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.14);
+  --radius: 16px;
 }
 
 *, *::before, *::after {
@@ -20,14 +23,12 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   background: var(--bg);
-  color: #333;
+  color: var(--black);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -38,31 +39,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 14px 24px;
   background: var(--white);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .logo {
-  font-family: 'Fredoka One', cursive;
-  font-size: 1.6rem;
+  font-family: 'Limelight', cursive;
+  font-size: 1.8rem;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   line-height: 1;
+  color: var(--black);
+  letter-spacing: -0.5px;
 }
 
-.logo-krab {
-  color: var(--ocean-deep);
-}
+.logo-text { color: var(--black); }
 
-.logo-sy {
-  color: var(--coral);
-}
+.logo-krab { color: var(--black); }
+.logo-sy { color: var(--black); }
 
 .logo-crab {
   font-size: 1.4rem;
@@ -71,8 +71,7 @@ body {
 
 .lang-toggle {
   display: flex;
-  gap: 0;
-  background: #e8f0f3;
+  background: var(--lavender-light);
   border-radius: 20px;
   overflow: hidden;
 }
@@ -80,9 +79,9 @@ body {
 .lang-btn {
   border: none;
   background: transparent;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
+  font-family: Verdana, Geneva, sans-serif;
+  font-weight: bold;
+  font-size: 0.75rem;
   padding: 6px 14px;
   cursor: pointer;
   color: #666;
@@ -91,17 +90,21 @@ body {
 }
 
 .lang-btn.active {
-  background: var(--ocean-deep);
+  background: var(--coral);
   color: var(--white);
   border-radius: 20px;
 }
 
+.lang-btn:hover:not(.active) {
+  color: var(--black);
+}
+
 /* ── Tagline ── */
 .tagline {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Limelight', cursive;
   text-align: center;
   font-size: 1.15rem;
-  color: var(--ocean-deep);
+  color: var(--black);
   padding: 16px 20px 4px;
 }
 
@@ -147,7 +150,7 @@ body {
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   aspect-ratio: 16 / 9;
-  background: #1a2a3a;
+  background: var(--lavender-light);
 }
 
 .game-card:hover {
@@ -181,21 +184,21 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--white);
+  color: var(--black);
   text-align: center;
   padding: 16px;
 }
 
 .card-placeholder.topic-irregular_verbs {
-  background: linear-gradient(135deg, #0288d1, #00c49a);
+  background: linear-gradient(135deg, var(--coral-light), var(--lavender-light));
 }
 
 .card-placeholder.topic-tenses {
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  background: linear-gradient(135deg, var(--sage-light), var(--lavender-light));
 }
 
 .card-placeholder.topic-vocabulary {
-  background: linear-gradient(135deg, #ff6b6b, #ffd166);
+  background: linear-gradient(135deg, var(--coral-light), var(--sage-light));
 }
 
 .card-placeholder-emoji {
@@ -204,7 +207,7 @@ body {
 }
 
 .card-placeholder-title {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Limelight', cursive;
   font-size: 1rem;
   line-height: 1.2;
 }
@@ -214,7 +217,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.08);
   padding: 3px 10px;
   border-radius: 10px;
   margin-top: 2px;
@@ -226,7 +229,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.75));
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
   color: var(--white);
   padding: 24px 10px 8px;
   transform: translateY(100%);
@@ -239,7 +242,7 @@ body {
 }
 
 .card-overlay-title {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Limelight', cursive;
   font-size: 0.85rem;
   line-height: 1.2;
 }
@@ -255,7 +258,7 @@ body {
 @media (max-width: 599px) {
   .card-overlay {
     transform: translateY(0);
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.55);
     padding: 6px 8px;
   }
 
@@ -275,7 +278,7 @@ body {
 .back-link {
   display: inline-block;
   font-size: 0.85rem;
-  color: var(--ocean-deep);
+  color: var(--coral);
   text-decoration: none;
   font-weight: 600;
   padding: 12px 0 8px;
@@ -287,9 +290,9 @@ body {
 }
 
 .game-title {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Limelight', cursive;
   font-size: 1.4rem;
-  color: #1a2a3a;
+  color: var(--black);
   padding-bottom: 12px;
 }
 
@@ -315,9 +318,9 @@ body {
 
 /* Grid heading on game page */
 .grid-heading {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Limelight', cursive;
   font-size: 1.1rem;
-  color: var(--ocean-deep);
+  color: var(--black);
   padding: 8px 16px;
   max-width: 1200px;
   margin: 0 auto;
@@ -340,31 +343,31 @@ body {
 .site-footer {
   margin-top: auto;
   text-align: center;
-  padding: 20px 16px;
+  padding: 24px 16px;
   font-size: 0.75rem;
-  color: #999;
-  border-top: 1px solid #e0e8ec;
+  color: #888;
+  background: var(--lavender-light);
 }
 
 .site-footer a {
-  color: #888;
+  color: #666;
   text-decoration: none;
   margin: 0 8px;
   transition: color 0.2s;
 }
 
 .site-footer a:hover {
-  color: var(--ocean-deep);
+  color: var(--coral);
 }
 
 .footer-sep {
   margin: 0 4px;
-  color: #ccc;
+  color: #bbb;
 }
 
 .footer-built {
   display: block;
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 0.7rem;
-  color: #bbb;
+  color: #aaa;
 }

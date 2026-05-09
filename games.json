@@ -43,7 +43,7 @@
       "description_de": "Friss Verbformen in der richtigen Reihenfolge!",
       "description_es": "¡Devora las formas verbales en orden!",
       "thumbnail": "thumbnails/verb-snake.png",
-      "file": "verb-snake/index.html",
+      "file": "games/verb-snake.html",
       "topic": "irregular_verbs",
       "status": "beta",
       "aspect_ratio": "16:9"
