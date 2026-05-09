@@ -73,6 +73,18 @@ const HUD_X = MAP_W;           // HUD starts at x=1152
 const WORLD_W = MAP_W + HUD_W; // 1752
 const WORLD_H = MAP_H;         // 832
 const GRID_OFFSET_Y = 0;
+// On-screen D-pad — sits in the lower half of the right HUD panel.
+// Driven by Pointer Events so mouse and touch share one code path.
+const DPAD_CX = HUD_X + HUD_W / 2;
+const DPAD_CY = 560;
+const DPAD_BTN = 110;
+const DPAD_GAP = 6;
+const DPAD_BUTTONS = {
+  up:    { x: DPAD_CX - DPAD_BTN / 2,                    y: DPAD_CY - DPAD_BTN * 1.5 - DPAD_GAP, w: DPAD_BTN, h: DPAD_BTN },
+  down:  { x: DPAD_CX - DPAD_BTN / 2,                    y: DPAD_CY + DPAD_BTN / 2 + DPAD_GAP,   w: DPAD_BTN, h: DPAD_BTN },
+  left:  { x: DPAD_CX - DPAD_BTN * 1.5 - DPAD_GAP,       y: DPAD_CY - DPAD_BTN / 2,              w: DPAD_BTN, h: DPAD_BTN },
+  right: { x: DPAD_CX + DPAD_BTN / 2 + DPAD_GAP,         y: DPAD_CY - DPAD_BTN / 2,              w: DPAD_BTN, h: DPAD_BTN },
+};
 // Background image grid area starts at bg-y=200 (worldY=-200 in source coords).
 const BG_GRID_Y = 200;
 // Map a new (col, row) back to the original asset coordinates so we can use
@@ -342,6 +354,7 @@ const state = {
   dieAnimStart: 0,
   newBest: false,
   chainCompleteFlash: 0,
+  dpad: { pressed: null, hover: null, pointerId: null },
 };
 
 function loadBest() {
@@ -643,21 +656,32 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Touch — context-aware tap-to-turn. The current heading determines which
-// axis the screen is split along, so a tap always resolves to one of the two
-// legal turns: heading horizontally → top/bottom halves give up/down; heading
-// vertically → left/right halves give left/right.
+// Pointer input — one handler for mouse + touch. Routes to either:
+//   (a) the on-screen D-pad (press a direction button), or
+//   (b) tap-to-turn on the map area (split along the current heading's axis).
 const canvas = document.getElementById('game');
-canvas.addEventListener('touchstart', (e) => {
-  ensureAudio();
-  if (e.touches.length === 0) return;
-  const t = e.touches[0];
 
-  if (state.mode === 'menu') {
-    startNewGame();
-    e.preventDefault();
-    return;
+// Map a pointer event's client coords to canvas-internal coords (the canvas
+// is CSS-scaled to fit the viewport).
+function pointerToCanvas(e) {
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width;
+  const sy = canvas.height / rect.height;
+  return { cx: (e.clientX - rect.left) * sx, cy: (e.clientY - rect.top) * sy };
+}
+
+function dpadButtonAt(cx, cy) {
+  for (const dir of ['up', 'down', 'left', 'right']) {
+    const b = DPAD_BUTTONS[dir];
+    if (cx >= b.x && cx < b.x + b.w && cy >= b.y && cy < b.y + b.h) return dir;
   }
+  return null;
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  ensureAudio();
+
+  if (state.mode === 'menu') { startNewGame(); e.preventDefault(); return; }
   if (state.mode === 'gameover') {
     if (gameOverReady()) { startNewGame(); e.preventDefault(); }
     return;
@@ -669,31 +693,65 @@ canvas.addEventListener('touchstart', (e) => {
     return;
   }
 
-  // Playing: split the canvas based on the most recent intended heading
-  // (queued direction wins so rapid taps chain correctly).
-  const last = state.queuedDirs.length > 0
-    ? state.queuedDirs[state.queuedDirs.length - 1]
-    : state.dir;
-  const rect = canvas.getBoundingClientRect();
-  const localX = t.clientX - rect.left;
-  const localY = t.clientY - rect.top;
-  if (last === 'left' || last === 'right') {
-    queueDirection(localY < rect.height / 2 ? 'up' : 'down');
-  } else {
-    queueDirection(localX < rect.width / 2 ? 'left' : 'right');
+  // Playing
+  const { cx, cy } = pointerToCanvas(e);
+  const btn = dpadButtonAt(cx, cy);
+  if (btn) {
+    state.dpad.pressed = btn;
+    state.dpad.pointerId = e.pointerId;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    queueDirection(btn);
+    e.preventDefault();
+    return;
   }
-  e.preventDefault();
-}, { passive: false });
-canvas.addEventListener('click', () => {
-  ensureAudio();
-  if (state.mode === 'menu') startNewGame();
-  else if (state.mode === 'gameover') {
-    if (gameOverReady()) startNewGame();
-  } else if (state.mode === 'paused') {
-    state.mode = 'playing';
-    state.lastTickTime = performance.now();
+
+  // Tap-to-turn — only inside the map area; HUD taps do nothing.
+  if (cx < MAP_W) {
+    const last = state.queuedDirs.length > 0
+      ? state.queuedDirs[state.queuedDirs.length - 1]
+      : state.dir;
+    if (last === 'left' || last === 'right') {
+      queueDirection(cy < MAP_H / 2 ? 'up' : 'down');
+    } else {
+      queueDirection(cx < MAP_W / 2 ? 'left' : 'right');
+    }
+    e.preventDefault();
   }
 });
+
+canvas.addEventListener('pointermove', (e) => {
+  const { cx, cy } = pointerToCanvas(e);
+
+  // Drag between buttons while held — slide left→up still works on touch.
+  if (state.dpad.pointerId === e.pointerId) {
+    const newBtn = dpadButtonAt(cx, cy);
+    if (newBtn && newBtn !== state.dpad.pressed) {
+      state.dpad.pressed = newBtn;
+      queueDirection(newBtn);
+    } else if (!newBtn) {
+      state.dpad.pressed = null;
+    }
+    e.preventDefault();
+    return;
+  }
+
+  // Hover hint for mouse users
+  if (e.pointerType === 'mouse') {
+    const overBtn = state.mode === 'playing' ? dpadButtonAt(cx, cy) : null;
+    state.dpad.hover = overBtn;
+    canvas.style.cursor = overBtn ? 'pointer' : 'default';
+  }
+});
+
+function endDpadPointer(e) {
+  if (e.pointerId === state.dpad.pointerId) {
+    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    state.dpad.pressed = null;
+    state.dpad.pointerId = null;
+  }
+}
+canvas.addEventListener('pointerup', endDpadPointer);
+canvas.addEventListener('pointercancel', endDpadPointer);
 
 // ============================================================
 // Tick / update
@@ -1139,6 +1197,54 @@ function drawHud(now) {
     // Show BEST below when COMBO took the right slot
     drawPixelText('BEST   ' + state.bestScore, cx, 250, 16, '#cccccc', '#000');
   }
+
+  drawDpad();
+}
+
+function drawDpad() {
+  for (const dir of ['up', 'down', 'left', 'right']) {
+    const b = DPAD_BUTTONS[dir];
+    const pressed = state.dpad.pressed === dir;
+    const hover = state.dpad.hover === dir && !pressed;
+
+    if (pressed) {
+      ctx.fillStyle = '#9ef39e';
+    } else if (hover) {
+      ctx.fillStyle = 'rgba(60, 96, 60, 0.95)';
+    } else {
+      ctx.fillStyle = 'rgba(20, 36, 22, 0.85)';
+    }
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = pressed ? '#1a2c1a' : '#3a5c3a';
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+    ctx.fillStyle = pressed ? '#0a1408' : '#9ef39e';
+    drawDpadArrow(dir, b.x + b.w / 2, b.y + b.h / 2, 28);
+  }
+}
+
+function drawDpadArrow(dir, cx, cy, size) {
+  ctx.beginPath();
+  if (dir === 'up') {
+    ctx.moveTo(cx, cy - size);
+    ctx.lineTo(cx - size, cy + size * 0.6);
+    ctx.lineTo(cx + size, cy + size * 0.6);
+  } else if (dir === 'down') {
+    ctx.moveTo(cx, cy + size);
+    ctx.lineTo(cx - size, cy - size * 0.6);
+    ctx.lineTo(cx + size, cy - size * 0.6);
+  } else if (dir === 'left') {
+    ctx.moveTo(cx - size, cy);
+    ctx.lineTo(cx + size * 0.6, cy - size);
+    ctx.lineTo(cx + size * 0.6, cy + size);
+  } else {
+    ctx.moveTo(cx + size, cy);
+    ctx.lineTo(cx - size * 0.6, cy - size);
+    ctx.lineTo(cx - size * 0.6, cy + size);
+  }
+  ctx.closePath();
+  ctx.fill();
 }
 
 function drawDownArrow(cx, cy, w, h, color) {
@@ -1322,7 +1428,7 @@ function drawMenu() {
   drawPixelText('infinitive  →  past  →  past participle', cx, 440, 18, '#ffe066', '#000');
 
   drawPixelText('press SPACE / tap to play', cx, 600, 22, '#9ef39e', '#000');
-  drawPixelText('arrows / WASD / tap to steer', cx, 645, 16, '#cccccc', '#000');
+  drawPixelText('arrows / WASD / D-pad / tap to steer', cx, 645, 16, '#cccccc', '#000');
   drawPixelText('escape to pause', cx, 680, 14, '#aaaaaa', '#000');
   if (state.bestScore > 0) {
     drawPixelText('best: ' + state.bestScore, cx, 770, 18, '#ffd95a', '#000');
