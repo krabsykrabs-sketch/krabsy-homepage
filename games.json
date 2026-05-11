@@ -49,6 +49,18 @@
       "aspect_ratio": "16:9"
     },
     {
+      "id": "verb-platformer",
+      "title_de": "Verb Platformer!",
+      "title_es": "Verb Platformer!",
+      "description_de": "Springe durch 3D-Welten und wähle die richtige Verbform!",
+      "description_es": "¡Salta por mundos 3D y elige la forma verbal correcta!",
+      "thumbnail": null,
+      "file": "games/3dPlat/index.html",
+      "topic": "irregular_verbs",
+      "status": "beta",
+      "aspect_ratio": "16:9"
+    },
+    {
       "id": "verb-cards",
       "title_de": "Verb Cards",
       "title_es": "Verb Cards",

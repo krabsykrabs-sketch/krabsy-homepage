@@ -175,7 +175,57 @@
     document.querySelector('.game-title').textContent = title;
 
     var iframe = document.querySelector('.game-iframe-wrap iframe');
+    iframe.setAttribute('tabindex', '0');
     iframe.src = game.file;
+
+    // Hand keyboard focus to the iframe so game keys (Space, arrows, WASD)
+    // don't scroll the parent page.
+    var focusIframe = function () {
+      try { iframe.focus({ preventScroll: true }); } catch (e) { try { iframe.focus(); } catch (_) {} }
+      try { iframe.contentWindow && iframe.contentWindow.focus(); } catch (e) {}
+    };
+    iframe.addEventListener('load', focusIframe);
+    iframe.addEventListener('mouseenter', focusIframe);
+    iframe.addEventListener('mousedown', focusIframe);
+
+    // The bundled game listens for Space/arrows but doesn't preventDefault,
+    // so the browser still tries to scroll. Inject a capture-phase listener
+    // into the iframe document (same-origin) that swallows the default scroll
+    // action without disturbing the game's own keydown handlers.
+    iframe.addEventListener('load', function () {
+      try {
+        var doc = iframe.contentDocument;
+        if (!doc) return;
+        doc.addEventListener('keydown', function (e) {
+          if (!isScrollKey(e)) return;
+          var t = e.target;
+          var tag = (t && t.tagName) || '';
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || (t && t.isContentEditable)) return;
+          e.preventDefault();
+        }, { capture: true, passive: false });
+      } catch (err) { /* cross-origin fallback — parent listener still active */ }
+    });
+
+    // Belt-and-braces: stop the parent from scrolling on game keys whenever
+    // focus isn't inside the iframe (first frame after navigation, after
+    // tabbing away, after clicking the back-link, etc).
+    var isScrollKey = function (e) {
+      if (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar' || e.keyCode === 32) return true;
+      if (e.key && e.key.indexOf('Arrow') === 0) return true;
+      if (e.code && e.code.indexOf('Arrow') === 0) return true;
+      if (e.key === 'PageUp' || e.key === 'PageDown' || e.key === 'Home' || e.key === 'End') return true;
+      return false;
+    };
+    var handleKey = function (e) {
+      if (!isScrollKey(e)) return;
+      var tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
+      e.preventDefault();
+      focusIframe();
+    };
+    // Capture phase on both window and document so we beat any other handlers.
+    window.addEventListener('keydown', handleKey, { capture: true, passive: false });
+    document.addEventListener('keydown', handleKey, { capture: true, passive: false });
   }
 
   /* ── Start ── */
