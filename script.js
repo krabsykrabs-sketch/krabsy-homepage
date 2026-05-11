@@ -16,8 +16,8 @@
   /* ── Bootstrap ── */
   async function init() {
     const [i18nData, gamesData] = await Promise.all([
-      fetch('i18n.json').then(r => r.json()),
-      fetch('games.json').then(r => r.json())
+      fetch('i18n.json', { cache: 'no-store' }).then(r => r.json()),
+      fetch('games.json', { cache: 'no-store' }).then(r => r.json())
     ]);
     i18n = i18nData;
     games = gamesData.games;
@@ -176,7 +176,11 @@
 
     var iframe = document.querySelector('.game-iframe-wrap iframe');
     iframe.setAttribute('tabindex', '0');
-    iframe.src = game.file;
+    // Cache-bust the iframe URL so the game HTML always reflects the latest
+    // deploy. Game assets (GLBs, sprites, sounds) loaded from inside the game
+    // by relative path still cache normally.
+    var sep = game.file.indexOf('?') === -1 ? '?' : '&';
+    iframe.src = game.file + sep + 'v=' + (window.KRABSY_VERSION || Date.now());
 
     // Hand keyboard focus to the iframe so game keys (Space, arrows, WASD)
     // don't scroll the parent page.
