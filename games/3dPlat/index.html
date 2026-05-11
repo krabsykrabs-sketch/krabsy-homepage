@@ -482,12 +482,17 @@
     };
 
     const keys = new Set();
+    const SCROLL_CODES = new Set(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End']);
     window.addEventListener('keydown', e => {
+      if (SCROLL_CODES.has(e.code)) e.preventDefault();
       if (e.repeat) return;
       keys.add(e.code);
       if (e.code === 'Space') input.jumpPressed = true;
-    });
-    window.addEventListener('keyup', e => keys.delete(e.code));
+    }, { passive: false });
+    window.addEventListener('keyup', e => {
+      if (SCROLL_CODES.has(e.code)) e.preventDefault();
+      keys.delete(e.code);
+    }, { passive: false });
 
     function readKeyboard() {
       let x = 0, y = 0;
