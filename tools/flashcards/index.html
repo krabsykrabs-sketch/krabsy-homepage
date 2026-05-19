@@ -195,13 +195,20 @@
       font-size: 0.85rem;
     }
 
-    /* ── Judgment buttons ─────────────────────────────────────────────── */
+    /* ── Judgment buttons (hidden until the card is flipped) ─────────── */
     .fc-judgment {
       display: flex;
       justify-content: center;
       gap: var(--space-3);
       flex-wrap: wrap;
       margin-bottom: var(--space-5);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .fc-judgment.is-pre-flip {
+      visibility: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px);
     }
 
     .fc-judgment .k-btn-primary,
@@ -324,6 +331,7 @@
           <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Nochmal</button>
           <a class="k-btn-secondary" href="/index.html" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </div>
     </main>
 
@@ -468,6 +476,8 @@
       const card = document.getElementById('fc-card');
       state.flipped = false;
       card.classList.remove('is-flipped');
+      // Hide rating buttons until the user flips the card.
+      document.getElementById('fc-judgment').classList.add('is-pre-flip');
 
       const total = state.deck.length;
       if (total === 0) {
@@ -513,6 +523,8 @@
       state.flipped = !state.flipped;
       const card = document.getElementById('fc-card');
       card.classList.toggle('is-flipped', state.flipped);
+      // Reveal rating buttons only once the back is showing.
+      document.getElementById('fc-judgment').classList.toggle('is-pre-flip', !state.flipped);
     }
 
     function judge(correct) {
@@ -629,6 +641,10 @@
     }
 
     init();
+  </script>
+  <script type="module">
+    import { initToolPage } from '../../lib/krabsy-nav.js';
+    initToolPage('flashcards');
   </script>
 </body>
 </html>

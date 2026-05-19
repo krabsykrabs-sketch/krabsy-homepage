@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Krabsy — Englisch lernen mit Spielen</title>
-  <meta name="description" content="Lerne englische Grammatik mit kostenlosen Browser-Spielen. Spaß für Schüler von 10–14 Jahren!">
-  <meta property="og:title" content="Krabsy — Englisch lernen mit Spielen">
-  <meta property="og:description" content="Unregelmäßige Verben lernen: spielen, üben, nachschlagen.">
+  <title>Unregelmäßige Verben lernen — Krabsy</title>
+  <meta name="description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.">
+  <meta property="og:title" content="Unregelmäßige Verben lernen — Krabsy">
+  <meta property="og:description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung.">
   <meta property="og:type" content="website">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -17,7 +17,12 @@
 
     body { background: var(--krabsy-cream); }
 
-    /* Logo with inline-SVG crab as the "a" — ported from legacy homepage */
+    /* Logo: full Sprint thumbnail sits behind the letters as the "a".
+       — .logo establishes a stacking context (isolation: isolate) so the
+         image's z-index:-1 stays inside the logo, not behind the page bg.
+       — .logo-crab is a small inline slot reserving space between "kr" and
+         "bsy"; the image overflows that slot so its features (motion
+         streaks, clock) bleed behind the surrounding letters. */
     .logo {
       display: inline-flex;
       align-items: center;
@@ -28,68 +33,130 @@
       color: var(--krabsy-ink);
       letter-spacing: -0.5px;
       line-height: 1;
+      position: relative;
+      isolation: isolate;
+    }
+    /* Only the letter spans get a stacking context — .logo-crab must NOT,
+       otherwise it traps the image's z-index:-1 inside its own context
+       and the image ends up at the same z as "kr"/"bsy" (painting over
+       "kr" via DOM order). */
+    .logo > span:not(.logo-crab) {
+      position: relative;
+      z-index: 1;
     }
     .logo-crab {
-      display: inline-flex;
-      width: 1.1em;
+      display: inline-block;
+      width: 0.9em;
       height: 1em;
-      margin: 0 -0.05em;
-    }
-    .logo-crab svg { width: 100%; height: 100%; }
-
-    /* ── Hero ── */
-    .hero {
-      text-align: center;
-      padding: 48px 24px 24px;
       position: relative;
-      overflow: hidden;
+      /* no z-index — keeps image's z-index:-1 resolving against .logo */
+    }
+    /* TEMPORARY: re-uses /thumbnails/Sprint.png; replace with a dedicated
+       crab asset later. Sized + positioned so the crab body sits at the
+       "a" slot; full image visible; clock + motion streaks bleed into the
+       "r" and "b" slots and paint BEHIND the letters via z-index:-1. */
+    .logo-crab img {
+      position: absolute;
+      width: 1.7em;
+      height: 1.7em;
+      left: -0.5em;
+      top: -0.4em;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ── Hero (interim banner — illustration left, text right; stacks
+       vertically below 640px) ── */
+    .hero {
+      padding: 24px 24px 16px;
       max-width: 1100px;
       margin: 0 auto;
     }
-    .hero::before,
-    .hero::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.20;
-      z-index: 0;
-      pointer-events: none;
+
+    .hero-banner {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      background: var(--krabsy-cream);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(44, 42, 58, 0.05);
+      text-align: center;
     }
-    .hero::before {
-      top: -60px; left: -40px;
-      width: 220px; height: 220px;
-      background: var(--krabsy-lavender);
+    @media (min-width: 640px) {
+      .hero-banner {
+        grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+        gap: 28px;
+        padding: 22px 32px;
+        min-height: 240px;
+        text-align: left;
+      }
     }
-    .hero::after {
-      bottom: -40px; right: -30px;
-      width: 180px; height: 180px;
-      background: var(--krabsy-sage);
+    @media (min-width: 900px) {
+      .hero-banner {
+        min-height: 260px;
+        padding: 24px 40px;
+      }
     }
-    .hero-mascot { position: relative; z-index: 1; margin-bottom: 12px; }
-    .hero-mascot svg { width: 140px; height: 128px; }
+
+    .hero-banner-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Very subtle sage glow anchored slightly left so the crab feels
+         intentionally placed rather than floating. */
+      background: radial-gradient(
+        ellipse at 30% 50%,
+        rgba(205, 217, 180, 0.20),
+        transparent 70%
+      );
+      border-radius: var(--radius-md);
+    }
+    .hero-banner-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+      object-fit: contain;
+      object-position: center left;
+    }
+    @media (max-width: 639px) {
+      .hero-banner-image img {
+        max-height: 160px;
+        object-position: center;
+      }
+    }
+
+    .hero-banner-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+
     .hero-title {
       font-family: var(--font-display);
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       line-height: 1.25;
       color: var(--krabsy-ink);
-      position: relative; z-index: 1;
-      margin: 0 0 8px;
+      margin: 0;
     }
     .hero-sub {
       font-size: 1rem;
       color: var(--krabsy-ink-mute);
-      position: relative; z-index: 1;
       margin: 0;
     }
+
     @media (max-width: 559px) {
-      .hero { padding: 32px 20px 16px; }
-      .hero-mascot svg { width: 100px; height: 92px; }
-      .hero-title { font-size: 1.35rem; }
+      .hero { padding: 16px 16px 8px; }
+      .hero-banner { padding: 14px 16px; }
+      .hero-title { font-size: 1.3rem; }
       .hero-sub { font-size: 0.9rem; }
     }
     @media (min-width: 860px) {
-      .hero { padding: 56px 24px 28px; }
-      .hero-title { font-size: 1.9rem; }
+      .hero-title { font-size: 1.9rem; line-height: 1.2; }
+      .hero-sub { font-size: 1.05rem; }
     }
 
     /* ── Progress Widget ── */
@@ -390,31 +457,8 @@
       <a href="/index.html" class="logo" aria-label="Krabsy">
         <span>kr</span>
         <span class="logo-crab" aria-hidden="true">
-          <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="25" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(-20 25 72)"/>
-            <ellipse cx="15" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(-35 15 65)"/>
-            <ellipse cx="75" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(20 75 72)"/>
-            <ellipse cx="85" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(35 85 65)"/>
-            <ellipse cx="18" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(-50 18 58)"/>
-            <ellipse cx="82" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(50 82 58)"/>
-            <rect x="12" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(-30 12 30)"/>
-            <rect x="74" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(30 88 30)"/>
-            <ellipse cx="10" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(-15 10 22)"/>
-            <path d="M5 16 C8 10, 16 12, 14 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <ellipse cx="90" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(15 90 22)"/>
-            <path d="M95 16 C92 10, 84 12, 86 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <ellipse cx="50" cy="55" rx="30" ry="24" fill="#f2937e"/>
-            <ellipse cx="50" cy="52" rx="24" ry="18" fill="#f7b0a0" opacity="0.5"/>
-            <circle cx="40" cy="46" r="6" fill="white"/>
-            <circle cx="60" cy="46" r="6" fill="white"/>
-            <circle cx="41.5" cy="47" r="3" fill="#1a1a1a"/>
-            <circle cx="61.5" cy="47" r="3" fill="#1a1a1a"/>
-            <circle cx="42.5" cy="45.5" r="1" fill="white"/>
-            <circle cx="62.5" cy="45.5" r="1" fill="white"/>
-            <path d="M44 56 Q50 61 56 56" stroke="#c96b58" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <ellipse cx="35" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
-            <ellipse cx="65" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
-          </svg>
+          <!-- TEMPORARY: full Sprint thumbnail placed behind "kr" / "bsy" via z-index. Replace with a dedicated crab asset once available. -->
+          <img src="/thumbnails/Sprint.png" alt="" decoding="async">
         </span>
         <span>bsy</span>
       </a>
@@ -425,36 +469,18 @@
     </header>
 
     <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <!-- TEMPORARY: hero illustration recycled from Sprint thumbnail. Replace with dedicated banner once available. -->
     <section class="hero">
-      <div class="hero-mascot" aria-hidden="true">
-        <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="50" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(-20 50 144)"/>
-          <ellipse cx="30" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(-35 30 130)"/>
-          <ellipse cx="150" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(20 150 144)"/>
-          <ellipse cx="170" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(35 170 130)"/>
-          <ellipse cx="36" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(-50 36 116)"/>
-          <ellipse cx="164" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(50 164 116)"/>
-          <rect x="24" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(-30 24 60)"/>
-          <rect x="148" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(30 176 60)"/>
-          <ellipse cx="20" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(-15 20 44)"/>
-          <path d="M10 32 C16 20, 32 24, 28 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="180" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(15 180 44)"/>
-          <path d="M190 32 C184 20, 168 24, 172 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="100" cy="110" rx="60" ry="48" fill="#f2937e"/>
-          <ellipse cx="100" cy="104" rx="48" ry="36" fill="#f7b0a0" opacity="0.5"/>
-          <circle cx="80" cy="92" r="12" fill="white"/>
-          <circle cx="120" cy="92" r="12" fill="white"/>
-          <circle cx="83" cy="94" r="6" fill="#1a1a1a"/>
-          <circle cx="123" cy="94" r="6" fill="#1a1a1a"/>
-          <circle cx="85" cy="91" r="2" fill="white"/>
-          <circle cx="125" cy="91" r="2" fill="white"/>
-          <path d="M88 112 Q100 122 112 112" stroke="#c96b58" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <ellipse cx="70" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
-          <ellipse cx="130" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
-        </svg>
+      <div class="hero-banner">
+        <div class="hero-banner-image" aria-hidden="true">
+          <img src="/thumbnails/Sprint.png" alt="" loading="eager" decoding="async">
+        </div>
+        <div class="hero-banner-text">
+          <h1 class="k-visually-hidden" data-i18n="homepage.seo_h1">Unregelmäßige Verben lernen</h1>
+          <p class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</p>
+          <p class="hero-sub" data-i18n="homepage.hero_sub">Unregelmäßige Verben lernen: spielen, üben, nachschlagen.</p>
+        </div>
       </div>
-      <h1 class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</h1>
-      <p class="hero-sub" data-i18n="homepage.hero_sub">Unregelmäßige Verben lernen: spielen, üben, nachschlagen.</p>
     </section>
 
     <!-- ── Progress Widget ──────────────────────────────────────────────── -->
@@ -462,6 +488,8 @@
       <div id="progress-content"></div>
     </section>
 
+    
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
     <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
     <section class="k-section bg-sage">
       <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
@@ -510,6 +538,8 @@
       </a>
     </section>
 
+    
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
     <!-- ── Footer ──────────────────────────────────────────────────────── -->
     <footer class="footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
@@ -568,11 +598,11 @@
         if (typeof v === 'string') el.textContent = v;
       });
       // Page title + meta description
-      const metaTitle = lookup('homepage.hero_title') || document.title;
-      document.title = `Krabsy — ${metaTitle}`;
+      const seoTitle = lookup('homepage.seo_title');
+      if (seoTitle) document.title = seoTitle;
       const metaDesc = document.querySelector('meta[name="description"]');
-      const heroSub = lookup('homepage.hero_sub');
-      if (metaDesc && heroSub) metaDesc.content = heroSub;
+      const metaDescText = lookup('homepage.meta_description');
+      if (metaDesc && metaDescText) metaDesc.content = metaDescText;
       // Footer copyright (interpolate year)
       const cr = lookup('homepage.footer_copyright');
       if (cr) {

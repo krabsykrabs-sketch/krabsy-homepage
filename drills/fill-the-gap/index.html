@@ -96,14 +96,12 @@
       margin-right: auto;
     }
 
+    /* In-sentence blank: plain styled text only — no underline. The styled
+       .k-input below is the single "blank line" indicating where to type. */
     .fg-blank {
-      display: inline-block;
-      min-width: 80px;
-      padding: 0 6px;
-      border-bottom: 3px solid var(--krabsy-sage);
       color: var(--krabsy-ink-mute);
-      letter-spacing: 2px;
       font-weight: 700;
+      letter-spacing: 1px;
     }
 
     .fg-base-hint {
@@ -270,7 +268,7 @@
         <div class="fg-topbar">
           <span class="fg-progress-text" id="fg-progress-text">—</span>
           <span class="fg-timer">
-            <span id="fg-timer-value" class="k-mono-num">0.0</span><span data-string="common.seconds_short">s</span>
+            <span id="fg-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
           </span>
         </div>
 
@@ -328,6 +326,8 @@
           <button id="fg-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
           <a href="../../index.html" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
   </div>
@@ -474,7 +474,7 @@
     }
 
     function tickTimer() {
-      timerEl.textContent = formatSeconds(elapsedMs());
+      timerEl.textContent = Math.floor(elapsedMs() / 1000);
     }
 
     /* ── Sentence rendering ─────────────────────────────────────────── */
@@ -736,6 +736,10 @@
       startBtn.addEventListener('click', beginRun);
       replayBtn.addEventListener('click', beginRun);
     })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '../../lib/krabsy-nav.js';
+    initDrillPage('fill_gap');
   </script>
 </body>
 </html>

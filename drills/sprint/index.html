@@ -107,23 +107,69 @@
       text-align: center;
     }
 
-    .sprint-verb {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 7vw, 4rem);
-      color: var(--krabsy-ink);
-      line-height: 1.1;
-      margin: 0 0 var(--space-2);
-      letter-spacing: 0.5px;
+    /* Base → blank → blank trio. The asked blank is highlighted with a
+       coral border + lavender fill + larger size + visible label below. */
+    .sprint-trio {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0 0 var(--space-6);
     }
-
-    .sprint-form-label {
+    .sprint-trio-base {
       font-family: var(--font-body);
-      font-size: 0.95rem;
+      font-weight: 700;
+      font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      color: var(--krabsy-ink);
+      letter-spacing: 0.3px;
+      padding: 6px 4px;
+    }
+    .sprint-trio-arrow {
+      font-size: 1.4rem;
+      color: var(--krabsy-ink-mute);
+      line-height: 1;
+    }
+    .sprint-trio-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 16px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--krabsy-sage-soft);
+      background: transparent;
+      min-width: 90px;
+      transition: background-color 0.18s ease, border-color 0.18s ease;
+    }
+    .sprint-trio-slot-blank {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 2px;
+    }
+    .sprint-trio-slot-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
       color: var(--krabsy-ink-mute);
       font-weight: 700;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-      margin: 0 0 var(--space-6);
+      visibility: hidden;
+    }
+    .sprint-trio-slot.is-asked {
+      background: var(--krabsy-lavender-soft);
+      border-color: var(--krabsy-coral);
+      padding: 10px 22px;
+      min-width: 120px;
+    }
+    .sprint-trio-slot.is-asked .sprint-trio-slot-blank {
+      font-size: 1.55rem;
+      color: var(--krabsy-ink);
+    }
+    .sprint-trio-slot.is-asked .sprint-trio-slot-label {
+      visibility: visible;
+      color: var(--krabsy-coral-dark);
     }
 
     .sprint-choices {
@@ -304,14 +350,25 @@
         <div class="sprint-topbar">
           <span class="sprint-progress-text" id="sprint-progress-text">—</span>
           <span class="sprint-timer">
-            <span id="sprint-timer-value" class="k-mono-num">0.0</span><span data-string="common.seconds_short">s</span>
+            <span id="sprint-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
             <span id="sprint-penalty-badge" class="sprint-penalty">+3s</span>
           </span>
         </div>
 
         <div class="k-card sprint-play-card">
-          <div id="sprint-verb" class="sprint-verb">—</div>
-          <div id="sprint-form-label" class="sprint-form-label">—</div>
+          <div class="sprint-trio" aria-live="polite">
+            <span id="sprint-verb" class="sprint-trio-base">—</span>
+            <span class="sprint-trio-arrow" aria-hidden="true">→</span>
+            <div id="sprint-slot-past" class="sprint-trio-slot" data-form="past">
+              <span class="sprint-trio-slot-blank">___</span>
+              <span class="sprint-trio-slot-label" data-string="common.verb_past">Simple Past</span>
+            </div>
+            <span class="sprint-trio-arrow" aria-hidden="true">→</span>
+            <div id="sprint-slot-pp" class="sprint-trio-slot" data-form="participle">
+              <span class="sprint-trio-slot-blank">___</span>
+              <span class="sprint-trio-slot-label" data-string="common.verb_pp">Past Participle</span>
+            </div>
+          </div>
           <div id="sprint-choices" class="sprint-choices" role="group" aria-label="Antworten"></div>
         </div>
       </section>
@@ -346,6 +403,8 @@
           <button id="sprint-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
           <a href="../../index.html" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
   </div>
@@ -386,7 +445,8 @@
     const bestLineEl  = $('sprint-best-line');
     const bestValStart= $('sprint-best-value-start');
     const verbEl      = $('sprint-verb');
-    const formLabelEl = $('sprint-form-label');
+    const slotPastEl  = $('sprint-slot-past');
+    const slotPpEl    = $('sprint-slot-pp');
     const choicesEl   = $('sprint-choices');
     const progressEl  = $('sprint-progress-text');
     const timerEl     = $('sprint-timer-value');
@@ -499,7 +559,7 @@
     }
 
     function tickTimer() {
-      timerEl.textContent = formatSeconds(elapsedMs());
+      timerEl.textContent = Math.floor(elapsedMs() / 1000);
     }
 
     /* ── Question rendering ─────────────────────────────────────────── */
@@ -512,7 +572,11 @@
       answeredLocked = false;
 
       verbEl.textContent = q.verb;
-      formLabelEl.textContent = formLabelText(q.form);
+      // Highlight the asked slot, dim the other.
+      const askedEl = (q.form === 'past') ? slotPastEl : slotPpEl;
+      const otherEl = (q.form === 'past') ? slotPpEl   : slotPastEl;
+      askedEl.classList.add('is-asked');
+      otherEl.classList.remove('is-asked');
       progressEl.textContent = strings.common.question_of
         .replace('{n}', String(qIndex + 1))
         .replace('{total}', String(questions.length));
@@ -692,6 +756,10 @@
       startBtn.addEventListener('click', beginRun);
       replayBtn.addEventListener('click', beginRun);
     })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '../../lib/krabsy-nav.js';
+    initDrillPage('sprint');
   </script>
 </body>
 </html>

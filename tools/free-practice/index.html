@@ -284,6 +284,7 @@
           <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Absenden</button>
         </div>
       </section>
+      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
     </main>
 
     <footer class="k-footer">
@@ -305,6 +306,7 @@
       getStrugglers,
       getOverall,
     } from '../../lib/krabsy-stats.js';
+    import { wireTwoFieldForm } from '../../lib/krabsy-input.js';
 
     const FILTER_KEY = 'krabsy_free_practice_filter';
     const VALID_FILTERS = new Set(['all', 'weak']);
@@ -622,14 +624,11 @@
       document.getElementById('fp-btn-skip').addEventListener('click', handleSkip);
       document.getElementById('fp-btn-hint').addEventListener('click', handleHintToggle);
 
-      // Enter in either input submits
-      ['fp-input-past', 'fp-input-pp'].forEach((id) => {
-        document.getElementById(id).addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSubmit();
-          }
-        });
+      // Enter in past → advance focus to participle; Enter in participle → submit.
+      wireTwoFieldForm({
+        pastInput: document.getElementById('fp-input-past'),
+        ppInput: document.getElementById('fp-input-pp'),
+        onSubmit: handleSubmit,
       });
 
       // Language toggle
@@ -693,6 +692,10 @@
     }
 
     init();
+  </script>
+  <script type="module">
+    import { initToolPage } from '../../lib/krabsy-nav.js';
+    initToolPage('free_practice');
   </script>
 </body>
 </html>

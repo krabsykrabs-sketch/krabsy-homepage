@@ -436,7 +436,7 @@
           </span>
           <span class="dm-progress-text" id="dm-progress-text">—</span>
           <span class="dm-timer">
-            <span id="dm-timer-value" class="k-mono-num">0.0</span><span data-string="common.seconds_short">s</span>
+            <span id="dm-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
             <span id="dm-penalty-badge" class="dm-penalty">+2s</span>
           </span>
         </div>
@@ -481,6 +481,7 @@
           <button id="dm-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
           <a href="../../index.html" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+          <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
   </div>
@@ -494,9 +495,9 @@
     import { recordAttempt } from '../../lib/krabsy-stats.js';
 
     /* ── Constants ──────────────────────────────────────────────────── */
-    const PAIR_COUNT = 12;
+    const PAIR_COUNT = 8;
     const WRONG_PENALTY_MS = 2000;
-    const BEST_KEY = 'krabsy_best_drag_match_v2'; // v2 = two-stage past+pp game
+    const BEST_KEY = 'krabsy_best_drag_match_v3'; // v3 = 8-verb two-stage past+pp
     const HUB_URL = '../../index.html';
 
     /* ── State ──────────────────────────────────────────────────────── */
@@ -975,7 +976,7 @@
     function tickTimer() {
       if (!startTimestamp) return;
       const elapsed = performance.now() - startTimestamp + penaltyMs;
-      timerEl.textContent = fmtSec(elapsed);
+      timerEl.textContent = Math.floor(Math.max(0, elapsed) / 1000);
     }
     function stopTimer() {
       if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
@@ -1024,7 +1025,7 @@
       selectedTapChip = null;
       drag = null;
       stopTimer();
-      timerEl.textContent = '0.0';
+      timerEl.textContent = '0';
       penaltyEl.classList.remove('is-on');
       flashWrong.classList.remove('is-on');
       flashCorrect.classList.remove('is-on');
@@ -1077,6 +1078,10 @@
     }
 
     init();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '../../lib/krabsy-nav.js';
+    initDrillPage('drag_match');
   </script>
 </body>
 </html>

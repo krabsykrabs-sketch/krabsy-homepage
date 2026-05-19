@@ -130,6 +130,69 @@
       word-break: break-word;
     }
 
+    /* Base → blank → blank trio inside each falling block.
+       The asked slot is highlighted; the other slot is dim. */
+    .ff-trio {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .ff-trio-base {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--krabsy-ink);
+      padding: 0 2px;
+    }
+    .ff-trio-arrow {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      line-height: 1;
+    }
+    .ff-trio-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid rgba(186, 191, 216, 0.5);
+      min-width: 56px;
+    }
+    .ff-trio-slot-blank {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 1px;
+    }
+    .ff-trio-slot-label {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--krabsy-ink-mute);
+      font-weight: 700;
+      visibility: hidden;
+      white-space: nowrap;
+    }
+    .ff-trio-slot.is-asked {
+      background: var(--krabsy-white);
+      border-color: var(--krabsy-coral);
+      padding: 5px 10px;
+      min-width: 72px;
+    }
+    .ff-trio-slot.is-asked .ff-trio-slot-blank {
+      font-size: 1.05rem;
+      color: var(--krabsy-ink);
+    }
+    .ff-trio-slot.is-asked .ff-trio-slot-label {
+      visibility: visible;
+      color: var(--krabsy-coral-dark);
+    }
+
     .ff-block-chips {
       display: flex;
       gap: var(--space-2);
@@ -390,6 +453,8 @@
           <button id="ff-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
           <a href="../../index.html" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
   </div>
@@ -519,6 +584,20 @@
       return form === 'past' ? strings.common.verb_past : strings.common.verb_pp;
     }
 
+    function makeTrioSlot(form, labelText, isAsked) {
+      const slot = document.createElement('div');
+      slot.className = 'ff-trio-slot' + (isAsked ? ' is-asked' : '');
+      slot.dataset.form = form;
+      const blank = document.createElement('span');
+      blank.className = 'ff-trio-slot-blank';
+      blank.textContent = '___';
+      const label = document.createElement('span');
+      label.className = 'ff-trio-slot-label';
+      label.textContent = labelText || '';
+      slot.append(blank, label);
+      return slot;
+    }
+
     function updateHud() {
       hudScoreEl.textContent = String(score);
       hudStreakEl.textContent = String(streak);
@@ -569,13 +648,28 @@
       block.setAttribute('role', 'group');
       block.setAttribute('aria-label', q.verb);
 
-      const verbEl = document.createElement('div');
-      verbEl.className = 'ff-block-verb';
-      verbEl.textContent = q.verb;
+      // Build the base → blank → blank trio with the asked slot highlighted.
+      const trio = document.createElement('div');
+      trio.className = 'ff-trio';
 
-      const formLabel = document.createElement('div');
-      formLabel.className = 'ff-block-form-label';
-      formLabel.textContent = formLabelText(q.form);
+      const baseEl = document.createElement('span');
+      baseEl.className = 'ff-trio-base';
+      baseEl.textContent = q.verb;
+
+      const arrow1 = document.createElement('span');
+      arrow1.className = 'ff-trio-arrow';
+      arrow1.setAttribute('aria-hidden', 'true');
+      arrow1.textContent = '→';
+
+      const slotPast = makeTrioSlot('past',       strings.common.verb_past,  q.form === 'past');
+      const slotPp   = makeTrioSlot('participle', strings.common.verb_pp,    q.form === 'participle');
+
+      const arrow2 = document.createElement('span');
+      arrow2.className = 'ff-trio-arrow';
+      arrow2.setAttribute('aria-hidden', 'true');
+      arrow2.textContent = '→';
+
+      trio.append(baseEl, arrow1, slotPast, arrow2, slotPp);
 
       const chips = document.createElement('div');
       chips.className = 'ff-block-chips';
@@ -594,8 +688,7 @@
         chips.appendChild(chip);
       }
 
-      block.appendChild(formLabel);
-      block.appendChild(verbEl);
+      block.appendChild(trio);
       block.appendChild(chips);
 
       stageEl.appendChild(block);
@@ -863,6 +956,10 @@
         });
       });
     })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '../../lib/krabsy-nav.js';
+    initDrillPage('falling_forms');
   </script>
 </body>
 </html>

@@ -21,14 +21,15 @@
     #game {
       display: block;
       width: 100vw;
-      height: 100vh;
+      height: calc(100vh - 48px);
+      margin-top: 48px;
       touch-action: none;
     }
 
     /* ---------- In-game HUD ---------- */
     #hud {
       position: fixed;
-      top: 12px;
+      top: 60px;
       left: 12px;
       right: 12px;
       display: flex;
@@ -1887,7 +1888,7 @@
   async function createGame(canvas) {
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    renderer.setSize(window.innerWidth, window.innerHeight - 48, false); // reserve Krabsy nav
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
@@ -1901,7 +1902,7 @@
     sun.position.set(10, 20, 8);
     scene.add(sun);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 250);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / (window.innerHeight - 48), 0.1, 250);
     const followCam = createFollowCamera(camera);
 
     const { RAPIER: R, world } = await initPhysics();
@@ -1929,8 +1930,9 @@
     const input = createControls(canvas);
 
     window.addEventListener('resize', () => {
-      renderer.setSize(window.innerWidth, window.innerHeight, false);
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const H = window.innerHeight - 48;
+      renderer.setSize(window.innerWidth, H, false);
+      camera.aspect = window.innerWidth / H;
       camera.updateProjectionMatrix();
     });
 
@@ -2308,5 +2310,9 @@
   }
   console.log('[krabsy3d] ready');
   </script>
+<script type="module">
+  import { initGamePage } from '../../lib/krabsy-nav.js';
+  initGamePage('verb_platformer');
+</script>
 </body>
 </html>

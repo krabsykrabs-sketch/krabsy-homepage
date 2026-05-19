@@ -22,7 +22,7 @@
   }
   #wrap {
     position: fixed;
-    inset: 0;
+    top: 48px; left: 0; right: 0; bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,7 +37,7 @@
   }
   #loading {
     position: fixed;
-    inset: 0;
+    top: 48px; left: 0; right: 0; bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1516,6 +1516,10 @@ async function boot() {
   }
 }
 boot();
+</script>
+<script type="module">
+  import { initGamePage } from '../lib/krabsy-nav.js';
+  initGamePage('verb_snake');
 </script>
 </body>
 </html>

@@ -287,7 +287,7 @@
         <div class="tr-topbar">
           <span class="tr-progress-text" id="tr-progress-text">—</span>
           <span class="tr-timer">
-            <span id="tr-timer-value" class="k-mono-num">0.0</span><span data-string="common.seconds_short">s</span>
+            <span id="tr-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
           </span>
         </div>
 
@@ -362,6 +362,8 @@
           <button id="tr-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
           <a href="../../index.html" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
   </div>
@@ -373,6 +375,7 @@
   <script type="module">
     import { loadStrings, loadVerbTable, pickRandomVerbs, getVerbRow } from '../../lib/krabsy-data.js';
     import { recordAttempt } from '../../lib/krabsy-stats.js';
+    import { wireTwoFieldForm } from '../../lib/krabsy-input.js';
 
     /* ── Config ─────────────────────────────────────────────────────── */
     const VERBS_PER_RUN = 10;
@@ -498,7 +501,7 @@
     }
 
     function tickTimer() {
-      timerEl.textContent = formatSeconds(elapsedMs());
+      timerEl.textContent = Math.floor(elapsedMs() / 1000);
     }
 
     /* ── Verb rendering ─────────────────────────────────────────────── */
@@ -704,16 +707,8 @@
       handleSubmit();
     });
 
-    // Enter from either input → submit. Native form submit handles this,
-    // but listen explicitly so we can prevent default reliably.
-    for (const inp of [pastInput, ppInput]) {
-      inp.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          handleSubmit();
-        }
-      });
-    }
+    // Enter in past → advance focus to participle; Enter in participle → submit.
+    wireTwoFieldForm({ pastInput, ppInput, onSubmit: handleSubmit });
 
     // ESC anywhere → back to hub.
     document.addEventListener('keydown', (e) => {
@@ -741,6 +736,10 @@
       startBtn.addEventListener('click', beginRun);
       replayBtn.addEventListener('click', beginRun);
     })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '../../lib/krabsy-nav.js';
+    initDrillPage('type_race');
   </script>
 </body>
 </html>

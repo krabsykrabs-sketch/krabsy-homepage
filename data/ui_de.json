@@ -37,9 +37,17 @@
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
     "question_of": "Frage {n} von {total}",
-    "seconds_short": "s"
+    "seconds_short": "s",
+    "try_also": "Probier auch das",
+    "leave_drill_title": "Spiel verlassen?",
+    "leave_drill_body": "Dein Fortschritt geht verloren.",
+    "leave_drill_confirm": "Verlassen",
+    "leave_drill_cancel": "Weiterspielen"
   },
   "homepage": {
+    "seo_title": "Unregelmäßige Verben lernen — Krabsy",
+    "seo_h1": "Unregelmäßige Verben lernen",
+    "meta_description": "Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.",
     "hero_title": "Meistere Englisch — Spiel für Spiel!",
     "hero_sub": "Unregelmäßige Verben lernen: spielen, üben, nachschlagen.",
     "section_drills": "Speed-Drills",
@@ -134,9 +142,11 @@
       "tagline": "Spalten verstecken und sich selbst abfragen.",
       "intro": "Verstecke einzelne Spalten und fordere dich selbst heraus. Klicke eine Spaltenüberschrift, um sie auszublenden.",
       "search_placeholder": "Verb suchen…",
+      "toggle_hide_base": "Grundform verstecken",
       "toggle_hide_past": "Past verstecken",
       "toggle_hide_pp": "Participle verstecken",
       "toggle_hide_meaning": "Bedeutung verstecken",
+      "lock_hint": "Mindestens eine Spalte muss sichtbar bleiben",
       "hidden_cell": "•••",
       "no_results": "Kein Verb gefunden."
     },

@@ -187,9 +187,10 @@
 const GW=1280,GH=720;
 const gameWorld=document.getElementById('game-world');
 function resizeWorld(){
-  const vw=window.innerWidth,vh=window.innerHeight;
+  const NAV=48;
+  const vw=window.innerWidth,vh=window.innerHeight-NAV;
   const scale=Math.min(vw/GW,vh/GH);
-  gameWorld.style.transform=`translate(${(vw-GW*scale)/2}px,${(vh-GH*scale)/2}px) scale(${scale})`;
+  gameWorld.style.transform=`translate(${(vw-GW*scale)/2}px,${NAV+(vh-GH*scale)/2}px) scale(${scale})`;
   gameWorld._scale=scale;
 }
 resizeWorld();window.addEventListener('resize',resizeWorld);
@@ -601,5 +602,9 @@ gameArea.addEventListener('mousedown',onStart);
 gameArea.addEventListener('mousemove',e=>{if(e.buttons===1)onMove(e)});
 gameArea.addEventListener('mouseup',onEnd);
 </script>
+  <script type="module">
+    import { initGamePage } from '../lib/krabsy-nav.js';
+    initGamePage('crab_slash');
+  </script>
 </body>
 </html>

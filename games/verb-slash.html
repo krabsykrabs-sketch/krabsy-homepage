@@ -200,10 +200,11 @@ const GW=1280,GH=720;
 const gameWorld=document.getElementById('game-world');
 
 function resizeWorld(){
-  const vw=window.innerWidth,vh=window.innerHeight;
+  const NAV=48; // reserve room for Krabsy nav header
+  const vw=window.innerWidth,vh=window.innerHeight-NAV;
   const scale=Math.min(vw/GW,vh/GH);
   const left=(vw-GW*scale)/2;
-  const top=(vh-GH*scale)/2;
+  const top=NAV+(vh-GH*scale)/2;
   gameWorld.style.transform=`translate(${left}px,${top}px) scale(${scale})`;
   // Store scale for input coordinate conversion
   gameWorld._scale=scale;
@@ -672,5 +673,9 @@ gameArea.addEventListener('mousedown',onStart);
 gameArea.addEventListener('mousemove',e=>{if(e.buttons===1)onMove(e)});
 gameArea.addEventListener('mouseup',onEnd);
 </script>
+  <script type="module">
+    import { initGamePage } from '../lib/krabsy-nav.js';
+    initGamePage('verb_slash');
+  </script>
 </body>
 </html>
