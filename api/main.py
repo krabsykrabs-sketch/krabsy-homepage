@@ -11,11 +11,15 @@ GeoLite2-Country DB) and to bucket the in-memory rate limiter. It is
 never written to disk.
 """
 
+import asyncio
 import json
 import os
 import re
 import secrets
+import threading
 import time
+import urllib.error
+import urllib.request
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -58,14 +62,138 @@ except Exception as exc:
     print(f"[krabsy] GeoIP init failed: {exc}")
 
 
-def country_for_ip(ip: str) -> str:
-    if not _geoip_reader or not ip:
-        return "unknown"
+# ---------------------------------------------------------------------------
+# Country lookup: ip-api.com (primary) + MaxMind (fallback) + in-memory cache
+# ---------------------------------------------------------------------------
+#
+# Flow per IP:
+#   1. Cache hit within 24h  -> return cached country code
+#   2. Try ip-api.com  (free HTTP endpoint, 45/min cap from their side)
+#   3. Try MaxMind GeoLite2 (local DB, no rate)
+#   4. "unknown"
+#
+# We never cache "unknown" — a transient ip-api outage would otherwise
+# poison the cache for a full day.
+
+IPAPI_URL = "http://ip-api.com/json/{ip}?fields=status,countryCode"
+IPAPI_TIMEOUT_S = 1.0
+IPAPI_MAX_CALLS_PER_MIN = 40            # below ip-api's 45/min hard cap
+IPAPI_WINDOW_S = 60.0
+COUNTRY_CACHE_TTL_S = 24 * 60 * 60
+COUNTRY_CACHE_MAX = 10_000
+COUNTRY_CACHE_DROP = 100
+
+_country_cache: dict[str, tuple[str, float]] = {}
+_ipapi_calls: deque[float] = deque()
+_ipapi_paused_until: float = 0.0
+_country_lock = threading.Lock()
+
+
+def _ipapi_can_call(now_mono: float) -> bool:
+    """Return True if we're allowed to hit ip-api right now.
+
+    Maintains a sliding-window counter under _country_lock. When the
+    counter trips, we mark the service "paused" for 60 seconds so we
+    don't keep checking the window on every event during a burst.
+    """
+    global _ipapi_paused_until
+    if now_mono < _ipapi_paused_until:
+        return False
+    while _ipapi_calls and now_mono - _ipapi_calls[0] > IPAPI_WINDOW_S:
+        _ipapi_calls.popleft()
+    if len(_ipapi_calls) >= IPAPI_MAX_CALLS_PER_MIN:
+        _ipapi_paused_until = now_mono + IPAPI_WINDOW_S
+        return False
+    _ipapi_calls.append(now_mono)
+    return True
+
+
+def _ipapi_lookup(ip: str) -> Optional[str]:
+    """Single network call to ip-api. Returns 2-letter country code or None.
+
+    All exceptions (timeout, DNS failure, malformed JSON, non-success
+    status, rate-limit response) collapse to None so the caller can fall
+    through to MaxMind.
+    """
+    url = IPAPI_URL.format(ip=ip)
+    req = urllib.request.Request(url, headers={"User-Agent": "krabsy-analytics/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=IPAPI_TIMEOUT_S) as resp:
+            raw = resp.read()
+        data = json.loads(raw)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError):
+        return None
+    except Exception:
+        # Catch-all so a misbehaving DNS/socket layer never bubbles up
+        # and 500s an analytics request.
+        return None
+    if data.get("status") != "success":
+        return None
+    code = data.get("countryCode")
+    return code if isinstance(code, str) and len(code) == 2 else None
+
+
+def _maxmind_lookup(ip: str) -> Optional[str]:
+    if not _geoip_reader:
+        return None
     try:
         rec = _geoip_reader.country(ip)
-        return rec.country.iso_code or "unknown"
     except Exception:
+        return None
+    return rec.country.iso_code or None
+
+
+def _cache_evict_if_full() -> None:
+    """Drop the 100 oldest entries (by timestamp) when at capacity.
+
+    Caller holds _country_lock.
+    """
+    if len(_country_cache) < COUNTRY_CACHE_MAX:
+        return
+    # sort once, drop a batch, amortise the O(n log n) cost across many
+    # subsequent insertions.
+    victims = sorted(_country_cache.items(), key=lambda kv: kv[1][1])[:COUNTRY_CACHE_DROP]
+    for ip, _ in victims:
+        _country_cache.pop(ip, None)
+
+
+def lookup_country(ip: str) -> str:
+    """Resolve `ip` to a 2-letter country code, or 'unknown'.
+
+    Synchronous; safe to call from a thread (we hold a Lock for the
+    cache + rate-guard mutations). Callers that are inside an async
+    handler should invoke this via asyncio.to_thread so the urllib call
+    does not block the event loop.
+    """
+    if not ip:
         return "unknown"
+
+    now_wall = time.time()
+    now_mono = time.monotonic()
+
+    with _country_lock:
+        cached = _country_cache.get(ip)
+        if cached and now_wall - cached[1] < COUNTRY_CACHE_TTL_S:
+            return cached[0]
+        allow_ipapi = _ipapi_can_call(now_mono)
+
+    country: Optional[str] = None
+    if allow_ipapi:
+        country = _ipapi_lookup(ip)
+    if not country:
+        country = _maxmind_lookup(ip)
+    if not country:
+        return "unknown"
+
+    with _country_lock:
+        _cache_evict_if_full()
+        _country_cache[ip] = (country, now_wall)
+    return country
+
+
+async def country_for_ip(ip: str) -> str:
+    """Async wrapper: runs the (possibly blocking) lookup on a thread."""
+    return await asyncio.to_thread(lookup_country, ip)
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +360,7 @@ async def track(request: Request) -> JSONResponse:
 
     event_type = event.event_type if event.event_type in KNOWN_EVENT_TYPES else "page_view"
     user_agent = request.headers.get("user-agent", "")[:512]
-    country = country_for_ip(ip)
+    country = await country_for_ip(ip)
     # The raw IP leaves scope at the end of this function. It is never
     # included in the persisted record.
 
