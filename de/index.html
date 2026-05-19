@@ -39,7 +39,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="lib/krabsy-ui.css">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
 
@@ -451,9 +451,9 @@
         <strong id="progress-row-streak">—</strong>
       </span>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" id="progress-row-practice" href="/tools/free-practice/">— →</a>
+      <a class="progress-row-link" id="progress-row-practice" href="/de/tools/free-practice/">— →</a>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" href="/stats/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
+      <a class="progress-row-link" href="/de/stats/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
     </section>
 
     <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
@@ -483,7 +483,7 @@
     <section class="k-section">
       <h2 class="section-heading" data-i18n="homepage.section_reference">Verb-Liste</h2>
       <p class="section-sub" data-i18n="homepage.section_reference_sub">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
-      <a class="module-card wide-card" href="/reference/">
+      <a class="module-card wide-card" href="/de/reference/">
         <div class="wide-card-text">
           <div class="module-card-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</div>
           <div class="module-card-tagline" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</div>
@@ -496,7 +496,7 @@
     <section class="k-section bg-coral">
       <h2 class="section-heading" data-i18n="homepage.section_stats">Deine Statistik</h2>
       <p class="section-sub" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</p>
-      <a class="module-card wide-card" href="/stats/">
+      <a class="module-card wide-card" href="/de/stats/">
         <div class="wide-card-text">
           <div class="module-card-title" data-i18n="stats.title">Deine Statistik</div>
           <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</div>
@@ -520,28 +520,28 @@
   </div>
 
   <script type="module">
-    import { loadStrings, getLang, setLang } from './lib/krabsy-data.js';
-    import { hasData, getOverall, getStrugglers } from './lib/krabsy-stats.js';
+    import { loadStrings, getLang, setLang } from '/lib/krabsy-data.js';
+    import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js';
 
     /* ─ Drill card definitions ─ */
     const DRILLS = [
-      { key: 'sprint',        href: '/drills/sprint/',        thumb: '/thumbnails/Sprint.png' },
-      { key: 'type_race',     href: '/drills/type-race/',     thumb: '/thumbnails/TypeRace.png' },
-      { key: 'drag_match',    href: '/drills/drag-match/',    thumb: '/thumbnails/DragMatch.png' },
-      { key: 'fill_gap',      href: '/drills/fill-the-gap/',  thumb: '/thumbnails/FillGap.png' },
-      { key: 'falling_forms', href: '/drills/falling-forms/', thumb: '/thumbnails/Falling.png' },
+      { key: 'sprint',        href: '/de/drills/sprint/',        thumb: '/thumbnails/Sprint.png' },
+      { key: 'type_race',     href: '/de/drills/type-race/',     thumb: '/thumbnails/TypeRace.png' },
+      { key: 'drag_match',    href: '/de/drills/drag-match/',    thumb: '/thumbnails/DragMatch.png' },
+      { key: 'fill_gap',      href: '/de/drills/fill-the-gap/',  thumb: '/thumbnails/FillGap.png' },
+      { key: 'falling_forms', href: '/de/drills/falling-forms/', thumb: '/thumbnails/Falling.png' },
     ];
     const TOOLS = [
-      { key: 'flashcards',    href: '/tools/flashcards/' },
-      { key: 'verb_table',    href: '/tools/verb-table/' },
-      { key: 'free_practice', href: '/tools/free-practice/' },
+      { key: 'flashcards',    href: '/de/tools/flashcards/' },
+      { key: 'verb_table',    href: '/de/tools/verb-table/' },
+      { key: 'free_practice', href: '/de/tools/free-practice/' },
     ];
     const GAMES = [
-      { key: 'verb_slash',      href: '/games/verb-slash/',     thumb: '/thumbnails/VerbSlash.png' },
-      { key: 'crab_slash',      href: '/games/crab-slash/',     thumb: null },
-      { key: 'air_control',     href: '/games/air-control/',    thumb: null },
-      { key: 'verb_snake',      href: '/games/verb-snake/',     thumb: '/thumbnails/verb-snake.png' },
-      { key: 'verb_platformer', href: '/games/verb-platformer/',   thumb: null },
+      { key: 'verb_slash',      href: '/de/games/verb-slash/',     thumb: '/thumbnails/VerbSlash.png' },
+      { key: 'crab_slash',      href: '/de/games/crab-slash/',     thumb: null },
+      { key: 'air_control',     href: '/de/games/air-control/',    thumb: null },
+      { key: 'verb_snake',      href: '/de/games/verb-snake/',     thumb: '/thumbnails/verb-snake.png' },
+      { key: 'verb_platformer', href: '/de/games/verb-platformer/',   thumb: null },
     ];
 
     let strings = null;
