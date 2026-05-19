@@ -65,20 +65,19 @@
       pointer-events: none;
     }
 
-    /* ── Hero (interim banner — illustration left, text right; stacks
-       vertically below 640px) ── */
+    /* ── Hero (compact strip, ~180px tall on tablet+; max-width 960px) ── */
     .hero {
-      padding: 24px 24px 16px;
-      max-width: 1100px;
+      padding: 10px 24px 6px;
+      max-width: 960px;
       margin: 0 auto;
     }
 
     .hero-banner {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
-      padding: 18px 20px;
+      padding: 14px 16px;
       background: var(--krabsy-cream);
       border-radius: var(--radius-lg);
       box-shadow: 0 1px 4px rgba(44, 42, 58, 0.05);
@@ -86,17 +85,11 @@
     }
     @media (min-width: 640px) {
       .hero-banner {
-        grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
-        gap: 28px;
-        padding: 22px 32px;
-        min-height: 240px;
+        grid-template-columns: 160px minmax(0, 1fr);
+        gap: 24px;
+        padding: 12px 24px;
+        min-height: 160px;
         text-align: left;
-      }
-    }
-    @media (min-width: 900px) {
-      .hero-banner {
-        min-height: 260px;
-        padding: 24px 40px;
       }
     }
 
@@ -104,10 +97,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      /* Very subtle sage glow anchored slightly left so the crab feels
-         intentionally placed rather than floating. */
       background: radial-gradient(
-        ellipse at 30% 50%,
+        ellipse at 50% 50%,
         rgba(205, 217, 180, 0.20),
         transparent 70%
       );
@@ -117,148 +108,85 @@
       display: block;
       width: 100%;
       height: auto;
-      max-height: 220px;
+      max-height: 140px;
       object-fit: contain;
-      object-position: center left;
+      object-position: center;
     }
     @media (max-width: 639px) {
-      .hero-banner-image img {
-        max-height: 160px;
-        object-position: center;
-      }
+      .hero-banner-image img { max-height: 110px; }
     }
 
     .hero-banner-text {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 8px;
+      gap: 4px;
     }
 
     .hero-title {
       font-family: var(--font-display);
-      font-size: 1.5rem;
-      line-height: 1.25;
+      font-size: 1.4rem;
+      line-height: 1.2;
       color: var(--krabsy-ink);
       margin: 0;
     }
     .hero-sub {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--krabsy-ink-mute);
       margin: 0;
+      line-height: 1.35;
     }
 
     @media (max-width: 559px) {
-      .hero { padding: 16px 16px 8px; }
-      .hero-banner { padding: 14px 16px; }
-      .hero-title { font-size: 1.3rem; }
-      .hero-sub { font-size: 0.9rem; }
+      .hero { padding: 8px 16px 4px; }
+      .hero-banner { padding: 10px 14px; }
+      .hero-title { font-size: 1.2rem; }
+      .hero-sub { font-size: 0.85rem; }
     }
-    @media (min-width: 860px) {
-      .hero-title { font-size: 1.9rem; line-height: 1.2; }
-      .hero-sub { font-size: 1.05rem; }
+    @media (min-width: 900px) {
+      .hero-title { font-size: 1.6rem; line-height: 1.15; }
+      .hero-sub { font-size: 1rem; }
     }
 
-    /* ── Progress Widget ── */
-    .progress-widget {
-      max-width: 1100px;
+    /* ── Progress row (thin inline strip; hidden entirely when !hasData) ── */
+    .progress-row {
+      max-width: 960px;
       margin: 0 auto;
-      padding: 0 24px;
-    }
-    .progress-empty {
-      text-align: center;
-      color: var(--krabsy-ink-mute);
+      padding: 8px 24px 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
       font-size: 0.85rem;
-      padding: 8px 16px 0;
-    }
-    .progress-tiles {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 720px) {
-      .progress-tiles { grid-template-columns: repeat(4, 1fr); }
-    }
-    .progress-tile {
-      background: var(--krabsy-lavender-soft);
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-height: 90px;
-    }
-    .progress-tile-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
       color: var(--krabsy-ink-mute);
-      font-weight: 700;
     }
-    .progress-tile-value {
-      font-family: var(--font-display);
-      font-size: 1.7rem;
-      color: var(--krabsy-ink);
-      line-height: 1.1;
-    }
-    .progress-tile-value.is-streak.is-hot { color: var(--krabsy-coral-dark); }
-    .progress-tile .progress-tile-meta {
-      font-size: 0.75rem;
-      color: var(--krabsy-ink-mute);
-      margin-top: auto;
-    }
-    .progress-chips {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-      justify-content: center;
-    }
-    .progress-chip {
+    .progress-row[hidden] { display: none; }
+    .progress-row-stat {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .progress-row-stat strong {
+      color: var(--krabsy-ink);
       font-weight: 700;
-      color: var(--krabsy-ink);
-      background: var(--krabsy-white);
-      border: 1px solid var(--krabsy-coral-soft);
-      border-radius: var(--radius-pill);
-      padding: 4px 10px;
-      text-decoration: none;
-      transition: transform 0.15s ease, border-color 0.15s ease;
+      font-variant-numeric: tabular-nums;
     }
-    .progress-chip:hover {
-      transform: translateY(-1px);
-      border-color: var(--krabsy-coral);
-      color: var(--krabsy-ink);
+    .progress-row-stat .is-hot { color: var(--krabsy-coral-dark); }
+    .progress-row-sep {
+      color: var(--krabsy-lavender);
+      user-select: none;
     }
-    .progress-chip-form {
-      color: var(--krabsy-ink-mute);
-      font-weight: 400;
-    }
-    .progress-tile-link {
-      align-self: flex-start;
-      margin-top: auto;
-      font-size: 0.85rem;
+    .progress-row-link {
       font-weight: 700;
       color: var(--krabsy-coral-dark);
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      white-space: nowrap;
     }
-    .progress-tile-link:hover { color: var(--krabsy-coral); }
-
-    /* Accuracy ring */
-    .accuracy-ring {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .progress-row-link:hover { color: var(--krabsy-coral); }
+    @media (max-width: 559px) {
+      .progress-row { padding: 6px 16px 8px; gap: 10px; font-size: 0.8rem; }
     }
-    .accuracy-ring svg { width: 38px; height: 38px; flex-shrink: 0; }
-    .accuracy-ring-track { stroke: var(--krabsy-lavender); }
-    .accuracy-ring-bar { stroke: var(--krabsy-coral); transition: stroke-dashoffset 0.6s ease; }
 
     /* ── Section tints — full-width band via box-shadow + clip-path,
        so we don't touch the section's max-width / centering. ── */
@@ -483,19 +411,31 @@
       </div>
     </section>
 
-    <!-- ── Progress Widget ──────────────────────────────────────────────── -->
-    <section class="progress-widget" id="progress-widget" hidden>
-      <div id="progress-content"></div>
+    <!-- ── Progress row (inline strip; rendered only when hasData()) ─────── -->
+    <section class="progress-row" id="progress-row" hidden aria-label="Fortschritt">
+      <span class="progress-row-stat">
+        <span data-i18n="common.accuracy">Genauigkeit</span>
+        <strong id="progress-row-accuracy">—%</strong>
+      </span>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <span class="progress-row-stat">
+        <span data-i18n="common.streak">Serie</span>
+        <strong id="progress-row-streak">—</strong>
+      </span>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <a class="progress-row-link" id="progress-row-practice" href="/tools/free-practice/">— →</a>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <a class="progress-row-link" href="/stats/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
     </section>
 
-    
-    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
     <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
     <section class="k-section bg-sage">
       <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
       <p class="section-sub" data-i18n="homepage.section_drills_sub">Kurze Challenges. Schlag deine Bestzeit.</p>
       <div class="card-grid" id="drills-grid"></div>
     </section>
+
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
 
     <!-- ── Study Tools ──────────────────────────────────────────────────── -->
     <section class="k-section">
@@ -578,12 +518,23 @@
     async function init() {
       strings = await loadStrings();
       applyI18n();
+      applyHeroSubtitle();
       renderDrills();
       renderTools();
       renderGames();
-      renderProgressWidget();
+      renderProgressRow();
       renderStatsPeek();
       setupLangToggle();
+    }
+
+    /* Swap the hero subtitle to the empty-state copy for first-time visitors
+       (after applyI18n has set the default from data-i18n). */
+    function applyHeroSubtitle() {
+      const sub = document.querySelector('.hero-sub');
+      if (!sub) return;
+      const key = hasData() ? 'homepage.hero_sub' : 'homepage.hero_sub_empty';
+      const v = lookup(key);
+      if (v) sub.textContent = v;
     }
 
     /* ─ i18n ─ */
@@ -739,20 +690,11 @@
       }
     }
 
-    /* ─ Progress widget ─ */
-    function renderProgressWidget() {
-      const widget = document.getElementById('progress-widget');
-      const content = document.getElementById('progress-content');
-      content.innerHTML = '';
-      widget.hidden = false;
-
-      if (!hasData()) {
-        const p = document.createElement('p');
-        p.className = 'progress-empty';
-        p.textContent = lookup('progress_widget.empty_hint') || '';
-        content.appendChild(p);
-        return;
-      }
+    /* ─ Progress row: thin inline strip, only rendered when hasData(). ─ */
+    function renderProgressRow() {
+      const row = document.getElementById('progress-row');
+      if (!row) return;
+      if (!hasData()) { row.hidden = true; return; }
 
       const o = getOverall();
       const strug = getStrugglers(3);
@@ -760,69 +702,27 @@
       const streak = o.current_streak || 0;
       const isHot = streak >= 3;
 
-      const accuracyTile = tile(
-        lookup('progress_widget.tile_accuracy') || 'Genauigkeit',
-        accuracyRingHtml(accuracyPct) + `<span class="k-mono-num" style="font-family:var(--font-display);font-size:1.6rem;">${accuracyPct}%</span>`,
-        null, ['accuracy-ring']
-      );
+      document.getElementById('progress-row-accuracy').textContent = `${accuracyPct}%`;
+      const streakEl = document.getElementById('progress-row-streak');
+      streakEl.textContent = isHot ? `🔥 ${streak}` : String(streak);
+      streakEl.classList.toggle('is-hot', isHot);
 
-      const streakTile = tile(
-        lookup('progress_widget.tile_streak') || 'Serie',
-        `<span class="progress-tile-value is-streak ${isHot ? 'is-hot' : ''}">${isHot ? '🔥 ' : ''}${streak}</span>`,
-        null
-      );
+      // Practice link: top up-to-3 unique struggler verbs preloaded into Free Practice.
+      const practiceEl = document.getElementById('progress-row-practice');
+      const verbs = [...new Set(strug.map((r) => r.verb))].slice(0, 3);
+      if (verbs.length > 0) {
+        practiceEl.hidden = false;
+        practiceEl.href = `/tools/free-practice/?verbs=${encodeURIComponent(verbs.join(','))}`;
+        const tmpl = lookup('homepage.progress_practice') || '{n} Verben zum Üben';
+        practiceEl.textContent = tmpl.replace('{n}', String(verbs.length)) + ' →';
+      } else {
+        practiceEl.hidden = true;
+        // Hide the separator immediately before this link too, so we don't get a dangling "·".
+        const prevSep = practiceEl.previousElementSibling;
+        if (prevSep && prevSep.classList.contains('progress-row-sep')) prevSep.hidden = true;
+      }
 
-      const chipsHtml = strug.length
-        ? `<div class="progress-chips">${strug.map((r) => {
-            const formLabel = r.form === 'past'
-              ? (lookup('stats.row_form_past') || 'Past')
-              : (lookup('stats.row_form_pp') || 'Participle');
-            return `<a class="progress-chip" href="/tools/free-practice/?verbs=${encodeURIComponent(r.verb)}">
-                      <span>${r.verb}</span>
-                      <span class="progress-chip-form">· ${formLabel}</span>
-                    </a>`;
-          }).join('')}</div>`
-        : `<div class="progress-tile-meta">${lookup('progress_widget.tile_today_empty') || ''}</div>`;
-
-      const practiceTile = tile(
-        lookup('progress_widget.tile_today_practice') || 'Heute zu üben',
-        chipsHtml, null
-      );
-
-      const statsTile = tile(
-        lookup('homepage.section_stats') || 'Statistik',
-        `<a class="progress-tile-link" href="/stats/">${lookup('progress_widget.tile_link_stats') || 'Zur Statistik'} →</a>`,
-        null
-      );
-
-      const grid = document.createElement('div');
-      grid.className = 'progress-tiles';
-      grid.append(accuracyTile, streakTile, practiceTile, statsTile);
-      content.appendChild(grid);
-    }
-
-    function tile(label, valueHtml, metaText, extraClasses) {
-      const div = document.createElement('div');
-      div.className = 'progress-tile';
-      if (extraClasses) extraClasses.forEach((c) => div.classList.add(c));
-      div.innerHTML = `
-        <span class="progress-tile-label">${label}</span>
-        <div class="progress-tile-body">${valueHtml}</div>
-        ${metaText ? `<span class="progress-tile-meta">${metaText}</span>` : ''}
-      `;
-      return div;
-    }
-
-    function accuracyRingHtml(pct) {
-      // 38x38 svg, two concentric circles. r=14 → circumference ≈ 87.96.
-      const C = 87.96;
-      const off = C - (pct / 100) * C;
-      return `<svg viewBox="0 0 38 38" aria-hidden="true">
-        <circle class="accuracy-ring-track" cx="19" cy="19" r="14" fill="none" stroke-width="4"/>
-        <circle class="accuracy-ring-bar" cx="19" cy="19" r="14" fill="none" stroke-width="4"
-                stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"
-                transform="rotate(-90 19 19)"/>
-      </svg>`;
+      row.hidden = false;
     }
 
     /* ─ Stats peek on the Statistics card ─ */

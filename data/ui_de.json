@@ -50,6 +50,8 @@
     "meta_description": "Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.",
     "hero_title": "Meistere Englisch — Spiel für Spiel!",
     "hero_sub": "Unregelmäßige Verben lernen: spielen, üben, nachschlagen.",
+    "hero_sub_empty": "Starte mit einem Speed-Drill — schon nach einer Minute siehst du deinen Fortschritt.",
+    "progress_practice": "{n} Verben zum Üben",
     "section_drills": "Speed-Drills",
     "section_drills_sub": "Kurze Challenges. Schlag deine Bestzeit.",
     "section_tools": "Lernwerkzeuge",
