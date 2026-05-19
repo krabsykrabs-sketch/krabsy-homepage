@@ -240,9 +240,10 @@ def device_type_for(viewport_width: Optional[int], user_agent: str = "") -> str:
 
     Viewport-only classification mis-tags landscape tablets as desktop
     (their viewport often hits 1024+). UA tokens are checked in priority
-    order — "iPad" and "Tablet" are sharp signals; "Mobile" only counts
-    when "Tablet" wasn't already present (some Android tablets advertise
-    both, and the tablet flavour wins).
+    order — "iPad" and "Tablet" are sharp signals; Android Chrome
+    specifically uses *absence* of the "Mobile" token to mark tablets
+    (Chrome's deliberate convention: phones include "Mobile", tablets
+    omit it); "Mobile" otherwise indicates a phone.
 
     Known gap: iPadOS 13+ ships a desktop UA by default in Safari and
     Chrome, so iPads in that mode look like desktops here. There is no
@@ -253,9 +254,14 @@ def device_type_for(viewport_width: Optional[int], user_agent: str = "") -> str:
         return "tablet"
     if "tablet" in ua:
         return "tablet"
+    if "android" in ua and "mobile" not in ua:
+        # Chrome on Android: "Mobile" token present on phones, absent on
+        # tablets. This rule must run before the next one so Android
+        # tablets aren't caught by an accidental "mobile" elsewhere.
+        return "tablet"
     if "mobile" in ua:
-        # "tablet" already handled above, so the spec's "AND NOT tablet"
-        # guard is implicit by ordering.
+        # "tablet" / Android-tablet already handled above, so the spec's
+        # "AND NOT tablet" guard is implicit by ordering.
         return "mobile"
     if viewport_width is None:
         return "unknown"
