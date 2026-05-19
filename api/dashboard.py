@@ -75,7 +75,13 @@ VIEW_VIEWS = "views"
 VIEW_UNIQUES = "uniques"
 
 
-def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
+def aggregate(
+    range_key: str,
+    show_bots: bool,
+    view: str = VIEW_VIEWS,
+    country_filter: Optional[str] = None,
+    device_filter: Optional[str] = None,
+) -> dict:
     since = _since_iso(range_key)
     total_all = 0
     bot_count = 0
@@ -86,6 +92,11 @@ def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
     countries: Counter = Counter()
     devices: Counter = Counter()
     hours: Counter = Counter()
+
+    # Universe of dimensions present in the date range *before* filters are
+    # applied. Used to populate the filter dropdowns — a user who filters to
+    # ES still needs to see DE, FR, etc. in the dropdown so they can switch.
+    available_countries: Counter = Counter()
 
     # Per-bucket sets of visitor_hash for the "unique visitors" view. Events
     # without a visitor_hash (legacy, pre-feature) silently never join these
@@ -100,6 +111,13 @@ def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
     # session_page_id -> {path, max_elapsed (or None for bounce), is_bot}
     sessions: dict[str, dict] = {}
 
+    def passes_filters(country: str, device: str) -> bool:
+        if country_filter and country != country_filter:
+            return False
+        if device_filter and device != device_filter:
+            return False
+        return True
+
     for ev in read_events(since=since, max_count=200_000):
         # Events stored before heartbeats existed have no event_type — treat
         # them as page_view for backward compatibility.
@@ -107,6 +125,19 @@ def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
         bot = bool(ev.get("bot"))
         sid = ev.get("session_page_id")
         path = ev.get("path") or "/"
+        country = ev.get("country") or "unknown"
+        device = ev.get("device_type") or "unknown"
+
+        # Dropdown universe: page_views only (heartbeats inherit country/device
+        # from the page_view, so counting both would inflate). Bots included so
+        # the universe doesn't depend on the bot toggle.
+        if event_type == "page_view":
+            available_countries[country] += 1
+
+        # Active filters drop everything that doesn't match — including
+        # heartbeats, so engagement/uniques inherit the filter.
+        if not passes_filters(country, device):
+            continue
 
         if event_type == "page_view":
             total_all += 1
@@ -127,8 +158,6 @@ def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
             counted += 1
             ref = _referrer_host(ev.get("referrer"))
             lang = _lang_short(ev.get("language"))
-            country = ev.get("country") or "unknown"
-            device = ev.get("device_type") or "unknown"
 
             paths[path] += 1
             referrers[ref] += 1
@@ -228,6 +257,9 @@ def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
         "hours": hours,
         "engagement_rows": engagement_rows,
         "overall_avg_engagement": overall_avg,
+        "available_countries": available_countries,
+        "country_filter": country_filter,
+        "device_filter": device_filter,
     }
 
 
@@ -420,12 +452,58 @@ def _hourly_svg(hours: Counter) -> str:
     )
 
 
-def render_dashboard(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> str:
+DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
+
+
+def _country_section(data: dict, country_filter: Optional[str], count_header: str) -> str:
+    """Render the Country breakdown — or a small notice when the filter is
+    already pinning the country (in which case the breakdown would be a
+    100% tautology and is hidden to save space)."""
+    if country_filter:
+        return (
+            f'<p class="muted" style="font-size:12px;margin:0 0 32px">'
+            f'Country breakdown hidden (filtered to {escape(country_filter)}).'
+            f'</p>'
+        )
+    return (
+        f'<section><h2>Country</h2>'
+        f'{_table(("Country", count_header), data["countries"])}'
+        f'</section>'
+    )
+
+
+def _device_section(data: dict, device_filter: Optional[str], count_header: str) -> str:
+    if device_filter:
+        return (
+            f'<p class="muted" style="font-size:12px;margin:0 0 32px">'
+            f'Device breakdown hidden (filtered to {escape(device_filter.title())}).'
+            f'</p>'
+        )
+    return (
+        f'<section><h2>Device</h2>'
+        f'{_table(("Device", count_header), data["devices"])}'
+        f'</section>'
+    )
+
+
+def render_dashboard(
+    range_key: str,
+    show_bots: bool,
+    view: str = VIEW_VIEWS,
+    country_filter: Optional[str] = None,
+    device_filter: Optional[str] = None,
+) -> str:
     if range_key not in {k for k, _, _ in RANGES}:
         range_key = "7d"
     if view not in (VIEW_VIEWS, VIEW_UNIQUES):
         view = VIEW_VIEWS
-    data = aggregate(range_key, show_bots, view)
+    # Normalize: empty string => no filter (route layer already does this,
+    # but defending the function entry point against direct callers).
+    country_filter = country_filter or None
+    device_filter = device_filter or None
+    if device_filter and device_filter not in {d for d, _ in DEVICE_OPTIONS if d}:
+        device_filter = None
+    data = aggregate(range_key, show_bots, view, country_filter=country_filter, device_filter=device_filter)
 
     range_label = next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
     bot_pct = (data["bot_count"] / data["total_all"] * 100) if data["total_all"] else 0
@@ -441,7 +519,36 @@ def render_dashboard(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) ->
         f'<option value="{val}"{" selected" if val == view else ""}>{escape(label)}</option>'
         for val, label in [(VIEW_VIEWS, "Page views"), (VIEW_UNIQUES, "Unique visitors (per day)")]
     )
+    # Country dropdown is data-driven: every country present in the date
+    # range (regardless of current filter) becomes an option, sorted by
+    # frequency desc. If the user has selected a country that no longer
+    # appears in the range (e.g. they bookmarked a URL), still include it
+    # so the selection is preserved and visible.
+    country_codes = [code for code, _ in data["available_countries"].most_common()]
+    if country_filter and country_filter not in country_codes:
+        country_codes.append(country_filter)
+    country_options = '<option value="">All countries</option>' + "".join(
+        f'<option value="{escape(code)}"{" selected" if code == country_filter else ""}>{escape(code)}</option>'
+        for code in country_codes
+    )
+    device_options = "".join(
+        f'<option value="{val}"{" selected" if val == (device_filter or "") else ""}>{escape(label)}</option>'
+        for val, label in DEVICE_OPTIONS
+    )
     bots_checked = " checked" if show_bots else ""
+
+    # Filter-state breadcrumbs in the descriptive line.
+    filter_bits = [f"Showing <strong>{escape(range_label)}</strong>"]
+    if country_filter:
+        filter_bits.append(f"Country: <strong>{escape(country_filter)}</strong>")
+    if device_filter:
+        filter_bits.append(f"Device: <strong>{escape(device_filter.title())}</strong>")
+    filter_bits.append(f"generated {escape(now_iso)}")
+    filter_bits.append(
+        "bots are " + ("<strong>included</strong>" if show_bots else "<strong>excluded</strong>") +
+        " from the breakdowns below"
+    )
+    header_line = " · ".join(filter_bits)
 
     # First card swaps label/value between modes; the remaining cards always
     # describe the page-view universe (bot %, total incl. bots, etc.).
@@ -485,13 +592,19 @@ def render_dashboard(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) ->
     <label>View:
       <select name="view" onchange="this.form.submit()">{view_options}</select>
     </label>
+    <label>Country:
+      <select name="country" onchange="this.form.submit()">{country_options}</select>
+    </label>
+    <label>Device:
+      <select name="device" onchange="this.form.submit()">{device_options}</select>
+    </label>
     <label><input type="checkbox" name="bots" value="1"{bots_checked} onchange="this.form.submit()"> show bots</label>
     <noscript><button type="submit">Apply</button></noscript>
   </form>
   <a class="dl" href="/dashboard/raw">raw JSON</a>
 </header>
 <main>
-  <p class="muted">Showing <strong>{escape(range_label)}</strong> · generated {escape(now_iso)} · bots are {"<strong>included</strong>" if show_bots else "<strong>excluded</strong>"} from the breakdowns below</p>
+  <p class="muted">{header_line}</p>
   <p class="muted" style="font-style:italic;font-size:12px;margin-top:-8px">Per-day unique count. Cross-day totals may include the same visitor counted on multiple days.</p>
 
   <section>
@@ -519,15 +632,9 @@ def render_dashboard(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) ->
     {_table(("Lang", count_header), data["langs"])}
   </section>
 
-  <section>
-    <h2>Country</h2>
-    {_table(("Country", count_header), data["countries"])}
-  </section>
+  {_country_section(data, country_filter, count_header)}
 
-  <section>
-    <h2>Device</h2>
-    {_table(("Device", count_header), data["devices"])}
-  </section>
+  {_device_section(data, device_filter, count_header)}
 
   <section>
     <h2>Hourly distribution (UTC)</h2>

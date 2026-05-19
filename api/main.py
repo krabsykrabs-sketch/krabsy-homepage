@@ -454,8 +454,22 @@ def dashboard(
     range_: str = Query("7d", alias="range"),
     show_bots: int = Query(0, alias="bots"),
     view: str = Query("views"),
+    country: str = Query(""),
+    device: str = Query(""),
 ) -> HTMLResponse:
-    return HTMLResponse(render_dashboard(range_, bool(show_bots), view))
+    # Normalize filter values: country codes are uppercase ISO-2 ("ES"),
+    # device labels are lowercase ("mobile"). Empty string => no filter.
+    country_filter = country.strip().upper() or None
+    device_filter = device.strip().lower() or None
+    return HTMLResponse(
+        render_dashboard(
+            range_,
+            bool(show_bots),
+            view,
+            country_filter=country_filter,
+            device_filter=device_filter,
+        )
+    )
 
 
 @app.get("/dashboard/raw")
