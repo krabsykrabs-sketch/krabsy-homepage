@@ -171,6 +171,10 @@
       "btn_done": "Listo",
       "session_stats": "Sesión: {attempts} intentos · {accuracy}% correcto · Racha: {streak}",
       "fixed_deck_note": "Estás practicando una selección fija de {n} verbos.",
+      "fixed_deck_remaining": "Te quedan {n} por practicar.",
+      "fixed_deck_done_title": "¡Todos los verbos dominados! 🦀",
+      "fixed_deck_done_body": "Has acertado todos los verbos de tu lista de práctica.",
+      "fixed_deck_continue_all": "Seguir con todos los verbos",
       "weak_empty_note": "Practica unos minutos — y aparecerán aquí tus verbos flojos."
     }
   },

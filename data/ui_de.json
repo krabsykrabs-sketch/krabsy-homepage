@@ -171,6 +171,10 @@
       "btn_done": "Fertig",
       "session_stats": "Session: {attempts} Versuche · {accuracy}% richtig · Serie: {streak}",
       "fixed_deck_note": "Du übst eine vorgegebene Auswahl von {n} Verben.",
+      "fixed_deck_remaining": "Noch {n} zu üben.",
+      "fixed_deck_done_title": "Alle Verben geschafft! 🦀",
+      "fixed_deck_done_body": "Du hast alle Verben aus deiner Übungs-Liste richtig beantwortet.",
+      "fixed_deck_continue_all": "Weiter mit allen Verben",
       "weak_empty_note": "Übe ein paar Minuten — dann erscheinen hier deine schwachen Verben."
     }
   },

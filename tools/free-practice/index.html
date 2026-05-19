@@ -108,6 +108,30 @@
       border-radius: var(--radius-sm);
     }
 
+    /* "All done" panel shown when the ?verbs= deck has been cleared. */
+    .fp-done {
+      text-align: center;
+      padding: var(--space-5) var(--space-4);
+    }
+    .fp-done-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 var(--space-3);
+      line-height: 1.2;
+    }
+    .fp-done-body {
+      color: var(--krabsy-ink-mute);
+      font-size: 1rem;
+      margin: 0 0 var(--space-5);
+    }
+    .fp-done-actions {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
     .fp-empty-note {
       font-size: 0.85rem;
       color: var(--krabsy-ink-mute);
@@ -579,11 +603,68 @@
 
       renderProgressStrip();
 
+      const bothCorrect = pastOk && ppOk;
+
       state.busy = true;
       setTimeout(() => {
         state.busy = false;
-        advance();
+        // In ?verbs= mode, drop the verb when the user has nailed BOTH forms —
+        // it's "done" for this practice list. The deck visibly shrinks, the
+        // counter at the top ticks down, and when the last one is cleared we
+        // show a small "all done" panel.
+        if (state.fixedDeck && bothCorrect) {
+          state.deck.splice(state.index, 1);
+          updateFixedDeckNote();
+          if (state.deck.length === 0) {
+            showFixedDeckDone();
+            return;
+          }
+          // splice already pulled the next verb into the current slot; just
+          // re-render that slot. Wrap index if it ran off the end.
+          if (state.index >= state.deck.length) state.index = 0;
+          renderCurrentVerb();
+        } else {
+          advance();
+        }
       }, FEEDBACK_MS);
+    }
+
+    function updateFixedDeckNote() {
+      if (!state.fixedDeck) return;
+      const n = state.deck.length;
+      const note = document.getElementById('fp-fixed-deck-note');
+      if (!note) return;
+      const tmpl = tGet('tools.free_practice.fixed_deck_remaining')
+        || 'Noch {n} zu üben.';
+      note.textContent = tmpl.replace('{n}', String(n));
+    }
+
+    function showFixedDeckDone() {
+      const stage = document.getElementById('fp-stage');
+      if (!stage) return;
+      const title = tGet('tools.free_practice.fixed_deck_done_title')
+        || 'Alle Verben geschafft! 🦀';
+      const body = tGet('tools.free_practice.fixed_deck_done_body')
+        || 'Du hast alle Verben aus deiner Übungs-Liste richtig beantwortet.';
+      const backLbl = tGet('common.back_to_hub') || 'Zurück zur Übersicht';
+      const contLbl = tGet('tools.free_practice.fixed_deck_continue_all')
+        || 'Weiter mit allen Verben';
+      stage.innerHTML =
+        '<div class="fp-done">' +
+          '<h2 class="fp-done-title"></h2>' +
+          '<p class="fp-done-body"></p>' +
+          '<div class="fp-done-actions">' +
+            '<a class="k-btn-primary" href="/index.html"></a>' +
+            '<a class="k-btn-secondary" href="/tools/free-practice/"></a>' +
+          '</div>' +
+        '</div>';
+      stage.querySelector('.fp-done-title').textContent = title;
+      stage.querySelector('.fp-done-body').textContent = body;
+      stage.querySelector('.k-btn-primary').textContent = backLbl;
+      stage.querySelector('.k-btn-secondary').textContent = contLbl;
+      // Hide the now-irrelevant fixed-deck remaining note.
+      const note = document.getElementById('fp-fixed-deck-note');
+      if (note) note.classList.add('fp-hidden');
     }
 
     function handleSkip() {
