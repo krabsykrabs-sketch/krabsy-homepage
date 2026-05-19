@@ -71,7 +71,11 @@ def _median(values: list[float]) -> Optional[float]:
     return (sv[n // 2 - 1] + sv[n // 2]) / 2
 
 
-def aggregate(range_key: str, show_bots: bool) -> dict:
+VIEW_VIEWS = "views"
+VIEW_UNIQUES = "uniques"
+
+
+def aggregate(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> dict:
     since = _since_iso(range_key)
     total_all = 0
     bot_count = 0
@@ -82,6 +86,16 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
     countries: Counter = Counter()
     devices: Counter = Counter()
     hours: Counter = Counter()
+
+    # Per-bucket sets of visitor_hash for the "unique visitors" view. Events
+    # without a visitor_hash (legacy, pre-feature) silently never join these
+    # sets, so they're excluded from uniques counts.
+    paths_u: dict[str, set] = defaultdict(set)
+    referrers_u: dict[str, set] = defaultdict(set)
+    langs_u: dict[str, set] = defaultdict(set)
+    countries_u: dict[str, set] = defaultdict(set)
+    devices_u: dict[str, set] = defaultdict(set)
+    all_uniques: set = set()
 
     # session_page_id -> {path, max_elapsed (or None for bounce), is_bot}
     sessions: dict[str, dict] = {}
@@ -111,17 +125,31 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
             if bot and not show_bots:
                 continue
             counted += 1
+            ref = _referrer_host(ev.get("referrer"))
+            lang = _lang_short(ev.get("language"))
+            country = ev.get("country") or "unknown"
+            device = ev.get("device_type") or "unknown"
+
             paths[path] += 1
-            referrers[_referrer_host(ev.get("referrer"))] += 1
-            langs[_lang_short(ev.get("language"))] += 1
-            countries[ev.get("country") or "unknown"] += 1
-            devices[ev.get("device_type") or "unknown"] += 1
+            referrers[ref] += 1
+            langs[lang] += 1
+            countries[country] += 1
+            devices[device] += 1
             ts = ev.get("ts_server") or ev.get("ts_client") or ""
             try:
                 hour = datetime.fromisoformat(ts.replace("Z", "+00:00")).hour
                 hours[hour] += 1
             except Exception:
                 pass
+
+            vh = ev.get("visitor_hash")
+            if vh:
+                paths_u[path].add(vh)
+                referrers_u[ref].add(vh)
+                langs_u[lang].add(vh)
+                countries_u[country].add(vh)
+                devices_u[device].add(vh)
+                all_uniques.add(vh)
         elif event_type == "page_heartbeat":
             if not sid:
                 continue
@@ -138,7 +166,8 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
 
     # Engagement: each session contributes one value to its path's bucket.
     # Bounce sessions (no heartbeats) get BOUNCE_SECONDS so fast bounces drag
-    # the average down rather than being silently dropped.
+    # the average down rather than being silently dropped. Always views-based,
+    # because engagement is a session-time concept, not a visitor-count one.
     by_path_durations: dict[str, list[int]] = defaultdict(list)
     all_durations: list[int] = []
     for sess in sessions.values():
@@ -169,16 +198,33 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
 
     overall_avg = sum(all_durations) / len(all_durations) if all_durations else None
 
+    # Pick which counter feeds each breakdown based on `view`. Uniques mode
+    # converts the per-bucket sets to counts; views mode reuses the existing
+    # tallies. Existing events without visitor_hash naturally drop out of
+    # uniques counts but stay in views counts.
+    def _by_view(counter_views: Counter, uniques_map: dict) -> Counter:
+        if view == VIEW_UNIQUES:
+            return Counter({k: len(s) for k, s in uniques_map.items()})
+        return counter_views
+
+    paths_out = _by_view(paths, paths_u)
+    referrers_out = _by_view(referrers, referrers_u)
+    langs_out = _by_view(langs, langs_u)
+    countries_out = _by_view(countries, countries_u)
+    devices_out = _by_view(devices, devices_u)
+
     return {
+        "view": view,
         "total_all": total_all,
         "bot_count": bot_count,
         "counted": counted,
+        "uniques_total": len(all_uniques),
         "unique_paths": len(paths),
-        "paths": paths.most_common(20),
-        "referrers": referrers.most_common(10),
-        "langs": sorted(langs.items(), key=lambda kv: -kv[1]),
-        "countries": countries.most_common(10),
-        "devices": sorted(devices.items(), key=lambda kv: -kv[1]),
+        "paths": paths_out.most_common(20),
+        "referrers": referrers_out.most_common(10),
+        "langs": sorted(langs_out.items(), key=lambda kv: -kv[1]),
+        "countries": countries_out.most_common(10),
+        "devices": sorted(devices_out.items(), key=lambda kv: -kv[1]),
         "hours": hours,
         "engagement_rows": engagement_rows,
         "overall_avg_engagement": overall_avg,
@@ -374,29 +420,48 @@ def _hourly_svg(hours: Counter) -> str:
     )
 
 
-def render_dashboard(range_key: str, show_bots: bool) -> str:
+def render_dashboard(range_key: str, show_bots: bool, view: str = VIEW_VIEWS) -> str:
     if range_key not in {k for k, _, _ in RANGES}:
         range_key = "7d"
-    data = aggregate(range_key, show_bots)
+    if view not in (VIEW_VIEWS, VIEW_UNIQUES):
+        view = VIEW_VIEWS
+    data = aggregate(range_key, show_bots, view)
 
     range_label = next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
     bot_pct = (data["bot_count"] / data["total_all"] * 100) if data["total_all"] else 0
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    is_uniques = view == VIEW_UNIQUES
 
     # Selector controls
     range_options = "".join(
         f'<option value="{k}"{" selected" if k == range_key else ""}>{escape(label)}</option>'
         for k, label, _ in RANGES
     )
+    view_options = "".join(
+        f'<option value="{val}"{" selected" if val == view else ""}>{escape(label)}</option>'
+        for val, label in [(VIEW_VIEWS, "Page views"), (VIEW_UNIQUES, "Unique visitors (per day)")]
+    )
     bots_checked = " checked" if show_bots else ""
 
+    # First card swaps label/value between modes; the remaining cards always
+    # describe the page-view universe (bot %, total incl. bots, etc.).
+    if is_uniques:
+        first_card = _stat("Unique visitors", f"{data['uniques_total']:,}")
+    else:
+        first_card = _stat("Events shown", f"{data['counted']:,}")
+
     numbers = (
-        _stat("Events shown", f"{data['counted']:,}")
+        first_card
         + _stat("Unique paths", f"{data['unique_paths']:,}")
         + _stat("Avg engagement", _format_duration(data["overall_avg_engagement"]))
         + _stat("Bots (% of total)", f"{bot_pct:.1f}%")
         + _stat("Total incl. bots", f"{data['total_all']:,}")
     )
+
+    # Column header for the second column adapts to the view mode so users
+    # reading the table after switching see meaningful labels.
+    count_header = "Visitors" if is_uniques else "Hits"
+    paths_header = "Visitors" if is_uniques else "Views"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -417,6 +482,9 @@ def render_dashboard(range_key: str, show_bots: bool) -> str:
     <label>Range:
       <select name="range" onchange="this.form.submit()">{range_options}</select>
     </label>
+    <label>View:
+      <select name="view" onchange="this.form.submit()">{view_options}</select>
+    </label>
     <label><input type="checkbox" name="bots" value="1"{bots_checked} onchange="this.form.submit()"> show bots</label>
     <noscript><button type="submit">Apply</button></noscript>
   </form>
@@ -424,6 +492,7 @@ def render_dashboard(range_key: str, show_bots: bool) -> str:
 </header>
 <main>
   <p class="muted">Showing <strong>{escape(range_label)}</strong> · generated {escape(now_iso)} · bots are {"<strong>included</strong>" if show_bots else "<strong>excluded</strong>"} from the breakdowns below</p>
+  <p class="muted" style="font-style:italic;font-size:12px;margin-top:-8px">Per-day unique count. Cross-day totals may include the same visitor counted on multiple days.</p>
 
   <section>
     <div class="numbers">{numbers}</div>
@@ -432,32 +501,32 @@ def render_dashboard(range_key: str, show_bots: bool) -> str:
   <section>
     <h2>Engagement by path</h2>
     {_engagement_table(data["engagement_rows"])}
-    <p class="muted" style="margin-top:8px;font-size:12px">Avg and median are computed across session_page_id buckets. Bounces (no heartbeat fired before the visitor left) are counted as ~7s and render as &lt;15s.</p>
+    <p class="muted" style="margin-top:8px;font-size:12px">Avg and median are computed across session_page_id buckets, regardless of the view toggle. Bounces (no heartbeat fired before the visitor left) are counted as ~7s and render as &lt;15s.</p>
   </section>
 
   <section>
-    <h2>Page views by path</h2>
-    {_table(("Path", "Views"), data["paths"])}
+    <h2>{"Unique visitors by path" if is_uniques else "Page views by path"}</h2>
+    {_table(("Path", paths_header), data["paths"])}
   </section>
 
   <section>
     <h2>Top referrers</h2>
-    {_table(("Referrer", "Hits"), data["referrers"])}
+    {_table(("Referrer", count_header), data["referrers"])}
   </section>
 
   <section>
     <h2>Language</h2>
-    {_table(("Lang", "Hits"), data["langs"])}
+    {_table(("Lang", count_header), data["langs"])}
   </section>
 
   <section>
     <h2>Country</h2>
-    {_table(("Country", "Hits"), data["countries"])}
+    {_table(("Country", count_header), data["countries"])}
   </section>
 
   <section>
     <h2>Device</h2>
-    {_table(("Device", "Hits"), data["devices"])}
+    {_table(("Device", count_header), data["devices"])}
   </section>
 
   <section>

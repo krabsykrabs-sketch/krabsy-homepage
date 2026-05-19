@@ -12,6 +12,7 @@ never written to disk.
 """
 
 import asyncio
+import hashlib
 import json
 import os
 import re
@@ -21,7 +22,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import defaultdict, deque
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -194,6 +195,50 @@ def lookup_country(ip: str) -> str:
 async def country_for_ip(ip: str) -> str:
     """Async wrapper: runs the (possibly blocking) lookup on a thread."""
     return await asyncio.to_thread(lookup_country, ip)
+
+
+# ---------------------------------------------------------------------------
+# Daily-rotating visitor hash (per-day unique counting, Plausible-style)
+# ---------------------------------------------------------------------------
+#
+# Each event gets visitor_hash = sha256(daily_salt + ip + ua)[:16]. The salt
+# rotates at UTC midnight, so visitor_hash values from different days are
+# uncorrelatable. The salt lives only in process memory — no env var, no
+# disk — and a container restart resets it, which is acceptable because
+# restarts are rare. The IP is used as hash input then discarded; it is
+# never stored.
+
+_current_salt: bytes = secrets.token_bytes(32)
+_salt_date: date = datetime.now(timezone.utc).date()
+_salt_lock = threading.Lock()
+
+
+def get_current_salt() -> bytes:
+    """Return the salt for the current UTC date, rotating lazily on day change."""
+    global _current_salt, _salt_date
+    today = datetime.now(timezone.utc).date()
+    if today == _salt_date:
+        return _current_salt
+    with _salt_lock:
+        if today != _salt_date:
+            _current_salt = secrets.token_bytes(32)
+            _salt_date = today
+        return _current_salt
+
+
+def compute_visitor_hash(ip: str, user_agent: str) -> Optional[str]:
+    """Return a 16-hex-char visitor hash, or None if we have nothing to hash.
+
+    Truncating sha256 to 64 bits still leaves a collision probability of
+    ~1e-19 per pair at our volume — negligible.
+    """
+    if not ip and not user_agent:
+        return None
+    h = hashlib.sha256()
+    h.update(get_current_salt())
+    h.update(ip.encode("utf-8"))
+    h.update(user_agent.encode("utf-8"))
+    return h.hexdigest()[:16]
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +415,10 @@ async def track(request: Request) -> JSONResponse:
     # The raw IP leaves scope at the end of this function. It is never
     # included in the persisted record.
 
+    visitor_hash = compute_visitor_hash(ip, user_agent)
+    # `ip` is no longer needed past this point — it goes out of scope when
+    # the function returns. visitor_hash + country are the only IP-derived
+    # values that get persisted.
     record = {
         "event_type": event_type,
         "ts_client": event.timestamp,
@@ -383,6 +432,7 @@ async def track(request: Request) -> JSONResponse:
         "bot": is_bot(user_agent),
         "ua": user_agent,
         "session_page_id": event.session_page_id,
+        "visitor_hash": visitor_hash,
     }
     if event_type == "page_heartbeat":
         record["elapsed_seconds"] = event.elapsed_seconds
@@ -403,8 +453,9 @@ def dashboard(
     user: str = Depends(check_auth),
     range_: str = Query("7d", alias="range"),
     show_bots: int = Query(0, alias="bots"),
+    view: str = Query("views"),
 ) -> HTMLResponse:
-    return HTMLResponse(render_dashboard(range_, bool(show_bots)))
+    return HTMLResponse(render_dashboard(range_, bool(show_bots), view))
 
 
 @app.get("/dashboard/raw")
