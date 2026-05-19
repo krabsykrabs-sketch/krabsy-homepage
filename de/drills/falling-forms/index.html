@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Falling Forms — Krabsy</title>
+  <meta name="description" content="Reagiere schnell: Blöcke mit Verbformen fallen herab. Wähle die richtige Form, bevor sie unten ankommen.">
+  <meta name="keywords" content="falling forms, reaktion, verbformen, englisch üben">
+  <link rel="canonical" href="https://krabsy.com/de/drills/falling-forms/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/drills/falling-forms/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/drills/falling-forms/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/falling-forms/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Falling Forms — Krabsy">
+  <meta property="og:description" content="Reagiere schnell: Blöcke mit Verbformen fallen herab. Wähle die richtige Form, bevor sie unten ankommen.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/de/drills/falling-forms/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Falling Forms — Krabsy">
+  <meta name="twitter:description" content="Reagiere schnell: Blöcke mit Verbformen fallen herab. Wähle die richtige Form, bevor sie unten ankommen.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Falling Forms",
+      "url": "https://krabsy.com/drills/falling-forms/",
+      "description": "Reagiere schnell: Blöcke mit Verbformen fallen herab. Wähle die richtige Form, bevor sie unten ankommen.",
+      "learningResourceType": "Game",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "en",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "student"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Krabsy",
+        "url": "https://krabsy.com/"
+      }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <style>
+    /* ── Falling Forms layout ──────────────────────────────────────────── */
+    .ff-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4);
+      width: 100%;
+    }
+
+    /* HUD across the top of play screen */
+    .ff-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+      min-height: 40px;
+      flex-wrap: wrap;
+    }
+
+    .ff-hud-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      padding: 6px 14px;
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-pill);
+    }
+    .ff-hud-group .ff-hud-label {
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+    .ff-hud-group .ff-hud-value {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .ff-lives {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .ff-life {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--krabsy-coral);
+      display: inline-block;
+      transition: background-color 0.18s ease, transform 0.18s ease;
+    }
+    .ff-life.is-lost {
+      background: var(--krabsy-lavender-soft);
+      transform: scale(0.85);
+    }
+
+    /* Play area: holds the falling block(s). Use relative positioning so
+       block coordinates resolve against it. The block animates via
+       translateY only, never `top`/`bottom`/`margin`. */
+    .ff-stage {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 420px;
+      max-height: 760px;
+      background: var(--krabsy-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    /* The falling block — positioned at the top of the stage; we move it
+       downward by setting transform: translateY(...) in JS each frame. */
+    .ff-block {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 260px;
+      max-width: 90%;
+      min-height: 150px;
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
+      background: var(--krabsy-lavender-soft);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      text-align: center;
+      will-change: transform;
+      /* Center horizontally with a translateX, then JS sets translateY. */
+      transform: translate3d(-50%, 0, 0);
+    }
+    .ff-block.is-sage {
+      background: var(--krabsy-sage-soft);
+    }
+
+    .ff-block-form-label {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--krabsy-ink-mute);
+      margin: 0;
+    }
+
+    .ff-block-verb {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      margin: 0;
+      line-height: 1.1;
+      letter-spacing: 0.5px;
+      word-break: break-word;
+    }
+
+    /* Base → blank → blank trio inside each falling block.
+       The asked slot is highlighted; the other slot is dim. */
+    .ff-trio {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .ff-trio-base {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--krabsy-ink);
+      padding: 0 2px;
+    }
+    .ff-trio-arrow {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      line-height: 1;
+    }
+    .ff-trio-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid rgba(186, 191, 216, 0.5);
+      min-width: 56px;
+    }
+    .ff-trio-slot-blank {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 1px;
+    }
+    .ff-trio-slot-label {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--krabsy-ink-mute);
+      font-weight: 700;
+      visibility: hidden;
+      white-space: nowrap;
+    }
+    .ff-trio-slot.is-asked {
+      background: var(--krabsy-white);
+      border-color: var(--krabsy-coral);
+      padding: 5px 10px;
+      min-width: 72px;
+    }
+    .ff-trio-slot.is-asked .ff-trio-slot-blank {
+      font-size: 1.05rem;
+      color: var(--krabsy-ink);
+    }
+    .ff-trio-slot.is-asked .ff-trio-slot-label {
+      visibility: visible;
+      color: var(--krabsy-coral-dark);
+    }
+
+    .ff-block-chips {
+      display: flex;
+      gap: var(--space-2);
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .ff-chip {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      background: var(--krabsy-white);
+      color: var(--krabsy-ink);
+      border: 2px solid var(--krabsy-sage);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.15s ease, color 0.15s ease,
+                  border-color 0.15s ease, transform 0.12s ease;
+      min-width: 80px;
+    }
+    .ff-chip:hover:not(:disabled) {
+      background: var(--krabsy-sage-soft);
+    }
+    .ff-chip:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    .ff-chip.is-correct {
+      background: var(--krabsy-sage);
+      border-color: var(--krabsy-sage);
+      color: var(--krabsy-ink);
+    }
+    .ff-chip.is-wrong {
+      background: var(--krabsy-coral);
+      border-color: var(--krabsy-coral);
+      color: var(--krabsy-white);
+    }
+    .ff-chip:disabled { cursor: default; }
+
+    /* Start / End screens reuse k-card */
+    .ff-start-card,
+    .ff-end-card {
+      text-align: center;
+      padding: var(--space-6) var(--space-5);
+    }
+    .ff-start-card .k-h1,
+    .ff-end-card .k-h1 {
+      font-size: 2rem;
+      margin-bottom: var(--space-3);
+    }
+
+    .ff-tagline {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-4);
+    }
+
+    .ff-intro {
+      font-size: 0.95rem;
+      color: var(--krabsy-ink);
+      max-width: 540px;
+      margin: 0 auto var(--space-5);
+      line-height: 1.55;
+    }
+
+    .ff-best-line {
+      font-size: 0.9rem;
+      color: var(--krabsy-ink-mute);
+      margin: var(--space-4) 0 0;
+    }
+    .ff-best-line .ff-best-value {
+      color: var(--krabsy-coral-dark);
+      font-weight: 700;
+    }
+
+    .ff-end-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+      margin: var(--space-5) 0;
+    }
+    .ff-end-stat { min-width: 110px; }
+    .ff-end-stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .ff-end-stat-value.is-new-best { color: var(--krabsy-coral-dark); }
+    .ff-end-stat-label {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+    }
+
+    .ff-new-best-flag {
+      display: inline-block;
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--space-4);
+    }
+
+    .ff-missed-block {
+      text-align: left;
+      max-width: 520px;
+      margin: var(--space-5) auto 0;
+    }
+    .ff-missed-heading {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 var(--space-3);
+    }
+    .ff-missed-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ff-missed-list li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: 8px 12px;
+      background: var(--krabsy-coral-soft);
+      border-radius: var(--radius-sm);
+    }
+    .ff-missed-verb { font-weight: 700; color: var(--krabsy-ink); }
+    .ff-missed-form {
+      font-size: 0.75rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+    }
+    .ff-missed-answer {
+      font-family: var(--font-body);
+      color: var(--krabsy-ink);
+      font-weight: 700;
+    }
+
+    .ff-end-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-5);
+    }
+
+    .ff-hidden { display: none !important; }
+
+    .ff-loading {
+      text-align: center;
+      padding: var(--space-7) var(--space-4);
+      color: var(--krabsy-ink-mute);
+    }
+
+    @media (min-width: 720px) {
+      .ff-block { width: 280px; min-height: 160px; }
+      .ff-block-verb { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a class="k-logo" href="/de/">Krabsy</a>
+      <div class="k-row" style="gap: var(--space-3);">
+        <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
+          <button class="k-lang-btn" data-lang="de" type="button">DE</button>
+          <button class="k-lang-btn" data-lang="es" type="button">ES</button>
+        </div>
+        <a class="k-back-link" href="/de/">&larr; <span data-string="common.back_to_hub_short">Zurück</span></a>
+      </div>
+    </header>
+
+    <main class="ff-wrap">
+      <!-- Loading shim until JS swaps in real content -->
+      <div id="ff-loading" class="ff-loading" data-string="common.loading">Lädt…</div>
+
+      <!-- START SCREEN -->
+      <section id="ff-start" class="k-card ff-start-card ff-hidden" aria-hidden="true">
+        <h1 class="k-h1" data-string="drills.falling_forms.name">Falling Forms</h1>
+        <p class="ff-tagline" data-string="drills.falling_forms.tagline">Tippe die richtige Form, bevor der Block unten ankommt.</p>
+        <p class="ff-intro" data-string="drills.falling_forms.intro"></p>
+        <button id="ff-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
+        <p id="ff-best-line" class="ff-best-line" hidden>
+          <span data-string="common.best_score">Bestleistung</span>:
+          <span class="ff-best-value" id="ff-best-value-start">—</span>
+        </p>
+      </section>
+
+      <!-- PLAY SCREEN -->
+      <section id="ff-play" class="ff-hidden" aria-hidden="true">
+        <div class="ff-hud">
+          <span class="ff-hud-group">
+            <span class="ff-hud-label" data-string="common.score">Punkte</span>
+            <span class="ff-hud-value k-mono-num" id="ff-hud-score">0</span>
+          </span>
+          <span class="ff-hud-group">
+            <span class="ff-hud-label" data-string="common.streak">Serie</span>
+            <span class="ff-hud-value k-mono-num" id="ff-hud-streak">0</span>
+          </span>
+          <span class="ff-hud-group" aria-label="Leben" data-i18n-attr="aria-label:drills.falling_forms.aria_lives">
+            <span class="ff-hud-label" data-string="common.lives">Leben</span>
+            <span class="ff-lives" id="ff-lives" aria-live="polite">
+              <span class="ff-life"></span>
+              <span class="ff-life"></span>
+              <span class="ff-life"></span>
+            </span>
+          </span>
+        </div>
+
+        <div class="ff-stage" id="ff-stage" role="region" aria-label="Spielfeld">
+          <!-- A single .ff-block lives here while playing; JS swaps content -->
+        </div>
+      </section>
+
+      <!-- END SCREEN -->
+      <section id="ff-end" class="k-card ff-end-card ff-hidden" aria-hidden="true">
+        <h1 class="k-h1" id="ff-end-title" data-string="drills.falling_forms.end_title">Runde vorbei</h1>
+
+        <div id="ff-new-best" class="ff-new-best-flag" hidden data-string="common.best_score">Bestleistung</div>
+
+        <div class="ff-end-stats">
+          <div class="ff-end-stat">
+            <div id="ff-end-score" class="ff-end-stat-value k-mono-num">—</div>
+            <div class="ff-end-stat-label" data-string="common.your_score">Dein Ergebnis</div>
+          </div>
+          <div class="ff-end-stat">
+            <div id="ff-end-accuracy" class="ff-end-stat-value k-mono-num">—</div>
+            <div class="ff-end-stat-label" data-string="common.accuracy">Genauigkeit</div>
+          </div>
+          <div class="ff-end-stat">
+            <div id="ff-end-best" class="ff-end-stat-value k-mono-num">—</div>
+            <div class="ff-end-stat-label" data-string="common.best_score">Bestleistung</div>
+          </div>
+        </div>
+
+        <div id="ff-missed-wrap" class="ff-missed-block" hidden>
+          <h2 class="ff-missed-heading" data-string="common.missed">Diese hast du verpasst</h2>
+          <ul id="ff-missed-list" class="ff-missed-list"></ul>
+        </div>
+
+        <div class="ff-end-actions">
+          <button id="ff-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
+          <a href="/de/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
+        </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+      </section>
+    </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
+  </div>
+
+  <!-- Feedback flash overlays — krabsy-ui.css utility classes -->
+  <div id="ff-flash-correct" class="k-flash is-correct" aria-hidden="true"></div>
+  <div id="ff-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
+
+  <script type="module">
+    import { loadStrings, getQuestions, getLang, setLang } from '/lib/krabsy-data.js';
+    import { recordAttempt } from '/lib/krabsy-stats.js';
+
+    /* ── Constants ───────────────────────────────────────────────────── */
+    const BEST_KEY = 'krabsy_best_falling_forms';
+    const HUB_URL = '/de/';
+    const START_FALL_MS = 6000;       // initial floor-to-floor time
+    const MIN_FALL_MS = 1500;         // floor — never faster than this
+    const SPEEDUP_EVERY = 5;          // speed step per N correct
+    const SPEEDUP_FACTOR = 0.85;      // 15% reduction
+    const STARTING_LIVES = 3;
+
+    /* ── State ───────────────────────────────────────────────────────── */
+    let strings = null;
+    let deck = [];           // current question pool (reshuffles when empty)
+    let deckIndex = 0;
+    let blockCount = 0;      // monotonically increases, used for index parity
+    let score = 0;
+    let lives = STARTING_LIVES;
+    let streak = 0;
+    let totalAttempts = 0;
+    let totalCorrect = 0;
+    let missed = [];         // [{ verb, form, correct_answer }]
+    let fallMs = START_FALL_MS;
+    let currentQ = null;     // active question
+    let blockEl = null;      // active block element
+    let rafHandle = null;
+    let fallStartTs = 0;     // performance.now() when current block began falling
+    let stageHeight = 0;     // measured in px
+    let blockHeight = 0;     // measured in px
+    let resolved = false;    // current block answered or missed
+    let running = false;     // true between Start and End
+
+    /* ── DOM ─────────────────────────────────────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const loadingEl   = $('ff-loading');
+    const startEl     = $('ff-start');
+    const playEl      = $('ff-play');
+    const endEl       = $('ff-end');
+    const startBtn    = $('ff-start-btn');
+    const replayBtn   = $('ff-replay-btn');
+    const bestLineEl  = $('ff-best-line');
+    const bestValStart= $('ff-best-value-start');
+    const stageEl     = $('ff-stage');
+    const hudScoreEl  = $('ff-hud-score');
+    const hudStreakEl = $('ff-hud-streak');
+    const livesEl     = $('ff-lives');
+    const endTitleEl  = $('ff-end-title');
+    const endScoreEl  = $('ff-end-score');
+    const endAccEl    = $('ff-end-accuracy');
+    const endBestEl   = $('ff-end-best');
+    const newBestEl   = $('ff-new-best');
+    const missedWrap  = $('ff-missed-wrap');
+    const missedListEl= $('ff-missed-list');
+    const flashCorrect= $('ff-flash-correct');
+    const flashWrong  = $('ff-flash-wrong');
+
+    /* ── Helpers ─────────────────────────────────────────────────────── */
+    function getNested(obj, path) {
+      return path.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
+    }
+
+    function applyStrings(root) {
+      root.querySelectorAll('[data-string]').forEach((el) => {
+        const key = el.getAttribute('data-string');
+        const val = getNested(strings, key);
+        if (typeof val === 'string') el.textContent = val;
+      });
+    }
+
+    function showScreen(which) {
+      for (const [el, name] of [[startEl, 'start'], [playEl, 'play'], [endEl, 'end']]) {
+        const on = name === which;
+        el.classList.toggle('ff-hidden', !on);
+        el.setAttribute('aria-hidden', on ? 'false' : 'true');
+      }
+    }
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function readBest() {
+      try {
+        const raw = localStorage.getItem(BEST_KEY);
+        if (raw == null) return null;
+        const n = Number(raw);
+        return Number.isFinite(n) && n >= 0 ? Math.floor(n) : null;
+      } catch (_) { return null; }
+    }
+
+    function writeBest(n) {
+      try { localStorage.setItem(BEST_KEY, String(Math.floor(n))); } catch (_) {}
+    }
+
+    function updateBestLineOnStart() {
+      const best = readBest();
+      if (best == null || best === 0) {
+        bestLineEl.hidden = true;
+      } else {
+        bestLineEl.hidden = false;
+        bestValStart.textContent = String(best);
+      }
+    }
+
+    function flash(kind) {
+      const el = kind === 'wrong' ? flashWrong : flashCorrect;
+      el.classList.add('is-on');
+      setTimeout(() => el.classList.remove('is-on'), 150);
+    }
+
+    function formLabelText(form) {
+      return form === 'past' ? strings.common.verb_past : strings.common.verb_pp;
+    }
+
+    function makeTrioSlot(form, labelText, isAsked) {
+      const slot = document.createElement('div');
+      slot.className = 'ff-trio-slot' + (isAsked ? ' is-asked' : '');
+      slot.dataset.form = form;
+      const blank = document.createElement('span');
+      blank.className = 'ff-trio-slot-blank';
+      blank.textContent = '___';
+      const label = document.createElement('span');
+      label.className = 'ff-trio-slot-label';
+      label.textContent = labelText || '';
+      slot.append(blank, label);
+      return slot;
+    }
+
+    function updateHud() {
+      hudScoreEl.textContent = String(score);
+      hudStreakEl.textContent = String(streak);
+      // Render lives as 3 dots, dim the lost ones.
+      const dots = livesEl.querySelectorAll('.ff-life');
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-lost', i >= lives);
+      });
+    }
+
+    /* ── Question deck ───────────────────────────────────────────────── */
+    async function loadDeck() {
+      const qs = await getQuestions({
+        type: 'fill_gap',
+        difficulty: 2,
+        shuffle: true,
+      });
+      deck = qs;
+      deckIndex = 0;
+    }
+
+    function nextQuestion() {
+      if (deckIndex >= deck.length) {
+        // Reshuffle in place for endless play.
+        deck = shuffle(deck);
+        deckIndex = 0;
+      }
+      return deck[deckIndex++];
+    }
+
+    /* ── Block lifecycle ─────────────────────────────────────────────── */
+    function spawnBlock() {
+      // Pull a question that actually has wrong_answers[0].
+      let q = nextQuestion();
+      let safety = 0;
+      while (q && (!Array.isArray(q.wrong_answers) || !q.wrong_answers[0]) && safety < deck.length) {
+        q = nextQuestion();
+        safety++;
+      }
+      if (!q) return; // shouldn't happen with proper data
+
+      currentQ = q;
+      resolved = false;
+
+      // Build the block element.
+      const block = document.createElement('div');
+      block.className = 'ff-block' + (blockCount % 2 === 1 ? ' is-sage' : '');
+      block.setAttribute('role', 'group');
+      block.setAttribute('aria-label', q.verb);
+
+      // Build the base → blank → blank trio with the asked slot highlighted.
+      const trio = document.createElement('div');
+      trio.className = 'ff-trio';
+
+      const baseEl = document.createElement('span');
+      baseEl.className = 'ff-trio-base';
+      baseEl.textContent = q.verb;
+
+      const arrow1 = document.createElement('span');
+      arrow1.className = 'ff-trio-arrow';
+      arrow1.setAttribute('aria-hidden', 'true');
+      arrow1.textContent = '→';
+
+      const slotPast = makeTrioSlot('past',       strings.common.verb_past,  q.form === 'past');
+      const slotPp   = makeTrioSlot('participle', strings.common.verb_pp,    q.form === 'participle');
+
+      const arrow2 = document.createElement('span');
+      arrow2.className = 'ff-trio-arrow';
+      arrow2.setAttribute('aria-hidden', 'true');
+      arrow2.textContent = '→';
+
+      trio.append(baseEl, arrow1, slotPast, arrow2, slotPp);
+
+      const chips = document.createElement('div');
+      chips.className = 'ff-block-chips';
+      const ordered = Math.random() < 0.5
+        ? [q.correct_answer, q.wrong_answers[0]]
+        : [q.wrong_answers[0], q.correct_answer];
+      for (const opt of ordered) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'ff-chip';
+        chip.textContent = opt;
+        chip.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          handleChipTap(chip, opt, q);
+        });
+        chips.appendChild(chip);
+      }
+
+      block.appendChild(trio);
+      block.appendChild(chips);
+
+      stageEl.appendChild(block);
+      blockEl = block;
+
+      // Measure sizes (now that the block is in the DOM).
+      stageHeight = stageEl.clientHeight;
+      blockHeight = block.offsetHeight;
+
+      // Kick off the fall animation.
+      fallStartTs = performance.now();
+      rafHandle = requestAnimationFrame(tickFall);
+      blockCount++;
+    }
+
+    function tickFall(now) {
+      if (!running || !blockEl || resolved) {
+        rafHandle = null;
+        return;
+      }
+      const elapsed = now - fallStartTs;
+      const progress = Math.min(1, elapsed / fallMs);
+      const maxY = Math.max(0, stageHeight - blockHeight);
+      const y = progress * maxY;
+      // Animate via transform: translateY only. Keep the translateX(-50%)
+      // for horizontal centering.
+      blockEl.style.transform = `translate3d(-50%, ${y.toFixed(2)}px, 0)`;
+      if (progress >= 1) {
+        // Block reached the bottom unanswered → miss.
+        onMiss();
+        return;
+      }
+      rafHandle = requestAnimationFrame(tickFall);
+    }
+
+    function handleChipTap(chip, chosen, q) {
+      if (resolved || !running) return;
+      resolved = true;
+      cancelAnimationFrame(rafHandle);
+      rafHandle = null;
+
+      const isCorrect = chosen === q.correct_answer;
+      totalAttempts++;
+      if (isCorrect) totalCorrect++;
+
+      // Stats: every tap is recorded.
+      recordAttempt(q.verb, q.form, isCorrect, 'falling_forms');
+
+      // Visual feedback on the chip
+      chip.classList.add(isCorrect ? 'is-correct' : 'is-wrong');
+      // Lock both chips
+      blockEl.querySelectorAll('.ff-chip').forEach((c) => { c.disabled = true; });
+
+      if (isCorrect) {
+        score++;
+        streak++;
+        flash('correct');
+        // Speed up every N correct.
+        if (score % SPEEDUP_EVERY === 0) {
+          fallMs = Math.max(MIN_FALL_MS, fallMs * SPEEDUP_FACTOR);
+        }
+      } else {
+        lives--;
+        streak = 0;
+        missed.push({ verb: q.verb, form: q.form, correct_answer: q.correct_answer });
+        flash('wrong');
+      }
+
+      updateHud();
+
+      // Briefly show feedback, then clean up and continue or end.
+      setTimeout(() => {
+        removeBlock();
+        if (lives <= 0) {
+          finishRun();
+        } else {
+          spawnBlock();
+        }
+      }, isCorrect ? 200 : 480);
+    }
+
+    function onMiss() {
+      if (resolved || !running) return;
+      resolved = true;
+      cancelAnimationFrame(rafHandle);
+      rafHandle = null;
+
+      const q = currentQ;
+      totalAttempts++;
+      lives--;
+      streak = 0;
+      missed.push({ verb: q.verb, form: q.form, correct_answer: q.correct_answer });
+      // Stats: miss-to-bottom is recorded as wrong.
+      recordAttempt(q.verb, q.form, false, 'falling_forms');
+
+      // Highlight the correct chip briefly so the player learns.
+      if (blockEl) {
+        blockEl.querySelectorAll('.ff-chip').forEach((c) => {
+          c.disabled = true;
+          if (c.textContent === q.correct_answer) c.classList.add('is-correct');
+        });
+      }
+      flash('wrong');
+      updateHud();
+
+      setTimeout(() => {
+        removeBlock();
+        if (lives <= 0) {
+          finishRun();
+        } else {
+          spawnBlock();
+        }
+      }, 480);
+    }
+
+    function removeBlock() {
+      if (blockEl && blockEl.parentNode) {
+        blockEl.parentNode.removeChild(blockEl);
+      }
+      blockEl = null;
+      currentQ = null;
+    }
+
+    /* ── Run lifecycle ───────────────────────────────────────────────── */
+    async function beginRun() {
+      // Reset state.
+      score = 0;
+      lives = STARTING_LIVES;
+      streak = 0;
+      totalAttempts = 0;
+      totalCorrect = 0;
+      missed = [];
+      fallMs = START_FALL_MS;
+      blockCount = 0;
+      resolved = false;
+
+      try {
+        await loadDeck();
+      } catch (err) {
+        console.error('[falling_forms] failed to load questions', err);
+        return;
+      }
+      if (!deck.length) {
+        console.warn('[falling_forms] no questions returned');
+        return;
+      }
+
+      updateHud();
+      showScreen('play');
+      running = true;
+      // Spawn the first block after the play screen has laid out so we can
+      // measure stage height correctly.
+      requestAnimationFrame(() => {
+        spawnBlock();
+      });
+    }
+
+    function finishRun() {
+      running = false;
+      cancelAnimationFrame(rafHandle);
+      rafHandle = null;
+      removeBlock();
+
+      const previousBest = readBest() || 0;
+      const isNewBest = score > previousBest;
+      if (isNewBest) writeBest(score);
+
+      endScoreEl.textContent = String(score);
+      endScoreEl.classList.toggle('is-new-best', isNewBest);
+      const accPct = totalAttempts > 0
+        ? Math.round((totalCorrect / totalAttempts) * 100)
+        : 0;
+      endAccEl.textContent = `${accPct}%`;
+      const newBest = readBest() || 0;
+      endBestEl.textContent = String(newBest);
+      newBestEl.hidden = !isNewBest;
+
+      // Use end_title by default; if the user lost all lives it's still
+      // valid copy. (game_over also available in strings if Jan prefers.)
+      if (strings.drills && strings.drills.falling_forms && strings.drills.falling_forms.end_title) {
+        endTitleEl.textContent = strings.drills.falling_forms.end_title;
+      }
+
+      // Missed list — dedupe by (verb, form) so a verb missed twice shows once.
+      const seen = new Set();
+      const deduped = [];
+      for (const m of missed) {
+        const key = m.verb + '|' + m.form;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deduped.push(m);
+      }
+
+      if (deduped.length) {
+        missedWrap.hidden = false;
+        missedListEl.innerHTML = '';
+        for (const m of deduped) {
+          const li = document.createElement('li');
+          const left = document.createElement('span');
+          const verbSpan = document.createElement('span');
+          verbSpan.className = 'ff-missed-verb';
+          verbSpan.textContent = m.verb;
+          const formSpan = document.createElement('span');
+          formSpan.className = 'ff-missed-form';
+          formSpan.textContent = ' · ' + formLabelText(m.form);
+          left.appendChild(verbSpan);
+          left.appendChild(formSpan);
+
+          const ans = document.createElement('span');
+          ans.className = 'ff-missed-answer';
+          ans.textContent = m.correct_answer;
+
+          li.appendChild(left);
+          li.appendChild(ans);
+          missedListEl.appendChild(li);
+        }
+      } else {
+        missedWrap.hidden = true;
+      }
+
+      showScreen('end');
+    }
+
+    /* ── Language toggle ─────────────────────────────────────────────── */
+    function updateLangToggle() {
+      const lang = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.lang === lang);
+      });
+    }
+
+    /* ── ESC to hub ──────────────────────────────────────────────────── */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.location.href = HUB_URL;
+      }
+    });
+
+    /* ── Boot ────────────────────────────────────────────────────────── */
+    (async function boot() {
+      try {
+        strings = await loadStrings();
+      } catch (err) {
+        console.error('[falling_forms] failed to load UI strings', err);
+        loadingEl.textContent = 'Fehler beim Laden.';
+        return;
+      }
+
+      applyStrings(document);
+
+      loadingEl.classList.add('ff-hidden');
+      updateBestLineOnStart();
+      updateLangToggle();
+      showScreen('start');
+
+      startBtn.addEventListener('click', beginRun);
+      replayBtn.addEventListener('click', beginRun);
+
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const newLang = btn.dataset.lang;
+          if (!newLang || newLang === getLang()) return;
+          setLang(newLang);
+          window.location.reload();
+        });
+      });
+    })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js';
+    initDrillPage('falling_forms');
+  </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+    <script src="/lib/krabsy-lang-switch.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
+</body>
+</html>

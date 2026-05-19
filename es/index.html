@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Unregelmäßige Verben lernen — Krabsy</title>
+  <meta name="description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.">
+  <meta name="keywords" content="unregelmäßige verben, englisch lernen, simple past, past participle, englisch grammatik">
+  <link rel="canonical" href="https://krabsy.com/es/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Unregelmäßige Verben lernen — Krabsy">
+  <meta property="og:description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/es/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Unregelmäßige Verben lernen — Krabsy">
+  <meta name="twitter:description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Krabsy",
+      "url": "https://krabsy.com/",
+      "description": "Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.",
+      "inLanguage": "de"
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="lib/krabsy-ui.css">
+  <style>
+    /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
+
+    body { background: var(--krabsy-cream); }
+
+    /* Logo: full Sprint thumbnail sits behind the letters as the "a".
+       — .logo establishes a stacking context (isolation: isolate) so the
+         image's z-index:-1 stays inside the logo, not behind the page bg.
+       — .logo-crab is a small inline slot reserving space between "kr" and
+         "bsy"; the image overflows that slot so its features (motion
+         streaks, clock) bleed behind the surrounding letters. */
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      position: relative;
+      isolation: isolate;
+    }
+    /* Only the letter spans get a stacking context — .logo-crab must NOT,
+       otherwise it traps the image's z-index:-1 inside its own context
+       and the image ends up at the same z as "kr"/"bsy" (painting over
+       "kr" via DOM order). */
+    .logo > span:not(.logo-crab) {
+      position: relative;
+      z-index: 1;
+    }
+    .logo-crab {
+      display: inline-block;
+      width: 0.9em;
+      height: 1em;
+      position: relative;
+      /* no z-index — keeps image's z-index:-1 resolving against .logo */
+    }
+    /* TEMPORARY: re-uses /thumbnails/Sprint.png; replace with a dedicated
+       crab asset later. Sized + positioned so the crab body sits at the
+       "a" slot; full image visible; clock + motion streaks bleed into the
+       "r" and "b" slots and paint BEHIND the letters via z-index:-1. */
+    .logo-crab img {
+      position: absolute;
+      width: 1.7em;
+      height: 1.7em;
+      left: -0.5em;
+      top: -0.4em;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ── Hero (compact strip, ~180px tall on tablet+; max-width 960px) ── */
+    .hero {
+      padding: 10px 24px 6px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .hero-banner {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      background: var(--krabsy-cream);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(44, 42, 58, 0.05);
+      text-align: center;
+    }
+    @media (min-width: 640px) {
+      .hero-banner {
+        grid-template-columns: 160px minmax(0, 1fr);
+        gap: 24px;
+        padding: 12px 24px;
+        min-height: 160px;
+        text-align: left;
+      }
+    }
+
+    .hero-banner-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(
+        ellipse at 50% 50%,
+        rgba(205, 217, 180, 0.20),
+        transparent 70%
+      );
+      border-radius: var(--radius-md);
+    }
+    .hero-banner-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 140px;
+      object-fit: contain;
+      object-position: center;
+    }
+    @media (max-width: 639px) {
+      .hero-banner-image img { max-height: 110px; }
+    }
+
+    .hero-banner-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      line-height: 1.2;
+      color: var(--krabsy-ink);
+      margin: 0;
+    }
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 559px) {
+      .hero { padding: 8px 16px 4px; }
+      .hero-banner { padding: 10px 14px; }
+      .hero-title { font-size: 1.2rem; }
+      .hero-sub { font-size: 0.85rem; }
+    }
+    @media (min-width: 900px) {
+      .hero-title { font-size: 1.6rem; line-height: 1.15; }
+      .hero-sub { font-size: 1rem; }
+    }
+
+    /* ── Progress row (thin inline strip; hidden entirely when !hasData) ── */
+    .progress-row {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 8px 24px 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+    }
+    .progress-row[hidden] { display: none; }
+    .progress-row-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .progress-row-stat strong {
+      color: var(--krabsy-ink);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-row-stat .is-hot { color: var(--krabsy-coral-dark); }
+    .progress-row-sep {
+      color: var(--krabsy-lavender);
+      user-select: none;
+    }
+    .progress-row-link {
+      font-weight: 700;
+      color: var(--krabsy-coral-dark);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .progress-row-link:hover { color: var(--krabsy-coral); }
+    @media (max-width: 559px) {
+      .progress-row { padding: 6px 16px 8px; gap: 10px; font-size: 0.8rem; }
+    }
+
+    /* ── Section tints — full-width band via box-shadow + clip-path,
+       so we don't touch the section's max-width / centering. ── */
+    .k-section.bg-sage,
+    .k-section.bg-lavender,
+    .k-section.bg-coral {
+      clip-path: inset(0 -100vmax);
+    }
+    .k-section.bg-sage     { background: #f3f6ec; box-shadow: 0 0 0 100vmax #f3f6ec; }
+    .k-section.bg-lavender { background: #eef0f6; box-shadow: 0 0 0 100vmax #eef0f6; }
+    .k-section.bg-coral    { background: #fdf2ee; box-shadow: 0 0 0 100vmax #fdf2ee; }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 2px;
+      line-height: 1.2;
+    }
+    .section-sub {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 16px;
+    }
+    @media (min-width: 720px) {
+      .section-heading { font-size: 1.6rem; }
+    }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+    .card-grid-tools { grid-template-columns: 1fr; }
+    .card-grid-games { grid-template-columns: 1fr; }
+    @media (min-width: 560px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-grid-tools { grid-template-columns: repeat(2, 1fr); }
+      .card-grid-games { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .card-grid { grid-template-columns: repeat(5, 1fr); }
+      .card-grid-tools { grid-template-columns: repeat(3, 1fr); }
+      .card-grid-games { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 1200px) {
+      .card-grid-games { grid-template-columns: repeat(5, 1fr); }
+    }
+
+    .module-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--krabsy-white);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 16px;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.18s ease;
+      will-change: transform;
+      min-height: 150px;
+    }
+    .module-card:hover { transform: translateY(-2px); }
+    .module-card-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 4px;
+      line-height: 1.2;
+    }
+    .module-card-tagline {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      line-height: 1.4;
+      margin: 0 0 12px;
+      flex: 1;
+    }
+    .module-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      align-self: flex-start;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--krabsy-coral-dark);
+      letter-spacing: 0.3px;
+    }
+    .module-card:hover .module-card-cta { color: var(--krabsy-coral); }
+
+    /* Drill cards: 16:9 thumb on top, body below */
+    .drill-card {
+      padding: 0;
+      overflow: hidden;
+    }
+    .drill-card-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      overflow: hidden;
+    }
+    .drill-card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .drill-card-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    .drill-card-body .module-card-tagline { flex: 1; }
+
+    /* Tools: keep the sage top stripe (no thumbs there). Games: padding handled by .game-card. */
+    .tool-card  { border-top: 3px solid var(--krabsy-sage); }
+    .game-card  { padding: 0; overflow: hidden; }
+
+    /* Game card: classic 16:9 visual on top, body below */
+    .game-card-visual {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .game-card-visual img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .game-card-emoji { font-size: 2.6rem; line-height: 1; }
+    .game-card-body { padding: 14px 16px 16px; }
+    .game-card-beta {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      padding: 2px 9px;
+      border-radius: var(--radius-pill);
+      background: var(--krabsy-sage-soft);
+      color: #5a7a3a;
+      margin-top: 8px;
+    }
+
+    /* Wide single cards (Reference + Stats) */
+    .wide-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 22px 22px 20px;
+    }
+    @media (min-width: 720px) {
+      .wide-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px;
+      }
+      .wide-card-text { max-width: 70%; }
+    }
+    .wide-card-cta {
+      align-self: flex-start;
+    }
+
+    /* Stats peek */
+    .stats-peek {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin-top: 4px;
+    }
+    .stats-peek strong { color: var(--krabsy-ink); font-weight: 700; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.78rem;
+      color: var(--krabsy-ink-mute);
+      background: var(--krabsy-lavender-soft);
+    }
+    .footer-more { display: block; margin-top: 6px; font-size: 0.7rem; opacity: 0.85; }
+    .footer-langs { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="k-page">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <header class="k-page-header">
+      <a href="/es/" class="logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="logo-crab" aria-hidden="true">
+          <!-- TEMPORARY: full Sprint thumbnail placed behind "kr" / "bsy" via z-index. Replace with a dedicated crab asset once available. -->
+          <img src="/thumbnails/Sprint.png" alt="" decoding="async">
+        </span>
+        <span>bsy</span>
+      </a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen" data-i18n-attr="aria-label:common.aria_lang_toggle">
+        <button class="k-lang-btn is-active" type="button" data-lang="de">DE</button>
+        <button class="k-lang-btn" type="button" data-lang="es">ES</button>
+      </div>
+    </header>
+
+    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <!-- TEMPORARY: hero illustration recycled from Sprint thumbnail. Replace with dedicated banner once available. -->
+    <section class="hero">
+      <div class="hero-banner">
+        <div class="hero-banner-image" aria-hidden="true">
+          <img src="/thumbnails/Sprint.png" alt="" loading="eager" decoding="async">
+        </div>
+        <div class="hero-banner-text">
+          <h1 class="k-visually-hidden" data-i18n="homepage.seo_h1">Unregelmäßige Verben lernen</h1>
+          <p class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</p>
+          <p class="hero-sub" data-i18n="homepage.hero_sub">Unregelmäßige Verben lernen: spielen, üben, nachschlagen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Progress row (inline strip; rendered only when hasData()) ─────── -->
+    <section class="progress-row" id="progress-row" hidden aria-label="Fortschritt" data-i18n-attr="aria-label:progress_widget.aria_label">
+      <span class="progress-row-stat">
+        <span data-i18n="common.accuracy">Genauigkeit</span>
+        <strong id="progress-row-accuracy">—%</strong>
+      </span>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <span class="progress-row-stat">
+        <span data-i18n="common.streak">Serie</span>
+        <strong id="progress-row-streak">—</strong>
+      </span>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <a class="progress-row-link" id="progress-row-practice" href="/tools/free-practice/">— →</a>
+      <span class="progress-row-sep" aria-hidden="true">·</span>
+      <a class="progress-row-link" href="/stats/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
+    </section>
+
+    <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
+    <section class="k-section bg-sage">
+      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
+      <p class="section-sub" data-i18n="homepage.section_drills_sub">Kurze Challenges. Schlag deine Bestzeit.</p>
+      <div class="card-grid" id="drills-grid"></div>
+    </section>
+
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+
+    <!-- ── Study Tools ──────────────────────────────────────────────────── -->
+    <section class="k-section">
+      <h2 class="section-heading" data-i18n="homepage.section_tools">Lernwerkzeuge</h2>
+      <p class="section-sub" data-i18n="homepage.section_tools_sub">Klassisches Üben, ohne Spielzeug.</p>
+      <div class="card-grid-tools card-grid" id="tools-grid"></div>
+    </section>
+
+    <!-- ── Games ────────────────────────────────────────────────────────── -->
+    <section class="k-section bg-lavender">
+      <h2 class="section-heading" data-i18n="homepage.section_games">Spiele</h2>
+      <p class="section-sub" data-i18n="homepage.section_games_sub">Arcade-Spiele zum Verb-Training.</p>
+      <div class="card-grid-games card-grid" id="games-grid"></div>
+    </section>
+
+    <!-- ── Verb Reference ──────────────────────────────────────────────── -->
+    <section class="k-section">
+      <h2 class="section-heading" data-i18n="homepage.section_reference">Verb-Liste</h2>
+      <p class="section-sub" data-i18n="homepage.section_reference_sub">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
+      <a class="module-card wide-card" href="/reference/">
+        <div class="wide-card-text">
+          <div class="module-card-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</div>
+          <div class="module-card-tagline" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</div>
+        </div>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+      </a>
+    </section>
+
+    <!-- ── Statistics ──────────────────────────────────────────────────── -->
+    <section class="k-section bg-coral">
+      <h2 class="section-heading" data-i18n="homepage.section_stats">Deine Statistik</h2>
+      <p class="section-sub" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</p>
+      <a class="module-card wide-card" href="/stats/">
+        <div class="wide-card-text">
+          <div class="module-card-title" data-i18n="stats.title">Deine Statistik</div>
+          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</div>
+          <div class="stats-peek" id="stats-peek" hidden></div>
+        </div>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+      </a>
+    </section>
+
+    
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+    <!-- ── Footer ──────────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <span id="footer-copyright">© 2026 Krabsy</span>
+      <span class="footer-more" data-i18n="homepage.footer_more_topics">Mehr Grammatik-Themen folgen bald.</span>
+    
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
+  </div>
+
+  <script type="module">
+    import { loadStrings, getLang, setLang } from './lib/krabsy-data.js';
+    import { hasData, getOverall, getStrugglers } from './lib/krabsy-stats.js';
+
+    /* ─ Drill card definitions ─ */
+    const DRILLS = [
+      { key: 'sprint',        href: '/drills/sprint/',        thumb: '/thumbnails/Sprint.png' },
+      { key: 'type_race',     href: '/drills/type-race/',     thumb: '/thumbnails/TypeRace.png' },
+      { key: 'drag_match',    href: '/drills/drag-match/',    thumb: '/thumbnails/DragMatch.png' },
+      { key: 'fill_gap',      href: '/drills/fill-the-gap/',  thumb: '/thumbnails/FillGap.png' },
+      { key: 'falling_forms', href: '/drills/falling-forms/', thumb: '/thumbnails/Falling.png' },
+    ];
+    const TOOLS = [
+      { key: 'flashcards',    href: '/tools/flashcards/' },
+      { key: 'verb_table',    href: '/tools/verb-table/' },
+      { key: 'free_practice', href: '/tools/free-practice/' },
+    ];
+    const GAMES = [
+      { key: 'verb_slash',      href: '/games/verb-slash/',     thumb: '/thumbnails/VerbSlash.png' },
+      { key: 'crab_slash',      href: '/games/crab-slash/',     thumb: null },
+      { key: 'air_control',     href: '/games/air-control/',    thumb: null },
+      { key: 'verb_snake',      href: '/games/verb-snake/',     thumb: '/thumbnails/verb-snake.png' },
+      { key: 'verb_platformer', href: '/games/verb-platformer/',   thumb: null },
+    ];
+
+    let strings = null;
+
+    async function init() {
+      strings = await loadStrings();
+      applyI18n();
+      applyHeroSubtitle();
+      renderDrills();
+      renderTools();
+      renderGames();
+      renderProgressRow();
+      renderStatsPeek();
+      setupLangToggle();
+    }
+
+    /* Swap the hero subtitle to the empty-state copy for first-time visitors
+       (after applyI18n has set the default from data-i18n). */
+    function applyHeroSubtitle() {
+      const sub = document.querySelector('.hero-sub');
+      if (!sub) return;
+      const key = hasData() ? 'homepage.hero_sub' : 'homepage.hero_sub_empty';
+      const v = lookup(key);
+      if (v) sub.textContent = v;
+    }
+
+    /* ─ i18n ─ */
+    function lookup(path) {
+      return path.split('.').reduce((o, k) => (o == null ? null : o[k]), strings);
+    }
+
+    function applyI18n() {
+      document.documentElement.lang = getLang();
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const v = lookup(el.dataset.i18n);
+        if (typeof v === 'string') el.textContent = v;
+      });
+      // Page title + meta description
+      const seoTitle = lookup('homepage.seo_title');
+      if (seoTitle) document.title = seoTitle;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      const metaDescText = lookup('homepage.meta_description');
+      if (metaDesc && metaDescText) metaDesc.content = metaDescText;
+      // Footer copyright (interpolate year)
+      const cr = lookup('homepage.footer_copyright');
+      if (cr) {
+        const y = new Date().getFullYear();
+        document.getElementById('footer-copyright').textContent = cr.replace('{year}', y);
+      }
+    }
+
+    function setupLangToggle() {
+      const current = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.lang === current);
+        btn.addEventListener('click', () => {
+          if (btn.dataset.lang === current) return;
+          setLang(btn.dataset.lang);
+          location.reload();
+        });
+      });
+    }
+
+    /* ─ Drill / Tool grids ─ */
+    function renderDrills() {
+      const root = document.getElementById('drills-grid');
+      root.innerHTML = '';
+      const playLabel = lookup('homepage.card_play') || 'Spielen';
+      for (const d of DRILLS) {
+        const name = lookup(`drills.${d.key}.name`) || d.key;
+        const tagline = lookup(`drills.${d.key}.tagline`) || '';
+        root.appendChild(buildDrillCard(d.href, name, tagline, playLabel, d.thumb));
+      }
+    }
+
+    function buildDrillCard(href, name, tagline, cta, thumb) {
+      const a = document.createElement('a');
+      a.className = 'module-card drill-card';
+      a.href = href;
+
+      const visual = document.createElement('div');
+      visual.className = 'drill-card-thumb';
+      if (thumb) {
+        const img = document.createElement('img');
+        img.src = thumb;
+        img.alt = name;
+        img.loading = 'lazy';
+        img.addEventListener('error', () => {
+          // Leave the gradient background visible if the image fails
+          img.remove();
+        });
+        visual.appendChild(img);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'drill-card-body';
+
+      const title = document.createElement('div');
+      title.className = 'module-card-title';
+      title.textContent = name;
+      const tag = document.createElement('div');
+      tag.className = 'module-card-tagline';
+      tag.textContent = tagline;
+      const ctaEl = document.createElement('span');
+      ctaEl.className = 'module-card-cta';
+      ctaEl.textContent = `${cta} →`;
+
+      body.append(title, tag, ctaEl);
+      a.append(visual, body);
+      return a;
+    }
+    function renderTools() {
+      const root = document.getElementById('tools-grid');
+      root.innerHTML = '';
+      const openLabel = lookup('homepage.card_open') || 'Öffnen';
+      for (const t of TOOLS) {
+        const name = lookup(`tools.${t.key}.name`) || t.key;
+        const tagline = lookup(`tools.${t.key}.tagline`) || '';
+        root.appendChild(buildCard(t.href, name, tagline, openLabel, 'tool-card'));
+      }
+    }
+    function buildCard(href, name, tagline, cta, variant) {
+      const a = document.createElement('a');
+      a.className = `module-card ${variant}`;
+      a.href = href;
+      const title = document.createElement('div');
+      title.className = 'module-card-title';
+      title.textContent = name;
+      const tag = document.createElement('div');
+      tag.className = 'module-card-tagline';
+      tag.textContent = tagline;
+      const ctaEl = document.createElement('span');
+      ctaEl.className = 'module-card-cta';
+      ctaEl.textContent = `${cta} →`;
+      a.append(title, tag, ctaEl);
+      return a;
+    }
+
+    /* ─ Games grid (legacy card pattern: visual + body + beta) ─ */
+    function renderGames() {
+      const root = document.getElementById('games-grid');
+      root.innerHTML = '';
+      for (const g of GAMES) {
+        const name = lookup(`games.${g.key}.name`) || g.key;
+        const tagline = lookup(`games.${g.key}.tagline`) || '';
+        const a = document.createElement('a');
+        a.className = 'module-card game-card';
+        a.href = g.href;
+
+        const visual = document.createElement('div');
+        visual.className = 'game-card-visual';
+        if (g.thumb) {
+          const img = document.createElement('img');
+          img.src = g.thumb;
+          img.alt = name;
+          img.loading = 'lazy';
+          img.addEventListener('error', () => {
+            visual.innerHTML = '<span class="game-card-emoji">✏️</span>';
+          });
+          visual.appendChild(img);
+        } else {
+          visual.innerHTML = '<span class="game-card-emoji">✏️</span>';
+        }
+
+        const body = document.createElement('div');
+        body.className = 'game-card-body';
+        body.innerHTML = `
+          <div class="module-card-title"></div>
+          <div class="module-card-tagline"></div>
+          <span class="game-card-beta">Beta</span>
+        `;
+        body.querySelector('.module-card-title').textContent = name;
+        body.querySelector('.module-card-tagline').textContent = tagline;
+
+        a.append(visual, body);
+        root.appendChild(a);
+      }
+    }
+
+    /* ─ Progress row: thin inline strip, only rendered when hasData(). ─ */
+    function renderProgressRow() {
+      const row = document.getElementById('progress-row');
+      if (!row) return;
+      if (!hasData()) { row.hidden = true; return; }
+
+      const o = getOverall();
+      const strug = getStrugglers(3);
+      const accuracyPct = Math.round((o.accuracy || 0) * 100);
+      const streak = o.current_streak || 0;
+      const isHot = streak >= 3;
+
+      document.getElementById('progress-row-accuracy').textContent = `${accuracyPct}%`;
+      const streakEl = document.getElementById('progress-row-streak');
+      streakEl.textContent = isHot ? `🔥 ${streak}` : String(streak);
+      streakEl.classList.toggle('is-hot', isHot);
+
+      // Practice link: top up-to-3 unique struggler verbs preloaded into Free Practice.
+      const practiceEl = document.getElementById('progress-row-practice');
+      const verbs = [...new Set(strug.map((r) => r.verb))].slice(0, 3);
+      if (verbs.length > 0) {
+        practiceEl.hidden = false;
+        practiceEl.href = `/tools/free-practice/?verbs=${encodeURIComponent(verbs.join(','))}`;
+        const tmpl = lookup('homepage.progress_practice') || '{n} Verben zum Üben';
+        practiceEl.textContent = tmpl.replace('{n}', String(verbs.length)) + ' →';
+      } else {
+        practiceEl.hidden = true;
+        // Hide the separator immediately before this link too, so we don't get a dangling "·".
+        const prevSep = practiceEl.previousElementSibling;
+        if (prevSep && prevSep.classList.contains('progress-row-sep')) prevSep.hidden = true;
+      }
+
+      row.hidden = false;
+    }
+
+    /* ─ Stats peek on the Statistics card ─ */
+    function renderStatsPeek() {
+      if (!hasData()) return;
+      const peek = document.getElementById('stats-peek');
+      const o = getOverall();
+      const totalLabel = lookup('common.attempts') || 'Versuche';
+      const accLabel = lookup('common.accuracy') || 'Genauigkeit';
+      const accuracyPct = Math.round((o.accuracy || 0) * 100);
+      peek.innerHTML = `<strong class="k-mono-num">${o.total_attempts}</strong> ${totalLabel} · <strong class="k-mono-num">${accuracyPct}%</strong> ${accLabel}`;
+      peek.hidden = false;
+    }
+
+    /* ─ Boot ─ */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+    <script src="/lib/krabsy-lang-switch.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
+</body>
+</html>

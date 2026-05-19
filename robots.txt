@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /stats/
+Disallow: /de/stats/
+Disallow: /es/stats/
 Disallow: /lib/
 Disallow: /data/
 

@@ -1,60 +1,255 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
   <url>
-    <loc>https://krabsy.com/</loc>
+    <loc>https://krabsy.com/de/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/"/>
   </url>
 
   <!-- Speed drills -->
   <url>
-    <loc>https://krabsy.com/drills/sprint/</loc>
+    <loc>https://krabsy.com/de/drills/sprint/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/sprint/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/drills/type-race/</loc>
+    <loc>https://krabsy.com/es/drills/sprint/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/sprint/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/drills/drag-match/</loc>
+    <loc>https://krabsy.com/de/drills/type-race/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/type-race/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/type-race/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/type-race/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/drills/fill-the-gap/</loc>
+    <loc>https://krabsy.com/es/drills/type-race/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/type-race/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/type-race/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/type-race/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/drills/falling-forms/</loc>
+    <loc>https://krabsy.com/de/drills/drag-match/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/drag-match/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/drag-match/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/drag-match/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/drills/drag-match/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/drag-match/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/drag-match/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/drag-match/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/drills/fill-the-gap/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/fill-the-gap/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/drills/fill-the-gap/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/fill-the-gap/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/drills/falling-forms/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/falling-forms/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/falling-forms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/falling-forms/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/drills/falling-forms/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/drills/falling-forms/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/drills/falling-forms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/falling-forms/"/>
   </url>
 
   <!-- Study tools -->
   <url>
-    <loc>https://krabsy.com/tools/flashcards/</loc>
+    <loc>https://krabsy.com/de/tools/flashcards/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/flashcards/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/flashcards/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/flashcards/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/tools/verb-table/</loc>
+    <loc>https://krabsy.com/es/tools/flashcards/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/flashcards/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/flashcards/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/flashcards/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/tools/free-practice/</loc>
+    <loc>https://krabsy.com/de/tools/verb-table/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/verb-table/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/verb-table/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/verb-table/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/tools/verb-table/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/verb-table/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/verb-table/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/verb-table/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/tools/free-practice/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/free-practice/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/free-practice/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/free-practice/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/tools/free-practice/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/tools/free-practice/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/tools/free-practice/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/tools/free-practice/"/>
   </url>
 
   <!-- Verb reference -->
   <url>
-    <loc>https://krabsy.com/reference/</loc>
+    <loc>https://krabsy.com/de/reference/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/reference/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/reference/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/reference/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/reference/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/reference/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/reference/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/reference/"/>
+  </url>
+
+  <!-- Arcade games -->
+  <url>
+    <loc>https://krabsy.com/de/games/verb-slash/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-slash/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-slash/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-slash/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/games/verb-slash/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-slash/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-slash/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-slash/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/games/crab-slash/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/crab-slash/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/crab-slash/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/crab-slash/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/games/crab-slash/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/crab-slash/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/crab-slash/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/crab-slash/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/games/air-control/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/air-control/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/air-control/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/air-control/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/games/air-control/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/air-control/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/air-control/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/air-control/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/games/verb-snake/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-snake/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-snake/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-snake/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/games/verb-snake/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-snake/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-snake/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-snake/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/games/verb-platformer/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-platformer/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-platformer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-platformer/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/games/verb-platformer/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/games/verb-platformer/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/games/verb-platformer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/games/verb-platformer/"/>
   </url>
 
   <!-- Legal pages -->
@@ -62,47 +257,32 @@
     <loc>https://krabsy.com/de/impressum/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://krabsy.com/de/datenschutz/</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>yearly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/impressum/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/aviso-legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/impressum/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/aviso-legal/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>yearly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/impressum/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/aviso-legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/impressum/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/datenschutz/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/datenschutz/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/politica-privacidad/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/datenschutz/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/politica-privacidad/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>yearly</changefreq>
-  </url>
-
-  <!-- Arcade games -->
-  <url>
-    <loc>https://krabsy.com/games/verb-slash.html</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://krabsy.com/games/crab-slash.html</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://krabsy.com/games/air-control.html</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://krabsy.com/games/verb-snake.html</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://krabsy.com/games/3dPlat/index.html</loc>
-    <lastmod>2026-05-19</lastmod>
-    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/datenschutz/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/politica-privacidad/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/datenschutz/"/>
   </url>
 </urlset>

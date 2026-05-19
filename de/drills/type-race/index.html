@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Type Race — Krabsy</title>
+  <meta name="description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta name="keywords" content="type race, tippen, simple past, past participle, englisch üben">
+  <link rel="canonical" href="https://krabsy.com/de/drills/type-race/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/drills/type-race/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/drills/type-race/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/drills/type-race/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Type Race — Krabsy">
+  <meta property="og:description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/de/drills/type-race/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Type Race — Krabsy">
+  <meta name="twitter:description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Type Race",
+      "url": "https://krabsy.com/drills/type-race/",
+      "description": "Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.",
+      "learningResourceType": "Game",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "en",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "student"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Krabsy",
+        "url": "https://krabsy.com/"
+      }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <style>
+    /* ── Type Race specific layout ──────────────────────────────────── */
+    .tr-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4);
+      width: 100%;
+    }
+
+    .tr-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      min-height: 36px;
+    }
+
+    .tr-progress-text {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tr-timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      padding: 6px 16px;
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-pill);
+    }
+
+    /* Start / End cards */
+    .tr-start-card,
+    .tr-end-card {
+      text-align: center;
+      padding: var(--space-6) var(--space-5);
+    }
+
+    .tr-start-card .k-h1,
+    .tr-end-card .k-h1 {
+      font-size: 2rem;
+      margin-bottom: var(--space-3);
+    }
+
+    .tr-tagline {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-4);
+    }
+
+    .tr-intro {
+      font-size: 0.95rem;
+      color: var(--krabsy-ink);
+      max-width: 540px;
+      margin: 0 auto var(--space-5);
+      line-height: 1.55;
+    }
+
+    .tr-best-line {
+      font-size: 0.9rem;
+      color: var(--krabsy-ink-mute);
+      margin: var(--space-4) 0 0;
+    }
+    .tr-best-line .tr-best-value {
+      color: var(--krabsy-coral-dark);
+      font-weight: 700;
+    }
+
+    /* Play card */
+    .tr-play-card {
+      padding: var(--space-6) var(--space-5);
+      text-align: center;
+    }
+
+    .tr-verb {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 4rem);
+      color: var(--krabsy-ink);
+      line-height: 1.1;
+      margin: 0 0 var(--space-5);
+      letter-spacing: 0.5px;
+    }
+
+    .tr-inputs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    @media (min-width: 560px) {
+      .tr-inputs {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .tr-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .tr-field-label {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .tr-input {
+      font-size: 1.15rem;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    /* Inline feedback after submit */
+    .tr-feedback {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+      max-width: 640px;
+      margin: var(--space-4) auto 0;
+      min-height: 36px;
+    }
+    @media (min-width: 560px) {
+      .tr-feedback {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .tr-feedback-cell {
+      display: flex;
+      justify-content: center;
+    }
+    .tr-feedback-cell:empty {
+      min-height: 0;
+    }
+
+    .tr-submit-hint {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      margin: var(--space-4) 0 0;
+    }
+
+    /* End screen */
+    .tr-end-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+      margin: var(--space-5) 0;
+    }
+    .tr-end-stat {
+      min-width: 110px;
+    }
+    .tr-end-stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .tr-end-stat-value.is-new-best {
+      color: var(--krabsy-coral-dark);
+    }
+    .tr-end-stat-label {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+    }
+
+    .tr-new-best-flag {
+      display: inline-block;
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--space-4);
+    }
+
+    .tr-missed-block {
+      text-align: left;
+      max-width: 640px;
+      margin: var(--space-5) auto 0;
+    }
+    .tr-missed-heading {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 var(--space-3);
+    }
+    .tr-missed-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tr-missed-list li {
+      display: grid;
+      grid-template-columns: minmax(80px, auto) 1fr 1fr;
+      align-items: baseline;
+      gap: var(--space-3);
+      padding: 8px 12px;
+      background: var(--krabsy-coral-soft);
+      border-radius: var(--radius-sm);
+    }
+    .tr-missed-verb {
+      font-weight: 700;
+      color: var(--krabsy-ink);
+    }
+    .tr-missed-form {
+      font-family: var(--font-body);
+      color: var(--krabsy-ink);
+    }
+    .tr-missed-form small {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .tr-end-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-5);
+    }
+
+    .tr-hidden { display: none !important; }
+
+    .tr-loading {
+      text-align: center;
+      padding: var(--space-7) var(--space-4);
+      color: var(--krabsy-ink-mute);
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a class="k-logo" href="/de/">Krabsy</a>
+      <a class="k-back-link" href="/de/">← <span data-string="common.back_to_hub_short">Zurück</span></a>
+    </header>
+
+    <main class="tr-wrap">
+      <!-- Loading shim -->
+      <div id="tr-loading" class="tr-loading" data-string="common.loading">Lädt…</div>
+
+      <!-- START SCREEN -->
+      <section id="tr-start" class="k-card tr-start-card tr-hidden" aria-hidden="true">
+        <h1 class="k-h1" data-string="drills.type_race.name">Type Race</h1>
+        <p class="tr-tagline" data-string="drills.type_race.tagline">Tippe alle drei Formen. Schlag die Uhr.</p>
+        <p class="tr-intro" data-string="drills.type_race.intro"></p>
+        <button id="tr-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
+        <p id="tr-best-line" class="tr-best-line" hidden>
+          <span data-string="common.best_time">Bestzeit</span>:
+          <span class="tr-best-value" id="tr-best-value-start">—</span>
+        </p>
+      </section>
+
+      <!-- PLAY SCREEN -->
+      <section id="tr-play" class="tr-hidden" aria-hidden="true">
+        <div class="tr-topbar">
+          <span class="tr-progress-text" id="tr-progress-text">—</span>
+          <span class="tr-timer">
+            <span id="tr-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
+          </span>
+        </div>
+
+        <div class="k-card tr-play-card">
+          <div id="tr-verb" class="tr-verb">—</div>
+
+          <form id="tr-form" class="tr-inputs" autocomplete="off" novalidate>
+            <label class="tr-field">
+              <span class="tr-field-label" id="tr-label-past" data-string="drills.type_race.input_past">Simple Past</span>
+              <input
+                id="tr-input-past"
+                class="k-input tr-input"
+                type="text"
+                inputmode="text"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                aria-labelledby="tr-label-past"
+              >
+            </label>
+            <label class="tr-field">
+              <span class="tr-field-label" id="tr-label-pp" data-string="drills.type_race.input_pp">Past Participle</span>
+              <input
+                id="tr-input-pp"
+                class="k-input tr-input"
+                type="text"
+                inputmode="text"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                aria-labelledby="tr-label-pp"
+              >
+            </label>
+          </form>
+
+          <div id="tr-feedback" class="tr-feedback" aria-live="polite">
+            <div id="tr-feedback-past" class="tr-feedback-cell"></div>
+            <div id="tr-feedback-pp" class="tr-feedback-cell"></div>
+          </div>
+
+          <p class="tr-submit-hint" data-string="common.submit_enter_hint">Drücke Enter zum Absenden</p>
+        </div>
+      </section>
+
+      <!-- END SCREEN -->
+      <section id="tr-end" class="k-card tr-end-card tr-hidden" aria-hidden="true">
+        <h1 class="k-h1" data-string="drills.type_race.end_title">Type Race geschafft!</h1>
+
+        <div id="tr-new-best" class="tr-new-best-flag" hidden data-string="common.best_time">Bestzeit</div>
+
+        <div class="tr-end-stats">
+          <div class="tr-end-stat">
+            <div id="tr-end-time" class="tr-end-stat-value k-mono-num">—</div>
+            <div class="tr-end-stat-label" data-string="common.your_time">Deine Zeit</div>
+          </div>
+          <div class="tr-end-stat">
+            <div id="tr-end-accuracy" class="tr-end-stat-value k-mono-num">—</div>
+            <div class="tr-end-stat-label" data-string="common.accuracy">Genauigkeit</div>
+          </div>
+          <div class="tr-end-stat">
+            <div id="tr-end-best" class="tr-end-stat-value k-mono-num">—</div>
+            <div class="tr-end-stat-label" data-string="common.best_time">Bestzeit</div>
+          </div>
+        </div>
+
+        <div id="tr-missed-wrap" class="tr-missed-block" hidden>
+          <h2 class="tr-missed-heading" data-string="common.missed">Diese hast du verpasst</h2>
+          <ul id="tr-missed-list" class="tr-missed-list"></ul>
+        </div>
+
+        <div class="tr-end-actions">
+          <button id="tr-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
+          <a href="/de/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
+        </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+      </section>
+    </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
+  </div>
+
+  <!-- Feedback flash overlays -->
+  <div id="tr-flash-correct" class="k-flash is-correct" aria-hidden="true"></div>
+  <div id="tr-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
+
+  <script type="module">
+    import { loadStrings, loadVerbTable, pickRandomVerbs, getVerbRow } from '/lib/krabsy-data.js';
+    import { recordAttempt } from '/lib/krabsy-stats.js';
+    import { wireTwoFieldForm } from '/lib/krabsy-input.js';
+
+    /* ── Config ─────────────────────────────────────────────────────── */
+    const VERBS_PER_RUN = 10;
+    const BEST_KEY = 'krabsy_best_type_race';
+    const HUB_URL = '/de/';
+    const FLASH_MS = 150;
+    const INLINE_FEEDBACK_MS = 700;
+
+    /* ── State ──────────────────────────────────────────────────────── */
+    let strings = null;
+    let runVerbs = [];     // [{ verb, past, participle, meaning_de }]
+    let vIndex = 0;
+    let submitLocked = false;
+    let startTimestamp = 0;
+    let timerHandle = null;
+    let missed = [];       // [{ verb, past, participle, pastOk, ppOk, pastTyped, ppTyped }]
+    let totalForms = 0;    // increments by 2 per verb (20 max)
+    let correctForms = 0;
+    let advanceTimer = null;
+
+    /* ── DOM ────────────────────────────────────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const loadingEl    = $('tr-loading');
+    const startEl      = $('tr-start');
+    const playEl       = $('tr-play');
+    const endEl        = $('tr-end');
+    const startBtn     = $('tr-start-btn');
+    const replayBtn    = $('tr-replay-btn');
+    const bestLineEl   = $('tr-best-line');
+    const bestValStart = $('tr-best-value-start');
+    const verbEl       = $('tr-verb');
+    const formEl       = $('tr-form');
+    const pastInput    = $('tr-input-past');
+    const ppInput      = $('tr-input-pp');
+    const feedbackPast = $('tr-feedback-past');
+    const feedbackPp   = $('tr-feedback-pp');
+    const progressEl   = $('tr-progress-text');
+    const timerEl      = $('tr-timer-value');
+    const endTimeEl    = $('tr-end-time');
+    const endAccEl     = $('tr-end-accuracy');
+    const endBestEl    = $('tr-end-best');
+    const newBestEl    = $('tr-new-best');
+    const missedWrap   = $('tr-missed-wrap');
+    const missedListEl = $('tr-missed-list');
+    const flashCorrect = $('tr-flash-correct');
+    const flashWrong   = $('tr-flash-wrong');
+
+    /* ── Helpers ────────────────────────────────────────────────────── */
+    function getNested(obj, path) {
+      return path.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
+    }
+
+    function applyStrings(root) {
+      root.querySelectorAll('[data-string]').forEach((el) => {
+        const key = el.getAttribute('data-string');
+        const val = getNested(strings, key);
+        if (typeof val === 'string') el.textContent = val;
+      });
+    }
+
+    function showScreen(which) {
+      for (const [el, name] of [[startEl, 'start'], [playEl, 'play'], [endEl, 'end']]) {
+        const on = name === which;
+        el.classList.toggle('tr-hidden', !on);
+        el.setAttribute('aria-hidden', on ? 'false' : 'true');
+      }
+    }
+
+    function formatSeconds(ms) {
+      return (ms / 1000).toFixed(1);
+    }
+
+    function readBest() {
+      try {
+        const raw = localStorage.getItem(BEST_KEY);
+        if (raw == null) return null;
+        const n = Number(raw);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      } catch (_) { return null; }
+    }
+
+    function writeBest(ms) {
+      try { localStorage.setItem(BEST_KEY, String(ms)); } catch (_) {}
+    }
+
+    function updateBestLineOnStart() {
+      const best = readBest();
+      if (best == null) {
+        bestLineEl.hidden = true;
+      } else {
+        bestLineEl.hidden = false;
+        bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
+      }
+    }
+
+    function flash(kind) {
+      const el = kind === 'wrong' ? flashWrong : flashCorrect;
+      el.classList.add('is-on');
+      setTimeout(() => el.classList.remove('is-on'), FLASH_MS);
+    }
+
+    function normalize(s) {
+      return (s == null ? '' : String(s)).trim().toLowerCase();
+    }
+
+    /* ── Timer ──────────────────────────────────────────────────────── */
+    function startTimer() {
+      startTimestamp = performance.now();
+      tickTimer();
+      timerHandle = setInterval(tickTimer, 100);
+    }
+
+    function stopTimer() {
+      if (timerHandle != null) {
+        clearInterval(timerHandle);
+        timerHandle = null;
+      }
+    }
+
+    function elapsedMs() {
+      if (!startTimestamp) return 0;
+      return performance.now() - startTimestamp;
+    }
+
+    function tickTimer() {
+      timerEl.textContent = Math.floor(elapsedMs() / 1000);
+    }
+
+    /* ── Verb rendering ─────────────────────────────────────────────── */
+    function clearFeedback() {
+      feedbackPast.innerHTML = '';
+      feedbackPp.innerHTML = '';
+    }
+
+    function renderVerb() {
+      const row = runVerbs[vIndex];
+      submitLocked = false;
+
+      verbEl.textContent = row.verb;
+      progressEl.textContent = strings.common.question_of
+        .replace('{n}', String(vIndex + 1))
+        .replace('{total}', String(runVerbs.length));
+
+      pastInput.value = '';
+      ppInput.value = '';
+      pastInput.disabled = false;
+      ppInput.disabled = false;
+      clearFeedback();
+
+      // Auto-focus past field for each new verb.
+      // Small delay so the input is fully visible / repainted.
+      setTimeout(() => pastInput.focus(), 0);
+    }
+
+    function makePill(text, ok) {
+      const span = document.createElement('span');
+      span.className = ok ? 'k-pill k-pill-correct' : 'k-pill k-pill-wrong';
+      span.textContent = text;
+      return span;
+    }
+
+    function showInlineFeedback(row, pastTyped, ppTyped, pastOk, ppOk) {
+      // For each field: green pill with user's input if correct,
+      // otherwise red pill with the correct answer.
+      const pastPill = makePill(pastOk ? (pastTyped || row.past) : row.past, pastOk);
+      const ppPill   = makePill(ppOk   ? (ppTyped   || row.participle) : row.participle, ppOk);
+      feedbackPast.appendChild(pastPill);
+      feedbackPp.appendChild(ppPill);
+    }
+
+    /* ── Submit handling ────────────────────────────────────────────── */
+    function handleSubmit() {
+      if (submitLocked) return;
+      submitLocked = true;
+
+      const row = runVerbs[vIndex];
+      const pastTyped = pastInput.value;
+      const ppTyped = ppInput.value;
+
+      const altMatch = (typed, alts) =>
+        Array.isArray(alts) && alts.some((a) => normalize(a) === normalize(typed));
+      const pastOk = normalize(pastTyped) === normalize(row.past)
+        || altMatch(pastTyped, row.past_alt);
+      const ppOk = normalize(ppTyped) === normalize(row.participle)
+        || altMatch(ppTyped, row.participle_alt);
+
+      // Two stats calls per verb — spec requirement.
+      recordAttempt(row.verb, 'past', pastOk, 'type_race');
+      recordAttempt(row.verb, 'participle', ppOk, 'type_race');
+
+      totalForms += 2;
+      if (pastOk) correctForms += 1;
+      if (ppOk) correctForms += 1;
+
+      if (!pastOk || !ppOk) {
+        missed.push({
+          verb: row.verb,
+          past: row.past,
+          participle: row.participle,
+          pastOk,
+          ppOk,
+          pastTyped,
+          ppTyped,
+        });
+        flash('wrong');
+      } else {
+        flash('correct');
+      }
+
+      // Inline pills + lock inputs so the user can read the feedback.
+      pastInput.disabled = true;
+      ppInput.disabled = true;
+      showInlineFeedback(row, pastTyped, ppTyped, pastOk, ppOk);
+
+      // Advance.
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(() => {
+        vIndex += 1;
+        if (vIndex >= runVerbs.length) {
+          finishRun();
+        } else {
+          renderVerb();
+        }
+      }, INLINE_FEEDBACK_MS);
+    }
+
+    /* ── Run lifecycle ──────────────────────────────────────────────── */
+    async function beginRun() {
+      vIndex = 0;
+      missed = [];
+      totalForms = 0;
+      correctForms = 0;
+      submitLocked = false;
+      clearTimeout(advanceTimer);
+
+      try {
+        const picks = await pickRandomVerbs(VERBS_PER_RUN);
+        const rows = await Promise.all(picks.map((v) => getVerbRow(v)));
+        // Drop any verb missing either form (shouldn't happen with the
+        // canonical data, but stay defensive).
+        runVerbs = rows.filter((r) => r && r.past && r.participle);
+        // If we somehow lost some, top up from the full table.
+        if (runVerbs.length < VERBS_PER_RUN) {
+          const table = await loadVerbTable();
+          const have = new Set(runVerbs.map((r) => r.verb));
+          const extras = table.filter((r) => r.past && r.participle && !have.has(r.verb));
+          for (let i = extras.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [extras[i], extras[j]] = [extras[j], extras[i]];
+          }
+          while (runVerbs.length < VERBS_PER_RUN && extras.length) {
+            runVerbs.push(extras.shift());
+          }
+        }
+      } catch (err) {
+        console.error('[type_race] failed to load verbs', err);
+        return;
+      }
+
+      if (!runVerbs.length) {
+        console.warn('[type_race] no verbs available');
+        return;
+      }
+
+      showScreen('play');
+      renderVerb();
+      startTimer();
+    }
+
+    function finishRun() {
+      stopTimer();
+      const finalMs = elapsedMs();
+
+      const previousBest = readBest();
+      const isNewBest = previousBest == null || finalMs < previousBest;
+      if (isNewBest) writeBest(finalMs);
+
+      endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
+      endTimeEl.classList.toggle('is-new-best', isNewBest);
+
+      const accPct = totalForms > 0
+        ? Math.round((correctForms / totalForms) * 100)
+        : 0;
+      endAccEl.textContent = `${accPct}%`;
+
+      const newBest = readBest();
+      endBestEl.textContent = newBest != null
+        ? `${formatSeconds(newBest)}${strings.common.seconds_short}`
+        : strings.common.no_best_yet;
+
+      newBestEl.hidden = !isNewBest;
+
+      // Missed list — show each missed verb with its correct past + participle.
+      if (missed.length) {
+        missedWrap.hidden = false;
+        missedListEl.innerHTML = '';
+        for (const m of missed) {
+          const li = document.createElement('li');
+
+          const verbCell = document.createElement('span');
+          verbCell.className = 'tr-missed-verb';
+          verbCell.textContent = m.verb;
+
+          const pastCell = document.createElement('span');
+          pastCell.className = 'tr-missed-form';
+          const pastLbl = document.createElement('small');
+          pastLbl.textContent = strings.drills.type_race.input_past;
+          pastCell.appendChild(pastLbl);
+          pastCell.appendChild(document.createTextNode(m.past));
+
+          const ppCell = document.createElement('span');
+          ppCell.className = 'tr-missed-form';
+          const ppLbl = document.createElement('small');
+          ppLbl.textContent = strings.drills.type_race.input_pp;
+          ppCell.appendChild(ppLbl);
+          ppCell.appendChild(document.createTextNode(m.participle));
+
+          li.appendChild(verbCell);
+          li.appendChild(pastCell);
+          li.appendChild(ppCell);
+          missedListEl.appendChild(li);
+        }
+      } else {
+        missedWrap.hidden = true;
+      }
+
+      showScreen('end');
+    }
+
+    /* ── Event wiring ───────────────────────────────────────────────── */
+    formEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSubmit();
+    });
+
+    // Enter in past → advance focus to participle; Enter in participle → submit.
+    wireTwoFieldForm({ pastInput, ppInput, onSubmit: handleSubmit });
+
+    // ESC anywhere → back to hub.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.location.href = HUB_URL;
+      }
+    });
+
+    /* ── Boot ───────────────────────────────────────────────────────── */
+    (async function boot() {
+      try {
+        strings = await loadStrings();
+      } catch (err) {
+        console.error('[type_race] failed to load UI strings', err);
+        loadingEl.textContent = 'Fehler beim Laden.';
+        return;
+      }
+
+      applyStrings(document);
+
+      loadingEl.classList.add('tr-hidden');
+      updateBestLineOnStart();
+      showScreen('start');
+
+      startBtn.addEventListener('click', beginRun);
+      replayBtn.addEventListener('click', beginRun);
+    })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js';
+    initDrillPage('type_race');
+  </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-lang-switch.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
+</body>
+</html>
