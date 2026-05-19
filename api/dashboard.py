@@ -5,13 +5,18 @@ on each request from the JSONL file. At our expected volume (<1k events/day
 for months) this is plenty fast.
 """
 
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from html import escape
 from typing import Optional
 from urllib.parse import urlparse
 
 from storage import read_events
+
+# Value assigned to bounce sessions (page_view with zero heartbeats) when
+# computing engagement averages. ~7s is the midpoint of the 0–15s window in
+# which we know the visitor left before the first heartbeat fired.
+BOUNCE_SECONDS = 7
 
 # Brand palette (kept in sync with the main site)
 LAVENDER = "#babfd8"
@@ -56,6 +61,16 @@ def _lang_short(lang: Optional[str]) -> str:
     return lang.split("-")[0].lower()
 
 
+def _median(values: list[float]) -> Optional[float]:
+    if not values:
+        return None
+    sv = sorted(values)
+    n = len(sv)
+    if n % 2 == 1:
+        return float(sv[n // 2])
+    return (sv[n // 2 - 1] + sv[n // 2]) / 2
+
+
 def aggregate(range_key: str, show_bots: bool) -> dict:
     since = _since_iso(range_key)
     total_all = 0
@@ -68,24 +83,91 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
     devices: Counter = Counter()
     hours: Counter = Counter()
 
+    # session_page_id -> {path, max_elapsed (or None for bounce), is_bot}
+    sessions: dict[str, dict] = {}
+
     for ev in read_events(since=since, max_count=200_000):
-        total_all += 1
-        if ev.get("bot"):
-            bot_count += 1
-            if not show_bots:
+        # Events stored before heartbeats existed have no event_type — treat
+        # them as page_view for backward compatibility.
+        event_type = ev.get("event_type") or "page_view"
+        bot = bool(ev.get("bot"))
+        sid = ev.get("session_page_id")
+        path = ev.get("path") or "/"
+
+        if event_type == "page_view":
+            total_all += 1
+            if bot:
+                bot_count += 1
+            # Register the session regardless of bot toggle so heartbeats can
+            # be matched correctly; bot filtering happens at the aggregation
+            # step below.
+            if sid:
+                existing = sessions.get(sid)
+                if existing is None:
+                    sessions[sid] = {"path": path, "max_elapsed": None, "is_bot": bot}
+                else:
+                    existing["path"] = path
+                    existing["is_bot"] = bot
+            if bot and not show_bots:
                 continue
-        counted += 1
-        paths[ev.get("path") or "/"] += 1
-        referrers[_referrer_host(ev.get("referrer"))] += 1
-        langs[_lang_short(ev.get("language"))] += 1
-        countries[ev.get("country") or "unknown"] += 1
-        devices[ev.get("device_type") or "unknown"] += 1
-        ts = ev.get("ts_server") or ev.get("ts_client") or ""
-        try:
-            hour = datetime.fromisoformat(ts.replace("Z", "+00:00")).hour
-            hours[hour] += 1
-        except Exception:
-            pass
+            counted += 1
+            paths[path] += 1
+            referrers[_referrer_host(ev.get("referrer"))] += 1
+            langs[_lang_short(ev.get("language"))] += 1
+            countries[ev.get("country") or "unknown"] += 1
+            devices[ev.get("device_type") or "unknown"] += 1
+            ts = ev.get("ts_server") or ev.get("ts_client") or ""
+            try:
+                hour = datetime.fromisoformat(ts.replace("Z", "+00:00")).hour
+                hours[hour] += 1
+            except Exception:
+                pass
+        elif event_type == "page_heartbeat":
+            if not sid:
+                continue
+            elapsed = ev.get("elapsed_seconds")
+            if not isinstance(elapsed, int) or elapsed < 0:
+                continue
+            sess = sessions.get(sid)
+            if sess is None:
+                # Heartbeat arrived before its page_view in the window (or
+                # the page_view fell outside the range). Keep it anyway.
+                sessions[sid] = {"path": path, "max_elapsed": elapsed, "is_bot": bot}
+            elif sess["max_elapsed"] is None or elapsed > sess["max_elapsed"]:
+                sess["max_elapsed"] = elapsed
+
+    # Engagement: each session contributes one value to its path's bucket.
+    # Bounce sessions (no heartbeats) get BOUNCE_SECONDS so fast bounces drag
+    # the average down rather than being silently dropped.
+    by_path_durations: dict[str, list[int]] = defaultdict(list)
+    all_durations: list[int] = []
+    for sess in sessions.values():
+        if sess["is_bot"] and not show_bots:
+            continue
+        value = sess["max_elapsed"] if sess["max_elapsed"] is not None else BOUNCE_SECONDS
+        by_path_durations[sess["path"]].append(value)
+        all_durations.append(value)
+
+    engagement_rows = []
+    for path, view_count in paths.most_common(20):
+        durations = by_path_durations.get(path, [])
+        if durations:
+            avg: Optional[float] = sum(durations) / len(durations)
+            med: Optional[float] = _median(durations)
+        else:
+            avg = None
+            med = None
+        engagement_rows.append(
+            {
+                "path": path,
+                "views": view_count,
+                "avg": avg,
+                "median": med,
+                "sessions": len(durations),
+            }
+        )
+
+    overall_avg = sum(all_durations) / len(all_durations) if all_durations else None
 
     return {
         "total_all": total_all,
@@ -98,6 +180,8 @@ def aggregate(range_key: str, show_bots: bool) -> dict:
         "countries": countries.most_common(10),
         "devices": sorted(devices.items(), key=lambda kv: -kv[1]),
         "hours": hours,
+        "engagement_rows": engagement_rows,
+        "overall_avg_engagement": overall_avg,
     }
 
 
@@ -175,6 +259,11 @@ table {{ border-collapse: collapse; width: 100%; max-width: 720px; }}
 th, td {{ padding: 6px 10px; text-align: left; border-bottom: 1px solid #ddd; }}
 th {{ background: {SAGE}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }}
 td.num {{ text-align: right; font-variant-numeric: tabular-nums; width: 80px; }}
+table.engagement {{ max-width: 720px; }}
+table.engagement th.col-path, table.engagement td.col-path {{ width: auto; text-align: left; }}
+table.engagement th.col-num, table.engagement td.col-num {{
+  text-align: right; font-variant-numeric: tabular-nums; width: 88px;
+}}
 .muted {{ color: {MUTED}; }}
 .chart {{ background: white; padding: 12px; border: 1px solid #e0e0e0; max-width: 720px; }}
 .empty {{ color: {MUTED}; font-style: italic; padding: 24px; background: white; border: 1px dashed #ccc; }}
@@ -203,6 +292,45 @@ def _table(headers: tuple[str, str], rows: list[tuple]) -> str:
     return (
         f"<table><thead><tr><th>{escape(headers[0])}</th>"
         f"<th class='num'>{escape(headers[1])}</th></tr></thead><tbody>{body}</tbody></table>"
+    )
+
+
+def _format_duration(seconds: Optional[float]) -> str:
+    """Render seconds as mm:ss or '<15s'.
+
+    Sessions shorter than 15s (i.e. faster than the first heartbeat) and any
+    aggregate average that lands below the heartbeat interval are both shown
+    as '<15s' rather than a precise number we don't actually have.
+    """
+    if seconds is None:
+        return "—"
+    if seconds < 15:
+        return "<15s"
+    total = int(round(seconds))
+    return f"{total // 60}:{total % 60:02d}"
+
+
+def _engagement_table(rows: list[dict]) -> str:
+    if not rows:
+        return '<div class="empty">No data in this range</div>'
+    body_rows = []
+    for r in rows:
+        body_rows.append(
+            "<tr>"
+            f"<td class='col-path'>{escape(r['path'])}</td>"
+            f"<td class='col-num'>{r['views']}</td>"
+            f"<td class='col-num'>{escape(_format_duration(r['avg']))}</td>"
+            f"<td class='col-num'>{escape(_format_duration(r['median']))}</td>"
+            "</tr>"
+        )
+    return (
+        "<table class='engagement'><thead><tr>"
+        "<th class='col-path'>Path</th>"
+        "<th class='col-num'>Views</th>"
+        "<th class='col-num'>Avg</th>"
+        "<th class='col-num'>Median</th>"
+        "</tr></thead><tbody>"
+        f"{''.join(body_rows)}</tbody></table>"
     )
 
 
@@ -265,6 +393,7 @@ def render_dashboard(range_key: str, show_bots: bool) -> str:
     numbers = (
         _stat("Events shown", f"{data['counted']:,}")
         + _stat("Unique paths", f"{data['unique_paths']:,}")
+        + _stat("Avg engagement", _format_duration(data["overall_avg_engagement"]))
         + _stat("Bots (% of total)", f"{bot_pct:.1f}%")
         + _stat("Total incl. bots", f"{data['total_all']:,}")
     )
@@ -298,6 +427,12 @@ def render_dashboard(range_key: str, show_bots: bool) -> str:
 
   <section>
     <div class="numbers">{numbers}</div>
+  </section>
+
+  <section>
+    <h2>Engagement by path</h2>
+    {_engagement_table(data["engagement_rows"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Avg and median are computed across session_page_id buckets. Bounces (no heartbeat fired before the visitor left) are counted as ~7s and render as &lt;15s.</p>
   </section>
 
   <section>

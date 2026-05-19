@@ -11,6 +11,7 @@ GeoLite2-Country DB) and to bucket the in-memory rate limiter. It is
 never written to disk.
 """
 
+import json
 import os
 import re
 import secrets
@@ -24,7 +25,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from storage import append_event, read_events
 from dashboard import render_dashboard
@@ -142,6 +143,14 @@ class TrackEvent(BaseModel):
     timestamp: str = Field(..., max_length=64)
     viewport_width: Optional[int] = Field(None, ge=0, le=65535)
     language: Optional[str] = Field(None, max_length=32)
+    # New fields (all optional for backward compat with already-stored events).
+    event_type: str = Field("page_view", max_length=32)
+    session_page_id: Optional[str] = Field(None, max_length=64)
+    elapsed_seconds: Optional[int] = Field(None, ge=0, le=86400)
+
+
+KNOWN_EVENT_TYPES = {"page_view", "page_heartbeat"}
+MAX_BODY_BYTES = 8 * 1024  # 8 KB — well above any legitimate payload
 
 
 # ---------------------------------------------------------------------------
@@ -179,18 +188,35 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)) -> str:
 # ---------------------------------------------------------------------------
 
 @app.post("/api/track")
-async def track(event: TrackEvent, request: Request) -> JSONResponse:
+async def track(request: Request) -> JSONResponse:
     ip = client_ip(request)
     if rate_limited(ip):
         # Silent drop — return success so scrapers can't probe the limit.
         return JSONResponse({"ok": True})
 
+    # Raw-body parsing so navigator.sendBeacon can post with text/plain (a
+    # CORS-simple request, no preflight). Without this, the pagehide beacon
+    # races the browser's network teardown and is unreliable.
+    try:
+        raw = await request.body()
+        if not raw or len(raw) > MAX_BODY_BYTES:
+            return JSONResponse({"ok": True})
+        data = json.loads(raw)
+        event = TrackEvent.model_validate(data)
+    except (json.JSONDecodeError, ValidationError, ValueError):
+        # Silent accept of malformed payloads — analytics must not give
+        # attackers a schema oracle, and a broken client is the user's
+        # problem, not ours.
+        return JSONResponse({"ok": True})
+
+    event_type = event.event_type if event.event_type in KNOWN_EVENT_TYPES else "page_view"
     user_agent = request.headers.get("user-agent", "")[:512]
     country = country_for_ip(ip)
     # The raw IP leaves scope at the end of this function. It is never
     # included in the persisted record.
 
     record = {
+        "event_type": event_type,
         "ts_client": event.timestamp,
         "ts_server": datetime.now(timezone.utc).isoformat(),
         "path": event.path,
@@ -201,7 +227,10 @@ async def track(event: TrackEvent, request: Request) -> JSONResponse:
         "device_type": device_type_for(event.viewport_width),
         "bot": is_bot(user_agent),
         "ua": user_agent,
+        "session_page_id": event.session_page_id,
     }
+    if event_type == "page_heartbeat":
+        record["elapsed_seconds"] = event.elapsed_seconds
     try:
         append_event(record)
     except Exception as exc:
