@@ -107,7 +107,28 @@ def is_bot(user_agent: str) -> bool:
     return bool(user_agent) and bool(BOT_RE.search(user_agent))
 
 
-def device_type_for(viewport_width: Optional[int]) -> str:
+def device_type_for(viewport_width: Optional[int], user_agent: str = "") -> str:
+    """Classify the device by User-Agent first, viewport width second.
+
+    Viewport-only classification mis-tags landscape tablets as desktop
+    (their viewport often hits 1024+). UA tokens are checked in priority
+    order — "iPad" and "Tablet" are sharp signals; "Mobile" only counts
+    when "Tablet" wasn't already present (some Android tablets advertise
+    both, and the tablet flavour wins).
+
+    Known gap: iPadOS 13+ ships a desktop UA by default in Safari and
+    Chrome, so iPads in that mode look like desktops here. There is no
+    reliable headers-based fix for that without false positives.
+    """
+    ua = (user_agent or "").lower()
+    if "ipad" in ua:
+        return "tablet"
+    if "tablet" in ua:
+        return "tablet"
+    if "mobile" in ua:
+        # "tablet" already handled above, so the spec's "AND NOT tablet"
+        # guard is implicit by ordering.
+        return "mobile"
     if viewport_width is None:
         return "unknown"
     if viewport_width < 640:
@@ -224,7 +245,7 @@ async def track(request: Request) -> JSONResponse:
         "viewport_width": event.viewport_width,
         "language": event.language,
         "country": country,
-        "device_type": device_type_for(event.viewport_width),
+        "device_type": device_type_for(event.viewport_width, user_agent),
         "bot": is_bot(user_agent),
         "ua": user_agent,
         "session_page_id": event.session_page_id,
