@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /stats/
+Disallow: /lib/
+Disallow: /data/
+
+Sitemap: https://krabsy.com/sitemap.xml

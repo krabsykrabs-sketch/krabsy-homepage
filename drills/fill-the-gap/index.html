@@ -2,8 +2,48 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Lückentext — Krabsy</title>
+  <meta name="description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta name="keywords" content="lückentext, fill the gap, sätze, englisch grammatik üben">
+  <link rel="canonical" href="https://krabsy.com/drills/fill-the-gap/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Lückentext — Krabsy">
+  <meta property="og:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/drills/fill-the-gap/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lückentext — Krabsy">
+  <meta name="twitter:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Lückentext",
+      "url": "https://krabsy.com/drills/fill-the-gap/",
+      "description": "10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.",
+      "learningResourceType": "Game",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "en",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "student"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Krabsy",
+        "url": "https://krabsy.com/"
+      }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Krabsy — Lückentext</title>
   <link rel="stylesheet" href="../../lib/krabsy-ui.css">
   <style>
     /* ── Fill the Gap specific layout ──────────────────────────────── */
@@ -330,6 +370,12 @@
         <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
   </div>
 
   <!-- Feedback flash overlays -->
@@ -485,7 +531,7 @@
      */
     function renderSentence(q) {
       sentenceEl.innerHTML = '';
-      const prompt = q.prompt || q.context_sentence || '';
+      const prompt = q.context_sentence || q.prompt || '';
       const parts = prompt.split('___');
       if (parts.length < 2) {
         sentenceEl.textContent = prompt;
@@ -546,7 +592,9 @@
       submitLocked = true;
 
       const q = questions[qIndex];
-      const isCorrect = normalize(typed) === normalize(q.correct_answer);
+      const altOk = Array.isArray(q.correct_alt)
+        && q.correct_alt.some((a) => normalize(a) === normalize(typed));
+      const isCorrect = normalize(typed) === normalize(q.correct_answer) || altOk;
 
       // Stats: use the question's own `form` field, source = "fill_gap".
       recordAttempt(q.verb, q.form, isCorrect, 'fill_gap');
@@ -588,7 +636,7 @@
       // Inline sentence with the user's wrong answer struck through and the
       // correct answer pill next to it. Returns a DocumentFragment.
       const frag = document.createDocumentFragment();
-      const prompt = q.prompt || q.context_sentence || '';
+      const prompt = q.context_sentence || q.prompt || '';
       const parts = prompt.split('___');
 
       const sentenceP = document.createElement('p');
@@ -638,7 +686,10 @@
       try {
         questions = await getQuestions({
           type: 'fill_gap',
-          difficulty: 4,
+          // New verb-data schema uses difficulty 2 for all entries (each
+          // entry carries a context_sentence already, so the old
+          // difficulty-4 partitioning is gone).
+          difficulty: 2,
           shuffle: true,
           limit: QUESTIONS_PER_RUN,
         });
@@ -741,5 +792,7 @@
     import { initDrillPage } from '../../lib/krabsy-nav.js';
     initDrillPage('fill_gap');
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

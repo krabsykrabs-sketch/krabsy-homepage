@@ -42,7 +42,8 @@
     "leave_drill_title": "Spiel verlassen?",
     "leave_drill_body": "Dein Fortschritt geht verloren.",
     "leave_drill_confirm": "Verlassen",
-    "leave_drill_cancel": "Weiterspielen"
+    "leave_drill_cancel": "Weiterspielen",
+    "aria_lang_toggle": "Sprache"
   },
   "homepage": {
     "seo_title": "Unregelmäßige Verben lernen — Krabsy",
@@ -74,7 +75,8 @@
     "tile_streak": "Serie",
     "tile_today_practice": "Heute zu üben",
     "tile_today_empty": "Noch nichts zu wiederholen — super!",
-    "tile_link_stats": "Zur Statistik"
+    "tile_link_stats": "Zur Statistik",
+    "aria_label": "Fortschritt"
   },
   "drills": {
     "sprint": {
@@ -82,7 +84,8 @@
       "tagline": "20 Verben, so schnell wie möglich.",
       "intro": "Wähle bei 20 Verben die richtige Form. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?",
       "penalty_hint": "Falsche Antwort: +3 Sekunden",
-      "end_title": "Sprint geschafft!"
+      "end_title": "Sprint geschafft!",
+      "aria_choices": "Antworten"
     },
     "type_race": {
       "name": "Type Race",
@@ -120,7 +123,8 @@
       "tagline": "Tippe die richtige Form, bevor der Block unten ankommt.",
       "intro": "Blöcke fallen von oben. Im Block: zwei Formen. Tippe die richtige, bevor der Block den Boden trifft. Du hast 3 Leben. Endlos-Modus.",
       "game_over": "Game Over",
-      "end_title": "Runde vorbei"
+      "end_title": "Runde vorbei",
+      "aria_lives": "Leben"
     }
   },
   "tools": {
@@ -137,7 +141,8 @@
       "btn_again": "Nochmal",
       "deck_position": "Karte {n} von {total}",
       "deck_empty": "Keine Karten in diesem Stapel — wähle einen anderen Filter.",
-      "deck_finished": "Stapel durch! Möchtest du nochmal?"
+      "deck_finished": "Stapel durch! Möchtest du nochmal?",
+      "aria_flip_card": "Karte umdrehen"
     },
     "verb_table": {
       "name": "Verb-Tabelle",
@@ -150,7 +155,9 @@
       "toggle_hide_meaning": "Bedeutung verstecken",
       "lock_hint": "Mindestens eine Spalte muss sichtbar bleiben",
       "hidden_cell": "•••",
-      "no_results": "Kein Verb gefunden."
+      "no_results": "Kein Verb gefunden.",
+      "load_error": "Daten konnten nicht geladen werden.",
+      "aria_table": "Verb-Tabelle"
     },
     "free_practice": {
       "name": "Freies Üben",
@@ -193,7 +200,8 @@
     "last_seen_days_ago": "vor {n} Tagen",
     "col_attempts": "Versuche",
     "col_accuracy": "Genauigkeit",
-    "table_empty": "Noch keine Daten."
+    "table_empty": "Noch keine Daten.",
+    "aria_full_verb_list": "Volle Verb-Liste"
   },
   "reference": {
     "title": "Unregelmäßige Verben — Übersicht",
@@ -207,7 +215,8 @@
     "col_pp": "Past Participle",
     "col_meaning": "Bedeutung",
     "col_mastery": "Dein Stand",
-    "no_results": "Kein Verb gefunden."
+    "no_results": "Kein Verb gefunden.",
+    "aria_verb_list": "Verb-Liste"
   },
   "mastery_bands": {
     "0": "neu",

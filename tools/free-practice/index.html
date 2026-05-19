@@ -2,8 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Freies Üben — Krabsy</title>
+  <meta name="description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta name="keywords" content="freies üben, klassenarbeit, simple past, past participle, englisch lernen">
+  <link rel="canonical" href="https://krabsy.com/tools/free-practice/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Freies Üben — Krabsy">
+  <meta property="og:description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/tools/free-practice/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Freies Üben — Krabsy">
+  <meta name="twitter:description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="../../lib/krabsy-ui.css">
   <style>
     /* ── Free Practice module-specific styles ────────────────────────── */
@@ -218,7 +236,7 @@
     <!-- Header -->
     <header class="k-page-header">
       <a class="k-logo" href="/index.html">Krabsy</a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache">
+      <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
@@ -289,6 +307,9 @@
 
     <footer class="k-footer">
       <span id="fp-footer-copy"></span>
+    
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
 
@@ -531,8 +552,12 @@
       const correctPast = normalize(row.past);
       const correctPp = normalize(row.participle);
 
-      const pastOk = userPast.length > 0 && userPast === correctPast;
-      const ppOk = userPp.length > 0 && userPp === correctPp;
+      const altMatch = (typed, alts) =>
+        Array.isArray(alts) && alts.some((a) => normalize(a) === typed);
+      const pastOk = userPast.length > 0
+        && (userPast === correctPast || altMatch(userPast, row.past_alt));
+      const ppOk = userPp.length > 0
+        && (userPp === correctPp || altMatch(userPp, row.participle_alt));
 
       // Record stats for both forms
       recordAttempt(verbId, 'past', pastOk, 'free_practice');
@@ -697,5 +722,8 @@
     import { initToolPage } from '../../lib/krabsy-nav.js';
     initToolPage('free_practice');
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

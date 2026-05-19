@@ -2,8 +2,48 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Type Race — Krabsy</title>
+  <meta name="description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta name="keywords" content="type race, tippen, simple past, past participle, englisch üben">
+  <link rel="canonical" href="https://krabsy.com/drills/type-race/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Type Race — Krabsy">
+  <meta property="og:description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/drills/type-race/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Type Race — Krabsy">
+  <meta name="twitter:description" content="Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Type Race",
+      "url": "https://krabsy.com/drills/type-race/",
+      "description": "Tippe Simple Past und Past Participle für 10 unregelmäßige Verben. Schlag die Uhr. Englisch-Grammatik für Schüler:innen.",
+      "learningResourceType": "Game",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "en",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "student"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Krabsy",
+        "url": "https://krabsy.com/"
+      }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Krabsy — Type Race</title>
   <link rel="stylesheet" href="../../lib/krabsy-ui.css">
   <style>
     /* ── Type Race specific layout ──────────────────────────────────── */
@@ -366,6 +406,12 @@
         <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
       </section>
     </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
   </div>
 
   <!-- Feedback flash overlays -->
@@ -555,8 +601,12 @@
       const pastTyped = pastInput.value;
       const ppTyped = ppInput.value;
 
-      const pastOk = normalize(pastTyped) === normalize(row.past);
-      const ppOk   = normalize(ppTyped)   === normalize(row.participle);
+      const altMatch = (typed, alts) =>
+        Array.isArray(alts) && alts.some((a) => normalize(a) === normalize(typed));
+      const pastOk = normalize(pastTyped) === normalize(row.past)
+        || altMatch(pastTyped, row.past_alt);
+      const ppOk = normalize(ppTyped) === normalize(row.participle)
+        || altMatch(ppTyped, row.participle_alt);
 
       // Two stats calls per verb — spec requirement.
       recordAttempt(row.verb, 'past', pastOk, 'type_race');
@@ -741,5 +791,7 @@
     import { initDrillPage } from '../../lib/krabsy-nav.js';
     initDrillPage('type_race');
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

@@ -2,9 +2,27 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Deine Statistik — Krabsy</title>
+  <meta name="description" content="Deine persönlichen Lernfortschritte bei Krabsy. Welche Verben du beherrschst und welche du noch üben solltest.">
+  <link rel="canonical" href="https://krabsy.com/stats/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Deine Statistik — Krabsy">
+  <meta property="og:description" content="Deine persönlichen Lernfortschritte bei Krabsy. Welche Verben du beherrschst und welche du noch üben solltest.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/stats/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Deine Statistik — Krabsy">
+  <meta name="twitter:description" content="Deine persönlichen Lernfortschritte bei Krabsy. Welche Verben du beherrschst und welche du noch üben solltest.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <meta name="robots" content="noindex">
+  <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fdfaf3">
-  <title>Krabsy — Deine Statistik</title>
   <link rel="stylesheet" href="../lib/krabsy-ui.css">
   <style>
     /* ── Module-specific styles (Statistics page) ──────────────────────── */
@@ -404,7 +422,7 @@
       <!-- Block 4: Full verb table -->
       <section class="stats-block" id="stats-block-full" hidden aria-labelledby="stats-h-full">
         <h2 class="stats-block-heading" id="stats-h-full">Volle Verb-Liste</h2>
-        <section class="k-card stats-table-card" aria-label="Volle Verb-Liste">
+        <section class="k-card stats-table-card" aria-label="Volle Verb-Liste" data-i18n-attr="aria-label:stats.aria_full_verb_list">
           <div class="stats-table-scroll">
             <table class="stats-table" id="stats-table">
               <thead>
@@ -426,6 +444,9 @@
 
     <footer class="k-footer">
       <a href="/index.html" id="stats-footer-link">Zurück zur Übersicht</a>
+    
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
 
@@ -855,5 +876,8 @@
       renderAll();
     })();
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

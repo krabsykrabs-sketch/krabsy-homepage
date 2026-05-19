@@ -2,8 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Karteikarten — Krabsy</title>
+  <meta name="description" content="Klassische Karteikarten für unregelmäßige englische Verben. Karte umdrehen, ehrlich bewerten, in deinem Tempo lernen.">
+  <meta name="keywords" content="karteikarten, flashcards, unregelmäßige verben, englisch lernen">
+  <link rel="canonical" href="https://krabsy.com/tools/flashcards/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Karteikarten — Krabsy">
+  <meta property="og:description" content="Klassische Karteikarten für unregelmäßige englische Verben. Karte umdrehen, ehrlich bewerten, in deinem Tempo lernen.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/tools/flashcards/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Karteikarten — Krabsy">
+  <meta name="twitter:description" content="Klassische Karteikarten für unregelmäßige englische Verben. Karte umdrehen, ehrlich bewerten, in deinem Tempo lernen.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="../../lib/krabsy-ui.css">
   <style>
     /* ── Flashcards module-specific styles ───────────────────────────── */
@@ -259,7 +277,7 @@
       <div class="fc-page-header-inner">
         <a class="k-logo" href="/index.html">Krabsy</a>
       </div>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache">
+      <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
@@ -290,7 +308,7 @@
 
       <!-- Card -->
       <div class="fc-stage" id="fc-stage">
-        <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-label="Karte umdrehen">
+        <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-label="Karte umdrehen" data-i18n-attr="aria-label:tools.flashcards.aria_flip_card">
           <div class="fc-face fc-face-front">
             <h2 class="fc-front-verb" id="fc-front-verb">—</h2>
             <div class="fc-front-hint" id="fc-front-hint" data-i18n="tools.flashcards.flip_hint">Tippe zum Umdrehen</div>
@@ -337,6 +355,9 @@
 
     <footer class="k-footer">
       <span id="fc-footer-copy"></span>
+    
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
 
@@ -646,5 +667,8 @@
     import { initToolPage } from '../../lib/krabsy-nav.js';
     initToolPage('flashcards');
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

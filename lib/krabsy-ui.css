@@ -574,6 +574,22 @@ a:hover { color: var(--krabsy-coral); }
 .k-footer a { color: var(--krabsy-ink-mute); text-decoration: none; }
 .k-footer a:hover { color: var(--krabsy-coral); }
 
+/* Language-aware legal links — populated at runtime by /lib/krabsy-footer.js */
+.k-footer-legal-mount { display: inline; }
+.k-footer-legal-link {
+  color: var(--krabsy-ink-mute);
+  text-decoration: none;
+  font-size: 0.78rem;
+  margin: 0 2px;
+}
+.k-footer-legal-link:hover { color: var(--krabsy-coral); }
+.k-footer-legal-sep {
+  color: var(--krabsy-ink-mute);
+  opacity: 0.5;
+  font-size: 0.78rem;
+  margin: 0 4px;
+}
+
 /* ── Feedback flash (full-screen overlay on correct/wrong) ──────────────── */
 /* Uses opacity + transform only, no animated box-shadow. */
 

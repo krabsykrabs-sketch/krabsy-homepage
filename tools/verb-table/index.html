@@ -2,8 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Verb-Tabelle — Krabsy</title>
+  <meta name="description" content="Alle 60 wichtigen unregelmäßigen Verben mit Past und Past Participle. Verstecke Spalten und fordere dich selbst heraus.">
+  <meta name="keywords" content="verb tabelle, unregelmäßige verben, übersicht, englisch grammatik">
+  <link rel="canonical" href="https://krabsy.com/tools/verb-table/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Verb-Tabelle — Krabsy">
+  <meta property="og:description" content="Alle 60 wichtigen unregelmäßigen Verben mit Past und Past Participle. Verstecke Spalten und fordere dich selbst heraus.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/tools/verb-table/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verb-Tabelle — Krabsy">
+  <meta name="twitter:description" content="Alle 60 wichtigen unregelmäßigen Verben mit Past und Past Participle. Verstecke Spalten und fordere dich selbst heraus.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../../lib/krabsy-ui.css">
   <style>
     /* ── Module-specific styles ─────────────────────────────────────────── */
@@ -186,7 +204,7 @@
   <div class="k-page">
     <header class="k-page-header">
       <a href="/index.html" class="k-logo" aria-label="Krabsy Startseite">Krabsy</a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
@@ -255,6 +273,12 @@
         <div class="vt-empty" id="emptyState" hidden></div>
       </div>
     </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
   </div>
 
   <script type="module">
@@ -543,7 +567,10 @@
       } catch (err) {
         console.error('verb-table init failed', err);
         const tbody = document.getElementById('tbody');
-        tbody.innerHTML = `<tr><td colspan="4" class="vt-empty">Daten konnten nicht geladen werden.</td></tr>`;
+        const errMsg =
+          (state.strings && state.strings.tools && state.strings.tools.verb_table && state.strings.tools.verb_table.load_error)
+          || 'Daten konnten nicht geladen werden.';
+        tbody.innerHTML = `<tr><td colspan="4" class="vt-empty">${errMsg}</td></tr>`;
       }
     }
 
@@ -553,5 +580,8 @@
     import { initToolPage } from '../../lib/krabsy-nav.js';
     initToolPage('verb_table');
   </script>
+    <script src="/lib/krabsy-footer.js" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js" defer></script>
+  <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>
