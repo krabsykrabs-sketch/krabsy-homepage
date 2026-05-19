@@ -517,15 +517,6 @@
         }
       });
 
-      // Language toggle
-      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const lang = btn.getAttribute('data-lang');
-          if (!lang) return;
-          setLang(lang);
-          location.reload();
-        });
-      });
 
       // React to hash changes (e.g. back-button navigation).
       window.addEventListener('hashchange', () => {

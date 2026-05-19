@@ -820,12 +820,6 @@
       const current = getLang();
       buttons.forEach((b) => {
         b.classList.toggle('is-active', b.dataset.lang === current);
-        b.addEventListener('click', () => {
-          const next = b.dataset.lang;
-          if (next === getLang()) return;
-          setLang(next);
-          window.location.reload();
-        });
       });
     }
 

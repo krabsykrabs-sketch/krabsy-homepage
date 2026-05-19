@@ -520,12 +520,6 @@
       const btns = document.querySelectorAll('.k-lang-btn');
       btns.forEach((b) => {
         if (b.dataset.lang === current) b.classList.add('is-active');
-        b.addEventListener('click', () => {
-          const lang = b.dataset.lang;
-          if (!lang || lang === getLang()) return;
-          setLang(lang);
-          window.location.reload();
-        });
       });
     }
 

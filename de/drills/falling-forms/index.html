@@ -997,14 +997,6 @@
       startBtn.addEventListener('click', beginRun);
       replayBtn.addEventListener('click', beginRun);
 
-      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const newLang = btn.dataset.lang;
-          if (!newLang || newLang === getLang()) return;
-          setLang(newLang);
-          window.location.reload();
-        });
-      });
     })();
   </script>
   <script type="module">

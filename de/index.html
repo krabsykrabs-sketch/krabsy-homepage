@@ -555,7 +555,6 @@
       renderGames();
       renderProgressRow();
       renderStatsPeek();
-      setupLangToggle();
     }
 
     /* Swap the hero subtitle to the empty-state copy for first-time visitors
@@ -593,17 +592,6 @@
       }
     }
 
-    function setupLangToggle() {
-      const current = getLang();
-      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
-        btn.classList.toggle('is-active', btn.dataset.lang === current);
-        btn.addEventListener('click', () => {
-          if (btn.dataset.lang === current) return;
-          setLang(btn.dataset.lang);
-          location.reload();
-        });
-      });
-    }
 
     /* ─ Drill / Tool grids ─ */
     function renderDrills() {
