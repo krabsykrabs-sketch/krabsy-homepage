@@ -1,0 +1,4022 @@
+[
+  {
+    "id": "iv_be_001",
+    "topic": "irregular_verbs",
+    "verb": "be",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "be",
+    "correct_answer": "was",
+    "wrong_answers": [
+      "been",
+      "told",
+      "ran"
+    ],
+    "meaning_de": "sein"
+  },
+  {
+    "id": "iv_be_002",
+    "topic": "irregular_verbs",
+    "verb": "be",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "be",
+    "correct_answer": "been",
+    "wrong_answers": [
+      "was",
+      "ridden",
+      "taken"
+    ],
+    "meaning_de": "sein"
+  },
+  {
+    "id": "iv_be_003",
+    "topic": "irregular_verbs",
+    "verb": "be",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "be",
+    "correct_answer": "was",
+    "wrong_answers": [
+      "been",
+      "told",
+      "ran"
+    ],
+    "hint": "be, w_s, been",
+    "meaning_de": "sein"
+  },
+  {
+    "id": "iv_be_004",
+    "topic": "irregular_verbs",
+    "verb": "be",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "Yesterday I ___ very tired after school.",
+    "correct_answer": "was",
+    "wrong_answers": [
+      "been",
+      "told",
+      "ran"
+    ],
+    "hint": "be, w_s, been",
+    "context_sentence": "Yesterday I ___ very tired after school.",
+    "meaning_de": "sein"
+  },
+  {
+    "id": "iv_have_001",
+    "topic": "irregular_verbs",
+    "verb": "have",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "have",
+    "correct_answer": "had",
+    "wrong_answers": [
+      "read",
+      "gave",
+      "got"
+    ],
+    "meaning_de": "haben"
+  },
+  {
+    "id": "iv_have_002",
+    "topic": "irregular_verbs",
+    "verb": "have",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "have",
+    "correct_answer": "had",
+    "wrong_answers": [
+      "read",
+      "left",
+      "brought"
+    ],
+    "meaning_de": "haben"
+  },
+  {
+    "id": "iv_have_003",
+    "topic": "irregular_verbs",
+    "verb": "have",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "have",
+    "correct_answer": "had",
+    "wrong_answers": [
+      "read",
+      "gave",
+      "got"
+    ],
+    "hint": "have, h_d, had",
+    "meaning_de": "haben"
+  },
+  {
+    "id": "iv_have_004",
+    "topic": "irregular_verbs",
+    "verb": "have",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "We have ___ a lot of fun today.",
+    "correct_answer": "had",
+    "wrong_answers": [
+      "read",
+      "left",
+      "brought"
+    ],
+    "hint": "have, h_d, had",
+    "context_sentence": "We have ___ a lot of fun today.",
+    "meaning_de": "haben"
+  },
+  {
+    "id": "iv_do_001",
+    "topic": "irregular_verbs",
+    "verb": "do",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "do",
+    "correct_answer": "did",
+    "wrong_answers": [
+      "done",
+      "paid",
+      "said"
+    ],
+    "meaning_de": "tun / machen"
+  },
+  {
+    "id": "iv_do_002",
+    "topic": "irregular_verbs",
+    "verb": "do",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "do",
+    "correct_answer": "done",
+    "wrong_answers": [
+      "did",
+      "gone",
+      "sung"
+    ],
+    "meaning_de": "tun / machen"
+  },
+  {
+    "id": "iv_do_003",
+    "topic": "irregular_verbs",
+    "verb": "do",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "do",
+    "correct_answer": "did",
+    "wrong_answers": [
+      "done",
+      "paid",
+      "said"
+    ],
+    "hint": "do, d_d, done",
+    "meaning_de": "tun / machen"
+  },
+  {
+    "id": "iv_do_004",
+    "topic": "irregular_verbs",
+    "verb": "do",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ his homework before dinner.",
+    "correct_answer": "did",
+    "wrong_answers": [
+      "done",
+      "paid",
+      "said"
+    ],
+    "hint": "do, d_d, done",
+    "context_sentence": "He ___ his homework before dinner.",
+    "meaning_de": "tun / machen"
+  },
+  {
+    "id": "iv_say_001",
+    "topic": "irregular_verbs",
+    "verb": "say",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "say",
+    "correct_answer": "said",
+    "wrong_answers": [
+      "paid",
+      "did",
+      "went"
+    ],
+    "meaning_de": "sagen"
+  },
+  {
+    "id": "iv_say_002",
+    "topic": "irregular_verbs",
+    "verb": "say",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "say",
+    "correct_answer": "said",
+    "wrong_answers": [
+      "paid",
+      "read",
+      "swum"
+    ],
+    "meaning_de": "sagen"
+  },
+  {
+    "id": "iv_say_003",
+    "topic": "irregular_verbs",
+    "verb": "say",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "say",
+    "correct_answer": "said",
+    "wrong_answers": [
+      "paid",
+      "did",
+      "went"
+    ],
+    "hint": "say, s__d, said",
+    "meaning_de": "sagen"
+  },
+  {
+    "id": "iv_say_004",
+    "topic": "irregular_verbs",
+    "verb": "say",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ this many times.",
+    "correct_answer": "said",
+    "wrong_answers": [
+      "paid",
+      "read",
+      "swum"
+    ],
+    "hint": "say, s__d, said",
+    "context_sentence": "He has ___ this many times.",
+    "meaning_de": "sagen"
+  },
+  {
+    "id": "iv_go_001",
+    "topic": "irregular_verbs",
+    "verb": "go",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "go",
+    "correct_answer": "went",
+    "wrong_answers": [
+      "gone",
+      "sent",
+      "meant"
+    ],
+    "meaning_de": "gehen"
+  },
+  {
+    "id": "iv_go_002",
+    "topic": "irregular_verbs",
+    "verb": "go",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "go",
+    "correct_answer": "gone",
+    "wrong_answers": [
+      "went",
+      "done",
+      "sung"
+    ],
+    "meaning_de": "gehen"
+  },
+  {
+    "id": "iv_go_003",
+    "topic": "irregular_verbs",
+    "verb": "go",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "go",
+    "correct_answer": "went",
+    "wrong_answers": [
+      "gone",
+      "sent",
+      "meant"
+    ],
+    "hint": "go, w__t, gone",
+    "meaning_de": "gehen"
+  },
+  {
+    "id": "iv_go_004",
+    "topic": "irregular_verbs",
+    "verb": "go",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "We ___ to the cinema last Friday.",
+    "correct_answer": "went",
+    "wrong_answers": [
+      "gone",
+      "sent",
+      "meant"
+    ],
+    "hint": "go, w__t, gone",
+    "context_sentence": "We ___ to the cinema last Friday.",
+    "meaning_de": "gehen"
+  },
+  {
+    "id": "iv_get_001",
+    "topic": "irregular_verbs",
+    "verb": "get",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "get",
+    "correct_answer": "got",
+    "wrong_answers": [
+      "told",
+      "spoke",
+      "lost"
+    ],
+    "meaning_de": "bekommen / kriegen"
+  },
+  {
+    "id": "iv_get_002",
+    "topic": "irregular_verbs",
+    "verb": "get",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "get",
+    "correct_answer": "got",
+    "wrong_answers": [
+      "gone",
+      "eaten",
+      "thought"
+    ],
+    "meaning_de": "bekommen / kriegen"
+  },
+  {
+    "id": "iv_get_003",
+    "topic": "irregular_verbs",
+    "verb": "get",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "get",
+    "correct_answer": "got",
+    "wrong_answers": [
+      "told",
+      "spoke",
+      "lost"
+    ],
+    "hint": "get, g_t, got",
+    "meaning_de": "bekommen / kriegen"
+  },
+  {
+    "id": "iv_get_004",
+    "topic": "irregular_verbs",
+    "verb": "get",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ a new phone.",
+    "correct_answer": "got",
+    "wrong_answers": [
+      "gone",
+      "eaten",
+      "thought"
+    ],
+    "hint": "get, g_t, got",
+    "context_sentence": "He has ___ a new phone.",
+    "meaning_de": "bekommen / kriegen"
+  },
+  {
+    "id": "iv_make_001",
+    "topic": "irregular_verbs",
+    "verb": "make",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "make",
+    "correct_answer": "made",
+    "wrong_answers": [
+      "rode",
+      "told",
+      "taught"
+    ],
+    "meaning_de": "machen / herstellen"
+  },
+  {
+    "id": "iv_make_002",
+    "topic": "irregular_verbs",
+    "verb": "make",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "make",
+    "correct_answer": "made",
+    "wrong_answers": [
+      "paid",
+      "stood",
+      "known"
+    ],
+    "meaning_de": "machen / herstellen"
+  },
+  {
+    "id": "iv_make_003",
+    "topic": "irregular_verbs",
+    "verb": "make",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "make",
+    "correct_answer": "made",
+    "wrong_answers": [
+      "rode",
+      "told",
+      "taught"
+    ],
+    "hint": "make, m__e, made",
+    "meaning_de": "machen / herstellen"
+  },
+  {
+    "id": "iv_make_004",
+    "topic": "irregular_verbs",
+    "verb": "make",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ a cake for the party.",
+    "correct_answer": "made",
+    "wrong_answers": [
+      "rode",
+      "told",
+      "taught"
+    ],
+    "hint": "make, m__e, made",
+    "context_sentence": "She ___ a cake for the party.",
+    "meaning_de": "machen / herstellen"
+  },
+  {
+    "id": "iv_know_001",
+    "topic": "irregular_verbs",
+    "verb": "know",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "know",
+    "correct_answer": "knew",
+    "wrong_answers": [
+      "known",
+      "threw",
+      "had"
+    ],
+    "meaning_de": "wissen / kennen"
+  },
+  {
+    "id": "iv_know_002",
+    "topic": "irregular_verbs",
+    "verb": "know",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "know",
+    "correct_answer": "known",
+    "wrong_answers": [
+      "knew",
+      "thrown",
+      "stood"
+    ],
+    "meaning_de": "wissen / kennen"
+  },
+  {
+    "id": "iv_know_003",
+    "topic": "irregular_verbs",
+    "verb": "know",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "know",
+    "correct_answer": "knew",
+    "wrong_answers": [
+      "known",
+      "threw",
+      "had"
+    ],
+    "hint": "know, k__w, known",
+    "meaning_de": "wissen / kennen"
+  },
+  {
+    "id": "iv_know_004",
+    "topic": "irregular_verbs",
+    "verb": "know",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ him for years.",
+    "correct_answer": "known",
+    "wrong_answers": [
+      "knew",
+      "thrown",
+      "stood"
+    ],
+    "hint": "know, k__w, known",
+    "context_sentence": "I have ___ him for years.",
+    "meaning_de": "wissen / kennen"
+  },
+  {
+    "id": "iv_think_001",
+    "topic": "irregular_verbs",
+    "verb": "think",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "think",
+    "correct_answer": "thought",
+    "wrong_answers": [
+      "bought",
+      "fought",
+      "brought"
+    ],
+    "meaning_de": "denken"
+  },
+  {
+    "id": "iv_think_002",
+    "topic": "irregular_verbs",
+    "verb": "think",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "think",
+    "correct_answer": "thought",
+    "wrong_answers": [
+      "taught",
+      "fought",
+      "brought"
+    ],
+    "meaning_de": "denken"
+  },
+  {
+    "id": "iv_think_003",
+    "topic": "irregular_verbs",
+    "verb": "think",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "think",
+    "correct_answer": "thought",
+    "wrong_answers": [
+      "bought",
+      "fought",
+      "brought"
+    ],
+    "hint": "think, t_____t, thought",
+    "meaning_de": "denken"
+  },
+  {
+    "id": "iv_think_004",
+    "topic": "irregular_verbs",
+    "verb": "think",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I ___ about you yesterday.",
+    "correct_answer": "thought",
+    "wrong_answers": [
+      "bought",
+      "fought",
+      "brought"
+    ],
+    "hint": "think, t_____t, thought",
+    "context_sentence": "I ___ about you yesterday.",
+    "meaning_de": "denken"
+  },
+  {
+    "id": "iv_see_001",
+    "topic": "irregular_verbs",
+    "verb": "see",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "see",
+    "correct_answer": "saw",
+    "wrong_answers": [
+      "seen",
+      "broke",
+      "sang"
+    ],
+    "meaning_de": "sehen"
+  },
+  {
+    "id": "iv_see_002",
+    "topic": "irregular_verbs",
+    "verb": "see",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "see",
+    "correct_answer": "seen",
+    "wrong_answers": [
+      "saw",
+      "ridden",
+      "fallen"
+    ],
+    "meaning_de": "sehen"
+  },
+  {
+    "id": "iv_see_003",
+    "topic": "irregular_verbs",
+    "verb": "see",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "see",
+    "correct_answer": "saw",
+    "wrong_answers": [
+      "seen",
+      "broke",
+      "sang"
+    ],
+    "hint": "see, s_w, seen",
+    "meaning_de": "sehen"
+  },
+  {
+    "id": "iv_see_004",
+    "topic": "irregular_verbs",
+    "verb": "see",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ that film three times.",
+    "correct_answer": "seen",
+    "wrong_answers": [
+      "saw",
+      "ridden",
+      "fallen"
+    ],
+    "hint": "see, s_w, seen",
+    "context_sentence": "I have ___ that film three times.",
+    "meaning_de": "sehen"
+  },
+  {
+    "id": "iv_come_001",
+    "topic": "irregular_verbs",
+    "verb": "come",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "come",
+    "correct_answer": "came",
+    "wrong_answers": [
+      "come",
+      "became",
+      "saw"
+    ],
+    "meaning_de": "kommen"
+  },
+  {
+    "id": "iv_come_002",
+    "topic": "irregular_verbs",
+    "verb": "come",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "come",
+    "correct_answer": "come",
+    "wrong_answers": [
+      "came",
+      "become",
+      "meant"
+    ],
+    "meaning_de": "kommen"
+  },
+  {
+    "id": "iv_come_003",
+    "topic": "irregular_verbs",
+    "verb": "come",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "come",
+    "correct_answer": "came",
+    "wrong_answers": [
+      "come",
+      "became",
+      "saw"
+    ],
+    "hint": "come, c__e, come",
+    "meaning_de": "kommen"
+  },
+  {
+    "id": "iv_come_004",
+    "topic": "irregular_verbs",
+    "verb": "come",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ to school late this morning.",
+    "correct_answer": "came",
+    "wrong_answers": [
+      "come",
+      "became",
+      "saw"
+    ],
+    "hint": "come, c__e, come",
+    "context_sentence": "He ___ to school late this morning.",
+    "meaning_de": "kommen"
+  },
+  {
+    "id": "iv_take_001",
+    "topic": "irregular_verbs",
+    "verb": "take",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "take",
+    "correct_answer": "took",
+    "wrong_answers": [
+      "taken",
+      "broke",
+      "paid"
+    ],
+    "meaning_de": "nehmen"
+  },
+  {
+    "id": "iv_take_002",
+    "topic": "irregular_verbs",
+    "verb": "take",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "take",
+    "correct_answer": "taken",
+    "wrong_answers": [
+      "took",
+      "broken",
+      "eaten"
+    ],
+    "meaning_de": "nehmen"
+  },
+  {
+    "id": "iv_take_003",
+    "topic": "irregular_verbs",
+    "verb": "take",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "take",
+    "correct_answer": "took",
+    "wrong_answers": [
+      "taken",
+      "broke",
+      "paid"
+    ],
+    "hint": "take, t__k, taken",
+    "meaning_de": "nehmen"
+  },
+  {
+    "id": "iv_take_004",
+    "topic": "irregular_verbs",
+    "verb": "take",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ my book again.",
+    "correct_answer": "taken",
+    "wrong_answers": [
+      "took",
+      "broken",
+      "eaten"
+    ],
+    "hint": "take, t__k, taken",
+    "context_sentence": "He has ___ my book again.",
+    "meaning_de": "nehmen"
+  },
+  {
+    "id": "iv_find_001",
+    "topic": "irregular_verbs",
+    "verb": "find",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "find",
+    "correct_answer": "found",
+    "wrong_answers": [
+      "understood",
+      "told",
+      "fell"
+    ],
+    "meaning_de": "finden"
+  },
+  {
+    "id": "iv_find_002",
+    "topic": "irregular_verbs",
+    "verb": "find",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "find",
+    "correct_answer": "found",
+    "wrong_answers": [
+      "made",
+      "fought",
+      "cut"
+    ],
+    "meaning_de": "finden"
+  },
+  {
+    "id": "iv_find_003",
+    "topic": "irregular_verbs",
+    "verb": "find",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "find",
+    "correct_answer": "found",
+    "wrong_answers": [
+      "understood",
+      "told",
+      "fell"
+    ],
+    "hint": "find, f___d, found",
+    "meaning_de": "finden"
+  },
+  {
+    "id": "iv_find_004",
+    "topic": "irregular_verbs",
+    "verb": "find",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I ___ my keys under the sofa.",
+    "correct_answer": "found",
+    "wrong_answers": [
+      "understood",
+      "told",
+      "fell"
+    ],
+    "hint": "find, f___d, found",
+    "context_sentence": "I ___ my keys under the sofa.",
+    "meaning_de": "finden"
+  },
+  {
+    "id": "iv_give_001",
+    "topic": "irregular_verbs",
+    "verb": "give",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "give",
+    "correct_answer": "gave",
+    "wrong_answers": [
+      "given",
+      "drove",
+      "became"
+    ],
+    "meaning_de": "geben"
+  },
+  {
+    "id": "iv_give_002",
+    "topic": "irregular_verbs",
+    "verb": "give",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "give",
+    "correct_answer": "given",
+    "wrong_answers": [
+      "gave",
+      "been",
+      "fallen"
+    ],
+    "meaning_de": "geben"
+  },
+  {
+    "id": "iv_give_003",
+    "topic": "irregular_verbs",
+    "verb": "give",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "give",
+    "correct_answer": "gave",
+    "wrong_answers": [
+      "given",
+      "drove",
+      "became"
+    ],
+    "hint": "give, g__e, given",
+    "meaning_de": "geben"
+  },
+  {
+    "id": "iv_give_004",
+    "topic": "irregular_verbs",
+    "verb": "give",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ me a present.",
+    "correct_answer": "given",
+    "wrong_answers": [
+      "gave",
+      "been",
+      "fallen"
+    ],
+    "hint": "give, g__e, given",
+    "context_sentence": "He has ___ me a present.",
+    "meaning_de": "geben"
+  },
+  {
+    "id": "iv_tell_001",
+    "topic": "irregular_verbs",
+    "verb": "tell",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "tell",
+    "correct_answer": "told",
+    "wrong_answers": [
+      "sold",
+      "held",
+      "ran"
+    ],
+    "meaning_de": "erzählen / sagen"
+  },
+  {
+    "id": "iv_tell_002",
+    "topic": "irregular_verbs",
+    "verb": "tell",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "tell",
+    "correct_answer": "told",
+    "wrong_answers": [
+      "held",
+      "sold",
+      "got"
+    ],
+    "meaning_de": "erzählen / sagen"
+  },
+  {
+    "id": "iv_tell_003",
+    "topic": "irregular_verbs",
+    "verb": "tell",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "tell",
+    "correct_answer": "told",
+    "wrong_answers": [
+      "sold",
+      "held",
+      "ran"
+    ],
+    "hint": "tell, t__d, told",
+    "meaning_de": "erzählen / sagen"
+  },
+  {
+    "id": "iv_tell_004",
+    "topic": "irregular_verbs",
+    "verb": "tell",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ me a funny story.",
+    "correct_answer": "told",
+    "wrong_answers": [
+      "sold",
+      "held",
+      "ran"
+    ],
+    "hint": "tell, t__d, told",
+    "context_sentence": "She ___ me a funny story.",
+    "meaning_de": "erzählen / sagen"
+  },
+  {
+    "id": "iv_feel_001",
+    "topic": "irregular_verbs",
+    "verb": "feel",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "feel",
+    "correct_answer": "felt",
+    "wrong_answers": [
+      "built",
+      "lost",
+      "kept"
+    ],
+    "meaning_de": "(sich) fühlen"
+  },
+  {
+    "id": "iv_feel_002",
+    "topic": "irregular_verbs",
+    "verb": "feel",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "feel",
+    "correct_answer": "felt",
+    "wrong_answers": [
+      "built",
+      "written",
+      "led"
+    ],
+    "meaning_de": "(sich) fühlen"
+  },
+  {
+    "id": "iv_feel_003",
+    "topic": "irregular_verbs",
+    "verb": "feel",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "feel",
+    "correct_answer": "felt",
+    "wrong_answers": [
+      "built",
+      "lost",
+      "kept"
+    ],
+    "hint": "feel, f__t, felt",
+    "meaning_de": "(sich) fühlen"
+  },
+  {
+    "id": "iv_feel_004",
+    "topic": "irregular_verbs",
+    "verb": "feel",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ better today.",
+    "correct_answer": "felt",
+    "wrong_answers": [
+      "built",
+      "written",
+      "led"
+    ],
+    "hint": "feel, f__t, felt",
+    "context_sentence": "She has ___ better today.",
+    "meaning_de": "(sich) fühlen"
+  },
+  {
+    "id": "iv_become_001",
+    "topic": "irregular_verbs",
+    "verb": "become",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "become",
+    "correct_answer": "became",
+    "wrong_answers": [
+      "become",
+      "came",
+      "wrote"
+    ],
+    "meaning_de": "werden"
+  },
+  {
+    "id": "iv_become_002",
+    "topic": "irregular_verbs",
+    "verb": "become",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "become",
+    "correct_answer": "become",
+    "wrong_answers": [
+      "became",
+      "come",
+      "left"
+    ],
+    "meaning_de": "werden"
+  },
+  {
+    "id": "iv_become_003",
+    "topic": "irregular_verbs",
+    "verb": "become",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "become",
+    "correct_answer": "became",
+    "wrong_answers": [
+      "become",
+      "came",
+      "wrote"
+    ],
+    "hint": "become, b____e, become",
+    "meaning_de": "werden"
+  },
+  {
+    "id": "iv_become_004",
+    "topic": "irregular_verbs",
+    "verb": "become",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ a doctor last year.",
+    "correct_answer": "became",
+    "wrong_answers": [
+      "become",
+      "came",
+      "wrote"
+    ],
+    "hint": "become, b____e, become",
+    "context_sentence": "He ___ a doctor last year.",
+    "meaning_de": "werden"
+  },
+  {
+    "id": "iv_leave_001",
+    "topic": "irregular_verbs",
+    "verb": "leave",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "leave",
+    "correct_answer": "left",
+    "wrong_answers": [
+      "met",
+      "ran",
+      "drove"
+    ],
+    "meaning_de": "verlassen / weggehen"
+  },
+  {
+    "id": "iv_leave_002",
+    "topic": "irregular_verbs",
+    "verb": "leave",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "leave",
+    "correct_answer": "left",
+    "wrong_answers": [
+      "been",
+      "got",
+      "thrown"
+    ],
+    "meaning_de": "verlassen / weggehen"
+  },
+  {
+    "id": "iv_leave_003",
+    "topic": "irregular_verbs",
+    "verb": "leave",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "leave",
+    "correct_answer": "left",
+    "wrong_answers": [
+      "met",
+      "ran",
+      "drove"
+    ],
+    "hint": "leave, l__t, left",
+    "meaning_de": "verlassen / weggehen"
+  },
+  {
+    "id": "iv_leave_004",
+    "topic": "irregular_verbs",
+    "verb": "leave",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ his bag at school.",
+    "correct_answer": "left",
+    "wrong_answers": [
+      "been",
+      "got",
+      "thrown"
+    ],
+    "hint": "leave, l__t, left",
+    "context_sentence": "He has ___ his bag at school.",
+    "meaning_de": "verlassen / weggehen"
+  },
+  {
+    "id": "iv_put_001",
+    "topic": "irregular_verbs",
+    "verb": "put",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "put",
+    "correct_answer": "put",
+    "wrong_answers": [
+      "cut",
+      "held",
+      "said"
+    ],
+    "meaning_de": "legen / stellen / tun"
+  },
+  {
+    "id": "iv_put_002",
+    "topic": "irregular_verbs",
+    "verb": "put",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "put",
+    "correct_answer": "put",
+    "wrong_answers": [
+      "cut",
+      "gone",
+      "held"
+    ],
+    "meaning_de": "legen / stellen / tun"
+  },
+  {
+    "id": "iv_put_003",
+    "topic": "irregular_verbs",
+    "verb": "put",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "put",
+    "correct_answer": "put",
+    "wrong_answers": [
+      "cut",
+      "held",
+      "said"
+    ],
+    "hint": "put, p_t, put",
+    "meaning_de": "legen / stellen / tun"
+  },
+  {
+    "id": "iv_put_004",
+    "topic": "irregular_verbs",
+    "verb": "put",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ the cup on the table.",
+    "correct_answer": "put",
+    "wrong_answers": [
+      "cut",
+      "held",
+      "said"
+    ],
+    "hint": "put, p_t, put",
+    "context_sentence": "She ___ the cup on the table.",
+    "meaning_de": "legen / stellen / tun"
+  },
+  {
+    "id": "iv_mean_001",
+    "topic": "irregular_verbs",
+    "verb": "mean",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "mean",
+    "correct_answer": "meant",
+    "wrong_answers": [
+      "sent",
+      "went",
+      "kept"
+    ],
+    "meaning_de": "bedeuten / meinen"
+  },
+  {
+    "id": "iv_mean_002",
+    "topic": "irregular_verbs",
+    "verb": "mean",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "mean",
+    "correct_answer": "meant",
+    "wrong_answers": [
+      "sent",
+      "been",
+      "given"
+    ],
+    "meaning_de": "bedeuten / meinen"
+  },
+  {
+    "id": "iv_mean_003",
+    "topic": "irregular_verbs",
+    "verb": "mean",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "mean",
+    "correct_answer": "meant",
+    "wrong_answers": [
+      "sent",
+      "went",
+      "kept"
+    ],
+    "hint": "mean, m___t, meant",
+    "meaning_de": "bedeuten / meinen"
+  },
+  {
+    "id": "iv_mean_004",
+    "topic": "irregular_verbs",
+    "verb": "mean",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ this for a long time.",
+    "correct_answer": "meant",
+    "wrong_answers": [
+      "sent",
+      "been",
+      "given"
+    ],
+    "hint": "mean, m___t, meant",
+    "context_sentence": "She has ___ this for a long time.",
+    "meaning_de": "bedeuten / meinen"
+  },
+  {
+    "id": "iv_keep_001",
+    "topic": "irregular_verbs",
+    "verb": "keep",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "keep",
+    "correct_answer": "kept",
+    "wrong_answers": [
+      "slept",
+      "did",
+      "went"
+    ],
+    "meaning_de": "behalten / aufbewahren"
+  },
+  {
+    "id": "iv_keep_002",
+    "topic": "irregular_verbs",
+    "verb": "keep",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "keep",
+    "correct_answer": "kept",
+    "wrong_answers": [
+      "slept",
+      "won",
+      "been"
+    ],
+    "meaning_de": "behalten / aufbewahren"
+  },
+  {
+    "id": "iv_keep_003",
+    "topic": "irregular_verbs",
+    "verb": "keep",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "keep",
+    "correct_answer": "kept",
+    "wrong_answers": [
+      "slept",
+      "did",
+      "went"
+    ],
+    "hint": "keep, k__t, kept",
+    "meaning_de": "behalten / aufbewahren"
+  },
+  {
+    "id": "iv_keep_004",
+    "topic": "irregular_verbs",
+    "verb": "keep",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ the secret for years.",
+    "correct_answer": "kept",
+    "wrong_answers": [
+      "slept",
+      "did",
+      "went"
+    ],
+    "hint": "keep, k__t, kept",
+    "context_sentence": "He ___ the secret for years.",
+    "meaning_de": "behalten / aufbewahren"
+  },
+  {
+    "id": "iv_let_001",
+    "topic": "irregular_verbs",
+    "verb": "let",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "let",
+    "correct_answer": "let",
+    "wrong_answers": [
+      "met",
+      "set",
+      "was"
+    ],
+    "meaning_de": "lassen"
+  },
+  {
+    "id": "iv_let_002",
+    "topic": "irregular_verbs",
+    "verb": "let",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "let",
+    "correct_answer": "let",
+    "wrong_answers": [
+      "met",
+      "set",
+      "slept"
+    ],
+    "meaning_de": "lassen"
+  },
+  {
+    "id": "iv_let_003",
+    "topic": "irregular_verbs",
+    "verb": "let",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "let",
+    "correct_answer": "let",
+    "wrong_answers": [
+      "met",
+      "set",
+      "was"
+    ],
+    "hint": "let, l_t, let",
+    "meaning_de": "lassen"
+  },
+  {
+    "id": "iv_let_004",
+    "topic": "irregular_verbs",
+    "verb": "let",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "They have ___ us go home early.",
+    "correct_answer": "let",
+    "wrong_answers": [
+      "met",
+      "set",
+      "slept"
+    ],
+    "hint": "let, l_t, let",
+    "context_sentence": "They have ___ us go home early.",
+    "meaning_de": "lassen"
+  },
+  {
+    "id": "iv_begin_001",
+    "topic": "irregular_verbs",
+    "verb": "begin",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "begin",
+    "correct_answer": "began",
+    "wrong_answers": [
+      "begun",
+      "ran",
+      "came"
+    ],
+    "meaning_de": "beginnen / anfangen"
+  },
+  {
+    "id": "iv_begin_002",
+    "topic": "irregular_verbs",
+    "verb": "begin",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "begin",
+    "correct_answer": "begun",
+    "wrong_answers": [
+      "began",
+      "run",
+      "thought"
+    ],
+    "meaning_de": "beginnen / anfangen"
+  },
+  {
+    "id": "iv_begin_003",
+    "topic": "irregular_verbs",
+    "verb": "begin",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "begin",
+    "correct_answer": "began",
+    "wrong_answers": [
+      "begun",
+      "ran",
+      "came"
+    ],
+    "hint": "begin, b___n, begun",
+    "meaning_de": "beginnen / anfangen"
+  },
+  {
+    "id": "iv_begin_004",
+    "topic": "irregular_verbs",
+    "verb": "begin",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "The film ___ at eight o'clock.",
+    "correct_answer": "began",
+    "wrong_answers": [
+      "begun",
+      "ran",
+      "came"
+    ],
+    "hint": "begin, b___n, begun",
+    "context_sentence": "The film ___ at eight o'clock.",
+    "meaning_de": "beginnen / anfangen"
+  },
+  {
+    "id": "iv_hear_001",
+    "topic": "irregular_verbs",
+    "verb": "hear",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hear",
+    "correct_answer": "heard",
+    "wrong_answers": [
+      "sent",
+      "hurt",
+      "held"
+    ],
+    "meaning_de": "hören"
+  },
+  {
+    "id": "iv_hear_002",
+    "topic": "irregular_verbs",
+    "verb": "hear",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hear",
+    "correct_answer": "heard",
+    "wrong_answers": [
+      "known",
+      "got",
+      "let"
+    ],
+    "meaning_de": "hören"
+  },
+  {
+    "id": "iv_hear_003",
+    "topic": "irregular_verbs",
+    "verb": "hear",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "hear",
+    "correct_answer": "heard",
+    "wrong_answers": [
+      "sent",
+      "hurt",
+      "held"
+    ],
+    "hint": "hear, h___d, heard",
+    "meaning_de": "hören"
+  },
+  {
+    "id": "iv_hear_004",
+    "topic": "irregular_verbs",
+    "verb": "hear",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "Have you ___ the news?",
+    "correct_answer": "heard",
+    "wrong_answers": [
+      "known",
+      "got",
+      "let"
+    ],
+    "hint": "hear, h___d, heard",
+    "context_sentence": "Have you ___ the news?",
+    "meaning_de": "hören"
+  },
+  {
+    "id": "iv_hold_001",
+    "topic": "irregular_verbs",
+    "verb": "hold",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hold",
+    "correct_answer": "held",
+    "wrong_answers": [
+      "sold",
+      "told",
+      "meant"
+    ],
+    "meaning_de": "halten"
+  },
+  {
+    "id": "iv_hold_002",
+    "topic": "irregular_verbs",
+    "verb": "hold",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hold",
+    "correct_answer": "held",
+    "wrong_answers": [
+      "sold",
+      "told",
+      "swum"
+    ],
+    "meaning_de": "halten"
+  },
+  {
+    "id": "iv_hold_003",
+    "topic": "irregular_verbs",
+    "verb": "hold",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "hold",
+    "correct_answer": "held",
+    "wrong_answers": [
+      "sold",
+      "told",
+      "meant"
+    ],
+    "hint": "hold, h__d, held",
+    "meaning_de": "halten"
+  },
+  {
+    "id": "iv_hold_004",
+    "topic": "irregular_verbs",
+    "verb": "hold",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ the baby in her arms.",
+    "correct_answer": "held",
+    "wrong_answers": [
+      "sold",
+      "told",
+      "meant"
+    ],
+    "hint": "hold, h__d, held",
+    "context_sentence": "She ___ the baby in her arms.",
+    "meaning_de": "halten"
+  },
+  {
+    "id": "iv_bring_001",
+    "topic": "irregular_verbs",
+    "verb": "bring",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "bring",
+    "correct_answer": "brought",
+    "wrong_answers": [
+      "thought",
+      "fought",
+      "taught"
+    ],
+    "meaning_de": "(mit)bringen"
+  },
+  {
+    "id": "iv_bring_002",
+    "topic": "irregular_verbs",
+    "verb": "bring",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "bring",
+    "correct_answer": "brought",
+    "wrong_answers": [
+      "bought",
+      "taught",
+      "thought"
+    ],
+    "meaning_de": "(mit)bringen"
+  },
+  {
+    "id": "iv_bring_003",
+    "topic": "irregular_verbs",
+    "verb": "bring",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "bring",
+    "correct_answer": "brought",
+    "wrong_answers": [
+      "thought",
+      "fought",
+      "taught"
+    ],
+    "hint": "bring, b_____t, brought",
+    "meaning_de": "(mit)bringen"
+  },
+  {
+    "id": "iv_bring_004",
+    "topic": "irregular_verbs",
+    "verb": "bring",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ her homework today.",
+    "correct_answer": "brought",
+    "wrong_answers": [
+      "bought",
+      "taught",
+      "thought"
+    ],
+    "hint": "bring, b_____t, brought",
+    "context_sentence": "She has ___ her homework today.",
+    "meaning_de": "(mit)bringen"
+  },
+  {
+    "id": "iv_write_001",
+    "topic": "irregular_verbs",
+    "verb": "write",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "write",
+    "correct_answer": "wrote",
+    "wrong_answers": [
+      "written",
+      "ate",
+      "lost"
+    ],
+    "meaning_de": "schreiben"
+  },
+  {
+    "id": "iv_write_002",
+    "topic": "irregular_verbs",
+    "verb": "write",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "write",
+    "correct_answer": "written",
+    "wrong_answers": [
+      "wrote",
+      "chosen",
+      "eaten"
+    ],
+    "meaning_de": "schreiben"
+  },
+  {
+    "id": "iv_write_003",
+    "topic": "irregular_verbs",
+    "verb": "write",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "write",
+    "correct_answer": "wrote",
+    "wrong_answers": [
+      "written",
+      "ate",
+      "lost"
+    ],
+    "hint": "write, w___e, written",
+    "meaning_de": "schreiben"
+  },
+  {
+    "id": "iv_write_004",
+    "topic": "irregular_verbs",
+    "verb": "write",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I ___ a letter to my friend.",
+    "correct_answer": "wrote",
+    "wrong_answers": [
+      "written",
+      "ate",
+      "lost"
+    ],
+    "hint": "write, w___e, written",
+    "context_sentence": "I ___ a letter to my friend.",
+    "meaning_de": "schreiben"
+  },
+  {
+    "id": "iv_sit_001",
+    "topic": "irregular_verbs",
+    "verb": "sit",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sit",
+    "correct_answer": "sat",
+    "wrong_answers": [
+      "thought",
+      "heard",
+      "felt"
+    ],
+    "meaning_de": "sitzen"
+  },
+  {
+    "id": "iv_sit_002",
+    "topic": "irregular_verbs",
+    "verb": "sit",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sit",
+    "correct_answer": "sat",
+    "wrong_answers": [
+      "begun",
+      "thrown",
+      "sent"
+    ],
+    "meaning_de": "sitzen"
+  },
+  {
+    "id": "iv_sit_003",
+    "topic": "irregular_verbs",
+    "verb": "sit",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "sit",
+    "correct_answer": "sat",
+    "wrong_answers": [
+      "thought",
+      "heard",
+      "felt"
+    ],
+    "hint": "sit, s_t, sat",
+    "meaning_de": "sitzen"
+  },
+  {
+    "id": "iv_sit_004",
+    "topic": "irregular_verbs",
+    "verb": "sit",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ here all morning.",
+    "correct_answer": "sat",
+    "wrong_answers": [
+      "begun",
+      "thrown",
+      "sent"
+    ],
+    "hint": "sit, s_t, sat",
+    "context_sentence": "He has ___ here all morning.",
+    "meaning_de": "sitzen"
+  },
+  {
+    "id": "iv_stand_001",
+    "topic": "irregular_verbs",
+    "verb": "stand",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "stand",
+    "correct_answer": "stood",
+    "wrong_answers": [
+      "understood",
+      "cost",
+      "ran"
+    ],
+    "meaning_de": "stehen"
+  },
+  {
+    "id": "iv_stand_002",
+    "topic": "irregular_verbs",
+    "verb": "stand",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "stand",
+    "correct_answer": "stood",
+    "wrong_answers": [
+      "understood",
+      "fought",
+      "brought"
+    ],
+    "meaning_de": "stehen"
+  },
+  {
+    "id": "iv_stand_003",
+    "topic": "irregular_verbs",
+    "verb": "stand",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "stand",
+    "correct_answer": "stood",
+    "wrong_answers": [
+      "understood",
+      "cost",
+      "ran"
+    ],
+    "hint": "stand, s___d, stood",
+    "meaning_de": "stehen"
+  },
+  {
+    "id": "iv_stand_004",
+    "topic": "irregular_verbs",
+    "verb": "stand",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ next to the window.",
+    "correct_answer": "stood",
+    "wrong_answers": [
+      "understood",
+      "cost",
+      "ran"
+    ],
+    "hint": "stand, s___d, stood",
+    "context_sentence": "She ___ next to the window.",
+    "meaning_de": "stehen"
+  },
+  {
+    "id": "iv_lose_001",
+    "topic": "irregular_verbs",
+    "verb": "lose",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "lose",
+    "correct_answer": "lost",
+    "wrong_answers": [
+      "cost",
+      "stood",
+      "chose"
+    ],
+    "meaning_de": "verlieren"
+  },
+  {
+    "id": "iv_lose_002",
+    "topic": "irregular_verbs",
+    "verb": "lose",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "lose",
+    "correct_answer": "lost",
+    "wrong_answers": [
+      "cost",
+      "thought",
+      "made"
+    ],
+    "meaning_de": "verlieren"
+  },
+  {
+    "id": "iv_lose_003",
+    "topic": "irregular_verbs",
+    "verb": "lose",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "lose",
+    "correct_answer": "lost",
+    "wrong_answers": [
+      "cost",
+      "stood",
+      "chose"
+    ],
+    "hint": "lose, l__t, lost",
+    "meaning_de": "verlieren"
+  },
+  {
+    "id": "iv_lose_004",
+    "topic": "irregular_verbs",
+    "verb": "lose",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "We have ___ the game again.",
+    "correct_answer": "lost",
+    "wrong_answers": [
+      "cost",
+      "thought",
+      "made"
+    ],
+    "hint": "lose, l__t, lost",
+    "context_sentence": "We have ___ the game again.",
+    "meaning_de": "verlieren"
+  },
+  {
+    "id": "iv_pay_001",
+    "topic": "irregular_verbs",
+    "verb": "pay",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "pay",
+    "correct_answer": "paid",
+    "wrong_answers": [
+      "did",
+      "said",
+      "had"
+    ],
+    "meaning_de": "(be)zahlen"
+  },
+  {
+    "id": "iv_pay_002",
+    "topic": "irregular_verbs",
+    "verb": "pay",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "pay",
+    "correct_answer": "paid",
+    "wrong_answers": [
+      "said",
+      "been",
+      "swum"
+    ],
+    "meaning_de": "(be)zahlen"
+  },
+  {
+    "id": "iv_pay_003",
+    "topic": "irregular_verbs",
+    "verb": "pay",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "pay",
+    "correct_answer": "paid",
+    "wrong_answers": [
+      "did",
+      "said",
+      "had"
+    ],
+    "hint": "pay, p__d, paid",
+    "meaning_de": "(be)zahlen"
+  },
+  {
+    "id": "iv_pay_004",
+    "topic": "irregular_verbs",
+    "verb": "pay",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ for the tickets.",
+    "correct_answer": "paid",
+    "wrong_answers": [
+      "did",
+      "said",
+      "had"
+    ],
+    "hint": "pay, p__d, paid",
+    "context_sentence": "She ___ for the tickets.",
+    "meaning_de": "(be)zahlen"
+  },
+  {
+    "id": "iv_meet_001",
+    "topic": "irregular_verbs",
+    "verb": "meet",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "meet",
+    "correct_answer": "met",
+    "wrong_answers": [
+      "let",
+      "set",
+      "rode"
+    ],
+    "meaning_de": "treffen / begegnen"
+  },
+  {
+    "id": "iv_meet_002",
+    "topic": "irregular_verbs",
+    "verb": "meet",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "meet",
+    "correct_answer": "met",
+    "wrong_answers": [
+      "let",
+      "set",
+      "found"
+    ],
+    "meaning_de": "treffen / begegnen"
+  },
+  {
+    "id": "iv_meet_003",
+    "topic": "irregular_verbs",
+    "verb": "meet",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "meet",
+    "correct_answer": "met",
+    "wrong_answers": [
+      "let",
+      "set",
+      "rode"
+    ],
+    "hint": "meet, m_t, met",
+    "meaning_de": "treffen / begegnen"
+  },
+  {
+    "id": "iv_meet_004",
+    "topic": "irregular_verbs",
+    "verb": "meet",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ her before.",
+    "correct_answer": "met",
+    "wrong_answers": [
+      "let",
+      "set",
+      "found"
+    ],
+    "hint": "meet, m_t, met",
+    "context_sentence": "I have ___ her before.",
+    "meaning_de": "treffen / begegnen"
+  },
+  {
+    "id": "iv_run_001",
+    "topic": "irregular_verbs",
+    "verb": "run",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "run",
+    "correct_answer": "ran",
+    "wrong_answers": [
+      "run",
+      "began",
+      "spoke"
+    ],
+    "meaning_de": "rennen / laufen"
+  },
+  {
+    "id": "iv_run_002",
+    "topic": "irregular_verbs",
+    "verb": "run",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "run",
+    "correct_answer": "run",
+    "wrong_answers": [
+      "ran",
+      "begun",
+      "let"
+    ],
+    "meaning_de": "rennen / laufen"
+  },
+  {
+    "id": "iv_run_003",
+    "topic": "irregular_verbs",
+    "verb": "run",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "run",
+    "correct_answer": "ran",
+    "wrong_answers": [
+      "run",
+      "began",
+      "spoke"
+    ],
+    "hint": "run, r_n, run",
+    "meaning_de": "rennen / laufen"
+  },
+  {
+    "id": "iv_run_004",
+    "topic": "irregular_verbs",
+    "verb": "run",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ to school yesterday.",
+    "correct_answer": "ran",
+    "wrong_answers": [
+      "run",
+      "began",
+      "spoke"
+    ],
+    "hint": "run, r_n, run",
+    "context_sentence": "He ___ to school yesterday.",
+    "meaning_de": "rennen / laufen"
+  },
+  {
+    "id": "iv_set_001",
+    "topic": "irregular_verbs",
+    "verb": "set",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "set",
+    "correct_answer": "set",
+    "wrong_answers": [
+      "let",
+      "met",
+      "led"
+    ],
+    "meaning_de": "setzen / stellen"
+  },
+  {
+    "id": "iv_set_002",
+    "topic": "irregular_verbs",
+    "verb": "set",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "set",
+    "correct_answer": "set",
+    "wrong_answers": [
+      "let",
+      "met",
+      "broken"
+    ],
+    "meaning_de": "setzen / stellen"
+  },
+  {
+    "id": "iv_set_003",
+    "topic": "irregular_verbs",
+    "verb": "set",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "set",
+    "correct_answer": "set",
+    "wrong_answers": [
+      "let",
+      "met",
+      "led"
+    ],
+    "hint": "set, s_t, set",
+    "meaning_de": "setzen / stellen"
+  },
+  {
+    "id": "iv_set_004",
+    "topic": "irregular_verbs",
+    "verb": "set",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ a new record.",
+    "correct_answer": "set",
+    "wrong_answers": [
+      "let",
+      "met",
+      "broken"
+    ],
+    "hint": "set, s_t, set",
+    "context_sentence": "She has ___ a new record.",
+    "meaning_de": "setzen / stellen"
+  },
+  {
+    "id": "iv_lead_001",
+    "topic": "irregular_verbs",
+    "verb": "lead",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "lead",
+    "correct_answer": "led",
+    "wrong_answers": [
+      "went",
+      "sold",
+      "swam"
+    ],
+    "meaning_de": "führen / leiten"
+  },
+  {
+    "id": "iv_lead_002",
+    "topic": "irregular_verbs",
+    "verb": "lead",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "lead",
+    "correct_answer": "led",
+    "wrong_answers": [
+      "told",
+      "driven",
+      "known"
+    ],
+    "meaning_de": "führen / leiten"
+  },
+  {
+    "id": "iv_lead_003",
+    "topic": "irregular_verbs",
+    "verb": "lead",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "lead",
+    "correct_answer": "led",
+    "wrong_answers": [
+      "went",
+      "sold",
+      "swam"
+    ],
+    "hint": "lead, l_d, led",
+    "meaning_de": "führen / leiten"
+  },
+  {
+    "id": "iv_lead_004",
+    "topic": "irregular_verbs",
+    "verb": "lead",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ the team to victory.",
+    "correct_answer": "led",
+    "wrong_answers": [
+      "went",
+      "sold",
+      "swam"
+    ],
+    "hint": "lead, l_d, led",
+    "context_sentence": "She ___ the team to victory.",
+    "meaning_de": "führen / leiten"
+  },
+  {
+    "id": "iv_understand_001",
+    "topic": "irregular_verbs",
+    "verb": "understand",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "understand",
+    "correct_answer": "understood",
+    "wrong_answers": [
+      "stood",
+      "found",
+      "began"
+    ],
+    "meaning_de": "verstehen"
+  },
+  {
+    "id": "iv_understand_002",
+    "topic": "irregular_verbs",
+    "verb": "understand",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "understand",
+    "correct_answer": "understood",
+    "wrong_answers": [
+      "stood",
+      "got",
+      "sold"
+    ],
+    "meaning_de": "verstehen"
+  },
+  {
+    "id": "iv_understand_003",
+    "topic": "irregular_verbs",
+    "verb": "understand",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "understand",
+    "correct_answer": "understood",
+    "wrong_answers": [
+      "stood",
+      "found",
+      "began"
+    ],
+    "hint": "understand, u________d, understood",
+    "meaning_de": "verstehen"
+  },
+  {
+    "id": "iv_understand_004",
+    "topic": "irregular_verbs",
+    "verb": "understand",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ everything you said.",
+    "correct_answer": "understood",
+    "wrong_answers": [
+      "stood",
+      "got",
+      "sold"
+    ],
+    "hint": "understand, u________d, understood",
+    "context_sentence": "She has ___ everything you said.",
+    "meaning_de": "verstehen"
+  },
+  {
+    "id": "iv_speak_001",
+    "topic": "irregular_verbs",
+    "verb": "speak",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "speak",
+    "correct_answer": "spoke",
+    "wrong_answers": [
+      "spoken",
+      "broke",
+      "put"
+    ],
+    "meaning_de": "sprechen"
+  },
+  {
+    "id": "iv_speak_002",
+    "topic": "irregular_verbs",
+    "verb": "speak",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "speak",
+    "correct_answer": "spoken",
+    "wrong_answers": [
+      "spoke",
+      "chosen",
+      "broken"
+    ],
+    "meaning_de": "sprechen"
+  },
+  {
+    "id": "iv_speak_003",
+    "topic": "irregular_verbs",
+    "verb": "speak",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "speak",
+    "correct_answer": "spoke",
+    "wrong_answers": [
+      "spoken",
+      "broke",
+      "put"
+    ],
+    "hint": "speak, s___e, spoken",
+    "meaning_de": "sprechen"
+  },
+  {
+    "id": "iv_speak_004",
+    "topic": "irregular_verbs",
+    "verb": "speak",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ very quietly during the test.",
+    "correct_answer": "spoke",
+    "wrong_answers": [
+      "spoken",
+      "broke",
+      "put"
+    ],
+    "hint": "speak, s___e, spoken",
+    "context_sentence": "He ___ very quietly during the test.",
+    "meaning_de": "sprechen"
+  },
+  {
+    "id": "iv_read_001",
+    "topic": "irregular_verbs",
+    "verb": "read",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "read",
+    "correct_answer": "read",
+    "wrong_answers": [
+      "had",
+      "threw",
+      "hit"
+    ],
+    "meaning_de": "lesen"
+  },
+  {
+    "id": "iv_read_002",
+    "topic": "irregular_verbs",
+    "verb": "read",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "read",
+    "correct_answer": "read",
+    "wrong_answers": [
+      "had",
+      "come",
+      "given"
+    ],
+    "meaning_de": "lesen"
+  },
+  {
+    "id": "iv_read_003",
+    "topic": "irregular_verbs",
+    "verb": "read",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "read",
+    "correct_answer": "read",
+    "wrong_answers": [
+      "had",
+      "threw",
+      "hit"
+    ],
+    "hint": "read, r__d, read",
+    "meaning_de": "lesen"
+  },
+  {
+    "id": "iv_read_004",
+    "topic": "irregular_verbs",
+    "verb": "read",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ this story before.",
+    "correct_answer": "read",
+    "wrong_answers": [
+      "had",
+      "come",
+      "given"
+    ],
+    "hint": "read, r__d, read",
+    "context_sentence": "I have ___ this story before.",
+    "meaning_de": "lesen"
+  },
+  {
+    "id": "iv_eat_001",
+    "topic": "irregular_verbs",
+    "verb": "eat",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "eat",
+    "correct_answer": "ate",
+    "wrong_answers": [
+      "eaten",
+      "wrote",
+      "kept"
+    ],
+    "meaning_de": "essen"
+  },
+  {
+    "id": "iv_eat_002",
+    "topic": "irregular_verbs",
+    "verb": "eat",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "eat",
+    "correct_answer": "eaten",
+    "wrong_answers": [
+      "ate",
+      "driven",
+      "broken"
+    ],
+    "meaning_de": "essen"
+  },
+  {
+    "id": "iv_eat_003",
+    "topic": "irregular_verbs",
+    "verb": "eat",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "eat",
+    "correct_answer": "ate",
+    "wrong_answers": [
+      "eaten",
+      "wrote",
+      "kept"
+    ],
+    "hint": "eat, a_e, eaten",
+    "meaning_de": "essen"
+  },
+  {
+    "id": "iv_eat_004",
+    "topic": "irregular_verbs",
+    "verb": "eat",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "We ___ pizza for dinner.",
+    "correct_answer": "ate",
+    "wrong_answers": [
+      "eaten",
+      "wrote",
+      "kept"
+    ],
+    "hint": "eat, a_e, eaten",
+    "context_sentence": "We ___ pizza for dinner.",
+    "meaning_de": "essen"
+  },
+  {
+    "id": "iv_drink_001",
+    "topic": "irregular_verbs",
+    "verb": "drink",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "drink",
+    "correct_answer": "drank",
+    "wrong_answers": [
+      "drunk",
+      "sang",
+      "did"
+    ],
+    "meaning_de": "trinken"
+  },
+  {
+    "id": "iv_drink_002",
+    "topic": "irregular_verbs",
+    "verb": "drink",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "drink",
+    "correct_answer": "drunk",
+    "wrong_answers": [
+      "drank",
+      "run",
+      "given"
+    ],
+    "meaning_de": "trinken"
+  },
+  {
+    "id": "iv_drink_003",
+    "topic": "irregular_verbs",
+    "verb": "drink",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "drink",
+    "correct_answer": "drank",
+    "wrong_answers": [
+      "drunk",
+      "sang",
+      "did"
+    ],
+    "hint": "drink, d___k, drunk",
+    "meaning_de": "trinken"
+  },
+  {
+    "id": "iv_drink_004",
+    "topic": "irregular_verbs",
+    "verb": "drink",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ all the water.",
+    "correct_answer": "drunk",
+    "wrong_answers": [
+      "drank",
+      "run",
+      "given"
+    ],
+    "hint": "drink, d___k, drunk",
+    "context_sentence": "She has ___ all the water.",
+    "meaning_de": "trinken"
+  },
+  {
+    "id": "iv_drive_001",
+    "topic": "irregular_verbs",
+    "verb": "drive",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "drive",
+    "correct_answer": "drove",
+    "wrong_answers": [
+      "driven",
+      "gave",
+      "sang"
+    ],
+    "meaning_de": "fahren (Auto)"
+  },
+  {
+    "id": "iv_drive_002",
+    "topic": "irregular_verbs",
+    "verb": "drive",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "drive",
+    "correct_answer": "driven",
+    "wrong_answers": [
+      "drove",
+      "written",
+      "chosen"
+    ],
+    "meaning_de": "fahren (Auto)"
+  },
+  {
+    "id": "iv_drive_003",
+    "topic": "irregular_verbs",
+    "verb": "drive",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "drive",
+    "correct_answer": "drove",
+    "wrong_answers": [
+      "driven",
+      "gave",
+      "sang"
+    ],
+    "hint": "drive, d___e, driven",
+    "meaning_de": "fahren (Auto)"
+  },
+  {
+    "id": "iv_drive_004",
+    "topic": "irregular_verbs",
+    "verb": "drive",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "Dad ___ us to the airport.",
+    "correct_answer": "drove",
+    "wrong_answers": [
+      "driven",
+      "gave",
+      "sang"
+    ],
+    "hint": "drive, d___e, driven",
+    "context_sentence": "Dad ___ us to the airport.",
+    "meaning_de": "fahren (Auto)"
+  },
+  {
+    "id": "iv_ride_001",
+    "topic": "irregular_verbs",
+    "verb": "ride",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "ride",
+    "correct_answer": "rode",
+    "wrong_answers": [
+      "ridden",
+      "made",
+      "drank"
+    ],
+    "meaning_de": "reiten / Rad fahren"
+  },
+  {
+    "id": "iv_ride_002",
+    "topic": "irregular_verbs",
+    "verb": "ride",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "ride",
+    "correct_answer": "ridden",
+    "wrong_answers": [
+      "rode",
+      "spoken",
+      "fallen"
+    ],
+    "meaning_de": "reiten / Rad fahren"
+  },
+  {
+    "id": "iv_ride_003",
+    "topic": "irregular_verbs",
+    "verb": "ride",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "ride",
+    "correct_answer": "rode",
+    "wrong_answers": [
+      "ridden",
+      "made",
+      "drank"
+    ],
+    "hint": "ride, r__e, ridden",
+    "meaning_de": "reiten / Rad fahren"
+  },
+  {
+    "id": "iv_ride_004",
+    "topic": "irregular_verbs",
+    "verb": "ride",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ a horse before.",
+    "correct_answer": "ridden",
+    "wrong_answers": [
+      "rode",
+      "spoken",
+      "fallen"
+    ],
+    "hint": "ride, r__e, ridden",
+    "context_sentence": "He has ___ a horse before.",
+    "meaning_de": "reiten / Rad fahren"
+  },
+  {
+    "id": "iv_fall_001",
+    "topic": "irregular_verbs",
+    "verb": "fall",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "fall",
+    "correct_answer": "fell",
+    "wrong_answers": [
+      "fallen",
+      "began",
+      "did"
+    ],
+    "meaning_de": "fallen / hinfallen"
+  },
+  {
+    "id": "iv_fall_002",
+    "topic": "irregular_verbs",
+    "verb": "fall",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "fall",
+    "correct_answer": "fallen",
+    "wrong_answers": [
+      "fell",
+      "chosen",
+      "taken"
+    ],
+    "meaning_de": "fallen / hinfallen"
+  },
+  {
+    "id": "iv_fall_003",
+    "topic": "irregular_verbs",
+    "verb": "fall",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "fall",
+    "correct_answer": "fell",
+    "wrong_answers": [
+      "fallen",
+      "began",
+      "did"
+    ],
+    "hint": "fall, f__l, fallen",
+    "meaning_de": "fallen / hinfallen"
+  },
+  {
+    "id": "iv_fall_004",
+    "topic": "irregular_verbs",
+    "verb": "fall",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ off his bike yesterday.",
+    "correct_answer": "fell",
+    "wrong_answers": [
+      "fallen",
+      "began",
+      "did"
+    ],
+    "hint": "fall, f__l, fallen",
+    "context_sentence": "He ___ off his bike yesterday.",
+    "meaning_de": "fallen / hinfallen"
+  },
+  {
+    "id": "iv_build_001",
+    "topic": "irregular_verbs",
+    "verb": "build",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "build",
+    "correct_answer": "built",
+    "wrong_answers": [
+      "felt",
+      "fought",
+      "sang"
+    ],
+    "meaning_de": "bauen"
+  },
+  {
+    "id": "iv_build_002",
+    "topic": "irregular_verbs",
+    "verb": "build",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "build",
+    "correct_answer": "built",
+    "wrong_answers": [
+      "felt",
+      "sung",
+      "got"
+    ],
+    "meaning_de": "bauen"
+  },
+  {
+    "id": "iv_build_003",
+    "topic": "irregular_verbs",
+    "verb": "build",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "build",
+    "correct_answer": "built",
+    "wrong_answers": [
+      "felt",
+      "fought",
+      "sang"
+    ],
+    "hint": "build, b___t, built",
+    "meaning_de": "bauen"
+  },
+  {
+    "id": "iv_build_004",
+    "topic": "irregular_verbs",
+    "verb": "build",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "They have ___ a new school.",
+    "correct_answer": "built",
+    "wrong_answers": [
+      "felt",
+      "sung",
+      "got"
+    ],
+    "hint": "build, b___t, built",
+    "context_sentence": "They have ___ a new school.",
+    "meaning_de": "bauen"
+  },
+  {
+    "id": "iv_send_001",
+    "topic": "irregular_verbs",
+    "verb": "send",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "send",
+    "correct_answer": "sent",
+    "wrong_answers": [
+      "went",
+      "meant",
+      "cut"
+    ],
+    "meaning_de": "senden / schicken"
+  },
+  {
+    "id": "iv_send_002",
+    "topic": "irregular_verbs",
+    "verb": "send",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "send",
+    "correct_answer": "sent",
+    "wrong_answers": [
+      "meant",
+      "got",
+      "taught"
+    ],
+    "meaning_de": "senden / schicken"
+  },
+  {
+    "id": "iv_send_003",
+    "topic": "irregular_verbs",
+    "verb": "send",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "send",
+    "correct_answer": "sent",
+    "wrong_answers": [
+      "went",
+      "meant",
+      "cut"
+    ],
+    "hint": "send, s__t, sent",
+    "meaning_de": "senden / schicken"
+  },
+  {
+    "id": "iv_send_004",
+    "topic": "irregular_verbs",
+    "verb": "send",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ me a postcard from Spain.",
+    "correct_answer": "sent",
+    "wrong_answers": [
+      "went",
+      "meant",
+      "cut"
+    ],
+    "hint": "send, s__t, sent",
+    "context_sentence": "She ___ me a postcard from Spain.",
+    "meaning_de": "senden / schicken"
+  },
+  {
+    "id": "iv_choose_001",
+    "topic": "irregular_verbs",
+    "verb": "choose",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "choose",
+    "correct_answer": "chose",
+    "wrong_answers": [
+      "chosen",
+      "made",
+      "met"
+    ],
+    "meaning_de": "wählen / auswählen"
+  },
+  {
+    "id": "iv_choose_002",
+    "topic": "irregular_verbs",
+    "verb": "choose",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "choose",
+    "correct_answer": "chosen",
+    "wrong_answers": [
+      "chose",
+      "eaten",
+      "seen"
+    ],
+    "meaning_de": "wählen / auswählen"
+  },
+  {
+    "id": "iv_choose_003",
+    "topic": "irregular_verbs",
+    "verb": "choose",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "choose",
+    "correct_answer": "chose",
+    "wrong_answers": [
+      "chosen",
+      "made",
+      "met"
+    ],
+    "hint": "choose, c___e, chosen",
+    "meaning_de": "wählen / auswählen"
+  },
+  {
+    "id": "iv_choose_004",
+    "topic": "irregular_verbs",
+    "verb": "choose",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ a great present.",
+    "correct_answer": "chosen",
+    "wrong_answers": [
+      "chose",
+      "eaten",
+      "seen"
+    ],
+    "hint": "choose, c___e, chosen",
+    "context_sentence": "She has ___ a great present.",
+    "meaning_de": "wählen / auswählen"
+  },
+  {
+    "id": "iv_break_001",
+    "topic": "irregular_verbs",
+    "verb": "break",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "break",
+    "correct_answer": "broke",
+    "wrong_answers": [
+      "broken",
+      "spoke",
+      "sold"
+    ],
+    "meaning_de": "brechen / kaputt machen"
+  },
+  {
+    "id": "iv_break_002",
+    "topic": "irregular_verbs",
+    "verb": "break",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "break",
+    "correct_answer": "broken",
+    "wrong_answers": [
+      "broke",
+      "given",
+      "written"
+    ],
+    "meaning_de": "brechen / kaputt machen"
+  },
+  {
+    "id": "iv_break_003",
+    "topic": "irregular_verbs",
+    "verb": "break",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "break",
+    "correct_answer": "broke",
+    "wrong_answers": [
+      "broken",
+      "spoke",
+      "sold"
+    ],
+    "hint": "break, b___e, broken",
+    "meaning_de": "brechen / kaputt machen"
+  },
+  {
+    "id": "iv_break_004",
+    "topic": "irregular_verbs",
+    "verb": "break",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I ___ my arm last winter.",
+    "correct_answer": "broke",
+    "wrong_answers": [
+      "broken",
+      "spoke",
+      "sold"
+    ],
+    "hint": "break, b___e, broken",
+    "context_sentence": "I ___ my arm last winter.",
+    "meaning_de": "brechen / kaputt machen"
+  },
+  {
+    "id": "iv_buy_001",
+    "topic": "irregular_verbs",
+    "verb": "buy",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "buy",
+    "correct_answer": "bought",
+    "wrong_answers": [
+      "thought",
+      "taught",
+      "fought"
+    ],
+    "meaning_de": "kaufen"
+  },
+  {
+    "id": "iv_buy_002",
+    "topic": "irregular_verbs",
+    "verb": "buy",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "buy",
+    "correct_answer": "bought",
+    "wrong_answers": [
+      "brought",
+      "fought",
+      "thought"
+    ],
+    "meaning_de": "kaufen"
+  },
+  {
+    "id": "iv_buy_003",
+    "topic": "irregular_verbs",
+    "verb": "buy",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "buy",
+    "correct_answer": "bought",
+    "wrong_answers": [
+      "thought",
+      "taught",
+      "fought"
+    ],
+    "hint": "buy, b____t, bought",
+    "meaning_de": "kaufen"
+  },
+  {
+    "id": "iv_buy_004",
+    "topic": "irregular_verbs",
+    "verb": "buy",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ a birthday present for him.",
+    "correct_answer": "bought",
+    "wrong_answers": [
+      "brought",
+      "fought",
+      "thought"
+    ],
+    "hint": "buy, b____t, bought",
+    "context_sentence": "I have ___ a birthday present for him.",
+    "meaning_de": "kaufen"
+  },
+  {
+    "id": "iv_cost_001",
+    "topic": "irregular_verbs",
+    "verb": "cost",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "cost",
+    "correct_answer": "cost",
+    "wrong_answers": [
+      "lost",
+      "fought",
+      "made"
+    ],
+    "meaning_de": "kosten"
+  },
+  {
+    "id": "iv_cost_002",
+    "topic": "irregular_verbs",
+    "verb": "cost",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "cost",
+    "correct_answer": "cost",
+    "wrong_answers": [
+      "lost",
+      "spoken",
+      "seen"
+    ],
+    "meaning_de": "kosten"
+  },
+  {
+    "id": "iv_cost_003",
+    "topic": "irregular_verbs",
+    "verb": "cost",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "cost",
+    "correct_answer": "cost",
+    "wrong_answers": [
+      "lost",
+      "fought",
+      "made"
+    ],
+    "hint": "cost, c__t, cost",
+    "meaning_de": "kosten"
+  },
+  {
+    "id": "iv_cost_004",
+    "topic": "irregular_verbs",
+    "verb": "cost",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "The ticket ___ ten euros.",
+    "correct_answer": "cost",
+    "wrong_answers": [
+      "lost",
+      "fought",
+      "made"
+    ],
+    "hint": "cost, c__t, cost",
+    "context_sentence": "The ticket ___ ten euros.",
+    "meaning_de": "kosten"
+  },
+  {
+    "id": "iv_cut_001",
+    "topic": "irregular_verbs",
+    "verb": "cut",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "cut",
+    "correct_answer": "cut",
+    "wrong_answers": [
+      "put",
+      "broke",
+      "taught"
+    ],
+    "meaning_de": "schneiden"
+  },
+  {
+    "id": "iv_cut_002",
+    "topic": "irregular_verbs",
+    "verb": "cut",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "cut",
+    "correct_answer": "cut",
+    "wrong_answers": [
+      "put",
+      "led",
+      "broken"
+    ],
+    "meaning_de": "schneiden"
+  },
+  {
+    "id": "iv_cut_003",
+    "topic": "irregular_verbs",
+    "verb": "cut",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "cut",
+    "correct_answer": "cut",
+    "wrong_answers": [
+      "put",
+      "broke",
+      "taught"
+    ],
+    "hint": "cut, c_t, cut",
+    "meaning_de": "schneiden"
+  },
+  {
+    "id": "iv_cut_004",
+    "topic": "irregular_verbs",
+    "verb": "cut",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I have ___ my finger.",
+    "correct_answer": "cut",
+    "wrong_answers": [
+      "put",
+      "led",
+      "broken"
+    ],
+    "hint": "cut, c_t, cut",
+    "context_sentence": "I have ___ my finger.",
+    "meaning_de": "schneiden"
+  },
+  {
+    "id": "iv_fight_001",
+    "topic": "irregular_verbs",
+    "verb": "fight",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "fight",
+    "correct_answer": "fought",
+    "wrong_answers": [
+      "brought",
+      "bought",
+      "taught"
+    ],
+    "meaning_de": "kämpfen"
+  },
+  {
+    "id": "iv_fight_002",
+    "topic": "irregular_verbs",
+    "verb": "fight",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "fight",
+    "correct_answer": "fought",
+    "wrong_answers": [
+      "thought",
+      "brought",
+      "taught"
+    ],
+    "meaning_de": "kämpfen"
+  },
+  {
+    "id": "iv_fight_003",
+    "topic": "irregular_verbs",
+    "verb": "fight",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "fight",
+    "correct_answer": "fought",
+    "wrong_answers": [
+      "brought",
+      "bought",
+      "taught"
+    ],
+    "hint": "fight, f____t, fought",
+    "meaning_de": "kämpfen"
+  },
+  {
+    "id": "iv_fight_004",
+    "topic": "irregular_verbs",
+    "verb": "fight",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "The two cats ___ in the garden.",
+    "correct_answer": "fought",
+    "wrong_answers": [
+      "brought",
+      "bought",
+      "taught"
+    ],
+    "hint": "fight, f____t, fought",
+    "context_sentence": "The two cats ___ in the garden.",
+    "meaning_de": "kämpfen"
+  },
+  {
+    "id": "iv_hit_001",
+    "topic": "irregular_verbs",
+    "verb": "hit",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hit",
+    "correct_answer": "hit",
+    "wrong_answers": [
+      "was",
+      "slept",
+      "put"
+    ],
+    "meaning_de": "schlagen / treffen"
+  },
+  {
+    "id": "iv_hit_002",
+    "topic": "irregular_verbs",
+    "verb": "hit",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hit",
+    "correct_answer": "hit",
+    "wrong_answers": [
+      "gone",
+      "become",
+      "led"
+    ],
+    "meaning_de": "schlagen / treffen"
+  },
+  {
+    "id": "iv_hit_003",
+    "topic": "irregular_verbs",
+    "verb": "hit",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "hit",
+    "correct_answer": "hit",
+    "wrong_answers": [
+      "was",
+      "slept",
+      "put"
+    ],
+    "hint": "hit, h_t, hit",
+    "meaning_de": "schlagen / treffen"
+  },
+  {
+    "id": "iv_hit_004",
+    "topic": "irregular_verbs",
+    "verb": "hit",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ a home run!",
+    "correct_answer": "hit",
+    "wrong_answers": [
+      "gone",
+      "become",
+      "led"
+    ],
+    "hint": "hit, h_t, hit",
+    "context_sentence": "He has ___ a home run!",
+    "meaning_de": "schlagen / treffen"
+  },
+  {
+    "id": "iv_hurt_001",
+    "topic": "irregular_verbs",
+    "verb": "hurt",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hurt",
+    "correct_answer": "hurt",
+    "wrong_answers": [
+      "met",
+      "lost",
+      "chose"
+    ],
+    "meaning_de": "wehtun / verletzen"
+  },
+  {
+    "id": "iv_hurt_002",
+    "topic": "irregular_verbs",
+    "verb": "hurt",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "hurt",
+    "correct_answer": "hurt",
+    "wrong_answers": [
+      "sold",
+      "sent",
+      "become"
+    ],
+    "meaning_de": "wehtun / verletzen"
+  },
+  {
+    "id": "iv_hurt_003",
+    "topic": "irregular_verbs",
+    "verb": "hurt",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "hurt",
+    "correct_answer": "hurt",
+    "wrong_answers": [
+      "met",
+      "lost",
+      "chose"
+    ],
+    "hint": "hurt, h__t, hurt",
+    "meaning_de": "wehtun / verletzen"
+  },
+  {
+    "id": "iv_hurt_004",
+    "topic": "irregular_verbs",
+    "verb": "hurt",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "I ___ my knee when I fell.",
+    "correct_answer": "hurt",
+    "wrong_answers": [
+      "met",
+      "lost",
+      "chose"
+    ],
+    "hint": "hurt, h__t, hurt",
+    "context_sentence": "I ___ my knee when I fell.",
+    "meaning_de": "wehtun / verletzen"
+  },
+  {
+    "id": "iv_sleep_001",
+    "topic": "irregular_verbs",
+    "verb": "sleep",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sleep",
+    "correct_answer": "slept",
+    "wrong_answers": [
+      "kept",
+      "let",
+      "fell"
+    ],
+    "meaning_de": "schlafen"
+  },
+  {
+    "id": "iv_sleep_002",
+    "topic": "irregular_verbs",
+    "verb": "sleep",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sleep",
+    "correct_answer": "slept",
+    "wrong_answers": [
+      "kept",
+      "chosen",
+      "begun"
+    ],
+    "meaning_de": "schlafen"
+  },
+  {
+    "id": "iv_sleep_003",
+    "topic": "irregular_verbs",
+    "verb": "sleep",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "sleep",
+    "correct_answer": "slept",
+    "wrong_answers": [
+      "kept",
+      "let",
+      "fell"
+    ],
+    "hint": "sleep, s___t, slept",
+    "meaning_de": "schlafen"
+  },
+  {
+    "id": "iv_sleep_004",
+    "topic": "irregular_verbs",
+    "verb": "sleep",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "The baby has ___ all afternoon.",
+    "correct_answer": "slept",
+    "wrong_answers": [
+      "kept",
+      "chosen",
+      "begun"
+    ],
+    "hint": "sleep, s___t, slept",
+    "context_sentence": "The baby has ___ all afternoon.",
+    "meaning_de": "schlafen"
+  },
+  {
+    "id": "iv_sing_001",
+    "topic": "irregular_verbs",
+    "verb": "sing",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sing",
+    "correct_answer": "sang",
+    "wrong_answers": [
+      "sung",
+      "bought",
+      "lost"
+    ],
+    "meaning_de": "singen"
+  },
+  {
+    "id": "iv_sing_002",
+    "topic": "irregular_verbs",
+    "verb": "sing",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sing",
+    "correct_answer": "sung",
+    "wrong_answers": [
+      "sang",
+      "fought",
+      "led"
+    ],
+    "meaning_de": "singen"
+  },
+  {
+    "id": "iv_sing_003",
+    "topic": "irregular_verbs",
+    "verb": "sing",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "sing",
+    "correct_answer": "sang",
+    "wrong_answers": [
+      "sung",
+      "bought",
+      "lost"
+    ],
+    "hint": "sing, s__g, sung",
+    "meaning_de": "singen"
+  },
+  {
+    "id": "iv_sing_004",
+    "topic": "irregular_verbs",
+    "verb": "sing",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "The children ___ a happy song.",
+    "correct_answer": "sang",
+    "wrong_answers": [
+      "sung",
+      "bought",
+      "lost"
+    ],
+    "hint": "sing, s__g, sung",
+    "context_sentence": "The children ___ a happy song.",
+    "meaning_de": "singen"
+  },
+  {
+    "id": "iv_sell_001",
+    "topic": "irregular_verbs",
+    "verb": "sell",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sell",
+    "correct_answer": "sold",
+    "wrong_answers": [
+      "held",
+      "told",
+      "became"
+    ],
+    "meaning_de": "verkaufen"
+  },
+  {
+    "id": "iv_sell_002",
+    "topic": "irregular_verbs",
+    "verb": "sell",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "sell",
+    "correct_answer": "sold",
+    "wrong_answers": [
+      "held",
+      "told",
+      "read"
+    ],
+    "meaning_de": "verkaufen"
+  },
+  {
+    "id": "iv_sell_003",
+    "topic": "irregular_verbs",
+    "verb": "sell",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "sell",
+    "correct_answer": "sold",
+    "wrong_answers": [
+      "held",
+      "told",
+      "became"
+    ],
+    "hint": "sell, s__d, sold",
+    "meaning_de": "verkaufen"
+  },
+  {
+    "id": "iv_sell_004",
+    "topic": "irregular_verbs",
+    "verb": "sell",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He has ___ all his comics.",
+    "correct_answer": "sold",
+    "wrong_answers": [
+      "held",
+      "told",
+      "read"
+    ],
+    "hint": "sell, s__d, sold",
+    "context_sentence": "He has ___ all his comics.",
+    "meaning_de": "verkaufen"
+  },
+  {
+    "id": "iv_swim_001",
+    "topic": "irregular_verbs",
+    "verb": "swim",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "swim",
+    "correct_answer": "swam",
+    "wrong_answers": [
+      "swum",
+      "understood",
+      "cut"
+    ],
+    "meaning_de": "schwimmen"
+  },
+  {
+    "id": "iv_swim_002",
+    "topic": "irregular_verbs",
+    "verb": "swim",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "swim",
+    "correct_answer": "swum",
+    "wrong_answers": [
+      "swam",
+      "met",
+      "won"
+    ],
+    "meaning_de": "schwimmen"
+  },
+  {
+    "id": "iv_swim_003",
+    "topic": "irregular_verbs",
+    "verb": "swim",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "swim",
+    "correct_answer": "swam",
+    "wrong_answers": [
+      "swum",
+      "understood",
+      "cut"
+    ],
+    "hint": "swim, s__m, swum",
+    "meaning_de": "schwimmen"
+  },
+  {
+    "id": "iv_swim_004",
+    "topic": "irregular_verbs",
+    "verb": "swim",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She ___ across the lake.",
+    "correct_answer": "swam",
+    "wrong_answers": [
+      "swum",
+      "understood",
+      "cut"
+    ],
+    "hint": "swim, s__m, swum",
+    "context_sentence": "She ___ across the lake.",
+    "meaning_de": "schwimmen"
+  },
+  {
+    "id": "iv_teach_001",
+    "topic": "irregular_verbs",
+    "verb": "teach",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "teach",
+    "correct_answer": "taught",
+    "wrong_answers": [
+      "bought",
+      "brought",
+      "thought"
+    ],
+    "meaning_de": "unterrichten / lehren"
+  },
+  {
+    "id": "iv_teach_002",
+    "topic": "irregular_verbs",
+    "verb": "teach",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "teach",
+    "correct_answer": "taught",
+    "wrong_answers": [
+      "fought",
+      "thought",
+      "brought"
+    ],
+    "meaning_de": "unterrichten / lehren"
+  },
+  {
+    "id": "iv_teach_003",
+    "topic": "irregular_verbs",
+    "verb": "teach",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "teach",
+    "correct_answer": "taught",
+    "wrong_answers": [
+      "bought",
+      "brought",
+      "thought"
+    ],
+    "hint": "teach, t____t, taught",
+    "meaning_de": "unterrichten / lehren"
+  },
+  {
+    "id": "iv_teach_004",
+    "topic": "irregular_verbs",
+    "verb": "teach",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ at this school for ages.",
+    "correct_answer": "taught",
+    "wrong_answers": [
+      "fought",
+      "thought",
+      "brought"
+    ],
+    "hint": "teach, t____t, taught",
+    "context_sentence": "She has ___ at this school for ages.",
+    "meaning_de": "unterrichten / lehren"
+  },
+  {
+    "id": "iv_throw_001",
+    "topic": "irregular_verbs",
+    "verb": "throw",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "throw",
+    "correct_answer": "threw",
+    "wrong_answers": [
+      "thrown",
+      "knew",
+      "sang"
+    ],
+    "meaning_de": "werfen"
+  },
+  {
+    "id": "iv_throw_002",
+    "topic": "irregular_verbs",
+    "verb": "throw",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "throw",
+    "correct_answer": "thrown",
+    "wrong_answers": [
+      "threw",
+      "known",
+      "gone"
+    ],
+    "meaning_de": "werfen"
+  },
+  {
+    "id": "iv_throw_003",
+    "topic": "irregular_verbs",
+    "verb": "throw",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "throw",
+    "correct_answer": "threw",
+    "wrong_answers": [
+      "thrown",
+      "knew",
+      "sang"
+    ],
+    "hint": "throw, t___w, thrown",
+    "meaning_de": "werfen"
+  },
+  {
+    "id": "iv_throw_004",
+    "topic": "irregular_verbs",
+    "verb": "throw",
+    "form": "past",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "He ___ the ball over the fence.",
+    "correct_answer": "threw",
+    "wrong_answers": [
+      "thrown",
+      "knew",
+      "sang"
+    ],
+    "hint": "throw, t___w, thrown",
+    "context_sentence": "He ___ the ball over the fence.",
+    "meaning_de": "werfen"
+  },
+  {
+    "id": "iv_win_001",
+    "topic": "irregular_verbs",
+    "verb": "win",
+    "form": "past",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "win",
+    "correct_answer": "won",
+    "wrong_answers": [
+      "stood",
+      "felt",
+      "understood"
+    ],
+    "meaning_de": "gewinnen"
+  },
+  {
+    "id": "iv_win_002",
+    "topic": "irregular_verbs",
+    "verb": "win",
+    "form": "participle",
+    "difficulty": 2,
+    "type": "fill_gap",
+    "prompt": "win",
+    "correct_answer": "won",
+    "wrong_answers": [
+      "begun",
+      "slept",
+      "lost"
+    ],
+    "meaning_de": "gewinnen"
+  },
+  {
+    "id": "iv_win_003",
+    "topic": "irregular_verbs",
+    "verb": "win",
+    "form": "past",
+    "difficulty": 3,
+    "type": "type_form",
+    "prompt": "win",
+    "correct_answer": "won",
+    "wrong_answers": [
+      "stood",
+      "felt",
+      "understood"
+    ],
+    "hint": "win, w_n, won",
+    "meaning_de": "gewinnen"
+  },
+  {
+    "id": "iv_win_004",
+    "topic": "irregular_verbs",
+    "verb": "win",
+    "form": "participle",
+    "difficulty": 4,
+    "type": "fill_gap",
+    "prompt": "She has ___ three medals.",
+    "correct_answer": "won",
+    "wrong_answers": [
+      "begun",
+      "slept",
+      "lost"
+    ],
+    "hint": "win, w_n, won",
+    "context_sentence": "She has ___ three medals.",
+    "meaning_de": "gewinnen"
+  }
+]

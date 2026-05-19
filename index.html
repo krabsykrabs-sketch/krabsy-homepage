@@ -6,640 +6,813 @@
   <title>Krabsy — Englisch lernen mit Spielen</title>
   <meta name="description" content="Lerne englische Grammatik mit kostenlosen Browser-Spielen. Spaß für Schüler von 10–14 Jahren!">
   <meta property="og:title" content="Krabsy — Englisch lernen mit Spielen">
-  <meta property="og:description" content="Lerne englische Grammatik mit kostenlosen Browser-Spielen.">
+  <meta property="og:description" content="Unregelmäßige Verben lernen: spielen, üben, nachschlagen.">
   <meta property="og:type" content="website">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lib/krabsy-ui.css">
   <style>
-    /* ── Brand Tokens ── */
-    :root {
-      --lavender: #babfd8;
-      --sage: #cdd9b4;
-      --coral: #f2937e;
-      --coral-dark: #e07a64;
-      --black: #1a1a1a;
-      --white: #ffffff;
-      --bg: #faf9f7;
-      --lavender-light: #e8e9f0;
-      --sage-light: #e9eede;
-      --coral-light: #fbe4de;
-      --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.14);
-      --radius: 16px;
-    }
+    /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
 
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    body { background: var(--krabsy-cream); }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: Verdana, Geneva, sans-serif;
-      background: var(--bg);
-      color: var(--black);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Header ── */
-    .site-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      background: var(--white);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
+    /* Logo with inline-SVG crab as the "a" — ported from legacy homepage */
     .logo {
-      font-family: 'Limelight', cursive;
-      font-size: 1.8rem;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0;
-      line-height: 1;
-      color: var(--black);
-      letter-spacing: -0.5px;
-    }
-
-    .logo-text { color: var(--black); }
-
-    .logo-crab {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
+      gap: 0;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .logo-crab {
+      display: inline-flex;
       width: 1.1em;
       height: 1em;
       margin: 0 -0.05em;
     }
-
-    /* CSS Crab mascot for the logo "a" */
-    .logo-crab-svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .lang-toggle {
-      display: flex;
-      background: var(--lavender-light);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .lang-btn {
-      border: none;
-      background: transparent;
-      font-family: Verdana, Geneva, sans-serif;
-      font-weight: bold;
-      font-size: 0.75rem;
-      padding: 6px 14px;
-      cursor: pointer;
-      color: #666;
-      transition: all 0.2s ease;
-      letter-spacing: 0.5px;
-    }
-
-    .lang-btn.active {
-      background: var(--coral);
-      color: var(--white);
-      border-radius: 20px;
-    }
-
-    .lang-btn:hover:not(.active) {
-      color: var(--black);
-    }
+    .logo-crab svg { width: 100%; height: 100%; }
 
     /* ── Hero ── */
     .hero {
       text-align: center;
-      padding: 48px 24px 32px;
+      padding: 48px 24px 24px;
       position: relative;
       overflow: hidden;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -60px;
-      left: -40px;
-      width: 220px;
-      height: 220px;
-      background: var(--lavender);
-      border-radius: 50%;
-      opacity: 0.2;
-      z-index: 0;
-    }
-
+    .hero::before,
     .hero::after {
       content: '';
       position: absolute;
-      bottom: -40px;
-      right: -30px;
-      width: 180px;
-      height: 180px;
-      background: var(--sage);
       border-radius: 50%;
-      opacity: 0.2;
+      opacity: 0.20;
       z-index: 0;
+      pointer-events: none;
+    }
+    .hero::before {
+      top: -60px; left: -40px;
+      width: 220px; height: 220px;
+      background: var(--krabsy-lavender);
+    }
+    .hero::after {
+      bottom: -40px; right: -30px;
+      width: 180px; height: 180px;
+      background: var(--krabsy-sage);
+    }
+    .hero-mascot { position: relative; z-index: 1; margin-bottom: 12px; }
+    .hero-mascot svg { width: 140px; height: 128px; }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      line-height: 1.25;
+      color: var(--krabsy-ink);
+      position: relative; z-index: 1;
+      margin: 0 0 8px;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      position: relative; z-index: 1;
+      margin: 0;
+    }
+    @media (max-width: 559px) {
+      .hero { padding: 32px 20px 16px; }
+      .hero-mascot svg { width: 100px; height: 92px; }
+      .hero-title { font-size: 1.35rem; }
+      .hero-sub { font-size: 0.9rem; }
+    }
+    @media (min-width: 860px) {
+      .hero { padding: 56px 24px 28px; }
+      .hero-title { font-size: 1.9rem; }
     }
 
-    .hero-mascot {
-      position: relative;
-      z-index: 1;
-      margin-bottom: 12px;
+    /* ── Progress Widget ── */
+    .progress-widget {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
+    .progress-empty {
+      text-align: center;
+      color: var(--krabsy-ink-mute);
+      font-size: 0.85rem;
+      padding: 8px 16px 0;
+    }
+    .progress-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 720px) {
+      .progress-tiles { grid-template-columns: repeat(4, 1fr); }
+    }
+    .progress-tile {
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 90px;
+    }
+    .progress-tile-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--krabsy-ink-mute);
+      font-weight: 700;
+    }
+    .progress-tile-value {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      color: var(--krabsy-ink);
+      line-height: 1.1;
+    }
+    .progress-tile-value.is-streak.is-hot { color: var(--krabsy-coral-dark); }
+    .progress-tile .progress-tile-meta {
+      font-size: 0.75rem;
+      color: var(--krabsy-ink-mute);
+      margin-top: auto;
+    }
+    .progress-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      justify-content: center;
+    }
+    .progress-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--krabsy-ink);
+      background: var(--krabsy-white);
+      border: 1px solid var(--krabsy-coral-soft);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      text-decoration: none;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .progress-chip:hover {
+      transform: translateY(-1px);
+      border-color: var(--krabsy-coral);
+      color: var(--krabsy-ink);
+    }
+    .progress-chip-form {
+      color: var(--krabsy-ink-mute);
+      font-weight: 400;
+    }
+    .progress-tile-link {
+      align-self: flex-start;
+      margin-top: auto;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--krabsy-coral-dark);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .progress-tile-link:hover { color: var(--krabsy-coral); }
 
-    .hero-mascot svg {
-      width: 120px;
-      height: 110px;
-      filter: drop-shadow(0 4px 12px rgba(242, 147, 126, 0.3));
+    /* Accuracy ring */
+    .accuracy-ring {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+    .accuracy-ring svg { width: 38px; height: 38px; flex-shrink: 0; }
+    .accuracy-ring-track { stroke: var(--krabsy-lavender); }
+    .accuracy-ring-bar { stroke: var(--krabsy-coral); transition: stroke-dashoffset 0.6s ease; }
 
-    .tagline {
-      font-family: 'Limelight', cursive;
-      font-size: 1.5rem;
-      color: var(--black);
-      position: relative;
-      z-index: 1;
-      line-height: 1.3;
+    /* ── Section tints — full-width band via box-shadow + clip-path,
+       so we don't touch the section's max-width / centering. ── */
+    .k-section.bg-sage,
+    .k-section.bg-lavender,
+    .k-section.bg-coral {
+      clip-path: inset(0 -100vmax);
     }
-
-    .tagline-sub {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 8px;
-      position: relative;
-      z-index: 1;
-    }
+    .k-section.bg-sage     { background: #f3f6ec; box-shadow: 0 0 0 100vmax #f3f6ec; }
+    .k-section.bg-lavender { background: #eef0f6; box-shadow: 0 0 0 100vmax #eef0f6; }
+    .k-section.bg-coral    { background: #fdf2ee; box-shadow: 0 0 0 100vmax #fdf2ee; }
 
     /* ── Section heading ── */
     .section-heading {
-      font-family: 'Limelight', cursive;
-      font-size: 1.15rem;
-      color: var(--black);
-      padding: 0 24px 12px;
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 2px;
+      line-height: 1.2;
+    }
+    .section-sub {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 16px;
+    }
+    @media (min-width: 720px) {
+      .section-heading { font-size: 1.6rem; }
     }
 
-    .section-heading::after {
-      content: '';
-      flex: 1;
-      height: 2px;
-      background: var(--lavender);
-      border-radius: 1px;
-    }
-
-    /* ── Game Grid ── */
-    .game-grid {
+    /* ── Cards ── */
+    .card-grid {
       display: grid;
+      gap: 14px;
       grid-template-columns: 1fr;
-      gap: 16px;
-      padding: 0 24px 40px;
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
+    }
+    .card-grid-tools { grid-template-columns: 1fr; }
+    .card-grid-games { grid-template-columns: 1fr; }
+    @media (min-width: 560px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-grid-tools { grid-template-columns: repeat(2, 1fr); }
+      .card-grid-games { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .card-grid { grid-template-columns: repeat(5, 1fr); }
+      .card-grid-tools { grid-template-columns: repeat(3, 1fr); }
+      .card-grid-games { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 1200px) {
+      .card-grid-games { grid-template-columns: repeat(5, 1fr); }
     }
 
-    @media (min-width: 540px) {
-      .game-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (min-width: 860px) {
-      .game-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-      }
-    }
-
-    /* ── Game Card ── */
-    .game-card {
-      position: relative;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      background: var(--white);
-      border: 2px solid transparent;
-    }
-
-    .game-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--card-shadow-hover);
-      border-color: var(--coral);
-    }
-
-    .game-card:active {
-      transform: translateY(-2px);
-    }
-
-    .game-card.coming-soon {
-      cursor: default;
-      opacity: 0.75;
-    }
-
-    .game-card.coming-soon:hover {
-      transform: none;
-      box-shadow: var(--card-shadow);
-      border-color: transparent;
-    }
-
-    .card-visual {
-      aspect-ratio: 16 / 9;
+    .module-card {
       display: flex;
+      flex-direction: column;
+      background: var(--krabsy-white);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 16px;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.18s ease;
+      will-change: transform;
+      min-height: 150px;
+    }
+    .module-card:hover { transform: translateY(-2px); }
+    .module-card-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 4px;
+      line-height: 1.2;
+    }
+    .module-card-tagline {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      line-height: 1.4;
+      margin: 0 0 12px;
+      flex: 1;
+    }
+    .module-card-cta {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
+      gap: 4px;
+      align-self: flex-start;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--krabsy-coral-dark);
+      letter-spacing: 0.3px;
+    }
+    .module-card:hover .module-card-cta { color: var(--krabsy-coral); }
+
+    /* Drill cards: 16:9 thumb on top, body below */
+    .drill-card {
+      padding: 0;
       overflow: hidden;
     }
-
-    .card-visual img {
+    .drill-card-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      overflow: hidden;
+    }
+    .drill-card-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
-
-    /* Placeholder backgrounds per topic */
-    .card-visual.topic-irregular_verbs {
-      background: linear-gradient(135deg, var(--coral-light), var(--lavender-light));
+    .drill-card-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
     }
+    .drill-card-body .module-card-tagline { flex: 1; }
 
-    .card-visual.topic-tenses {
-      background: linear-gradient(135deg, var(--sage-light), var(--lavender-light));
+    /* Tools: keep the sage top stripe (no thumbs there). Games: padding handled by .game-card. */
+    .tool-card  { border-top: 3px solid var(--krabsy-sage); }
+    .game-card  { padding: 0; overflow: hidden; }
+
+    /* Game card: classic 16:9 visual on top, body below */
+    .game-card-visual {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
-
-    .card-visual.topic-vocabulary {
-      background: linear-gradient(135deg, var(--coral-light), var(--sage-light));
+    .game-card-visual img {
+      width: 100%; height: 100%;
+      object-fit: cover;
     }
-
-    .card-visual-emoji {
-      font-size: 2.8rem;
-      line-height: 1;
-    }
-
-    .card-body {
-      padding: 12px 14px;
-    }
-
-    .card-title {
-      font-family: 'Limelight', cursive;
-      font-size: 1rem;
-      color: var(--black);
-      line-height: 1.2;
-    }
-
-    .card-desc {
-      font-size: 0.75rem;
-      color: #666;
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    .card-badge {
+    .game-card-emoji { font-size: 2.6rem; line-height: 1; }
+    .game-card-body { padding: 14px 16px 16px; }
+    .game-card-beta {
       display: inline-block;
-      font-size: 0.6rem;
-      font-weight: bold;
+      font-size: 0.62rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 3px 10px;
-      border-radius: 10px;
+      letter-spacing: 1.2px;
+      padding: 2px 9px;
+      border-radius: var(--radius-pill);
+      background: var(--krabsy-sage-soft);
+      color: #5a7a3a;
       margin-top: 8px;
     }
 
-    .badge-beta {
-      background: var(--sage-light);
-      color: #5a7a3a;
+    /* Wide single cards (Reference + Stats) */
+    .wide-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 22px 22px 20px;
+    }
+    @media (min-width: 720px) {
+      .wide-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px;
+      }
+      .wide-card-text { max-width: 70%; }
+    }
+    .wide-card-cta {
+      align-self: flex-start;
     }
 
-    .badge-coming-soon {
-      background: var(--lavender-light);
-      color: #6b6f8d;
+    /* Stats peek */
+    .stats-peek {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin-top: 4px;
     }
-
-    /* ── Decorative wave divider ── */
-    .wave-divider {
-      width: 100%;
-      height: 40px;
-      overflow: hidden;
-      margin-bottom: -1px;
-    }
-
-    .wave-divider svg {
-      width: 100%;
-      height: 100%;
-    }
+    .stats-peek strong { color: var(--krabsy-ink); font-weight: 700; }
 
     /* ── Footer ── */
-    .site-footer {
+    .footer {
       margin-top: auto;
       text-align: center;
       padding: 24px 16px;
-      font-size: 0.75rem;
-      color: #888;
-      background: var(--lavender-light);
-      border-top: none;
+      font-size: 0.78rem;
+      color: var(--krabsy-ink-mute);
+      background: var(--krabsy-lavender-soft);
     }
-
-    .site-footer a {
-      color: #666;
-      text-decoration: none;
-      margin: 0 8px;
-      transition: color 0.2s;
-    }
-
-    .site-footer a:hover {
-      color: var(--coral);
-    }
-
-    .footer-sep {
-      margin: 0 4px;
-      color: #bbb;
-    }
-
-    .footer-built {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: #aaa;
-    }
-
-    /* ── Responsive tweaks ── */
-    @media (max-width: 539px) {
-      .hero { padding: 32px 20px 24px; }
-      .tagline { font-size: 1.25rem; }
-      .hero-mascot svg { width: 90px; height: 82px; }
-      .game-grid { padding: 0 16px 32px; gap: 12px; }
-      .section-heading { padding: 0 16px 10px; font-size: 1rem; }
-    }
-
-    @media (min-width: 860px) {
-      .hero { padding: 56px 24px 36px; }
-      .tagline { font-size: 1.75rem; }
-      .hero-mascot svg { width: 140px; height: 128px; }
-    }
+    .footer-more { display: block; margin-top: 6px; font-size: 0.7rem; opacity: 0.85; }
+    .footer-langs { margin-top: 8px; }
   </style>
 </head>
-<body data-page="home">
+<body>
 
-  <header class="site-header">
-    <a href="index.html" class="logo">
-      <span class="logo-text">kr</span>
-      <span class="logo-crab">
-        <!-- Inline SVG crab as the "a" in krabsy -->
-        <svg class="logo-crab-svg" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Legs -->
-          <ellipse cx="25" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(-20 25 72)"/>
-          <ellipse cx="15" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(-35 15 65)"/>
-          <ellipse cx="75" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(20 75 72)"/>
-          <ellipse cx="85" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(35 85 65)"/>
-          <ellipse cx="18" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(-50 18 58)"/>
-          <ellipse cx="82" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(50 82 58)"/>
-          <!-- Claws arms -->
-          <rect x="12" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(-30 12 30)"/>
-          <rect x="74" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(30 88 30)"/>
-          <!-- Left claw -->
-          <ellipse cx="10" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(-15 10 22)"/>
-          <path d="M5 16 C8 10, 16 12, 14 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <!-- Right claw -->
-          <ellipse cx="90" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(15 90 22)"/>
-          <path d="M95 16 C92 10, 84 12, 86 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <!-- Body -->
-          <ellipse cx="50" cy="55" rx="30" ry="24" fill="#f2937e"/>
-          <!-- Face highlight -->
-          <ellipse cx="50" cy="52" rx="24" ry="18" fill="#f7b0a0" opacity="0.5"/>
-          <!-- Eyes -->
-          <circle cx="40" cy="46" r="6" fill="white"/>
-          <circle cx="60" cy="46" r="6" fill="white"/>
-          <circle cx="41.5" cy="47" r="3" fill="#1a1a1a"/>
-          <circle cx="61.5" cy="47" r="3" fill="#1a1a1a"/>
-          <circle cx="42.5" cy="45.5" r="1" fill="white"/>
-          <circle cx="62.5" cy="45.5" r="1" fill="white"/>
-          <!-- Mouth -->
-          <path d="M44 56 Q50 61 56 56" stroke="#c96b58" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <!-- Cheek blush -->
-          <ellipse cx="35" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
-          <ellipse cx="65" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
+  <div class="k-page">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <header class="k-page-header">
+      <a href="/index.html" class="logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="logo-crab" aria-hidden="true">
+          <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="25" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(-20 25 72)"/>
+            <ellipse cx="15" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(-35 15 65)"/>
+            <ellipse cx="75" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(20 75 72)"/>
+            <ellipse cx="85" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(35 85 65)"/>
+            <ellipse cx="18" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(-50 18 58)"/>
+            <ellipse cx="82" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(50 82 58)"/>
+            <rect x="12" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(-30 12 30)"/>
+            <rect x="74" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(30 88 30)"/>
+            <ellipse cx="10" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(-15 10 22)"/>
+            <path d="M5 16 C8 10, 16 12, 14 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <ellipse cx="90" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(15 90 22)"/>
+            <path d="M95 16 C92 10, 84 12, 86 18" stroke="#e07a64" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <ellipse cx="50" cy="55" rx="30" ry="24" fill="#f2937e"/>
+            <ellipse cx="50" cy="52" rx="24" ry="18" fill="#f7b0a0" opacity="0.5"/>
+            <circle cx="40" cy="46" r="6" fill="white"/>
+            <circle cx="60" cy="46" r="6" fill="white"/>
+            <circle cx="41.5" cy="47" r="3" fill="#1a1a1a"/>
+            <circle cx="61.5" cy="47" r="3" fill="#1a1a1a"/>
+            <circle cx="42.5" cy="45.5" r="1" fill="white"/>
+            <circle cx="62.5" cy="45.5" r="1" fill="white"/>
+            <path d="M44 56 Q50 61 56 56" stroke="#c96b58" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <ellipse cx="35" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
+            <ellipse cx="65" cy="55" rx="4" ry="2.5" fill="#e07a64" opacity="0.4"/>
+          </svg>
+        </span>
+        <span>bsy</span>
+      </a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">
+        <button class="k-lang-btn is-active" type="button" data-lang="de">DE</button>
+        <button class="k-lang-btn" type="button" data-lang="es">ES</button>
+      </div>
+    </header>
+
+    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="hero-mascot" aria-hidden="true">
+        <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(-20 50 144)"/>
+          <ellipse cx="30" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(-35 30 130)"/>
+          <ellipse cx="150" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(20 150 144)"/>
+          <ellipse cx="170" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(35 170 130)"/>
+          <ellipse cx="36" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(-50 36 116)"/>
+          <ellipse cx="164" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(50 164 116)"/>
+          <rect x="24" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(-30 24 60)"/>
+          <rect x="148" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(30 176 60)"/>
+          <ellipse cx="20" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(-15 20 44)"/>
+          <path d="M10 32 C16 20, 32 24, 28 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="180" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(15 180 44)"/>
+          <path d="M190 32 C184 20, 168 24, 172 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="100" cy="110" rx="60" ry="48" fill="#f2937e"/>
+          <ellipse cx="100" cy="104" rx="48" ry="36" fill="#f7b0a0" opacity="0.5"/>
+          <circle cx="80" cy="92" r="12" fill="white"/>
+          <circle cx="120" cy="92" r="12" fill="white"/>
+          <circle cx="83" cy="94" r="6" fill="#1a1a1a"/>
+          <circle cx="123" cy="94" r="6" fill="#1a1a1a"/>
+          <circle cx="85" cy="91" r="2" fill="white"/>
+          <circle cx="125" cy="91" r="2" fill="white"/>
+          <path d="M88 112 Q100 122 112 112" stroke="#c96b58" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="70" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
+          <ellipse cx="130" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
         </svg>
-      </span>
-      <span class="logo-text">bsy</span>
-    </a>
-    <div class="lang-toggle">
-      <button class="lang-btn active" data-lang="de">DE</button>
-      <button class="lang-btn" data-lang="es">ES</button>
-    </div>
-  </header>
+      </div>
+      <h1 class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</h1>
+      <p class="hero-sub" data-i18n="homepage.hero_sub">Unregelmäßige Verben lernen: spielen, üben, nachschlagen.</p>
+    </section>
 
-  <section class="hero">
-    <div class="hero-mascot">
-      <!-- Large mascot crab -->
-      <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Legs -->
-        <ellipse cx="50" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(-20 50 144)"/>
-        <ellipse cx="30" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(-35 30 130)"/>
-        <ellipse cx="150" cy="144" rx="16" ry="7" fill="#e07a64" transform="rotate(20 150 144)"/>
-        <ellipse cx="170" cy="130" rx="14" ry="6" fill="#e07a64" transform="rotate(35 170 130)"/>
-        <ellipse cx="36" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(-50 36 116)"/>
-        <ellipse cx="164" cy="116" rx="12" ry="5" fill="#e07a64" transform="rotate(50 164 116)"/>
-        <!-- Claw arms -->
-        <rect x="24" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(-30 24 60)"/>
-        <rect x="148" y="60" width="28" height="14" rx="7" fill="#f2937e" transform="rotate(30 176 60)"/>
-        <!-- Left claw -->
-        <ellipse cx="20" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(-15 20 44)"/>
-        <path d="M10 32 C16 20, 32 24, 28 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <!-- Right claw -->
-        <ellipse cx="180" cy="44" rx="20" ry="16" fill="#f2937e" transform="rotate(15 180 44)"/>
-        <path d="M190 32 C184 20, 168 24, 172 36" stroke="#e07a64" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <!-- Body -->
-        <ellipse cx="100" cy="110" rx="60" ry="48" fill="#f2937e"/>
-        <!-- Face highlight -->
-        <ellipse cx="100" cy="104" rx="48" ry="36" fill="#f7b0a0" opacity="0.5"/>
-        <!-- Eyes -->
-        <circle cx="80" cy="92" r="12" fill="white"/>
-        <circle cx="120" cy="92" r="12" fill="white"/>
-        <circle cx="83" cy="94" r="6" fill="#1a1a1a"/>
-        <circle cx="123" cy="94" r="6" fill="#1a1a1a"/>
-        <circle cx="85" cy="91" r="2" fill="white"/>
-        <circle cx="125" cy="91" r="2" fill="white"/>
-        <!-- Mouth -->
-        <path d="M88 112 Q100 122 112 112" stroke="#c96b58" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <!-- Cheek blush -->
-        <ellipse cx="70" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
-        <ellipse cx="130" cy="110" rx="8" ry="5" fill="#e07a64" opacity="0.4"/>
-      </svg>
-    </div>
-    <p class="tagline" data-i18n="tagline">Meistere Englisch — Spiel für Spiel!</p>
-  </section>
+    <!-- ── Progress Widget ──────────────────────────────────────────────── -->
+    <section class="progress-widget" id="progress-widget" hidden>
+      <div id="progress-content"></div>
+    </section>
 
-  <div class="section-heading" data-i18n="section_games">Spiele</div>
-  <main class="game-grid"></main>
+    <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
+    <section class="k-section bg-sage">
+      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
+      <p class="section-sub" data-i18n="homepage.section_drills_sub">Kurze Challenges. Schlag deine Bestzeit.</p>
+      <div class="card-grid" id="drills-grid"></div>
+    </section>
 
-  <div class="wave-divider">
-    <svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z" fill="#e8e9f0"/>
-    </svg>
+    <!-- ── Study Tools ──────────────────────────────────────────────────── -->
+    <section class="k-section">
+      <h2 class="section-heading" data-i18n="homepage.section_tools">Lernwerkzeuge</h2>
+      <p class="section-sub" data-i18n="homepage.section_tools_sub">Klassisches Üben, ohne Spielzeug.</p>
+      <div class="card-grid-tools card-grid" id="tools-grid"></div>
+    </section>
+
+    <!-- ── Games ────────────────────────────────────────────────────────── -->
+    <section class="k-section bg-lavender">
+      <h2 class="section-heading" data-i18n="homepage.section_games">Spiele</h2>
+      <p class="section-sub" data-i18n="homepage.section_games_sub">Arcade-Spiele zum Verb-Training.</p>
+      <div class="card-grid-games card-grid" id="games-grid"></div>
+    </section>
+
+    <!-- ── Verb Reference ──────────────────────────────────────────────── -->
+    <section class="k-section">
+      <h2 class="section-heading" data-i18n="homepage.section_reference">Verb-Liste</h2>
+      <p class="section-sub" data-i18n="homepage.section_reference_sub">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
+      <a class="module-card wide-card" href="/reference/">
+        <div class="wide-card-text">
+          <div class="module-card-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</div>
+          <div class="module-card-tagline" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</div>
+        </div>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+      </a>
+    </section>
+
+    <!-- ── Statistics ──────────────────────────────────────────────────── -->
+    <section class="k-section bg-coral">
+      <h2 class="section-heading" data-i18n="homepage.section_stats">Deine Statistik</h2>
+      <p class="section-sub" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</p>
+      <a class="module-card wide-card" href="/stats/">
+        <div class="wide-card-text">
+          <div class="module-card-title" data-i18n="stats.title">Deine Statistik</div>
+          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</div>
+          <div class="stats-peek" id="stats-peek" hidden></div>
+        </div>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+      </a>
+    </section>
+
+    <!-- ── Footer ──────────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <span id="footer-copyright">© 2026 Krabsy</span>
+      <span class="footer-more" data-i18n="homepage.footer_more_topics">Mehr Grammatik-Themen folgen bald.</span>
+    </footer>
+
   </div>
 
-  <footer class="site-footer">
-    <a href="#" data-i18n="footer_imprint">Impressum</a>
-    <span class="footer-sep">·</span>
-    <a href="#" data-i18n="footer_contact">Kontakt</a>
-    <span class="footer-built" data-i18n="footer_built_with">Made with 🦀</span>
-  </footer>
+  <script type="module">
+    import { loadStrings, getLang, setLang } from './lib/krabsy-data.js';
+    import { hasData, getOverall, getStrugglers } from './lib/krabsy-stats.js';
 
-  <script>
-    (function () {
-      'use strict';
+    /* ─ Drill card definitions ─ */
+    const DRILLS = [
+      { key: 'sprint',        href: '/drills/sprint/',        thumb: '/thumbnails/Sprint.png' },
+      { key: 'type_race',     href: '/drills/type-race/',     thumb: '/thumbnails/TypeRace.png' },
+      { key: 'drag_match',    href: '/drills/drag-match/',    thumb: '/thumbnails/DragMatch.png' },
+      { key: 'fill_gap',      href: '/drills/fill-the-gap/',  thumb: '/thumbnails/FillGap.png' },
+      { key: 'falling_forms', href: '/drills/falling-forms/', thumb: '/thumbnails/Falling.png' },
+    ];
+    const TOOLS = [
+      { key: 'flashcards',    href: '/tools/flashcards/' },
+      { key: 'verb_table',    href: '/tools/verb-table/' },
+      { key: 'free_practice', href: '/tools/free-practice/' },
+    ];
+    const GAMES = [
+      { key: 'verb_slash',      href: '/games/verb-slash.html',     thumb: '/thumbnails/VerbSlash.png' },
+      { key: 'crab_slash',      href: '/games/crab-slash.html',     thumb: null },
+      { key: 'air_control',     href: '/games/air-control.html',    thumb: null },
+      { key: 'verb_snake',      href: '/games/verb-snake.html',     thumb: '/thumbnails/verb-snake.png' },
+      { key: 'verb_platformer', href: '/games/3dPlat/index.html',   thumb: null },
+    ];
 
-      var TOPIC_EMOJI = {
-        irregular_verbs: '✏️',
-        tenses: '⏰',
-        vocabulary: '📚'
-      };
+    let strings = null;
 
-      var i18n = {};
-      var games = [];
-      var currentLang = localStorage.getItem('krabsy-lang') || 'de';
+    async function init() {
+      strings = await loadStrings();
+      applyI18n();
+      renderDrills();
+      renderTools();
+      renderGames();
+      renderProgressWidget();
+      renderStatsPeek();
+      setupLangToggle();
+    }
 
-      /* ── Bootstrap ── */
-      async function init() {
-        var [i18nData, gamesData] = await Promise.all([
-          fetch('i18n.json').then(function(r) { return r.json(); }),
-          fetch('games.json').then(function(r) { return r.json(); })
-        ]);
-        i18n = i18nData;
-        games = gamesData.games;
+    /* ─ i18n ─ */
+    function lookup(path) {
+      return path.split('.').reduce((o, k) => (o == null ? null : o[k]), strings);
+    }
 
-        applyLang(currentLang);
-        setupLangToggle();
-        renderGrid(document.querySelector('.game-grid'));
+    function applyI18n() {
+      document.documentElement.lang = getLang();
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const v = lookup(el.dataset.i18n);
+        if (typeof v === 'string') el.textContent = v;
+      });
+      // Page title + meta description
+      const metaTitle = lookup('homepage.hero_title') || document.title;
+      document.title = `Krabsy — ${metaTitle}`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      const heroSub = lookup('homepage.hero_sub');
+      if (metaDesc && heroSub) metaDesc.content = heroSub;
+      // Footer copyright (interpolate year)
+      const cr = lookup('homepage.footer_copyright');
+      if (cr) {
+        const y = new Date().getFullYear();
+        document.getElementById('footer-copyright').textContent = cr.replace('{year}', y);
+      }
+    }
+
+    function setupLangToggle() {
+      const current = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.lang === current);
+        btn.addEventListener('click', () => {
+          if (btn.dataset.lang === current) return;
+          setLang(btn.dataset.lang);
+          location.reload();
+        });
+      });
+    }
+
+    /* ─ Drill / Tool grids ─ */
+    function renderDrills() {
+      const root = document.getElementById('drills-grid');
+      root.innerHTML = '';
+      const playLabel = lookup('homepage.card_play') || 'Spielen';
+      for (const d of DRILLS) {
+        const name = lookup(`drills.${d.key}.name`) || d.key;
+        const tagline = lookup(`drills.${d.key}.tagline`) || '';
+        root.appendChild(buildDrillCard(d.href, name, tagline, playLabel, d.thumb));
+      }
+    }
+
+    function buildDrillCard(href, name, tagline, cta, thumb) {
+      const a = document.createElement('a');
+      a.className = 'module-card drill-card';
+      a.href = href;
+
+      const visual = document.createElement('div');
+      visual.className = 'drill-card-thumb';
+      if (thumb) {
+        const img = document.createElement('img');
+        img.src = thumb;
+        img.alt = name;
+        img.loading = 'lazy';
+        img.addEventListener('error', () => {
+          // Leave the gradient background visible if the image fails
+          img.remove();
+        });
+        visual.appendChild(img);
       }
 
-      /* ── Language ── */
-      function applyLang(lang) {
-        currentLang = lang;
-        localStorage.setItem('krabsy-lang', lang);
-        document.documentElement.lang = lang;
+      const body = document.createElement('div');
+      body.className = 'drill-card-body';
 
-        document.querySelectorAll('.lang-btn').forEach(function (btn) {
-          btn.classList.toggle('active', btn.dataset.lang === lang);
-        });
+      const title = document.createElement('div');
+      title.className = 'module-card-title';
+      title.textContent = name;
+      const tag = document.createElement('div');
+      tag.className = 'module-card-tagline';
+      tag.textContent = tagline;
+      const ctaEl = document.createElement('span');
+      ctaEl.className = 'module-card-cta';
+      ctaEl.textContent = `${cta} →`;
 
-        document.querySelectorAll('[data-i18n]').forEach(function (el) {
-          var key = el.dataset.i18n;
-          if (i18n[lang] && i18n[lang][key]) {
-            el.textContent = i18n[lang][key];
-          }
-        });
+      body.append(title, tag, ctaEl);
+      a.append(visual, body);
+      return a;
+    }
+    function renderTools() {
+      const root = document.getElementById('tools-grid');
+      root.innerHTML = '';
+      const openLabel = lookup('homepage.card_open') || 'Öffnen';
+      for (const t of TOOLS) {
+        const name = lookup(`tools.${t.key}.name`) || t.key;
+        const tagline = lookup(`tools.${t.key}.tagline`) || '';
+        root.appendChild(buildCard(t.href, name, tagline, openLabel, 'tool-card'));
+      }
+    }
+    function buildCard(href, name, tagline, cta, variant) {
+      const a = document.createElement('a');
+      a.className = `module-card ${variant}`;
+      a.href = href;
+      const title = document.createElement('div');
+      title.className = 'module-card-title';
+      title.textContent = name;
+      const tag = document.createElement('div');
+      tag.className = 'module-card-tagline';
+      tag.textContent = tagline;
+      const ctaEl = document.createElement('span');
+      ctaEl.className = 'module-card-cta';
+      ctaEl.textContent = `${cta} →`;
+      a.append(title, tag, ctaEl);
+      return a;
+    }
 
-        var titleEl = document.querySelector('title');
-        var metaDesc = document.querySelector('meta[name="description"]');
-        if (i18n[lang]) {
-          titleEl.textContent = i18n[lang].meta_title;
-          if (metaDesc) metaDesc.content = i18n[lang].meta_description;
+    /* ─ Games grid (legacy card pattern: visual + body + beta) ─ */
+    function renderGames() {
+      const root = document.getElementById('games-grid');
+      root.innerHTML = '';
+      for (const g of GAMES) {
+        const name = lookup(`games.${g.key}.name`) || g.key;
+        const tagline = lookup(`games.${g.key}.tagline`) || '';
+        const a = document.createElement('a');
+        a.className = 'module-card game-card';
+        a.href = g.href;
+
+        const visual = document.createElement('div');
+        visual.className = 'game-card-visual';
+        if (g.thumb) {
+          const img = document.createElement('img');
+          img.src = g.thumb;
+          img.alt = name;
+          img.loading = 'lazy';
+          img.addEventListener('error', () => {
+            visual.innerHTML = '<span class="game-card-emoji">✏️</span>';
+          });
+          visual.appendChild(img);
+        } else {
+          visual.innerHTML = '<span class="game-card-emoji">✏️</span>';
         }
 
-        // Re-render grid
-        renderGrid(document.querySelector('.game-grid'));
+        const body = document.createElement('div');
+        body.className = 'game-card-body';
+        body.innerHTML = `
+          <div class="module-card-title"></div>
+          <div class="module-card-tagline"></div>
+          <span class="game-card-beta">Beta</span>
+        `;
+        body.querySelector('.module-card-title').textContent = name;
+        body.querySelector('.module-card-tagline').textContent = tagline;
+
+        a.append(visual, body);
+        root.appendChild(a);
+      }
+    }
+
+    /* ─ Progress widget ─ */
+    function renderProgressWidget() {
+      const widget = document.getElementById('progress-widget');
+      const content = document.getElementById('progress-content');
+      content.innerHTML = '';
+      widget.hidden = false;
+
+      if (!hasData()) {
+        const p = document.createElement('p');
+        p.className = 'progress-empty';
+        p.textContent = lookup('progress_widget.empty_hint') || '';
+        content.appendChild(p);
+        return;
       }
 
-      function setupLangToggle() {
-        document.querySelectorAll('.lang-btn').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            applyLang(btn.dataset.lang);
-          });
-        });
-      }
+      const o = getOverall();
+      const strug = getStrugglers(3);
+      const accuracyPct = Math.round((o.accuracy || 0) * 100);
+      const streak = o.current_streak || 0;
+      const isHot = streak >= 3;
 
-      /* ── Game Grid ── */
-      function renderGrid(container) {
-        if (!container) return;
-        container.innerHTML = '';
+      const accuracyTile = tile(
+        lookup('progress_widget.tile_accuracy') || 'Genauigkeit',
+        accuracyRingHtml(accuracyPct) + `<span class="k-mono-num" style="font-family:var(--font-display);font-size:1.6rem;">${accuracyPct}%</span>`,
+        null, ['accuracy-ring']
+      );
 
-        games.forEach(function (game) {
-          var card = document.createElement('div');
-          card.className = 'game-card';
+      const streakTile = tile(
+        lookup('progress_widget.tile_streak') || 'Serie',
+        `<span class="progress-tile-value is-streak ${isHot ? 'is-hot' : ''}">${isHot ? '🔥 ' : ''}${streak}</span>`,
+        null
+      );
 
-          var title = currentLang === 'de' ? game.title_de : game.title_es;
-          var desc = currentLang === 'de' ? game.description_de : game.description_es;
+      const chipsHtml = strug.length
+        ? `<div class="progress-chips">${strug.map((r) => {
+            const formLabel = r.form === 'past'
+              ? (lookup('stats.row_form_past') || 'Past')
+              : (lookup('stats.row_form_pp') || 'Participle');
+            return `<a class="progress-chip" href="/tools/free-practice/?verbs=${encodeURIComponent(r.verb)}">
+                      <span>${r.verb}</span>
+                      <span class="progress-chip-form">· ${formLabel}</span>
+                    </a>`;
+          }).join('')}</div>`
+        : `<div class="progress-tile-meta">${lookup('progress_widget.tile_today_empty') || ''}</div>`;
 
-          if (game.status === 'coming_soon') {
-            card.classList.add('coming-soon');
-            var emoji = TOPIC_EMOJI[game.topic] || '🎮';
-            var comingSoonText = i18n[currentLang] ? i18n[currentLang].coming_soon : 'Coming soon';
-            card.innerHTML =
-              '<div class="card-visual topic-' + game.topic + '">' +
-                '<span class="card-visual-emoji">' + emoji + '</span>' +
-              '</div>' +
-              '<div class="card-body">' +
-                '<div class="card-title">' + title + '</div>' +
-                '<div class="card-desc">' + desc + '</div>' +
-                '<span class="card-badge badge-coming-soon">' + comingSoonText + '</span>' +
-              '</div>';
-          } else {
-            var visualContent;
-            if (game.thumbnail) {
-              visualContent =
-                '<div class="card-visual topic-' + game.topic + '">' +
-                  '<img src="' + game.thumbnail + '" alt="' + escapeAttr(title) + '" loading="lazy" ' +
-                    'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
-                  '<span class="card-visual-emoji" style="display:none;position:absolute;">' + (TOPIC_EMOJI[game.topic] || '🎮') + '</span>' +
-                '</div>';
-            } else {
-              var emoji2 = TOPIC_EMOJI[game.topic] || '🎮';
-              visualContent =
-                '<div class="card-visual topic-' + game.topic + '">' +
-                  '<span class="card-visual-emoji">' + emoji2 + '</span>' +
-                '</div>';
-            }
+      const practiceTile = tile(
+        lookup('progress_widget.tile_today_practice') || 'Heute zu üben',
+        chipsHtml, null
+      );
 
-            card.innerHTML =
-              visualContent +
-              '<div class="card-body">' +
-                '<div class="card-title">' + title + '</div>' +
-                '<div class="card-desc">' + desc + '</div>' +
-                '<span class="card-badge badge-beta">Beta</span>' +
-              '</div>';
+      const statsTile = tile(
+        lookup('homepage.section_stats') || 'Statistik',
+        `<a class="progress-tile-link" href="/stats/">${lookup('progress_widget.tile_link_stats') || 'Zur Statistik'} →</a>`,
+        null
+      );
 
-            card.addEventListener('click', function () {
-              window.location.href = 'game.html?id=' + game.id;
-            });
-          }
+      const grid = document.createElement('div');
+      grid.className = 'progress-tiles';
+      grid.append(accuracyTile, streakTile, practiceTile, statsTile);
+      content.appendChild(grid);
+    }
 
-          container.appendChild(card);
-        });
-      }
+    function tile(label, valueHtml, metaText, extraClasses) {
+      const div = document.createElement('div');
+      div.className = 'progress-tile';
+      if (extraClasses) extraClasses.forEach((c) => div.classList.add(c));
+      div.innerHTML = `
+        <span class="progress-tile-label">${label}</span>
+        <div class="progress-tile-body">${valueHtml}</div>
+        ${metaText ? `<span class="progress-tile-meta">${metaText}</span>` : ''}
+      `;
+      return div;
+    }
 
-      function escapeAttr(s) {
-        return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
-      }
+    function accuracyRingHtml(pct) {
+      // 38x38 svg, two concentric circles. r=14 → circumference ≈ 87.96.
+      const C = 87.96;
+      const off = C - (pct / 100) * C;
+      return `<svg viewBox="0 0 38 38" aria-hidden="true">
+        <circle class="accuracy-ring-track" cx="19" cy="19" r="14" fill="none" stroke-width="4"/>
+        <circle class="accuracy-ring-bar" cx="19" cy="19" r="14" fill="none" stroke-width="4"
+                stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"
+                transform="rotate(-90 19 19)"/>
+      </svg>`;
+    }
 
-      /* ── Start ── */
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-    })();
+    /* ─ Stats peek on the Statistics card ─ */
+    function renderStatsPeek() {
+      if (!hasData()) return;
+      const peek = document.getElementById('stats-peek');
+      const o = getOverall();
+      const totalLabel = lookup('common.attempts') || 'Versuche';
+      const accLabel = lookup('common.accuracy') || 'Genauigkeit';
+      const accuracyPct = Math.round((o.accuracy || 0) * 100);
+      peek.innerHTML = `<strong class="k-mono-num">${o.total_attempts}</strong> ${totalLabel} · <strong class="k-mono-num">${accuracyPct}%</strong> ${accLabel}`;
+      peek.hidden = false;
+    }
+
+    /* ─ Boot ─ */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

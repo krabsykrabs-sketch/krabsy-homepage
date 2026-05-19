@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdfaf3">
+  <title>Krabsy — Verb-Liste</title>
+  <link rel="stylesheet" href="../lib/krabsy-ui.css">
+  <style>
+    /* ── Module-specific styles (Verb Reference) ───────────────────────── */
+
+    .ref-main {
+      padding: var(--space-5) var(--space-4) var(--space-7);
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (min-width: 720px) {
+      .ref-main { padding: var(--space-6) var(--space-5) var(--space-8); }
+    }
+
+    .ref-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .ref-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    @media (min-width: 720px) {
+      .ref-title { font-size: 2rem; }
+    }
+
+    .ref-subtitle {
+      color: var(--krabsy-ink-mute);
+      font-size: 0.95rem;
+      margin: 0 0 var(--space-5) 0;
+    }
+
+    /* Controls row above table */
+    .ref-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: stretch;
+      margin-bottom: var(--space-4);
+    }
+
+    .ref-search {
+      flex: 1 1 240px;
+      min-width: 200px;
+    }
+
+    .ref-sort-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ref-sort-label {
+      font-size: 0.78rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .ref-sort-pills {
+      display: inline-flex;
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-pill);
+      padding: 3px;
+      align-self: flex-start;
+    }
+
+    .ref-sort-btn {
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 8px 16px;
+      cursor: pointer;
+      color: var(--krabsy-ink-mute);
+      border-radius: var(--radius-pill);
+      transition: color 0.15s ease, background-color 0.15s ease;
+      letter-spacing: 0.3px;
+    }
+
+    .ref-sort-btn:hover:not(.is-active) { color: var(--krabsy-ink); }
+
+    .ref-sort-btn.is-active {
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+    }
+
+    /* Table card wraps the scroll region so the card's rounded corners
+       contain the scroll without clipping the focus ring of the search. */
+    .ref-table-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .ref-table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ref-table {
+      width: 100%;
+      min-width: 540px;
+      border-collapse: collapse;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+
+    .ref-table thead th {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--krabsy-ink-mute);
+      text-align: left;
+      padding: 14px 16px;
+      background: var(--krabsy-sage-soft);
+      border-bottom: 1px solid var(--krabsy-sage);
+      white-space: nowrap;
+    }
+
+    .ref-table tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--krabsy-lavender-soft);
+      color: var(--krabsy-ink);
+      vertical-align: middle;
+    }
+
+    .ref-table tbody tr:last-child td { border-bottom: none; }
+
+    .ref-table tbody tr:hover td { background: rgba(205, 217, 180, 0.18); }
+
+    .ref-cell-base {
+      font-weight: 700;
+      color: var(--krabsy-ink);
+    }
+
+    .ref-cell-meaning {
+      color: var(--krabsy-ink-mute);
+      font-style: italic;
+    }
+
+    .ref-cell-mastery {
+      white-space: nowrap;
+    }
+
+    .ref-empty {
+      padding: var(--space-6) var(--space-5);
+      text-align: center;
+      color: var(--krabsy-ink-mute);
+      font-size: 0.95rem;
+    }
+
+    .ref-loading {
+      padding: var(--space-6) var(--space-5);
+      text-align: center;
+      color: var(--krabsy-ink-mute);
+      font-size: 0.9rem;
+    }
+
+    /* Narrow screens: hide Bedeutung column to save horizontal space */
+    @media (max-width: 600px) {
+      .ref-col-meaning { display: none; }
+      .ref-table { min-width: 420px; }
+      .ref-table thead th,
+      .ref-table tbody td { padding: 10px 12px; }
+    }
+
+    /* Compact logo for header — match existing site visual language */
+    .ref-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .ref-logo:hover { color: var(--krabsy-ink); }
+    .ref-logo-crab { width: 28px; height: 26px; display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+
+    <header class="k-page-header">
+      <a href="/index.html" class="ref-logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="ref-logo-crab" aria-hidden="true">
+          <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg" width="28" height="26">
+            <ellipse cx="25" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(-20 25 72)"/>
+            <ellipse cx="15" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(-35 15 65)"/>
+            <ellipse cx="75" cy="72" rx="8" ry="4" fill="#e07a64" transform="rotate(20 75 72)"/>
+            <ellipse cx="85" cy="65" rx="7" ry="3.5" fill="#e07a64" transform="rotate(35 85 65)"/>
+            <ellipse cx="18" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(-50 18 58)"/>
+            <ellipse cx="82" cy="58" rx="6" ry="3" fill="#e07a64" transform="rotate(50 82 58)"/>
+            <rect x="12" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(-30 12 30)"/>
+            <rect x="74" y="30" width="14" height="7" rx="3.5" fill="#f2937e" transform="rotate(30 88 30)"/>
+            <ellipse cx="10" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(-15 10 22)"/>
+            <ellipse cx="90" cy="22" rx="10" ry="8" fill="#f2937e" transform="rotate(15 90 22)"/>
+            <ellipse cx="50" cy="55" rx="30" ry="24" fill="#f2937e"/>
+            <ellipse cx="50" cy="52" rx="24" ry="18" fill="#f7b0a0" opacity="0.5"/>
+            <circle cx="40" cy="46" r="6" fill="white"/>
+            <circle cx="60" cy="46" r="6" fill="white"/>
+            <circle cx="41.5" cy="47" r="3" fill="#1a1a1a"/>
+            <circle cx="61.5" cy="47" r="3" fill="#1a1a1a"/>
+            <path d="M44 56 Q50 61 56 56" stroke="#c96b58" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>bsy</span>
+      </a>
+      <div class="k-lang-toggle" role="group" aria-label="Language">
+        <button class="k-lang-btn is-active" data-lang="de" type="button">DE</button>
+        <button class="k-lang-btn" data-lang="es" type="button">ES</button>
+      </div>
+    </header>
+
+    <main class="ref-main">
+      <div class="ref-title-row">
+        <h1 class="ref-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</h1>
+        <a href="/index.html" class="k-back-link" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
+      </div>
+      <p class="ref-subtitle" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
+
+      <div class="ref-controls">
+        <div class="ref-search">
+          <label class="k-sr-only" for="ref-search-input" data-i18n="reference.search_placeholder">Verb suchen…</label>
+          <input
+            type="search"
+            id="ref-search-input"
+            class="k-input"
+            autocomplete="off"
+            spellcheck="false"
+            data-i18n-attr="placeholder:reference.search_placeholder"
+            placeholder="Verb suchen…">
+        </div>
+
+        <div class="ref-sort-group" role="group" aria-labelledby="ref-sort-label">
+          <span id="ref-sort-label" class="ref-sort-label" data-i18n="reference.sort_label">Sortierung</span>
+          <div class="ref-sort-pills">
+            <button class="ref-sort-btn is-active" type="button" data-sort="alpha" data-i18n="reference.sort_alpha">A–Z</button>
+            <button class="ref-sort-btn" type="button" data-sort="mastery" data-i18n="reference.sort_mastery">Nach Können</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="k-card ref-table-card" aria-label="Verb-Liste">
+        <div class="ref-table-scroll">
+          <table class="ref-table" id="ref-table">
+            <thead>
+              <tr>
+                <th class="ref-col-base" data-i18n="reference.col_base">Grundform</th>
+                <th class="ref-col-past" data-i18n="reference.col_past">Simple Past</th>
+                <th class="ref-col-pp" data-i18n="reference.col_pp">Past Participle</th>
+                <th class="ref-col-meaning" data-i18n="reference.col_meaning">Bedeutung</th>
+                <th class="ref-col-mastery" data-i18n="reference.col_mastery">Dein Stand</th>
+              </tr>
+            </thead>
+            <tbody id="ref-tbody">
+              <tr><td colspan="5" class="ref-loading" data-i18n="common.loading">Lädt…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="k-footer">
+      <a href="/index.html" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { loadVerbTable, loadStrings, getLang, setLang } from '../lib/krabsy-data.js';
+    import { verbAggregateMastery } from '../lib/krabsy-stats.js';
+
+    // ── State ────────────────────────────────────────────────────────────
+    const state = {
+      rows: [],          // [{ verb, past, participle, meaning_de, mastery }]
+      query: '',
+      sort: 'alpha',     // 'alpha' | 'mastery'
+      strings: null,
+    };
+
+    // ── Helpers: string lookup + DOM i18n application ────────────────────
+    function lookup(strings, dotted) {
+      if (!strings || !dotted) return '';
+      return dotted.split('.').reduce((acc, key) => (acc && acc[key] != null ? acc[key] : null), strings) ?? '';
+    }
+
+    function applyI18n(strings) {
+      // text-content bindings
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        const v = lookup(strings, key);
+        if (v) el.textContent = v;
+      });
+      // attribute bindings: data-i18n-attr="placeholder:reference.search_placeholder"
+      document.querySelectorAll('[data-i18n-attr]').forEach((el) => {
+        const spec = el.getAttribute('data-i18n-attr') || '';
+        spec.split(',').forEach((pair) => {
+          const [attr, key] = pair.split(':').map((s) => (s || '').trim());
+          if (!attr || !key) return;
+          const v = lookup(strings, key);
+          if (v) el.setAttribute(attr, v);
+        });
+      });
+      // page <title>
+      const titleStr = lookup(strings, 'reference.title');
+      if (titleStr) document.title = `Krabsy — ${titleStr}`;
+      // document lang
+      const lang = (strings && strings.lang) || 'de';
+      document.documentElement.setAttribute('lang', lang);
+    }
+
+    // ── Hash state (sort + query) ────────────────────────────────────────
+    function readHash() {
+      const h = (location.hash || '').replace(/^#/, '');
+      if (!h) return {};
+      const out = {};
+      h.split('&').forEach((kv) => {
+        const idx = kv.indexOf('=');
+        if (idx < 0) return;
+        const k = decodeURIComponent(kv.slice(0, idx));
+        const v = decodeURIComponent(kv.slice(idx + 1));
+        out[k] = v;
+      });
+      return out;
+    }
+
+    function writeHash() {
+      const parts = [];
+      if (state.sort && state.sort !== 'alpha') parts.push('sort=' + encodeURIComponent(state.sort));
+      if (state.query) parts.push('q=' + encodeURIComponent(state.query));
+      const next = parts.length ? '#' + parts.join('&') : '';
+      // Avoid pushing duplicate history entries; replace instead.
+      const url = location.pathname + location.search + next;
+      history.replaceState(null, '', url);
+    }
+
+    function restoreFromHash() {
+      const h = readHash();
+      if (h.sort === 'mastery' || h.sort === 'alpha') state.sort = h.sort;
+      if (typeof h.q === 'string') state.query = h.q;
+    }
+
+    // ── Mastery bar markup (5 segments) ──────────────────────────────────
+    function masteryBarHTML(n) {
+      const filled = Math.max(0, Math.min(5, Math.round(n || 0)));
+      const isFull = filled >= 5;
+      let segs = '';
+      for (let i = 0; i < 5; i++) {
+        segs += `<span class="k-mastery-seg${i < filled ? ' is-filled' : ''}"></span>`;
+      }
+      const bandLabel = lookup(state.strings, `mastery_bands.${filled}`) || '';
+      const label = `${filled}/5${bandLabel ? ' · ' + bandLabel : ''}`;
+      return `<span class="k-mastery-bar k-mastery-bar-sm${isFull ? ' is-full' : ''}" role="img" aria-label="${label}" title="${label}">${segs}</span>`;
+    }
+
+    // ── Filter + sort ────────────────────────────────────────────────────
+    function currentlyVisible() {
+      const q = (state.query || '').trim().toLowerCase();
+      let out = state.rows.slice();
+      if (q) {
+        out = out.filter((r) => {
+          const v = (r.verb || '').toLowerCase();
+          const m = (r.meaning_de || '').toLowerCase();
+          return v.includes(q) || m.includes(q);
+        });
+      }
+      if (state.sort === 'mastery') {
+        // Strugglers / unknowns on top (ascending). Tie-break A–Z.
+        out.sort((a, b) => {
+          if (a.mastery !== b.mastery) return a.mastery - b.mastery;
+          return a.verb.localeCompare(b.verb);
+        });
+      } else {
+        out.sort((a, b) => a.verb.localeCompare(b.verb));
+      }
+      return out;
+    }
+
+    // ── Render ───────────────────────────────────────────────────────────
+    function escapeHTML(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function render() {
+      const tbody = document.getElementById('ref-tbody');
+      const rows = currentlyVisible();
+      if (!rows.length) {
+        const msg = lookup(state.strings, 'reference.no_results') || 'Kein Verb gefunden.';
+        tbody.innerHTML = `<tr><td colspan="5" class="ref-empty">${escapeHTML(msg)}</td></tr>`;
+        return;
+      }
+      const html = rows.map((r) => {
+        return `<tr>
+          <td class="ref-col-base ref-cell-base">${escapeHTML(r.verb)}</td>
+          <td class="ref-col-past">${escapeHTML(r.past || '—')}</td>
+          <td class="ref-col-pp">${escapeHTML(r.participle || '—')}</td>
+          <td class="ref-col-meaning ref-cell-meaning">${escapeHTML(r.meaning_de || '')}</td>
+          <td class="ref-col-mastery ref-cell-mastery">${masteryBarHTML(r.mastery)}</td>
+        </tr>`;
+      }).join('');
+      tbody.innerHTML = html;
+
+      // Update sort buttons active state
+      document.querySelectorAll('.ref-sort-btn').forEach((btn) => {
+        const active = btn.getAttribute('data-sort') === state.sort;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+
+    // ── Wire up events ───────────────────────────────────────────────────
+    function wire() {
+      const input = document.getElementById('ref-search-input');
+      input.value = state.query;
+      input.addEventListener('input', (e) => {
+        state.query = e.target.value || '';
+        writeHash();
+        render();
+      });
+
+      document.querySelectorAll('.ref-sort-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const next = btn.getAttribute('data-sort');
+          if (next !== 'alpha' && next !== 'mastery') return;
+          state.sort = next;
+          writeHash();
+          render();
+        });
+      });
+
+      // ESC -> homepage
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          // Don't hijack ESC if the user is mid-typing IME composition.
+          if (e.isComposing) return;
+          window.location.href = '/index.html';
+        }
+      });
+
+      // Language toggle
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const lang = btn.getAttribute('data-lang');
+          if (!lang) return;
+          setLang(lang);
+          location.reload();
+        });
+      });
+
+      // React to hash changes (e.g. back-button navigation).
+      window.addEventListener('hashchange', () => {
+        restoreFromHash();
+        const input2 = document.getElementById('ref-search-input');
+        if (input2) input2.value = state.query;
+        render();
+      });
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────
+    function activeLangBtn() {
+      const lang = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    async function init() {
+      restoreFromHash();
+      activeLangBtn();
+
+      try {
+        const [strings, table] = await Promise.all([
+          loadStrings(),
+          loadVerbTable(),
+        ]);
+        state.strings = strings;
+        applyI18n(strings);
+
+        // Decorate each row with its aggregate mastery (read-only — no recordAttempt).
+        state.rows = table.map((r) => ({
+          verb: r.verb,
+          past: r.past,
+          participle: r.participle,
+          meaning_de: r.meaning_de || '',
+          mastery: verbAggregateMastery(r.verb),
+        }));
+
+        wire();
+        render();
+      } catch (err) {
+        console.error('[verb-reference] failed to load', err);
+        const tbody = document.getElementById('ref-tbody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="5" class="ref-empty">${escapeHTML(String(err && err.message || err))}</td></tr>`;
+        }
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

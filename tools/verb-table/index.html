@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verb-Tabelle — Krabsy</title>
+  <link rel="stylesheet" href="../../lib/krabsy-ui.css">
+  <style>
+    /* ── Module-specific styles ─────────────────────────────────────────── */
+
+    .vt-controls {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .vt-search-row { width: 100%; max-width: 420px; }
+
+    .vt-toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3) var(--space-4);
+      align-items: center;
+    }
+
+    .vt-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--krabsy-ink);
+      user-select: none;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--krabsy-lavender-soft);
+      transition: background-color 0.15s ease;
+    }
+
+    .vt-toggle:hover { background: var(--krabsy-sage-soft); }
+
+    .vt-toggle input {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--krabsy-sage);
+      border-radius: 4px;
+      background: var(--krabsy-white);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .vt-toggle input:checked {
+      background: var(--krabsy-coral);
+      border-color: var(--krabsy-coral);
+    }
+
+    .vt-toggle input:checked::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 4px;
+      height: 9px;
+      border: solid var(--krabsy-white);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .vt-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-sm);
+    }
+
+    .vt-table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+
+    .vt-table thead th {
+      background: var(--krabsy-sage-soft);
+      color: var(--krabsy-ink);
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--krabsy-sage);
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      font-family: var(--font-body);
+    }
+
+    /* Clickable header buttons (the base column header is plain) */
+    .vt-table thead th.vt-clickable {
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      user-select: none;
+    }
+
+    .vt-table thead th.vt-clickable:hover {
+      background: var(--krabsy-sage);
+    }
+
+    .vt-table thead th.vt-clickable.is-hidden {
+      background: var(--krabsy-lavender-soft);
+      color: var(--krabsy-ink-mute);
+    }
+
+    .vt-table thead th .vt-eye {
+      font-size: 0.8rem;
+      margin-left: 6px;
+      color: var(--krabsy-ink-mute);
+    }
+
+    .vt-table tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--krabsy-lavender-soft);
+      color: var(--krabsy-ink);
+      vertical-align: top;
+    }
+
+    .vt-table tbody tr:nth-child(even) td {
+      background: rgba(232, 233, 240, 0.25);
+    }
+
+    .vt-table tbody tr:hover td {
+      background: var(--krabsy-coral-soft);
+    }
+
+    .vt-table .vt-cell-base {
+      font-weight: 700;
+    }
+
+    .vt-table .vt-hidden-cell {
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .vt-empty {
+      padding: var(--space-5);
+      text-align: center;
+      color: var(--krabsy-ink-mute);
+      font-style: italic;
+    }
+
+    .vt-intro {
+      font-size: 0.92rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-4) 0;
+      max-width: 700px;
+    }
+
+    .vt-loading {
+      padding: var(--space-6);
+      text-align: center;
+      color: var(--krabsy-ink-mute);
+    }
+
+    @media (min-width: 720px) {
+      .vt-controls {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .vt-search-row { max-width: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a href="/index.html" class="k-logo" aria-label="Krabsy Startseite">Krabsy</a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">
+        <button class="k-lang-btn" data-lang="de" type="button">DE</button>
+        <button class="k-lang-btn" data-lang="es" type="button">ES</button>
+      </div>
+    </header>
+
+    <main class="k-section">
+      <a href="/index.html" class="k-back-link" id="backLink">← <span id="backLabel">Zurück</span></a>
+      <h1 class="k-h1" id="pageTitle" style="margin-top: 12px;">Verb-Tabelle</h1>
+      <p class="vt-intro" id="introText"></p>
+
+      <div class="k-card">
+        <div class="vt-controls">
+          <div class="vt-search-row">
+            <input
+              type="search"
+              class="k-input"
+              id="searchInput"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Verb suchen"
+            >
+          </div>
+          <div class="vt-toggles" id="toggles">
+            <label class="vt-toggle">
+              <input type="checkbox" id="togglePast">
+              <span id="labelPast">Past verstecken</span>
+            </label>
+            <label class="vt-toggle">
+              <input type="checkbox" id="togglePp">
+              <span id="labelPp">Participle verstecken</span>
+            </label>
+            <label class="vt-toggle">
+              <input type="checkbox" id="toggleMeaning">
+              <span id="labelMeaning">Bedeutung verstecken</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="vt-table-wrap">
+          <table class="vt-table" id="verbTable">
+            <thead>
+              <tr>
+                <th id="thBase" scope="col">Grundform</th>
+                <th id="thPast" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
+                  <span id="thPastLabel">Simple Past</span>
+                </th>
+                <th id="thPp" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
+                  <span id="thPpLabel">Past Participle</span>
+                </th>
+                <th id="thMeaning" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
+                  <span id="thMeaningLabel">Bedeutung</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="4" class="vt-loading">Lädt…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="vt-empty" id="emptyState" hidden></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { loadVerbTable, loadStrings, getLang, setLang } from '../../lib/krabsy-data.js';
+
+    const STORAGE_KEY = 'krabsy_verb_table_hidden';
+    const HIDDEN_CELL_FALLBACK = '•••';
+
+    const state = {
+      rows: [],
+      strings: null,
+      hidden: loadHidden(),
+      query: '',
+    };
+
+    function loadHidden() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { past: false, pp: false, meaning: false };
+        const parsed = JSON.parse(raw);
+        return {
+          past: !!parsed.past,
+          pp: !!parsed.pp,
+          meaning: !!parsed.meaning,
+        };
+      } catch (_) {
+        return { past: false, pp: false, meaning: false };
+      }
+    }
+
+    function saveHidden() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.hidden));
+      } catch (_) { /* private mode etc. */ }
+    }
+
+    function setStr(id, value) {
+      const el = document.getElementById(id);
+      if (el && value != null) el.textContent = value;
+    }
+
+    function applyStrings(ui) {
+      const t = (ui && ui.tools && ui.tools.verb_table) || {};
+      const common = (ui && ui.common) || {};
+      const reference = (ui && ui.reference) || {};
+
+      document.title = (t.name ? t.name + ' — ' : '') + 'Krabsy';
+
+      setStr('pageTitle', t.name || 'Verb-Tabelle');
+      setStr('introText', t.intro || '');
+      setStr('backLabel', common.back_to_hub_short || common.back_to_hub || 'Zurück');
+
+      document.getElementById('searchInput').placeholder =
+        t.search_placeholder || 'Verb suchen…';
+
+      setStr('thBase', common.verb_base || 'Grundform');
+      setStr('thPastLabel', common.verb_past || 'Simple Past');
+      setStr('thPpLabel', common.verb_pp || 'Past Participle');
+      setStr('thMeaningLabel', reference.col_meaning || 'Bedeutung');
+
+      setStr('labelPast', t.toggle_hide_past || 'Past verstecken');
+      setStr('labelPp', t.toggle_hide_pp || 'Participle verstecken');
+      setStr('labelMeaning', t.toggle_hide_meaning || 'Bedeutung verstecken');
+    }
+
+    function hiddenCellText() {
+      const t = state.strings && state.strings.tools && state.strings.tools.verb_table;
+      return (t && t.hidden_cell) || HIDDEN_CELL_FALLBACK;
+    }
+
+    function noResultsText() {
+      const t = state.strings && state.strings.tools && state.strings.tools.verb_table;
+      return (t && t.no_results) || 'Kein Verb gefunden.';
+    }
+
+    function filteredRows() {
+      const q = state.query.trim().toLowerCase();
+      if (!q) return state.rows;
+      return state.rows.filter((r) => {
+        const verb = (r.verb || '').toLowerCase();
+        const meaning = (r.meaning_de || '').toLowerCase();
+        return verb.includes(q) || meaning.includes(q);
+      });
+    }
+
+    function renderToggles() {
+      document.getElementById('togglePast').checked = state.hidden.past;
+      document.getElementById('togglePp').checked = state.hidden.pp;
+      document.getElementById('toggleMeaning').checked = state.hidden.meaning;
+      updateHeaderHiddenClasses();
+    }
+
+    function updateHeaderHiddenClasses() {
+      const map = [
+        { col: 'past', el: document.getElementById('thPast') },
+        { col: 'pp', el: document.getElementById('thPp') },
+        { col: 'meaning', el: document.getElementById('thMeaning') },
+      ];
+      for (const { col, el } of map) {
+        if (!el) continue;
+        const isHidden = !!state.hidden[col];
+        el.classList.toggle('is-hidden', isHidden);
+        el.setAttribute('aria-pressed', String(isHidden));
+      }
+    }
+
+    function renderRows() {
+      const tbody = document.getElementById('tbody');
+      const emptyEl = document.getElementById('emptyState');
+      const rows = filteredRows();
+      const hide = state.hidden;
+      const dot = hiddenCellText();
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.hidden = false;
+        emptyEl.textContent = noResultsText();
+        return;
+      }
+
+      emptyEl.hidden = true;
+
+      const html = rows.map((r) => {
+        const past = hide.past
+          ? `<span class="vt-hidden-cell" aria-hidden="true">${dot}</span>`
+          : escapeHtml(r.past || '');
+        const pp = hide.pp
+          ? `<span class="vt-hidden-cell" aria-hidden="true">${dot}</span>`
+          : escapeHtml(r.participle || '');
+        const meaning = hide.meaning
+          ? `<span class="vt-hidden-cell" aria-hidden="true">${dot}</span>`
+          : escapeHtml(r.meaning_de || '');
+        return `<tr>
+          <td class="vt-cell-base">${escapeHtml(r.verb || '')}</td>
+          <td>${past}</td>
+          <td>${pp}</td>
+          <td>${meaning}</td>
+        </tr>`;
+      }).join('');
+
+      tbody.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function toggleColumn(col) {
+      state.hidden[col] = !state.hidden[col];
+      saveHidden();
+      renderToggles();
+      renderRows();
+    }
+
+    function wireToggleCheckbox(id, col) {
+      document.getElementById(id).addEventListener('change', (e) => {
+        state.hidden[col] = !!e.target.checked;
+        saveHidden();
+        updateHeaderHiddenClasses();
+        renderRows();
+      });
+    }
+
+    function wireHeaderClick(id, col) {
+      const el = document.getElementById(id);
+      el.addEventListener('click', () => toggleColumn(col));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleColumn(col);
+        }
+      });
+    }
+
+    function wireSearch() {
+      const input = document.getElementById('searchInput');
+      input.addEventListener('input', (e) => {
+        state.query = e.target.value || '';
+        renderRows();
+      });
+    }
+
+    function wireLangToggle() {
+      const current = getLang();
+      const btns = document.querySelectorAll('.k-lang-btn');
+      btns.forEach((b) => {
+        if (b.dataset.lang === current) b.classList.add('is-active');
+        b.addEventListener('click', () => {
+          const lang = b.dataset.lang;
+          if (!lang || lang === getLang()) return;
+          setLang(lang);
+          window.location.reload();
+        });
+      });
+    }
+
+    function wireEsc() {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          // Don't hijack ESC while typing in the search field — let it clear first.
+          const active = document.activeElement;
+          if (active && active.id === 'searchInput' && active.value) {
+            active.value = '';
+            state.query = '';
+            renderRows();
+            return;
+          }
+          window.location.href = '/index.html';
+        }
+      });
+    }
+
+    async function init() {
+      wireLangToggle();
+      wireEsc();
+      wireToggleCheckbox('togglePast', 'past');
+      wireToggleCheckbox('togglePp', 'pp');
+      wireToggleCheckbox('toggleMeaning', 'meaning');
+      wireHeaderClick('thPast', 'past');
+      wireHeaderClick('thPp', 'pp');
+      wireHeaderClick('thMeaning', 'meaning');
+      wireSearch();
+
+      try {
+        const [ui, rows] = await Promise.all([
+          loadStrings(),
+          loadVerbTable(),
+        ]);
+        state.strings = ui;
+        state.rows = rows || [];
+        applyStrings(ui);
+        renderToggles();
+        renderRows();
+      } catch (err) {
+        console.error('verb-table init failed', err);
+        const tbody = document.getElementById('tbody');
+        tbody.innerHTML = `<tr><td colspan="4" class="vt-empty">Daten konnten nicht geladen werden.</td></tr>`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
