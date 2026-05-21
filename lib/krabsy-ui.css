@@ -199,6 +199,30 @@ a:hover { color: var(--krabsy-coral); }
 
 .k-card-body { color: var(--krabsy-ink); }
 
+/* ── Intro card (orientation prose above start/launch UI) ───────────────── */
+
+.k-intro-card {
+  background: var(--krabsy-sage-soft);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  margin: 0 auto var(--space-5);
+  max-width: 720px;
+  color: var(--krabsy-ink);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.k-intro-card p {
+  margin: 0;
+}
+.k-intro-card p + p {
+  margin-top: var(--space-2);
+}
+
+/* Hide the intro while a drill is mid-play. Drills toggle body.k-is-playing
+   on showScreen('play') and remove it on start/end screens. Reference and
+   stats pages don't toggle this, so their intro stays visible always. */
+body.k-is-playing .k-intro-card { display: none; }
+
 /* ── Grids ──────────────────────────────────────────────────────────────── */
 
 .k-grid {
