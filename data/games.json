@@ -1,0 +1,57 @@
+[
+  {
+    "id": "verb-slash",
+    "name": { "de": "Verb Slash", "es": "Verb Slash" },
+    "tagline": {
+      "de": "Zerschlage die richtigen Verbformen!",
+      "es": "¡Corta las formas verbales correctas!"
+    },
+    "thumbnail": "/thumbnails/VerbSlash.png",
+    "topics": ["irregular_verbs"],
+    "status": "ready"
+  },
+  {
+    "id": "crab-slash",
+    "name": { "de": "Crab Slash!", "es": "Crab Slash!" },
+    "tagline": {
+      "de": "Schlage die Krabben mit den richtigen Verben!",
+      "es": "¡Golpea los cangrejos con los verbos correctos!"
+    },
+    "thumbnail": null,
+    "topics": ["irregular_verbs"],
+    "status": "beta"
+  },
+  {
+    "id": "air-control",
+    "name": { "de": "Air Control!", "es": "Air Control!" },
+    "tagline": {
+      "de": "Lotse die Flugzeuge sicher mit Englisch!",
+      "es": "¡Guía los aviones de forma segura con inglés!"
+    },
+    "thumbnail": null,
+    "topics": ["irregular_verbs"],
+    "status": "beta"
+  },
+  {
+    "id": "verb-snake",
+    "name": { "de": "Verb Snake!", "es": "Verb Snake!" },
+    "tagline": {
+      "de": "Friss Verbformen in der richtigen Reihenfolge!",
+      "es": "¡Come las formas verbales en el orden correcto!"
+    },
+    "thumbnail": "/thumbnails/verb-snake.png",
+    "topics": ["irregular_verbs"],
+    "status": "ready"
+  },
+  {
+    "id": "verb-platformer",
+    "name": { "de": "Verb Platformer!", "es": "Verb Platformer!" },
+    "tagline": {
+      "de": "Springe durch 3D-Welten und wähle die richtige Verbform!",
+      "es": "¡Salta por mundos 3D y elige la forma verbal correcta!"
+    },
+    "thumbnail": null,
+    "topics": ["irregular_verbs"],
+    "status": "beta"
+  }
+]

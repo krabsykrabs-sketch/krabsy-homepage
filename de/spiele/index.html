@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed) -->
+  <title>Krabsy Spiele — Lerne Englisch beim Spielen</title>
+  <meta name="description" content="Alle Arcade-Spiele von Krabsy. Spiel kostenlos im Browser und verbessere dein Englisch nebenbei — von Verb Slash bis Verb Platformer.">
+  <meta name="keywords" content="krabsy spiele, englisch lernen spiele, verb slash, arcade, browserspiele englisch">
+  <link rel="canonical" href="https://krabsy.com/de/spiele/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/spiele/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/juegos/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <meta property="og:title" content="Krabsy Spiele — Lerne Englisch beim Spielen">
+  <meta property="og:description" content="Alle Arcade-Spiele von Krabsy. Spiel kostenlos im Browser und verbessere dein Englisch nebenbei.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/de/spiele/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Krabsy Spiele — Lerne Englisch beim Spielen">
+  <meta name="twitter:description" content="Alle Arcade-Spiele von Krabsy. Spiel kostenlos im Browser und verbessere dein Englisch nebenbei.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Krabsy Spiele",
+      "url": "https://krabsy.com/de/spiele/",
+      "description": "Alle Arcade-Spiele von Krabsy. Spiel kostenlos im Browser und verbessere dein Englisch nebenbei.",
+      "inLanguage": "de",
+      "isPartOf": { "@type": "WebSite", "name": "Krabsy", "url": "https://krabsy.com/" },
+      "hasPart": [
+        { "@type": "WebApplication", "name": "Verb Slash",      "url": "https://krabsy.com/de/spiele/verb-slash/",      "applicationCategory": "EducationalApplication", "operatingSystem": "Any" },
+        { "@type": "WebApplication", "name": "Crab Slash!",     "url": "https://krabsy.com/de/spiele/crab-slash/",      "applicationCategory": "EducationalApplication", "operatingSystem": "Any" },
+        { "@type": "WebApplication", "name": "Air Control!",    "url": "https://krabsy.com/de/spiele/air-control/",     "applicationCategory": "EducationalApplication", "operatingSystem": "Any" },
+        { "@type": "WebApplication", "name": "Verb Snake!",     "url": "https://krabsy.com/de/spiele/verb-snake/",      "applicationCategory": "EducationalApplication", "operatingSystem": "Any" },
+        { "@type": "WebApplication", "name": "Verb Platformer!","url": "https://krabsy.com/de/spiele/verb-platformer/", "applicationCategory": "EducationalApplication", "operatingSystem": "Any" }
+      ]
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <style>
+    body { background: var(--krabsy-cream); }
+
+    /* Brand logo with crab mascot (same pattern as chooser + topic hub). */
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .logo-crab {
+      display: inline-flex;
+      width: 1.15em; height: 1.15em;
+      align-items: center; justify-content: center;
+      margin: 0 -0.04em;
+      vertical-align: middle;
+    }
+    .logo-crab img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+
+    /* Compact hero — smaller than chooser, just enough to set context. */
+    .gh-hero {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-5) var(--space-4);
+      text-align: center;
+    }
+    .gh-hero-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+    .gh-hero-sub {
+      font-size: 0.95rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0;
+      line-height: 1.5;
+    }
+    @media (min-width: 720px) {
+      .gh-hero { padding: var(--space-7) var(--space-6) var(--space-5); }
+      .gh-hero-title { font-size: 2rem; }
+      .gh-hero-sub { font-size: 1.05rem; }
+    }
+
+    /* Games grid — 3 cols desktop, 2 tablet, 1 narrow. */
+    .gh-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 var(--space-5) var(--space-7);
+      width: 100%;
+    }
+    @media (min-width: 720px) {
+      .gh-section { padding: 0 var(--space-6) var(--space-8); }
+    }
+    .games-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 560px) {
+      .games-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .games-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <header class="k-page-header">
+      <a href="/de/" class="logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="logo-crab" aria-hidden="true">
+          <img src="/favicon.png" alt="" decoding="async">
+        </span>
+        <span>bsy</span>
+      </a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">
+        <button class="k-lang-btn is-active" type="button" data-lang="de">DE</button>
+        <button class="k-lang-btn" type="button" data-lang="es">ES</button>
+      </div>
+    </header>
+
+    <!-- ── Hero ───────────────────────────────────────────────────────── -->
+    <section class="gh-hero">
+      <h1 class="gh-hero-title">Krabsy Spiele</h1>
+      <p class="gh-hero-sub">Alle Arcade-Spiele auf Krabsy. Sie alle helfen dir spielerisch beim Englischlernen.</p>
+    </section>
+
+    <!-- ── Games grid ─────────────────────────────────────────────────── -->
+    <section class="gh-section">
+      <!-- TODO: add a topic-filter chip bar ("Alle Themen / Unregelmäßige Verben")
+                 once a second topic ships. Today there is only one topic, so
+                 the filter would be cosmetic. The data plumbing for it already
+                 exists via getGamesForTopic() in krabsy-data.js. -->
+      <div class="games-grid" id="games-grid"></div>
+    </section>
+
+    <!-- ── Footer ───────────────────────────────────────────────────────── -->
+    <footer class="k-footer">
+      <span id="footer-copyright">© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { getAllGames } from '/lib/krabsy-data.js?v=2026-05-24';
+
+    const LANG = 'de';
+    const GAMES_FOLDER = 'spiele';
+
+    async function renderGames() {
+      let games;
+      try { games = await getAllGames(); }
+      catch (err) { console.error('games-hub: failed to load games.json', err); return; }
+
+      const grid = document.getElementById('games-grid');
+      grid.innerHTML = '';
+      for (const g of games) {
+        grid.appendChild(buildGameCard(g));
+      }
+    }
+
+    function buildGameCard(g) {
+      const isPlayable = g.status !== 'coming_soon';
+      const card = document.createElement(isPlayable ? 'a' : 'div');
+      card.className = 'k-game-card' + (isPlayable ? '' : ' is-disabled');
+      if (isPlayable) card.href = `/${LANG}/${GAMES_FOLDER}/${g.id}/`;
+
+      // Status badge (top-right overlay) — hidden for production-ready games.
+      if (g.status === 'beta') {
+        const badge = document.createElement('span');
+        badge.className = 'k-game-card-badge';
+        badge.textContent = 'Beta';
+        card.appendChild(badge);
+      } else if (g.status === 'coming_soon') {
+        const badge = document.createElement('span');
+        badge.className = 'k-game-card-badge is-coming-soon';
+        badge.textContent = 'Bald';
+        card.appendChild(badge);
+      }
+
+      const thumb = document.createElement('div');
+      thumb.className = 'k-game-card-thumb';
+      if (g.thumbnail) {
+        const img = document.createElement('img');
+        img.src = g.thumbnail;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.addEventListener('error', () => {
+          img.remove();
+          thumb.innerHTML = '<span class="k-game-card-thumb-emoji">✏️</span>';
+        });
+        thumb.appendChild(img);
+      } else {
+        thumb.innerHTML = '<span class="k-game-card-thumb-emoji">✏️</span>';
+      }
+
+      const body = document.createElement('div');
+      body.className = 'k-game-card-body';
+      const title = document.createElement('h3');
+      title.className = 'k-game-card-title';
+      title.textContent = (g.name && g.name[LANG]) || g.id;
+      const tagline = document.createElement('p');
+      tagline.className = 'k-game-card-tagline';
+      tagline.textContent = (g.tagline && g.tagline[LANG]) || '';
+      body.append(title, tagline);
+      if (isPlayable) {
+        const cta = document.createElement('span');
+        cta.className = 'k-game-card-cta';
+        cta.textContent = 'Spielen →';
+        body.appendChild(cta);
+      }
+
+      card.append(thumb, body);
+      return card;
+    }
+
+    function renderFooter() {
+      const el = document.getElementById('footer-copyright');
+      if (el) el.textContent = `© ${new Date().getFullYear()} Krabsy`;
+    }
+
+    function init() {
+      renderFooter();
+      renderGames();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  </script>
+  <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
+</body>
+</html>

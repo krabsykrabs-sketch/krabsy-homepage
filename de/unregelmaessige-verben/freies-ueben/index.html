@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Freies Üben — Krabsy</title>
+  <meta name="description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta name="keywords" content="freies üben, klassenarbeit, simple past, past participle, englisch lernen">
+  <link rel="canonical" href="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/verbos-irregulares/practica-libre/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Freies Üben — Krabsy">
+  <meta property="og:description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Freies Üben — Krabsy">
+  <meta name="twitter:description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <style>
+    /* ── Free Practice module-specific styles ────────────────────────── */
+
+    main.fp-main {
+      flex: 1;
+    }
+
+    .fp-page-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: var(--space-4);
+    }
+
+    .fp-page-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .fp-intro {
+      color: var(--krabsy-ink-mute);
+      font-size: 0.9rem;
+      margin: 0;
+      max-width: 60ch;
+    }
+
+    /* Toolbar / filter selector */
+    .fp-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .fp-toolbar-label {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      font-weight: 600;
+    }
+
+    .fp-filter-pills {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .fp-filter-pill {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      border: 2px solid var(--krabsy-lavender-soft);
+      background: var(--krabsy-white);
+      color: var(--krabsy-ink-mute);
+      cursor: pointer;
+      transition: color 0.15s ease, background-color 0.15s ease,
+                  border-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .fp-filter-pill:hover:not(.is-active) {
+      color: var(--krabsy-ink);
+      border-color: var(--krabsy-sage);
+    }
+
+    .fp-filter-pill.is-active {
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+      border-color: var(--krabsy-coral);
+    }
+
+    .fp-fixed-deck-note {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-4) 0;
+      background: var(--krabsy-lavender-soft);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* "All done" panel shown when the ?verbs= deck has been cleared. */
+    .fp-done {
+      text-align: center;
+      padding: var(--space-5) var(--space-4);
+    }
+    .fp-done-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 var(--space-3);
+      line-height: 1.2;
+    }
+    .fp-done-body {
+      color: var(--krabsy-ink-mute);
+      font-size: 1rem;
+      margin: 0 0 var(--space-5);
+    }
+    .fp-done-actions {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .fp-empty-note {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-3) 0;
+      font-style: italic;
+    }
+
+    /* Progress strip */
+    .fp-progress-strip {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--krabsy-ink-mute);
+      background: var(--krabsy-sage-soft);
+      padding: 10px 16px;
+      border-radius: var(--radius-pill);
+      text-align: center;
+      margin-bottom: var(--space-5);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Stage */
+    .fp-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-5);
+      padding: var(--space-5) var(--space-4);
+      background: var(--krabsy-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+    }
+
+    .fp-verb {
+      font-family: var(--font-display);
+      font-size: 2.6rem;
+      color: var(--krabsy-ink);
+      margin: 0;
+      line-height: 1.1;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    @media (min-width: 720px) {
+      .fp-verb { font-size: 3.4rem; }
+    }
+
+    /* Input row */
+    .fp-inputs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      width: 100%;
+      max-width: 640px;
+    }
+
+    @media (min-width: 560px) {
+      .fp-inputs { grid-template-columns: 1fr 1fr; }
+    }
+
+    .fp-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .fp-input-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.5px;
+    }
+
+    .fp-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fp-feedback-pill {
+      display: none;
+      flex-shrink: 0;
+    }
+    .fp-feedback-pill.is-shown { display: inline-flex; }
+
+    /* Action buttons */
+    .fp-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Hint reveal */
+    .fp-hint {
+      width: 100%;
+      max-width: 640px;
+      padding: 12px 16px;
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-sm);
+      color: var(--krabsy-ink);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 0.4px;
+      display: none;
+    }
+    .fp-hint.is-shown { display: block; }
+
+    .fp-hidden { display: none !important; }
+
+    .fp-back-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+
+    <!-- Header -->
+    <header class="k-page-header">
+      <a class="k-logo" href="/de/">Krabsy</a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
+        <button class="k-lang-btn" data-lang="de" type="button">DE</button>
+        <button class="k-lang-btn" data-lang="es" type="button">ES</button>
+      </div>
+    </header>
+
+    <main class="k-section fp-main">
+      <div class="fp-back-row">
+        <a class="k-back-link" href="/de/unregelmaessige-verben/" id="fp-back-link">&larr; <span data-i18n="common.back_to_hub">Zurück zur Übersicht</span></a>
+        <a class="k-btn-ghost k-btn-sm" href="/de/unregelmaessige-verben/" id="fp-btn-done" data-i18n="tools.free_practice.btn_done">Fertig</a>
+      </div>
+
+      <div class="fp-page-header">
+        <div class="fp-page-title-row">
+          <h1 class="k-h1" data-i18n="tools.free_practice.name">Freies Üben</h1>
+        </div>
+        <p class="fp-intro" data-i18n="tools.free_practice.intro"></p>
+      </div>
+
+      <aside class="k-intro-card" aria-label="Über dieses Werkzeug">
+        <p>Üben ohne Zeitdruck. Tippe Simple Past und Past Participle für jedes Verb. Hinweise helfen dir, wenn du nicht weiterkommst. Perfekt, um vor einer Klassenarbeit gezielt einzelne Verben zu wiederholen.</p>
+      </aside>
+
+      <!-- Fixed-deck note (only when ?verbs= present) -->
+      <p class="fp-fixed-deck-note fp-hidden" id="fp-fixed-deck-note"></p>
+
+      <!-- Filter toolbar (hidden when ?verbs= present) -->
+      <div class="fp-toolbar" id="fp-toolbar" role="group" aria-labelledby="fp-filter-label">
+        <span class="fp-toolbar-label" id="fp-filter-label" data-i18n="tools.free_practice.filter_label">Welche Verben?</span>
+        <div class="fp-filter-pills" id="fp-filter-pills">
+          <button class="fp-filter-pill" type="button" data-filter="all" data-i18n="tools.free_practice.filter_all">Alle Verben</button>
+          <button class="fp-filter-pill" type="button" data-filter="weak" data-i18n="tools.free_practice.filter_weak">Nur schwache Verben</button>
+        </div>
+      </div>
+
+      <!-- Empty / fallback note for weak filter when no data -->
+      <p class="fp-empty-note fp-hidden" id="fp-empty-note">Übe ein paar Minuten — dann erscheinen hier deine schwachen Verben.</p>
+
+      <!-- Progress strip -->
+      <div class="fp-progress-strip k-mono-num" id="fp-progress-strip" aria-live="polite"></div>
+
+      <!-- Stage -->
+      <section class="fp-stage" id="fp-stage" aria-live="polite">
+        <h2 class="fp-verb" id="fp-verb">—</h2>
+
+        <div class="fp-inputs">
+          <div class="fp-input-group">
+            <label class="fp-input-label" for="fp-input-past" data-i18n="common.verb_past">Simple Past</label>
+            <div class="fp-input-row">
+              <input class="k-input" id="fp-input-past" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <span class="k-pill fp-feedback-pill" id="fp-feedback-past" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="fp-input-group">
+            <label class="fp-input-label" for="fp-input-pp" data-i18n="common.verb_pp">Past Participle</label>
+            <div class="fp-input-row">
+              <input class="k-input" id="fp-input-pp" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <span class="k-pill fp-feedback-pill" id="fp-feedback-pp" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-hint" id="fp-hint" aria-live="polite"></div>
+
+        <div class="fp-actions">
+          <button class="k-btn-ghost" type="button" id="fp-btn-hint" data-i18n="tools.free_practice.btn_hint">Tipp</button>
+          <button class="k-btn-ghost" type="button" id="fp-btn-skip" data-i18n="tools.free_practice.btn_skip">Überspringen</button>
+          <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Absenden</button>
+        </div>
+      </section>
+      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+    </main>
+
+    <footer class="k-footer">
+      <span id="fp-footer-copy"></span>
+    
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import {
+      loadVerbTable,
+      loadStrings,
+      pickRandomVerbs,
+      getVerbRow,
+      getLang,
+      setLang,
+    } from '/lib/krabsy-data.js?v=2026-05-24';
+    import {
+      recordAttempt,
+      getStrugglers,
+      getOverall,
+    } from '/lib/krabsy-stats.js?v=2026-05-24';
+    import { wireTwoFieldForm } from '/lib/krabsy-input.js?v=2026-05-24';
+
+    const FILTER_KEY = 'krabsy_free_practice_filter';
+    const VALID_FILTERS = new Set(['all', 'weak']);
+    const FEEDBACK_MS = 800;
+
+    // ─── State ──────────────────────────────────────────────────────────
+    const state = {
+      ui: null,
+      table: [],          // full verb table
+      verbsById: new Map(),
+      deck: [],           // ordered array of verb ids (base forms)
+      index: 0,
+      filter: 'all',
+      fixedDeck: false,   // true when ?verbs= override is in effect
+      // Session counters (separate from global stats)
+      sessionAttempts: 0,        // count of submitted verbs (2 forms each)
+      sessionFormsSubmitted: 0,  // total form submissions
+      sessionFormsCorrect: 0,    // total correct form submissions
+      busy: false,        // true while feedback is showing
+    };
+
+    // ─── i18n helpers ───────────────────────────────────────────────────
+    function tGet(path) {
+      const parts = path.split('.');
+      let cur = state.ui;
+      for (const p of parts) {
+        if (cur && Object.prototype.hasOwnProperty.call(cur, p)) cur = cur[p];
+        else return '';
+      }
+      return typeof cur === 'string' ? cur : '';
+    }
+
+    function applyStaticStrings() {
+      document.title = `${tGet('tools.free_practice.name')} — Krabsy`;
+      document.documentElement.lang = state.ui.lang || 'de';
+      const nodes = document.querySelectorAll('[data-i18n]');
+      nodes.forEach((node) => {
+        const key = node.getAttribute('data-i18n');
+        const val = tGet(key);
+        if (val) node.textContent = val;
+      });
+
+      // Footer copyright
+      const footerCopy = document.getElementById('fp-footer-copy');
+      const tmpl = tGet('homepage.footer_copyright') || '© {year} Krabsy';
+      footerCopy.textContent = tmpl.replace('{year}', new Date().getFullYear());
+
+      // Lang toggle active state
+      const lang = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.lang === lang);
+      });
+    }
+
+    // ─── URL / filter helpers ───────────────────────────────────────────
+    function getUrlVerbs() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('verbs');
+      if (!raw) return null;
+      const wanted = raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+      if (!wanted.length) return null;
+      // Keep only verbs we actually have data for, preserving order.
+      const out = [];
+      for (const v of wanted) {
+        if (state.verbsById.has(v)) out.push(v);
+      }
+      return out.length ? out : null;
+    }
+
+    function loadSavedFilter() {
+      try {
+        const v = localStorage.getItem(FILTER_KEY);
+        if (v && VALID_FILTERS.has(v)) return v;
+      } catch (_) { /* ignore */ }
+      return 'all';
+    }
+
+    function saveFilter(filter) {
+      try { localStorage.setItem(FILTER_KEY, filter); } catch (_) { /* ignore */ }
+    }
+
+    // ─── Deck building ──────────────────────────────────────────────────
+    function shuffleInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    async function buildDeck(filter) {
+      if (filter === 'weak') {
+        const rows = getStrugglers(20);
+        const seen = new Set();
+        const out = [];
+        for (const r of rows) {
+          if (seen.has(r.verb)) continue;
+          if (!state.verbsById.has(r.verb)) continue;
+          seen.add(r.verb);
+          out.push(r.verb);
+        }
+        if (out.length === 0) {
+          // Fall back to all verbs; the empty-note will be shown by caller.
+          return await pickRandomVerbs(state.table.length);
+        }
+        return out;
+      }
+      // 'all' — random order
+      return await pickRandomVerbs(state.table.length);
+    }
+
+    // ─── Hint helper ────────────────────────────────────────────────────
+    function buildHintFor(verbId) {
+      const row = state.verbsById.get(verbId);
+      if (!row) return verbId;
+      const past = row.past || '';
+      const participle = row.participle || '';
+      let masked;
+      if (past.length <= 2) {
+        masked = past;
+      } else {
+        masked = past[0] + '_'.repeat(past.length - 2) + past[past.length - 1];
+      }
+      return `${verbId}, ${masked}, ${participle}`;
+    }
+
+    // ─── Rendering ──────────────────────────────────────────────────────
+    function setFilterPillsActive() {
+      document.querySelectorAll('.fp-filter-pill').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.filter === state.filter);
+      });
+    }
+
+    function clearFeedbackPills() {
+      ['fp-feedback-past', 'fp-feedback-pp'].forEach((id) => {
+        const el = document.getElementById(id);
+        el.classList.remove('is-shown', 'k-pill-correct', 'k-pill-wrong');
+        el.textContent = '';
+      });
+    }
+
+    function renderProgressStrip() {
+      const overall = getOverall();
+      const totalForms = state.sessionFormsSubmitted;
+      const accuracy = totalForms > 0
+        ? Math.round((state.sessionFormsCorrect / totalForms) * 100)
+        : 0;
+      const tmpl = tGet('tools.free_practice.session_stats')
+        || 'Session: {attempts} Versuche · {accuracy}% richtig · Serie: {streak}';
+      const text = tmpl
+        .replace('{attempts}', String(state.sessionAttempts))
+        .replace('{accuracy}', String(accuracy))
+        .replace('{streak}', String(overall.current_streak || 0));
+      document.getElementById('fp-progress-strip').textContent = text;
+    }
+
+    function renderCurrentVerb() {
+      const verbId = state.deck[state.index];
+      document.getElementById('fp-verb').textContent = verbId || '—';
+
+      const pastEl = document.getElementById('fp-input-past');
+      const ppEl = document.getElementById('fp-input-pp');
+      pastEl.value = '';
+      ppEl.value = '';
+      pastEl.disabled = false;
+      ppEl.disabled = false;
+
+      // Hide hint reveal
+      const hintEl = document.getElementById('fp-hint');
+      hintEl.classList.remove('is-shown');
+      hintEl.textContent = '';
+
+      clearFeedbackPills();
+
+      // Auto-focus past field
+      setTimeout(() => { pastEl.focus(); }, 0);
+    }
+
+    function advance() {
+      state.index += 1;
+      if (state.index >= state.deck.length) {
+        // Loop the deck so play is truly endless.
+        // For 'weak' fallback (all verbs) and 'all', re-shuffle.
+        // For fixed deck via ?verbs=, keep original order (user opted into it).
+        if (!state.fixedDeck) {
+          shuffleInPlace(state.deck);
+        }
+        state.index = 0;
+      }
+      renderCurrentVerb();
+    }
+
+    // ─── Validation / submit ────────────────────────────────────────────
+    function normalize(s) {
+      return (s || '').trim().toLowerCase();
+    }
+
+    function showFormFeedback(id, correct) {
+      const el = document.getElementById(id);
+      el.classList.add('is-shown');
+      if (correct) {
+        el.classList.add('k-pill-correct');
+        el.textContent = tGet('common.correct') || 'Richtig!';
+      } else {
+        el.classList.add('k-pill-wrong');
+        el.textContent = tGet('common.wrong') || 'Falsch';
+      }
+    }
+
+    function handleSubmit() {
+      if (state.busy) return;
+      const verbId = state.deck[state.index];
+      if (!verbId) return;
+      const row = state.verbsById.get(verbId);
+      if (!row) return;
+
+      const pastEl = document.getElementById('fp-input-past');
+      const ppEl = document.getElementById('fp-input-pp');
+
+      const userPast = normalize(pastEl.value);
+      const userPp = normalize(ppEl.value);
+      const correctPast = normalize(row.past);
+      const correctPp = normalize(row.participle);
+
+      const altMatch = (typed, alts) =>
+        Array.isArray(alts) && alts.some((a) => normalize(a) === typed);
+      const pastOk = userPast.length > 0
+        && (userPast === correctPast || altMatch(userPast, row.past_alt));
+      const ppOk = userPp.length > 0
+        && (userPp === correctPp || altMatch(userPp, row.participle_alt));
+
+      // Record stats for both forms
+      recordAttempt(verbId, 'past', pastOk, 'free_practice', 'irregular_verbs');
+      recordAttempt(verbId, 'participle', ppOk, 'free_practice', 'irregular_verbs');
+
+      // Update session counters
+      state.sessionAttempts += 1;
+      state.sessionFormsSubmitted += 2;
+      if (pastOk) state.sessionFormsCorrect += 1;
+      if (ppOk) state.sessionFormsCorrect += 1;
+
+      // Show feedback pills
+      showFormFeedback('fp-feedback-past', pastOk);
+      showFormFeedback('fp-feedback-pp', ppOk);
+
+      // Lock inputs during feedback window
+      pastEl.disabled = true;
+      ppEl.disabled = true;
+
+      renderProgressStrip();
+
+      const bothCorrect = pastOk && ppOk;
+
+      state.busy = true;
+      setTimeout(() => {
+        state.busy = false;
+        // In ?verbs= mode, drop the verb when the user has nailed BOTH forms —
+        // it's "done" for this practice list. The deck visibly shrinks, the
+        // counter at the top ticks down, and when the last one is cleared we
+        // show a small "all done" panel.
+        if (state.fixedDeck && bothCorrect) {
+          state.deck.splice(state.index, 1);
+          updateFixedDeckNote();
+          if (state.deck.length === 0) {
+            showFixedDeckDone();
+            return;
+          }
+          // splice already pulled the next verb into the current slot; just
+          // re-render that slot. Wrap index if it ran off the end.
+          if (state.index >= state.deck.length) state.index = 0;
+          renderCurrentVerb();
+        } else {
+          advance();
+        }
+      }, FEEDBACK_MS);
+    }
+
+    function updateFixedDeckNote() {
+      if (!state.fixedDeck) return;
+      const n = state.deck.length;
+      const note = document.getElementById('fp-fixed-deck-note');
+      if (!note) return;
+      const tmpl = tGet('tools.free_practice.fixed_deck_remaining')
+        || 'Noch {n} zu üben.';
+      note.textContent = tmpl.replace('{n}', String(n));
+    }
+
+    function showFixedDeckDone() {
+      const stage = document.getElementById('fp-stage');
+      if (!stage) return;
+      const title = tGet('tools.free_practice.fixed_deck_done_title')
+        || 'Alle Verben geschafft! 🦀';
+      const body = tGet('tools.free_practice.fixed_deck_done_body')
+        || 'Du hast alle Verben aus deiner Übungs-Liste richtig beantwortet.';
+      const backLbl = tGet('common.back_to_hub') || 'Zurück zur Übersicht';
+      const contLbl = tGet('tools.free_practice.fixed_deck_continue_all')
+        || 'Weiter mit allen Verben';
+      stage.innerHTML =
+        '<div class="fp-done">' +
+          '<h2 class="fp-done-title"></h2>' +
+          '<p class="fp-done-body"></p>' +
+          '<div class="fp-done-actions">' +
+            '<a class="k-btn-primary" href="/de/unregelmaessige-verben/"></a>' +
+            '<a class="k-btn-secondary" href="/de/unregelmaessige-verben/freies-ueben/"></a>' +
+          '</div>' +
+        '</div>';
+      stage.querySelector('.fp-done-title').textContent = title;
+      stage.querySelector('.fp-done-body').textContent = body;
+      stage.querySelector('.k-btn-primary').textContent = backLbl;
+      stage.querySelector('.k-btn-secondary').textContent = contLbl;
+      // Hide the now-irrelevant fixed-deck remaining note.
+      const note = document.getElementById('fp-fixed-deck-note');
+      if (note) note.classList.add('fp-hidden');
+    }
+
+    function handleSkip() {
+      if (state.busy) return;
+      // No recordAttempt — just advance.
+      advance();
+    }
+
+    function handleHintToggle() {
+      const hintEl = document.getElementById('fp-hint');
+      if (hintEl.classList.contains('is-shown')) {
+        hintEl.classList.remove('is-shown');
+        hintEl.textContent = '';
+        const btn = document.getElementById('fp-btn-hint');
+        btn.textContent = tGet('tools.free_practice.btn_hint') || 'Tipp';
+      } else {
+        const verbId = state.deck[state.index];
+        hintEl.textContent = buildHintFor(verbId);
+        hintEl.classList.add('is-shown');
+        // Optional: change label to hide hint
+        const btn = document.getElementById('fp-btn-hint');
+        const hide = tGet('common.hide_hint');
+        if (hide) btn.textContent = hide;
+      }
+    }
+
+    // ─── Wiring ─────────────────────────────────────────────────────────
+    async function applyFilter(newFilter) {
+      if (!VALID_FILTERS.has(newFilter)) return;
+      state.filter = newFilter;
+      saveFilter(newFilter);
+      setFilterPillsActive();
+
+      // Empty-note logic for 'weak'
+      const emptyNote = document.getElementById('fp-empty-note');
+      if (newFilter === 'weak') {
+        const strug = getStrugglers(20);
+        if (!strug || strug.length === 0) {
+          emptyNote.classList.remove('fp-hidden');
+        } else {
+          emptyNote.classList.add('fp-hidden');
+        }
+      } else {
+        emptyNote.classList.add('fp-hidden');
+      }
+
+      state.deck = await buildDeck(newFilter);
+      state.index = 0;
+      renderCurrentVerb();
+    }
+
+    function wireEvents() {
+      // Filter pills
+      document.querySelectorAll('.fp-filter-pill').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const f = btn.dataset.filter;
+          if (f && f !== state.filter) applyFilter(f);
+        });
+      });
+
+      // Action buttons
+      document.getElementById('fp-btn-submit').addEventListener('click', handleSubmit);
+      document.getElementById('fp-btn-skip').addEventListener('click', handleSkip);
+      document.getElementById('fp-btn-hint').addEventListener('click', handleHintToggle);
+
+      // Enter in past → advance focus to participle; Enter in participle → submit.
+      wireTwoFieldForm({
+        pastInput: document.getElementById('fp-input-past'),
+        ppInput: document.getElementById('fp-input-pp'),
+        onSubmit: handleSubmit,
+      });
+
+
+      // ESC → back to hub
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          window.location.href = '/de/';
+        }
+      });
+    }
+
+    // ─── Init ───────────────────────────────────────────────────────────
+    async function init() {
+      try {
+        const [ui, table] = await Promise.all([
+          loadStrings(),
+          loadVerbTable(),
+        ]);
+        state.ui = ui;
+        state.table = table;
+        state.verbsById = new Map(table.map((r) => [r.verb, r]));
+      } catch (err) {
+        console.error('Free Practice init failed:', err);
+        document.body.innerHTML = '<p style="padding:24px;font-family:Verdana,sans-serif;">Konnte Daten nicht laden.</p>';
+        return;
+      }
+
+      applyStaticStrings();
+      wireEvents();
+
+      // URL ?verbs= override
+      const urlVerbs = getUrlVerbs();
+      if (urlVerbs && urlVerbs.length > 0) {
+        state.fixedDeck = true;
+        state.deck = urlVerbs.slice();
+        state.index = 0;
+        // Hide filter selector — deck is fixed.
+        document.getElementById('fp-toolbar').classList.add('fp-hidden');
+        // Show a tiny note explaining the fixed deck.
+        const note = document.getElementById('fp-fixed-deck-note');
+        const tmpl = tGet('tools.free_practice.fixed_deck_note')
+          || 'Du übst eine vorgegebene Auswahl von {n} Verben.';
+        note.textContent = tmpl.replace('{n}', String(urlVerbs.length));
+        note.classList.remove('fp-hidden');
+        renderProgressStrip();
+        renderCurrentVerb();
+      } else {
+        state.filter = loadSavedFilter();
+        renderProgressStrip();
+        await applyFilter(state.filter);
+      }
+    }
+
+    init();
+  </script>
+  <script type="module">
+    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-05-24';
+    initToolPage('free_practice');
+  </script>
+    <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
+</body>
+</html>

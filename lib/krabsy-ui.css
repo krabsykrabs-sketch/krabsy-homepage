@@ -565,6 +565,101 @@ body.k-is-playing .k-intro-card { display: none; }
   line-height: 1.2;
 }
 
+/* ── Game card (shared) ─────────────────────────────────────────────────
+   Single card style for every game-rendering surface:
+     • the platform-wide games hub at /<lang>/<spiele|juegos>/
+     • each topic hub's Spiele section
+     • the "Probier auch das" strip on drill end screens (uses .k-game-tile
+       below — kept separate because it's a denser, label-only tile)
+   ─────────────────────────────────────────────────────────────────────── */
+
+.k-game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--krabsy-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--krabsy-ink);
+  transition: transform 0.18s ease;
+  will-change: transform;
+}
+.k-game-card[href]:hover { transform: translateY(-2px); }
+.k-game-card.is-disabled {
+  opacity: 0.72;
+  cursor: default;
+}
+
+.k-game-card-thumb {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.k-game-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.k-game-card-thumb-emoji { font-size: 2.6rem; line-height: 1; }
+
+.k-game-card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.k-game-card-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--krabsy-ink);
+  margin: 0;
+}
+.k-game-card-tagline {
+  font-size: 0.8rem;
+  color: var(--krabsy-ink-mute);
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+.k-game-card-cta {
+  align-self: flex-start;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--krabsy-coral-dark);
+  letter-spacing: 0.3px;
+}
+.k-game-card[href]:hover .k-game-card-cta { color: var(--krabsy-coral); }
+
+/* Status badge — overlaid on the top-right corner of the thumbnail. */
+.k-game-card-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--krabsy-sage-soft);
+  color: #5a7a3a;
+  z-index: 1;
+}
+.k-game-card-badge.is-coming-soon {
+  background: var(--krabsy-lavender-soft);
+  color: var(--krabsy-ink-mute);
+}
+
 /* ── Ad slot placeholders ───────────────────────────────────────────────── */
 
 .k-ad-slot {

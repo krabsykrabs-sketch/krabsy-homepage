@@ -1,0 +1,59 @@
+{
+  "irregular_verbs": {
+    "de": "unregelmaessige-verben",
+    "es": "verbos-irregulares",
+    "display_name": {
+      "de": "Unregelmäßige Verben",
+      "es": "Verbos Irregulares"
+    },
+    "short_name": {
+      "de": "Verben",
+      "es": "Verbos"
+    },
+    "status": "live",
+    "description": {
+      "de": "Lerne die wichtigsten unregelmäßigen englischen Verben — von go/went/gone bis weave/wove/woven. Mit Spielen, Drills und Lernwerkzeugen.",
+      "es": "Aprende los verbos irregulares más importantes del inglés — desde go/went/gone hasta weave/wove/woven. Con juegos, ejercicios y herramientas de estudio."
+    },
+    "card_stats": {
+      "de": "155 Verben · 5 Speed-Drills · 3 Lernwerkzeuge",
+      "es": "155 verbos · 5 Speed Drills · 3 herramientas de estudio"
+    },
+    "thumbnail": "/thumbnails/Sprint.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "type-race":     { "de": "type-race",     "es": "type-race" },
+      "drag-match":    { "de": "drag-match",    "es": "drag-match" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" },
+      "falling-forms": { "de": "falling-forms", "es": "falling-forms" },
+      "flashcards":    { "de": "karteikarten",  "es": "tarjetas" },
+      "verb-table":    { "de": "verb-tabelle",  "es": "tabla-de-verbos" },
+      "free-practice": { "de": "freies-ueben",  "es": "practica-libre" },
+      "reference":     { "de": "uebersicht",    "es": "resumen" },
+      "stats":         { "de": "statistik",     "es": "estadisticas" }
+    }
+  },
+  "prepositions": {
+    "de": "praepositionen",
+    "es": "preposiciones",
+    "display_name": {
+      "de": "Präpositionen",
+      "es": "Preposiciones"
+    },
+    "short_name": {
+      "de": "Präpositionen",
+      "es": "Preposiciones"
+    },
+    "status": "coming_soon",
+    "description": {
+      "de": "Bald verfügbar — die kniffligen kleinen Wörter, die im Englischen oft anders verwendet werden als im Deutschen.",
+      "es": "Próximamente — las palabras pequeñas y traicioneras que en inglés se usan de forma diferente."
+    },
+    "card_stats": {
+      "de": "Bald verfügbar",
+      "es": "Próximamente"
+    },
+    "thumbnail": null,
+    "pages": {}
+  }
+}

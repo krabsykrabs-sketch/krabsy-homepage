@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /de/stats/
-Disallow: /es/stats/
+Disallow: /de/unregelmaessige-verben/statistik/
+Disallow: /es/verbos-irregulares/estadisticas/
 Disallow: /lib/
 Disallow: /data/
 
