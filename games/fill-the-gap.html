@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Lückentext — Krabsy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Lückentext — eine Arcade-Übung für unregelmäßige englische Verben im Satzkontext.">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   LÜCKENTEXT — Krabsy speed drill
+   Arcade variant of fill-the-gap. Sentence card falls toward a danger line;
+   player types the missing verb form into an input fixed at the bottom.
+   Reuses the Falling Forms visual system, HUD, audio, scoring, and level-up.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --lavender:        #babfd8;
+  --lavender-deep:   #6d75a6;
+  --lavender-soft:   #d9ddec;
+  --sage:            #cdd9b4;
+  --sage-deep:       #9fb37c;
+  --coral:           #f2937e;
+  --coral-deep:      #c9685a;
+  --coral-soft:      #fbe4de;
+  --off-white:       #fdf8f3;
+  --charcoal:        #2a2438;
+  --charcoal-soft:   rgba(42, 36, 56, 0.65);
+
+  --red-wrong:       #d04a3a;
+  --red-wrong-deep:  #a83828;
+
+  --shadow-elev:     0 6px 22px rgba(42, 36, 56, 0.18);
+  --shadow-deep:     0 12px 38px rgba(42, 36, 56, 0.28);
+  --shadow-inset:    inset 0 4px 18px rgba(109, 117, 166, 0.22);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100vh;
+  font-family: Verdana, Geneva, sans-serif;
+  color: var(--charcoal);
+  -webkit-text-size-adjust: 100%;
+  overflow: hidden;
+}
+
+body {
+  /* Sandy / cream gradient — keeps the brand "sandy gold" tone and gives the
+     lavender answer buttons enough contrast to read as foreground. */
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 250, 232, 0.65), transparent 55%),
+    radial-gradient(circle at 82% 78%, rgba(186, 152, 100, 0.18), transparent 55%),
+    linear-gradient(160deg, #f4ecd6 0%, #e8d9b6 60%, #d9c594 100%);
+}
+/* Dot-pattern overlay — very low opacity, fixed (no per-frame paint) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(42, 36, 56, 0.06) 1px, transparent 1.4px);
+  background-size: 16px 16px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Top-level grid ─────────────────────────────────────────────────────── */
+
+.ff-app {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  height: 100vh;
+  width: 100%;
+  min-width: 900px;
+  max-width: 980px;
+  margin: 0 auto;
+  grid-template-columns: 170px 1fr 200px;
+  grid-template-rows: 52px 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+
+.ff-topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+.ff-round {
+  font-family: 'Limelight', cursive;
+  font-size: 1.1rem;
+  letter-spacing: 0.8px;
+  color: var(--charcoal);
+}
+.ff-round span { color: var(--coral-deep); }
+.ff-topbar-actions { display: flex; gap: 8px; }
+.ff-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(109,117,166,0.35);
+  background: rgba(255,255,255,0.7);
+  color: var(--charcoal);
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+  user-select: none;
+}
+.ff-icon:hover { background: var(--coral-soft); color: var(--coral-deep); }
+.ff-icon:active { transform: scale(0.94); }
+.ff-icon.is-muted { color: var(--lavender-deep); opacity: 0.5; }
+
+/* ── Sidebars (frosted-glass) ───────────────────────────────────────────── */
+
+.ff-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.ff-panel {
+  position: relative;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+.ff-panel-label {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--lavender-deep);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.ff-panel-value {
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--charcoal);
+  letter-spacing: 0.5px;
+}
+
+/* Score gets the dramatic coral treatment */
+.ff-panel-score .ff-panel-value {
+  font-size: 2.1rem;
+  color: var(--coral-deep);
+}
+
+/* Level + progress bar */
+.ff-level-bar {
+  margin-top: 8px;
+  height: 6px;
+  background: rgba(109,117,166,0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ff-level-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--coral), var(--coral-deep));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Streak — glows when active */
+.ff-panel-streak .ff-streak-fire {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 1.2rem;
+  filter: none;
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+}
+.ff-panel-streak.is-hot {
+  box-shadow: var(--shadow-elev), 0 0 0 1px rgba(242,147,126,0.55), 0 0 18px rgba(242,147,126,0.45);
+}
+.ff-panel-streak.is-hot .ff-streak-fire { opacity: 1; }
+.ff-panel-streak.is-hot .ff-panel-value { color: var(--coral-deep); }
+
+/* Lives row */
+.ff-lives {
+  display: flex;
+  gap: 6px;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.ff-heart {
+  color: var(--coral);
+  text-shadow: none;
+  transition: color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+}
+.ff-heart.is-lost {
+  color: rgba(109,117,166,0.35);
+  opacity: 0.5;
+  transform: scale(0.85);
+}
+
+/* Right sidebar — per-level board: 5 fixed slots that fill as the player
+   completes verbs. Each tile staggers the three forms across the row:
+   verb left, past centered, pp right — gives a stepped/transformation feel
+   and avoids any single line overflowing the narrow sidebar. */
+.ff-history {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+.ff-history-row {
+  padding: 5px 10px;
+  background: rgba(205, 217, 180, 0.30);
+  border: 1px solid rgba(205, 217, 180, 0.55);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.15;
+}
+.ff-history-row .ff-h-verb,
+.ff-history-row .ff-h-past,
+.ff-history-row .ff-h-pp {
+  display: block;
+  width: 100%;
+  font-family: 'Limelight', cursive;
+  letter-spacing: 0.3px;
+}
+.ff-history-row .ff-h-verb {
+  text-align: left;
+  font-size: 0.72rem;
+  color: var(--lavender-deep);
+  letter-spacing: 0.9px;
+  margin-bottom: 1px;
+}
+.ff-history-row .ff-h-past {
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--charcoal);
+}
+.ff-history-row .ff-h-pp {
+  text-align: right;
+  font-size: 0.92rem;
+  color: var(--charcoal);
+}
+
+/* Empty slot: dashed outline + faded inner text so the panel size never
+   jumps as the level fills in. */
+.ff-history-row.is-empty {
+  background: rgba(186, 191, 216, 0.10);
+  border-style: dashed;
+  border-color: rgba(109, 117, 166, 0.30);
+}
+.ff-history-row.is-empty .ff-h-verb,
+.ff-history-row.is-empty .ff-h-past,
+.ff-history-row.is-empty .ff-h-pp {
+  color: rgba(109, 117, 166, 0.0);  /* hide text but keep the box height */
+}
+
+.ff-next {
+  font-family: 'Limelight', cursive;
+  font-size: 1.6rem;
+  color: var(--coral);
+  opacity: 0.55;
+  letter-spacing: 0.5px;
+}
+
+/* ── Play area ──────────────────────────────────────────────────────────── */
+
+.ff-play {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.40) 0%, rgba(232, 217, 182, 0.35) 100%);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-elev), var(--shadow-inset);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ff-block-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Falling sentence card — wider than a verb block to fit a full clause.
+   Uses transform: translate3d only (perf: GPU compositing). No box-shadow
+   on the card itself; a static box-shadow on the inline blank composites
+   into the same layer. */
+.ff-block {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  width: 90%;
+  max-width: 620px;
+  padding: 22px 32px 16px;
+  background: rgba(253, 248, 243, 0.92);
+  border: 2px solid var(--coral);
+  border-radius: var(--r-md);
+  text-align: center;
+  will-change: transform;
+}
+
+.ff-sentence {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--charcoal);
+  letter-spacing: 0.2px;
+}
+.ff-sentence-hint {
+  margin-top: 12px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--lavender-deep);
+}
+.ff-sentence-hint b {
+  font-weight: 700;
+  color: var(--charcoal);
+  letter-spacing: 0.6px;
+  text-transform: none;
+  font-size: 0.95rem;
+  margin-left: 4px;
+}
+
+/* The inline blank within the sentence */
+.ff-blank {
+  display: inline-block;
+  vertical-align: baseline;
+  min-width: 78px;
+  padding: 2px 12px;
+  margin: 0 2px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid rgba(109,117,166,0.35);
+  background: rgba(255,255,255,0.45);
+  color: var(--lavender-deep);
+  font-family: 'Limelight', cursive;
+  font-size: 1.1rem;
+  letter-spacing: 0.4px;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.ff-blank.is-asked {
+  background: rgba(242,147,126,0.18);
+  border-color: var(--coral);
+  color: var(--coral-deep);
+  box-shadow: 0 0 0 1px var(--coral), 0 0 14px rgba(242,147,126,0.45);
+  animation: ff-blank-pulse 1.4s ease-in-out infinite;
+}
+.ff-blank.is-filled-correct {
+  background: rgba(205, 217, 180, 0.55);
+  border-color: var(--sage-deep);
+  color: #4a5a2c;
+}
+.ff-blank.is-filled-wrong {
+  background: rgba(208,74,58,0.20);
+  border-color: var(--red-wrong);
+  color: var(--red-wrong-deep);
+}
+@keyframes ff-blank-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+
+/* Wrong feedback — shake + coral flash, then dissolve */
+.ff-block.is-shake {
+  animation: ff-shake 0.32s cubic-bezier(.36,.07,.19,.97) both;
+}
+.ff-block.is-wrong { border-color: var(--coral-deep); background: rgba(251,228,222,0.95); }
+.ff-block.is-correct { border-color: var(--sage-deep); background: rgba(225,235,205,0.95); }
+.ff-block.is-dissolve {
+  animation: ff-dissolve 0.45s ease forwards;
+}
+@keyframes ff-shake {
+  10%, 90% { transform: translate3d(calc(-50% - 1px), var(--y, 0px), 0); }
+  20%, 80% { transform: translate3d(calc(-50% + 3px), var(--y, 0px), 0); }
+  30%, 50%, 70% { transform: translate3d(calc(-50% - 5px), var(--y, 0px), 0); }
+  40%, 60% { transform: translate3d(calc(-50% + 5px), var(--y, 0px), 0); }
+}
+@keyframes ff-dissolve {
+  to {
+    transform: translate3d(-50%, var(--y, 0px), 0) scale(0.92);
+    opacity: 0;
+  }
+}
+
+/* Sage burst burst on correct fill */
+.ff-burst {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(205,217,180,0.85) 0%, rgba(205,217,180,0) 65%);
+  opacity: 0;
+  animation: ff-burst-anim 0.45s ease-out forwards;
+}
+@keyframes ff-burst-anim {
+  0%   { opacity: 0; transform: scale(0.8); }
+  35%  { opacity: 0.95; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* Particles on chain complete */
+.ff-particle {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sage-deep);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Floating score pop */
+.ff-score-pop {
+  position: absolute;
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  color: var(--coral-deep);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ff-pop-anim 0.85s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.ff-score-pop .ff-mult {
+  font-size: 1rem;
+  margin-left: 4px;
+  vertical-align: super;
+  color: var(--coral);
+}
+@keyframes ff-pop-anim {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.85); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -55px) scale(1); }
+}
+
+/* ── Answer buttons ─────────────────────────────────────────────────────── */
+
+/* Input sits fixed at the bottom of the play area. Player types and presses
+   Enter. Unlike Falling Forms (where buttons ride above the falling block),
+   the input is stationary — the player needs a stable target while typing. */
+.ff-input-wrap {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  transition: opacity 0.15s ease;
+}
+.ff-input-wrap.is-hidden { opacity: 0; pointer-events: none; }
+
+.ff-input {
+  width: 280px;
+  height: 60px;
+  padding: 0 18px;
+  font-family: 'Limelight', cursive;
+  font-size: 1.5rem;
+  letter-spacing: 0.4px;
+  text-align: center;
+  color: var(--charcoal);
+  background: rgba(255,255,255,0.85);
+  border: 2px solid var(--lavender);
+  border-radius: var(--r-md);
+  outline: none;
+  box-shadow: 0 4px 14px rgba(109,117,166,0.30), inset 0 1px 0 rgba(255,255,255,0.40);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+              background-color 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ff-input::placeholder {
+  color: rgba(109, 117, 166, 0.45);
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.6px;
+}
+.ff-input:focus {
+  border-color: var(--lavender-deep);
+  box-shadow:
+    0 4px 14px rgba(109,117,166,0.40),
+    0 0 22px rgba(186,191,216,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.40);
+}
+.ff-input.is-flash-correct {
+  border-color: var(--sage-deep);
+  background: rgba(205, 217, 180, 0.85);
+  color: #2a4014;
+}
+.ff-input.is-flash-wrong {
+  border-color: var(--red-wrong);
+  background: rgba(208, 74, 58, 0.18);
+  color: var(--red-wrong-deep);
+  animation: ff-input-shake 0.32s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes ff-input-shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(3px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+  40%, 60% { transform: translate3d(5px, 0, 0); }
+}
+.ff-input:disabled { cursor: default; }
+
+.ff-input-hint {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: var(--lavender-deep);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ── Pause overlay ──────────────────────────────────────────────────────── */
+
+.ff-pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 36, 56, 0.55);
+  border-radius: var(--r-lg);
+  font-family: 'Limelight', cursive;
+  font-size: 3rem;
+  color: var(--off-white);
+  letter-spacing: 2px;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.ff-pause-overlay small {
+  font-size: 0.8rem;
+  font-family: Verdana, Geneva, sans-serif;
+  letter-spacing: 1.5px;
+  margin-top: 16px;
+  opacity: 0.8;
+}
+.ff-pause-overlay.is-shown {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ── Modal screens (start, game over, narrow warning) ───────────────────── */
+
+.ff-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 36, 56, 0.55);
+  z-index: 100;
+  padding: 32px;
+}
+.ff-screen[hidden] { display: none; }
+.ff-screen-card {
+  background: rgba(253, 248, 243, 0.97);
+  border-radius: var(--r-lg);
+  padding: 44px 56px;
+  text-align: center;
+  box-shadow: var(--shadow-deep);
+  border: 1px solid rgba(255,255,255,0.7);
+  max-width: 640px;
+  width: 100%;
+}
+.ff-title {
+  font-family: 'Limelight', cursive;
+  font-size: 3.6rem;
+  color: var(--coral-deep);
+  letter-spacing: 1.5px;
+  margin: 0 0 8px;
+  line-height: 1.05;
+}
+.ff-tagline {
+  font-size: 0.95rem;
+  color: var(--charcoal-soft);
+  margin: 0 0 28px;
+  letter-spacing: 0.4px;
+}
+.ff-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  background: linear-gradient(180deg, var(--coral) 0%, var(--coral-deep) 100%);
+  color: var(--off-white);
+  border: none;
+  border-radius: 999px;
+  font-family: 'Limelight', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(201,104,90,0.40), 0 0 24px rgba(242,147,126,0.45);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.ff-btn:hover { transform: translateY(-1px); }
+.ff-btn:active { transform: translateY(1px); }
+.ff-btn-ghost {
+  background: transparent;
+  color: var(--coral-deep);
+  box-shadow: none;
+  text-decoration: underline;
+}
+.ff-best-row {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--charcoal-soft);
+  letter-spacing: 0.5px;
+}
+.ff-best-row strong { color: var(--coral-deep); }
+
+.ff-over-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 360px;
+  margin: 22px auto;
+}
+.ff-over-stat {
+  padding: 14px;
+  background: rgba(186, 191, 216, 0.25);
+  border-radius: var(--r-md);
+}
+.ff-over-stat-label {
+  font-size: 0.6rem;
+  letter-spacing: 1.6px;
+  color: var(--lavender-deep);
+  text-transform: uppercase;
+}
+.ff-over-stat-value {
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  color: var(--charcoal);
+  margin-top: 4px;
+}
+.ff-over-stat-value.is-coral { color: var(--coral-deep); }
+.ff-new-best {
+  display: inline-block;
+  margin: 0 0 20px;
+  padding: 6px 18px;
+  background: linear-gradient(90deg, var(--coral), var(--coral-deep));
+  color: var(--off-white);
+  font-family: 'Limelight', cursive;
+  font-size: 0.85rem;
+  letter-spacing: 1.6px;
+  border-radius: 999px;
+  box-shadow: 0 0 22px rgba(242,147,126,0.55);
+}
+.ff-chain-grid {
+  margin: 18px 0 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.ff-chain-grid-row {
+  font-family: 'Limelight', cursive;
+  font-size: 0.78rem;
+  color: var(--charcoal);
+  background: rgba(205, 217, 180, 0.35);
+  border: 1px solid rgba(205, 217, 180, 0.55);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  letter-spacing: 0.3px;
+}
+.ff-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
+
+/* Narrow / portrait fallback */
+.ff-screen-narrow .ff-title { font-size: 2.2rem; }
+@media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
+  .ff-app { display: none; }
+}
+@media (min-width: 900px) {
+  #ff-narrow-screen { display: none !important; }
+}
+
+/* ── Level-up overlay ─────────────────────────────────────────────────────
+   Pauses the game briefly between levels. Lives on top of the playfield,
+   underneath the start/game-over modals (z 50 vs 100). */
+.ff-levelup {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 36, 56, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.ff-levelup[hidden] { display: none; }
+.ff-levelup.is-shown {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ff-levelup-card {
+  position: relative;
+  text-align: center;
+  padding: 36px 60px 32px;
+  background: rgba(253, 248, 243, 0.97);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-deep);
+  transform: scale(0.7);
+  opacity: 0;
+}
+.ff-levelup.is-shown .ff-levelup-card {
+  animation: ff-levelup-in 0.45s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes ff-levelup-in {
+  0%   { transform: scale(0.7);  opacity: 0; }
+  60%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Expanding coral rings behind the card */
+.ff-levelup-card::before,
+.ff-levelup-card::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 220px; height: 220px;
+  border: 2px solid var(--coral);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+.ff-levelup.is-shown .ff-levelup-card::before {
+  animation: ff-ring-expand 1.1s ease-out 0.05s forwards;
+}
+.ff-levelup.is-shown .ff-levelup-card::after {
+  animation: ff-ring-expand 1.1s ease-out 0.35s forwards;
+}
+@keyframes ff-ring-expand {
+  0%   { opacity: 0.6; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(2.4); }
+}
+
+.ff-levelup-badge {
+  display: inline-block;
+  padding: 5px 16px;
+  background: linear-gradient(90deg, var(--coral), var(--coral-deep));
+  color: var(--off-white);
+  font-family: 'Limelight', cursive;
+  font-size: 0.75rem;
+  letter-spacing: 2.5px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 18px rgba(242,147,126,0.55);
+}
+.ff-levelup-num {
+  font-family: 'Limelight', cursive;
+  font-size: 6rem;
+  line-height: 1;
+  color: var(--coral-deep);
+  letter-spacing: 1.5px;
+  margin: 4px 0 8px;
+}
+.ff-levelup-sub {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.95rem;
+  color: var(--charcoal-soft);
+  letter-spacing: 0.5px;
+}
+/* Score-panel pulse when points land — pure transform, no shadow animation. */
+.ff-panel-score.is-pulse .ff-panel-value {
+  animation: ff-score-pulse 0.5s ease-out;
+}
+@keyframes ff-score-pulse {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     APP — top bar + sidebars + play area
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ff-app" id="ff-app">
+  <header class="ff-topbar">
+    <div class="ff-round"><span data-string="round">Runde</span> <span id="ff-round-num">1</span></div>
+    <div class="ff-topbar-actions">
+      <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
+      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause">⏸</button>
+      <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
+    </div>
+  </header>
+
+  <aside class="ff-sidebar ff-sidebar-left" aria-label="Statistik" data-string-aria="aria_stats">
+    <div class="ff-panel ff-panel-score">
+      <div class="ff-panel-label" data-string="score">Punkte</div>
+      <div class="ff-panel-value" id="ff-score">0</div>
+    </div>
+    <div class="ff-panel ff-panel-level">
+      <div class="ff-panel-label" data-string="level">Level</div>
+      <div class="ff-panel-value" id="ff-level">1</div>
+      <div class="ff-level-bar"><div class="ff-level-bar-fill" id="ff-level-fill"></div></div>
+    </div>
+    <div class="ff-panel ff-panel-streak" id="ff-streak-panel">
+      <div class="ff-panel-label" data-string="streak">Serie</div>
+      <div class="ff-panel-value"><span class="ff-streak-fire">🔥</span><span id="ff-streak">0</span></div>
+    </div>
+    <div class="ff-panel ff-panel-lives">
+      <div class="ff-panel-label" data-string="lives">Leben</div>
+      <div class="ff-lives" id="ff-lives" aria-live="polite">
+        <span class="ff-heart" data-i="0">♥</span>
+        <span class="ff-heart" data-i="1">♥</span>
+        <span class="ff-heart" data-i="2">♥</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="ff-play" id="ff-play" aria-label="Spielfeld" data-string-aria="aria_playarea">
+    <div class="ff-block-layer" id="ff-block-layer" aria-live="polite"></div>
+    <form class="ff-input-wrap" id="ff-input-wrap" autocomplete="off">
+      <input
+        class="ff-input"
+        id="ff-input"
+        type="text"
+        inputmode="text"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        aria-label="Verbform eintippen"
+        data-string-aria="aria_input"
+        placeholder="Form eintippen…"
+        data-string-attr="placeholder:input_placeholder"
+      >
+      <div class="ff-input-hint" data-string="enter_hint">DRÜCKE ENTER</div>
+    </form>
+    <div class="ff-pause-overlay" id="ff-pause-overlay"><span data-string="paused">PAUSE</span><small data-string="tap_resume">Tippen zum Fortsetzen</small></div>
+  </main>
+
+  <aside class="ff-sidebar ff-sidebar-right" aria-label="Zuletzt und Nächstes" data-string-aria="aria_history">
+    <div class="ff-panel">
+      <div class="ff-panel-label" data-string="quick_guide">Übersicht</div>
+      <div class="ff-history" id="ff-history"></div>
+    </div>
+    <div class="ff-panel">
+      <div class="ff-panel-label" data-string="coming_up">Als Nächstes</div>
+      <div class="ff-next" id="ff-next">—</div>
+    </div>
+  </aside>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCREENS — start, game over, narrow warning
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ff-screen" id="ff-start-screen">
+  <div class="ff-screen-card">
+    <h1 class="ff-title">Falling Forms</h1>
+    <p class="ff-tagline" data-string="start_tagline">Fülle beide Lücken, bevor der Block unten ankommt.</p>
+    <button class="ff-btn" id="ff-start-btn" type="button" data-string="start_btn">Los geht's!</button>
+    <div class="ff-best-row"><span data-string="best_label">Bestleistung</span>: <strong id="ff-best-start">0</strong></div>
+  </div>
+</div>
+
+<div class="ff-screen" id="ff-over-screen" hidden>
+  <div class="ff-screen-card">
+    <div class="ff-new-best" id="ff-new-best" hidden data-string="new_best">Neue Bestleistung!</div>
+    <h1 class="ff-title" data-string="game_over">Spiel vorbei</h1>
+    <div class="ff-over-grid">
+      <div class="ff-over-stat">
+        <div class="ff-over-stat-label" data-string="final_score">Endpunktzahl</div>
+        <div class="ff-over-stat-value is-coral" id="ff-final-score">0</div>
+      </div>
+      <div class="ff-over-stat">
+        <div class="ff-over-stat-label" data-string="best_label">Bestleistung</div>
+        <div class="ff-over-stat-value" id="ff-final-best">0</div>
+      </div>
+    </div>
+    <div class="ff-chain-grid" id="ff-chain-grid" aria-label="Abgeschlossene Ketten" data-string-aria="aria_chain_grid"></div>
+    <div class="ff-actions">
+      <button class="ff-btn" id="ff-again-btn" type="button" data-string="play_again">Nochmal spielen</button>
+      <button class="ff-btn ff-btn-ghost" id="ff-menu-btn" type="button" data-string="menu">Menü</button>
+    </div>
+  </div>
+</div>
+
+<div class="ff-levelup" id="ff-levelup-screen" hidden aria-live="polite">
+  <div class="ff-levelup-card">
+    <div class="ff-levelup-badge">LEVEL UP</div>
+    <div class="ff-levelup-num" id="ff-levelup-num">2</div>
+    <div class="ff-levelup-sub" id="ff-levelup-sub">Blöcke fallen schneller</div>
+  </div>
+</div>
+
+<div class="ff-screen" id="ff-narrow-screen">
+  <div class="ff-screen-card">
+    <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
+    <p class="ff-tagline" data-string="narrow_sub">Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.</p>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  SENTENCES — loaded from /data/irregular-verbs.json on boot.
+//  Each entry shape (from the dataset):
+//    { verb, form, correct_answer, correct_alt?, context_sentence, hint? }
+//  We filter to entries with a non-empty context_sentence containing "___".
+// ═══════════════════════════════════════════════════════════════════════════
+let SENTENCES = [];   // populated by loadSentences()
+let DATA_URL = '/data/irregular-verbs.json';
+
+async function loadSentences() {
+  const res = await fetch(DATA_URL, { cache: 'force-cache' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const all = await res.json();
+  SENTENCES = (all || [])
+    .filter(x =>
+      typeof x.context_sentence === 'string' &&
+      x.context_sentence.includes('___') &&
+      typeof x.correct_answer === 'string' &&
+      x.correct_answer.length > 0
+    )
+    .map(x => ({
+      verb: x.verb || x.hint || '',
+      form: x.form || 'past',
+      correct: x.correct_answer,
+      alts:    Array.isArray(x.correct_alt) ? x.correct_alt : [],
+      sentence: x.context_sentence,
+    }));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CONSTANTS + STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const LEVEL_STEP = 5;            // completions per level
+const STREAK_TIERS = [           // [minStreak, multiplier]
+  [9, 3.0],
+  [5, 2.5],
+  [3, 2.0],
+];
+const STARTING_LIVES = 3;
+const BASE_POINTS = 20;
+const PARTICLE_COUNT = 12;
+const BLOCK_FIXED_Y = 140;       // static y position for the sentence card (no falling)
+const BEST_KEY = 'krabsy_fill_gap_best';
+const AUDIO_KEY = 'krabsy_audio';
+const LANG_KEY = 'krabsy_lang';
+
+// ─── i18n ───────────────────────────────────────────────────────────────────
+// HTML carries the German default text. JS swaps to Spanish only when the
+// user has explicitly selected `es` (via ?lang=es or the site-wide
+// krabsy_lang localStorage entry set elsewhere in the Krabsy app). German is
+// the fallback when a key is missing in ES.
+const STRINGS = {
+  de: {
+    round: 'Runde',
+    score: 'Punkte',
+    level: 'Level',
+    streak: 'Serie',
+    lives: 'Leben',
+    quick_guide: 'Übersicht',
+    coming_up: 'Als Nächstes',
+    paused: 'PAUSE',
+    tap_resume: 'Tippen zum Fortsetzen',
+    enter_hint: 'DRÜCKE ENTER',
+    input_placeholder: 'Form eintippen…',
+    verb_hint: 'Verb',
+    aria_input: 'Verbform eintippen',
+    loading: 'Sätze werden geladen…',
+    load_failed: 'Sätze konnten nicht geladen werden.',
+    start_tagline: 'Fülle beide Lücken, bevor der Block unten ankommt.',
+    start_btn: "Los geht's!",
+    best_label: 'Bestleistung',
+    new_best: 'Neue Bestleistung!',
+    game_over: 'Spiel vorbei',
+    final_score: 'Endpunktzahl',
+    play_again: 'Nochmal spielen',
+    menu: 'Menü',
+    no_chains: 'keine Ketten in dieser Runde',
+    levelup_sub: 'Weiter so!',
+    narrow_title: 'Nur Querformat',
+    narrow_sub: 'Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.',
+    aria_sound: 'Ton an/aus',
+    aria_pause: 'Pause',
+    aria_close: 'Schließen',
+    aria_stats: 'Statistik',
+    aria_playarea: 'Spielfeld',
+    aria_history: 'Zuletzt und Nächstes',
+    aria_chain_grid: 'Abgeschlossene Ketten',
+  },
+  es: {
+    round: 'Ronda',
+    score: 'Puntos',
+    level: 'Nivel',
+    streak: 'Racha',
+    lives: 'Vidas',
+    quick_guide: 'Resumen',
+    coming_up: 'Próximo',
+    paused: 'PAUSA',
+    tap_resume: 'Toca para continuar',
+    enter_hint: 'PULSA ENTER',
+    input_placeholder: 'Escribe la forma…',
+    verb_hint: 'Verbo',
+    aria_input: 'Escribe la forma verbal',
+    loading: 'Cargando frases…',
+    load_failed: 'No se pudieron cargar las frases.',
+    start_tagline: 'Rellena ambos huecos antes de que el bloque aterrice.',
+    start_btn: '¡Empezar!',
+    best_label: 'Mejor',
+    new_best: '¡Nuevo récord!',
+    game_over: 'Fin del juego',
+    final_score: 'Puntuación final',
+    play_again: 'Jugar de nuevo',
+    menu: 'Menú',
+    no_chains: 'sin cadenas en esta ronda',
+    levelup_sub: '¡Sigue así!',
+    narrow_title: 'Solo apaisado',
+    narrow_sub: 'Abre Falling Forms en una pantalla de al menos 1024 px de ancho.',
+    aria_sound: 'Sonido on/off',
+    aria_pause: 'Pausa',
+    aria_close: 'Cerrar',
+    aria_stats: 'Estadísticas',
+    aria_playarea: 'Campo de juego',
+    aria_history: 'Verbos recientes y próximo',
+    aria_chain_grid: 'Cadenas completadas',
+  },
+};
+
+function getLang() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('lang');
+    if (q === 'es' || q === 'de') return q;
+  } catch (_) {}
+  try {
+    const ls = localStorage.getItem(LANG_KEY);
+    if (ls === 'es' || ls === 'de') return ls;
+  } catch (_) {}
+  return 'de';
+}
+const LANG = getLang();
+function t(key) {
+  const tbl = STRINGS[LANG];
+  if (tbl && tbl[key] != null) return tbl[key];
+  return STRINGS.de[key] != null ? STRINGS.de[key] : key;
+}
+function applyStrings(root) {
+  (root || document).querySelectorAll('[data-string]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-string'));
+  });
+  (root || document).querySelectorAll('[data-string-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.getAttribute('data-string-aria')));
+  });
+  // Arbitrary attribute via "attr:key" — e.g. data-string-attr="placeholder:input_placeholder"
+  (root || document).querySelectorAll('[data-string-attr]').forEach(el => {
+    const spec = el.getAttribute('data-string-attr');
+    const idx = spec.indexOf(':');
+    if (idx < 0) return;
+    const attr = spec.slice(0, idx).trim();
+    const key  = spec.slice(idx + 1).trim();
+    if (attr && key) el.setAttribute(attr, t(key));
+  });
+}
+
+const $ = id => document.getElementById(id);
+
+const els = {
+  app:           $('ff-app'),
+  roundNum:      $('ff-round-num'),
+  audioBtn:      $('ff-audio-btn'),
+  pauseBtn:      $('ff-pause-btn'),
+  closeBtn:      $('ff-close-btn'),
+  score:         $('ff-score'),
+  level:         $('ff-level'),
+  levelFill:     $('ff-level-fill'),
+  streak:        $('ff-streak'),
+  streakPanel:   $('ff-streak-panel'),
+  lives:         $('ff-lives'),
+  play:          $('ff-play'),
+  blockLayer:    $('ff-block-layer'),
+  inputWrap:     $('ff-input-wrap'),
+  input:         $('ff-input'),
+  scorePanel:    document.querySelector('.ff-panel-score'),
+  levelUp:       $('ff-levelup-screen'),
+  levelUpNum:    $('ff-levelup-num'),
+  levelUpSub:    $('ff-levelup-sub'),
+  pauseOverlay:  $('ff-pause-overlay'),
+  history:       $('ff-history'),
+  next:          $('ff-next'),
+  startScreen:   $('ff-start-screen'),
+  overScreen:    $('ff-over-screen'),
+  startBtn:      $('ff-start-btn'),
+  bestStart:     $('ff-best-start'),
+  newBest:       $('ff-new-best'),
+  finalScore:    $('ff-final-score'),
+  finalBest:     $('ff-final-best'),
+  chainGrid:     $('ff-chain-grid'),
+  againBtn:      $('ff-again-btn'),
+  menuBtn:       $('ff-menu-btn'),
+};
+
+const state = {
+  deck: [],            // shuffled queue of sentence indices
+  deckPos: 0,
+  currentItem: null,   // current sentence record from SENTENCES
+  nextItem: null,      // peeked next (shown in COMING UP)
+  block: null,         // { el, isDying } — static card, no fall timer
+  paused: false,
+  running: false,
+  lives: STARTING_LIVES,
+  score: 0,
+  streak: 0,
+  completions: 0,
+  best: 0,
+  round: 1,
+  history: [],         // [{verb, form, answer}] for this level (oldest first), reset on level-up
+  completedThisRun: [],
+  audioOn: true,
+  levelUpPending: false,
+  dataLoaded: false,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function readBest() {
+  try {
+    const raw = localStorage.getItem(BEST_KEY);
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch (_) { return 0; }
+}
+function writeBest(n) {
+  try { localStorage.setItem(BEST_KEY, String(n)); } catch (_) {}
+}
+function readAudio() {
+  try {
+    const raw = localStorage.getItem(AUDIO_KEY);
+    return raw === null ? true : raw === '1';
+  } catch (_) { return true; }
+}
+function writeAudio(on) {
+  try { localStorage.setItem(AUDIO_KEY, on ? '1' : '0'); } catch (_) {}
+}
+
+function refillDeck() {
+  state.deck = shuffle(SENTENCES.map((_, i) => i));
+  state.deckPos = 0;
+}
+function drawItem() {
+  if (state.deckPos >= state.deck.length) refillDeck();
+  return SENTENCES[state.deck[state.deckPos++]];
+}
+// Normalize a typed input or correct answer for comparison.
+function normalizeAnswer(s) {
+  return (s == null ? '' : String(s)).trim().toLowerCase();
+}
+
+function levelFromCompletions(c) { return Math.floor(c / LEVEL_STEP) + 1; }
+function streakMultiplier(s) {
+  for (const [min, mult] of STREAK_TIERS) if (s >= min) return mult;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AUDIO — Web Audio API, synthesized envelopes
+// ═══════════════════════════════════════════════════════════════════════════
+let audioCtx = null;
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (_) { audioCtx = null; }
+  return audioCtx;
+}
+function playTone({ type='sine', from=600, to=900, dur=120, vol=0.18, delay=0 }) {
+  if (!state.audioOn) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const t0 = ctx.currentTime + delay;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(from, t0);
+  osc.frequency.linearRampToValueAtTime(to, t0 + dur / 1000);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur / 1000);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur / 1000 + 0.02);
+}
+function sfxCorrectFill()   { playTone({ from: 620, to: 920, dur: 120, vol: 0.16 }); }
+function sfxChainComplete() {
+  // Brighter chord — three sines, slight stagger
+  playTone({ from: 660, to: 660, dur: 250, vol: 0.13 });
+  playTone({ from: 830, to: 830, dur: 250, vol: 0.11, delay: 0.01 });
+  playTone({ from: 990, to: 1180, dur: 260, vol: 0.10, delay: 0.02 });
+}
+function sfxWrong()         { playTone({ type: 'square', from: 180, to: 140, dur: 200, vol: 0.12 }); }
+function sfxMissedBlock()   { playTone({ type: 'square', from: 90,  to: 60,  dur: 240, vol: 0.16 }); }
+function sfxLifeLost()      { playTone({ type: 'sawtooth', from: 480, to: 180, dur: 380, vol: 0.13 }); }
+function sfxLevelUp() {
+  // Ascending arpeggio — four notes climbing into a final held pad.
+  playTone({ from: 523, to: 523, dur: 110, vol: 0.13, delay: 0.00 });
+  playTone({ from: 659, to: 659, dur: 110, vol: 0.13, delay: 0.08 });
+  playTone({ from: 784, to: 784, dur: 110, vol: 0.13, delay: 0.16 });
+  playTone({ from: 988, to: 1175, dur: 420, vol: 0.12, delay: 0.24 });
+  playTone({ from: 1318, to: 1318, dur: 380, vol: 0.08, delay: 0.30 });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HUD updates
+// ═══════════════════════════════════════════════════════════════════════════
+function renderHud() {
+  els.score.textContent = String(state.score);
+  els.level.textContent = String(levelFromCompletions(state.completions));
+  const lvlProgress = (state.completions % LEVEL_STEP) / LEVEL_STEP;
+  els.levelFill.style.width = (lvlProgress * 100) + '%';
+  els.streak.textContent = String(state.streak);
+  els.streakPanel.classList.toggle('is-hot', state.streak >= 2);
+  els.roundNum.textContent = String(state.round);
+  // Hearts
+  const hearts = els.lives.querySelectorAll('.ff-heart');
+  hearts.forEach((h, i) => h.classList.toggle('is-lost', i >= state.lives));
+}
+function renderHistory() {
+  // 5 fixed slots: the first N show this level's completed chains in order,
+  // the rest are empty placeholders. Reset on level-up.
+  els.history.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const v = state.history[i];
+    const row = document.createElement('div');
+    if (v) {
+      row.className = 'ff-history-row';
+      row.innerHTML =
+        `<span class="ff-h-verb">${v.verb}</span>` +
+        `<span class="ff-h-past">${v.past}</span>` +
+        `<span class="ff-h-pp">${v.pp}</span>`;
+    } else {
+      row.className = 'ff-history-row is-empty';
+      row.innerHTML =
+        `<span class="ff-h-verb">&nbsp;</span>` +
+        `<span class="ff-h-past">&nbsp;</span>` +
+        `<span class="ff-h-pp">&nbsp;</span>`;
+    }
+    els.history.appendChild(row);
+  }
+}
+function renderNext() {
+  els.next.textContent = state.nextItem ? state.nextItem.verb : '—';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CARD lifecycle — spawn a static sentence card, resolve on submit.
+//  No falling: no timer pressure, no miss-by-timeout. Lives only drop on
+//  wrong answers. Each spawn just renders the next sentence in place.
+// ═══════════════════════════════════════════════════════════════════════════
+function spawnBlock() {
+  if (state.block && state.block.el) state.block.el.remove();
+  state.currentItem = state.nextItem || drawItem();
+  state.nextItem = drawItem();
+
+  const item = state.currentItem;
+
+  // Split context_sentence around the "___" placeholder into two halves so
+  // we can render an inline blank with full styling.
+  const [pre, post] = splitSentence(item.sentence);
+  const blockEl = document.createElement('div');
+  blockEl.className = 'ff-block';
+  blockEl.style.setProperty('--y', BLOCK_FIXED_Y + 'px');
+  blockEl.style.transform = `translate3d(-50%, ${BLOCK_FIXED_Y}px, 0)`;
+  blockEl.innerHTML = `
+    <div class="ff-sentence">
+      <span>${escapeHtml(pre)}</span><span class="ff-blank is-asked" id="ff-blank">___</span><span>${escapeHtml(post)}</span>
+    </div>
+    <div class="ff-sentence-hint"><span data-string="verb_hint">${t('verb_hint')}</span> <b>${escapeHtml(item.verb)}</b></div>
+  `;
+  els.blockLayer.appendChild(blockEl);
+
+  state.block = {
+    el: blockEl,
+    isDying: false,
+  };
+  prepareInput();
+  renderNext();
+}
+
+function splitSentence(s) {
+  const idx = s.indexOf('___');
+  if (idx < 0) return [s, ''];
+  return [s.slice(0, idx), s.slice(idx + 3)];
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
+  ));
+}
+
+function prepareInput() {
+  els.input.value = '';
+  els.input.disabled = false;
+  els.input.classList.remove('is-flash-correct', 'is-flash-wrong');
+  els.inputWrap.classList.remove('is-hidden');
+  // Focus next tick so the spawn animation doesn't fight the focus call.
+  setTimeout(() => { try { els.input.focus(); } catch (_) {} }, 0);
+}
+// ═══════════════════════════════════════════════════════════════════════════
+//  Answer resolution — typed input + Enter
+// ═══════════════════════════════════════════════════════════════════════════
+function handleSubmit() {
+  if (!state.running || state.paused) return;
+  if (!state.block || state.block.isDying) return;
+  const item = state.currentItem;
+  if (!item) return;
+  const typed = normalizeAnswer(els.input.value);
+  if (!typed) return; // ignore empty Enter
+  const target = normalizeAnswer(item.correct);
+  const alts = (item.alts || []).map(normalizeAnswer);
+  const isCorrect = typed === target || alts.includes(typed);
+  if (isCorrect) onCorrect(item);
+  else           onWrong(item);
+}
+
+function onCorrect(item) {
+  sfxChainComplete();
+  els.input.disabled = true;
+  els.input.classList.add('is-flash-correct');
+
+  // Fill the inline blank with the canonical correct form.
+  const blank = state.block.el.querySelector('#ff-blank');
+  if (blank) {
+    blank.textContent = item.correct;
+    blank.classList.remove('is-asked');
+    blank.classList.add('is-filled-correct');
+  }
+  flashBurst(state.block.el);
+  state.block.el.classList.add('is-correct');
+
+  completeChain(item);
+}
+
+function onWrong(item) {
+  sfxWrong();
+  els.input.disabled = true;
+  els.input.classList.add('is-flash-wrong');
+
+  // Reveal the correct form in red so the player learns from the miss.
+  const blank = state.block.el.querySelector('#ff-blank');
+  if (blank) {
+    blank.textContent = item.correct;
+    blank.classList.remove('is-asked');
+    blank.classList.add('is-filled-wrong');
+  }
+  state.block.el.classList.add('is-shake', 'is-wrong');
+  state.block.isDying = true;
+  loseLife();
+  if (state.lives <= 0) {
+    setTimeout(() => endGame(), 460);
+    return;
+  }
+  setTimeout(() => dissolveBlock(false), 520);
+}
+
+function completeChain(item) {
+  state.streak += 1;
+  state.completions += 1;
+  const mult = streakMultiplier(state.streak);
+  const points = Math.round(BASE_POINTS * mult);
+  state.score += points;
+
+  spawnScorePop(points, mult);
+  spawnParticles();
+  pulseScorePanel();
+
+  // Per-level board entry — staggered verb / form / answer.
+  const entry = { verb: item.verb, past: item.form, pp: item.correct };
+  state.history.push(entry);
+  state.completedThisRun.push(entry);
+  renderHistory();
+
+  state.block.isDying = true;
+  renderHud();
+
+  const justLevelledUp = state.completions > 0 && state.completions % LEVEL_STEP === 0;
+  if (justLevelledUp) state.levelUpPending = true;
+
+  setTimeout(() => dissolveBlock(true), 280);
+  if (justLevelledUp) {
+    setTimeout(() => showLevelUp(), 280 + 460 + 40);
+  }
+}
+
+function pulseScorePanel() {
+  if (!els.scorePanel) return;
+  els.scorePanel.classList.remove('is-pulse');
+  // Force reflow so the animation re-triggers on rapid chains.
+  void els.scorePanel.offsetWidth;
+  els.scorePanel.classList.add('is-pulse');
+  setTimeout(() => els.scorePanel.classList.remove('is-pulse'), 520);
+}
+
+// ─── Level-up announcement ──────────────────────────────────────────────────
+// Called after a chain completion crosses a level boundary (every LEVEL_STEP
+// chains). Surfaces a celebratory overlay, pauses spawning, dismisses on tap
+// or any key (or auto after 2.2s), then spawns the next block.
+function showLevelUp() {
+  if (!state.running) return; // game ended mid-trigger? drop it.
+  const newLevel = levelFromCompletions(state.completions);
+  els.levelUpNum.textContent = String(newLevel);
+  els.levelUpSub.textContent = t('levelup_sub');
+  els.levelUp.hidden = false;
+  // Next frame so the CSS transition catches the class addition.
+  requestAnimationFrame(() => els.levelUp.classList.add('is-shown'));
+  sfxLevelUp();
+
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    clearTimeout(autoTimer);
+    document.removeEventListener('keydown', onKey, true);
+    els.levelUp.removeEventListener('click', dismiss);
+    els.levelUp.classList.remove('is-shown');
+    setTimeout(() => {
+      els.levelUp.hidden = true;
+      state.levelUpPending = false;
+      // Reset the per-level board so the new level starts with 5 empty slots.
+      state.history = [];
+      renderHistory();
+      if (state.running && state.lives > 0 && !state.block) spawnBlock();
+    }, 260);
+  };
+  const onKey = (e) => {
+    // Swallow ANY key during the overlay so 1/2/3/Esc don't fall through.
+    e.preventDefault();
+    e.stopPropagation();
+    dismiss();
+  };
+  // Capture phase so this listener fires before the global keydown handler.
+  document.addEventListener('keydown', onKey, true);
+  els.levelUp.addEventListener('click', dismiss);
+  const autoTimer = setTimeout(dismiss, 2200);
+}
+
+function dissolveBlock(spawnNext) {
+  const blockEl = state.block && state.block.el;
+  if (!blockEl) return;
+  blockEl.classList.add('is-dissolve');
+  setTimeout(() => {
+    if (state.block && state.block.el) {
+      state.block.el.remove();
+      state.block = null;
+    }
+    // Don't auto-spawn while the level-up overlay is owning the screen;
+    // showLevelUp()'s dismiss path takes over the next spawn.
+    if (state.running && state.lives > 0 && !state.levelUpPending) spawnBlock();
+  }, 460);
+}
+
+function loseLife() {
+  state.lives = Math.max(0, state.lives - 1);
+  state.streak = 0;
+  sfxLifeLost();
+  renderHud();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Effects — burst, particles, score pop
+// ═══════════════════════════════════════════════════════════════════════════
+function flashBurst(blockEl) {
+  const burst = document.createElement('div');
+  burst.className = 'ff-burst';
+  blockEl.appendChild(burst);
+  setTimeout(() => burst.remove(), 500);
+}
+
+function spawnParticles() {
+  if (!state.block) return;
+  const blockEl = state.block.el;
+  const rect = blockEl.getBoundingClientRect();
+  const playRect = els.play.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2 - playRect.left;
+  const cy = rect.top + rect.height / 2 - playRect.top;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = document.createElement('div');
+    p.className = 'ff-particle';
+    p.style.left = (cx - 4) + 'px';
+    p.style.top  = (cy - 4) + 'px';
+    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 70 + Math.random() * 50;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    p.style.transition = 'transform 0.6s cubic-bezier(.2,.7,.3,1), opacity 0.6s ease-out';
+    els.play.appendChild(p);
+    // Force a paint then animate
+    requestAnimationFrame(() => {
+      p.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(${0.4 + Math.random() * 0.6})`;
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), 650);
+  }
+}
+
+function spawnScorePop(points, mult) {
+  if (!state.block) return;
+  const blockEl = state.block.el;
+  const rect = blockEl.getBoundingClientRect();
+  const playRect = els.play.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className = 'ff-score-pop';
+  pop.style.left = (rect.left + rect.width / 2 - playRect.left) + 'px';
+  pop.style.top  = (rect.top - playRect.top - 8) + 'px';
+  pop.innerHTML = `+${points}${mult > 1 ? `<span class="ff-mult">×${mult}</span>` : ''}`;
+  els.play.appendChild(pop);
+  setTimeout(() => pop.remove(), 900);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Pause / Resume
+// ═══════════════════════════════════════════════════════════════════════════
+function togglePause() {
+  if (!state.running) return;
+  state.paused = !state.paused;
+  els.pauseOverlay.classList.toggle('is-shown', state.paused);
+  // Static cards: nothing to time-shift on resume. Disable the input while
+  // paused so a stray Enter can't sneak in past the overlay.
+  if (state.paused) els.input.disabled = true;
+  else if (state.block && !state.block.isDying) els.input.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Game lifecycle — start, end, reset
+// ═══════════════════════════════════════════════════════════════════════════
+async function startGame() {
+  // Block until the sentence dataset has loaded — boot kicks off the fetch.
+  if (!state.dataLoaded) {
+    const originalLabel = els.startBtn.textContent;
+    els.startBtn.disabled = true;
+    els.startBtn.textContent = t('loading');
+    try {
+      await loadSentences();
+      state.dataLoaded = true;
+    } catch (err) {
+      els.startBtn.textContent = t('load_failed');
+      els.startBtn.disabled = false;
+      return;
+    }
+    els.startBtn.textContent = originalLabel || t('start_btn');
+    els.startBtn.disabled = false;
+  }
+
+  // Reset state
+  state.score = 0;
+  state.lives = STARTING_LIVES;
+  state.streak = 0;
+  state.completions = 0;
+  state.history = [];
+  state.completedThisRun = [];
+  state.round = 1;
+  state.paused = false;
+  state.running = true;
+  state.levelUpPending = false;
+  refillDeck();
+  state.nextItem = drawItem();
+  els.startScreen.hidden = true;
+  els.overScreen.hidden = true;
+  els.levelUp.hidden = true;
+  els.levelUp.classList.remove('is-shown');
+  renderHud();
+  renderHistory();
+  renderNext();
+  spawnBlock();
+  try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
+}
+
+function endGame() {
+  state.running = false;
+  state.paused = false;
+  if (state.block && state.block.el) state.block.el.remove();
+  state.block = null;
+
+  const isNewBest = state.score > state.best;
+  if (isNewBest) {
+    state.best = state.score;
+    writeBest(state.best);
+  }
+  els.finalScore.textContent = String(state.score);
+  els.finalBest.textContent = String(state.best);
+  els.newBest.hidden = !isNewBest;
+
+  els.chainGrid.innerHTML = '';
+  if (state.completedThisRun.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'ff-chain-grid-row';
+    empty.style.opacity = '0.6';
+    empty.textContent = t('no_chains');
+    els.chainGrid.appendChild(empty);
+  } else {
+    for (const c of state.completedThisRun) {
+      const row = document.createElement('div');
+      row.className = 'ff-chain-grid-row';
+      // c: { verb, past:form, pp:answer } — display as "verb (form) → answer"
+      row.textContent = `${c.verb} (${c.past}) → ${c.pp}`;
+      els.chainGrid.appendChild(row);
+    }
+  }
+  els.overScreen.hidden = false;
+}
+
+function backToMenu() {
+  els.overScreen.hidden = true;
+  els.startScreen.hidden = false;
+  els.bestStart.textContent = String(state.best);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Event wiring
+// ═══════════════════════════════════════════════════════════════════════════
+els.inputWrap.addEventListener('submit', (e) => {
+  e.preventDefault();
+  handleSubmit();
+});
+
+els.startBtn.addEventListener('click', startGame);
+els.againBtn.addEventListener('click', startGame);
+els.menuBtn.addEventListener('click', backToMenu);
+
+els.pauseBtn.addEventListener('click', togglePause);
+els.pauseOverlay.addEventListener('click', () => { if (state.paused) togglePause(); });
+els.closeBtn.addEventListener('click', () => {
+  // Hub fallback — leave the game.
+  if (document.referrer) history.back();
+  else window.location.href = '/';
+});
+
+els.audioBtn.addEventListener('click', () => {
+  state.audioOn = !state.audioOn;
+  writeAudio(state.audioOn);
+  els.audioBtn.classList.toggle('is-muted', !state.audioOn);
+  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+});
+
+document.addEventListener('keydown', (e) => {
+  // Game-over screen: Space/Enter → play again
+  if (!els.overScreen.hidden) {
+    if (e.code === 'Space' || e.key === 'Enter') {
+      e.preventDefault();
+      startGame();
+    }
+    return;
+  }
+  // Pause toggle — keep Esc as the toggle, but only when the input isn't
+  // the one driving the key (player might want to clear it).
+  if (e.key === 'Escape' && state.running) {
+    e.preventDefault();
+    togglePause();
+  }
+  // Submission is wired via the <form>'s 'submit' event above, which fires
+  // on Enter inside the input. No need to handle key here.
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════════════════════════════
+(function boot() {
+  // i18n: swap to ES only if user explicitly selected it. HTML default is DE
+  // so there's no flash on the common path.
+  if (LANG !== 'de') {
+    document.documentElement.lang = LANG;
+    applyStrings(document);
+  }
+  state.best = readBest();
+  state.audioOn = readAudio();
+  els.audioBtn.classList.toggle('is-muted', !state.audioOn);
+  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.bestStart.textContent = String(state.best);
+  renderHud();
+  renderHistory();
+  renderNext();
+  // Kick off sentence load in the background so it's ready when Start is hit.
+  loadSentences()
+    .then(() => { state.dataLoaded = true; })
+    .catch(err => { console.warn('[lueckentext] sentence load failed', err); });
+})();
+</script>
+</body>
+</html>

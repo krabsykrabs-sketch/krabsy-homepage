@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Lückentext — Krabsy</title>
-  <meta name="description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta name="description" content="Englische Sätze mit Lücken fallen vom oberen Bildschirmrand. Tippe die richtige Verbform, bevor der Satz landet.">
   <meta name="keywords" content="lückentext, fill the gap, sätze, englisch grammatik üben">
   <link rel="canonical" href="https://krabsy.com/de/drills/fill-the-gap/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/drills/fill-the-gap/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="Lückentext — Krabsy">
-  <meta property="og:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta property="og:description" content="Englische Sätze mit Lücken fallen vom oberen Bildschirmrand. Tippe die richtige Verbform, bevor der Satz landet.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/de/drills/fill-the-gap/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Lückentext — Krabsy">
-  <meta name="twitter:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta name="twitter:description" content="Englische Sätze mit Lücken fallen vom oberen Bildschirmrand. Tippe die richtige Verbform, bevor der Satz landet.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <script type="application/ld+json">
     {
@@ -30,7 +30,7 @@
       "@type": "LearningResource",
       "name": "Lückentext",
       "url": "https://krabsy.com/drills/fill-the-gap/",
-      "description": "10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.",
+      "description": "Englische Sätze mit Lücken fallen vom oberen Bildschirmrand. Tippe die richtige Verbform, bevor der Satz landet.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
@@ -50,237 +50,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css">
   <style>
-    /* ── Fill the Gap specific layout ──────────────────────────────── */
+    /* ── Lückentext wrapper layout ────────────────────────────────────────
+       The game itself lives at /games/fill-the-gap.html and is dropped in
+       via an iframe. The wrapper provides: page header, drill-nav tabs
+       (injected by krabsy-nav.js), intro card, footer.
+       ─────────────────────────────────────────────────────────────────── */
     .fg-wrap {
-      max-width: 960px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: var(--space-5) var(--space-4);
       width: 100%;
     }
 
-    .fg-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
-      min-height: 36px;
+    .fg-game-frame {
+      display: block;
+      width: 100%;
+      height: 700px;
+      border: 0;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      background: transparent;
+      overflow: hidden;
     }
 
-    .fg-progress-text {
-      font-size: 0.85rem;
-      color: var(--krabsy-ink-mute);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .fg-timer {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      color: var(--krabsy-ink);
-      font-variant-numeric: tabular-nums;
-      padding: 6px 16px;
-      background: var(--krabsy-lavender-soft);
-      border-radius: var(--radius-pill);
-    }
-
-    /* Start / End cards */
-    .fg-start-card,
-    .fg-end-card {
+    /* Fallback shown when the viewport is too narrow for the game grid */
+    .fg-narrow-note {
+      display: none;
       text-align: center;
       padding: var(--space-6) var(--space-5);
-    }
-
-    .fg-start-card .k-h1,
-    .fg-end-card .k-h1 {
-      font-size: 2rem;
-      margin-bottom: var(--space-3);
-    }
-
-    .fg-tagline {
-      font-size: 1rem;
       color: var(--krabsy-ink-mute);
-      margin: 0 0 var(--space-4);
     }
-
-    .fg-intro {
-      font-size: 0.95rem;
-      color: var(--krabsy-ink);
-      max-width: 540px;
-      margin: 0 auto var(--space-5);
-      line-height: 1.55;
-    }
-
-    .fg-best-line {
-      font-size: 0.9rem;
-      color: var(--krabsy-ink-mute);
-      margin: var(--space-4) 0 0;
-    }
-    .fg-best-line .fg-best-value {
-      color: var(--krabsy-coral-dark);
-      font-weight: 700;
-    }
-
-    /* Play card */
-    .fg-play-card {
-      padding: var(--space-6) var(--space-5);
-      text-align: center;
-    }
-
-    .fg-sentence {
-      font-family: var(--font-body);
-      font-size: clamp(1.2rem, 3.2vw, 1.6rem);
-      color: var(--krabsy-ink);
-      line-height: 1.55;
-      margin: 0 0 var(--space-3);
-      max-width: 720px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* In-sentence blank: plain styled text only — no underline. The styled
-       .k-input below is the single "blank line" indicating where to type. */
-    .fg-blank {
-      color: var(--krabsy-ink-mute);
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .fg-base-hint {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--krabsy-ink-mute);
-      font-style: italic;
-      margin: 0 0 var(--space-5);
-    }
-
-    .fg-input-wrap {
-      max-width: 360px;
-      margin: 0 auto;
-    }
-
-    .fg-input {
-      font-size: 1.15rem;
-      text-align: center;
-      letter-spacing: 0.3px;
-    }
-
-    .fg-feedback {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-3);
-      margin: var(--space-4) auto 0;
-      min-height: 36px;
-      flex-wrap: wrap;
-    }
-
-    .fg-submit-hint {
-      font-size: 0.8rem;
-      color: var(--krabsy-ink-mute);
-      margin: var(--space-4) 0 0;
-    }
-
-    /* End screen */
-    .fg-end-stats {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-6);
-      flex-wrap: wrap;
-      margin: var(--space-5) 0;
-    }
-    .fg-end-stat {
-      min-width: 110px;
-    }
-    .fg-end-stat-value {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      color: var(--krabsy-ink);
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-    .fg-end-stat-value.is-new-best {
-      color: var(--krabsy-coral-dark);
-    }
-    .fg-end-stat-label {
-      font-size: 0.8rem;
-      color: var(--krabsy-ink-mute);
-      letter-spacing: 0.4px;
-    }
-
-    .fg-new-best-flag {
-      display: inline-block;
-      background: var(--krabsy-coral);
-      color: var(--krabsy-white);
-      font-weight: 700;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-      padding: 4px 12px;
-      border-radius: var(--radius-pill);
-      margin-bottom: var(--space-4);
-    }
-
-    .fg-missed-block {
-      text-align: left;
-      max-width: 720px;
-      margin: var(--space-5) auto 0;
-    }
-    .fg-missed-heading {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      color: var(--krabsy-ink);
-      margin: 0 0 var(--space-3);
-    }
-    .fg-missed-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-    .fg-missed-list li {
-      padding: var(--space-3) var(--space-4);
-      background: var(--krabsy-coral-soft);
-      border-radius: var(--radius-sm);
-    }
-    .fg-missed-sentence {
-      font-family: var(--font-body);
-      color: var(--krabsy-ink);
-      line-height: 1.5;
-      margin: 0 0 6px;
-    }
-    .fg-missed-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-      align-items: center;
-      font-size: 0.85rem;
-    }
-    .fg-missed-pills small {
-      color: var(--krabsy-ink-mute);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-      font-size: 0.7rem;
-      margin-right: 4px;
-    }
-
-    .fg-end-actions {
-      display: flex;
-      gap: var(--space-3);
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: var(--space-5);
-    }
-
-    .fg-hidden { display: none !important; }
-
-    .fg-loading {
-      text-align: center;
-      padding: var(--space-7) var(--space-4);
-      color: var(--krabsy-ink-mute);
+    @media (max-width: 899px) {
+      .fg-game-frame  { display: none; }
+      .fg-narrow-note { display: block; }
     }
   </style>
 </head>
@@ -293,515 +95,36 @@
 
     <main class="fg-wrap">
       <aside class="k-intro-card" aria-label="Über diese Übung">
-        <p>Beim Lückentext tippst du die richtige Verbform in zehn englische Sätze ein. Du musst die Bedeutung des Satzes verstehen, um die passende Zeitform zu wählen — eine Übung, die das Verstehen und Anwenden im echten Kontext trainiert.</p>
+        <p>Beim Lückentext fallen englische Sätze mit einer Lücke vom oberen Bildschirmrand. Tippe die fehlende Verbform und drücke Enter, bevor der Satz die Linie erreicht. Du musst die Bedeutung des Satzes verstehen, um die richtige Zeitform zu wählen — Tippen und Verstehen in einem.</p>
       </aside>
 
-      <!-- Loading shim -->
-      <div id="fg-loading" class="fg-loading" data-string="common.loading">Lädt…</div>
+      <iframe
+        class="fg-game-frame"
+        src="/games/fill-the-gap.html?lang=de"
+        title="Lückentext"
+        loading="eager"
+        allow="autoplay"
+      ></iframe>
 
-      <!-- START SCREEN -->
-      <section id="fg-start" class="k-card fg-start-card fg-hidden" aria-hidden="true">
-        <h1 class="k-h1" data-string="drills.fill_gap.name">Lückentext</h1>
-        <p class="fg-tagline" data-string="drills.fill_gap.tagline">Setze die richtige Form ein.</p>
-        <p class="fg-intro" data-string="drills.fill_gap.intro"></p>
-        <button id="fg-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
-        <p id="fg-best-line" class="fg-best-line" hidden>
-          <span data-string="common.best_time">Bestzeit</span>:
-          <span class="fg-best-value" id="fg-best-value-start">—</span>
-        </p>
-      </section>
-
-      <!-- PLAY SCREEN -->
-      <section id="fg-play" class="fg-hidden" aria-hidden="true">
-        <div class="fg-topbar">
-          <span class="fg-progress-text" id="fg-progress-text">—</span>
-          <span class="fg-timer">
-            <span id="fg-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
-          </span>
-        </div>
-
-        <div class="k-card fg-play-card">
-          <p id="fg-sentence" class="fg-sentence">—</p>
-          <p id="fg-base-hint" class="fg-base-hint">—</p>
-
-          <form id="fg-form" class="fg-input-wrap" autocomplete="off" novalidate>
-            <label class="k-sr-only" for="fg-input" data-string="drills.fill_gap.input_placeholder">Form eintippen…</label>
-            <input
-              id="fg-input"
-              class="k-input fg-input"
-              type="text"
-              inputmode="text"
-              autocapitalize="off"
-              autocorrect="off"
-              spellcheck="false"
-              data-string-attr="placeholder:drills.fill_gap.input_placeholder"
-            >
-          </form>
-
-          <div id="fg-feedback" class="fg-feedback" aria-live="polite"></div>
-
-          <p class="fg-submit-hint" data-string="common.submit_enter_hint">Drücke Enter zum Absenden</p>
-        </div>
-      </section>
-
-      <!-- END SCREEN -->
-      <section id="fg-end" class="k-card fg-end-card fg-hidden" aria-hidden="true">
-        <h1 class="k-h1" data-string="drills.fill_gap.end_title">Lückentext geschafft!</h1>
-
-        <div id="fg-new-best" class="fg-new-best-flag" hidden data-string="common.best_time">Bestzeit</div>
-
-        <div class="fg-end-stats">
-          <div class="fg-end-stat">
-            <div id="fg-end-time" class="fg-end-stat-value k-mono-num">—</div>
-            <div class="fg-end-stat-label" data-string="common.your_time">Deine Zeit</div>
-          </div>
-          <div class="fg-end-stat">
-            <div id="fg-end-accuracy" class="fg-end-stat-value k-mono-num">—</div>
-            <div class="fg-end-stat-label" data-string="common.accuracy">Genauigkeit</div>
-          </div>
-          <div class="fg-end-stat">
-            <div id="fg-end-best" class="fg-end-stat-value k-mono-num">—</div>
-            <div class="fg-end-stat-label" data-string="common.best_time">Bestzeit</div>
-          </div>
-        </div>
-
-        <div id="fg-missed-wrap" class="fg-missed-block" hidden>
-          <h2 class="fg-missed-heading" data-string="common.missed">Diese hast du verpasst</h2>
-          <ul id="fg-missed-list" class="fg-missed-list"></ul>
-        </div>
-
-        <div class="fg-end-actions">
-          <button id="fg-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
-          <a href="/de/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
-        </div>
-
-        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
-      </section>
+      <p class="fg-narrow-note">
+        Der Lückentext braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
+      </p>
     </main>
+
     <footer class="k-footer">
       <span>© 2026 Krabsy</span>
       <span class="k-footer-legal-sep" aria-hidden="true">·</span>
       <span class="k-footer-legal-mount"></span>
     </footer>
-
   </div>
 
-  <!-- Feedback flash overlays -->
-  <div id="fg-flash-correct" class="k-flash is-correct" aria-hidden="true"></div>
-  <div id="fg-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
-
-  <script type="module">
-    import { loadStrings, getQuestions } from '/lib/krabsy-data.js';
-    import { recordAttempt } from '/lib/krabsy-stats.js';
-
-    /* ── Config ─────────────────────────────────────────────────────── */
-    const QUESTIONS_PER_RUN = 10;
-    const BEST_KEY = 'krabsy_best_fill_gap';
-    const HUB_URL = '/de/';
-    const FLASH_MS = 150;
-    const CORRECT_ADVANCE_MS = 250;
-    const WRONG_ADVANCE_MS = 700;
-
-    /* ── State ──────────────────────────────────────────────────────── */
-    let strings = null;
-    let questions = [];    // 10 d4 fill_gap entries
-    let qIndex = 0;
-    let submitLocked = false;
-    let startTimestamp = 0;
-    let timerHandle = null;
-    let missed = [];       // [{ q, typed }]
-    let totalAnswered = 0;
-    let correctCount = 0;
-    let advanceTimer = null;
-
-    /* ── DOM ────────────────────────────────────────────────────────── */
-    const $ = (id) => document.getElementById(id);
-    const loadingEl    = $('fg-loading');
-    const startEl      = $('fg-start');
-    const playEl       = $('fg-play');
-    const endEl        = $('fg-end');
-    const startBtn     = $('fg-start-btn');
-    const replayBtn    = $('fg-replay-btn');
-    const bestLineEl   = $('fg-best-line');
-    const bestValStart = $('fg-best-value-start');
-    const sentenceEl   = $('fg-sentence');
-    const baseHintEl   = $('fg-base-hint');
-    const formEl       = $('fg-form');
-    const inputEl      = $('fg-input');
-    const feedbackEl   = $('fg-feedback');
-    const progressEl   = $('fg-progress-text');
-    const timerEl      = $('fg-timer-value');
-    const endTimeEl    = $('fg-end-time');
-    const endAccEl     = $('fg-end-accuracy');
-    const endBestEl    = $('fg-end-best');
-    const newBestEl    = $('fg-new-best');
-    const missedWrap   = $('fg-missed-wrap');
-    const missedListEl = $('fg-missed-list');
-    const flashCorrect = $('fg-flash-correct');
-    const flashWrong   = $('fg-flash-wrong');
-
-    /* ── Helpers ────────────────────────────────────────────────────── */
-    function getNested(obj, path) {
-      return path.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
-    }
-
-    function applyStrings(root) {
-      root.querySelectorAll('[data-string]').forEach((el) => {
-        const key = el.getAttribute('data-string');
-        const val = getNested(strings, key);
-        if (typeof val === 'string') el.textContent = val;
-      });
-      root.querySelectorAll('[data-string-attr]').forEach((el) => {
-        const spec = el.getAttribute('data-string-attr');
-        // Format: "attrName:dotted.key"
-        const idx = spec.indexOf(':');
-        if (idx < 0) return;
-        const attr = spec.slice(0, idx).trim();
-        const key = spec.slice(idx + 1).trim();
-        const val = getNested(strings, key);
-        if (typeof val === 'string') el.setAttribute(attr, val);
-      });
-    }
-
-    function showScreen(which) {
-      for (const [el, name] of [[startEl, 'start'], [playEl, 'play'], [endEl, 'end']]) {
-        const on = name === which;
-        el.classList.toggle('fg-hidden', !on);
-        el.setAttribute('aria-hidden', on ? 'false' : 'true');
-      }
-    }
-
-    function formatSeconds(ms) {
-      return (ms / 1000).toFixed(1);
-    }
-
-    function readBest() {
-      try {
-        const raw = localStorage.getItem(BEST_KEY);
-        if (raw == null) return null;
-        const n = Number(raw);
-        return Number.isFinite(n) && n > 0 ? n : null;
-      } catch (_) { return null; }
-    }
-
-    function writeBest(ms) {
-      try { localStorage.setItem(BEST_KEY, String(ms)); } catch (_) {}
-    }
-
-    function updateBestLineOnStart() {
-      const best = readBest();
-      if (best == null) {
-        bestLineEl.hidden = true;
-      } else {
-        bestLineEl.hidden = false;
-        bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
-      }
-    }
-
-    function flash(kind) {
-      const el = kind === 'wrong' ? flashWrong : flashCorrect;
-      el.classList.add('is-on');
-      setTimeout(() => el.classList.remove('is-on'), FLASH_MS);
-    }
-
-    function normalize(s) {
-      return (s == null ? '' : String(s)).trim().toLowerCase();
-    }
-
-    /* ── Timer ──────────────────────────────────────────────────────── */
-    function startTimer() {
-      startTimestamp = performance.now();
-      tickTimer();
-      timerHandle = setInterval(tickTimer, 100);
-    }
-
-    function stopTimer() {
-      if (timerHandle != null) {
-        clearInterval(timerHandle);
-        timerHandle = null;
-      }
-    }
-
-    function elapsedMs() {
-      if (!startTimestamp) return 0;
-      return performance.now() - startTimestamp;
-    }
-
-    function tickTimer() {
-      timerEl.textContent = Math.floor(elapsedMs() / 1000);
-    }
-
-    /* ── Sentence rendering ─────────────────────────────────────────── */
-    /**
-     * Build the prompt sentence with a visual `___` blank. Splits on the
-     * literal "___" token and inserts a styled span in the middle. If the
-     * token is missing for some reason, render the prompt as-is.
-     */
-    function renderSentence(q) {
-      sentenceEl.innerHTML = '';
-      const prompt = q.context_sentence || q.prompt || '';
-      const parts = prompt.split('___');
-      if (parts.length < 2) {
-        sentenceEl.textContent = prompt;
-        return;
-      }
-      for (let i = 0; i < parts.length; i++) {
-        if (parts[i]) {
-          sentenceEl.appendChild(document.createTextNode(parts[i]));
-        }
-        if (i < parts.length - 1) {
-          const blank = document.createElement('span');
-          blank.className = 'fg-blank';
-          blank.textContent = '___';
-          sentenceEl.appendChild(blank);
-        }
-      }
-    }
-
-    function clearFeedback() {
-      feedbackEl.innerHTML = '';
-    }
-
-    function renderQuestion() {
-      const q = questions[qIndex];
-      submitLocked = false;
-
-      renderSentence(q);
-      baseHintEl.textContent = `(to ${q.verb})`;
-
-      progressEl.textContent = strings.common.question_of
-        .replace('{n}', String(qIndex + 1))
-        .replace('{total}', String(questions.length));
-
-      inputEl.value = '';
-      inputEl.disabled = false;
-      clearFeedback();
-
-      // Auto-focus on each new question.
-      setTimeout(() => inputEl.focus(), 0);
-    }
-
-    function makePill(text, ok) {
-      const span = document.createElement('span');
-      span.className = ok ? 'k-pill k-pill-correct' : 'k-pill k-pill-wrong';
-      span.textContent = text;
-      return span;
-    }
-
-    /* ── Submit handling ────────────────────────────────────────────── */
-    function handleSubmit() {
-      if (submitLocked) return;
-      const typed = inputEl.value;
-      // Don't submit empty input — let the user type something first.
-      if (normalize(typed) === '') {
-        inputEl.focus();
-        return;
-      }
-      submitLocked = true;
-
-      const q = questions[qIndex];
-      const altOk = Array.isArray(q.correct_alt)
-        && q.correct_alt.some((a) => normalize(a) === normalize(typed));
-      const isCorrect = normalize(typed) === normalize(q.correct_answer) || altOk;
-
-      // Stats: use the question's own `form` field, source = "fill_gap".
-      recordAttempt(q.verb, q.form, isCorrect, 'fill_gap');
-
-      totalAnswered += 1;
-      if (isCorrect) correctCount += 1;
-
-      // Visual feedback.
-      if (isCorrect) {
-        flash('correct');
-        feedbackEl.appendChild(makePill(q.correct_answer, true));
-      } else {
-        flash('wrong');
-        missed.push({ q, typed });
-        // Show wrong typed + correct answer side by side.
-        if (typed && normalize(typed).length) {
-          feedbackEl.appendChild(makePill(typed, false));
-        }
-        feedbackEl.appendChild(makePill(q.correct_answer, true));
-      }
-
-      inputEl.disabled = true;
-
-      // Advance — give the user time to see the correct answer on wrong.
-      const wait = isCorrect ? CORRECT_ADVANCE_MS : WRONG_ADVANCE_MS;
-      clearTimeout(advanceTimer);
-      advanceTimer = setTimeout(() => {
-        qIndex += 1;
-        if (qIndex >= questions.length) {
-          finishRun();
-        } else {
-          renderQuestion();
-        }
-      }, wait);
-    }
-
-    /* ── Missed list rendering ──────────────────────────────────────── */
-    function buildMissedSentenceFragment(q, typed) {
-      // Inline sentence with the user's wrong answer struck through and the
-      // correct answer pill next to it. Returns a DocumentFragment.
-      const frag = document.createDocumentFragment();
-      const prompt = q.context_sentence || q.prompt || '';
-      const parts = prompt.split('___');
-
-      const sentenceP = document.createElement('p');
-      sentenceP.className = 'fg-missed-sentence';
-
-      if (parts.length < 2) {
-        sentenceP.textContent = prompt;
-      } else {
-        for (let i = 0; i < parts.length; i++) {
-          if (parts[i]) {
-            sentenceP.appendChild(document.createTextNode(parts[i]));
-          }
-          if (i < parts.length - 1) {
-            // Show the correct answer inline as a pill within the sentence.
-            sentenceP.appendChild(makePill(q.correct_answer, true));
-          }
-        }
-        // Append the base-form parenthetical for context.
-        sentenceP.appendChild(document.createTextNode(` (to ${q.verb})`));
-      }
-      frag.appendChild(sentenceP);
-
-      // Row with "Du:" + the user's wrong answer pill.
-      const pillsRow = document.createElement('div');
-      pillsRow.className = 'fg-missed-pills';
-      const lbl = document.createElement('small');
-      lbl.textContent = strings.common.missed_short;
-      pillsRow.appendChild(lbl);
-      const typedDisplay = typed && typed.trim().length
-        ? typed
-        : strings.common.skip;
-      pillsRow.appendChild(makePill(typedDisplay, false));
-      frag.appendChild(pillsRow);
-
-      return frag;
-    }
-
-    /* ── Run lifecycle ──────────────────────────────────────────────── */
-    async function beginRun() {
-      qIndex = 0;
-      missed = [];
-      totalAnswered = 0;
-      correctCount = 0;
-      submitLocked = false;
-      clearTimeout(advanceTimer);
-
-      try {
-        questions = await getQuestions({
-          type: 'fill_gap',
-          // New verb-data schema uses difficulty 2 for all entries (each
-          // entry carries a context_sentence already, so the old
-          // difficulty-4 partitioning is gone).
-          difficulty: 2,
-          shuffle: true,
-          limit: QUESTIONS_PER_RUN,
-        });
-      } catch (err) {
-        console.error('[fill_gap] failed to load questions', err);
-        return;
-      }
-
-      if (!questions.length) {
-        console.warn('[fill_gap] no d4 fill_gap questions available');
-        return;
-      }
-
-      showScreen('play');
-      renderQuestion();
-      startTimer();
-    }
-
-    function finishRun() {
-      stopTimer();
-      const finalMs = elapsedMs();
-
-      const previousBest = readBest();
-      const isNewBest = previousBest == null || finalMs < previousBest;
-      if (isNewBest) writeBest(finalMs);
-
-      endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
-      endTimeEl.classList.toggle('is-new-best', isNewBest);
-
-      const accPct = totalAnswered > 0
-        ? Math.round((correctCount / totalAnswered) * 100)
-        : 0;
-      endAccEl.textContent = `${accPct}%`;
-
-      const newBest = readBest();
-      endBestEl.textContent = newBest != null
-        ? `${formatSeconds(newBest)}${strings.common.seconds_short}`
-        : strings.common.no_best_yet;
-
-      newBestEl.hidden = !isNewBest;
-
-      // Missed sentences list.
-      if (missed.length) {
-        missedWrap.hidden = false;
-        missedListEl.innerHTML = '';
-        for (const m of missed) {
-          const li = document.createElement('li');
-          li.appendChild(buildMissedSentenceFragment(m.q, m.typed));
-          missedListEl.appendChild(li);
-        }
-      } else {
-        missedWrap.hidden = true;
-      }
-
-      showScreen('end');
-    }
-
-    /* ── Event wiring ───────────────────────────────────────────────── */
-    formEl.addEventListener('submit', (e) => {
-      e.preventDefault();
-      handleSubmit();
-    });
-
-    // Enter from the input → submit.
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleSubmit();
-      }
-    });
-
-    // ESC anywhere → back to hub.
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        window.location.href = HUB_URL;
-      }
-    });
-
-    /* ── Boot ───────────────────────────────────────────────────────── */
-    (async function boot() {
-      try {
-        strings = await loadStrings();
-      } catch (err) {
-        console.error('[fill_gap] failed to load UI strings', err);
-        loadingEl.textContent = 'Fehler beim Laden.';
-        return;
-      }
-
-      applyStrings(document);
-
-      loadingEl.classList.add('fg-hidden');
-      updateBestLineOnStart();
-      showScreen('start');
-
-      startBtn.addEventListener('click', beginRun);
-      replayBtn.addEventListener('click', beginRun);
-    })();
-  </script>
   <script type="module">
     import { initDrillPage } from '/lib/krabsy-nav.js';
     initDrillPage('fill_gap');
   </script>
-    <script src="/lib/krabsy-footer.js" defer></script>
-    <script src="/lib/krabsy-lang-switch.js" defer></script>
+  <script src="/lib/krabsy-footer.js" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js" defer></script>
+  <script src="/lib/krabsy-lang-switch.js" defer></script>
   <script src="/lib/krabsy-analytics.js" defer></script>
 </body>
 </html>

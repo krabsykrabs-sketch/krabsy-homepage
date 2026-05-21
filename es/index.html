@@ -11,8 +11,9 @@
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/">
   <link rel="alternate" hreflang="es" href="https://krabsy.com/es/">
   <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta property="og:title" content="Unregelmäßige Verben lernen — Krabsy">
   <meta property="og:description" content="Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
@@ -45,12 +46,7 @@
 
     body { background: var(--krabsy-cream); }
 
-    /* Logo: full Sprint thumbnail sits behind the letters as the "a".
-       — .logo establishes a stacking context (isolation: isolate) so the
-         image's z-index:-1 stays inside the logo, not behind the page bg.
-       — .logo-crab is a small inline slot reserving space between "kr" and
-         "bsy"; the image overflows that slot so its features (motion
-         streaks, clock) bleed behind the surrounding letters. */
+    /* Logo: the brand mascot's face stands in for the "a" in "krabsy". */
     .logo {
       display: inline-flex;
       align-items: center;
@@ -61,35 +57,21 @@
       color: var(--krabsy-ink);
       letter-spacing: -0.5px;
       line-height: 1;
-      position: relative;
-      isolation: isolate;
-    }
-    /* Only the letter spans get a stacking context — .logo-crab must NOT,
-       otherwise it traps the image's z-index:-1 inside its own context
-       and the image ends up at the same z as "kr"/"bsy" (painting over
-       "kr" via DOM order). */
-    .logo > span:not(.logo-crab) {
-      position: relative;
-      z-index: 1;
     }
     .logo-crab {
-      display: inline-block;
-      width: 0.9em;
-      height: 1em;
-      position: relative;
-      /* no z-index — keeps image's z-index:-1 resolving against .logo */
+      display: inline-flex;
+      width: 1.15em;
+      height: 1.15em;
+      align-items: center;
+      justify-content: center;
+      margin: 0 -0.04em;
+      vertical-align: middle;
     }
-    /* TEMPORARY: re-uses /thumbnails/Sprint.png; replace with a dedicated
-       crab asset later. Sized + positioned so the crab body sits at the
-       "a" slot; full image visible; clock + motion streaks bleed into the
-       "r" and "b" slots and paint BEHIND the letters via z-index:-1. */
     .logo-crab img {
-      position: absolute;
-      width: 1.7em;
-      height: 1.7em;
-      left: -0.5em;
-      top: -0.4em;
-      z-index: -1;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       pointer-events: none;
     }
 
@@ -100,57 +82,41 @@
       margin: 0 auto;
     }
 
+    /* Hero banner: the 1536×1024 beach illustration covers the strip with
+       the crab + decorations anchored on the left. Headline + subhead sit
+       on the right half, overlaid on the sandy negative space of the image. */
     .hero-banner {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      align-items: center;
-      padding: 14px 16px;
-      background: var(--krabsy-cream);
+      position: relative;
       border-radius: var(--radius-lg);
       box-shadow: 0 1px 4px rgba(44, 42, 58, 0.05);
-      text-align: center;
+      background: var(--krabsy-cream);
+      overflow: hidden;
+      aspect-ratio: 3 / 1;
+      min-height: 150px;
     }
-    @media (min-width: 640px) {
-      .hero-banner {
-        grid-template-columns: 160px minmax(0, 1fr);
-        gap: 24px;
-        padding: 12px 24px;
-        min-height: 160px;
-        text-align: left;
-      }
-    }
-
-    .hero-banner-image {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(
-        ellipse at 50% 50%,
-        rgba(205, 217, 180, 0.20),
-        transparent 70%
-      );
-      border-radius: var(--radius-md);
-    }
-    .hero-banner-image img {
-      display: block;
+    .hero-banner-bg {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      height: auto;
-      max-height: 140px;
-      object-fit: contain;
-      object-position: center;
+      height: 100%;
+      object-fit: cover;
+      /* The crab + sand are weighted to the bottom of the source image —
+         anchor to bottom so they stay fully visible. Otherwise center-crop
+         would clip the lower half (crab legs, starfish, shell, beach). */
+      object-position: left bottom;
+      z-index: 0;
+      pointer-events: none;
     }
-    @media (max-width: 639px) {
-      .hero-banner-image img { max-height: 110px; }
-    }
-
     .hero-banner-text {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 4px;
+      height: 100%;
+      gap: 6px;
+      padding: 16px 28px 16px 42%;
     }
-
     .hero-title {
       font-family: var(--font-display);
       font-size: 1.4rem;
@@ -165,9 +131,23 @@
       line-height: 1.35;
     }
 
+    /* Mobile: stack — show the banner image on top, text below. The 3:1
+       aspect goes away so we don't squeeze the crab into a sliver. */
     @media (max-width: 559px) {
       .hero { padding: 8px 16px 4px; }
-      .hero-banner { padding: 10px 14px; }
+      .hero-banner {
+        aspect-ratio: auto;
+        min-height: 0;
+      }
+      .hero-banner-bg {
+        position: relative;
+        height: 140px;
+        object-position: left bottom;
+      }
+      .hero-banner-text {
+        padding: 12px 16px 14px;
+        text-align: center;
+      }
       .hero-title { font-size: 1.2rem; }
       .hero-sub { font-size: 0.85rem; }
     }
@@ -413,8 +393,7 @@
       <a href="/es/" class="logo" aria-label="Krabsy">
         <span>kr</span>
         <span class="logo-crab" aria-hidden="true">
-          <!-- TEMPORARY: full Sprint thumbnail placed behind "kr" / "bsy" via z-index. Replace with a dedicated crab asset once available. -->
-          <img src="/thumbnails/Sprint.png" alt="" decoding="async">
+          <img src="/favicon.png" alt="" decoding="async">
         </span>
         <span>bsy</span>
       </a>
@@ -425,12 +404,9 @@
     </header>
 
     <!-- ── Hero ─────────────────────────────────────────────────────────── -->
-    <!-- TEMPORARY: hero illustration recycled from Sprint thumbnail. Replace with dedicated banner once available. -->
     <section class="hero">
       <div class="hero-banner">
-        <div class="hero-banner-image" aria-hidden="true">
-          <img src="/thumbnails/Sprint.png" alt="" loading="eager" decoding="async">
-        </div>
+        <img class="hero-banner-bg" src="/thumbnails/banner.png" alt="" loading="eager" decoding="async">
         <div class="hero-banner-text">
           <h1 class="k-visually-hidden" data-i18n="homepage.seo_h1">Unregelmäßige Verben lernen</h1>
           <p class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</p>

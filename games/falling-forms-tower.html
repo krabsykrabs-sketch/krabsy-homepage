@@ -1,0 +1,1597 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Falling Forms — Krabsy</title>
+  <meta name="viewport" content="width=1024">
+  <meta name="description" content="Falling Forms — an arcade-style speed drill for irregular English verbs.">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   FALLING FORMS (TOWER) — Krabsy speed drill
+   Variant of falling-forms-chain.html. Same visual system, sidebar, audio,
+   scoring. Mechanic differs: multiple blocks fall simultaneously; unfilled
+   blocks land + stack from the bottom; tower hitting the top = game over.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --lavender:        #babfd8;
+  --lavender-deep:   #6d75a6;
+  --lavender-soft:   #d9ddec;
+  --sage:            #cdd9b4;
+  --sage-deep:       #9fb37c;
+  --coral:           #f2937e;
+  --coral-deep:      #c9685a;
+  --coral-soft:      #fbe4de;
+  --off-white:       #fdf8f3;
+  --charcoal:        #2a2438;
+  --charcoal-soft:   rgba(42, 36, 56, 0.65);
+
+  --shadow-elev:     0 6px 22px rgba(42, 36, 56, 0.18);
+  --shadow-deep:     0 12px 38px rgba(42, 36, 56, 0.28);
+  --shadow-inset:    inset 0 4px 18px rgba(109, 117, 166, 0.22);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100vh;
+  font-family: Verdana, Geneva, sans-serif;
+  color: var(--charcoal);
+  -webkit-text-size-adjust: 100%;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255,255,255,0.55), transparent 55%),
+    radial-gradient(circle at 82% 78%, rgba(109,117,166,0.30), transparent 55%),
+    linear-gradient(160deg, #c8ccdf 0%, #b0b5d0 60%, #9ea4c4 100%);
+}
+/* Dot-pattern overlay — very low opacity, fixed (no per-frame paint) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(42, 36, 56, 0.06) 1px, transparent 1.4px);
+  background-size: 16px 16px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Top-level grid ─────────────────────────────────────────────────────── */
+
+.ff-app {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  height: 100vh;
+  width: 100vw;
+  min-width: 1024px;
+  grid-template-columns: 180px 1fr 220px;
+  grid-template-rows: 56px 1fr;
+  gap: 14px;
+  padding: 14px;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+
+.ff-topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+.ff-round {
+  font-family: 'Limelight', cursive;
+  font-size: 1.1rem;
+  letter-spacing: 0.8px;
+  color: var(--charcoal);
+}
+.ff-round span { color: var(--coral-deep); }
+.ff-topbar-actions { display: flex; gap: 8px; }
+.ff-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(109,117,166,0.35);
+  background: rgba(255,255,255,0.7);
+  color: var(--charcoal);
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+  user-select: none;
+}
+.ff-icon:hover { background: var(--coral-soft); color: var(--coral-deep); }
+.ff-icon:active { transform: scale(0.94); }
+.ff-icon.is-muted { color: var(--lavender-deep); opacity: 0.5; }
+
+/* ── Sidebars (frosted-glass) ───────────────────────────────────────────── */
+
+.ff-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.ff-panel {
+  position: relative;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+.ff-panel-label {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--lavender-deep);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.ff-panel-value {
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--charcoal);
+  letter-spacing: 0.5px;
+}
+
+/* Score gets the dramatic coral treatment */
+.ff-panel-score .ff-panel-value {
+  font-size: 2.1rem;
+  color: var(--coral-deep);
+}
+
+/* Level + progress bar */
+.ff-level-bar {
+  margin-top: 8px;
+  height: 6px;
+  background: rgba(109,117,166,0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ff-level-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--coral), var(--coral-deep));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Streak — glows when active */
+.ff-panel-streak .ff-streak-fire {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 1.2rem;
+  filter: none;
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+}
+.ff-panel-streak.is-hot {
+  box-shadow: var(--shadow-elev), 0 0 0 1px rgba(242,147,126,0.55), 0 0 18px rgba(242,147,126,0.45);
+}
+.ff-panel-streak.is-hot .ff-streak-fire { opacity: 1; }
+.ff-panel-streak.is-hot .ff-panel-value { color: var(--coral-deep); }
+
+/* Lives row */
+.ff-lives {
+  display: flex;
+  gap: 6px;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.ff-heart {
+  color: var(--coral);
+  text-shadow: none;
+  transition: color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+}
+.ff-heart.is-lost {
+  color: rgba(109,117,166,0.35);
+  opacity: 0.5;
+  transform: scale(0.85);
+}
+
+/* Right sidebar — quick guide & coming up */
+.ff-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.ff-history-row {
+  font-family: 'Limelight', cursive;
+  font-size: 0.95rem;
+  color: var(--charcoal);
+  padding: 6px 10px;
+  background: rgba(205, 217, 180, 0.30);
+  border: 1px solid rgba(205, 217, 180, 0.55);
+  border-radius: var(--r-sm);
+  letter-spacing: 0.4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.ff-history-row .ff-arrow { color: var(--lavender-deep); font-size: 0.85rem; }
+.ff-history-row.is-fade-1 { opacity: 0.7; }
+.ff-history-row.is-fade-2 { opacity: 0.4; }
+
+.ff-next {
+  font-family: 'Limelight', cursive;
+  font-size: 1.6rem;
+  color: var(--coral);
+  opacity: 0.55;
+  letter-spacing: 0.5px;
+}
+
+/* ── Play area ──────────────────────────────────────────────────────────── */
+
+.ff-play {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(186,191,216,0.30) 100%);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-elev), var(--shadow-inset);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Top danger line — Tower variant. Pulses warning/critical as stack
+   grows toward it. */
+.ff-danger-line {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,104,90,0.55), transparent);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.ff-danger-line::before,
+.ff-danger-line::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 1px; height: 9px;
+  background: rgba(201,104,90,0.55);
+}
+.ff-danger-line::before { left: -2px; }
+.ff-danger-line::after { right: -2px; }
+
+.ff-danger-line.is-warning {
+  background: linear-gradient(90deg, transparent, rgba(242,147,126,0.85), transparent);
+  animation: ff-danger-pulse 1.0s ease-in-out infinite;
+}
+.ff-danger-line.is-critical {
+  background: linear-gradient(90deg, transparent, rgba(201,104,90,1), transparent);
+  animation: ff-danger-pulse 0.45s ease-in-out infinite;
+}
+@keyframes ff-danger-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.ff-block-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Falling block — uses transform: translate3d only (perf: GPU compositing).
+   No box-shadow on the block itself. Static box-shadow on the active blank
+   is allowed since it composites into the block's layer once.
+   Tower: only the active (lowest) block is fully opaque; others dim. */
+.ff-block {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  width: 78%;
+  max-width: 480px;
+  padding: 22px 28px;
+  background: rgba(253, 248, 243, 0.92);
+  border: 2px solid var(--lavender-deep);
+  border-radius: var(--r-md);
+  text-align: center;
+  will-change: transform;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.ff-block.is-active {
+  opacity: 1;
+  border-color: var(--coral);
+}
+
+/* Landed (stacked) block — compressed, muted grey-lavender, just the verb */
+.ff-block.is-landed {
+  padding: 8px 22px;
+  width: 60%;
+  max-width: 320px;
+  background: rgba(138, 141, 168, 0.82);
+  border: 1.5px solid rgba(109, 117, 166, 0.55);
+  opacity: 1;
+  transition: padding 0.25s ease, background-color 0.25s ease,
+              border-color 0.25s ease, width 0.25s ease;
+}
+.ff-block.is-landed .ff-landed-verb {
+  font-family: 'Limelight', cursive;
+  font-size: 1.05rem;
+  color: var(--off-white);
+  letter-spacing: 0.6px;
+  text-align: center;
+  line-height: 1;
+}
+
+.ff-block-trio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+.ff-trio-base {
+  font-family: 'Limelight', cursive;
+  font-size: 1.9rem;
+  color: var(--charcoal);
+  letter-spacing: 0.5px;
+}
+.ff-trio-arrow {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 1.1rem;
+  color: var(--lavender-deep);
+  opacity: 0.7;
+}
+.ff-trio-slot {
+  font-family: 'Limelight', cursive;
+  font-size: 1.6rem;
+  min-width: 90px;
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid rgba(109,117,166,0.35);
+  background: rgba(255,255,255,0.45);
+  color: var(--lavender-deep);
+  letter-spacing: 1.5px;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.ff-trio-slot.is-asked {
+  background: rgba(242,147,126,0.18);
+  border-color: var(--coral);
+  color: var(--coral-deep);
+  box-shadow: 0 0 0 1px var(--coral), 0 0 14px rgba(242,147,126,0.45);
+}
+/* Only the active block's asked slot pulses. Idle blocks just sit dimmed. */
+.ff-block.is-active .ff-trio-slot.is-asked {
+  animation: ff-slot-pulse 1.4s ease-in-out infinite;
+}
+.ff-trio-slot.is-filled {
+  background: rgba(205, 217, 180, 0.55);
+  border-color: var(--sage-deep);
+  color: #4a5a2c;
+  letter-spacing: 0.4px;
+}
+@keyframes ff-slot-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+/* Wrong feedback — shake + coral flash, then dissolve */
+.ff-block.is-shake {
+  animation: ff-shake 0.32s cubic-bezier(.36,.07,.19,.97) both;
+}
+.ff-block.is-wrong { border-color: var(--coral-deep); background: rgba(251,228,222,0.95); }
+.ff-block.is-correct { border-color: var(--sage-deep); background: rgba(225,235,205,0.95); }
+.ff-block.is-dissolve {
+  animation: ff-dissolve 0.45s ease forwards;
+}
+@keyframes ff-shake {
+  10%, 90% { transform: translate3d(calc(-50% - 1px), var(--y, 0px), 0); }
+  20%, 80% { transform: translate3d(calc(-50% + 3px), var(--y, 0px), 0); }
+  30%, 50%, 70% { transform: translate3d(calc(-50% - 5px), var(--y, 0px), 0); }
+  40%, 60% { transform: translate3d(calc(-50% + 5px), var(--y, 0px), 0); }
+}
+@keyframes ff-dissolve {
+  to {
+    transform: translate3d(-50%, var(--y, 0px), 0) scale(0.92);
+    opacity: 0;
+  }
+}
+
+/* Sage burst burst on correct fill */
+.ff-burst {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(205,217,180,0.85) 0%, rgba(205,217,180,0) 65%);
+  opacity: 0;
+  animation: ff-burst-anim 0.45s ease-out forwards;
+}
+@keyframes ff-burst-anim {
+  0%   { opacity: 0; transform: scale(0.8); }
+  35%  { opacity: 0.95; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* Particles on chain complete */
+.ff-particle {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sage-deep);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Floating score pop */
+.ff-score-pop {
+  position: absolute;
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  color: var(--coral-deep);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ff-pop-anim 0.85s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.ff-score-pop .ff-mult {
+  font-size: 1rem;
+  margin-left: 4px;
+  vertical-align: super;
+  color: var(--coral);
+}
+@keyframes ff-pop-anim {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.85); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -55px) scale(1); }
+}
+
+/* ── Answer buttons ─────────────────────────────────────────────────────── */
+
+.ff-buttons {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  padding: 0 24px;
+  transition: opacity 0.15s ease;
+}
+/* Crossfade when active block changes — used briefly during swap. */
+.ff-buttons.is-fading { opacity: 0; pointer-events: none; }
+.ff-buttons.is-hidden { opacity: 0; pointer-events: none; }
+.ff-answer {
+  position: relative;
+  width: 180px;
+  height: 64px;
+  background: linear-gradient(180deg, var(--coral) 0%, var(--coral-deep) 100%);
+  color: var(--off-white);
+  border: none;
+  border-radius: var(--r-md);
+  font-family: 'Limelight', cursive;
+  font-size: 1.25rem;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(201,104,90,0.40), 0 0 22px rgba(242,147,126,0.40), inset 0 1px 0 rgba(255,255,255,0.30);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ff-answer .ff-answer-text {
+  display: block;
+  pointer-events: none;
+}
+.ff-answer .ff-answer-key {
+  display: block;
+  margin-top: 14px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: var(--lavender-deep);
+  text-align: center;
+  position: absolute;
+  bottom: -22px;
+  left: 0; right: 0;
+  pointer-events: none;
+}
+.ff-answer:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(201,104,90,0.50), 0 0 28px rgba(242,147,126,0.55), inset 0 1px 0 rgba(255,255,255,0.30);
+}
+.ff-answer:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.ff-answer:disabled {
+  cursor: default;
+  filter: saturate(0.5) brightness(0.92);
+}
+.ff-answer.is-flash-correct {
+  background: linear-gradient(180deg, var(--sage) 0%, var(--sage-deep) 100%);
+  box-shadow: 0 4px 14px rgba(159,179,124,0.45), 0 0 24px rgba(205,217,180,0.65), inset 0 1px 0 rgba(255,255,255,0.30);
+}
+.ff-answer.is-flash-wrong {
+  filter: brightness(0.78);
+}
+
+/* ── Pause overlay ──────────────────────────────────────────────────────── */
+
+.ff-pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 36, 56, 0.55);
+  border-radius: var(--r-lg);
+  font-family: 'Limelight', cursive;
+  font-size: 3rem;
+  color: var(--off-white);
+  letter-spacing: 2px;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.ff-pause-overlay small {
+  font-size: 0.8rem;
+  font-family: Verdana, Geneva, sans-serif;
+  letter-spacing: 1.5px;
+  margin-top: 16px;
+  opacity: 0.8;
+}
+.ff-pause-overlay.is-shown {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ── Modal screens (start, game over, narrow warning) ───────────────────── */
+
+.ff-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 36, 56, 0.55);
+  z-index: 100;
+  padding: 32px;
+}
+.ff-screen[hidden] { display: none; }
+.ff-screen-card {
+  background: rgba(253, 248, 243, 0.97);
+  border-radius: var(--r-lg);
+  padding: 44px 56px;
+  text-align: center;
+  box-shadow: var(--shadow-deep);
+  border: 1px solid rgba(255,255,255,0.7);
+  max-width: 640px;
+  width: 100%;
+}
+.ff-title {
+  font-family: 'Limelight', cursive;
+  font-size: 3.6rem;
+  color: var(--coral-deep);
+  letter-spacing: 1.5px;
+  margin: 0 0 8px;
+  line-height: 1.05;
+}
+.ff-tagline {
+  font-size: 0.95rem;
+  color: var(--charcoal-soft);
+  margin: 0 0 28px;
+  letter-spacing: 0.4px;
+}
+.ff-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  background: linear-gradient(180deg, var(--coral) 0%, var(--coral-deep) 100%);
+  color: var(--off-white);
+  border: none;
+  border-radius: 999px;
+  font-family: 'Limelight', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(201,104,90,0.40), 0 0 24px rgba(242,147,126,0.45);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.ff-btn:hover { transform: translateY(-1px); }
+.ff-btn:active { transform: translateY(1px); }
+.ff-btn-ghost {
+  background: transparent;
+  color: var(--coral-deep);
+  box-shadow: none;
+  text-decoration: underline;
+}
+.ff-best-row {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--charcoal-soft);
+  letter-spacing: 0.5px;
+}
+.ff-best-row strong { color: var(--coral-deep); }
+
+.ff-over-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 360px;
+  margin: 22px auto;
+}
+.ff-over-stat {
+  padding: 14px;
+  background: rgba(186, 191, 216, 0.25);
+  border-radius: var(--r-md);
+}
+.ff-over-stat-label {
+  font-size: 0.6rem;
+  letter-spacing: 1.6px;
+  color: var(--lavender-deep);
+  text-transform: uppercase;
+}
+.ff-over-stat-value {
+  font-family: 'Limelight', cursive;
+  font-size: 1.7rem;
+  color: var(--charcoal);
+  margin-top: 4px;
+}
+.ff-over-stat-value.is-coral { color: var(--coral-deep); }
+.ff-over-reason {
+  margin-top: 8px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.72rem;
+  color: var(--charcoal-soft);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+.ff-new-best {
+  display: inline-block;
+  margin: 0 0 20px;
+  padding: 6px 18px;
+  background: linear-gradient(90deg, var(--coral), var(--coral-deep));
+  color: var(--off-white);
+  font-family: 'Limelight', cursive;
+  font-size: 0.85rem;
+  letter-spacing: 1.6px;
+  border-radius: 999px;
+  box-shadow: 0 0 22px rgba(242,147,126,0.55);
+}
+.ff-chain-grid {
+  margin: 18px 0 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.ff-chain-grid-row {
+  font-family: 'Limelight', cursive;
+  font-size: 0.78rem;
+  color: var(--charcoal);
+  background: rgba(205, 217, 180, 0.35);
+  border: 1px solid rgba(205, 217, 180, 0.55);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  letter-spacing: 0.3px;
+}
+.ff-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
+
+/* Narrow / portrait fallback */
+.ff-screen-narrow .ff-title { font-size: 2.2rem; }
+@media (max-width: 1023px), (orientation: portrait) and (max-height: 700px) {
+  .ff-app { display: none; }
+}
+@media (min-width: 1024px) {
+  #ff-narrow-screen { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     APP — top bar + sidebars + play area
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ff-app" id="ff-app">
+  <header class="ff-topbar">
+    <div class="ff-round">Round <span id="ff-round-num">1</span></div>
+    <div class="ff-topbar-actions">
+      <button class="ff-icon" id="ff-audio-btn" aria-label="Toggle sound" title="Sound">♪</button>
+      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" title="Pause">⏸</button>
+      <button class="ff-icon" id="ff-close-btn" aria-label="Close" title="Close">✕</button>
+    </div>
+  </header>
+
+  <aside class="ff-sidebar ff-sidebar-left" aria-label="Stats">
+    <div class="ff-panel ff-panel-score">
+      <div class="ff-panel-label">Score</div>
+      <div class="ff-panel-value" id="ff-score">0</div>
+    </div>
+    <div class="ff-panel ff-panel-level">
+      <div class="ff-panel-label">Level</div>
+      <div class="ff-panel-value" id="ff-level">1</div>
+      <div class="ff-level-bar"><div class="ff-level-bar-fill" id="ff-level-fill"></div></div>
+    </div>
+    <div class="ff-panel ff-panel-streak" id="ff-streak-panel">
+      <div class="ff-panel-label">Streak</div>
+      <div class="ff-panel-value"><span class="ff-streak-fire">🔥</span><span id="ff-streak">0</span></div>
+    </div>
+    <div class="ff-panel ff-panel-lives">
+      <div class="ff-panel-label">Lives</div>
+      <div class="ff-lives" id="ff-lives" aria-live="polite">
+        <span class="ff-heart" data-i="0">♥</span>
+        <span class="ff-heart" data-i="1">♥</span>
+        <span class="ff-heart" data-i="2">♥</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="ff-play" id="ff-play" aria-label="Play area">
+    <div class="ff-danger-line" aria-hidden="true"></div>
+    <div class="ff-block-layer" id="ff-block-layer" aria-live="polite"></div>
+    <div class="ff-buttons" id="ff-buttons">
+      <button class="ff-answer" id="ff-ans-1" type="button">
+        <span class="ff-answer-text">—</span>
+        <span class="ff-answer-key">PRESS 1</span>
+      </button>
+      <button class="ff-answer" id="ff-ans-2" type="button">
+        <span class="ff-answer-text">—</span>
+        <span class="ff-answer-key">PRESS 2</span>
+      </button>
+    </div>
+    <div class="ff-pause-overlay" id="ff-pause-overlay">PAUSED<small>tap to resume</small></div>
+  </main>
+
+  <aside class="ff-sidebar ff-sidebar-right" aria-label="Recent verbs and what's next">
+    <div class="ff-panel">
+      <div class="ff-panel-label">Quick Guide</div>
+      <div class="ff-history" id="ff-history"></div>
+    </div>
+    <div class="ff-panel">
+      <div class="ff-panel-label">Coming Up</div>
+      <div class="ff-next" id="ff-next">—</div>
+    </div>
+  </aside>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCREENS — start, game over, narrow warning
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ff-screen" id="ff-start-screen">
+  <div class="ff-screen-card">
+    <h1 class="ff-title">Falling Forms</h1>
+    <p class="ff-tagline">Clear the falling blocks before the tower reaches the top.</p>
+    <button class="ff-btn" id="ff-start-btn" type="button">Start</button>
+    <div class="ff-best-row">Best: <strong id="ff-best-start">0</strong></div>
+  </div>
+</div>
+
+<div class="ff-screen" id="ff-over-screen" hidden>
+  <div class="ff-screen-card">
+    <div class="ff-new-best" id="ff-new-best" hidden>New Best!</div>
+    <h1 class="ff-title">Game Over</h1>
+    <div class="ff-over-grid">
+      <div class="ff-over-stat">
+        <div class="ff-over-stat-label">Final Score</div>
+        <div class="ff-over-stat-value is-coral" id="ff-final-score">0</div>
+      </div>
+      <div class="ff-over-stat">
+        <div class="ff-over-stat-label">Best</div>
+        <div class="ff-over-stat-value" id="ff-final-best">0</div>
+      </div>
+    </div>
+    <div class="ff-over-reason" id="ff-over-reason"></div>
+    <div class="ff-chain-grid" id="ff-chain-grid" aria-label="Chains completed this run"></div>
+    <div class="ff-actions">
+      <button class="ff-btn" id="ff-again-btn" type="button">Play Again</button>
+      <button class="ff-btn ff-btn-ghost" id="ff-menu-btn" type="button">Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="ff-screen" id="ff-narrow-screen">
+  <div class="ff-screen-card">
+    <h1 class="ff-title">Landscape only</h1>
+    <p class="ff-tagline">Open Falling Forms on a screen at least 1024px wide.</p>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  VERBS — 30-verb dataset (mirrors Verb Slash)
+// ═══════════════════════════════════════════════════════════════════════════
+const VERBS = [
+  {verb:"go",     past:"went",     pp:"gone",       pw:["goed","wented","goeded"],            ppw:["goned","wented","goden"]},
+  {verb:"run",    past:"ran",      pp:"run",        pw:["runned","ranned","runed"],           ppw:["runned","ranned","runed"]},
+  {verb:"eat",    past:"ate",      pp:"eaten",      pw:["eated","ated","eatted"],             ppw:["eated","aten","ated"]},
+  {verb:"swim",   past:"swam",     pp:"swum",       pw:["swimmed","swimd","swammed"],         ppw:["swimmed","swammed","swimd"]},
+  {verb:"fly",    past:"flew",     pp:"flown",      pw:["flied","flyed","flewed"],            ppw:["flied","flyed","flewed"]},
+  {verb:"see",    past:"saw",      pp:"seen",       pw:["seed","sawed","seeed"],              ppw:["seed","sawed","seened"]},
+  {verb:"write",  past:"wrote",    pp:"written",    pw:["writed","wroted","writeed"],         ppw:["writed","wroten","writeed"]},
+  {verb:"sing",   past:"sang",     pp:"sung",       pw:["singed","sanged","singged"],         ppw:["singed","sanged","singged"]},
+  {verb:"drive",  past:"drove",    pp:"driven",     pw:["drived","droved","driveed"],         ppw:["drived","droved","driveen"]},
+  {verb:"break",  past:"broke",    pp:"broken",     pw:["breaked","broked","breakd"],         ppw:["breaked","broked","breakd"]},
+  {verb:"take",   past:"took",     pp:"taken",      pw:["taked","tooked","takeed"],           ppw:["taked","tooked","takeed"]},
+  {verb:"give",   past:"gave",     pp:"given",      pw:["gived","giveed","gaved"],            ppw:["gived","giveed","gaved"]},
+  {verb:"know",   past:"knew",     pp:"known",      pw:["knowed","knewed","knowd"],           ppw:["knowed","knewed","knowd"]},
+  {verb:"come",   past:"came",     pp:"come",       pw:["comed","camed","comeed"],            ppw:["comed","camed","comen"]},
+  {verb:"think",  past:"thought",  pp:"thought",    pw:["thinked","thinkd","thinkted"],       ppw:["thinked","thinkd","thinkted"]},
+  {verb:"buy",    past:"bought",   pp:"bought",     pw:["buyed","buyd","buyted"],             ppw:["buyed","buyd","buyted"]},
+  {verb:"make",   past:"made",     pp:"made",       pw:["maked","maded","makeed"],            ppw:["maked","maded","makeed"]},
+  {verb:"find",   past:"found",    pp:"found",      pw:["finded","findeed","findd"],          ppw:["finded","findeed","findd"]},
+  {verb:"tell",   past:"told",     pp:"told",       pw:["telled","telld","telleed"],          ppw:["telled","telld","telleed"]},
+  {verb:"drink",  past:"drank",    pp:"drunk",      pw:["drinked","drinkd","dranked"],        ppw:["drinked","dranked","drunkd"]},
+  {verb:"begin",  past:"began",    pp:"begun",      pw:["beginned","begined","beganned"],     ppw:["beginned","begined","begonned"]},
+  {verb:"speak",  past:"spoke",    pp:"spoken",     pw:["speaked","spoked","speakd"],         ppw:["speaked","spoked","speakened"]},
+  {verb:"fall",   past:"fell",     pp:"fallen",     pw:["falled","felled","falld"],           ppw:["falled","felled","falld"]},
+  {verb:"grow",   past:"grew",     pp:"grown",      pw:["growed","grewed","growd"],           ppw:["growed","grewed","growd"]},
+  {verb:"throw",  past:"threw",    pp:"thrown",     pw:["throwed","threwed","throwd"],        ppw:["throwed","threwed","throwd"]},
+  {verb:"wear",   past:"wore",     pp:"worn",       pw:["weared","wored","weard"],            ppw:["weared","wored","weard"]},
+  {verb:"ride",   past:"rode",     pp:"ridden",     pw:["rided","roded","rideed"],            ppw:["rided","roded","rideed"]},
+  {verb:"choose", past:"chose",    pp:"chosen",     pw:["choosed","chosed","chooseed"],       ppw:["choosed","chosed","chooseed"]},
+  {verb:"forget", past:"forgot",   pp:"forgotten",  pw:["forgetted","forgoted","forgetd"],    ppw:["forgetted","forgoted","forgetd"]},
+  {verb:"draw",   past:"drew",     pp:"drawn",      pw:["drawed","drewed","drawd"],           ppw:["drawed","drewed","drawd"]},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CONSTANTS + STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const LEVEL_STEP = 5;            // completions per level
+const FALL_MS_BASE = 9000;       // level 1: time to traverse the full play area
+const FALL_MS_DELTA = 500;       // shaved per level
+const FALL_MS_FLOOR = 4000;
+const SPAWN_INTERVAL_BASE = 5000;
+const SPAWN_INTERVAL_DELTA = 400;
+const SPAWN_INTERVAL_FLOOR = 1800;
+const STREAK_TIERS = [           // [minStreak, multiplier]
+  [9, 3.0],
+  [5, 2.5],
+  [3, 2.0],
+];
+const STARTING_LIVES = 3;
+const BASE_POINTS = 20;
+const PARTICLE_COUNT = 12;
+const STACK_BLOCK_HEIGHT = 56;   // landed-block stack unit height (px)
+const BUTTONS_RESERVE = 100;     // bottom area reserved for answer buttons
+const TOP_DANGER_FRAC = 0.15;    // tower-collapse threshold (fraction of playH)
+const CROSSFADE_MS = 150;        // active-block change crossfade
+const BEST_KEY = 'krabsy_falling_tower_best';
+const AUDIO_KEY = 'krabsy_audio';
+
+const $ = id => document.getElementById(id);
+
+const els = {
+  app:           $('ff-app'),
+  roundNum:      $('ff-round-num'),
+  audioBtn:      $('ff-audio-btn'),
+  pauseBtn:      $('ff-pause-btn'),
+  closeBtn:      $('ff-close-btn'),
+  score:         $('ff-score'),
+  level:         $('ff-level'),
+  levelFill:     $('ff-level-fill'),
+  streak:        $('ff-streak'),
+  streakPanel:   $('ff-streak-panel'),
+  lives:         $('ff-lives'),
+  play:          $('ff-play'),
+  blockLayer:    $('ff-block-layer'),
+  dangerLine:    document.querySelector('.ff-danger-line'),
+  buttons:       document.querySelector('.ff-buttons'),
+  ans1:          $('ff-ans-1'),
+  ans2:          $('ff-ans-2'),
+  pauseOverlay:  $('ff-pause-overlay'),
+  history:       $('ff-history'),
+  next:          $('ff-next'),
+  startScreen:   $('ff-start-screen'),
+  overScreen:    $('ff-over-screen'),
+  startBtn:      $('ff-start-btn'),
+  bestStart:     $('ff-best-start'),
+  newBest:       $('ff-new-best'),
+  overReason:    $('ff-over-reason'),
+  finalScore:    $('ff-final-score'),
+  finalBest:     $('ff-final-best'),
+  chainGrid:     $('ff-chain-grid'),
+  againBtn:      $('ff-again-btn'),
+  menuBtn:       $('ff-menu-btn'),
+};
+
+const state = {
+  deck: [],            // shuffled queue of verb indices
+  deckPos: 0,
+  nextVerb: null,      // peeked next-to-spawn (shown in COMING UP)
+  blocks: [],          // falling blocks (live, not yet landed)
+  stack: [],           // landed blocks, oldest first
+  activeId: null,      // id of the block currently the "active" (lowest) one
+  rafId: null,
+  paused: false,
+  running: false,
+  lives: STARTING_LIVES,
+  score: 0,
+  streak: 0,
+  completions: 0,
+  best: 0,
+  round: 1,
+  history: [],         // [{verb, past, pp}] newest first
+  completedThisRun: [],
+  audioOn: true,
+  gameOverReason: null,// 'lives' | 'tower'
+  lastSpawnTs: 0,      // ms (performance.now)
+  lastTickTs: 0,
+  pausedAt: 0,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function readBest() {
+  try {
+    const raw = localStorage.getItem(BEST_KEY);
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch (_) { return 0; }
+}
+function writeBest(n) {
+  try { localStorage.setItem(BEST_KEY, String(n)); } catch (_) {}
+}
+function readAudio() {
+  try {
+    const raw = localStorage.getItem(AUDIO_KEY);
+    return raw === null ? true : raw === '1';
+  } catch (_) { return true; }
+}
+function writeAudio(on) {
+  try { localStorage.setItem(AUDIO_KEY, on ? '1' : '0'); } catch (_) {}
+}
+
+function refillDeck() {
+  state.deck = shuffle(VERBS.map((_, i) => i));
+  state.deckPos = 0;
+}
+function drawVerb() {
+  if (state.deckPos >= state.deck.length) refillDeck();
+  return VERBS[state.deck[state.deckPos++]];
+}
+
+function levelFromCompletions(c) { return Math.floor(c / LEVEL_STEP) + 1; }
+function fallMsForLevel(lvl) {
+  return Math.max(FALL_MS_FLOOR, FALL_MS_BASE - (lvl - 1) * FALL_MS_DELTA);
+}
+function spawnIntervalForLevel(lvl) {
+  return Math.max(SPAWN_INTERVAL_FLOOR, SPAWN_INTERVAL_BASE - (lvl - 1) * SPAWN_INTERVAL_DELTA);
+}
+function streakMultiplier(s) {
+  for (const [min, mult] of STREAK_TIERS) if (s >= min) return mult;
+  return 1;
+}
+function genId() { return 'b' + Math.random().toString(36).slice(2, 9); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AUDIO — Web Audio API, synthesized envelopes
+// ═══════════════════════════════════════════════════════════════════════════
+let audioCtx = null;
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (_) { audioCtx = null; }
+  return audioCtx;
+}
+function playTone({ type='sine', from=600, to=900, dur=120, vol=0.18, delay=0 }) {
+  if (!state.audioOn) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const t0 = ctx.currentTime + delay;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(from, t0);
+  osc.frequency.linearRampToValueAtTime(to, t0 + dur / 1000);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur / 1000);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur / 1000 + 0.02);
+}
+function sfxCorrectFill()   { playTone({ from: 620, to: 920, dur: 120, vol: 0.16 }); }
+function sfxChainComplete() {
+  // Brighter chord — three sines, slight stagger
+  playTone({ from: 660, to: 660, dur: 250, vol: 0.13 });
+  playTone({ from: 830, to: 830, dur: 250, vol: 0.11, delay: 0.01 });
+  playTone({ from: 990, to: 1180, dur: 260, vol: 0.10, delay: 0.02 });
+}
+function sfxWrong()         { playTone({ type: 'square', from: 180, to: 140, dur: 200, vol: 0.12 }); }
+function sfxMissedBlock()   { playTone({ type: 'square', from: 90,  to: 60,  dur: 240, vol: 0.16 }); }
+function sfxLifeLost()      { playTone({ type: 'sawtooth', from: 480, to: 180, dur: 380, vol: 0.13 }); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  HUD updates
+// ═══════════════════════════════════════════════════════════════════════════
+function renderHud() {
+  els.score.textContent = String(state.score);
+  els.level.textContent = String(levelFromCompletions(state.completions));
+  const lvlProgress = (state.completions % LEVEL_STEP) / LEVEL_STEP;
+  els.levelFill.style.width = (lvlProgress * 100) + '%';
+  els.streak.textContent = String(state.streak);
+  els.streakPanel.classList.toggle('is-hot', state.streak >= 2);
+  els.roundNum.textContent = String(state.round);
+  // Hearts
+  const hearts = els.lives.querySelectorAll('.ff-heart');
+  hearts.forEach((h, i) => h.classList.toggle('is-lost', i >= state.lives));
+}
+function renderHistory() {
+  els.history.innerHTML = '';
+  const last3 = state.history.slice(0, 3);
+  last3.forEach((v, i) => {
+    const row = document.createElement('div');
+    row.className = 'ff-history-row' + (i === 1 ? ' is-fade-1' : i === 2 ? ' is-fade-2' : '');
+    row.innerHTML =
+      `<span>${v.verb}</span><span class="ff-arrow">→</span>` +
+      `<span>${v.past}</span><span class="ff-arrow">→</span><span>${v.pp}</span>`;
+    els.history.appendChild(row);
+  });
+  if (!last3.length) {
+    const hint = document.createElement('div');
+    hint.className = 'ff-history-row is-fade-2';
+    hint.innerHTML = `<span>—</span>`;
+    els.history.appendChild(hint);
+  }
+}
+function renderNext() {
+  els.next.textContent = state.nextVerb ? state.nextVerb.verb : '—';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  BLOCK lifecycle — spawn, fall, land, dissolve
+//  Tower variant: multiple falling blocks coexist; unfilled blocks land
+//  (compress + mute) and pile up from the bottom of the play area.
+// ═══════════════════════════════════════════════════════════════════════════
+function spawnBlock() {
+  const v = state.nextVerb || drawVerb();
+  state.nextVerb = drawVerb();
+
+  const lvl = levelFromCompletions(state.completions);
+  const fallMs = fallMsForLevel(lvl);
+  // Speed in px/ms — block traverses (playH - reserve) over fallMs.
+  const distance = Math.max(40, els.play.clientHeight - BUTTONS_RESERVE);
+  const speed = distance / fallMs;
+
+  const blockEl = document.createElement('div');
+  blockEl.className = 'ff-block';
+  blockEl.dataset.id = genId();
+  blockEl.innerHTML = `
+    <div class="ff-block-trio">
+      <span class="ff-trio-base">${v.verb}</span>
+      <span class="ff-trio-arrow">→</span>
+      <span class="ff-trio-slot is-asked" data-slot="past">___</span>
+      <span class="ff-trio-arrow">→</span>
+      <span class="ff-trio-slot" data-slot="pp">___</span>
+    </div>
+  `;
+  blockEl.style.transform = 'translate3d(-50%, 0px, 0)';
+  els.blockLayer.appendChild(blockEl);
+
+  state.blocks.push({
+    id: blockEl.dataset.id,
+    v,
+    el: blockEl,
+    y: 0,
+    speed,
+    phase: 'past',
+    distractorPast: pick(v.pw),
+    distractorPp:   pick(v.ppw),
+    isDying: false,
+  });
+  state.lastSpawnTs = performance.now();
+  renderNext();
+}
+
+function getStackTopY() {
+  // The y at which a new falling block's BOTTOM edge will land:
+  // top of the stack if any, else top of the buttons reserve.
+  const floor = els.play.clientHeight - BUTTONS_RESERVE;
+  return floor - state.stack.length * STACK_BLOCK_HEIGHT;
+}
+
+function getActive() {
+  // Lowest still-falling, non-dying block = greatest Y.
+  let best = null;
+  for (const b of state.blocks) {
+    if (b.isDying) continue;
+    if (!best || b.y > best.y) best = b;
+  }
+  return best;
+}
+
+function tick(now) {
+  state.rafId = null;
+  if (!state.running) return;
+  if (state.paused) {
+    state.rafId = requestAnimationFrame(tick);
+    return;
+  }
+  if (!state.lastTickTs) state.lastTickTs = now;
+  // Clamp dt so a backgrounded tab doesn't catapult blocks through the stack.
+  const dt = Math.min(80, now - state.lastTickTs);
+  state.lastTickTs = now;
+
+  // Advance each falling block, land any that hit the stack/floor.
+  const stackTopY = getStackTopY();
+  for (const b of state.blocks.slice()) {
+    if (b.isDying) continue;
+    const blockH = b.el.offsetHeight || 110;
+    b.y += b.speed * dt;
+    if (b.y + blockH >= stackTopY) {
+      b.y = Math.max(0, stackTopY - blockH);
+      b.el.style.transform = `translate3d(-50%, ${b.y.toFixed(1)}px, 0)`;
+      landBlock(b);
+      continue;
+    }
+    b.el.style.transform = `translate3d(-50%, ${b.y.toFixed(1)}px, 0)`;
+  }
+
+  // Spawn timer — independent of how many blocks are on screen.
+  const lvl = levelFromCompletions(state.completions);
+  if (state.running && (now - state.lastSpawnTs) >= spawnIntervalForLevel(lvl)) {
+    spawnBlock();
+  }
+
+  updateActive();
+  updateDangerWarning();
+
+  if (state.running) state.rafId = requestAnimationFrame(tick);
+}
+
+function updateActive() {
+  const active = getActive();
+  const newId = active ? active.id : null;
+  if (newId === state.activeId) return;
+
+  // Demote previous
+  if (state.activeId) {
+    const prev = state.blocks.find(b => b.id === state.activeId)
+              || state.stack.find(b => b.id === state.activeId);
+    if (prev && prev.el) prev.el.classList.remove('is-active');
+  }
+
+  state.activeId = newId;
+  if (active) {
+    active.el.classList.add('is-active');
+    refreshActiveSlots(active);
+    crossfadeButtonsTo(active);
+  } else {
+    fadeButtonsOut();
+  }
+}
+
+function refreshActiveSlots(b) {
+  const slots = b.el.querySelectorAll('.ff-trio-slot');
+  for (const s of slots) {
+    const isCurrentPhase = s.dataset.slot === b.phase && !s.classList.contains('is-filled');
+    s.classList.toggle('is-asked', isCurrentPhase);
+  }
+}
+
+function fadeButtonsOut() {
+  els.buttons.classList.add('is-hidden');
+  els.ans1.disabled = true;
+  els.ans2.disabled = true;
+}
+
+function crossfadeButtonsTo(b) {
+  els.buttons.classList.remove('is-hidden');
+  els.buttons.classList.add('is-fading');
+  els.ans1.disabled = true;
+  els.ans2.disabled = true;
+  setTimeout(() => {
+    renderAnswers(b);
+    els.buttons.classList.remove('is-fading');
+  }, CROSSFADE_MS);
+}
+
+function renderAnswers(b) {
+  if (!b || b.isDying) return;
+  els.buttons.classList.remove('is-hidden');
+  const v = b.v;
+  const correct = b.phase === 'past' ? v.past : v.pp;
+  const distractor = b.phase === 'past' ? b.distractorPast : b.distractorPp;
+  const opts = Math.random() < 0.5 ? [correct, distractor] : [distractor, correct];
+  setAnswer(els.ans1, opts[0], opts[0] === correct);
+  setAnswer(els.ans2, opts[1], opts[1] === correct);
+}
+function setAnswer(btn, text, isCorrect) {
+  btn.querySelector('.ff-answer-text').textContent = text;
+  btn.dataset.correct = isCorrect ? '1' : '0';
+  btn.disabled = false;
+  btn.classList.remove('is-flash-correct', 'is-flash-wrong');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Landing + tower collapse
+// ═══════════════════════════════════════════════════════════════════════════
+function landBlock(b) {
+  // Drop from falling list; convert visual to compressed muted chip.
+  state.blocks = state.blocks.filter(x => x.id !== b.id);
+  sfxMissedBlock();
+  state.streak = 0;  // unfilled lands break streaks (a soft penalty — lives only on wrong answers per spec)
+  renderHud();
+
+  const stackIdx = state.stack.length;
+  const floorY = els.play.clientHeight - BUTTONS_RESERVE;
+  const yLand = floorY - (stackIdx + 1) * STACK_BLOCK_HEIGHT;
+
+  b.el.classList.remove('is-active');
+  b.el.classList.add('is-landed');
+  b.el.innerHTML = `<div class="ff-landed-verb">${b.v.verb}</div>`;
+  // Brief settle: animate down to landing position.
+  b.el.style.transform = `translate3d(-50%, ${yLand.toFixed(1)}px, 0)`;
+  b.y = yLand;
+
+  state.stack.push(b);
+  if (state.activeId === b.id) state.activeId = null;
+
+  // Tower collapse if the new top of stack crosses the top danger line.
+  const playH = els.play.clientHeight;
+  const newStackTop = floorY - state.stack.length * STACK_BLOCK_HEIGHT;
+  if (newStackTop <= playH * TOP_DANGER_FRAC) {
+    setTimeout(() => endGame('tower'), 320);
+  }
+}
+
+function updateDangerWarning() {
+  const playH = els.play.clientHeight;
+  const topDangerY = playH * TOP_DANGER_FRAC;
+  const stackTopY = (playH - BUTTONS_RESERVE) - state.stack.length * STACK_BLOCK_HEIGHT;
+  const remaining = (stackTopY - topDangerY) / STACK_BLOCK_HEIGHT;
+  els.dangerLine.classList.toggle('is-warning', remaining <= 2 && remaining > 1);
+  els.dangerLine.classList.toggle('is-critical', remaining <= 1);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Answer resolution (operates on the active block)
+// ═══════════════════════════════════════════════════════════════════════════
+function handleAnswer(btnEl) {
+  if (!state.running || state.paused) return;
+  if (btnEl.disabled) return;
+  const active = state.blocks.find(b => b.id === state.activeId);
+  if (!active || active.isDying) return;
+  const correct = btnEl.dataset.correct === '1';
+  if (correct) onCorrect(btnEl, active);
+  else         onWrong(btnEl, active);
+}
+
+function onCorrect(btnEl, b) {
+  btnEl.classList.add('is-flash-correct');
+  els.ans1.disabled = true;
+  els.ans2.disabled = true;
+
+  const v = b.v;
+  if (b.phase === 'past') {
+    sfxCorrectFill();
+    const pastSlot = b.el.querySelector('[data-slot="past"]');
+    pastSlot.textContent = v.past;
+    pastSlot.classList.remove('is-asked');
+    pastSlot.classList.add('is-filled');
+    flashBurst(b.el);
+    b.el.classList.add('is-correct');
+    setTimeout(() => b.el.classList.remove('is-correct'), 250);
+    b.phase = 'pp';
+    const ppSlot = b.el.querySelector('[data-slot="pp"]');
+    ppSlot.classList.add('is-asked');
+    setTimeout(() => {
+      // Still the same active and still alive? quick refresh (no crossfade).
+      if (state.activeId === b.id && !b.isDying) renderAnswers(b);
+    }, 200);
+  } else {
+    sfxChainComplete();
+    const ppSlot = b.el.querySelector('[data-slot="pp"]');
+    ppSlot.textContent = v.pp;
+    ppSlot.classList.remove('is-asked');
+    ppSlot.classList.add('is-filled');
+    flashBurst(b.el);
+    b.el.classList.add('is-correct');
+    completeChain(b);
+  }
+}
+
+function onWrong(btnEl, b) {
+  sfxWrong();
+  btnEl.classList.add('is-flash-wrong');
+  els.ans1.disabled = true;
+  els.ans2.disabled = true;
+  b.el.classList.add('is-shake', 'is-wrong');
+  b.isDying = true;
+  loseLife();
+  if (state.lives <= 0) {
+    setTimeout(() => endGame('lives'), 380);
+    return;
+  }
+  setTimeout(() => dissolveBlock(b), 320);
+}
+
+function completeChain(b) {
+  state.streak += 1;
+  state.completions += 1;
+  const mult = streakMultiplier(state.streak);
+  const points = Math.round(BASE_POINTS * mult);
+  state.score += points;
+
+  spawnScorePop(b.el, points, mult);
+  spawnParticles(b.el);
+
+  const v = b.v;
+  state.history.unshift({ verb: v.verb, past: v.past, pp: v.pp });
+  state.completedThisRun.push({ verb: v.verb, past: v.past, pp: v.pp });
+  if (state.history.length > 3) state.history.length = 3;
+  renderHistory();
+
+  b.isDying = true;
+  renderHud();
+
+  setTimeout(() => dissolveBlock(b), 220);
+}
+
+function dissolveBlock(b) {
+  if (!b.el) return;
+  b.el.classList.add('is-dissolve');
+  // Remove from state.blocks immediately so getActive() promotes the next one.
+  state.blocks = state.blocks.filter(x => x.id !== b.id);
+  if (state.activeId === b.id) state.activeId = null;
+  setTimeout(() => {
+    if (b.el && b.el.parentNode) b.el.remove();
+  }, 460);
+}
+
+function loseLife() {
+  state.lives = Math.max(0, state.lives - 1);
+  state.streak = 0;
+  sfxLifeLost();
+  renderHud();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Effects — burst, particles, score pop
+// ═══════════════════════════════════════════════════════════════════════════
+function flashBurst(blockEl) {
+  const burst = document.createElement('div');
+  burst.className = 'ff-burst';
+  blockEl.appendChild(burst);
+  setTimeout(() => burst.remove(), 500);
+}
+
+function spawnParticles(blockEl) {
+  if (!blockEl) return;
+  const rect = blockEl.getBoundingClientRect();
+  const playRect = els.play.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2 - playRect.left;
+  const cy = rect.top + rect.height / 2 - playRect.top;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = document.createElement('div');
+    p.className = 'ff-particle';
+    p.style.left = (cx - 4) + 'px';
+    p.style.top  = (cy - 4) + 'px';
+    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 70 + Math.random() * 50;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    p.style.transition = 'transform 0.6s cubic-bezier(.2,.7,.3,1), opacity 0.6s ease-out';
+    els.play.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(${0.4 + Math.random() * 0.6})`;
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), 650);
+  }
+}
+
+function spawnScorePop(blockEl, points, mult) {
+  if (!blockEl) return;
+  const rect = blockEl.getBoundingClientRect();
+  const playRect = els.play.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className = 'ff-score-pop';
+  pop.style.left = (rect.left + rect.width / 2 - playRect.left) + 'px';
+  pop.style.top  = (rect.top - playRect.top - 8) + 'px';
+  pop.innerHTML = `+${points}${mult > 1 ? `<span class="ff-mult">×${mult}</span>` : ''}`;
+  els.play.appendChild(pop);
+  setTimeout(() => pop.remove(), 900);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Pause / Resume — freezes the tick loop; spawn/fall pick up where they left
+// ═══════════════════════════════════════════════════════════════════════════
+function togglePause() {
+  if (!state.running) return;
+  state.paused = !state.paused;
+  els.pauseOverlay.classList.toggle('is-shown', state.paused);
+  const now = performance.now();
+  if (state.paused) {
+    state.pausedAt = now;
+  } else {
+    const elapsed = now - state.pausedAt;
+    // Shift timers forward so blocks don't "warp" on resume.
+    state.lastSpawnTs += elapsed;
+    state.lastTickTs = now;
+    if (!state.rafId) state.rafId = requestAnimationFrame(tick);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Game lifecycle — start, end, reset
+// ═══════════════════════════════════════════════════════════════════════════
+function startGame() {
+  // Reset state
+  state.score = 0;
+  state.lives = STARTING_LIVES;
+  state.streak = 0;
+  state.completions = 0;
+  state.history = [];
+  state.completedThisRun = [];
+  state.round = 1;
+  state.paused = false;
+  state.running = true;
+  state.gameOverReason = null;
+  state.blocks = [];
+  state.stack = [];
+  state.activeId = null;
+  state.lastTickTs = 0;
+  // Setting lastSpawnTs = 0 forces a spawn on the first tick.
+  state.lastSpawnTs = 0;
+
+  refillDeck();
+  state.nextVerb = drawVerb();
+
+  els.blockLayer.innerHTML = '';
+  els.startScreen.hidden = true;
+  els.overScreen.hidden = true;
+  els.dangerLine.classList.remove('is-warning', 'is-critical');
+  els.buttons.classList.add('is-hidden');
+  els.ans1.disabled = true;
+  els.ans2.disabled = true;
+
+  renderHud();
+  renderHistory();
+  renderNext();
+
+  // Try to unlock audio on this user gesture
+  try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
+
+  // Spawn the first block immediately and prime the spawn timer from now.
+  spawnBlock();
+  state.rafId = requestAnimationFrame(tick);
+}
+
+function endGame(reason) {
+  if (!state.running) return; // guard against double-fire (e.g. wrong + tower collapse race)
+  state.running = false;
+  state.paused = false;
+  state.gameOverReason = reason || 'lives';
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+
+  const isNewBest = state.score > state.best;
+  if (isNewBest) {
+    state.best = state.score;
+    writeBest(state.best);
+  }
+  els.finalScore.textContent = String(state.score);
+  els.finalBest.textContent = String(state.best);
+  els.newBest.hidden = !isNewBest;
+  els.overReason.textContent = state.gameOverReason === 'tower'
+    ? 'Tower collapsed'
+    : 'Out of lives';
+
+  els.chainGrid.innerHTML = '';
+  if (state.completedThisRun.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'ff-chain-grid-row';
+    empty.style.opacity = '0.6';
+    empty.textContent = 'no chains this round';
+    els.chainGrid.appendChild(empty);
+  } else {
+    for (const c of state.completedThisRun) {
+      const row = document.createElement('div');
+      row.className = 'ff-chain-grid-row';
+      row.textContent = `${c.verb} → ${c.past} → ${c.pp}`;
+      els.chainGrid.appendChild(row);
+    }
+  }
+  els.overScreen.hidden = false;
+}
+
+function backToMenu() {
+  els.overScreen.hidden = true;
+  els.startScreen.hidden = false;
+  els.bestStart.textContent = String(state.best);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Event wiring
+// ═══════════════════════════════════════════════════════════════════════════
+els.ans1.addEventListener('click', () => handleAnswer(els.ans1));
+els.ans2.addEventListener('click', () => handleAnswer(els.ans2));
+
+els.startBtn.addEventListener('click', startGame);
+els.againBtn.addEventListener('click', startGame);
+els.menuBtn.addEventListener('click', backToMenu);
+
+els.pauseBtn.addEventListener('click', togglePause);
+els.pauseOverlay.addEventListener('click', () => { if (state.paused) togglePause(); });
+els.closeBtn.addEventListener('click', () => {
+  // Hub fallback — leave the game.
+  if (document.referrer) history.back();
+  else window.location.href = '/';
+});
+
+els.audioBtn.addEventListener('click', () => {
+  state.audioOn = !state.audioOn;
+  writeAudio(state.audioOn);
+  els.audioBtn.classList.toggle('is-muted', !state.audioOn);
+  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+});
+
+document.addEventListener('keydown', (e) => {
+  // Game-over screen: Space → play again
+  if (!els.overScreen.hidden) {
+    if (e.code === 'Space' || e.key === 'Enter') {
+      e.preventDefault();
+      startGame();
+    }
+    return;
+  }
+  if (!state.running) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    togglePause();
+    return;
+  }
+  if (state.paused) return;
+  if (e.key === '1') { e.preventDefault(); handleAnswer(els.ans1); }
+  else if (e.key === '2') { e.preventDefault(); handleAnswer(els.ans2); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════════════════════════════
+(function boot() {
+  state.best = readBest();
+  state.audioOn = readAudio();
+  els.audioBtn.classList.toggle('is-muted', !state.audioOn);
+  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.bestStart.textContent = String(state.best);
+  renderHud();
+  renderHistory();
+  renderNext();
+})();
+</script>
+</body>
+</html>
