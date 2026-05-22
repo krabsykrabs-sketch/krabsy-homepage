@@ -240,5 +240,75 @@
   "feedback": {
     "correct_msgs": ["Richtig!", "Super!", "Genau!", "Stark!", "Top!"],
     "wrong_msgs":   ["Knapp daneben!", "Probier's nochmal!", "Nicht ganz.", "Schau nochmal hin."]
+  },
+  "topic_overrides": {
+    "prepositions": {
+      "homepage": {
+        "seo_title": "Englische Präpositionen üben — Krabsy",
+        "seo_h1": "Englische Präpositionen üben",
+        "meta_description": "Übe englische Präpositionen mit Spielen, Drills und Lernwerkzeugen. in, on, at, for, since — alle wichtigen Regeln auf einen Blick. Kostenlos, ohne Anmeldung.",
+        "hero_sub": "Englische Präpositionen lernen: spielen, üben, nachschlagen.",
+        "progress_practice": "{n} Regeln zum Üben",
+        "section_games_sub": "Arcade-Spiele zum Präpositions-Training.",
+        "section_reference": "Präpositionen-Übersicht",
+        "section_reference_sub": "Alle wichtigen Präpositions-Regeln nach Kategorie."
+      },
+      "drills": {
+        "sprint":     { "tagline": "20 Lückensätze, so schnell wie möglich." },
+        "type_race":  { "tagline": "Tippe die richtige Präposition. Schlag die Uhr." },
+        "drag_match": { "tagline": "Ordne jede Präposition dem passenden Satz zu." },
+        "fill_gap":   { "tagline": "Setze die richtige Präposition ein." }
+      },
+      "reference": {
+        "title": "Englische Präpositionen — Übersicht",
+        "subtitle": "Alle wichtigen Präpositions-Regeln nach Kategorie.",
+        "search_placeholder": "Regel oder Beispiel suchen…",
+        "category_labels": {
+          "time":      "Zeit",
+          "place":     "Ort",
+          "movement":  "Bewegung",
+          "adjective": "Adjektiv + Präposition",
+          "verb":      "Verb + Präposition",
+          "noun":      "Nomen + Präposition",
+          "transport": "Transport",
+          "phrase":    "Feste Wendungen"
+        },
+        "category_descriptions": {
+          "time":      "Wann etwas passiert: in, on, at, since, for, by, during.",
+          "place":     "Wo etwas ist: in, on, at, between, next to, under.",
+          "movement":  "Wohin etwas geht: to, into, onto, from, through, across.",
+          "adjective": "Feste Adjektiv-Präpositions-Kombinationen wie 'afraid of', 'good at'.",
+          "verb":      "Feste Verb-Präpositions-Kombinationen wie 'wait for', 'depend on'.",
+          "noun":      "Feste Nomen-Präpositions-Kombinationen wie 'reason for', 'example of'.",
+          "transport": "Wie man sich fortbewegt: by bus, on foot, in a car.",
+          "phrase":    "Feste Wendungen mit Präposition: on time, by accident, for example."
+        },
+        "level_label": "Stufe",
+        "show_more_examples": "Mehr Beispiele",
+        "show_fewer_examples": "Weniger Beispiele",
+        "no_results": "Keine Regel gefunden.",
+        "filter_label": "Filter",
+        "filter_all": "Alle",
+        "filter_review": "Zum Wiederholen",
+        "filter_mastered": "Gemeistert",
+        "filter_practiced": "Schon geübt"
+      },
+      "tools": {
+        "flashcards": {
+          "intro": "Vorne: Beispielsatz mit Lücke. Tippe die Karte zum Umdrehen, um die Präposition und die Regel zu sehen. Dann entscheide ehrlich.",
+          "filter_all": "Alle Regeln"
+        },
+        "free_practice": {
+          "intro": "Kein Timer, kein Punktestand. Tippe die richtige Präposition; klick auf Tipp wenn du nicht weiterkommst. Du kannst jederzeit aufhören.",
+          "filter_all": "Alle Regeln",
+          "filter_weak": "Nur schwache Regeln",
+          "fixed_deck_note": "Du übst eine vorgegebene Auswahl von {n} Regeln.",
+          "fixed_deck_remaining": "Noch {n} zu üben.",
+          "fixed_deck_done_title": "Alle Regeln geschafft! 🦀",
+          "fixed_deck_done_body": "Du hast alle Regeln aus deiner Übungs-Liste richtig beantwortet.",
+          "fixed_deck_continue_all": "Weiter mit allen Regeln"
+        }
+      }
+    }
   }
 }

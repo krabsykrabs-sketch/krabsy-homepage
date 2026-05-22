@@ -19,7 +19,7 @@
       "de": "155 Verben · 5 Speed-Drills · 3 Lernwerkzeuge",
       "es": "155 verbos · 5 Speed Drills · 3 herramientas de estudio"
     },
-    "thumbnail": "/thumbnails/Sprint.png",
+    "thumbnail": "/thumbnails/gowentgone.png",
     "pages": {
       "sprint":        { "de": "sprint",        "es": "sprint" },
       "type-race":     { "de": "type-race",     "es": "type-race" },
@@ -44,16 +44,22 @@
       "de": "Präpositionen",
       "es": "Preposiciones"
     },
-    "status": "coming_soon",
+    "status": "live",
     "description": {
-      "de": "Bald verfügbar — die kniffligen kleinen Wörter, die im Englischen oft anders verwendet werden als im Deutschen.",
-      "es": "Próximamente — las palabras pequeñas y traicioneras que en inglés se usan de forma diferente."
+      "de": "Übe englische Präpositionen — die kniffligen kleinen Wörter wie in, on, at, for, since, die im Englischen oft anders verwendet werden als im Deutschen.",
+      "es": "Practica las preposiciones en inglés — las palabras pequeñas y traicioneras como in, on, at, for, since que se usan de forma diferente."
     },
     "card_stats": {
-      "de": "Bald verfügbar",
-      "es": "Próximamente"
+      "de": "99 Regeln · 2 Drills · 2 Lernwerkzeuge",
+      "es": "99 reglas · 2 drills · 2 herramientas"
     },
-    "thumbnail": null,
-    "pages": {}
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" },
+      "flashcards":    { "de": "karteikarten",  "es": "tarjetas" },
+      "free-practice": { "de": "freies-ueben",  "es": "practica-libre" },
+      "reference":     { "de": "uebersicht",    "es": "resumen" }
+    }
   }
 }

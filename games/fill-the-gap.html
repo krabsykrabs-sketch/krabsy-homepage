@@ -337,6 +337,7 @@ body::before {
   text-transform: uppercase;
   color: var(--lavender-deep);
 }
+.ff-sentence-hint[hidden] { display: none; }
 .ff-sentence-hint b {
   font-weight: 700;
   color: var(--charcoal);
@@ -344,6 +345,52 @@ body::before {
   text-transform: none;
   font-size: 0.95rem;
   margin-left: 4px;
+}
+
+/* Prep-only: the pattern hint reveals the answer ("interested + in"), so
+   it's collapsed by default behind a small "?" button. Tap to reveal. The
+   verb-side hint shows the base form which IS the question, so it's always
+   visible — no button needed there. */
+.ff-hint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  background: transparent;
+  border: 1.5px solid var(--lavender);
+  border-radius: 999px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--lavender-deep);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ff-hint-btn:hover,
+.ff-hint-btn:focus-visible {
+  background: var(--lavender);
+  color: #fff;
+  outline: none;
+}
+.ff-hint-btn[hidden] { display: none; }
+.ff-hint-btn-q {
+  display: inline-flex;
+  width: 16px; height: 16px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--lavender);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.ff-hint-btn:hover .ff-hint-btn-q,
+.ff-hint-btn:focus-visible .ff-hint-btn-q {
+  background: #fff;
+  color: var(--lavender-deep);
 }
 
 /* The inline blank within the sentence */
@@ -855,7 +902,7 @@ body::before {
         spellcheck="false"
         aria-label="Verbform eintippen"
         data-string-aria="aria_input"
-        placeholder="Form eintippen…"
+        placeholder="Verbform eintippen…"
         data-string-attr="placeholder:input_placeholder"
       >
       <div class="ff-input-hint" data-string="enter_hint">DRÜCKE ENTER</div>
@@ -880,8 +927,8 @@ body::before {
      ═══════════════════════════════════════════════════════════════════ -->
 <div class="ff-screen" id="ff-start-screen">
   <div class="ff-screen-card">
-    <h1 class="ff-title">Falling Forms</h1>
-    <p class="ff-tagline" data-string="start_tagline">Fülle beide Lücken, bevor der Block unten ankommt.</p>
+    <h1 class="ff-title" data-string="title">Lückentext</h1>
+    <p class="ff-tagline" data-string="start_tagline">Lies den Satz, tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.</p>
     <button class="ff-btn" id="ff-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="ff-best-row"><span data-string="best_label">Bestleistung</span>: <strong id="ff-best-start">0</strong></div>
   </div>
@@ -913,45 +960,72 @@ body::before {
   <div class="ff-levelup-card">
     <div class="ff-levelup-badge">LEVEL UP</div>
     <div class="ff-levelup-num" id="ff-levelup-num">2</div>
-    <div class="ff-levelup-sub" id="ff-levelup-sub">Blöcke fallen schneller</div>
+    <div class="ff-levelup-sub" id="ff-levelup-sub">Weiter so!</div>
   </div>
 </div>
 
 <div class="ff-screen" id="ff-narrow-screen">
   <div class="ff-screen-card">
     <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="ff-tagline" data-string="narrow_sub">Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.</p>
+    <p class="ff-tagline" data-string="narrow_sub">Öffne den Lückentext auf einem Bildschirm mit mindestens 1024 px Breite.</p>
   </div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
-//  SENTENCES — loaded from /data/irregular-verbs.json on boot.
-//  Each entry shape (from the dataset):
-//    { verb, form, correct_answer, correct_alt?, context_sentence, hint? }
-//  We filter to entries with a non-empty context_sentence containing "___".
+//  SENTENCES — loaded on boot. Source depends on the `?topic=` query param:
+//    irregular_verbs (default) → /data/irregular-verbs.json
+//    prepositions              → /data/prepositions.json
+//  Each entry is projected to the in-memory shape:
+//    { verb, form, correct, alts, sentence, hintLabel }
+//  `hintLabel` names the i18n key for the hint chip on that row, so verb
+//  rows show "Verb fly" while prep rows show "Muster wait + for".
 // ═══════════════════════════════════════════════════════════════════════════
+const TOPIC = new URLSearchParams(location.search).get('topic')
+              || 'irregular_verbs';
 let SENTENCES = [];   // populated by loadSentences()
-let DATA_URL = '/data/irregular-verbs.json';
+const DATA_URL = TOPIC === 'prepositions'
+  ? '/data/prepositions.json'
+  : '/data/irregular-verbs.json';
 
 async function loadSentences() {
   const res = await fetch(DATA_URL, { cache: 'force-cache' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const all = await res.json();
-  SENTENCES = (all || [])
-    .filter(x =>
-      typeof x.context_sentence === 'string' &&
-      x.context_sentence.includes('___') &&
-      typeof x.correct_answer === 'string' &&
-      x.correct_answer.length > 0
-    )
-    .map(x => ({
-      verb: x.verb || x.hint || '',
-      form: x.form || 'past',
-      correct: x.correct_answer,
-      alts:    Array.isArray(x.correct_alt) ? x.correct_alt : [],
-      sentence: x.context_sentence,
-    }));
+  if (TOPIC === 'prepositions') {
+    SENTENCES = [];
+    for (const uc of (all || [])) {
+      for (const ex of (uc.examples || [])) {
+        if (typeof ex.sentence !== 'string' || !ex.sentence.includes('___')) continue;
+        const valid = Array.isArray(ex.valid_answers) ? ex.valid_answers : [];
+        if (!valid[0]) continue;
+        SENTENCES.push({
+          verb: uc.pattern,                  // shown in hint chip
+          form: 'default',
+          correct: valid[0],
+          alts: valid.slice(1),
+          sentence: ex.sentence,
+          hintLabel: 'pattern_hint',
+        });
+      }
+    }
+  } else {
+    SENTENCES = (all || [])
+      .filter(x =>
+        typeof x.context_sentence === 'string' &&
+        x.context_sentence.includes('___') &&
+        typeof x.correct_answer === 'string' &&
+        x.correct_answer.length > 0
+      )
+      .map(x => ({
+        verb: x.verb || x.hint || '',
+        form: x.form || 'past',
+        correct: x.correct_answer,
+        alts:    Array.isArray(x.correct_alt) ? x.correct_alt : [],
+        sentence: x.context_sentence,
+        hintLabel: 'verb_hint',
+      }));
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -988,12 +1062,15 @@ const STRINGS = {
     paused: 'PAUSE',
     tap_resume: 'Tippen zum Fortsetzen',
     enter_hint: 'DRÜCKE ENTER',
-    input_placeholder: 'Form eintippen…',
+    input_placeholder: 'Verbform eintippen…',
     verb_hint: 'Verb',
+    pattern_hint: 'Muster',
+    hint_show: 'Tipp',
     aria_input: 'Verbform eintippen',
     loading: 'Sätze werden geladen…',
     load_failed: 'Sätze konnten nicht geladen werden.',
-    start_tagline: 'Fülle beide Lücken, bevor der Block unten ankommt.',
+    title: 'Lückentext',
+    start_tagline: 'Lies den Satz, tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.',
     start_btn: "Los geht's!",
     best_label: 'Bestleistung',
     new_best: 'Neue Bestleistung!',
@@ -1004,7 +1081,7 @@ const STRINGS = {
     no_chains: 'keine Ketten in dieser Runde',
     levelup_sub: 'Weiter so!',
     narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.',
+    narrow_sub: 'Öffne den Lückentext auf einem Bildschirm mit mindestens 1024 px Breite.',
     aria_sound: 'Ton an/aus',
     aria_pause: 'Pause',
     aria_close: 'Schließen',
@@ -1024,12 +1101,15 @@ const STRINGS = {
     paused: 'PAUSA',
     tap_resume: 'Toca para continuar',
     enter_hint: 'PULSA ENTER',
-    input_placeholder: 'Escribe la forma…',
+    input_placeholder: 'Escribe la forma verbal…',
     verb_hint: 'Verbo',
+    pattern_hint: 'Patrón',
+    hint_show: 'Pista',
     aria_input: 'Escribe la forma verbal',
     loading: 'Cargando frases…',
     load_failed: 'No se pudieron cargar las frases.',
-    start_tagline: 'Rellena ambos huecos antes de que el bloque aterrice.',
+    title: 'Hueco',
+    start_tagline: 'Lee la frase, escribe la forma verbal correcta y pulsa Enter. Tres vidas por ronda.',
     start_btn: '¡Empezar!',
     best_label: 'Mejor',
     new_best: '¡Nuevo récord!',
@@ -1040,7 +1120,7 @@ const STRINGS = {
     no_chains: 'sin cadenas en esta ronda',
     levelup_sub: '¡Sigue así!',
     narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre Falling Forms en una pantalla de al menos 1024 px de ancho.',
+    narrow_sub: 'Abre el Hueco en una pantalla de al menos 1024 px de ancho.',
     aria_sound: 'Sonido on/off',
     aria_pause: 'Pausa',
     aria_close: 'Cerrar',
@@ -1063,7 +1143,29 @@ function getLang() {
   return 'de';
 }
 const LANG = getLang();
+
+// Topic-specific overrides for strings that differ between verbs (default) and
+// other topics. The base STRINGS table is verb-flavoured; this overlay swaps in
+// preposition-flavoured copy when ?topic=prepositions. New topics get their own
+// entry here without touching the base.
+const TOPIC_STRINGS = {
+  prepositions: {
+    de: {
+      input_placeholder: 'Präposition eintippen…',
+      aria_input: 'Präposition eintippen',
+      start_tagline: 'Lies den Satz, tippe die richtige Präposition und drücke Enter. Drei Leben pro Runde.',
+    },
+    es: {
+      input_placeholder: 'Escribe la preposición…',
+      aria_input: 'Escribe la preposición',
+      start_tagline: 'Lee la frase, escribe la preposición correcta y pulsa Enter. Tres vidas por ronda.',
+    },
+  },
+};
+
 function t(key) {
+  const topicTbl = TOPIC_STRINGS[TOPIC] && TOPIC_STRINGS[TOPIC][LANG];
+  if (topicTbl && topicTbl[key] != null) return topicTbl[key];
   const tbl = STRINGS[LANG];
   if (tbl && tbl[key] != null) return tbl[key];
   return STRINGS.de[key] != null ? STRINGS.de[key] : key;
@@ -1304,13 +1406,41 @@ function spawnBlock() {
   blockEl.className = 'ff-block';
   blockEl.style.setProperty('--y', BLOCK_FIXED_Y + 'px');
   blockEl.style.transform = `translate3d(-50%, ${BLOCK_FIXED_Y}px, 0)`;
+  // Prep hints reveal the answer ("interested + in") — start collapsed
+  // behind a "?" button. Verb hints show the base form, which IS the
+  // question, so they stay always-visible.
+  const hintCollapsed = (TOPIC === 'prepositions');
+  const hintLabelKey = item.hintLabel || 'verb_hint';
+  const hintLabelText = t('hint_show') || (LANG === 'es' ? 'Pista' : 'Tipp');
+  const hintInnerHtml = `<span data-string="${hintLabelKey}">${t(hintLabelKey)}</span> <b>${escapeHtml(item.verb)}</b>`;
   blockEl.innerHTML = `
     <div class="ff-sentence">
       <span>${escapeHtml(pre)}</span><span class="ff-blank is-asked" id="ff-blank">___</span><span>${escapeHtml(post)}</span>
     </div>
-    <div class="ff-sentence-hint"><span data-string="verb_hint">${t('verb_hint')}</span> <b>${escapeHtml(item.verb)}</b></div>
+    ${hintCollapsed
+      ? `<button type="button" class="ff-hint-btn" id="ff-hint-btn" aria-expanded="false" aria-controls="ff-current-hint">
+           <span class="ff-hint-btn-q" aria-hidden="true">?</span>
+           <span>${escapeHtml(hintLabelText)}</span>
+         </button>
+         <div class="ff-sentence-hint" id="ff-current-hint" hidden>${hintInnerHtml}</div>`
+      : `<div class="ff-sentence-hint" id="ff-current-hint">${hintInnerHtml}</div>`
+    }
   `;
   els.blockLayer.appendChild(blockEl);
+
+  if (hintCollapsed) {
+    const btn = blockEl.querySelector('#ff-hint-btn');
+    const hint = blockEl.querySelector('#ff-current-hint');
+    if (btn && hint) {
+      btn.addEventListener('click', function () {
+        hint.hidden = false;
+        btn.hidden = true;
+        btn.setAttribute('aria-expanded', 'true');
+        // Keyboard focus stays in the input — don't yank it on hint reveal.
+        if (els.input) els.input.focus();
+      });
+    }
+  }
 
   state.block = {
     el: blockEl,
@@ -1634,8 +1764,12 @@ function endGame() {
     for (const c of state.completedThisRun) {
       const row = document.createElement('div');
       row.className = 'ff-chain-grid-row';
-      // c: { verb, past:form, pp:answer } — display as "verb (form) → answer"
-      row.textContent = `${c.verb} (${c.past}) → ${c.pp}`;
+      // c: { verb, past:form, pp:answer }. Prep rows carry form='default'
+      // and don't have a meaningful middle column — render two-part there;
+      // verb rows keep the three-column "verb (form) → answer" format.
+      row.textContent = (c.past === 'default')
+        ? `${c.verb} → ${c.pp}`
+        : `${c.verb} (${c.past}) → ${c.pp}`;
       els.chainGrid.appendChild(row);
     }
   }

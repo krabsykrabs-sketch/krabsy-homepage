@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Sprint: Preposiciones en inglés — Krabsy</title>
+  <meta name="description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta name="keywords" content="sprint, preposiciones inglés, in on at, gramática inglesa practicar">
+  <link rel="canonical" href="https://krabsy.com/es/preposiciones/sprint/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/praepositionen/sprint/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/preposiciones/sprint/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/sprint/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Sprint: Preposiciones en inglés — Krabsy">
+  <meta property="og:description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/es/preposiciones/sprint/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sprint: Preposiciones en inglés — Krabsy">
+  <meta name="twitter:description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Sprint — Preposiciones",
+      "url": "https://krabsy.com/es/preposiciones/sprint/",
+      "description": "20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.",
+      "learningResourceType": "Game",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "es",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "student"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Krabsy",
+        "url": "https://krabsy.com/"
+      }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <style>
+    /* ── Sprint-specific layout (prep variant) ─────────────────────────── */
+    .sprint-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4);
+      width: 100%;
+    }
+
+    .sprint-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      min-height: 36px;
+    }
+
+    .sprint-progress-text {
+      font-size: 0.85rem;
+      color: var(--krabsy-ink-mute);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sprint-timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      padding: 6px 16px;
+      background: var(--krabsy-lavender-soft);
+      border-radius: var(--radius-pill);
+      position: relative;
+    }
+
+    .sprint-penalty {
+      position: absolute;
+      right: -10px;
+      top: -10px;
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      pointer-events: none;
+    }
+    .sprint-penalty.is-on {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Start / End screens reuse k-card and stack utilities */
+    .sprint-start-card,
+    .sprint-end-card {
+      text-align: center;
+      padding: var(--space-6) var(--space-5);
+    }
+
+    .sprint-start-card .k-h1,
+    .sprint-end-card .k-h1 {
+      font-size: 2rem;
+      margin-bottom: var(--space-3);
+    }
+
+    .sprint-tagline {
+      font-size: 1rem;
+      color: var(--krabsy-ink-mute);
+      margin: 0 0 var(--space-4);
+    }
+
+    .sprint-intro {
+      font-size: 0.95rem;
+      color: var(--krabsy-ink);
+      max-width: 540px;
+      margin: 0 auto var(--space-5);
+      line-height: 1.55;
+    }
+
+    .sprint-best-line {
+      font-size: 0.9rem;
+      color: var(--krabsy-ink-mute);
+      margin: var(--space-4) 0 0;
+    }
+    .sprint-best-line .sprint-best-value {
+      color: var(--krabsy-coral-dark);
+      font-weight: 700;
+    }
+
+    /* Play screen */
+    .sprint-play-card {
+      padding: var(--space-6) var(--space-5);
+      text-align: center;
+    }
+
+    /* Prep prompt: pattern label (small, on top) + sentence with inline blank.
+       Replaces the verb-side trio (base → past → pp). */
+    .sprint-prep-prompt {
+      margin: 0 0 var(--space-6);
+    }
+    /* La pista del patrón contiene la respuesta — la mostramos solo cuando
+       el jugador la pide explícitamente con el botón "?". Se oculta de nuevo
+       en cada pregunta nueva, para que cada acierto sea suyo. */
+    .sprint-hint-row {
+      margin: 0 0 var(--space-4);
+      min-height: 1.8em;
+      display: flex;
+      align-items: center;
+    }
+    .sprint-hint-btn {
+      background: transparent;
+      border: 1.5px solid var(--krabsy-lavender);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--krabsy-ink-mute);
+      padding: 4px 12px;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .sprint-hint-btn:hover,
+    .sprint-hint-btn:focus-visible {
+      background: var(--krabsy-lavender-soft);
+      color: var(--krabsy-ink);
+      border-color: var(--krabsy-lavender-soft);
+      outline: none;
+    }
+    .sprint-hint-btn-q {
+      display: inline-flex;
+      width: 16px; height: 16px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--krabsy-lavender);
+      color: var(--krabsy-white);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .sprint-pattern-hint {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--krabsy-coral-dark);
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    .sprint-pattern-hint[hidden] { display: none; }
+    .sprint-pattern-hint-label {
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+    .sprint-pattern-hint-value {
+      font-family: var(--font-body);
+      color: var(--krabsy-ink);
+      letter-spacing: 0;
+    }
+    .sprint-sentence {
+      font-family: var(--font-body);
+      font-size: clamp(1.15rem, 3vw, 1.55rem);
+      line-height: 1.55;
+      color: var(--krabsy-ink);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .sprint-blank {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--krabsy-ink);
+      background: var(--krabsy-lavender-soft);
+      border: 2px solid var(--krabsy-coral);
+      border-radius: var(--radius-sm);
+      padding: 2px 14px;
+      letter-spacing: 3px;
+      margin: 0 4px;
+      vertical-align: baseline;
+    }
+
+    .sprint-choices {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    @media (min-width: 560px) {
+      .sprint-choices {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .sprint-choice {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 18px 16px;
+      border-radius: var(--radius-md);
+      background: var(--krabsy-white);
+      color: var(--krabsy-ink);
+      border: 2px solid var(--krabsy-sage);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.12s ease,
+                  border-color 0.12s ease, color 0.12s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      will-change: transform;
+    }
+    .sprint-choice:hover:not(:disabled) {
+      background: var(--krabsy-sage-soft);
+    }
+    .sprint-choice:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    .sprint-choice:disabled {
+      cursor: default;
+      opacity: 0.9;
+    }
+    .sprint-choice.is-correct {
+      background: var(--krabsy-sage);
+      border-color: var(--krabsy-sage);
+      color: var(--krabsy-ink);
+    }
+    .sprint-choice.is-wrong {
+      background: var(--krabsy-coral);
+      border-color: var(--krabsy-coral);
+      color: var(--krabsy-white);
+    }
+
+    /* End screen */
+    .sprint-end-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+      margin: var(--space-5) 0;
+    }
+    .sprint-end-stat {
+      min-width: 110px;
+    }
+    .sprint-end-stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .sprint-end-stat-value.is-new-best {
+      color: var(--krabsy-coral-dark);
+    }
+    .sprint-end-stat-label {
+      font-size: 0.8rem;
+      color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px;
+    }
+
+    .sprint-new-best-flag {
+      display: inline-block;
+      background: var(--krabsy-coral);
+      color: var(--krabsy-white);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--space-4);
+    }
+
+    .sprint-missed-block {
+      text-align: left;
+      max-width: 520px;
+      margin: var(--space-5) auto 0;
+    }
+    .sprint-missed-heading {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--krabsy-ink);
+      margin: 0 0 var(--space-3);
+    }
+    .sprint-missed-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sprint-missed-list li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: 8px 12px;
+      background: var(--krabsy-coral-soft);
+      border-radius: var(--radius-sm);
+    }
+    .sprint-missed-verb {
+      font-weight: 700;
+      color: var(--krabsy-ink);
+    }
+    .sprint-missed-answer {
+      font-family: var(--font-body);
+      color: var(--krabsy-ink);
+      font-weight: 700;
+    }
+
+    .sprint-end-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-5);
+    }
+
+    .sprint-hidden { display: none !important; }
+
+    .sprint-loading {
+      text-align: center;
+      padding: var(--space-7) var(--space-4);
+      color: var(--krabsy-ink-mute);
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a class="k-logo" href="/es/">Krabsy</a>
+    </header>
+
+    <main class="sprint-wrap">
+      <aside class="k-intro-card" aria-label="Sobre este ejercicio">
+        <p>En el Sprint de preposiciones practicas 20 frases con huecos lo más rápido posible. Elige la preposición correcta antes de que se acabe el tiempo. El pequeño patrón sobre la frase te indica qué regla estás practicando — perfecto para distinguir in/on/at/for/since al instante.</p>
+      </aside>
+
+      <!-- Loading shim until JS swaps in real content -->
+      <div id="sprint-loading" class="sprint-loading" data-string="common.loading">Cargando…</div>
+
+      <!-- START SCREEN -->
+      <section id="sprint-start" class="k-card sprint-start-card sprint-hidden" aria-hidden="true">
+        <h1 class="k-h1" data-string="drills.sprint.name">Sprint</h1>
+        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 frases con huecos lo más rápido posible.</p>
+        <p class="sprint-intro" data-string="drills.sprint.intro"></p>
+        <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">¡Empezar!</button>
+        <p id="sprint-best-line" class="sprint-best-line" hidden>
+          <span data-string="common.best_time">Mejor tiempo</span>:
+          <span class="sprint-best-value" id="sprint-best-value-start">—</span>
+        </p>
+      </section>
+
+      <!-- PLAY SCREEN -->
+      <section id="sprint-play" class="sprint-hidden" aria-hidden="true">
+        <div class="sprint-topbar">
+          <span class="sprint-progress-text" id="sprint-progress-text">—</span>
+          <span class="sprint-timer">
+            <span id="sprint-timer-value" class="k-mono-num">0</span><span data-string="common.seconds_short">s</span>
+            <span id="sprint-penalty-badge" class="sprint-penalty">+3s</span>
+          </span>
+        </div>
+
+        <div class="k-card sprint-play-card">
+          <div class="sprint-prep-prompt" aria-live="polite">
+            <div class="sprint-hint-row">
+              <button type="button" id="sprint-hint-btn" class="sprint-hint-btn" aria-controls="sprint-pattern-hint" aria-expanded="false">
+                <span class="sprint-hint-btn-q" aria-hidden="true">?</span>
+                <span>Pista</span>
+              </button>
+              <div class="sprint-pattern-hint" id="sprint-pattern-hint" hidden>
+                <span class="sprint-pattern-hint-label">Patrón</span>
+                <span id="sprint-pattern" class="sprint-pattern-hint-value">—</span>
+              </div>
+            </div>
+            <div id="sprint-sentence" class="sprint-sentence">—</div>
+          </div>
+          <div id="sprint-choices" class="sprint-choices" role="group" aria-label="Respuestas" data-i18n-attr="aria-label:drills.sprint.aria_choices"></div>
+        </div>
+      </section>
+
+      <!-- END SCREEN -->
+      <section id="sprint-end" class="k-card sprint-end-card sprint-hidden" aria-hidden="true">
+        <h1 class="k-h1" data-string="drills.sprint.end_title">¡Sprint conseguido!</h1>
+
+        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Mejor tiempo</div>
+
+        <div class="sprint-end-stats">
+          <div class="sprint-end-stat">
+            <div id="sprint-end-time" class="sprint-end-stat-value k-mono-num">—</div>
+            <div class="sprint-end-stat-label" data-string="common.your_time">Tu tiempo</div>
+          </div>
+          <div class="sprint-end-stat">
+            <div id="sprint-end-accuracy" class="sprint-end-stat-value k-mono-num">—</div>
+            <div class="sprint-end-stat-label" data-string="common.accuracy">Precisión</div>
+          </div>
+          <div class="sprint-end-stat">
+            <div id="sprint-end-best" class="sprint-end-stat-value k-mono-num">—</div>
+            <div class="sprint-end-stat-label" data-string="common.best_time">Mejor tiempo</div>
+          </div>
+        </div>
+
+        <div id="sprint-missed-wrap" class="sprint-missed-block" hidden>
+          <h2 class="sprint-missed-heading" data-string="common.missed">Estas las has fallado</h2>
+          <ul id="sprint-missed-list" class="sprint-missed-list"></ul>
+        </div>
+
+        <div class="sprint-end-actions">
+          <button id="sprint-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Jugar de nuevo</button>
+          <a href="/es/preposiciones/" class="k-btn-secondary" data-string="common.back_to_hub">Volver al inicio</a>
+        </div>
+
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Publicidad</div>
+      </section>
+    </main>
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+
+  </div>
+
+  <!-- Feedback flash overlays — use krabsy-ui.css utility classes -->
+  <div id="sprint-flash-correct" class="k-flash is-correct" aria-hidden="true"></div>
+  <div id="sprint-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
+
+  <script type="module">
+    import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-05-24';
+    import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-05-24';
+
+    /* ── State ──────────────────────────────────────────────────────── */
+    const CURRENT_TOPIC = 'prepositions';
+    const QUESTIONS_PER_RUN = 20;
+    const WRONG_PENALTY_MS = 3000;
+    // Topic-specific best key so verb and prep Sprint best times don't
+    // overwrite each other — the drills feel different and a unified slot
+    // would be misleading.
+    const BEST_KEY = 'krabsy_best_sprint_prepositions';
+    const HUB_URL = '/es/preposiciones/';
+
+    let strings = null;
+    let questions = [];
+    let qIndex = 0;
+    let answeredLocked = false;
+    let startTimestamp = 0;
+    let penaltyMs = 0;
+    let timerHandle = null;
+    let missed = [];      // [{ verb, useCaseId, form, correct_answer }]
+    let totalAttempts = 0;
+    let totalCorrect = 0;
+
+    /* ── DOM ────────────────────────────────────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+    const loadingEl   = $('sprint-loading');
+    const startEl     = $('sprint-start');
+    const playEl      = $('sprint-play');
+    const endEl       = $('sprint-end');
+    const startBtn    = $('sprint-start-btn');
+    const replayBtn   = $('sprint-replay-btn');
+    const bestLineEl  = $('sprint-best-line');
+    const bestValStart= $('sprint-best-value-start');
+    const patternEl   = $('sprint-pattern');
+    const patternHintEl = $('sprint-pattern-hint');
+    const hintBtnEl   = $('sprint-hint-btn');
+    const sentenceEl  = $('sprint-sentence');
+
+    function resetHintState() {
+      if (!patternHintEl || !hintBtnEl) return;
+      patternHintEl.hidden = true;
+      hintBtnEl.hidden = false;
+      hintBtnEl.setAttribute('aria-expanded', 'false');
+    }
+    function revealHint() {
+      if (!patternHintEl || !hintBtnEl) return;
+      patternHintEl.hidden = false;
+      hintBtnEl.hidden = true;
+      hintBtnEl.setAttribute('aria-expanded', 'true');
+    }
+    if (hintBtnEl) hintBtnEl.addEventListener('click', revealHint);
+    const choicesEl   = $('sprint-choices');
+    const progressEl  = $('sprint-progress-text');
+    const timerEl     = $('sprint-timer-value');
+    const penaltyEl   = $('sprint-penalty-badge');
+    const endTimeEl   = $('sprint-end-time');
+    const endAccEl    = $('sprint-end-accuracy');
+    const endBestEl   = $('sprint-end-best');
+    const newBestEl   = $('sprint-new-best');
+    const missedWrap  = $('sprint-missed-wrap');
+    const missedListEl= $('sprint-missed-list');
+    const flashCorrect= $('sprint-flash-correct');
+    const flashWrong  = $('sprint-flash-wrong');
+
+    /* ── Helpers ────────────────────────────────────────────────────── */
+    function getNested(obj, path) {
+      return path.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
+    }
+
+    function applyStrings(root) {
+      root.querySelectorAll('[data-string]').forEach((el) => {
+        const key = el.getAttribute('data-string');
+        const val = getNested(strings, key);
+        if (typeof val === 'string') el.textContent = val;
+      });
+    }
+
+    function showScreen(which) {
+      for (const [el, name] of [[startEl, 'start'], [playEl, 'play'], [endEl, 'end']]) {
+        const on = name === which;
+        el.classList.toggle('sprint-hidden', !on);
+        el.setAttribute('aria-hidden', on ? 'false' : 'true');
+      }
+    }
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function formatSeconds(ms) {
+      return (ms / 1000).toFixed(1);
+    }
+
+    function readBest() {
+      try {
+        const raw = localStorage.getItem(BEST_KEY);
+        if (raw == null) return null;
+        const n = Number(raw);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      } catch (_) { return null; }
+    }
+
+    function writeBest(ms) {
+      try { localStorage.setItem(BEST_KEY, String(ms)); } catch (_) {}
+    }
+
+    function updateBestLineOnStart() {
+      const best = readBest();
+      if (best == null) {
+        bestLineEl.hidden = true;
+      } else {
+        bestLineEl.hidden = false;
+        bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
+      }
+    }
+
+    function flash(kind) {
+      const el = kind === 'wrong' ? flashWrong : flashCorrect;
+      el.classList.add('is-on');
+      setTimeout(() => el.classList.remove('is-on'), 150);
+    }
+
+    function showPenaltyBadge() {
+      penaltyEl.classList.remove('is-on');
+      void penaltyEl.offsetWidth;
+      penaltyEl.classList.add('is-on');
+      setTimeout(() => penaltyEl.classList.remove('is-on'), 700);
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => (
+        { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
+      ));
+    }
+
+    function splitSentence(s) {
+      const idx = (s || '').indexOf('___');
+      if (idx < 0) return [s || '', ''];
+      return [s.slice(0, idx), s.slice(idx + 3)];
+    }
+
+    /* ── Timer ──────────────────────────────────────────────────────── */
+    function startTimer() {
+      startTimestamp = performance.now();
+      penaltyMs = 0;
+      tickTimer();
+      timerHandle = setInterval(tickTimer, 100);
+    }
+
+    function stopTimer() {
+      if (timerHandle != null) {
+        clearInterval(timerHandle);
+        timerHandle = null;
+      }
+    }
+
+    function elapsedMs() {
+      if (!startTimestamp) return 0;
+      return (performance.now() - startTimestamp) + penaltyMs;
+    }
+
+    function tickTimer() {
+      timerEl.textContent = Math.floor(elapsedMs() / 1000);
+    }
+
+    /* ── Question rendering ─────────────────────────────────────────── */
+    function renderQuestion() {
+      const q = questions[qIndex];
+      answeredLocked = false;
+
+      // Pattern hint chip — q.verb on a prep record holds the use-case pattern
+      // string (e.g. "wait + for"). The data-layer adapter sets this for display.
+      patternEl.textContent = q.verb || '';
+      resetHintState();
+
+      // Sentence with inline blank. Source: q.prompt (the example sentence
+      // with "___"). Fall back to context_sentence if a record ships only that.
+      const raw = q.prompt || q.context_sentence || '';
+      const [pre, post] = splitSentence(raw);
+      sentenceEl.innerHTML =
+        `<span>${escapeHtml(pre)}</span>` +
+        `<span class="sprint-blank">___</span>` +
+        `<span>${escapeHtml(post)}</span>`;
+
+      progressEl.textContent = strings.common.question_of
+        .replace('{n}', String(qIndex + 1))
+        .replace('{total}', String(questions.length));
+
+      const wrongs = Array.isArray(q.wrong_answers) ? q.wrong_answers.slice(0, 2) : [];
+      const options = shuffle([q.correct_answer, ...wrongs]);
+
+      choicesEl.innerHTML = '';
+      for (const opt of options) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sprint-choice';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => handleChoice(btn, opt, q));
+        choicesEl.appendChild(btn);
+      }
+    }
+
+    function handleChoice(btn, chosen, q) {
+      if (answeredLocked) return;
+      answeredLocked = true;
+
+      // For prep, valid_answers[1..] live in q.correct_alt — accept any of
+      // them as correct.
+      const alts = Array.isArray(q.correct_alt) ? q.correct_alt : [];
+      const isCorrect = chosen === q.correct_answer || alts.includes(chosen);
+      totalAttempts += 1;
+      if (isCorrect) totalCorrect += 1;
+
+      // Stats — record against the stable use-case ID, not the display pattern.
+      // For prep records the data layer guarantees form='default' and
+      // useCaseId is the rule key (e.g. 'prep_wait_for').
+      recordAttempt(q.useCaseId, q.form, isCorrect, 'sprint', CURRENT_TOPIC);
+
+      // Visual feedback
+      if (isCorrect) {
+        btn.classList.add('is-correct');
+        flash('correct');
+      } else {
+        btn.classList.add('is-wrong');
+        for (const c of choicesEl.querySelectorAll('.sprint-choice')) {
+          if (c.textContent === q.correct_answer) c.classList.add('is-correct');
+        }
+        penaltyMs += WRONG_PENALTY_MS;
+        showPenaltyBadge();
+        flash('wrong');
+        missed.push({
+          verb: q.verb,                 // pattern, for display
+          useCaseId: q.useCaseId,       // stable ID, available for future preload links
+          form: q.form,                 // 'default'
+          correct_answer: q.correct_answer,
+        });
+      }
+
+      // Lock all buttons
+      for (const c of choicesEl.querySelectorAll('.sprint-choice')) {
+        c.disabled = true;
+      }
+
+      // Advance — short delay so feedback registers.
+      const delay = isCorrect ? 220 : 520;
+      setTimeout(() => {
+        qIndex += 1;
+        if (qIndex >= questions.length) {
+          finishRun();
+        } else {
+          renderQuestion();
+        }
+      }, delay);
+    }
+
+    /* ── Run lifecycle ──────────────────────────────────────────────── */
+    async function beginRun() {
+      qIndex = 0;
+      penaltyMs = 0;
+      missed = [];
+      totalAttempts = 0;
+      totalCorrect = 0;
+      answeredLocked = false;
+
+      try {
+        questions = await getQuestions({
+          topic: CURRENT_TOPIC,
+          type: 'fill_gap',
+          difficulty: 2,
+          shuffle: true,
+          limit: QUESTIONS_PER_RUN,
+        });
+      } catch (err) {
+        console.error('[sprint] failed to load questions', err);
+        return;
+      }
+
+      if (!questions.length) {
+        console.warn('[sprint] no questions returned');
+        return;
+      }
+
+      showScreen('play');
+      renderQuestion();
+      startTimer();
+    }
+
+    function finishRun() {
+      stopTimer();
+      const finalMs = elapsedMs();
+
+      const previousBest = readBest();
+      const isNewBest = previousBest == null || finalMs < previousBest;
+      if (isNewBest) writeBest(finalMs);
+
+      endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
+      endTimeEl.classList.toggle('is-new-best', isNewBest);
+      const accPct = totalAttempts > 0
+        ? Math.round((totalCorrect / totalAttempts) * 100)
+        : 0;
+      endAccEl.textContent = `${accPct}%`;
+      const newBest = readBest();
+      endBestEl.textContent = newBest != null
+        ? `${formatSeconds(newBest)}${strings.common.seconds_short}`
+        : strings.common.no_best_yet;
+
+      newBestEl.hidden = !isNewBest;
+
+      // Missed list — render as "pattern → preposition" (prep records have
+      // form='default'; no "Simple Past"/"Past Participle" label applies).
+      if (missed.length) {
+        missedWrap.hidden = false;
+        missedListEl.innerHTML = '';
+        for (const m of missed) {
+          const li = document.createElement('li');
+          const verbSpan = document.createElement('span');
+          verbSpan.className = 'sprint-missed-verb';
+          verbSpan.textContent = m.verb;        // pattern
+
+          const ans = document.createElement('span');
+          ans.className = 'sprint-missed-answer';
+          ans.textContent = '→ ' + m.correct_answer;
+
+          li.appendChild(verbSpan);
+          li.appendChild(ans);
+          missedListEl.appendChild(li);
+        }
+      } else {
+        missedWrap.hidden = true;
+      }
+
+      showScreen('end');
+    }
+
+    /* ── ESC to hub ─────────────────────────────────────────────────── */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.location.href = HUB_URL;
+      }
+    });
+
+    /* ── Boot ───────────────────────────────────────────────────────── */
+    (async function boot() {
+      try {
+        strings = await loadStrings(undefined, CURRENT_TOPIC);
+      } catch (err) {
+        console.error('[sprint] failed to load UI strings', err);
+        loadingEl.textContent = 'Error al cargar.';
+        return;
+      }
+
+      applyStrings(document);
+
+      loadingEl.classList.add('sprint-hidden');
+      updateBestLineOnStart();
+      showScreen('start');
+
+      startBtn.addEventListener('click', beginRun);
+      replayBtn.addEventListener('click', beginRun);
+    })();
+  </script>
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-05-24';
+    // Prep ships only 2 drill pages today; pass an explicit allow-list so
+    // the chip-bar doesn't render dead chips for verb-only drills.
+    initDrillPage('sprint', 'prepositions', ['sprint', 'fill_gap']);
+  </script>
+    <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
+</body>
+</html>

@@ -1,40 +1,40 @@
 <!doctype html>
-<html lang="es">
+<html lang="de">
 <head>
   <meta charset="utf-8">
-  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
-  <title>Lückentext — Krabsy</title>
-  <meta name="description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
-  <meta name="keywords" content="lückentext, fill the gap, sätze, englisch grammatik üben">
-  <link rel="canonical" href="https://krabsy.com/es/verbos-irregulares/fill-the-gap/">
-  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/">
-  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/verbos-irregulares/fill-the-gap/">
-  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/">
+  <title>Lückentext: Englische Präpositionen — Krabsy</title>
+  <meta name="description" content="Englische Sätze mit Lücken — setze die richtige Präposition ein und drücke Enter. Drei Leben. in, on, at, for, since auf einen Blick üben.">
+  <meta name="keywords" content="lückentext, präpositionen englisch, in on at, englisch grammatik üben">
+  <link rel="canonical" href="https://krabsy.com/de/praepositionen/fill-the-gap/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/praepositionen/fill-the-gap/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/preposiciones/fill-the-gap/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/fill-the-gap/">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-  <meta property="og:title" content="Lückentext — Krabsy">
-  <meta property="og:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta property="og:title" content="Lückentext: Englische Präpositionen — Krabsy">
+  <meta property="og:description" content="Englische Sätze mit Lücken — setze die richtige Präposition ein und drücke Enter. Drei Leben. in, on, at, for, since auf einen Blick üben.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
-  <meta property="og:url" content="https://krabsy.com/es/verbos-irregulares/fill-the-gap/">
+  <meta property="og:url" content="https://krabsy.com/de/praepositionen/fill-the-gap/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Krabsy">
-  <meta property="og:locale" content="es_ES">
+  <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Lückentext — Krabsy">
-  <meta name="twitter:description" content="10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.">
+  <meta name="twitter:title" content="Lückentext: Englische Präpositionen — Krabsy">
+  <meta name="twitter:description" content="Englische Sätze mit Lücken — setze die richtige Präposition ein und drücke Enter. Drei Leben. in, on, at, for, since auf einen Blick üben.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "LearningResource",
-      "name": "Lückentext",
-      "url": "https://krabsy.com/es/verbos-irregulares/fill-the-gap/",
-      "description": "10 englische Sätze mit Lücken. Setze die richtige Verbform ein. Unregelmäßige Verben im Kontext üben.",
+      "name": "Lückentext — Präpositionen",
+      "url": "https://krabsy.com/de/praepositionen/fill-the-gap/",
+      "description": "Englische Sätze mit Lücken — setze die richtige Präposition ein und drücke Enter. Drei Leben. in, on, at, for, since auf einen Blick üben.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
-      "inLanguage": "en",
+      "inLanguage": "de",
       "audience": {
         "@type": "EducationalAudience",
         "educationalRole": "student"
@@ -51,7 +51,9 @@
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
   <style>
     /* ── Lückentext wrapper layout ────────────────────────────────────────
-       Same as the DE wrapper; iframe sends ?lang=es to the game.
+       The game itself lives at /games/fill-the-gap.html and is dropped in
+       via an iframe. The wrapper provides: page header, intro card, footer.
+       The iframe is told to load preposition content via ?topic=prepositions.
        ─────────────────────────────────────────────────────────────────── */
     .fg-wrap {
       max-width: 1000px;
@@ -71,6 +73,7 @@
       overflow: hidden;
     }
 
+    /* Fallback shown when the viewport is too narrow for the game grid */
     .fg-narrow-note {
       display: none;
       text-align: center;
@@ -86,24 +89,24 @@
 <body>
   <div class="k-page">
     <header class="k-page-header">
-      <a class="k-logo" href="/es/">Krabsy</a>
+      <a class="k-logo" href="/de/">Krabsy</a>
     </header>
 
     <main class="fg-wrap">
-      <aside class="k-intro-card" aria-label="Sobre este ejercicio">
-        <p>Frases en inglés con un hueco. Escribe la forma verbal correcta y pulsa Enter. Tienes tres vidas — una respuesta incorrecta cuesta una. Lee la frase con atención para elegir el tiempo verbal adecuado — escribir y comprender al mismo tiempo.</p>
+      <aside class="k-intro-card" aria-label="Über diese Übung">
+        <p>Englische Sätze mit einer Lücke. Tippe die richtige Präposition (in, on, at, for, since …) und drücke Enter. Du hast drei Leben — eine falsche Antwort kostet eines. Tipp: Das kleine Muster über dem Satz verrät dir, welche Regel gerade dran ist.</p>
       </aside>
 
       <iframe
         class="fg-game-frame"
-        src="/games/fill-the-gap.html?lang=es"
-        title="Lückentext"
+        src="/games/fill-the-gap.html?lang=de&topic=prepositions"
+        title="Lückentext — Präpositionen"
         loading="eager"
         allow="autoplay"
       ></iframe>
 
       <p class="fg-narrow-note">
-        El Hueco necesita una pantalla más ancha. Abre la página en un dispositivo de al menos 900&nbsp;px de ancho en formato horizontal.
+        Der Lückentext braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
       </p>
     </main>
 
@@ -116,7 +119,9 @@
 
   <script type="module">
     import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-05-24';
-    initDrillPage('fill_gap');
+    // Prep ships only 2 drill pages today; pass an explicit allow-list so
+    // the chip-bar doesn't render dead chips for verb-only drills.
+    initDrillPage('fill_gap', 'prepositions', ['sprint', 'fill_gap']);
   </script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>

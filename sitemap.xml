@@ -218,6 +218,114 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/uebersicht/"/>
   </url>
 
+  <!-- Topic hubs: Prepositions -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/"/>
+  </url>
+
+  <!-- Prep Sprint -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/sprint/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/sprint/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/sprint/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/sprint/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/sprint/"/>
+  </url>
+
+  <!-- Prep Fill-the-Gap -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/fill-the-gap/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/fill-the-gap/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/fill-the-gap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
+  </url>
+
+  <!-- Prep Flashcards -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/karteikarten/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/karteikarten/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/tarjetas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/karteikarten/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/tarjetas/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/karteikarten/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/tarjetas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/karteikarten/"/>
+  </url>
+
+  <!-- Prep Free Practice -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/freies-ueben/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/practica-libre/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/practica-libre/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/practica-libre/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
+  </url>
+
+  <!-- Prep Reference -->
+  <url>
+    <loc>https://krabsy.com/de/praepositionen/uebersicht/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/uebersicht/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/resumen/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/uebersicht/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/preposiciones/resumen/</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/uebersicht/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/resumen/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/uebersicht/"/>
+  </url>
+
   <!-- Arcade games — under /spiele/ (DE) and /juegos/ (ES) -->
   <url>
     <loc>https://krabsy.com/de/spiele/verb-slash/</loc>

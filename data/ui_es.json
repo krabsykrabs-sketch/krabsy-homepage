@@ -240,5 +240,75 @@
   "feedback": {
     "correct_msgs": ["¡Correcto!", "¡Súper!", "¡Exacto!", "¡Genial!"],
     "wrong_msgs":   ["¡Casi!", "¡Inténtalo otra vez!", "No del todo."]
+  },
+  "topic_overrides": {
+    "prepositions": {
+      "homepage": {
+        "seo_title": "Preposiciones en inglés — Krabsy",
+        "seo_h1": "Preposiciones en inglés",
+        "meta_description": "Practica las preposiciones en inglés con juegos, drills y herramientas de estudio. in, on, at, for, since — todas las reglas importantes. Gratis, sin registro.",
+        "hero_sub": "Aprende las preposiciones en inglés: juega, practica, consulta.",
+        "progress_practice": "{n} reglas para practicar",
+        "section_games_sub": "Juegos arcade para entrenar preposiciones.",
+        "section_reference": "Lista de preposiciones",
+        "section_reference_sub": "Todas las reglas importantes, agrupadas por categoría."
+      },
+      "drills": {
+        "sprint":     { "tagline": "20 frases con huecos lo más rápido posible." },
+        "type_race":  { "tagline": "Escribe la preposición correcta. Vence al reloj." },
+        "drag_match": { "tagline": "Une cada preposición con la frase correcta." },
+        "fill_gap":   { "tagline": "Pon la preposición correcta." }
+      },
+      "reference": {
+        "title": "Preposiciones en inglés — Resumen",
+        "subtitle": "Todas las reglas importantes, agrupadas por categoría.",
+        "search_placeholder": "Buscar regla o ejemplo…",
+        "category_labels": {
+          "time":      "Tiempo",
+          "place":     "Lugar",
+          "movement":  "Movimiento",
+          "adjective": "Adjetivo + preposición",
+          "verb":      "Verbo + preposición",
+          "noun":      "Sustantivo + preposición",
+          "transport": "Transporte",
+          "phrase":    "Frases hechas"
+        },
+        "category_descriptions": {
+          "time":      "Cuándo pasa algo: in, on, at, since, for, by, during.",
+          "place":     "Dónde está algo: in, on, at, between, next to, under.",
+          "movement":  "Hacia dónde va algo: to, into, onto, from, through, across.",
+          "adjective": "Combinaciones fijas adjetivo + preposición como 'afraid of', 'good at'.",
+          "verb":      "Combinaciones fijas verbo + preposición como 'wait for', 'depend on'.",
+          "noun":      "Combinaciones fijas sustantivo + preposición como 'reason for', 'example of'.",
+          "transport": "Cómo se viaja: by bus, on foot, in a car.",
+          "phrase":    "Frases hechas con preposición: on time, by accident, for example."
+        },
+        "level_label": "Nivel",
+        "show_more_examples": "Más ejemplos",
+        "show_fewer_examples": "Menos ejemplos",
+        "no_results": "No se encontró ninguna regla.",
+        "filter_label": "Filtro",
+        "filter_all": "Todas",
+        "filter_review": "Para repasar",
+        "filter_mastered": "Dominadas",
+        "filter_practiced": "Ya practicadas"
+      },
+      "tools": {
+        "flashcards": {
+          "intro": "En la cara delantera: una frase con un hueco. Toca la tarjeta para ver la preposición correcta y la regla. Decide tú con honestidad.",
+          "filter_all": "Todas las reglas"
+        },
+        "free_practice": {
+          "intro": "Sin reloj, sin puntos. Escribe la preposición correcta; pulsa Pista si te atascas. Puedes parar cuando quieras.",
+          "filter_all": "Todas las reglas",
+          "filter_weak": "Solo reglas flojas",
+          "fixed_deck_note": "Estás practicando una selección fija de {n} reglas.",
+          "fixed_deck_remaining": "Quedan {n} por practicar.",
+          "fixed_deck_done_title": "¡Todas las reglas conseguidas! 🦀",
+          "fixed_deck_done_body": "Has respondido correctamente a todas las reglas de tu lista.",
+          "fixed_deck_continue_all": "Seguir con todas las reglas"
+        }
+      }
+    }
   }
 }

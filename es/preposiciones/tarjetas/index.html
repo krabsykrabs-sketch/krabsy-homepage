@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
+  <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
+  <title>Tarjetas: Preposiciones en inglés — Krabsy</title>
+  <meta name="description" content="Tarjetas para preposiciones en inglés. Frase con hueco delante, preposición + regla detrás. Aprende clásico, a tu ritmo.">
+  <meta name="keywords" content="tarjetas, flashcards, preposiciones inglés, aprender inglés">
+  <link rel="canonical" href="https://krabsy.com/es/preposiciones/tarjetas/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/praepositionen/karteikarten/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/preposiciones/tarjetas/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/karteikarten/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Tarjetas: Preposiciones en inglés — Krabsy">
+  <meta property="og:description" content="Tarjetas para preposiciones en inglés. Frase con hueco delante, preposición + regla detrás. Aprende clásico, a tu ritmo.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/es/preposiciones/tarjetas/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tarjetas: Preposiciones en inglés — Krabsy">
+  <meta name="twitter:description" content="Tarjetas para preposiciones en inglés. Frase con hueco delante, preposición + regla detrás. Aprende clásico, a tu ritmo.">
+  <meta name="twitter:image" content="https://krabsy.com/og-image.png">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      "name": "Tarjetas — Preposiciones",
+      "url": "https://krabsy.com/es/preposiciones/tarjetas/",
+      "description": "Tarjetas para preposiciones en inglés. Frase con hueco delante, preposición + regla detrás. Aprende clásico, a tu ritmo.",
+      "learningResourceType": "LearningActivity",
+      "interactivityType": "active",
+      "educationalLevel": "Klasse 5–8",
+      "inLanguage": "es",
+      "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+      "isPartOf": { "@type": "WebSite", "name": "Krabsy", "url": "https://krabsy.com/" }
+    }
+  </script>
+  <!-- /SEO-BLOCK -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <style>
+    /* ── Flashcards (prep variant) ────────────────────────────────────── */
+    .fc-page-header-inner { display: flex; align-items: center; gap: 12px; }
+    main.fc-main { flex: 1; }
+    .fc-page-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--space-5); }
+    .fc-page-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+    .fc-intro { color: var(--krabsy-ink-mute); font-size: 0.9rem; margin: 0; max-width: 60ch; }
+
+    .fc-toolbar {
+      display: flex; align-items: center; gap: var(--space-3);
+      flex-wrap: wrap; margin-bottom: var(--space-5);
+    }
+    .fc-toolbar-label { font-size: 0.85rem; color: var(--krabsy-ink-mute); font-weight: 600; }
+    .fc-filter-pills { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .fc-filter-pill {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+      padding: 7px 14px; border-radius: var(--radius-pill);
+      border: 2px solid var(--krabsy-lavender-soft);
+      background: var(--krabsy-white); color: var(--krabsy-ink-mute);
+      cursor: pointer; transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fc-filter-pill:hover:not(.is-active) { color: var(--krabsy-ink); border-color: var(--krabsy-sage); }
+    .fc-filter-pill.is-active { background: var(--krabsy-coral); color: var(--krabsy-white); border-color: var(--krabsy-coral); }
+
+    .fc-deck-position {
+      font-size: 0.85rem; color: var(--krabsy-ink-mute);
+      margin-bottom: var(--space-3); text-align: center; font-weight: 600;
+    }
+
+    .fc-stage { perspective: 1200px; width: 100%; max-width: 560px; margin: 0 auto var(--space-5) auto; }
+    .fc-card {
+      position: relative; width: 100%; aspect-ratio: 5 / 3.4;
+      cursor: pointer; transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(.2, .8, .2, 1);
+      will-change: transform;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fc-card.is-flipped { transform: rotateY(180deg); }
+    .fc-face {
+      position: absolute; inset: 0;
+      background: var(--krabsy-white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elev);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: var(--space-5);
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      text-align: center;
+    }
+    .fc-face-back { transform: rotateY(180deg); background: var(--krabsy-sage-soft); }
+
+    .fc-front-sentence {
+      font-family: var(--font-body);
+      font-size: clamp(1.15rem, 3.5vw, 1.5rem);
+      color: var(--krabsy-ink);
+      line-height: 1.55;
+      margin: 0;
+      max-width: 36ch;
+    }
+    .fc-front-blank {
+      display: inline-block;
+      font-weight: 700; color: var(--krabsy-ink);
+      background: var(--krabsy-lavender-soft);
+      border: 2px solid var(--krabsy-coral);
+      border-radius: var(--radius-sm);
+      padding: 2px 14px; letter-spacing: 3px; margin: 0 4px;
+    }
+    .fc-front-hint {
+      margin-top: var(--space-4);
+      font-size: 0.78rem; color: var(--krabsy-ink-mute);
+      letter-spacing: 0.4px; text-transform: uppercase;
+    }
+
+    .fc-back-stack {
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--space-3); width: 100%; max-width: 420px;
+    }
+    .fc-back-prep {
+      font-family: var(--font-display);
+      color: var(--krabsy-white);
+      background: var(--krabsy-coral);
+      padding: 6px 22px; border-radius: var(--radius-pill);
+      font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.1;
+      letter-spacing: 0.5px;
+    }
+    .fc-back-pattern {
+      font-family: var(--font-body); font-weight: 700;
+      color: var(--krabsy-ink); font-size: 1rem; letter-spacing: 0.3px;
+    }
+    .fc-back-explanation {
+      font-style: italic; color: var(--krabsy-ink-mute);
+      font-size: 0.9rem; line-height: 1.45;
+      max-width: 36ch;
+    }
+    .fc-judgment {
+      display: flex; justify-content: center; gap: var(--space-3);
+      flex-wrap: wrap; margin-bottom: var(--space-5);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .fc-judgment.is-pre-flip { visibility: hidden; pointer-events: none; opacity: 0; transform: translateY(8px); }
+    .fc-judgment .k-btn-primary, .fc-judgment .k-btn-secondary { min-width: 160px; }
+
+    .fc-state-message { text-align: center; padding: var(--space-6) var(--space-4); }
+    .fc-state-message .fc-state-text {
+      font-family: var(--font-display); font-size: 1.2rem;
+      color: var(--krabsy-ink); margin: 0 0 var(--space-5) 0;
+    }
+    .fc-state-actions { display: flex; justify-content: center; gap: var(--space-3); flex-wrap: wrap; }
+
+    .fc-hidden { display: none !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fc-card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="k-page">
+
+    <header class="k-page-header">
+      <div class="fc-page-header-inner">
+        <a class="k-logo" href="/es/">Krabsy</a>
+      </div>
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
+        <button class="k-lang-btn" data-lang="de" type="button">DE</button>
+        <button class="k-lang-btn" data-lang="es" type="button">ES</button>
+      </div>
+    </header>
+
+    <main class="k-section fc-main">
+
+      <div class="fc-page-header">
+        <div class="fc-page-title-row">
+          <h1 class="k-h1" data-i18n="tools.flashcards.name">Tarjetas</h1>
+        </div>
+        <p class="fc-intro" data-i18n="tools.flashcards.intro"></p>
+      </div>
+
+      <aside class="k-intro-card" aria-label="Sobre esta herramienta">
+        <p>Tarjetas para preposiciones en inglés. En la cara delantera ves una frase con un hueco. Toca la tarjeta para ver la preposición correcta, la regla y una explicación breve. Decide tú si ya conoces la regla.</p>
+      </aside>
+
+      <div class="fc-toolbar" role="group" aria-labelledby="fc-filter-label">
+        <span class="fc-toolbar-label" id="fc-filter-label" data-i18n="tools.flashcards.filter_label">¿Qué practicar?</span>
+        <div class="fc-filter-pills" id="fc-filter-pills">
+          <button class="fc-filter-pill" type="button" data-filter="all" data-i18n="tools.flashcards.filter_all">Todas las reglas</button>
+          <button class="fc-filter-pill" type="button" data-filter="review" data-i18n="tools.flashcards.filter_review">Solo para repasar</button>
+          <button class="fc-filter-pill" type="button" data-filter="mastered" data-i18n="tools.flashcards.filter_mastered">Solo dominadas</button>
+        </div>
+      </div>
+
+      <div class="fc-deck-position k-mono-num" id="fc-deck-position" aria-live="polite"></div>
+
+      <div class="fc-stage" id="fc-stage">
+        <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-label="Girar tarjeta" data-i18n-attr="aria-label:tools.flashcards.aria_flip_card">
+          <div class="fc-face fc-face-front">
+            <p class="fc-front-sentence" id="fc-front-sentence">—</p>
+            <div class="fc-front-hint" id="fc-front-hint" data-i18n="tools.flashcards.flip_hint">Toca para girar</div>
+          </div>
+          <div class="fc-face fc-face-back" aria-hidden="true">
+            <div class="fc-back-stack">
+              <div class="fc-back-prep" id="fc-back-prep">—</div>
+              <div class="fc-back-pattern" id="fc-back-pattern">—</div>
+              <div class="fc-back-explanation" id="fc-back-explanation"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-judgment" id="fc-judgment">
+        <button class="k-btn-secondary" type="button" id="fc-btn-again" data-i18n="tools.flashcards.btn_again">Otra vez</button>
+        <button class="k-btn-primary" type="button" id="fc-btn-got-it" data-i18n="tools.flashcards.btn_got_it">Ya lo sabía</button>
+      </div>
+
+      <div class="fc-state-message fc-hidden" id="fc-state-empty">
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_empty">No hay tarjetas en este mazo.</p>
+        <div class="fc-state-actions">
+          <a class="k-btn-secondary" href="/es/preposiciones/" data-i18n="common.back_to_hub">Volver al inicio</a>
+        </div>
+      </div>
+
+      <div class="fc-state-message fc-hidden" id="fc-state-finished">
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">¡Mazo terminado!</p>
+        <div class="fc-state-actions">
+          <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Otra vez</button>
+          <a class="k-btn-secondary" href="/es/preposiciones/" data-i18n="common.back_to_hub">Volver al inicio</a>
+        </div>
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Publicidad</div>
+      </div>
+    </main>
+
+    <footer class="k-footer">
+      <span id="fc-footer-copy"></span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { loadStrings, loadPrepositions, getLang, setLang } from '/lib/krabsy-data.js?v=2026-05-24';
+    import { recordAttempt, getStrugglers, getMastered, prepositionMastery } from '/lib/krabsy-stats.js?v=2026-05-24';
+
+    const CURRENT_TOPIC = 'prepositions';
+    const FILTER_KEY = 'krabsy_flashcards_filter_prepositions';
+    const VALID_FILTERS = new Set(['all', 'review', 'mastered']);
+    const MASTERED_THRESHOLD = 3;
+
+    const state = {
+      ui: null,
+      lang: 'es',
+      allCards: [],
+      deck: [],
+      index: 0,
+      flipped: false,
+      filter: 'all',
+      finished: false,
+    };
+
+    function tGet(path) {
+      const parts = path.split('.');
+      let cur = state.ui;
+      for (const p of parts) {
+        if (cur && Object.prototype.hasOwnProperty.call(cur, p)) cur = cur[p];
+        else return '';
+      }
+      return typeof cur === 'string' ? cur : '';
+    }
+
+    function applyStaticStrings() {
+      document.title = `${tGet('tools.flashcards.name')}: Preposiciones en inglés — Krabsy`;
+      document.documentElement.lang = state.lang;
+      document.querySelectorAll('[data-i18n]').forEach((node) => {
+        const key = node.getAttribute('data-i18n');
+        const val = tGet(key);
+        if (val) node.textContent = val;
+      });
+      const footerCopy = document.getElementById('fc-footer-copy');
+      const tmpl = tGet('homepage.footer_copyright') || '© {year} Krabsy';
+      footerCopy.textContent = tmpl.replace('{year}', new Date().getFullYear());
+      const lang = getLang();
+      document.querySelectorAll('.k-lang-btn').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.lang === lang);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+    function splitSentence(s) {
+      const idx = (s || '').indexOf('___');
+      if (idx < 0) return [s || '', ''];
+      return [s.slice(0, idx), s.slice(idx + 3)];
+    }
+    function shuffleInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildAllCards(useCases) {
+      const out = [];
+      for (const uc of useCases) {
+        const explanation = (uc.explanation && (state.lang === 'es' ? uc.explanation.es : uc.explanation.de)) || '';
+        if (!Array.isArray(uc.examples)) continue;
+        for (const ex of uc.examples) {
+          if (!ex || typeof ex.sentence !== 'string' || !ex.sentence.includes('___')) continue;
+          const valid = Array.isArray(ex.valid_answers) ? ex.valid_answers : [];
+          if (!valid[0]) continue;
+          out.push({
+            useCaseId: uc.id,
+            pattern:   uc.pattern || '',
+            sentence:  ex.sentence,
+            correct:   valid[0],
+            explanation,
+          });
+        }
+      }
+      return out;
+    }
+
+    function buildDeck(filter) {
+      if (filter === 'all') return shuffleInPlace(state.allCards.slice());
+      if (filter === 'review') {
+        const out = state.allCards.filter((c) => prepositionMastery(c.useCaseId, CURRENT_TOPIC) < MASTERED_THRESHOLD);
+        return shuffleInPlace(out);
+      }
+      if (filter === 'mastered') {
+        const out = state.allCards.filter((c) => prepositionMastery(c.useCaseId, CURRENT_TOPIC) >= MASTERED_THRESHOLD);
+        return shuffleInPlace(out);
+      }
+      return [];
+    }
+
+    function setFilterPillsActive() {
+      document.querySelectorAll('.fc-filter-pill').forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.filter === state.filter);
+      });
+    }
+
+    function showSection({ deck, empty, finished }) {
+      document.getElementById('fc-stage').classList.toggle('fc-hidden', !deck);
+      document.getElementById('fc-judgment').classList.toggle('fc-hidden', !deck);
+      document.getElementById('fc-deck-position').classList.toggle('fc-hidden', !deck);
+      document.getElementById('fc-state-empty').classList.toggle('fc-hidden', !empty);
+      document.getElementById('fc-state-finished').classList.toggle('fc-hidden', !finished);
+    }
+
+    function renderCurrentCard() {
+      const card = document.getElementById('fc-card');
+      state.flipped = false;
+      card.classList.remove('is-flipped');
+      document.getElementById('fc-judgment').classList.add('is-pre-flip');
+
+      const total = state.deck.length;
+      if (total === 0) { showSection({ empty: true }); return; }
+      if (state.finished || state.index >= total) { showSection({ finished: true }); return; }
+
+      const entry = state.deck[state.index];
+      const [pre, post] = splitSentence(entry.sentence);
+      document.getElementById('fc-front-sentence').innerHTML =
+        `<span>${escapeHtml(pre)}</span>` +
+        `<span class="fc-front-blank">___</span>` +
+        `<span>${escapeHtml(post)}</span>`;
+      document.getElementById('fc-back-prep').textContent = entry.correct;
+      document.getElementById('fc-back-pattern').textContent = entry.pattern;
+      const expEl = document.getElementById('fc-back-explanation');
+      expEl.textContent = entry.explanation || '';
+      expEl.style.display = entry.explanation ? '' : 'none';
+      const posTmpl = tGet('tools.flashcards.deck_position') || 'Tarjeta {n} de {total}';
+      document.getElementById('fc-deck-position').textContent = posTmpl
+        .replace('{n}', String(state.index + 1))
+        .replace('{total}', String(total));
+
+      showSection({ deck: true });
+    }
+
+    function rebuildAndRender() {
+      state.deck = buildDeck(state.filter);
+      state.index = 0;
+      state.finished = false;
+      renderCurrentCard();
+    }
+
+    function flipCard() {
+      if (state.deck.length === 0 || state.finished) return;
+      state.flipped = !state.flipped;
+      const card = document.getElementById('fc-card');
+      card.classList.toggle('is-flipped', state.flipped);
+      document.getElementById('fc-judgment').classList.toggle('is-pre-flip', !state.flipped);
+    }
+
+    function judge(correct) {
+      if (state.deck.length === 0 || state.finished) return;
+      const entry = state.deck[state.index];
+      if (!entry) return;
+      recordAttempt(entry.useCaseId, 'default', correct, 'flashcards', CURRENT_TOPIC);
+      state.index += 1;
+      if (state.index >= state.deck.length) {
+        state.finished = true;
+        renderCurrentCard();
+      } else {
+        renderCurrentCard();
+      }
+    }
+
+    function loadSavedFilter() {
+      try { const v = localStorage.getItem(FILTER_KEY); if (v && VALID_FILTERS.has(v)) return v; }
+      catch (_) {}
+      return 'all';
+    }
+    function saveFilter(filter) { try { localStorage.setItem(FILTER_KEY, filter); } catch (_) {} }
+
+    function wireEvents() {
+      const card = document.getElementById('fc-card');
+      card.addEventListener('click', flipCard);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+      });
+      document.getElementById('fc-btn-got-it').addEventListener('click', (e) => { e.stopPropagation(); judge(true); });
+      document.getElementById('fc-btn-again').addEventListener('click', (e) => { e.stopPropagation(); judge(false); });
+      document.getElementById('fc-btn-restart').addEventListener('click', rebuildAndRender);
+      document.querySelectorAll('.fc-filter-pill').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const f = btn.dataset.filter;
+          if (!VALID_FILTERS.has(f) || f === state.filter) return;
+          state.filter = f; saveFilter(f);
+          setFilterPillsActive(); rebuildAndRender();
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { window.location.href = '/es/preposiciones/'; }
+      });
+    }
+
+    async function init() {
+      try {
+        state.lang = getLang();
+        const [ui, useCases] = await Promise.all([
+          loadStrings(undefined, CURRENT_TOPIC),
+          loadPrepositions(),
+        ]);
+        state.ui = ui;
+        state.allCards = buildAllCards(useCases);
+      } catch (err) {
+        console.error('Tarjetas init failed:', err);
+        document.body.innerHTML = '<p style="padding:24px;font-family:Verdana,sans-serif;">No se pudieron cargar los datos.</p>';
+        return;
+      }
+      state.filter = loadSavedFilter();
+      applyStaticStrings();
+      setFilterPillsActive();
+      wireEvents();
+      rebuildAndRender();
+    }
+    init();
+  </script>
+  <script type="module">
+    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-05-24';
+    initToolPage('flashcards', 'prepositions', ['flashcards', 'free_practice']);
+  </script>
+    <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
+</body>
+</html>
