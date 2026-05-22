@@ -334,6 +334,21 @@ Each work session ends with a 3-5 bullet entry here. Newest at the top.
 CC: when starting fresh, read the top 5-10 entries to know what just
 happened.
 
+**[2026-05-22] — Prep banner art: in/on/at + for/by/to bubbles**
+- The prep topic was using the bare `/thumbnails/banner.png` (crab on
+  sand with mostly-empty cream sky). Filled the empty area with six
+  preposition speech bubbles matching the verb thumbnail's style:
+  three main bubbles (`in` lavender, `on` sage, `at` coral) plus three
+  smaller satellites (`for`, `by`, `to`) for visual balance.
+- Generated programmatically — `/tmp/add_prep_bubbles.py` reads the
+  bubble-free original from commit `30c094c` each run, so re-running
+  doesn't stack bubbles. Edit the `bubbles` list (text / colour /
+  angle / position / scale / ticks) and re-run to iterate later.
+- Used Ubuntu variable font at weight 700, Pillow `set_variation_by_axes`.
+  Tick accents only on the main trio so satellites read as background.
+- Shipped as commits `a47357c` (initial trio) and `6401d5c` (added
+  satellites).
+
 **[2026-05-22] — Big session: content expansion + site-wide nav restructure**
 
 *Content side:*
