@@ -40,7 +40,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
 
@@ -358,18 +358,7 @@
     }
     .stats-peek strong { color: var(--krabsy-ink); font-weight: 700; }
 
-    /* ── Footer ── */
-    .footer {
-      margin-top: auto;
-      text-align: center;
-      padding: 24px 16px;
-      font-size: 0.78rem;
-      color: var(--krabsy-ink-mute);
-      background: var(--krabsy-lavender-soft);
-    }
-    .footer-more { display: block; margin-top: 6px; font-size: 0.7rem; opacity: 0.85; }
-    .footer-langs { margin-top: 8px; }
-  </style>
+</style>
 </head>
 <body>
 
@@ -395,8 +384,7 @@
       <div class="hero-banner">
         <img class="hero-banner-bg" src="/thumbnails/banner.png" alt="" loading="eager" decoding="async">
         <div class="hero-banner-text">
-          <h1 class="k-visually-hidden" data-i18n="homepage.seo_h1">Unregelmäßige Verben lernen</h1>
-          <p class="hero-title" data-i18n="homepage.hero_title">Meistere Englisch — Spiel für Spiel!</p>
+          <h1 class="hero-title" data-i18n="homepage.seo_h1">Unregelmäßige Verben lernen</h1>
           <p class="hero-sub" data-i18n="homepage.hero_sub">Unregelmäßige Verben lernen: spielen, üben, nachschlagen.</p>
         </div>
       </div>
@@ -475,9 +463,8 @@
     
     <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
     <!-- ── Footer ──────────────────────────────────────────────────────── -->
-    <footer class="footer">
+    <footer class="k-footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
-      <span class="footer-more" data-i18n="homepage.footer_more_topics">Mehr Grammatik-Themen folgen bald.</span>
     
       <span class="k-footer-legal-sep" aria-hidden="true">·</span>
       <span class="k-footer-legal-mount"></span>
@@ -762,7 +749,8 @@
     }
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
-    <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+    <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
 </body>

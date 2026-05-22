@@ -136,6 +136,68 @@ a:hover { color: var(--krabsy-coral); }
 
 .k-back-link:hover { color: var(--krabsy-coral); }
 
+/* ── Topic chip-bar (header, persistent) ────────────────────────────────
+   Injected by /lib/krabsy-topic-nav.js into every k-page-header. Sits
+   between the logo and the language toggle. Reuses .k-nav-chip styling
+   so the visual language matches the in-drill peer-nav chips. */
+
+.k-topic-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  justify-content: center;
+  margin: 0 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.k-topic-nav .k-nav-chip {
+  padding: 5px 12px;
+  font-size: 0.82rem;
+}
+.k-topic-nav .k-nav-chip.is-disabled {
+  opacity: 0.5;
+  cursor: default;
+  text-decoration: line-through;
+  text-decoration-color: var(--krabsy-ink-mute);
+  text-decoration-thickness: 1px;
+}
+.k-topic-nav .k-nav-chip.is-disabled:hover {
+  background: transparent;
+  color: var(--krabsy-ink-mute);
+}
+.k-topic-nav-sep {
+  color: var(--krabsy-lavender);
+  font-weight: 700;
+  user-select: none;
+  padding: 0 2px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Narrow phones: wrap the chip-bar onto its own row below the logo+toggle.
+   The header becomes a 2-row layout: top row = logo + lang toggle; bottom
+   row = chip-bar full-width. Keeps the chip-bar tappable instead of
+   crammed between two unflexable elements. */
+@media (max-width: 559px) {
+  .k-page-header {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    row-gap: 8px;
+  }
+  .k-topic-nav {
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    margin: 0;
+    gap: 4px;
+  }
+  .k-topic-nav .k-nav-chip {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+  }
+}
+
 /* ── Section ────────────────────────────────────────────────────────────── */
 
 .k-section {
@@ -692,6 +754,54 @@ body.k-is-playing .k-intro-card { display: none; }
 
 .k-footer a { color: var(--krabsy-ink-mute); text-decoration: none; }
 .k-footer a:hover { color: var(--krabsy-coral); }
+
+/* ── Expanded footer grid (injected by krabsy-footer.js) ────────────────
+   3-4 columns on desktop, single column on mobile. Sits above the
+   classic copyright + legal-mount line that already lives in every
+   page's footer markup. */
+.k-footer-grid {
+  max-width: 1100px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-2) var(--space-2);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5) var(--space-6);
+  text-align: left;
+}
+@media (min-width: 600px) {
+  .k-footer-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.k-footer-col-heading {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--krabsy-ink);
+  margin: 0 0 var(--space-3);
+}
+.k-footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.k-footer-col li { font-size: 0.85rem; line-height: 1.3; }
+.k-footer-col a { color: var(--krabsy-ink-mute); text-decoration: none; }
+.k-footer-col a:hover { color: var(--krabsy-coral); }
+.k-footer-col a.is-disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+.k-footer-bottom {
+  border-top: 1px solid rgba(44, 42, 58, 0.08);
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  font-size: 0.75rem;
+}
 
 /* Language-aware legal links — populated at runtime by /lib/krabsy-footer.js */
 .k-footer-legal-mount { display: inline; }

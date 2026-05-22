@@ -42,7 +42,7 @@
   </script>
   <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
   <style>
     /* ── Chooser-specific styles ────────────────────────────────────────────
        The chooser is the brand homepage — visually consistent with the rest
@@ -267,7 +267,7 @@
 
     .topic-card-thumb {
       aspect-ratio: 16 / 9;
-      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      background: var(--krabsy-cream);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -347,6 +347,82 @@
       letter-spacing: 1px;
       text-transform: uppercase;
       margin-top: var(--space-2);
+    }
+
+    /* ── Lang-hub Spiele strip ─────────────────────────────────────────
+       Compact horizontal row of game tiles for kids in "just let me play"
+       mode — no topic detour needed. Same visual language as the drill
+       end-screen "Probier auch das" strip but wider. */
+    .ch-games-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin: 0 0 4px;
+      flex-wrap: wrap;
+    }
+    .ch-games-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--krabsy-ink);
+      margin: 0;
+      line-height: 1.2;
+    }
+    @media (min-width: 720px) {
+      .ch-games-header h2 { font-size: 1.7rem; }
+    }
+    .ch-games-link {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--krabsy-coral-dark);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .ch-games-link:hover { color: var(--krabsy-coral); }
+
+    .ch-games-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 560px)  { .ch-games-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 820px)  { .ch-games-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1024px) { .ch-games-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .ch-game-tile {
+      display: flex;
+      flex-direction: column;
+      background: var(--krabsy-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--krabsy-ink);
+      transition: transform 0.18s ease;
+    }
+    .ch-game-tile:hover { transform: translateY(-2px); }
+    .ch-game-tile.is-coming-soon { opacity: 0.6; cursor: default; }
+    .ch-game-tile.is-coming-soon:hover { transform: none; }
+    .ch-game-tile-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ch-game-tile-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .ch-game-tile-emoji { font-size: 1.6rem; }
+    .ch-game-tile-name {
+      padding: 8px 10px;
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      text-align: center;
+      line-height: 1.2;
+      color: var(--krabsy-ink);
     }
 
     /* ── About section ───────────────────────────────────────────────── */
@@ -443,6 +519,17 @@
       <div class="topic-grid" id="topic-grid"></div>
     </section>
 
+    <!-- ── Spiele strip ─────────────────────────────────────────────────
+         Direct entry to a game without picking a topic first. -->
+    <section class="ch-section" id="games-strip-section" hidden>
+      <div class="ch-games-header">
+        <h2>Spiele</h2>
+        <a class="ch-games-link" href="/de/spiele/">Alle Spiele →</a>
+      </div>
+      <p class="ch-section-sub">Spiel direkt los — kein Thema auswählen nötig.</p>
+      <div class="ch-games-grid" id="lang-hub-games-grid"></div>
+    </section>
+
     <!-- ── About Krabsy ───────────────────────────────────────────────── -->
     <section class="ch-about">
       <h2 class="ch-about-heading">Was ist Krabsy?</h2>
@@ -463,10 +550,12 @@
   </div>
 
   <script type="module">
-    import { loadTopics, buildPageUrl, getLang } from '/lib/krabsy-data.js?v=2026-05-24';
+    import { loadTopics, buildPageUrl, getLang, getAllGames } from '/lib/krabsy-data.js?v=2026-05-24';
     import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-05-24';
 
     const LANG = 'de';
+    const GAMES_FOLDER = 'spiele';
+    const GAMES_STRIP_LIMIT = 5;
 
     /* ── Render topic catalog ──────────────────────────────────────── */
     async function renderTopics() {
@@ -607,12 +696,62 @@
       if (el) el.textContent = `© ${new Date().getFullYear()} Krabsy`;
     }
 
+    /* ── Spiele strip (compact tiles, cross-topic) ────────────────── */
+    async function renderGamesStrip() {
+      const section = document.getElementById('games-strip-section');
+      const grid = document.getElementById('lang-hub-games-grid');
+      if (!section || !grid) return;
+      let games;
+      try { games = await getAllGames(); }
+      catch (err) { console.error('chooser: getAllGames failed', err); return; }
+      // Show playable games first, fill with coming-soon up to the limit.
+      const playable = games.filter((g) => g.status !== 'coming_soon');
+      const soon = games.filter((g) => g.status === 'coming_soon');
+      const ordered = [...playable, ...soon].slice(0, GAMES_STRIP_LIMIT);
+      if (!ordered.length) return;
+      grid.innerHTML = '';
+      for (const g of ordered) grid.appendChild(buildLangHubGameTile(g));
+      section.hidden = false;
+    }
+
+    function buildLangHubGameTile(g) {
+      const isPlayable = g.status !== 'coming_soon';
+      const tile = document.createElement(isPlayable ? 'a' : 'div');
+      tile.className = 'ch-game-tile' + (isPlayable ? '' : ' is-coming-soon');
+      if (isPlayable) tile.href = `/${LANG}/${GAMES_FOLDER}/${g.id}/`;
+
+      const thumb = document.createElement('div');
+      thumb.className = 'ch-game-tile-thumb';
+      if (g.thumbnail) {
+        const img = document.createElement('img');
+        img.src = g.thumbnail;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.addEventListener('error', () => {
+          img.remove();
+          thumb.innerHTML = '<span class="ch-game-tile-emoji">✏️</span>';
+        });
+        thumb.appendChild(img);
+      } else {
+        thumb.innerHTML = '<span class="ch-game-tile-emoji">✏️</span>';
+      }
+
+      const name = document.createElement('div');
+      name.className = 'ch-game-tile-name';
+      name.textContent = (g.name && g.name[LANG]) || g.id;
+
+      tile.append(thumb, name);
+      return tile;
+    }
+
     /* ── Boot ─────────────────────────────────────────────────────── */
     async function init() {
       renderFooter();
-      // Topics + progress can render independently; do them in parallel.
+      // Topics, games strip, and progress can render independently.
       await Promise.all([
         renderTopics(),
+        renderGamesStrip(),
         renderProgressRow(),
       ]);
     }
@@ -624,6 +763,7 @@
     }
   </script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-05-24" defer></script>
 </body>
