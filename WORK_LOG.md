@@ -334,6 +334,67 @@ Each work session ends with a 3-5 bullet entry here. Newest at the top.
 CC: when starting fresh, read the top 5-10 entries to know what just
 happened.
 
+**[2026-05-27] — Game catalog: thumbnails, 3D-platformer rebuild, Air Control hidden**
+
+*Thumbnails wired up:*
+- **Crab Slash** — Mika's PNG dropped as `thumbnails/CrabSlash.png`; renamed to
+  `thumbnails/crab-slash.png` to match site convention (lowercase-hyphen, mirrors
+  `verb-snake.png`). `data/games.json` had `crab-slash: thumbnail: null`; pointed
+  at the new file. Note: root-level `/games.json` is dead — the loader reads
+  `/data/games.json` only. Worth deleting the root file in a future sweep.
+- **Verb Platformer** — generated `thumbnails/verb-platformer.png` from a screenshot
+  Jan dropped at `_incoming/Images/Screenshot 3DPlat.png`. Center-cropped 1102×685
+  → 16:9 (32 px off top, 33 px off bottom; sky/platform edge only — no content
+  lost), resized to 1280×720 PNG via Pillow.
+
+*3D Platformer rebuilt from scratch on a new architecture:*
+- Old setup: a 2,342-line bundled `index.html` was duplicated inside both
+  `de/spiele/verb-platformer/` and `es/juegos/verb-platformer/`, each with its
+  own 4.4 MB `assets/` folder. ~9 MB total, painful to update.
+- New build (delivered by Jan as a multi-file source project — README says
+  "no build step, vanilla ES modules"; importmap pulls three.js 0.169.0 +
+  Rapier 0.19.3 + nipplejs from unpkg) is now at **`games/verb-platformer/`**
+  as a single shared copy (22 MB: `index.html`, `main.js`, `styles.css`,
+  `src/` with 17 modules, `assets/` with character + kaykit-platformer pack
+  + models/sounds/sprites).
+- Both per-language pages are now **thin iframe wrappers** (~60 lines each):
+  keep the SEO block, `krabsy_lang` init, and the `initGamePage('verb_platformer')`
+  + lang-switch + analytics scripts; body is just a full-bleed iframe pointing
+  at `/games/verb-platformer/`. The 48 px chip-bar header from `initGamePage`
+  is reserved via `margin-top: 48px` and `height: calc(100vh - 48px)` on the
+  iframe.
+- Future game updates = replace `/games/verb-platformer/` once; wrappers don't
+  need to change.
+- README in `_incoming/krabsy-3d/` explicitly recommends the iframe approach;
+  this matches.
+
+*Air Control hidden (game not ready):*
+- Entry **deleted** from `data/games.json` — removes the tile from the lang-hub
+  games strip, the games-hub grid, AND the chip-bar header injected by
+  `initGamePage` on every other game page (all three render dynamically from
+  this file).
+- Sitemap entries for `/de/spiele/air-control/` + `/es/juegos/air-control/`
+  removed.
+- Hardcoded JSON-LD `WebApplication` references pruned from `de/spiele/index.html`
+  and `es/juegos/index.html`.
+- **Kept on disk** for easy revert: the two wrapper pages, root-level
+  `krabsy-air-control.html`, and the `air_control` i18n keys in
+  `data/ui_de.json` / `data/ui_es.json`. Re-enable = paste the 9-line block
+  back into `data/games.json` (+ optionally the 2 sitemap entries + 2 JSON-LD
+  lines).
+
+*Known follow-ups (deferred):*
+- Hardcoded `WebApplication` listings in the two games-hub pages should
+  ideally be generated from `data/games.json` rather than maintained by hand.
+- The root `games.json` is dead code; the loader reads `data/games.json`.
+  Safe to delete next time the catalog is touched.
+- `thumbnails/VerbSlash.png` (PascalCase) is referenced as
+  `/thumbnails/VerbSlash.png` while `verb-snake.png` and now `crab-slash.png`
+  use lowercase-hyphen. Both currently resolve; would be nice to normalise
+  on next thumbnail pass.
+- The `_incoming/` directory (`krabsy-3d/` source bundle + `Images/`) is local
+  scratch — not added to git.
+
 **[2026-05-22] — Prep banner art: in/on/at + for/by/to bubbles**
 - The prep topic was using the bare `/thumbnails/banner.png` (crab on
   sand with mostly-empty cream sky). Filled the empty area with six

@@ -1,0 +1,255 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #87ceeb;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  touch-action: none;
+}
+
+/* ---------- In-game HUD ---------- */
+#hud {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 4;
+}
+#hud[hidden] { display: none; }
+
+#level-info {
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+#menu-btn {
+  pointer-events: auto;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+#menu-btn:hover { background: rgba(0, 0, 0, 0.75); }
+
+/* ---------- Progress bar ---------- */
+#progress {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  text-align: center;
+  pointer-events: none;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+#progress[hidden] { display: none; }
+#progress-text {
+  font-size: 14px;
+  margin-bottom: 5px;
+  letter-spacing: 0.3px;
+}
+#progress-bar {
+  width: 220px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4eb3ff, #2bbf5f);
+  transition: width 0.35s ease-out;
+}
+
+/* ---------- HUD question (style 5 of the Q/A test level) ---------- */
+#hud-question {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+#hud-question[hidden] { display: none; }
+
+/* ---------- Answer reveal (after wrong answer) ---------- */
+#answer-reveal {
+  position: fixed;
+  top: 28%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.82);
+  padding: 22px 38px;
+  border-radius: 14px;
+  font-size: 44px;
+  font-weight: 700;
+  text-align: center;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.55s ease-out;
+  white-space: nowrap;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+#answer-reveal[hidden] { display: none; }
+#reveal-prompt  { color: #fff; }
+#reveal-correct { color: #41d775; margin-left: 4px; }
+#reveal-correct.wrong { color: #ff5a5a; }   /* red — shows the wrong word the player stepped on */
+
+/* ---------- Death flash ---------- */
+#death-flash {
+  position: fixed;
+  inset: 0;
+  background: #ff2030;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+  z-index: 8;
+}
+
+/* ---------- Level complete overlay ---------- */
+#level-complete {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  text-align: center;
+  z-index: 9;
+}
+#level-complete[hidden] { display: none; }
+#level-complete h1 { font-size: 64px; margin: 0 0 12px; }
+#level-complete p { font-size: 22px; margin: 0; opacity: 0.9; }
+
+/* ---------- Touch controls ---------- */
+#touch-joystick {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  width: 140px;
+  height: 140px;
+  z-index: 5;
+}
+#touch-jump {
+  position: fixed;
+  right: 32px;
+  bottom: 56px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  z-index: 5;
+  touch-action: none;
+}
+#touch-jump[hidden], #touch-joystick[hidden] { display: none; }
+
+/* ---------- Level select menu ---------- */
+#menu {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #87ceeb 0%, #f9c89b 100%);
+  z-index: 10;
+}
+#menu[hidden] { display: none; }
+
+.menu-card {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2c3a;
+  padding: 36px 44px;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  min-width: 360px;
+  max-width: 460px;
+}
+.menu-card h1 {
+  margin: 0 0 4px;
+  font-size: 40px;
+  color: #ff7a3a;
+  letter-spacing: -0.5px;
+}
+.menu-card .subtitle {
+  margin: 0 0 24px;
+  font-size: 16px;
+  color: #5a6573;
+}
+.menu-card .hint {
+  margin: 24px 0 0;
+  font-size: 12px;
+  color: #7a8593;
+}
+
+#menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  border: 2px solid #f1d5b8;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2c3a;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.level-btn:hover {
+  background: #fff5ed;
+  border-color: #ff7a3a;
+  transform: translateY(-1px);
+}
+.level-btn:active { transform: translateY(1px); }
+.level-btn .num   { color: #ff7a3a; font-weight: 800; min-width: 26px; }
+.level-btn .title { flex: 1; }
+.level-btn .tick  { color: #2bbf5f; font-weight: 800; }

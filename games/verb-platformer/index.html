@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Krabsy 3D Platformer</title>
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/",
+      "@dimforge/rapier3d-compat": "https://unpkg.com/@dimforge/rapier3d-compat@0.19.3/rapier.mjs",
+      "nipplejs": "https://unpkg.com/nipplejs@1.0.1/dist/index.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- In-game HUD -->
+  <div id="hud" hidden>
+    <div id="level-info">Level —</div>
+    <button id="menu-btn">Menu</button>
+  </div>
+
+  <!-- Bottom-center progress -->
+  <div id="progress" hidden>
+    <div id="progress-text">Gate 1 / 5</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+
+  <!-- Persistent HUD question (style 5 of the Q/A test level) -->
+  <div id="hud-question" hidden></div>
+
+  <!-- Wrong-answer reveal overlay -->
+  <div id="answer-reveal" hidden>
+    <span id="reveal-prompt"></span><span id="reveal-correct"></span>
+  </div>
+
+  <!-- Touch controls (tablet only) -->
+  <div id="touch-jump" hidden>JUMP</div>
+  <div id="touch-joystick" hidden></div>
+
+  <!-- Death flash overlay -->
+  <div id="death-flash" hidden></div>
+
+  <!-- Level complete overlay -->
+  <div id="level-complete" hidden>
+    <h1>Level Complete!</h1>
+    <p>Returning to menu…</p>
+  </div>
+
+  <!-- Level select menu (initial screen) -->
+  <div id="menu" hidden>
+    <div class="menu-card">
+      <h1>Krabsy 3D</h1>
+      <p class="subtitle">Pick a Level</p>
+      <div id="menu-list"></div>
+      <p class="hint">Click canvas to capture mouse · WASD to move · Space to jump · Esc to release</p>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

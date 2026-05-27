@@ -17,18 +17,7 @@
       "de": "Schlage die Krabben mit den richtigen Verben!",
       "es": "¡Golpea los cangrejos con los verbos correctos!"
     },
-    "thumbnail": null,
-    "topics": ["irregular_verbs"],
-    "status": "beta"
-  },
-  {
-    "id": "air-control",
-    "name": { "de": "Air Control!", "es": "Air Control!" },
-    "tagline": {
-      "de": "Lotse die Flugzeuge sicher mit Englisch!",
-      "es": "¡Guía los aviones de forma segura con inglés!"
-    },
-    "thumbnail": null,
+    "thumbnail": "/thumbnails/crab-slash.png",
     "topics": ["irregular_verbs"],
     "status": "beta"
   },
@@ -50,7 +39,7 @@
       "de": "Springe durch 3D-Welten und wähle die richtige Verbform!",
       "es": "¡Salta por mundos 3D y elige la forma verbal correcta!"
     },
-    "thumbnail": null,
+    "thumbnail": "/thumbnails/verb-platformer.png",
     "topics": ["irregular_verbs"],
     "status": "beta"
   }
