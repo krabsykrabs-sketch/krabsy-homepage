@@ -32,9 +32,9 @@ but not referenced — verify before removing.)
 
 - **Verb Flow**: design polish pass requested, then release (wire into
   `data/games.json` + wrappers + sitemap). Game is verified working.
-- **Folder restructure** (this session): done on branch `restructure`.
-  Pending: ① you set the static site's Coolify **Base directory to
-  `/homepage`**, ② merge branch, ③ then push.
+- **Folder restructure**: done, merged to `main`, pushed, and **deployed
+  live** (Coolify static Base directory = `/homepage`). Verified serving:
+  games.json, hub, verb-platformer, air-control, type-race.
 - **Shared assets**: `/assets/` established with raw masters (KayKit,
   Kenney, zips). The 3D platformer's *wired* `kaykit-platformer` still
   lives in its source folder — consolidating it into `/assets/` (+ repoint
