@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-runway",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-d", "ubuntu", "--", "python3", "-m", "http.server", "8613", "--directory", "/home/jan/krabsy-homepage/games/verb-runway"],
+      "port": 8613
+    }
+  ]
+}

@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Verb Runway 👗✨ — Krabsy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>👗</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e; --navy:#0d2240;
+  --card:#15315a; --card2:#1b3b6b; --ink:#2a2440;
+  --txt:#f3f7ff; --dim:#9fb4d8;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0; height:100%;}
+body{
+  background:var(--navy);
+  background-image:radial-gradient(1200px 700px at 50% -200px, #1a3a68 0%, var(--navy) 60%);
+  color:var(--txt); font-family:'Nunito',sans-serif; overflow:hidden;
+}
+h1,h2,h3,.fredoka{font-family:'Fredoka One',cursive; font-weight:400; letter-spacing:.5px;}
+button{font-family:'Nunito',sans-serif; cursor:pointer; border:none;}
+
+.screen{position:fixed; inset:0; display:none; flex-direction:column; align-items:center; overflow:hidden;}
+.screen.on{display:flex;}
+
+/* ---------- corner buttons ---------- */
+.corner{position:absolute; top:10px; z-index:40; display:flex; gap:8px;}
+.corner.left{left:10px;} .corner.right{right:10px;}
+.iconbtn{
+  width:42px; height:42px; border-radius:14px; background:rgba(255,255,255,.08);
+  color:var(--txt); font-size:20px; display:flex; align-items:center; justify-content:center;
+  border:2px solid rgba(255,255,255,.12); transition:transform .12s;
+}
+.iconbtn:active{transform:scale(.92);}
+.coinpill{
+  height:42px; padding:0 14px; border-radius:14px; background:rgba(255,207,94,.14);
+  border:2px solid rgba(255,207,94,.4); color:var(--amber); font-weight:800; font-size:17px;
+  display:flex; align-items:center; gap:6px;
+}
+
+/* ---------- start screen ---------- */
+#scr-start{justify-content:center; gap:14px; padding:20px; text-align:center;}
+#scr-start .mascot{font-size:64px; line-height:1; filter:drop-shadow(0 6px 0 rgba(0,0,0,.25)); animation:bob 2.4s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+#scr-start h1{font-size:clamp(34px,8vw,52px); margin:0;}
+#scr-start h1 .vw{color:var(--amber);} #scr-start h1 .rw{color:var(--teal);}
+.tagline{color:var(--dim); font-size:16px; font-weight:700; margin:-6px 0 8px;}
+.howto{display:flex; flex-direction:column; gap:9px; max-width:380px; width:100%;}
+.howrow{
+  display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.06);
+  border-radius:16px; padding:10px 14px; text-align:left; font-weight:700; font-size:15px;
+  border:1.5px solid rgba(255,255,255,.08);
+}
+.howrow .e{font-size:24px;}
+.bigbtn{
+  margin-top:10px; font-family:'Fredoka One',cursive; font-size:21px; color:#5c3d00;
+  background:linear-gradient(180deg,#ffe39a,var(--amber)); border-radius:20px; padding:15px 38px;
+  box-shadow:0 6px 0 #c79527, 0 10px 24px rgba(0,0,0,.35); transition:transform .1s;
+}
+.bigbtn:active{transform:translateY(4px); box-shadow:0 2px 0 #c79527;}
+.ghostbtn{
+  font-family:'Fredoka One',cursive; font-size:16px; color:var(--teal);
+  background:rgba(46,230,192,.1); border:2px solid rgba(46,230,192,.5);
+  border-radius:16px; padding:11px 26px;
+}
+.streakline{color:var(--dim); font-size:14px; font-weight:700;}
+.streakline b{color:var(--coral);}
+
+/* ---------- theme reveal card ---------- */
+#themecard{
+  position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center;
+  background:rgba(8,18,38,.78); backdrop-filter:blur(4px);
+}
+#themecard.on{display:flex;}
+#themecard .card{
+  background:linear-gradient(180deg,#234a86,var(--card)); border-radius:26px; padding:30px 26px;
+  text-align:center; max-width:340px; width:88%; border:2px solid rgba(255,255,255,.15);
+  box-shadow:0 24px 60px rgba(0,0,0,.5); animation:cardpop .45s cubic-bezier(.2,1.6,.4,1);
+}
+@keyframes cardpop{from{transform:scale(.6) rotate(-4deg); opacity:0;}to{transform:scale(1); opacity:1;}}
+#themecard .te{font-size:56px;}
+#themecard h2{font-size:26px; margin:8px 0 4px; color:var(--amber);}
+#themecard .mode{font-size:13px; font-weight:800; color:var(--dim); text-transform:uppercase; letter-spacing:1px;}
+.hintchips{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:14px 0 18px;}
+.hintchip{background:rgba(46,230,192,.13); border:1.5px solid rgba(46,230,192,.45); color:var(--teal);
+  border-radius:999px; padding:4px 12px; font-size:13.5px; font-weight:800;}
+
+/* ---------- styling screen ---------- */
+#scr-style{flex-direction:row; padding:0;}
+#stageCol{flex:1.1; display:flex; flex-direction:column; align-items:center; min-width:0; height:100%; position:relative;}
+#themebar{
+  margin-top:60px; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.12); border-radius:16px; padding:7px 14px; max-width:92%;
+}
+#themebar .te{font-size:22px;}
+#themebar .tn{font-family:'Fredoka One',cursive; font-size:15px; color:var(--amber);}
+#themebar .th{font-size:12px; color:var(--dim); font-weight:700;}
+#dollwrap{flex:1; display:flex; align-items:center; justify-content:center; width:100%; min-height:0; padding:8px 0;}
+#dollwrap svg{height:100%; max-height:62vh; filter:drop-shadow(0 10px 16px rgba(0,0,0,.35));}
+#runwayBtn{
+  margin-bottom:16px; font-family:'Fredoka One',cursive; font-size:19px; color:#5c1230;
+  background:linear-gradient(180deg,#ffacac,var(--coral)); border-radius:18px; padding:13px 30px;
+  box-shadow:0 5px 0 #c1495c, 0 8px 18px rgba(0,0,0,.3); transition:transform .1s;
+}
+#runwayBtn:active{transform:translateY(3px); box-shadow:0 2px 0 #c1495c;}
+
+#panel{
+  width:380px; max-width:44%; height:100%; background:rgba(0,0,0,.22);
+  border-left:2px solid rgba(255,255,255,.07); display:flex; flex-direction:column; padding:60px 12px 10px;
+}
+#skinrow{display:flex; gap:8px; align-items:center; padding:2px 6px 10px; font-size:13px; font-weight:800; color:var(--dim);}
+.skindot{width:28px; height:28px; border-radius:50%; border:2.5px solid rgba(255,255,255,.25); cursor:pointer;}
+.skindot.sel{border-color:var(--teal); box-shadow:0 0 0 3px rgba(46,230,192,.3);}
+#tabs{display:flex; gap:6px; flex-wrap:wrap; padding-bottom:8px;}
+.tab{
+  border-radius:12px; padding:7px 11px; background:rgba(255,255,255,.07); color:var(--dim);
+  font-weight:800; font-size:13.5px; border:1.5px solid transparent;
+}
+.tab.sel{background:rgba(46,230,192,.14); color:var(--teal); border-color:rgba(46,230,192,.5);}
+#itemgrid{
+  flex:1; overflow-y:auto; display:grid; grid-template-columns:repeat(3,1fr); gap:9px;
+  align-content:start; padding:4px 2px 12px;
+}
+.itemcard{
+  background:rgba(255,255,255,.07); border:2px solid rgba(255,255,255,.1); border-radius:16px;
+  padding:6px 4px 7px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  cursor:pointer; position:relative; transition:transform .12s;
+}
+.itemcard:active{transform:scale(.94);}
+.itemcard.worn{border-color:var(--amber); background:rgba(255,207,94,.12);}
+.itemcard.none{justify-content:center; min-height:96px; color:var(--dim); font-size:24px;}
+.itemcard svg{width:100%; height:64px;}
+.itemcard .nm{font-size:11px; font-weight:800; color:var(--txt); text-align:center; line-height:1.1;}
+.itemcard.locked svg{filter:brightness(0); opacity:.35;}
+.itemcard.locked .nm{color:var(--dim);}
+.lockbadge{position:absolute; top:4px; right:6px; font-size:14px;}
+.cwrow{display:flex; gap:5px; justify-content:center; margin-top:1px;}
+.cwdot{width:15px; height:15px; border-radius:50%; border:2px solid rgba(255,255,255,.35); cursor:pointer; position:relative;}
+.cwdot.sel{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.4);}
+.cwdot.lockcw{opacity:.32;}
+.cwdot.lockcw::after{content:''; position:absolute; inset:4px; border-radius:50%; background:rgba(0,0,0,.55);}
+
+/* ---------- runway ---------- */
+#scr-runway{background:#08142b; justify-content:center;}
+#stage{position:absolute; inset:0; overflow:hidden;}
+#floor{position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:min(92vw,560px); height:62vh;}
+#spot{
+  position:absolute; left:50%; top:0; transform:translateX(-50%); width:120vmax; height:120vmax; pointer-events:none;
+  background:radial-gradient(closest-side at 50% 38%, rgba(255,244,210,.20), rgba(255,244,210,.05) 45%, transparent 70%);
+  animation:spotsweep 3.2s ease-in-out infinite alternate;
+}
+@keyframes spotsweep{from{transform:translateX(-58%);}to{transform:translateX(-42%);}}
+.curtain{position:absolute; top:0; bottom:0; width:54%; z-index:30;
+  background:repeating-linear-gradient(90deg,#a72654 0 26px,#8f1d46 26px 52px);
+  box-shadow:inset 0 -40px 60px rgba(0,0,0,.4);}
+.curtain.l{left:0; border-right:10px solid #6e1233; transform:translateX(0); transition:transform 1.1s cubic-bezier(.6,.05,.4,1);}
+.curtain.r{right:0; border-left:10px solid #6e1233; transform:translateX(0); transition:transform 1.1s cubic-bezier(.6,.05,.4,1);}
+#scr-runway.open .curtain.l{transform:translateX(-104%);}
+#scr-runway.open .curtain.r{transform:translateX(104%);}
+#runwayDollWrap{position:absolute; left:50%; bottom:9vh; z-index:20; transform:translateX(-50%);}
+#runwayDollWrap svg{height:54vh; filter:drop-shadow(0 14px 18px rgba(0,0,0,.5));}
+#scr-runway.open #runwayDollWrap{animation:strut 4.4s ease-in-out forwards;}
+@keyframes strut{
+  0%{transform:translateX(-50%) translateY(-30vh) scale(.42); opacity:0;}
+  8%{opacity:1;}
+  46%{transform:translateX(-50%) translateY(0) scale(1);}
+  56%{transform:translateX(-50%) translateY(0) scale(1) rotate(-5deg);}
+  66%{transform:translateX(-50%) translateY(0) scale(1) rotate(5deg);}
+  76%{transform:translateX(-50%) translateY(-1.5vh) scale(1) rotate(0deg);}
+  82%{transform:translateX(-50%) translateY(0) scale(1);}
+  100%{transform:translateX(-50%) translateY(0) scale(1);}
+}
+.flash{position:absolute; width:90px; height:90px; border-radius:50%; pointer-events:none; z-index:25;
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 65%); opacity:0; animation:flashpop .5s ease-out forwards;}
+@keyframes flashpop{0%{opacity:0; transform:scale(.3);}18%{opacity:1;}100%{opacity:0; transform:scale(1.5);}}
+.spark{position:absolute; font-size:18px; pointer-events:none; z-index:26; animation:sparkfall 1.6s linear forwards;}
+@keyframes sparkfall{from{opacity:1; transform:translateY(0) rotate(0);}to{opacity:0; transform:translateY(70px) rotate(160deg);}}
+#runwayTitle{position:absolute; top:9vh; width:100%; text-align:center; z-index:22; font-family:'Fredoka One',cursive;
+  font-size:clamp(20px,5vw,30px); color:var(--amber); text-shadow:0 4px 0 rgba(0,0,0,.3); opacity:0; transition:opacity .8s .9s;}
+#scr-runway.open #runwayTitle{opacity:1;}
+.qa-freeze *{animation-play-state:paused !important; transition:none !important;}
+
+/* ---------- judging ---------- */
+#scr-judge{padding:18px 14px; overflow-y:auto; justify-content:flex-start;}
+#judgeInner{width:100%; max-width:460px; display:flex; flex-direction:column; gap:10px; align-items:center; padding:46px 0 24px;}
+#judgeTheme{font-size:15px; color:var(--dim); font-weight:800;}
+#judgeTheme b{color:var(--amber);}
+.judgecard{
+  width:100%; background:var(--card); border:2px solid rgba(255,255,255,.1); border-radius:18px;
+  padding:10px 14px; display:flex; gap:12px; align-items:center;
+  opacity:0; transform:translateY(14px); transition:opacity .4s, transform .4s;
+}
+.judgecard.in{opacity:1; transform:translateY(0);}
+.javatar{width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:30px; flex:none;}
+.jbody{flex:1; min-width:0;}
+.jname{font-family:'Fredoka One',cursive; font-size:15px;}
+.jrole{font-size:11.5px; color:var(--dim); font-weight:700;}
+.jcomment{font-size:13.5px; font-weight:700; margin-top:3px; line-height:1.3;}
+.jscore{margin-left:auto; flex:none; font-family:'Fredoka One',cursive; font-size:22px; color:var(--teal);
+  background:rgba(46,230,192,.1); border:2px solid rgba(46,230,192,.4); border-radius:14px; padding:6px 11px;}
+#totalbox{margin-top:6px; text-align:center; opacity:0; transform:scale(.7); transition:opacity .5s, transform .5s cubic-bezier(.2,1.6,.4,1);}
+#totalbox.in{opacity:1; transform:scale(1);}
+#totalnum{font-family:'Fredoka One',cursive; font-size:54px; color:var(--amber); line-height:1; text-shadow:0 5px 0 rgba(0,0,0,.25);}
+#totalnum small{font-size:22px; color:var(--dim);}
+#stars{font-size:30px; letter-spacing:4px; margin-top:2px;}
+#chiprow{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px;}
+.matchchip{background:rgba(46,230,192,.13); border:1.5px solid rgba(46,230,192,.45); color:var(--teal);
+  border-radius:999px; padding:3px 11px; font-size:12.5px; font-weight:800;}
+.matchchip.color{background:rgba(255,207,94,.13); border-color:rgba(255,207,94,.5); color:var(--amber);}
+#coinsEarned{margin-top:6px; font-weight:800; color:var(--amber); font-size:17px;}
+#practiceNote{font-size:12.5px; color:var(--dim); font-weight:700;}
+#judgeBtns{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; justify-content:center;}
+
+/* ---------- delivery modal ---------- */
+#delivery{
+  position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center;
+  background:rgba(8,18,38,.82); backdrop-filter:blur(4px); padding:14px;
+}
+#delivery.on{display:flex;}
+#delcard{
+  background:linear-gradient(180deg,#23498a,var(--card)); border-radius:24px; border:2px solid rgba(255,255,255,.16);
+  width:100%; max-width:400px; max-height:92vh; overflow-y:auto; padding:20px 18px; text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+#delcard h2{margin:0 0 4px; font-size:22px; color:var(--amber);}
+#boxart{font-size:58px; margin:6px 0; display:inline-block;}
+#boxart.shake{animation:boxshake .5s ease-in-out infinite;}
+@keyframes boxshake{0%,100%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}}
+#delslots{display:flex; gap:10px; justify-content:center; margin:10px 0 14px;}
+.delslot{
+  width:86px; height:104px; border-radius:14px; background:rgba(0,0,0,.25); border:2px dashed rgba(255,255,255,.25);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:26px; position:relative;
+}
+.delslot svg{width:72px; height:66px;}
+.delslot .sl-name{font-size:9.5px; font-weight:800; line-height:1.05; padding:0 2px;}
+.delslot.won{border-style:solid; border-color:var(--teal); background:rgba(46,230,192,.1); animation:cardpop .4s cubic-bezier(.2,1.6,.4,1);}
+.delslot.lost{opacity:.45;}
+.delslot.coin{border-style:solid; border-color:rgba(255,207,94,.6); background:rgba(255,207,94,.1);}
+#qbox{background:rgba(0,0,0,.22); border-radius:18px; padding:14px 12px; margin-top:4px;}
+#qprompt{font-size:15px; font-weight:800; color:var(--dim);}
+#qverb{font-family:'Fredoka One',cursive; font-size:30px; margin:4px 0 2px;}
+#qform{display:inline-block; border-radius:999px; padding:2px 12px; font-size:12.5px; font-weight:800; color:#222; margin-bottom:10px;}
+#qform.f-past{background:var(--teal);} #qform.f-pp{background:var(--coral);}
+#qsentence{font-size:13.5px; color:var(--dim); font-weight:700; font-style:italic; margin-bottom:10px;}
+#qchips{display:flex; flex-direction:column; gap:8px;}
+.qchip{
+  font-size:18px; font-weight:800; padding:11px; border-radius:14px; background:rgba(255,255,255,.09);
+  border:2px solid rgba(255,255,255,.16); color:var(--txt); transition:transform .1s;
+}
+.qchip:active{transform:scale(.97);}
+.qchip.right{background:rgba(46,230,192,.2); border-color:var(--teal);}
+.qchip.wrong{background:rgba(255,133,133,.2); border-color:var(--coral);}
+#teach{margin-top:10px; font-size:15px; font-weight:800; display:none;}
+#teach.on{display:block; animation:cardpop .35s;}
+#teach .fb{color:var(--amber);} #teach .fp{color:var(--teal);} #teach .fpp{color:var(--coral);}
+#teach .arr{color:var(--dim); margin:0 5px;}
+#delprogress{font-size:12.5px; color:var(--dim); font-weight:800; margin-top:8px;}
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(80px); z-index:90;
+  background:#223f73; border:2px solid rgba(255,255,255,.2); color:var(--txt); border-radius:16px;
+  padding:10px 18px; font-weight:800; font-size:14px; transition:transform .3s; max-width:88vw; text-align:center;
+  box-shadow:0 10px 28px rgba(0,0,0,.4);
+}
+#toast.on{transform:translateX(-50%) translateY(0);}
+
+/* ---------- QA closet ---------- */
+#qa-closet{position:fixed; inset:0; z-index:100; overflow-y:auto; background:var(--navy); display:none; padding:18px;}
+#qa-closet.on{display:block;}
+#qa-closet h2{color:var(--amber); margin:6px 0 12px; text-align:center;}
+.qa-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; max-width:1180px; margin:0 auto;}
+.qa-cell{background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1); border-radius:16px; padding:8px 4px 9px; text-align:center;}
+.qa-cell svg{width:100%; height:170px;}
+.qa-cell .nm{font-size:12px; font-weight:800; margin-top:2px;}
+.qa-cell .cat{font-size:10px; color:var(--dim); font-weight:800; text-transform:uppercase; letter-spacing:.6px;}
+.qa-cell .cwrow{margin-top:4px;}
+.qa-skinrow{display:flex; gap:12px; justify-content:center; margin-bottom:14px; flex-wrap:wrap;}
+.qa-skinrow .qa-cell{width:120px;} .qa-skinrow svg{height:140px;}
+
+/* ---------- confetti ---------- */
+.confetti{position:fixed; top:-12px; z-index:95; width:9px; height:13px; pointer-events:none; animation:confall linear forwards;}
+@keyframes confall{to{transform:translateY(108vh) rotate(560deg);}}
+
+/* ---------- mobile ---------- */
+@media (max-width:700px){
+  #scr-style{flex-direction:column;}
+  #panel{width:100%; max-width:100%; height:47%; border-left:none; border-top:2px solid rgba(255,255,255,.1);
+    padding:8px 10px 8px; border-radius:22px 22px 0 0; background:rgba(0,0,0,.3);}
+  #stageCol{flex:1; min-height:0;}
+  #themebar{margin-top:56px; padding:5px 10px;}
+  #themebar .th{display:none;}
+  #dollwrap svg{max-height:34vh;}
+  #runwayBtn{margin-bottom:8px; padding:10px 24px; font-size:17px;}
+  #tabs{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;}
+  #skinrow{padding-bottom:6px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ START ============ -->
+<div id="scr-start" class="screen on">
+  <div class="corner right"><button class="iconbtn" id="sndBtn1">🔊</button></div>
+  <div class="mascot">👗</div>
+  <h1><span class="vw">Verb</span> <span class="rw">Runway</span></h1>
+  <div class="tagline" id="tagline"></div>
+  <div class="howto" id="howto"></div>
+  <button class="bigbtn" id="btnDaily"></button>
+  <button class="ghostbtn" id="btnFree"></button>
+  <div class="streakline" id="streakline"></div>
+</div>
+
+<!-- ============ THEME CARD ============ -->
+<div id="themecard">
+  <div class="card">
+    <div class="mode" id="tcMode"></div>
+    <div class="te" id="tcEmoji"></div>
+    <h2 id="tcName"></h2>
+    <div class="hintchips" id="tcHints"></div>
+    <button class="bigbtn" id="tcGo" style="font-size:18px; padding:12px 30px;"></button>
+  </div>
+</div>
+
+<!-- ============ STYLING ============ -->
+<div id="scr-style" class="screen">
+  <div class="corner left"><button class="iconbtn" id="homeBtn">🏠</button></div>
+  <div class="corner right">
+    <div class="coinpill"><span>🪙</span><span id="coinNum">0</span></div>
+    <button class="iconbtn" id="boxBtn">📦</button>
+    <button class="iconbtn" id="sndBtn2">🔊</button>
+  </div>
+  <div id="stageCol">
+    <div id="themebar">
+      <span class="te" id="tbEmoji"></span>
+      <span><div class="tn" id="tbName"></div><div class="th" id="tbHints"></div></span>
+    </div>
+    <div id="dollwrap"></div>
+    <button id="runwayBtn"></button>
+  </div>
+  <div id="panel">
+    <div id="skinrow"></div>
+    <div id="tabs"></div>
+    <div id="itemgrid"></div>
+  </div>
+</div>
+
+<!-- ============ RUNWAY ============ -->
+<div id="scr-runway" class="screen">
+  <div id="stage">
+    <div id="spot"></div>
+    <svg id="floor" viewBox="0 0 560 480" preserveAspectRatio="none">
+      <polygon points="215,0 345,0 520,480 40,480" fill="#1b2f57"/>
+      <polygon points="215,0 345,0 345,2 215,2" fill="#2ee6c0" opacity=".5"/>
+      <line x1="215" y1="0" x2="40" y2="480" stroke="#2ee6c0" stroke-width="4" opacity=".55"/>
+      <line x1="345" y1="0" x2="520" y2="480" stroke="#2ee6c0" stroke-width="4" opacity=".55"/>
+      <g fill="#ffcf5e" opacity=".8">
+        <circle cx="196" cy="60" r="4"/><circle cx="364" cy="60" r="4"/>
+        <circle cx="168" cy="150" r="5"/><circle cx="392" cy="150" r="5"/>
+        <circle cx="134" cy="260" r="6"/><circle cx="426" cy="260" r="6"/>
+        <circle cx="92" cy="390" r="7"/><circle cx="468" cy="390" r="7"/>
+      </g>
+    </svg>
+    <div id="runwayTitle"></div>
+    <div id="runwayDollWrap"></div>
+    <div class="curtain l"></div>
+    <div class="curtain r"></div>
+  </div>
+</div>
+
+<!-- ============ JUDGING ============ -->
+<div id="scr-judge" class="screen">
+  <div class="corner right"><button class="iconbtn" id="sndBtn3">🔊</button></div>
+  <div id="judgeInner">
+    <h2 style="margin:0; font-size:24px;" id="judgeTitle"></h2>
+    <div id="judgeTheme"></div>
+    <div id="judgecards" style="width:100%; display:flex; flex-direction:column; gap:10px;"></div>
+    <div id="totalbox">
+      <div id="totalnum"></div>
+      <div id="stars"></div>
+      <div id="chiprow"></div>
+      <div id="coinsEarned"></div>
+      <div id="practiceNote"></div>
+    </div>
+    <div id="judgeBtns">
+      <button class="bigbtn" id="btnDelivery" style="font-size:17px; padding:12px 22px;"></button>
+      <button class="ghostbtn" id="btnRestyle"></button>
+      <button class="ghostbtn" id="btnJHome">🏠</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DELIVERY ============ -->
+<div id="delivery">
+  <div id="delcard">
+    <h2 id="delTitle"></h2>
+    <div id="delIntro"></div>
+    <div id="boxart">📦</div>
+    <div id="delslots"></div>
+    <div id="qbox" style="display:none;">
+      <div id="qprompt"></div>
+      <div id="qverb"></div>
+      <div id="qform"></div>
+      <div id="qsentence"></div>
+      <div id="qchips"></div>
+      <div id="teach"></div>
+      <div id="delprogress"></div>
+    </div>
+    <div id="delbtns" style="margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="qa-closet"></div>
+
+<script>
+'use strict';
+/* =================================================================
+   Verb Runway — single-file Krabsy game.
+   Sections: rng/util · palette+skins · doll renderer · garments ·
+   themes/judges · verbs · i18n · audio · save · UI · runway/judging ·
+   deliveries · QA scenes · __VR hook
+================================================================= */
+
+/* ---------- params / rng ---------- */
+const PARAMS = new URLSearchParams(location.search);
+const QA = PARAMS.get('qa') || '';
+const LANG = (PARAMS.get('lang') === 'es') ? 'es' : 'de';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let rnd = QA ? mulberry32(42) : Math.random;
+const ri = n => Math.floor(rnd()*n);
+const pick = a => a[ri(a.length)];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---------- palette ---------- */
+const K = '#2a2440', W = '#ffffff', CREAM = '#fff7e6';
+const PAL = {
+  teal:    {m:'#2ee6c0', s:'#1aa88c', fam:'cool',    n:{de:'Türkis',     es:'Turquesa'}},
+  coral:   {m:'#ff8585', s:'#e05c64', fam:'warm',    n:{de:'Koralle',    es:'Coral'}},
+  amber:   {m:'#ffcf5e', s:'#e8a83a', fam:'warm',    n:{de:'Sonnengelb', es:'Ámbar'}},
+  denim:   {m:'#5b7fd4', s:'#3f5da8', fam:'cool',    n:{de:'Jeansblau',  es:'Mezclilla'}},
+  blush:   {m:'#ffb3c7', s:'#ef8aa6', fam:'warm',    n:{de:'Rosa',       es:'Rosa'}},
+  cream:   {m:'#fff3da', s:'#e8d3a8', fam:'neutral', n:{de:'Creme',      es:'Crema'}},
+  mint:    {m:'#a9efd2', s:'#73d4ad', fam:'cool',    n:{de:'Mint',       es:'Menta'}},
+  lavender:{m:'#c9aef5', s:'#a685dd', fam:'cool',    n:{de:'Lavendel',   es:'Lavanda'}},
+  charcoal:{m:'#3d4a6b', s:'#2b3550', fam:'neutral', n:{de:'Anthrazit',  es:'Carbón'}},
+  cocoa:   {m:'#8a5a3b', s:'#6b432a', fam:'neutral', n:{de:'Schoko',     es:'Cacao'}},
+  berry:   {m:'#d4567a', s:'#aa3a5e', fam:'warm',    n:{de:'Beere',      es:'Mora'}},
+  sky:     {m:'#9fd8f5', s:'#6fb6dd', fam:'cool',    n:{de:'Himmelblau', es:'Cielo'}},
+};
+const SKINS = [
+  {m:'#ffdcbb', s:'#f0bd95'},
+  {m:'#e9b183', s:'#d29363'},
+  {m:'#c08152', s:'#a96b3f'},
+  {m:'#8d5a33', s:'#75482a'},
+];
+
+/* ---------- doll anchor template ----------
+   viewBox 0 0 220 364 · center x=110
+   head c(110,64) r≈44 · shoulder y=122 · bust y=148 · waist y=178
+   hip y=208 · knee y=268 · ankle y=332 · foot y≈342
+   layers: body+base → shoes → bottom → top|dress → face → hair → acc
+-------------------------------------------------- */
+const ST = `stroke="${K}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
+
+function bodySVG(sk){
+  return `
+  <g ${ST}>
+    <circle cx="64" cy="70" r="6.5" fill="${sk.m}"/>
+    <circle cx="156" cy="70" r="6.5" fill="${sk.m}"/>
+    <path d="M88 128 C74 138 70 160 76 186" fill="none" stroke="${K}" stroke-width="17.5"/>
+    <path d="M132 128 C146 138 150 160 144 186" fill="none" stroke="${K}" stroke-width="17.5"/>
+    <path d="M88 128 C74 138 70 160 76 186" fill="none" stroke="${sk.m}" stroke-width="11.5"/>
+    <path d="M132 128 C146 138 150 160 144 186" fill="none" stroke="${sk.m}" stroke-width="11.5"/>
+    <circle cx="76" cy="188" r="7.5" fill="${sk.m}"/>
+    <circle cx="144" cy="188" r="7.5" fill="${sk.m}"/>
+    <path d="M97 210 L97 334" stroke="${K}" stroke-width="19"/>
+    <path d="M123 210 L123 334" stroke="${K}" stroke-width="19"/>
+    <path d="M97 210 L97 334" stroke="${sk.m}" stroke-width="13"/>
+    <path d="M123 210 L123 334" stroke="${sk.m}" stroke-width="13"/>
+    <ellipse cx="96" cy="341" rx="11" ry="8" fill="${sk.m}"/>
+    <ellipse cx="124" cy="341" rx="11" ry="8" fill="${sk.m}"/>
+    <rect x="101" y="96" width="18" height="28" rx="8" fill="${sk.m}"/>
+    <path d="M85 121 Q110 112 135 121 Q141 166 138 210 L82 210 Q79 166 85 121 Z" fill="${sk.m}"/>
+    <ellipse cx="110" cy="64" rx="45" ry="43" fill="${sk.m}"/>
+    <path d="M87 128 Q97 121 100 124 Q110 133 120 124 Q123 121 133 128 Q138 160 136 191 Q110 197 84 191 Q82 160 87 128 Z" fill="${CREAM}"/>
+    <path d="M84 188 L136 188 Q138 205 137 220 L113 220 L112 207 L108 207 L107 220 L83 220 Q82 205 84 188 Z" fill="#6e7da3"/>
+  </g>`;
+}
+function faceSVG(){
+  return `
+  <g>
+    <ellipse cx="93" cy="66" rx="5.5" ry="7" fill="${K}"/>
+    <ellipse cx="127" cy="66" rx="5.5" ry="7" fill="${K}"/>
+    <circle cx="91.3" cy="62.5" r="2.3" fill="${W}"/>
+    <circle cx="125.3" cy="62.5" r="2.3" fill="${W}"/>
+    <ellipse cx="79" cy="79" rx="7.5" ry="4.5" fill="#ff8585" opacity=".42"/>
+    <ellipse cx="141" cy="79" rx="7.5" ry="4.5" fill="#ff8585" opacity=".42"/>
+    <path d="M101 82 Q110 92 119 82" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/>
+  </g>`;
+}
+
+/* ---------- garments ---------- */
+let uidCounter = 0;
+const star = (x,y,r,fill,sw)=>`<path transform="translate(${x} ${y}) scale(${r/4})" d="M0 -4 L1.1 -1.1 L4 0 L1.1 1.1 L0 4 L-1.1 1.1 L-4 0 L-1.1 -1.1 Z" fill="${fill}" ${sw?`stroke="${K}" stroke-width="${sw}"`:''} />`;
+const daisy = (x,y)=>`<g><circle cx="${x-3}" cy="${y}" r="2.1" fill="${W}"/><circle cx="${x+3}" cy="${y}" r="2.1" fill="${W}"/><circle cx="${x}" cy="${y-3}" r="2.1" fill="${W}"/><circle cx="${x}" cy="${y+3}" r="2.1" fill="${W}"/><circle cx="${x}" cy="${y}" r="1.9" fill="#ffcf5e"/></g>`;
+
+const ITEMS = [
+/* ============ HAIR ============ */
+{id:'waves', cat:'hair', tags:['elegant','cute'], cws:['cocoa','amber','lavender'],
+ n:{de:'Wallemähne', es:'Melena ondulada'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M66 58 Q60 92 58 120 Q56 142 64 152 Q58 164 68 172 Q64 186 80 187 Q93 187 90 172 Q87 158 89 142 Q92 106 85 76 Q78 58 66 58 Z" fill="${c.m}"/>
+    <path d="M154 58 Q160 92 162 120 Q164 142 156 152 Q162 164 152 172 Q156 186 140 187 Q127 187 130 172 Q133 158 131 142 Q128 106 135 76 Q142 58 154 58 Z" fill="${c.m}"/>
+    <path d="M65 66 C63 30 85 16 110 16 C135 16 157 30 155 66 Q155 73 149 71 Q151 44 130 36 Q140 50 138 64 Q127 38 98 41 Q76 45 71 71 Q65 73 65 66 Z" fill="${c.m}"/>
+    <path d="M66 110 Q62 140 67 155 M152 110 Q157 140 152 155" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <path d="M79 150 Q74 166 78 176 M141 150 Q146 166 142 176" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+  </g>`;}},
+{id:'bun', cat:'hair', tags:['elegant','school'], cws:['charcoal','cocoa','coral'],
+ n:{de:'Hoher Dutt', es:'Moño alto'},
+ draw(c){return `
+  <g ${ST}>
+    <circle cx="110" cy="14" r="14" fill="${c.m}"/>
+    <path d="M101 11 Q110 4 119 12" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <ellipse cx="110" cy="27" rx="13" ry="5" fill="${c.s}"/>
+    <path d="M65 64 C64 31 86 17 110 17 C134 17 156 31 155 64 Q155 73 148 74 Q151 46 128 38 Q145 52 143 70 Q130 43 95 44 Q75 49 72 74 Q65 73 65 64 Z" fill="${c.m}"/>
+    <path d="M97 33 Q108 27 110 27 M124 34 Q113 28 110 27" fill="none" stroke="${c.s}" stroke-width="2.4"/>
+  </g>`;}},
+{id:'bob', cat:'hair', tags:['cute','party'], cws:['cocoa','charcoal','mint'],
+ n:{de:'Locken-Bob', es:'Bob rizado'},
+ draw(c){return `
+  <g ${ST} fill="${c.m}">
+    <circle cx="70" cy="94" r="15"/><circle cx="62" cy="66" r="15"/><circle cx="71" cy="40" r="15"/>
+    <circle cx="90" cy="24" r="15"/><circle cx="110" cy="18" r="15"/><circle cx="130" cy="24" r="15"/>
+    <circle cx="149" cy="40" r="15"/><circle cx="158" cy="66" r="15"/><circle cx="150" cy="94" r="15"/>
+    <path d="M88 39 a7 7 0 1 0 14 -4 M118 35 a7 7 0 1 0 14 0" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+  </g>`;}},
+{id:'crop', cat:'hair', tags:['sporty','bold'], cws:['amber','cocoa','denim'],
+ n:{de:'Kurzer Schopf', es:'Pelo corto'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M66 64 C65 30 87 16 110 16 C133 16 155 30 154 64 Q154 71 148 69 Q151 41 126 35 Q136 45 133 58 Q121 37 92 42 Q74 48 72 69 Q66 71 66 64 Z" fill="${c.m}"/>
+    <path d="M92 42 Q108 30 130 40 Q142 47 140 60 Q128 42 104 45 Q96 46 92 42 Z" fill="${c.m}"/>
+    <path d="M148 56 Q158 52 160 44 Q154 46 150 44 Q153 52 148 56 Z" fill="${c.m}"/>
+    <path d="M100 31 Q112 26 124 30" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+  </g>`;}},
+
+/* ============ TOPS ============ */
+{id:'tee', cat:'top', tags:['school','sporty'], cws:['teal','coral','denim'],
+ n:{de:'Ringel-Shirt', es:'Camiseta a rayas'},
+ draw(c,uid){const cp=`cpTee${uid}`;
+  const body = `M86 122 Q95 116 100 119 Q110 127 120 119 Q125 116 134 122 Q139 163 137 203 Q110 210 83 203 Q81 163 86 122 Z`;
+  return `
+  <g ${ST}>
+    <path d="M88 121 Q73 124 68 140 Q65 151 72 154 L87 150 Z" fill="${c.m}"/>
+    <path d="M132 121 Q147 124 152 140 Q155 151 148 154 L133 150 Z" fill="${c.m}"/>
+    <clipPath id="${cp}"><path d="${body}"/></clipPath>
+    <path d="${body}" fill="${c.m}"/>
+    <g clip-path="url(#${cp})" stroke="none" fill="${W}" opacity=".92">
+      <rect x="74" y="141" width="74" height="9"/><rect x="74" y="161" width="74" height="9"/><rect x="74" y="181" width="74" height="9"/>
+    </g>
+    <path d="${body}" fill="none"/>
+    <path d="M99 119 Q110 128 121 119" fill="none" stroke="${c.s}" stroke-width="4.5"/>
+  </g>`;}},
+{id:'blouse', cat:'top', tags:['elegant','cute'], cws:['blush','cream','lavender'],
+ n:{de:'Rüschen-Bluse', es:'Blusa de volantes'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M88 119 Q72 122 70 140 Q70 148 74 151 Q79 155 83 150 Q87 155 92 148 Q94 144 93 136 L92 124 Z" fill="${c.m}"/>
+    <path d="M132 119 Q148 122 150 140 Q150 148 146 151 Q141 155 137 150 Q133 155 128 148 Q126 144 127 136 L128 124 Z" fill="${c.m}"/>
+    <path d="M87 122 Q110 114 133 122 Q137 160 137 196 Q131 211 123 199 Q118 211 110 210 Q102 211 97 199 Q89 211 83 196 Q83 160 87 122 Z" fill="${c.m}"/>
+    <path d="M109 130 Q96 134 94 124 Q93 117 100 116 Q108 117 109 130 Z" fill="${CREAM}"/>
+    <path d="M111 130 Q124 134 126 124 Q127 117 120 116 Q112 117 111 130 Z" fill="${CREAM}"/>
+    <circle cx="110" cy="142" r="2.4" fill="${W}" stroke-width="2"/>
+    <circle cx="110" cy="157" r="2.4" fill="${W}" stroke-width="2"/>
+    <circle cx="110" cy="172" r="2.4" fill="${W}" stroke-width="2"/>
+  </g>`;}},
+{id:'hoodie', cat:'top', tags:['sporty','cozy'], cws:['coral','teal','charcoal'],
+ n:{de:'Kuschel-Hoodie', es:'Sudadera con capucha'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M86 126 Q80 108 96 103 Q100 116 110 116 Q120 116 124 103 Q140 108 134 126 Q122 119 110 120 Q98 119 86 126 Z" fill="${c.s}"/>
+    <path d="M86 124 C71 136 68 161 75 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M134 124 C149 136 152 161 145 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M86 124 C71 136 68 161 75 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M134 124 C149 136 152 161 145 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M70 175 L83 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M150 175 L137 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M84 122 Q110 113 136 122 Q142 165 139 205 Q110 213 81 205 Q78 165 84 122 Z" fill="${c.m}"/>
+    <path d="M81 197 Q110 205 139 197 L139 205 Q110 213 81 205 Z" fill="${c.s}"/>
+    <path d="M96 170 L124 170 Q126 170 126 174 L126 192 Q110 198 94 192 L94 174 Q94 170 96 170 Z" fill="${c.m}"/>
+    <path d="M104 128 L102 146 M116 128 L118 146" fill="none" stroke="${W}" stroke-width="2.6"/>
+    <circle cx="102" cy="148" r="2" fill="${W}" stroke="none"/><circle cx="118" cy="148" r="2" fill="${W}" stroke="none"/>
+  </g>`;}},
+{id:'sweater', cat:'top', tags:['cozy','school'], cws:['amber','mint','berry'],
+ n:{de:'Strick-Pulli', es:'Suéter de punto'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M85 124 C70 136 67 161 74 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M135 124 C150 136 153 161 146 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M85 124 C70 136 67 161 74 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M135 124 C150 136 153 161 146 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M69 175 L82 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M151 175 L138 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M83 122 Q110 113 137 122 Q143 166 140 204 Q110 212 80 204 Q77 166 83 122 Z" fill="${c.m}"/>
+    <path d="M86 148 l8 6 l8 -6 l8 6 l8 -6 l8 6 l8 -6" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <path d="M86 162 l8 6 l8 -6 l8 6 l8 -6 l8 6 l8 -6" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <path d="M81 196 Q110 204 139 196 L140 204 Q110 212 80 204 Z" fill="${c.m}"/>
+    <path d="M86 199 L86 207 M94 201 L94 209 M102 202 L102 210 M110 203 L110 211 M118 202 L118 210 M126 201 L126 209 M134 199 L134 207" fill="none" stroke="${c.s}" stroke-width="2.2"/>
+    <path d="M95 117 Q110 127 125 117 Q128 126 110 131 Q92 126 95 117 Z" fill="${c.s}"/>
+  </g>`;}},
+
+/* ============ BOTTOMS ============ */
+{id:'jeans', cat:'bottom', tags:['school','sporty'], cws:['denim','charcoal','sky'],
+ n:{de:'Lieblings-Jeans', es:'Vaqueros favoritos'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M85 190 L135 190 L133 308 Q126 313 118 308 L116 240 Q110 234 104 240 L102 308 Q94 313 87 308 Z" fill="${c.m}"/>
+    <rect x="84" y="180" width="52" height="12" rx="4" fill="${c.s}"/>
+    <path d="M110 192 L110 212" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <path d="M86 197 Q95 206 104 198" fill="none" stroke="${W}" stroke-width="2.2" opacity=".65"/>
+    <path d="M134 197 Q125 206 116 198" fill="none" stroke="${W}" stroke-width="2.2" opacity=".65"/>
+    <path d="M87 296 L102 296 L102 307 Q94 312 87 307 Z" fill="${c.s}"/>
+    <path d="M133 296 L118 296 L118 307 Q126 312 133 307 Z" fill="${c.s}"/>
+  </g>`;}},
+{id:'skirt', cat:'bottom', tags:['cute','school'], cws:['blush','denim','amber'],
+ n:{de:'Faltenrock', es:'Falda plisada'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M84 190 L136 190 Q145 220 151 246 Q131 257 110 257 Q89 257 69 246 Q75 220 84 190 Z" fill="${c.m}"/>
+    <path d="M93 192 L81 250 M102 192 L96 254 M110 192 L110 256 M118 192 L124 254 M127 192 L139 250" fill="none" stroke="${c.s}" stroke-width="2.6"/>
+    <rect x="83" y="180" width="54" height="12" rx="5" fill="${c.s}"/>
+  </g>`;}},
+{id:'cargo', cat:'bottom', tags:['sporty','bold'], cws:['cream','charcoal','teal'],
+ n:{de:'Cargo-Shorts', es:'Shorts cargo'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M84 190 L136 190 L139 250 Q128 256 116 252 L114 232 Q110 228 106 232 L104 252 Q92 256 81 250 Z" fill="${c.m}"/>
+    <rect x="84" y="180" width="52" height="12" rx="4" fill="${c.s}"/>
+    <rect x="85" y="220" width="15" height="17" rx="3" fill="${c.m}"/>
+    <rect x="120" y="220" width="15" height="17" rx="3" fill="${c.m}"/>
+    <path d="M85 226 L100 226 M120 226 L135 226" stroke-width="2.6"/>
+    <circle cx="92.5" cy="231" r="1.8" fill="${K}" stroke="none"/>
+    <circle cx="127.5" cy="231" r="1.8" fill="${K}" stroke="none"/>
+    <path d="M82 244 L104 248 M138 244 L116 248" fill="none" stroke="${c.s}" stroke-width="3"/>
+  </g>`;}},
+
+/* ============ DRESSES ============ */
+{id:'sundress', cat:'dress', tags:['beachy','cute'], cws:['amber','sky','blush'],
+ n:{de:'Sommerkleid', es:'Vestido de verano'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M96 118 L100 136 M124 118 L120 136" stroke="${K}" stroke-width="7"/>
+    <path d="M96 118 L100 136 M124 118 L120 136" stroke="${c.m}" stroke-width="3.5"/>
+    <path d="M70 244 Q89 257 110 257 Q131 257 150 244 L148 253 Q130 264 110 264 Q90 264 72 253 Z" fill="${c.s}"/>
+    <path d="M92 132 Q96 137 101 135 Q105 139 110 139 Q115 139 119 135 Q124 137 128 132 L131 176 L89 176 Z" fill="${c.m}"/>
+    <path d="M88 174 L132 174 Q141 212 149 244 Q130 257 110 257 Q90 257 71 244 Q79 212 88 174 Z" fill="${c.m}"/>
+    <path d="M88 174 L132 174 L132.5 182 L87.5 182 Z" fill="${c.s}"/>
+    ${daisy(96,212)}${daisy(122,232)}${daisy(135,204)}
+  </g>`;}},
+{id:'partydress', cat:'dress', tags:['party','elegant'], cws:['berry','lavender','teal'],
+ n:{de:'Funkel-Partykleid', es:'Vestido de fiesta'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M91 119 Q80 121 79 134 Q79 143 88 143 Q94 141 95 132 Z" fill="${c.m}"/>
+    <path d="M129 119 Q140 121 141 134 Q141 143 132 143 Q126 141 125 132 Z" fill="${c.m}"/>
+    <circle cx="86" cy="241" r="11" fill="${c.s}"/>
+    <circle cx="110" cy="246" r="11" fill="${c.s}"/>
+    <circle cx="134" cy="241" r="11" fill="${c.s}"/>
+    <path d="M90 123 Q100 132 110 128 Q120 132 130 123 L133 172 L87 172 Z" fill="${c.m}"/>
+    <path d="M87 178 L133 178 Q149 200 151 230 Q138 248 110 248 Q82 248 69 230 Q71 200 87 178 Z" fill="${c.m}"/>
+    <rect x="84" y="168" width="52" height="13" rx="5" fill="${c.s}"/>
+    <path d="M86 174 Q73 163 69 171 Q67 180 81 179 Z" fill="${c.s}"/>
+    <path d="M86 174 Q70 183 73 190 Q81 193 88 181 Z" fill="${c.s}"/>
+    <circle cx="86" cy="175" r="3.6" fill="${c.s}"/>
+    ${star(98,200,4.2,W)}${star(124,214,3.6,W)}${star(110,232,3,W)}${star(137,196,3,W)}
+  </g>`;}},
+{id:'raincoat', cat:'dress', tags:['rainy','cozy'], cws:['amber','sky','coral'],
+ n:{de:'Regenmantel-Kleid', es:'Vestido impermeable'},
+ draw(c){return `
+  <g ${ST}>
+    <path d="M86 124 C71 136 68 161 75 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M134 124 C149 136 152 161 145 186" fill="none" stroke="${K}" stroke-width="18"/>
+    <path d="M86 124 C71 136 68 161 75 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M134 124 C149 136 152 161 145 186" fill="none" stroke="${c.m}" stroke-width="12.5"/>
+    <path d="M70 175 L83 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M150 175 L137 179" stroke="${c.s}" stroke-width="5"/>
+    <path d="M86 120 Q110 112 134 120 Q146 186 151 248 Q131 258 110 258 Q89 258 69 248 Q74 186 86 120 Z" fill="${c.m}"/>
+    <path d="M71 240 Q110 252 149 240" fill="none" stroke="${c.s}" stroke-width="4.5"/>
+    <path d="M110 132 L110 250" fill="none" stroke="${c.s}" stroke-width="3"/>
+    <circle cx="110" cy="152" r="3.6" fill="${c.s}"/>
+    <circle cx="110" cy="182" r="3.6" fill="${c.s}"/>
+    <circle cx="110" cy="212" r="3.6" fill="${c.s}"/>
+    <path d="M85 208 Q85 203 90 203 L99 203 Q104 203 104 208 L104 212 L85 212 Z" fill="${c.s}"/>
+    <path d="M116 208 Q116 203 121 203 L130 203 Q135 203 135 208 L135 212 L116 212 Z" fill="${c.s}"/>
+    <path d="M96 118 L110 131 L124 118 L130 127 L110 141 L90 127 Z" fill="${CREAM}"/>
+  </g>`;}},
+
+/* ============ SHOES ============ */
+{id:'sneakers', cat:'shoes', tags:['sporty','school'], cws:['teal','coral','charcoal'],
+ n:{de:'Turbo-Sneaker', es:'Tenis veloces'},
+ draw(c){const f=(dx)=>`
+    <path d="M${86+dx} 326 Q${85+dx} 317 ${93+dx} 317 L${100+dx} 317 Q${106+dx} 317 ${106+dx} 325 L${106+dx} 337 L${84+dx} 337 Q${84+dx} 331 ${86+dx} 326 Z" fill="${c.m}"/>
+    <path d="M${83+dx} 337 L${107+dx} 337 Q${109+dx} 345 ${100+dx} 345 L${90+dx} 345 Q${81+dx} 345 ${83+dx} 337 Z" fill="${W}"/>
+    <path d="M${90+dx} 323 L${100+dx} 327 M${90+dx} 328 L${100+dx} 332" fill="none" stroke="${W}" stroke-width="2.4"/>`;
+  return `<g ${ST}>${f(0)}${f(28)}</g>`;}},
+{id:'boots', cat:'shoes', tags:['rainy','bold'], cws:['amber','denim','berry'],
+ n:{de:'Gummistiefel', es:'Botas de lluvia'},
+ draw(c){const f=(dx)=>`
+    <path d="M${87+dx} 282 L${105+dx} 282 L${105+dx} 330 Q${110+dx} 331 ${110+dx} 338 Q${110+dx} 344 ${103+dx} 344 L${89+dx} 344 Q${84+dx} 344 ${84+dx} 338 L${87+dx} 330 Z" fill="${c.m}"/>
+    <rect x="${84+dx}" y="276" width="24" height="9" rx="4" fill="${c.s}"/>
+    <path d="M${87+dx} 318 L${105+dx} 318" stroke="${c.s}" stroke-width="4.5"/>
+    <path d="M${84+dx} 338 L${110+dx} 338" stroke="${c.s}" stroke-width="3"/>`;
+  return `<g ${ST}>${f(0)}${f(28)}</g>`;}},
+{id:'sandals', cat:'shoes', tags:['beachy','cute'], cws:['cocoa','coral','mint'],
+ n:{de:'Riemchen-Sandalen', es:'Sandalias'},
+ draw(c){const f=(dx)=>`
+    <path d="M${85+dx} 339 L${107+dx} 339 Q${109+dx} 346 ${101+dx} 346 L${90+dx} 346 Q${83+dx} 346 ${85+dx} 339 Z" fill="${c.m}"/>
+    <path d="M${87+dx} 330 L${105+dx} 330" stroke="${K}" stroke-width="7"/>
+    <path d="M${87+dx} 330 L${105+dx} 330" stroke="${c.m}" stroke-width="3.4"/>
+    <path d="M${91+dx} 339 L${96+dx} 331 L${101+dx} 339" fill="none" stroke="${K}" stroke-width="6"/>
+    <path d="M${91+dx} 339 L${96+dx} 331 L${101+dx} 339" fill="none" stroke="${c.m}" stroke-width="2.8"/>`;
+  return `<g ${ST}>${f(0)}${f(28)}</g>`;}},
+{id:'maryjanes', cat:'shoes', tags:['cute','elegant'], cws:['berry','charcoal','blush'],
+ n:{de:'Schnallen-Schuhe', es:'Zapatos de hebilla'},
+ draw(c){const f=(dx)=>`
+    <rect x="${88+dx}" y="310" width="16" height="14" rx="4" fill="${CREAM}"/>
+    <path d="M${86+dx} 327 Q${86+dx} 320 ${93+dx} 320 L${100+dx} 320 Q${107+dx} 320 ${107+dx} 328 L${107+dx} 339 Q${107+dx} 345 ${99+dx} 345 L${92+dx} 345 Q${84+dx} 345 ${84+dx} 338 Z" fill="${c.m}"/>
+    <rect x="${84+dx}" y="325" width="24" height="5.5" rx="2.5" fill="${c.m}"/>
+    <circle cx="${104+dx}" cy="327.5" r="1.9" fill="${W}" stroke="none"/>`;
+  return `<g ${ST}>${f(0)}${f(28)}</g>`;}},
+
+/* ============ ACCESSORIES ============ */
+{id:'glasses', cat:'acc', tags:['school','cute'], cws:['charcoal','coral','teal'],
+ n:{de:'Runde Brille', es:'Gafas redondas'}, thumb:'58 26 104 84',
+ draw(c){return `
+  <g fill="none" stroke-linecap="round">
+    <g stroke="${K}" stroke-width="7">
+      <circle cx="93" cy="66" r="12.5"/><circle cx="127" cy="66" r="12.5"/>
+      <path d="M105 63 Q110 59 115 63"/><path d="M81 61 L69 56"/><path d="M139 61 L151 56"/>
+    </g>
+    <g stroke="${c.m}" stroke-width="3.6">
+      <circle cx="93" cy="66" r="12.5"/><circle cx="127" cy="66" r="12.5"/>
+      <path d="M105 63 Q110 59 115 63"/><path d="M81 61 L69 56"/><path d="M139 61 L151 56"/>
+    </g>
+  </g>`;}},
+{id:'sunhat', cat:'acc', tags:['beachy','elegant'], cws:['cream','amber','blush'],
+ n:{de:'Sonnenhut', es:'Sombrero de sol'}, thumb:'42 0 136 90',
+ draw(c){return `
+  <g ${ST}>
+    <path d="M78 28 Q78 3 110 3 Q142 3 142 28 L142 36 L78 36 Z" fill="${c.m}"/>
+    <path d="M78 24 L142 24 L142 33 L78 33 Z" fill="${c.s}"/>
+    <path d="M140 27 L155 19 L152 33 Z" fill="${c.s}"/>
+    <ellipse cx="110" cy="36" rx="53" ry="11" fill="${c.m}"/>
+  </g>`;}},
+{id:'bag', cat:'acc', tags:['school','cute'], cws:['cocoa','teal','berry'],
+ n:{de:'Crossbody-Tasche', es:'Bolso cruzado'}, thumb:'50 130 116 110',
+ draw(c){return `
+  <g ${ST}>
+    <path d="M133 122 L86 206" fill="none" stroke="${K}" stroke-width="8"/>
+    <path d="M133 122 L86 206" fill="none" stroke="${c.s}" stroke-width="4"/>
+    <rect x="66" y="200" width="36" height="27" rx="9" fill="${c.m}"/>
+    <path d="M66 209 Q66 200 75 200 L93 200 Q102 200 102 209 Q84 217 66 209 Z" fill="${c.s}"/>
+    <circle cx="84" cy="212" r="2.6" fill="${W}" stroke-width="2"/>
+  </g>`;}},
+{id:'necklace', cat:'acc', tags:['party','cute'], cws:['amber','teal','blush'],
+ n:{de:'Sternenkette', es:'Collar de estrella'}, thumb:'72 96 76 64',
+ draw(c){return `
+  <g>
+    <path d="M100 119 Q110 134 120 119" fill="none" stroke="${K}" stroke-width="2.6"/>
+    ${star(110,136,6,c.m,2.4)}
+    <path d="M120 126 L120 131 M117.5 128.5 L122.5 128.5" stroke="${W}" stroke-width="1.8" stroke-linecap="round"/>
+  </g>`;}},
+];
+const ITEM = {}; ITEMS.forEach(it=>ITEM[it.id]=it);
+const CATS = ['hair','top','bottom','dress','shoes','acc'];
+const CAT_THUMB = {hair:'48 0 124 124', top:'52 100 116 118', bottom:'52 168 116 152', dress:'48 100 124 172', shoes:'56 262 108 96', acc:'52 100 116 118'};
+
+/* ---------- doll renderer ---------- */
+/* outfit = {hair:{id,cw}, top:{..}, bottom:{..}, dress:{..}, shoes:{..}, acc:{..}} */
+function renderDoll(outfit, skinIdx){
+  const uid = ++uidCounter;
+  const sk = SKINS[skinIdx] || SKINS[0];
+  const layer = slot => {
+    const w = outfit[slot]; if(!w) return '';
+    const it = ITEM[w.id]; if(!it) return '';
+    const pal = PAL[it.cws[w.cw] || it.cws[0]];
+    return it.draw(pal, uid);
+  };
+  const dressOn = !!outfit.dress;
+  return `<svg viewBox="0 0 220 364" xmlns="http://www.w3.org/2000/svg">
+    ${bodySVG(sk)}
+    ${layer('shoes')}
+    ${dressOn ? '' : layer('bottom')}
+    ${dressOn ? layer('dress') : layer('top')}
+    ${faceSVG()}
+    ${layer('hair')}
+    ${layer('acc')}
+  </svg>`;
+}
+function itemThumb(it, cwIdx, skinIdx){
+  const uid = ++uidCounter;
+  const pal = PAL[it.cws[cwIdx] || it.cws[0]];
+  const sk = SKINS[skinIdx] || SKINS[0];
+  const vb = it.thumb || CAT_THUMB[it.cat];
+  const itemSvg = it.draw(pal, uid);
+  const hairSvg = it.cat==='hair' ? itemSvg : ITEM.bob.draw(PAL.cocoa, ++uidCounter);
+  const bodyLayer = (it.cat==='hair'||it.cat==='acc') ? '' : itemSvg;
+  const accLayer = it.cat==='acc' ? itemSvg : '';
+  return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    ${bodySVG(sk)}${bodyLayer}${faceSVG()}${hairSvg}${accLayer}
+  </svg>`;
+}
+
+/* ---------- tags / themes / judges ---------- */
+const TAGL = {
+  elegant:{de:'elegant', es:'elegante', e:'💎'}, sporty:{de:'sportlich', es:'deportivo', e:'⚡'},
+  cozy:{de:'gemütlich', es:'acogedor', e:'🧸'}, beachy:{de:'strandig', es:'playero', e:'🏖️'},
+  rainy:{de:'regenfest', es:'lluvioso', e:'🌧️'}, party:{de:'Party', es:'fiesta', e:'🎉'},
+  school:{de:'Schule', es:'escolar', e:'🎒'}, bold:{de:'mutig', es:'atrevido', e:'🔥'},
+  cute:{de:'süß', es:'lindo', e:'🌸'},
+};
+const THEMES = [
+  {id:'beach',  e:'☀️', want:['beachy','cute'],   bonus:'amber',  n:{de:'Strandparty!',        es:'¡Fiesta en la playa!'}, h:{de:['sonnig','leicht','Sandalen'], es:['sol','ligero','sandalias']}},
+  {id:'rainy',  e:'🌧️', want:['rainy','cozy'],    bonus:'sky',    n:{de:'Regentag, kuschelig', es:'Lluvia acogedora'},     h:{de:['Pfützen','warm','Stiefel'],   es:['charcos','calorcito','botas']}},
+  {id:'school', e:'📸', want:['school','cute'],   bonus:'denim',  n:{de:'Schulfoto-Tag',       es:'Día de foto escolar'},  h:{de:['ordentlich','freundlich','klassisch'], es:['ordenado','amable','clásico']}},
+  {id:'sport',  e:'🏅', want:['sporty','bold'],   bonus:'teal',   n:{de:'Sportfest-Champion',  es:'Campeón deportivo'},    h:{de:['schnell','frisch','Sneaker'], es:['rápido','fresco','tenis']}},
+  {id:'garden', e:'🌷', want:['elegant','cute'],  bonus:'blush',  n:{de:'Gartenparty, fein',   es:'Fiesta en el jardín'},  h:{de:['Blumen','fein','zart'],       es:['flores','fino','delicado']}},
+  {id:'gala',   e:'✨', want:['party','elegant'], bonus:'berry',  n:{de:'Glitzer-Gala',        es:'Gala de brillos'},      h:{de:['Funkeln','Glanz','schick'],   es:['brillo','glamur','elegante']}},
+  {id:'sunday', e:'☁️', want:['cozy','cute'],     bonus:'cream',  n:{de:'Fauler Sonntag',      es:'Domingo de mantita'},   h:{de:['weich','warm','gemütlich'],   es:['suave','calentito','cómodo']}},
+  {id:'street', e:'🛹', want:['bold','sporty'],   bonus:'coral',  n:{de:'Streetstyle-Star',    es:'Estrella urbana'},      h:{de:['mutig','laut','cool'],        es:['valiente','llamativo','cool']}},
+];
+const JUDGES = [
+  {id:'coco',  e:'🦀', name:'Coco',  loves:['elegant','party'], role:{de:'Glamour-Krabbe', es:'Cangreja glamurosa'}},
+  {id:'pixel', e:'🐱', name:'Pixel', loves:['sporty','bold'],   role:{de:'Coole Katze',    es:'Gato cool'}},
+  {id:'maus',  e:'🐭', name:'Maus',  loves:['cute','cozy'],     role:{de:'Romantische Maus', es:'Ratoncita romántica'}},
+];
+const COMMENTS = {
+  coco:{
+    high:{de:['{item} – ich bin SPRACHLOS, Darling! Das ist {theme} pur!','Diese Eleganz! {item} gehört auf jedes Titelblatt, Darling!'],
+          es:['¡{item} – me quedo SIN PALABRAS, darling! ¡Puro {theme}!','¡Qué elegancia! ¡{item} merece una portada, darling!']},
+    mid:{de:['{item} hat Stil, Darling – jetzt noch ein Hauch mehr Glamour!','Hübsch! Aber Darling, für {theme} darf es noch edler funkeln.'],
+         es:['¡{item} tiene estilo, darling – ahora un toque más de glamur!','¡Bonito! Pero darling, para {theme} puede brillar aún más.']},
+    low:{de:['Mutig, Darling! Lass uns für {theme} nochmal im Kleiderschrank wühlen.','{item} liebe ich – aber {theme} ruft nach einem anderen Look, Darling!'],
+         es:['¡Atrevido, darling! Busquemos otra cosa para {theme}.','Me encanta {item} – ¡pero {theme} pide otro look, darling!']},
+  },
+  pixel:{
+    high:{de:['{item}?! Okay, das ist offiziell COOL. Volle Punktzahl-Vibes!','Boah, {item} zu diesem Thema – läuft bei dir!'],
+          es:['¿¡{item}!? Vale, eso es oficialmente COOL. ¡Vibras de máxima puntuación!','¡Guau, {item} para este tema – lo tienes dominado!']},
+    mid:{de:['{item} ist schon cool – trau dich, noch einen Tick mutiger!','Nicht schlecht! Für {theme} fehlt mir noch der Wow-Moment.'],
+         es:['{item} ya es cool – ¡atrévete a un poco más!','¡No está mal! Para {theme} me falta el momento wow.']},
+    low:{de:['Hey, Style ist Übung! Für {theme} probier mal was ganz anderes.','{item} ist nice, aber {theme}? Da geht mehr, glaub mir.'],
+         es:['¡Oye, el estilo se entrena! Para {theme} prueba algo distinto.','{item} está bien, pero ¿{theme}? Puedes dar más, créeme.']},
+  },
+  maus:{
+    high:{de:['Ohhh, {item}! Das ist ja zuckersüß – perfekt für {theme}!','Ich muss schwärmen: {item} macht dieses Outfit zum Träumchen!'],
+          es:['¡Ohhh, {item}! ¡Qué dulzura – perfecto para {theme}!','Tengo que decirlo: ¡{item} convierte este look en un sueño!']},
+    mid:{de:['{item} ist so lieb! Ein gemütliches Detail mehr und ich schmelze.','Süß! Für {theme} wünsche ich mir noch etwas mehr Kuschelfaktor.'],
+         es:['¡{item} es un encanto! Un detallito más y me derrito.','¡Lindo! Para {theme} me gustaría un poco más de ternura.']},
+    low:{de:['Nicht traurig sein – {theme} ist knifflig! Probierst du es nochmal?','{item} mag ich sehr, aber für {theme} suchen wir noch das Richtige!'],
+         es:['¡No te pongas triste – {theme} es difícil! ¿Lo intentas otra vez?','Me gusta mucho {item}, ¡pero para {theme} aún buscamos lo ideal!']},
+  },
+};
+
+/* ---------- verbs (subset of content/irregular-verbs.json) ---------- */
+const VERBS = [
+{v:'go',past:'went',pp:'gone',wp:['goed','gone','wented'],wpp:['goed','went','goen']},
+{v:'see',past:'saw',pp:'seen',wp:['seed','seen','sawed'],wpp:['seed','saw','seeen']},
+{v:'make',past:'made',pp:'made',wp:['maked','mode','makt'],wpp:['maked','mode','maken']},
+{v:'take',past:'took',pp:'taken',wp:['taked','taken','tooked'],wpp:['taked','took','takeen']},
+{v:'come',past:'came',pp:'come',wp:['comed','come','camed'],wpp:['comed','came','comen']},
+{v:'give',past:'gave',pp:'given',wp:['gived','given','gaved'],wpp:['gived','gave','givven']},
+{v:'find',past:'found',pp:'found',wp:['finded','fund','findd'],wpp:['finded','fund','founden']},
+{v:'tell',past:'told',pp:'told',wp:['telled','telt','tald'],wpp:['telled','telt','tellen']},
+{v:'think',past:'thought',pp:'thought',wp:['thinked','thunk','thinkt'],wpp:['thinked','thunk','thinken']},
+{v:'say',past:'said',pp:'said',wp:['sayed','sed','sayd'],wpp:['sayed','sed','sayen']},
+{v:'get',past:'got',pp:'got',wp:['getted','gat','gotten'],wpp:['getted','gat','geted']},
+{v:'know',past:'knew',pp:'known',wp:['knowed','known','knewed'],wpp:['knowed','knew','knowen']},
+{v:'feel',past:'felt',pp:'felt',wp:['feeled','fell','feelt'],wpp:['feeled','fell','fellen']},
+{v:'leave',past:'left',pp:'left',wp:['leaved','lefted','lave'],wpp:['leaved','lefted','leaven']},
+{v:'put',past:'put',pp:'put',wp:['putted','puts','putten'],wpp:['putted','putten','puting']},
+{v:'meet',past:'met',pp:'met',wp:['meeted','meat','meeten'],wpp:['meeted','meat','meeten']},
+{v:'run',past:'ran',pp:'run',wp:['runned','run','ranned'],wpp:['runned','ran','ronnen']},
+{v:'sit',past:'sat',pp:'sat',wp:['sitted','set','saten'],wpp:['sitted','set','sitten']},
+{v:'speak',past:'spoke',pp:'spoken',wp:['speaked','spoken','spake'],wpp:['speaked','spoke','spaken']},
+{v:'read',past:'read',pp:'read',wp:['readed','red','reads'],wpp:['readed','red','reading']},
+{v:'write',past:'wrote',pp:'written',wp:['writed','written','wroten'],wpp:['writed','wrote','writen']},
+{v:'eat',past:'ate',pp:'eaten',wp:['eated','eaten','et'],wpp:['eated','ate','eat']},
+{v:'drink',past:'drank',pp:'drunk',wp:['drinked','drunk','drunken'],wpp:['drinked','drank','dronk']},
+{v:'sleep',past:'slept',pp:'slept',wp:['sleeped','slep','sleped'],wpp:['sleeped','slep','sleepen']},
+{v:'swim',past:'swam',pp:'swum',wp:['swimmed','swum','swimd'],wpp:['swimmed','swam','swimen']},
+{v:'fly',past:'flew',pp:'flown',wp:['flied','flown','flowed'],wpp:['flied','flew','flying']},
+{v:'drive',past:'drove',pp:'driven',wp:['drived','driven','droved'],wpp:['drived','drove','droven']},
+{v:'sing',past:'sang',pp:'sung',wp:['singed','sung','songed'],wpp:['singed','sang','singen']},
+{v:'wear',past:'wore',pp:'worn',wp:['weared','worn','ware'],wpp:['weared','wore','weren']},
+{v:'pay',past:'paid',pp:'paid',wp:['payed','payd','paied'],wpp:['payed','payd','payen']},
+{v:'send',past:'sent',pp:'sent',wp:['sended','sented','sant'],wpp:['sended','sented','senden']},
+{v:'teach',past:'taught',pp:'taught',wp:['teached','tought','tach'],wpp:['teached','tought','teachen']},
+{v:'hear',past:'heard',pp:'heard',wp:['heared','hore','hurd'],wpp:['heared','hore','hearen']},
+{v:'draw',past:'drew',pp:'drawn',wp:['drawed','drawn','drow'],wpp:['drawed','drew','drawen']},
+{v:'forget',past:'forgot',pp:'forgotten',wp:['forgetted','forgotten','forgat'],wpp:['forgetted','forgot','forgeted']},
+{v:'understand',past:'understood',pp:'understood',wp:['understanded','understud','understanding'],wpp:['understanded','understud','understooden']},
+{v:'do',past:'did',pp:'done',wp:['doed','done','didd'],wpp:['doed','did','doen']},
+{v:'have',past:'had',pp:'had',wp:['haved','hadded','hade'],wpp:['haved','hadded','haveen']},
+{v:'win',past:'won',pp:'won',wp:['winned','wun','winnen'],wpp:['winned','wun','winnen']},
+{v:'break',past:'broke',pp:'broken',wp:['breaked','broken','broked'],wpp:['breaked','broke','broaken']},
+{v:'choose',past:'chose',pp:'chosen',wp:['choosed','chosen','chused'],wpp:['choosed','chose','choosen']},
+{v:'hold',past:'held',pp:'held',wp:['holded','hild','houlded'],wpp:['holded','hild','holden']},
+{v:'catch',past:'caught',pp:'caught',wp:['catched','cought','catchen'],wpp:['catched','cought','catchen']},
+{v:'buy',past:'bought',pp:'bought',wp:['buyed','brought','bought'],wpp:['buyed','brought','buying']},
+];
+// note: 'buy' wrongs include 'bought' for past? fix:
+VERBS[VERBS.length-1] = {v:'buy',past:'bought',pp:'bought',wp:['buyed','brought','baught'],wpp:['buyed','brought','baught']};
+
+/* ---------- i18n ---------- */
+const T = {
+  de:{
+    tagline:'Style die Looks. Lerne die Verben. Erobere den Laufsteg!',
+    how:[['🗓️','Jeden Tag ein neues Style-Thema'],['👗','Zieh deinen Avatar an & ab auf den Runway'],['🦀','Drei Judges bewerten deinen Look'],['📦','Verdiene neue Klamotten mit englischen Verben!']],
+    btnDaily:'Tages-Challenge ✨', btnDailyDone:'Tages-Challenge · Übung 🔁', btnFree:'Frei stylen 🎲',
+    streak:'Style-Serie: <b>{n} Tage</b> 🔥', streak0:'Starte heute deine Style-Serie!',
+    modeDaily:'Tages-Challenge', modeFree:'Freier Style', practice:'Übungsrunde',
+    tcGo:'Ankleiden! 👗', runway:'Auf den Runway! ✨', judgeTitle:'Die Jury sagt …',
+    judgeTheme:'Thema: <b>{t}</b>', total:'Gesamt', coinsEarned:'+{n} Münzen 🪙',
+    practiceNote:'Übungsrunde – Münzen gibt’s, aber die Tageswertung zählt nur einmal.',
+    btnDelivery:'📦 Lieferung öffnen ({c} 🪙)', btnRestyle:'🔁 Nochmal stylen',
+    delTitle:'Fashion-Lieferung!', delIntro:'Beantworte 3 Verb-Fragen und schnapp dir die Teile!',
+    delOpen:'Box öffnen (5 🪙)', delNoCoins:'Du brauchst 5 🪙 – ab auf den Runway!',
+    delDone:'Fertig!', delAgain:'Noch eine Box (5 🪙)', delClose:'Zurück',
+    qPast:'simple past', qPp:'past participle', qOf:'Frage {i} von 3',
+    qWhich:'Wie heißt die Form?', coinWon:'+{n} 🪙', dupe:'Doppelt! +3 🪙',
+    lockedToast:'🔒 Noch verschlossen – verdien es dir in einer Lieferung!',
+    lockedCw:'🔒 Diese Farbe wartet noch in einer Lieferung!',
+    review:'Wiederholung!', newItem:'Neu im Schrank!',
+    skin:'Haut:', wornOff:'Abgelegt', stars1:'Ein guter Anfang!', stars2:'Sehr schick!', stars3:'Runway-Königin!',
+    catNames:{hair:'Haare', top:'Oberteile', bottom:'Unten', dress:'Kleider', shoes:'Schuhe', acc:'Extras'},
+    closetTitle:'Verb Runway – Kleiderschrank (alle Teile)', back:'Zurück',
+  },
+  es:{
+    tagline:'¡Crea looks. Aprende verbos. Conquista la pasarela!',
+    how:[['🗓️','Cada día un nuevo tema de estilo'],['👗','Viste a tu avatar y sal a la pasarela'],['🦀','Tres jueces puntúan tu look'],['📦','¡Gana ropa nueva con verbos en inglés!']],
+    btnDaily:'Reto del día ✨', btnDailyDone:'Reto del día · práctica 🔁', btnFree:'Estilo libre 🎲',
+    streak:'Racha de estilo: <b>{n} días</b> 🔥', streak0:'¡Empieza hoy tu racha de estilo!',
+    modeDaily:'Reto del día', modeFree:'Estilo libre', practice:'Ronda de práctica',
+    tcGo:'¡A vestirse! 👗', runway:'¡A la pasarela! ✨', judgeTitle:'El jurado dice…',
+    judgeTheme:'Tema: <b>{t}</b>', total:'Total', coinsEarned:'+{n} monedas 🪙',
+    practiceNote:'Ronda de práctica: ganas monedas, pero el reto del día solo cuenta una vez.',
+    btnDelivery:'📦 Abrir entrega ({c} 🪙)', btnRestyle:'🔁 Cambiar el look',
+    delTitle:'¡Entrega de moda!', delIntro:'¡Responde 3 preguntas de verbos y llévate las prendas!',
+    delOpen:'Abrir caja (5 🪙)', delNoCoins:'Necesitas 5 🪙 – ¡a la pasarela!',
+    delDone:'¡Listo!', delAgain:'Otra caja (5 🪙)', delClose:'Volver',
+    qPast:'simple past', qPp:'past participle', qOf:'Pregunta {i} de 3',
+    qWhich:'¿Cuál es la forma?', coinWon:'+{n} 🪙', dupe:'¡Repetida! +3 🪙',
+    lockedToast:'🔒 Aún cerrado – ¡gánalo en una entrega!',
+    lockedCw:'🔒 ¡Este color te espera en una entrega!',
+    review:'¡Repaso!', newItem:'¡Nuevo en el armario!',
+    skin:'Piel:', wornOff:'Quitado', stars1:'¡Buen comienzo!', stars2:'¡Muy elegante!', stars3:'¡Reina de la pasarela!',
+    catNames:{hair:'Pelo', top:'Tops', bottom:'Abajo', dress:'Vestidos', shoes:'Zapatos', acc:'Extras'},
+    closetTitle:'Verb Runway – Armario (todas las prendas)', back:'Volver',
+  },
+};
+const L = T[LANG];
+const fmt = (s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>o[k]!==undefined?o[k]:m);
+
+/* ---------- audio ---------- */
+let AC=null, muted = localStorage.getItem('krabsy_vrunway_sound')==='off';
+function ac(){ if(!AC){ try{AC = new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+function tone(f, t0, dur, type='sine', g=0.18, slide=0){
+  const a=ac(); if(!a||muted) return;
+  const o=a.createOscillator(), gn=a.createGain();
+  o.type=type; o.frequency.setValueAtTime(f, a.currentTime+t0);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,f+slide), a.currentTime+t0+dur);
+  gn.gain.setValueAtTime(0, a.currentTime+t0);
+  gn.gain.linearRampToValueAtTime(g, a.currentTime+t0+0.012);
+  gn.gain.exponentialRampToValueAtTime(0.001, a.currentTime+t0+dur);
+  o.connect(gn).connect(a.destination);
+  o.start(a.currentTime+t0); o.stop(a.currentTime+t0+dur+0.05);
+}
+function noise(t0, dur, g=0.14, hp=1200){
+  const a=ac(); if(!a||muted) return;
+  const n=a.sampleRate*dur, buf=a.createBuffer(1,n,a.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+  const src=a.createBufferSource(); src.buffer=buf;
+  const f=a.createBiquadFilter(); f.type='highpass'; f.frequency.value=hp;
+  const gn=a.createGain(); gn.gain.value=g;
+  src.connect(f).connect(gn).connect(a.destination); src.start(a.currentTime+t0);
+}
+const sClick  = ()=>tone(620,0,0.07,'triangle',0.12);
+const sSwish  = ()=>noise(0,0.16,0.10,2400);
+const sFlash  = ()=>noise(0,0.1,0.16,3000);
+const sDing   = ()=>{tone(880,0,0.18,'sine',0.16); tone(1318,0.06,0.22,'sine',0.12);};
+const sCoin   = ()=>{tone(988,0,0.08,'square',0.09); tone(1319,0.08,0.14,'square',0.09);};
+const sWrong  = ()=>{tone(330,0,0.16,'sawtooth',0.07,-90); tone(247,0.14,0.2,'sawtooth',0.07,-60);};
+const sSparkle= ()=>{[660,880,1100,1320,1760].forEach((f,i)=>tone(f,i*0.06,0.16,'sine',0.1));};
+function sSting(){ // short runway music sting
+  const mel=[[523,0],[659,.14],[784,.28],[1047,.42],[784,.62],[1047,.76],[1319,.9]];
+  mel.forEach(([f,t])=>tone(f,t,0.22,'triangle',0.12));
+  [[131,0],[165,.28],[196,.56],[131,.84]].forEach(([f,t])=>tone(f,t,0.26,'sine',0.14));
+}
+function setMuted(m){
+  muted=m; localStorage.setItem('krabsy_vrunway_sound', m?'off':'on');
+  document.querySelectorAll('#sndBtn1,#sndBtn2,#sndBtn3').forEach(b=>b.textContent = m?'🔇':'🔊');
+}
+['sndBtn1','sndBtn2','sndBtn3'].forEach(id=>$(id).addEventListener('click',()=>{setMuted(!muted); sClick();}));
+
+/* ---------- save ---------- */
+const SAVE_KEY='krabsy_vrunway_save';
+const STARTERS={hair:'bob', top:'tee', bottom:'jeans', dress:'sundress', shoes:'sneakers', acc:'necklace'};
+function freshSave(){
+  const owned={}; Object.values(STARTERS).forEach(id=>owned[id]=[0]);
+  return {v:1, skin:0, coins:6, owned,
+    worn:{hair:{id:'bob',cw:0}, top:{id:'tee',cw:0}, bottom:{id:'jeans',cw:0}, dress:null, shoes:{id:'sneakers',cw:0}, acc:null},
+    streak:{n:0,last:''}, daily:{date:'',done:false,score:0}, best:{}, missed:{}};
+}
+let S = freshSave();
+function load(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(raw){ const d=JSON.parse(raw); if(d && d.v===1){ S=Object.assign(freshSave(),d); } }
+  }catch(e){}
+}
+function save(){ try{localStorage.setItem(SAVE_KEY, JSON.stringify(S));}catch(e){} }
+function owns(id,cw){ return Array.isArray(S.owned[id]) && S.owned[id].includes(cw); }
+function ownsAny(id){ return Array.isArray(S.owned[id]) && S.owned[id].length>0; }
+function grant(id,cw){ if(!S.owned[id]) S.owned[id]=[]; if(!S.owned[id].includes(cw)){S.owned[id].push(cw); return true;} return false; }
+
+/* ---------- date / theme helpers ---------- */
+function dayKey(d){ d=d||new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+function themeForDate(key){ return THEMES[hashStr('vrw:'+key)%THEMES.length]; }
+
+/* ---------- game state ---------- */
+let mode='daily';          // 'daily' | 'free'
+let theme=themeForDate(dayKey());
+let lastResult=null;       // {scores:[], total, stars, coins, chips, practice}
+let delState=null;         // delivery in progress
+
+function toast(msg, ms=2200){
+  const t=$('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('on'), ms);
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+}
+function updateCoins(){ $('coinNum').textContent=S.coins; }
+
+/* ---------- start screen ---------- */
+function initStart(){
+  $('tagline').textContent=L.tagline;
+  $('howto').innerHTML=L.how.map(([e,t])=>`<div class="howrow"><span class="e">${e}</span><span>${t}</span></div>`).join('');
+  const dailyDone = S.daily.date===dayKey() && S.daily.done;
+  $('btnDaily').textContent = dailyDone ? L.btnDailyDone : L.btnDaily;
+  $('btnFree').textContent=L.btnFree;
+  $('streakline').innerHTML = S.streak.n>0 ? fmt(L.streak,{n:S.streak.n}) : L.streak0;
+}
+$('btnDaily').addEventListener('click',()=>{ sClick(); startRound('daily'); });
+$('btnFree').addEventListener('click',()=>{ sClick(); startRound('free'); });
+
+function startRound(m){
+  mode=m;
+  theme = m==='daily' ? themeForDate(dayKey()) : THEMES[ri(THEMES.length)];
+  $('tcMode').textContent = m==='daily' ? L.modeDaily : L.modeFree;
+  $('tcEmoji').textContent=theme.e;
+  $('tcName').textContent=theme.n[LANG];
+  $('tcHints').innerHTML=theme.h[LANG].map(h=>`<span class="hintchip">${h}</span>`).join('');
+  $('tcGo').textContent=L.tcGo;
+  $('themecard').classList.add('on');
+  sSparkle();
+}
+$('tcGo').addEventListener('click',()=>{
+  sClick(); $('themecard').classList.remove('on'); enterStyling();
+});
+
+/* ---------- styling screen ---------- */
+let curCat='hair';
+function enterStyling(){
+  show('scr-style');
+  $('tbEmoji').textContent=theme.e;
+  $('tbName').textContent=theme.n[LANG];
+  $('tbHints').textContent=theme.h[LANG].join(' · ');
+  $('runwayBtn').textContent=L.runway;
+  updateCoins(); buildSkinRow(); buildTabs(); buildGrid(); drawDoll();
+}
+function drawDoll(){ $('dollwrap').innerHTML=renderDoll(S.worn, S.skin); }
+function buildSkinRow(){
+  $('skinrow').innerHTML=`<span>${L.skin}</span>`+SKINS.map((sk,i)=>
+    `<div class="skindot ${i===S.skin?'sel':''}" data-i="${i}" style="background:${sk.m}"></div>`).join('');
+  $('skinrow').querySelectorAll('.skindot').forEach(d=>d.addEventListener('click',()=>{
+    S.skin=+d.dataset.i; save(); sClick(); buildSkinRow(); buildGrid(); drawDoll();
+  }));
+}
+function buildTabs(){
+  $('tabs').innerHTML=CATS.map(c=>`<button class="tab ${c===curCat?'sel':''}" data-c="${c}">${L.catNames[c]}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+    curCat=b.dataset.c; sClick(); buildTabs(); buildGrid();
+  }));
+}
+function slotOf(it){ return it.cat; }
+function buildGrid(){
+  const items=ITEMS.filter(i=>i.cat===curCat);
+  let html='';
+  // "remove" card
+  const worn = S.worn[curCat];
+  html+=`<div class="itemcard none ${worn?'':'worn'}" data-none="1">🚫</div>`;
+  for(const it of items){
+    const isWorn = worn && worn.id===it.id;
+    const anyOwned = ownsAny(it.id);
+    const cwSel = isWorn ? worn.cw : (anyOwned ? S.owned[it.id][0] : 0);
+    const dots = it.cws.map((cid,ci)=>{
+      const o=owns(it.id,ci);
+      return `<div class="cwdot ${isWorn&&worn.cw===ci?'sel':''} ${o?'':'lockcw'}" data-id="${it.id}" data-cw="${ci}" style="background:${PAL[cid].m}"></div>`;
+    }).join('');
+    html+=`<div class="itemcard ${anyOwned?'':'locked'} ${isWorn?'worn':''}" data-id="${it.id}">
+      ${anyOwned?'':'<span class="lockbadge">🔒</span>'}
+      ${itemThumb(it,cwSel,S.skin)}
+      <div class="nm">${it.n[LANG]}</div>
+      <div class="cwrow">${dots}</div>
+    </div>`;
+  }
+  $('itemgrid').innerHTML=html;
+  $('itemgrid').querySelectorAll('.itemcard[data-none]').forEach(c=>c.addEventListener('click',()=>{
+    S.worn[curCat]=null; save(); sSwish(); buildGrid(); drawDoll();
+  }));
+  $('itemgrid').querySelectorAll('.itemcard[data-id]').forEach(card=>{
+    card.addEventListener('click',e=>{
+      const id=card.dataset.id;
+      const dot=e.target.closest('.cwdot');
+      if(dot){ tryWear(id, +dot.dataset.cw); e.stopPropagation(); return; }
+      const it=ITEM[id];
+      const cw = ownsAny(id) ? S.owned[id][0] : 0;
+      tryWear(id, cw);
+    });
+  });
+}
+function tryWear(id,cw){
+  const it=ITEM[id];
+  if(!ownsAny(id)){ toast(L.lockedToast); sWrong(); return; }
+  if(!owns(id,cw)){ toast(L.lockedCw); sWrong(); return; }
+  const slot=it.cat;
+  const worn=S.worn[slot];
+  if(worn && worn.id===id && worn.cw===cw){ S.worn[slot]=null; }  // toggle off
+  else{
+    S.worn[slot]={id,cw};
+    if(slot==='dress'){ S.worn.top=null; S.worn.bottom=null; }
+    if(slot==='top'||slot==='bottom'){ S.worn.dress=null; }
+  }
+  save(); sSwish(); buildGrid(); drawDoll();
+}
+$('homeBtn').addEventListener('click',()=>{ sClick(); initStart(); show('scr-start'); });
+$('boxBtn').addEventListener('click',()=>{ sClick(); openDeliveryModal(); });
+
+/* ---------- runway ---------- */
+$('runwayBtn').addEventListener('click',()=>{ sClick(); toRunway(); });
+function toRunway(){
+  show('scr-runway');
+  const scr=$('scr-runway');
+  scr.classList.remove('open');
+  $('runwayTitle').textContent=`${theme.e} ${theme.n[LANG]}`;
+  $('runwayDollWrap').innerHTML=renderDoll(S.worn, S.skin);
+  // clean old flashes
+  scr.querySelectorAll('.flash,.spark').forEach(n=>n.remove());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    scr.classList.add('open'); sSting();
+  }));
+  if(QA!=='runway'){
+    let n=0;
+    const fl=setInterval(()=>{
+      n++;
+      if(!scr.classList.contains('on')||n>12){clearInterval(fl); return;}
+      spawnFlash(); if(n%2) sFlash();
+      if(n%3===0) spawnSpark();
+    },360);
+    setTimeout(()=>{ if(scr.classList.contains('on')) judgeNow(); }, 4700);
+  }
+}
+function spawnFlash(){
+  const f=document.createElement('div'); f.className='flash';
+  f.style.left=(8+rnd()*84)+'vw'; f.style.top=(12+rnd()*60)+'vh';
+  $('stage').appendChild(f); setTimeout(()=>f.remove(),600);
+}
+function spawnSpark(){
+  const s=document.createElement('div'); s.className='spark'; s.textContent=pick(['✨','🌟','⭐','💖','✨']);
+  s.style.left=(10+rnd()*80)+'vw'; s.style.top=(10+rnd()*50)+'vh';
+  $('stage').appendChild(s); setTimeout(()=>s.remove(),1700);
+}
+
+/* ---------- judging ---------- */
+function wornItems(){
+  const list=[];
+  for(const slot of ['hair','top','bottom','dress','shoes','acc']){
+    const w=S.worn[slot]; if(!w) continue;
+    const it=ITEM[w.id]; if(!it) continue;
+    list.push({it, cw:w.cw, palId:it.cws[w.cw]});
+  }
+  return list;
+}
+function scoreOutfit(){
+  const worn=wornItems();
+  const matches=[];   // {item, tag}
+  for(const w of worn) for(const tg of w.it.tags) if(theme.want.includes(tg)) matches.push({w, tag:tg});
+  const bonusFam=PAL[theme.bonus].fam;
+  let colorPts=0;
+  for(const w of worn){
+    if(w.palId===theme.bonus) colorPts+=1;
+    else if(PAL[w.palId].fam===bonusFam) colorPts+=0.4;
+  }
+  colorPts=Math.min(colorPts,2);
+  const outfitTags=new Set(); worn.forEach(w=>w.it.tags.forEach(t=>outfitTags.add(t)));
+  const scores=JUDGES.map(j=>{
+    let v=3 + Math.min(matches.length,5)*1.1 + colorPts*0.8;
+    if(j.loves.some(t=>outfitTags.has(t))) v+=0.6;
+    v+= (rnd()*0.7-0.35);
+    return Math.max(1, Math.min(10, Math.round(v*10)/10));
+  });
+  const total=Math.round(scores.reduce((a,b)=>a+b,0)/3*10)/10;
+  return {worn, matches, colorPts, scores, total};
+}
+function judgeNow(){
+  const r=scoreOutfit();
+  const practice = mode==='daily' && S.daily.date===dayKey() && S.daily.done;
+  const stars = r.total>=8?3 : r.total>=5.5?2 : 1;
+  const coins = mode==='daily' && !practice ? Math.max(3,Math.round(r.total)) : Math.max(2,Math.round(r.total*0.6));
+  S.coins+=coins;
+  if(mode==='daily' && !practice){
+    const today=dayKey();
+    const yest=dayKey(new Date(Date.now()-864e5));
+    S.streak.n = (S.streak.last===yest) ? S.streak.n+1 : 1;
+    S.streak.last=today;
+    S.daily={date:today, done:true, score:r.total};
+  }
+  if(!S.best[theme.id] || r.total>S.best[theme.id]) S.best[theme.id]=r.total;
+  save();
+  lastResult={...r, stars, coins, practice};
+  renderJudging(r, stars, coins, practice);
+}
+function commentFor(j, band, r){
+  // prefer an item that matched the theme; else any worn item
+  const matched=r.matches.map(m=>m.w);
+  const w = matched.length?pick(matched):(r.worn.length?pick(r.worn):null);
+  const itemName = w ? w.it.n[LANG] : (LANG==='de'?'dieses Outfit':'este look');
+  const tpl = pick(COMMENTS[j.id][band][LANG]);
+  const themeName = theme.n[LANG].replace(/[!¡]/g,'').trim();
+  return fmt(tpl, {item:itemName, theme:themeName});
+}
+function renderJudging(r, stars, coins, practice){
+  show('scr-judge');
+  $('judgeTitle').textContent=L.judgeTitle;
+  $('judgeTheme').innerHTML=fmt(L.judgeTheme,{t:`${theme.e} ${theme.n[LANG]}`});
+  const jc=$('judgecards'); jc.innerHTML='';
+  r.scores.forEach((sc,i)=>{
+    const j=JUDGES[i];
+    const band = sc>=7.5?'high' : sc>=5?'mid' : 'low';
+    const div=document.createElement('div'); div.className='judgecard';
+    div.innerHTML=`<div class="javatar">${j.e}</div>
+      <div class="jbody"><div class="jname">${j.name}</div><div class="jrole">${j.role[LANG]}</div>
+      <div class="jcomment">${esc(commentFor(j,band,r))}</div></div>
+      <div class="jscore">${sc.toFixed(1)}</div>`;
+    jc.appendChild(div);
+    setTimeout(()=>{div.classList.add('in'); sDing();}, 500+i*800);
+  });
+  const tb=$('totalbox'); tb.classList.remove('in');
+  $('totalnum').innerHTML=`${r.total.toFixed(1)}<small>/10</small>`;
+  $('stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  const tagCount={};
+  r.matches.forEach(m=>{tagCount[m.tag]=(tagCount[m.tag]||0)+1;});
+  let chips=Object.entries(tagCount).map(([t,n])=>`<span class="matchchip">${TAGL[t].e} ${TAGL[t][LANG]}${n>1?' ×'+n:''}</span>`).join('');
+  if(r.colorPts>0) chips+=`<span class="matchchip color">🎨 ${PAL[theme.bonus].n[LANG]}</span>`;
+  $('chiprow').innerHTML=chips;
+  $('coinsEarned').textContent=fmt(L.coinsEarned,{n:coins});
+  $('practiceNote').textContent = practice ? L.practiceNote : '';
+  $('btnDelivery').textContent=fmt(L.btnDelivery,{c:S.coins});
+  $('btnRestyle').textContent=L.btnRestyle;
+  setTimeout(()=>{
+    tb.classList.add('in'); sSparkle(); sCoin();
+    if(stars===3) confetti();
+  }, 500+r.scores.length*800+300);
+}
+function confetti(){
+  const colors=['#2ee6c0','#ff8585','#ffcf5e','#c9aef5','#9fd8f5'];
+  for(let i=0;i<46;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=rnd()*100+'vw'; c.style.background=pick(colors);
+    c.style.animationDuration=(1.6+rnd()*1.6)+'s'; c.style.animationDelay=(rnd()*0.7)+'s';
+    c.style.borderRadius=rnd()>0.5?'50%':'2px';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4200);
+  }
+}
+$('btnRestyle').addEventListener('click',()=>{ sClick(); enterStyling(); });
+$('btnJHome').addEventListener('click',()=>{ sClick(); initStart(); show('scr-start'); });
+$('btnDelivery').addEventListener('click',()=>{ sClick(); openDeliveryModal(); });
+
+/* ---------- deliveries ---------- */
+const BOX_COST=5;
+function lockedPool(){
+  const pool=[];
+  for(const it of ITEMS) for(let ci=0; ci<it.cws.length; ci++)
+    if(!owns(it.id,ci)) pool.push({id:it.id, cw:ci});
+  return pool;
+}
+function makeQuestion(){
+  // occasionally lead with a review of a missed verb
+  const missedList=Object.keys(S.missed).filter(v=>S.missed[v]>0);
+  let vb=null, review=false;
+  if(missedList.length && rnd()<0.45){ const mv=pick(missedList); vb=VERBS.find(x=>x.v===mv)||null; review=!!vb; }
+  if(!vb) vb=pick(VERBS);
+  const form = rnd()<0.5?'past':'pp';
+  const correct = vb[form];
+  const wrongs = (form==='past'?vb.wp:vb.wpp).filter(w=>w!==correct);
+  const w2 = []; const seen=new Set([correct]);
+  for(const w of wrongs){ if(!seen.has(w) && w2.length<2){w2.push(w); seen.add(w);} }
+  while(w2.length<2){ const f=pick(VERBS)[form]; if(!seen.has(f)){w2.push(f); seen.add(f);} }
+  const chips=[correct,...w2];
+  for(let i=chips.length-1;i>0;i--){const k=ri(i+1); [chips[i],chips[k]]=[chips[k],chips[i]];}
+  return {vb, form, correct, chips, review};
+}
+function openDeliveryModal(){
+  $('delivery').classList.add('on');
+  $('delTitle').textContent=L.delTitle;
+  delState=null;
+  renderDeliveryIdle();
+}
+function renderDeliveryIdle(){
+  $('delIntro').textContent=L.delIntro;
+  $('boxart').textContent='📦'; $('boxart').classList.remove('shake');
+  $('delslots').innerHTML=''; $('qbox').style.display='none';
+  const can=S.coins>=BOX_COST;
+  $('delbtns').innerHTML=`
+    <button class="bigbtn" id="delOpen" style="font-size:16px;padding:11px 22px;${can?'':'opacity:.45;'}">${L.delOpen}</button>
+    <button class="ghostbtn" id="delClose">${L.delClose}</button>`;
+  $('delOpen').addEventListener('click',()=>{
+    if(S.coins<BOX_COST){ toast(L.delNoCoins); sWrong(); return; }
+    sCoin(); startBox();
+  });
+  $('delClose').addEventListener('click',closeDelivery);
+}
+function closeDelivery(){
+  $('delivery').classList.remove('on'); delState=null;
+  updateCoins();
+  if($('scr-style').classList.contains('on')) buildGrid();
+  if($('scr-judge').classList.contains('on')) $('btnDelivery').textContent=fmt(L.btnDelivery,{c:S.coins});
+}
+function startBox(){
+  S.coins-=BOX_COST; save(); updateCoins();
+  const pool=lockedPool();
+  // pick up to 3 distinct locked rewards; pad with coin rewards
+  const rewards=[];
+  const cp=pool.slice();
+  for(let i=0;i<3;i++){
+    if(cp.length){ const k=ri(cp.length); rewards.push({type:'item', ...cp.splice(k,1)[0]}); }
+    else rewards.push({type:'coins', n:4});
+  }
+  delState={rewards, qi:0, results:[null,null,null]};
+  $('delIntro').textContent='';
+  $('boxart').textContent='📦'; $('boxart').classList.add('shake');
+  renderSlots(); nextQuestion();
+}
+function renderSlots(){
+  $('delslots').innerHTML=delState.rewards.map((r,i)=>{
+    const res=delState.results[i];
+    if(res==='won'){
+      if(r.type==='coins') return `<div class="delslot coin won">🪙<div class="sl-name">+${r.n}</div></div>`;
+      const it=ITEM[r.id];
+      return `<div class="delslot won">${itemThumb(it,r.cw,S.skin)}<div class="sl-name">${it.n[LANG]}</div></div>`;
+    }
+    if(res==='lost') return `<div class="delslot lost">🔒</div>`;
+    return `<div class="delslot">${i<delState.qi?'':'❓'}</div>`;
+  }).join('');
+}
+function nextQuestion(){
+  if(delState.qi>=3){ finishBox(); return; }
+  const q=makeQuestion();
+  delState.q=q;
+  $('qbox').style.display='block';
+  $('qprompt').textContent=(q.review?('🔁 '+L.review+' · '):'')+L.qWhich;
+  $('qverb').innerHTML=`<span style="color:var(--amber)">${q.vb.v}</span> <span style="color:var(--dim)">→</span> ?`;
+  const f=$('qform');
+  f.textContent = q.form==='past' ? L.qPast : L.qPp;
+  f.className = q.form==='past' ? 'f-past' : 'f-pp';
+  $('qsentence').textContent='';
+  $('teach').className=''; $('teach').innerHTML='';
+  $('delprogress').textContent=fmt(L.qOf,{i:delState.qi+1});
+  $('qchips').innerHTML=q.chips.map(c=>`<button class="qchip" data-a="${esc(c)}">${esc(c)}</button>`).join('');
+  $('delbtns').innerHTML='';
+  $('qchips').querySelectorAll('.qchip').forEach(b=>b.addEventListener('click',()=>answer(b.dataset.a, b)));
+}
+function answer(a, btn){
+  if(!delState||!delState.q) return;
+  const q=delState.q; delState.q=null;
+  const right = a===q.correct;
+  $('qchips').querySelectorAll('.qchip').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.a===q.correct) b.classList.add('right');
+    else if(btn && b===btn && !right) b.classList.add('wrong');
+  });
+  const reward=delState.rewards[delState.qi];
+  if(right){
+    sDing(); setTimeout(sSparkle,150);
+    if(reward.type==='coins'){ S.coins+=reward.n; delState.results[delState.qi]='won'; }
+    else{
+      const fresh=grant(reward.id, reward.cw);
+      delState.results[delState.qi]='won';
+      if(!fresh){ S.coins+=3; }
+    }
+    if(q.review) S.missed[q.vb.v]=Math.max(0,(S.missed[q.vb.v]||0)-1);
+  }else{
+    sWrong();
+    delState.results[delState.qi]='lost';
+    S.missed[q.vb.v]=(S.missed[q.vb.v]||0)+1;
+  }
+  // teaching beat: always show the full chain
+  $('teach').innerHTML=`<span class="fb">${q.vb.v}</span><span class="arr">→</span><span class="fp">${q.vb.past}</span><span class="arr">→</span><span class="fpp">${q.vb.pp}</span>`;
+  $('teach').classList.add('on');
+  save(); updateCoins();
+  delState.qi++;
+  renderSlots();
+  setTimeout(nextQuestion, right?1300:2100);
+}
+function finishBox(){
+  $('boxart').classList.remove('shake'); $('boxart').textContent='🎁';
+  $('qbox').style.display='none';
+  $('delprogress').textContent='';
+  const can=S.coins>=BOX_COST;
+  $('delIntro').textContent=L.delDone;
+  $('delbtns').innerHTML=`
+    <button class="bigbtn" id="delAgain" style="font-size:16px;padding:11px 22px;${can?'':'opacity:.45;'}">${L.delAgain}</button>
+    <button class="ghostbtn" id="delClose2">${L.delClose}</button>`;
+  $('delAgain').addEventListener('click',()=>{
+    if(S.coins<BOX_COST){ toast(L.delNoCoins); sWrong(); return; }
+    sCoin(); startBox();
+  });
+  $('delClose2').addEventListener('click',closeDelivery);
+  sSparkle();
+}
+
+/* ---------- QA scenes ---------- */
+function qaCloset(){
+  const el=$('qa-closet');
+  let html=`<h2 class="fredoka">${L.closetTitle}</h2>`;
+  html+='<div class="qa-skinrow">'+SKINS.map((sk,i)=>
+    `<div class="qa-cell">${renderDoll({hair:{id:'bob',cw:0}},i)}<div class="nm">Skin ${i+1}</div></div>`).join('')+'</div>';
+  html+='<div class="qa-skinrow">'+[
+    {hair:{id:'waves',cw:2}, dress:{id:'partydress',cw:0}, shoes:{id:'maryjanes',cw:0}, acc:{id:'necklace',cw:0}},
+    {hair:{id:'crop',cw:0}, top:{id:'hoodie',cw:1}, bottom:{id:'cargo',cw:1}, shoes:{id:'sneakers',cw:1}, acc:{id:'bag',cw:1}},
+    {hair:{id:'bun',cw:1}, dress:{id:'raincoat',cw:0}, shoes:{id:'boots',cw:1}, acc:{id:'glasses',cw:0}},
+    {hair:{id:'bob',cw:2}, top:{id:'tee',cw:0}, bottom:{id:'skirt',cw:0}, shoes:{id:'sandals',cw:1}, acc:{id:'sunhat',cw:2}},
+  ].map((o,i)=>`<div class="qa-cell">${renderDoll(o,i)}<div class="nm">Look ${i+1}</div></div>`).join('')+'</div>';
+  html+='<div class="qa-grid">';
+  for(const it of ITEMS){
+    const dots=it.cws.map(cid=>`<div class="cwdot" style="background:${PAL[cid].m}"></div>`).join('');
+    html+=`<div class="qa-cell">${itemThumb(it,0,0)}
+      <div class="nm">${it.n[LANG]}</div><div class="cat">${it.cat}</div>
+      <div class="cwrow">${dots}</div></div>`;
+  }
+  html+='</div>';
+  el.innerHTML=html; el.classList.add('on');
+}
+function qaSetup(){
+  if(!QA) return false;
+  // deterministic state for every QA scene
+  S=freshSave(); S.coins=25;
+  ['waves','blouse','skirt','partydress','boots','sunhat'].forEach(id=>grant(id,0));
+  theme=THEMES[0]; mode='free';
+  if(QA==='closet'){ qaCloset(); return true; }
+  if(QA==='styling'){ enterStyling(); return true; }
+  if(QA==='runway'){
+    S.worn={hair:{id:'waves',cw:0}, top:null, bottom:null, dress:{id:'partydress',cw:0}, shoes:{id:'maryjanes',cw:0}, acc:{id:'necklace',cw:0}};
+    grant('maryjanes',0);
+    toRunway();
+    // freeze mid-strut for the screenshot
+    setTimeout(()=>{
+      const scr=$('scr-runway');
+      scr.querySelectorAll('*').forEach(n=>{});
+      $('runwayDollWrap').style.animation='none';
+      $('runwayDollWrap').style.transform='translateX(-50%)';
+      scr.classList.add('qa-freeze');
+      spawnFlash(); spawnFlash(); spawnSpark();
+    }, 1400);
+    return true;
+  }
+  if(QA==='judges'){
+    S.worn={hair:{id:'waves',cw:0}, top:null, bottom:null, dress:{id:'sundress',cw:0}, shoes:{id:'sneakers',cw:0}, acc:{id:'sunhat',cw:1}};
+    grant('sunhat',1);
+    judgeNow();
+    // fast-forward reveal animations
+    setTimeout(()=>{
+      document.querySelectorAll('.judgecard').forEach(c=>c.classList.add('in'));
+      $('totalbox').classList.add('in');
+    }, 250);
+    return true;
+  }
+  return false;
+}
+
+/* ---------- QA hook ---------- */
+window.__VR = {
+  get state(){ return S; },
+  save, load,
+  reset(){ localStorage.removeItem(SAVE_KEY); S=freshSave(); save(); initStart(); },
+  grantCoins(n){ S.coins+=n; save(); updateCoins(); return S.coins; },
+  unlockAll(){ ITEMS.forEach(it=>it.cws.forEach((c,i)=>grant(it.id,i))); save(); return Object.keys(S.owned).length; },
+  unlock(id,cw=0){ return grant(id,cw) && (save()||true); },
+  setTheme(i){ theme=THEMES[i%THEMES.length]; return theme.id; },
+  get theme(){ return theme; },
+  setMode(m){ mode=m; return mode; },
+  wear(slot,id,cw=0){ S.worn[slot]=id?{id,cw}:null; if(slot==='dress'&&id){S.worn.top=null;S.worn.bottom=null;} save(); return S.worn; },
+  startRound, enterStyling, toRunway, judgeNow,
+  get lastResult(){ return lastResult; },
+  scoreOutfit,
+  openDelivery(){ openDeliveryModal(); if(S.coins>=BOX_COST) startBox(); return !!delState; },
+  get delState(){ return delState; },
+  get currentQ(){ return delState && delState.q; },
+  answer(correct){ // answer current question right or wrong
+    if(!delState||!delState.q) return null;
+    const q=delState.q;
+    const a = correct ? q.correct : q.chips.find(c=>c!==q.correct);
+    answer(a, null); return a;
+  },
+  answerText(a){ if(!delState||!delState.q) return null; answer(a,null); return a; },
+  themeForDate(k){ return themeForDate(k).id; },
+  dayKey, itemCount: ITEMS.length,
+  items: ITEMS.map(i=>({id:i.id, cat:i.cat, tags:i.tags, cws:i.cws})),
+  renderDoll, toast,
+  scene(n){ history.replaceState(null,'','?qa='+n); location.reload(); },
+};
+
+/* ---------- boot ---------- */
+load();
+setMuted(muted);
+if(!qaSetup()){ initStart(); }
+if(PARAMS.get('debug')==='m'){
+  window.addEventListener('load',()=>{ setTimeout(()=>{
+    const d=document.createElement('div'); d.id='dbg';
+    d.style.cssText='position:fixed;left:0;top:0;z-index:9999;background:#000;color:#0f0;font:bold 13px monospace;padding:6px;white-space:pre-wrap;width:300px;';
+    const r=$('scr-start').getBoundingClientRect();
+    const t=$('tagline').getBoundingClientRect();
+    d.textContent='DBGM '+JSON.stringify({iw:innerWidth, ih:innerHeight,
+      dsw:document.documentElement.scrollWidth, bsw:document.body.scrollWidth,
+      start:[r.left,r.width], tag:[t.left,t.width], vv:[visualViewport.offsetLeft, visualViewport.width, visualViewport.scale]},null,1);
+    document.body.appendChild(d);
+  }, 300); });
+}
+</script>
+</body>
+</html>

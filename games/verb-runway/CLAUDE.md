@@ -205,3 +205,34 @@ common verbs) with shape `{v:'go', past:'went', pp:'gone'}`.
 ## Status log
 
 - 2026-06-10 — Brief written by the master session. Nothing built yet.
+- 2026-06-10 — **PoC built and verified** (`krabsy-verb-runway.html`, single file,
+  no external assets beyond Google Fonts).
+  - **Art**: one doll base (220×364 viewBox; anchors: shoulder y=122, waist y=178,
+    hip y=208, ankle y=332), 4 skin tones, 22 garments × 3 colorways in sticker
+    style (3px ink `#2a2440`, flat fill + one shade per garment, 12-color palette).
+    Categories: 4 hair, 4 tops, 3 bottoms, 3 dresses, 4 shoes, 4 accessories.
+  - **Game**: daily challenge (deterministic theme from date, streak, one scored
+    run/day then practice) + free style; 8 themes; styling screen (tabs, colorway
+    dots, locked silhouettes, skin swatches); runway reveal (curtains, spotlight,
+    strut keyframes, camera flashes, WebAudio sting); 3 judges (Coco 🦀 / Pixel 🐱 /
+    Maus 🐭) with tag-match scoring, color-harmony bonus, personality leans,
+    template comments referencing worn items (DE+ES), tag-match chips; deliveries:
+    5-coin boxes, 3 MC verb questions each (44 verbs inlined from the catalogue
+    with its real distractors), correct = unlock item+colorway, wrong = teaching
+    chain (base amber / past teal / pp coral) + missed-verb review weighting.
+  - **i18n**: `?lang=de` (default) / `?lang=es` — full UI, themes, item names,
+    judge comments.
+  - **QA**: `?qa=closet` (contact sheet: skins, 4 sample looks, all 22 items
+    zoomed on the doll), `?qa=styling|runway|judges` (deterministic, seeded RNG);
+    `window.__VR` hook (state, grantCoins, unlockAll, wear, setTheme, judgeNow,
+    openDelivery, answer, themeForDate…). `?debug=m` shows layout metrics.
+  - **Verified**: full loop driven via `__VR` headlessly — scoring sanity
+    (themed outfit 10 vs mismatched 3.3), daily/practice/streak logic, delivery
+    win/lose/teach/missed-verb, save/load roundtrip + reload persistence, daily
+    determinism, ES strings, zero console errors/warnings. Screenshots via
+    headless Edge (note: its min window width is ~470 CSS px — 420-wide shots
+    render a 470 layout cropped; not a page bug).
+  - Serve: `.claude/launch.json` (port 8613 via WSL python3) or any static server.
+  - **Open for a future session**: more garments per category, judge avatars as
+    drawn SVG instead of emoji, real strut leg animation, theme-specific stage
+    backdrops, hooking up wrapper pages + games.json (master session owns that).
