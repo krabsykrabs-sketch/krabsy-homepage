@@ -17,6 +17,7 @@ at the end of each session. (Last update: 2026-06-10.)
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC brief written** (`games/verb-dungeon/CLAUDE.md`) — open a session in that folder to build |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC brief written** (`games/verb-climb/CLAUDE.md`) — open a session in that folder to build |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC brief written** (`games/verb-valley/CLAUDE.md`) — open a session in that folder to build |
+| Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC brief written** (`games/verb-runway/CLAUDE.md`) — PoC doubles as an AI-vector-art test; open a session in that folder to build |
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
