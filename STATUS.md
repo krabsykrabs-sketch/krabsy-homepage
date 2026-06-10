@@ -15,6 +15,7 @@ at the end of each session. (Last update: 2026-06-10.)
 | Verb Flow | single-file canvas | `games/verb-flow/` | — | **built, not released** |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC brief written** (`games/verb-dungeon/CLAUDE.md`) — open a session in that folder to build |
+| Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC brief written** (`games/verb-climb/CLAUDE.md`) — open a session in that folder to build |
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
