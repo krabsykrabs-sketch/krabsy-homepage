@@ -22,6 +22,17 @@
     "status": "beta"
   },
   {
+    "id": "air-control",
+    "name": { "de": "Air Control!", "es": "Air Control!" },
+    "tagline": {
+      "de": "Lotse die Flugzeuge sicher mit Englisch!",
+      "es": "¡Guía los aviones de forma segura con inglés!"
+    },
+    "thumbnail": null,
+    "topics": ["irregular_verbs"],
+    "status": "beta"
+  },
+  {
     "id": "verb-snake",
     "name": { "de": "Verb Snake!", "es": "Verb Snake!" },
     "tagline": {
