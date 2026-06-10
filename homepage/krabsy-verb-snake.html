@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d2240">
+<title>Krabsy – Verb Snake!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+  :root{
+    --hud-bg:rgba(13,30,56,0.82);
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e; --sky:#7fc4e8;
+    --white:#fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;background:#0d2240}
+  canvas{display:block;width:100vw;height:100svh;touch-action:none}
+
+  /* ── HUD ── */
+  #hud{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:50;background:var(--hud-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.07);color:var(--white);pointer-events:none}
+  #hud.hidden{display:none}
+  .hud-group{display:flex;align-items:center;gap:14px}
+  #hud-logo{font-family:'Fredoka One',cursive;font-size:17px;color:rgba(255,255,255,0.45)}
+  #hud-logo span{color:rgba(255,133,133,0.65)}
+  .hud-stat{text-align:center;line-height:1.1}
+  .hud-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4)}
+  .hud-value{font-family:'Fredoka One',cursive;font-size:19px}
+  #hud-score{color:var(--amber)} #hud-level{color:var(--teal)} #hud-best{color:rgba(255,255,255,0.55)}
+  .hud-btn{pointer-events:auto;font-size:17px;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .12s,background .12s}
+  .hud-btn:active{transform:scale(0.9)}
+  .hud-btn:hover{background:rgba(255,255,255,0.14)}
+  .hud-btn.muted{opacity:0.45}
+
+  /* ── Chain tracker ── */
+  #tracker{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:49;background:rgba(8,20,42,0.82);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:6px 18px;display:flex;align-items:center;gap:9px;font-family:'Fredoka One',cursive;font-size:18px;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap}
+  #tracker.show{opacity:1}
+  .trk-base{color:var(--amber)} .trk-past{color:var(--teal)} .trk-pp{color:var(--coral)}
+  .trk-arrow{color:rgba(255,255,255,0.25);font-size:13px}
+  .trk-todo{opacity:0.3}
+  .trk-next{animation:trkPulse 0.9s ease-in-out infinite}
+  @keyframes trkPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+  /* ── Overlay screens ── */
+  .screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,22,44,0.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:24px;text-align:center;gap:13px;overflow-y:auto}
+  .screen.hidden{display:none}
+  .screen-emoji{font-size:52px;line-height:1;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+  .screen-title{font-family:'Fredoka One',cursive;font-size:clamp(34px,8vw,54px);color:var(--white);line-height:1.05;text-shadow:0 4px 24px rgba(0,0,0,0.4)}
+  .screen-title span{color:var(--teal)}
+  .screen-sub{font-size:14px;color:rgba(255,255,255,0.65);max-width:400px;line-height:1.5}
+  .screen-stat{font-family:'Fredoka One',cursive;font-size:24px;color:var(--amber)}
+  .newbest{font-family:'Fredoka One',cursive;font-size:14px;color:#0a1c34;background:linear-gradient(135deg,#ffe27a,#ffb84d);padding:4px 16px;border-radius:30px;animation:pop 0.5s cubic-bezier(.2,2,.4,1)}
+  @keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+
+  .howto{display:flex;flex-direction:column;gap:8px;max-width:430px;width:100%}
+  .howto-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);padding:9px 14px;border-radius:14px;font-size:13px;color:rgba(255,255,255,0.85);text-align:left;line-height:1.4}
+  .howto-ico{font-size:22px;flex-shrink:0}
+  .howto-row b{color:var(--amber)}
+  .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
+  .legend-chip{padding:4px 13px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:13px;border:2px solid transparent;background:rgba(255,255,255,0.06)}
+  .lc-base{color:var(--amber);border-color:rgba(255,207,94,0.55)}
+  .lc-past{color:var(--teal);border-color:rgba(46,230,192,0.5)}
+  .lc-pp{color:var(--coral);border-color:rgba(255,133,133,0.5)}
+
+  .btn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 38px;border-radius:50px;border:none;cursor:pointer;letter-spacing:0.5px;transition:transform 0.15s;margin-top:4px;color:#fff}
+  .btn:active{transform:scale(0.94)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:linear-gradient(135deg,#2ec4a0,#0d9c7c);box-shadow:0 6px 24px rgba(46,196,160,0.4)}
+  .btn-secondary{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);font-size:14px;padding:10px 26px}
+  .logo-text{font-family:'Fredoka One',cursive;font-size:17px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:1px}
+  .logo-text em{font-style:normal;color:rgba(46,230,192,0.55)}
+
+  /* ── Touch d-pad ── */
+  #dpad{position:fixed;z-index:48;bottom:max(18px,env(safe-area-inset-bottom));right:18px;width:150px;height:150px;display:none;pointer-events:none}
+  #dpad.show{display:block}
+  .dbtn{position:absolute;width:48px;height:48px;border-radius:13px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto;backdrop-filter:blur(4px)}
+  .dbtn:active{background:rgba(46,230,192,0.3)}
+  #d-up{left:51px;top:0}#d-down{left:51px;top:102px}#d-left{left:0;top:51px}#d-right{left:102px;top:51px}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="hud-group"><div id="hud-logo">Krab<span>sy</span></div></div>
+  <div class="hud-group">
+    <div class="hud-stat"><div class="hud-label">Level</div><div class="hud-value" id="hud-level">1</div></div>
+    <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="hud-label">Best</div><div class="hud-value" id="hud-best">0</div></div>
+  </div>
+  <div class="hud-group" style="gap:8px">
+    <button class="hud-btn" id="btn-sound" title="Sound">🔊</button>
+  </div>
+</div>
+
+<div id="tracker"></div>
+
+<div id="dpad">
+  <div class="dbtn" id="d-up">▲</div>
+  <div class="dbtn" id="d-left">◀</div>
+  <div class="dbtn" id="d-right">▶</div>
+  <div class="dbtn" id="d-down">▼</div>
+</div>
+
+<div class="screen" id="start-screen">
+  <div class="screen-emoji">🐍</div>
+  <div class="screen-title">Verb <span>Snake!</span></div>
+  <div class="screen-sub">Eat each verb's three forms — in the right order — and grow!</div>
+  <div class="howto">
+    <div class="howto-row"><div class="howto-ico">👆</div><div>Swipe or use the arrow keys to steer the snake.</div></div>
+    <div class="howto-row"><div class="howto-ico">🍎</div><div>Eat the <b>base</b>, then <b>simple past</b>, then <b>past participle</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico">🚫</div><div>Wrong forms cost points — and don't hit the walls or yourself!</div></div>
+  </div>
+  <div class="legend">
+    <div class="legend-chip lc-base">go</div>
+    <div class="legend-chip lc-past">went</div>
+    <div class="legend-chip lc-pp">gone</div>
+  </div>
+  <button class="btn btn-primary" id="start-btn">Slither! 🐍</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<div class="screen hidden" id="gameover-screen">
+  <div class="screen-emoji">💥</div>
+  <div class="screen-title" style="font-size:clamp(30px,7vw,46px)">Game <span>Over!</span></div>
+  <div class="newbest hidden" id="newbest-badge">🌟 New Best!</div>
+  <div class="screen-stat" id="go-score">Score: 0</div>
+  <div class="screen-sub" id="go-verbs"></div>
+  <div class="screen-sub" id="go-best"></div>
+  <button class="btn btn-primary" id="retry-btn">Try Again 🐍</button>
+  <button class="btn btn-secondary" id="menu-btn">Menu</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// KRABSY VERB SNAKE v2  — single-file, all drawn in code
+// Mechanic: eat a verb's forms in order base → past → past participle.
+// ════════════════════════════════════════
+
+const VERBS = [
+  {v:'go',past:'went',pp:'gone'},{v:'eat',past:'ate',pp:'eaten'},
+  {v:'run',past:'ran',pp:'run'},{v:'see',past:'saw',pp:'seen'},
+  {v:'come',past:'came',pp:'come'},{v:'take',past:'took',pp:'taken'},
+  {v:'give',past:'gave',pp:'given'},{v:'know',past:'knew',pp:'known'},
+  {v:'make',past:'made',pp:'made'},{v:'do',past:'did',pp:'done'},
+  {v:'get',past:'got',pp:'got'},{v:'find',past:'found',pp:'found'},
+  {v:'say',past:'said',pp:'said'},{v:'tell',past:'told',pp:'told'},
+  {v:'feel',past:'felt',pp:'felt'},{v:'keep',past:'kept',pp:'kept'},
+  {v:'leave',past:'left',pp:'left'},{v:'win',past:'won',pp:'won'},
+  {v:'lose',past:'lost',pp:'lost'},{v:'send',past:'sent',pp:'sent'},
+  {v:'pay',past:'paid',pp:'paid'},{v:'meet',past:'met',pp:'met'},
+  {v:'think',past:'thought',pp:'thought'},{v:'bring',past:'brought',pp:'brought'},
+  {v:'write',past:'wrote',pp:'written'},{v:'speak',past:'spoke',pp:'spoken'},
+  {v:'drink',past:'drank',pp:'drunk'},{v:'break',past:'broke',pp:'broken'},
+  {v:'fly',past:'flew',pp:'flown'},{v:'grow',past:'grew',pp:'grown'},
+  {v:'fall',past:'fell',pp:'fallen'},{v:'ride',past:'rode',pp:'ridden'},
+  {v:'sing',past:'sang',pp:'sung'},{v:'swim',past:'swam',pp:'swum'},
+  {v:'wear',past:'wore',pp:'worn'},{v:'throw',past:'threw',pp:'thrown'},
+];
+const FORM_TYPE=['base','past','pp'];
+const FORM_COLOR={base:'#ffcf5e',past:'#2ee6c0',pp:'#ff8585'};
+function formText(verb,idx){return idx===0?verb.v:idx===1?verb.past:verb.pp;}
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+
+// ── Layout / grid ──
+const HUD_H=56, TRACKER_H=44, MARGIN=10;
+let LY={}; // {cell, cols, rows, x, y, gw, gh}
+
+function computeLayout(){
+  const top=HUD_H+TRACKER_H;
+  // Guard against a not-yet-laid-out iframe reporting ~0 size (never go negative).
+  const availW=Math.max(180,W-MARGIN*2);
+  const availH=Math.max(220,H-top-MARGIN*2);
+  // target cell size so words (≤7 chars) stay readable; clamp grid dims
+  const targetCell=Math.max(40,Math.min(72,Math.round(Math.min(availW,availH)/11)));
+  let cols=Math.max(9,Math.floor(availW/targetCell));
+  let rows=Math.max(9,Math.floor(availH/targetCell));
+  cols=Math.min(cols,26); rows=Math.min(rows,26);
+  const cell=Math.max(14,Math.floor(Math.min(availW/cols,availH/rows)));
+  const gw=cell*cols, gh=cell*rows;
+  LY={cell,cols,rows,gw,gh,x:Math.round((W-gw)/2),y:Math.round(top+(availH-gh)/2+MARGIN)};
+}
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  computeLayout();
+}
+window.addEventListener('resize',resize);
+resize();
+
+const DIRS={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
+function cellCenter(c,r){return{x:LY.x+c*LY.cell+LY.cell/2,y:LY.y+r*LY.cell+LY.cell/2};}
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+const G={
+  running:false,
+  score:0, level:1, verbsDone:0,
+  best:parseInt(localStorage.getItem('krabsy_vsnake_best')||'0'),
+  sound:localStorage.getItem('krabsy_vsnake_sound')!=='off',
+  snake:[], prev:[], dir:'right', queuedDir:'right', grow:0,
+  fruits:[],            // {col,row,verb,formIdx,formType,text,born}
+  active:null,          // verb object being chained
+  step:0,               // forms eaten of active verb (0..2 -> next needed = step)
+  recent:[],            // recently used verbs (avoid repeats)
+  moveMs:200, acc:0, lastT:0,
+  effects:[], shake:0, flashCol:null, flashUntil:0,
+  frame:0,
+};
+
+function levelForVerbs(n){return 1+Math.floor(n/4);}
+function moveMsForLevel(lv){return Math.max(95,210-(lv-1)*14);}
+
+// ════════════════════════════════════════
+// SPAWN / CHAIN
+// ════════════════════════════════════════
+function freeCells(){
+  const occ=new Set();
+  G.snake.forEach(s=>occ.add(s.col+','+s.row));
+  G.fruits.forEach(f=>occ.add(f.col+','+f.row));
+  const out=[];
+  for(let r=0;r<LY.rows;r++)for(let c=0;c<LY.cols;c++){
+    if(!occ.has(c+','+r)) out.push({col:c,row:r});
+  }
+  return out;
+}
+function placeFruit(verb,formIdx){
+  const free=freeCells();
+  if(!free.length)return null;
+  const cell=free[(Math.random()*free.length)|0];
+  const f={col:cell.col,row:cell.row,verb,formIdx,formType:FORM_TYPE[formIdx],text:formText(verb,formIdx),born:performance.now()};
+  G.fruits.push(f);
+  return f;
+}
+function pickVerb(){
+  const avail=VERBS.filter(v=>!G.recent.includes(v.v));
+  const pool=avail.length?avail:VERBS;
+  const v=pool[(Math.random()*pool.length)|0];
+  G.recent.push(v.v);
+  if(G.recent.length>8)G.recent.shift();
+  return v;
+}
+function distractorForms(activeVerb,count){
+  // forms from OTHER verbs, avoiding text collisions with the active verb's forms
+  const activeTexts=new Set([activeVerb.v,activeVerb.past,activeVerb.pp]);
+  const others=VERBS.filter(v=>v!==activeVerb);
+  const out=[];const usedText=new Set(activeTexts);
+  let guard=200;
+  while(out.length<count&&guard-->0){
+    const v=others[(Math.random()*others.length)|0];
+    const idx=(Math.random()*3)|0;
+    const t=formText(v,idx);
+    if(usedText.has(t))continue;
+    usedText.add(t);
+    out.push({verb:v,formIdx:idx});
+  }
+  return out;
+}
+function newChain(){
+  G.fruits=[];
+  G.active=pickVerb();
+  G.step=0;
+  // all three forms of the active verb
+  for(let i=0;i<3;i++)placeFruit(G.active,i);
+  // distractors scale a touch with level
+  const d=Math.min(5,2+Math.floor(G.level/2));
+  distractorForms(G.active,d).forEach(o=>placeFruit(o.verb,o.formIdx));
+  updateTracker();
+}
+
+// the fruit that is the correct next form for the active chain
+function neededFruit(){
+  return G.fruits.find(f=>f.verb===G.active&&f.formIdx===G.step);
+}
+
+// ════════════════════════════════════════
+// INPUT
+// ════════════════════════════════════════
+const OPP={up:'down',down:'up',left:'right',right:'left'};
+function setDir(d){
+  if(!G.running)return;
+  if(d===OPP[G.dir]||d===G.dir)return;   // no reversing
+  G.queuedDir=d;
+}
+window.addEventListener('keydown',e=>{
+  const k=e.key;
+  let d=null;
+  if(k==='ArrowUp'||k==='w'||k==='W')d='up';
+  else if(k==='ArrowDown'||k==='s'||k==='S')d='down';
+  else if(k==='ArrowLeft'||k==='a'||k==='A')d='left';
+  else if(k==='ArrowRight'||k==='d'||k==='D')d='right';
+  if(d){e.preventDefault();audioInit();setDir(d);}
+});
+// swipe
+let touchStart=null;
+canvas.addEventListener('touchstart',e=>{audioInit();const t=e.changedTouches[0];touchStart={x:t.clientX,y:t.clientY};},{passive:true});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});
+canvas.addEventListener('touchend',e=>{
+  if(!touchStart)return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-touchStart.x, dy=t.clientY-touchStart.y;
+  if(Math.abs(dx)<18&&Math.abs(dy)<18){touchStart=null;return;}
+  if(Math.abs(dx)>Math.abs(dy))setDir(dx>0?'right':'left');
+  else setDir(dy>0?'down':'up');
+  touchStart=null;
+},{passive:true});
+// dpad
+function dpadBind(id,d){
+  const el=document.getElementById(id);
+  const fire=e=>{e.preventDefault();audioInit();setDir(d);};
+  el.addEventListener('touchstart',fire,{passive:false});
+  el.addEventListener('mousedown',fire);
+}
+dpadBind('d-up','up');dpadBind('d-down','down');dpadBind('d-left','left');dpadBind('d-right','right');
+if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches){
+  document.getElementById('dpad').classList.add('show');
+}
+
+// ════════════════════════════════════════
+// STEP / EAT
+// ════════════════════════════════════════
+function step(){
+  G.dir=G.queuedDir;
+  const d=DIRS[G.dir];
+  const head=G.snake[0];
+  const nc=head.col+d.x, nr=head.row+d.y;
+
+  // wall death
+  if(nc<0||nr<0||nc>=LY.cols||nr>=LY.rows){return die();}
+  // self death (tail tip will move away unless growing; check against all but last when not growing)
+  const checkLen=G.grow>0?G.snake.length:G.snake.length-1;
+  for(let i=0;i<checkLen;i++){if(G.snake[i].col===nc&&G.snake[i].row===nr)return die();}
+
+  G.prev=G.snake.map(s=>({col:s.col,row:s.row}));
+  G.snake.unshift({col:nc,row:nr});
+  if(G.grow>0)G.grow--; else G.snake.pop();
+
+  // eat?
+  const fi=G.fruits.findIndex(f=>f.col===nc&&f.row===nr);
+  if(fi>=0)resolveEat(fi);
+}
+
+function resolveEat(fi){
+  const f=G.fruits[fi];
+  const correct=(f.verb===G.active&&f.formIdx===G.step);
+  if(correct){
+    G.fruits.splice(fi,1);
+    G.step++;
+    G.grow+=2;
+    const c=cellCenter(f.col,f.row);
+    burst(c.x,c.y,FORM_COLOR[f.formType]);
+    if(G.step>=3){
+      G.score+=50; G.verbsDone++;
+      scorePop(f.col,f.row,'+50',FORM_COLOR.pp);
+      sfx('complete');
+      glow('#2ee6c0');
+      G.level=levelForVerbs(G.verbsDone);
+      G.moveMs=moveMsForLevel(G.level);
+      newChain();
+    }else{
+      G.score+=10;
+      scorePop(f.col,f.row,'+10',FORM_COLOR[f.formType]);
+      sfx('eat');
+      updateTracker();
+    }
+    if(G.score>G.best){G.best=G.score;localStorage.setItem('krabsy_vsnake_best',G.best);}
+    updateHUD();
+  }else{
+    // wrong form — penalty, no growth; remove & respawn an equivalent fruit
+    const wasNeededVerb=(f.verb===G.active);
+    G.fruits.splice(fi,1);
+    G.score=Math.max(0,G.score-5);
+    scorePop(f.col,f.row,'–5','#ff8585');
+    flashCell(f.col,f.row);
+    G.shake=10;
+    sfx('wrong');
+    if(wasNeededVerb)placeFruit(f.verb,f.formIdx);          // keep its forms available
+    else{const o=distractorForms(G.active,1)[0];if(o)placeFruit(o.verb,o.formIdx);}
+    updateHUD();updateTracker();
+  }
+}
+
+function die(){
+  G.running=false;
+  G.shake=22;
+  glow('#ff5050');
+  sfx('die');
+  if(G.score>G.best){G.best=G.score;localStorage.setItem('krabsy_vsnake_best',G.best);}
+  setTimeout(showGameOver,650);
+}
+
+// ════════════════════════════════════════
+// EFFECTS
+// ════════════════════════════════════════
+function burst(x,y,color){
+  for(let i=0;i<18;i++){
+    const a=Math.random()*Math.PI*2,s=1.4+Math.random()*3;
+    G.effects.push({type:'p',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,age:0,max:32+Math.random()*18,color,r:1.5+Math.random()*2.4});
+  }
+}
+function scorePop(col,row,text,color){
+  const c=cellCenter(col,row);
+  G.effects.push({type:'pop',x:c.x,y:c.y,text,color,age:0,max:55});
+}
+function flashCell(col,row){G.flashCol={col,row};G.flashUntil=performance.now()+360;}
+function glow(color){G.effects.push({type:'glow',color,age:0,max:30});}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function fitFont(text,maxW,base){
+  ctx.font=`900 ${base}px "Fredoka One",cursive`;
+  const w=ctx.measureText(text).width;
+  return w>maxW?Math.max(8,base*maxW/w):base;
+}
+
+function draw(){
+  ctx.save();
+  if(G.shake>0){
+    const m=G.shake*0.5;
+    ctx.translate((Math.random()-0.5)*m,(Math.random()-0.5)*m);
+    G.shake*=0.85; if(G.shake<0.4)G.shake=0;
+  }
+  ctx.fillStyle='#0d2240';ctx.fillRect(-30,-30,W+60,H+60);
+  if(G.board!==false&&LY.cell)drawBoard();
+  ctx.restore();
+
+  drawEffects();
+}
+
+function drawBoard(){
+  const {x,y,gw,gh,cell,cols,rows}=LY;
+  // play field
+  ctx.fillStyle='rgba(255,255,255,0.025)';
+  ctx.beginPath();ctx.roundRect(x-6,y-6,gw+12,gh+12,14);ctx.fill();
+  // subtle grid dots
+  ctx.fillStyle='rgba(255,255,255,0.05)';
+  for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++){
+    ctx.beginPath();ctx.arc(x+c*cell,y+r*cell,1,0,Math.PI*2);ctx.fill();
+  }
+  // border
+  ctx.strokeStyle='rgba(127,196,232,0.18)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(x,y,gw,gh,8);ctx.stroke();
+
+  drawFruits();
+  drawSnake();
+}
+
+function drawFruits(){
+  const cell=LY.cell;
+  const needed=neededFruit();
+  for(const f of G.fruits){
+    const c=cellCenter(f.col,f.row);
+    const fc=FORM_COLOR[f.formType];
+    const wch=cell*0.92, hch=cell*0.64;
+    // gentle pop-in
+    const t=Math.min(1,(performance.now()-f.born)/200);
+    const sc=0.6+0.4*t;
+    ctx.save();
+    ctx.translate(c.x,c.y);ctx.scale(sc,sc);
+    // glow ring for the next-needed form
+    if(f===needed){
+      const p=Math.sin(G.frame*0.13)*0.5+0.5;
+      ctx.strokeStyle=fc;ctx.globalAlpha=0.35+p*0.4;ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.roundRect(-wch/2-5,-hch/2-5,wch+10,hch+10,12);ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle='rgba(10,25,50,0.92)';
+    ctx.beginPath();ctx.roundRect(-wch/2,-hch/2,wch,hch,hch*0.34);ctx.fill();
+    ctx.strokeStyle=fc;ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.roundRect(-wch/2,-hch/2,wch,hch,hch*0.34);ctx.stroke();
+    const size=fitFont(f.text,wch*0.82,cell*0.3);
+    ctx.font=`900 ${size}px "Fredoka One",cursive`;
+    ctx.fillStyle=fc;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(f.text,0,1);
+    ctx.restore();
+  }
+}
+
+function drawSnake(){
+  const cell=LY.cell;
+  const t=G.running?Math.min(1,G.acc/G.moveMs):1;
+  // interpolated centers (head leads, tail recedes)
+  const pts=G.snake.map((s,i)=>{
+    const p=G.prev[i]||s;
+    const cc=cellCenter(s.col,s.row), pc=cellCenter(p.col,p.row);
+    return{x:pc.x+(cc.x-pc.x)*t,y:pc.y+(cc.y-pc.y)*t};
+  });
+  if(!pts.length)return;
+  // body as a thick rounded stroke with a teal gradient
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.strokeStyle='rgba(46,230,192,0.25)';ctx.lineWidth=cell*0.82;
+  strokePath(pts);
+  const grad=ctx.createLinearGradient(pts[pts.length-1].x,pts[pts.length-1].y,pts[0].x,pts[0].y);
+  grad.addColorStop(0,'#1aa884');grad.addColorStop(1,'#3df0cc');
+  ctx.strokeStyle=grad;ctx.lineWidth=cell*0.62;
+  strokePath(pts);
+  // subtle highlight
+  ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=cell*0.16;
+  strokePath(pts);
+  // head
+  const h=pts[0];
+  ctx.fillStyle='#3df0cc';
+  ctx.beginPath();ctx.arc(h.x,h.y,cell*0.36,0,Math.PI*2);ctx.fill();
+  // eyes, oriented to direction
+  const d=DIRS[G.dir];
+  const ex=d.x*cell*0.12, ey=d.y*cell*0.12;
+  const px=-d.y*cell*0.13, py=d.x*cell*0.13;
+  for(const s of [1,-1]){
+    const eyeX=h.x+ex+px*s, eyeY=h.y+ey+py*s;
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(eyeX,eyeY,cell*0.1,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#0a1c34';ctx.beginPath();ctx.arc(eyeX+d.x*cell*0.04,eyeY+d.y*cell*0.04,cell*0.05,0,Math.PI*2);ctx.fill();
+  }
+}
+function strokePath(pts){
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.stroke();
+}
+
+function drawEffects(){
+  const now=performance.now();
+  // flash cell
+  if(G.flashCol&&now<G.flashUntil){
+    const c=cellCenter(G.flashCol.col,G.flashCol.row);
+    const a=(G.flashUntil-now)/360;
+    ctx.fillStyle=`rgba(255,80,80,${a*0.5})`;
+    ctx.beginPath();ctx.roundRect(c.x-LY.cell/2,c.y-LY.cell/2,LY.cell,LY.cell,8);ctx.fill();
+  }
+  G.effects=G.effects.filter(e=>e.age<e.max);
+  for(const e of G.effects){
+    e.age++;
+    if(e.type==='p'){
+      e.x+=e.vx;e.y+=e.vy;e.vy+=0.08;e.vx*=0.98;
+      ctx.globalAlpha=1-e.age/e.max;ctx.fillStyle=e.color;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
+    }else if(e.type==='pop'){
+      const p=e.age/e.max;
+      ctx.globalAlpha=1-p;ctx.fillStyle=e.color;
+      ctx.font='900 20px "Fredoka One",cursive';ctx.textAlign='center';
+      ctx.fillText(e.text,e.x,e.y-20-p*22);
+    }else if(e.type==='glow'){
+      const p=e.age/e.max;
+      ctx.globalAlpha=(1-p)*0.4;ctx.fillStyle=e.color;
+      ctx.fillRect(0,0,W,H);
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+// ════════════════════════════════════════
+// LOOP
+// ════════════════════════════════════════
+function loop(ts){
+  G.frame++;
+  if(G.running){
+    if(!G.lastT)G.lastT=ts;
+    let dt=ts-G.lastT;G.lastT=ts;
+    if(dt>200)dt=G.moveMs; // tab refocus guard
+    G.acc+=dt;
+    while(G.acc>=G.moveMs){G.acc-=G.moveMs;if(G.running)step();}
+  }else G.lastT=0;
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// ════════════════════════════════════════
+// TRACKER / HUD
+// ════════════════════════════════════════
+function updateTracker(){
+  const el=document.getElementById('tracker');
+  if(!G.active){el.classList.remove('show');return;}
+  const v=G.active;
+  const cell=(idx,cls)=>{
+    const done=G.step>idx, next=G.step===idx;
+    let c=`trk-${cls}`;
+    if(!done&&!next)c+=' trk-todo';
+    if(next)c+=' trk-next';
+    return `<span class="${c}">${formText(v,idx)}</span>`;
+  };
+  el.innerHTML=cell(0,'base')+'<span class="trk-arrow">→</span>'+
+    cell(1,'past')+'<span class="trk-arrow">→</span>'+cell(2,'pp');
+  el.classList.add('show');
+}
+function updateHUD(){
+  document.getElementById('hud-score').textContent=G.score;
+  document.getElementById('hud-level').textContent=G.level;
+  document.getElementById('hud-best').textContent=G.best;
+  document.getElementById('btn-sound').textContent=G.sound?'🔊':'🔇';
+  document.getElementById('btn-sound').classList.toggle('muted',!G.sound);
+}
+
+// ════════════════════════════════════════
+// AUDIO — tiny WebAudio synth
+// ════════════════════════════════════════
+let AC=null;
+function audioInit(){
+  if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(_){}}
+  if(AC&&AC.state==='suspended')AC.resume();
+}
+function tone(freq,dur,type,gain,when){
+  if(!AC||!G.sound)return;
+  const t=AC.currentTime+(when||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(gain||0.1,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(t);o.stop(t+dur+0.02);
+}
+function sfx(kind){
+  if(!AC||!G.sound)return;
+  switch(kind){
+    case 'eat': tone(620,0.08,'sine',0.09);tone(820,0.09,'sine',0.06,0.05);break;
+    case 'complete':[523,659,784,1047].forEach((f,i)=>tone(f,0.14,'sine',0.1,i*0.07));break;
+    case 'wrong': tone(160,0.14,'square',0.07);break;
+    case 'die':[440,330,247,165].forEach((f,i)=>tone(f,0.2,'triangle',0.1,i*0.1));break;
+  }
+}
+
+// ════════════════════════════════════════
+// FLOW
+// ════════════════════════════════════════
+function startGame(){
+  audioInit();
+  G.running=true;G.score=0;G.level=1;G.verbsDone=0;
+  G.dir='right';G.queuedDir='right';G.grow=0;G.acc=0;G.lastT=0;
+  G.effects=[];G.recent=[];G.shake=0;G.flashCol=null;
+  const cr=Math.floor(LY.rows/2), cc=Math.floor(LY.cols/2);
+  G.snake=[{col:cc,row:cr},{col:cc-1,row:cr},{col:cc-2,row:cr}];
+  G.prev=G.snake.map(s=>({...s}));
+  G.moveMs=moveMsForLevel(1);
+  newChain();
+  updateHUD();
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+}
+function showGameOver(){
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('tracker').classList.remove('show');
+  const isBest=G.score>=G.best&&G.score>0;
+  document.getElementById('newbest-badge').classList.toggle('hidden',!isBest);
+  document.getElementById('go-score').textContent=`Score: ${G.score}`;
+  document.getElementById('go-verbs').textContent=`Verbs completed: ${G.verbsDone}`;
+  document.getElementById('go-best').textContent=`Best: ${G.best}`;
+  document.getElementById('gameover-screen').classList.remove('hidden');
+}
+function showStart(){
+  document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+}
+
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('retry-btn').addEventListener('click',startGame);
+document.getElementById('menu-btn').addEventListener('click',showStart);
+document.getElementById('btn-sound').addEventListener('click',()=>{
+  G.sound=!G.sound;localStorage.setItem('krabsy_vsnake_sound',G.sound?'on':'off');
+  audioInit();updateHUD();if(G.sound)sfx('eat');
+});
+document.getElementById('hud-best').textContent=G.best;
+updateHUD();
+
+// ── QA hook ──
+window.__VS={get G(){return G;},get LY(){return LY;},setDir,step,
+  feedNext(){const f=neededFruit();if(f){const h=G.snake[0];/* teleport head adjacent then step */
+    G.snake[0]={col:f.col,row:f.row};resolveEat(G.fruits.indexOf(f));}},
+};
+</script>
+</body>
+</html>
