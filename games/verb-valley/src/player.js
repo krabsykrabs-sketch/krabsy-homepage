@@ -82,6 +82,40 @@ export function createPlayer(scene, camera) {
     rig.add(heldGroup);
   }
 
+  // ── Tool in hand: small primitive builds parented to the right hand ──
+  // so they ride the arm swing for free. setTool('hoe'|'can'|'scythe'|'axe'|null).
+  let toolGroup = null;
+  function setTool(id) {
+    if (toolGroup) { handR.remove(toolGroup); toolGroup = null; }
+    if (!id) return;
+    const g = new THREE.Group();
+    const wood = lambert(0x8a6a3c), steel = lambert(0xb8c4d0);
+    if (id === 'hoe') {
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.85, 6), wood);
+      shaft.position.y = -0.2; g.add(shaft);
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.05, 0.12), steel);
+      blade.position.set(0, -0.62, 0.1); blade.rotation.x = 0.7; g.add(blade);
+    } else if (id === 'can') {
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.26, 10), lambert(0x4fa8d8));
+      body.position.y = -0.3; g.add(body);
+      const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.045, 0.3, 6), lambert(0x4fa8d8));
+      spout.position.set(0.18, -0.24, 0); spout.rotation.z = -0.9; g.add(spout);
+    } else if (id === 'scythe') {
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.05, 6), wood);
+      shaft.position.y = -0.15; g.add(shaft);
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.045, 0.1), steel);
+      blade.position.set(0.2, -0.66, 0); blade.rotation.z = -0.35; g.add(blade);
+    } else if (id === 'axe') {
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7, 6), wood);
+      shaft.position.y = -0.18; g.add(shaft);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.2, 0.26), steel);
+      head.position.set(0, -0.5, 0.08); g.add(head);
+    }
+    g.rotation.x = 0.5;            // tilted forward, resting against the hand
+    toolGroup = g;
+    handR.add(g);
+  }
+
   // ── State ──
   const pos = new THREE.Vector3(LAYOUT.bed.x, 0, LAYOUT.bed.z + 1);
   let facing = 0, walkPhase = 0, moving = false, bobT = 0;
@@ -162,7 +196,7 @@ export function createPlayer(scene, camera) {
   function teleport(x, z) { pos.set(x, 0, z); root.position.set(x, 0, z); }
 
   return {
-    root, update, updateCamera, teleport, setHeld,
+    root, update, updateCamera, teleport, setHeld, setTool,
     get position() { return pos; },
     get facing() { return facing; },
     setFacing(f) { facing = f; },

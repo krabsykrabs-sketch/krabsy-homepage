@@ -124,6 +124,14 @@
     color: rgba(255,255,255,0.6); font-size: 22px; cursor: pointer; font-weight: 800; }
   .empty { color: rgba(255,255,255,0.55); font-weight: 700; padding: 14px 4px; }
   #ship-crate, #shop-coins { margin-top: 12px; font-size: 13px; font-weight: 800; color: var(--amber); }
+  button#hud-album { cursor: pointer; font-family: 'Nunito', sans-serif; color: var(--teal); }
+  .panel-row.dim { opacity: 0.5; }
+  .album-check { color: var(--teal); font-size: 20px; font-weight: 800; width: 26px; text-align: center; }
+  #album-list { max-height: 46vh; overflow-y: auto; }
+  #album-bar { margin-top: 14px; height: 12px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  #album-fill { height: 100%; border-radius: 999px; width: 0;
+    background: linear-gradient(90deg, var(--teal), var(--amber)); transition: width .4s; }
+  #album-progress { margin-top: 8px; font-size: 13px; font-weight: 800; color: var(--amber); text-align: center; }
 
   /* ── Sleep overlay ── */
   #sleep-overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center;
@@ -168,6 +176,7 @@
   <div id="hud-topleft">
     <span class="chip" id="hud-day">Day 1</span>
     <span class="chip" id="hud-clock">06:00</span>
+    <button class="chip" id="hud-album" title="Crop album">📖 0/12</button>
   </div>
   <div id="hud-topright">
     <span class="chip" id="hud-stickers"></span>
@@ -205,6 +214,16 @@
   <p class="sub">Coins on the spot — straight into your pocket</p>
   <div id="ship-list"></div>
   <p id="ship-crate"></p>
+</div>
+
+<!-- Crop album -->
+<div class="panel" id="album-panel" hidden>
+  <button class="close" id="album-close">✕</button>
+  <h2>📖 Crop Album</h2>
+  <p class="sub">Grow every crop in the valley!</p>
+  <div id="album-list"></div>
+  <div id="album-bar"><div id="album-fill"></div></div>
+  <p id="album-progress"></p>
 </div>
 
 <!-- Sleep summary -->

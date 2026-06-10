@@ -271,3 +271,23 @@ preposition items for lesson variety. Distractors must be plausible
     `advanceDay()` still drains a legacy crate so old saves pay out.
   - 7 assertions PASS (E-path berry pickup → panel chip, instant +coins,
     crate stays empty, harvest section hides when empty, sleep pays 0).
+- 2026-06-10 — **Playtest round 3 (user feedback): more to do every day.**
+  - **Crop album** (📖 chip in HUD): 12 crops, goal 100%. First harvest
+    of a type collects it (toast + star sfx; completing all 12 grants a
+    sticker + celebration). School rares show as ??? until grown.
+  - **Crop catalogue expanded to 12** with shop tiers: tier 2 unlocks at
+    3 distinct crops grown, tier 3 at 6 (enforced in `buy()`, not just
+    the UI). School ladder star → moon → rainbow fruit advances strictly
+    by what you've GROWN — holding an unplanted rare seed yields dupes,
+    so rainbow fruit stays genuinely late-game.
+  - **Hay meadow** (24 tiles, NE): scythe (new free tool, key 3) cuts
+    tall hay → +1 hay (4c), water the stubble → regrows overnight,
+    unwatered stays stubble. School-gated like all farm work. This is
+    the daily money grind that fills the long afternoon.
+  - **Tools render in hand**: hoe/can/scythe/axe primitive builds parented
+    to the right hand (they ride the arm swing); selecting a seed/produce
+    stows the tool and hoists the bag instead.
+  - Save schema v2 with a real v1 migration (keeps day/coins/stickers/
+    missed verbs, adds hay/collection/scythe, infers album from held
+    produce) — verified with a crafted v1 save through a real reload.
+  - 28 assertions PASS this round; zero console errors.

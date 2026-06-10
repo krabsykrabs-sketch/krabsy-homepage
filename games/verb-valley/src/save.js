@@ -5,6 +5,9 @@
 import { SAVE_KEY, SAVE_VERSION, TIME, LAYOUT, CROPS, SELLABLE, TREE_REGROW_DAYS } from './config.js';
 
 const FIELD_TILES = LAYOUT.field.cols * LAYOUT.field.rows;
+const HAY_TILES = LAYOUT.hay.cols * LAYOUT.hay.rows;
+
+const zeroPerCrop = () => Object.fromEntries(Object.keys(CROPS).map((k) => [k, 0]));
 
 export function createNewState() {
   return {
@@ -13,13 +16,16 @@ export function createNewState() {
     timeMin: TIME.WAKE,
     coins: 30,
     schooledDay: 0,                  // last day class was attended (0 = never)
-    tools: { hoe: true, can: true, axe: false },
-    seeds: { turnip: 3, tomato: 0, pumpkin: 0, starfruit: 0 },
-    inventory: { turnip: 0, tomato: 0, pumpkin: 0, starfruit: 0, wood: 0, berry: 0 },
-    crate: {},                       // produce dropped in the shipping crate, sold on sleep
+    tools: { hoe: true, can: true, scythe: true, axe: false },
+    seeds: { ...zeroPerCrop(), turnip: 3 },
+    inventory: { ...zeroPerCrop(), wood: 0, berry: 0, hay: 0 },
+    collection: {},                  // crop → true once harvested; the album
+    crate: {},                       // legacy (pre-instant-selling saves)
     plots: Array.from({ length: FIELD_TILES }, () => ({
       tilled: false, crop: null, stage: 0, watered: false,
     })),
+    // hay meadow: grown → scythe → cut (+1 hay) → water → regrows overnight
+    hay: Array.from({ length: HAY_TILES }, () => ({ cut: false, watered: false })),
     trees: LAYOUT.trees.map(() => ({ chopped: false, regrowDay: 0 })),
     berries: spawnBerries(1),
     school: { missed: [], stickers: 0, totalCorrect: 0, classesAttended: 0, lastReview: null },
@@ -52,8 +58,20 @@ export function load() {
 }
 
 function migrate(s) {
-  // No prior versions yet; if schema mismatches, start fresh but keep nothing.
   if (!s) return null;
+  if (s.version === 1) {
+    // v1 → v2: hay meadow, crop album, scythe, expanded crop catalogue.
+    const fresh = createNewState();
+    s.tools = { ...fresh.tools, ...s.tools, scythe: true };
+    s.seeds = { ...fresh.seeds, ...s.seeds };
+    s.inventory = { ...fresh.inventory, ...s.inventory };
+    s.hay = fresh.hay;
+    // Best guess at album progress: anything currently held counts as grown.
+    s.collection = {};
+    for (const [k, n] of Object.entries(s.inventory)) if (CROPS[k] && n > 0) s.collection[k] = true;
+    s.version = 2;
+    return s;
+  }
   return null;
 }
 
@@ -100,10 +118,17 @@ export function advanceDay(state) {
     if (t.chopped && state.day + 1 >= t.regrowDay) { t.chopped = false; t.regrowDay = 0; }
   }
 
+  // 3b. Hay regrows overnight where the stubble was watered.
+  let hayRegrown = 0;
+  for (const h of state.hay) {
+    if (h.cut && h.watered) { h.cut = false; hayRegrown++; }
+    h.watered = false;
+  }
+
   // 4. New day.
   state.day += 1;
   state.timeMin = TIME.WAKE;
   state.berries = spawnBerries(state.day);
 
-  return { earned, sold, grew, ripened, day: state.day };
+  return { earned, sold, grew, ripened, hayRegrown, day: state.day };
 }

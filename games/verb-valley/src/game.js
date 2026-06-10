@@ -2,7 +2,7 @@
 // gate, sleep/pass-out flow, ?qa= frozen scenes and the window.__VV QA harness.
 
 import * as THREE from 'three';
-import { TIME, LAYOUT, CROPS, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
+import { TIME, LAYOUT, CROPS, TIER_UNLOCK, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
 import { buildWorld, drawBoardIdle } from './world.js';
 import { createDayCycle } from './daycycle.js';
 import { createPlayer } from './player.js';
@@ -71,8 +71,9 @@ addEventListener('keydown', (e) => {
   }
   if (e.code === 'Digit1') ui.selectTool('hoe');
   if (e.code === 'Digit2') ui.selectTool('can');
-  if (e.code === 'Digit3') ui.selectTool('axe');
-  if (e.code === 'Digit4') ui.cycleSeed();
+  if (e.code === 'Digit3') ui.selectTool('scythe');
+  if (e.code === 'Digit4') ui.selectTool('axe');
+  if (e.code === 'Digit5') ui.cycleSeed();
   if (e.code === 'KeyE') interact();
 });
 addEventListener('keyup', (e) => { if (KEYMAP[e.code]) input[KEYMAP[e.code]] = false; });
@@ -113,7 +114,33 @@ const act = {
   water: (i) => gated(() => { const r = farm.actions.water(i); if (r.ok) sfx.water(); return r; }),
   harvest: (i) => gated(() => {
     const r = farm.actions.harvest(i);
-    if (r.ok) { sfx.harvest(); ui.toast(`${CROPS[r.type].emoji} ${CROPS[r.type].name} harvested!`); ui.refresh(); }
+    if (r.ok) {
+      sfx.harvest();
+      // crop album: first harvest of a type collects it
+      if (!state.collection[r.type]) {
+        state.collection[r.type] = true;
+        const n = Object.keys(state.collection).length;
+        sfx.star();
+        ui.toast(`📖 New crop collected: ${CROPS[r.type].emoji} ${CROPS[r.type].name} (${n}/${Object.keys(CROPS).length})`, 3800);
+        if (n === Object.keys(CROPS).length) {
+          state.school.stickers += 1;
+          setTimeout(() => ui.toast('🌈 CROP ALBUM COMPLETE! You are the valley legend! 🌟', 6000), 4000);
+        }
+      } else {
+        ui.toast(`${CROPS[r.type].emoji} ${CROPS[r.type].name} harvested!`);
+      }
+      ui.refresh();
+    }
+    return r;
+  }),
+  cutHay: (i) => gated(() => {
+    const r = farm.actions.cutHay(i);
+    if (r.ok) { sfx.till(); ui.refresh(); }
+    return r;
+  }),
+  waterHay: (i) => gated(() => {
+    const r = farm.actions.waterHay(i);
+    if (r.ok) sfx.water();
     return r;
   }),
   chop: (i) => gated(() => {
@@ -159,6 +186,22 @@ function computeTarget() {
     return { kind: 'none' };
   }
 
+  const hi = farm.nearestHay(p, 1.5);
+  if (hi >= 0) {
+    const h = state.hay[hi];
+    const lock = attended() ? '' : ' 🔒';
+    const tool = ui.tool;
+    if (!h.cut) {
+      if (tool === 'scythe') return { kind: 'cutHay', i: hi, label: `<b>E</b> — Cut hay 🌾${lock}` };
+      return { kind: 'info', label: 'Tall hay — press 3 for the scythe 🌾' };
+    }
+    if (!h.watered) {
+      if (tool === 'can') return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🚿${lock}` };
+      return { kind: 'info', label: 'Water the stubble and it regrows overnight 🚿' };
+    }
+    return { kind: 'info', label: 'Regrows tomorrow ✓' };
+  }
+
   const ti = farm.nearestTree(p, 2.2);
   if (ti >= 0) {
     if (!state.tools.axe) return { kind: 'info', label: 'You need an axe — check the shop 🛒' };
@@ -182,6 +225,8 @@ function interact() {
     case 'plant': act.plant(t.i, t.t); break;
     case 'water': act.water(t.i); break;
     case 'chop': act.chop(t.i); break;
+    case 'cutHay': act.cutHay(t.i); break;
+    case 'waterHay': act.waterHay(t.i); break;
   }
   ui.updateHUD();
 }
@@ -205,7 +250,7 @@ function onClassComplete(sum) {
   ui.refresh();
   daycycle.applyInstant(state);
   let msg = `Class done — +${sum.coins} 🪙`;
-  if (sum.specialSeed) msg += ' · ⭐ special seed!';
+  if (sum.specialSeed) msg += ` · ${CROPS[sum.seedAwarded].emoji} rare seed!`;
   if (sum.sticker) msg += ' · 🌟 sticker!';
   ui.toast(msg, 4200);
   save.save(state);
@@ -224,6 +269,9 @@ function buy(id) {
     const t = id.slice(5);
     const def = CROPS[t];
     if (!def || def.schoolOnly) return { ok: false, reason: 'unknown' };
+    if ((TIER_UNLOCK[def.tier] ?? 0) > Object.keys(state.collection).length) {
+      sfx.deny(); return { ok: false, reason: 'tier-locked' };
+    }
     if (state.coins < def.seed) { sfx.deny(); return { ok: false, reason: 'coins' }; }
     state.coins -= def.seed; state.seeds[t] = (state.seeds[t] ?? 0) + 1; sfx.buy();
     ui.refresh();
@@ -276,12 +324,13 @@ function startGame(loaded) {
     // Mirror the inventory selection onto the rig: seed bags and produce
     // ride over the head; tools clear the hands.
     onSelect: (sel) => {
-      if (sel.kind === 'seed') player.setHeld({ emoji: CROPS[sel.id].emoji, bag: true });
-      else if (sel.kind === 'item') player.setHeld({ emoji: ITEM_EMOJI[sel.id] });
-      else player.setHeld(null);
+      if (sel.kind === 'seed') { player.setHeld({ emoji: CROPS[sel.id].emoji, bag: true }); player.setTool(null); }
+      else if (sel.kind === 'item') { player.setHeld({ emoji: ITEM_EMOJI[sel.id] }); player.setTool(null); }
+      else { player.setHeld(null); player.setTool(sel.id); }
     },
   });
   daycycle.applyInstant(state);
+  player.setTool('hoe');           // mirror the default selection
   player.updateCamera(0, true);
   document.getElementById('hud').hidden = false;
   started = true;
@@ -390,6 +439,8 @@ function installQA() {
     water: (i) => act.water(i),
     harvest: (i) => act.harvest(i),
     chop: (i) => act.chop(i),
+    cutHay: (i) => act.cutHay(i),
+    waterHay: (i) => act.waterHay(i),
     pickBerry: (i) => farm.actions.pickBerry(i),
     buy: (id) => buy(id),
     ship: (item, n) => ship(item, n),

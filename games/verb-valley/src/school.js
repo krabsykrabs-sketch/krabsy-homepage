@@ -6,6 +6,7 @@
 import { buildClass } from './verbs.js';
 import { drawBoardIdle } from './world.js';
 import { sfx } from './audio.js';
+import { CROPS, SCHOOL_LADDER } from './config.js';
 
 const CHIP_COLORS = { teal: '#2ee6c0', coral: '#ff8585', amber: '#ffcf5e' };
 const W = 768, H = 512;
@@ -105,7 +106,11 @@ export function createSchool(state, bb, hooks) {
     ctx.fillStyle = '#ffcf5e';
     ctx.fillText(`+${sum.coins} coins`, W / 2, 270);
     let y = 340;
-    if (sum.specialSeed) { ctx.fillStyle = '#2ee6c0'; ctx.fillText('⭐ Star Fruit seed earned!', W / 2, y); y += 64; }
+    if (sum.specialSeed) {
+      const c = CROPS[sum.seedAwarded];
+      ctx.fillStyle = '#2ee6c0';
+      ctx.fillText(`${c.emoji} ${c.name} seed earned!`, W / 2, y); y += 64;
+    }
     if (sum.sticker) { ctx.fillStyle = '#ff8585'; ctx.fillText('🌟 Perfect! Star sticker!', W / 2, y); y += 64; }
     ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '30px Nunito, sans-serif';
     ctx.fillText('The farm is open — go grow something!', W / 2, 470);
@@ -164,7 +169,14 @@ export function createSchool(state, bb, hooks) {
       specialSeed: correct >= 6,
       sticker: correct === questions.length,
     };
-    if (sum.specialSeed) state.seeds.starfruit = (state.seeds.starfruit ?? 0) + 1;
+    if (sum.specialSeed) {
+      // Rare-seed ladder strictly by what you've GROWN: star → moon →
+      // rainbow. Holding an unplanted seed doesn't advance it (you may
+      // get duplicates) — rarity comes from growing, not hoarding.
+      const next = SCHOOL_LADDER.find((c) => !state.collection?.[c]) ?? SCHOOL_LADDER[0];
+      state.seeds[next] = (state.seeds[next] ?? 0) + 1;
+      sum.seedAwarded = next;
+    }
     if (sum.sticker) { state.school.stickers += 1; sfx.star(); }
     state.school.totalCorrect += correct;
     state.school.classesAttended += 1;

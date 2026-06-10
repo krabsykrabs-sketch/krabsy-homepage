@@ -10,7 +10,7 @@
 // selection onto the player rig via hooks.onSelect.
 
 import * as THREE from 'three';
-import { CROPS, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
+import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
 import { sfx, toggle as toggleSound, isEnabled as soundOn } from './audio.js';
 
 const $ = (id) => document.getElementById(id);
@@ -18,10 +18,11 @@ const $ = (id) => document.getElementById(id);
 const TOOL_DEFS = [
   { id: 'hoe', icon: '⛏', name: 'Hoe' },
   { id: 'can', icon: '🚿', name: 'Watering can' },
+  { id: 'scythe', icon: '🌾', name: 'Scythe — cuts hay' },
   { id: 'axe', icon: '🪓', name: 'Axe' },
 ];
-const SEED_ORDER = ['turnip', 'tomato', 'pumpkin', 'starfruit'];
-const PRODUCE_ORDER = ['turnip', 'tomato', 'pumpkin', 'starfruit', 'berry', 'wood'];
+const SEED_ORDER = CROP_ORDER;
+const PRODUCE_ORDER = [...CROP_ORDER, 'berry', 'hay', 'wood'];
 
 export function createUI(state, hooks) {
   // hooks: { onBuy(id), onShip(item,n), onSleep(), onNewFarm(), onContinue(),
@@ -133,6 +134,7 @@ export function createUI(state, hooks) {
     const stickers = state.school.stickers;
     $('hud-stickers').hidden = stickers === 0;
     $('hud-stickers').textContent = stickers > 0 ? '🌟'.repeat(Math.min(stickers, 5)) + (stickers > 5 ? `×${stickers}` : '') : '';
+    $('hud-album').textContent = `📖 ${collectedCount()}/${CROP_ORDER.length}`;
   }
 
   // ── Toasts + interaction prompt ──
@@ -171,6 +173,35 @@ export function createUI(state, hooks) {
     el.style.top = `${(-v3.y * 0.5 + 0.5) * innerHeight}px`;
   }
 
+  // ── Crop album ──
+  const collectedCount = () => Object.keys(state.collection ?? {}).length;
+  const tierUnlocked = (tier) => collectedCount() >= (TIER_UNLOCK[tier] ?? 0);
+
+  function openAlbum() {
+    const list = $('album-list');
+    list.innerHTML = '';
+    for (const k of CROP_ORDER) {
+      const c = CROPS[k];
+      const got = !!state.collection?.[k];
+      const secret = c.schoolOnly && !got;   // school rares stay mysterious
+      const row = document.createElement('div');
+      row.className = 'panel-row' + (got ? '' : ' dim');
+      const src = c.schoolOnly ? '🦀 class reward (6+ correct)'
+        : tierUnlocked(c.tier) ? '🛒 in the shop'
+        : `🔒 grow ${TIER_UNLOCK[c.tier]} different crops`;
+      row.innerHTML = `<span class="ic">${secret ? '❓' : c.emoji}</span>
+        <span class="nm">${secret ? '???' : c.name}<small>${c.days} days · sells ${c.sell}c · ${src}</small></span>
+        <span class="album-check">${got ? '✓' : ''}</span>`;
+      list.appendChild(row);
+    }
+    const n = collectedCount(), total = CROP_ORDER.length;
+    $('album-fill').style.width = `${Math.round((n / total) * 100)}%`;
+    $('album-progress').textContent = n === total ? '🌈 100% — album complete!' : `${n} / ${total} crops grown`;
+    $('album-panel').hidden = false;
+  }
+  $('hud-album').onclick = openAlbum;
+  $('album-close').onclick = () => { $('album-panel').hidden = true; };
+
   // ── Shop panel ──
   function openShop() {
     const list = $('shop-list');
@@ -178,17 +209,20 @@ export function createUI(state, hooks) {
     const rows = [
       ...SEED_ORDER.filter((t) => !CROPS[t].schoolOnly).map((t) => ({
         id: 'seed:' + t, icon: CROPS[t].emoji, name: `${CROPS[t].name} seed`,
-        desc: `${CROPS[t].days} days · sells ${CROPS[t].sell}c`, cost: CROPS[t].seed,
+        desc: tierUnlocked(CROPS[t].tier)
+          ? `${CROPS[t].days} days · sells ${CROPS[t].sell}c`
+          : `🔒 grow ${TIER_UNLOCK[CROPS[t].tier]} different crops`,
+        cost: CROPS[t].seed, locked: !tierUnlocked(CROPS[t].tier),
       })),
       { id: 'axe', icon: '🪓', name: 'Axe', desc: state.tools.axe ? 'owned!' : 'chop trees for wood', cost: AXE_COST, disabled: state.tools.axe },
     ];
     for (const r of rows) {
       const row = document.createElement('div');
-      row.className = 'panel-row';
-      const afford = state.coins >= r.cost && !r.disabled;
-      row.innerHTML = `<span class="ic">${r.icon}</span><span class="nm">${r.name}<small>${r.desc}</small></span>
-        <button class="chip-btn ${afford ? '' : 'off'}">${r.disabled ? '✓' : r.cost + ' 🪙'}</button>`;
-      row.querySelector('button').onclick = () => { hooks.onBuy(r.id); openShop(); refresh(); };
+      row.className = 'panel-row' + (r.locked ? ' dim' : '');
+      const afford = state.coins >= r.cost && !r.disabled && !r.locked;
+      row.innerHTML = `<span class="ic">${r.locked ? '❓' : r.icon}</span><span class="nm">${r.name}<small>${r.desc}</small></span>
+        <button class="chip-btn ${afford ? '' : 'off'}">${r.disabled ? '✓' : r.locked ? '🔒' : r.cost + ' 🪙'}</button>`;
+      if (!r.locked) row.querySelector('button').onclick = () => { hooks.onBuy(r.id); openShop(); refresh(); };
       list.appendChild(row);
     }
     $('shop-coins').textContent = `You have ${state.coins} 🪙`;
@@ -221,8 +255,12 @@ export function createUI(state, hooks) {
   function closePanels() {
     $('shop-panel').hidden = true;
     $('ship-panel').hidden = true;
+    $('album-panel').hidden = true;
   }
-  function anyPanelOpen() { return !$('shop-panel').hidden || !$('ship-panel').hidden || !$('sleep-overlay').hidden; }
+  function anyPanelOpen() {
+    return !$('shop-panel').hidden || !$('ship-panel').hidden
+      || !$('album-panel').hidden || !$('sleep-overlay').hidden;
+  }
 
   $('shop-close').onclick = closePanels;
   $('ship-close').onclick = closePanels;
@@ -238,6 +276,7 @@ export function createUI(state, hooks) {
     }
     if (summary.grew) html += `<p>${summary.grew} crop${summary.grew > 1 ? 's' : ''} grew overnight 🌱</p>`;
     if (summary.ripened) html += `<p>${summary.ripened} ready to harvest! ✨</p>`;
+    if (summary.hayRegrown) html += `<p>${summary.hayRegrown} hay tile${summary.hayRegrown > 1 ? 's' : ''} regrew 🌾</p>`;
     if (!html) html = '<p>A quiet night on the farm.</p>';
     if (state.school.stickers > 0) html += `<p class="stickers">Sticker collection: ${'🌟'.repeat(Math.min(state.school.stickers, 8))}</p>`;
     $('sleep-body').innerHTML = html;
@@ -269,8 +308,8 @@ export function createUI(state, hooks) {
 
   return {
     updateHUD, refresh, toast, prompt, bubble, projectBubble,
-    openShop, openShip, closePanels, anyPanelOpen, showSleep, showStart,
-    selectTool, selectSeed, selectItem, cycleSeed, autoStow,
+    openShop, openShip, openAlbum, closePanels, anyPanelOpen, showSleep, showStart,
+    selectTool, selectSeed, selectItem, cycleSeed, autoStow, collectedCount,
     get selection() { return sel; },
     get tool() { return sel.kind === 'tool' ? sel.id : null; },
     get seedType() { return sel.kind === 'seed' ? sel.id : null; },

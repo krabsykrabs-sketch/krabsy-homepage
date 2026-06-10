@@ -165,6 +165,9 @@ export function buildWorld(scene) {
   scene.add(school);
   makeSignpost(scene, LAYOUT.school.x - 3.5, LAYOUT.school.z + 2, '🦀 School', 0x2ee6c0);
 
+  // Hay meadow sign (the tiles themselves are dynamic, built in farming.js).
+  makeSignpost(scene, LAYOUT.hay.cx - 7, LAYOUT.hay.cz, '🌾 Hay', 0xd8c25e);
+
   // ── Fences framing the play area ─────────────────────────────────────
   buildFences(scene);
 
@@ -173,6 +176,7 @@ export function buildWorld(scene) {
     const a = i * 2.39996, r = 5 + (i % 7) * 2.4;
     const x = Math.cos(a) * r, z = Math.sin(a) * r - 1;
     if (Math.abs(x - LAYOUT.field.cx) < 6 && Math.abs(z - LAYOUT.field.cz) < 5) continue; // keep field clear
+    if (Math.abs(x - LAYOUT.hay.cx) < 7.5 && Math.abs(z - LAYOUT.hay.cz) < 3.5) continue; // keep hay meadow clear
     if (i % 3 === 0) {
       const bush = sph(0.5 + Math.random() * 0.3, 0x4f9b3a); bush.position.set(x, 0.4, z); bush.scale.y = 0.8; bush.castShadow = true; scene.add(bush);
     } else {

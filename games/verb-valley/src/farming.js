@@ -73,24 +73,39 @@ export function createFarm(scene, state) {
       g.add(leaf);
     }
     if (t > 0.5) {
-      // the fruit/body appears in the second half of growth
-      const size = 0.12 + (t - 0.5) * (type === 'pumpkin' ? 0.9 : 0.5);
+      // the fruit/body appears in the second half of growth; shape comes
+      // from the crop definition so new catalogue entries need no code
+      const shape = def.shape ?? 'ball';
+      const size = 0.12 + (t - 0.5) * (shape === 'ground' ? 0.9 : 0.5);
       const col = ready ? def.ripe : def.color;
       let fruit;
-      if (type === 'starfruit') {
+      if (shape === 'gem') {
         fruit = new THREE.Mesh(new THREE.OctahedronGeometry(size), lambert(col));
         fruit.position.y = stemH + size * 0.8;
-      } else if (type === 'tomato') {
+      } else if (shape === 'cluster') {
         fruit = new THREE.Group();
         for (const a of [0, 2.1, 4.2]) {
           const ball = new THREE.Mesh(new THREE.SphereGeometry(size * 0.55, 8, 6), lambert(col));
           ball.position.set(Math.cos(a) * 0.16, stemH * (0.5 + 0.2 * Math.sin(a)), Math.sin(a) * 0.16);
           fruit.add(ball);
         }
+      } else if (shape === 'tall') {
+        // sunflower-style: head on top of an extra-tall stem
+        fruit = new THREE.Group();
+        const extra = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.5, 6), MAT.stem);
+        extra.position.y = stemH + 0.25; fruit.add(extra);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 8), lambert(col));
+        head.scale.z = 0.45; head.position.y = stemH + 0.5 + size * 0.4; fruit.add(head);
+        const core = new THREE.Mesh(new THREE.SphereGeometry(size * 0.45, 8, 6), lambert(0x7a5230));
+        core.scale.z = 0.5; core.position.set(0, stemH + 0.5 + size * 0.4, size * 0.35); fruit.add(core);
+      } else if (shape === 'ground') {
+        fruit = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 8), lambert(col));
+        fruit.scale.y = 0.75;
+        fruit.position.y = size * 0.6;
       } else {
         fruit = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 8), lambert(col));
-        fruit.scale.y = type === 'pumpkin' ? 0.75 : 0.9;
-        fruit.position.y = type === 'pumpkin' ? size * 0.6 : stemH + size * 0.6;
+        fruit.scale.y = 0.9;
+        fruit.position.y = stemH + size * 0.6;
       }
       fruit.castShadow = true;
       g.add(fruit);
@@ -119,7 +134,7 @@ export function createFarm(scene, state) {
     }
   }
 
-  function refreshAll() { state.plots.forEach((_, i) => refreshPlot(i)); refreshTrees(); refreshBerries(); }
+  function refreshAll() { state.plots.forEach((_, i) => refreshPlot(i)); refreshTrees(); refreshBerries(); refreshHay(); }
 
   // ── Trees ─────────────────────────────────────────────────────────────
   const treeGroups = LAYOUT.trees.map((t) => {
@@ -146,6 +161,59 @@ export function createFarm(scene, state) {
         leaf.position.set(x, y, z); leaf.castShadow = true; g.add(leaf);
       }
     });
+  }
+
+  // ── Hay meadow ────────────────────────────────────────────────────────
+  const hayCenter = (i) => ({
+    x: LAYOUT.hay.cx + ((i % LAYOUT.hay.cols) - (LAYOUT.hay.cols - 1) / 2) * LAYOUT.hay.gap,
+    z: LAYOUT.hay.cz + (Math.floor(i / LAYOUT.hay.cols) - (LAYOUT.hay.rows - 1) / 2) * LAYOUT.hay.gap,
+  });
+  const hayGroups = state.hay.map((_, i) => {
+    const g = new THREE.Group();
+    const { x, z } = hayCenter(i);
+    g.position.set(x, 0, z);
+    scene.add(g);
+    return g;
+  });
+
+  function refreshHayTile(i) {
+    const g = hayGroups[i];
+    const h = state.hay[i];
+    g.clear();
+    // base patch: wet stubble shows dark soil
+    const patch = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.25),
+      h.cut && h.watered ? MAT.soilWet : lambert(0xa8b860));
+    patch.rotation.x = -Math.PI / 2; patch.position.y = 0.02;
+    g.add(patch);
+    if (!h.cut) {
+      // tall hay: a few golden blades, deterministic per tile
+      for (let b = 0; b < 5; b++) {
+        const a = (i * 2.39996 + b * 1.3) % (Math.PI * 2);
+        const blade = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.95 + (b % 3) * 0.18, 5), lambert(b % 2 ? 0xd8c25e : 0xc8b04e));
+        blade.position.set(Math.cos(a) * 0.38, 0.5, Math.sin(a) * 0.38);
+        blade.rotation.z = Math.cos(a) * 0.15;
+        g.add(blade);
+      }
+    } else {
+      // stubble
+      for (let b = 0; b < 3; b++) {
+        const a = (i * 2.39996 + b * 2.1) % (Math.PI * 2);
+        const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.16, 5), lambert(0xb8a04e));
+        stub.position.set(Math.cos(a) * 0.3, 0.08, Math.sin(a) * 0.3);
+        g.add(stub);
+      }
+    }
+  }
+  function refreshHay() { state.hay.forEach((_, i) => refreshHayTile(i)); }
+
+  function nearestHay(pos, range) {
+    let best = -1, bd = range;
+    state.hay.forEach((_, i) => {
+      const { x, z } = hayCenter(i);
+      const d = Math.hypot(pos.x - x, pos.z - z);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return best;
   }
 
   // ── Berries ───────────────────────────────────────────────────────────
@@ -243,6 +311,22 @@ export function createFarm(scene, state) {
       refreshTrees();
       return { ok: true, wood: 3 };
     },
+    cutHay(i) {
+      const h = state.hay[i];
+      if (!h || h.cut) return { ok: false, reason: 'no-hay' };
+      h.cut = true;
+      state.inventory.hay = (state.inventory.hay ?? 0) + 1;
+      refreshHayTile(i);
+      return { ok: true };
+    },
+    waterHay(i) {
+      const h = state.hay[i];
+      if (!h || !h.cut) return { ok: false, reason: 'not-cut' };
+      if (h.watered) return { ok: false, reason: 'already-watered' };
+      h.watered = true;
+      refreshHayTile(i);
+      return { ok: true };
+    },
     pickBerry(i) {
       const b = state.berries[i];
       if (!b || b.taken) return { ok: false, reason: 'no-berry' };
@@ -278,5 +362,5 @@ export function createFarm(scene, state) {
   }
 
   refreshAll();
-  return { plotCenter, nearestPlot, nearestTree, nearestBerry, actions, refreshAll, update };
+  return { plotCenter, hayCenter, nearestPlot, nearestTree, nearestBerry, nearestHay, actions, refreshAll, update };
 }
