@@ -1,5 +1,15 @@
 # Verb Valley — proof-of-concept brief
 
+> **⚠️ Read order:** the brief below is the ORIGINAL spec. The PoC is
+> built and has been through three playtest rounds — **where the Status
+> log (bottom) disagrees with the brief, the Status log wins.** The big
+> deviations, all user-requested: school opens at wake (no 08:00 wait)
+> and bed works anytime; selling pays instantly at the crate (no
+> overnight payout); 12 crops with a collection album, shop tiers and a
+> school rare-seed ladder (not 3+1); a scythe-and-hay meadow for daily
+> grind money; seeds are selected from a left-edge inventory panel
+> (held over the head), not a hotbar slot; tools render in hand.
+
 You are building a new game for **Krabsy** (krabsy.com), a browser-based
 English-grammar learning site for German- and Spanish-speaking school kids
 (roughly ages 10–14). The site has a catalogue of arcade games that drill
