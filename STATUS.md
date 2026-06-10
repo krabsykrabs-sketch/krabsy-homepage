@@ -9,7 +9,7 @@ at the end of each session. (Last update: 2026-06-10.)
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
-| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | rebuilt 2026-06-10, committed NOT pushed — **user dislikes it, redo planned** |
+| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **rebuilt v3** 2026-06-10 (original mechanics restored: 1-fruit warmup, input queue/U-turns, gentle speed) — awaiting user playtest, NOT pushed |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
 | Verb Flow | single-file canvas | `games/verb-flow/` | — | **built, not released** |
@@ -44,7 +44,10 @@ but not referenced — verify before removing.)
   skeletons, grammar-as-keys. If the PoC convinces, buy the KayKit
   Dungeon pack and build the full roguelite (hand-authored rooms +
   procedural assembly).
-- **Verb Snake redo**: the 2026-06-10 rebuild is committed locally but
-  NOT pushed (user dislikes it; wants it redone). The old version is
-  still what's live. Don't push `main` without deciding what to do with
-  commit 5632243 (revert it or redo the game first).
+- **Verb Snake v3**: rebuilt again with the ORIGINAL mechanics faithfully
+  restored (head-only start, 1-fruit warmup until 2 sets then field of 3,
+  rolling form queue, abandon/wrong segment penalties, 250→140ms speed
+  curve, 2-deep input queue so quick U-turns work) + Krabsy-style visuals
+  (emoji fruits with form-colored word pills, expressive snake, canvas
+  chain tracker with fly-words). Mechanics + rendering verified; awaiting
+  user playtest before push. The old asset version is still live.
