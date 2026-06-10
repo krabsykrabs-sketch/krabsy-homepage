@@ -47,7 +47,31 @@
   #hud-stickers { font-size: 14px; letter-spacing: 2px; }
   #btn-sound { cursor: pointer; border: 2px solid rgba(255,255,255,0.08); background: rgba(16,20,42,0.82);
     border-radius: 18px; font-size: 17px; padding: 8px 13px; }
-  #hud.in-class #hotbar, #hud.in-class #gate-pill { display: none !important; }
+  #hud.in-class #hotbar, #hud.in-class #gate-pill, #hud.in-class #inventory { display: none !important; }
+
+  /* ── Inventory panel (left) ── */
+  #inventory { position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 8px; pointer-events: auto;
+    background: rgba(16,20,42,0.72); border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 20px; padding: 12px 10px; max-height: 70vh; overflow-y: auto; }
+  #inventory .inv-label { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.5);
+    text-align: center; letter-spacing: 1px; text-transform: uppercase; }
+  #inv-seeds, #inv-items, #inv-items-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .inv-chip { position: relative; width: 54px; height: 54px; border-radius: 14px;
+    background: rgba(255,255,255,0.07); border: 3px solid rgba(255,255,255,0.1);
+    display: grid; place-items: center; cursor: pointer; font-size: 24px;
+    transition: transform .12s, border-color .12s; }
+  .inv-chip:hover { transform: scale(1.08); }
+  .inv-chip.active { border-color: var(--amber); box-shadow: 0 0 12px rgba(255,207,94,0.5); }
+  .inv-chip .count { position: absolute; bottom: 1px; right: 5px; font-size: 12px; color: var(--amber); }
+  .inv-chip .bag { width: 38px; height: 38px; border-radius: 9px 9px 12px 12px;
+    background: linear-gradient(180deg, #c89858, #a87c44); display: grid; place-items: center;
+    box-shadow: inset 0 -4px 6px rgba(0,0,0,0.25); }
+  .inv-chip .bag::before { content: ''; position: absolute; top: 3px; width: 14px; height: 7px;
+    border-radius: 4px; background: #8a6a3c; }
+  .inv-chip .bag-emoji { font-size: 19px; }
+  .inv-empty { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45);
+    text-align: center; line-height: 1.7; }
   #gate-pill { position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
     background: rgba(16,20,42,0.85); color: var(--amber); border-radius: 999px;
     padding: 7px 18px; font-weight: 800; font-size: 14px; border: 2px solid rgba(255,207,94,0.35); }
@@ -151,6 +175,14 @@
     <button id="btn-sound">🔊</button>
   </div>
   <div id="gate-pill">🔒 Farm tools unlock after school</div>
+  <div id="inventory">
+    <span class="inv-label">Seeds</span>
+    <div id="inv-seeds"></div>
+    <div id="inv-items-wrap" hidden>
+      <span class="inv-label">Harvest</span>
+      <div id="inv-items"></div>
+    </div>
+  </div>
   <div id="prompt" hidden></div>
   <div id="toast"></div>
   <div id="hotbar"></div>
@@ -194,7 +226,7 @@
     <div class="howto">
       <div><span class="em">🏫</span><span>Attend Professor Krabsy's class each morning<small>Answer verb questions, earn coins &amp; rare seeds</small></span></div>
       <div><span class="em">🌱</span><span>Then farm the day away<small>Till, plant, water — crops grow while you sleep</small></span></div>
-      <div><span class="em">📦</span><span>Ship your harvest, grow your fortune<small>WASD to move · E to interact · 1–4 for tools</small></span></div>
+      <div><span class="em">📦</span><span>Ship your harvest, grow your fortune<small>WASD move · E interact · 1–3 tools · click a seed bag to hold it</small></span></div>
     </div>
     <div class="start-btns">
       <button class="big-btn" id="btn-continue" hidden>Continue</button>

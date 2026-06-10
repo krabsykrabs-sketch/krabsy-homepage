@@ -1,9 +1,16 @@
-// DOM layer: HUD (clock/day/coins/hotbar), start screen, shop + shipping
-// panels, sleep summary, world-anchored speech bubbles, toasts. All markup
-// lives in index.html; this module wires and updates it.
+// DOM layer: HUD (clock/day/coins/hotbar), the left inventory panel, start
+// screen, shop + shipping panels, sleep summary, world-anchored speech
+// bubbles, toasts. All markup lives in index.html; this module wires it.
+//
+// Selection model: one thing is "in hand" at a time —
+//   { kind:'tool', id:'hoe'|'can'|'axe' }   tools live in the bottom hotbar
+//   { kind:'seed', id:cropType }            a seed bag, held over the head
+//   { kind:'item', id:itemType }            harvested produce, held likewise
+// Clicking an inventory chip selects seed/produce; game.js mirrors the
+// selection onto the player rig via hooks.onSelect.
 
 import * as THREE from 'three';
-import { CROPS, SELLABLE, AXE_COST } from './config.js';
+import { CROPS, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
 import { sfx, toggle as toggleSound, isEnabled as soundOn } from './audio.js';
 
 const $ = (id) => document.getElementById(id);
@@ -11,36 +18,33 @@ const $ = (id) => document.getElementById(id);
 const TOOL_DEFS = [
   { id: 'hoe', icon: '⛏', name: 'Hoe' },
   { id: 'can', icon: '🚿', name: 'Watering can' },
-  { id: 'seeds', icon: '🌱', name: 'Seeds' },
   { id: 'axe', icon: '🪓', name: 'Axe' },
 ];
 const SEED_ORDER = ['turnip', 'tomato', 'pumpkin', 'starfruit'];
-const ITEM_EMOJI = { turnip: '🥬', tomato: '🍅', pumpkin: '🎃', starfruit: '⭐', wood: '🪵', berry: '🫐' };
+const PRODUCE_ORDER = ['turnip', 'tomato', 'pumpkin', 'starfruit', 'berry', 'wood'];
 
 export function createUI(state, hooks) {
-  // hooks: { onBuy(id), onShip(item, n), onSleep(), onNewFarm(), onContinue() }
-  let tool = 'hoe';
-  let seedSel = 0;
+  // hooks: { onBuy(id), onShip(item,n), onSleep(), onNewFarm(), onContinue(),
+  //          onWake(), onSelect(sel) }
+  let sel = { kind: 'tool', id: 'hoe' };
   const v3 = new THREE.Vector3();
 
-  // ── Hotbar ──
-  const hotbar = $('hotbar');
+  function setSel(next) {
+    sel = next;
+    refresh();
+    hooks.onSelect?.(sel);
+  }
+
+  // ── Hotbar (tools only) ──
   function renderHotbar() {
+    const hotbar = $('hotbar');
     hotbar.innerHTML = '';
     TOOL_DEFS.forEach((t, i) => {
-      const owned = t.id === 'seeds' ? true : state.tools[t.id];
+      const owned = state.tools[t.id];
       const slot = document.createElement('div');
-      slot.className = 'slot' + (tool === t.id ? ' active' : '') + (owned ? '' : ' locked');
-      let label = t.icon;
-      if (t.id === 'seeds') {
-        const type = SEED_ORDER[seedSel];
-        label = CROPS[type].emoji;
-        const n = state.seeds[type] ?? 0;
-        slot.innerHTML = `<span>${label}</span><b class="count">${n}</b><i class="key">${i + 1}</i>`;
-      } else {
-        slot.innerHTML = `<span>${owned ? t.icon : '🔒'}</span><i class="key">${i + 1}</i>`;
-      }
-      slot.title = t.id === 'seeds' ? `${CROPS[SEED_ORDER[seedSel]].name} seeds (press 3 again to cycle)` : t.name;
+      slot.className = 'slot' + (sel.kind === 'tool' && sel.id === t.id ? ' active' : '') + (owned ? '' : ' locked');
+      slot.innerHTML = `<span>${owned ? t.icon : '🔒'}</span><i class="key">${i + 1}</i>`;
+      slot.title = t.name;
       slot.onclick = () => selectTool(t.id);
       hotbar.appendChild(slot);
     });
@@ -48,16 +52,73 @@ export function createUI(state, hooks) {
   }
 
   function selectTool(id) {
-    if (id === 'seeds' && tool === 'seeds') {
-      // cycle seed type
-      for (let k = 1; k <= SEED_ORDER.length; k++) {
-        const j = (seedSel + k) % SEED_ORDER.length;
-        if ((state.seeds[SEED_ORDER[j]] ?? 0) > 0 || k === SEED_ORDER.length) { seedSel = j; break; }
-      }
-    }
     if (id === 'axe' && !state.tools.axe) { sfx.deny(); toast('No axe yet — check the shop!'); return; }
-    tool = id;
+    setSel({ kind: 'tool', id });
+  }
+
+  function selectSeed(type) {
+    if ((state.seeds[type] ?? 0) < 1) { sfx.deny(); toast(`No ${CROPS[type].name} seeds left`); return; }
+    setSel({ kind: 'seed', id: type });
+  }
+
+  function selectItem(type) {
+    if ((state.inventory[type] ?? 0) < 1) return;
+    setSel({ kind: 'item', id: type });
+  }
+
+  // Cycle through seed types you actually have (key 4).
+  function cycleSeed() {
+    const have = SEED_ORDER.filter((t) => (state.seeds[t] ?? 0) > 0);
+    if (!have.length) { sfx.deny(); toast('No seeds — visit the shop 🛒'); return; }
+    const cur = sel.kind === 'seed' ? have.indexOf(sel.id) : -1;
+    setSel({ kind: 'seed', id: have[(cur + 1) % have.length] });
+  }
+
+  // ── Inventory panel (left) ──
+  function renderInventory() {
+    const seedsEl = $('inv-seeds');
+    seedsEl.innerHTML = '';
+    let anySeed = false;
+    for (const t of SEED_ORDER) {
+      const n = state.seeds[t] ?? 0;
+      if (!n) continue;
+      anySeed = true;
+      const chip = document.createElement('div');
+      chip.className = 'inv-chip seed' + (sel.kind === 'seed' && sel.id === t ? ' active' : '');
+      chip.innerHTML = `<span class="bag"><span class="bag-emoji">${CROPS[t].emoji}</span></span><b class="count">${n}</b>`;
+      chip.title = `${CROPS[t].name} seeds — click to hold`;
+      chip.onclick = () => selectSeed(t);
+      seedsEl.appendChild(chip);
+    }
+    if (!anySeed) seedsEl.innerHTML = '<p class="inv-empty">No seeds<br>🛒 shop!</p>';
+
+    const itemsEl = $('inv-items');
+    itemsEl.innerHTML = '';
+    let anyItem = false;
+    for (const t of PRODUCE_ORDER) {
+      const n = state.inventory[t] ?? 0;
+      if (!n) continue;
+      anyItem = true;
+      const chip = document.createElement('div');
+      chip.className = 'inv-chip' + (sel.kind === 'item' && sel.id === t ? ' active' : '');
+      chip.innerHTML = `<span class="ic">${ITEM_EMOJI[t]}</span><b class="count">${n}</b>`;
+      chip.title = `${CROPS[t]?.name ?? t} — sells ${SELLABLE[t]}c at the crate`;
+      chip.onclick = () => selectItem(t);
+      itemsEl.appendChild(chip);
+    }
+    $('inv-items-wrap').hidden = !anyItem;
+  }
+
+  // If the selected seed/produce ran out, fall back to the hoe.
+  function autoStow() {
+    if (sel.kind === 'seed' && (state.seeds[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'hoe' });
+    else if (sel.kind === 'item' && (state.inventory[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'hoe' });
+  }
+
+  function refresh() {
     renderHotbar();
+    renderInventory();
+    updateHUD();
   }
 
   // ── HUD clock/coins ──
@@ -127,7 +188,7 @@ export function createUI(state, hooks) {
       const afford = state.coins >= r.cost && !r.disabled;
       row.innerHTML = `<span class="ic">${r.icon}</span><span class="nm">${r.name}<small>${r.desc}</small></span>
         <button class="chip-btn ${afford ? '' : 'off'}">${r.disabled ? '✓' : r.cost + ' 🪙'}</button>`;
-      row.querySelector('button').onclick = () => { hooks.onBuy(r.id); openShop(); updateHUD(); };
+      row.querySelector('button').onclick = () => { hooks.onBuy(r.id); openShop(); refresh(); };
       list.appendChild(row);
     }
     $('shop-coins').textContent = `You have ${state.coins} 🪙`;
@@ -148,8 +209,8 @@ export function createUI(state, hooks) {
         <span class="nm">${CROPS[item]?.name ?? item} ×${n}<small>${SELLABLE[item]}c each</small></span>
         <button class="chip-btn">Ship 1</button><button class="chip-btn">All</button>`;
       const [b1, bAll] = row.querySelectorAll('button');
-      b1.onclick = () => { hooks.onShip(item, 1); openShip(); };
-      bAll.onclick = () => { hooks.onShip(item, n); openShip(); };
+      b1.onclick = () => { hooks.onShip(item, 1); autoStow(); openShip(); refresh(); };
+      bAll.onclick = () => { hooks.onShip(item, n); autoStow(); openShip(); refresh(); };
       list.appendChild(row);
     }
     if (!any) list.innerHTML = '<p class="empty">Nothing to ship — harvest something first!</p>';
@@ -208,14 +269,14 @@ export function createUI(state, hooks) {
   sndBtn.onclick = () => { toggleSound(); renderSnd(); };
   renderSnd();
 
-  renderHotbar();
-  updateHUD();
+  refresh();
 
   return {
-    updateHUD, renderHotbar, toast, prompt, bubble, projectBubble,
+    updateHUD, refresh, toast, prompt, bubble, projectBubble,
     openShop, openShip, closePanels, anyPanelOpen, showSleep, showStart,
-    selectTool,
-    get tool() { return tool; },
-    get seedType() { return SEED_ORDER[seedSel]; },
+    selectTool, selectSeed, selectItem, cycleSeed, autoStow,
+    get selection() { return sel; },
+    get tool() { return sel.kind === 'tool' ? sel.id : null; },
+    get seedType() { return sel.kind === 'seed' ? sel.id : null; },
   };
 }

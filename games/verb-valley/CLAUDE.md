@@ -247,3 +247,19 @@ preposition items for lesson variety. Distractors must be plausible
   - **Known gaps for v1.1:** touch controls, watering-can refills,
     sticker row only shows in HUD + sleep card (no cottage interior),
     class camera is a fixed angle, no Krabsy idle dialogue.
+- 2026-06-10 — **Playtest round 1 (user feedback).** Three changes:
+  - **Inventory panel** (left edge): seed bags (burlap chip with the crop
+    printed on it) + harvested produce, each with counts. Clicking one
+    holds it over the player's head (oversized 1.5× so it reads at
+    camera distance; arms raise). Holding a seed bag + E on tilled soil
+    plants that seed — this replaced the hotbar seed slot, so the hotbar
+    is now 3 tools (1 hoe, 2 can, 3 axe; 4 cycles held seed). When the
+    held seed/produce runs out it auto-stows back to the hoe.
+  - **No more dead waiting** (user: "I just had to wait"): school opens
+    at wake (06:00) instead of 08:00, and bed works at any hour. Class
+    advances the clock +60 min instead of snapping to 09:00.
+  - Selection model lives in ui.js (`{kind:'tool'|'seed'|'item', id}`);
+    game.js mirrors it onto the rig via the onSelect hook.
+  - Re-verified: 15 assertions on the new behaviors + core-loop
+    regression all PASS, zero console errors, screenshots checked
+    (inventory panel, active-seed highlight, held bag visible).

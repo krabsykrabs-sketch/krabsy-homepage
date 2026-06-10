@@ -41,6 +41,47 @@ export function createPlayer(scene, camera) {
 
   scene.add(root);
 
+  // ── Held item: a seed bag or produce hoisted over the head ──
+  // setHeld({emoji, bag}) builds the visual; setHeld(null) stows it.
+  // While holding, the arms reach up toward it.
+  let heldGroup = null, holding = false;
+  function emojiSprite(emoji, size, overlay = false) {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+    const c2 = cv.getContext('2d');
+    c2.font = '96px serif'; c2.textAlign = 'center'; c2.textBaseline = 'middle';
+    c2.fillText(emoji, 64, 70);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(cv), transparent: true,
+      depthTest: !overlay,            // overlay sprites draw on top of the bag mesh
+    }));
+    if (overlay) sp.renderOrder = 5;
+    sp.scale.set(size, size, 1);
+    return sp;
+  }
+  function setHeld(desc) {
+    if (heldGroup) { rig.remove(heldGroup); heldGroup = null; }
+    holding = !!desc;
+    if (!desc) return;
+    heldGroup = new THREE.Group();
+    if (desc.bag) {
+      // burlap seed bag with the crop printed on the front
+      const bag = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.34), lambert(0xc89858));
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.16, 8), lambert(0xb08448));
+      neck.position.y = 0.32;
+      const knot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), lambert(0x8a6a3c));
+      knot.position.y = 0.42;
+      bag.castShadow = true;
+      heldGroup.add(bag, neck, knot);
+      const print = emojiSprite(desc.emoji, 0.34, true);
+      heldGroup.add(print);
+    } else {
+      heldGroup.add(emojiSprite(desc.emoji, 0.85));
+    }
+    heldGroup.scale.setScalar(1.5);   // oversized so it reads at camera distance
+    heldGroup.position.y = 2.55;
+    rig.add(heldGroup);
+  }
+
   // ── State ──
   const pos = new THREE.Vector3(LAYOUT.bed.x, 0, LAYOUT.bed.z + 1);
   let facing = 0, walkPhase = 0, moving = false, bobT = 0;
@@ -88,10 +129,19 @@ export function createPlayer(scene, camera) {
     const sw = Math.sin(walkPhase);
     legL.rotation.x = sw * (moving ? 0.9 : 0);
     legR.rotation.x = -sw * (moving ? 0.9 : 0);
-    armL.rotation.x = -sw * (moving ? 0.7 : 0);
-    armR.rotation.x = sw * (moving ? 0.7 : 0);
-    handL.position.z = -sw * (moving ? 0.42 : 0); handR.position.z = sw * (moving ? 0.42 : 0);
-    handL.position.y = 0.78 - Math.abs(sw) * (moving ? 0.05 : 0); handR.position.y = handL.position.y;
+    if (holding) {
+      // arms reach up toward the held item
+      armL.rotation.x = armR.rotation.x = Math.PI * 0.92;
+      handL.position.set(-0.42, 1.62, 0.04); handR.position.set(0.42, 1.62, 0.04);
+      handL.position.z = handR.position.z = 0.04;
+      if (heldGroup) heldGroup.position.y = 2.45 + Math.sin(bobT * 2.4) * 0.05;
+    } else {
+      armL.rotation.x = -sw * (moving ? 0.7 : 0);
+      armR.rotation.x = sw * (moving ? 0.7 : 0);
+      handL.position.x = -0.48; handR.position.x = 0.48;
+      handL.position.z = -sw * (moving ? 0.42 : 0); handR.position.z = sw * (moving ? 0.42 : 0);
+      handL.position.y = 0.78 - Math.abs(sw) * (moving ? 0.05 : 0); handR.position.y = handL.position.y;
+    }
     // squash-and-stretch bob
     const bob = moving ? Math.abs(Math.sin(walkPhase)) * 0.12 : Math.sin(bobT * 2) * 0.03;
     rig.position.y = bob;
@@ -112,7 +162,7 @@ export function createPlayer(scene, camera) {
   function teleport(x, z) { pos.set(x, 0, z); root.position.set(x, 0, z); }
 
   return {
-    root, update, updateCamera, teleport,
+    root, update, updateCamera, teleport, setHeld,
     get position() { return pos; },
     get facing() { return facing; },
     setFacing(f) { facing = f; },

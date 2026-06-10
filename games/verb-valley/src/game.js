@@ -2,7 +2,7 @@
 // gate, sleep/pass-out flow, ?qa= frozen scenes and the window.__VV QA harness.
 
 import * as THREE from 'three';
-import { TIME, LAYOUT, CROPS, SELLABLE, AXE_COST, INTERACT_RANGE } from './config.js';
+import { TIME, LAYOUT, CROPS, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
 import { buildWorld, drawBoardIdle } from './world.js';
 import { createDayCycle } from './daycycle.js';
 import { createPlayer } from './player.js';
@@ -46,7 +46,7 @@ let started = false;
 let frozen = false;            // QA clock freeze
 let player = null, farm = null, school = null, ui = null;
 let camMode = 'follow';        // 'follow' | 'class'
-let lastNagMin = -999;
+let lastNagMin = TIME.WAKE;
 let bellSwing = 0;
 
 const BELL_POS = new THREE.Vector3(LAYOUT.school.x + 3, 3.2, LAYOUT.school.z + 1.5);
@@ -71,8 +71,8 @@ addEventListener('keydown', (e) => {
   }
   if (e.code === 'Digit1') ui.selectTool('hoe');
   if (e.code === 'Digit2') ui.selectTool('can');
-  if (e.code === 'Digit3') ui.selectTool('seeds');
-  if (e.code === 'Digit4') ui.selectTool('axe');
+  if (e.code === 'Digit3') ui.selectTool('axe');
+  if (e.code === 'Digit4') ui.cycleSeed();
   if (e.code === 'KeyE') interact();
 });
 addEventListener('keyup', (e) => { if (KEYMAP[e.code]) input[KEYMAP[e.code]] = false; });
@@ -109,16 +109,16 @@ function gated(fn) {
 // ── Gated farm actions (single path for player input AND QA) ────────────
 const act = {
   till: (i) => gated(() => { const r = farm.actions.till(i); if (r.ok) sfx.till(); return r; }),
-  plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { sfx.plant(); ui.renderHotbar(); } return r; }),
+  plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { sfx.plant(); ui.autoStow(); ui.refresh(); } return r; }),
   water: (i) => gated(() => { const r = farm.actions.water(i); if (r.ok) sfx.water(); return r; }),
   harvest: (i) => gated(() => {
     const r = farm.actions.harvest(i);
-    if (r.ok) { sfx.harvest(); ui.toast(`${CROPS[r.type].emoji} ${CROPS[r.type].name} harvested!`); }
+    if (r.ok) { sfx.harvest(); ui.toast(`${CROPS[r.type].emoji} ${CROPS[r.type].name} harvested!`); ui.refresh(); }
     return r;
   }),
   chop: (i) => gated(() => {
     const r = farm.actions.chop(i);
-    if (r.ok) { sfx.chop(); ui.toast('🪵 +3 wood'); }
+    if (r.ok) { sfx.chop(); ui.toast('🪵 +3 wood'); ui.refresh(); }
     return r;
   }),
 };
@@ -131,12 +131,10 @@ function computeTarget() {
   if (d2(LAYOUT.school.x, LAYOUT.school.z) < 4.2) {
     if (school.active) return { kind: 'none' };
     if (attended()) return { kind: 'info', label: 'Class is done for today 🦀' };
-    if (state.timeMin < TIME.SCHOOL_BELL) return { kind: 'info', label: `Class starts at 08:00 ⏰` };
     return { kind: 'school', label: '<b>E</b> — Attend class 🦀' };
   }
   if (d2(LAYOUT.bed.x, LAYOUT.bed.z) < 2.1) {
-    if (state.timeMin >= TIME.BEDTIME_OK) return { kind: 'sleep', label: '<b>E</b> — Sleep 🛏' };
-    return { kind: 'info', label: 'Too early to sleep (after 18:00) 🌞' };
+    return { kind: 'sleep', label: '<b>E</b> — Sleep 🛏' };
   }
   if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: '<b>E</b> — Ship produce 📦' };
   if (d2(LAYOUT.shop.x, LAYOUT.shop.z) < 2.8) return { kind: 'shop', label: '<b>E</b> — Shop 🛒' };
@@ -150,15 +148,14 @@ function computeTarget() {
     const lock = attended() ? '' : ' 🔒';
     if (plot.crop && plot.stage >= CROPS[plot.crop].days)
       return { kind: 'harvest', i: pi, label: `<b>E</b> — Harvest ${CROPS[plot.crop].emoji}${lock}` };
-    const tool = ui.tool;
+    const tool = ui.tool, seed = ui.seedType;
+    if (seed && plot.tilled && !plot.crop)
+      return { kind: 'plant', i: pi, t: seed, label: `<b>E</b> — Plant ${CROPS[seed].emoji} ${CROPS[seed].name}${lock}` };
+    if (seed && !plot.tilled) return { kind: 'info', label: 'Till this first — press 1 for the hoe ⛏' };
     if (tool === 'hoe' && !plot.tilled) return { kind: 'till', i: pi, label: `<b>E</b> — Till soil ⛏${lock}` };
-    if (tool === 'seeds' && plot.tilled && !plot.crop) {
-      const t = ui.seedType;
-      if ((state.seeds[t] ?? 0) < 1) return { kind: 'info', label: `No ${CROPS[t].name} seeds — visit the shop` };
-      return { kind: 'plant', i: pi, t, label: `<b>E</b> — Plant ${CROPS[t].emoji} ${CROPS[t].name}${lock}` };
-    }
     if (tool === 'can' && plot.tilled && !plot.watered) return { kind: 'water', i: pi, label: `<b>E</b> — Water 🚿${lock}` };
     if (plot.tilled && plot.watered && plot.crop) return { kind: 'info', label: 'Watered for today ✓' };
+    if (plot.tilled && !plot.crop) return { kind: 'info', label: 'Click a seed bag in your inventory 🌱' };
     return { kind: 'none' };
   }
 
@@ -204,9 +201,8 @@ function startClass(seed) {
 function onClassComplete(sum) {
   camMode = 'follow';
   document.getElementById('hud').classList.remove('in-class');
-  state.timeMin = Math.max(state.timeMin, 540);   // class lets out at 09:00
-  ui.renderHotbar();
-  ui.updateHUD();
+  state.timeMin += TIME.CLASS_LENGTH;   // class takes an in-game hour
+  ui.refresh();
   daycycle.applyInstant(state);
   let msg = `Class done — +${sum.coins} 🪙`;
   if (sum.specialSeed) msg += ' · ⭐ special seed!';
@@ -221,7 +217,7 @@ function buy(id) {
     if (state.tools.axe) return { ok: false, reason: 'owned' };
     if (state.coins < AXE_COST) { sfx.deny(); return { ok: false, reason: 'coins' }; }
     state.coins -= AXE_COST; state.tools.axe = true; sfx.buy();
-    ui.renderHotbar();
+    ui.refresh();
     return { ok: true };
   }
   if (id.startsWith('seed:')) {
@@ -230,7 +226,7 @@ function buy(id) {
     if (!def || def.schoolOnly) return { ok: false, reason: 'unknown' };
     if (state.coins < def.seed) { sfx.deny(); return { ok: false, reason: 'coins' }; }
     state.coins -= def.seed; state.seeds[t] = (state.seeds[t] ?? 0) + 1; sfx.buy();
-    ui.renderHotbar();
+    ui.refresh();
     return { ok: true };
   }
   return { ok: false, reason: 'unknown' };
@@ -246,19 +242,17 @@ function ship(item, n) {
   return { ok: true, moved: move };
 }
 
-function doSleep(dozed = false, force = false) {
-  if (!force && !dozed && state.timeMin < TIME.BEDTIME_OK) return { ok: false, reason: 'too-early' };
+function doSleep(dozed = false) {
   sfx.sleep();
   const summary = save.advanceDay(state);
   save.save(state);
   farm.refreshAll();
   player.teleport(LAYOUT.bed.x, LAYOUT.bed.z + 1);
   daycycle.applyInstant(state);
-  ui.renderHotbar();
-  ui.updateHUD();
+  ui.refresh();
   ui.showSleep(summary, dozed);
   birds();
-  lastNagMin = -999;
+  lastNagMin = TIME.WAKE;   // first bell nag ~45 in-game min after waking
   return { ok: true, summary };
 }
 
@@ -273,13 +267,20 @@ function startGame(loaded) {
     onShip: (item, n) => { ship(item, n); ui.updateHUD(); },
     onContinue: () => {}, onNewFarm: () => {},
     onWake: () => {},
+    // Mirror the inventory selection onto the rig: seed bags and produce
+    // ride over the head; tools clear the hands.
+    onSelect: (sel) => {
+      if (sel.kind === 'seed') player.setHeld({ emoji: CROPS[sel.id].emoji, bag: true });
+      else if (sel.kind === 'item') player.setHeld({ emoji: ITEM_EMOJI[sel.id] });
+      else player.setHeld(null);
+    },
   });
   daycycle.applyInstant(state);
   player.updateCamera(0, true);
   document.getElementById('hud').hidden = false;
   started = true;
   if (!loaded && !QA_SCENE) {
-    setTimeout(() => ui.toast('Welcome to the valley! School starts at 08:00 🦀', 4200), 600);
+    setTimeout(() => ui.toast('Welcome! Professor Krabsy is waiting at the school 🦀', 4200), 600);
   }
   installQA();
 }
@@ -356,7 +357,7 @@ function installQA() {
     setTime(min) { state.timeMin = min; daycycle.applyInstant(state); ui.updateHUD(); },
     setDay(n) { state.day = n; ui.updateHUD(); },
     grantCoins(n) { state.coins += n; ui.updateHUD(); },
-    grantSeeds(t, n) { state.seeds[t] = (state.seeds[t] ?? 0) + n; ui.renderHotbar(); },
+    grantSeeds(t, n) { state.seeds[t] = (state.seeds[t] ?? 0) + n; ui.refresh(); },
     teleport(x, z) { player.teleport(x, z); },
     selectTool: (t) => ui.selectTool(t),
     startClass: (seed) => startClass(seed),
@@ -386,11 +387,16 @@ function installQA() {
     pickBerry: (i) => farm.actions.pickBerry(i),
     buy: (id) => buy(id),
     ship: (item, n) => ship(item, n),
-    sleep: (force = true) => {
-      const r = doSleep(false, force);
+    sleep: () => {
+      const r = doSleep();
       document.getElementById('sleep-overlay').hidden = true;   // QA: skip the overlay pause
       return r;
     },
+    selectSeed: (t) => ui.selectSeed(t),
+    selectItem: (t) => ui.selectItem(t),
+    selection: () => ui.selection,
+    // Simulate an E press through the real targeting logic.
+    interact: () => { const t = computeTarget(); interact(); return t; },
     refreshFarm: () => farm.refreshAll(),
     // Times forced renders directly — works even when rAF is suspended
     // (the preview tool's known background-window issue).
@@ -435,6 +441,8 @@ function setupQAScene(name) {
       });
       state.plots[12].tilled = true;
       farm.refreshAll();
+      VV.grantSeeds('tomato', 2);
+      VV.selectSeed('tomato');   // showcase the held seed bag
       VV.teleport(LAYOUT.field.cx, LAYOUT.field.cz + 4);
       break;
     }
@@ -451,7 +459,7 @@ function setupQAScene(name) {
       VV.teleport(0, 3);
       break;
   }
-  ui.renderHotbar();
+  ui.refresh();
   ui.updateHUD();
   daycycle.applyInstant(state);
   player.updateCamera(0, true);
