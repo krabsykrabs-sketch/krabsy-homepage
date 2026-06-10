@@ -1,0 +1,160 @@
+{
+  "name": "FPlayer_1",
+  "defaultAnimation": "idle",
+  "animations": {
+    "idle": {
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "columns": 4,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down-right": {
+          "frames": [
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down": {
+          "frames": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        "down-left": {
+          "frames": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        "left": {
+          "frames": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "up-left": {
+          "frames": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "up": {
+          "frames": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "up-right": {
+          "frames": [
+            28,
+            29,
+            30,
+            31
+          ]
+        },
+        "right": {
+          "frames": [
+            28,
+            29,
+            30,
+            31
+          ]
+        }
+      },
+      "spriteSheet": "idle.png"
+    },
+    "walk": {
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "columns": 4,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        "left": {
+          "frames": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "up-left": {
+          "frames": [
+            24,
+            25,
+            26,
+            27
+          ]
+        },
+        "up-right": {
+          "frames": [
+            28,
+            29,
+            30,
+            31
+          ]
+        },
+        "up": {
+          "frames": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "down-left": {
+          "frames": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        "down-right": {
+          "frames": [
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "right": {
+          "frames": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "spriteSheet": "walk.png"
+    }
+  },
+  "anchor": {
+    "x": 24,
+    "y": 48
+  }
+}

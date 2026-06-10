@@ -1,4 +1,31 @@
+# OS / WSL cruft
 *.Zone.Identifier
 *:Zone.Identifier
 HumanInput/
 
+# Local CC settings (keep launch.json tracked, ignore machine-local prefs)
+.claude/settings.local.json
+
+# Local staging — large WIP copies, not part of the repo
+_incoming/
+
+# Restructure / QA scratch
+_restructure_*.sh
+_check.sh
+
+# ── Shared asset library ───────────────────────────────────────────────
+# Large bought/downloaded 3D packs live on disk under /assets, NOT in git
+# (re-downloadable masters; back up externally, consider Git LFS later).
+# Only the README that documents the library is tracked.
+/assets/*
+!/assets/README.md
+
+# ── 3D platformer SOURCE (games/verb-platformer) ──────────────────────
+# Heavy binary assets and build output are not tracked. The deployed copy
+# under homepage/games/verb-platformer/ IS tracked (Coolify deploys it).
+# Level JSON is small + important, so keep it via the un-ignore chain.
+games/verb-platformer/_builds/
+games/verb-platformer/assets/*
+!games/verb-platformer/assets/levels/
+games/verb-platformer/assets/levels/*
+!games/verb-platformer/assets/levels/*.json

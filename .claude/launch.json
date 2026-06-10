@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "krabsy-static",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": ["-d", "ubuntu", "--", "bash", "-lc", "cd ~/krabsy-homepage/homepage && python3 -m http.server 8000"],
+      "port": 8000,
+      "autoPort": false
+    }
+  ]
+}

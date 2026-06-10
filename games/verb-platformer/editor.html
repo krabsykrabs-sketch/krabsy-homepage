@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Krabsy 3D — Level Editor</title>
+  <link rel="stylesheet" href="./editor.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <header id="toolbar">
+      <button id="btn-new"      title="New level">New</button>
+      <button id="btn-open"     title="Open JSON">Open JSON</button>
+      <input type="file" id="file-input" accept=".json,application/json" hidden />
+      <button id="btn-save"     title="Save JSON (Ctrl+S)">Save JSON</button>
+      <button id="btn-playtest" title="Playtest in game (opens new tab)">Playtest</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-select" title="Select mode — click placed objects to select, Delete to remove" class="toggle">↖ Select</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-delete" title="Delete selected object (Delete / Backspace)">🗑 Delete</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-undo" title="Undo (Ctrl+Z)">↶ Undo</button>
+      <button id="btn-redo" title="Redo (Ctrl+Y)">↷ Redo</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-view-top"   title="Top-down view (O)" class="toggle">Top</button>
+      <button id="btn-view-persp" title="Perspective view (P)" class="toggle">Persp</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-y-down" title="Y plane −1 (−)">Y −</button>
+      <span id="toolbar-y-indicator" title="Current Y plane (where new placements land)">Y: +0</span>
+      <button id="btn-y-up"   title="Y plane +1 (+)">Y +</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-rotate-ccw" title="Rotate selected/preview −90° around Y (Shift+R = −15°)">↺ 90°</button>
+      <button id="btn-rotate-cw"  title="Rotate selected/preview +90° around Y (R = +90°)">↻ 90°</button>
+
+      <span class="divider"></span>
+
+      <button id="btn-labels" title="Toggle ID labels (L)" class="toggle">Labels</button>
+      <button id="btn-grid"   title="Toggle grid (G)"     class="toggle">Grid</button>
+
+      <span class="spacer"></span>
+
+      <label for="level-name">Level:</label>
+      <input id="level-name" type="text" value="Untitled Level" spellcheck="false" />
+
+      <span class="spacer"></span>
+
+      <button id="btn-help" title="Keyboard shortcuts (?)">?</button>
+    </header>
+
+    <main id="main">
+      <aside id="library">
+        <div class="panel-title">Objects</div>
+        <div id="library-search">
+          <input type="text" id="lib-search-input" placeholder="Search assets..." spellcheck="false" />
+        </div>
+        <div id="library-list"><!-- groups + thumbnails injected by JS --></div>
+      </aside>
+
+      <section id="viewport-wrap">
+        <canvas id="viewport"></canvas>
+        <div id="active-tool" hidden>
+          <div class="row">Tool: <span id="active-tool-name"></span> · Esc to cancel</div>
+          <div id="active-tool-swatches" class="swatch-row" hidden></div>
+        </div>
+      </section>
+
+      <aside id="properties">
+        <div class="panel-title">Properties</div>
+        <div id="properties-body">
+          <p class="muted">No object selected.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer id="statusbar">
+      <span id="status-cursor">X: 0  Z: 0</span>
+      <span id="status-yplane">Y: 0</span>
+      <span id="status-grid">grid: 2.0</span>
+      <span id="status-count">objects: 0</span>
+      <span id="status-mode">top-down</span>
+    </footer>
+
+    <div id="help-panel" hidden>
+      <div class="help-card">
+        <h2>Keyboard shortcuts</h2>
+        <ul>
+          <li><kbd>↑↓←→</kbd> — pan camera</li>
+          <li>Scroll — zoom</li>
+          <li>Left-drag from an object (in select mode) — move it / the selection, snapped to the grid</li>
+          <li>Left-drag from empty ground (in select mode) — box-select objects</li>
+          <li><kbd>Ctrl</kbd>+click — add/remove from current selection</li>
+          <li><kbd>Ctrl+A</kbd> — select all · <kbd>Ctrl+D</kbd> — duplicate selection</li>
+          <li><kbd>F</kbd> — frame selection (everything when nothing selected)</li>
+          <li>Middle-drag (or right-drag) — pan · right-drag in perspective orbits</li>
+          <li><kbd>WASD</kbd> — nudge selected object (or hovering preview) by half a cell</li>
+          <li><kbd>PgUp</kbd> / <kbd>PgDn</kbd> (or <kbd>Shift+W/S</kbd>) — move selected object up / down 1 unit (steps the Y plane while placing)</li>
+          <li><kbd>Q</kbd> / <kbd>E</kbd> — rotate selected (or preview) by 45° (multi-select rotates around centroid)</li>
+          <li><kbd>R</kbd> — rotate by 90° (<kbd>Shift+R</kbd> for 15°)</li>
+          <li><kbd>Enter</kbd> — place hovering object at the preview position</li>
+          <li><kbd>P</kbd> / <kbd>O</kbd> — perspective / top-down</li>
+          <li><kbd>+</kbd> / <kbd>-</kbd> (or <kbd>[</kbd> <kbd>]</kbd>) — change Y plane</li>
+          <li><kbd>Esc</kbd> / right-click — exit placement, return to select mode</li>
+          <li><kbd>Delete</kbd> / <kbd>Backspace</kbd> — delete selected object</li>
+          <li><kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd> — undo / redo</li>
+          <li><kbd>Ctrl+S</kbd> — save JSON</li>
+          <li><kbd>L</kbd> — toggle ID labels</li>
+          <li><kbd>G</kbd> — toggle grid</li>
+          <li><kbd>?</kbd> — toggle this help</li>
+        </ul>
+        <p class="muted">Click an object in the left panel to start placing. Right-click or Esc to stop.</p>
+        <button id="btn-help-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./editor.js"></script>
+</body>
+</html>

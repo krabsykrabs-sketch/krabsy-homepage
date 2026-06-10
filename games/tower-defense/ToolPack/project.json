@@ -1,0 +1,381 @@
+{
+  "projectName": "Test 128",
+  "exported": "2026-05-09T07:25:02.552Z",
+  "format": "krabsy-ai-export-v1",
+  "map": {
+    "name": "TD1",
+    "file": "map/map.json"
+  },
+  "collision": {
+    "file": "map/collision.json"
+  },
+  "zones": [],
+  "placements": {
+    "file": "assets/placements.json",
+    "count": 0
+  },
+  "characters": [
+    {
+      "name": "FPlayer_1",
+      "folder": "characters/FPlayer_1",
+      "file": "characters/FPlayer_1/character.json",
+      "slots": [
+        "idle",
+        "walk"
+      ],
+      "defaultAnimation": "idle",
+      "layered": false,
+      "equipmentSlots": null
+    },
+    {
+      "name": "TestMihcaChar",
+      "folder": "characters/TestMihcaChar",
+      "file": "characters/TestMihcaChar/character.json",
+      "slots": [
+        "idle",
+        "walk"
+      ],
+      "defaultAnimation": "idle",
+      "layered": false,
+      "equipmentSlots": null
+    },
+    {
+      "name": "Slippery Slime Green",
+      "folder": "characters/Slippery_Slime_Green",
+      "file": "characters/Slippery_Slime_Green/character.json",
+      "slots": [
+        "walk",
+        "attack",
+        "die",
+        "jump",
+        "spit"
+      ],
+      "defaultAnimation": "walk",
+      "layered": false,
+      "equipmentSlots": null
+    },
+    {
+      "name": "Mana Base",
+      "folder": "characters/Mana_Base",
+      "file": "characters/Mana_Base/character.json",
+      "slots": [
+        "walk",
+        "jump",
+        "idle"
+      ],
+      "defaultAnimation": "idle",
+      "layered": true,
+      "equipmentSlots": [
+        {
+          "name": "Body",
+          "isBase": true,
+          "defaultOption": "default",
+          "options": [
+            "default"
+          ]
+        },
+        {
+          "name": "Shirt",
+          "isBase": false,
+          "defaultOption": "Shirt1",
+          "options": [
+            "Shirt1",
+            "ShirtBoobs"
+          ]
+        },
+        {
+          "name": "Pants",
+          "isBase": false,
+          "defaultOption": "Longpants",
+          "options": [
+            "Longpants"
+          ]
+        },
+        {
+          "name": "Shoes",
+          "isBase": false,
+          "defaultOption": "Shoes",
+          "options": [
+            "Shoes"
+          ]
+        },
+        {
+          "name": "Hair",
+          "isBase": false,
+          "defaultOption": "Bob",
+          "options": [
+            "Bob",
+            "Dapper"
+          ]
+        },
+        {
+          "name": "Hats",
+          "isBase": false,
+          "defaultOption": "Cowboy",
+          "options": [
+            "Cowboy"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mana Seed Farmer",
+      "folder": "characters/Mana_Seed_Farmer",
+      "file": "characters/Mana_Seed_Farmer/character.json",
+      "slots": [
+        "idle",
+        "walk",
+        "push",
+        "walk while carrying",
+        "run",
+        "jump",
+        "attack",
+        "pull",
+        "walk_carry",
+        "run_carry",
+        "jump_carry",
+        "pickup_carry",
+        "throw_carried",
+        "work_at_desk",
+        "wave",
+        "hugs",
+        "sing",
+        "flute_ocarina",
+        "lute_guitar",
+        "drums",
+        "hurt_down_right_left",
+        "hurt_up",
+        "death_bounce_down_right_left",
+        "death_bounce_up",
+        "evade",
+        "sit_on_ledge",
+        "sit_chair",
+        "meditate",
+        "sleep",
+        "sleep_sit",
+        "thumbs_up",
+        "mad_stomp",
+        "shocked",
+        "laugh",
+        "sit_on_floor",
+        "impatient",
+        "climb",
+        "top_of_climb",
+        "sad",
+        "mount_up",
+        "ride_mount",
+        "sooth_mount",
+        "pet_dog_cat",
+        "milk_cow",
+        "pet_horse",
+        "overhand_strike",
+        "forehand_strike",
+        "scythe_swing",
+        "bugnet_swing",
+        "bow_shot",
+        "plant_seeds",
+        "water",
+        "smith",
+        "drink_standing",
+        "drink_at_bar",
+        "cast_fishing_line",
+        "got_a_bite",
+        "got_it"
+      ],
+      "defaultAnimation": "idle",
+      "layered": true,
+      "equipmentSlots": [
+        {
+          "name": "Body",
+          "isBase": true,
+          "defaultOption": "human_00",
+          "options": [
+            "human_00",
+            "humannolegs_00"
+          ]
+        },
+        {
+          "name": "00undr",
+          "isBase": false,
+          "defaultOption": "cloakplain_00d",
+          "options": [
+            "cloakplain_00d",
+            "cloakwithmantleplain_00b"
+          ]
+        },
+        {
+          "name": "02sock",
+          "isBase": false,
+          "defaultOption": "sockshigh_00a",
+          "options": [
+            "sockshigh_00a",
+            "sockslow_00a",
+            "stockings_00a"
+          ]
+        },
+        {
+          "name": "03fot1",
+          "isBase": false,
+          "defaultOption": "boots_00a",
+          "options": [
+            "boots_00a",
+            "sandals_00a",
+            "shoes_00a"
+          ]
+        },
+        {
+          "name": "04lwr1",
+          "isBase": false,
+          "defaultOption": "longpants_00a",
+          "options": [
+            "longpants_00a",
+            "onepiece_00a",
+            "onepieceboobs_00a",
+            "shorts_00a",
+            "undies_00a"
+          ]
+        },
+        {
+          "name": "05shrt",
+          "isBase": false,
+          "defaultOption": "bra_00a",
+          "options": [
+            "bra_00a",
+            "longshirt_00a",
+            "longshirtboobs_00a",
+            "shortshirt_00a",
+            "shortshirtboobs_00a",
+            "tanktop_00a",
+            "tanktopboobs_00a"
+          ]
+        },
+        {
+          "name": "06lwr2",
+          "isBase": false,
+          "defaultOption": "overalls_00a",
+          "options": [
+            "overalls_00a",
+            "overallsboobs_00a",
+            "shortalls_00a",
+            "shortallsboobs_00a"
+          ]
+        },
+        {
+          "name": "07fot2",
+          "isBase": false,
+          "defaultOption": "cuffedboots_00a",
+          "options": [
+            "cuffedboots_00a",
+            "curlytoeshoes_00a"
+          ]
+        },
+        {
+          "name": "08lwr3",
+          "isBase": false,
+          "defaultOption": "frillydress_00a",
+          "options": [
+            "frillydress_00a",
+            "frillydressboobs_00a",
+            "frillyskirt_00a",
+            "longdress_00a",
+            "longdressboobs_00a",
+            "longskirt_00a"
+          ]
+        },
+        {
+          "name": "09hand",
+          "isBase": false,
+          "defaultOption": "gloves_00a",
+          "options": [
+            "gloves_00a"
+          ]
+        },
+        {
+          "name": "10outr",
+          "isBase": false,
+          "defaultOption": "suspenders_00a",
+          "options": [
+            "suspenders_00a",
+            "vest_00a"
+          ]
+        },
+        {
+          "name": "11neck",
+          "isBase": false,
+          "defaultOption": "cloakplain_00d",
+          "options": [
+            "cloakplain_00d",
+            "cloakwithmantleplain_00b",
+            "mantleplain_00b",
+            "scarf_00b"
+          ]
+        },
+        {
+          "name": "12face",
+          "isBase": false,
+          "defaultOption": "glasses_00a",
+          "options": [
+            "glasses_00a",
+            "shades_00a"
+          ]
+        },
+        {
+          "name": "13hair",
+          "isBase": false,
+          "defaultOption": "afro_00",
+          "options": [
+            "afro_00",
+            "afropuffs_00",
+            "bob1_00",
+            "bob2_00",
+            "bushy_00",
+            "dapper_00",
+            "flattop_00",
+            "longbound_00",
+            "longboundclasped_00f",
+            "longwavy_00",
+            "mohawk_00",
+            "ponytail1_00",
+            "spiky1_00",
+            "spiky2_00",
+            "topknot_00f",
+            "twintail_00",
+            "twists_00"
+          ]
+        },
+        {
+          "name": "14head",
+          "isBase": false,
+          "defaultOption": "bandana_00b",
+          "options": [
+            "bandana_00b",
+            "boaterhat_00d",
+            "boaterhat_01",
+            "cowboyhat_00d",
+            "cowboyhat_01",
+            "floppyhat_00d",
+            "floppyhat_01",
+            "headscarf_00b",
+            "mushroom1_00d",
+            "mushroom1_01",
+            "mushroom1_02",
+            "mushroom1_03",
+            "mushroom1_04",
+            "mushroom1_05",
+            "strawhat_00d",
+            "strawhat_01"
+          ]
+        }
+      ],
+      "overlays": {
+        "file": "characters/Mana_Seed_Farmer/overlays.json",
+        "sheetsFolder": "characters/Mana_Seed_Farmer/overlays/"
+      },
+      "msr": true
+    }
+  ],
+  "gameObjects": {
+    "file": "gameObjects/gameObjects.json",
+    "count": 21
+  }
+}

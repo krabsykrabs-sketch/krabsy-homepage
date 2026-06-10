@@ -1,0 +1,2177 @@
+{
+  "_format": "ktk-mana-seed-overlay-mappings",
+  "_version": 3,
+  "_note": "Overlay mappings for Mana Seed Farmer animations. Per-frame structure: {cell, mirror, ox, oy}. ox/oy are sprite-pixel offsets from the body cell's top-left corner. compatibleOverlays lists alternative sheet filenames the user can swap in for the same animation; default overlay is the first one listed.",
+  "bow_shot": {
+    "_explanation": "Bow held throughout. Arrow flies during the last 3 frames after release.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "bow",
+          "sheet": "farmer_bow_001_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "_note": "Short bow (default) or long bow (alt). 4 cells: neutral / drawing / drawn / released.",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 24,
+              "rotation": 90
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 16,
+              "oy": 22,
+              "rotation": 90
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 16,
+              "oy": 20,
+              "rotation": 90
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 21,
+              "rotation": 90
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 21,
+              "rotation": 90
+            }
+          ],
+          "variants": [
+            {
+              "name": "bow_001_32x32",
+              "sheet": "farmer_bow_001_32x32_v00.png"
+            },
+            {
+              "name": "bow_002_32x32",
+              "sheet": "farmer_bow_002_32x32_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "arrow",
+          "sheet": "farmer_arrow_001_16x16_v00.png",
+          "cellW": 16,
+          "cellH": 16,
+          "gridCols": 5,
+          "behind": false,
+          "_note": "Bottom row (cells 0-4) = vertical-flying arrows for up/down. Top row (cells 5-9) = horizontal for side. Arrow advances away from player on frames 3-5.",
+          "frames": [
+            {
+              "cell": 7,
+              "mirror": false,
+              "ox": 26,
+              "oy": 34
+            },
+            {
+              "cell": 7,
+              "mirror": false,
+              "ox": 24,
+              "oy": 24
+            },
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 24,
+              "oy": 43
+            },
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 24,
+              "oy": 56
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "arrow_001_16x16",
+              "sheet": "farmer_arrow_001_16x16_v00.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "bow",
+          "sheet": "farmer_bow_001_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "_note": "Short bow (default) or long bow (alt). 4 cells: neutral / drawing / drawn / released.",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 4,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 16,
+              "oy": 1,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 2,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 2,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 2,
+              "rotation": 270,
+              "behind": true
+            }
+          ],
+          "variants": [
+            {
+              "name": "bow_001_32x32",
+              "sheet": "farmer_bow_001_32x32_v00.png"
+            },
+            {
+              "name": "bow_002_32x32",
+              "sheet": "farmer_bow_002_32x32_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "arrow",
+          "sheet": "farmer_arrow_001_16x16_v00.png",
+          "cellW": 16,
+          "cellH": 16,
+          "gridCols": 5,
+          "behind": false,
+          "_note": "Bottom row (cells 0-4) = vertical-flying arrows for up/down. Top row (cells 5-9) = horizontal for side. Arrow advances away from player on frames 3-5.",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 23,
+              "oy": 9,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 24,
+              "oy": 13,
+              "behind": true,
+              "rotation": 270
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 24,
+              "oy": 3,
+              "rotation": 270
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 24,
+              "oy": -9,
+              "rotation": 270
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "arrow_001_16x16",
+              "sheet": "farmer_arrow_001_16x16_v00.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "bow",
+          "sheet": "farmer_bow_001_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "_note": "Short bow (default) or long bow (alt). 4 cells: neutral / drawing / drawn / released.",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 37,
+              "oy": 13,
+              "behind": false
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 32,
+              "oy": 13
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 32,
+              "oy": 13
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 32,
+              "oy": 13
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 32,
+              "oy": 13
+            }
+          ],
+          "variants": [
+            {
+              "name": "bow_001_32x32",
+              "sheet": "farmer_bow_001_32x32_v00.png"
+            },
+            {
+              "name": "bow_002_32x32",
+              "sheet": "farmer_bow_002_32x32_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "arrow",
+          "sheet": "farmer_arrow_001_16x16_v00.png",
+          "cellW": 16,
+          "cellH": 16,
+          "gridCols": 5,
+          "behind": false,
+          "_note": "Bottom row (cells 0-4) = vertical-flying arrows for up/down. Top row (cells 5-9) = horizontal for side. Arrow advances away from player on frames 3-5.",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 44,
+              "oy": 22
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 33,
+              "oy": 21
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 49,
+              "oy": 21
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 56,
+              "oy": 21
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "arrow_001_16x16",
+              "sheet": "farmer_arrow_001_16x16_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "overhand_strike": {
+    "_explanation": "Overhead swing — used for striking down with weapons, mining with pickaxe, hoeing soil. Body holds a 4-frame strike: wind-up, mid-swing, impact, hold-impact.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": true,
+          "_note": "Default = pickaxe. Compatible with any 1hwpn weapon or farming tool. 7-cell tool layout assumption: 3 cells down, 1 cell up, 3 cells side (verify in editor — wrong = re-map).",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": -1,
+              "oy": 8
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 28,
+              "oy": -1
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 16,
+              "oy": 31
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 16,
+              "oy": 31
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 11,
+              "mirror": false,
+              "ox": 9,
+              "oy": -24,
+              "rotation": 270
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 6,
+              "oy": 24
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash2",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 1,
+              "mirror": true,
+              "ox": -6,
+              "oy": 24
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash3",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 12,
+              "mirror": true,
+              "ox": 11,
+              "oy": 1,
+              "rotation": 180
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": true,
+          "_note": "Default = pickaxe. Compatible with any 1hwpn weapon or farming tool. 7-cell tool layout assumption: 3 cells down, 1 cell up, 3 cells side (verify in editor — wrong = re-map).",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": true,
+              "ox": 29,
+              "oy": 6
+            },
+            {
+              "cell": 3,
+              "mirror": true,
+              "ox": 8,
+              "oy": -5
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 0
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": -1,
+              "oy": -27,
+              "rotation": 270
+            },
+            {
+              "cell": 14,
+              "mirror": true,
+              "ox": -5,
+              "oy": -21
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash2",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 7,
+              "oy": -13
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash3",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 2,
+              "mirror": true,
+              "ox": -7,
+              "oy": -14
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": true,
+          "_note": "Default = pickaxe. Compatible with any 1hwpn weapon or farming tool. 7-cell tool layout assumption: 3 cells down, 1 cell up, 3 cells side (verify in editor — wrong = re-map).",
+          "frames": [
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": -1,
+              "oy": 11
+            },
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 40,
+              "oy": -6
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 39,
+              "oy": 24
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 39,
+              "oy": 24
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 21,
+              "oy": -9,
+              "behind": true
+            },
+            null,
+            null
+          ],
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash2",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 12,
+              "mirror": false,
+              "ox": 18,
+              "oy": -11
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        },
+        {
+          "name": "slash3",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 30,
+              "oy": 11
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "forehand_strike": {
+    "_explanation": "Horizontal forward swing — chopping wood, slashing with sword. Same 4-frame body structure as overhand.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = wood axe. Compatible with any 1hwpn weapon or farming tool. Forehand layout may differ from overhand for tool sheets — verify per-frame in editor.",
+          "frames": [
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 25,
+              "oy": 0,
+              "rotation": 270
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 37,
+              "oy": 16,
+              "behind": true
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 18,
+              "oy": 36,
+              "rotation": 90
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 18,
+              "oy": 36,
+              "rotation": 90
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Slash arc on impact. Different arc style from overhand — pick a horizontal-arc cell.",
+          "frames": [
+            null,
+            {
+              "cell": 30,
+              "mirror": false,
+              "ox": 19,
+              "oy": -5
+            },
+            {
+              "cell": 25,
+              "mirror": false,
+              "ox": 13,
+              "oy": 11,
+              "rotation": 90
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = wood axe. Compatible with any 1hwpn weapon or farming tool. Forehand layout may differ from overhand for tool sheets — verify per-frame in editor.",
+          "frames": [
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": -3,
+              "oy": 26,
+              "behind": true
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0,
+              "rotation": 90,
+              "behind": true
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 16,
+              "oy": -13,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 16,
+              "oy": -13,
+              "rotation": 270,
+              "behind": true
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Slash arc on impact. Different arc style from overhand — pick a horizontal-arc cell.",
+          "frames": [
+            null,
+            {
+              "cell": 29,
+              "mirror": false,
+              "ox": -15,
+              "oy": -10,
+              "rotation": 180
+            },
+            {
+              "cell": 25,
+              "mirror": false,
+              "ox": -11,
+              "oy": -21,
+              "rotation": 270
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "weapon_or_tool",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = wood axe. Compatible with any 1hwpn weapon or farming tool. Forehand layout may differ from overhand for tool sheets — verify per-frame in editor.",
+          "frames": [
+            {
+              "cell": 5,
+              "mirror": true,
+              "ox": 4,
+              "oy": 3,
+              "behind": true
+            },
+            {
+              "cell": 5,
+              "mirror": true,
+              "ox": 4,
+              "oy": 30,
+              "rotation": 270,
+              "behind": true
+            },
+            {
+              "cell": 6,
+              "mirror": true,
+              "ox": 45,
+              "oy": 13,
+              "rotation": 180,
+              "behind": true
+            },
+            {
+              "cell": 6,
+              "mirror": true,
+              "ox": 45,
+              "oy": 13,
+              "rotation": 180,
+              "behind": true
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Slash arc on impact. Different arc style from overhand — pick a horizontal-arc cell.",
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 25,
+              "mirror": true,
+              "ox": 21,
+              "oy": 8,
+              "rotation": 180
+            },
+            null
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "backhand_strike": {
+    "_explanation": "Reverse swing — restricted to scythe (harvesting wheat) and bug net (catching bugs). NOT for combat weapons. Same 4-frame body structure.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "scythe_or_bugnet",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = farmer_tool_001 (likely hoe — VERIFY: which sheet is scythe? which is bug net? May need to be different sheets than the listed tools. Check the prop sheet farmer_props_32x32_v00.png for scythe/bugnet props.).",
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 16,
+              "oy": 8
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 16,
+              "oy": 24
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 16,
+              "oy": 24
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Backhand-direction slash arc. Probably reversed from forehand.",
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "scythe_or_bugnet",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = farmer_tool_001 (likely hoe — VERIFY: which sheet is scythe? which is bug net? May need to be different sheets than the listed tools. Check the prop sheet farmer_props_32x32_v00.png for scythe/bugnet props.).",
+          "frames": [
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Backhand-direction slash arc. Probably reversed from forehand.",
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 10,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 10,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "scythe_or_bugnet",
+          "sheet": "farmer_tool_001_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 7,
+          "behind": false,
+          "_note": "Default = farmer_tool_001 (likely hoe — VERIFY: which sheet is scythe? which is bug net? May need to be different sheets than the listed tools. Check the prop sheet farmer_props_32x32_v00.png for scythe/bugnet props.).",
+          "frames": [
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": 24,
+              "oy": 8
+            },
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 24,
+              "oy": 16
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 24,
+              "oy": 24
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 24,
+              "oy": 24
+            }
+          ],
+          "variants": [
+            {
+              "name": "tool_001",
+              "sheet": "farmer_tool_001_v00.png"
+            },
+            {
+              "name": "tool_002",
+              "sheet": "farmer_tool_002_v00.png"
+            },
+            {
+              "name": "tool_003",
+              "sheet": "farmer_tool_003_v00.png"
+            }
+          ]
+        },
+        {
+          "name": "slash",
+          "sheet": "farmer_slash_effects_64x64.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 8,
+          "behind": false,
+          "_note": "Backhand-direction slash arc. Probably reversed from forehand.",
+          "frames": [
+            null,
+            null,
+            {
+              "cell": 18,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 18,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "slash_effects_64x64",
+              "sheet": "farmer_slash_effects_64x64.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scythe_swing": {
+    "_explanation": "",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 0,
+              "oy": -1
+            },
+            {
+              "cell": 7,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            },
+            {
+              "cell": 8,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 9,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 11,
+              "mirror": false,
+              "ox": 0,
+              "oy": 1
+            },
+            {
+              "cell": 12,
+              "mirror": false,
+              "ox": 4,
+              "oy": -1
+            },
+            {
+              "cell": 13,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            },
+            {
+              "cell": 14,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "bugnet_swing": {
+    "_explanation": "",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 16,
+              "mirror": false,
+              "ox": 0,
+              "oy": 1
+            },
+            {
+              "cell": 17,
+              "mirror": false,
+              "ox": 2,
+              "oy": -4
+            },
+            {
+              "cell": 18,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            },
+            {
+              "cell": 19,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 21,
+              "mirror": false,
+              "ox": 0,
+              "oy": -1
+            },
+            {
+              "cell": 22,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 23,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 24,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_64x64_v00.png",
+          "cellW": 64,
+          "cellH": 64,
+          "gridCols": 5,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 26,
+              "mirror": false,
+              "ox": -1,
+              "oy": 1
+            },
+            {
+              "cell": 27,
+              "mirror": false,
+              "ox": 7,
+              "oy": -2
+            },
+            {
+              "cell": 28,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            },
+            {
+              "cell": 29,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            }
+          ],
+          "variants": [
+            {
+              "name": "animations_64x64",
+              "sheet": "farmer_animations_64x64_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "lute_guitar": {
+    "_explanation": "",
+    "tracksByDirection": {
+      "default": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_props_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            }
+          ],
+          "_note": "this uses frame 4. works also with frame 5 or 6 or 7. different guitars",
+          "variants": [
+            {
+              "name": "props_32x32",
+              "sheet": "farmer_props_32x32_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "flute_ocarina": {
+    "_explanation": "",
+    "tracksByDirection": {
+      "default": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_props_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 17,
+              "oy": 15
+            },
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 17,
+              "oy": 15
+            }
+          ],
+          "_note": "this uses frame 0. works also with frame 1 or 2 or 3. different flutes",
+          "variants": [
+            {
+              "name": "props_32x32",
+              "sheet": "farmer_props_32x32_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "drums": {
+    "_explanation": "",
+    "tracksByDirection": {
+      "default": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_props_32x32_v00.png",
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 8,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            },
+            {
+              "cell": 8,
+              "mirror": false,
+              "ox": 16,
+              "oy": 16
+            }
+          ],
+          "_note": "this uses frame 8. works also with frame 9 or 10 or 11. different drums.",
+          "variants": [
+            {
+              "name": "props_32x32",
+              "sheet": "farmer_props_32x32_v00.png"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "plant_seeds": {
+    "_explanation": "Tossing seeds. 4-col logical grid drawn from the leftmost portion of the 6-col sheet — the actual file is 192px wide (6×32) but the seed sprites occupy cols 1-3 of rows 0-2, which is the same pixel range under either gridCols interpretation.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 15,
+              "oy": 26
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 15,
+              "oy": 26
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 15,
+              "oy": 26
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 16,
+              "oy": 0
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": 16,
+              "oy": 0
+            },
+            {
+              "cell": 7,
+              "mirror": false,
+              "ox": 16,
+              "oy": -1
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 4,
+          "behind": false,
+          "frames": [
+            null,
+            {
+              "cell": 9,
+              "mirror": false,
+              "ox": 34,
+              "oy": 17
+            },
+            {
+              "cell": 10,
+              "mirror": false,
+              "ox": 34,
+              "oy": 17
+            },
+            {
+              "cell": 11,
+              "mirror": false,
+              "ox": 34,
+              "oy": 17
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "water": {
+    "_explanation": "Watering with a can. Down direction shows the can pouring; up/side cells aren't authored yet (frames are null).",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 6,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 19,
+              "mirror": false,
+              "ox": 22,
+              "oy": 21
+            },
+            {
+              "cell": 20,
+              "mirror": false,
+              "ox": 20,
+              "oy": 28
+            },
+            {
+              "cell": 21,
+              "mirror": false,
+              "ox": 20,
+              "oy": 28
+            },
+            {
+              "cell": 22,
+              "mirror": false,
+              "ox": 20,
+              "oy": 28
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 6,
+          "behind": true,
+          "frames": [
+            {
+              "cell": 25,
+              "mirror": false,
+              "ox": 10,
+              "oy": 13
+            },
+            {
+              "cell": 26,
+              "mirror": false,
+              "ox": 16,
+              "oy": 5
+            },
+            {
+              "cell": 27,
+              "mirror": false,
+              "ox": 16,
+              "oy": 5
+            },
+            {
+              "cell": 28,
+              "mirror": false,
+              "ox": 16,
+              "oy": 5
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "farmer_animations_32x32_v00.png",
+          "variants": [
+            {
+              "name": "animations_32x32",
+              "sheet": "farmer_animations_32x32_v00.png"
+            }
+          ],
+          "cellW": 32,
+          "cellH": 32,
+          "gridCols": 6,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 31,
+              "mirror": false,
+              "ox": 19,
+              "oy": 21
+            },
+            {
+              "cell": 32,
+              "mirror": false,
+              "ox": 36,
+              "oy": 16
+            },
+            {
+              "cell": 33,
+              "mirror": false,
+              "ox": 36,
+              "oy": 16
+            },
+            {
+              "cell": 34,
+              "mirror": false,
+              "ox": 36,
+              "oy": 16
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "cast_fishing_line": {
+    "_explanation": "Casting a fishing line. up/down use the (up, down) sheet (8×4 grid of 64×96 cells); side uses the (right, left) sheet (2×8 grid of 112×64 cells). Per-direction overrides route the sheet + cell dims at draw time.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": true,
+              "ox": -4,
+              "oy": -32,
+              "behind": true
+            },
+            {
+              "cell": 1,
+              "mirror": true,
+              "ox": -3,
+              "oy": -32,
+              "behind": true
+            },
+            {
+              "cell": 10,
+              "mirror": false,
+              "ox": -1,
+              "oy": 1
+            },
+            {
+              "cell": 11,
+              "mirror": false,
+              "ox": -1,
+              "oy": 2
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 0,
+              "oy": -31
+            },
+            {
+              "cell": 1,
+              "mirror": false,
+              "ox": 0,
+              "oy": -31
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": 0,
+              "oy": -31
+            },
+            {
+              "cell": 3,
+              "mirror": false,
+              "ox": 0,
+              "oy": -31
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_right_left_112x64_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_right_left_112x64_v00.png"
+            }
+          ],
+          "cellW": 112,
+          "cellH": 64,
+          "gridCols": 2,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 0,
+              "mirror": false,
+              "ox": 0,
+              "oy": 0
+            },
+            {
+              "cell": 2,
+              "mirror": false,
+              "ox": -1,
+              "oy": 1
+            },
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": -1,
+              "oy": 2
+            },
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": -1,
+              "oy": 2
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "got_a_bite": {
+    "_explanation": "Fish tugs the line. up/down use the (up, down) sheet; side uses the (right, left) sheet. Per-direction overrides route at draw time.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 12,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            },
+            {
+              "cell": 13,
+              "mirror": false,
+              "ox": 2,
+              "oy": 2
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 4,
+              "mirror": false,
+              "ox": 2,
+              "oy": -31,
+              "behind": true
+            },
+            {
+              "cell": 5,
+              "mirror": false,
+              "ox": 2,
+              "oy": -31,
+              "behind": true
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_right_left_112x64_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_right_left_112x64_v00.png"
+            }
+          ],
+          "cellW": 112,
+          "cellH": 64,
+          "gridCols": 2,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 8,
+              "mirror": false,
+              "ox": -3,
+              "oy": -1
+            },
+            {
+              "cell": 10,
+              "mirror": false,
+              "ox": 0,
+              "oy": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "got_it": {
+    "_explanation": "Reels in the catch. up/down use the (up, down) sheet; side uses the (right, left) sheet. Per-direction overrides route at draw time.",
+    "tracksByDirection": {
+      "down": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 14,
+              "mirror": false,
+              "ox": 0,
+              "oy": -2
+            },
+            {
+              "cell": 15,
+              "mirror": false,
+              "ox": -1,
+              "oy": 0
+            }
+          ]
+        }
+      ],
+      "up": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_up_down_64x96_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_up_down_64x96_v00.png"
+            }
+          ],
+          "cellW": 64,
+          "cellH": 96,
+          "gridCols": 8,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 6,
+              "mirror": false,
+              "ox": -1,
+              "oy": -34
+            },
+            {
+              "cell": 7,
+              "mirror": false,
+              "ox": -1,
+              "oy": -33
+            }
+          ]
+        }
+      ],
+      "side": [
+        {
+          "name": "track_1",
+          "sheet": "fishing_effects_right_left_112x64_v00.png",
+          "variants": [
+            {
+              "name": "fishing_right_left",
+              "sheet": "fishing_effects_right_left_112x64_v00.png"
+            }
+          ],
+          "cellW": 112,
+          "cellH": 64,
+          "gridCols": 2,
+          "behind": false,
+          "frames": [
+            {
+              "cell": 12,
+              "mirror": false,
+              "ox": 2,
+              "oy": 1,
+              "behind": true
+            },
+            {
+              "cell": 14,
+              "mirror": false,
+              "ox": -4,
+              "oy": 2,
+              "behind": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

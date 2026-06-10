@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d2240">
+<title>Krabsy – Verb Flow!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+  :root{
+    --hud-bg:rgba(13,30,56,0.82);
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e; --sky:#7fc4e8;
+    --white:#fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;background:#0d2240}
+  canvas{display:block;width:100vw;height:100svh;touch-action:none}
+
+  /* ── HUD ── */
+  #hud{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:50;background:var(--hud-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.07);color:var(--white);pointer-events:none}
+  #hud.hidden{display:none}
+  .hud-group{display:flex;align-items:center;gap:14px}
+  #hud-logo{font-family:'Fredoka One',cursive;font-size:17px;color:rgba(255,255,255,0.45)}
+  #hud-logo span{color:rgba(255,133,133,0.65)}
+  .hud-stat{text-align:center;line-height:1.1}
+  .hud-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4)}
+  .hud-value{font-family:'Fredoka One',cursive;font-size:19px}
+  #hud-score{color:var(--amber)} #hud-level{color:var(--teal)} #hud-best{color:rgba(255,255,255,0.55)}
+  .hud-btn{pointer-events:auto;font-size:17px;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .12s,background .12s;position:relative}
+  .hud-btn:active{transform:scale(0.9)}
+  .hud-btn:hover{background:rgba(255,255,255,0.14)}
+  .hud-btn .pip{position:absolute;bottom:-5px;right:-5px;font-family:'Fredoka One',cursive;font-size:10px;background:var(--amber);color:#0d2240;border-radius:10px;padding:1px 5px;line-height:1.2}
+  .hud-btn.muted{opacity:0.45}
+
+  /* ── Chain tracker ── */
+  #tracker{position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:49;background:rgba(8,20,42,0.85);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:30px;padding:6px 18px;display:flex;align-items:center;gap:8px;font-family:'Fredoka One',cursive;font-size:17px;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap}
+  #tracker.show{opacity:1}
+  .trk-base{color:var(--amber)} .trk-past{color:var(--teal)} .trk-pp{color:var(--coral)}
+  .trk-arrow{color:rgba(255,255,255,0.25);font-size:13px}
+  .trk-next{animation:trkPulse 0.9s ease-in-out infinite}
+  .trk-done{opacity:0.45;text-decoration:none}
+  @keyframes trkPulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+  /* ── Toast ── */
+  #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;background:rgba(8,20,42,0.92);border:1px solid rgba(255,133,133,0.4);color:#fff;border-radius:16px;padding:10px 20px;font-size:14px;font-weight:700;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;max-width:88vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast b{color:var(--amber)}
+  #toast.good{border-color:rgba(46,230,192,0.5)}
+
+  /* ── Overlay screens ── */
+  .screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,22,44,0.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:24px;text-align:center;gap:13px;overflow-y:auto}
+  .screen.hidden{display:none}
+  .screen-emoji{font-size:52px;line-height:1;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+  .screen-title{font-family:'Fredoka One',cursive;font-size:clamp(34px,8vw,54px);color:var(--white);line-height:1.05;text-shadow:0 4px 24px rgba(0,0,0,0.4)}
+  .screen-title span{color:var(--coral)}
+  .screen-sub{font-size:14px;color:rgba(255,255,255,0.65);max-width:400px;line-height:1.5}
+  .screen-stat{font-family:'Fredoka One',cursive;font-size:24px;color:var(--amber)}
+
+  .howto{display:flex;flex-direction:column;gap:8px;max-width:430px;width:100%}
+  .howto-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);padding:9px 14px;border-radius:14px;font-size:13px;color:rgba(255,255,255,0.85);text-align:left;line-height:1.4}
+  .howto-ico{font-size:22px;flex-shrink:0}
+  .howto-row b{color:var(--amber)}
+  .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
+  .legend-chip{padding:4px 13px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:13px;border:2px solid transparent;background:rgba(255,255,255,0.06)}
+  .lc-base{color:var(--amber);border-color:rgba(255,207,94,0.55)}
+  .lc-past{color:var(--teal);border-color:rgba(46,230,192,0.5)}
+  .lc-pp{color:var(--coral);border-color:rgba(255,133,133,0.5)}
+
+  .btn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 38px;border-radius:50px;border:none;cursor:pointer;letter-spacing:0.5px;transition:transform 0.15s;margin-top:4px;color:#fff}
+  .btn:active{transform:scale(0.94)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:linear-gradient(135deg,#ff7b6b,#e04848);box-shadow:0 6px 24px rgba(255,107,107,0.45)}
+  .btn-secondary{background:linear-gradient(135deg,#2ec4a0,#0d9c7c);box-shadow:0 4px 16px rgba(0,196,154,0.3);font-size:15px;padding:10px 28px}
+  .btn-ghost{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);font-size:13px;padding:8px 22px}
+  .logo-text{font-family:'Fredoka One',cursive;font-size:17px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:1px}
+  .logo-text em{font-style:normal;color:rgba(255,123,107,0.55)}
+
+  /* ── Win screen chain recap ── */
+  #win-chains{display:flex;flex-direction:column;gap:5px;max-width:380px;width:100%}
+  .chain-line{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:6px 14px;font-family:'Fredoka One',cursive;font-size:16px;animation:chainIn 0.4s cubic-bezier(.2,1.6,.4,1) both}
+  .chain-line .c-base{color:var(--amber)} .chain-line .c-past{color:var(--teal)} .chain-line .c-pp{color:var(--coral)}
+  .chain-line .c-arr{color:rgba(255,255,255,0.25);font-size:12px}
+  @keyframes chainIn{0%{transform:translateY(12px) scale(0.9);opacity:0}100%{transform:none;opacity:1}}
+  .perfect-badge{font-family:'Fredoka One',cursive;font-size:15px;color:#0a1c34;background:linear-gradient(135deg,#ffe27a,#ffb84d);padding:5px 18px;border-radius:30px;animation:pop 0.5s cubic-bezier(.2,2,.4,1);box-shadow:0 4px 18px rgba(255,207,94,0.4)}
+  @keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="hud-group">
+    <div id="hud-logo">Krab<span>sy</span></div>
+  </div>
+  <div class="hud-group">
+    <div class="hud-stat"><div class="hud-label">Level</div><div class="hud-value" id="hud-level">1</div></div>
+    <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="hud-label">Best</div><div class="hud-value" id="hud-best">0</div></div>
+  </div>
+  <div class="hud-group" style="gap:8px">
+    <button class="hud-btn" id="btn-hint" title="Hint">💡<span class="pip" id="hint-pip">3</span></button>
+    <button class="hud-btn" id="btn-clear" title="Clear board">⟲</button>
+    <button class="hud-btn" id="btn-sound" title="Sound">🔊</button>
+  </div>
+</div>
+
+<div id="tracker"></div>
+<div id="toast"></div>
+
+<div class="screen" id="start-screen">
+  <div class="screen-emoji">🦀</div>
+  <div class="screen-title">Verb <span>Flow!</span></div>
+  <div class="screen-sub">Connect each verb's three forms with one unbroken pipe — in the right order.</div>
+  <div class="howto">
+    <div class="howto-row"><div class="howto-ico">👆</div><div>Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
+    <div class="howto-row"><div class="howto-ico">🔗</div><div>Flow through its <b>simple past</b> first, then end at its <b>past participle</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico">🚫</div><div>Pipes can't cross — and other verbs' words block your way!</div></div>
+    <div class="howto-row"><div class="howto-ico">✨</div><div>Fill <b>every square</b> for a PERFECT bonus.</div></div>
+  </div>
+  <div class="legend">
+    <div class="legend-chip lc-base">go</div>
+    <div class="legend-chip lc-past">went</div>
+    <div class="legend-chip lc-pp">gone</div>
+  </div>
+  <button class="btn btn-primary" id="start-btn">Let it Flow! 🌊</button>
+  <button class="btn btn-ghost hidden" id="newgame-btn">Restart at Level 1</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<div class="screen hidden" id="win-screen">
+  <div class="screen-emoji" id="win-emoji">🎉</div>
+  <div class="screen-title" style="font-size:clamp(28px,6vw,42px)">Level <span id="win-level">1</span> Complete!</div>
+  <div class="perfect-badge hidden" id="perfect-badge">✨ PERFECT FLOW +100</div>
+  <div id="win-chains"></div>
+  <div class="screen-stat" id="win-score"></div>
+  <button class="btn btn-primary" id="next-btn">Next Level →</button>
+  <button class="btn btn-ghost" id="win-menu-btn">Menu</button>
+  <div class="logo-text">Krab<em>sy</em></div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// KRABSY VERB FLOW v1
+// Flow-puzzle: connect base → past → past participle
+// ════════════════════════════════════════
+
+// ── Verb pools (tiered by difficulty) ──
+const T1=[
+  {verb:"go",past:"went",pp:"gone"},{verb:"come",past:"came",pp:"come"},
+  {verb:"see",past:"saw",pp:"seen"},{verb:"eat",past:"ate",pp:"eaten"},
+  {verb:"drink",past:"drank",pp:"drunk"},{verb:"run",past:"ran",pp:"run"},
+  {verb:"take",past:"took",pp:"taken"},{verb:"give",past:"gave",pp:"given"},
+  {verb:"make",past:"made",pp:"made"},{verb:"get",past:"got",pp:"got"},
+  {verb:"say",past:"said",pp:"said"},{verb:"know",past:"knew",pp:"known"},
+  {verb:"think",past:"thought",pp:"thought"},{verb:"find",past:"found",pp:"found"},
+  {verb:"tell",past:"told",pp:"told"},{verb:"buy",past:"bought",pp:"bought"},
+  {verb:"write",past:"wrote",pp:"written"},{verb:"sing",past:"sang",pp:"sung"},
+  {verb:"swim",past:"swam",pp:"swum"},{verb:"do",past:"did",pp:"done"},
+];
+const T2=[
+  {verb:"speak",past:"spoke",pp:"spoken"},{verb:"break",past:"broke",pp:"broken"},
+  {verb:"choose",past:"chose",pp:"chosen"},{verb:"drive",past:"drove",pp:"driven"},
+  {verb:"fall",past:"fell",pp:"fallen"},{verb:"fly",past:"flew",pp:"flown"},
+  {verb:"grow",past:"grew",pp:"grown"},{verb:"throw",past:"threw",pp:"thrown"},
+  {verb:"wear",past:"wore",pp:"worn"},{verb:"ride",past:"rode",pp:"ridden"},
+  {verb:"draw",past:"drew",pp:"drawn"},{verb:"begin",past:"began",pp:"begun"},
+  {verb:"win",past:"won",pp:"won"},{verb:"lose",past:"lost",pp:"lost"},
+  {verb:"send",past:"sent",pp:"sent"},{verb:"sell",past:"sold",pp:"sold"},
+  {verb:"sit",past:"sat",pp:"sat"},{verb:"stand",past:"stood",pp:"stood"},
+  {verb:"sleep",past:"slept",pp:"slept"},{verb:"feel",past:"felt",pp:"felt"},
+];
+const T3=[
+  {verb:"catch",past:"caught",pp:"caught"},{verb:"teach",past:"taught",pp:"taught"},
+  {verb:"fight",past:"fought",pp:"fought"},{verb:"hold",past:"held",pp:"held"},
+  {verb:"hide",past:"hid",pp:"hidden"},{verb:"bite",past:"bit",pp:"bitten"},
+  {verb:"blow",past:"blew",pp:"blown"},{verb:"freeze",past:"froze",pp:"frozen"},
+  {verb:"steal",past:"stole",pp:"stolen"},{verb:"shake",past:"shook",pp:"shaken"},
+  {verb:"rise",past:"rose",pp:"risen"},{verb:"forget",past:"forgot",pp:"forgotten"},
+  {verb:"wake",past:"woke",pp:"woken"},{verb:"build",past:"built",pp:"built"},
+  {verb:"hear",past:"heard",pp:"heard"},{verb:"pay",past:"paid",pp:"paid"},
+  {verb:"meet",past:"met",pp:"met"},{verb:"leave",past:"left",pp:"left"},
+];
+const TIERS={1:T1,2:T2,3:T3};
+
+// Pipe colors — distinct hues, never used for form coding (form colors
+// are amber/teal/coral and stay reserved for chip borders/text).
+const PIPE_COLORS=['#4da3ff','#b78cff','#7ce47c','#ffa94d','#ff7bc1','#3fd6e0','#f5e663','#e8e8e8'];
+const FORM_COLOR={base:'#ffcf5e',past:'#2ee6c0',pp:'#ff8585'};
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+
+// ════════════════════════════════════════
+// GENERATION
+// Hand-authored feel from guaranteed structure: a random Hamiltonian
+// path (backbite algorithm) is cut into one snake per verb, so a
+// full-coverage, non-crossing solution always exists.
+// ════════════════════════════════════════
+// [VF-GEN-BEGIN]
+function vfHamiltonianPath(n){
+  // Serpentine start, then randomize with backbite moves.
+  let path=[];
+  for(let r=0;r<n;r++){
+    if(r%2===0){for(let c=0;c<n;c++)path.push(r*n+c);}
+    else{for(let c=n-1;c>=0;c--)path.push(r*n+c);}
+  }
+  const L=path.length;
+  const pos=new Array(L);
+  for(let i=0;i<L;i++)pos[path[i]]=i;
+  const iters=4000+L*60;
+  for(let it=0;it<iters;it++){
+    if(Math.random()<0.5){
+      path.reverse();
+      for(let i=0;i<L;i++)pos[path[i]]=i;
+    }
+    const e=path[L-1], er=(e/n)|0, ec=e%n;
+    const nb=[];
+    if(er>0)nb.push(e-n); if(er<n-1)nb.push(e+n);
+    if(ec>0)nb.push(e-1); if(ec<n-1)nb.push(e+1);
+    const cand=nb.filter(x=>pos[x]<L-2);
+    if(!cand.length)continue;
+    const x=cand[(Math.random()*cand.length)|0];
+    let a=pos[x]+1, b=L-1;
+    while(a<b){
+      const t=path[a];path[a]=path[b];path[b]=t;
+      pos[path[a]]=a;pos[path[b]]=b;
+      a++;b--;
+    }
+  }
+  return path;
+}
+
+function vfCutLens(L,k,minLen){
+  const lens=new Array(k).fill(minLen);
+  let extra=L-k*minLen;
+  const cap=Math.ceil(L/k)+3;
+  let guard=L*6;
+  while(extra>0&&guard-->0){
+    const i=(Math.random()*k)|0;
+    if(lens[i]<cap){lens[i]++;extra--;}
+  }
+  while(extra>0){lens[(Math.random()*k)|0]++;extra--;}
+  return lens;
+}
+
+// Build a board: n×n grid, one solution snake per verb. Returns null on
+// the (rare) bad cut so the caller can retry.
+function vfGenerateBoard(n,verbList){
+  const k=verbList.length;
+  const minLen=n>=7?5:4;
+  if(n*n<k*minLen)return null;
+  const ham=vfHamiltonianPath(n);
+  const lens=vfCutLens(n*n,k,minLen);
+  const verbs=[];const chips={};
+  let off=0;
+  for(let i=0;i<k;i++){
+    const seg=ham.slice(off,off+lens[i]);off+=lens[i];
+    if(seg.length<3)return null;
+    // base at one random end, pp at the other, past strictly interior
+    if(Math.random()<0.5)seg.reverse();
+    const baseIdx=seg[0], ppIdx=seg[seg.length-1];
+    const pastIdx=seg[1+((Math.random()*(seg.length-2))|0)];
+    const v={...verbList[i],color:PIPE_COLORS[i%PIPE_COLORS.length],
+      baseIdx,pastIdx,ppIdx,solution:seg};
+    verbs.push(v);
+    chips[baseIdx]={v:i,form:'base',text:v.verb};
+    chips[pastIdx]={v:i,form:'past',text:v.past};
+    chips[ppIdx]={v:i,form:'pp',text:v.pp};
+  }
+  return {n,verbs,chips};
+}
+
+// Sample verbs for a level: no repeats within a session until the pool
+// is exhausted, and never two verbs sharing a visible word form.
+function vfSampleVerbs(count,tiers,usedSet){
+  let pool=[];
+  for(const t of tiers)pool=pool.concat(TIERS[t]);
+  const fresh=pool.filter(v=>!usedSet.has(v.verb));
+  const src=fresh.length>=count?fresh:pool;
+  if(fresh.length<count)usedSet.clear();
+  const shuffled=[...src];
+  for(let i=shuffled.length-1;i>0;i--){
+    const j=(Math.random()*(i+1))|0;
+    [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+  }
+  const picked=[];const words=new Set();
+  for(const v of shuffled){
+    const w=[v.verb,v.past,v.pp];
+    if(w.some(x=>words.has(x)))continue;
+    picked.push(v);w.forEach(x=>words.add(x));
+    if(picked.length===count)break;
+  }
+  if(picked.length<count)return null;
+  picked.forEach(v=>usedSet.add(v.verb));
+  return picked;
+}
+// [VF-GEN-END]
+
+function levelCfg(lv){
+  if(lv<=2) return{n:5,verbs:3,tiers:[1]};
+  if(lv<=4) return{n:6,verbs:4,tiers:[1]};
+  if(lv<=6) return{n:6,verbs:4,tiers:[1,2]};
+  if(lv<=8) return{n:7,verbs:5,tiers:[1,2]};
+  if(lv<=10)return{n:7,verbs:5,tiers:[2,3]};
+  return {n:8,verbs:6,tiers:[1,2,3]};
+}
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+const G={
+  running:false,
+  level:parseInt(localStorage.getItem('krabsy_vflow_level')||'1'),
+  score:0,
+  best:parseInt(localStorage.getItem('krabsy_vflow_best')||'0'),
+  sound:localStorage.getItem('krabsy_vflow_sound')!=='off',
+  board:null,        // {n, verbs, chips}
+  pipes:[],          // per verb: array of cell indices, always starts at baseIdx
+  active:-1,         // verb index currently being drawn
+  hints:3,
+  ghost:null, ghostUntil:0,
+  usedVerbs:new Set(),
+  won:false,
+  particles:[], confetti:[],
+  frame:0,
+};
+let LY={};            // layout geometry
+
+// ════════════════════════════════════════
+// LAYOUT / RESIZE
+// ════════════════════════════════════════
+function computeLayout(){
+  const hudH=56, pad=14, trackerH=46;
+  const availW=W-pad*2;
+  const availH=H-hudH-trackerH-pad*2-10;
+  const n=G.board?G.board.n:5;
+  const size=Math.min(availW,availH);
+  const cell=Math.floor(size/n);
+  const bs=cell*n;
+  LY={hudH,cell,bs,
+    x:(W-bs)/2,
+    y:hudH+trackerH+((availH-bs)/2)+pad,
+  };
+}
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  computeLayout();
+}
+window.addEventListener('resize',resize);
+resize();
+
+function cellAt(px,py){
+  const c=Math.floor((px-LY.x)/LY.cell), r=Math.floor((py-LY.y)/LY.cell);
+  const n=G.board.n;
+  if(r<0||c<0||r>=n||c>=n)return -1;
+  return r*n+c;
+}
+function cellCenter(idx){
+  const n=G.board.n;
+  return{x:LY.x+(idx%n)*LY.cell+LY.cell/2, y:LY.y+((idx/n)|0)*LY.cell+LY.cell/2};
+}
+function adjacent(a,b){
+  const n=G.board.n;
+  const ar=(a/n)|0,ac=a%n,br=(b/n)|0,bc=b%n;
+  return Math.abs(ar-br)+Math.abs(ac-bc)===1;
+}
+
+// ════════════════════════════════════════
+// GAME LOGIC
+// ════════════════════════════════════════
+function newLevel(){
+  const cfg=levelCfg(G.level);
+  let board=null,tries=0;
+  while(!board&&tries++<30){
+    const verbs=vfSampleVerbs(cfg.verbs,cfg.tiers,G.usedVerbs);
+    if(!verbs)continue;
+    board=vfGenerateBoard(cfg.n,verbs);
+  }
+  if(!board){console.error('verb-flow: board generation failed');return;}
+  G.board=board;
+  G.pipes=board.verbs.map(v=>[v.baseIdx]);
+  G.active=-1;G.won=false;G.hints=3;
+  G.ghost=null;G.particles=[];G.confetti=[];
+  computeLayout();
+  updateHUD();hideTracker();
+}
+
+function chipAt(idx){return G.board.chips[idx]||null;}
+function occVerbAt(idx){
+  for(let v=0;v<G.pipes.length;v++){
+    if(G.pipes[v].includes(idx))return v;
+  }
+  return -1;
+}
+function pipeComplete(v){
+  const p=G.pipes[v];
+  return p[p.length-1]===G.board.verbs[v].ppIdx;
+}
+function pipeHasPast(v){
+  return G.pipes[v].includes(G.board.verbs[v].pastIdx);
+}
+
+let lastToast=0;
+function toast(msg,good){
+  const now=performance.now();
+  if(now-lastToast<1200)return;
+  lastToast=now;
+  const el=document.getElementById('toast');
+  el.innerHTML=msg;
+  el.classList.toggle('good',!!good);
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2100);
+}
+
+function showTracker(v){
+  const el=document.getElementById('tracker');
+  const vb=G.board.verbs[v];
+  const hasPast=pipeHasPast(v), done=pipeComplete(v);
+  const cls=(c,active)=>`trk-${c}${active?' trk-next':''}${done?' trk-done':''}`;
+  el.innerHTML=
+    `<span class="trk-base">${vb.verb}</span><span class="trk-arrow">→</span>`+
+    `<span class="${cls('past',!hasPast&&!done)}">${vb.past}</span><span class="trk-arrow">→</span>`+
+    `<span class="${cls('pp',hasPast&&!done)}">${vb.pp}</span>`+
+    (done?'<span style="margin-left:6px">✓</span>':'');
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function hideTracker(){document.getElementById('tracker').classList.remove('show');}
+
+// One step of pipe extension. Returns true if the pipe changed.
+function tryStep(v,to){
+  const p=G.pipes[v];
+  const vb=G.board.verbs[v];
+  const end=p[p.length-1];
+  if(to===end)return false;
+  if(pipeComplete(v))return false;
+  if(!adjacent(to,end))return false;
+
+  // Rewind onto our own earlier cell
+  const own=p.indexOf(to);
+  if(own>=0){p.length=own+1;showTracker(v);return true;}
+
+  const chip=chipAt(to);
+  if(chip){
+    if(chip.v!==v){
+      const other=G.board.verbs[chip.v];
+      toast(`<b>${chip.text}</b> belongs to <b>${other.verb}</b> — words block your pipe!`);
+      sfx('err');
+      return false;
+    }
+    if(to===vb.baseIdx)return false;
+    if(to===vb.ppIdx&&!pipeHasPast(v)){
+      toast(`Simple past first: <b>${vb.verb} → ${vb.past} → ${vb.pp}</b>`);
+      sfx('err');
+      return false;
+    }
+    p.push(to);
+    if(to===vb.ppIdx){chainDone(v);}
+    else{sfx('past');showTracker(v);}
+    return true;
+  }
+
+  // Empty cell or another pipe's cell (cut it free, Flow-style)
+  const o=occVerbAt(to);
+  if(o>=0&&o!==v){
+    const op=G.pipes[o];
+    op.length=op.indexOf(to);   // chip cells never reach here, so index ≥ 1
+  }
+  p.push(to);
+  sfx('pop');
+  return true;
+}
+
+function chainDone(v){
+  const vb=G.board.verbs[v];
+  G.score+=50;
+  sfx('chain');
+  showTracker(v);
+  const c=cellCenter(vb.ppIdx);
+  spawnBurst(c.x,c.y,vb.color);
+  updateHUD();
+  if(G.board.verbs.every((_,i)=>pipeComplete(i))){
+    G.active=-1;
+    setTimeout(winLevel,550);
+  }
+}
+
+function coverage(){
+  const covered=new Set();
+  G.pipes.forEach(p=>p.forEach(i=>covered.add(i)));
+  return covered.size/(G.board.n*G.board.n);
+}
+
+function winLevel(){
+  if(G.won)return;
+  G.won=true;G.running=false;
+  const perfect=coverage()>=1;
+  if(perfect){
+    G.score+=100;
+    spawnConfetti();
+  }
+  if(G.score>G.best){G.best=G.score;localStorage.setItem('krabsy_vflow_best',G.best);}
+  localStorage.setItem('krabsy_vflow_level',G.level+1);
+  updateHUD();
+  sfx(perfect?'fanfare':'win');
+
+  document.getElementById('win-level').textContent=G.level;
+  document.getElementById('perfect-badge').classList.toggle('hidden',!perfect);
+  document.getElementById('win-emoji').textContent=perfect?'🌟':'🎉';
+  document.getElementById('win-score').textContent=`Score: ${G.score}`;
+  const wc=document.getElementById('win-chains');
+  wc.innerHTML='';
+  G.board.verbs.forEach((vb,i)=>{
+    const d=document.createElement('div');
+    d.className='chain-line';
+    d.style.animationDelay=`${i*0.08}s`;
+    d.innerHTML=`<span class="c-base">${vb.verb}</span><span class="c-arr">→</span>`+
+      `<span class="c-past">${vb.past}</span><span class="c-arr">→</span>`+
+      `<span class="c-pp">${vb.pp}</span>`;
+    wc.appendChild(d);
+  });
+  setTimeout(()=>{
+    document.getElementById('win-screen').classList.remove('hidden');
+  },perfect?900:350);
+}
+
+function useHint(){
+  if(!G.running||G.hints<=0)return;
+  const v=G.board.verbs.findIndex((_,i)=>!pipeComplete(i));
+  if(v<0)return;
+  G.hints--;G.score=Math.max(0,G.score-30);
+  G.ghost=G.board.verbs[v].solution;
+  G.ghostUntil=performance.now()+2500;
+  updateHUD();
+  sfx('past');
+  showTracker(v);
+}
+
+function clearBoard(){
+  if(!G.running)return;
+  G.pipes=G.board.verbs.map(v=>[v.baseIdx]);
+  G.active=-1;
+  sfx('err');
+}
+
+// ════════════════════════════════════════
+// INPUT
+// ════════════════════════════════════════
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  return{x:e.clientX-r.left,y:e.clientY-r.top};
+}
+
+function onDown(e){
+  if(!G.running)return;
+  e.preventDefault();
+  audioInit();
+  const pos=getPos(e);
+  const idx=cellAt(pos.x,pos.y);
+  if(idx<0)return;
+  const chip=chipAt(idx);
+  if(chip){
+    const v=chip.v;
+    const vb=G.board.verbs[v];
+    if(idx===vb.baseIdx){
+      G.pipes[v]=[idx];G.active=v;
+      sfx('pop');showTracker(v);
+    }else{
+      const p=G.pipes[v];
+      const i=p.indexOf(idx);
+      if(i>=0){p.length=i+1;G.active=v;showTracker(v);}
+      else{
+        toast(`Start at the base form: <b>${vb.verb}</b>`);
+        sfx('err');
+      }
+    }
+  }else{
+    const o=occVerbAt(idx);
+    if(o>=0){
+      const p=G.pipes[o];
+      p.length=p.indexOf(idx)+1;
+      G.active=o;showTracker(o);
+    }
+  }
+}
+
+function onMove(e){
+  if(!G.running||G.active<0)return;
+  e.preventDefault();
+  const pos=getPos(e);
+  const target=cellAt(pos.x,pos.y);
+  if(target<0)return;
+  const v=G.active;
+  const n=G.board.n;
+  // Walk one cell at a time toward the pointer (handles fast drags).
+  let guard=n*3;
+  while(guard-->0){
+    const p=G.pipes[v];
+    const end=p[p.length-1];
+    if(end===target)break;
+    const er=(end/n)|0,ec=end%n,tr=(target/n)|0,tc=target%n;
+    const dr=Math.sign(tr-er),dc=Math.sign(tc-ec);
+    // try the dominant axis first
+    const tryOrder=Math.abs(tr-er)>=Math.abs(tc-ec)
+      ?[end+dr*n,end+dc]:[end+dc,end+dr*n];
+    let moved=false;
+    for(const next of tryOrder){
+      if(next===end)continue;
+      const nr=(next/n)|0;
+      if(next<0||next>=n*n)continue;
+      // guard against wrapping across rows when stepping horizontally
+      if(Math.abs(next-end)===1&&nr!==er)continue;
+      if(tryStep(v,next)){moved=true;break;}
+    }
+    if(!moved)break;
+  }
+}
+
+function onUp(){
+  if(G.active>=0&&!pipeComplete(G.active))hideTrackerSoon();
+  G.active=-1;
+}
+function hideTrackerSoon(){
+  const el=document.getElementById('tracker');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),1200);
+}
+
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);onDown(e);});
+canvas.addEventListener('pointermove',onMove);
+canvas.addEventListener('pointerup',onUp);
+canvas.addEventListener('pointercancel',onUp);
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('touchmove',e=>{if(G.running)e.preventDefault();},{passive:false});
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function fitText(text,maxW,baseSize){
+  let size=baseSize;
+  ctx.font=`900 ${size}px "Fredoka One",cursive`;
+  let w=ctx.measureText(text).width;
+  if(w>maxW){size=Math.max(8,size*maxW/w);}
+  return size;
+}
+
+function drawBoard(){
+  // bg
+  ctx.fillStyle='#0d2240';
+  ctx.fillRect(0,0,W,H);
+  if(!G.board)return;
+  const n=G.board.n,cell=LY.cell;
+
+  // soft vignette behind the board
+  const grd=ctx.createRadialGradient(W/2,LY.y+LY.bs/2,LY.bs*0.2,W/2,LY.y+LY.bs/2,LY.bs*0.95);
+  grd.addColorStop(0,'rgba(40,80,140,0.18)');
+  grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,W,H);
+
+  // cells
+  for(let i=0;i<n*n;i++){
+    const x=LY.x+(i%n)*cell, y=LY.y+((i/n)|0)*cell;
+    ctx.fillStyle='rgba(255,255,255,0.035)';
+    ctx.beginPath();ctx.roundRect(x+2,y+2,cell-4,cell-4,Math.min(10,cell*0.18));ctx.fill();
+  }
+
+  // ghost hint
+  if(G.ghost&&performance.now()<G.ghostUntil){
+    ctx.save();
+    ctx.strokeStyle='rgba(255,255,255,0.4)';
+    ctx.lineWidth=cell*0.16;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.setLineDash([cell*0.3,cell*0.28]);
+    ctx.lineDashOffset=-G.frame*0.8;
+    ctx.beginPath();
+    G.ghost.forEach((idx,i)=>{
+      const c=cellCenter(idx);
+      if(i===0)ctx.moveTo(c.x,c.y);else ctx.lineTo(c.x,c.y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  }else G.ghost=null;
+
+  // pipes
+  for(let v=0;v<G.pipes.length;v++){
+    const p=G.pipes[v];
+    if(p.length<2)continue;
+    const vb=G.board.verbs[v];
+    const done=pipeComplete(v);
+    ctx.save();
+    ctx.strokeStyle=vb.color;
+    ctx.globalAlpha=done?0.95:0.8;
+    ctx.lineWidth=cell*0.34;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    if(done){ctx.shadowColor=vb.color;ctx.shadowBlur=12;}
+    ctx.beginPath();
+    p.forEach((idx,i)=>{
+      const c=cellCenter(idx);
+      if(i===0)ctx.moveTo(c.x,c.y);else ctx.lineTo(c.x,c.y);
+    });
+    ctx.stroke();
+    ctx.restore();
+    // head pulse while drawing
+    if(G.active===v&&!done){
+      const c=cellCenter(p[p.length-1]);
+      const pulse=Math.sin(G.frame*0.18)*0.5+0.5;
+      ctx.strokeStyle=vb.color;
+      ctx.globalAlpha=0.5+pulse*0.4;
+      ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.arc(c.x,c.y,cell*0.3+pulse*3,0,Math.PI*2);ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+  }
+
+  // chips
+  for(const idxStr in G.board.chips){
+    const idx=+idxStr;
+    const chip=G.board.chips[idx];
+    const vb=G.board.verbs[chip.v];
+    const inPipe=G.pipes[chip.v].includes(idx);
+    const done=pipeComplete(chip.v);
+    const c=cellCenter(idx);
+    const wch=cell*0.92, hch=cell*0.66;
+    const fc=FORM_COLOR[chip.form];
+
+    ctx.save();
+    // chip body
+    ctx.fillStyle=inPipe?vb.color:'rgba(10,25,50,0.92)';
+    if(inPipe)ctx.globalAlpha=0.97;
+    ctx.beginPath();ctx.roundRect(c.x-wch/2,c.y-hch/2,wch,hch,hch*0.34);ctx.fill();
+    ctx.globalAlpha=1;
+    // border
+    ctx.strokeStyle=fc;
+    ctx.lineWidth=done&&inPipe?3:2.2;
+    if(done&&inPipe){ctx.shadowColor=fc;ctx.shadowBlur=10;}
+    ctx.beginPath();ctx.roundRect(c.x-wch/2,c.y-hch/2,wch,hch,hch*0.34);ctx.stroke();
+    ctx.shadowBlur=0;
+    // word
+    const size=fitText(chip.text,wch*0.84,cell*0.3);
+    ctx.font=`900 ${size}px "Fredoka One",cursive`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=inPipe?'#0a1c34':fc;
+    ctx.fillText(chip.text,c.x,c.y+1);
+    ctx.restore();
+  }
+}
+
+// ── Particles ──
+function spawnBurst(x,y,color){
+  for(let i=0;i<26;i++){
+    const a=Math.random()*Math.PI*2, s=1.5+Math.random()*3.5;
+    G.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,age:0,max:38+Math.random()*22,color,r:1.5+Math.random()*2.5});
+  }
+}
+function spawnConfetti(){
+  const colors=[...PIPE_COLORS,'#ffcf5e','#2ee6c0','#ff8585'];
+  for(let i=0;i<90;i++){
+    G.confetti.push({
+      x:Math.random()*W,y:-20-Math.random()*H*0.4,
+      vx:(Math.random()-0.5)*1.4,vy:1.6+Math.random()*2.4,
+      rot:Math.random()*Math.PI*2,vr:(Math.random()-0.5)*0.25,
+      w:5+Math.random()*5,h:3+Math.random()*4,
+      color:colors[(Math.random()*colors.length)|0],age:0,max:160,
+    });
+  }
+}
+function drawParticles(){
+  G.particles=G.particles.filter(p=>p.age<p.max);
+  for(const p of G.particles){
+    p.age++;p.x+=p.vx;p.y+=p.vy;p.vy+=0.07;p.vx*=0.98;
+    ctx.globalAlpha=1-p.age/p.max;
+    ctx.fillStyle=p.color;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+  }
+  G.confetti=G.confetti.filter(p=>p.age<p.max);
+  for(const p of G.confetti){
+    p.age++;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+    ctx.save();
+    ctx.globalAlpha=Math.min(1,(p.max-p.age)/40);
+    ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    ctx.restore();
+  }
+  ctx.globalAlpha=1;
+}
+
+function gameLoop(){
+  G.frame++;
+  drawBoard();
+  drawParticles();
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+// ════════════════════════════════════════
+// AUDIO — tiny WebAudio synth, no files
+// ════════════════════════════════════════
+let AC=null;
+function audioInit(){
+  if(!AC){
+    try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(_){}
+  }
+  if(AC&&AC.state==='suspended')AC.resume();
+}
+function tone(freq,dur,type,gain,when){
+  if(!AC||!G.sound)return;
+  const t=AC.currentTime+(when||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(gain||0.12,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(t);o.stop(t+dur+0.02);
+}
+let lastPop=0;
+function sfx(kind){
+  if(!AC||!G.sound)return;
+  switch(kind){
+    case 'pop':{
+      const now=performance.now();
+      if(now-lastPop<70)return;
+      lastPop=now;
+      tone(620+Math.random()*60,0.05,'sine',0.05);
+      break;
+    }
+    case 'past': tone(740,0.1,'sine',0.1);tone(932,0.12,'sine',0.08,0.07);break;
+    case 'chain': tone(523,0.1,'sine',0.12);tone(659,0.1,'sine',0.12,0.08);tone(784,0.18,'sine',0.12,0.16);break;
+    case 'err': tone(150,0.12,'square',0.06);break;
+    case 'win': tone(523,0.12,'sine',0.12);tone(659,0.12,'sine',0.12,0.1);tone(784,0.12,'sine',0.12,0.2);tone(1047,0.28,'sine',0.12,0.3);break;
+    case 'fanfare':
+      [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,0.16,'sine',0.11,i*0.09));
+      break;
+  }
+}
+
+// ════════════════════════════════════════
+// HUD / SCREENS / BOOT
+// ════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('hud-score').textContent=G.score;
+  document.getElementById('hud-level').textContent=G.level;
+  document.getElementById('hud-best').textContent=G.best;
+  document.getElementById('hint-pip').textContent=G.hints;
+  document.getElementById('btn-hint').style.opacity=G.hints>0?'1':'0.4';
+  document.getElementById('btn-sound').textContent=G.sound?'🔊':'🔇';
+  document.getElementById('btn-sound').classList.toggle('muted',!G.sound);
+}
+
+function startGame(){
+  audioInit();
+  newLevel();
+  G.running=true;
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('win-screen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+}
+
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('newgame-btn').addEventListener('click',()=>{
+  G.level=1;G.score=0;
+  localStorage.setItem('krabsy_vflow_level','1');
+  startGame();
+});
+document.getElementById('next-btn').addEventListener('click',()=>{
+  G.level++;
+  startGame();
+});
+document.getElementById('win-menu-btn').addEventListener('click',()=>{
+  document.getElementById('win-screen').classList.add('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  showStartScreen();
+});
+document.getElementById('btn-hint').addEventListener('click',useHint);
+document.getElementById('btn-clear').addEventListener('click',clearBoard);
+document.getElementById('btn-sound').addEventListener('click',()=>{
+  G.sound=!G.sound;
+  localStorage.setItem('krabsy_vflow_sound',G.sound?'on':'off');
+  audioInit();updateHUD();
+  if(G.sound)sfx('past');
+});
+
+function showStartScreen(){
+  const saved=parseInt(localStorage.getItem('krabsy_vflow_level')||'1');
+  G.level=saved;G.score=0;
+  document.getElementById('start-btn').textContent=
+    saved>1?`Continue – Level ${saved} 🌊`:'Let it Flow! 🌊';
+  document.getElementById('newgame-btn').classList.toggle('hidden',saved<=1);
+  document.getElementById('start-screen').classList.remove('hidden');
+}
+showStartScreen();
+updateHUD();
+
+// ── Debug/QA hook (harmless in production) ──
+window.__VF={
+  get G(){return G;},
+  get LY(){return LY;},
+  cellCenter,tryStep,
+  newLevel(lv){if(lv)G.level=lv;startGame();},
+  solve(v){
+    const vb=G.board.verbs[v];
+    G.pipes[v]=[...vb.solution];
+    if(G.board.verbs.every((_,i)=>pipeComplete(i)))winLevel();
+  },
+  solveAll(){G.board.verbs.forEach((_,i)=>this.solve(i));},
+};
+</script>
+</body>
+</html>

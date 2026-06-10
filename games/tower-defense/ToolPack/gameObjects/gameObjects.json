@@ -1,0 +1,722 @@
+{
+  "count": 21,
+  "categories": [
+    "Fruit Icons"
+  ],
+  "items": [
+    {
+      "name": "Apple Red",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/Apple_Red/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "Apple Yellow",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/Apple_Yellow/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/Orange/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "Pear",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/Pear/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "Plum",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/Plum/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "aubergine",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/aubergine/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "beetroot",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/beetroot/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "bellpepper orange",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/bellpepper_orange/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "bellpepper red",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/bellpepper_red/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "bellpepper yellow",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/bellpepper_yellow/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "blueberry",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/blueberry/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "carrot",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/carrot/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "chili red",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/chili_red/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "corn",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/corn/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "grapes red",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/grapes_red/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "potato",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/potato/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "pumpkin",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/pumpkin/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "radish",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/radish/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "strawberry",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/strawberry/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "tomato",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/tomato/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "name": "watermelon",
+      "category": "Fruit Icons",
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "cellCollision": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "interactions": [],
+      "lifecycle": {
+        "advanceOn": "never",
+        "onHarvest": "remove",
+        "multiHarvest": false
+      },
+      "states": [
+        {
+          "id": "default",
+          "label": "Default",
+          "harvestable": false,
+          "image": "gameObjects/watermelon/default.png",
+          "width": 16,
+          "height": 16
+        }
+      ]
+    }
+  ]
+}

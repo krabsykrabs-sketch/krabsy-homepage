@@ -1,0 +1,8 @@
+# Large binary asset packs — not tracked. Level JSON files ARE tracked (exception chain below:
+# git can't re-include files inside an ignored directory, so un-ignore each path level).
+Kenney/
+_builds/
+assets/*
+!assets/levels/
+assets/levels/*
+!assets/levels/*.json

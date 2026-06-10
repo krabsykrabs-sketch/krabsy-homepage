@@ -1,0 +1,250 @@
+{
+  "id": "untitled-level",
+  "name": "Untitled Level",
+  "topic": "irregular_verbs",
+  "spawn": {
+    "id": "spawn_1",
+    "position": [
+      0,
+      1,
+      0
+    ]
+  },
+  "objects": [
+    {
+      "id": "platform_1",
+      "type": "platform_2x2x1",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_2",
+      "type": "platform_2x2x1",
+      "position": [
+        -4,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_3",
+      "type": "platform_2x2x1",
+      "position": [
+        -8,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_4",
+      "type": "platform_2x2x1",
+      "position": [
+        -8,
+        1,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_6",
+      "type": "platform_2x2x1",
+      "position": [
+        -12,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_7",
+      "type": "platform_2x2x1",
+      "position": [
+        -12,
+        1,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_8",
+      "type": "platform_2x2x1",
+      "position": [
+        -12,
+        2,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_9",
+      "type": "platform_2x2x4",
+      "position": [
+        -16,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_10",
+      "type": "platform_slope_2x4x4",
+      "position": [
+        -19,
+        0,
+        0
+      ],
+      "rotation": 270,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_11",
+      "type": "platform_slope_6x4x4",
+      "position": [
+        -25,
+        0,
+        0
+      ],
+      "rotation": 90,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_12",
+      "type": "platform_2x2x1",
+      "position": [
+        -28,
+        3,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_13",
+      "type": "platform_2x2x1",
+      "position": [
+        -30,
+        3,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_14",
+      "type": "platform_4x4x4",
+      "position": [
+        -33,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_15",
+      "type": "platform_hole_6x6x1",
+      "position": [
+        -38,
+        3,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_24",
+      "type": "platform_1x1x1",
+      "position": [
+        -43.5,
+        3,
+        1.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_25",
+      "type": "platform_1x1x1",
+      "position": [
+        -43.5,
+        3,
+        -0.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_26",
+      "type": "platform_1x1x1",
+      "position": [
+        -43.5,
+        3,
+        -2.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    },
+    {
+      "id": "platform_27",
+      "type": "platform_6x6x1",
+      "position": [
+        -49,
+        3,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "color": "blue",
+      "correctAnswer": false
+    }
+  ],
+  "flag": null
+}

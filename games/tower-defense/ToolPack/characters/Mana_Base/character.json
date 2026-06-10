@@ -1,0 +1,227 @@
+{
+  "name": "Mana Base",
+  "defaultAnimation": "idle",
+  "animations": {
+    "walk": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            48,
+            49,
+            50
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        },
+        "right": {
+          "frames": [
+            64,
+            65,
+            66,
+            67,
+            68,
+            69
+          ]
+        },
+        "up": {
+          "frames": [
+            52,
+            53,
+            54
+          ]
+        }
+      }
+    },
+    "jump": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "anchor": {
+        "x": 32,
+        "y": 44
+      },
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            48,
+            49,
+            51,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            64,
+            65,
+            70,
+            67,
+            68,
+            71
+          ]
+        },
+        "up": {
+          "frames": [
+            52,
+            53,
+            55,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        }
+      }
+    },
+    "idle": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "anchor": {
+        "x": 32,
+        "y": 42
+      },
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            0
+          ]
+        },
+        "right": {
+          "frames": [
+            32
+          ]
+        },
+        "up": {
+          "frames": [
+            16
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        }
+      }
+    }
+  },
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 16,
+  "rows": 16,
+  "anchor": {
+    "x": 32,
+    "y": 44
+  },
+  "equipmentSlots": [
+    {
+      "name": "Body",
+      "isBase": true,
+      "order": 0,
+      "defaultOption": "default",
+      "options": [
+        {
+          "name": "default",
+          "spriteSheet": "equipment/Body/default.png"
+        }
+      ]
+    },
+    {
+      "name": "Shirt",
+      "isBase": false,
+      "order": 1,
+      "defaultOption": "Shirt1",
+      "options": [
+        {
+          "name": "Shirt1",
+          "spriteSheet": "equipment/Shirt/Shirt1.png"
+        },
+        {
+          "name": "ShirtBoobs",
+          "spriteSheet": "equipment/Shirt/ShirtBoobs.png"
+        }
+      ]
+    },
+    {
+      "name": "Pants",
+      "isBase": false,
+      "order": 2,
+      "defaultOption": "Longpants",
+      "options": [
+        {
+          "name": "Longpants",
+          "spriteSheet": "equipment/Pants/Longpants.png"
+        }
+      ]
+    },
+    {
+      "name": "Shoes",
+      "isBase": false,
+      "order": 3,
+      "defaultOption": "Shoes",
+      "options": [
+        {
+          "name": "Shoes",
+          "spriteSheet": "equipment/Shoes/Shoes.png"
+        }
+      ]
+    },
+    {
+      "name": "Hair",
+      "isBase": false,
+      "order": 4,
+      "defaultOption": "Bob",
+      "options": [
+        {
+          "name": "Bob",
+          "spriteSheet": "equipment/Hair/Bob.png"
+        },
+        {
+          "name": "Dapper",
+          "spriteSheet": "equipment/Hair/Dapper.png"
+        }
+      ]
+    },
+    {
+      "name": "Hats",
+      "isBase": false,
+      "order": 5,
+      "defaultOption": "Cowboy",
+      "options": [
+        {
+          "name": "Cowboy",
+          "spriteSheet": "equipment/Hats/Cowboy.png"
+        }
+      ]
+    }
+  ]
+}

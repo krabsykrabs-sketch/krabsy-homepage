@@ -1,0 +1,166 @@
+{
+  "name": "Slippery Slime Green",
+  "defaultAnimation": "walk",
+  "animations": {
+    "walk": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "up": {
+          "frames": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        "left": {
+          "frames": [
+            24,
+            25,
+            26,
+            27
+          ]
+        },
+        "right": {
+          "frames": [
+            16,
+            17,
+            18,
+            19
+          ]
+        }
+      },
+      "spriteSheet": "walk.png"
+    },
+    "attack": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "left": {
+          "frames": [
+            28,
+            29,
+            30,
+            31
+          ]
+        },
+        "right": {
+          "frames": [
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "up": {
+          "frames": [
+            12,
+            13,
+            14,
+            15
+          ]
+        }
+      },
+      "spriteSheet": "attack.png"
+    },
+    "die": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "die": {
+          "frames": [
+            59,
+            60,
+            61,
+            62,
+            63
+          ]
+        }
+      },
+      "spriteSheet": "die.png"
+    },
+    "jump": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            32,
+            33,
+            34,
+            35
+          ]
+        }
+      },
+      "spriteSheet": "jump.png"
+    },
+    "spit": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "spit": {
+          "frames": [
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55
+          ]
+        }
+      },
+      "spriteSheet": "spit.png"
+    }
+  },
+  "anchor": {
+    "x": 32,
+    "y": 64
+  }
+}

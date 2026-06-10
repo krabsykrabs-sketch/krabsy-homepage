@@ -1,0 +1,3883 @@
+[
+  {
+    "id": "prep_in_month",
+    "group": "time",
+    "level": 1,
+    "pattern": "in + month / year / season",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "during"
+    ],
+    "explanation": {
+      "de": "Vor Monaten, Jahren und Jahreszeiten steht 'in'.",
+      "es": "Antes de meses, años y estaciones se usa 'in'."
+    },
+    "examples": [
+      {
+        "sentence": "My birthday is ___ July.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She was born ___ 2012.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "We always go skiing ___ winter.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_in_part_of_day",
+    "group": "time",
+    "level": 1,
+    "pattern": "in + part of day",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "by"
+    ],
+    "explanation": {
+      "de": "'in the morning/afternoon/evening' — aber 'at night'!",
+      "es": "'in the morning/afternoon/evening' — ¡pero 'at night'!"
+    },
+    "examples": [
+      {
+        "sentence": "I drink coffee ___ the morning.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "We have training ___ the afternoon.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She reads ___ the evening before bed.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_on_day",
+    "group": "time",
+    "level": 1,
+    "pattern": "on + day / date",
+    "correct": "on",
+    "distractors": [
+      "at",
+      "in",
+      "by"
+    ],
+    "explanation": {
+      "de": "Vor Wochentagen und Datumsangaben steht 'on'.",
+      "es": "Antes de días de la semana y fechas se usa 'on'."
+    },
+    "examples": [
+      {
+        "sentence": "I have football practice ___ Monday.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "The party is ___ Saturday evening.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We met ___ 15 March.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_at_clock",
+    "group": "time",
+    "level": 1,
+    "pattern": "at + clock time / night",
+    "correct": "at",
+    "distractors": [
+      "on",
+      "in",
+      "by"
+    ],
+    "explanation": {
+      "de": "Vor Uhrzeiten und vor 'night' steht 'at'.",
+      "es": "Antes de horas exactas y antes de 'night' se usa 'at'."
+    },
+    "examples": [
+      {
+        "sentence": "The film starts ___ 8 o'clock.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "I can't sleep ___ night.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We arrived ___ midnight.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_since_point",
+    "group": "time",
+    "level": 2,
+    "pattern": "since + point in time",
+    "correct": "since",
+    "distractors": [
+      "for",
+      "from",
+      "during"
+    ],
+    "explanation": {
+      "de": "'since' nennt den Startpunkt (seit wann), 'for' nennt die Dauer (wie lange).",
+      "es": "'since' marca el punto de inicio, 'for' marca la duración."
+    },
+    "examples": [
+      {
+        "sentence": "I have lived here ___ 2020.",
+        "valid_answers": [
+          "since"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She has been ill ___ Monday.",
+        "valid_answers": [
+          "since"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We haven't seen each other ___ last summer.",
+        "valid_answers": [
+          "since"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_for_duration",
+    "group": "time",
+    "level": 2,
+    "pattern": "for + duration",
+    "correct": "for",
+    "distractors": [
+      "since",
+      "during",
+      "in"
+    ],
+    "explanation": {
+      "de": "'for' nennt die Dauer (wie lange) — 'since' nennt den Startpunkt.",
+      "es": "'for' marca la duración (cuánto tiempo) — 'since' marca el inicio."
+    },
+    "examples": [
+      {
+        "sentence": "I waited ___ two hours.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She has studied English ___ five years.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We lived in Berlin ___ a long time.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_during",
+    "group": "time",
+    "level": 3,
+    "pattern": "during + event / period",
+    "correct": "during",
+    "distractors": [
+      "in",
+      "while",
+      "for"
+    ],
+    "explanation": {
+      "de": "Vor einem Ereignis oder Zeitraum (während) steht 'during'.",
+      "es": "Antes de un evento o periodo (durante) se usa 'during'."
+    },
+    "examples": [
+      {
+        "sentence": "I fell asleep ___ the film.",
+        "valid_answers": [
+          "during"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't talk ___ the lesson!",
+        "valid_answers": [
+          "during"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "It rained a lot ___ the holidays.",
+        "valid_answers": [
+          "during"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_by_deadline",
+    "group": "time",
+    "level": 3,
+    "pattern": "by + deadline",
+    "correct": "by",
+    "distractors": [
+      "until",
+      "at",
+      "in"
+    ],
+    "explanation": {
+      "de": "'by' = spätestens bis zu diesem Zeitpunkt.",
+      "es": "'by' = como muy tarde en ese momento."
+    },
+    "examples": [
+      {
+        "sentence": "Please finish your homework ___ Friday.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We must be home ___ 10 o'clock.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'll have read the book ___ next week.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_in_enclosed",
+    "group": "place",
+    "level": 1,
+    "pattern": "in + enclosed space",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "into"
+    ],
+    "explanation": {
+      "de": "Vor geschlossenen Räumen und Behältern steht 'in'.",
+      "es": "Antes de lugares cerrados y recipientes se usa 'in'."
+    },
+    "examples": [
+      {
+        "sentence": "The keys are ___ my bag.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's ___ the kitchen.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "There's a fly ___ my glass.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_in_city_country",
+    "group": "place",
+    "level": 1,
+    "pattern": "in + city / country",
+    "correct": "in",
+    "distractors": [
+      "at",
+      "on",
+      "to"
+    ],
+    "explanation": {
+      "de": "Vor Städten und Ländern steht 'in'.",
+      "es": "Antes de ciudades y países se usa 'in'."
+    },
+    "examples": [
+      {
+        "sentence": "My cousin lives ___ Madrid.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "We spent a week ___ Italy.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "There are many parks ___ Berlin.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_on_surface",
+    "group": "place",
+    "level": 1,
+    "pattern": "on + surface",
+    "correct": "on",
+    "distractors": [
+      "in",
+      "at",
+      "over"
+    ],
+    "explanation": {
+      "de": "Vor einer Oberfläche (Tisch, Wand, Boden) steht 'on'.",
+      "es": "Antes de una superficie (mesa, pared, suelo) se usa 'on'."
+    },
+    "examples": [
+      {
+        "sentence": "Your phone is ___ the table.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "There's a poster ___ the wall.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "The cat is sleeping ___ the sofa.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_at_point",
+    "group": "place",
+    "level": 2,
+    "pattern": "at + specific point / location",
+    "correct": "at",
+    "distractors": [
+      "in",
+      "on",
+      "by"
+    ],
+    "explanation": {
+      "de": "Vor einem konkreten Treffpunkt oder Ort steht 'at'.",
+      "es": "Antes de un punto o lugar concreto se usa 'at'."
+    },
+    "examples": [
+      {
+        "sentence": "I'll meet you ___ the bus stop.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She is waiting ___ the door.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We had lunch ___ the new restaurant.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_at_home_work_school",
+    "group": "place",
+    "level": 1,
+    "pattern": "at + home / work / school",
+    "correct": "at",
+    "distractors": [
+      "in",
+      "on",
+      "to"
+    ],
+    "explanation": {
+      "de": "'at home', 'at work', 'at school' — ohne 'the'!",
+      "es": "'at home', 'at work', 'at school' — ¡sin 'the'!"
+    },
+    "examples": [
+      {
+        "sentence": "I'm ___ home all day today.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "My dad is still ___ work.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's not ___ school this week — she's ill.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_between",
+    "group": "place",
+    "level": 2,
+    "pattern": "between + two things",
+    "correct": "between",
+    "distractors": [
+      "among",
+      "in",
+      "under"
+    ],
+    "explanation": {
+      "de": "'between' = zwischen zwei Dingen oder Personen.",
+      "es": "'between' = entre dos cosas o personas."
+    },
+    "examples": [
+      {
+        "sentence": "The post office is ___ the bank and the bakery.",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Sit ___ your brother and your sister.",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a big difference ___ these two cars.",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_next_to",
+    "group": "place",
+    "level": 2,
+    "pattern": "next to / beside",
+    "correct": "next to",
+    "distractors": [
+      "near to",
+      "by to",
+      "at"
+    ],
+    "explanation": {
+      "de": "'next to' = direkt daneben.",
+      "es": "'next to' = justo al lado de."
+    },
+    "examples": [
+      {
+        "sentence": "Sit ___ me, please.",
+        "valid_answers": [
+          "next to",
+          "beside"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "The supermarket is ___ the park.",
+        "valid_answers": [
+          "next to",
+          "beside"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She lives ___ the river.",
+        "valid_answers": [
+          "next to",
+          "beside"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_in_front_of",
+    "group": "place",
+    "level": 2,
+    "pattern": "in front of",
+    "correct": "in front of",
+    "distractors": [
+      "in front",
+      "before",
+      "at front of"
+    ],
+    "explanation": {
+      "de": "'in front of' = davor (Ort, nicht Zeit).",
+      "es": "'in front of' = delante de (lugar, no tiempo)."
+    },
+    "examples": [
+      {
+        "sentence": "I parked ___ the school.",
+        "valid_answers": [
+          "in front of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't stand ___ the screen.",
+        "valid_answers": [
+          "in front of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There was a long queue ___ the cinema.",
+        "valid_answers": [
+          "in front of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_behind",
+    "group": "place",
+    "level": 1,
+    "pattern": "behind + at the back",
+    "correct": "behind",
+    "distractors": [
+      "after",
+      "back",
+      "under"
+    ],
+    "explanation": {
+      "de": "'behind' = hinter (Ort, nicht Zeit).",
+      "es": "'behind' = detrás de (lugar, no tiempo)."
+    },
+    "examples": [
+      {
+        "sentence": "The cat is ___ the sofa.",
+        "valid_answers": [
+          "behind"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Stand ___ the line, please.",
+        "valid_answers": [
+          "behind"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a garden ___ the house.",
+        "valid_answers": [
+          "behind"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_above",
+    "group": "place",
+    "level": 2,
+    "pattern": "above + higher position",
+    "correct": "above",
+    "distractors": [
+      "over",
+      "up",
+      "on"
+    ],
+    "explanation": {
+      "de": "'above' = höher als etwas (darüber, ohne es zu berühren).",
+      "es": "'above' = más arriba que algo (encima, sin tocarlo)."
+    },
+    "examples": [
+      {
+        "sentence": "The clouds are ___ the mountain.",
+        "valid_answers": [
+          "above"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a lamp ___ the table.",
+        "valid_answers": [
+          "above"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She lives in the flat ___ the bakery.",
+        "valid_answers": [
+          "above"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_under",
+    "group": "place",
+    "level": 1,
+    "pattern": "under + lower position",
+    "correct": "under",
+    "distractors": [
+      "below",
+      "down",
+      "on"
+    ],
+    "explanation": {
+      "de": "'under' = direkt darunter; 'below' = darunter im Allgemeinen.",
+      "es": "'under' = justo debajo; 'below' = más abajo en general."
+    },
+    "examples": [
+      {
+        "sentence": "The cat is ___ the bed.",
+        "valid_answers": [
+          "under"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She put her shoes ___ the chair.",
+        "valid_answers": [
+          "under"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I found my keys ___ the newspaper.",
+        "valid_answers": [
+          "under"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_to_destination",
+    "group": "movement",
+    "level": 1,
+    "pattern": "to + destination",
+    "correct": "to",
+    "distractors": [
+      "in",
+      "at",
+      "for"
+    ],
+    "explanation": {
+      "de": "Bewegung zu einem Ort: 'to' (nicht 'in').",
+      "es": "Movimiento hacia un lugar: 'to' (no 'in')."
+    },
+    "examples": [
+      {
+        "sentence": "We're going ___ the cinema tonight.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She walks ___ school every day.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "I sent the letter ___ my grandma.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_into",
+    "group": "movement",
+    "level": 2,
+    "pattern": "into + enclosed space",
+    "correct": "into",
+    "distractors": [
+      "in",
+      "on",
+      "to"
+    ],
+    "explanation": {
+      "de": "Bewegung in einen Raum hinein: 'into'.",
+      "es": "Movimiento hacia adentro: 'into'."
+    },
+    "examples": [
+      {
+        "sentence": "The dog ran ___ the garden.",
+        "valid_answers": [
+          "into"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Pour the milk ___ the glass.",
+        "valid_answers": [
+          "into"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She jumped ___ the swimming pool.",
+        "valid_answers": [
+          "into"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_onto",
+    "group": "movement",
+    "level": 3,
+    "pattern": "onto + surface",
+    "correct": "onto",
+    "distractors": [
+      "on",
+      "in",
+      "to"
+    ],
+    "explanation": {
+      "de": "Bewegung auf eine Oberfläche: 'onto'.",
+      "es": "Movimiento sobre una superficie: 'onto'."
+    },
+    "examples": [
+      {
+        "sentence": "The cat jumped ___ the table.",
+        "valid_answers": [
+          "onto",
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He climbed ___ the roof.",
+        "valid_answers": [
+          "onto"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "She stepped ___ the stage.",
+        "valid_answers": [
+          "onto"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_from_origin",
+    "group": "movement",
+    "level": 1,
+    "pattern": "from + origin",
+    "correct": "from",
+    "distractors": [
+      "of",
+      "out",
+      "since"
+    ],
+    "explanation": {
+      "de": "Vor dem Herkunftsort steht 'from'.",
+      "es": "Antes del lugar de origen va 'from'."
+    },
+    "examples": [
+      {
+        "sentence": "I'm ___ Germany.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "This train comes ___ Paris.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She got a letter ___ her cousin.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_through",
+    "group": "movement",
+    "level": 3,
+    "pattern": "through + tunnel / room / forest",
+    "correct": "through",
+    "distractors": [
+      "across",
+      "over",
+      "by"
+    ],
+    "explanation": {
+      "de": "'through' = mitten durch etwas hindurch.",
+      "es": "'through' = atravesando algo por dentro."
+    },
+    "examples": [
+      {
+        "sentence": "The train goes ___ a long tunnel.",
+        "valid_answers": [
+          "through"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We walked ___ the forest.",
+        "valid_answers": [
+          "through"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She looked ___ the window.",
+        "valid_answers": [
+          "through"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_across",
+    "group": "movement",
+    "level": 3,
+    "pattern": "across + flat surface",
+    "correct": "across",
+    "distractors": [
+      "through",
+      "over",
+      "along"
+    ],
+    "explanation": {
+      "de": "'across' = quer über eine Fläche (Straße, Fluss, Platz).",
+      "es": "'across' = a través de una superficie (calle, río, plaza)."
+    },
+    "examples": [
+      {
+        "sentence": "Be careful when you walk ___ the road.",
+        "valid_answers": [
+          "across"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We swam ___ the lake.",
+        "valid_answers": [
+          "across"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a bridge ___ the river.",
+        "valid_answers": [
+          "across",
+          "over"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_good_at",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "good / bad + at",
+    "correct": "at",
+    "distractors": [
+      "in",
+      "with",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'good' und 'bad' steht 'at' (nicht 'in').",
+      "es": "Después de 'good' y 'bad' va 'at' (no 'in')."
+    },
+    "examples": [
+      {
+        "sentence": "My sister is really good ___ maths.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "I'm bad ___ remembering names.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's good ___ explaining things.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_interested_in",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "interested + in",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'interested' steht 'in' (genau wie auf Deutsch).",
+      "es": "Después de 'interested' va 'in' (¡no 'for'!)."
+    },
+    "examples": [
+      {
+        "sentence": "Are you interested ___ football?",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's very interested ___ science.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm not interested ___ that subject.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_afraid_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "afraid / scared + of",
+    "correct": "of",
+    "distractors": [
+      "from",
+      "for",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'afraid' und 'scared' steht immer 'of'.",
+      "es": "Después de 'afraid' y 'scared' siempre va 'of'."
+    },
+    "examples": [
+      {
+        "sentence": "I'm afraid ___ spiders.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "He's scared ___ the dark.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't be afraid ___ asking questions.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_proud_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "proud + of",
+    "correct": "of",
+    "distractors": [
+      "about",
+      "on",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'proud' steht 'of' (nicht 'on' wie im Deutschen).",
+      "es": "Después de 'proud' va 'of'."
+    },
+    "examples": [
+      {
+        "sentence": "My parents are proud ___ me.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's proud ___ her new project.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm proud ___ what we did together.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_full_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "full + of",
+    "correct": "of",
+    "distractors": [
+      "with",
+      "from",
+      "in"
+    ],
+    "explanation": {
+      "de": "Nach 'full' steht 'of' (nicht 'with' wie im Deutschen).",
+      "es": "Después de 'full' va 'of'."
+    },
+    "examples": [
+      {
+        "sentence": "The box is full ___ books.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Her room is full ___ posters.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The streets were full ___ people.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_different_from",
+    "group": "adjective",
+    "level": 3,
+    "pattern": "different + from",
+    "correct": "from",
+    "distractors": [
+      "than",
+      "as",
+      "of"
+    ],
+    "explanation": {
+      "de": "Nach 'different' steht 'from' (im Amerikanischen auch 'than').",
+      "es": "Después de 'different' va 'from' (en inglés americano también 'than')."
+    },
+    "examples": [
+      {
+        "sentence": "My brother is very different ___ me.",
+        "valid_answers": [
+          "from",
+          "than"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "London is different ___ Paris.",
+        "valid_answers": [
+          "from",
+          "than"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The book is quite different ___ the film.",
+        "valid_answers": [
+          "from",
+          "than"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_famous_for",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "famous + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "by",
+      "with"
+    ],
+    "explanation": {
+      "de": "'famous for' = berühmt für etwas (Grund der Bekanntheit).",
+      "es": "'famous for' = famoso por algo (la razón de la fama)."
+    },
+    "examples": [
+      {
+        "sentence": "Italy is famous ___ pizza.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's famous ___ her singing.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "This town is famous ___ its old castle.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_married_to",
+    "group": "adjective",
+    "level": 3,
+    "pattern": "married + to",
+    "correct": "to",
+    "distractors": [
+      "with",
+      "of",
+      "by"
+    ],
+    "explanation": {
+      "de": "Nach 'married' steht 'to' (nicht 'with').",
+      "es": "Después de 'married' va 'to' (no 'with')."
+    },
+    "examples": [
+      {
+        "sentence": "She's married ___ a teacher.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "My uncle is married ___ a doctor from Spain.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's been married ___ her for ten years.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_ashamed_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "ashamed + of",
+    "correct": "of",
+    "distractors": [
+      "for",
+      "about",
+      "from"
+    ],
+    "explanation": {
+      "de": "Nach 'ashamed' steht 'of' (sich schämen für).",
+      "es": "Después de 'ashamed' va 'of' (avergonzarse de)."
+    },
+    "examples": [
+      {
+        "sentence": "I'm ashamed ___ my behaviour.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She felt ashamed ___ what she said.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't be ashamed ___ asking for help.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_aware_of",
+    "group": "adjective",
+    "level": 3,
+    "pattern": "aware + of",
+    "correct": "of",
+    "distractors": [
+      "about",
+      "for",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'aware' steht 'of' (sich einer Sache bewusst sein).",
+      "es": "Después de 'aware' va 'of' (ser consciente de)."
+    },
+    "examples": [
+      {
+        "sentence": "Are you aware ___ the risks?",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She wasn't aware ___ the rules.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm aware ___ how serious this is.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_bored_with",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "bored + with / of",
+    "correct": "with",
+    "distractors": [
+      "from",
+      "for",
+      "by"
+    ],
+    "explanation": {
+      "de": "Nach 'bored' steht 'with' (oder 'of'); nicht 'from' wie im Deutschen.",
+      "es": "Después de 'bored' va 'with' (o 'of'); no 'from'."
+    },
+    "examples": [
+      {
+        "sentence": "I'm bored ___ this game.",
+        "valid_answers": [
+          "with",
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She got bored ___ school very quickly.",
+        "valid_answers": [
+          "with",
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's bored ___ doing the same thing every day.",
+        "valid_answers": [
+          "with",
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_capable_of",
+    "group": "adjective",
+    "level": 3,
+    "pattern": "capable + of",
+    "correct": "of",
+    "distractors": [
+      "for",
+      "to",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'capable' steht 'of' + -ing-Form.",
+      "es": "Después de 'capable' va 'of' + verbo en -ing."
+    },
+    "examples": [
+      {
+        "sentence": "She's capable ___ great things.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's capable ___ winning the race.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm not capable ___ swimming that far.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_fond_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "fond + of",
+    "correct": "of",
+    "distractors": [
+      "for",
+      "about",
+      "with"
+    ],
+    "explanation": {
+      "de": "'fond of' = jemanden/etwas gerne mögen.",
+      "es": "'fond of' = tener cariño a alguien/algo, gustar de algo."
+    },
+    "examples": [
+      {
+        "sentence": "My grandma is fond ___ cats.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "I'm very fond ___ chocolate.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's fond ___ telling old stories.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_jealous_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "jealous + of",
+    "correct": "of",
+    "distractors": [
+      "from",
+      "about",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'jealous' steht 'of' (nicht 'on' wie bei 'eifersüchtig auf').",
+      "es": "Después de 'jealous' va 'of'."
+    },
+    "examples": [
+      {
+        "sentence": "He's jealous ___ his brother.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't be jealous ___ me!",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's jealous ___ his success.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_responsible_for",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "responsible + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "to",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'responsible' steht 'for' (verantwortlich für etwas).",
+      "es": "Después de 'responsible' va 'for' (no 'of' como en 'responsable de')."
+    },
+    "examples": [
+      {
+        "sentence": "Who is responsible ___ this mess?",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Parents are responsible ___ their children.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm responsible ___ finding a solution.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_similar_to",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "similar + to",
+    "correct": "to",
+    "distractors": [
+      "with",
+      "as",
+      "of"
+    ],
+    "explanation": {
+      "de": "Nach 'similar' steht 'to' (nicht 'as' wie bei 'ähnlich wie').",
+      "es": "Después de 'similar' va 'to'."
+    },
+    "examples": [
+      {
+        "sentence": "Your bag is similar ___ mine.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "These two films are similar ___ each other.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Her voice is similar ___ her sister's.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_sorry_for",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "sorry + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "with",
+      "by"
+    ],
+    "explanation": {
+      "de": "'sorry for' = sich für etwas entschuldigen (eigenes Verhalten).",
+      "es": "'sorry for' = disculparse por algo (lo que hiciste)."
+    },
+    "examples": [
+      {
+        "sentence": "I'm sorry ___ being late.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She said sorry ___ shouting at me.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He felt sorry ___ what he had done.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_surprised_at",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "surprised + at / by",
+    "correct": "at",
+    "distractors": [
+      "of",
+      "with",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'surprised' steht 'at' oder 'by'.",
+      "es": "Después de 'surprised' va 'at' o 'by'."
+    },
+    "examples": [
+      {
+        "sentence": "I was surprised ___ the news.",
+        "valid_answers": [
+          "at",
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She was surprised ___ his answer.",
+        "valid_answers": [
+          "at",
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Everyone was surprised ___ how fast he ran.",
+        "valid_answers": [
+          "at",
+          "by"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_tired_of",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "tired + of",
+    "correct": "of",
+    "distractors": [
+      "from",
+      "with",
+      "by"
+    ],
+    "explanation": {
+      "de": "'tired of' = etwas satthaben (genug von etwas). 'tired from' = müde durch Anstrengung.",
+      "es": "'tired of' = harto de algo. 'tired from' = cansado por un esfuerzo físico."
+    },
+    "examples": [
+      {
+        "sentence": "I'm tired ___ doing the same thing every day.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's tired ___ his excuses.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "They got tired ___ waiting and went home.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_worried_about",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "worried + about",
+    "correct": "about",
+    "distractors": [
+      "of",
+      "for",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'worried' steht 'about'.",
+      "es": "Después de 'worried' va 'about' (no 'for' como en 'preocupado por')."
+    },
+    "examples": [
+      {
+        "sentence": "I'm worried ___ my exam.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's worried ___ her little brother.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't be worried ___ the test.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_ready_for",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "ready + for",
+    "correct": "for",
+    "distractors": [
+      "to",
+      "of",
+      "about"
+    ],
+    "explanation": {
+      "de": "'ready for + Nomen' (bereit für etwas) — aber 'ready to + Verb' (bereit, etwas zu tun).",
+      "es": "'ready for + sustantivo' (listo para algo) — pero 'ready to + verbo' (listo para hacer algo)."
+    },
+    "examples": [
+      {
+        "sentence": "I'm ready ___ the test.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Are you ready ___ school?",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We're ready ___ anything.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_allergic_to",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "allergic + to",
+    "correct": "to",
+    "distractors": [
+      "of",
+      "from",
+      "against"
+    ],
+    "explanation": {
+      "de": "Nach 'allergic' steht 'to' (nicht 'against' wie bei 'allergisch gegen').",
+      "es": "Después de 'allergic' va 'to'."
+    },
+    "examples": [
+      {
+        "sentence": "I'm allergic ___ cats.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's allergic ___ nuts.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He became allergic ___ a new medicine.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_pleased_with",
+    "group": "adjective",
+    "level": 2,
+    "pattern": "pleased + with",
+    "correct": "with",
+    "distractors": [
+      "of",
+      "about",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'pleased' steht 'with' (zufrieden mit).",
+      "es": "Después de 'pleased' va 'with' (contento con)."
+    },
+    "examples": [
+      {
+        "sentence": "I'm pleased ___ my results.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's very pleased ___ her new bike.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The teacher was pleased ___ our work.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_wait_for",
+    "group": "verb",
+    "level": 1,
+    "pattern": "wait + for",
+    "correct": "for",
+    "distractors": [
+      "on",
+      "at",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'wait' steht 'for' (nicht 'on' wie im Deutschen 'warten auf').",
+      "es": "Después de 'wait' va 'for', también con personas."
+    },
+    "examples": [
+      {
+        "sentence": "I'm waiting ___ the bus.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Don't wait ___ me — I'll be late.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She has been waiting ___ his answer all week.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_depend_on",
+    "group": "verb",
+    "level": 3,
+    "pattern": "depend + on",
+    "correct": "on",
+    "distractors": [
+      "of",
+      "from",
+      "in"
+    ],
+    "explanation": {
+      "de": "Nach 'depend' steht 'on' (nicht 'from' wie im Deutschen 'abhängen von').",
+      "es": "Después de 'depend' va 'on' (no 'of' como en 'depender de')."
+    },
+    "examples": [
+      {
+        "sentence": "It depends ___ the weather.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Children depend ___ their parents.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The answer depends ___ what you mean.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_think_about",
+    "group": "verb",
+    "level": 2,
+    "pattern": "think + about / of",
+    "correct": "about",
+    "distractors": [
+      "in",
+      "on",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'think' steht meistens 'about' (oder 'of'). Beides ist richtig.",
+      "es": "Después de 'think' normalmente va 'about' (o 'of'). Las dos son correctas."
+    },
+    "examples": [
+      {
+        "sentence": "I'm thinking ___ my next holiday.",
+        "valid_answers": [
+          "about",
+          "of"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "What do you think ___ this song?",
+        "valid_answers": [
+          "of",
+          "about"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She thinks ___ him all the time.",
+        "valid_answers": [
+          "about",
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_listen_to",
+    "group": "verb",
+    "level": 1,
+    "pattern": "listen + to",
+    "correct": "to",
+    "distractors": [
+      "at",
+      "on",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'listen' steht immer 'to'.",
+      "es": "Después de 'listen' siempre va 'to'."
+    },
+    "examples": [
+      {
+        "sentence": "I love listening ___ music.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Listen ___ me carefully.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She listens ___ a podcast every morning.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_look_at",
+    "group": "verb",
+    "level": 1,
+    "pattern": "look + at",
+    "correct": "at",
+    "distractors": [
+      "on",
+      "to",
+      "in"
+    ],
+    "explanation": {
+      "de": "'look at' = hinsehen (anschauen).",
+      "es": "'look at' = mirar a algo."
+    },
+    "examples": [
+      {
+        "sentence": "Look ___ this funny picture!",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Why is everyone looking ___ me?",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She looked ___ her watch nervously.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_look_for",
+    "group": "verb",
+    "level": 2,
+    "pattern": "look + for",
+    "correct": "for",
+    "distractors": [
+      "after",
+      "at",
+      "out"
+    ],
+    "explanation": {
+      "de": "'look for' = suchen.",
+      "es": "'look for' = buscar."
+    },
+    "examples": [
+      {
+        "sentence": "I'm looking ___ my keys.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She's looking ___ a new job.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We looked ___ him everywhere.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_look_after",
+    "group": "verb",
+    "level": 2,
+    "pattern": "look + after",
+    "correct": "after",
+    "distractors": [
+      "at",
+      "for",
+      "over"
+    ],
+    "explanation": {
+      "de": "'look after' = sich kümmern um (jemanden/etwas). Nicht verwechseln mit 'look at' (anschauen) und 'look for' (suchen).",
+      "es": "'look after' = cuidar (a alguien/algo). No confundir con 'look at' (mirar) ni 'look for' (buscar)."
+    },
+    "examples": [
+      {
+        "sentence": "Can you look ___ my dog this weekend?",
+        "valid_answers": [
+          "after"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She looks ___ her little brother.",
+        "valid_answers": [
+          "after"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Nurses look ___ the patients.",
+        "valid_answers": [
+          "after"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_belong_to",
+    "group": "verb",
+    "level": 2,
+    "pattern": "belong + to",
+    "correct": "to",
+    "distractors": [
+      "of",
+      "with",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'belong' steht 'to' (jemandem gehören).",
+      "es": "Después de 'belong' va 'to' (pertenecer a alguien)."
+    },
+    "examples": [
+      {
+        "sentence": "This book belongs ___ me.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Who does this jacket belong ___?",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "These toys belong ___ my little brother.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_agree_with",
+    "group": "verb",
+    "level": 3,
+    "pattern": "agree + with (person) / on (topic)",
+    "correct": "with",
+    "distractors": [
+      "to",
+      "on",
+      "about"
+    ],
+    "explanation": {
+      "de": "'agree with' = jemandem zustimmen; 'agree on' = sich auf etwas einigen.",
+      "es": "'agree with' = estar de acuerdo con alguien; 'agree on' = ponerse de acuerdo sobre algo."
+    },
+    "examples": [
+      {
+        "sentence": "I totally agree ___ you.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She doesn't agree ___ her brother very often.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We didn't agree ___ the teacher this time.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_apologise_for",
+    "group": "verb",
+    "level": 3,
+    "pattern": "apologise + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "about",
+      "to"
+    ],
+    "explanation": {
+      "de": "'apologise for' = sich für etwas entschuldigen.",
+      "es": "'apologise for' = disculparse por algo."
+    },
+    "examples": [
+      {
+        "sentence": "She apologised ___ her mistake.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He apologised ___ shouting at me.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "They apologised ___ being late.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_arrive_at",
+    "group": "verb",
+    "level": 2,
+    "pattern": "arrive + at (place)",
+    "correct": "at",
+    "distractors": [
+      "to",
+      "in",
+      "on"
+    ],
+    "explanation": {
+      "de": "'arrive at' = an einem konkreten Ort ankommen (Bahnhof, Flughafen…). Bei Städten/Ländern: 'arrive in'. NIE 'arrive to'!",
+      "es": "'arrive at' = llegar a un lugar concreto (estación, aeropuerto…). Con ciudades/países: 'arrive in'. ¡NUNCA 'arrive to'!"
+    },
+    "examples": [
+      {
+        "sentence": "We arrived ___ the airport at 8.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "What time did you arrive ___ the bus stop?",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She arrived ___ the cinema late.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_ask_for",
+    "group": "verb",
+    "level": 1,
+    "pattern": "ask + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "to",
+      "after"
+    ],
+    "explanation": {
+      "de": "'ask for' = um etwas bitten.",
+      "es": "'ask for' = pedir algo."
+    },
+    "examples": [
+      {
+        "sentence": "Can I ask ___ a glass of water?",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She asked ___ help.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "The kids asked ___ ice cream.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_believe_in",
+    "group": "verb",
+    "level": 2,
+    "pattern": "believe + in",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "to",
+      "at"
+    ],
+    "explanation": {
+      "de": "Nach 'believe' steht 'in' (an etwas glauben).",
+      "es": "Después de 'believe' va 'in' (creer en algo)."
+    },
+    "examples": [
+      {
+        "sentence": "Do you believe ___ ghosts?",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She believes ___ herself.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I don't believe ___ magic.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_complain_about",
+    "group": "verb",
+    "level": 3,
+    "pattern": "complain + about",
+    "correct": "about",
+    "distractors": [
+      "of",
+      "for",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'complain' steht 'about' (sich über etwas beschweren).",
+      "es": "Después de 'complain' va 'about' (no 'of' como en 'quejarse de')."
+    },
+    "examples": [
+      {
+        "sentence": "Stop complaining ___ the weather!",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She complained ___ the noise.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's always complaining ___ his teachers.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_pay_for",
+    "group": "verb",
+    "level": 1,
+    "pattern": "pay + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "to",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'pay' steht 'for' (für etwas bezahlen).",
+      "es": "Después de 'pay' va 'for' (pagar por algo)."
+    },
+    "examples": [
+      {
+        "sentence": "I'll pay ___ the drinks.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "Did you pay ___ the tickets?",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She paid ___ everything with her card.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_prepare_for",
+    "group": "verb",
+    "level": 2,
+    "pattern": "prepare + for",
+    "correct": "for",
+    "distractors": [
+      "to",
+      "of",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'prepare' steht 'for' (sich auf etwas vorbereiten).",
+      "es": "Después de 'prepare' va 'for' (prepararse para algo)."
+    },
+    "examples": [
+      {
+        "sentence": "I'm preparing ___ the test.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She prepared ___ her trip.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We need to prepare ___ winter.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_rely_on",
+    "group": "verb",
+    "level": 3,
+    "pattern": "rely + on",
+    "correct": "on",
+    "distractors": [
+      "in",
+      "of",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'rely' steht 'on' (sich auf jemanden verlassen).",
+      "es": "Después de 'rely' va 'on' (contar con alguien, depender de alguien)."
+    },
+    "examples": [
+      {
+        "sentence": "You can rely ___ me.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't rely ___ luck!",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "She relies ___ her family for support.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_smile_at",
+    "group": "verb",
+    "level": 2,
+    "pattern": "smile + at",
+    "correct": "at",
+    "distractors": [
+      "to",
+      "on",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'smile' steht 'at' (jemandem zulächeln).",
+      "es": "Después de 'smile' va 'at' (sonreír a alguien)."
+    },
+    "examples": [
+      {
+        "sentence": "She smiled ___ me.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The baby smiled ___ everyone.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He smiled ___ his friends from the stage.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_suffer_from",
+    "group": "verb",
+    "level": 3,
+    "pattern": "suffer + from",
+    "correct": "from",
+    "distractors": [
+      "of",
+      "with",
+      "by"
+    ],
+    "explanation": {
+      "de": "Nach 'suffer' steht 'from' (an etwas leiden).",
+      "es": "Después de 'suffer' va 'from' (no 'of' como en 'sufrir de')."
+    },
+    "examples": [
+      {
+        "sentence": "He suffers ___ allergies.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Many people suffer ___ headaches.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She suffered ___ a serious illness last year.",
+        "valid_answers": [
+          "from"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_thank_for",
+    "group": "verb",
+    "level": 2,
+    "pattern": "thank (sb) + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "about",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'thank' steht 'for' (jemandem für etwas danken).",
+      "es": "Después de 'thank' va 'for' (agradecer algo)."
+    },
+    "examples": [
+      {
+        "sentence": "Thanks ___ your help.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She thanked me ___ the present.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I want to thank you ___ everything.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_worry_about",
+    "group": "verb",
+    "level": 2,
+    "pattern": "worry + about",
+    "correct": "about",
+    "distractors": [
+      "of",
+      "for",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'worry' steht 'about' (sich Sorgen machen um).",
+      "es": "Después de 'worry' va 'about' (no 'for' como en 'preocuparse por')."
+    },
+    "examples": [
+      {
+        "sentence": "Don't worry ___ the test.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She worries ___ her grandmother.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We worried ___ him all night.",
+        "valid_answers": [
+          "about"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_consist_of",
+    "group": "verb",
+    "level": 3,
+    "pattern": "consist + of",
+    "correct": "of",
+    "distractors": [
+      "from",
+      "in",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'consist' steht 'of' (bestehen aus — nicht 'from'!).",
+      "es": "Después de 'consist' va 'of' (no 'in' como en 'consistir en')."
+    },
+    "examples": [
+      {
+        "sentence": "Water consists ___ hydrogen and oxygen.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "The team consists ___ five players.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "Breakfast consists ___ toast and jam.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_laugh_at",
+    "group": "verb",
+    "level": 2,
+    "pattern": "laugh + at",
+    "correct": "at",
+    "distractors": [
+      "of",
+      "with",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'laugh' steht 'at' (über jemanden/etwas lachen).",
+      "es": "Después de 'laugh' va 'at' (no 'of' como en 'reírse de')."
+    },
+    "examples": [
+      {
+        "sentence": "Don't laugh ___ me!",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Everyone laughed ___ his joke.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She laughed ___ herself in the mirror.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_reason_for",
+    "group": "noun",
+    "level": 3,
+    "pattern": "reason + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "to",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'reason' steht 'for' (Grund für etwas).",
+      "es": "Después de 'reason' va 'for' (no 'of' como en 'razón de')."
+    },
+    "examples": [
+      {
+        "sentence": "What's the reason ___ your decision?",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's no good reason ___ being late.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She didn't explain the reason ___ her anger.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_example_of",
+    "group": "noun",
+    "level": 2,
+    "pattern": "example + of",
+    "correct": "of",
+    "distractors": [
+      "for",
+      "from",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'example' steht 'of' (Beispiel für etwas — aber im Englischen 'of'!).",
+      "es": "Después de 'example' va 'of' (ejemplo de algo)."
+    },
+    "examples": [
+      {
+        "sentence": "Can you give me an example ___ a verb?",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "This is a perfect example ___ what I mean.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She gave us three examples ___ each rule.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_difference_between",
+    "group": "noun",
+    "level": 3,
+    "pattern": "difference + between",
+    "correct": "between",
+    "distractors": [
+      "of",
+      "from",
+      "among"
+    ],
+    "explanation": {
+      "de": "'difference between A and B' = Unterschied zwischen A und B.",
+      "es": "'difference between A and B' = diferencia entre A y B."
+    },
+    "examples": [
+      {
+        "sentence": "What's the difference ___ 'since' and 'for'?",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a big difference ___ the two films.",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I can't see any difference ___ them.",
+        "valid_answers": [
+          "between"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_answer_to",
+    "group": "noun",
+    "level": 3,
+    "pattern": "answer + to",
+    "correct": "to",
+    "distractors": [
+      "of",
+      "for",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'answer' (Nomen) steht 'to' (Antwort auf etwas).",
+      "es": "Después de 'answer' (sustantivo) va 'to' (respuesta a algo)."
+    },
+    "examples": [
+      {
+        "sentence": "What's the answer ___ question 5?",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's no easy answer ___ that question.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "I don't know the answer ___ this problem.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_cause_of",
+    "group": "noun",
+    "level": 3,
+    "pattern": "cause + of",
+    "correct": "of",
+    "distractors": [
+      "for",
+      "from",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'cause' steht 'of' (Ursache von etwas).",
+      "es": "Después de 'cause' va 'of' (causa de algo)."
+    },
+    "examples": [
+      {
+        "sentence": "What was the cause ___ the accident?",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Smoking is a cause ___ many illnesses.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "The cause ___ the fire is still unknown.",
+        "valid_answers": [
+          "of"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_effect_on",
+    "group": "noun",
+    "level": 3,
+    "pattern": "effect + on",
+    "correct": "on",
+    "distractors": [
+      "to",
+      "of",
+      "for"
+    ],
+    "explanation": {
+      "de": "Nach 'effect' steht 'on' (Wirkung auf etwas).",
+      "es": "Después de 'effect' va 'on' (efecto en algo)."
+    },
+    "examples": [
+      {
+        "sentence": "Sugar has a big effect ___ your teeth.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "The medicine had no effect ___ him.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "Sport has a positive effect ___ your mood.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_information_about",
+    "group": "noun",
+    "level": 2,
+    "pattern": "information + about / on",
+    "correct": "about",
+    "distractors": [
+      "of",
+      "for",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'information' steht 'about' oder 'on'.",
+      "es": "Después de 'information' va 'about' u 'on'."
+    },
+    "examples": [
+      {
+        "sentence": "I need more information ___ this.",
+        "valid_answers": [
+          "about",
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Where can I find information ___ the school trip?",
+        "valid_answers": [
+          "about",
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's lots of information ___ the website.",
+        "valid_answers": [
+          "on",
+          "about"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_interest_in",
+    "group": "noun",
+    "level": 3,
+    "pattern": "interest + in",
+    "correct": "in",
+    "distractors": [
+      "for",
+      "of",
+      "on"
+    ],
+    "explanation": {
+      "de": "Nach 'interest' (Nomen) steht 'in' (Interesse an etwas).",
+      "es": "Después de 'interest' (sustantivo) va 'in' (no 'for' como en 'interés por')."
+    },
+    "examples": [
+      {
+        "sentence": "She has no interest ___ sports.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a lot of interest ___ the new film.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "His interest ___ science started early.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_need_for",
+    "group": "noun",
+    "level": 3,
+    "pattern": "need + for",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "to",
+      "about"
+    ],
+    "explanation": {
+      "de": "Nach 'need' (Nomen) steht 'for' (Bedarf an etwas).",
+      "es": "Después de 'need' (sustantivo) va 'for' (no 'of' como en 'necesidad de')."
+    },
+    "examples": [
+      {
+        "sentence": "There's no need ___ tears.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We have a real need ___ more teachers.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "The need ___ clean water is urgent.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_problem_with",
+    "group": "noun",
+    "level": 2,
+    "pattern": "problem + with",
+    "correct": "with",
+    "distractors": [
+      "of",
+      "for",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'problem' steht 'with' (Problem mit etwas/jemandem).",
+      "es": "Después de 'problem' va 'with' (problema con algo/alguien)."
+    },
+    "examples": [
+      {
+        "sentence": "I have a problem ___ my computer.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "What's your problem ___ him?",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's a problem ___ this plan.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_solution_to",
+    "group": "noun",
+    "level": 3,
+    "pattern": "solution + to",
+    "correct": "to",
+    "distractors": [
+      "for",
+      "of",
+      "with"
+    ],
+    "explanation": {
+      "de": "Nach 'solution' steht 'to' (nicht 'for' wie bei 'Lösung für').",
+      "es": "Después de 'solution' va 'to' (solución a algo)."
+    },
+    "examples": [
+      {
+        "sentence": "What's the solution ___ this problem?",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There's no easy solution ___ that question.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "We're looking for a solution ___ the crisis.",
+        "valid_answers": [
+          "to"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_trouble_with",
+    "group": "noun",
+    "level": 3,
+    "pattern": "trouble + with",
+    "correct": "with",
+    "distractors": [
+      "of",
+      "for",
+      "to"
+    ],
+    "explanation": {
+      "de": "Nach 'trouble' steht 'with' (Schwierigkeiten mit etwas).",
+      "es": "Después de 'trouble' va 'with' (problemas con algo)."
+    },
+    "examples": [
+      {
+        "sentence": "She's having trouble ___ her homework.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I'm in trouble ___ my teacher.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "The trouble ___ this car is the engine.",
+        "valid_answers": [
+          "with"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_by_transport",
+    "group": "transport",
+    "level": 2,
+    "pattern": "by + means of transport",
+    "correct": "by",
+    "distractors": [
+      "with",
+      "in",
+      "on"
+    ],
+    "explanation": {
+      "de": "Vor Verkehrsmitteln (im Allgemeinen) steht 'by' — nicht 'with'!",
+      "es": "Antes de medios de transporte (en general) va 'by' — ¡no 'in'!"
+    },
+    "examples": [
+      {
+        "sentence": "I go to school ___ bus.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "We travelled ___ train.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 1
+      },
+      {
+        "sentence": "She came ___ bike today.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_on_foot",
+    "group": "transport",
+    "level": 2,
+    "pattern": "on + foot",
+    "correct": "on",
+    "distractors": [
+      "by",
+      "at",
+      "with"
+    ],
+    "explanation": {
+      "de": "'zu Fuß' heißt auf Englisch 'on foot' — nicht 'by foot'!",
+      "es": "'a pie' en inglés es 'on foot' — ¡no 'by foot'!"
+    },
+    "examples": [
+      {
+        "sentence": "I came here ___ foot.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "It's faster to go ___ foot than by car.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We crossed the bridge ___ foot.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_in_car_taxi",
+    "group": "transport",
+    "level": 2,
+    "pattern": "in + car / taxi",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "by",
+      "at"
+    ],
+    "explanation": {
+      "de": "Bei 'car' und 'taxi' steht 'in' (man sitzt drin) — sonst meistens 'on' (on the bus/train/plane).",
+      "es": "Con 'car' y 'taxi' va 'in' (estás dentro) — pero con 'bus/train/plane' va 'on'."
+    },
+    "examples": [
+      {
+        "sentence": "I left my phone ___ the car.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She arrived ___ a taxi.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "There were four people ___ the car.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_by_accident",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "by + accident / mistake / chance",
+    "correct": "by",
+    "distractors": [
+      "on",
+      "with",
+      "in"
+    ],
+    "explanation": {
+      "de": "Vor 'accident', 'mistake', 'chance' steht 'by' (unbeabsichtigt, zufällig).",
+      "es": "Antes de 'accident', 'mistake', 'chance' va 'by' (sin querer, por casualidad)."
+    },
+    "examples": [
+      {
+        "sentence": "I broke the glass ___ accident.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We met ___ chance in the park.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He sent the email ___ mistake.",
+        "valid_answers": [
+          "by"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_on_time",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "on + time",
+    "correct": "on",
+    "distractors": [
+      "in",
+      "at",
+      "by"
+    ],
+    "explanation": {
+      "de": "'on time' = pünktlich (genau zum vereinbarten Zeitpunkt). ABER: 'in time' = rechtzeitig (vor einer Frist).",
+      "es": "'on time' = puntual (exactamente a la hora). PERO: 'in time' = a tiempo (antes de un límite)."
+    },
+    "examples": [
+      {
+        "sentence": "The train arrived ___ time.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Please be ___ time tomorrow.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's never ___ time for class.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_in_time",
+    "group": "phrase",
+    "level": 3,
+    "pattern": "in + time",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "by"
+    ],
+    "explanation": {
+      "de": "'in time' = rechtzeitig (vor einer Frist, nicht zu spät). ABER: 'on time' = pünktlich.",
+      "es": "'in time' = a tiempo (antes de un límite). PERO: 'on time' = puntual."
+    },
+    "examples": [
+      {
+        "sentence": "We arrived just ___ time for the film.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He finished his homework ___ time.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "Will we be home ___ time for dinner?",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_in_the_end",
+    "group": "phrase",
+    "level": 3,
+    "pattern": "in + the end",
+    "correct": "in",
+    "distractors": [
+      "at",
+      "on",
+      "by"
+    ],
+    "explanation": {
+      "de": "'in the end' = schließlich, am Ende (als Resultat). 'at the end of …' wäre der Endpunkt von etwas Konkretem.",
+      "es": "'in the end' = al final, finalmente (como resultado). 'at the end of …' sería el punto final de algo concreto."
+    },
+    "examples": [
+      {
+        "sentence": "___ the end, we decided to stay.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She got the job ___ the end.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "___ the end, everything turned out fine.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_in_fact",
+    "group": "phrase",
+    "level": 3,
+    "pattern": "in + fact",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "by"
+    ],
+    "explanation": {
+      "de": "'in fact' = in der Tat, tatsächlich (eine Aussage verstärken).",
+      "es": "'in fact' = de hecho, en realidad (para reforzar una afirmación)."
+    },
+    "examples": [
+      {
+        "sentence": "___ fact, I quite enjoyed it.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "He's good at maths — ___ fact, he's the best in class.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "___ fact, that's not true.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_in_love",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "in + love (with)",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "with"
+    ],
+    "explanation": {
+      "de": "'in love (with)' = verliebt (in).",
+      "es": "'in love (with)' = enamorado/a (de)."
+    },
+    "examples": [
+      {
+        "sentence": "She's ___ love with him.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "They fell ___ love last summer.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Are you ___ love?",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_on_holiday",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "on + holiday",
+    "correct": "on",
+    "distractors": [
+      "in",
+      "at",
+      "for"
+    ],
+    "explanation": {
+      "de": "'on holiday' = im Urlaub (UK); 'on vacation' (US). NICHT 'in holiday'!",
+      "es": "'on holiday' = de vacaciones. ¡No 'in holiday'!"
+    },
+    "examples": [
+      {
+        "sentence": "We're going ___ holiday next week.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She's ___ holiday in Italy.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "What did you do ___ holiday?",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_on_purpose",
+    "group": "phrase",
+    "level": 3,
+    "pattern": "on + purpose",
+    "correct": "on",
+    "distractors": [
+      "with",
+      "by",
+      "for"
+    ],
+    "explanation": {
+      "de": "'on purpose' = absichtlich (Gegenteil von 'by accident').",
+      "es": "'on purpose' = a propósito (opuesto a 'by accident')."
+    },
+    "examples": [
+      {
+        "sentence": "He did it ___ purpose!",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "I didn't break it ___ purpose.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      },
+      {
+        "sentence": "She arrived late ___ purpose.",
+        "valid_answers": [
+          "on"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_at_first",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "at + first / last / least",
+    "correct": "at",
+    "distractors": [
+      "in",
+      "on",
+      "by"
+    ],
+    "explanation": {
+      "de": "'at first' = zuerst, anfangs; 'at last' = endlich; 'at least' = mindestens.",
+      "es": "'at first' = al principio; 'at last' = por fin; 'at least' = al menos."
+    },
+    "examples": [
+      {
+        "sentence": "___ first I didn't understand.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "___ last, the holidays are here!",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Try it ___ least once.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 3
+      }
+    ]
+  },
+  {
+    "id": "prep_at_the_moment",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "at + the moment",
+    "correct": "at",
+    "distractors": [
+      "in",
+      "on",
+      "for"
+    ],
+    "explanation": {
+      "de": "'at the moment' = im Moment, gerade jetzt.",
+      "es": "'at the moment' = en este momento, ahora mismo."
+    },
+    "examples": [
+      {
+        "sentence": "She's busy ___ the moment.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "___ the moment, I'm reading a book.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "He's not here ___ the moment.",
+        "valid_answers": [
+          "at"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_for_example",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "for + example",
+    "correct": "for",
+    "distractors": [
+      "of",
+      "as",
+      "by"
+    ],
+    "explanation": {
+      "de": "'for example' = zum Beispiel.",
+      "es": "'for example' = por ejemplo."
+    },
+    "examples": [
+      {
+        "sentence": "I love fruit — apples, ___ example.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Some animals, ___ example dolphins, are very clever.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "You can use vegetables — ___ example carrots.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_for_fun",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "for + fun",
+    "correct": "for",
+    "distractors": [
+      "with",
+      "in",
+      "by"
+    ],
+    "explanation": {
+      "de": "'for fun' = zum Spaß, aus Spaß.",
+      "es": "'for fun' = por diversión, para divertirse."
+    },
+    "examples": [
+      {
+        "sentence": "I play football ___ fun, not money.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "We did it ___ fun.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She writes stories ___ fun.",
+        "valid_answers": [
+          "for"
+        ],
+        "difficulty": 2
+      }
+    ]
+  },
+  {
+    "id": "prep_in_a_hurry",
+    "group": "phrase",
+    "level": 2,
+    "pattern": "in + a hurry",
+    "correct": "in",
+    "distractors": [
+      "on",
+      "at",
+      "with"
+    ],
+    "explanation": {
+      "de": "'in a hurry' = in Eile.",
+      "es": "'in a hurry' = con prisa, deprisa."
+    },
+    "examples": [
+      {
+        "sentence": "I can't talk now — I'm ___ a hurry.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "Don't drive ___ a hurry.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      },
+      {
+        "sentence": "She left ___ a hurry.",
+        "valid_answers": [
+          "in"
+        ],
+        "difficulty": 2
+      }
+    ]
+  }
+]

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tower Defense 3D</title>
+  <link rel="stylesheet" href="css/game3d.css">
+</head>
+<body class="state-menu game-inactive">
+  <div id="game-wrapper">
+    <div id="game-container">
+      <!-- canvas fills the window; all UI floats on top of it. -->
+      <div id="canvas-frame">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="top-hud">
+          <div class="hud-group hud-left">
+            <div class="hud-chip hud-coins">
+              <span class="coin-icon" aria-hidden="true"></span>
+              <span id="coin-count">0</span>
+            </div>
+            <div class="hud-chip hud-lives" id="lives-container"></div>
+          </div>
+          <div class="hud-group hud-center">
+            <div class="hud-chip hud-phase" id="phase-label">BUILD PHASE</div>
+          </div>
+          <div class="hud-group hud-right">
+            <div class="hud-chip hud-wave">Wave <span id="wave-count">0</span>/<span id="wave-total">20</span></div>
+            <button id="mute-btn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+            <button id="end-game-btn" title="End run (return to menu)" aria-label="End run">✕</button>
+          </div>
+        </div>
+
+        <div id="wave-banner" class="hidden"></div>
+
+        <!-- Bottom dock: tower cards + start-wave. The wrapper ignores pointer events
+             so clicks on empty space still reach the battlefield. -->
+        <div id="bottom-dock">
+          <div id="tower-info" class="hidden"></div>
+          <div id="dock-row">
+            <div id="tower-buttons"></div>
+            <button id="start-wave-btn">
+              <span class="swb-label">Start wave</span>
+              <span class="hotkey">Space</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlays cover the whole game-container to modal-block. -->
+      <div id="wave-complete-overlay" class="overlay hidden">
+        <div class="overlay-panel">
+          <div class="overlay-title">Wave <span id="wc-num"></span> complete!</div>
+          <div class="overlay-subtitle">+<span id="wc-bonus"></span> <span class="coin-icon coin-icon-sm" aria-hidden="true"></span></div>
+          <div class="overlay-hint">click to continue</div>
+        </div>
+      </div>
+
+      <div id="game-over-overlay" class="overlay overlay-nodismiss hidden">
+        <div class="overlay-panel">
+          <div class="overlay-title">Game over</div>
+          <div class="overlay-subtitle">Reached wave <span id="go-wave"></span>/<span id="go-total"></span></div>
+          <div class="overlay-best">Best: wave <span id="go-best">0</span></div>
+          <div class="overlay-actions">
+            <button class="overlay-btn" data-action="restart">Play again</button>
+            <button class="overlay-btn secondary" data-action="menu">Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="victory-overlay" class="overlay overlay-nodismiss hidden">
+        <div class="overlay-panel">
+          <div class="overlay-title">Victory!</div>
+          <div class="overlay-subtitle">All <span id="vc-total"></span> waves cleared.</div>
+          <div class="overlay-best">Best: wave <span id="vc-best">0</span></div>
+          <div class="overlay-actions">
+            <button class="overlay-btn" data-action="restart">Play again</button>
+            <button class="overlay-btn secondary" data-action="menu">Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quiz-overlay" class="overlay overlay-nodismiss hidden">
+        <div class="quiz-panel">
+          <div class="quiz-header">
+            <span class="quiz-badge">Verb check!</span>
+            <span class="quiz-progress">Question <span id="quiz-num">1</span> of 2</span>
+          </div>
+          <div class="quiz-chain" id="quiz-chain"></div>
+          <div class="quiz-answers" id="quiz-answers"></div>
+          <div class="quiz-feedback" id="quiz-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start menu — full-viewport, with level selection. -->
+    <div id="menu-overlay" class="menu-fullscreen">
+      <div class="menu-panel">
+        <div class="menu-title">Tower Defense <span class="menu-3d">3D</span></div>
+        <div class="menu-subtitle">Practice irregular verbs, defend the goal.</div>
+        <div id="level-cards"></div>
+        <div class="menu-hint">Space — start wave · 1-4 — pick tower · Esc — cancel · Del — sell</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js (vendored r147 classic build) + GLTFLoader for future glTF/GLB assets. -->
+  <script src="lib/three.min.js"></script>
+  <script src="lib/GLTFLoader.js"></script>
+
+  <!-- Level data (bundled as JS so file:// works without a local server). -->
+  <script src="levels/level1.js"></script>
+  <script src="levels/level2.js"></script>
+  <script src="levels/level3.js"></script>
+
+  <!-- Game modules. Script order = dependency order. -->
+  <script src="js/audio.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/level.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/projectile.js"></script>
+  <script src="js/tower.js"></script>
+  <script src="js/wave.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "td-game",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "//wsl.localhost/ubuntu/home/jan/TowerDefenseHTML", "-p", "8080", "-a", "127.0.0.1", "-c-1"],
+      "port": 8080
+    },
+    {
+      "name": "td-game-verify",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "//wsl.localhost/ubuntu/home/jan/TowerDefenseHTML", "-p", "8090", "-a", "127.0.0.1", "-c-1"],
+      "port": 8090
+    }
+  ]
+}

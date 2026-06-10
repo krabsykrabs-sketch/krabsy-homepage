@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "editor",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "http-server", "\\\\wsl.localhost\\ubuntu\\home\\jan\\3DPlat", "-p", "8901", "-c-1", "--silent"],
+      "port": 8901
+    }
+  ]
+}

@@ -1,0 +1,2680 @@
+{
+  "name": "Mana Seed Farmer",
+  "defaultAnimation": "idle",
+  "animations": {
+    "idle": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            0
+          ]
+        },
+        "up": {
+          "frames": [
+            16
+          ]
+        },
+        "side": {
+          "frames": [
+            32
+          ]
+        }
+      }
+    },
+    "walk": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            48,
+            49,
+            50,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            52,
+            53,
+            54,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "side": {
+          "frames": [
+            64,
+            65,
+            66,
+            67,
+            68,
+            69
+          ]
+        }
+      }
+    },
+    "push": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            8,
+            9
+          ]
+        },
+        "up": {
+          "frames": [
+            24,
+            25
+          ]
+        },
+        "right": {
+          "frames": [
+            40,
+            41
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        }
+      }
+    },
+    "walk while carrying": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            80,
+            81,
+            82,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            84,
+            85,
+            86,
+            {
+              "mirrorOf": 0
+            },
+            {
+              "mirrorOf": 1
+            },
+            {
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            96,
+            97,
+            98,
+            99,
+            100,
+            101
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        }
+      }
+    },
+    "run": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "index": 48,
+              "ms": 80
+            },
+            {
+              "index": 49,
+              "ms": 55
+            },
+            {
+              "index": 51,
+              "ms": 115
+            },
+            {
+              "mirrorOf": 0,
+              "ms": 80
+            },
+            {
+              "mirrorOf": 1,
+              "ms": 55
+            },
+            {
+              "mirrorOf": 2,
+              "ms": 115
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "index": 52,
+              "ms": 80
+            },
+            {
+              "index": 53,
+              "ms": 55
+            },
+            {
+              "index": 55,
+              "ms": 115
+            },
+            {
+              "mirrorOf": 0,
+              "ms": 80
+            },
+            {
+              "mirrorOf": 1,
+              "ms": 55
+            },
+            {
+              "mirrorOf": 2,
+              "ms": 115
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            64,
+            65,
+            70,
+            67,
+            68,
+            71
+          ]
+        },
+        "left": {
+          "frames": [],
+          "mirror": "right"
+        }
+      }
+    },
+    "jump": {
+      "frameWidth": 0,
+      "frameHeight": 0,
+      "columns": 1,
+      "rows": 1,
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": []
+        },
+        "up": {
+          "frames": []
+        },
+        "right": {
+          "frames": []
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "attack": {
+      "frameWidth": 0,
+      "frameHeight": 0,
+      "columns": 1,
+      "rows": 1,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": []
+        },
+        "up": {
+          "frames": []
+        },
+        "right": {
+          "frames": []
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "pull": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 10
+            },
+            {
+              "ms": 400,
+              "index": 11
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 26
+            },
+            {
+              "ms": 400,
+              "index": 27
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 42
+            },
+            {
+              "ms": 400,
+              "index": 43
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "walk_carry": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 135,
+              "index": 80
+            },
+            {
+              "ms": 135,
+              "index": 81
+            },
+            {
+              "ms": 135,
+              "index": 82
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 0
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 1
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 135,
+              "index": 84
+            },
+            {
+              "ms": 135,
+              "index": 85
+            },
+            {
+              "ms": 135,
+              "index": 86
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 0
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 1
+            },
+            {
+              "ms": 135,
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 135,
+              "index": 96
+            },
+            {
+              "ms": 135,
+              "index": 97
+            },
+            {
+              "ms": 135,
+              "index": 98
+            },
+            {
+              "ms": 135,
+              "index": 99
+            },
+            {
+              "ms": 135,
+              "index": 100
+            },
+            {
+              "ms": 135,
+              "index": 101
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "run_carry": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 80,
+              "index": 80
+            },
+            {
+              "ms": 55,
+              "index": 81
+            },
+            {
+              "ms": 115,
+              "index": 83
+            },
+            {
+              "ms": 80,
+              "mirrorOf": 0
+            },
+            {
+              "ms": 55,
+              "mirrorOf": 1
+            },
+            {
+              "ms": 115,
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 80,
+              "index": 84
+            },
+            {
+              "ms": 55,
+              "index": 85
+            },
+            {
+              "ms": 115,
+              "index": 87
+            },
+            {
+              "ms": 80,
+              "mirrorOf": 0
+            },
+            {
+              "ms": 55,
+              "mirrorOf": 1
+            },
+            {
+              "ms": 115,
+              "mirrorOf": 2
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 80,
+              "index": 96
+            },
+            {
+              "ms": 55,
+              "index": 97
+            },
+            {
+              "ms": 115,
+              "index": 102
+            },
+            {
+              "ms": 80,
+              "index": 99
+            },
+            {
+              "ms": 55,
+              "index": 100
+            },
+            {
+              "ms": 115,
+              "index": 103
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "jump_carry": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 4
+            },
+            {
+              "ms": 350,
+              "index": 5
+            },
+            {
+              "ms": 300,
+              "index": 4
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 20
+            },
+            {
+              "ms": 350,
+              "index": 21
+            },
+            {
+              "ms": 300,
+              "index": 20
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 36
+            },
+            {
+              "ms": 350,
+              "index": 37
+            },
+            {
+              "ms": 300,
+              "index": 36
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "pickup_carry": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 130
+            },
+            {
+              "ms": "hold",
+              "index": 3
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 146
+            },
+            {
+              "ms": "hold",
+              "index": 19
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 162
+            },
+            {
+              "ms": "hold",
+              "index": 35
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "throw_carried": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 6
+            },
+            {
+              "ms": 400,
+              "index": 7
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 22
+            },
+            {
+              "ms": 400,
+              "index": 23
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 38
+            },
+            {
+              "ms": 400,
+              "index": 39
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "work_at_desk": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 126
+            },
+            {
+              "ms": 200,
+              "mirrorOf": 0
+            }
+          ]
+        }
+      }
+    },
+    "wave": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 92
+            },
+            {
+              "ms": 200,
+              "index": 93
+            }
+          ]
+        }
+      }
+    },
+    "hugs": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 104
+            },
+            {
+              "ms": "hold",
+              "index": 105
+            }
+          ]
+        }
+      }
+    },
+    "sing": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 60
+            },
+            {
+              "ms": 180,
+              "index": 61
+            }
+          ]
+        }
+      }
+    },
+    "flute_ocarina": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 62
+            },
+            {
+              "ms": 180,
+              "index": 63
+            }
+          ]
+        }
+      }
+    },
+    "lute_guitar": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 76
+            },
+            {
+              "ms": 180,
+              "index": 77
+            }
+          ]
+        }
+      }
+    },
+    "drums": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 78
+            },
+            {
+              "ms": 180,
+              "index": 79
+            }
+          ]
+        }
+      }
+    },
+    "hurt_down_right_left": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 178
+            }
+          ]
+        }
+      }
+    },
+    "hurt_up": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 181
+            }
+          ]
+        }
+      }
+    },
+    "death_bounce_down_right_left": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 178
+            },
+            {
+              "ms": 200,
+              "index": 179
+            },
+            {
+              "ms": 100,
+              "index": 180
+            },
+            {
+              "ms": 200,
+              "index": 179
+            },
+            {
+              "ms": "hold",
+              "index": 180
+            }
+          ]
+        }
+      }
+    },
+    "death_bounce_up": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 181
+            },
+            {
+              "ms": 200,
+              "index": 182
+            },
+            {
+              "ms": 100,
+              "index": 183
+            },
+            {
+              "ms": 200,
+              "index": 182
+            },
+            {
+              "ms": "hold",
+              "index": 183
+            }
+          ]
+        }
+      }
+    },
+    "evade": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 176
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 177
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 120,
+              "index": 176
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "sit_on_ledge": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 120
+            },
+            {
+              "ms": 200,
+              "index": 121
+            },
+            {
+              "ms": 200,
+              "index": 122
+            }
+          ]
+        }
+      }
+    },
+    "sit_chair": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 195
+            }
+          ]
+        }
+      }
+    },
+    "meditate": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 15
+            }
+          ]
+        }
+      }
+    },
+    "sleep": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 199
+            }
+          ]
+        }
+      }
+    },
+    "sleep_sit": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 196
+            }
+          ]
+        }
+      }
+    },
+    "thumbs_up": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 243
+            }
+          ]
+        }
+      }
+    },
+    "mad_stomp": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 245
+            },
+            {
+              "ms": 160,
+              "mirrorOf": 0
+            }
+          ]
+        }
+      }
+    },
+    "shocked": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 244
+            }
+          ]
+        }
+      }
+    },
+    "laugh": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 246
+            },
+            {
+              "ms": 160,
+              "index": 247
+            }
+          ]
+        }
+      }
+    },
+    "sit_on_floor": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 197
+            }
+          ]
+        }
+      }
+    },
+    "impatient": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 300,
+              "index": 193
+            },
+            {
+              "ms": 300,
+              "index": 194
+            }
+          ]
+        }
+      }
+    },
+    "climb": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 117
+            },
+            {
+              "ms": 160,
+              "index": 118
+            },
+            {
+              "ms": 160,
+              "mirrorOf": 1
+            },
+            {
+              "ms": 160,
+              "mirrorOf": 0
+            }
+          ]
+        }
+      }
+    },
+    "top_of_climb": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 119
+            }
+          ]
+        }
+      }
+    },
+    "sad": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 242
+            }
+          ]
+        }
+      }
+    },
+    "mount_up": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 32
+            },
+            {
+              "ms": 180,
+              "index": 104
+            },
+            {
+              "ms": 180,
+              "index": 119
+            },
+            {
+              "ms": "hold",
+              "index": 88
+            }
+          ]
+        }
+      }
+    },
+    "ride_mount": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 56
+            },
+            {
+              "ms": 180,
+              "index": 57
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 72
+            },
+            {
+              "ms": 180,
+              "index": 73
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 88
+            },
+            {
+              "ms": 180,
+              "index": 89
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "sooth_mount": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 58
+            },
+            {
+              "ms": 200,
+              "index": 59
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 74
+            },
+            {
+              "ms": 200,
+              "index": 75
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 200,
+              "index": 90
+            },
+            {
+              "ms": 200,
+              "index": 91
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "pet_dog_cat": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 108
+            },
+            {
+              "ms": 180,
+              "index": 109
+            }
+          ]
+        }
+      }
+    },
+    "milk_cow": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 110
+            },
+            {
+              "ms": 180,
+              "index": 111
+            }
+          ]
+        }
+      }
+    },
+    "pet_horse": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 106
+            },
+            {
+              "ms": 180,
+              "index": 107
+            }
+          ]
+        }
+      }
+    },
+    "overhand_strike": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 128
+            },
+            {
+              "ms": 80,
+              "index": 129
+            },
+            {
+              "ms": 80,
+              "index": 130
+            },
+            {
+              "ms": 300,
+              "index": 130
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 144
+            },
+            {
+              "ms": 80,
+              "index": 145
+            },
+            {
+              "ms": 80,
+              "index": 146
+            },
+            {
+              "ms": 300,
+              "index": 146
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 160
+            },
+            {
+              "ms": 80,
+              "index": 161
+            },
+            {
+              "ms": 80,
+              "index": 162
+            },
+            {
+              "ms": 300,
+              "index": 162
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "forehand_strike": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 131
+            },
+            {
+              "ms": 80,
+              "index": 132
+            },
+            {
+              "ms": 80,
+              "index": 133
+            },
+            {
+              "ms": 300,
+              "index": 133
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 147
+            },
+            {
+              "ms": 80,
+              "index": 148
+            },
+            {
+              "ms": 80,
+              "index": 149
+            },
+            {
+              "ms": 300,
+              "index": 149
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 163
+            },
+            {
+              "ms": 80,
+              "index": 164
+            },
+            {
+              "ms": 80,
+              "index": 165
+            },
+            {
+              "ms": 300,
+              "index": 165
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "scythe_swing": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 132
+            },
+            {
+              "ms": 80,
+              "index": 133
+            },
+            {
+              "ms": 80,
+              "index": 12
+            },
+            {
+              "ms": 300,
+              "index": 12
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 148
+            },
+            {
+              "ms": 80,
+              "index": 149
+            },
+            {
+              "ms": 80,
+              "index": 28
+            },
+            {
+              "ms": 300,
+              "index": 28
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 164
+            },
+            {
+              "ms": 80,
+              "index": 165
+            },
+            {
+              "ms": 80,
+              "index": 44
+            },
+            {
+              "ms": 300,
+              "index": 44
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "bugnet_swing": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 132
+            },
+            {
+              "ms": 80,
+              "index": 133
+            },
+            {
+              "ms": 80,
+              "index": 12
+            },
+            {
+              "ms": 300,
+              "index": 12
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 148
+            },
+            {
+              "ms": 80,
+              "index": 149
+            },
+            {
+              "ms": 80,
+              "index": 28
+            },
+            {
+              "ms": 300,
+              "index": 28
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 164
+            },
+            {
+              "ms": 80,
+              "index": 165
+            },
+            {
+              "ms": 80,
+              "index": 44
+            },
+            {
+              "ms": 300,
+              "index": 44
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "bow_shot": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 133
+            },
+            {
+              "ms": 500,
+              "index": 134
+            },
+            {
+              "ms": 80,
+              "index": 135
+            },
+            {
+              "ms": 80,
+              "index": 135
+            },
+            {
+              "ms": 300,
+              "index": 135
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 149
+            },
+            {
+              "ms": 500,
+              "index": 150
+            },
+            {
+              "ms": 80,
+              "index": 151
+            },
+            {
+              "ms": 80,
+              "index": 151
+            },
+            {
+              "ms": 300,
+              "index": 151
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 160,
+              "index": 165
+            },
+            {
+              "ms": 500,
+              "index": 166
+            },
+            {
+              "ms": 80,
+              "index": 167
+            },
+            {
+              "ms": 80,
+              "index": 167
+            },
+            {
+              "ms": 300,
+              "index": 167
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "plant_seeds": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 131
+            },
+            {
+              "ms": 100,
+              "index": 12
+            },
+            {
+              "ms": 100,
+              "index": 12
+            },
+            {
+              "ms": 100,
+              "index": 12
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 147
+            },
+            {
+              "ms": 100,
+              "index": 28
+            },
+            {
+              "ms": 100,
+              "index": 28
+            },
+            {
+              "ms": 100,
+              "index": 28
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 163
+            },
+            {
+              "ms": 100,
+              "index": 44
+            },
+            {
+              "ms": 100,
+              "index": 44
+            },
+            {
+              "ms": 100,
+              "index": 44
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "water": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 350,
+              "index": 131
+            },
+            {
+              "ms": 100,
+              "index": 133
+            },
+            {
+              "ms": 100,
+              "index": 133
+            },
+            {
+              "ms": 100,
+              "index": 133
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 350,
+              "index": 147
+            },
+            {
+              "ms": 100,
+              "index": 149
+            },
+            {
+              "ms": 100,
+              "index": 149
+            },
+            {
+              "ms": 100,
+              "index": 149
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 350,
+              "index": 163
+            },
+            {
+              "ms": 100,
+              "index": 165
+            },
+            {
+              "ms": 100,
+              "index": 165
+            },
+            {
+              "ms": 100,
+              "index": 165
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "smith": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 123
+            },
+            {
+              "ms": 400,
+              "index": 124
+            },
+            {
+              "ms": 100,
+              "index": 125
+            },
+            {
+              "ms": 100,
+              "index": 125
+            },
+            {
+              "ms": 100,
+              "index": 125
+            }
+          ]
+        }
+      }
+    },
+    "drink_standing": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 112
+            },
+            {
+              "ms": 800,
+              "index": 113
+            }
+          ]
+        }
+      }
+    },
+    "drink_at_bar": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": "hold",
+              "index": 94
+            },
+            {
+              "ms": 800,
+              "index": 95
+            }
+          ]
+        }
+      }
+    },
+    "cast_fishing_line": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 128
+            },
+            {
+              "ms": 100,
+              "index": 129
+            },
+            {
+              "ms": 100,
+              "index": 13
+            },
+            {
+              "ms": "hold",
+              "index": 13
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 144
+            },
+            {
+              "ms": 100,
+              "index": 145
+            },
+            {
+              "ms": 100,
+              "index": 29
+            },
+            {
+              "ms": "hold",
+              "index": 29
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 180,
+              "index": 160
+            },
+            {
+              "ms": 100,
+              "index": 161
+            },
+            {
+              "ms": 100,
+              "index": 45
+            },
+            {
+              "ms": "hold",
+              "index": 45
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "got_a_bite": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 300,
+              "index": 131
+            },
+            {
+              "ms": 400,
+              "index": 129
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 300,
+              "index": 147
+            },
+            {
+              "ms": 400,
+              "index": 145
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 300,
+              "index": 163
+            },
+            {
+              "ms": 400,
+              "index": 161
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    },
+    "got_it": {
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "columns": 16,
+      "rows": 16,
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "down": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 128
+            },
+            {
+              "ms": 900,
+              "index": 14
+            }
+          ]
+        },
+        "up": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 144
+            },
+            {
+              "ms": 900,
+              "index": 30
+            }
+          ]
+        },
+        "right": {
+          "frames": [
+            {
+              "ms": 400,
+              "index": 160
+            },
+            {
+              "ms": 900,
+              "index": 46
+            }
+          ]
+        },
+        "left": {
+          "mirror": "right"
+        }
+      }
+    }
+  },
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 16,
+  "rows": 16,
+  "anchor": {
+    "x": 32,
+    "y": 64
+  },
+  "equipmentSlots": [
+    {
+      "name": "Body",
+      "isBase": true,
+      "order": 0,
+      "defaultOption": "human_00",
+      "options": [
+        {
+          "name": "human_00",
+          "spriteSheet": "equipment/Body/human_00.png"
+        },
+        {
+          "name": "humannolegs_00",
+          "spriteSheet": "equipment/Body/humannolegs_00.png"
+        }
+      ]
+    },
+    {
+      "name": "00undr",
+      "isBase": false,
+      "order": 1,
+      "defaultOption": "cloakplain_00d",
+      "options": [
+        {
+          "name": "cloakplain_00d",
+          "spriteSheet": "equipment/00undr/cloakplain_00d.png"
+        },
+        {
+          "name": "cloakwithmantleplain_00b",
+          "spriteSheet": "equipment/00undr/cloakwithmantleplain_00b.png"
+        }
+      ]
+    },
+    {
+      "name": "02sock",
+      "isBase": false,
+      "order": 2,
+      "defaultOption": "sockshigh_00a",
+      "options": [
+        {
+          "name": "sockshigh_00a",
+          "spriteSheet": "equipment/02sock/sockshigh_00a.png"
+        },
+        {
+          "name": "sockslow_00a",
+          "spriteSheet": "equipment/02sock/sockslow_00a.png"
+        },
+        {
+          "name": "stockings_00a",
+          "spriteSheet": "equipment/02sock/stockings_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "03fot1",
+      "isBase": false,
+      "order": 3,
+      "defaultOption": "boots_00a",
+      "options": [
+        {
+          "name": "boots_00a",
+          "spriteSheet": "equipment/03fot1/boots_00a.png"
+        },
+        {
+          "name": "sandals_00a",
+          "spriteSheet": "equipment/03fot1/sandals_00a.png"
+        },
+        {
+          "name": "shoes_00a",
+          "spriteSheet": "equipment/03fot1/shoes_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "04lwr1",
+      "isBase": false,
+      "order": 4,
+      "defaultOption": "longpants_00a",
+      "options": [
+        {
+          "name": "longpants_00a",
+          "spriteSheet": "equipment/04lwr1/longpants_00a.png"
+        },
+        {
+          "name": "onepiece_00a",
+          "spriteSheet": "equipment/04lwr1/onepiece_00a.png"
+        },
+        {
+          "name": "onepieceboobs_00a",
+          "spriteSheet": "equipment/04lwr1/onepieceboobs_00a.png"
+        },
+        {
+          "name": "shorts_00a",
+          "spriteSheet": "equipment/04lwr1/shorts_00a.png"
+        },
+        {
+          "name": "undies_00a",
+          "spriteSheet": "equipment/04lwr1/undies_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "05shrt",
+      "isBase": false,
+      "order": 5,
+      "defaultOption": "bra_00a",
+      "options": [
+        {
+          "name": "bra_00a",
+          "spriteSheet": "equipment/05shrt/bra_00a.png"
+        },
+        {
+          "name": "longshirt_00a",
+          "spriteSheet": "equipment/05shrt/longshirt_00a.png"
+        },
+        {
+          "name": "longshirtboobs_00a",
+          "spriteSheet": "equipment/05shrt/longshirtboobs_00a.png"
+        },
+        {
+          "name": "shortshirt_00a",
+          "spriteSheet": "equipment/05shrt/shortshirt_00a.png"
+        },
+        {
+          "name": "shortshirtboobs_00a",
+          "spriteSheet": "equipment/05shrt/shortshirtboobs_00a.png"
+        },
+        {
+          "name": "tanktop_00a",
+          "spriteSheet": "equipment/05shrt/tanktop_00a.png"
+        },
+        {
+          "name": "tanktopboobs_00a",
+          "spriteSheet": "equipment/05shrt/tanktopboobs_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "06lwr2",
+      "isBase": false,
+      "order": 6,
+      "defaultOption": "overalls_00a",
+      "options": [
+        {
+          "name": "overalls_00a",
+          "spriteSheet": "equipment/06lwr2/overalls_00a.png"
+        },
+        {
+          "name": "overallsboobs_00a",
+          "spriteSheet": "equipment/06lwr2/overallsboobs_00a.png"
+        },
+        {
+          "name": "shortalls_00a",
+          "spriteSheet": "equipment/06lwr2/shortalls_00a.png"
+        },
+        {
+          "name": "shortallsboobs_00a",
+          "spriteSheet": "equipment/06lwr2/shortallsboobs_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "07fot2",
+      "isBase": false,
+      "order": 7,
+      "defaultOption": "cuffedboots_00a",
+      "options": [
+        {
+          "name": "cuffedboots_00a",
+          "spriteSheet": "equipment/07fot2/cuffedboots_00a.png"
+        },
+        {
+          "name": "curlytoeshoes_00a",
+          "spriteSheet": "equipment/07fot2/curlytoeshoes_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "08lwr3",
+      "isBase": false,
+      "order": 8,
+      "defaultOption": "frillydress_00a",
+      "options": [
+        {
+          "name": "frillydress_00a",
+          "spriteSheet": "equipment/08lwr3/frillydress_00a.png"
+        },
+        {
+          "name": "frillydressboobs_00a",
+          "spriteSheet": "equipment/08lwr3/frillydressboobs_00a.png"
+        },
+        {
+          "name": "frillyskirt_00a",
+          "spriteSheet": "equipment/08lwr3/frillyskirt_00a.png"
+        },
+        {
+          "name": "longdress_00a",
+          "spriteSheet": "equipment/08lwr3/longdress_00a.png"
+        },
+        {
+          "name": "longdressboobs_00a",
+          "spriteSheet": "equipment/08lwr3/longdressboobs_00a.png"
+        },
+        {
+          "name": "longskirt_00a",
+          "spriteSheet": "equipment/08lwr3/longskirt_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "09hand",
+      "isBase": false,
+      "order": 9,
+      "defaultOption": "gloves_00a",
+      "options": [
+        {
+          "name": "gloves_00a",
+          "spriteSheet": "equipment/09hand/gloves_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "10outr",
+      "isBase": false,
+      "order": 10,
+      "defaultOption": "suspenders_00a",
+      "options": [
+        {
+          "name": "suspenders_00a",
+          "spriteSheet": "equipment/10outr/suspenders_00a.png"
+        },
+        {
+          "name": "vest_00a",
+          "spriteSheet": "equipment/10outr/vest_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "11neck",
+      "isBase": false,
+      "order": 11,
+      "defaultOption": "cloakplain_00d",
+      "options": [
+        {
+          "name": "cloakplain_00d",
+          "spriteSheet": "equipment/11neck/cloakplain_00d.png"
+        },
+        {
+          "name": "cloakwithmantleplain_00b",
+          "spriteSheet": "equipment/11neck/cloakwithmantleplain_00b.png"
+        },
+        {
+          "name": "mantleplain_00b",
+          "spriteSheet": "equipment/11neck/mantleplain_00b.png"
+        },
+        {
+          "name": "scarf_00b",
+          "spriteSheet": "equipment/11neck/scarf_00b.png"
+        }
+      ]
+    },
+    {
+      "name": "12face",
+      "isBase": false,
+      "order": 12,
+      "defaultOption": "glasses_00a",
+      "options": [
+        {
+          "name": "glasses_00a",
+          "spriteSheet": "equipment/12face/glasses_00a.png"
+        },
+        {
+          "name": "shades_00a",
+          "spriteSheet": "equipment/12face/shades_00a.png"
+        }
+      ]
+    },
+    {
+      "name": "13hair",
+      "isBase": false,
+      "order": 13,
+      "defaultOption": "afro_00",
+      "options": [
+        {
+          "name": "afro_00",
+          "spriteSheet": "equipment/13hair/afro_00.png"
+        },
+        {
+          "name": "afropuffs_00",
+          "spriteSheet": "equipment/13hair/afropuffs_00.png"
+        },
+        {
+          "name": "bob1_00",
+          "spriteSheet": "equipment/13hair/bob1_00.png"
+        },
+        {
+          "name": "bob2_00",
+          "spriteSheet": "equipment/13hair/bob2_00.png"
+        },
+        {
+          "name": "bushy_00",
+          "spriteSheet": "equipment/13hair/bushy_00.png"
+        },
+        {
+          "name": "dapper_00",
+          "spriteSheet": "equipment/13hair/dapper_00.png"
+        },
+        {
+          "name": "flattop_00",
+          "spriteSheet": "equipment/13hair/flattop_00.png"
+        },
+        {
+          "name": "longbound_00",
+          "spriteSheet": "equipment/13hair/longbound_00.png"
+        },
+        {
+          "name": "longboundclasped_00f",
+          "spriteSheet": "equipment/13hair/longboundclasped_00f.png"
+        },
+        {
+          "name": "longwavy_00",
+          "spriteSheet": "equipment/13hair/longwavy_00.png"
+        },
+        {
+          "name": "mohawk_00",
+          "spriteSheet": "equipment/13hair/mohawk_00.png"
+        },
+        {
+          "name": "ponytail1_00",
+          "spriteSheet": "equipment/13hair/ponytail1_00.png"
+        },
+        {
+          "name": "spiky1_00",
+          "spriteSheet": "equipment/13hair/spiky1_00.png"
+        },
+        {
+          "name": "spiky2_00",
+          "spriteSheet": "equipment/13hair/spiky2_00.png"
+        },
+        {
+          "name": "topknot_00f",
+          "spriteSheet": "equipment/13hair/topknot_00f.png"
+        },
+        {
+          "name": "twintail_00",
+          "spriteSheet": "equipment/13hair/twintail_00.png"
+        },
+        {
+          "name": "twists_00",
+          "spriteSheet": "equipment/13hair/twists_00.png"
+        }
+      ]
+    },
+    {
+      "name": "14head",
+      "isBase": false,
+      "order": 14,
+      "defaultOption": "bandana_00b",
+      "options": [
+        {
+          "name": "bandana_00b",
+          "spriteSheet": "equipment/14head/bandana_00b.png"
+        },
+        {
+          "name": "boaterhat_00d",
+          "spriteSheet": "equipment/14head/boaterhat_00d.png"
+        },
+        {
+          "name": "boaterhat_01",
+          "spriteSheet": "equipment/14head/boaterhat_01.png"
+        },
+        {
+          "name": "cowboyhat_00d",
+          "spriteSheet": "equipment/14head/cowboyhat_00d.png"
+        },
+        {
+          "name": "cowboyhat_01",
+          "spriteSheet": "equipment/14head/cowboyhat_01.png"
+        },
+        {
+          "name": "floppyhat_00d",
+          "spriteSheet": "equipment/14head/floppyhat_00d.png"
+        },
+        {
+          "name": "floppyhat_01",
+          "spriteSheet": "equipment/14head/floppyhat_01.png"
+        },
+        {
+          "name": "headscarf_00b",
+          "spriteSheet": "equipment/14head/headscarf_00b.png"
+        },
+        {
+          "name": "mushroom1_00d",
+          "spriteSheet": "equipment/14head/mushroom1_00d.png"
+        },
+        {
+          "name": "mushroom1_01",
+          "spriteSheet": "equipment/14head/mushroom1_01.png"
+        },
+        {
+          "name": "mushroom1_02",
+          "spriteSheet": "equipment/14head/mushroom1_02.png"
+        },
+        {
+          "name": "mushroom1_03",
+          "spriteSheet": "equipment/14head/mushroom1_03.png"
+        },
+        {
+          "name": "mushroom1_04",
+          "spriteSheet": "equipment/14head/mushroom1_04.png"
+        },
+        {
+          "name": "mushroom1_05",
+          "spriteSheet": "equipment/14head/mushroom1_05.png"
+        },
+        {
+          "name": "strawhat_00d",
+          "spriteSheet": "equipment/14head/strawhat_00d.png"
+        },
+        {
+          "name": "strawhat_01",
+          "spriteSheet": "equipment/14head/strawhat_01.png"
+        }
+      ]
+    }
+  ]
+}
