@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-climb",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": ["-d", "ubuntu", "--", "bash", "-lc", "cd ~/krabsy-homepage/games/verb-climb && python3 -m http.server 8139"],
+      "port": 8139,
+      "autoPort": false
+    }
+  ]
+}

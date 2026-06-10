@@ -188,3 +188,65 @@ difficulty can ramp with altitude.
 ## Status log
 
 - 2026-06-10 — Brief written by the master session. Nothing built yet.
+- 2026-06-10 — **PoC built & verified.** `krabsy-verb-climb.html` is a complete,
+  self-contained build (single file, ~50 KB, zero external assets bar Google
+  Fonts; canvas 2D + WebAudio synth). Implements the full core loop, the feel
+  checklist, 24 object types with hand-authored collision profiles, a
+  reachability-validated procedural generator, study mode, summit, and the
+  day→dusk sky spectacle. Curated 55 common verbs inlined (canonical forms
+  pulled from `../../content/irregular-verbs.json`).
+
+  **What's done vs. the brief**
+  - Core loop ✓ — 8-segment energy; standard jump costs ⅓, charge jump costs
+    a full segment; at 0 energy you walk/study but can't jump (parked, never
+    stuck); study refuels +1 per correct answer, stop anytime.
+  - Movement ✓ — variable-height jump via hold-to-charge (one continuous
+    charge→strength curve; <0.5 charge = standard cost, ≥0.5 = charge cost,
+    auto-caps to standard if you can't afford a charge), full air control, no
+    double jump, coyote time (90 ms), jump buffering (130 ms), squash/stretch,
+    dust puffs, capped fall speed, "wheee" slide-whistle on long falls.
+  - Objects ✓ — 24 emoji types, code-drawn shadow + white surface accent so
+    they read solid; collision kinds: flat / slope (slide off roof) / dome
+    (wobbles, e.g. cat) / tiny perch (flower, umbrella) / hole (fall through
+    donut) / drift (the duck slides sideways).
+  - Generator ✓ — seeded (mulberry32), difficulty ramps with altitude, bottom
+    20 m is tutorial-easy, rest shelves every 25 m, summit at 120 m.
+    **Invariant proven: 400 random towers, 0 unreachable main-path gaps**
+    (`?qa=gentest&n=400` → "GENTEST PASS"). Reachability is sampled against the
+    real standard-jump physics (`simReach`).
+  - Questions ✓ — MC simple-past / past-participle, plausible distractors
+    (regularized "goed", swapped form, similar verb), form-colour convention
+    (base amber / past teal / participle coral), missed verbs recapped on the
+    summit screen as the learning review.
+  - Tone/look ✓ — Krabsy palette + Fredoka/Nunito, bright sky shading to
+    dusk+stars near the top, confetti + crab at the summit. Start / study /
+    summit screens in house style. Mute + best-height + summit-time persisted.
+
+  **Verification performed** (serve this folder statically; proven workaround
+  for the hanging preview screenshot = headless Edge + `?qa=` scenes):
+  - `?qa=gentest&n=400` → PASS (generator invariant).
+  - Drove the loop via `window.__VC` in a real renderer: jump deducts ⅓
+    (standard) / 1 (charge) / caps to standard when broke; dry = parked;
+    correct answer +1; wrong answer shows the chain + no refill; charge
+    threshold logic all correct.
+  - Confirmed canvas emoji rasterize in **full colour** in a real browser
+    (pixel-sampled 🌸/🐱/🍩/🛋️ ≈ 90–98 % saturated). NOTE: headless Edge with
+    `--disable-gpu` renders canvas emoji *desaturated* — that's a screenshot
+    artifact, not the in-browser look.
+  - Zero console errors on plain + all `?qa=` loads.
+  - `?qa=` scenes: `start`, `scene` (frozen mid-climb), `study`, `summit`,
+    `gentest`. `?seed=N` fixes the seed; `window.__VC` exposes
+    teleport/setEnergy/jump/openStudy/answer/state/runGenTest/validate.
+
+  **Fixed during the session:** canvas sized 0 when the inline script ran
+  before layout (no resize event ever fired) — the render loop now re-syncs
+  size each frame, so it's robust to container resizes too.
+
+  **Known limitations / next ideas:** touch controls are present but
+  desktop-first as specified; real-time multi-frame play wasn't auto-driven
+  (preview RAF throttles in a background tab) but physics constants are shared
+  with the proven `simReach` validator. A `.claude/launch.json` (port 8139)
+  was added for one-command local preview in future sessions.
+
+  Ready for master-session review & release (wrapper pages + `games.json` +
+  JSON-LD + sitemap).

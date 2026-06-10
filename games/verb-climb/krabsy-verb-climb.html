@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Verb Climb 🦀 — Krabsy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e;
+    --ink:#1d2b3a; --ink2:#3a4a5c;
+    --panel:rgba(255,255,255,.92);
+    --shadow:0 10px 30px rgba(20,40,60,.25);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden;background:#bfe9ff;
+    font-family:Nunito,system-ui,sans-serif;color:var(--ink);
+    -webkit-user-select:none;user-select:none;touch-action:none}
+  #wrap{position:fixed;inset:0}
+  canvas{display:block;width:100%;height:100%}
+
+  /* ---------- HUD ---------- */
+  #hud{position:absolute;inset:0;pointer-events:none;font-weight:800}
+  #energyWrap{position:absolute;top:max(12px,env(safe-area-inset-top));left:50%;
+    transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
+  #energy{display:flex;gap:4px;padding:6px 8px;background:rgba(255,255,255,.78);
+    border-radius:14px;box-shadow:var(--shadow)}
+  .seg{width:26px;height:16px;border-radius:5px;background:rgba(29,43,58,.16);
+    position:relative;overflow:hidden}
+  .seg i{position:absolute;inset:0;background:linear-gradient(180deg,#5ff0d4,var(--teal));
+    transform-origin:left;transform:scaleX(0);transition:transform .25s ease}
+  #energyLbl{font-size:12px;color:var(--ink2);background:rgba(255,255,255,.7);
+    padding:1px 10px;border-radius:10px}
+  #energyLbl.dry{color:#fff;background:var(--coral)}
+
+  #heightMeter{position:absolute;top:0;bottom:0;right:max(8px,env(safe-area-inset-right));
+    width:54px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #meterBar{position:relative;width:8px;height:62%;background:rgba(255,255,255,.55);
+    border-radius:6px;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
+  #meterFill{position:absolute;left:0;right:0;bottom:0;height:0%;
+    background:linear-gradient(180deg,var(--amber),var(--coral));border-radius:6px}
+  #meterFlag{position:absolute;left:-22px;width:50px;text-align:center;font-size:11px;
+    color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45);transform:translateY(50%)}
+  #meterTop{font-size:14px;margin-bottom:4px}
+  #meterBest{font-size:11px;margin-top:4px;color:var(--ink2)}
+
+  #topBtns{position:absolute;top:max(12px,env(safe-area-inset-top));
+    left:max(10px,env(safe-area-inset-left));display:flex;gap:8px;pointer-events:auto}
+  .iconBtn{width:42px;height:42px;border:none;border-radius:13px;background:rgba(255,255,255,.82);
+    box-shadow:var(--shadow);font-size:20px;cursor:pointer;display:grid;place-items:center}
+  .iconBtn:active{transform:translateY(1px)}
+  #studyChip{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:50%;
+    transform:translateX(-50%);pointer-events:auto;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#ffe08a,var(--amber));color:#5a3d00;font-weight:800;
+    font-family:Nunito;font-size:15px;padding:11px 18px;border-radius:16px;box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:7px}
+  #studyChip:active{transform:translateX(-50%) translateY(1px)}
+  #studyChip.pulse{animation:pulse 1.1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:var(--shadow)}50%{box-shadow:0 0 0 6px rgba(255,207,94,.45),var(--shadow)}}
+
+  /* ---------- touch controls ---------- */
+  #touch{position:absolute;inset:0;pointer-events:none;display:none}
+  .tbtn{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));width:74px;height:74px;
+    border-radius:50%;background:rgba(255,255,255,.5);box-shadow:var(--shadow);
+    pointer-events:auto;display:grid;place-items:center;font-size:30px;color:var(--ink);border:none}
+  #tLeft{left:max(12px,env(safe-area-inset-left))}
+  #tRight{left:calc(max(12px,env(safe-area-inset-left)) + 86px)}
+  #tJump{right:max(12px,env(safe-area-inset-right));background:rgba(46,230,192,.6)}
+  body.touch #touch{display:block}
+  body.touch #studyChip{bottom:max(102px,calc(env(safe-area-inset-bottom) + 92px))}
+
+  /* ---------- overlays ---------- */
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    padding:18px;z-index:20}
+  .overlay.on{display:flex}
+  .card{background:var(--panel);border-radius:24px;box-shadow:var(--shadow);
+    max-width:430px;width:100%;padding:22px 22px 20px;text-align:center;max-height:94%;overflow:auto}
+  h1{font-family:Fredoka One;margin:.1em 0 .15em;font-size:30px;color:var(--ink);line-height:1.05}
+  h2{font-family:Fredoka One;margin:.1em 0 .3em;font-size:24px;color:var(--ink)}
+  .sub{color:var(--ink2);font-size:14px;margin:0 0 14px}
+  .mascot{font-size:54px;line-height:1;margin-bottom:2px}
+  .how{display:flex;flex-direction:column;gap:8px;text-align:left;margin:14px 0}
+  .howrow{display:flex;gap:11px;align-items:center;background:rgba(46,230,192,.12);
+    border-radius:13px;padding:9px 12px;font-size:14px;font-weight:700;color:var(--ink2)}
+  .howrow b{color:var(--ink)}
+  .howrow .e{font-size:22px;width:26px;text-align:center;flex:none}
+  .legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px}
+  .lchip{font-size:12px;font-weight:800;padding:4px 11px;border-radius:11px;color:#23303d}
+  .lchip.base{background:var(--amber)} .lchip.past{background:var(--teal)} .lchip.pp{background:var(--coral)}
+  .btn{border:none;cursor:pointer;font-family:Fredoka One;font-size:20px;color:#fff;
+    background:linear-gradient(180deg,#34f0c8,#16c4a3);padding:13px 30px;border-radius:18px;
+    box-shadow:var(--shadow);margin-top:8px}
+  .btn:active{transform:translateY(1px)}
+  .btn.coral{background:linear-gradient(180deg,#ff9b9b,#ff6f6f)}
+  .kbd{font-family:Nunito;font-weight:800;background:#fff;border:2px solid rgba(29,43,58,.18);
+    border-radius:7px;padding:0 7px;font-size:13px;color:var(--ink)}
+
+  /* ---------- study ---------- */
+  #study .card{max-width:400px}
+  #qPrompt{font-family:Fredoka One;font-size:25px;margin:6px 0 3px}
+  #qHint{color:var(--ink2);font-size:13px;margin-bottom:14px}
+  #qChips{display:flex;flex-direction:column;gap:10px}
+  .qchip{border:none;cursor:pointer;font-family:Nunito;font-weight:800;font-size:19px;
+    padding:13px;border-radius:15px;color:#22303d;box-shadow:var(--shadow);transition:transform .08s}
+  .qchip:active{transform:scale(.98)}
+  .qchip.past{background:var(--teal)} .qchip.pp{background:var(--coral)}
+  .qchip.right{outline:4px solid #19a983;animation:pop .3s} .qchip.wrong{outline:4px solid #c23b3b;opacity:.8}
+  @keyframes pop{50%{transform:scale(1.06)}}
+  #qChain{min-height:30px;margin:13px 0 4px;font-weight:800;font-size:18px}
+  #qChain .a{color:#bb7d00}#qChain .b{color:#0e9e80}#qChain .c{color:#d8504f}
+  #qStat{font-size:13px;color:var(--ink2);margin-bottom:8px}
+  #qBars{display:flex;gap:4px;justify-content:center;margin:4px 0 12px}
+  #qBars .s{width:22px;height:11px;border-radius:4px;background:rgba(29,43,58,.16)}
+  #qBars .s.f{background:var(--teal)}
+  .missrow{font-weight:800;margin:3px 0}
+  .missrow .a{color:#bb7d00}.missrow .b{color:#0e9e80}.missrow .c{color:#d8504f}
+
+  /* floating +1 */
+  #fx{position:absolute;inset:0;pointer-events:none;z-index:15;overflow:hidden}
+  .plus1{position:absolute;font-family:Fredoka One;color:#16c4a3;font-size:26px;
+    text-shadow:0 2px 6px rgba(255,255,255,.8);animation:rise 1s ease-out forwards}
+  @keyframes rise{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1}
+    100%{opacity:0;transform:translateY(-70px) scale(1.1)}}
+  .whee{position:absolute;font-family:Fredoka One;font-size:34px;color:#fff;
+    text-shadow:0 3px 10px rgba(0,0,0,.3);animation:whee .9s ease-out forwards}
+  @keyframes whee{0%{opacity:0;transform:scale(.4)}25%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.4)}}
+  #qaout{position:absolute;left:6px;bottom:6px;font:12px monospace;color:#04443a;
+    background:rgba(255,255,255,.7);padding:4px;white-space:pre;z-index:50;display:none}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="cv"></canvas>
+
+  <div id="hud">
+    <div id="topBtns">
+      <button class="iconBtn" id="muteBtn" title="Sound">🔊</button>
+      <button class="iconBtn" id="menuBtn" title="Menu">🏠</button>
+    </div>
+    <div id="energyWrap">
+      <div id="energy"></div>
+      <div id="energyLbl">energy</div>
+    </div>
+    <div id="heightMeter">
+      <div id="meterTop">0m</div>
+      <div id="meterBar"><div id="meterFill"></div><div id="meterFlag">▸</div></div>
+      <div id="meterBest">best 0m</div>
+    </div>
+    <button id="studyChip" class="pulse">💡 <span>Study (Q)</span></button>
+  </div>
+
+  <div id="touch">
+    <button class="tbtn" id="tLeft">◀</button>
+    <button class="tbtn" id="tRight">▶</button>
+    <button class="tbtn" id="tJump">⤒</button>
+  </div>
+
+  <div id="fx"></div>
+
+  <!-- START -->
+  <div class="overlay on" id="start">
+    <div class="card">
+      <div class="mascot">🦀🎹</div>
+      <h1>Verb Climb</h1>
+      <p class="sub">Leap between floating nonsense objects and climb to the summit. Out of energy? Answer verb questions to refuel!</p>
+      <div class="how">
+        <div class="howrow"><span class="e">🏃</span><span><b>Move</b> with <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
+        <div class="howrow"><span class="e">⤴️</span><span><b>Jump</b> with <span class="kbd">Space</span> / <span class="kbd">W</span>. <b>Hold to charge</b> a big leap.</span></div>
+        <div class="howrow"><span class="e">💡</span><span><b>Study</b> with <span class="kbd">Q</span> while standing — each right answer refills energy.</span></div>
+        <div class="howrow"><span class="e">🪂</span><span>Miss a jump and you tumble down — lost height is the only cost. No falling out!</span></div>
+      </div>
+      <div class="legend">
+        <span class="lchip base">base</span><span class="lchip past">simple past</span><span class="lchip pp">past participle</span>
+      </div>
+      <button class="btn" id="playBtn">Climb! 🧗</button>
+    </div>
+  </div>
+
+  <!-- STUDY -->
+  <div class="overlay" id="study">
+    <div class="card">
+      <div style="font-size:13px;color:var(--ink2);font-weight:800;margin-bottom:2px">💡 STUDY — refuel your energy</div>
+      <div id="qBars"></div>
+      <div id="qPrompt">simple past of <b>go</b>?</div>
+      <div id="qHint"></div>
+      <div id="qChips"></div>
+      <div id="qChain"></div>
+      <div id="qStat"></div>
+      <button class="btn coral" id="doneBtn">Resume climbing ↑</button>
+    </div>
+  </div>
+
+  <!-- SUMMIT -->
+  <div class="overlay" id="summit">
+    <div class="card">
+      <div class="mascot">🦀🎉</div>
+      <h1>SUMMIT!</h1>
+      <p class="sub" id="summitSub">You reached the top!</p>
+      <div id="summitStats" style="font-weight:800;margin:10px 0"></div>
+      <div id="missBox"></div>
+      <button class="btn" id="againBtn">New tower 🎲</button>
+    </div>
+  </div>
+
+  <div id="qaout"></div>
+</div>
+
+<script>
+"use strict";
+(function(){
+//==================================================================
+// CONFIG / PHYSICS
+//==================================================================
+const PXM = 30;                 // pixels per metre
+const SUMMIT_M = 120;
+const WORLD_W = 420;            // logical strip width
+const WALL = 34;                // soft wall padding
+const cfg = {
+  g: 2200,                      // gravity px/s^2
+  v0min: 560,                   // tiniest hop
+  v0std: 880,                   // a comfortable standard jump
+  v0charge: 1185,               // full charge launch
+  vmax: 300,                    // horizontal max speed
+  accel: 2600, airAccel: 2200, friction: 2400,
+  maxFall: 1150,
+  coyote: 0.090, buffer: 0.130,
+  chargeMax: 0.70,              // seconds to full charge
+  chargeT: 0.50,                // >= this fraction => charge jump (costs full segment)
+  costStd: 1/3, costCharge: 1,
+  ENERGY_MAX: 8,
+  pw: 26, ph: 30,               // player half? -> actually full w/h
+};
+
+//==================================================================
+// VERB DATA (curated, frequency-ordered; canonical forms from catalogue)
+//==================================================================
+const VERBS = [
+ {v:"go",past:"went",pp:"gone"},{v:"get",past:"got",pp:"got"},{v:"make",past:"made",pp:"made"},
+ {v:"see",past:"saw",pp:"seen"},{v:"come",past:"came",pp:"come"},{v:"take",past:"took",pp:"taken"},
+ {v:"know",past:"knew",pp:"known"},{v:"give",past:"gave",pp:"given"},{v:"find",past:"found",pp:"found"},
+ {v:"think",past:"thought",pp:"thought"},{v:"tell",past:"told",pp:"told"},{v:"say",past:"said",pp:"said"},
+ {v:"feel",past:"felt",pp:"felt"},{v:"leave",past:"left",pp:"left"},{v:"put",past:"put",pp:"put"},
+ {v:"mean",past:"meant",pp:"meant"},{v:"keep",past:"kept",pp:"kept"},{v:"let",past:"let",pp:"let"},
+ {v:"begin",past:"began",pp:"begun"},{v:"run",past:"ran",pp:"run"},{v:"bring",past:"brought",pp:"brought"},
+ {v:"write",past:"wrote",pp:"written"},{v:"sit",past:"sat",pp:"sat"},{v:"stand",past:"stood",pp:"stood"},
+ {v:"lose",past:"lost",pp:"lost"},{v:"pay",past:"paid",pp:"paid"},{v:"meet",past:"met",pp:"met"},
+ {v:"read",past:"read",pp:"read"},{v:"hear",past:"heard",pp:"heard"},{v:"hold",past:"held",pp:"held"},
+ {v:"build",past:"built",pp:"built"},{v:"catch",past:"caught",pp:"caught"},{v:"drink",past:"drank",pp:"drunk"},
+ {v:"eat",past:"ate",pp:"eaten"},{v:"fall",past:"fell",pp:"fallen"},{v:"grow",past:"grew",pp:"grown"},
+ {v:"drive",past:"drove",pp:"driven"},{v:"ride",past:"rode",pp:"ridden"},{v:"break",past:"broke",pp:"broken"},
+ {v:"choose",past:"chose",pp:"chosen"},{v:"speak",past:"spoke",pp:"spoken"},{v:"wear",past:"wore",pp:"worn"},
+ {v:"throw",past:"threw",pp:"thrown"},{v:"swim",past:"swam",pp:"swum"},{v:"sing",past:"sang",pp:"sung"},
+ {v:"fly",past:"flew",pp:"flown"},{v:"draw",past:"drew",pp:"drawn"},{v:"win",past:"won",pp:"won"},
+ {v:"sleep",past:"slept",pp:"slept"},{v:"teach",past:"taught",pp:"taught"},{v:"send",past:"sent",pp:"sent"},
+ {v:"spend",past:"spent",pp:"spent"},{v:"do",past:"did",pp:"done"},{v:"have",past:"had",pp:"had"},
+ {v:"be",past:"was",pp:"been"}
+];
+
+//==================================================================
+// OBJECT TYPES — emoji + hand-authored collision profile
+//   kind: flat | slope | dome | perch | hole | drift
+//   tier: 0 easiest .. 3 hardest ;  hw: half-width of standable top
+//==================================================================
+const TYPES = [
+ // tier 0 — big friendly flat rest stops
+ {key:"piano", e:"🎹", fs:118, hw:78, kind:"flat", tier:0, rest:true},
+ {key:"sofa",  e:"🛋️", fs:112, hw:74, kind:"flat", tier:0, rest:true},
+ {key:"bath",  e:"🛁", fs:108, hw:66, kind:"flat", tier:0, rest:true},
+ {key:"bed",   e:"🛏️", fs:114, hw:74, kind:"flat", tier:0, rest:true},
+ // tier 1 — medium flats / gentle domes
+ {key:"books", e:"📚", fs:84, hw:48, kind:"flat", tier:1},
+ {key:"box",   e:"📦", fs:80, hw:46, kind:"flat", tier:1},
+ {key:"cake",  e:"🎂", fs:82, hw:44, kind:"flat", tier:1},
+ {key:"gift",  e:"🎁", fs:80, hw:44, kind:"flat", tier:1},
+ {key:"teapot",e:"🫖", fs:80, hw:42, kind:"flat", tier:1},
+ {key:"chair", e:"🪑", fs:80, hw:36, kind:"flat", tier:1},
+ // tier 2 — slopes, domes, holes (read differently)
+ {key:"house", e:"🏠", fs:96, hw:54, kind:"slope", tier:2, slope:0.62},
+ {key:"tent",  e:"⛺", fs:90, hw:50, kind:"slope", tier:2, slope:0.74},
+ {key:"cat",   e:"🐱", fs:92, hw:46, kind:"dome", tier:2, dome:0.7, wobble:true},
+ {key:"pig",   e:"🐷", fs:90, hw:46, kind:"dome", tier:2, dome:0.62, wobble:true},
+ {key:"burger",e:"🍔", fs:78, hw:42, kind:"dome", tier:2, dome:0.55},
+ {key:"donut", e:"🍩", fs:84, hw:48, kind:"hole", tier:2, hole:16},
+ {key:"buoy",  e:"🛟", fs:84, hw:48, kind:"hole", tier:2, hole:18},
+ {key:"guitar",e:"🎸", fs:90, hw:34, kind:"flat", tier:2},
+ // tier 3 — tiny perches & the drifting duck
+ {key:"flower",e:"🌸", fs:72, hw:18, kind:"perch", tier:3},
+ {key:"umbr",  e:"☂️", fs:80, hw:16, kind:"perch", tier:3},
+ {key:"mush",  e:"🍄", fs:74, hw:22, kind:"perch", tier:3},
+ {key:"cactus",e:"🌵", fs:78, hw:16, kind:"perch", tier:3},
+ {key:"icecr", e:"🍦", fs:78, hw:16, kind:"perch", tier:3},
+ {key:"duck",  e:"🦆", fs:80, hw:40, kind:"drift", tier:3, driftAmp:46, driftSpd:0.6},
+];
+const TYPE=Object.fromEntries(TYPES.map(t=>[t.key,t]));
+
+//==================================================================
+// RNG (mulberry32, seeded & deterministic)
+//==================================================================
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+//==================================================================
+// REACHABILITY — simulate an optimal standard jump from A to B
+//==================================================================
+function surfaceY(p, wx){           // world surface y at world-x; null if no solid there
+  const dx = wx - p.x;
+  if(Math.abs(dx) > p.hw) return null;
+  const t=TYPE[p.type];
+  switch(t.kind){
+    case "slope": return p.topY + Math.abs(dx)*t.slope;
+    case "dome":  return p.topY + (dx*dx/(p.hw))*t.dome*0.5;
+    case "hole":  return Math.abs(dx) < t.hole ? null : p.topY;
+    default:      return p.topY;     // flat / perch / drift
+  }
+}
+function platLeft(p){ return p.x - p.hw; }
+function platRight(p){ return p.x + p.hw; }
+
+// can a standard jump from platform A reach a standable spot on platform B?
+// The player can launch from anywhere along A's top with any horizontal speed
+// in [-vmax,vmax], so we sample a spread of launch speeds and return true if
+// ANY trajectory lands on a solid part of B.
+function simReach(A, B){
+  const launchX = Math.max(platLeft(A)+2, Math.min(platRight(A)-2, B.x)); // best spot under B
+  const dt=1/240;
+  for(let k=0;k<=12;k++){
+    const vx=(-1 + 2*k/12)*cfg.vmax;
+    let x=launchX, y=A.topY, vy=-cfg.v0std, py;
+    for(let i=0;i<700;i++){
+      vy+=cfg.g*dt; if(vy>cfg.maxFall)vy=cfg.maxFall;
+      py=y; x+=vx*dt; y+=vy*dt;
+      if(vy>0){ // descending — can we land on B?
+        const sy=surfaceY(B, x);
+        if(sy!=null && x>=platLeft(B) && x<=platRight(B) && py<=sy && y>=sy) return true;
+      }
+      if(y > A.topY + 650) break; // fell well below start, give up
+    }
+  }
+  return false;
+}
+
+//==================================================================
+// TOWER GENERATION — guaranteed climbable by construction
+//==================================================================
+function maxReach(h){ // closed-form max horizontal dx for a standard jump rising h px
+  const disc=cfg.v0std*cfg.v0std - 2*cfg.g*Math.max(0,h);
+  if(disc<=0) return 0;
+  const t2=(cfg.v0std+Math.sqrt(disc))/cfg.g;
+  return cfg.vmax*t2;
+}
+function pickType(rng, tierMax, restNeeded){
+  if(restNeeded){ const r=TYPES.filter(t=>t.rest); return r[(rng()*r.length)|0].key; }
+  const pool=TYPES.filter(t=>t.tier<=tierMax);
+  // bias toward easier types so hard ones stay spicy-but-rare
+  const weighted=[];
+  for(const t of pool){ const w = tierMax===0?1 : Math.max(1, 4 - (tierMax - t.tier)); for(let i=0;i<w;i++) weighted.push(t.key); }
+  return weighted[(rng()*weighted.length)|0];
+}
+function genTower(seed){
+  const rng=mulberry32(seed>>>0);
+  const plats=[];
+  // ground / base — extra wide, dead easy
+  let prev={type:"piano", x:WORLD_W/2, topY:0, hw:150, ground:true};
+  plats.push(prev);
+  let nextRest=25; // metres
+  let guard=0;
+  while(prev.topY > -(SUMMIT_M*PXM) && guard++ < 600){
+    const hM = -prev.topY/PXM;          // current height in metres
+    const t = Math.min(1, hM/110);      // difficulty 0..1
+    const tutorial = hM < 20;
+    const restNeeded = hM >= nextRest;
+    const tierMax = tutorial?0 : (t<0.35?1 : t<0.7?2 : 3);
+
+    let placed=null;
+    for(let tries=0; tries<40 && !placed; tries++){
+      const riseMin = tutorial?38 : 46 + t*24;
+      const riseMax = tutorial?68 : 86 + t*52;
+      const rise = riseMin + rng()*(riseMax-riseMin);
+      const topY = prev.topY - rise;
+      const reach = maxReach(rise) * (tutorial?0.55 : 0.74 - t*0.12);
+      const maxDx = tutorial ? Math.min(70, reach) : reach;
+      const dx = (rng()*2-1)*maxDx;
+      const type = restNeeded ? pickType(rng,0,true) : pickType(rng, tierMax, false);
+      const hw = restNeeded ? Math.min(170, TYPE[type].hw+40) : TYPE[type].hw;
+      let x = prev.x + dx;
+      x = Math.max(WALL+hw*0.5, Math.min(WORLD_W-WALL-hw*0.5, x));
+      const cand={type, x, topY, hw, rest:restNeeded};
+      if(simReach(prev, cand)) placed=cand;
+    }
+    if(!placed){ // safety fallback: stack a wide flat directly above within easy reach
+      placed={type:"sofa", x:prev.x, topY:prev.topY-60, hw:74, rest:false};
+    }
+    plats.push(placed);
+    if(restNeeded) nextRest += 25;
+    prev=placed;
+  }
+  // summit platform
+  const top={type:"piano", x:WORLD_W/2, topY:-(SUMMIT_M*PXM), hw:130, summit:true};
+  // ensure last real platform can reach summit
+  if(!simReach(plats[plats.length-1], top)){
+    plats.push({type:"sofa", x:WORLD_W/2, topY:top.topY+58, hw:80});
+  }
+  plats.push(top);
+  // give drifting ducks a phase offset
+  let ph=0; for(const p of plats){ if(p.type==="duck"){ p.driftPhase=ph; ph+=1.7; } }
+  return {seed, plats, topY:top.topY};
+}
+function validateTower(tw){
+  for(let i=0;i<tw.plats.length-1;i++){
+    if(!simReach(tw.plats[i], tw.plats[i+1])) return {ok:false, at:i};
+  }
+  return {ok:true};
+}
+
+//==================================================================
+// QUESTIONS
+//==================================================================
+function regularize(v){
+  if(v.endsWith("e")) return v+"d";
+  if(/[^aeiou]y$/.test(v)) return v.slice(0,-1)+"ied";
+  return v+"ed";
+}
+function genQuestion(rng, heightFrac){
+  // common verbs low, rarer ones high
+  const span = Math.floor(8 + heightFrac*(VERBS.length-8));
+  const idx = (rng()*Math.min(span,VERBS.length))|0;
+  const item = VERBS[idx];
+  const form = rng()<0.5 ? "past" : "pp";
+  const correct = item[form];
+  const set = new Set([correct]);
+  const wrongs=[];
+  const tryAdd=(w)=>{ if(w && !set.has(w)){ set.add(w); wrongs.push(w);} };
+  tryAdd(regularize(item.v));                       // "goed"
+  tryAdd(form==="past"? item.pp : item.past);       // the other form
+  // similar verb's same form
+  let guard=0;
+  while(wrongs.length<2 && guard++<40){
+    const o=VERBS[(rng()*VERBS.length)|0]; tryAdd(o[form]);
+  }
+  guard=0;
+  while(wrongs.length<2 && guard++<40){ tryAdd(item.v+["t","en","ed"][(rng()*3)|0]); }
+  const chips=[correct, ...wrongs.slice(0,2)];
+  // shuffle deterministically
+  for(let i=chips.length-1;i>0;i--){ const j=(rng()*(i+1))|0; [chips[i],chips[j]]=[chips[j],chips[i]]; }
+  return {item, form, correct, chips,
+    prompt:(form==="past"?"simple past of":"past participle of"), formClass:(form==="past"?"past":"pp")};
+}
+
+//==================================================================
+// AUDIO (WebAudio synth)
+//==================================================================
+const Audio={ctx:null,muted:false,
+  init(){ if(this.ctx)return; try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} },
+  resume(){ if(this.ctx&&this.ctx.state==="suspended") this.ctx.resume(); },
+  tone(f,d,type="sine",g=0.13,t0=0,slideTo=null){
+    if(!this.ctx||this.muted)return; const c=this.ctx,t=c.currentTime+t0;
+    const o=c.createOscillator(),v=c.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);
+    if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+d);
+    v.gain.setValueAtTime(0.0001,t); v.gain.exponentialRampToValueAtTime(g,t+0.012);
+    v.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(v).connect(c.destination); o.start(t); o.stop(t+d+0.03);
+  },
+  jump(){ this.tone(420,0.13,"triangle",0.12,0,720); },
+  charge(){ this.tone(180,0.45,"sawtooth",0.05,0,520); },
+  land(){ this.tone(150,0.10,"sine",0.16,0,90); },
+  correct(){ [523,659,784,1046].forEach((f,i)=>this.tone(f,0.16,"triangle",0.12,i*0.06)); },
+  wrong(){ this.tone(200,0.22,"square",0.10,0,120); },
+  slide(){ this.tone(900,0.55,"sine",0.10,0,180); },
+  summit(){ [523,659,784,1046,1318].forEach((f,i)=>this.tone(f,0.4,"triangle",0.13,i*0.12));
+            [392,523].forEach((f,i)=>this.tone(f,0.6,"sine",0.08,0.1+i*0.12)); },
+};
+
+//==================================================================
+// GAME STATE
+//==================================================================
+const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+let DPR=1, CW=0, CH=0, scale=1, stripX=0, stripW=WORLD_W;
+let tower=null, cam={y:0}, paused=true, qaFreeze=false;
+let startSeed=(Date.now()&0x7fffffff)>>>0;
+let runStart=0, nowT=0;
+const player={x:WORLD_W/2,y:0,vx:0,vy:0,w:cfg.pw,h:cfg.ph,
+  grounded:false, on:null, face:1, sx:1, sy:1, energy:cfg.ENERGY_MAX,
+  lastGround:-9, takeoffY:0, usedCoyote:false, anim:0};
+let charging=false, charge=0, chargeStart=0, bufferAt=-9, jumpHeld=false;
+const keys={left:false,right:false};
+let particles=[], confetti=[];
+let bestM = +localStorage.getItem("krabsy_vclimb_best")||0;
+let bestSummit = +localStorage.getItem("krabsy_vclimb_summit")||0;
+let curM=0, reached=false;
+const missed=new Map();
+let study={open:false, q:null, answered:0, locked:false};
+const rngQ=mulberry32((startSeed^0x9e37)>>>0);
+
+//==================================================================
+// CANVAS SIZING
+//==================================================================
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  CW=cv.clientWidth; CH=cv.clientHeight;
+  cv.width=Math.round(CW*DPR); cv.height=Math.round(CH*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  stripW=Math.min(CW, 480);
+  scale=stripW/WORLD_W;
+  stripX=(CW-stripW)/2;
+}
+window.addEventListener("resize",resize);
+
+//==================================================================
+// INPUT
+//==================================================================
+function startCharge(){ if(player.grounded && player.energy>=cfg.costStd){ charging=true; charge=0; chargeStart=nowT; Audio.charge(); } }
+function doStandardJump(){
+  if(player.energy<cfg.costStd) { Audio.wrong(); return; }
+  player.energy-=cfg.costStd; launch(cfg.v0std,false);
+}
+function launch(v0, isCharge){
+  player.vy=-v0; player.grounded=false; player.on=null; player.usedCoyote=true;
+  player.takeoffY=player.y; player.sx=0.78; player.sy=1.28;
+  spawnDust(player.x, player.y, 5);
+  Audio.jump(); updateEnergyUI();
+}
+function releaseCharge(){
+  if(!charging) return; charging=false;
+  // finalize from elapsed hold time so charge is accurate even at low frame rates
+  const frac=Math.min(1, Math.max(charge, (nowT-chargeStart)/cfg.chargeMax));
+  let isCharge = frac>=cfg.chargeT;
+  let cost = isCharge?cfg.costCharge:cfg.costStd;
+  if(player.energy < cost){          // can't afford a charge jump -> cap to standard
+    if(player.energy>=cfg.costStd){ isCharge=false; cost=cfg.costStd; }
+    else { Audio.wrong(); return; }
+  }
+  const v0 = isCharge ? (cfg.v0std + (cfg.v0charge-cfg.v0std)*((frac-cfg.chargeT)/(1-cfg.chargeT)))
+                      : (cfg.v0min + (cfg.v0std-cfg.v0min)*(frac/cfg.chargeT));
+  player.energy-=cost; launch(v0,isCharge);
+}
+function pressJump(){
+  Audio.init(); Audio.resume();
+  if(study.open) return;
+  if(player.grounded){ startCharge(); }
+  else if(nowT-player.lastGround < cfg.coyote && !player.usedCoyote && player.energy>=cfg.costStd){ doStandardJump(); }
+  else { bufferAt=nowT; }
+}
+function releaseJump(){
+  if(charging) releaseCharge();
+}
+window.addEventListener("keydown",e=>{
+  if(e.repeat) return;
+  const k=e.key.toLowerCase();
+  if(k==="arrowleft"||k==="a") keys.left=true;
+  else if(k==="arrowright"||k==="d") keys.right=true;
+  else if(k===" "||k==="w"||k==="arrowup"){ e.preventDefault(); jumpHeld=true; pressJump(); }
+  else if(k==="q"){ toggleStudy(); }
+  else if(k==="m"){ toggleMute(); }
+  else if(k==="enter"){ if(!document.getElementById("start").classList.contains("on")) {} else startGame(startSeed); }
+});
+window.addEventListener("keyup",e=>{
+  const k=e.key.toLowerCase();
+  if(k==="arrowleft"||k==="a") keys.left=false;
+  else if(k==="arrowright"||k==="d") keys.right=false;
+  else if(k===" "||k==="w"||k==="arrowup"){ jumpHeld=false; releaseJump(); }
+});
+// touch
+function bindHold(el,on,off){
+  el.addEventListener("touchstart",e=>{e.preventDefault();on();},{passive:false});
+  el.addEventListener("touchend",e=>{e.preventDefault();off();},{passive:false});
+  el.addEventListener("touchcancel",e=>{off();});
+}
+bindHold(document.getElementById("tLeft"),()=>keys.left=true,()=>keys.left=false);
+bindHold(document.getElementById("tRight"),()=>keys.right=true,()=>keys.right=false);
+bindHold(document.getElementById("tJump"),()=>{jumpHeld=true;pressJump();},()=>{jumpHeld=false;releaseJump();});
+if("ontouchstart" in window) document.body.classList.add("touch");
+
+//==================================================================
+// PHYSICS UPDATE
+//==================================================================
+function nearPlats(){
+  const top=cam.y-120, bot=cam.y+CH/scale+220;
+  return tower.plats.filter(p=>p.topY>top-200 && p.topY<bot+200);
+}
+function platX(p){ // duck drift offset
+  if(p.type==="duck"){ const t=TYPE.duck; return p.x + Math.sin(nowT*t.driftSpd + (p.driftPhase||0))*t.driftAmp; }
+  return p.x;
+}
+function physics(dt){
+  // horizontal
+  const acc = player.grounded?cfg.accel:cfg.airAccel;
+  let dir=(keys.right?1:0)-(keys.left?1:0);
+  if(dir){ player.vx+=dir*acc*dt; player.face=dir; }
+  else if(player.grounded){ // friction
+    const s=Math.sign(player.vx); player.vx-=s*cfg.friction*dt; if(Math.sign(player.vx)!==s)player.vx=0;
+  }
+  player.vx=Math.max(-cfg.vmax,Math.min(cfg.vmax,player.vx));
+
+  // charge build
+  if(charging){ charge=Math.min(1,(nowT-chargeStart)/cfg.chargeMax); }
+
+  const px=player.x, py=player.y;
+  player.x+=player.vx*dt;
+
+  // soft walls
+  const lo=WALL, hi=WORLD_W-WALL;
+  if(player.x<lo){ player.x=lo; if(player.vx<0)player.vx*=-0.25; }
+  if(player.x>hi){ player.x=hi; if(player.vx>0)player.vx*=-0.25; }
+
+  // gravity
+  if(!player.grounded){
+    player.vy+=cfg.g*dt; if(player.vy>cfg.maxFall)player.vy=cfg.maxFall;
+  }
+  const ny=player.y+player.vy*dt;
+
+  const plats=nearPlats();
+
+  if(player.grounded && player.on){
+    // walk along surface; fall off edges
+    const p=player.on, cx=platX(p);
+    const sy=surfaceY({...p,x:cx}, player.x);
+    if(sy==null || Math.abs(player.x-cx)>p.hw){
+      player.grounded=false; player.on=null; player.lastGround=nowT; player.usedCoyote=false; player.takeoffY=player.y;
+    } else {
+      player.y=sy;
+      // slide on slopes / domes
+      const t=TYPE[p.type];
+      if(t.kind==="slope"){ const d=player.x-cx; player.vx += Math.sign(d)*900*dt; }
+      else if(t.kind==="dome"){ const d=player.x-cx; player.vx += Math.sign(d)*(Math.abs(d)/p.hw)*700*dt; }
+      // duck carries you
+      if(t.kind==="drift"){ const t2=TYPE.duck; const nx=p.x+Math.sin((nowT+dt)*t2.driftSpd+(p.driftPhase||0))*t2.driftAmp; player.x+=(nx-cx); }
+    }
+  } else {
+    // airborne: descend & test landing
+    player.y=ny;
+    if(player.vy>0){
+      for(const p of plats){
+        const cx=platX(p);
+        const sy=surfaceY({...p,x:cx}, player.x);
+        if(sy==null) continue;
+        if(player.x>=cx-p.hw && player.x<=cx+p.hw && py<=sy+2 && player.y>=sy){
+          land(p, sy); break;
+        }
+      }
+    }
+    if(nowT-player.lastGround>0.001 && player.vy>0) player.usedCoyote=true;
+  }
+
+  // squash/stretch easing
+  player.sx += (1-player.sx)*Math.min(1,dt*12);
+  player.sy += (1-player.sy)*Math.min(1,dt*12);
+  player.anim += dt*Math.abs(player.vx)*0.04;
+
+  // height / camera
+  curM = Math.max(0, -player.y/PXM);
+  if(curM>bestM){ bestM=curM; localStorage.setItem("krabsy_vclimb_best",bestM.toFixed(1)); }
+  const targetCam = player.y - CH/scale*0.42;
+  cam.y += (targetCam-cam.y)*Math.min(1,dt*6);
+
+  // summit
+  if(!reached && curM>=SUMMIT_M-0.4){ winSummit(); }
+
+  // particles
+  for(const pt of particles){ pt.vy+=900*dt; pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.life-=dt; }
+  particles=particles.filter(p=>p.life>0);
+}
+function land(p, sy){
+  const drop=player.y-player.takeoffY;
+  player.grounded=true; player.on=p; player.y=sy; player.vy=0;
+  player.lastGround=nowT; player.usedCoyote=false;
+  player.sx=1.3; player.sy=0.7; spawnDust(player.x, sy, 6);
+  Audio.land();
+  const t=TYPE[p.type];
+  if(t.wobble){ p.wob=1; }
+  if(drop > 120){ Audio.slide(); flyWhee(); player.sx=1.45; player.sy=0.55; }
+  // buffered jump on landing
+  if(nowT-bufferAt < cfg.buffer){
+    bufferAt=-9;
+    if(jumpHeld) startCharge(); else doStandardJump();
+  }
+}
+function spawnDust(x,y,n){ for(let i=0;i<n;i++) particles.push({x,y,vx:(Math.random()*2-1)*70,vy:-Math.random()*120,life:0.4+Math.random()*0.3,r:3+Math.random()*3}); }
+
+//==================================================================
+// RENDER
+//==================================================================
+function skyColors(frac){
+  // day at bottom -> dusk/stars near summit
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const top=[lerp(120,30,frac), lerp(190,30,frac), lerp(255,70,frac)];
+  const bot=[lerp(200,90,frac), lerp(240,110,frac), lerp(255,180,frac)];
+  return {top:`rgb(${top.map(Math.round).join(",")})`, bot:`rgb(${bot.map(Math.round).join(",")})`};
+}
+let stars=null;
+function ensureStars(){ if(stars)return; stars=[]; const r=mulberry32(12345); for(let i=0;i<90;i++) stars.push({x:r()*WORLD_W, ym:r()*SUMMIT_M, r:0.6+r()*1.6}); }
+function render(){
+  const frac=Math.min(1, curM/SUMMIT_M);
+  const sk=skyColors(frac);
+  const g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,sk.top); g.addColorStop(1,sk.bot);
+  ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
+
+  // stars (only upper sky)
+  ensureStars();
+  if(frac>0.25){
+    ctx.save(); ctx.globalAlpha=Math.min(1,(frac-0.25)/0.4);
+    ctx.fillStyle="#fff";
+    for(const s of stars){
+      const wy=-s.ym*PXM; const sy=(wy-cam.y)*scale;
+      if(sy<-10||sy>CH+10)continue;
+      ctx.beginPath(); ctx.arc(stripX+s.x*scale, sy, s.r, 0, 7); ctx.fill();
+    }
+    ctx.restore();
+  }
+  // parallax clouds
+  drawClouds(frac);
+
+  // world (clipped to strip)
+  ctx.save();
+  ctx.beginPath(); ctx.rect(stripX,0,stripW,CH); ctx.clip();
+  ctx.translate(stripX, -cam.y*scale); ctx.scale(scale,scale);
+
+  // soft walls
+  ctx.fillStyle="rgba(255,255,255,.10)";
+  ctx.fillRect(0, cam.y, WALL, CH/scale); ctx.fillRect(WORLD_W-WALL, cam.y, WALL, CH/scale);
+
+  // platforms near viewport
+  for(const p of nearPlats()) drawPlatform(p);
+
+  // particles
+  for(const pt of particles){ ctx.globalAlpha=Math.max(0,pt.life*2); ctx.fillStyle="rgba(255,255,255,.85)";
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,7); ctx.fill(); }
+  ctx.globalAlpha=1;
+
+  drawPlayer();
+  ctx.restore();
+
+  // confetti (screen space)
+  if(confetti.length) drawConfetti();
+}
+function drawClouds(frac){
+  ctx.save(); ctx.globalAlpha=0.5*(1-frac*0.7); ctx.fillStyle="#ffffff";
+  const r=mulberry32(777);
+  for(let i=0;i<10;i++){
+    const cxm=r()*WORLD_W, ym=r()*SUMMIT_M*1.1;
+    const wy=-ym*PXM; let sy=((wy-cam.y)*scale*0.6)%(CH+200); if(sy<-100)sy+=CH+200;
+    const x=stripX+cxm*scale, w=70+r()*70;
+    ctx.beginPath();
+    ctx.ellipse(x,sy,w,w*0.4,0,0,7); ctx.ellipse(x+w*0.6,sy+6,w*0.6,w*0.3,0,0,7); ctx.fill();
+  }
+  ctx.restore();
+}
+function drawPlatform(p){
+  const t=TYPE[p.type]; const cx=platX(p); const wob=p.wob||0;
+  // shadow
+  ctx.save();
+  ctx.fillStyle="rgba(20,40,60,.16)";
+  ctx.beginPath(); ctx.ellipse(cx, p.topY+12, p.hw*0.9, 9, 0, 0, 7); ctx.fill();
+  // standable surface accent (so it reads as solid)
+  ctx.strokeStyle="rgba(255,255,255,.85)"; ctx.lineWidth=3.2; ctx.lineCap="round";
+  ctx.beginPath();
+  if(t.kind==="slope"){ ctx.moveTo(cx-p.hw,p.topY+p.hw*t.slope); ctx.lineTo(cx,p.topY); ctx.lineTo(cx+p.hw,p.topY+p.hw*t.slope); }
+  else if(t.kind==="dome"){ for(let i=-1;i<=1;i+=0.1){ const dx=i*p.hw; const y=p.topY+(dx*dx/p.hw)*t.dome*0.5; if(i===-1)ctx.moveTo(cx+dx,y);else ctx.lineTo(cx+dx,y);} }
+  else if(t.kind==="hole"){ ctx.moveTo(cx-p.hw,p.topY); ctx.lineTo(cx-t.hole,p.topY); ctx.moveTo(cx+t.hole,p.topY); ctx.lineTo(cx+p.hw,p.topY); }
+  else { ctx.moveTo(cx-p.hw,p.topY); ctx.lineTo(cx+p.hw,p.topY); }
+  ctx.stroke();
+  // emoji body
+  ctx.font=t.fs+"px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  const bobY = wob? Math.sin(nowT*18)*wob*4 : 0;
+  ctx.fillText(t.e, cx, p.topY + t.fs*0.30 + bobY);
+  if(p.wob) p.wob*=0.92;
+  if(p.summit){ ctx.font="34px 'Segoe UI Emoji',sans-serif"; ctx.fillText("🦀",cx, p.topY-26); ctx.fillText("🚩",cx+44,p.topY-14); }
+  ctx.restore();
+}
+function drawPlayer(){
+  const x=player.x, y=player.y; const w=player.w, h=player.h;
+  ctx.save();
+  ctx.translate(x, y-h*0.5);
+  ctx.scale(player.sx, player.sy);
+  // body (teal rounded)
+  const bw=w, bh=h;
+  ctx.fillStyle="#1aa98a"; roundRect(-bw/2, -bh/2+3, bw, bh, 9); ctx.fill();
+  ctx.fillStyle="#2ee6c0"; roundRect(-bw/2, -bh/2, bw, bh-3, 9); ctx.fill();
+  // little claws
+  ctx.fillStyle="#ff8585";
+  ctx.beginPath(); ctx.arc(-bw/2-2, 2, 5,0,7); ctx.arc(bw/2+2, 2, 5,0,7); ctx.fill();
+  // eyes
+  ctx.fillStyle="#fff";
+  const ex=player.face*3;
+  ctx.beginPath(); ctx.arc(-6+ex,-3,4.5,0,7); ctx.arc(6+ex,-3,4.5,0,7); ctx.fill();
+  ctx.fillStyle="#1d2b3a";
+  ctx.beginPath(); ctx.arc(-6+ex*1.4,-3,2.3,0,7); ctx.arc(6+ex*1.4,-3,2.3,0,7); ctx.fill();
+  ctx.restore();
+  // charge ring
+  if(charging && charge>0.04){
+    ctx.save(); ctx.translate(x,y-h*0.5);
+    ctx.strokeStyle = charge>=cfg.chargeT? "#ffcf5e":"#2ee6c0"; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(0,0,h*0.8, -Math.PI/2, -Math.PI/2 + charge*Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawConfetti(){
+  for(const c of confetti){ ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.rot);
+    ctx.fillStyle=c.col; ctx.fillRect(-4,-3,8,6); ctx.restore(); }
+}
+
+//==================================================================
+// HUD
+//==================================================================
+const energyEl=document.getElementById("energy"), energyLbl=document.getElementById("energyLbl");
+for(let i=0;i<cfg.ENERGY_MAX;i++){ const s=document.createElement("div"); s.className="seg"; s.innerHTML="<i></i>"; energyEl.appendChild(s); }
+function updateEnergyUI(){
+  const segs=energyEl.children;
+  for(let i=0;i<segs.length;i++){
+    const fill=Math.max(0,Math.min(1, player.energy-i));
+    segs[i].firstChild.style.transform=`scaleX(${fill})`;
+  }
+  const dry=player.energy<cfg.costStd;
+  energyLbl.textContent= dry? "out of energy — press 💡" : "energy";
+  energyLbl.classList.toggle("dry",dry);
+  document.getElementById("studyChip").classList.toggle("pulse", dry);
+}
+function updateHUD(){
+  document.getElementById("meterTop").textContent=Math.floor(curM)+"m";
+  document.getElementById("meterBest").textContent="best "+Math.floor(Math.max(bestM,curM))+"m";
+  const frac=Math.min(1,curM/SUMMIT_M);
+  document.getElementById("meterFill").style.height=(frac*100)+"%";
+  document.getElementById("meterFlag").style.bottom=(frac*100)+"%";
+  document.getElementById("meterFlag").textContent = frac>=1?"🦀":"▸";
+}
+
+//==================================================================
+// STUDY MODE
+//==================================================================
+const studyOv=document.getElementById("study");
+function toggleStudy(){
+  if(study.open){ closeStudy(); return; }
+  if(paused||reached) return;
+  if(!player.grounded){ return; } // must be standing
+  openStudy();
+}
+function openStudy(){
+  Audio.init(); Audio.resume();
+  study.open=true; study.answered=0; paused=true;
+  studyOv.classList.add("on");
+  nextQuestion();
+}
+function closeStudy(){
+  study.open=false; studyOv.classList.remove("on");
+  if(!reached) paused=false;
+}
+function renderQBars(){
+  const wrap=document.getElementById("qBars"); wrap.innerHTML="";
+  for(let i=0;i<cfg.ENERGY_MAX;i++){ const s=document.createElement("div"); s.className="s"+(i<player.energy?" f":""); wrap.appendChild(s); }
+}
+function nextQuestion(){
+  study.locked=false;
+  renderQBars();
+  if(player.energy>=cfg.ENERGY_MAX){
+    document.getElementById("qPrompt").innerHTML="⚡ Energy full!";
+    document.getElementById("qHint").textContent="You're fully charged. Resume climbing.";
+    document.getElementById("qChips").innerHTML="";
+    document.getElementById("qChain").innerHTML="";
+    document.getElementById("qStat").textContent=study.answered? `${study.answered} answered this session`:"";
+    return;
+  }
+  const q=genQuestion(rngQ, Math.min(1,curM/SUMMIT_M)); study.q=q;
+  document.getElementById("qPrompt").innerHTML=`${q.prompt} <b style="color:#bb7d00">${q.item.v}</b>?`;
+  document.getElementById("qHint").textContent="answer to refuel +1 segment";
+  document.getElementById("qChain").innerHTML="";
+  document.getElementById("qStat").textContent= study.answered? `${study.answered} answered • energy ${Math.floor(player.energy)}/8` : "stop whenever you like — even 1 answer helps";
+  const chips=document.getElementById("qChips"); chips.innerHTML="";
+  q.chips.forEach(opt=>{
+    const b=document.createElement("button");
+    b.className="qchip "+q.formClass; b.textContent=opt;
+    b.onclick=()=>answerChip(b,opt);
+    chips.appendChild(b);
+  });
+}
+function answerChip(btn, opt){
+  if(study.locked) return; study.locked=true;
+  const q=study.q;
+  study.answered++;
+  if(opt===q.correct){
+    btn.classList.add("right"); Audio.correct();
+    player.energy=Math.min(cfg.ENERGY_MAX, player.energy+1); updateEnergyUI();
+    flyPlus1();
+    setTimeout(nextQuestion, 620);
+  } else {
+    btn.classList.add("wrong"); Audio.wrong();
+    // highlight correct
+    [...document.getElementById("qChips").children].forEach(c=>{ if(c.textContent===q.correct) c.classList.add("right"); });
+    missed.set(q.item.v, q.item);
+    document.getElementById("qChain").innerHTML=
+      `<span class="a">${q.item.v}</span> → <span class="b">${q.item.past}</span> → <span class="c">${q.item.pp}</span>`;
+    setTimeout(nextQuestion, 1500);
+  }
+}
+document.getElementById("doneBtn").onclick=closeStudy;
+document.getElementById("studyChip").onclick=toggleStudy;
+
+//==================================================================
+// FX
+//==================================================================
+const fx=document.getElementById("fx");
+function flyPlus1(){
+  const e=document.createElement("div"); e.className="plus1"; e.textContent="+1 ⚡";
+  e.style.left="50%"; e.style.top="40%"; e.style.transform="translateX(-50%)";
+  fx.appendChild(e); setTimeout(()=>e.remove(),1000);
+}
+function flyWhee(){
+  const e=document.createElement("div"); e.className="whee"; e.textContent="wheee!";
+  e.style.left=(stripX+player.x*scale)+"px"; e.style.top="45%";
+  fx.appendChild(e); setTimeout(()=>e.remove(),900);
+}
+
+//==================================================================
+// SCREENS / FLOW
+//==================================================================
+function startGame(seed){
+  startSeed=seed>>>0;
+  tower=genTower(startSeed);
+  const base=tower.plats[0];
+  player.x=base.x; player.y=base.topY; player.vx=0; player.vy=0;
+  player.grounded=true; player.on=base; player.energy=cfg.ENERGY_MAX;
+  player.sx=player.sy=1; player.face=1; player.lastGround=0; player.takeoffY=0;
+  charging=false; charge=0; bufferAt=-9;
+  cam.y=player.y-CH/scale*0.42;
+  curM=0; reached=false; missed.clear(); confetti=[]; particles=[];
+  runStart=nowT;
+  paused=false;
+  document.querySelectorAll(".overlay").forEach(o=>o.classList.remove("on"));
+  updateEnergyUI(); updateHUD();
+}
+function winSummit(){
+  reached=true; paused=true; curM=SUMMIT_M;
+  const tsec=Math.max(1,(nowT-runStart));
+  let isBest=false;
+  if(bestSummit===0 || tsec<bestSummit){ bestSummit=tsec; localStorage.setItem("krabsy_vclimb_summit",tsec.toFixed(1)); isBest=true; }
+  Audio.summit(); spawnConfetti();
+  document.getElementById("summitSub").textContent="You climbed 120 m of floating nonsense. 🫖";
+  const mm=Math.floor(tsec/60), ss=Math.floor(tsec%60).toString().padStart(2,"0");
+  document.getElementById("summitStats").innerHTML=
+    `⏱️ ${mm}:${ss} ${isBest?'<span style="color:#16c4a3">new best!</span>':''}<br>🎲 seed <b>${startSeed}</b>`;
+  const mb=document.getElementById("missBox");
+  if(missed.size){
+    let h='<div style="font-size:13px;color:var(--ink2);margin:10px 0 4px">verbs to review:</div>';
+    [...missed.values()].slice(0,8).forEach(m=>{ h+=`<div class="missrow"><span class="a">${m.v}</span> → <span class="b">${m.past}</span> → <span class="c">${m.pp}</span></div>`; });
+    mb.innerHTML=h;
+  } else mb.innerHTML='<div style="color:#16c4a3;font-weight:800;margin-top:8px">Perfect — no missed verbs! 🌟</div>';
+  document.getElementById("summit").classList.add("on");
+}
+function spawnConfetti(){
+  const cols=["#2ee6c0","#ff8585","#ffcf5e","#fff","#7ad7ff"];
+  confetti=[]; for(let i=0;i<140;i++) confetti.push({x:Math.random()*CW,y:-Math.random()*CH,vx:(Math.random()*2-1)*40,vy:60+Math.random()*120,rot:Math.random()*7,vr:(Math.random()*2-1)*5,col:cols[(Math.random()*cols.length)|0]});
+}
+function updateConfetti(dt){ for(const c of confetti){ c.x+=c.vx*dt; c.y+=c.vy*dt; c.rot+=c.vr*dt; if(c.y>CH+20)c.y=-20; } }
+
+document.getElementById("playBtn").onclick=()=>{ Audio.init();Audio.resume(); startGame(startSeed); };
+document.getElementById("againBtn").onclick=()=>{ startGame(((startSeed*1103515245+12345)>>>0)); };
+document.getElementById("menuBtn").onclick=()=>{ paused=true; document.getElementById("start").classList.add("on"); };
+function toggleMute(){ Audio.muted=!Audio.muted; localStorage.setItem("krabsy_vclimb_sound",Audio.muted?"0":"1");
+  document.getElementById("muteBtn").textContent=Audio.muted?"🔇":"🔊"; }
+document.getElementById("muteBtn").onclick=toggleMute;
+if(localStorage.getItem("krabsy_vclimb_sound")==="0"){ Audio.muted=true; document.getElementById("muteBtn").textContent="🔇"; }
+
+//==================================================================
+// MAIN LOOP
+//==================================================================
+let last=0, acc=0;
+function frame(ts){
+  requestAnimationFrame(frame);
+  if(CW!==cv.clientWidth || CH!==cv.clientHeight) resize();
+  if(!last)last=ts; let dt=(ts-last)/1000; last=ts;
+  if(dt>0.05)dt=0.05;
+  nowT+=dt;
+  if(tower && !paused && !qaFreeze){
+    let step=1/120, n=0;
+    acc+=dt;
+    while(acc>=step && n++<8){ physics(step); acc-=step; }
+    updateEnergyUI();
+  }
+  if(reached) updateConfetti(dt);
+  if(tower){ render(); updateHUD(); }
+  else { // start-screen sky
+    const sk=skyColors(0); const g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,sk.top);g.addColorStop(1,sk.bot);
+    ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
+  }
+}
+
+//==================================================================
+// QA HOOKS
+//==================================================================
+window.__VC={
+  state(){ return {m:curM, energy:player.energy, grounded:player.grounded, x:player.x, y:player.y,
+    paused, reached, seed:startSeed, plats:tower?tower.plats.length:0, study:study.open, answered:study.answered}; },
+  teleport(m){ const y=-m*PXM; // find platform just below
+    let best=tower.plats[0]; for(const p of tower.plats){ if(p.topY<=y+40 && p.topY>best.topY-1e9 && p.topY>=y-200) best=p; }
+    // snap to nearest platform by altitude
+    let near=tower.plats[0],bd=1e9; for(const p of tower.plats){ const d=Math.abs(p.topY-y); if(d<bd){bd=d;near=p;} }
+    player.x=near.x; player.y=near.topY; player.vx=player.vy=0; player.grounded=true; player.on=near;
+    cam.y=player.y-CH/scale*0.42; curM=-player.y/PXM; return this.state(); },
+  setEnergy(n){ player.energy=Math.max(0,Math.min(cfg.ENERGY_MAX,n)); updateEnergyUI(); return player.energy; },
+  jump(c){ pressJump(); if(c){ charge=c; chargeStart=nowT-c*cfg.chargeMax; } setTimeout(()=>releaseJump(), c?(c*cfg.chargeMax*1000+20):20); },
+  openStudy, closeStudy, toggleStudy,
+  answer(i){ const c=document.getElementById("qChips").children[i]; if(c)c.click(); },
+  freeze(b){ qaFreeze=!!b; return qaFreeze; },
+  gen:genTower, validate:validateTower, simReach, maxReach, TYPES,
+  runGenTest(n=200){
+    let fails=0, firstFail=null; const r=mulberry32(999);
+    for(let i=0;i<n;i++){ const s=(r()*2**31)>>>0; const tw=genTower(s); const v=validateTower(tw);
+      if(!v.ok){ fails++; if(!firstFail)firstFail={seed:s,at:v.at}; } }
+    const res={tested:n, fails, firstFail}; return res; },
+};
+
+//==================================================================
+// BOOT + QA SCENES
+//==================================================================
+resize();
+requestAnimationFrame(frame);
+
+const params=new URLSearchParams(location.search);
+const qa=params.get("qa");
+const seedP=params.get("seed");
+const fixedSeed = seedP!=null ? (parseInt(seedP,10)>>>0) : 20260610;
+
+function gentestScene(){
+  const out=document.getElementById("qaout"); out.style.display="block";
+  const res=window.__VC.runGenTest(parseInt(params.get("n")||"200",10));
+  out.textContent="GENTEST "+(res.fails===0?"PASS":"FAIL")+"\n"+JSON.stringify(res,null,1);
+  document.title=(res.fails===0?"PASS ":"FAIL ")+res.tested+" towers, "+res.fails+" fails";
+  console.log("GENTEST",res);
+}
+
+if(qa){
+  if(qa==="gentest"){ gentestScene(); }
+  else if(qa==="start"){ /* default start screen */ }
+  else if(qa==="summit"){
+    startGame(fixedSeed); paused=true;
+    player.energy=5; winSummit();
+  }
+  else if(qa==="study"){
+    startGame(fixedSeed);
+    __VC.teleport(38); player.energy=2; updateEnergyUI();
+    openStudy();
+  }
+  else if(qa==="scene"){
+    startGame(fixedSeed);
+    __VC.teleport(40); player.energy=4; updateEnergyUI();
+    qaFreeze=true;
+  }
+}
+})();
+</script>
+</body>
+</html>
