@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Verb Dungeon — Krabsy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A goofy-spooky 3D dungeon crawl where irregular verbs unlock the doors. Bonk skeletons, cross the chasm, open the vault!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e; --navy:#0d2240;
+    --navy2:#11294d; --ink:#eaf2ff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--navy);
+    font-family:'Nunito',sans-serif;color:var(--ink);}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;}
+
+  /* ---- vignette ---- */
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(2,6,16,.55) 100%);}
+
+  /* ---- HUD ---- */
+  #hud{position:fixed;top:14px;left:14px;right:14px;z-index:2;display:flex;
+    align-items:flex-start;gap:10px;pointer-events:none;transition:opacity .4s;}
+  #hud.hidden{opacity:0;}
+  .chip-hud{background:rgba(13,34,64,.78);border:2px solid rgba(46,230,192,.25);
+    border-radius:999px;padding:7px 16px;font-weight:800;font-size:17px;
+    backdrop-filter:blur(4px);display:flex;align-items:center;gap:7px;white-space:nowrap;}
+  #hp .h{color:var(--coral);font-size:19px;transition:transform .2s, opacity .2s;display:inline-block;}
+  #hp .h.off{opacity:.22;transform:scale(.8);filter:grayscale(1);}
+  #score-chip{color:var(--amber);}
+  #mastered-chip{color:var(--teal);}
+  #skel-chip{color:#cfd9ff;display:none;}
+  #skel-chip.show{display:flex;animation:popin .3s;}
+  #hud-spacer{flex:1;}
+  #btn-mute{pointer-events:auto;cursor:pointer;border:2px solid rgba(46,230,192,.25);
+    background:rgba(13,34,64,.78);color:var(--ink);font-size:18px;border-radius:999px;
+    width:42px;height:42px;display:flex;align-items:center;justify-content:center;}
+  #btn-mute:hover{border-color:var(--teal);}
+
+  /* ---- challenge banner ---- */
+  #challenge{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2;
+    background:rgba(9,22,44,.88);border:2px solid rgba(46,230,192,.35);border-radius:18px;
+    padding:10px 18px;display:flex;align-items:center;gap:9px;backdrop-filter:blur(5px);
+    box-shadow:0 8px 30px rgba(0,0,0,.45);transition:opacity .25s, transform .25s;}
+  #challenge.hidden{opacity:0;transform:translateX(-50%) translateY(-12px);pointer-events:none;}
+  #challenge .lbl{font-family:'Fredoka One';font-size:13px;color:#9db4dd;letter-spacing:.06em;
+    text-transform:uppercase;margin-right:4px;}
+  .chip{font-family:'Fredoka One';font-size:21px;padding:3px 14px;border-radius:12px;
+    color:#0d2240;letter-spacing:.02em;}
+  .chip.base{background:var(--amber);}
+  .chip.past{background:var(--teal);}
+  .chip.pp{background:var(--coral);}
+  .chip.gap{background:transparent;color:var(--ink);border:2px dashed rgba(234,242,255,.55);
+    animation:gappulse 1.1s ease-in-out infinite;}
+  .chip.gap.past-c{border-color:var(--teal);color:var(--teal);}
+  .chip.gap.pp-c{border-color:var(--coral);color:var(--coral);}
+  .arr{font-family:'Fredoka One';font-size:19px;color:#9db4dd;}
+  @keyframes gappulse{0%,100%{opacity:.65;}50%{opacity:1;}}
+
+  /* ---- toasts & hints ---- */
+  #toasts{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:3;
+    display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
+  .toast{background:rgba(9,22,44,.92);border:2px solid rgba(255,207,94,.4);border-radius:16px;
+    padding:10px 20px;font-weight:800;font-size:17px;display:flex;align-items:center;gap:8px;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);animation:toastin .3s;white-space:nowrap;max-width:92vw;}
+  .toast.out{animation:toastout .35s forwards;}
+  .toast .chip{font-size:17px;padding:2px 10px;}
+  .toast.bad{border-color:rgba(255,133,133,.5);}
+  .toast.good{border-color:rgba(46,230,192,.5);}
+  @keyframes toastin{from{opacity:0;transform:translateY(14px) scale(.92);}to{opacity:1;}}
+  @keyframes toastout{to{opacity:0;transform:translateY(8px) scale(.95);}}
+  #hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;
+    color:#9db4dd;font-weight:800;font-size:15px;background:rgba(9,22,44,.65);
+    padding:7px 16px;border-radius:999px;transition:opacity .5s;pointer-events:none;}
+  #hint.hidden{opacity:0;}
+
+  /* ---- floating pop text ---- */
+  .pop{position:fixed;z-index:3;font-family:'Fredoka One';font-size:22px;pointer-events:none;
+    text-shadow:0 2px 8px rgba(0,0,0,.6);animation:popfloat .9s forwards;transform:translate(-50%,-50%);}
+  @keyframes popfloat{0%{opacity:0;margin-top:0;scale:.6;}15%{opacity:1;scale:1.15;}
+    30%{scale:1;}100%{opacity:0;margin-top:-46px;}}
+
+  /* ---- title banner ---- */
+  #title-banner{position:fixed;top:34%;left:50%;transform:translate(-50%,-50%);z-index:4;
+    font-family:'Fredoka One';font-size:min(11vw,84px);letter-spacing:.04em;color:var(--amber);
+    text-shadow:0 0 28px rgba(255,207,94,.45), 0 6px 0 rgba(0,0,0,.35);pointer-events:none;
+    opacity:0;white-space:nowrap;}
+  #title-banner.show{animation:titlein 4.2s forwards;}
+  #title-banner small{display:block;text-align:center;font-size:.26em;color:var(--teal);
+    letter-spacing:.3em;text-shadow:0 0 14px rgba(46,230,192,.5);}
+  @keyframes titlein{0%{opacity:0;transform:translate(-50%,-50%) scale(1.6);}
+    12%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    78%{opacity:1;}100%{opacity:0;transform:translate(-50%,-58%);}}
+
+  /* ---- fade overlay (respawn) ---- */
+  #fade{position:fixed;inset:0;background:#04070f;z-index:5;pointer-events:none;
+    opacity:0;transition:opacity .4s;}
+  #fade.on{opacity:1;}
+
+  /* ---- start / win overlays ---- */
+  .overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 30%, rgba(17,41,77,.92), rgba(6,13,28,.97));
+    transition:opacity .45s;}
+  .overlay.hidden{opacity:0;pointer-events:none;}
+  .card{background:var(--navy2);border:2px solid rgba(46,230,192,.22);border-radius:26px;
+    padding:30px 34px 26px;max-width:440px;width:min(92vw,440px);text-align:center;
+    box-shadow:0 24px 80px rgba(0,0,0,.6);max-height:92vh;overflow-y:auto;}
+  .mascot{font-size:58px;display:inline-block;animation:bob 2.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-9px) rotate(4deg);}}
+  .card h1{font-family:'Fredoka One';font-size:40px;margin:6px 0 2px;color:var(--amber);
+    text-shadow:0 0 18px rgba(255,207,94,.3);}
+  .card .tag{color:#9db4dd;font-weight:800;margin:0 0 18px;font-size:15px;}
+  .howto{display:flex;flex-direction:column;gap:9px;margin:0 0 20px;text-align:left;}
+  .howto div{background:rgba(13,34,64,.7);border-radius:14px;padding:9px 14px;font-weight:800;
+    font-size:15px;display:flex;align-items:center;gap:11px;}
+  .howto .ico{font-size:21px;}
+  kbd{background:#0d2240;border:1px solid rgba(157,180,221,.4);border-bottom-width:3px;
+    border-radius:6px;padding:1px 7px;font-family:'Nunito';font-weight:800;font-size:13px;}
+  .btn-primary{font-family:'Fredoka One';font-size:21px;background:var(--teal);color:#06281f;
+    border:none;border-radius:999px;padding:14px 34px;cursor:pointer;
+    box-shadow:0 6px 0 #1a9c81, 0 12px 30px rgba(46,230,192,.25);transition:transform .12s;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);}
+  .btn-primary:active{transform:translateY(2px);box-shadow:0 2px 0 #1a9c81;}
+  .best{margin-top:14px;color:#9db4dd;font-weight:800;font-size:14px;}
+  .best b{color:var(--amber);}
+
+  /* win recap */
+  #win h1{color:var(--teal);text-shadow:0 0 18px rgba(46,230,192,.35);}
+  #win-stats{display:flex;justify-content:center;gap:12px;margin:4px 0 16px;}
+  #win-stats .stat{background:rgba(13,34,64,.7);border-radius:14px;padding:8px 18px;font-weight:800;}
+  #win-stats .stat b{font-family:'Fredoka One';font-size:22px;color:var(--amber);display:block;}
+  #win-chains{display:flex;flex-direction:column;gap:7px;margin:0 0 20px;}
+  #win-chains .row{display:flex;align-items:center;justify-content:center;gap:7px;
+    background:rgba(13,34,64,.55);border-radius:12px;padding:6px 8px;}
+  #win-chains .chip{font-size:15px;padding:2px 10px;}
+  #win-chains .arr{font-size:14px;}
+  .recap-lbl{font-family:'Fredoka One';color:#9db4dd;font-size:14px;letter-spacing:.08em;
+    text-transform:uppercase;margin:0 0 9px;}
+
+  /* confetti */
+  #confetti{position:fixed;inset:0;z-index:11;pointer-events:none;overflow:hidden;}
+  .cf{position:absolute;top:-20px;width:10px;height:14px;border-radius:3px;
+    animation:cfall linear forwards;}
+  @keyframes cfall{to{transform:translateY(110vh) rotate(720deg);}}
+  @keyframes popin{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+
+<div id="hud" class="hidden">
+  <div class="chip-hud" id="hp"><span class="h">♥</span><span class="h">♥</span><span class="h">♥</span></div>
+  <div class="chip-hud" id="score-chip">✨ <span id="score-val">0</span></div>
+  <div class="chip-hud" id="mastered-chip">📜 <span id="mastered-val">0</span>/5</div>
+  <div class="chip-hud" id="skel-chip">💀 ×<span id="skel-val">3</span></div>
+  <div id="hud-spacer"></div>
+  <button id="btn-mute" title="Toggle sound (M)">🔊</button>
+</div>
+
+<div id="challenge" class="hidden"></div>
+<div id="toasts"></div>
+<div id="hint" class="hidden"></div>
+<div id="title-banner">VERB DUNGEON<small>IRREGULAR VERBS AHEAD</small></div>
+<div id="fade"></div>
+
+<div id="start" class="overlay">
+  <div class="card">
+    <span class="mascot">🦀</span>
+    <h1>Verb Dungeon</h1>
+    <p class="tag">A goofy-spooky grammar crawl 🕯️</p>
+    <div class="howto">
+      <div><span class="ico">🕹️</span><span>Move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows</span></div>
+      <div><span class="ico">💥</span><span><kbd>SPACE</kbd> or click to bonk skeletons</span></div>
+      <div><span class="ico">🪨</span><span>Walk into the <b>correct verb</b> to open doors &amp; chests</span></div>
+      <div><span class="ico">💎</span><span>Reach the treasure vault to win!</span></div>
+    </div>
+    <button class="btn-primary" id="btn-start">Enter the Dungeon 🏰</button>
+    <div class="best" id="start-best"></div>
+  </div>
+</div>
+
+<div id="win" class="overlay hidden">
+  <div class="card">
+    <span class="mascot">🎉</span>
+    <h1>You escaped!</h1>
+    <p class="tag">The treasure is yours, brave grammarian!</p>
+    <div id="win-stats">
+      <div class="stat"><b id="win-score">0</b>score</div>
+      <div class="stat"><b id="win-best">0</b>best</div>
+    </div>
+    <p class="recap-lbl">Verbs you mastered</p>
+    <div id="win-chains"></div>
+    <button class="btn-primary" id="btn-again">Play again 🔁</button>
+  </div>
+</div>
+
+<div id="confetti"></div>
+<script type="module" src="src/game.js"></script>
+</body>
+</html>

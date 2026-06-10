@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-dungeon",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-c", "cd /home/jan/krabsy-homepage/games/verb-dungeon && python3 -m http.server 8123"],
+      "port": 8123
+    }
+  ]
+}

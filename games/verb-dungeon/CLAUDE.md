@@ -176,3 +176,33 @@ past/pp) — the distractors are where the learning happens.
 ## Status log
 
 - 2026-06-10 — Brief written by the master session. Nothing built yet.
+- 2026-06-10 — **PoC built and play-verified.** `index.html` + 9 modules in
+  `src/` (game, level, player, skeletons, gates, fx, ui, audio, verbs, utils).
+  Full level start→win: entrance hall (door-slam + torch-ignition beat with a
+  cinematic intro camera), corridor with patrol skeleton, verb door 1 (easy
+  pool), chasm with drifting fog + plank bridge (falling respawns at bridge
+  start), side treasure chest (medium pool), 3-skeleton hatch ambush that
+  unlocks verb door 2, rune-puzzle room (3 plaqued doors, wrong ones reveal a
+  brick wall + sad trombone), gold treasure vault with glitter and a 2-blank
+  final chest, win screen with chain recap + confetti. 42 inlined verbs in
+  `src/verbs.js` (forms match `content/irregular-verbs.json`, e.g.
+  get→got→got); distractors = regularized / swapped / cross-verb / mangled.
+  - **Verified** in a served browser run driven through the `window.__VD` QA
+    hook (`state/start/step/teleport/answer/solve/bonkAmbush/shot`): all 5
+    gates, wrong-answer teach-toast + challenge reroll, both-slot blanking,
+    ambush unlock chain, fall + defeat respawns, win recap, localStorage best.
+    Zero console errors/warnings. Screenshots of every room in `_shots/`
+    (gitignored).
+  - **Perf:** every static prop is baked into one merged mesh per material →
+    113 draw calls / ~12k tris; ~10 ms/frame on an Intel UHD 620 at 800×450
+    in a *hidden* window (pessimistic), so the 60 fps mid-laptop target holds.
+    9 point lights, no shadow maps (blob shadows), `FogExp2`.
+  - **Camera:** third-person follow with a "crane-up" that checks tall-wall
+    colliders and rises just enough to keep the hero visible past walls and
+    door lintels; cinematic low reverse angle during the intro.
+  - Known gaps: touch controls not implemented (desktop-first per brief); DOM
+    overlays (start/win/HUD) verified via state + metrics, worth one eyeball
+    pass in a visible browser; ambush skeletons reassemble harmless (no
+    re-chase) once beaten — intentional.
+  - Dev helper: `.claude/launch.json` serves this folder on :8123 for the
+    preview tool.
