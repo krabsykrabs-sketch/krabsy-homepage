@@ -46,11 +46,17 @@
   .howto-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);padding:9px 14px;border-radius:14px;font-size:13px;color:rgba(255,255,255,0.85);text-align:left;line-height:1.4}
   .howto-ico{font-size:22px;flex-shrink:0}
   .howto-row b{color:var(--amber)}
-  .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
-  .legend-chip{padding:4px 13px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:13px;border:2px solid transparent;background:rgba(255,255,255,0.06)}
+  .legend-chip{padding:5px 15px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:15px;border:2px solid transparent;background:rgba(255,255,255,0.06)}
   .lc-base{color:var(--amber);border-color:rgba(255,207,94,0.55)}
   .lc-past{color:var(--teal);border-color:rgba(46,230,192,0.5)}
   .lc-pp{color:var(--coral);border-color:rgba(255,133,133,0.5)}
+  .order-strip{display:flex;align-items:center;gap:7px;justify-content:center;flex-wrap:wrap}
+  .order-step{display:flex;align-items:center;gap:6px}
+  .order-num{font-family:'Fredoka One',cursive;font-size:13px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0a1c34}
+  .on-base{background:var(--amber)} .on-past{background:var(--teal)} .on-pp{background:var(--coral)}
+  .order-arrow{font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.35);font-size:15px}
+  .order-caption{font-size:13px;color:rgba(255,255,255,0.7)}
+  .order-caption b{color:var(--amber)}
 
   .btn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 38px;border-radius:50px;border:none;cursor:pointer;letter-spacing:0.5px;transition:transform 0.15s;margin-top:4px;color:#fff}
   .btn:active{transform:scale(0.94)}
@@ -94,15 +100,18 @@
   <div class="screen-emoji">🐍</div>
   <div class="screen-title">Verb <span>Snake!</span></div>
   <div class="screen-sub">Eat each verb's three forms in order and build the longest snake!</div>
-  <div class="howto">
-    <div class="howto-row"><div class="howto-ico">🍎</div><div>Eat the <b>base form</b>, then the <b>simple past</b>, then the <b>past participle</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">👆</div><div>Steer with <b>arrow keys</b>, the d-pad, or tap the side of the board you want to turn to.</div></div>
-    <div class="howto-row"><div class="howto-ico">⚠️</div><div>Wrong forms shrink your snake. Don't hit the walls — or yourself!</div></div>
+  <div class="order-strip">
+    <div class="order-step"><span class="order-num on-base">1</span><span class="legend-chip lc-base">go</span></div>
+    <span class="order-arrow">→</span>
+    <div class="order-step"><span class="order-num on-past">2</span><span class="legend-chip lc-past">went</span></div>
+    <span class="order-arrow">→</span>
+    <div class="order-step"><span class="order-num on-pp">3</span><span class="legend-chip lc-pp">gone</span></div>
   </div>
-  <div class="legend">
-    <div class="legend-chip lc-base">go</div>
-    <div class="legend-chip lc-past">went</div>
-    <div class="legend-chip lc-pp">gone</div>
+  <div class="order-caption">eat each verb's 3 forms — <b>in this order!</b></div>
+  <div class="howto">
+    <div class="howto-row"><div class="howto-ico">🍎</div><div>Fruits carry verb forms. Eat the <b>base</b> first, then the <b>simple past</b>, then the <b>past participle</b> — that completes the verb and grows your snake!</div></div>
+    <div class="howto-row"><div class="howto-ico">👆</div><div>Steer with <b>arrow keys</b>, the d-pad, or tap the side of the board you want to turn to.</div></div>
+    <div class="howto-row"><div class="howto-ico">⚠️</div><div>Forms eaten out of order shrink your snake. Don't hit the walls — or yourself!</div></div>
   </div>
   <button class="btn btn-primary" id="start-btn">Slither! 🐍</button>
   <div class="logo-text">Krab<em>sy</em></div>
@@ -364,6 +373,15 @@ function queueDirection(d){
   const last=state.queuedDirs.length>0?state.queuedDirs[state.queuedDirs.length-1]:state.dir;
   if(OPP[last]===d||last===d)return;
   if(state.queuedDirs.length<2)state.queuedDirs.push(d);
+  // Responsiveness: if this is the first queued turn and the snake is already
+  // most of the way through its current step, fire the tick NOW instead of
+  // waiting out the interval. Worst-case turn latency drops from a full tick
+  // to ~55% of one, and turns feel immediate at the moment you press.
+  if(state.queuedDirs.length===1){
+    const now=performance.now();
+    const t=(now-state.lastTickTime)/state.tickInterval;
+    if(t>=0.55){state.lastTickTime=now;tick();}
+  }
 }
 window.addEventListener('keydown',e=>{
   audioInit();
@@ -595,17 +613,30 @@ function drawFruits(now){
     const t=Math.min(1,(now-f.born)/240);
     const sc=0.5+0.5*(1-Math.pow(1-t,3));
     const bob=Math.sin(now*0.003+f.cell.col*1.7)*cell*0.03;
+    const fc=FORM_COLOR[FORM_TYPE[f.formIdx]];
     ctx.save();
     ctx.translate(c.x,c.y+bob);ctx.scale(sc,sc);
     // soft shadow
     ctx.fillStyle='rgba(0,0,0,0.25)';
-    ctx.beginPath();ctx.ellipse(0,cell*0.30,cell*0.26,cell*0.08,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,cell*0.34,cell*0.28,cell*0.08,0,0,Math.PI*2);ctx.fill();
+    // form-colored halo so fruits glow against the navy board
+    const pulse=0.75+0.25*Math.sin(now*0.004+f.cell.row*2.1);
+    const halo=ctx.createRadialGradient(0,-cell*0.06,cell*0.1,0,-cell*0.06,cell*0.52);
+    halo.addColorStop(0,fc);halo.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.globalAlpha=0.38*pulse;
+    ctx.fillStyle=halo;
+    ctx.beginPath();ctx.arc(0,-cell*0.06,cell*0.52,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    // bright "sticker" disc — emoji read pale straight on the dark board
+    ctx.fillStyle='#fff7e8';
+    ctx.beginPath();ctx.arc(0,-cell*0.06,cell*0.34,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=fc;ctx.lineWidth=2.4;
+    ctx.beginPath();ctx.arc(0,-cell*0.06,cell*0.34,0,Math.PI*2);ctx.stroke();
     // fruit
-    ctx.font=`${Math.round(cell*0.62)}px sans-serif`;
+    ctx.font=`${Math.round(cell*0.5)}px sans-serif`;
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(f.emoji,0,-cell*0.06);
+    ctx.fillText(f.emoji,0,-cell*0.05);
     // word pill
-    const fc=FORM_COLOR[FORM_TYPE[f.formIdx]];
     const word=formText(VERB_BY_NAME[f.verb],f.formIdx);
     let fs=Math.max(9,Math.round(cell*0.26));
     ctx.font=`900 ${fs}px "Fredoka One",cursive`;
@@ -627,7 +658,10 @@ function drawSnake(now){
   if(!state.snake.length)return;
   const cell=LY.cell;
   const dying=state.mode==='dying';
-  const t=state.mode==='playing'?Math.min(1,(now-state.lastTickTime)/state.tickInterval):1;
+  // Interpolation runs slightly ahead of the tick so the head reaches the
+  // cell center just before the next step commits — turns visually happen
+  // exactly at corners, which reads as "instant" instead of laggy.
+  const t=state.mode==='playing'?Math.min(1,(now-state.lastTickTime)/state.tickInterval*1.18):1;
   const pts=state.snake.map((s,i)=>{
     const p=state.prev[i]||s;
     const cc=cellCenter(s.col,s.row),pc=cellCenter(p.col,p.row);
@@ -639,19 +673,34 @@ function drawSnake(now){
   ctx.save();
   if(dying)ctx.globalAlpha=1-dieT*0.85;
 
-  // tapered body: draw from tail to head as circles for clean taper
-  for(let i=n-1;i>=1;i--){
-    const k=i/Math.max(1,n-1);                  // 0 head → 1 tail
-    const rad=cell*(0.34-(0.10*k))*(1+(i===1?eatT*0.12:0));
-    const g=ctx.createRadialGradient(pts[i].x-rad*0.3,pts[i].y-rad*0.3,rad*0.2,pts[i].x,pts[i].y,rad);
-    const bright=dying?'#9ab':'#3df0cc', dark=dying?'#678':'#15967c';
-    g.addColorStop(0,bright);g.addColorStop(1,dark);
-    ctx.fillStyle=g;
-    ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,rad,0,Math.PI*2);ctx.fill();
-    // belly stripe dot
-    if(i%2===0){
-      ctx.fillStyle='rgba(255,255,255,0.18)';
-      ctx.beginPath();ctx.arc(pts[i].x,pts[i].y-rad*0.35,rad*0.3,0,Math.PI*2);ctx.fill();
+  // Connected tapered body: per-segment rounded strokes, wide at the head
+  // and slimming toward the tail, with a dark outline pass for definition.
+  const lerpC=(k)=>{ // teal gradient head→tail
+    const a=dying?[154,170,187]:[61,240,204], b=dying?[103,136,153]:[21,150,124];
+    const r=Math.round(a[0]+(b[0]-a[0])*k),g=Math.round(a[1]+(b[1]-a[1])*k),bl=Math.round(a[2]+(b[2]-a[2])*k);
+    return `rgb(${r},${g},${bl})`;
+  };
+  ctx.lineCap='round';ctx.lineJoin='round';
+  if(n>1){
+    // outline pass
+    ctx.strokeStyle='rgba(8,22,44,0.55)';
+    for(let i=1;i<n;i++){
+      const k=i/Math.max(1,n-1);
+      ctx.lineWidth=cell*(0.62-0.20*k)+4;
+      ctx.beginPath();ctx.moveTo(pts[i-1].x,pts[i-1].y);ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();
+    }
+    // body pass
+    for(let i=1;i<n;i++){
+      const k=i/Math.max(1,n-1);
+      ctx.strokeStyle=lerpC(k);
+      ctx.lineWidth=cell*(0.62-0.20*k);
+      ctx.beginPath();ctx.moveTo(pts[i-1].x,pts[i-1].y);ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();
+    }
+    // belly highlight dots
+    ctx.fillStyle='rgba(255,255,255,0.18)';
+    for(let i=2;i<n;i+=2){
+      const k=i/Math.max(1,n-1);
+      ctx.beginPath();ctx.arc(pts[i].x,pts[i].y-cell*0.07,cell*(0.3-0.1*k)*0.35,0,Math.PI*2);ctx.fill();
     }
   }
   // head
@@ -662,7 +711,10 @@ function drawSnake(now){
   ctx.fillStyle=hg;
   ctx.beginPath();ctx.arc(h.x,h.y,hr,0,Math.PI*2);ctx.fill();
 
-  const d=DIR_DELTA[state.dir];
+  // Eyes (and tongue) face the QUEUED direction the instant it's pressed —
+  // cosmetic, but it makes input feel acknowledged immediately.
+  const faceDir=state.queuedDirs.length>0?state.queuedDirs[0]:state.dir;
+  const d=DIR_DELTA[faceDir];
   // tongue flick every ~2.6s
   if(!dying&&((now/2600)|0)!==state.tongue&&(now%2600)<300){
     const tl=hr*(0.9+0.5*Math.sin(now*0.05));
@@ -709,29 +761,50 @@ function drawTracker(now){
   ctx.beginPath();ctx.roundRect(x,y,w,h,h/2);ctx.stroke();
 
   const ch=state.chain;
+  const FORM_LABEL=['base','past','participle'];
   ctx.textAlign='center';ctx.textBaseline='middle';
   if(!ch.verb){
-    ctx.font='800 12px Nunito,sans-serif';
-    ctx.fillStyle='rgba(255,255,255,0.4)';
-    ctx.fillText('eat a base form to start a chain  🍎',x+w/2,y+h/2+1);
+    ctx.font='800 13px Nunito,sans-serif';
+    ctx.fillStyle='#ffcf5e';
+    ctx.fillText('🍎 eat a yellow BASE form to start!',x+w/2,y+h/2+1);
   }else{
     const V=VERB_BY_NAME[ch.verb];
+    const pulse=0.55+0.45*Math.sin(now*0.008);
     for(let i=0;i<3;i++){
       const p=trackerSlotPos(i);
-      const eaten=ch.step>i;
-      const word=eaten?formText(V,i).toUpperCase():'???';
-      const col=eaten?FORM_COLOR[FORM_TYPE[i]]:'rgba(255,255,255,0.22)';
-      ctx.font=`900 ${eaten?15:13}px "Fredoka One",cursive`;
+      const eaten=ch.step>i, isNext=ch.step===i;
+      // eaten slots show the word; the NEXT slot teaches its form type and
+      // pulses in its color; later slots sit dim.
+      const word=eaten?formText(V,i).toUpperCase():FORM_LABEL[i];
+      let col;
+      if(eaten)col=FORM_COLOR[FORM_TYPE[i]];
+      else if(isNext)col=FORM_COLOR[FORM_TYPE[i]];
+      else col='rgba(255,255,255,0.2)';
+      ctx.font=`900 ${eaten?15:12}px "Fredoka One",cursive`;
+      if(ctx.measureText(word).width>w*0.28)ctx.font='900 11px "Fredoka One",cursive';
+      ctx.globalAlpha=isNext?pulse:1;
       ctx.fillStyle=col;
-      let txt=word;
-      if(ctx.measureText(txt).width>w*0.28){ctx.font='900 12px "Fredoka One",cursive';}
-      ctx.fillText(txt,p.x,p.y+1);
+      ctx.fillText(word,p.x,p.y+1);
+      ctx.globalAlpha=1;
       if(i<2){
         ctx.font='900 11px "Fredoka One",cursive';
         ctx.fillStyle='rgba(255,255,255,0.25)';
         ctx.fillText('→',x+w*(0.34+0.32*i),y+h/2+1);
       }
     }
+  }
+  // Warm-up coaching line under the tracker (first two verb sets only).
+  if(state.setsCompleted<2&&state.mode==='playing'){
+    let hint;
+    if(!ch.verb)hint='each verb has 3 forms — eat them in order!';
+    else{
+      const V=VERB_BY_NAME[ch.verb];
+      hint=ch.step===1?`now find the simple past of “${V.v}”!`
+                      :`finish with the past participle of “${V.v}”!`;
+    }
+    ctx.font='800 12px Nunito,sans-serif';
+    ctx.fillStyle='rgba(255,255,255,0.55)';
+    ctx.fillText(hint,x+w/2,y+h+14);
   }
   // combo badge
   if(state.combo>1){
@@ -881,6 +954,29 @@ document.getElementById('btn-sound').addEventListener('click',()=>{
   audioInit();updateHUD();if(state.sound)sfx('eat0');
 });
 updateHUD();
+
+// ── QA: ?qa=board renders a frozen mid-game scene (for headless shots) ──
+if(location.search.includes('qa=board')){
+  startNewGame();
+  for(let i=0;i<4;i++)window.setTimeout(()=>{},0); // no-op, keep linters calm
+  (function(){
+    const VS={state,tick};
+    // eat one full set + the next base through the real tick path
+    for(let i=0;i<4;i++){
+      const f=state.fruits[0];if(!f)break;
+      let col=f.cell.col-1,row=f.cell.row,dir='right';
+      if(col<0){col=f.cell.col+1;dir='left';}
+      state.snake[0]={col,row,dir};
+      state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+      state.dir=dir;state.queuedDirs=[];
+      tick();
+    }
+    state.setsCompleted=2;state.fruits=[];rebuildField();   // show the full field
+    state.snake=[{col:5,row:9,dir:'right'},{col:4,row:9},{col:3,row:9},{col:3,row:10},{col:2,row:10}];
+    state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+    state.dir='right';state.tickInterval=9e9;state.lastTickTime=performance.now();
+  })();
+}
 
 // ── QA hook ──
 window.__VS={
