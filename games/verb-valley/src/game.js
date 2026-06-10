@@ -136,7 +136,7 @@ function computeTarget() {
   if (d2(LAYOUT.bed.x, LAYOUT.bed.z) < 2.1) {
     return { kind: 'sleep', label: '<b>E</b> — Sleep 🛏' };
   }
-  if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: '<b>E</b> — Ship produce 📦' };
+  if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: '<b>E</b> — Sell produce 📦' };
   if (d2(LAYOUT.shop.x, LAYOUT.shop.z) < 2.8) return { kind: 'shop', label: '<b>E</b> — Shop 🛒' };
 
   const bi = farm.nearestBerry(p, 1.7);
@@ -176,7 +176,7 @@ function interact() {
     case 'sleep': doSleep(); break;
     case 'ship': ui.openShip(); break;
     case 'shop': ui.openShop(); break;
-    case 'berry': { const r = farm.actions.pickBerry(t.i); if (r.ok) { sfx.harvest(); ui.toast('🫐 Wild berries!'); } break; }
+    case 'berry': { const r = farm.actions.pickBerry(t.i); if (r.ok) { sfx.harvest(); ui.toast('🫐 Wild berries!'); ui.refresh(); } break; }
     case 'harvest': act.harvest(t.i); break;
     case 'till': act.till(t.i); break;
     case 'plant': act.plant(t.i, t.t); break;
@@ -232,14 +232,20 @@ function buy(id) {
   return { ok: false, reason: 'unknown' };
 }
 
+// Selling pays out on the spot — playtesting showed the Stardew-style
+// overnight crate payout just felt like a bug ("where's my money?").
 function ship(item, n) {
   const have = state.inventory[item] ?? 0;
   const move = Math.min(have, n);
   if (move <= 0) return { ok: false, reason: 'none' };
+  const earned = (SELLABLE[item] ?? 0) * move;
   state.inventory[item] -= move;
-  state.crate[item] = (state.crate[item] ?? 0) + move;
+  state.coins += earned;
   sfx.coin();
-  return { ok: true, moved: move };
+  ui.toast(`+${earned} 🪙`);
+  ui.autoStow();
+  ui.refresh();
+  return { ok: true, moved: move, earned };
 }
 
 function doSleep(dozed = false) {

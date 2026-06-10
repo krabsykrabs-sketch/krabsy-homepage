@@ -263,3 +263,11 @@ preposition items for lesson variety. Distractors must be plausible
   - Re-verified: 15 assertions on the new behaviors + core-loop
     regression all PASS, zero console errors, screenshots checked
     (inventory panel, active-seed highlight, held bag visible).
+- 2026-06-10 — **Playtest round 2 (user feedback).**
+  - Berry pickup (and every acquisition path) refreshes the inventory
+    panel immediately — the panel is the live source of truth.
+  - **Selling pays on the spot** at the crate ("Sell", not "Ship") —
+    the overnight-crate Stardew homage read as a bug to the player.
+    `advanceDay()` still drains a legacy crate so old saves pay out.
+  - 7 assertions PASS (E-path berry pickup → panel chip, instant +coins,
+    crate stays empty, harvest section hides when empty, sleep pays 0).

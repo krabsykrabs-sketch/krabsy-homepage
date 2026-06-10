@@ -207,18 +207,14 @@ export function createUI(state, hooks) {
       row.className = 'panel-row';
       row.innerHTML = `<span class="ic">${ITEM_EMOJI[item] ?? '❔'}</span>
         <span class="nm">${CROPS[item]?.name ?? item} ×${n}<small>${SELLABLE[item]}c each</small></span>
-        <button class="chip-btn">Ship 1</button><button class="chip-btn">All</button>`;
+        <button class="chip-btn">Sell 1</button><button class="chip-btn">All</button>`;
       const [b1, bAll] = row.querySelectorAll('button');
-      b1.onclick = () => { hooks.onShip(item, 1); autoStow(); openShip(); refresh(); };
-      bAll.onclick = () => { hooks.onShip(item, n); autoStow(); openShip(); refresh(); };
+      b1.onclick = () => { hooks.onShip(item, 1); openShip(); };
+      bAll.onclick = () => { hooks.onShip(item, n); openShip(); };
       list.appendChild(row);
     }
-    if (!any) list.innerHTML = '<p class="empty">Nothing to ship — harvest something first!</p>';
-    const crateTotal = Object.entries(state.crate).reduce((s, [it, n]) => s + (SELLABLE[it] ?? 0) * n, 0);
-    const crateCount = Object.values(state.crate).reduce((s, n) => s + n, 0);
-    $('ship-crate').textContent = crateCount
-      ? `In crate: ${crateCount} item${crateCount > 1 ? 's' : ''} → ${crateTotal} 🪙 when you sleep`
-      : 'Crate is empty. Coins arrive overnight.';
+    if (!any) list.innerHTML = '<p class="empty">Nothing to sell — harvest something first!</p>';
+    $('ship-crate').textContent = `You have ${state.coins} 🪙`;
     $('ship-panel').hidden = false;
   }
 

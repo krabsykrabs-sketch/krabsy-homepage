@@ -114,7 +114,7 @@ export function buildWorld(scene) {
   for (const y of [0.35, 1.0]) { const band = box(2.05, 0.12, 2.05, 0x6a4a2c); band.position.y = y; crate.add(band); }
   scene.add(crate);
   refs.crate = crate;
-  makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, '📦 Ship', 0x9c6b3f);
+  makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, '📦 Sell', 0x9c6b3f);
 
   // ── Shop stand ───────────────────────────────────────────────────────
   const shop = new THREE.Group();
