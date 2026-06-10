@@ -4,1052 +4,1042 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Verb Climb 🦀 — Krabsy</title>
+<meta name="description" content="Climb a tower of floating nonsense objects. Jumps cost energy — irregular verbs refuel it!">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e;
-    --ink:#1d2b3a; --ink2:#3a4a5c;
-    --panel:rgba(255,255,255,.92);
-    --shadow:0 10px 30px rgba(20,40,60,.25);
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%;overflow:hidden;background:#bfe9ff;
-    font-family:Nunito,system-ui,sans-serif;color:var(--ink);
-    -webkit-user-select:none;user-select:none;touch-action:none}
-  #wrap{position:fixed;inset:0}
-  canvas{display:block;width:100%;height:100%}
+:root{
+  --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e;
+  --ink:#1e2d3d; --ink2:#46586c;
+  --card:rgba(255,255,255,.94);
+  --shadow:0 12px 32px rgba(20,40,70,.28);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#9fd9f6;
+  font-family:Nunito,system-ui,sans-serif;color:var(--ink);
+  -webkit-user-select:none;user-select:none;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 
-  /* ---------- HUD ---------- */
-  #hud{position:absolute;inset:0;pointer-events:none;font-weight:800}
-  #energyWrap{position:absolute;top:max(12px,env(safe-area-inset-top));left:50%;
-    transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
-  #energy{display:flex;gap:4px;padding:6px 8px;background:rgba(255,255,255,.78);
-    border-radius:14px;box-shadow:var(--shadow)}
-  .seg{width:26px;height:16px;border-radius:5px;background:rgba(29,43,58,.16);
-    position:relative;overflow:hidden}
-  .seg i{position:absolute;inset:0;background:linear-gradient(180deg,#5ff0d4,var(--teal));
-    transform-origin:left;transform:scaleX(0);transition:transform .25s ease}
-  #energyLbl{font-size:12px;color:var(--ink2);background:rgba(255,255,255,.7);
-    padding:1px 10px;border-radius:10px}
-  #energyLbl.dry{color:#fff;background:var(--coral)}
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;pointer-events:none;font-weight:800}
+#energyBox{position:absolute;top:max(10px,env(safe-area-inset-top));left:50%;
+  transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+#energy{display:flex;gap:4px;padding:7px 9px;background:rgba(255,255,255,.82);
+  border-radius:14px;box-shadow:var(--shadow)}
+.seg{width:24px;height:15px;border-radius:5px;background:rgba(30,45,61,.15);overflow:hidden;position:relative}
+.seg i{position:absolute;inset:0;background:linear-gradient(180deg,#6ff3d8,var(--teal));
+  transform-origin:left;transform:scaleX(0)}
+#energyLbl{font-size:12px;background:rgba(255,255,255,.75);padding:1px 11px;border-radius:10px;color:var(--ink2)}
+#energyLbl.dry{background:var(--coral);color:#fff;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.7}}
+#energy.deny{animation:shakeX .3s}
+@keyframes shakeX{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
-  #heightMeter{position:absolute;top:0;bottom:0;right:max(8px,env(safe-area-inset-right));
-    width:54px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  #meterBar{position:relative;width:8px;height:62%;background:rgba(255,255,255,.55);
-    border-radius:6px;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
-  #meterFill{position:absolute;left:0;right:0;bottom:0;height:0%;
-    background:linear-gradient(180deg,var(--amber),var(--coral));border-radius:6px}
-  #meterFlag{position:absolute;left:-22px;width:50px;text-align:center;font-size:11px;
-    color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45);transform:translateY(50%)}
-  #meterTop{font-size:14px;margin-bottom:4px}
-  #meterBest{font-size:11px;margin-top:4px;color:var(--ink2)}
+#meter{position:absolute;right:max(8px,env(safe-area-inset-right));top:50%;
+  transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
+#meterTrack{position:relative;width:9px;height:46vh;background:rgba(255,255,255,.5);
+  border-radius:6px}
+#meterFill{position:absolute;left:0;right:0;bottom:0;height:0%;border-radius:6px;
+  background:linear-gradient(180deg,var(--coral),var(--amber))}
+#meterYou{position:absolute;left:-7px;width:23px;text-align:center;font-size:13px;bottom:0;
+  transform:translateY(50%)}
+#meterBestMark{position:absolute;left:-3px;width:15px;height:3px;background:#ff8585;border-radius:2px;bottom:0}
+#meterNow{font-size:14px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+#meterBest{font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);opacity:.85}
 
-  #topBtns{position:absolute;top:max(12px,env(safe-area-inset-top));
-    left:max(10px,env(safe-area-inset-left));display:flex;gap:8px;pointer-events:auto}
-  .iconBtn{width:42px;height:42px;border:none;border-radius:13px;background:rgba(255,255,255,.82);
-    box-shadow:var(--shadow);font-size:20px;cursor:pointer;display:grid;place-items:center}
-  .iconBtn:active{transform:translateY(1px)}
-  #studyChip{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:50%;
-    transform:translateX(-50%);pointer-events:auto;border:none;cursor:pointer;
-    background:linear-gradient(180deg,#ffe08a,var(--amber));color:#5a3d00;font-weight:800;
-    font-family:Nunito;font-size:15px;padding:11px 18px;border-radius:16px;box-shadow:var(--shadow);
-    display:flex;align-items:center;gap:7px}
-  #studyChip:active{transform:translateX(-50%) translateY(1px)}
-  #studyChip.pulse{animation:pulse 1.1s ease-in-out infinite}
-  @keyframes pulse{0%,100%{box-shadow:var(--shadow)}50%{box-shadow:0 0 0 6px rgba(255,207,94,.45),var(--shadow)}}
+#corner{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));
+  display:flex;gap:8px;pointer-events:auto}
+.icoBtn{width:42px;height:42px;border:none;border-radius:13px;background:rgba(255,255,255,.85);
+  box-shadow:var(--shadow);font-size:19px;cursor:pointer}
+.icoBtn:active{transform:translateY(1px)}
 
-  /* ---------- touch controls ---------- */
-  #touch{position:absolute;inset:0;pointer-events:none;display:none}
-  .tbtn{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));width:74px;height:74px;
-    border-radius:50%;background:rgba(255,255,255,.5);box-shadow:var(--shadow);
-    pointer-events:auto;display:grid;place-items:center;font-size:30px;color:var(--ink);border:none}
-  #tLeft{left:max(12px,env(safe-area-inset-left))}
-  #tRight{left:calc(max(12px,env(safe-area-inset-left)) + 86px)}
-  #tJump{right:max(12px,env(safe-area-inset-right));background:rgba(46,230,192,.6)}
-  body.touch #touch{display:block}
-  body.touch #studyChip{bottom:max(102px,calc(env(safe-area-inset-bottom) + 92px))}
+#chipStudy{position:absolute;left:50%;bottom:max(16px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);pointer-events:auto;border:none;cursor:pointer;
+  font-family:Nunito;font-weight:800;font-size:15px;color:#5c3f00;
+  background:linear-gradient(180deg,#ffe18d,var(--amber));padding:11px 20px;border-radius:16px;
+  box-shadow:var(--shadow);display:flex;gap:8px;align-items:center}
+#chipStudy:active{transform:translateX(-50%) translateY(1px)}
+#chipStudy.pulse{animation:pulse 1.1s infinite}
+#chipStudy.dim{opacity:.55}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(255,207,94,.4),var(--shadow)}}
 
-  /* ---------- overlays ---------- */
-  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    padding:18px;z-index:20}
-  .overlay.on{display:flex}
-  .card{background:var(--panel);border-radius:24px;box-shadow:var(--shadow);
-    max-width:430px;width:100%;padding:22px 22px 20px;text-align:center;max-height:94%;overflow:auto}
-  h1{font-family:Fredoka One;margin:.1em 0 .15em;font-size:30px;color:var(--ink);line-height:1.05}
-  h2{font-family:Fredoka One;margin:.1em 0 .3em;font-size:24px;color:var(--ink)}
-  .sub{color:var(--ink2);font-size:14px;margin:0 0 14px}
-  .mascot{font-size:54px;line-height:1;margin-bottom:2px}
-  .how{display:flex;flex-direction:column;gap:8px;text-align:left;margin:14px 0}
-  .howrow{display:flex;gap:11px;align-items:center;background:rgba(46,230,192,.12);
-    border-radius:13px;padding:9px 12px;font-size:14px;font-weight:700;color:var(--ink2)}
-  .howrow b{color:var(--ink)}
-  .howrow .e{font-size:22px;width:26px;text-align:center;flex:none}
-  .legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px}
-  .lchip{font-size:12px;font-weight:800;padding:4px 11px;border-radius:11px;color:#23303d}
-  .lchip.base{background:var(--amber)} .lchip.past{background:var(--teal)} .lchip.pp{background:var(--coral)}
-  .btn{border:none;cursor:pointer;font-family:Fredoka One;font-size:20px;color:#fff;
-    background:linear-gradient(180deg,#34f0c8,#16c4a3);padding:13px 30px;border-radius:18px;
-    box-shadow:var(--shadow);margin-top:8px}
-  .btn:active{transform:translateY(1px)}
-  .btn.coral{background:linear-gradient(180deg,#ff9b9b,#ff6f6f)}
-  .kbd{font-family:Nunito;font-weight:800;background:#fff;border:2px solid rgba(29,43,58,.18);
-    border-radius:7px;padding:0 7px;font-size:13px;color:var(--ink)}
+/* ---------- touch pads ---------- */
+#touch{position:fixed;inset:0;pointer-events:none;display:none}
+.pad{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));width:72px;height:72px;border:none;
+  border-radius:50%;background:rgba(255,255,255,.5);box-shadow:var(--shadow);font-size:28px;
+  pointer-events:auto;color:var(--ink)}
+#padL{left:max(12px,env(safe-area-inset-left))}
+#padR{left:calc(max(12px,env(safe-area-inset-left)) + 84px)}
+#padJ{right:max(12px,env(safe-area-inset-right));background:rgba(46,230,192,.65);width:86px;height:86px}
+body.touch #touch{display:block}
+body.touch #chipStudy{bottom:max(112px,calc(env(safe-area-inset-bottom) + 100px))}
 
-  /* ---------- study ---------- */
-  #study .card{max-width:400px}
-  #qPrompt{font-family:Fredoka One;font-size:25px;margin:6px 0 3px}
-  #qHint{color:var(--ink2);font-size:13px;margin-bottom:14px}
-  #qChips{display:flex;flex-direction:column;gap:10px}
-  .qchip{border:none;cursor:pointer;font-family:Nunito;font-weight:800;font-size:19px;
-    padding:13px;border-radius:15px;color:#22303d;box-shadow:var(--shadow);transition:transform .08s}
-  .qchip:active{transform:scale(.98)}
-  .qchip.past{background:var(--teal)} .qchip.pp{background:var(--coral)}
-  .qchip.right{outline:4px solid #19a983;animation:pop .3s} .qchip.wrong{outline:4px solid #c23b3b;opacity:.8}
-  @keyframes pop{50%{transform:scale(1.06)}}
-  #qChain{min-height:30px;margin:13px 0 4px;font-weight:800;font-size:18px}
-  #qChain .a{color:#bb7d00}#qChain .b{color:#0e9e80}#qChain .c{color:#d8504f}
-  #qStat{font-size:13px;color:var(--ink2);margin-bottom:8px}
-  #qBars{display:flex;gap:4px;justify-content:center;margin:4px 0 12px}
-  #qBars .s{width:22px;height:11px;border-radius:4px;background:rgba(29,43,58,.16)}
-  #qBars .s.f{background:var(--teal)}
-  .missrow{font-weight:800;margin:3px 0}
-  .missrow .a{color:#bb7d00}.missrow .b{color:#0e9e80}.missrow .c{color:#d8504f}
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
+.ov.on{display:flex}
+.card{background:var(--card);border-radius:26px;box-shadow:var(--shadow);max-width:440px;width:100%;
+  padding:24px 24px 22px;text-align:center;max-height:94vh;overflow-y:auto}
+h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
+.sub{color:var(--ink2);font-size:14.5px;margin:4px 0 14px;line-height:1.45}
+.mascot{font-size:52px;line-height:1.15}
+.rows{display:flex;flex-direction:column;gap:8px;text-align:left;margin:6px 0 12px}
+.row{display:flex;align-items:center;gap:12px;background:rgba(46,230,192,.13);border-radius:14px;
+  padding:9px 13px;font-size:14px;font-weight:700;color:var(--ink2)}
+.row b{color:var(--ink)}
+.row .ic{font-size:22px;flex:none;width:26px;text-align:center}
+.kbd{background:#fff;border:2px solid rgba(30,45,61,.16);border-radius:7px;padding:0 7px;
+  font-size:12.5px;font-weight:800;color:var(--ink)}
+.legend{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:4px 0 10px}
+.lch{font-size:12px;font-weight:800;padding:4px 12px;border-radius:11px;color:#243240}
+.lch.b{background:var(--amber)} .lch.p{background:var(--teal)} .lch.q{background:var(--coral)}
+.big{border:none;cursor:pointer;font-family:'Fredoka One';font-size:21px;color:#fff;
+  padding:14px 34px;border-radius:18px;box-shadow:var(--shadow);
+  background:linear-gradient(180deg,#36f1ca,#13bd9d);margin-top:6px}
+.big:active{transform:translateY(1px)}
+.big.coral{background:linear-gradient(180deg,#ff9d9d,#fb6f6f)}
+.big.ghost{background:rgba(30,45,61,.12);color:var(--ink);font-size:17px;padding:11px 22px}
+.statline{font-weight:800;font-size:15px;margin:8px 0}
+.bestnote{font-size:13px;color:var(--ink2);margin-top:10px}
 
-  /* floating +1 */
-  #fx{position:absolute;inset:0;pointer-events:none;z-index:15;overflow:hidden}
-  .plus1{position:absolute;font-family:Fredoka One;color:#16c4a3;font-size:26px;
-    text-shadow:0 2px 6px rgba(255,255,255,.8);animation:rise 1s ease-out forwards}
-  @keyframes rise{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1}
-    100%{opacity:0;transform:translateY(-70px) scale(1.1)}}
-  .whee{position:absolute;font-family:Fredoka One;font-size:34px;color:#fff;
-    text-shadow:0 3px 10px rgba(0,0,0,.3);animation:whee .9s ease-out forwards}
-  @keyframes whee{0%{opacity:0;transform:scale(.4)}25%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.4)}}
-  #qaout{position:absolute;left:6px;bottom:6px;font:12px monospace;color:#04443a;
-    background:rgba(255,255,255,.7);padding:4px;white-space:pre;z-index:50;display:none}
+/* study */
+#qForm{font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--ink2)}
+#qBar{display:flex;gap:4px;justify-content:center;margin:8px 0 12px}
+#qBar .s{width:22px;height:10px;border-radius:4px;background:rgba(30,45,61,.15)}
+#qBar .s.f{background:var(--teal)}
+#qPrompt{font-family:'Fredoka One';font-size:26px;margin:2px 0 14px}
+#qPrompt .verb{color:#b97e00}
+#qChips{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.qchip{border:none;cursor:pointer;font-family:Nunito;font-weight:800;font-size:20px;color:#243240;
+  padding:13px;border-radius:15px;box-shadow:0 5px 16px rgba(20,40,70,.18)}
+.qchip.past{background:var(--teal)} .qchip.part{background:var(--coral)}
+.qchip:active{transform:scale(.98)}
+.qchip.yes{outline:4px solid #11a883;animation:pop .35s}
+.qchip.no{outline:4px solid #cf4444;opacity:.75}
+@keyframes pop{50%{transform:scale(1.07)}}
+#qChain{min-height:30px;font-weight:800;font-size:19px;margin:10px 0 2px}
+.fb{color:#b97e00}.fp{color:#0d9a7c}.fq{color:#e05252}
+#qInfo{font-size:13px;color:var(--ink2);margin:2px 0 10px}
+.missline{font-weight:800;font-size:16px;margin:3px 0}
+
+/* fx layer */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:25;overflow:hidden}
+.float1{position:absolute;font-family:'Fredoka One';font-size:26px;color:#11a883;
+  text-shadow:0 2px 8px rgba(255,255,255,.9);animation:up1 1s forwards}
+@keyframes up1{from{opacity:0;transform:translate(-50%,0) scale(.5)}25%{opacity:1}
+  to{opacity:0;transform:translate(-50%,-76px) scale(1.15)}}
+.wheee{position:absolute;font-family:'Fredoka One';font-size:36px;color:#fff;
+  text-shadow:0 3px 12px rgba(0,0,0,.35);animation:wh .95s forwards}
+@keyframes wh{from{opacity:0;transform:rotate(-8deg) scale(.5)}30%{opacity:1}
+  to{opacity:0;transform:rotate(6deg) scale(1.5)}}
+
+#qaout{position:fixed;left:8px;bottom:8px;z-index:60;display:none;background:rgba(255,255,255,.88);
+  color:#0c4438;font:12px/1.45 monospace;padding:8px 10px;border-radius:8px;white-space:pre}
 </style>
 </head>
 <body>
-<div id="wrap">
-  <canvas id="cv"></canvas>
+<canvas id="cv"></canvas>
 
-  <div id="hud">
-    <div id="topBtns">
-      <button class="iconBtn" id="muteBtn" title="Sound">🔊</button>
-      <button class="iconBtn" id="menuBtn" title="Menu">🏠</button>
-    </div>
-    <div id="energyWrap">
-      <div id="energy"></div>
-      <div id="energyLbl">energy</div>
-    </div>
-    <div id="heightMeter">
-      <div id="meterTop">0m</div>
-      <div id="meterBar"><div id="meterFill"></div><div id="meterFlag">▸</div></div>
-      <div id="meterBest">best 0m</div>
-    </div>
-    <button id="studyChip" class="pulse">💡 <span>Study (Q)</span></button>
+<div id="hud">
+  <div id="corner">
+    <button class="icoBtn" id="btnMute">🔊</button>
+    <button class="icoBtn" id="btnPause">⏸️</button>
   </div>
-
-  <div id="touch">
-    <button class="tbtn" id="tLeft">◀</button>
-    <button class="tbtn" id="tRight">▶</button>
-    <button class="tbtn" id="tJump">⤒</button>
+  <div id="energyBox">
+    <div id="energy"></div>
+    <div id="energyLbl">energy</div>
   </div>
-
-  <div id="fx"></div>
-
-  <!-- START -->
-  <div class="overlay on" id="start">
-    <div class="card">
-      <div class="mascot">🦀🎹</div>
-      <h1>Verb Climb</h1>
-      <p class="sub">Leap between floating nonsense objects and climb to the summit. Out of energy? Answer verb questions to refuel!</p>
-      <div class="how">
-        <div class="howrow"><span class="e">🏃</span><span><b>Move</b> with <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
-        <div class="howrow"><span class="e">⤴️</span><span><b>Jump</b> with <span class="kbd">Space</span> / <span class="kbd">W</span>. <b>Hold to charge</b> a big leap.</span></div>
-        <div class="howrow"><span class="e">💡</span><span><b>Study</b> with <span class="kbd">Q</span> while standing — each right answer refills energy.</span></div>
-        <div class="howrow"><span class="e">🪂</span><span>Miss a jump and you tumble down — lost height is the only cost. No falling out!</span></div>
-      </div>
-      <div class="legend">
-        <span class="lchip base">base</span><span class="lchip past">simple past</span><span class="lchip pp">past participle</span>
-      </div>
-      <button class="btn" id="playBtn">Climb! 🧗</button>
+  <div id="meter">
+    <div id="meterNow">0 m</div>
+    <div id="meterTrack">
+      <div id="meterFill"></div>
+      <div id="meterBestMark"></div>
+      <div id="meterYou">🦀</div>
     </div>
+    <div id="meterBest">best 0 m</div>
   </div>
-
-  <!-- STUDY -->
-  <div class="overlay" id="study">
-    <div class="card">
-      <div style="font-size:13px;color:var(--ink2);font-weight:800;margin-bottom:2px">💡 STUDY — refuel your energy</div>
-      <div id="qBars"></div>
-      <div id="qPrompt">simple past of <b>go</b>?</div>
-      <div id="qHint"></div>
-      <div id="qChips"></div>
-      <div id="qChain"></div>
-      <div id="qStat"></div>
-      <button class="btn coral" id="doneBtn">Resume climbing ↑</button>
-    </div>
-  </div>
-
-  <!-- SUMMIT -->
-  <div class="overlay" id="summit">
-    <div class="card">
-      <div class="mascot">🦀🎉</div>
-      <h1>SUMMIT!</h1>
-      <p class="sub" id="summitSub">You reached the top!</p>
-      <div id="summitStats" style="font-weight:800;margin:10px 0"></div>
-      <div id="missBox"></div>
-      <button class="btn" id="againBtn">New tower 🎲</button>
-    </div>
-  </div>
-
-  <div id="qaout"></div>
+  <button id="chipStudy">💡 <span>Study&nbsp;(Q)</span></button>
 </div>
+
+<div id="touch">
+  <button class="pad" id="padL">◀</button>
+  <button class="pad" id="padR">▶</button>
+  <button class="pad" id="padJ">⤒</button>
+</div>
+<div id="fx"></div>
+
+<!-- START -->
+<div class="ov on" id="ovMenu"><div class="card">
+  <div class="mascot">🦀☁️🎹</div>
+  <h1>Verb Climb</h1>
+  <p class="sub">A tower of floating nonsense — pianos, cats, teapots — hangs in the sky.
+  Jump from object to object and reach the summit at <b>120&nbsp;m</b>!</p>
+  <div class="rows">
+    <div class="row"><span class="ic">🏃</span><span><b>Move</b>&nbsp; <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
+    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> it to charge a giant leap (costs more!)</span></div>
+    <div class="row"><span class="ic">⚡</span><span>Every jump <b>costs energy</b>. Refill it with <b>verb questions</b>: press <span class="kbd">Q</span> while standing.</span></div>
+    <div class="row"><span class="ic">🪂</span><span>Miss a jump → you <b>tumble down</b>. Lost height is the only price — you can never die.</span></div>
+  </div>
+  <div class="legend"><span class="lch b">base</span><span class="lch p">simple past</span><span class="lch q">past participle</span></div>
+  <button class="big" id="btnPlay">Climb! 🧗</button>
+  <div class="bestnote" id="menuBest"></div>
+</div></div>
+
+<!-- PAUSE -->
+<div class="ov" id="ovPause"><div class="card">
+  <div class="mascot">🦀💤</div>
+  <h1>Paused</h1>
+  <p class="sub" id="pauseInfo"></p>
+  <button class="big" id="btnResume">Keep climbing ↑</button><br>
+  <button class="big ghost" id="btnNew">New tower 🎲</button>
+</div></div>
+
+<!-- STUDY -->
+<div class="ov" id="ovStudy"><div class="card">
+  <div id="qForm">💡 STUDY — every correct answer = +1 energy</div>
+  <div id="qBar"></div>
+  <div id="qPrompt"></div>
+  <div id="qChips"></div>
+  <div id="qChain"></div>
+  <div id="qInfo"></div>
+  <button class="big coral" id="btnBack">Resume climbing ↑</button>
+</div></div>
+
+<!-- SUMMIT -->
+<div class="ov" id="ovSummit"><div class="card">
+  <div class="mascot">🦀🎉🚩</div>
+  <h1>SUMMIT!</h1>
+  <p class="sub">120 m of flying furniture conquered!</p>
+  <div class="statline" id="sumStats"></div>
+  <div id="sumMiss"></div>
+  <button class="big" id="btnAgain">New tower 🎲</button><br>
+  <button class="big ghost" id="btnSame">Climb this tower again</button>
+</div></div>
+
+<pre id="qaout"></pre>
 
 <script>
 "use strict";
-(function(){
-//==================================================================
-// CONFIG / PHYSICS
-//==================================================================
-const PXM = 30;                 // pixels per metre
-const SUMMIT_M = 120;
-const WORLD_W = 420;            // logical strip width
-const WALL = 34;                // soft wall padding
-const cfg = {
-  g: 2200,                      // gravity px/s^2
-  v0min: 560,                   // tiniest hop
-  v0std: 880,                   // a comfortable standard jump
-  v0charge: 1185,               // full charge launch
-  vmax: 300,                    // horizontal max speed
-  accel: 2600, airAccel: 2200, friction: 2400,
-  maxFall: 1150,
-  coyote: 0.090, buffer: 0.130,
-  chargeMax: 0.70,              // seconds to full charge
-  chargeT: 0.50,                // >= this fraction => charge jump (costs full segment)
-  costStd: 1/3, costCharge: 1,
-  ENERGY_MAX: 8,
-  pw: 26, ph: 30,               // player half? -> actually full w/h
-};
+(()=>{
+/* =================================================================
+   VERB CLIMB — wide-strip precision climber.
+   Design pillars:
+   • The path ZIGZAGS across a wide strip: every platform is placed
+     with a REQUIRED horizontal clearance from the previous one, so
+     every jump needs horizontal control and a missed jump finds
+     mostly empty air below (the path is off to the side).
+   • Rest shelves span the strip every ~24 m and cap the damage.
+   • Jumps cost energy; irregular-verb questions refill it.
+================================================================= */
 
-//==================================================================
-// VERB DATA (curated, frequency-ordered; canonical forms from catalogue)
-//==================================================================
-const VERBS = [
- {v:"go",past:"went",pp:"gone"},{v:"get",past:"got",pp:"got"},{v:"make",past:"made",pp:"made"},
- {v:"see",past:"saw",pp:"seen"},{v:"come",past:"came",pp:"come"},{v:"take",past:"took",pp:"taken"},
- {v:"know",past:"knew",pp:"known"},{v:"give",past:"gave",pp:"given"},{v:"find",past:"found",pp:"found"},
- {v:"think",past:"thought",pp:"thought"},{v:"tell",past:"told",pp:"told"},{v:"say",past:"said",pp:"said"},
- {v:"feel",past:"felt",pp:"felt"},{v:"leave",past:"left",pp:"left"},{v:"put",past:"put",pp:"put"},
- {v:"mean",past:"meant",pp:"meant"},{v:"keep",past:"kept",pp:"kept"},{v:"let",past:"let",pp:"let"},
- {v:"begin",past:"began",pp:"begun"},{v:"run",past:"ran",pp:"run"},{v:"bring",past:"brought",pp:"brought"},
- {v:"write",past:"wrote",pp:"written"},{v:"sit",past:"sat",pp:"sat"},{v:"stand",past:"stood",pp:"stood"},
- {v:"lose",past:"lost",pp:"lost"},{v:"pay",past:"paid",pp:"paid"},{v:"meet",past:"met",pp:"met"},
- {v:"read",past:"read",pp:"read"},{v:"hear",past:"heard",pp:"heard"},{v:"hold",past:"held",pp:"held"},
- {v:"build",past:"built",pp:"built"},{v:"catch",past:"caught",pp:"caught"},{v:"drink",past:"drank",pp:"drunk"},
- {v:"eat",past:"ate",pp:"eaten"},{v:"fall",past:"fell",pp:"fallen"},{v:"grow",past:"grew",pp:"grown"},
- {v:"drive",past:"drove",pp:"driven"},{v:"ride",past:"rode",pp:"ridden"},{v:"break",past:"broke",pp:"broken"},
- {v:"choose",past:"chose",pp:"chosen"},{v:"speak",past:"spoke",pp:"spoken"},{v:"wear",past:"wore",pp:"worn"},
- {v:"throw",past:"threw",pp:"thrown"},{v:"swim",past:"swam",pp:"swum"},{v:"sing",past:"sang",pp:"sung"},
- {v:"fly",past:"flew",pp:"flown"},{v:"draw",past:"drew",pp:"drawn"},{v:"win",past:"won",pp:"won"},
- {v:"sleep",past:"slept",pp:"slept"},{v:"teach",past:"taught",pp:"taught"},{v:"send",past:"sent",pp:"sent"},
- {v:"spend",past:"spent",pp:"spent"},{v:"do",past:"did",pp:"done"},{v:"have",past:"had",pp:"had"},
- {v:"be",past:"was",pp:"been"}
-];
+/* ---------- constants ---------- */
+const W=880, WALLX=22, PXM=32, SUMMIT_M=120;
+const PH={ g:2500, v0std:830, v0chg:1290, vmax:345,
+  acc:2900, accAir:2100, fric:3200, maxFall:1280,
+  stdT:0.18, fullT:0.78,            // hold ≤stdT = standard, beyond charges up to fullT
+  coyote:0.09, buffer:0.13,
+  costStd:1/3, costChg:1, EMAX:8 };
 
-//==================================================================
-// OBJECT TYPES — emoji + hand-authored collision profile
-//   kind: flat | slope | dome | perch | hole | drift
-//   tier: 0 easiest .. 3 hardest ;  hw: half-width of standable top
-//==================================================================
-const TYPES = [
- // tier 0 — big friendly flat rest stops
- {key:"piano", e:"🎹", fs:118, hw:78, kind:"flat", tier:0, rest:true},
- {key:"sofa",  e:"🛋️", fs:112, hw:74, kind:"flat", tier:0, rest:true},
- {key:"bath",  e:"🛁", fs:108, hw:66, kind:"flat", tier:0, rest:true},
- {key:"bed",   e:"🛏️", fs:114, hw:74, kind:"flat", tier:0, rest:true},
- // tier 1 — medium flats / gentle domes
- {key:"books", e:"📚", fs:84, hw:48, kind:"flat", tier:1},
- {key:"box",   e:"📦", fs:80, hw:46, kind:"flat", tier:1},
- {key:"cake",  e:"🎂", fs:82, hw:44, kind:"flat", tier:1},
- {key:"gift",  e:"🎁", fs:80, hw:44, kind:"flat", tier:1},
- {key:"teapot",e:"🫖", fs:80, hw:42, kind:"flat", tier:1},
- {key:"chair", e:"🪑", fs:80, hw:36, kind:"flat", tier:1},
- // tier 2 — slopes, domes, holes (read differently)
- {key:"house", e:"🏠", fs:96, hw:54, kind:"slope", tier:2, slope:0.62},
- {key:"tent",  e:"⛺", fs:90, hw:50, kind:"slope", tier:2, slope:0.74},
- {key:"cat",   e:"🐱", fs:92, hw:46, kind:"dome", tier:2, dome:0.7, wobble:true},
- {key:"pig",   e:"🐷", fs:90, hw:46, kind:"dome", tier:2, dome:0.62, wobble:true},
- {key:"burger",e:"🍔", fs:78, hw:42, kind:"dome", tier:2, dome:0.55},
- {key:"donut", e:"🍩", fs:84, hw:48, kind:"hole", tier:2, hole:16},
- {key:"buoy",  e:"🛟", fs:84, hw:48, kind:"hole", tier:2, hole:18},
- {key:"guitar",e:"🎸", fs:90, hw:34, kind:"flat", tier:2},
- // tier 3 — tiny perches & the drifting duck
- {key:"flower",e:"🌸", fs:72, hw:18, kind:"perch", tier:3},
- {key:"umbr",  e:"☂️", fs:80, hw:16, kind:"perch", tier:3},
- {key:"mush",  e:"🍄", fs:74, hw:22, kind:"perch", tier:3},
- {key:"cactus",e:"🌵", fs:78, hw:16, kind:"perch", tier:3},
- {key:"icecr", e:"🍦", fs:78, hw:16, kind:"perch", tier:3},
- {key:"duck",  e:"🦆", fs:80, hw:40, kind:"drift", tier:3, driftAmp:46, driftSpd:0.6},
-];
-const TYPE=Object.fromEntries(TYPES.map(t=>[t.key,t]));
+/* ---------- verbs (canonical forms, frequency-ordered) ---------- */
+const VERBS=[
+{v:"go",p:"went",q:"gone"},{v:"get",p:"got",q:"got"},{v:"make",p:"made",q:"made"},
+{v:"see",p:"saw",q:"seen"},{v:"come",p:"came",q:"come"},{v:"take",p:"took",q:"taken"},
+{v:"know",p:"knew",q:"known"},{v:"give",p:"gave",q:"given"},{v:"find",p:"found",q:"found"},
+{v:"think",p:"thought",q:"thought"},{v:"tell",p:"told",q:"told"},{v:"say",p:"said",q:"said"},
+{v:"feel",p:"felt",q:"felt"},{v:"leave",p:"left",q:"left"},{v:"put",p:"put",q:"put"},
+{v:"mean",p:"meant",q:"meant"},{v:"keep",p:"kept",q:"kept"},{v:"let",p:"let",q:"let"},
+{v:"begin",p:"began",q:"begun"},{v:"run",p:"ran",q:"run"},{v:"bring",p:"brought",q:"brought"},
+{v:"write",p:"wrote",q:"written"},{v:"sit",p:"sat",q:"sat"},{v:"stand",p:"stood",q:"stood"},
+{v:"lose",p:"lost",q:"lost"},{v:"pay",p:"paid",q:"paid"},{v:"meet",p:"met",q:"met"},
+{v:"read",p:"read",q:"read"},{v:"hear",p:"heard",q:"heard"},{v:"hold",p:"held",q:"held"},
+{v:"build",p:"built",q:"built"},{v:"catch",p:"caught",q:"caught"},{v:"drink",p:"drank",q:"drunk"},
+{v:"eat",p:"ate",q:"eaten"},{v:"fall",p:"fell",q:"fallen"},{v:"grow",p:"grew",q:"grown"},
+{v:"drive",p:"drove",q:"driven"},{v:"ride",p:"rode",q:"ridden"},{v:"break",p:"broke",q:"broken"},
+{v:"choose",p:"chose",q:"chosen"},{v:"speak",p:"spoke",q:"spoken"},{v:"wear",p:"wore",q:"worn"},
+{v:"throw",p:"threw",q:"thrown"},{v:"swim",p:"swam",q:"swum"},{v:"sing",p:"sang",q:"sung"},
+{v:"fly",p:"flew",q:"flown"},{v:"draw",p:"drew",q:"drawn"},{v:"win",p:"won",q:"won"},
+{v:"sleep",p:"slept",q:"slept"},{v:"teach",p:"taught",q:"taught"},{v:"send",p:"sent",q:"sent"},
+{v:"spend",p:"spent",q:"spent"},{v:"do",p:"did",q:"done"},{v:"have",p:"had",q:"had"},
+{v:"be",p:"was",q:"been"}];
 
-//==================================================================
-// RNG (mulberry32, seeded & deterministic)
-//==================================================================
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
-  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* ---------- object catalogue (collision authored per type) ---------- */
+const TYPES={
+ piano:{e:"🎹",fs:130,hw:128,kind:"flat",tier:0},
+ sofa:{e:"🛋️",fs:120,hw:110,kind:"flat",tier:0},
+ bath:{e:"🛁",fs:112,hw:100,kind:"flat",tier:0},
+ bed:{e:"🛏️",fs:122,hw:116,kind:"flat",tier:0},
+ books:{e:"📚",fs:92,hw:62,kind:"flat",tier:1},
+ box:{e:"📦",fs:88,hw:58,kind:"flat",tier:1},
+ cake:{e:"🎂",fs:88,hw:52,kind:"flat",tier:1},
+ teapot:{e:"🫖",fs:86,hw:50,kind:"flat",tier:1},
+ gift:{e:"🎁",fs:84,hw:50,kind:"flat",tier:1},
+ bike:{e:"🚲",fs:96,hw:62,kind:"flat",tier:1},
+ house:{e:"🏠",fs:104,hw:66,kind:"slope",sl:.58,tier:2},
+ tent:{e:"⛺",fs:98,hw:60,kind:"slope",sl:.72,tier:2},
+ cat:{e:"🐱",fs:100,hw:56,kind:"dome",dm:.55,wob:1,tier:2},
+ pig:{e:"🐷",fs:96,hw:52,kind:"dome",dm:.5,wob:1,tier:2},
+ burger:{e:"🍔",fs:84,hw:46,kind:"dome",dm:.45,tier:2},
+ donut:{e:"🍩",fs:92,hw:52,kind:"hole",hr:15,tier:2},
+ ring:{e:"🛟",fs:90,hw:50,kind:"hole",hr:16,tier:2},
+ guitar:{e:"🎸",fs:96,hw:40,kind:"flat",tier:2},
+ chair:{e:"🪑",fs:84,hw:38,kind:"flat",tier:2},
+ flower:{e:"🌸",fs:76,hw:20,kind:"flat",tier:3},
+ umbrella:{e:"☂️",fs:84,hw:17,kind:"flat",tier:3},
+ mushroom:{e:"🍄",fs:78,hw:22,kind:"flat",tier:3},
+ icecream:{e:"🍦",fs:80,hw:16,kind:"flat",tier:3},
+ cactus:{e:"🌵",fs:82,hw:18,kind:"flat",tier:3},
+ duck:{e:"🦆",fs:92,hw:48,kind:"drift",amp:52,spd:.55,tier:3},   // bonus-only
+ shelf:{e:"",fs:0,hw:418,kind:"flat",tier:0},                     // code-drawn rest shelf
+ ground:{e:"",fs:0,hw:W/2,kind:"flat",tier:0},
+ summit:{e:"",fs:0,hw:150,kind:"flat",tier:0}};
 
-//==================================================================
-// REACHABILITY — simulate an optimal standard jump from A to B
-//==================================================================
-function surfaceY(p, wx){           // world surface y at world-x; null if no solid there
-  const dx = wx - p.x;
-  if(Math.abs(dx) > p.hw) return null;
-  const t=TYPE[p.type];
-  switch(t.kind){
-    case "slope": return p.topY + Math.abs(dx)*t.slope;
-    case "dome":  return p.topY + (dx*dx/(p.hw))*t.dome*0.5;
-    case "hole":  return Math.abs(dx) < t.hole ? null : p.topY;
-    default:      return p.topY;     // flat / perch / drift
-  }
+/* ---------- seeded rng ---------- */
+const mb32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+
+/* =================================================================
+   SURFACES & REACHABILITY
+================================================================= */
+let simNow=0; // time source for drifting platforms during play
+const px=p=>p.t==="duck" ? p.x+Math.sin(simNow*TYPES.duck.spd+p.ph0)*TYPES.duck.amp : p.x;
+function surfY(p,wx){               // surface y at world x (null = no solid)
+  const T=TYPES[p.t], dx=wx-px(p);
+  if(Math.abs(dx)>p.hw) return null;
+  if(T.kind==="slope") return p.y+Math.abs(dx)*T.sl;
+  if(T.kind==="dome")  return p.y+(dx*dx/p.hw)*T.dm*.5;
+  if(T.kind==="hole")  return Math.abs(dx)<T.hr ? null : p.y;
+  return p.y;
 }
-function platLeft(p){ return p.x - p.hw; }
-function platRight(p){ return p.x + p.hw; }
-
-// can a standard jump from platform A reach a standable spot on platform B?
-// The player can launch from anywhere along A's top with any horizontal speed
-// in [-vmax,vmax], so we sample a spread of launch speeds and return true if
-// ANY trajectory lands on a solid part of B.
-function simReach(A, B){
-  const launchX = Math.max(platLeft(A)+2, Math.min(platRight(A)-2, B.x)); // best spot under B
-  const dt=1/240;
-  for(let k=0;k<=12;k++){
-    const vx=(-1 + 2*k/12)*cfg.vmax;
-    let x=launchX, y=A.topY, vy=-cfg.v0std, py;
-    for(let i=0;i<700;i++){
-      vy+=cfg.g*dt; if(vy>cfg.maxFall)vy=cfg.maxFall;
-      py=y; x+=vx*dt; y+=vy*dt;
-      if(vy>0){ // descending — can we land on B?
-        const sy=surfaceY(B, x);
-        if(sy!=null && x>=platLeft(B) && x<=platRight(B) && py<=sy && y>=sy) return true;
-      }
-      if(y > A.topY + 650) break; // fell well below start, give up
-    }
+function landTargetX(A,B){          // where to aim on B when coming from A
+  const T=TYPES[B.t];
+  if(T.kind==="hole"){ const s=Math.sign(A.x-B.x)||1; return B.x+s*(T.hr+B.hw)/2; }
+  if(B.hw>200) return Math.max(B.x-B.hw+30,Math.min(B.x+B.hw-30,A.x));
+  return B.x;
+}
+/* Conservative jump simulation: stand at A's edge nearest the target,
+   jump with 97% of full standard power, steer toward target with 92%
+   air-accel and brake before arrival. If THIS lands, a kid can too. */
+function simJump(A,B,v0){
+  const tgt=landTargetX(A,B);
+  const tx=Math.max(A.x-A.hw+8,Math.min(A.x+A.hw-8,tgt));
+  let x=tx,y=surfY(A,tx); if(y==null)y=A.y;
+  let vx=0,vy=-(v0??PH.v0std)*0.97;
+  const aA=PH.accAir*0.92, vM=PH.vmax*0.95, dt=1/240, y0=y;
+  for(let i=0;i<900;i++){
+    const d=tgt-x;
+    let want=Math.abs(d)>5?Math.sign(d):0;
+    if(want&&Math.sign(vx)===want&&vx*vx/(2*aA)>Math.abs(d)) want=-want;   // brake
+    vx=Math.max(-vM,Math.min(vM,vx+want*aA*dt));
+    vy=Math.min(PH.maxFall,vy+PH.g*dt);
+    const py=y; x+=vx*dt; y+=vy*dt;
+    if(x<WALLX){x=WALLX;vx=0;} if(x>W-WALLX){x=W-WALLX;vx=0;}
+    if(vy>0){ const sy=surfY(B,x); if(sy!=null&&py<=sy+3&&y>=sy) return true; }
+    if(y>y0+540) return false;
   }
   return false;
 }
 
-//==================================================================
-// TOWER GENERATION — guaranteed climbable by construction
-//==================================================================
-function maxReach(h){ // closed-form max horizontal dx for a standard jump rising h px
-  const disc=cfg.v0std*cfg.v0std - 2*cfg.g*Math.max(0,h);
-  if(disc<=0) return 0;
-  const t2=(cfg.v0std+Math.sqrt(disc))/cfg.g;
-  return cfg.vmax*t2;
+/* =================================================================
+   TOWER GENERATOR — zigzag path, enforced horizontal clearance
+================================================================= */
+function flightT(rise){             // airtime till feet return to +rise (std jump, sim margins)
+  const v0=PH.v0std*0.97, d=v0*v0-2*PH.g*rise;
+  return d<=0?0:(v0+Math.sqrt(d))/PH.g;
 }
-function pickType(rng, tierMax, restNeeded){
-  if(restNeeded){ const r=TYPES.filter(t=>t.rest); return r[(rng()*r.length)|0].key; }
-  const pool=TYPES.filter(t=>t.tier<=tierMax);
-  // bias toward easier types so hard ones stay spicy-but-rare
-  const weighted=[];
-  for(const t of pool){ const w = tierMax===0?1 : Math.max(1, 4 - (tierMax - t.tier)); for(let i=0;i<w;i++) weighted.push(t.key); }
-  return weighted[(rng()*weighted.length)|0];
+function airDist(T){                // horizontal distance from standstill in time T
+  const vM=PH.vmax*0.95,a=PH.accAir*0.92,t1=vM/a;
+  return T<t1 ? .5*a*T*T : .5*a*t1*t1+vM*(T-t1);
+}
+function pickType(rng,t,tut){
+  const maxTier=tut?0 : t<.32?1 : t<.62?2 : 3;
+  const pool=Object.keys(TYPES).filter(k=>{
+    const T=TYPES[k];
+    return T.tier<=maxTier && !["duck","shelf","ground","summit"].includes(k);});
+  const w=pool.flatMap(k=>Array(TYPES[k].tier===maxTier?2:3).fill(k)); // slight ease bias
+  return w[(rng()*w.length)|0];
 }
 function genTower(seed){
-  const rng=mulberry32(seed>>>0);
-  const plats=[];
-  // ground / base — extra wide, dead easy
-  let prev={type:"piano", x:WORLD_W/2, topY:0, hw:150, ground:true};
-  plats.push(prev);
-  let nextRest=25; // metres
-  let guard=0;
-  while(prev.topY > -(SUMMIT_M*PXM) && guard++ < 600){
-    const hM = -prev.topY/PXM;          // current height in metres
-    const t = Math.min(1, hM/110);      // difficulty 0..1
-    const tutorial = hM < 20;
-    const restNeeded = hM >= nextRest;
-    const tierMax = tutorial?0 : (t<0.35?1 : t<0.7?2 : 3);
-
+  const rng=mb32(seed>>>0), plats=[], path=[];
+  const ground={t:"ground",x:W/2,y:0,hw:W/2,id:0};
+  plats.push(ground); path.push(ground);
+  let prev=ground, dir=rng()<.5?-1:1, leg=2+(rng()*3|0), shelfAt=24, n=0;
+  while(prev.y>-(SUMMIT_M*PXM)+130 && ++n<400){
+    const hM=-prev.y/PXM, t=Math.min(1,hM/105), tut=hM<18;
+    /* rest shelf every ~24 m: full-width safety bench */
+    if(hM>=shelfAt){
+      const s={t:"shelf",x:W/2,y:prev.y-(60+rng()*24),hw:TYPES.shelf.hw,id:plats.length};
+      plats.push(s);path.push(s);prev=s;shelfAt+=23+rng()*5;
+      dir=rng()<.5?-1:1;leg=2+(rng()*3|0);continue;
+    }
+    /* zigzag step: pick rise, then DEMAND horizontal clearance */
     let placed=null;
-    for(let tries=0; tries<40 && !placed; tries++){
-      const riseMin = tutorial?38 : 46 + t*24;
-      const riseMax = tutorial?68 : 86 + t*52;
-      const rise = riseMin + rng()*(riseMax-riseMin);
-      const topY = prev.topY - rise;
-      const reach = maxReach(rise) * (tutorial?0.55 : 0.74 - t*0.12);
-      const maxDx = tutorial ? Math.min(70, reach) : reach;
-      const dx = (rng()*2-1)*maxDx;
-      const type = restNeeded ? pickType(rng,0,true) : pickType(rng, tierMax, false);
-      const hw = restNeeded ? Math.min(170, TYPE[type].hw+40) : TYPE[type].hw;
-      let x = prev.x + dx;
-      x = Math.max(WALL+hw*0.5, Math.min(WORLD_W-WALL-hw*0.5, x));
-      const cand={type, x, topY, hw, rest:restNeeded};
-      if(simReach(prev, cand)) placed=cand;
+    for(let tries=0;tries<60&&!placed;tries++){
+      const rise=tut?54+rng()*32 : Math.min(116,(58+22*t)+rng()*((92+30*t)-(58+22*t)));
+      const maxClear=Math.max(14,airDist(flightT(rise))*0.82-10);
+      const minClear=tut?8:Math.min(maxClear*.75,16+50*t);
+      const clear=minClear+Math.pow(rng(),.8)*(maxClear-minClear);
+      const k=pickType(rng,t,tut), hw=TYPES[k].hw;
+      if(leg<=0){dir=-dir;leg=2+(rng()*3|0);}
+      let x=prev.x+dir*(prev.hw+clear+hw);
+      if(x<WALLX+hw+6||x>W-WALLX-hw-6){           // wall ahead → fold back
+        dir=-dir;leg=2+(rng()*3|0);
+        x=prev.x+dir*(prev.hw+clear+hw);
+        x=Math.max(WALLX+hw+6,Math.min(W-WALLX-hw-6,x));
+      }
+      const cand={t:k,x,y:prev.y-rise,hw,id:plats.length};
+      if(simJump(prev,cand)) placed=cand;
     }
-    if(!placed){ // safety fallback: stack a wide flat directly above within easy reach
-      placed={type:"sofa", x:prev.x, topY:prev.topY-60, hw:74, rest:false};
+    if(!placed){ // ultra-rare fallback: small diagonal hop, still offset sideways
+      const x=Math.max(WALLX+68,Math.min(W-WALLX-68,prev.x+dir*(prev.hw+30+62)));
+      placed={t:"books",x,y:prev.y-58,hw:62,id:plats.length};
+      if(!simJump(prev,placed)) placed={t:"books",x:prev.x+dir*90,y:prev.y-54,hw:62,id:plats.length};
     }
-    plats.push(placed);
-    if(restNeeded) nextRest += 25;
-    prev=placed;
+    plats.push(placed);path.push(placed);prev=placed;leg--;
+    /* occasional duck or sparkle shortcut beside the path (never required) */
+    if(!tut&&rng()<.13){
+      const k=rng()<.5?"duck":"flower";
+      const bx=Math.max(WALLX+70,Math.min(W-WALLX-70,prev.x-dir*(170+rng()*120)));
+      plats.push({t:k,x:bx,y:prev.y-30-rng()*40,hw:TYPES[k].hw,ph0:rng()*6.28,bonus:1,id:plats.length});
+    }
   }
-  // summit platform
-  const top={type:"piano", x:WORLD_W/2, topY:-(SUMMIT_M*PXM), hw:130, summit:true};
-  // ensure last real platform can reach summit
-  if(!simReach(plats[plats.length-1], top)){
-    plats.push({type:"sofa", x:WORLD_W/2, topY:top.topY+58, hw:80});
+  const top={t:"summit",x:W/2,y:prev.y-78,hw:TYPES.summit.hw,summit:1,id:plats.length};
+  while(!simJump(prev,top)){        // bridge the final gap if needed
+    const x=Math.max(WALLX+70,Math.min(W-WALLX-70,(prev.x+top.x)/2+(rng()*120-60)));
+    const f={t:"books",x,y:prev.y-60,hw:62,id:plats.length};
+    plats.push(f);path.push(f);prev=f;top.y=Math.min(top.y,prev.y-70);
   }
-  plats.push(top);
-  // give drifting ducks a phase offset
-  let ph=0; for(const p of plats){ if(p.type==="duck"){ p.driftPhase=ph; ph+=1.7; } }
-  return {seed, plats, topY:top.topY};
+  plats.push(top);path.push(top);
+  return {seed,plats,path,topY:top.y};
 }
 function validateTower(tw){
-  for(let i=0;i<tw.plats.length-1;i++){
-    if(!simReach(tw.plats[i], tw.plats[i+1])) return {ok:false, at:i};
-  }
+  for(let i=0;i<tw.path.length-1;i++)
+    if(!simJump(tw.path[i],tw.path[i+1])) return {ok:false,at:i};
   return {ok:true};
 }
-
-//==================================================================
-// QUESTIONS
-//==================================================================
-function regularize(v){
-  if(v.endsWith("e")) return v+"d";
-  if(/[^aeiou]y$/.test(v)) return v.slice(0,-1)+"ied";
-  return v+"ed";
-}
-function genQuestion(rng, heightFrac){
-  // common verbs low, rarer ones high
-  const span = Math.floor(8 + heightFrac*(VERBS.length-8));
-  const idx = (rng()*Math.min(span,VERBS.length))|0;
-  const item = VERBS[idx];
-  const form = rng()<0.5 ? "past" : "pp";
-  const correct = item[form];
-  const set = new Set([correct]);
-  const wrongs=[];
-  const tryAdd=(w)=>{ if(w && !set.has(w)){ set.add(w); wrongs.push(w);} };
-  tryAdd(regularize(item.v));                       // "goed"
-  tryAdd(form==="past"? item.pp : item.past);       // the other form
-  // similar verb's same form
-  let guard=0;
-  while(wrongs.length<2 && guard++<40){
-    const o=VERBS[(rng()*VERBS.length)|0]; tryAdd(o[form]);
+function runGenTest(n=200){
+  const r=mb32(424242); let fails=0,first=null;
+  for(let i=0;i<n;i++){
+    const s=(r()*2**31)>>>0, v=validateTower(genTower(s));
+    if(!v.ok){fails++;first=first||{seed:s,at:v.at};}
   }
-  guard=0;
-  while(wrongs.length<2 && guard++<40){ tryAdd(item.v+["t","en","ed"][(rng()*3)|0]); }
-  const chips=[correct, ...wrongs.slice(0,2)];
-  // shuffle deterministically
-  for(let i=chips.length-1;i>0;i--){ const j=(rng()*(i+1))|0; [chips[i],chips[j]]=[chips[j],chips[i]]; }
-  return {item, form, correct, chips,
-    prompt:(form==="past"?"simple past of":"past participle of"), formClass:(form==="past"?"past":"pp")};
+  return {tested:n,fails,first};
 }
 
-//==================================================================
-// AUDIO (WebAudio synth)
-//==================================================================
-const Audio={ctx:null,muted:false,
-  init(){ if(this.ctx)return; try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} },
-  resume(){ if(this.ctx&&this.ctx.state==="suspended") this.ctx.resume(); },
-  tone(f,d,type="sine",g=0.13,t0=0,slideTo=null){
-    if(!this.ctx||this.muted)return; const c=this.ctx,t=c.currentTime+t0;
-    const o=c.createOscillator(),v=c.createGain();
-    o.type=type;o.frequency.setValueAtTime(f,t);
-    if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+d);
-    v.gain.setValueAtTime(0.0001,t); v.gain.exponentialRampToValueAtTime(g,t+0.012);
-    v.gain.exponentialRampToValueAtTime(0.0001,t+d);
-    o.connect(v).connect(c.destination); o.start(t); o.stop(t+d+0.03);
-  },
-  jump(){ this.tone(420,0.13,"triangle",0.12,0,720); },
-  charge(){ this.tone(180,0.45,"sawtooth",0.05,0,520); },
-  land(){ this.tone(150,0.10,"sine",0.16,0,90); },
-  correct(){ [523,659,784,1046].forEach((f,i)=>this.tone(f,0.16,"triangle",0.12,i*0.06)); },
-  wrong(){ this.tone(200,0.22,"square",0.10,0,120); },
-  slide(){ this.tone(900,0.55,"sine",0.10,0,180); },
-  summit(){ [523,659,784,1046,1318].forEach((f,i)=>this.tone(f,0.4,"triangle",0.13,i*0.12));
-            [392,523].forEach((f,i)=>this.tone(f,0.6,"sine",0.08,0.1+i*0.12)); },
-};
+/* =================================================================
+   AUDIO — tiny WebAudio synth
+================================================================= */
+const SND={c:null,muted:localStorage.getItem("krabsy_vclimb_sound")==="0",chg:null,
+ init(){if(!this.c)try{this.c=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}
+   if(this.c&&this.c.state==="suspended")this.c.resume();},
+ t(f,d,ty="sine",g=.12,at=0,f2){if(!this.c||this.muted)return;const c=this.c,t0=c.currentTime+at;
+   const o=c.createOscillator(),v=c.createGain();o.type=ty;o.frequency.setValueAtTime(f,t0);
+   if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);
+   v.gain.setValueAtTime(1e-4,t0);v.gain.exponentialRampToValueAtTime(g,t0+.015);
+   v.gain.exponentialRampToValueAtTime(1e-4,t0+d);
+   o.connect(v).connect(c.destination);o.start(t0);o.stop(t0+d+.05);},
+ jump(p){this.t(280+p*160,.13,"square",.07,0,560+p*340);},
+ deny(){this.t(95,.18,"sine",.14,0,60);},
+ land(s){this.t(170,.09,"sine",.1+s*.06,0,75);},
+ chargeOn(){if(!this.c||this.muted||this.chg)return;const c=this.c;
+   const o=c.createOscillator(),v=c.createGain();o.type="sawtooth";
+   o.frequency.setValueAtTime(110,c.currentTime);v.gain.value=.035;
+   o.connect(v).connect(c.destination);o.start();this.chg={o,v};},
+ chargeSet(f){if(this.chg)this.chg.o.frequency.setTargetAtTime(110+f*420,this.c.currentTime,.03);},
+ chargeOff(){if(this.chg){const{o,v}=this.chg;v.gain.setTargetAtTime(1e-4,this.c.currentTime,.02);
+   o.stop(this.c.currentTime+.1);this.chg=null;}},
+ ok(){[523,659,784,1046].forEach((f,i)=>this.t(f,.15,"triangle",.11,i*.055));},
+ bad(){this.t(185,.24,"square",.09,0,115);},
+ whee(){this.t(1150,.65,"sine",.09,0,260);},
+ fanfare(){[523,659,784,1046,1318].forEach((f,i)=>this.t(f,.42,"triangle",.12,i*.11));
+   this.t(392,.8,"sine",.07,.2);}};
 
-//==================================================================
-// GAME STATE
-//==================================================================
-const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
-let DPR=1, CW=0, CH=0, scale=1, stripX=0, stripW=WORLD_W;
-let tower=null, cam={y:0}, paused=true, qaFreeze=false;
-let startSeed=(Date.now()&0x7fffffff)>>>0;
-let runStart=0, nowT=0;
-const player={x:WORLD_W/2,y:0,vx:0,vy:0,w:cfg.pw,h:cfg.ph,
-  grounded:false, on:null, face:1, sx:1, sy:1, energy:cfg.ENERGY_MAX,
-  lastGround:-9, takeoffY:0, usedCoyote:false, anim:0};
-let charging=false, charge=0, chargeStart=0, bufferAt=-9, jumpHeld=false;
-const keys={left:false,right:false};
-let particles=[], confetti=[];
-let bestM = +localStorage.getItem("krabsy_vclimb_best")||0;
-let bestSummit = +localStorage.getItem("krabsy_vclimb_summit")||0;
-let curM=0, reached=false;
+/* =================================================================
+   GAME STATE
+================================================================= */
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+let DPR=1,CW=0,CH=0,scale=1,camY=0,camX=W/2,viewW=W;
+let mode="menu";                    // menu | play | study | pause | summit
+let tower=null,seed=(Date.now()&0x7fffffff)>>>0;
+let qrng=mb32(1), recent=[];
+let runT=0,frozen=false;
+const P={x:W/2,y:0,vx:0,vy:0,grounded:true,on:null,face:1,
+  energy:PH.EMAX,sx:1,sy:1,rot:0,wobble:0,dizzy:0,
+  charging:false,chargeT0:0,lockX:false,
+  coyT:-9,buffT:-9,held:false,jumped:false,takeY:0,apexY:0,wheed:false};
+const keys={l:false,r:false};
+let dust=[],confetti=[];
+let bestM=+localStorage.getItem("krabsy_vclimb_best")||0;
+let bestT=+localStorage.getItem("krabsy_vclimb_summit")||0;
+let curM=0;
 const missed=new Map();
-let study={open:false, q:null, answered:0, locked:false};
-const rngQ=mulberry32((startSeed^0x9e37)>>>0);
+let qa=null;
 
-//==================================================================
-// CANVAS SIZING
-//==================================================================
-function resize(){
-  DPR=Math.min(window.devicePixelRatio||1,2);
-  CW=cv.clientWidth; CH=cv.clientHeight;
-  cv.width=Math.round(CW*DPR); cv.height=Math.round(CH*DPR);
+/* ---------- canvas ---------- */
+function fit(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  CW=innerWidth;CH=innerHeight;
+  cv.width=CW*DPR|0;cv.height=CH*DPR|0;
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  stripW=Math.min(CW, 480);
-  scale=stripW/WORLD_W;
-  stripX=(CW-stripW)/2;
+  scale=Math.max(CW/W,0.5);
+  viewW=CW/scale;
 }
-window.addEventListener("resize",resize);
+addEventListener("resize",fit);
 
-//==================================================================
-// INPUT
-//==================================================================
-function startCharge(){ if(player.grounded && player.energy>=cfg.costStd){ charging=true; charge=0; chargeStart=nowT; Audio.charge(); } }
-function doStandardJump(){
-  if(player.energy<cfg.costStd) { Audio.wrong(); return; }
-  player.energy-=cfg.costStd; launch(cfg.v0std,false);
-}
-function launch(v0, isCharge){
-  player.vy=-v0; player.grounded=false; player.on=null; player.usedCoyote=true;
-  player.takeoffY=player.y; player.sx=0.78; player.sy=1.28;
-  spawnDust(player.x, player.y, 5);
-  Audio.jump(); updateEnergyUI();
-}
-function releaseCharge(){
-  if(!charging) return; charging=false;
-  // finalize from elapsed hold time so charge is accurate even at low frame rates
-  const frac=Math.min(1, Math.max(charge, (nowT-chargeStart)/cfg.chargeMax));
-  let isCharge = frac>=cfg.chargeT;
-  let cost = isCharge?cfg.costCharge:cfg.costStd;
-  if(player.energy < cost){          // can't afford a charge jump -> cap to standard
-    if(player.energy>=cfg.costStd){ isCharge=false; cost=cfg.costStd; }
-    else { Audio.wrong(); return; }
-  }
-  const v0 = isCharge ? (cfg.v0std + (cfg.v0charge-cfg.v0std)*((frac-cfg.chargeT)/(1-cfg.chargeT)))
-                      : (cfg.v0min + (cfg.v0std-cfg.v0min)*(frac/cfg.chargeT));
-  player.energy-=cost; launch(v0,isCharge);
-}
+/* =================================================================
+   INPUT
+================================================================= */
 function pressJump(){
-  Audio.init(); Audio.resume();
-  if(study.open) return;
-  if(player.grounded){ startCharge(); }
-  else if(nowT-player.lastGround < cfg.coyote && !player.usedCoyote && player.energy>=cfg.costStd){ doStandardJump(); }
-  else { bufferAt=nowT; }
+  SND.init();
+  if(mode!=="play")return;
+  const okGround=P.grounded||(simNow-P.coyT<PH.coyote&&!P.jumped);
+  if(okGround){
+    if(P.energy<PH.costStd-1e-6){deny();return;}
+    if(!P.grounded){doJump(0);return;}        // coyote: instant standard hop
+    P.charging=true;P.chargeT0=simNow;P.lockX=false;
+  } else P.buffT=simNow;
 }
 function releaseJump(){
-  if(charging) releaseCharge();
-}
-window.addEventListener("keydown",e=>{
-  if(e.repeat) return;
-  const k=e.key.toLowerCase();
-  if(k==="arrowleft"||k==="a") keys.left=true;
-  else if(k==="arrowright"||k==="d") keys.right=true;
-  else if(k===" "||k==="w"||k==="arrowup"){ e.preventDefault(); jumpHeld=true; pressJump(); }
-  else if(k==="q"){ toggleStudy(); }
-  else if(k==="m"){ toggleMute(); }
-  else if(k==="enter"){ if(!document.getElementById("start").classList.contains("on")) {} else startGame(startSeed); }
-});
-window.addEventListener("keyup",e=>{
-  const k=e.key.toLowerCase();
-  if(k==="arrowleft"||k==="a") keys.left=false;
-  else if(k==="arrowright"||k==="d") keys.right=false;
-  else if(k===" "||k==="w"||k==="arrowup"){ jumpHeld=false; releaseJump(); }
-});
-// touch
-function bindHold(el,on,off){
-  el.addEventListener("touchstart",e=>{e.preventDefault();on();},{passive:false});
-  el.addEventListener("touchend",e=>{e.preventDefault();off();},{passive:false});
-  el.addEventListener("touchcancel",e=>{off();});
-}
-bindHold(document.getElementById("tLeft"),()=>keys.left=true,()=>keys.left=false);
-bindHold(document.getElementById("tRight"),()=>keys.right=true,()=>keys.right=false);
-bindHold(document.getElementById("tJump"),()=>{jumpHeld=true;pressJump();},()=>{jumpHeld=false;releaseJump();});
-if("ontouchstart" in window) document.body.classList.add("touch");
-
-//==================================================================
-// PHYSICS UPDATE
-//==================================================================
-function nearPlats(){
-  const top=cam.y-120, bot=cam.y+CH/scale+220;
-  return tower.plats.filter(p=>p.topY>top-200 && p.topY<bot+200);
-}
-function platX(p){ // duck drift offset
-  if(p.type==="duck"){ const t=TYPE.duck; return p.x + Math.sin(nowT*t.driftSpd + (p.driftPhase||0))*t.driftAmp; }
-  return p.x;
-}
-function physics(dt){
-  // horizontal
-  const acc = player.grounded?cfg.accel:cfg.airAccel;
-  let dir=(keys.right?1:0)-(keys.left?1:0);
-  if(dir){ player.vx+=dir*acc*dt; player.face=dir; }
-  else if(player.grounded){ // friction
-    const s=Math.sign(player.vx); player.vx-=s*cfg.friction*dt; if(Math.sign(player.vx)!==s)player.vx=0;
+  if(mode!=="play"||!P.charging){SND.chargeOff();return;}
+  P.charging=false;SND.chargeOff();
+  const ct=simNow-P.chargeT0;
+  if(ct<=PH.stdT) doJump(0,ct/PH.stdT);
+  else{
+    const frac=Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT));
+    if(P.energy>=PH.costChg) doJump(frac+0.0001,1);
+    else doJump(0,1);                          // can't afford charge → max standard
   }
-  player.vx=Math.max(-cfg.vmax,Math.min(cfg.vmax,player.vx));
+}
+function doJump(chargeFrac,stdFrac=1){
+  const charged=chargeFrac>0;
+  const cost=charged?PH.costChg:PH.costStd;
+  if(P.energy<cost-1e-6){deny();return;}
+  P.energy-=cost;
+  let v0;
+  if(charged){
+    v0=PH.v0std+(PH.v0chg-PH.v0std)*chargeFrac;
+    const aim=(keys.r?1:0)-(keys.l?1:0);
+    P.vx=aim*(0.55+0.45*chargeFrac)*PH.vmax;   // Jump-King style aimed launch
+  } else v0=PH.v0std*(0.62+0.38*Math.min(1,stdFrac));
+  P.vy=-v0;P.grounded=false;P.on=null;P.jumped=true;P.lockX=false;
+  P.takeY=P.y;P.apexY=P.y;P.wheed=false;
+  P.sx=0.74;P.sy=1.3;
+  puff(P.x,P.y,5);
+  SND.jump(charged?1:stdFrac*.6);
+  energyUI();
+}
+function deny(){
+  SND.deny();
+  const e=document.getElementById("energy");
+  e.classList.remove("deny");void e.offsetWidth;e.classList.add("deny");
+}
+addEventListener("keydown",e=>{
+  if(e.repeat)return;const k=e.key.toLowerCase();
+  if(k==="arrowleft"||k==="a")keys.l=true;
+  else if(k==="arrowright"||k==="d")keys.r=true;
+  else if(k===" "||k==="arrowup"||k==="w"){e.preventDefault();P.held=true;pressJump();}
+  else if(k==="q")toggleStudy();
+  else if(k==="m")toggleMute();
+  else if(k==="escape"||k==="p"){
+    if(mode==="play")showPause();else if(mode==="pause")hidePause();
+    else if(mode==="study")closeStudy();}
+});
+addEventListener("keyup",e=>{const k=e.key.toLowerCase();
+  if(k==="arrowleft"||k==="a")keys.l=false;
+  else if(k==="arrowright"||k==="d")keys.r=false;
+  else if(k===" "||k==="arrowup"||k==="w"){P.held=false;releaseJump();}
+});
+const hold=(id,on,off)=>{const el=document.getElementById(id);
+  el.addEventListener("pointerdown",e=>{e.preventDefault();el.setPointerCapture(e.pointerId);on();});
+  el.addEventListener("pointerup",off);el.addEventListener("pointercancel",off);};
+hold("padL",()=>keys.l=true,()=>keys.l=false);
+hold("padR",()=>keys.r=true,()=>keys.r=false);
+hold("padJ",()=>{P.held=true;pressJump();},()=>{P.held=false;releaseJump();});
+if("ontouchstart"in window)document.body.classList.add("touch");
 
-  // charge build
-  if(charging){ charge=Math.min(1,(nowT-chargeStart)/cfg.chargeMax); }
-
-  const px=player.x, py=player.y;
-  player.x+=player.vx*dt;
-
-  // soft walls
-  const lo=WALL, hi=WORLD_W-WALL;
-  if(player.x<lo){ player.x=lo; if(player.vx<0)player.vx*=-0.25; }
-  if(player.x>hi){ player.x=hi; if(player.vx>0)player.vx*=-0.25; }
-
-  // gravity
-  if(!player.grounded){
-    player.vy+=cfg.g*dt; if(player.vy>cfg.maxFall)player.vy=cfg.maxFall;
+/* =================================================================
+   PHYSICS  (fixed 1/120 steps)
+================================================================= */
+function near(yPad=260){
+  const top=camY-yPad,bot=camY+CH/scale+yPad;
+  return tower.plats.filter(p=>p.y>top-160&&p.y<bot+160);
+}
+function step(dt){
+  simNow+=dt;runT+=dt;
+  /* charge */
+  if(P.charging){
+    const ct=simNow-P.chargeT0;
+    if(ct>PH.stdT){P.lockX=true;SND.chargeOn();
+      SND.chargeSet(Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT)));}
   }
-  const ny=player.y+player.vy*dt;
+  /* horizontal */
+  const dirIn=(keys.r?1:0)-(keys.l?1:0);
+  if(dirIn)P.face=dirIn;
+  if(P.lockX&&P.grounded){P.vx*=Math.max(0,1-12*dt);}
+  else if(dirIn){P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;}
+  else if(P.grounded){const s=Math.sign(P.vx);P.vx-=s*PH.fric*dt;if(Math.sign(P.vx)!==s)P.vx=0;}
+  P.vx=Math.max(-PH.vmax,Math.min(PH.vmax,P.vx));
 
-  const plats=nearPlats();
+  if(!P.grounded)P.vy=Math.min(PH.maxFall,P.vy+PH.g*dt);
+  const py=P.y;
+  P.x+=P.vx*dt;P.y+=P.vy*dt;
+  if(P.x<WALLX+8){P.x=WALLX+8;P.vx*=-0.25;}
+  if(P.x>W-WALLX-8){P.x=W-WALLX-8;P.vx*=-0.25;}
 
-  if(player.grounded && player.on){
-    // walk along surface; fall off edges
-    const p=player.on, cx=platX(p);
-    const sy=surfaceY({...p,x:cx}, player.x);
-    if(sy==null || Math.abs(player.x-cx)>p.hw){
-      player.grounded=false; player.on=null; player.lastGround=nowT; player.usedCoyote=false; player.takeoffY=player.y;
-    } else {
-      player.y=sy;
-      // slide on slopes / domes
-      const t=TYPE[p.type];
-      if(t.kind==="slope"){ const d=player.x-cx; player.vx += Math.sign(d)*900*dt; }
-      else if(t.kind==="dome"){ const d=player.x-cx; player.vx += Math.sign(d)*(Math.abs(d)/p.hw)*700*dt; }
-      // duck carries you
-      if(t.kind==="drift"){ const t2=TYPE.duck; const nx=p.x+Math.sin((nowT+dt)*t2.driftSpd+(p.driftPhase||0))*t2.driftAmp; player.x+=(nx-cx); }
+  if(P.grounded&&P.on){
+    const p=P.on,T=TYPES[p.t];
+    if(T.kind==="drift"){const nx=px(p);P.x+=nx-(p._lx??nx);p._lx=nx;}
+    const sy=surfY(p,P.x);
+    if(sy==null){P.grounded=false;P.on=null;P.coyT=simNow;P.jumped=false;
+      P.takeY=P.y;P.apexY=P.y;P.wheed=false;}
+    else{
+      P.y=sy;P.vy=0;
+      const dx=P.x-px(p);
+      if(T.kind==="slope")P.vx+=Math.sign(dx)*PH.g*T.sl*0.42*dt;
+      else if(T.kind==="dome")P.vx+=(dx/p.hw)*520*dt;
     }
-  } else {
-    // airborne: descend & test landing
-    player.y=ny;
-    if(player.vy>0){
-      for(const p of plats){
-        const cx=platX(p);
-        const sy=surfaceY({...p,x:cx}, player.x);
-        if(sy==null) continue;
-        if(player.x>=cx-p.hw && player.x<=cx+p.hw && py<=sy+2 && player.y>=sy){
-          land(p, sy); break;
-        }
+  }else{
+    if(P.y<P.apexY)P.apexY=P.y;
+    /* comedy: long tumble */
+    if(!P.wheed&&P.vy>0&&(P.y-P.apexY)>8*PXM){P.wheed=true;SND.whee();wheeFX();}
+    if(P.vy>0){
+      for(const p of near()){
+        const sy=surfY(p,P.x);
+        if(sy!=null&&py<=sy+3&&P.y>=sy){landOn(p,sy);break;}
       }
     }
-    if(nowT-player.lastGround>0.001 && player.vy>0) player.usedCoyote=true;
   }
-
-  // squash/stretch easing
-  player.sx += (1-player.sx)*Math.min(1,dt*12);
-  player.sy += (1-player.sy)*Math.min(1,dt*12);
-  player.anim += dt*Math.abs(player.vx)*0.04;
-
-  // height / camera
-  curM = Math.max(0, -player.y/PXM);
-  if(curM>bestM){ bestM=curM; localStorage.setItem("krabsy_vclimb_best",bestM.toFixed(1)); }
-  const targetCam = player.y - CH/scale*0.42;
-  cam.y += (targetCam-cam.y)*Math.min(1,dt*6);
-
-  // summit
-  if(!reached && curM>=SUMMIT_M-0.4){ winSummit(); }
-
-  // particles
-  for(const pt of particles){ pt.vy+=900*dt; pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.life-=dt; }
-  particles=particles.filter(p=>p.life>0);
+  /* squash relax + wobble decay */
+  P.sx+=(1-P.sx)*Math.min(1,dt*11);P.sy+=(1-P.sy)*Math.min(1,dt*11);
+  P.wobble*=Math.max(0,1-3.4*dt);P.dizzy=Math.max(0,P.dizzy-dt);
+  /* camera */
+  curM=Math.max(0,-P.y/PXM);
+  if(curM>bestM){bestM=curM;localStorage.setItem("krabsy_vclimb_best",bestM.toFixed(1));}
+  camY+=((P.y-CH/scale*0.58)-camY)*Math.min(1,dt*5.5);
+  const cxT=viewW>=W?W/2:Math.max(viewW/2,Math.min(W-viewW/2,P.x));
+  camX+=(cxT-camX)*Math.min(1,dt*6);
+  for(const d of dust){d.vy+=850*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.life-=dt;}
+  dust=dust.filter(d=>d.life>0);
 }
-function land(p, sy){
-  const drop=player.y-player.takeoffY;
-  player.grounded=true; player.on=p; player.y=sy; player.vy=0;
-  player.lastGround=nowT; player.usedCoyote=false;
-  player.sx=1.3; player.sy=0.7; spawnDust(player.x, sy, 6);
-  Audio.land();
-  const t=TYPE[p.type];
-  if(t.wobble){ p.wob=1; }
-  if(drop > 120){ Audio.slide(); flyWhee(); player.sx=1.45; player.sy=0.55; }
-  // buffered jump on landing
-  if(nowT-bufferAt < cfg.buffer){
-    bufferAt=-9;
-    if(jumpHeld) startCharge(); else doStandardJump();
-  }
+function landOn(p,sy){
+  const drop=(P.y-P.takeY)/PXM;
+  P.grounded=true;P.on=p;p._lx=px(p);P.y=sy;P.vy=0;P.jumped=false;
+  const big=drop>7;
+  P.sx=big?1.5:1.32;P.sy=big?0.52:0.68;
+  if(big)P.dizzy=0.6;
+  if(TYPES[p.t].wob)p.wobT=simNow;
+  /* edge wobble: barely made it */
+  const edge=p.hw-Math.abs(P.x-px(p));
+  if(edge<Math.max(9,p.hw*0.14)&&p.hw<95)P.wobble=1;
+  puff(P.x,sy,big?9:5);
+  SND.land(big?1:0.3);
+  if(p.summit&&mode==="play")winSummit();
+  /* buffered jump */
+  if(simNow-P.buffT<PH.buffer){P.buffT=-9;
+    if(P.held){P.charging=true;P.chargeT0=simNow;}
+    else doJump(0,0.8);}
 }
-function spawnDust(x,y,n){ for(let i=0;i<n;i++) particles.push({x,y,vx:(Math.random()*2-1)*70,vy:-Math.random()*120,life:0.4+Math.random()*0.3,r:3+Math.random()*3}); }
+function puff(x,y,n){for(let i=0;i<n;i++)dust.push({x:x+(Math.random()*16-8),y,
+  vx:(Math.random()*2-1)*85,vy:-Math.random()*130,life:.35+Math.random()*.3,r:2.5+Math.random()*3});}
 
-//==================================================================
-// RENDER
-//==================================================================
-function skyColors(frac){
-  // day at bottom -> dusk/stars near summit
-  const lerp=(a,b,t)=>a+(b-a)*t;
-  const top=[lerp(120,30,frac), lerp(190,30,frac), lerp(255,70,frac)];
-  const bot=[lerp(200,90,frac), lerp(240,110,frac), lerp(255,180,frac)];
-  return {top:`rgb(${top.map(Math.round).join(",")})`, bot:`rgb(${bot.map(Math.round).join(",")})`};
+/* =================================================================
+   RENDER
+================================================================= */
+const lerp=(a,b,t)=>a+(b-a)*t;
+const mixC=(A,B,t)=>`rgb(${lerp(A[0],B[0],t)|0},${lerp(A[1],B[1],t)|0},${lerp(A[2],B[2],t)|0})`;
+const SKY={dayT:[116,196,248],dayB:[206,238,255],setT:[88,108,188],setB:[255,198,148],
+  niT:[23,33,82],niB:[68,68,128]};
+let stars=null,clouds=null;
+function decor(){
+  if(stars)return;const r=mb32(7777);
+  stars=Array.from({length:110},()=>({x:r()*W,m:r()*135,r:.5+r()*1.7,tw:r()*6}));
+  clouds=Array.from({length:16},()=>({x:r()*W,m:r()*130,s:.7+r()*1.3,o:.25+r()*.3}));
 }
-let stars=null;
-function ensureStars(){ if(stars)return; stars=[]; const r=mulberry32(12345); for(let i=0;i<90;i++) stars.push({x:r()*WORLD_W, ym:r()*SUMMIT_M, r:0.6+r()*1.6}); }
 function render(){
-  const frac=Math.min(1, curM/SUMMIT_M);
-  const sk=skyColors(frac);
-  const g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,sk.top); g.addColorStop(1,sk.bot);
-  ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
+  decor();
+  const af=Math.min(1,curM/SUMMIT_M);
+  const g=ctx.createLinearGradient(0,0,0,CH);
+  if(af<.5){g.addColorStop(0,mixC(SKY.dayT,SKY.setT,af*2));g.addColorStop(1,mixC(SKY.dayB,SKY.setB,af*2));}
+  else{g.addColorStop(0,mixC(SKY.setT,SKY.niT,(af-.5)*2));g.addColorStop(1,mixC(SKY.setB,SKY.niB,(af-.5)*2));}
+  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
 
-  // stars (only upper sky)
-  ensureStars();
-  if(frac>0.25){
-    ctx.save(); ctx.globalAlpha=Math.min(1,(frac-0.25)/0.4);
-    ctx.fillStyle="#fff";
-    for(const s of stars){
-      const wy=-s.ym*PXM; const sy=(wy-cam.y)*scale;
-      if(sy<-10||sy>CH+10)continue;
-      ctx.beginPath(); ctx.arc(stripX+s.x*scale, sy, s.r, 0, 7); ctx.fill();
-    }
-    ctx.restore();
-  }
-  // parallax clouds
-  drawClouds(frac);
-
-  // world (clipped to strip)
+  /* sun / moon / stars */
+  if(af<.5){ctx.save();ctx.globalAlpha=1-af*2;
+    ctx.fillStyle="#fff6c9";ctx.beginPath();ctx.arc(CW*.82,CH*.16,34,0,7);ctx.fill();
+    ctx.globalAlpha=(1-af*2)*.35;ctx.beginPath();ctx.arc(CW*.82,CH*.16,52,0,7);ctx.fill();ctx.restore();}
+  const sA=Math.max(0,Math.min(1,(af-.42)*2.4));
+  if(sA>0){ctx.save();ctx.fillStyle="#fff";
+    for(const s of stars){const sy=(-s.m*PXM-camY)*scale*.85+CH*.1;
+      if(sy<-8||sy>CH+8)continue;
+      ctx.globalAlpha=sA*(.5+.5*Math.sin(simNow*2+s.tw));
+      ctx.beginPath();ctx.arc((s.x*scale*.9+CW*.05)%CW,sy,s.r,0,7);ctx.fill();}
+    if(af>.62){ctx.globalAlpha=sA;ctx.fillStyle="#fffbe8";
+      ctx.beginPath();ctx.arc(CW*.18,CH*.13,26,0,7);ctx.fill();
+      ctx.fillStyle=mixC(SKY.niT,SKY.niT,0);ctx.globalAlpha=sA*.9;
+      ctx.beginPath();ctx.arc(CW*.18+9,CH*.13-4,21,0,7);ctx.fill();}
+    ctx.restore();}
+  /* clouds (parallax) */
   ctx.save();
-  ctx.beginPath(); ctx.rect(stripX,0,stripW,CH); ctx.clip();
-  ctx.translate(stripX, -cam.y*scale); ctx.scale(scale,scale);
-
-  // soft walls
-  ctx.fillStyle="rgba(255,255,255,.10)";
-  ctx.fillRect(0, cam.y, WALL, CH/scale); ctx.fillRect(WORLD_W-WALL, cam.y, WALL, CH/scale);
-
-  // platforms near viewport
-  for(const p of nearPlats()) drawPlatform(p);
-
-  // particles
-  for(const pt of particles){ ctx.globalAlpha=Math.max(0,pt.life*2); ctx.fillStyle="rgba(255,255,255,.85)";
-    ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,7); ctx.fill(); }
-  ctx.globalAlpha=1;
-
-  drawPlayer();
-  ctx.restore();
-
-  // confetti (screen space)
-  if(confetti.length) drawConfetti();
-}
-function drawClouds(frac){
-  ctx.save(); ctx.globalAlpha=0.5*(1-frac*0.7); ctx.fillStyle="#ffffff";
-  const r=mulberry32(777);
-  for(let i=0;i<10;i++){
-    const cxm=r()*WORLD_W, ym=r()*SUMMIT_M*1.1;
-    const wy=-ym*PXM; let sy=((wy-cam.y)*scale*0.6)%(CH+200); if(sy<-100)sy+=CH+200;
-    const x=stripX+cxm*scale, w=70+r()*70;
+  for(const c of clouds){
+    const sy=(-c.m*PXM-camY*0.55)*scale+CH*.3;
+    if(sy<-90||sy>CH+90)continue;
+    const sx=((c.x-camX*0.3)*scale+CW/2)%(CW+260)-130;
+    ctx.globalAlpha=c.o*(1-af*.55);ctx.fillStyle="#fff";
     ctx.beginPath();
-    ctx.ellipse(x,sy,w,w*0.4,0,0,7); ctx.ellipse(x+w*0.6,sy+6,w*0.6,w*0.3,0,0,7); ctx.fill();
+    ctx.ellipse(sx,sy,58*c.s,22*c.s,0,0,7);
+    ctx.ellipse(sx+40*c.s,sy+7,40*c.s,16*c.s,0,0,7);
+    ctx.ellipse(sx-42*c.s,sy+8,34*c.s,14*c.s,0,0,7);ctx.fill();
   }
   ctx.restore();
-}
-function drawPlatform(p){
-  const t=TYPE[p.type]; const cx=platX(p); const wob=p.wob||0;
-  // shadow
+
+  /* world */
   ctx.save();
-  ctx.fillStyle="rgba(20,40,60,.16)";
-  ctx.beginPath(); ctx.ellipse(cx, p.topY+12, p.hw*0.9, 9, 0, 0, 7); ctx.fill();
-  // standable surface accent (so it reads as solid)
-  ctx.strokeStyle="rgba(255,255,255,.85)"; ctx.lineWidth=3.2; ctx.lineCap="round";
+  ctx.translate(CW/2-camX*scale,-camY*scale);ctx.scale(scale,scale);
+  for(const p of near(300))drawPlat(p,af);
+  for(const d of dust){ctx.globalAlpha=Math.max(0,d.life*2.4);
+    ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,7);ctx.fill();}
+  ctx.globalAlpha=1;
+  drawCrab();
+  ctx.restore();
+
+  /* confetti — screen space */
+  for(const c of confetti){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.r);
+    ctx.fillStyle=c.col;ctx.fillRect(-4,-3,8,6);ctx.restore();}
+}
+function drawPlat(p,af){
+  const T=TYPES[p.t],X=px(p);
+  ctx.save();
+  /* shadow */
+  ctx.fillStyle="rgba(15,35,60,.18)";
+  ctx.beginPath();ctx.ellipse(X,p.y+14,p.hw*.85,8,0,0,7);ctx.fill();
+  if(p.t==="ground"){
+    ctx.fillStyle="#79d96e";ctx.fillRect(0,p.y,W,400);
+    ctx.fillStyle="#5cc454";ctx.fillRect(0,p.y,W,12);
+    ctx.font="26px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
+    ctx.textAlign="center";"🌼🌿🌷🍀🌻".split(/(?:)/u).forEach((e,i)=>ctx.fillText(e,90+i*170,p.y+38));
+    ctx.restore();return;
+  }
+  if(p.t==="shelf"){           /* cosy full-width cloud bench */
+    ctx.fillStyle="rgba(255,255,255,.95)";
+    rr(X-p.hw,p.y,p.hw*2,26,13);ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.8)";
+    for(let i=-3;i<=3;i++){ctx.beginPath();ctx.ellipse(X+i*p.hw/3.4,p.y+4,52,20,0,0,7);ctx.fill();}
+    ctx.font="30px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
+    ctx.textAlign="center";ctx.fillText("🧺",X-110,p.y-7);ctx.fillText("☕",X+128,p.y-5);
+    ctx.restore();return;
+  }
+  if(p.t==="summit"){
+    ctx.fillStyle="#ffe9a8";rr(X-p.hw,p.y,p.hw*2,22,11);ctx.fill();
+    ctx.fillStyle="#ffd76e";rr(X-p.hw,p.y,p.hw*2,8,4);ctx.fill();
+    ctx.font="56px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
+    ctx.textAlign="center";ctx.fillText("🚩",X+86,p.y-16);ctx.fillText("🏆",X-92,p.y-12);
+    ctx.restore();return;
+  }
+  /* emoji body */
+  ctx.font=T.fs+"px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  let bob=0;
+  if(p.wobT!=null){const a=Math.max(0,1-(simNow-p.wobT)*2.2);bob=Math.sin((simNow-p.wobT)*22)*4*a;}
+  ctx.fillText(T.e,X,p.y+T.fs*.34+bob);
+  if(p.bonus&&p.t==="flower"){ctx.font="20px sans-serif";ctx.fillText("✨",X,p.y-26);}
+  /* standable surface plate (white lip exactly on the collision shape) */
+  ctx.lineCap="round";
+  ctx.strokeStyle="rgba(15,35,60,.22)";ctx.lineWidth=8;surfPath(p,X,T,3);ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,.95)";ctx.lineWidth=4.5;surfPath(p,X,T,0);ctx.stroke();
+  ctx.restore();
+}
+function surfPath(p,X,T,oy){
   ctx.beginPath();
-  if(t.kind==="slope"){ ctx.moveTo(cx-p.hw,p.topY+p.hw*t.slope); ctx.lineTo(cx,p.topY); ctx.lineTo(cx+p.hw,p.topY+p.hw*t.slope); }
-  else if(t.kind==="dome"){ for(let i=-1;i<=1;i+=0.1){ const dx=i*p.hw; const y=p.topY+(dx*dx/p.hw)*t.dome*0.5; if(i===-1)ctx.moveTo(cx+dx,y);else ctx.lineTo(cx+dx,y);} }
-  else if(t.kind==="hole"){ ctx.moveTo(cx-p.hw,p.topY); ctx.lineTo(cx-t.hole,p.topY); ctx.moveTo(cx+t.hole,p.topY); ctx.lineTo(cx+p.hw,p.topY); }
-  else { ctx.moveTo(cx-p.hw,p.topY); ctx.lineTo(cx+p.hw,p.topY); }
-  ctx.stroke();
-  // emoji body
-  ctx.font=t.fs+"px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
-  ctx.textAlign="center"; ctx.textBaseline="middle";
-  const bobY = wob? Math.sin(nowT*18)*wob*4 : 0;
-  ctx.fillText(t.e, cx, p.topY + t.fs*0.30 + bobY);
-  if(p.wob) p.wob*=0.92;
-  if(p.summit){ ctx.font="34px 'Segoe UI Emoji',sans-serif"; ctx.fillText("🦀",cx, p.topY-26); ctx.fillText("🚩",cx+44,p.topY-14); }
-  ctx.restore();
+  if(T.kind==="slope"){ctx.moveTo(X-p.hw,p.y+p.hw*T.sl+oy);ctx.lineTo(X,p.y+oy);ctx.lineTo(X+p.hw,p.y+p.hw*T.sl+oy);}
+  else if(T.kind==="dome"){for(let i=-10;i<=10;i++){const dx=i/10*p.hw,y=p.y+(dx*dx/p.hw)*T.dm*.5+oy;
+    i===-10?ctx.moveTo(X+dx,y):ctx.lineTo(X+dx,y);}}
+  else if(T.kind==="hole"){ctx.moveTo(X-p.hw,p.y+oy);ctx.lineTo(X-T.hr,p.y+oy);
+    ctx.moveTo(X+T.hr,p.y+oy);ctx.lineTo(X+p.hw,p.y+oy);}
+  else{ctx.moveTo(X-p.hw,p.y+oy);ctx.lineTo(X+p.hw,p.y+oy);}
 }
-function drawPlayer(){
-  const x=player.x, y=player.y; const w=player.w, h=player.h;
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawCrab(){
+  const chargeF=P.charging?Math.min(1,Math.max(0,(simNow-P.chargeT0-PH.stdT)/(PH.fullT-PH.stdT))):0;
+  const squat=chargeF*0.3;
   ctx.save();
-  ctx.translate(x, y-h*0.5);
-  ctx.scale(player.sx, player.sy);
-  // body (teal rounded)
-  const bw=w, bh=h;
-  ctx.fillStyle="#1aa98a"; roundRect(-bw/2, -bh/2+3, bw, bh, 9); ctx.fill();
-  ctx.fillStyle="#2ee6c0"; roundRect(-bw/2, -bh/2, bw, bh-3, 9); ctx.fill();
-  // little claws
-  ctx.fillStyle="#ff8585";
-  ctx.beginPath(); ctx.arc(-bw/2-2, 2, 5,0,7); ctx.arc(bw/2+2, 2, 5,0,7); ctx.fill();
-  // eyes
-  ctx.fillStyle="#fff";
-  const ex=player.face*3;
-  ctx.beginPath(); ctx.arc(-6+ex,-3,4.5,0,7); ctx.arc(6+ex,-3,4.5,0,7); ctx.fill();
-  ctx.fillStyle="#1d2b3a";
-  ctx.beginPath(); ctx.arc(-6+ex*1.4,-3,2.3,0,7); ctx.arc(6+ex*1.4,-3,2.3,0,7); ctx.fill();
+  ctx.translate(P.x,P.y);
+  if(P.wobble>0.05)ctx.rotate(Math.sin(simNow*26)*0.13*P.wobble);
+  ctx.scale(P.sx*(1+squat*.3),P.sy*(1-squat));
+  /* legs */
+  ctx.strokeStyle="#e05d5d";ctx.lineWidth=3;ctx.lineCap="round";
+  for(const s of[-1,1])for(let i=0;i<3;i++){
+    ctx.beginPath();ctx.moveTo(s*(7+i*4),-7);ctx.lineTo(s*(13+i*5),-1+(i===1?1:0));ctx.stroke();}
+  /* claws */
+  ctx.fillStyle="#ff6f6f";
+  ctx.beginPath();ctx.arc(-19,-13-chargeF*7,6.5,0,7);ctx.arc(19,-13-chargeF*7,6.5,0,7);ctx.fill();
+  /* body */
+  ctx.fillStyle="#ff8585";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
+  ctx.fillStyle="rgba(224,93,93,.55)";ctx.beginPath();ctx.ellipse(0,-9,14,6,0,0,7);ctx.fill();
+  /* eye stalks */
+  ctx.strokeStyle="#e05d5d";ctx.beginPath();
+  ctx.moveTo(-5,-22);ctx.lineTo(-5,-27);ctx.moveTo(5,-22);ctx.lineTo(5,-27);ctx.stroke();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,-29,4.4,0,7);ctx.arc(5,-29,4.4,0,7);ctx.fill();
+  ctx.fillStyle="#1e2d3d";const lx=P.face*1.8;
+  ctx.beginPath();ctx.arc(-5+lx,-29,2.1,0,7);ctx.arc(5+lx,-29,2.1,0,7);ctx.fill();
+  /* smile */
+  ctx.strokeStyle="#b14a4a";ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.arc(0,-12,4.5,0.25*Math.PI,0.75*Math.PI);ctx.stroke();
   ctx.restore();
-  // charge ring
-  if(charging && charge>0.04){
-    ctx.save(); ctx.translate(x,y-h*0.5);
-    ctx.strokeStyle = charge>=cfg.chargeT? "#ffcf5e":"#2ee6c0"; ctx.lineWidth=3;
-    ctx.beginPath(); ctx.arc(0,0,h*0.8, -Math.PI/2, -Math.PI/2 + charge*Math.PI*2); ctx.stroke();
-    ctx.restore();
-  }
-}
-function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
-  ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-function drawConfetti(){
-  for(const c of confetti){ ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.rot);
-    ctx.fillStyle=c.col; ctx.fillRect(-4,-3,8,6); ctx.restore(); }
-}
-
-//==================================================================
-// HUD
-//==================================================================
-const energyEl=document.getElementById("energy"), energyLbl=document.getElementById("energyLbl");
-for(let i=0;i<cfg.ENERGY_MAX;i++){ const s=document.createElement("div"); s.className="seg"; s.innerHTML="<i></i>"; energyEl.appendChild(s); }
-function updateEnergyUI(){
-  const segs=energyEl.children;
-  for(let i=0;i<segs.length;i++){
-    const fill=Math.max(0,Math.min(1, player.energy-i));
-    segs[i].firstChild.style.transform=`scaleX(${fill})`;
-  }
-  const dry=player.energy<cfg.costStd;
-  energyLbl.textContent= dry? "out of energy — press 💡" : "energy";
-  energyLbl.classList.toggle("dry",dry);
-  document.getElementById("studyChip").classList.toggle("pulse", dry);
-}
-function updateHUD(){
-  document.getElementById("meterTop").textContent=Math.floor(curM)+"m";
-  document.getElementById("meterBest").textContent="best "+Math.floor(Math.max(bestM,curM))+"m";
-  const frac=Math.min(1,curM/SUMMIT_M);
-  document.getElementById("meterFill").style.height=(frac*100)+"%";
-  document.getElementById("meterFlag").style.bottom=(frac*100)+"%";
-  document.getElementById("meterFlag").textContent = frac>=1?"🦀":"▸";
+  /* dizzy stars after a big fall */
+  if(P.dizzy>0){ctx.save();ctx.translate(P.x,P.y-44);
+    ctx.font="13px sans-serif";ctx.textAlign="center";
+    for(let i=0;i<3;i++){const a=simNow*5+i*2.1;
+      ctx.fillText("✦",Math.cos(a)*15,Math.sin(a)*5);}
+    ctx.restore();}
+  /* charge ring */
+  if(P.charging&&simNow-P.chargeT0>PH.stdT){
+    ctx.save();ctx.translate(P.x,P.y-16);
+    ctx.strokeStyle=chargeF>=1?"#ffcf5e":"#2ee6c0";ctx.lineWidth=3.5;
+    ctx.beginPath();ctx.arc(0,0,26,-Math.PI/2,-Math.PI/2+chargeF*6.283);ctx.stroke();
+    ctx.restore();}
 }
 
-//==================================================================
-// STUDY MODE
-//==================================================================
-const studyOv=document.getElementById("study");
+/* =================================================================
+   HUD
+================================================================= */
+const segBox=document.getElementById("energy");
+for(let i=0;i<PH.EMAX;i++){const s=document.createElement("div");s.className="seg";
+  s.innerHTML="<i></i>";segBox.appendChild(s);}
+function energyUI(){
+  [...segBox.children].forEach((s,i)=>{
+    s.firstChild.style.transform=`scaleX(${Math.max(0,Math.min(1,P.energy-i))})`;});
+  const dry=P.energy<PH.costStd;
+  const lbl=document.getElementById("energyLbl");
+  lbl.textContent=dry?"no energy — study! 💡":"energy";
+  lbl.classList.toggle("dry",dry);
+  document.getElementById("chipStudy").classList.toggle("pulse",dry&&mode==="play");
+}
+function hudTick(){
+  document.getElementById("meterNow").textContent=(curM|0)+" m";
+  document.getElementById("meterBest").textContent="best "+(Math.max(bestM,curM)|0)+" m";
+  const f=Math.min(1,curM/SUMMIT_M);
+  document.getElementById("meterFill").style.height=f*100+"%";
+  document.getElementById("meterYou").style.bottom=f*100+"%";
+  document.getElementById("meterBestMark").style.bottom=Math.min(1,bestM/SUMMIT_M)*100+"%";
+  document.getElementById("chipStudy").classList.toggle("dim",!P.grounded||mode!=="play");
+}
+
+/* =================================================================
+   STUDY
+================================================================= */
+function regular(v){if(v.endsWith("e"))return v+"d";
+  if(/[^aeiou]y$/.test(v))return v.slice(0,-1)+"ied";return v+"ed";}
+function makeQ(){
+  const span=Math.max(10,Math.min(VERBS.length,10+Math.min(1,curM/SUMMIT_M)*46));
+  let it,tries=0;
+  do{it=VERBS[(Math.pow(qrng(),1.35)*span)|0];}while(recent.includes(it.v)&&++tries<25);
+  recent.push(it.v);if(recent.length>4)recent.shift();
+  const form=qrng()<.5?"p":"q";
+  const corr=it[form];
+  const opts=new Set([corr]);const add=w=>{if(w&&!opts.has(w))opts.add(w);};
+  add(regular(it.v));
+  add(form==="p"?it.q:it.p);
+  let g=0;while(opts.size<3&&g++<40)add(VERBS[(qrng()*VERBS.length)|0][form]);
+  const chips=[...opts].slice(0,3);
+  for(let i=chips.length-1;i>0;i--){const j=(qrng()*(i+1))|0;[chips[i],chips[j]]=[chips[j],chips[i]];}
+  return {it,form,corr,chips};
+}
+let study={q:null,locked:false,answered:0};
 function toggleStudy(){
-  if(study.open){ closeStudy(); return; }
-  if(paused||reached) return;
-  if(!player.grounded){ return; } // must be standing
+  if(mode==="study"){closeStudy();return;}
+  if(mode!=="play")return;
+  if(!P.grounded){deny();return;}
   openStudy();
 }
 function openStudy(){
-  Audio.init(); Audio.resume();
-  study.open=true; study.answered=0; paused=true;
-  studyOv.classList.add("on");
-  nextQuestion();
+  SND.init();mode="study";study.answered=0;
+  document.getElementById("ovStudy").classList.add("on");
+  askNext();
 }
 function closeStudy(){
-  study.open=false; studyOv.classList.remove("on");
-  if(!reached) paused=false;
+  document.getElementById("ovStudy").classList.remove("on");
+  if(mode==="study")mode="play";
+  energyUI();
 }
-function renderQBars(){
-  const wrap=document.getElementById("qBars"); wrap.innerHTML="";
-  for(let i=0;i<cfg.ENERGY_MAX;i++){ const s=document.createElement("div"); s.className="s"+(i<player.energy?" f":""); wrap.appendChild(s); }
-}
-function nextQuestion(){
+function askNext(){
   study.locked=false;
-  renderQBars();
-  if(player.energy>=cfg.ENERGY_MAX){
-    document.getElementById("qPrompt").innerHTML="⚡ Energy full!";
-    document.getElementById("qHint").textContent="You're fully charged. Resume climbing.";
-    document.getElementById("qChips").innerHTML="";
-    document.getElementById("qChain").innerHTML="";
-    document.getElementById("qStat").textContent=study.answered? `${study.answered} answered this session`:"";
+  const bar=document.getElementById("qBar");bar.innerHTML="";
+  for(let i=0;i<PH.EMAX;i++){const s=document.createElement("div");
+    s.className="s"+(i<P.energy-1e-6?" f":"");bar.appendChild(s);}
+  const chips=document.getElementById("qChips"),chain=document.getElementById("qChain"),
+        info=document.getElementById("qInfo"),pr=document.getElementById("qPrompt");
+  chain.innerHTML="";
+  if(P.energy>=PH.EMAX-1e-6){
+    pr.innerHTML="⚡ Energy full!";chips.innerHTML="";
+    info.textContent=study.answered?`${study.answered} answered — go climb!`:"go climb!";
     return;
   }
-  const q=genQuestion(rngQ, Math.min(1,curM/SUMMIT_M)); study.q=q;
-  document.getElementById("qPrompt").innerHTML=`${q.prompt} <b style="color:#bb7d00">${q.item.v}</b>?`;
-  document.getElementById("qHint").textContent="answer to refuel +1 segment";
-  document.getElementById("qChain").innerHTML="";
-  document.getElementById("qStat").textContent= study.answered? `${study.answered} answered • energy ${Math.floor(player.energy)}/8` : "stop whenever you like — even 1 answer helps";
-  const chips=document.getElementById("qChips"); chips.innerHTML="";
-  q.chips.forEach(opt=>{
+  const q=makeQ();study.q=q;
+  pr.innerHTML=(q.form==="p"?"simple past of ":"past participle of ")+
+    `<span class="verb">${q.it.v}</span>?`;
+  info.textContent=study.answered
+    ?`${study.answered} answered · energy ${Math.round(P.energy*3)/3}/8`
+    :"stop whenever you like — even one answer helps";
+  chips.innerHTML="";
+  q.chips.forEach((c,i)=>{
     const b=document.createElement("button");
-    b.className="qchip "+q.formClass; b.textContent=opt;
-    b.onclick=()=>answerChip(b,opt);
-    chips.appendChild(b);
-  });
+    b.className="qchip "+(q.form==="p"?"past":"part");b.textContent=c;
+    b.onclick=()=>answer(i);chips.appendChild(b);});
 }
-function answerChip(btn, opt){
-  if(study.locked) return; study.locked=true;
-  const q=study.q;
-  study.answered++;
-  if(opt===q.correct){
-    btn.classList.add("right"); Audio.correct();
-    player.energy=Math.min(cfg.ENERGY_MAX, player.energy+1); updateEnergyUI();
-    flyPlus1();
-    setTimeout(nextQuestion, 620);
-  } else {
-    btn.classList.add("wrong"); Audio.wrong();
-    // highlight correct
-    [...document.getElementById("qChips").children].forEach(c=>{ if(c.textContent===q.correct) c.classList.add("right"); });
-    missed.set(q.item.v, q.item);
+function answer(i){
+  if(study.locked||!study.q)return;study.locked=true;study.answered++;
+  const q=study.q,btns=[...document.getElementById("qChips").children];
+  if(q.chips[i]===q.corr){
+    btns[i].classList.add("yes");SND.ok();
+    P.energy=Math.min(PH.EMAX,P.energy+1);energyUI();
+    plusFX();setTimeout(askNext,600);
+  }else{
+    btns[i].classList.add("no");
+    btns[q.chips.indexOf(q.corr)]?.classList.add("yes");
+    SND.bad();missed.set(q.it.v,q.it);
     document.getElementById("qChain").innerHTML=
-      `<span class="a">${q.item.v}</span> → <span class="b">${q.item.past}</span> → <span class="c">${q.item.pp}</span>`;
-    setTimeout(nextQuestion, 1500);
+      `<span class="fb">${q.it.v}</span> → <span class="fp">${q.it.p}</span> → <span class="fq">${q.it.q}</span>`;
+    setTimeout(askNext,1600);
   }
 }
-document.getElementById("doneBtn").onclick=closeStudy;
-document.getElementById("studyChip").onclick=toggleStudy;
+document.getElementById("btnBack").onclick=closeStudy;
+document.getElementById("chipStudy").onclick=toggleStudy;
 
-//==================================================================
-// FX
-//==================================================================
+/* =================================================================
+   FX (DOM)
+================================================================= */
 const fx=document.getElementById("fx");
-function flyPlus1(){
-  const e=document.createElement("div"); e.className="plus1"; e.textContent="+1 ⚡";
-  e.style.left="50%"; e.style.top="40%"; e.style.transform="translateX(-50%)";
-  fx.appendChild(e); setTimeout(()=>e.remove(),1000);
-}
-function flyWhee(){
-  const e=document.createElement("div"); e.className="whee"; e.textContent="wheee!";
-  e.style.left=(stripX+player.x*scale)+"px"; e.style.top="45%";
-  fx.appendChild(e); setTimeout(()=>e.remove(),900);
-}
+function plusFX(){const e=document.createElement("div");e.className="float1";
+  e.textContent="+1 ⚡";e.style.left="50%";e.style.top="38%";
+  fx.appendChild(e);setTimeout(()=>e.remove(),1050);}
+function wheeFX(){const e=document.createElement("div");e.className="wheee";
+  e.textContent=["wheee!","aaaah!","not again!"][(Math.random()*3)|0];
+  e.style.left=Math.min(CW-140,Math.max(20,CW/2+(P.x-camX)*scale-40))+"px";e.style.top="38%";
+  fx.appendChild(e);setTimeout(()=>e.remove(),1000);}
 
-//==================================================================
-// SCREENS / FLOW
-//==================================================================
-function startGame(seed){
-  startSeed=seed>>>0;
-  tower=genTower(startSeed);
-  const base=tower.plats[0];
-  player.x=base.x; player.y=base.topY; player.vx=0; player.vy=0;
-  player.grounded=true; player.on=base; player.energy=cfg.ENERGY_MAX;
-  player.sx=player.sy=1; player.face=1; player.lastGround=0; player.takeoffY=0;
-  charging=false; charge=0; bufferAt=-9;
-  cam.y=player.y-CH/scale*0.42;
-  curM=0; reached=false; missed.clear(); confetti=[]; particles=[];
-  runStart=nowT;
-  paused=false;
-  document.querySelectorAll(".overlay").forEach(o=>o.classList.remove("on"));
-  updateEnergyUI(); updateHUD();
+/* =================================================================
+   FLOW
+================================================================= */
+function newGame(s){
+  seed=s>>>0;tower=genTower(seed);qrng=mb32((seed^0x51ab)>>>0);recent=[];
+  P.x=W/2;P.y=0;P.vx=0;P.vy=0;P.grounded=true;P.on=tower.plats[0];
+  P.energy=PH.EMAX;P.sx=P.sy=1;P.charging=false;P.wobble=0;P.dizzy=0;
+  P.coyT=-9;P.buffT=-9;P.jumped=false;
+  curM=0;runT=0;missed.clear();confetti=[];dust=[];
+  camY=P.y-CH/scale*0.58;camX=W/2;
+  mode="play";frozen=false;
+  document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
+  energyUI();
 }
+function showPause(){
+  mode="pause";
+  document.getElementById("pauseInfo").innerHTML=
+    `height <b>${curM|0} m</b> · energy <b>${Math.round(P.energy*3)/3}/8</b> · tower <b>#${seed}</b>`;
+  document.getElementById("ovPause").classList.add("on");
+}
+function hidePause(){document.getElementById("ovPause").classList.remove("on");mode="play";}
 function winSummit(){
-  reached=true; paused=true; curM=SUMMIT_M;
-  const tsec=Math.max(1,(nowT-runStart));
-  let isBest=false;
-  if(bestSummit===0 || tsec<bestSummit){ bestSummit=tsec; localStorage.setItem("krabsy_vclimb_summit",tsec.toFixed(1)); isBest=true; }
-  Audio.summit(); spawnConfetti();
-  document.getElementById("summitSub").textContent="You climbed 120 m of floating nonsense. 🫖";
-  const mm=Math.floor(tsec/60), ss=Math.floor(tsec%60).toString().padStart(2,"0");
-  document.getElementById("summitStats").innerHTML=
-    `⏱️ ${mm}:${ss} ${isBest?'<span style="color:#16c4a3">new best!</span>':''}<br>🎲 seed <b>${startSeed}</b>`;
-  const mb=document.getElementById("missBox");
+  mode="summit";SND.fanfare();
+  curM=SUMMIT_M;
+  const t=runT,mm=t/60|0,ss=(t%60|0).toString().padStart(2,"0");
+  let nb=false;
+  if(!bestT||t<bestT){bestT=t;localStorage.setItem("krabsy_vclimb_summit",t.toFixed(1));nb=true;}
+  localStorage.setItem("krabsy_vclimb_best","120");bestM=120;
+  document.getElementById("sumStats").innerHTML=
+    `⏱️ ${mm}:${ss}${nb?' <span style="color:#11a883">— new best!</span>':""}<br>🎲 tower <b>#${seed}</b> — same seed, same tower`;
+  const box=document.getElementById("sumMiss");
   if(missed.size){
-    let h='<div style="font-size:13px;color:var(--ink2);margin:10px 0 4px">verbs to review:</div>';
-    [...missed.values()].slice(0,8).forEach(m=>{ h+=`<div class="missrow"><span class="a">${m.v}</span> → <span class="b">${m.past}</span> → <span class="c">${m.pp}</span></div>`; });
-    mb.innerHTML=h;
-  } else mb.innerHTML='<div style="color:#16c4a3;font-weight:800;margin-top:8px">Perfect — no missed verbs! 🌟</div>';
-  document.getElementById("summit").classList.add("on");
+    let h=`<div style="font-size:13px;color:var(--ink2);margin:8px 0 3px">verbs that tricked you:</div>`;
+    [...missed.values()].slice(0,8).forEach(m=>{
+      h+=`<div class="missline"><span class="fb">${m.v}</span> → <span class="fp">${m.p}</span> → <span class="fq">${m.q}</span></div>`;});
+    if(missed.size>8)h+=`<div style="font-size:12px;color:var(--ink2)">…and ${missed.size-8} more</div>`;
+    box.innerHTML=h;
+  }else box.innerHTML=`<div style="color:#11a883;font-weight:800;margin-top:6px">No missed verbs — flawless! 🌟</div>`;
+  confetti=Array.from({length:150},()=>({x:Math.random()*CW,y:-Math.random()*CH,
+    vx:(Math.random()*2-1)*45,vy:65+Math.random()*130,r:Math.random()*7,vr:(Math.random()*2-1)*5,
+    col:["#2ee6c0","#ff8585","#ffcf5e","#fff","#7ad7ff"][(Math.random()*5)|0]}));
+  document.getElementById("ovSummit").classList.add("on");
 }
-function spawnConfetti(){
-  const cols=["#2ee6c0","#ff8585","#ffcf5e","#fff","#7ad7ff"];
-  confetti=[]; for(let i=0;i<140;i++) confetti.push({x:Math.random()*CW,y:-Math.random()*CH,vx:(Math.random()*2-1)*40,vy:60+Math.random()*120,rot:Math.random()*7,vr:(Math.random()*2-1)*5,col:cols[(Math.random()*cols.length)|0]});
-}
-function updateConfetti(dt){ for(const c of confetti){ c.x+=c.vx*dt; c.y+=c.vy*dt; c.rot+=c.vr*dt; if(c.y>CH+20)c.y=-20; } }
+document.getElementById("btnPlay").onclick=()=>{SND.init();newGame(seed);};
+document.getElementById("btnAgain").onclick=()=>newGame((seed*1103515245+12345)>>>0);
+document.getElementById("btnSame").onclick=()=>newGame(seed);
+document.getElementById("btnResume").onclick=hidePause;
+document.getElementById("btnNew").onclick=()=>newGame((seed*1103515245+12345)>>>0);
+document.getElementById("btnPause").onclick=()=>{
+  if(mode==="play")showPause();else if(mode==="pause")hidePause();};
+function toggleMute(){SND.muted=!SND.muted;
+  localStorage.setItem("krabsy_vclimb_sound",SND.muted?"0":"1");
+  document.getElementById("btnMute").textContent=SND.muted?"🔇":"🔊";}
+document.getElementById("btnMute").onclick=toggleMute;
+if(SND.muted)document.getElementById("btnMute").textContent="🔇";
+document.getElementById("menuBest").textContent=
+  bestM>0?`best height ${bestM|0} m${bestT?` · best summit ${bestT/60|0}:${(bestT%60|0).toString().padStart(2,"0")}`:""}`:"";
 
-document.getElementById("playBtn").onclick=()=>{ Audio.init();Audio.resume(); startGame(startSeed); };
-document.getElementById("againBtn").onclick=()=>{ startGame(((startSeed*1103515245+12345)>>>0)); };
-document.getElementById("menuBtn").onclick=()=>{ paused=true; document.getElementById("start").classList.add("on"); };
-function toggleMute(){ Audio.muted=!Audio.muted; localStorage.setItem("krabsy_vclimb_sound",Audio.muted?"0":"1");
-  document.getElementById("muteBtn").textContent=Audio.muted?"🔇":"🔊"; }
-document.getElementById("muteBtn").onclick=toggleMute;
-if(localStorage.getItem("krabsy_vclimb_sound")==="0"){ Audio.muted=true; document.getElementById("muteBtn").textContent="🔇"; }
-
-//==================================================================
-// MAIN LOOP
-//==================================================================
-let last=0, acc=0;
+/* =================================================================
+   MAIN LOOP
+================================================================= */
+let lastTS=0,accum=0;
 function frame(ts){
   requestAnimationFrame(frame);
-  if(CW!==cv.clientWidth || CH!==cv.clientHeight) resize();
-  if(!last)last=ts; let dt=(ts-last)/1000; last=ts;
-  if(dt>0.05)dt=0.05;
-  nowT+=dt;
-  if(tower && !paused && !qaFreeze){
-    let step=1/120, n=0;
-    acc+=dt;
-    while(acc>=step && n++<8){ physics(step); acc-=step; }
-    updateEnergyUI();
+  if(CW!==innerWidth||CH!==innerHeight)fit();
+  if(!lastTS)lastTS=ts;
+  let dt=Math.min(0.05,(ts-lastTS)/1000);lastTS=ts;
+  if(mode==="play"&&!frozen){
+    accum+=dt;let n=0;
+    while(accum>=1/120&&n++<8){step(1/120);accum-=1/120;}
+    energyUI();
   }
-  if(reached) updateConfetti(dt);
-  if(tower){ render(); updateHUD(); }
-  else { // start-screen sky
-    const sk=skyColors(0); const g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,sk.top);g.addColorStop(1,sk.bot);
-    ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
-  }
+  if(mode==="summit")for(const c of confetti){c.x+=c.vx*dt;c.y+=c.vy*dt;c.r+=c.vr*dt;
+    if(c.y>CH+20)c.y=-20;}
+  if(tower){render();hudTick();}
+  else{const g=ctx.createLinearGradient(0,0,0,CH);
+    g.addColorStop(0,mixC(SKY.dayT,SKY.dayT,0));g.addColorStop(1,mixC(SKY.dayB,SKY.dayB,0));
+    ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);}
 }
 
-//==================================================================
-// QA HOOKS
-//==================================================================
+/* =================================================================
+   QA HOOKS
+================================================================= */
 window.__VC={
-  state(){ return {m:curM, energy:player.energy, grounded:player.grounded, x:player.x, y:player.y,
-    paused, reached, seed:startSeed, plats:tower?tower.plats.length:0, study:study.open, answered:study.answered}; },
-  teleport(m){ const y=-m*PXM; // find platform just below
-    let best=tower.plats[0]; for(const p of tower.plats){ if(p.topY<=y+40 && p.topY>best.topY-1e9 && p.topY>=y-200) best=p; }
-    // snap to nearest platform by altitude
-    let near=tower.plats[0],bd=1e9; for(const p of tower.plats){ const d=Math.abs(p.topY-y); if(d<bd){bd=d;near=p;} }
-    player.x=near.x; player.y=near.topY; player.vx=player.vy=0; player.grounded=true; player.on=near;
-    cam.y=player.y-CH/scale*0.42; curM=-player.y/PXM; return this.state(); },
-  setEnergy(n){ player.energy=Math.max(0,Math.min(cfg.ENERGY_MAX,n)); updateEnergyUI(); return player.energy; },
-  jump(c){ pressJump(); if(c){ charge=c; chargeStart=nowT-c*cfg.chargeMax; } setTimeout(()=>releaseJump(), c?(c*cfg.chargeMax*1000+20):20); },
-  openStudy, closeStudy, toggleStudy,
-  answer(i){ const c=document.getElementById("qChips").children[i]; if(c)c.click(); },
-  freeze(b){ qaFreeze=!!b; return qaFreeze; },
-  gen:genTower, validate:validateTower, simReach, maxReach, TYPES,
-  runGenTest(n=200){
-    let fails=0, firstFail=null; const r=mulberry32(999);
-    for(let i=0;i<n;i++){ const s=(r()*2**31)>>>0; const tw=genTower(s); const v=validateTower(tw);
-      if(!v.ok){ fails++; if(!firstFail)firstFail={seed:s,at:v.at}; } }
-    const res={tested:n, fails, firstFail}; return res; },
+  state:()=>({mode,m:+curM.toFixed(2),energy:+P.energy.toFixed(3),grounded:P.grounded,
+    x:+P.x.toFixed(1),y:+P.y.toFixed(1),seed,plats:tower?.plats.length??0,
+    path:tower?.path.length??0,answered:study.answered,frozen}),
+  teleport(m){const y=-m*PXM;let b=tower.path[0],bd=1e9;
+    for(const p of tower.path){const d=Math.abs(p.y-y);if(d<bd){bd=d;b=p;}}
+    P.x=px(b);P.y=b.y;P.vx=P.vy=0;P.grounded=true;P.on=b;P.jumped=false;
+    curM=-P.y/PXM;camY=P.y-CH/scale*0.58;
+    camX=viewW>=W?W/2:Math.max(viewW/2,Math.min(W-viewW/2,P.x));
+    return this.state();},
+  setEnergy(n){P.energy=Math.max(0,Math.min(PH.EMAX,n));energyUI();return P.energy;},
+  press:pressJump,release:releaseJump,
+  doJump:(f,s)=>doJump(f,s),
+  step(t){let n=Math.round(t*120);while(n-->0)step(1/120);return this.state();},
+  freeze(b){frozen=!!b;return frozen;},
+  openStudy,closeStudy,
+  answer:i=>answer(i),
+  chips:()=>study.q?{prompt:document.getElementById("qPrompt").textContent,
+    chips:study.q.chips,correct:study.q.corr}:null,
+  gen:genTower,validate:validateTower,simJump,runGenTest,
+  missed:()=>[...missed.keys()],
 };
 
-//==================================================================
-// BOOT + QA SCENES
-//==================================================================
-resize();
-requestAnimationFrame(frame);
-
-const params=new URLSearchParams(location.search);
-const qa=params.get("qa");
-const seedP=params.get("seed");
-const fixedSeed = seedP!=null ? (parseInt(seedP,10)>>>0) : 20260610;
-
-function gentestScene(){
-  const out=document.getElementById("qaout"); out.style.display="block";
-  const res=window.__VC.runGenTest(parseInt(params.get("n")||"200",10));
-  out.textContent="GENTEST "+(res.fails===0?"PASS":"FAIL")+"\n"+JSON.stringify(res,null,1);
-  document.title=(res.fails===0?"PASS ":"FAIL ")+res.tested+" towers, "+res.fails+" fails";
+/* =================================================================
+   BOOT + ?qa= scenes
+================================================================= */
+fit();requestAnimationFrame(frame);
+const Q=new URLSearchParams(location.search);
+const qaMode=Q.get("qa"),qaSeed=Q.get("seed")!=null?+Q.get("seed")>>>0:20260611;
+if(qaMode==="gentest"){
+  const n=+(Q.get("n")||200);
+  const res=runGenTest(n);
+  const out=document.getElementById("qaout");out.style.display="block";
+  out.textContent=`GENTEST ${res.fails===0?"PASS":"FAIL"}\n`+JSON.stringify(res,null,1);
+  document.title=`${res.fails===0?"PASS":"FAIL"} ${res.tested} towers ${res.fails} fails`;
   console.log("GENTEST",res);
-}
-
-if(qa){
-  if(qa==="gentest"){ gentestScene(); }
-  else if(qa==="start"){ /* default start screen */ }
-  else if(qa==="summit"){
-    startGame(fixedSeed); paused=true;
-    player.energy=5; winSummit();
-  }
-  else if(qa==="study"){
-    startGame(fixedSeed);
-    __VC.teleport(38); player.energy=2; updateEnergyUI();
-    openStudy();
-  }
-  else if(qa==="scene"){
-    startGame(fixedSeed);
-    __VC.teleport(40); player.energy=4; updateEnergyUI();
-    qaFreeze=true;
-  }
-}
+}else if(qaMode==="scene"){newGame(qaSeed);__VC.teleport(42);__VC.setEnergy(4.33);__VC.freeze(true);}
+else if(qaMode==="study"){newGame(qaSeed);__VC.teleport(30);__VC.setEnergy(2);openStudy();}
+else if(qaMode==="summit"){newGame(qaSeed);__VC.teleport(118);runT=247;winSummit();}
+else if(qaMode==="low"){newGame(qaSeed);__VC.teleport(6);__VC.setEnergy(7);__VC.freeze(true);}
 })();
 </script>
 </body>

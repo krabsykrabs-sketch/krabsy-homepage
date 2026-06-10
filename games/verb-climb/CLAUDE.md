@@ -188,65 +188,73 @@ difficulty can ramp with altitude.
 ## Status log
 
 - 2026-06-10 — Brief written by the master session. Nothing built yet.
-- 2026-06-10 — **PoC built & verified.** `krabsy-verb-climb.html` is a complete,
-  self-contained build (single file, ~50 KB, zero external assets bar Google
-  Fonts; canvas 2D + WebAudio synth). Implements the full core loop, the feel
-  checklist, 24 object types with hand-authored collision profiles, a
-  reachability-validated procedural generator, study mode, summit, and the
-  day→dusk sky spectacle. Curated 55 common verbs inlined (canonical forms
-  pulled from `../../content/irregular-verbs.json`).
+- 2026-06-10 — First build attempt **rejected by the owner** and replaced.
+  Fatal design flaw: the playfield was a narrow ~420 px column, so platforms
+  stacked into a "chimney shaft" — every jump was straight up, horizontal
+  movement barely mattered, and a missed jump was instantly caught by the
+  platform right below (falls were toothless). Lesson recorded for future
+  sessions: **the strip must be wide and the path must zigzag with enforced
+  horizontal clearance, or the whole risk economy collapses.**
+- 2026-06-10 — **Rebuilt from scratch & verified.** `krabsy-verb-climb.html`
+  (single file, ~38 KB, canvas 2D + WebAudio synth, no external assets beyond
+  Google Fonts). Key design decisions of the rebuild:
 
-  **What's done vs. the brief**
-  - Core loop ✓ — 8-segment energy; standard jump costs ⅓, charge jump costs
-    a full segment; at 0 energy you walk/study but can't jump (parked, never
-    stuck); study refuels +1 per correct answer, stop anytime.
-  - Movement ✓ — variable-height jump via hold-to-charge (one continuous
-    charge→strength curve; <0.5 charge = standard cost, ≥0.5 = charge cost,
-    auto-caps to standard if you can't afford a charge), full air control, no
-    double jump, coyote time (90 ms), jump buffering (130 ms), squash/stretch,
-    dust puffs, capped fall speed, "wheee" slide-whistle on long falls.
-  - Objects ✓ — 24 emoji types, code-drawn shadow + white surface accent so
-    they read solid; collision kinds: flat / slope (slide off roof) / dome
-    (wobbles, e.g. cat) / tiny perch (flower, umbrella) / hole (fall through
-    donut) / drift (the duck slides sideways).
-  - Generator ✓ — seeded (mulberry32), difficulty ramps with altitude, bottom
-    20 m is tutorial-easy, rest shelves every 25 m, summit at 120 m.
-    **Invariant proven: 400 random towers, 0 unreachable main-path gaps**
-    (`?qa=gentest&n=400` → "GENTEST PASS"). Reachability is sampled against the
-    real standard-jump physics (`simReach`).
-  - Questions ✓ — MC simple-past / past-participle, plausible distractors
-    (regularized "goed", swapped form, similar verb), form-colour convention
-    (base amber / past teal / participle coral), missed verbs recapped on the
-    summit screen as the learning review.
-  - Tone/look ✓ — Krabsy palette + Fredoka/Nunito, bright sky shading to
-    dusk+stars near the top, confetti + crab at the summit. Start / study /
-    summit screens in house style. Mute + best-height + summit-time persisted.
+  **Layout (the fix that matters)**
+  - Wide 880 px logical strip, scaled to the screen (camera follows x too on
+    narrow viewports).
+  - The generator builds a **zigzag path**: each platform is placed with a
+    REQUIRED edge-to-edge horizontal clearance from the previous one (clearance
+    grows with altitude), in directional "legs" of 2–4 steps that fold back at
+    the walls. Measured across 20 towers / 809 jumps: median horizontal offset
+    between consecutive platforms ≈ 224 px (≈7 m), only 2.1 % of jumps under
+    80 px (summit hop + wall fold-backs); 69 % of platforms have NOTHING within
+    6 m directly below — falls find real air. Full-width cloud "rest shelves"
+    every ~24 m cap the damage (max loss ≈ one shelf gap).
+  - Walking off an edge at 60 m in testing fell 8 m before landing.
 
-  **Verification performed** (serve this folder statically; proven workaround
-  for the hanging preview screenshot = headless Edge + `?qa=` scenes):
-  - `?qa=gentest&n=400` → PASS (generator invariant).
-  - Drove the loop via `window.__VC` in a real renderer: jump deducts ⅓
-    (standard) / 1 (charge) / caps to standard when broke; dry = parked;
-    correct answer +1; wrong answer shows the chain + no refill; charge
-    threshold logic all correct.
-  - Confirmed canvas emoji rasterize in **full colour** in a real browser
-    (pixel-sampled 🌸/🐱/🍩/🛋️ ≈ 90–98 % saturated). NOTE: headless Edge with
-    `--disable-gpu` renders canvas emoji *desaturated* — that's a screenshot
-    artifact, not the in-browser look.
-  - Zero console errors on plain + all `?qa=` loads.
-  - `?qa=` scenes: `start`, `scene` (frozen mid-climb), `study`, `summit`,
-    `gentest`. `?seed=N` fixes the seed; `window.__VC` exposes
-    teleport/setEnergy/jump/openStudy/answer/state/runGenTest/validate.
+  **Mechanics**
+  - 8-segment energy; standard jump ⅓, charge jump 1 full segment; at 0 you
+    can walk + study but not jump; study (+Q / 💡 while grounded) gives +1 per
+    correct answer; stop anytime.
+  - Jump model: jump fires on key RELEASE; hold ≤0.18 s = standard (height
+    scales with hold — release early = lower), holding past 0.18 s visibly
+    enters charge mode (crab squats, ring fills ~0.6 s, charge whine) and
+    locks walking — release launches a Jump-King-style aimed leap (hold ←/→
+    to aim). Can't afford a charge → capped to max standard.
+  - Coyote 90 ms, buffer 130 ms, squash/stretch, edge-landing wobble, dust,
+    capped fall, "wheee/aaaah/not again!" + slide whistle past 8 m of falling,
+    dizzy stars after big landings.
+  - 25 emoji object types with authored collision: flat / slope (house, tent —
+    slide off unless near ridge) / dome (cat + pig wobble) / hole (donut,
+    lifebuoy) / drift (duck, bonus-only, never on the main path) / tiny
+    perches; one-way platforms (pass from below, land from above).
+  - Questions: past/participle MC, distractors = regularized form + swapped
+    form + other verb's form; base amber / past teal / participle coral;
+    missed verbs recapped on the summit card. 55 verbs inlined
+    (frequency-ordered, canonical forms from `../../content/`), selection
+    window widens with altitude.
+  - Summit at 120 m: night sky + confetti + time + seed; "new tower" / "same
+    tower" replay. Persistence: `krabsy_vclimb_best`, `krabsy_vclimb_summit`,
+    `krabsy_vclimb_sound`.
 
-  **Fixed during the session:** canvas sized 0 when the inline script ran
-  before layout (no resize event ever fired) — the render loop now re-syncs
-  size each frame, so it's robust to container resizes too.
+  **Verification (all passed)**
+  - Generator invariant: `?qa=gentest&n=300` → **PASS, 300 towers, 0
+    unreachable gaps**. Validator `simJump` re-simulates every consecutive
+    path pair with conservative margins (97 % jump power, 92 % air accel,
+    bang-bang steering with braking) — if the sim makes it, a kid can.
+  - Logic driven via `window.__VC` (incl. a RAF-independent `step(seconds)`
+    so tests work in throttled background tabs): tap −⅓; held 0.5 s −1;
+    1-segment budget = exactly 3 jumps then parked-not-stuck; broke + full
+    hold = capped standard; study correct +1, wrong = chain toast + missed
+    list + no refill; full dry→study→climb loop green.
+  - Zero console errors. QA scenes: `?qa=start|low|scene|study|summit|gentest`,
+    `?seed=N`. NOTE for future sessions: headless Edge (`--disable-gpu`)
+    renders canvas emoji desaturated — screenshot artifact only; real-browser
+    canvas emoji verified full-colour earlier (pixel-sampled 90–98 %
+    saturation). Edge can't write screenshots to UNC paths — write to a local
+    tmp dir and copy in.
+  - `.claude/launch.json` serves this folder on :8139 for the preview tool.
 
-  **Known limitations / next ideas:** touch controls are present but
-  desktop-first as specified; real-time multi-frame play wasn't auto-driven
-  (preview RAF throttles in a background tab) but physics constants are shared
-  with the proven `simReach` validator. A `.claude/launch.json` (port 8139)
-  was added for one-command local preview in future sessions.
-
-  Ready for master-session review & release (wrapper pages + `games.json` +
-  JSON-LD + sitemap).
+  **Open items:** touch controls present but untested on a real device
+  (desktop-first per brief); difficulty curve worth a human playtest pass
+  (charge-jump tuning at high altitude). Ready for master-session review.
