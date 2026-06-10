@@ -258,3 +258,66 @@ difficulty can ramp with altitude.
   **Open items:** touch controls present but untested on a real device
   (desktop-first per brief); difficulty curve worth a human playtest pass
   (charge-jump tuning at high altitude). Ready for master-session review.
+- 2026-06-10 — Second build **rejected by the owner** too. Diagnosis: the
+  emoji objects were decoration behind thin platform lines (not the thing
+  you climb), and the charge jump out-jumped the whole level (straight up
+  past everything). Owner reference: **Gimkit's "Don't Look Down"** — climb
+  up the BODIES of giant objects, several jumps per object.
+- 2026-06-10 — **v3 rebuilt around solid giant objects & verified.**
+  `krabsy-verb-climb.html` (~52 KB, same Krabsy single-file conventions).
+
+  **Core redesign**
+  - Objects ARE the terrain: each is a giant solid (6–14× the crab) with
+    full side/top/bottom collision (AABB boxes + slope "roofs"), authored
+    per type as climbing TIERS: cake = 3 tiers, snowman = 3 balls,
+    books = 4 staggered steps, sofa = seat→armrest→backrest→lamp,
+    giraffe = back→neck→head (glyph faces LEFT — boxes follow),
+    house = porch→body→roof-slope→ridge-cap, moai = nose→brow→crown,
+    bus/bath = bumper/faucet entries. 12 route types + tent (decor-only),
+    cloud shelf / puff / summit deck as one-way utility platforms.
+  - One object = 2–4 jumps. Charge jump capped: apex rise measured 208 px
+    < shortest object (230 px) — it can cross gaps but NEVER skip an
+    object. Air drag when gliding (release = soft brake) so kids can land
+    on ledges without counter-steering.
+  - Generator: chains objects side-by-side (zigzag legs), entry tier one
+    std jump above the previous stand point; every link verified with a
+    conservative full-collision sim (`simJumpEx` + `reach`: ≤3 chained
+    jumps, landing at/above target height counts — intermediate landings
+    are progress). Each new placement re-verifies all spatially-near links
+    so later objects can't break earlier routes. Rest shelves every ~30 m.
+
+  **Hard-won lessons (do not relearn)**
+  - Utility platforms must be placed by their TOP surface, not base
+    (the 42 px shelf height made links unreachable).
+  - Full-width solid shelves block the jump from below — utility clouds
+    must be one-way (no side block, no head bonk).
+  - The validator's single greedy jump is too strict in a crowded world:
+    landing on an overhanging neighbor ABOVE the target is progress, not
+    failure (reach()'s at/above-height rule). Without it ~50 % of valid
+    towers "fail".
+  - A tier <30 px above the previous is decoration, not a climb link
+    (the cat's tail is 4 px above its head — never chain it).
+  - Pure-slope objects (tent) are sim-passable but miserable to recover
+    on after landing on the slope; flat ridge caps on house help, tent
+    pulled from the route pool entirely.
+  - Glyph alignment: tune collider boxes against `?qa=gallery&debug=1`
+    (3 pages via `&from=0|4|8`) — colliders red, surfaces green, roofs
+    orange. Segoe UI Emoji is the reference font.
+
+  **Verification (all passed)**
+  - GENTEST: 40 towers in-page + 100 headless, 0 unreachable links.
+  - **An auto-climber driving the real player physics (walk + jump +
+    mid-air steering via `__VC.keys`/`step`) climbed an entire tower
+    ground→summit in 37 jumps** — the summit screen triggered by actually
+    landing on the deck. This is the test that caught the tent problem;
+    keep using it.
+  - Side collision (walking into an object stops you), head bonk,
+    multi-tier cake climb (3 tiers with player physics), costs (⅓ std /
+    1 charge / capped when broke / parked at 0), study (+1 correct,
+    chain + missed-list on wrong) — all verified via `__VC`.
+  - Zero console errors. QA: `?qa=low|scene|study|summit|gentest&n=|
+    gallery&from=&debug=1`, `?seed=N`.
+
+  **Open items:** human playtest for difficulty feel; touch on real
+  device; maybe 2–3 more object types (train, elephant, whale as wide
+  rest objects). Ready for master-session review.

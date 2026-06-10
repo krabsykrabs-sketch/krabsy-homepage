@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Verb Climb 🦀 — Krabsy</title>
-<meta name="description" content="Climb a tower of floating nonsense objects. Jumps cost energy — irregular verbs refuel it!">
+<meta name="description" content="Climb giant floating objects — snowmen, pianos, giraffes. Jumps cost energy, irregular verbs refuel it!">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -21,7 +21,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9fd9f6;
   -webkit-user-select:none;user-select:none;touch-action:none}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 
-/* ---------- HUD ---------- */
 #hud{position:fixed;inset:0;pointer-events:none;font-weight:800}
 #energyBox{position:absolute;top:max(10px,env(safe-area-inset-top));left:50%;
   transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -38,8 +37,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 
 #meter{position:absolute;right:max(8px,env(safe-area-inset-right));top:50%;
   transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
-#meterTrack{position:relative;width:9px;height:46vh;background:rgba(255,255,255,.5);
-  border-radius:6px}
+#meterTrack{position:relative;width:9px;height:46vh;background:rgba(255,255,255,.5);border-radius:6px}
 #meterFill{position:absolute;left:0;right:0;bottom:0;height:0%;border-radius:6px;
   background:linear-gradient(180deg,var(--coral),var(--amber))}
 #meterYou{position:absolute;left:-7px;width:23px;text-align:center;font-size:13px;bottom:0;
@@ -64,7 +62,6 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #chipStudy.dim{opacity:.55}
 @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(255,207,94,.4),var(--shadow)}}
 
-/* ---------- touch pads ---------- */
 #touch{position:fixed;inset:0;pointer-events:none;display:none}
 .pad{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));width:72px;height:72px;border:none;
   border-radius:50%;background:rgba(255,255,255,.5);box-shadow:var(--shadow);font-size:28px;
@@ -75,7 +72,6 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 body.touch #touch{display:block}
 body.touch #chipStudy{bottom:max(112px,calc(env(safe-area-inset-bottom) + 100px))}
 
-/* ---------- overlays ---------- */
 .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
 .ov.on{display:flex}
 .card{background:var(--card);border-radius:26px;box-shadow:var(--shadow);max-width:440px;width:100%;
@@ -102,7 +98,6 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 .statline{font-weight:800;font-size:15px;margin:8px 0}
 .bestnote{font-size:13px;color:var(--ink2);margin-top:10px}
 
-/* study */
 #qForm{font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--ink2)}
 #qBar{display:flex;gap:4px;justify-content:center;margin:8px 0 12px}
 #qBar .s{width:22px;height:10px;border-radius:4px;background:rgba(30,45,61,.15)}
@@ -122,7 +117,6 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 #qInfo{font-size:13px;color:var(--ink2);margin:2px 0 10px}
 .missline{font-weight:800;font-size:16px;margin:3px 0}
 
-/* fx layer */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:25;overflow:hidden}
 .float1{position:absolute;font-family:'Fredoka One';font-size:26px;color:#11a883;
   text-shadow:0 2px 8px rgba(255,255,255,.9);animation:up1 1s forwards}
@@ -170,15 +164,16 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 
 <!-- START -->
 <div class="ov on" id="ovMenu"><div class="card">
-  <div class="mascot">🦀☁️🎹</div>
+  <div class="mascot">🦀☃️🦒</div>
   <h1>Verb Climb</h1>
-  <p class="sub">A tower of floating nonsense — pianos, cats, teapots — hangs in the sky.
-  Jump from object to object and reach the summit at <b>120&nbsp;m</b>!</p>
+  <p class="sub">Giant nonsense objects float in the sky — snowmen, buses, giraffes, birthday
+  cakes. <b>Climb up them</b>, ledge by ledge, to the summit at <b>120&nbsp;m</b>!</p>
   <div class="rows">
     <div class="row"><span class="ic">🏃</span><span><b>Move</b>&nbsp; <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
-    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> it to charge a giant leap (costs more!)</span></div>
-    <div class="row"><span class="ic">⚡</span><span>Every jump <b>costs energy</b>. Refill it with <b>verb questions</b>: press <span class="kbd">Q</span> while standing.</span></div>
-    <div class="row"><span class="ic">🪂</span><span>Miss a jump → you <b>tumble down</b>. Lost height is the only price — you can never die.</span></div>
+    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> to charge a long leap (costs 3×!)</span></div>
+    <div class="row"><span class="ic">🧗</span><span>Big objects take <b>several jumps</b> to climb — find the ledges: armrests, cake tiers, a giraffe's neck…</span></div>
+    <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b>. Refill with <b>verb questions</b>: <span class="kbd">Q</span> while standing.</span></div>
+    <div class="row"><span class="ic">🪂</span><span>Fall and you <b>tumble back down</b> the tower. Height is the only thing you can lose.</span></div>
   </div>
   <div class="legend"><span class="lch b">base</span><span class="lch p">simple past</span><span class="lch q">past participle</span></div>
   <button class="big" id="btnPlay">Climb! 🧗</button>
@@ -209,7 +204,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 <div class="ov" id="ovSummit"><div class="card">
   <div class="mascot">🦀🎉🚩</div>
   <h1>SUMMIT!</h1>
-  <p class="sub">120 m of flying furniture conquered!</p>
+  <p class="sub">You climbed every last giraffe!</p>
   <div class="statline" id="sumStats"></div>
   <div id="sumMiss"></div>
   <button class="big" id="btnAgain">New tower 🎲</button><br>
@@ -222,25 +217,23 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 "use strict";
 (()=>{
 /* =================================================================
-   VERB CLIMB — wide-strip precision climber.
-   Design pillars:
-   • The path ZIGZAGS across a wide strip: every platform is placed
-     with a REQUIRED horizontal clearance from the previous one, so
-     every jump needs horizontal control and a missed jump finds
-     mostly empty air below (the path is off to the side).
-   • Rest shelves span the strip every ~24 m and cap the damage.
+   VERB CLIMB v3 — "Don't Look Down" structure:
+   • Each object is a GIANT SOLID — full side/top/bottom collision.
+     You cannot pass through it; you climb its authored features
+     (cake tiers, a snowman's three balls, sofa seat→arm→lamp).
+   • One object = several player-heights tall = several jumps.
+   • Charge jump is longer, barely higher — it crosses gaps but can
+     never skip an object.
    • Jumps cost energy; irregular-verb questions refill it.
 ================================================================= */
+const W=1000, WALLX=22, PXM=32, SUMMIT_M=120;
+const PH={ g:2500, v0std:870, v0chg:1100, vmax:345, aimV:400,
+  acc:2900, accAir:2100, fric:3200, maxFall:1250,
+  stdT:0.18, fullT:0.75, coyote:0.09, buffer:0.13,
+  costStd:1/3, costChg:1, EMAX:8,
+  pw:26, ph:34 };
 
-/* ---------- constants ---------- */
-const W=880, WALLX=22, PXM=32, SUMMIT_M=120;
-const PH={ g:2500, v0std:830, v0chg:1290, vmax:345,
-  acc:2900, accAir:2100, fric:3200, maxFall:1280,
-  stdT:0.18, fullT:0.78,            // hold ≤stdT = standard, beyond charges up to fullT
-  coyote:0.09, buffer:0.13,
-  costStd:1/3, costChg:1, EMAX:8 };
-
-/* ---------- verbs (canonical forms, frequency-ordered) ---------- */
+/* ---------- verbs ---------- */
 const VERBS=[
 {v:"go",p:"went",q:"gone"},{v:"get",p:"got",q:"got"},{v:"make",p:"made",q:"made"},
 {v:"see",p:"saw",q:"seen"},{v:"come",p:"came",q:"come"},{v:"take",p:"took",q:"taken"},
@@ -262,171 +255,353 @@ const VERBS=[
 {v:"spend",p:"spent",q:"spent"},{v:"do",p:"did",q:"done"},{v:"have",p:"had",q:"had"},
 {v:"be",p:"was",q:"been"}];
 
-/* ---------- object catalogue (collision authored per type) ---------- */
-const TYPES={
- piano:{e:"🎹",fs:130,hw:128,kind:"flat",tier:0},
- sofa:{e:"🛋️",fs:120,hw:110,kind:"flat",tier:0},
- bath:{e:"🛁",fs:112,hw:100,kind:"flat",tier:0},
- bed:{e:"🛏️",fs:122,hw:116,kind:"flat",tier:0},
- books:{e:"📚",fs:92,hw:62,kind:"flat",tier:1},
- box:{e:"📦",fs:88,hw:58,kind:"flat",tier:1},
- cake:{e:"🎂",fs:88,hw:52,kind:"flat",tier:1},
- teapot:{e:"🫖",fs:86,hw:50,kind:"flat",tier:1},
- gift:{e:"🎁",fs:84,hw:50,kind:"flat",tier:1},
- bike:{e:"🚲",fs:96,hw:62,kind:"flat",tier:1},
- house:{e:"🏠",fs:104,hw:66,kind:"slope",sl:.58,tier:2},
- tent:{e:"⛺",fs:98,hw:60,kind:"slope",sl:.72,tier:2},
- cat:{e:"🐱",fs:100,hw:56,kind:"dome",dm:.55,wob:1,tier:2},
- pig:{e:"🐷",fs:96,hw:52,kind:"dome",dm:.5,wob:1,tier:2},
- burger:{e:"🍔",fs:84,hw:46,kind:"dome",dm:.45,tier:2},
- donut:{e:"🍩",fs:92,hw:52,kind:"hole",hr:15,tier:2},
- ring:{e:"🛟",fs:90,hw:50,kind:"hole",hr:16,tier:2},
- guitar:{e:"🎸",fs:96,hw:40,kind:"flat",tier:2},
- chair:{e:"🪑",fs:84,hw:38,kind:"flat",tier:2},
- flower:{e:"🌸",fs:76,hw:20,kind:"flat",tier:3},
- umbrella:{e:"☂️",fs:84,hw:17,kind:"flat",tier:3},
- mushroom:{e:"🍄",fs:78,hw:22,kind:"flat",tier:3},
- icecream:{e:"🍦",fs:80,hw:16,kind:"flat",tier:3},
- cactus:{e:"🌵",fs:82,hw:18,kind:"flat",tier:3},
- duck:{e:"🦆",fs:92,hw:48,kind:"drift",amp:52,spd:.55,tier:3},   // bonus-only
- shelf:{e:"",fs:0,hw:418,kind:"flat",tier:0},                     // code-drawn rest shelf
- ground:{e:"",fs:0,hw:W/2,kind:"flat",tier:0},
- summit:{e:"",fs:0,hw:150,kind:"flat",tier:0}};
+/* =================================================================
+   OBJECT CATALOGUE
+   Local coords: x relative to object centre, y relative to its BASE
+   (negative = up). boxes are SOLID. Exposed top segments of boxes
+   become standable surfaces; "roof" adds a slide-y slope surface.
+   tiers = the intended climbing order (each rise ≤ ~130 px,
+   reachable by one standard jump — proven by the generator sim).
+   glyph: emoji + fit params (tuned against Segoe UI Emoji).
+================================================================= */
+const OBJ={
+ bus:{e:"🚌",w:460,h:270,tier:0,
+   boxes:[{l:-230,t:-240,w:460,h:175},{l:192,t:-108,w:58,h:44}],
+   g:{sx:4.9,sy:2.9,oy:6}},
+ sofa:{e:"🛋️",w:400,h:310,tier:0,
+   boxes:[{l:-205,t:-112,w:340,h:112},{l:60,t:-175,w:75,h:65},
+          {l:-205,t:-230,w:105,h:118},{l:30,t:-298,w:95,h:18}],
+   g:{sx:4.4,sy:3.4,oy:4}},
+ cake:{e:"🎂",w:300,h:300,tier:0,
+   boxes:[{l:-150,t:-110,w:300,h:110},{l:-100,t:-205,w:200,h:95},
+          {l:-60,t:-278,w:120,h:73}],
+   g:{sx:3.3,sy:3.3,oy:4}},
+ books:{e:"📚",w:300,h:310,tier:0,
+   boxes:[{l:-150,t:-85,w:300,h:85},{l:-95,t:-160,w:245,h:75},
+          {l:-95,t:-235,w:190,h:75},{l:-40,t:-305,w:135,h:70}],
+   g:{sx:3.4,sy:3.4,oy:6}},
+ bath:{e:"🛁",w:340,h:230,tier:0,
+   boxes:[{l:-170,t:-150,w:340,h:150},{l:-208,t:-222,w:62,h:34}],
+   g:{sx:3.8,sy:2.6,oy:4}},
+ snowman:{e:"☃️",w:240,h:380,tier:1,
+   boxes:[{l:-120,t:-140,w:240,h:140},{l:-85,t:-255,w:170,h:115},
+          {l:-45,t:-380,w:90,h:125}],
+   g:{sx:2.8,sy:4.1,oy:4}},
+ teapot:{e:"🫖",w:330,h:285,tier:1,
+   boxes:[{l:-160,t:-190,w:290,h:190},{l:-55,t:-285,w:110,h:95},
+          {l:-195,t:-218,w:60,h:24}],
+   g:{sx:3.7,sy:3.2,oy:4}},
+ cat:{e:"🐈",w:380,h:285,tier:1,
+   boxes:[{l:-140,t:-180,w:280,h:140},{l:118,t:-258,w:108,h:80},
+          {l:-188,t:-262,w:52,h:26}],
+   g:{sx:4.2,sy:3.2,oy:4}},
+ house:{e:"🏠",w:400,h:385,tier:1,
+   boxes:[{l:-160,t:-225,w:320,h:225},{l:-218,t:-132,w:62,h:28},
+          {l:-25,t:-390,w:50,h:16}],          // flat ridge cap on the roof peak
+   roof:{rx:0,ry:-385,half:200,k:0.8},
+   g:{sx:4.4,sy:4.2,oy:6}},
+ giraffe:{e:"🦒",w:300,h:465,tier:2,
+   boxes:[{l:-145,t:-285,w:150,h:130},{l:-85,t:-380,w:80,h:95},
+          {l:-140,t:-465,w:90,h:90}],
+   g:{sx:3.3,sy:5.0,oy:4}},
+ mushroom:{e:"🍄",w:300,h:305,tier:2,
+   boxes:[{l:-60,t:-175,w:120,h:175}],
+   roof:{rx:0,ry:-305,half:150,k:0.52},
+   g:{sx:3.3,sy:3.4,oy:4}},
+ moai:{e:"🗿",w:250,h:425,tier:2,
+   boxes:[{l:-122,t:-425,w:244,h:425},{l:-168,t:-262,w:48,h:30},
+          {l:-156,t:-348,w:40,h:24}],
+   g:{sx:2.9,sy:4.7,oy:6}},
+ tent:{e:"⛺",w:360,h:300,tier:2,
+   boxes:[{l:-30,t:-302,w:60,h:16}],          // flat ridge beam — stable peak
+   roof:{rx:0,ry:-300,half:180,k:1.1},
+   g:{sx:4.0,sy:3.4,oy:6}},
+ /* utility (code-drawn) */
+ shelf:{w:W-2*WALLX,h:42,tier:0,boxes:[{l:-(W/2-WALLX),t:-42,w:W-2*WALLX,h:42}],util:1},
+ puff:{w:120,h:30,tier:0,boxes:[{l:-60,t:-30,w:120,h:30}],util:1},
+ deck:{w:340,h:34,tier:0,boxes:[{l:-170,t:-34,w:340,h:34}],util:1},
+};
+/* tent stays defined but is NOT a route object: a pure slope with one
+   tiny cap proved miserable to recover on (playtest via auto-climber) */
+const CLIMB_KEYS=["bus","sofa","cake","books","bath","snowman","teapot","cat","house",
+  "giraffe","mushroom","moai"];
 
-/* ---------- seeded rng ---------- */
+/* ---------- derive surfaces (exposed box tops + roof) per type ---------- */
+for(const k in OBJ){
+  const o=OBJ[k], surfs=[];
+  for(const b of o.boxes){
+    /* exposed top of b = its span minus spans of boxes whose top is higher
+       and that reach down to b's top (i.e. sit on it) */
+    let segs=[[b.l,b.l+b.w]];
+    for(const c of o.boxes){
+      if(c===b||c.t>=b.t)continue;            // c.t<b.t = c top is higher
+      if(c.t+c.h<b.t-4)continue;              // c doesn't reach down to b's top
+      const cl=c.l,cr=c.l+c.w,out=[];
+      for(const[s0,s1]of segs){
+        if(cr<=s0||cl>=s1){out.push([s0,s1]);continue;}
+        if(cl>s0)out.push([s0,cl]);
+        if(cr<s1)out.push([cr,s1]);
+      }
+      segs=out;
+    }
+    for(const[s0,s1]of segs)if(s1-s0>=24)surfs.push({y:b.t,x1:s0,x2:s1});
+  }
+  surfs.sort((a,b)=>b.y-a.y);                  // bottom→top
+  o.surfs=surfs;
+  /* climbing tiers: surfaces in rising order; roof ridge appended */
+  o.tiers=surfs.map(s=>({y:s.y,x:(s.x1+s.x2)/2,x1:s.x1,x2:s.x2,kind:"flat"}));
+  if(o.roof)o.tiers.push({y:o.roof.ry,x:o.roof.rx,x1:o.roof.rx-30,x2:o.roof.rx+30,kind:"roof"});
+  o.top=o.tiers.length?Math.min(...o.tiers.map(t=>t.y)):0;
+}
+
+/* ---------- rng ---------- */
 const mb32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
   t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
 
 /* =================================================================
-   SURFACES & REACHABILITY
+   WORLD: placed objects → world-space solids & surfaces
 ================================================================= */
-let simNow=0; // time source for drifting platforms during play
-const px=p=>p.t==="duck" ? p.x+Math.sin(simNow*TYPES.duck.spd+p.ph0)*TYPES.duck.amp : p.x;
-function surfY(p,wx){               // surface y at world x (null = no solid)
-  const T=TYPES[p.t], dx=wx-px(p);
-  if(Math.abs(dx)>p.hw) return null;
-  if(T.kind==="slope") return p.y+Math.abs(dx)*T.sl;
-  if(T.kind==="dome")  return p.y+(dx*dx/p.hw)*T.dm*.5;
-  if(T.kind==="hole")  return Math.abs(dx)<T.hr ? null : p.y;
-  return p.y;
+function instantiate(key,x,baseY,id){
+  const o=OBJ[key],inst={k:key,x,baseY,id,top:baseY+o.top,bot:baseY};
+  /* util platforms (clouds, deck) are one-way: pass from below, land on top */
+  inst.solids=o.boxes.map(b=>({x1:x+b.l,y1:baseY+b.t,x2:x+b.l+b.w,y2:baseY+b.t+b.h,
+    ow:o.util?1:0,o:inst}));
+  inst.roof=o.roof?{rx:x+o.roof.rx,ry:baseY+o.roof.ry,half:o.roof.half,k:o.roof.k,o:inst}:null;
+  inst.surfs=o.surfs.map(s=>({y:baseY+s.y,x1:x+s.x1,x2:x+s.x2,o:inst}));
+  inst.tiers=o.tiers.map(t=>({y:baseY+t.y,x:x+t.x,x1:x+t.x1,x2:x+t.x2,kind:t.kind,o:inst}));
+  return inst;
 }
-function landTargetX(A,B){          // where to aim on B when coming from A
-  const T=TYPES[B.t];
-  if(T.kind==="hole"){ const s=Math.sign(A.x-B.x)||1; return B.x+s*(T.hr+B.hw)/2; }
-  if(B.hw>200) return Math.max(B.x-B.hw+30,Math.min(B.x+B.hw-30,A.x));
-  return B.x;
+function boxesIntersect(a,b,m){return a.x1<b.x2+m&&a.x2>b.x1-m&&a.y1<b.y2+m&&a.y2>b.y1-m;}
+
+/* roof surface y at world x (null outside span) */
+function roofY(r,wx){const dx=Math.abs(wx-r.rx);return dx>r.half?null:r.ry+dx*r.k;}
+
+/* =================================================================
+   SHARED COLLISION — used by the player AND the generator's sim.
+   ent: {x,y(feet),vx,vy,grounded,on,onRoof}
+================================================================= */
+function collide(ent,dt,objs){
+  const w2=PH.pw/2,h=PH.ph;
+  /* X axis */
+  let nx=ent.x+ent.vx*dt;
+  if(nx<WALLX+w2){nx=WALLX+w2;ent.vx*=-0.2;}
+  if(nx>W-WALLX-w2){nx=W-WALLX-w2;ent.vx*=-0.2;}
+  for(const ob of objs)for(const s of ob.solids){
+    if(s.ow)continue;                                  // one-way: no side block
+    if(ent.y<=s.y1+1||ent.y-h>=s.y2)continue;          // no vertical overlap
+    if(ent.x+w2<=s.x1&&nx+w2>s.x1){nx=s.x1-w2;ent.vx=0;}
+    else if(ent.x-w2>=s.x2&&nx-w2<s.x2){nx=s.x2+w2;ent.vx=0;}
+  }
+  ent.x=nx;
+  /* Y axis */
+  if(!ent.grounded)ent.vy=Math.min(PH.maxFall,ent.vy+PH.g*dt);
+  let ny=ent.y+ent.vy*dt;
+  if(ent.grounded){
+    /* follow current surface / roof, detect walking off */
+    let sy=null;
+    if(ent.onRoof){sy=roofY(ent.onRoof,ent.x);}
+    else if(ent.on){const s=ent.on;sy=(ent.x>=s.x1-w2&&ent.x<=s.x2+w2)?s.y:null;}
+    else if(ent.onGround){sy=ent.x!=null?0:null;}
+    if(sy==null){ent.grounded=false;ent.on=null;ent.onRoof=null;ent.onGround=false;
+      ent.coyT=ent.now??0;ent.jumped=false;ent.takeY=ent.y;ent.apexY=ent.y;ent.wheed=false;}
+    else{ent.y=sy;ent.vy=0;
+      if(ent.onRoof){const r=ent.onRoof,dx=ent.x-r.rx;       // slide!
+        ent.vx+=Math.sign(dx)*PH.g*r.k*0.38*dt;}
+      return;}
+    ny=ent.y+ent.vy*dt;
+  }
+  /* falling: land on surfaces / roofs / ground; rising: head bonk */
+  if(ent.vy>0){
+    let hit=null,hy=1e9;
+    for(const ob of objs){
+      for(const s of ob.surfs){
+        if(ent.x<s.x1-w2+4||ent.x>s.x2+w2-4)continue;
+        if(ent.y<=s.y+2&&ny>=s.y&&s.y<hy){hy=s.y;hit={s};}
+      }
+      if(ob.roof){const ry=roofY(ob.roof,ent.x);
+        if(ry!=null&&ent.y<=ry+2&&ny>=ry&&ry<hy){hy=ry;hit={r:ob.roof};}}
+    }
+    if(ny>=0&&ent.y<=2){hy=0;hit={g:1};}
+    if(hit){ent.y=hy;ent.vy=0;ent.grounded=true;
+      ent.on=hit.s||null;ent.onRoof=hit.r||null;ent.onGround=!!hit.g;
+      ent.landed=true;return;}
+  }else if(ent.vy<0){
+    for(const ob of objs)for(const s of ob.solids){
+      if(s.ow)continue;                                // one-way: no head bonk
+      if(ent.x+w2<=s.x1+2||ent.x-w2>=s.x2-2)continue;
+      if(ent.y-h>=s.y2-2&&ny-h<s.y2){ny=s.y2+h;ent.vy=40;break;}
+    }
+  }
+  ent.y=ny;
 }
-/* Conservative jump simulation: stand at A's edge nearest the target,
-   jump with 97% of full standard power, steer toward target with 92%
-   air-accel and brake before arrival. If THIS lands, a kid can too. */
-function simJump(A,B,v0){
-  const tgt=landTargetX(A,B);
-  const tx=Math.max(A.x-A.hw+8,Math.min(A.x+A.hw-8,tgt));
-  let x=tx,y=surfY(A,tx); if(y==null)y=A.y;
-  let vx=0,vy=-(v0??PH.v0std)*0.97;
-  const aA=PH.accAir*0.92, vM=PH.vmax*0.95, dt=1/240, y0=y;
+
+/* =================================================================
+   REACHABILITY SIM — same collision, conservative margins.
+   From surface point (sx,sy) jump toward target tier; succeed if we
+   land on the target's object at ≈ target height.
+================================================================= */
+function simJumpEx(sx,sy,target,objs,v0){
+  const tx=target.kind==="roof"?target.x:
+    Math.max(target.x1+10,Math.min(target.x2-10,target.x));
+  const ent={x:sx,y:sy,vx:0,vy:-(v0??PH.v0std)*0.97,grounded:false,
+    on:null,onRoof:null,onGround:false,now:0,landed:false};
+  const aA=PH.accAir*0.92,vM=PH.vmax*0.95,dt=1/240;
   for(let i=0;i<900;i++){
-    const d=tgt-x;
-    let want=Math.abs(d)>5?Math.sign(d):0;
-    if(want&&Math.sign(vx)===want&&vx*vx/(2*aA)>Math.abs(d)) want=-want;   // brake
-    vx=Math.max(-vM,Math.min(vM,vx+want*aA*dt));
-    vy=Math.min(PH.maxFall,vy+PH.g*dt);
-    const py=y; x+=vx*dt; y+=vy*dt;
-    if(x<WALLX){x=WALLX;vx=0;} if(x>W-WALLX){x=W-WALLX;vx=0;}
-    if(vy>0){ const sy=surfY(B,x); if(sy!=null&&py<=sy+3&&y>=sy) return true; }
-    if(y>y0+540) return false;
+    if(!ent.grounded){
+      const d=tx-ent.x;
+      let want=Math.abs(d)>5?Math.sign(d):0;
+      if(want&&Math.sign(ent.vx)===want&&ent.vx*ent.vx/(2*aA)>Math.abs(d))want=-want;
+      ent.vx=Math.max(-vM,Math.min(vM,ent.vx+want*aA*dt));
+    }
+    ent.landed=false;
+    collide(ent,dt,objs);
+    if(ent.landed){
+      if(Math.abs(ent.y-(target.kind==="roof"?roofY(target.o.roof,ent.x)??1e9:target.y))<6){
+        if(target.kind==="roof"&&ent.onRoof&&ent.onRoof.o===target.o
+           &&Math.abs(ent.x-target.x)<target.o.roof.half*0.55)return {ok:true,x:ent.x,y:ent.y};
+        if(target.kind!=="roof"&&ent.on&&ent.on.o===target.o
+           &&ent.x>=target.x1-8&&ent.x<=target.x2+8)return {ok:true,x:ent.x,y:ent.y};
+      }
+      return {ok:false,land:true,x:ent.x,y:ent.y};   // landed elsewhere — can retry
+    }
+    if(ent.y>sy+560)return {ok:false,land:false};
+  }
+  return {ok:false,land:false};
+}
+/* a link is climbable if ≤3 chained jumps reach the target — or land
+   on ANY standable surface at/above the target's height (that's
+   progress, not failure; intermediate landings just mean jump again) */
+function reach(ax,ay,target,objs,hops=3){
+  let x=ax,y=ay;
+  for(let h=0;h<hops;h++){
+    const r=simJumpEx(x,y,target,objs);
+    if(r.ok)return true;
+    if(!r.land)return false;
+    if(r.y<=target.y+10)return true;                       // landed at/above target height
+    if(Math.abs(r.x-x)<3&&Math.abs(r.y-y)<3)return false;  // stuck
+    x=r.x;y=r.y;
+    if(y>ay+300)return false;                              // fell far below start
   }
   return false;
 }
 
 /* =================================================================
-   TOWER GENERATOR — zigzag path, enforced horizontal clearance
+   TOWER GENERATOR — chain of giant objects, route sim-verified
 ================================================================= */
-function flightT(rise){             // airtime till feet return to +rise (std jump, sim margins)
-  const v0=PH.v0std*0.97, d=v0*v0-2*PH.g*rise;
-  return d<=0?0:(v0+Math.sqrt(d))/PH.g;
-}
-function airDist(T){                // horizontal distance from standstill in time T
-  const vM=PH.vmax*0.95,a=PH.accAir*0.92,t1=vM/a;
-  return T<t1 ? .5*a*T*T : .5*a*t1*t1+vM*(T-t1);
-}
-function pickType(rng,t,tut){
-  const maxTier=tut?0 : t<.32?1 : t<.62?2 : 3;
-  const pool=Object.keys(TYPES).filter(k=>{
-    const T=TYPES[k];
-    return T.tier<=maxTier && !["duck","shelf","ground","summit"].includes(k);});
-  const w=pool.flatMap(k=>Array(TYPES[k].tier===maxTier?2:3).fill(k)); // slight ease bias
-  return w[(rng()*w.length)|0];
-}
 function genTower(seed){
-  const rng=mb32(seed>>>0), plats=[], path=[];
-  const ground={t:"ground",x:W/2,y:0,hw:W/2,id:0};
-  plats.push(ground); path.push(ground);
-  let prev=ground, dir=rng()<.5?-1:1, leg=2+(rng()*3|0), shelfAt=24, n=0;
-  while(prev.y>-(SUMMIT_M*PXM)+130 && ++n<400){
-    const hM=-prev.y/PXM, t=Math.min(1,hM/105), tut=hM<18;
-    /* rest shelf every ~24 m: full-width safety bench */
+  const rng=mb32(seed>>>0);
+  const objs=[],way=[];                       // way = surface waypoints (validation chain)
+  const groundWay={y:0,x:W/2,x1:WALLX,x2:W-WALLX,kind:"ground",o:null};
+  way.push(groundWay);
+  let cur=groundWay;                          // current waypoint (a stand point)
+  let dir=rng()<.5?-1:1, shelfAt=30, puffs=0, n=0;
+  const summitY=-(SUMMIT_M*PXM);
+  while(cur.y>summitY+150&&++n<120){
+    const hM=-cur.y/PXM,t=Math.min(1,hM/105),tut=hM<16;
+    /* rest shelf every ~30 m (one-way full-width cloud) */
     if(hM>=shelfAt){
-      const s={t:"shelf",x:W/2,y:prev.y-(60+rng()*24),hw:TYPES.shelf.hw,id:plats.length};
-      plats.push(s);path.push(s);prev=s;shelfAt+=23+rng()*5;
-      dir=rng()<.5?-1:1;leg=2+(rng()*3|0);continue;
+      /* place by TOP surface: base = cur - rise + platform height */
+      const inst=instantiate("shelf",W/2,cur.y-(96+rng()*30)+42,objs.length);
+      objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];
+      shelfAt+=28+rng()*7;dir=rng()<.5?-1:1;continue;
     }
-    /* zigzag step: pick rise, then DEMAND horizontal clearance */
-    let placed=null;
-    for(let tries=0;tries<60&&!placed;tries++){
-      const rise=tut?54+rng()*32 : Math.min(116,(58+22*t)+rng()*((92+30*t)-(58+22*t)));
-      const maxClear=Math.max(14,airDist(flightT(rise))*0.82-10);
-      const minClear=tut?8:Math.min(maxClear*.75,16+50*t);
-      const clear=minClear+Math.pow(rng(),.8)*(maxClear-minClear);
-      const k=pickType(rng,t,tut), hw=TYPES[k].hw;
-      if(leg<=0){dir=-dir;leg=2+(rng()*3|0);}
-      let x=prev.x+dir*(prev.hw+clear+hw);
-      if(x<WALLX+hw+6||x>W-WALLX-hw-6){           // wall ahead → fold back
-        dir=-dir;leg=2+(rng()*3|0);
-        x=prev.x+dir*(prev.hw+clear+hw);
-        x=Math.max(WALLX+hw+6,Math.min(W-WALLX-hw-6,x));
+    /* pick an object type by difficulty */
+    const pool=CLIMB_KEYS.filter(k=>OBJ[k].tier<=(tut?0:t<.4?1:2));
+    let placed=false;
+    for(let tries=0;tries<70&&!placed;tries++){
+      const key=pool[(rng()*pool.length)|0],o=OBJ[key];
+      /* entry tier = lowest tier; want it one std jump above cur */
+      const entry=o.tiers[0];
+      const rise=(tut?80:95)+rng()*(tut?35:40);
+      const baseY=cur.y-rise-entry.y;          // entry.y negative
+      /* horizontal: place to the side of the current stand point */
+      if(rng()<.25)dir=-dir;
+      const off=(tut?0.45:0.55)+rng()*0.5;
+      let x=cur.x+dir*off*(o.w/2+90+rng()*90);
+      x=Math.max(WALLX+o.w/2+4,Math.min(W-WALLX-o.w/2-4,x));
+      const inst=instantiate(key,x,baseY,objs.length);
+      /* solidity: must not intersect existing solids (corridor margin) */
+      let bad=false;
+      outer:for(const s of inst.solids)
+        for(const ob of objs)for(const s2 of ob.solids)
+          if(boxesIntersect(s,s2,42)){bad=true;break outer;}
+      if(bad){if(tries%10===9)dir=-dir;continue;}
+      /* route: cur → entry tier, then up through every tier — all simmed */
+      const world=[...objs,inst];
+      const sx=Math.max(cur.x1+10,Math.min(cur.x2-10,inst.tiers[0].x));
+      if(!reach(sx,cur.y,inst.tiers[0],world))continue;
+      const climbed=[inst.tiers[0]];
+      let from=inst.tiers[0],okAll=true;
+      for(let i=1;i<inst.tiers.length;i++){
+        const b=inst.tiers[i];
+        if(b.y>=from.y-30)continue;             // <30px rise: decoration, not a climb
+        const ax=Math.max(from.x1+10,Math.min(from.x2-10,b.x));
+        if(!reach(ax,from.y,b,world)){okAll=false;break;}
+        climbed.push(b);from=b;
       }
-      const cand={t:k,x,y:prev.y-rise,hw,id:plats.length};
-      if(simJump(prev,cand)) placed=cand;
+      if(!okAll)continue;
+      /* the new object must not break any verified link near it */
+      const sx1=Math.min(...inst.solids.map(s=>s.x1))-280,
+            sx2=Math.max(...inst.solids.map(s=>s.x2))+280,
+            sy1=inst.top-300,sy2=inst.bot+300;
+      let broke=false;
+      for(let i=0;i<way.length-1&&!broke;i++){
+        const a=way[i],b=way[i+1];
+        if(b.y>=a.y)continue;
+        const nearL=(a.x>=sx1&&a.x<=sx2&&a.y>=sy1&&a.y<=sy2)||
+                    (b.x>=sx1&&b.x<=sx2&&b.y>=sy1&&b.y<=sy2);
+        if(!nearL)continue;
+        const ax=Math.max(a.x1+10,Math.min(a.x2-10,b.x));
+        if(!reach(ax,a.y,b,world))broke=true;
+      }
+      if(broke)continue;
+      objs.push(inst);way.push(...climbed);
+      cur=from;puffs=0;placed=true;
     }
-    if(!placed){ // ultra-rare fallback: small diagonal hop, still offset sideways
-      const x=Math.max(WALLX+68,Math.min(W-WALLX-68,prev.x+dir*(prev.hw+30+62)));
-      placed={t:"books",x,y:prev.y-58,hw:62,id:plats.length};
-      if(!simJump(prev,placed)) placed={t:"books",x:prev.x+dir*90,y:prev.y-54,hw:62,id:plats.length};
-    }
-    plats.push(placed);path.push(placed);prev=placed;leg--;
-    /* occasional duck or sparkle shortcut beside the path (never required) */
-    if(!tut&&rng()<.13){
-      const k=rng()<.5?"duck":"flower";
-      const bx=Math.max(WALLX+70,Math.min(W-WALLX-70,prev.x-dir*(170+rng()*120)));
-      plats.push({t:k,x:bx,y:prev.y-30-rng()*40,hw:TYPES[k].hw,ph0:rng()*6.28,bonus:1,id:plats.length});
+    if(!placed){                                /* connector puff, max 2 in a row */
+      if(puffs>=2){dir=-dir;puffs=0;}
+      const x=Math.max(WALLX+70,Math.min(W-WALLX-70,cur.x+dir*(150+rng()*110)));
+      const inst=instantiate("puff",x,cur.y-(95+rng()*30)+30,objs.length);
+      const world=[...objs,inst];
+      const sx=Math.max(cur.x1+10,Math.min(cur.x2-10,inst.tiers[0].x));
+      if(reach(sx,cur.y,inst.tiers[0],world)){
+        objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];puffs++;
+      }else dir=-dir;
     }
   }
-  const top={t:"summit",x:W/2,y:prev.y-78,hw:TYPES.summit.hw,summit:1,id:plats.length};
-  while(!simJump(prev,top)){        // bridge the final gap if needed
-    const x=Math.max(WALLX+70,Math.min(W-WALLX-70,(prev.x+top.x)/2+(rng()*120-60)));
-    const f={t:"books",x,y:prev.y-60,hw:62,id:plats.length};
-    plats.push(f);path.push(f);prev=f;top.y=Math.min(top.y,prev.y-70);
+  /* summit deck — one jump above the last stand point */
+  let deck=instantiate("deck",Math.max(WALLX+180,Math.min(W-WALLX-180,cur.x)),
+    cur.y-(105+rng()*15)+34,objs.length);
+  {let guard=0;
+   const sx0=()=>Math.max(cur.x1+10,Math.min(cur.x2-10,deck.tiers[0].x));
+   while(!reach(sx0(),cur.y,deck.tiers[0],[...objs,deck])&&guard++<25)
+     deck=instantiate("deck",
+       Math.max(WALLX+180,Math.min(W-WALLX-180,deck.x+(rng()*160-80))),
+       deck.baseY+14,objs.length);
   }
-  plats.push(top);path.push(top);
-  return {seed,plats,path,topY:top.y};
+  deck.summit=1;objs.push(deck);way.push(deck.tiers[0]);
+  return {seed,objs,way,topY:deck.tiers[0].y};
 }
 function validateTower(tw){
-  for(let i=0;i<tw.path.length-1;i++)
-    if(!simJump(tw.path[i],tw.path[i+1])) return {ok:false,at:i};
+  for(let i=0;i<tw.way.length-1;i++){
+    const a=tw.way[i],b=tw.way[i+1];
+    if(b.y>=a.y)continue;                       // sideways/downward links trivial
+    const sx=Math.max(a.x1+10,Math.min(a.x2-10,b.x));
+    if(!reach(sx,a.y,b,tw.objs))return {ok:false,at:i,from:a.o?.k??"ground",to:b.o?.k};
+  }
   return {ok:true};
 }
 function runGenTest(n=200){
-  const r=mb32(424242); let fails=0,first=null;
+  const r=mb32(424242);let fails=0,first=null;
   for(let i=0;i<n;i++){
-    const s=(r()*2**31)>>>0, v=validateTower(genTower(s));
-    if(!v.ok){fails++;first=first||{seed:s,at:v.at};}
+    const s=(r()*2**31)>>>0,v=validateTower(genTower(s));
+    if(!v.ok){fails++;first=first||{seed:s,...v};}
   }
   return {tested:n,fails,first};
 }
 
 /* =================================================================
-   AUDIO — tiny WebAudio synth
+   AUDIO
 ================================================================= */
 const SND={c:null,muted:localStorage.getItem("krabsy_vclimb_sound")==="0",chg:null,
  init(){if(!this.c)try{this.c=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}
@@ -454,34 +629,32 @@ const SND={c:null,muted:localStorage.getItem("krabsy_vclimb_sound")==="0",chg:nu
    this.t(392,.8,"sine",.07,.2);}};
 
 /* =================================================================
-   GAME STATE
+   STATE
 ================================================================= */
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
-let DPR=1,CW=0,CH=0,scale=1,camY=0,camX=W/2,viewW=W;
-let mode="menu";                    // menu | play | study | pause | summit
-let tower=null,seed=(Date.now()&0x7fffffff)>>>0;
-let qrng=mb32(1), recent=[];
-let runT=0,frozen=false;
-const P={x:W/2,y:0,vx:0,vy:0,grounded:true,on:null,face:1,
-  energy:PH.EMAX,sx:1,sy:1,rot:0,wobble:0,dizzy:0,
-  charging:false,chargeT0:0,lockX:false,
-  coyT:-9,buffT:-9,held:false,jumped:false,takeY:0,apexY:0,wheed:false};
+let DPR=1,CW=0,CH=0,scale=1,camY=0,camX=W/2,viewW=W,viewH=900;
+let mode="menu",tower=null,seed=(Date.now()&0x7fffffff)>>>0;
+let qrng=mb32(1),recent=[],runT=0,frozen=false,debug=false;
+let simClock=0;
+const P={x:W/2,y:0,vx:0,vy:0,grounded:true,on:null,onRoof:null,onGround:true,
+  face:1,energy:PH.EMAX,sx:1,sy:1,wobble:0,dizzy:0,
+  charging:false,chargeT0:0,lockX:false,held:false,
+  coyT:-9,buffT:-9,jumped:false,takeY:0,apexY:0,wheed:false,now:0,landed:false};
 const keys={l:false,r:false};
 let dust=[],confetti=[];
 let bestM=+localStorage.getItem("krabsy_vclimb_best")||0;
 let bestT=+localStorage.getItem("krabsy_vclimb_summit")||0;
 let curM=0;
 const missed=new Map();
-let qa=null;
+let study={q:null,locked:false,answered:0};
 
-/* ---------- canvas ---------- */
 function fit(){
   DPR=Math.min(devicePixelRatio||1,2);
   CW=innerWidth;CH=innerHeight;
   cv.width=CW*DPR|0;cv.height=CH*DPR|0;
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  scale=Math.max(CW/W,0.5);
-  viewW=CW/scale;
+  scale=Math.max(0.42,Math.min(CW/1050,CH/950));
+  viewW=CW/scale;viewH=CH/scale;
 }
 addEventListener("resize",fit);
 
@@ -491,47 +664,43 @@ addEventListener("resize",fit);
 function pressJump(){
   SND.init();
   if(mode!=="play")return;
-  const okGround=P.grounded||(simNow-P.coyT<PH.coyote&&!P.jumped);
-  if(okGround){
+  const okG=P.grounded||(simClock-P.coyT<PH.coyote&&!P.jumped);
+  if(okG){
     if(P.energy<PH.costStd-1e-6){deny();return;}
-    if(!P.grounded){doJump(0);return;}        // coyote: instant standard hop
-    P.charging=true;P.chargeT0=simNow;P.lockX=false;
-  } else P.buffT=simNow;
+    if(!P.grounded){doJump(0);return;}
+    P.charging=true;P.chargeT0=simClock;P.lockX=false;
+  }else P.buffT=simClock;
 }
 function releaseJump(){
   if(mode!=="play"||!P.charging){SND.chargeOff();return;}
   P.charging=false;SND.chargeOff();
-  const ct=simNow-P.chargeT0;
-  if(ct<=PH.stdT) doJump(0,ct/PH.stdT);
+  const ct=simClock-P.chargeT0;
+  if(ct<=PH.stdT)doJump(0,ct/PH.stdT);
   else{
-    const frac=Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT));
-    if(P.energy>=PH.costChg) doJump(frac+0.0001,1);
-    else doJump(0,1);                          // can't afford charge → max standard
+    const f=Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT));
+    if(P.energy>=PH.costChg)doJump(f+1e-4,1);else doJump(0,1);
   }
 }
-function doJump(chargeFrac,stdFrac=1){
-  const charged=chargeFrac>0;
-  const cost=charged?PH.costChg:PH.costStd;
+function doJump(cf,sf=1){
+  const charged=cf>0,cost=charged?PH.costChg:PH.costStd;
   if(P.energy<cost-1e-6){deny();return;}
+  if(!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
   P.energy-=cost;
   let v0;
   if(charged){
-    v0=PH.v0std+(PH.v0chg-PH.v0std)*chargeFrac;
+    v0=PH.v0std+(PH.v0chg-PH.v0std)*cf;
     const aim=(keys.r?1:0)-(keys.l?1:0);
-    P.vx=aim*(0.55+0.45*chargeFrac)*PH.vmax;   // Jump-King style aimed launch
-  } else v0=PH.v0std*(0.62+0.38*Math.min(1,stdFrac));
-  P.vy=-v0;P.grounded=false;P.on=null;P.jumped=true;P.lockX=false;
+    P.vx=aim*(0.6+0.4*cf)*PH.aimV;
+  }else v0=PH.v0std*(0.62+0.38*Math.min(1,sf));
+  P.vy=-v0;P.grounded=false;P.on=null;P.onRoof=null;P.onGround=false;
+  P.jumped=true;P.lockX=false;
   P.takeY=P.y;P.apexY=P.y;P.wheed=false;
   P.sx=0.74;P.sy=1.3;
-  puff(P.x,P.y,5);
-  SND.jump(charged?1:stdFrac*.6);
-  energyUI();
+  puffFX(P.x,P.y,5);SND.jump(charged?1:sf*.6);energyUI();
 }
-function deny(){
-  SND.deny();
+function deny(){SND.deny();
   const e=document.getElementById("energy");
-  e.classList.remove("deny");void e.offsetWidth;e.classList.add("deny");
-}
+  e.classList.remove("deny");void e.offsetWidth;e.classList.add("deny");}
 addEventListener("keydown",e=>{
   if(e.repeat)return;const k=e.key.toLowerCase();
   if(k==="arrowleft"||k==="a")keys.l=true;
@@ -557,88 +726,57 @@ hold("padJ",()=>{P.held=true;pressJump();},()=>{P.held=false;releaseJump();});
 if("ontouchstart"in window)document.body.classList.add("touch");
 
 /* =================================================================
-   PHYSICS  (fixed 1/120 steps)
+   PLAYER STEP
 ================================================================= */
-function near(yPad=260){
-  const top=camY-yPad,bot=camY+CH/scale+yPad;
-  return tower.plats.filter(p=>p.y>top-160&&p.y<bot+160);
+function nearObjs(pad=420){
+  const top=camY-pad,bot=camY+viewH+pad;
+  return tower.objs.filter(o=>o.bot>top-80&&o.top<bot+80);
 }
 function step(dt){
-  simNow+=dt;runT+=dt;
-  /* charge */
+  simClock+=dt;runT+=dt;P.now=simClock;
   if(P.charging){
-    const ct=simNow-P.chargeT0;
+    const ct=simClock-P.chargeT0;
     if(ct>PH.stdT){P.lockX=true;SND.chargeOn();
       SND.chargeSet(Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT)));}
   }
-  /* horizontal */
   const dirIn=(keys.r?1:0)-(keys.l?1:0);
   if(dirIn)P.face=dirIn;
-  if(P.lockX&&P.grounded){P.vx*=Math.max(0,1-12*dt);}
-  else if(dirIn){P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;}
+  if(P.lockX&&P.grounded)P.vx*=Math.max(0,1-12*dt);
+  else if(dirIn)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
   else if(P.grounded){const s=Math.sign(P.vx);P.vx-=s*PH.fric*dt;if(Math.sign(P.vx)!==s)P.vx=0;}
+  else P.vx*=Math.max(0,1-5*dt);   // air drag when gliding: release = soft brake
   P.vx=Math.max(-PH.vmax,Math.min(PH.vmax,P.vx));
 
-  if(!P.grounded)P.vy=Math.min(PH.maxFall,P.vy+PH.g*dt);
-  const py=P.y;
-  P.x+=P.vx*dt;P.y+=P.vy*dt;
-  if(P.x<WALLX+8){P.x=WALLX+8;P.vx*=-0.25;}
-  if(P.x>W-WALLX-8){P.x=W-WALLX-8;P.vx*=-0.25;}
-
-  if(P.grounded&&P.on){
-    const p=P.on,T=TYPES[p.t];
-    if(T.kind==="drift"){const nx=px(p);P.x+=nx-(p._lx??nx);p._lx=nx;}
-    const sy=surfY(p,P.x);
-    if(sy==null){P.grounded=false;P.on=null;P.coyT=simNow;P.jumped=false;
-      P.takeY=P.y;P.apexY=P.y;P.wheed=false;}
-    else{
-      P.y=sy;P.vy=0;
-      const dx=P.x-px(p);
-      if(T.kind==="slope")P.vx+=Math.sign(dx)*PH.g*T.sl*0.42*dt;
-      else if(T.kind==="dome")P.vx+=(dx/p.hw)*520*dt;
-    }
-  }else{
+  const wasAir=!P.grounded,prevVy=P.vy;
+  P.landed=false;
+  collide(P,dt,nearObjs());
+  if(!P.grounded){
     if(P.y<P.apexY)P.apexY=P.y;
-    /* comedy: long tumble */
     if(!P.wheed&&P.vy>0&&(P.y-P.apexY)>8*PXM){P.wheed=true;SND.whee();wheeFX();}
-    if(P.vy>0){
-      for(const p of near()){
-        const sy=surfY(p,P.x);
-        if(sy!=null&&py<=sy+3&&P.y>=sy){landOn(p,sy);break;}
-      }
-    }
   }
-  /* squash relax + wobble decay */
+  if(P.landed){
+    const drop=(P.y-P.takeY)/PXM,big=drop>7;
+    P.jumped=false;
+    P.sx=big?1.5:1.32;P.sy=big?0.52:0.68;
+    if(big)P.dizzy=0.6;
+    if(P.on){const edge=Math.min(P.x-P.on.x1,P.on.x2-P.x);
+      if(edge<12&&(P.on.x2-P.on.x1)<120)P.wobble=1;}
+    puffFX(P.x,P.y,big?9:5);SND.land(big?1:0.3);
+    if(P.on&&P.on.o&&P.on.o.summit&&mode==="play")winSummit();
+    if(simClock-P.buffT<PH.buffer){P.buffT=-9;
+      if(P.held){P.charging=true;P.chargeT0=simClock;}else doJump(0,0.8);}
+  }
   P.sx+=(1-P.sx)*Math.min(1,dt*11);P.sy+=(1-P.sy)*Math.min(1,dt*11);
   P.wobble*=Math.max(0,1-3.4*dt);P.dizzy=Math.max(0,P.dizzy-dt);
-  /* camera */
   curM=Math.max(0,-P.y/PXM);
   if(curM>bestM){bestM=curM;localStorage.setItem("krabsy_vclimb_best",bestM.toFixed(1));}
-  camY+=((P.y-CH/scale*0.58)-camY)*Math.min(1,dt*5.5);
+  camY+=((P.y-viewH*0.58)-camY)*Math.min(1,dt*5.5);
   const cxT=viewW>=W?W/2:Math.max(viewW/2,Math.min(W-viewW/2,P.x));
   camX+=(cxT-camX)*Math.min(1,dt*6);
   for(const d of dust){d.vy+=850*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;d.life-=dt;}
   dust=dust.filter(d=>d.life>0);
 }
-function landOn(p,sy){
-  const drop=(P.y-P.takeY)/PXM;
-  P.grounded=true;P.on=p;p._lx=px(p);P.y=sy;P.vy=0;P.jumped=false;
-  const big=drop>7;
-  P.sx=big?1.5:1.32;P.sy=big?0.52:0.68;
-  if(big)P.dizzy=0.6;
-  if(TYPES[p.t].wob)p.wobT=simNow;
-  /* edge wobble: barely made it */
-  const edge=p.hw-Math.abs(P.x-px(p));
-  if(edge<Math.max(9,p.hw*0.14)&&p.hw<95)P.wobble=1;
-  puff(P.x,sy,big?9:5);
-  SND.land(big?1:0.3);
-  if(p.summit&&mode==="play")winSummit();
-  /* buffered jump */
-  if(simNow-P.buffT<PH.buffer){P.buffT=-9;
-    if(P.held){P.charging=true;P.chargeT0=simNow;}
-    else doJump(0,0.8);}
-}
-function puff(x,y,n){for(let i=0;i<n;i++)dust.push({x:x+(Math.random()*16-8),y,
+function puffFX(x,y,n){for(let i=0;i<n;i++)dust.push({x:x+(Math.random()*16-8),y,
   vx:(Math.random()*2-1)*85,vy:-Math.random()*130,life:.35+Math.random()*.3,r:2.5+Math.random()*3});}
 
 /* =================================================================
@@ -649,11 +787,10 @@ const mixC=(A,B,t)=>`rgb(${lerp(A[0],B[0],t)|0},${lerp(A[1],B[1],t)|0},${lerp(A[
 const SKY={dayT:[116,196,248],dayB:[206,238,255],setT:[88,108,188],setB:[255,198,148],
   niT:[23,33,82],niB:[68,68,128]};
 let stars=null,clouds=null;
-function decor(){
-  if(stars)return;const r=mb32(7777);
-  stars=Array.from({length:110},()=>({x:r()*W,m:r()*135,r:.5+r()*1.7,tw:r()*6}));
-  clouds=Array.from({length:16},()=>({x:r()*W,m:r()*130,s:.7+r()*1.3,o:.25+r()*.3}));
-}
+function decor(){if(stars)return;const r=mb32(7777);
+  stars=Array.from({length:110},()=>({x:r()*CW*1.4,m:r()*135,r:.5+r()*1.7,tw:r()*6}));
+  clouds=Array.from({length:16},()=>({x:r()*W*1.4-200,m:r()*130,s:.8+r()*1.5,o:.25+r()*.3}));}
+const EFONT="'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
 function render(){
   decor();
   const af=Math.min(1,curM/SUMMIT_M);
@@ -661,8 +798,6 @@ function render(){
   if(af<.5){g.addColorStop(0,mixC(SKY.dayT,SKY.setT,af*2));g.addColorStop(1,mixC(SKY.dayB,SKY.setB,af*2));}
   else{g.addColorStop(0,mixC(SKY.setT,SKY.niT,(af-.5)*2));g.addColorStop(1,mixC(SKY.setB,SKY.niB,(af-.5)*2));}
   ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
-
-  /* sun / moon / stars */
   if(af<.5){ctx.save();ctx.globalAlpha=1-af*2;
     ctx.fillStyle="#fff6c9";ctx.beginPath();ctx.arc(CW*.82,CH*.16,34,0,7);ctx.fill();
     ctx.globalAlpha=(1-af*2)*.35;ctx.beginPath();ctx.arc(CW*.82,CH*.16,52,0,7);ctx.fill();ctx.restore();}
@@ -670,14 +805,11 @@ function render(){
   if(sA>0){ctx.save();ctx.fillStyle="#fff";
     for(const s of stars){const sy=(-s.m*PXM-camY)*scale*.85+CH*.1;
       if(sy<-8||sy>CH+8)continue;
-      ctx.globalAlpha=sA*(.5+.5*Math.sin(simNow*2+s.tw));
-      ctx.beginPath();ctx.arc((s.x*scale*.9+CW*.05)%CW,sy,s.r,0,7);ctx.fill();}
+      ctx.globalAlpha=sA*(.5+.5*Math.sin(simClock*2+s.tw));
+      ctx.beginPath();ctx.arc(s.x%CW,sy,s.r,0,7);ctx.fill();}
     if(af>.62){ctx.globalAlpha=sA;ctx.fillStyle="#fffbe8";
-      ctx.beginPath();ctx.arc(CW*.18,CH*.13,26,0,7);ctx.fill();
-      ctx.fillStyle=mixC(SKY.niT,SKY.niT,0);ctx.globalAlpha=sA*.9;
-      ctx.beginPath();ctx.arc(CW*.18+9,CH*.13-4,21,0,7);ctx.fill();}
+      ctx.beginPath();ctx.arc(CW*.18,CH*.13,26,0,7);ctx.fill();}
     ctx.restore();}
-  /* clouds (parallax) */
   ctx.save();
   for(const c of clouds){
     const sy=(-c.m*PXM-camY*0.55)*scale+CH*.3;
@@ -691,111 +823,118 @@ function render(){
   }
   ctx.restore();
 
-  /* world */
   ctx.save();
   ctx.translate(CW/2-camX*scale,-camY*scale);ctx.scale(scale,scale);
-  for(const p of near(300))drawPlat(p,af);
+  /* ground */
+  if(camY+viewH>-60){
+    ctx.fillStyle="#79d96e";ctx.fillRect(-400,0,W+800,500);
+    ctx.fillStyle="#5cc454";ctx.fillRect(-400,0,W+800,12);
+    ctx.font="26px "+EFONT;ctx.textAlign="center";
+    ["🌼","🌿","🌷","🍀","🌻"].forEach((e,i)=>ctx.fillText(e,80+i*210,40));
+  }
+  for(const o of nearObjs())drawObj(o);
   for(const d of dust){ctx.globalAlpha=Math.max(0,d.life*2.4);
     ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,7);ctx.fill();}
   ctx.globalAlpha=1;
   drawCrab();
+  if(debug)drawDebug();
   ctx.restore();
-
-  /* confetti — screen space */
   for(const c of confetti){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.r);
     ctx.fillStyle=c.col;ctx.fillRect(-4,-3,8,6);ctx.restore();}
 }
-function drawPlat(p,af){
-  const T=TYPES[p.t],X=px(p);
+function drawObj(o){
+  const T=OBJ[o.k];
   ctx.save();
-  /* shadow */
-  ctx.fillStyle="rgba(15,35,60,.18)";
-  ctx.beginPath();ctx.ellipse(X,p.y+14,p.hw*.85,8,0,0,7);ctx.fill();
-  if(p.t==="ground"){
-    ctx.fillStyle="#79d96e";ctx.fillRect(0,p.y,W,400);
-    ctx.fillStyle="#5cc454";ctx.fillRect(0,p.y,W,12);
-    ctx.font="26px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
-    ctx.textAlign="center";"🌼🌿🌷🍀🌻".split(/(?:)/u).forEach((e,i)=>ctx.fillText(e,90+i*170,p.y+38));
+  if(o.k==="shelf"||o.k==="puff"){           /* cloud platforms */
+    const b=o.solids[0],w=b.x2-b.x1;
+    ctx.fillStyle="rgba(15,35,60,.12)";
+    ctx.beginPath();ctx.ellipse(o.x,b.y2+10,w*.45,8,0,0,7);ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.96)";
+    rr(b.x1,b.y1,w,b.y2-b.y1,15);ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.85)";
+    const n=Math.max(2,w/130|0);
+    for(let i=0;i<=n;i++){ctx.beginPath();
+      ctx.ellipse(b.x1+w*i/n,b.y1+6,Math.min(60,w/3),18,0,0,7);ctx.fill();}
+    if(o.k==="shelf"){ctx.font="28px "+EFONT;ctx.textAlign="center";
+      ctx.fillText("🧺",o.x-120,b.y1-8);ctx.fillText("☕",o.x+135,b.y1-6);}
     ctx.restore();return;
   }
-  if(p.t==="shelf"){           /* cosy full-width cloud bench */
-    ctx.fillStyle="rgba(255,255,255,.95)";
-    rr(X-p.hw,p.y,p.hw*2,26,13);ctx.fill();
-    ctx.fillStyle="rgba(255,255,255,.8)";
-    for(let i=-3;i<=3;i++){ctx.beginPath();ctx.ellipse(X+i*p.hw/3.4,p.y+4,52,20,0,0,7);ctx.fill();}
-    ctx.font="30px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
-    ctx.textAlign="center";ctx.fillText("🧺",X-110,p.y-7);ctx.fillText("☕",X+128,p.y-5);
+  if(o.k==="deck"){
+    const b=o.solids[0];
+    ctx.fillStyle="#ffe9a8";rr(b.x1,b.y1,b.x2-b.x1,b.y2-b.y1,12);ctx.fill();
+    ctx.fillStyle="#ffd76e";rr(b.x1,b.y1,b.x2-b.x1,9,5);ctx.fill();
+    ctx.font="54px "+EFONT;ctx.textAlign="center";
+    ctx.fillText("🚩",o.x+96,b.y1-14);ctx.fillText("🏆",o.x-100,b.y1-10);
     ctx.restore();return;
   }
-  if(p.t==="summit"){
-    ctx.fillStyle="#ffe9a8";rr(X-p.hw,p.y,p.hw*2,22,11);ctx.fill();
-    ctx.fillStyle="#ffd76e";rr(X-p.hw,p.y,p.hw*2,8,4);ctx.fill();
-    ctx.font="56px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
-    ctx.textAlign="center";ctx.fillText("🚩",X+86,p.y-16);ctx.fillText("🏆",X-92,p.y-12);
-    ctx.restore();return;
+  /* giant emoji object: soft shadow + glyph stretched to its box */
+  ctx.fillStyle="rgba(15,35,60,.15)";
+  ctx.beginPath();ctx.ellipse(o.x,o.baseY+12,T.w*.42,10,0,0,7);ctx.fill();
+  ctx.translate(o.x,o.baseY+(T.g.oy||0));
+  ctx.scale(T.g.sx,T.g.sy);
+  ctx.font="100px "+EFONT;ctx.textAlign="center";ctx.textBaseline="bottom";
+  ctx.fillText(T.e,0,8);
+  ctx.restore();
+  /* ledge highlights on standable surfaces */
+  ctx.save();ctx.lineCap="round";
+  for(const s of o.surfs){
+    ctx.strokeStyle="rgba(15,35,60,.18)";ctx.lineWidth=7;
+    ctx.beginPath();ctx.moveTo(s.x1+3,s.y+3);ctx.lineTo(s.x2-3,s.y+3);ctx.stroke();
+    ctx.strokeStyle="rgba(255,255,255,.9)";ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(s.x1+3,s.y);ctx.lineTo(s.x2-3,s.y);ctx.stroke();
   }
-  /* emoji body */
-  ctx.font=T.fs+"px 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
-  ctx.textAlign="center";ctx.textBaseline="middle";
-  let bob=0;
-  if(p.wobT!=null){const a=Math.max(0,1-(simNow-p.wobT)*2.2);bob=Math.sin((simNow-p.wobT)*22)*4*a;}
-  ctx.fillText(T.e,X,p.y+T.fs*.34+bob);
-  if(p.bonus&&p.t==="flower"){ctx.font="20px sans-serif";ctx.fillText("✨",X,p.y-26);}
-  /* standable surface plate (white lip exactly on the collision shape) */
-  ctx.lineCap="round";
-  ctx.strokeStyle="rgba(15,35,60,.22)";ctx.lineWidth=8;surfPath(p,X,T,3);ctx.stroke();
-  ctx.strokeStyle="rgba(255,255,255,.95)";ctx.lineWidth=4.5;surfPath(p,X,T,0);ctx.stroke();
+  if(o.roof){const r=o.roof;
+    ctx.strokeStyle="rgba(255,255,255,.75)";ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(r.rx-r.half,r.ry+r.half*r.k);
+    ctx.lineTo(r.rx,r.ry);ctx.lineTo(r.rx+r.half,r.ry+r.half*r.k);ctx.stroke();}
   ctx.restore();
 }
-function surfPath(p,X,T,oy){
-  ctx.beginPath();
-  if(T.kind==="slope"){ctx.moveTo(X-p.hw,p.y+p.hw*T.sl+oy);ctx.lineTo(X,p.y+oy);ctx.lineTo(X+p.hw,p.y+p.hw*T.sl+oy);}
-  else if(T.kind==="dome"){for(let i=-10;i<=10;i++){const dx=i/10*p.hw,y=p.y+(dx*dx/p.hw)*T.dm*.5+oy;
-    i===-10?ctx.moveTo(X+dx,y):ctx.lineTo(X+dx,y);}}
-  else if(T.kind==="hole"){ctx.moveTo(X-p.hw,p.y+oy);ctx.lineTo(X-T.hr,p.y+oy);
-    ctx.moveTo(X+T.hr,p.y+oy);ctx.lineTo(X+p.hw,p.y+oy);}
-  else{ctx.moveTo(X-p.hw,p.y+oy);ctx.lineTo(X+p.hw,p.y+oy);}
+function drawDebug(){
+  ctx.save();ctx.lineWidth=2;
+  for(const o of nearObjs()){
+    ctx.strokeStyle="rgba(255,0,90,.8)";
+    for(const s of o.solids)ctx.strokeRect(s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
+    if(o.roof){const r=o.roof;ctx.strokeStyle="rgba(255,140,0,.9)";
+      ctx.beginPath();ctx.moveTo(r.rx-r.half,r.ry+r.half*r.k);
+      ctx.lineTo(r.rx,r.ry);ctx.lineTo(r.rx+r.half,r.ry+r.half*r.k);ctx.stroke();}
+    ctx.strokeStyle="rgba(0,200,120,.9)";
+    for(const s of o.surfs){ctx.beginPath();ctx.moveTo(s.x1,s.y-2);ctx.lineTo(s.x2,s.y-2);ctx.stroke();}
+  }
+  ctx.restore();
 }
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
   ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function drawCrab(){
-  const chargeF=P.charging?Math.min(1,Math.max(0,(simNow-P.chargeT0-PH.stdT)/(PH.fullT-PH.stdT))):0;
-  const squat=chargeF*0.3;
+  const cf=P.charging?Math.min(1,Math.max(0,(simClock-P.chargeT0-PH.stdT)/(PH.fullT-PH.stdT))):0;
+  const squat=cf*0.3;
   ctx.save();
   ctx.translate(P.x,P.y);
-  if(P.wobble>0.05)ctx.rotate(Math.sin(simNow*26)*0.13*P.wobble);
+  if(P.wobble>0.05)ctx.rotate(Math.sin(simClock*26)*0.13*P.wobble);
   ctx.scale(P.sx*(1+squat*.3),P.sy*(1-squat));
-  /* legs */
   ctx.strokeStyle="#e05d5d";ctx.lineWidth=3;ctx.lineCap="round";
   for(const s of[-1,1])for(let i=0;i<3;i++){
     ctx.beginPath();ctx.moveTo(s*(7+i*4),-7);ctx.lineTo(s*(13+i*5),-1+(i===1?1:0));ctx.stroke();}
-  /* claws */
   ctx.fillStyle="#ff6f6f";
-  ctx.beginPath();ctx.arc(-19,-13-chargeF*7,6.5,0,7);ctx.arc(19,-13-chargeF*7,6.5,0,7);ctx.fill();
-  /* body */
+  ctx.beginPath();ctx.arc(-19,-13-cf*7,6.5,0,7);ctx.arc(19,-13-cf*7,6.5,0,7);ctx.fill();
   ctx.fillStyle="#ff8585";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
   ctx.fillStyle="rgba(224,93,93,.55)";ctx.beginPath();ctx.ellipse(0,-9,14,6,0,0,7);ctx.fill();
-  /* eye stalks */
   ctx.strokeStyle="#e05d5d";ctx.beginPath();
   ctx.moveTo(-5,-22);ctx.lineTo(-5,-27);ctx.moveTo(5,-22);ctx.lineTo(5,-27);ctx.stroke();
   ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,-29,4.4,0,7);ctx.arc(5,-29,4.4,0,7);ctx.fill();
   ctx.fillStyle="#1e2d3d";const lx=P.face*1.8;
   ctx.beginPath();ctx.arc(-5+lx,-29,2.1,0,7);ctx.arc(5+lx,-29,2.1,0,7);ctx.fill();
-  /* smile */
   ctx.strokeStyle="#b14a4a";ctx.lineWidth=1.6;
   ctx.beginPath();ctx.arc(0,-12,4.5,0.25*Math.PI,0.75*Math.PI);ctx.stroke();
   ctx.restore();
-  /* dizzy stars after a big fall */
   if(P.dizzy>0){ctx.save();ctx.translate(P.x,P.y-44);
     ctx.font="13px sans-serif";ctx.textAlign="center";
-    for(let i=0;i<3;i++){const a=simNow*5+i*2.1;
+    for(let i=0;i<3;i++){const a=simClock*5+i*2.1;
       ctx.fillText("✦",Math.cos(a)*15,Math.sin(a)*5);}
     ctx.restore();}
-  /* charge ring */
-  if(P.charging&&simNow-P.chargeT0>PH.stdT){
+  if(P.charging&&simClock-P.chargeT0>PH.stdT){
     ctx.save();ctx.translate(P.x,P.y-16);
-    ctx.strokeStyle=chargeF>=1?"#ffcf5e":"#2ee6c0";ctx.lineWidth=3.5;
-    ctx.beginPath();ctx.arc(0,0,26,-Math.PI/2,-Math.PI/2+chargeF*6.283);ctx.stroke();
+    ctx.strokeStyle=cf>=1?"#ffcf5e":"#2ee6c0";ctx.lineWidth=3.5;
+    ctx.beginPath();ctx.arc(0,0,26,-Math.PI/2,-Math.PI/2+cf*6.283);ctx.stroke();
     ctx.restore();}
 }
 
@@ -834,17 +973,14 @@ function makeQ(){
   let it,tries=0;
   do{it=VERBS[(Math.pow(qrng(),1.35)*span)|0];}while(recent.includes(it.v)&&++tries<25);
   recent.push(it.v);if(recent.length>4)recent.shift();
-  const form=qrng()<.5?"p":"q";
-  const corr=it[form];
+  const form=qrng()<.5?"p":"q",corr=it[form];
   const opts=new Set([corr]);const add=w=>{if(w&&!opts.has(w))opts.add(w);};
-  add(regular(it.v));
-  add(form==="p"?it.q:it.p);
+  add(regular(it.v));add(form==="p"?it.q:it.p);
   let g=0;while(opts.size<3&&g++<40)add(VERBS[(qrng()*VERBS.length)|0][form]);
   const chips=[...opts].slice(0,3);
   for(let i=chips.length-1;i>0;i--){const j=(qrng()*(i+1))|0;[chips[i],chips[j]]=[chips[j],chips[i]];}
   return {it,form,corr,chips};
 }
-let study={q:null,locked:false,answered:0};
 function toggleStudy(){
   if(mode==="study"){closeStudy();return;}
   if(mode!=="play")return;
@@ -905,9 +1041,7 @@ function answer(i){
 document.getElementById("btnBack").onclick=closeStudy;
 document.getElementById("chipStudy").onclick=toggleStudy;
 
-/* =================================================================
-   FX (DOM)
-================================================================= */
+/* ---------- FX ---------- */
 const fx=document.getElementById("fx");
 function plusFX(){const e=document.createElement("div");e.className="float1";
   e.textContent="+1 ⚡";e.style.left="50%";e.style.top="38%";
@@ -922,11 +1056,11 @@ function wheeFX(){const e=document.createElement("div");e.className="wheee";
 ================================================================= */
 function newGame(s){
   seed=s>>>0;tower=genTower(seed);qrng=mb32((seed^0x51ab)>>>0);recent=[];
-  P.x=W/2;P.y=0;P.vx=0;P.vy=0;P.grounded=true;P.on=tower.plats[0];
+  P.x=W/2;P.y=0;P.vx=0;P.vy=0;P.grounded=true;P.on=null;P.onRoof=null;P.onGround=true;
   P.energy=PH.EMAX;P.sx=P.sy=1;P.charging=false;P.wobble=0;P.dizzy=0;
   P.coyT=-9;P.buffT=-9;P.jumped=false;
   curM=0;runT=0;missed.clear();confetti=[];dust=[];
-  camY=P.y-CH/scale*0.58;camX=W/2;
+  camY=P.y-viewH*0.58;camX=W/2;
   mode="play";frozen=false;
   document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
   energyUI();
@@ -939,8 +1073,7 @@ function showPause(){
 }
 function hidePause(){document.getElementById("ovPause").classList.remove("on");mode="play";}
 function winSummit(){
-  mode="summit";SND.fanfare();
-  curM=SUMMIT_M;
+  mode="summit";SND.fanfare();curM=SUMMIT_M;
   const t=runT,mm=t/60|0,ss=(t%60|0).toString().padStart(2,"0");
   let nb=false;
   if(!bestT||t<bestT){bestT=t;localStorage.setItem("krabsy_vclimb_summit",t.toFixed(1));nb=true;}
@@ -985,8 +1118,8 @@ function frame(ts){
   if(!lastTS)lastTS=ts;
   let dt=Math.min(0.05,(ts-lastTS)/1000);lastTS=ts;
   if(mode==="play"&&!frozen){
-    accum+=dt;let n=0;
-    while(accum>=1/120&&n++<8){step(1/120);accum-=1/120;}
+    accum+=dt;let k=0;
+    while(accum>=1/120&&k++<8){step(1/120);accum-=1/120;}
     energyUI();
   }
   if(mode==="summit")for(const c of confetti){c.x+=c.vx*dt;c.y+=c.vy*dt;c.r+=c.vr*dt;
@@ -1002,25 +1135,29 @@ function frame(ts){
 ================================================================= */
 window.__VC={
   state:()=>({mode,m:+curM.toFixed(2),energy:+P.energy.toFixed(3),grounded:P.grounded,
-    x:+P.x.toFixed(1),y:+P.y.toFixed(1),seed,plats:tower?.plats.length??0,
-    path:tower?.path.length??0,answered:study.answered,frozen}),
-  teleport(m){const y=-m*PXM;let b=tower.path[0],bd=1e9;
-    for(const p of tower.path){const d=Math.abs(p.y-y);if(d<bd){bd=d;b=p;}}
-    P.x=px(b);P.y=b.y;P.vx=P.vy=0;P.grounded=true;P.on=b;P.jumped=false;
-    curM=-P.y/PXM;camY=P.y-CH/scale*0.58;
+    x:+P.x.toFixed(1),y:+P.y.toFixed(1),seed,objs:tower?.objs.length??0,
+    way:tower?.way.length??0,on:P.on?.o?.k??(P.onRoof?P.onRoof.o.k+":roof":P.onGround?"ground":null),
+    answered:study.answered,frozen}),
+  teleport(m){const y=-m*PXM;let b=tower.way[0],bd=1e9;
+    for(const w of tower.way){const d=Math.abs(w.y-y);if(d<bd){bd=d;b=w;}}
+    P.x=(b.x1+b.x2)/2;P.y=b.y;P.vx=P.vy=0;P.grounded=true;
+    P.on=b.o?b.o.surfs.find(s=>Math.abs(s.y-b.y)<3&&P.x>=s.x1&&P.x<=s.x2)??null:null;
+    P.onRoof=(b.kind==="roof")?b.o.roof:null;P.onGround=!b.o;
+    if(b.kind==="roof")P.y=b.o.roof.ry;
+    P.jumped=false;curM=-P.y/PXM;camY=P.y-viewH*0.58;
     camX=viewW>=W?W/2:Math.max(viewW/2,Math.min(W-viewW/2,P.x));
     return this.state();},
   setEnergy(n){P.energy=Math.max(0,Math.min(PH.EMAX,n));energyUI();return P.energy;},
-  press:pressJump,release:releaseJump,
-  doJump:(f,s)=>doJump(f,s),
-  step(t){let n=Math.round(t*120);while(n-->0)step(1/120);return this.state();},
+  press:pressJump,release:releaseJump,doJump:(f,s)=>doJump(f,s),
+  step(t){let k=Math.round(t*120);while(k-->0)step(1/120);return this.state();},
   freeze(b){frozen=!!b;return frozen;},
-  openStudy,closeStudy,
-  answer:i=>answer(i),
+  keys,
+  openStudy,closeStudy,answer:i=>answer(i),
   chips:()=>study.q?{prompt:document.getElementById("qPrompt").textContent,
     chips:study.q.chips,correct:study.q.corr}:null,
-  gen:genTower,validate:validateTower,simJump,runGenTest,
+  gen:genTower,validate:validateTower,runGenTest,OBJ,simJumpEx,reach,
   missed:()=>[...missed.keys()],
+  setDebug(b){debug=!!b;return debug;},
 };
 
 /* =================================================================
@@ -1028,18 +1165,30 @@ window.__VC={
 ================================================================= */
 fit();requestAnimationFrame(frame);
 const Q=new URLSearchParams(location.search);
-const qaMode=Q.get("qa"),qaSeed=Q.get("seed")!=null?+Q.get("seed")>>>0:20260611;
+debug=Q.get("debug")==="1";
+const qaMode=Q.get("qa"),qaSeed=Q.get("seed")!=null?+Q.get("seed")>>>0:20260612;
 if(qaMode==="gentest"){
-  const n=+(Q.get("n")||200);
-  const res=runGenTest(n);
+  const n=+(Q.get("n")||200),res=runGenTest(n);
   const out=document.getElementById("qaout");out.style.display="block";
   out.textContent=`GENTEST ${res.fails===0?"PASS":"FAIL"}\n`+JSON.stringify(res,null,1);
   document.title=`${res.fails===0?"PASS":"FAIL"} ${res.tested} towers ${res.fails} fails`;
   console.log("GENTEST",res);
-}else if(qaMode==="scene"){newGame(qaSeed);__VC.teleport(42);__VC.setEnergy(4.33);__VC.freeze(true);}
+}else if(qaMode==="gallery"){
+  /* object types side by side on the ground, for collider/glyph QA */
+  tower={seed:0,objs:[],way:[{y:0,x:W/2,x1:WALLX,x2:W-WALLX,kind:"ground",o:null}],topY:-1};
+  const from=+(Q.get("from")||0);
+  let gx=180;
+  for(const k of CLIMB_KEYS.slice(from,from+4)){
+    tower.objs.push(instantiate(k,gx+OBJ[k].w/2,0,tower.objs.length));
+    gx+=OBJ[k].w+90;
+  }
+  camX=+(Q.get("cx")||(gx/2));camY=-(+(Q.get("ch")||520));curM=0;mode="pause";
+  P.x=60;P.y=0;P.onGround=true;
+  document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
+}else if(qaMode==="scene"){newGame(qaSeed);__VC.teleport(40);__VC.setEnergy(4.33);__VC.freeze(true);}
+else if(qaMode==="low"){newGame(qaSeed);__VC.teleport(5);__VC.setEnergy(7);__VC.freeze(true);}
 else if(qaMode==="study"){newGame(qaSeed);__VC.teleport(30);__VC.setEnergy(2);openStudy();}
-else if(qaMode==="summit"){newGame(qaSeed);__VC.teleport(118);runT=247;winSummit();}
-else if(qaMode==="low"){newGame(qaSeed);__VC.teleport(6);__VC.setEnergy(7);__VC.freeze(true);}
+else if(qaMode==="summit"){newGame(qaSeed);__VC.teleport(118);runT=311;winSummit();}
 })();
 </script>
 </body>
