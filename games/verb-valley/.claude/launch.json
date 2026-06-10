@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-valley",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-d", "ubuntu", "-e", "bash", "-c", "cd /home/jan/krabsy-homepage/games/verb-valley && python3 -m http.server 8132"],
+      "port": 8132
+    }
+  ]
+}

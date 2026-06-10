@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Verb Valley — Krabsy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/" } }
+</script>
+<style>
+  :root {
+    --teal: #2ee6c0; --coral: #ff8585; --amber: #ffcf5e;
+    --navy: #141a33; --navy2: #1d2647; --ink: #10142a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: var(--navy); }
+  body { font-family: 'Nunito', sans-serif; color: #fff; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  [hidden] { display: none !important; }
+  b { font-weight: 800; }
+
+  /* ── Loading ── */
+  #loading { position: fixed; inset: 0; display: grid; place-items: center;
+    background: var(--navy); z-index: 60; font-family: 'Fredoka One', cursive;
+    font-size: 22px; color: var(--teal); }
+
+  /* ── Vignette (sleepy late-night overlay) ── */
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 5; opacity: 0;
+    background: radial-gradient(ellipse at center, transparent 38%, rgba(4,6,18,0.95) 100%);
+    transition: opacity 1.2s; }
+
+  /* ── HUD ── */
+  #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+  #hud .chip { pointer-events: auto; background: rgba(16,20,42,0.82); border-radius: 18px;
+    padding: 8px 16px; font-weight: 800; font-size: 17px; backdrop-filter: blur(4px);
+    border: 2px solid rgba(255,255,255,0.08); }
+  #hud-topleft { position: absolute; top: 14px; left: 14px; display: flex; gap: 10px; align-items: center; }
+  #hud-day { color: var(--amber); }
+  #hud-clock { color: var(--teal); font-variant-numeric: tabular-nums; }
+  #hud-topright { position: absolute; top: 14px; right: 14px; display: flex; gap: 10px; align-items: center; }
+  #hud-coins-wrap { color: var(--amber); }
+  #hud-stickers { font-size: 14px; letter-spacing: 2px; }
+  #btn-sound { cursor: pointer; border: 2px solid rgba(255,255,255,0.08); background: rgba(16,20,42,0.82);
+    border-radius: 18px; font-size: 17px; padding: 8px 13px; }
+  #hud.in-class #hotbar, #hud.in-class #gate-pill { display: none !important; }
+  #gate-pill { position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(16,20,42,0.85); color: var(--amber); border-radius: 999px;
+    padding: 7px 18px; font-weight: 800; font-size: 14px; border: 2px solid rgba(255,207,94,0.35); }
+
+  /* hotbar */
+  #hotbar { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; pointer-events: auto; }
+  .slot { width: 58px; height: 58px; border-radius: 16px; background: rgba(16,20,42,0.85);
+    border: 3px solid rgba(255,255,255,0.12); display: grid; place-items: center;
+    font-size: 26px; cursor: pointer; position: relative; transition: transform .12s, border-color .12s; }
+  .slot:hover { transform: translateY(-3px); }
+  .slot.active { border-color: var(--teal); box-shadow: 0 0 14px rgba(46,230,192,0.45); }
+  .slot.locked { opacity: 0.55; }
+  .slot .key { position: absolute; top: 3px; left: 7px; font-size: 11px; font-style: normal;
+    color: rgba(255,255,255,0.5); font-weight: 800; }
+  .slot .count { position: absolute; bottom: 2px; right: 7px; font-size: 13px; color: var(--amber); }
+
+  /* interaction prompt + toast + bubble */
+  #prompt { position: absolute; bottom: 92px; left: 50%; transform: translateX(-50%);
+    background: rgba(16,20,42,0.9); border-radius: 14px; padding: 9px 20px; font-size: 16px;
+    font-weight: 700; border: 2px solid rgba(46,230,192,0.4); white-space: nowrap; }
+  #prompt b { color: var(--teal); }
+  #toast { position: absolute; top: 110px; left: 50%; transform: translateX(-50%) translateY(-12px);
+    background: rgba(16,20,42,0.92); border-radius: 16px; padding: 11px 24px; font-weight: 800;
+    font-size: 16px; border: 2px solid rgba(255,207,94,0.5); opacity: 0; transition: all .3s; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #bubble { position: fixed; transform: translate(-50%, -110%); background: #fff; color: var(--ink);
+    border-radius: 16px; padding: 9px 15px; font-weight: 800; font-size: 14px; max-width: 230px;
+    text-align: center; z-index: 12; pointer-events: none; }
+  #bubble::after { content: ''; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%);
+    border: 9px solid transparent; border-top-color: #fff; border-bottom: 0; }
+
+  /* ── Panels (shop / ship) ── */
+  .panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    background: var(--navy2); border-radius: 24px; padding: 22px 24px; width: min(420px, 92vw);
+    z-index: 20; border: 3px solid rgba(255,255,255,0.1); box-shadow: 0 18px 60px rgba(0,0,0,0.5); }
+  .panel h2 { font-family: 'Fredoka One', cursive; font-size: 24px; margin-bottom: 4px; }
+  .panel .sub { color: rgba(255,255,255,0.65); font-size: 14px; margin-bottom: 14px; font-weight: 700; }
+  .panel-row { display: flex; align-items: center; gap: 12px; padding: 9px 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .panel-row .ic { font-size: 26px; }
+  .panel-row .nm { flex: 1; font-weight: 800; font-size: 15px; }
+  .panel-row .nm small { display: block; color: rgba(255,255,255,0.55); font-size: 12px; }
+  .chip-btn { border: 0; border-radius: 999px; background: var(--teal); color: var(--ink);
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 14px; padding: 8px 14px;
+    cursor: pointer; transition: transform .1s; }
+  .chip-btn:hover { transform: scale(1.06); }
+  .chip-btn.off { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.45); cursor: default; }
+  .panel .close { position: absolute; top: 12px; right: 16px; background: none; border: 0;
+    color: rgba(255,255,255,0.6); font-size: 22px; cursor: pointer; font-weight: 800; }
+  .empty { color: rgba(255,255,255,0.55); font-weight: 700; padding: 14px 4px; }
+  #ship-crate, #shop-coins { margin-top: 12px; font-size: 13px; font-weight: 800; color: var(--amber); }
+
+  /* ── Sleep overlay ── */
+  #sleep-overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center;
+    background: rgba(6,9,24,0.9); }
+  .sleep-card { background: var(--navy2); border-radius: 28px; padding: 34px 40px; text-align: center;
+    width: min(430px, 92vw); border: 3px solid rgba(255,255,255,0.1); }
+  .sleep-card h2 { font-family: 'Fredoka One', cursive; font-size: 28px; margin-bottom: 4px; }
+  #sleep-day { color: var(--amber); font-weight: 800; font-size: 18px; margin-bottom: 16px; }
+  #sleep-body p { margin: 8px 0; font-weight: 700; font-size: 16px; }
+  #sleep-body .earn.big { color: var(--amber); font-size: 21px; }
+  #sleep-body .stickers { letter-spacing: 3px; margin-top: 14px; }
+  .big-btn { margin-top: 22px; border: 0; border-radius: 999px; background: var(--teal); color: var(--ink);
+    font-family: 'Fredoka One', cursive; font-size: 19px; padding: 14px 42px; cursor: pointer;
+    transition: transform .12s; box-shadow: 0 6px 22px rgba(46,230,192,0.35); }
+  .big-btn:hover { transform: scale(1.05); }
+  .big-btn.secondary { background: rgba(255,255,255,0.12); color: #fff; box-shadow: none; }
+
+  /* ── Start screen ── */
+  #start-screen { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+    background: linear-gradient(180deg, rgba(13,17,40,0.88), rgba(13,17,40,0.96)); }
+  .start-card { text-align: center; width: min(460px, 94vw); background: var(--navy2);
+    border-radius: 32px; padding: 38px 36px; border: 3px solid rgba(255,255,255,0.1);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.55); }
+  .start-card .mascot { font-size: 64px; }
+  .start-card h1 { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--teal);
+    margin: 6px 0 2px; }
+  .start-card .tag { color: var(--amber); font-weight: 800; font-size: 15px; margin-bottom: 22px; }
+  .howto { text-align: left; margin: 0 auto 24px; display: grid; gap: 11px; max-width: 330px; }
+  .howto div { display: flex; gap: 12px; align-items: center; font-weight: 700; font-size: 15px; }
+  .howto .em { font-size: 24px; width: 32px; text-align: center; }
+  .howto small { display: block; color: rgba(255,255,255,0.55); font-size: 12.5px; }
+  .start-btns { display: grid; gap: 10px; justify-items: center; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="loading">🦀 Loading the valley…</div>
+<div id="vignette"></div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+  <div id="hud-topleft">
+    <span class="chip" id="hud-day">Day 1</span>
+    <span class="chip" id="hud-clock">06:00</span>
+  </div>
+  <div id="hud-topright">
+    <span class="chip" id="hud-stickers"></span>
+    <span class="chip" id="hud-coins-wrap">🪙 <span id="hud-coins">0</span></span>
+    <button id="btn-sound">🔊</button>
+  </div>
+  <div id="gate-pill">🔒 Farm tools unlock after school</div>
+  <div id="prompt" hidden></div>
+  <div id="toast"></div>
+  <div id="hotbar"></div>
+</div>
+<div id="bubble" hidden></div>
+
+<!-- Shop -->
+<div class="panel" id="shop-panel" hidden>
+  <button class="close" id="shop-close">✕</button>
+  <h2>🛒 Valley Shop</h2>
+  <p class="sub">Seeds &amp; tools — fresh every day</p>
+  <div id="shop-list"></div>
+  <p id="shop-coins"></p>
+</div>
+
+<!-- Shipping crate -->
+<div class="panel" id="ship-panel" hidden>
+  <button class="close" id="ship-close">✕</button>
+  <h2>📦 Shipping Crate</h2>
+  <p class="sub">Toss produce in — coins arrive while you sleep</p>
+  <div id="ship-list"></div>
+  <p id="ship-crate"></p>
+</div>
+
+<!-- Sleep summary -->
+<div id="sleep-overlay" hidden>
+  <div class="sleep-card">
+    <h2 id="sleep-title">🌙 Good night!</h2>
+    <p id="sleep-day">Day 2</p>
+    <div id="sleep-body"></div>
+    <button class="big-btn" id="sleep-continue">Rise &amp; shine ☀️</button>
+  </div>
+</div>
+
+<!-- Start screen -->
+<div id="start-screen" hidden>
+  <div class="start-card">
+    <div class="mascot">🦀🌱</div>
+    <h1>Verb Valley</h1>
+    <p class="tag">Grandpa's farm needs you — and so does English class!</p>
+    <div class="howto">
+      <div><span class="em">🏫</span><span>Attend Professor Krabsy's class each morning<small>Answer verb questions, earn coins &amp; rare seeds</small></span></div>
+      <div><span class="em">🌱</span><span>Then farm the day away<small>Till, plant, water — crops grow while you sleep</small></span></div>
+      <div><span class="em">📦</span><span>Ship your harvest, grow your fortune<small>WASD to move · E to interact · 1–4 for tools</small></span></div>
+    </div>
+    <div class="start-btns">
+      <button class="big-btn" id="btn-continue" hidden>Continue</button>
+      <button class="big-btn" id="btn-new">Start Farming</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./src/game.js"></script>
+</body>
+</html>

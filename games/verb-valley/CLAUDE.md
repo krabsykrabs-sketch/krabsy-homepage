@@ -216,3 +216,34 @@ preposition items for lesson variety. Distractors must be plausible
 ## Status log
 
 - 2026-06-10 — Brief written by the master session. Nothing built yet.
+- 2026-06-10 — **PoC built and verified.** `index.html` + 10 modules in
+  `src/` (config, verbs, audio, save, world, daycycle, player, farming,
+  school, ui, game). Everything in the brief's daily loop is in:
+  - **School:** 8 chalk questions on the 3D blackboard (raycast-clickable
+    chips + keys 1–3), form-color convention (past=teal, pp=coral,
+    prep=amber), wrong answers show the full chain, rewards 5c/correct,
+    special star-fruit seed at 6+, sticker at 8/8, one class per day.
+    Missed verbs persist in the save; the next class opens with a review
+    question and a correct answer graduates the verb off the list.
+  - **Farm:** 24 plots (till/plant/water/harvest), 4 crops, growth on
+    sleep via `advanceDay()` in save.js, 5 regrowing trees + axe (50c),
+    daily wild berries, shop stand, shipping crate that pays on sleep.
+  - **Hard gate verified:** every farm action routes through one gated
+    wrapper in game.js; pre-class attempts return `school-gate` and show
+    the shrug bubble. Berry-picking is deliberately ungated (gives the
+    06:00–08:00 window something to do).
+  - **Day/night:** keyframed sky/fog/sun/ambient, sun arc with one shadow
+    light, golden dusk, emissive cottage windows, fireflies + stars
+    (soft-dot sprite texture — plain Points render as squares), morning
+    fog, sleepy vignette, WebAudio cricket/bird ambience.
+  - **Verification done:** `?qa=` scenes (morning, school-open,
+    field-with-crops, dusk, night) screenshotted via headless Edge;
+    `window.__VV` drove the full loop — 37 assertions PASS (gate,
+    class rewards, review graduation, plant→water→sleep→grow→harvest→
+    ship→coins, shop, axe+tree regrow, berries, save/load round-trip
+    across a reload). Zero console errors. `__VV.benchmark()` (rAF-free,
+    because the preview panel suspends rAF): 13.6 ms/frame at dusk ≈ 74 fps.
+  - `.claude/launch.json` serves this folder on :8132 via WSL python3.
+  - **Known gaps for v1.1:** touch controls, watering-can refills,
+    sticker row only shows in HUD + sleep card (no cottage interior),
+    class camera is a fixed angle, no Krabsy idle dialogue.
