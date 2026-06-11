@@ -89,17 +89,38 @@ this session has **read access** already (via `.claude/settings.local.json`
 copy what you wire into THIS folder (gitignored working copy); the
 master session promotes the used subset to `homepage/` at release.
 
-- **Primary pack: `KayKit_Restaurant_Bits`** (walls, floors, counters,
-  stoves, ovens, sinks, fridges, crates of produce, pizzas + boxes,
-  burgers, plates, pots & pans, tables). The user is buying the **Extra**
-  tier. **If the pack folder is not present in `/assets/KayKit/` when
-  you start: tell the user to drop it in, and meanwhile build all
-  station/game logic with primitive placeholder meshes sized like the
-  real props** — the swap must be a data-table change (one model-path
-  map), not a refactor.
-- Also available now: `KayKit_Adventurers_2.0_FREE` (the chef),
+- **Primary pack (ON DISK, verified):**
+  `/assets/KayKit/KayKit_Restaurant_Bits_1.0_EXTRA/Assets/gltf/`
+  — 225 gltf models + `restaurantbits_extra.png` (the single texture
+  atlas every model references) + per-model `.bin` files. The EXTRA
+  download is **self-contained** (it includes all base models too);
+  ignore the `_FREE` sibling folder if it still exists.
+- **The pack models the game's mechanics directly — use these:**
+  - Sink loop: `plate` / `plate_dirty` / `plate_small`, `bowl` /
+    `bowl_dirty`, `kitchencounter_sink` (+`_backsplash`, `_styleB`),
+    `dishrack` / `dishrack_plates`, `kitchentable_sink*`.
+  - Cooking: `stove_single` / `stove_multi` (+`_countertop`), `oven`,
+    **`pizza_oven`**, `pan_A/B`, `pot_A/B` (+`_stew`), `cuttingboard`,
+    `extractorhood`.
+  - Ingredient states exist as separate models — wire them as the
+    visual per processing step: e.g. `food_ingredient_potato` →
+    `_chopped` → `_mashed`; `mushroom` → `_chopped` → `_pieces`;
+    `burger_cooked` → **`burger_trash` (burnt!)**; `dough` /
+    `dough_base`; `bun_top` / `bun_bottom`; `cheese_grated`.
+  - Finished dishes: `food_burger`, `food_pizza_{cheese,mushroom,
+    pepperoni}_plated`, `food_dinner`, `food_icecream_cone_{vanilla,
+    chocolate,strawberry}` (the sundae teaser is real).
+  - Ingredient sources: `crate_<ingredient>` for buns, carrots, cheese,
+    dough, ham, lettuce, mushrooms, onions, pepperoni, potatoes, steak,
+    tomatoes.
+  - Rooms: walls (incl. **`wall_orderwindow`** — the serving hatch!),
+    windows/curtains/doors, `floor_kitchen` + `_small` variants, and
+    **two full visual styles** — counters/floors come in style A and
+    `_styleB` → use style A for levels 1–2 and style B for level 3 to
+    get "different kitchen designs" for free.
+- Also available: `KayKit_Adventurers_2.0_FREE` (the chef),
   `KayKit_Character_Animations_1.1` (rig animations).
-- Use the **GLTF/GLB** files only (Three.js native); ignore FBX/OBJ.
+- Use the **GLTF** files only (Three.js native); ignore FBX/OBJ copies.
 
 ## Tech conventions (match the rest of Krabsy)
 
@@ -178,5 +199,8 @@ read-only reference). Inline a curated ~40-verb subset in
 ## Status log
 
 - 2026-06-11 — Brief written by the master session. Nothing built yet.
-  Restaurant Bits pack NOT yet in `/assets/KayKit/` — user is buying it;
-  start with placeholder primitives if it's still missing.
+- 2026-06-11 — Restaurant Bits **EXTRA pack landed and verified** in
+  `/assets/KayKit/KayKit_Restaurant_Bits_1.0_EXTRA/` (225 gltf models,
+  self-contained, single atlas `restaurantbits_extra.png`). Assets
+  section updated with the real model inventory — no placeholder
+  primitives needed, build asset-first from day one.
