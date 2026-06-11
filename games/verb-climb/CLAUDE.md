@@ -443,3 +443,23 @@ difficulty can ramp with altitude.
     173 px/0.5 s, gentest 12/12 (heights 119–125 m), zero console
     errors. NOTE: measure jump rises on open ground (spawn) — zones
     under overhangs cap the apex and corrupt the numbers.
+- 2026-06-11 — **"One more chance" level-design round** (owner: still
+  too vertical; suggested Gimkit's lower gravity). All four levers:
+  - **Low gravity**: g 2500→1750, v0 870→730 (same 149 px jump HEIGHT,
+    ~40 % longer airtime: 0.82 s; running jump ≈190–300 px, running
+    double jump ≈400–550 px), maxFall 1250→980, vmax 345→360.
+  - **Placement by EDGE GAP, not centre offset** — the old "wider
+    spacing" failed because objects are 250–470 px wide, so centre
+    offsets left no real air. Now the gap is measured from the current
+    stand-zone edge: median real air gap 100 px, max 256 px, ~28 gaps
+    per tower.
+  - **Flat-traverse/climb step mix**: 55 % flat hops (rise 12–50 px,
+    gap 110–280 px), else climb steps (rise 55–105, gap 60–170).
+    Route horizontalness = 2.7 px sideways per 1 px up (was ≈1:1).
+  - **Objects mirror to face the approach** (topR/botR/platR built at
+    boot; instantiate(...,flip); topAt/botAt/draw/debug flip-aware) —
+    entry ledges always on the near side. Heights flattened ~12 %.
+  - Verified: gentest 12/12 (121–123 m), physics numbers above, flip
+    rendering confirmed in screenshots (right-facing locomotive),
+    zero console errors. Owner playtest = the real gate; fallback
+    plan if still unsatisfying: a level editor (owner designs levels).

@@ -227,9 +227,11 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
    • Jumps cost energy; irregular-verb questions refill it.
 ================================================================= */
 const W=2000, WALLX=22, PXM=32, SUMMIT_M=120;
-const PH={ g:2500, v0std:870, v0dbl:830, vmax:345,
-  acc:2900, accAir:2100, fric:3200, maxFall:1250,
-  cutV:270,                            // release early = jump cut (variable height)
+/* Gimkit-feel physics: LOW gravity → same jump height but ~40 % more
+   airtime, so running jumps sail across wide gaps */
+const PH={ g:1750, v0std:730, v0dbl:700, vmax:360,
+  acc:2900, accAir:2100, fric:3200, maxFall:980,
+  cutV:240,                            // release early = jump cut (variable height)
   coyote:0.09, buffer:0.13,
   costStd:1/9, EMAX:8,                 // every jump costs the same; ~72 jumps/bar
   pw:26, ph:34 };
@@ -268,29 +270,31 @@ const VERBS=[
 ================================================================= */
 const EFONT="'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif";
 const OBJ={
- bus:{e:"🚌",w:460,h:280,tier:0},
- sofa:{e:"🛋️",w:420,h:300,tier:0},
- cake:{e:"🎂",w:320,h:320,tier:0},
- books:{e:"📚",w:320,h:320,tier:0},
- bath:{e:"🛁",w:360,h:240,tier:0},
- train:{e:"🚂",w:470,h:320,tier:0},
- whale:{e:"🐳",w:470,h:300,tier:0},
- snowman:{e:"☃️",w:250,h:390,tier:1},
- teapot:{e:"🫖",w:340,h:290,tier:1},
- cat:{e:"🐈",w:400,h:300,tier:1},
- house:{e:"🏠",w:400,h:390,tier:1},
- elephant:{e:"🐘",w:440,h:340,tier:1},
- tractor:{e:"🚜",w:420,h:310,tier:1},
- giraffe:{e:"🦒",w:300,h:470,tier:2},
- mushroom:{e:"🍄",w:310,h:310,tier:2},
- moai:{e:"🗿",w:260,h:430,tier:2},
+ /* heights ~12 % flatter than v4: low wide profiles suit the
+    horizontal jump-and-run movement */
+ bus:{e:"🚌",w:460,h:255,tier:0},
+ sofa:{e:"🛋️",w:420,h:265,tier:0},
+ cake:{e:"🎂",w:320,h:285,tier:0},
+ books:{e:"📚",w:320,h:280,tier:0},
+ bath:{e:"🛁",w:360,h:225,tier:0},
+ train:{e:"🚂",w:470,h:285,tier:0},
+ whale:{e:"🐳",w:470,h:265,tier:0},
+ snowman:{e:"☃️",w:250,h:330,tier:1},
+ teapot:{e:"🫖",w:340,h:255,tier:1},
+ cat:{e:"🐈",w:400,h:265,tier:1},
+ house:{e:"🏠",w:400,h:340,tier:1},
+ elephant:{e:"🐘",w:440,h:300,tier:1},
+ tractor:{e:"🚜",w:420,h:275,tier:1},
+ giraffe:{e:"🦒",w:300,h:400,tier:2},
+ mushroom:{e:"🍄",w:310,h:275,tier:2},
+ moai:{e:"🗿",w:260,h:370,tier:2},
  /* castle dropped from the pool: its crown is all sub-40px perches and
     capped valleys — expert-only terrain that strands fallers (same
     reasoning as the v3 tent) */
  castle:{e:"🏰",w:440,h:440,tier:2,skip:1},
- boat:{e:"⛵",w:380,h:430,tier:2},
- trex:{e:"🦖",w:400,h:380,tier:2},
- circus:{e:"🎪",w:440,h:380,tier:2},
+ boat:{e:"⛵",w:380,h:370,tier:2},
+ trex:{e:"🦖",w:400,h:330,tier:2},
+ circus:{e:"🎪",w:440,h:330,tier:2},
  /* utility (code-drawn, one-way) */
  shelf:{w:840,h:42,tier:0,util:1},
  puff:{w:120,h:30,tier:0,util:1},
@@ -359,6 +363,11 @@ function buildTypes(){
     }
     P.sort((a,b)=>b.y-a.y);                          // lowest ledge first
     o.plateaus=P;
+    /* mirrored variant: any object can face either way, so its entry
+       ledge can always face the approach side */
+    o.topR=Int16Array.from(sm).reverse();
+    o.botR=Int16Array.from(bot).reverse();
+    o.platR=P.map(p=>({x1:-p.x2,x2:-p.x1,y:p.y}));
   }
   CLIMB_KEYS=Object.keys(OBJ).filter(k=>{
     const o=OBJ[k];
@@ -373,10 +382,11 @@ const mb32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
 /* =================================================================
    WORLD: placed objects → heightfield terrain
 ================================================================= */
-function instantiate(key,x,baseY,id){
+function instantiate(key,x,baseY,id,flip){
   const o=OBJ[key];
-  const inst={k:key,x,baseY,id,top:baseY-o.h,bot:baseY};
-  inst.tiers=o.plateaus.map(p=>({y:baseY+p.y,x:(p.x1+p.x2)/2+x,
+  const inst={k:key,x,baseY,id,top:baseY-o.h,bot:baseY,flip:!!flip};
+  const plats=flip?o.platR:o.plateaus;
+  inst.tiers=plats.map(p=>({y:baseY+p.y,x:(p.x1+p.x2)/2+x,
     x1:x+p.x1,x2:x+p.x2,o:inst}));
   inst.surfs=inst.tiers;                     // alias for QA tooling
   return inst;
@@ -386,13 +396,13 @@ function topAt(o,wx){
   const T=OBJ[o.k];if(!T.top)return null;
   const ci=Math.round((wx-(o.x-T.w/2))/2);
   if(ci<0||ci>=T.cols)return null;
-  const t=T.top[ci];return t<0?null:o.baseY-T.h+t;
+  const t=(o.flip?T.topR:T.top)[ci];return t<0?null:o.baseY-T.h+t;
 }
 function botAt(o,wx){
   const T=OBJ[o.k];if(!T.bot)return null;
   const ci=Math.round((wx-(o.x-T.w/2))/2);
   if(ci<0||ci>=T.cols)return null;
-  const b=T.bot[ci];return b<0?null:o.baseY-T.h+b;
+  const b=(o.flip?T.botR:T.bot)[ci];return b<0?null:o.baseY-T.h+b;
 }
 
 /* =================================================================
@@ -604,18 +614,25 @@ function genTower(seed,depth){
     let placed=false;
     for(let tries=0;tries<70&&!placed;tries++){
       const key=pool[(rng()*pool.length)|0],o=OBJ[key];
-      /* entry = the picture's lowest standable zone. Jump-and-run
-         profile: gentle rises, generous horizontal gaps (the double
-         jump — modelled in the sim — carries the crossing) */
-      const entry=o.plateaus[0];
-      const rise=(tut?60:70)+rng()*(tut?30:45);
-      const baseY=cur.y-rise-entry.y;          // entry.y negative
-      /* horizontal: place well to the side of the current stand point */
+      /* Jump-and-run profile: mostly FLAT TRAVERSE hops (tiny rise,
+         wide air gap) with occasional CLIMB steps. The gap is measured
+         edge-to-edge from the current stand zone — real air the low-
+         gravity running jump (plus double jump) sails across. */
       if(rng()<.25)dir=-dir;
-      const off=(tut?0.5:0.6)+rng()*0.45;
-      let x=cur.x+dir*off*(o.w/2+170+rng()*230);
-      x=Math.max(WALLX+o.w/2+4,Math.min(W-WALLX-o.w/2-4,x));
-      const inst=instantiate(key,x,baseY,objs.length);
+      const flat=!tut&&rng()<.55;
+      const rise=tut?(50+rng()*30):(flat?(12+rng()*38):(55+rng()*50));
+      const gap=tut?(70+rng()*90):(flat?(110+rng()*170):(60+rng()*110));
+      /* mirror the object so its entry ledge faces the approach */
+      const eMid=(o.plateaus[0].x1+o.plateaus[0].x2)/2;
+      const flip=dir>0?eMid>0:eMid<0;
+      const entry=(flip?o.platR:o.plateaus)[0];
+      const baseY=cur.y-rise-entry.y;          // entry.y negative
+      const edge=dir>0?cur.x2:cur.x1;
+      let x=edge+dir*(gap+o.w/2);
+      if(x<WALLX+o.w/2+4||x>W-WALLX-o.w/2-4){  // wall ahead: fold back
+        dir=-dir;continue;
+      }
+      const inst=instantiate(key,x,baseY,objs.length,flip);
       /* spacing: bounding boxes may overlap a little (≤80px) so the
          tower packs like terrain, but objects never bury each other */
       let bad=false;
@@ -990,7 +1007,11 @@ function drawObj(o){
      was read from — what you see is exactly what you climb */
   ctx.fillStyle="rgba(15,35,60,.15)";
   ctx.beginPath();ctx.ellipse(o.x,o.baseY+12,T.w*.42,10,0,0,7);ctx.fill();
-  if(T.img)ctx.drawImage(T.img,o.x-T.w/2,o.baseY-T.h);
+  if(T.img){
+    if(o.flip){ctx.translate(o.x,0);ctx.scale(-1,1);
+      ctx.drawImage(T.img,-T.w/2,o.baseY-T.h);}
+    else ctx.drawImage(T.img,o.x-T.w/2,o.baseY-T.h);
+  }
   ctx.restore();
 }
 function drawDebug(){
@@ -998,10 +1019,11 @@ function drawDebug(){
   for(const o of nearObjs()){
     const T=OBJ[o.k];
     if(T.top){
+      const tt=o.flip?T.topR:T.top,bb=o.flip?T.botR:T.bot;
       ctx.strokeStyle="rgba(255,0,90,.85)";ctx.beginPath();
       let pen=false;
       for(let ci=0;ci<T.cols;ci++){
-        const t=T.top[ci];
+        const t=tt[ci];
         if(t<0){pen=false;continue;}
         const wx=o.x-T.w/2+ci*2,wy=o.baseY-T.h+t;
         pen?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);pen=true;
@@ -1009,7 +1031,7 @@ function drawDebug(){
       ctx.stroke();
       ctx.strokeStyle="rgba(255,140,0,.6)";ctx.beginPath();pen=false;
       for(let ci=0;ci<T.cols;ci++){
-        const b=T.bot[ci];
+        const b=bb[ci];
         if(b<0){pen=false;continue;}
         const wx=o.x-T.w/2+ci*2,wy=o.baseY-T.h+b;
         pen?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);pen=true;
