@@ -226,7 +226,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
      never skip an object.
    • Jumps cost energy; irregular-verb questions refill it.
 ================================================================= */
-const W=2000, WALLX=22, PXM=32, SUMMIT_M=120;
+const W=12000, WALLX=22, PXM=32, SUMMIT_M=120;   // ~10 screen widths
 /* Gimkit-feel physics: LOW gravity → same jump height but ~40 % more
    airtime, so running jumps sail across wide gaps */
 const PH={ g:1750, v0std:730, v0dbl:700, vmax:360,
@@ -295,6 +295,16 @@ const OBJ={
  boat:{e:"⛵",w:380,h:370,tier:2},
  trex:{e:"🦖",w:400,h:330,tier:2},
  circus:{e:"🎪",w:440,h:330,tier:2},
+ /* small stepping-stone variants (Gimkit-barrel scale, 4–5× the crab)
+    for gradual flat traverses */
+ cakeS:{e:"🎂",w:210,h:185,tier:0,small:1},
+ booksS:{e:"📚",w:210,h:185,tier:0,small:1},
+ bathS:{e:"🛁",w:230,h:145,tier:0,small:1},
+ sofaS:{e:"🛋️",w:260,h:165,tier:0,small:1},
+ car:{e:"🚗",w:240,h:150,tier:0,small:1},
+ teapotS:{e:"🫖",w:220,h:165,tier:1,small:1},
+ mushS:{e:"🍄",w:200,h:180,tier:1,small:1},
+ barrel:{e:"🛢️",w:190,h:200,tier:1,small:1},
  /* utility (code-drawn, one-way) */
  shelf:{w:840,h:42,tier:0,util:1},
  puff:{w:120,h:30,tier:0,util:1},
@@ -613,13 +623,20 @@ function genTower(seed,depth){
     const pool=CLIMB_KEYS.filter(k=>OBJ[k].tier<=(tut?0:t<.4?1:2));
     let placed=false;
     for(let tries=0;tries<70&&!placed;tries++){
-      const key=pool[(rng()*pool.length)|0],o=OBJ[key];
       /* Jump-and-run profile: mostly FLAT TRAVERSE hops (tiny rise,
          wide air gap) with occasional CLIMB steps. The gap is measured
          edge-to-edge from the current stand zone — real air the low-
-         gravity running jump (plus double jump) sails across. */
-      if(rng()<.25)dir=-dir;
+         gravity running jump (plus double jump) sails across.
+         Long sweeping legs: rarely flip direction, so the route
+         actually traverses the 10-screen width before turning. */
+      if(rng()<.07)dir=-dir;
       const flat=!tut&&rng()<.55;
+      /* flat hops prefer the small stepping-stone objects */
+      const smalls=pool.filter(k=>OBJ[k].small);
+      const key=(flat&&smalls.length&&rng()<.65)
+        ?smalls[(rng()*smalls.length)|0]
+        :pool[(rng()*pool.length)|0];
+      const o=OBJ[key];
       const rise=tut?(50+rng()*30):(flat?(12+rng()*38):(55+rng()*50));
       const gap=tut?(70+rng()*90):(flat?(110+rng()*170):(60+rng()*110));
       /* mirror the object so its entry ledge faces the approach */
@@ -965,8 +982,9 @@ function render(){
     ctx.fillStyle="#79d96e";ctx.fillRect(-400,0,W+800,500);
     ctx.fillStyle="#5cc454";ctx.fillRect(-400,0,W+800,12);
     ctx.font="26px "+EFONT;ctx.textAlign="center";
-    ["🌼","🌿","🌷","🍀","🌻","🌸","🍄","🌻","🌷","🌼"].forEach((e,i)=>
-      ctx.fillText(e,90+i*(W-180)/9,40));
+    const FLW=["🌼","🌿","🌷","🍀","🌻","🌸","🍄"];
+    for(let i=0,n=Math.ceil(W/220);i<n;i++)
+      ctx.fillText(FLW[i%FLW.length],90+i*220,40);
   }
   for(const o of nearObjs())drawObj(o);
   for(const d of dust){ctx.globalAlpha=Math.max(0,d.life*2.4);

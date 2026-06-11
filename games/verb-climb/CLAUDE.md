@@ -463,3 +463,13 @@ difficulty can ramp with altitude.
     rendering confirmed in screenshots (right-facing locomotive),
     zero console errors. Owner playtest = the real gate; fallback
     plan if still unsatisfying: a level editor (owner designs levels).
+- 2026-06-11 — **10-screen-wide world** (owner: camera never panned —
+  W=2000 ≈ one 1920px screen at zoom 1, so there was nothing to pan).
+  - W 2000 → **12000** (~10 screen widths); camera pans freely.
+  - Direction-flip probability 0.25 → 0.07: long sweeping traverse
+    legs — route x-spans now 3.3k–8.6k px (up to 7 screens) per tower.
+  - 8 small stepping-stone types added (cakeS/booksS/bathS/sofaS/car/
+    teapotS/mushS/barrel, 145–200 px tall ≈ 4–5× crab — Gimkit-barrel
+    scale); flat hops pick from them 65 % of the time. Pool = 27 types.
+  - Verified: 10/10 gentest (120–123 m), small types all yield zones,
+    screenshots show the Gimkit-like near-level object rows with gaps.
