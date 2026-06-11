@@ -170,7 +170,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
   cakes. <b>Climb up them</b>, ledge by ledge, to the summit at <b>120&nbsp;m</b>!</p>
   <div class="rows">
     <div class="row"><span class="ic">🏃</span><span><b>Move</b>&nbsp; <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
-    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> to charge a long leap</span></div>
+    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> to charge. While holding, <b>aim</b> with <span class="kbd">←</span><span class="kbd">→</span> (you won't slide off!)</span></div>
     <div class="row"><span class="ic">🧗</span><span>Big objects take <b>several jumps</b> to climb — find the ledges: armrests, cake tiers, a giraffe's neck…</span></div>
     <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b>. Refill with <b>verb questions</b>: <span class="kbd">Q</span> while standing.</span></div>
     <div class="row"><span class="ic">🪂</span><span>Fall and you <b>tumble back down</b> the tower. Height is the only thing you can lose.</span></div>
@@ -799,7 +799,9 @@ function pressJump(){
   if(okG){
     if(P.energy<PH.costStd-1e-6){deny();return;}
     if(!P.grounded){doJump(0);return;}
-    P.charging=true;P.chargeT0=simClock;P.lockX=false;
+    /* feet plant the instant jump is pressed: ←/→ now AIM the jump,
+       so you can never walk off an edge while charging */
+    P.charging=true;P.chargeT0=simClock;P.lockX=true;
   }else P.buffT=simClock;
 }
 function releaseJump(){
@@ -818,11 +820,16 @@ function doJump(cf,sf=1){
   if(!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
   P.energy-=cost;
   let v0;
+  const aim=(keys.r?1:0)-(keys.l?1:0);
   if(charged){
     v0=PH.v0std+(PH.v0chg-PH.v0std)*cf;
-    const aim=(keys.r?1:0)-(keys.l?1:0);
     P.vx=aim*(0.6+0.4*cf)*PH.aimV;
-  }else v0=PH.v0std*(0.62+0.38*Math.min(1,sf));
+  }else{
+    v0=PH.v0std*(0.62+0.38*Math.min(1,sf));
+    /* feet are planted while holding jump, so the held arrow gives the
+       launch its direction (air control still steers afterwards) */
+    P.vx=aim*(0.5+0.3*Math.min(1,sf))*PH.vmax+P.vx*0.25;
+  }
   P.vy=-v0;P.grounded=false;P.on=null;P.onGround=false;
   P.jumped=true;P.lockX=false;
   P.takeY=P.y;P.apexY=P.y;P.wheed=false;
@@ -867,12 +874,12 @@ function step(dt){
   simClock+=dt;runT+=dt;P.now=simClock;
   if(P.charging){
     const ct=simClock-P.chargeT0;
-    if(ct>PH.stdT){P.lockX=true;SND.chargeOn();
+    if(ct>PH.stdT){SND.chargeOn();
       SND.chargeSet(Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT)));}
   }
   const dirIn=(keys.r?1:0)-(keys.l?1:0);
   if(dirIn)P.face=dirIn;
-  if(P.lockX&&P.grounded)P.vx*=Math.max(0,1-12*dt);
+  if(P.lockX&&P.grounded)P.vx*=Math.max(0,1-20*dt);   // planted while jump is held
   else if(dirIn)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
   else if(P.grounded){const s=Math.sign(P.vx);P.vx-=s*PH.fric*dt;if(Math.sign(P.vx)!==s)P.vx=0;}
   else P.vx*=Math.max(0,1-5*dt);   // air drag when gliding: release = soft brake
@@ -895,7 +902,8 @@ function step(dt){
     puffFX(P.x,P.y,big?9:5);SND.land(big?1:0.3);
     if(P.on&&P.on.o&&P.on.o.summit&&mode==="play")winSummit();
     if(simClock-P.buffT<PH.buffer){P.buffT=-9;
-      if(P.held){P.charging=true;P.chargeT0=simClock;}else doJump(0,0.8);}
+      if(P.held){P.charging=true;P.chargeT0=simClock;P.lockX=true;}
+      else doJump(0,0.8);}
   }
   P.sx+=(1-P.sx)*Math.min(1,dt*11);P.sy+=(1-P.sy)*Math.min(1,dt*11);
   P.wobble*=Math.max(0,1-3.4*dt);P.dizzy=Math.max(0,P.dizzy-dt);

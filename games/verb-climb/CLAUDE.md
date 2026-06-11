@@ -416,3 +416,11 @@ difficulty can ramp with altitude.
     an object from). Every recent stall inspected as reach()=true with
     a sensible human path. Trust gentest's honest semantics + manual
     play for feel; use the bot to investigate, not as a gate.
+- 2026-06-11 — **Plant-and-aim jumping** (owner-reported: walking off
+  edges while the jump charges). Feet now plant the INSTANT jump is
+  pressed (lockX from press, not from the 0.18 s charge threshold);
+  ←/→ aim the jump while held; both jump types get an aim launch kick
+  (standard: aim·(0.5+0.3·sf)·vmax + 25 % residual momentum; charge
+  kick unchanged). Verified: 0 px drift during a 0.4 s left-held
+  charge at an edge, leftward launch on release; tap-aim hop +82 px;
+  buffered-landing path also locks; costs unchanged; gentest 8/8.
