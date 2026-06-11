@@ -395,3 +395,24 @@ difficulty can ramp with altitude.
   - Economy re-verified: std −⅓ / charge −1 / dry=parked / study ±;
     charge apex 237 px < shortest object 240 px (can't skip objects).
   - Zero console errors.
+- 2026-06-11 — **Owner tuning round:**
+  - Energy tripled: every jump (standard AND charge — owner wants equal
+    cost) now costs **1/9 segment**; the 8-segment bar ≈ 72 jumps; one
+    correct answer still refills a full segment (= 9 jumps).
+  - World widened to **W=2000** (was 1000): zoom now derives from screen
+    size only and the camera pans horizontally; spawn corridor and
+    flower decor follow W; shelf clouds widened to 840; entry offsets
+    slightly larger for more sideways traversal (route x-spread ≈1770).
+  - launchX now returns the HIGHEST stand point on the walk toward the
+    target (jump from a dome's apex, not its flank — a mushroom→shelf
+    link failed because launchX walked downhill).
+  - Object interpenetration removed: bbox overlap allowance cut from
+    80 px to 10 px. The old overlap created crawlspaces (bath sunk into
+    a bus roof) whose overhang lips head-bonked legitimate jumps. With
+    the wide strip there is room; gentest passes (12/12 in-page,
+    heights 121–126 m).
+  - NOTE on verification posture: the auto-climber bot is now mainly
+    limited by its own "vision" (it can't tell which side to approach
+    an object from). Every recent stall inspected as reach()=true with
+    a sensible human path. Trust gentest's honest semantics + manual
+    play for feel; use the bot to investigate, not as a gate.
