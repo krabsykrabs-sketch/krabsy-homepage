@@ -321,3 +321,61 @@ difficulty can ramp with altitude.
   **Open items:** human playtest for difficulty feel; touch on real
   device; maybe 2–3 more object types (train, elephant, whale as wide
   rest objects). Ready for master-session review.
+- 2026-06-11 — v3 **rejected by the owner** as well: the crab stood on
+  invisible boxes marked by white lines, so it still read and played as
+  "platforms with emoji decoration behind them". Reference remains
+  Gimkit "Don't Look Down": you climb the body of the object itself.
+- 2026-06-11 — **v4 IN PROGRESS (uncommitted → committed as WIP): pixel
+  heightfield terrain.** The collision IS the picture now:
+  - At boot every emoji type renders once to an offscreen canvas
+    (glyph bbox mapped exactly to its w×h via measureText actual-
+    bounding-box; the SAME canvas is drawn in-game, so visuals and
+    collision match pixel-for-pixel on every platform/font).
+  - Per 2px column we store top/bottom opaque pixels → the crab stands
+    on the silhouette's profile, is blocked by its sides (>~56° slope =
+    wall), bonks its underside, slides on steep parts (>~40°).
+    "Standable zones" (runs of walkable slope ≥40px wide) are derived
+    automatically and become the generator's route waypoints — no more
+    hand-authored boxes. 20 candidate types incl. train, whale,
+    elephant, t-rex, castle; tofu/hollow glyphs auto-dropped.
+  - Utility clouds (shelf/puff/deck) stay one-way code-drawn platforms.
+
+  **v4 lessons already burned in (do not relearn):**
+  - Pit-cap the profile: glyph notches (train chimney↔cab) deeper than
+    a jump are hard-stuck traps — cap pit depth at 60 px below the rim
+    ("water fill" with rimL/rimR minima).
+  - reach()'s "landed at target height = progress" rule MUST also
+    require horizontal nearness (±140 px of the target zone): an
+    at-height landing across a canyon (train front bumper vs cab) is a
+    dead end the old rule wrongly accepted.
+  - Walking collision must ignore slabs that float entirely above the
+    head (b < feet−height) — otherwise the crab freezes under any
+    overhead object (this bug looked exactly like "can't walk").
+  - Keep the spawn corridor (x 410–590 × y −190..10) free of objects or
+    the crab can spawn buried inside a glyph.
+  - Generation perf: filter sim worlds to objects within ±700 px of the
+    link (28× speedup, 14 s → 0.5 s/tower); first call pays ~5 s JIT.
+  - Landing acceptance: x-in-zone identifies the zone (heightmap is
+    single-valued); y-tolerance must be loose (±60) or flank landings
+    on curved zones (whale back) fail and generation crawls.
+
+  **OPEN BUG (where work stopped):** the generator/validator sims
+  launch from `sx = clamp(target.x into the source waypoint span)` —
+  but that spot may be UNREACHABLE: the ground waypoint spans the whole
+  strip, yet an object standing ON the ground (books) blocks walking
+  past its left wall, while the sim happily "starts" at a column inside/
+  beyond it and proves an entry the player can't actually approach.
+  The auto-climber therefore fails at the very first link (can't walk
+  under/over books#0 to reach its right-side entry zone at x 897).
+  FIX DIRECTION: launch points must be constrained to the REACHABLE
+  part of the source surface — e.g. clamp sx to the connected walkable
+  interval around the previous landing point (walk the heightfield/
+  ground left+right from the waypoint centre until blocked), and use
+  that interval, not the full span. Then re-run: in-page gentest 40+,
+  headless gentest 100+, and the auto-climber (window.__climb pattern
+  in the transcripts; drive via __VC.keys/step/doJump) until it summits
+  with real player physics, as it did for v3 (37 jumps).
+  Also still pending after that: visual pass (gallery `?qa=gallery&
+  from=0|4|8|12|16&debug=1` now draws the top/bottom profile polylines
+  + green zone bars), scene/summit screenshots, console-error check,
+  STATUS update, final commit.
