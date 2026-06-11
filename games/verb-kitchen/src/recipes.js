@@ -39,6 +39,7 @@ export const DISHES = {
   salad:           { name: 'Salad',        emoji: '🥗', parts: ['lettuce_chopped', 'tomato_slices'], coins: 20, model: null },
   burger:          { name: 'Burger',       emoji: '🍔', parts: ['bun', 'patty_cooked', 'lettuce_chopped'], coins: 30, model: 'food_burger' },
   cheeseburger:    { name: 'Cheeseburger', emoji: '🧀🍔', parts: ['bun', 'patty_cooked', 'cheese_chopped'], coins: 30, model: 'food_burger' },
+  bigburger:       { name: 'Big Burger',   emoji: '🍔⭐', parts: ['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped'], coins: 40, model: 'food_burger' },
   pizza_cheese:    { name: 'Cheese Pizza',    emoji: '🍕', parts: ['pizza_cheese'],    coins: 40, model: 'food_pizza_cheese_plated' },
   pizza_pepperoni: { name: 'Pepperoni Pizza', emoji: '🍕', parts: ['pizza_pepperoni'], coins: 40, model: 'food_pizza_pepperoni_plated' },
   pizza_mushroom:  { name: 'Mushroom Pizza',  emoji: '🍕', parts: ['pizza_mushroom'],  coins: 40, model: 'food_pizza_mushroom_plated' },
@@ -53,19 +54,13 @@ export function matchDish(contents) {
   return null;
 }
 
-/** Could `contents + extra` still grow into some dish? (partial subset test) */
-export function canExtend(contents, extra) {
-  const next = [...contents, extra];
-  outer: for (const d of Object.values(DISHES)) {
-    const pool = d.parts.slice();
-    for (const it of next) {
-      const i = pool.indexOf(it);
-      if (i === -1) continue outer;
-      pool.splice(i, 1);
-    }
-    return true;
-  }
-  return false;
+/**
+ * Free-build rule: any plateable ingredient may go on a plate (build the
+ * burger YOU want), except exact duplicates (can never match a dish —
+ * pure frustration) and silly towers (cap 5).
+ */
+export function canPlate(contents, extra) {
+  return !contents.includes(extra) && contents.length < 5;
 }
 
 /** Counter-top combine (pizza assembly): base item + held item → result id or null. */

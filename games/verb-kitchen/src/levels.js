@@ -43,7 +43,7 @@ export const LEVELS = [
       'CCbCCbCCtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
-    dishes: [{ dish: 'burger', w: 3 }, { dish: 'cheeseburger', w: 2 }, { dish: 'salad', w: 1 }],
+    dishes: [{ dish: 'burger', w: 3 }, { dish: 'cheeseburger', w: 2 }, { dish: 'bigburger', w: 1 }],
     spawnEvery: [19, 26],
     patience: 128,
     roundTime: 180,

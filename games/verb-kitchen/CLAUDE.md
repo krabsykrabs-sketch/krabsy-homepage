@@ -238,3 +238,11 @@ read-only reference). Inline a curated ~40-verb subset in
   select (closes quiz, clears tickets, stops audio). All re-verified
   via __VK; star thresholds NOT retuned yet — slower pipelines mean
   lower scores, so thresholds likely need a playtest-based pass.
+- 2026-06-11 — **Burger Bar fixes (user feedback).** Salad removed from
+  the L2 ticket pool (it needed tomatoes the level doesn't stock);
+  replaced by **Big Burger** (bun+patty+lettuce+cheese, 40🪙, w:1).
+  Plating is now **free-build** (`canPlate` replaced `canExtend`): any
+  plateable ingredient goes on a plate regardless of active tickets —
+  only exact duplicates and >5 stacks are blocked; unservable plates
+  are emptied at the trash. Verified: pool sampling, free build,
+  dupe-block, junk-plate trash, bigburger match + serve.

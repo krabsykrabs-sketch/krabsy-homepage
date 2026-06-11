@@ -1,7 +1,7 @@
 // Core game orchestrator: scene, loop, interactions, scoring, round flow.
 import * as THREE from 'three';
 import { TILE, preloadRestaurant } from './models.js';
-import { ITEMS, DISHES, matchDish, canExtend, combine, itemModelNames } from './recipes.js';
+import { ITEMS, DISHES, matchDish, canPlate, combine, itemModelNames } from './recipes.js';
 import { LEVELS, levelModelNames } from './levels.js';
 import { World } from './world.js';
 import { Chef, preloadChef } from './chef.js';
@@ -279,7 +279,7 @@ export class Game {
     if (held && st.item) {
       // plate on counter + plateable in hand
       if (st.item.type === 'plate' && !st.item.dirty && held.type === 'ing' &&
-          ITEMS[held.id].plateable && canExtend(st.item.contents, held.id)) {
+          ITEMS[held.id].plateable && canPlate(st.item.contents, held.id)) {
         st.item.contents.push(held.id);
         st.item.dish = matchDish(st.item.contents);
         st.setItem(st.item);
@@ -289,7 +289,7 @@ export class Game {
       }
       // plate in hand + plateable on counter
       if (held.type === 'plate' && !held.dirty && st.item.type === 'ing' &&
-          ITEMS[st.item.id].plateable && canExtend(held.contents, st.item.id)) {
+          ITEMS[st.item.id].plateable && canPlate(held.contents, st.item.id)) {
         const ing = st.takeItem();
         held.contents.push(ing.id);
         held.dish = matchDish(held.contents);
