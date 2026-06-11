@@ -537,6 +537,7 @@ export class Game {
   stopRound() {
     this.running = false;
     audio.stopAll();
+    if (this.quiz && this.quiz.open) this.quiz.close();
     if (this.orders) this.orders.clear();
     ui.hud(false);
   }

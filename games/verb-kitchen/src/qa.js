@@ -105,7 +105,7 @@ export function initQA(game, save, startLevel, params) {
       const stove = game.world.stations.find((s) => s.type === 'stove');
       stove.startCooking(makeIngredient('patty_cooked'));
       stove.state = 'ready';
-      VK.tick(8.5);              // ride through burn → smoke
+      VK.tick(12.5);             // ride through burn → smoke
     } else if (scene === 'stars') {
       game.score = 250;
       game.quiz.missedThisRound = ['go|past', 'eat|pp'];

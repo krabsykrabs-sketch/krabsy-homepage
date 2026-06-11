@@ -55,6 +55,7 @@ async function startLevel(idx, opts = {}) {
   ui.fade(false);
 }
 
+document.getElementById('quitBtn').addEventListener('click', () => showLevelSelect());
 document.getElementById('playBtn').addEventListener('click', () => {
   audio.init();
   showLevelSelect();

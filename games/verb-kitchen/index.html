@@ -87,8 +87,9 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 #comboPill{color:var(--amber); display:none;}
 #comboPill.on{display:flex; animation:pop .25s;}
 @keyframes pop{0%{transform:scale(.6);} 70%{transform:scale(1.15);} 100%{transform:scale(1);}}
-#muteBtn{pointer-events:auto; background:rgba(12,20,48,.85); border:2px solid rgba(255,255,255,.12); border-radius:50%;
+#muteBtn,#quitBtn{pointer-events:auto; background:rgba(12,20,48,.85); border:2px solid rgba(255,255,255,.12); border-radius:50%;
   width:40px; height:40px; font-size:17px; color:var(--ink);}
+#muteBtn:hover,#quitBtn:hover{border-color:var(--teal);}
 #hint{position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(12,20,48,.88);
   border:2px solid rgba(255,255,255,.12); border-radius:999px; padding:8px 22px; font-weight:800; font-size:15px;
   white-space:nowrap; transition:opacity .15s;}
@@ -159,6 +160,7 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
     <div class="pill" id="comboPill">🔥 <span id="comboVal">x2</span></div>
     <div class="pill" id="timerPill">⏱ <span id="timeVal">3:00</span></div>
     <button id="muteBtn" title="Sound">🔊</button>
+    <button id="quitBtn" title="Back to menu">🏠</button>
   </div>
   <div id="plateCount">🍽️ <span id="plateVal">4</span></div>
   <div id="hint"></div>

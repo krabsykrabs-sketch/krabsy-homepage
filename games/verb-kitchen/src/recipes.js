@@ -9,8 +9,8 @@ export const ITEMS = {
 
   // --- level 2: burgers ---
   bun:             { model: 'food_ingredient_bun',             emoji: '🍞', plateable: true },
-  patty_raw:       { model: 'food_ingredient_burger_uncooked', emoji: '🥩', cookTo: 'patty_cooked', cookTime: 7 },
-  patty_cooked:    { model: 'food_ingredient_burger_cooked',   emoji: '🍖', plateable: true, burnTo: 'patty_burnt', burnTime: 8 },
+  patty_raw:       { model: 'food_ingredient_burger_uncooked', emoji: '🥩', cookTo: 'patty_cooked', cookTime: 10.5 },
+  patty_cooked:    { model: 'food_ingredient_burger_cooked',   emoji: '🍖', plateable: true, burnTo: 'patty_burnt', burnTime: 12 },
   patty_burnt:     { model: 'food_ingredient_burger_trash',    emoji: '💀', trashOnly: true },
   cheese:          { model: 'food_ingredient_cheese',          emoji: '🧀', chopTo: 'cheese_chopped' },
   cheese_chopped:  { model: 'food_ingredient_cheese_chopped',  emoji: '🧀', plateable: true },
@@ -25,9 +25,9 @@ export const ITEMS = {
   pepperoni_chopped:{ model: 'food_ingredient_pepperoni_chopped',emoji: '🍖' },
   mushroom:        { model: 'food_ingredient_mushroom',          emoji: '🍄', chopTo: 'mushroom_chopped' },
   mushroom_chopped:{ model: 'food_ingredient_mushroom_chopped',  emoji: '🍄' },
-  pizza_raw_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🧀', tint: '#d8c49a', bakeTo: 'pizza_cheese', bakeTime: 9 },
-  pizza_raw_pepperoni: { model: 'food_pizza_pepperoni_plated', emoji: '🍖', tint: '#d8c49a', bakeTo: 'pizza_pepperoni', bakeTime: 9 },
-  pizza_raw_mushroom:  { model: 'food_pizza_mushroom_plated',  emoji: '🍄', tint: '#d8c49a', bakeTo: 'pizza_mushroom', bakeTime: 9 },
+  pizza_raw_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🧀', tint: '#d8c49a', bakeTo: 'pizza_cheese', bakeTime: 13.5 },
+  pizza_raw_pepperoni: { model: 'food_pizza_pepperoni_plated', emoji: '🍖', tint: '#d8c49a', bakeTo: 'pizza_pepperoni', bakeTime: 13.5 },
+  pizza_raw_mushroom:  { model: 'food_pizza_mushroom_plated',  emoji: '🍄', tint: '#d8c49a', bakeTo: 'pizza_mushroom', bakeTime: 13.5 },
   pizza_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8 },
   pizza_pepperoni: { model: 'food_pizza_pepperoni_plated', emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8 },
   pizza_mushroom:  { model: 'food_pizza_mushroom_plated',  emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8 },

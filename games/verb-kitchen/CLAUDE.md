@@ -232,3 +232,9 @@ read-only reference). Inline a curated ~40-verb subset in
     plated pizza shows a double plate; burnt pizza = dark-tinted model.
   - **Next (v1.1 candidates):** playtune star thresholds from real
     playthroughs, touch controls, DE/ES UI, sundae level.
+- 2026-06-11 — **Pacing pass (user feedback) + quit button.** Cook/bake
+  times +50% (patty 10.5s, pizza 13.5s), patty burn window 8→12s,
+  ticket patience +50% (112/128/150). HUD 🏠 button quits to level
+  select (closes quiz, clears tickets, stops audio). All re-verified
+  via __VK; star thresholds NOT retuned yet — slower pipelines mean
+  lower scores, so thresholds likely need a playtest-based pass.
