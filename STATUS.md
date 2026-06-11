@@ -18,6 +18,7 @@ at the end of each session. (Last update: 2026-06-10.)
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC brief written** (`games/verb-climb/CLAUDE.md`) — open a session in that folder to build |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC brief written** (`games/verb-valley/CLAUDE.md`) — open a session in that folder to build |
 | Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC brief written** (`games/verb-runway/CLAUDE.md`) — PoC doubles as an AI-vector-art test; open a session in that folder to build |
+| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | — | **PoC brief written** (`games/verb-kitchen/CLAUDE.md`) — needs Restaurant Bits dropped into `/assets/KayKit/`; open a session in that folder to build |
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
