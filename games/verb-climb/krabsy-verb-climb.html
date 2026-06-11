@@ -170,7 +170,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
   cakes. <b>Climb up them</b>, ledge by ledge, to the summit at <b>120&nbsp;m</b>!</p>
   <div class="rows">
     <div class="row"><span class="ic">🏃</span><span><b>Move</b>&nbsp; <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
-    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; tap <span class="kbd">Space</span> — <b>hold</b> to charge. While holding, <b>aim</b> with <span class="kbd">←</span><span class="kbd">→</span> (you won't slide off!)</span></div>
+    <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; <span class="kbd">Space</span> — tap again in the air for a <b>double jump</b>! Release early for a small hop.</span></div>
     <div class="row"><span class="ic">🧗</span><span>Big objects take <b>several jumps</b> to climb — find the ledges: armrests, cake tiers, a giraffe's neck…</span></div>
     <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b>. Refill with <b>verb questions</b>: <span class="kbd">Q</span> while standing.</span></div>
     <div class="row"><span class="ic">🪂</span><span>Fall and you <b>tumble back down</b> the tower. Height is the only thing you can lose.</span></div>
@@ -227,10 +227,11 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
    • Jumps cost energy; irregular-verb questions refill it.
 ================================================================= */
 const W=2000, WALLX=22, PXM=32, SUMMIT_M=120;
-const PH={ g:2500, v0std:870, v0chg:1100, vmax:345, aimV:400,
+const PH={ g:2500, v0std:870, v0dbl:830, vmax:345,
   acc:2900, accAir:2100, fric:3200, maxFall:1250,
-  stdT:0.18, fullT:0.75, coyote:0.09, buffer:0.13,
-  costStd:1/9, costChg:1/9, EMAX:8,    // every jump costs the same; ~72 jumps/bar
+  cutV:270,                            // release early = jump cut (variable height)
+  coyote:0.09, buffer:0.13,
+  costStd:1/9, EMAX:8,                 // every jump costs the same; ~72 jumps/bar
   pw:26, ph:34 };
 
 /* ---------- verbs ---------- */
@@ -486,12 +487,15 @@ function simJumpEx(sx,sy,target,objs,v0){
   const ent={x:sx,y:sy,vx:0,vy:-(v0??PH.v0std)*0.97,grounded:false,
     on:null,onGround:false,now:0,landed:false};
   const aA=PH.accAir*0.92,vM=PH.vmax*0.95,dt=1/240;
+  let dbl=true;                       // the player has one double jump per hop
   for(let i=0;i<900;i++){
     if(!ent.grounded){
       const d=tx-ent.x;
       let want=Math.abs(d)>5?Math.sign(d):0;
       if(want&&Math.sign(ent.vx)===want&&ent.vx*ent.vx/(2*aA)>Math.abs(d))want=-want;
       ent.vx=Math.max(-vM,Math.min(vM,ent.vx+want*aA*dt));
+      /* double-jump like a player: falling and still below the target */
+      if(dbl&&ent.vy>140&&ent.y>target.y+12){ent.vy=-PH.v0dbl*0.97;dbl=false;}
     }
     ent.landed=false;
     collide(ent,dt,objs);
@@ -600,14 +604,16 @@ function genTower(seed,depth){
     let placed=false;
     for(let tries=0;tries<70&&!placed;tries++){
       const key=pool[(rng()*pool.length)|0],o=OBJ[key];
-      /* entry = the picture's lowest standable zone; one jump above cur */
+      /* entry = the picture's lowest standable zone. Jump-and-run
+         profile: gentle rises, generous horizontal gaps (the double
+         jump — modelled in the sim — carries the crossing) */
       const entry=o.plateaus[0];
-      const rise=(tut?80:95)+rng()*(tut?35:40);
+      const rise=(tut?60:70)+rng()*(tut?30:45);
       const baseY=cur.y-rise-entry.y;          // entry.y negative
-      /* horizontal: place to the side of the current stand point */
+      /* horizontal: place well to the side of the current stand point */
       if(rng()<.25)dir=-dir;
-      const off=(tut?0.45:0.55)+rng()*0.5;
-      let x=cur.x+dir*off*(o.w/2+105+rng()*125);
+      const off=(tut?0.5:0.6)+rng()*0.45;
+      let x=cur.x+dir*off*(o.w/2+170+rng()*230);
       x=Math.max(WALLX+o.w/2+4,Math.min(W-WALLX-o.w/2-4,x));
       const inst=instantiate(key,x,baseY,objs.length);
       /* spacing: bounding boxes may overlap a little (≤80px) so the
@@ -767,7 +773,7 @@ let qrng=mb32(1),recent=[],runT=0,frozen=false,debug=false;
 let simClock=0;
 const P={x:W/2,y:0,vx:0,vy:0,grounded:true,on:null,onGround:true,
   face:1,energy:PH.EMAX,sx:1,sy:1,wobble:0,dizzy:0,
-  charging:false,chargeT0:0,lockX:false,held:false,
+  airJumps:1,held:false,
   coyT:-9,buffT:-9,jumped:false,takeY:0,apexY:0,wheed:false,now:0,landed:false};
 const keys={l:false,r:false};
 let dust=[],confetti=[];
@@ -792,49 +798,31 @@ addEventListener("resize",fit);
 /* =================================================================
    INPUT
 ================================================================= */
+/* Mario-style: jump fires INSTANTLY on press; release early to cut the
+   jump short; press again in the air for one double jump. Momentum
+   carries — run-jumps go further. */
 function pressJump(){
   SND.init();
   if(mode!=="play")return;
-  const okG=P.grounded||(simClock-P.coyT<PH.coyote&&!P.jumped);
-  if(okG){
-    if(P.energy<PH.costStd-1e-6){deny();return;}
-    if(!P.grounded){doJump(0);return;}
-    /* feet plant the instant jump is pressed: ←/→ now AIM the jump,
-       so you can never walk off an edge while charging */
-    P.charging=true;P.chargeT0=simClock;P.lockX=true;
-  }else P.buffT=simClock;
+  if(P.grounded||(simClock-P.coyT<PH.coyote&&!P.jumped))doJump(false);
+  else if(P.airJumps>0)doJump(true);
+  else P.buffT=simClock;
 }
 function releaseJump(){
-  if(mode!=="play"||!P.charging){SND.chargeOff();return;}
-  P.charging=false;SND.chargeOff();
-  const ct=simClock-P.chargeT0;
-  if(ct<=PH.stdT)doJump(0,ct/PH.stdT);
-  else{
-    const f=Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT));
-    if(P.energy>=PH.costChg)doJump(f+1e-4,1);else doJump(0,1);
-  }
+  if(mode!=="play")return;
+  if(!P.grounded&&P.vy<-PH.cutV)P.vy=-PH.cutV;   // variable height
 }
-function doJump(cf,sf=1){
-  const charged=cf>0,cost=charged?PH.costChg:PH.costStd;
-  if(P.energy<cost-1e-6){deny();return;}
-  if(!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
-  P.energy-=cost;
-  let v0;
-  const aim=(keys.r?1:0)-(keys.l?1:0);
-  if(charged){
-    v0=PH.v0std+(PH.v0chg-PH.v0std)*cf;
-    P.vx=aim*(0.6+0.4*cf)*PH.aimV;
-  }else{
-    v0=PH.v0std*(0.62+0.38*Math.min(1,sf));
-    /* feet are planted while holding jump, so the held arrow gives the
-       launch its direction (air control still steers afterwards) */
-    P.vx=aim*(0.5+0.3*Math.min(1,sf))*PH.vmax+P.vx*0.25;
-  }
-  P.vy=-v0;P.grounded=false;P.on=null;P.onGround=false;
-  P.jumped=true;P.lockX=false;
-  P.takeY=P.y;P.apexY=P.y;P.wheed=false;
+function doJump(air){
+  if(P.energy<PH.costStd-1e-6){deny();return;}
+  if(!air&&!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
+  P.energy-=PH.costStd;
+  if(air)P.airJumps--;
+  P.vy=-(air?PH.v0dbl:PH.v0std);
+  P.grounded=false;P.on=null;P.onGround=false;P.jumped=true;
+  if(!air){P.takeY=P.y;P.apexY=P.y;}
+  P.wheed=false;
   P.sx=0.74;P.sy=1.3;
-  puffFX(P.x,P.y,5);SND.jump(charged?1:sf*.6);energyUI();
+  puffFX(P.x,P.y,air?8:5);SND.jump(air?1:.6);energyUI();
 }
 function deny(){SND.deny();
   const e=document.getElementById("energy");
@@ -872,15 +860,9 @@ function nearObjs(pad=420){
 }
 function step(dt){
   simClock+=dt;runT+=dt;P.now=simClock;
-  if(P.charging){
-    const ct=simClock-P.chargeT0;
-    if(ct>PH.stdT){SND.chargeOn();
-      SND.chargeSet(Math.min(1,(ct-PH.stdT)/(PH.fullT-PH.stdT)));}
-  }
   const dirIn=(keys.r?1:0)-(keys.l?1:0);
   if(dirIn)P.face=dirIn;
-  if(P.lockX&&P.grounded)P.vx*=Math.max(0,1-20*dt);   // planted while jump is held
-  else if(dirIn)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
+  if(dirIn)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
   else if(P.grounded){const s=Math.sign(P.vx);P.vx-=s*PH.fric*dt;if(Math.sign(P.vx)!==s)P.vx=0;}
   else P.vx*=Math.max(0,1-5*dt);   // air drag when gliding: release = soft brake
   P.vx=Math.max(-PH.vmax,Math.min(PH.vmax,P.vx));
@@ -894,16 +876,14 @@ function step(dt){
   }
   if(P.landed){
     const drop=(P.y-P.takeY)/PXM,big=drop>7;
-    P.jumped=false;
+    P.jumped=false;P.airJumps=1;          // double jump back on touch-down
     P.sx=big?1.5:1.32;P.sy=big?0.52:0.68;
     if(big)P.dizzy=0.6;
     if(P.on&&P.on.util){const s=P.on.s,edge=Math.min(P.x-s.x1,s.x2-P.x);
       if(edge<12&&(s.x2-s.x1)<140)P.wobble=1;}
     puffFX(P.x,P.y,big?9:5);SND.land(big?1:0.3);
     if(P.on&&P.on.o&&P.on.o.summit&&mode==="play")winSummit();
-    if(simClock-P.buffT<PH.buffer){P.buffT=-9;
-      if(P.held){P.charging=true;P.chargeT0=simClock;P.lockX=true;}
-      else doJump(0,0.8);}
+    if(simClock-P.buffT<PH.buffer){P.buffT=-9;doJump(false);}
   }
   P.sx+=(1-P.sx)*Math.min(1,dt*11);P.sy+=(1-P.sy)*Math.min(1,dt*11);
   P.wobble*=Math.max(0,1-3.4*dt);P.dizzy=Math.max(0,P.dizzy-dt);
@@ -1045,17 +1025,16 @@ function drawDebug(){
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
   ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function drawCrab(){
-  const cf=P.charging?Math.min(1,Math.max(0,(simClock-P.chargeT0-PH.stdT)/(PH.fullT-PH.stdT))):0;
-  const squat=cf*0.3;
   ctx.save();
   ctx.translate(P.x,P.y);
   if(P.wobble>0.05)ctx.rotate(Math.sin(simClock*26)*0.13*P.wobble);
-  ctx.scale(P.sx*(1+squat*.3),P.sy*(1-squat));
+  ctx.scale(P.sx,P.sy);
   ctx.strokeStyle="#e05d5d";ctx.lineWidth=3;ctx.lineCap="round";
   for(const s of[-1,1])for(let i=0;i<3;i++){
     ctx.beginPath();ctx.moveTo(s*(7+i*4),-7);ctx.lineTo(s*(13+i*5),-1+(i===1?1:0));ctx.stroke();}
   ctx.fillStyle="#ff6f6f";
-  ctx.beginPath();ctx.arc(-19,-13-cf*7,6.5,0,7);ctx.arc(19,-13-cf*7,6.5,0,7);ctx.fill();
+  const armUp=!P.grounded&&P.airJumps===0?6:0;   // arms up after the double jump
+  ctx.beginPath();ctx.arc(-19,-13-armUp,6.5,0,7);ctx.arc(19,-13-armUp,6.5,0,7);ctx.fill();
   ctx.fillStyle="#ff8585";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
   ctx.fillStyle="rgba(224,93,93,.55)";ctx.beginPath();ctx.ellipse(0,-9,14,6,0,0,7);ctx.fill();
   ctx.strokeStyle="#e05d5d";ctx.beginPath();
@@ -1070,11 +1049,6 @@ function drawCrab(){
     ctx.font="13px sans-serif";ctx.textAlign="center";
     for(let i=0;i<3;i++){const a=simClock*5+i*2.1;
       ctx.fillText("✦",Math.cos(a)*15,Math.sin(a)*5);}
-    ctx.restore();}
-  if(P.charging&&simClock-P.chargeT0>PH.stdT){
-    ctx.save();ctx.translate(P.x,P.y-16);
-    ctx.strokeStyle=cf>=1?"#ffcf5e":"#2ee6c0";ctx.lineWidth=3.5;
-    ctx.beginPath();ctx.arc(0,0,26,-Math.PI/2,-Math.PI/2+cf*6.283);ctx.stroke();
     ctx.restore();}
 }
 
@@ -1197,7 +1171,7 @@ function wheeFX(){const e=document.createElement("div");e.className="wheee";
 function newGame(s){
   seed=s>>>0;tower=genTower(seed);qrng=mb32((seed^0x51ab)>>>0);recent=[];
   P.x=W/2;P.y=0;P.vx=0;P.vy=0;P.grounded=true;P.on=null;P.onGround=true;
-  P.energy=PH.EMAX;P.sx=P.sy=1;P.charging=false;P.wobble=0;P.dizzy=0;
+  P.energy=PH.EMAX;P.sx=P.sy=1;P.airJumps=1;P.wobble=0;P.dizzy=0;
   P.coyT=-9;P.buffT=-9;P.jumped=false;
   curM=0;runT=0;missed.clear();confetti=[];dust=[];
   camY=P.y-viewH*0.58;camX=W/2;
@@ -1284,11 +1258,12 @@ window.__VC={
     if(!b.o){P.on=null;P.onGround=true;}
     else if(OBJ[b.o.k].util){P.on={util:1,s:b.o.tiers[0],o:b.o};P.onGround=false;}
     else{const t=topAt(b.o,P.x);if(t!=null)P.y=t;P.on={o:b.o};P.onGround=false;}
-    P.jumped=false;curM=-P.y/PXM;camY=P.y-viewH*0.58;
+    P.jumped=false;P.airJumps=1;curM=-P.y/PXM;camY=P.y-viewH*0.58;
     camX=viewW>=W?W/2:Math.max(viewW/2,Math.min(W-viewW/2,P.x));
     return this.state();},
   setEnergy(n){P.energy=Math.max(0,Math.min(PH.EMAX,n));energyUI();return P.energy;},
-  press:pressJump,release:releaseJump,doJump:(f,s)=>doJump(f,s),
+  press:pressJump,release:releaseJump,
+  doJump:()=>doJump(false),airJump:()=>doJump(true),
   step(t){let k=Math.round(t*120);while(k-->0)step(1/120);return this.state();},
   freeze(b){frozen=!!b;return frozen;},
   keys,

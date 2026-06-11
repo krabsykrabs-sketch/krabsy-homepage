@@ -424,3 +424,22 @@ difficulty can ramp with altitude.
   kick unchanged). Verified: 0 px drift during a 0.4 s left-held
   charge at an edge, leftward launch on release; tap-aim hop +82 px;
   buffered-landing path also locks; costs unchanged; gentest 8/8.
+- 2026-06-11 — **Controls replaced: Gimkit/Mario style** (owner request
+  after playing Don't Look Down; charge jumping scrapped entirely).
+  - Jump fires INSTANTLY on press; release early = jump cut (rise 53 px
+    tap vs 148 px full hold); **double jump** in the air (one per
+    airtime, restored on landing, total chained rise ≈234 px); both
+    jumps cost 1/9; third press buffers; momentum carries (run-jumps
+    go further); crab raises claws after the double jump.
+  - The validator's sim models the double jump (fires when falling
+    below target height) — so the new generator profile is provable:
+    rises 60–115 px, horizontal offsets up to ~400 px → median
+    cross-object gap 234 px vs median rise 100 px (≈2.3:1 sideways:up,
+    a horizontal jump-and-run that gradually climbs).
+  - Removed: charging/lockX/aim-kick machinery, charge ring, charge
+    whine. P.airJumps reset in landing/newGame/teleport.
+  - Verified: instant-airborne on press, cut/full/double rises as
+    above, third-press no-op, 2 jumps = 0.222 energy, run-jump carry
+    173 px/0.5 s, gentest 12/12 (heights 119–125 m), zero console
+    errors. NOTE: measure jump rises on open ground (spawn) — zones
+    under overhangs cap the apex and corrupt the numbers.
