@@ -204,3 +204,31 @@ read-only reference). Inline a curated ~40-verb subset in
   self-contained, single atlas `restaurantbits_extra.png`). Assets
   section updated with the real model inventory — no placeholder
   primitives needed, build asset-first from day one.
+- 2026-06-11 — **PoC v1 built and verified.** Full game playable:
+  3 levels (Garden Bistro / Burger Bar / Pizzeria w/ style-B kitchen)
+  + Sundae Sunday teaser tile, complete order pipeline, sink-quiz wash
+  loop with spaced re-asks, burn/expiry paths, stars + gating, save
+  (`krabsy_vkitchen_save` v1), WebAudio SFX incl. alarm + frantic layer.
+  - **Layout:** `index.html` + `src/` (main, game, world, levels, chef,
+    stations, orders, recipes, sink, fx, ui, audio, verbs, models, qa).
+    Art is data-table-driven: item/dish→model maps in `recipes.js`,
+    level maps as ASCII grids in `levels.js`. Assets copied (filtered,
+    no `*Zone.Identifier`) to `assets/models/{restaurant,chef}/` —
+    **gitignored** via local `.gitignore`; chef = Knight.glb + Rig_Medium
+    clips (Idle_A/Running_A/Chopping retarget fine).
+  - **Verified programmatically** via `window.__VK` (preview_eval):
+    full pipelines L1 salad → serve → dirty → wrong-then-right wash;
+    L2 cook/burn/trash, expiry combo-reset, question pause (cook frozen,
+    clock frozen, patience ~30%); L3 dough→roll→sauce→top→bake→plate→
+    serve. Save round-trip + star gating asserted. Zero console errors.
+    Perf: ~3.8 ms/frame at max chaos, 16 draw calls (static merge).
+  - **Screenshots:** headless Edge against `?qa=` scenes works
+    (`level1|level2|level3|question|burn|stars`, `&seed=` for
+    determinism). NOTE: preview-panel rAF suspends when backgrounded —
+    drive time with `__VK.tick(s)`, don't wait wall-clock.
+  - **Known cosmetics (minor):** order-window wall piece aligns to even
+    2-tile slots so the hatch window can sit half a tile off; baked
+    pizzas reuse `food_pizza_*_plated` (plate baked into model) so a
+    plated pizza shows a double plate; burnt pizza = dark-tinted model.
+  - **Next (v1.1 candidates):** playtune star thresholds from real
+    playthroughs, touch controls, DE/ES UI, sundae level.

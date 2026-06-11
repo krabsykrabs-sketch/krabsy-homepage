@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-kitchen",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-lc", "cd ~/krabsy-homepage/games/verb-kitchen && python3 -m http.server 8032"],
+      "port": 8032,
+      "autoPort": false
+    }
+  ]
+}
