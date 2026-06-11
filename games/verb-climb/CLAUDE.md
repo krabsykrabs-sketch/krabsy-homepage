@@ -359,23 +359,39 @@ difficulty can ramp with altitude.
     single-valued); y-tolerance must be loose (±60) or flank landings
     on curved zones (whale back) fail and generation crawls.
 
-  **OPEN BUG (where work stopped):** the generator/validator sims
-  launch from `sx = clamp(target.x into the source waypoint span)` —
-  but that spot may be UNREACHABLE: the ground waypoint spans the whole
-  strip, yet an object standing ON the ground (books) blocks walking
-  past its left wall, while the sim happily "starts" at a column inside/
-  beyond it and proves an entry the player can't actually approach.
-  The auto-climber therefore fails at the very first link (can't walk
-  under/over books#0 to reach its right-side entry zone at x 897).
-  FIX DIRECTION: launch points must be constrained to the REACHABLE
-  part of the source surface — e.g. clamp sx to the connected walkable
-  interval around the previous landing point (walk the heightfield/
-  ground left+right from the waypoint centre until blocked), and use
-  that interval, not the full span. Then re-run: in-page gentest 40+,
-  headless gentest 100+, and the auto-climber (window.__climb pattern
-  in the transcripts; drive via __VC.keys/step/doJump) until it summits
-  with real player physics, as it did for v3 (37 jumps).
-  Also still pending after that: visual pass (gallery `?qa=gallery&
-  from=0|4|8|12|16&debug=1` now draws the top/bottom profile polylines
-  + green zone bars), scene/summit screenshots, console-error check,
-  STATUS update, final commit.
+  ~~OPEN BUG~~ → **FIXED on 2026-06-11** with `launchX()`: sims now
+  walk the source surface from the waypoint's stand-point toward the
+  ideal launch column, stopping at walls/occupied columns — launch
+  points are provably walk-reachable. Further v4 fixes that session:
+  - Route links capped at one jump's rise (140 px); steeper internal
+    zones (sofa seat→backrest = 157 px via a 36 px shoulder) stay as
+    optional bonus terrain, never required.
+  - Shelves are now 62 %-width clouds centred under the route, with a
+    bidirectional no-pierce rule (objects may not cross a shelf's
+    walking band over its span; the shelf nudges up within one jump or
+    is delayed). Full-width shelves are geometrically impossible to
+    keep clear — objects placed above always hang their bases through.
+  - Generator self-heals: puff connectors test multiple candidate spots
+    and reject buried ones; iteration cap 300; a seed whose layout
+    dead-ends re-derives deterministically (same input seed → same
+    tower); validateTower asserts summit height ≥117 m (a "valid" 37 m
+    tower passed all link checks before this).
+  - Castle dropped from the route pool (crown = sub-40 px perches +
+    capped valleys; strands fallers — same reasoning as the v3 tent).
+
+  **v4 verification (final):**
+  - Towers 119–123 m; 76+ seeds validated (in-page batches + 40
+    headless → GENTEST PASS 40/0 after capping shelf rises at 128 px —
+    one seed had failed at a 138 px shelf rise, within 4 px of the
+    sim's conservative max). ~125 ms generation after JIT warm-up.
+    Zero pierced shelves.
+  - Auto-climber (real player physics via __VC.keys/step/doJump)
+    **summited a full tower: 125 m in 49 jumps**. On other seeds it
+    reached 87–94 m with stalls that each inspected as
+    `reach()=true` from the exact stall position — i.e. valid terrain
+    the crude bot lacks the aim for (faucet-arch hops, castle crowns),
+    not game bugs. Treat future stalls the same way: inspect with
+    reach() from the stall point before "fixing" anything.
+  - Economy re-verified: std −⅓ / charge −1 / dry=parked / study ±;
+    charge apex 237 px < shortest object 240 px (can't skip objects).
+  - Zero console errors.

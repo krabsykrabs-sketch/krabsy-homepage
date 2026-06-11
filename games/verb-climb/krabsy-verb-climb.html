@@ -283,12 +283,15 @@ const OBJ={
  giraffe:{e:"🦒",w:300,h:470,tier:2},
  mushroom:{e:"🍄",w:310,h:310,tier:2},
  moai:{e:"🗿",w:260,h:430,tier:2},
- castle:{e:"🏰",w:440,h:440,tier:2},
+ /* castle dropped from the pool: its crown is all sub-40px perches and
+    capped valleys — expert-only terrain that strands fallers (same
+    reasoning as the v3 tent) */
+ castle:{e:"🏰",w:440,h:440,tier:2,skip:1},
  boat:{e:"⛵",w:380,h:430,tier:2},
  trex:{e:"🦖",w:400,h:380,tier:2},
  circus:{e:"🎪",w:440,h:380,tier:2},
  /* utility (code-drawn, one-way) */
- shelf:{w:W-2*WALLX,h:42,tier:0,util:1},
+ shelf:{w:620,h:42,tier:0,util:1},
  puff:{w:120,h:30,tier:0,util:1},
  deck:{w:340,h:34,tier:0,util:1},
 };
@@ -358,7 +361,7 @@ function buildTypes(){
   }
   CLIMB_KEYS=Object.keys(OBJ).filter(k=>{
     const o=OBJ[k];
-    return !o.util&&!o.bad&&o.plateaus.length>=1;
+    return !o.util&&!o.bad&&!o.skip&&o.plateaus.length>=1;
   });
 }
 
@@ -503,6 +506,36 @@ function simJumpEx(sx,sy,target,objs,v0){
   }
   return {ok:false,land:false};
 }
+/* where can we actually take off from? Walk the source surface from the
+   waypoint's stand-point toward the ideal launch column, stopping at
+   walls or columns occupied by another object's slab. Sims must launch
+   from reachable ground — otherwise the validator proves entries the
+   player cannot approach (the books'-left-wall bug). */
+function launchX(a,target,objs){
+  const h=PH.ph,w2=PH.pw/2;
+  const cx=Math.max(a.x1+10,Math.min(a.x2-10,a.x));
+  const want=Math.max(a.x1+10,Math.min(a.x2-10,target.x));
+  const dir=Math.sign(want-cx)||1;
+  let x=cx,y=!a.o?0:(a.o&&!OBJ[a.o.k].util?(topAt(a.o,cx)??a.y):a.y);
+  for(let gx=cx;(want-gx)*dir>4;){
+    const nxt=gx+dir*6;
+    let sy;
+    if(!a.o)sy=0;
+    else if(OBJ[a.o.k].util)sy=a.y;
+    else{sy=topAt(a.o,nxt);if(sy==null||Math.abs(sy-y)>10)break;}
+    let blocked=false;
+    for(const ob of objs){
+      if(OBJ[ob.k].util||ob===a.o)continue;
+      const px2=nxt+dir*w2,t=topAt(ob,px2);
+      if(t==null)continue;
+      const b=botAt(ob,px2);
+      if(t<sy-2&&b>sy-h+2){blocked=true;break;}   // solid in the body space
+    }
+    if(blocked)break;
+    gx=nxt;x=nxt;y=sy;
+  }
+  return {x,y};
+}
 /* a link is climbable if ≤3 chained jumps reach the target — or land
    at/above the target's height NEAR it (an at-height landing across a
    canyon is a dead end, not progress — learned from the train bumper) */
@@ -523,7 +556,7 @@ function reach(ax,ay,target,objs,hops=3){
 /* =================================================================
    TOWER GENERATOR — chain of giant objects, route sim-verified
 ================================================================= */
-function genTower(seed){
+function genTower(seed,depth){
   const rng=mb32(seed>>>0);
   const objs=[],way=[];                       // way = surface waypoints (validation chain)
   const groundWay={y:0,x:W/2,x1:WALLX,x2:W-WALLX,kind:"ground",o:null};
@@ -531,14 +564,34 @@ function genTower(seed){
   let cur=groundWay;                          // current waypoint (a stand point)
   let dir=rng()<.5?-1:1, shelfAt=30, puffs=0, n=0;
   const summitY=-(SUMMIT_M*PXM);
-  while(cur.y>summitY+150&&++n<120){
+  while(cur.y>summitY+150&&++n<300){
     const hM=-cur.y/PXM,t=Math.min(1,hM/105),tut=hM<16;
     /* rest shelf every ~30 m (one-way full-width cloud) */
     if(hM>=shelfAt){
-      /* place by TOP surface: base = cur - rise + platform height */
-      const inst=instantiate("shelf",W/2,cur.y-(96+rng()*30)+42,objs.length);
-      objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];
-      shelfAt+=28+rng()*7;dir=rng()<.5?-1:1;continue;
+      /* the shelf is the SAFETY NET: a 62%-width cloud centred under
+         the route. Its walking band must be clear over its span —
+         nudge up within one jump; if still blocked, delay the shelf. */
+      const shw=OBJ.shelf.w/2;
+      const sxp=Math.max(WALLX+shw+4,Math.min(W-WALLX-shw-4,cur.x));
+      let standRise=88+rng()*18,sy=0,clear=false;   // ≤128: clear jump margin
+      for(let lift=0;lift<3;lift++){
+        sy=cur.y-standRise+42;
+        clear=!objs.some(ob=>{
+          if(OBJ[ob.k].util)return false;
+          const ow=OBJ[ob.k].w/2;
+          return ob.x-ow<sxp+shw&&ob.x+ow>sxp-shw&&
+                 ob.top<sy+10&&ob.bot>sy-95;});
+        if(clear||standRise+11>128)break;
+        standRise+=11;
+      }
+      if(clear){
+        const inst=instantiate("shelf",sxp,sy,objs.length);
+        objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];
+        shelfAt+=28+rng()*7;
+        dir=sxp>=W/2?-1:1;              // continue toward the shelf's open side
+        continue;
+      }
+      shelfAt+=4;                       // no room yet — try again higher up
     }
     /* pick an object type by difficulty */
     const pool=CLIMB_KEYS.filter(k=>OBJ[k].tier<=(tut?0:t<.4?1:2));
@@ -562,6 +615,12 @@ function genTower(seed){
       if(inst.x-o.w/2<590&&inst.x+o.w/2>410&&inst.top<10&&inst.bot>-190)bad=true;
       for(const ob of objs){
         if(bad)break;
+        if(ob.k==="shelf"){              // never pierce a shelf's walking band
+          const shw=OBJ.shelf.w/2,sy=ob.tiers[0].y;
+          if(inst.x-o.w/2<ob.x+shw&&inst.x+o.w/2>ob.x-shw&&
+             inst.top<ob.bot+10&&inst.bot>sy-95){bad=true;break;}
+          continue;
+        }
         const T2=OBJ[ob.k];if(T2.util)continue;
         if(inst.x-o.w/2<ob.x+T2.w/2-80&&inst.x+o.w/2>ob.x-T2.w/2+80&&
            inst.top<ob.bot-80&&inst.bot>ob.top+80){bad=true;break;}
@@ -571,15 +630,16 @@ function genTower(seed){
          picture's plateaus (unreachable decorations just get skipped).
          Sims only see nearby objects — generation stays fast. */
       const world=[...objs.filter(o2=>o2.bot>inst.top-700&&o2.top<cur.y+700),inst];
-      const sx=Math.max(cur.x1+10,Math.min(cur.x2-10,inst.tiers[0].x));
-      if(!reach(sx,cur.y,inst.tiers[0],world))continue;
+      const L0=launchX(cur,inst.tiers[0],world);
+      if(!reach(L0.x,L0.y,inst.tiers[0],world))continue;
       const climbed=[inst.tiers[0]];
       let from=inst.tiers[0];
       for(let i=1;i<inst.tiers.length;i++){
         const b=inst.tiers[i];
         if(b.y>=from.y-30)continue;             // <30px rise: decoration, not a climb
-        const ax=Math.max(from.x1+10,Math.min(from.x2-10,b.x));
-        if(reach(ax,from.y,b,world)){climbed.push(b);from=b;}
+        if(from.y-b.y>140)break;                // beyond one jump: bonus terrain, not route
+        const L=launchX(from,b,world);
+        if(reach(L.x,L.y,b,world)){climbed.push(b);from=b;}
       }
       /* the new object must not break any verified link near it */
       const sx1=inst.x-o.w/2-280,sx2=inst.x+o.w/2+280,
@@ -591,23 +651,39 @@ function genTower(seed){
         const nearL=(a.x>=sx1&&a.x<=sx2&&a.y>=sy1&&a.y<=sy2)||
                     (b.x>=sx1&&b.x<=sx2&&b.y>=sy1&&b.y<=sy2);
         if(!nearL)continue;
-        const ax=Math.max(a.x1+10,Math.min(a.x2-10,b.x));
         const lw=[...objs.filter(o2=>o2.bot>b.y-700&&o2.top<a.y+700),inst];
-        if(!reach(ax,a.y,b,lw))broke=true;
+        const L=launchX(a,b,lw);
+        if(!reach(L.x,L.y,b,lw))broke=true;
       }
       if(broke)continue;
       objs.push(inst);way.push(...climbed);
       cur=from;puffs=0;placed=true;
     }
-    if(!placed){                                /* connector puff, max 2 in a row */
-      if(puffs>=2){dir=-dir;puffs=0;}
-      const x=Math.max(WALLX+70,Math.min(W-WALLX-70,cur.x+dir*(150+rng()*110)));
-      const inst=instantiate("puff",x,cur.y-(95+rng()*30)+30,objs.length);
-      const world=[...objs.filter(o2=>o2.bot>inst.top-700&&o2.top<cur.y+700),inst];
-      const sx=Math.max(cur.x1+10,Math.min(cur.x2-10,inst.tiers[0].x));
-      if(reach(sx,cur.y,inst.tiers[0],world)){
-        objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];puffs++;
-      }else dir=-dir;
+    if(!placed){                                /* connector puff, max 3 in a row */
+      if(puffs>=3){dir=-dir;puffs=0;}
+      /* try several candidate spots; skip spots buried in a silhouette */
+      const cands=[dir*(150+rng()*110),-dir*(150+rng()*110),dir*85,-dir*85,
+                   55,-55];
+      for(const dx of cands){
+        const x=Math.max(WALLX+70,Math.min(W-WALLX-70,cur.x+dx));
+        const inst=instantiate("puff",x,cur.y-(95+rng()*30)+30,objs.length);
+        const ty=inst.tiers[0].y;
+        let buried=false;
+        for(let px2=inst.tiers[0].x1;px2<=inst.tiers[0].x2&&!buried;px2+=28)
+          for(const ob of objs){
+            if(OBJ[ob.k].util)continue;
+            const t=topAt(ob,px2);
+            if(t!=null&&t<ty-2&&botAt(ob,px2)>ty-40){buried=true;break;}
+          }
+        if(buried)continue;
+        const world=[...objs.filter(o2=>o2.bot>inst.top-700&&o2.top<cur.y+700),inst];
+        const L=launchX(cur,inst.tiers[0],world);
+        if(reach(L.x,L.y,inst.tiers[0],world)){
+          objs.push(inst);way.push(inst.tiers[0]);cur=inst.tiers[0];puffs++;
+          placed=true;break;
+        }
+      }
+      if(!placed)dir=-dir;
     }
   }
   /* summit deck — one jump above the last stand point */
@@ -615,22 +691,28 @@ function genTower(seed){
     cur.y-(105+rng()*15)+34,objs.length);
   {let guard=0;
    const lw=objs.filter(o2=>o2.bot>cur.y-900&&o2.top<cur.y+400);
-   const sx0=()=>Math.max(cur.x1+10,Math.min(cur.x2-10,deck.tiers[0].x));
-   while(!reach(sx0(),cur.y,deck.tiers[0],[...lw,deck])&&guard++<25)
+   const try1=()=>{const w=[...lw,deck],L=launchX(cur,deck.tiers[0],w);
+     return reach(L.x,L.y,deck.tiers[0],w);};
+   while(!try1()&&guard++<25)
      deck=instantiate("deck",
        Math.max(WALLX+180,Math.min(W-WALLX-180,deck.x+(rng()*160-80))),
        deck.baseY+14,objs.length);
   }
   deck.summit=1;objs.push(deck);way.push(deck.tiers[0]);
+  /* a seed whose layout dead-ends early re-derives deterministically */
+  if(-deck.tiers[0].y/PXM<117&&(depth??0)<5)
+    return {...genTower((seed*2654435761+(depth??0)+1)>>>0,(depth??0)+1),seed};
   return {seed,objs,way,topY:deck.tiers[0].y};
 }
 function validateTower(tw){
+  if(-tw.topY/PXM<117)return {ok:false,at:-1,from:"tower too short",
+    to:Math.round(-tw.topY/PXM)+"m"};
   for(let i=0;i<tw.way.length-1;i++){
     const a=tw.way[i],b=tw.way[i+1];
     if(b.y>=a.y)continue;                       // sideways/downward links trivial
-    const sx=Math.max(a.x1+10,Math.min(a.x2-10,b.x));
     const lw=tw.objs.filter(o2=>o2.bot>b.y-700&&o2.top<a.y+700);
-    if(!reach(sx,a.y,b,lw))return {ok:false,at:i,from:a.o?.k??"ground",to:b.o?.k};
+    const L=launchX(a,b,lw);
+    if(!reach(L.x,L.y,b,lw))return {ok:false,at:i,from:a.o?.k??"ground",to:b.o?.k};
   }
   return {ok:true};
 }
