@@ -98,6 +98,18 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
 .statline{font-weight:800;font-size:15px;margin:8px 0}
 .bestnote{font-size:13px;color:var(--ink2);margin-top:10px}
 
+/* level select */
+#lvGrid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.lvCard{display:flex;align-items:center;gap:10px;border:none;cursor:pointer;
+  background:rgba(46,230,192,.13);border-radius:14px;padding:10px 14px;
+  font-family:Nunito;text-align:left}
+.lvCard:hover{background:rgba(46,230,192,.28)}
+.lvCard:active{transform:translateY(1px)}
+.lvName{font-weight:800;font-size:15px;color:var(--ink);flex:1}
+.lvInfo{font-weight:700;font-size:13px;color:var(--ink2)}
+.lvMed{font-size:18px;min-width:26px;text-align:center}
+.lvAut{font-size:10.5px;color:var(--ink2);display:block}
+
 #qForm{font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--ink2)}
 #qBar{display:flex;gap:4px;justify-content:center;margin:8px 0 12px}
 #qBar .s{width:22px;height:10px;border-radius:4px;background:rgba(30,45,61,.15)}
@@ -172,7 +184,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
     <div class="row"><span class="ic">🏃</span><span><b>Move</b>&nbsp; <span class="kbd">←</span><span class="kbd">→</span> or <span class="kbd">A</span><span class="kbd">D</span></span></div>
     <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; <span class="kbd">Space</span> — tap again in the air for a <b>double jump</b>! Release early for a small hop.</span></div>
     <div class="row"><span class="ic">🧗</span><span>Big objects take <b>several jumps</b> to climb — find the ledges: armrests, cake tiers, a giraffe's neck…</span></div>
-    <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b>. Refill with <b>verb questions</b>: <span class="kbd">Q</span> while standing.</span></div>
+    <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b> — when it's gone, you're parked! <span class="kbd">Q</span> while standing: <b>4 right answers = full tank</b>.</span></div>
     <div class="row"><span class="ic">🪂</span><span>Fall and you <b>tumble back down</b> the tower. Height is the only thing you can lose.</span></div>
   </div>
   <div class="legend"><span class="lch b">base</span><span class="lch p">simple past</span><span class="lch q">past participle</span></div>
@@ -186,7 +198,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
   <h1>Paused</h1>
   <p class="sub" id="pauseInfo"></p>
   <button class="big" id="btnResume">Keep climbing ↑</button><br>
-  <button class="big ghost" id="btnNew">New tower 🎲</button>
+  <button class="big ghost" id="btnNew">Level menu 🗺️</button>
 </div></div>
 
 <!-- STUDY -->
@@ -207,8 +219,19 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
   <p class="sub">You climbed every last giraffe!</p>
   <div class="statline" id="sumStats"></div>
   <div id="sumMiss"></div>
-  <button class="big" id="btnAgain">New tower 🎲</button><br>
-  <button class="big ghost" id="btnSame">Climb this tower again</button>
+  <button class="big" id="btnAgain">Next level ▶</button><br>
+  <button class="big ghost" id="btnSame">Replay level 🔁</button>
+  <button class="big ghost" id="btnLvls2">Levels 🗺️</button>
+</div></div>
+
+<!-- LEVEL SELECT -->
+<div class="ov" id="ovLevels"><div class="card">
+  <div class="mascot">🗺️</div>
+  <h1>Levels</h1>
+  <p class="sub">Pick a tower. Beat your best time — race your ghost!</p>
+  <div id="lvGrid"></div>
+  <div class="bestnote">medals: 👑 author · 🥇 +10% · 🥈 +30% · 🥉 +70%</div>
+  <button class="big ghost" id="btnLvBack">Back</button>
 </div></div>
 
 <pre id="qaout"></pre>
@@ -233,8 +256,43 @@ const PH={ g:1750, v0std:730, v0dbl:700, vmax:360,
   acc:2900, accAir:2100, fric:3200, maxFall:980,
   cutV:240,                            // release early = jump cut (variable height)
   coyote:0.09, buffer:0.13,
-  costStd:1/9, EMAX:8,                 // every jump costs the same; ~72 jumps/bar
+  /* 4 segments, 2/9 per jump = 18 jumps/bar → a clean no-fall run
+     needs ~2–3 recharge stops; 4 correct answers = full recharge */
+  costStd:2/9, EMAX:4,
   pw:26, ph:34 };
+
+/* ---------- fixed levels (per-level records / medals / ghosts) ---------- */
+const LEVELS=[
+ {id:"L1",name:"Sunny Meadow",seed:101,diff:0},
+ {id:"L2",name:"Teapot Alley",seed:202,diff:.14},
+ {id:"L3",name:"Furniture Sky",seed:303,diff:.28},
+ {id:"L4",name:"Barrel Run",seed:404,diff:.42},
+ {id:"L5",name:"Whale Heights",seed:505,diff:.56},
+ {id:"L6",name:"Snowman Pass",seed:606,diff:.7},
+ {id:"L7",name:"Giraffe Ridge",seed:707,diff:.85},
+ {id:"L8",name:"Moai Summit",seed:808,diff:1},
+];
+/* author times: hardcode here once the owner sets them (author mode:
+   open the game with ?author=1, summit a level, copy the JSON from the
+   summit screen). Local overrides live in krabsy_vclimb_author. */
+const AUTHOR_BUILTIN={};
+const MEDAL_PCT={gold:1.10,silver:1.30,bronze:1.70};
+function authorTimes(){
+  let loc={};try{loc=JSON.parse(localStorage.getItem("krabsy_vclimb_author")||"{}");}catch(e){}
+  return {...AUTHOR_BUILTIN,...loc};
+}
+function medalFor(id,t){
+  const a=authorTimes()[id];if(!a)return null;
+  if(t<=a)return"author";
+  if(t<=a*MEDAL_PCT.gold)return"gold";
+  if(t<=a*MEDAL_PCT.silver)return"silver";
+  if(t<=a*MEDAL_PCT.bronze)return"bronze";
+  return null;
+}
+const MEDAL_ICON={author:"👑",gold:"🥇",silver:"🥈",bronze:"🥉"};
+function loadRec(){try{return JSON.parse(localStorage.getItem("krabsy_vclimb_rec")||"{}");}catch(e){return{};}}
+function saveRec(r){localStorage.setItem("krabsy_vclimb_rec",JSON.stringify(r));}
+function fmtT(t){const m=t/60|0,s=(t%60).toFixed(1);return m+":"+(s<10?"0":"")+s;}
 
 /* ---------- verbs ---------- */
 const VERBS=[
@@ -637,8 +695,9 @@ function genTower(seed,depth){
         ?smalls[(rng()*smalls.length)|0]
         :pool[(rng()*pool.length)|0];
       const o=OBJ[key];
-      const rise=tut?(50+rng()*30):(flat?(12+rng()*38):(55+rng()*50));
-      const gap=tut?(70+rng()*90):(flat?(110+rng()*170):(60+rng()*110));
+      const dG=1+GENDIFF*0.3;          // per-level difficulty: wider gaps
+      const rise=tut?(50+rng()*30):(flat?(12+rng()*38):(55+rng()*50)+GENDIFF*12);
+      const gap=(tut?(70+rng()*90):(flat?(110+rng()*170):(60+rng()*110)))*(tut?1:dG);
       /* mirror the object so its entry ledge faces the approach */
       const eMid=(o.plateaus[0].x1+o.plateaus[0].x2)/2;
       const flip=dir>0?eMid>0:eMid<0;
@@ -805,6 +864,10 @@ let DPR=1,CW=0,CH=0,scale=1,camY=0,camX=W/2,viewW=W,viewH=900;
 let mode="menu",tower=null,seed=(Date.now()&0x7fffffff)>>>0;
 let qrng=mb32(1),recent=[],runT=0,frozen=false,debug=false;
 let simClock=0;
+let curLevel=null;                 // index into LEVELS (null = free/QA play)
+let GENDIFF=0;                     // per-level difficulty scalar 0..1
+let runTrace=[],ghostAcc=0,ghostTrace=null;   // 10 Hz [x,y,...] samples
+let AUTHOR_MODE=false;
 const P={x:W/2,y:0,vx:0,vy:0,grounded:true,on:null,onGround:true,
   face:1,energy:PH.EMAX,sx:1,sy:1,wobble:0,dizzy:0,
   airJumps:1,held:false,
@@ -895,10 +958,19 @@ function nearObjs(pad=420){
 function step(dt){
   simClock+=dt;runT+=dt;P.now=simClock;
   const dirIn=(keys.r?1:0)-(keys.l?1:0);
+  /* out of energy = parked: walking stops too, so you NOTICE you're
+     dry instead of strolling off an edge (air steering still works) */
+  const dryLock=P.grounded&&P.energy<PH.costStd-1e-6;
+  if(dirIn&&dryLock)P.dryNudge=0.6;
   if(dirIn)P.face=dirIn;
-  if(dirIn)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
+  if(dirIn&&!dryLock)P.vx+=dirIn*(P.grounded?PH.acc:PH.accAir)*dt;
   else if(P.grounded){const s=Math.sign(P.vx);P.vx-=s*PH.fric*dt;if(Math.sign(P.vx)!==s)P.vx=0;}
   else P.vx*=Math.max(0,1-5*dt);   // air drag when gliding: release = soft brake
+  P.dryNudge=Math.max(0,(P.dryNudge||0)-dt);
+  /* ghost: record this run + replay the best run */
+  ghostAcc+=dt;
+  while(ghostAcc>=0.1){ghostAcc-=0.1;
+    if(runTrace.length<24000){runTrace.push(Math.round(P.x),Math.round(P.y));}}
   P.vx=Math.max(-PH.vmax,Math.min(PH.vmax,P.vx));
 
   const wasAir=!P.grounded,prevVy=P.vy;
@@ -990,6 +1062,9 @@ function render(){
   for(const d of dust){ctx.globalAlpha=Math.max(0,d.life*2.4);
     ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,7);ctx.fill();}
   ctx.globalAlpha=1;
+  if(mode==="play"||mode==="study"){
+    const g=ghostPos(runT);if(g)drawGhost(g);
+  }
   drawCrab();
   if(debug)drawDebug();
   ctx.restore();
@@ -1090,6 +1165,28 @@ function drawCrab(){
     for(let i=0;i<3;i++){const a=simClock*5+i*2.1;
       ctx.fillText("✦",Math.cos(a)*15,Math.sin(a)*5);}
     ctx.restore();}
+  if((P.dryNudge||0)>0){               // trying to walk with no energy
+    ctx.save();ctx.translate(P.x,P.y-50);
+    ctx.globalAlpha=Math.min(1,P.dryNudge*3);
+    ctx.font="20px "+EFONT;ctx.textAlign="center";
+    ctx.fillText("⚡",0,Math.sin(simClock*10)*3);
+    ctx.font="900 14px Nunito";ctx.fillStyle="#e05252";ctx.fillText("?",13,-6);
+    ctx.restore();}
+}
+function drawGhost(g){
+  ctx.save();ctx.globalAlpha=.38;
+  ctx.translate(g.x,g.y);
+  ctx.fillStyle="#7ad7ff";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,-26,4,0,7);ctx.arc(5,-26,4,0,7);ctx.fill();
+  ctx.fillStyle="#1e2d3d";ctx.beginPath();ctx.arc(-5,-26,2,0,7);ctx.arc(5,-26,2,0,7);ctx.fill();
+  ctx.restore();
+}
+function ghostPos(t){
+  if(!ghostTrace||ghostTrace.length<4)return null;
+  const n=ghostTrace.length/2,i=t/0.1,i0=Math.floor(i),f=i-i0;
+  if(i0>=n-1)return null;                       // ghost finished
+  return {x:ghostTrace[i0*2]*(1-f)+ghostTrace[i0*2+2]*f,
+          y:ghostTrace[i0*2+1]*(1-f)+ghostTrace[i0*2+3]*f};
 }
 
 /* =================================================================
@@ -1168,7 +1265,7 @@ function askNext(){
   pr.innerHTML=(q.form==="p"?"simple past of ":"past participle of ")+
     `<span class="verb">${q.it.v}</span>?`;
   info.textContent=study.answered
-    ?`${study.answered} answered · energy ${Math.round(P.energy*3)/3}/8`
+    ?`${study.answered} answered · energy ${P.energy.toFixed(1)}/4`
     :"stop whenever you like — even one answer helps";
   chips.innerHTML="";
   q.chips.forEach((c,i)=>{
@@ -1214,26 +1311,65 @@ function newGame(s){
   P.energy=PH.EMAX;P.sx=P.sy=1;P.airJumps=1;P.wobble=0;P.dizzy=0;
   P.coyT=-9;P.buffT=-9;P.jumped=false;
   curM=0;runT=0;missed.clear();confetti=[];dust=[];
+  runTrace=[];ghostAcc=0;
+  ghostTrace=null;
+  if(curLevel!=null){
+    try{const g=localStorage.getItem("krabsy_vclimb_ghost_"+LEVELS[curLevel].id);
+      if(g)ghostTrace=JSON.parse(g);}catch(e){}
+  }
   camY=P.y-viewH*0.58;camX=W/2;
   mode="play";frozen=false;
   document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
   energyUI();
 }
+function startLevel(i){
+  curLevel=i;GENDIFF=LEVELS[i].diff;
+  SND.init();newGame(LEVELS[i].seed);
+}
 function showPause(){
   mode="pause";
+  const lv=curLevel!=null?LEVELS[curLevel].name:("tower #"+seed);
   document.getElementById("pauseInfo").innerHTML=
-    `height <b>${curM|0} m</b> · energy <b>${Math.round(P.energy*3)/3}/8</b> · tower <b>#${seed}</b>`;
+    `<b>${lv}</b> · height <b>${curM|0} m</b> · energy <b>${P.energy.toFixed(1)}/4</b> · ⏱️ ${fmtT(runT)}`;
   document.getElementById("ovPause").classList.add("on");
 }
 function hidePause(){document.getElementById("ovPause").classList.remove("on");mode="play";}
 function winSummit(){
   mode="summit";SND.fanfare();curM=SUMMIT_M;
-  const t=runT,mm=t/60|0,ss=(t%60|0).toString().padStart(2,"0");
-  let nb=false;
-  if(!bestT||t<bestT){bestT=t;localStorage.setItem("krabsy_vclimb_summit",t.toFixed(1));nb=true;}
-  localStorage.setItem("krabsy_vclimb_best","120");bestM=120;
-  document.getElementById("sumStats").innerHTML=
-    `⏱️ ${mm}:${ss}${nb?' <span style="color:#11a883">— new best!</span>':""}<br>🎲 tower <b>#${seed}</b> — same seed, same tower`;
+  const t=runT;
+  let head=`⏱️ <b>${fmtT(t)}</b>`;
+  if(curLevel!=null){
+    const id=LEVELS[curLevel].id,rec=loadRec();
+    const r=rec[id]||(rec[id]={best:0,times:[]});
+    const nb=!r.best||t<r.best;
+    if(nb){
+      r.best=t;
+      localStorage.setItem("krabsy_vclimb_ghost_"+id,JSON.stringify(runTrace));
+    }
+    r.times.push({t:+t.toFixed(1),d:new Date().toISOString().slice(0,10)});
+    r.times.sort((a,b)=>a.t-b.t);r.times=r.times.slice(0,5);
+    saveRec(rec);
+    if(nb)head+=' <span style="color:#11a883">— new best!</span>';
+    /* author mode: this run sets/keeps the author time for the level */
+    if(AUTHOR_MODE){
+      let a={};try{a=JSON.parse(localStorage.getItem("krabsy_vclimb_author")||"{}");}catch(e){}
+      if(!a[id]||t<a[id])a[id]=+t.toFixed(1);
+      localStorage.setItem("krabsy_vclimb_author",JSON.stringify(a));
+      console.log("AUTHOR TIMES",JSON.stringify(a));
+    }
+    const med=medalFor(id,t);
+    head=`<div style="font-size:40px;line-height:1.2">${med?MEDAL_ICON[med]:"🏁"}</div>`+
+      (med?`<div style="font-family:'Fredoka One';font-size:18px;margin-bottom:4px">${med.toUpperCase()} MEDAL</div>`:"")+head;
+    head+=`<br><b>${LEVELS[curLevel].name}</b> · best ${fmtT(r.best)}`;
+    /* local leaderboard */
+    head+=`<div style="font-size:13px;color:var(--ink2);margin-top:8px">best times</div>`;
+    r.times.forEach((e2,i2)=>{head+=`<div style="font-size:14px">${i2+1}. ${fmtT(e2.t)} <span style="color:var(--ink2);font-size:11px">${e2.d}</span></div>`;});
+    if(AUTHOR_MODE){
+      head+=`<div style="margin-top:8px;font-size:11px;background:#fff3cd;border-radius:8px;padding:6px;word-break:break-all">AUTHOR MODE — paste into AUTHOR_BUILTIN:<br><b>${
+        (localStorage.getItem("krabsy_vclimb_author")||"{}").replace(/</g,"&lt;")}</b></div>`;
+    }
+  }
+  document.getElementById("sumStats").innerHTML=head;
   const box=document.getElementById("sumMiss");
   if(missed.size){
     let h=`<div style="font-size:13px;color:var(--ink2);margin:8px 0 3px">verbs that tricked you:</div>`;
@@ -1247,11 +1383,38 @@ function winSummit(){
     col:["#2ee6c0","#ff8585","#ffcf5e","#fff","#7ad7ff"][(Math.random()*5)|0]}));
   document.getElementById("ovSummit").classList.add("on");
 }
-document.getElementById("btnPlay").onclick=()=>{SND.init();newGame(seed);};
-document.getElementById("btnAgain").onclick=()=>newGame((seed*1103515245+12345)>>>0);
-document.getElementById("btnSame").onclick=()=>newGame(seed);
+/* ---------- level select ---------- */
+function showLevels(){
+  mode=tower?"pause":"menu";
+  const rec=loadRec(),auth=authorTimes();
+  const grid=document.getElementById("lvGrid");grid.innerHTML="";
+  LEVELS.forEach((lv,i)=>{
+    const r=rec[lv.id],med=r&&r.best?medalFor(lv.id,r.best):null;
+    const card=document.createElement("button");
+    card.className="lvCard";
+    card.innerHTML=`<div class="lvName">${i+1}. ${lv.name}</div>
+      <div class="lvInfo">${r&&r.best?("⏱️ "+fmtT(r.best)):"not finished yet"}</div>
+      <div class="lvMed">${med?MEDAL_ICON[med]:"·"}${auth[lv.id]?`<span class="lvAut">👑 ${fmtT(auth[lv.id])}</span>`:""}</div>`;
+    card.onclick=()=>startLevel(i);
+    grid.appendChild(card);
+  });
+  document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
+  document.getElementById("ovLevels").classList.add("on");
+}
+document.getElementById("btnPlay").onclick=showLevels;
+document.getElementById("btnAgain").onclick=()=>{           // next level
+  if(curLevel!=null&&curLevel<LEVELS.length-1)startLevel(curLevel+1);
+  else showLevels();};
+document.getElementById("btnSame").onclick=()=>{            // replay
+  if(curLevel!=null)startLevel(curLevel);else newGame(seed);};
 document.getElementById("btnResume").onclick=hidePause;
-document.getElementById("btnNew").onclick=()=>newGame((seed*1103515245+12345)>>>0);
+document.getElementById("btnNew").onclick=showLevels;
+document.getElementById("btnLvls2").onclick=showLevels;
+document.getElementById("btnLvBack").onclick=()=>{
+  document.getElementById("ovLevels").classList.remove("on");
+  if(tower)document.getElementById("ovPause").classList.add("on");
+  else document.getElementById("ovMenu").classList.add("on");
+};
 document.getElementById("btnPause").onclick=()=>{
   if(mode==="play")showPause();else if(mode==="pause")hidePause();};
 function toggleMute(){SND.muted=!SND.muted;
@@ -1259,8 +1422,9 @@ function toggleMute(){SND.muted=!SND.muted;
   document.getElementById("btnMute").textContent=SND.muted?"🔇":"🔊";}
 document.getElementById("btnMute").onclick=toggleMute;
 if(SND.muted)document.getElementById("btnMute").textContent="🔇";
-document.getElementById("menuBest").textContent=
-  bestM>0?`best height ${bestM|0} m${bestT?` · best summit ${bestT/60|0}:${(bestT%60|0).toString().padStart(2,"0")}`:""}`:"";
+{ const rec=loadRec(),done=LEVELS.filter(l=>rec[l.id]&&rec[l.id].best).length;
+  document.getElementById("menuBest").textContent=
+    done?`${done}/${LEVELS.length} levels finished`:""; }
 
 /* =================================================================
    MAIN LOOP
@@ -1311,6 +1475,16 @@ window.__VC={
   chips:()=>study.q?{prompt:document.getElementById("qPrompt").textContent,
     chips:study.q.chips,correct:study.q.corr}:null,
   gen:genTower,validate:validateTower,runGenTest,OBJ,simJumpEx,reach,
+  LEVELS,startLevel,showLevels,rec:loadRec,authorTimes,medalFor,
+  setAuthor(b){AUTHOR_MODE=!!b;return AUTHOR_MODE;},
+  ghost:()=>({recorded:runTrace.length/2,replaying:!!ghostTrace,
+    ghostLen:ghostTrace?ghostTrace.length/2:0}),
+  winNow(){runT=runT||1;winSummit();},
+  checkLevels(){const keep=GENDIFF,res=[];
+    for(const l of LEVELS){GENDIFF=l.diff;
+      const tw=genTower(l.seed);
+      res.push({id:l.id,ok:validateTower(tw).ok,m:Math.round(-tw.topY/32),objs:tw.objs.length});}
+    GENDIFF=keep;return res;},
   types:()=>Object.fromEntries(Object.keys(OBJ).map(k=>[k,
     {bad:!!OBJ[k].bad,plateaus:OBJ[k].plateaus?OBJ[k].plateaus.length:0}])),
   pool:()=>CLIMB_KEYS,topAt,botAt,
@@ -1326,6 +1500,7 @@ fit();requestAnimationFrame(frame);
 const Q=new URLSearchParams(location.search);
 debug=Q.get("debug")==="1";
 const qaMode=Q.get("qa"),qaSeed=Q.get("seed")!=null?+Q.get("seed")>>>0:20260612;
+AUTHOR_MODE=Q.get("author")==="1";
 if(qaMode==="gentest"){
   const n=+(Q.get("n")||200),res=runGenTest(n);
   const out=document.getElementById("qaout");out.style.display="block";

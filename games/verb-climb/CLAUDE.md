@@ -473,3 +473,33 @@ difficulty can ramp with altitude.
     scale); flat hops pick from them 65 % of the time. Pool = 27 types.
   - Verified: 10/10 gentest (120–123 m), small types all yield zones,
     screenshots show the Gimkit-like near-level object rows with gaps.
+- 2026-06-11 — **Levels, records, medals, ghosts** (owner feature round):
+  - **Energy rebalance**: 4 segments, 2/9 per jump (= 18 jumps/bar →
+    ~2–3 recharge stops on a clean run); 4 correct answers = full tank.
+  - **Dry lock**: at 0 energy, grounded walking stops too (you notice
+    you're parked instead of strolling off an edge); air steering
+    still works; "⚡?" bubble when pressing keys while dry.
+  - **8 fixed LEVELS** (id/name/seed/diff 0..1; diff scales gaps +12 px
+    climb rise). Level-select menu (cards: best time, medal, author
+    time). Free/QA play (?seed=, ?qa=) records nothing (curLevel=null).
+  - **Records**: localStorage `krabsy_vclimb_rec` = {Lx:{best,
+    times:[top-5 {t,d}]}} — the local leaderboard until multiplayer.
+  - **Ghost**: 10 Hz [x,y] samples (`runTrace`, cap 20 min); saved per
+    level on new best (`krabsy_vclimb_ghost_Lx`); replayed as a
+    translucent blue crab against runT. Study pauses runT so ghost
+    timing stays fair.
+  - **Medals (Trackmania)**: 👑 author / 🥇 +10 % / 🥈 +30 % / 🥉 +70 %
+    of the author time. AUTHOR WORKFLOW: open `?author=1`, summit a
+    level → time saved to `krabsy_vclimb_author` AND shown as JSON on
+    the summit screen → paste into `AUTHOR_BUILTIN` in the file to
+    ship. No medals shown until an author time exists.
+  - Multiplayer: explicitly deferred (owner: "eventually, not now") —
+    records structure is multiplayer-shaped (times list, ISO dates).
+  - Verified: all 8 levels validate (119–122 m, 36–45 objects); cost
+    0.222; dry-lock 0 px movement; study +1; summit→records+ghost
+    saved; replay loads ghost; author flow→medal computed; level menu
+    renders 8 cards; gentest 10/10; zero console errors.
+  - CAVEAT (multiplayer/local fairness): heightfields derive from the
+    LOCAL emoji font — the same level differs slightly across devices.
+    Fine for local records; multiplayer will need shipped collision
+    data or a canonical font.
