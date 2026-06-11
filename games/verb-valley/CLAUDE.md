@@ -217,6 +217,27 @@ frequency, shape `{v:'go', past:'went', pp:'gone'}`) and a dozen
 preposition items for lesson variety. Distractors must be plausible
 (regularized forms like "goed", swapped past/participle, similar verbs).
 
+## Assets (for the asset-using version — the PoC above is procedural)
+
+The PoC was built asset-free on purpose. When you graduate it to a real
+3D build with bought art, the **shared KayKit library** is on disk at
+`/home/jan/krabsy-homepage/assets/` and **this session already has read
+access to it** (granted via `.claude/settings.local.json` →
+`permissions.additionalDirectories`; no flag needed). It is **read-only**:
+copy what you wire into *this* folder — never modify the library, it's a
+re-downloadable master shared by several games.
+
+- Packs this game draws from (free tiers exist for all):
+  `KayKit_Forest_Nature/` (trees, rocks, terrain),
+  `KayKit_Resource_Bits/` (produce, wood, coins — Extra adds food/money),
+  `KayKit_Furniture_Bits/` (cottage), `KayKit_Adventurers/` +
+  `KayKit_Character_Animations/` (player + NPC). Crops & farm buildings
+  aren't in KayKit — fill from the free **Quaternius LowPoly Farm
+  Buildings** (also dropped under `/assets/` when bought). Use **GLTF/GLB**.
+- Release path: the master session promotes the *used subset* into
+  `homepage/games/verb-valley/assets/` (that copy IS tracked + deployed).
+  Your working copy here stays gitignored.
+
 ## Working agreements
 
 - You own only `games/verb-valley/`. Don't modify anything outside it.

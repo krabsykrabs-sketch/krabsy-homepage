@@ -167,6 +167,26 @@ past/pp) — the distractors are where the learning happens.
 - This file's **Status log** below is updated, work is committed (commits
   stay inside this folder).
 
+## Assets (for the asset-using version — the PoC above is procedural)
+
+The PoC was built asset-free on purpose. When you graduate it to a real
+3D build with bought art, the **shared KayKit library** is on disk at
+`/home/jan/krabsy-homepage/assets/` and **this session already has read
+access to it** (granted via `.claude/settings.local.json` →
+`permissions.additionalDirectories`; no flag needed). It is **read-only**:
+copy what you wire into *this* folder — never modify the library, it's a
+re-downloadable master shared by several games.
+
+- Packs this game draws from (free tiers exist for all):
+  `KayKit_Dungeon_Remastered/`, `KayKit_Skeletons/`,
+  `KayKit_Adventurers/`, `KayKit_Fantasy_Weapons/`,
+  `KayKit_Character_Animations/` (+ `KayKit_Forest_Nature/` for any
+  overworld). Use the **GLTF/GLB** files (Three.js loads them natively),
+  not the FBX/OBJ.
+- Release path: the master session promotes the *used subset* into
+  `homepage/games/verb-dungeon/assets/` (that copy IS tracked + deployed).
+  Your working copy here stays gitignored.
+
 ## Working agreements
 
 - You own only `games/verb-dungeon/`. Don't modify anything outside it.
