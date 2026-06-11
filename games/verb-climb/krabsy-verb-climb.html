@@ -49,8 +49,14 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #corner{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));
   display:flex;gap:8px;pointer-events:auto}
 .icoBtn{width:42px;height:42px;border:none;border-radius:13px;background:rgba(255,255,255,.85);
-  box-shadow:var(--shadow);font-size:19px;cursor:pointer}
+  box-shadow:var(--shadow);font-size:19px;cursor:pointer;pointer-events:auto}
 .icoBtn:active{transform:translateY(1px)}
+
+#timerBox{position:absolute;top:calc(max(10px,env(safe-area-inset-top)) + 52px);
+  left:max(10px,env(safe-area-inset-left));background:rgba(255,255,255,.84);
+  border-radius:13px;padding:6px 13px;box-shadow:var(--shadow);display:none}
+#timerNow{font-family:'Fredoka One';font-size:21px;color:var(--ink);line-height:1.1}
+#timerMeds{font-size:11px;font-weight:800;color:var(--ink2);white-space:nowrap}
 
 #chipStudy{position:absolute;left:50%;bottom:max(16px,env(safe-area-inset-bottom));
   transform:translateX(-50%);pointer-events:auto;border:none;cursor:pointer;
@@ -150,6 +156,11 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
   <div id="corner">
     <button class="icoBtn" id="btnMute">🔊</button>
     <button class="icoBtn" id="btnPause">⏸️</button>
+    <button class="icoBtn" id="btnReset" title="Restart (R)">↺</button>
+  </div>
+  <div id="timerBox">
+    <div id="timerNow">0:00.0</div>
+    <div id="timerMeds"></div>
   </div>
   <div id="energyBox">
     <div id="energy"></div>
@@ -185,7 +196,7 @@ h1{font-family:'Fredoka One';font-size:34px;margin:.05em 0 .1em;line-height:1}
     <div class="row"><span class="ic">🐸</span><span><b>Jump</b>&nbsp; <span class="kbd">Space</span> — tap again in the air for a <b>double jump</b>! Release early for a small hop.</span></div>
     <div class="row"><span class="ic">🧗</span><span>Big objects take <b>several jumps</b> to climb — find the ledges: armrests, cake tiers, a giraffe's neck…</span></div>
     <div class="row"><span class="ic">⚡</span><span>Jumps <b>cost energy</b> — when it's gone, you're parked! <span class="kbd">Q</span> while standing: <b>4 right answers = full tank</b>.</span></div>
-    <div class="row"><span class="ic">🪂</span><span>Fall and you <b>tumble back down</b> the tower. Height is the only thing you can lose.</span></div>
+    <div class="row"><span class="ic">🏁</span><span>Beat your best time — race your <b>ghost</b>! Big fall? <span class="kbd">R</span> restarts instantly.</span></div>
   </div>
   <div class="legend"><span class="lch b">base</span><span class="lch p">simple past</span><span class="lch q">past participle</span></div>
   <button class="big" id="btnPlay">Climb! 🧗</button>
@@ -886,8 +897,8 @@ function fit(){
   cv.width=CW*DPR|0;cv.height=CH*DPR|0;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   /* zoom from screen size only — the world is wider than the screen
-     and the camera pans horizontally */
-  scale=Math.max(0.45,Math.min(CW/1100,CH/950,1));
+     and the camera pans horizontally (zoomed in ~25 % for readability) */
+  scale=Math.max(0.5,Math.min(CW/880,CH/760,1.3));
   viewW=CW/scale;viewH=CH/scale;
 }
 addEventListener("resize",fit);
@@ -910,9 +921,13 @@ function releaseJump(){
   if(!P.grounded&&P.vy<-PH.cutV)P.vy=-PH.cutV;   // variable height
 }
 function doJump(air){
-  if(P.energy<PH.costStd-1e-6){deny();return;}
-  if(!air&&!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
-  P.energy-=PH.costStd;
+  /* the double jump's second hop is FREE — energy can't hit zero
+     mid-air; only ground take-offs cost */
+  if(!air){
+    if(P.energy<PH.costStd-1e-6){deny();return;}
+    if(!P.grounded&&!(simClock-P.coyT<PH.coyote&&!P.jumped))return;
+    P.energy-=PH.costStd;
+  }
   if(air)P.airJumps--;
   P.vy=-(air?PH.v0dbl:PH.v0std);
   P.grounded=false;P.on=null;P.onGround=false;P.jumped=true;
@@ -931,6 +946,10 @@ addEventListener("keydown",e=>{
   else if(k===" "||k==="arrowup"||k==="w"){e.preventDefault();P.held=true;pressJump();}
   else if(k==="q")toggleStudy();
   else if(k==="m")toggleMute();
+  else if(k==="r"){                     // Trackmania-style instant restart
+    if(curLevel!=null&&(mode==="play"||mode==="pause"||mode==="study"))
+      startLevel(curLevel);
+  }
   else if(k==="escape"||k==="p"){
     if(mode==="play")showPause();else if(mode==="pause")hidePause();
     else if(mode==="study")closeStudy();}
@@ -1174,19 +1193,33 @@ function drawCrab(){
     ctx.restore();}
 }
 function drawGhost(g){
-  ctx.save();ctx.globalAlpha=.38;
+  /* the player's exact design, just translucent */
+  ctx.save();ctx.globalAlpha=.42;
   ctx.translate(g.x,g.y);
-  ctx.fillStyle="#7ad7ff";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
-  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,-26,4,0,7);ctx.arc(5,-26,4,0,7);ctx.fill();
-  ctx.fillStyle="#1e2d3d";ctx.beginPath();ctx.arc(-5,-26,2,0,7);ctx.arc(5,-26,2,0,7);ctx.fill();
+  ctx.strokeStyle="#e05d5d";ctx.lineWidth=3;ctx.lineCap="round";
+  for(const s of[-1,1])for(let i=0;i<3;i++){
+    ctx.beginPath();ctx.moveTo(s*(7+i*4),-7);ctx.lineTo(s*(13+i*5),-1+(i===1?1:0));ctx.stroke();}
+  ctx.fillStyle="#ff6f6f";
+  ctx.beginPath();ctx.arc(-19,-13,6.5,0,7);ctx.arc(19,-13,6.5,0,7);ctx.fill();
+  ctx.fillStyle="#ff8585";ctx.beginPath();ctx.ellipse(0,-13,16,11.5,0,0,7);ctx.fill();
+  ctx.fillStyle="rgba(224,93,93,.55)";ctx.beginPath();ctx.ellipse(0,-9,14,6,0,0,7);ctx.fill();
+  ctx.strokeStyle="#e05d5d";ctx.beginPath();
+  ctx.moveTo(-5,-22);ctx.lineTo(-5,-27);ctx.moveTo(5,-22);ctx.lineTo(5,-27);ctx.stroke();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,-29,4.4,0,7);ctx.arc(5,-29,4.4,0,7);ctx.fill();
+  ctx.fillStyle="#1e2d3d";const lx=(g.face||1)*1.8;
+  ctx.beginPath();ctx.arc(-5+lx,-29,2.1,0,7);ctx.arc(5+lx,-29,2.1,0,7);ctx.fill();
+  ctx.strokeStyle="#b14a4a";ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.arc(0,-12,4.5,0.25*Math.PI,0.75*Math.PI);ctx.stroke();
   ctx.restore();
 }
 function ghostPos(t){
   if(!ghostTrace||ghostTrace.length<4)return null;
   const n=ghostTrace.length/2,i=t/0.1,i0=Math.floor(i),f=i-i0;
   if(i0>=n-1)return null;                       // ghost finished
+  const dx=ghostTrace[i0*2+2]-ghostTrace[i0*2];
   return {x:ghostTrace[i0*2]*(1-f)+ghostTrace[i0*2+2]*f,
-          y:ghostTrace[i0*2+1]*(1-f)+ghostTrace[i0*2+3]*f};
+          y:ghostTrace[i0*2+1]*(1-f)+ghostTrace[i0*2+3]*f,
+          face:dx<-1?-1:1};
 }
 
 /* =================================================================
@@ -1205,6 +1238,15 @@ function energyUI(){
   document.getElementById("chipStudy").classList.toggle("pulse",dry&&mode==="play");
 }
 function hudTick(){
+  /* running timer + medal target times (Trackmania style) */
+  const tb=document.getElementById("timerBox");
+  const showT=tower&&(mode==="play"||mode==="study"||mode==="pause");
+  tb.style.display=showT?"block":"none";
+  if(showT){
+    document.getElementById("timerNow").textContent=fmtT(runT);
+    document.getElementById("timerMeds").textContent=medsStr;
+    document.getElementById("timerMeds").style.display=medsStr?"block":"none";
+  }
   document.getElementById("meterNow").textContent=(curM|0)+" m";
   document.getElementById("meterBest").textContent="best "+(Math.max(bestM,curM)|0)+" m";
   const f=Math.min(1,curM/SUMMIT_M);
@@ -1279,7 +1321,13 @@ function answer(i){
   if(q.chips[i]===q.corr){
     btns[i].classList.add("yes");SND.ok();
     P.energy=Math.min(PH.EMAX,P.energy+1);energyUI();
-    plusFX();setTimeout(askNext,600);
+    plusFX();
+    if(P.energy>=PH.EMAX-1e-6){
+      /* tank full: confetti + straight back to climbing — no extra
+         click, no result panel (it costs run time) */
+      burstFX();SND.fanfare();
+      setTimeout(closeStudy,620);
+    }else setTimeout(askNext,600);
   }else{
     btns[i].classList.add("no");
     btns[q.chips.indexOf(q.corr)]?.classList.add("yes");
@@ -1301,6 +1349,21 @@ function wheeFX(){const e=document.createElement("div");e.className="wheee";
   e.textContent=["wheee!","aaaah!","not again!"][(Math.random()*3)|0];
   e.style.left=Math.min(CW-140,Math.max(20,CW/2+(P.x-camX)*scale-40))+"px";e.style.top="38%";
   fx.appendChild(e);setTimeout(()=>e.remove(),1000);}
+function burstFX(){            // DOM confetti — pops ABOVE the study card
+  const cols=["#2ee6c0","#ff8585","#ffcf5e","#7ad7ff","#fff"];
+  for(let i=0;i<44;i++){
+    const e=document.createElement("div");
+    e.style.cssText=`position:fixed;left:50%;top:42%;width:9px;height:7px;z-index:60;
+      border-radius:2px;background:${cols[i%cols.length]};pointer-events:none`;
+    document.body.appendChild(e);
+    const a=Math.random()*Math.PI*2,d=90+Math.random()*240;
+    e.animate([
+      {transform:"translate(0,0) rotate(0deg)",opacity:1},
+      {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+150}px) rotate(${540+Math.random()*360}deg)`,opacity:0}
+    ],{duration:850+Math.random()*550,easing:"cubic-bezier(.15,.6,.4,1)"});
+    setTimeout(()=>e.remove(),1450);
+  }
+}
 
 /* =================================================================
    FLOW
@@ -1322,15 +1385,30 @@ function newGame(s){
   document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
   energyUI();
 }
+let medsStr="";
+function refreshMeds(){
+  medsStr="";
+  if(curLevel==null)return;
+  const id=LEVELS[curLevel].id,a=authorTimes()[id];
+  if(a)medsStr=`👑${fmtT(a)} 🥇${fmtT(a*MEDAL_PCT.gold)} 🥈${fmtT(a*MEDAL_PCT.silver)} 🥉${fmtT(a*MEDAL_PCT.bronze)}`;
+  const r=loadRec()[id];
+  if(r&&r.best)medsStr+=(medsStr?" · ":"")+"PB "+fmtT(r.best);
+}
 function startLevel(i){
   curLevel=i;GENDIFF=LEVELS[i].diff;
   SND.init();newGame(LEVELS[i].seed);
+  refreshMeds();
 }
 function showPause(){
   mode="pause";
   const lv=curLevel!=null?LEVELS[curLevel].name:("tower #"+seed);
-  document.getElementById("pauseInfo").innerHTML=
-    `<b>${lv}</b> · height <b>${curM|0} m</b> · energy <b>${P.energy.toFixed(1)}/4</b> · ⏱️ ${fmtT(runT)}`;
+  let h=`<b>${lv}</b> · height <b>${curM|0} m</b> · energy <b>${P.energy.toFixed(1)}/4</b> · ⏱️ ${fmtT(runT)}`;
+  if(curLevel!=null){
+    const a=authorTimes()[LEVELS[curLevel].id];
+    if(a)h+=`<br><span style="font-size:13px">👑 ${fmtT(a)} · 🥇 ${fmtT(a*MEDAL_PCT.gold)} · 🥈 ${fmtT(a*MEDAL_PCT.silver)} · 🥉 ${fmtT(a*MEDAL_PCT.bronze)}</span>`;
+    h+=`<br><span style="font-size:12px;color:var(--ink2)">R = instant restart</span>`;
+  }
+  document.getElementById("pauseInfo").innerHTML=h;
   document.getElementById("ovPause").classList.add("on");
 }
 function hidePause(){document.getElementById("ovPause").classList.remove("on");mode="play";}
@@ -1348,7 +1426,7 @@ function winSummit(){
     }
     r.times.push({t:+t.toFixed(1),d:new Date().toISOString().slice(0,10)});
     r.times.sort((a,b)=>a.t-b.t);r.times=r.times.slice(0,5);
-    saveRec(rec);
+    saveRec(rec);refreshMeds();
     if(nb)head+=' <span style="color:#11a883">— new best!</span>';
     /* author mode: this run sets/keeps the author time for the level */
     if(AUTHOR_MODE){
@@ -1410,6 +1488,10 @@ document.getElementById("btnSame").onclick=()=>{            // replay
 document.getElementById("btnResume").onclick=hidePause;
 document.getElementById("btnNew").onclick=showLevels;
 document.getElementById("btnLvls2").onclick=showLevels;
+document.getElementById("btnReset").onclick=()=>{
+  if(curLevel!=null&&(mode==="play"||mode==="pause"||mode==="study"))
+    startLevel(curLevel);
+};
 document.getElementById("btnLvBack").onclick=()=>{
   document.getElementById("ovLevels").classList.remove("on");
   if(tower)document.getElementById("ovPause").classList.add("on");

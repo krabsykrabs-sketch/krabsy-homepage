@@ -503,3 +503,23 @@ difficulty can ramp with altitude.
     LOCAL emoji font — the same level differs slightly across devices.
     Fine for local records; multiplayer will need shipped collision
     data or a canonical font.
+- 2026-06-11 — **Trackmania polish round** (owner: "Trackmania is our
+  guidance — a highscore time-beating game"):
+  - Ghost redrawn as the player's exact coral crab at 42 % opacity
+    (was a barely-visible blue blob); facing derived from trace deltas.
+  - Camera zoomed in ~25 % (scale = min(CW/880, CH/760, 1.3)).
+  - The double jump's SECOND hop is free — only ground take-offs cost
+    energy, so the tank can't hit zero mid-air.
+  - Quiz session ends itself: the answer that fills the tank fires a
+    DOM confetti burst (z-60, above the card) + fanfare and auto-
+    closes the study overlay after 0.6 s — no result panel, no extra
+    click (clicks cost run time).
+  - Running timer chip (top-left) with medal target times
+    (👑🥇🥈🥉 once an author time exists) + PB; cached in `medsStr`
+    (refreshMeds) — don't parse localStorage per frame.
+  - Instant restart: R key or ↺ button → startLevel(curLevel); pause
+    screen lists medal times + the R hint; start screen row updated.
+  - Verified: air hop costs 0 (ground 0.222), auto-close lands back in
+    play with full tank, reset zeroes the timer, PB+ghost persist,
+    zero console errors. Background-tab evals can't see hudTick DOM
+    updates (rAF throttled) — read state, not DOM, in tests.
