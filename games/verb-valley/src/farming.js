@@ -4,8 +4,9 @@
 // gate is enforced one level up in game.js — this module is pure farm logic.
 
 import * as THREE from 'three';
-import { LAYOUT, CROPS, TREE_REGROW_DAYS } from './config.js';
+import { LAYOUT, CROPS, TREE_REGROW_DAYS, MINE_NODES } from './config.js';
 import { makeDotTexture } from './world.js';
+import { prop } from './assets.js';
 
 const lambert = (c) => new THREE.MeshLambertMaterial({ color: c });
 const MAT = {
@@ -134,7 +135,7 @@ export function createFarm(scene, state) {
     }
   }
 
-  function refreshAll() { state.plots.forEach((_, i) => refreshPlot(i)); refreshTrees(); refreshBerries(); refreshHay(); }
+  function refreshAll() { state.plots.forEach((_, i) => refreshPlot(i)); refreshTrees(); refreshBerries(); refreshHay(); refreshMine(); }
 
   // ── Trees ─────────────────────────────────────────────────────────────
   const treeGroups = LAYOUT.trees.map((t) => {
@@ -144,6 +145,7 @@ export function createFarm(scene, state) {
     return g;
   });
 
+  const TREE_KINDS = ['tree1', 'tree2', 'tree3', 'tree5'];
   function refreshTrees() {
     state.trees.forEach((t, i) => {
       const g = treeGroups[i];
@@ -151,16 +153,55 @@ export function createFarm(scene, state) {
       if (t.chopped) {
         const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.5, 10), MAT.stump);
         stump.position.y = 0.25; stump.castShadow = true; g.add(stump);
+        const logs = prop('woodLog', 0.9);
+        logs.position.set(0.8, 0, 0.3); logs.rotation.y = i * 1.3; g.add(logs);
         return;
       }
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.4, 2.2, 8), MAT.trunk);
-      trunk.position.y = 1.1; trunk.castShadow = true; g.add(trunk);
-      const blobs = [[0, 2.8, 0, 1.25], [0.7, 2.3, 0.3, 0.8], [-0.6, 2.4, -0.2, 0.85]];
-      for (const [x, y, z, r] of blobs) {
-        const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), MAT.leaf);
-        leaf.position.set(x, y, z); leaf.castShadow = true; g.add(leaf);
+      const tree = prop(TREE_KINDS[i % TREE_KINDS.length], 1.5);
+      tree.rotation.y = i * 2.39996;
+      g.add(tree);
+    });
+  }
+
+  // ── Quarry: mining nodes (pack rocks + ore/gem dressing) ─────────────
+  const mineGroups = LAYOUT.mine.map((m) => {
+    const g = new THREE.Group();
+    g.position.set(m.x, 0, m.z);
+    scene.add(g);
+    return g;
+  });
+
+  function refreshMine() {
+    state.mine.forEach((n, i) => {
+      const g = mineGroups[i];
+      g.clear();
+      if (n.mined) {
+        // mined out: just rubble
+        const rubble = prop('stoneSmall', 1.4);
+        rubble.rotation.y = i * 1.7;
+        g.add(rubble);
+        return;
+      }
+      const rock = prop(i % 2 ? 'rock3' : 'rock1', 2.4 + (i % 3) * 0.5);
+      rock.rotation.y = i * 2.1;
+      g.add(rock);
+      // ore/gem nodes get a telltale on top
+      if (n.type === 'gold') {
+        const ore = prop('goldNugget', 1.1); ore.position.y = 0.55; ore.rotation.y = i; g.add(ore);
+      } else if (n.type === 'gem') {
+        const gem = prop('gemMedium', 1.1); gem.position.y = 0.6; gem.rotation.y = i * 0.8; g.add(gem);
       }
     });
+  }
+
+  function nearestMine(pos, range) {
+    let best = -1, bd = range;
+    LAYOUT.mine.forEach((m, i) => {
+      if (state.mine[i].mined) return;
+      const d = Math.hypot(pos.x - m.x, pos.z - m.z);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return best;
   }
 
   // ── Hay meadow ────────────────────────────────────────────────────────
@@ -223,12 +264,8 @@ export function createFarm(scene, state) {
     berryGroups = state.berries.map((b) => {
       const g = new THREE.Group();
       if (!b.taken) {
-        const bush = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 6), MAT.leaf2);
-        bush.position.y = 0.26; bush.scale.y = 0.75; g.add(bush);
-        for (const [dx, dy, dz] of [[0.12, 0.4, 0.12], [-0.15, 0.35, 0], [0.02, 0.3, -0.16]]) {
-          const ball = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), MAT.berry);
-          ball.position.set(dx, dy, dz); g.add(ball);
-        }
+        const basket = prop('berryBasket', 1.0);
+        g.add(basket);
       }
       g.position.set(b.x, 0, b.z);
       scene.add(g);
@@ -327,6 +364,16 @@ export function createFarm(scene, state) {
       refreshHayTile(i);
       return { ok: true };
     },
+    mine(i) {
+      const n = state.mine[i];
+      if (!n || n.mined) return { ok: false, reason: 'no-node' };
+      if (!state.tools.pickaxe) return { ok: false, reason: 'no-pickaxe' };
+      const def = MINE_NODES[n.type];
+      n.mined = true;
+      state.inventory[def.drop] = (state.inventory[def.drop] ?? 0) + def.n;
+      refreshMine();
+      return { ok: true, drop: def.drop, n: def.n };
+    },
     pickBerry(i) {
       const b = state.berries[i];
       if (!b || b.taken) return { ok: false, reason: 'no-berry' };
@@ -362,5 +409,5 @@ export function createFarm(scene, state) {
   }
 
   refreshAll();
-  return { plotCenter, hayCenter, nearestPlot, nearestTree, nearestBerry, nearestHay, actions, refreshAll, update };
+  return { plotCenter, hayCenter, nearestPlot, nearestTree, nearestBerry, nearestHay, nearestMine, actions, refreshAll, update };
 }

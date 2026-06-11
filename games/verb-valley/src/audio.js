@@ -78,6 +78,10 @@ export const sfx = {
   sleep()   { tone(330, 0.5, 'sine', 0.2, 0, 160); },
   star()    { [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.18, 'triangle', 0.22, i * 0.08)); },
   deny()    { tone(220, 0.12, 'sine', 0.14, 0, 180); },
+  clink()   { noise(0.05, 0.2, 3000); tone(1800, 0.08, 'square', 0.1, 0, 1200); tone(2400, 0.06, 'sine', 0.08, 0.02); },
+  splash()  { for (let i = 0; i < 4; i++) noise(0.1, 0.08, 1200 + i * 400, i * 0.04); tone(300, 0.15, 'sine', 0.1, 0, 150); },
+  bite()    { tone(900, 0.07, 'square', 0.2); tone(900, 0.07, 'square', 0.2, 0.12); },
+  catch_()  { tone(523, 0.1, 'triangle', 0.25); tone(784, 0.12, 'triangle', 0.22, 0.08); tone(1046, 0.16, 'triangle', 0.2, 0.16); },
 };
 
 // ── Ambient bed: gentle birds by day, crickets by night ───────────────

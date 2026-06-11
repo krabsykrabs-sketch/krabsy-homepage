@@ -2,7 +2,7 @@
 // through. State is plain JSON in localStorage, versioned so v1.1 schema bumps
 // can migrate instead of wiping farms.
 
-import { SAVE_KEY, SAVE_VERSION, TIME, LAYOUT, CROPS, SELLABLE, TREE_REGROW_DAYS } from './config.js';
+import { SAVE_KEY, SAVE_VERSION, TIME, LAYOUT, CROPS, SELLABLE, TREE_REGROW_DAYS, MINE_NODES } from './config.js';
 
 const FIELD_TILES = LAYOUT.field.cols * LAYOUT.field.rows;
 const HAY_TILES = LAYOUT.hay.cols * LAYOUT.hay.rows;
@@ -16,9 +16,9 @@ export function createNewState() {
     timeMin: TIME.WAKE,
     coins: 30,
     schooledDay: 0,                  // last day class was attended (0 = never)
-    tools: { hoe: true, can: true, scythe: true, axe: false },
+    tools: { shovel: true, bucket: true, sword: true, axe: false, pickaxe: false, rod: false },
     seeds: { ...zeroPerCrop(), turnip: 3 },
-    inventory: { ...zeroPerCrop(), wood: 0, berry: 0, hay: 0 },
+    inventory: { ...zeroPerCrop(), wood: 0, berry: 0, hay: 0, stone: 0, gold: 0, gem: 0, fish: 0, goldfish: 0 },
     collection: {},                  // crop → true once harvested; the album
     crate: {},                       // legacy (pre-instant-selling saves)
     plots: Array.from({ length: FIELD_TILES }, () => ({
@@ -27,10 +27,22 @@ export function createNewState() {
     // hay meadow: grown → scythe → cut (+1 hay) → water → regrows overnight
     hay: Array.from({ length: HAY_TILES }, () => ({ cut: false, watered: false })),
     trees: LAYOUT.trees.map(() => ({ chopped: false, regrowDay: 0 })),
+    mine: LAYOUT.mine.map((_, i) => ({ type: rollNode(1, i), mined: false })),
     berries: spawnBerries(1),
     school: { missed: [], stickers: 0, totalCorrect: 0, classesAttended: 0, lastReview: null },
     sound: true,
   };
+}
+
+// Weighted node roll, deterministic per (day, slot) so reloads are stable.
+export function rollNode(day, slot) {
+  const entries = Object.entries(MINE_NODES);
+  const total = entries.reduce((s, [, n]) => s + n.weight, 0);
+  let h = (day * 374761393 + slot * 668265263) >>> 0;
+  h = ((h ^ (h >>> 13)) * 1274126177) >>> 0;
+  let r = (h % 1000) / 1000 * total;
+  for (const [k, n] of entries) { r -= n.weight; if (r < 0) return k; }
+  return 'stone';
 }
 
 // Berries are free pocket money that respawn daily. Stored as world positions
@@ -70,6 +82,20 @@ function migrate(s) {
     s.collection = {};
     for (const [k, n] of Object.entries(s.inventory)) if (CROPS[k] && n > 0) s.collection[k] = true;
     s.version = 2;
+    return migrate(s);
+  }
+  if (s.version === 2) {
+    // v2 → v3: asset rebuild — tool remap (hoe→shovel, can→bucket,
+    // scythe→sword), quarry + fishing.
+    const fresh = createNewState();
+    const old = s.tools ?? {};
+    s.tools = {
+      shovel: old.hoe ?? true, bucket: old.can ?? true, sword: old.scythe ?? true,
+      axe: old.axe ?? false, pickaxe: false, rod: false,
+    };
+    s.inventory = { ...fresh.inventory, ...s.inventory };
+    s.mine = fresh.mine;
+    s.version = 3;
     return s;
   }
   return null;
@@ -125,10 +151,16 @@ export function advanceDay(state) {
     h.watered = false;
   }
 
+  // 3c. Mined quarry nodes regrow overnight as a fresh weighted roll.
+  let nodesRegrown = 0;
+  state.mine.forEach((n, i) => {
+    if (n.mined) { n.mined = false; n.type = rollNode(state.day + 1, i); nodesRegrown++; }
+  });
+
   // 4. New day.
   state.day += 1;
   state.timeMin = TIME.WAKE;
   state.berries = spawnBerries(state.day);
 
-  return { earned, sold, grew, ripened, hayRegrown, day: state.day };
+  return { earned, sold, grew, ripened, hayRegrown, nodesRegrown, day: state.day };
 }

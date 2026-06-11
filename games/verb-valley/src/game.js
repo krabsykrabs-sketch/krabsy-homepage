@@ -2,11 +2,13 @@
 // gate, sleep/pass-out flow, ?qa= frozen scenes and the window.__VV QA harness.
 
 import * as THREE from 'three';
-import { TIME, LAYOUT, CROPS, TIER_UNLOCK, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
+import { TIME, LAYOUT, CROPS, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI, MINE_NODES } from './config.js';
+import { loadAssets } from './assets.js';
 import { buildWorld, drawBoardIdle } from './world.js';
 import { createDayCycle } from './daycycle.js';
 import { createPlayer } from './player.js';
 import { createFarm } from './farming.js';
+import { createFishing } from './fishing.js';
 import { createSchool } from './school.js';
 import { createUI } from './ui.js';
 import * as save from './save.js';
@@ -33,8 +35,11 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
 });
 
-// Wait briefly for the Google fonts so canvas textures use Fredoka/Nunito.
+// Wait briefly for the Google fonts so canvas textures use Fredoka/Nunito,
+// then pull in every GLTF asset (the loading screen shows progress).
 await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1800))]);
+const loadingEl = document.getElementById('loading');
+await loadAssets((p) => { loadingEl.textContent = `🦀 Loading the valley… ${Math.round(p * 100)}%`; });
 
 const refs = buildWorld(scene);
 drawBoardIdle(refs.blackboard);
@@ -44,7 +49,7 @@ const daycycle = createDayCycle(scene, renderer, refs, document.getElementById('
 let state = { timeMin: 600, day: 1 };
 let started = false;
 let frozen = false;            // QA clock freeze
-let player = null, farm = null, school = null, ui = null;
+let player = null, farm = null, school = null, ui = null, fishing = null;
 let camMode = 'follow';        // 'follow' | 'class'
 let lastNagMin = TIME.WAKE;
 let bellSwing = 0;
@@ -69,11 +74,13 @@ addEventListener('keydown', (e) => {
     if (e.code === 'Digit3') school.answer(2);
     return;
   }
-  if (e.code === 'Digit1') ui.selectTool('hoe');
-  if (e.code === 'Digit2') ui.selectTool('can');
-  if (e.code === 'Digit3') ui.selectTool('scythe');
+  if (e.code === 'Digit1') ui.selectTool('shovel');
+  if (e.code === 'Digit2') ui.selectTool('bucket');
+  if (e.code === 'Digit3') ui.selectTool('sword');
   if (e.code === 'Digit4') ui.selectTool('axe');
-  if (e.code === 'Digit5') ui.cycleSeed();
+  if (e.code === 'Digit5') ui.selectTool('pickaxe');
+  if (e.code === 'Digit6') ui.selectTool('rod');
+  if (e.code === 'Digit7') ui.cycleSeed();
   if (e.code === 'KeyE') interact();
 });
 addEventListener('keyup', (e) => { if (KEYMAP[e.code]) input[KEYMAP[e.code]] = false; });
@@ -109,9 +116,9 @@ function gated(fn) {
 
 // ── Gated farm actions (single path for player input AND QA) ────────────
 const act = {
-  till: (i) => gated(() => { const r = farm.actions.till(i); if (r.ok) sfx.till(); return r; }),
+  till: (i) => gated(() => { const r = farm.actions.till(i); if (r.ok) { sfx.till(); player.playAction('Dig'); } return r; }),
   plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { sfx.plant(); ui.autoStow(); ui.refresh(); } return r; }),
-  water: (i) => gated(() => { const r = farm.actions.water(i); if (r.ok) sfx.water(); return r; }),
+  water: (i) => gated(() => { const r = farm.actions.water(i); if (r.ok) { sfx.water(); player.playAction('Use_Item'); } return r; }),
   harvest: (i) => gated(() => {
     const r = farm.actions.harvest(i);
     if (r.ok) {
@@ -135,17 +142,32 @@ const act = {
   }),
   cutHay: (i) => gated(() => {
     const r = farm.actions.cutHay(i);
-    if (r.ok) { sfx.till(); ui.refresh(); }
+    if (r.ok) { sfx.till(); player.playAction('Chop', { timeScale: 1.8 }); ui.refresh(); }
     return r;
   }),
   waterHay: (i) => gated(() => {
     const r = farm.actions.waterHay(i);
-    if (r.ok) sfx.water();
+    if (r.ok) { sfx.water(); player.playAction('Use_Item'); }
     return r;
   }),
   chop: (i) => gated(() => {
     const r = farm.actions.chop(i);
-    if (r.ok) { sfx.chop(); ui.toast('🪵 +3 wood'); ui.refresh(); }
+    if (r.ok) { sfx.chop(); player.playAction('Chop'); ui.toast('🪵 +3 wood'); ui.refresh(); }
+    return r;
+  }),
+  mine: (i) => gated(() => {
+    const r = farm.actions.mine(i);
+    if (r.ok) {
+      sfx.clink(); player.playAction('Pickaxe');
+      ui.toast(`${ITEM_EMOJI[r.drop]} +${r.n} ${r.drop}`);
+      ui.refresh();
+    }
+    return r;
+  }),
+  fish: () => gated(() => {
+    if (!state.tools.rod) return { ok: false, reason: 'no-rod' };
+    const r = fishing.start();
+    if (r.ok) sfx.splash();
     return r;
   }),
 };
@@ -154,6 +176,12 @@ const act = {
 function computeTarget() {
   const p = player.position;
   const d2 = (x, z) => Math.hypot(p.x - x, p.z - z);
+
+  // During fishing, E is the reaction button.
+  if (fishing.active) {
+    if (fishing.phase === 'bite') return { kind: 'fishPress', label: '<b>E</b> — NOW! Reel it in! 🐟' };
+    return { kind: 'fishPress', label: 'Wait for the bobber to dip… 🎣' };
+  }
 
   if (d2(LAYOUT.school.x, LAYOUT.school.z) < 4.2) {
     if (school.active) return { kind: 'none' };
@@ -178,9 +206,9 @@ function computeTarget() {
     const tool = ui.tool, seed = ui.seedType;
     if (seed && plot.tilled && !plot.crop)
       return { kind: 'plant', i: pi, t: seed, label: `<b>E</b> — Plant ${CROPS[seed].emoji} ${CROPS[seed].name}${lock}` };
-    if (seed && !plot.tilled) return { kind: 'info', label: 'Till this first — press 1 for the hoe ⛏' };
-    if (tool === 'hoe' && !plot.tilled) return { kind: 'till', i: pi, label: `<b>E</b> — Till soil ⛏${lock}` };
-    if (tool === 'can' && plot.tilled && !plot.watered) return { kind: 'water', i: pi, label: `<b>E</b> — Water 🚿${lock}` };
+    if (seed && !plot.tilled) return { kind: 'info', label: 'Till this first — press 1 for the shovel 🪏' };
+    if (tool === 'shovel' && !plot.tilled) return { kind: 'till', i: pi, label: `<b>E</b> — Till soil 🪏${lock}` };
+    if (tool === 'bucket' && plot.tilled && !plot.watered) return { kind: 'water', i: pi, label: `<b>E</b> — Water 🪣${lock}` };
     if (plot.tilled && plot.watered && plot.crop) return { kind: 'info', label: 'Watered for today ✓' };
     if (plot.tilled && !plot.crop) return { kind: 'info', label: 'Click a seed bag in your inventory 🌱' };
     return { kind: 'none' };
@@ -192,11 +220,11 @@ function computeTarget() {
     const lock = attended() ? '' : ' 🔒';
     const tool = ui.tool;
     if (!h.cut) {
-      if (tool === 'scythe') return { kind: 'cutHay', i: hi, label: `<b>E</b> — Cut hay 🌾${lock}` };
-      return { kind: 'info', label: 'Tall hay — press 3 for the scythe 🌾' };
+      if (tool === 'sword') return { kind: 'cutHay', i: hi, label: `<b>E</b> — Cut hay ⚔️${lock}` };
+      return { kind: 'info', label: 'Tall hay — press 3 for the sword ⚔️' };
     }
     if (!h.watered) {
-      if (tool === 'can') return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🚿${lock}` };
+      if (tool === 'bucket') return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🪣${lock}` };
       return { kind: 'info', label: 'Water the stubble and it regrows overnight 🚿' };
     }
     return { kind: 'info', label: 'Regrows tomorrow ✓' };
@@ -207,6 +235,22 @@ function computeTarget() {
     if (!state.tools.axe) return { kind: 'info', label: 'You need an axe — check the shop 🛒' };
     const lock = attended() ? '' : ' 🔒';
     return { kind: 'chop', i: ti, label: `<b>E</b> — Chop tree 🪓${lock}` };
+  }
+
+  const mi = farm.nearestMine(p, 2.2);
+  if (mi >= 0) {
+    if (!state.tools.pickaxe) return { kind: 'info', label: 'You need a pickaxe — check the shop 🛒' };
+    const lock = attended() ? '' : ' 🔒';
+    const node = MINE_NODES[state.mine[mi].type];
+    return { kind: 'mine', i: mi, label: `<b>E</b> — Mine ${node.emoji} ${node.name}${lock}` };
+  }
+
+  // Pond edge: fish (rod selected) — pond is decor otherwise.
+  if (d2(LAYOUT.pond.x, LAYOUT.pond.z) < LAYOUT.pond.r + 1.6) {
+    if (!state.tools.rod) return { kind: 'info', label: 'Fish are jumping! Buy a rod at the shop 🎣' };
+    if (ui.tool !== 'rod') return { kind: 'info', label: 'Press 6 for the fishing rod 🎣' };
+    const lock = attended() ? '' : ' 🔒';
+    return { kind: 'fish', label: `<b>E</b> — Cast the line 🎣${lock}` };
   }
   return { kind: 'none' };
 }
@@ -227,6 +271,9 @@ function interact() {
     case 'chop': act.chop(t.i); break;
     case 'cutHay': act.cutHay(t.i); break;
     case 'waterHay': act.waterHay(t.i); break;
+    case 'mine': act.mine(t.i); break;
+    case 'fish': act.fish(); break;
+    case 'fishPress': fishing.press(); break;
   }
   ui.updateHUD();
 }
@@ -258,10 +305,10 @@ function onClassComplete(sum) {
 
 // ── Shop / ship / sleep ─────────────────────────────────────────────────
 function buy(id) {
-  if (id === 'axe') {
-    if (state.tools.axe) return { ok: false, reason: 'owned' };
-    if (state.coins < AXE_COST) { sfx.deny(); return { ok: false, reason: 'coins' }; }
-    state.coins -= AXE_COST; state.tools.axe = true; sfx.buy();
+  if (TOOL_COST[id] != null) {
+    if (state.tools[id]) return { ok: false, reason: 'owned' };
+    if (state.coins < TOOL_COST[id]) { sfx.deny(); return { ok: false, reason: 'coins' }; }
+    state.coins -= TOOL_COST[id]; state.tools[id] = true; sfx.buy();
     ui.refresh();
     return { ok: true };
   }
@@ -297,6 +344,7 @@ function ship(item, n) {
 }
 
 function doSleep(dozed = false) {
+  fishing?.cancel();
   sfx.sleep();
   const summary = save.advanceDay(state);
   save.save(state);
@@ -315,6 +363,17 @@ function startGame(loaded) {
   state = loaded ?? save.createNewState();
   player = createPlayer(scene, camera);
   farm = createFarm(scene, state);
+  fishing = createFishing(scene, player, {
+    onCatch: (type) => {
+      state.inventory[type] = (state.inventory[type] ?? 0) + 1;
+      sfx.catch_();
+      ui.toast(type === 'goldfish' ? '🐠 A GOLDFISH! Lucky catch!' : '🐟 Fish caught!', 3000);
+      ui.refresh();
+    },
+    onMiss: () => { sfx.deny(); ui.toast('It got away… cast again! 🎣'); },
+    onBite: () => sfx.bite(),
+    toast: (m) => ui.toast(m),
+  });
   school = createSchool(state, refs.blackboard, { onComplete: onClassComplete });
   ui = createUI(state, {
     onBuy: buy,
@@ -330,7 +389,7 @@ function startGame(loaded) {
     },
   });
   daycycle.applyInstant(state);
-  player.setTool('hoe');           // mirror the default selection
+  player.setTool('shovel');        // mirror the default selection
   player.updateCamera(0, true);
   document.getElementById('hud').hidden = false;
   started = true;
@@ -364,7 +423,11 @@ function frame() {
       ui.bubble(BELL_POS, '🔔 Ding-ding! English class!', 2600);
     }
 
-    player.update(dt, input, paused);
+    // Walking away cancels a fishing session.
+    if (fishing.active && (input.up || input.down || input.left || input.right)) fishing.cancel();
+    fishing.tick(dt, worldClock);
+
+    player.update(dt, input, paused || fishing.active);
     farm.update(worldClock);
     school.update(dt);
 
@@ -405,6 +468,9 @@ function frame() {
 
 // ── QA: ?qa= frozen scenes + window.__VV ───────────────────────────────
 function installQA() {
+  window.__SCENE = scene;   // debug/QA introspection
+  window.__THREE = THREE;
+  window.__RENDERER = renderer;
   window.__VV = {
     get state() { return state; },
     save: () => save.save(state),
@@ -414,6 +480,10 @@ function installQA() {
     grantCoins(n) { state.coins += n; ui.updateHUD(); },
     grantSeeds(t, n) { state.seeds[t] = (state.seeds[t] ?? 0) + n; ui.refresh(); },
     teleport(x, z) { player.teleport(x, z); },
+    // QA: scale the follow-cam distance (0.4 = close-up) for screenshots
+    zoom(f = 1) { player.setZoom?.(f); player.updateCamera(0, true); },
+    face: (rad) => player.setFacing(rad),
+    playAction: (n, o) => player.playAction(n, o),
     selectTool: (t) => ui.selectTool(t),
     startClass: (seed) => startClass(seed),
     answer: (i) => school.answer(i),
@@ -441,6 +511,14 @@ function installQA() {
     chop: (i) => act.chop(i),
     cutHay: (i) => act.cutHay(i),
     waterHay: (i) => act.waterHay(i),
+    mine: (i) => act.mine(i),
+    // fishing QA: deterministic rng + manual ticking
+    startFishing: () => act.fish(),
+    fishPress: () => fishing.press(),
+    tickFishing: (dt) => fishing.tick(dt, worldClock),
+    fishingPhase: () => fishing.phase,
+    setFishingRng: (fn) => fishing._setRng(fn),
+    cancelFishing: () => fishing.cancel(),
     pickBerry: (i) => farm.actions.pickBerry(i),
     buy: (id) => buy(id),
     ship: (item, n) => ship(item, n),

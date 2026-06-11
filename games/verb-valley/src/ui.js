@@ -10,24 +10,26 @@
 // selection onto the player rig via hooks.onSelect.
 
 import * as THREE from 'three';
-import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, AXE_COST, ITEM_EMOJI } from './config.js';
+import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI } from './config.js';
 import { sfx, toggle as toggleSound, isEnabled as soundOn } from './audio.js';
 
 const $ = (id) => document.getElementById(id);
 
 const TOOL_DEFS = [
-  { id: 'hoe', icon: '⛏', name: 'Hoe' },
-  { id: 'can', icon: '🚿', name: 'Watering can' },
-  { id: 'scythe', icon: '🌾', name: 'Scythe — cuts hay' },
-  { id: 'axe', icon: '🪓', name: 'Axe' },
+  { id: 'shovel', icon: '🪏', name: 'Shovel — tills soil' },
+  { id: 'bucket', icon: '🪣', name: 'Bucket — waters crops' },
+  { id: 'sword', icon: '⚔️', name: 'Sword — cuts hay' },
+  { id: 'axe', icon: '🪓', name: 'Axe — chops trees' },
+  { id: 'pickaxe', icon: '⛏️', name: 'Pickaxe — mines the quarry' },
+  { id: 'rod', icon: '🎣', name: 'Fishing rod' },
 ];
 const SEED_ORDER = CROP_ORDER;
-const PRODUCE_ORDER = [...CROP_ORDER, 'berry', 'hay', 'wood'];
+const PRODUCE_ORDER = [...CROP_ORDER, 'berry', 'hay', 'wood', 'stone', 'gold', 'gem', 'fish', 'goldfish'];
 
 export function createUI(state, hooks) {
   // hooks: { onBuy(id), onShip(item,n), onSleep(), onNewFarm(), onContinue(),
   //          onWake(), onSelect(sel) }
-  let sel = { kind: 'tool', id: 'hoe' };
+  let sel = { kind: 'tool', id: 'shovel' };
   const v3 = new THREE.Vector3();
 
   function setSel(next) {
@@ -53,7 +55,7 @@ export function createUI(state, hooks) {
   }
 
   function selectTool(id) {
-    if (id === 'axe' && !state.tools.axe) { sfx.deny(); toast('No axe yet — check the shop!'); return; }
+    if (!state.tools[id]) { sfx.deny(); toast(`No ${TOOL_DEFS.find((t) => t.id === id)?.name.split(' —')[0].toLowerCase() ?? id} yet — check the shop!`); return; }
     setSel({ kind: 'tool', id });
   }
 
@@ -112,8 +114,8 @@ export function createUI(state, hooks) {
 
   // If the selected seed/produce ran out, fall back to the hoe.
   function autoStow() {
-    if (sel.kind === 'seed' && (state.seeds[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'hoe' });
-    else if (sel.kind === 'item' && (state.inventory[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'hoe' });
+    if (sel.kind === 'seed' && (state.seeds[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'shovel' });
+    else if (sel.kind === 'item' && (state.inventory[sel.id] ?? 0) < 1) setSel({ kind: 'tool', id: 'shovel' });
   }
 
   function refresh() {
@@ -214,7 +216,9 @@ export function createUI(state, hooks) {
           : `🔒 grow ${TIER_UNLOCK[CROPS[t].tier]} different crops`,
         cost: CROPS[t].seed, locked: !tierUnlocked(CROPS[t].tier),
       })),
-      { id: 'axe', icon: '🪓', name: 'Axe', desc: state.tools.axe ? 'owned!' : 'chop trees for wood', cost: AXE_COST, disabled: state.tools.axe },
+      { id: 'axe', icon: '🪓', name: 'Axe', desc: state.tools.axe ? 'owned!' : 'chop trees for wood', cost: TOOL_COST.axe, disabled: state.tools.axe },
+      { id: 'pickaxe', icon: '⛏️', name: 'Pickaxe', desc: state.tools.pickaxe ? 'owned!' : 'mine the quarry — stone, gold, gems', cost: TOOL_COST.pickaxe, disabled: state.tools.pickaxe },
+      { id: 'rod', icon: '🎣', name: 'Fishing rod', desc: state.tools.rod ? 'owned!' : 'fish the pond', cost: TOOL_COST.rod, disabled: state.tools.rod },
     ];
     for (const r of rows) {
       const row = document.createElement('div');
@@ -277,6 +281,7 @@ export function createUI(state, hooks) {
     if (summary.grew) html += `<p>${summary.grew} crop${summary.grew > 1 ? 's' : ''} grew overnight 🌱</p>`;
     if (summary.ripened) html += `<p>${summary.ripened} ready to harvest! ✨</p>`;
     if (summary.hayRegrown) html += `<p>${summary.hayRegrown} hay tile${summary.hayRegrown > 1 ? 's' : ''} regrew 🌾</p>`;
+    if (summary.nodesRegrown) html += `<p>Fresh rocks in the quarry ⛏</p>`;
     if (!html) html = '<p>A quiet night on the farm.</p>';
     if (state.school.stickers > 0) html += `<p class="stickers">Sticker collection: ${'🌟'.repeat(Math.min(state.school.stickers, 8))}</p>`;
     $('sleep-body').innerHTML = html;

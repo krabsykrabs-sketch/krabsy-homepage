@@ -54,13 +54,36 @@ export const SELLABLE = {
   wood:  8,
   berry: 5,
   hay:   4,
+  stone: 6,
+  gold:  28,
+  gem:   48,
+  fish:  18,
+  goldfish: 60,
 };
 
-export const AXE_COST = 50;
+// Buyable tools (shovel/bucket/sword are free starters).
+export const TOOL_COST = { axe: 50, pickaxe: 60, rod: 40 };
 
 export const ITEM_EMOJI = {
   ...Object.fromEntries(Object.entries(CROPS).map(([k, c]) => [k, c.emoji])),
   wood: '🪵', berry: '🫐', hay: '🌾',
+  stone: '🪨', gold: '🪙', gem: '💎', fish: '🐟', goldfish: '🐠',
+};
+
+// ── Mining ────────────────────────────────────────────────────────────
+// Node types by spawn weight; a mined node regrows overnight as a fresh
+// weighted roll, so the quarry stays mostly stone with lucky days.
+export const MINE_NODES = {
+  stone: { name: 'Stone', emoji: '🪨', weight: 6, drop: 'stone', n: 2 },
+  gold:  { name: 'Gold',  emoji: '🪙', weight: 2, drop: 'gold',  n: 1 },
+  gem:   { name: 'Gem',   emoji: '💎', weight: 1, drop: 'gem',   n: 1 },
+};
+
+// ── Fishing ───────────────────────────────────────────────────────────
+export const FISHING = {
+  WAIT_MIN: 1.2, WAIT_MAX: 3.6,   // seconds until a bite
+  BITE_WINDOW: 0.9,               // seconds to react
+  GOLD_CHANCE: 0.1,               // lucky goldfish
 };
 
 // ── World layout (XZ plane; +Z is toward the camera / "south") ─────────
@@ -80,10 +103,15 @@ export const LAYOUT = {
     { x: -9, z: 4 }, { x: -5, z: 9 }, { x: 9, z: 6 },
     { x: 14, z: 2 }, { x: 11, z: -2 },
   ],
+  // quarry corner (west edge, below the pond)
+  mine: [
+    { x: -19, z: -2.5 }, { x: -17.2, z: -0.8 }, { x: -19.4, z: 1.2 },
+    { x: -16.8, z: -3.6 }, { x: -18.2, z: 3.4 }, { x: -16.2, z: 2.0 },
+  ],
 };
 
 export const TREE_REGROW_DAYS = 2;
 export const INTERACT_RANGE = 2.3;
 export const SAVE_KEY = 'krabsy_vvalley_save';
 export const SOUND_KEY = 'krabsy_vvalley_sound';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;

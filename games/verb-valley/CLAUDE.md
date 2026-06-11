@@ -322,3 +322,50 @@ re-downloadable master shared by several games.
     missed verbs, adds hay/collection/scythe, infers album from held
     produce) — verified with a crafted v1 save through a real reload.
   - 28 assertions PASS this round; zero console errors.
+- 2026-06-11 — **Asset rebuild (user-requested): KayKit packs replace the
+  procedural look, plus mining + fishing.** The game now loads GLTF
+  assets at boot (new `src/assets.js`, manifest of ~35 models staged
+  into `assets/` — copied from the shared library, gitignored via this
+  folder's own `.gitignore`).
+  - **Packs used:** Adventurers (Ranger player), Character_Animations
+    (Rig_Medium MovementBasic/General/Tools clip sets), RPGToolsBits
+    (shovel/bucket/pickaxe/axe/lantern), FantasyWeaponsBits (sword_B),
+    Forest_Nature (trees/bushes/rocks/grass), ResourceBits (crates, wood,
+    stone, gold, gems, berry baskets). **Gotcha:** GLTFLoader sanitizes
+    bone names — `handslot.r` arrives as `handslotr`. KayKit hand tools
+    fit the hand slot with an **identity transform** (no rotation needed).
+  - **Player:** Ranger with real animations — Idle/Running locomotion
+    crossfades, one-shot work clips (Dig=till, Use_Item=water, Chop=hay+
+    trees, Pickaxe=mine), Holding_A as the carry pose, full Fishing_* set.
+    Tools snap onto the hand-slot bone; fishing rod stays procedural (no
+    rod in any pack). Krabsy, cottage, school, crops stay procedural.
+  - **Tool remap (user-decided):** shovel tills, bucket waters, sword
+    cuts hay (the "katana" ask → sword_B; no katana in the pack), axe
+    chops. Hotbar is 6 slots (keys 1–6; 7 cycles seed); save schema v3
+    migrates v2 tools (hoe→shovel, can→bucket, scythe→sword) — verified
+    with a crafted v2 save through a real reload.
+  - **NEW Quarry** (west edge, 6 nodes; user chose "mining AND meadow"):
+    pickaxe 60c in the shop; nodes are weighted rolls stone 6 / gold 2 /
+    gem 1 (deterministic per day+slot, integer-hash mixed — a first
+    naive mod-997 hash gave 2 gems on day 1), drops stone×2 @6c /
+    gold @28c / gem @48c, mined nodes regrow overnight as a fresh roll.
+    School-gated like all farm work.
+  - **NEW Pond fishing** (pulled from v1.1 at user's choice): rod 40c;
+    E casts → wait 1.2–3.6s → bobber dips (0.9s bite window) → E lands
+    fish 18c (10% goldfish 60c); moving or sleeping cancels, misses just
+    retry. State machine in `src/fishing.js`; `__VV.setFishingRng()`
+    makes it deterministic for QA.
+  - **Verification:** 36 gameplay + 6 save-persistence + 8 migration
+    assertions all PASS; zero console errors; school/dusk/night `?qa=`
+    scenes screenshotted (the preview-panel screenshot hang struck again;
+    headless Edge workaround held, write the PNG to a Windows-local dir).
+    Benchmark at dusk: 12.3–23 ms/frame (noisy panel environment;
+    best-case matches the pre-rebuild 13.6 ms; the scene is light —
+    272 draw calls / 21k triangles).
+  - QA additions: `__VV.zoom(f)`, `__VV.face(rad)`, `__VV.playAction()`,
+    `__VV.mine/startFishing/fishPress/tickFishing/fishingPhase/
+    cancelFishing/setFishingRng`, plus `window.__SCENE/__THREE/__RENDERER`.
+  - **Known gaps for next round:** rod model is procedural; class leaves
+    the Ranger standing at the bench (no sit clip wired); hay blades are
+    still procedural cones (no hay model in the packs); grass tufts read
+    thin from the follow-cam distance.

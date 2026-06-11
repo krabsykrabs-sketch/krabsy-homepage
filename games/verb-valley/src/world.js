@@ -5,6 +5,7 @@
 
 import * as THREE from 'three';
 import { LAYOUT, PAL } from './config.js';
+import { prop } from './assets.js';
 
 const c = (hex) => new THREE.Color(hex);
 
@@ -105,13 +106,11 @@ export function buildWorld(scene) {
   mat.rotation.x = -Math.PI / 2; mat.position.set(LAYOUT.bed.x, 0.03, LAYOUT.bed.z); scene.add(mat);
   refs.bedSign = makeSignpost(scene, LAYOUT.bed.x + 1.4, LAYOUT.bed.z, '🛏 Sleep', 0xcf6b58);
 
-  // ── Shipping crate ───────────────────────────────────────────────────
+  // ── Selling crate (KayKit wood crate + a berry crate beside it) ──────
   const crate = new THREE.Group();
   crate.position.set(LAYOUT.crate.x, 0, LAYOUT.crate.z);
-  const cb = box(2, 1.3, 2, 0x9c6b3f); cb.position.y = 0.65; cb.castShadow = true; crate.add(cb);
-  const lid = box(2.1, 0.2, 2.1, 0xb98a55); lid.position.y = 1.35; lid.rotation.z = 0.06; crate.add(lid);
-  // metal bands
-  for (const y of [0.35, 1.0]) { const band = box(2.05, 0.12, 2.05, 0x6a4a2c); band.position.y = y; crate.add(band); }
+  const cb = prop('crateWood', 1.6); cb.rotation.y = 0.3; crate.add(cb);
+  const cb2 = prop('crateBerries', 1.2); cb2.position.set(1.3, 0, 0.6); cb2.rotation.y = -0.4; crate.add(cb2);
   scene.add(crate);
   refs.crate = crate;
   makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, '📦 Sell', 0x9c6b3f);
@@ -168,21 +167,28 @@ export function buildWorld(scene) {
   // Hay meadow sign (the tiles themselves are dynamic, built in farming.js).
   makeSignpost(scene, LAYOUT.hay.cx - 7, LAYOUT.hay.cz, '🌾 Hay', 0xd8c25e);
 
+  // Quarry sign + permanent dressing rocks framing the mining corner
+  // (the mineable nodes themselves are dynamic, built in farming.js).
+  makeSignpost(scene, LAYOUT.mine[1].x + 2.2, LAYOUT.mine[1].z - 1.6, '⛏ Quarry', 0xb8c4d0);
+  for (const [k, x, z, s] of [['rock5', -20.5, -4.5, 3.2], ['rock5', -20.8, 4.8, 2.6], ['rock1', -15.0, 4.6, 2.0]]) {
+    const r = prop(k, s); r.position.set(x, 0, z); r.rotation.y = x * 2.1; scene.add(r);
+  }
+
   // ── Fences framing the play area ─────────────────────────────────────
   buildFences(scene);
 
-  // Scatter a few flowers + bushes for life.
-  for (let i = 0; i < 22; i++) {
+  // Scatter pack bushes, grass tufts and pebbles for life.
+  const SCATTER = ['bush1', 'grass1', 'grass2', 'bush2', 'grass1', 'bush4', 'grass2', 'stoneSmall'];
+  for (let i = 0; i < 26; i++) {
     const a = i * 2.39996, r = 5 + (i % 7) * 2.4;
     const x = Math.cos(a) * r, z = Math.sin(a) * r - 1;
     if (Math.abs(x - LAYOUT.field.cx) < 6 && Math.abs(z - LAYOUT.field.cz) < 5) continue; // keep field clear
     if (Math.abs(x - LAYOUT.hay.cx) < 7.5 && Math.abs(z - LAYOUT.hay.cz) < 3.5) continue; // keep hay meadow clear
-    if (i % 3 === 0) {
-      const bush = sph(0.5 + Math.random() * 0.3, 0x4f9b3a); bush.position.set(x, 0.4, z); bush.scale.y = 0.8; bush.castShadow = true; scene.add(bush);
-    } else {
-      const stem = cyl(0.03, 0.03, 0.4, 0x4f9b3a); stem.position.set(x, 0.2, z); scene.add(stem);
-      const petal = sph(0.16, [0xff8585, 0xffcf5e, 0xff6fae, 0xffffff][i % 4]); petal.position.set(x, 0.45, z); scene.add(petal);
-    }
+    if (Math.abs(x - LAYOUT.school.x) < 5 && Math.abs(z - LAYOUT.school.z) < 5) continue;  // keep classroom clear
+    const p = prop(SCATTER[i % SCATTER.length], 0.8 + (i % 3) * 0.25);
+    p.position.set(x, 0, z);
+    p.rotation.y = i * 1.7;
+    scene.add(p);
   }
 
   // Firefly + star particle parents (filled by daycycle).
