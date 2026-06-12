@@ -63,7 +63,6 @@ export class Chef {
     this.carriedMesh = mesh || null;
     if (mesh) {
       mesh.position.set(0, 0, 0);
-      mesh.scale.multiplyScalar(1.3);   // carried items read bigger on screen
       this.carryAnchor.add(mesh);
     }
     this.squash = 0.18;

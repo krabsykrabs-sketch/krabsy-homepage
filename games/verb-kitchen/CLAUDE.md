@@ -267,9 +267,9 @@ welcome alternative to choice chips.
   dupe-block, junk-plate trash, bigburger match + serve.
 - 2026-06-12 — **Carry visibility pass.** Chibi heads were hiding
   carried items from the camera. Carry anchor raised + pushed out
-  (0,1.16,0.66 → 0,1.42,1.02), carried meshes ×1.3 (applied in
-  `setCarried`, fresh mesh each build so no compounding — verified),
-  ketchup scale 1.45 → 1.9. New `?qa=carry` worst-case scene (chef
+  (0,1.16,0.66 → 0,1.42,1.02), ketchup scale 1.45 → 1.9. (A ×1.3
+  in-hand scale boost was tried and reverted — anchor move alone
+  solves it per user.) New `?qa=carry` worst-case scene (chef
   facing away from camera holding ketchup) — screenshot confirms the
   item reads clearly past the head. If still not enough, the next step
   is replacement characters (Quaternius CC0 / Synty paid have
