@@ -9,7 +9,7 @@ at the end of each session. (Last update: 2026-06-10.)
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
-| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **rebuilt v3** 2026-06-10 (original mechanics restored: 1-fruit warmup, input queue/U-turns, gentle speed) — awaiting user playtest, NOT pushed |
+| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **rebuilt v3** 2026-06-10 (original mechanics restored: 1-fruit warmup, input queue/U-turns, gentle speed) — **LIVE since 2026-06-12** |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
 | Verb Flow | single-file canvas | `games/verb-flow/` | — | **built, not released** |
