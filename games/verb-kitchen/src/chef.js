@@ -85,7 +85,7 @@ export class Chef {
     if (name && this.handSlot) {
       const m = getModel(name);
       if (name === 'knife') {
-        m.rotation.set(Math.PI / 2, 0, 0);      // blade forward, edge down
+        m.rotation.set(Math.PI / 2, 0, -Math.PI / 2);  // blade away from the body
         m.position.set(0, 0.05, 0);
       } else {
         m.scale.setScalar(0.8);                 // pin is long — grip the middle

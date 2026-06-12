@@ -24,7 +24,7 @@ export const ITEMS = {
 
   // --- level 3: pizza ---
   // build order: roll dough → ketchup → cheese (EVERY pizza) → optional topping → bake
-  dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll', tool: 'rollingpin' },
+  dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll' },
   dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', accepts: { ketchup: 'dough_sauced' } },
   ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.9, reusable: true },
   dough_sauced:    { compose: 'sauced',                        emoji: '🔴',

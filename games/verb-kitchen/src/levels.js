@@ -57,7 +57,7 @@ export const LEVELS = [
     map: [
       'CCHHCooCCC',
       '1........C',
-      'C.CCC.CC.d',
+      'C.CCC.CC.b',
       '3...P....b',
       '4.CC.CCC.C',
       '5........C',

@@ -265,6 +265,12 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Dough rolling scrapped + knife orientation fix.** Both
+  L3 boards are plain cutting boards again ('d' map char unused but the
+  world.js/`st.tool` plumbing kept for later); dough preps on any board
+  with the knife (hint still says "Roll"). In-hand knife rotation fixed
+  to blade-forward: `rotation.set(PI/2, 0, -PI/2)` (z=+PI/2 pointed at
+  the camera — verified via qa=chop crops).
 - 2026-06-12 — **Rack turn + tool placement + tools-in-hand.**
   - Dishrack rotated 90° (`facing + PI/2` in world.js; plate row in
     `refreshStack` rotated to match).
