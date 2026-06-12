@@ -78,6 +78,11 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
   **Deploys are MANUAL**: pushing does NOT auto-deploy — the user must
   click Deploy in the Coolify dashboard. After any push that touches
   `homepage/`, ask the user to deploy, then verify the live site.
+- **IndexNow after deploys:** key `eae8988c209c98a109229e9b03a9c0c4`
+  (served at `/<key>.txt`). After a deploy that changes pages, POST the
+  changed URLs to `https://api.indexnow.org/indexnow` as JSON
+  `{host:"krabsy.com", key, keyLocation, urlList}` — instant
+  Bing/Ecosia/DuckDuckGo indexing. HTTP 202 = accepted.
 - Large binary asset packs are **gitignored** (see `.gitignore`): the
   shared `/assets/` library and the 3D source's `assets/`+`_builds/`. The
   **deployed** `homepage/games/verb-platformer/assets/` IS tracked.
