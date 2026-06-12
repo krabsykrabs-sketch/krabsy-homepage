@@ -51,7 +51,7 @@ function showLevelSelect() {
 async function startLevel(idx, opts = {}) {
   audio.init(); audio.resume();
   ui.fade(true);
-  await game.startLevel(idx, opts);
+  await game.startLevel(idx, { ...opts, character: charChoice });
   ui.fade(false);
 }
 
@@ -64,6 +64,22 @@ document.getElementById('backBtn').addEventListener('click', () => ui.showScreen
 document.getElementById('retryBtn').addEventListener('click', () => startLevel(game.levelIdx));
 document.getElementById('nextBtn').addEventListener('click', () => startLevel(Math.min(game.levelIdx + 1, LEVELS.length - 1)));
 document.getElementById('menuBtn').addEventListener('click', showLevelSelect);
+
+// --- character selection ---
+let charChoice = localStorage.getItem('krabsy_vkitchen_char') || 'knight';
+function updateCharButtons() {
+  document.querySelectorAll('.char-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.char === charChoice);
+  });
+}
+document.querySelectorAll('.char-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    charChoice = btn.dataset.char;
+    localStorage.setItem('krabsy_vkitchen_char', charChoice);
+    updateCharButtons();
+  });
+});
+updateCharButtons();
 
 ui.showScreen('startScreen');
 

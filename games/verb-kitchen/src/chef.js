@@ -15,10 +15,11 @@ export async function preloadChef() {
 }
 
 export class Chef {
-  constructor(world) {
+  constructor(world, charName = 'knight') {
     this.world = world;
     this.obj = new THREE.Group();
-    this.body = cloneChef(assets.charScene);
+    const charScene = assets.chars[charName] || assets.chars.knight;
+    this.body = cloneChef(charScene);
     this.body.scale.setScalar(1.15);
     this.obj.add(this.body);
 
