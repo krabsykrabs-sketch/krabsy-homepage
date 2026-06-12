@@ -358,6 +358,7 @@ export class Game {
       const def = ITEMS[st.item.id];
       if (def.chopTo) {
         this.chef.working = true;
+        this.chef.workTool = st.tool || 'knife';
         const before = st.progress;
         st.progress += dt / (def.chopTime || CHOP_TIME);
         if (Math.floor(before * 5) !== Math.floor(st.progress * 5)) audio.chop();

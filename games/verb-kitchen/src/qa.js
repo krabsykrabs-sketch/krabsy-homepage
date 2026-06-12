@@ -122,7 +122,7 @@ export function initQA(game, save, startLevel, params) {
       VK.teleport(board.col, board.row + 1);
       VK.face(0, -1);
       VK.pressE();
-      VK.holdSpace(0.45);
+      VK.holdSpace(1.25);   // freeze at the TOP of the knife swing
       VK.freeze(true);
     } else if (scene === 'carry') {
       // worst case for carry visibility: chef faces away from the camera

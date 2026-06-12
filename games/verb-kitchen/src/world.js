@@ -75,9 +75,16 @@ export class World {
           counter.position.copy(p); counter.rotation.y = facing;
           const board = getModel('cuttingboard');
           board.position.set(p.x, 1.02, p.z); board.rotation.y = facing;
+          // tools rest ON the board (top = 1.17): knife lies flat,
+          // rolling pin sits on its rollers (radius 0.215)
           const tool = getModel(ch === 'd' ? 'rollingpin' : 'knife');
-          tool.position.set(p.x + 0.45, 1.1, p.z - 0.35);
-          tool.rotation.y = facing + 0.5;
+          if (ch === 'd') {
+            tool.position.set(p.x, 1.39, p.z - 0.3);
+            tool.rotation.y = facing + 0.35;
+          } else {
+            tool.rotation.set(Math.PI / 2, facing + 0.6, 0);
+            tool.position.set(p.x + 0.5, 1.23, p.z - 0.25);
+          }
           staticG.add(counter, board, tool);
           st = new Station('board', c, r, p, 1.13);
           st.tool = ch === 'd' ? 'rollingpin' : 'knife';
@@ -104,7 +111,7 @@ export class World {
           const counter = getModel(counterModelFor(c, r));
           counter.position.copy(p); counter.rotation.y = facing;
           const rack = getModel('dishrack');
-          rack.position.set(p.x, 1.02, p.z); rack.rotation.y = facing;
+          rack.position.set(p.x, 1.02, p.z); rack.rotation.y = facing + Math.PI / 2;
           staticG.add(counter, rack);
           st = new Station('rack', c, r, p, 1.12);
         } else if (ch === 't') {

@@ -219,7 +219,7 @@ export class Station {
         p.position.set(-0.36 + i * 0.24, 0.42, 0);
         this.stackGroup.add(p);
       }
-      this.stackGroup.rotation.y = this.rot || 0;
+      this.stackGroup.rotation.y = (this.rot || 0) + Math.PI / 2;  // match the turned rack
     } else {
       // dirty pile at the sink stays a (small) stack
       for (let i = 0; i < Math.min(this.dirtyPlates, 4); i++) {

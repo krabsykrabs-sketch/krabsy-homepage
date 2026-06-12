@@ -265,6 +265,20 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Rack turn + tool placement + tools-in-hand.**
+  - Dishrack rotated 90° (`facing + PI/2` in world.js; plate row in
+    `refreshStack` rotated to match).
+  - Static board tools no longer sink: knife lies FLAT on the board
+    (rotation.set(PI/2, facing+0.6, 0), y 1.23), rolling pin rests on
+    its rollers (y 1.39). Board top = 1.17 (counter 1.02 + board 0.15).
+  - **Tools in hand while working:** rig has `handslotr` socket bone;
+    `chef.setTool(name)` clones knife/rollingpin onto it, driven by
+    `chef.workTool` (set from `st.tool` in workStations) — shows only
+    while Space is held, auto-clears on release. Knife blade-forward;
+    pin gripped center (offsetting along bone axis flung it to the
+    floor — bone-local axes are not world-aligned, keep offsets tiny).
+    Swing arc verified: hand y 0.59→1.57, visible above counters.
+    `?qa=chop` now freezes at the TOP of the swing (holdSpace 1.25).
 - 2026-06-12 — **Carry visibility pass.** Chibi heads were hiding
   carried items from the camera. Carry anchor raised + pushed out
   (0,1.16,0.66 → 0,1.42,1.02), ketchup scale 1.45 → 1.9. (A ×1.3

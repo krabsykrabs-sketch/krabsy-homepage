@@ -1,7 +1,7 @@
 // The chef: a KayKit Adventurers character (player-selectable) + Rig_Medium
 // animation clips, WASD movement with tile collision, one-item carry slot.
 import * as THREE from 'three';
-import { TILE, loadChefAssets, cloneChef } from './models.js';
+import { TILE, loadChefAssets, cloneChef, getModel } from './models.js';
 import { audio } from './audio.js';
 
 const SPEED = 7.2;          // world units/s (tile = 2)
@@ -39,11 +39,18 @@ export class Chef {
     this.carried = null;          // logical item
     this.carriedMesh = null;
 
+    // right-hand socket: the rig's attachment bone for held tools
+    this.handSlot = null;
+    this.body.traverse((o) => { if (o.isBone && o.name === 'handslotr') this.handSlot = o; });
+    this.toolName = null;
+    this.toolMesh = null;
+
     this.pos = new THREE.Vector3();
     this.vel = new THREE.Vector3();
     this.facing = new THREE.Vector2(0, 1);   // grid-space dir (x, z)
     this.heading = 0;
     this.working = false;          // chopping at a board this frame
+    this.workTool = 'knife';       // tool of the board being worked
     this.bobT = 0;
     this.squash = 0;               // squash impulse timer
     this.frozen = false;
@@ -69,6 +76,26 @@ export class Chef {
     if (item) audio.pickup(); else audio.putdown();
   }
 
+  /** Show/hide a tool in the right hand (knife / rollingpin / null). */
+  setTool(name) {
+    if (name === this.toolName) return;
+    if (this.toolMesh && this.toolMesh.parent) this.toolMesh.parent.remove(this.toolMesh);
+    this.toolMesh = null;
+    this.toolName = name;
+    if (name && this.handSlot) {
+      const m = getModel(name);
+      if (name === 'knife') {
+        m.rotation.set(Math.PI / 2, 0, 0);      // blade forward, edge down
+        m.position.set(0, 0.05, 0);
+      } else {
+        m.scale.setScalar(0.8);                 // pin is long — grip the middle
+        m.position.set(0, 0.05, 0);
+      }
+      this.handSlot.add(m);
+      this.toolMesh = m;
+    }
+  }
+
   /** Tile the chef is facing (for E / Space targeting). */
   targetTile() {
     const gx = (this.pos.x + this.facing.x * TILE * 0.72) / TILE + this.world.offX;
@@ -84,6 +111,7 @@ export class Chef {
     const mag = Math.hypot(ix, iz);
     if (mag > 0) { ix /= mag; iz /= mag; }
 
+    this.setTool(this.working ? this.workTool : null);
     if (this.working) {
       this.play('Chopping');
     } else if (mag > 0) {
