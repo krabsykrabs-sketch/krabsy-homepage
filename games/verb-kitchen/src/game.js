@@ -234,7 +234,8 @@ export class Game {
         break;
       }
       case 'board': {
-        if (held && held.type === 'ing' && !st.item && ITEMS[held.id].chopTo) {
+        if (held && held.type === 'ing' && !st.item && ITEMS[held.id].chopTo &&
+            (ITEMS[held.id].tool || 'knife') === (st.tool || 'knife')) {
           st.setItem(held);
           if (ITEMS[held.id].interim) st.progress = 0.5;  // resume the bar at halfway
           this.chef.setCarried(null);
@@ -461,7 +462,11 @@ export class Game {
         if (st.item && ITEMS[st.item.id]?.interim) text = 'halfway — keep chopping!';
         else if (st.item && ITEMS[st.item.id]?.chopTo) text = `hold Space — ${ITEMS[st.item.id].chopVerb || 'chop'}!`;
         else if (st.item) text = 'E — take it';
-        else if (held && held.type === 'ing' && ITEMS[held.id].chopTo) text = 'E — put it on the board';
+        else if (held && held.type === 'ing' && ITEMS[held.id].chopTo) {
+          const need = ITEMS[held.id].tool || 'knife';
+          if (need === (st.tool || 'knife')) text = 'E — put it on the board';
+          else text = need === 'rollingpin' ? 'dough needs the rolling pin 🥖' : 'that needs the cutting board 🔪';
+        }
       }
       else if (st.type === 'stove' || st.type === 'oven') {
         if (st.state === 'ready') text = 'E — take it, quick!';

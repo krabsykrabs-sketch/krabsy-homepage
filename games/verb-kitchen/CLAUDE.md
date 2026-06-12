@@ -265,6 +265,28 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Pizzeria overhaul (user feedback batch).**
+  - **Cheese on every pizza:** build order is now roll → ketchup →
+    cheese → optional topping → bake. `dough_sauced` accepts ONLY
+    `cheese_chopped` → `pizza_raw_cheese`, which accepts
+    pepperoni/mushroom. Raw-pizza visual scatters a cheese layer under
+    the topping bits. Ticket `icons` field shows the true build
+    (🥫🧀, 🥫🧀🍖, 🥫🧀🍄).
+  - **Pepperoni 3-stage chop** like mushroom: `pepperoni` →
+    `pepperoni_half` (model `*_chopped`) → `pepperoni_chopped` (model
+    `*_slices`), continuous bar.
+  - **Task-specific boards:** new map char `d` = dough-rolling station
+    (rolling pin); `b` = cutting board (knife). `st.tool` gates
+    placement (`ITEMS.dough.tool='rollingpin'`, default knife); hint
+    explains the right station. `boardTool` level field removed.
+  - **L3 layout:** rack moved next to sink (bottom row, col 6); right
+    edge has one `d` (row 2) + one `b` (row 3). **L3 starts with 2
+    plates** (faster first wash); L1/L2 still 4.
+  - NOT done (user paused it): raw pizza on plates — plate use being
+    rethought; raw pizzas still go hand↔counter↔oven only.
+  - All verified via __VK: tool gating both ways, cheese-before-topping
+    enforced, pepperoni chain, bake → pizza_mushroom, ticket icons,
+    rack/plates layout. Zero console errors + headless-Edge screenshot.
 - 2026-06-12 — **Character select + 3-stage mushroom.** (Note: a first
   broken attempt at character select was committed `bc33a26` and
   reverted in `a25153d` — it referenced GLBs that weren't on disk.)

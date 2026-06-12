@@ -28,7 +28,7 @@ export class Orders {
     };
     const el = document.createElement('div');
     el.className = 'ticket';
-    const ings = d.parts.map((p) => ITEMS[p].emoji).join(' ');
+    const ings = d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' ');
     el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${d.name}</div>` +
       `<div class="ings">${ings}</div><div class="pbar"><div class="pfill" style="width:100%"></div></div>`;
     this.bar.appendChild(el);

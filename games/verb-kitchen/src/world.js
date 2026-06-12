@@ -69,16 +69,18 @@ export class World {
           staticG.add(m);
           st = new Station('crate', c, r, p, 1.05);
           st.crateItem = ing;
-        } else if (ch === 'b') {
+        } else if (ch === 'b' || ch === 'd') {
+          // b = cutting board (knife), d = dough-rolling station (rolling pin)
           const counter = getModel(counterModelFor(c, r));
           counter.position.copy(p); counter.rotation.y = facing;
           const board = getModel('cuttingboard');
           board.position.set(p.x, 1.02, p.z); board.rotation.y = facing;
-          const tool = getModel(lv.boardTool === 'rollingpin' ? 'rollingpin' : 'knife');
+          const tool = getModel(ch === 'd' ? 'rollingpin' : 'knife');
           tool.position.set(p.x + 0.45, 1.1, p.z - 0.35);
           tool.rotation.y = facing + 0.5;
           staticG.add(counter, board, tool);
           st = new Station('board', c, r, p, 1.13);
+          st.tool = ch === 'd' ? 'rollingpin' : 'knife';
         } else if (ch === 's') {
           const counter = getModel('kitchencounter_straight_B' + sB);
           counter.position.copy(p); counter.rotation.y = facing;

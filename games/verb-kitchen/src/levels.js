@@ -1,5 +1,6 @@
 // Level definitions. Map legend (1 char = 1 tile = 2 world units):
-//   .  floor          C  counter            b  cutting board
+//   .  floor          C  counter            b  cutting board (knife)
+//   d  dough-rolling station (rolling pin; dough only)
 //   s  stove          o  oven (pizza oven)  k  sink
 //   r  plate rack     t  trash              H  serving hatch (2 wide)
 //   1-9 ingredient crates (per-level `crates` mapping)
@@ -10,7 +11,6 @@ export const LEVELS = [
     name: 'Garden Bistro',
     emoji: '🥗',
     style: 'A',
-    boardTool: 'knife',
     map: [
       'CCHHCCrkC',
       'C.......C',
@@ -32,7 +32,6 @@ export const LEVELS = [
     name: 'Burger Bar',
     emoji: '🍔',
     style: 'A',
-    boardTool: 'knife',
     map: [
       'CCCHHCCkrC',
       '1........s',
@@ -55,15 +54,14 @@ export const LEVELS = [
     name: 'Pizzeria',
     emoji: '🍕',
     style: 'B',
-    boardTool: 'rollingpin',
     map: [
-      'CCHHCooCrC',
+      'CCHHCooCCC',
       '1........C',
-      'C.CCC.CC.b',
+      'C.CCC.CC.d',
       '3...P....b',
       '4.CC.CCC.C',
       '5........C',
-      'CCtCCkCCCC',
+      'CCtCCkrCCC',
     ],
     crates: { 1: 'dough', 3: 'cheese', 4: 'pepperoni', 5: 'mushroom' },
     // the reusable ketchup bottle starts on the counter that replaced its crate
@@ -72,7 +70,7 @@ export const LEVELS = [
     spawnEvery: [24, 32],
     patience: 150,
     roundTime: 180,
-    plates: 4,
+    plates: 2,
     stars: [100, 200, 320],
   },
 ];

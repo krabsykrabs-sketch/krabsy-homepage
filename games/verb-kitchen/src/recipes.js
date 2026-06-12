@@ -23,17 +23,20 @@ export const ITEMS = {
   cheese_chopped:  { model: 'food_ingredient_cheese_grated',   emoji: '🧀', plateable: true },
 
   // --- level 3: pizza ---
-  dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll' },
+  // build order: roll dough → ketchup → cheese (EVERY pizza) → optional topping → bake
+  dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll', tool: 'rollingpin' },
   dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', accepts: { ketchup: 'dough_sauced' } },
   ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.45, reusable: true },
   dough_sauced:    { compose: 'sauced',                        emoji: '🔴',
-                     accepts: { cheese_chopped: 'pizza_raw_cheese', pepperoni_chopped: 'pizza_raw_pepperoni', mushroom_chopped: 'pizza_raw_mushroom' } },
-  pepperoni:       { model: 'food_ingredient_pepperoni',         emoji: '🍖', chopTo: 'pepperoni_chopped' },
-  pepperoni_chopped:{ model: 'food_ingredient_pepperoni_chopped',emoji: '🍖' },
+                     accepts: { cheese_chopped: 'pizza_raw_cheese' } },
+  pepperoni:       { model: 'food_ingredient_pepperoni',         emoji: '🍖', chopTo: 'pepperoni_half', chopTime: 1.8 },
+  pepperoni_half:  { model: 'food_ingredient_pepperoni_chopped', emoji: '🍖', chopTo: 'pepperoni_chopped', chopTime: 1.8, interim: true },
+  pepperoni_chopped:{ model: 'food_ingredient_pepperoni_slices', emoji: '🍖' },
   mushroom:        { model: 'food_ingredient_mushroom',          emoji: '🍄', chopTo: 'mushroom_half', chopTime: 1.8 },
   mushroom_half:   { model: 'food_ingredient_mushroom_chopped',  emoji: '🍄', chopTo: 'mushroom_chopped', chopTime: 1.8, interim: true },
   mushroom_chopped:{ model: 'food_ingredient_mushroom_pieces',   emoji: '🍄' },
-  pizza_raw_cheese:    { compose: 'rawpizza', topping: 'cheese',    emoji: '🧀', bakeTo: 'pizza_cheese', bakeTime: 13.5 },
+  pizza_raw_cheese:    { compose: 'rawpizza', topping: 'cheese',    emoji: '🧀', bakeTo: 'pizza_cheese', bakeTime: 13.5,
+                         accepts: { pepperoni_chopped: 'pizza_raw_pepperoni', mushroom_chopped: 'pizza_raw_mushroom' } },
   pizza_raw_pepperoni: { compose: 'rawpizza', topping: 'pepperoni', emoji: '🍖', bakeTo: 'pizza_pepperoni', bakeTime: 13.5 },
   pizza_raw_mushroom:  { compose: 'rawpizza', topping: 'mushroom',  emoji: '🍄', bakeTo: 'pizza_mushroom', bakeTime: 13.5 },
   pizza_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
@@ -65,9 +68,9 @@ export const DISHES = {
   burger:          { name: 'Burger',       emoji: '🍔', parts: ['bun', 'patty_cooked', 'lettuce_chopped'], coins: 30, model: null },
   cheeseburger:    { name: 'Cheeseburger', emoji: '🧀🍔', parts: ['bun', 'patty_cooked', 'cheese_chopped'], coins: 30, model: null },
   bigburger:       { name: 'Big Burger',   emoji: '🍔⭐', parts: ['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped'], coins: 40, model: null },
-  pizza_cheese:    { name: 'Cheese Pizza',    emoji: '🍕', parts: ['pizza_cheese'],    coins: 40, model: 'food_pizza_cheese_plated' },
-  pizza_pepperoni: { name: 'Pepperoni Pizza', emoji: '🍕', parts: ['pizza_pepperoni'], coins: 40, model: 'food_pizza_pepperoni_plated' },
-  pizza_mushroom:  { name: 'Mushroom Pizza',  emoji: '🍕', parts: ['pizza_mushroom'],  coins: 40, model: 'food_pizza_mushroom_plated' },
+  pizza_cheese:    { name: 'Cheese Pizza',    emoji: '🍕', parts: ['pizza_cheese'],    coins: 40, model: 'food_pizza_cheese_plated',    icons: '🥫🧀' },
+  pizza_pepperoni: { name: 'Pepperoni Pizza', emoji: '🍕', parts: ['pizza_pepperoni'], coins: 40, model: 'food_pizza_pepperoni_plated', icons: '🥫🧀🍖' },
+  pizza_mushroom:  { name: 'Mushroom Pizza',  emoji: '🍕', parts: ['pizza_mushroom'],  coins: 40, model: 'food_pizza_mushroom_plated',  icons: '🥫🧀🍄' },
 };
 
 export function isBurgerDish(dishId) {

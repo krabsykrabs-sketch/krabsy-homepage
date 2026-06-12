@@ -25,18 +25,27 @@ function composeSauced() {
   return g;
 }
 
-/** Raw pizza: sauced dough + topping bits scattered on the sauce. */
+/** Raw pizza: sauced dough + cheese (every pizza) + topping bits on top. */
 function composeRawPizza(topping) {
   const g = composeSauced();
   const m = measureModel('food_ingredient_dough_base');
-  const bits = PIZZA_TOPPING_MODELS[topping];
-  const spots = [[0, 0], [0.42, 0.28], [-0.38, 0.32], [0.26, -0.4], [-0.32, -0.3]];
-  for (const [sx, sz] of spots) {
-    const bit = getModel(bits);
-    bit.scale.setScalar(0.6);
-    bit.position.set(sx * m.radius, m.height + 0.045, sz * m.radius);
-    bit.rotation.y = (sx * 7 + sz * 13) % (Math.PI * 2);
-    g.add(bit);
+  const scatter = (model, spots, scale, y) => {
+    for (const [sx, sz] of spots) {
+      const bit = getModel(model);
+      bit.scale.setScalar(scale);
+      bit.position.set(sx * m.radius, y, sz * m.radius);
+      bit.rotation.y = (sx * 7 + sz * 13) % (Math.PI * 2);
+      g.add(bit);
+    }
+  };
+  // cheese layer first — every pizza has cheese under its topping
+  scatter(PIZZA_TOPPING_MODELS.cheese,
+    [[0, 0], [0.42, 0.28], [-0.38, 0.32], [0.26, -0.4], [-0.32, -0.3]],
+    0.6, m.height + 0.045);
+  if (topping !== 'cheese') {
+    scatter(PIZZA_TOPPING_MODELS[topping],
+      [[0.1, 0.12], [-0.4, -0.05], [0.4, -0.18], [-0.12, 0.42], [0.05, -0.44]],
+      0.6, m.height + 0.075);
   }
   return g;
 }
