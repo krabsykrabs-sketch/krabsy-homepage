@@ -14,8 +14,8 @@ export const LEVELS = [
     map: [
       'CHHCrkC',
       '1.....C',
-      '2..P..C',
-      'C.....C',
+      '2.CC..C',
+      'C...P.C',
       'CCbCbCC',
     ],
     crates: { 1: 'lettuce', 2: 'tomato' },
@@ -55,8 +55,8 @@ export const LEVELS = [
     map: [
       'CHHCooCC',
       '1......b',
-      '3......b',
-      'C..P...C',
+      '3.CC...b',
+      'C.CC.P.C',
       '5......C',
       'CCtCkrCC',
     ],

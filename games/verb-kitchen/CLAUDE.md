@@ -267,7 +267,10 @@ welcome alternative to choice chips.
   dupe-block, junk-plate trash, bigburger match + serve.
 - 2026-06-12 — **Compact kitchens (all 3 levels).** Walking distances
   were too long for one chef. L1 9×6 → 7×5; L2 10×7 → 8×6 (kept a
-  small 3-tile island row 2); L3 10×7 → 8×6 (open plan, no island).
+  small 3-tile island row 2); L3 10×7 → 8×6. Per user, EVERY level
+  keeps a storage island: L1 got a 2-tile island (2-3,2), L3 a 2×2
+  island (2-3,2-3); spawn moved off the island tiles. Park/lap-around
+  verified via __VK.
   Camera auto-fit = free zoom-in. All station inventories audited via
   __VK (boards/stoves/ovens/sink/rack/trash/crates/hatch all present),
   L3 ketchup start counter moved to (0,3), rack still next to sink.
