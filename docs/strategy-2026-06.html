@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krabsy — Strategy Review · June 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+  :root{
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e; --sky:#7fc4e8;
+    --navy:#0d2240; --navy2:#122d52; --ink:#0a1c34;
+    --white:#fff; --mute:rgba(255,255,255,0.62); --faint:rgba(255,255,255,0.38);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--navy);font-family:'Nunito',sans-serif;color:var(--white);overflow:hidden}
+
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:54px 72px 70px;overflow-y:auto}
+  .slide.active{display:flex}
+  .kicker{font-weight:900;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+  h1{font-family:'Fredoka One',cursive;font-size:54px;line-height:1.08}
+  h2{font-family:'Fredoka One',cursive;font-size:34px;line-height:1.15;margin-bottom:22px}
+  h2 em{font-style:normal;color:var(--teal)}
+  h3{font-family:'Fredoka One',cursive;font-size:17px;margin-bottom:8px;color:var(--amber)}
+  p,li{font-size:15.5px;line-height:1.55;color:var(--mute)}
+  b,strong{color:var(--white)}
+  ul{list-style:none}
+  li{margin-bottom:8px;padding-left:20px;position:relative}
+  li::before{content:'▸';position:absolute;left:0;color:var(--teal)}
+  .cols{display:flex;gap:28px}.col{flex:1;min-width:0}
+
+  .card{background:var(--navy2);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:20px 22px;margin-bottom:14px}
+  .card h3{margin-bottom:10px}
+
+  .grade{display:inline-flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:21px;width:52px;height:52px;border-radius:14px;color:var(--ink);flex-shrink:0}
+  .gA{background:var(--teal)} .gB{background:var(--amber)} .gC{background:#ffa94d} .gF{background:var(--coral)}
+  .scorerow{display:flex;gap:16px;align-items:flex-start;background:var(--navy2);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 18px;margin-bottom:10px}
+  .scorerow .t{font-weight:900;color:var(--white);font-size:16px}
+  .scorerow .d{font-size:13.5px;color:var(--mute);line-height:1.45;margin-top:2px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{font-weight:900;color:var(--amber);text-align:left;padding:8px 12px;border-bottom:2px solid rgba(255,255,255,0.15);font-size:12.5px;text-transform:uppercase;letter-spacing:0.8px}
+  td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.07);color:var(--mute);vertical-align:top;line-height:1.4}
+  td:first-child{color:var(--white);font-weight:800;white-space:nowrap}
+  .chip{display:inline-block;padding:2px 11px;border-radius:20px;font-size:12px;font-weight:900}
+  .c-teal{background:rgba(46,230,192,0.16);color:var(--teal);border:1px solid rgba(46,230,192,0.4)}
+  .c-coral{background:rgba(255,133,133,0.14);color:var(--coral);border:1px solid rgba(255,133,133,0.4)}
+  .c-amber{background:rgba(255,207,94,0.14);color:var(--amber);border:1px solid rgba(255,207,94,0.4)}
+
+  .bignum{font-family:'Fredoka One',cursive;font-size:44px;color:var(--teal);line-height:1}
+  .bignum.coral{color:var(--coral)} .bignum.amber{color:var(--amber)}
+  .stat{background:var(--navy2);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:22px;text-align:center;flex:1}
+  .stat .lbl{font-size:12.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-top:8px}
+
+  /* quadrant map */
+  .quad{position:relative;background:var(--navy2);border:1px solid rgba(255,255,255,0.1);border-radius:18px;height:430px;margin-top:6px}
+  .quad .axis-x,.quad .axis-y{position:absolute;background:rgba(255,255,255,0.14)}
+  .axis-x{left:6%;right:6%;top:50%;height:2px}
+  .axis-y{top:6%;bottom:6%;left:50%;width:2px}
+  .quad .xl{position:absolute;font-size:11.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+  .dot{position:absolute;transform:translate(-50%,-50%);text-align:center}
+  .dot .b{width:17px;height:17px;border-radius:50%;background:var(--faint);margin:0 auto 4px;border:2px solid rgba(255,255,255,0.3)}
+  .dot span{font-size:12px;font-weight:800;color:var(--mute);white-space:nowrap}
+  .dot.hero .b{width:26px;height:26px;background:var(--teal);box-shadow:0 0 24px rgba(46,230,192,0.8);border-color:#fff}
+  .dot.hero span{color:var(--teal);font-size:13.5px}
+
+  /* timeline */
+  .tl{display:flex;gap:14px;margin-top:8px}
+  .tl .ph{flex:1;background:var(--navy2);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 18px}
+  .tl .ph .w{font-family:'Fredoka One',cursive;color:var(--coral);font-size:14px;margin-bottom:8px}
+  .tl .ph li{font-size:13px;margin-bottom:6px}
+
+  .foot{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 26px;background:linear-gradient(transparent,rgba(13,34,64,0.9) 40%);pointer-events:none;z-index:10}
+  .foot .logo{font-family:'Fredoka One',cursive;font-size:15px;color:rgba(255,255,255,0.4)}
+  .foot .logo span{color:rgba(255,133,133,0.65)}
+  .foot .pg{font-weight:900;font-size:13px;color:var(--faint)}
+  .dots{display:flex;gap:5px;pointer-events:auto}
+  .dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all .2s}
+  .dots i.on{background:var(--teal);transform:scale(1.3)}
+
+  .navhint{position:fixed;top:16px;right:22px;font-size:12px;font-weight:800;color:var(--faint);z-index:10}
+  .verdict{font-family:'Fredoka One',cursive;font-size:23px;color:var(--white);line-height:1.4;background:var(--navy2);border-left:5px solid var(--teal);border-radius:0 16px 16px 0;padding:18px 24px;margin:14px 0}
+  .verdict em{font-style:normal;color:var(--teal)}
+  .small{font-size:12.5px;color:var(--faint)}
+  .arrowflow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .arrowflow .n{background:var(--navy2);border:1.5px solid rgba(46,230,192,0.45);border-radius:12px;padding:9px 15px;font-weight:900;font-size:13.5px;color:var(--white)}
+  .arrowflow .a{color:var(--teal);font-weight:900}
+  @media print{
+    html,body{overflow:visible;background:var(--navy)}
+    .slide{display:flex !important;position:relative;page-break-after:always;height:100vh}
+    .foot,.navhint{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 ─ TITLE -->
+<section class="slide active">
+  <div style="margin:auto;text-align:center;max-width:900px">
+    <div style="font-size:80px;margin-bottom:18px">🦀</div>
+    <h1>Krabsy — Full Strategy Review</h1>
+    <p style="font-size:19px;margin-top:18px;color:var(--mute)">Site quality · SEO · UX · Competition · Expansion strategy · Verdict</p>
+    <p style="margin-top:26px;font-weight:900;color:var(--faint)">June 2026 · prepared by the master session · 18 slides</p>
+    <p class="small" style="margin-top:40px">→ / ← arrow keys, click right/left edge, or the dots below</p>
+  </div>
+</section>
+
+<!-- 2 ─ TLDR -->
+<section class="slide">
+  <div class="kicker">TL;DR</div>
+  <h2>Verdict first: <em>yes, it's worth it</em> — but the bottleneck isn't the product</h2>
+  <div class="cols" style="margin-bottom:18px">
+    <div class="stat"><div class="bignum">A−</div><div class="lbl">Product & engineering craft</div></div>
+    <div class="stat"><div class="bignum coral">F</div><div class="lbl">Discoverability today (not indexed)</div></div>
+    <div class="stat"><div class="bignum amber">2→6+</div><div class="lbl">Topics possible once games are topic-agnostic</div></div>
+  </div>
+  <div class="verdict">The games are already better than anything in the niche. Nobody can find them. <em>Strategy = make the games topic-agnostic, multiply topics, and win long-tail school SEO</em> — not more languages, not more game volume.</div>
+  <ul>
+    <li><b>Concept is sound:</b> "actually fun browser games for German/Spanish school kids" is a real, underserved niche between quiz-mills (Schlaukopf, Educaplay) and broad apps (ANTON, Duolingo).</li>
+    <li><b>One alarm:</b> krabsy.com is effectively absent from Google — the index still shows the domain's old parked/hermit-crab pages. Fixable in weeks, but it gates everything else.</li>
+    <li><b>Your unfair advantage:</b> production speed. You ship a polished game in a day; competitors ship quiz templates.</li>
+  </ul>
+</section>
+
+<!-- 3 ─ ASSUMPTIONS -->
+<section class="slide">
+  <div class="kicker">Ground rules</div>
+  <h2>Assumptions this analysis stands on — <em>correct me if wrong</em></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>Who's building</h3><p>Solo founder + Claude Code sessions. No team, no paid freelancers. Production capacity ≈ 1 polished game or feature per day-session.</p></div>
+      <div class="card"><h3>Budget</h3><p>Near zero. Hosting (Coolify/VPS) + occasional asset packs (~€10–60). No ad spend assumed — every growth channel below is organic/free.</p></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>Goal</h3><p>Meaningful real usage by school kids — a project that matters and compounds. Revenue optional and late; this is not pitched as a venture startup.</p></div>
+      <div class="card"><h3>Horizon & patience</h3><p>Months, not weeks. SEO for a fresh domain takes 3–9 months to compound — the plan is sequenced around that reality.</p></div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:6px">If any of these are wrong (e.g. you'd pay for ads, or want revenue in 6 months), say so — it changes the ranking of recommendations, not the findings.</p>
+</section>
+
+<!-- 4 ─ INVENTORY -->
+<section class="slide">
+  <div class="kicker">Where we stand</div>
+  <h2>Inventory: what Krabsy <em>is</em> today</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>📚 Topics (2 live)</h3>
+        <ul><li><b>Irregular verbs</b> — 310-verb catalogue, 5 speed drills, flashcards, table, stats, free practice</li>
+        <li><b>Prepositions</b> — 99 items, 4 drills + reference</li></ul></div>
+      <div class="card"><h3>🕹️ Games (5 in catalogue)</h3>
+        <ul><li>Verb Slash, Crab Slash, Verb Snake, Air Control, 3D Verb Platformer</li>
+        <li><b>Pipeline (built or specced):</b> Verb Flow ✓ built · Verb Dungeon ✓ PoC · Verb Valley ✓ PoC (3 playtests) · Verb Climb ✓ PoC · Verb Kitchen (brief) · Verb Runway (brief) · Tower Defense (in dev)</li></ul></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>🌍 Structure</h3>
+        <ul><li>Full DE + ES mirrors: 26 + 26 pages, 50 sitemap URLs, proper hreflang</li>
+        <li>Impressum/Datenschutz present (DE legal ✓)</li></ul></div>
+      <div class="card"><h3>⚙️ Infrastructure</h3>
+        <ul><li>Static site, Coolify auto-deploy, zero build step</li>
+        <li>Own analytics backend (api.krabsy.com) — first-party, GDPR-friendly</li>
+        <li>Clean session/folder workflow: master + per-game Claude sessions, shared asset library</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ─ SCORECARD -->
+<section class="slide">
+  <div class="kicker">Quality audit</div>
+  <h2>Scorecard, with evidence</h2>
+  <div class="scorerow"><div class="grade gA">A−</div><div><div class="t">Games & product craft</div><div class="d">Real game mechanics (Flow-puzzles, roguelite rooms, day/night farming), house visual identity, WebAudio sound, mobile awareness. Far above the niche bar. Minus: all games hardwired to ONE topic.</div></div></div>
+  <div class="scorerow"><div class="grade gA">A−</div><div><div class="t">Engineering & performance</div><div class="d">Pages 12–88&nbsp;KB(!), no frameworks, instant loads, no-login — perfect for classroom projectors and school tablets. Clean i18n architecture, first-party analytics.</div></div></div>
+  <div class="scorerow"><div class="grade gB">B</div><div><div class="t">On-page SEO foundations</div><div class="d">Exemplary mechanics: canonical, hreflang, JSON-LD, symmetric DE/ES sitemap. But: thin text content, few internal links between topics ↔ games, no per-verb pages.</div></div></div>
+  <div class="scorerow"><div class="grade gF">F</div><div><div class="t">Discoverability (today)</div><div class="d">Site effectively not indexed; Google still shows the domain's previous life (parked "for sale" pages, an old hermit-crab shop). Zero backlinks, zero authority. <b>This gates everything.</b></div></div></div>
+  <div class="scorerow"><div class="grade gB">B</div><div><div class="t">UX & retention</div><div class="d">Clear hubs, consistent style, language toggle. Missing: onboarding ("start here"), cross-site progress/streaks, and games are disconnected from topic learn-paths — your own observation, and it's the right one.</div></div></div>
+  <div class="scorerow"><div class="grade gC">C+</div><div><div class="t">Content breadth</div><div class="d">Two topics. Strong question DATA (310 verbs, 99 preps) but few learnable PAGES. Competitors win SEO precisely on breadth of thin-but-useful reference pages.</div></div></div>
+</section>
+
+<!-- 6 ─ STRENGTHS -->
+<section class="slide">
+  <div class="kicker">What's genuinely working</div>
+  <h2>Strengths to <em>protect</em> while scaling</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>🚀 No-login instant play</h3><p>Click → playing in 2 seconds on any school device. This is a classroom superpower: teachers can project a game with zero setup, no accounts, no GDPR consent forms. ANTON and sofatutor can't do that.</p></div>
+      <div class="card"><h3>🎨 A real visual identity</h3><p>Teal/coral/amber + Fredoka, the crab, consistent start screens, the form-color convention (base=amber, past=teal, participle=coral) that quietly TEACHES across every game. This is brand equity — keep it strict.</p></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>⚡ Production velocity</h3><p>The session model (master + per-game briefs) is shipping a polished game per day with verification baked in. Your moat isn't any single game — it's the FACTORY. No competitor in this niche has one.</p></div>
+      <div class="card"><h3>🧠 Pedagogy in the loops</h3><p>Self-dosed studying (Climb's energy, Kitchen's sink), spaced repetition of missed verbs (Valley's Professor Krabsy), teach-on-wrong everywhere. These are honest learning mechanics, not chocolate-covered broccoli.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ─ SEO ALARM -->
+<section class="slide">
+  <div class="kicker">SEO deep-dive</div>
+  <h2>The alarm 🚨 and the plan</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card" style="border-color:rgba(255,133,133,0.45)"><h3 style="color:var(--coral)">Finding: you are invisible</h3>
+      <ul><li><code>site:krabsy.com</code> returns the OLD domain content: parked "website for sale" pages and a hermit-crab shop (ww1 subdomain ghosts).</li>
+      <li>None of the 50 real URLs surface. New domain + zero links + never submitted = Google hasn't re-crawled.</li></ul></div>
+      <div class="card"><h3>Fix (week 1, ~2 hours)</h3>
+      <ul><li>Google Search Console + Bing Webmaster: verify, submit sitemap, request indexing for the 6 key hubs</li>
+      <li>Check DNS: kill any lingering ww1/parking records</li>
+      <li>Then: patience + links (next slides)</li></ul></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>The big on-page lever: programmatic pages</h3>
+      <ul><li><b>310 verb pages × 2 languages</b> — "went — simple past von <i>go</i>": forms, example sentences, mini-drill embed, link into games. This is EXACTLY how englisch-hilfen & ego4u earn their traffic — yours will be better and faster.</li>
+      <li><b>Class-level hubs</b> ("Englisch Klasse 5/6/7 üben") — German search behavior is curriculum-anchored; Schlaukopf ranks on these.</li>
+      <li>FAQ blocks on hubs → featured-snippet bait ("Was ist das Past Participle von go?")</li></ul></div>
+      <div class="card"><h3>Already good — don't touch</h3><p>hreflang pairs, canonicals, JSON-LD, page speed, mobile. Rare to see this clean on a hobby project.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ─ UX -->
+<section class="slide">
+  <div class="kicker">UX findings</div>
+  <h2>UX: good bones, <em>three gaps</em></h2>
+  <div class="card"><h3>1 · Games ↔ topics are strangers (your own diagnosis — correct)</h3>
+  <p>The games hub and the topic hubs are parallel worlds. A kid drilling prepositions never meets a game; a kid playing Verb Snake never sees the verb table. Fix is the engine refactor (slide 12) + simple cross-links ("Play this topic ▸") on every topic page and a topic badge on every game card.</p></div>
+  <div class="card"><h3>2 · No "where do I start?"</h3>
+  <p>The DE homepage presents choices but no path. Add one prominent flow: "Klasse wählen → Thema → Üben oder Spielen". Class-anchored entry doubles as the SEO hub structure — one build, two wins.</p></div>
+  <div class="card"><h3>3 · Progress evaporates</h3>
+  <p>Each game keeps its own localStorage best score; nothing aggregates. A lightweight site-wide profile (still no login — one localStorage profile + optional export code) showing streak, verbs mastered, stars across games would transform return-rate. This is also where a future pet/collection meta-layer docks (the Adopt-Me/Pet-Sim retention pattern we analyzed).</p></div>
+</section>
+
+<!-- 9 ─ COMPETITION DE -->
+<section class="slide">
+  <div class="kicker">Competition · Germany (primary market)</div>
+  <h2>Everyone teaches. <em>Nobody plays.</em></h2>
+  <table>
+    <tr><th>Competitor</th><th>What it is</th><th>Strength</th><th>Weakness vs Krabsy</th></tr>
+    <tr><td>Schlaukopf</td><td>Quiz-mill, all subjects, per-class pages</td><td>Massive SEO via curriculum anchoring</td><td>Zero fun — multiple-choice walls, 2010 UI</td></tr>
+    <tr><td>englisch-hilfen / ego4u</td><td>Exercise & reference libraries</td><td>Old domains, huge long-tail traffic</td><td>Static exercises; no games at all</td></tr>
+    <tr><td>ANTON</td><td>Free school app, all subjects</td><td>School-entrenched, genuinely good, free</td><td>App-store only, login, gamified-lite (stars ≠ games); breadth over depth</td></tr>
+    <tr><td>sofatutor / Schülerhilfe</td><td>Paid video tutoring</td><td>Brand, sales force</td><td>€€ subscriptions; passive video, not practice</td></tr>
+    <tr><td>eduki</td><td>Teacher-materials marketplace</td><td>Teacher reach</td><td>PDFs, not interactive — it's a CHANNEL for us, not a rival</td></tr>
+    <tr><td>Duolingo</td><td>Global app</td><td>Brand, streaks</td><td>Not German-curriculum-aligned; school English ≠ Duolingo English; no irregular-verb drilling depth</td></tr>
+  </table>
+  <p style="margin-top:14px"><b>Read:</b> the DE market is curriculum-anchored quiz sites with strong domains and weak products. The "fun" axis is empty. That's the lane.</p>
+</section>
+
+<!-- 10 ─ COMPETITION ES/GLOBAL -->
+<section class="slide">
+  <div class="kicker">Competition · Spain & global</div>
+  <h2>ES: even more open · Global EN: dated</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>🇪🇸 Spanish market</h3>
+      <ul><li>Search results = template platforms (Educaplay, Wordwall, TinyTap, Cerebriti) and crossword/memory pages — quiz shells, no real games.</li>
+      <li>No ANTON-equivalent dominance; school-English demand is high and growing.</li>
+      <li><b>Verdict:</b> keep ES as the mirrored second market — it's cheap (structure exists) and the competition is weaker than DE. But content/SEO effort stays DE-first where curriculum anchoring is sharpest.</li></ul></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>🌐 Global English-games sites</h3>
+      <ul><li>FunBrain, Arcademics, ESL-games portals: flash-era visuals, US native-speaker curriculum, generic ESL.</li>
+      <li>None localized for German/Spanish learners; none with DE/ES explanations or curriculum mapping.</li>
+      <li><b>Verdict:</b> not real competition in your niche — but proof the format has evergreen demand.</li></ul></div>
+      <div class="card"><h3>⚠️ The one real threat</h3><p>ANTON adding genuinely fun games. Mitigation: speed + focus. You can out-ship a 50-person company in this one niche; they can't justify deep irregular-verb games, you can.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ─ POSITIONING MAP -->
+<section class="slide">
+  <div class="kicker">Positioning</div>
+  <h2>The empty quadrant Krabsy should own</h2>
+  <div class="quad">
+    <div class="axis-x"></div><div class="axis-y"></div>
+    <div class="xl" style="right:8px;top:calc(50% + 8px)">curriculum-anchored →</div>
+    <div class="xl" style="left:50%;top:10px;transform:translateX(-50%)">↑ actually fun</div>
+    <div class="dot" style="left:72%;top:78%"><div class="b"></div><span>Schlaukopf</span></div>
+    <div class="dot" style="left:80%;top:68%"><div class="b"></div><span>englisch-hilfen / ego4u</span></div>
+    <div class="dot" style="left:64%;top:55%"><div class="b"></div><span>ANTON</span></div>
+    <div class="dot" style="left:30%;top:60%"><div class="b"></div><span>Educaplay / Wordwall</span></div>
+    <div class="dot" style="left:22%;top:38%"><div class="b"></div><span>Duolingo</span></div>
+    <div class="dot" style="left:38%;top:30%"><div class="b"></div><span>FunBrain / Arcademics</span></div>
+    <div class="dot hero" style="left:78%;top:16%"><div class="b"></div><span>KRABSY 🦀 (target)</span></div>
+  </div>
+  <p class="small" style="margin-top:10px">Fun = real game mechanics kids would play voluntarily. Curriculum-anchored = maps to what's in next week's Klassenarbeit. The top-right is empty — and both axes are already your strengths; the missing piece is being FOUND there (SEO) and CONNECTED (topics ↔ games).</p>
+</section>
+
+<!-- 12 ─ ENGINE -->
+<section class="slide">
+  <div class="kicker">Strategic core · product</div>
+  <h2>The multiplier: a <em>topic-agnostic question engine</em></h2>
+  <p style="margin-bottom:12px">Your instinct is exactly right. Today every game inlines its own irregular-verb list — every new topic would mean re-touching 11 games. Invert it:</p>
+  <div class="arrowflow">
+    <div class="n">content/&lt;topic&gt;.json</div><div class="a">→</div>
+    <div class="n">krabsy-questions.js<br><span class="small">getQuestions(topic, shape)</span></div><div class="a">→</div>
+    <div class="n">Games declare supported SHAPES<br><span class="small">choice-of-3 · form-chain · gap-fill</span></div><div class="a">→</div>
+    <div class="n">?topic=prepositions<br><span class="small">+ per-topic wrapper pages (SEO)</span></div>
+  </div>
+  <div class="cols" style="margin-top:14px">
+    <div class="col"><div class="card"><h3>Why it's THE move</h3>
+    <ul><li><b>Topics × games matrix:</b> every new topic instantly ships with 10+ games; every new game serves every topic.</li>
+    <li>Per-topic game pages ("Prepositions Snake") = more indexed pages, each genuinely different.</li>
+    <li>The drills already read from /data JSONs and games.json already has a <code>topics[]</code> field — the architecture half-exists.</li></ul></div></div>
+    <div class="col"><div class="card"><h3>How to sequence it</h3>
+    <ul><li>Pilot on ONE single-file game (Verb Flow — newest, cleanest), define the provider interface there.</li>
+    <li>Then sweep the other single-file games (one session each, mechanical).</li>
+    <li>3D games last — their question UIs are bespoke (blackboard, plates) but consume the same provider.</li></ul></div></div>
+  </div>
+</section>
+
+<!-- 13 ─ EXPANSION -->
+<section class="slide">
+  <div class="kicker">Your explicit question</div>
+  <h2>Expand <em>topics</em>, then depth — <em>not</em> languages (yet)</h2>
+  <table>
+    <tr><th>Axis</th><th>Verdict</th><th>Why</th></tr>
+    <tr><td>More grammar topics</td><td><span class="chip c-teal">YES — priority 1</span></td><td>The engine makes each topic almost free product-wise; each adds a full SEO surface (hub + drills + 10 game pages + programmatic pages). Roadmap: <b>Tenses</b> (simple past vs. present perfect — THE German pain point) → if-clauses → adjectives/adverbs → question formation → some/any. Matches Klasse 5–8 curriculum.</td></tr>
+    <tr><td>Deeper DE market</td><td><span class="chip c-teal">YES — priority 2</span></td><td>Class-level hubs, Klassenarbeit-prep pages, teacher materials. German search is curriculum-shaped; lean into it.</td></tr>
+    <tr><td>Keep ES mirrored</td><td><span class="chip c-amber">YES — passive</span></td><td>Structure exists, market is open — maintain parity, don't lead with it.</td></tr>
+    <tr><td>New languages (FR/IT/PL…)</td><td><span class="chip c-coral">NOT NOW</span></td><td>Each = native-quality explanations + its own zero-authority SEO war + QA surface. Revisit when DE shows organic traction (signal: 1k organic visits/week).</td></tr>
+    <tr><td>More game volume</td><td><span class="chip c-amber">PAUSE after pipeline</span></td><td>11 games is already a strong arcade. Ship the pipeline, then invest in the engine + meta-layer (profile/pet/streaks) before game #12.</td></tr>
+  </table>
+</section>
+
+<!-- 14 ─ GROWTH -->
+<section class="slide">
+  <div class="kicker">Marketing playbook (zero budget)</div>
+  <h2>How kids actually find Krabsy</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>1 · Programmatic SEO — the compounding channel</h3>
+      <ul><li>310 verb pages × DE/ES (templated from content/irregular-verbs.json — a one-session build)</li>
+      <li>Class hubs (Klasse 5–8) + topic FAQs</li>
+      <li>Realistic curve: 3–6 months to first real long-tail traffic; it compounds from there.</li></ul></div>
+      <div class="card"><h3>2 · Teachers — the trust channel</h3>
+      <ul><li>Free printable packs (verb lists, board-game PDFs) → eduki freebies + own site, linking back</li>
+      <li>Pitch the projector use-case: no login, loads in 2 s, German UI — "Vertretungsstunde rescue kit"</li>
+      <li>r/Lehrerzimmer, Lehrer-Facebook groups, #instalehrer — show gameplay clips, not links-spam</li></ul></div>
+    </div>
+    <div class="col">
+      <div class="card"><h3>3 · Short-form gameplay</h3>
+      <ul><li>15-second clips of Verb Kitchen chaos / Dungeon skeletons with "can YOU pass Klasse 6 English?" hooks — TikTok/YT Shorts/Insta. Low effort per clip once games exist; kids share games, not worksheets.</li></ul></div>
+      <div class="card"><h3>4 · Direct seeding</h3>
+      <ul><li>10–20 local schools / your own network: one English teacher using it in class = 30 kids + word of mouth</li>
+      <li>Collect testimonials → site + outreach credibility</li></ul></div>
+      <div class="card"><h3>Measure or it didn't happen</h3>
+      <ul><li>GSC impressions/clicks · games started · questions answered/day · 7-day return rate (own analytics already exists — wire these 4 KPIs)</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ─ MONETIZATION -->
+<section class="slide">
+  <div class="kicker">Money (later, optional)</div>
+  <h2>Monetization: <em>don't</em> — until there's something to monetize</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card"><h3>When usage exists (≥10k monthly users)</h3>
+      <ul><li><b>Teacher Premium:</b> custom verb lists, class challenge links, results dashboards — teachers pay, kids never do</li>
+      <li><b>School/district licenses</b> of the same</li>
+      <li><b>Supporter tier / one-time</b> ("unlock all cosmetics for the pet") — parents</li></ul></div>
+    </div>
+    <div class="col">
+      <div class="card" style="border-color:rgba(255,133,133,0.45)"><h3 style="color:var(--coral)">Never-list</h3>
+      <ul><li>Ad networks on a kids' site (GDPR-K/COPPA minefield + destroys the brand and classroom trust)</li>
+      <li>Login walls for kids — the no-login instant-play IS the product</li>
+      <li>Selling data — first-party analytics only, as it already is</li></ul></div>
+    </div>
+  </div>
+  <div class="verdict" style="margin-top:8px">Treat money as a <em>year-2 question</em>. The asset being built is traffic + trust; both monetize fine later and are destroyed by monetizing early.</div>
+</section>
+
+<!-- 16 ─ RISKS -->
+<section class="slide">
+  <div class="kicker">Honesty section</div>
+  <h2>Risks & uncomfortable truths</h2>
+  <div class="card"><h3>1 · Distribution risk dominates everything</h3><p>The product is ahead of its discoverability by a year. If the SEO/teacher channels don't get real hours (≈30% of total effort), Krabsy stays a beautiful ghost town. The index finding is the proof, not the exception.</p></div>
+  <div class="card"><h3>2 · ANTON's shadow</h3><p>Free, loved, installed on school iPads. You won't beat its breadth — don't try. Win the moments it's weak: voluntary play at home, projector minutes, "the fun one the teacher allows on Friday".</p></div>
+  <div class="card"><h3>3 · Maintenance surface is growing fast</h3><p>11 games × topics × 2 languages. Without the engine refactor FIRST, topic expansion creates drift and bugs. Sequencing is not optional.</p></div>
+  <div class="card"><h3>4 · AI shifts search</h3><p>Kids increasingly ask ChatGPT instead of Google. Partial shelter: games are an *experience* LLMs can't substitute, and curriculum/teacher channels bypass search entirely. But expect long-tail informational queries to erode over years — another reason the games (not the reference pages) are the moat.</p></div>
+  <div class="card"><h3>5 · Solo-founder energy</h3><p>The honest failure mode of hobby projects isn't competition — it's month 4. The 90-day plan is deliberately small-batched to keep wins frequent.</p></div>
+</section>
+
+<!-- 17 ─ 90 DAY PLAN -->
+<section class="slide">
+  <div class="kicker">Execution</div>
+  <h2>The 90-day plan</h2>
+  <div class="tl">
+    <div class="ph"><div class="w">Weeks 1–2 · Be findable</div>
+      <ul><li>GSC + Bing: verify, submit sitemap, request indexing</li><li>DNS cleanup (parking ghosts)</li><li>Ship Verb Flow + pipeline games as they pass your playtest</li><li>Wire the 4 KPIs into the analytics dashboard</li></ul></div>
+    <div class="ph"><div class="w">Weeks 3–6 · The engine</div>
+      <ul><li>Question-provider interface, piloted in Verb Flow</li><li>Sweep all single-file games to the provider</li><li>Author the <b>Tenses</b> topic dataset (the next big topic)</li><li>Cross-links: topic pages ↔ game pages</li></ul></div>
+    <div class="ph"><div class="w">Weeks 5–8 · The pages</div>
+      <ul><li>310 × 2 programmatic verb pages (templated, with mini-drill embeds)</li><li>Klasse-5/6/7/8 hub pages</li><li>First teacher PDF pack → eduki + site</li></ul></div>
+    <div class="ph"><div class="w">Weeks 7–12 · Launch & seed</div>
+      <ul><li>Tenses topic live across drills + engine games</li><li>Teacher outreach round 1 (20 contacts) + community posts</li><li>First gameplay shorts</li><li>Review KPIs → decide: more topics vs. meta-layer next</li></ul></div>
+  </div>
+  <p class="small" style="margin-top:12px">Capacity check: ~26 session-days of work in 12 weeks — comfortably inside one-session-per-day cadence, with slack for the playtest-fix loops that real games need.</p>
+</section>
+
+<!-- 18 ─ VERDICT -->
+<section class="slide">
+  <div style="margin:auto;max-width:980px">
+    <div class="kicker">Final verdict</div>
+    <h2 style="font-size:40px">Is it worth it? <em>Yes — with one condition.</em></h2>
+    <div class="verdict" style="font-size:20px">The competition is big in <em>learning</em> and absent in <em>fun</em>. Krabsy's craft already clears the bar; its factory out-ships everyone in the niche. The condition: treat <em>distribution as half the product</em> from this week on. A game a day built nobody-finds-it is a hobby; the same energy split 70/30 with SEO + teachers is a real shot at owning "English üben, aber macht Spaß" for a million German and Spanish schoolkids.</div>
+    <ul style="margin-top:10px">
+      <li><b>Do first:</b> Search Console today · ship the pipeline · engine refactor · verb pages</li>
+      <li><b>Don't do:</b> new languages, game #12 before the engine, ads, logins</li>
+      <li><b>Decide in 90 days</b> with data: topics roadmap vs. retention meta-layer (pet/streaks) as the next big bet</li>
+    </ul>
+    <p style="margin-top:26px;font-family:'Fredoka One',cursive;font-size:18px;color:var(--faint)">Krab<span style="color:rgba(255,133,133,0.6)">sy</span> 🦀 — June 2026</p>
+  </div>
+</section>
+
+<div class="navhint">→ next · ← back</div>
+<div class="foot">
+  <div class="logo">Krab<span>sy</span> · Strategy Review</div>
+  <div class="dots" id="dots"></div>
+  <div class="pg" id="pg"></div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+const dots=document.getElementById('dots');
+slides.forEach((_,i)=>{const d=document.createElement('i');d.onclick=()=>go(i);dots.appendChild(d);});
+function go(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+  [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===cur));
+  document.getElementById('pg').textContent=(cur+1)+' / '+slides.length;
+}
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+});
+addEventListener('click',e=>{
+  if(e.target.closest('.dots'))return;
+  const x=e.clientX/innerWidth;
+  if(x>0.82)go(cur+1);else if(x<0.08)go(cur-1);
+});
+const p=new URLSearchParams(location.search).get('s');
+go(p?parseInt(p,10)-1:0);
+</script>
+</body>
+</html>
