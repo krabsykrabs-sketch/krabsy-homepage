@@ -106,25 +106,25 @@ export function initQA(game, save, startLevel, params) {
       VK.spawnTicket(null);
       if (scene === 'level2') {
         // showcase: visible burger builds on the island counters
-        put(3, 2, makePlate(['bun', 'patty_cooked']));
-        put(6, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped']));
-        put(2, 4, makePlate(['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped']));
-        put(6, 4, makeIngredient('cheese_half'));
+        put(2, 2, makePlate(['bun', 'patty_cooked']));
+        put(3, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped']));
+        put(4, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped']));
+        put(7, 4, makeIngredient('cheese_half'));
       }
       if (scene === 'level3') {
-        // showcase: pizza build stages left-to-right
-        put(3, 2, makeIngredient('dough_base'));
-        put(6, 2, makeIngredient('dough_sauced'));
-        put(2, 4, makeIngredient('pizza_raw_mushroom'));
-        put(6, 4, makePlate(['pizza_cheese']));
+        // showcase: pizza build stages
+        put(3, 0, makeIngredient('dough_base'));
+        put(1, 5, makeIngredient('dough_sauced'));
+        put(6, 0, makeIngredient('pizza_raw_mushroom'));
+        put(7, 3, makePlate(['pizza_cheese']));
       }
       VK.tick(0.5);
     } else if (scene === 'chop') {
       // frozen mid-chop: progress bar visible over the cutting board
       const board = game.world.stations.find((s) => s.type === 'board');
       VK.give('lettuce');
-      VK.teleport(board.col, board.row + 1);
-      VK.face(0, -1);
+      VK.teleport(board.col, board.row - 1);   // stand INSIDE the kitchen
+      VK.face(0, 1);
       VK.pressE();
       VK.holdSpace(1.25);   // freeze at the TOP of the knife swing
       VK.freeze(true);

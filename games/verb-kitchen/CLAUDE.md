@@ -265,6 +265,15 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Compact kitchens (all 3 levels).** Walking distances
+  were too long for one chef. L1 9×6 → 7×5; L2 10×7 → 8×6 (kept a
+  small 3-tile island row 2); L3 10×7 → 8×6 (open plan, no island).
+  Camera auto-fit = free zoom-in. All station inventories audited via
+  __VK (boards/stoves/ovens/sink/rack/trash/crates/hatch all present),
+  L3 ketchup start counter moved to (0,3), rack still next to sink.
+  qa.js showcase tile coords updated for the new maps; qa=chop chef
+  now stands INSIDE the kitchen (was teleporting outside the bottom
+  wall — board.row-1, face(0,1)).
 - 2026-06-12 — **Pizzeria simplified + hot-pizza plating + order bonus.**
   - **Plate required at the oven:** baked pizza (ready OR burnt) can
     only be taken with an empty clean plate — it slides straight onto
