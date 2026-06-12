@@ -238,6 +238,38 @@ read-only reference). Inline a curated ~40-verb subset in
   select (closes quiz, clears tickets, stops audio). All re-verified
   via __VK; star thresholds NOT retuned yet — slower pipelines mean
   lower scores, so thresholds likely need a playtest-based pass.
+- 2026-06-12 — **v1.2 polish batch (user feedback, 9 items).**
+  - **Music:** WebAudio chiptune sequencer (lookahead scheduler in
+    `audio.js`), one 2-bar loop per level (104/116/124 BPM), routed via
+    `musicGain` and **ducked to 33% during sink questions**. Zero-asset
+    convention kept. NOT yet playtested by ear — needs user listen.
+  - **SFX juice:** chop pitch-varies per hit, serve has coin shimmer.
+  - **Carry:** anchor moved overhead → chest-front (0, 1.16, 0.66);
+    `Holding_B` clip plays when idle+carrying.
+  - **Two-stage chopping:** lettuce/cheese: raw → `*_half` (interim,
+    0.9s/stage) → final. Final models per user: lettuce_slice /
+    cheese_grated. `chopTime` is per-item now; boards got progress
+    rings; hint says "halfway — keep chopping!".
+  - **Compositional burgers:** plate w/ bun renders bun_bottom + actual
+    layers (patty/cheese/lettuce/tomato, bbox-stacked) + bun_top only
+    when a burger dish matches. `food_burger` model no longer used.
+  - **Compositional pizza:** `dough_sauced` = dough_base + red sauce
+    disc at 68% radius (crust visible, replaces tint hack);
+    `pizza_raw_*` adds 5 scattered topping bits (scale 0.6) — raw pizza
+    is no longer the pre-sliced plated model. Baked keeps plated model.
+  - **Ketchup:** sauce crate → ketchup bottles (`ketchup` model, crate
+    visual crate_tomatoes); bottle consumed on dough. 'sauce' item gone.
+  - **Steam:** `steamy` items (cooked patty, baked pizzas) get
+    `item.steam=14s` on ready; wisps follow item across stove → hand →
+    counter → plate (transfer on plating). New fx mat 'steam'.
+  - **Plate rack:** plates now stand upright side-by-side in the rack
+    (0–4 visible, rotation follows rack facing); sink keeps small dirty
+    pile. `st.rot` stored on all stations.
+  - All re-verified via __VK (two-stage chains, ketchup flow, compose
+    structures, steam transfer, rack states, full L1 regression).
+    Screenshots: level2/level3 QA scenes now stage build-step showcases.
+    Headless-Edge note: kill stray headless msedge + use
+    `--user-data-dir=%TEMP%\vk_edge_profile` if screenshots hang.
 - 2026-06-11 — **Burger Bar fixes (user feedback).** Salad removed from
   the L2 ticket pool (it needed tomatoes the level doesn't stock);
   replaced by **Big Burger** (bun+patty+lettuce+cheese, 40🪙, w:1).

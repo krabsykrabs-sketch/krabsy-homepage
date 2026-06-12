@@ -62,6 +62,22 @@ export function getModel(name, tint = null) {
 
 export function hasModel(name) { return restaurantCache.has(name); }
 
+const boxCache = new Map();
+/** Cached bounding box of a preloaded model's template (local space). */
+export function measureModel(name) {
+  if (!boxCache.has(name)) {
+    const tpl = restaurantCache.get(name);
+    if (!tpl) return { height: 0.1, radius: 0.3 };
+    const box = new THREE.Box3().setFromObject(tpl);
+    boxCache.set(name, {
+      height: box.max.y - box.min.y,
+      radius: Math.max(box.max.x - box.min.x, box.max.z - box.min.z) / 2,
+      minY: box.min.y,
+    });
+  }
+  return boxCache.get(name);
+}
+
 /** Merge all static meshes of a group into one mesh (one draw call). */
 export function mergeStatic(group, BufferGeometryUtils) {
   group.updateMatrixWorld(true);

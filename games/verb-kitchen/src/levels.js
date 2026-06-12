@@ -65,7 +65,7 @@ export const LEVELS = [
       '5........C',
       'CCtCCkCCCC',
     ],
-    crates: { 1: 'dough', 2: 'sauce', 3: 'cheese', 4: 'pepperoni', 5: 'mushroom' },
+    crates: { 1: 'dough', 2: 'ketchup', 3: 'cheese', 4: 'pepperoni', 5: 'mushroom' },
     dishes: [{ dish: 'pizza_cheese', w: 3 }, { dish: 'pizza_pepperoni', w: 2 }, { dish: 'pizza_mushroom', w: 2 }],
     spawnEvery: [24, 32],
     patience: 150,
@@ -113,7 +113,7 @@ export const CRATE_MODELS = {
   patty_raw: 'crate_steak',
   cheese: 'crate_cheese',
   dough: 'crate_dough',
-  sauce: 'crate_tomatoes',
+  ketchup: 'crate_tomatoes',
   pepperoni: 'crate_pepperoni',
   mushroom: 'crate_mushrooms',
 };

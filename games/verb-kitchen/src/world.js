@@ -113,6 +113,7 @@ export class World {
         }
 
         if (st) {
+          st.rot = facing;
           this.stations.push(st);
           this.stationAt.set(c + ',' + r, st);
         }
@@ -161,7 +162,7 @@ export class World {
     // live holders + rings
     for (const st of this.stations) {
       this.group.add(st.holder);
-      if (st.type === 'stove' || st.type === 'oven') {
+      if (st.type === 'stove' || st.type === 'oven' || st.type === 'board') {
         st.ring = makeRingSprite();
         st.ring.position.set(st.pos.x, st.topY + 1.5, st.pos.z);
         this.group.add(st.ring);

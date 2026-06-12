@@ -1,7 +1,7 @@
 // Stations hold state + item visuals; the interaction *rules* live in game.js.
 import * as THREE from 'three';
-import { TILE, getModel } from './models.js';
-import { ITEMS, DISHES, matchDish } from './recipes.js';
+import { TILE, getModel, measureModel } from './models.js';
+import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS } from './recipes.js';
 import { audio } from './audio.js';
 
 // ---------- items ----------
@@ -11,36 +11,105 @@ export function makePlate(contents = [], dirty = false) {
 }
 
 const ITEM_SCALE = 0.95;
+const sauceMat = new THREE.MeshStandardMaterial({ color: 0xd2402e, roughness: 0.85 });
+
+/** Rolled dough + red sauce disc that leaves the crust visible. */
+function composeSauced() {
+  const g = new THREE.Group();
+  const base = getModel('food_ingredient_dough_base');
+  g.add(base);
+  const m = measureModel('food_ingredient_dough_base');
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(m.radius * 0.68, m.radius * 0.68, 0.03, 20), sauceMat);
+  disc.position.y = m.height + 0.012;
+  g.add(disc);
+  return g;
+}
+
+/** Raw pizza: sauced dough + topping bits scattered on the sauce. */
+function composeRawPizza(topping) {
+  const g = composeSauced();
+  const m = measureModel('food_ingredient_dough_base');
+  const bits = PIZZA_TOPPING_MODELS[topping];
+  const spots = [[0, 0], [0.42, 0.28], [-0.38, 0.32], [0.26, -0.4], [-0.32, -0.3]];
+  for (const [sx, sz] of spots) {
+    const bit = getModel(bits);
+    bit.scale.setScalar(0.6);
+    bit.position.set(sx * m.radius, m.height + 0.045, sz * m.radius);
+    bit.rotation.y = (sx * 7 + sz * 13) % (Math.PI * 2);
+    g.add(bit);
+  }
+  return g;
+}
+
+/** Visible burger build: bun bottom, real layers, bun top when complete. */
+function composeBurger(contents, dish, baseY) {
+  const g = new THREE.Group();
+  let y = baseY;
+  const bb = getModel('food_ingredient_bun_bottom');
+  bb.position.y = y;
+  g.add(bb);
+  y += Math.max(0.1, measureModel('food_ingredient_bun_bottom').height * 0.85);
+  for (const layer of BURGER_LAYER_ORDER) {
+    if (!contents.includes(layer)) continue;
+    const model = BURGER_LAYER_MODELS[layer];
+    const lm = getModel(model);
+    lm.scale.setScalar(0.78);
+    lm.position.y = y;
+    g.add(lm);
+    y += Math.max(0.07, measureModel(model).height * 0.78 * 0.8);
+  }
+  if (dish && isBurgerDish(dish)) {
+    const bt = getModel('food_ingredient_bun_top');
+    bt.position.y = y;
+    g.add(bt);
+  }
+  return g;
+}
+
+/** Build the visual for one ingredient (handles composed items). */
+function ingredientMesh(id) {
+  const def = ITEMS[id];
+  if (def.compose === 'sauced') return composeSauced();
+  if (def.compose === 'rawpizza') return composeRawPizza(def.topping);
+  const m = getModel(def.model, def.tint || null);
+  return m;
+}
 
 /** Build the visual for any logical item (ingredient or plate w/ stack). */
 export function buildItemMesh(item) {
   const g = new THREE.Group();
   if (!item) return g;
   if (item.type === 'ing') {
-    const def = ITEMS[item.id];
-    const m = getModel(def.model, def.tint || null);
-    m.scale.setScalar(ITEM_SCALE);
+    const m = ingredientMesh(item.id);
+    m.scale.multiplyScalar(ITEM_SCALE);
     g.add(m);
+    return g;
+  }
+  // plate
+  const plate = getModel(item.dirty ? 'plate_dirty' : 'plate');
+  g.add(plate);
+  if (item.dirty) return g;
+  const PLATE_TOP = 0.08;
+  if (item.dish && DISHES[item.dish].model) {
+    // baked pizzas keep the finished plated model
+    const dm = getModel(DISHES[item.dish].model);
+    dm.scale.setScalar(0.92);
+    dm.position.y = PLATE_TOP;
+    g.add(dm);
+  } else if (item.contents.includes('bun')) {
+    g.add(composeBurger(item.contents, item.dish, PLATE_TOP));
   } else {
-    const plate = getModel(item.dirty ? 'plate_dirty' : 'plate');
-    g.add(plate);
-    if (!item.dirty) {
-      if (item.dish && DISHES[item.dish].model) {
-        const dm = getModel(DISHES[item.dish].model);
-        dm.scale.setScalar(0.92);
-        dm.position.y = 0.08;
-        g.add(dm);
-      } else {
-        item.contents.forEach((id, i) => {
-          const def = ITEMS[id];
-          const m = getModel(def.model, def.tint || null);
-          m.scale.setScalar(0.8);
-          m.position.y = 0.08 + i * 0.16;
-          m.rotation.y = i * 0.9;
-          g.add(m);
-        });
-      }
-    }
+    // salad & loose items: arranged side by side, not stacked
+    const n = item.contents.length;
+    item.contents.forEach((id, i) => {
+      const m = ingredientMesh(id);
+      m.scale.multiplyScalar(0.72);
+      const ang = (i / Math.max(1, n)) * Math.PI * 2 + 0.7;
+      const r = n > 1 ? 0.16 : 0;
+      m.position.set(Math.cos(ang) * r, PLATE_TOP + 0.02, Math.sin(ang) * r);
+      m.rotation.y = i * 1.7;
+      g.add(m);
+    });
   }
   return g;
 }
@@ -119,18 +188,28 @@ export class Station {
     return it;
   }
 
-  /** Refresh plate stack visuals on rack/sink. */
+  /** Refresh plate visuals on rack/sink. */
   refreshStack() {
     if (this.stackGroup) this.holder.remove(this.stackGroup);
     this.stackGroup = new THREE.Group();
-    const n = this.type === 'rack' ? this.plates : this.dirtyPlates;
-    const model = this.type === 'rack' ? 'plate' : 'plate_dirty';
-    for (let i = 0; i < Math.min(n, 5); i++) {
-      const p = getModel(model);
-      p.position.y = i * 0.14;
-      p.rotation.y = i * 0.5;
-      if (this.type === 'sink') p.position.set(0.45, 0.02 + i * 0.14, -0.3);
-      this.stackGroup.add(p);
+    if (this.type === 'rack') {
+      // plates stand upright, side by side in the rack slots (0–4 visible)
+      const n = Math.min(this.plates, 4);
+      for (let i = 0; i < n; i++) {
+        const p = getModel('plate');
+        p.rotation.x = Math.PI / 2 - 0.16;          // on edge, slight lean
+        p.position.set(-0.39 + i * 0.26, 0.34, 0);
+        this.stackGroup.add(p);
+      }
+      this.stackGroup.rotation.y = this.rot || 0;
+    } else {
+      // dirty pile at the sink stays a (small) stack
+      for (let i = 0; i < Math.min(this.dirtyPlates, 4); i++) {
+        const p = getModel('plate_dirty');
+        p.position.set(0.45, 0.02 + i * 0.14, -0.3);
+        p.rotation.y = i * 0.5;
+        this.stackGroup.add(p);
+      }
     }
     this.holder.add(this.stackGroup);
   }

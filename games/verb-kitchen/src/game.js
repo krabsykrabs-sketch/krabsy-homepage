@@ -5,7 +5,7 @@ import { ITEMS, DISHES, matchDish, canPlate, combine, itemModelNames } from './r
 import { LEVELS, levelModelNames } from './levels.js';
 import { World } from './world.js';
 import { Chef, preloadChef } from './chef.js';
-import { makeIngredient, makePlate, buildItemMesh } from './stations.js';
+import { makeIngredient, makePlate, buildItemMesh, drawRing } from './stations.js';
 import { Orders } from './orders.js';
 import { SinkQuiz } from './sink.js';
 import { FX } from './fx.js';
@@ -108,6 +108,7 @@ export class Game {
       this.renderOnce();
       await ui.countdown();
     }
+    audio.music(this.levelIdx);
     this.clock = new THREE.Clock();
     this.running = true;
     if (!this._loopStarted) { this._loopStarted = true; this.loop(); }
@@ -282,6 +283,7 @@ export class Game {
           ITEMS[held.id].plateable && canPlate(st.item.contents, held.id)) {
         st.item.contents.push(held.id);
         st.item.dish = matchDish(st.item.contents);
+        if (held.steam > 0) st.item.steam = Math.max(st.item.steam || 0, held.steam);
         st.setItem(st.item);
         this.chef.setCarried(null);
         if (st.item.dish) { audio.ding(); this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5)); }
@@ -293,6 +295,7 @@ export class Game {
         const ing = st.takeItem();
         held.contents.push(ing.id);
         held.dish = matchDish(held.contents);
+        if (ing.steam > 0) held.steam = Math.max(held.steam || 0, ing.steam);
         this.chef.setCarried(held, buildItemMesh(held));
         if (held.dish) { audio.ding(); this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5)); }
         return;
@@ -345,7 +348,7 @@ export class Game {
       if (def.chopTo) {
         this.chef.working = true;
         const before = st.progress;
-        st.progress += dt / CHOP_TIME;
+        st.progress += dt / (def.chopTime || CHOP_TIME);
         if (Math.floor(before * 5) !== Math.floor(st.progress * 5)) audio.chop();
         if (st.progress >= 1) {
           st.setItem(makeIngredient(def.chopTo));
@@ -382,10 +385,12 @@ export class Game {
   onQuestionOpen() {
     this.questionOpen = true;
     this.chef.frozen = true;
+    audio.duck(true);
   }
   onQuestionClose() {
     this.questionOpen = false;
     this.chef.frozen = false;
+    audio.duck(false);
   }
   onPlateWashed() {
     this.sinkStation.dirtyPlates--;
@@ -415,6 +420,22 @@ export class Game {
     audio.sizzle(any);
   }
 
+  // hot food (fresh patty / baked pizza) breathes steam wherever it sits
+  updateSteam(dt) {
+    this.steamT = (this.steamT || 0) - dt;
+    const emit = this.steamT <= 0;
+    if (emit) this.steamT = 0.45;
+    const tick = (item, pos) => {
+      if (!item || !(item.steam > 0)) return;
+      item.steam -= dt;
+      if (emit) this.fx.steam(pos);
+    };
+    for (const st of this.world.stations) {
+      tick(st.item, st.pos.clone().setY(st.topY + 0.35));
+    }
+    tick(this.chef.carried, this.chef.pos.clone().setY(1.7));
+  }
+
   // ---------- hint bar ----------
   refreshHint(force = false) {
     const st = this.targetStation();
@@ -423,7 +444,8 @@ export class Game {
     if (st) {
       if (st.type === 'crate') text = held ? '' : `E — grab ${ITEMS[st.crateItem].emoji}`;
       else if (st.type === 'board') {
-        if (st.item && ITEMS[st.item.id]?.chopTo) text = `hold Space — ${ITEMS[st.item.id].chopVerb || 'chop'}!`;
+        if (st.item && ITEMS[st.item.id]?.interim) text = 'halfway — keep chopping!';
+        else if (st.item && ITEMS[st.item.id]?.chopTo) text = `hold Space — ${ITEMS[st.item.id].chopVerb || 'chop'}!`;
         else if (st.item) text = 'E — take it';
         else if (held && held.type === 'ing' && ITEMS[held.id].chopTo) text = 'E — put it on the board';
       }
@@ -480,11 +502,22 @@ export class Game {
     // stations (cooking pauses during questions)
     for (const st of this.world.stations) {
       for (const ev of st.update(dt, this.questionOpen)) {
-        if (ev === 'ready') { audio.ding(); this.fx.pop(st.pos.clone().setY(st.topY + 1), 'ready!', 'var(--teal)'); }
+        if (ev === 'ready') {
+          audio.ding();
+          this.fx.pop(st.pos.clone().setY(st.topY + 1), 'ready!', 'var(--teal)');
+          if (ITEMS[st.item.id]?.steamy) st.item.steam = 14;   // hot & ready
+        }
         if (ev === 'burnt') { this.startSmoke(st); this.fx.pop(st.pos.clone().setY(st.topY + 1), 'burnt! 🔥', 'var(--coral)'); }
+      }
+      // cutting-board progress ring
+      if (st.type === 'board' && st.ring) {
+        const choppable = st.item && st.item.type === 'ing' && ITEMS[st.item.id].chopTo;
+        st.ring.visible = !!(choppable && st.progress > 0);
+        if (st.ring.visible) drawRing(st.ring, st.progress, '#ffcf5e');
       }
     }
     this.updateSizzle();
+    this.updateSteam(dt);
 
     // orders tick slower while the player is thinking at the sink
     this.orders.update(dt, this.questionOpen ? QUESTION_PATIENCE_SCALE : 1);

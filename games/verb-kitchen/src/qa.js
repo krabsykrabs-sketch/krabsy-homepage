@@ -1,5 +1,6 @@
 // QA hook (window.__VK) + ?qa= frozen scenes for headless screenshots.
 import { makeIngredient, makePlate, buildItemMesh } from './stations.js';
+import { ITEMS } from './recipes.js';
 import { seedRng } from './verbs.js';
 import { ui } from './ui.js';
 
@@ -91,9 +92,28 @@ export function initQA(game, save, startLevel, params) {
     await startLevel(lvIdx, { skipCountdown: true });
     VK.setNoSpawn(true);
 
+    const put = (col, row, item) => {
+      const st = game.world.stationAtTile(col, row);
+      if (st) st.setItem(item, false);
+    };
     if (scene === 'level1' || scene === 'level2' || scene === 'level3') {
       VK.spawnTicket(null);
       VK.spawnTicket(null);
+      if (scene === 'level2') {
+        // showcase: visible burger builds on the island counters
+        put(3, 2, makePlate(['bun', 'patty_cooked']));
+        put(6, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped']));
+        put(2, 4, makePlate(['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped']));
+        put(6, 4, makeIngredient('cheese_half'));
+      }
+      if (scene === 'level3') {
+        // showcase: pizza build stages left-to-right
+        put(3, 2, makeIngredient('dough_base'));
+        put(6, 2, makeIngredient('dough_sauced'));
+        put(2, 4, makeIngredient('pizza_raw_pepperoni'));
+        const hot = makeIngredient('pizza_cheese'); hot.steam = 60;
+        put(6, 4, hot);
+      }
       VK.tick(0.5);
     } else if (scene === 'question') {
       VK.spawnTicket('salad');

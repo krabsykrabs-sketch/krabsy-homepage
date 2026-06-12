@@ -26,6 +26,7 @@ export class FX {
       spark: new THREE.SpriteMaterial({ map: dotTexture('rgba(46,230,192,0.95)'), transparent: true, depthWrite: false }),
       dust: new THREE.SpriteMaterial({ map: dotTexture('rgba(220,220,210,0.8)'), transparent: true, depthWrite: false }),
       amber: new THREE.SpriteMaterial({ map: dotTexture('rgba(255,207,94,0.95)'), transparent: true, depthWrite: false }),
+      steam: new THREE.SpriteMaterial({ map: dotTexture('rgba(235,240,250,0.55)'), transparent: true, depthWrite: false, opacity: 0.7 }),
     };
     this.smokeSources = new Set();   // stations currently smoking
     this.smokeT = 0;
@@ -52,6 +53,11 @@ export class FX {
   }
   sparkle(pos) {
     for (let i = 0; i < 7; i++) this.emit('spark', pos, { size: 0.3, life: 0.7 });
+  }
+  steam(pos) {
+    // gentle hot-food wisp: small, slow, drifts up and fades
+    this.emit('steam', pos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.1, (Math.random() - 0.5) * 0.3)),
+      { size: 0.22 + Math.random() * 0.15, life: 1.1, grow: 0.55, vel: new THREE.Vector3((Math.random() - 0.5) * 0.2, 1.1, (Math.random() - 0.5) * 0.2) });
   }
   dust(pos) {
     for (let i = 0; i < 4; i++) {

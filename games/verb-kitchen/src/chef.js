@@ -24,16 +24,16 @@ export class Chef {
 
     this.mixer = new THREE.AnimationMixer(this.body);
     this.actions = {};
-    for (const name of ['Idle_A', 'Running_A', 'Chopping', 'PickUp']) {
+    for (const name of ['Idle_A', 'Running_A', 'Chopping', 'PickUp', 'Holding_B']) {
       const clip = assets.clips[name];
       if (clip) this.actions[name] = this.mixer.clipAction(clip);
     }
     this.current = null;
     this.play('Idle_A');
 
-    // carry anchor floats over the head
+    // carry anchor: in front of the body at chest height (not overhead)
     this.carryAnchor = new THREE.Group();
-    this.carryAnchor.position.set(0, 2.55, 0.1);
+    this.carryAnchor.position.set(0, 1.16, 0.66);
     this.obj.add(this.carryAnchor);
     this.carried = null;          // logical item
     this.carriedMesh = null;
@@ -87,6 +87,8 @@ export class Chef {
       this.play('Chopping');
     } else if (mag > 0) {
       this.play('Running_A');
+    } else if (this.carried && this.actions['Holding_B']) {
+      this.play('Holding_B');
     } else {
       this.play('Idle_A');
     }
