@@ -39,23 +39,23 @@ function composeSauced() {
  *  Bits stay INSIDE the sauce disc (radius 0.68): centers ≤ 0.42·r. */
 function composeRawPizza(topping) {
   const { g, m } = saucedParts();
-  const scatter = (model, spots, y) => {
+  const scatter = (model, spots, scale, y) => {
     for (const [sx, sz] of spots) {
       const bit = getModel(model);
-      bit.scale.setScalar(0.45);
+      bit.scale.setScalar(scale);
       bit.position.set(sx * m.radius, y, sz * m.radius);
       bit.rotation.y = (sx * 7 + sz * 13) % (Math.PI * 2);
       g.add(bit);
     }
   };
-  // cheese layer first — every pizza has cheese under its topping
+  // cheese layer first — every pizza has cheese: few BIG readable pieces
   scatter(PIZZA_TOPPING_MODELS.cheese,
-    [[0, 0], [0.32, 0.2], [-0.28, 0.24], [0.2, -0.3], [-0.24, -0.22]],
-    m.height + 0.045);
+    [[-0.06, 0.18], [0.24, -0.14], [-0.26, -0.18]],
+    0.7, m.height + 0.045);
   if (topping !== 'cheese') {
     scatter(PIZZA_TOPPING_MODELS[topping],
-      [[0.08, 0.08], [-0.3, -0.04], [0.3, -0.14], [-0.1, 0.32], [0.04, -0.33]],
-      m.height + 0.075);
+      [[0.04, -0.32], [-0.3, 0.1], [0.3, 0.18], [0, 0]],
+      0.45, m.height + 0.075);
   }
   g.scale.setScalar(PIZZA_SCALE);
   return g;

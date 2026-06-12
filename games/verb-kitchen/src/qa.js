@@ -115,9 +115,8 @@ export function initQA(game, save, startLevel, params) {
         // showcase: pizza build stages left-to-right
         put(3, 2, makeIngredient('dough_base'));
         put(6, 2, makeIngredient('dough_sauced'));
-        put(2, 4, makeIngredient('pizza_raw_pepperoni'));
-        const hot = makeIngredient('pizza_cheese'); hot.steam = 60;
-        put(6, 4, hot);
+        put(2, 4, makeIngredient('pizza_raw_mushroom'));
+        put(6, 4, makePlate(['pizza_cheese']));
       }
       VK.tick(0.5);
     } else if (scene === 'chop') {

@@ -265,6 +265,24 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Pizzeria simplified + hot-pizza plating + order bonus.**
+  - **Plate required at the oven:** baked pizza (ready OR burnt) can
+    only be taken with an empty clean plate — it slides straight onto
+    the plate (`held.contents.push` in the oven branch, steam carries
+    over, dish matched → immediately servable). Bare hands rejected,
+    hint: "too hot! bring a clean plate 🍽️". Burnt pizza plates too;
+    trash empties the plate (existing branch). Mid-bake (cooking) can
+    still be pulled bare-handed. Stove (patties) unchanged.
+  - **Pepperoni removed entirely** (items, dish, topping model, crate,
+    map char '4' → 'C'). L3 = dough, ketchup, cheese, mushrooms; only
+    two orders: Cheese Pizza (w3) / Mushroom Pizza (w2).
+  - **Raw-pizza cheese: 3 big bits (0.7)** instead of 5 small; mushroom
+    layer 4 bits at 0.45 above them.
+  - **In-order streak bonus:** serving in any order was already
+    possible (serve() matches any ticket); NEW +5 🪙 `orderBonus` when
+    the served ticket is the oldest open one (`inOrder` from
+    orders.serve, 📋 in the score pop). Verified: 50 vs 60 coins.
+  - qa=level3 scene updated (mushroom raw pizza + plated cheese pizza).
 - 2026-06-12 — **Pizza scale pass + loading screen.**
   - All pizza stages shrunk: `PIZZA_SCALE 0.72` in stations.js scales
     the composed sauced/raw-pizza groups (built unscaled via

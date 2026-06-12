@@ -258,6 +258,18 @@ export class Game {
             st.startCooking(held);
             this.chef.setCarried(null);
           } else this.reject(st);
+        } else if (wantsBake && st.item && (st.state === 'ready' || st.state === 'burnt')) {
+          // a baked pizza is too hot for bare hands — slide it onto a plate
+          if (held && held.type === 'plate' && !held.dirty && held.contents.length === 0) {
+            const wasBurnt = st.state === 'burnt';
+            const it = st.clearCooking();
+            held.contents.push(it.id);
+            held.dish = matchDish(held.contents);
+            if (it.steam > 0) held.steam = Math.max(held.steam || 0, it.steam);
+            this.chef.setCarried(held, buildItemMesh(held));
+            if (wasBurnt) this.stopSmoke(st);
+            this.updateSizzle();
+          } else this.reject(st);
         } else if (!held && st.item) {
           const wasBurnt = st.state === 'burnt';
           const it = st.clearCooking();
@@ -383,14 +395,15 @@ export class Game {
     this.combo++;
     const tip = Math.round(res.tipFrac * 10);
     const bonus = Math.min(Math.max(this.combo - 1, 0), 3) * 5;
-    const gained = d.coins + tip + bonus;
+    const orderBonus = res.inOrder ? 5 : 0;     // served the oldest ticket first
+    const gained = d.coins + tip + bonus + orderBonus;
     this.score += gained;
     this.chef.setCarried(null);
     audio.serve();
     ui.setCoins(this.score);
     ui.setCombo(this.combo);
     this.fx.coins(hatch.pos.clone().setY(1.8));
-    this.fx.pop(hatch.pos.clone().setY(1.8), `+${gained} 🪙${bonus ? ' 🔥' : ''}`);
+    this.fx.pop(hatch.pos.clone().setY(1.8), `+${gained} 🪙${bonus ? ' 🔥' : ''}${orderBonus ? ' 📋' : ''}`);
     // plate comes back dirty in a few seconds
     this.plateReturns.push(PLATE_RETURN_DELAY + Math.random() * 2);
   }
@@ -473,8 +486,14 @@ export class Game {
         }
       }
       else if (st.type === 'stove' || st.type === 'oven') {
-        if (st.state === 'ready') text = 'E — take it, quick!';
-        else if (st.state === 'burnt') text = 'E — take it… to the trash 💀';
+        const emptyPlate = held && held.type === 'plate' && !held.dirty && held.contents.length === 0;
+        if (st.state === 'ready') {
+          if (st.type === 'oven') text = emptyPlate ? 'E — plate the pizza!' : 'too hot! bring a clean plate 🍽️';
+          else text = 'E — take it, quick!';
+        } else if (st.state === 'burnt') {
+          if (st.type === 'oven') text = emptyPlate ? 'E — plate it… for the trash 💀' : 'too hot! bring a clean plate 🍽️';
+          else text = 'E — take it… to the trash 💀';
+        }
         else if (st.state === 'cooking') text = 'cooking…';
         else if (held) text = 'E — start cooking';
       }

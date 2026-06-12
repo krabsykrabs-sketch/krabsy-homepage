@@ -59,14 +59,14 @@ export const LEVELS = [
       '1........C',
       'C.CCC.CC.b',
       '3...P....b',
-      '4.CC.CCC.C',
+      'C.CC.CCC.C',
       '5........C',
       'CCtCCkrCCC',
     ],
-    crates: { 1: 'dough', 3: 'cheese', 4: 'pepperoni', 5: 'mushroom' },
+    crates: { 1: 'dough', 3: 'cheese', 5: 'mushroom' },
     // the reusable ketchup bottle starts on the counter that replaced its crate
     startItems: [{ c: 0, r: 2, item: 'ketchup' }],
-    dishes: [{ dish: 'pizza_cheese', w: 3 }, { dish: 'pizza_pepperoni', w: 2 }, { dish: 'pizza_mushroom', w: 2 }],
+    dishes: [{ dish: 'pizza_cheese', w: 3 }, { dish: 'pizza_mushroom', w: 2 }],
     spawnEvery: [24, 32],
     patience: 150,
     roundTime: 180,
@@ -101,7 +101,7 @@ export function levelModelNames(level) {
     'dishrack', 'plate', 'plate_dirty',
     'crate', 'crate_lid',
     'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_steak',
-    'crate_cheese', 'crate_dough', 'crate_mushrooms', 'crate_pepperoni',
+    'crate_cheese', 'crate_dough', 'crate_mushrooms',
   ];
 }
 
@@ -113,6 +113,5 @@ export const CRATE_MODELS = {
   patty_raw: 'crate_steak',
   cheese: 'crate_cheese',
   dough: 'crate_dough',
-  pepperoni: 'crate_pepperoni',
   mushroom: 'crate_mushrooms',
 };

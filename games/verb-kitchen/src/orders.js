@@ -62,15 +62,17 @@ export class Orders {
     }
   }
 
-  /** Serve a dish: match most-urgent ticket. Returns {ticket, tipFrac} or null. */
+  /** Serve a dish: match most-urgent ticket (any order is allowed).
+   *  inOrder = true when it was the oldest open ticket → streak bonus. */
   serve(dishId) {
     const matches = this.tickets.filter((t) => t.dish === dishId);
     if (!matches.length) return null;
     matches.sort((a, b) => a.patience - b.patience);
     const t = matches[0];
+    const inOrder = t === this.tickets[0];
     const tipFrac = Math.max(0, t.patience / t.max);
     this.remove(t, 'servedAnim');
-    return { ticket: t, tipFrac };
+    return { ticket: t, tipFrac, inOrder };
   }
 
   remove(t, animClass) {
