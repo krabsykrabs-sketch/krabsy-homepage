@@ -265,6 +265,15 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Board-item alignment + staccato chop.** Items on
+  boards now rotate to the board's facing (`itemMesh.rotation.y =
+  st.rot` in setItem) — pepperoni lies along the board. Chop anim:
+  full Chopping clip drives the knife through the table (y profile
+  measured: high 1.76 @13% → 0.59 @33%, slow recovery); now loops only
+  the first 25% at timeScale 1.7 (`chef.chopWindow`, reset in update)
+  → ~5 quick chops/s, knife bottoms out at y≈0.86 (board top 1.17,
+  reads as striking the board). One-frame low dip on fade-in from
+  idle is expected.
 - 2026-06-12 — **Dough rolling scrapped + knife orientation fix.** Both
   L3 boards are plain cutting boards again ('d' map char unused but the
   world.js/`st.tool` plumbing kept for later); dough preps on any board

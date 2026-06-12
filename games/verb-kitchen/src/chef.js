@@ -29,6 +29,11 @@ export class Chef {
       if (clip) this.actions[name] = this.mixer.clipAction(clip);
     }
     this.current = null;
+    // chop staccato: loop only the first quarter of the clip — raised pose
+    // down to board height (the full clip drives the knife through the
+    // table to y≈0.6 and recovers slowly; profile measured in QA)
+    this.chopWindow = (assets.clips['Chopping']?.duration || 1) * 0.25;
+    if (this.actions['Chopping']) this.actions['Chopping'].timeScale = 1.7;
     this.play('Idle_A');
 
     // carry anchor: held out in front, above shoulder height, so the big
@@ -105,6 +110,11 @@ export class Chef {
 
   update(dt, input, fx) {
     this.mixer.update(dt);
+    // staccato chop: restart the clip once it passes the top-of-swing window
+    if (this.working) {
+      const a = this.actions['Chopping'];
+      if (a && a.time > this.chopWindow) a.time = 0;
+    }
     if (this.frozen) { this.play('Idle_A'); return; }
 
     let ix = input.x, iz = input.z;

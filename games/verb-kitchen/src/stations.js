@@ -190,6 +190,8 @@ export class Station {
     this.item = item;
     this.itemMesh = item ? buildItemMesh(item) : null;
     if (this.itemMesh) {
+      // long items (pepperoni!) lie along the board, not across it
+      if (this.type === 'board') this.itemMesh.rotation.y = this.rot || 0;
       this.holder.add(this.itemMesh);
       if (bounce) {
         this.itemMesh.position.y = 0.35;
