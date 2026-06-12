@@ -9,10 +9,10 @@ at the end of each session. (Last update: 2026-06-12.)
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
-| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **rebuilt v3** 2026-06-10 (original mechanics restored: 1-fruit warmup, input queue/U-turns, gentle speed) — **LIVE since 2026-06-12** |
+| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker (commit awaiting deploy) |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
-| Verb Flow | single-file canvas | `games/verb-flow/` | — | **built, not released** |
+| Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta, thumbnail pending) — engine-refactored same day: 154-verb pool (commit awaiting deploy) |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
@@ -48,8 +48,6 @@ but not referenced — verify before removing.)
 
 ## Next steps / open items
 
-- **Verb Flow**: design polish pass requested, then release (wire into
-  `data/games.json` + wrappers + sitemap). Game is verified working.
 - **Folder restructure**: done, merged to `main`, pushed, and **deployed
   live** (Coolify static Base directory = `/homepage`). Verified serving:
   games.json, hub, verb-platformer, air-control, type-race.
