@@ -45,6 +45,15 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .form-past{color:var(--teal); font-weight:800;}
 .form-pp{color:var(--coral); font-weight:800;}
 
+/* ---------- character select ---------- */
+#charRow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+#charRow .label{width:100%; text-align:center; color:var(--muted); font-weight:800; font-size:13.5px;
+  text-transform:uppercase; letter-spacing:.8px;}
+.char-btn{background:var(--navy2); color:var(--ink); font-weight:800; font-size:14.5px; padding:9px 16px;
+  border-radius:999px; border:2px solid rgba(255,255,255,.14); transition:transform .08s, border-color .1s;}
+.char-btn:hover{border-color:var(--teal); transform:translateY(-2px);}
+.char-btn.active{background:var(--teal); color:#06281f; border-color:var(--teal);}
+
 /* ---------- level select ---------- */
 #levelGrid{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:760px;}
 .lvl{width:160px; background:var(--navy2); border-radius:20px; padding:18px 14px 14px; display:flex; flex-direction:column;
@@ -190,6 +199,7 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
     <div class="row"><span class="ico">🍽️</span><span>Serve dishes before patience runs out!</span></div>
     <div class="row"><span class="ico">🧽</span><span>No clean plates? Wash them — with verbs: <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-pp">gone</span></span></div>
   </div>
+  <div id="charRow"><span class="label">Pick your chef</span></div>
   <button id="playBtn" class="btn-primary">Play! 🍳</button>
   <div id="loadingNote"></div>
 </div>

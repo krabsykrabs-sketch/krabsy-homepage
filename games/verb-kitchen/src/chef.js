@@ -1,5 +1,5 @@
-// The chef: KayKit Knight + Rig_Medium animation clips, WASD movement with
-// tile collision, one-item carry slot rendered over the head.
+// The chef: a KayKit Adventurers character (player-selectable) + Rig_Medium
+// animation clips, WASD movement with tile collision, one-item carry slot.
 import * as THREE from 'three';
 import { TILE, loadChefAssets, cloneChef } from './models.js';
 import { audio } from './audio.js';
@@ -8,10 +8,10 @@ const SPEED = 7.2;          // world units/s (tile = 2)
 const RADIUS = 0.42;
 const TURN_LERP = 18;
 
-let assets = null;          // shared {charScene, clips}
+let assets = null;          // {charScene, clips} for the selected character
 
-export async function preloadChef() {
-  if (!assets) assets = await loadChefAssets();
+export async function preloadChef(charName = 'knight') {
+  assets = await loadChefAssets(charName);   // GLTFs are cached, re-calls are cheap
 }
 
 export class Chef {

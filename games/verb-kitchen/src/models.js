@@ -118,9 +118,20 @@ export function mergeStatic(group, BufferGeometryUtils) {
 // ---- chef + animations ----
 const C = 'assets/models/chef/';
 
-export async function loadChefAssets() {
-  const [knight, move, general, tools] = await Promise.all([
-    loadGLTF(C + 'Knight.glb'),
+// Playable characters (KayKit Adventurers, all share the Rig_Medium clips).
+export const CHEF_CHARACTERS = {
+  knight:    { file: 'Knight.glb',    emoji: '🛡️', name: 'Knight' },
+  barbarian: { file: 'Barbarian.glb', emoji: '🪓', name: 'Barbarian' },
+  mage:      { file: 'Mage.glb',      emoji: '🧙', name: 'Mage' },
+  ranger:    { file: 'Ranger.glb',    emoji: '🏹', name: 'Ranger' },
+  rogue:     { file: 'Rogue.glb',     emoji: '🗡️', name: 'Rogue' },
+};
+
+/** Load one character + the shared animation clips (everything is cached). */
+export async function loadChefAssets(charName = 'knight') {
+  const def = CHEF_CHARACTERS[charName] || CHEF_CHARACTERS.knight;
+  const [char, move, general, tools] = await Promise.all([
+    loadGLTF(C + def.file),
     loadGLTF(C + 'Rig_Medium_MovementBasic.glb'),
     loadGLTF(C + 'Rig_Medium_General.glb'),
     loadGLTF(C + 'Rig_Medium_Tools.glb'),
@@ -129,7 +140,7 @@ export async function loadChefAssets() {
   for (const g of [move, general, tools]) {
     for (const c of g.animations) clips[c.name] = c;
   }
-  return { charScene: knight.scene, clips };
+  return { charScene: char.scene, clips };
 }
 
 export function cloneChef(charScene) {

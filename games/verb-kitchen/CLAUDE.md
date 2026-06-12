@@ -265,6 +265,24 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Character select + 3-stage mushroom.** (Note: a first
+  broken attempt at character select was committed `bc33a26` and
+  reverted in `a25153d` — it referenced GLBs that weren't on disk.)
+  - **Character select:** `CHEF_CHARACTERS` registry in models.js
+    (knight/barbarian/mage/ranger/rogue); GLBs copied from the
+    Adventurers pack into `assets/models/chef/` (gitignored). Start
+    screen renders a `#charRow` of pill buttons from the registry;
+    choice persists in `krabsy_vkitchen_char`; `game.preload` reads the
+    key and `preloadChef(charName)` loads only that character (GLTF
+    cache makes switching cheap). All five share the Rig_Medium clips.
+  - **Mushroom is now a two-stage chop** like lettuce/cheese:
+    `mushroom` → `mushroom_half` (model `*_chopped`, interim, swap at
+    50% on the continuous bar) → `mushroom_chopped` (model `*_pieces`).
+    Verified: chain continuity + `dough_sauced`+`mushroom_chopped` →
+    `pizza_raw_mushroom` unchanged.
+  - Verified via __VK (barbarian loads w/ all clips, mushroom chain,
+    pizza combine) + headless-Edge menu screenshot. Zero console
+    errors. NOTE: browser caches ES modules — hard reload after edits.
 - 2026-06-12 — **v1.3 feedback batch.**
   - **Progress bars:** chop/cook indicator is now a horizontal pill bar
     (`drawRing` in stations.js, 128×32 canvas) instead of the pie ring;

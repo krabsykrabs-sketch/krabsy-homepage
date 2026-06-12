@@ -4,6 +4,7 @@ import { Game } from './game.js';
 import { ui } from './ui.js';
 import { audio } from './audio.js';
 import { LEVELS } from './levels.js';
+import { CHEF_CHARACTERS } from './models.js';
 import { seedRng } from './verbs.js';
 import { initQA } from './qa.js';
 
@@ -64,6 +65,35 @@ document.getElementById('backBtn').addEventListener('click', () => ui.showScreen
 document.getElementById('retryBtn').addEventListener('click', () => startLevel(game.levelIdx));
 document.getElementById('nextBtn').addEventListener('click', () => startLevel(Math.min(game.levelIdx + 1, LEVELS.length - 1)));
 document.getElementById('menuBtn').addEventListener('click', showLevelSelect);
+
+// --- character selection (persists; game.preload reads the key) ---
+const CHAR_KEY = 'krabsy_vkitchen_char';
+const charRow = document.getElementById('charRow');
+function selectedChar() {
+  try {
+    const c = localStorage.getItem(CHAR_KEY);
+    if (c && CHEF_CHARACTERS[c]) return c;
+  } catch (e) {}
+  return 'knight';
+}
+for (const [id, def] of Object.entries(CHEF_CHARACTERS)) {
+  const b = document.createElement('button');
+  b.className = 'char-btn';
+  b.dataset.char = id;
+  b.textContent = `${def.emoji} ${def.name}`;
+  b.addEventListener('click', () => {
+    try { localStorage.setItem(CHAR_KEY, id); } catch (e) {}
+    renderCharRow();
+  });
+  charRow.appendChild(b);
+}
+function renderCharRow() {
+  const sel = selectedChar();
+  for (const b of charRow.querySelectorAll('.char-btn')) {
+    b.classList.toggle('active', b.dataset.char === sel);
+  }
+}
+renderCharRow();
 
 ui.showScreen('startScreen');
 
