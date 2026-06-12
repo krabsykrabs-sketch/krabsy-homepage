@@ -170,7 +170,7 @@
   <div class="scorerow"><div class="grade gA">A−</div><div><div class="t">Games & product craft</div><div class="d">Real game mechanics (Flow-puzzles, roguelite rooms, day/night farming), house visual identity, WebAudio sound, mobile awareness. Far above the niche bar. Minus: all games hardwired to ONE topic.</div></div></div>
   <div class="scorerow"><div class="grade gA">A−</div><div><div class="t">Engineering & performance</div><div class="d">Pages 12–88&nbsp;KB(!), no frameworks, instant loads, no-login — perfect for classroom projectors and school tablets. Clean i18n architecture, first-party analytics.</div></div></div>
   <div class="scorerow"><div class="grade gB">B</div><div><div class="t">On-page SEO foundations</div><div class="d">Exemplary mechanics: canonical, hreflang, JSON-LD, symmetric DE/ES sitemap. But: thin text content, few internal links between topics ↔ games, no per-verb pages.</div></div></div>
-  <div class="scorerow"><div class="grade gF">F</div><div><div class="t">Discoverability (today)</div><div class="d">Site effectively not indexed; Google still shows the domain's previous life (parked "for sale" pages, an old hermit-crab shop). Zero backlinks, zero authority. <b>This gates everything.</b></div></div></div>
+  <div class="scorerow"><div class="grade gF">F</div><div><div class="t">Discoverability (today)</div><div class="d">Indexed-but-invisible: homepage is in the index, yet the site is absent from the top 10 even for "krabsy" (SpongeBob &amp; Instagram win) and for "krabsy englisch lernen spiele"; content pages don't surface, and old parked pages still haunt the domain. Zero backlinks, zero authority. <b>This gates everything.</b></div></div></div>
   <div class="scorerow"><div class="grade gB">B</div><div><div class="t">UX & retention</div><div class="d">Clear hubs, consistent style, language toggle. Missing: onboarding ("start here"), cross-site progress/streaks, and games are disconnected from topic learn-paths — your own observation, and it's the right one.</div></div></div>
   <div class="scorerow"><div class="grade gC">C+</div><div><div class="t">Content breadth</div><div class="d">Two topics. Strong question DATA (310 verbs, 99 preps) but few learnable PAGES. Competitors win SEO precisely on breadth of thin-but-useful reference pages.</div></div></div>
 </section>
@@ -197,9 +197,11 @@
   <h2>The alarm 🚨 and the plan</h2>
   <div class="cols">
     <div class="col">
-      <div class="card" style="border-color:rgba(255,133,133,0.45)"><h3 style="color:var(--coral)">Finding: you are invisible</h3>
-      <ul><li><code>site:krabsy.com</code> returns the OLD domain content: parked "website for sale" pages and a hermit-crab shop (ww1 subdomain ghosts).</li>
-      <li>None of the 50 real URLs surface. New domain + zero links + never submitted = Google hasn't re-crawled.</li></ul></div>
+      <div class="card" style="border-color:rgba(255,133,133,0.45)"><h3 style="color:var(--coral)">Finding: indexed-but-invisible</h3>
+      <ul><li>The homepage IS in the index (<code>site:</code> shows "Krabsy™") — but next to OLD parked "for sale" pages (ww1 ghosts).</li>
+      <li>Searching <b>"krabsy"</b>: SpongeBob's Krabsy the Klown + Instagram handles win; the site is absent from the top 10 <i>for its own name</i>.</li>
+      <li>Searching <b>"krabsy englisch lernen spiele"</b> (brand + category!): completely absent. Content pages don't surface at all.</li>
+      <li><i>Caveat: one US search backend — verify on google.de + Search Console coverage report.</i></li></ul></div>
       <div class="card"><h3>Fix (week 1, ~2 hours)</h3>
       <ul><li>Google Search Console + Bing Webmaster: verify, submit sitemap, request indexing for the 6 key hubs</li>
       <li>Check DNS: kill any lingering ww1/parking records</li>
