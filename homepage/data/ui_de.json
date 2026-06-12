@@ -235,6 +235,7 @@
     "crab_slash":      { "name": "Crab Slash!",       "tagline": "Schlage die Krabben mit den richtigen Verben!" },
     "air_control":     { "name": "Air Control!",      "tagline": "Lotse die Flugzeuge sicher mit Englisch!" },
     "verb_snake":      { "name": "Verb Snake!",       "tagline": "Friss Verbformen in der richtigen Reihenfolge!" },
+    "verb_flow":       { "name": "Verb Flow!", "tagline": "Verbinde die drei Verbformen — in der richtigen Reihenfolge!" },
     "verb_platformer": { "name": "Verb Platformer!",  "tagline": "Springe durch 3D-Welten und wähle die richtige Verbform!" }
   },
   "feedback": {
