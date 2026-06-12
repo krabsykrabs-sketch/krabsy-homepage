@@ -88,6 +88,10 @@ export class Game {
     this.rackStation.plates = this.level.plates;
     this.rackStation.refreshStack();
     this.sinkStation.refreshStack();
+    for (const s of this.level.startItems || []) {
+      const st = this.world.stationAtTile(s.c, s.r);
+      if (st) st.setItem(makeIngredient(s.item), false);
+    }
 
     // --- round state ---
     this.score = 0;
@@ -206,7 +210,9 @@ export class Game {
         break;
       }
       case 'trash': {
-        if (held && held.type === 'ing') {
+        if (held && held.type === 'ing' && ITEMS[held.id].reusable) {
+          this.reject(st);            // the only ketchup bottle is not trash
+        } else if (held && held.type === 'ing') {
           this.chef.setCarried(null);
           audio.trash();
           this.fx.pop(st.pos.clone().setY(1.6), '🗑️', 'var(--muted)');
@@ -228,6 +234,7 @@ export class Game {
       case 'board': {
         if (held && held.type === 'ing' && !st.item && ITEMS[held.id].chopTo) {
           st.setItem(held);
+          if (ITEMS[held.id].interim) st.progress = 0.5;  // resume the bar at halfway
           this.chef.setCarried(null);
         } else if (!held && st.item) {
           const it = st.takeItem();
@@ -305,14 +312,15 @@ export class Game {
         let result = combine(st.item.id, held.id);
         if (result) {
           st.setItem(makeIngredient(result));
-          this.chef.setCarried(null);
+          // reusable tools (ketchup bottle) stay in hand after use
+          if (!ITEMS[held.id].reusable) this.chef.setCarried(null);
           this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
           return;
         }
         result = combine(held.id, st.item.id);
         if (result) {
           const r = makeIngredient(result);
-          st.takeItem();
+          if (!ITEMS[st.item.id].reusable) st.takeItem();
           this.chef.setCarried(r, buildItemMesh(r));
           this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
           return;
@@ -350,7 +358,11 @@ export class Game {
         const before = st.progress;
         st.progress += dt / (def.chopTime || CHOP_TIME);
         if (Math.floor(before * 5) !== Math.floor(st.progress * 5)) audio.chop();
-        if (st.progress >= 1) {
+        // two-stage chains share ONE continuous bar: swap to the interim
+        // model at 50% without resetting progress, finish at 100%
+        if (ITEMS[def.chopTo]?.interim) {
+          if (st.progress >= 0.5) st.setItem(makeIngredient(def.chopTo), true, true);
+        } else if (st.progress >= 1) {
           st.setItem(makeIngredient(def.chopTo));
           this.fx.sparkle(st.pos.clone().setY(st.topY + 0.4));
         }

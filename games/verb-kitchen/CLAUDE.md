@@ -238,6 +238,34 @@ read-only reference). Inline a curated ~40-verb subset in
   select (closes quiz, clears tickets, stops audio). All re-verified
   via __VK; star thresholds NOT retuned yet — slower pipelines mean
   lower scores, so thresholds likely need a playtest-based pass.
+- 2026-06-12 — **Burger Bar fixes (user feedback).** Salad removed from
+  the L2 ticket pool (it needed tomatoes the level doesn't stock);
+  replaced by **Big Burger** (bun+patty+lettuce+cheese, 40🪙, w:1).
+  Plating is now **free-build** (`canPlate` replaced `canExtend`): any
+  plateable ingredient goes on a plate regardless of active tickets —
+  only exact duplicates and >5 stacks are blocked; unservable plates
+  are emptied at the trash. Verified: pool sampling, free build,
+  dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **v1.3 feedback batch.**
+  - **Progress bars:** chop/cook indicator is now a horizontal pill bar
+    (`drawRing` in stations.js, 128×32 canvas) instead of the pie ring;
+    burn warning shows a white `!` on the bar. New `?qa=chop` frozen
+    scene (chef mid-chop) for screenshots.
+  - **Rack fix:** plates were rotated coplanar (all in one plane along
+    x) → now `rotation.z` so the disc normal runs along the row; 0–4
+    upright plates side-by-side like the pack's `dishrack_plates`.
+  - **Continuous two-stage chop:** one bar 0→100% for lettuce/cheese;
+    model swaps to `*_half` at 50% WITHOUT resetting progress
+    (`setItem(..., keepProgress)`); chopTime now 1.8 on both stages;
+    placing an interim item on a board resumes the bar at 50%.
+  - **Reusable ketchup bottle:** L3 ketchup crate removed (map '2' →
+    'C'); bottle (scale 1.45) starts on that counter via new level
+    `startItems`. Squeezing on dough keeps the bottle in hand
+    (`reusable` flag in counterInteract, both directions); park it on
+    any counter; trash rejects it. `CRATE_MODELS.ketchup` gone.
+  - All verified via __VK (chop continuity/resume, ketchup two-dough
+    reuse + park + trash-reject, zero console errors) + headless-Edge
+    screenshots (qa=chop, qa=level3 incl. rack crop).
 - 2026-06-12 — **v1.2 polish batch (user feedback, 9 items).**
   - **Music:** WebAudio chiptune sequencer (lookahead scheduler in
     `audio.js`), one 2-bar loop per level (104/116/124 BPM), routed via
@@ -270,11 +298,3 @@ read-only reference). Inline a curated ~40-verb subset in
     Screenshots: level2/level3 QA scenes now stage build-step showcases.
     Headless-Edge note: kill stray headless msedge + use
     `--user-data-dir=%TEMP%\vk_edge_profile` if screenshots hang.
-- 2026-06-11 — **Burger Bar fixes (user feedback).** Salad removed from
-  the L2 ticket pool (it needed tomatoes the level doesn't stock);
-  replaced by **Big Burger** (bun+patty+lettuce+cheese, 40🪙, w:1).
-  Plating is now **free-build** (`canPlate` replaced `canExtend`): any
-  plateable ingredient goes on a plate regardless of active tickets —
-  only exact duplicates and >5 stacks are blocked; unservable plates
-  are emptied at the trash. Verified: pool sampling, free build,
-  dupe-block, junk-plate trash, bigburger match + serve.

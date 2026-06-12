@@ -7,8 +7,8 @@
 // `steamy` items emit steam wisps for a while after cooking/baking.
 export const ITEMS = {
   // --- level 1: salad ---
-  lettuce:         { model: 'food_ingredient_lettuce',         emoji: '🥬', chopTo: 'lettuce_half', chopTime: 0.9 },
-  lettuce_half:    { model: 'food_ingredient_lettuce_chopped', emoji: '🥬', chopTo: 'lettuce_chopped', chopTime: 0.9, interim: true },
+  lettuce:         { model: 'food_ingredient_lettuce',         emoji: '🥬', chopTo: 'lettuce_half', chopTime: 1.8 },
+  lettuce_half:    { model: 'food_ingredient_lettuce_chopped', emoji: '🥬', chopTo: 'lettuce_chopped', chopTime: 1.8, interim: true },
   lettuce_chopped: { model: 'food_ingredient_lettuce_slice',   emoji: '🥬', plateable: true },
   tomato:          { model: 'food_ingredient_tomato',          emoji: '🍅', chopTo: 'tomato_slices' },
   tomato_slices:   { model: 'food_ingredient_tomato_slices',   emoji: '🍅', plateable: true },
@@ -18,14 +18,14 @@ export const ITEMS = {
   patty_raw:       { model: 'food_ingredient_burger_uncooked', emoji: '🥩', cookTo: 'patty_cooked', cookTime: 10.5 },
   patty_cooked:    { model: 'food_ingredient_burger_cooked',   emoji: '🍖', plateable: true, burnTo: 'patty_burnt', burnTime: 12, steamy: true },
   patty_burnt:     { model: 'food_ingredient_burger_trash',    emoji: '💀', trashOnly: true },
-  cheese:          { model: 'food_ingredient_cheese',          emoji: '🧀', chopTo: 'cheese_half', chopTime: 0.9 },
-  cheese_half:     { model: 'food_ingredient_cheese_chopped',  emoji: '🧀', chopTo: 'cheese_chopped', chopTime: 0.9, interim: true },
+  cheese:          { model: 'food_ingredient_cheese',          emoji: '🧀', chopTo: 'cheese_half', chopTime: 1.8 },
+  cheese_half:     { model: 'food_ingredient_cheese_chopped',  emoji: '🧀', chopTo: 'cheese_chopped', chopTime: 1.8, interim: true },
   cheese_chopped:  { model: 'food_ingredient_cheese_grated',   emoji: '🧀', plateable: true },
 
   // --- level 3: pizza ---
   dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll' },
   dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', accepts: { ketchup: 'dough_sauced' } },
-  ketchup:         { model: 'ketchup',                         emoji: '🥫' },
+  ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.45, reusable: true },
   dough_sauced:    { compose: 'sauced',                        emoji: '🔴',
                      accepts: { cheese_chopped: 'pizza_raw_cheese', pepperoni_chopped: 'pizza_raw_pepperoni', mushroom_chopped: 'pizza_raw_mushroom' } },
   pepperoni:       { model: 'food_ingredient_pepperoni',         emoji: '🍖', chopTo: 'pepperoni_chopped' },

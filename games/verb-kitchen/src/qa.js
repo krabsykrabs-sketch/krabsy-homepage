@@ -115,6 +115,15 @@ export function initQA(game, save, startLevel, params) {
         put(6, 4, hot);
       }
       VK.tick(0.5);
+    } else if (scene === 'chop') {
+      // frozen mid-chop: progress bar visible over the cutting board
+      const board = game.world.stations.find((s) => s.type === 'board');
+      VK.give('lettuce');
+      VK.teleport(board.col, board.row + 1);
+      VK.face(0, -1);
+      VK.pressE();
+      VK.holdSpace(0.45);
+      VK.freeze(true);
     } else if (scene === 'question') {
       VK.spawnTicket('salad');
       VK.dirtyPlates(2);

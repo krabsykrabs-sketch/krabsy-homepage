@@ -72,6 +72,7 @@ function ingredientMesh(id) {
   if (def.compose === 'sauced') return composeSauced();
   if (def.compose === 'rawpizza') return composeRawPizza(def.topping);
   const m = getModel(def.model, def.tint || null);
+  if (def.scale) m.scale.multiplyScalar(def.scale);
   return m;
 }
 
@@ -114,13 +115,13 @@ export function buildItemMesh(item) {
   return g;
 }
 
-// ---------- progress ring (canvas sprite above stoves/boards) ----------
+// ---------- progress bar (canvas sprite above stoves/boards) ----------
 export function makeRingSprite() {
   const cv = document.createElement('canvas');
-  cv.width = cv.height = 64;
+  cv.width = 128; cv.height = 32;
   const tex = new THREE.CanvasTexture(cv);
   const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
-  spr.scale.setScalar(1.1);
+  spr.scale.set(1.6, 0.4, 1);
   spr.renderOrder = 5;
   spr.userData = { cv, tex };
   spr.visible = false;
@@ -129,15 +130,22 @@ export function makeRingSprite() {
 export function drawRing(spr, frac, color = '#2ee6c0', warn = false) {
   const { cv, tex } = spr.userData;
   const c = cv.getContext('2d');
-  c.clearRect(0, 0, 64, 64);
-  c.beginPath(); c.arc(32, 32, 24, 0, Math.PI * 2);
+  const W = 128, H = 32, R = H / 2;
+  c.clearRect(0, 0, W, H);
+  // track
+  c.beginPath(); c.roundRect(0, 0, W, H, R);
   c.fillStyle = 'rgba(10,16,38,.78)'; c.fill();
-  c.beginPath(); c.moveTo(32, 32);
-  c.arc(32, 32, 19, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, frac));
-  c.closePath(); c.fillStyle = color; c.fill();
+  // fill
+  const pad = 5;
+  const fw = (W - pad * 2) * Math.min(1, frac);
+  if (fw > 1) {
+    c.beginPath(); c.roundRect(pad, pad, Math.max(fw, H - pad * 2), H - pad * 2, R - pad);
+    c.fillStyle = color; c.fill();
+  }
   if (warn) {
-    c.font = '34px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText('!', 32, 34);
+    c.font = 'bold 24px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = '#fff';
+    c.fillText('!', W / 2, H / 2 + 1);
   }
   tex.needsUpdate = true;
 }
@@ -168,7 +176,7 @@ export class Station {
     this.stackGroup = null;
   }
 
-  setItem(item, bounce = true) {
+  setItem(item, bounce = true, keepProgress = false) {
     if (this.itemMesh) this.holder.remove(this.itemMesh);
     this.item = item;
     this.itemMesh = item ? buildItemMesh(item) : null;
@@ -179,7 +187,7 @@ export class Station {
         this.itemMesh.userData.drop = 0.35;
       }
     }
-    if (this.type === 'board') this.progress = 0;
+    if (this.type === 'board' && !keepProgress) this.progress = 0;
   }
 
   takeItem() {
@@ -197,8 +205,9 @@ export class Station {
       const n = Math.min(this.plates, 4);
       for (let i = 0; i < n; i++) {
         const p = getModel('plate');
-        p.rotation.x = Math.PI / 2 - 0.16;          // on edge, slight lean
-        p.position.set(-0.39 + i * 0.26, 0.34, 0);
+        // on edge, face along the row (disc normal = x), all leaning the same way
+        p.rotation.z = Math.PI / 2 - 0.12;
+        p.position.set(-0.36 + i * 0.24, 0.42, 0);
         this.stackGroup.add(p);
       }
       this.stackGroup.rotation.y = this.rot || 0;
