@@ -109,7 +109,7 @@
   </div>
   <div class="order-caption">eat each verb's 3 forms — <b>in this order!</b></div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">🍎</div><div>Fruits carry verb forms. Eat the <b>base</b> first, then the <b>simple past</b>, then the <b>past participle</b> — that completes the verb and grows your snake!</div></div>
+    <div class="howto-row"><div class="howto-ico">🍎</div><div>Fruits carry verb forms. Eat them in the <b>1-2-3 order shown above</b> — completing a verb grows your snake!</div></div>
     <div class="howto-row"><div class="howto-ico">👆</div><div>Steer with <b>arrow keys</b>, the d-pad, or tap the side of the board you want to turn to.</div></div>
     <div class="howto-row"><div class="howto-ico">⚠️</div><div>Forms eaten out of order shrink your snake. Don't hit the walls — or yourself!</div></div>
   </div>
@@ -169,7 +169,21 @@ const VERBS=[
   {v:'fly',past:'flew',pp:'flown'},{v:'grow',past:'grew',pp:'grown'},
   {v:'fall',past:'fell',pp:'fallen'},{v:'ride',past:'rode',pp:'ridden'},
 ];
-const VERB_BY_NAME={};VERBS.forEach(v=>VERB_BY_NAME[v.v]=v);
+let VERB_BY_NAME={};VERBS.forEach(v=>VERB_BY_NAME[v.v]=v);
+// Inline VERBS above are the OFFLINE FALLBACK (file:// dev). When served,
+// the shared question engine swaps in the full catalogue (forms ≤ 7 chars
+// so word pills stay readable) and makes the game topic-ready via ?topic=.
+const verbsReady=(async()=>{
+  try{
+    const KQ=await import('/lib/krabsy-questions.js');
+    const rows=await KQ.getChainSet({topic:KQ.topicFromUrl(),maxLen:7,shuffle:false});
+    if(rows.length>=20){
+      VERBS.length=0;
+      for(const r of rows)VERBS.push({v:r.verb,past:r.past,pp:r.participle});
+      VERB_BY_NAME={};VERBS.forEach(v=>VERB_BY_NAME[v.v]=v);
+    }
+  }catch(_){/* offline/file:// — inline list stays */}
+})();
 function formText(verb,idx){return idx===0?verb.v:idx===1?verb.past:verb.pp;}
 const FORM_TYPE=['base','past','pp'];
 const FORM_COLOR={base:'#ffcf5e',past:'#2ee6c0',pp:'#ff8585'};
@@ -761,21 +775,21 @@ function drawTracker(now){
   ctx.beginPath();ctx.roundRect(x,y,w,h,h/2);ctx.stroke();
 
   const ch=state.chain;
-  const FORM_LABEL=['base','past','participle'];
   ctx.textAlign='center';ctx.textBaseline='middle';
   if(!ch.verb){
     ctx.font='800 13px Nunito,sans-serif';
     ctx.fillStyle='#ffcf5e';
-    ctx.fillText('🍎 eat a yellow BASE form to start!',x+w/2,y+h/2+1);
+    ctx.fillText('🍎 eat a yellow word to start!',x+w/2,y+h/2+1);
   }else{
     const V=VERB_BY_NAME[ch.verb];
     const pulse=0.55+0.45*Math.sin(now*0.008);
     for(let i=0;i<3;i++){
       const p=trackerSlotPos(i);
       const eaten=ch.step>i, isNext=ch.step===i;
-      // eaten slots show the word; the NEXT slot teaches its form type and
-      // pulses in its color; later slots sit dim.
-      const word=eaten?formText(V,i).toUpperCase():FORM_LABEL[i];
+      // Sprint-style positional notation: eaten slots show the word, open
+      // slots show a dotted blank — the NEXT blank pulses in its form
+      // color. No grammar terminology anywhere (user mandate).
+      const word=eaten?formText(V,i).toUpperCase():'___';
       let col;
       if(eaten)col=FORM_COLOR[FORM_TYPE[i]];
       else if(isNext)col=FORM_COLOR[FORM_TYPE[i]];
@@ -799,8 +813,8 @@ function drawTracker(now){
     if(!ch.verb)hint='each verb has 3 forms — eat them in order!';
     else{
       const V=VERB_BY_NAME[ch.verb];
-      hint=ch.step===1?`now find the simple past of “${V.v}”!`
-                      :`finish with the past participle of “${V.v}”!`;
+      hint=ch.step===1?`next: ${V.v} → ___`
+                      :`finish: ${V.v} → ${V.past} → ___`;
     }
     ctx.font='800 12px Nunito,sans-serif';
     ctx.fillStyle='rgba(255,255,255,0.55)';
@@ -909,8 +923,9 @@ function updateHUD(){
   sb.classList.toggle('muted',!state.sound);
 }
 
-function startNewGame(){
+async function startNewGame(){
   audioInit();
+  await verbsReady;   // engine catalogue (or inline fallback) is in place
   computeLayout();
   state.dir='right';
   state.snake=[{col:Math.floor(GRID_W/2)-1,row:Math.floor(GRID_H/2),dir:'right'}];
@@ -957,10 +972,8 @@ updateHUD();
 
 // ── QA: ?qa=board renders a frozen mid-game scene (for headless shots) ──
 if(location.search.includes('qa=board')){
-  startNewGame();
-  for(let i=0;i<4;i++)window.setTimeout(()=>{},0); // no-op, keep linters calm
-  (function(){
-    const VS={state,tick};
+  (async function(){
+    await startNewGame();   // async since the engine refactor — must finish first
     // eat one full set + the next base through the real tick path
     for(let i=0;i<4;i++){
       const f=state.fruits[0];if(!f)break;
@@ -981,6 +994,8 @@ if(location.search.includes('qa=board')){
 // ── QA hook ──
 window.__VS={
   get state(){return state;},
+  get VERBS(){return VERBS;},
+  verbsReady,
   get GRID(){return{w:GRID_W,h:GRID_H};},
   tick,queueDirection,targetFieldSize,resolveEat,
   forceDraw(){draw(performance.now());},

@@ -94,6 +94,31 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
 The site is plain static files — `python3 -m http.server` from `homepage/`
 is equivalent.
 
+## Question engine (topic-agnostic games)
+
+`homepage/lib/krabsy-questions.js` is the game-facing question source
+(thin adapter over `krabsy-data.js`, which the drills already share).
+Games import it and declare a SHAPE instead of inlining data:
+
+- **`chain`** — per-verb records with all forms + distractors (Verb
+  Flow, Verb Snake consume this; irregular_verbs only).
+- **`quiz`** — presentation-ready single questions for choice chips or
+  typed input; works for every topic (verbs, prepositions, future).
+
+Key API: `topicFromUrl()` (reads `?topic=`), `getChainSet({topic,
+maxLen, tiers, count})`, `getQuizSet({topic, count, withOptions})`,
+`checkTyped(q, input)`. Unsupported topic/shape combos throw — games
+catch and keep their small inline fallback (also covers file:// dev).
+
+**Presentation mandate (user decision, 2026-06-12): questions must never
+require grammar terminology.** Use the Sprint drill's positional
+notation — `go → ___ → ___` with the asked blank highlighted — or a
+sentence gap (`My birthday is ___ July.`). Words like "Simple Past /
+Past Participle" may appear only as small captions or in the
+after-answer teach beat, never as the question itself. Typed input
+("typewriter", validated via `checkTyped`, accepts alternates like
+burnt/burned) is a welcome answer mode alongside choice chips.
+
 ## Conventions
 
 - Single-file games: `krabsy-<name>.html`, everything drawn in canvas/CSS,

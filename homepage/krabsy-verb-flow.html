@@ -114,7 +114,7 @@
   <div class="screen-sub">Connect each verb's three forms with one unbroken pipe — in the right order.</div>
   <div class="howto">
     <div class="howto-row"><div class="howto-ico">👆</div><div>Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
-    <div class="howto-row"><div class="howto-ico">🔗</div><div>Flow through its <b>simple past</b> first, then end at its <b>past participle</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico">🔗</div><div>Connect the forms <b>in order</b>: first the middle one, then the last — like <b>go → went → gone</b>.</div></div>
     <div class="howto-row"><div class="howto-ico">🚫</div><div>Pipes can't cross — and other verbs' words block your way!</div></div>
     <div class="howto-row"><div class="howto-ico">✨</div><div>Fill <b>every square</b> for a PERFECT bonus.</div></div>
   </div>
@@ -181,7 +181,23 @@ const T3=[
   {verb:"hear",past:"heard",pp:"heard"},{verb:"pay",past:"paid",pp:"paid"},
   {verb:"meet",past:"met",pp:"met"},{verb:"leave",past:"left",pp:"left"},
 ];
-const TIERS={1:T1,2:T2,3:T3};
+// Inline pools above are the OFFLINE FALLBACK (file:// double-click dev).
+// When served, the shared question engine replaces them with the full
+// catalogue — and makes the game topic-ready via ?topic= (chain-shape
+// topics only; unsupported topics keep the verb fallback).
+let TIERS={1:T1,2:T2,3:T3};
+const verbsReady=(async()=>{
+  try{
+    const KQ=await import('/lib/krabsy-questions.js');
+    const rows=await KQ.getChainSet({topic:KQ.topicFromUrl(),maxLen:9,shuffle:false});
+    const t={1:[],2:[],3:[]};
+    for(const r of rows){
+      const k=Math.min(3,Math.max(1,r.tier||3));
+      t[k].push({verb:r.verb,past:r.past,pp:r.participle});
+    }
+    if(t[1].length>=6&&t[2].length>=6&&t[3].length>=6)TIERS=t;
+  }catch(_){/* offline/file:// — inline pools stay */}
+})();
 
 // Pipe colors — distinct hues, never used for form coding (form colors
 // are amber/teal/coral and stay reserved for chip borders/text).
@@ -457,7 +473,7 @@ function tryStep(v,to){
     }
     if(to===vb.baseIdx)return false;
     if(to===vb.ppIdx&&!pipeHasPast(v)){
-      toast(`Simple past first: <b>${vb.verb} → ${vb.past} → ${vb.pp}</b>`);
+      toast(`In order! <b>${vb.verb} → ${vb.past} → ${vb.pp}</b>`);
       sfx('err');
       return false;
     }
@@ -855,8 +871,9 @@ function updateHUD(){
   document.getElementById('btn-sound').classList.toggle('muted',!G.sound);
 }
 
-function startGame(){
+async function startGame(){
   audioInit();
+  await verbsReady;   // engine catalogue (or inline fallback) is in place
   newLevel();
   G.running=true;
   document.getElementById('start-screen').classList.add('hidden');
@@ -902,6 +919,8 @@ updateHUD();
 // ── Debug/QA hook (harmless in production) ──
 window.__VF={
   get G(){return G;},
+  get TIERS(){return TIERS;},
+  verbsReady,
   get LY(){return LY;},
   cellCenter,tryStep,
   newLevel(lv){if(lv)G.level=lv;startGame();},

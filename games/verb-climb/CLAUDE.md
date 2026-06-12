@@ -179,6 +179,25 @@ common verbs) directly in the game file with shape
 `{v:'go', past:'went', pp:'gone'}`, ordered roughly by frequency so
 difficulty can ramp with altitude.
 
+## Question engine (site-wide, added 2026-06-12 by the master session)
+
+The shared engine at `/lib/krabsy-questions.js` (served site root) is now
+the standard question source — prefer it over inlining data when this
+game is integrated/released (keep a small inline fallback for offline
+dev). For this game use the **quiz** shape:
+`getQuizSet({topic: topicFromUrl(), count, withOptions})` returns
+presentation-ready records (`display`, `options`, `correctIndex`,
+`accepts`, `teach`) and works for irregular verbs AND prepositions —
+`?topic=` makes the game topic-agnostic for free.
+
+**Presentation mandate (user decision): never require grammar
+terminology.** Render the positional notation `go → ___ → ___` with the
+asked blank highlighted (record.display gives you base/slots/askIndex),
+or the sentence gap for prepositions — NOT "what is the simple past
+of…". Terminology may appear only as a small caption or in the
+after-answer teach beat. Typed input (validate with `checkTyped`) is a
+welcome alternative to choice chips.
+
 ## Working agreements
 
 - You own only `games/verb-climb/`. Don't modify anything outside it.

@@ -37,6 +37,15 @@ but not referenced — verify before removing.)
   Sitemap 50 -> 362 URLs; all pinged via IndexNow. Rerun the generator
   whenever the verb catalogue changes, then deploy + re-ping.
 
+- **2026-06-12: Question engine SHIPPED (committed, not yet deployed).**
+  homepage/lib/krabsy-questions.js = game-facing question source (chain +
+  quiz shapes, ?topic= support, typed-input validation). Verb Flow and
+  Verb Snake refactored onto it (154/148-verb pools vs old inline lists,
+  graceful fallback for file:// and unsupported topics). Presentation
+  mandate recorded in CLAUDE.md + all five game briefs: positional
+  notation (go -> ___ -> ___), never grammar terminology. Snake tracker
+  + coaching converted to dotted blanks.
+
 ## Next steps / open items
 
 - **Verb Flow**: design polish pass requested, then release (wire into
