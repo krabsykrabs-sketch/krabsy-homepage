@@ -31,9 +31,10 @@ export class Chef {
     this.current = null;
     this.play('Idle_A');
 
-    // carry anchor: in front of the body at chest height (not overhead)
+    // carry anchor: held out in front, above shoulder height, so the big
+    // chibi head never hides the item from the fixed top-down camera
     this.carryAnchor = new THREE.Group();
-    this.carryAnchor.position.set(0, 1.16, 0.66);
+    this.carryAnchor.position.set(0, 1.42, 1.02);
     this.obj.add(this.carryAnchor);
     this.carried = null;          // logical item
     this.carriedMesh = null;
@@ -62,6 +63,7 @@ export class Chef {
     this.carriedMesh = mesh || null;
     if (mesh) {
       mesh.position.set(0, 0, 0);
+      mesh.scale.multiplyScalar(1.3);   // carried items read bigger on screen
       this.carryAnchor.add(mesh);
     }
     this.squash = 0.18;

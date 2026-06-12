@@ -124,6 +124,14 @@ export function initQA(game, save, startLevel, params) {
       VK.pressE();
       VK.holdSpace(0.45);
       VK.freeze(true);
+    } else if (scene === 'carry') {
+      // worst case for carry visibility: chef faces away from the camera
+      // (head between camera and item) holding the smallest item
+      VK.give('ketchup');
+      VK.teleport(4, 3);
+      VK.face(0, -1);
+      VK.tick(0.3);
+      VK.freeze(true);
     } else if (scene === 'question') {
       VK.spawnTicket('salad');
       VK.dirtyPlates(2);

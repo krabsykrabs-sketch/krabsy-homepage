@@ -26,7 +26,7 @@ export const ITEMS = {
   // build order: roll dough → ketchup → cheese (EVERY pizza) → optional topping → bake
   dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll', tool: 'rollingpin' },
   dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', accepts: { ketchup: 'dough_sauced' } },
-  ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.45, reusable: true },
+  ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.9, reusable: true },
   dough_sauced:    { compose: 'sauced',                        emoji: '🔴',
                      accepts: { cheese_chopped: 'pizza_raw_cheese' } },
   pepperoni:       { model: 'food_ingredient_pepperoni',         emoji: '🍖', chopTo: 'pepperoni_half', chopTime: 1.8 },
