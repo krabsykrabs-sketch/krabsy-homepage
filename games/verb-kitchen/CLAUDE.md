@@ -265,6 +265,26 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **SESSION WRAP (v1.4, big polish day).** State: game is
+  feature-complete and playtested-by-user through the Pizzeria. Today's
+  batch (each detailed below, newest→oldest): compact kitchens w/
+  storage islands on every level; pizzeria simplified (cheese/mushroom
+  only, hot pizza needs a plate, +5 in-order serve bonus); pizza scale
+  pass + slice-by-slice loading screen; board-item alignment +
+  staccato chop (windowed clip, knife edge-down, in-hand tools via
+  `handslotr`); rack turned 90°; carry anchor raised (visibility);
+  character select (5 KayKit adventurers, `krabsy_vkitchen_char`);
+  dough rolls on any cutting board. All verified via __VK + headless
+  Edge; zero console errors. HEAD = `2d091c0`.
+  - **Open items for next session:** star thresholds still untuned for
+    the slower pipelines + new bonuses (needs playtest pass); raw
+    pizza on plates question deferred by user (plate use rethink);
+    L2 patties/burger flow untouched today — re-playtest after the
+    map shrink (spawn rates may now be generous); music not yet
+    reviewed by ear; touch controls / DE-ES UI / sundae level still
+    on the v1.1+ list. Two known workflow gotchas: preview panel
+    caches ES modules (fetch {cache:'reload'} then reload) and
+    headless-Edge screenshots need the temp-profile trick.
 - 2026-06-12 — **Compact kitchens (all 3 levels).** Walking distances
   were too long for one chef. L1 9×6 → 7×5; L2 10×7 → 8×6 (kept a
   small 3-tile island row 2); L3 10×7 → 8×6. Per user, EVERY level
