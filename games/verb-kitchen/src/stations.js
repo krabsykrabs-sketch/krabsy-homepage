@@ -13,8 +13,11 @@ export function makePlate(contents = [], dirty = false) {
 const ITEM_SCALE = 0.95;
 const sauceMat = new THREE.MeshStandardMaterial({ color: 0xd2402e, roughness: 0.85 });
 
-/** Rolled dough + red sauce disc that leaves the crust visible. */
-function composeSauced() {
+// Pizzas read better small: the dough model alone is nearly plate-sized.
+const PIZZA_SCALE = 0.72;
+
+/** Unscaled rolled dough + red sauce disc (crust stays visible). */
+function saucedParts() {
   const g = new THREE.Group();
   const base = getModel('food_ingredient_dough_base');
   g.add(base);
@@ -22,17 +25,24 @@ function composeSauced() {
   const disc = new THREE.Mesh(new THREE.CylinderGeometry(m.radius * 0.68, m.radius * 0.68, 0.03, 20), sauceMat);
   disc.position.y = m.height + 0.012;
   g.add(disc);
+  return { g, m };
+}
+
+/** Rolled dough + sauce, at pizza scale. */
+function composeSauced() {
+  const { g } = saucedParts();
+  g.scale.setScalar(PIZZA_SCALE);
   return g;
 }
 
-/** Raw pizza: sauced dough + cheese (every pizza) + topping bits on top. */
+/** Raw pizza: sauced dough + cheese (every pizza) + topping bits on top.
+ *  Bits stay INSIDE the sauce disc (radius 0.68): centers ≤ 0.42·r. */
 function composeRawPizza(topping) {
-  const g = composeSauced();
-  const m = measureModel('food_ingredient_dough_base');
-  const scatter = (model, spots, scale, y) => {
+  const { g, m } = saucedParts();
+  const scatter = (model, spots, y) => {
     for (const [sx, sz] of spots) {
       const bit = getModel(model);
-      bit.scale.setScalar(scale);
+      bit.scale.setScalar(0.45);
       bit.position.set(sx * m.radius, y, sz * m.radius);
       bit.rotation.y = (sx * 7 + sz * 13) % (Math.PI * 2);
       g.add(bit);
@@ -40,13 +50,14 @@ function composeRawPizza(topping) {
   };
   // cheese layer first — every pizza has cheese under its topping
   scatter(PIZZA_TOPPING_MODELS.cheese,
-    [[0, 0], [0.42, 0.28], [-0.38, 0.32], [0.26, -0.4], [-0.32, -0.3]],
-    0.6, m.height + 0.045);
+    [[0, 0], [0.32, 0.2], [-0.28, 0.24], [0.2, -0.3], [-0.24, -0.22]],
+    m.height + 0.045);
   if (topping !== 'cheese') {
     scatter(PIZZA_TOPPING_MODELS[topping],
-      [[0.1, 0.12], [-0.4, -0.05], [0.4, -0.18], [-0.12, 0.42], [0.05, -0.44]],
-      0.6, m.height + 0.075);
+      [[0.08, 0.08], [-0.3, -0.04], [0.3, -0.14], [-0.1, 0.32], [0.04, -0.33]],
+      m.height + 0.075);
   }
+  g.scale.setScalar(PIZZA_SCALE);
   return g;
 }
 
@@ -101,9 +112,9 @@ export function buildItemMesh(item) {
   if (item.dirty) return g;
   const PLATE_TOP = 0.08;
   if (item.dish && DISHES[item.dish].model) {
-    // baked pizzas keep the finished plated model
+    // baked pizzas keep the finished plated model (small — see PIZZA_SCALE)
     const dm = getModel(DISHES[item.dish].model);
-    dm.scale.setScalar(0.92);
+    dm.scale.setScalar(0.66);
     dm.position.y = PLATE_TOP;
     g.add(dm);
   } else if (item.contents.includes('bun')) {

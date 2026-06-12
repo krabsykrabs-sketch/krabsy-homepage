@@ -100,4 +100,30 @@ export const ui = {
 
   fade(on) { $('fader').classList.toggle('on', on); },
   loadingNote(t) { $('loadingNote').textContent = t || ''; },
+
+  /** Full-screen loading overlay: a pizza builds slice by slice. */
+  loading(on) {
+    $('loader').classList.toggle('hidden', !on);
+    clearInterval(this._loadTimer);
+    if (!on) return;
+    const MSGS = ['Rolling the dough', 'Firing up the oven', 'Sharpening the knives',
+                  'Polishing the plates', 'Reading the order tickets', 'Tying the apron'];
+    const pie = $('loaderPizza'), msg = $('loaderMsg');
+    let step = 0;
+    const SLICES = 8;
+    const draw = () => {
+      const n = step % (SLICES + 1);                      // 0..8 slices, then restart
+      const deg = n * (360 / SLICES);
+      // cheese wedge over dark crust, thin coral "pepperoni" ring on the cheese
+      pie.style.background =
+        `radial-gradient(circle at 32% 30%, #ff8585 0 7px, transparent 8px),` +
+        `radial-gradient(circle at 68% 55%, #ff8585 0 7px, transparent 8px),` +
+        `radial-gradient(circle at 42% 70%, #ff8585 0 7px, transparent 8px),` +
+        `conic-gradient(#ffcf5e ${deg}deg, #5d4327 ${deg}deg)`;
+      if (step % 3 === 0) msg.textContent = MSGS[(step / 3 | 0) % MSGS.length];
+      step++;
+    };
+    draw();
+    this._loadTimer = setInterval(draw, 260);
+  },
 };

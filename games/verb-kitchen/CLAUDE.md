@@ -265,6 +265,21 @@ welcome alternative to choice chips.
   only exact duplicates and >5 stacks are blocked; unservable plates
   are emptied at the trash. Verified: pool sampling, free build,
   dupe-block, junk-plate trash, bigburger match + serve.
+- 2026-06-12 — **Pizza scale pass + loading screen.**
+  - All pizza stages shrunk: `PIZZA_SCALE 0.72` in stations.js scales
+    the composed sauced/raw-pizza groups (built unscaled via
+    `saucedParts()`, scaled once at the end); `dough_base` def scale
+    0.72; baked `pizza_*`/`pizza_burnt` defs + plated-dish render
+    0.92→0.66. Topping bits 0.6→0.45 with tighter scatter (centers
+    ≤0.42·r) so nothing pokes past the sauce disc (0.68·r).
+  - **Loading overlay** (`#loader`, z-70 above the fader): CSS pizza
+    that builds slice-by-slice (conic-gradient, 8 slices, 260ms steps,
+    pepperoni dots via radial-gradients) + cycling Fredoka messages
+    ("Rolling the dough…" etc). `ui.loading(on)` drives it;
+    `game.preload` shows/hides in try/finally. `?qa=loading` scene.
+  - GOTCHA hit again: the preview panel caches ES modules HARD —
+    mixed old/new modules threw "ui.loading is not a function".
+    Fix: `fetch(file, {cache:'reload'})` for each module, then reload.
 - 2026-06-12 — **Board-item alignment + staccato chop.** Items on
   boards now rotate to the board's facing (`itemMesh.rotation.y =
   st.rot` in setItem) — pepperoni lies along the board. Chop anim:

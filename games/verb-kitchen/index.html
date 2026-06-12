@@ -150,6 +150,16 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 @keyframes cd{0%{transform:scale(2.2); opacity:0;} 30%{transform:scale(1); opacity:1;}}
 #fader{position:fixed; inset:0; background:var(--navy); z-index:60; pointer-events:none; opacity:0; transition:opacity .3s;}
 #fader.on{opacity:1; pointer-events:auto;}
+
+/* ---------- loading overlay ---------- */
+#loader{position:fixed; inset:0; z-index:70; background:var(--navy); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:22px;}
+#loaderPizza{width:120px; height:120px; border-radius:50%; border:9px solid #c98a4b;
+  background:#5d4327; box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 3px #8a5f33;
+  transition:background .25s;}
+#loaderMsg{font-family:'Fredoka One',cursive; font-size:20px; color:var(--amber); letter-spacing:.5px;}
+#loaderMsg::after{content:'…';}
+#loaderSub{color:var(--muted); font-weight:700; font-size:13.5px; margin-top:-12px;}
 #loadingNote{position:absolute; bottom:18px; color:var(--muted); font-weight:700; font-size:14px;}
 </style>
 <script type="importmap">
@@ -224,6 +234,12 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 </div>
 
 <div id="fader"></div>
+
+<div id="loader" class="hidden">
+  <div id="loaderPizza"></div>
+  <div id="loaderMsg">Rolling the dough</div>
+  <div id="loaderSub">your kitchen is being set up</div>
+</div>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

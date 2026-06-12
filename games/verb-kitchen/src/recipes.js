@@ -25,7 +25,7 @@ export const ITEMS = {
   // --- level 3: pizza ---
   // build order: roll dough → ketchup → cheese (EVERY pizza) → optional topping → bake
   dough:           { model: 'food_ingredient_dough',           emoji: '🟤', chopTo: 'dough_base', chopVerb: 'Roll' },
-  dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', accepts: { ketchup: 'dough_sauced' } },
+  dough_base:      { model: 'food_ingredient_dough_base',      emoji: '⚪', scale: 0.72, accepts: { ketchup: 'dough_sauced' } },
   ketchup:         { model: 'ketchup',                         emoji: '🥫', scale: 1.9, reusable: true },
   dough_sauced:    { compose: 'sauced',                        emoji: '🔴',
                      accepts: { cheese_chopped: 'pizza_raw_cheese' } },
@@ -39,10 +39,10 @@ export const ITEMS = {
                          accepts: { pepperoni_chopped: 'pizza_raw_pepperoni', mushroom_chopped: 'pizza_raw_mushroom' } },
   pizza_raw_pepperoni: { compose: 'rawpizza', topping: 'pepperoni', emoji: '🍖', bakeTo: 'pizza_pepperoni', bakeTime: 13.5 },
   pizza_raw_mushroom:  { compose: 'rawpizza', topping: 'mushroom',  emoji: '🍄', bakeTo: 'pizza_mushroom', bakeTime: 13.5 },
-  pizza_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
-  pizza_pepperoni: { model: 'food_pizza_pepperoni_plated', emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
-  pizza_mushroom:  { model: 'food_pizza_mushroom_plated',  emoji: '🍕', plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
-  pizza_burnt:     { model: 'food_pizza_cheese_plated',    emoji: '💀', tint: '#2a2118', trashOnly: true },
+  pizza_cheese:    { model: 'food_pizza_cheese_plated',    emoji: '🍕', scale: 0.66, plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
+  pizza_pepperoni: { model: 'food_pizza_pepperoni_plated', emoji: '🍕', scale: 0.66, plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
+  pizza_mushroom:  { model: 'food_pizza_mushroom_plated',  emoji: '🍕', scale: 0.66, plateable: true, burnTo: 'pizza_burnt', burnTime: 8, steamy: true },
+  pizza_burnt:     { model: 'food_pizza_cheese_plated',    emoji: '💀', scale: 0.66, tint: '#2a2118', trashOnly: true },
 };
 
 // Scatter models used to dress a raw pizza per topping.

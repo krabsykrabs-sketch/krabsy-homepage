@@ -34,14 +34,17 @@ export class Game {
   }
 
   async preload(level) {
-    ui.loadingNote('Preheating the ovens…');
+    ui.loading(true);
     let charName = 'knight';
     try { charName = localStorage.getItem('krabsy_vkitchen_char') || 'knight'; } catch (e) {}
-    await Promise.all([
-      preloadRestaurant([...levelModelNames(level), ...itemModelNames()]),
-      preloadChef(charName),
-    ]);
-    ui.loadingNote('');
+    try {
+      await Promise.all([
+        preloadRestaurant([...levelModelNames(level), ...itemModelNames()]),
+        preloadChef(charName),
+      ]);
+    } finally {
+      ui.loading(false);
+    }
   }
 
   async startLevel(levelIdx, opts = {}) {

@@ -89,6 +89,11 @@ export function initQA(game, save, startLevel, params) {
   (async () => {
     const scene = qa;
     const lvIdx = { level1: 0, level2: 1, level3: 2, question: 0, burn: 1, stars: 0 }[scene] ?? 0;
+    if (scene === 'loading') {       // loader overlay showcase (stays up)
+      ui.loading(true);
+      window.__VK_READY = true;
+      return;
+    }
     await startLevel(lvIdx, { skipCountdown: true });
     VK.setNoSpawn(true);
 
