@@ -74,8 +74,7 @@ export class Game {
     this.fitCamera();
 
     // --- actors ---
-    const charChoice = opts.character || localStorage.getItem('krabsy_vkitchen_char') || 'knight';
-    this.chef = new Chef(this.world, charChoice);
+    this.chef = new Chef(this.world);
     this.chef.pos.copy(this.world.spawn);
     this.scene.add(this.chef.obj);
 

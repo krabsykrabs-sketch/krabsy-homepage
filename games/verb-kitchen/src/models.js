@@ -119,12 +119,8 @@ export function mergeStatic(group, BufferGeometryUtils) {
 const C = 'assets/models/chef/';
 
 export async function loadChefAssets() {
-  const [knight, barbarian, mage, ranger, rogue, move, general, tools] = await Promise.all([
+  const [knight, move, general, tools] = await Promise.all([
     loadGLTF(C + 'Knight.glb'),
-    loadGLTF(C + 'Barbarian.glb'),
-    loadGLTF(C + 'Mage.glb'),
-    loadGLTF(C + 'Ranger.glb'),
-    loadGLTF(C + 'Rogue.glb'),
     loadGLTF(C + 'Rig_Medium_MovementBasic.glb'),
     loadGLTF(C + 'Rig_Medium_General.glb'),
     loadGLTF(C + 'Rig_Medium_Tools.glb'),
@@ -133,8 +129,7 @@ export async function loadChefAssets() {
   for (const g of [move, general, tools]) {
     for (const c of g.animations) clips[c.name] = c;
   }
-  const chars = { knight: knight.scene, barbarian: barbarian.scene, mage: mage.scene, ranger: ranger.scene, rogue: rogue.scene };
-  return { chars, clips, charScene: knight.scene };  // default to knight for backward compat
+  return { charScene: knight.scene, clips };
 }
 
 export function cloneChef(charScene) {
