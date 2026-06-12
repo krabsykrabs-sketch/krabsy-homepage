@@ -271,9 +271,11 @@ welcome alternative to choice chips.
   full Chopping clip drives the knife through the table (y profile
   measured: high 1.76 @13% → 0.59 @33%, slow recovery); now loops only
   the first 25% at timeScale 1.7 (`chef.chopWindow`, reset in update)
-  → ~5 quick chops/s, knife bottoms out at y≈0.86 (board top 1.17,
+  → quick chops, knife bottoms out at y≈0.86 (board top 1.17,
   reads as striking the board). One-frame low dip on fade-in from
-  idle is expected.
+  idle is expected. Tuned per user: timeScale 1.7 → 1.25; knife roll
+  fixed to edge-down: `rotation.set(PI, 0, -PI/2)` (blade shows as a
+  thin line from above, not its flat face).
 - 2026-06-12 — **Dough rolling scrapped + knife orientation fix.** Both
   L3 boards are plain cutting boards again ('d' map char unused but the
   world.js/`st.tool` plumbing kept for later); dough preps on any board

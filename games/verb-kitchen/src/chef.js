@@ -33,7 +33,7 @@ export class Chef {
     // down to board height (the full clip drives the knife through the
     // table to y≈0.6 and recovers slowly; profile measured in QA)
     this.chopWindow = (assets.clips['Chopping']?.duration || 1) * 0.25;
-    if (this.actions['Chopping']) this.actions['Chopping'].timeScale = 1.7;
+    if (this.actions['Chopping']) this.actions['Chopping'].timeScale = 1.25;
     this.play('Idle_A');
 
     // carry anchor: held out in front, above shoulder height, so the big
@@ -90,7 +90,7 @@ export class Chef {
     if (name && this.handSlot) {
       const m = getModel(name);
       if (name === 'knife') {
-        m.rotation.set(Math.PI / 2, 0, -Math.PI / 2);  // blade away from the body
+        m.rotation.set(Math.PI, 0, -Math.PI / 2);  // blade forward, edge down
         m.position.set(0, 0.05, 0);
       } else {
         m.scale.setScalar(0.8);                 // pin is long — grip the middle
