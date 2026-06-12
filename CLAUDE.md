@@ -74,7 +74,10 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
 
 ## Deploy / git
 
-- One monorepo, remote `origin` (GitHub) → Coolify auto-deploys `main`.
+- One monorepo, remote `origin` (GitHub) → Coolify serves `main`.
+  **Deploys are MANUAL**: pushing does NOT auto-deploy — the user must
+  click Deploy in the Coolify dashboard. After any push that touches
+  `homepage/`, ask the user to deploy, then verify the live site.
 - Large binary asset packs are **gitignored** (see `.gitignore`): the
   shared `/assets/` library and the 3D source's `assets/`+`_builds/`. The
   **deployed** `homepage/games/verb-platformer/assets/` IS tracked.
