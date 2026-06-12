@@ -1,7 +1,7 @@
 # Krabsy — status dashboard
 
 Living overview of every game and the project. Master session updates this
-at the end of each session. (Last update: 2026-06-10.)
+at the end of each session. (Last update: 2026-06-12.)
 
 ## Games
 
@@ -14,11 +14,11 @@ at the end of each session. (Last update: 2026-06-10.)
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
 | Verb Flow | single-file canvas | `games/verb-flow/` | — | **built, not released** |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
-| Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC brief written** (`games/verb-dungeon/CLAUDE.md`) — open a session in that folder to build |
-| Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC brief written** (`games/verb-climb/CLAUDE.md`) — open a session in that folder to build |
-| Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC brief written** (`games/verb-valley/CLAUDE.md`) — open a session in that folder to build |
-| Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC brief written** (`games/verb-runway/CLAUDE.md`) — PoC doubles as an AI-vector-art test; open a session in that folder to build |
-| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | — | **PoC brief written** (`games/verb-kitchen/CLAUDE.md`) — needs Restaurant Bits dropped into `/assets/KayKit/`; open a session in that folder to build |
+| Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
+| Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
+| Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
+| Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC BUILT** — art contact sheet awaits user judgment () |
+| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | — | **PoC BUILT** — 3 levels playable, pacing tuned in playtests; awaiting user verdict |
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
@@ -62,10 +62,3 @@ but not referenced — verify before removing.)
   skeletons, grammar-as-keys. If the PoC convinces, buy the KayKit
   Dungeon pack and build the full roguelite (hand-authored rooms +
   procedural assembly).
-- **Verb Snake v3**: rebuilt again with the ORIGINAL mechanics faithfully
-  restored (head-only start, 1-fruit warmup until 2 sets then field of 3,
-  rolling form queue, abandon/wrong segment penalties, 250→140ms speed
-  curve, 2-deep input queue so quick U-turns work) + Krabsy-style visuals
-  (emoji fruits with form-colored word pills, expressive snake, canvas
-  chain tracker with fly-words). Mechanics + rendering verified; awaiting
-  user playtest before push. The old asset version is still live.
