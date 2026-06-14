@@ -119,17 +119,30 @@ export function mergeStatic(group, BufferGeometryUtils) {
 const C = 'assets/models/chef/';
 
 // Playable characters (KayKit Adventurers, all share the Rig_Medium clips).
+// `cost` = TOTAL stars needed to unlock (threshold; stars are never spent).
+// Rogue is the free starter; the rest unlock as you earn stars. Costs are
+// PLACEHOLDERS — tune as more levels/characters are added. Order = cost order.
 export const CHEF_CHARACTERS = {
-  knight:    { file: 'Knight.glb',    emoji: '🛡️', name: 'Knight' },
-  barbarian: { file: 'Barbarian.glb', emoji: '🪓', name: 'Barbarian' },
-  mage:      { file: 'Mage.glb',      emoji: '🧙', name: 'Mage' },
-  ranger:    { file: 'Ranger.glb',    emoji: '🏹', name: 'Ranger' },
-  rogue:     { file: 'Rogue.glb',     emoji: '🗡️', name: 'Rogue' },
+  rogue:     { file: 'Rogue.glb',     emoji: '🗡️', name: 'Rogue',     cost: 0 },
+  ranger:    { file: 'Ranger.glb',    emoji: '🏹', name: 'Ranger',    cost: 3 },
+  knight:    { file: 'Knight.glb',    emoji: '🛡️', name: 'Knight',    cost: 6 },
+  mage:      { file: 'Mage.glb',      emoji: '🧙', name: 'Mage',      cost: 9 },
+  barbarian: { file: 'Barbarian.glb', emoji: '🪓', name: 'Barbarian', cost: 12 },
 };
 
+/** Total stars earned across all levels (best per level summed). */
+export function totalStars(save) {
+  return Object.values((save && save.stars) || {}).reduce((a, b) => a + (b || 0), 0);
+}
+/** A character is unlocked once your total stars reach its cost (threshold). */
+export function charUnlocked(name, save) {
+  const def = CHEF_CHARACTERS[name];
+  return !!def && totalStars(save) >= (def.cost || 0);
+}
+
 /** Load one character + the shared animation clips (everything is cached). */
-export async function loadChefAssets(charName = 'knight') {
-  const def = CHEF_CHARACTERS[charName] || CHEF_CHARACTERS.knight;
+export async function loadChefAssets(charName = 'rogue') {
+  const def = CHEF_CHARACTERS[charName] || CHEF_CHARACTERS.rogue;
   const [char, move, general, tools] = await Promise.all([
     loadGLTF(C + def.file),
     loadGLTF(C + 'Rig_Medium_MovementBasic.glb'),

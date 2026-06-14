@@ -30,12 +30,18 @@ export class World {
     const sB = lv.style === 'B' ? '_styleB' : '';
     const staticG = new THREE.Group();
 
-    // --- floor: 4×4 KayKit tiles, lay every 2 grid tiles ---
+    // --- floor: 4×4 KayKit tiles laid every 2 grid tiles. On odd-sized levels
+    // the last tile would overhang the kitchen rectangle (e.g. Garden Bistro is
+    // 7×5), so clip edge tiles to the grid bounds — scale to the in-bounds span
+    // and recentre, so no floor pokes out past the counters. ---
     for (let r = 0; r < this.rows; r += 2) {
       for (let c = 0; c < this.cols; c += 2) {
+        const hiC = Math.min(c + 1, this.cols - 1), hiR = Math.min(r + 1, this.rows - 1);
+        const spanC = hiC - c + 1, spanR = hiR - r + 1;   // 1 (clipped) or 2 (full)
         const f = getModel('floor_kitchen' + sB);
-        const p = this.tileWorld(c + 0.5, r + 0.5);
+        const p = this.tileWorld((c + hiC) / 2, (r + hiR) / 2);
         f.position.set(p.x, 0, p.z);
+        f.scale.set(spanC / 2, 1, spanR / 2);
         staticG.add(f);
       }
     }
@@ -129,16 +135,28 @@ export class World {
       }
     }
 
-    // --- back wall row (behind row 0) with order window over the hatch ---
+    // --- back wall row (behind row 0): the order window sits EXACTLY over the
+    // two hatch tiles, so both serving counters are clearly under it. Wall
+    // pieces are 2 tiles wide, so we anchor the whole row's grid to the hatch
+    // centre (hatchMid) and tile outward — no gaps, window perfectly aligned. ---
     const wallZ = this.tileWorld(0, -0.5).z - 0.35;
     const hatchCols = [];
     for (let c = 0; c < this.cols; c++) if (lv.map[0][c] === 'H') hatchCols.push(c);
     const windowDecor = ['wall_tiles_A', 'wall', 'wall_tiles_B', 'wall_window_closed_curtains_' + (sB ? 'green' : 'red')];
-    for (let c = 0; c < this.cols; c += 2) {
-      const isHatch = hatchCols.length && c >= hatchCols[0] - 0.5 && c <= hatchCols[hatchCols.length - 1];
-      const name = isHatch ? 'wall_orderwindow' : windowDecor[(c / 2) % windowDecor.length];
+    const hatchMid = hatchCols.length ? (hatchCols[0] + hatchCols[hatchCols.length - 1]) / 2 : 0.5;
+    const centers = [];
+    for (let cc = hatchMid; cc > -1; cc -= 2) centers.unshift(cc);   // left of (and incl.) the hatch
+    for (let cc = hatchMid + 2; cc < this.cols; cc += 2) centers.push(cc);
+    let di = 0;
+    for (const center of centers) {
+      // drop a 2-wide back-wall piece that would overhang the kitchen's right
+      // edge (the odd-offset window decor on Burger Bar / Pizzeria) — keeps the
+      // level rectangular and a touch narrower
+      if (center > this.cols - 1.5) continue;
+      const isHatch = Math.abs(center - hatchMid) < 0.01;
+      const name = isHatch ? 'wall_orderwindow' : windowDecor[di++ % windowDecor.length];
       const w = getModel(name);
-      const p = this.tileWorld(c + 0.5, 0);
+      const p = this.tileWorld(center, 0);
       w.position.set(p.x, 0, wallZ);
       staticG.add(w);
     }

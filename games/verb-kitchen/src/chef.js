@@ -10,7 +10,7 @@ const TURN_LERP = 18;
 
 let assets = null;          // {charScene, clips} for the selected character
 
-export async function preloadChef(charName = 'knight') {
+export async function preloadChef(charName = 'rogue') {
   assets = await loadChefAssets(charName);   // GLTFs are cached, re-calls are cheap
 }
 
@@ -24,7 +24,7 @@ export class Chef {
 
     this.mixer = new THREE.AnimationMixer(this.body);
     this.actions = {};
-    for (const name of ['Idle_A', 'Running_A', 'Chopping', 'PickUp', 'Holding_B']) {
+    for (const name of ['Idle_A', 'Running_A', 'Chopping', 'PickUp', 'Holding_B', 'Working_A']) {
       const clip = assets.clips[name];
       if (clip) this.actions[name] = this.mixer.clipAction(clip);
     }
@@ -115,7 +115,12 @@ export class Chef {
       const a = this.actions['Chopping'];
       if (a && a.time > this.chopWindow) a.time = 0;
     }
-    if (this.frozen) { this.play('Idle_A'); return; }
+    // frozen = washing at the sink during a quiz: scrub away (no tool in hand)
+    if (this.frozen) {
+      this.setTool(null);
+      this.play(this.actions['Working_A'] ? 'Working_A' : 'Idle_A');
+      return;
+    }
 
     let ix = input.x, iz = input.z;
     const mag = Math.hypot(ix, iz);

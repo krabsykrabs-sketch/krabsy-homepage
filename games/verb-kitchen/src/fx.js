@@ -91,6 +91,26 @@ export class FX {
     }
   }
 
+  /** Speech bubble at a world position — a station "telling" you something
+   *  (e.g. the oven showing 🍽️ "use a plate"). Throttled against key-mashing. */
+  bubble(worldPos, emoji) {
+    const now = performance.now();
+    if (now < (this._bubbleT || 0)) return;
+    this._bubbleT = now + 900;
+    const v = worldPos.clone().project(this.camera);
+    const r = this.renderer.domElement.getBoundingClientRect();
+    const x = (v.x * 0.5 + 0.5) * r.width + r.left;
+    const y = (-v.y * 0.5 + 0.5) * r.height + r.top;
+    const el = document.createElement('div');
+    el.className = 'fxbubble';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.textContent = emoji;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add('out'), 1100);
+    setTimeout(() => el.remove(), 1600);
+  }
+
   /** DOM popup at a world position (+12 🪙 etc). */
   pop(worldPos, text, color = 'var(--amber)') {
     const v = worldPos.clone().project(this.camera);

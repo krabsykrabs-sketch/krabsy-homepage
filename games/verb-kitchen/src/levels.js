@@ -5,9 +5,17 @@
 //   r  plate rack     t  trash              H  serving hatch (2 wide)
 //   1-9 ingredient crates (per-level `crates` mapping)
 //   P  chef spawn (floor)
+// High-score (race-the-clock) mode: each level is a FIXED list of orders,
+// identical every play so completion TIMES are comparable. Deliver them all;
+// the timer counts UP. Stars: `starTimes` = [1★, 2★, 3★(gold), author] in
+// DESCENDING seconds (Trackmania-style; the author time stays hidden in the
+// menu until the gold star is earned, and the 4th author star only shows once
+// earned). All times are PLACEHOLDERS — tune from real playthroughs. Starting
+// `plates` is below the order count so the player MUST wash (and study).
 export const LEVELS = [
   {
     id: 'garden',
+    num: 1,
     name: 'Garden Bistro',
     emoji: '🥗',
     style: 'A',
@@ -19,15 +27,19 @@ export const LEVELS = [
       'CCbCbCC',
     ],
     crates: { 1: 'lettuce', 2: 'tomato' },
-    dishes: [{ dish: 'salad', w: 1 }],
-    spawnEvery: [16, 22],
-    patience: 112,
-    roundTime: 180,
-    plates: 4,
-    stars: [60, 140, 220],
+    orders: ['salad', 'salad', 'salad', 'salad', 'salad'],   // 5 · 2 plates → 3 washes
+    spawnEvery: [4, 7],
+    plates: 2,
+    starTimes: [150, 115, 85, 62],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      image: 'assets/ChatGPT/Salad.png',
+      title: 'Salad',
+      text: 'Chop the lettuce and the tomato, pop them on a plate, and serve it up!',
+    },
   },
   {
     id: 'burger',
+    num: 2,
     name: 'Burger Bar',
     emoji: '🍔',
     style: 'A',
@@ -40,15 +52,21 @@ export const LEVELS = [
       'CCbCbCtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
-    dishes: [{ dish: 'burger', w: 3 }, { dish: 'cheeseburger', w: 2 }, { dish: 'bigburger', w: 1 }],
-    spawnEvery: [19, 26],
-    patience: 128,
-    roundTime: 180,
-    plates: 4,
-    stars: [90, 190, 300],
+    // big burger appears exactly once, in slot 4 (or 5); the rest are
+    // hamburgers / cheeseburgers in any order. 5 · 2 plates → 3 washes.
+    orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
+    spawnEvery: [5, 8],
+    plates: 2,
+    starTimes: [215, 165, 130, 100],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      // image: 'assets/ChatGPT/Burger.png',   // add when the image is ready
+      title: 'Burger',
+      text: 'Cook a patty on a bun for a hamburger — add cheese for a cheeseburger, plus lettuce for a Big Burger!',
+    },
   },
   {
     id: 'pizzeria',
+    num: 3,
     name: 'Pizzeria',
     emoji: '🍕',
     style: 'B',
@@ -63,23 +81,29 @@ export const LEVELS = [
     crates: { 1: 'dough', 3: 'cheese', 5: 'mushroom' },
     // the reusable ketchup bottle starts on the left counter
     startItems: [{ c: 0, r: 3, item: 'ketchup' }],
-    dishes: [{ dish: 'pizza_cheese', w: 3 }, { dish: 'pizza_mushroom', w: 2 }],
-    spawnEvery: [24, 32],
-    patience: 150,
-    roundTime: 180,
+    orders: ['pizza_cheese', 'pizza_mushroom', 'pizza_cheese', 'pizza_cheese', 'pizza_mushroom'], // 5 · 2 plates → 3 washes
+    spawnEvery: [6, 9],
     plates: 2,
-    stars: [100, 200, 320],
+    starTimes: [265, 205, 160, 125],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      image: 'assets/ChatGPT/Pizza.png',
+      title: 'Pizza',
+      text: 'Roll the dough, add sauce and cheese (and mushroom if you like), bake it, then serve!',
+    },
   },
 ];
 
-export const TEASER = { id: 'sundae', name: 'Sundae Sunday', emoji: '🍨', soon: true };
-
-export function pickDish(level, rnd) {
-  const total = level.dishes.reduce((s, d) => s + d.w, 0);
-  let roll = rnd() * total;
-  for (const d of level.dishes) { roll -= d.w; if (roll <= 0) return d.dish; }
-  return level.dishes[0].dish;
-}
+// Locked "coming soon" slots shown after the 3 playable levels (levels grow to
+// ~10–15; dish themes repeat). Numbers only; emoji is a decorative hint.
+export const PLACEHOLDERS = [
+  { id: 'lv4',  num: 4,  emoji: '🍨' },
+  { id: 'lv5',  num: 5,  emoji: '🍲' },
+  { id: 'lv6',  num: 6,  emoji: '🥗' },
+  { id: 'lv7',  num: 7,  emoji: '🍔' },
+  { id: 'lv8',  num: 8,  emoji: '🍕' },
+  { id: 'lv9',  num: 9,  emoji: '🍨' },
+  { id: 'lv10', num: 10, emoji: '🍲' },
+];
 
 // Static decor models every level needs preloaded, keyed by visual style.
 export function levelModelNames(level) {
@@ -97,7 +121,7 @@ export function levelModelNames(level) {
     'extractorhood', 'fridge_A', 'shelf_papertowel', 'towelrail',
     'dishrack', 'plate', 'plate_dirty',
     'crate', 'crate_lid',
-    'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_steak',
+    'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_potatoes',
     'crate_cheese', 'crate_dough', 'crate_mushrooms',
   ];
 }
@@ -107,7 +131,7 @@ export const CRATE_MODELS = {
   lettuce: 'crate_lettuce',
   tomato: 'crate_tomatoes',
   bun: 'crate_buns',
-  patty_raw: 'crate_steak',
+  patty_raw: 'crate_potatoes',   // veggie patties come from the potato crate
   cheese: 'crate_cheese',
   dough: 'crate_dough',
   mushroom: 'crate_mushrooms',

@@ -285,6 +285,667 @@ welcome alternative to choice chips.
     on the v1.1+ list. Two known workflow gotchas: preview panel
     caches ES modules (fetch {cache:'reload'} then reload) and
     headless-Edge screenshots need the temp-profile trick.
+- 2026-06-14 — **CLEANED UP + deployed clean.** Reverted all dev-network
+  workarounds: index.html back to normal per-file loading (`<script
+  type=importmap>` three→`./vendor/`, `<script type=module src=src/main.js>`),
+  renamed `src/main-v9.js`→`src/main.js`, removed the 1.2 MB inline bundle, the
+  on-device diagnostic overlay + probe, and the diag cruft in main.js (restored
+  the simple `new THREE.WebGLRenderer`). KEPT the legit session work: tap()
+  (pointerup+click) on menu buttons/cards, the audio blur/visibility pause, the
+  d-pad removal, the level-grid scroll fix. **Softlock fix:** `ui.showTutorial`
+  now `.catch()`es the preload promise so a failed/404 asset can't freeze the
+  loading screen (button shows regardless). index.html back to ~23 KB; verified
+  live (small HTML, module entry, no diag). Headless `?qa=level1` renders,
+  `preload_misses=0 js_errors=0`; preview boots + navigation works. STILL TODO
+  (infra, not game): origin `Cache-Control: no-store` so the game also works on
+  the one tablet's filtering+caching wifi proxy (and remember that tablet's
+  browser cached the old 404s — needs a cache clear / incognito there).
+- 2026-06-14 — **RESOLVED: game runs fine on a normal phone.** User confirmed
+  the game loads + plays with no issues on their phone. So the code/assets/deploy
+  are all correct — the entire multi-round saga was ONE tablet's environment: its
+  wifi proxy breaks external script + asset loads, and its browser then cached
+  those 404s (per-device cache, so they persisted even after switching to mobile
+  data; an incognito tab / cache-clear is needed there). NOT a game bug.
+  - **Cleanup plan (revert the dev-network workarounds):** restore index.html to
+    normal per-file loading (`<script type=importmap>` + `<script type=module
+    src=src/main.js>`), rename `src/main-v9.js`→`src/main.js`, remove the inlined
+    1.2 MB bundle, the redirect, the on-device diagnostic overlay + probe. The
+    game works on normal devices without any of it.
+  - **TODO robustness:** make `ui.showTutorial` proceed if the recipe image
+    fails to load (today a failed image softlocks the loading screen — any
+    single bad asset shouldn't block the game).
+  - **Tablet-on-its-wifi** still needs the origin `Cache-Control: no-store`
+    header (Coolify/brocco-dev) to work there; that's the only thing that beats
+    that proxy. Environmental, not blocking the game elsewhere.
+- 2026-06-14 — **Tablet, round 12 — CONCLUSION: it's the network proxy; needs a
+  SERVER header. Game code is DONE.** With the code fully inlined (round 11) the
+  game now boots + the menu works on the bare URL; clicking a level then 404s the
+  ASSET fetches (`assets/models/restaurant/floor_kitchen.gltf`, `assets/ChatGPT/
+  Salad.png`). Verified the ORIGIN serves every asset 200 (gltf/bin/atlas/png/
+  glb) — so it's the proxy 404-poisoning assets too, exactly like it did the JS.
+  It plays fully under `?debug=1` (that address has good copies cached in the
+  browser). After 12 rounds (path bumps, query bumps, referer redirect, inline
+  shim, full inline bundle) the verdict is definitive: this specific network runs
+  a proxy that globally caches the brief 404s from each Coolify deploy and serves
+  them stale with no revalidation — **no client-side change clears it.** THE fix
+  is server-side: make the dev origin (Coolify → `brocco-dev`, nginx) send
+  `Cache-Control: no-store` (or `no-cache`) on everything, so that proxy stops
+  caching `dev.brocco.run`. That's infra/master-session territory (the brocco-dev
+  nginx/Coolify config), NOT the game folder. STOPPED deploying (each deploy
+  poisons more). Once the header is in: revert the inline-bundle hack + the
+  diagnostic/probe back to clean per-file `src/` loading + `main.js`. Game itself
+  is verified correct on every other path (preview, headless, `?debug=1` on the
+  tablet). The referer-redirect (round 10)
+  also failed (`main-v9` 404 even under a fresh `?cb`), so the proxy's behaviour
+  isn't cleanly referer-keyed — it breaks/poisons external JS by mechanisms I
+  can't fully model. Stopped fighting it: bundled `src/main-v9.js` + all modules
+  + THREE into ONE IIFE with **esbuild** (`npx esbuild … --bundle --format=iife
+  --alias:three=vendor/three/three.module.js` + addon aliases; built from a
+  Windows temp copy because esbuild treats `//wsl.localhost` UNC as an external
+  URL), then INLINED that 1.2 MB bundle into index.html as a single classic
+  `<script>` (PowerShell surgery: removed the redirect, the importmap-shim, the
+  inlined es-module-shims, and the module-shim entry; injected the bundle;
+  bumped `vendor-11`). The ONLY external requests left are GLTF assets at
+  runtime (GLTFLoader uses fetch → works). The document loads reliably on the
+  tablet (the diag box always showed the current build), so a fully-inlined
+  document = the whole game with nothing for the proxy to 404/block/mangle.
+  index.html is now ~1.28 MB. Verified: preview boots+navigates; headless
+  `?qa=level1` renders the full 3D kitchen, `js_errors=0`. **To rebuild after a
+  code change:** re-run the esbuild bundle (temp-copy trick) + re-inline (the
+  PowerShell snippets in this session). Once the origin gets `Cache-Control:
+  no-store`, revert to the normal `src/` module loading + `main.js`.
+  Decisive clue from the user: the game FULLY PLAYS under `?debug=1` but the bare
+  URL throws `TypeError 404 main-v9`. Same build, same files — only the document's
+  query differs. ⟹ the proxy keys its subresource cache by the requesting page's
+  full URL (referer); the bare URL's referer-cache holds poisoned deploy-window
+  404s, while any `?query` address has its own clean cache (that's why `?debug=1`
+  works). FIX: first inline script in index.html redirects the bare URL to
+  `?cb=<Date.now()+rand>` (skips if `cb`/`debug` already present) → every visit
+  uses a FRESH referer the proxy has never poisoned, self-healing per load. Runs
+  before any subresource loads (so the poisoned bare referer is never even used).
+  diag → `vendor-10` (now also prints `location.search`). Verified preview: bare
+  URL → bounces to `?cb=…` → boots + navigates. This is the consequence of the
+  user's own observation (any query works), not another guess. Permanent cure
+  still = origin `Cache-Control: no-store` (then drop this redirect + the
+  inline-shim + revert to main.js).
+- 2026-06-14 — **Tablet, round 9: inline shim RAN (good) but the entry path was
+  proxy-cached as a 404 → fresh path `main-v9.js`; the recurring cause is the
+  COOLIFY DEPLOY WINDOW.** vendor-8 inlined shim worked (no syntax error) but
+  threw `TypeError 404` fetching `src/main-v6.js` + the 15 s watchdog
+  ("shim-mode fetch failed/slow"). Root: every Coolify redeploy briefly 404s the
+  files while it swaps them; this network's proxy caches that 404 (query-
+  stripped, no revalidation), so whatever PATH the entry has gets poisoned by a
+  deploy the user reloaded during. Renamed entry `main-v6.js`→**`main-v9.js`**
+  (index entry + probe + build marker `vendor-9`) and polled the origin until
+  `main-v9.js`=200 + `vendor-9` for **5 consecutive checks (~1 min)** before
+  telling the user to reload, so the proxy's first fetch is a settled 200.
+  **This will recur on EVERY future deploy** unless the dev origin sends
+  `Cache-Control: no-store` on JS/HTML (Coolify/nginx — the real cure; the
+  origin currently sends none, only Etag/Last-Modified). Escalated to the user.
+  Game CODE is confirmed correct (inline-shim shim-mode boots in preview every
+  build); the saga is 100% this network's caching/▸script-mangling proxy.
+- 2026-06-14 — **Tablet, round 8: es-module-shims.js itself was served as an
+  HTML block page → INLINE the shim.** vendor-7 (shim loaded via fetch→blob)
+  threw `Uncaught SyntaxError: Unexpected token '<'` at a blob — the proxy
+  returned an HTML block page for `vendor/es-module-shims.js` (the one file the
+  probe hadn't covered), so the blob held HTML. FIX: stop fetching the shim —
+  **inline its 63 KB source directly into index.html** (a `/*__ESMS_INLINE__*/`
+  placeholder swapped at edit time via PowerShell, UTF-8 no-BOM; inline scripts
+  always run, like the diag box). The inlined shim then fetch()es the game
+  modules (proven clean). Also expanded the `?debug=1` probe to ALL 21 modules,
+  reporting only non-200/HTML ones + a `probe: N/21 clean JS` summary. diag →
+  `vendor-8`. Verified preview: inlined shim parses + boots + `21/21 clean JS`.
+  If the tablet STILL fails, the probe summary now names the exact blocked
+  module. (NOTE: index.html is now ~91 KB with the inlined shim — fine.)
+- 2026-06-14 — **Tablet ROOT CAUSE (real one): the proxy breaks external
+  `<script>` loads but allows `fetch()` → load the game via es-module-shims
+  SHIM MODE.** The on-device `?debug=1` fetch-probe was decisive: ALL files
+  (`main-v6.js`, `three.module.js`, `game.js`, `GLTFLoader.js`) return
+  `200 · application/javascript [js?]` via `fetch()` — clean JS, no 404, no
+  block-page — YET the `<script type=module>` load of the entry kept failing
+  (and earlier the external `es-module-shims.js` classic `<script>` failed too).
+  So it's NOT caching/CDN/MIME/old-browser — the proxy mangles/blocks external
+  `<script>` subresource requests while letting `fetch()` (and inline scripts)
+  through. FIX (index.html): load EVERYTHING via es-module-shims **shim mode**
+  (it fetch()es modules + instantiates via blob URLs — no network `<script>`):
+  `window.esmsInitOptions={shimMode:true}`, the import map is now
+  `type="importmap-shim"`, the entry is `type="module-shim" src=src/main-v6.js`,
+  and es-module-shims ITSELF is loaded by fetch()ing `vendor/es-module-shims.js`
+  and running it from a `Blob` URL (an external `<script src>` for it would be
+  broken too). Watchdog 6s→15s (shim-mode fetches the whole graph incl. 1.2 MB
+  three). diag → `vendor-7`. Verified preview: forced shim mode boots + renders
+  + navigates (`main.js: start`/`renderer ok`/`boot ok`). Relies ONLY on fetch+
+  blob, both proven to work on the tablet. NOTE: keep the diagnostic + probe
+  until the user confirms; the per-deploy path bumps (main-vN) are now moot
+  (fetch wasn't the cache-poisoned path) but harmless — can revert to main.js
+  once confirmed. REAL infra cure is still understanding/relaxing that network's
+  proxy, but this sidesteps it entirely from the client. The tablet's diag
+  showed the unique `…main.js?cb=<rand>` URL ALSO `✗ load failed`, so the proxy
+  ignores the query for .js and keeps mapping every variant back to the one
+  poisoned `src/main.js`. The only client lever left is the file PATH. FIX:
+  renamed `src/main.js` → **`src/main-v5.js`** and load it via a static
+  `<script type="module" src="src/main-v5.js">`. A brand-new path only exists
+  once the deploy is fully live, so the proxy can't already hold a poisoned copy
+  of it; it caches it as a clean 200 and revalidates via Etag thereafter (the
+  rest of the graph — game.js/etc. — was never poisoned). Bump to `main-v6.js`
+  only if a future deploy window re-poisons it. diag → `vendor-5`. Verified
+  preview: entry req = `/src/main-v5.js`, boots + navigates. **Confirm the
+  origin serves `/src/main-v5.js` 200 + `build=vendor-5` BEFORE telling the user
+  to reload, so the proxy's first fetch of the new path hits a settled origin
+  (a mid-deploy fetch is what poisons paths).** PERMANENT cure still =
+  server `Cache-Control: no-store` on the dev origin (master/Coolify).
+- 2026-06-14 — **Tablet, round 5: static `?v=3` ALSO got poisoned → per-load
+  cache-bust token (then superseded by the path bump above).** The tablet's diag showed the
+  `?v=3` URLs ALSO `✗ load failed` — so a FIXED URL (any version) gets poisoned
+  by the proxy if first fetched during a deploy window. FIX: the entry is no
+  longer a static `<script src>`; an inline classic script injects
+  `src/main.js?cb=<Date.now()+random>` — a UNIQUE url every page load, which the
+  proxy can never already hold. Also DROPPED es-module-shims (the other poisoned
+  resource; target devices are Chromium/Safari-16.4+ with native import maps —
+  re-add vendored+tokened only if a real no-import-map browser shows up). three
+  stays a static local import-map entry (it was never in the poisoned set). diag
+  build marker → `vendor-4`. Verified preview: `main.js?cb=<unique>` per load,
+  no es-module-shims request, three from `/vendor/`, boots + navigates.
+  CAVEAT: relies on the proxy keying its cache by query string (the `?debug=1`
+  evidence says it does). If it STRIPS queries on JS, the next step is a
+  per-deploy PATH bump (e.g. `main-v5.js`). REAL cure remains a server
+  `Cache-Control: no-cache`/`no-store` header on the dev origin (nginx has none
+  now — only Etag/Last-Modified) — a Coolify/master task.
+- 2026-06-13 — **Tablet, round 4: caching proxy poisoned the bare URL →
+  cache-bust `?v=3`.** After self-hosting (round 3), the diag on the tablet
+  showed the failing URLs were SAME-ORIGIN (`✗ load failed › /src/main.js`,
+  `› /vendor/es-module-shims.js`) AND — the tell — the game WORKS at
+  `…/?debug=1` but not the bare URL. Identical subresource URLs, only the doc
+  query differs ⇒ a **TLS-intercepting caching proxy on that network cached a
+  broken copy of the bare URL's two `<script>` resources** (poisoned during the
+  mid-deploy window; the graph fails at `main.js` so `game.js` etc. were never
+  fetched, hence only those two errored). I verified from here the live origin
+  serves all of them 200. FIX: version the referenced script URLs so the
+  (freshly-served) index.html points at URLs the proxy has never seen:
+  `vendor/es-module-shims.js?v=3`, importmap `three`→`…three.module.js?v=3`,
+  `src/main.js?v=3`; diag build marker → `vendor-3`. Verified in preview
+  (`build=vendor-3`, the 3 `?v=3` URLs fetched, boots, navigates, no errors).
+  NOTE: relative imports inside `main.js` (game.js/ui.js/…) don't carry the
+  query, but they weren't poisoned (loaded fine under `?debug`), so they're
+  fine. **Proper long-term fix is server-side `Cache-Control: no-cache` on HTML
+  (+ hashed asset names) — a Coolify/master-session task; bump `?v=N` on each
+  deploy until then.**
+- 2026-06-13 — **Tablet dead-menu ROOT CAUSE FOUND + FIXED: THREE.js is now
+  SELF-HOSTED (no CDN).** The on-device diagnostic (round 2) paid off — the
+  tablet's `?debug=1` box reported: UA `X11; Linux x86_64 … Chrome` (a Chromium
+  that DOES support import maps), `webgl=true`, a **"resource load error"**, and
+  **"main.js never executed."** On Chromium the only way `main.js` doesn't run
+  is a module in its graph failing to LOAD → the lone external module is THREE
+  from **cdn.jsdelivr.net, which that tablet's network blocks** (the phone is on
+  a network that reaches it). FIX: vendored THREE locally under
+  `games/verb-kitchen/vendor/` (relative paths, NOT a CDN):
+  `vendor/three/three.module.js` + `vendor/three/addons/loaders/GLTFLoader.js`
+  + `…/utils/BufferGeometryUtils.js` (GLTFLoader's only sibling dep) +
+  `…/utils/SkeletonUtils.js`, and `vendor/es-module-shims.js`. index.html
+  importmap now points `three`→`./vendor/three/three.module.js`,
+  `three/addons/`→`./vendor/three/addons/`; the polyfill `src` is local too.
+  VERIFIED: preview shows `jsdelivrRequests:[]` (all 5 files served from
+  `/vendor/`), boots, renders the full 3D kitchen, navigation works; headless
+  with `--host-resolver-rules="MAP cdn.jsdelivr.net ~NOTFOUND"` →
+  `js_errors=0 preload_misses=0` (no jsdelivr touched). **Caveat:** Google
+  Fonts (fonts.googleapis.com) is still a CDN — if that network blocks it too,
+  the game still works but falls back to system fonts; self-host the woff2s if
+  the exact look matters there. The diagnostic overlay + `tap()` fallback from
+  round 2 are KEPT (dormant on a healthy load; box only shows on error or
+  `?debug=1`). NOTE for release: the OTHER Krabsy 3D games still use the CDN
+  import map — they'll have the SAME failure on such networks; self-host them
+  too (or host three at the site root) when releasing.
+- 2026-06-13 — **Tablet dead-menu, round 2: on-device diagnostics + tap
+  fallback** (es-module-shims alone did NOT fix it). Can't read the tablet's
+  console, so instrument the page to report on itself.
+  - **On-device diagnostic overlay** (`index.html`, inline CLASSIC script so it
+    runs even if the ES module fails): a `window.__diag` + `error`/
+    `unhandledrejection` capture + a 6s watchdog that prints "main.js never
+    executed" if the module didn't run. Shows the tablet's **UA** +
+    `importmap`/`esmodules`/`webgl` support booleans. Detailed status gated by
+    `?debug=1`; genuine errors always show (red box, tap to hide). `main.js`
+    logs milestones (`main.js: start`, `renderer ok`/`✗ WebGL failed`,
+    `boot ok`, `Play tapped`/`Characters tapped`). This will pinpoint whether
+    it's module-load (import map), WebGL, a runtime error, or a click that
+    doesn't fire.
+  - **Robust `tap()` fallback** (`main.js` + `ui.js`): bind `pointerup`
+    (touch/pen) alongside `click`, deduped — covers tablets that don't deliver
+    a `click` after a touch (which would leave buttons looking pressed but
+    inert). Applied to all menu buttons (play/chars/back/quit/retry/next/menu/
+    shopBack) AND the level + character cards. A real fix IF the cause is the
+    click; otherwise harmless and the diagnostic still tells us the cause.
+  - Verified on modern Chromium: full boot chain logs, navigation via tap()
+    works (Play→level, Characters→shop), `js_errors=0`. **Awaiting the user's
+    `?debug=1` readout from the tablet** to confirm the cause.
+- 2026-06-13 — **Two mobile fixes: level-grid scroll + start-menu dead on
+  older tablets** (user feedback from phone + tablet).
+  - **Level select clipped / unscrollable on phone** (`index.html` CSS): the
+    `.screen`s used `justify-content:center` with NO overflow, so on a short
+    landscape phone the level grid overflowed and the TOP row (logos) was
+    clipped with no way to scroll. FIX: `.screen{justify-content:flex-start;
+    overflow-y:auto; -webkit-overflow-scrolling:touch}` + auto-margin centering
+    (`.screen>:first-child{margin-top:auto}` / `:last-child{margin-bottom:auto}`)
+    — centres the stack when it fits, scrolls with the TOP reachable when it
+    overflows (justify-content:center clips the top of overflow and can't scroll
+    back). Plus a `@media (max-height:560px)` pass shrinking logo/how-to/level &
+    char cards so the grids need less scrolling. Verified at 740×360: grid
+    scrollable, first row + heading reachable at top, Back button reachable at
+    bottom; start screen still centred at 1024×768.
+  - **Main menu buttons did nothing on the tablet (only)** (`index.html`): the
+    game boots via a bare `import … from 'three'` resolved by
+    `<script type="importmap">`, with no polyfill. Import maps need Safari 16.4+
+    / Chrome 89+ — an older tablet browser fails the bare-specifier resolution,
+    so the WHOLE module graph never runs: the static HTML menu renders and the
+    buttons show their CSS `:active` "move", but no click handler is ever
+    attached → nothing happens (phone = newer browser → works). FIX: added the
+    **es-module-shims** polyfill (`@1.10.0`, `async`, before the importmap) — a
+    no-op where import maps are native (verified: modern Chromium still uses
+    native maps, boots, navigation Play→level / Characters→shop / Back works,
+    `js_errors=0`). HYPOTHESIS pending the user's tablet retest — if it's NOT
+    import-map support, need the tablet's browser/OS + console to pin it (could
+    instead be WebGL-context failure, which would also halt `main.js` at the
+    renderer line before the button handlers register).
+- 2026-06-13 — **Two bug fixes: tap-after-chop pickup + audio stops when
+  unfocused** (user feedback; verified + adversarially reviewed before push).
+  - **Touch chop→pickup race** (`touch.js`): after holding a board to chop,
+    a quick tap on that same board (chef already standing there) re-started a
+    chop instead of picking up the chopped item — because the old `pendingHold`
+    flag is true for the whole touch, and when already adjacent the arrival
+    (`doArrive`) fired before touchend → always chopped. FIX: tap-vs-hold is now
+    decided by DURATION (`HOLD_MS=200`). A board chops only on a sustained hold;
+    a quick tap runs `game.interactE()` (board `!held && st.item` branch → pick
+    up). When arrival is instant but the touch is still down < HOLD_MS, it
+    `chopArmed`s and `resolveArm()` (run every rAF tick + QA `step()`) decides:
+    released first → tap (pickup); held past HOLD_MS → chop. `resolveArm` drops
+    a pending arm if `running/roundOver/questionOpen` changed mid-window (the
+    closure outlives the round, so a stuck arm would leak into the next one);
+    `navEnd` is intentionally NOT reset (the arm must survive release so the tap
+    resolves to a pickup). New `__touch.armed()` hook.
+  - **Audio kept playing when tab hidden / window blurred** (`audio.js` +
+    `main.js`): music is a `setInterval` scheduler that ran on regardless. FIX:
+    `_inactive` flag + `_applyMaster()` → master gain 0 when `(muted ||
+    _inactive)`; `setActive(active)` toggles it (+ `resume()` on activate).
+    main.js wires `visibilitychange`/`blur`/`focus` →
+    `setActive(document.hasFocus() && !document.hidden)`, calls it once at
+    startup (correct state if loaded backgrounded), and resumes a suspended ctx
+    on the first `pointerdown`/`keydown` (mobile gesture requirement). Gain-mute
+    (not node teardown / ctx.suspend) so the still-running loop never piles up
+    events → no burst on return.
+  - **Adversarial review** (3-agent workflow) flagged: stuck-`chopArmed` on
+    round/quiz change (fixed via `resolveArm` guard — NOT the reviewer's
+    `navEnd` reset, which would've broken tap→pickup), missing startup
+    `setAudioActive` (added), QA-hook chop-cancel fidelity (added), mobile
+    resume gesture (added). Known nuance (NOT changed): on the iframed
+    production site, `blur` also fires when the player clicks the parent page →
+    music pauses until they click back into the game (acceptable; standalone
+    dev build + phone behave exactly as asked).
+  - Verified via __VK/__touch: tap→pickup, hold→chop, arm-drops-on-question,
+    arm-drops-on-roundOver (no cross-round leak), audio gain 0↔0.5 on
+    active/blur/mute, resume fires on gesture; keyboard `d`→{x:1} unchanged;
+    fresh headless `?qa=level1`+`?qa=chop` `preload_misses=0 js_errors=0`.
+- 2026-06-13 — **D-pad scrapped — tap-to-move is the only touch input** (user:
+  "the point and click pathfinding I like way way way better than the d-pad.
+  Remove the d-pad completely. Scrap it."). `touch.js` rewritten to tap-to-move
+  ONLY: no joystick (`#padZone/#padBase/#padKnob`), no Pick/Drop+Chop buttons
+  (`#tBtnE/#tBtnChop`), no mode toggle (`#ctrlToggle`), no `body.touch /
+  ctrl-tap` gating, no `?ctrl/?touch` aids. Kept the verified
+  pickTile→BFS→steer→doArrive nav (tap = walk + `game.interactE()`; hold a
+  board = walk + `keys[' ']` chop while held). Canvas touchstart listener is
+  now always active during play. Removed all dead d-pad markup + CSS from
+  index.html (`#touchControls` block, `#ctrlToggle` button, their CSS,
+  `body.touch/ctrl-tap` rules); reverted `#muteBtn,#quitBtn,#ctrlToggle` →
+  `#muteBtn,#quitBtn`; KEPT `#app{touch-action:none}`. Keyboard + game logic
+  untouched. Verified: zero dangling refs (grep), dead DOM gone, `__touch`
+  exposes only tap hooks, `onKey('d')`→`keys.d`→`inputVector{x:1}` unchanged,
+  touch still feeds the SAME `game.keys` (tap far crate → `keys.a`), board
+  hold/release toggles chop, fresh headless `?qa=level1` `preload_misses=0
+  js_errors=0` + clean HUD screenshot (no 🕹️ toggle).
+- 2026-06-13 — **Reverted the rotate-to-landscape overlay** (user: "doesn't
+  really work, go back to not forcing anything"). Removed `#rotate` markup +
+  CSS from index.html; nothing else touched. Game now plays in any orientation
+  on touch; the touch controls + `body.touch` gating are unchanged.
+- 2026-06-13 — **Two control modes + tap-to-move + rotate prompt + Later
+  removed.** All additive — keyboard + game logic untouched.
+  - **Rotate-to-landscape overlay** (`#rotate`, z90): pure CSS — shows on
+    `body.touch` in portrait, hidden via `@media (orientation: landscape)`.
+    Covers everything (game must be played landscape on touch).
+  - **Removed the quiz "Later" button** (markup + sink.js handlers + the
+    `· Esc to leave` hint). NOTE: on touch you now commit to washing one
+    plate once the sink quiz opens (the quiz covers the 🏠 quit button) —
+    offer a tap-outside-to-close if the user wants an escape.
+  - **Tap-to-move mode** added to `touch.js` alongside the d-pad. Raycasts a
+    tap → tile (prefers a real mesh hit, falls back to the y=0 plane);
+    4-connected BFS over `world.walk`; steers the chef along the path by
+    setting the SAME `game.keys` w/a/s/d. Station tap → walk to an adjacent
+    tile, face it, `game.interactE()` (pick/drop/serve/sink — all via the
+    existing method). Floor tap → just walk. **Hold on a cutting board** →
+    walk there + `keys[' ']=true` while held (chops via workStations),
+    release clears. Own nav rAF (no game.update edit).
+  - **HUD toggle** `#ctrlToggle` (🕹️ ↔ 👆, `#topRight`, `body.touch` only):
+    switches mode mid-level, persisted `krabsy_vkitchen_ctrl` (default dpad).
+    `body.ctrl-tap` hides the joystick + action buttons and disables `#padZone`
+    so taps reach the canvas. Switching clears all transient input state.
+  - QA hook `window.__touch` (setMode/tapTile/holdTile/step/getNav/chopping).
+    `?ctrl=tap|dpad` + `?touch=1` test aids. Verified via __touch+__VK pump:
+    tap crate from afar → walk + pick up lettuce; tap floor → walk only; hold
+    board → chop while held (progress advances), release stops; toggle
+    restores d-pad + clears nav; keyboard `d`→{x:1} unchanged in both modes;
+    fresh headless `js_errors=0`.
+- 2026-06-13 — **Touch controls (mobile/tablet) — purely additive.** New
+  `src/touch.js` (`initTouch(game)`, called once in main.js) routes touch into
+  the SAME input state the keyboard uses — NO game logic touched, keyboard path
+  unchanged (`onKey`/`inputVector`/`workStations` not edited).
+  - Floating joystick on the LEFT half (`#padZone`): touchstart = origin, move
+    sets `game.keys.w/a/s/d` via a per-axis cut (8-way, diagonals — matches the
+    keyboard model), 15px dead zone; touchend clears. Visual base+knob (rgba).
+  - RIGHT-side fixed buttons: **Pick/Drop** → `game.interactE()` (edge, guarded
+    by running/!roundOver); **Chop** → `game.keys[' ']=true` + `spacePress()` on
+    touchstart, `false` on touchend → workStations chops while held, identical
+    to the key.
+  - Shown only on touch (`matchMedia('(pointer:coarse)')` or first touchstart →
+    `body.touch`; `?touch=1` test aid) AND only during play (markup lives in
+    `#hud`, z22 < quiz z30 so covered during the quiz). Landscape: pad bottom-
+    left, buttons bottom-right, 94–104px. Perf: rgba + transform/opacity only,
+    NO blur/filter/animated shadows. `touch-action:none` on `#app` + controls,
+    `passive:false` + preventDefault on the control touch events.
+  - Files: NEW `src/touch.js`; `index.html` (#touchControls markup + CSS +
+    `#app` touch-action); `src/main.js` (import + `initTouch(game)`). Verified
+    via synthetic touches: drag→keys (diagonals), chop hold sets/clears
+    `keys[' ']`, pick fires interactE once; keyboard re-tested identical; fresh
+    headless `preload_misses=0 js_errors=0`.
+- 2026-06-13 — **Character shop (star-unlocked, threshold) + 3D portrait
+  cards.** Per user Q&A: stars are a THRESHOLD (never spent) and cards show
+  rendered 3D portraits. Rogue is the free starter; others unlock when TOTAL
+  stars reach a per-character `cost`.
+  - **models.js:** `CHEF_CHARACTERS` reordered rogue-first + `cost`
+    (rogue 0, ranger 3, knight 6, mage 9, barbarian 12 — PLACEHOLDERS).
+    New `totalStars(save)` + `charUnlocked(name,save)` (= total ≥ cost).
+    No new save field — unlock is derived (stars never decrease, so nothing
+    re-locks); only the selected char (`krabsy_vkitchen_char`) is validated
+    (falls back to rogue if not unlocked). Default char everywhere → rogue.
+  - **portraits.js (new):** offscreen alpha `WebGLRenderer` renders each
+    character to a cached dataURL (`characterPortrait(name)`). Posed in the
+    **idle stance** (arms down — short AnimationMixer + Idle_A, `update(0.6)`),
+    framed head + shoulders/upper body (camera back 1.78·h, aim max.y−0.24·h).
+    Render block is sync after the `loadChefAssets` await, so no scene race.
+  - **Shop screen** (`#shopScreen`, `ui.renderShop`): portrait card per
+    character, sorted by cost; unlocked = selectable (✓ Selected / Select),
+    locked = greyed portrait + 🔒 + ⭐cost; total-stars header. Start screen's
+    old pill row replaced by a **🧑‍🍳 Characters** button → shop; `← Back`.
+    Old `.char-btn`/`#charRow` removed.
+  - Verified via __VK + headless: 7★ → rogue/ranger/knight unlocked,
+    mage(⭐9)/barbarian(⭐12) locked; all 5 portraits render (64–94KB);
+    click unlocked = select+persist, click locked = no-op; `qa=shop` scene;
+    fresh headless `preload_misses=0 js_errors=0`.
+  - NOTE: rogue & ranger portraits look similar (both brown-haired, hoods
+    down at head-shot crop) — offer a wider/idle-posed shot if more
+    distinction wanted. Costs are placeholders to tune as levels/chars grow.
+- 2026-06-13 — **Finishing always = ≥1 star.** `endRound` star calc now
+  floors at 1 (`let stars = 1`, drop the s1 threshold); 2★/3★/author still
+  time-gated. So 0 stars is no longer possible — completing the level always
+  earns the first star regardless of time. Menu 1★ row now reads "★ finish"
+  (no time) instead of the old s1 target. `starTimes[0]` kept in the data
+  (array shape) but unused for award/display. Verified: 300s/180s finishes →
+  1★ (was 0); 150→2, 120→3, 90→4 on burger [215,165,130,100].
+- 2026-06-13 — **Cheese-slice layering fix.** `food_ingredient_cheese_
+  slice`'s origin sits 0.087 ABOVE its geometry (`measureModel().minY =
+  -0.087`, vs 0 for patty/bun/tomato), so it sank — hidden by the cutting
+  board and buried in the bun bottom. Compensated for `minY` in two render
+  paths in stations.js: composeBurger layers now `y - minY*S` (rest on the
+  running height), and standalone ingredients (`buildItemMesh` ing branch)
+  lift `-minY*scale` so they sit on the board/counter. General fix (keys
+  off each model's measured minY), so any low-origin model is handled.
+- 2026-06-13 — **Veggie patties (asset-only swap).** Meat → veggie:
+  `patty_raw`/`patty_cooked` models → `food_ingredient_vegetableburger_
+  uncooked`/`_cooked`; `BURGER_LAYER_MODELS.patty_cooked` → veggie cooked.
+  Steak crate → **potato crate** (`CRATE_MODELS.patty_raw` + levelModelNames
+  `crate_steak`→`crate_potatoes`). Copied the 3 gltf+bin into
+  `assets/models/restaurant/` (gitignored working set; flat-reference the
+  shared atlas). NO mechanic/id changes — still grab raw from the crate,
+  cook, etc. (`patty_burnt` kept as `burger_trash`; item emojis 🥩/🍖 kept).
+  Verified: all 3 models served (200), data wired, zero console errors.
+- 2026-06-13 — **Burger overhaul (set-based, plate-less) + global QoL.**
+  - **Burgers now build on the BUN as a set** (mirrors the pizza-on-dough
+    system): `bun` accepts patty_cooked/cheese_chopped/lettuce_chopped →
+    `burgerwip_<set>` items (generated in `buildBurgerStates`). Order-free,
+    **PLATE-LESS** — you assemble in hand / on a counter; a plate is only
+    needed to SERVE. A burgerwip with a complete-dish set closes with a top
+    bun + carries `dish`; any other set is open-faced (buildable, not
+    servable). `expandsTo` unpacks it onto a plate for dish-matching.
+    `bun_patty`/`composeBunPatty` removed; stove "patty onto bun" now uses
+    `combine(held, patty_cooked)` (works on a bun OR a partial burger).
+  - **Renamed dishes:** `burger`→**hamburger** = bun+meat (lettuce dropped,
+    now a *finished* product w/ top bun); **cheeseburger** = +cheese;
+    **bigburger** = +cheese+lettuce. `isBurgerDish` + icons updated.
+  - **All permutations** buildable (bun+cheese, bun+lettuce, …) and each
+    finished burger is visually distinct; **fillings ~10% bigger** in
+    composeBurger (scale 0.78→0.86) so patty/slice/lettuce read in the bun.
+  - **L2 orders:** `[hamburger, cheeseburger, hamburger, bigburger,
+    cheeseburger]` — big burger exactly once, slot 4.
+  - **All levels — QoL:** (a) **return an ingredient to its OWN crate**
+    (E on the matching crate; wrong crate / non-raw rejects); (b) **rack
+    auto-grab**: holding a plateable + E on a rack plate grabs the plate
+    WITH the item already on it (steam + dish carried).
+  - Verified via __VK: 7 burgerwip permutations + order-independence;
+    crate-return (right/wrong/chopped); rack-grab (bun → plate[bun],
+    burgerwip → plate:cheeseburger); plate-less counter build → plate via
+    rack → serve (bigburger + hamburger); stove patty→bun. Zero console
+    errors. qa=level2 showcases the 3 burgers + a plate-less permutation.
+- 2026-06-13 — **4-star (Trackmania-style) system + 10-level menu +
+  gating.** Per user Q&A: 3 playable levels + 7 locked "coming soon"
+  placeholders; numbered names ("Level N"); **no global leaderboard**
+  (skipped — local per-level best times only); per-level times the metric.
+  - **`starTimes` = `[1★, 2★, 3★(gold), author]`** DESCENDING seconds
+    (placeholders). `game.endRound` cascades `t<=s → stars` (0–4 possible;
+    0 if slower than 1★). The author (4th) time + star are HIDDEN: the
+    author time shows in the menu/post only once the gold (3★) star is
+    earned, and the 4th author star only renders once *earned* (never an
+    empty slot). Author star = teal ★ w/ glow (distinct from gold ⭐).
+  - **`levels.js`:** added `num` to the 3 real levels; replaced single
+    `TEASER` with `PLACEHOLDERS` (7 entries, num 4–10, emoji hint only).
+    `LEVELS` stays length 3 so nextBtn/hasNext logic is untouched.
+  - **`ui.renderLevelGrid`** rewritten: numbered cards, 3 stars + author,
+    best time, the 3 visible target times + author (`?:??` until gold),
+    placeholders as locked teasers. **Gating CHANGED:** first 3 always
+    open (was: each needs prev star); rule `locked = i>=3 && prevStars<1`
+    ready for when real levels grow past 3.
+  - **`ui.renderPost`:** title "Level N", 4th author star span (shown only
+    if earned), `#postAuthor` line reveals the author time at gold / "Author
+    star earned!" at 4★.
+  - Verified via __VK: 10 cards (3 open + 7 locked); L1 4★ (author star +
+    time 1:02), L2 3★ (author time revealed, no author star), L3 1★ (author
+    `?:??`). Zero console errors. New `qa=menu` scene. Save still v2
+    (stars now 0–4). Timer still runs during quiz (unchanged).
+- 2026-06-13 — **Burger cheese = sliced (not grated).** Cheese chain now
+  mirrors lettuce: whole `food_ingredient_cheese` → half-cut
+  `food_ingredient_cheese_chopped` (interim) → **sliced
+  `food_ingredient_cheese_slice`** (final, was `_grated`). Changed
+  `ITEMS.cheese_chopped.model` + `BURGER_LAYER_MODELS.cheese_chopped` →
+  `_slice`; **`PIZZA_TOPPING_MODELS.cheese` stays `_grated`** so pizza
+  cheese still renders as melted/grated bits while the burger gets a real
+  slice. `_slice` asset was already copied in
+  `assets/models/restaurant/`; auto-added to preload via
+  `itemModelNames`. Verified: chop chain intact, burger plate carries
+  `cheese_chopped` (renders slice), pizza topping grated, zero console
+  errors.
+- 2026-06-13 — **Dishwashing juice: scrub animation + one-plate-per-
+  visit + celebration.**
+  - **Washing animation:** chef plays `Working_A` (generic looping work
+    clip, no tool in hand) whenever `frozen` (i.e. a sink question is
+    open) — `chef.js` loads the clip + the frozen branch plays it +
+    `setTool(null)`. Visible through the dimmed quiz backdrop; chef keeps
+    facing the sink. (Rig has many clips — Working_A chosen as the
+    scrub; swap easily if a better one's wanted.)
+  - **One plate per visit:** after 3 correct → plate washed → quiz CLOSES
+    (no more auto-continue). Press E at the sink again to wash another —
+    gives the player control over how many to wash. Partial progress
+    still kept across visits (Later/Esc).
+  - **Celebration on a clean plate:** `audio.washComplete()` (rising
+    C-E-G-C-E fanfare + sparkle shimmer) + `ui.confetti()` (42 DOM
+    confetti pieces bursting from the wash card, z50 over the quiz).
+    Replaces the plain clatter at completion.
+  - Verified via __VK: frozen→`Working_A` (tool null), 3 correct → 42
+    confetti + dirty−1/rack+1, quiz closed despite a dirty plate
+    remaining. New `qa=washing` scene (chef scrub pose at the sink).
+    Zero console errors.
+- 2026-06-13 — **Scoop chopped ingredients onto a held plate at the
+  cutting board.** `interactE` board case: holding a (clean) plate + a
+  plateable item on the board + `canPlate` ok → `plateAdd` it onto the
+  plate (mirrors the oven→plate scoop), steam carried, dish re-matched,
+  ding+sparkle on a match. Guards: duplicates / >5 blocked by canPlate;
+  raw (non-plateable) items can't be scooped. Hint "E — add to plate 🍽️"
+  ("E — take it" now only with empty hands). Verified: empty plate →
+  tomato → lettuce → salad; dupe + raw both rejected; zero console errors.
+- 2026-06-13 — **Recipe card IS the loading screen.** Merged the
+  separate full-screen loader + recipe step into one: `game.preload` no
+  longer shows `ui.loading`; `startLevel` fires `preload` and immediately
+  `await ui.showTutorial(level, loadP)`. The card shows at once with the
+  pizza-building animation (`#recipeLoader` + `ui.recipeLoading`) where
+  the button goes; the **"Let's cook!" button only appears once loadP
+  AND the recipe image have loaded** (`Promise.all`, with a cached-image
+  shortcut). Scene setup moved to AFTER the card (models guaranteed
+  loaded when it resolves). Full-screen `#loader`/`ui.loading` kept only
+  for the `qa=loading` showcase. New `qa=recipeload` scene freezes the
+  loading state. Verified (eval + headless): loading→button swap, zero
+  console errors.
+- 2026-06-13 — **Recipe tutorial = framed image card (replaces emoji
+  diagram).** User dislikes the emoji flow; supplies own ChatGPT-made
+  recipe images (copyright-safe, Overcooked as *inspiration* only).
+  Images live in `games/verb-kitchen/assets/ChatGPT/` (gitignored,
+  served by the dev server at `/assets/ChatGPT/…`). `level.tutorial` is
+  now `{ image?, title, text }`. `ui.showTutorial` shows a wooden-framed
+  card (navy bg = blends with the image's navy bg), chalk-white Fredoka
+  uppercase title + chalk underline, a taped "NEW RECIPE!" tag, the
+  image, and one instruction line. Salad + Pizza use `Salad.png` /
+  `Pizza.png` (1570×1002, both added by the user, wired in). **Burger**
+  still falls back to a clean text-only card (commented `image:` line
+  ready; add `Burger.png` to switch it). Emoji `.rcard/.rico/...` flow + builder
+  removed. `qa=recipe` now loads L1 (salad) for screenshots. Verified:
+  image loads (naturalWidth 1570), card renders, zero console errors.
+- 2026-06-13 — **Fixes batch (user feedback; "don't break Fable's
+  work").**
+  - **Reverted a regression:** the `ui.fade(false)` I'd added before the
+    tutorial/countdown exposed the chef pre-`update()` (bind/T-pose at an
+    unset position, looked like it stood on the island during loading).
+    Removed it → Fable's behavior restored: the fader hides the kitchen
+    through loading + countdown; the chef is only revealed once the loop
+    has positioned + animated it. (Tutorial overlay is z65, above the
+    z60 fader, so it still shows.)
+  - **Order window aligned over BOTH hatch tiles.** Both `H` tiles were
+    already `hatch` stations (verified both serve), but the window decor
+    was placed on the even-tile grid → sat one tile off (over tiles 2-3
+    while hatches are 1-2), so only one serving counter looked "under the
+    window." `world.js` back wall now anchors the 2-wide wall pieces to
+    the hatch centre (`hatchMid`) and tiles outward — window sits exactly
+    over the two serving counters, no gaps, all levels.
+  - **All levels start with 2 plates** (`plates: 2` for L1/L2/L3) → 5
+    orders / 2 plates → 3 washes everywhere.
+  - **Cut/finished items can be parked on an empty cutting board** (set a
+    cut tomato down to free a hand, pick it back up). `interactE` board
+    case: any ingredient onto an empty board; tool gate kept ONLY for raw
+    choppables. Hint "E — set it down".
+  - Verified via __VK: plates=2; both hatches serve (served 1→2); board
+    park+repick of `tomato_slices`; raw `lettuce` still places. Zero
+    console errors.
+- 2026-06-13 — **HIGH-SCORE REDESIGN + helps + tutorial (big user
+  feedback batch, on Opus).** Race-the-clock replaces time-attack.
+  - **Count-up high-score mode.** Each level is a FIXED `orders` list
+    (same every play → comparable times); round ends when ALL are
+    served; the clock counts UP (`game.elapsed`, runs even during sink
+    questions so fast verb recall pays off). Stars come from
+    `level.starTimes` `[gold, silver, bronze]` seconds — **PLACEHOLDERS,
+    tune from playtests** (completing always ≥1 star). `orders.js`
+    rewritten: fixed queue, NO patience/expiry, ≤3 on screen, refill on
+    serve, `served`/`total`/`allServed()`. Removed `roundTime`,
+    `patience`, `stars` (score), `dishes`, `pickDish`, `onTicketExpired`,
+    patience tip, frantic-at-30s. L1 5 orders/4 plates, L2 5/3, L3 5/2
+    (orders/plates → 1/2/3 washes). Coins kept as secondary juice; TIME
+    is the headline + star metric. Save bumped **v1→v2**: `best`(score)
+    → `bestTime`(fastest, lower=better); stars+missed migrated, times
+    reset. Level-grid + post screen now show ⏱ time.
+  - **Dishwashing = 3 correct answers / plate.** `ANSWERS_PER_PLATE=3`;
+    `game.washProgress` is banked GLOBALLY (kept if you leave the sink).
+    `onWashCorrect()` advances 1/3, completes a plate (rack+1, dirty−1)
+    only at 3, auto-continues if dirty remain. New 3-segment `#washBar`
+    + `🍽️ n/3` in the quiz card (`ui.setWashProgress`); sink auto-advances
+    questions on correct, `Later 🍳` button + Esc leave mid-wash keeping
+    progress. So L3 = 5 orders / 2 plates → 3 washes → 9 questions:
+    studying is load-bearing.
+  - **Cooked patty can't be grabbed bare-handed** (stove): needs a
+    **plate** (slides on) or a **bun** → new `bun_patty` composed carry
+    item (`compose:'bunpatty'`, `expandsTo:['bun','patty_cooked']`),
+    `composeBunPatty()` = bun_bottom+patty; `plateAdd()` unpacks combos
+    on plating; `canPlate` accounts for `expandsTo`. Burnt patty still
+    bare-handable → trash. Stove/oven branch in `interactE` restructured
+    into 4 ordered cases (cook → take-pizza → take-patty → bare-hand).
+  - **Help bubbles:** `fx.bubble(worldPos, emoji)` — throttled DOM
+    speech bubble; oven shows 🍽️, stove shows 🍽️🍞 when you try to grab
+    hot food without a carrier.
+  - **Per-level recipe tutorial:** `ui.showTutorial(level)` one-screen
+    diagram (`#recipe` overlay, z65) from `level.tutorial` data
+    (ingredient cards w/ tool overlay → arrows → combined → bake →
+    serve); shown before each level (gated on `!skipCountdown`).
+    `game.startLevel` now lifts the fader before the tutorial so the
+    countdown is visible too.
+  - **Verified** via __VK: full 5-order round → ends at 2:00 → 3 stars
+    (gold 160) + bestTime saved + coins secondary; 3-answer wash bar
+    1→2→3 → plate done + auto-continue; stove bare-hand REJECTED + bubble,
+    plate path, bun→bun_patty→plated expands to `[bun,patty_cooked]`;
+    oven bare-hand rejected + bubble + plate path. Zero console errors.
+    Headless-Edge shots: recipe overlay, wash card (bar 1/3 + Later/Esc),
+    HUD (📋 0/5 orders pill + ⏱ count-up). NEW qa scenes: `recipe`;
+    `question` now shows the wash bar at 1/3.
+- 2026-06-13 — **Order-free pizza assembly + responsive tickets
+  (user feedback, on Opus — Fable blocked).**
+  - **Pizza toppings in ANY order (dough always first).** Replaced the
+    rigid linear chain (`dough_base`→ketchup→`dough_sauced`→cheese→
+    `pizza_raw_cheese`→mushroom→`pizza_raw_mushroom`) with a **set-based
+    state machine**. A pizza-in-progress is identified by the SET of
+    toppings it carries (canonical layer order `sauce, cheese,
+    mushroom`), so build order never matters — logically OR visually.
+    Ids: `pizzawip_<sorted_tokens>` (e.g. `pizzawip_cheese`,
+    `pizzawip_sauce_cheese`, `pizzawip_sauce_cheese_mushroom`); the empty
+    set is `dough_base`. Generated programmatically in `recipes.js`
+    (`buildPizzaStates` IIFE + `PIZZA_LAYERS`/`PIZZA_ADDERS`/`PIZZA_BAKES`
+    /`pizzaWipId`): every non-empty subset gets an ITEMS entry whose
+    `accepts` adds any not-yet-present topping (ketchup→sauce,
+    cheese_chopped→cheese, mushroom_chopped→mushroom). **Cheese or
+    mushroom can now go on bare dough WITHOUT sauce**, sauce added later
+    — exactly the request. Only COMPLETE sets bake: `sauce,cheese`→
+    `pizza_cheese`, `sauce,cheese,mushroom`→`pizza_mushroom`; incomplete
+    pizzas have no `bakeTo` (oven rejects, new hint "add 🥫 + 🧀 first 🍕"
+    in game.js). Old `dough_sauced`/`pizza_raw_*` ids GONE.
+  - **Visual:** `composeRawPizza(topping)`→`composePizza(toppings)` in
+    stations.js renders deterministically from the canonical set —
+    `saucedParts(withSauce)` makes the red disc optional; cheese layer
+    then mushroom bits added only if present. Same toppings ⇒ same id ⇒
+    identical mesh, so "cheese then sauce" and "sauce then cheese" look
+    the same by construction. `compose:'sauced'`/`'rawpizza'` →
+    `compose:'pizza'` with a `toppings` array. qa=level3 now showcases
+    the full lineup (bare dough, cheese-no-sauce, sauce-only,
+    sauce+cheese, full, baked+plated).
+  - **Responsive order tickets.** Were fixed `128px` → tiny on big
+    monitors. Added `--ticket-scale:clamp(1.2, 100vmin/640, 2.8)` on
+    `:root` and `transform:scale(var(--ticket-scale))` +
+    `transform-origin:top left` on `#tickets` (scale the whole strip, NOT
+    per-ticket — would clobber the tIn/shake/served transforms). Floor
+    1.2 (laptop a bit bigger than before), ~1.7× at 1080p, ~2.25× at
+    1440p, cap 2.8 (4K). Pure CSS, auto-handles resize. vmin tracks the
+    camera (fits the smaller dimension).
+  - **Verified:** exhaustive `combine()` logic test (all 6 full-set
+    orders converge to `pizzawip_sauce_cheese_mushroom`; cheese↔sauce
+    converge to `pizzawip_sauce_cheese`; double-topping blocked; only
+    complete sets have `bakeTo`) + a REAL scrambled-order pipeline via
+    __VK (mushroom→cheese→sauce-last on a counter → bake → plate →
+    serve, +54🪙; oven rejected an incomplete `pizzawip_cheese`; ketchup
+    stayed reusable). Headless-Edge shots confirm cheese-on-bare-dough
+    (no red disc) and tickets at 2560×1440. Zero console errors.
+    GOTCHA reconfirmed: in-panel preview_screenshot hangs (suspended
+    renderer) — use headless Edge with **`Start-Process -Wait`** (the
+    `&` call operator returns before Edge flushes the PNG → 0-byte/no
+    file) and a `--virtual-time-budget` (~14s) so async model load + the
+    qa scene run before capture. ES-module cache: `fetch(f,{cache:
+    'reload'})` per changed module then reload.
 - 2026-06-12 — **Compact kitchens (all 3 levels).** Walking distances
   were too long for one chef. L1 9×6 → 7×5; L2 10×7 → 8×6 (kept a
   small 3-tile island row 2); L3 10×7 → 8×6. Per user, EVERY level

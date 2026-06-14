@@ -16,29 +16,27 @@ const sauceMat = new THREE.MeshStandardMaterial({ color: 0xd2402e, roughness: 0.
 // Pizzas read better small: the dough model alone is nearly plate-sized.
 const PIZZA_SCALE = 0.72;
 
-/** Unscaled rolled dough + red sauce disc (crust stays visible). */
-function saucedParts() {
+/** Unscaled rolled dough + optional red sauce disc (crust stays visible). */
+function saucedParts(withSauce = true) {
   const g = new THREE.Group();
   const base = getModel('food_ingredient_dough_base');
   g.add(base);
   const m = measureModel('food_ingredient_dough_base');
-  const disc = new THREE.Mesh(new THREE.CylinderGeometry(m.radius * 0.68, m.radius * 0.68, 0.03, 20), sauceMat);
-  disc.position.y = m.height + 0.012;
-  g.add(disc);
+  if (withSauce) {
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(m.radius * 0.68, m.radius * 0.68, 0.03, 20), sauceMat);
+    disc.position.y = m.height + 0.012;
+    g.add(disc);
+  }
   return { g, m };
 }
 
-/** Rolled dough + sauce, at pizza scale. */
-function composeSauced() {
-  const { g } = saucedParts();
-  g.scale.setScalar(PIZZA_SCALE);
-  return g;
-}
-
-/** Raw pizza: sauced dough + cheese (every pizza) + topping bits on top.
+/** Pizza-in-progress: rolled dough + any subset of {sauce, cheese, mushroom},
+ *  always layered bottom→top in the SAME order — so the look depends only on
+ *  WHICH toppings are present, never the order they were added.
  *  Bits stay INSIDE the sauce disc (radius 0.68): centers ≤ 0.42·r. */
-function composeRawPizza(topping) {
-  const { g, m } = saucedParts();
+function composePizza(toppings) {
+  const has = (t) => toppings.includes(t);
+  const { g, m } = saucedParts(has('sauce'));
   const scatter = (model, spots, scale, y) => {
     for (const [sx, sz] of spots) {
       const bit = getModel(model);
@@ -48,37 +46,43 @@ function composeRawPizza(topping) {
       g.add(bit);
     }
   };
-  // cheese layer first — every pizza has cheese: few BIG readable pieces
-  scatter(PIZZA_TOPPING_MODELS.cheese,
+  // cheese layer: few BIG readable pieces
+  if (has('cheese')) scatter(PIZZA_TOPPING_MODELS.cheese,
     [[-0.06, 0.18], [0.24, -0.14], [-0.26, -0.18]],
     0.7, m.height + 0.045);
-  if (topping !== 'cheese') {
-    scatter(PIZZA_TOPPING_MODELS[topping],
-      [[0.04, -0.32], [-0.3, 0.1], [0.3, 0.18], [0, 0]],
-      0.45, m.height + 0.075);
-  }
+  if (has('mushroom')) scatter(PIZZA_TOPPING_MODELS.mushroom,
+    [[0.04, -0.32], [-0.3, 0.1], [0.3, 0.18], [0, 0]],
+    0.45, m.height + 0.075);
   g.scale.setScalar(PIZZA_SCALE);
   return g;
 }
 
 /** Visible burger build: bun bottom, real layers, bun top when complete. */
-function composeBurger(contents, dish, baseY) {
+// Burger stack from a contents list (must include 'bun'). `closed` adds the top
+// bun (a complete, servable burger). Works on a plate (baseY = plate top) OR as
+// a standalone plate-less burgerwip (baseY = 0). Fillings are ~10% bigger than
+// before so each ingredient (patty / cheese slice / lettuce) reads inside the bun.
+function composeBurger(contents, closed, baseY = 0) {
   const g = new THREE.Group();
   let y = baseY;
   const bb = getModel('food_ingredient_bun_bottom');
   bb.position.y = y;
   g.add(bb);
   y += Math.max(0.1, measureModel('food_ingredient_bun_bottom').height * 0.85);
+  const S = 0.86;
   for (const layer of BURGER_LAYER_ORDER) {
     if (!contents.includes(layer)) continue;
     const model = BURGER_LAYER_MODELS[layer];
+    const mm = measureModel(model);
     const lm = getModel(model);
-    lm.scale.setScalar(0.78);
-    lm.position.y = y;
+    lm.scale.setScalar(S);
+    // some models (cheese slice) have their origin ABOVE the geometry (minY<0),
+    // which sinks them into the layer below — lift each so it rests on `y`
+    lm.position.y = y - (mm.minY || 0) * S;
     g.add(lm);
-    y += Math.max(0.07, measureModel(model).height * 0.78 * 0.8);
+    y += Math.max(0.08, mm.height * S * 0.8);
   }
-  if (dish && isBurgerDish(dish)) {
+  if (closed) {
     const bt = getModel('food_ingredient_bun_top');
     bt.position.y = y;
     g.add(bt);
@@ -89,8 +93,8 @@ function composeBurger(contents, dish, baseY) {
 /** Build the visual for one ingredient (handles composed items). */
 function ingredientMesh(id) {
   const def = ITEMS[id];
-  if (def.compose === 'sauced') return composeSauced();
-  if (def.compose === 'rawpizza') return composeRawPizza(def.topping);
+  if (def.compose === 'pizza') return composePizza(def.toppings);
+  if (def.compose === 'burger') return composeBurger(def.expandsTo, !!def.dish, 0);
   const m = getModel(def.model, def.tint || null);
   if (def.scale) m.scale.multiplyScalar(def.scale);
   return m;
@@ -103,6 +107,13 @@ export function buildItemMesh(item) {
   if (item.type === 'ing') {
     const m = ingredientMesh(item.id);
     m.scale.multiplyScalar(ITEM_SCALE);
+    // lift models whose origin sits above their geometry (cheese slice) so they
+    // rest on the surface instead of sinking into the board / counter
+    const def = ITEMS[item.id];
+    if (def.model) {
+      const mm = measureModel(def.model);
+      if (mm.minY < 0) m.position.y -= mm.minY * ITEM_SCALE * (def.scale || 1);
+    }
     g.add(m);
     return g;
   }
@@ -118,7 +129,7 @@ export function buildItemMesh(item) {
     dm.position.y = PLATE_TOP;
     g.add(dm);
   } else if (item.contents.includes('bun')) {
-    g.add(composeBurger(item.contents, item.dish, PLATE_TOP));
+    g.add(composeBurger(item.contents, isBurgerDish(item.dish), PLATE_TOP));
   } else {
     // salad & loose items: arranged side by side, not stacked
     const n = item.contents.length;

@@ -12,12 +12,16 @@ export function initQA(game, save, startLevel, params) {
         level: game.level?.id,
         score: game.score,
         combo: game.combo,
-        timeLeft: game.timeLeft,
+        elapsed: Math.round(game.elapsed * 10) / 10,
+        served: game.orders?.served,
+        total: game.orders?.total,
+        washProgress: game.washProgress,
         questionOpen: game.questionOpen,
         carried: game.carried(),
         rackPlates: game.rackStation?.plates,
         dirtyPlates: game.sinkStation?.dirtyPlates,
-        tickets: game.orders?.tickets.map((t) => ({ dish: t.dish, patience: Math.round(t.patience) })),
+        tickets: game.orders?.tickets.map((t) => t.dish),
+        queued: game.orders?.queue?.length,
         stations: game.world?.stations.filter((s) => s.item || s.state !== 'idle')
           .map((s) => ({ type: s.type, item: s.item?.type === 'plate' ? `plate[${s.item.contents}]` : s.item?.id, state: s.state })),
         fps: Math.round(game.fpsAvg),
@@ -51,7 +55,7 @@ export function initQA(game, save, startLevel, params) {
       while (left > 0) { const dt = Math.min(left, 1 / 30); game.update(dt); left -= dt; }
     },
     spawnTicket(dish) { return game.orders.spawn(dish); },
-    expireTickets() { for (const t of game.orders.tickets) t.patience = 0.01; game.orders.update(0.02, 1); },
+    clearTickets() { for (const t of [...game.orders.tickets]) game.orders.remove(t, 'gone'); },
     dirtyPlates(n) {
       game.sinkStation.dirtyPlates = n;
       game.sinkStation.refreshStack();
@@ -67,7 +71,8 @@ export function initQA(game, save, startLevel, params) {
       return true;
     },
     continueAfterWrong() { game.quiz.nextAfterWrong(); },
-    setTimeLeft(s) { game.timeLeft = s; },
+    setElapsed(s) { game.elapsed = s; },
+    setWashProgress(n) { game.washProgress = n; },
     endRound() { game.endRound(); },
     freeze(on = true) { game.qaFrozen = on; },
     setNoSpawn(on = true) { game.orders.spawningEnabled = !on; },
@@ -88,9 +93,24 @@ export function initQA(game, save, startLevel, params) {
 
   (async () => {
     const scene = qa;
-    const lvIdx = { level1: 0, level2: 1, level3: 2, question: 0, burn: 1, stars: 0 }[scene] ?? 0;
+    const lvIdx = { level1: 0, level2: 1, level3: 2, question: 0, burn: 1, stars: 0, recipe: 0, recipeload: 0, washing: 0, shop: 0 }[scene] ?? 0;
     if (scene === 'loading') {       // loader overlay showcase (stays up)
       ui.loading(true);
+      window.__VK_READY = true;
+      return;
+    }
+    if (scene === 'menu') {          // level-select showcase with sample progress
+      const fake = { stars: { garden: 4, burger: 3, pizzeria: 1 },
+                     bestTime: { garden: 58, burger: 152, pizzeria: 240 } };
+      ui.renderLevelGrid(fake, () => {});
+      ui.showScreen('levelScreen');
+      window.__VK_READY = true;
+      return;
+    }
+    if (scene === 'shop') {          // character shop: 7 stars → 3 unlocked, 2 locked
+      save.stars = { garden: 4, burger: 3 };
+      ui.renderShop(save, 'rogue', () => {});
+      ui.showScreen('shopScreen');
       window.__VK_READY = true;
       return;
     }
@@ -105,18 +125,22 @@ export function initQA(game, save, startLevel, params) {
       VK.spawnTicket(null);
       VK.spawnTicket(null);
       if (scene === 'level2') {
-        // showcase: visible burger builds on the island counters
-        put(2, 2, makePlate(['bun', 'patty_cooked']));
-        put(3, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped']));
-        put(4, 2, makePlate(['bun', 'patty_cooked', 'lettuce_chopped', 'cheese_chopped']));
-        put(7, 4, makeIngredient('cheese_half'));
+        // showcase: the three finished burgers + a plate-less permutation
+        put(2, 2, makePlate(['bun', 'patty_cooked']));                                       // hamburger
+        put(3, 2, makePlate(['bun', 'patty_cooked', 'cheese_chopped']));                     // cheeseburger
+        put(4, 2, makePlate(['bun', 'patty_cooked', 'cheese_chopped', 'lettuce_chopped']));  // big burger
+        put(7, 4, makeIngredient('burgerwip_cheese'));   // plate-less: bun + cheese (open, no patty)
+        put(2, 5, makeIngredient('cheese_chopped'));     // chopped cheese slice on a board (sits on top)
       }
       if (scene === 'level3') {
-        // showcase: pizza build stages
-        put(3, 0, makeIngredient('dough_base'));
-        put(1, 5, makeIngredient('dough_sauced'));
-        put(6, 0, makeIngredient('pizza_raw_mushroom'));
-        put(7, 3, makePlate(['pizza_cheese']));
+        // showcase: order-free pizza states — toppings may go on in ANY order,
+        // incl. cheese on bare dough WITHOUT sauce (left → right complexity)
+        put(3, 0, makeIngredient('dough_base'));                          // bare rolled base
+        put(6, 0, makeIngredient('pizzawip_cheese'));                     // cheese, NO sauce yet
+        put(7, 3, makeIngredient('pizzawip_sauce'));                      // sauce only
+        put(2, 2, makeIngredient('pizzawip_sauce_cheese'));              // raw cheese pizza
+        put(3, 2, makeIngredient('pizzawip_sauce_cheese_mushroom'));     // full raw pizza
+        put(7, 4, makePlate(['pizza_cheese']));                          // baked + plated
       }
       VK.tick(0.5);
     } else if (scene === 'chop') {
@@ -139,10 +163,22 @@ export function initQA(game, save, startLevel, params) {
     } else if (scene === 'question') {
       VK.spawnTicket('salad');
       VK.dirtyPlates(2);
+      VK.setWashProgress(1);          // show the 3-segment wash bar mid-progress
       VK.tick(0.3);
       VK.openQuestion();
+    } else if (scene === 'recipe') {
+      ui.showTutorial(game.level);                  // loaded state (Start button)
+    } else if (scene === 'recipeload') {
+      ui.showTutorial(game.level, new Promise(() => {}));  // frozen loading state
+    } else if (scene === 'washing') {
+      // chef's dishwashing pose at the sink (no quiz card)
+      const sink = game.world.stations.find((s) => s.type === 'sink');
+      VK.teleport(sink.col, sink.row + 1); VK.face(0, -1);
+      game.chef.frozen = true;
+      VK.tick(0.6);                 // advance into the Working_A loop
+      VK.freeze(true);              // hold the frame for the screenshot
     } else if (scene === 'burn') {
-      VK.spawnTicket('burger');
+      VK.spawnTicket('hamburger');
       const stove = game.world.stations.find((s) => s.type === 'stove');
       stove.startCooking(makeIngredient('patty_cooked'));
       stove.state = 'ready';

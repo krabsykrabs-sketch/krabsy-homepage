@@ -10,6 +10,7 @@ class Audio {
     this.alarmTimer = null;
     this.franticTimer = null;
     this.franticOn = false;
+    this._inactive = false;         // tab hidden / window blurred → master muted
   }
 
   init() {
@@ -17,8 +18,8 @@ class Audio {
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.5;
       this.master.connect(this.ctx.destination);
+      this._applyMaster();
       this.musicGain = this.ctx.createGain();
       this.musicGain.gain.value = 0.55;
       this.musicGain.connect(this.master);
@@ -30,7 +31,20 @@ class Audio {
   setMuted(m) {
     this.muted = m;
     localStorage.setItem(SOUND_KEY, m ? 'off' : 'on');
-    if (this.master) this.master.gain.value = m ? 0 : 0.5;
+    this._applyMaster();
+  }
+
+  _applyMaster() {
+    if (this.master) this.master.gain.value = (this.muted || this._inactive) ? 0 : 0.5;
+  }
+
+  /** Tab hidden or window blurred → silence output. The game loop and the music
+   *  scheduler may keep running while away, so we just zero the master gain (no
+   *  node teardown): sound resumes seamlessly on return and never bursts. */
+  setActive(active) {
+    this._inactive = !active;
+    if (active) this.resume();      // wake a ctx the browser auto-suspended in the background
+    this._applyMaster();
   }
 
   // ---- primitives ----
@@ -123,6 +137,11 @@ class Audio {
   }
   correct() { // bright arpeggio
     [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.18, 'triangle', 0.22, i * 0.07));
+  }
+  washComplete() { // a clean plate! triumphant rising fanfare + sparkle shimmer
+    [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.24, i * 0.075));
+    this.tone(1760, 0.45, 'sine', 0.14, 0.42); this.tone(2637, 0.3, 'sine', 0.09, 0.48);
+    this.noise(0.1, 0.12, 0.4, 6000, 'highpass');
   }
   wrong() { this.tone(180, 0.25, 'sawtooth', 0.2); this.tone(150, 0.3, 'sawtooth', 0.18, 0.05); }
   trombone() { // sad wah-wah-wahhh

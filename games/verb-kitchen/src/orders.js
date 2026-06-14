@@ -1,6 +1,8 @@
-// Order tickets: spawn, patience decay, serve matching, expiry.
+// Order tickets (high-score mode): a FIXED queue of orders streams in (max 3
+// on screen). No patience / no expiry — you must deliver them ALL; the round
+// clock counts UP, so speed is the score. Serving the oldest matching ticket
+// earns a small in-order bonus.
 import { DISHES, ITEMS } from './recipes.js';
-import { pickDish } from './levels.js';
 import { audio } from './audio.js';
 import { rng } from './verbs.js';
 
@@ -9,28 +11,32 @@ let nextId = 1;
 export class Orders {
   constructor(level, callbacks = {}) {
     this.level = level;
-    this.cb = callbacks;            // { onExpire(ticket) }
+    this.cb = callbacks;            // { onAllServed() }
     this.tickets = [];
-    this.tNext = 2.5;               // first ticket lands quickly
+    this.queue = [...(level.orders || [])];
+    this.total = this.queue.length;
+    this.served = 0;
+    this.tNext = 1.5;               // first ticket lands quickly
     this.spawningEnabled = true;
     this.bar = document.getElementById('tickets');
     this.bar.innerHTML = '';
   }
 
+  /** Spawn the next queued ticket (or a forced dish for QA). */
   spawn(dishId = null) {
     if (this.tickets.length >= 3) return null;
-    const dish = dishId || pickDish(this.level, rng.next);
+    let dish = dishId;
+    if (!dish) {
+      if (!this.queue.length) return null;
+      dish = this.queue.shift();
+    }
     const d = DISHES[dish];
-    const t = {
-      id: nextId++, dish,
-      patience: this.level.patience, max: this.level.patience,
-      el: null,
-    };
+    const t = { id: nextId++, dish, el: null };
     const el = document.createElement('div');
     el.className = 'ticket';
     const ings = d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' ');
     el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${d.name}</div>` +
-      `<div class="ings">${ings}</div><div class="pbar"><div class="pfill" style="width:100%"></div></div>`;
+      `<div class="ings">${ings}</div>`;
     this.bar.appendChild(el);
     t.el = el;
     this.tickets.push(t);
@@ -38,42 +44,31 @@ export class Orders {
     return t;
   }
 
-  update(dt, patienceScale = 1) {
-    if (this.spawningEnabled) {
+  update(dt) {
+    if (this.spawningEnabled && this.tickets.length < 3 && this.queue.length) {
       this.tNext -= dt;
-      if (this.tNext <= 0 && this.tickets.length < 3) {
+      if (this.tNext <= 0) {
         this.spawn();
         const [a, b] = this.level.spawnEvery;
         this.tNext = a + rng.next() * (b - a);
       }
     }
-    for (const t of [...this.tickets]) {
-      t.patience -= dt * patienceScale;
-      const frac = Math.max(0, t.patience / t.max);
-      const fill = t.el.querySelector('.pfill');
-      fill.style.width = (frac * 100) + '%';
-      t.el.classList.toggle('warn', frac < 0.5 && frac >= 0.25);
-      t.el.classList.toggle('hurry', frac < 0.25);
-      if (t.patience <= 0) {
-        this.remove(t, 'gone');
-        audio.trombone();
-        if (this.cb.onExpire) this.cb.onExpire(t);
-      }
-    }
   }
 
-  /** Serve a dish: match most-urgent ticket (any order is allowed).
-   *  inOrder = true when it was the oldest open ticket → streak bonus. */
+  /** Serve a dish: match the oldest matching ticket (any order allowed).
+   *  inOrder = true when it was the very first ticket → small streak bonus. */
   serve(dishId) {
-    const matches = this.tickets.filter((t) => t.dish === dishId);
-    if (!matches.length) return null;
-    matches.sort((a, b) => a.patience - b.patience);
-    const t = matches[0];
-    const inOrder = t === this.tickets[0];
-    const tipFrac = Math.max(0, t.patience / t.max);
+    const idx = this.tickets.findIndex((t) => t.dish === dishId);
+    if (idx < 0) return null;
+    const t = this.tickets[idx];
+    const inOrder = idx === 0;
     this.remove(t, 'servedAnim');
-    return { ticket: t, tipFrac, inOrder };
+    this.served++;
+    return { ticket: t, inOrder, served: this.served, total: this.total };
   }
+
+  remaining() { return this.total - this.served; }
+  allServed() { return this.served >= this.total; }
 
   remove(t, animClass) {
     this.tickets = this.tickets.filter((x) => x !== t);
@@ -84,5 +79,6 @@ export class Orders {
   clear() {
     for (const t of this.tickets) t.el.remove();
     this.tickets = [];
+    this.queue = [];
   }
 }
