@@ -217,6 +217,23 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **Mobile menu auto-start FIX + Level 5 compacted (user).**
+  - **Bug:** on mobile, opening the game jumped straight into a level (Level 4).
+    Cause: `tap()` (in BOTH `main.js` and `ui.js`) acted on `pointerup` with a
+    PER-ELEMENT dedupe flag, so a touch on "Play" fired pointerup→show grid, then
+    the touch's trailing GHOST click landed on the level card now under the
+    finger (its own flag was false) → auto-start. Fix: a SHARED guard
+    (`window.__touchTapAt`) — any click within 700 ms of a touch pointerup is
+    ignored, so a tap can't ghost-click a just-revealed element. Desktop (mouse)
+    path unchanged. Both `tap()`s updated.
+  - **Level 5 compacted** (user: each chef owns its room, so no need to size for
+    two in one area): map 11×8 → **9×7** (−2 w, −1 h; each wing one tile
+    narrower), helper now uses **ONE shared cutting board** (col 2) instead of 3
+    (it only chops one thing at a time), **two stoves kept**. coop coords
+    updated (pass pool col 4 ×5, board col 2, spawn/idle col 1). Verified
+    headless (`?qa=split`): 9×7, board×1, stove×2, crate×5; planner stocked the
+    3 orders' needs (cheese×2, lettuce×2, tomato×1) on the 5-tile pool, idle.
+    Files: `main.js` `ui.js` `levels.js` `qa.js`.
 - 2026-06-16 — **CO-OP Level 5 v3 (user): smart requirements planner.** Replaced
   the simple demand counter with an order-by-order MRP-style planner
   (`helper.pickByPlan` + `gatherResources`). Each free cycle it scans the world
