@@ -22,6 +22,7 @@ BOUNCE_SECONDS = 7
 LAVENDER = "#babfd8"
 SAGE = "#cdd9b4"
 CORAL = "#f2937e"
+TEAL = "#2ec4a0"
 CREAM = "#fdfbf4"
 INK = "#111"
 MUTED = "#666"
@@ -126,6 +127,8 @@ def aggregate(
     countries: Counter = Counter()
     devices: Counter = Counter()
     hours: Counter = Counter()
+    daily_views: Counter = Counter()            # YYYY-MM-DD -> page views
+    daily_uniques: dict[str, set] = defaultdict(set)  # YYYY-MM-DD -> visitor_hashes
 
     # Universe of dimensions present in the date range *before* filters are
     # applied. Used to populate the filter dropdowns — a user who filters to
@@ -205,15 +208,20 @@ def aggregate(
             countries[country] += 1
             devices[device] += 1
             ts = ev.get("ts_server") or ev.get("ts_client") or ""
+            ev_date = None
             try:
-                hour = datetime.fromisoformat(ts.replace("Z", "+00:00")).hour
-                hours[hour] += 1
+                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                hours[dt.hour] += 1
+                ev_date = dt.date().isoformat()
+                daily_views[ev_date] += 1
             except Exception:
                 pass
 
             vh = ev.get("visitor_hash")
             if vh:
                 paths_u[path].add(vh)
+                if ev_date:
+                    daily_uniques[ev_date].add(vh)
                 referrers_u[ref].add(vh)
                 sources_u[src].add(vh)
                 if src == "Search":
@@ -284,6 +292,20 @@ def aggregate(
     sources_out = _by_view(sources, sources_u)
     search_pages_out = _by_view(search_pages, search_pages_u)
     langs_out = _by_view(langs, langs_u)
+
+    # Daily time-series: fill every day from first to last observed (zeros for
+    # gaps) so the chart reads continuously. Each row: (date, views, uniques).
+    observed = set(daily_views) | set(daily_uniques)
+    timeseries: list[tuple] = []
+    if observed:
+        from datetime import date as _date, timedelta as _td
+        d0 = _date.fromisoformat(min(observed))
+        d1 = _date.fromisoformat(max(observed))
+        d = d0
+        while d <= d1:
+            k = d.isoformat()
+            timeseries.append((k, daily_views.get(k, 0), len(daily_uniques.get(k, ()))))
+            d += _td(days=1)
     countries_out = _by_view(countries, countries_u)
     devices_out = _by_view(devices, devices_u)
 
@@ -298,6 +320,7 @@ def aggregate(
         "referrers": referrers_out.most_common(10),
         "sources": sources_out.most_common(),
         "search_pages": search_pages_out.most_common(15),
+        "timeseries": timeseries,
         "langs": sorted(langs_out.items(), key=lambda kv: -kv[1]),
         "countries": countries_out.most_common(10),
         "devices": sorted(devices_out.items(), key=lambda kv: -kv[1]),
@@ -499,6 +522,60 @@ def _hourly_svg(hours: Counter) -> str:
     )
 
 
+def _timeseries_svg(rows: list[tuple]) -> str:
+    """Daily trend line chart: unique visitors (teal) + page views (coral)."""
+    if not rows:
+        return '<div class="empty">No data in this range</div>'
+    width, height = 720, 220
+    pad_left, pad_right, pad_top, pad_bottom = 40, 12, 14, 40
+    chart_w = width - pad_left - pad_right
+    chart_h = height - pad_top - pad_bottom
+    n = len(rows)
+    max_v = max((max(v, u) for _, v, u in rows), default=1) or 1
+    # one x per day; with a single day, centre it
+    def xpos(i):
+        return pad_left + (chart_w * (i / (n - 1)) if n > 1 else chart_w / 2)
+    def ypos(val):
+        return pad_top + (chart_h - (val / max_v) * chart_h)
+
+    def series(idx, color, label_id):
+        pts = " ".join(f"{xpos(i):.1f},{ypos(r[idx]):.1f}" for i, r in enumerate(rows))
+        dots = "".join(
+            f'<circle cx="{xpos(i):.1f}" cy="{ypos(r[idx]):.1f}" r="3" fill="{color}">'
+            f'<title>{escape(r[0])} — {r[idx]} {label_id}</title></circle>'
+            for i, r in enumerate(rows)
+        )
+        poly = (f'<polyline points="{pts}" fill="none" stroke="{color}" '
+                f'stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>')
+        return poly + dots
+
+    # gridlines: 0 and max
+    grid = (
+        f'<line x1="{pad_left}" y1="{ypos(0):.1f}" x2="{width - pad_right}" y2="{ypos(0):.1f}" stroke="#e7e2d4"/>'
+        f'<line x1="{pad_left}" y1="{ypos(max_v):.1f}" x2="{width - pad_right}" y2="{ypos(max_v):.1f}" stroke="#f2efe6"/>'
+        f'<text x="4" y="{ypos(max_v) + 4:.1f}" font-size="10" fill="{MUTED}">{max_v}</text>'
+        f'<text x="4" y="{ypos(0) + 4:.1f}" font-size="10" fill="{MUTED}">0</text>'
+    )
+    # x labels: ~6 evenly spaced dates (MM-DD)
+    step = max(1, n // 6)
+    xlabels = "".join(
+        f'<text x="{xpos(i):.1f}" y="{height - pad_bottom + 16}" font-size="10" '
+        f'text-anchor="middle" fill="{MUTED}">{escape(rows[i][0][5:])}</text>'
+        for i in range(0, n, step)
+    )
+    legend = (
+        f'<rect x="{pad_left}" y="{height - 14}" width="11" height="11" rx="2" fill="{TEAL}"/>'
+        f'<text x="{pad_left + 16}" y="{height - 5}" font-size="11" fill="{INK}">Unique visitors</text>'
+        f'<rect x="{pad_left + 130}" y="{height - 14}" width="11" height="11" rx="2" fill="{CORAL}"/>'
+        f'<text x="{pad_left + 146}" y="{height - 5}" font-size="11" fill="{INK}">Page views</text>'
+    )
+    return (
+        f'<svg viewBox="0 0 {width} {height}" width="100%" '
+        f'style="max-width:{width}px" role="img" aria-label="Daily visitors and page views">'
+        f'{grid}{xlabels}{series(1, CORAL, "views")}{series(2, TEAL, "visitors")}{legend}</svg>'
+    )
+
+
 DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
 
 
@@ -604,8 +681,10 @@ def render_dashboard(
     else:
         first_card = _stat("Events shown", f"{data['counted']:,}")
 
+    ppv = data["counted"] / data["uniques_total"] if data["uniques_total"] else 0.0
     numbers = (
         first_card
+        + _stat("Pages / visitor", f"{ppv:.1f}")
         + _stat("Unique paths", f"{data['unique_paths']:,}")
         + _stat("Avg engagement", _format_duration(data["overall_avg_engagement"]))
         + _stat("Bots (% of total)", f"{bot_pct:.1f}%")
@@ -656,6 +735,12 @@ def render_dashboard(
 
   <section>
     <div class="numbers">{numbers}</div>
+  </section>
+
+  <section>
+    <h2>Over time (daily)</h2>
+    <div class="chart">{_timeseries_svg(data["timeseries"])}</div>
+    <p class="muted" style="margin-top:8px;font-size:12px">Unique visitors and page views per day across the selected range. Hover a dot for the exact count.</p>
   </section>
 
   <section>

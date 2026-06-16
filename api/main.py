@@ -453,7 +453,7 @@ def dashboard(
     user: str = Depends(check_auth),
     range_: str = Query("7d", alias="range"),
     show_bots: int = Query(0, alias="bots"),
-    view: str = Query("views"),
+    view: str = Query("uniques"),   # default headline = unique visitors (reach)
     country: str = Query(""),
     device: str = Query(""),
 ) -> HTMLResponse:
