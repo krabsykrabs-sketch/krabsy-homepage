@@ -217,6 +217,26 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP v0.2 (user feedback: "doesn't feel good yet").** Three
+  changes to the helper:
+  - **Always stock, no demand gate.** Dropped the demand-driven logic — the
+    helper now keeps BOTH boards topped up regardless of orders and refills the
+    instant the player takes a slice (`pickWork` = first empty staging spot;
+    `demand()` + the DISHES import removed).
+  - **Chef-vs-chef collision.** Player and helper can no longer slide through
+    each other: `game.resolveChefCollision()` runs each frame after both move
+    and pushes them apart (axis-separated via `chef.tryMove`, MIN centre
+    distance 0.92). Verified: dropping the player exactly on the helper
+    separates them to 0.92.
+  - **Idle in the bottom-left corner.** When both boards are stocked the helper
+    walks to `coop.idle` ({col:1,row:4}) and waits there, out of the player's
+    way (new `toIdle`/`idle` states + `goToTile`/`navigate` floor-tile nav;
+    `reset()` now routes to `toIdle`).
+  - Also **unlocked Level 4** in the grid (`ui.js` gate `i>=3`→`i>=4`) so the
+    co-op test is reachable without starring Level 3 first.
+  - Verified headless (`?qa=coop`): 0 tickets → both slices staged; take cheese
+    → refilled; helper idles at {1,4}; collisionSep 0.92. Files this pass:
+    `helper.js` `game.js` `levels.js` `ui.js` `qa.js`.
 - 2026-06-16 — **CO-OP MODE v0: Level 4 + a BOT kitchen helper (first
   multiplayer experiment).** Per the user's brainstorm: co-op is the first
   multiplayer; bots NEVER do the dishes (grammar stays 100% with the human).
