@@ -94,5 +94,21 @@
       "irregular_verbs"
     ],
     "status": "beta"
+  },
+  {
+    "id": "verb-kitchen",
+    "name": {
+      "de": "Verb Kitchen!",
+      "es": "Verb Kitchen!"
+    },
+    "tagline": {
+      "de": "Koch-Chaos — spüle Teller mit den richtigen Verben!",
+      "es": "¡Caos de cocina — lava platos con los verbos correctos!"
+    },
+    "thumbnail": "/thumbnails/verb-kitchen.png",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "beta"
   }
 ]

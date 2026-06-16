@@ -236,7 +236,8 @@
     "air_control":     { "name": "Air Control!",      "tagline": "Lotse die Flugzeuge sicher mit Englisch!" },
     "verb_snake":      { "name": "Verb Snake!",       "tagline": "Friss Verbformen in der richtigen Reihenfolge!" },
     "verb_flow":       { "name": "Verb Flow!", "tagline": "Verbinde die drei Verbformen — in der richtigen Reihenfolge!" },
-    "verb_platformer": { "name": "Verb Platformer!",  "tagline": "Springe durch 3D-Welten und wähle die richtige Verbform!" }
+    "verb_platformer": { "name": "Verb Platformer!",  "tagline": "Springe durch 3D-Welten und wähle die richtige Verbform!" },
+    "verb_kitchen":    { "name": "Verb Kitchen!", "tagline": "Koch-Chaos — spüle Teller mit den richtigen Verben!" }
   },
   "feedback": {
     "correct_msgs": ["Richtig!", "Super!", "Genau!", "Stark!", "Top!"],
