@@ -217,6 +217,30 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP Level 5 "Split Kitchen" — the flagship co-op level.**
+  User: the simple Level 4 doesn't justify co-op; build a complex one where it
+  does. Designed a walled-split 11×8 kitchen: a counter wall down col 5 divides
+  a PREP wing (bot: cheese/lettuce/tomato crates + 3 boards, cols 0–4) from a
+  SERVICE wing (player: bun+patty crates, 2 stoves, rack, sink, hatch, trash,
+  cols 6–10), joined ONLY by the central pass counter (col 5). Neither chef can
+  cross — co-op is structural (prep wing unreachable solo). Bot stages all three
+  toppings on the pass counter; player cooks/builds/plates/serves/washes. Menu =
+  burgers + big burgers + salads (`['cheeseburger','salad','bigburger',
+  'hamburger','salad',...]`) so all three prep streams stay busy. **tomato is
+  the bot's 3rd line** (one-stage chop → tomato_slices; free via config).
+  - New `open: true` level flag → both co-op test levels (4 & 5) always
+    selectable; `ui.js` gate reverted to `!lv.open && i>=3` (cleaner than the
+    earlier i>=4 bump). Removed the `lv5` placeholder.
+  - Verified headless (`?qa=split`, 40s): all 3 pass-counter slots staged
+    (cheese_chopped / lettuce_chopped / tomato_slices), helper idle at corner
+    {1,6}; station census 5 crate / 3 board / 2 stove / sink+rack+hatch+trash all
+    present; screenshot shows the split + handoff clearly. Files: `levels.js`
+    `ui.js` `qa.js`.
+  - **Open / to playtest:** topping starvation risk — one slow bot keeping 3
+    streams stocked at par=1 vs dense orders; tune via order density, par, or a
+    per-level bot-speed bump. Star times are placeholders. Idea backlog (user +
+    asset pack): pepperoni pizza, sandwiches, **soups/stews** (pot+ladle+stew
+    assets exist → biggest co-op payoff), plated dinners — see chat brainstorm.
 - 2026-06-16 — **CO-OP v0.3 (user: "bot is way too fast").** Slowed the helper
   on three axes, all tunable from `coop` config:
   - **Walk speed** — `Chef.speedScale` (new), helper set to `coop.moveSpeed`
