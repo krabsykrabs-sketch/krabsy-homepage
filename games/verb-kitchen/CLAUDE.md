@@ -217,6 +217,42 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP MODE v0: Level 4 + a BOT kitchen helper (first
+  multiplayer experiment).** Per the user's brainstorm: co-op is the first
+  multiplayer; bots NEVER do the dishes (grammar stays 100% with the human).
+  - **Level 4 "Burger Bar Co-op"** (`levels.js`): an exact copy of Burger Bar
+    (same map / crates / orders / plates / starTimes) + a new `coop` config
+    block. Took the menu's Level 4 slot (removed the `lv4` placeholder; gating
+    unchanged → unlocks once Level 3 has ≥1★). The `coop` block is code-side
+    only — it does NOT touch the editor JSON/grid schema (data-shape freeze
+    respected; the parallel restaurant-editor session is untouched).
+  - **The helper** (`src/helper.js`, new): a SECOND `Chef` driven by a small
+    state machine `idle→toCrate→toBoard→chopping→toStaging`. It owns the two
+    cutting boards — left (col 2) = lettuce, right (col 4) = cheese — fetches
+    raw from the crates, chops on its board (reuses the two-stage chop logic),
+    and parks the slice on the counter to the RIGHT of that board (col+1:
+    col 3 / col 5). Two rules the user chose: **demand-driven** (only cuts what
+    the on-screen tickets need — cheese for cheese/big burger, lettuce for big
+    burger; higher demand first) and **par=1** (≤1 slice staged per board, then
+    it idles — no overproducing). It NEVER cooks/plates/serves/washes. Nav is a
+    4-connected BFS over `world.walk` + a steer-to-tile (mirrors touch.js).
+  - **The "second seat" seam:** `Chef` now takes an optional `chefAssets` arg so
+    the helper uses a DIFFERENT character (knight) than the player (rogue) —
+    `game.preload` loads it via `loadChefAssets` when `level.coop` is set. The
+    helper's "brain" is swappable: a remote human could later drive the same
+    seat. `game.update` calls `helper.update(dt)` after `workStations`; it
+    pauses with the kitchen during sink questions / round-over; the board's
+    resting knife hides while the helper chops (extended the tool-hide line).
+  - **Verified** headless (Edge `?qa=coop`, seed 42, 14s tick): boots clean,
+    `inScene:3` (world + 2 chefs), both spots staged `lettuce_chopped` +
+    `cheese_chopped`, helper ends `idle` empty-handed (par=1 held). Screenshot
+    shows both slices to the right of their boards. New `?qa=coop` QA scene.
+  - **Open / next:** helper char clashes if the player also picked knight (rare;
+    make it pick a non-player char if it matters); no inter-chef collision
+    avoidance yet (they can overlap — fine for the test); the human can still
+    use the boards if they want (not needed for burgers); star thresholds
+    copied from L2, untuned for two cooks. Files: NEW `src/helper.js`;
+    `src/chef.js` `src/game.js` `src/levels.js` `src/qa.js`.
 - 2026-06-11 — Brief written by the master session. Nothing built yet.
 - 2026-06-11 — Restaurant Bits **EXTRA pack landed and verified** in
   `/assets/KayKit/KayKit_Restaurant_Bits_1.0_EXTRA/` (225 gltf models,
