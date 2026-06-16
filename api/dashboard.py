@@ -55,6 +55,38 @@ def _referrer_host(ref: Optional[str]) -> str:
     return host
 
 
+# Substring needles matched against the referrer host. AI is checked first
+# because e.g. "gemini.google." also contains "google.".
+_SRC_AI = ("chatgpt.com", "chat.openai.", "openai.com", "perplexity.",
+           "gemini.google.", "claude.ai", "copilot.microsoft.")
+_SRC_SEARCH = ("google.", "bing.", "duckduckgo.", "ecosia.", "yahoo.",
+               "yandex.", "baidu.", "qwant.", "startpage.", "search.brave.")
+_SRC_SOCIAL = ("facebook.", "fb.", "instagram.", "twitter.", "x.com", "t.co",
+               "tiktok.", "youtube.", "youtu.be", "reddit.", "linkedin.",
+               "pinterest.", "whatsapp.", "wa.me", "telegram.", "t.me")
+
+
+def _traffic_source(host: str) -> str:
+    """Classify a referrer host into a coarse traffic-source bucket. NOTE:
+    search ENGINES are identifiable, but the search TERM is not — Google &
+    co. strip the query from the referrer. Actual queries live in Search
+    Console, not here."""
+    if host == "direct":
+        return "Direct"
+    if host.startswith("(self)"):
+        return "Internal"
+    if host == "unknown":
+        return "Other"
+    h = host.lower()
+    if any(n in h for n in _SRC_AI):
+        return "AI"
+    if any(n in h for n in _SRC_SEARCH):
+        return "Search"
+    if any(n in h for n in _SRC_SOCIAL):
+        return "Social"
+    return "Referral"
+
+
 def _lang_short(lang: Optional[str]) -> str:
     if not lang:
         return "unknown"
@@ -88,6 +120,8 @@ def aggregate(
     counted = 0
     paths: Counter = Counter()
     referrers: Counter = Counter()
+    sources: Counter = Counter()          # Search / Social / Direct / Referral / AI / Internal
+    search_pages: Counter = Counter()     # landing paths whose visit came from a search engine
     langs: Counter = Counter()
     countries: Counter = Counter()
     devices: Counter = Counter()
@@ -103,6 +137,8 @@ def aggregate(
     # sets, so they're excluded from uniques counts.
     paths_u: dict[str, set] = defaultdict(set)
     referrers_u: dict[str, set] = defaultdict(set)
+    sources_u: dict[str, set] = defaultdict(set)
+    search_pages_u: dict[str, set] = defaultdict(set)
     langs_u: dict[str, set] = defaultdict(set)
     countries_u: dict[str, set] = defaultdict(set)
     devices_u: dict[str, set] = defaultdict(set)
@@ -157,10 +193,14 @@ def aggregate(
                 continue
             counted += 1
             ref = _referrer_host(ev.get("referrer"))
+            src = _traffic_source(ref)
             lang = _lang_short(ev.get("language"))
 
             paths[path] += 1
             referrers[ref] += 1
+            sources[src] += 1
+            if src == "Search":
+                search_pages[path] += 1
             langs[lang] += 1
             countries[country] += 1
             devices[device] += 1
@@ -175,6 +215,9 @@ def aggregate(
             if vh:
                 paths_u[path].add(vh)
                 referrers_u[ref].add(vh)
+                sources_u[src].add(vh)
+                if src == "Search":
+                    search_pages_u[path].add(vh)
                 langs_u[lang].add(vh)
                 countries_u[country].add(vh)
                 devices_u[device].add(vh)
@@ -238,6 +281,8 @@ def aggregate(
 
     paths_out = _by_view(paths, paths_u)
     referrers_out = _by_view(referrers, referrers_u)
+    sources_out = _by_view(sources, sources_u)
+    search_pages_out = _by_view(search_pages, search_pages_u)
     langs_out = _by_view(langs, langs_u)
     countries_out = _by_view(countries, countries_u)
     devices_out = _by_view(devices, devices_u)
@@ -251,6 +296,8 @@ def aggregate(
         "unique_paths": len(paths),
         "paths": paths_out.most_common(20),
         "referrers": referrers_out.most_common(10),
+        "sources": sources_out.most_common(),
+        "search_pages": search_pages_out.most_common(15),
         "langs": sorted(langs_out.items(), key=lambda kv: -kv[1]),
         "countries": countries_out.most_common(10),
         "devices": sorted(devices_out.items(), key=lambda kv: -kv[1]),
@@ -620,6 +667,18 @@ def render_dashboard(
   <section>
     <h2>{"Unique visitors by path" if is_uniques else "Page views by path"}</h2>
     {_table(("Path", paths_header), data["paths"])}
+  </section>
+
+  <section>
+    <h2>Traffic sources</h2>
+    {_table(("Source", count_header), data["sources"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Search engines are identifiable, but the search <em>term</em> is not — Google &amp; co. strip the query from the referrer. For actual queries, use Google Search Console.</p>
+  </section>
+
+  <section>
+    <h2>Pages found via search</h2>
+    {_table(("Path", count_header), data["search_pages"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Landing pages whose visit arrived from a search engine — your closest in-house proxy for &ldquo;what are people finding us for&rdquo;.</p>
   </section>
 
   <section>
