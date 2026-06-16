@@ -217,6 +217,20 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP v0.3 (user: "bot is way too fast").** Slowed the helper
+  on three axes, all tunable from `coop` config:
+  - **Walk speed** — `Chef.speedScale` (new), helper set to `coop.moveSpeed`
+    0.5 (50% of the player). `chef.js` uses `SPEED * speedScale`.
+  - **Chop speed** — `helper.workMul` (`coop.workSpeed` 0.55): chopTick advances
+    `progress += dt*workMul/chopTime` → a slice takes ~3.3s not 1.8s.
+  - **Reaction time** — `helper.delay` + `coop.reaction` 0.7s: the helper stands
+    still for a beat before starting a new job, and for ~0.35s after grabbing /
+    before chopping / before carrying to staging — so it no longer reacts
+    instantly. Stands idle (no input) while the delay counts down.
+  - Verified headless (`?qa=coop`): at 5s only partway through the first slice
+    (was both done by ~7s before); both staged + parked at the corner by ~27s;
+    `speedScale 0.5 / workMul 0.55 / reaction 0.7` confirmed wired. Files:
+    `chef.js` `game.js` `helper.js` `levels.js` `qa.js`.
 - 2026-06-16 — **CO-OP v0.2 (user feedback: "doesn't feel good yet").** Three
   changes to the helper:
   - **Always stock, no demand gate.** Dropped the demand-driven logic — the
