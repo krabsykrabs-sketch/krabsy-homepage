@@ -217,6 +217,20 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP Level 5 v3 (user): smart requirements planner.** Replaced
+  the simple demand counter with an order-by-order MRP-style planner
+  (`helper.pickByPlan` + `gatherResources`). Each free cycle it scans the world
+  for resources — ready-made dishes (a complete plate, or a finished plate-less
+  burger) and FREE chopped slices (standalone on any station or in the player's
+  hand, NOT slices bound inside a plate/half-built burger) — then walks the
+  on-screen orders in turn: an order already covered by a ready dish is skipped;
+  for the rest, each chopped ingredient it needs is satisfied from a free slice
+  if one exists, else it's made. First genuinely-missing ingredient is the next
+  job (so 2 cheeseburgers → 2 cheese, over 2 trips). Backup when all covered:
+  fill an empty pass slot with any ingredient we have NONE of anywhere.
+  - Verified headless (`?qa=split`): free lettuce on a counter + salad + 2×
+    cheeseburger → pool = cheese×2, tomato×1, **lettuce×0** (free one used),
+    helper idle. Files: `helper.js` `qa.js`.
 - 2026-06-16 — **CO-OP Level 5 v2 (user feedback): demand-driven + pass pool.**
   Two per-level helper behaviours added (Level 4 keeps the old always-stocked /
   fixed-spot behaviour):
