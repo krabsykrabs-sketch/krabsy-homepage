@@ -206,7 +206,25 @@ const HELI_COLOR='#ffb347';
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
-let W,H,dpr;
+// W,H = fixed VIRTUAL world size (all game logic + paths live here, never changes mid-game).
+// CW,CH = actual canvas CSS pixels. VS = scale world→screen. VOX,VOY = letterbox offset.
+let W,H,dpr,CW,CH,VS=1,VOX=0,VOY=0,SPEED_SCALE=1;
+// Reference world used to keep flight TIME consistent across screen sizes.
+const REF_DIAG=Math.hypot(1240,720);
+function computeWorldSize(){
+  // Fixed-size world derived from the window's aspect; frozen while a game runs so
+  // moving the window between screens never shifts coordinates or breaks drawn paths.
+  const aw=window.innerWidth,ah=window.innerHeight,aspect=aw/ah;
+  const SHORT=720,LONG_MAX=1240;
+  if(aspect>=1){H=SHORT;W=Math.round(Math.max(SHORT*1.05,Math.min(LONG_MAX,SHORT*aspect)));}
+  else{W=SHORT;H=Math.round(Math.max(SHORT*1.05,Math.min(LONG_MAX,SHORT/aspect)));}
+  SPEED_SCALE=Math.hypot(W,H)/REF_DIAG;
+}
+function computeView(){
+  CW=window.innerWidth;CH=window.innerHeight;
+  VS=Math.min(CW/W,CH/H);
+  VOX=(CW-W*VS)/2;VOY=(CH-H*VS)/2;
+}
 
 if(!CanvasRenderingContext2D.prototype.roundRect){
   CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
@@ -395,8 +413,9 @@ function parkSlot(si,idx){
 let mapC=null;
 function renderMap(){
   mapC=document.createElement('canvas');
-  mapC.width=Math.max(1,Math.floor(W*dpr));mapC.height=Math.max(1,Math.floor(H*dpr));
-  const m=mapC.getContext('2d');m.setTransform(dpr,0,0,dpr,0,0);
+  const MS=dpr*VS; // device pixels per world unit → crisp at the current zoom
+  mapC.width=Math.max(1,Math.round(W*MS));mapC.height=Math.max(1,Math.round(H*MS));
+  const m=mapC.getContext('2d');m.setTransform(MS,0,0,MS,0,0);
   const rnd=mulberry32(20260609);
 
   // ── Sea ──
@@ -614,16 +633,17 @@ function finishHeliTip(){
 
 function resize(){
   dpr=Math.min(window.devicePixelRatio||1,2);
-  W=window.innerWidth;H=window.innerHeight;
-  canvas.width=W*dpr;canvas.height=H*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(!G.running)computeWorldSize(); // world is fixed during play → paths stay valid
+  computeView();
+  canvas.width=Math.max(1,Math.round(CW*dpr));
+  canvas.height=Math.max(1,Math.round(CH*dpr));
   computeLayout();renderMap();
   // re-park landed planes against the new layout
   for(const a of G.aircraft){
     if(a.state==='landed'&&!a.isHeli&&a.parkIdx!==undefined){
       const p=parkSlot(a.parkStrip,a.parkIdx);a.x=p.x;a.y=p.y;a.angle=p.angle;
     }
-    if(a.state==='landed'&&a.isHeli){a.x=LY.heli.x;a.y=LY.heli.y;}
+    if(a.state==='landed'&&a.isHeli&&LY.heli){a.x=LY.heli.x;a.y=LY.heli.y;}
   }
 }
 window.addEventListener('resize',resize);
@@ -825,9 +845,12 @@ function queueSpawn(type,verbObj,form){
   G.spawnQueue.push({type,verbObj,form,x:spawn.x,y:spawn.y,angle:spawn.angle,delay:90});
 }
 function doSpawn(sq){
-  let planeSpd=Math.min(0.55+G.difficulty*0.045,1.0);
-  if(TUT.active&&TUT.step<4)planeSpd*=0.75; // extra time to aim during the tutorial
-  const heliSpd=Math.min(0.42+G.difficulty*0.02,0.65);
+  // Speeds are in reference-world units; ×SPEED_SCALE keeps flight TIME the same on any screen.
+  let planeSpd,heliSpd;
+  if(G.level<3){planeSpd=0.55;heliSpd=0.5;}        // tutorial levels: slow until a path is drawn
+  else{planeSpd=Math.min(0.7+G.difficulty*0.05,1.35);heliSpd=Math.min(0.5+G.difficulty*0.025,0.85);}
+  if(TUT.active&&TUT.step<3)planeSpd*=0.85; // a little slower only while learning to aim
+  planeSpd*=SPEED_SCALE;heliSpd*=SPEED_SCALE;
   const isHeli=sq.type==='heli';
   const color=isHeli?HELI_COLOR:FORM_COLOR[sq.form];
   const ac={
@@ -920,7 +943,7 @@ function spawnNextWave(){
 function getPos(e){
   const r=canvas.getBoundingClientRect();
   const t=e.touches?e.touches[0]:e;
-  return{x:t.clientX-r.left,y:t.clientY-r.top};
+  return{x:(t.clientX-r.left-VOX)/VS,y:(t.clientY-r.top-VOY)/VS};
 }
 function findACAt(x,y){
   let best=null,bestD=44;
@@ -1034,7 +1057,7 @@ function updateAC(a){
   if(a.state==='frozen'){a.frozenGlow+=0.08;return;}
 
   if(a.state==='landing'){
-    a.landingProgress+=0.014;
+    a.landingProgress+=G.level<3?0.03:0.014; // quicker touchdown on tutorial levels
     const t=Math.min(1,a.landingProgress);
     const e=t*t*(3-2*t); // smoothstep
     if(a.isHeli){
@@ -1088,8 +1111,10 @@ function updateAC(a){
     }else{
       const dx=target.x-a.x,dy=target.y-a.y;
       a.angle=lerpAngle(a.angle,Math.atan2(dy,dx),0.15);
-      a.x+=Math.cos(a.angle)*a.speed;
-      a.y+=Math.sin(a.angle)*a.speed;
+      // path drawn & connected on the tutorial levels → speed up, cut the waiting
+      const boost=(G.level<3&&(a.targetStripIdx>=0||a.targetHeli))?3.0:1;
+      a.x+=Math.cos(a.angle)*a.speed*boost;
+      a.y+=Math.sin(a.angle)*a.speed*boost;
       if(!a.isHeli&&a.targetStripIdx>=0&&checkApproach(a.x,a.y,a.angle,a.targetStripIdx)){
         if(canLandOnStrip(a,a.targetStripIdx))initiatePlaneLanding(a,a.targetStripIdx);
       }
@@ -1830,6 +1855,11 @@ function drawHint(){
 }
 
 function render(){
+  // 1) fill the whole device canvas with sea so letterbox margins blend in
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#2e86c4';ctx.fillRect(0,0,CW,CH);
+  // 2) switch to the fixed world transform (scale + letterbox offset)
+  ctx.setTransform(dpr*VS,0,0,dpr*VS,dpr*VOX,dpr*VOY);
   ctx.save();
   if(G.shake>0.5){
     ctx.translate((Math.random()-0.5)*G.shake,(Math.random()-0.5)*G.shake);
@@ -1847,11 +1877,15 @@ function render(){
   drawCompletions();
   drawHint();
   drawTutorial();
-  if(G.flash>0.02){
-    ctx.fillStyle=`rgba(255,235,220,${G.flash})`;
-    ctx.fillRect(-20,-20,W+40,H+40);
-  }
   ctx.restore();
+  // 3) full-screen flash in device space (covers letterbox too)
+  if(G.flash>0.02){
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle=`rgba(255,235,220,${G.flash})`;
+    ctx.fillRect(0,0,CW,CH);
+  }
+  // leave the world transform active for any post-render overlay (e.g. death 💥)
+  ctx.setTransform(dpr*VS,0,0,dpr*VS,dpr*VOX,dpr*VOY);
 }
 
 // ════════════════════════════════════════
@@ -1930,6 +1964,7 @@ function makeParked(verbObj,form,parkIdx){
 function startGame(level){
   SFX.init();SFX.resume();SFX.click();
   G.level=level||3;
+  computeWorldSize();computeView(); // lock the world size for this run
   G.running=true;G.paused=false;G.score=0;G.verbsCompleted=0;
   G.aircraft=[];G.strips=[null,null];
   G.verbQueue=[];G.usedVerbs=new Set();
