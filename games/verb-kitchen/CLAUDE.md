@@ -217,6 +217,23 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **CO-OP Level 5 v2 (user feedback): demand-driven + pass pool.**
+  Two per-level helper behaviours added (Level 4 keeps the old always-stocked /
+  fixed-spot behaviour):
+  - **`coop.demand: true`** — the bot cuts whichever ingredient the on-screen
+    orders are most SHORT of (orders needing it − already staged; biggest
+    deficit wins). Fixes the reported bug: under the old "always stock in fixed
+    order" rule the bot endlessly refilled cheese+lettuce (burned through by
+    burgers) and never reached tomato, so salads had no tomato. Demand mode
+    makes the salad's tomato as soon as a salad ticket is up.
+  - **`coop.pass: [...tiles]`** — staging is now a shared POOL of pass-counter
+    tiles; the bot drops a slice on the nearest FREE tile (preferred one taken →
+    use the next), and waits holding it only if the whole isle is full. Per-line
+    `staging` is now optional (helper `stagedCount` / `chooseStaging`).
+  - Verified headless (`?qa=split`): salad+cheeseburger tickets → pool =
+    [cheese_chopped, lettuce_chopped, tomato_slices, …], demand=true, helper
+    idle (no over-stock). Tomato now flows. Files: `helper.js` `levels.js`
+    `qa.js`.
 - 2026-06-16 — **CO-OP Level 5 "Split Kitchen" — the flagship co-op level.**
   User: the simple Level 4 doesn't justify co-op; build a complex one where it
   does. Designed a walled-split 11×8 kitchen: a counter wall down col 5 divides
