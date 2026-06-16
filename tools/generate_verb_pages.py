@@ -80,14 +80,36 @@ def fill_ctx(ctx, form):
 
 E = html.escape
 
+# ── DE title/meta (SEO-tuned, 2026-06; sourced from data, length-bounded) ────
+# Title ≤60 chars: verb + key form(s) + "Simple Past & unregelmäßige Verben" +
+# brand. Past participle shown only when it differs from the past. On a length
+# breach: first drop "unregelmäßige Verben" (keep the higher-volume "Simple
+# Past"), then drop "Simple Past" as a last resort. Meta ≤160: forms front-
+# loaded, CTA tail shortened for long-meaning verbs so nothing truncates.
+def _de_forms(v):
+    return v["past"] if v["past"] == v["pp"] else f"{v['past']}, {v['pp']}"
+
+def _de_title(v):
+    f = _de_forms(v)
+    t1 = f"{v['verb']} – {f}: Simple Past & unregelmäßige Verben | Krabsy"
+    if len(t1) <= 60: return t1
+    t2 = f"{v['verb']} – {f}: Simple Past | Krabsy"
+    if len(t2) <= 60: return t2
+    return f"{v['verb']} – {f} | Krabsy"
+
+def _de_desc(v):
+    base = (f"Unregelmäßiges Verb {v['verb']} ({v['meaning_de']}): "
+            f"Simple Past „{v['past']}“, Past Participle „{v['pp']}“. ")
+    full = base + "Alle Formen mit Beispielsätzen — kostenlos üben & spielen auf Krabsy."
+    return full if len(full) <= 160 else base + "Kostenlos üben auf Krabsy."
+
 # ── language pack ───────────────────────────────────────────────────────────
 L = {
     "de": {
         "topic": DE_TOPIC, "other": "es", "other_topic": ES_TOPIC, "locale": "de_DE",
         "topic_name": "Unregelmäßige Verben", "hub": f"/de/{DE_TOPIC}/",
-        "title": lambda v: f"{v['verb']} – {v['past']} – {v['pp']}: Simple Past von {v['verb']} — Krabsy",
-        "desc": lambda v: (f"Unregelmäßiges Verb {v['verb']} ({v['meaning_de']}): Simple Past „{v['past']}“, "
-                           f"Past Participle „{v['pp']}“. Mit Beispielsätzen und Mini-Quiz — kostenlos auf Krabsy."),
+        "title": _de_title,
+        "desc": _de_desc,
         "h1_sub": lambda v: f"Englisch <em>{E(v['verb'])}</em> = {E(v['meaning_de'])}",
         "th": ("Grundform", "Simple Past", "Past Participle"), "also": "auch möglich:",
         "ex_h": "Beispielsätze", "ex_past": "Simple Past", "ex_pp": "Past Participle",
