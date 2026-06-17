@@ -217,6 +217,16 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **Sink quiz: answer box sizes to the answers (no 2-row wrap).**
+  User disliked the chips wrapping to two rows. `#quizCard` was fixed at
+  `max-width:480px; width:92%`; changed to `width:fit-content;
+  max-width:min(94vw,660px); min-width:min(92vw,340px)` and added
+  `white-space:nowrap` to `.chip`. The card now grows/shrinks to keep the three
+  chips on ONE row (wraps only as a last resort past the viewport). Verified
+  headless (`?qa=question`, forced triples): short go/went/gone → 1 row, card
+  479px; long understood/understanded/understand → 1 row, card 646px. Only
+  `index.html` touched.
+
 - 2026-06-16 — **SESSION WRAP — editor-JSON levels + new menu + guided tutorial
   (read first; the co-op Level 4/5 entries below are a SEPARATE parallel
   session).** Current lineup (`src/levels.js`): **1 Garden Bistro** (salad,
