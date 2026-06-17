@@ -217,6 +217,81 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-17 — **Level 7 "Sundae Sunday" — the FIRST cold-assembly level (no
+  cooking, no chopping).** Single player. Proves the assemble→serve→wash loop
+  works with NO stove / board / oven present — pure SALAD pattern, but cold.
+  **Recipe / assembly flow:** scoops are `plateable` ingredients grabbed STRAIGHT
+  from their tubs (crates 1–3 = vanilla/chocolate/strawberry); a **cherry**
+  (crate 4) is an extra plateable topping. Grab a plate (the standard washable
+  PLATE = the bowl), spoon scoops + an optional cherry onto it in ANY order
+  (side-by-side like a salad), it matches a sundae DISH, serve at the hatch →
+  dirty plate → sink quiz (**grammar loop reused UNCHANGED** — no new vessel; the
+  plate stays the washable vessel). The plated dish renders a finished
+  ice-cream-bowl model so it READS as a bowl of ice cream sitting on the plate
+  (same bowl-on-plate look as soup; user explicitly wants the bowl, not a cone).
+  - **3 distinct sundaes** (order-free exact-set match, like the salad):
+    **Vanilla Sundae** = scoop_vanilla + cherry (25🪙, bowl_icecream_vanilla);
+    **Neapolitan Sundae** = vanilla + chocolate + strawberry (40🪙,
+    bowl_decorated_A); **Cherry Deluxe** = chocolate + strawberry + cherry
+    (40🪙, bowl_cherries). Variety: 1-scoop+topping / 3-scoop mix / 2-scoop+topping.
+  - **New items/dishes** (`recipes.js`): `scoop_vanilla` / `scoop_chocolate` /
+    `scoop_strawberry` (ONE `icecream_scoop` model TINTED cream/chocolate/pink —
+    like the burnt-item tints; all `plateable`), `cherry` (`icecream_cherry`,
+    plateable); dishes `sundae_vanilla` / `sundae_neapolitan` / `sundae_deluxe`.
+    The scoop/cherry/bowl item+dish models flow into preload via `itemModelNames()`.
+  - **Level** (`levels.js`): `{num:7, open:true}` 8×6 `style:'B'` map — 3 flavour
+    tubs + 1 cherry crate, sink/rack/hatch/trash, **NO stove/board/oven**; 6
+    sundae orders, 2 starting plates (→4 washes). `CRATE_MODELS` maps the 3 scoops
+    to filled `icecream_container_icecream_*` tub art (cherry = generic `crate`);
+    `levelModelNames()` names the 3 tub containers. Removed the `lv7` placeholder
+    (PLACEHOLDERS now 8/9/10).
+  - **NO game.js / stations.js changes** — cold assembly is the salad path
+    (plateable from crate → `plateAdd` → `matchDish` → serve), so the existing
+    crate/plate/hatch/sink code carried the whole flow exactly as predicted.
+  - **Assets copied** (gitignored working copy `assets/models/restaurant/`):
+    `icecream_scoop`, `icecream_cherry`, `icecream_bowl_icecream_vanilla`,
+    `icecream_bowl_decorated_A`, `icecream_bowl_cherries`,
+    `icecream_container_icecream_{vanilla,chocolate,strawberry}` (.gltf+.bin;
+    shared atlas already present; Zone.Identifier junk avoided; unused bowl copies
+    pruned).
+  - **QA** (`qa.js`): `?qa=icecream` (and `level7`) scene → level index 6 — spawns
+    2 sundae tickets and stages a finished sundae (plated/bowl look), a part-built
+    one (2 scoops, no cherry), and a loose cherry; ticks.
+  - **Verified:** `node --check` clean on all 3 changed files; a pure-logic Node
+    harness asserted plateable flags, order-free `matchDish` for all 3 sundaes,
+    partial sets = no dish, step-by-step assembly via `canPlate`+`plateAdd`, all
+    sets distinct, and the preload manifest. Headless-Edge `?qa=icecream`
+    (swiftshader) + a CDP driver: scene boots `READY`, **0 console errors**, no
+    `[VK] model not preloaded`; station census = 4 crate / sink / rack / 2 hatch /
+    trash and **0 stove / 0 board / 0 oven** (cold-assembly layout confirmed);
+    crates = the 3 scoops + cherry. Drove the loop: built a sundae plate (real
+    `plateAdd`) → served at the hatch → **served 0→1, score 45** (deluxe 40 +
+    in-order 5) → tick → **dirty plate returned to the sink** → **sink question
+    opened** → a correct answer **banked washProgress 1/3** (the 3-correct→plate
+    completion + dish-agnostic sink quiz are shared, unchanged code already
+    verified on the soup/burger levels). Files: `recipes.js` `levels.js` `qa.js`.
+  - **Open / to weigh in (design guesses I made — DECIDE THESE):**
+    1. **Does the no-cook/no-chop level feel substantial enough?** It's the
+       thinnest pipeline yet — grab-plate → spoon 1–3 scoops (+cherry) → serve.
+       Depth comes only from VARIETY (3 sundaes) + the cherry assembly step +
+       washing (4 washes). It may play fast/easy; if it feels thin, options:
+       add a 4th flavour / a 2nd topping (sprinkles or a sauce-bottle drizzle
+       like ketchup — assets exist), tighten spawn timing, or require more scoops.
+    2. **Topping/variety mechanic chosen:** a single plateable **cherry** (one
+       extra assembly step on 2 of the 3 sundaes). I did NOT add a reusable
+       sauce-bottle drizzle (ketchup-style `combine`) to keep it pure-salad-path
+       and code-change-free — say if you'd rather have a drizzle as the deluxe step.
+    3. **Scoop look = tinted `icecream_scoop`** (flat cream/chocolate/pink, loses
+       the atlas texture). Reads clearly as a scoop ball but is flat-shaded; the
+       pack has no per-flavour standalone scoop, only flavoured bowls/containers.
+       Swap to a textured option if you dislike the flat tint.
+    4. **Recipes** (which 3 sundaes / their coins), **6-order count**, **cook-free
+       star times** `[260,200,155,120]`, and **2 starting plates** are my picks —
+       all placeholders to tune from a playtest.
+    5. Plated sundae shows a **bowl-on-a-plate** (the dish bowl model rests on the
+       washable plate, same as soup) — kept deliberately so the plate stays the
+       washable vessel per your bowl-not-cone instruction.
+
 - 2026-06-17 — **Level 6 "Soup Kitchen" — a single-player vegetable-soup level.**
   A new ASCII level (mirrors Burger Bar's structure, `style:'B'` kitchen for
   variety) that reuses the PIZZA compositional-cook pattern, themed as a
