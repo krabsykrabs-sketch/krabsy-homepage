@@ -217,6 +217,19 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-17 — **Soup (L6) FIX (user: "can't place anything into the pots; the
+  stoves show pans").** Diagnosed headless: the pot-fill combine WORKED but only
+  on a counter — holding the pot and pressing E on a chopped veg sitting on a
+  CUTTING BOARD did nothing (boards had no combine path), which is the natural
+  move, so it felt broken. Fixes: (a) `game.js` board case now combines a held
+  composite (pot / pizza base / bun) with a chopped item on the board — "tip the
+  veg straight into the pot"; added a matching hint ("E — add to the pot 🍲").
+  (b) New `level.bareStoves` flag hides the decorative `pan_A`; set on the soup
+  level so its stoves are bare hobs you set your own POT on (no misleading pans).
+  Tutorial reworded. Verified headless: holding a pot + E on a board onion →
+  `potwip_onion`; stoves render as bare burners. Files: `game.js` `world.js`
+  `levels.js` `qa.js`.
+
 - 2026-06-17 — **Sundae (L7): reusable chocolate-syrup DRIZZLE added** (user
   feedback — keep depth as-is for playtest, but add a sauce drizzle as the
   deluxe step). New `choc_syrup` item = reusable bottle (ketchup model tinted
