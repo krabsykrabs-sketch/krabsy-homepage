@@ -217,6 +217,52 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-17 — **Level 6 "Soup Kitchen" — a single-player vegetable-soup level.**
+  A new ASCII level (mirrors Burger Bar's structure, `style:'B'` kitchen for
+  variety) that reuses the PIZZA compositional-cook pattern, themed as a
+  pot-on-the-stove boil. **Recipe / cook flow:** grab an empty **pot** (crate 4,
+  generic crate art), chop **onion** (the ONE new ingredient) + **carrot** +
+  **potato** — each a one-stage chop (raw→`_chopped`, like tomato) — then add all
+  three to the pot in ANY order via the `accepts` mechanism (a pot-WIP's identity
+  is the SET of veg it holds, exactly like a pizza's topping set). Only the FULL
+  pot (`potwip_onion_carrot_potato`) is boilable: it has `cookTo:'soup'`
+  (cookTime 11s), so it goes on the **stove** like a patty. Boiling yields
+  **`soup`** (model `food_stew`, a bowl — `plateable`, `steamy`), which over-boils
+  to `soup_burnt` (`burnTo`, burnTime 12s → trash). Plate the soup on the normal
+  plate → serve at the hatch → dirty plate → sink quiz: **the grammar loop is
+  reused unchanged** (no new vessel system; soup is served on the standard plate).
+  Dish `garden_soup` (40🪙, `parts:['soup']`, model `food_stew`).
+  - **New items/dishes** (`recipes.js`): `onion`/`onion_chopped`,
+    `carrot`/`carrot_chopped`, `potato`/`potato_chopped`, `pot_empty` (+ generated
+    `potwip_*` subset states via `buildPotStates`, mirroring `buildPizzaStates`),
+    `soup`, `soup_burnt`; dish `garden_soup`. New exports `POT_LAYERS`,
+    `POT_VEG_MODELS`, `potWipId`. `composePot()` in `stations.js` renders the pot
+    + chopped-veg bits resting inside (mirrors `composePizza`).
+  - **Level** (`levels.js`): `{num:6, open:true}` 8×6 map — onion/carrot/potato/
+    pot crates, 2 boards, 2 stoves, sink/rack/hatch/trash; 5 soup orders, 2
+    starting plates (→3 washes). `CRATE_MODELS` + `levelModelNames()` wired for
+    onion/carrot crates + `pot_A`/`food_stew`. Removed the `lv6` placeholder.
+  - **Assets copied** (gitignored working copy `assets/models/restaurant/`):
+    `pot_A`, `food_stew`, `food_ingredient_{onion,onion_chopped,carrot,
+    carrot_chopped,potato,potato_chopped}`, `crate_onions`, `crate_carrots`
+    (.gltf+.bin; shared atlas already present; no Zone.Identifier junk).
+  - **Stove hint** (`game.js`): an incomplete pot at the stove now shows
+    "add 🧅/🥕/🥔 first" (mirrors the pizza guard). No other game.js/stations.js
+    mechanic changes — the pizza pattern carried the whole flow.
+  - **QA** (`qa.js`): `?qa=soup` (and `level6`) scene mapped to level index 5 —
+    spawns 2 soup tickets and stages a plated soup + a full pot + a chopped onion,
+    then ticks.
+  - **Verified:** `node --check` clean on all 5 changed files; a pure-logic Node
+    harness asserted the whole chain (chop → order-free pot assembly converges →
+    only the full pot boils → soup plateable/burns → `matchDish(['soup'])`=
+    garden_soup → preload manifest). Headless-Edge `?qa=soup` (swiftshader)
+    renders the kitchen + both new visuals (veg-filled pot, bowl of soup) with
+    **zero console errors and zero preload misses**; DOM shows 0/5 + 2 Garden Soup
+    tickets. Files: `recipes.js` `stations.js` `levels.js` `qa.js` `game.js`.
+  - **Open / to weigh in (design guesses I made):** see the session report —
+    pot-from-a-generic-crate, single-stage chops, 3-veg recipe (onion/carrot/
+    potato), cook/burn times, and placeholder star times are all my picks.
+
 - 2026-06-16 — **Sink quiz: answer box sizes to the answers (no 2-row wrap).**
   User disliked the chips wrapping to two rows. `#quizCard` was fixed at
   `max-width:480px; width:92%`; changed to `width:fit-content;
