@@ -217,6 +217,62 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-16 — **SESSION WRAP — editor-JSON levels + new menu + guided tutorial
+  (read first; the co-op Level 4/5 entries below are a SEPARATE parallel
+  session).** Current lineup (`src/levels.js`): **1 Garden Bistro** (salad,
+  `levels/salad1.json`, GUIDED tutorial), **2 Burger Bar** (ASCII map), **3 Pizza**
+  (`levels/pizza3.json`, replaced the old ASCII Pizzeria), **4 Burger Co-op** +
+  **5 Split Kitchen Co-op** (the other session's ASCII+bot levels). 6–10 locked.
+  - **Editor→game JSON pipeline (the big new system).** The Krabsy Level Editor
+    (separate worktree `../restaurant-editor`, branch `editor-branch`) exports a
+    level as placed KayKit models. `World.buildFromJSON(scene)` (`src/world.js`)
+    rebuilds the scene EXACTLY per `assets/JSON Levels/LEVEL-FORMAT.md`
+    (footprints, ground/wall offsets, stacking, rotations, floor-recentre to the
+    origin) and INFERS stations from model names: `kitchencounter_sink*`→sink,
+    `pizza_oven`/`oven`→oven, `cuttingboard`→board (auto-adds a hiding knife),
+    `dishrack`→rack, `crate_<x>`→crate (item via `CRATE_MODELS`), an EMPTY
+    `crate`→trash bin (tinted `#4a5366`, 0.92), order-window counters→hatch;
+    `ketchup`→a pickable start item; walls/cabinets/pillars/an oven off the floor
+    →decor (a station is only made on a FLOOR tile). Handles a `rotX` field; skips
+    explicit `knife`/`rollingpin` objects. **To add an editor level:** drop its
+    JSON in `levels/`, add a LEVELS entry `{ jsonUrl, rotate:2 (puts the hatch at
+    the BACK — camera convention), spawn:{col,row} in JSON cell coords, orders,
+    plates, starTimes, tutorial, optional startItems:[{c,r,item}] }`, and copy any
+    models it uses that aren't already in `assets/models/restaurant/` from the
+    KayKit EXTRA pack. ASCII levels (2,4,5) still use `map`/`build()`; World
+    branches on `level.jsonUrl`.
+  - **Main menu = `assets/ChatGPT/MainMenu.png`.** ONE fixed `#menuBg` element
+    (index.html) sits behind EVERY menu screen — `ui.showScreen` toggles its
+    `.on`; the screens are transparent overlays, so switching never reloads/moves
+    the background and only a screen's own content scrolls. Title + buttons
+    centred. (Recipe cards still use `Salad/Burger/Pizza.png` in `assets/ChatGPT/`.)
+  - **Guided salad tutorial** (`src/tutorial.js`, only on `guided` levels): Level 1
+    walks the first salad (grab→chop→plate→repeat→serve→wash) with a bottom banner
+    + a bobbing 3D arrow at the target station, then frees play for the other 2.
+    Latching milestones (robust to out-of-order). Starts with 1 clean plate on a
+    counter + 1 dirty at the sink (`startItems` + `startDirty` level fields).
+  - **Also this session:** help bubbles render the actual plate/bun MODELS
+    (`src/icons.js`), not emoji; the board knife hides while chopping
+    (`st.toolMesh`); HUD = one full-width top bar (timer+orders left, coins +
+    sound/home right), bottom-left plate counter removed; mobile tap on a TALL
+    station (oven/sink) now snaps to the counter beneath it (`touch.js` pickTile,
+    when hit `y > 1.4`).
+  - **Deploy:** `bash tools/deploy-to-dev.sh verb-kitchen` (from repo root) →
+    rsyncs the folder (incl. `assets/`, EXCL `*.md`) to `../brocco-dev` + pushes →
+    Coolify auto-serves `dev.brocco.run/verb-kitchen/`. The user wants every
+    finished change committed + pushed to DEV automatically (only the real
+    krabsy.com site needs explicit approval).
+  - **Verified** via headless-Edge + `__VK`/`__touch`; zero console errors.
+    **Multi-session note:** the MASTER session released the game to the homepage
+    (`9d52df5`) + did analytics/SEO; the CO-OP session added Levels 4/5 +
+    `src/helper.js` on top — all linear on `main`; current HEAD boots & all 5
+    levels load.
+  - **Open:** star times are placeholders (Level 1 is slower now it's guided);
+    `pizza3.json` shipped WITHOUT its ketchup bottle, so it's re-added as a start
+    item — drop that if the editor exports it; portrait crops the menu image's
+    side chefs (centre wall stays). `assets/` is gitignored — images + models
+    ship via the deploy rsync, NOT git.
+
 - 2026-06-16 — **Mobile menu auto-start FIX + Level 5 compacted (user).**
   - **Bug:** on mobile, opening the game jumped straight into a level (Level 4).
     Cause: `tap()` (in BOTH `main.js` and `ui.js`) acted on `pointerup` with a
