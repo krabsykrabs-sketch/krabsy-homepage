@@ -217,6 +217,18 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-17 — **Sundae (L7): reusable chocolate-syrup DRIZZLE added** (user
+  feedback — keep depth as-is for playtest, but add a sauce drizzle as the
+  deluxe step). New `choc_syrup` item = reusable bottle (ketchup model tinted
+  dark, `drizzle: 'syrup'`) + `syrup` content (tomato-sauce blob tinted dark,
+  copied that model in). `game.counterInteract` got a small DRIZZLE branch: a
+  `drizzle` bottle (held OR on the counter) adds its sauce to a plated
+  dish-in-progress and is NOT consumed (either orientation, like the pizza
+  ketchup). `sundae_deluxe` now requires `syrup` (parts +syrup, 45🪙,
+  icons 🍫🍓🍒🍯); one bottle pre-placed on a counter via `startItems` (6,2).
+  Verified headless: drizzle → contents `…+syrup`, dish `sundae_deluxe`, bottle
+  kept in hand. Files: `recipes.js` `game.js` `levels.js` `qa.js`.
+
 - 2026-06-17 — **Integration pass (master session) for Levels 6 + 7.** The soup
   + sundae levels were built by two parallel sub-sessions (one at a time, in the
   real checkout) and integrated here. (a) **Soup chops → TWO-STAGE** per user:
