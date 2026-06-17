@@ -217,6 +217,18 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-17 — **Integration pass (master session) for Levels 6 + 7.** The soup
+  + sundae levels were built by two parallel sub-sessions (one at a time, in the
+  real checkout) and integrated here. (a) **Soup chops → TWO-STAGE** per user:
+  onion/carrot/potato now `raw → _half (interim, the diced look) → _chopped
+  (final: rings/pieces/mashed)`, matching the lettuce/cheese pattern; copied
+  `food_ingredient_{onion_rings,carrot_pieces,potato_mashed}` into the gitignored
+  model working copy and pointed `POT_VEG_MODELS` at them (final ids unchanged →
+  pot logic untouched). (b) Verified both levels render headless with no missing
+  models (soup pot of chopped veg + plated soup bowl; sundae cold-assembly
+  layout w/ no cook stations). Both levels coexist cleanly (sequential commits,
+  separate level objects/items). Open soup tuning kept (single recipe,
+  onion+carrot+potato). Sundae's own open questions still pending user input.
 - 2026-06-17 — **Level 7 "Sundae Sunday" — the FIRST cold-assembly level (no
   cooking, no chopping).** Single player. Proves the assemble→serve→wash loop
   works with NO stove / board / oven present — pure SALAD pattern, but cold.

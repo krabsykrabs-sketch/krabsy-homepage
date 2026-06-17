@@ -47,17 +47,21 @@ export const ITEMS = {
   // --- level 6: vegetable soup ---
   // Build a soup in a POT by chopping three vegetables (onion is the ONE new
   // ingredient) and adding them in ANY order — exactly like pizza toppings on a
-  // dough base. The empty pot comes from a crate; each veg is a one-stage chop
-  // (raw → chopped). A pot-in-progress is identified by the SET of veg it holds,
-  // so build order never matters. Only the COMPLETE pot is cookable: boil it on
-  // the stove (cookTo) → a finished `soup` (a stew bowl, plateable) → plate →
-  // serve. Over-boil burns it (burnTo) like a patty. States generated below.
-  onion:           { model: 'food_ingredient_onion',          emoji: '🧅', chopTo: 'onion_chopped', chopTime: 1.8 },
-  onion_chopped:   { model: 'food_ingredient_onion_chopped',  emoji: '🧅' },
-  carrot:          { model: 'food_ingredient_carrot',         emoji: '🥕', chopTo: 'carrot_chopped', chopTime: 1.8 },
-  carrot_chopped:  { model: 'food_ingredient_carrot_chopped', emoji: '🥕' },
-  potato:          { model: 'food_ingredient_potato',         emoji: '🥔', chopTo: 'potato_chopped', chopTime: 1.8 },
-  potato_chopped:  { model: 'food_ingredient_potato_chopped', emoji: '🥔' },
+  // dough base. The empty pot comes from a crate; each veg is a TWO-stage chop
+  // (raw → half → chopped), like lettuce/cheese: raw → `_half` (interim, the
+  // diced look) → final (rings / pieces / mashed). A pot-in-progress is
+  // identified by the SET of veg it holds, so build order never matters. Only
+  // the COMPLETE pot is cookable: boil it on the stove (cookTo) → a finished
+  // `soup` (a stew bowl, plateable) → plate → serve. Over-boil burns it (burnTo).
+  onion:           { model: 'food_ingredient_onion',          emoji: '🧅', chopTo: 'onion_half', chopTime: 1.8 },
+  onion_half:      { model: 'food_ingredient_onion_chopped',  emoji: '🧅', chopTo: 'onion_chopped', chopTime: 1.8, interim: true },
+  onion_chopped:   { model: 'food_ingredient_onion_rings',    emoji: '🧅' },
+  carrot:          { model: 'food_ingredient_carrot',         emoji: '🥕', chopTo: 'carrot_half', chopTime: 1.8 },
+  carrot_half:     { model: 'food_ingredient_carrot_chopped', emoji: '🥕', chopTo: 'carrot_chopped', chopTime: 1.8, interim: true },
+  carrot_chopped:  { model: 'food_ingredient_carrot_pieces',  emoji: '🥕' },
+  potato:          { model: 'food_ingredient_potato',         emoji: '🥔', chopTo: 'potato_half', chopTime: 1.8 },
+  potato_half:     { model: 'food_ingredient_potato_chopped', emoji: '🥔', chopTo: 'potato_chopped', chopTime: 1.8, interim: true },
+  potato_chopped:  { model: 'food_ingredient_potato_mashed',  emoji: '🥔' },
   pot_empty:       { model: 'pot_A',                          emoji: '🍲', scale: 0.9 },   // .accepts wired below
   soup:            { model: 'food_stew',                      emoji: '🍲', scale: 0.9, plateable: true, burnTo: 'soup_burnt', burnTime: 12, steamy: true },
   soup_burnt:      { model: 'food_stew',                      emoji: '💀', scale: 0.9, tint: '#2a2118', trashOnly: true },
@@ -120,11 +124,12 @@ export function potWipId(set) {
   }
 })();
 
-// Scatter models used to dress an in-progress pot per vegetable.
+// Scatter models used to dress an in-progress pot per vegetable (the final
+// chopped look: rings / pieces / mashed, matching each veg's `_chopped` item).
 export const POT_VEG_MODELS = {
-  onion: 'food_ingredient_onion_chopped',
-  carrot: 'food_ingredient_carrot_chopped',
-  potato: 'food_ingredient_potato_chopped',
+  onion: 'food_ingredient_onion_rings',
+  carrot: 'food_ingredient_carrot_pieces',
+  potato: 'food_ingredient_potato_mashed',
 };
 
 // ---------- pizza-in-progress states (order-free assembly) ----------
