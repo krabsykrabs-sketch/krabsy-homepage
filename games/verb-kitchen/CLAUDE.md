@@ -217,6 +217,52 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-19 — **Ice Cream (L7) REBUILT from the user's `Ice.json` — editor JSON
+  layout, bowls, cold scoop-assembly.** The Sundae level is now an editor-JSON
+  layout (`levels/icecream7.json`, `vessel:'bowl'`) replacing the old ASCII map.
+  - **From the user's `Ice.json`, completed to be engine-playable.** Their layout
+    only floored cols 1–6/rows 1–4, leaving the sink + front counters OFF the
+    floor (so no stations). I completed the floor to a full **8×6 rectangle** (so
+    the sink, front counters and trash all sit on floor and get stations),
+    swapped the placeholder `bowl_small` for a **dishrack** at (7,4) as the
+    clean-bowl source, and dropped the two decorative cones that sat on the
+    serving-hatch tiles. Kept all the user's flavour tubs + ice-cream decor.
+  - **Three flavour tubs** on the left wall — `icecream_container_icecream_{vanilla,
+    strawberry,chocolate}` at (1,2)/(1,3)/(1,4). New `world.typeOf` rule:
+    `icecream_container_icecream*` → a crate dispensing the matching `scoop_*`
+    (CRATE_MODELS already mapped scoops → those container models, so the reverse
+    lookup just works).
+  - **Cold assembly (the salad pattern, reused unchanged):** grab a clean BOWL
+    from the rack, scoop flavours from the tubs (each `scoop_*` is a plateable
+    grabbed from its crate), drop them on the bowl in any order, it matches a
+    sundae DISH, serve at the hatch → dirty bowl → sink quiz. Served in bowls via
+    the `vessel:'bowl'` system (the finished `icecream_bowl_*` model renders as the
+    bowl itself). NO stove/board/oven — pure cold assembly.
+  - **Dishes simplified to scoop SETS** (the editor layout has no cherry/syrup
+    source): **Vanilla Scoop** = {vanilla} (20🪙, bowl_icecream_vanilla); **Berry
+    Duo** = {strawberry, chocolate} (32🪙, bowl_cherries); **Neapolitan** =
+    {vanilla, chocolate, strawberry} (44🪙, bowl_decorated_A). The `cherry` /
+    `choc_syrup` / `syrup` ITEMS + the drizzle code stay defined for when a topping
+    source is added back. 6 orders · 2 bowls.
+  - **Assets copied** (gitignored): `icecream_container`, `icecream_cone_stacked`,
+    `icecream_bowl_{waffles,cookiesticks}`, `food_icecream_cone_{vanilla,chocolate,
+    strawberry}` (the flavour tubs / decorated bowls / scoop / bowl / bowl_dirty
+    were already in).
+  - **Verified** headless-Edge (CDP) `?qa=icecream`: boots clean (only favicon
+    404), station census = **3 crate (the tubs) / sink / rack / 2 hatch / trash /
+    0 stove-board-oven**; crates dispense vanilla/strawberry/chocolate; a full
+    DRIVEN loop passed — grab bowl → park on counter → scoop V+C+S (V alone =
+    sundae_vanilla, all three = Neapolitan) → serve (1) → dirty bowl returns.
+    Screenshot shows the parlour (tubs, decor cones/bowls, sink + clean-bowl
+    stack, trash). Files: `recipes.js` `world.js` `levels.js` `qa.js` +
+    `levels/icecream7.json`.
+  - **Open / to weigh in (decisions I made — user will refine):** no cherry/syrup
+    source in the layout → dishes are scoop-only (add a topping crate + restore
+    the cherry/deluxe dishes when wanted); the right edge has a thin dead floor
+    strip (col 8) from the 2×2 floor tiles; decorative topping bowls sit on the
+    front work counters (cosmetic); star times are placeholders; the old ASCII
+    Sundae map is gone (replaced by the JSON).
+
 - 2026-06-19 — **Soup (L6) REBUILT from the user's `Soup6.json` — Overcooked
   stove-pots + BOWLS + two recipes.** The soup level is now an editor-JSON layout
   (`levels/soup6.json`, `vessel:'bowl'`) instead of ASCII. Big changes:
