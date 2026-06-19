@@ -217,6 +217,54 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-06-19 — **Soup (L6) REBUILT from the user's `Soup6.json` — Overcooked
+  stove-pots + BOWLS + two recipes.** The soup level is now an editor-JSON layout
+  (`levels/soup6.json`, `vessel:'bowl'`) instead of ASCII. Big changes:
+  - **Two empty pots live ON the two stoves at start** (`startItems` place
+    `pot_empty` on each stove; `pot_empty` model = `pot_B`). New
+    `game.potStoveInteract`: tip a veg into a stove-pot (E) → combine; a COMPLETE
+    recipe **auto-boils** in place; the cooked soup is **scooped into a clean
+    bowl** (pot stays on the stove, empties → `pot_empty`, reused — user's choice
+    "stays empty, reuse it"). Pots can't be picked up (permanent fixtures).
+  - **TWO recipes share four veg** (`recipes.js` rewrite): carrot + potato →
+    `pot_soup_cp`/`cp_soup` (orange `food_stew`); onion + mushroom →
+    `pot_soup_om`/`om_soup` (same model TINTED creamy `#e9dcb6` — user: "tint the
+    stew a new colour", no AI art). `buildPotStates` now only generates VALID
+    states (empty, each single veg, the two pairs) — a one-veg pot accepts ONLY
+    its partner, so cross-recipe mixes (carrot+onion) are impossible.
+  - **Interim pot visual = tinted BROTH disc + the veg** (`composePot`): a
+    half-filled pot shows broth coloured by its recipe (orange vs creamy) + the
+    one veg, so "soup forming without the second veg" reads at a glance, distinct
+    by colour (the user's interim-step + colour requirement).
+  - **BOWLS replace plates** for this level: module-level `VESSEL`/`setVessel` in
+    `stations.js` (set from `level.vessel` in `startLevel`). Clean bowl = `bowl`,
+    dirty = `bowl_dirty`, soup-in-bowl renders the `food_stew` model directly (it
+    IS a bowl of soup; tinted for OM). **Dish rack removed** (world.js suppresses
+    the `dishrack` model on bowl levels) — clean bowls just STACK where it was;
+    dirty bowls nest on the RIGHT of the sink (`refreshStack` vessel-aware).
+  - **No cutting boards in the user's layout** → pots accept BOTH raw and chopped
+    veg (`POT_ADDERS`), so you grab a veg and tip it straight in; the chop chains
+    still work if boards are ever re-added. Pot always renders the veg as cut
+    pieces (`POT_VEG_MODELS`, now incl. mushroom).
+  - **world.js**: `typeOf` infers `stove_*` → 'stove' (+ PRI + a measured stove
+    topY) for JSON levels. **Assets copied**: `stove_single` + the styleB
+    backsplash counters/sink/innercorner (gltf+bin); `pot_B`/`pot_B_stew`/`bowl`/
+    `bowl_dirty`/`food_stew`/`mushroom_pieces` already present. `bowl`/`bowl_dirty`
+    added to the preload manifest.
+  - **Verified**: pure-logic harness (37 asserts: valid/invalid pot states, raw
+    & chopped adds, recipe boils, scoop targets, dish match, tints, manifest) all
+    pass; headless-Edge (CDP) `?qa=soup` boots clean (only a favicon 404), station
+    census = **4 crate / 2 stove (pots) / sink / rack / 2 hatch / trash**, both
+    pots + the bowl-of-soup render; a full DRIVEN loop passed: raw carrot →
+    `potwip_carrot` → raw potato → `potwip_carrot_potato` (auto-cooking) → boil →
+    `pot_soup_cp` → scoop → `carrot_potato_soup` bowl + pot reset → serve (1) →
+    dirty bowl returns. Burger (plate) level regression clean. Files: `recipes.js`
+    `stations.js` `game.js` `world.js` `levels.js` `qa.js` + `levels/soup6.json`.
+  - **Open / to weigh in:** layout has no boards so veg go in RAW (the two-stage
+    chop is bypassed for soup — say if you want boards + chopping back); star
+    times are placeholders; the OM bowl is the same `food_stew` model tinted
+    creamy (swap if you want distinct art); 6 orders (3 of each recipe) · 2 bowls.
+
 - 2026-06-17 — **Soup (L6) FIX (user: "can't place anything into the pots; the
   stoves show pans").** Diagnosed headless: the pot-fill combine WORKED but only
   on a counter — holding the pot and pressing E on a chopped veg sitting on a
