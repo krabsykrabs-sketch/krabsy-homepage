@@ -242,10 +242,13 @@ welcome alternative to choice chips.
     IS a bowl of soup; tinted for OM). **Dish rack removed** (world.js suppresses
     the `dishrack` model on bowl levels) — clean bowls just STACK where it was;
     dirty bowls nest on the RIGHT of the sink (`refreshStack` vessel-aware).
-  - **No cutting boards in the user's layout** → pots accept BOTH raw and chopped
-    veg (`POT_ADDERS`), so you grab a veg and tip it straight in; the chop chains
-    still work if boards are ever re-added. Pot always renders the veg as cut
-    pieces (`POT_VEG_MODELS`, now incl. mushroom).
+  - **Cutting boards (added 2026-06-19, user: "we forgot the cutting boards").**
+    Two `cuttingboard`s sit on the central island (JSON 3,3 / 4,3, on the
+    outercorner counters) with an auto-placed knife each — same as every other
+    level. Veg are chopped there (two-stage chop) and the CHOPPED form is tipped
+    into a stove-pot (`POT_ADDERS` = chopped-only again, so the boards are
+    load-bearing). Pot renders the veg as cut pieces (`POT_VEG_MODELS`, incl.
+    mushroom).
   - **world.js**: `typeOf` infers `stove_*` → 'stove' (+ PRI + a measured stove
     topY) for JSON levels. **Assets copied**: `stove_single` + the styleB
     backsplash counters/sink/innercorner (gltf+bin); `pot_B`/`pot_B_stew`/`bowl`/
@@ -260,10 +263,9 @@ welcome alternative to choice chips.
     `pot_soup_cp` → scoop → `carrot_potato_soup` bowl + pot reset → serve (1) →
     dirty bowl returns. Burger (plate) level regression clean. Files: `recipes.js`
     `stations.js` `game.js` `world.js` `levels.js` `qa.js` + `levels/soup6.json`.
-  - **Open / to weigh in:** layout has no boards so veg go in RAW (the two-stage
-    chop is bypassed for soup — say if you want boards + chopping back); star
-    times are placeholders; the OM bowl is the same `food_stew` model tinted
-    creamy (swap if you want distinct art); 6 orders (3 of each recipe) · 2 bowls.
+  - **Open / to weigh in:** star times are placeholders; the OM bowl is the same
+    `food_stew` model tinted creamy (swap if you want distinct art); 6 orders
+    (3 of each recipe) · 2 bowls.
 
 - 2026-06-17 — **Soup (L6) FIX (user: "can't place anything into the pots; the
   stoves show pans").** Diagnosed headless: the pot-fill combine WORKED but only
