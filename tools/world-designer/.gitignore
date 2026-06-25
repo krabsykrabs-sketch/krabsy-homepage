@@ -1,0 +1,3 @@
+# Copied asset packs — large binaries, re-derivable from the shared
+# /assets library. Re-create with build/copy-pack.sh (see README).
+assets/*/
