@@ -91,6 +91,14 @@ the whole block.
 
 For a `w×d` piece: XZ centre = `cellCenter(col + (w-1)/2, row + (d-1)/2)`.
 
+> **Footprint per pack.** `restaurant-bits` uses this hand-authored table (it must
+> match the frozen kitchen loader, which treats only the big floors as 2×2 and
+> everything else 1×1). **Other packs DERIVE the footprint from the model's
+> measured size**: `w = max(1, round(sizeX / 2))`, `d = max(1, round(sizeZ / 2))`
+> (2 world units per cell). So e.g. Prototype `Floor`/`Primitive_Cube`/slopes →
+> 2×2, `Wall`/`Workbench` → 2×1. **A multi-pack runtime must derive footprints the
+> same way** for non-`restaurant-bits` packs, or pieces will sit off their anchor.
+
 **B. Ground (laid flush, contributes 0 to the stack).** Placed so the model's
 origin sits at the stack surface (the slab recesses below), and things on the
 same cell stay at that surface height.
