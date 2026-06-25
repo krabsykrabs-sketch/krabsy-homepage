@@ -1,0 +1,104 @@
+{
+  "format": "krabsy-level",
+  "version": 1,
+  "catalog": "prototype-bits",
+  "grid": {
+    "cols": 3,
+    "rows": 6,
+    "tile": 2
+  },
+  "objects": [
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 4,
+      "rot": 3
+    },
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 2,
+      "rot": 3
+    },
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 0,
+      "rot": 3
+    },
+    {
+      "model": "wall",
+      "col": 0,
+      "row": 2,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "wall",
+      "col": 0,
+      "row": 0,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "wall_doorway",
+      "col": 0,
+      "row": 4,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "desk_decorated",
+      "col": 1,
+      "row": 1,
+      "rot": 1,
+      "pack": "furniture-bits",
+      "off": {
+        "x": -1.1,
+        "y": 0,
+        "z": -1
+      }
+    },
+    {
+      "model": "lamp_standing",
+      "col": 1,
+      "row": 2,
+      "rot": 1,
+      "pack": "furniture-bits"
+    },
+    {
+      "model": "rug_rectangle_stripes_A",
+      "col": 1,
+      "row": 3,
+      "rot": 1,
+      "pack": "furniture-bits"
+    },
+    {
+      "model": "chair_desk_B",
+      "col": 2,
+      "row": 0,
+      "rot": 3,
+      "pack": "furniture-bits",
+      "off": {
+        "x": -0.4,
+        "y": 0,
+        "z": 1.3
+      }
+    }
+  ]
+}

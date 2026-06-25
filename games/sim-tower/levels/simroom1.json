@@ -1,0 +1,92 @@
+{
+  "format": "krabsy-level",
+  "version": 1,
+  "catalog": "prototype-bits",
+  "grid": {
+    "cols": 3,
+    "rows": 6,
+    "tile": 2
+  },
+  "objects": [
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 4,
+      "rot": 3
+    },
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 2,
+      "rot": 3
+    },
+    {
+      "model": "Floor",
+      "col": 1,
+      "row": 0,
+      "rot": 3
+    },
+    {
+      "model": "wall",
+      "col": 0,
+      "row": 2,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "wall",
+      "col": 0,
+      "row": 0,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "cabinet_medium",
+      "col": 1,
+      "row": 2,
+      "rot": 1,
+      "pack": "furniture-bits"
+    },
+    {
+      "model": "couch_pillows",
+      "col": 1,
+      "row": 0,
+      "rot": 1,
+      "pack": "furniture-bits",
+      "off": {
+        "x": -1.2,
+        "y": 0,
+        "z": 1.1
+      }
+    },
+    {
+      "model": "wall_doorway",
+      "col": 0,
+      "row": 4,
+      "rot": 1,
+      "pack": "restaurant-bits",
+      "off": {
+        "x": 1.3,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "model": "table_low_decorated",
+      "col": 2,
+      "row": 4,
+      "rot": 1,
+      "pack": "furniture-bits"
+    }
+  ]
+}

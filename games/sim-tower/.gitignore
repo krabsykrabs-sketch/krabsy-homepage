@@ -1,0 +1,8 @@
+# Copied asset packs — large binaries, re-derivable from the shared /assets
+# library (see the brief's "Assets" section). The DEPLOYED homepage copy is
+# tracked separately at release; this source folder keeps them out of git.
+assets/models/
+assets/characters/
+
+# Windows NTFS metadata streams
+*Zone.Identifier

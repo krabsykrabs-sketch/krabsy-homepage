@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sim-tower",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-lc", "cd ~/krabsy-homepage/games/sim-tower && python3 -m http.server 8042"],
+      "port": 8042,
+      "autoPort": false
+    }
+  ]
+}
