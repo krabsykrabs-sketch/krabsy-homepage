@@ -22,23 +22,30 @@ This file is self-contained: everything needed to write a loader is here.
     { "model": "floor_kitchen", "col": 2, "row": 2, "rot": 0 },
     { "model": "kitchencounter_straight_A", "col": 3, "row": 1, "rot": 0 },
     { "model": "wall", "col": 4, "row": 0, "rot": 1 },
-    { "model": "oven", "col": 5, "row": 1, "rot": 0, "off": { "x": 0, "y": 0.2, "z": -0.1 } }
+    { "model": "oven", "col": 5, "row": 1, "rot": 0, "off": { "x": 0, "y": 0.2, "z": -0.1 } },
+    { "model": "couch", "pack": "furniture-bits", "col": 6, "row": 2, "rot": 0 }
   ]
 }
 ```
 
 | field | meaning |
 |---|---|
+| `catalog` | the **default** asset pack id for objects without their own `pack` |
 | `grid.cols` / `grid.rows` | grid size in tiles |
 | `grid.tile` | world units per tile (always **2** — KayKit pieces are 2×2) |
 | `objects[]` | placed pieces, **in stacking order** (earlier = lower in its cell) |
 | `model` | the GLTF base filename in the asset pack (e.g. `kitchencounter_straight_A`) |
+| `pack` | *optional* asset-pack id this object comes from — present only when it **differs** from the level's `catalog`. A level may **mix packs** (e.g. prototype walls + furniture). Absent ⇒ use `catalog`. |
 | `col`, `row` | grid cell. For multi-cell pieces this is the **anchor** (min corner) |
 | `rot` | quarter-turns 0–3 = 0° / 90° / 180° / 270° about +Y (the R-key rotation) |
 | `rotX`, `rotZ` | *optional* extra tilt in **degrees** about X / Z (e.g. lay a knife flat); absent = 0 |
 | `off` | *optional* manual nudge in **world units** (X/Y/Z); absent = 0,0,0 |
 
-Tolerate unknown fields / future `version` values.
+Tolerate unknown fields / future `version` values. A single-pack level (e.g.
+every kitchen level) carries **no** `pack` fields — so single-pack loaders that
+ignore `pack` keep working unchanged. A multi-pack loader must resolve each
+object's models from `obj.pack || catalog` (each pack = its own gltf dir +
+atlas; model names can collide across packs, so the pack id disambiguates).
 
 ---
 

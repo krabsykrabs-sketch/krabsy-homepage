@@ -43,9 +43,14 @@ Or use the Claude Code preview: `.claude/launch.json` (repo root) has a
   which still starts at 0,0,0 — edit `MODEL_META` in `editor.js` to tune it.
 - **Catalogs:** an asset pack the editor can load, pluggable via a dropdown.
   Registered today: **Restaurant Bits 1.0 EXTRA** (229 models incl. generated
-  floor tiles) and **Furniture Bits 1.0** (74 interior models — seating, beds,
-  tables/desks, storage, lighting, electronics, decor). Each pack has its own
-  category taxonomy (see *Add a catalog*).
+  floor tiles), **Furniture Bits 1.0** (74 interior models) and **Prototype Bits
+  1.1 EXTRA** (85 greybox/blockout models). Each pack has its own category
+  taxonomy (see *Add a catalog*).
+- **Combining packs:** the catalog dropdown switches the **active** pack (what
+  new placements use); switching does **not** clear the level, so one scene can
+  mix objects from several packs. Each object remembers its pack and exports a
+  `pack` field when it differs from the level's default `catalog` (see
+  `LEVEL-FORMAT.md`). Single-pack levels carry no `pack` fields — back-compatible.
 
 ## Controls
 
