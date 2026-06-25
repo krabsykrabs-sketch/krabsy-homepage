@@ -13,6 +13,7 @@ LIB="$HOME/krabsy-homepage/assets/KayKit"
 declare -A PACKS=(
   [restaurant-bits]="$LIB/KayKit_Restaurant_Bits_1.0_EXTRA/Assets/gltf"
   [furniture-bits]="$LIB/KayKit_Furniture_Bits_1.0_SOURCE/Assets/gltf"
+  [prototype-bits]="$LIB/KayKit_Prototype_Bits_1.1_EXTRA/Assets/gltf"
 )
 
 for id in "${!PACKS[@]}"; do

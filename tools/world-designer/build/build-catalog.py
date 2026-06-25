@@ -88,6 +88,29 @@ FURNITURE_META = [
 ]
 
 
+# --- prototype bits (greybox / blockout) ---------------------------------
+# Names are Capitalised (e.g. Primitive_Cube, Wall, Gun_Pistol). Primitives
+# first so Primitive_Wall / Floor_Prototype don't fall into 'architecture'.
+def prototype_rules():
+    return [
+        ('primitives',   _starts('Primitive', 'Cube_Prototype', 'Floor_Prototype')),
+        ('architecture', _starts('Wall', 'Door', 'Floor', 'Pillar')),
+        ('targets',      _starts('target')),
+        ('weapons',      _starts('Gun', 'Bullet', 'Bat', 'Ammo')),
+        ('props',        _starts('Box', 'Barrel', 'Can', 'Coin', 'Pallet',
+                                 'Locker', 'Workbench', 'Weaponrack', 'table', 'Dummy')),
+    ]
+
+PROTOTYPE_META = [
+    ('primitives',   'Primitives (greybox)'),
+    ('architecture', 'Walls, Doors & Floors'),
+    ('props',        'Props & Containers'),
+    ('targets',      'Targets'),
+    ('weapons',      'Weapons & Ammo'),
+    ('misc',         'Other'),
+]
+
+
 def categorize(name, rules):
     for cid, pred in rules:
         if pred(name):
@@ -114,6 +137,15 @@ PACKS = [
         'atlas': 'furniturebits_texture.png',
         'rules': furniture_rules,
         'meta': FURNITURE_META,
+    },
+    {
+        'id': 'prototype-bits',
+        'name': 'Prototype Bits 1.1 EXTRA',
+        'format': 'gltf',
+        'basePath': 'assets/prototype-bits/',
+        'atlas': 'prototypebits_texture.png',
+        'rules': prototype_rules,
+        'meta': PROTOTYPE_META,
     },
 ]
 
