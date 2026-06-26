@@ -172,7 +172,38 @@ export class Character {
     if (wp.face) this.faceTo(0, wp.face);
   }
 
+  // ── building commute (world-space travel via corridor + elevator) ───────
+  /** plan = { wps:[Vector3 world…], boardI, alightI, elevC, fromF, toF, onArrive } */
+  startCommute(plan) {
+    this.commute = { ...plan, i: 0, sub: 'walk' };
+    this.path = null; this.bfsCells = null;
+    this.play('walk');
+  }
+  updateCommute(dt) {
+    this.mixer.update(dt);
+    const cm = this.commute;
+    if (cm.sub === 'wait') { this.play('idle'); return; }      // waiting at the lift door
+    if (cm.sub === 'ride') { this.play('idle'); return; }      // riding (manager moves us)
+    // sub === 'walk' — follow world waypoints (3D so we can climb stairs)
+    const target = cm.wps[cm.i];
+    this.tmp.copy(target).sub(this.obj.position);
+    const dist = this.tmp.length();
+    if (dist <= CONFIG.ARRIVE_EPS) {
+      this.obj.position.copy(target);
+      cm.i++;
+      if (cm.elevC != null && cm.i === cm.boardI) { cm.sub = 'wait'; this.play('idle'); if (this.onElevatorRequest) this.onElevatorRequest(this); return; }
+      if (cm.i >= cm.wps.length) { const cb = cm.onArrive; this.commute = null; cb && cb(this); return; }
+    } else {
+      const step = Math.min(dist, this.speed * dt);
+      this.tmp.normalize();
+      this.obj.position.addScaledVector(this.tmp, step);
+      this.faceTo(this.tmp.x, this.tmp.z, dt);
+      this.play('walk');
+    }
+  }
+
   update(dt) {
+    if (this.commute) return this.updateCommute(dt);
     this.mixer.update(dt);
     const wp = this.waypoints[this.wi];
     if (!wp) return;

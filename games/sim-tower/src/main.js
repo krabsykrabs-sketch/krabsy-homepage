@@ -73,6 +73,13 @@ const characters = [];
 const tweens = [];          // spawn pop-in (character) tweens
 let gi = 0;                 // global character index (variety)
 let game = null;
+const commutersGroup = new THREE.Group();   // world-space home for residents while travelling
+commutersGroup.name = 'commuters';
+scene.add(commutersGroup);
+/** Move a character into world space (commuting) keeping its world transform. */
+function detachToWorld(char) { commutersGroup.attach(char.obj); }
+/** Settle a character back into a room's actors layer (world → room-local). */
+function attachToRoom(char, room) { room.actors.updateWorldMatrix(true, false); room.actors.attach(char.obj); }
 
 function aspect() { return (innerWidth > 0 && innerHeight > 0) ? innerWidth / innerHeight : 1.5; }
 
@@ -303,7 +310,7 @@ async function boot() {
     // The GAME is the single experience; ?sandbox=1 just starts it in free-build.
     ovmsg.textContent = 'opening Krabsy Tower…';
     hud.style.display = 'none';
-    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, removeOne, rig });
+    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, removeOne, detachToWorld, attachToRoom, deriveWaypoints, rig });
     await game.start(startLots, { freeBuild: SANDBOX });
     if (!SHOW_UI) game.setUiVisible(false);
     applyCamQA();

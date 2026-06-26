@@ -6,6 +6,7 @@ import { CONFIG } from './config.js';
 import { audio, unlockAudio } from './audio.js';
 import { createSlotPicker } from './slots.js';
 import { CHAR_EMOJI } from './character.js';
+import { planTrip, ElevatorManager, elevatorFor } from './commute.js';
 
 // Resident wants — one per resident; met/unmet drives happiness + rent.
 const WANTS = {
@@ -25,8 +26,10 @@ const MILESTONES = [
 ];
 
 export function createGame(tower, deps) {
-  const { THREE, scene, camera, renderer, spawnOne, removeOne } = deps;
+  const { THREE, scene, camera, renderer, spawnOne, removeOne, detachToWorld, attachToRoom, deriveWaypoints } = deps;
   const G = CONFIG.GAME;
+  let elevatorMgr = null;
+  let commuteScanT = 0;
 
   const state = { coins: G.START_COINS, population: 0, level: 0, goalIdx: 0, running: false };
   const residents = [];         // { id, key, floor, char, type, want, mood, unhappyT, grumbleT }
@@ -127,12 +130,81 @@ export function createGame(tower, deps) {
       const k = key(r.col, r.floor);
       for (const res of residents) {
         if (res.key !== k) continue;
-        res.char = spawnOne(r, { bounce: false });
+        res.char = spawnOne(r, { bounce: false });   // fresh char, back home
+        res.traveling = false; res.atKey = res.key; res.atHome = true;
         if (res.char) res.char.obj.userData.resident = res;
       }
     }
   }
-  function onRebuilt() { syncRooms(); picker.refresh(); updateHud(); updateDock(); }
+  function onRebuilt() { elevatorMgr = new ElevatorManager(tower.built); syncRooms(); picker.refresh(); updateHud(); updateDock(); }
+
+  // ── commute (residents travel between floors via the elevator) ──────────
+  const roomByKey = (k) => tower.built.rooms.find((r) => key(r.col, r.floor) === k);
+  const floorOf = (k) => +k.slice(0, k.indexOf(':'));
+  const colOf = (k) => +k.slice(k.indexOf(':') + 1);
+  const randCommuteDelay = () => CONFIG.CIRCULATION ? (CC().COMMUTE_MIN + Math.random() * (CC().COMMUTE_MAX - CC().COMMUTE_MIN)) : 12;
+  function CC() { return CONFIG.CIRCULATION; }
+
+  function pickDestination(res) {
+    const curF = floorOf(res.atKey || res.key);
+    // prefer offices/cafés on another reachable floor (work/errand)
+    const cands = tower.built.rooms.filter((r) => {
+      if (r.floor === curF) return false;
+      const k = key(r.col, r.floor);
+      if (k === res.key) return false;
+      return !!planTrip(tower.built, curF, colOf(res.atKey || res.key), r.floor, r.col);
+    });
+    if (!cands.length) return null;
+    const work = cands.filter((r) => r.roomId === 'SimOffice' || r.roomId === 'cafe');
+    const pool = work.length ? work : cands;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function startCommute(res, destRoom, goingHome) {
+    const fromKey = res.atKey || res.key;
+    const plan = planTrip(tower.built, floorOf(fromKey), colOf(fromKey), destRoom.floor, destRoom.col);
+    if (!plan || !res.char) return false;
+    res.traveling = true;
+    detachToWorld(res.char);
+    res.char.onElevatorRequest = (c) => elevatorMgr && elevatorMgr.request(c);
+    res.char.startCommute({ ...plan, onArrive: () => onCommuteArrive(res, destRoom, goingHome) });
+    return true;
+  }
+
+  function onCommuteArrive(res, destRoom, goingHome) {
+    const room = roomByKey(key(destRoom.col, destRoom.floor)) || destRoom;
+    if (res.char) {
+      attachToRoom(res.char, room);
+      const { waypoints, nav } = deriveWaypoints(room);
+      res.char.waypoints = waypoints; res.char.nav = nav;
+      res.char.wi = 0; res.char.state = 'perform'; res.char.timer = 1 + Math.random() * 2;
+      res.char.path = null; res.char.bfsCells = null; res.char.parkedApproach = null; res.char.commute = null;
+    }
+    res.atKey = key(destRoom.col, destRoom.floor);
+    res.atHome = goingHome;
+    res.traveling = false;
+    res.commuteT = goingHome ? randCommuteDelay() : (CC().VISIT_MIN + Math.random() * (CC().VISIT_MAX - CC().VISIT_MIN));
+  }
+
+  function updateCommutes(dt) {
+    if (elevatorMgr) elevatorMgr.update(dt);
+    commuteScanT -= dt;
+    if (commuteScanT > 0) return;
+    commuteScanT = 0.5;
+    for (const res of residents) {
+      if (res.traveling || !res.char) continue;
+      if (res.atKey === undefined) { res.atKey = res.key; res.atHome = true; }
+      res.commuteT = (res.commuteT ?? randCommuteDelay()) - 0.5;
+      if (res.commuteT > 0) continue;
+      if (res.atHome) {
+        const dest = pickDestination(res);
+        if (dest) { startCommute(res, dest, false); } else { res.commuteT = randCommuteDelay(); }
+      } else {
+        const home = roomByKey(res.key);
+        if (home) startCommute(res, home, true); else { res.atHome = true; res.atKey = res.key; res.commuteT = randCommuteDelay(); }
+      }
+    }
+  }
 
   // ── actions ────────────────────────────────────────────────────────────
   // kind 'buy' = buy floor space on the frontier; kind 'lot' = build/clear a room.
@@ -213,7 +285,10 @@ export function createGame(tower, deps) {
     const ctx = buildCtx();
     for (let i = residents.length - 1; i >= 0; i--) {
       const r = residents[i];
-      if (wantMet(r, ctx)) { r.unhappyT = 0; r.mood = 'happy'; }
+      if (r.traveling) continue;                       // don't grumble / move out mid-commute
+      // stranded: lives above the ground with no elevator reaching the ground floor
+      r.stranded = floorOf(r.key) > 0 && !elevatorFor(tower.built, floorOf(r.key), 0);
+      if (wantMet(r, ctx) && !r.stranded) { r.unhappyT = 0; r.mood = 'happy'; }
       else {
         r.unhappyT += dt;
         r.mood = r.unhappyT >= G.LEAVE_TIME ? 'leaving' : 'meh';
@@ -305,6 +380,7 @@ export function createGame(tower, deps) {
     moveT -= dt;
     if (moveT <= 0) { moveT = G.MOVE_IN_INTERVAL * (0.7 + ((elapsed * 0.37) % 1) * 0.6); tryMoveIn(); }
     updateMoods(dt);
+    updateCommutes(dt);
     // income — each resident pays rent scaled by their mood (happy pays more)
     let earned = 0;
     for (const r of tower.built.rooms) {

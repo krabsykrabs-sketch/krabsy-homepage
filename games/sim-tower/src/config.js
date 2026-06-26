@@ -96,6 +96,10 @@ export const CONFIG = {
     ELEVATOR_SHAFT: '#1b2230',
     ELEVATOR_CAB: '#ffcf5e',
     ELEVATOR_DOOR_WAIT: 1.2,     // seconds the cab dwells at a floor
+    COMMUTE_MIN: 10,             // seconds at home before heading out
+    COMMUTE_MAX: 22,
+    VISIT_MIN: 7,                // seconds spent at the destination before heading home
+    VISIT_MAX: 14,
   },
 
   // ── Scene tint ────────────────────────────────────────────────────────
