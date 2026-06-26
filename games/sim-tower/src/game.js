@@ -5,25 +5,55 @@
 import { CONFIG } from './config.js';
 import { audio, unlockAudio } from './audio.js';
 import { createSlotPicker } from './slots.js';
+import { CHAR_EMOJI } from './character.js';
+
+// Resident wants — one per resident; met/unmet drives happiness + rent.
+const WANTS = {
+  sofa:  { icon: '🛋️', label: 'a sofa to relax on', met: (r, ctx) => ctx.roomIsApartment(r.key) },
+  quiet: { icon: '🤫', label: 'a quiet floor (no office)', met: (r, ctx) => !ctx.floorHasOffice(r.floor) },
+  cafe:  { icon: '☕', label: 'a café nearby', met: (r, ctx) => ctx.cafeNear(r.floor) },
+};
+const WANT_BY_TYPE = { Ranger: 'sofa', Rogue: 'sofa', Knight: 'quiet', Mage: 'cafe' };
+const MOOD_FACE = { happy: '😊', meh: '😐', leaving: '😟' };
 
 export function createGame(tower, deps) {
-  const { THREE, scene, camera, renderer, spawnOne } = deps;
+  const { THREE, scene, camera, renderer, spawnOne, removeOne } = deps;
   const G = CONFIG.GAME;
 
   const state = { coins: G.START_COINS, population: 0, level: 0, goalIdx: 0, running: false };
-  const occ = new Map();        // "f:c" → tenant count
+  const residents = [];         // { id, key, floor, char, type, want, mood, unhappyT, grumbleT }
+  let residentSeq = 0;
   const roomType = new Map();   // "f:c" → roomId
   const earnT = new Map();      // "f:c" → income timer
   const pops = [];              // furniture build-pop tweens
   let moveT = G.MOVE_IN_INTERVAL;
   let lastCoinSfx = 0;
   let elapsed = 0;
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
 
   const key = (c, f) => f + ':' + c;
   const costFor = (id) => G.COST[id] ?? G.COST._default;
   const earnFor = (id) => G.EARN[id] ?? G.EARN._default;
   const maxOcc = (id) => G.MAX_OCC[id] ?? G.MAX_OCC._default;
   const nextGoal = () => G.GOALS[Math.min(state.goalIdx, G.GOALS.length - 1)];
+  const occCount = (k) => residents.reduce((n, r) => n + (r.key === k ? 1 : 0), 0);
+
+  // want-evaluation context (recomputed when checking moods)
+  function buildCtx() {
+    const offices = new Set(), apartments = new Set(), cafeFloors = new Set();
+    for (const r of tower.built.rooms) {
+      if (r.roomId === 'SimOffice') offices.add(r.floor);
+      if (r.roomId === 'simroom1') apartments.add(key(r.col, r.floor));
+      if (r.roomId === 'cafe') cafeFloors.add(r.floor);
+    }
+    return {
+      roomIsApartment: (k) => apartments.has(k),
+      floorHasOffice: (f) => offices.has(f),
+      cafeNear: (f) => cafeFloors.has(f) || cafeFloors.has(f - 1) || cafeFloors.has(f + 1),
+    };
+  }
+  const wantMet = (r, ctx) => WANTS[r.want].met(r, ctx);
 
   tower.brush = tower.brush || Object.keys(tower.rooms)[0];
 
@@ -56,32 +86,42 @@ export function createGame(tower, deps) {
 
   const toast = el('div', 'gToast'); document.body.appendChild(toast);
   const floatLayer = el('div', 'gFloats'); document.body.appendChild(floatLayer);
+  const card = el('div', 'gCard'); document.body.appendChild(card);
 
   const picker = createSlotPicker(tower, { THREE, scene, camera, renderer, onPick: onSlotClick });
-  if (deps.rig) { deps.rig.onClick = (ev) => picker.clickAt(ev); deps.rig.onHover = (ev) => picker.hoverAt(ev); }
-  else picker.attachDirect();
+  // click a resident → show their want; otherwise fall through to building a slot
+  const handleClick = (ev) => { const res = pickResident(ev); if (res) showResidentCard(res); else { hideCard(); picker.clickAt(ev); } };
+  if (deps.rig) { deps.rig.onClick = handleClick; deps.rig.onHover = (ev) => picker.hoverAt(ev); }
+  else { renderer.domElement.addEventListener('pointerdown', handleClick); renderer.domElement.addEventListener('pointermove', (ev) => picker.hoverAt(ev)); }
 
-  // ── room registry sync (keeps occ/type in step with the layout) ────────
+  // ── room registry sync (keeps type/earn + residents in step with layout) ─
   function syncRooms() {
     const live = new Set();
     for (const r of tower.built.rooms) {
       const k = key(r.col, r.floor); live.add(k);
-      if (!occ.has(k)) occ.set(k, 0);
       roomType.set(k, r.roomId);
       if (!earnT.has(k)) earnT.set(k, G.EARN_INTERVAL * Math.random());
     }
-    for (const k of [...occ.keys()]) if (!live.has(k)) { occ.delete(k); roomType.delete(k); earnT.delete(k); }
+    for (const k of [...roomType.keys()]) if (!live.has(k)) { roomType.delete(k); earnT.delete(k); }
+    // drop residents whose room no longer exists (their char is gone with the rebuild)
+    for (let i = residents.length - 1; i >= 0; i--) if (!live.has(residents[i].key)) residents.splice(i, 1);
     recountPop();
   }
-  function recountPop() { let p = 0; for (const v of occ.values()) p += v; state.population = p; }
+  function recountPop() { state.population = residents.length; }
   function roomAt(c, f) { return tower.built.rooms.find((r) => r.col === c && r.floor === f); }
 
   // ── tower hooks (called from tower.rebuild) ────────────────────────────
+  // After a structural rebuild the character objects are gone — re-create one
+  // per existing resident and re-link it (residents are the persistent identity).
   function repopulate(rooms) {
     if (tower.freeBuild) return;                  // sandbox: empty rooms
     for (const r of rooms) {
-      const n = occ.get(key(r.col, r.floor)) || 0;
-      for (let i = 0; i < n; i++) spawnOne(r, { bounce: false });
+      const k = key(r.col, r.floor);
+      for (const res of residents) {
+        if (res.key !== k) continue;
+        res.char = spawnOne(r, { bounce: false });
+        if (res.char) res.char.obj.userData.resident = res;
+      }
     }
   }
   function onRebuilt() { syncRooms(); picker.refresh(); updateHud(); updateDock(); }
@@ -120,16 +160,80 @@ export function createGame(tower, deps) {
   }
 
   function tryMoveIn() {
-    const cands = tower.built.rooms.filter((r) => (occ.get(key(r.col, r.floor)) || 0) < maxOcc(roomType.get(key(r.col, r.floor))));
+    const cands = tower.built.rooms.filter((r) => occCount(key(r.col, r.floor)) < maxOcc(roomType.get(key(r.col, r.floor))));
     if (!cands.length) return;
     const r = cands[Math.floor((elapsed * 7.3) % cands.length)];   // deterministic-ish pick
-    const k = key(r.col, r.floor);
-    occ.set(k, (occ.get(k) || 0) + 1);
+    const char = spawnOne(r, { bounce: true });
+    const type = char ? char.typeName : 'Rogue';
+    const res = { id: residentSeq++, key: key(r.col, r.floor), floor: r.floor, char, type, want: WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
+    residents.push(res);
+    if (char) char.obj.userData.resident = res;
     recountPop();
-    spawnOne(r, { bounce: true });
     audio.moveIn();
     floatAt(r, '+1 👤', '#9fe6ff');
     checkGoal();
+  }
+
+  function moveOut(res) {
+    const i = residents.indexOf(res);
+    if (i < 0) return;
+    residents.splice(i, 1);
+    if (res.char) { floatAtChar(res.char, '👋 bye', '#ff8585'); removeOne(res.char); }
+    recountPop();
+    if (cardRes === res) hideCard();
+  }
+
+  // re-evaluate every resident's want → mood (happy/meh/leaving) → eventual move-out
+  function updateMoods(dt) {
+    const ctx = buildCtx();
+    for (let i = residents.length - 1; i >= 0; i--) {
+      const r = residents[i];
+      if (wantMet(r, ctx)) { r.unhappyT = 0; r.mood = 'happy'; }
+      else {
+        r.unhappyT += dt;
+        r.mood = r.unhappyT >= G.LEAVE_TIME ? 'leaving' : 'meh';
+        if (r.unhappyT >= G.MOVEOUT_TIME) { moveOut(r); continue; }
+        // occasional grumble float so unhappiness is visible without clicking
+        r.grumbleT -= dt;
+        if (r.grumbleT <= 0 && r.char) { r.grumbleT = G.GRUMBLE_INTERVAL * (0.8 + 0.4 * ((r.id * 0.31) % 1)); floatAtChar(r.char, r.mood === 'leaving' ? '😟' : '💢', '#ffb4b4'); }
+      }
+    }
+    if (cardRes) refreshCard();
+  }
+
+  // ── resident pick + card ────────────────────────────────────────────────
+  function pickResident(ev) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    ndc.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    ndc.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(ndc, camera);
+    const objs = residents.map((r) => r.char && r.char.obj).filter(Boolean);
+    const hits = raycaster.intersectObjects(objs, true);
+    if (!hits.length) return null;
+    let o = hits[0].object;
+    while (o && !o.userData.resident) o = o.parent;
+    return o ? o.userData.resident : null;
+  }
+  let cardRes = null;
+  function showResidentCard(res) { cardRes = res; refreshCard(); card.classList.add('show'); }
+  function hideCard() { cardRes = null; card.classList.remove('show'); }
+  function refreshCard() {
+    const res = cardRes; if (!res) return;
+    const ctx = buildCtx();
+    const met = wantMet(res, ctx);
+    const w = WANTS[res.want];
+    card.innerHTML =
+      `<div class="gCardHead">${CHAR_EMOJI[res.type] || '🙂'} ${res.type}</div>` +
+      `<div class="gCardWant">Wants: <b>${w.icon} ${w.label}</b></div>` +
+      `<div class="gCardMood m-${res.mood}">${MOOD_FACE[res.mood]} ${res.mood}` +
+      `<span class="gCardMet">${met ? '✓ satisfied' : '✗ not yet'}</span></div>`;
+    if (res.char) {
+      const wp = res.char.obj.getWorldPosition(new THREE.Vector3()); wp.y += 2.2;
+      const p = wp.project(camera);
+      const rect = renderer.domElement.getBoundingClientRect();
+      card.style.left = (rect.left + (p.x * 0.5 + 0.5) * rect.width) + 'px';
+      card.style.top = (rect.top + (-p.y * 0.5 + 0.5) * rect.height) + 'px';
+    }
   }
 
   function checkGoal() {
@@ -150,19 +254,19 @@ export function createGame(tower, deps) {
     // tenant move-in
     moveT -= dt;
     if (moveT <= 0) { moveT = G.MOVE_IN_INTERVAL * (0.7 + ((elapsed * 0.37) % 1) * 0.6); tryMoveIn(); }
-    // income
-    let earned = 0, earnRoom = null;
+    updateMoods(dt);
+    // income — each resident pays rent scaled by their mood (happy pays more)
+    let earned = 0;
     for (const r of tower.built.rooms) {
       const k = key(r.col, r.floor);
-      const n = occ.get(k) || 0;
-      if (n <= 0) continue;
+      const res = residents.filter((x) => x.key === k);
       let t = (earnT.get(k) || G.EARN_INTERVAL) - dt;
-      if (t <= 0) {
+      if (t <= 0 && res.length) {
         t = G.EARN_INTERVAL;
-        const gain = earnFor(roomType.get(k)) * n;
-        state.coins += gain; earned += gain;
-        floatAt(r, '+' + gain + ' 🪙', '#ffcf5e');
-        earnRoom = r;
+        let gain = 0;
+        for (const x of res) gain += earnFor(roomType.get(k)) * (G.MOOD_MULT[x.mood] ?? 1);
+        gain = Math.round(gain);
+        if (gain > 0) { state.coins += gain; earned += gain; floatAt(r, '+' + gain + ' 🪙', '#ffcf5e'); }
       }
       earnT.set(k, t);
     }
@@ -197,6 +301,15 @@ export function createGame(tower, deps) {
     s.style.left = p.x + 'px'; s.style.top = p.y + 'px'; s.style.color = color;
     floatLayer.appendChild(s);
     requestAnimationFrame(() => { s.style.transform = 'translate(-50%,-46px)'; s.style.opacity = '0'; });
+    setTimeout(() => s.remove(), 950);
+  }
+  function floatAtChar(char, text, color) {
+    const wp = char.obj.getWorldPosition(new THREE.Vector3());
+    const p = project(wp.x, wp.y + 2.0, wp.z);
+    const s = el('div', 'gFloat', text);
+    s.style.left = p.x + 'px'; s.style.top = p.y + 'px'; s.style.color = color;
+    floatLayer.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = 'translate(-50%,-40px)'; s.style.opacity = '0'; });
     setTimeout(() => s.remove(), 950);
   }
   function flashCoins() { $coins.parentElement.classList.add('gFlash'); setTimeout(() => $coins.parentElement.classList.remove('gFlash'), 500); }
@@ -267,11 +380,16 @@ export function createGame(tower, deps) {
     tower.onRebuilt = onRebuilt;
     tower.layout = initialLayout;
     await tower.rebuild();
-    // seed the starter room(s) with a tenant or two so it isn't dead on arrival
+    // seed the starter room(s) with a resident or two so it isn't dead on arrival
     for (const r of tower.built.rooms) {
       const k = key(r.col, r.floor);
       const seed = Math.min(G.SEED_OCCUPIED, maxOcc(roomType.get(k)));
-      for (let i = 0; i < seed; i++) { occ.set(k, (occ.get(k) || 0) + 1); spawnOne(r, { bounce: false }); }
+      for (let i = 0; i < seed; i++) {
+        const char = spawnOne(r, { bounce: false });
+        const type = char ? char.typeName : 'Rogue';
+        const res = { id: residentSeq++, key: k, floor: r.floor, char, type, want: WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
+        residents.push(res); if (char) char.obj.userData.resident = res;
+      }
     }
     recountPop();
     picker.setVisible(true);
@@ -280,7 +398,7 @@ export function createGame(tower, deps) {
     state.running = true;
   }
 
-  return { start, tick, state, setUiVisible(v) { hud.style.display = dock.style.display = v ? '' : 'none'; picker.setVisible(v); } };
+  return { start, tick, state, residents, showResidentCard, pickResident, setUiVisible(v) { hud.style.display = dock.style.display = v ? '' : 'none'; picker.setVisible(v); } };
 }
 
 // ── DOM helpers + styles ────────────────────────────────────────────────────
@@ -330,6 +448,18 @@ function injectStyles() {
   .gFloats{position:fixed; inset:0; z-index:43; pointer-events:none; overflow:hidden;}
   .gFloat{position:absolute; transform:translate(-50%,0); font:800 17px 'Nunito',sans-serif; opacity:1;
     text-shadow:0 2px 4px rgba(0,0,0,.6); transition:transform .9s ease-out, opacity .9s ease-out; white-space:nowrap;}
+  .gCard{position:fixed; z-index:46; transform:translate(-50%,-100%); margin-top:-10px; pointer-events:none;
+    background:rgba(16,20,29,.96); border:1px solid rgba(46,230,192,.4); border-radius:12px; padding:10px 13px;
+    color:#e7ecf3; font:600 13px 'Nunito',sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.5); opacity:0;
+    transition:opacity .15s; min-width:170px; white-space:nowrap;}
+  .gCard.show{opacity:1;}
+  .gCard:after{content:''; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
+    border:7px solid transparent; border-top-color:rgba(46,230,192,.4);}
+  .gCardHead{font:700 15px 'Fredoka One','Nunito',cursive; color:#2ee6c0; margin-bottom:3px;}
+  .gCardWant{color:#cdd6e2; margin-bottom:5px;}
+  .gCardMood{display:flex; gap:8px; align-items:center; font-weight:800;}
+  .gCardMood.m-happy{color:#2ee6c0;} .gCardMood.m-meh{color:#ffcf5e;} .gCardMood.m-leaving{color:#ff8585;}
+  .gCardMet{color:#8fa0b6; font-weight:700; font-size:12px;}
   `;
   document.head.appendChild(s);
 }

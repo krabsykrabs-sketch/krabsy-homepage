@@ -101,5 +101,10 @@ export const CONFIG = {
     GOALS: [3, 6, 10, 15, 22, 30, 42, 56],                 // population milestones → level up
     GOAL_BONUS: 12,                                         // coins awarded on level up
     SEED_OCCUPIED: 1,                                       // tenants pre-placed in the starter room
+    // ── wants + happiness (Option 2) ──
+    LEAVE_TIME: 24,                                         // seconds a want stays unmet before "leaving" (grumbling, low rent)
+    MOVEOUT_TIME: 46,                                       // seconds unmet before they actually move out
+    MOOD_MULT: { happy: 1.6, meh: 0.8, leaving: 0.4 },     // rent multiplier by mood (happy pays more)
+    GRUMBLE_INTERVAL: 4.0,                                  // seconds between grumble 💢 floats from unhappy residents
   },
 };

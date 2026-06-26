@@ -10,6 +10,8 @@ import { buildRoomNav } from './nav.js';
 
 const C = 'assets/characters/';
 const CHAR_FILES = ['Rogue.glb', 'Knight.glb', 'Mage.glb', 'Ranger.glb'];
+export const CHAR_NAMES = ['Rogue', 'Knight', 'Mage', 'Ranger'];
+export const CHAR_EMOJI = { Rogue: '🗡️', Knight: '🛡️', Mage: '🧙', Ranger: '🏹' };
 const ANIM_FILES = ['Rig_Medium_MovementBasic.glb', 'Rig_Medium_General.glb', 'Rig_Medium_Simulation.glb'];
 
 const gltfLoader = new GLTFLoader();
@@ -89,6 +91,7 @@ export function deriveWaypoints(room) {
 export class Character {
   constructor(index, waypoints, nav = null) {
     this.nav = nav;
+    this.typeName = CHAR_NAMES[index % CHAR_NAMES.length];
     this.path = null;        // array of THREE.Vector3 sub-points to the current waypoint
     this.pathI = 0;
     this.obj = new THREE.Group();

@@ -126,6 +126,13 @@ function clearCharacters() {
   for (const c of characters) c.obj.parent?.remove(c.obj);
   characters.length = 0;
 }
+/** Remove a single character (a resident moving out). */
+function removeOne(char) {
+  if (!char) return;
+  char.obj.parent?.remove(char.obj);
+  const i = characters.indexOf(char);
+  if (i >= 0) characters.splice(i, 1);
+}
 /** Spawn one tenant into a room (room-local actors layer). Optional pop-in. */
 function spawnOne(room, { bounce = false } = {}) {
   const { waypoints, nav } = deriveWaypoints(room);
@@ -315,7 +322,7 @@ async function boot() {
     // ── default: the GAME ──
     ovmsg.textContent = 'opening Krabsy Tower…';
     hud.style.display = 'none';
-    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, rig });
+    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, removeOne, rig });
     await game.start(layout || normalizeLayout(GAME_START_LAYOUT, tower.cols));
     if (!SHOW_UI) game.setUiVisible(false);
     applyCamQA();
