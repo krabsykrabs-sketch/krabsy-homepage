@@ -16,6 +16,14 @@ const WANTS = {
 const WANT_BY_TYPE = { Ranger: 'sofa', Rogue: 'sofa', Knight: 'quiet', Mage: 'cafe' };
 const MOOD_FACE = { happy: '😊', meh: '😐', leaving: '😟' };
 
+// Soft milestones — gentle direction tied to the level bar (no fail).
+const MILESTONES = [
+  { id: 'house5', label: 'House 5 residents',        reward: 15, check: (a) => a.population >= 5,     prog: (a) => `${Math.min(a.population, 5)}/5` },
+  { id: 'cafe',   label: 'Build a café ☕',           reward: 20, check: (a) => a.hasCafe(),           prog: (a) => (a.hasCafe() ? '✓' : 'not yet') },
+  { id: 'happy8', label: 'Keep 8 residents happy',   reward: 25, check: (a) => a.happyCount() >= 8,   prog: (a) => `${a.happyCount()}/8` },
+  { id: 'grow12', label: 'Grow to 12 residents',     reward: 30, check: (a) => a.population >= 12,    prog: (a) => `${Math.min(a.population, 12)}/12` },
+];
+
 export function createGame(tower, deps) {
   const { THREE, scene, camera, renderer, spawnOne, removeOne } = deps;
   const G = CONFIG.GAME;
@@ -29,6 +37,8 @@ export function createGame(tower, deps) {
   let moveT = G.MOVE_IN_INTERVAL;
   let lastCoinSfx = 0;
   let elapsed = 0;
+  let milestoneIdx = 0;
+  let milestoneT = 0;
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
 
@@ -68,6 +78,7 @@ export function createGame(tower, deps) {
       <span class="gGoal" id="gGoal"></span></div>`;
   const $coins = hud.querySelector('#gCoins'), $pop = hud.querySelector('#gPop'),
         $lvl = hud.querySelector('#gLvl'), $bar = hud.querySelector('#gBarFill'), $goal = hud.querySelector('#gGoal');
+  const goalBanner = el('div', 'gGoalBanner'); document.body.appendChild(goalBanner);
 
   const dock = el('div', 'gDock'); document.body.appendChild(dock);
   dock.innerHTML = `
@@ -246,6 +257,31 @@ export function createGame(tower, deps) {
     }
   }
 
+  // ── soft milestones (named goals for direction) ──────────────────────────
+  function milestoneApi() {
+    return {
+      population: state.population,
+      hasCafe: () => tower.built.rooms.some((r) => r.roomId === 'cafe'),
+      happyCount: () => residents.filter((r) => r.mood === 'happy').length,
+    };
+  }
+  function checkMilestones() {
+    const api = milestoneApi();
+    while (milestoneIdx < MILESTONES.length && MILESTONES[milestoneIdx].check(api)) {
+      const m = MILESTONES[milestoneIdx];
+      milestoneIdx++;
+      state.coins += m.reward;
+      audio.levelUp();
+      showToast(`🎯 Goal done: ${m.label}  +${m.reward} 🪙`);
+    }
+    updateGoalBanner();
+  }
+  function updateGoalBanner() {
+    if (milestoneIdx >= MILESTONES.length) { goalBanner.innerHTML = '🏆 <b>All goals complete!</b>'; goalBanner.classList.add('gDone'); return; }
+    const m = MILESTONES[milestoneIdx];
+    goalBanner.innerHTML = `📋 <b>${m.label}</b> <span class="gGoalProg">${m.prog(milestoneApi())}</span>`;
+  }
+
   // ── per-frame ──────────────────────────────────────────────────────────
   function tick(dt) {
     updatePops(dt);
@@ -272,6 +308,8 @@ export function createGame(tower, deps) {
     }
     if (earned && elapsed - lastCoinSfx > 0.18) { audio.coin(); lastCoinSfx = elapsed; }
     updateHud();
+    milestoneT += dt;
+    if (milestoneT >= 0.4) { milestoneT = 0; checkMilestones(); }
   }
 
   // ── juice ───────────────────────────────────────────────────────────────
@@ -394,11 +432,16 @@ export function createGame(tower, deps) {
     recountPop();
     picker.setVisible(true);
     updateDock();
+    updateGoalBanner();
     showToast('🏙️ Welcome! Build rooms and grow your tower.');
     state.running = true;
   }
 
-  return { start, tick, state, residents, showResidentCard, pickResident, setUiVisible(v) { hud.style.display = dock.style.display = v ? '' : 'none'; picker.setVisible(v); } };
+  return {
+    start, tick, state, residents, showResidentCard, pickResident,
+    get milestoneIdx() { return milestoneIdx; }, milestones: MILESTONES,
+    setUiVisible(v) { hud.style.display = dock.style.display = goalBanner.style.display = v ? '' : 'none'; picker.setVisible(v); },
+  };
 }
 
 // ── DOM helpers + styles ────────────────────────────────────────────────────
@@ -441,7 +484,13 @@ function injectStyles() {
   .gFree{display:flex; align-items:center; gap:8px; margin-top:12px; color:#8fa0b6; font-size:12px; cursor:pointer;}
   .gRow{display:flex; gap:6px; margin-top:8px;}
   .gRow .gBtn{margin-top:0;}
-  .gToast{position:fixed; top:64px; left:50%; transform:translateX(-50%) translateY(-12px); z-index:45; opacity:0;
+  .gGoalBanner{position:fixed; top:58px; left:50%; transform:translateX(-50%); z-index:41;
+    background:rgba(16,20,29,.86); border:1px solid rgba(255,207,94,.4); border-radius:11px; padding:6px 15px;
+    color:#cdd6e2; font:700 13.5px 'Nunito',system-ui,sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.35);}
+  .gGoalBanner b{color:#ffcf5e;}
+  .gGoalBanner.gDone{border-color:rgba(46,230,192,.5);} .gGoalBanner.gDone b{color:#2ee6c0;}
+  .gGoalProg{color:#8fa0b6; margin-left:6px; font-weight:800;}
+  .gToast{position:fixed; top:96px; left:50%; transform:translateX(-50%) translateY(-12px); z-index:45; opacity:0;
     background:#ffcf5e; color:#0e141d; font:800 16px 'Fredoka One','Nunito',cursive; padding:10px 20px; border-radius:12px;
     box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .3s, transform .3s; pointer-events:none;}
   .gToast.show{opacity:1; transform:translateX(-50%) translateY(0);}
