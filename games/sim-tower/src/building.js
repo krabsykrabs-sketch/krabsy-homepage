@@ -85,6 +85,8 @@ export function buildTower(lots, opts) {
   const shell = buildShell(cells, { colX, pitch, lotW, roomH, zBack, zFront, has });
   group.add(shell);
 
+  const circ = buildCirculation(group, cells, { colX, pitch, slotW, lotW, roomH, zBack, zFront, has });
+
   const slots = cells.map((cell) => ({ c: cell.c, f: cell.f, content: cell.content, x: colX(cell.c), yBase: cell.f * pitch, yMid: cell.f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD }));
 
   // buyable frontier: expand right/left/up from any lot; up needs support below (the cell itself)
@@ -101,7 +103,85 @@ export function buildTower(lots, opts) {
 
   const box = new THREE.Box3().setFromObject(group);
   if (box.isEmpty()) box.set(new THREE.Vector3(-lotW / 2, 0, zBack), new THREE.Vector3(lotW / 2, roomH, zFront));
-  return { group, shell, rooms, slots, buyable, slotW, lotW, roomH, roomD, pitch, floors: maxF + 1, box, colX };
+  return { group, shell, rooms, slots, buyable, circ, slotW, lotW, roomH, roomD, pitch, floors: maxF + 1, box, colX };
+}
+
+// ── circulation: back corridor + procedural stairs + elevators ───────────
+function makeStairs(width, run, rise, color) {
+  const g = new THREE.Group();
+  const n = 8, mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness: 1, metalness: 0 });
+  for (let i = 0; i < n; i++) {
+    const h = rise * (i + 1) / n;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(width, h, run / n + 0.02), mat);
+    step.position.set(0, h / 2, run / 2 - (i + 0.5) * (run / n));   // rise going toward −z (back)
+    step.castShadow = true; step.receiveShadow = true;
+    g.add(step);
+  }
+  return g;
+}
+
+/** Adds the back service corridor, stairs (every Nth unit) and elevator shafts.
+ *  Returns metadata Phase C uses for the building nav graph + cab movement. */
+function buildCirculation(group, cells, geom) {
+  const { colX, pitch, slotW, lotW, roomH, zBack, zFront, has } = geom;
+  const CC = CONFIG.CIRCULATION;
+  const corridorZ = zBack - CC.BACK_CORRIDOR_DEPTH / 2 - 0.25;
+  const corMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CONFIG.SHELL.GROUND), roughness: 1 });
+  const backMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CONFIG.SHELL.CONCRETE_BACK), roughness: 1 });
+
+  const byFloor = new Map();
+  for (const cell of cells) { if (!byFloor.has(cell.f)) byFloor.set(cell.f, []); byFloor.get(cell.f).push(cell); }
+  const elevatorCols = new Set(cells.filter((c) => c.content === 'elevator').map((c) => c.c));
+
+  const addBox = (w, h, d, x, y, z, m) => { const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); me.position.set(x, y, z); me.receiveShadow = true; group.add(me); return me; };
+
+  const stairs = [];     // {c, f, x, zCorridor} — a flight from floor f→f+1
+  const corridorByFloor = new Map();  // f → {xMin,xMax,z,y}
+
+  for (const [f, fcells] of byFloor) {
+    const cs = fcells.map((c) => c.c);
+    const xMin = colX(Math.min(...cs)) - lotW / 2, xMax = colX(Math.max(...cs)) + lotW / 2;
+    const yb = f * pitch;
+    // corridor floor + back wall
+    addBox(xMax - xMin, 0.3, CC.BACK_CORRIDOR_DEPTH, (xMin + xMax) / 2, yb - 0.15, corridorZ, corMat);
+    addBox(xMax - xMin, pitch, 0.3, (xMin + xMax) / 2, yb + pitch / 2 - 0.25, corridorZ - CC.BACK_CORRIDOR_DEPTH / 2, backMat);
+    corridorByFloor.set(f, { xMin, xMax, z: corridorZ, y: yb });
+
+    // stairs behind every Nth unit (units = room lots), going up to f+1 if that floor exists
+    const units = fcells.filter((c) => c.content && c.content !== 'elevator').sort((a, b) => a.c - b.c);
+    if (byFloor.has(f + 1)) {
+      for (let i = 0; i < units.length; i++) {
+        if ((i + 1) % CC.STAIRS_EVERY !== 0) continue;
+        const u = units[i];
+        const flight = makeStairs(slotW * 0.5, CC.STAIR_RUN, pitch, CC.STAIR_COLOR);
+        flight.position.set(colX(u.c), yb, corridorZ + 0.1);
+        group.add(flight);
+        stairs.push({ c: u.c, f, x: colX(u.c), zCorridor: corridorZ });
+      }
+    }
+  }
+
+  // elevators: a transparent shaft + a cab per elevator column, spanning its lots
+  const shaftMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CC.ELEVATOR_SHAFT), roughness: 1, transparent: true, opacity: 0.35 });
+  const cabMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CC.ELEVATOR_CAB), roughness: 0.7, metalness: 0.1 });
+  const elevators = [];
+  const elevShaftZ = zFront - 1.1;   // at the front of the column (hallway side)
+  for (const c of elevatorCols) {
+    const colCells = cells.filter((x) => x.c === c).sort((a, b) => a.f - b.f);
+    const fMin = colCells[0].f, fMax = colCells[colCells.length - 1].f;
+    const yBot = fMin * pitch, yTop = fMax * pitch + roomH;
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(slotW * 0.5, yTop - yBot + 0.3, 1.5), shaftMat);
+    shaft.position.set(colX(c), (yBot + yTop) / 2, elevShaftZ); group.add(shaft);
+    const cabH = roomH * 0.78;
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(slotW * 0.44, cabH, 1.25), cabMat);
+    cab.castShadow = true;
+    const yLo = yBot + cabH / 2 + 0.1, yHi = (fMax * pitch) + cabH / 2 + 0.1;
+    cab.position.set(colX(c), yLo, elevShaftZ);
+    group.add(cab);
+    elevators.push({ c, x: colX(c), z: elevShaftZ, cab, yLo, yHi, fMin, fMax, floorY: (f) => f * pitch + cabH / 2 + 0.1 });
+  }
+
+  return { stairs, elevators, corridorByFloor, corridorZ, elevatorCols: [...elevatorCols] };
 }
 
 /** Recursively dispose geometries + materials of a group (for live rebuilds). */
@@ -145,8 +225,8 @@ export function buildShell(cells, geom) {
 
   for (const cell of cells) {
     const x = colX(cell.c), yb = cell.f * pitch;
-    // back wall segment (tiles vertically across floors)
-    box(lotW + 0.02, pitch + 0.02, 0.3, x, yb + pitch / 2 - S.SLAB_THICK / 2, zBack - S.BACK_OFFSET, matBack, 'back');
+    // (no shell back wall — rooms carry their own authored back walls, and the
+    //  back service corridor + its wall sit behind them; this keeps the stairwell visible)
     // structural floor slab under the lot
     box(lotW + 0.02, S.SLAB_THICK, slabDepth, x, yb - S.SLAB_THICK / 2, slabZ, matSlab, 'slab');
     // sidewalk under ground-floor lots

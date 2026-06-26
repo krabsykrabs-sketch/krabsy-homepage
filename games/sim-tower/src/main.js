@@ -239,8 +239,11 @@ const tower = {
     if (this.onRebuilt) this.onRebuilt();
     renderer.render(scene, camera);
   },
+  colLots(c) { const out = []; for (const [k, v] of this.lots) { const i = k.indexOf(':'); if (+k.slice(i + 1) === c) out.push([k, v]); } return out; },
+  canElevator(c) { const cl = this.colLots(c); return cl.length > 0 && cl.every(([, v]) => v === null); },
   async buyLot(c, f) { if (!this.canBuy(c, f)) return false; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); return true; },
-  async setRoom(c, f, id) { if (!this.has(c, f)) return false; this.lots.set(this.key(c, f), id); await this.rebuild(); this.persistLocal(); return true; },
+  async setRoom(c, f, id) { if (!this.has(c, f) || this.content(c, f) === 'elevator') return false; this.lots.set(this.key(c, f), id); await this.rebuild(); this.persistLocal(); return true; },
+  async buildElevator(c) { if (!this.canElevator(c)) return false; for (const [k] of this.colLots(c)) this.lots.set(k, 'elevator'); await this.rebuild(); this.persistLocal(); return true; },
   async clearRoom(c, f) { if (!this.has(c, f)) return; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); },
   async removeLot(c, f) { if (this.has(c, f + 1)) return false; this.lots.delete(this.key(c, f)); await this.rebuild(); this.persistLocal(); return true; },
   // back-compat shim (game/builder call setSlot to place/clear a room into a lot)
@@ -283,6 +286,7 @@ async function boot() {
 
     ovmsg.textContent = 'finding rooms…';
     tower.rooms = await discoverRooms();
+    tower.rooms.elevator = { id: 'elevator', label: 'Elevator 🛗', special: true };   // built into a clear column, not a level
     tower.brush = tower.rooms.simroom1 ? 'simroom1' : Object.keys(tower.rooms)[0];
     await preloadCharacters();
 

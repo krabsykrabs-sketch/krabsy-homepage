@@ -43,7 +43,7 @@ export function createGame(tower, deps) {
   const ndc = new THREE.Vector2();
 
   const key = (c, f) => f + ':' + c;
-  const costFor = (id) => G.COST[id] ?? G.COST._default;
+  const costFor = (id) => id === 'elevator' ? CONFIG.CIRCULATION.ELEVATOR_COST : (G.COST[id] ?? G.COST._default);
   const earnFor = (id) => G.EARN[id] ?? G.EARN._default;
   const maxOcc = (id) => G.MAX_OCC[id] ?? G.MAX_OCC._default;
   const nextGoal = () => G.GOALS[Math.min(state.goalIdx, G.GOALS.length - 1)];
@@ -138,6 +138,7 @@ export function createGame(tower, deps) {
   // kind 'buy' = buy floor space on the frontier; kind 'lot' = build/clear a room.
   async function onSlotClick(c, f, kind, content) {
     if (kind === 'buy') return buyLot(c, f);
+    if (tower.brush === 'elevator') return buildElevatorAt(c);
     // an existing lot:
     if (tower.freeBuild) {
       await tower.setRoom(c, f, tower.brush === 'erase' ? null : tower.brush);
@@ -162,6 +163,16 @@ export function createGame(tower, deps) {
       state.coins -= G.LOT_COST;
     }
     await tower.buyLot(c, f);
+    audio.build();
+    updateHud();
+  }
+
+  async function buildElevatorAt(c) {
+    if (!tower.canElevator(c)) { audio.nope(); showToast('Elevators need a clear column (empty floor space).'); return; }
+    const cost = costFor('elevator');
+    if (!tower.freeBuild && state.coins < cost) { audio.nope(); flashCoins(); return; }
+    if (!tower.freeBuild) state.coins -= cost;
+    await tower.buildElevator(c);
     audio.build();
     updateHud();
   }
