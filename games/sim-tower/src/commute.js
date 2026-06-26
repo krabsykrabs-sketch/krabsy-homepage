@@ -19,8 +19,9 @@ export function planTrip(built, fromF, fromCol, toF, toCol) {
   const pitch = built.pitch;
   const hz = built.circ.hallwayZ;                 // walk line in the shared front hallway
   const enterZ = built.circ.roomFrontZ - 1.0;     // step back through the door into the room
+  const fs = CONFIG.FLOOR_SURFACE_Y;              // walk on the floor surface, not the slab base
   const fromX = built.colX(fromCol), toX = built.colX(toCol);
-  const yF = fromF * pitch, yT = toF * pitch;
+  const yF = fromF * pitch + fs, yT = toF * pitch + fs;
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
   // adjacent floor + a staircase → take the stairs (no elevator needed)
@@ -73,6 +74,7 @@ export class ElevatorManager {
 
   update(dt) {
     const sp = CONFIG.CIRCULATION.ELEVATOR_SPEED;
+    const FS = CONFIG.FLOOR_SURFACE_Y;
     for (const l of this.lifts) {
       if (!l.rider && l.queue.length) { l.rider = l.queue.shift(); l.state = 'toPickup'; l.goalY = l.cabY; /* recompute below */ }
       let goalY;
@@ -83,14 +85,14 @@ export class ElevatorManager {
       l.e.cab.position.y = l.cabY;
 
       if (l.rider && l.rider.commute && l.rider.commute.sub === 'ride') {
-        l.rider.obj.position.set(l.e.x, l.cabY - l.offset, l.e.z);   // ride with the cab
+        l.rider.obj.position.set(l.e.x, l.cabY - l.offset + FS, l.e.z);   // ride with the cab (on its floor surface)
       }
       if (l.rider && Math.abs(goalY - l.cabY) < 0.03) {
         if (l.state === 'toPickup') { l.rider.commute.sub = 'ride'; l.state = 'toDrop'; }
         else if (l.state === 'toDrop') {
           const r = l.rider;
           r.commute.sub = 'walk'; r.commute.i = r.commute.alightI;
-          r.obj.position.set(l.e.x, r.commute.toF * this.pitch, l.e.z);
+          r.obj.position.set(l.e.x, r.commute.toF * this.pitch + FS, l.e.z);
           l.rider = null; l.state = 'idle';
         }
       }

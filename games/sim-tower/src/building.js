@@ -15,6 +15,7 @@ export function makeRoomSlot(level) {
 
   const actors = new THREE.Group();
   actors.name = 'actors';
+  actors.position.y = CONFIG.FLOOR_SURFACE_Y;   // lift residents onto the floor surface (feet sit at the tile top, not the slab base)
 
   const slot = new THREE.Group();
   slot.rotation.y = CONFIG.ROOM_YAW_DEG * DEG;

@@ -16,6 +16,7 @@ export const CONFIG = {
   // ── Building stack ────────────────────────────────────────────────────
   STORY_PITCH: 5.0,         // vertical units between floors (≈1.8u character + furniture + headroom).
   FLOOR_SLAB_GAP: 0.0,      // extra gap added on top of STORY_PITCH between stories.
+  FLOOR_SURFACE_Y: 0.5,     // walking-surface height of a floor tile (Floor/hallway are 0.5 thick) — characters stand here, not at the slot base.
   ROOM_GAP_X: 0.0,          // units now sit edge-to-edge (front hallways tile into one continuous corridor).
 
   // ── Room placement orientation ────────────────────────────────────────
@@ -38,7 +39,7 @@ export const CONFIG = {
     GROUND_THICK: 1.6,      // sidewalk slab thickness below floor 0.
     ROOF_THICK: 0.7,
     PARAPET: 0.5,           // little lip around the roof edge.
-    FRONT_PROTRUDE: 0.45,   // how far slabs/roof stick toward the camera past the room front.
+    FRONT_PROTRUDE: 0.0,    // slabs/roof stay flush with the room front — no overhang occluding the interior.
     BACK_OFFSET: 0.25,      // how far the back wall plane sits behind the rooms.
     CONCRETE_BACK: '#2a3342', // dark back wall — recedes (shadowbox depth).
     SLAB: '#626b7a',        // floor slabs / structure (warm concrete).
