@@ -240,7 +240,7 @@ export function createGame(tower, deps) {
   }
 
   async function buildElevatorAt(c) {
-    if (!tower.canElevator(c)) { audio.nope(); showToast('Elevators need a clear column (empty floor space).'); return; }
+    if (!tower.canElevator(c)) { audio.nope(); showToast('That column already has a lift (or no floors yet).'); return; }
     const cost = costFor('elevator');
     if (!tower.freeBuild && state.coins < cost) { audio.nope(); flashCoins(); return; }
     if (!tower.freeBuild) state.coins -= cost;
@@ -371,9 +371,28 @@ export function createGame(tower, deps) {
     goalBanner.innerHTML = `📋 <b>${m.label}</b> <span class="gGoalProg">${m.prog(milestoneApi())}</span>`;
   }
 
+  // reveal-on-occupancy: fade a unit's front wall out when someone's physically
+  // home (or in sandbox, always show interiors); opaque when vacant.
+  function updateReveals(dt) {
+    if (!tower.built) return;
+    const home = new Set();
+    if (!tower.freeBuild) for (const r of residents) if (!r.traveling) home.add(r.atKey || r.key);
+    const showAll = tower.freeBuild;
+    const k = 1 - Math.exp(-6 * dt);
+    for (const room of tower.built.rooms) {
+      const w = room.revealWall; if (!w) continue;
+      const occupied = showAll || home.has(key(room.col, room.floor));
+      const goal = occupied ? 0.0 : 0.92;
+      w.material.opacity += (goal - w.material.opacity) * k;
+      w.material.depthWrite = w.material.opacity > 0.6;
+      w.visible = w.material.opacity > 0.04;
+    }
+  }
+
   // ── per-frame ──────────────────────────────────────────────────────────
   function tick(dt) {
     updatePops(dt);
+    updateReveals(dt);
     if (!state.running) return;
     elapsed += dt;
     // tenant move-in

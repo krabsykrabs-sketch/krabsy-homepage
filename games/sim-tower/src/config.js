@@ -85,14 +85,16 @@ export const CONFIG = {
     CULL_LERP: 8,                       // opacity fade rate
   },
 
-  // ── Circulation (stairs / hallways / elevator) ───────────────────────
+  // ── Circulation (stairs / elevator — both live in the FRONT hallway) ──
   CIRCULATION: {
-    BACK_CORRIDOR_DEPTH: 2.4,    // walkable service strip behind the rooms (where stairs live + back doors open)
-    STAIRS_EVERY: 2,             // a staircase behind every Nth unit on a floor
+    HALLWAY_WALK_FRAC: 0.4,      // walk-line position inside the 2-cell front hallway (0=room edge, 1=front edge)
+    STAIRS_EVERY: 2,             // a staircase in the hallway of every Nth unit on a floor
     STAIR_RUN: 2.4,              // how far the stair run extends (depth)
     STAIR_COLOR: '#9aa3b3',
-    ELEVATOR_COST: 28,           // coins to build an elevator (turns a column into a shaft)
+    ELEVATOR_COST: 28,           // coins to add an elevator to a column (shaft in its front hallway)
     ELEVATOR_SPEED: 5.5,         // cab travel, world units/sec
+    ELEVATOR_WIDTH_FRAC: 0.5,    // cab/shaft width as a fraction of the lot (bigger than the old thin shaft)
+    ELEVATOR_DEPTH: 1.8,         // cab/shaft depth (front hallway is 2 cells ≈ 4u deep)
     ELEVATOR_SHAFT: '#1b2230',
     ELEVATOR_CAB: '#ffcf5e',
     ELEVATOR_DOOR_WAIT: 1.2,     // seconds the cab dwells at a floor

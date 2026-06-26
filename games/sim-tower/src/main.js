@@ -198,6 +198,7 @@ async function discoverRooms() {
 // negative (expanded left). You buy a lot (floor space), then build into it.
 const tower = {
   lots: new Map(),
+  elevators: new Set(),  // columns that have an elevator (shaft in their front hallway; room stays)
   rooms: {},           // room catalog (id → {label,url})
   levels: {},
   built: null,
@@ -211,7 +212,7 @@ const tower = {
   key(c, f) { return f + ':' + c; },
   has(c, f) { return this.lots.has(f + ':' + c); },
   content(c, f) { return this.lots.get(f + ':' + c); },
-  roomAt(c, f) { const v = this.lots.get(f + ':' + c); return (v && v !== 'elevator') ? v : null; },
+  roomAt(c, f) { return this.lots.get(f + ':' + c) || null; },
   /** A lot is buyable if empty, supported (ground or a lot below), and adjacent. */
   canBuy(c, f) {
     if (this.has(c, f)) return false;
@@ -219,7 +220,7 @@ const tower = {
     if (this.lots.size === 0) return c === 0 && f === 0;
     return this.has(c - 1, f) || this.has(c + 1, f) || this.has(c, f - 1);
   },
-  idsInUse() { const s = new Set(); for (const v of this.lots.values()) if (v && v !== 'elevator') s.add(v); return [...s]; },
+  idsInUse() { const s = new Set(); for (const v of this.lots.values()) if (v) s.add(v); return [...s]; },
   async ensureLevels(ids) {
     await Promise.all(ids.map(async (id) => {
       if (this.levels[id]) return;
@@ -234,7 +235,7 @@ const tower = {
     await this.ensureLevels(this.idsInUse());
     if (this.built) { scene.remove(this.built.group); disposeObject(this.built.group); }
     clearCharacters();
-    const built = buildTower(this.lots, { levelsById: this.levels, defaultSlotW: 13 });
+    const built = buildTower(this.lots, { levelsById: this.levels, defaultSlotW: 13, elevators: [...this.elevators] });
     this.built = built;
     scene.add(built.group);
     frameBox = built.box;
@@ -247,21 +248,22 @@ const tower = {
     renderer.render(scene, camera);
   },
   colLots(c) { const out = []; for (const [k, v] of this.lots) { const i = k.indexOf(':'); if (+k.slice(i + 1) === c) out.push([k, v]); } return out; },
-  canElevator(c) { const cl = this.colLots(c); return cl.length > 0 && cl.every(([, v]) => v === null); },
+  // a column can take a lift if it has at least one lot and doesn't already have one
+  canElevator(c) { return this.colLots(c).length > 0 && !this.elevators.has(c); },
   async buyLot(c, f) { if (!this.canBuy(c, f)) return false; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); return true; },
-  async setRoom(c, f, id) { if (!this.has(c, f) || this.content(c, f) === 'elevator') return false; this.lots.set(this.key(c, f), id); await this.rebuild(); this.persistLocal(); return true; },
-  async buildElevator(c) { if (!this.canElevator(c)) return false; for (const [k] of this.colLots(c)) this.lots.set(k, 'elevator'); await this.rebuild(); this.persistLocal(); return true; },
+  async setRoom(c, f, id) { if (!this.has(c, f)) return false; this.lots.set(this.key(c, f), id); await this.rebuild(); this.persistLocal(); return true; },
+  async buildElevator(c) { if (!this.canElevator(c)) return false; this.elevators.add(c); await this.rebuild(); this.persistLocal(); return true; },
   async clearRoom(c, f) { if (!this.has(c, f)) return; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); },
-  async removeLot(c, f) { if (this.has(c, f + 1)) return false; this.lots.delete(this.key(c, f)); await this.rebuild(); this.persistLocal(); return true; },
+  async removeLot(c, f) { if (this.has(c, f + 1)) return false; this.lots.delete(this.key(c, f)); if (!this.colLots(c).length) this.elevators.delete(c); await this.rebuild(); this.persistLocal(); return true; },
   // back-compat shim (game/builder call setSlot to place/clear a room into a lot)
   async setSlot(c, f, id) { return id == null ? this.clearRoom(c, f) : this.setRoom(c, f, id); },
   async clear() { for (const k of [...this.lots.keys()]) this.lots.set(k, null); await this.rebuild(); this.persistLocal(); },
   persistLocal() {
     if (this.gameActive) return;   // LS is the sandbox author's; the game starts fresh
-    try { localStorage.setItem(LS_KEY, JSON.stringify({ lots: [...this.lots.entries()] })); } catch (_) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ lots: [...this.lots.entries()], elevators: [...this.elevators] })); } catch (_) {}
   },
   exportJSON() {
-    const blob = new Blob([JSON.stringify({ lots: [...this.lots.entries()] }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ lots: [...this.lots.entries()], elevators: [...this.elevators] }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'building.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
@@ -270,20 +272,34 @@ const tower = {
 };
 window.__TOWER = tower;
 
-/** Parse a lots payload (Map entries array, or {key:content} object) → Map, dropping unknown rooms. */
+/** Unwrap a payload to its lot entries (accepts a {lots,elevators} object, a bare
+ *  entries array, or a {key:content} object). */
+function lotEntries(data) {
+  const raw = data && data.lots ? data.lots : data;
+  return Array.isArray(raw) ? raw : Object.entries(raw || {});
+}
+/** Parse a lots payload → Map, dropping unknown rooms and legacy 'elevator' content
+ *  (elevators are tracked separately now — see elevatorsFromData). */
 function lotsFromData(data) {
   const m = new Map();
-  const entries = Array.isArray(data) ? data : Object.entries(data || {});
-  for (const [k, content] of entries) {
-    const id = content && content !== 'elevator' ? (tower.rooms[content] ? content : null) : content;
-    m.set(k, id ?? null);
+  for (const [k, content] of lotEntries(data)) {
+    const id = (content && content !== 'elevator' && tower.rooms[content] && !tower.rooms[content].special) ? content : null;
+    m.set(k, id);
   }
   return m;
 }
+/** Columns with an elevator: an explicit `elevators` array, plus migration of any
+ *  legacy lot whose content was 'elevator'. */
+function elevatorsFromData(data) {
+  const set = new Set();
+  if (data && Array.isArray(data.elevators)) for (const c of data.elevators) set.add(+c);
+  for (const [k, v] of lotEntries(data)) if (v === 'elevator') set.add(+k.slice(k.indexOf(':') + 1));
+  return set;
+}
 async function loadSandboxLots() {
-  try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.lots) return lotsFromData(s.lots); } catch (_) {}
-  try { const r = await fetch('building.json'); if (r.ok) { const j = await r.json(); if (j.lots) return lotsFromData(j.lots); } } catch (_) {}
-  return lotsFromData(GAME_START_LOTS);
+  try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.lots) return { lots: lotsFromData(s), elevators: elevatorsFromData(s) }; } catch (_) {}
+  try { const r = await fetch('building.json'); if (r.ok) { const j = await r.json(); if (j.lots) return { lots: lotsFromData(j), elevators: elevatorsFromData(j) }; } } catch (_) {}
+  return { lots: lotsFromData(GAME_START_LOTS), elevators: new Set() };
 }
 
 // ── boot ─────────────────────────────────────────────────────────────────
@@ -300,10 +316,13 @@ async function boot() {
     // starting lots: ?lots=<json> override, else sandbox-saved / default starter
     let startLots = null;
     if (Q.has('lots')) {
-      try { startLots = lotsFromData(JSON.parse(decodeURIComponent(Q.get('lots')))); }
+      try { const d = JSON.parse(decodeURIComponent(Q.get('lots'))); startLots = lotsFromData(d); tower.elevators = elevatorsFromData(d); }
       catch (e) { showError('bad ?lots=: ' + e); }
     }
-    if (!startLots) startLots = SANDBOX ? await loadSandboxLots() : lotsFromData(GAME_START_LOTS);
+    if (!startLots) {
+      if (SANDBOX) { const r = await loadSandboxLots(); startLots = r.lots; tower.elevators = r.elevators; }
+      else { startLots = lotsFromData(GAME_START_LOTS); tower.elevators = new Set(); }
+    }
 
     window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, rig, get game() { return game; }, get frameBox() { return frameBox; } };
 

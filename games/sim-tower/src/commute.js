@@ -11,13 +11,14 @@ export function elevatorFor(built, fA, fB) {
 }
 
 /**
- * Plan a trip from room (fromF,fromCol) to (toF,toCol) via an elevator.
+ * Plan a trip from room (fromF,fromCol) to (toF,toCol) through the front hallway.
  * Returns { wps:[Vector3 world…], boardI, alightI, elevC, fromF, toF } or null.
  */
 export function planTrip(built, fromF, fromCol, toF, toCol) {
   if (fromF === toF) return null;                 // same floor — no vertical travel needed
   const pitch = built.pitch;
-  const corridorZ = built.circ.corridorZ;
+  const hz = built.circ.hallwayZ;                 // walk line in the shared front hallway
+  const enterZ = built.circ.roomFrontZ - 1.0;     // step back through the door into the room
   const fromX = built.colX(fromCol), toX = built.colX(toCol);
   const yF = fromF * pitch, yT = toF * pitch;
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -28,12 +29,12 @@ export function planTrip(built, fromF, fromCol, toF, toCol) {
     if (stair) {
       const sX = stair.x, run = CONFIG.CIRCULATION.STAIR_RUN;
       const wps = [
-        V(fromX, yF, corridorZ),                 // exit into corridor
-        V(sX, yF, corridorZ),                    // to the foot of the stairs
-        V(sX, (yF + yT) / 2, corridorZ - run / 2), // climb (mid)
-        V(sX, yT, corridorZ),                    // top landing
-        V(toX, yT, corridorZ),                   // corridor to dest column
-        V(toX, yT, corridorZ + Math.abs(corridorZ) * 0.6), // into the dest room
+        V(fromX, yF, hz),                        // exit door → front hallway
+        V(sX, yF, hz),                           // along the hallway to the stairs
+        V(sX, (yF + yT) / 2, hz - run * 0.35),   // climb (steps rise toward the room)
+        V(sX, yT, hz),                           // top landing, next floor's hallway
+        V(toX, yT, hz),                          // hallway to the dest column
+        V(toX, yT, enterZ),                      // back through the dest door, into the room
       ];
       return { wps, boardI: -1, alightI: -1, elevC: null, fromF, toF };
     }
@@ -44,13 +45,13 @@ export function planTrip(built, fromF, fromCol, toF, toCol) {
   if (!elev) return null;                          // no reachable circulation
   const eX = elev.x, eZ = elev.z;
   const wps = [
-    V(fromX, yF, corridorZ),     // 0: exit room into the back corridor
-    V(eX, yF, corridorZ),        // 1: corridor to the elevator column
-    V(eX, yF, eZ),               // 2: forward to the lift door  (board after this)
+    V(fromX, yF, hz),            // 0: exit room into the front hallway
+    V(eX, yF, hz),               // 1: along the hallway to the lift column
+    V(eX, yF, eZ),               // 2: at the lift door  (board after this)
     V(eX, yT, eZ),               // 3: alight at destination floor (placed by the cab)
-    V(eX, yT, corridorZ),        // 4: back to the corridor
-    V(toX, yT, corridorZ),       // 5: corridor to destination column
-    V(toX, yT, eZ * 0.4),        // 6: step into the destination room
+    V(eX, yT, hz),               // 4: back onto the hallway
+    V(toX, yT, hz),              // 5: hallway to the destination column
+    V(toX, yT, enterZ),          // 6: through the dest door, into the room
   ];
   return { wps, boardI: 3, alightI: 4, elevC: elev.c, fromF, toF };
 }

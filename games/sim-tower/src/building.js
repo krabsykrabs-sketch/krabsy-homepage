@@ -85,7 +85,26 @@ export function buildTower(lots, opts) {
   const shell = buildShell(cells, { colX, pitch, lotW, roomH, zBack, zFront, has });
   group.add(shell);
 
-  const circ = buildCirculation(group, cells, { colX, pitch, slotW, lotW, roomH, zBack, zFront, has });
+  // front-hallway geometry: the front 2 cells of every room are the shared hallway.
+  const tile = rooms[0]?.level.grid.tile || 2;
+  const hallwayDepth = 2 * tile;
+  const roomFrontZ = zFront - hallwayDepth;                                   // room ↔ hallway boundary
+  const hallwayZ = roomFrontZ + hallwayDepth * CONFIG.CIRCULATION.HALLWAY_WALK_FRAC; // walk line in the hallway
+  const elevatorCols = new Set(opts.elevators || []);
+  const circ = buildCirculation(group, cells, { colX, pitch, slotW, lotW, roomH, zBack, zFront, has, hallwayZ, roomFrontZ, elevatorCols });
+
+  // reveal-on-occupancy front walls: opaque when a unit is empty (can't see in),
+  // faded by game.js when someone's home. Sits just in front of the furniture, so
+  // the hallway (and anyone walking it) stays visible even for vacant units.
+  for (const r of rooms) {
+    const wall = new THREE.Mesh(
+      new THREE.BoxGeometry(slotW - 0.04, roomH, 0.22),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color('#b9a78c'), roughness: 1, transparent: true, opacity: 1 }));
+    wall.position.set(colX(r.col), r.floor * pitch + roomH / 2, roomFrontZ + 0.12);
+    wall.receiveShadow = true; wall.userData.reveal = true;
+    group.add(wall);
+    r.revealWall = wall;
+  }
 
   const slots = cells.map((cell) => ({ c: cell.c, f: cell.f, content: cell.content, x: colX(cell.c), yBase: cell.f * pitch, yMid: cell.f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD }));
 
@@ -120,68 +139,57 @@ function makeStairs(width, run, rise, color) {
   return g;
 }
 
-/** Adds the back service corridor, stairs (every Nth unit) and elevator shafts.
- *  Returns metadata Phase C uses for the building nav graph + cab movement. */
+/** Front-hallway circulation: procedural stairs (every Nth unit) + elevator shafts,
+ *  all living in the 2-cell front hallway that's part of each room. No back corridor.
+ *  Returns metadata the commute uses for the building nav graph + cab movement. */
 function buildCirculation(group, cells, geom) {
-  const { colX, pitch, slotW, lotW, roomH, zBack, zFront, has } = geom;
+  const { colX, pitch, slotW, roomH, hallwayZ, roomFrontZ, elevatorCols } = geom;
   const CC = CONFIG.CIRCULATION;
-  const corridorZ = zBack - CC.BACK_CORRIDOR_DEPTH / 2 - 0.25;
-  const corMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CONFIG.SHELL.GROUND), roughness: 1 });
-  const backMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CONFIG.SHELL.CONCRETE_BACK), roughness: 1 });
 
   const byFloor = new Map();
   for (const cell of cells) { if (!byFloor.has(cell.f)) byFloor.set(cell.f, []); byFloor.get(cell.f).push(cell); }
-  const elevatorCols = new Set(cells.filter((c) => c.content === 'elevator').map((c) => c.c));
 
-  const addBox = (w, h, d, x, y, z, m) => { const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); me.position.set(x, y, z); me.receiveShadow = true; group.add(me); return me; };
+  const stairs = [];     // {c, f, x} — a flight from floor f→f+1, in the front hallway
 
-  const stairs = [];     // {c, f, x, zCorridor} — a flight from floor f→f+1
-  const corridorByFloor = new Map();  // f → {xMin,xMax,z,y}
-
+  // stairs in the front hallway of every Nth unit, climbing to f+1 if that floor exists
   for (const [f, fcells] of byFloor) {
-    const cs = fcells.map((c) => c.c);
-    const xMin = colX(Math.min(...cs)) - lotW / 2, xMax = colX(Math.max(...cs)) + lotW / 2;
-    const yb = f * pitch;
-    // corridor floor + back wall
-    addBox(xMax - xMin, 0.3, CC.BACK_CORRIDOR_DEPTH, (xMin + xMax) / 2, yb - 0.15, corridorZ, corMat);
-    addBox(xMax - xMin, pitch, 0.3, (xMin + xMax) / 2, yb + pitch / 2 - 0.25, corridorZ - CC.BACK_CORRIDOR_DEPTH / 2, backMat);
-    corridorByFloor.set(f, { xMin, xMax, z: corridorZ, y: yb });
-
-    // stairs behind every Nth unit (units = room lots), going up to f+1 if that floor exists
-    const units = fcells.filter((c) => c.content && c.content !== 'elevator').sort((a, b) => a.c - b.c);
-    if (byFloor.has(f + 1)) {
-      for (let i = 0; i < units.length; i++) {
-        if ((i + 1) % CC.STAIRS_EVERY !== 0) continue;
-        const u = units[i];
-        const flight = makeStairs(slotW * 0.5, CC.STAIR_RUN, pitch, CC.STAIR_COLOR);
-        flight.position.set(colX(u.c), yb, corridorZ + 0.1);
-        group.add(flight);
-        stairs.push({ c: u.c, f, x: colX(u.c), zCorridor: corridorZ });
-      }
+    if (!byFloor.has(f + 1)) continue;
+    const units = fcells.filter((c) => c.content).sort((a, b) => a.c - b.c);
+    for (let i = 0; i < units.length; i++) {
+      if ((i + 1) % CC.STAIRS_EVERY !== 0) continue;
+      const u = units[i];
+      if (elevatorCols.has(u.c)) continue;             // don't stack stairs under a lift
+      const flight = makeStairs(slotW * 0.42, CC.STAIR_RUN, pitch, CC.STAIR_COLOR);
+      flight.position.set(colX(u.c), f * pitch, hallwayZ);   // steps rise toward the room (−z)
+      group.add(flight);
+      stairs.push({ c: u.c, f, x: colX(u.c) });
     }
   }
 
-  // elevators: a transparent shaft + a cab per elevator column, spanning its lots
-  const shaftMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CC.ELEVATOR_SHAFT), roughness: 1, transparent: true, opacity: 0.35 });
+  // elevators: a translucent shaft + cab in the front hallway of each lift column,
+  // spanning that column's room floors (the room stays behind it — "lift shares the
+  // unit's hallway"). Bigger now there's hallway room for it.
+  const shaftMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CC.ELEVATOR_SHAFT), roughness: 1, transparent: true, opacity: 0.32 });
   const cabMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(CC.ELEVATOR_CAB), roughness: 0.7, metalness: 0.1 });
   const elevators = [];
-  const elevShaftZ = zFront - 1.1;   // at the front of the column (hallway side)
+  const shaftW = slotW * CC.ELEVATOR_WIDTH_FRAC, shaftD = CC.ELEVATOR_DEPTH;
   for (const c of elevatorCols) {
     const colCells = cells.filter((x) => x.c === c).sort((a, b) => a.f - b.f);
+    if (!colCells.length) continue;
     const fMin = colCells[0].f, fMax = colCells[colCells.length - 1].f;
     const yBot = fMin * pitch, yTop = fMax * pitch + roomH;
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(slotW * 0.5, yTop - yBot + 0.3, 1.5), shaftMat);
-    shaft.position.set(colX(c), (yBot + yTop) / 2, elevShaftZ); group.add(shaft);
-    const cabH = roomH * 0.78;
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(slotW * 0.44, cabH, 1.25), cabMat);
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(shaftW, yTop - yBot + 0.3, shaftD), shaftMat);
+    shaft.position.set(colX(c), (yBot + yTop) / 2, hallwayZ); group.add(shaft);
+    const cabH = roomH * 0.82;
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(shaftW - 0.2, cabH, shaftD - 0.2), cabMat);
     cab.castShadow = true;
-    const yLo = yBot + cabH / 2 + 0.1, yHi = (fMax * pitch) + cabH / 2 + 0.1;
-    cab.position.set(colX(c), yLo, elevShaftZ);
+    const yLo = yBot + cabH / 2 + 0.1;
+    cab.position.set(colX(c), yLo, hallwayZ);
     group.add(cab);
-    elevators.push({ c, x: colX(c), z: elevShaftZ, cab, yLo, yHi, fMin, fMax, floorY: (f) => f * pitch + cabH / 2 + 0.1 });
+    elevators.push({ c, x: colX(c), z: hallwayZ, cab, fMin, fMax, floorY: (f) => f * pitch + cabH / 2 + 0.1 });
   }
 
-  return { stairs, elevators, corridorByFloor, corridorZ, elevatorCols: [...elevatorCols] };
+  return { stairs, elevators, hallwayZ, roomFrontZ, elevatorCols: [...elevatorCols] };
 }
 
 /** Recursively dispose geometries + materials of a group (for live rebuilds). */
