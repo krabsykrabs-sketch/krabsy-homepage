@@ -16,7 +16,7 @@ export const CONFIG = {
   // ── Building stack ────────────────────────────────────────────────────
   STORY_PITCH: 5.0,         // vertical units between floors (≈1.8u character + furniture + headroom).
   FLOOR_SLAB_GAP: 0.0,      // extra gap added on top of STORY_PITCH between stories.
-  ROOM_GAP_X: 1.0,          // horizontal gap between rooms sharing a floor (world units).
+  ROOM_GAP_X: 0.0,          // units now sit edge-to-edge (front hallways tile into one continuous corridor).
 
   // ── Room placement orientation ────────────────────────────────────────
   // The authored rooms are 3 cells wide × 6 cells deep → ~6u wide × ~12u deep:
