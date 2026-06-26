@@ -304,6 +304,43 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-06-26 — FRONT-HALLWAY REDESIGN — session 2 (cont.)
+Jan re-designed the spatial model around a new office he authored
+(`levels/office3.json`): door on the **front** (camera side), one shared
+**2-cell hallway in front** of every unit, **no** space behind the apartments,
+**no** gaps between units. Three commits on `sim-tower-game-slice`; verified by
+eval-drive (**0 errors**, 16-17 completed commutes, 5 elevator riders, reveal
+walls flip occupied↔vacant).
+
+- **Hallway-floor offset bug fixed.** `floor_kitchen_styleB` (the hallway floor)
+  has its origin at its TOP (`minY −0.5`), so the GROUND "laid flush" rule sank
+  it half a tile. `loader.js` now seats **every** floor piece bottom-on-base
+  (`yObj − minY`) → hallway floor lands level with the room floor.
+- **Rooms re-authored to one front-hallway template** (5 cols × 6 rows):
+  solid back wall (col0) + furniture room (cols 1-2) + 2-cell hallway floor
+  (cols 3-4) + **front door** (`wall_doorway` at col3). simroom1 / SimOffice /
+  cafe converted (back doorway → solid wall + hallway + front door), office3
+  re-gridded to rows 6, added to the manifest. `ROOM_GAP_X = 0` so units sit
+  edge-to-edge → their hallways tile into **one continuous front corridor**.
+- **Circulation moved to the front hallway; back corridor removed.** Stairs are
+  procedurally placed in the hallway of every Nth unit. **Elevators are now a
+  per-column flag** (`tower.elevators` Set), NOT a whole empty column: a lift
+  drops a bigger shaft+cab into the column's front hallway while the room stays
+  behind it ("lift shares the unit's hallway"). `circ` now exposes
+  `hallwayZ`/`roomFrontZ`; `planTrip` routes door → hallway → stairs/elevator →
+  hallway → dest door.
+- **Reveal-on-occupancy walls.** Each unit has a front wall (`r.revealWall`)
+  that `game.js` fades out when someone's physically home (always-on in sandbox)
+  and turns opaque when vacant — empty units read as closed, occupied open up.
+
+**Tunables added** (`CONFIG.CIRCULATION`): `HALLWAY_WALK_FRAC`,
+`ELEVATOR_WIDTH_FRAC` (0.5), `ELEVATOR_DEPTH` (1.8). `BACK_CORRIDOR_DEPTH` gone.
+**Migration:** legacy `'elevator'` lot-content (old saves / `?lots=`) is folded
+into the elevators Set; payloads now carry `{lots, elevators}`.
+**Open polish:** door is a static opening (no swing); the lift cab can occlude
+its own apartment when parked in front; furniture placement in the converted
+rooms is a reasonable approximation Jan may refine in the World Designer.
+
 ### 2026-06-26 — HORIZONTAL EXPANSION + VERTICAL TRAVEL — session 2 (cont.)
 Three more phases (each its own commit on `sim-tower-game-slice`). Verified
 headless + live: **0 console errors**, room collision still **0 violations**.
