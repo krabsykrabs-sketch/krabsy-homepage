@@ -92,11 +92,11 @@ export const CONFIG = {
   // ── Game (Krabsy Tower: build-and-grow tycoon) ────────────────────────
   GAME: {
     START_COINS: 48,
-    COST: { simroom1: 12, SimOffice: 16, _default: 14 },   // coins to build a room
+    COST: { simroom1: 12, SimOffice: 16, cafe: 20, _default: 14 },  // coins to build a room
     FLOOR_COST: 18,                                         // coins to add a floor
-    EARN: { simroom1: 2, SimOffice: 3, _default: 2 },       // coins per income tick, per tenant
+    EARN: { simroom1: 2, SimOffice: 3, cafe: 0, _default: 2 },  // coins/income tick per tenant (café earns nothing directly)
     EARN_INTERVAL: 4.5,                                     // seconds between a room's income ticks
-    MAX_OCC: { simroom1: 2, SimOffice: 2, _default: 2 },    // tenants a room holds
+    MAX_OCC: { simroom1: 2, SimOffice: 2, cafe: 1, _default: 2 },   // café holds 1 (a barista)
     MOVE_IN_INTERVAL: 3.0,                                  // avg seconds between tenant move-ins
     GOALS: [3, 6, 10, 15, 22, 30, 42, 56],                 // population milestones → level up
     GOAL_BONUS: 12,                                         // coins awarded on level up

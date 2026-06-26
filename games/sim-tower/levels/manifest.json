@@ -1,6 +1,7 @@
 {
   "rooms": [
     { "id": "simroom1",  "label": "Apartment", "url": "levels/simroom1.json" },
-    { "id": "SimOffice", "label": "Office",    "url": "levels/SimOffice.json" }
+    { "id": "SimOffice", "label": "Office",    "url": "levels/SimOffice.json" },
+    { "id": "cafe",      "label": "Café ☕",    "url": "levels/cafe.json" }
   ]
 }

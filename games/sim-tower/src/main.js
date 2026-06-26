@@ -349,7 +349,7 @@ async function bootSingleRoom() {
   const target = frameCamera(camera, frameBox, aspect());
   rebuildLights(target, frameBox);
   const rooms = [{ slot: s.slot, furniture: s.furniture, actors: s.actors, grid: s.grid, level, floor: 0, col: 0 }];
-  if (Q.get('chars') === '1') { for (const r of rooms) for (let i = 0; i < CONFIG.CHARS_PER_ROOM; i++) spawnOne(r); }
+  if (Q.get('chars') === '1') { await preloadCharacters(); for (const r of rooms) for (let i = 0; i < CONFIG.CHARS_PER_ROOM; i++) spawnOne(r); }
   window.__SIM = { scene, camera, renderer, characters, CONFIG, get frameBox() { return frameBox; } };
   hud.style.display = '';
   hud.innerHTML = `<b>${SINGLE_ROOM}</b> · single room`;
