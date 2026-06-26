@@ -83,16 +83,13 @@ export function createGame(tower, deps) {
   const dock = el('div', 'gDock'); document.body.appendChild(dock);
   dock.innerHTML = `
     <div class="gHead">🏙️ Krabsy Tower</div>
-    <div class="gHint">Click a glowing slot to build. Rooms earn 🪙 over time — grow your tower!</div>
+    <div class="gHint">Click an <b style="color:#ffcf5e">amber edge</b> to buy floor space 🪙${CONFIG.GAME.LOT_COST} (left/right/up — upper floors need support below). Then click a <b style="color:#2ee6c0">teal slot</b> to build a room.</div>
     <div class="gSec">Build a room</div>
     <div class="gPalette" id="gPalette"></div>
-    <div class="gSec">Expand</div>
-    <button class="gBtn" id="gAddFloor">＋ Add floor</button>
     <label class="gFree"><input type="checkbox" id="gFreeBuild"> Free build (sandbox)</label>
     <div class="gExtra" id="gExtra"></div>`;
   const paletteEl = dock.querySelector('#gPalette');
   const extraEl = dock.querySelector('#gExtra');
-  const addFloorBtn = dock.querySelector('#gAddFloor');
   const freeChk = dock.querySelector('#gFreeBuild');
 
   const toast = el('div', 'gToast'); document.body.appendChild(toast);
@@ -138,27 +135,33 @@ export function createGame(tower, deps) {
   function onRebuilt() { syncRooms(); picker.refresh(); updateHud(); updateDock(); }
 
   // ── actions ────────────────────────────────────────────────────────────
-  async function onSlotClick(c, f) {
+  // kind 'buy' = buy floor space on the frontier; kind 'lot' = build/clear a room.
+  async function onSlotClick(c, f, kind, content) {
+    if (kind === 'buy') return buyLot(c, f);
+    // an existing lot:
     if (tower.freeBuild) {
-      await tower.setSlot(c, f, tower.brush === 'erase' ? null : tower.brush);
+      await tower.setRoom(c, f, tower.brush === 'erase' ? null : tower.brush);
+      if (tower.brush !== 'erase') popRoom(c, f);
       return;
     }
-    if (tower.layout[f][c]) return;               // occupied slot — nothing to build
+    if (content) return;                          // already has a room — nothing to build
     const id = tower.brush;
     const cost = costFor(id);
     if (state.coins < cost) { audio.nope(); flashCoins(); return; }
     state.coins -= cost;
-    await tower.setSlot(c, f, id);                // rebuild → onRebuilt → syncRooms
+    await tower.setRoom(c, f, id);                // rebuild → onRebuilt → syncRooms
     audio.build();
     popRoom(c, f);
     updateHud();
   }
 
-  async function addFloor() {
-    if (tower.freeBuild) { await tower.addFloor(); return; }
-    if (state.coins < G.FLOOR_COST) { audio.nope(); flashCoins(); return; }
-    state.coins -= G.FLOOR_COST;
-    await tower.addFloor();
+  async function buyLot(c, f) {
+    if (!tower.canBuy(c, f)) return;
+    if (!tower.freeBuild) {
+      if (state.coins < G.LOT_COST) { audio.nope(); flashCoins(); return; }
+      state.coins -= G.LOT_COST;
+    }
+    await tower.buyLot(c, f);
     audio.build();
     updateHud();
   }
@@ -368,7 +371,6 @@ export function createGame(tower, deps) {
       const id = b.dataset.id;
       if (id && id !== 'erase') b.classList.toggle('gPoor', !tower.freeBuild && state.coins < costFor(id));
     }
-    addFloorBtn.classList.toggle('gPoor', !tower.freeBuild && state.coins < G.FLOOR_COST);
   }
   function updateDock() {
     paletteEl.innerHTML = '';
@@ -390,36 +392,33 @@ export function createGame(tower, deps) {
     } else if (tower.brush === 'erase') {
       tower.brush = Object.keys(tower.rooms)[0];
     }
-    addFloorBtn.textContent = tower.freeBuild ? '＋ Add floor' : `＋ Add floor  🪙${G.FLOOR_COST}`;
     extraEl.innerHTML = '';
     if (tower.freeBuild) {
       const row = el('div', 'gRow');
-      const rm = el('button', 'gBtn', '－ Floor'); rm.onclick = () => tower.removeFloor();
-      const cl = el('button', 'gBtn', 'Clear'); cl.onclick = () => { if (confirm('Clear all rooms?')) tower.clear(); };
+      const cl = el('button', 'gBtn', 'Clear rooms'); cl.onclick = () => { if (confirm('Clear all rooms?')) tower.clear(); };
       const sv = el('button', 'gBtn gPrimary', '💾 Save'); sv.onclick = () => { tower.save(); showToast('saved ✓ (building.json downloaded)'); };
-      row.append(rm, cl, sv); extraEl.appendChild(row);
+      row.append(cl, sv); extraEl.appendChild(row);
     }
     updateHud();
   }
   function markBrush() { for (const b of paletteEl.children) b.classList.toggle('on', b.dataset.id === tower.brush); }
 
-  addFloorBtn.onclick = addFloor;
   freeChk.onchange = () => setFreeBuild(freeChk.checked);
   // unlock audio on first interaction
   const unlock = () => { unlockAudio(); window.removeEventListener('pointerdown', unlock); };
   window.addEventListener('pointerdown', unlock);
 
   // ── start ────────────────────────────────────────────────────────────────
-  async function start(initialLayout) {
+  async function start(startLots, opts = {}) {
     tower.gameActive = true;
-    tower.freeBuild = false;
+    tower.freeBuild = !!opts.freeBuild;
     tower.gutter = CONFIG.BUILD_PAN_FRAC;
     tower.repopulate = repopulate;
     tower.onRebuilt = onRebuilt;
-    tower.layout = initialLayout;
+    tower.lots = startLots;
     await tower.rebuild();
     // seed the starter room(s) with a resident or two so it isn't dead on arrival
-    for (const r of tower.built.rooms) {
+    if (!tower.freeBuild) for (const r of tower.built.rooms) {
       const k = key(r.col, r.floor);
       const seed = Math.min(G.SEED_OCCUPIED, maxOcc(roomType.get(k)));
       for (let i = 0; i < seed; i++) {
@@ -433,8 +432,8 @@ export function createGame(tower, deps) {
     picker.setVisible(true);
     updateDock();
     updateGoalBanner();
-    showToast('🏙️ Welcome! Build rooms and grow your tower.');
-    state.running = true;
+    showToast(tower.freeBuild ? '🏗️ Sandbox — free build.' : '🏙️ Welcome! Buy floor space, then build rooms.');
+    state.running = !tower.freeBuild;
   }
 
   return {

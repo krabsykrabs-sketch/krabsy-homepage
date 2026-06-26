@@ -34,68 +34,74 @@ function levelFootW(level) {
   return (yaw === 90 ? level.grid.rows : level.grid.cols) * level.grid.tile;
 }
 
-/**
- * Build the tower from a fixed-grid layout (columns align across floors; empty
- * slots are reserved, not collapsed — so it composes predictably in the builder).
- *   layout: floors bottom→top; each floor = array length `cols` of (roomId | null)
- *   opts:   { cols, levelsById, defaultSlotW }
- * Returns { group, rooms, slots, cols, floors, slotW, roomH, roomD, pitch, box }.
- * `slots` covers EVERY grid cell (filled or empty) with its world rect — the
- * builder uses it for clickable placeholders.
- */
-export function buildTower(layout, opts) {
-  const { levelsById } = opts;
-  const cols = opts.cols;
-  const floors = layout.length;
-  const pitch = CONFIG.STORY_PITCH + CONFIG.FLOOR_SLAB_GAP;
+const parseKey = (k) => { const i = k.indexOf(':'); return { f: +k.slice(0, i), c: +k.slice(i + 1) }; };
 
-  // uniform slot width from the widest room in play (keeps columns aligned)
+/**
+ * Build the tower from a sparse LOTS map (SimTower-style variable-width floors).
+ *   lots: Map "f:c" → content  (null = bought floor space/hallway, roomId = a room, 'elevator')
+ *   opts: { levelsById, defaultSlotW }
+ * Floors are independently sized; columns may be negative (expanded left).
+ * Returns { group, shell, rooms, slots, buyable, slotW, roomH, roomD, pitch, floors, box, colX, lotW }.
+ *   `slots`   = built lots (clickable to place/clear a room)
+ *   `buyable` = frontier cells you may buy (adjacent + supported by a lot below)
+ */
+export function buildTower(lots, opts) {
+  const { levelsById } = opts;
+  const pitch = CONFIG.STORY_PITCH + CONFIG.FLOOR_SLAB_GAP;
+  const has = (c, f) => lots.has(f + ':' + c);
+
+  // uniform lot width from the widest room in play
   let slotW = 0;
-  for (const fl of layout) for (const id of fl) if (id && levelsById[id]) slotW = Math.max(slotW, levelFootW(levelsById[id]));
+  for (const content of lots.values()) if (content && content !== 'elevator' && levelsById[content]) slotW = Math.max(slotW, levelFootW(levelsById[content]));
   if (!slotW) slotW = opts.defaultSlotW || 13;
-  const colSpacing = slotW + CONFIG.ROOM_GAP_X;
-  const colX = (c) => (c - (cols - 1) / 2) * colSpacing;
+  const lotW = slotW + CONFIG.ROOM_GAP_X;
+
+  const cells = [...lots.entries()].map(([k, content]) => ({ ...parseKey(k), content }));
+  const colsArr = cells.length ? cells.map((c) => c.c) : [0];
+  const minC = Math.min(...colsArr), maxC = Math.max(...colsArr);
+  const centerC = (minC + maxC) / 2;
+  const colX = (c) => (c - centerC) * lotW;
+  const maxF = cells.length ? Math.max(...cells.map((c) => c.f)) : 0;
 
   const group = new THREE.Group();
   const rooms = [];
   let roomH = 0, zBack = Infinity, zFront = -Infinity;
   const _box = new THREE.Box3();
 
-  layout.forEach((floor, f) => {
-    for (let c = 0; c < cols; c++) {
-      const id = floor[c];
-      if (!id || !levelsById[id]) continue;
-      const s = makeRoomSlot(levelsById[id]);
-      // measure in local space (slot not yet positioned) for slot/shell dims
-      _box.setFromObject(s.furniture);
-      roomH = Math.max(roomH, _box.max.y - _box.min.y);
-      zBack = Math.min(zBack, _box.min.z); zFront = Math.max(zFront, _box.max.z);
-      s.slot.position.set(colX(c), f * pitch, 0);
-      group.add(s.slot);
-      rooms.push({ slot: s.slot, furniture: s.furniture, actors: s.actors, grid: s.grid, level: levelsById[id], floor: f, col: c, roomId: id });
-    }
-  });
-
-  if (!rooms.length) { roomH = pitch * 0.82; zBack = -2.6; zFront = 2.6; }
+  for (const cell of cells) {
+    if (!cell.content || cell.content === 'elevator' || !levelsById[cell.content]) continue;
+    const s = makeRoomSlot(levelsById[cell.content]);
+    _box.setFromObject(s.furniture);
+    roomH = Math.max(roomH, _box.max.y - _box.min.y);
+    zBack = Math.min(zBack, _box.min.z); zFront = Math.max(zFront, _box.max.z);
+    s.slot.position.set(colX(cell.c), cell.f * pitch, 0);
+    group.add(s.slot);
+    rooms.push({ slot: s.slot, furniture: s.furniture, actors: s.actors, grid: s.grid, level: levelsById[cell.content], floor: cell.f, col: cell.c, roomId: cell.content });
+  }
+  if (!roomH) roomH = pitch * 0.82;
+  if (zBack === Infinity) { zBack = -2.6; zFront = 2.6; }
   const roomD = zFront - zBack, zMid = (zBack + zFront) / 2;
 
-  // grid box spanning ALL columns/floors (incl. empty) so the shell wraps the whole frame
-  const xHalf = Math.abs(colX(0)) + slotW / 2;
-  const gridBox = new THREE.Box3(
-    new THREE.Vector3(-xHalf, 0, zBack),
-    new THREE.Vector3(xHalf, (floors - 1) * pitch + roomH, zFront),
-  );
-  const shell = buildShell(gridBox, floors, pitch);
+  const shell = buildShell(cells, { colX, pitch, lotW, roomH, zBack, zFront, has });
   group.add(shell);
 
-  // clickable slot rects for the builder (every cell)
-  const slots = [];
-  for (let f = 0; f < floors; f++)
-    for (let c = 0; c < cols; c++)
-      slots.push({ c, f, x: colX(c), yBase: f * pitch, yMid: f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD, id: layout[f][c] || null });
+  const slots = cells.map((cell) => ({ c: cell.c, f: cell.f, content: cell.content, x: colX(cell.c), yBase: cell.f * pitch, yMid: cell.f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD }));
+
+  // buyable frontier: expand right/left/up from any lot; up needs support below (the cell itself)
+  const buyable = [];
+  const seen = new Set();
+  const addBuy = (c, f) => {
+    if (has(c, f)) return;
+    if (f > 0 && !has(c, f - 1)) return;            // support: nothing to stand on
+    const k = f + ':' + c; if (seen.has(k)) return; seen.add(k);
+    buyable.push({ c, f, x: colX(c), yBase: f * pitch, yMid: f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD });
+  };
+  if (!cells.length) addBuy(0, 0);
+  for (const cell of cells) { addBuy(cell.c + 1, cell.f); addBuy(cell.c - 1, cell.f); addBuy(cell.c, cell.f + 1); }
 
   const box = new THREE.Box3().setFromObject(group);
-  return { group, shell, rooms, slots, cols, floors, slotW, roomH, roomD, pitch, box };
+  if (box.isEmpty()) box.set(new THREE.Vector3(-lotW / 2, 0, zBack), new THREE.Vector3(lotW / 2, roomH, zFront));
+  return { group, shell, rooms, slots, buyable, slotW, lotW, roomH, roomD, pitch, floors: maxF + 1, box, colX };
 }
 
 /** Recursively dispose geometries + materials of a group (for live rebuilds). */
@@ -111,25 +117,22 @@ export function disposeObject(obj) {
 }
 
 /**
- * Structural shell around the cutaway so it reads as a building: a dark back
- * wall (fills the inter-room gaps + above the walls), floor slabs between
- * stories, a sidewalk, side columns and a roof. `box` is the Box3 of the rooms
- * only; sized to wrap it with small margins.
+ * Per-lot structural shell so a variable-width tower reads as a building and
+ * steps correctly (a lot only exists where floor space was bought). Each lot
+ * gets a back-wall segment + a structural floor slab; floor-0 lots get a
+ * sidewalk; the topmost lot in each column gets a roof cap.
  */
-export function buildShell(box, floors, pitch) {
+export function buildShell(cells, geom) {
+  const { colX, pitch, lotW, roomH, zBack, zFront, has } = geom;
   const S = CONFIG.SHELL;
   const g = new THREE.Group();
   g.name = 'shell';
-  if (!S.enabled) return g;
+  if (!S.enabled || !cells.length) return g;
 
   const mat = (c) => new THREE.MeshStandardMaterial({ color: new THREE.Color(c), roughness: 1, metalness: 0 });
-  const matBack = mat(S.CONCRETE_BACK);
-  const matSlab = mat(S.SLAB);
-  const matGround = mat(S.GROUND);
-  const matRoof = mat(S.ROOF);
-  const FADEABLE = new Set(['slab', 'roof', 'colL', 'colR']);
-  // fadeable occluders get their own material (independent opacity for culling)
-  function slab(w, h, d, x, y, z, m, role) {
+  const matBack = mat(S.CONCRETE_BACK), matSlab = mat(S.SLAB), matGround = mat(S.GROUND), matRoof = mat(S.ROOF);
+  const FADEABLE = new Set(['slab', 'roof']);
+  function box(w, h, d, x, y, z, m, role) {
     const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), FADEABLE.has(role) ? m.clone() : m);
     me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true;
     me.userData.cull = { role, topY: y + h / 2 };
@@ -137,40 +140,22 @@ export function buildShell(box, floors, pitch) {
     g.add(me); return me;
   }
 
-  const SM = S.SIDE_MARGIN;
-  const x0 = box.min.x - SM, x1 = box.max.x + SM;
-  const W = x1 - x0, cx = (x0 + x1) / 2;
-  const zBack = box.min.z, zFront = box.max.z, zMid = (zBack + zFront) / 2;
-  const depth = zFront - zBack;
-  const slabDepth = depth + S.FRONT_PROTRUDE;
-  const slabZ = zMid + S.FRONT_PROTRUDE / 2;
+  const depth = zFront - zBack, zMid = (zBack + zFront) / 2;
+  const slabDepth = depth + S.FRONT_PROTRUDE, slabZ = zMid + S.FRONT_PROTRUDE / 2;
 
-  const yGround = box.min.y;                 // floor-0 room floor sits here
-  const yTop = box.max.y;                     // top of the topmost room (box is world-space)
-  const fullH = yTop - yGround;
-
-  // back wall plane — from below the sidewalk to above the roof
-  slab(W, fullH + S.GROUND_THICK + S.ROOF_THICK + 2, 0.3, cx, (yGround + yTop) / 2, zBack - S.BACK_OFFSET, matBack, 'back');
-
-  // sidewalk
-  slab(W + 1.2, S.GROUND_THICK, depth + 2.0, cx, yGround - S.GROUND_THICK / 2, zMid + 0.5, matGround, 'ground');
-
-  // structural floor slabs between stories (fill the gap under each upper floor)
-  for (let i = 1; i < floors; i++) {
-    const y = i * pitch;                     // bottom of floor i's room
-    slab(W, S.SLAB_THICK, slabDepth, cx, y - S.SLAB_THICK / 2, slabZ, matSlab, 'slab');
+  for (const cell of cells) {
+    const x = colX(cell.c), yb = cell.f * pitch;
+    // back wall segment (tiles vertically across floors)
+    box(lotW + 0.02, pitch + 0.02, 0.3, x, yb + pitch / 2 - S.SLAB_THICK / 2, zBack - S.BACK_OFFSET, matBack, 'back');
+    // structural floor slab under the lot
+    box(lotW + 0.02, S.SLAB_THICK, slabDepth, x, yb - S.SLAB_THICK / 2, slabZ, matSlab, 'slab');
+    // sidewalk under ground-floor lots
+    if (cell.f === 0) box(lotW + 0.2, S.GROUND_THICK, depth + 1.6, x, -S.GROUND_THICK / 2, zMid + 0.4, matGround, 'ground');
+    // roof cap on the topmost lot of this column
+    if (!has(cell.c, cell.f + 1)) box(lotW, S.ROOF_THICK, slabDepth, x, yb + roomH + S.ROOF_THICK / 2, slabZ, matRoof, 'roof');
   }
 
-  // side columns (full height)
-  const colW = SM * 0.9;
-  slab(colW, fullH, depth, x0 + colW / 2, (yGround + yTop) / 2, zMid, matSlab, 'colL');
-  slab(colW, fullH, depth, x1 - colW / 2, (yGround + yTop) / 2, zMid, matSlab, 'colR');
-
-  // roof + parapet
-  slab(W, S.ROOF_THICK, slabDepth, cx, yTop + S.ROOF_THICK / 2, slabZ, matRoof, 'roof');
-  slab(W, S.PARAPET, 0.4, cx, yTop + S.ROOF_THICK + S.PARAPET / 2, zFront + S.FRONT_PROTRUDE - 0.2, matRoof, 'roof');
-
-  g.userData.centerX = cx;
+  g.userData.centerX = 0;
   g.userData.cullMeshes = g.children.filter((m) => m.userData.cull && FADEABLE.has(m.userData.cull.role));
   return g;
 }
