@@ -299,3 +299,91 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
   done; don't extend the format unless truly necessary, and never to break a
   single-pack (kitchen) level.
 - **Camera:** orthographic, ~5° tilt, tunable constant.
+
+---
+
+## Status log (Part B runtime)
+
+### 2026-06-25 — in-browser BUILD MODE (session 1, cont.)
+**⚠️ Deliberate non-goal override:** the brief lists "in-game build mode" as a
+non-goal; Jan explicitly asked to construct the tower himself, so it's now built.
+(Individual *rooms* are still authored in the World Designer / Part A — this only
+assembles authored rooms into the tower.)
+
+**State: working & verified.** Click a slot to place a room; full lifecycle tested
+in a real browser (click→raycast→place→rebuild→persist, add/remove floor, erase,
+clear, save, done→tenants return), **0 console errors**.
+- **Layout-driven, fixed-grid tower** (`buildTower` in `building.js`): a layout is
+  `floors[]` of `[roomId|null]` length `cols` (default 2). Columns align across
+  floors; empty slots are reserved (not collapsed). `disposeObject` frees the old
+  build on every rebuild (live, cheap — templates are cached).
+- **Room discovery** (`main.js` `discoverRooms`): auto-finds `levels/*.json` via the
+  local server's directory listing, plus `levels/manifest.json` for nice labels
+  (Apartment/Office). New rooms Jan authors appear in the palette automatically.
+- **Builder UI** (`builder.js`): left panel (room palette + Erase brush, ＋/－ Floor,
+  Clear, Save, Done), translucent **clickable slot placeholders** in 3D (raycast),
+  hover highlight. Toggle with the **🏗 Build** button (bottom-right) or `?build=1`.
+- **Persistence**: every edit saves to `localStorage` ("loads next time"); **Save**
+  also downloads `building.json`. Load order on boot: `localStorage` → `building.json`
+  (drop the downloaded file in the game folder to make it the committed default) →
+  built-in default plan. `?layout=<urlencoded JSON>` overrides for QA/screenshots.
+- **Camera**: in build mode the view reserves a left gutter (`frameCamera`'s
+  `leftGutterFrac`, `config.BUILD_PAN_FRAC`) so the panel never covers slots; tenants
+  are hidden while editing and respawn on Done.
+
+### 2026-06-25 — "aliveness + building shell" pass (session 1, cont.)
+**State: working & verified (0 console errors, headless).** Made it read as a
+*building* and feel more alive:
+- **Building shell** (`buildShell` in `building.js`): a dark back-wall plane that
+  fills the gaps between rooms and above the walls, structural floor slabs between
+  stories (closes the inter-floor gap), a sidewalk, side columns, and a roof +
+  parapet. Tunables in `config.SHELL`. Sized from the rooms' Box3.
+- **2 tenants per room** (`config.CHARS_PER_ROOM`, now 12 total), desynced (distinct
+  start waypoint + staggered timer + per-character `SPEED_JITTER`).
+- **Gesture beats**: standing-idle tenants occasionally play one-shot `Interact` /
+  `PickUp` / `Use_Item` clips (`config.GESTURE_*`). Sitting unchanged.
+- **Lighting/camera polish**: cool rim light from behind-above (`BACK_LIGHT_INTENSITY`)
+  to separate tenants from the dark back wall; shadow frustum now sized to the
+  building; `ZOOM_MARGIN` tightened to 1.06; ambient/key nudged up so it's cheery
+  but keeps the shadowbox depth. `LOUNGE_SIT_LIFT` stops couch-sitters sinking.
+- Note: the Knight's red blob during a bend is just `Knight_Cape` (KayKit ships the
+  cape on the character) — not clutter.
+- Still open: rug-thickness, taller-stack scale test, more authored rooms, commit.
+
+### 2026-06-25 — v1 runtime built & verified (session 1)
+**State: working.** The diorama loads both authored rooms via the §7 loader,
+stacks them into a 3-floor building, and runs 6 KayKit characters on a
+furniture-derived waypoint routine. Verified in headless Edge: **0 console
+errors, no missing models, characters walk/sit/loop.**
+
+**Files (all new, in `games/sim-tower/`):**
+- `index.html` — import map (vendored three r169) + canvas + loader/error overlay.
+- `src/config.js` — **all tunables in one place** (camera, stack, room orientation, lighting, characters).
+- `src/loader.js` — the multi-pack §5–§7 loader (footprint-by-measure, ground/wall tables, `WALL_PLACE` rotated by `rot`, YXZ euler, `obj.pack || catalog`). Faithfully reconstructs Jan's rooms.
+- `src/camera.js` — ortho near-straight-on (tilt constant) + auto-frame; optional long-lens perspective.
+- `src/building.js` — wraps each room in `slot ▸ {furniture, actors}` (actors layer stays unscaled so characters never get the depth-squash distortion) and stacks floors at `STORY_PITCH`.
+- `src/character.js` — Adventurers char + Rig_Medium clips via `SkeletonUtils.clone` (same approach as verb-kitchen). State machine: idle → walk → sit/idle → repeat, staggered. Waypoints derived from furniture at runtime.
+- `assets/models/{prototype-bits,restaurant-bits,furniture-bits}/` — whole gltf folders + atlases (gitignored). `assets/characters/` — Rogue/Knight/Mage/Ranger + Rig_Medium_{MovementBasic,General,Simulation}.glb (Simulation adds Sit_Chair/Lie). `vendor/three/` — three r169 + GLTFLoader/SkeletonUtils/BufferGeometryUtils (tracked).
+
+**⚠️ Proportions decision (the thing flagged early): `ROOM_YAW_DEG = 270`.**
+The authored rooms are 3 wide × 6 deep → ~4.5u × 12u: **narrow + deep**, the
+opposite of what a near-straight-on shadowbox wants. At 5° tilt the 12u of depth
+collapses and you view the room nearly side-on. **Fix (no re-authoring): rotate
+each room 270° in the runtime** (`config.ROOM_YAW_DEG`), turning depth→width.
+That lands the authored wall at the BACK with furniture facing the camera — a
+clean wide/shallow cutaway. (`yaw=90` is the wrong mirror: wall in front, hides
+everything. `yaw=0` = as authored = side-on.) If Jan would rather author
+shallow-and-wide rooms (e.g. 6 wide × 3 deep) in the editor, set `ROOM_YAW_DEG=0`.
+
+**Verification recipe (interactive preview screenshot HANGS on the WebGL canvas — use headless Edge):**
+- Serve: preview `sim-tower` on :8042 (or `python3 -m http.server 8042` from this folder).
+- `msedge --headless=new --no-sandbox --disable-gpu --enable-unsafe-swiftshader --user-data-dir=<tmp> --window-size=1600,1000 --virtual-time-budget=12000 --screenshot=<out.png> "http://localhost:8042/?t=6"`
+- QA URL params: `?room=<id>` (single room), `?t=SECONDS` (deterministic fixed-step fast-forward of the routine — beats rAF throttling), `?anim=0` (freeze), `?yawRoom=`, `?tilt=`, `?yaw=`, `?pitch=`, `?squash=`, `?persp=1`. Page sets `window.__READY` and `window.__ERRORS`.
+
+**Open polish / next session:**
+- `rug_rectangle_stripes_A` renders as a slightly raised bar (faithful to its model height; sits on the floor). Could special-case rugs to lay flush if it bothers.
+- Couch-sit height is a touch low; could add a small per-seat y-lift.
+- Story gap: `STORY_PITCH=5` leaves a ~1u dark band between the wall top (~4u) and the next floor slab — reads as a floor divider; tune if a tighter stack is wanted.
+- Only 2 authored rooms today; the building plan in `main.js` (`boot()`) just alternates them across 3 floors. Drop new `levels/*.json` + extend the plan when Jan authors more.
+- Perf: real GPU is trivially 60fps with 6 low-poly characters; headless QA used swiftshader (slow, not representative).
+- Not committed — `src/`, `index.html`, `config`, `vendor/` are untracked; `assets/models|characters` gitignored. Commit when you're happy.
