@@ -304,6 +304,25 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-06-26 — FRONT-HALLWAY POLISH (Jan feedback) — session 2 (cont.)
+Two feedback rounds, all committed on `sim-tower-game-slice`, eval-verified.
+- **Characters stood in the floor** (feet at slot base; tiles are 0.5 thick).
+  New `CONFIG.FLOOR_SURFACE_Y` (0.5): the room `actors` group is lifted; commute
+  world-waypoints + elevator ride/alight add the same lift. Feet now land on the
+  tile top everywhere.
+- **Shell overhang.** `SHELL.FRONT_PROTRUDE` 0.45 → **−2.6**: the dark slabs/roof
+  are pulled BACK from the hallway front so they stop short of the room assets
+  (no overhang occluding the interior).
+- **Elevator.** `ELEVATOR_WIDTH_FRAC` 0.5 → **0.28** (narrow) + `ELEVATOR_INSET`
+  shoves it to the far-left of its lot (not centred). During a ride the 3D rider
+  is hidden and a **class badge** (emoji on class colour, canvas texture) shows on
+  the cab front — `elevator.setOccupant(type)`, driven by `ElevatorManager`.
+- **On-demand build ghosts.** No tool selected → no boxes. New **Expand** tool →
+  amber buy-frontier; a room tool → teal empty-lot cells; **Elevator** tool →
+  distinct purple shaft ghosts on eligible columns. Re-clicking the active tool
+  or clicking empty space deselects (`tower.brush` can be null now; rig fires
+  onClick only on a non-drag tap, so empty-space deselect is safe).
+
 ### 2026-06-26 — FRONT-HALLWAY REDESIGN — session 2 (cont.)
 Jan re-designed the spatial model around a new office he authored
 (`levels/office3.json`): door on the **front** (camera side), one shared
