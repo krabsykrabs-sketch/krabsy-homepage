@@ -304,6 +304,44 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-06-26 — VERTICAL SLICE: real game (krabsy-tower-concept2.md) — session 2
+Implemented all four options from `krabsy-tower-concept2.md` + furniture
+collision, autonomously. Each is its own commit on branch `sim-tower-game-slice`
+(off `main`). Verified headless (Edge/swiftshader): **0 console errors**, and a
+`?selftest=collision` harness asserts **0 path-through-furniture violations**.
+
+- **Collision** (`nav.js`): per-room nav grid marks furniture-footprint cells
+  blocked; residents BFS-path along free floor cells; sit = a single clean step
+  onto the seat cell adjacent to a free approach cell (leave via the remembered
+  approach so they never line across other furniture). Rugs/cacti don't block.
+- **Option 1 — 3D dollhouse camera** (`cameraRig.js`): constrained perspective
+  orbit — drag = orbit (azimuth ±58°), drag-vertical = pan floors, wheel = zoom,
+  damped; click-vs-drag so building still works. Dynamic culling (`cullShell`)
+  fades the near side-column when orbiting and ceilings/roof above the focus when
+  tilted down. Rooms keep yaw-270 (authored wall at back, walkway front).
+  `?flat=1` keeps the old ortho cutaway; sandbox stays flat.
+- **Option 2 — wants + happiness** (`game.js`): each resident has one want by
+  type (Ranger/Rogue→sofa, Knight→quiet floor, Mage→café). Met→happy (1.6× rent),
+  unmet→meh→leaving (grumble 💢, gentle move-out). Click a resident → want+mood
+  card. Occupancy refactored from counts to persistent resident entities.
+- **Option 3 — Café** (`levels/cafe.json`): costs 20, earns 0, but satisfies
+  "café nearby" for residents on adjacent floors → the build-vs-earn tradeoff.
+- **Option 4 — milestones** (`game.js`): 4 named soft goals (House 5 / Build a
+  café / Keep 8 happy / Grow to 12) in a goal banner with live progress + coin
+  rewards. No fail state.
+
+**Learning hooks (deferred — left as discrete events, no question UI, per the doc):**
+- *satisfy a want* → `wantMet()` / mood→happy transition in `updateMoods` (game.js)
+- *collect rent* → the per-room income tick in `tick()` (game.js)
+- *unlock a room/floor* → `onSlotClick` build + `addFloor` (game.js) via `tower.setSlot`
+Gate any of these on a correct grammar answer later; the question engine
+(`homepage/lib/krabsy-questions.js`) is unused for now, as instructed.
+
+**Dev note:** the local server is now `.claude/serve-nocache.py` (no-store headers)
+so edited ES modules always reload — heuristic caching had been serving stale JS.
+QA params: `?flat=1 ?sandbox=1 ?room=<id>&chars=1 ?t=SEC ?layout=<json> ?ui=0
+?az= ?pol= ?zoom= ?fy= ?selftest=collision`.
+
 ### 2026-06-25 — in-browser BUILD MODE (session 1, cont.)
 **⚠️ Deliberate non-goal override:** the brief lists "in-game build mode" as a
 non-goal; Jan explicitly asked to construct the tower himself, so it's now built.
