@@ -85,7 +85,8 @@ export function buildTower(layout, opts) {
     new THREE.Vector3(-xHalf, 0, zBack),
     new THREE.Vector3(xHalf, (floors - 1) * pitch + roomH, zFront),
   );
-  group.add(buildShell(gridBox, floors, pitch));
+  const shell = buildShell(gridBox, floors, pitch);
+  group.add(shell);
 
   // clickable slot rects for the builder (every cell)
   const slots = [];
@@ -94,7 +95,7 @@ export function buildTower(layout, opts) {
       slots.push({ c, f, x: colX(c), yBase: f * pitch, yMid: f * pitch + roomH / 2, zMid, w: slotW, h: roomH, d: roomD, id: layout[f][c] || null });
 
   const box = new THREE.Box3().setFromObject(group);
-  return { group, rooms, slots, cols, floors, slotW, roomH, roomD, pitch, box };
+  return { group, shell, rooms, slots, cols, floors, slotW, roomH, roomD, pitch, box };
 }
 
 /** Recursively dispose geometries + materials of a group (for live rebuilds). */
@@ -126,9 +127,14 @@ export function buildShell(box, floors, pitch) {
   const matSlab = mat(S.SLAB);
   const matGround = mat(S.GROUND);
   const matRoof = mat(S.ROOF);
-  function slab(w, h, d, x, y, z, m) {
-    const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-    me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true; g.add(me); return me;
+  const FADEABLE = new Set(['slab', 'roof', 'colL', 'colR']);
+  // fadeable occluders get their own material (independent opacity for culling)
+  function slab(w, h, d, x, y, z, m, role) {
+    const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), FADEABLE.has(role) ? m.clone() : m);
+    me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true;
+    me.userData.cull = { role, topY: y + h / 2 };
+    if (FADEABLE.has(role)) { me.material.transparent = true; me.material.opacity = 1; }
+    g.add(me); return me;
   }
 
   const SM = S.SIDE_MARGIN;
@@ -144,25 +150,60 @@ export function buildShell(box, floors, pitch) {
   const fullH = yTop - yGround;
 
   // back wall plane — from below the sidewalk to above the roof
-  slab(W, fullH + S.GROUND_THICK + S.ROOF_THICK + 2, 0.3, cx, (yGround + yTop) / 2, zBack - S.BACK_OFFSET, matBack);
+  slab(W, fullH + S.GROUND_THICK + S.ROOF_THICK + 2, 0.3, cx, (yGround + yTop) / 2, zBack - S.BACK_OFFSET, matBack, 'back');
 
   // sidewalk
-  slab(W + 1.2, S.GROUND_THICK, depth + 2.0, cx, yGround - S.GROUND_THICK / 2, zMid + 0.5, matGround);
+  slab(W + 1.2, S.GROUND_THICK, depth + 2.0, cx, yGround - S.GROUND_THICK / 2, zMid + 0.5, matGround, 'ground');
 
   // structural floor slabs between stories (fill the gap under each upper floor)
   for (let i = 1; i < floors; i++) {
     const y = i * pitch;                     // bottom of floor i's room
-    slab(W, S.SLAB_THICK, slabDepth, cx, y - S.SLAB_THICK / 2, slabZ, matSlab);
+    slab(W, S.SLAB_THICK, slabDepth, cx, y - S.SLAB_THICK / 2, slabZ, matSlab, 'slab');
   }
 
   // side columns (full height)
   const colW = SM * 0.9;
-  slab(colW, fullH, depth, x0 + colW / 2, (yGround + yTop) / 2, zMid, matSlab);
-  slab(colW, fullH, depth, x1 - colW / 2, (yGround + yTop) / 2, zMid, matSlab);
+  slab(colW, fullH, depth, x0 + colW / 2, (yGround + yTop) / 2, zMid, matSlab, 'colL');
+  slab(colW, fullH, depth, x1 - colW / 2, (yGround + yTop) / 2, zMid, matSlab, 'colR');
 
   // roof + parapet
-  slab(W, S.ROOF_THICK, slabDepth, cx, yTop + S.ROOF_THICK / 2, slabZ, matRoof);
-  slab(W, S.PARAPET, 0.4, cx, yTop + S.ROOF_THICK + S.PARAPET / 2, zFront + S.FRONT_PROTRUDE - 0.2, matRoof);
+  slab(W, S.ROOF_THICK, slabDepth, cx, yTop + S.ROOF_THICK / 2, slabZ, matRoof, 'roof');
+  slab(W, S.PARAPET, 0.4, cx, yTop + S.ROOF_THICK + S.PARAPET / 2, zFront + S.FRONT_PROTRUDE - 0.2, matRoof, 'roof');
 
+  g.userData.centerX = cx;
+  g.userData.cullMeshes = g.children.filter((m) => m.userData.cull && FADEABLE.has(m.userData.cull.role));
   return g;
+}
+
+/** Dynamic dollhouse culling: fade occluders between the orbit camera and the
+ *  rooms (near side column when orbiting; ceilings/roof above the focus when
+ *  tilted down) so interiors stay readable. Called each frame in 3D mode. */
+export function cullShell(shell, rig, dt) {
+  if (!shell || !shell.userData.cullMeshes) return;
+  const C = CONFIG.CAMERA3D;
+  const cx = shell.userData.centerX || 0;
+  const camX = rig.cam.position.x;
+  const azMax = C.AZ_MAX_DEG * Math.PI / 180;
+  const azFrac = Math.min(1, Math.abs(rig.az) / azMax);
+  const polMin = C.POL_MIN_DEG * Math.PI / 180, polMax = C.POL_MAX_DEG * Math.PI / 180;
+  const polFrac = Math.max(0, Math.min(1, (rig.pol - polMin) / (polMax - polMin)));
+  const smooth = (e0, e1, x) => { const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const k = 1 - Math.exp(-C.CULL_LERP * dt);
+
+  for (const m of shell.userData.cullMeshes) {
+    const role = m.userData.cull.role;
+    let goal = 1;
+    if (role === 'colR') goal = camX > cx + 0.4 ? lerp(1, C.CULL_FADE, azFrac) : 1;
+    else if (role === 'colL') goal = camX < cx - 0.4 ? lerp(1, C.CULL_FADE, azFrac) : 1;
+    else if (role === 'slab' || role === 'roof') {
+      // fade ceilings/roof above the focused level once you tilt down to inspect
+      const aboveFocus = m.userData.cull.topY > rig.target.y + 0.6;
+      const steep = role === 'roof' ? smooth(0.25, 0.85, polFrac) : (aboveFocus ? smooth(0.35, 0.95, polFrac) : 0);
+      goal = lerp(1, C.CULL_FADE, steep);
+    }
+    m.material.opacity += (goal - m.material.opacity) * k;
+    m.material.depthWrite = m.material.opacity > 0.92;
+    m.visible = m.material.opacity > 0.03;
+  }
 }

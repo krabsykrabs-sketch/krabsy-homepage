@@ -4,7 +4,7 @@
     {
       "name": "sim-tower",
       "runtimeExecutable": "wsl",
-      "runtimeArgs": ["-e", "bash", "-lc", "cd ~/krabsy-homepage/games/sim-tower && python3 -m http.server 8042"],
+      "runtimeArgs": ["-e", "bash", "-lc", "cd ~/krabsy-homepage/games/sim-tower && python3 .claude/serve-nocache.py"],
       "port": 8042,
       "autoPort": false
     }

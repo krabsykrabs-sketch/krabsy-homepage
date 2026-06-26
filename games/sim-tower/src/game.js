@@ -58,6 +58,8 @@ export function createGame(tower, deps) {
   const floatLayer = el('div', 'gFloats'); document.body.appendChild(floatLayer);
 
   const picker = createSlotPicker(tower, { THREE, scene, camera, renderer, onPick: onSlotClick });
+  if (deps.rig) { deps.rig.onClick = (ev) => picker.clickAt(ev); deps.rig.onHover = (ev) => picker.hoverAt(ev); }
+  else picker.attachDirect();
 
   // ── room registry sync (keeps occ/type in step with the layout) ────────
   function syncRooms() {

@@ -7,10 +7,11 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { loadLevel, preloadLevel } from './loader.js';
 import { makeCamera, frameCamera } from './camera.js';
-import { buildTower, makeRoomSlot, disposeObject } from './building.js';
+import { buildTower, makeRoomSlot, disposeObject, cullShell } from './building.js';
 import { Character, preloadCharacters, deriveWaypoints } from './character.js';
 import { createBuilder } from './builder.js';
 import { createGame } from './game.js';
+import { CameraRig } from './cameraRig.js';
 
 // ── query overrides (QA / tuning, no edits needed) ───────────────────────
 const Q = new URLSearchParams(location.search);
@@ -25,6 +26,7 @@ const SINGLE_ROOM = Q.get('room');             // ?room=simroom1 → render just
 const SANDBOX = Q.get('sandbox') === '1';      // ?sandbox=1 → free author/build mode (no economy)
 const START_BUILD = Q.get('build') === '1';    // ?build=1 → (sandbox) open build panel on load
 const SHOW_UI = Q.get('ui') !== '0';           // ?ui=0 → hide game UI (clean diorama view)
+const USE_3D = !SANDBOX && !SINGLE_ROOM && Q.get('flat') !== '1';   // 3D dollhouse orbit camera (default); ?flat=1 → ortho cutaway
 
 const LS_KEY = 'simtower.layout';
 const GAME_START_LAYOUT = [['simroom1', null], [null, null]];   // a tiny starter lot to grow from
@@ -58,7 +60,13 @@ scene.background = makeBackdropTexture();
 const lightsGroup = new THREE.Group();
 scene.add(lightsGroup);
 
-let camera = makeCamera(aspect());
+let camera, rig = null;
+if (USE_3D) {
+  camera = new THREE.PerspectiveCamera(CONFIG.CAMERA3D.FOV, aspect(), 0.5, 400);
+  rig = new CameraRig(camera, canvas);
+} else {
+  camera = makeCamera(aspect());
+}
 let frameBox = new THREE.Box3(new THREE.Vector3(-10, 0, -5), new THREE.Vector3(10, 12, 5));
 const clock = new THREE.Clock();
 const characters = [];
@@ -66,7 +74,7 @@ const tweens = [];          // spawn pop-in (character) tweens
 let gi = 0;                 // global character index (variety)
 let game = null;
 
-function aspect() { return innerWidth / innerHeight; }
+function aspect() { return (innerWidth > 0 && innerHeight > 0) ? innerWidth / innerHeight : 1.5; }
 
 function makeBackdropTexture() {
   const cnv = document.createElement('canvas');
@@ -213,8 +221,10 @@ const tower = {
     this.built = built;
     scene.add(built.group);
     frameBox = built.box;
-    const target = frameCamera(camera, frameBox, aspect(), this.gutter);
-    rebuildLights(target, frameBox);
+    const center = frameBox.getCenter(new THREE.Vector3());
+    if (rig) rig.fit(frameBox);
+    else frameCamera(camera, frameBox, aspect(), this.gutter);
+    rebuildLights(center, frameBox);
     if (this.repopulate) this.repopulate(built.rooms);
     if (this.onRebuilt) this.onRebuilt();
     renderer.render(scene, camera);
@@ -283,7 +293,7 @@ async function boot() {
       catch (e) { showError('bad ?layout=: ' + e); layout = normalizeLayout(GAME_START_LAYOUT, tower.cols); }
     }
 
-    window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, get game() { return game; }, get frameBox() { return frameBox; } };
+    window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, rig, get game() { return game; }, get frameBox() { return frameBox; } };
 
     if (SANDBOX) {
       // free author/build mode — no economy
@@ -305,9 +315,10 @@ async function boot() {
     // ── default: the GAME ──
     ovmsg.textContent = 'opening Krabsy Tower…';
     hud.style.display = 'none';
-    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne });
+    game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, rig });
     await game.start(layout || normalizeLayout(GAME_START_LAYOUT, tower.cols));
     if (!SHOW_UI) game.setUiVisible(false);
+    applyCamQA();
     overlay.classList.add('hidden');
 
     if (Q.has('selftest')) { runSelfTest(); return; }
@@ -374,6 +385,7 @@ function runSelfTest() {
   if (violations > 0 || navMissing > 0 || walkSamples === 0) console.error(msg); else console.log(msg);
   window.__SELFTEST = { chars: characters.length, walkSamples, moved, violations, navMissing };
   window.__READY = true;
+  for (let i = 0; i < 40; i++) step3D(1 / 60);
   const redraw = () => { requestAnimationFrame(redraw); renderer.render(scene, camera); };
   redraw();
 }
@@ -382,17 +394,36 @@ function runSelfTest() {
 function fastForward(T) {
   const dt = 1 / 60;
   for (let s = 0; s < Math.max(0, T); s += dt) {
+    step3D(dt);
     updateTweens(dt);
     if (game) game.tick(dt);
     for (const c of characters) c.update(dt);
   }
+  for (let i = 0; i < 40; i++) step3D(dt);   // settle camera/cull damping for a clean frame
   const redraw = () => { requestAnimationFrame(redraw); renderer.render(scene, camera); };
   redraw();
+}
+
+/** QA camera overrides for deterministic angle screenshots: ?az=&pol=&zoom=&fy= */
+function applyCamQA() {
+  if (!rig) return;
+  const D = Math.PI / 180;
+  if (Q.has('az')) { rig.goalAz = rig.az = qNum('az') * D; }
+  if (Q.has('pol')) { rig.goalPol = rig.pol = qNum('pol') * D; }
+  if (Q.has('zoom')) { rig.goalRad = rig.rad = qNum('zoom'); }
+  if (Q.has('fy')) { rig.goalTarget.y = rig.target.y = qNum('fy'); }
+}
+
+function step3D(dt) {
+  if (!rig) return;
+  rig.update(dt);
+  if (tower.built && tower.built.shell) cullShell(tower.built.shell, rig, dt);
 }
 
 function loop() {
   requestAnimationFrame(loop);
   const dt = Math.min(clock.getDelta(), 0.05);
+  step3D(dt);
   updateTweens(dt);
   if (game) game.tick(dt);
   if (ANIM) for (const c of characters) c.update(dt);
@@ -401,7 +432,8 @@ function loop() {
 
 addEventListener('resize', () => {
   if (camera.isPerspectiveCamera) camera.aspect = aspect();
-  frameCamera(camera, frameBox, aspect(), tower.gutter);
+  if (rig) rig.fit(frameBox);
+  else frameCamera(camera, frameBox, aspect(), tower.gutter);
   renderer.setSize(innerWidth, innerHeight, false);
 });
 renderer.setSize(innerWidth, innerHeight, false);

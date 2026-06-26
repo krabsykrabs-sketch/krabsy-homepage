@@ -64,8 +64,8 @@ export function createSlotPicker(tower, { THREE, scene, camera, renderer, onPick
     return hits.length ? hits[0].object : null;
   }
 
-  function onMove(ev) {
-    if (!layer.visible) return;
+  function hoverAt(ev) {
+    if (!layer.visible) { highlight.visible = false; return; }
     const hit = pick(ev);
     if (!hit) { highlight.visible = false; renderer.domElement.style.cursor = ''; return; }
     highlight.visible = true;
@@ -73,16 +73,20 @@ export function createSlotPicker(tower, { THREE, scene, camera, renderer, onPick
     highlight.scale.set(hit.userData.w, hit.userData.h, hit.userData.d);
     renderer.domElement.style.cursor = 'pointer';
   }
-  function onDown(ev) {
-    if (!layer.visible || ev.button !== 0) return;
+  function clickAt(ev) {
+    if (!layer.visible || (ev.button != null && ev.button !== 0)) return;
     const hit = pick(ev);
     if (hit) onPick(hit.userData.c, hit.userData.f);
   }
-  renderer.domElement.addEventListener('pointermove', onMove);
-  renderer.domElement.addEventListener('pointerdown', onDown);
 
   return {
     refresh,
+    clickAt, hoverAt,
+    /** Flat/no-rig path: bind simple pointer listeners directly. */
+    attachDirect() {
+      renderer.domElement.addEventListener('pointermove', hoverAt);
+      renderer.domElement.addEventListener('pointerdown', clickAt);
+    },
     setVisible(v) { layer.visible = v; if (!v) { highlight.visible = false; renderer.domElement.style.cursor = ''; } },
     isVisible() { return layer.visible; },
   };

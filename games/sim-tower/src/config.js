@@ -69,6 +69,22 @@ export const CONFIG = {
   GESTURE_GAP_MIN: 1.4,     // seconds between gesture beats while idle.
   GESTURE_GAP_MAX: 3.0,
 
+  // ── 3D dollhouse camera (default for the game; ?flat=1 → old ortho cutaway) ──
+  CAMERA3D: {
+    FOV: 30,
+    AZ0_DEG: 22, AZ_MAX_DEG: 58,        // azimuth: start angle + how far you can orbit (front hemisphere)
+    POL0_DEG: 15, POL_MIN_DEG: 5, POL_MAX_DEG: 40,   // elevation above horizontal (looking down)
+    ROT_SPEED: 0.30,                    // degrees azimuth per pixel dragged
+    PAN_SPEED: 0.028,                   // world units (target.y) per pixel dragged (pan floors)
+    ZOOM_STEP: 0.0016,                  // radius change per wheel delta
+    RAD_MIN: 7, RAD_MAX: 140,
+    FIT_MARGIN: 1.16,                   // padding when auto-fitting the tower
+    DAMP: 10,                           // higher = snappier
+    DOCK_GUTTER: 0.17,                  // shift the tower right so the left dock doesn't cover it
+    CULL_FADE: 0.1,                     // faded opacity for occluders between camera and rooms
+    CULL_LERP: 8,                       // opacity fade rate
+  },
+
   // ── Scene tint ────────────────────────────────────────────────────────
   BG_TOP: '#243042',        // backdrop gradient (top) — cool navy.
   BG_BOTTOM: '#0e141d',     // backdrop gradient (bottom) — darker.
