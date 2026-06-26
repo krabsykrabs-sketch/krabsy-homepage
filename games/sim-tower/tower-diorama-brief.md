@@ -304,6 +304,37 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-06-26 — HORIZONTAL EXPANSION + VERTICAL TRAVEL — session 2 (cont.)
+Three more phases (each its own commit on `sim-tower-game-slice`). Verified
+headless + live: **0 console errors**, room collision still **0 violations**.
+
+- **Phase A — horizontal expansion.** Fixed grid → sparse **lots** model
+  (`tower.lots` Map `f:c` → room|hallway|elevator). Buy floor-space lots ◀/▶/▲
+  (amber frontier, 🪙6) with the SimTower **support rule** (an upper lot needs a
+  lot below; ground extends freely), then build rooms (teal) into them. Per-lot
+  shell → stepped variable-width silhouette. The game is now the only experience
+  (sandbox = the in-game "Free build" toggle); removed the old `builder.js`.
+- **Phase B — circulation structure.** Back service corridor behind each floor;
+  procedural **stairs** auto-placed behind every 2nd unit (rise one story);
+  empty lots are walkable **hallways**; a buildable **Elevator** (dock chip 🛗,
+  🪙28) turns a clear column into a translucent shaft + cab. `buildTower` returns
+  `circ` (stairs/elevators/corridor) for the nav.
+- **Phase C — commute.** Residents leave home → back corridor → travel to a room
+  on another floor (offices/cafés = work + errands) → return. **Adjacent floors
+  via stairs** (3D climb), **far floors via the elevator** (cab called, carries
+  the rider). World-space travel with room↔world **reparenting** (a `commuters`
+  group); `commute.js` has `planTrip` + `ElevatorManager` (cab + FIFO queue).
+  Reachability matters: an upper-floor resident with no elevator to the ground is
+  **stranded → unhappy**.
+
+**Simplifications / next-session candidates:** commute "work vs errand" is loose
+(visit an office/café and return — no fixed home/work pairing or day schedule
+yet); stairs are visible mainly from above (behind the units, by design); the
+elevator has one shared cab per column with a simple FIFO (no capacity/queue UI);
+residents pass through the back wall when exiting to the corridor (no door anim).
+
+**New QA params:** `?lots=<urlencoded JSON {f:c → content}>` (replaces `?layout=`).
+
 ### 2026-06-26 — VERTICAL SLICE: real game (krabsy-tower-concept2.md) — session 2
 Implemented all four options from `krabsy-tower-concept2.md` + furniture
 collision, autonomously. Each is its own commit on branch `sim-tower-game-slice`
