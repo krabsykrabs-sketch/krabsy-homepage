@@ -151,7 +151,10 @@ export function buildRoom(level) {
     const [w, d] = footprint(pk, o.model, TILE);
     const ctr = cellCenter(o.col + (w - 1) / 2, o.row + (d - 1) / 2);
     const yObj = yByObj.get(o);
-    const yB = GROUND.has(o.model) ? yObj : yObj - measure(pk, o.model).minY;
+    // sit every floor piece bottom-on-its-base — incl. ground tiles like the
+    // hallway floor (floor_kitchen_styleB), whose origin is at its TOP, so the
+    // old "flush" rule (yObj) sank it half a tile below the room floor.
+    const yB = yObj - measure(pk, o.model).minY;
     const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
     const off = o.off || ZERO;
     const node = getModel(pk, o.model);
