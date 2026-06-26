@@ -85,14 +85,20 @@ export class ElevatorManager {
       l.e.cab.position.y = l.cabY;
 
       if (l.rider && l.rider.commute && l.rider.commute.sub === 'ride') {
-        l.rider.obj.position.set(l.e.x, l.cabY - l.offset + FS, l.e.z);   // ride with the cab (on its floor surface)
+        l.rider.obj.position.set(l.e.x, l.cabY - l.offset + FS, l.e.z);   // ride with the cab (hidden; badge shows instead)
       }
       if (l.rider && Math.abs(goalY - l.cabY) < 0.03) {
-        if (l.state === 'toPickup') { l.rider.commute.sub = 'ride'; l.state = 'toDrop'; }
-        else if (l.state === 'toDrop') {
+        if (l.state === 'toPickup') {
+          // board: hide the 3D rider and show their class badge on the cab front
+          l.rider.commute.sub = 'ride'; l.state = 'toDrop';
+          l.rider.obj.visible = false;
+          l.e.setOccupant && l.e.setOccupant(l.rider.typeName);
+        } else if (l.state === 'toDrop') {
           const r = l.rider;
           r.commute.sub = 'walk'; r.commute.i = r.commute.alightI;
           r.obj.position.set(l.e.x, r.commute.toF * this.pitch + FS, l.e.z);
+          r.obj.visible = true;                         // alight: the rider reappears
+          l.e.setOccupant && l.e.setOccupant(null);
           l.rider = null; l.state = 'idle';
         }
       }
@@ -100,4 +106,4 @@ export class ElevatorManager {
   }
 }
 function floorCabY(l, f) { return f * l.pitch + l.offset; }
-function abort(rider) { if (rider.commute) { rider.commute.sub = 'walk'; rider.commute.i = rider.commute.alightI; } }
+function abort(rider) { if (rider.obj) rider.obj.visible = true; if (rider.commute) { rider.commute.sub = 'walk'; rider.commute.i = rider.commute.alightI; } }

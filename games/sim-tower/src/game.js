@@ -68,7 +68,7 @@ export function createGame(tower, deps) {
   }
   const wantMet = (r, ctx) => WANTS[r.want].met(r, ctx);
 
-  tower.brush = tower.brush || Object.keys(tower.rooms)[0];
+  tower.brush = null;   // no build tool selected by default → clean view, no ghosts
 
   // ── DOM (top HUD + left dock + floating coins + toast) ─────────────────
   injectStyles();
@@ -86,7 +86,7 @@ export function createGame(tower, deps) {
   const dock = el('div', 'gDock'); document.body.appendChild(dock);
   dock.innerHTML = `
     <div class="gHead">🏙️ Krabsy Tower</div>
-    <div class="gHint">Click an <b style="color:#ffcf5e">amber edge</b> to buy floor space 🪙${CONFIG.GAME.LOT_COST} (left/right/up — upper floors need support below). Then click a <b style="color:#2ee6c0">teal slot</b> to build a room.</div>
+    <div class="gHint">Pick a tool below: <b style="color:#ffcf5e">🏗️ Expand</b> to add floor space 🪙${CONFIG.GAME.LOT_COST}, then a <b style="color:#2ee6c0">room</b> to build into it. Click empty space to put the tool down.</div>
     <div class="gSec">Build a room</div>
     <div class="gPalette" id="gPalette"></div>
     <label class="gFree"><input type="checkbox" id="gFreeBuild"> Free build (sandbox)</label>
@@ -100,8 +100,14 @@ export function createGame(tower, deps) {
   const card = el('div', 'gCard'); document.body.appendChild(card);
 
   const picker = createSlotPicker(tower, { THREE, scene, camera, renderer, onPick: onSlotClick });
-  // click a resident → show their want; otherwise fall through to building a slot
-  const handleClick = (ev) => { const res = pickResident(ev); if (res) showResidentCard(res); else { hideCard(); picker.clickAt(ev); } };
+  // click a resident → show their want; a ghost → build; empty space → drop the tool
+  const handleClick = (ev) => {
+    const res = pickResident(ev);
+    if (res) { showResidentCard(res); return; }
+    hideCard();
+    const hit = picker.clickAt(ev);
+    if (!hit && tower.brush) deselectBrush();
+  };
   if (deps.rig) { deps.rig.onClick = handleClick; deps.rig.onHover = (ev) => picker.hoverAt(ev); }
   else { renderer.domElement.addEventListener('pointerdown', handleClick); renderer.domElement.addEventListener('pointermove', (ev) => picker.hoverAt(ev)); }
 
@@ -475,29 +481,36 @@ export function createGame(tower, deps) {
     // grey unaffordable chips
     for (const b of paletteEl.children) {
       const id = b.dataset.id;
-      if (id && id !== 'erase') b.classList.toggle('gPoor', !tower.freeBuild && state.coins < costFor(id));
+      if (!id || id === 'erase') continue;
+      const cost = id === 'expand' ? G.LOT_COST : costFor(id);
+      b.classList.toggle('gPoor', !tower.freeBuild && state.coins < cost);
     }
   }
   function updateDock() {
     paletteEl.innerHTML = '';
+    // Expand — buy floor space (shows the amber frontier)
+    const exp = el('button', 'gChip gExpand');
+    exp.dataset.id = 'expand';
+    exp.innerHTML = `<span class="gChipName">🏗️ Expand</span>` + (tower.freeBuild ? '' : `<span class="gChipCost">🪙${G.LOT_COST}</span>`);
+    exp.onclick = () => selectBrush('expand');
+    paletteEl.appendChild(exp);
+    // room + elevator tools (each shows its own ghosts)
     for (const id of Object.keys(tower.rooms)) {
-      const cost = costFor(id);
       const b = el('button', 'gChip');
       b.dataset.id = id;
-      b.innerHTML = `<span class="gChipName">${tower.rooms[id].label}</span>` + (tower.freeBuild ? '' : `<span class="gChipCost">🪙${cost}</span>`);
-      if (tower.brush === id) b.classList.add('on');
-      b.onclick = () => { tower.brush = id; markBrush(); };
+      b.innerHTML = `<span class="gChipName">${tower.rooms[id].label}</span>` + (tower.freeBuild ? '' : `<span class="gChipCost">🪙${costFor(id)}</span>`);
+      b.onclick = () => selectBrush(id);
       paletteEl.appendChild(b);
     }
     if (tower.freeBuild) {
       const er = el('button', 'gChip gEraseChip', '🧽 Erase');
       er.dataset.id = 'erase';
-      if (tower.brush === 'erase') er.classList.add('on');
-      er.onclick = () => { tower.brush = 'erase'; markBrush(); };
+      er.onclick = () => selectBrush('erase');
       paletteEl.appendChild(er);
     } else if (tower.brush === 'erase') {
-      tower.brush = Object.keys(tower.rooms)[0];
+      deselectBrush();
     }
+    markBrush();
     extraEl.innerHTML = '';
     if (tower.freeBuild) {
       const row = el('div', 'gRow');
@@ -508,6 +521,9 @@ export function createGame(tower, deps) {
     updateHud();
   }
   function markBrush() { for (const b of paletteEl.children) b.classList.toggle('on', b.dataset.id === tower.brush); }
+  // select a tool (toggle off if it's already active) → refresh the ghost layer
+  function selectBrush(id) { tower.brush = (tower.brush === id) ? null : id; markBrush(); picker.refresh(); updateHud(); }
+  function deselectBrush() { tower.brush = null; markBrush(); picker.refresh(); }
 
   freeChk.onchange = () => setFreeBuild(freeChk.checked);
   // unlock audio on first interaction
@@ -578,6 +594,9 @@ function injectStyles() {
     padding:9px 12px; font:700 14px 'Nunito',sans-serif;}
   .gChip:hover{border-color:rgba(46,230,192,.6);}
   .gChip.on{background:#2ee6c0; color:#0e141d; border-color:#2ee6c0;}
+  .gChip.gExpand{border-color:rgba(255,207,94,.45);}
+  .gChip.gExpand.on{background:#ffcf5e; color:#0e141d; border-color:#ffcf5e;}
+  .gChip[data-id="elevator"].on{background:#9b8cff; color:#0e141d; border-color:#9b8cff;}
   .gChip.gEraseChip.on{background:#ff8585; border-color:#ff8585;}
   .gChipCost{font-size:13px; opacity:.9;}
   .gChip.gPoor{opacity:.45;}

@@ -39,7 +39,7 @@ export const CONFIG = {
     GROUND_THICK: 1.6,      // sidewalk slab thickness below floor 0.
     ROOF_THICK: 0.7,
     PARAPET: 0.5,           // little lip around the roof edge.
-    FRONT_PROTRUDE: 0.0,    // slabs/roof stay flush with the room front — no overhang occluding the interior.
+    FRONT_PROTRUDE: -2.6,   // negative = pull slabs/roof BACK from the room front so they stop short of the hallway (no overhang occluding the interior).
     BACK_OFFSET: 0.25,      // how far the back wall plane sits behind the rooms.
     CONCRETE_BACK: '#2a3342', // dark back wall — recedes (shadowbox depth).
     SLAB: '#626b7a',        // floor slabs / structure (warm concrete).
@@ -94,8 +94,9 @@ export const CONFIG = {
     STAIR_COLOR: '#9aa3b3',
     ELEVATOR_COST: 28,           // coins to add an elevator to a column (shaft in its front hallway)
     ELEVATOR_SPEED: 5.5,         // cab travel, world units/sec
-    ELEVATOR_WIDTH_FRAC: 0.5,    // cab/shaft width as a fraction of the lot (bigger than the old thin shaft)
+    ELEVATOR_WIDTH_FRAC: 0.28,   // cab/shaft width as a fraction of the lot (narrow — tucked to the side)
     ELEVATOR_DEPTH: 1.8,         // cab/shaft depth (front hallway is 2 cells ≈ 4u deep)
+    ELEVATOR_INSET: 0.25,        // gap from the left wall of the lot (the lift hugs the far left)
     ELEVATOR_SHAFT: '#1b2230',
     ELEVATOR_CAB: '#ffcf5e',
     ELEVATOR_DOOR_WAIT: 1.2,     // seconds the cab dwells at a floor

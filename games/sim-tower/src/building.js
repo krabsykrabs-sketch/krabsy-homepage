@@ -8,6 +8,28 @@ import { buildRoom } from './loader.js';
 
 const DEG = Math.PI / 180;
 
+// "who's inside the lift" badge — a class emoji on the class colour, drawn to a
+// canvas texture (cached per class) and shown on the cab's front face.
+const BADGE_EMOJI = { Rogue: '🗡️', Knight: '🛡️', Mage: '🧙', Ranger: '🏹' };
+const BADGE_COLOR = { Rogue: '#2ee6c0', Knight: '#6fa8ff', Mage: '#c79bff', Ranger: '#ffcf5e' };
+const _badgeCache = {};
+function _roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function badgeTexture(type) {
+  if (_badgeCache[type]) return _badgeCache[type];
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = BADGE_COLOR[type] || '#cfd6e2'; _roundRect(ctx, 6, 6, 116, 116, 22); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 5; ctx.stroke();
+  ctx.font = '74px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(BADGE_EMOJI[type] || '🙂', 64, 72);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  return (_badgeCache[type] = tex);
+}
+
 /** One room wrapped in slot/furniture/actors. Not yet positioned in the stack. */
 export function makeRoomSlot(level) {
   const furniture = buildRoom(level);
@@ -179,15 +201,27 @@ function buildCirculation(group, cells, geom) {
     if (!colCells.length) continue;
     const fMin = colCells[0].f, fMax = colCells[colCells.length - 1].f;
     const yBot = fMin * pitch, yTop = fMax * pitch + roomH;
+    const ex = colX(c) - slotW / 2 + shaftW / 2 + CC.ELEVATOR_INSET;   // hug the far-left of the lot
     const shaft = new THREE.Mesh(new THREE.BoxGeometry(shaftW, yTop - yBot + 0.3, shaftD), shaftMat);
-    shaft.position.set(colX(c), (yBot + yTop) / 2, hallwayZ); group.add(shaft);
+    shaft.position.set(ex, (yBot + yTop) / 2, hallwayZ); group.add(shaft);
     const cabH = roomH * 0.82;
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(shaftW - 0.2, cabH, shaftD - 0.2), cabMat);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(shaftW - 0.16, cabH, shaftD - 0.16), cabMat);
     cab.castShadow = true;
-    const yLo = yBot + cabH / 2 + 0.1;
-    cab.position.set(colX(c), yLo, hallwayZ);
+    cab.position.set(ex, yBot + cabH / 2 + 0.1, hallwayZ);
     group.add(cab);
-    elevators.push({ c, x: colX(c), z: hallwayZ, cab, fMin, fMax, floorY: (f) => f * pitch + cabH / 2 + 0.1 });
+    // "who's inside" badge on the cab front face — the manager shows it during a ride
+    const badgeMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false });
+    const bs = Math.max(0.6, Math.min(shaftW - 0.35, cabH - 0.6));
+    const badge = new THREE.Mesh(new THREE.PlaneGeometry(bs, bs), badgeMat);
+    badge.position.set(0, 0, (shaftD - 0.16) / 2 + 0.03); badge.visible = false;
+    cab.add(badge);
+    elevators.push({
+      c, x: ex, z: hallwayZ, cab, fMin, fMax, floorY: (f) => f * pitch + cabH / 2 + 0.1,
+      setOccupant: (type) => {
+        if (type) { badgeMat.map = badgeTexture(type); badgeMat.needsUpdate = true; badge.visible = true; }
+        else badge.visible = false;
+      },
+    });
   }
 
   return { stairs, elevators, hallwayZ, roomFrontZ, elevatorCols: [...elevatorCols] };
