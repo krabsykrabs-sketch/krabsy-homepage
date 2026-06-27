@@ -106,6 +106,20 @@ export const CONFIG = {
     VISIT_MAX: 14,
   },
 
+  // ── Street (KayKit City Builder road + cars passing by, in front) ─────
+  STREET: {
+    enabled: true,
+    GAP: 0.5,             // gap between the building's front face and the street's back edge
+    Y: -0.35,             // road bottom y (surface ≈ Y + tile height); a small step below the sidewalk
+    WIDTH: 96,            // total street length along x (covers a wide tower)
+    ROAD_YAW_DEG: 0,      // rotate road tiles so the lanes run along x
+    LANE: 0.5,            // lane-centre offset from the road centreline (road is ~2 wide → ±0.5)
+    CAR_TARGET_W: 0.95,   // scale each car to this width so it fits a lane
+    CARS: 8,              // cars in flight
+    CAR_SPEED_MIN: 5.5,
+    CAR_SPEED_MAX: 10.0,
+  },
+
   // ── Scene tint ────────────────────────────────────────────────────────
   BG_TOP: '#243042',        // backdrop gradient (top) — cool navy.
   BG_BOTTOM: '#0e141d',     // backdrop gradient (bottom) — darker.

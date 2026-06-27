@@ -12,6 +12,7 @@ import { buildTower, makeRoomSlot, disposeObject, cullShell } from './building.j
 import { Character, preloadCharacters, deriveWaypoints } from './character.js';
 import { createGame } from './game.js';
 import { CameraRig } from './cameraRig.js';
+import { buildStreet } from './street.js';
 
 // ── query overrides (QA / tuning, no edits needed) ───────────────────────
 const Q = new URLSearchParams(location.search);
@@ -73,6 +74,7 @@ const characters = [];
 const tweens = [];          // spawn pop-in (character) tweens
 let gi = 0;                 // global character index (variety)
 let game = null;
+let street = null;          // the passing-cars street in front of the tower
 const commutersGroup = new THREE.Group();   // world-space home for residents while travelling
 commutersGroup.name = 'commuters';
 scene.add(commutersGroup);
@@ -335,6 +337,14 @@ async function boot() {
     applyCamQA();
     overlay.classList.add('hidden');
 
+    // street in front of the tower (cars passing by) — decoration, loaded in the
+    // background so it never blocks boot; pops in when ready.
+    if (CONFIG.STREET?.enabled) {
+      buildStreet(scene, { frontZ: tower.built.box.max.z })
+        .then((s) => { street = s; })
+        .catch((e) => console.warn('[sim-tower] street failed:', e));
+    }
+
     if (Q.has('selftest')) { runSelfTest(); return; }
     if (Q.has('t')) { fastForward(qNum('t', 0)); window.__READY = true; return; }
     window.__READY = true;
@@ -406,6 +416,7 @@ function fastForward(T) {
     updateTweens(dt);
     if (game) game.tick(dt);
     for (const c of characters) c.update(dt);
+    if (street) street.update(dt);
   }
   for (let i = 0; i < 40; i++) step3D(dt);   // settle camera/cull damping for a clean frame
   const redraw = () => { requestAnimationFrame(redraw); renderer.render(scene, camera); };
@@ -435,6 +446,7 @@ function loop() {
   updateTweens(dt);
   if (game) game.tick(dt);
   if (ANIM) for (const c of characters) c.update(dt);
+  if (street) street.update(dt);
   renderer.render(scene, camera);
 }
 
