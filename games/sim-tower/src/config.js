@@ -115,9 +115,10 @@ export const CONFIG = {
     ROAD_SCALE: 3,        // tile size multiplier (×3)
     LANE_FRAC: 0.25,      // lane-centre offset as a fraction of the road depth (±depth/4)
     CAR_TARGET_W: 2.85,   // car width in world units (≈ ×3 the old size)
-    MAX_CARS: 10,         // car pool; active count scales with the tower width
-    CAR_SPEED_MIN: 6.0,
-    CAR_SPEED_MAX: 11.0,
+    MAX_CARS: 8,          // car pool size (cap)
+    CAR_SPACING: 3.0,     // one car per ~this many road tiles → fewer, sparser cars
+    CAR_SPEED_MIN: 6.0,   // each lane picks one uniform speed in this range (so same-lane cars never overlap)
+    CAR_SPEED_MAX: 10.0,
   },
 
   // ── Scene tint ────────────────────────────────────────────────────────

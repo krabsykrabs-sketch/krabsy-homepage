@@ -79,17 +79,27 @@ export async function buildStreet(scene) {
       roadGroup.add(t);
     }
 
-    // activate cars proportional to width; spread them across the road
-    const nCars = Math.min(pool.length, Math.max(2, Math.round(span / (tileStep * 1.5))));
+    // activate a sparse set of cars; one UNIFORM speed per lane + even spacing so
+    // same-lane cars keep constant gaps and never run into each other.
+    const nCars = Math.min(pool.length, Math.max(2, Math.round(span / (tileStep * (S.CAR_SPACING || 3)))));
+    const loopLen = span + 2 * tileStep;
+    const laneSpeed = {};
+    const laneCount = { 1: 0, '-1': 0 };
+    for (let i = 0; i < nCars; i++) laneCount[pool[i].dir]++;
+    const laneIdx = { 1: 0, '-1': 0 };
     active = [];
     for (let i = 0; i < pool.length; i++) {
       const c = pool[i];
       c.active = i < nCars;
       c.obj.visible = c.active;
       if (!c.active) continue;
+      if (laneSpeed[c.dir] == null) laneSpeed[c.dir] = S.CAR_SPEED_MIN + Math.random() * (S.CAR_SPEED_MAX - S.CAR_SPEED_MIN);
+      c.speed = laneSpeed[c.dir];
       c.laneZ = centerZ - c.dir * lane;
       c.obj.rotation.y = c.dir * Math.PI / 2;     // car models face +Z → turn to drive ±X
-      c.obj.position.set(minX + (i / nCars) * span, roadTopY - c.minY, c.laneZ);
+      const k = laneIdx[c.dir]++, m = laneCount[c.dir];
+      const x = (minX - tileStep) + ((k + 0.5) / m) * loopLen;   // even spacing across the loop
+      c.obj.position.set(x, roadTopY - c.minY, c.laneZ);
       active.push(c);
     }
   }
