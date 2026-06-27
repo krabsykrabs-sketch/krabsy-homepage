@@ -109,15 +109,15 @@ export const CONFIG = {
   // ── Street (KayKit City Builder road + cars passing by, in front) ─────
   STREET: {
     enabled: true,
-    GAP: 0.5,             // gap between the building's front face and the street's back edge
-    Y: -0.35,             // road bottom y (surface ≈ Y + tile height); a small step below the sidewalk
-    WIDTH: 96,            // total street length along x (covers a wide tower)
-    ROAD_YAW_DEG: 0,      // rotate road tiles so the lanes run along x
-    LANE: 0.5,            // lane-centre offset from the road centreline (road is ~2 wide → ±0.5)
-    CAR_TARGET_W: 0.95,   // scale each car to this width so it fits a lane
-    CARS: 8,              // cars in flight
-    CAR_SPEED_MIN: 5.5,
-    CAR_SPEED_MAX: 10.0,
+    GAP: 0.6,             // gap between the building's front face and the street's back edge
+    Y: -0.9,              // road bottom y (surface ≈ Y + scaled tile height); a step below the sidewalk
+    ROAD_YAW_DEG: 90,     // rotate road tiles so the lanes line up along x
+    ROAD_SCALE: 3,        // tile size multiplier (×3)
+    LANE_FRAC: 0.25,      // lane-centre offset as a fraction of the road depth (±depth/4)
+    CAR_TARGET_W: 2.85,   // car width in world units (≈ ×3 the old size)
+    MAX_CARS: 10,         // car pool; active count scales with the tower width
+    CAR_SPEED_MIN: 6.0,
+    CAR_SPEED_MAX: 11.0,
   },
 
   // ── Scene tint ────────────────────────────────────────────────────────

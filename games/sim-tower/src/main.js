@@ -247,6 +247,7 @@ const tower = {
     rebuildLights(center, frameBox);
     if (this.repopulate) this.repopulate(built.rooms);
     if (this.onRebuilt) this.onRebuilt();
+    relayoutStreet();                          // fit the street to the (possibly new) tower width
     renderer.render(scene, camera);
   },
   colLots(c) { const out = []; for (const [k, v] of this.lots) { const i = k.indexOf(':'); if (+k.slice(i + 1) === c) out.push([k, v]); } return out; },
@@ -304,6 +305,13 @@ async function loadSandboxLots() {
   return { lots: lotsFromData(GAME_START_LOTS), elevators: new Set() };
 }
 
+// Fit the passing-cars street to the tower's current width (called on every rebuild).
+function relayoutStreet() {
+  if (!street || !street.relayout || !tower.built) return;
+  const b = tower.built.box;
+  street.relayout({ minX: b.min.x, maxX: b.max.x, frontZ: b.max.z });
+}
+
 // ── boot ─────────────────────────────────────────────────────────────────
 async function boot() {
   try {
@@ -338,10 +346,10 @@ async function boot() {
     overlay.classList.add('hidden');
 
     // street in front of the tower (cars passing by) — decoration, loaded in the
-    // background so it never blocks boot; pops in when ready.
+    // background so it never blocks boot; fits to the tower width when ready.
     if (CONFIG.STREET?.enabled) {
-      buildStreet(scene, { frontZ: tower.built.box.max.z })
-        .then((s) => { street = s; })
+      buildStreet(scene)
+        .then((s) => { street = s; relayoutStreet(); })
         .catch((e) => console.warn('[sim-tower] street failed:', e));
     }
 

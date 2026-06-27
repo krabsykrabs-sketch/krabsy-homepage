@@ -1,7 +1,7 @@
 // A street in front of the building: a row of road tiles (KayKit City Builder)
 // with cars looping past left↔right. Pure decoration — lives in its own world
-// group, independent of the tower lots. Sizes are measured at runtime so we
-// don't hardcode pack dimensions.
+// group. The road spans the CURRENT tower width (relayout on every rebuild);
+// sizes are measured at runtime then scaled by CONFIG.STREET.ROAD_SCALE.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { CONFIG } from './config.js';
@@ -23,65 +23,86 @@ function load(name) {
 const sizeOf = (obj) => new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
 
 /**
- * Build the street in front of the building.
- *   opts.frontZ = world z of the building's front face (street sits just past it)
- * Returns { group, update(dt), recenter(x) }.
+ * Build the street. Loads the road + cars once; call `relayout({minX,maxX,frontZ})`
+ * (also on every tower rebuild) to fit the road to the tower's current width.
+ * Returns { group, update(dt), relayout(box) }.
  */
-export async function buildStreet(scene, opts = {}) {
+export async function buildStreet(scene) {
   const S = CONFIG.STREET;
-  const frontZ = opts.frontZ ?? 7;
-  const group = new THREE.Group();
-  group.name = 'street';
+  const scale = S.ROAD_SCALE || 1;
+  const group = new THREE.Group(); group.name = 'street';
+  const roadGroup = new THREE.Group(); roadGroup.name = 'road'; group.add(roadGroup);
 
-  // ── road: tile a 2×2 straight road piece along X at the street line ──
+  // ── measure the road tile (2×2×0.1), derive scaled dimensions ──
   const road = await load('road_straight');
   const rs = sizeOf(road);
-  const tile = Math.max(0.5, rs.x);                 // 2u tiles
-  const roadDepth = rs.z;                            // road width (across the lanes)
-  const roadTopY = S.Y + rs.y;                       // top surface of the road
-  const centerZ = frontZ + S.GAP + roadDepth / 2;    // road centreline z, just past the building
-  const n = Math.ceil(S.WIDTH / tile) + 1;
-  for (let i = 0; i < n; i++) {
-    const t = road.clone();
-    t.rotation.y = (S.ROAD_YAW_DEG || 0) * Math.PI / 180;
-    t.position.set((i - (n - 1) / 2) * tile, S.Y, centerZ);
-    t.traverse((o) => { if (o.isMesh) { o.receiveShadow = true; o.castShadow = false; } });
-    group.add(t);
-  }
+  const tileStep = rs.x * scale;            // tiling step along x
+  const roadDepth = rs.z * scale;           // road width (across the lanes)
+  const roadTopY = S.Y + rs.y * scale;      // top surface of the road
+  const lane = roadDepth * (S.LANE_FRAC ?? 0.25);
 
-  // ── cars: pooled clones, scaled to a target width, looping along X ──
+  // ── car pool: scaled clones; activated per-width in relayout ──
   const protos = [];
   for (const m of CAR_MODELS) protos.push(await load(m));
-  const cars = [];
-  const half = S.WIDTH / 2 + tile;
-  for (let i = 0; i < S.CARS; i++) {
+  const pool = [];
+  for (let i = 0; i < (S.MAX_CARS || 8); i++) {
     const proto = protos[i % protos.length];
     const obj = proto.clone();
     const cs = sizeOf(obj);
-    const scale = S.CAR_TARGET_W / (cs.x || 1);      // cars model ~+Z forward; width is X
-    obj.scale.setScalar(scale);
+    obj.scale.setScalar(S.CAR_TARGET_W / (cs.x || 1));
+    obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
     const minY = new THREE.Box3().setFromObject(obj).min.y;
-    obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; } });
-
-    const dir = i % 2 === 0 ? 1 : -1;                // alternate directions per lane
-    const laneZ = centerZ - dir * S.LANE;            // opposite lanes for opposite directions
-    obj.rotation.y = dir * Math.PI / 2;              // model faces +Z → turn to face ±X
-    const x = -dir * half + (i / S.CARS) * S.WIDTH;  // spread them out along the street
-    obj.position.set(x, roadTopY - minY, laneZ);
+    obj.visible = false;
     group.add(obj);
-    cars.push({ obj, dir, laneZ, speed: S.CAR_SPEED_MIN + Math.random() * (S.CAR_SPEED_MAX - S.CAR_SPEED_MIN) });
+    pool.push({ obj, minY, dir: i % 2 === 0 ? 1 : -1, speed: S.CAR_SPEED_MIN + Math.random() * (S.CAR_SPEED_MAX - S.CAR_SPEED_MIN), active: false });
+  }
+  scene.add(group);
+
+  let minX = -tileStep, maxX = tileStep, centerZ = 0, active = [];
+
+  function relayout(box) {
+    minX = box.minX; maxX = box.maxX;
+    centerZ = box.frontZ + S.GAP + roadDepth / 2;
+    const span = Math.max(tileStep, maxX - minX);
+    const mid = (minX + maxX) / 2;
+
+    // rebuild road tiles spanning the tower width (cloned tiles share geometry — remove, don't dispose)
+    roadGroup.clear();
+    const n = Math.max(1, Math.round(span / tileStep));   // ≈ tower width, no big overhang
+    const x0 = mid - ((n - 1) / 2) * tileStep;
+    for (let i = 0; i < n; i++) {
+      const t = road.clone();
+      t.scale.setScalar(scale);
+      t.rotation.y = (S.ROAD_YAW_DEG || 0) * Math.PI / 180;
+      t.position.set(x0 + i * tileStep, S.Y, centerZ);
+      t.traverse((o) => { if (o.isMesh) { o.receiveShadow = true; o.castShadow = false; } });
+      roadGroup.add(t);
+    }
+
+    // activate cars proportional to width; spread them across the road
+    const nCars = Math.min(pool.length, Math.max(2, Math.round(span / (tileStep * 1.5))));
+    active = [];
+    for (let i = 0; i < pool.length; i++) {
+      const c = pool[i];
+      c.active = i < nCars;
+      c.obj.visible = c.active;
+      if (!c.active) continue;
+      c.laneZ = centerZ - c.dir * lane;
+      c.obj.rotation.y = c.dir * Math.PI / 2;     // car models face +Z → turn to drive ±X
+      c.obj.position.set(minX + (i / nCars) * span, roadTopY - c.minY, c.laneZ);
+      active.push(c);
+    }
   }
 
-  scene.add(group);
-  return {
-    group,
-    update(dt) {
-      for (const c of cars) {
-        c.obj.position.x += c.dir * c.speed * dt;
-        if (c.dir > 0 && c.obj.position.x > half) c.obj.position.x = -half;
-        else if (c.dir < 0 && c.obj.position.x < -half) c.obj.position.x = half;
-      }
-    },
-    recenter(x) { group.position.x = x; },           // keep the strip centred on the tower
-  };
+  function update(dt) {
+    if (!active.length) return;
+    const lo = minX - tileStep, hi = maxX + tileStep;   // drive a touch off each end before wrapping
+    for (const c of active) {
+      c.obj.position.x += c.dir * c.speed * dt;
+      if (c.dir > 0 && c.obj.position.x > hi) c.obj.position.x = lo;
+      else if (c.dir < 0 && c.obj.position.x < lo) c.obj.position.x = hi;
+    }
+  }
+
+  return { group, update, relayout };
 }
