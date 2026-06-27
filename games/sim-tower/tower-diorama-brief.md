@@ -318,6 +318,20 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-06-27 — STREET WITH PASSING CARS — session 2 (cont.)
+Added the **KayKit City Builder Bits** pack. New `src/street.js` lays a
+`road_straight` strip just in front of the tower (z from `built.box.max.z`) and
+loops the 5 car models past in two lanes (opposite directions, varied speeds).
+Pack copied into the gitignored `assets/models/city-bits/` (road + cars + the
+shared `citybits_texture.png`). Sizes/orientation measured at runtime: road tile
+is 2×2, cars model **+Z-forward** so they're turned ±90° to drive along x.
+`CONFIG.STREET` holds the tunables. Loaded **non-blocking** (`.then`, never
+awaited) so it can't stall boot. Wired into `loop()` + `fastForward()`.
+**QA note:** headless-Edge/swiftshader keeps the virtual clock paused on the
+street's pending fetch, so it can't screenshot a loaded frame — verified instead
+in the live preview (road + 8 cars render with textures, in-frame, cars animate
+and wrap; `preview_screenshot` shows it clean). Real browsers are unaffected.
+
 ### 2026-06-26 — FRONT-HALLWAY POLISH (Jan feedback) — session 2 (cont.)
 Two feedback rounds, all committed on `sim-tower-game-slice`, eval-verified.
 - **Characters stood in the floor** (feet at slot base; tiles are 0.5 thick).
