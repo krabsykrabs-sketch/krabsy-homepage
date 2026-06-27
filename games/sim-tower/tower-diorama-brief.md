@@ -177,21 +177,29 @@ whole block. Derivation depends on the pack:
 
 XZ centre of a `w×d` piece = `cellCenter(col + (w-1)/2, row + (d-1)/2)`.
 
-**Ground (laid flush, contributes 0 height to the stack).** Only the
-restaurant/editor floor pieces:
+**Ground (laid flush — TOP at the surface, slab recessed below, contributes 0
+height).** Restaurant floors AND prototype floors:
 `floor_kitchen, floor_kitchen_styleB, floor_kitchen_small, floor_kitchen_small_styleB,
-tile_white, tile_black, tile_brown_light, tile_brown_dark`.
-**Note:** the prototype `Floor` these rooms use is **NOT** in this set — it's a
-normal (non-ground) slab that contributes its height, exactly as authored. Don't
-add it; just replicate the rule.
+tile_white, tile_black, tile_brown_light, tile_brown_dark,
+Floor, Floor_Dirt, Floor_Prototype, Primitive_Floor`.
+Place a ground piece so its **top** sits at the surface: `yBase = surface - maxY`
+where `maxY = minY + height`. Restaurant floors have their origin at the top
+(maxY = 0 ⇒ just `surface`); the prototype `Floor` has its origin at the bottom
+(maxY = 0.5 ⇒ pushed down so its top is flush) — the two packs are **harmonised**.
+Furniture on a floored cell then rests at the floor's top (y = surface).
 
-**Built-in placement offset (wall kit).** A local-space offset baked into the
-restaurant wall/door kit so they align on the grid: `WALL_PLACE = {x:-1, y:0, z:-0.5}`,
-**rotated by the piece's `rot`**. Applies to:
+**Built-in placement offset (wall/door kit) + forced 1×1.** An offset baked in so
+the wide (4-unit) wall mesh seats on ONE cell's edge: `WALL_PLACE = {x:-1, y:0,
+z:-0.5}`, **rotated by `rot`**. Every piece in this set is **1×1** — do NOT
+auto-derive its footprint from size (the 4-unit wall would become 2 cells).
+Restaurant and prototype walls are geometrically identical, so they share the
+SAME offset. The set:
 `door_A, door_B, wall, wall_doorway, wall_half, wall_decorated, wall_decorated_styleB,
 wall_window_open, wall_window_closed, wall_window_closed_curtains_red,
-wall_window_closed_curtains_green, wall_orderwindow, wall_orderwindow_decorated`.
-(The rooms use `wall` + `wall_doorway`, so this offset matters — get it right.)
+wall_window_closed_curtains_green, wall_orderwindow, wall_orderwindow_decorated,
+Wall, Wall_Half, Wall_Doorway, Wall_Window_Open, Wall_Window_Closed, Wall_Decorated,
+Wall_Target, Door_A, Door_B, Door_A_Decorated`.
+(The rooms use `wall` + `wall_doorway`, so this matters — get it right.)
 
 ## §7. Reconstruction algorithm + drop-in loader (multi-pack)
 
@@ -204,24 +212,29 @@ const { cols, rows } = level.grid;
 const DEFAULT = level.catalog;
 const ZERO = { x: 0, y: 0, z: 0 };
 
-// restaurant-bits keeps a fixed footprint/ground/wall table; other packs derive.
+// restaurant-bits keeps a fixed footprint table; other packs derive from size.
 const RESTAURANT_FP = { floor_kitchen: [2,2], floor_kitchen_styleB: [2,2] };
 const GROUND = new Set(['floor_kitchen','floor_kitchen_styleB',
   'floor_kitchen_small','floor_kitchen_small_styleB',
-  'tile_white','tile_black','tile_brown_light','tile_brown_dark']);
+  'tile_white','tile_black','tile_brown_light','tile_brown_dark',
+  'Floor','Floor_Dirt','Floor_Prototype','Primitive_Floor']);
 const WALL_PLACE = { x: -1, y: 0, z: -0.5 };
 const WALL = new Set(['door_A','door_B','wall','wall_doorway','wall_half',
   'wall_decorated','wall_decorated_styleB','wall_window_open','wall_window_closed',
   'wall_window_closed_curtains_red','wall_window_closed_curtains_green',
-  'wall_orderwindow','wall_orderwindow_decorated']);
+  'wall_orderwindow','wall_orderwindow_decorated',
+  'Wall','Wall_Half','Wall_Doorway','Wall_Window_Open','Wall_Window_Closed',
+  'Wall_Decorated','Wall_Target','Door_A','Door_B','Door_A_Decorated']);
 
 const packOf = o => o.pack || DEFAULT;
 // getModel(pack, name) -> a fresh instance;  measure(pack, name) -> {height,minY,sizeX,sizeZ}
 const footprint = (pack, name) => {
+  if (WALL.has(name)) return [1,1];                         // wall/door kit: 1×1, edge-aligned
   if (pack === 'restaurant-bits') return RESTAURANT_FP[name] || [1,1];
   const m = measure(pack, name);
   return [Math.max(1, Math.round(m.sizeX/TILE)), Math.max(1, Math.round(m.sizeZ/TILE))];
 };
+const maxY = (pack, name) => { const m = measure(pack, name); return m.minY + m.height; };
 const cellCenter = (c, r) => ({ x: (c-(cols-1)/2)*TILE, z: (r-(rows-1)/2)*TILE });
 const rotY = (v, q) => { const t=q*Math.PI/2, c=Math.cos(t), s=Math.sin(t);
   return { x: v.x*c+v.z*s, y: v.y, z: -v.x*s+v.z*c }; };
@@ -241,7 +254,8 @@ for (const o of level.objects) {
 for (const o of level.objects) {
   const pk = packOf(o), [w,d] = footprint(pk, o.model);
   const ctr = cellCenter(o.col+(w-1)/2, o.row+(d-1)/2);
-  const yB = GROUND.has(o.model) ? o._y : o._y - measure(pk, o.model).minY;
+  // ground: TOP at the surface (slab recessed). restaurant maxY=0 ⇒ o._y; prototype Floor ⇒ o._y-0.5
+  const yB = GROUND.has(o.model) ? o._y - maxY(pk, o.model) : o._y - measure(pk, o.model).minY;
   const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
   const off = o.off || ZERO;
   const node = getModel(pk, o.model);

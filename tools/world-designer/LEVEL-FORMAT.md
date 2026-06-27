@@ -99,25 +99,33 @@ For a `w×d` piece: XZ centre = `cellCenter(col + (w-1)/2, row + (d-1)/2)`.
 > 2×2, `Wall`/`Workbench` → 2×1. **A multi-pack runtime must derive footprints the
 > same way** for non-`restaurant-bits` packs, or pieces will sit off their anchor.
 
-**B. Ground (laid flush, contributes 0 to the stack).** Placed so the model's
-origin sits at the stack surface (the slab recesses below), and things on the
-same cell stay at that surface height.
+**B. Ground (laid flush — TOP at the surface, slab recessed, contributes 0).**
+Placed so the model's TOP sits at the stack surface: `yBase = surface - maxY`
+(`maxY = minY + height`). Restaurant floors have their origin at the top
+(maxY = 0 ⇒ `surface`); the prototype floors have their origin at the bottom
+(maxY = height ⇒ pushed down so the top is flush) — both packs harmonised.
 
 ```
 floor_kitchen, floor_kitchen_styleB, floor_kitchen_small, floor_kitchen_small_styleB,
-tile_white, tile_black, tile_brown_light, tile_brown_dark
+tile_white, tile_black, tile_brown_light, tile_brown_dark,
+Floor, Floor_Dirt, Floor_Prototype, Primitive_Floor
 ```
 
-**C. Built-in placement offset.** A local-space offset baked into the wall/door/
-window kit so they align on the grid. Value `WALL_PLACE = { x: -1, y: 0, z: -0.5 }`,
-**rotated by the piece's `rot`** (so it tracks the four orientations). Applied to:
+**C. Built-in placement offset (+ forced 1×1).** A local-space offset baked into
+the wall/door kit so the wide (4-unit) mesh seats on ONE cell's edge. Value
+`WALL_PLACE = { x: -1, y: 0, z: -0.5 }`, **rotated by the piece's `rot`** (so it
+tracks the four orientations). Every piece here is **1×1** — do NOT derive its
+footprint from the measured size. Restaurant + prototype walls are geometrically
+identical and share this offset. Applied to:
 
 ```
 door_A, door_B, wall, wall_doorway, wall_half,
 wall_decorated, wall_decorated_styleB,
 wall_window_open, wall_window_closed,
 wall_window_closed_curtains_red, wall_window_closed_curtains_green,
-wall_orderwindow, wall_orderwindow_decorated
+wall_orderwindow, wall_orderwindow_decorated,
+Wall, Wall_Half, Wall_Doorway, Wall_Window_Open, Wall_Window_Closed,
+Wall_Decorated, Wall_Target, Door_A, Door_B, Door_A_Decorated
 ```
 (Deliberately NOT pillars, NOT `wall_tiles_*`.)
 
@@ -183,17 +191,23 @@ const TILE = level.grid.tile;           // 2
 const { cols, rows } = level.grid;
 const ZERO = { x: 0, y: 0, z: 0 };
 
+// (single-pack restaurant sketch; for MULTI-PACK levels resolve model/measure
+//  per `o.pack || catalog` and force WALL-set pieces to 1×1 — see §4 + the
+//  sim-tower brief. The sets below already list the prototype pieces.)
 const FOOTPRINT = { floor_kitchen: [2,2], floor_kitchen_styleB: [2,2] };
 const GROUND = new Set(['floor_kitchen','floor_kitchen_styleB',
   'floor_kitchen_small','floor_kitchen_small_styleB',
-  'tile_white','tile_black','tile_brown_light','tile_brown_dark']);
+  'tile_white','tile_black','tile_brown_light','tile_brown_dark',
+  'Floor','Floor_Dirt','Floor_Prototype','Primitive_Floor']);
 const WALL_PLACE = { x: -1, y: 0, z: -0.5 };
 const WALL = new Set(['door_A','door_B','wall','wall_doorway','wall_half',
   'wall_decorated','wall_decorated_styleB','wall_window_open','wall_window_closed',
   'wall_window_closed_curtains_red','wall_window_closed_curtains_green',
-  'wall_orderwindow','wall_orderwindow_decorated']);
+  'wall_orderwindow','wall_orderwindow_decorated',
+  'Wall','Wall_Half','Wall_Doorway','Wall_Window_Open','Wall_Window_Closed',
+  'Wall_Decorated','Wall_Target','Door_A','Door_B','Door_A_Decorated']);
 
-const fp = m => FOOTPRINT[m] || [1,1];
+const fp = m => WALL.has(m) ? [1,1] : (FOOTPRINT[m] || [1,1]);
 const cellCenter = (c, r) => ({ x: (c-(cols-1)/2)*TILE, z: (r-(rows-1)/2)*TILE });
 const rotY = (v, q) => { const t=q*Math.PI/2, c=Math.cos(t), s=Math.sin(t);
   return { x: v.x*c+v.z*s, y: v.y, z: -v.x*s+v.z*c }; };
@@ -213,7 +227,8 @@ for (const o of level.objects) {
 for (const o of level.objects) {
   const [w,d] = fp(o.model);
   const ctr = cellCenter(o.col+(w-1)/2, o.row+(d-1)/2);
-  const yB = GROUND.has(o.model) ? o._y : o._y - measure(o.model).minY;
+  const m2 = measure(o.model);
+  const yB = GROUND.has(o.model) ? o._y - (m2.minY + m2.height) : o._y - m2.minY;   // ground: TOP at surface
   const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
   const off = o.off || ZERO;
   const node = getInstance(o.model);
