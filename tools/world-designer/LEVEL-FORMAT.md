@@ -99,11 +99,13 @@ For a `w×d` piece: XZ centre = `cellCenter(col + (w-1)/2, row + (d-1)/2)`.
 > 2×2, `Wall`/`Workbench` → 2×1. **A multi-pack runtime must derive footprints the
 > same way** for non-`restaurant-bits` packs, or pieces will sit off their anchor.
 
-**B. Ground (laid flush — TOP at the surface, slab recessed, contributes 0).**
-Placed so the model's TOP sits at the stack surface: `yBase = surface - maxY`
-(`maxY = minY + height`). Restaurant floors have their origin at the top
-(maxY = 0 ⇒ `surface`); the prototype floors have their origin at the bottom
-(maxY = height ⇒ pushed down so the top is flush) — both packs harmonised.
+**B. Ground (laid flush — BOTTOM at the surface, slab rising above, contributes
+its height).** Floor tiles stack like any other piece: the model's BOTTOM sits
+on the stack surface (`yBase = surface - minY`, harmonising restaurant floors
+whose origin is at the top with prototype floors whose origin is at the bottom),
+and the tile contributes its measured height, so objects placed on a floored
+cell rest on top of the floor. (Changed 2026-07-01: floors used to be recessed
+with their TOP flush and contribute 0; they now sit as a raised slab.)
 
 ```
 floor_kitchen, floor_kitchen_styleB, floor_kitchen_small, floor_kitchen_small_styleB,
@@ -144,7 +146,7 @@ for each object o, in order:
   (w, d) = footprint(o.model)          // table A, default 1×1
   base = max over cells cc in [o.col .. o.col+w-1], rr in [o.row .. o.row+d-1] of (tops["cc,rr"] || 0)
   o.y  = base
-  contribution = isGround(o.model) ? 0 : height(o.model)     // table B
+  contribution = height(o.model)     // table B — floors contribute their height too
   for each covered cell cc,rr:  tops["cc,rr"] = base + contribution
 ```
 
@@ -153,7 +155,7 @@ for each object o, in order:
 ```
 (w, d)   = footprint(o.model)
 center   = cellCenter(o.col + (w-1)/2, o.row + (d-1)/2)
-yBase    = isGround(o.model) ? o.y : o.y - minY(o.model)
+yBase    = o.y - minY(o.model)      // floors included — bottom seats on the surface
 place    = rotateY(placeOffset(o.model), o.rot * 90°)         // table C, ZERO if none
 manual   = o.off || {x:0, y:0, z:0}                            // world space, NOT rotated
 
