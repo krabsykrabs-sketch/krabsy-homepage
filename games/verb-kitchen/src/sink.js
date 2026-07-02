@@ -116,6 +116,14 @@ export class SinkQuiz {
   }
 
   close() {
+    // an unanswered practice ask goes back to the FRONT of the queue — closing
+    // the quiz (Esc) must not silently swallow a cookbook practice question
+    // (makeQuestion shift()s the key at display time, so without this the ask
+    // is lost for the round while the key lingers in practiceKeys)
+    const q = this.current;
+    if (q && this.practiceKeys.has(q.key) && !this.missedQueue.includes(q.key)) {
+      this.missedQueue.unshift(q.key);
+    }
     this.el.classList.remove('on');
     this.current = null;
     this.game.onQuestionClose();
