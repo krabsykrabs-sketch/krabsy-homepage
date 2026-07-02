@@ -1,4 +1,4 @@
-// Krabsy Tower — a cozy build-and-grow tycoon layered on the diorama.
+// Krabsy Block — a cozy build-and-grow tycoon layered on the block diorama.
 // Build rooms (cost coins) → tenants move in → occupied rooms earn coins →
 // spend coins to expand → hit population milestones to level up. No fail state.
 // A "Free build" toggle drops back to the sandbox author mode (no economy).
@@ -6,16 +6,16 @@ import { CONFIG } from './config.js';
 import { audio, unlockAudio } from './audio.js';
 import { createSlotPicker } from './slots.js';
 import { CHAR_EMOJI } from './character.js';
-import { planTrip, ElevatorManager, elevatorFor } from './commute.js';
+import { planTrip } from './commute.js';
 import { pickQuestion } from './questions.js';
 
 // Resident wants — one per resident; met/unmet drives happiness + rent.
 const WANTS = {
   sofa:     { icon: '🛋️', label: 'a sofa to relax on', met: (r, ctx) => ctx.roomIsApartment(r.key) },
-  quiet:    { icon: '🤫', label: 'a quiet floor (no office)', met: (r, ctx) => !ctx.floorHasOffice(r.floor) },
-  cafe:     { icon: '☕', label: 'a café nearby', met: (r, ctx) => ctx.amenityNear('cafe', r.floor) },
-  pizza:    { icon: '🍕', label: 'a pizzeria nearby', met: (r, ctx) => ctx.amenityNear('pizzeria', r.floor) },
-  icecream: { icon: '🍦', label: 'ice cream nearby', met: (r, ctx) => ctx.amenityNear('icecream', r.floor) },
+  quiet:    { icon: '🤫', label: 'a quiet spot (no office next door)', met: (r, ctx) => !ctx.officeNextDoor(r.key) },
+  cafe:     { icon: '☕', label: 'a café nearby', met: (r, ctx) => ctx.amenityNear('cafe', r.key) },
+  pizza:    { icon: '🍕', label: 'a pizzeria nearby', met: (r, ctx) => ctx.amenityNear('pizzeria', r.key) },
+  icecream: { icon: '🍦', label: 'ice cream nearby', met: (r, ctx) => ctx.amenityNear('icecream', r.key) },
 };
 const WANT_BY_TYPE = { Ranger: 'sofa', Rogue: 'sofa', Knight: 'quiet', Mage: 'cafe' };
 // each class rolls one of two possible wants on move-in (variety + new tradeoffs)
@@ -34,7 +34,6 @@ const MILESTONES = [
 export function createGame(tower, deps) {
   const { THREE, scene, camera, renderer, spawnOne, removeOne, detachToWorld, attachToRoom, deriveWaypoints } = deps;
   const G = CONFIG.GAME;
-  let elevatorMgr = null;
   let commuteScanT = 0;
 
   const state = { coins: G.START_COINS, population: 0, level: 0, goalIdx: 0, running: false };
@@ -56,25 +55,29 @@ export function createGame(tower, deps) {
   const ndc = new THREE.Vector2();
 
   const key = (c, f) => f + ':' + c;
-  const costFor = (id) => id === 'elevator' ? CONFIG.CIRCULATION.ELEVATOR_COST : (G.COST[id] ?? G.COST._default);
+  const costFor = (id) => G.COST[id] ?? G.COST._default;
   const earnFor = (id) => G.EARN[id] ?? G.EARN._default;
   const maxOcc = (id) => G.MAX_OCC[id] ?? G.MAX_OCC._default;
   const nextGoal = () => G.GOALS[Math.min(state.goalIdx, G.GOALS.length - 1)];
   const occCount = (k) => residents.reduce((n, r) => n + (r.key === k ? 1 : 0), 0);
 
-  // want-evaluation context (recomputed when checking moods)
+  // want-evaluation context — distances are PLOTS ALONG THE RING now
+  const N_PLOTS = () => CONFIG.BLOCK.SIDE_PLOTS;
+  const ringOfKey = (k) => { const i = k.indexOf(':'); return +k.slice(0, i) * N_PLOTS() + +k.slice(i + 1); };
+  const ringDist = (a, b) => { const T = 4 * N_PLOTS(); const d = Math.abs(a - b) % T; return Math.min(d, T - d); };
   function buildCtx() {
-    const offices = new Set(), apartments = new Set();
-    const amenityFloors = { cafe: new Set(), pizzeria: new Set(), icecream: new Set() };
+    const officeRings = [], apartments = new Set();
+    const amenityRings = { cafe: [], pizzeria: [], icecream: [] };
     for (const r of tower.built.rooms) {
-      if (r.roomId === 'SimOffice' || r.roomId === 'office3') offices.add(r.floor);
-      if (r.roomId === 'simroom1') apartments.add(key(r.col, r.floor));
-      if (amenityFloors[r.roomId]) amenityFloors[r.roomId].add(r.floor);
+      const k = key(r.col, r.floor), ring = ringOfKey(k);
+      if (r.roomId === 'SimOffice' || r.roomId === 'office3') officeRings.push(ring);
+      if (r.roomId === 'simroom1') apartments.add(k);
+      if (amenityRings[r.roomId]) amenityRings[r.roomId].push(ring);
     }
     return {
       roomIsApartment: (k) => apartments.has(k),
-      floorHasOffice: (f) => offices.has(f),
-      amenityNear: (id, f) => { const s = amenityFloors[id]; return !!s && (s.has(f) || s.has(f - 1) || s.has(f + 1)); },
+      officeNextDoor: (k) => { const r = ringOfKey(k); return officeRings.some((o) => ringDist(o, r) === 1); },
+      amenityNear: (id, k) => { const r = ringOfKey(k); return (amenityRings[id] || []).some((a) => ringDist(a, r) <= 3); },
     };
   }
   const wantMet = (r, ctx) => WANTS[r.want].met(r, ctx);
@@ -96,8 +99,8 @@ export function createGame(tower, deps) {
 
   const dock = el('div', 'gDock'); document.body.appendChild(dock);
   dock.innerHTML = `
-    <div class="gHead">🏙️ Krabsy Tower</div>
-    <div class="gHint">Pick a tool below: <b style="color:#ffcf5e">🏗️ Expand</b> to add floor space 🪙${CONFIG.GAME.LOT_COST}, then a <b style="color:#2ee6c0">room</b> to build into it. Click empty space to put the tool down.</div>
+    <div class="gHead">🏙️ Krabsy Block</div>
+    <div class="gHint">Pick a tool below: <b style="color:#ffcf5e">🏗️ Expand</b> to buy the next plot on the block 🪙${CONFIG.GAME.LOT_COST}, then a <b style="color:#2ee6c0">building</b> to put on it. Drag to spin the block; click empty space to put the tool down.</div>
     <div class="gSec">Build a room</div>
     <div class="gPalette" id="gPalette"></div>
     <label class="gFree"><input type="checkbox" id="gFreeBuild"> Free build (sandbox)</label>
@@ -162,16 +165,16 @@ export function createGame(tower, deps) {
       }
     }
   }
-  function onRebuilt() { elevatorMgr = new ElevatorManager(tower.built); syncRooms(); picker.refresh(); updateHud(); updateDock(); saveGame(); }
+  function onRebuilt() { syncRooms(); picker.refresh(); updateHud(); updateDock(); saveGame(); }
 
   // ── game save (localStorage) — the tower survives a refresh ─────────────
-  const GS_KEY = 'simtower.game';
+  const GS_KEY = 'simblock.game';
   let ephemeral = false;   // ?lots= QA sessions never overwrite the player's save
   function saveGame() {
     if (!started || ephemeral || tower.freeBuild || !tower.gameActive) return;
     try {
       localStorage.setItem(GS_KEY, JSON.stringify({
-        lots: [...tower.lots.entries()], elevators: [...tower.elevators],
+        lots: [...tower.lots.entries()],
         coins: Math.floor(state.coins), level: state.level, goalIdx: state.goalIdx, milestoneIdx,
         residents: residents.map((r) => ({ key: r.key, type: r.type, want: r.want })),
       }));
@@ -179,21 +182,20 @@ export function createGame(tower, deps) {
   }
   function clearSave() { try { localStorage.removeItem(GS_KEY); } catch (_) {} }
 
-  // ── commute (residents travel between floors via the elevator) ──────────
+  // ── commute (residents stroll the sidewalk ring between buildings) ──────
   const roomByKey = (k) => tower.built.rooms.find((r) => key(r.col, r.floor) === k);
-  const floorOf = (k) => +k.slice(0, k.indexOf(':'));
-  const colOf = (k) => +k.slice(k.indexOf(':') + 1);
+  const floorOf = (k) => +k.slice(0, k.indexOf(':'));      // "floor" = block side
+  const colOf = (k) => +k.slice(k.indexOf(':') + 1);       // "col" = plot on that side
   const randCommuteDelay = () => CONFIG.CIRCULATION ? (CC().COMMUTE_MIN + Math.random() * (CC().COMMUTE_MAX - CC().COMMUTE_MIN)) : 12;
   function CC() { return CONFIG.CIRCULATION; }
 
   function pickDestination(res) {
-    const curF = floorOf(res.atKey || res.key);
-    // prefer offices/cafés on another reachable floor (work/errand)
+    const fromKey = res.atKey || res.key;
+    // prefer shops/offices elsewhere on the ring (work/errand)
     const cands = tower.built.rooms.filter((r) => {
-      if (r.floor === curF) return false;
       const k = key(r.col, r.floor);
-      if (k === res.key) return false;
-      return !!planTrip(tower.built, curF, colOf(res.atKey || res.key), r.floor, r.col);
+      if (k === fromKey || k === res.key) return false;
+      return !!planTrip(tower.built, floorOf(fromKey), colOf(fromKey), r.floor, r.col);
     });
     if (!cands.length) return null;
     const DEST = new Set(['SimOffice', 'office3', 'cafe', 'pizzeria', 'icecream']);
@@ -208,7 +210,6 @@ export function createGame(tower, deps) {
     if (!plan || !res.char) return false;
     res.traveling = true;
     detachToWorld(res.char);
-    res.char.onElevatorRequest = (c) => elevatorMgr && elevatorMgr.request(c);
     res.char.startCommute({ ...plan, onArrive: () => onCommuteArrive(res, destRoom, goingHome) });
     return true;
   }
@@ -229,7 +230,6 @@ export function createGame(tower, deps) {
   }
 
   function updateCommutes(dt) {
-    if (elevatorMgr) elevatorMgr.update(dt);
     commuteScanT -= dt;
     if (commuteScanT > 0) return;
     commuteScanT = 0.5;
@@ -249,11 +249,10 @@ export function createGame(tower, deps) {
   }
 
   // ── actions ────────────────────────────────────────────────────────────
-  // kind 'buy' = buy floor space on the frontier; kind 'lot' = build/clear a room.
+  // kind 'buy' = buy a plot on the ring frontier; kind 'lot' = build/clear a room.
   async function onSlotClick(c, f, kind, content) {
     if (kind === 'buy') return buyLot(c, f);
-    if (tower.brush === 'elevator') return buildElevatorAt(c);
-    // an existing lot:
+    // an existing plot:
     if (tower.freeBuild) {
       await tower.setRoom(c, f, tower.brush === 'erase' ? null : tower.brush);
       if (tower.brush !== 'erase') popRoom(c, f);
@@ -277,16 +276,6 @@ export function createGame(tower, deps) {
       state.coins -= G.LOT_COST;
     }
     await tower.buyLot(c, f);
-    audio.build();
-    updateHud();
-  }
-
-  async function buildElevatorAt(c) {
-    if (!tower.canElevator(c)) { audio.nope(); showToast('That column already has a lift (or no floors yet).'); return; }
-    const cost = costFor('elevator');
-    if (!tower.freeBuild && state.coins < cost) { audio.nope(); flashCoins(); return; }
-    if (!tower.freeBuild) state.coins -= cost;
-    await tower.buildElevator(c);
     audio.build();
     updateHud();
   }
@@ -331,12 +320,7 @@ export function createGame(tower, deps) {
     for (let i = residents.length - 1; i >= 0; i--) {
       const r = residents[i];
       if (r.traveling) continue;                       // don't grumble / move out mid-commute
-      // stranded: no route to the ground floor. Mirrors planTrip: stairs cover a
-      // ONE-floor hop, an elevator spans its column — floor 1 with stairs is fine.
-      const rf = floorOf(r.key);
-      r.stranded = rf > 0 && !elevatorFor(tower.built, rf, 0)
-        && !(rf === 1 && (tower.built.circ?.stairs || []).some((s) => s.f === 0));
-      if (wantMet(r, ctx) && !r.stranded) { r.unhappyT = 0; r.mood = 'happy'; }
+      if (wantMet(r, ctx)) { r.unhappyT = 0; r.mood = 'happy'; }
       else {
         r.unhappyT += dt;
         r.mood = r.unhappyT >= G.LEAVE_TIME ? 'leaving' : 'meh';
@@ -559,7 +543,8 @@ export function createGame(tower, deps) {
   }
   function floatAt(r, text, color) {
     const roomH = tower.built ? tower.built.roomH : 4;
-    const p = project(r.slot.position.x, r.slot.position.y + roomH * 0.7, 2.4);
+    const wp = r.slot.getWorldPosition(new THREE.Vector3());   // slots live inside yawed plot groups
+    const p = project(wp.x, wp.y + roomH * 0.7, wp.z);
     const s = el('div', 'gFloat', text);
     s.style.left = p.x + 'px'; s.style.top = p.y + 'px'; s.style.color = color;
     floatLayer.appendChild(s);
@@ -613,7 +598,7 @@ export function createGame(tower, deps) {
     exp.innerHTML = `<span class="gChipName">🏗️ Expand</span>` + (tower.freeBuild ? '' : `<span class="gChipCost">🪙${G.LOT_COST}</span>`);
     exp.onclick = () => selectBrush('expand');
     paletteEl.appendChild(exp);
-    // room + elevator tools (each shows its own ghosts)
+    // room tools (each shows its own ghosts)
     for (const id of Object.keys(tower.rooms)) {
       const b = el('button', 'gChip');
       b.dataset.id = id;
@@ -694,7 +679,7 @@ export function createGame(tower, deps) {
     updateDock();
     updateGoalBanner();
     showToast(tower.freeBuild ? '🏗️ Sandbox — free build.'
-      : (opts.resume ? '🏙️ Welcome back!' : '🏙️ Welcome! Buy floor space, then build rooms.'));
+      : (opts.resume ? '🏙️ Welcome back!' : '🏙️ Welcome! Buy plots, then build your block.'));
     state.running = !tower.freeBuild;
     started = true;
     saveGame();
@@ -738,7 +723,6 @@ function injectStyles() {
   .gChip.on{background:#2ee6c0; color:#0e141d; border-color:#2ee6c0;}
   .gChip.gExpand{border-color:rgba(255,207,94,.45);}
   .gChip.gExpand.on{background:#ffcf5e; color:#0e141d; border-color:#ffcf5e;}
-  .gChip[data-id="elevator"].on{background:#9b8cff; color:#0e141d; border-color:#9b8cff;}
   .gChip.gEraseChip.on{background:#ff8585; border-color:#ff8585;}
   .gChipCost{font-size:13px; opacity:.9;}
   .gChip.gPoor{opacity:.45;}

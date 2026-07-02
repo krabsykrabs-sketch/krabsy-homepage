@@ -1,14 +1,14 @@
-// Krabsy Tower — entry point.
+// Krabsy Block — entry point.
 // Loads authored krabsy-level rooms via the §7 loader, assembles them into a
-// variable-width tower (SimTower-style buy-floor-space lots), and renders a 3D
-// dollhouse. The build-and-grow GAME (game.js) is the single experience;
-// `?sandbox=1` starts it in free-build, `?flat=1` uses the ortho cutaway, and
-// `?room=<id>` renders one room (QA). QA hooks at the bottom.
+// CITY BLOCK (a ring of buildings around a courtyard park), and renders a 3D
+// diorama you orbit all the way round. The build-and-grow GAME (game.js) is the
+// single experience; `?sandbox=1` starts it in free-build, `?flat=1` uses the
+// ortho cutaway, and `?room=<id>` renders one room (QA). QA hooks at the bottom.
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { loadLevel, preloadLevel } from './loader.js';
 import { makeCamera, frameCamera } from './camera.js';
-import { buildTower, makeRoomSlot, disposeObject, cullShell } from './building.js';
+import { buildBlock, makeRoomSlot, disposeObject, cullShell } from './building.js';
 import { Character, preloadCharacters, deriveWaypoints, CHAR_NAMES } from './character.js';
 import { createGame } from './game.js';
 import { CameraRig } from './cameraRig.js';
@@ -29,9 +29,9 @@ const START_BUILD = Q.get('build') === '1';    // ?build=1 → (sandbox) open bu
 const SHOW_UI = Q.get('ui') !== '0';           // ?ui=0 → hide game UI (clean diorama view)
 const USE_3D = !SANDBOX && !SINGLE_ROOM && Q.get('flat') !== '1';   // 3D dollhouse orbit camera (default); ?flat=1 → ortho cutaway
 
-const LS_KEY = 'simtower.lots';
-// a tiny starter: three ground lots, one already an apartment, to grow from
-const GAME_START_LOTS = { '0:-1': null, '0:0': 'simroom1', '0:1': null };
+const LS_KEY = 'simblock.plots';
+// a tiny starter: three plots on the south side, the middle one an apartment
+const GAME_START_LOTS = { '0:0': null, '0:1': 'simroom1', '0:2': null };
 
 // ── DOM + error surfacing ────────────────────────────────────────────────
 const canvas = document.getElementById('c');
@@ -203,8 +203,7 @@ async function discoverRooms() {
 // room, 'elevator' = lift shaft). Floors are independently sized; columns may be
 // negative (expanded left). You buy a lot (floor space), then build into it.
 const tower = {
-  lots: new Map(),
-  elevators: new Set(),  // columns that have an elevator (shaft in their front hallway; room stays)
+  lots: new Map(),     // plots: "side:i" → roomId | null (owned empty)
   rooms: {},           // room catalog (id → {label,url})
   levels: {},
   built: null,
@@ -215,16 +214,18 @@ const tower = {
   repopulate: null,
   onRebuilt: null,
 
-  key(c, f) { return f + ':' + c; },
+  key(c, f) { return f + ':' + c; },              // c = plot index on the side, f = side (0..3)
   has(c, f) { return this.lots.has(f + ':' + c); },
   content(c, f) { return this.lots.get(f + ':' + c); },
   roomAt(c, f) { return this.lots.get(f + ':' + c) || null; },
-  /** A lot is buyable if empty, supported (ground or a lot below), and adjacent. */
+  /** A plot is buyable if it exists on the ring, is unowned, and neighbours an owned plot. */
   canBuy(c, f) {
-    if (this.has(c, f)) return false;
-    if (f > 0 && !this.has(c, f - 1)) return false;
-    if (this.lots.size === 0) return c === 0 && f === 0;
-    return this.has(c - 1, f) || this.has(c + 1, f) || this.has(c, f - 1);
+    const N = CONFIG.BLOCK.SIDE_PLOTS, total = 4 * N;
+    if (f < 0 || f > 3 || c < 0 || c >= N || this.has(c, f)) return false;
+    if (this.lots.size === 0) return f === 0 && c === Math.floor(N / 2);
+    const owned = (r) => { r = ((r % total) + total) % total; return this.has(r % N, Math.floor(r / N)); };
+    const r = f * N + c;
+    return owned(r + 1) || owned(r - 1);
   },
   idsInUse() { const s = new Set(); for (const v of this.lots.values()) if (v) s.add(v); return [...s]; },
   async ensureLevels(ids) {
@@ -241,7 +242,7 @@ const tower = {
     await this.ensureLevels(this.idsInUse());
     if (this.built) { scene.remove(this.built.group); disposeObject(this.built.group); }
     clearCharacters();
-    const built = buildTower(this.lots, { levelsById: this.levels, defaultSlotW: 13, elevators: [...this.elevators] });
+    const built = buildBlock(this.lots, { levelsById: this.levels });
     this.built = built;
     scene.add(built.group);
     frameBox = built.box;
@@ -251,17 +252,12 @@ const tower = {
     rebuildLights(center, frameBox);
     if (this.repopulate) this.repopulate(built.rooms);
     if (this.onRebuilt) this.onRebuilt();
-    relayoutStreet();                          // fit the street to the (possibly new) tower width
     renderer.render(scene, camera);
   },
-  colLots(c) { const out = []; for (const [k, v] of this.lots) { const i = k.indexOf(':'); if (+k.slice(i + 1) === c) out.push([k, v]); } return out; },
-  // a column can take a lift if it has at least one lot and doesn't already have one
-  canElevator(c) { return this.colLots(c).length > 0 && !this.elevators.has(c); },
   async buyLot(c, f) { if (!this.canBuy(c, f)) return false; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); return true; },
   async setRoom(c, f, id) { if (!this.has(c, f)) return false; this.lots.set(this.key(c, f), id); await this.rebuild(); this.persistLocal(); return true; },
-  async buildElevator(c) { if (!this.canElevator(c)) return false; this.elevators.add(c); await this.rebuild(); this.persistLocal(); return true; },
   async clearRoom(c, f) { if (!this.has(c, f)) return; this.lots.set(this.key(c, f), null); await this.rebuild(); this.persistLocal(); },
-  async removeLot(c, f) { if (this.has(c, f + 1)) return false; this.lots.delete(this.key(c, f)); if (!this.colLots(c).length) this.elevators.delete(c); await this.rebuild(); this.persistLocal(); return true; },
+  async removeLot(c, f) { this.lots.delete(this.key(c, f)); await this.rebuild(); this.persistLocal(); return true; },
   // back-compat shim (game/builder call setSlot to place/clear a room into a lot)
   async setSlot(c, f, id) { return id == null ? this.clearRoom(c, f) : this.setRoom(c, f, id); },
   async clear() { for (const k of [...this.lots.keys()]) this.lots.set(k, null); await this.rebuild(); this.persistLocal(); },
@@ -270,10 +266,10 @@ const tower = {
     // (game.start() sets gameActive even for ?sandbox=1, so gate on freeBuild too —
     //  otherwise sandbox work is persisted by NEITHER path and a refresh loses it)
     if (this.gameActive && !this.freeBuild) return;
-    try { localStorage.setItem(LS_KEY, JSON.stringify({ lots: [...this.lots.entries()], elevators: [...this.elevators] })); } catch (_) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ lots: [...this.lots.entries()] })); } catch (_) {}
   },
   exportJSON() {
-    const blob = new Blob([JSON.stringify({ lots: [...this.lots.entries()], elevators: [...this.elevators] }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ lots: [...this.lots.entries()] }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'building.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
@@ -288,35 +284,23 @@ function lotEntries(data) {
   const raw = data && data.lots ? data.lots : data;
   return Array.isArray(raw) ? raw : Object.entries(raw || {});
 }
-/** Parse a lots payload → Map, dropping unknown rooms and legacy 'elevator' content
- *  (elevators are tracked separately now — see elevatorsFromData). */
+/** Parse a plots payload → Map, dropping unknown rooms and off-ring keys. */
 function lotsFromData(data) {
+  const N = CONFIG.BLOCK.SIDE_PLOTS;
   const m = new Map();
   for (const [k, content] of lotEntries(data)) {
-    const id = (content && content !== 'elevator' && tower.rooms[content] && !tower.rooms[content].special) ? content : null;
+    const ci = k.indexOf(':');
+    const side = +k.slice(0, ci), i = +k.slice(ci + 1);
+    if (!(side >= 0 && side <= 3 && i >= 0 && i < N)) continue;   // off the ring (e.g. old tower saves)
+    const id = (content && tower.rooms[content] && !tower.rooms[content].special) ? content : null;
     m.set(k, id);
   }
   return m;
 }
-/** Columns with an elevator: an explicit `elevators` array, plus migration of any
- *  legacy lot whose content was 'elevator'. */
-function elevatorsFromData(data) {
-  const set = new Set();
-  if (data && Array.isArray(data.elevators)) for (const c of data.elevators) set.add(+c);
-  for (const [k, v] of lotEntries(data)) if (v === 'elevator') set.add(+k.slice(k.indexOf(':') + 1));
-  return set;
-}
 async function loadSandboxLots() {
-  try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.lots) return { lots: lotsFromData(s), elevators: elevatorsFromData(s) }; } catch (_) {}
-  try { const r = await fetch('building.json'); if (r.ok) { const j = await r.json(); if (j.lots) return { lots: lotsFromData(j), elevators: elevatorsFromData(j) }; } } catch (_) {}
-  return { lots: lotsFromData(GAME_START_LOTS), elevators: new Set() };
-}
-
-// Fit the passing-cars street to the tower's current width (called on every rebuild).
-function relayoutStreet() {
-  if (!street || !street.relayout || !tower.built) return;
-  const b = tower.built.box;
-  street.relayout({ minX: b.min.x, maxX: b.max.x, frontZ: b.max.z });
+  try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.lots) return lotsFromData(s); } catch (_) {}
+  try { const r = await fetch('building.json'); if (r.ok) { const j = await r.json(); if (j.lots) return lotsFromData(j); } } catch (_) {}
+  return lotsFromData(GAME_START_LOTS);
 }
 
 // ── boot ─────────────────────────────────────────────────────────────────
@@ -326,31 +310,30 @@ async function boot() {
 
     ovmsg.textContent = 'finding rooms…';
     tower.rooms = await discoverRooms();
-    tower.rooms.elevator = { id: 'elevator', label: 'Elevator 🛗', special: true };   // built into a clear column, not a level
     tower.brush = tower.rooms.simroom1 ? 'simroom1' : Object.keys(tower.rooms)[0];
     await preloadCharacters();
 
-    // starting lots: ?lots=<json> override, else the saved game, else the starter
+    // starting plots: ?lots=<json> override, else the saved game, else the starter
     let startLots = null, resume = null;
     if (Q.has('lots')) {
-      try { const d = JSON.parse(decodeURIComponent(Q.get('lots'))); startLots = lotsFromData(d); tower.elevators = elevatorsFromData(d); }
+      try { startLots = lotsFromData(JSON.parse(decodeURIComponent(Q.get('lots')))); }
       catch (e) { showError('bad ?lots=: ' + e); }
     }
     if (!startLots) {
-      if (SANDBOX) { const r = await loadSandboxLots(); startLots = r.lots; tower.elevators = r.elevators; }
+      if (SANDBOX) { startLots = await loadSandboxLots(); }
       else {
         let saved = null;
-        try { saved = JSON.parse(localStorage.getItem('simtower.game')); } catch (_) {}
+        try { saved = JSON.parse(localStorage.getItem('simblock.game')); } catch (_) {}
         if (saved && saved.lots && lotEntries(saved).length) {
-          startLots = lotsFromData(saved); tower.elevators = elevatorsFromData(saved); resume = saved;
-        } else { startLots = lotsFromData(GAME_START_LOTS); tower.elevators = new Set(); }
+          startLots = lotsFromData(saved); resume = saved;
+        } else { startLots = lotsFromData(GAME_START_LOTS); }
       }
     }
 
-    window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, rig, get game() { return game; }, get frameBox() { return frameBox; } };
+    window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, rig, get game() { return game; }, get frameBox() { return frameBox; }, get street() { return street; } };
 
     // The GAME is the single experience; ?sandbox=1 just starts it in free-build.
-    ovmsg.textContent = 'opening Krabsy Tower…';
+    ovmsg.textContent = 'opening Krabsy Block…';
     hud.style.display = 'none';
     game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, removeOne, detachToWorld, attachToRoom, deriveWaypoints, rig });
     await game.start(startLots, { freeBuild: SANDBOX, resume, ephemeral: Q.has('lots') });
@@ -361,9 +344,9 @@ async function boot() {
     // street in front of the tower (cars passing by) — decoration, loaded in the
     // background so it never blocks boot; fits to the tower width when ready.
     if (CONFIG.STREET?.enabled) {
-      buildStreet(scene)
-        .then((s) => { street = s; relayoutStreet(); })
-        .catch((e) => console.warn('[sim-tower] street failed:', e));
+      buildStreet(scene, tower.built.geom)
+        .then((s) => { street = s; })
+        .catch((e) => console.warn('[block] street failed:', e));
     }
 
     if (Q.has('selftest')) { runSelfTest(); return; }

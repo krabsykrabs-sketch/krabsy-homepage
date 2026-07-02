@@ -43,7 +43,9 @@ export const CONFIG = {
     BACK_OFFSET: 0.25,      // how far the back wall plane sits behind the rooms.
     CONCRETE_BACK: '#2a3342', // dark back wall — recedes (shadowbox depth).
     SLAB: '#626b7a',        // floor slabs / structure (warm concrete).
-    GROUND: '#3a4350',      // sidewalk.
+    GROUND: '#3a4350',      // base ground under the whole block.
+    PAVEMENT: '#8a93a3',    // sidewalk ring (light concrete).
+    GRASS: '#4d8f56',       // courtyard lawn.
     ROOF: '#434c5a',
   },
 
@@ -73,12 +75,12 @@ export const CONFIG = {
   // ── 3D dollhouse camera (default for the game; ?flat=1 → old ortho cutaway) ──
   CAMERA3D: {
     FOV: 30,
-    AZ0_DEG: 22, AZ_MAX_DEG: 58,        // azimuth: start angle + how far you can orbit (front hemisphere)
-    POL0_DEG: 15, POL_MIN_DEG: 5, POL_MAX_DEG: 40,   // elevation above horizontal (looking down)
+    AZ0_DEG: 22, AZ_MAX_DEG: 100000,    // azimuth: start angle + orbit range (the block spins all the way round)
+    POL0_DEG: 22, POL_MIN_DEG: 6, POL_MAX_DEG: 62,   // elevation above horizontal (high enough to see the courtyard)
     ROT_SPEED: 0.30,                    // degrees azimuth per pixel dragged
     PAN_SPEED: 0.028,                   // world units (target.y) per pixel dragged (pan floors)
     ZOOM_STEP: 0.0016,                  // radius change per wheel delta
-    RAD_MIN: 7, RAD_MAX: 140,
+    RAD_MIN: 9, RAD_MAX: 190,
     FIT_MARGIN: 1.16,                   // padding when auto-fitting the tower
     DAMP: 10,                           // higher = snappier
     DOCK_GUTTER: 0.17,                  // shift the tower right so the left dock doesn't cover it
@@ -86,39 +88,33 @@ export const CONFIG = {
     CULL_LERP: 8,                       // opacity fade rate
   },
 
-  // ── Circulation (stairs / elevator — both live in the FRONT hallway) ──
+  // ── The block ring (Krabsy Block) ─────────────────────────────────────
+  BLOCK: {
+    SIDE_PLOTS: 3,        // building plots per side (4 sides; corners stay open)
+    PLOT_W: 12,           // plot width along the street (= a 6-row room at tile 2)
+    CORNER_GAP: 6,        // open corner width (sidewalk + park access + streetlight)
+    SIDEWALK_W: 3,        // sidewalk ring depth between building fronts and the road
+  },
+
+  // ── Commute pacing (residents strolling the ring) ─────────────────────
   CIRCULATION: {
-    HALLWAY_WALK_FRAC: 0.4,      // walk-line position inside the 2-cell front hallway (0=room edge, 1=front edge)
-    STAIRS_EVERY: 2,             // a staircase in the hallway of every Nth unit on a floor
-    STAIR_RUN: 2.4,              // how far the stair run extends (depth)
-    STAIR_COLOR: '#9aa3b3',
-    ELEVATOR_COST: 28,           // coins to add an elevator to a column (shaft in its front hallway)
-    ELEVATOR_SPEED: 5.5,         // cab travel, world units/sec
-    ELEVATOR_WIDTH_FRAC: 0.28,   // cab/shaft width as a fraction of the lot (narrow — tucked to the side)
-    ELEVATOR_DEPTH: 1.8,         // cab/shaft depth (front hallway is 2 cells ≈ 4u deep)
-    ELEVATOR_INSET: 0.25,        // gap from the left wall of the lot (the lift hugs the far left)
-    ELEVATOR_SHAFT: '#1b2230',
-    ELEVATOR_CAB: '#ffcf5e',
-    ELEVATOR_DOOR_WAIT: 1.2,     // seconds the cab dwells at a floor
     COMMUTE_MIN: 10,             // seconds at home before heading out
     COMMUTE_MAX: 22,
     VISIT_MIN: 7,                // seconds spent at the destination before heading home
     VISIT_MAX: 14,
   },
 
-  // ── Street (KayKit City Builder road + cars passing by, in front) ─────
+  // ── Streets + outdoor props (road ring, cars, streetlights, park) ─────
   STREET: {
     enabled: true,
-    GAP: 0.6,             // gap between the building's front face and the street's back edge
-    Y: -0.9,              // road bottom y (surface ≈ Y + scaled tile height); a step below the sidewalk
-    ROAD_YAW_DEG: 90,     // rotate road tiles so the lanes line up along x
-    ROAD_SCALE: 3,        // tile size multiplier (×3)
-    LANE_FRAC: 0.25,      // lane-centre offset as a fraction of the road depth (±depth/4)
-    CAR_TARGET_W: 2.85,   // car width in world units (≈ ×3 the old size)
-    MAX_CARS: 8,          // car pool size (cap)
-    CAR_SPACING: 3.0,     // one car per ~this many road tiles → fewer, sparser cars
-    CAR_SPEED_MIN: 6.0,   // each lane picks one uniform speed in this range (so same-lane cars never overlap)
+    ROAD_SCALE: 3,        // road tile size multiplier (2u tile → 6u)
+    ROAD_TOP: 0.16,       // road surface height (a kerb-step below the 0.5 sidewalk)
+    CAR_TARGET_W: 2.85,   // car width in world units
+    MAX_CARS: 6,          // cap on cars lapping the block
+    CAR_SPACING: 5,       // one car per ~this many road tiles
+    CAR_SPEED_MIN: 6.0,   // each lane picks ONE speed in this range (no same-lane collisions)
     CAR_SPEED_MAX: 10.0,
+    LIGHT_H: 4.4,         // streetlight height (scaled to this)
   },
 
   // ── Scene tint ────────────────────────────────────────────────────────
