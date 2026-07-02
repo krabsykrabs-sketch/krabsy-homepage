@@ -6,10 +6,14 @@ import { footprintOf, GROUND } from './loader.js';
 // except flat rugs). Floors/walls are handled separately.
 const BLOCK = new Set([
   'couch_pillows', 'couch', 'armchair', 'armchair_pillows',
-  'chair_desk_A', 'chair_desk_B', 'chair_A', 'chair_B',
-  'desk_decorated', 'desk', 'table_low_decorated',
+  'chair_desk_A', 'chair_desk_B', 'chair_A', 'chair_B', 'chair_stool',
+  'desk_decorated', 'desk', 'desk_large_decorated', 'table_low_decorated',
   'cabinet_medium', 'cabinet_small', 'cabinet_medium_decorated', 'cabinet_small_decorated',
   'lamp_standing', 'bed_single_A', 'bed_single_B', 'bed_double_A', 'bed_double_B',
+  // restaurant/parlor pieces (pizzeria + ice-cream rooms)
+  'pizza_oven', 'icecream_machine',
+  'kitchencounter_straight_A_decorated', 'kitchencounter_straight_B_styleB',
+  'table_round_B_tablecloth_red', 'table_round_A_small_decorated',
 ]);
 const isFloorModel = (m) => m === 'Floor' || GROUND.has(m) || /^floor|^tile_/.test(m);
 

@@ -3,6 +3,8 @@
     { "id": "simroom1",  "label": "Apartment", "url": "levels/simroom1.json" },
     { "id": "SimOffice", "label": "Office",    "url": "levels/SimOffice.json" },
     { "id": "office3",   "label": "Office 3",  "url": "levels/office3.json" },
-    { "id": "cafe",      "label": "Café ☕",    "url": "levels/cafe.json" }
+    { "id": "cafe",      "label": "Café ☕",    "url": "levels/cafe.json" },
+    { "id": "pizzeria",  "label": "Pizzeria 🍕", "url": "levels/pizzeria.json" },
+    { "id": "icecream",  "label": "Ice Cream 🍦", "url": "levels/icecream.json" }
   ]
 }

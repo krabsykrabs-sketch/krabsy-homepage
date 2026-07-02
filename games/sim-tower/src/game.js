@@ -11,11 +11,16 @@ import { pickQuestion } from './questions.js';
 
 // Resident wants — one per resident; met/unmet drives happiness + rent.
 const WANTS = {
-  sofa:  { icon: '🛋️', label: 'a sofa to relax on', met: (r, ctx) => ctx.roomIsApartment(r.key) },
-  quiet: { icon: '🤫', label: 'a quiet floor (no office)', met: (r, ctx) => !ctx.floorHasOffice(r.floor) },
-  cafe:  { icon: '☕', label: 'a café nearby', met: (r, ctx) => ctx.cafeNear(r.floor) },
+  sofa:     { icon: '🛋️', label: 'a sofa to relax on', met: (r, ctx) => ctx.roomIsApartment(r.key) },
+  quiet:    { icon: '🤫', label: 'a quiet floor (no office)', met: (r, ctx) => !ctx.floorHasOffice(r.floor) },
+  cafe:     { icon: '☕', label: 'a café nearby', met: (r, ctx) => ctx.amenityNear('cafe', r.floor) },
+  pizza:    { icon: '🍕', label: 'a pizzeria nearby', met: (r, ctx) => ctx.amenityNear('pizzeria', r.floor) },
+  icecream: { icon: '🍦', label: 'ice cream nearby', met: (r, ctx) => ctx.amenityNear('icecream', r.floor) },
 };
 const WANT_BY_TYPE = { Ranger: 'sofa', Rogue: 'sofa', Knight: 'quiet', Mage: 'cafe' };
+// each class rolls one of two possible wants on move-in (variety + new tradeoffs)
+const WANT_POOLS = { Ranger: ['sofa', 'icecream'], Rogue: ['sofa', 'pizza'], Knight: ['quiet', 'icecream'], Mage: ['cafe', 'pizza'] };
+const rollWant = (type) => { const p = WANT_POOLS[type] || ['sofa']; return p[Math.floor(Math.random() * p.length)]; };
 const MOOD_FACE = { happy: '😊', meh: '😐', leaving: '😟' };
 
 // Soft milestones — gentle direction tied to the level bar (no fail).
@@ -58,16 +63,17 @@ export function createGame(tower, deps) {
 
   // want-evaluation context (recomputed when checking moods)
   function buildCtx() {
-    const offices = new Set(), apartments = new Set(), cafeFloors = new Set();
+    const offices = new Set(), apartments = new Set();
+    const amenityFloors = { cafe: new Set(), pizzeria: new Set(), icecream: new Set() };
     for (const r of tower.built.rooms) {
-      if (r.roomId === 'SimOffice') offices.add(r.floor);
+      if (r.roomId === 'SimOffice' || r.roomId === 'office3') offices.add(r.floor);
       if (r.roomId === 'simroom1') apartments.add(key(r.col, r.floor));
-      if (r.roomId === 'cafe') cafeFloors.add(r.floor);
+      if (amenityFloors[r.roomId]) amenityFloors[r.roomId].add(r.floor);
     }
     return {
       roomIsApartment: (k) => apartments.has(k),
       floorHasOffice: (f) => offices.has(f),
-      cafeNear: (f) => cafeFloors.has(f) || cafeFloors.has(f - 1) || cafeFloors.has(f + 1),
+      amenityNear: (id, f) => { const s = amenityFloors[id]; return !!s && (s.has(f) || s.has(f - 1) || s.has(f + 1)); },
     };
   }
   const wantMet = (r, ctx) => WANTS[r.want].met(r, ctx);
@@ -189,7 +195,8 @@ export function createGame(tower, deps) {
       return !!planTrip(tower.built, curF, colOf(res.atKey || res.key), r.floor, r.col);
     });
     if (!cands.length) return null;
-    const work = cands.filter((r) => r.roomId === 'SimOffice' || r.roomId === 'cafe');
+    const DEST = new Set(['SimOffice', 'office3', 'cafe', 'pizzeria', 'icecream']);
+    const work = cands.filter((r) => DEST.has(r.roomId));
     const pool = work.length ? work : cands;
     return pool[Math.floor(Math.random() * pool.length)];
   }
@@ -296,7 +303,7 @@ export function createGame(tower, deps) {
     const r = cands[Math.floor((elapsed * 7.3) % cands.length)];   // deterministic-ish pick
     const char = spawnOne(r, { bounce: true });
     const type = char ? char.typeName : 'Rogue';
-    const res = { id: residentSeq++, key: key(r.col, r.floor), floor: r.floor, char, type, want: WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
+    const res = { id: residentSeq++, key: key(r.col, r.floor), floor: r.floor, char, type, want: rollWant(type), mood: 'happy', unhappyT: 0, grumbleT: 0 };
     residents.push(res);
     if (char) char.obj.userData.resident = res;
     recountPop();

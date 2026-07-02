@@ -39,12 +39,16 @@ function pick(...names) { for (const n of names) if (clips[n]) return clips[n]; 
 
 // ── waypoint derivation (runtime, not authored) ──────────────────────────
 const SIT_MODELS = new Set([
-  'couch_pillows', 'couch', 'chair_desk_B', 'chair_desk_A', 'chair_A', 'chair_B',
+  'couch_pillows', 'couch', 'chair_desk_B', 'chair_desk_A', 'chair_A', 'chair_B', 'chair_stool',
   'armchair', 'armchair_pillows', 'bed_single_A', 'bed_single_B', 'bed_double_A', 'bed_double_B',
 ]);
 const STAND_MODELS = new Set([
-  'desk_decorated', 'desk', 'table_low_decorated', 'cabinet_medium', 'cabinet_small',
+  'desk_decorated', 'desk', 'desk_large_decorated', 'table_low_decorated', 'cabinet_medium', 'cabinet_small',
   'lamp_standing', 'rug_rectangle_stripes_A',
+  // restaurant/parlor work spots — the keeper stands at the oven/machine/counter
+  'pizza_oven', 'icecream_machine',
+  'kitchencounter_straight_A_decorated', 'kitchencounter_straight_B_styleB',
+  'table_round_B_tablecloth_red', 'table_round_A_small_decorated',
 ]);
 
 /**
