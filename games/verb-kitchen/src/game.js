@@ -833,9 +833,10 @@ export class Game {
       }
     }
 
-    // target-tile highlight
-    const t = this.chef.targetTile();
-    const st = this.world.stationAtTile(t.col, t.row);
+    // target-tile highlight (NB: don't name a local `t` in this function — it
+    // would shadow the i18n t() used by the ready/burnt pops above)
+    const tile = this.chef.targetTile();
+    const st = this.world.stationAtTile(tile.col, tile.row);
     this.world.highlight.visible = !!st;
     if (st) this.world.highlight.position.set(st.pos.x, 1.12, st.pos.z);
 
@@ -854,20 +855,20 @@ export class Game {
     ui.hud(false);
 
     const lv = this.level;
-    const t = this.elapsed;
+    const time = this.elapsed;
     const [, s2, s3, sA] = lv.starTimes;     // s1 (1★) is now just "finish" — always ≥1
     let stars = 1;                            // completing the level always earns ≥1 star
-    if (t <= s2) stars = 2;
-    if (t <= s3) stars = 3;
-    if (t <= sA) stars = 4;                   // author star (hardest)
+    if (time <= s2) stars = 2;
+    if (time <= s3) stars = 3;
+    if (time <= sA) stars = 4;                // author star (hardest)
     const prevStars = this.save.stars[lv.id] || 0;
     const prevBest = this.save.bestTime[lv.id];      // best = FASTEST time (lower is better)
-    const isNewBest = prevBest == null || t < prevBest;
+    const isNewBest = prevBest == null || time < prevBest;
     this.save.stars[lv.id] = Math.max(prevStars, stars);
-    if (isNewBest) this.save.bestTime[lv.id] = t;
+    if (isNewBest) this.save.bestTime[lv.id] = time;
     this.onRoundEnd(this);
 
-    ui.renderPost(lv, t, this.score, stars, this.quiz.missedThisRound, this.save.bestTime[lv.id],
+    ui.renderPost(lv, time, this.score, stars, this.quiz.missedThisRound, this.save.bestTime[lv.id],
       this.levelIdx < LEVELS.length - 1, isNewBest);
   }
 
