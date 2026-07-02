@@ -318,6 +318,33 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-07-02 — RETENTION + LEARNING + CONTENT (3 commits) — session 2 (cont.)
+The "next three sessions" from the full-project analysis, done in one pass.
+
+- **Stair-stranded BUG fixed.** Floor-1 residents served by stairs were flagged
+  stranded (check only asked for an elevator) → leaving/move-out despite
+  commuting fine. Stranded now mirrors planTrip (stairs = one-floor hop,
+  elevator = its column). Verified: floor-1 ok with stairs, floor-2 without a
+  lift still stranded.
+- **Game save.** `simtower.game` in localStorage: lots/elevators/coins/level/
+  goal/milestone/residents(class+want); saved on rebuilds + move-ins/outs + 4s
+  autosave; restored on boot ("Welcome back!"), residents respawn with their
+  saved class (spawnOne typeName). `?lots=` QA sessions are EPHEMERAL (never
+  touch the save). "🔄 New game" dock button; ⌂ reset-view button (rig.resetView).
+- **The learning hook (resident 💬 quiz).** Every ~16-28s a resident bubbles 💬;
+  click → bottom-centre card, sentence gap ("My birthday is ___ July.") or verb
+  chain ("go → went → ___"), three chips. Correct → +5 🪙 + instant happy; wrong
+  → no penalty, right chip revealed + small teach caption. `src/questions.js` =
+  inline 24-question set shaped like the site quiz engine output (swap for
+  krabsy-questions.js at release). CONFIG.GAME.QUESTION tunables. showQuiz
+  exported on the game API for QA.
+- **Pizzeria 🍕 + Ice Cream 🍦.** Two new front-hallway rooms from restaurant-bits
+  (pizza oven / soft-serve machine etc.). New wants via amenityNear(id,±1 floor);
+  classes now ROLL one of two wants on move-in (WANT_POOLS) for variety;
+  amenities are commute destinations; office3 counts as office for "quiet".
+  nav BLOCK + SIT/STAND extended (incl. missing desk_large_decorated).
+  ?selftest=collision with the new rooms: **0 violations / 14170 samples**.
+
 ### 2026-06-27 — STREET WITH PASSING CARS — session 2 (cont.)
 Added the **KayKit City Builder Bits** pack. New `src/street.js` lays a
 `road_straight` strip just in front of the tower (z from `built.box.max.z`) and
