@@ -106,12 +106,14 @@ export function buildBlock(lots, opts) {
   // ── ground: base slab, sidewalk ring (incl. corners), courtyard lawn ──
   const base = new THREE.Mesh(new THREE.BoxGeometry(ROAD_IN * 2 + 0.4, 0.8, ROAD_IN * 2 + 0.4), matGround);
   base.position.y = -0.42; base.receiveShadow = true; group.add(base);
+  // pavement top sits a hair BELOW the interior floor tops (0.5) — coplanar
+  // surfaces z-fight (flickering floors); the 0.06 kerb step is invisible.
   const pave = new THREE.Mesh(new THREE.BoxGeometry(ROAD_IN * 2, 0.52, ROAD_IN * 2), matPave);
-  pave.position.y = 0.5 - 0.26; pave.receiveShadow = true; group.add(pave);   // pavement top = walk level
+  pave.position.y = 0.44 - 0.26; pave.receiveShadow = true; group.add(pave);
   const lawnHalf = FACE - D - 0.6;
   if (lawnHalf > 3) {
     const lawn = new THREE.Mesh(new THREE.BoxGeometry(lawnHalf * 2, 0.5, lawnHalf * 2), matGrass);
-    lawn.position.y = 0.5 - 0.22; lawn.receiveShadow = true; group.add(lawn); // slightly below pavement
+    lawn.position.y = 0.3 - 0.25; lawn.receiveShadow = true; group.add(lawn); // a lawn-step below the pavement
   }
 
   // ── buildings on owned plots ──
