@@ -29,7 +29,7 @@ function fmtTime(sec) {
 
 export const ui = {
   showScreen(id) {
-    const screens = ['startScreen', 'levelScreen', 'shopScreen', 'post'];
+    const screens = ['startScreen', 'levelScreen', 'shopScreen', 'cookbookScreen', 'post'];
     for (const s of screens) $(s).classList.toggle('hidden', s !== id);
     if (!id) for (const s of screens) $(s).classList.add('hidden');
     // the shared illustrated-kitchen background is on for any menu screen, off
@@ -60,6 +60,21 @@ export const ui = {
   },
 
   hud(on) { $('hud').classList.toggle('on', on); },
+
+  /** Verb Cookbook: every chain in the game. Verbs missed in earlier rounds
+   *  (the persisted practice list) sit in their own box on top — the sink asks
+   *  exactly those first next round. */
+  renderCookbook(save) {
+    const chain = (v) => `<span class="ck"><span class="form-base">${v.v}</span> → ` +
+      `<span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span></span>`;
+    const practice = VERBS.filter((v) => (save.missed || []).includes(v.v));
+    $('cookbookPractice').classList.toggle('hidden', practice.length === 0);
+    $('cookbookPracticeList').innerHTML = practice.map(chain).join('');
+    $('cookbookAllList').innerHTML = VERBS.map(chain).join('');
+    $('cookbookSub').textContent = practice.length
+      ? `${practice.length} to practice — the sink asks these first!`
+      : `All ${VERBS.length} verbs — miss one at the sink and it lands here`;
+  },
 
   renderLevelGrid(save, onPick) {
     const grid = $('levelGrid');
@@ -255,6 +270,13 @@ export const ui = {
       if (!v) continue;
       const row = document.createElement('div');
       row.innerHTML = `<span class="form-base">${v.v}</span> → <span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span>`;
+      list.appendChild(row);
+    }
+    if (uniq.length > 6) {
+      // don't truncate silently — the rest is one tap away in the Cookbook
+      const row = document.createElement('div');
+      row.className = 'ckMore';
+      row.textContent = `+ ${uniq.length - 6} more in the Cookbook`;
       list.appendChild(row);
     }
     $('nextBtn').style.display = hasNext && stars >= 1 ? '' : 'none';

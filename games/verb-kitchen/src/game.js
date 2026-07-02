@@ -642,7 +642,15 @@ export class Game {
     return { plateDone: false };
   }
   onPlateMissed(q) {
-    if (!this.save.missed.includes(q.verb)) this.save.missed.push(q.verb);
+    // persist right away (onRoundEnd is the save hook) — quitting mid-round
+    // must not lose the practice list
+    if (!this.save.missed.includes(q.verb)) { this.save.missed.push(q.verb); this.onRoundEnd(this); }
+  }
+  /** A start-of-round practice ask answered right = recalled across rounds →
+   *  the verb leaves the persisted list (it comes back if missed again). */
+  onPracticeMastered(verb) {
+    const i = this.save.missed.indexOf(verb);
+    if (i >= 0) { this.save.missed.splice(i, 1); this.onRoundEnd(this); }
   }
 
   // ---------- smoke / alarm ----------

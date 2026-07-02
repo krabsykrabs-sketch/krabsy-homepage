@@ -113,6 +113,17 @@ function pickChar(id) {
   audio.init();
   ui.renderShop(save, selectedChar(), pickChar);   // refresh the "✓ Selected" highlight
 }
+// --- verb cookbook (opens from the start screen AND the post-level recap) ---
+let cookbookReturn = 'startScreen';
+function showCookbook(from) {
+  cookbookReturn = from;
+  ui.renderCookbook(save);
+  ui.showScreen('cookbookScreen');
+}
+tap(document.getElementById('cookbookBtn'), () => showCookbook('startScreen'));
+tap(document.getElementById('postCookbook'), () => showCookbook('post'));
+tap(document.getElementById('cookbookBack'), () => ui.showScreen(cookbookReturn));
+
 tap(document.getElementById('charsBtn'), () => {
   ui.renderShop(save, selectedChar(), pickChar);
   ui.showScreen('shopScreen');

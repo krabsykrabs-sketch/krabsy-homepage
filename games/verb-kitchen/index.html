@@ -97,6 +97,17 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .ctag.cost{color:var(--amber);}
 .charCard .clock{position:absolute; top:9px; right:11px; font-size:18px;}
 
+/* ---------- verb cookbook ---------- */
+.ckSection{background:rgba(12,20,48,.88); border-radius:16px; padding:14px 22px; width:min(94vw,720px);}
+.ckSection h3{font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:9px; font-weight:800;}
+.ckSection.practice{border:2px solid var(--coral);}
+.ckSection.practice h3{color:var(--coral);}
+.ckList{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:6px 18px;
+  font-family:'Fredoka One',cursive; font-size:17px;}
+.ckList .ck{white-space:nowrap;}
+#missedList .ckMore{font-family:'Nunito',sans-serif; font-size:13px; color:var(--muted); font-weight:800;}
+@media (max-width:430px){ .ckList{font-size:15px; grid-template-columns:repeat(auto-fill,minmax(182px,1fr));} }
+
 /* ---------- level select ---------- */
 #levelGrid{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:760px;}
 .lvl{width:160px; background:var(--navy2); border-radius:20px; padding:18px 14px 14px; display:flex; flex-direction:column;
@@ -361,6 +372,7 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
     <div class="tagline">Cook fast · Wash smart · Master your irregular verbs</div>
     <button id="playBtn" class="btn-primary">Play! 🍳</button>
     <button id="charsBtn" class="btn-ghost">🧑‍🍳 Characters</button>
+    <button id="cookbookBtn" class="btn-ghost">📖 Cookbook</button>
     <div id="loadingNote"></div>
   </div>
   <div class="menuHint"><span class="key">WASD</span> move · <span class="key">E</span> pick up · <span class="key">Space</span> chop — then wash dirty plates with verbs: <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-pp">gone</span></div>
@@ -379,6 +391,20 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
   <button id="shopBack" class="btn-ghost">← Back</button>
 </div>
 
+<div id="cookbookScreen" class="screen hidden">
+  <h1 class="logo" style="font-size:34px;">📖 Verb Cookbook</h1>
+  <div class="tagline" id="cookbookSub"></div>
+  <div id="cookbookPractice" class="ckSection practice hidden">
+    <h3>🧽 To practice</h3>
+    <div class="ckList" id="cookbookPracticeList"></div>
+  </div>
+  <div class="ckSection">
+    <h3>All verbs</h3>
+    <div class="ckList" id="cookbookAllList"></div>
+  </div>
+  <button id="cookbookBack" class="btn-ghost">← Back</button>
+</div>
+
 <div id="post" class="screen hidden">
   <h1 class="logo" id="postTitle" style="font-size:34px;">Shift over!</h1>
   <div id="postStars"><span>⭐</span><span>⭐</span><span>⭐</span><span class="author">★</span></div>
@@ -386,7 +412,8 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
   <div class="tagline" id="postCoins"></div>
   <div class="tagline" id="postBest"></div>
   <div id="postAuthor"></div>
-  <div id="missedBox"><h3>Verbs to practice</h3><div id="missedList"></div></div>
+  <div id="missedBox"><h3>Verbs to practice</h3><div id="missedList"></div>
+    <button id="postCookbook" class="btn-ghost" style="margin-top:10px; font-size:13px; padding:6px 16px;">📖 Cookbook</button></div>
   <div class="postBtns">
     <button id="retryBtn" class="btn-ghost">↻ Retry</button>
     <button id="nextBtn" class="btn-primary" style="font-size:19px; padding:11px 34px;">Next level →</button>
