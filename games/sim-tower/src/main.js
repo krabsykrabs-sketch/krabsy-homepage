@@ -266,7 +266,10 @@ const tower = {
   async setSlot(c, f, id) { return id == null ? this.clearRoom(c, f) : this.setRoom(c, f, id); },
   async clear() { for (const k of [...this.lots.keys()]) this.lots.set(k, null); await this.rebuild(); this.persistLocal(); },
   persistLocal() {
-    if (this.gameActive) return;   // LS is the sandbox author's; the game starts fresh
+    // game mode saves via game.js saveGame(); sandbox/free-build owns the lots key
+    // (game.start() sets gameActive even for ?sandbox=1, so gate on freeBuild too —
+    //  otherwise sandbox work is persisted by NEITHER path and a refresh loses it)
+    if (this.gameActive && !this.freeBuild) return;
     try { localStorage.setItem(LS_KEY, JSON.stringify({ lots: [...this.lots.entries()], elevators: [...this.elevators] })); } catch (_) {}
   },
   exportJSON() {

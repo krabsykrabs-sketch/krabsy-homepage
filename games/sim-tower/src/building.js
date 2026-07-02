@@ -124,7 +124,7 @@ export function buildTower(lots, opts) {
       new THREE.BoxGeometry(slotW - 0.04, roomH, 0.22),
       new THREE.MeshStandardMaterial({ color: new THREE.Color('#b9a78c'), roughness: 1, transparent: true, opacity: 1 }));
     wall.position.set(colX(r.col), r.floor * pitch + roomH / 2, roomFrontZ + 0.12);
-    wall.receiveShadow = true; wall.userData.reveal = true;
+    wall.receiveShadow = true; wall.userData.reveal = true; wall.userData.ownGpu = true;
     group.add(wall);
     r.revealWall = wall;
   }
@@ -157,6 +157,7 @@ function makeStairs(width, run, rise, color) {
     const step = new THREE.Mesh(new THREE.BoxGeometry(width, h, run / n + 0.02), mat);
     step.position.set(0, h / 2, run / 2 - (i + 0.5) * (run / n));   // rise going toward −z (back)
     step.castShadow = true; step.receiveShadow = true;
+    step.userData.ownGpu = true;
     g.add(step);
   }
   return g;
@@ -203,16 +204,19 @@ function buildCirculation(group, cells, geom) {
     const yBot = fMin * pitch, yTop = fMax * pitch + roomH;
     const ex = colX(c) - slotW / 2 + shaftW / 2 + CC.ELEVATOR_INSET;   // hug the far-left of the lot
     const shaft = new THREE.Mesh(new THREE.BoxGeometry(shaftW, yTop - yBot + 0.3, shaftD), shaftMat);
+    shaft.userData.ownGpu = true;
     shaft.position.set(ex, (yBot + yTop) / 2, hallwayZ); group.add(shaft);
     const cabH = roomH * 0.82;
     const cab = new THREE.Mesh(new THREE.BoxGeometry(shaftW - 0.16, cabH, shaftD - 0.16), cabMat);
     cab.castShadow = true;
+    cab.userData.ownGpu = true;
     cab.position.set(ex, yBot + cabH / 2 + 0.1, hallwayZ);
     group.add(cab);
     // "who's inside" badge on the cab front face — the manager shows it during a ride
     const badgeMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false });
     const bs = Math.max(0.6, Math.min(shaftW - 0.35, cabH - 0.6));
     const badge = new THREE.Mesh(new THREE.PlaneGeometry(bs, bs), badgeMat);
+    badge.userData.ownGpu = true;   // badge textures stay cached (material.dispose leaves .map alone)
     badge.position.set(0, 0, (shaftD - 0.16) / 2 + 0.03); badge.visible = false;
     cab.add(badge);
     elevators.push({
@@ -227,10 +231,14 @@ function buildCirculation(group, cells, geom) {
   return { stairs, elevators, hallwayZ, roomFrontZ, elevatorCols: [...elevatorCols] };
 }
 
-/** Recursively dispose geometries + materials of a group (for live rebuilds). */
+/** Recursively dispose GPU resources of BUILD-OWNED meshes (live rebuilds).
+ *  Only meshes tagged `userData.ownGpu` are disposed: room furniture and
+ *  characters are clones that share geometry/materials with the loader /
+ *  character template caches — disposing those forces three.js to re-upload
+ *  all cached vertex data on the next frame after every rebuild. */
 export function disposeObject(obj) {
   obj.traverse((o) => {
-    if (o.isMesh || o.isSkinnedMesh) {
+    if ((o.isMesh || o.isSkinnedMesh) && o.userData.ownGpu) {
       o.geometry?.dispose?.();
       const m = o.material;
       if (Array.isArray(m)) m.forEach((x) => x?.dispose?.());
@@ -259,6 +267,7 @@ export function buildShell(cells, geom) {
     const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), FADEABLE.has(role) ? m.clone() : m);
     me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true;
     me.userData.cull = { role, topY: y + h / 2 };
+    me.userData.ownGpu = true;
     if (FADEABLE.has(role)) { me.material.transparent = true; me.material.opacity = 1; }
     g.add(me); return me;
   }

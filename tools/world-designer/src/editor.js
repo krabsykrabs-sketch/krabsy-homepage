@@ -79,9 +79,9 @@ const MODEL_META = {
   Door_A:             { place: WALL_PLACE },
   Door_B:             { place: WALL_PLACE },
   Door_A_Decorated:   { place: WALL_PLACE },
-  // --- prototype-bits floors: laid flush (top at the surface, slab recessed),
-  // harmonised with the restaurant floors. Footprint still auto-derives (Floor
-  // is 4×4 units = 2×2 cells).
+  // --- prototype-bits floors: ground category (raised slab — bottom at the
+  // surface, contributes height), harmonised with the restaurant floors.
+  // Footprint still auto-derives (Floor is 4×4 units = 2×2 cells).
   Floor:            { ground: true },
   Floor_Dirt:       { ground: true },
   Floor_Prototype:  { ground: true },

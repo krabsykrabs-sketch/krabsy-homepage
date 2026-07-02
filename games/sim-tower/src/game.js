@@ -51,6 +51,7 @@ export function createGame(tower, deps) {
   let elapsed = 0;
   let milestoneIdx = 0;
   let milestoneT = 0;
+  let moodT = 0;                // moods re-evaluate on a short cadence, not per frame
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
 
@@ -155,7 +156,7 @@ export function createGame(tower, deps) {
       const k = key(r.col, r.floor);
       for (const res of residents) {
         if (res.key !== k) continue;
-        res.char = spawnOne(r, { bounce: false });   // fresh char, back home
+        res.char = spawnOne(r, { bounce: false, typeName: res.type });   // fresh char, back home, same class
         res.traveling = false; res.atKey = res.key; res.atHome = true;
         if (res.char) res.char.obj.userData.resident = res;
       }
@@ -345,7 +346,7 @@ export function createGame(tower, deps) {
         if (r.grumbleT <= 0 && r.char) { r.grumbleT = G.GRUMBLE_INTERVAL * (0.8 + 0.4 * ((r.id * 0.31) % 1)); floatAtChar(r.char, r.mood === 'leaving' ? '😟' : '💢', '#ffb4b4'); }
       }
     }
-    if (cardRes) refreshCard();
+    if (cardRes) refreshCardContent();
   }
 
   // ── resident pick + card ────────────────────────────────────────────────
@@ -362,9 +363,11 @@ export function createGame(tower, deps) {
     return o ? o.userData.resident : null;
   }
   let cardRes = null;
-  function showResidentCard(res) { cardRes = res; refreshCard(); card.classList.add('show'); }
+  const cardWp = new THREE.Vector3();   // scratch — position tracking allocates nothing
+  function showResidentCard(res) { cardRes = res; refreshCardContent(); updateCardPos(); card.classList.add('show'); }
   function hideCard() { cardRes = null; card.classList.remove('show'); }
-  function refreshCard() {
+  // content (innerHTML) rebuilds only on mood ticks / open; position tracks every frame
+  function refreshCardContent() {
     const res = cardRes; if (!res) return;
     const ctx = buildCtx();
     const met = wantMet(res, ctx);
@@ -374,13 +377,14 @@ export function createGame(tower, deps) {
       `<div class="gCardWant">Wants: <b>${w.icon} ${w.label}</b></div>` +
       `<div class="gCardMood m-${res.mood}">${MOOD_FACE[res.mood]} ${res.mood}` +
       `<span class="gCardMet">${met ? '✓ satisfied' : '✗ not yet'}</span></div>`;
-    if (res.char) {
-      const wp = res.char.obj.getWorldPosition(new THREE.Vector3()); wp.y += 2.2;
-      const p = wp.project(camera);
-      const rect = renderer.domElement.getBoundingClientRect();
-      card.style.left = (rect.left + (p.x * 0.5 + 0.5) * rect.width) + 'px';
-      card.style.top = (rect.top + (-p.y * 0.5 + 0.5) * rect.height) + 'px';
-    }
+  }
+  function updateCardPos() {
+    const res = cardRes; if (!res || !res.char) return;
+    const wp = res.char.obj.getWorldPosition(cardWp); wp.y += 2.2;
+    const p = wp.project(camera);
+    const rect = renderer.domElement.getBoundingClientRect();
+    card.style.left = (rect.left + (p.x * 0.5 + 0.5) * rect.width) + 'px';
+    card.style.top = (rect.top + (-p.y * 0.5 + 0.5) * rect.height) + 'px';
   }
 
   // ── resident 💬 quiz (the learning hook) ────────────────────────────────
@@ -501,16 +505,22 @@ export function createGame(tower, deps) {
     // tenant move-in
     moveT -= dt;
     if (moveT <= 0) { moveT = G.MOVE_IN_INTERVAL * (0.7 + ((elapsed * 0.37) % 1) * 0.6); tryMoveIn(); }
-    updateMoods(dt);
+    moodT += dt;
+    if (moodT >= 0.25) { updateMoods(moodT); moodT = 0; }
+    if (cardRes) updateCardPos();
     updateCommutes(dt);
     updateQuestions(dt);
     // income — each resident pays rent scaled by their mood (happy pays more)
     let earned = 0;
+    const occ = new Map();                        // "f:c" → residents of that room
+    for (const x of residents) { const a = occ.get(x.key); if (a) a.push(x); else occ.set(x.key, [x]); }
     for (const r of tower.built.rooms) {
       const k = key(r.col, r.floor);
-      const res = residents.filter((x) => x.key === k);
-      let t = (earnT.get(k) || G.EARN_INTERVAL) - dt;
-      if (t <= 0 && res.length) {
+      const res = occ.get(k);
+      // vacant: the timer idles at full so a new tenant waits a whole interval
+      if (!res) { earnT.set(k, G.EARN_INTERVAL); continue; }
+      let t = (earnT.get(k) ?? G.EARN_INTERVAL) - dt;
+      if (t <= 0) {
         t = G.EARN_INTERVAL;
         let gain = 0;
         for (const x of res) gain += earnFor(roomType.get(k)) * (G.MOOD_MULT[x.mood] ?? 1);
@@ -569,7 +579,15 @@ export function createGame(tower, deps) {
   function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2200); }
 
   // ── HUD / dock rendering ────────────────────────────────────────────────
+  // dirty-check: tick() calls this every frame, but the DOM is only touched
+  // when a displayed value actually changed (keeps the bar transition intact too)
+  const hudLast = { coins: NaN, pop: NaN, lvl: NaN, goalIdx: NaN, free: null };
   function updateHud() {
+    const coinsNow = Math.floor(state.coins);
+    if (coinsNow === hudLast.coins && state.population === hudLast.pop && state.level === hudLast.lvl
+        && state.goalIdx === hudLast.goalIdx && tower.freeBuild === hudLast.free) return;
+    hudLast.coins = coinsNow; hudLast.pop = state.population; hudLast.lvl = state.level;
+    hudLast.goalIdx = state.goalIdx; hudLast.free = tower.freeBuild;
     $coins.textContent = Math.floor(state.coins);
     $pop.textContent = state.population;
     $lvl.textContent = state.level + 1;
@@ -587,6 +605,7 @@ export function createGame(tower, deps) {
     }
   }
   function updateDock() {
+    hudLast.coins = NaN;               // palette chips are rebuilt — force the next updateHud
     paletteEl.innerHTML = '';
     // Expand — buy floor space (shows the amber frontier)
     const exp = el('button', 'gChip gExpand');

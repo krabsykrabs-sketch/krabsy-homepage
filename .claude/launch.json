@@ -16,6 +16,13 @@
       "autoPort": false
     },
     {
+      "name": "sim-tower",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": ["-d", "ubuntu", "--", "bash", "-lc", "cd ~/krabsy-homepage/games/sim-tower && python3 .claude/serve-nocache.py"],
+      "port": 8042,
+      "autoPort": false
+    },
+    {
       "name": "world-designer",
       "runtimeExecutable": "wsl.exe",
       "runtimeArgs": ["-d", "ubuntu", "--", "bash", "-lc", "cd ~/krabsy-homepage/tools/world-designer && python3 serve.py 8044"],

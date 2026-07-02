@@ -19,13 +19,18 @@ const GROUND = new Set([
   'floor_kitchen', 'floor_kitchen_styleB',
   'floor_kitchen_small', 'floor_kitchen_small_styleB',
   'tile_white', 'tile_black', 'tile_brown_light', 'tile_brown_dark',
+  'Floor', 'Floor_Dirt', 'Floor_Prototype', 'Primitive_Floor',
 ]);
 const WALL_PLACE = { x: -1, y: 0, z: -0.5 };
+// LEVEL-FORMAT §4C: restaurant AND prototype wall/door kits — always 1×1,
+// edge-aligned via WALL_PLACE (never derive their footprint from mesh size).
 const WALL = new Set([
   'door_A', 'door_B', 'wall', 'wall_doorway', 'wall_half',
   'wall_decorated', 'wall_decorated_styleB', 'wall_window_open', 'wall_window_closed',
   'wall_window_closed_curtains_red', 'wall_window_closed_curtains_green',
   'wall_orderwindow', 'wall_orderwindow_decorated',
+  'Wall', 'Wall_Half', 'Wall_Doorway', 'Wall_Window_Open', 'Wall_Window_Closed',
+  'Wall_Decorated', 'Wall_Target', 'Door_A', 'Door_B', 'Door_A_Decorated',
 ]);
 const ZERO = { x: 0, y: 0, z: 0 };
 
@@ -106,6 +111,7 @@ export function getModel(pack, name) {
 const packOf = (o, def) => o.pack || def;
 
 function footprint(pack, name, TILE) {
+  if (WALL.has(name)) return [1, 1];      // §4C: the 4-unit wall mesh seats on ONE cell
   if (pack === 'restaurant-bits') return RESTAURANT_FP[name] || [1, 1];
   const m = measure(pack, name);
   return [Math.max(1, Math.round(m.sizeX / TILE)), Math.max(1, Math.round(m.sizeZ / TILE))];
@@ -138,7 +144,11 @@ export function buildRoom(level) {
       for (let r = o.row; r < o.row + d; r++)
         base = Math.max(base, tops.get(c + ',' + r) || 0);
     yByObj.set(o, base);
-    const top = base + (GROUND.has(o.model) ? 0 : measure(pk, o.model).height);
+    // LEVEL-FORMAT §4B (2026-07-01 rule): EVERY piece — floors included —
+    // contributes its measured height, so furniture on a floored cell rests on
+    // the tile's top exactly like the World Designer shows it. (The old rule had
+    // ground contribute 0, which sank furniture into the raised slab.)
+    const top = base + measure(pk, o.model).height;
     for (let c = o.col; c < o.col + w; c++)
       for (let r = o.row; r < o.row + d; r++)
         tops.set(c + ',' + r, top);
@@ -151,9 +161,9 @@ export function buildRoom(level) {
     const [w, d] = footprint(pk, o.model, TILE);
     const ctr = cellCenter(o.col + (w - 1) / 2, o.row + (d - 1) / 2);
     const yObj = yByObj.get(o);
-    // sit every floor piece bottom-on-its-base — incl. ground tiles like the
-    // hallway floor (floor_kitchen_styleB), whose origin is at its TOP, so the
-    // old "flush" rule (yObj) sank it half a tile below the room floor.
+    // every piece (floors included) seats its measured BOTTOM on its stack base
+    // (`- minY` harmonises restaurant tiles, origin at TOP, with prototype
+    // floors, origin at BOTTOM) — LEVEL-FORMAT §5 step 2.
     const yB = yObj - measure(pk, o.model).minY;
     const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
     const off = o.off || ZERO;
@@ -181,5 +191,7 @@ export async function loadLevel(url) {
 // ── shared with nav.js (collision) ────────────────────────────────────────
 /** Footprint [w,d] in cells for a model (same rule the builder uses). */
 export function footprintOf(pack, name, tile) { return footprint(pack, name, tile); }
-/** Ground/floor-tile models (laid flush). The prototype `Floor` is separate. */
+/** Ground/floor-tile models (walkable floor category — stacking treats them
+ *  like any other piece since the 2026-07-01 raised-slab rule; nav uses this
+ *  set to tag floor cells). Includes the prototype floors. */
 export { GROUND, WALL };

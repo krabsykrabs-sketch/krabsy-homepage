@@ -107,6 +107,12 @@ and the tile contributes its measured height, so objects placed on a floored
 cell rest on top of the floor. (Changed 2026-07-01: floors used to be recessed
 with their TOP flush and contribute 0; they now sit as a raised slab.)
 
+> **Frozen exception:** the shipped **Verb Kitchen** loader
+> (`games/verb-kitchen/src/world.js`) is frozen on the PRE-change rule (floors
+> top-flush, contribute 0) until its parallel level-editor session is merged.
+> Its own levels render correctly in the kitchen; just don't expect editor ↔
+> kitchen Y-parity for pieces stacked on floor cells until it unfreezes.
+
 ```
 floor_kitchen, floor_kitchen_styleB, floor_kitchen_small, floor_kitchen_small_styleB,
 tile_white, tile_black, tile_brown_light, tile_brown_dark,
@@ -209,6 +215,8 @@ const WALL = new Set(['door_A','door_B','wall','wall_doorway','wall_half',
   'Wall','Wall_Half','Wall_Doorway','Wall_Window_Open','Wall_Window_Closed',
   'Wall_Decorated','Wall_Target','Door_A','Door_B','Door_A_Decorated']);
 
+// (GROUND no longer affects stacking — §4B — but games keep it to tag
+//  walkable floor cells for their nav grids.)
 const fp = m => WALL.has(m) ? [1,1] : (FOOTPRINT[m] || [1,1]);
 const cellCenter = (c, r) => ({ x: (c-(cols-1)/2)*TILE, z: (r-(rows-1)/2)*TILE });
 const rotY = (v, q) => { const t=q*Math.PI/2, c=Math.cos(t), s=Math.sin(t);
@@ -221,7 +229,7 @@ for (const o of level.objects) {
   for (let c=o.col; c<o.col+w; c++) for (let r=o.row; r<o.row+d; r++)
     base = Math.max(base, tops.get(c+','+r) || 0);
   o._y = base;
-  const top = base + (GROUND.has(o.model) ? 0 : measure(o.model).height);
+  const top = base + measure(o.model).height;   // §4B: floors contribute their height too
   for (let c=o.col; c<o.col+w; c++) for (let r=o.row; r<o.row+d; r++) tops.set(c+','+r, top);
 }
 
@@ -230,7 +238,7 @@ for (const o of level.objects) {
   const [w,d] = fp(o.model);
   const ctr = cellCenter(o.col+(w-1)/2, o.row+(d-1)/2);
   const m2 = measure(o.model);
-  const yB = GROUND.has(o.model) ? o._y - (m2.minY + m2.height) : o._y - m2.minY;   // ground: TOP at surface
+  const yB = o._y - m2.minY;   // §5 step 2: every piece (floors included) seats its BOTTOM on the surface
   const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
   const off = o.off || ZERO;
   const node = getInstance(o.model);

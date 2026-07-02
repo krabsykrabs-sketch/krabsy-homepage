@@ -83,9 +83,12 @@ were verified — see the git history for example harnesses.)
   becomes 2×2 instead of overhanging one tile.
 - **Ground pieces (floors) are harmonised:** any "ground" floor (restaurant
   floors/tiles **and** the prototype `Floor`/`Floor_Dirt`/`Floor_Prototype`/
-  `Primitive_Floor`) is laid with its **top at the surface** (slab recessed
-  below, `y = surface − maxY`), so floors snap flush to the zero-plane regardless
-  of where the model's origin sits, and furniture rests on the floor surface.
+  `Primitive_Floor`) is laid with its **bottom at the surface** (a raised slab,
+  `y = surface − minY`) and **contributes its height** to the cell stack, so
+  floors seat identically regardless of where the model's origin sits, and
+  furniture placed on a floored cell rests on the floor's top. (Changed
+  2026-07-01 — floors used to lie recessed top-flush; see `LEVEL-FORMAT.md` §4B,
+  including the frozen Verb Kitchen exception.)
 - The authoritative reconstruction contract (footprint, ground, wall offset,
   multi-pack `pack` resolution, the stacking algorithm + a drop-in loader) is
   **`LEVEL-FORMAT.md`** — a game's runtime loader must follow it to render a

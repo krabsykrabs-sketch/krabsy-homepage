@@ -177,16 +177,18 @@ whole block. Derivation depends on the pack:
 
 XZ centre of a `w×d` piece = `cellCenter(col + (w-1)/2, row + (d-1)/2)`.
 
-**Ground (laid flush — TOP at the surface, slab recessed below, contributes 0
-height).** Restaurant floors AND prototype floors:
+**Ground (raised slab — BOTTOM at the surface, contributes its height).**
+Restaurant floors AND prototype floors:
 `floor_kitchen, floor_kitchen_styleB, floor_kitchen_small, floor_kitchen_small_styleB,
 tile_white, tile_black, tile_brown_light, tile_brown_dark,
 Floor, Floor_Dirt, Floor_Prototype, Primitive_Floor`.
-Place a ground piece so its **top** sits at the surface: `yBase = surface - maxY`
-where `maxY = minY + height`. Restaurant floors have their origin at the top
-(maxY = 0 ⇒ just `surface`); the prototype `Floor` has its origin at the bottom
-(maxY = 0.5 ⇒ pushed down so its top is flush) — the two packs are **harmonised**.
-Furniture on a floored cell then rests at the floor's top (y = surface).
+A ground piece stacks like any other: its **bottom** seats on the stack surface
+(`yBase = surface - minY`) and it **contributes its measured height**, so
+furniture on a floored cell rests on the floor's TOP. Restaurant floors have
+their origin at the top (minY = −h); the prototype `Floor` has its origin at
+the bottom (minY = 0) — `− minY` harmonises both packs. (Changed 2026-07-01:
+floors used to lie recessed top-flush and contribute 0 — see `LEVEL-FORMAT.md`
+§4B; the frozen Verb Kitchen loader still uses the old rule.)
 
 **Built-in placement offset (wall/door kit) + forced 1×1.** An offset baked in so
 the wide (4-unit) wall mesh seats on ONE cell's edge: `WALL_PLACE = {x:-1, y:0,
@@ -234,7 +236,6 @@ const footprint = (pack, name) => {
   const m = measure(pack, name);
   return [Math.max(1, Math.round(m.sizeX/TILE)), Math.max(1, Math.round(m.sizeZ/TILE))];
 };
-const maxY = (pack, name) => { const m = measure(pack, name); return m.minY + m.height; };
 const cellCenter = (c, r) => ({ x: (c-(cols-1)/2)*TILE, z: (r-(rows-1)/2)*TILE });
 const rotY = (v, q) => { const t=q*Math.PI/2, c=Math.cos(t), s=Math.sin(t);
   return { x: v.x*c+v.z*s, y: v.y, z: -v.x*s+v.z*c }; };
@@ -246,7 +247,7 @@ for (const o of level.objects) {
   for (let c=o.col; c<o.col+w; c++) for (let r=o.row; r<o.row+d; r++)
     base = Math.max(base, tops.get(c+','+r) || 0);
   o._y = base;
-  const top = base + (GROUND.has(o.model) ? 0 : measure(pk, o.model).height);
+  const top = base + measure(pk, o.model).height;   // §6: floors contribute their height too
   for (let c=o.col; c<o.col+w; c++) for (let r=o.row; r<o.row+d; r++) tops.set(c+','+r, top);
 }
 
@@ -254,8 +255,8 @@ for (const o of level.objects) {
 for (const o of level.objects) {
   const pk = packOf(o), [w,d] = footprint(pk, o.model);
   const ctr = cellCenter(o.col+(w-1)/2, o.row+(d-1)/2);
-  // ground: TOP at the surface (slab recessed). restaurant maxY=0 ⇒ o._y; prototype Floor ⇒ o._y-0.5
-  const yB = GROUND.has(o.model) ? o._y - maxY(pk, o.model) : o._y - measure(pk, o.model).minY;
+  // every piece (floors included) seats its BOTTOM on the stack surface (§6 ground rule)
+  const yB = o._y - measure(pk, o.model).minY;
   const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : ZERO;
   const off = o.off || ZERO;
   const node = getModel(pk, o.model);

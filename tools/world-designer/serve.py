@@ -3,7 +3,9 @@
 
 Serves the editor (no-cache, so edited ES modules always reload) AND a tiny
 "levels API" so rooms open / save straight to the repo's JSON files — no
-download/upload. The write side is guarded: only `.json` files inside the repo.
+download/upload. Guard rails: binds 127.0.0.1 only, rejects non-localhost Host
+headers (DNS rebinding), and reads/writes only `.json` files inside a
+`games/<game>/levels/` directory.
 
   python3 tools/world-designer/serve.py [port]   # default 8044
   open http://localhost:8044/
@@ -23,18 +25,22 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8044
 NAME_RE = re.compile(r'^[\w.\- ]+\.json$')
 
 
-def repo_dir(rel):
-    """A repo-relative dir, guaranteed to stay inside the repo."""
+def levels_dir(rel):
+    """A repo-relative levels dir. Only games/<game>/levels/ is readable/writable."""
     p = (REPO / (rel or '')).resolve()
-    if p != REPO and REPO not in p.parents:
+    try:
+        parts = p.relative_to(REPO).parts
+    except ValueError:
         raise ValueError('path outside the repo')
+    if len(parts) != 3 or parts[0] != 'games' or parts[2] != 'levels':
+        raise ValueError('dir must be games/<game>/levels')
     return p
 
 
 def level_file(rel, name):
     if not NAME_RE.match(name or ''):
         raise ValueError('bad file name')
-    return repo_dir(rel) / name
+    return levels_dir(rel) / name
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -54,7 +60,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _host_ok(self):
+        # only the local browser may talk to us — a foreign Host header means a
+        # DNS-rebinding page (or LAN device) is probing the repo-write API
+        h = (self.headers.get('Host') or '').split(':')[0].strip().lower()
+        return h in ('localhost', '127.0.0.1')
+
     def do_GET(self):
+        if not self._host_ok():
+            return self._json({'error': 'forbidden host'}, 403)
         u = urllib.parse.urlparse(self.path)
         q = {k: v[0] for k, v in urllib.parse.parse_qs(u.query).items()}
         try:
@@ -72,6 +86,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        if not self._host_ok():
+            return self._json({'error': 'forbidden host'}, 403)
         u = urllib.parse.urlparse(self.path)
         q = {k: v[0] for k, v in urllib.parse.parse_qs(u.query).items()}
         if u.path != '/api/level':
@@ -95,7 +111,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return out
 
     def _list(self, rel):
-        d = repo_dir(rel)
+        d = levels_dir(rel)
         files = []
         if d.is_dir():
             for p in sorted(d.glob('*.json')):
@@ -117,6 +133,6 @@ class Server(socketserver.ThreadingTCPServer):
 
 
 if __name__ == '__main__':
-    with Server(('', PORT), Handler) as httpd:
+    with Server(('127.0.0.1', PORT), Handler) as httpd:   # localhost only — this API writes repo files
         print(f'World Designer on http://localhost:{PORT}/   repo: {REPO}')
         httpd.serve_forever()

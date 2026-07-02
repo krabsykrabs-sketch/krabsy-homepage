@@ -1,7 +1,9 @@
-// Inline question set for the resident 💬 quiz — the standalone dev project
-// can't reach homepage/lib/krabsy-questions.js, so (per Krabsy convention) the
-// game carries a small inline copy shaped like the quiz engine's output:
-//   { text, options[3], answer, cap? }
+// Question source for the resident 💬 quiz. ENGINE-FIRST (site convention):
+// when served from the homepage, the shared engine /lib/krabsy-questions.js
+// provides the canonical catalogue (155 verbs / 99 prepositions, ?topic=
+// support); the small inline set below is the caught-exception fallback for
+// file:// and the standalone dev server, where /lib 404s.
+// Both paths emit the same record: { text, options[3], answer, cap? }.
 // Presentation mandate: sentence gaps or positional verb chains ("go → went →
 // ___") — NEVER grammar terminology. `cap` is a small after-answer teach beat.
 
@@ -40,12 +42,49 @@ const VERBS = [
 const ALL = [...PREPS, ...VERBS];
 const recent = [];
 
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr;
+}
+
+// ── shared engine (loads in the background; inline set serves until then) ──
+let enginePool = null;   // [{text, options, answer, cap}] from the catalogue
+
+/** Engine quiz record → this game's shape. Trio displays render like the
+ *  inline chains: the non-asked form filled in, the asked one blank. */
+function fromEngine(q) {
+  const cap = (q.teach && q.teach.line) || null;
+  if (q.display.kind === 'gap') return { text: q.display.sentence, options: q.options, answer: q.answer, cap };
+  const ch = q.teach && q.teach.chain;
+  if (!ch) return null;
+  const text = q.display.askIndex === 0
+    ? `${ch.base} → ___ → ${ch.participle}`
+    : `${ch.base} → ${ch.past} → ___`;
+  return { text, options: q.options, answer: q.answer, cap };
+}
+
+(async () => {
+  try {
+    const KQ = await import('/lib/krabsy-questions.js');
+    const t = new URLSearchParams(location.search).get('topic');
+    // explicit ?topic= narrows the pool; default = the mixed preps+verbs quiz
+    const topics = KQ.TOPICS.includes(t) ? [t] : ['prepositions', 'irregular_verbs'];
+    const sets = await Promise.all(topics.map((topic) => KQ.getQuizSet({ topic, count: 40, withOptions: 3 })));
+    const mapped = sets.flat().map(fromEngine).filter(Boolean);
+    if (mapped.length >= 6) enginePool = mapped;
+  } catch (_) { /* file:// or the standalone dev server — keep the inline set */ }
+})();
+
 /** A random question (not among the last few), options pre-shuffled. */
 export function pickQuestion() {
+  if (enginePool) {
+    let q, guard = 0;
+    do { q = enginePool[Math.floor(Math.random() * enginePool.length)]; } while (recent.includes(q) && ++guard < 20);
+    recent.push(q); if (recent.length > 6) recent.shift();
+    return { text: q.text, options: shuffle([...q.options]), answer: q.answer, cap: q.cap };
+  }
   let q, guard = 0;
   do { q = ALL[Math.floor(Math.random() * ALL.length)]; } while (recent.includes(q) && ++guard < 20);
   recent.push(q); if (recent.length > 6) recent.shift();
-  const options = [q.a, ...q.d];
-  for (let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [options[i], options[j]] = [options[j], options[i]]; }
-  return { text: q.t, options, answer: q.a, cap: q.cap || null };
+  return { text: q.t, options: shuffle([q.a, ...q.d]), answer: q.a, cap: q.cap || null };
 }
