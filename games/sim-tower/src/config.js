@@ -92,7 +92,8 @@ export const CONFIG = {
   BLOCK: {
     SIDE_PLOTS: 3,        // building plots per side (4 sides; corners stay open)
     PLOT_W: 12,           // plot width along the street (= a 6-row room at tile 2)
-    CORNER_GAP: 6,        // open corner width (sidewalk + park access + streetlight)
+    CORNER_GAP: 12.5,     // open corner width — MUST be ≥ building depth (12) or the
+                          // end buildings of adjacent sides overlap in the corner
     SIDEWALK_W: 3,        // sidewalk ring depth between building fronts and the road
   },
 

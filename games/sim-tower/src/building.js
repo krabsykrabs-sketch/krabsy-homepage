@@ -112,8 +112,10 @@ export function buildBlock(lots, opts) {
   pave.position.y = 0.44 - 0.26; pave.receiveShadow = true; group.add(pave);
   const lawnHalf = FACE - D - 0.6;
   if (lawnHalf > 3) {
+    // lawn top 0.48: above the pavement (0.44, no burial) and below the room
+    // floors (0.5) — never coplanar with either, so nothing z-fights
     const lawn = new THREE.Mesh(new THREE.BoxGeometry(lawnHalf * 2, 0.5, lawnHalf * 2), matGrass);
-    lawn.position.y = 0.3 - 0.25; lawn.receiveShadow = true; group.add(lawn); // a lawn-step below the pavement
+    lawn.position.y = 0.48 - 0.25; lawn.receiveShadow = true; group.add(lawn);
   }
 
   // ── buildings on owned plots ──
@@ -136,10 +138,11 @@ export function buildBlock(lots, opts) {
     wall.receiveShadow = true;
     plotG.add(wall);
 
-    // thin side panels close the building ends (and sit invisibly between neighbours)
+    // thin side panels close the building ends — inset so neighbours' panels
+    // never share a plane (coincident faces z-fight)
     for (const sx of [-1, 1]) {
       const panel = new THREE.Mesh(new THREE.BoxGeometry(0.18, roomH, D), matSide);
-      panel.position.set(sx * (W / 2 - 0.09), roomH / 2, (zFrontL + zBackL) / 2);
+      panel.position.set(sx * (W / 2 - 0.15), roomH / 2, (zFrontL + zBackL) / 2);
       panel.castShadow = true; panel.receiveShadow = true;
       plotG.add(panel);
     }
@@ -147,14 +150,14 @@ export function buildBlock(lots, opts) {
     // roof (own transparent material — faded by cullShell when its side faces
     // the camera, so you can see into the near buildings) + base slab
     const roofMat = matRoof.clone(); roofMat.transparent = true; roofMat.opacity = 1;
-    const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, S.ROOF_THICK, D + 0.5), roofMat);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(W - 0.04, S.ROOF_THICK, D + 0.5), roofMat);   // no sideways overhang — neighbours' roofs must not overlap
     roof.position.set(0, roomH + S.ROOF_THICK / 2, (zFrontL + zBackL) / 2 + 0.1);
     roof.castShadow = true; roof.receiveShadow = true;
     const ow = sideToWorld(side, 0, 1);
     roof.userData.cull = { ox: ow.x, oz: ow.z };
     plotG.add(roof);
     cullRoofs.push(roof);
-    const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, S.SLAB_THICK, D + 0.3), matSlab);
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(W - 0.06, S.SLAB_THICK, D + 0.3), matSlab);
     slab.position.set(0, -S.SLAB_THICK / 2 + 0.02, (zFrontL + zBackL) / 2);
     slab.receiveShadow = true;
     plotG.add(slab);
@@ -173,6 +176,22 @@ export function buildBlock(lots, opts) {
       slot: br.s.slot, plotG, furniture: br.s.furniture, actors: br.s.actors,
       grid: br.s.grid, level: br.level, floor: side, col: i, roomId: br.content, revealWall: wall,
     });
+  }
+
+  // ── owned-but-empty plots: a visible foundation pad (buying changes the world) ──
+  const padMat = mat(S.SLAB);
+  for (const [k, content] of lots) {
+    if (content) continue;
+    const p = plots.get(k);
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(W - 0.6, 0.18, D - 0.6), padMat);
+    pad.position.set(p.x, 0.52, p.z); pad.rotation.y = p.yaw;
+    pad.receiveShadow = true;
+    group.add(pad);
+    const edge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(W - 0.5, 0.22, D - 0.5)),
+      new THREE.LineBasicMaterial({ color: 0x2ee6c0, transparent: true, opacity: 0.6 }));
+    edge.position.copy(pad.position); edge.rotation.y = p.yaw;
+    group.add(edge);
   }
 
   // ── picker geometry ──

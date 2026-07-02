@@ -62,12 +62,12 @@ export async function buildStreet(scene, geom) {
       group.add(tl);
     }
   }
-  // corners (rotation guessed per quadrant; verified visually)
+  // corners (Jan's eyeball: the curves needed a 180° turn from the first guess)
   const cornerDefs = [
-    { x: roadR,  z: roadR,  rot: 0 },              // SE
-    { x: roadR,  z: -roadR, rot: 90 },             // NE
-    { x: -roadR, z: -roadR, rot: 180 },            // NW
-    { x: -roadR, z: roadR,  rot: 270 },            // SW
+    { x: roadR,  z: roadR,  rot: 180 },            // SE
+    { x: roadR,  z: -roadR, rot: 270 },            // NE
+    { x: -roadR, z: -roadR, rot: 0 },              // NW
+    { x: -roadR, z: roadR,  rot: 90 },             // SW
   ];
   for (const c of cornerDefs) {
     const tl = corner.clone();

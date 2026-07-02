@@ -13,7 +13,7 @@ const BLOCK = new Set([
   // restaurant/parlor pieces (pizzeria + ice-cream rooms)
   'pizza_oven', 'icecream_machine',
   'kitchencounter_straight_A_decorated', 'kitchencounter_straight_B_styleB',
-  'table_round_B_tablecloth_red', 'table_round_A_small_decorated',
+  'table_round_B_tablecloth_red', 'table_round_A_small_decorated', 'table_round_A_small',
 ]);
 const isFloorModel = (m) => m === 'Floor' || GROUND.has(m) || /^floor|^tile_/.test(m);
 
