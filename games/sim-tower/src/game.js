@@ -34,6 +34,8 @@ export function createGame(tower, deps) {
   const state = { coins: G.START_COINS, population: 0, level: 0, goalIdx: 0, running: false };
   const residents = [];         // { id, key, floor, char, type, want, mood, unhappyT, grumbleT }
   let residentSeq = 0;
+  let started = false;          // guards saveGame until start() has restored/seeded
+  let saveT = 4;                // autosave cadence (coins tick along without events)
   const roomType = new Map();   // "f:c" → roomId
   const earnT = new Map();      // "f:c" → income timer
   const pops = [];              // furniture build-pop tweens
@@ -98,6 +100,13 @@ export function createGame(tower, deps) {
   const toast = el('div', 'gToast'); document.body.appendChild(toast);
   const floatLayer = el('div', 'gFloats'); document.body.appendChild(floatLayer);
   const card = el('div', 'gCard'); document.body.appendChild(card);
+  let homeBtn = null;
+  if (deps.rig) {
+    homeBtn = el('button', 'gHomeBtn', '⌂');
+    homeBtn.title = 'Reset view';
+    homeBtn.onclick = () => deps.rig.resetView();
+    document.body.appendChild(homeBtn);
+  }
 
   const picker = createSlotPicker(tower, { THREE, scene, camera, renderer, onPick: onSlotClick });
   // click a resident → show their want; a ghost → build; empty space → drop the tool
@@ -142,7 +151,22 @@ export function createGame(tower, deps) {
       }
     }
   }
-  function onRebuilt() { elevatorMgr = new ElevatorManager(tower.built); syncRooms(); picker.refresh(); updateHud(); updateDock(); }
+  function onRebuilt() { elevatorMgr = new ElevatorManager(tower.built); syncRooms(); picker.refresh(); updateHud(); updateDock(); saveGame(); }
+
+  // ── game save (localStorage) — the tower survives a refresh ─────────────
+  const GS_KEY = 'simtower.game';
+  let ephemeral = false;   // ?lots= QA sessions never overwrite the player's save
+  function saveGame() {
+    if (!started || ephemeral || tower.freeBuild || !tower.gameActive) return;
+    try {
+      localStorage.setItem(GS_KEY, JSON.stringify({
+        lots: [...tower.lots.entries()], elevators: [...tower.elevators],
+        coins: Math.floor(state.coins), level: state.level, goalIdx: state.goalIdx, milestoneIdx,
+        residents: residents.map((r) => ({ key: r.key, type: r.type, want: r.want })),
+      }));
+    } catch (_) {}
+  }
+  function clearSave() { try { localStorage.removeItem(GS_KEY); } catch (_) {} }
 
   // ── commute (residents travel between floors via the elevator) ──────────
   const roomByKey = (k) => tower.built.rooms.find((r) => key(r.col, r.floor) === k);
@@ -275,6 +299,7 @@ export function createGame(tower, deps) {
     audio.moveIn();
     floatAt(r, '+1 👤', '#9fe6ff');
     checkGoal();
+    saveGame();
   }
 
   function moveOut(res) {
@@ -284,6 +309,7 @@ export function createGame(tower, deps) {
     if (res.char) { floatAtChar(res.char, '👋 bye', '#ff8585'); removeOne(res.char); }
     recountPop();
     if (cardRes === res) hideCard();
+    saveGame();
   }
 
   // re-evaluate every resident's want → mood (happy/meh/leaving) → eventual move-out
@@ -292,8 +318,11 @@ export function createGame(tower, deps) {
     for (let i = residents.length - 1; i >= 0; i--) {
       const r = residents[i];
       if (r.traveling) continue;                       // don't grumble / move out mid-commute
-      // stranded: lives above the ground with no elevator reaching the ground floor
-      r.stranded = floorOf(r.key) > 0 && !elevatorFor(tower.built, floorOf(r.key), 0);
+      // stranded: no route to the ground floor. Mirrors planTrip: stairs cover a
+      // ONE-floor hop, an elevator spans its column — floor 1 with stairs is fine.
+      const rf = floorOf(r.key);
+      r.stranded = rf > 0 && !elevatorFor(tower.built, rf, 0)
+        && !(rf === 1 && (tower.built.circ?.stairs || []).some((s) => s.f === 0));
       if (wantMet(r, ctx) && !r.stranded) { r.unhappyT = 0; r.mood = 'happy'; }
       else {
         r.unhappyT += dt;
@@ -425,6 +454,8 @@ export function createGame(tower, deps) {
     updateHud();
     milestoneT += dt;
     if (milestoneT >= 0.4) { milestoneT = 0; checkMilestones(); }
+    saveT -= dt;
+    if (saveT <= 0) { saveT = 4; saveGame(); }
   }
 
   // ── juice ───────────────────────────────────────────────────────────────
@@ -517,6 +548,10 @@ export function createGame(tower, deps) {
       const cl = el('button', 'gBtn', 'Clear rooms'); cl.onclick = () => { if (confirm('Clear all rooms?')) tower.clear(); };
       const sv = el('button', 'gBtn gPrimary', '💾 Save'); sv.onclick = () => { tower.save(); showToast('saved ✓ (building.json downloaded)'); };
       row.append(cl, sv); extraEl.appendChild(row);
+    } else {
+      const ng = el('button', 'gBtn', '🔄 New game');
+      ng.onclick = () => { if (confirm('Start over with a fresh tower?')) { clearSave(); location.href = location.pathname; } };
+      extraEl.appendChild(ng);
     }
     updateHud();
   }
@@ -534,34 +569,53 @@ export function createGame(tower, deps) {
   async function start(startLots, opts = {}) {
     tower.gameActive = true;
     tower.freeBuild = !!opts.freeBuild;
+    ephemeral = !!opts.ephemeral;
     tower.gutter = CONFIG.BUILD_PAN_FRAC;
     tower.repopulate = repopulate;
     tower.onRebuilt = onRebuilt;
     tower.lots = startLots;
     await tower.rebuild();
-    // seed the starter room(s) with a resident or two so it isn't dead on arrival
-    if (!tower.freeBuild) for (const r of tower.built.rooms) {
-      const k = key(r.col, r.floor);
-      const seed = Math.min(G.SEED_OCCUPIED, maxOcc(roomType.get(k)));
-      for (let i = 0; i < seed; i++) {
-        const char = spawnOne(r, { bounce: false });
-        const type = char ? char.typeName : 'Rogue';
-        const res = { id: residentSeq++, key: k, floor: r.floor, char, type, want: WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
+    if (!tower.freeBuild && opts.resume) {
+      // restore a saved game: coins/progress + every saved resident whose room still exists
+      const s = opts.resume;
+      state.coins = s.coins ?? state.coins;
+      state.level = s.level | 0; state.goalIdx = s.goalIdx | 0; milestoneIdx = s.milestoneIdx | 0;
+      for (const rs of (s.residents || [])) {
+        const room = tower.built.rooms.find((r) => key(r.col, r.floor) === rs.key);
+        if (!room || occCount(rs.key) >= maxOcc(roomType.get(rs.key))) continue;
+        const char = spawnOne(room, { bounce: false, typeName: rs.type });
+        const type = char ? char.typeName : (rs.type || 'Rogue');
+        const res = { id: residentSeq++, key: rs.key, floor: room.floor, char, type, want: rs.want || WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
         residents.push(res); if (char) char.obj.userData.resident = res;
+      }
+    } else if (!tower.freeBuild) {
+      // fresh game: seed the starter room(s) so it isn't dead on arrival
+      for (const r of tower.built.rooms) {
+        const k = key(r.col, r.floor);
+        const seed = Math.min(G.SEED_OCCUPIED, maxOcc(roomType.get(k)));
+        for (let i = 0; i < seed; i++) {
+          const char = spawnOne(r, { bounce: false });
+          const type = char ? char.typeName : 'Rogue';
+          const res = { id: residentSeq++, key: k, floor: r.floor, char, type, want: WANT_BY_TYPE[type] || 'sofa', mood: 'happy', unhappyT: 0, grumbleT: 0 };
+          residents.push(res); if (char) char.obj.userData.resident = res;
+        }
       }
     }
     recountPop();
     picker.setVisible(true);
     updateDock();
     updateGoalBanner();
-    showToast(tower.freeBuild ? '🏗️ Sandbox — free build.' : '🏙️ Welcome! Buy floor space, then build rooms.');
+    showToast(tower.freeBuild ? '🏗️ Sandbox — free build.'
+      : (opts.resume ? '🏙️ Welcome back!' : '🏙️ Welcome! Buy floor space, then build rooms.'));
     state.running = !tower.freeBuild;
+    started = true;
+    saveGame();
   }
 
   return {
     start, tick, state, residents, showResidentCard, pickResident,
     get milestoneIdx() { return milestoneIdx; }, milestones: MILESTONES,
-    setUiVisible(v) { hud.style.display = dock.style.display = goalBanner.style.display = v ? '' : 'none'; picker.setVisible(v); },
+    setUiVisible(v) { hud.style.display = dock.style.display = goalBanner.style.display = v ? '' : 'none'; if (homeBtn) homeBtn.style.display = v ? '' : 'none'; picker.setVisible(v); },
   };
 }
 
@@ -628,6 +682,10 @@ function injectStyles() {
   .gCard.show{opacity:1;}
   .gCard:after{content:''; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
     border:7px solid transparent; border-top-color:rgba(46,230,192,.4);}
+  .gHomeBtn{position:fixed; right:16px; bottom:16px; z-index:44; width:44px; height:44px; border-radius:50%;
+    border:1px solid rgba(46,230,192,.4); background:rgba(16,20,29,.88); color:#2ee6c0; font-size:22px; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);}
+  .gHomeBtn:hover{background:rgba(46,230,192,.18);}
   .gCardHead{font:700 15px 'Fredoka One','Nunito',cursive; color:#2ee6c0; margin-bottom:3px;}
   .gCardWant{color:#cdd6e2; margin-bottom:5px;}
   .gCardMood{display:flex; gap:8px; align-items:center; font-weight:800;}

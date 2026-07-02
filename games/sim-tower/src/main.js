@@ -9,7 +9,7 @@ import { CONFIG } from './config.js';
 import { loadLevel, preloadLevel } from './loader.js';
 import { makeCamera, frameCamera } from './camera.js';
 import { buildTower, makeRoomSlot, disposeObject, cullShell } from './building.js';
-import { Character, preloadCharacters, deriveWaypoints } from './character.js';
+import { Character, preloadCharacters, deriveWaypoints, CHAR_NAMES } from './character.js';
 import { createGame } from './game.js';
 import { CameraRig } from './cameraRig.js';
 import { buildStreet } from './street.js';
@@ -142,12 +142,16 @@ function removeOne(char) {
   const i = characters.indexOf(char);
   if (i >= 0) characters.splice(i, 1);
 }
-/** Spawn one tenant into a room (room-local actors layer). Optional pop-in. */
-function spawnOne(room, { bounce = false } = {}) {
+/** Spawn one tenant into a room (room-local actors layer). Optional pop-in.
+ *  `typeName` forces the character class (save restore) — index stays ≡ class mod 4. */
+function spawnOne(room, { bounce = false, typeName = null } = {}) {
   const { waypoints, nav } = deriveWaypoints(room);
   if (!waypoints.length) return null;
   const k = room.__n = (room.__n || 0) + 1;       // nth tenant in this room (this build)
-  const c = new Character(gi++, waypoints, nav);
+  const forced = typeName ? CHAR_NAMES.indexOf(typeName) : -1;
+  const idx = forced >= 0 ? forced + 4 * (gi % 8) : gi;
+  gi++;
+  const c = new Character(idx, waypoints, nav);
   c.wi = ((k - 1) * Math.max(1, Math.floor(waypoints.length / 2))) % waypoints.length;
   c.obj.position.copy(waypoints[c.wi].pos);
   c.timer = 0.3 + (gi % 5) * 0.27 + (k - 1) * 0.7;
@@ -323,15 +327,21 @@ async function boot() {
     tower.brush = tower.rooms.simroom1 ? 'simroom1' : Object.keys(tower.rooms)[0];
     await preloadCharacters();
 
-    // starting lots: ?lots=<json> override, else sandbox-saved / default starter
-    let startLots = null;
+    // starting lots: ?lots=<json> override, else the saved game, else the starter
+    let startLots = null, resume = null;
     if (Q.has('lots')) {
       try { const d = JSON.parse(decodeURIComponent(Q.get('lots'))); startLots = lotsFromData(d); tower.elevators = elevatorsFromData(d); }
       catch (e) { showError('bad ?lots=: ' + e); }
     }
     if (!startLots) {
       if (SANDBOX) { const r = await loadSandboxLots(); startLots = r.lots; tower.elevators = r.elevators; }
-      else { startLots = lotsFromData(GAME_START_LOTS); tower.elevators = new Set(); }
+      else {
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem('simtower.game')); } catch (_) {}
+        if (saved && saved.lots && lotEntries(saved).length) {
+          startLots = lotsFromData(saved); tower.elevators = elevatorsFromData(saved); resume = saved;
+        } else { startLots = lotsFromData(GAME_START_LOTS); tower.elevators = new Set(); }
+      }
     }
 
     window.__SIM = { scene, camera, renderer, tower, characters, CONFIG, rig, get game() { return game; }, get frameBox() { return frameBox; } };
@@ -340,7 +350,7 @@ async function boot() {
     ovmsg.textContent = 'opening Krabsy Tower…';
     hud.style.display = 'none';
     game = createGame(tower, { THREE, scene, camera, renderer, spawnOne, removeOne, detachToWorld, attachToRoom, deriveWaypoints, rig });
-    await game.start(startLots, { freeBuild: SANDBOX });
+    await game.start(startLots, { freeBuild: SANDBOX, resume, ephemeral: Q.has('lots') });
     if (!SHOW_UI) game.setUiVisible(false);
     applyCamQA();
     overlay.classList.add('hidden');
