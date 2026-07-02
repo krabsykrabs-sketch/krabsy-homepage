@@ -319,6 +319,32 @@ mechanic, multi-floor or waypoint authoring **in the editor**, Rapier/physics.
 
 ## Status log (Part B runtime)
 
+### 2026-07-02 — KRABSY BLOCK: the tower becomes a city block — session 2 (cont.)
+**Jan retired the tower concept** ("block is better, overwrite the tower") after
+the game-design discussion in `krabsy-block-concept.md` (read it first — it has
+the layout diagram, the reasoning, and the v1 scope). Last tower state is git
+tag **`tower-final`**. Built + verified in one pass (commit af1abe9):
+
+- **World:** 4 sides × 3 outward-facing plots around a courtyard lawn; open
+  corners (streetlights, park access); sidewalk ring; road ring with 6 cars in
+  two no-collision lanes; benches/bushes in the park. Orbit the block 360°.
+- **Sim:** commutes walk the sidewalk ring (shorter way round, corner turns) —
+  the whole elevator/stairs system is deleted. Wants use RING distance (quiet =
+  no office next door; amenities within 3 plots). Buy-adjacency = ring
+  neighbours. Save keys now `simblock.*` (old tower saves ignored).
+- **Kept unchanged:** rooms/loader/nav/chars, reveal-on-occupancy fronts, 💬
+  quiz (engine-first), economy/milestones, on-demand build ghosts (now yawed
+  per side), sandbox, self-tests, QA params.
+- **Verified:** 0 boot errors; buys wrap corners; 13 ring commutes; ghosts only
+  on frontier plots with correct yaws; cars lap through corners; save restores
+  ("Welcome back!"); `?selftest=collision` **0 violations / 17657 samples**.
+- **Gotcha fixed:** measure room bboxes from the SLOT (yaw applied), not the
+  furniture — `Box3.setFromObject` doesn't update parent matrices, so depth
+  read 12 (authored rows) instead of 10.
+- **v2 candidates:** park stroll destinations, corner shops, multi-plot-wide
+  buildings, 2nd floors (endgame), walk-mode, day/night. Folder still named
+  `sim-tower/` — renaming is a release-time concern.
+
 ### 2026-07-02 — RETENTION + LEARNING + CONTENT (3 commits) — session 2 (cont.)
 The "next three sessions" from the full-project analysis, done in one pass.
 
