@@ -117,6 +117,7 @@ export function buildBlock(lots, opts) {
   }
 
   // ── buildings on owned plots ──
+  const cullRoofs = [];
   for (const [k, br] of builtRooms) {
     const { side, i } = parseKey(k);
     const p = plots.get(k);
@@ -143,11 +144,16 @@ export function buildBlock(lots, opts) {
       plotG.add(panel);
     }
 
-    // roof + base slab
-    const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, S.ROOF_THICK, D + 0.5), matRoof);
+    // roof (own transparent material — faded by cullShell when its side faces
+    // the camera, so you can see into the near buildings) + base slab
+    const roofMat = matRoof.clone(); roofMat.transparent = true; roofMat.opacity = 1;
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, S.ROOF_THICK, D + 0.5), roofMat);
     roof.position.set(0, roomH + S.ROOF_THICK / 2, (zFrontL + zBackL) / 2 + 0.1);
     roof.castShadow = true; roof.receiveShadow = true;
+    const ow = sideToWorld(side, 0, 1);
+    roof.userData.cull = { ox: ow.x, oz: ow.z };
     plotG.add(roof);
+    cullRoofs.push(roof);
     const slab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, S.SLAB_THICK, D + 0.3), matSlab);
     slab.position.set(0, -S.SLAB_THICK / 2 + 0.02, (zFrontL + zBackL) / 2);
     slab.receiveShadow = true;
@@ -193,9 +199,9 @@ export function buildBlock(lots, opts) {
   if (!lots.size) addBuy(1);
   for (const r of byRing.keys()) { addBuy(r + 1); addBuy(r - 1); }
 
-  // empty cull shell (dollhouse culling not needed on the ring)
+  // cull shell: the roofs fade when their side faces the camera (dollhouse view)
   const shell = new THREE.Group();
-  shell.userData.cullMeshes = [];
+  shell.userData.cullMeshes = cullRoofs;
   group.add(shell);
 
   const geom = { N, W, D, FACE, K, ROAD_IN, walkY, roomH, total,
@@ -222,5 +228,27 @@ export function disposeObject(obj) {
   });
 }
 
-/** Dollhouse culling is a no-op on the ring (nothing stacks above the rooms). */
-export function cullShell(shell, rig, dt) { /* kept for the render loop's call site */ }
+/** Dollhouse culling on the ring: fade the roofs of buildings whose side faces
+ *  the camera (see into the near buildings; the far side stays a solid block),
+ *  and fade ALL roofs once you tilt down toward the top view. Per frame. */
+export function cullShell(shell, rig, dt) {
+  const meshes = shell?.userData?.cullMeshes;
+  if (!meshes || !meshes.length || !rig) return;
+  const C = CONFIG.CAMERA3D;
+  const camX = Math.sin(rig.az), camZ = Math.cos(rig.az);   // horizontal camera direction from the target
+  const polMin = C.POL_MIN_DEG * DEG, polMax = C.POL_MAX_DEG * DEG;
+  const polFrac = Math.max(0, Math.min(1, (rig.pol - polMin) / (polMax - polMin)));
+  const smooth = (e0, e1, x) => { const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+  const downFade = smooth(0.55, 0.95, polFrac);             // looking down from high → open everything
+  const k = 1 - Math.exp(-C.CULL_LERP * dt);
+  for (const m of meshes) {
+    const cu = m.userData.cull;
+    const facing = cu.ox * camX + cu.oz * camZ;             // 1 = this side faces the camera
+    const fade = Math.max(smooth(0.05, 0.6, facing), downFade);
+    const goal = 1 - fade * (1 - C.CULL_FADE);
+    m.material.opacity += (goal - m.material.opacity) * k;
+    m.material.depthWrite = m.material.opacity > 0.6;
+    m.castShadow = m.material.opacity > 0.5;                // a faded roof shouldn't darken its room
+    m.visible = m.material.opacity > 0.04;
+  }
+}
