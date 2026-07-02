@@ -147,6 +147,7 @@ export const ui = {
       setTimeout(() => d.remove(), 1400);
     }
   },
+  setFrantic(on) { $('timerPill').classList.toggle('frantic', on); },
   setCombo(n) {
     const pill = $('comboPill');
     pill.classList.toggle('on', n >= 2);

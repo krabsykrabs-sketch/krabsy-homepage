@@ -162,6 +162,9 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .ticket.hurry{animation:shake .35s infinite;}
 .ticket.hurry .pfill{background:var(--coral);}
 .ticket.warn .pfill{background:var(--amber);}
+/* the customer's mood sours as the (cosmetic) patience bar drains */
+.ticket .mood{position:absolute; top:-9px; left:-9px; font-size:19px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));}
 @keyframes shake{0%,100%{transform:rotate(0)} 25%{transform:rotate(-2.2deg)} 75%{transform:rotate(2.2deg)}}
 /* full-width top status bar: timer + orders progress pinned left, coins +
    buttons pinned right (the spacer pushes them apart). The order tickets sit

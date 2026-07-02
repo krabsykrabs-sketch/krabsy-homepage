@@ -592,7 +592,8 @@ export class Game {
     this.combo++;
     const bonus = Math.min(Math.max(this.combo - 1, 0), 3) * 5;
     const orderBonus = res.inOrder ? 5 : 0;     // served the oldest ticket first
-    const gained = d.coins + bonus + orderBonus;
+    const tip = Math.round((res.tipFrac || 0) * 8);   // patience tip: fast serve = happy customer
+    const gained = d.coins + bonus + orderBonus + tip;
     this.score += gained;
     this.chef.setCarried(null);
     audio.serve();
@@ -600,7 +601,7 @@ export class Game {
     ui.setCombo(this.combo);
     ui.setOrders(res.served, res.total);
     this.fx.coins(hatch.pos.clone().setY(1.8));
-    this.fx.pop(hatch.pos.clone().setY(1.8), `+${gained} 🪙${bonus ? ' 🔥' : ''}${orderBonus ? ' 📋' : ''}`);
+    this.fx.pop(hatch.pos.clone().setY(1.8), `+${gained} 🪙${bonus ? ' 🔥' : ''}${orderBonus ? ' 📋' : ''}${tip >= 6 ? ' 😊' : ''}`);
     if (this.orders.allServed()) {
       this.fx.pop(hatch.pos.clone().setY(2.3), t('popAllServed'), 'var(--teal)');
       setTimeout(() => { if (!this.roundOver) this.endRound(); }, 900);
@@ -808,8 +809,18 @@ export class Game {
     this.updateSizzle();
     this.updateSteam(dt);
 
-    // orders stream in from the fixed queue (no expiry — deliver them all)
-    this.orders.update(dt);
+    // orders stream in from the fixed queue (nothing expires — deliver them
+    // all). While a sink question is open, patience drains at only 30%:
+    // thinking at the sink is safe-ish, but not free.
+    this.orders.update(this.questionOpen ? dt * 0.3 : dt);
+
+    // frantic layer: kicks in when the kitchen is objectively drowning — a
+    // customer nearly out of patience, or a full ticket rail with smoke.
+    // Never during the sink question (that's the catch-your-breath moment).
+    const frantic = !this.questionOpen &&
+      (this.orders.anyHurry() || (this.orders.tickets.length >= 3 && this.fx.smokeSources.size > 0));
+    audio.frantic(frantic);
+    ui.setFrantic(frantic);
 
     // dirty plates in transit back to the sink
     for (let i = this.plateReturns.length - 1; i >= 0; i--) {
@@ -818,7 +829,7 @@ export class Game {
         this.plateReturns.splice(i, 1);
         this.sinkStation.dirtyPlates++;
         this.sinkStation.refreshStack();
-        audio.putdown();
+        audio.clatter();   // the dirty plate clatters onto the sink pile
       }
     }
 
@@ -835,6 +846,7 @@ export class Game {
 
   endRound() {
     this.roundOver = true;
+    ui.setFrantic(false);
     audio.stopAll();
     audio.serve();
     if (this.quiz.open) this.quiz.close();
@@ -861,6 +873,7 @@ export class Game {
 
   stopRound() {
     this.running = false;
+    ui.setFrantic(false);
     audio.stopAll();
     if (this.quiz && this.quiz.open) this.quiz.close();
     if (this.orders) this.orders.clear();
