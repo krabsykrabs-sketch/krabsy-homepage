@@ -143,5 +143,13 @@ export const CONFIG = {
     MOVEOUT_TIME: 46,                                       // seconds unmet before they actually move out
     MOOD_MULT: { happy: 1.6, meh: 0.8, leaving: 0.4 },     // rent multiplier by mood (happy pays more)
     GRUMBLE_INTERVAL: 4.0,                                  // seconds between grumble 💢 floats from unhappy residents
+    // ── resident 💬 quiz (the learning hook) ──
+    QUESTION: {
+      FIRST_DELAY: 10,       // seconds into a session before the first bubble
+      INTERVAL_MIN: 16,      // seconds between bubbles (a random resident gets one)
+      INTERVAL_MAX: 28,
+      REWARD: 5,             // coins for a correct answer (a "tip"), + instant happy
+      BUBBLE_EVERY: 1.7,     // seconds between 💬 floats while a question is pending
+    },
   },
 };

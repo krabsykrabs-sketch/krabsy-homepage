@@ -7,6 +7,7 @@ import { audio, unlockAudio } from './audio.js';
 import { createSlotPicker } from './slots.js';
 import { CHAR_EMOJI } from './character.js';
 import { planTrip, ElevatorManager, elevatorFor } from './commute.js';
+import { pickQuestion } from './questions.js';
 
 // Resident wants — one per resident; met/unmet drives happiness + rent.
 const WANTS = {
@@ -36,6 +37,7 @@ export function createGame(tower, deps) {
   let residentSeq = 0;
   let started = false;          // guards saveGame until start() has restored/seeded
   let saveT = 4;                // autosave cadence (coins tick along without events)
+  let questionT = G.QUESTION.FIRST_DELAY;   // countdown to the next resident 💬
   const roomType = new Map();   // "f:c" → roomId
   const earnT = new Map();      // "f:c" → income timer
   const pops = [];              // furniture build-pop tweens
@@ -100,6 +102,7 @@ export function createGame(tower, deps) {
   const toast = el('div', 'gToast'); document.body.appendChild(toast);
   const floatLayer = el('div', 'gFloats'); document.body.appendChild(floatLayer);
   const card = el('div', 'gCard'); document.body.appendChild(card);
+  const quiz = el('div', 'gQuiz'); document.body.appendChild(quiz);
   let homeBtn = null;
   if (deps.rig) {
     homeBtn = el('button', 'gHomeBtn', '⌂');
@@ -109,11 +112,12 @@ export function createGame(tower, deps) {
   }
 
   const picker = createSlotPicker(tower, { THREE, scene, camera, renderer, onPick: onSlotClick });
-  // click a resident → show their want; a ghost → build; empty space → drop the tool
+  // click a resident → their quiz (if pending) or want card; a ghost → build;
+  // empty space → close cards + drop the tool
   const handleClick = (ev) => {
     const res = pickResident(ev);
-    if (res) { showResidentCard(res); return; }
-    hideCard();
+    if (res) { if (res.question) showQuiz(res); else showResidentCard(res); return; }
+    hideCard(); hideQuiz();
     const hit = picker.clickAt(ev);
     if (!hit && tower.brush) deselectBrush();
   };
@@ -309,6 +313,7 @@ export function createGame(tower, deps) {
     if (res.char) { floatAtChar(res.char, '👋 bye', '#ff8585'); removeOne(res.char); }
     recountPop();
     if (cardRes === res) hideCard();
+    if (quizRes === res) hideQuiz();
     saveGame();
   }
 
@@ -369,6 +374,62 @@ export function createGame(tower, deps) {
       card.style.left = (rect.left + (p.x * 0.5 + 0.5) * rect.width) + 'px';
       card.style.top = (rect.top + (-p.y * 0.5 + 0.5) * rect.height) + 'px';
     }
+  }
+
+  // ── resident 💬 quiz (the learning hook) ────────────────────────────────
+  // Every so often a resident raises a question bubble; click them → a sentence
+  // gap / verb chain with three chips. Correct → tip coins + instant happy.
+  let quizRes = null;
+  function updateQuestions(dt) {
+    const QU = G.QUESTION;
+    questionT -= dt;
+    if (questionT <= 0) {
+      questionT = QU.INTERVAL_MIN + Math.random() * (QU.INTERVAL_MAX - QU.INTERVAL_MIN);
+      const cands = residents.filter((r) => r.char && !r.question);
+      if (cands.length) {
+        const r = cands[Math.floor(Math.random() * cands.length)];
+        r.question = pickQuestion();
+        r.qBubbleT = 0;
+      }
+    }
+    for (const r of residents) {
+      if (!r.question || !r.char) continue;
+      r.qBubbleT = (r.qBubbleT ?? 0) - dt;
+      if (r.qBubbleT <= 0) { r.qBubbleT = QU.BUBBLE_EVERY; floatAtChar(r.char, '💬', '#9fe6ff'); }
+    }
+  }
+  function showQuiz(res) {
+    quizRes = res;
+    const q = res.question;
+    quiz.innerHTML =
+      `<div class="gQzWho">${CHAR_EMOJI[res.type] || '🙂'} ${res.type} asks:</div>` +
+      `<div class="gQzText">${q.text.replace('___', '<b class="gQzGap">___</b>')}</div>` +
+      `<div class="gQzChips">${q.options.map((o) => `<button class="gQzChip" data-o="${o}">${o}</button>`).join('')}</div>`;
+    for (const b of quiz.querySelectorAll('.gQzChip')) b.onclick = (ev) => { ev.stopPropagation(); answerQuiz(res, b); };
+    quiz.classList.add('show');
+  }
+  function hideQuiz() { quizRes = null; quiz.classList.remove('show'); }
+  function answerQuiz(res, btn) {
+    const q = res.question;
+    if (!q || res !== quizRes) return;
+    const ok = btn.dataset.o === q.answer;
+    for (const b of quiz.querySelectorAll('.gQzChip')) b.disabled = true;
+    btn.classList.add(ok ? 'gQzGood' : 'gQzBad');
+    if (ok) {
+      audio.coin();
+      state.coins += G.QUESTION.REWARD;
+      res.unhappyT = 0; res.mood = 'happy';
+      if (res.char) floatAtChar(res.char, `+${G.QUESTION.REWARD} 🪙`, '#ffcf5e');
+      updateHud();
+    } else {
+      audio.nope();
+      const right = [...quiz.querySelectorAll('.gQzChip')].find((b) => b.dataset.o === q.answer);
+      if (right) right.classList.add('gQzGood');
+      if (q.cap) quiz.insertAdjacentHTML('beforeend', `<div class="gQzCap">${q.cap}</div>`);
+    }
+    res.question = null;
+    saveGame();
+    setTimeout(() => { if (!quizRes || quizRes === res) hideQuiz(); }, ok ? 750 : 1900);
   }
 
   function checkGoal() {
@@ -435,6 +496,7 @@ export function createGame(tower, deps) {
     if (moveT <= 0) { moveT = G.MOVE_IN_INTERVAL * (0.7 + ((elapsed * 0.37) % 1) * 0.6); tryMoveIn(); }
     updateMoods(dt);
     updateCommutes(dt);
+    updateQuestions(dt);
     // income — each resident pays rent scaled by their mood (happy pays more)
     let earned = 0;
     for (const r of tower.built.rooms) {
@@ -613,7 +675,7 @@ export function createGame(tower, deps) {
   }
 
   return {
-    start, tick, state, residents, showResidentCard, pickResident,
+    start, tick, state, residents, showResidentCard, pickResident, showQuiz,
     get milestoneIdx() { return milestoneIdx; }, milestones: MILESTONES,
     setUiVisible(v) { hud.style.display = dock.style.display = goalBanner.style.display = v ? '' : 'none'; if (homeBtn) homeBtn.style.display = v ? '' : 'none'; picker.setVisible(v); },
   };
@@ -682,6 +744,22 @@ function injectStyles() {
   .gCard.show{opacity:1;}
   .gCard:after{content:''; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
     border:7px solid transparent; border-top-color:rgba(46,230,192,.4);}
+  .gQuiz{position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(14px); z-index:47;
+    background:rgba(16,20,29,.97); border:1px solid rgba(46,230,192,.5); border-radius:16px; padding:16px 22px;
+    color:#e7ecf3; font:600 15px 'Nunito',sans-serif; box-shadow:0 10px 30px rgba(0,0,0,.55);
+    opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; text-align:center; min-width:280px;}
+  .gQuiz.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0);}
+  .gQzWho{font:700 13px 'Nunito',sans-serif; color:#8fa0b6; margin-bottom:6px;}
+  .gQzText{font:800 19px 'Nunito',sans-serif; margin-bottom:12px;}
+  .gQzGap{color:#ffcf5e;}
+  .gQzChips{display:flex; gap:10px; justify-content:center;}
+  .gQzChip{cursor:pointer; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.07); color:#e7ecf3;
+    border-radius:12px; padding:10px 20px; font:800 17px 'Nunito',sans-serif; min-width:74px;}
+  .gQzChip:hover:not(:disabled){border-color:#2ee6c0; background:rgba(46,230,192,.12);}
+  .gQzChip:disabled{cursor:default;}
+  .gQzChip.gQzGood{background:#2ee6c0; color:#0e141d; border-color:#2ee6c0;}
+  .gQzChip.gQzBad{background:#ff8585; color:#0e141d; border-color:#ff8585;}
+  .gQzCap{margin-top:10px; color:#8fa0b6; font-size:13px;}
   .gHomeBtn{position:fixed; right:16px; bottom:16px; z-index:44; width:44px; height:44px; border-radius:50%;
     border:1px solid rgba(46,230,192,.4); background:rgba(16,20,29,.88); color:#2ee6c0; font-size:22px; cursor:pointer;
     box-shadow:0 4px 14px rgba(0,0,0,.35);}
