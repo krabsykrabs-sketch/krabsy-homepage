@@ -217,6 +217,63 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-07-02 — **Improvement triple (from a whole-project review; all verified in
+  a live browser via the preview tools + `__VK`): persistent spaced repetition +
+  Cookbook, full DE/ES localization, cosmetic ticket patience + frantic layer.**
+  - **Persistent spaced repetition (the learning gap).** `save.missed` had been
+    written since v1 but never READ. Now: up to 3 previously-missed verbs seed
+    each round's sink questions first (sub caption "📖 from your cookbook!",
+    `seedPractice` in verbs.js — consumes no rng draws when empty, so seeded QA
+    scenes are unaffected). Mastery rule: a practice ask answered RIGHT =
+    recalled across rounds → the verb leaves `save.missed`; the in-round re-ask
+    right after seeing the answer does NOT count (practiceKeys deleted on first
+    showing). Misses persist immediately (quit-safe). **New Cookbook screen**
+    (buttons on the start screen + post-level recap): all 46 chains, the
+    practice list pulled out on top in a coral box; the recap now appends
+    "+ N more in the Cookbook" instead of silently truncating at 6. New
+    `?qa=cookbook` scene; `__VK.practiceKeys()/missedSaved()` hooks.
+  - **DE/ES localization (new `src/i18n.js`).** EVERY player-facing string:
+    menus, level grid, shop, cookbook, post screen, sink quiz, per-level recipe
+    cards (title+text), guided-tutorial steps, all ~30 hint-bar strings, FX
+    pops, loading messages, ticket dish names. `?lang=de|es|en` (persisted →
+    the site's per-language wrappers set it once) > saved > browser language;
+    EN fallback everywhere. Static nodes carry `data-i18n` (swapped once by
+    `applyStatic()` at boot); the "Perfect washing!" CSS content moved to
+    `attr(data-empty)`. The "simple past"/"past participle" captions are
+    deliberately untranslated (textbook terms; presentation mandate). Dish
+    names via `dishName(id, fallback)`; recipe cards via `levelTut(level)`
+    (image stays in levels.js).
+  - **Cosmetic ticket patience + frantic layer (the chaos gap).** Tickets get a
+    draining patience bar (90s default, `level.patience` overridable), a mood
+    emoji 😊→😐→😟→😠, amber fill <50%, coral + shake <25% — NOTHING expires
+    (the fixed-order race mode stays leaderboard-safe). Fast serves earn a
+    patience tip (up to +8🪙, 😊 in the score pop at ≥6). During sink questions
+    patience drains at 30% (the brief's original intent) and frantic is
+    suppressed. `audio.frantic()` (dead code until now) + a pulsing coral timer
+    pill now trigger when any customer is <25% OR 3 tickets + smoke; cleared on
+    round end/quit. Dirty plates now CLATTER onto the sink pile (was the
+    generic putdown thud).
+  - **Bug found & fixed by the regression pass:** the i18n import `t` was
+    shadowed by locals in `game.update`/`endRound` (TDZ) → the ready/burnt pops
+    threw the moment anything finished cooking. Locals renamed (`tile`/`time`);
+    every other t()-calling module audited clean. Also deleted two stray
+    `*(2).json:Zone.Identifier` junk files from `levels/`.
+  - **Verified** (preview_eval + `__VK`, zero console errors throughout):
+    practice seed→mastery→persistence round-trip incl. the wrong-path re-ask;
+    cookbook nav from start/post; DE (menus, tickets, pot/sink hints, tutorial
+    banner, quiz), ES (recipe card, menus), EN regression; patience bands at
+    90/40/20s; 30% drain during questions; frantic on/off incl. the smoke+3-
+    tickets path; endRound post screen. GOTCHA reconfirmed: the preview panel
+    caches ES modules hard — `fetch(f,{cache:'reload'})` then reload; the
+    in-panel screenshot tool still hangs (use preview_snapshot / headless Edge).
+  - **Still open (from the same review, not done today):** star times remain
+    placeholders on all 7 levels (biggest tuning debt; consider a `__VK` bot to
+    set author times); guided first-encounter coaching for stove/oven/pot/
+    drizzle on levels 2–7; no pause menu; the touch quiz still shows 1/2/3 key
+    hints; the site question engine (`/lib/krabsy-questions.js`) is still not
+    integrated (inline verbs only); levels 8–10 placeholders (sandwich = the
+    one genuinely new pipeline the pack supports).
+
 - 2026-06-19 — **Ice Cream (L7) REBUILT from the user's `Ice.json` — editor JSON
   layout, bowls, cold scoop-assembly.** The Sundae level is now an editor-JSON
   layout (`levels/icecream7.json`, `vessel:'bowl'`) replacing the old ASCII map.
