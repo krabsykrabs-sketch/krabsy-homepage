@@ -3,6 +3,7 @@
 import { makeQuestion, seedPractice } from './verbs.js';
 import { audio } from './audio.js';
 import { ui } from './ui.js';
+import { t } from './i18n.js';
 
 export class SinkQuiz {
   constructor(game) {
@@ -39,8 +40,8 @@ export class SinkQuiz {
 
     this.card.classList.remove('wrongState');
     this.promptEl.innerHTML = q.prompt;
-    this.subEl.textContent = q.sub + (this.practiceKeys.has(q.key) ? ' · 📖 from your cookbook!'
-      : q.fromMissed ? ' · one more try!' : '');
+    this.subEl.textContent = q.sub + (this.practiceKeys.has(q.key) ? t('fromCookbook')
+      : q.fromMissed ? t('oneMoreTry') : '');
     this.chainEl.style.display = 'none';
     this.goBtn.style.display = 'none';
     this.chipsEl.style.display = 'flex';

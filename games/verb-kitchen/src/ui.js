@@ -3,6 +3,7 @@ import { LEVELS, PLACEHOLDERS } from './levels.js';
 import { VERBS } from './verbs.js';
 import { CHEF_CHARACTERS, totalStars } from './models.js';
 import { characterPortrait } from './portraits.js';
+import { t, levelTut } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -49,7 +50,7 @@ export const ui = {
       const card = document.createElement('div');
       card.className = 'charCard' + (unlocked ? '' : ' locked') + (id === selected ? ' active' : '');
       const tag = !unlocked ? `<div class="ctag cost">⭐ ${def.cost}</div>`
-        : (id === selected ? '<div class="ctag sel">✓ Selected</div>' : '<div class="ctag">Select</div>');
+        : (id === selected ? `<div class="ctag sel">${t('selected')}</div>` : `<div class="ctag">${t('select')}</div>`);
       card.innerHTML = `<div class="cportrait"><img alt="${def.name}"></div>` +
         `<div class="cname">${def.name}</div>${tag}` +
         (unlocked ? '' : '<div class="clock">🔒</div>');
@@ -72,8 +73,8 @@ export const ui = {
     $('cookbookPracticeList').innerHTML = practice.map(chain).join('');
     $('cookbookAllList').innerHTML = VERBS.map(chain).join('');
     $('cookbookSub').textContent = practice.length
-      ? `${practice.length} to practice — the sink asks these first!`
-      : `All ${VERBS.length} verbs — miss one at the sink and it lands here`;
+      ? t('ckSubPractice', practice.length)
+      : t('ckSubAll', VERBS.length);
   },
 
   renderLevelGrid(save, onPick) {
@@ -92,12 +93,12 @@ export const ui = {
       // the three target times are always visible; the author time hides until gold (3★)
       const tgt = (cls, label, secs) => `<div class="tgt ${cls}"><b>${label}</b>${fmtTime(secs)}</div>`;
       const targets =
-        `<div class="tgt"><b>★</b>finish</div>` + tgt('', '★★', s2) + tgt('gold', '★★★', s3) +
+        `<div class="tgt"><b>★</b>${t('finish')}</div>` + tgt('', '★★', s2) + tgt('gold', '★★★', s3) +
         `<div class="tgt author"><b>★</b>${stars >= 3 ? fmtTime(sA) : '?:??'}</div>`;
       const el = document.createElement('div');
       el.className = 'lvl' + (locked ? ' locked' : '');
       el.innerHTML = `${locked ? '<div class="lock">🔒</div>' : ''}<div class="em">${lv.emoji}</div>` +
-        `<div class="nm">Level ${lv.num}</div><div class="stars">${starStr}</div>` +
+        `<div class="nm">${t('levelN', lv.num)}</div><div class="stars">${starStr}</div>` +
         `<div class="best">${best != null ? '⏱ ' + fmtTime(best) : '&nbsp;'}</div>` +
         `<div class="targets">${targets}</div>`;
       if (!locked) {
@@ -110,7 +111,7 @@ export const ui = {
       const el = document.createElement('div');
       el.className = 'lvl locked teaser';
       el.innerHTML = `<div class="lock">🔒</div><div class="em">${ph.emoji}</div>` +
-        `<div class="nm">Level ${ph.num}</div><div class="soon">coming soon</div>`;
+        `<div class="nm">${t('levelN', ph.num)}</div><div class="soon">${t('comingSoon')}</div>`;
       grid.appendChild(el);
     }
   },
@@ -158,7 +159,7 @@ export const ui = {
   tutorialStep(icon, text, n, total) {
     const el = $('tutorial');
     el.classList.remove('done');
-    el.innerHTML = `<div class="tStep">Step ${n} of ${total}</div>` +
+    el.innerHTML = `<div class="tStep">${t('stepOf', n, total)}</div>` +
       `<div class="tBody"><span class="tIcon">${icon}</span><span>${text}</span></div>`;
     el.classList.remove('on'); void el.offsetWidth;   // restart the slide-in
     el.classList.add('on');
@@ -179,13 +180,13 @@ export const ui = {
    *  `loadPromise` (assets + image) resolves. Resolves when the player taps Start. */
   showTutorial(level, loadPromise) {
     return new Promise((resolve) => {
-      const t = level.tutorial || {};
+      const tut = levelTut(level);   // localized title/text, image from levels.js
       const ov = $('recipe'), btn = $('recipeBtn'), img = $('recipeImg');
-      $('recipeTitle').textContent = t.title || level.name;
-      $('recipeText').textContent = t.text || '';
+      $('recipeTitle').textContent = tut.title || level.name;
+      $('recipeText').textContent = tut.text || '';
       let imgP = Promise.resolve();
-      if (t.image) {
-        img.src = t.image;
+      if (tut.image) {
+        img.src = tut.image;
         img.style.display = 'block';
         imgP = (img.complete && img.naturalWidth)
           ? Promise.resolve()
@@ -215,8 +216,7 @@ export const ui = {
     if (box) box.style.display = on ? 'flex' : 'none';
     clearInterval(this._rLoadTimer);
     if (!on) return;
-    const MSGS = ['Heating the ovens', 'Sharpening the knives', 'Stocking the crates',
-                  'Polishing the plates', 'Rolling out the dough', 'Tying the apron'];
+    const MSGS = t('loadMsgs');
     const pie = $('recipeLoaderPizza'), msg = $('recipeLoaderMsg');
     let step = 0;
     const SLICES = 8;
@@ -235,10 +235,10 @@ export const ui = {
   },
 
   renderPost(level, elapsed, score, stars, missedKeys, bestTime, hasNext, isNewBest) {
-    $('postTitle').textContent = `${level.emoji} Level ${level.num} — all served!`;
+    $('postTitle').textContent = `${level.emoji} ${t('levelN', level.num)} — ${t('allServedShort')}`;
     $('postScore').textContent = fmtTime(elapsed);
-    $('postCoins').textContent = `🪙 ${score} earned`;
-    $('postBest').textContent = isNewBest ? '🎉 New best time!' : (bestTime != null ? `Best: ⏱ ${fmtTime(bestTime)}` : '');
+    $('postCoins').textContent = t('earned', score);
+    $('postBest').textContent = isNewBest ? t('newBest') : (bestTime != null ? `${t('best')} ⏱ ${fmtTime(bestTime)}` : '');
     const starEls = [...$('postStars').children];   // [⭐, ⭐, ⭐, author ★]
     starEls.forEach((el, i) => {
       el.classList.remove('on', 'off2');
@@ -256,8 +256,8 @@ export const ui = {
     const sA = level.starTimes[3];
     const authEl = $('postAuthor');
     if (authEl) {
-      if (stars >= 4) authEl.textContent = `★ Author star earned! (author time ⏱ ${fmtTime(sA)})`;
-      else if (stars >= 3) authEl.textContent = `★ Author time: ⏱ ${fmtTime(sA)} — beat it for the 4th star!`;
+      if (stars >= 4) authEl.textContent = t('authorEarned', fmtTime(sA));
+      else if (stars >= 3) authEl.textContent = t('authorBeat', fmtTime(sA));
       else authEl.textContent = '';
     }
     const box = $('missedBox');
@@ -276,7 +276,7 @@ export const ui = {
       // don't truncate silently — the rest is one tap away in the Cookbook
       const row = document.createElement('div');
       row.className = 'ckMore';
-      row.textContent = `+ ${uniq.length - 6} more in the Cookbook`;
+      row.textContent = t('moreInCookbook', uniq.length - 6);
       list.appendChild(row);
     }
     $('nextBtn').style.display = hasNext && stars >= 1 ? '' : 'none';
@@ -304,8 +304,7 @@ export const ui = {
     $('loader').classList.toggle('hidden', !on);
     clearInterval(this._loadTimer);
     if (!on) return;
-    const MSGS = ['Rolling the dough', 'Firing up the oven', 'Sharpening the knives',
-                  'Polishing the plates', 'Reading the order tickets', 'Tying the apron'];
+    const MSGS = t('loadMsgs');
     const pie = $('loaderPizza'), msg = $('loaderMsg');
     let step = 0;
     const SLICES = 8;

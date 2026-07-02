@@ -5,6 +5,7 @@
 import { DISHES, ITEMS } from './recipes.js';
 import { audio } from './audio.js';
 import { rng } from './verbs.js';
+import { dishName } from './i18n.js';
 
 let nextId = 1;
 
@@ -35,7 +36,7 @@ export class Orders {
     const el = document.createElement('div');
     el.className = 'ticket';
     const ings = d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' ');
-    el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${d.name}</div>` +
+    el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${dishName(dish, d.name)}</div>` +
       `<div class="ings">${ings}</div>`;
     this.bar.appendChild(el);
     t.el = el;

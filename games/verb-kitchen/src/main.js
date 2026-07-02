@@ -8,6 +8,9 @@ import { charUnlocked } from './models.js';
 import { seedRng } from './verbs.js';
 import { initQA } from './qa.js';
 import { initTouch } from './touch.js';
+import { applyStatic } from './i18n.js';
+
+applyStatic();   // swap every static data-i18n string for the player's language
 
 // Robust tap: bind pointerup (touch/pen) alongside click, deduped — some touch
 // browsers don't deliver a `click` after a touch, which would leave the menu
