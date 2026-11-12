@@ -11,6 +11,10 @@ from html import escape
 from typing import Optional
 from urllib.parse import urlparse
 
+from classify import (
+    CLASS_BOT, CLASS_BOUNCE, CLASS_ENGAGED, CLASS_LIKELY_BOT, CLASSES,
+    HIDDEN_BY_DEFAULT, build_sessions,
+)
 from storage import read_events
 
 # Value assigned to bounce sessions (page_view with zero heartbeats) when
@@ -67,8 +71,62 @@ _SRC_SOCIAL = ("facebook.", "fb.", "instagram.", "twitter.", "x.com", "t.co",
                "pinterest.", "whatsapp.", "wa.me", "telegram.", "t.me")
 
 
+# --- School / classroom platforms ------------------------------------------
+# (label, host needles). Checked in order against the referrer host; first
+# match wins. Ceibal runs on Schoology (ceibal.schoology.com), so it goes
+# first to get its own row. Referrers only carry the origin (browsers'
+# default strict-origin-when-cross-origin policy), so matching is host-only;
+# self-hosted IServ/Moodle on a plain school domain falls into the generic
+# school-domain bucket at best.
+SCHOOL_PLATFORMS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Ceibal (Uruguay)", ("ceibal",)),
+    ("Schoology", ("schoology.",)),
+    ("Google Classroom", ("classroom.google.",)),
+    ("Microsoft Teams", ("teams.microsoft.", "teams.live.", "teams.cloud.microsoft")),
+    ("Moodle / Aula virtual", ("moodle", "aulavirtual", "aules.edu.gva.es")),
+    ("Canvas", ("instructure.com", "canvas.")),
+    ("itslearning", ("itslearning.",)),
+    ("mebis (Bayern)", ("mebis.",)),
+    ("LOGINEO (NRW)", ("logineo",)),
+    ("IServ", ("iserv",)),
+    ("WebUntis", ("webuntis.",)),
+    ("Schul-Cloud", ("schul-cloud", "schulcloud", "dbildungscloud", "niedersachsen.cloud")),
+    ("EducaMadrid / Educamos", ("educa.madrid.org", "educamos.")),
+    ("Edmodo", ("edmodo.",)),
+    ("Seesaw / ClassDojo", ("seesaw.me", "classdojo.")),
+    ("Padlet", ("padlet.",)),
+)
+SCHOOL_GENERIC_LABEL = "Other school / .edu domain"
+_SCHOOL_GENERIC_NEEDLES = (".edu.", ".sch.", "k12.", "schule", "school", "colegio",
+                           "escuela", "instituto", "liceo", "gymnasium", "ikastola")
+
+
+def school_platform(referrer: Optional[str]) -> Optional[str]:
+    """Return the school/LMS platform label for a referrer URL, or None."""
+    if not referrer:
+        return None
+    try:
+        host = (urlparse(referrer).hostname or "").lower()
+    except Exception:
+        return None
+    return school_platform_for_host(host)
+
+
+def school_platform_for_host(host: str) -> Optional[str]:
+    host = (host or "").lower()
+    if not host or host.endswith("krabsy.com"):
+        return None
+    for label, needles in SCHOOL_PLATFORMS:
+        if any(n in host for n in needles):
+            return label
+    if host.endswith(".edu") or any(n in host for n in _SCHOOL_GENERIC_NEEDLES):
+        return SCHOOL_GENERIC_LABEL
+    return None
+
+
 def _traffic_source(host: str) -> str:
-    """Classify a referrer host into a coarse traffic-source bucket. NOTE:
+    """Classify a referrer host into a coarse traffic-source bucket (School /
+    AI / Search / Social / Referral / Direct / Internal). NOTE:
     search ENGINES are identifiable, but the search TERM is not — Google &
     co. strip the query from the referrer. Actual queries live in Search
     Console, not here."""
@@ -79,6 +137,9 @@ def _traffic_source(host: str) -> str:
     if host == "unknown":
         return "Other"
     h = host.lower()
+    # School first: "classroom.google.com" would otherwise count as Search.
+    if school_platform_for_host(h):
+        return "School"
     if any(n in h for n in _SRC_AI):
         return "AI"
     if any(n in h for n in _SRC_SEARCH):
@@ -108,16 +169,68 @@ VIEW_VIEWS = "views"
 VIEW_UNIQUES = "uniques"
 
 
+def _parse_ts(ts: str) -> Optional[datetime]:
+    if not ts:
+        return None
+    try:
+        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except Exception:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def concurrent_peak(sessions: list[dict]) -> tuple[int, Optional[datetime]]:
+    """Max number of sessions open at the same instant, and when.
+
+    A session spans [first event, last event] by ts_server; a bounce (no
+    heartbeat) spans BOUNCE_SECONDS. This is the classroom headcount proxy:
+    a whole class behind one school NAT + identical managed browser
+    collapses to 1-3 visitor_hashes, but each pupil's tab is its own
+    session_page_id.
+    """
+    edges: list[tuple[datetime, int]] = []
+    for s in sessions:
+        start = _parse_ts(s["start"])
+        if start is None:
+            continue
+        end = _parse_ts(s["end"]) or start
+        end = max(end, start + timedelta(seconds=BOUNCE_SECONDS))
+        edges.append((start, 1))
+        edges.append((end, -1))
+    # at equal timestamps close before open: back-to-back isn't concurrent
+    edges.sort(key=lambda e: (e[0], e[1]))
+    peak, cur, peak_at = 0, 0, None
+    for t, d in edges:
+        cur += d
+        if cur > peak:
+            peak, peak_at = cur, t
+    return peak, peak_at
+
+
 def aggregate(
     range_key: str,
     show_bots: bool,
     view: str = VIEW_VIEWS,
     country_filter: Optional[str] = None,
     device_filter: Optional[str] = None,
+    events: Optional[list[dict]] = None,
 ) -> dict:
+    """Compute every dashboard number.
+
+    Classification (classify.build_sessions) runs on ALL events of the
+    range before the country/device filter, so a session's class never
+    depends on the filter. `show_bots` False hides both `bot` and
+    `likely_bot` sessions from every breakdown; the class table always
+    shows all four counts. `events` is injectable for tests.
+    """
     since = _since_iso(range_key)
+    if events is None:
+        events = list(read_events(since=since, max_count=200_000))
+    sessions, keys = build_sessions(events)
+    hidden = frozenset() if show_bots else HIDDEN_BY_DEFAULT
+
     total_all = 0
-    bot_count = 0
+    hidden_views = 0                      # page views of bot + likely_bot
     counted = 0
     paths: Counter = Counter()
     referrers: Counter = Counter()
@@ -147,8 +260,12 @@ def aggregate(
     devices_u: dict[str, set] = defaultdict(set)
     all_uniques: set = set()
 
-    # session_page_id -> {path, max_elapsed (or None for bounce), is_bot}
-    sessions: dict[str, dict] = {}
+    # Classification bookkeeping (always over every class).
+    included: set = set()                 # session keys with >=1 event passing filters
+    class_views: Counter = Counter()
+    class_uniques: dict[str, set] = defaultdict(set)
+    hidden_reasons: Counter = Counter()   # reason -> page views (bot + likely_bot)
+    hidden_paths: Counter = Counter()     # path -> page views (bot + likely_bot)
 
     def passes_filters(country: str, device: str) -> bool:
         if country_filter and country != country_filter:
@@ -157,12 +274,10 @@ def aggregate(
             return False
         return True
 
-    for ev in read_events(since=since, max_count=200_000):
+    for ev, key in zip(events, keys):
         # Events stored before heartbeats existed have no event_type — treat
         # them as page_view for backward compatibility.
         event_type = ev.get("event_type") or "page_view"
-        bot = bool(ev.get("bot"))
-        sid = ev.get("session_page_id")
         path = ev.get("path") or "/"
         country = ev.get("country") or "unknown"
         device = ev.get("device_type") or "unknown"
@@ -175,74 +290,63 @@ def aggregate(
 
         # Active filters drop everything that doesn't match — including
         # heartbeats, so engagement/uniques inherit the filter.
-        if not passes_filters(country, device):
+        if not key or not passes_filters(country, device):
             continue
+        included.add(key)
+        sess = sessions[key]
+        cls = sess["class"]
 
-        if event_type == "page_view":
-            total_all += 1
-            if bot:
-                bot_count += 1
-            # Register the session regardless of bot toggle so heartbeats can
-            # be matched correctly; bot filtering happens at the aggregation
-            # step below.
-            if sid:
-                existing = sessions.get(sid)
-                if existing is None:
-                    sessions[sid] = {"path": path, "max_elapsed": None, "is_bot": bot}
-                else:
-                    existing["path"] = path
-                    existing["is_bot"] = bot
-            if bot and not show_bots:
-                continue
-            counted += 1
-            ref = _referrer_host(ev.get("referrer"))
-            src = _traffic_source(ref)
-            lang = _lang_short(ev.get("language"))
+        if event_type != "page_view":
+            continue  # heartbeats only feed the session table (build_sessions)
 
-            paths[path] += 1
-            referrers[ref] += 1
-            sources[src] += 1
+        total_all += 1
+        class_views[cls] += 1
+        vh = ev.get("visitor_hash")
+        if vh:
+            class_uniques[cls].add(vh)
+        if cls in HIDDEN_BY_DEFAULT:
+            hidden_views += 1
+            hidden_reasons[sess["reason"] or cls] += 1
+            hidden_paths[path] += 1
+        if cls in hidden:
+            continue
+        counted += 1
+        ref = _referrer_host(ev.get("referrer"))
+        src = _traffic_source(ref)
+        lang = _lang_short(ev.get("language"))
+
+        paths[path] += 1
+        referrers[ref] += 1
+        sources[src] += 1
+        if src == "Search":
+            search_pages[path] += 1
+        langs[lang] += 1
+        countries[country] += 1
+        devices[device] += 1
+        ts = ev.get("ts_server") or ev.get("ts_client") or ""
+        ev_date = None
+        try:
+            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            hours[dt.hour] += 1
+            ev_date = dt.date().isoformat()
+            daily_views[ev_date] += 1
+        except Exception:
+            pass
+
+        if vh:
+            paths_u[path].add(vh)
+            if ev_date:
+                daily_uniques[ev_date].add(vh)
+            referrers_u[ref].add(vh)
+            sources_u[src].add(vh)
             if src == "Search":
-                search_pages[path] += 1
-            langs[lang] += 1
-            countries[country] += 1
-            devices[device] += 1
-            ts = ev.get("ts_server") or ev.get("ts_client") or ""
-            ev_date = None
-            try:
-                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-                hours[dt.hour] += 1
-                ev_date = dt.date().isoformat()
-                daily_views[ev_date] += 1
-            except Exception:
-                pass
+                search_pages_u[path].add(vh)
+            langs_u[lang].add(vh)
+            countries_u[country].add(vh)
+            devices_u[device].add(vh)
+            all_uniques.add(vh)
 
-            vh = ev.get("visitor_hash")
-            if vh:
-                paths_u[path].add(vh)
-                if ev_date:
-                    daily_uniques[ev_date].add(vh)
-                referrers_u[ref].add(vh)
-                sources_u[src].add(vh)
-                if src == "Search":
-                    search_pages_u[path].add(vh)
-                langs_u[lang].add(vh)
-                countries_u[country].add(vh)
-                devices_u[device].add(vh)
-                all_uniques.add(vh)
-        elif event_type == "page_heartbeat":
-            if not sid:
-                continue
-            elapsed = ev.get("elapsed_seconds")
-            if not isinstance(elapsed, int) or elapsed < 0:
-                continue
-            sess = sessions.get(sid)
-            if sess is None:
-                # Heartbeat arrived before its page_view in the window (or
-                # the page_view fell outside the range). Keep it anyway.
-                sessions[sid] = {"path": path, "max_elapsed": elapsed, "is_bot": bot}
-            elif sess["max_elapsed"] is None or elapsed > sess["max_elapsed"]:
-                sess["max_elapsed"] = elapsed
+    class_sessions: Counter = Counter(sessions[k]["class"] for k in included)
 
     # Engagement: each session contributes one value to its path's bucket.
     # Bounce sessions (no heartbeats) get BOUNCE_SECONDS so fast bounces drag
@@ -250,8 +354,9 @@ def aggregate(
     # because engagement is a session-time concept, not a visitor-count one.
     by_path_durations: dict[str, list[int]] = defaultdict(list)
     all_durations: list[int] = []
-    for sess in sessions.values():
-        if sess["is_bot"] and not show_bots:
+    for k in included:
+        sess = sessions[k]
+        if sess["class"] in hidden:
             continue
         value = sess["max_elapsed"] if sess["max_elapsed"] is not None else BOUNCE_SECONDS
         by_path_durations[sess["path"]].append(value)
@@ -277,6 +382,43 @@ def aggregate(
         )
 
     overall_avg = sum(all_durations) / len(all_durations) if all_durations else None
+
+    # School / classroom: sessions whose referrer is an LMS / school domain.
+    # Hard bots are always excluded (likely_bot can't occur: it requires no
+    # referrer). Counts sessions, not visitor_hashes — see concurrent_peak.
+    school_by_platform: dict[str, list[dict]] = defaultdict(list)
+    for k in included:
+        sess = sessions[k]
+        if sess["class"] == CLASS_BOT:
+            continue
+        platform = school_platform(sess["referrer"])
+        if platform:
+            school_by_platform[platform].append(sess)
+
+    def _school_row(label: str, group: list[dict]) -> dict:
+        engaged = [s for s in group if s["class"] == CLASS_ENGAGED]
+        times = [s["max_elapsed"] for s in engaged if s["max_elapsed"] is not None]
+        peak, peak_at = concurrent_peak(group)
+        return {
+            "platform": label,
+            "sessions": len(group),
+            "engaged": len(engaged),
+            "visitors": len({s["visitor_hash"] for s in group if s["visitor_hash"]}),
+            "median_engaged": _median(times),
+            "max_engaged": max(times) if times else None,
+            "peak_concurrent": peak,
+            "peak_at": peak_at.strftime("%Y-%m-%d %H:%M UTC") if peak_at else None,
+            "top_paths": Counter(s["path"] for s in group).most_common(3),
+        }
+
+    school_rows = sorted(
+        (_school_row(label, group) for label, group in school_by_platform.items()),
+        key=lambda r: (-r["sessions"], r["platform"]),
+    )
+    school_total = (
+        _school_row("All school platforms", [s for g in school_by_platform.values() for s in g])
+        if len(school_rows) > 1 else None
+    )
 
     # Pick which counter feeds each breakdown based on `view`. Uniques mode
     # converts the per-bucket sets to counts; views mode reuses the existing
@@ -312,10 +454,17 @@ def aggregate(
     return {
         "view": view,
         "total_all": total_all,
-        "bot_count": bot_count,
+        "bot_count": hidden_views,      # page views of bot + likely_bot
         "counted": counted,
         "uniques_total": len(all_uniques),
         "unique_paths": len(paths),
+        "class_sessions": {c: class_sessions.get(c, 0) for c in CLASSES},
+        "class_views": {c: class_views.get(c, 0) for c in CLASSES},
+        "class_uniques": {c: len(class_uniques.get(c, ())) for c in CLASSES},
+        "hidden_reasons": hidden_reasons.most_common(12),
+        "hidden_paths": hidden_paths.most_common(10),
+        "school_rows": school_rows,
+        "school_total": school_total,
         "paths": paths_out.most_common(20),
         "referrers": referrers_out.most_common(10),
         "sources": sources_out.most_common(),
@@ -576,6 +725,64 @@ def _timeseries_svg(rows: list[tuple]) -> str:
     )
 
 
+CLASS_LABELS = {
+    CLASS_ENGAGED: ("Engaged", "human-looking, ≥1 heartbeat (stayed ≥15 s)"),
+    CLASS_BOUNCE: ("Bounce", "human-looking, no heartbeat"),
+    CLASS_LIKELY_BOT: ("Likely bot", "no heartbeat + no referrer + zh* language + visitor seen once"),
+    CLASS_BOT: ("Bot", "bot/agent UA, non-browser UA, impossible iOS UA, or stored bot flag"),
+}
+
+
+def _class_table(data: dict, show_bots: bool) -> str:
+    rows = []
+    for c in CLASSES:
+        label, rule = CLASS_LABELS[c]
+        state = "shown" if (show_bots or c not in HIDDEN_BY_DEFAULT) else "hidden"
+        rows.append(
+            "<tr>"
+            f"<td><strong>{escape(label)}</strong> <span class='muted'>({state})</span><br>"
+            f"<span class='muted' style='font-size:11px'>{escape(rule)}</span></td>"
+            f"<td class='num'>{data['class_sessions'][c]:,}</td>"
+            f"<td class='num'>{data['class_views'][c]:,}</td>"
+            f"<td class='num'>{data['class_uniques'][c]:,}</td>"
+            "</tr>"
+        )
+    return (
+        "<table><thead><tr><th>Class</th><th class='num'>Sessions</th>"
+        "<th class='num'>Page views</th><th class='num'>Visitors</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
+    )
+
+
+def _school_table(rows: list[dict], total: Optional[dict]) -> str:
+    if not rows:
+        return '<div class="empty">No visits from school / LMS referrers in this range</div>'
+    body = []
+    for r in rows + ([total] if total else []):
+        top = ", ".join(f"{escape(p)} ({n})" for p, n in r["top_paths"])
+        peak_at = f"<br><span class='muted' style='font-size:11px'>{escape(r['peak_at'])}</span>" if r["peak_at"] else ""
+        strong = r is total
+        name = f"<strong>{escape(r['platform'])}</strong>" if strong else escape(r["platform"])
+        body.append(
+            "<tr>"
+            f"<td>{name}<br><span class='muted' style='font-size:11px'>{top}</span></td>"
+            f"<td class='num'>{r['sessions']}</td>"
+            f"<td class='num'>{r['engaged']}</td>"
+            f"<td class='num'>{r['visitors']}</td>"
+            f"<td class='num'>{escape(_format_duration(r['median_engaged']))}</td>"
+            f"<td class='num'>{escape(_format_duration(r['max_engaged']))}</td>"
+            f"<td class='num'>{r['peak_concurrent']}{peak_at}</td>"
+            "</tr>"
+        )
+    return (
+        "<table style='max-width:900px'><thead><tr><th>Platform · top paths</th>"
+        "<th class='num'>Sessions</th><th class='num'>Engaged</th><th class='num'>Visitors</th>"
+        "<th class='num'>Median (engaged)</th><th class='num'>Max</th>"
+        "<th class='num'>Peak concurrent</th></tr></thead>"
+        f"<tbody>{''.join(body)}</tbody></table>"
+    )
+
+
 DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
 
 
@@ -616,6 +823,7 @@ def render_dashboard(
     view: str = VIEW_VIEWS,
     country_filter: Optional[str] = None,
     device_filter: Optional[str] = None,
+    events: Optional[list[dict]] = None,
 ) -> str:
     if range_key not in {k for k, _, _ in RANGES}:
         range_key = "7d"
@@ -627,7 +835,8 @@ def render_dashboard(
     device_filter = device_filter or None
     if device_filter and device_filter not in {d for d, _ in DEVICE_OPTIONS if d}:
         device_filter = None
-    data = aggregate(range_key, show_bots, view, country_filter=country_filter, device_filter=device_filter)
+    data = aggregate(range_key, show_bots, view, country_filter=country_filter,
+                     device_filter=device_filter, events=events)
 
     range_label = next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
     bot_pct = (data["bot_count"] / data["total_all"] * 100) if data["total_all"] else 0
@@ -669,7 +878,7 @@ def render_dashboard(
         filter_bits.append(f"Device: <strong>{escape(device_filter.title())}</strong>")
     filter_bits.append(f"generated {escape(now_iso)}")
     filter_bits.append(
-        "bots are " + ("<strong>included</strong>" if show_bots else "<strong>excluded</strong>") +
+        "bots &amp; likely bots are " + ("<strong>included</strong>" if show_bots else "<strong>excluded</strong>") +
         " from the breakdowns below"
     )
     header_line = " · ".join(filter_bits)
@@ -687,7 +896,8 @@ def render_dashboard(
         + _stat("Pages / visitor", f"{ppv:.1f}")
         + _stat("Unique paths", f"{data['unique_paths']:,}")
         + _stat("Avg engagement", _format_duration(data["overall_avg_engagement"]))
-        + _stat("Bots (% of total)", f"{bot_pct:.1f}%")
+        + _stat("Engaged sessions", f"{data['class_sessions'][CLASS_ENGAGED]:,}")
+        + _stat("Bots + likely bots (% of views)", f"{bot_pct:.1f}%")
         + _stat("Total incl. bots", f"{data['total_all']:,}")
     )
 
@@ -738,6 +948,18 @@ def render_dashboard(
   </section>
 
   <section>
+    <h2>Traffic classification</h2>
+    {_class_table(data, show_bots)}
+    <p class="muted" style="margin-top:8px;font-size:12px">Re-computed on every load from the raw log, so older events get the current rules. One class per page session (session_page_id). Bot + likely bot are hidden from the breakdowns unless &ldquo;show bots&rdquo; is ticked; a session with a heartbeat or a referrer is never a likely bot. Visitors = distinct daily visitor hashes.</p>
+    <details style="margin-top:8px;max-width:720px"><summary class="muted" style="font-size:12px;cursor:pointer">What the hidden traffic is (reasons · paths)</summary>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:8px">
+        <div>{_table(("Reason", "Views"), data["hidden_reasons"])}</div>
+        <div>{_table(("Path", "Views"), data["hidden_paths"])}</div>
+      </div>
+    </details>
+  </section>
+
+  <section>
     <h2>Over time (daily)</h2>
     <div class="chart">{_timeseries_svg(data["timeseries"])}</div>
     <p class="muted" style="margin-top:8px;font-size:12px">Unique visitors and page views per day across the selected range. Hover a dot for the exact count.</p>
@@ -747,6 +969,12 @@ def render_dashboard(
     <h2>Engagement by path</h2>
     {_engagement_table(data["engagement_rows"])}
     <p class="muted" style="margin-top:8px;font-size:12px">Avg and median are computed across session_page_id buckets, regardless of the view toggle. Bounces (no heartbeat fired before the visitor left) are counted as ~7s and render as &lt;15s.</p>
+  </section>
+
+  <section>
+    <h2>School / classroom</h2>
+    {_school_table(data["school_rows"], data["school_total"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Sessions whose referrer is a school LMS or school domain. A class behind one school network with identical browsers collapses to 1&ndash;3 visitor hashes, so read <em>Sessions</em>, <em>Engaged</em> and <em>Peak concurrent</em> (most page sessions open at the same moment &asymp; pupils in the room) rather than <em>Visitors</em>. An LMS embed plus an opened tab can count one pupil twice. Times are max heartbeat per engaged session.</p>
   </section>
 
   <section>

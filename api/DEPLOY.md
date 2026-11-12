@@ -128,6 +128,24 @@ docker exec <container-name> cat /data/events.jsonl > backup-$(date +%F).jsonl
 **Check the raw feed.** `GET https://api.krabsy.com/dashboard/raw` returns
 the last 1000 events as JSON (same basic auth).
 
+**Bot classification (Nov 2026).** The collector stores `bot` (bool, as
+before) plus a new `bot_reason` (`null` for humans, else e.g.
+`"ua:lightpanda"`, `"impossible_ua"`, `"non_browser_ua"`, `"empty_ua"`).
+The rules live in `classify.py`. The dashboard re-classifies every session
+at read time, so new rules also apply to old events — no log rewrite
+needed. Classes: `bot` (UA rules or stored flag), `likely_bot` (no
+heartbeat + no referrer + `zh*` language + visitor_hash seen once in the
+range: the rotating-UA stealth scraper), `bounce`, `engaged` (>=1
+heartbeat). Bot + likely bot are hidden unless "show bots" is ticked; the
+"Traffic classification" table always shows all four counts. The
+"School / classroom" section groups LMS/school referrers (Ceibal,
+Schoology, Classroom, Moodle, Teams, …) and reports sessions, engaged
+sessions and the concurrent-session peak, because a class behind one
+school NAT collapses to a few visitor hashes. Tests:
+`python3 api/tests/test_classification.py` (or `pytest api/tests`;
+pytest is not a runtime dependency). `classify.py` must stay in the
+Dockerfile `COPY` line.
+
 **Outgrowing JSONL.** At ~100k lines the dashboard will start to feel
 sluggish (each request scans the whole file). When that happens, migrate
 to SQLite with a one-time `import-jsonl-into-sqlite.py` script.
