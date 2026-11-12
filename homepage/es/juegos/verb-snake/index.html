@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Verb Snake: juego para aprender inglés — Krabsy</title>
-  <meta name="description" content="Devora las formas verbales en el orden correcto. El clásico de la serpiente con gramática inglesa. Gratis en el navegador, sin registro.">
+  <meta name="description" content="La serpiente clásica con verbos en inglés: cómete go, went y gone en el orden correcto y practica los verbos irregulares. Gratis en el navegador, sin registro.">
   <meta name="keywords" content="verb snake, serpiente, juego, verbos irregulares, aprender inglés">
   <link rel="canonical" href="https://krabsy.com/es/juegos/verb-snake/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/spiele/verb-snake/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="Verb Snake: juego para aprender inglés — Krabsy">
-  <meta property="og:description" content="Devora las formas verbales en el orden correcto. El clásico de la serpiente con gramática inglesa. Gratis en el navegador, sin registro.">
+  <meta property="og:description" content="La serpiente clásica con verbos en inglés: cómete go, went y gone en el orden correcto y practica los verbos irregulares. Gratis en el navegador, sin registro.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/es/juegos/verb-snake/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="es_ES">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Verb Snake: juego para aprender inglés — Krabsy">
-  <meta name="twitter:description" content="Devora las formas verbales en el orden correcto. El clásico de la serpiente con gramática inglesa. Gratis en el navegador, sin registro.">
+  <meta name="twitter:description" content="La serpiente clásica con verbos en inglés: cómete go, went y gone en el orden correcto y practica los verbos irregulares. Gratis en el navegador, sin registro.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #0d2240;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/es/juegos/verb-snake/",
+          "url": "https://krabsy.com/es/juegos/verb-snake/",
+          "name": "Verb Snake: juego para aprender inglés — Krabsy",
+          "description": "La serpiente clásica con verbos en inglés: cómete go, went y gone en el orden correcto y practica los verbos irregulares. Gratis en el navegador, sin registro.",
+          "inLanguage": "es",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/es/juegos/verb-snake/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/es/juegos/verb-snake/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/verb-snake.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/es/juegos/verb-snake/#game",
+          "name": "Verb Snake",
+          "url": "https://krabsy.com/es/juegos/verb-snake/",
+          "description": "La serpiente clásica con verbos en inglés: cómete go, went y gone en el orden correcto y practica los verbos irregulares. Gratis en el navegador, sin registro.",
+          "image": "https://krabsy.com/thumbnails/verb-snake.png",
+          "inLanguage": "en",
+          "genre": [
+            "Arcade",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Juego educativo",
+          "educationalLevel": "desde 10 años (inglés como lengua extranjera)",
+          "teaches": "Verbos irregulares en inglés: forma base, pasado simple y participio pasado",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/es/juegos/verb-snake/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/es/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Juegos",
+              "item": "https://krabsy.com/es/juegos/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Snake",
+              "item": "https://krabsy.com/es/juegos/verb-snake/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/es/juegos/verb-snake/#faq",
+          "inLanguage": "es",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Puedo jugar Verb Snake en el celular?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí. En pantallas táctiles aparece una cruceta, o simplemente tocas el lado del tablero hacia donde quieres que gire la serpiente."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué pasa si me como una forma equivocada?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Pierdes puntos y la serpiente se hace más corta. Si solo le queda la cabeza, se termina la partida."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué verbos aparecen?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Casi todos los verbos irregulares de la lista de Krabsy; solo se dejan fuera las formas muy largas para que quepan en el tablero."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Snake</a>
+  <main class="kg-info" id="instrucciones" lang="es">
+    <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Snake</span></nav>
+    <h1>Verb Snake: el juego de la serpiente con verbos irregulares</h1>
+    <p>¿Te acuerdas del juego de la serpiente? En Verb Snake mueves una serpiente por el tablero, pero la comida es especial: cada fruta lleva escrita una forma verbal en inglés. Cómetelas <strong>en el orden correcto</strong> – primero <em>go</em>, luego <em>went</em> y al final <em>gone</em> – y tu serpiente crecerá.</p>
+    <p>Así repasas los <strong>verbos irregulares en inglés</strong> con un clásico de siempre. Gratis, en el navegador y sin registro. Los textos del juego están en inglés.</p>
+    <h2>Cómo se juega Verb Snake</h2>
+    <ul class="kg-steps">
+      <li>Muévete con las <kbd>flechas</kbd> o con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. En el celular o la tablet usa la cruceta en pantalla o toca el lado del tablero hacia el que quieres girar.</li>
+      <li>Primero la forma base, después el pasado simple y por último el participio. Completar un verbo da puntos extra.</li>
+      <li>Si te comes una forma fuera de orden, tu serpiente se encoge.</li>
+      <li>No choques contra las paredes ni contra tu propia cola.</li>
+      <li>Cuantos más puntos tienes, más rápido va la serpiente.</li>
+    </ul>
+    <h2>Qué aprendes</h2>
+    <p>Verb Snake usa la lista completa de Krabsy: casi todos los 155 verbos irregulares, como <a href="/es/verbos-irregulares/go/"><em>go</em></a>, <a href="/es/verbos-irregulares/see/"><em>see</em></a>, <a href="/es/verbos-irregulares/take/"><em>take</em></a>, <a href="/es/verbos-irregulares/give/"><em>give</em></a> o <a href="/es/verbos-irregulares/ride/"><em>ride</em></a>. Como tienes que comer las formas en orden, la secuencia forma base → pasado simple → participio se te queda grabada sin darte cuenta. Al principio solo hay una fruta en el tablero; después aparecen tres y hay que pensar más rápido. Tu mejor puntuación se guarda en tu dispositivo.</p>
+    <h2>Preguntas frecuentes</h2>
+    <div class="kg-faq">
+      <h3>¿Puedo jugar Verb Snake en el celular?</h3>
+      <p>Sí. En pantallas táctiles aparece una cruceta, o simplemente tocas el lado del tablero hacia donde quieres que gire la serpiente.</p>
+      <h3>¿Qué pasa si me como una forma equivocada?</h3>
+      <p>Pierdes puntos y la serpiente se hace más corta. Si solo le queda la cabeza, se termina la partida.</p>
+      <h3>¿Qué verbos aparecen?</h3>
+      <p>Casi todos los verbos irregulares de la lista de Krabsy; solo se dejan fuera las formas muy largas para que quepan en el tablero.</p>
+    </div>
+    <h2>Sigue practicando</h2>
+    <ul class="kg-links">
+      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+    </ul>
+    <h2>Más juegos de verbos</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/es/juegos/verb-flow/"><span class="kg-related-thumb"><span class="kg-related-emoji" aria-hidden="true">✏️</span></span><span class="kg-related-name">Verb Flow!</span><span class="kg-related-tag">¡Conecta las tres formas verbales en el orden correcto!</span></a>
+      <a class="kg-related-card" href="/es/juegos/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control!</span><span class="kg-related-tag">¡Guía los aviones de forma segura con inglés!</span></a>
+      <a class="kg-related-card" href="/es/juegos/crab-slash/"><span class="kg-related-thumb"><img src="/thumbnails/crab-slash.png" alt="Escena del juego Crab Slash" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Crab Slash!</span><span class="kg-related-tag">¡Golpea los cangrejos con los verbos correctos!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';

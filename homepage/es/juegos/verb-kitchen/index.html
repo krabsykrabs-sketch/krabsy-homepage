@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #0c1430;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/es/juegos/verb-kitchen/",
+          "url": "https://krabsy.com/es/juegos/verb-kitchen/",
+          "name": "Verb Kitchen: juego de cocina en inglés — Krabsy",
+          "description": "Caos de cocina al estilo Overcooked con verbos en inglés. Lava platos practicando los verbos irregulares. Gratis en el navegador, sin registro.",
+          "inLanguage": "es",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/es/juegos/verb-kitchen/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/es/juegos/verb-kitchen/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/verb-kitchen.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/es/juegos/verb-kitchen/#game",
+          "name": "Verb Kitchen",
+          "url": "https://krabsy.com/es/juegos/verb-kitchen/",
+          "description": "Caos de cocina al estilo Overcooked con verbos en inglés. Lava platos practicando los verbos irregulares. Gratis en el navegador, sin registro.",
+          "image": "https://krabsy.com/thumbnails/verb-kitchen.png",
+          "inLanguage": "en",
+          "genre": [
+            "Simulation",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Juego educativo",
+          "educationalLevel": "desde 10 años (inglés como lengua extranjera)",
+          "teaches": "Verbos irregulares en inglés: pasado simple y participio pasado",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/es/juegos/verb-kitchen/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/es/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Juegos",
+              "item": "https://krabsy.com/es/juegos/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Kitchen",
+              "item": "https://krabsy.com/es/juegos/verb-kitchen/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/es/juegos/verb-kitchen/#faq",
+          "inLanguage": "es",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Necesito teclado?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "En la computadora se juega con teclado. En tablet y celular basta con tocar la pantalla: tu cocinero camina solo hasta el lugar que tocaste."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Se puede perder en Verb Kitchen?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Para qué sirven las estrellas?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Kitchen</a>
+  <main class="kg-info" id="instrucciones" lang="es">
+    <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Kitchen</span></nav>
+    <h1>Verb Kitchen: juego de cocina con verbos irregulares</h1>
+    <p>¡Bienvenido a Verb Kitchen! En este juego de cocina en 3D recibes pedidos, cortas ingredientes, cocinas en la estufa o en el horno y sirves los platos por la ventanilla. Pero los platos vuelven sucios, y solo se limpian con inglés: cada <strong>tres respuestas correctas</strong> en el fregadero te dan un plato limpio.</p>
+    <p>Así el caos de la cocina se convierte en práctica de los <strong>verbos irregulares en inglés</strong>. Se juega gratis en el navegador; los textos del juego están en inglés.</p>
+    <h2>Cómo se juega Verb Kitchen</h2>
+    <ul class="kg-steps">
+      <li>Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas, toma y deja cosas con <kbd>E</kbd> y corta manteniendo pulsada la <kbd>barra espaciadora</kbd>.</li>
+      <li>En tablet o celular tocas el lugar al que quieres ir y tocas una estación para usarla.</li>
+      <li>Saca ingredientes de las cajas, córtalos y cocínalos, ponlos en un plato y sírvelo. ¡Que no se queme nada!</li>
+      <li>En el fregadero respondes preguntas de verbos con uno de tres botones: con un clic o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
+      <li>Cuanto más rápido entregues todos los pedidos, más estrellas consigues.</li>
+    </ul>
+    <h2>Qué aprendes</h2>
+    <p>En el fregadero el juego te pregunta a veces el pasado simple y a veces el participio, por ejemplo <em>go → ___</em> o <em>go → went → ___</em>. Hay 46 verbos, entre ellos verbos de cocina como <a href="/es/verbos-irregulares/cut/"><em>cut</em></a>, <a href="/es/verbos-irregulares/burn/"><em>burn</em></a>, <a href="/es/verbos-irregulares/break/"><em>break</em></a> y <a href="/es/verbos-irregulares/eat/"><em>eat</em></a>. Si fallas, ves la secuencia completa; los verbos que fallaste vuelven a salir y al final el juego te muestra cuáles debes repasar. Hay tres restaurantes: Garden Bistro, con tutorial, Burger Bar y Pizza Palace.</p>
+    <h2>Preguntas frecuentes</h2>
+    <div class="kg-faq">
+      <h3>¿Necesito teclado?</h3>
+      <p>En la computadora se juega con teclado. En tablet y celular basta con tocar la pantalla: tu cocinero camina solo hasta el lugar que tocaste.</p>
+      <h3>¿Se puede perder en Verb Kitchen?</h3>
+      <p>No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas.</p>
+      <h3>¿Para qué sirven las estrellas?</h3>
+      <p>Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo.</p>
+    </div>
+    <h2>Sigue practicando</h2>
+    <ul class="kg-links">
+      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+    </ul>
+    <h2>Más juegos de verbos</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/es/juegos/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/verb-platformer.png" alt="Escena del juego Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer!</span><span class="kg-related-tag">¡Salta por mundos 3D y elige la forma verbal correcta!</span></a>
+      <a class="kg-related-card" href="/es/juegos/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control!</span><span class="kg-related-tag">¡Guía los aviones de forma segura con inglés!</span></a>
+      <a class="kg-related-card" href="/es/juegos/verb-flow/"><span class="kg-related-thumb"><span class="kg-related-emoji" aria-hidden="true">✏️</span></span><span class="kg-related-name">Verb Flow!</span><span class="kg-related-tag">¡Conecta las tres formas verbales en el orden correcto!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';
