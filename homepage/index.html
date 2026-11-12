@@ -1,32 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Krabsy</title>
-  <meta name="robots" content="noindex,follow">
-  <meta http-equiv="refresh" content="0; url=/de/">
+  <title>Krabsy — Englisch lernen mit Spielen</title>
+  <!--
+    Brand root. The server cannot 301 yet (see docs/seo-server-redirects.md),
+    so this page is a static redirect that search engines treat as permanent:
+    - NO robots noindex: noindex + canonical + redirect sent conflicting
+      signals; an instant meta refresh is handled like a 301 by Google.
+    - Crawlers / no-JS visitors follow the meta refresh to /de/ (= x-default).
+    - Browsers with JS go to the remembered or browser language first.
+    Once the nginx `location = / { return 301 /de/; }` is live, this file is
+    never served and can stay as a fallback.
+  -->
   <link rel="canonical" href="https://krabsy.com/de/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/">
   <link rel="alternate" hreflang="es" href="https://krabsy.com/es/">
   <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
     (function () {
+      var target = '/de/';
       try {
         var stored = localStorage.getItem('krabsy_lang');
         var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
-        var target = '/de/';
-        if (stored === 'es') target = '/es/';
-        else if (stored === 'de') target = '/de/';
+        if (stored === 'es' || stored === 'de') target = '/' + stored + '/';
         else if (nav.indexOf('es') === 0) target = '/es/';
-        else target = '/de/';
-        window.location.replace(target);
-      } catch (_) {
-        window.location.replace('/de/');
-      }
+      } catch (_) {}
+      window.location.replace(target + window.location.search + window.location.hash);
     })();
   </script>
+  <meta http-equiv="refresh" content="0; url=/de/">
 </head>
 <body>
-  <p>Weiter zu <a href="/de/">krabsy.com (Deutsch)</a> / <a href="/es/">krabsy.com (Español)</a></p>
+  <p>Weiter zu <a href="/de/">Krabsy auf Deutsch</a> · Continuar a <a href="/es/">Krabsy en español</a></p>
 </body>
 </html>
