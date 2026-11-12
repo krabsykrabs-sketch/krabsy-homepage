@@ -1858,6 +1858,50 @@
     "meaning_es": "escribir"
   },
   {
+    "id": "iv_buy_past",
+    "topic": "irregular_verbs",
+    "tier": 1,
+    "morph_type": 2,
+    "verb": "buy",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "buy → ___",
+    "correct_answer": "bought",
+    "correct_alt": [],
+    "wrong_answers": [
+      "buyed",
+      "brought",
+      "boughted"
+    ],
+    "hint": "b__ght",
+    "context_sentence": "We ___ a new sofa last week.",
+    "meaning_de": "kaufen",
+    "meaning_es": "comprar"
+  },
+  {
+    "id": "iv_buy_pp",
+    "topic": "irregular_verbs",
+    "tier": 1,
+    "morph_type": 2,
+    "verb": "buy",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "buy → ___ → ___",
+    "correct_answer": "bought",
+    "correct_alt": [],
+    "wrong_answers": [
+      "buyed",
+      "brought",
+      "buyen"
+    ],
+    "hint": "b__ght",
+    "context_sentence": "Have you ___ the tickets yet?",
+    "meaning_de": "kaufen",
+    "meaning_es": "comprar"
+  },
+  {
     "id": "iv_cost_past",
     "topic": "irregular_verbs",
     "tier": 2,
@@ -2425,7 +2469,7 @@
       "meanen"
     ],
     "hint": "m__nt",
-    "context_sentence": "What has she ___ by that?",
+    "context_sentence": "That song has always ___ a lot to me.",
     "meaning_de": "bedeuten, meinen",
     "meaning_es": "significar, querer decir"
   },
@@ -4384,6 +4428,278 @@
     "context_sentence": "The river has ___ after the rain.",
     "meaning_de": "anschwellen",
     "meaning_es": "hincharse, inflamarse"
+  },
+  {
+    "id": "iv_wake_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "wake",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "wake → ___",
+    "correct_answer": "woke",
+    "correct_alt": [],
+    "wrong_answers": [
+      "waked",
+      "woken",
+      "wook"
+    ],
+    "hint": "w_ke",
+    "context_sentence": "The noise ___ the baby at five o'clock.",
+    "meaning_de": "wecken, aufwachen",
+    "meaning_es": "despertar, despertarse"
+  },
+  {
+    "id": "iv_wake_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "wake",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "wake → ___ → ___",
+    "correct_answer": "woken",
+    "correct_alt": [],
+    "wrong_answers": [
+      "waked",
+      "woke",
+      "wokened"
+    ],
+    "hint": "w_k_n",
+    "context_sentence": "The thunder has ___ everyone in the house.",
+    "meaning_de": "wecken, aufwachen",
+    "meaning_es": "despertar, despertarse"
+  },
+  {
+    "id": "iv_lie_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "lie",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "lie → ___",
+    "correct_answer": "lay",
+    "correct_alt": [],
+    "wrong_answers": [
+      "lied",
+      "laid",
+      "lain"
+    ],
+    "hint": "lay",
+    "context_sentence": "The cat ___ in the sun all afternoon.",
+    "meaning_de": "liegen",
+    "meaning_es": "estar tumbado, yacer"
+  },
+  {
+    "id": "iv_lie_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "lie",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "lie → ___ → ___",
+    "correct_answer": "lain",
+    "correct_alt": [],
+    "wrong_answers": [
+      "lied",
+      "laid",
+      "layed"
+    ],
+    "hint": "l__n",
+    "context_sentence": "The letter has ___ on my desk for a week.",
+    "meaning_de": "liegen",
+    "meaning_es": "estar tumbado, yacer"
+  },
+  {
+    "id": "iv_set_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 1,
+    "verb": "set",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "set → ___",
+    "correct_answer": "set",
+    "correct_alt": [],
+    "wrong_answers": [
+      "setted",
+      "sat",
+      "sets"
+    ],
+    "hint": "set",
+    "context_sentence": "She ___ the alarm for six o'clock.",
+    "meaning_de": "setzen, stellen, einstellen",
+    "meaning_es": "poner, fijar, ajustar"
+  },
+  {
+    "id": "iv_set_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 1,
+    "verb": "set",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "set → ___ → ___",
+    "correct_answer": "set",
+    "correct_alt": [],
+    "wrong_answers": [
+      "setted",
+      "sat",
+      "seten"
+    ],
+    "hint": "set",
+    "context_sentence": "The sun has already ___.",
+    "meaning_de": "setzen, stellen, einstellen",
+    "meaning_es": "poner, fijar, ajustar"
+  },
+  {
+    "id": "iv_smell_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 2,
+    "verb": "smell",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "smell → ___",
+    "correct_answer": "smelt",
+    "correct_alt": [
+      "smelled"
+    ],
+    "wrong_answers": [
+      "smolt",
+      "smelld",
+      "smells"
+    ],
+    "hint": "sm_lt",
+    "context_sentence": "The kitchen ___ of fresh bread.",
+    "meaning_de": "riechen",
+    "meaning_es": "oler"
+  },
+  {
+    "id": "iv_smell_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 2,
+    "verb": "smell",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "smell → ___ → ___",
+    "correct_answer": "smelt",
+    "correct_alt": [
+      "smelled"
+    ],
+    "wrong_answers": [
+      "smolt",
+      "smellen",
+      "smelld"
+    ],
+    "hint": "sm_lt",
+    "context_sentence": "I have never ___ anything so awful.",
+    "meaning_de": "riechen",
+    "meaning_es": "oler"
+  },
+  {
+    "id": "iv_spell_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 2,
+    "verb": "spell",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "spell → ___",
+    "correct_answer": "spelt",
+    "correct_alt": [
+      "spelled"
+    ],
+    "wrong_answers": [
+      "spolt",
+      "spellt",
+      "spells"
+    ],
+    "hint": "sp_lt",
+    "context_sentence": "He ___ my name wrong on the birthday card.",
+    "meaning_de": "buchstabieren, schreiben",
+    "meaning_es": "deletrear, escribir"
+  },
+  {
+    "id": "iv_spell_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 2,
+    "verb": "spell",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "spell → ___ → ___",
+    "correct_answer": "spelt",
+    "correct_alt": [
+      "spelled"
+    ],
+    "wrong_answers": [
+      "spellen",
+      "spolt",
+      "spellt"
+    ],
+    "hint": "sp_lt",
+    "context_sentence": "Have you ___ every word correctly?",
+    "meaning_de": "buchstabieren, schreiben",
+    "meaning_es": "deletrear, escribir"
+  },
+  {
+    "id": "iv_forgive_past",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "forgive",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "forgive → ___",
+    "correct_answer": "forgave",
+    "correct_alt": [],
+    "wrong_answers": [
+      "forgived",
+      "forgiven",
+      "forgove"
+    ],
+    "hint": "f_rg_ve",
+    "context_sentence": "She ___ her brother for breaking her phone.",
+    "meaning_de": "verzeihen, vergeben",
+    "meaning_es": "perdonar"
+  },
+  {
+    "id": "iv_forgive_pp",
+    "topic": "irregular_verbs",
+    "tier": 2,
+    "morph_type": 3,
+    "verb": "forgive",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "forgive → ___ → ___",
+    "correct_answer": "forgiven",
+    "correct_alt": [],
+    "wrong_answers": [
+      "forgived",
+      "forgave",
+      "forgivven"
+    ],
+    "hint": "f_rg_v_n",
+    "context_sentence": "Have you ___ him yet?",
+    "meaning_de": "verzeihen, vergeben",
+    "meaning_es": "perdonar"
   },
   {
     "id": "iv_bet_past",
@@ -6886,5 +7202,453 @@
     "context_sentence": "He has ___ many stories into the novel.",
     "meaning_de": "weben",
     "meaning_es": "tejer"
+  },
+  {
+    "id": "iv_spill_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "spill",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "spill → ___",
+    "correct_answer": "spilt",
+    "correct_alt": [
+      "spilled"
+    ],
+    "wrong_answers": [
+      "spillt",
+      "spolt",
+      "spills"
+    ],
+    "hint": "sp_lt",
+    "context_sentence": "I ___ orange juice on my homework.",
+    "meaning_de": "verschütten",
+    "meaning_es": "derramar"
+  },
+  {
+    "id": "iv_spill_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "spill",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "spill → ___ → ___",
+    "correct_answer": "spilt",
+    "correct_alt": [
+      "spilled"
+    ],
+    "wrong_answers": [
+      "spillen",
+      "spolt",
+      "spillt"
+    ],
+    "hint": "sp_lt",
+    "context_sentence": "Someone has ___ milk on the floor.",
+    "meaning_de": "verschütten",
+    "meaning_es": "derramar"
+  },
+  {
+    "id": "iv_split_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 1,
+    "verb": "split",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "split → ___",
+    "correct_answer": "split",
+    "correct_alt": [],
+    "wrong_answers": [
+      "splitted",
+      "splat",
+      "splits"
+    ],
+    "hint": "spl_t",
+    "context_sentence": "We ___ the pizza into four pieces.",
+    "meaning_de": "teilen, spalten",
+    "meaning_es": "dividir, partir"
+  },
+  {
+    "id": "iv_split_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 1,
+    "verb": "split",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "split → ___ → ___",
+    "correct_answer": "split",
+    "correct_alt": [],
+    "wrong_answers": [
+      "splitted",
+      "splitten",
+      "splat"
+    ],
+    "hint": "spl_t",
+    "context_sentence": "The class has ___ into two teams.",
+    "meaning_de": "teilen, spalten",
+    "meaning_es": "dividir, partir"
+  },
+  {
+    "id": "iv_lean_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "lean",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "lean → ___",
+    "correct_answer": "leant",
+    "correct_alt": [
+      "leaned"
+    ],
+    "wrong_answers": [
+      "leanted",
+      "lent",
+      "leans"
+    ],
+    "hint": "l__nt",
+    "context_sentence": "She ___ against the wall and waited.",
+    "meaning_de": "(sich) lehnen",
+    "meaning_es": "apoyarse, inclinarse"
+  },
+  {
+    "id": "iv_lean_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "lean",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "lean → ___ → ___",
+    "correct_answer": "leant",
+    "correct_alt": [
+      "leaned"
+    ],
+    "wrong_answers": [
+      "leanen",
+      "lent",
+      "leanted"
+    ],
+    "hint": "l__nt",
+    "context_sentence": "He has ___ his bike against the fence.",
+    "meaning_de": "(sich) lehnen",
+    "meaning_es": "apoyarse, inclinarse"
+  },
+  {
+    "id": "iv_forbid_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "forbid",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "forbid → ___",
+    "correct_answer": "forbade",
+    "correct_alt": [],
+    "wrong_answers": [
+      "forbidded",
+      "forbid",
+      "forbidden"
+    ],
+    "hint": "f_rb_de",
+    "context_sentence": "My parents ___ me to stay out late.",
+    "meaning_de": "verbieten",
+    "meaning_es": "prohibir"
+  },
+  {
+    "id": "iv_forbid_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "forbid",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "forbid → ___ → ___",
+    "correct_answer": "forbidden",
+    "correct_alt": [],
+    "wrong_answers": [
+      "forbidded",
+      "forbade",
+      "forbiden"
+    ],
+    "hint": "f_rb_dd_n",
+    "context_sentence": "The school has ___ mobile phones in class.",
+    "meaning_de": "verbieten",
+    "meaning_es": "prohibir"
+  },
+  {
+    "id": "iv_mistake_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "mistake",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "mistake → ___",
+    "correct_answer": "mistook",
+    "correct_alt": [],
+    "wrong_answers": [
+      "mistaked",
+      "mistaken",
+      "mistake"
+    ],
+    "hint": "m_st__k",
+    "context_sentence": "I ___ him for his twin brother.",
+    "meaning_de": "verwechseln",
+    "meaning_es": "confundir"
+  },
+  {
+    "id": "iv_mistake_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "mistake",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "mistake → ___ → ___",
+    "correct_answer": "mistaken",
+    "correct_alt": [],
+    "wrong_answers": [
+      "mistaked",
+      "mistook",
+      "mistooken"
+    ],
+    "hint": "m_st_k_n",
+    "context_sentence": "I think you have ___ me for someone else.",
+    "meaning_de": "verwechseln",
+    "meaning_es": "confundir"
+  },
+  {
+    "id": "iv_overcome_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "overcome",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "overcome → ___",
+    "correct_answer": "overcame",
+    "correct_alt": [],
+    "wrong_answers": [
+      "overcomed",
+      "overcome",
+      "overcamed"
+    ],
+    "hint": "ov_rc_me",
+    "context_sentence": "She ___ her fear of the dark.",
+    "meaning_de": "überwinden",
+    "meaning_es": "superar"
+  },
+  {
+    "id": "iv_overcome_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "overcome",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "overcome → ___ → ___",
+    "correct_answer": "overcome",
+    "correct_alt": [],
+    "wrong_answers": [
+      "overcomed",
+      "overcame",
+      "overcomen"
+    ],
+    "hint": "ov_rc_me",
+    "context_sentence": "He has ___ a lot of problems this year.",
+    "meaning_de": "überwinden",
+    "meaning_es": "superar"
+  },
+  {
+    "id": "iv_upset_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 1,
+    "verb": "upset",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "upset → ___",
+    "correct_answer": "upset",
+    "correct_alt": [],
+    "wrong_answers": [
+      "upsetted",
+      "upsat",
+      "upsets"
+    ],
+    "hint": "ups_t",
+    "context_sentence": "The bad news ___ everyone in the class.",
+    "meaning_de": "aufregen, kränken",
+    "meaning_es": "disgustar, molestar"
+  },
+  {
+    "id": "iv_upset_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 1,
+    "verb": "upset",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "upset → ___ → ___",
+    "correct_answer": "upset",
+    "correct_alt": [],
+    "wrong_answers": [
+      "upsetted",
+      "upsetten",
+      "upsat"
+    ],
+    "hint": "ups_t",
+    "context_sentence": "Have I ___ you?",
+    "meaning_de": "aufregen, kränken",
+    "meaning_es": "disgustar, molestar"
+  },
+  {
+    "id": "iv_withdraw_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "withdraw",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "withdraw → ___",
+    "correct_answer": "withdrew",
+    "correct_alt": [],
+    "wrong_answers": [
+      "withdrawed",
+      "withdrawn",
+      "withdraw"
+    ],
+    "hint": "w_thdr_w",
+    "context_sentence": "He ___ fifty euros from the cash machine.",
+    "meaning_de": "abheben, zurückziehen",
+    "meaning_es": "retirar, retirarse"
+  },
+  {
+    "id": "iv_withdraw_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "withdraw",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "withdraw → ___ → ___",
+    "correct_answer": "withdrawn",
+    "correct_alt": [],
+    "wrong_answers": [
+      "withdrawed",
+      "withdrew",
+      "withdrawen"
+    ],
+    "hint": "w_thdr_wn",
+    "context_sentence": "She has ___ from the competition.",
+    "meaning_de": "abheben, zurückziehen",
+    "meaning_es": "retirar, retirarse"
+  },
+  {
+    "id": "iv_misunderstand_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "misunderstand",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "misunderstand → ___",
+    "correct_answer": "misunderstood",
+    "correct_alt": [],
+    "wrong_answers": [
+      "misunderstanded",
+      "misunderstand",
+      "misunderstoad"
+    ],
+    "hint": "m_s_nd_rst__d",
+    "context_sentence": "I ___ the question in the test.",
+    "meaning_de": "missverstehen",
+    "meaning_es": "malinterpretar, entender mal"
+  },
+  {
+    "id": "iv_misunderstand_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 2,
+    "verb": "misunderstand",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "misunderstand → ___ → ___",
+    "correct_answer": "misunderstood",
+    "correct_alt": [],
+    "wrong_answers": [
+      "misunderstanded",
+      "misunderstanden",
+      "misunderstand"
+    ],
+    "hint": "m_s_nd_rst__d",
+    "context_sentence": "I think you have ___ me.",
+    "meaning_de": "missverstehen",
+    "meaning_es": "malinterpretar, entender mal"
+  },
+  {
+    "id": "iv_overtake_past",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "overtake",
+    "form": "past",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "overtake → ___",
+    "correct_answer": "overtook",
+    "correct_alt": [],
+    "wrong_answers": [
+      "overtaked",
+      "overtaken",
+      "overtooked"
+    ],
+    "hint": "ov_rt__k",
+    "context_sentence": "The red car ___ us on the motorway.",
+    "meaning_de": "überholen",
+    "meaning_es": "adelantar, rebasar"
+  },
+  {
+    "id": "iv_overtake_pp",
+    "topic": "irregular_verbs",
+    "tier": 3,
+    "morph_type": 3,
+    "verb": "overtake",
+    "form": "participle",
+    "type": "fill_gap",
+    "difficulty": 2,
+    "prompt": "overtake → ___ → ___",
+    "correct_answer": "overtaken",
+    "correct_alt": [],
+    "wrong_answers": [
+      "overtaked",
+      "overtook",
+      "overtooken"
+    ],
+    "hint": "ov_rt_k_n",
+    "context_sentence": "Electric cars have ___ petrol cars in some countries.",
+    "meaning_de": "überholen",
+    "meaning_es": "adelantar, rebasar"
   }
 ]
