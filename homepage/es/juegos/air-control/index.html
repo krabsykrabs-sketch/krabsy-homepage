@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Air Control: juego para aprender inglés — Krabsy</title>
-  <meta name="description" content="Guía los aviones con las formas verbales en inglés. Juego de estrategia para entrenar los verbos irregulares. Gratis en el navegador, sin registro.">
+  <meta name="description" content="Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.">
   <meta name="keywords" content="air control, juego, estrategia, gramática inglesa">
   <link rel="canonical" href="https://krabsy.com/es/juegos/air-control/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/spiele/air-control/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="Air Control: juego para aprender inglés — Krabsy">
-  <meta property="og:description" content="Guía los aviones con las formas verbales en inglés. Juego de estrategia para entrenar los verbos irregulares. Gratis en el navegador, sin registro.">
+  <meta property="og:description" content="Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/es/juegos/air-control/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="es_ES">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Air Control: juego para aprender inglés — Krabsy">
-  <meta name="twitter:description" content="Guía los aviones con las formas verbales en inglés. Juego de estrategia para entrenar los verbos irregulares. Gratis en el navegador, sin registro.">
+  <meta name="twitter:description" content="Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #112233;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/es/juegos/air-control/",
+          "url": "https://krabsy.com/es/juegos/air-control/",
+          "name": "Air Control: juego para aprender inglés — Krabsy",
+          "description": "Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.",
+          "inLanguage": "es",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/es/juegos/air-control/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/es/juegos/air-control/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/aircontrol.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/es/juegos/air-control/#game",
+          "name": "Air Control",
+          "url": "https://krabsy.com/es/juegos/air-control/",
+          "description": "Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.",
+          "image": "https://krabsy.com/thumbnails/aircontrol.png",
+          "inLanguage": "en",
+          "genre": [
+            "Strategy",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Juego educativo",
+          "educationalLevel": "desde 10 años (inglés como lengua extranjera)",
+          "teaches": "Verbos irregulares en inglés: forma base, pasado simple y participio pasado",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/es/juegos/air-control/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/es/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Juegos",
+              "item": "https://krabsy.com/es/juegos/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Air Control",
+              "item": "https://krabsy.com/es/juegos/air-control/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/es/juegos/air-control/#faq",
+          "inLanguage": "es",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Qué pasa si mando un avión a la pista equivocada?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Aparece «Wrong runway!» y el avión no sigue esa ruta; solo tienes que trazar otra. La partida termina únicamente si dos aviones chocan."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Cómo se desbloquean los niveles?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿El juego está en español?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Los textos dentro del juego están en inglés, que es justo lo que practicas. En esta página tienes las instrucciones en español."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Air Control</a>
+  <main class="kg-info" id="instrucciones" lang="es">
+    <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Air Control</span></nav>
+    <h1>Air Control: aterriza aviones con los verbos irregulares</h1>
+    <p>En Air Control eres controlador aéreo. Cada avión lleva una forma verbal en inglés y tu trabajo es aterrizar las tres formas de un mismo verbo – por ejemplo <em>fly</em>, <em>flew</em> y <em>flown</em> – <strong>en la misma pista</strong>. Al mismo tiempo tienes que evitar que los aviones choquen. Ideal para practicar los <strong>verbos irregulares en inglés</strong> mientras pones a prueba tus reflejos.</p>
+    <p>Se juega gratis en el navegador. Los textos del juego están en inglés y la primera vez un pequeño tutorial te enseña lo básico.</p>
+    <h2>Cómo se juega Air Control</h2>
+    <ul class="kg-steps">
+      <li>Arrastra el ratón o el dedo desde un avión hasta una pista para trazar su ruta.</li>
+      <li>Aterriza las tres formas de un verbo en la misma pista. Si lo haces en orden – ① forma base → ② pasado simple → ③ participio – ganas un gran bonus.</li>
+      <li>Los helicópteros 🚁 van al helipuerto marcado con una H.</li>
+      <li>¡Cuidado! Si dos aviones chocan, se acaba la partida.</li>
+      <li>Con <kbd>P</kbd> o la barra espaciadora pausas el juego; con <kbd>M</kbd> quitas el sonido.</li>
+    </ul>
+    <h2>Qué aprendes</h2>
+    <p>El juego incluye 30 verbos irregulares muy usados, entre ellos <a href="/es/verbos-irregulares/fly/"><em>fly</em></a>, <a href="/es/verbos-irregulares/take/"><em>take</em></a>, <a href="/es/verbos-irregulares/begin/"><em>begin</em></a>, <a href="/es/verbos-irregulares/speak/"><em>speak</em></a> y <a href="/es/verbos-irregulares/drive/"><em>drive</em></a>. No basta con reconocer cada forma: tienes que pensar qué tres palabras forman un verbo completo. Hay tres niveles que se desbloquean uno tras otro: «First Flight», «Heli School» y «Endless Skies», con dos pistas y cada vez más tráfico. Al terminar ves todas las cadenas de verbos que lograste aterrizar.</p>
+    <h2>Preguntas frecuentes</h2>
+    <div class="kg-faq">
+      <h3>¿Qué pasa si mando un avión a la pista equivocada?</h3>
+      <p>Aparece «Wrong runway!» y el avión no sigue esa ruta; solo tienes que trazar otra. La partida termina únicamente si dos aviones chocan.</p>
+      <h3>¿Cómo se desbloquean los niveles?</h3>
+      <p>Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo.</p>
+      <h3>¿El juego está en español?</h3>
+      <p>Los textos dentro del juego están en inglés, que es justo lo que practicas. En esta página tienes las instrucciones en español.</p>
+    </div>
+    <h2>Sigue practicando</h2>
+    <ul class="kg-links">
+      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+    </ul>
+    <h2>Más juegos de verbos</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake!</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
+      <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen!</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
+      <a class="kg-related-card" href="/es/juegos/verb-slash/"><span class="kg-related-thumb"><img src="/thumbnails/VerbSlash.png" alt="Escena del juego Verb Slash" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Slash</span><span class="kg-related-tag">¡Corta las formas verbales correctas!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';

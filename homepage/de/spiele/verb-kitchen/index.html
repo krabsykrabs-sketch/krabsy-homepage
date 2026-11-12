@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #0c1430;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/de/spiele/verb-kitchen/",
+          "url": "https://krabsy.com/de/spiele/verb-kitchen/",
+          "name": "Verb Kitchen: 3D-Englisch-Kochspiel — Krabsy",
+          "description": "Koch-Chaos im Overcooked-Stil mit englischen Verben. Spüle Teller, indem du unregelmäßige Verben übst. Kostenlos im Browser spielen, ohne Anmeldung.",
+          "inLanguage": "de",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/de/spiele/verb-kitchen/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/de/spiele/verb-kitchen/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/verb-kitchen.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/de/spiele/verb-kitchen/#game",
+          "name": "Verb Kitchen",
+          "url": "https://krabsy.com/de/spiele/verb-kitchen/",
+          "description": "Koch-Chaos im Overcooked-Stil mit englischen Verben. Spüle Teller, indem du unregelmäßige Verben übst. Kostenlos im Browser spielen, ohne Anmeldung.",
+          "image": "https://krabsy.com/thumbnails/verb-kitchen.png",
+          "inLanguage": "en",
+          "genre": [
+            "Simulation",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Lernspiel",
+          "educationalLevel": "ab Klasse 5 (Englisch als Fremdsprache)",
+          "teaches": "Unregelmäßige englische Verben: Simple Past und Past Participle",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/de/spiele/verb-kitchen/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/de/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Spiele",
+              "item": "https://krabsy.com/de/spiele/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Kitchen",
+              "item": "https://krabsy.com/de/spiele/verb-kitchen/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/de/spiele/verb-kitchen/#faq",
+          "inLanguage": "de",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Brauche ich eine Tastatur?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Am Computer spielst du mit Tastatur. Auf Tablet und Handy funktioniert Tippen: Die Figur läuft von selbst zum angetippten Ort."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Kann man in Verb Kitchen verlieren?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Nein. Bestellungen laufen nicht ab. Die Uhr zählt nur mit, und je schneller du bist, desto mehr Sterne bekommst du."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Was kann ich mit Sternen freischalten?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mit gesammelten Sternen schaltest du neue Spielfiguren frei. Sterne, Bestzeiten und Fortschritt werden auf deinem Gerät gespeichert."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#anleitung">▼ Anleitung &amp; Infos zu Verb Kitchen</a>
+  <main class="kg-info" id="anleitung" lang="de">
+    <nav class="kg-crumbs" aria-label="Brotkrümelnavigation"><a href="/de/">Krabsy</a> › <a href="/de/spiele/">Spiele</a> › <span aria-current="page">Verb Kitchen</span></nav>
+    <h1>Verb Kitchen – Kochspiel mit unregelmäßigen Verben</h1>
+    <p>Willkommen in der Verb Kitchen! In diesem 3D-Kochspiel nimmst du Bestellungen an, schnippelst Zutaten, brätst und backst – und servierst die fertigen Teller durch die Durchreiche. Doch die Teller kommen schmutzig zurück. Sauber werden sie nur mit Englisch: Für <strong>drei richtige Antworten</strong> an der Spüle bekommst du einen sauberen Teller.</p>
+    <p>So wird aus Küchenstress ein Training für die <strong>unregelmäßigen Verben</strong>. Das Spiel läuft kostenlos im Browser; die Texte im Spiel sind auf Englisch.</p>
+    <h2>So spielst du Verb Kitchen</h2>
+    <ul class="kg-steps">
+      <li>Bewegen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, aufnehmen und ablegen mit <kbd>E</kbd>, schneiden mit gedrückter <kbd>Leertaste</kbd>.</li>
+      <li>Auf Tablet und Handy tippst du dorthin, wo deine Figur hinlaufen soll, und tippst eine Station an, um sie zu benutzen.</li>
+      <li>Hol Zutaten aus den Kisten, schneide und koche sie, leg sie auf einen Teller und serviere. Pass auf, dass nichts anbrennt!</li>
+      <li>An der Spüle beantwortest du Verbfragen mit einem von drei Knöpfen – per Klick oder mit den Tasten <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
+      <li>Je schneller du alle Bestellungen schaffst, desto mehr Sterne bekommst du.</li>
+    </ul>
+    <h2>Was du dabei lernst</h2>
+    <p>An der Spüle fragt das Spiel mal nach dem Simple Past, mal nach dem Past Participle, zum Beispiel <em>go → ___</em> oder <em>go → went → ___</em>. Insgesamt sind 46 Verben dabei – auch Küchenverben wie <a href="/de/unregelmaessige-verben/cut/"><em>cut</em></a>, <a href="/de/unregelmaessige-verben/burn/"><em>burn</em></a>, <a href="/de/unregelmaessige-verben/break/"><em>break</em></a> und <a href="/de/unregelmaessige-verben/eat/"><em>eat</em></a>. Nach einem Fehler siehst du die ganze Reihe, verpasste Verben kommen wieder, und am Ende zeigt dir das Spiel, welche Verben du noch üben solltest. Es gibt drei Restaurants: Garden Bistro mit Tutorial, Burger Bar und Pizza Palace.</p>
+    <h2>Häufige Fragen</h2>
+    <div class="kg-faq">
+      <h3>Brauche ich eine Tastatur?</h3>
+      <p>Am Computer spielst du mit Tastatur. Auf Tablet und Handy funktioniert Tippen: Die Figur läuft von selbst zum angetippten Ort.</p>
+      <h3>Kann man in Verb Kitchen verlieren?</h3>
+      <p>Nein. Bestellungen laufen nicht ab. Die Uhr zählt nur mit, und je schneller du bist, desto mehr Sterne bekommst du.</p>
+      <h3>Was kann ich mit Sternen freischalten?</h3>
+      <p>Mit gesammelten Sternen schaltest du neue Spielfiguren frei. Sterne, Bestzeiten und Fortschritt werden auf deinem Gerät gespeichert.</p>
+    </div>
+    <h2>Weiter üben</h2>
+    <ul class="kg-links">
+      <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
+      <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
+      <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
+      <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
+      <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
+      <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
+    </ul>
+    <h2>Mehr Spiele mit Verben</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/de/spiele/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/verb-platformer.png" alt="Spielszene aus Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer!</span><span class="kg-related-tag">Springe durch 3D-Welten und wähle die richtige Verbform!</span></a>
+      <a class="kg-related-card" href="/de/spiele/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Spielszene aus Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control!</span><span class="kg-related-tag">Lotse die Flugzeuge sicher mit Englisch!</span></a>
+      <a class="kg-related-card" href="/de/spiele/verb-flow/"><span class="kg-related-thumb"><span class="kg-related-emoji" aria-hidden="true">✏️</span></span><span class="kg-related-name">Verb Flow!</span><span class="kg-related-tag">Verbinde die drei Verbformen — in der richtigen Reihenfolge!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Zurück zum Spiel</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';

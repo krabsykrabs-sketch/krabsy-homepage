@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #0d2240;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/es/juegos/verb-flow/",
+          "url": "https://krabsy.com/es/juegos/verb-flow/",
+          "name": "Verb Flow: juego para aprender inglés — Krabsy",
+          "description": "Conecta go, went y gone con una tubería — en el orden correcto. Puzzle de flujo con verbos irregulares en inglés. Gratis en el navegador, sin registro.",
+          "inLanguage": "es",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/es/juegos/verb-flow/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/es/juegos/verb-flow/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/og-image.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/es/juegos/verb-flow/#game",
+          "name": "Verb Flow",
+          "url": "https://krabsy.com/es/juegos/verb-flow/",
+          "description": "Conecta go, went y gone con una tubería — en el orden correcto. Puzzle de flujo con verbos irregulares en inglés. Gratis en el navegador, sin registro.",
+          "image": "https://krabsy.com/og-image.png",
+          "inLanguage": "en",
+          "genre": [
+            "Puzzle",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Juego educativo",
+          "educationalLevel": "desde 10 años (inglés como lengua extranjera)",
+          "teaches": "Verbos irregulares en inglés: forma base, pasado simple y participio pasado",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/es/juegos/verb-flow/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/es/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Juegos",
+              "item": "https://krabsy.com/es/juegos/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Flow",
+              "item": "https://krabsy.com/es/juegos/verb-flow/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/es/juegos/verb-flow/#faq",
+          "inLanguage": "es",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Verb Flow tiene límite de tiempo?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Puedes pensar con calma: no hay reloj ni vidas."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Se guarda mi progreso?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí, el nivel alcanzado y tu mejor puntuación se guardan en tu dispositivo. Con «Restart at Level 1» vuelves al principio."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Cómo me ayuda con el inglés?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Para cada verbo tienes que reconocer sus tres formas y ponerlas en orden, que es justo lo que te preguntan en clase y en los exámenes."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Flow</a>
+  <main class="kg-info" id="instrucciones" lang="es">
+    <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Flow</span></nav>
+    <h1>Verb Flow: el rompecabezas de los verbos irregulares</h1>
+    <p>Verb Flow es un juego de lógica: en una cuadrícula hay formas verbales en inglés repartidas por todas partes. Tienes que trazar una tubería desde la forma base, pasando por el pasado simple, hasta el participio – de <em>go</em> a <em>went</em> y de ahí a <em>gone</em>. ¿Parece fácil? Las tuberías no pueden cruzarse y las palabras de los otros verbos te bloquean el camino.</p>
+    <p>Es un juego tranquilo, sin reloj, perfecto para pensar con calma en los <strong>verbos irregulares en inglés</strong>. Gratis en el navegador y sin registro; los textos del juego están en inglés.</p>
+    <h2>Cómo se juega Verb Flow</h2>
+    <ul class="kg-steps">
+      <li>Toca una forma base y arrastra el ratón o el dedo para dibujar la tubería.</li>
+      <li>Une las formas en orden: primero la del medio (pasado simple) y después la última (participio).</li>
+      <li>Las tuberías no se pueden cruzar ni pasar por encima de otras palabras.</li>
+      <li>Si llenas todas las casillas, ganas el bonus «PERFECT FLOW».</li>
+      <li>¿Te atascaste? Tienes tres pistas por nivel, a cambio de algunos puntos. Con «Clear board» vacías el tablero y vuelves a empezar.</li>
+    </ul>
+    <h2>Qué aprendes</h2>
+    <p>Los niveles crecen poco a poco: del tablero de 5×5 con tres verbos al de 8×8 con seis, y los verbos también se vuelven más difíciles. Empiezas con conocidos como <a href="/es/verbos-irregulares/go/"><em>go</em></a>, <a href="/es/verbos-irregulares/see/"><em>see</em></a> o <a href="/es/verbos-irregulares/think/"><em>think</em></a>, y más adelante llegan verbos más difíciles como <a href="/es/verbos-irregulares/catch/"><em>catch</em></a>, <a href="/es/verbos-irregulares/choose/"><em>choose</em></a> e incluso <a href="/es/verbos-irregulares/freeze/"><em>freeze</em></a> o <a href="/es/verbos-irregulares/swing/"><em>swing</em></a>. Cada tablero tiene una solución que llena todas las casillas. Aquí no se pierde, solo se mejora. El juego guarda tu nivel y tu mejor puntuación.</p>
+    <h2>Preguntas frecuentes</h2>
+    <div class="kg-faq">
+      <h3>¿Verb Flow tiene límite de tiempo?</h3>
+      <p>No. Puedes pensar con calma: no hay reloj ni vidas.</p>
+      <h3>¿Se guarda mi progreso?</h3>
+      <p>Sí, el nivel alcanzado y tu mejor puntuación se guardan en tu dispositivo. Con «Restart at Level 1» vuelves al principio.</p>
+      <h3>¿Cómo me ayuda con el inglés?</h3>
+      <p>Para cada verbo tienes que reconocer sus tres formas y ponerlas en orden, que es justo lo que te preguntan en clase y en los exámenes.</p>
+    </div>
+    <h2>Sigue practicando</h2>
+    <ul class="kg-links">
+      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+    </ul>
+    <h2>Más juegos de verbos</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake!</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
+      <a class="kg-related-card" href="/es/juegos/crab-slash/"><span class="kg-related-thumb"><img src="/thumbnails/crab-slash.png" alt="Escena del juego Crab Slash" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Crab Slash!</span><span class="kg-related-tag">¡Golpea los cangrejos con los verbos correctos!</span></a>
+      <a class="kg-related-card" href="/es/juegos/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/verb-platformer.png" alt="Escena del juego Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer!</span><span class="kg-related-tag">¡Salta por mundos 3D y elige la forma verbal correcta!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';

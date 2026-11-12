@@ -31,19 +31,143 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: #87ceeb;
     }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
-      width: 100vw;
-      height: calc(100vh - 48px);
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
       margin-top: 48px;
     }
   </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/es/juegos/verb-platformer/",
+          "url": "https://krabsy.com/es/juegos/verb-platformer/",
+          "name": "Verb Platformer: juego 3D de inglés — Krabsy",
+          "description": "Plataformas en 3D con formas verbales en inglés. Salta por los niveles y elige la forma correcta. Gratis en el navegador, sin registro.",
+          "inLanguage": "es",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/es/juegos/verb-platformer/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/es/juegos/verb-platformer/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/verb-platformer.png"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/es/juegos/verb-platformer/#game",
+          "name": "Verb Platformer",
+          "url": "https://krabsy.com/es/juegos/verb-platformer/",
+          "description": "Plataformas en 3D con formas verbales en inglés. Salta por los niveles y elige la forma correcta. Gratis en el navegador, sin registro.",
+          "image": "https://krabsy.com/thumbnails/verb-platformer.png",
+          "inLanguage": "en",
+          "genre": [
+            "Platformer",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Juego educativo",
+          "educationalLevel": "desde 10 años (inglés como lengua extranjera)",
+          "teaches": "Verbos irregulares en inglés: pasado simple",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/es/juegos/verb-platformer/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/es/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Juegos",
+              "item": "https://krabsy.com/es/juegos/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Platformer",
+              "item": "https://krabsy.com/es/juegos/verb-platformer/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/es/juegos/verb-platformer/#faq",
+          "inLanguage": "es",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Puedo jugar Verb Platformer en el celular?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "El juego está hecho para computadora con teclado y ratón. En teléfonos todavía no hay controles táctiles, así que mejor usa una laptop o un PC."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué pasa si salto a la plataforma equivocada?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "La plataforma se rompe, te caes y ves la respuesta correcta. Después vuelves a aparecer delante de la puerta, sin perder vidas ni tiempo."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué forma verbal se practica?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Solo el pasado simple, la segunda forma (go → went). Para practicar las tres formas prueba Verb Snake o Verb Flow."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
 </head>
 <body>
   <iframe
@@ -53,6 +177,51 @@
     loading="eager"
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Platformer</a>
+  <main class="kg-info" id="instrucciones" lang="es">
+    <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Platformer</span></nav>
+    <h1>Verb Platformer: saltos en 3D con los verbos en inglés</h1>
+    <p>En Verb Platformer corres y saltas con tu personaje por un mundo en 3D. De vez en cuando llegas a una puerta con un verbo en inglés, por ejemplo <em>go</em>. Detrás te esperan tres plataformas con palabras distintas, pero solo una te sostiene: la del <strong>pasado simple</strong> correcto, en este caso <em>went</em>.</p>
+    <p>Si caes en la plataforma equivocada, se desmorona, te caes y ves enseguida cuál era el error. Luego lo intentas otra vez. El juego es gratis y funciona en el navegador; los textos están en inglés.</p>
+    <h2>Cómo se juega Verb Platformer</h2>
+    <ul class="kg-steps">
+      <li>Haz clic en la imagen del juego para controlar la cámara con el ratón. Con <kbd>Esc</kbd> sueltas el ratón.</li>
+      <li>Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas y salta con la <kbd>barra espaciadora</kbd>.</li>
+      <li>Lee el verbo de la puerta y salta a la plataforma con la forma en pasado correcta.</li>
+      <li>Cuando llegas a la bandera del final, superas el nivel.</li>
+      <li>Se juega mejor en la computadora, con teclado y ratón.</li>
+    </ul>
+    <h2>Qué aprendes</h2>
+    <p>Verb Platformer se centra en el <strong>pasado simple</strong> de 15 verbos básicos como <a href="/es/verbos-irregulares/go/"><em>go</em></a>, <a href="/es/verbos-irregulares/run/"><em>run</em></a>, <a href="/es/verbos-irregulares/swim/"><em>swim</em></a>, <a href="/es/verbos-irregulares/see/"><em>see</em></a> y <a href="/es/verbos-irregulares/think/"><em>think</em></a>. Las plataformas falsas muestran confusiones típicas: una forma inventada como <em>goed</em> o el participio <em>gone</em>. Así aprendes a no mezclar las dos formas del pasado. Hay tres niveles con entre tres y cinco puertas, plataformas que se mueven y un camino con curvas. Los niveles superados quedan marcados.</p>
+    <h2>Preguntas frecuentes</h2>
+    <div class="kg-faq">
+      <h3>¿Puedo jugar Verb Platformer en el celular?</h3>
+      <p>El juego está hecho para computadora con teclado y ratón. En teléfonos todavía no hay controles táctiles, así que mejor usa una laptop o un PC.</p>
+      <h3>¿Qué pasa si salto a la plataforma equivocada?</h3>
+      <p>La plataforma se rompe, te caes y ves la respuesta correcta. Después vuelves a aparecer delante de la puerta, sin perder vidas ni tiempo.</p>
+      <h3>¿Qué forma verbal se practica?</h3>
+      <p>Solo el pasado simple, la segunda forma (go → <em>went</em>). Para practicar las tres formas prueba Verb Snake o Verb Flow.</p>
+    </div>
+    <h2>Sigue practicando</h2>
+    <ul class="kg-links">
+      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+    </ul>
+    <h2>Más juegos de verbos</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen!</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
+      <a class="kg-related-card" href="/es/juegos/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control!</span><span class="kg-related-tag">¡Guía los aviones de forma segura con inglés!</span></a>
+      <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake!</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
 
   <script type="module">
     import { initGamePage } from '/lib/krabsy-nav.js?v=2026-05-24';
