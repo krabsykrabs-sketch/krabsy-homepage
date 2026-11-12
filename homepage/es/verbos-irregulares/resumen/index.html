@@ -46,9 +46,36 @@
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Resumen",
+        "item": "https://krabsy.com/es/verbos-irregulares/resumen/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fdfaf3">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Module-specific styles (Verb Reference) ───────────────────────── */
 
@@ -280,9 +307,9 @@
 
     <main class="ref-main">
       <div class="ref-title-row">
-        <h1 class="ref-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</h1>
+        <h1 class="ref-title">Resumen de los verbos irregulares en inglés</h1>
       </div>
-      <p class="ref-subtitle" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
+      <p class="ref-subtitle" data-i18n="reference.subtitle">Todos los verbos irregulares importantes de un vistazo.</p>
 
       <aside class="k-intro-card" aria-label="Sobre esta página">
         <p>Resumen de todos los verbos irregulares importantes en inglés — ordenable y con buscador. Aquí ves el infinitivo, el Simple Past, el Past Participle y el significado en español de cada verbo. Útil para consultar o como ayuda de estudio antes de un examen.</p>
@@ -290,7 +317,7 @@
 
       <div class="ref-controls">
         <div class="ref-search">
-          <label class="k-sr-only" for="ref-search-input" data-i18n="reference.search_placeholder">Verb suchen…</label>
+          <label class="k-sr-only" for="ref-search-input" data-i18n="reference.search_placeholder">Buscar verbo…</label>
           <input
             type="search"
             id="ref-search-input"
@@ -298,44 +325,72 @@
             autocomplete="off"
             spellcheck="false"
             data-i18n-attr="placeholder:reference.search_placeholder"
-            placeholder="Verb suchen…">
+            placeholder="Buscar verbo…">
         </div>
 
         <div class="ref-sort-group" role="group" aria-labelledby="ref-sort-label">
-          <span id="ref-sort-label" class="ref-sort-label" data-i18n="reference.sort_label">Sortierung</span>
+          <span id="ref-sort-label" class="ref-sort-label" data-i18n="reference.sort_label">Orden</span>
           <div class="ref-sort-pills">
             <button class="ref-sort-btn is-active" type="button" data-sort="alpha" data-i18n="reference.sort_alpha">A–Z</button>
-            <button class="ref-sort-btn" type="button" data-sort="mastery" data-i18n="reference.sort_mastery">Nach Können</button>
+            <button class="ref-sort-btn" type="button" data-sort="mastery" data-i18n="reference.sort_mastery">Por dominio</button>
           </div>
         </div>
       </div>
 
-      <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+      <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true" data-label="Publicidad"></div>
 
-      <section class="k-card ref-table-card" aria-label="Verb-Liste" data-i18n-attr="aria-label:reference.aria_verb_list">
+      <section class="k-card ref-table-card" aria-label="Lista de verbos" data-i18n-attr="aria-label:reference.aria_verb_list">
         <div class="ref-table-scroll">
           <table class="ref-table" id="ref-table">
             <thead>
               <tr>
-                <th class="ref-col-base" data-i18n="reference.col_base">Grundform</th>
+                <th class="ref-col-base" data-i18n="reference.col_base">Infinitivo</th>
                 <th class="ref-col-past" data-i18n="reference.col_past">Simple Past</th>
                 <th class="ref-col-pp" data-i18n="reference.col_pp">Past Participle</th>
-                <th class="ref-col-meaning" data-i18n="reference.col_meaning">Bedeutung</th>
-                <th class="ref-col-mastery" data-i18n="reference.col_mastery">Dein Stand</th>
+                <th class="ref-col-meaning" data-i18n="reference.col_meaning">Significado</th>
+                <th class="ref-col-mastery" data-i18n="reference.col_mastery">Tu nivel</th>
               </tr>
             </thead>
             <tbody id="ref-tbody">
-              <tr><td colspan="5" class="ref-loading" data-i18n="common.loading">Lädt…</td></tr>
+              <tr><td colspan="5" class="ref-loading" data-i18n="common.loading">Cargando…</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <div class="k-ad-slot k-ad-slot--native" aria-hidden="true">Werbung</div>
+      <div class="k-ad-slot k-ad-slot--native" aria-hidden="true" data-label="Publicidad"></div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Verbos que se parecen: las parejas que más se confunden</h2>
+  <p>Este resumen muestra para cada verbo el infinitivo, el Simple Past, el Past Participle, el significado en español y tu nivel. Puedes buscar un verbo y ordenar la lista de la A a la Z o según lo bien que lo dominas. Así ves de un vistazo qué verbos te faltan todavía.</p>
+  <h3>Parejas traicioneras</h3>
+  <p>Algunos verbos se parecen tanto que es fácil confundirlos. Estas son las parejas más típicas:</p>
+  <ul>
+    <li><strong>lie / lay:</strong> <em lang="en">lie – lay – lain</em> significa «estar tumbado»; <a href="/es/verbos-irregulares/lay/"><em lang="en">lay – laid – laid</em></a> significa «poner, colocar». Lo complicado: <em lang="en">lay</em> es también el pasado de <em lang="en">lie</em>.</li>
+    <li><strong>fall / feel / fill:</strong> <a href="/es/verbos-irregulares/fall/"><em lang="en">fall – fell – fallen</em></a> (caer), <a href="/es/verbos-irregulares/feel/"><em lang="en">feel – felt – felt</em></a> (sentir) y <em lang="en">fill – filled – filled</em> (llenar), que es regular.</li>
+    <li><strong>find / found:</strong> <a href="/es/verbos-irregulares/find/"><em lang="en">find – found – found</em></a> es «encontrar», pero <em lang="en">found – founded – founded</em> es «fundar» y es regular.</li>
+    <li><strong>rise / raise:</strong> <a href="/es/verbos-irregulares/rise/"><em lang="en">rise – rose – risen</em></a> es «subir, levantarse» (<em lang="en">The sun rises</em>); <em lang="en">raise – raised – raised</em> es «levantar algo» (<em lang="en">Raise your hand</em>) y es regular.</li>
+    <li><strong>lose / loose:</strong> <a href="/es/verbos-irregulares/lose/"><em lang="en">lose – lost – lost</em></a> es «perder»; <em lang="en">loose</em> no es un verbo, sino un adjetivo: «suelto, flojo».</li>
+    <li><strong>see / saw:</strong> <a href="/es/verbos-irregulares/see/"><em lang="en">saw</em></a> es el pasado de <em lang="en">see</em>, pero también existe el verbo <a href="/es/verbos-irregulares/saw/"><em lang="en">saw</em></a>, «serrar».</li>
+  </ul>
+  <h3>Cómo usar el resumen antes de un examen</h3>
+  <ol>
+    <li>Ordena la lista por nivel de dominio: arriba verás los verbos que más te cuestan.</li>
+    <li>Copia esos verbos en tu cuaderno con sus tres formas y una frase de ejemplo.</li>
+    <li>Practícalos en las tarjetas o en la práctica libre y vuelve aquí para ver cómo ha mejorado tu nivel.</li>
+  </ol>
+  <h3>También te puede servir</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos</a>: oculta columnas y ponte a prueba.</li>
+    <li><a href="/es/verbos-irregulares/practica-libre/">Práctica libre</a>: escribe las formas de tus verbos flojos.</li>
+    <li><a href="/es/verbos-irregulares/a-z/">Verbos de la A a la Z</a>: cada verbo con frases de ejemplo.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
-      <a href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
+      <a href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Volver al inicio</a>
     
       <span class="k-footer-legal-sep" aria-hidden="true">·</span>
       <span class="k-footer-legal-mount"></span>
@@ -379,7 +434,7 @@
       });
       // page <title>
       const titleStr = lookup(strings, 'reference.title');
-      if (titleStr) document.title = `Krabsy — ${titleStr}`;
+      /* <title> stays as authored (SEO) */
       // document lang
       const lang = (strings && strings.lang) || 'de';
       document.documentElement.setAttribute('lang', lang);

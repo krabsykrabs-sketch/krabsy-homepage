@@ -1,0 +1,105 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   Krabsy — explanatory article block for drill / tool / hub pages
+
+   Static, crawlable learning text that sits BELOW the exercise UI:
+     <section class="k-article"> h2 · h3 · p · ul/ol · table · links </section>
+   plus the short lead paragraph on topic hubs (.k-hub-intro) and the page
+   heading added to iframe drills (.k-page-h1).
+
+   Loaded after krabsy-ui.css; uses its tokens. Hidden mid-play exactly like
+   .k-intro-card (body.k-is-playing is toggled by krabsy-nav.js).
+   ────────────────────────────────────────────────────────────────────────── */
+
+.k-article {
+  max-width: 720px;
+  margin: var(--space-6) auto var(--space-5);
+  padding: 22px 24px;
+  background: var(--krabsy-white);
+  border: 1px solid rgba(44, 42, 58, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  color: var(--krabsy-ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: left;
+}
+.k-article h2 {
+  font-family: var(--font-display);
+  font-weight: normal;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin: 0 0 var(--space-3);
+}
+.k-article h3 {
+  font-family: var(--font-display);
+  font-weight: normal;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.k-article p { margin: 0 0 var(--space-3); }
+.k-article ul,
+.k-article ol { margin: 0 0 var(--space-3); padding-left: 1.3em; }
+.k-article li { margin: 4px 0; }
+.k-article em[lang="en"] { font-style: normal; font-weight: 700; }
+.k-article a { color: var(--krabsy-ink); text-decoration-color: var(--krabsy-coral); text-underline-offset: 2px; }
+.k-article a:hover { color: var(--krabsy-coral-dark); }
+
+.k-article-table-wrap { overflow-x: auto; margin: 0 0 var(--space-3); }
+.k-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.k-article th,
+.k-article td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(44, 42, 58, 0.08);
+  vertical-align: top;
+}
+.k-article td:first-child { white-space: nowrap; }
+.k-article th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--krabsy-ink-mute);
+}
+
+.k-article .k-article-links { list-style: none; padding: 0; }
+.k-article .k-article-links li { padding: 6px 0; border-bottom: 1px dashed rgba(44, 42, 58, 0.10); }
+.k-article .k-article-links li:last-child { border-bottom: 0; }
+.k-article .k-article-links a { font-weight: 700; }
+
+body.k-is-playing .k-article { display: none; }
+
+/* Short lead paragraph under the hero on topic hubs / homepages. */
+.k-hub-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) 0;
+  color: var(--krabsy-ink);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+.k-hub-intro p { margin: 0 0 var(--space-2); }
+.k-hub-intro a { color: var(--krabsy-ink); text-decoration-color: var(--krabsy-coral); text-underline-offset: 2px; }
+
+/* Visible page heading on iframe drills (the game itself lives in the iframe). */
+.k-page-h1 {
+  font-family: var(--font-display);
+  font-weight: normal;
+  font-size: clamp(1.3rem, 3.6vw, 1.7rem);
+  line-height: 1.2;
+  color: var(--krabsy-ink);
+  text-align: center;
+  margin: 0 auto var(--space-3);
+  max-width: 720px;
+}
+
+/* Ad placeholders: the label is drawn by CSS so it is not crawlable text. */
+.k-ad-slot:empty::before { content: attr(data-label); }
+
+@media (max-width: 560px) {
+  .k-article { padding: 18px 16px; margin-left: var(--space-2); margin-right: var(--space-2); }
+}

@@ -40,8 +40,35 @@
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Englische Präpositionen",
+        "item": "https://krabsy.com/de/praepositionen/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Freies Üben",
+        "item": "https://krabsy.com/de/praepositionen/freies-ueben/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Free Practice (prep variant) ─────────────────────────────────── */
     main.fp-main { flex: 1; }
@@ -158,7 +185,7 @@
 
       <div class="fp-page-header">
         <div class="fp-page-title-row">
-          <h1 class="k-h1" data-i18n="tools.free_practice.name">Freies Üben</h1>
+          <h1 class="k-h1">Freies Üben: englische Präpositionen ohne Zeitdruck</h1>
         </div>
         <p class="fp-intro" data-i18n="tools.free_practice.intro"></p>
       </div>
@@ -201,7 +228,41 @@
           <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Absenden</button>
         </div>
       </section>
-      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Werbung"></div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Präpositionen für Ort und Richtung: in, on, at, to und into</h2>
+  <p>Beim freien Üben gibt es keine Uhr und keine Leben. Du tippst für jeden Satz die passende Präposition und kannst dir so viel Zeit nehmen, wie du brauchst. Wenn du nicht weiterkommst, zeigt dir der Tipp das Muster der Regel. Einen Satz, der dir zu schwer ist, kannst du überspringen. Mit dem Filter „nur schwache Regeln“ übst du gezielt das, was dir noch Probleme macht.</p>
+  <h3>Wo ist etwas? in, on und at</h3>
+  <ul>
+    <li><strong><em lang="en">in</em></strong> = in etwas drin, auch Städte und Länder: <em lang="en">The keys are in my bag.</em> <em lang="en">My cousin lives in Madrid.</em></li>
+    <li><strong><em lang="en">on</em></strong> = auf einer Fläche: <em lang="en">Your phone is on the table.</em></li>
+    <li><strong><em lang="en">at</em></strong> = an einem bestimmten Punkt oder Treffpunkt: <em lang="en">I'll meet you at the bus stop.</em></li>
+  </ul>
+  <p>Feste Ausdrücke mit <em lang="en">at</em> lernst du am besten auswendig: <em lang="en">at home</em> (zu Hause), <em lang="en">at school</em>, <em lang="en">at work</em>.</p>
+  <h3>Wohin geht es? Präpositionen der Bewegung</h3>
+  <ul>
+    <li><strong><em lang="en">to</em></strong> = Ziel: <em lang="en">We're going to the cinema tonight.</em></li>
+    <li><strong><em lang="en">into</em></strong> = hinein: <em lang="en">The dog ran into the garden.</em></li>
+    <li><strong><em lang="en">onto</em></strong> = hinauf: <em lang="en">The cat jumped onto the table.</em></li>
+    <li><strong><em lang="en">from</em></strong> = Herkunft: <em lang="en">I'm from Germany.</em></li>
+    <li><strong><em lang="en">through</em></strong> = hindurch, <strong><em lang="en">across</em></strong> = quer über: <em lang="en">The train goes through a long tunnel.</em> <em lang="en">Be careful when you walk across the road.</em></li>
+  </ul>
+  <h3>Typische Fehler</h3>
+  <ul>
+    <li><strong>„nach Hause gehen“:</strong> Vor <em lang="en">home</em> steht kein <em lang="en">to</em>. Richtig ist <em lang="en">I go home</em>, nicht <em lang="en">I go to home</em>.</li>
+    <li><strong>„zu Hause sein“</strong> heißt <em lang="en">be at home</em>, nicht <em lang="en">be in home</em>.</li>
+    <li><strong>„ankommen in“:</strong> Bei Städten und Ländern sagst du <em lang="en">arrive in</em> (<em lang="en">arrive in London</em>), bei Gebäuden und Orten <em lang="en">arrive at</em> (<em lang="en">We arrived at the airport.</em>). <em lang="en">arrive to</em> gibt es nicht.</li>
+  </ul>
+  <h3>Passt gut dazu</h3>
+  <ul class="k-article-links">
+    <li><a href="/de/praepositionen/karteikarten/">Karteikarten</a>: Regeln umdrehen und selbst bewerten.</li>
+    <li><a href="/de/praepositionen/fill-the-gap/">Lückentext</a>: dasselbe Prinzip, aber mit drei Leben.</li>
+    <li><a href="/de/praepositionen/uebersicht/">Übersicht aller Regeln</a>: Ort, Zeit, Bewegung und mehr.</li>
+    <li><a href="/de/praepositionen/">Alle Übungen zu Präpositionen</a></li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
@@ -253,7 +314,7 @@
     }
 
     function applyStaticStrings() {
-      document.title = `${tGet('tools.free_practice.name')}: Englische Präpositionen — Krabsy`;
+      /* <title> stays as authored (SEO) */
       document.documentElement.lang = state.lang;
       document.querySelectorAll('[data-i18n]').forEach((node) => {
         const key = node.getAttribute('data-i18n');

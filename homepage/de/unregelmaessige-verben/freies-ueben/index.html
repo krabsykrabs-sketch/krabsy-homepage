@@ -25,8 +25,35 @@
   <meta name="twitter:description" content="Üben ohne Zeitdruck mit Tipps. Tippe Past und Past Participle. Ideal für entspanntes Lernen vor der Klassenarbeit.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Unregelmäßige Verben",
+        "item": "https://krabsy.com/de/unregelmaessige-verben/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Freies Üben",
+        "item": "https://krabsy.com/de/unregelmaessige-verben/freies-ueben/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Free Practice module-specific styles ────────────────────────── */
 
@@ -277,7 +304,7 @@
 
       <div class="fp-page-header">
         <div class="fp-page-title-row">
-          <h1 class="k-h1" data-i18n="tools.free_practice.name">Freies Üben</h1>
+          <h1 class="k-h1">Freies Üben: unregelmäßige Verben ohne Zeitdruck</h1>
         </div>
         <p class="fp-intro" data-i18n="tools.free_practice.intro"></p>
       </div>
@@ -333,7 +360,35 @@
           <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Absenden</button>
         </div>
       </section>
-      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Werbung"></div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Freies Üben: unregelmäßige Verben in Ruhe wiederholen</h2>
+  <p>Beim freien Üben gibt es keine Uhr und keine Leben. Du siehst ein englisches Verb und tippst das Simple Past und das Past Participle ein. Wenn du nicht weiterkommst, hilft dir ein Tipp, und Verben, die du gerade nicht weißt, kannst du überspringen. Mit dem Filter „Nur schwache Verben“ übst du gezielt die Verben, bei denen du in den anderen Übungen Fehler gemacht hast. Das ist ideal für die letzten Tage vor einer Klassenarbeit.</p>
+  <h3>Regelmäßig oder unregelmäßig?</h3>
+  <p>Die meisten englischen Verben sind regelmäßig. Sie bilden beide Vergangenheitsformen mit <em lang="en">-ed</em>. Dabei gibt es drei Schreibregeln:</p>
+  <ul>
+    <li>Endet das Verb auf <em lang="en">-e</em>, hängst du nur <em lang="en">-d</em> an: <em lang="en">live – lived</em>.</li>
+    <li>Nach kurzem, betontem Vokal verdoppelt sich der Endkonsonant: <em lang="en">stop – stopped</em>, <em lang="en">plan – planned</em>.</li>
+    <li>Konsonant + <em lang="en">-y</em> wird zu <em lang="en">-ied</em>: <em lang="en">study – studied</em>, aber <em lang="en">play – played</em>.</li>
+  </ul>
+  <p>Unregelmäßige Verben folgen diesen Regeln nicht. Es gibt nur etwa 150 davon, darunter aber gerade die wichtigsten Verben der Sprache wie <em lang="en">be, have, go, get</em> und <em lang="en">make</em>.</p>
+  <h3>Britisch oder amerikanisch?</h3>
+  <p>Bei einigen Verben gibt es zwei richtige Formen. Im britischen Englisch hört man oft <em lang="en">learnt, dreamt, burnt</em>, im amerikanischen Englisch eher <em lang="en">learned, dreamed, burned</em>. Beide Varianten sind korrekt, Krabsy akzeptiert sie deshalb auch. Ein bekannter Unterschied ist außerdem <em lang="en">get – got – got</em> (britisch) gegenüber <em lang="en">get – got – gotten</em> (amerikanisch).</p>
+  <ul>
+    <li><a href="/de/unregelmaessige-verben/learn/">learn – learnt/learned – learnt/learned</a></li>
+    <li><a href="/de/unregelmaessige-verben/dream/">dream – dreamt/dreamed – dreamt/dreamed</a></li>
+    <li><a href="/de/unregelmaessige-verben/burn/">burn – burnt/burned – burnt/burned</a></li>
+  </ul>
+  <p><strong>Tipp:</strong> Frag deine Lehrkraft, welche Variante in deinem Schulbuch verwendet wird, und bleib in einem Text bei einer Variante.</p>
+  <h3>Passt gut dazu</h3>
+  <ul class="k-article-links">
+    <li><a href="/de/unregelmaessige-verben/karteikarten/">Karteikarten</a>: Verben umdrehen und dich selbst einschätzen.</li>
+    <li><a href="/de/unregelmaessige-verben/type-race/">Type Race</a>: Tippen mit Punkten und Levels.</li>
+    <li><a href="/de/unregelmaessige-verben/a-z/">Alle Verben von A bis Z</a>: jedes Verb mit eigener Seite.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
@@ -392,7 +447,7 @@
     }
 
     function applyStaticStrings() {
-      document.title = `${tGet('tools.free_practice.name')} — Krabsy`;
+      /* <title> stays as authored (SEO) */
       document.documentElement.lang = state.ui.lang || 'de';
       const nodes = document.querySelectorAll('[data-i18n]');
       nodes.forEach((node) => {

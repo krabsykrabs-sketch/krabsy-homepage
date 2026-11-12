@@ -25,8 +25,35 @@
   <meta name="twitter:description" content="Tarjetas clásicas para los verbos irregulares en inglés. Gira la tarjeta, evalúate con honestidad y aprende a tu ritmo.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Tarjetas",
+        "item": "https://krabsy.com/es/verbos-irregulares/tarjetas/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Flashcards module-specific styles ───────────────────────────── */
 
@@ -281,7 +308,7 @@
       <div class="fc-page-header-inner">
         <a class="k-logo" href="/es/">Krabsy</a>
       </div>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
@@ -291,9 +318,9 @@
 
       <div class="fc-page-header">
         <div class="fc-page-title-row">
-          <h1 class="k-h1" data-i18n="tools.flashcards.name">Karteikarten</h1>
+          <h1 class="k-h1">Tarjetas: aprende los verbos irregulares en inglés con flashcards</h1>
         </div>
-        <p class="fc-intro" data-i18n="tools.flashcards.intro"></p>
+        <p class="fc-intro" data-i18n="tools.flashcards.intro">En la cara delantera: el infinitivo. Toca la tarjeta para girarla. Después decide con honestidad: ¿ya lo sabías o necesitas repasar?</p>
       </div>
 
       <aside class="k-intro-card" aria-label="Sobre esta herramienta">
@@ -302,11 +329,11 @@
 
       <!-- Filter toolbar -->
       <div class="fc-toolbar" role="group" aria-labelledby="fc-filter-label">
-        <span class="fc-toolbar-label" id="fc-filter-label" data-i18n="tools.flashcards.filter_label">Was üben?</span>
+        <span class="fc-toolbar-label" id="fc-filter-label" data-i18n="tools.flashcards.filter_label">¿Qué practicar?</span>
         <div class="fc-filter-pills" id="fc-filter-pills">
-          <button class="fc-filter-pill" type="button" data-filter="all" data-i18n="tools.flashcards.filter_all">Alle Verben</button>
-          <button class="fc-filter-pill" type="button" data-filter="review" data-i18n="tools.flashcards.filter_review">Nur zu wiederholende</button>
-          <button class="fc-filter-pill" type="button" data-filter="mastered" data-i18n="tools.flashcards.filter_mastered">Nur gemeisterte</button>
+          <button class="fc-filter-pill" type="button" data-filter="all" data-i18n="tools.flashcards.filter_all">Todos los verbos</button>
+          <button class="fc-filter-pill" type="button" data-filter="review" data-i18n="tools.flashcards.filter_review">Solo para repasar</button>
+          <button class="fc-filter-pill" type="button" data-filter="mastered" data-i18n="tools.flashcards.filter_mastered">Solo dominados</button>
         </div>
       </div>
 
@@ -315,10 +342,10 @@
 
       <!-- Card -->
       <div class="fc-stage" id="fc-stage">
-        <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-label="Karte umdrehen" data-i18n-attr="aria-label:tools.flashcards.aria_flip_card">
+        <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-label="Girar tarjeta" data-i18n-attr="aria-label:tools.flashcards.aria_flip_card">
           <div class="fc-face fc-face-front">
             <h2 class="fc-front-verb" id="fc-front-verb">—</h2>
-            <div class="fc-front-hint" id="fc-front-hint" data-i18n="tools.flashcards.flip_hint">Tippe zum Umdrehen</div>
+            <div class="fc-front-hint" id="fc-front-hint" data-i18n="tools.flashcards.flip_hint">Toca para girar</div>
           </div>
           <div class="fc-face fc-face-back" aria-hidden="true">
             <div class="fc-back-grid">
@@ -338,26 +365,54 @@
 
       <!-- Judgment buttons -->
       <div class="fc-judgment" id="fc-judgment">
-        <button class="k-btn-secondary" type="button" id="fc-btn-again" data-i18n="tools.flashcards.btn_again">Nochmal</button>
-        <button class="k-btn-primary" type="button" id="fc-btn-got-it" data-i18n="tools.flashcards.btn_got_it">Schon gewusst</button>
+        <button class="k-btn-secondary" type="button" id="fc-btn-again" data-i18n="tools.flashcards.btn_again">Otra vez</button>
+        <button class="k-btn-primary" type="button" id="fc-btn-got-it" data-i18n="tools.flashcards.btn_got_it">Ya lo sabía</button>
       </div>
 
       <!-- Empty / Finished states -->
       <div class="fc-state-message fc-hidden" id="fc-state-empty">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_empty">Keine Karten in diesem Stapel.</p>
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_empty">No hay tarjetas en este grupo — prueba otro filtro.</p>
         <div class="fc-state-actions">
-          <a class="k-btn-secondary" href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
+          <a class="k-btn-secondary" href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Volver al inicio</a>
         </div>
       </div>
 
       <div class="fc-state-message fc-hidden" id="fc-state-finished">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">Stapel durch!</p>
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">¡Mazo completado! ¿Otra vez?</p>
         <div class="fc-state-actions">
-          <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Nochmal</button>
-          <a class="k-btn-secondary" href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
+          <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Otra vez</button>
+          <a class="k-btn-secondary" href="/es/verbos-irregulares/" data-i18n="common.back_to_hub">Volver al inicio</a>
         </div>
-        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Publicidad"></div>
       </div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Cómo aprender verbos irregulares con tarjetas</h2>
+  <p>Las tarjetas (o <em lang="en">flashcards</em>) son uno de los métodos más eficaces para memorizar vocabulario. En el anverso de cada tarjeta ves el infinitivo, por ejemplo <em lang="en">take</em>. Piensa las dos formas de pasado, toca la tarjeta para darle la vuelta y comprueba: <em lang="en">took – taken</em>. Después decides tú: «Ya lo sabía» o «Otra vez». Tu progreso se guarda en tu dispositivo, así que la próxima vez puedes elegir practicar todos los verbos, solo los que tienes que repasar o solo los que ya dominas.</p>
+  <h3>El truco: repetir justo antes de olvidar</h3>
+  <p>Nuestro cerebro olvida rápido lo que ve una sola vez. Si repasas un verbo cuando está a punto de olvidarse, se queda mucho más tiempo. En eso se basa el <strong>método Leitner</strong>:</p>
+  <ol>
+    <li>Los verbos que no sabes se quedan en el montón de «Otra vez» y los repasas a diario.</li>
+    <li>Los que ya sabes pasan al siguiente montón y los repasas cada pocos días.</li>
+    <li>Cuando un verbo te sale bien varias veces seguidas, lo dominas.</li>
+  </ol>
+  <h3>Consejos para que funcione</h3>
+  <ul>
+    <li><strong>Poco y a menudo:</strong> 10 a 15 verbos al día son mejor que 80 la noche antes del examen.</li>
+    <li><strong>Dilo en voz alta:</strong> <em lang="en">take – took – taken</em>. Así practicas también la pronunciación.</li>
+    <li><strong>Sé sincero:</strong> si dudaste, pulsa «Otra vez». Engañarte solo retrasa el aprendizaje.</li>
+    <li><strong>Haz una frase:</strong> con cada verbo nuevo escribe una frase propia, como <em lang="en">I took the bus to school yesterday.</em></li>
+  </ul>
+  <p>Un error típico es aprender solo la traducción. Recuerda que un verbo como <a href="/es/verbos-irregulares/get/"><em lang="en">get</em></a> tiene muchos significados en español (conseguir, recibir, llegar, ponerse…), así que fíjate también en las frases de ejemplo de cada verbo.</p>
+  <h3>También te puede servir</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/verbos-irregulares/practica-libre/">Práctica libre</a>: escribe las formas de los verbos que has fallado.</li>
+    <li><a href="/es/verbos-irregulares/sprint/">Sprint</a>: comprueba lo rápido que ya los reconoces.</li>
+    <li><a href="/es/verbos-irregulares/resumen/">Resumen</a>: ve tu nivel en cada verbo.</li>
+    <li><a href="/es/verbos-irregulares/a-z/">Verbos de la A a la Z</a>: cada verbo con ejemplos.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
@@ -408,7 +463,7 @@
     }
 
     function applyStaticStrings() {
-      document.title = `${tGet('tools.flashcards.name')} — Krabsy`;
+      /* <title> stays as authored (SEO) */
       document.documentElement.lang = state.ui.lang || 'de';
       const nodes = document.querySelectorAll('[data-i18n]');
       nodes.forEach((node) => {
