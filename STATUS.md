@@ -1,7 +1,7 @@
 # Krabsy — status dashboard
 
 Living overview of every game and the project. Master session updates this
-at the end of each session. (Last update: 2026-06-12.)
+at the end of each session. (Last update: 2026-11-12.)
 
 ## Games
 
@@ -28,7 +28,7 @@ but not referenced — verify before removing.)
 
 ## Content catalogue
 
-- `content/irregular-verbs.json` — 155 verbs (canonical)
+- `content/irregular-verbs.json` — 172 verbs (canonical; +17 on 2026-11-12). Page-only content (translations, mistakes, notes) in `content/irregular-verbs-pages.json`
 - `content/prepositions.json` — 99 items (canonical)
 - Served copies live in `homepage/data/`; sync on edit.
 
@@ -45,6 +45,24 @@ but not referenced — verify before removing.)
   mandate recorded in CLAUDE.md + all five game briefs: positional
   notation (go -> ___ -> ___), never grammar terminology. Snake tracker
   + coaching converted to dotted blanks.
+
+## SEO / growth (2026-11-12)
+
+- **SEO overhaul on `main` (pushed 2026-11-12, deploy pending)** — see WORK_LOG
+  2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
+  Google impressions; Bing 30k impr/quarter; Copilot ~120 citations/day.
+- **User to do:** Coolify deploy (static + `api/`); apply
+  `docs/seo-server-redirects.md` (Traefik dynamic config + custom nginx);
+  GSC "Validierung starten" + resubmit sitemap. Master: IndexNow ping after
+  deploy (all changed URLs).
+- **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
+  Dec 2026 with fresh GSC coverage + performance exports.
+- **Teachers are the channel**: first organic class (UY, Ceibal Schoology,
+  Verb Kitchen). Next: teacher page links in footer/nav, education-portal
+  backlinks (Deutscher Bildungsserver, teacher directories, ES equivalents).
+- Open bugs for game sessions: Verb Platformer (missing `colormap.png`,
+  touch crash), Verb Slash (debug text, double loop); add `noindex,
+  indexifembedded` to game sources in `games/`.
 
 ## Next steps / open items
 

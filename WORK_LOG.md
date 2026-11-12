@@ -334,6 +334,49 @@ Each work session ends with a 3-5 bullet entry here. Newest at the top.
 CC: when starting fresh, read the top 5-10 entries to know what just
 happened.
 
+**[2026-11-12] — SEO overhaul after Google de-indexing; analytics honesty; first classroom**
+
+*Diagnosis (GSC + Bing exports, 2026-11-12):* Google indexed pages fell
+352 → 83 (Aug–Nov), 286 "Gecrawlt – zurzeit nicht indexiert", 36 Google
+impressions in 88 days. Bing: 30k impressions / 42 clicks; Copilot cites the
+site ~120×/day. Cause: ~330 thin templated verb pages + text-less game pages
+on a young domain without backlinks (same pattern as PubQuizPlanner).
+
+*Shipped on branch `seo-overhaul` (agents + master review):*
+- Game pages (14) + games hubs: real crawlable text, JSON-LD, static games
+  grids (`tools/render_static_games.py`, `tools/render_game_info.py`,
+  content in `tools/game_info_content.py`). Raw game files `noindex,
+  indexifembedded`.
+- Verb pages: 17 new verbs (155 → 172, incl. `wake` — real ES search
+  demand), translated examples, typical mistakes, DE/ES learner notes,
+  4-item FAQ, new ES titles ("Pasado de X en inglés…"). Page data in
+  `content/irregular-verbs-pages.json`. New A–A–B pattern (beat).
+- **Google-only noindex experiment:** tier-3 verbs (66 × 2 = 132 pages)
+  carry `<meta name="googlebot" content="noindex, follow">`
+  (`GOOGLE_NOINDEX_TIERS`). Bing unaffected; pages stay in sitemap.
+  Evaluate with fresh GSC exports mid/late December 2026.
+- Drill/tool/preposition pages, topic hubs, homepages: 300–500 words of
+  real grammar content each; German strings removed from ES pages.
+- Root `/`: noindex removed (instant refresh + canonical → /de/).
+- Sitemap now generated: `tools/generate_sitemap.py` (git-based lastmod;
+  run after `generate_verb_pages.py --no-sitemap`). 400 URLs.
+- Server redirects prepared, NOT applied: `docs/seo-server-redirects.md`
+  (+ `docs/nginx-krabsy.conf`, `docs/traefik-krabsy-redirects.yaml`).
+- Analytics (`api/`): `classify.py` — catches Lightpanda/RootEvidence/AI
+  crawlers + a zh-CN stealth scraper; bot/likely_bot/bounce/engaged classes;
+  "School / classroom" section with concurrent-session peak.
+
+*Evidence that matters most:* 2026-11-12 a Uruguayan class (Plan Ceibal
+Schoology) played Verb Kitchen, ~10–12 pupils, 7–12 min each — found via
+Bing by a teacher. Verb Kitchen marked RELEASED. Teacher landing page in
+progress (`/es/docentes/`, `/de/lehrkraefte/`).
+
+*Known issues found, not fixed (game sessions):* Verb Platformer missing
+`colormap.png` + touch crash (`controls.js:57`, no #hint); Verb Slash debug
+text + double game loop; `noindex` tags must be added in `games/` sources too
+or the next build copy drops them; the unseen `_seo_sweep.py` would
+overwrite meta descriptions.
+
 **[2026-05-27] — Game catalog: thumbnails, 3D-platformer rebuild, Air Control hidden**
 
 *Thumbnails wired up:*
