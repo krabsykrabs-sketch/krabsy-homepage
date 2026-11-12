@@ -49,6 +49,8 @@
     '/de/datenschutz/':         '/es/politica-privacidad/',
     '/es/aviso-legal/':         '/de/impressum/',
     '/es/politica-privacidad/': '/de/datenschutz/',
+    '/de/lehrkraefte/':         '/es/docentes/',
+    '/es/docentes/':            '/de/lehrkraefte/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a

@@ -9,7 +9,7 @@
      • Animate transform: translate() only (GPU-composited).
    ────────────────────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
+@import url('/lib/fonts/krabsy-fonts.css');
 
 :root {
   /* Palette — match exactly, do not invent new colors */

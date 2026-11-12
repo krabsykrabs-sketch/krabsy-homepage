@@ -35,6 +35,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/impressum/"/>
   </url>
   <url>
+    <loc>https://krabsy.com/de/lehrkraefte/</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/"/>
+  </url>
+  <url>
     <loc>https://krabsy.com/de/praepositionen/</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -1617,6 +1625,14 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/impressum/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/aviso-legal/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/impressum/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/docentes/</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/</loc>

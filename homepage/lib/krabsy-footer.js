@@ -156,9 +156,12 @@
   }
 
   function aboutLinksFor(lang) {
-    return (LEGAL_LINKS[lang] || LEGAL_LINKS.de).map(function (p) {
+    var teacher = lang === 'es'
+      ? { label: 'Para docentes', href: '/es/docentes/' }
+      : { label: 'Für Lehrkräfte', href: '/de/lehrkraefte/' };
+    return [teacher].concat((LEGAL_LINKS[lang] || LEGAL_LINKS.de).map(function (p) {
       return { label: p[0], href: p[1] };
-    });
+    }));
   }
 
   function buildGrid(topics, games, lang) {
