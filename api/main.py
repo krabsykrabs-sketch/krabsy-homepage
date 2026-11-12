@@ -32,6 +32,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field, ValidationError
 
+from classify import bot_reason
 from storage import append_event, read_events
 from dashboard import render_dashboard
 
@@ -267,17 +268,8 @@ def rate_limited(ip: str) -> bool:
 # Bot / device classification
 # ---------------------------------------------------------------------------
 
-# Substring matching, not word-bounded — \bbot\b would miss "Googlebot",
-# "AdsBot", etc. since the preceding char is a word char.
-BOT_RE = re.compile(
-    r"(bot|crawler|spider|headless|curl|wget|python-requests|httpx|scrapy|"
-    r"facebookexternalhit|slackbot|twitterbot|whatsapp|telegrambot|preview|fetch|monitor)",
-    re.I,
-)
-
-
-def is_bot(user_agent: str) -> bool:
-    return bool(user_agent) and bool(BOT_RE.search(user_agent))
+# UA bot rules live in classify.py (shared with the dashboard, which
+# re-applies them at read time so older events pick up new rules too).
 
 
 def device_type_for(viewport_width: Optional[int], user_agent: str = "") -> str:
@@ -416,6 +408,7 @@ async def track(request: Request) -> JSONResponse:
     # included in the persisted record.
 
     visitor_hash = compute_visitor_hash(ip, user_agent)
+    reason = bot_reason(user_agent)
     # `ip` is no longer needed past this point — it goes out of scope when
     # the function returns. visitor_hash + country are the only IP-derived
     # values that get persisted.
@@ -429,7 +422,8 @@ async def track(request: Request) -> JSONResponse:
         "language": event.language,
         "country": country,
         "device_type": device_type_for(event.viewport_width, user_agent),
-        "bot": is_bot(user_agent),
+        "bot": reason is not None,
+        "bot_reason": reason,   # null for humans; e.g. "ua:lightpanda", "impossible_ua"
         "ua": user_agent,
         "session_page_id": event.session_page_id,
         "visitor_hash": visitor_hash,
