@@ -464,6 +464,7 @@ STYLE = """
     .az td a{font-family:var(--font-display);color:var(--krabsy-ink);text-decoration:none}
     .az td a:hover{text-decoration:underline}
     .az td.m{color:var(--krabsy-ink-mute);font-size:0.85rem}
+    @media (max-width:480px){table.az{font-size:0.82rem;table-layout:fixed}.az th,.az td{padding:5px 4px;overflow-wrap:anywhere}.az th{letter-spacing:0;font-size:0.6rem}.az td.m{font-size:0.75rem}}
 """
 
 QUIZ_JS = """
