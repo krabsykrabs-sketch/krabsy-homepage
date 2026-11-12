@@ -51,6 +51,7 @@ for v in VERBS:
     if base == past == pp:   v["pattern"] = "AAA"
     elif past == pp:         v["pattern"] = "ABB"
     elif base == pp:         v["pattern"] = "ABA"
+    elif base == past:       v["pattern"] = "AAB"
     else:                    v["pattern"] = "ABC"
 
 # ── page enrichment (translations, extra examples, mistakes, notes) ─────────
@@ -99,12 +100,14 @@ PATTERN_TEXT = {
         "AAA": "A–A–A: alle drei Formen sind gleich.",
         "ABB": "A–B–B: Simple Past und Past Participle sind gleich.",
         "ABA": "A–B–A: das Past Participle ist gleich der Grundform.",
+        "AAB": "A–A–B: das Simple Past ist gleich der Grundform, nur das Past Participle ist anders.",
         "ABC": "A–B–C: alle drei Formen sind verschieden.",
     },
     "es": {
         "AAA": "A–A–A: las tres formas son iguales.",
         "ABB": "A–B–B: el pasado y el participio son iguales.",
         "ABA": "A–B–A: el participio es igual a la forma base.",
+        "AAB": "A–A–B: el pasado es igual a la forma base; solo el participio cambia.",
         "ABC": "A–B–C: las tres formas son diferentes.",
     },
 }
@@ -620,6 +623,8 @@ def verb_page(lang, v, prev_v, next_v):
 
     rel = related(v)
     rel_html = "".join(f'<a href="/{lang}/{t["topic"]}/{w["slug"]}/">{E(w["verb"])} – {E(w["past"])} – {E(w["pp"])}</a>' for w in rel)
+    rel_block = (f'<h2 style="margin-top:14px">{t["rel_h"]}</h2>\n        <div class="rel-list">{rel_html}</div>'
+                 if rel else "")
 
     cta = "".join(f'<a href="{t["hub"]}{slug}/">{E(name)}</a>' for name, slug in t["cta"])
     cta += f'<a class="alt" href="{t["cta_games"][1]}">{E(t["cta_games"][0])} →</a>'
@@ -671,8 +676,7 @@ def verb_page(lang, v, prev_v, next_v):
       <section class="vp-card">
         <h2>{t['pattern_h']}</h2>
         <p class="vp-pattern">{PATTERN_TEXT[lang][v['pattern']]}</p>
-        <h2 style="margin-top:14px">{t['rel_h']}</h2>
-        <div class="rel-list">{rel_html}</div>
+        {rel_block}
       </section>
 
       <section class="vp-card faq">
@@ -698,7 +702,7 @@ def index_page(lang):
     other_path = f"/{t['other']}/{t['other_topic']}/a-z/"
     n = len(VERBS)
     counts = {"n": n, "first": VERBS[0]["verb"], "last": VERBS[-1]["verb"]}
-    for pat in ("AAA", "ABB", "ABA", "ABC"):
+    for pat in ("AAA", "ABB", "ABA", "AAB", "ABC"):
         counts[pat] = sum(1 for v in VERBS if v["pattern"] == pat)
     href = lambda v: f'/{lang}/{t["topic"]}/{v["slug"]}/'
     top = [v for v in VERBS if v["tier"] == 1]
