@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# krabsy.com — permanent http→https and www→apex redirects (Traefik v3)
+#
+# NOT picked up from the repo. Paste into
+#   Coolify → Servers → <your server> → Proxy → Dynamic Configurations → + Add
+#   file name: krabsy-redirects.yaml
+# Traefik reloads dynamic files automatically (no proxy restart needed).
+# See docs/seo-server-redirects.md.
+#
+# Why a separate file instead of editing the app's labels: the routers below
+# have priority 10000, so they win over the routers Coolify generates from
+# its labels (priority = rule length, ~40), and they survive every redeploy
+# and label regeneration. Let's Encrypt HTTP challenges are unaffected
+# (Traefik's internal ACME router has the highest possible priority).
+# Every variant reaches https://krabsy.com/<path> in ONE 301 hop.
+# ─────────────────────────────────────────────────────────────────────────────
+http:
+  middlewares:
+    krabsy-canonical-host:
+      redirectRegex:
+        regex: '^https?://(?:www\.)?krabsy\.com(?::\d+)?(.*)$'
+        replacement: 'https://krabsy.com${1}'
+        permanent: true
+
+  routers:
+    # http://krabsy.com/…  and  http://www.krabsy.com/…
+    krabsy-http-to-https:
+      rule: 'Host(`krabsy.com`) || Host(`www.krabsy.com`)'
+      entryPoints:
+        - http
+      middlewares:
+        - krabsy-canonical-host
+      service: noop@internal
+      priority: 10000
+
+    # https://www.krabsy.com/…
+    krabsy-www-to-apex:
+      rule: 'Host(`www.krabsy.com`)'
+      entryPoints:
+        - https
+      middlewares:
+        - krabsy-canonical-host
+      service: noop@internal
+      priority: 10000
+      tls:
+        certResolver: letsencrypt
