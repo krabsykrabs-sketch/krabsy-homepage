@@ -112,6 +112,15 @@ PATTERN_TEXT = {
     },
 }
 
+# Google-only noindex for the rarest verbs (tier 3). Experiment started
+# 2026-11-12 after Google de-indexed most templated pages (352 -> 83) while
+# Bing kept ranking them: Google sees fewer, stronger pages; Bing (which
+# ignores the googlebot meta) still indexes everything. Pages stay in the
+# sitemap so Google recrawls them and sees the tag. To undo: return False.
+GOOGLE_NOINDEX_TIERS = {3}
+def google_noindex(v):
+    return v.get("tier", 3) in GOOGLE_NOINDEX_TIERS
+
 def related(v, n=8):
     pool = [w for w in VERBS if w["pattern"] == v["pattern"] and w["slug"] != v["slug"]]
     pool.sort(key=lambda w: (abs(w["tier"] - v["tier"]), w["verb"]))
@@ -477,15 +486,16 @@ function vq(btn, ok, fbId, correct, okTxt, noTxt) {
 }
 """
 
-def head(lang, t, title, desc, path, other_path):
+def head(lang, t, title, desc, path, other_path, googlebot_noindex=False):
     other = t["other"]
+    gb = ('\n  <meta name="googlebot" content="noindex, follow">' if googlebot_noindex else "")
     return f"""<!DOCTYPE html>
 <html lang="{lang}">
 <head>
   <meta charset="UTF-8">
   <script>/* krabsy_lang-from-url */try{{localStorage.setItem("krabsy_lang","{lang}");}}catch(_){{}}</script>
   <title>{E(title)}</title>
-  <meta name="description" content="{E(desc)}">
+  <meta name="description" content="{E(desc)}">{gb}
   <link rel="canonical" href="https://krabsy.com{path}">
   <link rel="alternate" hreflang="{lang}" href="https://krabsy.com{path}">
   <link rel="alternate" hreflang="{other}" href="https://krabsy.com{other_path}">
@@ -650,7 +660,7 @@ def verb_page(lang, v, prev_v, next_v):
         ],
     }
 
-    return head(lang, t, title, desc, path, other_path) + chrome_open(lang, t) + f"""
+    return head(lang, t, title, desc, path, other_path, googlebot_noindex=google_noindex(v)) + chrome_open(lang, t) + f"""
       <nav class="crumbs"><a href="{t['hub']}">{t['topic_name']}</a> › <a href="/{lang}/{t['topic']}/a-z/">{t['crumb_all']}</a> › {E(v['verb'])}</nav>
       <h1 class="vp-h1">{E(v['verb'])} – {E(v['past'])} – {E(v['pp'])}</h1>
       <p class="vp-sub">{t['h1_sub'](v)}</p>
