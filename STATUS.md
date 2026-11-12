@@ -18,7 +18,7 @@ at the end of each session. (Last update: 2026-06-12.)
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
 | Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC BUILT** — art contact sheet awaits user judgment () |
-| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | — | **PoC BUILT** — 3 levels playable, pacing tuned in playtests; awaiting user verdict |
+| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | `/de/spiele/verb-kitchen/` (build at `/games/verb-kitchen/`) | **RELEASED** — in the catalogue since 2026-06-16 (`games.json` status `beta`); confirmed released by the user 2026-11-12 after the first organic classroom use (Uruguay, Plan Ceibal/Schoology, 2026-11-12: ~10–12 concurrent sessions, 7–12 min each) |
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
