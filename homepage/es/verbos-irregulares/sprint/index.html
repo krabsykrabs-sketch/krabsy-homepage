@@ -30,7 +30,7 @@
       "@type": "LearningResource",
       "name": "Sprint",
       "url": "https://krabsy.com/es/verbos-irregulares/sprint/",
-      "description": "20 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.",
+      "description": "20 verbos irregulares lo más rápido posible. Elige la forma correcta y bate tu récord. Gratis y sin registro.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
@@ -47,8 +47,35 @@
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Sprint",
+        "item": "https://krabsy.com/es/verbos-irregulares/sprint/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Sprint-specific layout ──────────────────────────────────────── */
     .sprint-wrap {
@@ -373,21 +400,22 @@
     </header>
 
     <main class="sprint-wrap">
+      <h1 class="k-page-h1">Sprint: practica los verbos irregulares en inglés contra el reloj</h1>
       <aside class="k-intro-card" aria-label="Sobre este ejercicio">
         <p>En Sprint practicas 20 verbos irregulares lo más rápido posible. Toca la forma correcta (Simple Past o Past Participle) antes de que se acabe el tiempo. Este ejercicio entrena el reconocimiento rápido de los verbos irregulares más importantes — ideal para reforzar tu inglés a cualquier nivel.</p>
       </aside>
 
       <!-- Loading shim until JS swaps in real content -->
-      <div id="sprint-loading" class="sprint-loading" data-string="common.loading">Lädt…</div>
+      <div id="sprint-loading" class="sprint-loading" data-string="common.loading">Cargando…</div>
 
       <!-- START SCREEN -->
       <section id="sprint-start" class="k-card sprint-start-card sprint-hidden" aria-hidden="true">
-        <h1 class="k-h1" data-string="drills.sprint.name">Sprint</h1>
-        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 Verben, so schnell wie möglich.</p>
-        <p class="sprint-intro" data-string="drills.sprint.intro"></p>
-        <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
+        <h2 class="k-h1" data-string="drills.sprint.name">Sprint</h2>
+        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 verbos lo más rápido posible.</p>
+        <p class="sprint-intro" data-string="drills.sprint.intro">Veinte verbos. Toca la forma correcta antes que se acabe el tiempo.</p>
+        <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">¡Vamos!</button>
         <p id="sprint-best-line" class="sprint-best-line" hidden>
-          <span data-string="common.best_time">Bestzeit</span>:
+          <span data-string="common.best_time">Mejor tiempo</span>:
           <span class="sprint-best-value" id="sprint-best-value-start">—</span>
         </p>
       </section>
@@ -416,43 +444,89 @@
               <span class="sprint-trio-slot-label" data-string="common.verb_pp">Past Participle</span>
             </div>
           </div>
-          <div id="sprint-choices" class="sprint-choices" role="group" aria-label="Antworten" data-i18n-attr="aria-label:drills.sprint.aria_choices"></div>
+          <div id="sprint-choices" class="sprint-choices" role="group" aria-label="Respuestas" data-i18n-attr="aria-label:drills.sprint.aria_choices"></div>
         </div>
       </section>
 
       <!-- END SCREEN -->
       <section id="sprint-end" class="k-card sprint-end-card sprint-hidden" aria-hidden="true">
-        <h1 class="k-h1" data-string="drills.sprint.end_title">Sprint geschafft!</h1>
+        <h2 class="k-h1" data-string="drills.sprint.end_title">¡Sprint terminado!</h2>
 
-        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Bestzeit</div>
+        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Mejor tiempo</div>
 
         <div class="sprint-end-stats">
           <div class="sprint-end-stat">
             <div id="sprint-end-time" class="sprint-end-stat-value k-mono-num">—</div>
-            <div class="sprint-end-stat-label" data-string="common.your_time">Deine Zeit</div>
+            <div class="sprint-end-stat-label" data-string="common.your_time">Tu tiempo</div>
           </div>
           <div class="sprint-end-stat">
             <div id="sprint-end-accuracy" class="sprint-end-stat-value k-mono-num">—</div>
-            <div class="sprint-end-stat-label" data-string="common.accuracy">Genauigkeit</div>
+            <div class="sprint-end-stat-label" data-string="common.accuracy">Precisión</div>
           </div>
           <div class="sprint-end-stat">
             <div id="sprint-end-best" class="sprint-end-stat-value k-mono-num">—</div>
-            <div class="sprint-end-stat-label" data-string="common.best_time">Bestzeit</div>
+            <div class="sprint-end-stat-label" data-string="common.best_time">Mejor tiempo</div>
           </div>
         </div>
 
         <div id="sprint-missed-wrap" class="sprint-missed-block" hidden>
-          <h2 class="sprint-missed-heading" data-string="common.missed">Diese hast du verpasst</h2>
+          <h2 class="sprint-missed-heading" data-string="common.missed">Estos los fallaste</h2>
           <ul id="sprint-missed-list" class="sprint-missed-list"></ul>
         </div>
 
         <div class="sprint-end-actions">
-          <button id="sprint-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
-          <a href="/es/verbos-irregulares/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
+          <button id="sprint-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Otra vez</button>
+          <a href="/es/verbos-irregulares/" class="k-btn-secondary" data-string="common.back_to_hub">Volver al inicio</a>
         </div>
 
-        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Publicidad"></div>
       </section>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Verbos irregulares en inglés: reconoce las tres formas a toda velocidad</h2>
+  <p>Cada verbo inglés tiene tres formas que tienes que conocer: el <strong>infinitivo</strong> (la forma base), el <strong>Simple Past</strong> (pasado simple) y el <strong>Past Participle</strong> (participio). En los verbos regulares basta con añadir <em lang="en">-ed</em>: <em lang="en">play – played – played</em>. Los verbos irregulares no siguen esa regla, así que sus formas hay que aprenderlas de memoria. Para eso está el Sprint.</p>
+  <h3>¿Cómo funciona el Sprint?</h3>
+  <ol>
+    <li>Ves un verbo en infinitivo y dos huecos, por ejemplo <em lang="en">go → ___ → ___</em>. El hueco que se pregunta aparece resaltado.</li>
+    <li>Elige la respuesta correcta entre tres opciones. Cada fallo te suma tres segundos de penalización.</li>
+    <li>Después de 20 verbos ves tu tiempo, tu porcentaje de aciertos y la lista de los verbos que has fallado.</li>
+  </ol>
+  <p>Como el Sprint va de velocidad, entrena el reconocimiento rápido. Eso te ayuda sobre todo al leer y al escuchar: tienes que saber al instante que <em lang="en">went</em> viene de <em lang="en">go</em> y <em lang="en">taught</em> de <em lang="en">teach</em>.</p>
+  <h3>Los diez verbos irregulares más importantes</h3>
+  <p>Aparecen en casi cualquier texto en inglés. Si los dominas, ya tienes mucho ganado:</p>
+  <div class="k-article-table-wrap">
+    <table>
+      <thead><tr><th>Infinitivo</th><th>Simple Past</th><th>Past Participle</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/es/verbos-irregulares/be/">be</a></td><td>was / were</td><td>been</td><td>ser, estar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/have/">have</a></td><td>had</td><td>had</td><td>tener, haber</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/go/">go</a></td><td>went</td><td>gone</td><td>ir</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/do/">do</a></td><td>did</td><td>done</td><td>hacer</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/say/">say</a></td><td>said</td><td>said</td><td>decir</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/get/">get</a></td><td>got</td><td>got (EE. UU.: gotten)</td><td>conseguir, llegar a ser</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/make/">make</a></td><td>made</td><td>made</td><td>hacer, fabricar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/know/">know</a></td><td>knew</td><td>known</td><td>saber, conocer</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/take/">take</a></td><td>took</td><td>taken</td><td>tomar, llevar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/see/">see</a></td><td>saw</td><td>seen</td><td>ver</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Errores típicos de los hispanohablantes</h3>
+  <ul>
+    <li><strong>Mezclar las formas:</strong> <em lang="en">I have went</em> está mal. Después de <em lang="en">have</em> va el participio: <em lang="en">I have gone</em>.</li>
+    <li><strong>Regularizar sin querer:</strong> <em lang="en">goed</em> o <em lang="en">teached</em> no existen. Lo correcto es <em lang="en">went</em> y <em lang="en">taught</em>.</li>
+    <li><strong>Make o do:</strong> en español ambos son «hacer». <em lang="en">Do</em> se usa para tareas (<em lang="en">do homework</em>) y <em lang="en">make</em> para crear algo (<em lang="en">make a cake</em>).</li>
+  </ul>
+  <p><strong>Consejo:</strong> juega varias rondas seguidas. La lista final te muestra tus verbos difíciles; repásalos luego con calma.</p>
+  <h3>También te puede servir</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/verbos-irregulares/type-race/">Type Race</a>: escribe tú mismo las formas en vez de elegirlas.</li>
+    <li><a href="/es/verbos-irregulares/practica-libre/">Práctica libre</a>: repasa tus verbos difíciles sin reloj.</li>
+    <li><a href="/es/verbos-irregulares/resumen/">Resumen de todos los verbos</a>: consulta, busca y ordena.</li>
+    <li><a href="/es/verbos-irregulares/a-z/">Verbos de la A a la Z</a>: cada verbo con frases de ejemplo y mini-quiz.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
     <footer class="k-footer">
       <span>© 2026 Krabsy</span>

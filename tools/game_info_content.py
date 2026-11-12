@@ -198,7 +198,7 @@ CONTENT = {
                 "Je mehr Punkte du hast, desto schneller wird die Schlange.",
             ],
             "learn": [
-                "Verb Snake holt sich die Verben aus der großen Krabsy-Verbliste – fast alle 155 unregelmäßigen Verben sind dabei, zum Beispiel {go}, {see}, {take}, {give} und {ride}. Weil du die Formen in der richtigen Reihenfolge fressen musst, prägt sich die Reihe Grundform → Simple Past → Past Participle ganz automatisch ein. Zu Beginn liegt nur ein Obststück auf dem Feld, danach wird es mit drei Stücken kniffliger. Deine Bestleistung wird auf deinem Gerät gespeichert.",
+                "Verb Snake holt sich die Verben aus der großen Krabsy-Verbliste – fast alle 172 unregelmäßigen Verben sind dabei, zum Beispiel {go}, {see}, {take}, {give} und {ride}. Weil du die Formen in der richtigen Reihenfolge fressen musst, prägt sich die Reihe Grundform → Simple Past → Past Participle ganz automatisch ein. Zu Beginn liegt nur ein Obststück auf dem Feld, danach wird es mit drei Stücken kniffliger. Deine Bestleistung wird auf deinem Gerät gespeichert.",
             ],
             "verbs": ["go", "see", "take", "give", "ride"],
             "faq": [
@@ -223,7 +223,7 @@ CONTENT = {
                 "Cuantos más puntos tienes, más rápido va la serpiente.",
             ],
             "learn": [
-                "Verb Snake usa la lista completa de Krabsy: casi todos los 155 verbos irregulares, como {go}, {see}, {take}, {give} o {ride}. Como tienes que comer las formas en orden, la secuencia forma base → pasado simple → participio se te queda grabada sin darte cuenta. Al principio solo hay una fruta en el tablero; después aparecen tres y hay que pensar más rápido. Tu mejor puntuación se guarda en tu dispositivo.",
+                "Verb Snake usa la lista completa de Krabsy: casi todos los 172 verbos irregulares, como {go}, {see}, {take}, {give} o {ride}. Como tienes que comer las formas en orden, la secuencia forma base → pasado simple → participio se te queda grabada sin darte cuenta. Al principio solo hay una fruta en el tablero; después aparecen tres y hay que pensar más rápido. Tu mejor puntuación se guarda en tu dispositivo.",
             ],
             "verbs": ["go", "see", "take", "give", "ride"],
             "faq": [

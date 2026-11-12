@@ -40,8 +40,35 @@
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Preposiciones en inglés",
+        "item": "https://krabsy.com/es/preposiciones/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Tarjetas",
+        "item": "https://krabsy.com/es/preposiciones/tarjetas/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Flashcards (prep variant) ────────────────────────────────────── */
     .fc-page-header-inner { display: flex; align-items: center; gap: 12px; }
@@ -174,9 +201,9 @@
 
       <div class="fc-page-header">
         <div class="fc-page-title-row">
-          <h1 class="k-h1" data-i18n="tools.flashcards.name">Tarjetas</h1>
+          <h1 class="k-h1">Tarjetas: aprende las preposiciones en inglés</h1>
         </div>
-        <p class="fc-intro" data-i18n="tools.flashcards.intro"></p>
+        <p class="fc-intro" data-i18n="tools.flashcards.intro">En la cara delantera: una frase con un hueco. Toca la tarjeta para ver la preposición correcta y la regla. Decide tú con honestidad.</p>
       </div>
 
       <aside class="k-intro-card" aria-label="Sobre esta herramienta">
@@ -188,7 +215,7 @@
         <div class="fc-filter-pills" id="fc-filter-pills">
           <button class="fc-filter-pill" type="button" data-filter="all" data-i18n="tools.flashcards.filter_all">Todas las reglas</button>
           <button class="fc-filter-pill" type="button" data-filter="review" data-i18n="tools.flashcards.filter_review">Solo para repasar</button>
-          <button class="fc-filter-pill" type="button" data-filter="mastered" data-i18n="tools.flashcards.filter_mastered">Solo dominadas</button>
+          <button class="fc-filter-pill" type="button" data-filter="mastered" data-i18n="tools.flashcards.filter_mastered">Solo dominados</button>
         </div>
       </div>
 
@@ -216,20 +243,65 @@
       </div>
 
       <div class="fc-state-message fc-hidden" id="fc-state-empty">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_empty">No hay tarjetas en este mazo.</p>
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_empty">No hay tarjetas en este grupo — prueba otro filtro.</p>
         <div class="fc-state-actions">
           <a class="k-btn-secondary" href="/es/preposiciones/" data-i18n="common.back_to_hub">Volver al inicio</a>
         </div>
       </div>
 
       <div class="fc-state-message fc-hidden" id="fc-state-finished">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">¡Mazo terminado!</p>
+        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">¡Mazo completado! ¿Otra vez?</p>
         <div class="fc-state-actions">
           <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Otra vez</button>
           <a class="k-btn-secondary" href="/es/preposiciones/" data-i18n="common.back_to_hub">Volver al inicio</a>
         </div>
-        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Publicidad</div>
+        <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Publicidad"></div>
       </div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Verbos y adjetivos con preposición: apréndelos por parejas</h2>
+  <p>Muchas preposiciones inglesas no siguen ninguna lógica: simplemente van pegadas a una palabra concreta. Se dice <em lang="en">good at</em>, <em lang="en">afraid of</em> o <em lang="en">wait for</em>, y punto. Lo más eficaz es aprender cada pareja como un bloque, y para eso las tarjetas son perfectas.</p>
+  <h3>Cómo funcionan las tarjetas</h3>
+  <ol>
+    <li>En la cara delantera ves una frase con un hueco, por ejemplo <em lang="en">It depends ___ the weather.</em></li>
+    <li>Toca la tarjeta para girarla: detrás aparecen la preposición correcta, la regla y una explicación breve.</li>
+    <li>Decide con sinceridad si ya lo sabías o si quieres volver a verla.</li>
+    <li>Con el filtro eliges todas las tarjetas, solo las que hay que repasar o solo las dominadas.</li>
+  </ol>
+  <h3>Diez parejas en las que el español te despista</h3>
+  <div class="k-article-table-wrap">
+    <table>
+      <thead><tr><th>Español</th><th>Inglés</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>depender de</td><td>depend on</td><td><em lang="en">It depends on the weather.</em></td></tr>
+        <tr><td>pensar en</td><td>think about / of</td><td><em lang="en">I'm thinking about my next holiday.</em></td></tr>
+        <tr><td>soñar con</td><td>dream of / about</td><td><em lang="en">I dream of travelling the world.</em></td></tr>
+        <tr><td>enamorado de</td><td>in love with</td><td><em lang="en">She's in love with him.</em></td></tr>
+        <tr><td>casado con</td><td>married to</td><td><em lang="en">She's married to a teacher.</em></td></tr>
+        <tr><td>consistir en</td><td>consist of</td><td><em lang="en">Water consists of hydrogen and oxygen.</em></td></tr>
+        <tr><td>esperar (a)</td><td>wait for</td><td><em lang="en">I'm waiting for the bus.</em></td></tr>
+        <tr><td>escuchar</td><td>listen to</td><td><em lang="en">I love listening to music.</em></td></tr>
+        <tr><td>bueno en</td><td>good at</td><td><em lang="en">My sister is really good at maths.</em></td></tr>
+        <tr><td>tener miedo de</td><td>be afraid of</td><td><em lang="en">I'm afraid of spiders.</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Como ves, traducir palabra por palabra no funciona: <em lang="en">depend of</em>, <em lang="en">think in</em> o <em lang="en">married with</em> suenan naturales en español, pero en inglés son errores.</p>
+  <h3>Consejos para aprender con tarjetas</h3>
+  <ul>
+    <li><strong>Siempre dentro de una frase:</strong> no memorices solo <em lang="en">proud of</em>, sino una frase completa como <em lang="en">My parents are proud of me.</em></li>
+    <li><strong>Poco y a menudo:</strong> diez minutos al día rinden más que una hora la víspera del examen.</li>
+    <li><strong>Sé sincero:</strong> si marcas «Otra vez», la tarjeta vuelve hasta que te la sepas.</li>
+  </ul>
+  <h3>También te puede interesar</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/preposiciones/practica-libre/">Práctica libre</a>: escribe tú las parejas.</li>
+    <li><a href="/es/preposiciones/sprint/">Sprint</a>: comprueba si las reconoces a toda velocidad.</li>
+    <li><a href="/es/preposiciones/resumen/">Resumen de todas las reglas</a>: todas las parejas de verbo y adjetivo.</li>
+    <li><a href="/es/preposiciones/">Todos los ejercicios de preposiciones</a></li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
@@ -270,7 +342,7 @@
     }
 
     function applyStaticStrings() {
-      document.title = `${tGet('tools.flashcards.name')}: Preposiciones en inglés — Krabsy`;
+      /* <title> stays as authored (SEO) */
       document.documentElement.lang = state.lang;
       document.querySelectorAll('[data-i18n]').forEach((node) => {
         const key = node.getAttribute('data-i18n');

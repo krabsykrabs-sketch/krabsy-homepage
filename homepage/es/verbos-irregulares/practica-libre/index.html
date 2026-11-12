@@ -25,8 +25,35 @@
   <meta name="twitter:description" content="Practica sin presión de tiempo y con pistas. Escribe el Past y el Past Participle. Ideal para repasar antes del examen.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Práctica libre",
+        "item": "https://krabsy.com/es/verbos-irregulares/practica-libre/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Free Practice module-specific styles ────────────────────────── */
 
@@ -264,7 +291,7 @@
     <!-- Header -->
     <header class="k-page-header">
       <a class="k-logo" href="/es/">Krabsy</a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache" data-i18n-attr="aria-label:common.aria_lang_toggle">
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
@@ -272,14 +299,14 @@
 
     <main class="k-section fp-main">
       <div class="fp-back-row">
-        <a class="k-btn-ghost k-btn-sm" href="/es/verbos-irregulares/" id="fp-btn-done" data-i18n="tools.free_practice.btn_done">Fertig</a>
+        <a class="k-btn-ghost k-btn-sm" href="/es/verbos-irregulares/" id="fp-btn-done" data-i18n="tools.free_practice.btn_done">Listo</a>
       </div>
 
       <div class="fp-page-header">
         <div class="fp-page-title-row">
-          <h1 class="k-h1" data-i18n="tools.free_practice.name">Freies Üben</h1>
+          <h1 class="k-h1">Práctica libre: escribe los verbos irregulares en inglés sin reloj</h1>
         </div>
-        <p class="fp-intro" data-i18n="tools.free_practice.intro"></p>
+        <p class="fp-intro" data-i18n="tools.free_practice.intro">Sin reloj, sin puntos. Escribe la forma; si te atascas, pulsa Pista. Puedes parar cuando quieras.</p>
       </div>
 
       <aside class="k-intro-card" aria-label="Sobre esta herramienta">
@@ -291,15 +318,15 @@
 
       <!-- Filter toolbar (hidden when ?verbs= present) -->
       <div class="fp-toolbar" id="fp-toolbar" role="group" aria-labelledby="fp-filter-label">
-        <span class="fp-toolbar-label" id="fp-filter-label" data-i18n="tools.free_practice.filter_label">Welche Verben?</span>
+        <span class="fp-toolbar-label" id="fp-filter-label" data-i18n="tools.free_practice.filter_label">¿Qué verbos?</span>
         <div class="fp-filter-pills" id="fp-filter-pills">
-          <button class="fp-filter-pill" type="button" data-filter="all" data-i18n="tools.free_practice.filter_all">Alle Verben</button>
-          <button class="fp-filter-pill" type="button" data-filter="weak" data-i18n="tools.free_practice.filter_weak">Nur schwache Verben</button>
+          <button class="fp-filter-pill" type="button" data-filter="all" data-i18n="tools.free_practice.filter_all">Todos los verbos</button>
+          <button class="fp-filter-pill" type="button" data-filter="weak" data-i18n="tools.free_practice.filter_weak">Solo verbos flojos</button>
         </div>
       </div>
 
       <!-- Empty / fallback note for weak filter when no data -->
-      <p class="fp-empty-note fp-hidden" id="fp-empty-note">Übe ein paar Minuten — dann erscheinen hier deine schwachen Verben.</p>
+      <p class="fp-empty-note fp-hidden" id="fp-empty-note">Practica unos minutos — y aparecerán aquí tus verbos flojos.</p>
 
       <!-- Progress strip -->
       <div class="fp-progress-strip k-mono-num" id="fp-progress-strip" aria-live="polite"></div>
@@ -328,12 +355,52 @@
         <div class="fp-hint" id="fp-hint" aria-live="polite"></div>
 
         <div class="fp-actions">
-          <button class="k-btn-ghost" type="button" id="fp-btn-hint" data-i18n="tools.free_practice.btn_hint">Tipp</button>
-          <button class="k-btn-ghost" type="button" id="fp-btn-skip" data-i18n="tools.free_practice.btn_skip">Überspringen</button>
-          <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Absenden</button>
+          <button class="k-btn-ghost" type="button" id="fp-btn-hint" data-i18n="tools.free_practice.btn_hint">Pista</button>
+          <button class="k-btn-ghost" type="button" id="fp-btn-skip" data-i18n="tools.free_practice.btn_skip">Saltar</button>
+          <button class="k-btn-primary" type="button" id="fp-btn-submit" data-i18n="common.submit">Enviar</button>
         </div>
       </section>
-      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true">Werbung</div>
+      <div class="k-ad-slot k-ad-slot--rect" aria-hidden="true" data-label="Publicidad"></div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Verbos regulares e irregulares en inglés: la diferencia</h2>
+  <p>En Práctica libre no hay reloj: escribes el Simple Past y el Past Participle de cada verbo con calma. Si te atascas, pide una pista o salta el verbo. Con el filtro «solo verbos flojos» practicas únicamente los que más te cuestan. Es ideal para repasar antes de un examen.</p>
+  <h3>Verbos regulares: la regla del -ed</h3>
+  <p>La mayoría de los verbos ingleses son regulares: forman el pasado y el participio con <em lang="en">-ed</em>. Ojo con la ortografía:</p>
+  <ul>
+    <li>Regla general: <em lang="en">work – worked</em>, <em lang="en">play – played</em>.</li>
+    <li>Si acaba en <em lang="en">-e</em>, solo se añade <em lang="en">-d</em>: <em lang="en">live – lived</em>.</li>
+    <li>Consonante + <em lang="en">y</em> se convierte en <em lang="en">-ied</em>: <em lang="en">study – studied</em>.</li>
+    <li>Vocal corta + consonante: se dobla la consonante: <em lang="en">stop – stopped</em>, <em lang="en">plan – planned</em>.</li>
+  </ul>
+  <p>Los verbos irregulares, como <a href="/es/verbos-irregulares/go/"><em lang="en">go – went – gone</em></a>, no siguen esta regla. Son pocos en comparación, pero muchos de ellos son los más usados del idioma.</p>
+  <h3>Inglés británico e inglés americano</h3>
+  <p>Algunos verbos tienen dos formas correctas según la variante. En el Reino Unido se usa más la forma irregular; en Estados Unidos, la regular:</p>
+  <div class="k-article-table-wrap">
+    <table>
+      <thead><tr><th>Infinitivo</th><th>Británico</th><th>Americano</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/es/verbos-irregulares/learn/">learn</a></td><td>learnt</td><td>learned</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/dream/">dream</a></td><td>dreamt</td><td>dreamed</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/burn/">burn</a></td><td>burnt</td><td>burned</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/get/">get</a> (participio)</td><td>got</td><td>gotten</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Aquí se aceptan las dos formas. Lo importante es ser coherente dentro de un mismo texto.</p>
+  <h3>Errores típicos</h3>
+  <ul>
+    <li>Escribir <em lang="en">studyed</em> o <em lang="en">stoped</em> en vez de <em lang="en">studied</em> y <em lang="en">stopped</em>.</li>
+    <li>Pronunciar la <em lang="en">-ed</em> como sílaba aparte en todos los verbos: <em lang="en">worked</em> suena «workt», no «work-ed».</li>
+  </ul>
+  <h3>También te puede servir</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/verbos-irregulares/tarjetas/">Tarjetas</a>: memoriza los verbos uno a uno.</li>
+    <li><a href="/es/verbos-irregulares/type-race/">Type Race</a>: escribe las formas a toda velocidad.</li>
+    <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos</a>: todos los verbos de un vistazo.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
 
     <footer class="k-footer">
@@ -392,7 +459,7 @@
     }
 
     function applyStaticStrings() {
-      document.title = `${tGet('tools.free_practice.name')} — Krabsy`;
+      /* <title> stays as authored (SEO) */
       document.documentElement.lang = state.ui.lang || 'de';
       const nodes = document.querySelectorAll('[data-i18n]');
       nodes.forEach((node) => {

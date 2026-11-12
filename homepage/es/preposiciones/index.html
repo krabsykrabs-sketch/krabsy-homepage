@@ -36,11 +36,32 @@
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Preposiciones en inglés",
+        "item": "https://krabsy.com/es/preposiciones/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
 
@@ -381,7 +402,7 @@
         </span>
         <span>bsy</span>
       </a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen" data-i18n-attr="aria-label:common.aria_lang_toggle">
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" type="button" data-lang="de">DE</button>
         <button class="k-lang-btn is-active" type="button" data-lang="es">ES</button>
       </div>
@@ -398,42 +419,48 @@
       </div>
     </section>
 
+<!-- seo-lead:start (static SEO learning text) -->
+<section class="k-hub-intro">
+  <p>Las preposiciones son palabras pequeñas como <em lang="en">in</em>, <em lang="en">on</em>, <em lang="en">at</em> o <em lang="en">for</em> que indican cuándo, dónde y cómo pasa algo. Cuestan porque en español casi todo se dice con «en», mientras que el inglés distingue: <em lang="en">in July</em>, <em lang="en">on Monday</em>, <em lang="en">at 8 o'clock</em>. Consulta las reglas en el <a href="/es/preposiciones/resumen/">resumen</a>, ponte a prueba en el <a href="/es/preposiciones/sprint/">Sprint</a> o repasa con las <a href="/es/preposiciones/tarjetas/">tarjetas</a>.</p>
+</section>
+<!-- seo-lead:end -->
+
     <!-- ── Progress row (inline strip; rendered only when hasData()) ─────── -->
-    <section class="progress-row" id="progress-row" hidden aria-label="Fortschritt" data-i18n-attr="aria-label:progress_widget.aria_label">
+    <section class="progress-row" id="progress-row" hidden aria-label="Progreso" data-i18n-attr="aria-label:progress_widget.aria_label">
       <span class="progress-row-stat">
-        <span data-i18n="common.accuracy">Genauigkeit</span>
-        <strong id="progress-row-accuracy">—%</strong>
+        <span data-i18n="common.accuracy">Precisión</span>
+        <strong id="progress-row-accuracy"></strong>
       </span>
       <span class="progress-row-sep" aria-hidden="true">·</span>
       <span class="progress-row-stat">
-        <span data-i18n="common.streak">Serie</span>
-        <strong id="progress-row-streak">—</strong>
+        <span data-i18n="common.streak">Racha</span>
+        <strong id="progress-row-streak"></strong>
       </span>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" id="progress-row-practice" href="/es/preposiciones/practica-libre/">— →</a>
+      <a class="progress-row-link" id="progress-row-practice" href="/es/preposiciones/practica-libre/"></a>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" href="/es/preposiciones/estadisticas/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
+      <a class="progress-row-link" href="/es/verbos-irregulares/estadisticas/" data-i18n="progress_widget.tile_link_stats">Ver estadísticas</a>
     </section>
 
     <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
     <section class="k-section bg-sage">
-      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
-      <p class="section-sub" data-i18n="homepage.section_drills_sub">Kurze Challenges. Schlag deine Bestzeit.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed Drills</h2>
+      <p class="section-sub" data-i18n="homepage.section_drills_sub">Desafíos cortos. Supera tu mejor tiempo.</p>
       <div class="card-grid" id="drills-grid"></div>
     </section>
 
-    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true" data-label="Publicidad"></div>
 
     <!-- ── Study Tools ──────────────────────────────────────────────────── -->
     <section class="k-section">
-      <h2 class="section-heading" data-i18n="homepage.section_tools">Lernwerkzeuge</h2>
-      <p class="section-sub" data-i18n="homepage.section_tools_sub">Klassisches Üben, ohne Spielzeug.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_tools">Herramientas de estudio</h2>
+      <p class="section-sub" data-i18n="homepage.section_tools_sub">Práctica clásica, sin juegos.</p>
       <div class="card-grid-tools card-grid" id="tools-grid"></div>
     </section>
 
     <!-- ── Games (topic-filtered; hidden entirely when no compatible games) ── -->
     <section class="k-section bg-lavender" id="games-section" hidden>
-      <h2 class="section-heading" data-i18n="homepage.section_games">Spiele</h2>
+      <h2 class="section-heading" data-i18n="homepage.section_games">Juegos</h2>
       <p class="section-sub" data-i18n="homepage.section_games_sub">Juegos arcade para entrenar preposiciones.</p>
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
@@ -453,26 +480,55 @@
           <div class="module-card-title" data-i18n="reference.title">Preposiciones en inglés — Resumen</div>
           <div class="module-card-tagline" data-i18n="reference.subtitle">Todas las reglas importantes, agrupadas por categoría.</div>
         </div>
-        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Abrir</span>
       </a>
     </section>
 
     <!-- ── Statistics ──────────────────────────────────────────────────── -->
     <section class="k-section bg-coral">
-      <h2 class="section-heading" data-i18n="homepage.section_stats">Deine Statistik</h2>
-      <p class="section-sub" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</p>
-      <a class="module-card wide-card" href="/es/preposiciones/estadisticas/">
+      <h2 class="section-heading" data-i18n="homepage.section_stats">Tus estadísticas</h2>
+      <p class="section-sub" data-i18n="homepage.section_stats_sub">Lo que dominas — y lo que aún no.</p>
+      <a class="module-card wide-card" href="/es/verbos-irregulares/estadisticas/">
         <div class="wide-card-text">
-          <div class="module-card-title" data-i18n="stats.title">Deine Statistik</div>
-          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</div>
+          <div class="module-card-title" data-i18n="stats.title">Tus estadísticas</div>
+          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Lo que dominas — y lo que aún no.</div>
           <div class="stats-peek" id="stats-peek" hidden></div>
         </div>
-        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Abrir</span>
       </a>
     </section>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Aprende las preposiciones en inglés: qué vas a practicar</h2>
+  <p>Aquí tienes todos los ejercicios de Krabsy sobre preposiciones en inglés, gratis y sin registro. Las frases están pensadas para estudiantes a partir de 5.º de primaria y cubren las reglas que aparecen una y otra vez en clase de inglés.</p>
+  <h3>Los bloques principales</h3>
+  <ul>
+    <li><strong>Tiempo:</strong> <em lang="en">in July, on Monday, at 8 o'clock</em> y la diferencia entre <em lang="en">since</em> (desde) y <em lang="en">for</em> (desde hace).</li>
+    <li><strong>Lugar y movimiento:</strong> <em lang="en">The keys are in my bag.</em> <em lang="en">The dog ran into the garden.</em></li>
+    <li><strong>Verbo, adjetivo o sustantivo + preposición:</strong> <em lang="en">depend on, good at, a problem with</em>.</li>
+    <li><strong>Transporte y expresiones fijas:</strong> <em lang="en">by bus, on foot, on time, by accident</em>.</li>
+  </ul>
+  <h3>Tu plan en tres pasos</h3>
+  <ol>
+    <li><strong>Entender:</strong> lee las reglas con frases de ejemplo en el <a href="/es/preposiciones/resumen/">resumen</a>.</li>
+    <li><strong>Practicar:</strong> repásalas con las <a href="/es/preposiciones/tarjetas/">tarjetas</a> o escríbelas tú en la <a href="/es/preposiciones/practica-libre/">práctica libre</a>.</li>
+    <li><strong>Ponerte a prueba:</strong> compite contra el reloj en el <a href="/es/preposiciones/sprint/">Sprint</a> o completa el <a href="/es/preposiciones/fill-the-gap/">Hueco</a> con tres vidas.</li>
+  </ol>
+  <p>Tu progreso se guarda solo en tu dispositivo. Así verás con el tiempo qué reglas dominas ya y cuáles te conviene repasar.</p>
+  <h3>Todos los ejercicios</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/preposiciones/sprint/">Sprint</a>: 20 frases con hueco lo más rápido posible.</li>
+    <li><a href="/es/preposiciones/fill-the-gap/">Hueco</a>: escribe tú la preposición.</li>
+    <li><a href="/es/preposiciones/practica-libre/">Práctica libre</a>: sin reloj y con pistas.</li>
+    <li><a href="/es/preposiciones/tarjetas/">Tarjetas</a>: gírala y evalúate.</li>
+    <li><a href="/es/preposiciones/resumen/">Resumen</a>: todas las reglas por categoría.</li>
+    <li><a href="/es/juegos/">Todos los juegos</a>: practica inglés con juegos arcade.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
 
 
-    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true" data-label="Publicidad"></div>
     <!-- ── Footer ──────────────────────────────────────────────────────── -->
     <footer class="k-footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
@@ -554,7 +610,7 @@
     function renderDrills() {
       const root = document.getElementById('drills-grid');
       root.innerHTML = '';
-      const playLabel = lookup('homepage.card_play') || 'Spielen';
+      const playLabel = lookup('homepage.card_play') || 'Jugar';
       for (const d of DRILLS) {
         const name = lookup(`drills.${d.key}.name`) || d.key;
         const tagline = lookup(`drills.${d.key}.tagline`) || '';

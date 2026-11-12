@@ -25,8 +25,35 @@
   <meta name="twitter:description" content="Los 60 verbos irregulares importantes con Past y Past Participle. Oculta columnas y ponte a prueba.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Tabla de verbos",
+        "item": "https://krabsy.com/es/verbos-irregulares/tabla-de-verbos/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Module-specific styles ─────────────────────────────────────────── */
 
@@ -207,15 +234,15 @@
 <body>
   <div class="k-page">
     <header class="k-page-header">
-      <a href="/es/" class="k-logo" aria-label="Krabsy Startseite">Krabsy</a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen" data-i18n-attr="aria-label:common.aria_lang_toggle">
+      <a href="/es/" class="k-logo" aria-label="Krabsy: página de inicio">Krabsy</a>
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn" data-lang="de" type="button">DE</button>
         <button class="k-lang-btn" data-lang="es" type="button">ES</button>
       </div>
     </header>
 
     <main class="k-section">
-      <h1 class="k-h1" id="pageTitle" style="margin-top: 12px;">Verb-Tabelle</h1>
+      <h1 class="k-h1" style="margin-top: 12px;">Tabla de verbos irregulares en inglés: ponte a prueba</h1>
       <p class="vt-intro" id="introText"></p>
 
       <aside class="k-intro-card" aria-label="Sobre esta herramienta">
@@ -231,25 +258,25 @@
               id="searchInput"
               autocomplete="off"
               spellcheck="false"
-              aria-label="Verb suchen"
+              aria-label="Buscar verbo"
             >
           </div>
           <div class="vt-toggles" id="toggles">
             <label class="vt-toggle" id="toggleBaseLabel">
               <input type="checkbox" id="toggleBase">
-              <span id="labelBase">Grundform verstecken</span>
+              <span id="labelBase">Ocultar infinitivo</span>
             </label>
             <label class="vt-toggle" id="togglePastLabel">
               <input type="checkbox" id="togglePast">
-              <span id="labelPast">Past verstecken</span>
+              <span id="labelPast">Ocultar past</span>
             </label>
             <label class="vt-toggle" id="togglePpLabel">
               <input type="checkbox" id="togglePp">
-              <span id="labelPp">Participle verstecken</span>
+              <span id="labelPp">Ocultar participle</span>
             </label>
             <label class="vt-toggle" id="toggleMeaningLabel">
               <input type="checkbox" id="toggleMeaning">
-              <span id="labelMeaning">Bedeutung verstecken</span>
+              <span id="labelMeaning">Ocultar significado</span>
             </label>
           </div>
         </div>
@@ -259,7 +286,7 @@
             <thead>
               <tr>
                 <th id="thBase" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
-                  <span id="thBaseLabel">Grundform</span>
+                  <span id="thBaseLabel">Infinitivo</span>
                 </th>
                 <th id="thPast" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
                   <span id="thPastLabel">Simple Past</span>
@@ -268,17 +295,59 @@
                   <span id="thPpLabel">Past Participle</span>
                 </th>
                 <th id="thMeaning" class="vt-clickable" scope="col" tabindex="0" role="button" aria-pressed="false">
-                  <span id="thMeaningLabel">Bedeutung</span>
+                  <span id="thMeaningLabel">Significado</span>
                 </th>
               </tr>
             </thead>
             <tbody id="tbody">
-              <tr><td colspan="4" class="vt-loading">Lädt…</td></tr>
+              <tr><td colspan="4" class="vt-loading">Cargando…</td></tr>
             </tbody>
           </table>
         </div>
         <div class="vt-empty" id="emptyState" hidden></div>
       </div>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Cómo usar la tabla de verbos irregulares para autoevaluarte</h2>
+  <p>La tabla reúne los verbos irregulares más importantes del inglés con sus tres formas y su significado en español. Puedes buscar un verbo concreto o leerla de arriba abajo, pero su mayor ventaja es otra: puedes <strong>ocultar columnas</strong> para examinarte tú mismo.</p>
+  <h3>Tres maneras de practicar</h3>
+  <ol>
+    <li><strong>Del español al inglés:</strong> oculta el infinitivo, el past y el participle. Lee el significado, por ejemplo «dar», y di las tres formas: <em lang="en">give – gave – given</em>.</li>
+    <li><strong>Solo las formas de pasado:</strong> oculta las columnas de Simple Past y Past Participle y deja visible el infinitivo.</li>
+    <li><strong>Al revés:</strong> oculta el infinitivo y el significado. Ves <em lang="en">thought</em> e intentas recordar que viene de <em lang="en">think</em>, «pensar».</li>
+  </ol>
+  <p>Para ocultar una columna, haz clic en su encabezado o usa las casillas de arriba. Siempre tiene que quedar al menos una columna visible. Repite la prueba unos días después: lo que recuerdas sin mirar es lo que de verdad has aprendido.</p>
+  <h3>Diez verbos más que debes saber</h3>
+  <div class="k-article-table-wrap">
+    <table>
+      <thead><tr><th>Infinitivo</th><th>Simple Past</th><th>Past Participle</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/es/verbos-irregulares/come/">come</a></td><td>came</td><td>come</td><td>venir</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/give/">give</a></td><td>gave</td><td>given</td><td>dar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/find/">find</a></td><td>found</td><td>found</td><td>encontrar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/think/">think</a></td><td>thought</td><td>thought</td><td>pensar, creer</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/tell/">tell</a></td><td>told</td><td>told</td><td>contar, decir</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/become/">become</a></td><td>became</td><td>become</td><td>convertirse en, llegar a ser</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/leave/">leave</a></td><td>left</td><td>left</td><td>irse, dejar</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/feel/">feel</a></td><td>felt</td><td>felt</td><td>sentir</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/bring/">bring</a></td><td>brought</td><td>brought</td><td>traer</td></tr>
+        <tr><td><a href="/es/verbos-irregulares/begin/">begin</a></td><td>began</td><td>begun</td><td>empezar</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Errores típicos</h3>
+  <ul>
+    <li><strong>Say o tell:</strong> los dos pueden ser «decir», pero <em lang="en">tell</em> lleva persona: <em lang="en">She told me the truth</em>, <em lang="en">She said it was true</em>.</li>
+    <li><strong>Bring o take:</strong> <em lang="en">bring</em> es traer hacia aquí; <em lang="en">take</em> es llevar hacia allí.</li>
+  </ul>
+  <h3>También te puede servir</h3>
+  <ul class="k-article-links">
+    <li><a href="/es/verbos-irregulares/resumen/">Resumen</a>: ordena los verbos por tu nivel de dominio.</li>
+    <li><a href="/es/verbos-irregulares/tarjetas/">Tarjetas</a>: aprende los verbos que aún no sabes.</li>
+    <li><a href="/es/verbos-irregulares/sprint/">Sprint</a>: comprueba lo aprendido contra el reloj.</li>
+  </ul>
+</section>
+<!-- seo-article:end -->
     </main>
     <footer class="k-footer">
       <span>© 2026 Krabsy</span>
@@ -333,9 +402,9 @@
       const common = (ui && ui.common) || {};
       const reference = (ui && ui.reference) || {};
 
-      document.title = (t.name ? t.name + ' — ' : '') + 'Krabsy';
+      /* <title> stays as authored (SEO) */
 
-      setStr('pageTitle', t.name || 'Verb-Tabelle');
+      /* h1 stays as authored (SEO) */
       setStr('introText', t.intro || '');
       setStr('backLabel', common.back_to_hub_short || common.back_to_hub || 'Zurück');
 

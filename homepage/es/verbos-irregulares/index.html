@@ -31,16 +31,37 @@
       "@type": "WebSite",
       "name": "Krabsy",
       "url": "https://krabsy.com/",
-      "description": "Übe unregelmäßige englische Verben mit Spielen, Drills und Lernwerkzeugen. Kostenlos, ohne Anmeldung. Für Schüler und Schülerinnen ab Klasse 5.",
+      "description": "Practica los verbos irregulares en inglés con juegos, ejercicios rápidos y herramientas de estudio. Gratis y sin registro.",
       "inLanguage": "de"
     }
   </script>
   <!-- /SEO-BLOCK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Krabsy",
+        "item": "https://krabsy.com/es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Verbos irregulares",
+        "item": "https://krabsy.com/es/verbos-irregulares/"
+      }
+    ]
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
 
@@ -370,7 +391,7 @@
         </span>
         <span>bsy</span>
       </a>
-      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen" data-i18n-attr="aria-label:common.aria_lang_toggle">
+      <div class="k-lang-toggle" role="group" aria-label="Idioma" data-i18n-attr="aria-label:common.aria_lang_toggle">
         <button class="k-lang-btn is-active" type="button" data-lang="de">DE</button>
         <button class="k-lang-btn" type="button" data-lang="es">ES</button>
       </div>
@@ -381,49 +402,55 @@
       <div class="hero-banner">
         <img class="hero-banner-bg" src="/thumbnails/banner.png" alt="" loading="eager" decoding="async">
         <div class="hero-banner-text">
-          <h1 class="hero-title" data-i18n="homepage.seo_h1">Aprende verbos irregulares en inglés</h1>
-          <p class="hero-sub" data-i18n="homepage.hero_sub">Verbos irregulares: juega, practica, consulta.</p>
+          <h1 class="hero-title" data-i18n="homepage.seo_h1">Aprende verbos irregulares</h1>
+          <p class="hero-sub" data-i18n="homepage.hero_sub">Aprende los verbos irregulares: juega, practica, consulta.</p>
         </div>
       </div>
     </section>
 
+<!-- seo-lead:start (static SEO learning text) -->
+<section class="k-hub-intro">
+  <p>Los verbos irregulares no forman el pasado con <em lang="en">-ed</em>: de <em lang="en">go</em> sale <em lang="en">went</em> y <em lang="en">gone</em>, de <em lang="en">see</em> sale <em lang="en">saw</em> y <em lang="en">seen</em>. Aquí los aprendes jugando, gratis y sin registro: consulta los <a href="/es/verbos-irregulares/a-z/">172 verbos de la A a la Z</a>, ponte a prueba en el <a href="/es/verbos-irregulares/sprint/">Sprint</a> o repasa con la <a href="/es/verbos-irregulares/tabla-de-verbos/">tabla de verbos</a>. Cada ejercicio dura solo unos minutos, perfecto para practicar un poco cada día.</p>
+</section>
+<!-- seo-lead:end -->
+
     <!-- ── Progress row (inline strip; rendered only when hasData()) ─────── -->
-    <section class="progress-row" id="progress-row" hidden aria-label="Fortschritt" data-i18n-attr="aria-label:progress_widget.aria_label">
+    <section class="progress-row" id="progress-row" hidden aria-label="Progreso" data-i18n-attr="aria-label:progress_widget.aria_label">
       <span class="progress-row-stat">
-        <span data-i18n="common.accuracy">Genauigkeit</span>
-        <strong id="progress-row-accuracy">—%</strong>
+        <span data-i18n="common.accuracy">Precisión</span>
+        <strong id="progress-row-accuracy"></strong>
       </span>
       <span class="progress-row-sep" aria-hidden="true">·</span>
       <span class="progress-row-stat">
-        <span data-i18n="common.streak">Serie</span>
-        <strong id="progress-row-streak">—</strong>
+        <span data-i18n="common.streak">Racha</span>
+        <strong id="progress-row-streak"></strong>
       </span>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" id="progress-row-practice" href="/es/verbos-irregulares/practica-libre/">— →</a>
+      <a class="progress-row-link" id="progress-row-practice" href="/es/verbos-irregulares/practica-libre/"></a>
       <span class="progress-row-sep" aria-hidden="true">·</span>
-      <a class="progress-row-link" href="/es/verbos-irregulares/estadisticas/" data-i18n="progress_widget.tile_link_stats">Zur Statistik →</a>
+      <a class="progress-row-link" href="/es/verbos-irregulares/estadisticas/" data-i18n="progress_widget.tile_link_stats">Ver estadísticas</a>
     </section>
 
     <!-- ── Speed Drills ─────────────────────────────────────────────────── -->
     <section class="k-section bg-sage">
-      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed-Drills</h2>
-      <p class="section-sub" data-i18n="homepage.section_drills_sub">Kurze Challenges. Schlag deine Bestzeit.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_drills">Speed Drills</h2>
+      <p class="section-sub" data-i18n="homepage.section_drills_sub">Desafíos cortos. Supera tu mejor tiempo.</p>
       <div class="card-grid" id="drills-grid"></div>
     </section>
 
-    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true" data-label="Publicidad"></div>
 
     <!-- ── Study Tools ──────────────────────────────────────────────────── -->
     <section class="k-section">
-      <h2 class="section-heading" data-i18n="homepage.section_tools">Lernwerkzeuge</h2>
-      <p class="section-sub" data-i18n="homepage.section_tools_sub">Klassisches Üben, ohne Spielzeug.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_tools">Herramientas de estudio</h2>
+      <p class="section-sub" data-i18n="homepage.section_tools_sub">Práctica clásica, sin juegos.</p>
       <div class="card-grid-tools card-grid" id="tools-grid"></div>
     </section>
 
     <!-- ── Games (topic-filtered; hidden entirely when no compatible games) ── -->
     <section class="k-section bg-lavender" id="games-section">
-      <h2 class="section-heading" data-i18n="homepage.section_games">Spiele</h2>
-      <p class="section-sub" data-i18n="homepage.section_games_sub">Arcade-Spiele zum Verb-Training.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_games">Juegos</h2>
+      <p class="section-sub" data-i18n="homepage.section_games_sub">Juegos arcade para entrenar verbos.</p>
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
         <a class="k-game-card" href="/es/juegos/verb-slash/" data-game-id="verb-slash"><div class="k-game-card-thumb"><img src="/thumbnails/VerbSlash.png" alt="Escena del juego Verb Slash" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Slash</h3><p class="k-game-card-tagline">¡Corta las formas verbales correctas!</p><span class="k-game-card-cta">Jugar →</span></div></a>
@@ -442,19 +469,19 @@
 
     <!-- ── Verb Reference ──────────────────────────────────────────────── -->
     <section class="k-section">
-      <h2 class="section-heading" data-i18n="homepage.section_reference">Verb-Liste</h2>
-      <p class="section-sub" data-i18n="homepage.section_reference_sub">Alle wichtigen unregelmäßigen Verben auf einen Blick.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_reference">Lista de verbos</h2>
+      <p class="section-sub" data-i18n="homepage.section_reference_sub">Todos los verbos irregulares importantes de un vistazo.</p>
       <a class="module-card wide-card" href="/es/verbos-irregulares/resumen/">
         <div class="wide-card-text">
-          <div class="module-card-title" data-i18n="reference.title">Unregelmäßige Verben — Übersicht</div>
-          <div class="module-card-tagline" data-i18n="reference.subtitle">Alle wichtigen unregelmäßigen Verben auf einen Blick.</div>
+          <div class="module-card-title" data-i18n="reference.title">Verbos irregulares — Resumen</div>
+          <div class="module-card-tagline" data-i18n="reference.subtitle">Todos los verbos irregulares importantes de un vistazo.</div>
         </div>
-        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Abrir</span>
       </a>
       <a class="module-card wide-card" href="/es/verbos-irregulares/a-z/" style="margin-top:12px">
         <div class="wide-card-text">
           <div class="module-card-title">Todos los verbos de la A a la Z</div>
-          <div class="module-card-tagline">155 verbos — cada uno con sus formas, frases de ejemplo y mini-quiz.</div>
+          <div class="module-card-tagline">172 verbos — cada uno con sus formas, frases de ejemplo y mini-quiz.</div>
         </div>
         <span class="module-card-cta wide-card-cta">Abrir →</span>
       </a>
@@ -462,20 +489,36 @@
 
     <!-- ── Statistics ──────────────────────────────────────────────────── -->
     <section class="k-section bg-coral">
-      <h2 class="section-heading" data-i18n="homepage.section_stats">Deine Statistik</h2>
-      <p class="section-sub" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</p>
+      <h2 class="section-heading" data-i18n="homepage.section_stats">Tus estadísticas</h2>
+      <p class="section-sub" data-i18n="homepage.section_stats_sub">Lo que dominas — y lo que aún no.</p>
       <a class="module-card wide-card" href="/es/verbos-irregulares/estadisticas/">
         <div class="wide-card-text">
-          <div class="module-card-title" data-i18n="stats.title">Deine Statistik</div>
-          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Was du kannst — und was noch nicht.</div>
+          <div class="module-card-title" data-i18n="stats.title">Tus estadísticas</div>
+          <div class="module-card-tagline" data-i18n="homepage.section_stats_sub">Lo que dominas — y lo que aún no.</div>
           <div class="stats-peek" id="stats-peek" hidden></div>
         </div>
-        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Öffnen →</span>
+        <span class="module-card-cta wide-card-cta" data-i18n="homepage.card_open">Abrir</span>
       </a>
     </section>
+<!-- seo-article:start (static SEO learning text) -->
+<section class="k-article" aria-labelledby="ka-title">
+  <h2 id="ka-title">Verbos irregulares en inglés: qué son y cómo aprenderlos</h2>
+  <p>Cada verbo inglés tiene tres formas: el infinitivo, el Simple Past (pasado simple) y el Past Participle (participio). Los verbos regulares añaden <em lang="en">-ed</em>: <em lang="en">play – played – played</em>. Los irregulares cambian a su manera: <em lang="en">write – wrote – written</em>. Son unos 150 verbos de uso frecuente, y muchos de ellos, como <em lang="en">be</em>, <em lang="en">have</em>, <em lang="en">go</em> o <em lang="en">get</em>, aparecen en casi todas las frases.</p>
+  <h3>Aprende paso a paso</h3>
+  <ol>
+    <li><strong>Consulta:</strong> echa un vistazo al <a href="/es/verbos-irregulares/resumen/">resumen</a> o a la <a href="/es/verbos-irregulares/tabla-de-verbos/">tabla de verbos</a> para ver todas las formas.</li>
+    <li><strong>Memoriza:</strong> aprende 10 a 15 verbos al día con las <a href="/es/verbos-irregulares/tarjetas/">tarjetas</a> y repasa los difíciles en la <a href="/es/verbos-irregulares/practica-libre/">práctica libre</a>.</li>
+    <li><strong>Entrena:</strong> pon a prueba tu velocidad en el <a href="/es/verbos-irregulares/sprint/">Sprint</a>, escribe las formas en <a href="/es/verbos-irregulares/type-race/">Type Race</a>, úsalas en frases en <a href="/es/verbos-irregulares/fill-the-gap/">Fill the Gap</a>, únelas en <a href="/es/verbos-irregulares/drag-match/">Drag Match</a> y reacciona rápido en <a href="/es/verbos-irregulares/falling-forms/">Falling Forms</a>.</li>
+    <li><strong>Juega:</strong> cuando ya te sepas muchos, diviértete con los <a href="/es/juegos/">juegos arcade</a>.</li>
+  </ol>
+  <h3>El error más típico</h3>
+  <p>Muchos hispanohablantes dicen <em lang="en">I have seen him yesterday</em> porque en español es normal decir «lo he visto». En inglés, con <em lang="en">yesterday</em> o <em lang="en">last week</em> va siempre el Simple Past: <em lang="en">I saw him yesterday</em>.</p>
+  <p>Cada verbo tiene además su propia página con frases de ejemplo y un mini-quiz en la <a href="/es/verbos-irregulares/a-z/">lista de la A a la Z</a>. Tu progreso se guarda en tu dispositivo, sin cuenta.</p>
+</section>
+<!-- seo-article:end -->
 
     
-    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true">Werbung</div>
+    <div class="k-ad-slot k-ad-slot--banner" aria-hidden="true" data-label="Publicidad"></div>
     <!-- ── Footer ──────────────────────────────────────────────────────── -->
     <footer class="k-footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
@@ -561,7 +604,7 @@
     function renderDrills() {
       const root = document.getElementById('drills-grid');
       root.innerHTML = '';
-      const playLabel = lookup('homepage.card_play') || 'Spielen';
+      const playLabel = lookup('homepage.card_play') || 'Jugar';
       for (const d of DRILLS) {
         const name = lookup(`drills.${d.key}.name`) || d.key;
         const tagline = lookup(`drills.${d.key}.tagline`) || '';
