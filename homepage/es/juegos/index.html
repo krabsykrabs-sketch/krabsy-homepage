@@ -95,6 +95,23 @@
     }
     @media (min-width: 560px) { .games-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 900px) { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+    /* SEO intro below the grid — plain readable text block. */
+    .gh-about {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 var(--space-5) var(--space-7);
+      color: var(--krabsy-ink);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    .gh-about h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      margin: 0 0 var(--space-3);
+      line-height: 1.25;
+    }
+    .gh-about p { margin: 0 0 var(--space-3); }
+    .gh-about a { color: var(--krabsy-coral-dark); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -127,7 +144,25 @@
                  Irregulares") cuando exista un segundo tema. Por ahora sólo
                  hay un tema, así que el filtro sería puramente cosmético. La
                  infraestructura ya existe vía getGamesForTopic(). -->
-      <div class="games-grid" id="games-grid"></div>
+      <div class="games-grid" id="games-grid">
+        <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+        <a class="k-game-card" href="/es/juegos/verb-slash/" data-game-id="verb-slash"><div class="k-game-card-thumb"><img src="/thumbnails/VerbSlash.png" alt="Escena del juego Verb Slash" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Slash</h3><p class="k-game-card-tagline">¡Corta las formas verbales correctas!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/crab-slash/" data-game-id="crab-slash"><span class="k-game-card-badge">Beta</span><div class="k-game-card-thumb"><img src="/thumbnails/crab-slash.png" alt="Escena del juego Crab Slash!" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Crab Slash!</h3><p class="k-game-card-tagline">¡Golpea los cangrejos con los verbos correctos!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/air-control/" data-game-id="air-control"><span class="k-game-card-badge">Beta</span><div class="k-game-card-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control!" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Air Control!</h3><p class="k-game-card-tagline">¡Guía los aviones de forma segura con inglés!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/verb-snake/" data-game-id="verb-snake"><div class="k-game-card-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake!" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Snake!</h3><p class="k-game-card-tagline">¡Come las formas verbales en el orden correcto!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/verb-flow/" data-game-id="verb-flow"><span class="k-game-card-badge">Beta</span><div class="k-game-card-thumb"><span class="k-game-card-thumb-emoji">✏️</span></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Flow!</h3><p class="k-game-card-tagline">¡Conecta las tres formas verbales en el orden correcto!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/verb-platformer/" data-game-id="verb-platformer"><span class="k-game-card-badge">Beta</span><div class="k-game-card-thumb"><img src="/thumbnails/verb-platformer.png" alt="Escena del juego Verb Platformer!" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Platformer!</h3><p class="k-game-card-tagline">¡Salta por mundos 3D y elige la forma verbal correcta!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/verb-kitchen/" data-game-id="verb-kitchen"><span class="k-game-card-badge">Beta</span><div class="k-game-card-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen!" loading="lazy" decoding="async"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Kitchen!</h3><p class="k-game-card-tagline">¡Caos de cocina — lava platos con los verbos correctos!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <!-- STATIC-GAMES:END -->
+      </div>
+    </section>
+
+    <!-- ── About the games (crawlable intro) ──────────────────────────── -->
+    <section class="gh-about">
+      <h2>Aprender inglés jugando: así funciona</h2>
+      <p>Memorizar listas de verbos puede ser aburrido. Por eso Krabsy tiene juegos arcade cortos en los que practicas inglés casi sin darte cuenta. Todos los juegos de esta página trabajan los <a href="/es/verbos-irregulares/">verbos irregulares en inglés</a>: tienes que encontrar la forma correcta – por ejemplo <em>go → went → gone</em> o <em>eat → ate → eaten</em> – y cada acierto suma puntos.</p>
+      <p>Cada juego te hace pensar de otra manera. En <a href="/es/juegos/verb-slash/">Verb Slash</a> y <a href="/es/juegos/crab-slash/">Crab Slash</a> cortas la forma correcta con un movimiento rápido del dedo o del ratón; en <a href="/es/juegos/verb-snake/">Verb Snake</a> tu serpiente se come las formas en orden, y <a href="/es/juegos/verb-flow/">Verb Flow</a> es un rompecabezas de tuberías. Si prefieres algo más grande, dirige aviones en <a href="/es/juegos/air-control/">Air Control</a>, salta por un mundo 3D en <a href="/es/juegos/verb-platformer/">Verb Platformer</a> o lava platos con respuestas correctas en <a href="/es/juegos/verb-kitchen/">Verb Kitchen</a>.</p>
+      <p>Todos son gratis, funcionan en el navegador y no necesitas descargar nada ni crear una cuenta. Sirven para la clase de inglés en primaria y secundaria, o para repasar en casa. ¿Quieres consultar primero las formas? Mira la <a href="/es/verbos-irregulares/a-z/">lista de verbos irregulares de la A a la Z</a>.</p>
     </section>
 
     <!-- ── Footer ───────────────────────────────────────────────────────── -->
@@ -150,6 +185,8 @@
       catch (err) { console.error('games-hub: failed to load games.json', err); return; }
 
       const grid = document.getElementById('games-grid');
+      // Static cards pre-rendered by tools/render_static_games.py already match games.json — keep them (no flash).
+      if ([...grid.querySelectorAll('[data-game-id]')].map((el) => el.dataset.gameId).join() === games.map((g) => g.id).join()) return;
       grid.innerHTML = '';
       for (const g of games) {
         grid.appendChild(buildGameCard(g));

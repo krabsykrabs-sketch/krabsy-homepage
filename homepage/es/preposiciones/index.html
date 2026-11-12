@@ -435,7 +435,10 @@
     <section class="k-section bg-lavender" id="games-section" hidden>
       <h2 class="section-heading" data-i18n="homepage.section_games">Spiele</h2>
       <p class="section-sub" data-i18n="homepage.section_games_sub">Juegos arcade para entrenar preposiciones.</p>
-      <div class="card-grid-games card-grid" id="games-grid"></div>
+      <div class="card-grid-games card-grid" id="games-grid">
+        <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+        <!-- STATIC-GAMES:END -->
+      </div>
       <p class="games-all-link-row">
         <a class="games-all-link" href="/es/juegos/">Ver todos los juegos →</a>
       </p>
@@ -635,6 +638,8 @@
         return;
       }
       section.hidden = false;
+      // Static cards pre-rendered by tools/render_static_games.py already match games.json — keep them (no flash).
+      if ([...root.querySelectorAll('[data-game-id]')].map((el) => el.dataset.gameId).join() === games.map((g) => g.id).join()) return;
       root.innerHTML = '';
       for (const g of games) {
         root.appendChild(buildTopicGameCard(g));

@@ -519,13 +519,23 @@
 
     <!-- ── Juegos strip ─────────────────────────────────────────────────
          Direct entry to a game without picking a topic first. -->
-    <section class="ch-section" id="games-strip-section" hidden>
+    <section class="ch-section" id="games-strip-section">
       <div class="ch-games-header">
         <h2>Juegos</h2>
         <a class="ch-games-link" href="/es/juegos/">Todos los juegos →</a>
       </div>
       <p class="ch-section-sub">Juega directamente — sin necesidad de elegir un tema.</p>
-      <div class="ch-games-grid" id="lang-hub-games-grid"></div>
+      <div class="ch-games-grid" id="lang-hub-games-grid">
+        <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+        <a class="ch-game-tile" href="/es/juegos/verb-slash/" data-game-id="verb-slash"><div class="ch-game-tile-thumb"><img src="/thumbnails/VerbSlash.png" alt="Escena del juego Verb Slash" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Slash</div></a>
+        <a class="ch-game-tile" href="/es/juegos/crab-slash/" data-game-id="crab-slash"><div class="ch-game-tile-thumb"><img src="/thumbnails/crab-slash.png" alt="Escena del juego Crab Slash!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Crab Slash!</div></a>
+        <a class="ch-game-tile" href="/es/juegos/air-control/" data-game-id="air-control"><div class="ch-game-tile-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Air Control!</div></a>
+        <a class="ch-game-tile" href="/es/juegos/verb-snake/" data-game-id="verb-snake"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Snake!</div></a>
+        <a class="ch-game-tile" href="/es/juegos/verb-flow/" data-game-id="verb-flow"><div class="ch-game-tile-thumb"><span class="ch-game-tile-emoji">✏️</span></div><div class="ch-game-tile-name">Verb Flow!</div></a>
+        <a class="ch-game-tile" href="/es/juegos/verb-platformer/" data-game-id="verb-platformer"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-platformer.png" alt="Escena del juego Verb Platformer!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Platformer!</div></a>
+        <a class="ch-game-tile" href="/es/juegos/verb-kitchen/" data-game-id="verb-kitchen"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Kitchen!</div></a>
+        <!-- STATIC-GAMES:END -->
+      </div>
     </section>
 
     <!-- ── About Krabsy ───────────────────────────────────────────────── -->
@@ -703,6 +713,8 @@
       const soon = games.filter((g) => g.status === 'coming_soon');
       const ordered = [...playable, ...soon].slice(0, GAMES_STRIP_LIMIT);
       if (!ordered.length) return;
+      // Static cards pre-rendered by tools/render_static_games.py already match games.json — keep them (no flash).
+      if ([...grid.querySelectorAll('[data-game-id]')].map((el) => el.dataset.gameId).join() === ordered.map((g) => g.id).join()) { section.hidden = false; return; }
       grid.innerHTML = '';
       for (const g of ordered) grid.appendChild(buildLangHubGameTile(g));
       section.hidden = false;
