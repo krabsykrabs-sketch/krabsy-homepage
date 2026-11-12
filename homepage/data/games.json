@@ -80,22 +80,6 @@
     "status": "beta"
   },
   {
-    "id": "verb-platformer",
-    "name": {
-      "de": "Verb Platformer!",
-      "es": "Verb Platformer!"
-    },
-    "tagline": {
-      "de": "Springe durch 3D-Welten und wähle die richtige Verbform!",
-      "es": "¡Salta por mundos 3D y elige la forma verbal correcta!"
-    },
-    "thumbnail": "/thumbnails/verb-platformer.png",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "beta"
-  },
-  {
     "id": "verb-kitchen",
     "name": {
       "de": "Verb Kitchen!",

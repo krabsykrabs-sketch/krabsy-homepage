@@ -258,7 +258,7 @@ CONTENT = {
                 ("Wird mein Fortschritt gespeichert?", "Ja, das erreichte Level und dein bester Punktestand werden auf deinem Gerät gespeichert. Mit „Restart at Level 1“ kannst du von vorn beginnen."),
                 ("Was bringt mir das Rätsel fürs Englische?", "Du musst für jedes Verb alle drei Formen erkennen und in die richtige Reihenfolge bringen. Genau diese Reihe wird im Unterricht und im Test abgefragt."),
             ],
-            "related": ["verb-snake", "crab-slash", "verb-platformer"],
+            "related": ["verb-snake", "crab-slash", "verb-kitchen"],
         },
         "es": {
             "h1": "Verb Flow: el rompecabezas de los verbos irregulares",
@@ -282,7 +282,7 @@ CONTENT = {
                 ("¿Se guarda mi progreso?", "Sí, el nivel alcanzado y tu mejor puntuación se guardan en tu dispositivo. Con «Restart at Level 1» vuelves al principio."),
                 ("¿Cómo me ayuda con el inglés?", "Para cada verbo tienes que reconocer sus tres formas y ponerlas en orden, que es justo lo que te preguntan en clase y en los exámenes."),
             ],
-            "related": ["verb-snake", "crab-slash", "verb-platformer"],
+            "related": ["verb-snake", "crab-slash", "verb-kitchen"],
         },
     },
     # ──────────────────────────────────────────────────────── Verb Platformer
@@ -360,7 +360,7 @@ CONTENT = {
                 ("Kann man in Verb Kitchen verlieren?", "Nein. Bestellungen laufen nicht ab. Die Uhr zählt nur mit, und je schneller du bist, desto mehr Sterne bekommst du."),
                 ("Was kann ich mit Sternen freischalten?", "Mit gesammelten Sternen schaltest du neue Spielfiguren frei. Sterne, Bestzeiten und Fortschritt werden auf deinem Gerät gespeichert."),
             ],
-            "related": ["verb-platformer", "air-control", "verb-flow"],
+            "related": ["verb-snake", "air-control", "verb-flow"],
         },
         "es": {
             "h1": "Verb Kitchen: juego de cocina con verbos irregulares",
@@ -384,7 +384,7 @@ CONTENT = {
                 ("¿Se puede perder en Verb Kitchen?", "No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas."),
                 ("¿Para qué sirven las estrellas?", "Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo."),
             ],
-            "related": ["verb-platformer", "air-control", "verb-flow"],
+            "related": ["verb-snake", "air-control", "verb-flow"],
         },
     },
 }

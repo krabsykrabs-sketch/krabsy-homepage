@@ -11,7 +11,7 @@ at the end of each session. (Last update: 2026-11-12.)
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker (commit awaiting deploy) |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) |
-| Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
+| Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12** (owner: not good enough) — removed from games.json/hubs/sitemap; bug list + how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta, thumbnail pending) — engine-refactored same day: 154-verb pool (commit awaiting deploy) |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
@@ -56,16 +56,20 @@ but not referenced — verify before removing.)
   config (`docs/nginx-krabsy.conf`; rollback: `docs/nginx-krabsy.previous.conf`).
   Note: Coolify shows "configuration changed, please restart the proxy" from an
   earlier, unrelated change — restart only at a quiet moment.
-- **User to do:** GSC resubmit sitemap + "Validierung starten". Privacy: ip-api.com still receives visitor IPs —
-  decide MaxMind-only vs. policy update (Google Fonts already self-hosted).
+- **User to do:** GSC resubmit sitemap + "Validierung starten". Privacy: owner chose MaxMind (2026-11-12); code on `main` turns ip-api.com
+  OFF at the next `api/` redeploy (country = unknown until the owner adds
+  `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY` in Coolify — see `api/DEPLOY.md` §5).
+  Google Fonts already self-hosted.
 - **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
   Dec 2026 with fresh GSC coverage + performance exports.
 - **Teachers are the channel**: first organic class (UY, Ceibal Schoology,
   Verb Kitchen). Next: teacher page links in footer/nav, education-portal
   backlinks (Deutscher Bildungsserver, teacher directories, ES equivalents).
-- Open bugs for game sessions: Verb Platformer (missing `colormap.png`,
-  touch crash), Verb Slash (debug text, double loop); add `noindex,
-  indexifembedded` to game sources in `games/`.
+- Open bugs for game sessions — written into each game's `CLAUDE.md`
+  (2026-11-12): Verb Platformer (offline; texture 404, touch crash, no phone
+  controls, CDN libs), Verb Slash (double game loop, debug label), Verb
+  Kitchen/Flow/Platformer sources need the `noindex, indexifembedded` meta;
+  Verb/Crab Slash wrappers: don't overwrite the SEO section when re-inlining.
 
 ## Next steps / open items
 

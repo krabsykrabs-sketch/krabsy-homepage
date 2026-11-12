@@ -1123,3 +1123,19 @@ welcome alternative to choice chips.
     Screenshots: level2/level3 QA scenes now stage build-step showcases.
     Headless-Edge note: kill stray headless msedge + use
     `--user-data-dir=%TEMP%\vk_edge_profile` if screenshots hang.
+
+## Notes from the master session (2026-11-12)
+
+- **RELEASED** (owner's decision 2026-11-12) after the first organic classroom
+  use: a Uruguayan class (Plan Ceibal / Schoology) played it, ~10–12 pupils,
+  7–12 min each, on school laptops and tablets (viewport ~978 px). Keep it
+  working well on those devices.
+- The deployed build `homepage/games/verb-kitchen/index.html` now carries
+  `<meta name="robots" content="noindex, indexifembedded">` so Google indexes
+  the wrapper page (`/de/spiele/verb-kitchen/`, `/es/juegos/verb-kitchen/`),
+  not the raw build. **Add the same tag to the source/build template here**,
+  or the next build copy drops it.
+- The wrapper pages have an SEO info section (text from
+  `tools/game_info_content.py`, rendered by `tools/render_game_info.py`).
+  If game features change (levels, controls, verb count — currently says
+  46 verbs, 3 restaurants), update that text and re-run the renderer.
