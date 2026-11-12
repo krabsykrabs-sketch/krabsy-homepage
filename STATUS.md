@@ -51,9 +51,12 @@ but not referenced — verify before removing.)
 - **SEO overhaul LIVE (pushed + deployed 2026-11-12; IndexNow: all 402 sitemap URLs, HTTP 200)** — see WORK_LOG
   2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
   Google impressions; Bing 30k impr/quarter; Copilot ~120 citations/day.
-- **User to do:** apply `docs/seo-server-redirects.md` (Traefik dynamic
-  config + custom nginx), then master verifies with curl; GSC resubmit sitemap
-  + "Validierung starten". Privacy: ip-api.com still receives visitor IPs —
+- **Server redirects LIVE (2026-11-12, verified with curl + browser):** Traefik
+  dynamic file `krabsy-redirects.yaml` (http/www → 301) and the custom nginx
+  config (`docs/nginx-krabsy.conf`; rollback: `docs/nginx-krabsy.previous.conf`).
+  Note: Coolify shows "configuration changed, please restart the proxy" from an
+  earlier, unrelated change — restart only at a quiet moment.
+- **User to do:** GSC resubmit sitemap + "Validierung starten". Privacy: ip-api.com still receives visitor IPs —
   decide MaxMind-only vs. policy update (Google Fonts already self-hosted).
 - **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
   Dec 2026 with fresh GSC coverage + performance exports.
