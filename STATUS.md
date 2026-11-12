@@ -48,13 +48,13 @@ but not referenced — verify before removing.)
 
 ## SEO / growth (2026-11-12)
 
-- **SEO overhaul on `main` (pushed 2026-11-12, deploy pending)** — see WORK_LOG
+- **SEO overhaul LIVE (pushed + deployed 2026-11-12; IndexNow: all 402 sitemap URLs, HTTP 200)** — see WORK_LOG
   2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
   Google impressions; Bing 30k impr/quarter; Copilot ~120 citations/day.
-- **User to do:** Coolify deploy (static + `api/`); apply
-  `docs/seo-server-redirects.md` (Traefik dynamic config + custom nginx);
-  GSC "Validierung starten" + resubmit sitemap. Master: IndexNow ping after
-  deploy (all changed URLs).
+- **User to do:** apply `docs/seo-server-redirects.md` (Traefik dynamic
+  config + custom nginx), then master verifies with curl; GSC resubmit sitemap
+  + "Validierung starten". Privacy: ip-api.com still receives visitor IPs —
+  decide MaxMind-only vs. policy update (Google Fonts already self-hosted).
 - **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
   Dec 2026 with fresh GSC coverage + performance exports.
 - **Teachers are the channel**: first organic class (UY, Ceibal Schoology,
