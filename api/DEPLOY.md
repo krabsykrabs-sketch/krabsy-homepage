@@ -61,27 +61,23 @@ Add a Coolify volume:
 This is where `events.jsonl` will accumulate and where the GeoIP DB lives.
 Volumes survive redeploys; container filesystems do not.
 
-## 5. (Optional, recommended) GeoIP database
+## 5. GeoIP database (MaxMind GeoLite2, automatic)
 
-Without this, every event's `country` field is `"unknown"` — events are
-still recorded, the dashboard just can't show the country breakdown.
+Country lookup is done locally with MaxMind GeoLite2 — no visitor IP leaves
+the server. (ip-api.com is disabled by default since 2026-11-12; set
+`IPAPI_ENABLED=1` only for debugging.)
 
-1. Register a free MaxMind account: <https://www.maxmind.com/en/geolite2/signup>
-2. From the MaxMind account dashboard, download `GeoLite2-Country.mmdb`
-   (binary `.mmdb` format, not CSV)
-3. Upload the file into the Coolify volume at `/data/GeoLite2-Country.mmdb`.
-   In Coolify this is usually done via "Terminal" on the running container
-   plus a `wget` from a temporary URL, or by `docker cp` on the host:
+1. Free MaxMind account: <https://www.maxmind.com/en/geolite2/signup>
+2. MaxMind dashboard → **Manage License Keys** → **Generate new license key**.
+   Note the **Account ID** and the **License key** (shown once).
+3. Coolify → analytics app → **Environment Variables**: add
+   `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, then **Redeploy**.
+4. On startup the app downloads `GeoLite2-Country.mmdb` into `/data` and
+   refreshes it weekly (MaxMind's terms require keeping it current). Logs:
+   `GeoIP DB downloaded (… KB)` then `GeoIP DB loaded from /data/…`.
 
-   ```sh
-   docker cp GeoLite2-Country.mmdb <container-name>:/data/GeoLite2-Country.mmdb
-   ```
-
-4. Restart the container so it picks up the file. The startup log should
-   say `GeoIP DB loaded from /data/GeoLite2-Country.mmdb`.
-
-MaxMind's terms require periodic updates (the database changes monthly).
-Re-uploading once a quarter is plenty for our purposes.
+Without the two variables the app uses whatever file is at `GEOIP_DB_PATH`
+(manual upload still works) and otherwise records `country = "unknown"`.
 
 ## 6. Verify
 

@@ -52,20 +52,108 @@ if DASHBOARD_PASSWORD == "changeme":
 # ---------------------------------------------------------------------------
 
 _geoip_reader = None
-try:
-    import geoip2.database  # type: ignore
+_geoip_lock = threading.Lock()
 
-    if Path(GEOIP_DB_PATH).exists():
-        _geoip_reader = geoip2.database.Reader(GEOIP_DB_PATH)
+# Optional automatic download/refresh of GeoLite2-Country (MaxMind requires
+# keeping the DB current). Set both env vars in Coolify; without them the
+# app just uses whatever file sits at GEOIP_DB_PATH.
+MAXMIND_ACCOUNT_ID = os.environ.get("MAXMIND_ACCOUNT_ID", "").strip()
+MAXMIND_LICENSE_KEY = os.environ.get("MAXMIND_LICENSE_KEY", "").strip()
+MAXMIND_URL = "https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz"
+GEOIP_MAX_AGE_S = 7 * 24 * 60 * 60      # refresh weekly (MaxMind updates ~2x/week)
+GEOIP_CHECK_EVERY_S = 24 * 60 * 60
+
+
+def _geoip_load() -> None:
+    """(Re)open the reader from GEOIP_DB_PATH; swap atomically."""
+    global _geoip_reader
+    try:
+        import geoip2.database  # type: ignore
+
+        if not Path(GEOIP_DB_PATH).exists():
+            print(f"[krabsy] GeoIP DB not found at {GEOIP_DB_PATH}; country=unknown for all events")
+            return
+        reader = geoip2.database.Reader(GEOIP_DB_PATH)
+        with _geoip_lock:
+            _geoip_reader = reader   # old reader is left to GC (may still be in use)
         print(f"[krabsy] GeoIP DB loaded from {GEOIP_DB_PATH}")
-    else:
-        print(f"[krabsy] GeoIP DB not found at {GEOIP_DB_PATH}; country=unknown for all events")
-except Exception as exc:
-    print(f"[krabsy] GeoIP init failed: {exc}")
+    except Exception as exc:
+        print(f"[krabsy] GeoIP init failed: {exc}")
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D401
+        return None
+
+
+def _geoip_download() -> bool:
+    """Fetch the current GeoLite2-Country tarball from MaxMind and install
+    the .mmdb at GEOIP_DB_PATH. Only MaxMind credentials leave the server —
+    never visitor data. Returns True on success."""
+    import base64
+    import io
+    import tarfile
+
+    if not (MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY):
+        return False
+    auth = base64.b64encode(f"{MAXMIND_ACCOUNT_ID}:{MAXMIND_LICENSE_KEY}".encode()).decode()
+    req = urllib.request.Request(MAXMIND_URL, headers={
+        "Authorization": f"Basic {auth}", "User-Agent": "krabsy-analytics/1.0"})
+    try:
+        # MaxMind answers with a redirect to a pre-signed storage URL; that
+        # URL must be fetched WITHOUT the Authorization header.
+        opener = urllib.request.build_opener(_NoRedirect)
+        try:
+            with opener.open(req, timeout=60) as resp:
+                data = resp.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in (301, 302, 303, 307, 308) or not e.headers.get("Location"):
+                print(f"[krabsy] GeoIP download failed: HTTP {e.code}")
+                return False
+            loc = e.headers["Location"]
+            with urllib.request.urlopen(urllib.request.Request(
+                    loc, headers={"User-Agent": "krabsy-analytics/1.0"}), timeout=120) as resp:
+                data = resp.read()
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+            member = next((m for m in tar.getmembers()
+                           if m.isfile() and m.name.endswith("GeoLite2-Country.mmdb")), None)
+            if member is None:
+                print("[krabsy] GeoIP download: no .mmdb in archive")
+                return False
+            mmdb = tar.extractfile(member).read()
+        dest = Path(GEOIP_DB_PATH)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_suffix(".mmdb.tmp")
+        tmp.write_bytes(mmdb)
+        os.replace(tmp, dest)
+        print(f"[krabsy] GeoIP DB downloaded ({len(mmdb)//1024} KB)")
+        return True
+    except Exception as exc:
+        print(f"[krabsy] GeoIP download failed: {exc}")
+        return False
+
+
+def _geoip_is_stale() -> bool:
+    p = Path(GEOIP_DB_PATH)
+    return (not p.exists()) or (time.time() - p.stat().st_mtime > GEOIP_MAX_AGE_S)
+
+
+def _geoip_refresher() -> None:
+    while True:
+        if _geoip_is_stale() and _geoip_download():
+            _geoip_load()
+        time.sleep(GEOIP_CHECK_EVERY_S)
+
+
+_geoip_load()
+if MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY:
+    threading.Thread(target=_geoip_refresher, name="geoip-refresh", daemon=True).start()
+else:
+    print("[krabsy] MAXMIND_ACCOUNT_ID/MAXMIND_LICENSE_KEY not set; no automatic GeoIP updates")
 
 
 # ---------------------------------------------------------------------------
-# Country lookup: ip-api.com (primary) + MaxMind (fallback) + in-memory cache
+# Country lookup: MaxMind GeoLite2 (local) + in-memory cache; ip-api.com only if IPAPI_ENABLED=1
 # ---------------------------------------------------------------------------
 #
 # Flow per IP:
@@ -77,6 +165,9 @@ except Exception as exc:
 # We never cache "unknown" — a transient ip-api outage would otherwise
 # poison the cache for a full day.
 
+# Disabled by default (privacy: it sends visitor IPs to a third party over
+# plain HTTP). Set IPAPI_ENABLED=1 only for debugging.
+IPAPI_ENABLED = os.environ.get("IPAPI_ENABLED", "0") == "1"
 IPAPI_URL = "http://ip-api.com/json/{ip}?fields=status,countryCode"
 IPAPI_TIMEOUT_S = 1.0
 IPAPI_MAX_CALLS_PER_MIN = 40            # below ip-api's 45/min hard cap
@@ -136,10 +227,11 @@ def _ipapi_lookup(ip: str) -> Optional[str]:
 
 
 def _maxmind_lookup(ip: str) -> Optional[str]:
-    if not _geoip_reader:
+    reader = _geoip_reader
+    if not reader:
         return None
     try:
-        rec = _geoip_reader.country(ip)
+        rec = reader.country(ip)
     except Exception:
         return None
     return rec.country.iso_code or None
@@ -177,7 +269,7 @@ def lookup_country(ip: str) -> str:
         cached = _country_cache.get(ip)
         if cached and now_wall - cached[1] < COUNTRY_CACHE_TTL_S:
             return cached[0]
-        allow_ipapi = _ipapi_can_call(now_mono)
+        allow_ipapi = IPAPI_ENABLED and _ipapi_can_call(now_mono)
 
     country: Optional[str] = None
     if allow_ipapi:
