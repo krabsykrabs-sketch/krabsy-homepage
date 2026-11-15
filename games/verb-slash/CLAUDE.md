@@ -23,14 +23,13 @@ wrapper with the source; replace only the game part, then run
    Fine per the presentation mandate, but check that no grammar terminology
    is required to answer (see repo `CLAUDE.md`).
 
-## Pending owner decision — pacing (2026-11-16)
+## Pacing — decided 2026-11-16: fixed 120 steps/s
 
-The game was tuned while running at 2× (every click started two loops), and
-physics is per *frame*, so speed also scales with display refresh rate
-(120 Hz phones/iPads ran it at 4× before the fix, 2× after). Measured at 60 Hz
-after the fix: balloon fully visible 2.9 s / settled ~10 s after Start; beach
-balls reach apex in ~4.2 s and leave the screen ~8.8 s after the pop (before:
-~2.3 s / ~4.8 s). That is noticeably slow. Proposal (not applied): make the loop
-time-based at 120 steps/s — the as-played pacing on 60 Hz screens, identical on
-every refresh rate — via a fixed-step accumulator in `gameLoop()` (run the
-update body `round((now-last)/(1000/120))` times, capped at ~4).
+The game had been played and tuned at 2× (every click started two loops), with
+per-frame physics, so speed also depended on the display's refresh rate. Owner decision:
+keep the as-played pace and make it display-independent. `gameLoop(now)` is
+now a fixed-timestep accumulator that runs `gameStep()` (the old per-frame
+update, constants unchanged) `STEP_HZ=120` times per second of real time,
+keeps the remainder, caps at `MAX_STEPS=5` per frame and resets after gaps
+>250 ms (hidden tab) so it never fast-forwards. All tuning constants (gravity,
+launch vy, balloon rise, hover delay) are per *step* at 120 steps/s.

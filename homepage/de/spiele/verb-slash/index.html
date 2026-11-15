@@ -760,8 +760,24 @@ function updateHUD(){
 // ═══════════════════════════════════════════════════
 //  GAME LOOP
 // ═══════════════════════════════════════════════════
-function gameLoop(){
-  if(!S.running)return;S.frame++;
+// Fixed timestep: the game advances STEP_HZ steps per second of real time, whatever the
+// display refresh rate (all speeds/gravity below are per step; tuned at 120 steps/s).
+const STEP_HZ=120,STEP_MS=1000/STEP_HZ,MAX_STEPS=5,MAX_GAP_MS=250;
+let loopLast=null,loopCarry=0;
+function gameLoop(now){
+  if(!S.running)return;
+  if(typeof now!=='number')now=performance.now();
+  // First frame, or resuming after a long pause (hidden tab …): don't fast-forward.
+  if(loopLast===null||now-loopLast>MAX_GAP_MS){loopLast=now;loopCarry=0}
+  const acc=Math.max(0,now-loopLast)+loopCarry;loopLast=now;
+  let n=Math.floor(acc/STEP_MS);loopCarry=acc-n*STEP_MS;
+  if(n>MAX_STEPS){n=MAX_STEPS;loopCarry=0}
+  for(let i=0;i<n&&S.running;i++)gameStep();
+  if(S.running)S.animId=requestAnimationFrame(gameLoop);
+}
+
+function gameStep(){
+  S.frame++;
 
   S.balloons.forEach(b=>{
     if(!b.alive)return;
@@ -811,8 +827,6 @@ function gameLoop(){
     if(S.phaseLost&&S.chosenVerb)S.verbQueue.unshift(S.chosenVerb);
     later(()=>{S.waitingForNext=false;if(S.running)startPick()},600);
   }
-
-  S.animId=requestAnimationFrame(gameLoop);
 }
 
 // ═══════════════════════════════════════════════════
@@ -829,7 +843,7 @@ function startPick(){
 
 function startGame(){
   // Never stack loops: stop any running frame loop and pending round/game-over timers first.
-  cancelAnimationFrame(S.animId);S.animId=null;clearFlowTimers();clearTimeout(S.slashTimeout);
+  cancelAnimationFrame(S.animId);S.animId=null;loopLast=null;loopCarry=0;clearFlowTimers();clearTimeout(S.slashTimeout);
   document.querySelectorAll('.verb-fruit,.balloon').forEach(e=>e.remove());
   S.score=0;S.lives=3;S.streak=0;S.maxStreak=0;S.frame=0;S.roundNum=0;
   S.running=true;S.usedVerbSet=new Set();S.verbQueue=[];S.pickVerbs=[];
