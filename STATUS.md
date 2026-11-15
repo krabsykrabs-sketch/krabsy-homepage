@@ -70,7 +70,7 @@ but not referenced — verify before removing.)
   backlinks (Deutscher Bildungsserver, teacher directories, ES equivalents).
 - Open bugs for game sessions — written into each game's `CLAUDE.md`
   (2026-11-12): Verb Platformer (offline; texture 404, touch crash, no phone
-  controls, CDN libs), Verb Slash (double game loop, debug label), Verb
+  controls, CDN libs), Verb Slash (FIXED 2026-11-16: single loop, fixed 120 steps/s, debug label removed), Verb
   Kitchen/Flow/Platformer sources need the `noindex, indexifembedded` meta;
   Verb/Crab Slash wrappers: don't overwrite the SEO section when re-inlining.
 
