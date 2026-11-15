@@ -12,19 +12,25 @@ handling from `homepage/lib/krabsy-game-info.js`. Don't overwrite the whole
 wrapper with the source; replace only the game part, then run
 `python3 tools/render_game_info.py --check`.
 
-## Open issues (verified by master session 2026-11-12)
+## Issues (verified by master session 2026-11-12)
 
-1. **Game starts twice → probably double speed.** Both buttons call
-   `startGame` twice: `onclick="startGame()"` on `#start-btn` / `#restart-btn`
-   (source lines ~167/177) AND `$('start-btn').addEventListener('click',startGame)`
-   / same for restart (~658/659). `startGame()` calls `startPick()` and
-   `gameLoop()` without cancelling the previous animation frame, so two loops
-   run. Remove one of the two bindings (and ideally `cancelAnimationFrame(S.animId)`
-   at the top of `startGame`). Re-test pacing afterwards — difficulty may have
-   been tuned while running at double speed.
-2. **Debug label visible to players.** "// Debug label" block creates
-   `patternLabel` (top-right, monospace) that shows the trajectory pattern
-   name during play. Remove it or hide it behind a `?debug` URL flag.
+1. ~~Game starts twice → double speed.~~ **Fixed 2026-11-16:** inline
+   `onclick` removed (one listener per button); `startGame()` cancels
+   `S.animId`, pending flow timers (`later()`/`clearFlowTimers()`) and leftover
+   sprites first; measured 120 → 60 game frames/s at 60 Hz (start and restart).
+2. ~~Debug label visible to players.~~ **Fixed 2026-11-16:** `patternLabel` deleted.
 3. **Language:** all in-game text is English only (the wrapper pages say so).
    Fine per the presentation mandate, but check that no grammar terminology
    is required to answer (see repo `CLAUDE.md`).
+
+## Pending owner decision — pacing (2026-11-16)
+
+The game was tuned while running at 2× (every click started two loops), and
+physics is per *frame*, so speed also scales with display refresh rate
+(120 Hz phones/iPads ran it at 4× before the fix, 2× after). Measured at 60 Hz
+after the fix: balloon fully visible 2.9 s / settled ~10 s after Start; beach
+balls reach apex in ~4.2 s and leave the screen ~8.8 s after the pop (before:
+~2.3 s / ~4.8 s). That is noticeably slow. Proposal (not applied): make the loop
+time-based at 120 steps/s — the as-played pacing on 60 Hz screens, identical on
+every refresh rate — via a fixed-step accumulator in `gameLoop()` (run the
+update body `round((now-last)/(1000/120))` times, capped at ~4).

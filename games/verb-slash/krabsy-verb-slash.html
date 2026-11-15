@@ -164,7 +164,7 @@
     <div class="crab-emoji"><span class="wave">🦀</span></div>
     <div class="screen-title" style="color:var(--ocean-deep)">Verb<span style="color:var(--coral)">Slash!</span></div>
     <div class="screen-sub">Swipe across a balloon to pick a verb, then slash the correct <b>simple past</b> and <b>past participle</b>!</div>
-    <button class="btn btn-primary" id="start-btn" onclick="startGame()">Let's Go! 🏖️</button>
+    <button class="btn btn-primary" id="start-btn">Let's Go! 🏖️</button>
     <div style="font-size:14px;color:rgba(0,0,0,0.25);margin-top:2px">Swipe across to slash!</div>
   </div>
 
@@ -174,8 +174,8 @@
     <div id="go-score" class="screen-stat"></div>
     <div id="go-best" class="screen-sub"></div>
     <div id="go-streak" class="screen-sub" style="color:var(--ocean-deep);font-weight:700"></div>
-    <button class="btn btn-primary" id="restart-btn" onclick="startGame()">Play Again 🦀</button>
-    <button class="btn btn-secondary" id="menu-btn" onclick="document.getElementById('gameover-screen').classList.add('hidden');document.getElementById('start-screen').classList.remove('hidden')">Menu</button>
+    <button class="btn btn-primary" id="restart-btn">Play Again 🦀</button>
+    <button class="btn btn-secondary" id="menu-btn">Menu</button>
   </div>
 
   <div id="top-bar">
@@ -305,10 +305,6 @@ const PATTERNS_3=[
 ];
 let patternIdx2=0,patternIdx3=0;
 
-// Debug label
-const patternLabel=document.createElement('div');
-patternLabel.style.cssText='position:absolute;top:16px;right:220px;z-index:99;font-family:monospace;font-size:16px;color:rgba(0,0,0,0.3);pointer-events:none';
-gameWorld.appendChild(patternLabel);
 
 // ═══════════════════════════════════════════════════
 //  STATE
@@ -320,6 +316,10 @@ let S={running:false,score:0,lives:3,streak:0,maxStreak:0,bestScore:parseInt(loc
   verbQueue:[],usedVerbSet:new Set(),pickVerbs:[]};
 
 const $=id=>document.getElementById(id);
+// Game-flow timers (next round, game over) — tracked so startGame() can cancel leftovers.
+const flowTimers=new Set();
+function later(fn,ms){const id=setTimeout(()=>{flowTimers.delete(id);fn()},ms);flowTimers.add(id);return id}
+function clearFlowTimers(){flowTimers.forEach(clearTimeout);flowTimers.clear()}
 const gameArea=$('game-area'),slashSvg=$('slash-svg'),livesEl=$('lives'),scoreEl=$('score'),
   scoreMultEl=$('score-mult'),streakFlame=$('streak-flame'),streakCount=$('streak-count'),
   chainEl=$('verb-chain-inner'),crabEl=$('crab-mascot'),
@@ -392,7 +392,6 @@ function launchBalls(labels,correctLabel,extraClass){
   } else {
     pattern=PATTERNS_3[patternIdx3%PATTERNS_3.length];patternIdx3++;
   }
-  patternLabel.textContent=pattern.name;
 
   const baseVy=LAUNCH_VY_MIN+Math.random()*(LAUNCH_VY_MAX-LAUNCH_VY_MIN);
   const minVy=-Math.sqrt(2*GRAVITY*GH*0.70);
@@ -547,7 +546,7 @@ function handleHit(fruit){
   }
 }
 
-function loseLife(){S.lives--;S.streak=0;updateHUD();edgeFlash.classList.remove('flash');void edgeFlash.offsetWidth;edgeFlash.classList.add('flash');gameArea.classList.remove('shaking');void gameArea.offsetWidth;gameArea.classList.add('shaking');if(S.lives<=0)setTimeout(gameOver,500)}
+function loseLife(){S.lives--;S.streak=0;updateHUD();edgeFlash.classList.remove('flash');void edgeFlash.offsetWidth;edgeFlash.classList.add('flash');gameArea.classList.remove('shaking');void gameArea.offsetWidth;gameArea.classList.add('shaking');if(S.lives<=0)later(gameOver,500)}
 function fruitMissed(f){if(f.isCorrect&&!S.phaseLost){loseLife();S.phaseLost=true;}f.el.remove()}
 
 // ═══════════════════════════════════════════════════
@@ -613,7 +612,7 @@ function gameLoop(){
   if(!S.waitingForNext&&S.phase!=='pick'&&S.fruits.length>0&&!anyFruitAlive){
     S.waitingForNext=true;
     if(S.phaseLost&&S.chosenVerb)S.verbQueue.unshift(S.chosenVerb);
-    setTimeout(()=>{S.waitingForNext=false;if(S.running)startPick()},600);
+    later(()=>{S.waitingForNext=false;if(S.running)startPick()},600);
   }
 
   S.animId=requestAnimationFrame(gameLoop);
@@ -632,6 +631,9 @@ function startPick(){
 }
 
 function startGame(){
+  // Never stack loops: stop any running frame loop and pending round/game-over timers first.
+  cancelAnimationFrame(S.animId);S.animId=null;clearFlowTimers();clearTimeout(S.slashTimeout);
+  document.querySelectorAll('.verb-fruit,.balloon').forEach(e=>e.remove());
   S.score=0;S.lives=3;S.streak=0;S.maxStreak=0;S.frame=0;S.roundNum=0;
   S.running=true;S.usedVerbSet=new Set();S.verbQueue=[];S.pickVerbs=[];
   S.fruits=[];S.balloons=[];S.slashPoints=[];S.waitingForNext=false;S.showingTutorial=false;S.phaseLost=false;
@@ -643,7 +645,8 @@ function startGame(){
 }
 
 function gameOver(){
-  S.running=false;cancelAnimationFrame(S.animId);
+  if(!S.running)return;
+  S.running=false;cancelAnimationFrame(S.animId);S.animId=null;clearFlowTimers();
   if(S.score>S.bestScore){S.bestScore=S.score;localStorage.setItem('krabsy_vs_best',S.bestScore)}
   document.querySelectorAll('.verb-fruit,.balloon').forEach(e=>e.remove());
   $('go-score').textContent=`Score: ${S.score}`;
