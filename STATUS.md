@@ -60,9 +60,10 @@ but not referenced — verify before removing.)
   config (`docs/nginx-krabsy.conf`; rollback: `docs/nginx-krabsy.previous.conf`).
   Note: Coolify shows "configuration changed, please restart the proxy" from an
   earlier, unrelated change — restart only at a quiet moment.
-- **User to do:** GSC resubmit sitemap + "Validierung starten". Privacy: owner chose MaxMind (2026-11-12); code on `main` turns ip-api.com
-  OFF at the next `api/` redeploy (country = unknown until the owner adds
-  `MAXMIND_ACCOUNT_ID` + `MAXMIND_LICENSE_KEY` in Coolify — see `api/DEPLOY.md` §5).
+- **GSC:** sitemap resubmitted, validation started 2026-11-12. Privacy/country (2026-11-17):
+  ip-api.com OFF; country now comes from the browser time zone (`api/tz.py`,
+  `country_source: "timezone"`, the zone itself is not stored). MaxMind is optional
+  (`api/DEPLOY.md` §5b), not configured.
   Google Fonts already self-hosted.
 - **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
   Dec 2026 with fresh GSC coverage + performance exports.
