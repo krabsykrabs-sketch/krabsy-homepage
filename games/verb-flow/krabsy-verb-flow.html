@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -103,30 +103,30 @@
     <div id="hud-logo">Krab<span>sy</span></div>
   </div>
   <div class="hud-group">
-    <div class="hud-stat"><div class="hud-label">Level</div><div class="hud-value" id="hud-level">1</div></div>
-    <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value" id="hud-score">0</div></div>
-    <div class="hud-stat"><div class="hud-label">Best</div><div class="hud-value" id="hud-best">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_level">Level</div><div class="hud-value" id="hud-level">1</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_score">Score</div><div class="hud-value" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_best">Best</div><div class="hud-value" id="hud-best">0</div></div>
   </div>
   <div class="hud-group" style="gap:8px">
-    <button class="hud-btn" id="btn-hint" title="Hint">💡<span class="pip" id="hint-pip">3</span></button>
-    <button class="hud-btn" id="btn-clear" title="Clear board">⟲</button>
-    <button class="hud-btn" id="btn-sound" title="Sound">🔊</button>
+    <button class="hud-btn" id="btn-hint" data-i18n-title="t_hint" title="Hint">💡<span class="pip" id="hint-pip">3</span></button>
+    <button class="hud-btn" id="btn-clear" data-i18n-title="t_clear" title="Clear board">⟲</button>
+    <button class="hud-btn" id="btn-sound" data-i18n-title="t_sound" title="Sound">🔊</button>
   </div>
 </div>
 
 <div id="tracker"></div>
-<button id="tut-skip" class="hidden">Skip tutorial ›</button>
+<button id="tut-skip" class="hidden" data-i18n="skip">Skip tutorial ›</button>
 <div id="toast"></div>
 
 <div class="screen" id="start-screen">
   <div class="screen-emoji">🦀</div>
   <div class="screen-title">Verb <span>Flow!</span></div>
-  <div class="screen-sub">Connect each verb's three forms with one unbroken pipe — in the right order.</div>
+  <div class="screen-sub" data-i18n="sub">Connect each verb's three forms with one unbroken pipe — in the right order.</div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">👆</div><div>Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
-    <div class="howto-row"><div class="howto-ico">🔗</div><div>Connect the forms <b>in order</b>: first the middle one, then the last — like <b>go → went → gone</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">🚫</div><div>Pipes can't cross — and other verbs' words block your way!</div></div>
-    <div class="howto-row"><div class="howto-ico">✨</div><div>Fill <b>every square</b> for a PERFECT bonus.</div></div>
+    <div class="howto-row"><div class="howto-ico">👆</div><div data-i18n="how1">Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
+    <div class="howto-row"><div class="howto-ico">🔗</div><div data-i18n="how2">Connect the forms <b>in order</b>: first the middle one, then the last — like <b>go → went → gone</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico">🚫</div><div data-i18n="how3">Pipes can't cross — and other verbs' words block your way!</div></div>
+    <div class="howto-row"><div class="howto-ico">✨</div><div data-i18n="how4">Fill <b>every square</b> for a PERFECT bonus.</div></div>
   </div>
   <div class="legend">
     <div class="legend-chip lc-base">go</div>
@@ -134,8 +134,8 @@
     <div class="legend-chip lc-pp">gone</div>
   </div>
   <button class="btn btn-primary" id="start-btn">Let it Flow! 🌊</button>
-  <button class="btn btn-ghost hidden" id="howto-btn">❓ How to play</button>
-  <button class="btn btn-ghost hidden" id="newgame-btn">Restart at Level 1</button>
+  <button class="btn btn-ghost hidden" id="howto-btn" data-i18n="howto_btn">❓ How to play</button>
+  <button class="btn btn-ghost hidden" id="newgame-btn" data-i18n="restart">Restart at Level 1</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
@@ -147,7 +147,7 @@
   <div class="win-tip hidden" id="win-tip"></div>
   <div class="screen-stat" id="win-score"></div>
   <button class="btn btn-primary" id="next-btn">Next Level →</button>
-  <button class="btn btn-ghost" id="win-menu-btn">Menu</button>
+  <button class="btn btn-ghost" id="win-menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
@@ -156,6 +156,82 @@
 // KRABSY VERB FLOW v1
 // Flow-puzzle: connect base → past → past participle
 // ════════════════════════════════════════
+
+// ── i18n ──
+// UI chrome follows the site language (DE/ES); the verbs themselves and
+// the go → went → gone notation stay English — that's the content.
+// Same lookup as the drills: ?lang= → site-wide krabsy_lang → German.
+function getLang(){
+  try{const q=new URLSearchParams(location.search).get('lang');if(q==='de'||q==='es')return q;}catch(_){}
+  try{const l=localStorage.getItem('krabsy_lang');if(l==='de'||l==='es')return l;}catch(_){}
+  return 'de';
+}
+const LANG=getLang();
+const STR={
+  de:{
+    hud_level:'Level',hud_score:'Punkte',hud_best:'Rekord',
+    t_hint:'Tipp',t_clear:'Feld leeren',t_sound:'Ton',
+    skip:'Tutorial überspringen ›',
+    sub:'Verbinde die drei Formen jedes Verbs mit einer durchgehenden Leitung — in der richtigen Reihenfolge.',
+    how1:'Drück auf das <b>erste Wort</b> (z. B. <b>go</b>) und zieh eine Leitung über das Feld.',
+    how2:'Verbinde die Formen <b>der Reihe nach</b>: erst die mittlere, dann die letzte — wie <b>go → went → gone</b>.',
+    how3:'Leitungen dürfen sich nicht kreuzen — und Wörter anderer Verben versperren dir den Weg!',
+    how4:'Füll <b>jedes Feld</b> für den <b>PERFECT</b>-Bonus.',
+    play:'Leg los! 🌊',cont:'Weiter – Level {n} 🌊',
+    howto_btn:'❓ So geht\'s',restart:'Neu starten ab Level 1',menu:'Menü',
+    win_title:'Level <span>{n}</span> geschafft!',
+    badge:'✨ PERFECT FLOW +100',score:'Punkte: {n}',next:'Nächstes Level →',
+    tut_title:'Du hast\'s drauf!',
+    tut_badge:'✨ PERFECT — jedes Feld gefüllt!',
+    tut_tip_perfect:'In den richtigen Levels gibt es <b>+100</b> Bonus, wenn du <b>jedes Feld</b> füllst.',
+    tut_tip:'Tipp: Füll <b>jedes Feld</b> mit Leitungen — das gibt <b>PERFECT +100</b>.',
+    tut_next:'Level {n} starten →',
+    tut_start0:'Drück auf {b} und zieh eine Leitung zu {p}',
+    tut_start1:'Super! Jetzt du: {b} → {p} → {q}',
+    tut_past:'Zuerst zu {p} …',
+    tut_pp:'… und ende bei {q}!',
+    blocked:'<b>{w}</b> gehört zu <b>{v}</b> — fremde Wörter blockieren deine Leitung!',
+    order:'Der Reihe nach! <b>{c}</b>',
+    start_at:'Starte bei <b>{v}</b>',
+  },
+  es:{
+    hud_level:'Nivel',hud_score:'Puntos',hud_best:'Récord',
+    t_hint:'Pista',t_clear:'Borrar tablero',t_sound:'Sonido',
+    skip:'Saltar tutorial ›',
+    sub:'Conecta las tres formas de cada verbo con una sola tubería — en el orden correcto.',
+    how1:'Toca la <b>primera palabra</b> (p. ej. <b>go</b>) y arrastra una tubería por el tablero.',
+    how2:'Conecta las formas <b>en orden</b>: primero la del medio, luego la última — como <b>go → went → gone</b>.',
+    how3:'Las tuberías no se pueden cruzar — ¡y las palabras de otros verbos te bloquean el paso!',
+    how4:'Llena <b>todas las casillas</b> para el bonus <b>PERFECT</b>.',
+    play:'¡A jugar! 🌊',cont:'Continuar – Nivel {n} 🌊',
+    howto_btn:'❓ Cómo se juega',restart:'Empezar de nuevo en el nivel 1',menu:'Menú',
+    win_title:'¡Nivel <span>{n}</span> superado!',
+    badge:'✨ PERFECT FLOW +100',score:'Puntos: {n}',next:'Siguiente nivel →',
+    tut_title:'¡Ya lo tienes!',
+    tut_badge:'✨ PERFECT — ¡todas las casillas llenas!',
+    tut_tip_perfect:'En los niveles de verdad, llenar <b>todas las casillas</b> da un bonus de <b>+100</b>.',
+    tut_tip:'Consejo: llena <b>todas las casillas</b> con tuberías para un <b>PERFECT +100</b>.',
+    tut_next:'Empezar nivel {n} →',
+    tut_start0:'Toca {b} y arrastra una tubería hasta {p}',
+    tut_start1:'¡Genial! Ahora tú: {b} → {p} → {q}',
+    tut_past:'Primero hasta {p} …',
+    tut_pp:'… ¡y termina en {q}!',
+    blocked:'<b>{w}</b> es de <b>{v}</b> — ¡las palabras de otros verbos bloquean tu tubería!',
+    order:'¡En orden! <b>{c}</b>',
+    start_at:'Empieza en <b>{v}</b>',
+  },
+};
+function t(key,vars){
+  let s=(STR[LANG]&&STR[LANG][key])??STR.de[key]??key;
+  if(vars)for(const k in vars)s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+function applyI18n(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.dataset.i18nTitle);});
+}
+applyI18n();
 
 // ── Verb pools (tiered by difficulty) ──
 const T1=[
@@ -511,13 +587,13 @@ function tryStep(v,to){
   if(chip){
     if(chip.v!==v){
       const other=G.board.verbs[chip.v];
-      toast(`<b>${chip.text}</b> belongs to <b>${other.verb}</b> — words block your pipe!`);
+      toast(t('blocked',{w:chip.text,v:other.verb}));
       sfx('err');
       return false;
     }
     if(to===vb.baseIdx)return false;
     if(to===vb.ppIdx&&!pipeHasPast(v)){
-      toast(`In order! <b>${vb.verb} → ${vb.past} → ${vb.pp}</b>`);
+      toast(t('order',{c:`${vb.verb} → ${vb.past} → ${vb.pp}`}));
       sfx('err');
       return false;
     }
@@ -572,10 +648,10 @@ function winLevel(){
   sfx(perfect?'fanfare':'win');
 
   showWinScreen({
-    title:`Level <span>${G.level}</span> Complete!`,
-    perfect,badge:'✨ PERFECT FLOW +100',
-    score:`Score: ${G.score}`,
-    tip:'',next:'Next Level →',
+    title:t('win_title',{n:G.level}),
+    perfect,badge:t('badge'),
+    score:t('score',{n:G.score}),
+    tip:'',next:t('next'),
   });
 }
 
@@ -636,13 +712,11 @@ function finishTutorial(){
   if(perfect)spawnConfetti();
   sfx(perfect?'fanfare':'win');
   showWinScreen({
-    title:'You\'ve got it!',
-    perfect,badge:'✨ PERFECT — every square filled!',
+    title:t('tut_title'),
+    perfect,badge:t('tut_badge'),
     score:'',
-    tip:perfect
-      ?'In the real levels, filling <b>every square</b> earns a <b>+100</b> bonus.'
-      :'Tip: fill <b>every square</b> with pipes for a <b>PERFECT +100</b> bonus.',
-    next:`Start Level ${G.level} →`,
+    tip:t(perfect?'tut_tip_perfect':'tut_tip'),
+    next:t('tut_next',{n:G.level}),
   });
 }
 function skipTutorial(){
@@ -698,7 +772,7 @@ function onDown(e){
       const i=p.indexOf(idx);
       if(i>=0){p.length=i+1;G.active=v;showTracker(v);}
       else{
-        toast(`Start at the base form: <b>${vb.verb}</b>`);
+        toast(t('start_at',{v:vb.verb}));
         sfx('err');
       }
     }
@@ -951,20 +1025,24 @@ function drawTutorial(){
   const A='#ffe9b0', B=FORM_COLOR.base, P=FORM_COLOR.past, Q=FORM_COLOR.pp;
   const started=G.pipes[v].length>1||G.active===v;
   const hasPast=pipeHasPast(v);
+  // split a translated template on {b}/{p}/{q} into [text,color] runs
+  const R=key=>{
+    const map={b:[vb.verb,B],p:[vb.past,P],q:[vb.pp,Q]};
+    return t(key).split(/(\{[bpq]\})/).filter(Boolean)
+      .map(x=>/^\{[bpq]\}$/.test(x)?map[x[1]]:[x,A]);
+  };
   let runs;
   if(!started){
-    runs=v===0
-      ?[['Press ',A],[vb.verb,B],[' and drag a pipe to ',A],[vb.past,P]]
-      :[['Great! Now you: ',A],[vb.verb,B],[' → ',A],[vb.past,P],[' → ',A],[vb.pp,Q]];
+    runs=R(v===0?'tut_start0':'tut_start1');
     drawTargetRing(vb.baseIdx,B);
     // verb 1: always demo; verb 2: only if the player seems stuck
     const idle=performance.now()-TUT.lastInput;
     if(v===0||idle>4000)drawDemoHand(vb);
   }else if(!hasPast){
-    runs=[['First to ',A],[vb.past,P],[' …',A]];
+    runs=R('tut_past');
     drawTargetRing(vb.pastIdx,P);
   }else{
-    runs=[['… and finish at ',A],[vb.pp,Q],['!',A]];
+    runs=R('tut_pp');
     drawTargetRing(vb.ppIdx,Q);
   }
   drawBanner(runs);
@@ -1118,7 +1196,7 @@ function showStartScreen(){
   const saved=parseInt(localStorage.getItem('krabsy_vflow_level')||'1');
   G.level=saved;G.score=0;
   document.getElementById('start-btn').textContent=
-    saved>1?`Continue – Level ${saved} 🌊`:'Let it Flow! 🌊';
+    saved>1?t('cont',{n:saved}):t('play');
   document.getElementById('newgame-btn').classList.toggle('hidden',saved<=1);
   document.getElementById('howto-btn').classList.toggle('hidden',!TUT.done);
   document.getElementById('start-screen').classList.remove('hidden');
