@@ -15,7 +15,7 @@ from classify import (
     CLASS_BOT, CLASS_BOUNCE, CLASS_ENGAGED, CLASS_LIKELY_BOT, CLASSES,
     HIDDEN_BY_DEFAULT, build_sessions,
 )
-from storage import read_events
+from storage import read_newest
 
 # Value assigned to bounce sessions (page_view with zero heartbeats) when
 # computing engagement averages. ~7s is the midpoint of the 0–15s window in
@@ -39,13 +39,44 @@ RANGES = [
 ]
 
 
-def _since_iso(range_key: str) -> Optional[str]:
-    for key, _, days in RANGES:
-        if key == range_key:
-            if days is None:
-                return None
-            return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-    return (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+DEFAULT_RANGE = "7d"
+
+# Hard cap on events loaded per dashboard request. Applied from the NEWEST
+# end of the log (storage.read_newest); when it bites, the page says so.
+MAX_EVENTS = 200_000
+
+DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
+
+
+def normalize_range(range_key: Optional[str]) -> str:
+    """Unknown/missing range keys fall back to the default (7 days)."""
+    return range_key if range_key in {k for k, _, _ in RANGES} else DEFAULT_RANGE
+
+
+def normalize_filters(country: Optional[str], device: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """Country codes are uppercase ISO-2 ("ES"), device labels lowercase
+    ("mobile"); empty or unknown device => no filter."""
+    country_filter = (country or "").strip().upper() or None
+    device_filter = (device or "").strip().lower() or None
+    if device_filter not in {d for d, _ in DEVICE_OPTIONS if d}:
+        device_filter = None
+    return country_filter, device_filter
+
+
+def event_passes_filters(ev: dict, country_filter: Optional[str], device_filter: Optional[str]) -> bool:
+    if country_filter and (ev.get("country") or "unknown") != country_filter:
+        return False
+    if device_filter and (ev.get("device_type") or "unknown") != device_filter:
+        return False
+    return True
+
+
+def since_iso(range_key: str) -> Optional[str]:
+    """ISO lower bound for a range key (None = all time)."""
+    days = next(d for k, _, d in RANGES if k == normalize_range(range_key))
+    if days is None:
+        return None
+    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
 
 def _referrer_host(ref: Optional[str]) -> str:
@@ -223,9 +254,10 @@ def aggregate(
     `likely_bot` sessions from every breakdown; the class table always
     shows all four counts. `events` is injectable for tests.
     """
-    since = _since_iso(range_key)
+    since = since_iso(range_key)
+    truncated = False
     if events is None:
-        events = list(read_events(since=since, max_count=200_000))
+        events, truncated = read_newest(MAX_EVENTS, since=since)
     sessions, keys = build_sessions(events)
     hidden = frozenset() if show_bots else HIDDEN_BY_DEFAULT
 
@@ -267,13 +299,6 @@ def aggregate(
     hidden_reasons: Counter = Counter()   # reason -> page views (bot + likely_bot)
     hidden_paths: Counter = Counter()     # path -> page views (bot + likely_bot)
 
-    def passes_filters(country: str, device: str) -> bool:
-        if country_filter and country != country_filter:
-            return False
-        if device_filter and device != device_filter:
-            return False
-        return True
-
     for ev, key in zip(events, keys):
         # Events stored before heartbeats existed have no event_type — treat
         # them as page_view for backward compatibility.
@@ -290,7 +315,7 @@ def aggregate(
 
         # Active filters drop everything that doesn't match — including
         # heartbeats, so engagement/uniques inherit the filter.
-        if not key or not passes_filters(country, device):
+        if not key or not event_passes_filters(ev, country_filter, device_filter):
             continue
         included.add(key)
         sess = sessions[key]
@@ -479,6 +504,8 @@ def aggregate(
         "available_countries": available_countries,
         "country_filter": country_filter,
         "device_filter": device_filter,
+        "events_loaded": len(events),
+        "truncated": truncated,
     }
 
 
@@ -519,14 +546,29 @@ header button {{
   cursor: pointer;
   font-weight: bold;
 }}
-header a.dl {{
-  margin-left: auto;
-  color: {INK};
-  text-decoration: none;
-  font-size: 12px;
-  border: 1px solid {INK};
-  padding: 4px 8px;
+.download {{
+  background: white;
+  border: 2px solid {TEAL};
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 0 0 24px;
+  max-width: 720px;
 }}
+.download form {{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0; }}
+.download form > strong {{ font-size: 15px; margin-right: 6px; }}
+.download button {{
+  background: {TEAL};
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}}
+.download button.secondary {{ background: {INK}; }}
+.download p {{ margin: 8px 0 0; font-size: 12px; }}
+.warn {{ background: {CORAL}; color: white; padding: 10px 14px; border-radius: 4px; max-width: 720px; }}
 main {{ padding: 20px 24px 60px; max-width: 1100px; }}
 section {{ margin-bottom: 32px; }}
 h2 {{
@@ -783,9 +825,6 @@ def _school_table(rows: list[dict], total: Optional[dict]) -> str:
     )
 
 
-DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
-
-
 def _country_section(data: dict, country_filter: Optional[str], count_header: str) -> str:
     """Render the Country breakdown — or a small notice when the filter is
     already pinning the country (in which case the breakdown would be a
@@ -817,6 +856,35 @@ def _device_section(data: dict, device_filter: Optional[str], count_header: str)
     )
 
 
+def _download_box(range_key: str, range_label: str, country_filter: Optional[str],
+                  device_filter: Optional[str]) -> str:
+    """The "Download data" control: exports the range + filters currently
+    selected in the header (GET /dashboard/export). Plain form, no JS.
+
+    The bots checkbox defaults to ON (include everything, each event tagged
+    with its class). An unticked checkbox sends nothing, so a hidden bots=0
+    precedes it; when ticked, the later bots=1 wins.
+    """
+    hidden = f'<input type="hidden" name="range" value="{escape(range_key)}">'
+    scope = [escape(range_label)]
+    if country_filter:
+        hidden += f'<input type="hidden" name="country" value="{escape(country_filter)}">'
+        scope.append(f"country {escape(country_filter)}")
+    if device_filter:
+        hidden += f'<input type="hidden" name="device" value="{escape(device_filter)}">'
+        scope.append(f"device {escape(device_filter)}")
+    return f"""<div class="download" id="download">
+    <form method="get" action="/dashboard/export">
+      <strong>Download data</strong>
+      {hidden}<input type="hidden" name="bots" value="0">
+      <button type="submit" name="format" value="json">Download JSON</button>
+      <button type="submit" name="format" value="csv" class="secondary">Download CSV (Excel)</button>
+      <label><input type="checkbox" name="bots" value="1" checked> include bots (each event is marked)</label>
+    </form>
+    <p class="muted">Every event of <strong>{" · ".join(scope)}</strong> (change it with the menus above). Upload the JSON file to Claude and ask your question. Each event has a <code>class</code> column: engaged, bounce, likely_bot or bot (+ <code>bot_reason</code>).</p>
+  </div>"""
+
+
 def render_dashboard(
     range_key: str,
     show_bots: bool,
@@ -825,16 +893,11 @@ def render_dashboard(
     device_filter: Optional[str] = None,
     events: Optional[list[dict]] = None,
 ) -> str:
-    if range_key not in {k for k, _, _ in RANGES}:
-        range_key = "7d"
+    range_key = normalize_range(range_key)
     if view not in (VIEW_VIEWS, VIEW_UNIQUES):
         view = VIEW_VIEWS
-    # Normalize: empty string => no filter (route layer already does this,
-    # but defending the function entry point against direct callers).
-    country_filter = country_filter or None
-    device_filter = device_filter or None
-    if device_filter and device_filter not in {d for d, _ in DEVICE_OPTIONS if d}:
-        device_filter = None
+    # Route layer already normalizes; defend the entry point for direct callers.
+    country_filter, device_filter = normalize_filters(country_filter, device_filter)
     data = aggregate(range_key, show_bots, view, country_filter=country_filter,
                      device_filter=device_filter, events=events)
 
@@ -882,6 +945,11 @@ def render_dashboard(
         " from the breakdowns below"
     )
     header_line = " · ".join(filter_bits)
+    truncated_warning = (
+        f'<p class="warn">Only the newest {data["events_loaded"]:,} events of this range were '
+        f'loaded (limit {MAX_EVENTS:,}); older events are missing from every number below.</p>'
+        if data["truncated"] else ""
+    )
 
     # First card swaps label/value between modes; the remaining cards always
     # describe the page-view universe (bot %, total incl. bots, etc.).
@@ -937,9 +1005,10 @@ def render_dashboard(
     <label><input type="checkbox" name="bots" value="1"{bots_checked} onchange="this.form.submit()"> show bots</label>
     <noscript><button type="submit">Apply</button></noscript>
   </form>
-  <a class="dl" href="/dashboard/raw">raw JSON</a>
 </header>
 <main>
+  {_download_box(range_key, range_label, country_filter, device_filter)}
+  {truncated_warning}
   <p class="muted">{header_line}</p>
   <p class="muted" style="font-style:italic;font-size:12px;margin-top:-8px">Per-day unique count. Cross-day totals may include the same visitor counted on multiple days.</p>
 
