@@ -37,6 +37,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field, ValidationError
 
 from classify import bot_reason
+from tz import country_for_tz
 from storage import append_event, read_newest
 from dashboard import normalize_filters, render_dashboard, since_iso
 from export import prepare_export
@@ -436,6 +437,9 @@ class TrackEvent(BaseModel):
     event_type: str = Field("page_view", max_length=32)
     session_page_id: Optional[str] = Field(None, max_length=64)
     elapsed_seconds: Optional[int] = Field(None, ge=0, le=86400)
+    # Browser IANA time zone, used only to derive a country when no local
+    # GeoIP DB is configured. Not persisted.
+    timezone: Optional[str] = Field(None, max_length=64)
 
 
 KNOWN_EVENT_TYPES = {"page_view", "page_heartbeat"}
@@ -501,6 +505,11 @@ async def track(request: Request) -> JSONResponse:
     event_type = event.event_type if event.event_type in KNOWN_EVENT_TYPES else "page_view"
     user_agent = request.headers.get("user-agent", "")[:512]
     country = await country_for_ip(ip)
+    country_source = "geoip" if country != "unknown" else None
+    if country == "unknown":
+        tz_country = country_for_tz(event.timezone)
+        if tz_country:
+            country, country_source = tz_country, "timezone"
     # The raw IP leaves scope at the end of this function. It is never
     # included in the persisted record.
 
@@ -518,6 +527,7 @@ async def track(request: Request) -> JSONResponse:
         "viewport_width": event.viewport_width,
         "language": event.language,
         "country": country,
+        "country_source": country_source,   # "geoip" | "timezone" | null
         "device_type": device_type_for(event.viewport_width, user_agent),
         "bot": reason is not None,
         "bot_reason": reason,   # null for humans; e.g. "ua:lightpanda", "impossible_ua"

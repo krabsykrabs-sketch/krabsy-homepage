@@ -9,7 +9,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY main.py storage.py dashboard.py classify.py export.py ./
+COPY main.py storage.py dashboard.py classify.py export.py tz.py tz_country.json ./
 
 # Persistent volume mount-point for the JSONL log + GeoIP DB.
 # Coolify should be configured to mount a named volume here.

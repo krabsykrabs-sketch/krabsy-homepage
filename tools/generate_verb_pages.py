@@ -544,7 +544,7 @@ def chrome_close():
   <script src="/lib/krabsy-footer.js?v={CSSV}" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v={CSSV}" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v={CSSV}" defer></script>
-  <script src="/lib/krabsy-analytics.js?v={CSSV}" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-17" defer></script>
 </body>
 </html>"""
 

@@ -61,7 +61,18 @@ Add a Coolify volume:
 This is where `events.jsonl` will accumulate and where the GeoIP DB lives.
 Volumes survive redeploys; container filesystems do not.
 
-## 5. GeoIP database (MaxMind GeoLite2, automatic)
+## 5. Country lookup
+
+Default (no setup): the tracking script sends the browser's IANA time zone
+(e.g. `America/Montevideo`); `api/tz.py` maps it to a country with the
+static table `api/tz_country.json` (from the IANA tz database). No IP lookup,
+no third party. The time zone itself is not stored; events get
+`country_source: "timezone"`. Coarse: travellers keep their home zone.
+
+Optional, more precise: MaxMind GeoLite2 (below). If the DB is present it
+wins (`country_source: "geoip"`); time zone is the fallback.
+
+### 5b. GeoIP database (MaxMind GeoLite2, optional)
 
 Country lookup is done locally with MaxMind GeoLite2 — no visitor IP leaves
 the server. (ip-api.com is disabled by default since 2026-11-12; set
