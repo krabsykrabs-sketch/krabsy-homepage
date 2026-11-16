@@ -84,6 +84,15 @@
   @keyframes chainIn{0%{transform:translateY(12px) scale(0.9);opacity:0}100%{transform:none;opacity:1}}
   .perfect-badge{font-family:'Fredoka One',cursive;font-size:15px;color:#0a1c34;background:linear-gradient(135deg,#ffe27a,#ffb84d);padding:5px 18px;border-radius:30px;animation:pop 0.5s cubic-bezier(.2,2,.4,1);box-shadow:0 4px 18px rgba(255,207,94,0.4)}
   @keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+  .win-tip{font-size:14px;color:rgba(255,255,255,0.75);max-width:380px;line-height:1.45}
+  .win-tip b{color:var(--amber)}
+
+  /* ── Tutorial ── */
+  #tut-skip{position:fixed;right:12px;bottom:14px;z-index:55;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:20px;padding:7px 14px;cursor:pointer}
+  #tut-skip:hover{background:rgba(255,255,255,0.15)}
+
+  /* generic — must come last so it beats display rules above */
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -106,6 +115,7 @@
 </div>
 
 <div id="tracker"></div>
+<button id="tut-skip" class="hidden">Skip tutorial ›</button>
 <div id="toast"></div>
 
 <div class="screen" id="start-screen">
@@ -124,15 +134,17 @@
     <div class="legend-chip lc-pp">gone</div>
   </div>
   <button class="btn btn-primary" id="start-btn">Let it Flow! 🌊</button>
+  <button class="btn btn-ghost hidden" id="howto-btn">❓ How to play</button>
   <button class="btn btn-ghost hidden" id="newgame-btn">Restart at Level 1</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <div class="screen hidden" id="win-screen">
   <div class="screen-emoji" id="win-emoji">🎉</div>
-  <div class="screen-title" style="font-size:clamp(28px,6vw,42px)">Level <span id="win-level">1</span> Complete!</div>
+  <div class="screen-title" style="font-size:clamp(28px,6vw,42px)" id="win-title">Level <span>1</span> Complete!</div>
   <div class="perfect-badge hidden" id="perfect-badge">✨ PERFECT FLOW +100</div>
   <div id="win-chains"></div>
+  <div class="win-tip hidden" id="win-tip"></div>
   <div class="screen-stat" id="win-score"></div>
   <button class="btn btn-primary" id="next-btn">Next Level →</button>
   <button class="btn btn-ghost" id="win-menu-btn">Menu</button>
@@ -344,13 +356,45 @@ const G={
 };
 let LY={};            // layout geometry
 
+// Tutorial: a fixed 4×4 board with two verbs. Verb 1 is demonstrated by
+// an animated hand; verb 2 the player solves alone. Runs automatically
+// on the very first start, replayable via "How to play".
+const TUT={
+  done:localStorage.getItem('krabsy_vflow_tut')==='1',
+  active:false,       // tutorial board is on screen
+  justFinished:false, // win screen is the tutorial's → "next" doesn't level up
+  lastInput:0,
+};
+const TUT_DEFS=[
+  // row 0: go  ·   ·  went
+  // row 1: see · gone  ·
+  // row 2:  ·  ·   ·   ·
+  // row 3:  · saw  ·  seen
+  {verb:'go', past:'went',pp:'gone',solution:[0,1,2,3,7,6],          past_at:3},
+  {verb:'see',past:'saw', pp:'seen',solution:[4,5,9,8,12,13,14,10,11,15],past_at:13},
+];
+function tutorialBoard(){
+  const n=4,verbs=[],chips={};
+  TUT_DEFS.forEach((d,i)=>{
+    const seg=d.solution;
+    const v={verb:d.verb,past:d.past,pp:d.pp,color:PIPE_COLORS[i],
+      baseIdx:seg[0],pastIdx:d.past_at,ppIdx:seg[seg.length-1],solution:seg};
+    verbs.push(v);
+    chips[v.baseIdx]={v:i,form:'base',text:v.verb};
+    chips[v.pastIdx]={v:i,form:'past',text:v.past};
+    chips[v.ppIdx]={v:i,form:'pp',text:v.pp};
+  });
+  return {n,verbs,chips};
+}
+
 // ════════════════════════════════════════
 // LAYOUT / RESIZE
 // ════════════════════════════════════════
 function computeLayout(){
   const hudH=56, pad=14, trackerH=46;
+  const tutH=TUT.active?64:0;   // room for the instruction banner under the board
   const availW=W-pad*2;
-  const availH=H-hudH-trackerH-pad*2-10;
+  const availH=H-hudH-trackerH-pad*2-10-tutH;
   const n=G.board?G.board.n:5;
   const size=Math.min(availW,availH);
   const cell=Math.floor(size/n);
@@ -496,7 +540,7 @@ function tryStep(v,to){
 
 function chainDone(v){
   const vb=G.board.verbs[v];
-  G.score+=50;
+  if(!TUT.active)G.score+=50;
   sfx('chain');
   showTracker(v);
   const c=cellCenter(vb.ppIdx);
@@ -504,7 +548,7 @@ function chainDone(v){
   updateHUD();
   if(G.board.verbs.every((_,i)=>pipeComplete(i))){
     G.active=-1;
-    setTimeout(winLevel,550);
+    setTimeout(TUT.active?finishTutorial:winLevel,550);
   }
 }
 
@@ -527,10 +571,26 @@ function winLevel(){
   updateHUD();
   sfx(perfect?'fanfare':'win');
 
-  document.getElementById('win-level').textContent=G.level;
-  document.getElementById('perfect-badge').classList.toggle('hidden',!perfect);
-  document.getElementById('win-emoji').textContent=perfect?'🌟':'🎉';
-  document.getElementById('win-score').textContent=`Score: ${G.score}`;
+  showWinScreen({
+    title:`Level <span>${G.level}</span> Complete!`,
+    perfect,badge:'✨ PERFECT FLOW +100',
+    score:`Score: ${G.score}`,
+    tip:'',next:'Next Level →',
+  });
+}
+
+function showWinScreen(o){
+  document.getElementById('win-title').innerHTML=o.title;
+  const badge=document.getElementById('perfect-badge');
+  badge.textContent=o.badge;
+  badge.classList.toggle('hidden',!o.perfect);
+  document.getElementById('win-emoji').textContent=o.perfect?'🌟':'🎉';
+  document.getElementById('win-score').textContent=o.score;
+  document.getElementById('win-score').classList.toggle('hidden',!o.score);
+  const tip=document.getElementById('win-tip');
+  tip.innerHTML=o.tip;
+  tip.classList.toggle('hidden',!o.tip);
+  document.getElementById('next-btn').textContent=o.next;
   const wc=document.getElementById('win-chains');
   wc.innerHTML='';
   G.board.verbs.forEach((vb,i)=>{
@@ -544,7 +604,51 @@ function winLevel(){
   });
   setTimeout(()=>{
     document.getElementById('win-screen').classList.remove('hidden');
-  },perfect?900:350);
+  },o.perfect?900:350);
+}
+
+// ── Tutorial run ──
+function startTutorial(){
+  TUT.active=true;TUT.justFinished=false;
+  TUT.lastInput=performance.now();
+  G.board=tutorialBoard();
+  G.pipes=G.board.verbs.map(v=>[v.baseIdx]);
+  G.active=-1;G.won=false;G.hints=3;G.score=0;
+  G.ghost=null;G.particles=[];G.confetti=[];
+  G.running=true;
+  computeLayout();updateHUD();hideTracker();
+  document.getElementById('tut-skip').classList.remove('hidden');
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('win-screen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+}
+function markTutorialDone(){
+  TUT.done=true;
+  localStorage.setItem('krabsy_vflow_tut','1');
+  document.getElementById('tut-skip').classList.add('hidden');
+}
+function finishTutorial(){
+  if(G.won)return;
+  G.won=true;G.running=false;
+  TUT.active=false;TUT.justFinished=true;
+  markTutorialDone();
+  const perfect=coverage()>=1;
+  if(perfect)spawnConfetti();
+  sfx(perfect?'fanfare':'win');
+  showWinScreen({
+    title:'You\'ve got it!',
+    perfect,badge:'✨ PERFECT — every square filled!',
+    score:'',
+    tip:perfect
+      ?'In the real levels, filling <b>every square</b> earns a <b>+100</b> bonus.'
+      :'Tip: fill <b>every square</b> with pipes for a <b>PERFECT +100</b> bonus.',
+    next:`Start Level ${G.level} →`,
+  });
+}
+function skipTutorial(){
+  TUT.active=false;
+  markTutorialDone();
+  startGame();
 }
 
 function useHint(){
@@ -577,6 +681,7 @@ function getPos(e){
 function onDown(e){
   if(!G.running)return;
   e.preventDefault();
+  TUT.lastInput=performance.now();
   audioInit();
   const pos=getPos(e);
   const idx=cellAt(pos.x,pos.y);
@@ -610,6 +715,7 @@ function onDown(e){
 function onMove(e){
   if(!G.running||G.active<0)return;
   e.preventDefault();
+  TUT.lastInput=performance.now();
   const pos=getPos(e);
   const target=cellAt(pos.x,pos.y);
   if(target<0)return;
@@ -769,6 +875,101 @@ function drawBoard(){
   }
 }
 
+// ── Tutorial overlay ──
+// Banner under the board (rich text: [text,color] runs), pulsing ring on
+// the next chip to reach, and a demo hand that drags along the solution.
+function drawBanner(runs){
+  const bw=Math.min(Math.max(LY.bs,300),W-24,460), bh=46;
+  const bx=(W-bw)/2, by=LY.y+LY.bs+12+Math.sin(G.frame*0.08)*2;
+  ctx.save();
+  ctx.fillStyle='rgba(13,28,52,0.94)';
+  ctx.strokeStyle='rgba(255,207,94,0.9)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(bx,by,bw,bh,16);ctx.fill();ctx.stroke();
+  let size=18;
+  const measure=()=>{ctx.font=`${size}px "Fredoka One",cursive`;
+    return runs.reduce((w,r)=>w+ctx.measureText(r[0]).width,0);};
+  let tw=measure();
+  if(tw>bw-28){size=Math.max(11,size*(bw-28)/tw);tw=measure();}
+  ctx.textAlign='left';ctx.textBaseline='middle';
+  let x=bx+(bw-tw)/2;
+  for(const [t,c] of runs){
+    ctx.fillStyle=c||'#ffe9b0';
+    ctx.fillText(t,x,by+bh/2+1);
+    x+=ctx.measureText(t).width;
+  }
+  ctx.restore();
+}
+function drawTargetRing(idx,color){
+  const c=cellCenter(idx);
+  const pulse=Math.sin(G.frame*0.15)*0.5+0.5;
+  ctx.save();
+  ctx.strokeStyle=color;
+  ctx.globalAlpha=0.35+pulse*0.55;
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(c.x,c.y,LY.cell*0.52+pulse*5,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+}
+function drawDemoHand(vb){
+  // polyline through the solution's cell centres; 0..1 drag, then a pause
+  const pts=vb.solution.map(cellCenter);
+  const period=150, hold=45;
+  const f=G.frame%(period+hold);
+  const t=Math.min(1,f/period);
+  const segs=pts.length-1;
+  const ft=t*segs, i=Math.min(segs-1,Math.floor(ft)), k=ft-i;
+  const hx=pts[i].x+(pts[i+1].x-pts[i].x)*k;
+  const hy=pts[i].y+(pts[i+1].y-pts[i].y)*k;
+  const fade=f>period?1-(f-period)/hold:1;
+  ctx.save();
+  // ghost trail of the demo drag
+  ctx.globalAlpha=0.35*fade;
+  ctx.strokeStyle=vb.color;
+  ctx.lineWidth=LY.cell*0.22;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let j=1;j<=i;j++)ctx.lineTo(pts[j].x,pts[j].y);
+  ctx.lineTo(hx,hy);ctx.stroke();
+  // the "finger": a drawn touch-dot (emoji fonts aren't reliable on canvas)
+  const r=Math.max(10,LY.cell*0.13);
+  ctx.globalAlpha=fade;
+  ctx.shadowColor='rgba(0,0,0,0.45)';ctx.shadowBlur=10;
+  ctx.fillStyle='rgba(255,255,255,0.92)';
+  ctx.beginPath();ctx.arc(hx,hy,r,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(hx,hy,r*1.7,0,Math.PI*2);ctx.stroke();
+  // press ripple at the start of each demo drag
+  if(f<30){
+    ctx.globalAlpha=1-f/30;
+    ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,r*1.7+f*1.2,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawTutorial(){
+  const v=G.board.verbs.findIndex((_,i)=>!pipeComplete(i));
+  if(v<0)return;
+  const vb=G.board.verbs[v];
+  const A='#ffe9b0', B=FORM_COLOR.base, P=FORM_COLOR.past, Q=FORM_COLOR.pp;
+  const started=G.pipes[v].length>1||G.active===v;
+  const hasPast=pipeHasPast(v);
+  let runs;
+  if(!started){
+    runs=v===0
+      ?[['Press ',A],[vb.verb,B],[' and drag a pipe to ',A],[vb.past,P]]
+      :[['Great! Now you: ',A],[vb.verb,B],[' → ',A],[vb.past,P],[' → ',A],[vb.pp,Q]];
+    drawTargetRing(vb.baseIdx,B);
+    // verb 1: always demo; verb 2: only if the player seems stuck
+    const idle=performance.now()-TUT.lastInput;
+    if(v===0||idle>4000)drawDemoHand(vb);
+  }else if(!hasPast){
+    runs=[['First to ',A],[vb.past,P],[' …',A]];
+    drawTargetRing(vb.pastIdx,P);
+  }else{
+    runs=[['… and finish at ',A],[vb.pp,Q],['!',A]];
+    drawTargetRing(vb.ppIdx,Q);
+  }
+  drawBanner(runs);
+}
+
 // ── Particles ──
 function spawnBurst(x,y,color){
   for(let i=0;i<26;i++){
@@ -812,6 +1013,7 @@ function drawParticles(){
 function gameLoop(){
   G.frame++;
   drawBoard();
+  if(TUT.active&&G.running)drawTutorial();
   drawParticles();
   requestAnimationFrame(gameLoop);
 }
@@ -863,7 +1065,7 @@ function sfx(kind){
 // ════════════════════════════════════════
 function updateHUD(){
   document.getElementById('hud-score').textContent=G.score;
-  document.getElementById('hud-level').textContent=G.level;
+  document.getElementById('hud-level').textContent=TUT.active?'–':G.level;
   document.getElementById('hud-best').textContent=G.best;
   document.getElementById('hint-pip').textContent=G.hints;
   document.getElementById('btn-hint').style.opacity=G.hints>0?'1':'0.4';
@@ -873,6 +1075,9 @@ function updateHUD(){
 
 async function startGame(){
   audioInit();
+  if(!TUT.done){startTutorial();return;}
+  TUT.active=false;
+  document.getElementById('tut-skip').classList.add('hidden');
   await verbsReady;   // engine catalogue (or inline fallback) is in place
   newLevel();
   G.running=true;
@@ -888,12 +1093,16 @@ document.getElementById('newgame-btn').addEventListener('click',()=>{
   startGame();
 });
 document.getElementById('next-btn').addEventListener('click',()=>{
-  G.level++;
+  if(TUT.justFinished)TUT.justFinished=false;  // tutorial → play the current level
+  else G.level++;
   startGame();
 });
+document.getElementById('howto-btn').addEventListener('click',()=>{audioInit();startTutorial();});
+document.getElementById('tut-skip').addEventListener('click',skipTutorial);
 document.getElementById('win-menu-btn').addEventListener('click',()=>{
   document.getElementById('win-screen').classList.add('hidden');
   document.getElementById('hud').classList.add('hidden');
+  TUT.justFinished=false;
   showStartScreen();
 });
 document.getElementById('btn-hint').addEventListener('click',useHint);
@@ -911,6 +1120,7 @@ function showStartScreen(){
   document.getElementById('start-btn').textContent=
     saved>1?`Continue – Level ${saved} 🌊`:'Let it Flow! 🌊';
   document.getElementById('newgame-btn').classList.toggle('hidden',saved<=1);
+  document.getElementById('howto-btn').classList.toggle('hidden',!TUT.done);
   document.getElementById('start-screen').classList.remove('hidden');
 }
 showStartScreen();
