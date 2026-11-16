@@ -9,16 +9,20 @@ at the end of each session. (Last update: 2026-06-12.)
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
-| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker (commit awaiting deploy) |
-| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) |
+| Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
+| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | `/games/verb-platformer/` | **live** (beta) |
-| Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button |
+| Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
 | Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC BUILT** — art contact sheet awaits user judgment () |
 | Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | — | **PoC BUILT** — 3 levels playable, pacing tuned in playtests; awaiting user verdict |
+
+**Arcade-game language (2026-11-16):** Verb Flow, Verb Snake and Air Control
+show their UI in DE/ES (`?lang=` → `krabsy_lang` → DE fallback, same as the
+drills); the verbs and go → went → gone notation stay English.
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 

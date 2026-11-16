@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -105,10 +105,10 @@
 <div id="hud" class="hidden">
   <div class="hud-section"><div id="hud-logo">Krab<span>sy</span></div></div>
   <div class="hud-section">
-    <div class="hud-stat"><div class="hud-label">Level</div><div class="hud-value" id="hud-level" style="color:#9fc6ff">1</div></div>
-    <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value hud-score" id="hud-score">0</div></div>
-    <div class="hud-stat"><div class="hud-label">Verbs</div><div class="hud-value hud-verbs" id="hud-verbs">0</div></div>
-    <div class="hud-stat" id="hud-best-wrap"><div class="hud-label">Best</div><div class="hud-value hud-best" id="hud-best">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_level">Level</div><div class="hud-value" id="hud-level" style="color:#9fc6ff">1</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_score">Score</div><div class="hud-value hud-score" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_verbs">Verbs</div><div class="hud-value hud-verbs" id="hud-verbs">0</div></div>
+    <div class="hud-stat" id="hud-best-wrap"><div class="hud-label" data-i18n="hud_best">Best</div><div class="hud-value hud-best" id="hud-best">0</div></div>
   </div>
   <div class="hud-section" style="gap:8px">
     <button class="icon-btn" id="btn-mute">🔊</button>
@@ -118,12 +118,12 @@
 
 <div id="strip-panels" class="hidden">
   <div class="strip-panel" id="strip-panel-0">
-    <div class="strip-panel-title">🛬 Runway 1</div>
-    <div class="strip-panel-chain" id="strip-chain-0"><span class="strip-panel-label">— free —</span></div>
+    <div class="strip-panel-title" data-i18n="rw1">🛬 Runway 1</div>
+    <div class="strip-panel-chain" id="strip-chain-0"><span class="strip-panel-label" data-i18n="free">— free —</span></div>
   </div>
   <div class="strip-panel" id="strip-panel-1">
-    <div class="strip-panel-title">🛬 Runway 2</div>
-    <div class="strip-panel-chain" id="strip-chain-1"><span class="strip-panel-label">— free —</span></div>
+    <div class="strip-panel-title" data-i18n="rw2">🛬 Runway 2</div>
+    <div class="strip-panel-chain" id="strip-chain-1"><span class="strip-panel-label" data-i18n="free">— free —</span></div>
   </div>
 </div>
 
@@ -131,53 +131,138 @@
   <div class="screen-emoji">✈️</div>
   <div class="screen-title">Air <span>Control!</span></div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">✏️</div><div><b>Drag a path</b> from a plane to a runway to make it land. Helicopters 🚁 go to the <b>H pad</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">🛬</div><div>Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in order ①→②→③ for a <b>big bonus!</b></div></div>
-    <div class="howto-row"><div class="howto-ico">💥</div><div><b>Don't let aircraft crash</b> into each other — one crash and it's game over!</div></div>
+    <div class="howto-row"><div class="howto-ico">✏️</div><div data-i18n="how1"><b>Drag a path</b> from a plane to a runway to make it land. Helicopters 🚁 go to the <b>H pad</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico">🛬</div><div data-i18n="how2">Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in order ①→②→③ for a <b>big bonus!</b></div></div>
+    <div class="howto-row"><div class="howto-ico">💥</div><div data-i18n="how3"><b>Don't let aircraft crash</b> into each other — one crash and it's game over!</div></div>
   </div>
   <div class="legend">
-    <span class="legend-chip lc-base">① base — go</span>
-    <span class="legend-chip lc-past">② past — went</span>
-    <span class="legend-chip lc-pp">③ participle — gone</span>
+    <span class="legend-chip lc-base">① go</span>
+    <span class="legend-chip lc-past">② went</span>
+    <span class="legend-chip lc-pp">③ gone</span>
   </div>
   <div class="lvl-row">
-    <button class="lvl-btn" data-lvl="1">1<span>First Flight</span></button>
-    <button class="lvl-btn" data-lvl="2">2<span>Heli School</span></button>
-    <button class="lvl-btn" data-lvl="3">3<span>Endless Skies</span></button>
+    <button class="lvl-btn" data-lvl="1">1<span data-i18n="lv1">First Flight</span></button>
+    <button class="lvl-btn" data-lvl="2">2<span data-i18n="lv2">Heli School</span></button>
+    <button class="lvl-btn" data-lvl="3">3<span data-i18n="lv3">Endless Skies</span></button>
   </div>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <div class="screen hidden" id="level-screen">
   <div class="screen-emoji">🎉</div>
-  <div class="screen-title">Level <span id="lvl-num">1</span> Complete!</div>
+  <div class="screen-title" data-i18n="lvl_title">Level <span id="lvl-num">1</span> Complete!</div>
   <div id="lvl-score" class="screen-stat"></div>
   <div id="lvl-msg" class="screen-sub"></div>
   <button class="btn btn-primary" id="next-level-btn">Next Level ▶</button>
-  <button class="btn btn-ghost" id="lvl-menu-btn">Menu</button>
+  <button class="btn btn-ghost" id="lvl-menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <div class="screen hidden" id="pause-screen">
   <div class="screen-emoji" style="animation:none">⏸️</div>
-  <div class="screen-title">Paused</div>
-  <button class="btn btn-primary" id="resume-btn">Resume ▶</button>
-  <button class="btn btn-ghost" id="pause-menu-btn">Back to Menu</button>
+  <div class="screen-title" data-i18n="paused">Paused</div>
+  <button class="btn btn-primary" id="resume-btn" data-i18n="resume">Resume ▶</button>
+  <button class="btn btn-ghost" id="pause-menu-btn" data-i18n="back_menu">Back to Menu</button>
 </div>
 
 <div class="screen hidden" id="gameover-screen">
   <div class="screen-emoji" style="animation:none">💥</div>
   <div class="screen-title">Game <span>Over!</span></div>
-  <div id="go-newbest" class="newbest" style="display:none">🏆 NEW BEST!</div>
+  <div id="go-newbest" class="newbest" style="display:none" data-i18n="newbest">🏆 NEW BEST!</div>
   <div id="go-score" class="screen-stat"></div>
   <div id="go-msg" class="screen-sub"></div>
   <div id="go-review" class="review-wrap"></div>
-  <button class="btn btn-primary" id="restart-btn">Try Again ✈️</button>
-  <button class="btn btn-ghost" id="menu-btn">Menu</button>
+  <button class="btn btn-primary" id="restart-btn" data-i18n="retry">Try Again ✈️</button>
+  <button class="btn btn-ghost" id="menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <script>
+// ── i18n ──
+// UI chrome follows the site language (DE/ES); verb words stay English.
+// Same lookup as the drills: ?lang= → site-wide krabsy_lang → German.
+function getLang(){
+  try{const q=new URLSearchParams(location.search).get('lang');if(q==='de'||q==='es')return q;}catch(_){}
+  try{const l=localStorage.getItem('krabsy_lang');if(l==='de'||l==='es')return l;}catch(_){}
+  return 'de';
+}
+const LANG=getLang();
+const STR={
+  de:{
+    hud_level:'Level',hud_score:'Punkte',hud_verbs:'Verben',hud_best:'Rekord',
+    rw1:'🛬 Bahn 1',rw2:'🛬 Bahn 2',free:'— frei —',
+    how1:'<b>Zieh eine Linie</b> von einem Flugzeug zu einer Landebahn, damit es landet. Hubschrauber 🚁 fliegen zum <b>H-Platz</b>.',
+    how2:'Jedes Flugzeug trägt eine Verbform. Lande <b>alle 3 Formen auf derselben Bahn</b> — in der Reihenfolge ①→②→③ gibt\'s einen <b>Riesenbonus!</b>',
+    how3:'<b>Lass keine Flugzeuge zusammenstoßen</b> — ein Crash und das Spiel ist vorbei!',
+    lv1:'Erster Flug',lv2:'Heli-Schule',lv3:'Endloser Himmel',
+    lvl_title:'Level <span id="lvl-num">1</span> geschafft!',
+    menu:'Menü',paused:'Pause',resume:'Weiter ▶',back_menu:'Zurück zum Menü',
+    newbest:'🏆 NEUER REKORD!',retry:'Nochmal ✈️',
+    next2:'Level 2: Heli-Schule ▶',next3:'Level 3: Endloser Himmel ▶',
+    p_lands:'{v} landet auf Bahn {n}!',p_wrong:'Falsche Bahn!',p_helis:'Hubschrauber landen auf dem H!',
+    p_around:'Durchstarten! Bahn besetzt',p_pad:'H-Platz besetzt!',p_streak:'🔥 SERIE x{n}!',
+    p_perfect:'✨ PERFECT +{n}!',
+    tut_heli:'🚁 Hubschrauber landen auf dem H!',tut_first:'Da kommt dein erstes Flugzeug! ✈️',
+    tut_almost:'Fast! Tipp das Flugzeug an und zieh zur Landebahn',tut_touch:'Tipp das Flugzeug an und halte fest! 👆',
+    tut_draw:'Jetzt zieh eine Linie zur Landebahn! ✏️',tut_watch:'Perfekt! Schau zu, wie es landet 🛬',
+    tut_other:'Lande jetzt die anderen 2 Formen auf DERSELBEN Bahn!',tut_miss:'Lande jetzt {m} auf DERSELBEN Bahn!',and:' und ',
+    tut_order:'Der Reihe nach ① → ② → ③ = Riesenbonus! ✨',
+    h2a:'Lande alle 3 Formen — der Reihe nach ① → ② → ③ für einen RIESENBONUS! ✨',
+    h2b:'Jetzt lande den Hubschrauber auf dem H! 🚁',
+    h3a:'👆 Zieh von einem Flugzeug eine Linie zu einer Landebahn!',
+    h3b:'Lande ① ② ③ eines Verbs auf EINER Bahn — der Reihe nach = Riesenbonus!',
+    l1:'Du hast dein erstes Flugzeug gelandet und GO → WENT → GONE geschafft! ✈️',
+    l2o:'Verbkette in perfekter Reihenfolge UND der Hubschrauber — super! 🏆',
+    l2:'Verbkette und Hubschrauber geschafft! Tipp: In der Reihenfolge ① → ② → ③ landen verdoppelt die Punkte.',
+    score:'Punkte: {n}',score_best:'Punkte: {n}  ·  Rekord: {b}',
+    go0:'Zwei Flugzeuge sind zusammengestoßen! Zieh Linien, damit sie sich nicht treffen — du schaffst das! 💪',
+    go1:'Du hast 1 Verb geschafft — guter Anfang! Schaffst du mehr?',
+    go2:'Du hast {n} Verben geschafft — guter Anfang! Schaffst du mehr?',
+    go3:'{n} Verben geschafft — starke Flugsicherung! ✈️',
+    go6:'{n} Verben geschafft — du bist eine Verb-Lande-Legende! 🏆',
+  },
+  es:{
+    hud_level:'Nivel',hud_score:'Puntos',hud_verbs:'Verbos',hud_best:'Récord',
+    rw1:'🛬 Pista 1',rw2:'🛬 Pista 2',free:'— libre —',
+    how1:'<b>Dibuja una ruta</b> desde un avión hasta una pista para que aterrice. Los helicópteros 🚁 van al <b>helipuerto H</b>.',
+    how2:'Cada avión lleva una forma verbal. Aterriza <b>las 3 formas en la misma pista</b> — ¡en orden ①→②→③ para un <b>gran bonus!</b>',
+    how3:'<b>Que no choquen los aviones</b> — ¡un choque y se acabó la partida!',
+    lv1:'Primer vuelo',lv2:'Escuela de helis',lv3:'Cielo sin fin',
+    lvl_title:'¡Nivel <span id="lvl-num">1</span> superado!',
+    menu:'Menú',paused:'Pausa',resume:'Seguir ▶',back_menu:'Volver al menú',
+    newbest:'🏆 ¡NUEVO RÉCORD!',retry:'Otra vez ✈️',
+    next2:'Nivel 2: Escuela de helis ▶',next3:'Nivel 3: Cielo sin fin ▶',
+    p_lands:'¡{v} aterriza en la pista {n}!',p_wrong:'¡Pista equivocada!',p_helis:'¡Los helis van a la H!',
+    p_around:'¡Da la vuelta! Pista ocupada',p_pad:'¡Helipuerto ocupado!',p_streak:'🔥 ¡RACHA x{n}!',
+    p_perfect:'✨ PERFECT +{n}!',
+    tut_heli:'🚁 ¡Los helicópteros aterrizan en la H!',tut_first:'¡Aquí llega tu primer avión! ✈️',
+    tut_almost:'¡Casi! Toca el avión y dibuja hasta la pista',tut_touch:'¡Toca el avión y mantén pulsado! 👆',
+    tut_draw:'¡Ahora dibuja una línea hasta la pista! ✏️',tut_watch:'¡Perfecto! Mira cómo aterriza 🛬',
+    tut_other:'¡Ahora aterriza las otras 2 formas en la MISMA pista!',tut_miss:'¡Ahora aterriza {m} en la MISMA pista!',and:' y ',
+    tut_order:'En orden ① → ② → ③ = ¡gran bonus! ✨',
+    h2a:'Aterriza las 3 formas — ¡en orden ① → ② → ③ para un GRAN bonus! ✨',
+    h2b:'¡Ahora aterriza el helicóptero en la H! 🚁',
+    h3a:'👆 ¡Dibuja una ruta desde un avión hasta una pista!',
+    h3b:'Aterriza ① ② ③ de un verbo en UNA pista — ¡en orden = gran bonus!',
+    l1:'¡Aterrizaste tu primer avión y completaste GO → WENT → GONE! ✈️',
+    l2o:'¡Cadena en orden perfecto Y el helicóptero — increíble! 🏆',
+    l2:'¡Cadena y helicóptero superados! Consejo: aterrizar en orden ① → ② → ③ duplica los puntos.',
+    score:'Puntos: {n}',score_best:'Puntos: {n}  ·  Récord: {b}',
+    go0:'¡Dos aviones chocaron! Dibuja rutas para mantenerlos separados — ¡tú puedes! 💪',
+    go1:'¡Completaste 1 verbo — buen comienzo! ¿Puedes superarlo?',
+    go2:'¡Completaste {n} verbos — buen comienzo! ¿Puedes superarlo?',
+    go3:'¡{n} verbos completados — gran control aéreo! ✈️',
+    go6:'¡{n} verbos completados — eres una leyenda del aterrizaje! 🏆',
+  },
+};
+function L10N(key,vars){
+  let s=(STR[LANG]&&STR[LANG][key])??STR.de[key]??key;
+  if(vars)for(const k in vars)s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+document.documentElement.lang=LANG;
+document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=L10N(el.dataset.i18n);});
+
 'use strict';
 // ════════════════════════════════════════
 // KRABSY AIR CONTROL v4
@@ -1008,16 +1093,16 @@ function onInputEnd(e){
       if(ev.stripIdx>=0&&!ac.isHeli){
         const other=G.strips[1-ev.stripIdx];
         if(other&&other.verbObj===ac.verbObj){
-          pushPopup(ac.x,ac.y-30,`${ac.verbObj.verb.toUpperCase()} lands on Runway ${(1-ev.stripIdx)+1}!`,'#ffcf5e',14);
+          pushPopup(ac.x,ac.y-30,L10N('p_lands',{v:ac.verbObj.verb.toUpperCase(),n:(1-ev.stripIdx)+1}),'#ffcf5e',14);
         }else{
-          pushPopup(ac.x,ac.y-30,'Wrong runway!','#ff8585',14);
+          pushPopup(ac.x,ac.y-30,L10N('p_wrong'),'#ff8585',14);
         }
         SFX.wrong();
       }else if(ac.isHeli&&!ev.heli&&G.drawPath.length>6){
         const last=G.drawPath[G.drawPath.length-1];
         for(let si=0;si<2;si++){
           if(dist(last.x,last.y,LY.strips[si].landX,LY.strips[si].landY)<90){
-            pushPopup(ac.x,ac.y-30,'Helis use the H pad!','#ffb347',14);
+            pushPopup(ac.x,ac.y-30,L10N('p_helis'),'#ffb347',14);
             SFX.wrong();break;
           }
         }
@@ -1153,7 +1238,7 @@ function initiatePlaneLanding(ac,si){
     // runway still busy (e.g. a queued chain broke) — go around, never land wrong
     ac.state='flying';ac.path=null;ac.targetStripIdx=-1;
     ac.angle+=(Math.random()<0.5?1:-1)*0.9;
-    pushPopup(ac.x,ac.y-30,'Go around! Runway busy','#ffcf5e',13);
+    pushPopup(ac.x,ac.y-30,L10N('p_around'),'#ffcf5e',13);
     SFX.wrong();
     return;
   }
@@ -1188,7 +1273,7 @@ function completePlaneLanding(ac){
         spawnParticles(pl.x,pl.y,ordered?['#ffe27a','#ffb84d','#fff','#2ee6c0']:['#2ee6c0','#fff','#9fe8d8'],14,2.2,55,0.03);
       }
     }
-    if(ordered&&G.streak>=2)pushPopup(W/2,H*0.4,'🔥 STREAK x'+G.streak+'!','#ffcf5e',20);
+    if(ordered&&G.streak>=2)pushPopup(W/2,H*0.4,L10N('p_streak',{n:G.streak}),'#ffcf5e',20);
     G.aircraft=G.aircraft.filter(pl=>!(pl.state==='landed'&&pl.parkStrip===si&&!pl.isHeli));
     setTimeout(()=>{
       if(G.strips[si]===sd)G.strips[si]=null; // a queued verb may have taken over already
@@ -1209,7 +1294,7 @@ function initiateHeliLanding(ac){
   if(heliOnPad){
     ac.state='flying';ac.path=null;ac.targetHeli=false;
     ac.angle+=(Math.random()-0.5)*1;
-    pushPopup(LY.heli.x,LY.heli.y-34,'Pad busy!','#ffb347',13);
+    pushPopup(LY.heli.x,LY.heli.y-34,L10N('p_pad'),'#ffb347',13);
     return;
   }
   ac.state='landing';ac.landingProgress=0;ac.path=null;
@@ -1260,7 +1345,7 @@ function showCompletion(si,verbObj,ordered,pts){
   completions.push({
     x:Math.max(110,Math.min(W-110,s.landX)),y:s.landY-28,
     text:`${verbObj.verb} → ${verbObj.past} → ${verbObj.pp}`,
-    bonus:ordered?`✨ PERFECT ORDER +${pts}!`:`+${pts}`,
+    bonus:ordered?L10N('p_perfect',{n:pts}):`+${pts}`,
     ordered,age:0,maxAge:130,
   });
   document.getElementById(`strip-panel-${si}`).className='strip-panel strip-complete';
@@ -1295,7 +1380,7 @@ function updateStripPanels(){
     const s=G.strips[i];
     if(!s){
       panel.className='strip-panel';
-      chainEl.innerHTML='<span class="strip-panel-label">— free —</span>';
+      chainEl.innerHTML='<span class="strip-panel-label">'+L10N('free')+'</span>';
     }else{
       panel.className='strip-panel strip-active';
       const v=s.verbObj;
@@ -1780,7 +1865,7 @@ function drawGuideArrow(a,si,bright){
 function drawTutorial(){
   TUT._skip=null;
   if(TUT.heliTipT>0&&TUT.heliAC&&TUT.heliAC.state!=='gone'&&TUT.heliAC.state!=='landed'){
-    drawBubble(TUT.heliAC.x,TUT.heliAC.y-42,'🚁 Helicopters land on the H pad!',false);
+    drawBubble(TUT.heliAC.x,TUT.heliAC.y-42,L10N('tut_heli'),false);
     const h=LY.heli,pulse=Math.sin(G.frame*0.15)*0.5+0.5;
     ctx.strokeStyle=`rgba(255,179,71,${0.35+pulse*0.5})`;ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(h.x,h.y,h.r+8+pulse*6,0,Math.PI*2);ctx.stroke();
@@ -1790,32 +1875,32 @@ function drawTutorial(){
   if(TUT.step===0){
     if(G.warnings.length){
       const w=G.warnings[0];
-      drawBubble(w.x,w.y-26,'Here comes your first plane! ✈️',true);
+      drawBubble(w.x,w.y-26,L10N('tut_first'),true);
     }
   }else if(TUT.step===1&&a){
     const t=Math.sin(G.frame*0.12);
     ctx.font='30px sans-serif';ctx.textAlign='center';
     ctx.fillText('👆',a.x+15+t*4,a.y+48+t*6);
     drawBubble(a.x,a.y-42,
-      TUT.invalidTried?'Almost! Touch the plane, then draw to the runway':'Touch and hold the plane! 👆',true);
+      TUT.invalidTried?L10N('tut_almost'):L10N('tut_touch'),true);
     const si=tutGuideStrip();
     if(si>=0)drawGuideArrow(a,si,false);
   }else if(TUT.step===2&&a){
-    drawBubble(W/2,LY.hudH+70,'Now draw a line to the runway! ✏️',true);
+    drawBubble(W/2,LY.hudH+70,L10N('tut_draw'),true);
     const si=tutGuideStrip();
     if(si>=0)drawGuideArrow(a,si,true);
   }else if(TUT.step===3&&a&&a.state!=='landed'){
-    drawBubble(a.x,a.y-42,'Perfect! Watch it land 🛬',false);
+    drawBubble(a.x,a.y-42,L10N('tut_watch'),false);
   }else if(TUT.step===4){
     const sd=a&&a.parkStrip!==undefined?G.strips[a.parkStrip]:null;
-    let txt='Now land the other 2 forms on the SAME runway!';
+    let txt=L10N('tut_other');
     if(sd){
       const word=f=>f==='base'?sd.verbObj.verb:f==='past'?sd.verbObj.past:sd.verbObj.pp;
       const miss=['base','past','pp'].filter(f=>!sd.landed[f])
         .map(f=>FORM_NUM[f]+' '+word(f).toUpperCase());
-      if(miss.length)txt=`Now land ${miss.join(' and ')} on the SAME runway!`;
+      if(miss.length)txt=L10N('tut_miss',{m:miss.join(L10N('and'))});
     }
-    const sub='In order ① → ② → ③ = big bonus! ✨';
+    const sub=L10N('tut_order');
     ctx.font='800 15px Nunito,sans-serif';ctx.textAlign='center';
     const bw=Math.min(W-22,Math.max(ctx.measureText(txt).width,ctx.measureText(sub).width)+38);
     const bx=W/2-bw/2,by=H*0.26+Math.sin(G.frame*0.06)*3,bh=58;
@@ -1836,11 +1921,11 @@ function drawHint(){
   if(TUT.active)return;
   let msg=null;
   if(G.level===2){
-    if(!G.chainDone)msg='Land all 3 forms — in order ① → ② → ③ for a BIG bonus! ✨';
-    else if(G.heliLanded===0)msg='Now land the helicopter on the H pad! 🚁';
+    if(!G.chainDone)msg=L10N('h2a');
+    else if(G.heliLanded===0)msg=L10N('h2b');
   }else if(G.level===3){
-    if(!G.firstPathDone)msg='👆 Drag a plane and draw a path to a runway!';
-    else if(G.verbsCompleted===0)msg='Land all ① ② ③ of a verb on ONE runway — in order = big bonus!';
+    if(!G.firstPathDone)msg=L10N('h3a');
+    else if(G.verbsCompleted===0)msg=L10N('h3b');
   }
   if(!msg)return;
   const bob=Math.sin(G.frame*0.05)*3;
@@ -2020,14 +2105,12 @@ function levelComplete(){
   document.getElementById('hud').classList.add('hidden');
   document.getElementById('strip-panels').classList.add('hidden');
   document.getElementById('lvl-num').textContent=G.level;
-  document.getElementById('lvl-score').textContent=`Score: ${G.score}`;
+  document.getElementById('lvl-score').textContent=L10N('score',{n:G.score});
   const ordered=G.completedChains.length&&G.completedChains[G.completedChains.length-1].ordered;
   document.getElementById('lvl-msg').textContent=
-    G.level===1?'You landed your first plane and completed GO → WENT → GONE! ✈️'
-    :(ordered?'Verb chain in perfect order AND the helicopter — amazing! 🏆'
-      :'Verb chain and helicopter mastered! Tip: landing ① → ② → ③ in order doubles the points.');
+    G.level===1?L10N('l1'):(ordered?L10N('l2o'):L10N('l2'));
   document.getElementById('next-level-btn').textContent=
-    G.level===1?'Level 2: Heli School ▶':'Level 3: Endless Skies ▶';
+    G.level===1?L10N('next2'):L10N('next3');
   document.getElementById('level-screen').classList.remove('hidden');
   updateLevelButtons();
 }
@@ -2073,12 +2156,9 @@ function gameOver(pA,pB){
     document.getElementById('strip-panels').classList.add('hidden');
     document.getElementById('go-newbest').style.display=isNewBest&&G.score>0?'':'none';
     document.getElementById('go-score').textContent=G.level===3
-      ?`Score: ${G.score}  ·  Best: ${G.bestScore}`:`Score: ${G.score}`;
+      ?L10N('score_best',{n:G.score,b:G.bestScore}):L10N('score',{n:G.score});
     const n=G.verbsCompleted;
-    const msg=n===0?'Two aircraft collided! Draw paths to keep them apart — you\'ve got this! 💪'
-      :n<3?`You completed ${n} verb${n>1?'s':''} — nice start! Can you beat it?`
-      :n<6?`${n} verbs completed — great air traffic control! ✈️`
-      :`${n} verbs completed — you're a verb-landing legend! 🏆`;
+    const msg=n===0?L10N('go0'):n===1?L10N('go1'):n<3?L10N('go2',{n}):n<6?L10N('go3',{n}):L10N('go6',{n});
     document.getElementById('go-msg').textContent=msg;
     const rev=document.getElementById('go-review');
     rev.innerHTML=G.completedChains.map(c=>
