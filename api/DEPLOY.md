@@ -61,7 +61,18 @@ Add a Coolify volume:
 This is where `events.jsonl` will accumulate and where the GeoIP DB lives.
 Volumes survive redeploys; container filesystems do not.
 
-## 5. GeoIP database (MaxMind GeoLite2, automatic)
+## 5. Country lookup
+
+Default (no setup): the tracking script sends the browser's IANA time zone
+(e.g. `America/Montevideo`); `api/tz.py` maps it to a country with the
+static table `api/tz_country.json` (from the IANA tz database). No IP lookup,
+no third party. The time zone itself is not stored; events get
+`country_source: "timezone"`. Coarse: travellers keep their home zone.
+
+Optional, more precise: MaxMind GeoLite2 (below). If the DB is present it
+wins (`country_source: "geoip"`); time zone is the fallback.
+
+### 5b. GeoIP database (MaxMind GeoLite2, optional)
 
 Country lookup is done locally with MaxMind GeoLite2 — no visitor IP leaves
 the server. (ip-api.com is disabled by default since 2026-11-12; set
@@ -121,8 +132,28 @@ volume. To grab a snapshot:
 docker exec <container-name> cat /data/events.jsonl > backup-$(date +%F).jsonl
 ```
 
+**Download data (Nov 2026).** The dashboard has a "Download data" box with
+two buttons, *Download JSON* and *Download CSV (Excel)*, plus an "include
+bots" checkbox (ticked by default). It downloads every event of the range /
+country / device currently selected in the header, via
+`GET /dashboard/export?range=today|7d|30d|all&format=json|csv&bots=1|0&country=&device=`
+(same basic auth), as `krabsy-analytics_<from>_<to>[_filters].json|csv`.
+Each event gets `class` (`engaged|bounce|likely_bot|bot`) and `bot_reason`
+computed with the dashboard's rules (`bot_reason` is the read-time value;
+the stored ingest-time one is replaced). JSON = one array; CSV = flat
+columns, UTF-8 with BOM, comma-separated (German Excel: open via
+Data → From Text/CSV if everything lands in column A). Streamed, two passes
+over the log, capped at the newest 200,000 events (~120 MB JSON); if the
+cap is hit the filename contains `TRUNCATED-newest-200000` and the response
+has `X-Krabsy-Truncated: 1`. Size: ~0.5 KB/event JSON, ~0.3 KB/event CSV,
+so at 100–300 events/day 7 days ≈ 0.3–1.3 MB JSON, 30 days ≈ 1.5–5 MB.
+
 **Check the raw feed.** `GET https://api.krabsy.com/dashboard/raw` returns
-the last 1000 events as JSON (same basic auth).
+the NEWEST 1000 events as JSON in chronological order (same basic auth);
+`?limit=` (1–10000) and `?range=today|7d|30d|all` are optional. (Before
+Nov 2026 it returned a frozen window once the log passed 10,000 lines.)
+All readers that cap (raw, dashboard at 200,000 events, export) keep the
+newest events; the dashboard shows a warning banner if its cap is hit.
 
 **Bot classification (Nov 2026).** The collector stores `bot` (bool, as
 before) plus a new `bot_reason` (`null` for humans, else e.g.
@@ -139,8 +170,9 @@ Schoology, Classroom, Moodle, Teams, …) and reports sessions, engaged
 sessions and the concurrent-session peak, because a class behind one
 school NAT collapses to a few visitor hashes. Tests:
 `python3 api/tests/test_classification.py` (or `pytest api/tests`;
-pytest is not a runtime dependency). `classify.py` must stay in the
-Dockerfile `COPY` line.
+pytest is not a runtime dependency). Every `api/*.py` module
+(`classify.py`, `export.py`, …) must be in the Dockerfile `COPY` line —
+`tests/test_export.py` checks this.
 
 **Outgrowing JSONL.** At ~100k lines the dashboard will start to feel
 sluggish (each request scans the whole file). When that happens, migrate

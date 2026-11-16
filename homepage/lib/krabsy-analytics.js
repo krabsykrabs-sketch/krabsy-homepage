@@ -88,6 +88,11 @@
     }
   }
 
+  // IANA time zone (e.g. "America/Montevideo"): the server maps it to a
+  // country, so no IP lookup / third-party geo service is needed.
+  var browserTimeZone = null;
+  try { browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) {}
+
   function basePayload() {
     return {
       path: (window.location && window.location.pathname) || '/',
@@ -95,6 +100,7 @@
       timestamp: new Date().toISOString(),
       viewport_width: window.innerWidth || null,
       language: (navigator && navigator.language) || null,
+      timezone: browserTimeZone,
       session_page_id: sessionPageId,
     };
   }

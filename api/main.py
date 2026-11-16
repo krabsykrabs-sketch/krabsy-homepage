@@ -3,7 +3,11 @@
 Endpoints:
   POST /api/track       - accept one analytics event from the page tracker
   GET  /dashboard/      - basic-auth HTML dashboard
-  GET  /dashboard/raw   - basic-auth JSON dump of the last 1000 events
+  GET  /dashboard/raw   - basic-auth JSON dump of the newest events
+                          (?limit=1000, max 10000; optional ?range=today|7d|30d|all)
+  GET  /dashboard/export - basic-auth download of a range (the dashboard's
+                          "Download data" buttons): ?range=7d&format=json|csv
+                          &bots=1|0&country=&device=
   GET  /healthz         - liveness probe
 
 The client IP is used only to derive a country code (via the MaxMind
@@ -28,13 +32,15 @@ from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field, ValidationError
 
 from classify import bot_reason
-from storage import append_event, read_events
-from dashboard import render_dashboard
+from tz import country_for_tz
+from storage import append_event, read_newest
+from dashboard import normalize_filters, render_dashboard, since_iso
+from export import prepare_export
 
 # ---------------------------------------------------------------------------
 # Config
@@ -431,6 +437,9 @@ class TrackEvent(BaseModel):
     event_type: str = Field("page_view", max_length=32)
     session_page_id: Optional[str] = Field(None, max_length=64)
     elapsed_seconds: Optional[int] = Field(None, ge=0, le=86400)
+    # Browser IANA time zone, used only to derive a country when no local
+    # GeoIP DB is configured. Not persisted.
+    timezone: Optional[str] = Field(None, max_length=64)
 
 
 KNOWN_EVENT_TYPES = {"page_view", "page_heartbeat"}
@@ -496,6 +505,11 @@ async def track(request: Request) -> JSONResponse:
     event_type = event.event_type if event.event_type in KNOWN_EVENT_TYPES else "page_view"
     user_agent = request.headers.get("user-agent", "")[:512]
     country = await country_for_ip(ip)
+    country_source = "geoip" if country != "unknown" else None
+    if country == "unknown":
+        tz_country = country_for_tz(event.timezone)
+        if tz_country:
+            country, country_source = tz_country, "timezone"
     # The raw IP leaves scope at the end of this function. It is never
     # included in the persisted record.
 
@@ -513,6 +527,7 @@ async def track(request: Request) -> JSONResponse:
         "viewport_width": event.viewport_width,
         "language": event.language,
         "country": country,
+        "country_source": country_source,   # "geoip" | "timezone" | null
         "device_type": device_type_for(event.viewport_width, user_agent),
         "bot": reason is not None,
         "bot_reason": reason,   # null for humans; e.g. "ua:lightpanda", "impossible_ua"
@@ -543,10 +558,7 @@ def dashboard(
     country: str = Query(""),
     device: str = Query(""),
 ) -> HTMLResponse:
-    # Normalize filter values: country codes are uppercase ISO-2 ("ES"),
-    # device labels are lowercase ("mobile"). Empty string => no filter.
-    country_filter = country.strip().upper() or None
-    device_filter = device.strip().lower() or None
+    country_filter, device_filter = normalize_filters(country, device)
     return HTMLResponse(
         render_dashboard(
             range_,
@@ -558,11 +570,40 @@ def dashboard(
     )
 
 
+RAW_MAX_LIMIT = 10_000
+
+
 @app.get("/dashboard/raw")
-def dashboard_raw(user: str = Depends(check_auth)) -> JSONResponse:
-    events = list(read_events(max_count=10_000))
-    # Most-recent last 1000.
-    return JSONResponse(events[-1000:])
+def dashboard_raw(
+    user: str = Depends(check_auth),
+    range_: Optional[str] = Query(None, alias="range"),
+    limit: int = Query(1000, ge=1, le=RAW_MAX_LIMIT),
+) -> JSONResponse:
+    """The newest `limit` events (optionally within a dashboard range), in
+    chronological order (oldest of them first, newest last)."""
+    since = since_iso(range_) if range_ else None
+    events, _ = read_newest(limit, since=since)
+    return JSONResponse(events)
+
+
+@app.get("/dashboard/export")
+def dashboard_export(
+    user: str = Depends(check_auth),
+    range_: str = Query("7d", alias="range"),
+    fmt: str = Query("json", alias="format"),
+    bots: int = Query(1),           # 1 = include bots (tagged with their class)
+    country: str = Query(""),
+    device: str = Query(""),
+) -> StreamingResponse:
+    country_filter, device_filter = normalize_filters(country, device)
+    exp = prepare_export(range_, fmt, bool(bots), country_filter, device_filter)
+    headers = {
+        "Content-Disposition": f'attachment; filename="{exp.filename}"',
+        "Cache-Control": "no-store",
+    }
+    if exp.truncated:
+        headers["X-Krabsy-Truncated"] = "1"
+    return StreamingResponse(exp.body, media_type=exp.media_type, headers=headers)
 
 
 @app.get("/healthz")
