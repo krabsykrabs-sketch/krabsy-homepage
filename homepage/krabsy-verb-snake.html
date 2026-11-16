@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -72,6 +72,7 @@
   .dbtn{position:absolute;width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto;backdrop-filter:blur(4px)}
   .dbtn:active{background:rgba(46,230,192,0.35)}
   #d-up{left:53px;top:0}#d-down{left:53px;top:106px}#d-left{left:0;top:53px}#d-right{left:106px;top:53px}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -80,12 +81,12 @@
 <div id="hud" class="hidden">
   <div class="hud-group"><div id="hud-logo">Krab<span>sy</span></div></div>
   <div class="hud-group">
-    <div class="hud-stat"><div class="hud-label">Verbs</div><div class="hud-value" id="hud-sets">0</div></div>
-    <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value" id="hud-score">0</div></div>
-    <div class="hud-stat"><div class="hud-label">Best</div><div class="hud-value" id="hud-best">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_verbs">Verbs</div><div class="hud-value" id="hud-sets">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_score">Score</div><div class="hud-value" id="hud-score">0</div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_best">Best</div><div class="hud-value" id="hud-best">0</div></div>
   </div>
   <div class="hud-group" style="gap:8px">
-    <button class="hud-btn" id="btn-sound" title="Sound">🔊</button>
+    <button class="hud-btn" id="btn-sound" data-i18n-title="t_sound" title="Sound">🔊</button>
   </div>
 </div>
 
@@ -99,7 +100,7 @@
 <div class="screen" id="start-screen">
   <div class="screen-emoji">🐍</div>
   <div class="screen-title">Verb <span>Snake!</span></div>
-  <div class="screen-sub">Eat each verb's three forms in order and build the longest snake!</div>
+  <div class="screen-sub" data-i18n="sub">Eat each verb's three forms in order and build the longest snake!</div>
   <div class="order-strip">
     <div class="order-step"><span class="order-num on-base">1</span><span class="legend-chip lc-base">go</span></div>
     <span class="order-arrow">→</span>
@@ -107,29 +108,75 @@
     <span class="order-arrow">→</span>
     <div class="order-step"><span class="order-num on-pp">3</span><span class="legend-chip lc-pp">gone</span></div>
   </div>
-  <div class="order-caption">eat each verb's 3 forms — <b>in this order!</b></div>
+  <div class="order-caption" data-i18n="caption">eat each verb's 3 forms — <b>in this order!</b></div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">🍎</div><div>Fruits carry verb forms. Eat them in the <b>1-2-3 order shown above</b> — completing a verb grows your snake!</div></div>
-    <div class="howto-row"><div class="howto-ico">👆</div><div>Steer with <b>arrow keys</b>, the d-pad, or tap the side of the board you want to turn to.</div></div>
-    <div class="howto-row"><div class="howto-ico">⚠️</div><div>Forms eaten out of order shrink your snake. Don't hit the walls — or yourself!</div></div>
+    <div class="howto-row"><div class="howto-ico">🍎</div><div data-i18n="how1">Fruits carry verb forms. Eat them in the <b>1-2-3 order shown above</b> — completing a verb grows your snake!</div></div>
+    <div class="howto-row"><div class="howto-ico">👆</div><div data-i18n="how2">Steer with <b>arrow keys</b>, the d-pad, or tap the side of the board you want to turn to.</div></div>
+    <div class="howto-row"><div class="howto-ico">⚠️</div><div data-i18n="how3">Forms eaten out of order shrink your snake. Don't hit the walls — or yourself!</div></div>
   </div>
-  <button class="btn btn-primary" id="start-btn">Slither! 🐍</button>
+  <button class="btn btn-primary" id="start-btn" data-i18n="play">Slither! 🐍</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <div class="screen hidden" id="gameover-screen">
   <div class="screen-emoji">💫</div>
   <div class="screen-title" style="font-size:clamp(30px,7vw,46px)">Game <span>Over!</span></div>
-  <div class="newbest hidden" id="newbest-badge">🌟 New Best!</div>
+  <div class="newbest hidden" id="newbest-badge" data-i18n="newbest">🌟 New Best!</div>
   <div class="screen-stat" id="go-score">Score: 0</div>
   <div class="screen-sub" id="go-verbs"></div>
   <div class="screen-sub" id="go-best"></div>
-  <button class="btn btn-primary" id="retry-btn">Try Again 🐍</button>
-  <button class="btn btn-secondary" id="menu-btn">Menu</button>
+  <button class="btn btn-primary" id="retry-btn" data-i18n="retry">Try Again 🐍</button>
+  <button class="btn btn-secondary" id="menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <script>
+// ── i18n ──
+// UI chrome follows the site language (DE/ES); verb words stay English.
+// Same lookup as the drills: ?lang= → site-wide krabsy_lang → German.
+function getLang(){
+  try{const q=new URLSearchParams(location.search).get('lang');if(q==='de'||q==='es')return q;}catch(_){}
+  try{const l=localStorage.getItem('krabsy_lang');if(l==='de'||l==='es')return l;}catch(_){}
+  return 'de';
+}
+const LANG=getLang();
+const STR={
+  de:{
+    hud_verbs:'Verben',hud_score:'Punkte',hud_best:'Rekord',t_sound:'Ton',
+    sub:'Friss die drei Formen jedes Verbs der Reihe nach und bau die längste Schlange!',
+    caption:'friss die 3 Formen jedes Verbs — <b>in dieser Reihenfolge!</b>',
+    how1:'Früchte tragen Verbformen. Friss sie in der <b>1-2-3-Reihenfolge von oben</b> — jedes fertige Verb lässt deine Schlange wachsen!',
+    how2:'Steuern mit den <b>Pfeiltasten</b>, dem Steuerkreuz oder tipp auf die Seite des Felds, in die du abbiegen willst.',
+    how3:'Formen in falscher Reihenfolge lassen deine Schlange schrumpfen. Pass auf: keine Wände — und nicht dich selbst beißen!',
+    play:'Los, schlängeln! 🐍',newbest:'🌟 Neuer Rekord!',retry:'Nochmal 🐍',menu:'Menü',
+    start_hint:'🍎 Friss ein gelbes Wort, um zu starten!',
+    coach0:'jedes Verb hat 3 Formen — friss sie der Reihe nach!',
+    coach1:'als Nächstes: {a} → ___',coach2:'fertig machen: {a} → {b} → ___',
+    go_score:'Punkte: {n}',go_verbs:'Fertige Verben: {n}',go_best:'Rekord: {n}',
+  },
+  es:{
+    hud_verbs:'Verbos',hud_score:'Puntos',hud_best:'Récord',t_sound:'Sonido',
+    sub:'¡Cómete las tres formas de cada verbo en orden y construye la serpiente más larga!',
+    caption:'cómete las 3 formas de cada verbo — <b>¡en este orden!</b>',
+    how1:'Las frutas llevan formas verbales. Cómetelas en el <b>orden 1-2-3 de arriba</b> — ¡cada verbo completo hace crecer tu serpiente!',
+    how2:'Muévete con las <b>flechas</b>, la cruceta o toca el lado del tablero hacia el que quieres girar.',
+    how3:'Las formas en el orden equivocado encogen tu serpiente. ¡No choques con las paredes — ni con tu propia cola!',
+    play:'¡A deslizarse! 🐍',newbest:'🌟 ¡Nuevo récord!',retry:'Otra vez 🐍',menu:'Menú',
+    start_hint:'🍎 ¡Cómete una palabra amarilla para empezar!',
+    coach0:'cada verbo tiene 3 formas — ¡cómetelas en orden!',
+    coach1:'siguiente: {a} → ___',coach2:'termina: {a} → {b} → ___',
+    go_score:'Puntos: {n}',go_verbs:'Verbos completados: {n}',go_best:'Récord: {n}',
+  },
+};
+function t(key,vars){
+  let s=(STR[LANG]&&STR[LANG][key])??STR.de[key]??key;
+  if(vars)for(const k in vars)s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+document.documentElement.lang=LANG;
+document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.dataset.i18nTitle);});
+
 // ════════════════════════════════════════════════════════════
 // KRABSY VERB SNAKE v3
 // Faithful rebuild of the original mechanics with the Krabsy
@@ -779,7 +826,7 @@ function drawTracker(now){
   if(!ch.verb){
     ctx.font='800 13px Nunito,sans-serif';
     ctx.fillStyle='#ffcf5e';
-    ctx.fillText('🍎 eat a yellow word to start!',x+w/2,y+h/2+1);
+    {const m=t('start_hint');if(ctx.measureText(m).width>w-16)ctx.font='800 11px Nunito,sans-serif';ctx.fillText(m,x+w/2,y+h/2+1);}
   }else{
     const V=VERB_BY_NAME[ch.verb];
     const pulse=0.55+0.45*Math.sin(now*0.008);
@@ -810,11 +857,11 @@ function drawTracker(now){
   // Warm-up coaching line under the tracker (first two verb sets only).
   if(state.setsCompleted<2&&state.mode==='playing'){
     let hint;
-    if(!ch.verb)hint='each verb has 3 forms — eat them in order!';
+    if(!ch.verb)hint=t('coach0');
     else{
       const V=VERB_BY_NAME[ch.verb];
-      hint=ch.step===1?`next: ${V.v} → ___`
-                      :`finish: ${V.v} → ${V.past} → ___`;
+      hint=ch.step===1?t('coach1',{a:V.v})
+                      :t('coach2',{a:V.v,b:V.past});
     }
     ctx.font='800 12px Nunito,sans-serif';
     ctx.fillStyle='rgba(255,255,255,0.55)';
@@ -949,9 +996,9 @@ async function startNewGame(){
 function showGameOver(){
   state.mode='gameover';
   document.getElementById('newbest-badge').classList.toggle('hidden',!state.newBest);
-  document.getElementById('go-score').textContent=`Score: ${state.score}`;
-  document.getElementById('go-verbs').textContent=`Verb sets completed: ${state.setsCompleted}`;
-  document.getElementById('go-best').textContent=`Best: ${state.best}`;
+  document.getElementById('go-score').textContent=t('go_score',{n:state.score});
+  document.getElementById('go-verbs').textContent=t('go_verbs',{n:state.setsCompleted});
+  document.getElementById('go-best').textContent=t('go_best',{n:state.best});
   document.getElementById('gameover-screen').classList.remove('hidden');
 }
 function showMenu(){
