@@ -8,7 +8,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek.
+Erledigt bisher: Bildungsserver (live), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, siehe #4).
 
 ### Lehrerfreund (DE): https://www.lehrerfreund.de/kontakt
 Name: Jan Ahrens · E-Mail: hallo@krabsy.com · Betreff: Tool-Tipp: kostenlose Übungsseite für englische unregelmäßige Verben
@@ -151,6 +151,7 @@ Seiten zum Einreichen:
 - **URL:** https://krabsy.com/de/
 - **Stufe:** Sekundarstufe I (5.–8. Schulstufe), Fach Englisch (Lebende Fremdsprache)
 - **Mail:** wie bei schule.at, Betreff "Vorschlag für die Eduthek: kostenlose Englisch-Grammatikübungen (Sek I)".
+- **Antwort 2026-11-17 (Redaktion, E. Leimhofer): in dieser Form abgelehnt.** Die neue Eduthek nimmt keine Links mehr auf, sondern nur digital aufbereitete Kursräume (Moodle auf bildung.gv.at, OER-orientiert), die Lehrkräfte anpassen können. Leitfaden: https://www.bildung.gv.at/course/view.php?id=24. Die Redaktion bietet Unterstützung beim Adaptieren an. Entscheidung Owner: vorerst nicht (hoher Aufwand, Krabsy ist kein OER). Freundlich geantwortet, Tür offen gelassen. Später denkbar: ein kleiner Moodle-Kurs "Unregelmäßige Verben" unter CC-Lizenz, der Krabsy-Übungen einbettet.
 
 ### 5. 4teachers, Linkportal (DE)
 - **Einreichung:** https://www.4teachers.de/?action=show&id=18. Dort steht: "Du kannst jederzeit Links und Rubriken für die jeweiligen Bereiche vorschlagen" (Weg: Nachricht an die Mitgliederbetreuung).
