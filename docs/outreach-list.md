@@ -6,6 +6,42 @@ Name: **Jan Ahrens**. E-Mail (nur wo ein Formular sie verlangt): **hallo@krabsy.
 
 Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am selben Tag freigeschaltet: https://www.bildungsserver.de/onlineressource.html?onlineressourcen_id=67514 (Links ohne nofollow). Elixier wird aus derselben Datenbank gespeist, also nicht noch einmal einreichen.
 
+## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
+
+Erledigt bisher: Bildungsserver (live), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek.
+
+### Lehrerfreund (DE): https://www.lehrerfreund.de/kontakt
+Name: Jan Ahrens · E-Mail: hallo@krabsy.com · Betreff: Tool-Tipp: kostenlose Übungsseite für englische unregelmäßige Verben
+
+```
+Hallo Lehrerfreund-Team,
+
+ein Hinweis für eure Tool-Tipps, falls er passt: Krabsy (https://krabsy.com/de/lehrkraefte/) ist eine kostenlose Übungsseite für englische unregelmäßige Verben und Präpositionen ab Klasse 5. Lehrkräfte teilen einen Link, die Kinder spielen sofort, ohne Konto. Es gibt keine Werbung und keine Cookies, der Fortschritt bleibt im Browser. Seit Kurzem ist Krabsy auch beim Deutschen Bildungsserver gelistet.
+
+Ein Vorschlag für den Unterricht: 10 Minuten Warm-up mit „Sprint“, danach eine zweite Runde, in der alle ihre eigene Zeit schlagen wollen.
+
+Viele Grüße
+Jan Ahrens
+```
+
+### Aula PT (ES): https://www.aulapt.org/contacto/
+Nombre: Jan Ahrens · Email: hola@krabsy.com · Asunto: Recurso gratuito: juegos para practicar los verbos irregulares en inglés
+
+```
+Hola, equipo de Aula PT:
+
+Os escribo por si os encaja para vuestra sección de juegos online. Krabsy (https://krabsy.com/es/juegos/) es una web gratuita para practicar los verbos irregulares y las preposiciones en inglés, con la interfaz en español. Tiene juegos cortos en el navegador (Verb Kitchen, Verb Snake, Verb Slash…) y ejercicios contrarreloj. No hace falta registrarse: el alumnado entra con un enlace y empieza a jugar. No hay publicidad ni cookies.
+
+Hace poco un grupo de Uruguay la usó en clase a través de su plataforma escolar, y varios alumnos estuvieron casi media hora seguida con Verb Kitchen.
+
+Para docentes hay una página con ideas de uso en el aula: https://krabsy.com/es/docentes/
+
+Un saludo,
+Jan Ahrens
+```
+
+Beide Blogs zeigen Werbung bzw. verkaufen eigene Materialien: nur redaktionelle Erwähnung, **kein** bezahltes Placement.
+
 ## Top 10 zuerst
 
 | # | Portal | Land | Warum lohnt es sich | Aufwand | Einreichung |
