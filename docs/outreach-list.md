@@ -2,7 +2,7 @@
 
 Stand: 2026-11-16. Alles hier ist vorbereitet, aber noch nichts eingereicht. Die Einreichung macht der Owner.
 "Verifiziert" heißt: Die Seite oder das Formular wurde am 2026-11-16 per Fetch geöffnet und der Einreichungsweg war sichtbar.
-Platzhalter: `<Name aus dem Impressum>`, `<E-Mail aus dem Impressum>`.
+Name: **Jan Ahrens**. E-Mail (nur wo ein Formular sie verlangt): **hallo@krabsy.com** (DE/AT), **hola@krabsy.com** (ES/LatAm); beide leiten seit 2026-11-17 per Namecheap ins Postfach des Owners weiter.
 
 Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am selben Tag freigeschaltet: https://www.bildungsserver.de/onlineressource.html?onlineressourcen_id=67514 (Links ohne nofollow). Elixier wird aus derselben Datenbank gespeist, also nicht noch einmal einreichen.
 
@@ -40,7 +40,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 - **Stufe (AT):** Sekundarstufe I (5.–8. Schulstufe: Mittelschule, AHS-Unterstufe)
 - **Sprache:** Oberfläche Deutsch, Lerninhalt Englisch
 - **Kosten/Lizenz:** kostenlos, keine Registrierung, keine Werbung. **Keine** freie Lizenz (kein CC).
-- **Anbieter:** Krabsy, `<Name aus dem Impressum>`, Impressum: https://krabsy.com/de/impressum/
+- **Anbieter:** Krabsy, Jan Ahrens, Impressum: https://krabsy.com/de/impressum/
 
 ### ES: Basis
 
@@ -59,7 +59,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
   - CO: básica primaria (grado 5.º) y básica secundaria (grados 6.º a 9.º)
   - MX: 5.º y 6.º de primaria y secundaria (1.º a 3.º)
 - **Costo/licencia:** gratuito, sin registro, sin publicidad. **No** tiene licencia abierta (no es CC).
-- **Responsable:** Krabsy, `<Name aus dem Impressum>`, aviso legal: https://krabsy.com/es/aviso-legal/
+- **Responsable:** Krabsy, Jan Ahrens, aviso legal: https://krabsy.com/es/aviso-legal/
 
 Seiten zum Einreichen:
 - DE-Start: https://krabsy.com/de/
@@ -92,7 +92,7 @@ Seiten zum Einreichen:
   > Sprache: Oberfläche Deutsch, Inhalt Englisch · Stufe: Sekundarstufe I (5.–8. Schulstufe) · Kostenpflichtig: nein · Anmeldung: keine · Werbung: keine. Hinweise für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
   >
   > Mit freundlichen Grüßen
-  > `<Name aus dem Impressum>`, Krabsy · `<E-Mail aus dem Impressum>`
+  > Jan Ahrens, Krabsy · `<E-Mail aus dem Impressum>`
 
 ### 2. WirLernenOnline (DE)
 - **Einreichung:** https://wirlernenonline.de/fachportalinhalte-vorschlagen/?type=source&headline=Mitmachenformular (Button "Quellen vorschlagen" auf https://wirlernenonline.de/mitmachen/)
@@ -130,7 +130,7 @@ Seiten zum Einreichen:
 - **Nachricht (copy-ready):**
   > Hallo Lehrerfreund-Team,
   > ein Hinweis für eure Tool-Tipps, falls er passt: Krabsy (https://krabsy.com/de/lehrkraefte/) ist eine kostenlose Übungsseite für englische unregelmäßige Verben und Präpositionen ab Klasse 5. Lehrkräfte teilen einen Link, die Kinder spielen ohne Konto. Es gibt keine Werbung und keine Cookies, der Fortschritt bleibt im Browser. Ein Vorschlag aus der Seite: 10-Minuten-Warm-up mit "Sprint", danach eine zweite Runde zum Verbessern der eigenen Zeit. Eine Klassenübersicht gibt es bewusst nicht.
-  > Viele Grüße, `<Name aus dem Impressum>`
+  > Viele Grüße, Jan Ahrens
 
 ### 7. Lehrer-Online (DE), niedrige Priorität
 - **Einreichung:** support@lehrer-online.de. Eine Linkvorschlagsfunktion gibt es nicht, es gibt nur "Autorin/Autor werden" und die Tauschbörse.
@@ -177,7 +177,7 @@ Seiten zum Einreichen:
   > Para el aula: el docente comparte un enlace (no hay cuentas ni códigos de clase), o inserta un ejercicio con iframe. Funciona en laptops, Chromebooks, tabletas y celulares. No hay panel docente ni exportación de resultados. Si les parece útil para docentes de 5.º de Primaria a 9.º de EBI, me alegraría que lo tuvieran en cuenta como recurso complementario.
   >
   > Saludos cordiales,
-  > `<Name aus dem Impressum>`, Krabsy
+  > Jan Ahrens, Krabsy
 
 ### 2. EDUCACIÓN 3.0 (ES)
 - **Einreichung:** redaccion@educaciontrespuntocero.com (Kontaktseite: https://www.educaciontrespuntocero.com/contacto/)
@@ -197,7 +197,7 @@ Seiten zum Einreichen:
   > Es gratuito y sin registro, y no tiene publicidad. Está pensado para alumnado de 5.º de Primaria a ESO. Información para docentes: https://krabsy.com/es/docentes/
   >
   > Un saludo,
-  > `<Name aus dem Impressum>`
+  > Jan Ahrens
 
 ### 3. EducarChile, Herramientas digitales (CL)
 - **Einreichung:** Kontaktformular https://www.educarchile.cl/contact (Su nombre, Correo, Asunto, Mensaje). Eine Mailadresse ist nicht angegeben.
