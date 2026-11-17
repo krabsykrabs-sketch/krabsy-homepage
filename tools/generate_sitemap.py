@@ -86,14 +86,27 @@ def url_path(index_file):
     return "/" if rel == "." else f"/{rel}/"
 
 
+# Commits that touched every page without changing its content (e.g. a
+# cache-busting ?v= bump on the analytics <script> tag). They are skipped when
+# computing <lastmod>, so search engines aren't told 400 pages changed.
+# Add the full hash of any future site-wide cosmetic commit here.
+LASTMOD_IGNORE_COMMITS = {
+    "534f83c8aa12762dacecbc270887b5edb89f2f3a",  # 2026-11-17 analytics.js ?v= bump (timezone)
+}
+
+
 def git_lastmod(rel, today):
     dirty = subprocess.run(["git", "status", "--porcelain", "--", rel], cwd=ROOT,
                            capture_output=True, text=True).stdout.strip()
     if dirty:
         return today
-    out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", rel], cwd=ROOT,
-                         capture_output=True, text=True).stdout.strip()
-    return out or today
+    out = subprocess.run(["git", "log", "--format=%H %cs", "--", rel], cwd=ROOT,
+                         capture_output=True, text=True).stdout.splitlines()
+    for line in out:
+        sha, _, day = line.partition(" ")
+        if sha not in LASTMOD_IGNORE_COMMITS:
+            return day
+    return today
 
 
 def scan():
