@@ -67,7 +67,8 @@ but not referenced — verify before removing.)
   Google Fonts already self-hosted.
 - **Google-only noindex experiment** on tier-3 verb pages — evaluate mid/late
   Dec 2026 with fresh GSC coverage + performance exports.
-- **Backlinks/outreach:** Deutscher Bildungsserver — resource submitted 2026-11-16
+- **Backlinks/outreach:** Deutscher Bildungsserver — submitted 2026-11-16, **LIVE** same day
+  (https://www.bildungsserver.de/onlineressource.html?onlineressourcen_id=67514 — 3 followed links to krabsy.com)
   (URL https://krabsy.com/de/, Sek I, Zusatzinfo /de/lehrkraefte/); manual review,
   takes weeks. Further portals: `docs/outreach-list.md` (in progress).
 - **Teachers are the channel**: first organic class (UY, Ceibal Schoology,

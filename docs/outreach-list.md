@@ -4,7 +4,7 @@ Stand: 2026-11-16. Alles hier ist vorbereitet, aber noch nichts eingereicht. Die
 "Verifiziert" heißt: Die Seite oder das Formular wurde am 2026-11-16 per Fetch geöffnet und der Einreichungsweg war sichtbar.
 Platzhalter: `<Name aus dem Impressum>`, `<E-Mail aus dem Impressum>`.
 
-Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16 (https://krabsy.com/de/, Sek I). Elixier wird aus derselben Datenbank gespeist, also nicht noch einmal einreichen.
+Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am selben Tag freigeschaltet: https://www.bildungsserver.de/onlineressource.html?onlineressourcen_id=67514 (Links ohne nofollow). Elixier wird aus derselben Datenbank gespeist, also nicht noch einmal einreichen.
 
 ## Top 10 zuerst
 
@@ -257,4 +257,4 @@ Seiten zum Einreichen:
 | SEP / Aprende en Casa (MX), DE Puerto Rico, PerúEduca, Currículum Nacional / Aprendo en línea (CL) | Kein öffentlicher Vorschlagsweg gefunden bzw. von hier aus nicht erreichbar (Timeout). **Nicht verifiziert.** Gegebenenfalls später erneut prüfen. |
 | Englisch-Lehrkräfteverbände (MEXTESOL, ASOCOPI, FAAPI, TESOL-SPAIN, APAC, ANUPI) | Nicht fertig recherchiert. Websites erreichbar (außer ANUPI/GRETA), aber keine "useful links"-Seiten bestätigt. Kandidaten für eine zweite Runde (Newsletter-Tipps). |
 | mebis (Bayern), Hessen, Saarland, Thüringen, Sachsen, Hamburg, Schleswig-Holstein | Aus Zeitgründen nicht geprüft. |
-| Deutscher Bildungsserver / Elixier | **Erledigt** (2026-11-16). |
+| Deutscher Bildungsserver / Elixier | **Erledigt und online** (2026-11-16, ID 67514). |
