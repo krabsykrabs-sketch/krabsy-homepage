@@ -1,26 +1,62 @@
 import * as THREE from 'three';
-
-// M0 compatibility with the old r147 look: legacy colour handling, and light
-// intensities multiplied by PI below. Remove both when the renderer is rebuilt on
-// KayKit GLB models (M1), which need the default colour management.
-THREE.ColorManagement.enabled = false;
 import { CONFIG, TOWER_ORDER } from './config.js';
-import { Level } from './level.js';
+import { Level, HEX, hexCenter } from './level.js';
 import { Grid } from './grid.js';
-import { state } from './main.js';
+import { Assets } from './assets.js';
 
-// Three.js renderer (3D version). Same public API as the 2D canvas renderer —
-// init / resize / render(state) — plus screenToWorld() used by input for picking.
+// Three.js renderer. Public API: init / resize / render(state) / setLevel, plus
+// screenToWorld() used by input for picking.
 //
-// World mapping: tile coordinate (x, y) → scene position (x, 0, y). One tile is one
-// world unit; the ground sits at scene y = 0. Game logic stays fully 2D — only the
-// presentation lives here. All meshes are procedural placeholders; swap them for real
-// glTF models later by replacing the _make*() builders.
+// World mapping: game coordinate (x, y) → scene position (x, 0, y). The top of the
+// hex tiles sits at scene y = 0. Game logic stays fully 2D — only the presentation
+// lives here. Board, scenery and towers are KayKit models (see assets.js); enemies,
+// projectiles and effects are still simple shapes.
 
 // Camera framing reference: at this aspect the base FOV shows the whole board.
-// Wider windows just see more apron; narrower ones get a wider FOV to compensate.
-const BASE_ASPECT = 1.6;
-const BASE_FOV = 40;
+// Wider windows just see more sea; narrower ones get a wider FOV to compensate.
+const BASE_ASPECT = 1.78;
+const BASE_FOV = 34;
+
+const TOWER_MODEL = {
+  basic: 'building_tower_A_blue',
+  catapult: 'building_tower_catapult_blue',
+  cannon: 'building_tower_cannon_blue',
+  freeze: 'building_tower_B_blue',
+};
+
+// Road tiles by the sides the road leaves through (direction index, see level.js).
+// Each tile is listed in its unrotated pose; rotating by k·60° shifts every side by k.
+const ROAD_TILES = [
+  ['hex_road_A', [0, 3]],
+  ['hex_road_B', [1, 3]],
+  ['hex_road_C', [2, 3]],
+  ['hex_road_D', [1, 3, 5]],
+  ['hex_road_E', [0, 1, 3]],
+  ['hex_road_F', [0, 3, 5]],
+  ['hex_road_G', [2, 3, 4]],
+  ['hex_road_M', [3]],
+];
+
+function roadTile(conn) {
+  const want = [...conn].sort().join();
+  for (const [name, sides] of ROAD_TILES) {
+    if (sides.length !== conn.size) continue;
+    for (let k = 0; k < 6; k++) {
+      if (sides.map(d => (d + k) % 6).sort().join() === want) return { name, rot: k * Math.PI / 3 };
+    }
+  }
+  console.warn('No road tile for sides', want);
+  return { name: 'hex_road_A', rot: 0 };
+}
+
+// Unit vector (scene x, z) for a direction index.
+function dirVec(k) {
+  const a = k * Math.PI / 3;
+  return { x: Math.cos(a), z: -Math.sin(a) };
+}
+
+// Yaw that turns a model whose front faces +z toward game angle a (atan2(dy, dx)).
+const yawFor = (a) => Math.PI / 2 - a;
 
 export const Renderer = {
   canvas: null,
@@ -48,8 +84,7 @@ export const Renderer = {
   _groundPlane: null,
 
   _clouds: [],
-  _goalFlags: [],
-  _spawnArrows: [],
+  _spawnRings: [],
 
   _domLayer: null,         // HTML layer over the canvas for flying coins
   _coinEls: new Map(),
@@ -68,7 +103,7 @@ export const Renderer = {
     this._r.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x8fc4ea);
+    this.scene.background = new THREE.Color(0xbfe4f7);
 
     this.camera = new THREE.PerspectiveCamera(BASE_FOV, BASE_ASPECT, 0.1, 300);
 
@@ -142,7 +177,8 @@ export const Renderer = {
       this.scene.remove(this._board);
       this._board.traverse(o => {
         const own = o.userData && o.userData.own;
-        if (own) for (const m of own) { if (m.map) m.map.dispose(); m.dispose(); }
+        if (own) for (const m of own) m.dispose();
+        if (o.userData && o.userData.ownGeo) o.geometry.dispose();
       });
       this._board = null;
     }
@@ -152,8 +188,7 @@ export const Renderer = {
       this._placementCells = [];
     }
     this._clouds = [];
-    this._goalFlags = [];
-    this._spawnArrows = [];
+    this._spawnRings = [];
     const level = Level.current;
     this._buildBoard(level);
     this._buildPlacementOverlay();
@@ -174,13 +209,13 @@ export const Renderer = {
     r.setSize(size, size);
     r.outputColorSpace = THREE.SRGBColorSpace;
     const scene = new THREE.Scene();
-    scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.7 * Math.PI));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 0.95 * Math.PI);
+    scene.add(new THREE.HemisphereLight(0xe6f4ff, 0x6a8a4a, 1.4));
+    const sun = new THREE.DirectionalLight(0xfff4e0, 2.0);
     sun.position.set(2, 4, 3);
     scene.add(sun);
-    const cam = new THREE.PerspectiveCamera(33, 1, 0.1, 20);
-    cam.position.set(1.8, 1.7, 1.8);
-    cam.lookAt(0, 0.62, 0);
+    const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 30);
+    cam.position.set(3.3, 3.4, 3.3);
+    cam.lookAt(0, 1.2, 0);
 
     const thumbs = {};
     for (const type of TOWER_ORDER) {
@@ -188,7 +223,7 @@ export const Renderer = {
       const g = this._makeTower(fake);
       g.position.set(0, 0, 0);
       // Aim rotating heads toward the camera diagonal so barrels read clearly.
-      if (g.userData.rotGroup) g.userData.rotGroup.rotation.y = -Math.PI / 4;
+      if (g.userData.turret) g.userData.turret.rotation.y = Math.PI / 4;
       scene.add(g);
       r.render(scene, cam);
       thumbs[type] = canvas.toDataURL('image/png');
@@ -219,6 +254,24 @@ export const Renderer = {
     return { x: hit.x, y: hit.z };
   },
 
+  // The tower whose model is under the pointer, or null. Towers are tall, so their
+  // tops cover the hexes behind them; picking the model beats picking the ground.
+  pickTower(clientX, clientY) {
+    const rect = this.canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+    const ndc = new THREE.Vector2(
+      ((clientX - rect.left) / rect.width) * 2 - 1,
+      -((clientY - rect.top) / rect.height) * 2 + 1
+    );
+    this._raycaster.setFromCamera(ndc, this.camera);
+    let best = null, bestDist = Infinity;
+    for (const [tower, obj] of this._towerObjs) {
+      const hit = this._raycaster.intersectObject(obj, true)[0];
+      if (hit && hit.distance < bestDist) { bestDist = hit.distance; best = tower; }
+    }
+    return best;
+  },
+
   // Tile coords → pixel position relative to #canvas-frame (for the DOM coin layer).
   _worldToFrame(wx, wy, height = 0.6) {
     const v = new THREE.Vector3(wx, height, wy).project(this.camera);
@@ -242,6 +295,8 @@ export const Renderer = {
       plane: new THREE.PlaneGeometry(1, 1),
       circle: new THREE.CircleGeometry(1, 48),
       ring: new THREE.RingGeometry(0.92, 1, 48),
+      // Pointy-top hexagon lying flat once rotated onto the ground.
+      hex: new THREE.CircleGeometry(HEX.RADIUS * 0.88, 6, Math.PI / 6),
     };
     const L = (color, extra) => new THREE.MeshLambertMaterial(Object.assign({ color }, extra));
     this._mats = {
@@ -258,143 +313,115 @@ export const Renderer = {
       goalPole: L(0xdddddd),
       goalFlag: L(0xe63946, { emissive: 0x5a0e15 }),
       gold: L(0xffd447, { emissive: 0x665010 }),
-      overlayAvail: new THREE.MeshBasicMaterial({ color: 0x78dc78, transparent: true, opacity: 0.28, depthWrite: false }),
+      sea: L(0x2f86c6),
+      spawnRing: new THREE.MeshBasicMaterial({ color: 0xff8585, transparent: true, opacity: 0.9, depthWrite: false }),
+      overlayAvail: new THREE.MeshBasicMaterial({ color: 0x2ee6c0, transparent: true, opacity: 0.42, depthWrite: false }),
       overlayBad: new THREE.MeshBasicMaterial({ color: 0xdc5050, transparent: true, opacity: 0.32, depthWrite: false }),
       hpBg: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.6 }),
     };
   },
 
   _initLights() {
-    this.scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.5 * Math.PI));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 0.85 * Math.PI);
-    sun.position.set(4, 26, 30);
+    this.scene.add(new THREE.HemisphereLight(0xe6f4ff, 0x6a8a4a, 1.2));
+    const sun = new THREE.DirectionalLight(0xfff4e0, 2.0);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
-    const cam = sun.shadow.camera;
-    cam.left = -20; cam.right = 20; cam.top = 20; cam.bottom = -20;
-    cam.near = 1; cam.far = 80;
-    const lvl = Level.current;
-    sun.target.position.set(lvl ? lvl.gridWidth / 2 : 11, 0, lvl ? lvl.gridHeight / 2 : 10);
+    sun.shadow.bias = -0.0005;
+    sun.shadow.normalBias = 0.03;
+    this._sun = sun;
     this.scene.add(sun, sun.target);
+    if (Level.current) this._aimSun(Level.current);
+  },
+
+  // Point the sun (and its shadow box) at the middle of the board.
+  _aimSun(level) {
+    const cx = level.gridWidth / 2, cz = level.gridHeight / 2;
+    this._sun.position.set(cx - 9, 24, cz + 13);
+    this._sun.target.position.set(cx, 0, cz);
+    const cam = this._sun.shadow.camera;
+    const half = level.gridWidth / 2 + 3;
+    cam.left = -half; cam.right = half; cam.top = half * 0.75; cam.bottom = -half * 0.75;
+    cam.near = 1; cam.far = 70;
+    cam.updateProjectionMatrix();
   },
 
   _frameCamera(level) {
-    const cx = level.gridWidth / 2;
-    // Fixed angled view from the "south" (high z), looking down at the board.
-    this.camera.position.set(cx, level.gridHeight * 0.95, level.gridHeight * 1.52);
-    this.camera.lookAt(cx, 0, level.gridHeight * 0.46);
+    const W = level.gridWidth, cx = W / 2, cz = level.gridHeight / 2;
+    // Fixed angled view from the "south" (high z), looking down at the board. The
+    // look-at point sits a little south of centre so the bottom dock has room.
+    this.camera.position.set(cx, W * 0.92, cz + W * 0.78);
+    this.camera.lookAt(cx, 0, cz + 1.7);
+    if (this._sun) this._aimSun(level);
   },
 
   _buildBoard(level) {
     const g = new THREE.Group();
-    const W = level.gridWidth, H = level.gridHeight;
+    const tiles = [], solid = [], water = [];
+    const put = (list, name, c, r, extra) => {
+      const p = hexCenter(c, r);
+      list.push(Object.assign({ name, x: p.x, z: p.y }, extra));
+    };
 
-    // Backdrop apron so the camera never sees the void.
-    const apron = new THREE.Mesh(this._geo.plane, this._mats.apron);
-    apron.rotation.x = -Math.PI / 2;
-    apron.scale.set(300, 300, 1);
-    apron.position.set(W / 2, -0.06, H / 2);
-    apron.receiveShadow = true;
-    g.add(apron);
+    for (const cell of level.cells.values()) {
+      const { c, r } = cell;
+      const p = hexCenter(c, r);
+      if (cell.type === 'water') { put(water, 'hex_water', c, r); continue; }
 
-    const groundMat = this._makeGroundMaterial(level);
-    const ground = new THREE.Mesh(this._geo.plane, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.scale.set(W, H, 1);
-    ground.position.set(W / 2, 0, H / 2);
-    ground.receiveShadow = true;
-    ground.userData.own = [groundMat];
-    g.add(ground);
-
-    // Sky band (rows 0-2 in the 2D map) becomes a backdrop ridge with trees.
-    let ridgeRows = 0;
-    while (ridgeRows < H && level.tileKey[level.tiles[ridgeRows][0]] === 'obstacle' &&
-           level.tiles[ridgeRows].every(t => level.tileKey[t] === 'obstacle')) ridgeRows++;
-    if (ridgeRows > 0) {
-      const ridge = new THREE.Mesh(this._geo.box, this._mats.ridge);
-      ridge.scale.set(W, 0.8, ridgeRows);
-      ridge.position.set(W / 2, 0.4, ridgeRows / 2);
-      ridge.castShadow = ridge.receiveShadow = true;
-      g.add(ridge);
-      for (let i = 0; i < 24; i++) {
-        const tx = Math.random() * (W - 1) + 0.5;
-        const tz = Math.random() * (ridgeRows - 0.6) + 0.3;
-        g.add(this._makeTree(tx, 0.8, tz, 0.8 + Math.random() * 0.9));
+      if (cell.type === 'path' || cell.type === 'spawn') {
+        const road = roadTile(cell.conn);
+        put(tiles, road.name, c, r, { rot: road.rot });
+      } else {
+        put(tiles, 'hex_grass', c, r);
       }
-    }
 
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const type = level.tileKey[level.tiles[y][x]];
-        if (type === 'path' || type === 'spawn' || type === 'goal') {
-          const m = new THREE.Mesh(this._geo.box, this._mats.path);
-          m.scale.set(1, 0.1, 1);
-          m.position.set(x + 0.5, 0.05, y + 0.5);
-          m.receiveShadow = true;
-          g.add(m);
-        } else if (type === 'water') {
-          const m = new THREE.Mesh(this._geo.box, this._mats.water);
-          m.scale.set(1, 0.06, 1);
-          m.position.set(x + 0.5, 0.03, y + 0.5);
-          g.add(m);
-        } else if (type === 'obstacle' && y >= ridgeRows) {
-          g.add(this._makeTree(x + 0.5, 0, y + 0.5, 0.9));
+      if (cell.type === 'scenery') {
+        put(solid, cell.model, c, r, { rot: cell.rot });
+      } else if (cell.type === 'goal') {
+        // Castle with its gate toward the incoming road, a blue flag beside it.
+        const k = [...cell.conn][0];
+        put(solid, 'building_castle_blue', c, r, { rot: k * Math.PI / 3 + Math.PI / 2 });
+      } else if (cell.type === 'spawn') {
+        // Two red flags frame the spot where enemies appear, plus a pulsing ring.
+        const k = [...cell.conn][0];
+        const d = dirVec(k);
+        for (const side of [-1, 1]) {
+          solid.push({
+            name: 'flag_red',
+            x: p.x - d.x * 0.35 - d.z * 0.72 * side,
+            z: p.y - d.z * 0.35 + d.x * 0.72 * side,
+          });
         }
-
-        if (type === 'spawn') {
-          // Yellow arrow cone pointing onto the board (+x); pulses in render().
-          const m = new THREE.Mesh(this._geo.cone, this._mats.spawn);
-          m.scale.set(0.28, 0.7, 0.28);
-          m.rotation.z = -Math.PI / 2;
-          m.position.set(x + 0.45, 0.45, y + 0.5);
-          m.castShadow = true;
-          g.add(m);
-          this._spawnArrows.push(m);
-        } else if (type === 'goal') {
-          const pole = new THREE.Mesh(this._geo.cyl, this._mats.goalPole);
-          pole.scale.set(0.06, 1.5, 0.06);
-          pole.position.set(x + 0.5, 0.75, y + 0.5);
-          pole.castShadow = true;
-          // Flag pivots at the pole so render() can wave it.
-          const pivot = new THREE.Group();
-          pivot.position.set(x + 0.5, 1.3, y + 0.5);
-          const flag = new THREE.Mesh(this._geo.box, this._mats.goalFlag);
-          flag.scale.set(0.55, 0.32, 0.04);
-          flag.position.x = -0.3;
-          flag.castShadow = true;
-          pivot.add(flag);
-          g.add(pole, pivot);
-          this._goalFlags.push(pivot);
-        }
+        const ring = new THREE.Mesh(this._geo.ring, this._mats.spawnRing);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(p.x, 0.06, p.y);
+        g.add(ring);
+        this._spawnRings.push(ring);
       }
     }
 
-    // Decorative flowers scattered on buildable grass (sparse, near tile centers
-    // so they never visually block the placement read).
-    const grassTiles = [];
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        if (level.tileKey[level.tiles[y][x]] === 'ground') grassTiles.push([x, y]);
+    // The board is an island: a few rings of water tiles, then open sea.
+    for (let r = -6; r < level.rows + 5; r++) {
+      for (let c = -6; c < level.cols + 6; c++) {
+        if (c >= 0 && r >= 0 && c < level.cols && r < level.rows) continue;
+        put(water, 'hex_water', c, r);
       }
     }
-    const FLOWER_COLORS = [0xffffff, 0xffe66d, 0xff9ecb];
-    for (let i = 0; i < Math.min(32, grassTiles.length); i++) {
-      const [tx, ty] = grassTiles[Math.floor(Math.random() * grassTiles.length)];
-      const fx = tx + 0.2 + Math.random() * 0.6;
-      const fz = ty + 0.2 + Math.random() * 0.6;
-      const flower = new THREE.Group();
-      const stem = new THREE.Mesh(this._geo.cyl, this._mats.leaf);
-      stem.scale.set(0.015, 0.12, 0.015);
-      stem.position.y = 0.06;
-      const headMat = new THREE.MeshLambertMaterial({ color: FLOWER_COLORS[i % FLOWER_COLORS.length] });
-      const head = new THREE.Mesh(this._geo.sphere, headMat);
-      head.scale.setScalar(0.05);
-      head.position.y = 0.14;
-      head.userData.own = [headMat];
-      flower.add(stem, head);
-      flower.position.set(fx, 0, fz);
-      g.add(flower);
+
+    const tileMesh = Assets.mergeStatic(tiles);
+    tileMesh.receiveShadow = true;
+    g.add(tileMesh);
+    const solidMesh = Assets.mergeStatic(solid);
+    if (solidMesh) {
+      solidMesh.castShadow = solidMesh.receiveShadow = true;
+      g.add(solidMesh);
     }
+    g.add(Assets.mergeStatic(water));
+
+    const sea = new THREE.Mesh(this._geo.plane, this._mats.sea);
+    sea.rotation.x = -Math.PI / 2;
+    sea.scale.set(400, 400, 1);
+    sea.position.set(level.gridWidth / 2, -0.24, level.gridHeight / 2);
+    g.add(sea);
 
     this._buildClouds(level, g);
 
@@ -402,44 +429,16 @@ export const Renderer = {
     this.scene.add(g);
   },
 
-  // Per-tile checkerboard texture for the grass plane — adds depth and makes the
-  // placement grid easier to read without extra meshes.
-  _makeGroundMaterial(level) {
-    const W = level.gridWidth, H = level.gridHeight;
-    const c = document.createElement('canvas');
-    c.width = W; c.height = H;
-    const ctx = c.getContext('2d');
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        ctx.fillStyle = (x + y) % 2 === 0 ? '#4a7c2e' : '#528834';
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-    const tex = new THREE.CanvasTexture(c);
-    tex.magFilter = THREE.NearestFilter;
-    tex.minFilter = THREE.NearestFilter;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return new THREE.MeshLambertMaterial({ map: tex });
-  },
-
+  // A few clouds drifting over the sea north of the island (never over the board).
   _buildClouds(level, parent) {
-    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x9aa6b0 });
     for (let i = 0; i < 4; i++) {
-      const cloud = new THREE.Group();
-      if (i === 0) cloud.userData.own = [cloudMat];
-      const puffs = 2 + Math.floor(Math.random() * 2);
-      for (let p = 0; p <= puffs; p++) {
-        const puff = new THREE.Mesh(this._geo.sphere, cloudMat);
-        const s = 0.8 + Math.random() * 0.9;
-        puff.scale.set(s * 1.6, s * 0.55, s);
-        puff.position.set(p * 1.1 - puffs * 0.5, (Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.6);
-        cloud.add(puff);
-      }
-      cloud.position.y = 7.5 + Math.random() * 2.5;
+      const cloud = Assets.clone(i % 2 ? 'cloud_big' : 'cloud_small');
+      cloud.scale.setScalar(0.9 + Math.random() * 0.5);
+      cloud.position.y = 1.2 + Math.random() * 1.5;
       Object.assign(cloud.userData, {
-        x0: Math.random() * (level.gridWidth + 24),
-        z: 1 + Math.random() * level.gridHeight * 0.55,
-        speed: 0.25 + Math.random() * 0.3,
+        x0: Math.random() * (level.gridWidth + 30),
+        z: -3 - Math.random() * 6,
+        speed: 0.2 + Math.random() * 0.25,
       });
       parent.add(cloud);
       this._clouds.push(cloud);
@@ -450,46 +449,27 @@ export const Renderer = {
     const W = Level.current.gridWidth;
     for (const cloud of this._clouds) {
       const u = cloud.userData;
-      cloud.position.x = ((u.x0 + now * u.speed) % (W + 24)) - 12;
+      cloud.position.x = ((u.x0 + now * u.speed) % (W + 30)) - 15;
       cloud.position.z = u.z;
     }
-    this._goalFlags.forEach((pivot, i) => {
-      pivot.rotation.y = Math.sin(now * 4 + i) * 0.2;
-    });
-    const pulse = 1 + Math.sin(now * 5) * 0.12;
-    for (const arrow of this._spawnArrows) {
-      arrow.scale.set(0.28 * pulse, 0.7, 0.28 * pulse);
-    }
-  },
-
-  _makeTree(x, baseY, z, s) {
-    const tree = new THREE.Group();
-    const trunk = new THREE.Mesh(this._geo.cyl, this._mats.trunk);
-    trunk.scale.set(0.08 * s, 0.4 * s, 0.08 * s);
-    trunk.position.y = 0.2 * s;
-    const leaf = new THREE.Mesh(this._geo.cone, Math.random() < 0.5 ? this._mats.leaf : this._mats.leaf2);
-    leaf.scale.set(0.34 * s, 0.85 * s, 0.34 * s);
-    leaf.position.y = (0.4 + 0.42) * s;
-    trunk.castShadow = leaf.castShadow = true;
-    tree.add(trunk, leaf);
-    tree.position.set(x, baseY, z);
-    return tree;
+    const pulse = 0.8 + Math.sin(now * 4) * 0.12;
+    for (const ring of this._spawnRings) ring.scale.set(pulse, pulse, 1);
   },
 
   // ─── Placement overlay / ghost / selection ────────────────────────────
 
+  // One teal hexagon per buildable cell; shown only while a tower is being placed.
   _buildPlacementOverlay() {
     const group = new THREE.Group();
     group.visible = false;
     this._placementCells = [];
-    const size = CONFIG.placementCellSize;
     for (let cy = 0; cy < Grid.cellsY; cy++) {
       for (let cx = 0; cx < Grid.cellsX; cx++) {
-        const m = new THREE.Mesh(this._geo.plane, this._mats.overlayAvail);
+        if (!Grid.isStructurallyValid(cx, cy)) continue;
+        const m = new THREE.Mesh(this._geo.hex, this._mats.overlayAvail);
         m.rotation.x = -Math.PI / 2;
-        m.scale.set(size * 0.92, size * 0.92, 1);
         const c = Grid.placementCellToWorld(cx, cy);
-        m.position.set(c.centerX, 0.12, c.centerY);
+        m.position.set(c.centerX, 0.04, c.centerY);
         group.add(m);
         this._placementCells.push({ mesh: m, cx, cy });
       }
@@ -503,28 +483,22 @@ export const Renderer = {
     this._placementGroup.visible = state.placement.active;
     if (!state.placement.active) return;
     for (const cell of this._placementCells) {
-      cell.mesh.material = Grid.isAvailable(cell.cx, cell.cy)
-        ? this._mats.overlayAvail
-        : this._mats.overlayBad;
+      cell.mesh.visible = Grid.isAvailable(cell.cx, cell.cy);
     }
   },
 
   _initIndicators() {
-    // Ghost tower preview.
+    // Ghost tower preview: a see-through copy of the real model (swapped per type).
     const ghost = new THREE.Group();
-    const body = new THREE.Mesh(this._geo.cyl,
-      new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 }));
-    body.scale.set(0.55, 0.9, 0.55);
-    body.position.y = 0.45;
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x78dc78, transparent: true, opacity: 0.9, depthWrite: false });
     const ring = new THREE.Mesh(this._geo.ring, ringMat);
     ring.rotation.x = -Math.PI / 2;
     ring.scale.set(0.95, 0.95, 1);
-    ring.position.y = 0.14;
+    ring.position.y = 0.07;
     const range = this._makeRangeDisc(0.10, 0.35);
-    ghost.add(body, ring, range);
+    ghost.add(ring, range);
     ghost.visible = false;
-    ghost.userData = { body, ring, range };
+    ghost.userData = { ring, range, models: {}, shown: null };
     this._ghost = ghost;
     this.scene.add(ghost);
 
@@ -550,7 +524,7 @@ export const Renderer = {
     const rim = new THREE.Mesh(this._geo.ring,
       new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: rimOpacity, depthWrite: false }));
     rim.rotation.x = -Math.PI / 2;
-    group.position.y = 0.11;
+    group.position.y = 0.05;
     group.userData = { fill, rim };
     group.add(fill, rim);
     return group;
@@ -567,21 +541,33 @@ export const Renderer = {
     const c = Grid.placementCellToWorld(cellX, cellY);
     g.visible = true;
     g.position.set(c.centerX, 0, c.centerY);
-    g.userData.body.material.color.set(def.color);
-    g.userData.ring.material.color.set(valid ? 0x78dc78 : 0xdc5050);
-    g.userData.range.visible = valid;
-    g.userData.range.scale.set(def.range, 1, def.range);
+    const u = g.userData, type = state.placement.towerType;
+    if (u.shown !== type) {
+      if (u.shown) u.models[u.shown].visible = false;
+      if (!u.models[type]) {
+        const model = Assets.clone(TOWER_MODEL[type]);
+        model.traverse(o => { if (o.isMesh) o.material = Assets.ghostMaterial; });
+        u.models[type] = model;
+        g.add(model);
+      }
+      u.models[type].visible = true;
+      u.shown = type;
+    }
+    u.models[type].visible = valid;
+    u.ring.material.color.set(valid ? 0x78dc78 : 0xdc5050);
+    u.range.visible = valid;
+    u.range.scale.set(def.range, 1, def.range);
   },
 
   _syncSelection(state) {
     const t = state.selectedTower;
     if (!t) { this._rangeIndicator.visible = false; this._selRing.visible = false; return; }
     this._rangeIndicator.visible = true;
-    this._rangeIndicator.position.set(t.position.x, 0.11, t.position.y);
+    this._rangeIndicator.position.set(t.position.x, 0.05, t.position.y);
     this._rangeIndicator.scale.set(t.range, 1, t.range);
     this._selRing.visible = true;
-    this._selRing.position.set(t.position.x, 0.13, t.position.y);
-    this._selRing.scale.set(0.85, 0.85, 1);
+    this._selRing.position.set(t.position.x, 0.07, t.position.y);
+    this._selRing.scale.set(0.95, 0.95, 1);
   },
 
   // ─── Towers ───────────────────────────────────────────────────────────
@@ -599,87 +585,52 @@ export const Renderer = {
         this.scene.add(obj);
       }
       const u = obj.userData;
-      if (u.rotGroup) u.rotGroup.rotation.y = -t.rotation;
+      if (u.turret) u.turret.rotation.y = yawFor(t.rotation);
       if (u.spin) u.spin.rotation.y = now * 1.2;
-      // Recoil / pulse driven by the tower's visual-only fireAnimT countdown.
+      // Recoil / swing / pulse driven by the tower's visual-only fireAnimT countdown.
       const anim = Math.max(0, t.fireAnimT || 0);
-      if (u.barrel) u.barrel.position.x = u.barrelBaseX - 0.16 * Math.min(1, anim / 0.15);
+      if (u.cannon) u.cannon.position.z = u.cannonZ - 0.18 * Math.min(1, anim / 0.15);
+      if (u.arm) u.arm.rotation.x = u.armX + 1.1 * Math.min(1, anim / 0.35);
+      if (u.top) u.top.position.y = u.topY + 0.1 * Math.min(1, anim / 0.15);
       if (u.crystal) {
         const k = Math.min(1, anim / 0.4);
         const s = 1 + 0.5 * Math.sin(k * Math.PI);
-        u.crystal.scale.set(0.3 * s, 0.52 * s, 0.3 * s);
+        u.crystal.scale.set(0.26 * s, 0.45 * s, 0.26 * s);
       }
       if (u.lastUpgrade !== t.upgradeLevel) this._refreshUpgradePips(obj, t);
     }
   },
 
   _makeTower(t) {
-    const def = CONFIG.TOWERS[t.type];
     const g = new THREE.Group();
     g.position.set(t.position.x, 0, t.position.y);
     const own = [];
-
-    const baseMat = new THREE.MeshLambertMaterial({ color: 0x9aa0a6 });
-    own.push(baseMat);
-    const base = new THREE.Mesh(this._geo.cyl, baseMat);
-    base.scale.set(0.62, 0.5, 0.62);
-    base.position.y = 0.25;
-    g.add(base);
-
-    const mat = new THREE.MeshLambertMaterial({ color: def.color });
-    own.push(mat);
     const u = { own, lastUpgrade: -1 };
 
+    const model = Assets.clone(TOWER_MODEL[t.type]);
+    g.add(model);
+    const part = (name) => model.getObjectByName(name) || null;
+
     if (t.type === 'basic') {
-      const head = new THREE.Mesh(this._geo.box, mat);
-      head.scale.set(0.55, 0.5, 0.55);
-      head.position.y = 0.75;
-      const rotGroup = new THREE.Group();
-      rotGroup.position.y = 0.8;
-      const barrel = new THREE.Mesh(this._geo.box, this._mats.stone);
-      barrel.scale.set(0.85, 0.16, 0.16);
-      barrel.position.x = 0.45;
-      rotGroup.add(barrel);
-      g.add(head, rotGroup);
-      u.rotGroup = rotGroup;
-      u.barrel = barrel;
-      u.barrelBaseX = 0.45;
-    } else if (t.type === 'circleShooter') {
-      const head = new THREE.Mesh(this._geo.sphere, mat);
-      head.scale.setScalar(0.34);
-      head.position.y = 0.85;
-      const halo = new THREE.Mesh(this._geo.torus, this._mats.stone);
-      halo.scale.setScalar(0.5);
-      halo.rotation.x = Math.PI / 2;
-      halo.position.y = 0.85;
-      const spin = new THREE.Group();
-      spin.add(halo);
-      g.add(head, spin);
-      u.spin = spin;
-      spin.position.y = 0;
+      u.top = part('building_tower_A_top_blue');
+      if (u.top) u.topY = u.top.position.y;
     } else if (t.type === 'cannon') {
-      const rotGroup = new THREE.Group();
-      rotGroup.position.y = 0.62;
-      const barrel = new THREE.Mesh(this._geo.cyl, mat);
-      barrel.scale.set(0.18, 0.85, 0.18);
-      barrel.rotation.z = -Math.PI / 2 + 0.5; // tilted up, pointing +x
-      barrel.position.x = 0.3;
-      barrel.position.y = 0.18;
-      const hub = new THREE.Mesh(this._geo.sphere, this._mats.stone);
-      hub.scale.setScalar(0.3);
-      rotGroup.add(barrel, hub);
-      g.add(rotGroup);
-      u.rotGroup = rotGroup;
-      u.barrel = barrel;
-      u.barrelBaseX = 0.3;
+      u.turret = part('cannon_turret_blue');
+      u.cannon = part('cannon_blue');
+      if (u.cannon) u.cannonZ = u.cannon.position.z;
+    } else if (t.type === 'catapult') {
+      u.turret = part('catapult_turret_blue');
+      u.arm = part('catapult_arm_blue');
+      if (u.arm) u.armX = u.arm.rotation.x;
     } else if (t.type === 'freeze') {
+      // An ice crystal floats above the roof and pulses when the tower fires.
       const crystalMat = new THREE.MeshLambertMaterial({
-        color: 0xaee4f7, emissive: 0x2e7da0, transparent: true, opacity: 0.9,
+        color: 0xaee4f7, emissive: 0x2e7da0, transparent: true, opacity: 0.92,
       });
       own.push(crystalMat);
       const crystal = new THREE.Mesh(this._geo.octa, crystalMat);
-      crystal.scale.set(0.3, 0.52, 0.3);
-      crystal.position.y = 1.05;
+      crystal.scale.set(0.26, 0.45, 0.26);
+      crystal.position.y = new THREE.Box3().setFromObject(model).max.y + 0.5;
       const spin = new THREE.Group();
       spin.add(crystal);
       g.add(spin);
@@ -699,15 +650,15 @@ export const Renderer = {
     const pips = new THREE.Group();
     for (let i = 0; i < t.upgradeLevel; i++) {
       const pip = new THREE.Mesh(this._geo.sphere, this._mats.gold);
-      pip.scale.setScalar(0.09);
-      pip.position.set(-0.25 + i * 0.25, 0.55, 0.62);
+      pip.scale.setScalar(0.11);
+      pip.position.set((i - (t.upgradeLevel - 1) / 2) * 0.3, 0.14, 0.78);
       pips.add(pip);
     }
     obj.add(pips);
     u.pips = pips;
     u.lastUpgrade = t.upgradeLevel;
-    // Upgraded towers grow bulkier — instantly readable from across the board.
-    obj.scale.setScalar(1 + 0.16 * t.upgradeLevel);
+    // Upgraded towers grow a little — readable from across the board.
+    obj.scale.setScalar(1 + 0.08 * t.upgradeLevel);
   },
 
   // ─── Enemies ──────────────────────────────────────────────────────────
@@ -839,15 +790,15 @@ export const Renderer = {
         obj.scale.set(0.26, 0.1, 0.1);
         obj.rotation.y = Math.atan2(-p.direction.y, p.direction.x);
       }
-      let y = 0.6;
+      // Shots leave from the tower top and drop to enemy height.
+      const gone = Math.hypot(p.position.x - p.startPosition.x, p.position.y - p.startPosition.y);
+      let y = 0.5 + 1.4 * Math.max(0, 1 - gone / 2);
       if (p.isAoE) {
-        // Fake a mortar arc from launch point to the snapshotted target.
+        // Lobbed arc from launch point to the snapshotted target.
         const total = Math.hypot(p.targetPosition.x - p.startPosition.x,
                                  p.targetPosition.y - p.startPosition.y) || 1;
-        const gone = Math.hypot(p.position.x - p.startPosition.x,
-                                p.position.y - p.startPosition.y);
         const f = Math.min(1, gone / total);
-        y = 0.5 + Math.sin(f * Math.PI) * 1.6;
+        y = 1.9 * (1 - f) + 0.3 * f + Math.sin(f * Math.PI) * 1.4;
       }
       obj.position.set(p.position.x, y, p.position.y);
     }
@@ -942,7 +893,7 @@ export const Renderer = {
     const m = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\)/.exec(str);
     if (m) {
       return {
-        color: new THREE.Color(m[1] / 255, m[2] / 255, m[3] / 255),
+        color: new THREE.Color().setRGB(m[1] / 255, m[2] / 255, m[3] / 255, THREE.SRGBColorSpace),
         alpha: m[4] !== undefined ? parseFloat(m[4]) : 1,
       };
     }

@@ -167,3 +167,33 @@ Rules:
     tower; fewer, stronger enemies per wave for Chromebook performance;
     crab mascot left out for now (decide after M2).
   - **Next:** M1.
+- 2026-11-21 — **M1 (hex world) done.**
+  - Levels are hex maps now (`levels/levelN.js`: `cols`, `rows`, `seed`,
+    `paths[].cells` as chains of adjacent `[col, row]` cells, odd-r offset;
+    first cell = spawn, last = castle). `js/level.js` validates adjacency,
+    derives waypoints, road-tile sides and seeded scenery (cells touching
+    the road always stay buildable). All three levels converted (Meadow,
+    Crossroads with a 3-way junction and two castles, Long March).
+  - `js/assets.js` loads 37 KayKit Medieval Hexagon models from
+    `assets/hex/` (1.6 MB, credits in `assets/CREDITS.md`); all share one
+    atlas material. The atlas is the pack's "Summer" variant (greener).
+    Static board = 3 merged meshes; about 15–30 draw calls, ~50k triangles.
+  - `js/grid.js`: one hex = one building spot. `js/renderer.js`: hex board,
+    island in the sea, castle at the goal, spawn ring + flags, teal hex
+    overlay on free cells while placing, see-through model as placement
+    ghost, real tower models (archer `tower_A`, catapult, cannon, frost
+    `tower_B` + crystal). Cannon/catapult turrets aim; recoil, arm swing
+    and roof bounce on fire. M0 colour shim removed.
+  - Circle Shooter is now the **Catapult** (range 6, damage 70, slow,
+    small splash; lobbed shot like the cannon).
+  - Clicking or tapping a tower model selects it (`Renderer.pickTower`).
+  - `window.__td = { state, Renderer, Level, Grid }` is a debug handle for
+    automated play-tests.
+  - Checked in headless Chromium: levels 1–3 at 1366×768, level 1 at
+    1024×768 with touch (place, select by roof tap, refused on road and
+    scenery, full wave + quiz). No console errors or warnings.
+  - **Known gaps (planned later):** enemies and projectiles are still
+    placeholder shapes (M2). Phone portrait 390×844: board is tiny and the
+    HUD overflows (M4/M5). Balance untouched: 20–25 waves, forced quiz
+    popup (M3/M4). UI still English and cream/wood themed (M3).
+  - **Next:** M2 (animated KayKit skeletons, real projectiles).

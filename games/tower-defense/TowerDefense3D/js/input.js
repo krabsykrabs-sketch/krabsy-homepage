@@ -42,6 +42,7 @@ export const Input = {
   _onMouseDown(e) {
     if (e.button !== 0) return;
     if (!this._gameAcceptsInput()) return;
+    if (this._selectTowerAt(e.clientX, e.clientY)) return;
     const w = this._screenToWorld(e.clientX, e.clientY);
     if (!w) return;
     this._handleClick(w);
@@ -52,10 +53,20 @@ export const Input = {
     if (!this._gameAcceptsInput()) return;
     e.preventDefault();
     const t = e.touches[0];
-    const w = this._screenToWorld(t.clientX, t.clientY);
     state.mouseWorld = null;
+    if (this._selectTowerAt(t.clientX, t.clientY)) return;
+    const w = this._screenToWorld(t.clientX, t.clientY);
     if (!w) return;
     this._handleClick(w);
+  },
+
+  // When not placing, a click on a tower model selects that tower.
+  _selectTowerAt(clientX, clientY) {
+    if (state.placement.active) return false;
+    const tower = Renderer.pickTower(clientX, clientY);
+    if (!tower) return false;
+    state.selectedTower = tower;
+    return true;
   },
 
   _handleClick(worldPos) {

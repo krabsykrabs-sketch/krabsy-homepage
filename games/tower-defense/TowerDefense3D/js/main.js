@@ -221,4 +221,7 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+// Handle for automated play-tests and debugging in the browser console.
+window.__td = { state, Renderer, Level, Grid };
+
 window.addEventListener('load', init);

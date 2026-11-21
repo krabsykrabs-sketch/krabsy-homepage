@@ -1,0 +1,94 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// Model loading. Everything in assets/hex/ comes from the KayKit Medieval Hexagon
+// pack and shares one small texture atlas, so all models use ONE material. Static
+// scenery is merged into a few big meshes by the renderer (see mergeStatic).
+
+const HEX_MODELS = [
+  // tiles
+  'hex_grass', 'hex_water',
+  'hex_road_A', 'hex_road_B', 'hex_road_C', 'hex_road_D', 'hex_road_E', 'hex_road_F',
+  'hex_road_G', 'hex_road_M',
+  // buildings
+  'building_tower_A_blue', 'building_tower_B_blue', 'building_tower_cannon_blue',
+  'building_tower_catapult_blue', 'building_castle_blue', 'building_destroyed',
+  // nature
+  'trees_A_large', 'trees_A_medium', 'trees_A_small', 'trees_B_large', 'trees_B_medium',
+  'mountain_A_grass_trees', 'hills_A_trees', 'hills_B_trees', 'rock_single_A',
+  'rock_single_C', 'tree_single_A', 'tree_single_B', 'cloud_small', 'cloud_big',
+  // props
+  'flag_red', 'flag_blue', 'barrel', 'crate_A_big', 'bucket_arrows', 'weaponrack', 'target',
+];
+
+export const Assets = {
+  models: new Map(),   // name → THREE.Group (template; clone before use)
+  material: null,      // shared atlas material
+  ghostMaterial: null, // same atlas, see-through (placement preview)
+  loaded: false,
+
+  async load(onProgress) {
+    const loader = new GLTFLoader();
+    let done = 0;
+    await Promise.all(HEX_MODELS.map(async (name) => {
+      const gltf = await loader.loadAsync(`assets/hex/${name}.gltf`);
+      this.models.set(name, gltf.scene);
+      done += 1;
+      if (onProgress) onProgress(done / HEX_MODELS.length);
+    }));
+
+    // Every file brought its own copy of the same atlas + material. Keep one.
+    let atlas = null;
+    for (const scene of this.models.values()) {
+      scene.traverse((o) => {
+        if (!o.isMesh) return;
+        if (!atlas) atlas = o.material.map;
+        else if (o.material.map && o.material.map !== atlas) o.material.map.dispose();
+        o.material.dispose();
+      });
+    }
+    this.material = new THREE.MeshLambertMaterial({ map: atlas });
+    this.ghostMaterial = new THREE.MeshLambertMaterial({
+      map: atlas, transparent: true, opacity: 0.6, depthWrite: false,
+    });
+    for (const scene of this.models.values()) {
+      scene.traverse((o) => { if (o.isMesh) o.material = this.material; });
+      scene.updateMatrixWorld(true);
+    }
+    this.loaded = true;
+  },
+
+  // A fresh instance of a model. Geometry and material are shared with the template.
+  clone(name) {
+    const src = this.models.get(name);
+    if (!src) throw new Error(`Unknown model: ${name}`);
+    return src.clone(true);
+  },
+
+  // Merge many static placements into one mesh (one draw call).
+  // items: [{ name, x, z, y = 0, rot = 0, scale = 1 }]
+  mergeStatic(items) {
+    const geos = [];
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion();
+    const pos = new THREE.Vector3(), scl = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+    for (const it of items) {
+      const src = this.models.get(it.name);
+      if (!src) throw new Error(`Unknown model: ${it.name}`);
+      const s = it.scale || 1;
+      m.compose(pos.set(it.x, it.y || 0, it.z), q.setFromAxisAngle(up, it.rot || 0), scl.set(s, s, s));
+      src.traverse((o) => {
+        if (!o.isMesh) return;
+        const g = o.geometry.clone();
+        g.applyMatrix4(o.matrixWorld).applyMatrix4(m);
+        geos.push(g);
+      });
+    }
+    if (geos.length === 0) return null;
+    const merged = mergeGeometries(geos, false);
+    for (const g of geos) g.dispose();
+    const mesh = new THREE.Mesh(merged, this.material);
+    mesh.userData.ownGeo = true;
+    return mesh;
+  },
+};
