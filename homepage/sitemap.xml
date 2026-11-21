@@ -4,7 +4,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://krabsy.com/de/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -36,7 +36,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/lehrkraefte/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
@@ -92,7 +92,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -148,7 +148,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/"/>
@@ -1620,7 +1620,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/docentes/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
@@ -1628,7 +1628,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -1740,7 +1740,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/"/>
