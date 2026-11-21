@@ -39,6 +39,8 @@
   .lc-base{background:rgba(255,255,255,0.9);color:#16304f}
   .lc-past{background:rgba(46,230,192,0.2);color:var(--teal);border-color:rgba(46,230,192,0.5)}
   .lc-pp{background:rgba(255,133,133,0.18);color:var(--coral);border-color:rgba(255,133,133,0.5)}
+  .legend{align-items:center}
+  .legend-arrow{color:rgba(255,255,255,0.4);font-weight:900;font-size:13px}
 
   .btn{font-family:'Fredoka One',cursive;font-size:18px;padding:13px 38px;border-radius:50px;border:none;cursor:pointer;letter-spacing:0.5px;transition:transform 0.15s,box-shadow 0.15s;margin-top:4px;color:#fff}
   .btn:active{transform:scale(0.94)}
@@ -48,6 +50,10 @@
   .btn-ghost{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);font-size:14px;padding:9px 24px}
   .logo-text{font-family:'Fredoka One',cursive;font-size:17px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:1px}
   .logo-text em{font-style:normal;color:rgba(255,123,107,0.55)}
+
+  #next-level-btn{animation:nextPulse 1.3s ease-in-out infinite}
+  @keyframes nextPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  #lvl-auto{font-size:13px;font-weight:800;color:rgba(255,255,255,0.6);min-height:18px;margin-top:-6px}
 
   .lvl-row{display:flex;gap:10px;justify-content:center;margin-top:6px;flex-wrap:wrap}
   .lvl-btn{font-family:'Fredoka One',cursive;font-size:24px;color:#fff;width:104px;padding:13px 6px 11px;border-radius:18px;border:2px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.07);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s,background .15s}
@@ -88,6 +94,7 @@
   .chain-on-past{background:rgba(46,230,192,0.25);color:#3df0cc}
   .chain-on-pp{background:rgba(255,133,133,0.25);color:#ff9d9d}
   .chain-off{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.32)}
+  .chain-blank{letter-spacing:1px}
   .chain-arrow{color:rgba(255,255,255,0.25);font-size:11px}
   .strip-panel-label{font-size:11px;color:rgba(255,255,255,0.3);font-weight:700}
   .strip-panel.strip-active{border-top-color:var(--amber)}
@@ -96,8 +103,9 @@
 
   @media (max-width:480px){
     .strip-panel{min-width:128px;padding:6px 8px 7px}
-    .chain-slot{font-size:11.5px;padding:2px 5px}
+    .chain-slot{font-size:12px;padding:2px 5px}
     .hud-section{gap:10px}
+    #hud-logo{display:none} /* level 3 has 4 stats: keep the pause button on screen */
   }
 </style>
 </head>
@@ -134,13 +142,13 @@
   <div class="screen-title">Air <span>Control!</span></div>
   <div class="howto">
     <div class="howto-row"><div class="howto-ico">✏️</div><div data-i18n="how1"><b>Drag a path</b> from a plane to a runway to make it land. Helicopters 🚁 go to the <b>H pad</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">🛬</div><div data-i18n="how2">Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in order ①→②→③ for a <b>big bonus!</b></div></div>
+    <div class="howto-row"><div class="howto-ico">🛬</div><div data-i18n="how2">Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in the right order (go → went → gone) for a <b>big bonus!</b></div></div>
     <div class="howto-row"><div class="howto-ico">💥</div><div data-i18n="how3"><b>Don't let aircraft crash</b> into each other — one crash and it's game over!</div></div>
   </div>
   <div class="legend">
-    <span class="legend-chip lc-base">① go</span>
-    <span class="legend-chip lc-past">② went</span>
-    <span class="legend-chip lc-pp">③ gone</span>
+    <span class="legend-chip lc-base">go</span><span class="legend-arrow">→</span>
+    <span class="legend-chip lc-past">went</span><span class="legend-arrow">→</span>
+    <span class="legend-chip lc-pp">gone</span>
   </div>
   <div class="lvl-row">
     <button class="lvl-btn" data-lvl="1">1<span data-i18n="lv1">First Flight</span></button>
@@ -156,6 +164,7 @@
   <div id="lvl-score" class="screen-stat"></div>
   <div id="lvl-msg" class="screen-sub"></div>
   <button class="btn btn-primary" id="next-level-btn">Next Level ▶</button>
+  <div id="lvl-auto"></div>
   <button class="btn btn-ghost" id="lvl-menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
@@ -194,7 +203,7 @@ const STR={
     hud_level:'Level',hud_score:'Punkte',hud_verbs:'Verben',hud_best:'Rekord',
     rw1:'🛬 Bahn 1',rw2:'🛬 Bahn 2',free:'— frei —',
     how1:'<b>Zieh eine Linie</b> von einem Flugzeug zu einer Landebahn, damit es landet. Hubschrauber 🚁 fliegen zum <b>H-Platz</b>.',
-    how2:'Jedes Flugzeug trägt eine Verbform. Lande <b>alle 3 Formen auf derselben Bahn</b> — in der Reihenfolge ①→②→③ gibt\'s einen <b>Riesenbonus!</b>',
+    how2:'Jedes Flugzeug trägt eine Verbform. Lande <b>alle 3 Formen auf derselben Bahn</b> — in der richtigen Reihenfolge (go → went → gone) gibt\'s einen <b>Riesenbonus!</b>',
     how3:'<b>Lass keine Flugzeuge zusammenstoßen</b> — ein Crash und das Spiel ist vorbei!',
     lv1:'Erster Flug',lv2:'Heli-Schule',lv3:'Endloser Himmel',
     lvl_title:'Level <span id="lvl-num">1</span> geschafft!',
@@ -208,14 +217,15 @@ const STR={
     tut_almost:'Fast! Tipp das Flugzeug an und zieh zur Landebahn',tut_touch:'Tipp das Flugzeug an und halte fest! 👆',
     tut_draw:'Jetzt zieh eine Linie zur Landebahn! ✏️',tut_watch:'Perfekt! Schau zu, wie es landet 🛬',
     tut_other:'Lande jetzt die anderen 2 Formen auf DERSELBEN Bahn!',tut_miss:'Lande jetzt {m} auf DERSELBEN Bahn!',and:' und ',
-    tut_order:'Der Reihe nach ① → ② → ③ = Riesenbonus! ✨',
-    h2a:'Lande alle 3 Formen — der Reihe nach ① → ② → ③ für einen RIESENBONUS! ✨',
+    tut_order:'In der richtigen Reihenfolge (wie go → went → gone) = Riesenbonus! ✨',
+    h2a:'Lande alle 3 Formen — in der richtigen Reihenfolge (wie go → went → gone) gibt\'s einen RIESENBONUS! ✨',
     h2b:'Jetzt lande den Hubschrauber auf dem H! 🚁',
     h3a:'👆 Zieh von einem Flugzeug eine Linie zu einer Landebahn!',
-    h3b:'Lande ① ② ③ eines Verbs auf EINER Bahn — der Reihe nach = Riesenbonus!',
+    h3b:'Lande alle 3 Formen eines Verbs auf EINER Bahn — in der richtigen Reihenfolge (wie go → went → gone) = Riesenbonus!',
     l1:'Du hast dein erstes Flugzeug gelandet und GO → WENT → GONE geschafft! ✈️',
     l2o:'Verbkette in perfekter Reihenfolge UND der Hubschrauber — super! 🏆',
-    l2:'Verbkette und Hubschrauber geschafft! Tipp: In der Reihenfolge ① → ② → ③ landen verdoppelt die Punkte.',
+    l2:'Verbkette und Hubschrauber geschafft! Tipp: In der richtigen Reihenfolge landen (wie go → went → gone) verdoppelt die Punkte.',
+    auto_next:'Weiter in {n} …',
     score:'Punkte: {n}',score_best:'Punkte: {n}  ·  Rekord: {b}',
     go0:'Zwei Flugzeuge sind zusammengestoßen! Zieh Linien, damit sie sich nicht treffen — du schaffst das! 💪',
     go1:'Du hast 1 Verb geschafft — guter Anfang! Schaffst du mehr?',
@@ -227,7 +237,7 @@ const STR={
     hud_level:'Nivel',hud_score:'Puntos',hud_verbs:'Verbos',hud_best:'Récord',
     rw1:'🛬 Pista 1',rw2:'🛬 Pista 2',free:'— libre —',
     how1:'<b>Dibuja una ruta</b> desde un avión hasta una pista para que aterrice. Los helicópteros 🚁 van al <b>helipuerto H</b>.',
-    how2:'Cada avión lleva una forma verbal. Aterriza <b>las 3 formas en la misma pista</b> — ¡en orden ①→②→③ para un <b>gran bonus!</b>',
+    how2:'Cada avión lleva una forma verbal. Aterriza <b>las 3 formas en la misma pista</b> — ¡en el orden correcto (go → went → gone) para un <b>gran bonus!</b>',
     how3:'<b>Que no choquen los aviones</b> — ¡un choque y se acabó la partida!',
     lv1:'Primer vuelo',lv2:'Escuela de helis',lv3:'Cielo sin fin',
     lvl_title:'¡Nivel <span id="lvl-num">1</span> superado!',
@@ -241,14 +251,15 @@ const STR={
     tut_almost:'¡Casi! Toca el avión y dibuja hasta la pista',tut_touch:'¡Toca el avión y mantén pulsado! 👆',
     tut_draw:'¡Ahora dibuja una línea hasta la pista! ✏️',tut_watch:'¡Perfecto! Mira cómo aterriza 🛬',
     tut_other:'¡Ahora aterriza las otras 2 formas en la MISMA pista!',tut_miss:'¡Ahora aterriza {m} en la MISMA pista!',and:' y ',
-    tut_order:'En orden ① → ② → ③ = ¡gran bonus! ✨',
-    h2a:'Aterriza las 3 formas — ¡en orden ① → ② → ③ para un GRAN bonus! ✨',
+    tut_order:'En el orden correcto (como go → went → gone) = ¡gran bonus! ✨',
+    h2a:'Aterriza las 3 formas — ¡en el orden correcto (como go → went → gone) para un GRAN bonus! ✨',
     h2b:'¡Ahora aterriza el helicóptero en la H! 🚁',
     h3a:'👆 ¡Dibuja una ruta desde un avión hasta una pista!',
-    h3b:'Aterriza ① ② ③ de un verbo en UNA pista — ¡en orden = gran bonus!',
+    h3b:'Aterriza las 3 formas de un verbo en UNA pista — ¡en el orden correcto (como go → went → gone) = gran bonus!',
     l1:'¡Aterrizaste tu primer avión y completaste GO → WENT → GONE! ✈️',
     l2o:'¡Cadena en orden perfecto Y el helicóptero — increíble! 🏆',
-    l2:'¡Cadena y helicóptero superados! Consejo: aterrizar en orden ① → ② → ③ duplica los puntos.',
+    l2:'¡Cadena y helicóptero superados! Consejo: aterrizar en el orden correcto (como go → went → gone) duplica los puntos.',
+    auto_next:'Continúa en {n} …',
     score:'Puntos: {n}',score_best:'Puntos: {n}  ·  Récord: {b}',
     go0:'¡Dos aviones chocaron! Dibuja rutas para mantenerlos separados — ¡tú puedes! 💪',
     go1:'¡Completaste 1 verbo — buen comienzo! ¿Puedes superarlo?',
@@ -287,8 +298,13 @@ const VERBS=[
   {verb:"ride",past:"rode",pp:"ridden"},{verb:"choose",past:"chose",pp:"chosen"},
   {verb:"forget",past:"forgot",pp:"forgotten"},{verb:"draw",past:"drew",pp:"drawn"},
 ];
-const FORM_NUM={base:'①',past:'②',pp:'③'};
+const FORMS=['base','past','pp'];
+function formWord(v,f){return f==='base'?v.verb:f==='past'?v.past:v.pp}
+// Slot colours (1st/2nd/3rd position). Only used AFTER a plane has landed and in the
+// runway panels — in the air every plane looks the same, so the word has to be read.
 const FORM_COLOR={base:'#ffffff',past:'#2ee6c0',pp:'#ff8585'};
+const PLANE_COLOR='#ffffff',PLANE_WING='#c3d2e0';
+function slotWing(f){return f==='base'?PLANE_WING:shade(FORM_COLOR[f],-52)}
 const HELI_COLOR='#ffb347';
 
 const canvas=document.getElementById('game');
@@ -311,6 +327,22 @@ function computeView(){
   CW=window.innerWidth;CH=window.innerHeight;
   VS=Math.min(CW/W,CH/H);
   VOX=(CW-W*VS)/2;VOY=(CH-H*VS)/2;
+}
+// Canvas text is drawn in world units, so on a small viewport (phone: VS≈0.54) a fixed
+// "12px" shrinks to ~6.5 CSS px. fpx() returns the world-unit size that renders at no
+// less than minCss CSS px on the current viewport (the backing store is already ×dpr,
+// so CSS px is the unit that matters for legibility).
+const LABEL_MIN_PX=13,TEXT_MIN_PX=12.5;
+function fpx(world,minCss){return Math.max(world,(minCss||TEXT_MIN_PX)/VS)}
+function labelScale(){return fpx(12,LABEL_MIN_PX)/12}
+function wrapText(text,maxW){ // uses the current ctx.font
+  const lines=[];let cur='';
+  for(const w of text.split(' ')){
+    const t=cur?cur+' '+w:w;
+    if(cur&&ctx.measureText(t).width>maxW){lines.push(cur);cur=w;}else cur=t;
+  }
+  if(cur)lines.push(cur);
+  return lines;
 }
 
 if(!CanvasRenderingContext2D.prototype.roundRect){
@@ -902,7 +934,7 @@ function boostSpawns(){
   G.spawnTimer=Math.max(G.spawnTimer,spawnIntervalNow()-50);
 }
 function maxAircraft(){return Math.min(8,4+Math.floor(G.verbsCompleted/2))}
-function pickSpawnEdge(){
+function randomSpawnEdge(){
   const edge=['top','left','right'][Math.floor(Math.random()*3)];
   let x,y,angle;
   if(edge==='top'){
@@ -917,6 +949,50 @@ function pickSpawnEdge(){
   }
   return{x,y,angle,edge};
 }
+function baseSpeed(type){
+  if(G.level<3)return type==='heli'?0.5:0.55;
+  return type==='heli'?Math.min(0.5+G.difficulty*0.025,0.85):Math.min(0.7+G.difficulty*0.05,1.35);
+}
+// Closest predicted approach (world units) between a new arrival and everything that is
+// still flying un-routed or about to spawn, over the next ~10 s of straight flight.
+function spawnClearance(c,type){
+  const others=[];
+  for(const a of G.aircraft){
+    if(a.state==='flying')others.push({x:a.x,y:a.y,vx:Math.cos(a.angle)*a.speed,vy:Math.sin(a.angle)*a.speed,d:0});
+    else if(a.state==='frozen'||(a.state==='following'&&a.targetStripIdx<0&&!a.targetHeli))others.push({x:a.x,y:a.y,vx:0,vy:0,d:0});
+  }
+  for(const q of G.spawnQueue){
+    const sp=baseSpeed(q.type)*SPEED_SCALE;
+    others.push({x:q.x,y:q.y,vx:Math.cos(q.angle)*sp,vy:Math.sin(q.angle)*sp,d:q.delay});
+  }
+  if(!others.length)return 1e9;
+  const sp=baseSpeed(type)*SPEED_SCALE,cvx=Math.cos(c.angle)*sp,cvy=Math.sin(c.angle)*sp;
+  let min=1e9;
+  for(let t=90;t<=690;t+=15){
+    const cx=c.x+cvx*(t-90),cy=c.y+cvy*(t-90);
+    for(const o of others){
+      const ot=Math.max(0,t-o.d);
+      // un-routed planes turn back at the play-area edges → clamp the straight projection
+      const ox=Math.max(40,Math.min(W-40,o.x+o.vx*ot)),oy=Math.max(LY.hudH,Math.min(LY.playBottom-30,o.y+o.vy*ot));
+      const d=dist(cx,cy,ox,oy);
+      if(d<min)min=d;
+    }
+  }
+  return min;
+}
+// A portrait phone world is only 720 wide: two arrivals from opposite edges used to meet
+// head-on ~8 s after the second one appeared. Try a few entry points and take one whose
+// straight-ahead lane stays clear of the planes the player has not routed yet.
+const SPAWN_CLEAR=130;
+function pickSpawnEdge(type){
+  let best=null,bestC=-1;
+  for(let i=0;i<10;i++){
+    const c=randomSpawnEdge(),cl=spawnClearance(c,type);
+    if(cl>=SPAWN_CLEAR)return c;
+    if(cl>bestC){bestC=cl;best=c;}
+  }
+  return best;
+}
 function addWarning(x,y,edge,type){
   let wx,wy;const m=24;
   if(edge==='top'){wx=Math.max(m,Math.min(W-m,x));wy=LY.hudH+m;}
@@ -927,28 +1003,27 @@ function addWarning(x,y,edge,type){
   SFX.ping();
 }
 function queueSpawn(type,verbObj,form){
-  const spawn=pickSpawnEdge();
+  const spawn=pickSpawnEdge(type);
   addWarning(spawn.x,spawn.y,spawn.edge,type);
   G.spawnQueue.push({type,verbObj,form,x:spawn.x,y:spawn.y,angle:spawn.angle,delay:90});
 }
 function doSpawn(sq){
   // Speeds are in reference-world units; ×SPEED_SCALE keeps flight TIME the same on any screen.
-  let planeSpd,heliSpd;
-  if(G.level<3){planeSpd=0.55;heliSpd=0.5;}        // tutorial levels: slow until a path is drawn
-  else{planeSpd=Math.min(0.7+G.difficulty*0.05,1.35);heliSpd=Math.min(0.5+G.difficulty*0.025,0.85);}
+  let planeSpd=baseSpeed('plane'),heliSpd=baseSpeed('heli'); // tutorial levels: slow until a path is drawn
   if(TUT.active&&TUT.step<3)planeSpd*=0.85; // a little slower only while learning to aim
   planeSpd*=SPEED_SCALE;heliSpd*=SPEED_SCALE;
   const isHeli=sq.type==='heli';
-  const color=isHeli?HELI_COLOR:FORM_COLOR[sq.form];
+  // planes are all the same neutral white in the air — no slot colour, no slot number
+  const color=isHeli?HELI_COLOR:PLANE_COLOR;
   const ac={
     x:sq.x,y:sq.y,angle:sq.angle,
     speed:isHeli?heliSpd:planeSpd,
     isHeli,verbObj:sq.verbObj||null,form:sq.form||null,
-    text:isHeli?null:(sq.form==='base'?sq.verbObj.verb:sq.form==='past'?sq.verbObj.past:sq.verbObj.pp),
+    text:isHeli?null:formWord(sq.verbObj,sq.form),
     path:null,pathIndex:0,
     state:'flying',radius:isHeli?16:18,
     trail:[],
-    formColor:color,wingColor:isHeli?shade(HELI_COLOR,-46):(sq.form==='base'?'#c3d2e0':shade(color,-52)),
+    formColor:color,wingColor:isHeli?shade(HELI_COLOR,-46):PLANE_WING,
     spawnTime:G.frame,warningLevel:0,
     frozenGlow:0,landingProgress:0,landingStripIdx:-1,
     targetStripIdx:-1,targetHeli:false,
@@ -1033,7 +1108,7 @@ function getPos(e){
   return{x:(t.clientX-r.left-VOX)/VS,y:(t.clientY-r.top-VOY)/VS};
 }
 function findACAt(x,y){
-  let best=null,bestD=44;
+  let best=null,bestD=Math.max(44,30/VS); // ≥30 CSS px finger target on small screens
   for(const a of G.aircraft){
     if(a.state!=='flying'&&a.state!=='following'&&a.state!=='frozen')continue;
     const d=dist(x,y,a.x,a.y);
@@ -1045,7 +1120,7 @@ function onInputStart(e){
   e.preventDefault();
   if(!G.running||G.paused)return;
   const pos=getPos(e);
-  if(TUT.active&&TUT._skip&&dist(pos.x,pos.y,TUT._skip.x,TUT._skip.y)<18){
+  if(TUT.active&&TUT._skip&&dist(pos.x,pos.y,TUT._skip.x,TUT._skip.y)<TUT._skip.r){
     finishTutorial();SFX.click();return;
   }
   const ac=findACAt(pos.x,pos.y);
@@ -1247,9 +1322,29 @@ function initiatePlaneLanding(ac,si){
   ac.state='landing';ac.landingStripIdx=si;ac.landingProgress=0;ac.path=null;
   reserveStrip(ac,si);
 }
+// Planes no longer show their slot, so two planes with the same word (run/ran/RUN,
+// bought/BOUGHT) are indistinguishable: the first one down takes the earlier slot.
+function claimSlot(ac,sd){
+  for(const f of FORMS){
+    if(f===ac.form)return;
+    if(sd.landed[f]||formWord(ac.verbObj,f)!==ac.text)continue;
+    const twin=G.aircraft.find(a=>a!==ac&&!a.isHeli&&a.verbObj===ac.verbObj&&a.form===f);
+    const q=G.spawnQueue.find(x=>x.verbObj===ac.verbObj&&x.form===f);
+    if(twin)twin.form=ac.form;
+    else if(q)q.form=ac.form;
+    else{
+      const av=activeVerbs.find(a=>a.verbObj===ac.verbObj);
+      if(av){av.formsSpawned.delete(ac.form);av.formsSpawned.add(f);}
+    }
+    ac.form=f;return;
+  }
+}
 function completePlaneLanding(ac){
   const si=ac.landingStripIdx;
   const sd=G.strips[si];if(!sd)return;
+  claimSlot(ac,sd);
+  // after-landing feedback: the parked plane takes its slot colour (matches the panel)
+  ac.formColor=FORM_COLOR[ac.form];ac.wingColor=slotWing(ac.form);
   sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
   ac.parkStrip=si;ac.parkIdx=sd.landOrder.length-1;ac.scale=0.8;
   const p=parkSlot(si,ac.parkIdx);ac.x=p.x;ac.y=p.y;ac.angle=p.angle;
@@ -1386,9 +1481,12 @@ function updateStripPanels(){
     }else{
       panel.className='strip-panel strip-active';
       const v=s.verbObj;
+      // positional notation: go → ___ → ___ ; a form only appears once its plane has landed
       const mk=(form,word)=>s.landed[form]
-        ?`<span class="chain-slot chain-on-${form}">${FORM_NUM[form]} ${word}</span>`
-        :`<span class="chain-slot chain-off">${FORM_NUM[form]} ${word}</span>`;
+        ?`<span class="chain-slot chain-on-${form}">${word}</span>`
+        :form==='base'
+          ?`<span class="chain-slot chain-off">${word}</span>`
+          :`<span class="chain-slot chain-off chain-blank">___</span>`;
       chainEl.innerHTML=mk('base',v.verb)
         +'<span class="chain-arrow">→</span>'+mk('past',v.past)
         +'<span class="chain-arrow">→</span>'+mk('pp',v.pp);
@@ -1456,18 +1554,18 @@ function drawRunwayDynamics(){
       ctx.save();
       ctx.translate(s.approachX,s.approachY);ctx.rotate(s.approachAngle);
       const word=sd.verbObj.verb.toUpperCase();
-      ctx.font='800 11px Nunito,sans-serif';ctx.textAlign='center';
+      const fs=fpx(11,11),kb=fs/11;
+      ctx.font=`800 ${fs}px Nunito,sans-serif`;ctx.textAlign='center';
       const tw=ctx.measureText(word).width;
-      const bw=tw+44,bx=s.w*0.5-bw/2,by=-s.h/2-22;
+      const bw=tw+50*kb,bh=17*kb,bx=s.w*0.5-bw/2,by=-s.h/2-5-bh;
       ctx.fillStyle='rgba(15,30,55,0.75)';
-      ctx.beginPath();ctx.roundRect(bx,by,bw,17,8);ctx.fill();
+      ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8*kb);ctx.fill();
       ctx.strokeStyle='rgba(255,207,94,0.7)';ctx.lineWidth=1.2;ctx.stroke();
       ctx.fillStyle='#ffe9b0';
-      ctx.fillText(word,s.w*0.5-12,by+12.5);
-      const forms=['base','past','pp'];
+      ctx.fillText(word,s.w*0.5-12*kb,by+12.5*kb);
       for(let k=0;k<3;k++){
-        ctx.beginPath();ctx.arc(s.w*0.5+tw/2+2+k*9,by+8.5,3.2,0,Math.PI*2);
-        ctx.fillStyle=sd.landed[forms[k]]?FORM_COLOR[forms[k]]:'rgba(255,255,255,0.15)';
+        ctx.beginPath();ctx.arc(s.w*0.5+tw/2+(2+k*9)*kb,by+8.5*kb,3.2*kb,0,Math.PI*2);
+        ctx.fillStyle=sd.landed[FORMS[k]]?FORM_COLOR[FORMS[k]]:'rgba(255,255,255,0.15)';
         ctx.fill();
       }
       ctx.restore();
@@ -1586,17 +1684,21 @@ function drawShadowOf(a){
 function drawLabel(a,alpha){
   if(!a.text)return;
   ctx.globalAlpha=alpha===undefined?1:alpha;
-  const str=FORM_NUM[a.form]+' '+a.text.toUpperCase();
-  ctx.font='800 12px Nunito,sans-serif';ctx.textAlign='center';
+  // the word only — which slot it belongs to is for the player to work out
+  const str=a.text.toUpperCase();
+  const k=labelScale();
+  ctx.font=`800 ${12*k}px Nunito,sans-serif`;ctx.textAlign='center';
   const tw=ctx.measureText(str).width;
-  const w=tw+15,h=19,x=a.x-w/2,y=a.y-38;
+  const w=tw+15*k,h=19*k,y=a.y-19-h;
+  const cx=Math.max(w/2+3,Math.min(W-w/2-3,a.x)),x=cx-w/2; // keep the word on screen
   ctx.fillStyle='rgba(13,28,52,0.85)';
-  ctx.beginPath();ctx.roundRect(x,y,w,h,9);ctx.fill();
+  ctx.beginPath();ctx.roundRect(x,y,w,h,9*k);ctx.fill();
   ctx.strokeStyle=a.formColor;ctx.lineWidth=1.5;ctx.stroke();
   ctx.fillStyle='rgba(13,28,52,0.85)';
-  ctx.beginPath();ctx.moveTo(a.x-4,y+h-0.5);ctx.lineTo(a.x+4,y+h-0.5);ctx.lineTo(a.x,y+h+5);ctx.closePath();ctx.fill();
+  const px=Math.max(x+8,Math.min(x+w-8,a.x));
+  ctx.beginPath();ctx.moveTo(px-4,y+h-0.5);ctx.lineTo(px+4,y+h-0.5);ctx.lineTo(px,y+h+5);ctx.closePath();ctx.fill();
   ctx.fillStyle=a.formColor;
-  ctx.fillText(str,a.x,y+13.5);
+  ctx.fillText(str,cx,y+13.5*k);
   ctx.globalAlpha=1;
 }
 
@@ -1611,7 +1713,9 @@ function drawAircraft(){
     ctx.globalAlpha=a.state==='fading'?Math.max(0,0.7*(1-a.fadeT/55)):0.7;
     if(a.isHeli)drawHeliSprite(a);else drawPlaneSprite(a);
     ctx.globalAlpha=1;
-    if(!a.isHeli)drawLabel(a,0.55);
+    // parked planes sit 44 units apart: enlarged phone labels would pile up, and the
+    // runway panel already lists the landed forms in their slots
+    if(!a.isHeli&&labelScale()<=1.3)drawLabel(a,0.55);
   }
 
   for(const a of G.aircraft){
@@ -1700,6 +1804,7 @@ function drawWarnings(){
     if(Math.sin(w.age*0.22)<-0.2)continue;
     const alpha=0.75;
     ctx.save();ctx.translate(w.x,w.y);
+    const kw=Math.max(1,0.75/VS);ctx.scale(kw,kw);
     ctx.fillStyle=w.type==='heli'?`rgba(255,165,60,${alpha})`:`rgba(255,205,70,${alpha})`;
     ctx.beginPath();ctx.arc(0,0,17,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle=`rgba(255,255,255,${alpha})`;ctx.lineWidth=2;
@@ -1736,11 +1841,12 @@ function drawPopups(){
   for(const p of G.popups){
     const pr=p.age/p.maxAge;
     ctx.globalAlpha=pr<0.15?pr/0.15:pr>0.7?1-(pr-0.7)/0.3:1;
-    ctx.font=`900 ${p.size}px Nunito,sans-serif`;ctx.textAlign='center';
+    ctx.font=`900 ${fpx(p.size)}px Nunito,sans-serif`;ctx.textAlign='center';
+    const hw=ctx.measureText(p.text).width/2+6,px=Math.max(hw,Math.min(W-hw,p.x));
     ctx.strokeStyle='rgba(10,25,45,0.7)';ctx.lineWidth=3;ctx.lineJoin='round';
-    ctx.strokeText(p.text,p.x,p.y-pr*34);
+    ctx.strokeText(p.text,px,p.y-pr*34,W-12);
     ctx.fillStyle=p.color;
-    ctx.fillText(p.text,p.x,p.y-pr*34);
+    ctx.fillText(p.text,px,p.y-pr*34,W-12);
   }
   ctx.globalAlpha=1;
 }
@@ -1752,9 +1858,11 @@ function drawCompletions(){
     const al=pr<0.15?pr/0.15:pr>0.7?1-(pr-0.7)/0.3:1;
     const sc=pr<0.12?0.5+pr/0.12*0.5:1;
     const yOff=-pr*44;
-    ctx.save();ctx.translate(c.x,c.y+yOff);ctx.scale(sc,sc);
-    ctx.globalAlpha=al;
+    const kc=fpx(14)/14;
     ctx.font='900 17px Nunito,sans-serif';ctx.textAlign='center';
+    const chw=Math.min(W/2,ctx.measureText(c.text).width*kc/2+10);
+    ctx.save();ctx.translate(Math.max(chw,Math.min(W-chw,c.x)),c.y+yOff);ctx.scale(sc*kc,sc*kc);
+    ctx.globalAlpha=al;
     ctx.strokeStyle='rgba(10,25,45,0.8)';ctx.lineWidth=4;ctx.lineJoin='round';
     ctx.strokeText(c.text,0,-10);
     ctx.fillStyle='#fff';ctx.fillText(c.text,0,-10);
@@ -1817,17 +1925,21 @@ function tutGuideStrip(){
   }
   return best;
 }
-function drawBubble(ax,ay,text,withSkip){
-  ctx.font='800 14px Nunito,sans-serif';ctx.textAlign='center';
-  const tw=Math.min(ctx.measureText(text).width,W-70);
-  const bw=tw+28,bh=31;
+// y to hang a speech bubble on: just above the aircraft's (viewport-scaled) word label
+function bubbleY(a){return a.text?a.y-23-19*labelScale():a.y-42}
+function drawBubble(ax,ay,text,withSkip,belowY){
+  const fs=fpx(14),k=fs/14,lh=fs*1.25;
+  ctx.font=`800 ${fs}px Nunito,sans-serif`;ctx.textAlign='center';
+  const lines=wrapText(text,W-70);
+  const tw=Math.min(Math.max(...lines.map(l=>ctx.measureText(l).width)),W-70);
+  const bw=tw+28*k,bh=31*k+(lines.length-1)*lh;
   const bx=Math.max(10,Math.min(W-bw-10,ax-bw/2));
   let by=ay-bh-16,below=false;
-  if(by<LY.hudH+8){by=ay+28;below=true;}
+  if(by<LY.hudH+8){by=belowY===undefined?ay+28:belowY;below=true;} // no room above → hang below
   by+=Math.sin(G.frame*0.08)*2.5;
   ctx.fillStyle='rgba(13,28,52,0.93)';
   ctx.strokeStyle='rgba(255,207,94,0.9)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.roundRect(bx,by,bw,bh,13);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.roundRect(bx,by,bw,bh,13*k);ctx.fill();ctx.stroke();
   const tx=Math.max(bx+16,Math.min(bx+bw-16,ax));
   ctx.fillStyle='rgba(13,28,52,0.93)';
   ctx.beginPath();
@@ -1835,15 +1947,15 @@ function drawBubble(ax,ay,text,withSkip){
   else{ctx.moveTo(tx-6,by+bh-1);ctx.lineTo(tx+6,by+bh-1);ctx.lineTo(tx,by+bh+8);}
   ctx.closePath();ctx.fill();
   ctx.fillStyle='#ffe9b0';
-  ctx.fillText(text,bx+bw/2,by+20.5,bw-18);
+  lines.forEach((l,i)=>ctx.fillText(l,bx+bw/2,by+20.5*k+i*lh,bw-18));
   if(withSkip){
     const sx=bx+bw-3,sy=by+3;
-    TUT._skip={x:sx,y:sy};
+    TUT._skip={x:sx,y:sy,r:18*k};
     ctx.fillStyle='rgba(70,90,120,0.95)';
-    ctx.beginPath();ctx.arc(sx,sy,10,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(sx,sy,10*k,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,0.45)';ctx.lineWidth=1.2;ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='800 11px Nunito,sans-serif';
-    ctx.fillText('✕',sx,sy+3.8);
+    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font=`800 ${11*k}px Nunito,sans-serif`;
+    ctx.fillText('✕',sx,sy+3.8*k);
   }
 }
 function drawGuideArrow(a,si,bright){
@@ -1867,7 +1979,7 @@ function drawGuideArrow(a,si,bright){
 function drawTutorial(){
   TUT._skip=null;
   if(TUT.heliTipT>0&&TUT.heliAC&&TUT.heliAC.state!=='gone'&&TUT.heliAC.state!=='landed'){
-    drawBubble(TUT.heliAC.x,TUT.heliAC.y-42,L10N('tut_heli'),false);
+    drawBubble(TUT.heliAC.x,bubbleY(TUT.heliAC),L10N('tut_heli'),false,TUT.heliAC.y+30);
     const h=LY.heli,pulse=Math.sin(G.frame*0.15)*0.5+0.5;
     ctx.strokeStyle=`rgba(255,179,71,${0.35+pulse*0.5})`;ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(h.x,h.y,h.r+8+pulse*6,0,Math.PI*2);ctx.stroke();
@@ -1883,8 +1995,8 @@ function drawTutorial(){
     const t=Math.sin(G.frame*0.12);
     ctx.font='30px sans-serif';ctx.textAlign='center';
     ctx.fillText('👆',a.x+15+t*4,a.y+48+t*6);
-    drawBubble(a.x,a.y-42,
-      TUT.invalidTried?L10N('tut_almost'):L10N('tut_touch'),true);
+    drawBubble(a.x,bubbleY(a),
+      TUT.invalidTried?L10N('tut_almost'):L10N('tut_touch'),true,a.y+30);
     const si=tutGuideStrip();
     if(si>=0)drawGuideArrow(a,si,false);
   }else if(TUT.step===2&&a){
@@ -1892,14 +2004,13 @@ function drawTutorial(){
     const si=tutGuideStrip();
     if(si>=0)drawGuideArrow(a,si,true);
   }else if(TUT.step===3&&a&&a.state!=='landed'){
-    drawBubble(a.x,a.y-42,L10N('tut_watch'),false);
+    drawBubble(a.x,bubbleY(a),L10N('tut_watch'),false,a.y+30);
   }else if(TUT.step===4){
     const sd=a&&a.parkStrip!==undefined?G.strips[a.parkStrip]:null;
     let txt=L10N('tut_other');
     if(sd){
-      const word=f=>f==='base'?sd.verbObj.verb:f==='past'?sd.verbObj.past:sd.verbObj.pp;
-      const miss=['base','past','pp'].filter(f=>!sd.landed[f])
-        .map(f=>FORM_NUM[f]+' '+word(f).toUpperCase());
+      const miss=FORMS.filter(f=>!sd.landed[f])
+        .map(f=>formWord(sd.verbObj,f).toUpperCase());
       if(miss.length)txt=L10N('tut_miss',{m:miss.join(L10N('and'))});
     }
     const sub=L10N('tut_order');
@@ -1931,14 +2042,17 @@ function drawHint(){
   }
   if(!msg)return;
   const bob=Math.sin(G.frame*0.05)*3;
-  ctx.font='800 13px Nunito,sans-serif';ctx.textAlign='center';
-  const tw=ctx.measureText(msg).width;
-  const w=Math.min(W-20,tw+28),x=W/2-w/2,y=H-LY.panelH-40+bob;
+  const fs=fpx(13),k=fs/13,lh=fs*1.3;
+  ctx.font=`800 ${fs}px Nunito,sans-serif`;ctx.textAlign='center';
+  const lines=wrapText(msg,W-20-28*k);
+  const tw=Math.max(...lines.map(l=>ctx.measureText(l).width));
+  const bh=28*k+(lines.length-1)*lh;
+  const w=Math.min(W-20,tw+28*k),x=W/2-w/2,y=H-LY.panelH-12-bh+bob;
   ctx.fillStyle='rgba(13,28,52,0.82)';
-  ctx.beginPath();ctx.roundRect(x,y,w,28,14);ctx.fill();
+  ctx.beginPath();ctx.roundRect(x,y,w,bh,14*k);ctx.fill();
   ctx.strokeStyle='rgba(255,207,94,0.5)';ctx.lineWidth=1.5;ctx.stroke();
   ctx.fillStyle='#ffe9b0';
-  ctx.fillText(msg,W/2,y+19,W-44);
+  lines.forEach((l,i)=>ctx.fillText(l,W/2,y+19*k+i*lh,w-16));
 }
 
 function render(){
@@ -2040,15 +2154,16 @@ function gameLoop(t){
 function makeParked(verbObj,form,parkIdx){
   const p=parkSlot(0,parkIdx);
   return{x:p.x,y:p.y,angle:p.angle,speed:0,isHeli:false,verbObj,form,
-    text:form==='base'?verbObj.verb:form==='past'?verbObj.past:verbObj.pp,
+    text:formWord(verbObj,form),
     path:null,pathIndex:0,state:'landed',radius:18,trail:[],
-    formColor:FORM_COLOR[form],wingColor:form==='base'?'#c3d2e0':shade(FORM_COLOR[form],-52),
+    formColor:FORM_COLOR[form],wingColor:slotWing(form),
     spawnTime:0,warningLevel:0,frozenGlow:0,landingProgress:1,landingStripIdx:0,
     targetStripIdx:-1,targetHeli:false,heliRotor:0,altitude:0,scale:0.8,fadeT:0,
     parkStrip:0,parkIdx};
 }
 
 function startGame(level){
+  stopAutoNext();
   SFX.init();SFX.resume();SFX.click();
   G.level=level||3;
   computeWorldSize();computeView(); // lock the world size for this run
@@ -2074,7 +2189,7 @@ function startGame(level){
   fillQueue();computeLayout();initClouds();renderMap();
 
   if(G.level===1){
-    // go–went–gone, matching the legend; ① and ② are already parked
+    // go–went–gone, matching the legend; go and went are already parked
     const v=VERBS[0];
     G.strips[0]={verbObj:v,landed:{base:true,past:true,pp:false},landOrder:['base','past']};
     G.aircraft.push(makeParked(v,'base',0),makeParked(v,'past',1));
@@ -2115,6 +2230,27 @@ function levelComplete(){
     G.level===1?L10N('next2'):L10N('next3');
   document.getElementById('level-screen').classList.remove('hidden');
   updateLevelButtons();
+  startAutoNext();
+}
+// Level-complete screen continues by itself after a short countdown (levels 1+2 are a
+// ~35 s tutorial; nobody should get stuck between them). Tapping the screen anywhere
+// outside the buttons stops the countdown; a hidden tab holds it.
+const AUTO_NEXT_S=8;
+let autoNextT=null,autoNextN=0;
+function stopAutoNext(){
+  if(autoNextT){clearInterval(autoNextT);autoNextT=null;}
+  document.getElementById('lvl-auto').textContent='';
+}
+function startAutoNext(){
+  stopAutoNext();
+  autoNextN=AUTO_NEXT_S;
+  const el=document.getElementById('lvl-auto');
+  el.textContent=L10N('auto_next',{n:autoNextN});
+  autoNextT=setInterval(()=>{
+    if(document.hidden)return;
+    if(--autoNextN<=0){startGame(Math.min(3,G.level+1));return;}
+    el.textContent=L10N('auto_next',{n:autoNextN});
+  },1000);
 }
 
 function updateLevelButtons(){
@@ -2180,6 +2316,7 @@ function togglePause(){
   SFX.click();
 }
 function backToMenu(){
+  stopAutoNext();
   G.running=false;G.paused=false;
   document.getElementById('pause-screen').classList.add('hidden');
   document.getElementById('gameover-screen').classList.add('hidden');
@@ -2201,6 +2338,7 @@ document.querySelectorAll('.lvl-btn').forEach(b=>{
 document.getElementById('restart-btn').addEventListener('click',()=>startGame(G.level));
 document.getElementById('next-level-btn').addEventListener('click',()=>startGame(Math.min(3,G.level+1)));
 document.getElementById('lvl-menu-btn').addEventListener('click',()=>{SFX.click();backToMenu();});
+document.getElementById('level-screen').addEventListener('pointerdown',e=>{if(!e.target.closest('button'))stopAutoNext();});
 document.getElementById('resume-btn').addEventListener('click',togglePause);
 document.getElementById('menu-btn').addEventListener('click',()=>{SFX.click();backToMenu();});
 document.getElementById('pause-menu-btn').addEventListener('click',()=>{SFX.click();backToMenu();});

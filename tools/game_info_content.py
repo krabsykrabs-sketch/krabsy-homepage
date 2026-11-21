@@ -135,11 +135,11 @@ CONTENT = {
             "meta": "Zeichne Flugrouten und lande go, went und gone auf derselben Landebahn. Fluglotsen-Spiel zum Üben unregelmäßiger englischer Verben. Kostenlos im Browser, ohne Anmeldung.",
             "lead": [
                 "In Air Control bist du Fluglotse. Jedes Flugzeug trägt eine englische Verbform – und du bringst die drei Formen eines Verbs, zum Beispiel <em>fly</em>, <em>flew</em> und <em>flown</em>, auf <strong>dieselbe Landebahn</strong>. Dabei musst du gleichzeitig aufpassen, dass sich keine Flugzeuge in die Quere kommen. Ein Spiel für alle, die die <strong>unregelmäßigen Verben</strong> üben und dabei einen kühlen Kopf behalten wollen.",
-                "Air Control läuft kostenlos im Browser. Die Texte im Spiel sind auf Englisch, ein kurzes Tutorial zeigt dir beim ersten Start, wie es geht.",
+                "Air Control läuft kostenlos im Browser. Die Texte im Spiel sind auf Deutsch, nur die Verben bleiben Englisch. Ein kurzes Tutorial zeigt dir beim ersten Start, wie es geht.",
             ],
             "howto": [
                 "Ziehe mit der Maus oder dem Finger eine Linie von einem Flugzeug zu einer Landebahn – das Flugzeug fliegt die Route ab.",
-                "Lande alle drei Formen eines Verbs auf derselben Bahn. In der Reihenfolge ① Grundform → ② Simple Past → ③ Past Participle gibt es einen großen Bonus.",
+                "Lande alle drei Formen eines Verbs auf derselben Bahn. Landen sie in der richtigen Reihenfolge – erst <em>go</em>, dann <em>went</em>, dann <em>gone</em> –, gibt es einen großen Bonus. Lies genau: Die Flugzeuge verraten nicht, welche Form sie tragen.",
                 "Hubschrauber 🚁 gehören auf den H-Landeplatz.",
                 "Achtung: Stoßen zwei Flugzeuge zusammen, ist das Spiel vorbei.",
                 "Mit <kbd>P</kbd> oder der Leertaste pausierst du, mit <kbd>M</kbd> schaltest du den Ton aus.",
@@ -151,7 +151,7 @@ CONTENT = {
             "faq": [
                 ("Was passiert, wenn ich ein Flugzeug zur falschen Bahn schicke?", "Dann erscheint „Wrong runway!“ und das Flugzeug fliegt die Route nicht – zieh einfach eine neue. Das Spiel endet nur, wenn zwei Flugzeuge zusammenstoßen."),
                 ("Wie schalte ich neue Level frei?", "Die drei Level werden der Reihe nach freigeschaltet. Dein Fortschritt und dein Rekord werden auf deinem Gerät gespeichert."),
-                ("Ist Air Control auf Deutsch?", "Die kurzen Texte im Spiel sind auf Englisch – passend zum Üben. Die Anleitung auf dieser Seite erklärt alles auf Deutsch."),
+                ("Ist Air Control auf Deutsch?", "Ja. Alle Texte im Spiel sind auf Deutsch (auf der spanischen Seite auf Spanisch). Nur die Verbformen selbst bleiben Englisch – die übst du ja."),
             ],
             "related": ["verb-snake", "verb-kitchen", "verb-slash"],
         },
@@ -160,11 +160,11 @@ CONTENT = {
             "meta": "Traza rutas de vuelo y aterriza go, went y gone en la misma pista. Juego de controlador aéreo para practicar los verbos irregulares en inglés. Gratis, sin registro.",
             "lead": [
                 "En Air Control eres controlador aéreo. Cada avión lleva una forma verbal en inglés y tu trabajo es aterrizar las tres formas de un mismo verbo – por ejemplo <em>fly</em>, <em>flew</em> y <em>flown</em> – <strong>en la misma pista</strong>. Al mismo tiempo tienes que evitar que los aviones choquen. Ideal para practicar los <strong>verbos irregulares en inglés</strong> mientras pones a prueba tus reflejos.",
-                "Se juega gratis en el navegador. Los textos del juego están en inglés y la primera vez un pequeño tutorial te enseña lo básico.",
+                "Se juega gratis en el navegador. Los textos del juego están en español; solo los verbos siguen en inglés. La primera vez, un pequeño tutorial te enseña lo básico.",
             ],
             "howto": [
                 "Arrastra el ratón o el dedo desde un avión hasta una pista para trazar su ruta.",
-                "Aterriza las tres formas de un verbo en la misma pista. Si lo haces en orden – ① forma base → ② pasado simple → ③ participio – ganas un gran bonus.",
+                "Aterriza las tres formas de un verbo en la misma pista. Si aterrizan en el orden correcto – primero <em>go</em>, luego <em>went</em> y después <em>gone</em> – ganas un gran bonus. Lee bien: los aviones no te dicen qué forma llevan.",
                 "Los helicópteros 🚁 van al helipuerto marcado con una H.",
                 "¡Cuidado! Si dos aviones chocan, se acaba la partida.",
                 "Con <kbd>P</kbd> o la barra espaciadora pausas el juego; con <kbd>M</kbd> quitas el sonido.",
@@ -176,7 +176,7 @@ CONTENT = {
             "faq": [
                 ("¿Qué pasa si mando un avión a la pista equivocada?", "Aparece «Wrong runway!» y el avión no sigue esa ruta; solo tienes que trazar otra. La partida termina únicamente si dos aviones chocan."),
                 ("¿Cómo se desbloquean los niveles?", "Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo."),
-                ("¿El juego está en español?", "Los textos dentro del juego están en inglés, que es justo lo que practicas. En esta página tienes las instrucciones en español."),
+                ("¿El juego está en español?", "Sí. Todos los textos del juego están en español (en la página alemana, en alemán). Solo las formas verbales siguen en inglés, que es justo lo que practicas."),
             ],
             "related": ["verb-snake", "verb-kitchen", "verb-slash"],
         },
