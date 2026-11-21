@@ -10,7 +10,8 @@ heading (N = away from the start camera, E/W = right/left). Each piece also adds
 Once a level has been reshaped in the editor, the JSON file is the truth: do not regenerate it.
 
 Units: a square platform `size` wide and 1 high; `gap` = empty space to jump; `dy` = step up/down.
-The player jumps ~2.1 high and ~4.5 far; the checks below keep every jump well inside that.
+The player jumps ~2.1 high and ~4.5 far, and WALKS across gaps of about 1 (the capsule bridges
+them), so real jumps use gaps of 2 to 3. The checks below keep every jump inside the limits.
 """
 import json, os, sys
 
@@ -46,7 +47,8 @@ class Level:
 
     def _check(self, gap, dy):
         assert dy <= 1, f'{self.id}: step up {dy} is too high'
-        assert gap <= (1.5 if dy > 0 else 2.5), f'{self.id}: gap {gap} with step {dy} is too far'
+        assert gap <= (2.5 if dy > 0 else 3.2), f'{self.id}: gap {gap} with step {dy} is too far'
+        assert gap == 0 or gap >= 2, f'{self.id}: gap {gap} can be walked across; use 0 or at least 2'
 
     def _wp(self, wp):
         if self._leaving_mover:
@@ -78,7 +80,7 @@ class Level:
         self.h = h
         return self
 
-    def plat(self, size=4, gap=1, dy=0, color=None, side=0):
+    def plat(self, size=4, gap=2.5, dy=0, color=None, side=0):
         """Square platform ahead. side = sideways shift (to the right of the heading)."""
         self._check(gap + abs(side) * 0.5, dy)
         self._far = None
@@ -88,7 +90,10 @@ class Level:
         self.top += dy
         self._platform(f'platform_{size}x{size}x1', x, z, self.top - 1, color)
         self.c, self.half = (x, z), (size / 2, size / 2)
-        self._wp({'p': [x, self.top, z]})
+        wp = {'p': [x, self.top, z]}
+        if self._leaving_mover:
+            wp['reach'] = gap + size / 2 + 0.95   # leave a ferry only when the landing is close
+        self._wp(wp)
         return self
 
     def walkway(self, n, size=4, color=None):
@@ -119,7 +124,7 @@ class Level:
         self._after_gate = True
         return self
 
-    def mover(self, axis, amp, period, size=4, gap=1, phase=0, color=None):
+    def mover(self, axis, amp, period, size=4, gap=2, phase=0, color=None):
         """Moving platform. axis 'along' = ferry in the heading (boards at its near end, where
         it stands still for a moment); 'y' = bobs up and down. period and phase in seconds.
         For a sideways ferry: turn, mover('along', …), turn back."""
@@ -151,7 +156,7 @@ class Level:
         self.half = (3, 2) if self.h in 'EW' else (2, 3)
         return self
 
-    def drop(self, size=4, gap=1, dy=-2, color=None):
+    def drop(self, size=4, gap=2.5, dy=-2, color=None):
         """Platform ahead and lower (a jump down)."""
         return self.plat(size, gap, dy, color)
 
@@ -195,7 +200,7 @@ class Level:
         self.objs.append(o)
         return self
 
-    def finish(self, size=6, gap=1):
+    def finish(self, size=6, gap=2.5):
         self.plat(size, gap)
         self.flag = {'id': 'flag_1', 'type': 'flag_C', 'color': self.accent, 'position': [self.c[0], self.top, self.c[1]]}
         return self
@@ -218,22 +223,22 @@ def sandbox():
     L.mover('along', 3, 6).plat().checkpoint().turn('E').mover('along', 3, 6).turn('N').plat().checkpoint()
     L.mover('y', 0.8, 3).plat().checkpoint()
     L.walkway(1).hammer(period=4, amplitude=70).walkway(1).checkpoint()
-    L.conveyor(3).plat(6, gap=2).checkpoint().conveyor(-2.5, gap=1).plat(gap=0)
-    L.gate().plat(6, gap=2)
+    L.conveyor(3).plat(6, gap=3).checkpoint().conveyor(-2.5).plat(gap=0)
+    L.gate().plat(6, gap=2.5)
     L.finish()
     return L
 
 
 def rest(L):
     """The wide platform after a gate."""
-    return L.plat(6, gap=2)
+    return L.plat(6, gap=2.5)
 
 
 def first_steps():
     """Level 1. A straight path, three gates: learn the answer blocks."""
     L = Level('first-steps', 'First Steps', [1]).start()
-    L.plat().gate().plat(gap=2).plat().gate().plat(gap=2).plat().gate()
-    L.finish(gap=2)
+    L.plat().gate().plat().plat().gate().plat().plat().gate()
+    L.finish()
     return L
 
 
@@ -241,12 +246,12 @@ def zigzag():
     """Level 2. New idea: the path turns. Corner platforms are yellow."""
     L = Level('zigzag', 'Zigzag', [1], color='green', accent='yellow').start()
     L.plat().plat().gate(); rest(L)
-    L.turn('E').plat(gap=1.5).plat(gap=1.5).plat(gap=1.5, color='yellow')
+    L.turn('E').plat().plat(gap=3).plat(color='yellow')
     L.turn('N').plat().plat().gate(); rest(L)
-    L.turn('W').plat(2).plat(2).plat(2).plat(4).plat(2).plat(2).plat(4, color='yellow')
+    L.turn('W').plat(2, gap=2).plat(2, gap=2).plat(2, gap=2).plat(4).plat(2, gap=2).plat(2, gap=2).plat(4, color='yellow')
     L.turn('N').plat().plat().gate(); rest(L)
-    L.turn('E').plat(gap=2).plat(2, gap=1.5).plat(gap=2, color='yellow')
-    L.turn('N').plat(gap=1.5).plat().gate(); rest(L)
+    L.turn('E').plat(gap=3).plat(2, gap=2).plat(gap=3, color='yellow')
+    L.turn('N').plat(gap=3).plat().gate(); rest(L)
     L.finish()
     return L
 
@@ -254,14 +259,14 @@ def zigzag():
 def climb():
     """Level 3. New idea: height. Steps to jump up, two ramps, then jumps back down."""
     L = Level('climb', 'The Climb', [1, 2], color='yellow', accent='green').start()
-    L.plat().plat(dy=1).plat(dy=1).plat().gate(); rest(L)
+    L.plat().plat(dy=1, gap=2).plat(dy=1, gap=2).plat().gate(); rest(L)
     L.slope(color='green').plat(gap=0).plat().gate(); rest(L)
-    L.turn('E').plat(dy=1).plat(dy=1).plat(2, dy=1).plat(color='green')
+    L.turn('E').plat(dy=1, gap=2).plat(dy=1, gap=2).plat(2, dy=1, gap=2).plat(color='green')
     L.turn('N').plat().gate(); rest(L)
     L.slope(color='green').plat(gap=0)
-    L.turn('W').plat(dy=1).plat(2).plat(dy=1, color='green')
+    L.turn('W').plat(dy=1, gap=2).plat(2, gap=2).plat(dy=1, gap=2, color='green')
     L.turn('N').plat().gate(); rest(L)
-    L.drop(dy=-2).drop(dy=-2).drop(2, dy=-2).drop(dy=-2).plat().gate(); rest(L)
+    L.drop(dy=-2).drop(dy=-2, gap=3).drop(2, dy=-2).drop(dy=-2).plat().gate(); rest(L)
     L.finish()
     return L
 
@@ -282,12 +287,12 @@ def hammer_works():
     """Level 5. New idea: things that push you. Hammers knock you off, belts carry you."""
     L = Level('hammer-works', 'Hammer Works', [2, 3], color='blue', accent='yellow').start()
     L.plat().walkway(1).walkway(1).hammer(4, 70).walkway(1).gate(); rest(L)
-    L.conveyor(-2.5, gap=1).conveyor(-2.5).plat(gap=0).gate(); rest(L)
+    L.conveyor(-2.5).conveyor(-2.5).plat(gap=0).gate(); rest(L)
     L.turn('E').plat().walkway(1).hammer(4, 70).walkway(1).plat(color='yellow')
     L.turn('N').plat().gate(); rest(L)
-    L.conveyor(3, gap=1).plat(6, gap=2).walkway(1).hammer(4, 70).walkway(1).walkway(1).hammer(4, 70, phase=180).walkway(1).gate(); rest(L)
-    L.turn('W').plat(2).plat(2).plat(2).plat(4, color='yellow')
-    L.turn('N').conveyor(-3, gap=1).plat(gap=0).gate(); rest(L)
+    L.conveyor(3).plat(6, gap=3).walkway(1).hammer(4, 70).walkway(1).walkway(1).hammer(4, 70, phase=180).walkway(1).gate(); rest(L)
+    L.turn('W').plat(2, gap=2).plat(2, gap=2).plat(2, gap=2).plat(4, color='yellow')
+    L.turn('N').plat().conveyor(-3).plat(gap=0).gate(); rest(L)
     L.walkway(1).hammer(3.5, 70).walkway(1).mover('along', 3, 7).plat().gate(); rest(L)
     L.finish()
     return L
@@ -296,18 +301,18 @@ def hammer_works():
 def finale():
     """Level 6. Everything, plus a risky shortcut (one small stone with a star) past a detour."""
     L = Level('finale', 'Sky Finale', [3], color='blue', accent='yellow').start()
-    L.plat().plat(dy=1).plat().gate(); rest(L)
+    L.plat().plat(dy=1, gap=2).plat().gate(); rest(L)
     L.turn('E').mover('along', 3, 7, color='green').turn('N').plat().gate(); rest(L)
     L.slope(color='green').plat(gap=0).walkway(1).hammer(4, 70).walkway(1).gate(); rest(L)
-    L.turn('W').plat(2).plat(2).plat(2).plat(4, color='yellow')
-    L.turn('N').conveyor(-2.5, gap=1).plat(gap=0).gate(); rest(L)
+    L.turn('W').plat(2, gap=2).plat(2, gap=2).plat(2, gap=2).plat(4, color='yellow')
+    L.turn('N').plat().conveyor(-2.5).plat(gap=0).gate(); rest(L)
     L.mover('y', 1.0, 4, color='green').mover('along', 3, 7, color='green').plat().gate(); rest(L)
     # Detour E → N → W back to the same line; the shortcut is one small stone straight ahead.
     x0, z0, top0 = L.c[0], L.c[1], L.top
     L.turn('E').plat().plat(color='yellow').turn('N').plat().plat(color='yellow').turn('W').plat().plat(6)
     assert abs(L.c[0] - x0) < 0.01, 'detour must come back to the same line'
     mid = (z0 - 3 + L.c[1] + 3) / 2
-    L.extra(x0, mid, size=1, top=top0, color='yellow')
+    L.extra(x0, mid, size=2, top=top0, color='yellow')
     L.objs.append({'id': 'star_1', 'type': 'star', 'position': [x0, top0 + 1.3, mid], 'rotation': 0, 'scale': 1, 'color': 'yellow'})
     L.turn('N').drop(dy=-2).drop(dy=-2).plat().gate(); rest(L)
     L.walkway(1).hammer(4, 70).walkway(1).walkway(1).hammer(4, 70, phase=180).walkway(1).mover('along', 3, 7, color='green').plat().gate(); rest(L)

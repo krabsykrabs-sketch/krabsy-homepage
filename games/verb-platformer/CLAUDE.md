@@ -149,7 +149,13 @@ load with 0 console errors, 0 failed requests, 0 external requests.
   world-space and small on phones.
 - **Cleanup:** delete `src/levels/`, `qa-styles.js` and the legacy
   loader path once the owner has accepted the JSON levels.
-- **Level feedback from the owner** (difficulty, length, hammer timing).
+- **Level feedback from the owner.** 2026-11-21, first play: gaps of 1
+  could simply be walked across (the capsule bridges them) → all gaps
+  are now 0 (attached) or 2–3; "Ferries is quite good"; the character
+  now turns to its steering direction in the air too (it used to jump
+  sideways). Still open: his view on the wider gaps, the other levels,
+  hammer timing, and whether the mouse should also turn the character
+  when standing still.
 - **Falling red platforms outside gates do not come back on respawn.**
 - **UI is English only**, system font, title "Krabsy 3D".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour

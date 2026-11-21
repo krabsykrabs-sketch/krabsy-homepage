@@ -77,6 +77,8 @@ function botMain(wps) {
     const t = target(L, wp);
     const dx = t.x - p.x, dz = t.z - p.z, dist = Math.hypot(dx, dz);
     if (grounded && dist < (wp.ride ? 0.7 : 0.55) && Math.abs(t.y - p.y) < 0.6) {
+      // on an answer block: stay until the game has counted it (it checks once per frame)
+      if (wp.gate && !L.gates.find(g => g.id === wp.gate).gate.cleared) { v.x = v.y = 0; D.input.update(); return; }
       if (bot.i < wps.length - 1) { bot.i++; lastProgressT = performance.now(); }
       return;
     }
@@ -107,7 +109,7 @@ function botMain(wps) {
     }
     jumpCooldown--;
     // slow down for the last bit so we do not overshoot small platforms
-    const speed = go ? (dist < 0.8 && grounded ? 0.5 : 1) : 0;
+    const speed = go ? (dist < 0.8 && grounded ? 0.75 : 1) : 0;   // 0.75 still beats a -3 conveyor
     v.x = ux * speed; v.y = uz * speed;
     D.input.update();   // apply the stick now; the game itself reads input only once per frame
   }

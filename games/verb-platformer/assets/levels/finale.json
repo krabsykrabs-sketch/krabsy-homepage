@@ -33,7 +33,7 @@
    "position": [
     0.0,
     0,
-    -6.0
+    -7.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -46,7 +46,7 @@
    "position": [
     0.0,
     1,
-    -11.0
+    -13.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -59,7 +59,7 @@
    "position": [
     0.0,
     1,
-    -16.0
+    -20.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -72,7 +72,7 @@
    "position": [
     0.0,
     3,
-    -16.0
+    -20.0
    ]
   },
   {
@@ -81,7 +81,7 @@
    "position": [
     0.0,
     1,
-    -21.0
+    -25.0
    ],
    "rotation": 0
   },
@@ -91,7 +91,7 @@
    "position": [
     0.0,
     1,
-    -27.0
+    -31.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -102,9 +102,9 @@
    "id": "platform_6",
    "type": "platform_4x4x1",
    "position": [
-    9.0,
+    10.0,
     1,
-    -27.0
+    -31.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -121,9 +121,9 @@
    "id": "platform_7",
    "type": "platform_4x4x1",
    "position": [
-    12.0,
+    13.0,
     1,
-    -32.0
+    -38.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -134,18 +134,18 @@
    "id": "checkpoint_2",
    "type": "checkpoint",
    "position": [
-    12.0,
+    13.0,
     3,
-    -32.0
+    -38.0
    ]
   },
   {
    "id": "gate_2",
    "type": "gate",
    "position": [
-    12.0,
+    13.0,
     1,
-    -37.0
+    -43.0
    ],
    "rotation": 0
   },
@@ -153,9 +153,9 @@
    "id": "platform_8",
    "type": "platform_6x6x1",
    "position": [
-    12.0,
+    13.0,
     1,
-    -43.0
+    -49.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -166,9 +166,9 @@
    "id": "platform_9",
    "type": "platform_slope_4x6x4",
    "position": [
-    12.0,
+    13.0,
     2,
-    -49.0
+    -55.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -179,9 +179,9 @@
    "id": "platform_10",
    "type": "platform_4x4x1",
    "position": [
-    12.0,
+    13.0,
     5,
-    -54.0
+    -60.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -192,9 +192,9 @@
    "id": "platform_11",
    "type": "platform_4x4x1",
    "position": [
-    12.0,
+    13.0,
     5,
-    -58.0
+    -64.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -205,9 +205,9 @@
    "id": "hammer_1",
    "type": "hammer",
    "position": [
-    12.0,
+    13.0,
     13.3,
-    -58.0
+    -64.5
    ],
    "rotation": 0,
    "rotationX": 180,
@@ -221,9 +221,9 @@
    "id": "platform_12",
    "type": "platform_4x4x1",
    "position": [
-    12.0,
+    13.0,
     5,
-    -62.0
+    -68.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -234,18 +234,18 @@
    "id": "checkpoint_3",
    "type": "checkpoint",
    "position": [
-    12.0,
+    13.0,
     7,
-    -62.0
+    -68.5
    ]
   },
   {
    "id": "gate_3",
    "type": "gate",
    "position": [
-    12.0,
+    13.0,
     5,
-    -67.0
+    -73.5
    ],
    "rotation": 0
   },
@@ -253,9 +253,9 @@
    "id": "platform_13",
    "type": "platform_6x6x1",
    "position": [
-    12.0,
+    13.0,
     5,
-    -73.0
+    -80.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -268,7 +268,7 @@
    "position": [
     7.0,
     5,
-    -73.0
+    -80.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -279,9 +279,9 @@
    "id": "platform_15",
    "type": "platform_2x2x1",
    "position": [
-    4.0,
+    3.0,
     5,
-    -73.0
+    -80.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -292,9 +292,9 @@
    "id": "platform_16",
    "type": "platform_2x2x1",
    "position": [
-    1.0,
+    -1.0,
     5,
-    -73.0
+    -80.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -305,9 +305,9 @@
    "id": "platform_17",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -73.0
+    -80.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -315,12 +315,25 @@
    "correctAnswer": false
   },
   {
+   "id": "platform_18",
+   "type": "platform_4x4x1",
+   "position": [
+    -6.5,
+    5,
+    -86.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
    "id": "conveyor2x4x1_1",
    "type": "conveyor_2x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -78.0
+    -90.5
    ],
    "rotation": 180,
    "scale": 1,
@@ -328,12 +341,12 @@
    "speed": -2.5
   },
   {
-   "id": "platform_18",
+   "id": "platform_19",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -82.0
+    -94.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -344,28 +357,28 @@
    "id": "checkpoint_4",
    "type": "checkpoint",
    "position": [
-    -3.0,
+    -6.5,
     7,
-    -82.0
+    -94.5
    ]
   },
   {
    "id": "gate_4",
    "type": "gate",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -87.0
+    -99.5
    ],
    "rotation": 0
   },
   {
-   "id": "platform_19",
+   "id": "platform_20",
    "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -93.0
+    -106.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -373,12 +386,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_20",
+   "id": "platform_21",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -99.0
+    -113.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -392,12 +405,12 @@
    }
   },
   {
-   "id": "platform_21",
+   "id": "platform_22",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -107.0
+    -122.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -411,12 +424,12 @@
    }
   },
   {
-   "id": "platform_22",
+   "id": "platform_23",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -115.0
+    -131.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -427,41 +440,28 @@
    "id": "checkpoint_5",
    "type": "checkpoint",
    "position": [
-    -3.0,
+    -6.5,
     7,
-    -115.0
+    -131.5
    ]
   },
   {
    "id": "gate_5",
    "type": "gate",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -120.0
+    -136.5
    ],
    "rotation": 0
   },
   {
-   "id": "platform_23",
+   "id": "platform_24",
    "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -126.0
-   ],
-   "rotation": 0,
-   "scale": 1,
-   "color": "blue",
-   "correctAnswer": false
-  },
-  {
-   "id": "platform_24",
-   "type": "platform_4x4x1",
-   "position": [
-    3.0,
-    5,
-    -126.0
+    -143.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -472,35 +472,22 @@
    "id": "platform_25",
    "type": "platform_4x4x1",
    "position": [
-    8.0,
+    1.0,
     5,
-    -126.0
+    -143.0
    ],
    "rotation": 0,
    "scale": 1,
-   "color": "yellow",
+   "color": "blue",
    "correctAnswer": false
   },
   {
    "id": "platform_26",
    "type": "platform_4x4x1",
    "position": [
-    8.0,
+    7.5,
     5,
-    -131.0
-   ],
-   "rotation": 0,
-   "scale": 1,
-   "color": "blue",
-   "correctAnswer": false
-  },
-  {
-   "id": "platform_27",
-   "type": "platform_4x4x1",
-   "position": [
-    8.0,
-    5,
-    -136.0
+    -143.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -508,12 +495,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_28",
+   "id": "platform_27",
    "type": "platform_4x4x1",
    "position": [
-    3.0,
+    7.5,
     5,
-    -136.0
+    -149.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -521,12 +508,25 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_29",
-   "type": "platform_6x6x1",
+   "id": "platform_28",
+   "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    7.5,
     5,
-    -136.0
+    -156.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_29",
+   "type": "platform_4x4x1",
+   "position": [
+    1.0,
+    5,
+    -156.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -535,11 +535,24 @@
   },
   {
    "id": "platform_30",
-   "type": "platform_1x1x1",
+   "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     5,
-    -131.0
+    -156.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_31",
+   "type": "platform_2x2x1",
+   "position": [
+    -6.5,
+    5,
+    -149.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -550,34 +563,21 @@
    "id": "star_1",
    "type": "star",
    "position": [
-    -3.0,
+    -6.5,
     7.3,
-    -131.0
+    -149.5
    ],
    "rotation": 0,
    "scale": 1,
    "color": "yellow"
   },
   {
-   "id": "platform_31",
-   "type": "platform_4x4x1",
-   "position": [
-    -3.0,
-    3,
-    -142.0
-   ],
-   "rotation": 0,
-   "scale": 1,
-   "color": "blue",
-   "correctAnswer": false
-  },
-  {
    "id": "platform_32",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
-    1,
-    -147.0
+    -6.5,
+    3,
+    -163.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -588,9 +588,22 @@
    "id": "platform_33",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -152.0
+    -170.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_34",
+   "type": "platform_4x4x1",
+   "position": [
+    -6.5,
+    1,
+    -176.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -601,28 +614,28 @@
    "id": "checkpoint_6",
    "type": "checkpoint",
    "position": [
-    -3.0,
+    -6.5,
     3,
-    -152.0
+    -176.5
    ]
   },
   {
    "id": "gate_6",
    "type": "gate",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -157.0
+    -181.5
    ],
    "rotation": 0
   },
   {
-   "id": "platform_34",
+   "id": "platform_35",
    "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -163.0
+    -188.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -630,12 +643,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_35",
+   "id": "platform_36",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -168.0
+    -193.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -646,9 +659,9 @@
    "id": "hammer_2",
    "type": "hammer",
    "position": [
-    -3.0,
+    -6.5,
     9.3,
-    -168.0
+    -193.0
    ],
    "rotation": 0,
    "rotationX": 180,
@@ -659,12 +672,12 @@
    "phase": 0
   },
   {
-   "id": "platform_36",
+   "id": "platform_37",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -172.0
+    -197.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -672,12 +685,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_37",
+   "id": "platform_38",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -176.0
+    -201.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -688,9 +701,9 @@
    "id": "hammer_3",
    "type": "hammer",
    "position": [
-    -3.0,
+    -6.5,
     9.3,
-    -176.0
+    -201.0
    ],
    "rotation": 0,
    "rotationX": 180,
@@ -701,12 +714,12 @@
    "phase": 180
   },
   {
-   "id": "platform_38",
+   "id": "platform_39",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -180.0
+    -205.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -714,12 +727,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_39",
+   "id": "platform_40",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -188.0
+    -214.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -733,12 +746,12 @@
    }
   },
   {
-   "id": "platform_40",
+   "id": "platform_41",
    "type": "platform_4x4x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -196.0
+    -223.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -749,28 +762,28 @@
    "id": "checkpoint_7",
    "type": "checkpoint",
    "position": [
-    -3.0,
+    -6.5,
     3,
-    -196.0
+    -223.5
    ]
   },
   {
    "id": "gate_7",
    "type": "gate",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -201.0
+    -228.5
    ],
    "rotation": 0
   },
   {
-   "id": "platform_41",
+   "id": "platform_42",
    "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -207.0
+    -235.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -778,12 +791,12 @@
    "correctAnswer": false
   },
   {
-   "id": "platform_42",
+   "id": "platform_43",
    "type": "platform_6x6x1",
    "position": [
-    -3.0,
+    -6.5,
     1,
-    -214.0
+    -243.5
    ],
    "rotation": 0,
    "scale": 1,
@@ -796,9 +809,9 @@
   "type": "flag_C",
   "color": "yellow",
   "position": [
-   -3.0,
+   -6.5,
    2,
-   -214.0
+   -243.5
   ]
  },
  "prefabs": [],
@@ -807,21 +820,21 @@
    "p": [
     0.0,
     1,
-    -6.0
+    -7.5
    ]
   },
   {
    "p": [
     0.0,
     2,
-    -11.0
+    -13.5
    ]
   },
   {
    "p": [
     0.0,
     2,
-    -16.0
+    -20.0
    ]
   },
   {
@@ -831,51 +844,51 @@
    "p": [
     0.0,
     2,
-    -27.0
+    -31.5
    ]
   },
   {
    "ride": "platform_6",
-   "reach": 3.9
+   "reach": 4.9
   },
   {
    "p": [
-    12.0,
+    13.0,
     2,
-    -32.0
+    -38.0
    ],
-   "reach": 3.9
+   "reach": 5.45
   },
   {
    "gate": "gate_2"
   },
   {
    "p": [
-    12.0,
+    13.0,
     2,
-    -43.0
+    -49.5
    ]
   },
   {
    "p": [
-    12.0,
+    13.0,
     6,
-    -54.0
+    -60.5
    ]
   },
   {
    "p": [
-    12.0,
+    13.0,
     6,
-    -58.0
+    -64.5
    ],
    "hammer": "hammer_1"
   },
   {
    "p": [
-    12.0,
+    13.0,
     6,
-    -62.0
+    -68.5
    ]
   },
   {
@@ -883,51 +896,58 @@
   },
   {
    "p": [
-    12.0,
+    13.0,
     6,
-    -73.0
+    -80.0
    ]
   },
   {
    "p": [
     7.0,
     6,
-    -73.0
+    -80.0
    ]
   },
   {
    "p": [
-    4.0,
+    3.0,
     6,
-    -73.0
+    -80.0
    ]
   },
   {
    "p": [
-    1.0,
+    -1.0,
     6,
-    -73.0
+    -80.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -73.0
+    -80.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -79.5
+    -86.5
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -82.0
+    -92.0
+   ]
+  },
+  {
+   "p": [
+    -6.5,
+    6,
+    -94.5
    ]
   },
   {
@@ -935,98 +955,98 @@
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -93.0
+    -106.0
    ]
   },
   {
-   "ride": "platform_20",
-   "reach": 3.9
+   "ride": "platform_21",
+   "reach": 4.9
   },
   {
-   "ride": "platform_21",
-   "reach": 3.9
+   "ride": "platform_22",
+   "reach": 4.9
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -115.0
+    -131.5
    ],
-   "reach": 3.9
+   "reach": 5.45
   },
   {
    "gate": "gate_5"
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -126.0
+    -143.0
    ]
   },
   {
    "p": [
-    3.0,
+    1.0,
     6,
-    -126.0
+    -143.0
    ]
   },
   {
    "p": [
-    8.0,
+    7.5,
     6,
-    -126.0
+    -143.0
    ]
   },
   {
    "p": [
-    8.0,
+    7.5,
     6,
-    -131.0
+    -149.5
    ]
   },
   {
    "p": [
-    8.0,
+    7.5,
     6,
-    -136.0
+    -156.0
    ]
   },
   {
    "p": [
-    3.0,
+    1.0,
     6,
-    -136.0
+    -156.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     6,
-    -136.0
+    -156.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     4,
-    -142.0
+    -163.5
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -147.0
+    -170.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -152.0
+    -176.5
    ]
   },
   {
@@ -1034,68 +1054,68 @@
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -163.0
+    -188.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -168.0
+    -193.0
    ],
    "hammer": "hammer_2"
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -172.0
+    -197.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -176.0
+    -201.0
    ],
    "hammer": "hammer_3"
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -180.0
+    -205.0
    ]
   },
   {
-   "ride": "platform_39",
-   "reach": 3.9
+   "ride": "platform_40",
+   "reach": 4.9
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -196.0
+    -223.5
    ],
-   "reach": 3.9
+   "reach": 5.45
   },
   {
    "gate": "gate_7"
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -207.0
+    -235.0
    ]
   },
   {
    "p": [
-    -3.0,
+    -6.5,
     2,
-    -214.0
+    -243.5
    ]
   }
  ]

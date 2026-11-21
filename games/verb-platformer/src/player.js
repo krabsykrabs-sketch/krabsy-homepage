@@ -108,12 +108,14 @@ export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z
     // --- Animation state + facing. Translates the physics state into the three named states
     // the character module exposes. Facing only updates when actually moving so the character
     // doesn't snap to a default orientation when standing still.
+    // The character always turns to where it is being steered — in the air too, so a jump
+    // never looks sideways. (Steering is camera-relative, so turning the camera with the
+    // mouse while holding a direction turns the character with it.)
+    if (moveDir.lengthSq() > 0.001) character.setFacing(Math.atan2(moveDir.x, moveDir.z));
     if (!state.grounded) {
       character.setState('jumping');
     } else if (moveDir.lengthSq() > 0.001) {
       character.setState('walking');
-      const yaw = Math.atan2(moveDir.x, moveDir.z);
-      character.setFacing(yaw);
     } else {
       character.setState('idle');
     }
