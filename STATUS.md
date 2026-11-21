@@ -69,6 +69,10 @@ but not referenced — verify before removing.)
   Dec 2026 with fresh GSC coverage + performance exports.
 - **Backlinks/outreach:** Deutscher Bildungsserver — submitted 2026-11-16, **LIVE** same day
   (https://www.bildungsserver.de/onlineressource.html?onlineressourcen_id=67514 — 3 followed links to krabsy.com)
+  First effect (export 2026-11-21): ~8 German visitors via bildungsserver.de on Nov 17–19
+  (one 9 min / 9 pages through the drills), then quiet. Timezone country works (since 11-17).
+  Domain history: krabsy.com was a German land-hermit-crab shop (`/1/…` WordPress URLs,
+  2016–17, later Shopify) — old `/1/` URLs 404; ignore them in GSC/Bing 404 reports.
   (URL https://krabsy.com/de/, Sek I, Zusatzinfo /de/lehrkraefte/); manual review,
   takes weeks. Further portals: `docs/outreach-list.md` (in progress).
 - **Teachers are the channel**: first organic class (UY, Ceibal Schoology,
