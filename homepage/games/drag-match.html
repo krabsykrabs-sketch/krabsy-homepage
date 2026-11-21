@@ -50,7 +50,17 @@
      so the columns visually align. Sized to fit the longest form in the
      dataset ("forgotten") with comfortable breathing room. */
   --dm-pill-w: 140px;
+
+  /* Row / pill heights follow the frame height, so all 8 rows fit when the
+     wrapper page gives the iframe less than the 700 px design height. */
+  --dm-row-h: clamp(27px, calc((100vh - 232px) / 8 - 6px), 44px);
+  --dm-pill-h: calc(var(--dm-row-h) - 8px);
+  --dm-row-gap: clamp(3px, calc(var(--dm-row-h) - 34px), 8px);
 }
+
+/* Inside the wrapper page's iframe there is nothing to "close" — the ✕
+   used to call history.back() on the whole tab and threw kids off the site. */
+html.is-embedded #dm-close-btn { display: none; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -239,8 +249,17 @@ body::before {
   gap: 10px;
   font-family: Verdana, Geneva, sans-serif;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.6px;
+  font-size: 0.86rem;
+  letter-spacing: 0.4px;
+  color: var(--charcoal);
+  white-space: nowrap;
+}
+/* Grammar term: small secondary caption only (presentation mandate) */
+.dm-term {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.56rem;
+  font-weight: 400;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--charcoal-soft);
   white-space: nowrap;
@@ -302,30 +321,47 @@ body::before {
 .dm-col {
   display: flex;
   flex-direction: column;
+  gap: var(--dm-row-gap);
+}
+/* Column heads: position number ("1." "2." "3.") is the label, the grammar
+   term sits underneath as a small caption. Cells line up with the pills. */
+.dm-col-heads {
+  display: flex;
   gap: 8px;
+  align-items: flex-end;
+  padding: 0 4px;
+  margin: 0;
+  height: 32px;
 }
-.dm-col-heading {
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
+.dm-col-head {
+  width: var(--dm-pill-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.dm-col-head-gap { width: 14px; }
+.dm-pos {
+  font-family: 'Limelight', cursive;
+  font-size: 1.05rem;
+  line-height: 1;
   color: var(--lavender-deep);
-  margin: 0 0 2px;
-  padding-left: 4px;
+  letter-spacing: 0.5px;
 }
+.dm-col-head.is-asked .dm-pos { color: var(--coral-deep); }
+.dm-col-head.is-later { opacity: 0.55; }
 
 /* ── Match rows ─────────────────────────────────────────────────────────── */
 .dm-rows {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--dm-row-gap);
   align-items: flex-start;
 }
 .dm-pile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--dm-row-gap);
   align-items: flex-start;
 }
 
@@ -333,10 +369,33 @@ body::before {
   display: flex;
   gap: 8px;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--dm-row-h);
   padding: 2px 4px;
   border-radius: var(--r-sm);
   transition: background-color 0.15s ease;
+}
+/* go → ___ → ___ : arrows between the cells of a row */
+.dm-arrow {
+  width: 14px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--lavender-deep);
+  opacity: 0.7;
+  user-select: none;
+}
+/* Blank that is not asked yet (3rd position during stage 1) */
+.dm-slot-later {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dm-pill-w);
+  height: var(--dm-pill-h);
+  border-radius: 999px;
+  border: 2px dashed rgba(144, 152, 180, 0.45);
+  color: rgba(42, 36, 56, 0.35);
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  user-select: none;
 }
 
 /* Base verb pill — lavender bg, charcoal text, immovable */
@@ -345,7 +404,7 @@ body::before {
   align-items: center;
   justify-content: center;
   width: var(--dm-pill-w);
-  height: 36px;
+  height: var(--dm-pill-h);
   padding: 0 14px;
   background: var(--lavender);
   border: 2px solid transparent;
@@ -369,7 +428,7 @@ body::before {
   align-items: center;
   justify-content: center;
   width: var(--dm-pill-w);
-  height: 36px;
+  height: var(--dm-pill-h);
   padding: 0 14px;
   background: var(--sage);
   color: var(--sage-correct);
@@ -390,7 +449,7 @@ body::before {
   align-items: center;
   justify-content: center;
   width: var(--dm-pill-w);
-  height: 36px;
+  height: var(--dm-pill-h);
   border-radius: 999px;
   transition:
     border-color 0.15s ease,
@@ -404,13 +463,12 @@ body::before {
   position: relative;
 }
 .dm-slot.is-empty {
-  border: 2px dashed var(--border-neutral);
-  background: rgba(186, 191, 216, 0.40);
-  color: var(--charcoal-soft);
+  border: 2px dashed var(--coral);
+  background: rgba(242, 147, 126, 0.14);
+  color: var(--coral-deep);
   padding: 0 12px;
   font-size: 0.78rem;
-  letter-spacing: 0.3px;
-  font-style: italic;
+  letter-spacing: 1px;
 }
 /* Drag-over: solid coral 2.5px + soft glow */
 .dm-row.is-drop-active .dm-slot.is-empty {
@@ -441,7 +499,7 @@ body::before {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 36px;
+  height: var(--dm-pill-h);
   padding: 0 28px 0 14px;
   background: var(--sage);
   color: var(--sage-correct);
@@ -465,7 +523,7 @@ body::before {
 
 /* ── Draggable form chips (right column) ────────────────────────────────── */
 .dm-pile-slot {
-  min-height: 44px;
+  min-height: var(--dm-row-h);
   padding: 2px 0;
   display: flex;
   align-items: center;
@@ -480,7 +538,7 @@ body::before {
   align-items: center;
   justify-content: center;
   width: var(--dm-pill-w);
-  height: 36px;
+  height: var(--dm-pill-h);
   padding: 0 16px;
   background: var(--lavender);
   border: 2px solid transparent;
@@ -640,6 +698,36 @@ body::before {
 
 .dm-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
+/* Narrow-screen card: links to a drill that works on phones */
+.dm-narrow-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  justify-content: center;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.dm-narrow-links a { color: var(--coral-deep); font-weight: 700; }
+
+/* Short frames (laptop viewport): tighter chrome so the board keeps its room */
+@media (max-height: 600px) {
+  :root { --dm-row-h: clamp(30px, calc((100vh - 160px) / 8 - 4px), 44px); }
+  .dm-app { grid-template-rows: 44px 1fr; gap: 8px; padding: 8px; }
+  .dm-sidebar { gap: 8px; }
+  .dm-panel { padding: 9px 14px; }
+  .dm-play { padding: 8px 20px 10px; gap: 6px; }
+  .dm-play-header { min-height: 24px; }
+  .dm-col-heads { height: 28px; }
+  .dm-base, .dm-chip, .dm-pill-locked, .dm-past-locked { font-size: 0.86rem; }
+  .dm-stage-banner { top: 44px; }
+  .dm-screen { padding: 16px; }
+  .dm-screen-card { padding: 24px 40px; }
+  .dm-title { font-size: 2.5rem; }
+  .dm-tagline { margin-bottom: 18px; }
+  .dm-done-grid { margin: 12px auto; }
+  .dm-done-stat { padding: 9px 10px; }
+}
+
 /* Narrow / portrait fallback */
 @media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
   .dm-app { display: none; }
@@ -685,7 +773,8 @@ body::before {
     <div class="dm-play-header">
       <span class="dm-stage-pill" id="dm-stage-pill">
         <span class="dm-stage-num" id="dm-stage-num">1/2</span>
-        <span id="dm-stage-label" data-string="stage_past">Simple Past</span>
+        <span id="dm-stage-label" data-string="stage_past">2. Form</span>
+        <span class="dm-term" id="dm-stage-term">Simple Past</span>
       </span>
       <span class="dm-progress-text"><strong id="dm-progress-current">0</strong> / 8</span>
     </div>
@@ -694,11 +783,19 @@ body::before {
 
     <div class="dm-board">
       <div class="dm-col">
-        <h2 class="dm-col-heading" data-string="col_base">Grundform</h2>
+        <div class="dm-col-heads" id="dm-col-heads">
+          <div class="dm-col-head"><span class="dm-pos">1.</span><span class="dm-term" data-string="col_base">Grundform</span></div>
+          <span class="dm-col-head-gap" aria-hidden="true"></span>
+          <div class="dm-col-head is-asked" id="dm-head-past"><span class="dm-pos">2.</span><span class="dm-term">Simple Past</span></div>
+          <span class="dm-col-head-gap" aria-hidden="true"></span>
+          <div class="dm-col-head is-later" id="dm-head-pp"><span class="dm-pos">3.</span><span class="dm-term">Past Participle</span></div>
+        </div>
         <div class="dm-rows" id="dm-rows"></div>
       </div>
       <div class="dm-col">
-        <h2 class="dm-col-heading" id="dm-pile-heading" data-string="col_past">Simple Past</h2>
+        <div class="dm-col-heads">
+          <div class="dm-col-head is-asked"><span class="dm-pos" id="dm-pile-pos">2.</span><span class="dm-term" id="dm-pile-term">Simple Past</span></div>
+        </div>
         <div class="dm-pile" id="dm-pile"></div>
       </div>
     </div>
@@ -711,7 +808,7 @@ body::before {
 <div class="dm-screen" id="dm-start-screen">
   <div class="dm-screen-card">
     <h1 class="dm-title">Drag Match</h1>
-    <p class="dm-tagline" data-string="start_tagline">Verbinde Grundform, Simple Past und Past Participle.</p>
+    <p class="dm-tagline" data-string="start_tagline">Zieh jede Form zu ihrem Verb: go → went → gone.</p>
     <button class="dm-btn" id="dm-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="dm-best-row" id="dm-best-row" hidden>
       <span data-string="best_label">Bestzeit</span>: <strong id="dm-best-start">—</strong>
@@ -748,6 +845,10 @@ body::before {
   <div class="dm-screen-card">
     <h1 class="dm-title" data-string="narrow_title">Nur Querformat</h1>
     <p class="dm-tagline" data-string="narrow_sub">Öffne Drag Match auf einem Bildschirm mit mindestens 900 px Breite.</p>
+    <p class="dm-narrow-links">
+      <a id="dm-narrow-sprint" href="/de/unregelmaessige-verben/sprint/" target="_top" data-string="narrow_sprint">Zum Sprint (läuft auf dem Handy)</a>
+      <a id="dm-narrow-hub" href="/de/spiele/" target="_top" data-string="narrow_hub">Alle Spiele</a>
+    </p>
   </div>
 </div>
 
@@ -805,16 +906,16 @@ const STRINGS = {
     score: 'Punkte',
     streak: 'Serie',
     time: 'Zeit',
-    stage_past: 'Simple Past',
-    stage_pp: 'Past Participle',
+    // Presentation mandate: positions ("2." / "3.") are the labels; the
+    // grammar terms (TERM_PAST / TERM_PP) only appear as small captions.
+    stage_past: '2. Form',
+    stage_pp: '3. Form',
     col_base: 'Grundform',
-    col_past: 'Simple Past',
-    col_pp: 'Past Participle',
-    drop_here_past: 'Simple Past',
-    drop_here_pp: 'Past Participle',
-    stage_complete_past: 'Top! Jetzt noch das Past Participle.',
+    stage_complete_past: 'Top! Jetzt die 3. Form.',
     penalty_hint: 'Falsch zugeordnet: +2 s',
-    start_tagline: 'Verbinde Grundform, Simple Past und Past Participle.',
+    start_tagline: 'Zieh jede Form zu ihrem Verb: go → went → gone.',
+    narrow_sprint: 'Zum Sprint (läuft auf dem Handy)',
+    narrow_hub: 'Alle Spiele',
     start_btn: "Los geht's!",
     best_label: 'Bestzeit',
     new_best: 'Neue Bestzeit!',
@@ -835,16 +936,14 @@ const STRINGS = {
     score: 'Puntos',
     streak: 'Racha',
     time: 'Tiempo',
-    stage_past: 'Simple Past',
-    stage_pp: 'Past Participle',
+    stage_past: '2.ª forma',
+    stage_pp: '3.ª forma',
     col_base: 'Infinitivo',
-    col_past: 'Simple Past',
-    col_pp: 'Past Participle',
-    drop_here_past: 'Simple Past',
-    drop_here_pp: 'Past Participle',
-    stage_complete_past: '¡Bien! Ahora el past participle.',
+    stage_complete_past: '¡Bien! Ahora la 3.ª forma.',
     penalty_hint: 'Mal emparejado: +2 s',
-    start_tagline: 'Une infinitivo, simple past y past participle.',
+    start_tagline: 'Arrastra cada forma hasta su verbo: go → went → gone.',
+    narrow_sprint: 'Ir al Sprint (funciona en el móvil)',
+    narrow_hub: 'Todos los juegos',
     start_btn: '¡Empezar!',
     best_label: 'Mejor tiempo',
     new_best: '¡Nuevo récord!',
@@ -860,6 +959,15 @@ const STRINGS = {
     aria_stats: 'Estadísticas',
     aria_playarea: 'Campo de juego',
   },
+};
+
+// English grammar terms — same in both UI languages, caption-only.
+const TERM_PAST = 'Simple Past';
+const TERM_PP = 'Past Participle';
+const BLANK = '___';
+const NARROW_LINKS = {
+  de: { sprint: '/de/unregelmaessige-verben/sprint/', hub: '/de/spiele/' },
+  es: { sprint: '/es/verbos-irregulares/sprint/',     hub: '/es/juegos/' },
 };
 
 function getLang() {
@@ -890,6 +998,10 @@ function applyStrings() {
   });
 }
 
+let IS_EMBEDDED = false;
+try { IS_EMBEDDED = window.self !== window.top; } catch (_) { IS_EMBEDDED = true; }
+if (IS_EMBEDDED) document.documentElement.classList.add('is-embedded');
+
 const $ = id => document.getElementById(id);
 const els = {
   app:           $('dm-app'),
@@ -904,11 +1016,15 @@ const els = {
   stagePill:     $('dm-stage-pill'),
   stageNum:      $('dm-stage-num'),
   stageLabel:    $('dm-stage-label'),
+  stageTerm:     $('dm-stage-term'),
+  headPast:      $('dm-head-past'),
+  headPp:        $('dm-head-pp'),
+  pilePos:       $('dm-pile-pos'),
+  pileTerm:      $('dm-pile-term'),
   stageBanner:   $('dm-stage-banner'),
   progressCur:   $('dm-progress-current'),
   rows:          $('dm-rows'),
   pile:          $('dm-pile'),
-  pileHeading:   $('dm-pile-heading'),
   startScreen:   $('dm-start-screen'),
   doneScreen:    $('dm-done-screen'),
   startBtn:      $('dm-start-btn'),
@@ -1040,8 +1156,13 @@ function updateStageUi() {
   const isPast = state.stage === 'past';
   els.stageNum.textContent = isPast ? '1/2' : '2/2';
   els.stageLabel.textContent = isPast ? S('stage_past') : S('stage_pp');
+  els.stageTerm.textContent = isPast ? TERM_PAST : TERM_PP;
   els.stagePill.classList.toggle('is-pp', !isPast);
-  els.pileHeading.textContent = isPast ? S('col_past') : S('col_pp');
+  els.headPast.classList.toggle('is-asked', isPast);
+  els.headPp.classList.toggle('is-asked', !isPast);
+  els.headPp.classList.toggle('is-later', isPast);
+  els.pilePos.textContent = isPast ? '2.' : '3.';
+  els.pileTerm.textContent = isPast ? TERM_PAST : TERM_PP;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1072,13 +1193,29 @@ function renderBoard() {
     const slot = document.createElement('div');
     slot.className = 'dm-slot is-empty';
     slot.dataset.verb = pair.verb;
-    slot.textContent = S('drop_here_past');
+    slot.textContent = BLANK;
+
+    // Row reads  go → ___ → ___  (asked blank highlighted, 3rd one dimmed)
+    const later = document.createElement('div');
+    later.className = 'dm-slot-later';
+    later.textContent = BLANK;
 
     row.appendChild(base);
+    row.appendChild(makeArrow());
     row.appendChild(slot);
+    row.appendChild(makeArrow());
+    row.appendChild(later);
     els.rows.appendChild(row);
   });
   renderPile();
+}
+
+function makeArrow() {
+  const a = document.createElement('span');
+  a.className = 'dm-arrow';
+  a.setAttribute('aria-hidden', 'true');
+  a.textContent = '→';
+  return a;
 }
 
 function renderPile() {
@@ -1357,11 +1494,17 @@ function beginPpStage() {
       pastCell.className = 'dm-past-locked';
       pastCell.textContent = pair.past;
       row.insertBefore(pastCell, slot);
+      // Row becomes  go → went → ___ : the slot moves to the 3rd position
+      // and replaces the dimmed placeholder.
+      const later = row.querySelector('.dm-slot-later');
+      const arrows = row.querySelectorAll('.dm-arrow');
+      if (arrows[1]) row.insertBefore(arrows[1], slot);
+      if (later) later.remove();
     }
     if (slot) {
       slot.innerHTML = '';
       slot.classList.add('is-empty');
-      slot.textContent = S('drop_here_pp');
+      slot.textContent = BLANK;
     }
   });
   renderPile();
@@ -1446,6 +1589,8 @@ function finishRound() {
   state.round += 1;
 }
 function backToMenu() {
+  state.phase = 'idle';
+  stopTimer();
   els.doneScreen.hidden = true;
   els.startScreen.hidden = false;
   paintStartBest();
@@ -1478,6 +1623,9 @@ els.audioBtn.addEventListener('click', () => {
   }
 });
 els.closeBtn.addEventListener('click', () => {
+  // Embedded in the wrapper page the button is hidden (html.is-embedded);
+  // if it is reached anyway, never navigate the surrounding tab.
+  if (IS_EMBEDDED) { backToMenu(); return; }
   if (document.referrer) history.back();
   else window.location.href = '/';
 });
@@ -1513,6 +1661,9 @@ window.addEventListener('blur', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 (function boot() {
   applyStrings();
+  const nl = NARROW_LINKS[LANG] || NARROW_LINKS.de;
+  $('dm-narrow-sprint').href = nl.sprint;
+  $('dm-narrow-hub').href = nl.hub;
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
   els.audioBtn.textContent = state.audioOn ? '♪' : '∅';

@@ -85,29 +85,59 @@
     .dm-wrap {
       max-width: 1000px;
       margin: 0 auto;
-      padding: var(--space-5) var(--space-4);
+      padding: var(--space-3) var(--space-4) var(--space-5);
       width: 100%;
     }
 
+    /* The game sits directly under the heading and is sized to the viewport
+       so the whole board (and its start button) is visible without
+       scrolling on a 1366x768 laptop. The inline script below refines the
+       height from the iframe's real page offset; this is the no-JS value. */
     .dm-game-frame {
       display: block;
       width: 100%;
-      height: 700px;
+      height: 600px;
+      height: min(700px, max(440px, calc(100svh - 190px)));
+      margin: 0 0 var(--space-5);
       border: 0;
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-card);
       background: transparent;
       overflow: hidden;
     }
+    /* 932 px viewport = 900 px iframe (the game's own minimum width) once
+       the 16 px side padding is taken off. */
+    @media (min-width: 932px) {
+      /* Compact one-line heading while the game is on screen */
+      .dm-wrap .k-page-h1 {
+        font-size: 1.3rem;
+        max-width: none;
+        margin-bottom: var(--space-3);
+      }
+    }
 
     /* Fallback shown when the viewport is too narrow for the game grid */
     .dm-narrow-note {
       display: none;
       text-align: center;
-      padding: var(--space-6) var(--space-5);
+      max-width: 720px;
+      margin: 0 auto var(--space-5);
+      padding: var(--space-5) var(--space-4);
+      background: var(--krabsy-white);
+      border: 1px solid rgba(44, 42, 58, 0.08);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
       color: var(--krabsy-ink-mute);
     }
-    @media (max-width: 899px) {
+    .dm-narrow-note p { margin: 0 0 var(--space-3); }
+    .dm-narrow-note .dm-narrow-alt { color: var(--krabsy-ink); }
+    .dm-narrow-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      justify-content: center;
+    }
+    @media (max-width: 931px) {
       .dm-game-frame  { display: none; }
       .dm-narrow-note { display: block; }
     }
@@ -121,10 +151,6 @@
 
     <main class="dm-wrap">
       <h1 class="k-page-h1">Drag Match: unregelmäßige Verben zuordnen</h1>
-      <aside class="k-intro-card" aria-label="Über diese Übung">
-        <p>Beim Drag Match ziehst du acht englische Verben mit ihren richtigen Formen zusammen — erst alle Simple-Past-Formen, dann alle Past-Participle-Formen. Diese Übung schult das visuelle Erkennen zusammengehöriger Verbformen und ist eine entspannte Alternative zum Tippen.</p>
-      </aside>
-
       <iframe
         class="dm-game-frame"
         src="/games/drag-match.html?lang=de"
@@ -133,9 +159,20 @@
         allow="autoplay"
       ></iframe>
 
-      <p class="dm-narrow-note">
-        Drag Match braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
-      </p>
+      <div class="dm-narrow-note">
+        <p>
+          Drag Match braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
+        </p>
+        <p class="dm-narrow-alt">Auf dem Handy klappt der <strong>Sprint</strong> prima: 20&nbsp;Verben gegen die Uhr. Oder such dir ein Spiel aus.</p>
+        <div class="dm-narrow-actions">
+          <a class="k-btn-primary" href="/de/unregelmaessige-verben/sprint/">Zum Sprint</a>
+          <a class="k-btn-secondary" href="/de/spiele/">Alle Spiele</a>
+        </div>
+      </div>
+
+      <aside class="k-intro-card" aria-label="Über diese Übung">
+        <p>Beim Drag Match ziehst du acht englische Verben mit ihren richtigen Formen zusammen — erst alle Simple-Past-Formen, dann alle Past-Participle-Formen. Diese Übung schult das visuelle Erkennen zusammengehöriger Verbformen und ist eine entspannte Alternative zum Tippen.</p>
+      </aside>
 <!-- seo-article:start (static SEO learning text) -->
 <section class="k-article" aria-labelledby="ka-title">
   <h2 id="ka-title">Drag Match: Verbformen zuordnen und Muster entdecken</h2>
@@ -174,6 +211,34 @@
     </footer>
   </div>
 
+  <script>
+    /* Fit the game iframe into what is left of the viewport below the
+       heading (min 440, max 700 px) so nothing of the board is cut off. */
+    (function () {
+      var f = document.querySelector('.dm-game-frame');
+      if (!f) return;
+      function fit() {
+        if (getComputedStyle(f).display === 'none') { f.style.height = ''; return; }
+        var top = f.getBoundingClientRect().top + window.scrollY;
+        var h = Math.round(window.innerHeight - top - 12);
+        f.style.height = Math.max(440, Math.min(700, h)) + 'px';
+      }
+      fit();
+      window.addEventListener('resize', fit);
+      window.addEventListener('load', fit);
+      /* The drill chip-bar is injected above the game after load. */
+      var page = document.querySelector('.k-page');
+      if (page && window.MutationObserver) new MutationObserver(fit).observe(page, { childList: true });
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(fit);
+        ['.k-page-header', '.k-page-h1'].forEach(function (sel) {
+          var el = document.querySelector(sel);
+          if (el) ro.observe(el);
+        });
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    })();
+  </script>
   <script type="module">
     import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-05-24';
     initDrillPage('drag_match');

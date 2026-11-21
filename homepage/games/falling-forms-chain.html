@@ -384,6 +384,32 @@ body::before {
   color: #4a5a2c;
   letter-spacing: 0.3px;
 }
+/* After a mistake / missed block the full chain is shown for a moment:
+   .is-shown = a form the player had not reached, .is-reveal = the form that
+   was asked (the one to remember) — highlighted in the "correct" sage. */
+.ff-trio-slot.is-shown {
+  background: rgba(255,255,255,0.75);
+  color: var(--charcoal);
+  letter-spacing: 0.3px;
+}
+.ff-trio-slot.is-reveal {
+  background: var(--sage);
+  border-color: var(--sage-deep);
+  color: #3c4a22;
+  letter-spacing: 0.3px;
+  box-shadow: 0 0 0 2px var(--sage-deep), 0 0 16px rgba(159,179,124,0.75);
+  animation: ff-reveal-pop 0.4s cubic-bezier(.34,1.56,.64,1) 0.3s both;
+}
+@keyframes ff-reveal-pop {
+  0%   { transform: scale(0.85); }
+  100% { transform: scale(1.1); }
+}
+.ff-answer.is-reveal-correct,
+.ff-answer.is-reveal-correct:disabled {
+  background: linear-gradient(180deg, var(--sage) 0%, var(--sage-deep) 100%);
+  box-shadow: 0 4px 14px rgba(159,179,124,0.45), 0 0 24px rgba(205,217,180,0.65), inset 0 1px 0 rgba(255,255,255,0.30);
+  filter: none;
+}
 @keyframes ff-slot-pulse {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.05); }
@@ -694,6 +720,51 @@ body::before {
 }
 .ff-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
+/* Inside the wrapper page's iframe there is nothing to "close" — the ✕
+   used to call history.back() on the whole tab and threw kids off the site. */
+html.is-embedded #ff-close-btn { display: none; }
+
+/* Narrow-screen card: links to a drill that works on phones */
+.ff-narrow-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  justify-content: center;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.ff-narrow-links a { color: var(--coral-deep); font-weight: 700; }
+
+/* Short frames (laptop viewport): tighter chrome so both sidebars and the
+   end screens fit when the wrapper gives the iframe less than 700 px. */
+@media (max-height: 600px) {
+  .ff-app { grid-template-rows: 44px 1fr; gap: 8px; padding: 8px; }
+  .ff-sidebar { gap: 8px; }
+  .ff-panel { padding: 8px 14px; }
+  .ff-panel-label { margin-bottom: 4px; }
+  .ff-panel-value { font-size: 1.45rem; }
+  .ff-panel-score .ff-panel-value { font-size: 1.7rem; }
+  .ff-lives { font-size: 1.2rem; }
+  .ff-history { gap: 4px; margin-top: 2px; }
+  .ff-history-row { padding: 3px 8px; line-height: 1.1; }
+  .ff-history-row .ff-h-verb { font-size: 0.62rem; margin-bottom: 0; }
+  .ff-history-row .ff-h-past,
+  .ff-history-row .ff-h-pp { font-size: 0.76rem; }
+  .ff-next { font-size: 1.3rem; }
+  .ff-block { padding: 12px 28px; }
+  .ff-screen { padding: 16px; }
+  .ff-screen-card { padding: 22px 40px; }
+  .ff-title { font-size: 2.5rem; }
+  .ff-tagline { margin-bottom: 18px; }
+  .ff-over-grid { margin: 12px auto; gap: 10px; }
+  .ff-over-stat { padding: 9px 12px; }
+  .ff-over-stat-value { font-size: 1.4rem; }
+  .ff-new-best { margin-bottom: 10px; }
+  .ff-chain-grid { margin: 10px 0 14px; max-height: 62px; }
+  .ff-levelup-card { padding: 24px 48px 22px; }
+  .ff-levelup-num { font-size: 4.5rem; }
+}
+
 /* Narrow / portrait fallback */
 .ff-screen-narrow .ff-title { font-size: 2.2rem; }
 @media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
@@ -922,7 +993,11 @@ body::before {
 <div class="ff-screen" id="ff-narrow-screen">
   <div class="ff-screen-card">
     <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="ff-tagline" data-string="narrow_sub">Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.</p>
+    <p class="ff-tagline" data-string="narrow_sub">Öffne Falling Forms auf einem Bildschirm mit mindestens 900 px Breite.</p>
+    <p class="ff-narrow-links">
+      <a id="ff-narrow-sprint" href="/de/unregelmaessige-verben/sprint/" target="_top" data-string="narrow_sprint">Zum Sprint (läuft auf dem Handy)</a>
+      <a id="ff-narrow-hub" href="/de/spiele/" target="_top" data-string="narrow_hub">Alle Spiele</a>
+    </p>
   </div>
 </div>
 
@@ -981,6 +1056,7 @@ const PARTICLE_COUNT = 12;
 const BLOCK_SPAWN_Y = 110;             // initial Y for new blocks — clears the answer-button strip
 const BUTTONS_OFFSET_FROM_BLOCK = 110; // px above the block's top edge that the buttons ride
 const DANGER_LINE_FRAC = 0.88;         // keep in sync with .ff-danger-line { top: 88% }
+const REVEAL_AFTER_MISS_MS = 1500;      // how long the full chain stays visible after a mistake / missed block
 const FREEZE_AFTER_PAST_MS = 600;      // block holds still for a beat once Simple Past is correct
 const BEST_KEY = 'krabsy_falling_chain_best';
 const AUDIO_KEY = 'krabsy_audio';
@@ -1016,7 +1092,9 @@ const STRINGS = {
     no_chains: 'keine Ketten in dieser Runde',
     levelup_sub: 'Blöcke fallen schneller',
     narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne Falling Forms auf einem Bildschirm mit mindestens 1024 px Breite.',
+    narrow_sub: 'Öffne Falling Forms auf einem Bildschirm mit mindestens 900 px Breite.',
+    narrow_sprint: 'Zum Sprint (läuft auf dem Handy)',
+    narrow_hub: 'Alle Spiele',
     aria_sound: 'Ton an/aus',
     aria_pause: 'Pause',
     aria_close: 'Schließen',
@@ -1049,7 +1127,9 @@ const STRINGS = {
     no_chains: 'sin cadenas en esta ronda',
     levelup_sub: 'Los bloques caen más rápido',
     narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre Falling Forms en una pantalla de al menos 1024 px de ancho.',
+    narrow_sub: 'Abre Falling Forms en una pantalla de al menos 900 px de ancho.',
+    narrow_sprint: 'Ir al Sprint (funciona en el móvil)',
+    narrow_hub: 'Todos los juegos',
     aria_sound: 'Sonido on/off',
     aria_pause: 'Pausa',
     aria_close: 'Cerrar',
@@ -1059,6 +1139,14 @@ const STRINGS = {
     aria_chain_grid: 'Cadenas completadas',
   },
 };
+
+const NARROW_LINKS = {
+  de: { sprint: '/de/unregelmaessige-verben/sprint/', hub: '/de/spiele/' },
+  es: { sprint: '/es/verbos-irregulares/sprint/',     hub: '/es/juegos/' },
+};
+let IS_EMBEDDED = false;
+try { IS_EMBEDDED = window.self !== window.top; } catch (_) { IS_EMBEDDED = true; }
+if (IS_EMBEDDED) document.documentElement.classList.add('is-embedded');
 
 function getLang() {
   try {
@@ -1399,7 +1487,7 @@ function setAnswer(btn, text, isCorrect) {
   btn.querySelector('.ff-answer-text').textContent = text;
   btn.dataset.correct = isCorrect ? '1' : '0';
   btn.disabled = false;
-  btn.classList.remove('is-flash-correct', 'is-flash-wrong');
+  btn.classList.remove('is-flash-correct', 'is-flash-wrong', 'is-reveal-correct');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1473,14 +1561,40 @@ function onWrong(btnEl) {
   const blockEl = state.block.el;
   blockEl.classList.add('is-shake', 'is-wrong');
   state.block.isDying = true;
+  revealChain();
   loseLife();
+  // Keep the solved chain on screen long enough to read it — also before
+  // the game-over card, so the last mistake still teaches something.
   if (state.lives <= 0) {
-    setTimeout(() => endGame(), 380);
+    setTimeout(() => endGame(), REVEAL_AFTER_MISS_MS);
     return;
   }
   setTimeout(() => {
     dissolveBlock(false);
-  }, 320);
+  }, REVEAL_AFTER_MISS_MS);
+}
+
+// Teach beat: show the full chain (know → knew → known) in the block, the
+// form that was asked highlighted, and mark the correct answer button.
+function revealChain() {
+  if (!state.block || !state.block.el) return;
+  const blockEl = state.block.el;
+  const v = state.currentVerb;
+  const pastSlot = blockEl.querySelector('[data-slot="past"]');
+  const ppSlot = blockEl.querySelector('[data-slot="pp"]');
+  if (!pastSlot || !ppSlot) return;
+  const asked = state.phase === 'past' ? pastSlot : ppSlot;
+  pastSlot.textContent = v.past;
+  ppSlot.textContent = v.pp;
+  for (const slot of [pastSlot, ppSlot]) {
+    slot.classList.remove('is-asked');
+    if (!slot.classList.contains('is-filled')) slot.classList.add('is-shown');
+  }
+  asked.classList.add('is-reveal');
+  for (const btn of [els.ans1, els.ans2, els.ans3]) {
+    btn.disabled = true;
+    if (btn.dataset.correct === '1') btn.classList.add('is-reveal-correct');
+  }
 }
 
 function completeChain() {
@@ -1591,12 +1705,13 @@ function handleMissedBlock() {
   sfxMissedBlock();
   state.block.isDying = true;
   state.block.el.classList.add('is-wrong');
+  revealChain();
   loseLife();
   if (state.lives <= 0) {
-    setTimeout(() => endGame(), 380);
+    setTimeout(() => endGame(), REVEAL_AFTER_MISS_MS);
     return;
   }
-  setTimeout(() => dissolveBlock(false), 250);
+  setTimeout(() => dissolveBlock(false), REVEAL_AFTER_MISS_MS);
 }
 
 function loseLife() {
@@ -1764,6 +1879,9 @@ els.menuBtn.addEventListener('click', backToMenu);
 els.pauseBtn.addEventListener('click', togglePause);
 els.pauseOverlay.addEventListener('click', () => { if (state.paused) togglePause(); });
 els.closeBtn.addEventListener('click', () => {
+  // Embedded in the wrapper page the button is hidden (html.is-embedded);
+  // if it is reached anyway, never navigate the surrounding tab.
+  if (IS_EMBEDDED) return;
   // Hub fallback — leave the game.
   if (document.referrer) history.back();
   else window.location.href = '/';
@@ -1807,6 +1925,9 @@ document.addEventListener('keydown', (e) => {
     document.documentElement.lang = LANG;
     applyStrings(document);
   }
+  const nl = NARROW_LINKS[LANG] || NARROW_LINKS.de;
+  document.getElementById('ff-narrow-sprint').href = nl.sprint;
+  document.getElementById('ff-narrow-hub').href = nl.hub;
   state.best = readBest();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
