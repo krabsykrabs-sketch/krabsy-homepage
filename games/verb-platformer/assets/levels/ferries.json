@@ -5,6 +5,9 @@
  "tiers": [
   2
  ],
+ "sky": {
+  "preset": "golden"
+ },
  "spawn": {
   "id": "spawn_1",
   "position": [

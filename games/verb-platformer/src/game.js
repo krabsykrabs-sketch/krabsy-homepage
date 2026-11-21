@@ -6,21 +6,29 @@ import { createPlayer } from './player.js';
 import { loadLevel } from './level-loader.js';
 import { ParticleSystem, preloadParticles } from './particles.js';
 import { loadAudio, loadTexture, playSfx } from './assets.js';
+import { resolveSky } from './sky-presets.js';
+import { preloadScenery, buildScenery } from './scenery.js';
 
-// Sky-islands constants. The platforms float above a soft cloud sea; CLOUD_Y is the visible
-// cloud deck and FALL_Y mirrors it so the player drops out the moment their feet pass the clouds.
-const CLOUD_Y   = -2;
-const FALL_Y    = CLOUD_Y;
+// Sky-islands constants. The platforms float high above a cloud sea; CLOUD_Y is the visible
+// cloud deck. FALL_Y is where a fall counts (sound, respawn timer): well above the deck, so
+// the respawn stays as quick as it was with a high deck. The character keeps dropping for the
+// short respawn delay and disappears into the clouds — it is never left standing in the air.
+const CLOUD_Y   = -10;
+const FALL_Y    = -5;
 const FIXED_DT  = 1 / 60;
 const RESPAWN_DELAY_MS = 350;
 const COMPLETE_DELAY_MS = 2000;
 
-// Shared palette for the procedural sky + clouds. The horizon haze is reused by the sky dome's
-// lower band, the cloud deck's far-fade, and the scene fog so all three meet with no seam.
-const SKY_ZENITH  = new THREE.Color('#2f7ae0');   // deep blue overhead
-const SKY_HORIZON = new THREE.Color('#dcefff');   // pale haze at the horizon
-const CLOUD_LIT   = new THREE.Color('#ffffff');   // sunlit cloud tops
-const CLOUD_SHADE = new THREE.Color('#b9c9e0');   // soft blue-grey creases
+// Shared colours of the procedural sky + clouds. The values come from the level's sky
+// (src/sky-presets.js) and are written into these objects by applySky(); the shaders hold
+// references to them. The fog colour is reused by the sky dome's lower band, the cloud deck's
+// far-fade and the scene fog, so all three meet with no seam.
+const SKY_ZENITH  = new THREE.Color();   // overhead
+const SKY_HORIZON = new THREE.Color();   // haze at the horizon (= fog colour)
+const CLOUD_LIT   = new THREE.Color();   // sunlit cloud tops
+const CLOUD_SHADE = new THREE.Color();   // creases of the cloud sea (a mid value, see sky-presets.js)
+const SUN_COLOR   = new THREE.Color();
+const SUN_DIR     = new THREE.Vector3(0, 1, 0);   // towards the sun
 
 export async function createGame(canvas) {
   // ---- Renderer ----
@@ -36,7 +44,10 @@ export async function createGame(canvas) {
   // cloud deck fade to. Softer range than the old lagoon so nothing pops in or out abruptly.
   scene.fog = new THREE.Fog(SKY_HORIZON.clone(), 120, 420);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  // Hemisphere fill instead of a flat ambient: tops get the sky colour, undersides the warm
+  // bounce from the clouds, so the sides of the platforms are shaded. No shadow maps.
+  const hemi = new THREE.HemisphereLight(0xd9e9ff, 0xbfa590, 0.95);
+  scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe0b3, 0.95);
   sun.position.set(10, 20, 8);
   scene.add(sun);
@@ -57,6 +68,9 @@ export async function createGame(canvas) {
       uniforms: {
         uZenith:  { value: SKY_ZENITH },
         uHorizon: { value: SKY_HORIZON },
+        uSunDir:  { value: SUN_DIR },
+        uSunColor: { value: SUN_COLOR },
+        uStars:   { value: 0 },
       },
       vertexShader: `
         varying vec3 vDir;
@@ -68,10 +82,30 @@ export async function createGame(canvas) {
       fragmentShader: `
         uniform vec3 uZenith;
         uniform vec3 uHorizon;
+        uniform vec3 uSunDir;
+        uniform vec3 uSunColor;
+        uniform float uStars;
         varying vec3 vDir;
+        float hash3(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
         void main() {
-          float t = clamp(vDir.y, 0.0, 1.0);          // 0 at horizon, 1 straight up
-          gl_FragColor = vec4(mix(uZenith, uHorizon, pow(1.0 - t, 1.6)), 1.0);
+          vec3 d = normalize(vDir);
+          float t = clamp(d.y, 0.0, 1.0);          // 0 at horizon, 1 straight up
+          float haze = pow(1.0 - t, 1.6);
+          vec3 col = mix(uZenith, uHorizon, haze);
+          if (uStars > 0.0) {
+            // a few stars: one per cell of a coarse grid on the dome, only well above the haze
+            vec3 g = d * 120.0;
+            vec3 cell = floor(g);
+            float h = hash3(cell);
+            float star = step(0.975, h) * smoothstep(0.3, 0.05, length(fract(g) - 0.5));
+            col += vec3(1.0, 0.96, 0.88) * star * uStars * (0.5 + 0.5 * fract(h * 37.0)) * smoothstep(0.12, 0.45, d.y);
+          }
+          // sun: wide warm glow, tighter halo, disc
+          float s = max(dot(d, normalize(uSunDir)), 0.0);
+          col += uSunColor * (pow(s, 6.0) * 0.16 + pow(s, 48.0) * 0.3);
+          col = mix(col, uSunColor * 1.15 + 0.1, smoothstep(0.9989, 0.9993, s));
+          gl_FragColor = vec4(col, 1.0);
+          #include <colorspace_fragment>
         }
       `,
     }),
@@ -89,6 +123,7 @@ export async function createGame(canvas) {
       uLit:     { value: CLOUD_LIT },
       uShade:   { value: CLOUD_SHADE },
       uHorizon: { value: SKY_HORIZON },
+      uSunXZ:   { value: new THREE.Vector2(1, 0) },
     },
     vertexShader: `
       varying vec2 vWorld;
@@ -105,6 +140,7 @@ export async function createGame(canvas) {
       uniform vec3 uLit;
       uniform vec3 uShade;
       uniform vec3 uHorizon;
+      uniform vec2 uSunXZ;
       varying vec2 vWorld;
       varying vec2 vLocal;
       float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -116,16 +152,27 @@ export async function createGame(canvas) {
       }
       float fbm(vec2 p){
         float v = 0.0, a = 0.5;
-        for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+        for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
         return v;
       }
       void main() {
+        // The deck is a height field h; comparing it with a sample taken a step towards the
+        // sun says which side of a billow we are on: sun side = lit, far side = shade. That
+        // gives the sea a mid-value body with cream highlights instead of a white sheet.
         vec2 p = vWorld * 0.018 + vec2(uTime * 0.008, uTime * 0.005);
-        float puff = smoothstep(0.35, 0.72, fbm(p));
-        vec3 col = mix(uShade, uLit, puff);
-        col = mix(col, uLit, smoothstep(0.55, 0.9, fbm(p * 3.1 + 7.0)) * 0.35);
-        float rim = smoothstep(250.0, 470.0, length(vLocal));
+        float h  = fbm(p);
+        float hs = fbm(p + uSunXZ * 0.09);
+        float facing = clamp((h - hs) * 5.0 + 0.3, 0.0, 1.0);
+        float crest = smoothstep(0.42, 0.8, h);
+        float lit = clamp(facing * 0.7 + crest * 0.35, 0.0, 1.0);
+        lit = mix(lit, 1.0, smoothstep(0.6, 0.95, noise(p * 3.1 + 7.0)) * 0.2 * crest);
+        vec3 col = mix(uShade, uLit, lit);
+        // far away the billows flatten into a soft band
+        float dist = length(vLocal);
+        col = mix(col, mix(uShade, uLit, 0.42), smoothstep(90.0, 260.0, dist) * 0.65);
+        float rim = smoothstep(250.0, 470.0, dist);
         gl_FragColor = vec4(mix(col, uHorizon, rim), 1.0);
+        #include <colorspace_fragment>
       }
     `,
   });
@@ -136,6 +183,36 @@ export async function createGame(canvas) {
   cloudSea.position.y = CLOUD_Y;
   cloudSea.renderOrder = -1;
   scene.add(cloudSea);
+
+  // Writes a level's sky (see src/sky-presets.js) into the shared colours, lights and fog.
+  function applySky(sky) {
+    SKY_ZENITH.set(sky.zenith);
+    SKY_HORIZON.set(sky.fog);
+    CLOUD_LIT.set(sky.cloudLit);
+    CLOUD_SHADE.set(sky.cloudShade);
+    SUN_COLOR.set(sky.sun);
+    SUN_DIR.set(sky.sunDir[0], sky.sunDir[1], sky.sunDir[2]).normalize();
+    skyDome.material.uniforms.uStars.value = sky.stars;
+    const sxz = cloudMat.uniforms.uSunXZ.value.set(SUN_DIR.x, SUN_DIR.z);
+    if (sxz.lengthSq() < 1e-4) sxz.set(1, 0); else sxz.normalize();
+    scene.fog.color.set(sky.fog);
+    scene.fog.near = sky.fogNear;
+    scene.fog.far = sky.fogFar;
+    scene.background.set(sky.fog);
+    hemi.color.set(sky.hemiSky);
+    hemi.groundColor.set(sky.hemiGround);
+    hemi.intensity = sky.hemiIntensity;
+    sun.color.set(sky.light);
+    sun.intensity = sky.lightIntensity;
+    // The light comes from the sun's side, but always steeply (64° or more): a low light
+    // leaves the tops of the platforms dark and puts a white glare on them when the player
+    // looks towards the sun.
+    const flat = Math.hypot(SUN_DIR.x, SUN_DIR.z) || 1;
+    const up = Math.max(SUN_DIR.y, 0.9);
+    const k = Math.sqrt(1 - up * up) / flat;
+    sun.position.set(SUN_DIR.x * k, up, SUN_DIR.z * k).multiplyScalar(30);
+  }
+  applySky(resolveSky(null));
 
   // ---- Camera ----
   // Far plane comfortably past the sky-dome radius (500) so the dome is never clipped.
@@ -191,6 +268,18 @@ export async function createGame(canvas) {
   let onGateCleared = () => {};
   let onGateWrong = () => {};
   let setHudQuestion = null;     // injected by setHandlers — used for Style-5 persistent HUD
+  let sinking = false;           // fell below FALL_Y: keeps dropping into the clouds until the respawn
+  let scenery = null;            // background islands, puffs, deck shadows of the current level
+  let sceneryToken = 0;          // a newer level start cancels a scenery build still in flight
+
+  // Start loading the scenery models now; levels do not wait for them (see startLevel).
+  preloadScenery().catch(e => console.warn('[krabsy3d] scenery not available', e));
+
+  function disposeScenery() {
+    sceneryToken++;
+    scenery?.dispose();
+    scenery = null;
+  }
 
   // The level's authored start point. Used for the initial placement only.
   function initialSpawn() {
@@ -218,6 +307,11 @@ export async function createGame(canvas) {
       currentLevel.dispose();
       particles.clear();
     }
+    disposeScenery();
+    sinking = false;
+    player.mesh.visible = true;
+    const sky = resolveSky(data.sky);
+    applySky(sky);
     currentLevelData = data;
     lastCheckpoint = null;
     gatesCleared = 0;
@@ -255,6 +349,14 @@ export async function createGame(canvas) {
     // Editor-format levels have no gate progression — skip the initial progress paint so the
     // HUD doesn't flash "Gate 1 / 0". The UI hides the progress bar when total is 0.
     onGateCleared(0, currentLevel.gateCount);
+
+    // Scenery is decoration: build it without holding up the level start. Placement is
+    // derived from the level's pieces and seeded by its id, so it looks the same every time.
+    const token = sceneryToken;
+    buildScenery(scene, currentLevel, { cloudY: CLOUD_Y, sky, seed: data.id || 'level' }).then(s => {
+      if (token !== sceneryToken) s.dispose();
+      else scenery = s;
+    }).catch(e => console.warn('[krabsy3d] scenery failed', e));
   }
 
   function respawn() {
@@ -265,6 +367,8 @@ export async function createGame(canvas) {
       // attempting the gate), then drop them onto the approach platform to try the question again.
       currentLevel?.reset?.();
       player.teleport(respawnPosition());
+      sinking = false;
+      player.mesh.visible = true;
       alive = true;
       lockedOut = false;
       controlsLocked = false;
@@ -278,6 +382,9 @@ export async function createGame(canvas) {
       currentLevel.dispose();
       currentLevel = null;
     }
+    disposeScenery();
+    sinking = false;
+    player.mesh.visible = true;
     particles.clear();
     currentLevelData = null;
     lastCheckpoint = null;
@@ -287,7 +394,7 @@ export async function createGame(canvas) {
   }
 
   // Dev hook for automated play-tests: read-only view of the running level and player.
-  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive, input, world, RAPIER, followCam };
+  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive, input, world, RAPIER, followCam, renderer };
 
   // Dev hook: lets a URL param teleport the player after the level loads (for screenshots).
   window.addEventListener('krabsy-teleport', (e) => {
@@ -322,6 +429,8 @@ export async function createGame(canvas) {
       if (currentLevel) currentLevel.prePhysics(FIXED_DT);
       window.__krabsyDebug.onStep?.();   // play-test bot hook (tools/bot-test.cjs)
       if (alive) player.update(FIXED_DT, input, followCam, riderDelta, controlsLocked);
+      // After a fall the character keeps dropping (no steering) until it is under the clouds.
+      else if (sinking) player.update(FIXED_DT, input, followCam, null, true);
       // Teleport moving platforms AFTER the controller pass so they're still at the rider-assumed
       // pose during it (the platforms are fixed colliders, so they don't affect steering).
       if (currentLevel) currentLevel.stepMovingPlatforms(FIXED_DT);
@@ -333,13 +442,23 @@ export async function createGame(canvas) {
     }
 
     const playerPos = player.getPosition();
-    followCam.update(playerPos);
+    if (sinking) {
+      // The camera stays where the fall was counted and watches the character go down.
+      followCam.update({ x: playerPos.x, y: Math.max(playerPos.y, FALL_Y), z: playerPos.z });
+      if (player.mesh.visible && playerPos.y < CLOUD_Y + 0.4) {
+        player.mesh.visible = false;
+        particles.spawnSplash({ x: playerPos.x, y: CLOUD_Y, z: playerPos.z });
+      }
+    } else {
+      followCam.update(playerPos);
+    }
 
     // Keep the sky dome + cloud sea centred on the camera so the world reads as endless.
     skyDome.position.copy(camera.position);
     cloudSea.position.set(camera.position.x, CLOUD_Y, camera.position.z);
 
     if (currentLevel) currentLevel.update(dt, playerPos, player.state.grounded);
+    scenery?.update(dt);
     particles.update(dt);
 
     if (alive && player.state.grounded) {
@@ -352,7 +471,7 @@ export async function createGame(canvas) {
     if (alive && !lockedOut && currentLevel) {
       if (playerPos.y < FALL_Y) {
         alive = false;
-        particles.spawnSplash({ x: playerPos.x, y: CLOUD_Y, z: playerPos.z });
+        sinking = true;
         playSfx(sfx.fall);
         onFall();
         respawn();

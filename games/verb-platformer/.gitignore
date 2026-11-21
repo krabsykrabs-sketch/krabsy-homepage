@@ -6,3 +6,4 @@ assets/*
 !assets/levels/
 assets/levels/*
 !assets/levels/*.json
+!assets/scenery/

@@ -94,6 +94,29 @@ What exists:
   (old mechanic, with hand-typed `answer-label`s); prefer `gate`.
 - `window.__krabsyDebug` and the `krabsy-teleport` event exist for
   automated play-tests.
+- **`sky`** (optional): `{ "preset": "morning" }`, presets `morning`,
+  `noon` (default when absent), `afternoon`, `golden`, `sunset`, `dusk`.
+  Every value of a preset can be overridden in the same block (`zenith`,
+  `horizon`, `cloudLit`, `cloudShade`, `fog`, `sun`, `sunDir`, `stars`,
+  `season` = `summer|fall|winter` for the background islands …): see
+  `src/sky-presets.js`. The editor has no UI for it but keeps the block
+  on load/save.
+
+### Art pass 1 (2026-11-21; owner: "not bad, actually quite good", wants scenery closer and more of it)
+
+- `src/game.js`: cloud deck at y −10 (`CLOUD_Y`), a fall counts at y −5
+  (`FALL_Y`); the character keeps dropping during the respawn delay and
+  vanishes in the clouds. Sky dome with sun disc/glow/stars, cloud sea
+  shaded towards the sun, HemisphereLight instead of AmbientLight.
+  `applySky()` writes a level's sky into colours, fog and lights.
+- `src/scenery.js`: background islands + a castle beyond the flag (one
+  merged mesh), 42 cloud puffs (two InstancedMeshes), platform shadows on
+  the deck (one InstancedMesh; movers and falling blocks update). **Placed
+  automatically** from the level's pieces, seeded by the level id: islands
+  25+ units from every path piece and 7+ below it, puffs 15+ away. No
+  colliders. +4 draw calls, about +67k triangles.
+- `assets/scenery/` (tracked, 0.7 MB): the pieces used from the KayKit
+  Medieval Hexagon pack (`/home/janah/dev/_assets/kaykit/KayKit_Medieval_Hexagon_Pack_1.0_EXTRA`).
 
 What a level-design session should do:
 

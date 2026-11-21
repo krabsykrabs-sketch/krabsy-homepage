@@ -276,6 +276,7 @@ const state = {
   verbs:   null,
   forms:   null,
   botPath: null,         // waypoints for tools/bot-test.cjs; kept as loaded (may go stale after edits)
+  sky:     null,         // the level's sky block (src/sky-presets.js); no editor UI yet, kept as loaded
   objects: new Map(),    // id -> object record
   spawn:   null,         // { id, position }
   flag:    null,         // { id, position }
@@ -2639,7 +2640,7 @@ async function newLevel() {
   state.nextSeq = {};
   state.levelName = 'Untitled Level';
   state.levelId = 'untitled-level';
-  state.tiers = null; state.verbs = null; state.forms = null; state.botPath = null;
+  state.tiers = null; state.verbs = null; state.forms = null; state.botPath = null; state.sky = null;
   syncVerbSetSelect();
   state.dirty = false;   // after the name so the title indicator shows the new name
   // Clear user prefabs too — they're per-level (stored in the level JSON).
@@ -2681,6 +2682,7 @@ async function loadFromData(data) {
   state.verbs     = Array.isArray(data.verbs) ? data.verbs : null;
   state.forms     = Array.isArray(data.forms) ? data.forms : null;
   state.botPath   = Array.isArray(data.botPath) ? data.botPath : null;
+  state.sky       = (data.sky && typeof data.sky === 'object' && !Array.isArray(data.sky)) ? data.sky : null;
   syncVerbSetSelect();
   document.getElementById('level-name').value = state.levelName;
   if (data.spawn?.position) await setSpawn(data.spawn.position, data.spawn.id, { suppressUndo: true });
@@ -2773,6 +2775,7 @@ function exportData() {
     ...(state.tiers ? { tiers: state.tiers } : {}),
     ...(state.verbs ? { verbs: state.verbs } : {}),
     ...(state.forms ? { forms: state.forms } : {}),
+    ...(state.sky ? { sky: state.sky } : {}),
     spawn: state.spawn ? { id: state.spawn.id, position: state.spawn.position } : { id: 'spawn_1', position: [0, 2, 0] },
     objects: [...state.objects.values()].map(rec => ({ ...rec.data })),
     flag: state.flag ? {

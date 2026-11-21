@@ -6,6 +6,9 @@
   2,
   3
  ],
+ "sky": {
+  "preset": "sunset"
+ },
  "spawn": {
   "id": "spawn_1",
   "position": [

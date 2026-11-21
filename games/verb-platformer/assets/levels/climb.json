@@ -6,6 +6,9 @@
   1,
   2
  ],
+ "sky": {
+  "preset": "afternoon"
+ },
  "spawn": {
   "id": "spawn_1",
   "position": [

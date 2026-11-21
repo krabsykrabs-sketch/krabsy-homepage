@@ -20,8 +20,9 @@ OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'levels')
 
 
 class Level:
-    def __init__(self, id, name, tiers, color='blue', accent=None):
+    def __init__(self, id, name, tiers, color='blue', accent=None, sky=None):
         self.id, self.name, self.tiers = id, name, tiers
+        self.sky = sky         # sky preset name (src/sky-presets.js); None = the game's default
         self.color, self.accent = color, accent or color
         self.objs, self.path, self.n = [], [], {}
         self.flag = None
@@ -207,6 +208,7 @@ class Level:
 
     def data(self):
         return {'id': self.id, 'name': self.name, 'topic': 'irregular_verbs', 'tiers': self.tiers,
+                **({'sky': {'preset': self.sky}} if self.sky else {}),
                 'spawn': {'id': 'spawn_1', 'position': [0, 2, 0]}, 'objects': self.objs,
                 'flag': self.flag, 'prefabs': [], 'botPath': self.path}
 
@@ -236,7 +238,7 @@ def rest(L):
 
 def first_steps():
     """Level 1. A straight path, three gates: learn the answer blocks."""
-    L = Level('first-steps', 'First Steps', [1]).start()
+    L = Level('first-steps', 'First Steps', [1], sky='morning').start()
     L.plat().gate().plat().plat().gate().plat().plat().gate()
     L.finish()
     return L
@@ -244,7 +246,7 @@ def first_steps():
 
 def zigzag():
     """Level 2. New idea: the path turns. Corner platforms are yellow."""
-    L = Level('zigzag', 'Zigzag', [1], color='green', accent='yellow').start()
+    L = Level('zigzag', 'Zigzag', [1], color='green', accent='yellow', sky='noon').start()
     L.plat().plat().gate(); rest(L)
     L.turn('E').plat().plat(gap=3).plat(color='yellow')
     L.turn('N').plat().plat().gate(); rest(L)
@@ -258,7 +260,7 @@ def zigzag():
 
 def climb():
     """Level 3. New idea: height. Steps to jump up, two ramps, then jumps back down."""
-    L = Level('climb', 'The Climb', [1, 2], color='yellow', accent='green').start()
+    L = Level('climb', 'The Climb', [1, 2], color='yellow', accent='green', sky='afternoon').start()
     L.plat().plat(dy=1, gap=2).plat(dy=1, gap=2).plat().gate(); rest(L)
     L.slope(color='green').plat(gap=0).plat().gate(); rest(L)
     L.turn('E').plat(dy=1, gap=2).plat(dy=1, gap=2).plat(2, dy=1, gap=2).plat(color='green')
@@ -273,7 +275,7 @@ def climb():
 
 def ferries():
     """Level 4. New idea: moving platforms (green). Ferries, lifts, a sideways ferry, two in a row."""
-    L = Level('ferries', 'Ferries', [2], color='blue', accent='green').start()
+    L = Level('ferries', 'Ferries', [2], color='blue', accent='green', sky='golden').start()
     L.plat().mover('along', 3, 7).plat().gate(); rest(L)
     L.mover('y', 1.0, 4).plat().mover('y', 1.0, 4, phase=2).plat().gate(); rest(L)
     L.turn('E').mover('along', 4, 8).turn('N').plat().plat().gate(); rest(L)
@@ -285,7 +287,7 @@ def ferries():
 
 def hammer_works():
     """Level 5. New idea: things that push you. Hammers knock you off, belts carry you."""
-    L = Level('hammer-works', 'Hammer Works', [2, 3], color='blue', accent='yellow').start()
+    L = Level('hammer-works', 'Hammer Works', [2, 3], color='blue', accent='yellow', sky='sunset').start()
     L.plat().walkway(1).walkway(1).hammer(4, 70).walkway(1).gate(); rest(L)
     L.conveyor(-2.5).conveyor(-2.5).plat(gap=0).gate(); rest(L)
     L.turn('E').plat().walkway(1).hammer(4, 70).walkway(1).plat(color='yellow')
@@ -300,7 +302,7 @@ def hammer_works():
 
 def finale():
     """Level 6. Everything, plus a risky shortcut (one small stone with a star) past a detour."""
-    L = Level('finale', 'Sky Finale', [3], color='blue', accent='yellow').start()
+    L = Level('finale', 'Sky Finale', [3], color='blue', accent='yellow', sky='dusk').start()
     L.plat().plat(dy=1, gap=2).plat().gate(); rest(L)
     L.turn('E').mover('along', 3, 7, color='green').turn('N').plat().gate(); rest(L)
     L.slope(color='green').plat(gap=0).walkway(1).hammer(4, 70).walkway(1).gate(); rest(L)
