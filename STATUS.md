@@ -13,7 +13,7 @@ at the end of each session. (Last update: 2026-11-12.)
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12** (owner: not good enough) — removed from games.json/hubs/sitemap; bug list + how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
-| Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** |
+| Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session in worktree `krabsy-td` (branch `tower-defense`) |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
