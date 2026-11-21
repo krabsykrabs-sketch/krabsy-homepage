@@ -624,6 +624,53 @@ function extractTrimeshFromModel(root) {
   return { vertices: new Float32Array(positions), indices: new Uint32Array(indices) };
 }
 
+// Conveyor belts: the belt is the model's 'threads' material; its texture (with the arrows) runs
+// round the loop in V. Scrolling the texture's V offset makes the belt visibly move. Each belt
+// gets its own material + texture clone (the GLTF cache shares them between instances).
+// Returns { map, vPerUnit } or null. vPerUnit = how much V changes per unit of local +Z on the
+// top face (measured from the mesh, so it works for every conveyor size).
+function makeBeltScroller(root) {
+  let belt = null;
+  root.traverse(o => {
+    if (belt || !o.isMesh) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    const i = mats.findIndex(m => m?.name === 'threads' && m.map);
+    if (i < 0) return;
+    const mat = mats[i].clone();
+    mat.map = mats[i].map.clone();
+    mat.map.wrapS = mat.map.wrapT = THREE.RepeatWrapping;
+    mat.map.needsUpdate = true;
+    if (Array.isArray(o.material)) { o.material = [...o.material]; o.material[i] = mat; } else o.material = mat;
+    belt = { map: mat.map, vPerUnit: measureBeltV(o.geometry, o.geometry.groups?.find(g => g.materialIndex === i)) };
+  });
+  return belt;
+}
+
+function measureBeltV(geo, group) {
+  const pos = geo.attributes.position, uv = geo.attributes.uv, idx = geo.index;
+  if (!pos || !uv) return 0.1;
+  let ymax = -Infinity;
+  for (let i = 0; i < pos.count; i++) ymax = Math.max(ymax, pos.getY(i));
+  const start = group ? group.start : 0;
+  const end = group ? group.start + group.count : (idx ? idx.count : pos.count);
+  const vi = k => (idx ? idx.getX(k) : k);
+  const samples = [];
+  for (let k = start; k + 2 < end; k += 3) {
+    const a = vi(k), b = vi(k + 1), c = vi(k + 2);
+    if ([a, b, c].some(j => pos.getY(j) < ymax - 0.01)) continue;   // top face only
+    // Solve v = v0 + gx*(x-x0) + gz*(z-z0) on this triangle; keep gz.
+    const x1 = pos.getX(b) - pos.getX(a), z1 = pos.getZ(b) - pos.getZ(a), v1 = uv.getY(b) - uv.getY(a);
+    const x2 = pos.getX(c) - pos.getX(a), z2 = pos.getZ(c) - pos.getZ(a), v2 = uv.getY(c) - uv.getY(a);
+    const det = x1 * z2 - x2 * z1;
+    if (Math.abs(det) < 1e-6) continue;
+    const gz = (x1 * v2 - x2 * v1) / det;
+    if (Math.abs(gz) > 0.01 && Math.abs(gz) < 1) samples.push(gz);   // skip the UV seam
+  }
+  if (!samples.length) return 0.1;
+  samples.sort((p, q) => p - q);
+  return samples[Math.floor(samples.length / 2)];
+}
+
 async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callbacks, uiHooks) {
   console.log('[editor-level] loading:', { id: data.id, name: data.name, objects: data.objects?.length });
   const platforms = [];          // { id, mesh, body, pos, half, top, def, scale, isFalling, correctAnswer, state, timer, fallVel, attachedLabels[] }
@@ -778,6 +825,10 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
         platform.speed = (obj.speed !== undefined) ? obj.speed : (def.defaults?.speed ?? 3);
         const yaw = rotationDeg * Math.PI / 180;
         platform.beltDir = { x: Math.sin(yaw), z: Math.cos(yaw) };
+        platform.belt = makeBeltScroller(mesh);
+        // The arrows printed on the belt point along local -Z. For a belt running local +Z
+        // (speed > 0) mirror the texture so the arrows always point the way you get carried.
+        if (platform.belt && platform.speed > 0) platform.belt.map.repeat.y = -1;
       }
       platforms.push(platform);
     } else if (def.kind === 'hazard') {
@@ -1061,6 +1112,11 @@ export class EditorLoadedLevel {
   update(dt, playerPos, playerGrounded) {
     for (const p of this.movingPlatforms) {
       if (p.state === 'idle') p.mesh.position.set(p.pos.x, p.pos.y, p.pos.z);
+    }
+    // Belt texture moves at the rider speed: sampled V = repeat*v + offset, and a texture
+    // feature must travel speed*dt along local +Z, so offset changes by -speed*repeat*dV/dz*dt.
+    for (const c of this.conveyors) {
+      if (c.belt) c.belt.map.offset.y -= c.speed * c.belt.map.repeat.y * c.belt.vPerUnit * dt;
     }
 
     // Falling-platform state machine, per platform.
