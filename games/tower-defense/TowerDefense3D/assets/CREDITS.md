@@ -9,3 +9,5 @@ All assets are CC0 (no attribution required). Listed to keep track.
   default file name so the .gltf files find it.
 - `skeletons/` — KayKit Skeletons 1.1 (Kay Lousberg, kaylousberg.com), CC0.
   Six enemy characters and four animation rig files (walk, run, death, spawn).
+  Seasonal atlases `hexagons_medieval_fall.png` / `_winter.png` and water plants
+  (waterlily_A/B, waterplant_A/B/C) are from the same pack.

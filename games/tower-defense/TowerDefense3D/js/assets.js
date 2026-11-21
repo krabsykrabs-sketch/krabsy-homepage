@@ -19,6 +19,7 @@ const HEX_MODELS = [
   'trees_A_large', 'trees_A_medium', 'trees_A_small', 'trees_B_large', 'trees_B_medium',
   'mountain_A_grass_trees', 'hills_A_trees', 'hills_B_trees', 'rock_single_A',
   'rock_single_C', 'tree_single_A', 'tree_single_B', 'cloud_small', 'cloud_big',
+  'waterlily_A', 'waterlily_B', 'waterplant_A', 'waterplant_B', 'waterplant_C',
   // props
   'flag_red', 'flag_blue', 'barrel', 'crate_A_big', 'bucket_arrows', 'weaponrack', 'target',
   // projectiles
@@ -30,6 +31,8 @@ export const Assets = {
   material: null,      // shared atlas material
   ghostMaterial: null, // same atlas, see-through (placement preview)
   levelMaterials: [],  // tower look per upgrade level: blue, teal, gold
+  towerMaterial: null, // summer atlas, fixed: towers and the castle keep their blue
+  seasons: {},         // season name → atlas texture (summer, fall, winter)
   loaded: false,
 
   async load(onProgress) {
@@ -52,12 +55,30 @@ export const Assets = {
         o.material.dispose();
       });
     }
+    // Seasons: same palette layout, other colours for grass, trees and water.
+    const texLoader = new THREE.TextureLoader();
+    const seasonTex = async (file) => {
+      const tex = await texLoader.loadAsync(`assets/hex/${file}`);
+      tex.colorSpace = atlas.colorSpace;
+      tex.flipY = atlas.flipY;
+      tex.wrapS = atlas.wrapS; tex.wrapT = atlas.wrapT;
+      tex.magFilter = atlas.magFilter; tex.minFilter = atlas.minFilter;
+      return tex;
+    };
+    const [fall, winter] = await Promise.all([
+      seasonTex('hexagons_medieval_fall.png'), seasonTex('hexagons_medieval_winter.png'),
+    ]);
+    this.seasons = { summer: atlas, fall, winter };
+
+    // The board material follows the level's season (setSeason); towers and the
+    // castle always use the summer atlas, so their roofs stay blue / teal / gold.
     this.material = new THREE.MeshLambertMaterial({ map: atlas });
+    this.towerMaterial = new THREE.MeshLambertMaterial({ map: atlas });
     this.ghostMaterial = new THREE.MeshLambertMaterial({
       map: atlas, transparent: true, opacity: 0.6, depthWrite: false,
     });
     this.levelMaterials = [
-      this.material,
+      this.towerMaterial,
       this._recolour(atlas, 0.46, 1.0, 0.02),   // teal
       this._recolour(atlas, 0.12, 1.15, 0.12),  // gold
     ];
@@ -95,6 +116,10 @@ export const Assets = {
     return new THREE.MeshLambertMaterial({ map: tex });
   },
 
+  setSeason(name) {
+    this.material.map = this.seasons[name] || this.seasons.summer;
+  },
+
   // A fresh instance of a model. Geometry and material are shared with the template.
   clone(name) {
     const src = this.models.get(name);
@@ -104,7 +129,7 @@ export const Assets = {
 
   // Merge many static placements into one mesh (one draw call).
   // items: [{ name, x, z, y = 0, rot = 0, scale = 1 }]
-  mergeStatic(items) {
+  mergeStatic(items, material = this.material) {
     const geos = [];
     const m = new THREE.Matrix4(), q = new THREE.Quaternion();
     const pos = new THREE.Vector3(), scl = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
@@ -123,7 +148,7 @@ export const Assets = {
     if (geos.length === 0) return null;
     const merged = mergeGeometries(geos, false);
     for (const g of geos) g.dispose();
-    const mesh = new THREE.Mesh(merged, this.material);
+    const mesh = new THREE.Mesh(merged, material);
     mesh.userData.ownGeo = true;
     return mesh;
   },

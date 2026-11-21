@@ -38,7 +38,7 @@ TowerDefense3D/
 ├── assets/hex/           KayKit Medieval Hexagon models used (1.6 MB)
 ├── assets/skeletons/     6 characters + 2 animation-only files (2.3 MB)
 ├── assets/CREDITS.md
-├── levels/level1-3.js    hex maps, waves, economy (classic scripts)
+├── levels/level1-6.js    hex maps, waves, economy, season (classic scripts)
 └── js/
     main.js               state, phases, loop, stars, speed
     level.js grid.js      hex board, paths, building spots
@@ -50,6 +50,7 @@ TowerDefense3D/
     input.js ui.js        mouse/touch/keys, HUD and overlays
 tools/
     balance-sim.mjs       bot that plays all levels (balance check)
+    hex-path.py           anchor cells → full road chain for a level file
     strip-rigs.py         makes the animation-only GLB files
 td-html5-spec.md          original 2D spec (historic, balance ideas)
 ```
@@ -69,8 +70,9 @@ td-html5-spec.md          original 2D spec (historic, balance ideas)
   (or `es`); without `?lang` it uses `localStorage.krabsy_lang`.
 - `localStorage` keys: `td3d_stars_level_N`, `td3d_highscore_level_N`,
   `td3d_tutorial_done`. No analytics calls and no third-party requests.
-- The game name is undecided; "Verb Towers" appears in `index.html`
-  `<title>` and `js/i18n.js` (`title`).
+- **Name decided by the owner (2026-11-21): "Verb Towers"**, with
+  "Tower Defense" in the subtitle / page text for search. It is in
+  `index.html` `<title>` and `js/i18n.js` (`title`).
 - Phone portrait is playable but small; the menu shows a "turn your phone"
   hint there.
 
@@ -526,3 +528,30 @@ implemented as preview-approved by the owner (Status log, "round 2").
     stays `___` when it is the next question (`ui._questionHtml`).
   - Catapult: a boulder sits in the bucket while loaded, disappears when
     thrown and is reloaded 0.7 s later (`tower.sinceShot`).
+- 2026-11-21 — **Name and levels 4–6.**
+  - Owner agreed on the name **"Verb Towers"** (subtitle/page text should
+    say "Tower Defense"). Owner asked for more levels before release.
+  - New levels (unlock in order by stars, as before):
+    4 **Lakeside / Seeufer / Orilla del lago** — autumn, 14×10, road
+      loops around a lake, 10 waves (boss 5, 10).
+    5 **Two Gates / Zwei Tore / Dos puertas** — summer, 14×10, two spawn
+      points whose roads meet early, 11 waves (boss 6, 11).
+    6 **Winter Pass / Winterpass / Paso de invierno** — winter, 15×11,
+      longest road with three crossings and a frozen lake, 12 waves
+      (boss 6, 12).
+  - **Seasons** (`season` in a level file): the board material swaps to
+    the pack's fall / winter atlas (`Assets.setSeason`); towers, plinths
+    and the castle keep the summer atlas (`Assets.towerMaterial`) so the
+    blue / teal / gold upgrade colours stay readable. The open sea takes
+    the season's water colour. `sceneryDensity` makes woods denser.
+  - Lakes inside the board sit almost level with the grass and get water
+    lilies and reeds (5 small pack models), so they no longer look like
+    holes. Menu thumbnails show season colour and lakes.
+  - Road cells are generated with `tools/hex-path.py` from a few anchors.
+  - Bot balance (3 runs each): 4, 5 and 6 all give 3 stars at 100 %,
+    1–2 stars at 70 %, lose at 40 % (level 4 sometimes a 1-star win) and
+    lose without verbs. Level 5 needed a longer shared road; with only
+    8 road cells after the junction even 100 % lost.
+  - Checked in headless Chromium: all six levels load, enemies walk every
+    road (both gates on level 5), menu with six cards and locks on
+    1024×768 and 390×844 (scrolls), level-1 regression. No errors.

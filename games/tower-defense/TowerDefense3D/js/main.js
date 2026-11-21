@@ -72,7 +72,7 @@ async function init() {
   applyStatic();
   Sound.init();
 
-  LEVELS = [window.LEVEL1, window.LEVEL2, window.LEVEL3].filter(Boolean);
+  LEVELS = [window.LEVEL1, window.LEVEL2, window.LEVEL3, window.LEVEL4, window.LEVEL5, window.LEVEL6].filter(Boolean);
   if (LEVELS.length === 0) {
     console.error('Level data missing — make sure levels/*.js are loaded.');
     return;

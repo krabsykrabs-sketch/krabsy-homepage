@@ -157,6 +157,7 @@ export const Renderer = {
     this._initShared();
     this._initLights();
     if (Level.current) {
+      Assets.setSeason(Level.current.season);
       this._buildBoard(Level.current);
       this._buildPlacementOverlay();
     }
@@ -301,6 +302,7 @@ export const Renderer = {
     for (const c of this._corpses) this._dropEnemy(c.obj);
     this._corpses = [];
     const level = Level.current;
+    Assets.setSeason(level.season);
     this._buildBoard(level);
     this._buildPlacementOverlay();
     this.resize();
@@ -515,7 +517,7 @@ export const Renderer = {
 
   _buildBoard(level) {
     const g = new THREE.Group();
-    const tiles = [], solid = [], water = [];
+    const tiles = [], solid = [], water = [], keep = [];
     const put = (list, name, c, r, extra) => {
       const p = hexCenter(c, r);
       list.push(Object.assign({ name, x: p.x, z: p.y }, extra));
@@ -524,7 +526,17 @@ export const Renderer = {
     for (const cell of level.cells.values()) {
       const { c, r } = cell;
       const p = hexCenter(c, r);
-      if (cell.type === 'water') { put(water, 'hex_water', c, r); continue; }
+      if (cell.type === 'water') {
+        // Lakes inside the board sit almost level with the grass (the sea stays
+        // lower) and get lilies and reeds, so they read as water, not as holes.
+        put(water, 'hex_water', c, r, { y: 0.16 });
+        const pick = (c * 7 + r * 13) % 5;
+        if (pick < 3) {
+          const plant = ['waterlily_A', 'waterplant_A', 'waterlily_B', 'waterplant_B', 'waterplant_C'][(c + r) % 5];
+          solid.push({ name: plant, x: p.x + ((c * 3) % 5 - 2) * 0.18, z: p.y + ((r * 5) % 5 - 2) * 0.18, y: -0.04, rot: (c * 31 + r * 17) % 6, scale: 2.2 });
+        }
+        continue;
+      }
 
       if (cell.type === 'path' || cell.type === 'spawn') {
         const road = roadTile(cell.conn);
@@ -538,7 +550,7 @@ export const Renderer = {
       } else if (cell.type === 'goal') {
         // Castle with its gate toward the incoming road, a blue flag beside it.
         const k = [...cell.conn][0];
-        put(solid, 'building_castle_blue', c, r, { rot: k * Math.PI / 3 + Math.PI / 2 });
+        put(keep, 'building_castle_blue', c, r, { rot: k * Math.PI / 3 + Math.PI / 2 });
       } else if (cell.type === 'spawn') {
         // Two red flags frame the spot where enemies appear, plus a pulsing ring.
         const k = [...cell.conn][0];
@@ -575,11 +587,19 @@ export const Renderer = {
       g.add(solidMesh);
     }
     g.add(Assets.mergeStatic(water));
+    // The castle keeps its summer colours (blue roofs) in every season.
+    const keepMesh = Assets.mergeStatic(keep, Assets.towerMaterial);
+    if (keepMesh) {
+      keepMesh.castShadow = keepMesh.receiveShadow = true;
+      g.add(keepMesh);
+    }
 
     const sea = new THREE.Mesh(this._geo.plane, this._mats.sea);
     sea.rotation.x = -Math.PI / 2;
     sea.scale.set(400, 400, 1);
     sea.position.set(level.gridWidth / 2, -0.24, level.gridHeight / 2);
+    // Open sea in the colour of the season's water tiles.
+    this._mats.sea.color.set({ fall: 0x0a8079, winter: 0x0b6f84 }[level.season] || 0x2f86c6);
     g.add(sea);
 
     this._buildClouds(level, g);

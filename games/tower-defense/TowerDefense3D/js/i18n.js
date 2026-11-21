@@ -28,6 +28,9 @@ const DE = {
     { name: 'Wiese', tag: 'Ein ruhiger Weg zum Start.' },
     { name: 'Kreuzung', tag: 'Ein Weg hinein, zwei Burgen.' },
     { name: 'Der lange Marsch', tag: 'Drei Runden Ärger.' },
+    { name: 'Seeufer', tag: 'Herbst am See.' },
+    { name: 'Zwei Tore', tag: 'Feinde von zwei Seiten.' },
+    { name: 'Winterpass', tag: 'Der längste Weg, im Schnee.' },
   ],
 
   phaseBuild: '🔨 Bauzeit',
@@ -108,6 +111,9 @@ const ES = {
     { name: 'Pradera', tag: 'Un camino tranquilo para empezar.' },
     { name: 'Cruce', tag: 'Un camino de entrada, dos castillos.' },
     { name: 'La larga marcha', tag: 'Tres vueltas de problemas.' },
+    { name: 'Orilla del lago', tag: 'Otoño junto al lago.' },
+    { name: 'Dos puertas', tag: 'Enemigos por dos lados.' },
+    { name: 'Paso de invierno', tag: 'El camino más largo, en la nieve.' },
   ],
 
   phaseBuild: '🔨 A construir',
@@ -188,6 +194,9 @@ const EN = {
     { name: 'Meadow', tag: 'A gentle stroll to start.' },
     { name: 'Crossroads', tag: 'One road in, two castles.' },
     { name: 'The Long March', tag: 'Three laps of trouble.' },
+    { name: 'Lakeside', tag: 'Autumn by the lake.' },
+    { name: 'Two Gates', tag: 'Enemies from two sides.' },
+    { name: 'Winter Pass', tag: 'The longest road, in the snow.' },
   ],
 
   phaseBuild: '🔨 Build time',

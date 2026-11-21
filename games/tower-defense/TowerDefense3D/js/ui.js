@@ -155,8 +155,19 @@ export const UI = {
     c.width = (lvl.cols * HEX.WIDTH + 1) * S;
     c.height = ((lvl.rows - 1) * HEX.ROW + 2 * HEX.RADIUS) * S;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#62a83c';
+    ctx.fillStyle = { fall: '#c98436', winter: '#c9d8de' }[lvl.season] || '#62a83c';
     ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = { fall: '#0a8079', winter: '#0b6f84' }[lvl.season] || '#2f86c6';
+    for (const [wc, wr] of lvl.water || []) {
+      const p = hexCenter(wc, wr);
+      ctx.beginPath();
+      for (let k = 0; k < 6; k++) {
+        const ang = Math.PI / 6 + k * Math.PI / 3; // pointy-top hexagon
+        const hx = (p.x + Math.cos(ang) * HEX.RADIUS * 1.02) * S, hy = (p.y + Math.sin(ang) * HEX.RADIUS * 1.02) * S;
+        if (k === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+      }
+      ctx.fill();
+    }
     const dot = (cell, color, radius) => {
       const p = hexCenter(cell[0], cell[1]);
       ctx.fillStyle = color;
@@ -165,7 +176,7 @@ export const UI = {
       ctx.fill();
     };
     for (const path of lvl.paths) {
-      ctx.strokeStyle = '#e6c08a';
+      ctx.strokeStyle = lvl.season === 'winter' ? '#7f9aa6' : '#e6c08a';
       ctx.lineWidth = 0.7 * S;
       ctx.lineJoin = ctx.lineCap = 'round';
       ctx.beginPath();

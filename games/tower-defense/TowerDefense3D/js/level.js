@@ -112,7 +112,8 @@ export const Level = {
       const roll = rnd(), pick = rnd(), turn = rnd();
       if (keepFree.has(key(cell.c, cell.r)) || d < 2.1) continue;
       const near = d < 4.1;
-      if (roll > (near ? 0.2 : 0.62)) continue;
+      const dense = data.sceneryDensity || 1;
+      if (roll > (near ? 0.2 : 0.62) * dense) continue;
       const pool = near ? SCENERY_NEAR : SCENERY_FAR;
       cell.type = 'scenery';
       cell.model = pool[Math.floor(pick * pool.length)];
@@ -121,6 +122,7 @@ export const Level = {
 
     this.current = {
       name: data.name,
+      season: data.season || 'summer',
       cols, rows, cells,
       gridWidth: cols * HEX.WIDTH + 1,
       gridHeight: (rows - 1) * HEX.ROW + 2 * HEX.RADIUS,
