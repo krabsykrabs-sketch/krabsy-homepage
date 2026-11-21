@@ -13,10 +13,11 @@ import { Characters } from './characters.js';
 // lives here. Board, scenery and towers are KayKit models (see assets.js); enemies,
 // projectiles and effects are still simple shapes.
 
-// Camera framing reference: at this aspect the base FOV shows the whole board.
-// Wider windows just see more sea; narrower ones get a wider FOV to compensate.
-const BASE_ASPECT = 1.78;
-const BASE_FOV = 34;
+const CAMERA_FOV = 34;
+// Direction from the board centre to the camera: a fixed angled view from the south.
+const CAMERA_DIR = new THREE.Vector3(0, 0.92, 0.78).normalize();
+// Screen space kept free for the top HUD (px). The dock height is measured.
+const HUD_TOP = 60;
 
 const TOWER_MODEL = {
   basic: 'building_tower_A_blue',
@@ -128,12 +129,19 @@ export const Renderer = {
     this._r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this._r.shadowMap.enabled = true;
     this._r.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Shadows are redrawn only when needed (see _syncShadows), not every frame.
+    this._r.shadowMap.autoUpdate = false;
+    this._r.shadowMap.needsUpdate = true;
+    // ?q=high keeps full quality, ?q=low starts at the lowest; default adapts.
+    const q = new URLSearchParams(window.location.search).get('q');
+    this._quality = { step: 0, locked: q === 'high', frames: 0, time: 0, settle: 90 };
+    const startLow = q === 'low';
     this._r.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xbfe4f7);
 
-    this.camera = new THREE.PerspectiveCamera(BASE_FOV, BASE_ASPECT, 0.1, 300);
+    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1.78, 0.5, 400);
 
     this._raycaster = new THREE.Raycaster();
     this._groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -142,7 +150,6 @@ export const Renderer = {
     this._initLights();
     if (Level.current) {
       this._buildBoard(Level.current);
-      this._frameCamera(Level.current);
       this._buildPlacementOverlay();
     }
     this._initIndicators();
@@ -150,6 +157,7 @@ export const Renderer = {
 
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    if (startLow) { this._lowerQuality(); this._lowerQuality(); this._quality.locked = true; }
   },
 
   resize() {
@@ -158,19 +166,10 @@ export const Renderer = {
     const h = container.clientHeight;
     if (!w || !h) return;
     this._r.setSize(w, h);
-    const aspect = w / h;
-    this.camera.aspect = aspect;
-    // Keep the board's full width in frame: below the reference aspect, widen the
-    // vertical FOV so the horizontal FOV stays constant.
-    if (aspect < BASE_ASPECT) {
-      const t = Math.tan(THREE.MathUtils.degToRad(BASE_FOV / 2)) * (BASE_ASPECT / aspect);
-      this.camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(t));
-    } else {
-      this.camera.fov = BASE_FOV;
-    }
-    this.camera.updateProjectionMatrix();
     const level = Level.current;
+    if (level) this._frameCamera(level);
     this.viewport.scale = level ? h / level.gridHeight : 1;
+    this._r.shadowMap.needsUpdate = true;
   },
 
   render(state) {
@@ -183,6 +182,8 @@ export const Renderer = {
     const dt = Math.min(0.05, Math.max(0, now - (this._lastNow || now)));
     this._lastNow = now;
 
+    this._watchLayout();
+    this._watchQuality(dt);
     this._animateScenery(now);
     this._syncPlacementOverlay(state);
     this._syncGhost(state);
@@ -197,7 +198,64 @@ export const Renderer = {
     this._syncCoins(state);
     this._syncFlash(state);
 
+    this._syncShadows(state);
     this._r.render(this.scene, this.camera);
+  },
+
+  // The dock changes height (menu → game, phone wrap, tower info). Re-fit the camera
+  // when it does; checked a few times per second, not every frame.
+  _watchLayout() {
+    this._layoutTick = (this._layoutTick || 0) + 1;
+    if (this._layoutTick % 20) return;
+    const dock = this._dockHeight();
+    if (dock !== this._fitDock && Level.current) this._frameCamera(Level.current);
+  },
+
+  _dockHeight() {
+    const row = document.getElementById('dock-row');
+    const hgt = row ? row.offsetHeight : 0;
+    return hgt > 0 ? hgt + 22 : 0;
+  },
+
+  // Shadow map: towers and scenery only (enemies use blob shadows). Redraw when the
+  // set of towers changes, and a few times per second in battle for turning turrets.
+  _syncShadows(state) {
+    let sig = state.towers.length;
+    for (const tw of state.towers) sig += tw.upgradeLevel * 7 + tw.cellX * 31 + tw.cellY * 131;
+    this._shadowTick = (this._shadowTick || 0) + 1;
+    const battle = state.phase === 'BATTLE' && state.towers.length > 0;
+    if (sig !== this._shadowSig || (battle && this._shadowTick % 8 === 0)) {
+      this._shadowSig = sig;
+      this._r.shadowMap.needsUpdate = true;
+    }
+  },
+
+  // Slow device? Step the quality down once the frame rate has had time to settle:
+  // first render at 1× pixel ratio, then switch the shadows off.
+  _watchQuality(dt) {
+    const q = this._quality;
+    if (q.locked || q.step >= 2 || dt <= 0) return;
+    if (q.settle > 0) { q.settle -= 1; return; }
+    q.frames += 1;
+    q.time += dt;
+    if (q.frames < 90) return;
+    const avg = q.time / q.frames;
+    q.frames = 0; q.time = 0;
+    if (avg > 1 / 26) { this._lowerQuality(); q.settle = 60; }
+  },
+
+  _lowerQuality() {
+    const q = this._quality;
+    q.step += 1;
+    if (q.step === 1 && this._r.getPixelRatio() > 1) {
+      this._r.setPixelRatio(1);
+      this.resize();
+      return;
+    }
+    q.step = 2;
+    this._r.shadowMap.enabled = false;
+    if (this._sun) this._sun.castShadow = false;
+    this.scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   },
 
   // ─── Level switching ──────────────────────────────────────────────────
@@ -227,8 +285,8 @@ export const Renderer = {
     const level = Level.current;
     this._buildBoard(level);
     this._buildPlacementOverlay();
-    this._frameCamera(level);
     this.resize();
+    this._quality.settle = 90;
   },
 
   // ─── Tower thumbnails ─────────────────────────────────────────────────
@@ -381,12 +439,58 @@ export const Renderer = {
     cam.updateProjectionMatrix();
   },
 
+  // Fit the whole board into the screen area between the top HUD and the bottom
+  // dock, at any window shape: find the closest camera distance at which the board's
+  // outline fits, then slide the picture so it sits centred in the free area.
   _frameCamera(level) {
-    const W = level.gridWidth, cx = W / 2, cz = level.gridHeight / 2;
-    // Fixed angled view from the "south" (high z), looking down at the board. The
-    // look-at point sits a little south of centre so the bottom dock has room.
-    this.camera.position.set(cx, W * 0.92, cz + W * 0.78);
-    this.camera.lookAt(cx, 0, cz + 1.7);
+    const cam = this.camera;
+    const W = level.gridWidth, H = level.gridHeight;
+    const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
+    const dock = this._dockHeight();
+    this._fitDock = dock;
+    const top = HUD_TOP, bottom = dock || Math.min(140, h * 0.2), side = 6;
+
+    // Free area in normalised device coordinates (-1..1, y up).
+    const safe = {
+      minX: -1 + 2 * side / w, maxX: 1 - 2 * side / w,
+      minY: -1 + 2 * bottom / h, maxY: 1 - 2 * top / h,
+    };
+    const target = new THREE.Vector3(W / 2, 0, H / 2);
+    // Board outline; the far edge is lifted because towers and the castle are tall.
+    const outline = [
+      [0, 0, H], [W, 0, H], [0, 0, 0], [W, 0, 0],
+      [0, 2.6, 0.6], [W, 2.6, 0.6], [W / 2, 2.6, 0.6], [W, 4.2, H * 0.35], [0, 4.2, H * 0.35],
+    ].map(([x, y, z]) => new THREE.Vector3(x, y, z));
+
+    cam.fov = CAMERA_FOV;
+    cam.aspect = w / h;
+    cam.clearViewOffset();
+    const box = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    const measure = (dist) => {
+      cam.position.copy(target).addScaledVector(CAMERA_DIR, dist);
+      cam.lookAt(target);
+      cam.updateMatrixWorld();
+      cam.updateProjectionMatrix();
+      box.minX = box.minY = Infinity; box.maxX = box.maxY = -Infinity;
+      for (const p of outline) {
+        _v1.copy(p).project(cam);
+        box.minX = Math.min(box.minX, _v1.x); box.maxX = Math.max(box.maxX, _v1.x);
+        box.minY = Math.min(box.minY, _v1.y); box.maxY = Math.max(box.maxY, _v1.y);
+      }
+      return box.maxX - box.minX <= safe.maxX - safe.minX && box.maxY - box.minY <= safe.maxY - safe.minY;
+    };
+    let lo = 8, hi = 260;
+    for (let i = 0; i < 22; i++) {
+      const mid = (lo + hi) / 2;
+      if (measure(mid)) hi = mid; else lo = mid;
+    }
+    measure(hi);
+
+    // Slide the picture so the board sits in the middle of the free area.
+    const dx = ((safe.minX + safe.maxX) - (box.minX + box.maxX)) / 2;
+    const dy = ((safe.minY + safe.maxY) - (box.minY + box.maxY)) / 2;
+    cam.setViewOffset(w, h, -dx * w / 2, dy * h / 2, w, h);
+    cam.updateProjectionMatrix();
     if (this._sun) this._aimSun(level);
   },
 
@@ -895,7 +999,6 @@ export const Renderer = {
         const spec = PROJECTILE_MODEL[p.type] || PROJECTILE_MODEL.basic;
         obj = Assets.clone(spec.name);
         obj.scale.setScalar(spec.scale);
-        obj.traverse(o => { if (o.isMesh) o.castShadow = true; });
         obj.userData = { last: null, spin: Math.random() * 6 };
         this._projObjs.set(p, obj);
         this.scene.add(obj);

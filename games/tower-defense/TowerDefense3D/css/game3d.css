@@ -671,6 +671,11 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 .level-card.locked:hover { transform: none; border-color: var(--line); }
 .level-card.locked .level-best { color: var(--text-soft); }
 
+.rotate-note { display: none; font-size: 14px; color: var(--amber); margin-top: 18px; }
+@media (orientation: portrait) and (max-width: 640px) {
+  .rotate-note { display: block; }
+}
+
 body.game-inactive #top-hud,
 body.game-inactive #bottom-dock { display: none; }
 

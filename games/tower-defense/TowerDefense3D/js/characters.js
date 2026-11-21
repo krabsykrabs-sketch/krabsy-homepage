@@ -18,9 +18,12 @@ const CHARACTERS = {
   Skeleton_Golem: 'large',
 };
 
+// Animation-only files made by tools/strip-rigs.py from the pack's rig files: just the
+// bones and the four clips below (the originals are 2.7 MB with a mannequin mesh and
+// dozens of unused clips).
 const RIG_FILES = {
-  medium: ['Rig_Medium_MovementBasic', 'Rig_Medium_General'],
-  large: ['Rig_Large_MovementBasic', 'Rig_Large_General'],
+  medium: ['anim_medium'],
+  large: ['anim_large'],
 };
 
 // Our name → clip name in the rig files. The large rig has no spawn clip.
@@ -46,6 +49,19 @@ class CharacterInstance {
       }
       o.material = cloned.get(o.material);
     });
+    // The clone gives every body part its own Skeleton over the same bones, which
+    // means ten bone-texture uploads per enemy per frame. Share one instead.
+    const parts = [];
+    this.root.traverse((o) => { if (o.isSkinnedMesh) parts.push(o); });
+    const shared = parts.length ? parts[0].skeleton : null;
+    for (const m of parts.slice(1)) {
+      const sk = m.skeleton;
+      const same = sk.bones.length === shared.bones.length && sk.bones.every((b, i) => b === shared.bones[i]);
+      if (!same) continue;
+      m.bind(shared, m.bindMatrix);
+      sk.dispose();
+    }
+
     this.mixer = new THREE.AnimationMixer(this.root);
     this.actions = {};
     this.durations = {};

@@ -23,28 +23,60 @@ asset library. Study Verb Kitchen's code and its `CLAUDE.md` before
 designing anything. Especially study how its question moment is
 **self-paced** (the sink), so that thinking and action never collide.
 
-## Current state (as found 2026-11-21, untouched since July 2026)
+## Current state (2026-11-21, after M0–M5: READY FOR REVIEW)
 
-- `td-html5-spec.md` (976 lines): the original full spec, with systems,
-  balance values, formulas, UI and quiz. It describes a **2D canvas** game
-  and also mentions einmaleins.de. Reuse its balance and systems where
-  useful. It is not binding.
-- Root `index.html`, `js/`, `css/`, `levels/`: the **2D canvas**
-  implementation of that spec, about 3,700 lines.
-- `TowerDefense3D/`: a **3D port** with 3 levels. It uses
-  `lib/three.min.js` (Three.js **r147**, global script, not ES modules) and
-  `lib/GLTFLoader.js`. All visuals are **procedural placeholder meshes**
-  (`js/renderer.js`); `js/assets.js` is a stub waiting for GLB models.
-  Between waves the quiz asks 2 questions about one verb (`js/quiz.js`).
-- `ToolPack/`: a 2D sprite export (map, characters, props). It is probably
-  irrelevant for the 3D game.
-- `.claude/launch.json` points at an old path (`/home/jan/TowerDefenseHTML`).
-  It is stale, so fix it or serve with
-  `python3 -m http.server <port>` from the game folder.
+The game is `TowerDefense3D/` (plain static files, no build step, 5.4 MB).
+Working title in the UI: "Verb Towers". The old 2D game and the first
+3D placeholder version are gone (git history has them).
 
-**First task:** play both versions, read the code, then propose to the
-owner a short plan: base (recommended: `TowerDefense3D/`), game design
-changes, asset choice, and milestones. Get an OK before big rewrites.
+```
+TowerDefense3D/
+├── index.html            noindex meta, import map, data-i18n nodes
+├── css/game3d.css        Krabsy look, responsive rules
+├── fonts/                Fredoka One, Nunito (self-hosted)
+├── vendor/three/         Three.js 0.169 ES modules + GLTFLoader etc.
+├── assets/hex/           KayKit Medieval Hexagon models used (1.6 MB)
+├── assets/skeletons/     6 characters + 2 animation-only files (2.3 MB)
+├── assets/CREDITS.md
+├── levels/level1-3.js    hex maps, waves, economy (classic scripts)
+└── js/
+    main.js               state, phases, loop, stars, speed
+    level.js grid.js      hex board, paths, building spots
+    wave.js enemy.js tower.js projectile.js effects.js config.js audio.js
+    forge.js questions.js the question moment and its data source
+    tutorial.js           level-1 coach
+    i18n.js               de / es / en
+    assets.js characters.js renderer.js   models, pooled skeletons, 3D
+    input.js ui.js        mouse/touch/keys, HUD and overlays
+tools/
+    balance-sim.mjs       bot that plays all levels (balance check)
+    strip-rigs.py         makes the animation-only GLB files
+td-html5-spec.md          original 2D spec (historic, balance ideas)
+```
+
+**Play locally:** `python3 -m http.server 8123 --directory TowerDefense3D`
+(fallback verbs). To use the real question engine the site's `/lib` and
+`/data` must be served at the root, as after release.
+
+**URL parameters:** `?lang=de|es|en`, `?topic=irregular_verbs|prepositions`,
+`?q=high|low` (fix the render quality; default adapts to the frame rate).
+
+**Notes for the master session (release):**
+- Copy `TowerDefense3D/` to `homepage/games/tower-defense/` as is. `tools/`
+  and the spec are not served.
+- The game imports `/lib/krabsy-questions.js` by absolute path, so it must
+  live on the site origin. Wrappers iframe `/games/tower-defense/?lang=de`
+  (or `es`); without `?lang` it uses `localStorage.krabsy_lang`.
+- `localStorage` keys: `td3d_stars_level_N`, `td3d_highscore_level_N`,
+  `td3d_tutorial_done`. No analytics calls and no third-party requests.
+- The game name is undecided; "Verb Towers" appears in `index.html`
+  `<title>` and `js/i18n.js` (`title`).
+- Phone portrait is playable but small; the menu shows a "turn your phone"
+  hint there.
+
+**Not verified (please check in review):** real Chromebook / tablet / phone
+performance and feel; balance with real kids (tuned with a bot only);
+German and Spanish wording by a native-speaker read-through.
 
 ## Assets: shared CC0 library
 
@@ -306,3 +338,29 @@ Rules:
     unused clips (size).
   - **Next:** M5 (polish, real-device checks, size and load time, then
     "ready for review").
+- 2026-11-21 — **M5 (polish, size, performance) done. READY FOR REVIEW.**
+  - **Size:** 8.0 MB → 5.4 MB. The four rig files (2.7 MB) are replaced by
+    two animation-only files (0.2 MB) built by `tools/strip-rigs.py`.
+    Measured page load: about 6.2 MB over 168 requests (many small
+    gltf + bin pairs; could be merged into one file later if load time
+    matters).
+  - **Performance:** one shared skeleton per enemy instead of one per body
+    part; the shadow map is redrawn only when towers change (and ~8×/s in
+    battle); enemies and projectiles cast no real shadows. Adaptive
+    quality: under ~26 fps the renderer first drops to 1× pixel ratio,
+    then turns shadows off (`?q=high|low` overrides). Typical frame:
+    40–60 draw calls plus ~10 per enemy, 60–70k triangles.
+  - **Camera** now fits the board into the area between the top HUD and
+    the measured dock height at any window shape (laptop, tablet, phone
+    landscape and portrait) and re-fits when the dock changes.
+  - Loading note shows a percentage; portrait phones get a "turn your
+    phone" hint on the menu.
+  - Regression in headless Chromium, no console errors: forge flow,
+    tutorial, both build orders, stars and unlocking, next level, game
+    over recap, quit; 1366×768, 1024×768 touch, 844×390 touch, 390×844
+    touch; German, Spanish; real site question engine and fallback.
+  - **Open questions for the owner:** final game name; crab mascot yes/no
+    (not used); whether level 1 should stay winnable without verbs.
+  - **Ideas not done:** merge each character into one mesh (if a real
+    Chromebook is slow), merge the hex models into one file, coast tiles
+    around the island, sound polish, more levels, typed-answer mode.

@@ -89,7 +89,9 @@ async function init() {
 
   // Models first: the board, the towers and the dock thumbnails are built from them.
   try {
-    await Promise.all([Assets.load(), Characters.load(), Questions.init()]);
+    const note = document.getElementById('loading-note');
+    const progress = (f) => { if (note) note.textContent = `${t('loading')} ${Math.round(f * 100)} %`; };
+    await Promise.all([Assets.load(progress), Characters.load(), Questions.init()]);
   } catch (err) {
     console.error('Could not load the 3D models', err);
     const note = document.getElementById('loading-note');
