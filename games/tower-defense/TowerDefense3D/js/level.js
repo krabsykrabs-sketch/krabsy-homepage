@@ -125,12 +125,13 @@ export const Level = {
       gridWidth: cols * HEX.WIDTH + 1,
       gridHeight: (rows - 1) * HEX.ROW + 2 * HEX.RADIUS,
       paths,
+      // Castle positions (one per path end), e.g. where forged coins fly from.
+      goals: data.paths.map(p => hexCenter(...p.cells[p.cells.length - 1])),
       startingLives: data.startingLives,
       startingCoins: data.startingCoins,
       totalWaves: data.totalWaves,
       enemyScaling: data.enemyScaling,
       economy: data.economy,
-      quiz: data.quiz,
     };
     return this.current;
   },

@@ -6,7 +6,14 @@ export const CONFIG = {
   // stay small (Grunt radius ~0.3, Titan ~0.6).
   enemyRadiusPerScale: 0.16,
   // Seconds a normal enemy takes to climb out of the ground before it starts walking.
-  enemySpawnRise: 0.9, // world-unit radius = tier.scale * this
+  enemySpawnRise: 0.9,
+
+  // The forge (question moment, see forge.js). Hammers = questions per wave.
+  forge: {
+    hammersPerWave: 3,
+    coinsPerRight: 8,
+    battleTimeScale: 0.25, // game speed while the forge is open during a battle
+  }, // world-unit radius = tier.scale * this
   projectileHitRadius: 0.3,  // spec baseline — enemy.radius is added on top per hit check
 
   colors: {
@@ -165,39 +172,3 @@ export function getTierForHealth(hp) {
   }
   return tiers[0];
 }
-
-// Irregular-verb catalogue for the quiz (step 10). Each entry has the base verb,
-// simple past (`past`), past participle (`pp`), and three plausible wrongs for each
-// form (`pw` for simple-past distractors, `ppw` for past-participle distractors).
-export const VERBS = [
-  { verb: "go",     past: "went",    pp: "gone",      pw: ["goed","wented","goeded"],        ppw: ["goned","wented","goden"] },
-  { verb: "run",    past: "ran",     pp: "run",       pw: ["runned","ranned","runed"],       ppw: ["runned","ranned","runed"] },
-  { verb: "eat",    past: "ate",     pp: "eaten",     pw: ["eated","ated","eatted"],         ppw: ["eated","aten","ated"] },
-  { verb: "swim",   past: "swam",    pp: "swum",      pw: ["swimmed","swimd","swammed"],     ppw: ["swimmed","swammed","swimd"] },
-  { verb: "fly",    past: "flew",    pp: "flown",     pw: ["flied","flyed","flewed"],        ppw: ["flied","flyed","flewed"] },
-  { verb: "see",    past: "saw",     pp: "seen",      pw: ["seed","sawed","seeed"],          ppw: ["seed","sawed","seened"] },
-  { verb: "write",  past: "wrote",   pp: "written",   pw: ["writed","wroted","writeed"],     ppw: ["writed","wroten","writeed"] },
-  { verb: "sing",   past: "sang",    pp: "sung",      pw: ["singed","sanged","singged"],     ppw: ["singed","sanged","singged"] },
-  { verb: "drive",  past: "drove",   pp: "driven",    pw: ["drived","droved","driveed"],     ppw: ["drived","droved","driveen"] },
-  { verb: "break",  past: "broke",   pp: "broken",    pw: ["breaked","broked","breakd"],     ppw: ["breaked","broked","breakd"] },
-  { verb: "take",   past: "took",    pp: "taken",     pw: ["taked","tooked","takeed"],       ppw: ["taked","tooked","takeed"] },
-  { verb: "give",   past: "gave",    pp: "given",     pw: ["gived","giveed","gaved"],        ppw: ["gived","giveed","gaved"] },
-  { verb: "know",   past: "knew",    pp: "known",     pw: ["knowed","knewed","knowd"],       ppw: ["knowed","knewed","knowd"] },
-  { verb: "come",   past: "came",    pp: "come",      pw: ["comed","camed","comeed"],        ppw: ["comed","camed","comen"] },
-  { verb: "think",  past: "thought", pp: "thought",   pw: ["thinked","thinkd","thinkted"],   ppw: ["thinked","thinkd","thinkted"] },
-  { verb: "buy",    past: "bought",  pp: "bought",    pw: ["buyed","buyd","buyted"],         ppw: ["buyed","buyd","buyted"] },
-  { verb: "make",   past: "made",    pp: "made",      pw: ["maked","maded","makeed"],        ppw: ["maked","maded","makeed"] },
-  { verb: "find",   past: "found",   pp: "found",     pw: ["finded","findeed","findd"],      ppw: ["finded","findeed","findd"] },
-  { verb: "tell",   past: "told",    pp: "told",      pw: ["telled","telld","telleed"],      ppw: ["telled","telld","telleed"] },
-  { verb: "drink",  past: "drank",   pp: "drunk",     pw: ["drinked","drinkd","dranked"],    ppw: ["drinked","dranked","drunkd"] },
-  { verb: "begin",  past: "began",   pp: "begun",     pw: ["beginned","begined","beganned"], ppw: ["beginned","begined","begonned"] },
-  { verb: "speak",  past: "spoke",   pp: "spoken",    pw: ["speaked","spoked","speakd"],     ppw: ["speaked","spoked","speakened"] },
-  { verb: "fall",   past: "fell",    pp: "fallen",    pw: ["falled","felled","falld"],       ppw: ["falled","felled","falld"] },
-  { verb: "grow",   past: "grew",    pp: "grown",     pw: ["growed","grewed","growd"],       ppw: ["growed","grewed","growd"] },
-  { verb: "throw",  past: "threw",   pp: "thrown",    pw: ["throwed","threwed","throwd"],    ppw: ["throwed","threwed","throwd"] },
-  { verb: "wear",   past: "wore",    pp: "worn",      pw: ["weared","wored","weard"],        ppw: ["weared","wored","weard"] },
-  { verb: "ride",   past: "rode",    pp: "ridden",    pw: ["rided","roded","rideed"],        ppw: ["rided","roded","rideed"] },
-  { verb: "choose", past: "chose",   pp: "chosen",    pw: ["choosed","chosed","chooseed"],   ppw: ["choosed","chosed","chooseed"] },
-  { verb: "forget", past: "forgot",  pp: "forgotten", pw: ["forgetted","forgoted","forgetd"], ppw: ["forgetted","forgoted","forgetd"] },
-  { verb: "draw",   past: "drew",    pp: "drawn",     pw: ["drawed","drewed","drawd"],       ppw: ["drawed","drewed","drawd"] },
-];

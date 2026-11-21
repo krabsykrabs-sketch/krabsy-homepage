@@ -1,18 +1,22 @@
 import { Sound } from './audio.js';
+import { CONFIG } from './config.js';
 import { Level } from './level.js';
 import { Assets } from './assets.js';
 import { Characters } from './characters.js';
 import { Renderer } from './renderer.js';
 import { Input } from './input.js';
 import { Grid } from './grid.js';
-import { Quiz } from './quiz.js';
+import { Forge } from './forge.js';
+import { Questions } from './questions.js';
+import { applyStatic, t } from './i18n.js';
 import { Effects } from './effects.js';
 import { UI } from './ui.js';
 import { Wave } from './wave.js';
 
 // Entry point: initialize subsystems, own the central state, run the game loop + phase
 // machine. Phase table (spec):
-//   MENU → BUILD → BATTLE → WAVE_COMPLETE → QUIZ → BUILD (next wave) or VICTORY
+//   MENU → BUILD → BATTLE → WAVE_COMPLETE → BUILD (next wave) or VICTORY
+//   The forge (questions for coins) can be opened any time during BUILD and BATTLE.
 //   GAME_OVER triggers from any gameplay phase when lives hit 0.
 //   End-game button → MENU (ends current run).
 
@@ -40,7 +44,11 @@ export const state = {
 
   wave: null,
   waveCompleteTimer: 0,
-  quiz: null,
+
+  forge: Forge.newState(),
+  stats: { asked: 0, right: 0 },
+  // 1 normally; lower while the forge is open during a battle (slow motion).
+  timeScale: 1,
 
   // Save highscore only once per run-end; cleared on resetRun.
   highscoreSaved: false,
@@ -51,6 +59,7 @@ let canvas = null;
 
 async function init() {
   canvas = document.getElementById('game-canvas');
+  applyStatic();
   Sound.init();
 
   LEVELS = [window.LEVEL1, window.LEVEL2, window.LEVEL3].filter(Boolean);
@@ -70,11 +79,11 @@ async function init() {
 
   // Models first: the board, the towers and the dock thumbnails are built from them.
   try {
-    await Promise.all([Assets.load(), Characters.load()]);
+    await Promise.all([Assets.load(), Characters.load(), Questions.init()]);
   } catch (err) {
     console.error('Could not load the 3D models', err);
     const note = document.getElementById('loading-note');
-    if (note) note.textContent = 'Could not load the game. Please reload the page.';
+    if (note) note.textContent = t('loadError');
     return;
   }
 
@@ -87,7 +96,7 @@ async function init() {
   requestAnimationFrame(gameLoop);
 }
 
-function resetRun() {
+export function resetRun() {
   state.phase = 'BUILD';
   state.enemies.length = 0;
   state.towers.length = 0;
@@ -101,7 +110,10 @@ function resetRun() {
   state.selectedTower = null;
   state.wave = null;
   state.waveCompleteTimer = 0;
-  state.quiz = null;
+  state.forge = Forge.newState();
+  state.stats = { asked: 0, right: 0 };
+  state.timeScale = 1;
+  Questions.resetRun();
   state.highscoreSaved = false;
   Grid.init(Level.current);
 }
@@ -167,6 +179,11 @@ export function sellTower(tower) {
 // ── Game loop ─────────────────────────────────────────────────────────
 
 function update(dt) {
+  // The forge runs on real time; everything else slows down while it is open in battle.
+  Forge.update(dt, state);
+  state.timeScale = (state.forge.open && state.phase === 'BATTLE') ? CONFIG.forge.battleTimeScale : 1;
+  dt *= state.timeScale;
+
   if (state.phase === 'MENU') {
     UI.update(state);
     return;
@@ -183,9 +200,15 @@ function update(dt) {
     Wave.update(dt, state);
   } else if (state.phase === 'WAVE_COMPLETE') {
     state.waveCompleteTimer -= dt;
-    if (state.waveCompleteTimer <= 0) Quiz.start(state);
-  } else if (state.phase === 'QUIZ') {
-    Quiz.update(dt, state);
+    if (state.waveCompleteTimer <= 0) {
+      if (state.currentWave >= Level.current.totalWaves) {
+        state.phase = 'VICTORY';
+        Sound.play('victory');
+      } else {
+        state.phase = 'BUILD';
+        Forge.refill(state);
+      }
+    }
   }
 
   for (const t of state.towers)      t.update(dt, state);
@@ -223,6 +246,6 @@ function gameLoop(timestamp) {
 }
 
 // Handle for automated play-tests and debugging in the browser console.
-window.__td = { state, Renderer, Level, Grid };
+window.__td = { state, Renderer, Level, Grid, Forge, Questions };
 
 window.addEventListener('load', init);

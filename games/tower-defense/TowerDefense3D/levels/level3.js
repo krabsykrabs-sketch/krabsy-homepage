@@ -35,5 +35,4 @@ window.LEVEL3 = {
     baseEnemySpeed: 2.2,
   },
   economy: { baseCoinsPerKill: 1, waveCompletionBonus: 14 },
-  quiz: { questionsPerWave: 2, coinsPerCorrectAnswer: 5 },
 };

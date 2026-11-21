@@ -1,4 +1,5 @@
 import { Sound } from './audio.js';
+import { Forge } from './forge.js';
 import { CONFIG, TOWER_ORDER } from './config.js';
 import { Level } from './level.js';
 import { Tower } from './tower.js';
@@ -103,6 +104,21 @@ export const Input = {
   },
 
   _onKeyDown(e) {
+    // While the forge is open the keyboard answers questions.
+    if (state.forge.open) {
+      const f = state.forge;
+      if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') { Forge.close(state); return; }
+      if (f.stage === 'ask') {
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= f.q.options.length) Forge.answer(state, n - 1);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        Forge.next(state);
+      }
+      if (e.key === ' ') e.preventDefault();
+      return;
+    }
+    if (e.key === 'f' || e.key === 'F') { Forge.open(state); return; }
+
     if (e.key === 'Escape') { this.cancelPlacement(); state.selectedTower = null; return; }
 
     if (e.key === ' ') {

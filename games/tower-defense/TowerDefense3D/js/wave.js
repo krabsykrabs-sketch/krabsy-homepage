@@ -90,11 +90,9 @@ export const Wave = {
     );
     state.wave = null;
 
-    // Phase table (spec): BATTLE → WAVE_COMPLETE → QUIZ → (BUILD | VICTORY).
-    // Even the final wave goes through WAVE_COMPLETE and QUIZ — the quiz module is
-    // responsible for the VICTORY transition once both questions are answered.
+    // BATTLE → WAVE_COMPLETE → (BUILD | VICTORY); main.js makes that last step.
     state.phase = 'WAVE_COMPLETE';
-    state.waveCompleteTimer = 2.0;
+    state.waveCompleteTimer = 1.8;
     Sound.play('waveComplete');
   },
 

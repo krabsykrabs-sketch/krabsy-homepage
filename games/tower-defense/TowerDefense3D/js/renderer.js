@@ -188,8 +188,9 @@ export const Renderer = {
     this._syncGhost(state);
     this._syncSelection(state);
     this._syncTowers(state, now);
-    this._syncEnemies(state, now, dt);
-    this._syncCorpses(dt);
+    const animDt = dt * (state.timeScale || 1);
+    this._syncEnemies(state, now, animDt);
+    this._syncCorpses(animDt);
     this._syncProjectiles(state);
     this._syncEffects(state);
     this._syncCoins(state);

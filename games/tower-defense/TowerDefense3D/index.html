@@ -1,107 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex, indexifembedded">
   <link rel="icon" href="data:,">
-  <title>Tower Defense 3D</title>
+  <title>Verb Towers</title>
   <link rel="stylesheet" href="css/game3d.css">
 </head>
 <body class="state-menu game-inactive">
   <div id="game-wrapper">
     <div id="game-container">
-      <!-- canvas fills the window; all UI floats on top of it. -->
+      <!-- The canvas fills the window; all UI floats on top of it. -->
       <div id="canvas-frame">
         <canvas id="game-canvas"></canvas>
 
         <div id="top-hud">
-          <div class="hud-group hud-left">
+          <div class="hud-group">
             <div class="hud-chip hud-coins">
               <span class="coin-icon" aria-hidden="true"></span>
               <span id="coin-count">0</span>
             </div>
-            <div class="hud-chip hud-lives" id="lives-container"></div>
+            <div class="hud-chip hud-lives">
+              <span id="lives-container"></span>
+              <span id="lives-compact"></span>
+            </div>
           </div>
           <div class="hud-group hud-center">
-            <div class="hud-chip hud-phase" id="phase-label">BUILD PHASE</div>
+            <div class="hud-chip hud-phase" id="phase-label"></div>
           </div>
-          <div class="hud-group hud-right">
-            <div class="hud-chip hud-wave">Wave <span id="wave-count">0</span>/<span id="wave-total">20</span></div>
-            <button id="mute-btn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
-            <button id="end-game-btn" title="End run (return to menu)" aria-label="End run">✕</button>
+          <div class="hud-group">
+            <div class="hud-chip hud-wave"><span data-i18n="wave"></span> <span id="wave-count">0</span>/<span id="wave-total">0</span></div>
+            <button id="mute-btn" class="round-btn" data-i18n-title="sound">🔊</button>
+            <button id="end-game-btn" class="round-btn" data-i18n-title="quit">✕</button>
           </div>
         </div>
 
         <div id="wave-banner" class="hidden"></div>
+        <div id="slowmo-note" class="hidden" data-i18n="slowMotion"></div>
 
-        <!-- Bottom dock: tower cards + start-wave. The wrapper ignores pointer events
-             so clicks on empty space still reach the battlefield. -->
+        <!-- Bottom dock. The wrapper ignores pointer events so clicks on empty space
+             still reach the battlefield. -->
         <div id="bottom-dock">
-          <div id="tower-info" class="hidden"></div>
+          <div id="tower-info" class="panel hidden"></div>
+
+          <!-- The forge: the question moment. Opened by the player, never forced. -->
+          <div id="forge-panel" class="panel hidden">
+            <div class="forge-head">
+              <span class="forge-title">⚒ <span data-i18n="forgeTitle"></span></span>
+              <span class="forge-sub" id="forge-sub"></span>
+              <span class="forge-hammers" id="forge-hammers"></span>
+              <button id="forge-close" class="btn btn-ghost" data-i18n="forgeClose"></button>
+            </div>
+            <div class="forge-question" id="forge-question"></div>
+            <div class="forge-answers" id="forge-answers"></div>
+            <div class="forge-feedback" id="forge-feedback"></div>
+          </div>
+
           <div id="dock-row">
             <div id="tower-buttons"></div>
-            <button id="start-wave-btn">
-              <span class="swb-label">Start wave</span>
-              <span class="hotkey">Space</span>
+            <button id="forge-btn" class="btn btn-amber">
+              <span class="dock-btn-label">⚒ <span data-i18n="forge"></span></span>
+              <span class="dock-btn-sub" id="forge-btn-hammers"></span>
+            </button>
+            <button id="start-wave-btn" class="btn btn-teal">
+              <span class="dock-btn-label" data-i18n="startWave"></span>
+              <span class="dock-btn-sub hotkey" data-i18n="hotkeySpace"></span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Overlays cover the whole game-container to modal-block. -->
-      <div id="wave-complete-overlay" class="overlay hidden">
-        <div class="overlay-panel">
-          <div class="overlay-title">Wave <span id="wc-num"></span> complete!</div>
+      <!-- Overlays cover the whole game container. -->
+      <div id="wave-complete-overlay" class="overlay overlay-light hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title" id="wc-title"></div>
           <div class="overlay-subtitle">+<span id="wc-bonus"></span> <span class="coin-icon coin-icon-sm" aria-hidden="true"></span></div>
-          <div class="overlay-hint">click to continue</div>
+          <div class="overlay-hint" data-i18n="tapToContinue"></div>
         </div>
       </div>
 
-      <div id="game-over-overlay" class="overlay overlay-nodismiss hidden">
-        <div class="overlay-panel">
-          <div class="overlay-title">Game over</div>
-          <div class="overlay-subtitle">Reached wave <span id="go-wave"></span>/<span id="go-total"></span></div>
-          <div class="overlay-best">Best: wave <span id="go-best">0</span></div>
+      <div id="game-over-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title coral" data-i18n="gameOver"></div>
+          <div class="overlay-subtitle" id="go-sub"></div>
+          <div class="overlay-best" id="go-best"></div>
+          <div class="recap" id="go-recap"></div>
           <div class="overlay-actions">
-            <button class="overlay-btn" data-action="restart">Play again</button>
-            <button class="overlay-btn secondary" data-action="menu">Menu</button>
+            <button class="btn btn-teal" data-action="restart" data-i18n="playAgain"></button>
+            <button class="btn btn-ghost" data-action="menu" data-i18n="menu"></button>
           </div>
         </div>
       </div>
 
-      <div id="victory-overlay" class="overlay overlay-nodismiss hidden">
-        <div class="overlay-panel">
-          <div class="overlay-title">Victory!</div>
-          <div class="overlay-subtitle">All <span id="vc-total"></span> waves cleared.</div>
-          <div class="overlay-best">Best: wave <span id="vc-best">0</span></div>
+      <div id="victory-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title amber" data-i18n="victory"></div>
+          <div class="overlay-subtitle" id="vc-sub"></div>
+          <div class="overlay-best" id="vc-best"></div>
+          <div class="recap" id="vc-recap"></div>
           <div class="overlay-actions">
-            <button class="overlay-btn" data-action="restart">Play again</button>
-            <button class="overlay-btn secondary" data-action="menu">Menu</button>
+            <button class="btn btn-teal" data-action="restart" data-i18n="playAgain"></button>
+            <button class="btn btn-ghost" data-action="menu" data-i18n="menu"></button>
           </div>
         </div>
       </div>
 
-      <div id="quiz-overlay" class="overlay overlay-nodismiss hidden">
-        <div class="quiz-panel">
-          <div class="quiz-header">
-            <span class="quiz-badge">Verb check!</span>
-            <span class="quiz-progress">Question <span id="quiz-num">1</span> of 2</span>
+      <div id="quit-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title small" data-i18n="quitTitle"></div>
+          <div class="overlay-actions">
+            <button class="btn btn-teal" id="quit-no" data-i18n="quitNo"></button>
+            <button class="btn btn-ghost" id="quit-yes" data-i18n="quitYes"></button>
           </div>
-          <div class="quiz-chain" id="quiz-chain"></div>
-          <div class="quiz-answers" id="quiz-answers"></div>
-          <div class="quiz-feedback" id="quiz-feedback"></div>
         </div>
       </div>
     </div>
 
-    <!-- Start menu — full-viewport, with level selection. -->
+    <!-- Start menu with level selection. -->
     <div id="menu-overlay" class="menu-fullscreen">
       <div class="menu-panel">
-        <div class="menu-title">Tower Defense <span class="menu-3d">3D</span></div>
-        <div class="menu-subtitle">Practice irregular verbs, defend the goal.</div>
-        <div id="level-cards"><div id="loading-note">Loading…</div></div>
-        <div class="menu-hint">Space — start wave · 1-4 — pick tower · Esc — cancel · Del — sell</div>
+        <div class="menu-title" data-i18n="title"></div>
+        <div class="menu-subtitle" data-i18n="subtitle"></div>
+        <div class="menu-chain" aria-hidden="true">
+          <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-part">gone</span>
+        </div>
+        <div id="level-cards"><div id="loading-note" data-i18n="loading"></div></div>
+        <div class="menu-hint" data-i18n="menuHint"></div>
       </div>
     </div>
   </div>

@@ -225,3 +225,48 @@ Rules:
   - Noted for M3: the "End run" button uses a native `confirm()` dialog.
   - **Next:** M3 (self-paced verb forge, `krabsy-questions.js`, DE/ES UI,
     Krabsy look for HUD and menus).
+- 2026-11-21 — **M3 (verb forge, languages, Krabsy look) done.**
+  - **Forge** (`js/forge.js`) replaces the forced between-wave quiz
+    (`quiz.js` deleted). The player opens it with the amber dock button or
+    `F`, any time in build or battle. Each wave gives 3 hammers
+    (`CONFIG.forge`); one question per hammer. Right = 8 coins fly in from
+    the castle and the next question follows; wrong = no coins, the full
+    chain is shown with small grammar-term captions, and the player
+    presses "next" when ready. A hammer is used either way, so guessing
+    does not pay. In battle the game runs at 25 % speed while the forge is
+    open. Keys: 1–3 answer, Enter/Space next, Esc/F close.
+  - **Questions** (`js/questions.js`): `/lib/krabsy-questions.js`
+    `getQuizSet` (quiz shape, `?topic=`), ordered by verb tier so everyday
+    verbs come first (`getChainSet` supplies the tiers; every question has
+    the same `difficulty`). Missed questions return three questions later
+    and are listed on the game-over / victory screen. Inline fallback of
+    30 verbs when the import fails (local dev, file://). Presentation is
+    positional: `send → ___ → [ ? ]`. `?topic=prepositions` works too
+    (sentence with a highlighted gap).
+  - **Languages** (`js/i18n.js`): German, Spanish, English. `?lang=`, else
+    `localStorage.krabsy_lang` (the site's key), else browser, else German.
+    All UI text goes through `t()`; static nodes use `data-i18n`.
+  - **Look:** `index.html`, `css/game3d.css` and `js/ui.js` rewritten in
+    the Krabsy style (navy panels, teal/coral/amber, Fredoka One + Nunito).
+    Responsive rules for ≤1100 px, short windows and phones (≤640 px:
+    compact HUD, hearts as a number). "End game" asks in the page instead
+    of a native `confirm()`.
+  - Fixed: "Play again" on the end screens threw since M0 (`resetRun` was
+    not exported after the ES-module conversion).
+  - Working title in the UI: **"Verb Towers"** (final name is the owner's
+    call).
+  - Checked in headless Chromium: full forge flow (right, wrong, keyboard,
+    empty forge, refill after a wave, slow motion in battle), game over
+    with recap, play again, quit dialog. German on the inline fallback;
+    Spanish, German and prepositions on the real site engine (344
+    questions) via a local server that also serves `/lib` and `/data`;
+    1366×768, 1024×768 touch, 390×844 touch. No console errors.
+  - **To test the real question engine locally**, the game must be served
+    with the site's `/lib` and `/data` at the root (as it will be after
+    release). Plain `python3 -m http.server` in `TowerDefense3D/` uses the
+    fallback verbs and logs one expected 404 for `/lib/krabsy-questions.js`.
+  - **Not done yet:** balance is untouched (20–25 waves; wave bonus, kill
+    coins and forge coins are first guesses). No tutorial, no stars.
+    Phone portrait is playable but the board is small.
+  - **Next:** M4 (first-30-seconds tutorial, touch build flow, 3 levels
+    with 8–10 waves, fewer and stronger enemies, stars).
