@@ -306,7 +306,7 @@ export async function createGame(canvas) {
 
     input.update();
     const look = input.consumeLook();
-    if (look.x || look.y) followCam.applyLook(look.x, look.y);
+    if (look.x || look.y) followCam.applyLook(look.x, look.y, player.state.facingYaw);
 
     // Advance the cloud drift on the wall clock — independent of the fixed-step loop so the sky
     // keeps flowing even when no physics tick lands this frame.

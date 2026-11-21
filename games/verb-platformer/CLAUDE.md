@@ -154,10 +154,13 @@ load with 0 console errors, 0 failed requests, 0 external requests.
   are now 0 (attached) or 2–3; "Ferries is quite good"; the character
   now turns to its steering direction in the air too (it used to jump
   sideways). Still open: his view on the wider gaps, the other levels,
-  hammer timing. **Controls (owner decision, same day): the mouse
-  turns the character** — it always faces the camera direction, A/D
-  step sideways, S walks backwards (`src/player.js`).
-- **Falling red platforms outside gates do not come back on respawn.**
+  hammer timing. **Controls (owner decisions, same day), in `src/camera.js`
+  + `src/player.js`:** the mouse aims; the character turns to the aim at
+  once and the camera trails it (`yawFollow`), so a fast flick shows the
+  character's side. With keys alone the camera holds still and the
+  character turns to where it is steered. When the mouse moves again
+  after a pause, the camera swings round behind the character. While
+  the mouse is in use (`mouseHoldMs`), A/D step sideways.
 - **UI is English only**, system font, title "Krabsy 3D".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
   sets of every piece). `assets/sprites/skybox.png` (3.9 MB), `coin.png`

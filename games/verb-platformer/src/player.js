@@ -37,6 +37,7 @@ export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z
     vy: 0,
     grounded: false,
     coyote: 0,        // seconds of jump-grace remaining after leaving the ground
+    facingYaw: Math.PI, // where the character looks: atan2(x, z); PI = away from the start camera
   };
 
   const moveDir = new THREE.Vector3();
@@ -107,9 +108,12 @@ export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z
 
     // --- Animation state + facing. Translates the physics state into the three named states
     // the character module exposes.
-    // (Owner decision 2026-11-21: the MOUSE sets where the character looks. It always faces
-    // the way the camera looks; A/D step sideways and S walks backwards.)
-    character.setFacing(Math.atan2(fwd.x, fwd.z));
+    // Facing (owner decision 2026-11-21): while the mouse is in use the character looks
+    // where the mouse aims (A/D then step sideways). With keys alone it turns to wherever
+    // it is steered and the camera holds still. Standing still, it keeps its facing.
+    if (camera.mouseActive?.()) state.facingYaw = Math.atan2(fwd.x, fwd.z);
+    else if (moveDir.lengthSq() > 0.001) state.facingYaw = Math.atan2(moveDir.x, moveDir.z);
+    character.setFacing(state.facingYaw);
     if (!state.grounded) {
       character.setState('jumping');
     } else if (moveDir.lengthSq() > 0.001) {
