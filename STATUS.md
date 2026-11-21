@@ -105,8 +105,6 @@ but not referenced — verify before removing.)
 ### Handover 2026-11-21: start here (new master chat in `krabsy-homepage`)
 
 1. ~~Deploy pending~~ **Done 2026-11-21:** Crab Slash hidden + Impressum DDG/MStV are live; IndexNow sent (15 URLs).
-   Afterwards, verify live and send IndexNow for the hubs, homepages, verb
-   hubs, game wrappers and Impressum.
 2. **Verb Kitchen release:** the source (L4–7, DE/ES, spaced repetition)
    is ahead of the live build. A play-test report is expected at
    `docs/playtest-verb-kitchen-2026-11-21.md` (written by a subagent of
