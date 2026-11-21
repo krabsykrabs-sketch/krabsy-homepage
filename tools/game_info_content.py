@@ -47,7 +47,7 @@ CONTENT = {
                 ("Kann ich Verb Slash auf dem Handy spielen?", "Ja, du wischst einfach mit dem Finger. Halte das Handy am besten quer, dann wird das Spielfeld größer."),
                 ("Für welche Klasse eignet sich das Spiel?", "Unregelmäßige Verben kommen im Englischunterricht meist ab Klasse 5 oder 6 dran. Verb Slash ist ideal zum Wiederholen vor Vokabeltests und Klassenarbeiten."),
             ],
-            "related": ["crab-slash", "verb-snake", "air-control"],
+            "related": ["verb-snake", "air-control", "verb-kitchen"],
         },
         "es": {
             "h1": "Verb Slash: practica los verbos irregulares en inglés de un tajo",
@@ -72,7 +72,7 @@ CONTENT = {
                 ("¿Se puede jugar en el celular?", "Sí, solo tienes que deslizar el dedo. Pon el teléfono en horizontal para ver el juego más grande."),
                 ("¿Para qué edad es?", "Está pensado para chicos y chicas desde unos 10 años que estudian inglés en la escuela. Es perfecto para repasar los verbos irregulares antes de un examen."),
             ],
-            "related": ["crab-slash", "verb-snake", "air-control"],
+            "related": ["verb-snake", "air-control", "verb-kitchen"],
         },
     },
     # ───────────────────────────────────────────────────────────── Crab Slash
@@ -206,7 +206,7 @@ CONTENT = {
                 ("Was passiert bei einer falschen Form?", "Du verlierst Punkte und deine Schlange wird kürzer. Ist sie nur noch ein Kopf, ist das Spiel vorbei."),
                 ("Welche Verben kommen vor?", "Fast alle unregelmäßigen Verben aus der Krabsy-Liste – nur sehr lange Formen werden weggelassen, damit sie aufs Spielfeld passen."),
             ],
-            "related": ["verb-flow", "air-control", "crab-slash"],
+            "related": ["verb-kitchen", "verb-flow", "air-control"],
         },
         "es": {
             "h1": "Verb Snake: el juego de la serpiente con verbos irregulares",
@@ -231,7 +231,7 @@ CONTENT = {
                 ("¿Qué pasa si me como una forma equivocada?", "Pierdes puntos y la serpiente se hace más corta. Si solo le queda la cabeza, se termina la partida."),
                 ("¿Qué verbos aparecen?", "Casi todos los verbos irregulares de la lista de Krabsy; solo se dejan fuera las formas muy largas para que quepan en el tablero."),
             ],
-            "related": ["verb-flow", "air-control", "crab-slash"],
+            "related": ["verb-kitchen", "verb-flow", "air-control"],
         },
     },
     # ────────────────────────────────────────────────────────────── Verb Flow
@@ -258,7 +258,7 @@ CONTENT = {
                 ("Wird mein Fortschritt gespeichert?", "Ja, das erreichte Level und dein bester Punktestand werden auf deinem Gerät gespeichert. Mit „Restart at Level 1“ kannst du von vorn beginnen."),
                 ("Was bringt mir das Rätsel fürs Englische?", "Du musst für jedes Verb alle drei Formen erkennen und in die richtige Reihenfolge bringen. Genau diese Reihe wird im Unterricht und im Test abgefragt."),
             ],
-            "related": ["verb-snake", "crab-slash", "verb-kitchen"],
+            "related": ["verb-snake", "verb-slash", "verb-kitchen"],
         },
         "es": {
             "h1": "Verb Flow: el rompecabezas de los verbos irregulares",
@@ -282,7 +282,7 @@ CONTENT = {
                 ("¿Se guarda mi progreso?", "Sí, el nivel alcanzado y tu mejor puntuación se guardan en tu dispositivo. Con «Restart at Level 1» vuelves al principio."),
                 ("¿Cómo me ayuda con el inglés?", "Para cada verbo tienes que reconocer sus tres formas y ponerlas en orden, que es justo lo que te preguntan en clase y en los exámenes."),
             ],
-            "related": ["verb-snake", "crab-slash", "verb-kitchen"],
+            "related": ["verb-snake", "verb-slash", "verb-kitchen"],
         },
     },
     # ──────────────────────────────────────────────────────── Verb Platformer

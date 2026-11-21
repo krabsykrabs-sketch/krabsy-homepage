@@ -8,7 +8,7 @@ at the end of each session. (Last update: 2026-11-12.)
 | Game | Type | Source | Served at | Status |
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
-| Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | `/de/spiele/crab-slash/` | **live** (beta) |
+| Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12** (owner: not good enough) — removed from games.json/hubs/sitemap; bug list + how to bring it back in `games/verb-platformer/CLAUDE.md` |
@@ -32,7 +32,7 @@ worktrees were removed; from now on there is one checkout on `main` (see
 `CLAUDE.md` → Session model).
 
 **Play-test 2026-11-21** (`docs/playtest-2026-11-21.md`):
-- Crab Slash → hide (central rule broken).
+- Crab Slash → **hidden 2026-11-21**.
 - Drag Match and Falling Forms → small layout fix (start button below the
   fold, ✕ leaves the site).
 - Verb Slash → fix the colour tell and slow start.

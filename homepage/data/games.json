@@ -78,21 +78,5 @@
       "irregular_verbs"
     ],
     "status": "beta"
-  },
-  {
-    "id": "crab-slash",
-    "name": {
-      "de": "Crab Slash!",
-      "es": "Crab Slash!"
-    },
-    "tagline": {
-      "de": "Schlage die Krabben mit den richtigen Verben!",
-      "es": "¡Golpea los cangrejos con los verbos correctos!"
-    },
-    "thumbnail": "/thumbnails/crab-slash.png",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "beta"
   }
 ]
