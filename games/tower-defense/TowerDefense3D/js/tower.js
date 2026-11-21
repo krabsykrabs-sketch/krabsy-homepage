@@ -36,6 +36,7 @@ export class Tower {
     this.totalInvested = def.cost;
 
     this.rotation = 0;
+    this.sinceShot = 99; // seconds since the last shot (visual: catapult reload)
     this.fireCooldown = 1 / (this.fireRate || 1);
     this.currentTarget = null;
 
@@ -52,7 +53,8 @@ export class Tower {
 
   update(dt, state) {
     if (this.fireAnimT > 0) this.fireAnimT -= dt;
-    if (this.levelUpT > 0) this.levelUpT -= dt; // visual-only: pop after an upgrade
+    if (this.levelUpT > 0) this.levelUpT -= dt;
+    this.sinceShot += dt; // visual-only: pop after an upgrade
     if (this.type === 'freeze') { this._updateFreeze(dt, state); return; }
 
     this._updateTarget(state.enemies);
@@ -100,6 +102,7 @@ export class Tower {
   }
 
   _fire(state) {
+    this.sinceShot = 0;
     this.fireAnimT = 0.15; // visual-only: renderer plays a recoil for this long
     if      (this.type === 'basic')         { this._fireBasic(state);         Sound.play('shoot'); }
     else if (this.type === 'catapult')      { this._fireCannon(state);        Sound.play('cannonFire'); this.fireAnimT = 0.35; }

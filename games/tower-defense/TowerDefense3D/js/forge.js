@@ -73,9 +73,10 @@ export const Forge = {
       f.stage = 'right';
       f.timer = CONFIG.forge.rightPause;
       Sound.play('quizCorrect');
-      // Coins are forged at the castle and fly to the purse.
+      // Coins burst out of the answer button and fly to the purse, so it is obvious
+      // where they come from. Without a page (bot / tests) they start at the castle.
       const goal = Level.current.goals[0];
-      Effects.spawnFlyingCoins({ x: goal.x, y: goal.y }, f.lastGain);
+      Effects.spawnFlyingCoins({ x: goal.x, y: goal.y }, f.lastGain, this._buttonPoint(index));
     } else {
       Questions.markWrong(f.q);
       f.streak = 0;
@@ -83,6 +84,17 @@ export const Forge = {
       f.timer = f.lock = CONFIG.forge.wrongLock;
       Sound.play('quizWrong');
     }
+  },
+
+  // Centre of an answer button in pixels relative to the canvas, or null.
+  _buttonPoint(index) {
+    if (typeof document === 'undefined') return null;
+    const btn = document.querySelector(`.forge-answer[data-index="${index}"]`);
+    const canvas = document.getElementById('game-canvas');
+    if (!btn || !canvas) return null;
+    const b = btn.getBoundingClientRect(), c = canvas.getBoundingClientRect();
+    if (b.width === 0) return null;
+    return { x: b.left + b.width / 2 - c.left, y: b.top + b.height / 2 - c.top };
   },
 
   // dt is real time: the card keeps its own pace whatever the game speed is.

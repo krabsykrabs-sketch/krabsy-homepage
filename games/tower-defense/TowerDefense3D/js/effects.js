@@ -110,7 +110,9 @@ export const Effects = {
   // Only the first coin carries the reward — when it arrives, state.coins += amount.
   // Max ~10 active coins (spec cap). When saturated we still guarantee the reward-carrier
   // so coins can't silently get eaten by the cap.
-  spawnFlyingCoins(worldPos, amount) {
+  // screenStart (optional): start point in pixels relative to the canvas, e.g. the
+  // answer button the coins were earned on. Otherwise they start at worldPos.
+  spawnFlyingCoins(worldPos, amount, screenStart = null) {
     const desired = Math.min(Math.max(3, amount), 10);
     const existing = this._activeCoinCount();
     const room = Math.max(1, 10 - existing);
@@ -126,6 +128,7 @@ export const Effects = {
       state.effects.push({
         kind: 'coin',
         worldStart: { x: worldPos.x, y: worldPos.y },
+        screenStart,
         spread: {
           x: (Math.random() - 0.5) * 0.6,
           y: (Math.random() - 0.5) * 0.4,

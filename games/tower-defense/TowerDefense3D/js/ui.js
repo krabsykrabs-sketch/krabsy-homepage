@@ -523,7 +523,9 @@ export const UI = {
         if (i === q.correctIndex) cls += ' correct';
         else if (i === f.picked) cls += ' wrong';
       }
-      answersHtml += `<button class="${cls}" data-index="${i}"><span class="key">${KEYS[i] || ''}</span>${esc(opt)}</button>`;
+      const gain = f.stage === 'right' && i === q.correctIndex
+        ? `<span class="gain-pop">+${f.lastGain}</span>` : '';
+      answersHtml += `<button class="${cls}" data-index="${i}"><span class="key">${KEYS[i] || ''}</span>${esc(opt)}${gain}</button>`;
     });
     this.els.forgeAnswers.innerHTML = answersHtml;
 

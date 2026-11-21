@@ -780,6 +780,8 @@ export const Renderer = {
       const anim = Math.max(0, t.fireAnimT || 0);
       if (u.cannon) u.cannon.position.z = u.cannonZ - 0.18 * Math.min(1, anim / 0.15);
       if (u.arm) u.arm.rotation.x = u.armX + 1.1 * Math.min(1, anim / 0.35);
+      // Empty bucket for a moment after a shot, then a new boulder is loaded.
+      if (u.ball) u.ball.visible = t.sinceShot > 0.7;
       if (u.top) u.top.position.y = u.topY + 0.1 * Math.min(1, anim / 0.15);
       if (u.crystal) {
         const k = Math.min(1, anim / 0.4);
@@ -836,7 +838,14 @@ export const Renderer = {
     } else if (t.type === 'catapult') {
       u.turret = part('catapult_turret_blue');
       u.arm = part('catapult_arm_blue');
-      if (u.arm) u.armX = u.arm.rotation.x;
+      if (u.arm) {
+        u.armX = u.arm.rotation.x;
+        // The boulder waits in the bucket at the end of the arm while loaded.
+        u.ball = Assets.clone('projectile_catapult');
+        u.ball.scale.setScalar(0.85);
+        u.ball.position.set(0, 0.13, -0.53);
+        u.arm.add(u.ball);
+      }
     } else if (t.type === 'freeze') {
       // An ice crystal floats above the roof and pulses when the tower fires.
       const crystalMat = new THREE.MeshLambertMaterial({
@@ -1223,10 +1232,12 @@ export const Renderer = {
       if (fx.elapsed <= 0 || !target) { el.style.opacity = '0'; continue; }
       const t = Math.min(1, fx.elapsed / fx.duration);
       const ease = t * t * (3 - 2 * t);
-      const start = this._worldToFrame(fx.worldStart.x + fx.spread.x, fx.worldStart.y + fx.spread.y);
+      const start = fx.screenStart
+        ? { x: fx.screenStart.x + fx.spread.x * 60, y: fx.screenStart.y + fx.spread.y * 40 }
+        : this._worldToFrame(fx.worldStart.x + fx.spread.x, fx.worldStart.y + fx.spread.y);
       if (!start) { el.style.opacity = '0'; continue; }
       const x = start.x + (target.x - start.x) * ease;
-      const lift = fx.arcHeight * this.viewport.scale * 4 * t * (1 - t);
+      const lift = fx.arcHeight * (fx.screenStart ? 70 : this.viewport.scale) * 4 * t * (1 - t);
       const y = start.y + (target.y - start.y) * ease - lift;
       el.style.opacity = '1';
       el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;

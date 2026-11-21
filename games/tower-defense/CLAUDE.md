@@ -517,3 +517,12 @@ implemented as preview-approved by the owner (Status log, "round 2").
     owner asked for this on 2026-11-21; sent as a message to the "Verb
     Dungeon Game brief" session (believed to be the master). This game
     session does not edit `homepage/`.
+- 2026-11-21 — **Round 5 (owner notes): coins from the answer, loaded catapult.**
+  - Right answers: the coins now burst out of the answer button and fly
+    to the purse (`Effects.spawnFlyingCoins(..., screenStart)`,
+    `Forge._buttonPoint`), with a "+5" rising out of the button; flying
+    coins are a bit bigger. Without a page (bot) they start at the castle.
+  - Fixed a reveal leak from round 4: after a 2nd-form answer the 3rd form
+    stays `___` when it is the next question (`ui._questionHtml`).
+  - Catapult: a boulder sits in the bucket while loaded, disappears when
+    thrown and is reloaded 0.7 s later (`tower.sinceShot`).

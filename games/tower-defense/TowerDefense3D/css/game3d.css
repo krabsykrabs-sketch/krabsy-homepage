@@ -506,6 +506,23 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 .forge-answer.correct { opacity: 1; background: var(--teal); border-color: var(--teal); color: var(--navy); }
 .forge-answer.wrong { opacity: 1; background: var(--coral); border-color: var(--coral); color: var(--navy); }
 .forge-answer.correct .key, .forge-answer.wrong .key { color: rgba(13, 27, 58, 0.6); }
+/* "+5" rising out of the right answer, in step with the coins flying off it. */
+.gain-pop {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--amber);
+  text-shadow: 0 2px 0 var(--navy), 0 0 10px rgba(13, 27, 58, 0.8);
+  pointer-events: none;
+  animation: gain-pop 0.9s ease-out forwards;
+}
+@keyframes gain-pop {
+  0% { opacity: 0; transform: translateY(-50%) scale(0.5); }
+  25% { opacity: 1; transform: translateY(-80%) scale(1.25); }
+  100% { opacity: 0; transform: translateY(-190%) scale(1); }
+}
 
 .forge-feedback {
   display: flex;
@@ -730,8 +747,8 @@ body.game-inactive #bottom-dock { display: none; }
 .coin-fly {
   position: absolute;
   top: 0; left: 0;
-  font-size: 20px;
-  margin: -10px 0 0 -10px;
+  font-size: 24px;
+  margin: -12px 0 0 -12px;
   will-change: transform;
 }
 #screen-flash {
