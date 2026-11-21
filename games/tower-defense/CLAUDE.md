@@ -207,6 +207,16 @@ implemented as preview-approved by the owner (Status log, "round 2").
    seeking arrows. Implemented (Status log, "round 3"). First version was far too
    strong (×3 / ×5); toned down the same day (Status log, "round 3b").
 
+5. **3rd-form questions are confusing (2026-11-21).** With both blanks
+   empty (`go → ___ → ?`) the owner kept answering the 2nd form. Data: 105
+   of 172 verbs have identical 2nd/3rd forms (no harm there); for 60 of
+   the other 67 the 2nd form is offered as a wrong option — the error
+   measures attention, not knowledge. Simply showing the 2nd form would
+   give the answer away for those 105. Decision: ask the chain in order —
+   3rd form only as the follow-up to the same verb's 2nd form, with the
+   2nd form filled in. Done in this game (Status log, "round 4"); handed
+   to the master session for the shared engine (site-wide).
+
 ## Status log
 
 - 2026-11-21 — Brief written by the master session. Nothing changed in
@@ -490,3 +500,20 @@ implemented as preview-approved by the owner (Status log, "round 2").
   ×1.66 / ×2.13, 0 missed arrows. Value per coin: +0.70 / +0.49 "archers"
   for 30 coins each, vs +1.0 for a new archer (20 coins, needs a spot)
   and +0.37 for the catapult damage upgrade (40 coins).
+- 2026-11-21 — **Round 4 (owner note 5): chain order for questions.**
+  - `js/questions.js`: a 3rd-form question is never asked with the 2nd
+    slot empty. When the pool draws a verb's 2nd form, its 3rd form
+    follows right after (`followUp`) with the 2nd form written in; when
+    it draws a 3rd form first, the 2nd form is asked before it. Missed
+    3rd forms come back with the 2nd form filled in, too. Prepositions
+    and other topics are unaffected.
+  - Checked 400 questions each on site data, fallback verbs and
+    prepositions: 201 third-form questions, all with the correct 2nd form
+    shown; card screenshot `meet → met → ?`. No errors.
+  - **For the master session (site-wide):** the same rule belongs in
+    `homepage/lib/krabsy-questions.js` (e.g. a `getQuizSet` option that
+    pairs each verb's participle question after its past question and
+    fills `display.slots[0].text`), so every drill and game gets it. The
+    owner asked for this on 2026-11-21; sent as a message to the "Verb
+    Dungeon Game brief" session (believed to be the master). This game
+    session does not edit `homepage/`.

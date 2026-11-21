@@ -11,6 +11,12 @@
 //   { kind: 'gap', sentence }                                            My birthday is ___ July.
 // Presentation rule: the position in the chain IS the question. Grammar terms appear
 // only as small captions after the answer.
+//
+// Chain order (owner decision 2026-11-21): a verb's 3rd form is never asked with the
+// 2nd slot empty — with both blanks open, kids answered the 2nd form by mistake. It
+// comes as the follow-up to the same verb's 2nd-form question, with the 2nd form
+// filled in: `go → ? → ___`, then `go → went → ?`. Simply showing the 2nd form would
+// give the answer away for the 61 % of verbs whose 2nd and 3rd forms are the same.
 
 // base, past, participle, wrong pasts, wrong participles
 const FALLBACK_VERBS = [
@@ -83,6 +89,7 @@ export const Questions = {
   all: [],
   retry: [],          // [{ q, due }] missed questions waiting to come back
   missed: new Map(),  // id → { q, times } for the end-of-game recap
+  followUp: null,     // the 3rd-form question that comes right after its 2nd form
   _sinceStart: 0,
 
   async init() {
@@ -119,18 +126,55 @@ export const Questions = {
   resetRun() {
     this.retry = [];
     this.missed.clear();
+    this.followUp = null;
     this._sinceStart = 0;
   },
 
   next() {
     this._sinceStart += 1;
+    // The 3rd form of the verb just asked comes first.
+    if (this.followUp) {
+      const q = this.followUp;
+      this.followUp = null;
+      return this._fresh(q);
+    }
     // A missed question returns once a couple of other questions have passed.
     const i = this.retry.findIndex(r => r.due <= this._sinceStart);
-    if (i >= 0) return this._fresh(this.retry.splice(i, 1)[0].q);
+    if (i >= 0) return this._fresh(this._withSecondForm(this.retry.splice(i, 1)[0].q));
     if (this.pool.length === 0) this._refill();
     // Pick from the easiest few so the order is not identical every game.
     const span = Math.min(12, this.pool.length);
-    return this._fresh(this.pool.splice(Math.floor(Math.random() * span), 1)[0]);
+    let q = this.pool.splice(Math.floor(Math.random() * span), 1)[0];
+
+    if (this._isTrio(q)) {
+      const base = q.display.base;
+      if (q.display.askIndex === 1) {
+        // 3rd form drawn: ask the 2nd form first if it is still in the pool.
+        const j = this.pool.findIndex(p => this._isTrio(p) && p.display.base === base && p.display.askIndex === 0);
+        if (j < 0) return this._fresh(this._withSecondForm(q));
+        const third = q;
+        q = this.pool.splice(j, 1)[0];
+        this.followUp = this._withSecondForm(third);
+      } else {
+        // 2nd form drawn: its 3rd form follows straight after.
+        const j = this.pool.findIndex(p => this._isTrio(p) && p.display.base === base && p.display.askIndex === 1);
+        if (j >= 0) this.followUp = this._withSecondForm(this.pool.splice(j, 1)[0]);
+      }
+    }
+    return this._fresh(q);
+  },
+
+  _isTrio(q) {
+    return q && q.display && q.display.kind === 'trio';
+  },
+
+  // A 3rd-form question with the 2nd form written in (needs the verb's chain).
+  _withSecondForm(q) {
+    if (!this._isTrio(q) || q.display.askIndex !== 1) return q;
+    const chain = q.teach && q.teach.chain;
+    if (!chain || !chain.past) return q;
+    const slots = q.display.slots.map((sl, k) => (k === 0 ? { text: chain.past } : sl));
+    return Object.assign({}, q, { display: Object.assign({}, q.display, { slots }) });
   },
 
   // Re-shuffle the options so a repeated question is not answered by position.
