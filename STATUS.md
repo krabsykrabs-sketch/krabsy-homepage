@@ -63,7 +63,7 @@ appear on their own once a second topic has a live game), then "Üben ohne
 Spiel", a teacher strip, and one merged SEO text block at the bottom.
 Header has a "Für Lehrkräfte" / "Para docentes" link. Mockup + two
 reviews (Fable 5.2) in `_incoming/landing-mockup-2026-11-21/` (not served).
-**Committed 2026-11-21, not pushed/deployed yet.**
+**Deployed 2026-11-21** (live /de/ and /es/ checked by screenshot; IndexNow sent for both landing pages, games hubs, topic hubs and Sprint, HTTP 200).
 
 - Driven by `games.json` fields: `kind` (3d/arcade), `devices`
   (phone_ok/large_screen), `featured` (one game), `new_until` (NEU badge
@@ -98,9 +98,7 @@ Tower Defense and Verb Dungeon, and for the drills in `krabsy-data.js`
 questions = 10 pairs, 2nd form shown in its slot; import bumped to
 `krabsy-data.js?v=2026-11-21`. Checked by script in headless Edge (both
 languages, full run). Free practice already asks both forms in order;
-flashcards and Air Control ask no single form. **Pushed 2026-11-21,
-not deployed yet**; after deploy, check Sprint live and send IndexNow
-for the two Sprint URLs.
+flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint live loads `krabsy-data.js?v=2026-11-21`; IndexNow sent for both Sprint URLs.
 
 ## Content catalogue
 
