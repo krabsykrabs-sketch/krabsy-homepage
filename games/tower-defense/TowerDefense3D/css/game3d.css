@@ -43,7 +43,11 @@
   --line: rgba(46, 230, 192, 0.45);
   --display: 'Fredoka One', 'Nunito', system-ui, sans-serif;
   --body: 'Nunito', system-ui, sans-serif;
+  --ui: 1;              /* UI scale for big screens, set by main.js */
 }
+
+/* Everything the player reads or taps grows on big screens (the 3D canvas does not). */
+#top-hud, #bottom-dock, #coach, #wave-banner, .overlay-panel, .menu-panel { zoom: var(--ui); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 

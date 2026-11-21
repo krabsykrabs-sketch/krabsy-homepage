@@ -19,6 +19,9 @@ const CAMERA_DIR = new THREE.Vector3(0, 0.92, 0.78).normalize();
 // Screen space kept free for the top HUD (px). The dock height is measured.
 const HUD_TOP = 60;
 
+// Current UI scale (the --ui CSS variable set in main.js; 1 on laptops and smaller).
+const uiScale = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
+
 // How a tower shows its upgrade level (index = upgradeLevel 0..2): it grows, stands on
 // a stone plinth, changes roof colour (Assets.levelMaterials) and gets a foot ring.
 const TOWER_LEVEL = [
@@ -225,10 +228,12 @@ export const Renderer = {
   _insets() {
     const w = this.canvas.clientWidth || 1366;
     const row = document.getElementById('dock-row');
-    let bottom = row && row.offsetHeight > 0 ? row.offsetHeight + 22 : 0;
+    // Rects, not offsetHeight: they include the UI scale (CSS zoom, see main.js).
+    const rowH = row ? row.getBoundingClientRect().height : 0;
+    let bottom = rowH > 0 ? Math.round(rowH + 22 * uiScale()) : 0;
     let right = 6;
     const panel = document.getElementById('forge-panel');
-    if (panel && panel.offsetWidth > 0) {
+    if (panel && panel.getBoundingClientRect().width > 0) {
       const r = panel.getBoundingClientRect();
       if (getComputedStyle(panel).position === 'fixed') right = Math.round(w - r.left + 8);
       else bottom += Math.ceil((r.height + 10) / 12) * 12; // rounded: small height changes must not re-fit
@@ -469,7 +474,7 @@ export const Renderer = {
     const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
     const insets = this._insets();
     this._fitSig = `${insets.bottom}|${insets.right}`;
-    const top = HUD_TOP, bottom = insets.bottom || Math.min(140, h * 0.2), side = 6;
+    const top = HUD_TOP * uiScale(), bottom = insets.bottom || Math.min(140, h * 0.2), side = 6;
 
     // Free area in normalised device coordinates (-1..1, y up).
     const safe = {

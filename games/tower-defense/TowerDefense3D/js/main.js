@@ -67,6 +67,17 @@ export const state = {
 let lastTime = 0;
 let canvas = null;
 
+// UI scale: on screens bigger than a laptop the HUD, cards, question card and menus grow
+// with the window (CSS zoom via --ui), so they don't shrink into the corners of a big
+// monitor. Never below 1, so laptops, tablets and phones keep the tested layout.
+function applyUiScale() {
+  const s = Math.min(window.innerWidth / 1366, window.innerHeight / 800);
+  const ui = Math.max(1, Math.min(2.2, Math.round(s * 20) / 20));
+  document.documentElement.style.setProperty('--ui', String(ui));
+}
+applyUiScale();
+window.addEventListener('resize', applyUiScale);
+
 async function init() {
   canvas = document.getElementById('game-canvas');
   applyStatic();

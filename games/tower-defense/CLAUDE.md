@@ -567,3 +567,11 @@ implemented as preview-approved by the owner (Status log, "round 2").
   Bot afterwards: levels 4–6 give 2–3 stars at 100 %, 1–2 at 70 %, lose
   at 40 % and below.
 - `?unlock=all` opens every level (testing, teachers); stars untouched.
+- 2026-11-21 — **UI scale for big monitors** (owner: UI tiny on a high-
+  resolution screen). `main.js` sets the CSS variable `--ui` =
+  min(width / 1366, height / 800), clamped to 1–2.2; HUD, dock, question
+  card, coach, banner, overlays and menu use `zoom: var(--ui)`; the 3D
+  canvas is not zoomed. 1366×768 and smaller stay exactly as before
+  (measured identical). 2560×1440 → ×1.8, 3840×2160 → ×2.2. Camera
+  insets now use bounding rects so the board still fits beside the card.
+  `tools/dev-server.py` = local test server with the site's /lib + /data.
