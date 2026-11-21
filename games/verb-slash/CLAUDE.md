@@ -33,3 +33,23 @@ update, constants unchanged) `STEP_HZ=120` times per second of real time,
 keeps the remainder, caps at `MAX_STEPS=5` per frame and resets after gaps
 >250 ms (hidden tab) so it never fast-forwards. All tuning constants (gravity,
 launch vy, balloon rise, hover delay) are per *step* at 120 steps/s.
+
+## Open issues from the play-test 2026-11-21 (`docs/playtest-2026-11-21.md`)
+
+Verdict: fix (small). Line numbers refer to `homepage/de/spiele/verb-slash/index.html`.
+
+1. **Colour gives the answer away:** correct balls always get the
+   `fruit-correct` class (`:593`, CSS `:121–126`), so kids can play by
+   colour without reading. Randomise the colours.
+2. **Slow start:** balloons take 5.1 s to arrive (`:787`). A plain
+   click or tap does nothing; only a 30 px swipe counts (`:448`). Let a
+   tap count too.
+3. An ignored ball costs a life after 4.6 s, and the right answer is never
+   shown after a mistake. Show the full chain `go → went → gone`.
+4. All in-game text is English on both language pages. Add DE/ES UI (see
+   Verb Flow, Verb Snake, Air Control from 2026-11-16 for the pattern). The
+   start-screen sentence uses "simple past and past participle": rephrase
+   it without terms.
+5. Phone portrait: it renders as a 390×220 px strip with a 72×19 px
+   start button.
+Owner OK is still needed before starting.

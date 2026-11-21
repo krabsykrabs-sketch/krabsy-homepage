@@ -1,7 +1,7 @@
 # Krabsy — status dashboard
 
 Living overview of every game and the project. Master session updates this
-at the end of each session. (Last update: 2026-11-12.)
+at the end of each session. (Last update: 2026-11-21.)
 
 ## Games
 
@@ -101,6 +101,38 @@ but not referenced — verify before removing.)
   Verb/Crab Slash wrappers: don't overwrite the SEO section when re-inlining.
 
 ## Next steps / open items
+
+### Handover 2026-11-21: start here (new master chat in `krabsy-homepage`)
+
+1. **Deploy pending:** static site, for Crab Slash hidden + Impressum DDG/MStV.
+   Afterwards, verify live and send IndexNow for the hubs, homepages, verb
+   hubs, game wrappers and Impressum.
+2. **Verb Kitchen release:** the source (L4–7, DE/ES, spaced repetition)
+   is ahead of the live build. A play-test report is expected at
+   `docs/playtest-verb-kitchen-2026-11-21.md` (written by a subagent of
+   the old chat; commit it if it's uncommitted). Next: fix the blockers,
+   build, release, then update the wrapper and teacher texts ("3 Küchen",
+   "Menüs auf Englisch").
+3. **Small game fixes from the play-test** (`docs/playtest-2026-11-21.md`),
+   not started, owner OK pending:
+   - Drill page layout (Drag Match, Falling Forms): game above the intro,
+     iframe sized to the viewport, remove the ✕ (`history.back()`), a
+     phone fallback link; Falling Forms shows the correct answer after a
+     mistake.
+   - Verb Slash: randomise ball colours (`fruit-correct` tell), faster
+     first balloon, tap counts, show the answer after a mistake, DE/ES UI.
+     Also in `games/verb-slash/CLAUDE.md`.
+   - Air Control: drop the ①②③ answer tell, phone label size
+     (`krabsy-air-control.html:1590`).
+4. **Tower Defense:** the owner runs its own chat in
+   `games/tower-defense/` (Fable 5.2); the brief is in its `CLAUDE.md`.
+5. **Outreach:** Lehrerfreund and Aula PT texts are ready in
+   `docs/outreach-list.md` ("Offen"). Eduthek declined (Moodle courses
+   only); owner decision open.
+6. **Mid/late December:** compare GSC/Bing exports with
+   `docs/seo-baseline-2026-11-12/`; evaluate the tier-3 Google-noindex
+   experiment; check backlinks (Bildungsserver) in both tools.
+
 
 - **Folder restructure**: done, merged to `main`, pushed, and **deployed
   live** (Coolify static Base directory = `/homepage`). Verified serving:
