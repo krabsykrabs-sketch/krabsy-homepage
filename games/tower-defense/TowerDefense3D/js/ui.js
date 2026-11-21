@@ -1,6 +1,6 @@
 import { Sound } from './audio.js';
 import { CONFIG, TOWER_ORDER } from './config.js';
-import { Level } from './level.js';
+import { Level, HEX, hexCenter } from './level.js';
 import { Renderer } from './renderer.js';
 import { Input } from './input.js';
 import { Quiz } from './quiz.js';
@@ -143,23 +143,37 @@ export const UI = {
     });
   },
 
-  // Tiny painting of the tile map — one pixel per tile, upscaled by CSS.
+  // Tiny painting of the hex map: grass, the road, spawn (amber) and castles (teal).
   // Returned as an <img> so the card holds a static picture, not a live canvas.
   _paintMinimap(lvl) {
+    const S = 10; // pixels per world unit
     const c = document.createElement('canvas');
-    c.width = lvl.gridWidth;
-    c.height = lvl.gridHeight;
+    c.width = (lvl.cols * HEX.WIDTH + 1) * S;
+    c.height = ((lvl.rows - 1) * HEX.ROW + 2 * HEX.RADIUS) * S;
     const ctx = c.getContext('2d');
-    const COLORS = {
-      ground: null, path: '#c4a35a', water: '#3a8fd4',
-      obstacle: '#2d5a1e', spawn: '#ffe66d', goal: '#e63946',
+    ctx.fillStyle = '#9fc94a';
+    ctx.fillRect(0, 0, c.width, c.height);
+    const dot = (cell, color, radius) => {
+      const p = hexCenter(cell[0], cell[1]);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x * S, p.y * S, radius * S, 0, Math.PI * 2);
+      ctx.fill();
     };
-    for (let y = 0; y < lvl.gridHeight; y++) {
-      for (let x = 0; x < lvl.gridWidth; x++) {
-        const type = lvl.tileKey[lvl.tiles[y][x]];
-        ctx.fillStyle = COLORS[type] || ((x + y) % 2 === 0 ? '#4a7c2e' : '#528834');
-        ctx.fillRect(x, y, 1, 1);
-      }
+    for (const path of lvl.paths) {
+      ctx.strokeStyle = '#f0c896';
+      ctx.lineWidth = 0.7 * S;
+      ctx.lineJoin = ctx.lineCap = 'round';
+      ctx.beginPath();
+      path.cells.forEach((cell, i) => {
+        const p = hexCenter(cell[0], cell[1]);
+        if (i === 0) ctx.moveTo(p.x * S, p.y * S); else ctx.lineTo(p.x * S, p.y * S);
+      });
+      ctx.stroke();
+    }
+    for (const path of lvl.paths) {
+      dot(path.cells[0], '#ffcf5e', 0.8);
+      dot(path.cells[path.cells.length - 1], '#2a6fd6', 1.0);
     }
     const img = document.createElement('img');
     img.className = 'level-map';
@@ -397,16 +411,10 @@ export const UI = {
               <span>CD ${t.freezeCooldown.toFixed(1)}s</span>
               ${t.permanentSlow ? '<span class="ti-stat-flag">PERMA-SLOW</span>' : ''}`;
     }
-    if (t.type === 'cannon') {
+    if (t.type === 'cannon' || t.type === 'catapult') {
       return `<span>DMG ${t.damage.toFixed(0)}</span>
               <span>RNG ${t.range.toFixed(1)}</span>
               <span>AOE ${t.aoeRadius.toFixed(1)}</span>
-              <span>RATE ${t.fireRate.toFixed(2)}/s</span>`;
-    }
-    if (t.type === 'circleShooter') {
-      return `<span>DMG ${t.damage.toFixed(0)}</span>
-              <span>RNG ${t.range.toFixed(1)}</span>
-              <span>BURST ${t.projectilesPerBurst}</span>
               <span>RATE ${t.fireRate.toFixed(2)}/s</span>`;
     }
     const pierceTag = t.pierceMode === 'hitTwo' ? '<span class="ti-stat-flag">PIERCE ×2</span>'

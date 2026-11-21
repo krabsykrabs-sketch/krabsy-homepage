@@ -5,7 +5,7 @@ import { Grid } from './grid.js';
 import { Effects } from './effects.js';
 import { state } from './main.js';
 
-// Tower entity. Step 5 adds circleShooter (burst), cannon (AoE), and freeze (pulse)
+// Tower entity. Archer (single target), catapult and cannon (lobbed AoE), freeze (pulse)
 // firing. Each variant has its own update path; targeting logic is shared by all except
 // freeze (which pulses on any non-frozen enemy in range).
 
@@ -55,8 +55,7 @@ export class Tower {
     if (this.type === 'freeze') { this._updateFreeze(dt, state); return; }
 
     this._updateTarget(state.enemies);
-    // circleShooter fires omnidirectionally — don't rotate its body.
-    if (this.currentTarget && this.type !== 'circleShooter') this._faceTarget();
+    if (this.currentTarget) this._faceTarget();
 
     this.fireCooldown -= dt;
     if (this.fireCooldown <= 0 && this.currentTarget) {
@@ -102,7 +101,7 @@ export class Tower {
   _fire(state) {
     this.fireAnimT = 0.15; // visual-only: renderer plays a recoil for this long
     if      (this.type === 'basic')         { this._fireBasic(state);         Sound.play('shoot'); }
-    else if (this.type === 'circleShooter') { this._fireCircleShooter(state); Sound.play('burst'); }
+    else if (this.type === 'catapult')      { this._fireCannon(state);        Sound.play('cannonFire'); this.fireAnimT = 0.35; }
     else if (this.type === 'cannon')        { this._fireCannon(state);        Sound.play('cannonFire'); }
   }
 
@@ -120,37 +119,17 @@ export class Tower {
     }));
   }
 
-  _fireCircleShooter(state) {
-    const n = this.projectilesPerBurst;
-    const maxDist = this.range * this.projectileRangeMultiplier;
-    for (let i = 0; i < n; i++) {
-      const angle = (i / n) * Math.PI * 2;
-      const dir = { x: Math.cos(angle), y: Math.sin(angle) };
-      state.projectiles.push(new Projectile({
-        type: 'circleShooter',
-        position: this.position,
-        direction: dir,
-        speed: this.projectileSpeed,
-        damage: this.damage,
-        homing: false,
-        pierceMode: this.pierceMode,
-        maxDistance: maxDist,
-        color: CONFIG.colors.projectileCircleShooter,
-      }));
-    }
-  }
-
   _fireCannon(state) {
     // Snapshot target position at fire time. Projectile never re-aims.
     const tp = { x: this.currentTarget.position.x, y: this.currentTarget.position.y };
     state.projectiles.push(new Projectile({
-      type: 'cannon',
+      type: this.type,
       position: this.position,
       targetPosition: tp,
       speed: this.projectileSpeed,
       damage: this.damage,
       aoeRadius: this.aoeRadius,
-      color: CONFIG.colors.projectileCannon,
+      color: this.type === 'catapult' ? CONFIG.colors.projectileCatapult : CONFIG.colors.projectileCannon,
     }));
   }
 

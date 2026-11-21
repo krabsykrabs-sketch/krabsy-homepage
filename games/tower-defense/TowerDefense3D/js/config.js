@@ -2,11 +2,9 @@
 // intentionally omitted — each step layers in what it needs.
 
 export const CONFIG = {
-  placementCellSize: 2,
-
-  // Visual tuning. One tile = 1 world unit; pixel size is derived per-frame from viewport.
-  // Path is 2 tiles wide, so enemies scale to roughly fill it (Grunt ~40%, Titan ~85%).
-  enemyRadiusPerScale: 0.22, // world-unit radius = tier.scale * this
+  // Visual tuning. One hex is 2 world units wide; the road on it is narrow, so enemies
+  // stay small (Grunt radius ~0.3, Titan ~0.6).
+  enemyRadiusPerScale: 0.16, // world-unit radius = tier.scale * this
   projectileHitRadius: 0.3,  // spec baseline — enemy.radius is added on top per hit check
 
   colors: {
@@ -33,7 +31,7 @@ export const CONFIG = {
     rangeRingBorder:   'rgba(255,255,255,0.45)',
 
     projectileBasic:         '#ffffff',
-    projectileCircleShooter: '#ff6eb4',
+    projectileCatapult:      '#8a8f98',
     projectileCannon:        '#a06a30',
   },
 
@@ -53,7 +51,7 @@ export const CONFIG = {
   // the rest are placeable statues until step 5 wires up their firing logic.
   TOWERS: {
     basic: {
-      name: 'Tower',
+      name: 'Archer Tower',
       cost: 20,
       range: 3.5,
       fireRate: 1.5,
@@ -76,26 +74,26 @@ export const CONFIG = {
       ],
     },
 
-    circleShooter: {
-      name: 'Circle Shooter',
-      cost: 35,
-      range: 5,
-      fireRate: 0.5,
-      damage: 15,
-      projectileSpeed: 8,
-      type: 'circleShooter',
-      projectilesPerBurst: 12,
+    catapult: {
+      name: 'Catapult',
+      cost: 40,
+      range: 6,
+      fireRate: 0.4,
+      damage: 70,
+      projectileSpeed: 9,
+      type: 'catapult',
+      aoeRadius: 0.7,
       pierceMode: 'none',
       projectileRangeMultiplier: 1,
       color: '#8e4fd8',
-      description: 'Sprays shots in every direction.',
+      description: 'Long range, heavy boulders.',
       upgrades: [
-        { tier: 1, cost: 40, description: 'Shoots 50% faster',
-          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1.5,
+        { tier: 1, cost: 40, description: '50% more damage',
+          damageMultiplier: 1.5, rangeMultiplier: 1, fireRateMultiplier: 1,
           pierceUpgrade: 'none', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
-        { tier: 2, cost: 50, description: '50% more damage',
-          damageMultiplier: 1.5, rangeMultiplier: 1, fireRateMultiplier: 1,
+        { tier: 2, cost: 50, description: 'Even longer range',
+          damageMultiplier: 1, rangeMultiplier: 1.3, fireRateMultiplier: 1,
           pierceUpgrade: 'none', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
       ],
@@ -153,7 +151,7 @@ export const CONFIG = {
 };
 
 // Order for keyboard 1-4 and button display.
-export const TOWER_ORDER = ['basic', 'circleShooter', 'cannon', 'freeze'];
+export const TOWER_ORDER = ['basic', 'catapult', 'cannon', 'freeze'];
 
 // Pierce ordering for the upgrade system — spec: "Pierce only upgrades, never downgrades."
 export const PIERCE_ORDER = { none: 0, hitTwo: 1, infinite: 2 };

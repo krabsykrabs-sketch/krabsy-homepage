@@ -713,7 +713,6 @@ html, body {
   height: 120px;
   border-radius: 10px;
   border: 2px solid var(--wood-light);
-  image-rendering: pixelated;
 }
 .level-name { font-size: 16px; font-weight: 800; line-height: 1.1; }
 .level-tag { font-size: 11.5px; color: var(--ink-soft); line-height: 1.15; text-align: center; }
@@ -754,4 +753,10 @@ body.game-inactive #bottom-dock { display: none; }
     rgba(255, 40, 40, 0) 35%,
     rgba(255, 40, 40, 0.55) 70%,
     rgba(200, 0, 0, 0.95) 100%);
+}
+
+#loading-note {
+  font-size: 18px;
+  color: var(--ink-soft);
+  padding: 28px 0;
 }

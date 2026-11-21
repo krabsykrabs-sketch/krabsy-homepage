@@ -1,10 +1,9 @@
-import { CONFIG } from './config.js';
-import { Level } from './level.js';
+import { Level, HEX, hexCenter } from './level.js';
 
-// Placement grid. The world tile map is partitioned into coarse 3×3 placement cells,
-// aligned to the map origin. A cell is *structurally valid* if all 9 underlying tiles are
-// ground; that flag never changes after level load. A cell is *occupied* when a tower
-// sits on it — that flag flips on place/sell. *Available* = valid AND not occupied.
+// Placement grid. One hex = one building spot. A cell is *structurally valid* if it is
+// plain grass (no road, water, scenery or castle); that never changes after level load.
+// A cell is *occupied* when a tower sits on it. *Available* = valid AND not occupied.
+// Cell coordinates are (cellX = column, cellY = row) in odd-r offset layout.
 
 export const Grid = {
   cellsX: 0,
@@ -13,29 +12,15 @@ export const Grid = {
   towerByCell: new Map(),        // key "cx,cy" → Tower
 
   init(level) {
-    const size = CONFIG.placementCellSize;
-    this.cellsX = Math.floor(level.gridWidth / size);
-    this.cellsY = Math.floor(level.gridHeight / size);
+    this.cellsX = level.cols;
+    this.cellsY = level.rows;
     this.structuralValid = [];
     this.towerByCell.clear();
-
     for (let cy = 0; cy < this.cellsY; cy++) {
       const row = new Array(this.cellsX);
-      for (let cx = 0; cx < this.cellsX; cx++) {
-        row[cx] = this._allGround(cx, cy, size);
-      }
+      for (let cx = 0; cx < this.cellsX; cx++) row[cx] = Level.cellType(cx, cy) === 'ground';
       this.structuralValid[cy] = row;
     }
-  },
-
-  _allGround(cx, cy, size) {
-    for (let dy = 0; dy < size; dy++) {
-      for (let dx = 0; dx < size; dx++) {
-        const type = Level.tileTypeAt(cx * size + dx, cy * size + dy);
-        if (type !== 'ground') return false;
-      }
-    }
-    return true;
   },
 
   inBounds(cx, cy) {
@@ -66,16 +51,23 @@ export const Grid = {
     return this.towerByCell.get(`${cx},${cy}`) || null;
   },
 
+  // Nearest hex to a world point. May return a cell outside the board (check inBounds).
   worldToPlacementCell(wx, wy) {
-    const size = CONFIG.placementCellSize;
-    return { cellX: Math.floor(wx / size), cellY: Math.floor(wy / size) };
+    const r0 = Math.round((wy - HEX.RADIUS) / HEX.ROW);
+    let best = null, bestD = Infinity;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const c0 = Math.round((wx - 1 - (r & 1)) / HEX.WIDTH);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const p = hexCenter(c, r);
+        const d = (p.x - wx) ** 2 + (p.y - wy) ** 2;
+        if (d < bestD) { bestD = d; best = { cellX: c, cellY: r }; }
+      }
+    }
+    return best;
   },
 
   placementCellToWorld(cellX, cellY) {
-    const size = CONFIG.placementCellSize;
-    return {
-      centerX: cellX * size + size / 2,
-      centerY: cellY * size + size / 2,
-    };
+    const p = hexCenter(cellX, cellY);
+    return { centerX: p.x, centerY: p.y };
   },
 };

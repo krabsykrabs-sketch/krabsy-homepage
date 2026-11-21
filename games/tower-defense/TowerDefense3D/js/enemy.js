@@ -35,7 +35,7 @@ export class Enemy {
     this.damageTintTimer = 0;
 
     const first = path.waypoints[0];
-    this.position = { x: first.x + 0.5, y: first.y + 0.5 };
+    this.position = { x: first.x, y: first.y };
     this.direction = { x: 1, y: 0 };
     this.currentWaypointIndex = 1;
 
@@ -59,8 +59,8 @@ export class Enemy {
     if (this.currentWaypointIndex >= this.path.waypoints.length) return;
 
     const wp = this.path.waypoints[this.currentWaypointIndex];
-    const tx = wp.x + 0.5;
-    const ty = wp.y + 0.5;
+    const tx = wp.x;
+    const ty = wp.y;
     const dx = tx - this.position.x;
     const dy = ty - this.position.y;
     const dist = Math.hypot(dx, dy);

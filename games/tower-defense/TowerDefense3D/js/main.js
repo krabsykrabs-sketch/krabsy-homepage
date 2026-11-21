@@ -1,5 +1,6 @@
 import { Sound } from './audio.js';
 import { Level } from './level.js';
+import { Assets } from './assets.js';
 import { Renderer } from './renderer.js';
 import { Input } from './input.js';
 import { Grid } from './grid.js';
@@ -47,7 +48,7 @@ export const state = {
 let lastTime = 0;
 let canvas = null;
 
-function init() {
+async function init() {
   canvas = document.getElementById('game-canvas');
   Sound.init();
 
@@ -65,6 +66,16 @@ function init() {
   // without the game having started. The run itself re-seeds these in resetRun.
   state.lives = Level.current.startingLives;
   state.coins = Level.current.startingCoins;
+
+  // Models first: the board, the towers and the dock thumbnails are built from them.
+  try {
+    await Assets.load();
+  } catch (err) {
+    console.error('Could not load the 3D models', err);
+    const note = document.getElementById('loading-note');
+    if (note) note.textContent = 'Could not load the game. Please reload the page.';
+    return;
+  }
 
   Renderer.init(canvas);
   UI.init();
