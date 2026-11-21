@@ -77,22 +77,129 @@ def card(g, lang, *, decoding=True):
     return "".join(parts)
 
 
-def tile(g, lang):
-    """Compact tile (.ch-game-tile) — language homepages' games strip.
-    Mirrors buildLangHubGameTile()."""
+# ── Landing pages (/de/, /es/): featured game + tile grid ─────────────────
+# Markup mirrors homepage/lib/krabsy-landing.css; krabsy-landing.js only
+# filters it (data-tags) and drops NEU flags past `new_until`.
+LANDING = {
+    "de": {"play_now": "Jetzt spielen", "play": "Spielen", "new": "NEU", "soon": "Bald",
+           "kicker_new": "Neu auf Krabsy", "kicker": "Empfohlen",
+           "phone_ok": "Handy ✓", "large_screen": "Großer Bildschirm", "beta": "Beta",
+           "sr_3d": "3D-Spiel", "sr_new": "neu", "sr_soon": "bald verfügbar", "sr_game": "Spiel"},
+    "es": {"play_now": "Jugar ahora", "play": "Jugar", "new": "NUEVO", "soon": "Pronto",
+           "kicker_new": "Nuevo en Krabsy", "kicker": "Destacado",
+           "phone_ok": "Móvil ✓", "large_screen": "Pantalla grande", "beta": "Beta",
+           "sr_3d": "juego 3D", "sr_new": "nuevo", "sr_soon": "disponible pronto", "sr_game": "juego"},
+}
+PLAY_SVG = '<svg><use href="#i-play"/></svg>'
+
+
+def _topics():
+    return json.loads((HOME / "data/topics.json").read_text(encoding="utf-8"))
+
+
+def _new_attr(g):
+    nu = g.get("new_until")
+    return f' data-new-until="{esc(nu)}"' if nu else ""
+
+
+def _flags(g, lang):
+    L = LANDING[lang]
+    out = []
+    if g.get("kind") == "3d":
+        out.append('<span class="bdg bdg-3d">3D</span>')
+    if g.get("new_until"):
+        out.append(f'<span class="bdg bdg-new"{_new_attr(g)}>{L["new"]}</span>')
+    return "".join(out)
+
+
+def _pills(g, lang, cls_device=True):
+    L = LANDING[lang]
+    out = []
+    dev = g.get("devices")
+    if dev in ("phone_ok", "large_screen"):
+        c = ("bdg-phone" if dev == "phone_ok" else "bdg-big") if cls_device else ""
+        out.append(f'<span class="bdg {c}">{L[dev]}</span>'.replace('class="bdg "', 'class="bdg"'))
+    if g.get("status") == "beta":
+        out.append(f'<span class="bdg bdg-beta">{L["beta"]}</span>')
+    return "".join(out)
+
+
+def _sr(g, lang):
+    """Screen-reader prefix ('3D-Spiel, neu. ') — the visual flags are aria-hidden."""
+    L = LANDING[lang]
+    bits = []
+    if g.get("kind") == "3d":
+        bits.append(L["sr_3d"])
+    if g.get("new_until"):
+        bits.append(L["sr_new"])
+    return f'<span class="vh">{", ".join(bits)}. </span>' if bits else ""
+
+
+def landing_tile(g, lang):
+    L = LANDING[lang]
     t = L10N[lang]
-    playable = g.get("status") != "coming_soon"
+    gid = g["id"]
     name = name_of(g, lang)
-    tag = "a" if playable else "div"
-    cls = "ch-game-tile" + ("" if playable else " is-coming-soon")
-    href = f' href="/{lang}/{t["folder"]}/{g["id"]}/"' if playable else ""
-    if g.get("thumbnail"):
-        thumb = (f'<div class="ch-game-tile-thumb"><img src="{esc(g["thumbnail"])}" '
-                 f'alt="{esc(t["alt"].format(name=name))}" loading="lazy" decoding="async"></div>')
+    playable = g.get("status") != "coming_soon"
+    tags = " ".join([g.get("kind") or "arcade"] + list(g.get("topics") or []))
+    img = g.get("thumb_small") or g.get("thumbnail") or ""
+    thumb = (f'<img src="{esc(img)}" alt="" width="640" height="360" loading="lazy" decoding="async">'
+             if img else "")
+    flags = _flags(g, lang)
+    flags_html = f'<div class="gt-flags" aria-hidden="true">{flags}</div>' if flags else ""
+    tagline = esc((g.get("tagline") or {}).get(lang, ""))
+    if playable:
+        feat = " data-featured hidden" if g.get("featured") else ""
+        return (f'<a class="gt" href="/{lang}/{t["folder"]}/{gid}/" data-game-id="{esc(gid)}" data-tags="{tags}"{feat} '
+                f'aria-labelledby="n-{gid}" aria-describedby="d-{gid}">'
+                f'<div class="gt-thumb">{thumb}{flags_html}<span class="gt-play" aria-hidden="true">{L["play"]}</span></div>'
+                f'<div class="gt-body"><h3 class="gt-name" id="n-{gid}">{esc(name)}</h3>'
+                f'<div id="d-{gid}" style="display:contents"><p class="gt-tag">{tagline}</p>'
+                f'<div class="gt-meta">{_sr(g, lang)}{_pills(g, lang)}</div></div></div></a>')
+    sr_kind = L["sr_3d"] if g.get("kind") == "3d" else L["sr_game"]
+    return (f'<div class="gt is-soon" data-game-id="{esc(gid)}" data-tags="{tags}">'
+            f'<div class="gt-thumb">{thumb}{flags_html}'
+            f'<span class="bdg bdg-soon gt-soon" aria-hidden="true">{L["soon"]}</span></div>'
+            f'<div class="gt-body"><h3 class="gt-name">{esc(name)} <span class="vh">({sr_kind}, {L["sr_soon"]})</span></h3>'
+            f'<p class="gt-tag">{tagline}</p><div class="gt-meta">{_pills(g, lang)}</div></div></div>')
+
+
+def landing_featured(g, lang):
+    L = LANDING[lang]
+    t = L10N[lang]
+    name = name_of(g, lang)
+    topics = _topics()
+    topic_pills = "".join(
+        f'<span class="bdg bdg-topic">{esc(topics[tid]["display_name"][lang])}</span>'
+        for tid in (g.get("topics") or []) if tid in topics)
+    img = g.get("hero") or g.get("thumb_small") or g.get("thumbnail") or ""
+    if g.get("new_until"):
+        kicker = (f'<p class="feat-kicker" data-new-until="{esc(g["new_until"])}" '
+                  f'data-alt="{esc(L["kicker"])}">{L["kicker_new"]}</p>')
     else:
-        thumb = f'<div class="ch-game-tile-thumb"><span class="ch-game-tile-emoji">{EMOJI}</span></div>'
-    return (f'<{tag} class="{cls}"{href} data-game-id="{esc(g["id"])}">{thumb}'
-            f'<div class="ch-game-tile-name">{esc(name)}</div></{tag}>')
+        kicker = f'<p class="feat-kicker">{L["kicker"]}</p>'
+    flags = _flags(g, lang)
+    return (f'<a class="feat" href="/{lang}/{t["folder"]}/{g["id"]}/" data-game-id="{esc(g["id"])}" '
+            f'aria-labelledby="feat-name" aria-describedby="feat-tag feat-meta">'
+            f'<div class="feat-shot"><img src="{esc(img)}" alt="" width="1200" height="675" decoding="async" fetchpriority="high">'
+            + (f'<div class="feat-flags" aria-hidden="true">{flags}</div>' if flags else "") +
+            f'</div><div class="feat-body">{kicker}'
+            f'<h2 class="feat-name" id="feat-name">{esc(name)}</h2>'
+            f'<p class="feat-tag" id="feat-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
+            f'<div class="feat-meta" id="feat-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang, cls_device=False)}</div>'
+            f'<span class="feat-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
+
+
+def featured_only(games):
+    f = [g for g in games if g.get("featured") and g.get("status") != "coming_soon"]
+    return f[:1]
+
+
+def landing_order(games):
+    # Featured first (hidden under "all"), then playable, then coming soon.
+    feat = featured_only(games)
+    rest = [g for g in games if g not in feat]
+    return feat + strip_order(rest)
 
 
 def all_games(games):
@@ -114,8 +221,10 @@ def for_topic(topic):
 TARGETS = [
     ("de/spiele/index.html", "games-grid", None, all_games, lambda g: card(g, "de")),
     ("es/juegos/index.html", "games-grid", None, all_games, lambda g: card(g, "es")),
-    ("de/index.html", "lang-hub-games-grid", "games-strip-section", strip_order, lambda g: tile(g, "de")),
-    ("es/index.html", "lang-hub-games-grid", "games-strip-section", strip_order, lambda g: tile(g, "es")),
+    ("de/index.html", "gl-featured", None, featured_only, lambda g: landing_featured(g, "de")),
+    ("es/index.html", "gl-featured", None, featured_only, lambda g: landing_featured(g, "es")),
+    ("de/index.html", "gl-grid", None, landing_order, lambda g: landing_tile(g, "de")),
+    ("es/index.html", "gl-grid", None, landing_order, lambda g: landing_tile(g, "es")),
     ("de/unregelmaessige-verben/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
      lambda g: card(g, "de", decoding=False)),
     ("es/verbos-irregulares/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),

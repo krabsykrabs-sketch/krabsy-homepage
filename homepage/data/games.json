@@ -13,7 +13,13 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "ready"
+    "status": "ready",
+    "kind": "3d",
+    "devices": "phone_ok",
+    "featured": true,
+    "new_until": "2027-01-31",
+    "thumb_small": "/thumbnails/sm/verb-kitchen.jpg",
+    "hero": "/thumbnails/hero/verb-kitchen.jpg"
   },
   {
     "id": "verb-snake",
@@ -29,7 +35,10 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "ready"
+    "status": "ready",
+    "kind": "arcade",
+    "devices": "phone_ok",
+    "thumb_small": "/thumbnails/sm/verb-snake.jpg"
   },
   {
     "id": "verb-slash",
@@ -45,7 +54,10 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "ready"
+    "status": "ready",
+    "kind": "arcade",
+    "devices": "phone_ok",
+    "thumb_small": "/thumbnails/sm/verb-slash.jpg"
   },
   {
     "id": "air-control",
@@ -61,7 +73,10 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "beta"
+    "status": "beta",
+    "kind": "arcade",
+    "devices": "large_screen",
+    "thumb_small": "/thumbnails/sm/air-control.jpg"
   },
   {
     "id": "verb-flow",
@@ -77,6 +92,48 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "beta"
+    "status": "beta",
+    "kind": "arcade",
+    "devices": "phone_ok",
+    "thumb_small": "/thumbnails/sm/verb-flow.jpg"
+  },
+  {
+    "id": "verb-towers",
+    "name": {
+      "de": "Verb Towers",
+      "es": "Verb Towers"
+    },
+    "tagline": {
+      "de": "Baue Türme. Schmiede Münzen mit englischen Verben.",
+      "es": "Construye torres. Forja monedas con verbos en inglés."
+    },
+    "thumbnail": "/thumbnails/sm/verb-towers.jpg",
+    "thumb_small": "/thumbnails/sm/verb-towers.jpg",
+    "topics": [
+      "irregular_verbs",
+      "prepositions"
+    ],
+    "status": "coming_soon",
+    "kind": "3d",
+    "devices": "large_screen"
+  },
+  {
+    "id": "verb-dungeon",
+    "name": {
+      "de": "Verb Dungeon",
+      "es": "Verb Dungeon"
+    },
+    "tagline": {
+      "de": "Finde den Schlüssel und knack die Verb-Türen!",
+      "es": "¡Encuentra la llave y abre las puertas de verbos!"
+    },
+    "thumbnail": "/thumbnails/sm/verb-dungeon.jpg",
+    "thumb_small": "/thumbnails/sm/verb-dungeon.jpg",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "coming_soon",
+    "kind": "3d",
+    "devices": "large_screen"
   }
 ]

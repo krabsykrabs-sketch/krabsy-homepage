@@ -55,6 +55,34 @@ New ideas the owner liked, not started, no folder yet:
 - Verb Flow → keep.
 - Owner decisions pending.
 
+## Landing pages /de/ and /es/ (games-first, 2026-11-21)
+
+Rebuilt like a game portal: one headline line, a big featured game, then
+the full game grid with filter chips (Alle / 3D / Arcade; topic chips
+appear on their own once a second topic has a live game), then "Üben ohne
+Spiel", a teacher strip, and one merged SEO text block at the bottom.
+Header has a "Für Lehrkräfte" / "Para docentes" link. Mockup + two
+reviews (Fable 5.2) in `_incoming/landing-mockup-2026-11-21/` (not served).
+**Committed 2026-11-21, not pushed/deployed yet.**
+
+- Driven by `games.json` fields: `kind` (3d/arcade), `devices`
+  (phone_ok/large_screen), `featured` (one game), `new_until` (NEU badge
+  expires by date), `thumb_small` (640×360 JPG), `hero` (1200×675 JPG).
+  Small images live in `homepage/thumbnails/sm/` and `thumbnails/hero/`
+  (page images ~0.36 MB instead of ~9 MB).
+- Tiles + featured block are static HTML from
+  `tools/render_static_games.py`; `lib/krabsy-landing.js` only filters,
+  expires NEU and fills the progress row (krabsy-stats).
+- **Coming-soon entries** `verb-towers` and `verb-dungeon` are in
+  `games.json` (status `coming_soon`, dev screenshots as thumbnails). They
+  show as "Bald" tiles on the landing pages, games hubs and topic hubs; the
+  footer and the in-game chip bar skip them (`krabsy-nav.js` fixed, import
+  bumped to `?v=2026-11-21`). On release: replace the screenshot with real
+  art, set status, add wrappers/sitemap/JSON-LD as usual; to feature it,
+  move `featured` + add a `hero` image.
+- To check: device badges for Verb Flow (Handy ✓) and Air Control (Großer
+  Bildschirm) were never tested on a real phone.
+
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
 `type-race`, `fill-the-gap`, `drag-match`, `falling-forms-chain` — live,

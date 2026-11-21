@@ -429,6 +429,7 @@ async function buildGameHeader(currentKey, strings) {
   const currentId = String(currentKey || '').replace(/_/g, '-');
 
   for (const g of games) {
+    if (g.status === 'coming_soon') continue;   // no page yet
     const a = document.createElement('a');
     a.className = 'k-game-nav-chip';
     const isCurrent = (g.id === currentId);

@@ -44,531 +44,163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <style>
-    /* ── Chooser-specific styles ────────────────────────────────────────────
-       The chooser is the brand homepage — visually consistent with the rest
-       of the site but uses its own hero + topic-card grid. Reuses tokens
-       from krabsy-ui.css. */
-
-    body { background: var(--krabsy-cream); }
-
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      text-decoration: none;
-      color: var(--krabsy-ink);
-      letter-spacing: -0.5px;
-      line-height: 1;
-    }
-    .logo-crab {
-      display: inline-flex;
-      width: 1.15em;
-      height: 1.15em;
-      align-items: center;
-      justify-content: center;
-      margin: 0 -0.04em;
-      vertical-align: middle;
-    }
-    .logo-crab img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-    }
-
-    /* ── Hero ──────────────────────────────────────────────────────────── */
-    .hero {
-      padding: 10px 24px 6px;
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .hero-banner {
-      position: relative;
-      border-radius: var(--radius-lg);
-      box-shadow: 0 1px 4px rgba(44, 42, 58, 0.05);
-      background: var(--krabsy-cream);
-      overflow: hidden;
-      aspect-ratio: 3 / 1;
-      min-height: 150px;
-    }
-    .hero-banner-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: left bottom;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .hero-banner-text {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 100%;
-      gap: 6px;
-      padding: 16px 28px 16px 42%;
-    }
-    .hero-title {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      line-height: 1.2;
-      color: var(--krabsy-ink);
-      margin: 0;
-    }
-    .hero-sub {
-      font-size: 0.95rem;
-      color: var(--krabsy-ink-mute);
-      margin: 0;
-      line-height: 1.4;
-    }
-    @media (max-width: 559px) {
-      .hero { padding: 8px 16px 4px; }
-      .hero-banner { aspect-ratio: auto; min-height: 0; }
-      .hero-banner-bg { position: relative; height: 140px; }
-      .hero-banner-text { padding: 12px 16px 14px; text-align: center; }
-      .hero-title { font-size: 1.2rem; }
-      .hero-sub { font-size: 0.85rem; }
-    }
-    @media (min-width: 900px) {
-      .hero-title { font-size: 1.7rem; line-height: 1.15; }
-      .hero-sub { font-size: 1.05rem; }
-    }
-
-    /* ── Cross-topic progress strip ───────────────────────────────────── */
-    .progress-row {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 8px 24px 10px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      font-size: 0.85rem;
-      color: var(--krabsy-ink-mute);
-    }
-    .progress-row[hidden] { display: none; }
-    .progress-row-stat {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .progress-row-stat strong {
-      color: var(--krabsy-ink);
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-    .progress-row-stat .is-hot { color: var(--krabsy-coral-dark); }
-    .progress-row-sep {
-      color: var(--krabsy-lavender);
-      user-select: none;
-    }
-    .progress-row-link {
-      font-weight: 700;
-      color: var(--krabsy-coral-dark);
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .progress-row-link:hover { color: var(--krabsy-coral); }
-
-    .progress-chips {
-      display: inline-flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .progress-chip {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      background: var(--krabsy-coral-soft);
-      color: var(--krabsy-coral-dark);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: background-color 0.15s ease;
-    }
-    .progress-chip:hover {
-      background: var(--krabsy-coral);
-      color: var(--krabsy-white);
-    }
-    @media (max-width: 559px) {
-      .progress-row { padding: 6px 16px 8px; gap: 10px; font-size: 0.8rem; }
-    }
-
-    /* ── Section heading ─────────────────────────────────────────────── */
-    .ch-section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: var(--space-6) var(--space-5);
-      width: 100%;
-    }
-    .ch-section-heading {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      color: var(--krabsy-ink);
-      margin: 0 0 4px;
-      line-height: 1.2;
-    }
-    .ch-section-sub {
-      font-size: 0.9rem;
-      color: var(--krabsy-ink-mute);
-      margin: 0 0 var(--space-5);
-    }
-    @media (min-width: 720px) {
-      .ch-section { padding: var(--space-7) var(--space-6); }
-      .ch-section-heading { font-size: 1.7rem; }
-    }
-
-    .ch-section.bg-sage {
-      background: #f3f6ec;
-      clip-path: inset(0 -100vmax);
-      box-shadow: 0 0 0 100vmax #f3f6ec;
-    }
-
-    /* ── Topic-card grid ──────────────────────────────────────────────── */
-    .topic-grid {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 720px) {
-      .topic-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
-    }
-
-    .topic-card {
-      display: flex;
-      flex-direction: column;
-      background: var(--krabsy-white);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      box-shadow: var(--shadow-card);
-      color: var(--krabsy-ink);
-      text-decoration: none;
-      transition: transform 0.18s ease;
-      will-change: transform;
-      min-height: 320px;
-    }
-    .topic-card.is-live:hover { transform: translateY(-3px); }
-    .topic-card.is-coming-soon {
-      opacity: 0.72;
-      background: var(--krabsy-sage-soft);
-      cursor: default;
-    }
-
-    .topic-card-thumb {
-      aspect-ratio: 16 / 9;
-      background: var(--krabsy-cream);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .topic-card-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .topic-card-thumb-placeholder {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, var(--krabsy-lavender-soft), var(--krabsy-sage-soft));
-    }
-
-    .topic-card-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: var(--space-5) var(--space-5) var(--space-5);
-      gap: var(--space-3);
-    }
-
-    .topic-card-title {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      line-height: 1.2;
-      color: var(--krabsy-ink);
-      margin: 0;
-    }
-    @media (min-width: 720px) {
-      .topic-card-title { font-size: 1.5rem; }
-    }
-
-    .topic-card-desc {
-      font-size: 0.92rem;
-      color: var(--krabsy-ink);
-      line-height: 1.5;
-      margin: 0;
-      flex: 1;
-    }
-
-    .topic-card-stats {
-      font-size: 0.8rem;
-      color: var(--krabsy-ink-mute);
-      margin: 0;
-      letter-spacing: 0.2px;
-    }
-
-    .topic-card-cta {
-      display: inline-flex;
-      align-self: flex-start;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 22px;
-      background: var(--krabsy-coral);
-      color: var(--krabsy-white);
-      font-weight: 700;
-      font-size: 0.95rem;
-      border-radius: var(--radius-pill);
-      text-decoration: none;
-      margin-top: var(--space-2);
-    }
-    .topic-card.is-live:hover .topic-card-cta { background: var(--krabsy-coral-dark); }
-
-    .topic-card-soon-badge {
-      display: inline-block;
-      align-self: flex-start;
-      padding: 4px 12px;
-      border-radius: var(--radius-pill);
-      background: var(--krabsy-sage);
-      color: var(--krabsy-ink);
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: var(--space-2);
-    }
-
-    /* ── Lang-hub Juegos strip ─────────────────────────────────────────
-       Compact horizontal row — kids in "I just want to play" mode get
-       a game in one click, no topic detour. Same visual style as the
-       drill end-screen strip. */
-    .ch-games-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: var(--space-3);
-      margin: 0 0 4px;
-      flex-wrap: wrap;
-    }
-    .ch-games-header h2 {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      color: var(--krabsy-ink);
-      margin: 0;
-      line-height: 1.2;
-    }
-    @media (min-width: 720px) {
-      .ch-games-header h2 { font-size: 1.7rem; }
-    }
-    .ch-games-link {
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--krabsy-coral-dark);
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .ch-games-link:hover { color: var(--krabsy-coral); }
-
-    .ch-games-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    @media (min-width: 560px)  { .ch-games-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 820px)  { .ch-games-grid { grid-template-columns: repeat(4, 1fr); } }
-    @media (min-width: 1024px) { .ch-games-grid { grid-template-columns: repeat(5, 1fr); } }
-
-    .ch-game-tile {
-      display: flex;
-      flex-direction: column;
-      background: var(--krabsy-white);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      overflow: hidden;
-      text-decoration: none;
-      color: var(--krabsy-ink);
-      transition: transform 0.18s ease;
-    }
-    .ch-game-tile:hover { transform: translateY(-2px); }
-    .ch-game-tile.is-coming-soon { opacity: 0.6; cursor: default; }
-    .ch-game-tile.is-coming-soon:hover { transform: none; }
-    .ch-game-tile-thumb {
-      aspect-ratio: 16 / 9;
-      background: linear-gradient(135deg, var(--krabsy-coral-soft), var(--krabsy-lavender-soft));
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .ch-game-tile-thumb img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-    }
-    .ch-game-tile-emoji { font-size: 1.6rem; }
-    .ch-game-tile-name {
-      padding: 8px 10px;
-      font-family: var(--font-display);
-      font-size: 0.92rem;
-      text-align: center;
-      line-height: 1.2;
-      color: var(--krabsy-ink);
-    }
-
-    /* ── About section ───────────────────────────────────────────────── */
-    .ch-about {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: var(--space-6) var(--space-5);
-      width: 100%;
-    }
-    .ch-about-heading {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      color: var(--krabsy-ink);
-      margin: 0 0 var(--space-4);
-      line-height: 1.2;
-    }
-    @media (min-width: 720px) {
-      .ch-about { padding: var(--space-7) var(--space-6); }
-      .ch-about-heading { font-size: 1.7rem; }
-    }
-    .ch-about-card {
-      background: var(--krabsy-sage-soft);
-      border-radius: var(--radius-md);
-      padding: 22px 26px;
-      font-size: 0.96rem;
-      line-height: 1.6;
-      color: var(--krabsy-ink);
-    }
-    .ch-about-card p { margin: 0; }
-    .ch-about-card p + p { margin-top: var(--space-3); }
-
-    /* ── Footer ───────────────────────────────────────────────────────── */
-    .ch-footer-tagline {
-      display: block;
-      margin-top: 6px;
-      font-size: 0.7rem;
-      opacity: 0.85;
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-21">
 </head>
 <body>
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.640A1 1 0 0 0 7 4.500z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2 4.5 13.500h6L9.5 22l10-12.500h-6.500z"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="12" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 3.5 18.5 2a2 2 0 0 1 2.3 1.700L22 14.500a2 2 0 0 1-1.7 2.300L18.5 17"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6.5 12h5M6.5 16h3"/></symbol>
+    <symbol id="i-teach" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 4 2 9l10 5 10-5z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 11.500V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.500M22 9v5.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.300 1.5 1 2.5 2 3C10.5 8.5 11 5 12 2z"/></symbol>
+  </svg>
+
   <div class="k-page">
 
-    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <!-- ── Header ─────────────────────────────────────────────────────
+         Static nav (Spiele first on the landing page); krabsy-topic-nav.js
+         is not loaded here. -->
     <header class="k-page-header">
       <a href="/es/" class="logo" aria-label="Krabsy">
         <span>kr</span>
-        <span class="logo-crab" aria-hidden="true">
-          <img src="/favicon.png" alt="" decoding="async">
-        </span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
-      <div class="k-lang-toggle" role="group" aria-label="Seleccionar idioma">
-        <button class="k-lang-btn" type="button" data-lang="de">DE</button>
-        <button class="k-lang-btn is-active" type="button" data-lang="es">ES</button>
+      <nav class="k-topic-nav" aria-label="Temas y juegos">
+        <a class="k-nav-chip" href="/es/juegos/">Juegos</a>
+        <span class="k-topic-nav-sep" aria-hidden="true">·</span>
+        <a class="k-nav-chip" href="/es/verbos-irregulares/">Verbos</a>
+        <a class="k-nav-chip" href="/es/preposiciones/">Preposiciones</a>
+      </nav>
+      <div class="hd-right">
+        <a class="hd-teach" href="/es/docentes/">
+          <svg aria-hidden="true"><use href="#i-teach"/></svg>
+          <span class="hd-teach-long">Para docentes</span><span class="hd-teach-short">Docentes</span>
+        </a>
+        <div class="k-lang-toggle" role="group" aria-label="Elegir idioma">
+          <a class="k-lang-btn" href="/de/" data-lang="de" lang="de" aria-label="Deutsch">DE</a>
+          <a class="k-lang-btn is-active" href="/es/" data-lang="es" lang="es" aria-label="Español" aria-current="true">ES</a>
+        </div>
       </div>
     </header>
 
-    <!-- ── Hero ───────────────────────────────────────────────────────── -->
-    <section class="hero">
-      <div class="hero-banner">
-        <img class="hero-banner-bg" src="/thumbnails/banner.png" alt="" loading="eager" decoding="async">
-        <div class="hero-banner-text">
-          <h1 class="hero-title">Aprende inglés con juegos — gratis y sin registro.</h1>
-          <p class="hero-sub">Krabsy es una plataforma de aprendizaje basada en juegos para estudiantes a partir del 5º curso. Elige tu tema y empieza.</p>
+    <main>
+      <!-- ── Headline + progress row (returning players, krabsy-landing.js) -->
+      <div class="wrap gl-head" id="gl-head">
+        <img class="gl-head-crab" src="/thumbnails/sm/crab.png" alt="" width="44" height="44" decoding="async">
+        <div>
+          <h1>Aprende inglés con juegos — <span>gratis y sin registro.</span></h1>
+          <p class="gl-head-sub">Juegos de gramática y ejercicios para estudiantes a partir de 5.º de primaria — directo en el navegador.</p>
+          <div class="gl-prog" id="gl-prog" hidden aria-label="Tu progreso">
+            <span class="gl-prog-stat">Precisión <strong id="gl-prog-acc"></strong></span>
+            <span class="gl-prog-stat"><svg aria-hidden="true"><use href="#i-flame"/></svg>Racha <strong id="gl-prog-streak"></strong></span>
+            <span class="gl-prog-chips" id="gl-prog-chips"><span>Practica ahora:</span></span>
+            <a class="gl-prog-link" href="/es/verbos-irregulares/estadisticas/"><span>Ver </span>estadísticas →</a>
+          </div>
         </div>
       </div>
-    </section>
 
-<!-- seo-lead:start (static SEO learning text) -->
-<section class="k-hub-intro">
-  <p>Practica la gramática inglesa con ejercicios cortos y juegos arcade, gratis y sin registro. Empieza con los <a href="/es/verbos-irregulares/">verbos irregulares en inglés</a> (<em lang="en">go – went – gone</em>), aprende cuándo se usa <em lang="en">in</em>, <em lang="en">on</em> o <em lang="en">at</em> en las <a href="/es/preposiciones/">preposiciones en inglés</a> o lánzate directamente a los <a href="/es/juegos/">juegos</a>. Tu progreso se guarda en tu dispositivo, sin cuenta ni datos personales.</p>
-</section>
-<!-- seo-lead:end -->
-
-    <!-- ── Progress widget (cross-topic, conditional) ────────────────── -->
-    <section class="progress-row" id="progress-row" hidden aria-label="Tu progreso">
-      <span class="progress-row-stat">
-        <span>Precisión</span>
-        <strong id="progress-row-accuracy"></strong>
-      </span>
-      <span class="progress-row-sep" aria-hidden="true">·</span>
-      <span class="progress-row-stat">
-        <span>Racha</span>
-        <strong id="progress-row-streak"></strong>
-      </span>
-      <span class="progress-row-sep" aria-hidden="true" id="progress-chips-sep">·</span>
-      <span class="progress-chips" id="progress-chips" aria-label="Practica estos ahora"></span>
-      <span class="progress-row-sep" aria-hidden="true">·</span>
-      <!-- TODO: cuando se lance "preposiciones", reemplazar este enlace con una
-                 página de estadísticas multi-tema (/es/estadisticas/). Por ahora
-                 sólo verbos irregulares tiene datos, así que enlazamos directo. -->
-      <a class="progress-row-link" id="progress-row-stats" href="/es/verbos-irregulares/estadisticas/">Ir a estadísticas →</a>
-    </section>
-
-    <!-- ── Topic catalog ─────────────────────────────────────────────── -->
-    <section class="ch-section bg-sage">
-      <h2 class="ch-section-heading">Temas</h2>
-      <p class="ch-section-sub">Elige con qué quieres practicar hoy.</p>
-      <div class="topic-grid" id="topic-grid"></div>
-    </section>
-
-    <!-- ── Juegos strip ─────────────────────────────────────────────────
-         Direct entry to a game without picking a topic first. -->
-    <section class="ch-section" id="games-strip-section">
-      <div class="ch-games-header">
-        <h2>Juegos</h2>
-        <a class="ch-games-link" href="/es/juegos/">Todos los juegos →</a>
-      </div>
-      <p class="ch-section-sub">Juega directamente — sin necesidad de elegir un tema.</p>
-      <div class="ch-games-grid" id="lang-hub-games-grid">
+      <!-- ── Featured game (games.json "featured") ───────────────────── -->
+      <div class="wrap" id="gl-featured">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
-        <a class="ch-game-tile" href="/es/juegos/verb-kitchen/" data-game-id="verb-kitchen"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Kitchen!</div></a>
-        <a class="ch-game-tile" href="/es/juegos/verb-snake/" data-game-id="verb-snake"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-snake.png" alt="Escena del juego Verb Snake!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Snake!</div></a>
-        <a class="ch-game-tile" href="/es/juegos/verb-slash/" data-game-id="verb-slash"><div class="ch-game-tile-thumb"><img src="/thumbnails/VerbSlash.png" alt="Escena del juego Verb Slash" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Slash</div></a>
-        <a class="ch-game-tile" href="/es/juegos/air-control/" data-game-id="air-control"><div class="ch-game-tile-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Air Control!</div></a>
-        <a class="ch-game-tile" href="/es/juegos/verb-flow/" data-game-id="verb-flow"><div class="ch-game-tile-thumb"><img src="/thumbnails/verb-flow.png" alt="Escena del juego Verb Flow!" loading="lazy" decoding="async"></div><div class="ch-game-tile-name">Verb Flow!</div></a>
+        <a class="feat" href="/es/juegos/verb-kitchen/" data-game-id="verb-kitchen" aria-labelledby="feat-name" aria-describedby="feat-tag feat-meta"><div class="feat-shot"><img src="/thumbnails/hero/verb-kitchen.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high"><div class="feat-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span><span class="bdg bdg-new" data-new-until="2027-01-31">NUEVO</span></div></div><div class="feat-body"><p class="feat-kicker" data-new-until="2027-01-31" data-alt="Destacado">Nuevo en Krabsy</p><h2 class="feat-name" id="feat-name">Verb Kitchen!</h2><p class="feat-tag" id="feat-tag">¡Caos de cocina — lava platos con los verbos correctos!</p><div class="feat-meta" id="feat-meta"><span class="vh">juego 3D, nuevo. </span><span class="bdg bdg-topic">Verbos Irregulares</span><span class="bdg">Móvil ✓</span></div><span class="feat-cta" aria-hidden="true"><svg><use href="#i-play"/></svg>Jugar ahora</span></div></a>
         <!-- STATIC-GAMES:END -->
       </div>
-    </section>
 
-    <!-- ── About Krabsy ───────────────────────────────────────────────── -->
-    <section class="ch-about">
-      <h2 class="ch-about-heading">¿Qué es Krabsy?</h2>
-      <div class="ch-about-card">
-        <p>Krabsy es una plataforma gratuita para aprender la gramática del inglés. Creemos que aprender debe ser divertido — por eso tenemos no solo ejercicios clásicos, sino también juegos arcade reales que mejoran tu inglés mientras juegas.</p>
-        <p>Krabsy está pensado para estudiantes a partir del 5º curso, para padres que quieren apoyar a sus hijos, y para profesores que quieren complementar sus clases con ejercicios digitales. Todo es gratuito y se usa sin registro.</p>
-        <p>¿Das clases de inglés? <a href="/es/docentes/">Así puedes usar Krabsy en tu clase →</a></p>
-        <p>Guardamos tu progreso localmente en tu dispositivo — sin cuentas, sin datos personales, sin cookies de seguimiento. Practica todo lo que quieras, o tan poco como quieras.</p>
+      <!-- ── Game grid with filter chips ─────────────────────────────── -->
+      <section class="wrap gl-games" aria-labelledby="gl-games-h">
+        <div class="gl-bar">
+          <h2 id="gl-games-h">Todos los juegos</h2>
+          <div class="gl-chips-wrap" id="gl-chips-wrap">
+            <div class="gl-chips" role="group" aria-label="Filtrar juegos" id="gl-chips">
+              <button class="gl-chip" type="button" data-filter="all" data-label="Todos" aria-pressed="true">Todos</button>
+              <button class="gl-chip" type="button" data-filter="3d" data-label="3D" aria-pressed="false">3D</button>
+              <button class="gl-chip" type="button" data-filter="arcade" data-label="Arcade" aria-pressed="false">Arcade</button>
+              <button class="gl-chip" type="button" data-filter="irregular_verbs" data-label="Verbos" aria-pressed="false">Verbos</button>
+              <button class="gl-chip" type="button" data-filter="prepositions" data-label="Preposiciones" aria-pressed="false">Preposiciones</button>
+            </div>
+          </div>
+        </div>
+        <p class="vh" id="gl-status" role="status" aria-live="polite"></p>
+        <div class="gl-grid" id="gl-grid">
+          <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+          <a class="gt" href="/es/juegos/verb-kitchen/" data-game-id="verb-kitchen" data-tags="3d irregular_verbs" data-featured hidden aria-labelledby="n-verb-kitchen" aria-describedby="d-verb-kitchen"><div class="gt-thumb"><img src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span><span class="bdg bdg-new" data-new-until="2027-01-31">NUEVO</span></div><span class="gt-play" aria-hidden="true">Jugar</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-kitchen">Verb Kitchen!</h3><div id="d-verb-kitchen" style="display:contents"><p class="gt-tag">¡Caos de cocina — lava platos con los verbos correctos!</p><div class="gt-meta"><span class="vh">juego 3D, nuevo. </span><span class="bdg bdg-phone">Móvil ✓</span></div></div></div></a>
+          <a class="gt" href="/es/juegos/verb-snake/" data-game-id="verb-snake" data-tags="arcade irregular_verbs" aria-labelledby="n-verb-snake" aria-describedby="d-verb-snake"><div class="gt-thumb"><img src="/thumbnails/sm/verb-snake.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="gt-play" aria-hidden="true">Jugar</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-snake">Verb Snake!</h3><div id="d-verb-snake" style="display:contents"><p class="gt-tag">¡Come las formas verbales en el orden correcto!</p><div class="gt-meta"><span class="bdg bdg-phone">Móvil ✓</span></div></div></div></a>
+          <a class="gt" href="/es/juegos/verb-slash/" data-game-id="verb-slash" data-tags="arcade irregular_verbs" aria-labelledby="n-verb-slash" aria-describedby="d-verb-slash"><div class="gt-thumb"><img src="/thumbnails/sm/verb-slash.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="gt-play" aria-hidden="true">Jugar</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-slash">Verb Slash</h3><div id="d-verb-slash" style="display:contents"><p class="gt-tag">¡Corta las formas verbales correctas!</p><div class="gt-meta"><span class="bdg bdg-phone">Móvil ✓</span></div></div></div></a>
+          <a class="gt" href="/es/juegos/air-control/" data-game-id="air-control" data-tags="arcade irregular_verbs" aria-labelledby="n-air-control" aria-describedby="d-air-control"><div class="gt-thumb"><img src="/thumbnails/sm/air-control.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="gt-play" aria-hidden="true">Jugar</span></div><div class="gt-body"><h3 class="gt-name" id="n-air-control">Air Control!</h3><div id="d-air-control" style="display:contents"><p class="gt-tag">¡Guía los aviones de forma segura con inglés!</p><div class="gt-meta"><span class="bdg bdg-big">Pantalla grande</span><span class="bdg bdg-beta">Beta</span></div></div></div></a>
+          <a class="gt" href="/es/juegos/verb-flow/" data-game-id="verb-flow" data-tags="arcade irregular_verbs" aria-labelledby="n-verb-flow" aria-describedby="d-verb-flow"><div class="gt-thumb"><img src="/thumbnails/sm/verb-flow.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="gt-play" aria-hidden="true">Jugar</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-flow">Verb Flow!</h3><div id="d-verb-flow" style="display:contents"><p class="gt-tag">¡Conecta las tres formas verbales en el orden correcto!</p><div class="gt-meta"><span class="bdg bdg-phone">Móvil ✓</span><span class="bdg bdg-beta">Beta</span></div></div></div></a>
+          <div class="gt is-soon" data-game-id="verb-towers" data-tags="3d irregular_verbs prepositions"><div class="gt-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div><span class="bdg bdg-soon gt-soon" aria-hidden="true">Pronto</span></div><div class="gt-body"><h3 class="gt-name">Verb Towers <span class="vh">(juego 3D, disponible pronto)</span></h3><p class="gt-tag">Construye torres. Forja monedas con verbos en inglés.</p><div class="gt-meta"><span class="bdg bdg-big">Pantalla grande</span></div></div></div>
+          <div class="gt is-soon" data-game-id="verb-dungeon" data-tags="3d irregular_verbs"><div class="gt-thumb"><img src="/thumbnails/sm/verb-dungeon.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div><span class="bdg bdg-soon gt-soon" aria-hidden="true">Pronto</span></div><div class="gt-body"><h3 class="gt-name">Verb Dungeon <span class="vh">(juego 3D, disponible pronto)</span></h3><p class="gt-tag">¡Encuentra la llave y abre las puertas de verbos!</p><div class="gt-meta"><span class="bdg bdg-big">Pantalla grande</span></div></div></div>
+          <!-- STATIC-GAMES:END -->
+        </div>
+      </section>
+
+      <!-- ── Practice without a game ─────────────────────────────────── -->
+      <section class="gl-band" aria-labelledby="gl-practice-h">
+        <div class="wrap">
+          <h2 class="gl-h2" id="gl-practice-h">Practicar sin juego</h2>
+          <p class="gl-sub">Ejercicios cortos, tarjetas y listas para consultar.</p>
+          <div class="pr-grid">
+            <a class="pr-card" href="/es/verbos-irregulares/">
+              <img src="/thumbnails/sm/topic-verbs.jpg" alt="" width="96" height="72" loading="lazy" decoding="async">
+              <div><h3>Verbos Irregulares</h3>
+                <p><span class="pr-ex" lang="en">go → went → gone</span></p>
+                <p>172 verbos · 5 Speed Drills · 3 herramientas de estudio</p></div>
+              <svg class="pr-arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
+            </a>
+            <a class="pr-card" href="/es/preposiciones/">
+              <img src="/thumbnails/sm/topic-prepositions.jpg" alt="" width="96" height="72" loading="lazy" decoding="async">
+              <div><h3>Preposiciones</h3>
+                <p><span class="pr-ex" lang="en">in · on · at · for · since</span></p>
+                <p>99 reglas · 2 drills · 2 herramientas</p></div>
+              <svg class="pr-arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
+            </a>
+            <div class="pr-quick">
+              <a class="pr-q" href="/es/verbos-irregulares/sprint/"><svg aria-hidden="true"><use href="#i-bolt"/></svg><span><b>Sprint</b><small>60 segundos contra el reloj</small></span></a>
+              <a class="pr-q" href="/es/verbos-irregulares/tarjetas/"><svg aria-hidden="true"><use href="#i-cards"/></svg><span><b>Tarjetas</b><small>Aprende con calma</small></span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Teacher strip ───────────────────────────────────────────── -->
+      <div class="wrap gl-teach-wrap">
+        <a class="gl-teach" href="/es/docentes/">
+          <svg aria-hidden="true"><use href="#i-teach"/></svg>
+          <span class="gl-teach-txt"><b>¿Lo usas en clase?</b><span>Comparte el enlace: sin cuentas, sin datos.</span></span>
+          <span class="gl-teach-cta">Para docentes →</span>
+        </a>
       </div>
-    </section>
-<!-- seo-article:start (static SEO learning text) -->
-<section class="k-article" aria-labelledby="ka-title">
-  <h2 id="ka-title">Temas de gramática inglesa en Krabsy</h2>
-  <p>Krabsy reúne ejercicios rápidos, herramientas de estudio y juegos para practicar los puntos de gramática inglesa que más cuestan en el colegio. Cada tema tiene su propia sección con explicaciones, ejemplos y ejercicios.</p>
-  <h3>Verbos irregulares</h3>
-  <p>¿<em lang="en">Went</em> o <em lang="en">gone</em>? En la sección de <a href="/es/verbos-irregulares/">verbos irregulares</a> encuentras los 172 verbos más importantes con sus tres formas, frases de ejemplo y un mini-quiz para cada uno. Puedes practicarlos contra el reloj en el <a href="/es/verbos-irregulares/sprint/">Sprint</a>, memorizarlos con <a href="/es/verbos-irregulares/tarjetas/">tarjetas</a> o consultarlos en la <a href="/es/verbos-irregulares/tabla-de-verbos/">tabla de verbos</a>.</p>
-  <h3>Preposiciones</h3>
-  <p>¿<em lang="en">In July</em>, <em lang="en">on Monday</em> o <em lang="en">at 8 o'clock</em>? En español casi siempre decimos «en», pero el inglés distingue entre <em lang="en">in</em>, <em lang="en">on</em> y <em lang="en">at</em>, y además hay que saber qué preposición va con cada verbo o adjetivo: <em lang="en">wait for</em>, <em lang="en">good at</em>, <em lang="en">afraid of</em>. La sección de <a href="/es/preposiciones/">preposiciones</a> explica las reglas con frases de ejemplo y te deja practicarlas.</p>
-  <h3>Juegos</h3>
-  <p>Además de los ejercicios hay <a href="/es/juegos/">juegos arcade</a> en los que la gramática forma parte del juego. Son ideales para repasar sin que parezca que estás estudiando.</p>
-  <h3>¿Para quién es Krabsy?</h3>
-  <p>Krabsy está pensado para alumnos a partir de 5.º de primaria y de la ESO, para padres que quieren ayudar a sus hijos y para profesores que buscan ejercicios digitales para sus clases. Todo es gratuito, funciona en el navegador y no necesita registro.</p>
-</section>
-<!-- seo-article:end -->
 
-    <!-- ── Footer ─────────────────────────────────────────────────────── -->
+      <!-- seo-article:start (static SEO learning text) -->
+      <section class="k-article gl-about" aria-labelledby="ka-title">
+        <h2 id="ka-title">Temas de gramática inglesa en Krabsy</h2>
+        <p>Krabsy reúne ejercicios rápidos, herramientas de estudio y juegos para practicar los puntos de gramática inglesa que más cuestan en el colegio. Cada tema tiene su propia sección con explicaciones, ejemplos y ejercicios.</p>
+        <div class="gl-about-cols">
+          <div>
+            <h3>Verbos irregulares</h3>
+            <p>¿<em lang="en">Went</em> o <em lang="en">gone</em>? En la sección de <a href="/es/verbos-irregulares/">verbos irregulares</a> encuentras los 172 verbos más importantes con sus tres formas, frases de ejemplo y un mini-quiz para cada uno. Puedes practicarlos contra el reloj en el <a href="/es/verbos-irregulares/sprint/">Sprint</a>, memorizarlos con <a href="/es/verbos-irregulares/tarjetas/">tarjetas</a> o consultarlos en la <a href="/es/verbos-irregulares/tabla-de-verbos/">tabla de verbos</a>.</p>
+          </div>
+          <div>
+            <h3>Preposiciones</h3>
+            <p>¿<em lang="en">In July</em>, <em lang="en">on Monday</em> o <em lang="en">at 8 o'clock</em>? En español casi siempre decimos «en», pero el inglés distingue entre <em lang="en">in</em>, <em lang="en">on</em> y <em lang="en">at</em>, y además hay que saber qué preposición va con cada verbo o adjetivo: <em lang="en">wait for</em>, <em lang="en">good at</em>, <em lang="en">afraid of</em>. La sección de <a href="/es/preposiciones/">preposiciones</a> explica las reglas con frases de ejemplo y te deja practicarlas.</p>
+          </div>
+          <div>
+            <h3>Juegos</h3>
+            <p>Además de los ejercicios hay <a href="/es/juegos/">juegos arcade</a> en los que la gramática forma parte del juego. Son ideales para repasar sin que parezca que estás estudiando.</p>
+          </div>
+          <div>
+            <h3>¿Para quién es Krabsy?</h3>
+            <p>Krabsy está pensado para alumnos a partir de 5.º de primaria y de la ESO, para padres que quieren ayudar a sus hijos y para profesores que buscan ejercicios digitales para sus clases. Todo es gratuito, funciona en el navegador y no necesita registro. <a href="/es/docentes/">Así puedes usar Krabsy en tu clase →</a></p>
+            <p>Tu progreso se guarda solo en tu dispositivo — sin cuentas, sin datos personales, sin cookies de seguimiento.</p>
+          </div>
+        </div>
+      </section>
+      <!-- seo-article:end -->
+    </main>
+
     <footer class="k-footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
       <span class="ch-footer-tagline">Más temas de gramática próximamente.</span>
@@ -577,217 +209,8 @@
     </footer>
   </div>
 
-  <script type="module">
-    import { loadTopics, buildPageUrl, getLang, getAllGames } from '/lib/krabsy-data.js?v=2026-05-24';
-    import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-05-24';
-
-    const LANG = 'es';
-    const GAMES_FOLDER = 'juegos';
-    const GAMES_STRIP_LIMIT = 99;   // show ALL games on the landing page
-
-    /* ── Render topic catalog ──────────────────────────────────────── */
-    async function renderTopics() {
-      let topics;
-      try { topics = await loadTopics(); }
-      catch (err) {
-        console.error('chooser: failed to load topics.json', err);
-        return;
-      }
-      const grid = document.getElementById('topic-grid');
-      grid.innerHTML = '';
-      for (const [topicId, t] of Object.entries(topics)) {
-        grid.appendChild(await renderTopicCard(topicId, t));
-      }
-    }
-
-    async function renderTopicCard(topicId, t) {
-      const status = t.status || 'live';
-      const isLive = status === 'live';
-
-      // Live cards are <a>, coming-soon cards are <div> (not navigable).
-      const card = document.createElement(isLive ? 'a' : 'div');
-      card.className = 'topic-card ' + (isLive ? 'is-live' : 'is-coming-soon');
-      if (isLive) {
-        const hubUrl = await buildPageUrl(topicId, null, LANG);
-        if (hubUrl) card.href = hubUrl;
-      }
-
-      const thumb = document.createElement('div');
-      thumb.className = 'topic-card-thumb';
-      if (t.thumbnail) {
-        const img = document.createElement('img');
-        img.src = t.thumbnail;
-        img.alt = '';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        img.addEventListener('error', () => { img.remove(); });
-        thumb.appendChild(img);
-      } else {
-        const ph = document.createElement('div');
-        ph.className = 'topic-card-thumb-placeholder';
-        thumb.appendChild(ph);
-      }
-
-      const body = document.createElement('div');
-      body.className = 'topic-card-body';
-
-      const title = document.createElement('h3');
-      title.className = 'topic-card-title';
-      title.textContent = (t.display_name && t.display_name[LANG]) || topicId;
-      body.appendChild(title);
-
-      const desc = document.createElement('p');
-      desc.className = 'topic-card-desc';
-      desc.textContent = (t.description && t.description[LANG]) || '';
-      body.appendChild(desc);
-
-      const stats = document.createElement('p');
-      stats.className = 'topic-card-stats';
-      stats.textContent = (t.card_stats && t.card_stats[LANG]) || '';
-      body.appendChild(stats);
-
-      if (isLive) {
-        const cta = document.createElement('span');
-        cta.className = 'topic-card-cta';
-        cta.textContent = 'Empezar →';
-        body.appendChild(cta);
-      } else {
-        const badge = document.createElement('span');
-        badge.className = 'topic-card-soon-badge';
-        badge.textContent = 'Pronto';
-        body.appendChild(badge);
-      }
-
-      card.appendChild(thumb);
-      card.appendChild(body);
-      return card;
-    }
-
-    /* ── Progress widget (cross-topic) ─────────────────────────────── */
-    async function renderProgressRow() {
-      const row = document.getElementById('progress-row');
-      if (!row) return;
-      if (!hasData()) { row.hidden = true; return; }
-
-      const o = getOverall();
-      const strug = getStrugglers(3);
-      const accuracyPct = Math.round((o.accuracy || 0) * 100);
-      const streak = o.current_streak || 0;
-      const isHot = streak >= 3;
-
-      document.getElementById('progress-row-accuracy').textContent = `${accuracyPct}%`;
-      const streakEl = document.getElementById('progress-row-streak');
-      streakEl.textContent = isHot ? `🔥 ${streak}` : String(streak);
-      streakEl.classList.toggle('is-hot', isHot);
-
-      const topicsWithData = new Set(strug.map((r) => r.topic));
-      let topics = null;
-      if (topicsWithData.size > 1) {
-        try { topics = await loadTopics(); } catch (_) { /* fall back to no labels */ }
-      }
-
-      const chipsEl = document.getElementById('progress-chips');
-      const sepEl = document.getElementById('progress-chips-sep');
-      chipsEl.innerHTML = '';
-      if (!strug.length) {
-        chipsEl.hidden = true;
-        if (sepEl) sepEl.hidden = true;
-      } else {
-        chipsEl.hidden = false;
-        if (sepEl) sepEl.hidden = false;
-        for (const r of strug) {
-          const a = document.createElement('a');
-          a.className = 'progress-chip';
-          const formLabel = r.form === 'past' ? 'past' : 'participle';
-          let label = `${r.verb} · ${formLabel}`;
-          if (topics && topicsWithData.size > 1) {
-            const t = topics[r.topic];
-            const short = t && t.short_name && t.short_name[LANG];
-            if (short) label += ` · ${short}`;
-          }
-          a.textContent = label;
-          const href = await buildPageUrl(r.topic, 'free-practice', LANG)
-            .catch(() => null);
-          a.href = href ? `${href}?verbs=${encodeURIComponent(r.verb)}` : '#';
-          chipsEl.appendChild(a);
-        }
-      }
-
-      row.hidden = false;
-    }
-
-    function renderFooter() {
-      const el = document.getElementById('footer-copyright');
-      if (el) el.textContent = `© ${new Date().getFullYear()} Krabsy`;
-    }
-
-    /* ── Juegos strip (compact tiles, cross-topic) ────────────────── */
-    async function renderGamesStrip() {
-      const section = document.getElementById('games-strip-section');
-      const grid = document.getElementById('lang-hub-games-grid');
-      if (!section || !grid) return;
-      let games;
-      try { games = await getAllGames(); }
-      catch (err) { console.error('chooser: getAllGames failed', err); return; }
-      const playable = games.filter((g) => g.status !== 'coming_soon');
-      const soon = games.filter((g) => g.status === 'coming_soon');
-      const ordered = [...playable, ...soon].slice(0, GAMES_STRIP_LIMIT);
-      if (!ordered.length) return;
-      // Static cards pre-rendered by tools/render_static_games.py already match games.json — keep them (no flash).
-      if ([...grid.querySelectorAll('[data-game-id]')].map((el) => el.dataset.gameId).join() === ordered.map((g) => g.id).join()) { section.hidden = false; return; }
-      grid.innerHTML = '';
-      for (const g of ordered) grid.appendChild(buildLangHubGameTile(g));
-      section.hidden = false;
-    }
-
-    function buildLangHubGameTile(g) {
-      const isPlayable = g.status !== 'coming_soon';
-      const tile = document.createElement(isPlayable ? 'a' : 'div');
-      tile.className = 'ch-game-tile' + (isPlayable ? '' : ' is-coming-soon');
-      if (isPlayable) tile.href = `/${LANG}/${GAMES_FOLDER}/${g.id}/`;
-
-      const thumb = document.createElement('div');
-      thumb.className = 'ch-game-tile-thumb';
-      if (g.thumbnail) {
-        const img = document.createElement('img');
-        img.src = g.thumbnail;
-        img.alt = '';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        img.addEventListener('error', () => {
-          img.remove();
-          thumb.innerHTML = '<span class="ch-game-tile-emoji">✏️</span>';
-        });
-        thumb.appendChild(img);
-      } else {
-        thumb.innerHTML = '<span class="ch-game-tile-emoji">✏️</span>';
-      }
-
-      const name = document.createElement('div');
-      name.className = 'ch-game-tile-name';
-      name.textContent = (g.name && g.name[LANG]) || g.id;
-
-      tile.append(thumb, name);
-      return tile;
-    }
-
-    async function init() {
-      renderFooter();
-      await Promise.all([
-        renderTopics(),
-        renderGamesStrip(),
-        renderProgressRow(),
-      ]);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  </script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-21"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-17" defer></script>
 </body>
