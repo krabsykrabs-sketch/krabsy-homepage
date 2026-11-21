@@ -61,6 +61,19 @@ New ideas the owner liked, not started, no folder yet:
 served from `homepage/games/*.html`. (`falling-forms-tower.html` present
 but not referenced — verify before removing.)
 
+**Chain order (owner decision 2026-11-21, see root `CLAUDE.md`):** 3rd
+form only right after the 2nd, with the 2nd filled in. Done in the
+question engine `homepage/lib/krabsy-questions.js` (`getQuizSet`
+`chainOrder`, default on; tested on all 344 verb questions) and in
+Tower Defense and Verb Dungeon, and for the drills in `krabsy-data.js`
+`getQuestions` (opt-in `chainOrder`), used by **Sprint DE + ES**: 20
+questions = 10 pairs, 2nd form shown in its slot; import bumped to
+`krabsy-data.js?v=2026-11-21`. Checked by script in headless Edge (both
+languages, full run). Free practice already asks both forms in order;
+flashcards and Air Control ask no single form. **Pushed 2026-11-21,
+not deployed yet**; after deploy, check Sprint live and send IndexNow
+for the two Sprint URLs.
+
 ## Content catalogue
 
 - `content/irregular-verbs.json` — 172 verbs (canonical; +17 on 2026-11-12). Page-only content (translations, mistakes, notes) in `content/irregular-verbs-pages.json`

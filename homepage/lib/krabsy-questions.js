@@ -156,16 +156,36 @@ export async function getChainSet(opts = {}) {
  *     accepts,           // [answer, ...alternates] for typed input
  *     options,           // shuffled strings incl. answer (withOptions long)
  *     correctIndex,      // index of answer within options
- *     teach: { line, chain|null }            // after-answer beat
+ *     teach: { line, chain|null, hideParticiple? }   // after-answer beat
+ *     followUp?          // true on a 3rd-form question asked right after
+ *                        // the same verb's 2nd form (chain order)
  *   }
+ *
+ * CHAIN ORDER (owner decision 2026-11-21, on by default for verbs)
+ *   A verb's 3rd form is only asked directly after its 2nd form, and then
+ *   the 2nd form is written in:  go → ___ → ___  (asks "went"), next
+ *   go → went → ___  (asks "gone"). With both blanks empty, players kept
+ *   answering the 2nd form when the 3rd was asked (attention, not
+ *   knowledge). Showing the 2nd form on a lone 3rd-form question would give
+ *   the answer away for the many verbs whose 2nd and 3rd forms are equal,
+ *   so lone 3rd-form questions are not produced at all.
+ *   On the 2nd-form question of such a pair, `teach.hideParticiple` is true
+ *   and `teach.line` stops at "go → went → ___": after that answer a game
+ *   must NOT reveal the 3rd form (teach.chain still holds it, for recaps
+ *   after the follow-up). The pair stays adjacent through shuffling and
+ *   counts as two questions toward `count`.
+ *   Games that order questions themselves can pass `chainOrder: false`.
  *
  * Options:
  *   topic        default 'irregular_verbs'
  *   count        default 8
  *   withOptions  options per question, default 3
  *   difficulty   number|number[] passthrough filter
- *   forms        ['past','participle'] subset (verbs only)
+ *   forms        ['past','participle'] subset (verbs only). Asking for
+ *                participle without past turns chain order off.
  *   uniqueBy     'verb' (default) — avoid asking the same verb twice/set
+ *                (a chain-order pair counts as one verb)
+ *   chainOrder   default true for irregular_verbs, see above
  *   shuffle      default true
  */
 export async function getQuizSet(opts = {}) {
@@ -181,6 +201,9 @@ export async function getQuizSet(opts = {}) {
   if (!topicSupports(topic, 'quiz')) {
     throw new Error(`krabsy-questions: topic "${topic}" has no quiz shape`);
   }
+  const allowPast = !forms || forms.includes('past');
+  const chainOrder = topic === 'irregular_verbs' && allowPast
+    && (opts.chainOrder !== undefined ? !!opts.chainOrder : true);
   const lang = _getLang();
   const raw = await _rawQuestions({ topic, difficulty, shuffle: true });
 
@@ -191,18 +214,13 @@ export async function getQuizSet(opts = {}) {
     table = new Map(rows.map((r) => [r.verb, r]));
   }
 
-  const seen = new Set();
-  const out = [];
-  for (const q of raw) {
-    if (out.length >= count) break;
-    if (forms && q.form && q.form !== 'default' && !forms.includes(q.form)) continue;
-    const dedupKey = uniqueBy === 'verb' ? q.verb : q.id;
-    if (seen.has(dedupKey)) continue;
-    if (!q.correct_answer) continue;
-
+  // One raw question → one record (null if it cannot be asked).
+  function build(q) {
+    if (forms && q.form && q.form !== 'default' && !forms.includes(q.form)) return null;
+    if (!q.correct_answer) return null;
     const accepts = [q.correct_answer, ...(q.correct_alt || [])].map(_norm);
     const wrongs = (q.wrong_answers || []).filter((w) => !accepts.includes(_norm(w)));
-    if (wrongs.length < withOptions - 1) continue;
+    if (wrongs.length < withOptions - 1) return null;
     const options = _shuffle([q.correct_answer, ...wrongs.slice(0, withOptions - 1)]);
 
     let display, teach;
@@ -226,9 +244,7 @@ export async function getQuizSet(opts = {}) {
         chain: null,
       };
     }
-
-    seen.add(dedupKey);
-    out.push({
+    return {
       id: q.id,
       topic,
       difficulty: q.difficulty,
@@ -239,9 +255,57 @@ export async function getQuizSet(opts = {}) {
       options,
       correctIndex: options.indexOf(q.correct_answer),
       teach,
-    });
+    };
   }
-  if (shuffle) _shuffle(out);
+
+  // Units: a single record, or a [2nd form, 3rd form] pair (chain order).
+  const units = [];
+  if (chainOrder) {
+    const pp = new Map(); // verb → raw participle question
+    for (const q of raw) if (q.form === 'participle' && !pp.has(q.verb)) pp.set(q.verb, q);
+    const usedVerb = new Set();
+    for (const q of raw) {
+      if (q.form !== 'past') continue;
+      if (uniqueBy === 'verb' && usedVerb.has(q.verb)) continue;
+      const first = build(q);
+      if (!first) continue;
+      usedVerb.add(q.verb);
+      const second = pp.has(q.verb) ? build(pp.get(q.verb)) : null;
+      const chain = first.teach.chain;
+      if (!second || !chain) { units.push([first]); continue; }
+      first.teach = { ...first.teach, hideParticiple: true,
+        line: `${chain.base} → ${chain.past} → ___` };
+      second.display = { ...second.display, slots: [{ text: chain.past }, { text: null }] };
+      second.followUp = true;
+      units.push([first, second]);
+    }
+  } else {
+    const seen = new Set();
+    for (const q of raw) {
+      const dedupKey = uniqueBy === 'verb' ? q.verb : q.id;
+      if (seen.has(dedupKey)) continue;
+      const rec = build(q);
+      if (!rec) continue;
+      seen.add(dedupKey);
+      units.push([rec]);
+    }
+  }
+
+  if (shuffle) _shuffle(units);
+  const out = [];
+  for (const u of units) {
+    if (out.length >= count) break;
+    // A pair that does not fit any more is cut to its 2nd-form question,
+    // which then teaches the full chain (no 3rd form follows). Never a lone
+    // 3rd form.
+    if (out.length + u.length > count) {
+      const first = u[0];
+      const chain = first.teach.chain;
+      out.push(chain ? { ...first, teach: { line: `${chain.base} → ${chain.past} → ${chain.participle}`, chain } } : first);
+      continue;
+    }
+    out.push(...u);
+  }
   return out;
 }
 

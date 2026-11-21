@@ -77,6 +77,7 @@
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
+    .sprint-trio-slot.is-filled .sprint-trio-slot-blank { color: var(--k-ink, #1f2433); }
     /* ── Sprint-specific layout ──────────────────────────────────────── */
     .sprint-wrap {
       max-width: 960px;
@@ -541,7 +542,7 @@
   <div id="sprint-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
 
   <script type="module">
-    import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-05-24';
+    import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-11-21';
     import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-05-24';
 
     /* ── State ──────────────────────────────────────────────────────── */
@@ -704,6 +705,11 @@
       const otherEl = (q.form === 'past') ? slotPpEl   : slotPastEl;
       askedEl.classList.add('is-asked');
       otherEl.classList.remove('is-asked');
+      // Chain order: a 3rd-form question comes right after its 2nd form and
+      // shows that 2nd form (go → went → ___); otherwise the slot stays blank.
+      const pastBlank = slotPastEl.querySelector('.sprint-trio-slot-blank');
+      pastBlank.textContent = q.chain_past || '___';
+      slotPastEl.classList.toggle('is-filled', !!q.chain_past);
       progressEl.textContent = strings.common.question_of
         .replace('{n}', String(qIndex + 1))
         .replace('{total}', String(questions.length));
@@ -786,6 +792,7 @@
           difficulty: 2,
           shuffle: true,
           limit: QUESTIONS_PER_RUN,
+          chainOrder: true,   // 3rd form only right after its 2nd form
         });
       } catch (err) {
         console.error('[sprint] failed to load questions', err);

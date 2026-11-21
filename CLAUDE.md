@@ -105,6 +105,11 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
 - Two sessions may work in parallel in different folders. If a commit
   fails with `index.lock`, wait a second and retry. Never run
   `git add -A`, `git stash` or `git checkout -- .` in a shared checkout.
+- **The git index is shared too.** Anything left staged (`git add`,
+  `git mv`, `git rm`) goes into the next commit of whichever session
+  commits first (happened 2026-11-21: a Verb Dungeon `git mv` landed in a
+  Tower Defense commit). Move files with plain `mv`, and stage only in the
+  same command that commits: `git add games/<name> && git commit …`.
 
 ## Local preview
 
@@ -136,6 +141,18 @@ Past Participle" may appear only as small captions or in the
 after-answer teach beat, never as the question itself. Typed input
 ("typewriter", validated via `checkTyped`, accepts alternates like
 burnt/burned) is a welcome answer mode alongside choice chips.
+
+**Chain order (owner decision, 2026-11-21):** a verb's 3rd form is asked
+only directly after its 2nd form, and then with the 2nd form filled in
+(`go → went → ___`). After the 2nd-form answer, don't reveal the 3rd form
+(the next question asks it). `getQuizSet` does this by default for verbs
+(`chainOrder`, pairs kept together, `teach.hideParticiple` on the first
+of a pair, `followUp` on the second); games that order questions
+themselves pass `chainOrder: false`. The drills load through
+`krabsy-data.js` `getQuestions`, which has the same opt-in option
+(`chainOrder: true`; adds `chain_past` / `chain_next` to the items).
+Sprint (DE + ES) uses it; free practice asks both forms together in
+order, flashcards and Air Control ask no single form.
 
 ## Conventions
 

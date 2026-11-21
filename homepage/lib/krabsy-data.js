@@ -468,6 +468,7 @@ export async function getQuestions(opts = {}) {
     shuffle = false,
     limit,
     verbIds,
+    chainOrder = false,
   } = opts;
   const itemIds = ids ?? verbIds;
 
@@ -501,7 +502,38 @@ export async function getQuestions(opts = {}) {
   }
 
   if (shuffle) out = _shuffle(out.slice());
+  if (chainOrder && topic === 'irregular_verbs' && !form) return _chainOrder(out, limit);
   if (typeof limit === 'number' && limit >= 0) out = out.slice(0, limit);
+  return out;
+}
+
+/* Chain order (owner decision 2026-11-21): a verb's 3rd form is asked only
+   directly after its 2nd form, and then with the 2nd form shown
+   (go → went → ___). Asking the 3rd form with the 2nd blank made players
+   answer the 2nd form. Lone 3rd-form questions are dropped (showing the 2nd
+   form there would give the answer away for verbs like put → put → put).
+   Added fields (copies, the cached data is not changed):
+     chain_next: true   on a 2nd-form item whose 3rd form comes next — the
+                        drill must not reveal the 3rd form after it
+     chain_past: 'went' on the 3rd-form item — show it in the 2nd slot
+   `limit` counts questions; a pair that does not fit is cut to its 2nd form. */
+function _chainOrder(list, limit) {
+  const pp = new Map();
+  for (const q of list) if (q.form === 'participle' && !pp.has(q.verb)) pp.set(q.verb, q);
+  const seen = new Set();
+  const out = [];
+  const max = typeof limit === 'number' && limit >= 0 ? limit : Infinity;
+  for (const q of list) {
+    if (out.length >= max) break;
+    if (q.form !== 'past' || seen.has(q.verb)) continue;
+    seen.add(q.verb);
+    const third = pp.get(q.verb);
+    if (third && out.length + 2 <= max) {
+      out.push({ ...q, chain_next: true }, { ...third, chain_past: q.correct_answer });
+    } else {
+      out.push({ ...q });
+    }
+  }
   return out;
 }
 

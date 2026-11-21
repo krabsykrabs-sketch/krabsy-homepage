@@ -69,7 +69,9 @@ function fromEngine(q) {
     const t = new URLSearchParams(location.search).get('topic');
     // explicit ?topic= narrows the pool; default = the mixed preps+verbs quiz
     const topics = KQ.TOPICS.includes(t) ? [t] : ['prepositions', 'irregular_verbs'];
-    const sets = await Promise.all(topics.map((topic) => KQ.getQuizSet({ topic, count: 40, withOptions: 3 })));
+    // chainOrder: false — this game picks at random and writes its own trio text, so the
+    // engine's 2nd→3rd pairing would only shorten its captions.
+    const sets = await Promise.all(topics.map((topic) => KQ.getQuizSet({ topic, count: 40, withOptions: 3, chainOrder: false })));
     const mapped = sets.flat().map(fromEngine).filter(Boolean);
     if (mapped.length >= 6) enginePool = mapped;
   } catch (_) { /* file:// or the standalone dev server — keep the inline set */ }
