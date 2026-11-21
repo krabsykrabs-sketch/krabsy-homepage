@@ -83,6 +83,14 @@ reviews (Fable 5.2) in `_incoming/landing-mockup-2026-11-21/` (not served).
 - To check: device badges for Verb Flow (Handy ✓) and Air Control (Großer
   Bildschirm) were never tested on a real phone.
 
+## Classroom feature (concept, 2026-11-21)
+
+Owner agreed on four phases plus a "smart mix" of questions; full concept in
+`docs/classroom-concept.md`. Next: **phase 1** — every game records answers
+(`recordAttempt`) and the question engine gets `getSmartSet()` (practice
+words / new words / spaced repeats). Open owner decisions listed at the end
+of the concept (EU hosting, phase-2 without email, retention, legal review).
+
 ## Speed drills (irregular-verbs / prepositions topic tools)
 
 `type-race`, `fill-the-gap`, `drag-match`, `falling-forms-chain` — live,
