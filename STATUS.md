@@ -8,17 +8,17 @@ at the end of each session. (Last update: 2026-11-21.)
 | Game | Type | Source | Served at | Status |
 |------|------|--------|-----------|--------|
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
-| Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
+| Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21, parked** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
-| Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12** (owner: not good enough) — removed from games.json/hubs/sitemap; bug list + how to bring it back in `games/verb-platformer/CLAUDE.md` |
+| Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12, to be continued** — owner 2026-11-21: mechanics and feel are good, it lacks real levels → next is level design (editor in the game folder). Plan, bug list and how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session opens in `games/tower-defense/` |
-| Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
-| Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
-| Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
-| Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC BUILT** — art contact sheet awaits user judgment () |
-| Sim Tower / Krabsy Block | 3D city-block sim (KayKit) | `games/sim-tower/` (+ `archive-tower-version/`) | — | **potential game** — merged from the old `sim-tower` branch 2026-11-21; last worked on 2026-07/08; concept in `krabsy-block-concept.md`. Models (16 MB) are gitignored in `games/sim-tower/assets/` |
+| Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **GO (owner 2026-11-21): build the full game** — PoC built 2026-06; new brief in its `CLAUDE.md` (fixed room camera, KayKit models, short levels, touch, DE/ES); own session opens in `games/verb-dungeon/` |
+| Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PARKED (owner 2026-11-21, 2D)** — PoC built, many playtest iterations (Trackmania-style levels/medals) |
+| Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **GO (owner 2026-11-21): build the full game** — PoC built 2026-06 (3 playtest rounds, KayKit rebuild); new brief in its `CLAUDE.md` (spread grammar through the day, touch, DE/ES; `assets/` must be restored first); own session opens in `games/verb-valley/` |
+| Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PARKED (owner 2026-11-21, 2D)** — PoC built; art contact sheet never judged |
+| Sim Tower / Krabsy Block | 3D city-block sim (KayKit) | `games/sim-tower/` (+ `archive-tower-version/`) | — | **PARKED (2026-11-21)** — cozy tycoon: you own a city block, build shops and homes, residents walk around; quiz bolted on. Merged from the old `sim-tower` branch 2026-11-21; last worked on 2026-07/08; concept in `krabsy-block-concept.md`. Models (16 MB) are gitignored in `games/sim-tower/assets/` |
 | Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | `/de/spiele/verb-kitchen/` (build at `/games/verb-kitchen/`) | **RELEASED** — ⚠ source is AHEAD of the live build since the 2026-11-21 merge: Levels 4–7 (co-op, soup, sundae), DE/ES UI (`src/i18n.js`), spaced repetition + Verb Cookbook (Jun 16–Jul 2) were never released → play-test + release next. — in the catalogue since 2026-06-16 (`games.json` status `beta`); confirmed released by the user 2026-11-12 after the first organic classroom use (Uruguay, Plan Ceibal/Schoology, 2026-11-12: ~10–12 concurrent sessions, 7–12 min each) |
 
 **Arcade-game language (2026-11-16):** Verb Flow, Verb Snake and Air Control
@@ -30,6 +30,21 @@ merged into `main`. It brought Verb Kitchen L4–7/i18n, the World Designer leve
 editor (`tools/world-designer/`, see its README) and Sim Tower. All helper
 worktrees were removed; from now on there is one checkout on `main` (see
 `CLAUDE.md` → Session model).
+
+**Game direction (owner, 2026-11-21):** more 3D games in the Verb Kitchen
+style (self-paced question moment, grammar drives progress, fixed camera,
+short levels with stars). Order: Verb Kitchen L4–7 release → Tower Defense
+→ Verb Dungeon and Verb Valley (full builds, one chat each) → Verb
+Platformer level design. The 2D PoCs and Krabsy Block are parked.
+New ideas the owner liked, not started, no folder yet:
+- **Verb Delivery:** drive a van around a small town from above and
+  deliver parcels; the petrol station is the "sink" (refuel = questions).
+  Kenney city/car kits.
+- **Verb Forge:** a workshop on the Verb Kitchen engine (smelt, hammer,
+  hand weapons to adventurers). Fastest to build, least new.
+- **Preposition room** (owner has not commented): furnish a room from
+  English instructions ("Put the lamp ON the table"); needs new
+  place-preposition content.
 
 **Play-test 2026-11-21** (`docs/playtest-2026-11-21.md`):
 - Crab Slash → **hidden 2026-11-21**.
@@ -124,6 +139,9 @@ but not referenced — verify before removing.)
      (`krabsy-air-control.html:1590`).
 4. **Tower Defense:** the owner runs its own chat in
    `games/tower-defense/` (Fable 5.2); the brief is in its `CLAUDE.md`.
+   Also ready for their own chats (briefs in each `CLAUDE.md`):
+   `games/verb-dungeon/`, `games/verb-valley/`, and level design in
+   `games/verb-platformer/`.
 5. **Outreach:** Lehrerfreund and Aula PT texts are ready in
    `docs/outreach-list.md` ("Offen"). Eduthek declined (Moodle courses
    only); owner decision open.

@@ -1,271 +1,207 @@
-# Verb Valley — proof-of-concept brief
+# Verb Valley — game brief
 
-> **⚠️ Read order:** the brief below is the ORIGINAL spec. The PoC is
-> built and has been through three playtest rounds — **where the Status
-> log (bottom) disagrees with the brief, the Status log wins.** The big
-> deviations, all user-requested: school opens at wake (no 08:00 wait)
-> and bed works anytime; selling pays instantly at the crate (no
-> overnight payout); 12 crops with a collection album, shop tiers and a
-> school rare-seed ladder (not 3+1); a scythe-and-hay meadow for daily
-> grind money; seeds are selected from a left-edge inventory panel
-> (held over the head), not a hotbar slot; tools render in hand.
+You are the **game session** for Verb Valley on **Krabsy** (krabsy.com): a
+free browser site where German- and Spanish-speaking kids (about 10–14)
+practise English irregular verbs. Read the repo-root `CLAUDE.md` once for
+the site rules, then work only in this folder. The master session releases
+games (wrapper pages, `games.json`, sitemap, deploy). You don't touch
+`homepage/` or other games, and you don't push or deploy.
 
-You are building a new game for **Krabsy** (krabsy.com), a browser-based
-English-grammar learning site for German- and Spanish-speaking school kids
-(roughly ages 10–14). The site has a catalogue of arcade games that drill
-irregular verbs (Verb Slash, Verb Snake, Verb Flow, Air Control, a 3D
-platformer). This folder is yours; the brief below is everything you need.
-You do not have — and do not need — access to the rest of the repo except
-the read-only references listed under **Data**.
+## Goal (owner decision 2026-11-21)
 
-## The game in one paragraph
+Turn the proof of concept into a **releasable 3D game at Verb Kitchen
+quality**. Verb Kitchen (`games/verb-kitchen/`, live at
+`/de/spiele/verb-kitchen/`) is the reference: a class in Uruguay played it
+for up to 28 minutes and came back the next day, while the simple 2D games
+lose people in 18–40 seconds. Study its code and `CLAUDE.md` before
+designing anything. What makes it work:
 
-**Verb Valley** is a cozy 3D farming life-sim — Stardew Valley's loop,
-shrunk to browser size, with learning woven into the day. There is a
-running clock and a **day/night cycle**: mornings start at school
-(English class = grammar questions), and **only after class can you work
-the farm** — plant seeds, water crops, harvest after a few in-game days,
-chop trees, sell produce, buy better seeds and tools. When night falls
-you go to bed, the world saves, and tomorrow the crops you watered have
-grown. The endgame vision is "Stardew with grammar"; this PoC builds the
-core day loop and makes it feel wonderful.
+- **Self-paced question moment** (the sink): the player decides when to
+  think, so reading and action never collide.
+- **Grammar drives progress all the time:** no clean plates, no serving,
+  about one question per served order.
+- **Fixed camera, simple controls:** it plays on a Chromebook and a touch
+  tablet.
+- **Short levels with stars** (about 3 minutes), which fits a lesson.
 
-## Story (the framing — keep it light)
+## The game
 
-You spend the summer at your grandparents' overgrown coastal farm. The
-deal your parents made: every morning you attend the village's tiny
-open-air beach school (a bench, a blackboard, and **Professor Krabsy**,
-a scholarly crab 🦀). After class, the farm is yours to bring back to
-life. Grandpa left a note: "The fields remember everyone who works
-them." That's all the plot the PoC needs — charm over lore.
+A cozy 3D farming life-sim (Stardew Valley's loop at browser size). You
+spend the summer on your grandparents' coastal farm. Each morning starts at
+the beach school with **Professor Krabsy**, a scholarly crab; after class
+you farm. Sleeping saves the game and grows the crops. The world is kind:
+nothing dies, there is no fail state.
 
-## The daily loop (this IS the game — build exactly this)
+## What exists (PoC, last worked on 2026-06-11)
 
-```
-06:00  wake up at the cottage, fresh energy, day counter +1
-06:00–08:00  free time: water crops? walk around? (tools UNLOCKED only
-       after school, so mostly: get to class)
-08:00  school bell rings — Professor Krabsy waits at the blackboard
-       CLASS: ~8 grammar questions, one at a time. Rewards scale with
-       correct answers: coins + (at 6+ correct) a SPECIAL SEED packet.
-       Class is skippable in UI terms only: farm tools stay locked any
-       day you haven't attended. The bell nags you, gently.
-09:00–~20:00  farm time: till, plant, water, harvest, chop, shop, explore
-~20:00  dusk — light turns golden, then dark; a sleepy vignette grows
-24:00  if still up, you doze off where you stand (Stardew style) and
-       wake at the cottage
-SLEEP  = save game + advance the world: watered crops +1 growth stage,
-       unwatered crops pause (they never die in the PoC — kind world)
-```
+`index.html` + `src/` (about 3,000 lines): config, verbs, audio, save,
+world, daycycle, player, farming, fishing, school, ui, game, assets. The
+Status log at the bottom has every detail; in short:
 
-- **Time scale:** one in-game day ≈ **7–8 real minutes** (school ~1.5 of
-  them). A visible clock + day counter sits in the HUD.
-- Sleeping early skips dead time — going to bed any time after 18:00 is
-  allowed and jumps straight to morning.
+- **Day loop:** wake → school (8 chalk questions on a 3D blackboard,
+  opens at wake) → farm → sleep (save + growth). One day is 7–8 minutes.
+  Bed works at any hour.
+- **School:** 5 coins per correct answer, a rare seed at 6+ correct, a
+  sticker at 8/8, one class per day. Missed verbs persist; the next class
+  opens with a review question.
+- **Farm:** 24 plots (till, plant, water, harvest), 12 crops with a crop
+  album, shop tiers, a rare-seed ladder from school, a hay meadow, 5
+  trees, a quarry (stone, gold, gems), pond fishing, instant selling at
+  the crate.
+- **Hard gate:** all farm work is locked until you attended school that
+  day.
+- **Look:** KayKit Ranger with real animations and tools in hand; KayKit
+  trees, rocks, crates. Krabsy, cottage, school and crops are still
+  procedural. Day/night cycle with dusk, fireflies and stars.
+- **Save:** localStorage `krabsy_vvalley_save`, schema v3 with migrations.
+- **QA:** `window.__VV` hook and `?qa=` frozen scenes (morning,
+  school-open, field-with-crops, dusk, night).
 
-## School (the learning core — make it delightful, not dutiful)
+Known weaknesses:
+- **`assets/` is missing on this machine.** It is a gitignored working
+  copy and is not on disk here, so the game will not load until
+  the models are copied again. The manifest in `src/assets.js` lists every
+  file; the sources are in the shared library (see Assets). Do this first.
+- **Grammar is front-loaded:** 8 questions at school, then about 6 minutes
+  of farming with no English at all. This is the main design problem.
+- **No touch controls.**
+- Three.js and fonts come from **CDNs** (unpkg, Google Fonts).
+- UI is **English only**.
+- The blackboard still uses grammar terms (`src/school.js`); check it
+  against the mandate below.
+- Verbs are inlined, not from the question engine.
+- Scope has grown fast (fishing, mining, meadow). There is no short
+  "session" a teacher can plan around.
 
-- Open-air classroom: bench, standing blackboard, Professor Krabsy.
-  Class = **8 multiple-choice questions** rendered on the blackboard
-  (chalk text!): mostly irregular verbs (*"simple past of GO?"* — three
-  chalk answer chips), with prepositions as an occasional lesson variety
-  (*"My birthday is ___ July"* — in/on/at). Mix slots: past one day,
-  participle the next.
-- Use the site-wide form-color convention: **base = amber, past = teal,
-  participle = coral**. Wrong answer → Professor Krabsy kindly shows the
-  full chain (`go → went → gone`) before the next question.
-- **Rewards:** ~5 coins per correct answer; 6+ correct earns a **special
-  seed packet** (rare crop, sells high); 8/8 earns a star sticker (pure
-  cosmetic pride — show a sticker row somewhere in the cottage).
-- Class ends when the 8 questions are done (~60–90 s). Re-attending the
-  same day gives no extra reward (one class per day).
-- Track missed verbs across days; Professor Krabsy opens the next class
-  with one "review question" from yesterday's misses. (This tiny spaced
-  repetition is the pedagogical heart — do not cut it.)
+## Direction for the full game (proposed by the master session)
 
-## The farm (PoC scope)
+The owner said yes to the game. He has **not** yet confirmed the points
+below one by one. Your first task is to check them against the PoC and
+come back with a short plan.
 
-- **Plots:** a fixed field of ~24 tillable tiles near the cottage. Till
-  with the hoe (free starting tool), plant a seed, water it (watering
-  can, free), sleep to grow. Crop states are readable at a glance:
-  seeded → sprout → growing → ready (bobbing + sparkle).
-- **Crops (3 + 1 special):** e.g. turnip (2 days, cheap), tomato
-  (3 days, medium), pumpkin (5 days, pricey), and the school-reward
-  special (e.g. "star fruit", 3 days, sells very high). Buy regular
-  seeds at a small shop stand; the special is school-only.
-- **Watering:** once per day per tile (visible wet/dry soil color). The
-  can never runs out in the PoC (refill mechanics are v1.1).
-- **Foraging:** a few trees regrow every 2 days; an **axe** is the first
-  big purchase (~50 coins) and chops them for wood (sells, or stockpiles
-  for v1.1 building). Wild berries spawn daily for free pocket money.
-  (Pickaxe/stones: v1.1 — see roadmap.)
-- **Selling:** a shipping crate by the cottage — toss produce in,
-  coins arrive when you sleep (Stardew homage). Simple shop stand sells
-  seeds + the axe. That's the whole economy loop: school → seeds →
-  crops → coins → tools → faster farming.
-- **Hard gate (the user's core rule):** every farm interaction (hoe,
-  plant, water, harvest, chop) is disabled until you've attended school
-  *that day*. Interacting while locked → the character shrugs and a
-  speech bubble points at the school bell. Make the gate diegetic and
-  friendly, never a popup scolding.
+1. **Spread the grammar through the day** instead of one block at school.
+   The Kitchen pattern is a chore station you visit when you choose, and
+   that the work depends on. Ideas to weigh:
+   - The **well**: the bucket holds water for about 6 tiles; refilling it
+     is one question.
+   - **Seed packets** open with a question; rare seeds need harder verbs.
+   - The **shop keeper** or the sell crate gives a better price for a
+     correct answer.
+   - School stays, but shorter (3–4 questions), as the daily start and the
+     place for review of yesterday's misses.
+   Keep the owner's core rule in spirit: no learning, no farming.
+2. **Camera and controls for school devices:** a calm, mostly fixed
+   high camera that needs no camera input. Touch: virtual stick, one
+   action button, tappable hotbar and inventory.
+3. **A plannable session:** one in-game day should be a satisfying unit of
+   about 5–7 minutes with a clear end (the sleep card with the day's
+   results and missed verb chains). Consider daily goals ("grow 3
+   turnips") with 1–3 stars so a class has something to compare.
+4. **Shared school devices:** saves live in localStorage, so several kids
+   may share one browser. Offer named save slots or at least a clear
+   "New farm" path, and keep the first day fun without any save.
+5. **Finish the look:** replace the remaining procedural pieces (cottage,
+   school, crops, Krabsy) where good models exist; keep the dusk showcase.
+6. **Stop adding systems** until the above is done. Animals, villagers,
+   festivals and building stay on the later list.
 
-## World & feel
+Suggested milestones: M0 clean base (restore `assets/`, vendored Three.js,
+self-hosted fonts, noindex meta) → M1 grammar spread through the day on the
+question engine, no terminology, DE/ES UI → M2 camera + touch → M3 models
+for cottage, school, crops, Krabsy → M4 first-day tutorial, daily goals,
+save slots → M5 polish, device tests, size check, then "ready for review".
 
-- One compact scene: cottage + bed, the tillable field, shop stand,
-  shipping crate, the beach school, a handful of trees, a pond (decor
-  for now — fishing is v1.1), fences/paths for readability. Small
-  enough to cross in ~15 seconds.
-- **Day/night is the showcase.** Spend your "wow budget" here: the sun
-  arcs, shadows lengthen, golden-hour glow at dusk, warm windows after
-  dark, fireflies at night, a star field, soft morning fog. This game
-  sells itself with one screenshot of dusk.
-- Third-person character with a slightly elevated follow camera (gentle
-  Stardew-ish down-angle). WASD/arrows to move, E / click to interact,
-  number keys or a hotbar to switch tools. Touch is nice-to-have.
-- Player character: a charming primitive-rig kid (grouped
-  boxes/spheres, squash-and-stretch walk, big hat). Professor Krabsy is
-  a red crab with reading glasses and a tiny mortarboard. Animate with
-  code (bobs, leans, anticipation) — charm over fidelity.
+**First task:** restore the assets, play three in-game days, read the
+code, then propose a short plan to the owner (where the questions go,
+camera, session shape, milestones). Get an OK before big rewrites.
 
-## Non-goals for the PoC (v1.1+ roadmap — write code that won't fight these later)
+## Assets: shared CC0 library
 
-- Animals (cow/sheep/chickens: buy, feed, daily produce)
-- Fishing at the pond (timing minigame)
-- Pickaxe + stones/ore, cave or quarry corner
-- Energy/stamina system, watering-can refills, crop wilting
-- NPC villagers, friendship, festivals
-- Farm expansion / building with wood
-- DE/ES localization of game UI (site convention: game UI is English)
-- Site integration (wrappers, catalogue) — master session handles later
+`/home/janah/dev/_assets/` (about 3.4 GB, all CC0; see its `README.md`).
+It is read-only: copy only the files you use into `assets/` here and list
+each pack in `assets/CREDITS.md`.
 
-Keep the save format and day-advance logic extensible (e.g. a single
-`advanceDay(world)` function and versioned save schema) so 1.1 features
-slot in without rewrites.
+- Already wired (see `src/assets.js` and the 2026-06-11 log entry):
+  `kaykit/KayKit_Adventurers_2.0_*` (Ranger),
+  `KayKit_Character_Animations_1.1`, `KayKit_RPGToolsBits_1.0_EXTRA`,
+  `KayKit_FantasyWeaponsBits_1.0_FREE`, `KayKit_Forest_Nature_Pack_1.0_EXTRA`,
+  `KayKit_ResourceBits_1.0_EXTRA`.
+- Worth checking for the missing pieces: `quaternius/` and `tinytreats/`
+  (crops, farm buildings), `ultimateanimatedanimals/` (later: animals),
+  `kaykit/KayKit_Furniture_Bits_1.0_SOURCE` (cottage),
+  `kenney/nature-kit`, `kenney/fantasy-town-kit`.
+- Crab mascot (optional, for Professor Krabsy):
+  `/home/janah/dev/BlobVideos/renderers/assets/crab.glb`, rig contract in
+  `/home/janah/dev/BlobVideos/docs/asset_spec.md`. Ask the owner first.
+- **`assets/` is gitignored here** (`.gitignore` in this folder). For a
+  release the used files must be tracked. Agree with the master session
+  how (Tower Defense tracks its `assets/` in the game folder).
 
-## Tech conventions (match the rest of Krabsy)
+Rules: GLB/glTF only. Whole download **≤ 15 MB**, first playable screen
+within a few seconds on a school Chromebook. Share materials, merge static
+geometry, one shadow light.
 
-- **Stack:** Three.js **0.169** via CDN import map, exactly like the
-  existing 3D game:
-  ```html
-  <script type="importmap">
-  { "imports": {
-      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/" } }
-  </script>
-  ```
-  Plain ES modules, **no build step, no npm, no TypeScript**.
-- **No external assets** (no GLTF/images/audio files): Three.js
-  primitives, procedural canvas textures, vertex colors, emissive
-  materials. If this PoC convinces, an asset pack gets bought for v1.1.
-- **Files:** `index.html` + `src/*.js` modules (game.js, world.js,
-  daycycle.js, player.js, farming.js, school.js, shop.js, save.js,
-  ui.js, audio.js, verbs.js — shape as you see fit, keep modules
-  focused).
-- **Look & feel:** Krabsy house style for all UI — teal `#2ee6c0`,
-  coral `#ff8585`, amber `#ffcf5e` on deep navy; Fredoka One + Nunito
-  via Google Fonts; rounded chips/buttons; start screen with emoji
-  mascot + how-to rows + big primary button (other Krabsy games follow
-  this pattern exactly — keep the family resemblance).
-- **Audio:** WebAudio synth only: school bell, chalk squeak, watering
-  sprinkle, harvest pop, coin chime, cricket loop at night, morning
-  birds. Mute toggle persisted (`krabsy_vvalley_sound`).
-- **Save system (required):** full world state in localStorage
-  (`krabsy_vvalley_save`, versioned JSON): day, coins, inventory,
-  tools, plot states, tree states, school stats incl. missed-verb list.
-  Auto-save on sleep; "Continue / New Farm" on the start screen.
-- **Performance:** 60 fps mid laptop; ONE shadow-casting light (the
-  sun/moon); merge static geometry; reuse materials; fog for distance.
+## Engine and stack
 
-## Verification (do this, don't skip it)
+- Three.js **0.169 as ES modules, vendored locally** like Verb Kitchen
+  (`games/verb-kitchen/vendor/`, import map). **No CDN and no third-party
+  requests at runtime**: school networks block CDNs, and the privacy
+  policy promises no third parties.
+- Fonts Fredoka One + Nunito self-hosted (copy from `homepage/lib/fonts/`).
+- Plain static files, no build step, no npm.
+- `index.html` must contain
+  `<meta name="robots" content="noindex, indexifembedded">`.
 
-- Serve statically (`python3 -m http.server`) and verify in a real
-  browser. **Known issue:** the interactive preview's screenshot tool
-  can hang (suspended renderer). Proven workaround: **headless Edge** —
-  `msedge --headless=new --disable-gpu --window-size=900,600
-  --screenshot=out.png "http://localhost:PORT/?qa=dusk"` — and support
-  `?qa=` params for frozen deterministic scenes (morning, school-open,
-  field-with-crops, dusk, night) exactly for this purpose.
-- Expose a QA hook (`window.__VV`) that can set the clock, skip days,
-  grant coins/seeds, teleport, and read state — then drive the FULL loop
-  programmatically: school → unlock → plant → water → sleep → grow →
-  harvest → sell → coins. Assert each step.
-- Test save/load round-trips (save, reload page, world identical) and
-  the school gate (farm actions rejected pre-class, accepted after).
-- Zero console errors; check FPS at dusk (shadows + fireflies = worst
-  case).
+## Hard rules for content and UX
 
-## Definition of done
+- **Questions never require grammar terminology** (owner mandate). Use
+  positional notation (`go → ___ → gone`, asked blank highlighted) or a
+  sentence gap (`My birthday is ___ July.`). Terms only as small captions
+  or in the feedback after an answer.
+- After a wrong answer Professor Krabsy shows the full chain
+  (`go → went → gone`).
+- Form colours site-wide: base = amber, past = teal, participle = coral.
+- Question data from `homepage/lib/krabsy-questions.js` (`getQuizSet`,
+  topic from `?topic=`; it covers verbs and prepositions), with a small
+  inline fallback for offline dev. Canonical lists are in `content/`.
+- Keep the **missed-verb review** across days. It is the teaching core.
+- **UI in German and Spanish** (verbs stay English), chosen by
+  `?lang=de|es`. See Verb Kitchen's `src/i18n.js`.
+- **First 30 seconds:** clear goal, playable within about 10 s, day 1
+  teaches by doing, nothing punishes a beginner.
+- **Devices** (test all three): 1366×768 laptop with keyboard; 1024×768
+  touch tablet/Chromebook (must be fully playable); 390×844 phone
+  (playable, or an explicit friendly message).
+- Site style: teal `#2ee6c0`, coral `#ff8585`, amber `#ffcf5e` on deep
+  navy. Sound via WebAudio synth or small CC0 files; mute toggle persisted.
+- Never break existing saves without a migration (see `src/save.js`).
 
-- A stranger can play three full in-game days unaided: attend class,
-  earn a special seed, grow + harvest a turnip, sell it, and buy
-  something — and the dusk moment makes them screenshot it.
-- The school gate, growth-on-sleep, save/load, and missed-verb review
-  all verified programmatically.
-- The world feels alive at every hour of the clock (lighting states
-  checked via the `?qa=` scenes).
-- This file's **Status log** is updated; work is committed (commits stay
-  inside this folder).
+## Verification notes (from the PoC)
 
-## Data
+- The preview tool's screenshot can hang on this 3D app. Headless
+  Chromium/Edge with the `?qa=` scenes works.
+- Drive the full loop through `window.__VV` and assert each step (school →
+  unlock → plant → water → sleep → grow → harvest → sell), plus a
+  save/load round trip across a reload.
 
-Canonical question data (read-only references):
-- `../../content/irregular-verbs.json` (155 verbs)
-- `../../content/prepositions.json` (99 items, DE/ES explanations)
+## Working agreement
 
-Inline curated subsets in `src/verbs.js` (~40 verbs ordered by
-frequency, shape `{v:'go', past:'went', pp:'gone'}`) and a dozen
-preposition items for lesson variety. Distractors must be plausible
-(regularized forms like "goed", swapped past/participle, similar verbs).
-
-## Assets (for the asset-using version — the PoC above is procedural)
-
-The PoC was built asset-free on purpose. When you graduate it to a real
-3D build with bought art, the **shared KayKit library** is on disk at
-`/home/jan/krabsy-homepage/assets/` and **this session already has read
-access to it** (granted via `.claude/settings.local.json` →
-`permissions.additionalDirectories`; no flag needed). It is **read-only**:
-copy what you wire into *this* folder — never modify the library, it's a
-re-downloadable master shared by several games.
-
-- Packs this game draws from (free tiers exist for all):
-  `KayKit_Forest_Nature/` (trees, rocks, terrain),
-  `KayKit_Resource_Bits/` (produce, wood, coins — Extra adds food/money),
-  `KayKit_Furniture_Bits/` (cottage), `KayKit_Adventurers/` +
-  `KayKit_Character_Animations/` (player + NPC). Crops & farm buildings
-  aren't in KayKit — fill from the free **Quaternius LowPoly Farm
-  Buildings** (also dropped under `/assets/` when bought). Use **GLTF/GLB**.
-- Release path: the master session promotes the *used subset* into
-  `homepage/games/verb-valley/assets/` (that copy IS tracked + deployed).
-  Your working copy here stays gitignored.
-
-## Question engine (site-wide, added 2026-06-12 by the master session)
-
-The shared engine at `/lib/krabsy-questions.js` (served site root) is now
-the standard question source — prefer it over inlining data when this
-game is integrated/released (keep a small inline fallback for offline
-dev). For this game use the **quiz** shape:
-`getQuizSet({topic: topicFromUrl(), count, withOptions})` returns
-presentation-ready records (`display`, `options`, `correctIndex`,
-`accepts`, `teach`) and works for irregular verbs AND prepositions —
-`?topic=` makes the game topic-agnostic for free.
-
-**Presentation mandate (user decision): never require grammar
-terminology.** Render the positional notation `go → ___ → ___` with the
-asked blank highlighted (record.display gives you base/slots/askIndex),
-or the sentence gap for prepositions — NOT "what is the simple past
-of…". Terminology may appear only as a small caption or in the
-after-answer teach beat. Typed input (validate with `checkTyped`) is a
-welcome alternative to choice chips.
-
-## Working agreements
-
-- You own only `games/verb-valley/`. Don't modify anything outside it.
-- Commit locally as you go; never push.
-- Keep this CLAUDE.md current — it is the only memory between sessions.
+- Work in `/home/janah/dev/krabsy-homepage/games/verb-valley/` on `main`.
+  There is one shared checkout; other sessions work in it at the same time.
+- Stage only this folder (`git add games/verb-valley`, never `git add -A`
+  or `git stash`), commit with the Co-Authored-By trailer. **Don't push.**
+- End every session by updating the **Status log** below: what changed,
+  what's next, open questions for the owner.
+- The owner prefers short, step-by-step explanations in chat. Ask before
+  big design decisions.
+- When it's ready for review, say so in the Status log. The master session
+  then play-tests and releases it to `homepage/games/verb-valley/` with
+  wrappers `/de/spiele/verb-valley/` and `/es/juegos/verb-valley/`.
 
 ## Status log
 
-- 2026-06-10 — Brief written by the master session. Nothing built yet.
+- 2026-06-10 — PoC brief written by the master session (the original PoC
+  brief is in git history: `git log -- games/verb-valley/CLAUDE.md`).
 - 2026-06-10 — **PoC built and verified.** `index.html` + 10 modules in
   `src/` (config, verbs, audio, save, world, daycycle, player, farming,
   school, ui, game). Everything in the brief's daily loop is in:
@@ -388,3 +324,7 @@ welcome alternative to choice chips.
     the Ranger standing at the bench (no sit clip wired); hay blades are
     still procedural cones (no hay model in the packs); grass tufts read
     thin from the follow-cam distance.
+- 2026-11-21 — **Owner decision: build the full game.** The master session
+  replaced the PoC brief with this one. Nothing changed in the code.
+  `assets/` is missing locally (see "Known weaknesses"). **Next:** the
+  first task above (restore assets, play, propose a plan).
