@@ -555,13 +555,18 @@ export const UI = {
     const slot = (index, word, cls) => `
       <span class="q-slot ${cls}">
         <span class="q-word ${cls === 'shown' ? forms[index] : ''}">${esc(word)}</span>
-        <span class="q-caption">${answered ? esc(captions[index]) : ''}</span>
+        <span class="q-caption">${answered && cls === 'shown' ? esc(captions[index]) : ''}</span>
       </span>`;
     const arrow = '<span class="q-arrow">→</span>';
+    // When this verb's 3rd form is asked next, keep it hidden after this answer —
+    // otherwise the reveal would give the follow-up away.
+    const next = Questions.followUp;
+    const thirdComes = d.askIndex === 0 && next && next.display.kind === 'trio' && next.display.base === d.base;
     let html = slot(0, d.base, 'shown');
     d.slots.forEach((s, i) => {
       html += arrow;
-      if (answered && chain) html += slot(i + 1, i === 0 ? chain.past : chain.participle, 'shown');
+      if (answered && thirdComes && i === 1) html += slot(i + 1, '___', 'blank');
+      else if (answered && chain) html += slot(i + 1, i === 0 ? chain.past : chain.participle, 'shown');
       else if (answered && i === d.askIndex) html += slot(i + 1, q.answer, 'shown');
       else if (i === d.askIndex) html += slot(i + 1, '?', 'ask');
       else html += slot(i + 1, s.text != null ? s.text : '___', s.text != null ? 'shown' : 'blank');
