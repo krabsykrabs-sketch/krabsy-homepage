@@ -50,18 +50,19 @@ export function createUI({ onMenu }) {
       setTimeout(() => { flash.hidden = true; }, 600);
     },
 
-    // Shown when the player steps on an answer block. `word` is the word on that block; a wrong
-    // pick shows it with a red ✗, a correct pick with a green ✓.
-    showAnswerReveal(verb, word, isCorrect = false) {
-      revealPrompt.textContent = `${verb} → `;
-      revealCorrect.textContent = `${word} ${isCorrect ? '✓' : '✗'}`;
-      revealCorrect.classList.toggle('wrong', !isCorrect);
+    // After every answer: the full chain (`go → went → gone`) in green. After a wrong answer
+    // the word the player stepped on is shown above it with a red ✗, and it stays longer.
+    showAnswerReveal(chain, wrongWord = null) {
+      revealPrompt.textContent = wrongWord ? `${wrongWord} ✗` : '';
+      revealPrompt.hidden = !wrongWord;
+      revealCorrect.textContent = chain;
       reveal.hidden = false;
       reveal.style.opacity = '1';
       clearTimeout(revealHideTimer);
       clearTimeout(revealClearTimer);
-      revealHideTimer  = setTimeout(() => { reveal.style.opacity = '0'; }, 1500);
-      revealClearTimer = setTimeout(() => { reveal.hidden = true; },        2100);
+      const hold = wrongWord ? 2600 : 1400;
+      revealHideTimer  = setTimeout(() => { reveal.style.opacity = '0'; }, hold);
+      revealClearTimer = setTimeout(() => { reveal.hidden = true; },        hold + 600);
     },
     hideAnswerReveal() {
       clearTimeout(revealHideTimer);

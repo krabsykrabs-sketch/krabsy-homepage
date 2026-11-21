@@ -114,7 +114,7 @@ html, body {
   background: rgba(0, 0, 0, 0.82);
   padding: 22px 38px;
   border-radius: 14px;
-  font-size: 44px;
+  font-size: 38px;
   font-weight: 700;
   text-align: center;
   z-index: 11;
@@ -125,9 +125,9 @@ html, body {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
 }
 #answer-reveal[hidden] { display: none; }
-#reveal-prompt  { color: #fff; }
-#reveal-correct { color: #41d775; margin-left: 4px; }
-#reveal-correct.wrong { color: #ff5a5a; }   /* red — shows the wrong word the player stepped on */
+#reveal-prompt  { display: block; color: #ff5a5a; font-size: 0.7em; margin-bottom: 6px; }  /* the wrong word the player stepped on */
+#reveal-prompt[hidden] { display: none; }
+#reveal-correct { color: #41d775; }   /* the full chain */
 
 /* ---------- Death flash ---------- */
 #death-flash {
@@ -274,8 +274,8 @@ html, body {
   #menu-list { gap: 8px; }
   #touch-joystick { left: 16px; bottom: 12px; }
   #touch-jump { right: 24px; bottom: 28px; width: 84px; height: 84px; }
-  #answer-reveal { font-size: 30px; padding: 14px 24px; top: 18%; }
+  #answer-reveal { font-size: 26px; padding: 12px 22px; top: 16%; }
   #level-complete h1 { font-size: 40px; }
   #progress { bottom: 10px; }
-  #hud-question { bottom: 52px; font-size: 18px; }
+  #hud-question { top: 8px; bottom: auto; font-size: 20px; padding: 6px 16px; }
 }

@@ -3,7 +3,7 @@ import { loadModel } from './assets.js';
 import { addStaticBox, addKinematicBox, addStaticTrimesh } from './physics.js';
 import { spawnGate, LANE_OFFSETS } from './gates.js';
 import { spawnStyledGate } from './qa-styles.js';
-import { buildQuestionQueue, getQuestion, formatPrompt } from './data/questions.js';
+import { buildQuestionQueue } from './data/questions.js';
 import { CATALOG_BY_TYPE, urlFor, defaultColorFor } from './kaykit-catalog.js';
 
 // Legacy size→KayKit mapping. The four .js levels in src/levels/ use 'small'/'medium'/'large'
@@ -236,11 +236,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
   }
   const layout = data.layout;
   const gateEntries = layout.filter(e => e.type === 'gate');
-  // Only build a shuffled question queue if any gate is missing an explicit verb.
-  const needsQueue = gateEntries.some(g => !g.verb);
-  const questionQueue = needsQueue
-    ? buildQuestionQueue(data.verbs, gateEntries.length, data.repeatsAllowed || 1)
-    : [];
+  const questionQueue = await buildQuestionQueue(data, gateEntries);
 
   const platforms = [];
   const movingPlatforms = [];
@@ -280,7 +276,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
     const e = layout[i];
     if (e.type !== 'gate') continue;
 
-    const question = e.verb ? getQuestion(e.verb) : questionQueue[qIdx];
+    const question = questionQueue[qIdx];
     const options = buildGateOptions(question);
 
     const checkpoint = nextPlatform(i);
@@ -303,10 +299,10 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
     const gateData = {
       position: e.position,
       options,
-      question: { verb: question.verb, correct: question.correct },
+      question,
     };
     const gateCallbacks = {
-      onCleared: () => callbacks.onGateCleared?.(myGateIndex, checkpointPos),
+      onCleared: () => callbacks.onGateCleared?.(myGateIndex, checkpointPos, question),
       onWrong:   (g, opt) => callbacks.onGateWrong?.(myGateIndex, gateData.question, opt),
     };
 
@@ -318,7 +314,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
       hudQuestion = styled.hudQuestion || null;
     } else {
       gate = await spawnGate(scene, world, RAPIER, particles, sfx, gateData, gateCallbacks);
-      const banner = makeQuestionBubble(formatPrompt(question.verb));
+      const banner = makeQuestionBubble(question.prompt);
       const [gx, gy, gz] = e.position;
       banner.position.set(gx, gy + Q_BUBBLE_Y, gz);
       scene.add(banner);
@@ -643,6 +639,12 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
   //               static collider. update() animates them and checks AABB overlap with the
   //               player to fire callbacks.onHazardHit (game.js: respawn).
   const hazards = [];           // { id, mesh, behavior, params, basePos, baseRotY, halfXZ, halfY, def, isSolid }
+  // Answer gates: { type: 'gate', position, rotation?, verb?, form? }. Three red answer blocks
+  // with word bubbles and a question sign; the words come from the question queue, so a level
+  // file never contains answers. Position = bottom-centre of the middle block.
+  const gateObjs = data.objects.filter(o => o.type === 'gate');
+  const gateQuestions = gateObjs.length ? await buildQuestionQueue(data, gateObjs) : [];
+  const gates = [];             // { id, gate, question, pos, banner }
   let flag = null;
   let spawn = null;
   if (data.spawn?.position) {
@@ -674,6 +676,27 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
     if (type === 'checkpoint') {
       const [x, y, z] = obj.position;
       checkpoints.push({ id: obj.id, pos: { x, y, z } });
+      continue;
+    }
+    if (type === 'gate') {
+      const question = gateQuestions[gates.length];
+      const rotY = (obj.rotation || 0) * Math.PI / 180;
+      const entry = { id: obj.id, question, pos: { x: obj.position[0], y: obj.position[1], z: obj.position[2] } };
+      const gateData = { position: obj.position, rotY, options: buildGateOptions(question), question };
+      entry.gate = await spawnGate(scene, world, RAPIER, particles, sfx, gateData, {
+        onCleared: (g) => {
+          // The block the player just landed on is solid from now on — respawn there.
+          const o = g.options.find(o => o.state === 'cleared');
+          entry.checkpointPos = o ? { x: o.pos.x, y: o.top + RESPAWN_LIFT, z: o.pos.z } : null;
+          entry.onCleared?.();
+        },
+        onWrong: (g, opt) => entry.onWrong?.(opt),
+      });
+      entry.banner = makeQuestionBubble(question.prompt);
+      entry.banner.position.set(entry.pos.x, entry.pos.y + Q_BUBBLE_Y, entry.pos.z);
+      entry.banner.rotation.y = rotY;
+      scene.add(entry.banner);
+      gates.push(entry);
       continue;
     }
     const def = CATALOG_BY_TYPE[type];
@@ -909,13 +932,13 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
   });
   // If the data had objects but none of them resolved to a known catalog entry, the runtime
   // looks empty. Most likely cause: stale localStorage with pre-migration type names.
-  const placed = platforms.length + decoratives.length + solidDecor.length + coins.length + hazards.length + (flag ? 1 : 0);
+  const placed = gates.length + platforms.length + decoratives.length + solidDecor.length + coins.length + hazards.length + (flag ? 1 : 0);
   if (data.objects.length > 0 && placed === 0) {
     console.warn(`[editor-level] all ${data.objects.length} objects in the draft failed to resolve (likely stale type names from the old editor). Open editor.html, place a new platform, and click Playtest again.`);
   }
 
   return new EditorLoadedLevel(scene, world, {
-    platforms, decoratives, solidDecor, coins, labels, checkpoints, hazards, flag, spawn,
+    platforms, decoratives, solidDecor, coins, labels, checkpoints, hazards, gates, flag, spawn,
   }, uiHooks, callbacks);
 }
 
@@ -935,6 +958,16 @@ export class EditorLoadedLevel {
     this.labels = parts.labels;
     this.checkpoints = parts.checkpoints;
     this.hazards = parts.hazards || [];
+    this.gates = parts.gates || [];
+    this.clearedCount = 0;
+    this._lastHudText = null;
+    for (const g of this.gates) {
+      g.onCleared = () => {
+        this.clearedCount++;
+        this.callbacks.onGateCleared?.(this.clearedCount - 1, g.checkpointPos, g.question);
+      };
+      g.onWrong = (opt) => this.callbacks.onGateWrong?.(this.gates.indexOf(g), g.question, opt);
+    }
     this.flag = parts.flag;
     this.spawn = parts.spawn;
     this.uiHooks = uiHooks || {};
@@ -945,11 +978,17 @@ export class EditorLoadedLevel {
     this.conveyors = this.platforms.filter(p => p.behavior === 'conveyor');
   }
 
-  // The new runtime has no "gate" progress concept — the level is a free-form playground that
-  // ends when the player touches the flag. Return 0 so the caller can hide the progress UI.
-  get gateCount() { return 0; }
+  // Number of answer gates. 0 = a free-form level without questions; the caller then hides
+  // the progress bar.
+  get gateCount() { return this.gates.length; }
 
   markCleared() {}
+
+  // Called on respawn: gates the player has not cleared get their fallen blocks back, so the
+  // question can be tried again. Cleared gates stay as they are.
+  reset() {
+    for (const g of this.gates) if (!g.gate.cleared) g.gate.reset();
+  }
 
   // Runs ONCE per FIXED_DT step, BEFORE world.step() and the player's character-controller pass.
   // We advance hazard animations here (mesh transforms + kinematic-body positions) so the
@@ -1024,6 +1063,22 @@ export class EditorLoadedLevel {
         p.timer = ED_SHAKE_DURATION;
         this.callbacks.onWrongAnswer?.(p);
       }
+    }
+
+    // Answer gates. On small screens (phones) the world-space question sign is too small to
+    // read, so the question of the nearest open gate is also shown in the HUD.
+    let nearest = null, nearestD = 40 * 40;
+    for (const g of this.gates) {
+      g.gate.update(dt, playerPos, playerGrounded);
+      if (g.gate.cleared) continue;
+      const dx = playerPos.x - g.pos.x, dz = playerPos.z - g.pos.z;
+      const d = dx * dx + dz * dz;
+      if (d < nearestD) { nearestD = d; nearest = g; }
+    }
+    const wantHud = (nearest && window.innerHeight < 500) ? nearest.question.prompt : null;
+    if (wantHud !== this._lastHudText) {
+      this._lastHudText = wantHud;
+      this.uiHooks.setHudQuestion?.(wantHud);
     }
 
     // Coin spin + pickup.
@@ -1200,6 +1255,12 @@ export class EditorLoadedLevel {
     }
     for (const c of this.coins) if (!c.collected) this.scene.remove(c.mesh);
     for (const lbl of this.labels) if (lbl.mesh.parent) this.scene.remove(lbl.mesh);
+    for (const g of this.gates) {
+      g.gate.dispose();
+      this.scene.remove(g.banner);
+    }
+    this.gates = [];
+    this.uiHooks.setHudQuestion?.(null);
     if (this.flag?.mesh) this.scene.remove(this.flag.mesh);
     // Hazards: static hazard colliders were registered into solidDecor (cleaned above). Animated
     // hazards' visual meshes are detached here. Pushy pendulums own a kinematic body of their

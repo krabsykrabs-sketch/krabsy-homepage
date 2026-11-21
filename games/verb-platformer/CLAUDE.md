@@ -27,22 +27,60 @@ What exists:
 
 - **The mechanic:** a gate is three red answer platforms side by side,
   each with a word bubble; wrong ones fall on contact (`src/gates.js`).
-- **Three built-in levels** as JS layouts (`src/levels/level-1.js` to
-  `level-3.js`, listed in `main.js`). Level 1 is a straight path with 3
-  gates; all three are short.
-- **A level editor** in this folder (`editor.html`, `editor.js`): place
-  KayKit platformer pieces on a grid, mark answer platforms, attach
-  labels, Playtest opens `index.html?level=editor` from a localStorage
-  draft, Save writes JSON. `WORK_LOG.md` is the editor's work log (what
-  was improved, what is still open).
-- **One editor-format level:** `assets/levels/level1.json` (19 objects).
-  Editor levels load through `src/level-loader.js`.
+- **Levels are JSON files** in `assets/levels/`, listed in
+  `assets/levels/index.json` (menu order). A new level = one file + one
+  line. `first-steps.json` is the old Level 1 rebuilt in this format.
+  `_test-piece.json` is an old editor experiment, not in the menu.
+- **Levels 2 and 3 are still built-in JS layouts** (`src/levels/`); they
+  use moving platforms, which the JSON format does not have yet.
+- **The level editor** (`editor.html`, `editor.js`): place KayKit pieces
+  on a grid, Playtest opens `index.html?level=editor` from a localStorage
+  draft, Save writes JSON. `WORK_LOG.md` is the editor's work log.
 - **Local assets:** `assets/` is gitignored except `levels/`. Restored on
   2026-11-21 by copying `homepage/games/verb-platformer/assets/` here
   (22 MB). On a fresh machine do the same; the master library is
   `/home/janah/dev/_assets/kaykit/KayKit_Platformer_Pack_1.0_EXTRA`.
 - **Libraries are self-hosted** in `vendor/` (three r169, rapier3d-compat
   0.19.3, nipplejs 1.0.1; tracked in git). No CDN.
+
+### Level JSON, the parts that matter
+
+```json
+{ "id": "first-steps", "name": "First Steps",
+  "tiers": [1],
+  "spawn": { "position": [0, 2, 0] },
+  "flag":  { "type": "flag_C", "color": "blue", "position": [0, 1, -46] },
+  "objects": [
+    { "id": "platform_1", "type": "platform_6x6x1", "position": [0, 0, 0], "color": "blue" },
+    { "id": "checkpoint_1", "type": "checkpoint", "position": [0, 2, -5] },
+    { "id": "gate_1", "type": "gate", "position": [0, 0, -10], "rotation": 0 }
+  ] }
+```
+
+- **`gate`** (editor: Tools → "answer gate"): three answer blocks at
+  x −3.5 / 0 / +3.5 around `position` (bottom of the middle block; tops
+  are 1 higher) and the question sign above. `rotation` turns the whole
+  gate (0 = read from +Z, 90 = read from +X). Optional `verb` fixes the
+  verb, optional `form` (`past` / `participle`) fixes the blank. **No
+  words are stored in the level**: the game deals them at play time.
+- **Which verbs:** level field `tiers` (1 easy to 3 hard; editor toolbar
+  "Verbs") or a hand-written `verbs` list, optional `forms`. Nothing set
+  = all verbs.
+- **Questions** (`src/data/questions.js`) come from
+  `/lib/krabsy-questions.js` (chain shape) on the site; served alone
+  (dev) that import 404s and 15 inline verbs are used. Prompt is
+  `go → ___ → gone` or `go → went → ___`; after every answer the full
+  chain shows (with the wrong word and ✗ after a miss).
+- **Respawn:** last checkpoint touched, else the spawn. Clearing a gate
+  makes its correct block the checkpoint. Put a `checkpoint` object on
+  the platform before each gate (feet height: platform top + 1), or a
+  miss sends the player back a whole section. On respawn, uncleared
+  gates get their fallen blocks back.
+- Platform `position` is the bottom of the piece; a `…x1` piece at y 0
+  has its top at y 1. Red platforms outside gates still fall on contact
+  (old mechanic, with hand-typed `answer-label`s); prefer `gate`.
+- `window.__krabsyDebug` and the `krabsy-teleport` event exist for
+  automated play-tests.
 
 What a level-design session should do:
 
@@ -52,11 +90,10 @@ What a level-design session should do:
    re-release (suggestion: 6–8), about 2–3 minutes each, one new idea per
    level (moving platforms, turns, height, a shortcut, a timed stretch),
    difficulty rising with the verb tier.
-3. Decide **who builds levels**: the owner in the editor, the session by
-   writing level JSON, or both. If the owner builds, the editor's open
+3. **Who builds levels: both** (owner decision 2026-11-21) — the owner
+   in the editor, the session by writing level JSON. The editor's open
    items in `WORK_LOG.md` (save in place, auto-reload playtest) matter.
-4. Make the menu load editor-format JSON levels from `assets/levels/`, so
-   a new level is one file plus one line.
+4. ~~Menu loads JSON levels from `assets/levels/`~~ **done 2026-11-21.**
 5. Check the game against the site rules (not verified yet): questions
    without grammar terms (`go → ___ → gone`), full chain after a wrong
    answer, question data from `homepage/lib/krabsy-questions.js`, UI in
@@ -94,17 +131,12 @@ load with 0 console errors, 0 failed requests, 0 external requests.
 
 - **Not tested on real devices.** Joystick, look-drag and jump were only
   driven by simulated touches. Owner: try a tablet and a phone.
-- **Small text on phones:** the question sign and answer bubbles are
-  world-space and get tiny at 844×390. Needs a HUD question on small
-  screens or bigger signs.
-- **Two level formats.** Built-in levels (`src/levels/*.js`) have gates,
-  a question queue, checkpoints and a progress bar. Editor levels
-  (`assets/levels/*.json`) have none of that: answers are hand-typed
-  labels, `gateCount` is 0. `level1.json` is a test piece without a flag.
-  Decide which format real levels use before building any.
-- **Questions:** 15 inline verbs in `src/data/questions.js`, simple past
-  only (`go → ___`), nonsense distractors ("wented"). Site rule is
-  `go → ___ → gone` from `krabsy-questions.js`, full chain after a miss.
+- **Small text on phones:** the question now also shows in the HUD when
+  the screen is under 500 px high. The answer bubbles are still
+  world-space and small on phones.
+- **Moving platforms in the JSON format** (and then Levels 2 and 3 as
+  JSON; delete `src/levels/` and the legacy loader path afterwards).
+- **Falling red platforms outside gates do not come back on respawn.**
 - **UI is English only**, system font, title "Krabsy 3D".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
   sets of every piece). `assets/sprites/skybox.png` (3.9 MB), `coin.png`

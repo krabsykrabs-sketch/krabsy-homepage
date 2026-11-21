@@ -16,6 +16,9 @@ const SYNTH_ENTRIES = [
   { type: 'spawn',        category: 'special', icon: '⚑',  singleton: true,  colors: [], label: 'spawn' },
   { type: 'answer-label', category: 'special', icon: '💬',                    colors: [], label: 'answer-label' },
   { type: 'checkpoint',   category: 'special', icon: '◉',                     colors: [], label: 'checkpoint' },
+  // Answer gate: three red answer blocks + question sign. The game fills in the verb and the
+  // three words at play time (see src/data/questions.js), so nothing has to be typed here.
+  { type: 'gate',         category: 'special', icon: '❓',                     colors: [], label: 'answer gate', half: { x: 4.5, z: 1 } },
 ];
 
 // Prefab catalog. Each prefab places multiple objects at fixed offsets relative to the cursor.
@@ -268,6 +271,10 @@ const state = {
   levelName: 'Untitled Level',
   levelId:   'untitled-level',
   topic:     'irregular_verbs',
+  // Which verbs the gates of this level ask (level JSON: tiers / verbs / forms). null = all.
+  tiers:   null,
+  verbs:   null,
+  forms:   null,
   objects: new Map(),    // id -> object record
   spawn:   null,         // { id, position }
   flag:    null,         // { id, position }
@@ -283,6 +290,8 @@ const state = {
   // Persisted in level JSON under data.prefabs.
   userPrefabs: [],
 };
+
+const VERB_SETS = { all: null, '1': [1], '1-2': [1, 2], '2': [2], '2-3': [2, 3], '3': [3] };
 
 // Dirty flag as an accessor so every existing `state.dirty = …` write also refreshes the
 // tab-title indicator — the one place the user can see unsaved state at a glance.
@@ -421,6 +430,8 @@ async function spawnRec(data, { suppressUndo = false } = {}) {
     mesh = makeLabelSprite(data.text || 'word', data);
   } else if (data.type === 'checkpoint') {
     mesh = makeCheckpointMarker();
+  } else if (data.type === 'gate') {
+    mesh = makeGateMarker(data);
   } else if (asset.colors && asset.colors.length > 0) {
     // KayKit asset — resolve URL from (type, color).
     const color = data.color || asset.defaultColor;
@@ -514,6 +525,26 @@ function makeSpawnMarker() {
   );
   flag.position.set(0.45, 1.45, 0);
   group.add(flag);
+  return group;
+}
+
+// Stand-in for an answer gate: the three answer blocks at the exact spots the game puts them
+// (lanes at x = -3.5 / 0 / +3.5, tops at y + 1) and the question sign above the middle one.
+function makeGateMarker(data = {}) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: 0xc9453a });
+  for (const x of [-3.5, 0, 3.5]) {
+    const block = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), mat);
+    block.position.set(x, 0.5, 0);
+    group.add(block);
+    const word = makeLabelSprite('word', { fontSize: 'medium', color: 'white' });
+    word.position.set(x, 2.2, 0);
+    group.add(word);
+  }
+  const sign = makeLabelSprite(data.verb ? `${data.verb} → ___` : 'verb → ___', { fontSize: 'large', color: 'yellow' });
+  sign.position.set(0, 4.5, 0);
+  sign.scale.setScalar(1.6);
+  group.add(sign);
   return group;
 }
 
@@ -702,6 +733,8 @@ async function setPlacementPreview(asset) {
     placementPreview = makeLabelSprite('label', {});
   } else if (asset.type === 'checkpoint') {
     placementPreview = makeCheckpointMarker();
+  } else if (asset.type === 'gate') {
+    placementPreview = makeGateMarker();
   } else if (asset.type === 'spawn') {
     placementPreview = makeSpawnMarker();
   } else if (asset.kind === 'prefab') {
@@ -1919,7 +1952,24 @@ function refreshProperties() {
     // not scale (size is controlled via the Font field instead).
     if (rec.data.type !== 'checkpoint' && rec.data.type !== 'spawn') {
       addRotationEditor(body, [id]);
-      if (rec.data.type !== 'answer-label') addScaleEditor(body, [id]);
+      if (rec.data.type !== 'answer-label' && rec.data.type !== 'gate') addScaleEditor(body, [id]);
+    }
+    if (rec.data.type === 'gate') {
+      // Both optional. Empty verb = the game picks one from the level's verb set.
+      body.appendChild(makeRow('Verb', textInput(rec.data.verb || '', v => {
+        pushUndo();
+        const verb = v.trim().toLowerCase();
+        if (verb) rec.data.verb = verb; else delete rec.data.verb;
+        rebuildGate(rec);
+        state.dirty = true;
+      })));
+      const BLANKS = { 'mixed': null, '2nd word (go → ___ → gone)': 'past', '3rd word (go → went → ___)': 'participle' };
+      const current = Object.keys(BLANKS).find(k => BLANKS[k] === (rec.data.form || null));
+      body.appendChild(makeRow('Blank', selectInput(Object.keys(BLANKS), current, v => {
+        pushUndo();
+        if (BLANKS[v]) rec.data.form = BLANKS[v]; else delete rec.data.form;
+        state.dirty = true;
+      })));
     }
     // Color dropdown for KayKit assets with variants.
     const catalogEntry = CATALOG_BY_TYPE[rec.data.type];
@@ -2085,6 +2135,19 @@ async function reloadObjectMesh(rec) {
   // Propagate the new mesh to whichever back-store owns this record.
   if (rec.type === 'flag') state.flag._mesh = newMesh;
   else rec.mesh = newMesh;   // regular state.objects entry — rec is the record itself
+  refreshAll();
+}
+
+function rebuildGate(rec) {
+  const old = rec.mesh;
+  const idLabel = rec.idLabel;
+  const mesh = makeGateMarker(rec.data);
+  mesh.position.copy(old.position);
+  mesh.rotation.copy(old.rotation);
+  if (idLabel) { old.remove(idLabel); mesh.add(idLabel); }
+  scene.remove(old);
+  scene.add(mesh);
+  rec.mesh = mesh;
   refreshAll();
 }
 
@@ -2554,6 +2617,8 @@ async function newLevel() {
   state.nextSeq = {};
   state.levelName = 'Untitled Level';
   state.levelId = 'untitled-level';
+  state.tiers = null; state.verbs = null; state.forms = null;
+  syncVerbSetSelect();
   state.dirty = false;   // after the name so the title indicator shows the new name
   // Clear user prefabs too — they're per-level (stored in the level JSON).
   state.userPrefabs = [];
@@ -2590,6 +2655,10 @@ async function loadFromData(data) {
   state.levelName = data.name || 'Untitled Level';
   state.levelId   = data.id   || 'untitled-level';
   state.topic     = data.topic || 'irregular_verbs';
+  state.tiers     = Array.isArray(data.tiers) ? data.tiers : null;
+  state.verbs     = Array.isArray(data.verbs) ? data.verbs : null;
+  state.forms     = Array.isArray(data.forms) ? data.forms : null;
+  syncVerbSetSelect();
   document.getElementById('level-name').value = state.levelName;
   if (data.spawn?.position) await setSpawn(data.spawn.position, data.spawn.id, { suppressUndo: true });
   if (data.flag?.position) {
@@ -2654,11 +2723,33 @@ function slugify(s) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled';
 }
 
+// Toolbar "Verbs" select <-> state.tiers. A hand-written `verbs` list in the JSON wins in the
+// game; the select then shows "custom list" and leaves it alone.
+function syncVerbSetSelect() {
+  const sel = document.getElementById('verb-set');
+  if (!sel) return;
+  const custom = sel.querySelector('option[value="custom"]');
+  custom.hidden = !state.verbs;
+  if (state.verbs) { sel.value = 'custom'; return; }
+  const key = Object.keys(VERB_SETS).find(k => JSON.stringify(VERB_SETS[k]) === JSON.stringify(state.tiers));
+  sel.value = key || 'all';
+}
+document.getElementById('verb-set').addEventListener('change', (ev) => {
+  if (ev.target.value === 'custom') return;
+  state.verbs = null;
+  state.tiers = VERB_SETS[ev.target.value];
+  syncVerbSetSelect();
+  state.dirty = true;
+});
+
 function exportData() {
   return {
     id: slugify(state.levelName),
     name: state.levelName,
     topic: state.topic,
+    ...(state.tiers ? { tiers: state.tiers } : {}),
+    ...(state.verbs ? { verbs: state.verbs } : {}),
+    ...(state.forms ? { forms: state.forms } : {}),
     spawn: state.spawn ? { id: state.spawn.id, position: state.spawn.position } : { id: 'spawn_1', position: [0, 2, 0] },
     objects: [...state.objects.values()].map(rec => ({ ...rec.data })),
     flag: state.flag ? {

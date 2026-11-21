@@ -1,11 +1,31 @@
 import { createGame } from './src/game.js';
 import { createMenu, markCompleted } from './src/menu.js';
 import { createUI } from './src/ui.js';
-import level1 from './src/levels/level-1.js';
 import level2 from './src/levels/level-2.js';
 import level3 from './src/levels/level-3.js';
 
-const LEVELS = [level1, level2, level3];
+// Levels are editor-format JSON files in assets/levels/, listed in assets/levels/index.json.
+// A new level = one file + one line in that list. Levels 2 and 3 are still the old built-in
+// layouts (they use moving platforms, which the JSON format does not have yet).
+const LEGACY_LEVELS = [level2, level3];
+
+async function loadJsonLevels() {
+  try {
+    const dir = './assets/levels/';
+    const files = await (await fetch(`${dir}index.json`, { cache: 'no-cache' })).json();
+    const levels = await Promise.all(files.map(async f => {
+      const lvl = await (await fetch(dir + f, { cache: 'no-cache' })).json();
+      if (!lvl.id) lvl.id = f.replace(/\.json$/, '');
+      if (!lvl.name) lvl.name = lvl.id;
+      return lvl;
+    }));
+    return levels;
+  } catch (e) {
+    console.warn('[krabsy3d] could not load assets/levels/index.json', e);
+    return [];
+  }
+}
+const LEVELS = [...await loadJsonLevels(), ...LEGACY_LEVELS];
 
 const canvas = document.getElementById('game');
 
@@ -60,13 +80,15 @@ function returnToMenu() {
 
 game.setHandlers({
   onFall: () => { ui.deathFlash(); },
-  onGateCleared: (cleared, total) => {
+  onGateCleared: (cleared, total, question) => {
     // currentGate is 1-based (the next gate to attempt).
     ui.setProgress(cleared + 1, total);
+    // Teach beat: the full chain, in green.
+    if (question) ui.showAnswerReveal(question.chain, null);
   },
   onGateWrong: (question, opt) => {
-    // Show the word the player actually stepped on (with a red ✗), not the correct answer.
-    ui.showAnswerReveal(question.verb, opt?.text ?? question.correct, opt ? !!opt.correct : false);
+    // Teach beat: the word the player stepped on (red ✗) and the full chain.
+    ui.showAnswerReveal(question.chain, opt?.text ?? null);
   },
   onComplete: (levelId) => {
     markCompleted(levelId);

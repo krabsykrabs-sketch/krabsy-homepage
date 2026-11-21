@@ -85,32 +85,47 @@ function makeAnswerBubble(text) {
   return { group, sign, mats: [mat] };
 }
 
-async function spawnOption(scene, world, RAPIER, gatePos, optData, { noSignposts = false } = {}) {
+// Turn a collider to the gate's yaw (answer blocks are square, so this only matters for
+// gates placed at odd angles).
+function setYaw(body, rotY) {
+  if (!rotY) return;
+  body.setRotation({ x: 0, y: Math.sin(rotY / 2), z: 0, w: Math.cos(rotY / 2) }, true);
+}
+
+// rotY (radians) turns the whole gate around its centre: 0 = the three answers spread along X
+// and are read by a player coming from +Z; 90° = spread along Z, read from +X.
+async function spawnOption(scene, world, RAPIER, gatePos, optData, { noSignposts = false, rotY = 0 } = {}) {
   const def = FALLING_DEF;
+  const cos = Math.cos(rotY), sin = Math.sin(rotY);
+  const [ox, oy, oz] = optData.offset;
   const pos = {
-    x: gatePos[0] + optData.offset[0],
-    y: gatePos[1] + optData.offset[1],
-    z: gatePos[2] + optData.offset[2],
+    x: gatePos[0] + ox * cos + oz * sin,
+    y: gatePos[1] + oy,
+    z: gatePos[2] - ox * sin + oz * cos,
   };
 
   const mesh = await loadModel(def.url);
   // Convention: pos.y = mesh-bottom anchor. Mesh sits AT pos.y; walkable top = pos.y + height.
   mesh.position.set(pos.x, pos.y, pos.z);
+  mesh.rotation.y = rotY;
   scene.add(mesh);
 
   const colliderCenter = { x: pos.x, y: pos.y + def.half.y, z: pos.z };
   const phys = addStaticBox(world, RAPIER, colliderCenter, def.half);
+  setYaw(phys.body, rotY);
 
   let post = null;
   if (!noSignposts) {
     post = makeAnswerBubble(optData.text);
     // The answer-bubble sign sits a little above the walkable top.
     post.group.position.set(pos.x, pos.y + def.height, pos.z);
+    post.group.rotation.y = rotY;
     scene.add(post.group);
   }
 
   return {
     pos, half: def.half, top: pos.y + def.height,
+    rotY,
     colliderCenter,                     // cached so reset() can rebuild the collider after a fall
     mesh, body: phys.body, collider: phys.collider,
     post,
@@ -126,7 +141,7 @@ async function spawnOption(scene, world, RAPIER, gatePos, optData, { noSignposts
 
 export async function spawnGate(scene, world, RAPIER, particles, sfx, gateData, callbacks = {}, options = {}) {
   const opts = await Promise.all(
-    gateData.options.map(opt => spawnOption(scene, world, RAPIER, gateData.position, opt, options))
+    gateData.options.map(opt => spawnOption(scene, world, RAPIER, gateData.position, opt, { ...options, rotY: gateData.rotY || 0 }))
   );
   return new AnswerGate(scene, world, RAPIER, particles, sfx, opts, gateData.question, callbacks);
 }
@@ -144,7 +159,7 @@ export class AnswerGate {
     this.particles = particles;
     this.sfx = sfx;
     this.options = options;
-    this.question = question;       // { verb, correct }
+    this.question = question;       // see data/questions.js
     this.callbacks = callbacks;
     this.cleared = false;
   }
@@ -236,6 +251,7 @@ export class AnswerGate {
       // A crumbled/fallen block had its rigid body removed — rebuild it from the cached center.
       if (!opt.body) {
         const phys = addStaticBox(this.world, this.RAPIER, opt.colliderCenter, opt.half);
+        setYaw(phys.body, opt.rotY);
         opt.body = phys.body;
         opt.collider = phys.collider;
       }

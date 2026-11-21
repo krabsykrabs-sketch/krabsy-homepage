@@ -222,11 +222,11 @@ export async function createGame(canvas) {
     lastCheckpoint = null;
     gatesCleared = 0;
     currentLevel = await loadLevel(scene, world, RAPIER, particles, sfx, data, {
-      onGateCleared: (gateIdx, checkpointPos) => {
+      onGateCleared: (gateIdx, checkpointPos, question) => {
         gatesCleared = gateIdx + 1;
         if (checkpointPos) lastCheckpoint = checkpointPos;
         currentLevel?.markCleared(gateIdx);
-        onGateCleared(gatesCleared, currentLevel.gateCount);
+        onGateCleared(gatesCleared, currentLevel.gateCount, question);
       },
       onGateWrong: (gateIdx, question, opt) => {
         // Commit the player to the fall: freeze controls so they can't hop off the crumbling block.
@@ -285,6 +285,9 @@ export async function createGame(canvas) {
     setHudQuestion?.(null);
     if (document.pointerLockElement) document.exitPointerLock();
   }
+
+  // Dev hook for automated play-tests: read-only view of the running level and player.
+  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive };
 
   // Dev hook: lets a URL param teleport the player after the level loads (for screenshots).
   window.addEventListener('krabsy-teleport', (e) => {

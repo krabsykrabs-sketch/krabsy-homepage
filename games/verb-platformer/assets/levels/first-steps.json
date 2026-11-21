@@ -1,0 +1,177 @@
+{
+ "id": "first-steps",
+ "name": "First Steps",
+ "topic": "irregular_verbs",
+ "tiers": [
+  1
+ ],
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0,
+    0,
+    -5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0,
+    2,
+    -5
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0,
+    0,
+    -10
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0,
+    0,
+    -15
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_4x4x1",
+   "position": [
+    0,
+    0,
+    -20
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    0,
+    2,
+    -20
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    0,
+    0,
+    -25
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    0,
+    0,
+    -30
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_4x4x1",
+   "position": [
+    0,
+    0,
+    -35
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    0,
+    2,
+    -35
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    0,
+    0,
+    -40
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    -46
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "blue",
+  "position": [
+   0,
+   1,
+   -46
+  ]
+ },
+ "prefabs": []
+}
