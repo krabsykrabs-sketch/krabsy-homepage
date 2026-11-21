@@ -217,6 +217,525 @@ welcome alternative to choice chips.
 
 ## Status log
 
+- 2026-07-02 — **Improvement triple (from a whole-project review; all verified in
+  a live browser via the preview tools + `__VK`): persistent spaced repetition +
+  Cookbook, full DE/ES localization, cosmetic ticket patience + frantic layer.**
+  - **Persistent spaced repetition (the learning gap).** `save.missed` had been
+    written since v1 but never READ. Now: up to 3 previously-missed verbs seed
+    each round's sink questions first (sub caption "📖 from your cookbook!",
+    `seedPractice` in verbs.js — consumes no rng draws when empty, so seeded QA
+    scenes are unaffected). Mastery rule: a practice ask answered RIGHT =
+    recalled across rounds → the verb leaves `save.missed`; the in-round re-ask
+    right after seeing the answer does NOT count (practiceKeys deleted on first
+    showing). Misses persist immediately (quit-safe). **New Cookbook screen**
+    (buttons on the start screen + post-level recap): all 46 chains, the
+    practice list pulled out on top in a coral box; the recap now appends
+    "+ N more in the Cookbook" instead of silently truncating at 6. New
+    `?qa=cookbook` scene; `__VK.practiceKeys()/missedSaved()` hooks.
+  - **DE/ES localization (new `src/i18n.js`).** EVERY player-facing string:
+    menus, level grid, shop, cookbook, post screen, sink quiz, per-level recipe
+    cards (title+text), guided-tutorial steps, all ~30 hint-bar strings, FX
+    pops, loading messages, ticket dish names. `?lang=de|es|en` (persisted →
+    the site's per-language wrappers set it once) > saved > browser language;
+    EN fallback everywhere. Static nodes carry `data-i18n` (swapped once by
+    `applyStatic()` at boot); the "Perfect washing!" CSS content moved to
+    `attr(data-empty)`. The "simple past"/"past participle" captions are
+    deliberately untranslated (textbook terms; presentation mandate). Dish
+    names via `dishName(id, fallback)`; recipe cards via `levelTut(level)`
+    (image stays in levels.js).
+  - **Cosmetic ticket patience + frantic layer (the chaos gap).** Tickets get a
+    draining patience bar (90s default, `level.patience` overridable), a mood
+    emoji 😊→😐→😟→😠, amber fill <50%, coral + shake <25% — NOTHING expires
+    (the fixed-order race mode stays leaderboard-safe). Fast serves earn a
+    patience tip (up to +8🪙, 😊 in the score pop at ≥6). During sink questions
+    patience drains at 30% (the brief's original intent) and frantic is
+    suppressed. `audio.frantic()` (dead code until now) + a pulsing coral timer
+    pill now trigger when any customer is <25% OR 3 tickets + smoke; cleared on
+    round end/quit. Dirty plates now CLATTER onto the sink pile (was the
+    generic putdown thud).
+  - **Bug found & fixed by the regression pass:** the i18n import `t` was
+    shadowed by locals in `game.update`/`endRound` (TDZ) → the ready/burnt pops
+    threw the moment anything finished cooking. Locals renamed (`tile`/`time`);
+    every other t()-calling module audited clean. Also deleted two stray
+    `*(2).json:Zone.Identifier` junk files from `levels/`.
+  - **Verified** (preview_eval + `__VK`, zero console errors throughout):
+    practice seed→mastery→persistence round-trip incl. the wrong-path re-ask;
+    cookbook nav from start/post; DE (menus, tickets, pot/sink hints, tutorial
+    banner, quiz), ES (recipe card, menus), EN regression; patience bands at
+    90/40/20s; 30% drain during questions; frantic on/off incl. the smoke+3-
+    tickets path; endRound post screen. GOTCHA reconfirmed: the preview panel
+    caches ES modules hard — `fetch(f,{cache:'reload'})` then reload; the
+    in-panel screenshot tool still hangs (use preview_snapshot / headless Edge).
+  - **Still open (from the same review, not done today):** star times remain
+    placeholders on all 7 levels (biggest tuning debt; consider a `__VK` bot to
+    set author times); guided first-encounter coaching for stove/oven/pot/
+    drizzle on levels 2–7; no pause menu; the touch quiz still shows 1/2/3 key
+    hints; the site question engine (`/lib/krabsy-questions.js`) is still not
+    integrated (inline verbs only); levels 8–10 placeholders (sandwich = the
+    one genuinely new pipeline the pack supports).
+
+- 2026-06-19 — **Ice Cream (L7) REBUILT from the user's `Ice.json` — editor JSON
+  layout, bowls, cold scoop-assembly.** The Sundae level is now an editor-JSON
+  layout (`levels/icecream7.json`, `vessel:'bowl'`) replacing the old ASCII map.
+  - **From the user's `Ice.json`, completed to be engine-playable.** Their layout
+    only floored cols 1–6/rows 1–4, leaving the sink + front counters OFF the
+    floor (so no stations). I completed the floor to a full **8×6 rectangle** (so
+    the sink, front counters and trash all sit on floor and get stations),
+    swapped the placeholder `bowl_small` for a **dishrack** at (7,4) as the
+    clean-bowl source, and dropped the two decorative cones that sat on the
+    serving-hatch tiles. Kept all the user's flavour tubs + ice-cream decor.
+  - **Three flavour tubs** on the left wall — `icecream_container_icecream_{vanilla,
+    strawberry,chocolate}` at (1,2)/(1,3)/(1,4). New `world.typeOf` rule:
+    `icecream_container_icecream*` → a crate dispensing the matching `scoop_*`
+    (CRATE_MODELS already mapped scoops → those container models, so the reverse
+    lookup just works).
+  - **Cold assembly (the salad pattern, reused unchanged):** grab a clean BOWL
+    from the rack, scoop flavours from the tubs (each `scoop_*` is a plateable
+    grabbed from its crate), drop them on the bowl in any order, it matches a
+    sundae DISH, serve at the hatch → dirty bowl → sink quiz. Served in bowls via
+    the `vessel:'bowl'` system (the finished `icecream_bowl_*` model renders as the
+    bowl itself). NO stove/board/oven — pure cold assembly.
+  - **Dishes simplified to scoop SETS** (the editor layout has no cherry/syrup
+    source): **Vanilla Scoop** = {vanilla} (20🪙, bowl_icecream_vanilla); **Berry
+    Duo** = {strawberry, chocolate} (32🪙, bowl_cherries); **Neapolitan** =
+    {vanilla, chocolate, strawberry} (44🪙, bowl_decorated_A). The `cherry` /
+    `choc_syrup` / `syrup` ITEMS + the drizzle code stay defined for when a topping
+    source is added back. 6 orders · 2 bowls.
+  - **Assets copied** (gitignored): `icecream_container`, `icecream_cone_stacked`,
+    `icecream_bowl_{waffles,cookiesticks}`, `food_icecream_cone_{vanilla,chocolate,
+    strawberry}` (the flavour tubs / decorated bowls / scoop / bowl / bowl_dirty
+    were already in).
+  - **Verified** headless-Edge (CDP) `?qa=icecream`: boots clean (only favicon
+    404), station census = **3 crate (the tubs) / sink / rack / 2 hatch / trash /
+    0 stove-board-oven**; crates dispense vanilla/strawberry/chocolate; a full
+    DRIVEN loop passed — grab bowl → park on counter → scoop V+C+S (V alone =
+    sundae_vanilla, all three = Neapolitan) → serve (1) → dirty bowl returns.
+    Screenshot shows the parlour (tubs, decor cones/bowls, sink + clean-bowl
+    stack, trash). Files: `recipes.js` `world.js` `levels.js` `qa.js` +
+    `levels/icecream7.json`.
+  - **Open / to weigh in (decisions I made — user will refine):** no cherry/syrup
+    source in the layout → dishes are scoop-only (add a topping crate + restore
+    the cherry/deluxe dishes when wanted); the right edge has a thin dead floor
+    strip (col 8) from the 2×2 floor tiles; decorative topping bowls sit on the
+    front work counters (cosmetic); star times are placeholders; the old ASCII
+    Sundae map is gone (replaced by the JSON).
+
+- 2026-06-19 — **Soup (L6) REBUILT from the user's `Soup6.json` — Overcooked
+  stove-pots + BOWLS + two recipes.** The soup level is now an editor-JSON layout
+  (`levels/soup6.json`, `vessel:'bowl'`) instead of ASCII. Big changes:
+  - **Two empty pots live ON the two stoves at start** (`startItems` place
+    `pot_empty` on each stove; `pot_empty` model = `pot_B`). New
+    `game.potStoveInteract`: tip a veg into a stove-pot (E) → combine; a COMPLETE
+    recipe **auto-boils** in place; the cooked soup is **scooped into a clean
+    bowl** (pot stays on the stove, empties → `pot_empty`, reused — user's choice
+    "stays empty, reuse it"). Pots can't be picked up (permanent fixtures).
+  - **TWO recipes share four veg** (`recipes.js` rewrite): carrot + potato →
+    `pot_soup_cp`/`cp_soup` (orange `food_stew`); onion + mushroom →
+    `pot_soup_om`/`om_soup` (same model TINTED creamy `#e9dcb6` — user: "tint the
+    stew a new colour", no AI art). `buildPotStates` now only generates VALID
+    states (empty, each single veg, the two pairs) — a one-veg pot accepts ONLY
+    its partner, so cross-recipe mixes (carrot+onion) are impossible.
+  - **Interim pot visual = tinted BROTH disc + the veg** (`composePot`): a
+    half-filled pot shows broth coloured by its recipe (orange vs creamy) + the
+    one veg, so "soup forming without the second veg" reads at a glance, distinct
+    by colour (the user's interim-step + colour requirement).
+  - **BOWLS replace plates** for this level: module-level `VESSEL`/`setVessel` in
+    `stations.js` (set from `level.vessel` in `startLevel`). Clean bowl = `bowl`,
+    dirty = `bowl_dirty`, soup-in-bowl renders the `food_stew` model directly (it
+    IS a bowl of soup; tinted for OM). **Dish rack removed** (world.js suppresses
+    the `dishrack` model on bowl levels) — clean bowls just STACK where it was;
+    dirty bowls nest on the RIGHT of the sink (`refreshStack` vessel-aware).
+  - **Cutting boards (added 2026-06-19, user: "we forgot the cutting boards").**
+    Two `cuttingboard`s sit on the central island (JSON 3,3 / 4,3, on the
+    outercorner counters) with an auto-placed knife each — same as every other
+    level. Veg are chopped there (two-stage chop) and the CHOPPED form is tipped
+    into a stove-pot (`POT_ADDERS` = chopped-only again, so the boards are
+    load-bearing). Pot renders the veg as cut pieces (`POT_VEG_MODELS`, incl.
+    mushroom).
+  - **world.js**: `typeOf` infers `stove_*` → 'stove' (+ PRI + a measured stove
+    topY) for JSON levels. **Assets copied**: `stove_single` + the styleB
+    backsplash counters/sink/innercorner (gltf+bin); `pot_B`/`pot_B_stew`/`bowl`/
+    `bowl_dirty`/`food_stew`/`mushroom_pieces` already present. `bowl`/`bowl_dirty`
+    added to the preload manifest.
+  - **Verified**: pure-logic harness (37 asserts: valid/invalid pot states, raw
+    & chopped adds, recipe boils, scoop targets, dish match, tints, manifest) all
+    pass; headless-Edge (CDP) `?qa=soup` boots clean (only a favicon 404), station
+    census = **4 crate / 2 stove (pots) / sink / rack / 2 hatch / trash**, both
+    pots + the bowl-of-soup render; a full DRIVEN loop passed: raw carrot →
+    `potwip_carrot` → raw potato → `potwip_carrot_potato` (auto-cooking) → boil →
+    `pot_soup_cp` → scoop → `carrot_potato_soup` bowl + pot reset → serve (1) →
+    dirty bowl returns. Burger (plate) level regression clean. Files: `recipes.js`
+    `stations.js` `game.js` `world.js` `levels.js` `qa.js` + `levels/soup6.json`.
+  - **Open / to weigh in:** star times are placeholders; the OM bowl is the same
+    `food_stew` model tinted creamy (swap if you want distinct art); 6 orders
+    (3 of each recipe) · 2 bowls.
+
+- 2026-06-17 — **Soup (L6) FIX (user: "can't place anything into the pots; the
+  stoves show pans").** Diagnosed headless: the pot-fill combine WORKED but only
+  on a counter — holding the pot and pressing E on a chopped veg sitting on a
+  CUTTING BOARD did nothing (boards had no combine path), which is the natural
+  move, so it felt broken. Fixes: (a) `game.js` board case now combines a held
+  composite (pot / pizza base / bun) with a chopped item on the board — "tip the
+  veg straight into the pot"; added a matching hint ("E — add to the pot 🍲").
+  (b) New `level.bareStoves` flag hides the decorative `pan_A`; set on the soup
+  level so its stoves are bare hobs you set your own POT on (no misleading pans).
+  Tutorial reworded. Verified headless: holding a pot + E on a board onion →
+  `potwip_onion`; stoves render as bare burners. Files: `game.js` `world.js`
+  `levels.js` `qa.js`.
+
+- 2026-06-17 — **Sundae (L7): reusable chocolate-syrup DRIZZLE added** (user
+  feedback — keep depth as-is for playtest, but add a sauce drizzle as the
+  deluxe step). New `choc_syrup` item = reusable bottle (ketchup model tinted
+  dark, `drizzle: 'syrup'`) + `syrup` content (tomato-sauce blob tinted dark,
+  copied that model in). `game.counterInteract` got a small DRIZZLE branch: a
+  `drizzle` bottle (held OR on the counter) adds its sauce to a plated
+  dish-in-progress and is NOT consumed (either orientation, like the pizza
+  ketchup). `sundae_deluxe` now requires `syrup` (parts +syrup, 45🪙,
+  icons 🍫🍓🍒🍯); one bottle pre-placed on a counter via `startItems` (6,2).
+  Verified headless: drizzle → contents `…+syrup`, dish `sundae_deluxe`, bottle
+  kept in hand. Files: `recipes.js` `game.js` `levels.js` `qa.js`.
+
+- 2026-06-17 — **Integration pass (master session) for Levels 6 + 7.** The soup
+  + sundae levels were built by two parallel sub-sessions (one at a time, in the
+  real checkout) and integrated here. (a) **Soup chops → TWO-STAGE** per user:
+  onion/carrot/potato now `raw → _half (interim, the diced look) → _chopped
+  (final: rings/pieces/mashed)`, matching the lettuce/cheese pattern; copied
+  `food_ingredient_{onion_rings,carrot_pieces,potato_mashed}` into the gitignored
+  model working copy and pointed `POT_VEG_MODELS` at them (final ids unchanged →
+  pot logic untouched). (b) Verified both levels render headless with no missing
+  models (soup pot of chopped veg + plated soup bowl; sundae cold-assembly
+  layout w/ no cook stations). Both levels coexist cleanly (sequential commits,
+  separate level objects/items). Open soup tuning kept (single recipe,
+  onion+carrot+potato). Sundae's own open questions still pending user input.
+- 2026-06-17 — **Level 7 "Sundae Sunday" — the FIRST cold-assembly level (no
+  cooking, no chopping).** Single player. Proves the assemble→serve→wash loop
+  works with NO stove / board / oven present — pure SALAD pattern, but cold.
+  **Recipe / assembly flow:** scoops are `plateable` ingredients grabbed STRAIGHT
+  from their tubs (crates 1–3 = vanilla/chocolate/strawberry); a **cherry**
+  (crate 4) is an extra plateable topping. Grab a plate (the standard washable
+  PLATE = the bowl), spoon scoops + an optional cherry onto it in ANY order
+  (side-by-side like a salad), it matches a sundae DISH, serve at the hatch →
+  dirty plate → sink quiz (**grammar loop reused UNCHANGED** — no new vessel; the
+  plate stays the washable vessel). The plated dish renders a finished
+  ice-cream-bowl model so it READS as a bowl of ice cream sitting on the plate
+  (same bowl-on-plate look as soup; user explicitly wants the bowl, not a cone).
+  - **3 distinct sundaes** (order-free exact-set match, like the salad):
+    **Vanilla Sundae** = scoop_vanilla + cherry (25🪙, bowl_icecream_vanilla);
+    **Neapolitan Sundae** = vanilla + chocolate + strawberry (40🪙,
+    bowl_decorated_A); **Cherry Deluxe** = chocolate + strawberry + cherry
+    (40🪙, bowl_cherries). Variety: 1-scoop+topping / 3-scoop mix / 2-scoop+topping.
+  - **New items/dishes** (`recipes.js`): `scoop_vanilla` / `scoop_chocolate` /
+    `scoop_strawberry` (ONE `icecream_scoop` model TINTED cream/chocolate/pink —
+    like the burnt-item tints; all `plateable`), `cherry` (`icecream_cherry`,
+    plateable); dishes `sundae_vanilla` / `sundae_neapolitan` / `sundae_deluxe`.
+    The scoop/cherry/bowl item+dish models flow into preload via `itemModelNames()`.
+  - **Level** (`levels.js`): `{num:7, open:true}` 8×6 `style:'B'` map — 3 flavour
+    tubs + 1 cherry crate, sink/rack/hatch/trash, **NO stove/board/oven**; 6
+    sundae orders, 2 starting plates (→4 washes). `CRATE_MODELS` maps the 3 scoops
+    to filled `icecream_container_icecream_*` tub art (cherry = generic `crate`);
+    `levelModelNames()` names the 3 tub containers. Removed the `lv7` placeholder
+    (PLACEHOLDERS now 8/9/10).
+  - **NO game.js / stations.js changes** — cold assembly is the salad path
+    (plateable from crate → `plateAdd` → `matchDish` → serve), so the existing
+    crate/plate/hatch/sink code carried the whole flow exactly as predicted.
+  - **Assets copied** (gitignored working copy `assets/models/restaurant/`):
+    `icecream_scoop`, `icecream_cherry`, `icecream_bowl_icecream_vanilla`,
+    `icecream_bowl_decorated_A`, `icecream_bowl_cherries`,
+    `icecream_container_icecream_{vanilla,chocolate,strawberry}` (.gltf+.bin;
+    shared atlas already present; Zone.Identifier junk avoided; unused bowl copies
+    pruned).
+  - **QA** (`qa.js`): `?qa=icecream` (and `level7`) scene → level index 6 — spawns
+    2 sundae tickets and stages a finished sundae (plated/bowl look), a part-built
+    one (2 scoops, no cherry), and a loose cherry; ticks.
+  - **Verified:** `node --check` clean on all 3 changed files; a pure-logic Node
+    harness asserted plateable flags, order-free `matchDish` for all 3 sundaes,
+    partial sets = no dish, step-by-step assembly via `canPlate`+`plateAdd`, all
+    sets distinct, and the preload manifest. Headless-Edge `?qa=icecream`
+    (swiftshader) + a CDP driver: scene boots `READY`, **0 console errors**, no
+    `[VK] model not preloaded`; station census = 4 crate / sink / rack / 2 hatch /
+    trash and **0 stove / 0 board / 0 oven** (cold-assembly layout confirmed);
+    crates = the 3 scoops + cherry. Drove the loop: built a sundae plate (real
+    `plateAdd`) → served at the hatch → **served 0→1, score 45** (deluxe 40 +
+    in-order 5) → tick → **dirty plate returned to the sink** → **sink question
+    opened** → a correct answer **banked washProgress 1/3** (the 3-correct→plate
+    completion + dish-agnostic sink quiz are shared, unchanged code already
+    verified on the soup/burger levels). Files: `recipes.js` `levels.js` `qa.js`.
+  - **Open / to weigh in (design guesses I made — DECIDE THESE):**
+    1. **Does the no-cook/no-chop level feel substantial enough?** It's the
+       thinnest pipeline yet — grab-plate → spoon 1–3 scoops (+cherry) → serve.
+       Depth comes only from VARIETY (3 sundaes) + the cherry assembly step +
+       washing (4 washes). It may play fast/easy; if it feels thin, options:
+       add a 4th flavour / a 2nd topping (sprinkles or a sauce-bottle drizzle
+       like ketchup — assets exist), tighten spawn timing, or require more scoops.
+    2. **Topping/variety mechanic chosen:** a single plateable **cherry** (one
+       extra assembly step on 2 of the 3 sundaes). I did NOT add a reusable
+       sauce-bottle drizzle (ketchup-style `combine`) to keep it pure-salad-path
+       and code-change-free — say if you'd rather have a drizzle as the deluxe step.
+    3. **Scoop look = tinted `icecream_scoop`** (flat cream/chocolate/pink, loses
+       the atlas texture). Reads clearly as a scoop ball but is flat-shaded; the
+       pack has no per-flavour standalone scoop, only flavoured bowls/containers.
+       Swap to a textured option if you dislike the flat tint.
+    4. **Recipes** (which 3 sundaes / their coins), **6-order count**, **cook-free
+       star times** `[260,200,155,120]`, and **2 starting plates** are my picks —
+       all placeholders to tune from a playtest.
+    5. Plated sundae shows a **bowl-on-a-plate** (the dish bowl model rests on the
+       washable plate, same as soup) — kept deliberately so the plate stays the
+       washable vessel per your bowl-not-cone instruction.
+
+- 2026-06-17 — **Level 6 "Soup Kitchen" — a single-player vegetable-soup level.**
+  A new ASCII level (mirrors Burger Bar's structure, `style:'B'` kitchen for
+  variety) that reuses the PIZZA compositional-cook pattern, themed as a
+  pot-on-the-stove boil. **Recipe / cook flow:** grab an empty **pot** (crate 4,
+  generic crate art), chop **onion** (the ONE new ingredient) + **carrot** +
+  **potato** — each a one-stage chop (raw→`_chopped`, like tomato) — then add all
+  three to the pot in ANY order via the `accepts` mechanism (a pot-WIP's identity
+  is the SET of veg it holds, exactly like a pizza's topping set). Only the FULL
+  pot (`potwip_onion_carrot_potato`) is boilable: it has `cookTo:'soup'`
+  (cookTime 11s), so it goes on the **stove** like a patty. Boiling yields
+  **`soup`** (model `food_stew`, a bowl — `plateable`, `steamy`), which over-boils
+  to `soup_burnt` (`burnTo`, burnTime 12s → trash). Plate the soup on the normal
+  plate → serve at the hatch → dirty plate → sink quiz: **the grammar loop is
+  reused unchanged** (no new vessel system; soup is served on the standard plate).
+  Dish `garden_soup` (40🪙, `parts:['soup']`, model `food_stew`).
+  - **New items/dishes** (`recipes.js`): `onion`/`onion_chopped`,
+    `carrot`/`carrot_chopped`, `potato`/`potato_chopped`, `pot_empty` (+ generated
+    `potwip_*` subset states via `buildPotStates`, mirroring `buildPizzaStates`),
+    `soup`, `soup_burnt`; dish `garden_soup`. New exports `POT_LAYERS`,
+    `POT_VEG_MODELS`, `potWipId`. `composePot()` in `stations.js` renders the pot
+    + chopped-veg bits resting inside (mirrors `composePizza`).
+  - **Level** (`levels.js`): `{num:6, open:true}` 8×6 map — onion/carrot/potato/
+    pot crates, 2 boards, 2 stoves, sink/rack/hatch/trash; 5 soup orders, 2
+    starting plates (→3 washes). `CRATE_MODELS` + `levelModelNames()` wired for
+    onion/carrot crates + `pot_A`/`food_stew`. Removed the `lv6` placeholder.
+  - **Assets copied** (gitignored working copy `assets/models/restaurant/`):
+    `pot_A`, `food_stew`, `food_ingredient_{onion,onion_chopped,carrot,
+    carrot_chopped,potato,potato_chopped}`, `crate_onions`, `crate_carrots`
+    (.gltf+.bin; shared atlas already present; no Zone.Identifier junk).
+  - **Stove hint** (`game.js`): an incomplete pot at the stove now shows
+    "add 🧅/🥕/🥔 first" (mirrors the pizza guard). No other game.js/stations.js
+    mechanic changes — the pizza pattern carried the whole flow.
+  - **QA** (`qa.js`): `?qa=soup` (and `level6`) scene mapped to level index 5 —
+    spawns 2 soup tickets and stages a plated soup + a full pot + a chopped onion,
+    then ticks.
+  - **Verified:** `node --check` clean on all 5 changed files; a pure-logic Node
+    harness asserted the whole chain (chop → order-free pot assembly converges →
+    only the full pot boils → soup plateable/burns → `matchDish(['soup'])`=
+    garden_soup → preload manifest). Headless-Edge `?qa=soup` (swiftshader)
+    renders the kitchen + both new visuals (veg-filled pot, bowl of soup) with
+    **zero console errors and zero preload misses**; DOM shows 0/5 + 2 Garden Soup
+    tickets. Files: `recipes.js` `stations.js` `levels.js` `qa.js` `game.js`.
+  - **Open / to weigh in (design guesses I made):** see the session report —
+    pot-from-a-generic-crate, single-stage chops, 3-veg recipe (onion/carrot/
+    potato), cook/burn times, and placeholder star times are all my picks.
+
+- 2026-06-16 — **Sink quiz: answer box sizes to the answers (no 2-row wrap).**
+  User disliked the chips wrapping to two rows. `#quizCard` was fixed at
+  `max-width:480px; width:92%`; changed to `width:fit-content;
+  max-width:min(94vw,660px); min-width:min(92vw,340px)` and added
+  `white-space:nowrap` to `.chip`. The card now grows/shrinks to keep the three
+  chips on ONE row (wraps only as a last resort past the viewport). Verified
+  headless (`?qa=question`, forced triples): short go/went/gone → 1 row, card
+  479px; long understood/understanded/understand → 1 row, card 646px. Only
+  `index.html` touched.
+
+- 2026-06-16 — **SESSION WRAP — editor-JSON levels + new menu + guided tutorial
+  (read first; the co-op Level 4/5 entries below are a SEPARATE parallel
+  session).** Current lineup (`src/levels.js`): **1 Garden Bistro** (salad,
+  `levels/salad1.json`, GUIDED tutorial), **2 Burger Bar** (ASCII map), **3 Pizza**
+  (`levels/pizza3.json`, replaced the old ASCII Pizzeria), **4 Burger Co-op** +
+  **5 Split Kitchen Co-op** (the other session's ASCII+bot levels). 6–10 locked.
+  - **Editor→game JSON pipeline (the big new system).** The Krabsy Level Editor
+    (separate worktree `../restaurant-editor`, branch `editor-branch`) exports a
+    level as placed KayKit models. `World.buildFromJSON(scene)` (`src/world.js`)
+    rebuilds the scene EXACTLY per `assets/JSON Levels/LEVEL-FORMAT.md`
+    (footprints, ground/wall offsets, stacking, rotations, floor-recentre to the
+    origin) and INFERS stations from model names: `kitchencounter_sink*`→sink,
+    `pizza_oven`/`oven`→oven, `cuttingboard`→board (auto-adds a hiding knife),
+    `dishrack`→rack, `crate_<x>`→crate (item via `CRATE_MODELS`), an EMPTY
+    `crate`→trash bin (tinted `#4a5366`, 0.92), order-window counters→hatch;
+    `ketchup`→a pickable start item; walls/cabinets/pillars/an oven off the floor
+    →decor (a station is only made on a FLOOR tile). Handles a `rotX` field; skips
+    explicit `knife`/`rollingpin` objects. **To add an editor level:** drop its
+    JSON in `levels/`, add a LEVELS entry `{ jsonUrl, rotate:2 (puts the hatch at
+    the BACK — camera convention), spawn:{col,row} in JSON cell coords, orders,
+    plates, starTimes, tutorial, optional startItems:[{c,r,item}] }`, and copy any
+    models it uses that aren't already in `assets/models/restaurant/` from the
+    KayKit EXTRA pack. ASCII levels (2,4,5) still use `map`/`build()`; World
+    branches on `level.jsonUrl`.
+  - **Main menu = `assets/ChatGPT/MainMenu.png`.** ONE fixed `#menuBg` element
+    (index.html) sits behind EVERY menu screen — `ui.showScreen` toggles its
+    `.on`; the screens are transparent overlays, so switching never reloads/moves
+    the background and only a screen's own content scrolls. Title + buttons
+    centred. (Recipe cards still use `Salad/Burger/Pizza.png` in `assets/ChatGPT/`.)
+  - **Guided salad tutorial** (`src/tutorial.js`, only on `guided` levels): Level 1
+    walks the first salad (grab→chop→plate→repeat→serve→wash) with a bottom banner
+    + a bobbing 3D arrow at the target station, then frees play for the other 2.
+    Latching milestones (robust to out-of-order). Starts with 1 clean plate on a
+    counter + 1 dirty at the sink (`startItems` + `startDirty` level fields).
+  - **Also this session:** help bubbles render the actual plate/bun MODELS
+    (`src/icons.js`), not emoji; the board knife hides while chopping
+    (`st.toolMesh`); HUD = one full-width top bar (timer+orders left, coins +
+    sound/home right), bottom-left plate counter removed; mobile tap on a TALL
+    station (oven/sink) now snaps to the counter beneath it (`touch.js` pickTile,
+    when hit `y > 1.4`).
+  - **Deploy:** `bash tools/deploy-to-dev.sh verb-kitchen` (from repo root) →
+    rsyncs the folder (incl. `assets/`, EXCL `*.md`) to `../brocco-dev` + pushes →
+    Coolify auto-serves `dev.brocco.run/verb-kitchen/`. The user wants every
+    finished change committed + pushed to DEV automatically (only the real
+    krabsy.com site needs explicit approval).
+  - **Verified** via headless-Edge + `__VK`/`__touch`; zero console errors.
+    **Multi-session note:** the MASTER session released the game to the homepage
+    (`9d52df5`) + did analytics/SEO; the CO-OP session added Levels 4/5 +
+    `src/helper.js` on top — all linear on `main`; current HEAD boots & all 5
+    levels load.
+  - **Open:** star times are placeholders (Level 1 is slower now it's guided);
+    `pizza3.json` shipped WITHOUT its ketchup bottle, so it's re-added as a start
+    item — drop that if the editor exports it; portrait crops the menu image's
+    side chefs (centre wall stays). `assets/` is gitignored — images + models
+    ship via the deploy rsync, NOT git.
+
+- 2026-06-16 — **Mobile menu auto-start FIX + Level 5 compacted (user).**
+  - **Bug:** on mobile, opening the game jumped straight into a level (Level 4).
+    Cause: `tap()` (in BOTH `main.js` and `ui.js`) acted on `pointerup` with a
+    PER-ELEMENT dedupe flag, so a touch on "Play" fired pointerup→show grid, then
+    the touch's trailing GHOST click landed on the level card now under the
+    finger (its own flag was false) → auto-start. Fix: a SHARED guard
+    (`window.__touchTapAt`) — any click within 700 ms of a touch pointerup is
+    ignored, so a tap can't ghost-click a just-revealed element. Desktop (mouse)
+    path unchanged. Both `tap()`s updated.
+  - **Level 5 compacted** (user: each chef owns its room, so no need to size for
+    two in one area): map 11×8 → **9×7** (−2 w, −1 h; each wing one tile
+    narrower), helper now uses **ONE shared cutting board** (col 2) instead of 3
+    (it only chops one thing at a time), **two stoves kept**. coop coords
+    updated (pass pool col 4 ×5, board col 2, spawn/idle col 1). Verified
+    headless (`?qa=split`): 9×7, board×1, stove×2, crate×5; planner stocked the
+    3 orders' needs (cheese×2, lettuce×2, tomato×1) on the 5-tile pool, idle.
+    Files: `main.js` `ui.js` `levels.js` `qa.js`.
+- 2026-06-16 — **CO-OP Level 5 v3 (user): smart requirements planner.** Replaced
+  the simple demand counter with an order-by-order MRP-style planner
+  (`helper.pickByPlan` + `gatherResources`). Each free cycle it scans the world
+  for resources — ready-made dishes (a complete plate, or a finished plate-less
+  burger) and FREE chopped slices (standalone on any station or in the player's
+  hand, NOT slices bound inside a plate/half-built burger) — then walks the
+  on-screen orders in turn: an order already covered by a ready dish is skipped;
+  for the rest, each chopped ingredient it needs is satisfied from a free slice
+  if one exists, else it's made. First genuinely-missing ingredient is the next
+  job (so 2 cheeseburgers → 2 cheese, over 2 trips). Backup when all covered:
+  fill an empty pass slot with any ingredient we have NONE of anywhere.
+  - Verified headless (`?qa=split`): free lettuce on a counter + salad + 2×
+    cheeseburger → pool = cheese×2, tomato×1, **lettuce×0** (free one used),
+    helper idle. Files: `helper.js` `qa.js`.
+- 2026-06-16 — **CO-OP Level 5 v2 (user feedback): demand-driven + pass pool.**
+  Two per-level helper behaviours added (Level 4 keeps the old always-stocked /
+  fixed-spot behaviour):
+  - **`coop.demand: true`** — the bot cuts whichever ingredient the on-screen
+    orders are most SHORT of (orders needing it − already staged; biggest
+    deficit wins). Fixes the reported bug: under the old "always stock in fixed
+    order" rule the bot endlessly refilled cheese+lettuce (burned through by
+    burgers) and never reached tomato, so salads had no tomato. Demand mode
+    makes the salad's tomato as soon as a salad ticket is up.
+  - **`coop.pass: [...tiles]`** — staging is now a shared POOL of pass-counter
+    tiles; the bot drops a slice on the nearest FREE tile (preferred one taken →
+    use the next), and waits holding it only if the whole isle is full. Per-line
+    `staging` is now optional (helper `stagedCount` / `chooseStaging`).
+  - Verified headless (`?qa=split`): salad+cheeseburger tickets → pool =
+    [cheese_chopped, lettuce_chopped, tomato_slices, …], demand=true, helper
+    idle (no over-stock). Tomato now flows. Files: `helper.js` `levels.js`
+    `qa.js`.
+- 2026-06-16 — **CO-OP Level 5 "Split Kitchen" — the flagship co-op level.**
+  User: the simple Level 4 doesn't justify co-op; build a complex one where it
+  does. Designed a walled-split 11×8 kitchen: a counter wall down col 5 divides
+  a PREP wing (bot: cheese/lettuce/tomato crates + 3 boards, cols 0–4) from a
+  SERVICE wing (player: bun+patty crates, 2 stoves, rack, sink, hatch, trash,
+  cols 6–10), joined ONLY by the central pass counter (col 5). Neither chef can
+  cross — co-op is structural (prep wing unreachable solo). Bot stages all three
+  toppings on the pass counter; player cooks/builds/plates/serves/washes. Menu =
+  burgers + big burgers + salads (`['cheeseburger','salad','bigburger',
+  'hamburger','salad',...]`) so all three prep streams stay busy. **tomato is
+  the bot's 3rd line** (one-stage chop → tomato_slices; free via config).
+  - New `open: true` level flag → both co-op test levels (4 & 5) always
+    selectable; `ui.js` gate reverted to `!lv.open && i>=3` (cleaner than the
+    earlier i>=4 bump). Removed the `lv5` placeholder.
+  - Verified headless (`?qa=split`, 40s): all 3 pass-counter slots staged
+    (cheese_chopped / lettuce_chopped / tomato_slices), helper idle at corner
+    {1,6}; station census 5 crate / 3 board / 2 stove / sink+rack+hatch+trash all
+    present; screenshot shows the split + handoff clearly. Files: `levels.js`
+    `ui.js` `qa.js`.
+  - **Open / to playtest:** topping starvation risk — one slow bot keeping 3
+    streams stocked at par=1 vs dense orders; tune via order density, par, or a
+    per-level bot-speed bump. Star times are placeholders. Idea backlog (user +
+    asset pack): pepperoni pizza, sandwiches, **soups/stews** (pot+ladle+stew
+    assets exist → biggest co-op payoff), plated dinners — see chat brainstorm.
+- 2026-06-16 — **CO-OP v0.3 (user: "bot is way too fast").** Slowed the helper
+  on three axes, all tunable from `coop` config:
+  - **Walk speed** — `Chef.speedScale` (new), helper set to `coop.moveSpeed`
+    0.5 (50% of the player). `chef.js` uses `SPEED * speedScale`.
+  - **Chop speed** — `helper.workMul` (`coop.workSpeed` 0.55): chopTick advances
+    `progress += dt*workMul/chopTime` → a slice takes ~3.3s not 1.8s.
+  - **Reaction time** — `helper.delay` + `coop.reaction` 0.7s: the helper stands
+    still for a beat before starting a new job, and for ~0.35s after grabbing /
+    before chopping / before carrying to staging — so it no longer reacts
+    instantly. Stands idle (no input) while the delay counts down.
+  - Verified headless (`?qa=coop`): at 5s only partway through the first slice
+    (was both done by ~7s before); both staged + parked at the corner by ~27s;
+    `speedScale 0.5 / workMul 0.55 / reaction 0.7` confirmed wired. Files:
+    `chef.js` `game.js` `helper.js` `levels.js` `qa.js`.
+- 2026-06-16 — **CO-OP v0.2 (user feedback: "doesn't feel good yet").** Three
+  changes to the helper:
+  - **Always stock, no demand gate.** Dropped the demand-driven logic — the
+    helper now keeps BOTH boards topped up regardless of orders and refills the
+    instant the player takes a slice (`pickWork` = first empty staging spot;
+    `demand()` + the DISHES import removed).
+  - **Chef-vs-chef collision.** Player and helper can no longer slide through
+    each other: `game.resolveChefCollision()` runs each frame after both move
+    and pushes them apart (axis-separated via `chef.tryMove`, MIN centre
+    distance 0.92). Verified: dropping the player exactly on the helper
+    separates them to 0.92.
+  - **Idle in the bottom-left corner.** When both boards are stocked the helper
+    walks to `coop.idle` ({col:1,row:4}) and waits there, out of the player's
+    way (new `toIdle`/`idle` states + `goToTile`/`navigate` floor-tile nav;
+    `reset()` now routes to `toIdle`).
+  - Also **unlocked Level 4** in the grid (`ui.js` gate `i>=3`→`i>=4`) so the
+    co-op test is reachable without starring Level 3 first.
+  - Verified headless (`?qa=coop`): 0 tickets → both slices staged; take cheese
+    → refilled; helper idles at {1,4}; collisionSep 0.92. Files this pass:
+    `helper.js` `game.js` `levels.js` `ui.js` `qa.js`.
+- 2026-06-16 — **CO-OP MODE v0: Level 4 + a BOT kitchen helper (first
+  multiplayer experiment).** Per the user's brainstorm: co-op is the first
+  multiplayer; bots NEVER do the dishes (grammar stays 100% with the human).
+  - **Level 4 "Burger Bar Co-op"** (`levels.js`): an exact copy of Burger Bar
+    (same map / crates / orders / plates / starTimes) + a new `coop` config
+    block. Took the menu's Level 4 slot (removed the `lv4` placeholder; gating
+    unchanged → unlocks once Level 3 has ≥1★). The `coop` block is code-side
+    only — it does NOT touch the editor JSON/grid schema (data-shape freeze
+    respected; the parallel restaurant-editor session is untouched).
+  - **The helper** (`src/helper.js`, new): a SECOND `Chef` driven by a small
+    state machine `idle→toCrate→toBoard→chopping→toStaging`. It owns the two
+    cutting boards — left (col 2) = lettuce, right (col 4) = cheese — fetches
+    raw from the crates, chops on its board (reuses the two-stage chop logic),
+    and parks the slice on the counter to the RIGHT of that board (col+1:
+    col 3 / col 5). Two rules the user chose: **demand-driven** (only cuts what
+    the on-screen tickets need — cheese for cheese/big burger, lettuce for big
+    burger; higher demand first) and **par=1** (≤1 slice staged per board, then
+    it idles — no overproducing). It NEVER cooks/plates/serves/washes. Nav is a
+    4-connected BFS over `world.walk` + a steer-to-tile (mirrors touch.js).
+  - **The "second seat" seam:** `Chef` now takes an optional `chefAssets` arg so
+    the helper uses a DIFFERENT character (knight) than the player (rogue) —
+    `game.preload` loads it via `loadChefAssets` when `level.coop` is set. The
+    helper's "brain" is swappable: a remote human could later drive the same
+    seat. `game.update` calls `helper.update(dt)` after `workStations`; it
+    pauses with the kitchen during sink questions / round-over; the board's
+    resting knife hides while the helper chops (extended the tool-hide line).
+  - **Verified** headless (Edge `?qa=coop`, seed 42, 14s tick): boots clean,
+    `inScene:3` (world + 2 chefs), both spots staged `lettuce_chopped` +
+    `cheese_chopped`, helper ends `idle` empty-handed (par=1 held). Screenshot
+    shows both slices to the right of their boards. New `?qa=coop` QA scene.
+  - **Open / next:** helper char clashes if the player also picked knight (rare;
+    make it pick a non-player char if it matters); no inter-chef collision
+    avoidance yet (they can overlap — fine for the test); the human can still
+    use the boards if they want (not needed for burgers); star thresholds
+    copied from L2, untuned for two cooks. Files: NEW `src/helper.js`;
+    `src/chef.js` `src/game.js` `src/levels.js` `src/qa.js`.
 - 2026-06-11 — Brief written by the master session. Nothing built yet.
 - 2026-06-11 — Restaurant Bits **EXTRA pack landed and verified** in
   `/assets/KayKit/KayKit_Restaurant_Bits_1.0_EXTRA/` (225 gltf models,

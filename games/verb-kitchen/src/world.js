@@ -108,9 +108,14 @@ export class World {
           counter.position.copy(p); counter.rotation.y = facing;
           const stove = getModel('stove_single_countertop');
           stove.position.set(p.x, 0.07, p.z); stove.rotation.y = facing;
-          const pan = getModel('pan_A');
-          pan.position.set(p.x, 1.22, p.z); pan.rotation.y = facing + Math.PI * 0.35;
-          staticG.add(counter, stove, pan);
+          staticG.add(counter, stove);
+          // a decorative frying pan — hidden on `bareStoves` levels (e.g. the
+          // soup level, where you set your own POT on the hob, not a pan)
+          if (!lv.bareStoves) {
+            const pan = getModel('pan_A');
+            pan.position.set(p.x, 1.22, p.z); pan.rotation.y = facing + Math.PI * 0.35;
+            staticG.add(pan);
+          }
           st = new Station('stove', c, r, p, 1.28);
         } else if (ch === 'o') {
           const oven = getModel(lv.id === 'pizzeria' ? 'pizza_oven' : 'oven');
@@ -300,14 +305,17 @@ export class World {
     const toLocal = (c, r) => ({ c: c - minC, r: r - minR });
 
     // --- classify station tiles, collect floor tiles / start items / hatch anchor ---
-    const PRI = { counter: 0, sink: 1, oven: 1, board: 1, rack: 1, crate: 1, trash: 1 };
+    const PRI = { counter: 0, sink: 1, oven: 1, board: 1, rack: 1, crate: 1, trash: 1, stove: 1 };
     const typeOf = (m) => {
       if (m.startsWith('kitchencounter_sink')) return 'sink';
       if (m === 'pizza_oven' || m === 'oven') return 'oven';
+      if (m.startsWith('stove_')) return 'stove';   // stove_single(_countertop) / stove_multi…
       if (m === 'cuttingboard') return 'board';
       if (m === 'dishrack') return 'rack';
       if (m === 'crate') return 'trash';          // an EMPTY crate = trash bin (like the burger level)
       if (m.startsWith('crate_')) return 'crate';
+      if (m.startsWith('icecream_container_icecream')) return 'crate';   // ice-cream flavour tubs
+
       if (m.startsWith('kitchencounter_')) return 'counter';
       return null;
     };
@@ -329,7 +337,7 @@ export class World {
       const t = typeOf(o.model);
       if (!t) continue;
       const l = toLocal(o.col, o.row), key = l.c + ',' + l.r, cur = tileStation.get(key);
-      if (!cur || PRI[t] > PRI[cur.type]) tileStation.set(key, { type: t, item: t === 'crate' ? CRATE_ITEM[o.model] : null });
+      if (!cur || PRI[t] > PRI[cur.type]) tileStation.set(key, { type: t, item: t === 'crate' ? CRATE_ITEM[o.model] : null, model: o.model });
     }
 
     // --- walkable = floor tile with no station on it ---
@@ -342,6 +350,9 @@ export class World {
     const TOOLS = new Set(['knife', 'rollingpin']);   // board tools are auto-added live below
     for (const o of objs) {
       if (o.model === 'ketchup' || TOOLS.has(o.model)) continue;
+      // bowl levels (soup) drop the dish rack — clean bowls just stack on the
+      // counter in its place (refreshStack handles the bowl stack)
+      if (o.model === 'dishrack' && this.level.vessel === 'bowl') continue;
       // an empty `crate` is a trash bin — tint it dark blue-grey + shrink like the ASCII levels
       const mdl = getModel(o.model, o.model === 'crate' ? '#4a5366' : null);
       if (o.model === 'crate') mdl.scale.setScalar(0.92);
@@ -357,7 +368,12 @@ export class World {
       const [lc, lr] = key.split(',').map(Number);
       const pos = this.tileWorld(lc, lr);
       const facing = this.faceToFloor(lc, lr);
-      const st = new Station(info.type, lc, lr, pos, TOP_Y[info.type] ?? 1.02);
+      // a bare floor stove (soup) carries its pot on the burner — sit items at the
+      // stove model's measured top rather than a fixed counter height
+      const topY = info.type === 'stove'
+        ? measureModel(info.model || 'stove_single').height
+        : (TOP_Y[info.type] ?? 1.02);
+      const st = new Station(info.type, lc, lr, pos, topY);
       st.rot = facing;
       if (info.type === 'crate') st.crateItem = info.item;
       if (info.type === 'board') {

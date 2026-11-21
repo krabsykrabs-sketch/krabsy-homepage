@@ -79,6 +79,9 @@ export function initQA(game, save, startLevel, params) {
     setNoSpawn(on = true) { game.orders.spawningEnabled = !on; },
     startLevel,
     saveRaw: () => localStorage.getItem('krabsy_vkitchen_save'),
+    // persistent spaced repetition: the practice keys seeded this round
+    practiceKeys: () => (game.quiz ? [...game.quiz.practiceKeys] : null),
+    missedSaved: () => [...save.missed],
   };
   game.carried = () => {
     const c = game.chef?.carried;
@@ -94,7 +97,7 @@ export function initQA(game, save, startLevel, params) {
 
   (async () => {
     const scene = qa;
-    const lvIdx = { level1: 0, level2: 1, level3: 2, question: 0, burn: 1, stars: 0, recipe: 0, recipeload: 0, washing: 0, shop: 0 }[scene] ?? 0;
+    const lvIdx = { level1: 0, level2: 1, level3: 2, level4: 3, coop: 3, level5: 4, split: 4, level6: 5, soup: 5, level7: 6, icecream: 6, question: 0, burn: 1, stars: 0, recipe: 0, recipeload: 0, washing: 0, shop: 0 }[scene] ?? 0;
     if (scene === 'loading') {       // loader overlay showcase (stays up)
       ui.loading(true);
       window.__VK_READY = true;
@@ -105,6 +108,13 @@ export function initQA(game, save, startLevel, params) {
                      bestTime: { garden: 58, burger: 152, pizzapalace: 240 } };
       ui.renderLevelGrid(fake, () => {});
       ui.showScreen('levelScreen');
+      window.__VK_READY = true;
+      return;
+    }
+    if (scene === 'cookbook') {      // verb cookbook with a sample practice list
+      save.missed = ['go', 'eat', 'think', 'catch'];
+      ui.renderCookbook(save);
+      ui.showScreen('cookbookScreen');
       window.__VK_READY = true;
       return;
     }
@@ -134,6 +144,37 @@ export function initQA(game, save, startLevel, params) {
         put(2, 5, makeIngredient('cheese_chopped'));     // chopped cheese slice on a board (sits on top)
       }
       VK.tick(0.5);
+    } else if (scene === 'soup' || scene === 'level6') {
+      // soup-level showcase (bowls + stove-pots): one ticket per recipe, a cooked
+      // carrot–potato pot ready to scoop on one stove, a half-filled onion pot
+      // (creamy broth) on the other, and a finished bowl of soup in hand.
+      VK.spawnTicket('carrot_potato_soup');
+      VK.spawnTicket('onion_mushroom_soup');
+      const stoves = game.world.stations.filter((s) => s.type === 'stove');
+      if (stoves[0]) { stoves[0].setItem(makeIngredient('pot_soup_cp'), false); stoves[0].state = 'ready'; }
+      if (stoves[1]) { stoves[1].setItem(makeIngredient('potwip_onion'), false); }
+      VK.givePlate(['cp_soup']);   // a finished bowl of soup in hand
+      VK.tick(0.5);
+    } else if (scene === 'icecream' || scene === 'level7') {
+      // ice-cream showcase (bowls, cold assembly): a ticket per recipe, a
+      // finished Neapolitan bowl in hand, and a part-built bowl on a counter.
+      VK.spawnTicket('sundae_neapolitan');
+      VK.spawnTicket('sundae_deluxe');
+      VK.givePlate(['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry']);   // finished Neapolitan in hand
+      const counter = game.world.stations.find((s) => s.type === 'counter');
+      if (counter) counter.setItem(makePlate(['scoop_strawberry']), false);     // a part-built bowl
+      VK.tick(0.5);
+    } else if (scene === 'coop') {
+      // co-op helper showcase: with no demand gate it stocks both boards (slowly,
+      // unhurried), then parks in the bottom-left idle corner. No RNG in the bot.
+      VK.tick(28);
+    } else if (scene === 'split') {
+      // split-kitchen showcase: a few orders → the planner cuts only what they
+      // need (no duplicates of free slices) onto the pass pool, then idles.
+      VK.spawnTicket('salad');
+      VK.spawnTicket('cheeseburger');
+      VK.spawnTicket('bigburger');
+      VK.tick(60);
     } else if (scene === 'chop') {
       // frozen mid-chop: progress bar visible over the cutting board
       const board = game.world.stations.find((s) => s.type === 'board');

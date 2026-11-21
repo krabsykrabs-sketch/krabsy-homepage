@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sim-tower-tower",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-lc", "cd ~/krabsy-homepage/games/sim-tower-tower && python3 .claude/serve-nocache.py"],
+      "port": 8043,
+      "autoPort": false
+    }
+  ]
+}

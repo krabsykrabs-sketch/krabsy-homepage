@@ -93,17 +93,189 @@ export const LEVELS = [
       text: 'Roll the dough, add sauce and cheese (and mushroom if you like), bake it, then serve!',
     },
   },
+  {
+    // Level 4 — CO-OP TEST: an exact copy of Burger Bar (level 2) plus a bot
+    // kitchen helper. The helper owns the two cutting boards: it fetches raw
+    // cheese / lettuce, chops each on its dedicated board, and parks the slice
+    // on the counter to the RIGHT of that board (col+1). It is demand-driven
+    // (only cuts what the orders need) and keeps at most one slice per board
+    // (par=1). It never cooks, plates, serves or washes — see helper.js.
+    // The `coop` block lives entirely in code (not the editor JSON schema).
+    id: 'burger_coop',
+    num: 4,
+    open: true,                  // co-op test level — always selectable
+    name: 'Burger Bar Co-op',
+    emoji: '🤝',
+    style: 'A',
+    map: [
+      'CHHCCkrC',
+      '1......s',
+      '2.CCC..s',
+      '3..P...C',
+      '4......C',
+      'CCbCbCtC',
+    ],
+    crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
+    orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
+    spawnEvery: [5, 8],
+    plates: 2,
+    starTimes: [215, 165, 130, 100],   // copied from Burger Bar — placeholders
+    tutorial: {
+      image: 'assets/ChatGPT/Burger.png',
+      title: 'Burger Bar — with a helper!',
+      text: 'A kitchen helper preps your cheese and lettuce on the cutting boards — focus on cooking the patties, building the burgers, serving and washing up!',
+    },
+    coop: {
+      char: 'knight',                  // helper character (player defaults to rogue)
+      spawn: { col: 2, row: 4 },       // helper starts near its boards
+      idle: { col: 1, row: 4 },        // parks here (bottom-left) when both boards are stocked
+      moveSpeed: 0.5,                  // walks at 50% of the player's speed (unhurried)
+      workSpeed: 0.55,                 // chops slower than the player too
+      reaction: 0.7,                   // pauses ~0.7s to "think" before each action
+      // left board (col 2) = lettuce, right board (col 4) = cheese; each stages
+      // onto the counter immediately to its right (col 3 / col 5).
+      stations: [
+        { ingredient: 'lettuce', board: { col: 2, row: 5 }, staging: { col: 3, row: 5 } },
+        { ingredient: 'cheese',  board: { col: 4, row: 5 }, staging: { col: 5, row: 5 } },
+      ],
+    },
+  },
+  {
+    // Level 5 "Split Kitchen" — the FLAGSHIP co-op level. A solid counter wall
+    // (col 4) splits the kitchen into a PREP wing (the bot's room: cheese /
+    // lettuce / tomato crates + ONE board, cols 0–3) and a SERVICE wing (yours:
+    // buns, patties, two stoves, rack, sink, hatch, trash, cols 5–8). The two
+    // are joined ONLY by the central pass counter (col 4), where the bot drops
+    // prepped toppings and you grab them from the service side. Neither can
+    // cross — co-op is structural (the prep wing is unreachable solo). Each chef
+    // owns its room, so the kitchen is compact (9×7). You cook, build burgers,
+    // plate salads, serve and WASH; the bot preps all three toppings.
+    // Code-side ASCII + coop config (editor schema untouched).
+    id: 'split_coop',
+    num: 5,
+    open: true,                  // co-op test level — always selectable
+    name: 'Split Kitchen',
+    emoji: '👥',
+    style: 'A',
+    map: [
+      'CCCCCHHCC',
+      '4...C..sC',
+      '3.b.C.PsC',
+      '5...C...1',
+      'C...C.C.2',
+      'C...C...C',
+      'CCCCCkrtC',
+    ],
+    crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese', 5: 'tomato' },
+    // burgers (cheese) + big burgers (cheese+lettuce) + salads (lettuce+tomato)
+    // → all three of the bot's prep streams stay busy.
+    orders: ['cheeseburger', 'salad', 'bigburger', 'hamburger', 'salad', 'cheeseburger', 'bigburger', 'salad'],
+    spawnEvery: [5, 8],
+    plates: 3,
+    starTimes: [340, 270, 215, 170],   // bigger level — placeholders, tune from play
+    tutorial: {
+      image: 'assets/ChatGPT/Burger.png',
+      title: 'Split Kitchen (co-op)',
+      text: 'You share a divided kitchen with a helper! It preps cheese, lettuce and tomato and passes them across the middle counter — you cook the patties, build burgers and salads, serve, and wash up.',
+    },
+    coop: {
+      char: 'knight',
+      spawn: { col: 1, row: 4 },
+      idle: { col: 1, row: 5 },        // parks bottom-left of the prep wing
+      moveSpeed: 0.5, workSpeed: 0.55, reaction: 0.7,
+      demand: true,                    // cut only what the orders actually need
+      // the central pass counter (col 4) is a shared drop pool — the bot parks a
+      // slice on ANY free tile (preferred one taken? just use the next).
+      pass: [
+        { col: 4, row: 1 }, { col: 4, row: 2 }, { col: 4, row: 3 },
+        { col: 4, row: 4 }, { col: 4, row: 5 },
+      ],
+      // ONE shared cutting board (col 2) — the bot only chops one thing at a
+      // time; staging is the shared pass pool above.
+      stations: [
+        { ingredient: 'cheese',  board: { col: 2, row: 2 } },
+        { ingredient: 'lettuce', board: { col: 2, row: 2 } },
+        { ingredient: 'tomato',  board: { col: 2, row: 2 } },
+      ],
+    },
+  },
+  {
+    // Level 6 "Soup Kitchen" — a vegetable-soup level (editor JSON layout,
+    // levels/soup6.json). Single player, served in BOWLS not plates. TWO empty
+    // pots sit on the two stoves at the start (Overcooked-style fixtures): chop a
+    // veg and tip it STRAIGHT into a stove-pot (E) — the broth shows the soup
+    // forming, coloured by recipe even with just one veg in. Two recipes share
+    // four veg: carrot + potato (orange soup) and onion + mushroom (creamy). A
+    // complete pot auto-boils, then you scoop the soup into a clean BOWL (the pot
+    // stays, empty, reusable), serve at the hatch → dirty bowl → sink → verb quiz
+    // (grammar loop reused unchanged). Clean bowls stack where the dish rack was;
+    // dirty bowls land on the right of the sink.
+    id: 'soup',
+    num: 6,
+    open: true,                  // selectable for playtest
+    name: 'Soup Kitchen',
+    emoji: '🍲',
+    style: 'B',
+    jsonUrl: 'levels/soup6.json',
+    vessel: 'bowl',              // serve in bowls, not plates (see stations.setVessel)
+    spawn: { col: 4, row: 4 },   // chef start in JSON cell coords
+    // two empty pots pre-placed on the two stoves (JSON cell coords)
+    startItems: [
+      { c: 5, r: 1, item: 'pot_empty' },
+      { c: 6, r: 1, item: 'pot_empty' },
+    ],
+    // a mix of the two recipes; lets the player batch chops. 6 orders · 2 bowls
+    // → washing stays load-bearing.
+    orders: ['carrot_potato_soup', 'onion_mushroom_soup', 'carrot_potato_soup', 'onion_mushroom_soup', 'carrot_potato_soup', 'onion_mushroom_soup'],
+    spawnEvery: [7, 11],
+    plates: 2,                   // 2 clean bowls to start
+    starTimes: [320, 250, 195, 150],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      image: 'assets/ChatGPT/Salad.png',
+      title: 'Soup Kitchen',
+      text: 'Two pots wait on the stoves! Chop the veg on the boards, then tip each into a pot (E) — carrot + potato makes one soup, onion + mushroom another. When it boils, scoop it into a bowl and serve!',
+    },
+  },
+  {
+    // Level 7 "Sundae Sunday" — the FIRST cold-assembly level. Single player.
+    // NO stove, NO cutting board, NO cooking — this proves the assemble→serve→
+    // wash loop works with none of those stations present. Scoops are grabbed
+    // straight from their tubs (crates) as plateable ingredients, spooned onto a
+    // bowl (the standard washable PLATE) in any order — exactly the SALAD pattern,
+    // but cold. A cherry is an extra plateable topping. The plated sundae renders
+    // a finished ice-cream-bowl model (so it reads as a bowl of ice cream), but
+    // the plate underneath stays the washable vessel → the sink quiz is unchanged.
+    // Three distinct sundaes (1-scoop / 2-scoop / 3-scoop) give variety. Editor
+    // JSON layout (levels/icecream7.json, the user's `Ice.json` completed to a
+    // playable 8×6) served in BOWLS. style 'B' kitchen.
+    id: 'sundae',
+    num: 7,
+    open: true,                  // selectable for playtest
+    name: 'Sundae Sunday',
+    emoji: '🍨',
+    style: 'B',
+    jsonUrl: 'levels/icecream7.json',
+    vessel: 'bowl',              // sundaes are served in a bowl (no plate)
+    spawn: { col: 4, row: 3 },   // chef start in JSON cell coords
+    // a mix of the three sundaes; lets the player batch scoops. 6 orders · 2
+    // bowls → washing stays load-bearing (below the order count).
+    orders: ['sundae_vanilla', 'sundae_neapolitan', 'sundae_deluxe', 'sundae_vanilla', 'sundae_deluxe', 'sundae_neapolitan'],
+    spawnEvery: [5, 8],
+    plates: 2,                   // 2 clean bowls to start
+    starTimes: [260, 200, 155, 120],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      image: 'assets/ChatGPT/Salad.png',
+      title: 'Sundae Sunday',
+      text: 'No cooking today! Grab a bowl, scoop ice cream from the flavour tubs (vanilla, strawberry, chocolate) — one scoop, two for a Berry Duo, or all three for a Neapolitan — then serve and wash up!',
+    },
+  },
 ];
 
-// Locked "coming soon" slots shown after the 3 playable levels (levels grow to
+// Locked "coming soon" slots shown after the playable levels (levels grow to
 // ~10–15; dish themes repeat). Numbers only; emoji is a decorative hint.
 export const PLACEHOLDERS = [
-  { id: 'lv4',  num: 4,  emoji: '🍨' },
-  { id: 'lv5',  num: 5,  emoji: '🍲' },
-  { id: 'lv6',  num: 6,  emoji: '🥗' },
-  { id: 'lv7',  num: 7,  emoji: '🍔' },
   { id: 'lv8',  num: 8,  emoji: '🍕' },
-  { id: 'lv9',  num: 9,  emoji: '🍨' },
+  { id: 'lv9',  num: 9,  emoji: '🥪' },
   { id: 'lv10', num: 10, emoji: '🍲' },
 ];
 
@@ -125,6 +297,11 @@ export function levelModelNames(level) {
     'crate', 'crate_lid',
     'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_potatoes',
     'crate_cheese', 'crate_dough', 'crate_mushrooms',
+    'crate_onions', 'crate_carrots', 'pot_A', 'food_stew',
+    // ice-cream tubs (crate art) — the scoop/cherry/bowl item+dish models come
+    // through itemModelNames(); the tub container models are only named here.
+    'icecream_container_icecream_vanilla', 'icecream_container_icecream_chocolate',
+    'icecream_container_icecream_strawberry',
   ];
 }
 
@@ -137,4 +314,13 @@ export const CRATE_MODELS = {
   cheese: 'crate_cheese',
   dough: 'crate_dough',
   mushroom: 'crate_mushrooms',
+  onion: 'crate_onions',
+  carrot: 'crate_carrots',
+  potato: 'crate_potatoes',
+  pot_empty: 'crate',   // generic crate of clean pots (no pot-crate art in the pack)
+  // sundae tubs: filled ice-cream containers read clearly as flavour tubs.
+  scoop_vanilla: 'icecream_container_icecream_vanilla',
+  scoop_chocolate: 'icecream_container_icecream_chocolate',
+  scoop_strawberry: 'icecream_container_icecream_strawberry',
+  cherry: 'crate',      // cherries from a generic crate (no cherry-crate art)
 };

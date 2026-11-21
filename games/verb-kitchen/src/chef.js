@@ -15,24 +15,27 @@ export async function preloadChef(charName = 'rogue') {
 }
 
 export class Chef {
-  constructor(world) {
+  // chefAssets lets a second chef (the co-op helper) use a DIFFERENT character
+  // than the player; defaults to the player character loaded by preloadChef.
+  constructor(world, chefAssets) {
+    const a = chefAssets || assets;
     this.world = world;
     this.obj = new THREE.Group();
-    this.body = cloneChef(assets.charScene);
+    this.body = cloneChef(a.charScene);
     this.body.scale.setScalar(1.15);
     this.obj.add(this.body);
 
     this.mixer = new THREE.AnimationMixer(this.body);
     this.actions = {};
     for (const name of ['Idle_A', 'Running_A', 'Chopping', 'PickUp', 'Holding_B', 'Working_A']) {
-      const clip = assets.clips[name];
+      const clip = a.clips[name];
       if (clip) this.actions[name] = this.mixer.clipAction(clip);
     }
     this.current = null;
     // chop staccato: loop only the first quarter of the clip — raised pose
     // down to board height (the full clip drives the knife through the
     // table to y≈0.6 and recovers slowly; profile measured in QA)
-    this.chopWindow = (assets.clips['Chopping']?.duration || 1) * 0.25;
+    this.chopWindow = (a.clips['Chopping']?.duration || 1) * 0.25;
     if (this.actions['Chopping']) this.actions['Chopping'].timeScale = 1.25;
     this.play('Idle_A');
 
@@ -54,6 +57,7 @@ export class Chef {
     this.vel = new THREE.Vector3();
     this.facing = new THREE.Vector2(0, 1);   // grid-space dir (x, z)
     this.heading = 0;
+    this.speedScale = 1;           // <1 = slower (the co-op helper moves slower)
     this.working = false;          // chopping at a board this frame
     this.workTool = 'knife';       // tool of the board being worked
     this.bobT = 0;
@@ -149,7 +153,8 @@ export class Chef {
         }
       }
       this.facing.set(ix, iz);
-      this.vel.set(ix * SPEED, 0, iz * SPEED);
+      const moveSpeed = SPEED * (this.speedScale || 1);
+      this.vel.set(ix * moveSpeed, 0, iz * moveSpeed);
 
       // axis-separated collision
       this.tryMove(this.vel.x * dt, 0);
