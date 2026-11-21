@@ -10,7 +10,7 @@ at the end of each session. (Last update: 2026-11-21.)
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21, parked** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
-| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms. 2026-11-21 (committed, **not yet deployed**): no ①②③ answer tell (planes all white, word only; panel shows go → ___ → ___), phone-legible labels/bubbles/hints, safer spawn lanes on phones, level-complete screen auto-continues after 8 s, same-word forms (run/ran/run) take the earlier slot. Still to check on a real phone |
+| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms. 2026-11-21 (**deployed**, live file verified): no ①②③ answer tell (planes all white, word only; panel shows go → ___ → ___), phone-legible labels/bubbles/hints, safer spawn lanes on phones, level-complete screen auto-continues after 8 s, same-word forms (run/ran/run) take the earlier slot. Still to check on a real phone |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12, to be continued** — owner 2026-11-21: mechanics and feel are good, it lacks real levels → next is level design (editor in the game folder). Plan, bug list and how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session opens in `games/tower-defense/` |
@@ -51,7 +51,7 @@ New ideas the owner liked, not started, no folder yet:
 - Drag Match and Falling Forms → small layout fix (start button below the
   fold, ✕ leaves the site).
 - Verb Slash → fix the colour tell and slow start.
-- Air Control → small fixes — **done 2026-11-21** (deploy pending).
+- Air Control → small fixes — **done and deployed 2026-11-21**.
 - Verb Flow → keep.
 - Owner decisions pending.
 
@@ -142,7 +142,7 @@ but not referenced — verify before removing.)
      first balloon, tap counts, show the answer after a mistake, DE/ES UI.
      Also in `games/verb-slash/CLAUDE.md`.
    - Air Control: ✅ done 2026-11-21 (①②③ tell dropped, phone label
-     size) — needs push + deploy + a check on a real phone.
+     size), deployed and verified live — open: a check on a real phone.
 4. **Tower Defense:** the owner runs its own chat in
    `games/tower-defense/` (Fable 5.2); the brief is in its `CLAUDE.md`.
    Also ready for their own chats (briefs in each `CLAUDE.md`):
@@ -167,5 +167,8 @@ but not referenced — verify before removing.)
   primitives, goofy skeletons, grammar-as-keys). Owner said GO on
   2026-11-21; the full-build brief is in `games/verb-dungeon/CLAUDE.md`
   (short hand-built levels with models from the shared library;
-  roguelite room assembly is "later, not now"). The free KayKit Dungeon
-  pack has no door model; the brief lists alternatives.
+  roguelite room assembly is "later, not now"). **Game base built
+  2026-11-21** (KayKit models, fixed camera, 3 levels, verb doors, chests,
+  hearts, stars, DE/ES/EN; old PoC in `poc/`). Checked by script only; no
+  touch controls yet. Not ready for review: details and next steps in its
+  `CLAUDE.md`.
