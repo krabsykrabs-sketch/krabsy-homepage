@@ -67,7 +67,7 @@ export class Tower {
   _updateTarget(enemies) {
     if (this.currentTarget) {
       const t = this.currentTarget;
-      if (!t.isAlive) {
+      if (!t.isAlive || t.spawnTimer > 0) {
         this.currentTarget = null;
       } else {
         const dx = t.position.x - this.position.x;
@@ -80,7 +80,7 @@ export class Tower {
     let best = null;
     let bestDist = this.range;
     for (const e of enemies) {
-      if (!e.isAlive) continue;
+      if (!e.isAlive || e.spawnTimer > 0) continue;
       const dx = e.position.x - this.position.x;
       const dy = e.position.y - this.position.y;
       const d = Math.hypot(dx, dy);
@@ -164,7 +164,7 @@ export class Tower {
 
   _hasNonFrozenTarget(enemies) {
     for (const e of enemies) {
-      if (!e.isAlive || e.isFrozen) continue;
+      if (!e.isAlive || e.isFrozen || e.spawnTimer > 0) continue;
       if (this._inRange(e)) return true;
     }
     return false;
@@ -172,7 +172,7 @@ export class Tower {
 
   _applyFreezeInRange(state) {
     for (const e of state.enemies) {
-      if (!e.isAlive || e.isFrozen) continue;
+      if (!e.isAlive || e.isFrozen || e.spawnTimer > 0) continue;
       if (this._inRange(e)) e.applyFreeze(this.freezeDuration, this.permanentSlow);
     }
   }

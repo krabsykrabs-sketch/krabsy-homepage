@@ -8,9 +8,8 @@ import { Level } from './level.js';
 //   1. tap a glowing hex next to the road      (state.hintCells)
 //   2. pick a tower                            (pulse: tower cards)
 //   3. start the wave                          (pulse: start button)
-//   4. watch the towers work
-//   5. open the forge for coins                (pulse: forge button)
-//   6. answer one question → tutorial finished, never shown again
+//   4. answer the forge question for coins     (pulse: forge card)
+//      → tutorial finished, never shown again
 //
 // Sets state.hint = { key, target } (key = i18n string, target = what pulses) and
 // state.hintCells = [{ cellX, cellY }].
@@ -40,35 +39,27 @@ export const Tutorial = {
     if (state.phase !== 'BUILD' && state.phase !== 'BATTLE') return;
 
     const wave = state.currentWave;
-    const f = state.forge;
 
-    // Finished once a wave has been played and a question answered.
-    if (wave >= 1 && state.stats.asked > 0 && !f.open) { this._finish(); return; }
+    // Finished once a wave has started and a question has been answered.
+    if (wave >= 1 && state.stats.asked > 0) { this._finish(); return; }
 
-    if (f.open) {
-      if (f.stage === 'ask') state.hint = { key: 'tutAnswer', target: null };
-      return;
-    }
-
-    if (state.phase === 'BATTLE') {
-      if (wave === 1) state.hint = { key: 'tutWatch', target: null };
-      return;
-    }
-
-    // Build phase.
-    if (state.towers.length === 0) {
-      if (state.buildCell) {
-        state.hint = { key: 'tutPickTower', target: 'towers' };
+    if (state.phase === 'BUILD' && wave === 0) {
+      if (state.towers.length === 0) {
+        if (state.buildCell) {
+          state.hint = { key: 'tutPickTower', target: 'towers' };
+        } else {
+          state.hint = { key: 'tutTapCell', target: null };
+          state.hintCells = Level.current.tutorialCells
+            .filter(([c, r]) => Grid.isAvailable(c, r))
+            .map(([c, r]) => ({ cellX: c, cellY: r }));
+        }
       } else {
-        state.hint = { key: 'tutTapCell', target: null };
-        state.hintCells = Level.current.tutorialCells
-          .filter(([c, r]) => Grid.isAvailable(c, r))
-          .map(([c, r]) => ({ cellX: c, cellY: r }));
+        state.hint = { key: 'tutStart', target: 'start' };
       }
-    } else if (wave === 0) {
-      state.hint = { key: 'tutStart', target: 'start' };
-    } else if (state.stats.asked === 0 && f.hammers > 0) {
-      state.hint = { key: 'tutForge', target: 'forge' };
+      return;
     }
+
+    // From the first battle on: point at the forge card until it has been used.
+    if (state.forge.stage === 'ask') state.hint = { key: 'tutForge', target: 'forge' };
   },
 };

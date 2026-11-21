@@ -43,7 +43,7 @@ TowerDefense3D/
     main.js               state, phases, loop, stars, speed
     level.js grid.js      hex board, paths, building spots
     wave.js enemy.js tower.js projectile.js effects.js config.js audio.js
-    forge.js questions.js the question moment and its data source
+    forge.js questions.js the always-visible question card and its data
     tutorial.js           level-1 coach
     i18n.js               de / es / en
     assets.js characters.js renderer.js   models, pooled skeletons, 3D
@@ -162,6 +162,34 @@ Rules:
   session then play-tests and releases it to `homepage/games/tower-defense/`
   with wrappers `/de/spiele/tower-defense/` and `/es/juegos/tower-defense/`.
   The final name is open, e.g. "Verb Towers".
+
+## Play-test notes (owner)
+
+1. **Spawn camping (2026-11-21).** A tower next to the spawn point kills
+   skeletons while they are still rising out of the ground; they never
+   start walking. Looks and feels wrong, especially in early levels.
+   Proposed fix: enemies cannot be targeted or damaged (also not by
+   splash or frost) until they have finished rising; optionally keep the
+   hexes touching the spawn unbuildable.
+
+2. **Economy: the forge is optional (2026-11-21).** The owner can build
+   without ever opening it. Math confirms it: coins without the forge are
+   176 / 253 / 495 on levels 1 / 2 / 3 (start + kills + wave bonus); the
+   forge adds at most 192 / 216 / 240, i.e. only 52 % / 46 % / 33 % of all
+   income. Kill coins grow with enemy count and tier, so the forge matters
+   least on level 3.
+   Owner's idea: an **always-visible question card** at the side; the game
+   never stops; answer whenever you need money. Session's recommendation:
+   do it, replacing forge + hammers. Rules proposed: right = coins and the
+   next question after a short beat; wrong = full chain shown and the card
+   locked for ~4 s (guessing costs time), verb returns later; kills pay
+   almost nothing, small wave bonus, so ~75–80 % of income is verbs; side
+   panel on laptop/tablet, compact strip above the dock on phones; camera
+   fit gets a right inset; retune with the bot (answer rate × accuracy).
+   Not decided yet.
+
+Notes 1 and 2 are implemented (see the Status log entry of 2026-11-21,
+"play-test round 1").
 
 ## Status log
 
@@ -364,3 +392,42 @@ Rules:
   - **Ideas not done:** merge each character into one mesh (if a real
     Chromebook is slow), merge the hex models into one file, coast tiles
     around the island, sound polish, more levels, typed-answer mode.
+- 2026-11-21 — **Play-test round 1 (owner notes 1 and 2) done.**
+  - **Spawn camping fixed:** enemies cannot be targeted, damaged or frozen
+    while they rise out of the ground (`spawnTimer > 0`); towers ignore
+    them until they take their first step.
+  - **Forge is now an always-visible question card** (owner's idea). No
+    button, no modal, no slow motion; the game never stops for it. Side
+    panel on wide landscape screens (chain runs top to bottom), compact
+    panel under the top bar on short landscape windows, a strip above the
+    dock otherwise. Dock, coach and wave banner centre on the space left
+    of the panel; the camera fit reserves the panel's width or height.
+  - **Card rules** (`CONFIG.forge`): 8 answers ("ore") per wave, used up
+    right or wrong and refilled when the next build phase starts — added
+    by the session so the untimed build phase is not an endless coin farm.
+    Right = 5 coins, +1 per 3-streak up to +3, next question after 0.9 s.
+    Wrong = full chain with captions, card locked 4 s (shrinking bar), the
+    question returns later. The card runs on wall-clock time, so it does
+    not slow down on a slow device.
+  - **Economy:** kills pay a flat 1 coin (boss 3), wave bonus 5. With all
+    answers right the forge is roughly 75–80 % of income; with none the
+    bot affords about three towers per level.
+  - **Bot results** (`tools/balance-sim.mjs`, updated for the card; it
+    answers all 8 questions every wave), enemy stats unchanged from M4:
+    level 1: 3 stars from 40 % accuracy, 0 % = 1 star or lost;
+    level 2: 100 % = 3 stars, 40–70 % = 1–3 stars, 0 % = lost in wave 6–7;
+    level 3: 100 % = 3 stars, 70 % = 1–2 stars, 40 % and below = lost.
+  - Keys: `Q` `W` `E` answer the card; `1`–`4` stay the tower keys; `F`
+    is gone. Tutorial is now: tap hex → pick tower → start wave → answer
+    the card. A newly built tower is no longer auto-selected (its info
+    panel covered the board on small screens).
+  - **Bug found and fixed on the way:** the forge config rewrite had
+    deleted `CONFIG.projectileHitRadius`, so no shot ever hit (owner:
+    "the enemies don't die"). All `CONFIG.*` references were re-checked.
+  - Checked in headless Chromium at 1366×768, 1024×768 touch, 390×844
+    touch and 844×390 touch, German and Spanish, site engine and
+    fallback: tutorial, card flow (right, streak, wrong + lock, keyboard,
+    empty, refill), spawn immunity (27 rising enemies, none hurt),
+    victory, next level. No console errors.
+  - **Open:** is 8 answers per wave the right amount; real-device and
+    real-kid testing as before.

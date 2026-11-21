@@ -105,26 +105,19 @@ export const Input = {
     state.towers.push(tower);
     Grid.occupy(cellX, cellY, tower);
     state.buildCell = null;
-    state.selectedTower = tower;
+    // Not selected automatically: the info panel would cover the board on small screens.
+    state.selectedTower = null;
     Sound.play('place');
     return true;
   },
 
   _onKeyDown(e) {
-    // While the forge is open the keyboard answers questions.
-    if (state.forge.open) {
-      const f = state.forge;
-      if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') { Forge.close(state); return; }
-      if (f.stage === 'ask') {
-        const n = parseInt(e.key, 10);
-        if (n >= 1 && n <= f.q.options.length) Forge.answer(state, n - 1);
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        Forge.next(state);
-      }
-      if (e.key === ' ') e.preventDefault();
+    // Q / W / E answer the forge question (1–4 stay the tower keys).
+    const answerKey = { q: 0, w: 1, e: 2 }[e.key.toLowerCase()];
+    if (answerKey !== undefined && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      Forge.answer(state, answerKey);
       return;
     }
-    if (e.key === 'f' || e.key === 'F') { Forge.open(state); return; }
 
     if (e.key === 'Escape') { this.cancelPlacement(); state.selectedTower = null; state.buildCell = null; return; }
 

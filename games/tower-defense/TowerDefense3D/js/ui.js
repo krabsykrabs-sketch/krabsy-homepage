@@ -28,12 +28,12 @@ export const UI = {
       coins: $('coin-count'), livesContainer: $('lives-container'), livesCompact: $('lives-compact'),
       wave: $('wave-count'), waveTotal: $('wave-total'), phaseLabel: $('phase-label'),
       endGameBtn: $('end-game-btn'), muteBtn: $('mute-btn'), waveBanner: $('wave-banner'),
-      slowmo: $('slowmo-note'), coach: $('coach'), speedBtn: $('speed-btn'),
+      coach: $('coach'), speedBtn: $('speed-btn'),
       vcStars: $('vc-stars'), nextLevelBtn: $('next-level-btn'),
       towerButtons: $('tower-buttons'), towerInfo: $('tower-info'),
-      startWaveBtn: $('start-wave-btn'), forgeBtn: $('forge-btn'), forgeBtnHammers: $('forge-btn-hammers'),
-      forgePanel: $('forge-panel'), forgeSub: $('forge-sub'), forgeHammers: $('forge-hammers'),
-      forgeClose: $('forge-close'), forgeQuestion: $('forge-question'),
+      startWaveBtn: $('start-wave-btn'),
+      forgePanel: $('forge-panel'), forgeSub: $('forge-sub'), forgeOre: $('forge-ore'),
+      forgeLockBar: $('forge-lock-bar'), forgeQuestion: $('forge-question'),
       forgeAnswers: $('forge-answers'), forgeFeedback: $('forge-feedback'),
       menuOv: $('menu-overlay'), levelCards: $('level-cards'),
       waveCompleteOv: $('wave-complete-overlay'), wcTitle: $('wc-title'), wcBonus: $('wc-bonus'),
@@ -50,7 +50,7 @@ export const UI = {
     this._towerInfoSig = null;
     this._forgeSig = null;
     this._forgeFbSig = null;
-    this._hammerSig = null;
+    this._forgeHeadSig = null;
     this._livesSig = null;
     this._endSig = null;
     this._lastCoins = null;
@@ -59,7 +59,6 @@ export const UI = {
     this._quitOpen = false;
     this._hintSig = null;
     this.els.muteBtn.textContent = Sound.muted ? '🔇' : '🔊';
-    this.els.forgeSub.textContent = t('forgeSub', CONFIG.forge.coinsPerRight);
   },
 
   _buildTowerButtons() {
@@ -81,7 +80,6 @@ export const UI = {
       `;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (state.forge.open) Forge.close(state);
         Input.toggleTowerPlacement(type);
         btn.blur();
       });
@@ -192,18 +190,12 @@ export const UI = {
   _wireActions() {
     this.els.startWaveBtn.addEventListener('click', () => {
       if (state.phase !== 'BUILD') return;
-      if (state.forge.open) Forge.close(state);
       Wave.startNext(state);
     });
 
-    this.els.forgeBtn.addEventListener('click', () => { Forge.toggle(state); this.els.forgeBtn.blur(); });
-    this.els.forgeClose.addEventListener('click', () => Forge.close(state));
     this.els.forgeAnswers.addEventListener('click', (e) => {
       const btn = e.target.closest('.forge-answer');
       if (btn) Forge.answer(state, parseInt(btn.dataset.index, 10));
-    });
-    this.els.forgeFeedback.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action="forge-next"]')) Forge.next(state);
     });
 
     this.els.waveCompleteOv.addEventListener('click', () => {
@@ -287,7 +279,6 @@ export const UI = {
 
     const PHASE_KEYS = { BUILD: 'phaseBuild', BATTLE: 'phaseBattle', WAVE_COMPLETE: 'phaseWaveDone' };
     this.els.phaseLabel.textContent = PHASE_KEYS[state.phase] ? t(PHASE_KEYS[state.phase]) : '';
-    this.els.slowmo.classList.toggle('hidden', state.timeScale >= 1);
     this.els.speedBtn.textContent = `×${state.speed}`;
     this.els.speedBtn.classList.toggle('fast', state.speed > 1);
     this._renderHint(state);
@@ -332,7 +323,7 @@ export const UI = {
     this.els.coach.classList.toggle('hidden', !h);
     if (h) this.els.coach.textContent = t(h.key);
     this.els.startWaveBtn.classList.toggle('hint-pulse', !!h && h.target === 'start');
-    this.els.forgeBtn.classList.toggle('hint-pulse', !!h && h.target === 'forge');
+    this.els.forgePanel.classList.toggle('hint-pulse', !!h && h.target === 'forge');
     this.els.towerButtons.classList.toggle('hint-pulse', !!h && h.target === 'towers');
   },
 
@@ -403,7 +394,7 @@ export const UI = {
 
   _renderTowerInfo(state) {
     const el = this.els.towerInfo;
-    const tw = state.forge.open ? null : state.selectedTower;
+    const tw = state.selectedTower;
     if (!tw) {
       if (this._towerInfoSig !== null) {
         el.classList.add('hidden');
@@ -470,42 +461,45 @@ export const UI = {
     return html;
   },
 
-  // ── Forge (questions for coins) ──────────────────────────────────────
+  // ── Forge card (questions for coins, always visible) ────────────────
 
   _renderForge(state) {
     const f = state.forge;
-    const max = CONFIG.forge.hammersPerWave;
-    const playing = state.phase === 'BUILD' || state.phase === 'BATTLE';
-
-    // Dock button: hammers left, nudges when there is something to earn.
-    const hsig = `${f.hammers}|${f.open}|${playing}`;
-    if (hsig !== this._hammerSig) {
-      this._hammerSig = hsig;
-      const hammers = (n) => {
-        let h = '';
-        for (let i = 0; i < max; i++) h += `<span class="${i < n ? '' : 'used'}">🔨</span>`;
-        return h;
-      };
-      this.els.forgeBtnHammers.innerHTML = f.hammers > 0 ? '🔨'.repeat(f.hammers) : '–';
-      this.els.forgeHammers.innerHTML = hammers(f.hammers);
-      this.els.forgeBtn.classList.toggle('disabled', f.hammers <= 0 || !playing);
-      this.els.forgeBtn.classList.toggle('open', f.open);
-      this.els.forgeBtn.classList.toggle('ready', f.hammers > 0 && !f.open && state.phase === 'BUILD');
-      this.els.forgeBtn.title = f.hammers > 0 ? t('forgeSub', CONFIG.forge.coinsPerRight) : t('forgeEmpty');
-    }
-
     const panel = this.els.forgePanel;
-    if (!f.open || !f.q) {
+    if (!Forge.active(state)) {
       panel.classList.add('hidden');
       this._forgeSig = null;
+      this._forgeHeadSig = null;
       return;
     }
     panel.classList.remove('hidden');
 
+    // Head: questions left this wave, what the next right answer pays, the streak.
+    const headSig = `${f.ore}|${f.streak}`;
+    if (headSig !== this._forgeHeadSig) {
+      this._forgeHeadSig = headSig;
+      this.els.forgeOre.textContent = f.ore;
+      let sub = esc(t('forgeSub', Forge.reward(f.streak)));
+      if (f.streak >= 2) sub += ` · <span class="streak">🔥 ${esc(t('streak', f.streak))}</span>`;
+      this.els.forgeSub.innerHTML = sub;
+    }
+
+    // Lock bar after a wrong answer (updated every frame, it is one style write).
+    this.els.forgeLockBar.style.width = f.stage === 'wrong' && f.lock > 0
+      ? `${Math.max(0, f.timer / f.lock) * 100}%` : '0';
+
     const q = f.q;
-    const sig = `${q.id}|${f.stage}|${f.picked}|${q.options.join(',')}`;
+    const sig = q ? `${q.id}|${f.stage}|${f.picked}|${q.options.join(',')}` : `empty|${state.phase === 'BUILD'}`;
     if (sig === this._forgeSig) return;
     this._forgeSig = sig;
+
+    if (!q) {
+      this.els.forgeQuestion.innerHTML = `<span class="q-empty">${esc(t(state.phase === 'BUILD' ? 'forgeEmptyBuild' : 'forgeEmpty'))}</span>`;
+      this.els.forgeAnswers.innerHTML = '';
+      this.els.forgeFeedback.className = 'forge-feedback';
+      this.els.forgeFeedback.innerHTML = '';
+      return;
+    }
     const answered = f.stage === 'right' || f.stage === 'wrong';
 
     // Celebration / shake — once per feedback reveal.
@@ -520,6 +514,7 @@ export const UI = {
 
     this.els.forgeQuestion.innerHTML = this._questionHtml(q, answered);
 
+    const KEYS = ['Q', 'W', 'E'];
     let answersHtml = '';
     q.options.forEach((opt, i) => {
       let cls = 'forge-answer';
@@ -528,18 +523,17 @@ export const UI = {
         if (i === q.correctIndex) cls += ' correct';
         else if (i === f.picked) cls += ' wrong';
       }
-      answersHtml += `<button class="${cls}" data-index="${i}"><span class="key">${i + 1}</span>${esc(opt)}</button>`;
+      answersHtml += `<button class="${cls}" data-index="${i}"><span class="key">${KEYS[i] || ''}</span>${esc(opt)}</button>`;
     });
     this.els.forgeAnswers.innerHTML = answersHtml;
 
     const fb = this.els.forgeFeedback;
     if (f.stage === 'right') {
       fb.className = 'forge-feedback ok';
-      fb.innerHTML = `${esc(t('forgeRight', CONFIG.forge.coinsPerRight))} ${COIN}`;
+      fb.innerHTML = `${esc(t('forgeRight', f.lastGain))} ${COIN}`;
     } else if (f.stage === 'wrong') {
       fb.className = 'forge-feedback bad';
-      fb.innerHTML = `<span>${esc(t('forgeWrong'))}</span>
-        <button class="btn btn-teal" data-action="forge-next">${esc(t(f.hammers > 0 ? 'forgeNext' : 'forgeClose'))}</button>`;
+      fb.textContent = t('forgeWrong');
     } else {
       fb.className = 'forge-feedback';
       fb.innerHTML = '';

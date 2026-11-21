@@ -85,7 +85,7 @@ export class Projectile {
 
   _explode(state) {
     for (const e of state.enemies) {
-      if (!e.isAlive) continue;
+      if (!e.isAlive || e.spawnTimer > 0) continue;
       const dx = e.position.x - this.position.x;
       const dy = e.position.y - this.position.y;
       const d = Math.hypot(dx, dy);
@@ -122,7 +122,7 @@ export class Projectile {
 
     const baseR = CONFIG.projectileHitRadius;
     for (const e of state.enemies) {
-      if (!e.isAlive) continue;
+      if (!e.isAlive || e.spawnTimer > 0) continue;
       if (this.hitEnemies.has(e)) continue;
       const ex = e.position.x - this.position.x;
       const ey = e.position.y - this.position.y;

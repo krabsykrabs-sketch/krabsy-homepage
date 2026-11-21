@@ -230,21 +230,6 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
   100% { opacity: 0; transform: translateX(-50%) scale(1.04) translateY(-14px); }
 }
 
-#slowmo-note {
-  position: absolute;
-  top: 64px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--display);
-  font-size: 14px;
-  color: var(--navy);
-  background: var(--amber);
-  border-radius: 999px;
-  padding: 4px 14px;
-  pointer-events: none;
-  z-index: 5;
-}
-
 #coach {
   position: absolute;
   top: 70px;
@@ -270,6 +255,7 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 }
 .hint-pulse { animation: hint-pulse 1s ease-in-out infinite !important; }
 #tower-buttons.hint-pulse { border-radius: 20px; }
+#forge-panel.hint-pulse { animation: hint-pulse 1s ease-in-out infinite !important; }
 @keyframes hint-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 207, 94, 0.9); }
   50% { box-shadow: 0 0 0 12px rgba(255, 207, 94, 0); }
@@ -375,7 +361,7 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
   justify-content: center;
 }
 
-#forge-btn, #start-wave-btn {
+#start-wave-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -386,15 +372,6 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 }
 .dock-btn-label { font-size: 19px; white-space: nowrap; }
 .dock-btn-sub { font-family: var(--body); font-size: 12px; opacity: 0.8; }
-#forge-btn-hammers { font-size: 15px; letter-spacing: 3px; opacity: 1; }
-#forge-btn.open { filter: brightness(1.12); transform: translateY(-3px); }
-#forge-btn.ready { animation: forge-nudge 2.4s ease-in-out infinite; }
-@keyframes forge-nudge {
-  0%, 86%, 100% { transform: translateY(0) rotate(0); }
-  90% { transform: translateY(-4px) rotate(-2deg); }
-  94% { transform: translateY(-4px) rotate(2deg); }
-}
-
 /* ── Tower info ──────────────────────────────────────────── */
 
 #tower-info {
@@ -438,40 +415,41 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
   border-radius: 16px;
 }
 
-/* ── Forge panel ─────────────────────────────────────────── */
+/* ── Forge card (always visible) ─────────────────────────── */
 
+/* Default: a strip above the dock (phones, portrait, narrow windows). */
 #forge-panel {
   position: relative;
-  width: min(600px, calc(100% - 20px));
-  padding: 14px 18px 16px;
+  width: min(600px, calc(100% - 16px));
+  padding: 9px 12px 10px;
   border-color: var(--amber);
   overflow: hidden;
 }
-.forge-head { display: flex; align-items: center; gap: 12px; }
-.forge-title { font-family: var(--display); font-size: 20px; color: var(--amber); white-space: nowrap; }
-.forge-sub { font-size: 13px; color: var(--text-soft); flex: 1; }
-.forge-hammers { font-size: 17px; letter-spacing: 3px; white-space: nowrap; }
-.forge-hammers .used { opacity: 0.22; filter: grayscale(1); }
-#forge-close { font-size: 14px; padding: 6px 14px; border-radius: 12px; }
+.forge-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.forge-title { font-family: var(--display); font-size: 17px; color: var(--amber); white-space: nowrap; }
+.forge-ore { font-family: var(--display); font-size: 16px; white-space: nowrap; }
+.forge-sub { font-size: 12.5px; color: var(--text-soft); min-height: 17px; margin-top: 1px; }
+.forge-sub .streak { color: var(--coral); font-family: var(--display); }
 
 .forge-question {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px 12px;
-  margin: 16px 0 14px;
+  gap: 4px 6px;
+  margin: 6px 0 8px;
   font-family: var(--display);
-  font-size: 30px;
+  font-size: 21px;
   line-height: 1.2;
   text-align: center;
+  min-height: 52px;
 }
-.q-arrow { color: rgba(255, 255, 255, 0.4); padding-top: 4px; }
-.q-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.q-arrow { color: rgba(255, 255, 255, 0.4); padding-top: 3px; }
+.q-slot { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .q-word {
-  min-width: 112px;
-  padding: 4px 14px;
-  border-radius: 12px;
+  min-width: 58px;
+  padding: 3px 9px;
+  border-radius: 10px;
   border: 2px solid transparent;
 }
 .q-slot.blank .q-word { color: rgba(255, 255, 255, 0.3); border: 2px dashed rgba(255, 255, 255, 0.22); }
@@ -483,45 +461,48 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 }
 @keyframes ask-pulse {
   0%, 100% { box-shadow: 0 0 0 4px rgba(255, 207, 94, 0.28); }
-  50% { box-shadow: 0 0 0 9px rgba(255, 207, 94, 0.12); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 207, 94, 0.12); }
 }
 .q-slot.shown .q-word { background: rgba(255, 255, 255, 0.08); }
 /* Grammar terms: small print, only after the answer. */
-.q-caption { font-family: var(--body); font-size: 11px; color: var(--text-soft); min-height: 14px; }
-.q-sentence { font-size: 24px; font-family: var(--display); }
+.q-caption { font-family: var(--body); font-size: 10px; color: var(--text-soft); min-height: 12px; white-space: nowrap; }
+.q-sentence { font-size: 19px; font-family: var(--display); }
 .q-gap {
   display: inline-block;
-  min-width: 70px;
-  padding: 0 10px;
-  border-radius: 10px;
+  min-width: 52px;
+  padding: 0 8px;
+  border-radius: 9px;
   background: var(--amber);
   color: var(--navy);
 }
+.q-empty { font-family: var(--body); font-size: 15px; color: var(--text-soft); align-self: center; }
 
-.forge-answers { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.forge-answers { display: flex; gap: 8px; justify-content: center; }
 .forge-answer {
   position: relative;
-  flex: 1 1 150px;
-  max-width: 190px;
-  padding: 13px 10px;
-  border-radius: 16px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 11px 6px;
+  border-radius: 14px;
   background: var(--navy-3);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
   font-family: var(--display);
-  font-size: 22px;
+  font-size: 19px;
+  overflow-wrap: anywhere;
   transition: transform 0.08s ease, border-color 0.15s ease;
 }
-.forge-answer:hover:not(.locked) { transform: translateY(-3px); border-color: var(--teal); }
+.forge-answer:hover:not(.locked) { transform: translateY(-2px); border-color: var(--teal); }
 .forge-answer:active:not(.locked) { transform: translateY(2px); }
 .forge-answer .key {
   position: absolute;
-  top: 5px;
-  left: 9px;
-  font-size: 11px;
+  top: 3px;
+  left: 7px;
+  font-size: 10px;
   color: var(--text-soft);
+  display: none;
 }
-.forge-answer.locked { cursor: default; opacity: 0.5; }
+.forge-answer.locked { cursor: default; opacity: 0.45; }
 .forge-answer.correct { opacity: 1; background: var(--teal); border-color: var(--teal); color: var(--navy); }
 .forge-answer.wrong { opacity: 1; background: var(--coral); border-color: var(--coral); color: var(--navy); }
 .forge-answer.correct .key, .forge-answer.wrong .key { color: rgba(13, 27, 58, 0.6); }
@@ -530,14 +511,72 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  min-height: 44px;
-  margin-top: 12px;
+  gap: 6px;
+  min-height: 24px;
+  margin-top: 6px;
   font-family: var(--display);
-  font-size: 18px;
+  font-size: 15px;
 }
 .forge-feedback.ok { color: var(--teal); }
 .forge-feedback.bad { color: var(--coral); }
+/* Shrinking bar: how long the card stays locked after a wrong answer. */
+.forge-lock { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); margin-top: 4px; overflow: hidden; }
+#forge-lock-bar { height: 100%; width: 0; background: var(--coral); border-radius: 2px; }
+
+/* Wide landscape screens: a side panel on the right, answers stacked. */
+@media (min-width: 760px) and (orientation: landscape) {
+  #forge-panel {
+    position: fixed;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 268px;
+    padding: 14px 14px 12px;
+  }
+  /* Everything centred on the board now centres on the space left of the panel. */
+  #bottom-dock { right: 286px; }
+  #coach, #wave-banner { left: calc((100% - 286px) / 2); }
+  .forge-title { font-size: 20px; }
+  /* The chain runs top to bottom here: long verbs would not fit side by side. */
+  .forge-question { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: 2px; font-size: 24px; margin: 10px 0 12px; min-height: 178px; justify-content: center; }
+  .q-arrow { transform: rotate(90deg); padding: 0; font-size: 17px; line-height: 1; }
+  .q-word { min-width: 120px; }
+  .forge-answers { flex-direction: column; gap: 9px; }
+  .forge-answer { flex: none; padding: 12px 8px; font-size: 21px; }
+  .forge-answer .key { display: block; top: 5px; left: 9px; font-size: 11px; }
+  .forge-feedback { min-height: 28px; margin-top: 10px; font-size: 16px; }
+  body #forge-panel.shake { animation: panel-shake-side 0.45s ease-out; }
+  body #forge-panel.celebrate { animation: panel-celebrate-side 0.45s ease-out; }
+}
+@keyframes panel-shake-side {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  20% { transform: translateY(-50%) translateX(-8px); }
+  40% { transform: translateY(-50%) translateX(7px); }
+  60% { transform: translateY(-50%) translateX(-4px); }
+  80% { transform: translateY(-50%) translateX(3px); }
+}
+@keyframes panel-celebrate-side {
+  0% { transform: translateY(-50%) scale(1); }
+  40% { transform: translateY(-50%) scale(1.035); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+/* Short landscape windows (phone sideways, small iframe). */
+@media (min-width: 760px) and (orientation: landscape) and (max-height: 520px) {
+  /* Sits under the top bar instead of the middle, so it never covers the HUD. */
+  #forge-panel { width: 236px; padding: 9px 11px 8px; top: 60px; transform: none; }
+  body #forge-panel.shake, body #forge-panel.celebrate { animation: none; }
+  #bottom-dock { right: 254px; }
+  #coach, #wave-banner { left: calc((100% - 254px) / 2); }
+  #coach { font-size: 15px; padding: 6px 12px; top: 60px; }
+  .forge-sub { display: none; }
+  .forge-question { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 3px 5px; font-size: 18px; margin: 6px 0 7px; min-height: 60px; }
+  .q-arrow { transform: none; padding-top: 3px; font-size: 18px; }
+  .q-word { min-width: 46px; padding: 2px 7px; }
+  .forge-answer { padding: 8px 6px; font-size: 18px; }
+  .forge-answers { gap: 6px; }
+  .forge-feedback { min-height: 20px; margin-top: 5px; font-size: 14px; }
+}
+
 #forge-panel.shake { animation: panel-shake 0.45s ease-out; }
 @keyframes panel-shake {
   0%, 100% { transform: translateX(0); }
@@ -713,15 +752,13 @@ body.game-inactive #bottom-dock { display: none; }
 @media (max-width: 1100px) {
   .tower-btn { width: 84px; }
   .tower-thumb { width: 50px; height: 50px; }
-  #forge-btn, #start-wave-btn { min-width: 112px; padding: 10px 12px; }
+  #start-wave-btn { min-width: 112px; padding: 10px 12px; }
   .dock-btn-label { font-size: 17px; }
   .hotkey { display: none; }
 }
 
 /* Short windows (a game iframe on a laptop): keep panels compact. */
 @media (max-height: 640px) {
-  .forge-question { margin: 10px 0; font-size: 26px; }
-  .forge-answer { padding: 10px 8px; font-size: 20px; }
   .tower-btn-name { display: none; }
 }
 
@@ -745,20 +782,12 @@ body.game-inactive #bottom-dock { display: none; }
   .tower-thumb { width: 44px; height: 44px; }
   .tower-btn-name { display: none; }
   .tower-btn-hotkey { display: none; }
-  #forge-btn, #start-wave-btn { flex: 1; min-width: 0; padding: 9px 8px; }
+  #start-wave-btn { flex: 1; min-width: 0; padding: 9px 8px; }
   .dock-btn-label { font-size: 16px; }
 
   #tower-info { flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; }
   .ti-thumb { display: none; }
   .ti-header { min-width: 0; align-items: center; text-align: center; }
-
-  #forge-panel { padding: 12px 12px 14px; }
-  .forge-sub { display: none; }
-  .forge-title { flex: 1; }
-  .forge-question { font-size: 23px; gap: 4px 6px; }
-  .q-word { min-width: 74px; padding: 3px 8px; }
-  .forge-answer { flex: 1 1 30%; font-size: 18px; padding: 12px 4px; }
-  .forge-answer .key { display: none; }
 
   .overlay-panel { padding: 20px 16px 22px; }
   .overlay-title { font-size: 28px; }

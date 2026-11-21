@@ -45,10 +45,12 @@ const run = (level, acc) => p.evaluate(([level, acc]) => {
   let guard = 0, right = 0, asked = 0;
   while (st.phase !== 'VICTORY' && st.phase !== 'GAME_OVER' && guard++ < 400000) {
     if (st.phase === 'BUILD') {
-      while (st.forge.hammers > 0) {
-        T.Forge.open(st); const q = st.forge.q; const ok = Math.random() < acc; asked++; if (ok) right++;
+      // Answer every question the forge card offers this wave (right with probability acc).
+      T.Forge.update(0, st);
+      while (st.forge.stage === 'ask') {
+        const q = st.forge.q; const ok = Math.random() < acc; asked++; if (ok) right++;
         T.Forge.answer(st, ok ? q.correctIndex : (q.correctIndex + 1) % q.options.length);
-        T.Forge.close(st);
+        T.Forge.update(10, st);   // skip the pause / lock
       }
       for (let i = 0; i < 60; i++) T.step(0.05);   // coins fly in
       spend();

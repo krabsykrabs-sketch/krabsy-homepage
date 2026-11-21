@@ -38,7 +38,6 @@
         </div>
 
         <div id="wave-banner" class="hidden"></div>
-        <div id="slowmo-note" class="hidden" data-i18n="slowMotion"></div>
         <!-- Tutorial coach: one short line about what to do next (level 1, first time). -->
         <div id="coach" class="hidden"></div>
 
@@ -47,25 +46,22 @@
         <div id="bottom-dock">
           <div id="tower-info" class="panel hidden"></div>
 
-          <!-- The forge: the question moment. Opened by the player, never forced. -->
+          <!-- The forge: one question is always on screen here (side panel on wide
+               screens, a strip above the dock on phones). It never stops the game. -->
           <div id="forge-panel" class="panel hidden">
             <div class="forge-head">
               <span class="forge-title">⚒ <span data-i18n="forgeTitle"></span></span>
-              <span class="forge-sub" id="forge-sub"></span>
-              <span class="forge-hammers" id="forge-hammers"></span>
-              <button id="forge-close" class="btn btn-ghost" data-i18n="forgeClose"></button>
+              <span class="forge-ore" data-i18n-title="oreLeft">🔨 <span id="forge-ore">0</span></span>
             </div>
+            <div class="forge-sub" id="forge-sub"></div>
             <div class="forge-question" id="forge-question"></div>
             <div class="forge-answers" id="forge-answers"></div>
             <div class="forge-feedback" id="forge-feedback"></div>
+            <div class="forge-lock"><div id="forge-lock-bar"></div></div>
           </div>
 
           <div id="dock-row">
             <div id="tower-buttons"></div>
-            <button id="forge-btn" class="btn btn-amber">
-              <span class="dock-btn-label">⚒ <span data-i18n="forge"></span></span>
-              <span class="dock-btn-sub" id="forge-btn-hammers"></span>
-            </button>
             <button id="start-wave-btn" class="btn btn-teal">
               <span class="dock-btn-label" data-i18n="startWave"></span>
               <span class="dock-btn-sub hotkey" data-i18n="hotkeySpace"></span>

@@ -206,15 +206,25 @@ export const Renderer = {
   // when it does; checked a few times per second, not every frame.
   _watchLayout() {
     this._layoutTick = (this._layoutTick || 0) + 1;
-    if (this._layoutTick % 20) return;
-    const dock = this._dockHeight();
-    if (dock !== this._fitDock && Level.current) this._frameCamera(Level.current);
+    if (this._layoutTick % 6) return;
+    const i = this._insets();
+    if (`${i.bottom}|${i.right}` !== this._fitSig && Level.current) this._frameCamera(Level.current);
   },
 
-  _dockHeight() {
+  // Screen space taken by the UI (px): the dock at the bottom, and the forge card —
+  // a side panel on wide screens, a strip above the dock otherwise.
+  _insets() {
+    const w = this.canvas.clientWidth || 1366;
     const row = document.getElementById('dock-row');
-    const hgt = row ? row.offsetHeight : 0;
-    return hgt > 0 ? hgt + 22 : 0;
+    let bottom = row && row.offsetHeight > 0 ? row.offsetHeight + 22 : 0;
+    let right = 6;
+    const panel = document.getElementById('forge-panel');
+    if (panel && panel.offsetWidth > 0) {
+      const r = panel.getBoundingClientRect();
+      if (getComputedStyle(panel).position === 'fixed') right = Math.round(w - r.left + 8);
+      else bottom += Math.ceil((r.height + 10) / 12) * 12; // rounded: small height changes must not re-fit
+    }
+    return { bottom, right };
   },
 
   // Shadow map: towers and scenery only (enemies use blob shadows). Redraw when the
@@ -446,13 +456,13 @@ export const Renderer = {
     const cam = this.camera;
     const W = level.gridWidth, H = level.gridHeight;
     const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
-    const dock = this._dockHeight();
-    this._fitDock = dock;
-    const top = HUD_TOP, bottom = dock || Math.min(140, h * 0.2), side = 6;
+    const insets = this._insets();
+    this._fitSig = `${insets.bottom}|${insets.right}`;
+    const top = HUD_TOP, bottom = insets.bottom || Math.min(140, h * 0.2), side = 6;
 
     // Free area in normalised device coordinates (-1..1, y up).
     const safe = {
-      minX: -1 + 2 * side / w, maxX: 1 - 2 * side / w,
+      minX: -1 + 2 * side / w, maxX: 1 - 2 * insets.right / w,
       minY: -1 + 2 * bottom / h, maxY: 1 - 2 * top / h,
     };
     const target = new THREE.Vector3(W / 2, 0, H / 2);

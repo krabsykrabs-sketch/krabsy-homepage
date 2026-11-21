@@ -32,7 +32,8 @@ export class Enemy {
     this.isPermanentlySlowed = false;
     this.permanentSlowMultiplier = 1;
     // Normal enemies rise out of the ground first (visual: Spawn_Ground animation).
-    // They can already be hit while rising. Bosses simply appear.
+    // Until they are up, towers ignore them and nothing can hurt or freeze them.
+    // Bosses simply appear.
     this.spawnTimer = isBoss ? 0 : CONFIG.enemySpawnRise;
     this.stunTimer = this.spawnTimer;
     this.damageTintTimer = 0;
@@ -98,6 +99,7 @@ export class Enemy {
   }
 
   applyFreeze(duration, applyPermanentSlow) {
+    if (this.spawnTimer > 0) return; // still rising out of the ground
     this.isFrozen = true;
     this.freezeTimer = duration;
     if (applyPermanentSlow) {
@@ -115,6 +117,8 @@ export class Enemy {
 
   takeDamage(amount, state) {
     if (!this.isAlive || this.isDying) return;
+    // Untouchable while rising out of the ground: no tower may camp the spawn point.
+    if (this.spawnTimer > 0) return;
     this.currentHealth -= amount;
     this.damageTintTimer = 0.1;
     if (this.currentHealth <= 0) {

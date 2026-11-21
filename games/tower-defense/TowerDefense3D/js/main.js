@@ -17,7 +17,7 @@ import { Tutorial } from './tutorial.js';
 // Entry point: initialize subsystems, own the central state, run the game loop + phase
 // machine. Phase table (spec):
 //   MENU → BUILD → BATTLE → WAVE_COMPLETE → BUILD (next wave) or VICTORY
-//   The forge (questions for coins) can be opened any time during BUILD and BATTLE.
+//   The forge card (questions for coins) is always on screen while a level runs.
 //   GAME_OVER triggers from any gameplay phase when lives hit 0.
 //   End-game button → MENU (ends current run).
 
@@ -48,7 +48,7 @@ export const state = {
 
   forge: Forge.newState(),
   stats: { asked: 0, right: 0 },
-  // Game speed: forge slow motion × the player's speed button (1 or 2, battle only).
+  // Game speed: the player's speed button (1 or 2), battle only.
   timeScale: 1,
   speed: 1,
 
@@ -230,11 +230,12 @@ export function sellTower(tower) {
 
 // ── Game loop ─────────────────────────────────────────────────────────
 
-function update(dt) {
-  // The forge runs on real time; everything else slows down while it is open in battle.
-  Forge.update(dt, state);
-  const battle = state.phase === 'BATTLE';
-  state.timeScale = battle ? (state.forge.open ? CONFIG.forge.battleTimeScale : state.speed) : 1;
+// dt is the game step (capped, so a slow frame cannot make enemies jump); realDt is
+// wall-clock time for things that must not slow down on a slow device.
+function update(dt, realDt = dt) {
+  // The forge card runs on real time, whatever the game speed or frame rate.
+  Forge.update(realDt, state);
+  state.timeScale = state.phase === 'BATTLE' ? state.speed : 1;
   dt *= state.timeScale;
   Tutorial.update(state, currentLevelIndex);
 
@@ -294,9 +295,9 @@ function update(dt) {
 }
 
 function gameLoop(timestamp) {
-  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  const elapsed = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
-  update(dt);
+  update(Math.min(elapsed, 0.05), Math.min(elapsed, 0.5));
   Renderer.render(state);
   requestAnimationFrame(gameLoop);
 }

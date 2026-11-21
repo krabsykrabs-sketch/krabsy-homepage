@@ -35,5 +35,5 @@ window.LEVEL3 = {
     enemiesPerWave: 1.4,
     baseEnemySpeed: 2.3,
   },
-  economy: { baseCoinsPerKill: 1, waveCompletionBonus: 12 },
+  economy: { baseCoinsPerKill: 1, waveCompletionBonus: 5 },
 };

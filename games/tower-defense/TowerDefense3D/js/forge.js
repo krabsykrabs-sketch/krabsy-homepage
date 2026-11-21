@@ -4,105 +4,98 @@ import { Level } from './level.js';
 import { Effects } from './effects.js';
 import { Questions } from './questions.js';
 
-// The forge: the game's question moment. It is self-paced — the player opens it when
-// they want coins (any time during build or battle), answers as many questions as
-// they have hammers for, and closes it again. Every wave refills the hammers.
+// The forge: the game's question moment and its main source of coins.
 //
-//   right answer → coins fly in from the castle, next question follows by itself
-//   wrong answer → no coins, the full chain is shown, the player presses "next"
-//                  when ready; the question comes back a little later
+// One question is ALWAYS on screen in the forge card (side panel, or a strip above the
+// dock on phones). The game never stops for it and it never times out: the player
+// answers whenever they want coins — typically while the towers fight.
 //
-// Either way the hammer is used up, so guessing does not pay. While the forge is open
-// during a battle the game runs in slow motion (CONFIG.forge.battleTimeScale):
-// thinking is safe-ish but not free, like Verb Kitchen's sink.
+//   right answer → coins fly in from the castle; a streak pays a little extra;
+//                  the next question follows after a short beat
+//   wrong answer → no coins, the full chain is shown and the card is locked for a few
+//                  seconds (guessing costs time; the pause is the teaching beat);
+//                  the question comes back a little later
 //
-// state.forge = { open, hammers, q, stage: 'idle'|'ask'|'right'|'wrong', picked, timer }
+// Each wave brings a fixed amount of ore (CONFIG.forge.orePerWave); every answer uses
+// one, right or wrong. That keeps the untimed build phase from being an endless coin
+// farm and makes accuracy matter.
+//
+// state.forge = { ore, q, stage: 'ask'|'right'|'wrong'|'empty', picked, timer, lock,
+//                 streak, lastGain }
 // state.stats = { asked, right }
 
 export const Forge = {
   newState() {
-    return { open: false, hammers: CONFIG.forge.hammersPerWave, q: null, stage: 'idle', picked: -1, timer: 0 };
+    return {
+      ore: CONFIG.forge.orePerWave, q: null, stage: 'empty', picked: -1,
+      timer: 0, lock: 0, streak: 0, lastGain: 0,
+    };
   },
 
+  // New wave cycle: fresh ore, and a question if the card was empty.
   refill(state) {
-    state.forge.hammers = CONFIG.forge.hammersPerWave;
-  },
-
-  canOpen(state) {
-    return (state.phase === 'BUILD' || state.phase === 'BATTLE') && state.forge.hammers > 0;
-  },
-
-  toggle(state) {
-    if (state.forge.open) this.close(state);
-    else this.open(state);
-  },
-
-  open(state) {
-    if (state.forge.open || !this.canOpen(state)) return;
-    state.forge.open = true;
-    state.placement.active = false;
-    state.placement.towerType = null;
-    state.selectedTower = null;
-    state.buildCell = null;
-    Sound.play('click');
-    this._ask(state);
-  },
-
-  close(state) {
     const f = state.forge;
-    f.open = false;
-    f.q = null;
-    f.stage = 'idle';
-    f.picked = -1;
+    f.ore = CONFIG.forge.orePerWave;
+    if (f.stage === 'empty') this._ask(state);
+  },
+
+  active(state) {
+    return state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE';
   },
 
   _ask(state) {
     const f = state.forge;
+    if (f.ore <= 0) { f.q = null; f.stage = 'empty'; return; }
     f.q = Questions.next();
     f.stage = 'ask';
     f.picked = -1;
     f.timer = 0;
   },
 
+  // Coins for the next right answer, including the streak bonus.
+  reward(streak) {
+    const c = CONFIG.forge;
+    return c.coinsPerRight + Math.min(c.streakBonusMax, Math.floor(streak / c.streakEvery) * c.streakBonus);
+  },
+
   answer(state, index) {
     const f = state.forge;
-    if (!f.open || f.stage !== 'ask' || !f.q) return;
+    if (!this.active(state) || f.stage !== 'ask' || !f.q) return;
     if (index < 0 || index >= f.q.options.length) return;
     f.picked = index;
-    f.hammers -= 1;
+    f.ore -= 1;
     state.stats.asked += 1;
 
     if (index === f.q.correctIndex) {
       state.stats.right += 1;
+      f.lastGain = this.reward(f.streak);
+      f.streak += 1;
       f.stage = 'right';
-      f.timer = 1.1;
+      f.timer = CONFIG.forge.rightPause;
       Sound.play('quizCorrect');
       // Coins are forged at the castle and fly to the purse.
       const goal = Level.current.goals[0];
-      Effects.spawnFlyingCoins({ x: goal.x, y: goal.y }, CONFIG.forge.coinsPerRight);
+      Effects.spawnFlyingCoins({ x: goal.x, y: goal.y }, f.lastGain);
     } else {
       Questions.markWrong(f.q);
+      f.streak = 0;
       f.stage = 'wrong';
+      f.timer = f.lock = CONFIG.forge.wrongLock;
       Sound.play('quizWrong');
     }
   },
 
-  // After the feedback: another question while hammers remain, else close.
-  next(state) {
-    const f = state.forge;
-    if (!f.open || (f.stage !== 'right' && f.stage !== 'wrong')) return;
-    if (f.hammers > 0) this._ask(state);
-    else this.close(state);
-  },
-
-  // dt is real time (not slowed), so the feedback pause feels the same in battle.
+  // dt is real time: the card keeps its own pace whatever the game speed is.
   update(dt, state) {
     const f = state.forge;
-    if (!f.open) return;
-    if (state.phase !== 'BUILD' && state.phase !== 'BATTLE') { this.close(state); return; }
-    if (f.stage === 'right') {
+    if (!this.active(state)) return;
+    if (f.stage === 'empty') {
+      if (f.ore > 0) this._ask(state);
+      return;
+    }
+    if (f.stage === 'right' || f.stage === 'wrong') {
       f.timer -= dt;
-      if (f.timer <= 0) this.next(state);
+      if (f.timer <= 0) this._ask(state);
     }
   },
 };

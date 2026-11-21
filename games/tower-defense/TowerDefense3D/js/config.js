@@ -8,13 +8,18 @@ export const CONFIG = {
   // Seconds a normal enemy takes to climb out of the ground before it starts walking.
   enemySpawnRise: 0.9,
 
-  // The forge (question moment, see forge.js). Hammers = questions per wave.
+  projectileHitRadius: 0.3,  // enemy.radius is added on top per hit check
+
+  // The forge (always-visible question card, see forge.js). It is the main income.
   forge: {
-    hammersPerWave: 3,
-    coinsPerRight: 8,
-    battleTimeScale: 0.25, // game speed while the forge is open during a battle
-  }, // world-unit radius = tier.scale * this
-  projectileHitRadius: 0.3,  // spec baseline — enemy.radius is added on top per hit check
+    orePerWave: 8,       // answers per wave (right or wrong)
+    coinsPerRight: 5,
+    streakEvery: 3,      // every 3 right answers in a row …
+    streakBonus: 1,      // … the next ones pay 1 coin more …
+    streakBonusMax: 3,   // … up to +3
+    rightPause: 0.9,     // seconds before the next question
+    wrongLock: 4,        // seconds the card stays locked after a wrong answer
+  },
 
   colors: {
     ground:        '#4a7c2e',
@@ -44,17 +49,18 @@ export const CONFIG = {
     projectileCannon:        '#a06a30',
   },
 
+  // Kills pay a token coin whatever the tier: coins come from the forge.
   // ENEMY_TIERS — see spec "Enemy System". Thresholds are walked high→low; first match wins.
   enemyTiers: [
     { name: 'Grunt',   healthThreshold: 0,   scale: 1.8, speedMultiplier: 1.2, coinReward: 1, color: '#5bc14a' },
     { name: 'Soldier', healthThreshold: 50,  scale: 2.3, speedMultiplier: 1.0, coinReward: 1, color: '#3d7dd8' },
-    { name: 'Warrior', healthThreshold: 100, scale: 2.8, speedMultiplier: 0.9, coinReward: 2, color: '#f2c94c' },
-    { name: 'Brute',   healthThreshold: 200, scale: 3.3, speedMultiplier: 0.8, coinReward: 3, color: '#e25c4d' },
-    { name: 'Titan',   healthThreshold: 400, scale: 3.8, speedMultiplier: 0.7, coinReward: 4, color: '#9b59d0' },
+    { name: 'Warrior', healthThreshold: 100, scale: 2.8, speedMultiplier: 0.9, coinReward: 1, color: '#f2c94c' },
+    { name: 'Brute',   healthThreshold: 200, scale: 3.3, speedMultiplier: 0.8, coinReward: 1, color: '#e25c4d' },
+    { name: 'Titan',   healthThreshold: 400, scale: 3.8, speedMultiplier: 0.7, coinReward: 1, color: '#9b59d0' },
   ],
 
   // 3D version: bosses are big and unmistakable (boss waves contain only bosses).
-  bossType: { name: 'Boss', scale: 3.2, speedMultiplier: 0.6, coinReward: 5, color: '#2a2333' },
+  bossType: { name: 'Boss', scale: 3.2, speedMultiplier: 0.6, coinReward: 3, color: '#2a2333' },
 
   // TOWERS — full catalogue per spec "Tower System". Only `basic` fires in step 4;
   // the rest are placeable statues until step 5 wires up their firing logic.
