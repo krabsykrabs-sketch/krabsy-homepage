@@ -154,8 +154,9 @@ load with 0 console errors, 0 failed requests, 0 external requests.
   are now 0 (attached) or 2–3; "Ferries is quite good"; the character
   now turns to its steering direction in the air too (it used to jump
   sideways). Still open: his view on the wider gaps, the other levels,
-  hammer timing, and whether the mouse should also turn the character
-  when standing still.
+  hammer timing. **Controls (owner decision, same day): the mouse
+  turns the character** — it always faces the camera direction, A/D
+  step sideways, S walks backwards (`src/player.js`).
 - **Falling red platforms outside gates do not come back on respawn.**
 - **UI is English only**, system font, title "Krabsy 3D".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
