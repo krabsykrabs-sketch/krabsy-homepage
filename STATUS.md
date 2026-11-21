@@ -10,11 +10,11 @@ at the end of each session. (Last update: 2026-11-21.)
 | Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21, parked** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
-| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
+| Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms. 2026-11-21 (committed, **not yet deployed**): no ①②③ answer tell (planes all white, word only; panel shows go → ___ → ___), phone-legible labels/bubbles/hints, safer spawn lanes on phones, level-complete screen auto-continues after 8 s, same-word forms (run/ran/run) take the earlier slot. Still to check on a real phone |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12, to be continued** — owner 2026-11-21: mechanics and feel are good, it lacks real levels → next is level design (editor in the game folder). Plan, bug list and how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
 | Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session opens in `games/tower-defense/` |
-| Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **GO (owner 2026-11-21): build the full game** — PoC built 2026-06; new brief in its `CLAUDE.md` (fixed room camera, KayKit models, short levels, touch, DE/ES); own session opens in `games/verb-dungeon/` |
+| Verb Dungeon | 3D dungeon crawler (PoC is primitives only; KayKit models planned) | `games/verb-dungeon/` | — | **GO (owner 2026-11-21): build the full game** — PoC built 2026-06; new brief in its `CLAUDE.md` (fixed room camera, KayKit models, short levels, touch, DE/ES); own session opens in `games/verb-dungeon/` |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PARKED (owner 2026-11-21, 2D)** — PoC built, many playtest iterations (Trackmania-style levels/medals) |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **GO (owner 2026-11-21): build the full game** — PoC built 2026-06 (3 playtest rounds, KayKit rebuild); new brief in its `CLAUDE.md` (spread grammar through the day, touch, DE/ES; `assets/` must be restored first); own session opens in `games/verb-valley/` |
 | Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PARKED (owner 2026-11-21, 2D)** — PoC built; art contact sheet never judged |
@@ -51,7 +51,7 @@ New ideas the owner liked, not started, no folder yet:
 - Drag Match and Falling Forms → small layout fix (start button below the
   fold, ✕ leaves the site).
 - Verb Slash → fix the colour tell and slow start.
-- Air Control → small fixes.
+- Air Control → small fixes — **done 2026-11-21** (deploy pending).
 - Verb Flow → keep.
 - Owner decisions pending.
 
@@ -141,8 +141,8 @@ but not referenced — verify before removing.)
    - Verb Slash: randomise ball colours (`fruit-correct` tell), faster
      first balloon, tap counts, show the answer after a mistake, DE/ES UI.
      Also in `games/verb-slash/CLAUDE.md`.
-   - Air Control: drop the ①②③ answer tell, phone label size
-     (`krabsy-air-control.html:1590`).
+   - Air Control: ✅ done 2026-11-21 (①②③ tell dropped, phone label
+     size) — needs push + deploy + a check on a real phone.
 4. **Tower Defense:** the owner runs its own chat in
    `games/tower-defense/` (Fable 5.2); the brief is in its `CLAUDE.md`.
    Also ready for their own chats (briefs in each `CLAUDE.md`):
@@ -163,8 +163,9 @@ but not referenced — verify before removing.)
   Kenney, zips). The 3D platformer's *wired* `kaykit-platformer` still
   lives in its source folder — consolidating it into `/assets/` (+ repoint
   + WebGL test) is a verb-platformer-session task.
-- **Verb Dungeon**: PoC brief ready in `games/verb-dungeon/CLAUDE.md` —
-  one asset-free showcase level (Three.js primitives only), goofy
-  skeletons, grammar-as-keys. If the PoC convinces, buy the KayKit
-  Dungeon pack and build the full roguelite (hand-authored rooms +
-  procedural assembly).
+- **Verb Dungeon**: PoC built 2026-06 (one asset-free level, Three.js
+  primitives, goofy skeletons, grammar-as-keys). Owner said GO on
+  2026-11-21; the full-build brief is in `games/verb-dungeon/CLAUDE.md`
+  (short hand-built levels with models from the shared library;
+  roguelite room assembly is "later, not now"). The free KayKit Dungeon
+  pack has no door model; the brief lists alternatives.

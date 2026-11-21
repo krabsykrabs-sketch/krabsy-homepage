@@ -1557,7 +1557,8 @@ function drawRunwayDynamics(){
       const fs=fpx(11,11),kb=fs/11;
       ctx.font=`800 ${fs}px Nunito,sans-serif`;ctx.textAlign='center';
       const tw=ctx.measureText(word).width;
-      const bw=tw+50*kb,bh=17*kb,bx=s.w*0.5-bw/2,by=-s.h/2-5-bh;
+      // runway 2 parks its planes on the upper side → its badge hangs below the strip
+      const bw=tw+50*kb,bh=17*kb,bx=s.w*0.5-bw/2,by=si===1?s.h/2+5:-s.h/2-5-bh;
       ctx.fillStyle='rgba(15,30,55,0.75)';
       ctx.beginPath();ctx.roundRect(bx,by,bw,bh,8*kb);ctx.fill();
       ctx.strokeStyle='rgba(255,207,94,0.7)';ctx.lineWidth=1.2;ctx.stroke();
@@ -2058,7 +2059,13 @@ function drawHint(){
 function render(){
   // 1) fill the whole device canvas with sea so letterbox margins blend in
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.fillStyle='#2e86c4';ctx.fillRect(0,0,CW,CH);
+  //    (same vertical gradient as the map's sea, held at its edge colours in the margins —
+  //    a portrait phone is taller than the 1240-unit world, so margins show top and bottom)
+  const mt=Math.max(0,VOY)/CH,mb=Math.min(CH,VOY+H*VS)/CH;
+  const sea=ctx.createLinearGradient(0,0,0,CH);
+  sea.addColorStop(0,'#2273ae');sea.addColorStop(mt,'#2273ae');sea.addColorStop((mt+mb)/2,'#2e86c4');
+  sea.addColorStop(mb,'#3d9bd4');sea.addColorStop(1,'#3d9bd4');
+  ctx.fillStyle=sea;ctx.fillRect(0,0,CW,CH);
   // 2) switch to the fixed world transform (scale + letterbox offset)
   ctx.setTransform(dpr*VS,0,0,dpr*VS,dpr*VOX,dpr*VOY);
   ctx.save();
