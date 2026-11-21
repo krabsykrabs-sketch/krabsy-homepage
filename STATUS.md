@@ -121,11 +121,17 @@ but not referenced — verify before removing.)
 
 1. ~~Deploy pending~~ **Done 2026-11-21:** Crab Slash hidden + Impressum DDG/MStV are live; IndexNow sent (15 URLs).
 2. **Verb Kitchen release:** the source (L4–7, DE/ES, spaced repetition)
-   is ahead of the live build. A play-test report is expected at
-   `docs/playtest-verb-kitchen-2026-11-21.md` (written by a subagent of
-   the old chat; commit it if it's uncommitted). Next: fix the blockers,
-   build, release, then update the wrapper and teacher texts ("3 Küchen",
-   "Menüs auf Englisch").
+   is ahead of the live build. Play-test done
+   (`docs/playtest-verb-kitchen-2026-11-21.md`): **release after small
+   fixes.** All 7 levels play on tablet touch in DE and ES, with 0
+   errors. Blockers are packaging:
+   - B1: the wrapper doesn't pass `?lang=`.
+   - B2: the source `index.html` lacks noindex and self-hosted fonts.
+   - B3: 35 KayKit models are missing from the build's `assets/`.
+   - B4: the L7 recipe text contradicts the game.
+   - B5: deploy the new code under `src-2/` (no cache headers).
+   Then update the wrapper/info texts ("drei Restaurants", "auf Englisch").
+   Owner decisions: open L4–7 from the start? Ship L7 or fix it?
 3. **Small game fixes from the play-test** (`docs/playtest-2026-11-21.md`),
    not started, owner OK pending:
    - Drill page layout (Drag Match, Falling Forms): game above the intro,
