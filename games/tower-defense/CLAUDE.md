@@ -56,9 +56,11 @@ tools/
 td-html5-spec.md          original 2D spec (historic, balance ideas)
 ```
 
-**Play locally:** `python3 -m http.server 8123 --directory TowerDefense3D`
-(fallback verbs). To use the real question engine the site's `/lib` and
-`/data` must be served at the root, as after release.
+**Play locally:** `python3 tools/dev-server.py` → http://localhost:8125/?lang=de
+(serves the game plus the site's `/lib` and `/data`, so the real question
+engine works as after release; add `&unlock=all` to open every level).
+`python3 -m http.server 8123 --directory TowerDefense3D` also works but
+uses the fallback verbs.
 
 **URL parameters:** `?lang=de|es|en`, `?topic=irregular_verbs|prepositions`,
 `?q=high|low` (fix the render quality; default adapts to the frame rate).
