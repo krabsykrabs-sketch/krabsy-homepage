@@ -29,31 +29,86 @@ A goofy-spooky dungeon crawler (Luigi's-Mansion mood, not horror). A small
 hero walks through torch-lit rooms. **Doors and chests are locked by verb
 questions**; goofy skeletons block the way and get bonked with one button.
 
-## What exists (PoC from 2026-06-10, untouched since)
+## What exists
 
-- `index.html` + `src/` (about 2,850 lines): game, level, player,
-  skeletons, gates, fx, ui, audio, verbs, utils.
-- One hand-built level with 8 spaces, played start to win in 5–8 minutes:
-  entrance hall, corridor, verb door, chasm bridge, ambush room, rune
-  room with three doors, treasure vault, win screen with chain recap.
-- Everything is **procedural** (Three.js primitives, no models). Details
-  are in the Status log at the bottom.
-- QA hook `window.__VD` (teleport, answer, solve, step).
+**The game base (built 2026-11-21, replaces the PoC as `index.html`).**
+Plain ES modules, no build step. Serve with `python3 tools/serve.py`
+(port 8130, caching off; `.claude/launch.json` does the same) and open `/`.
+`?play=1` skips the menu.
 
-Known weaknesses of the PoC:
-- Third-person **follow camera**. This is the main risk: camera trouble is
-  what makes 3D games feel bad on school devices.
-- **No touch controls.**
-- Three.js and fonts come from **CDNs** (unpkg, Google Fonts).
-- UI is **English only**.
-- Verbs are inlined (42), not from the question engine.
-- One long level, no level select, no stars.
+| File | What it does |
+|---|---|
+| `index.html` | page, styles, HUD, question plate, start and end screens |
+| `src/main.js` | game loop and rules, input, interface, QA hook |
+| `src/room.js` | builds one room from data (shell + props, merged to one mesh) |
+| `src/levels.js` | level data: 3 levels, 4–5 rooms each, 4 room templates |
+| `src/assets.js` | model loading, shared material, static merge |
+| `src/chars.js` | animated character (hero, skeletons) |
+| `src/questions.js` | questions from the site engine, inline fallback |
+| `src/verbs.js` | inline fallback verbs (46, copied from Verb Kitchen) |
+| `src/i18n.js` | interface texts EN/DE/ES (`?lang=`) |
+| `src/audio.js` | WebAudio synth (kept from the PoC) |
+| `assets/`, `vendor/three/`, `fonts/` | models (2.3 MB), Three.js 0.169, fonts; nothing from a CDN |
+| `poc/` | the June PoC, kept for reference (follow camera, primitives) |
+
+**Rules as built**
+- One room on screen, fixed camera (43° down, fitted to the window). Every
+  room has the same shell; you enter at the open front and leave through
+  the door in the back wall. Room change is a short fade.
+- Per room: bonk every skeleton (Space) → a key appears over the door →
+  walk to the door → verb question (`go → ___ → ___`, asked blank
+  highlighted, 3 choices, keys 1–3 or click) → door opens.
+- A wrong answer shows the full chain, greys that choice out and puts the
+  verb back in the queue for a later door or chest.
+- Chests are optional bonus questions: +1 heart (or just treasure).
+- Skeletons that are not bonked yet chase and bump the hero (−1 heart,
+  knock-back, short blink). Bonked ones get up again and only wander.
+  Nothing moves while a question plate is open.
+- Sword: Space swings on the arms only (clip `ChopUpper`, built at load),
+  so you can swing while running. It skips most of the clip's wind-up and
+  hits ~0.13 s after the key press (`SWING` in `main.js`).
+- Chain order: a verb's 3rd form is asked only right after its 2nd form,
+  with the 2nd form shown (`go → went → ___`). After a 2nd-form answer the feedback
+  also stops at `go → went → ___`; the full chain comes after the 3rd form. From the site engine the
+  game takes 2nd-form questions only until the engine can pair them.
+- Menu works with the keyboard: 1–3 or ←/→ pick a level, Enter/Space start.
+  If the game has no keyboard focus it pauses with "Click here to play".
+- 3 hearts; at 0 the hero is dizzy and the room restarts with full hearts.
+- Stars: 3 = every question right on the first try, 2 = at least 60 %,
+  else 1. Best stars per level in localStorage `krabsy_vdungeon_stars`.
+  Level n+1 unlocks with any star on level n (`?unlock` opens all).
+- Questions: `/lib/krabsy-questions.js` (`getQuizSet`, tiers per level)
+  when served from the site, otherwise the inline list.
+
+**Not built yet**
+- **Touch controls** (virtual stick, bonk button). Phones in portrait get
+  a "use a wider screen" message; tablets have no way to move yet.
+- A tutorial that teaches by doing (room 1 of level 1 has no skeletons,
+  hints tell you what to do, but that is all).
+- Real level design: the three levels reuse four room templates.
+- Prepositions (`?topic=`), cinematic beats, music.
+
+**Local diagnostics:** on localhost (not with `?qa`) the game sends key
+presses, a 2-second heartbeat and errors as `diag?…` requests, visible in
+the dev server's output. This is how the "controls don't work" report was
+solved.
+
+**QA without a keyboard:** `window.__VD` (`info()`, `run(n)`, `teleport`,
+`bonkAll`, `answerRight`, `answerWrong`, `playRoom`). `?qa=play&level=2`
+plays a level by script; `?qa=hurt` checks the dizzy restart; `?qa=keys`
+sends real key events; `?qa=door&stop=3` and `?qa=swing&stop=0` freeze a
+pose for screenshots (headless Edge needs `--virtual-time-budget` ≈ 40000
+with the no-cache server). On localhost
+the result is also sent as a `qa-report?…` request, readable in the dev
+server's log (headless Edge with `--screenshot` works from WSL; it does
+not run long enough with `--dump-dom`).
 
 ## Direction for the full game (proposed by the master session)
 
-The owner said yes to the game. He has **not** yet confirmed the points
-below one by one. Your first task is to check them against the PoC and
-come back with a short plan.
+The owner said yes to the game and, after the look test, to building on
+this look (2026-11-21). Points 1–5 below are built in a first version;
+6 (touch) is open. He has not confirmed the rule details listed under
+"Rules as built", so treat those as a first proposal.
 
 1. **Fixed camera per room**, angled top-down like Verb Kitchen. The whole
    room is on screen; the camera cuts or slides when you walk through a
@@ -83,9 +138,7 @@ dungeon, hero and animated skeletons → M3 verb loop on the question
 engine, DE/ES UI → M4 tutorial, 3 levels, stars, touch → M5 polish, device
 tests, size check, then "ready for review".
 
-**First task:** play the PoC, read the code, then propose a short plan to
-the owner (camera, level structure, how grammar drives progress, assets,
-milestones). Get an OK before big rewrites.
+**Next tasks:** see the end of the Status log.
 
 ## Assets: shared CC0 library
 
@@ -93,10 +146,17 @@ milestones). Get an OK before big rewrites.
 It is read-only: copy only the files you use into this folder (e.g.
 `assets/`) and list each pack in `assets/CREDITS.md`.
 
-- `kaykit/KayKit_Dungeon_Pack_1.1_FREE`: walls, floors, doors, chests,
-  torches, props. Note: this is the older free pack, not "Dungeon
+- `kaykit/KayKit_Dungeon_Pack_1.1_FREE`: walls, floors, chests, keys,
+  torches, stairs, props. Note: this is the older free pack, not "Dungeon
   Remastered". If it is not enough, tell the owner what is missing before
   asking him to buy anything.
+  - **The door is inside `wall_doorway.gltf`**: a child node
+    `wall_doorway_door`, hinged at its origin (rotate `.y` to open). There
+    is no standalone door file. `chest*.gltf` has a separate lid node
+    (`chest_lid`, `chest_gold_lid`; rotate `.x` to open) in the same way.
+  - Grid: walls are 4 wide, 4 tall, 1 thick; large floor tiles 4×4;
+    characters about 2.2–2.5 tall at scale 1. Wall decorations (banners,
+    mounted torches) are authored to hang on the wall's +z face.
 - `kaykit/KayKit_Skeletons_1.1_EXTRA`, `KayKit_Adventurers_2.0_EXTRA`,
   `KayKit_Character_Animations_1.1`: animated enemies and hero.
 - `kaykit/KayKit_FantasyWeaponsBits_1.0_FREE`, `KayKit_ResourceBits`,
@@ -122,6 +182,10 @@ geometry, at most one shadow light.
   requests at runtime**: school networks block CDNs, and the privacy
   policy promises no third parties.
 - Fonts Fredoka One + Nunito self-hosted (copy from `homepage/lib/fonts/`).
+  Copy the `@font-face` rules from `krabsy-fonts.css` too: one Nunito
+  file per subset is declared for weights 400/700/800/900 (there is no
+  600, which the PoC uses), and the `url(/lib/fonts/…)` paths are
+  absolute, so make them relative to this folder.
 - Plain static files, no build step, no npm.
 - `index.html` must contain
   `<meta name="robots" content="noindex, indexifembedded">`.
@@ -170,7 +234,7 @@ geometry, at most one shadow light.
 
 - 2026-06-10 — PoC brief written by the master session (the original PoC
   brief is in git history: `git log -- games/verb-dungeon/CLAUDE.md`).
-- 2026-06-10 — **PoC built and play-verified.** `index.html` + 9 modules in
+- 2026-06-10 — **PoC built and play-verified.** `index.html` + 10 modules in
   `src/` (game, level, player, skeletons, gates, fx, ui, audio, verbs, utils).
   Full level start→win: entrance hall (door-slam + torch-ignition beat with a
   cinematic intro camera), corridor with patrol skeleton, verb door 1 (easy
@@ -203,3 +267,60 @@ geometry, at most one shadow light.
 - 2026-11-21 — **Owner decision: build the full game.** The master session
   replaced the PoC brief with this one. Nothing changed in the code.
   **Next:** the first task above (play, read, propose a plan).
+- 2026-11-21 — Master session checked the brief against the repo and
+  fixed `.claude/launch.json` (stale path; port moved 8123 → **8130**
+  because the Tower Defense session serves on 8123–8125).
+- 2026-11-21 — **Look-test room built** (owner request, before any level
+  work): `looktest.html` + `looktest.js`. One 20×16 room from the free
+  KayKit Dungeon pack, fixed camera (43° down, fitted to the viewport),
+  Knight hero with sword and shield, two Skeleton Minions, four flickering
+  torches + one shadow light, dust motes. Playable: WASD/arrows, Space =
+  bonk (skeleton falls over, gets up again) or open the gold chest, a mock
+  verb plate at the locked door (`go → ___ → gone`, keys 1–3), door swings
+  open, walking through restarts the room.
+  - New folders: `vendor/three/` (0.169, copied from Verb Kitchen),
+    `fonts/`, `assets/` (2.5 MB, see `assets/CREDITS.md`). The PoC
+    (`index.html`, `src/`) is untouched.
+  - **Checked** with headless Edge screenshots at 1366×768 and 1024×768
+    (`_shots/looktest-*.png`): room, door plate, open door, open chest,
+    bonked skeleton all render. `?pose=door` / `?pose=open` set those
+    scenes up for screenshots; QA hook `window.__LT`.
+  - **Not checked:** real keyboard play by a human, frame rate on a
+    Chromebook (headless used software rendering), touch, phone layout.
+  - It is a look test, not the base of the game: no level data format,
+    no question engine, English only, models not merged (one mesh each).
+  - Owner's answer the same day: build on it. The look-test files were
+    then folded into the game and removed.
+- 2026-11-21 — **Game base built** on the look test (see "What exists").
+  The PoC moved to `poc/`.
+  - **Checked** by script in headless Edge (software rendering): levels
+    1, 2 and 3 play from the first room to the end screen; wrong answer →
+    chain shown and verb asked again later; chest reward; bump → heart
+    lost; 0 hearts → room restarts with 3 hearts. Screens looked at in
+    DE, ES and EN at 1366×768 and 1024×768 (`_shots/`). 22 draw calls,
+    about 30k triangles per room.
+  - **Not checked:** a human playing with a real keyboard (feel, speed,
+    difficulty), sound, frame rate on a Chromebook, the site question
+    engine (local dev always uses the inline list).
+  - **Next:** 1) owner plays it and comments on feel and rules;
+    2) touch controls; 3) tutorial room; 4) more room templates and real
+    level design; 5) device tests, then "ready for review".
+  - **Open questions for the owner:** should bumping cost a heart at all,
+    or is that too punishing for beginners? Knight as hero? Free pack
+    enough, or buy "Dungeon Remastered" for more variety?
+- 2026-11-21 — **Owner play-test 1** ("really cool"). Fixed:
+  - "Can't move": Firefox kept the PoC's cached `src/verbs.js` (same URL,
+    no wrong answers), so starting a level crashed silently. Now: no-cache
+    dev server `tools/serve.py`, a level that fails to start shows the
+    error, a "click to play" pause when the page lacks focus, the menu
+    works with the keyboard, clicked buttons drop focus.
+  - Sword felt slow and needed standing still → upper-body swing that
+    works while running, hits ~0.13 s after Space (was ~0.33 s, plus a
+    full-body 0.8 s lock).
+  - Chain order for 2nd/3rd form (owner rule, relayed by the Tower
+    Defense session).
+  - Checked by script and screenshots only; the swing's feel is for the
+    owner to judge.
+  - **Next:** owner retries the sword; then touch controls, tutorial room,
+    more room templates.
+

@@ -4,8 +4,8 @@
     {
       "name": "verb-dungeon",
       "runtimeExecutable": "wsl",
-      "runtimeArgs": ["-e", "bash", "-c", "cd /home/jan/krabsy-homepage/games/verb-dungeon && python3 -m http.server 8123"],
-      "port": 8123
+      "runtimeArgs": ["-e", "bash", "-c", "cd /home/janah/dev/krabsy-homepage/games/verb-dungeon && python3 tools/serve.py 8130"],
+      "port": 8130
     }
   ]
 }

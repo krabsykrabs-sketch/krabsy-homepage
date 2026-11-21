@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, indexifembedded">
+<title>Verb Dungeon — Krabsy</title>
+<style>
+@font-face{font-family:'Fredoka One';font-weight:400;font-display:swap;
+  src:url(fonts/fredoka-one-400-latin.woff2) format('woff2');}
+@font-face{font-family:'Nunito';font-weight:400 900;font-display:swap;
+  src:url(fonts/nunito-400-latin.woff2) format('woff2');}
+:root{--navy:#0d2240;--teal:#2ee6c0;--coral:#ff8585;--amber:#ffcf5e;--ink:#eaf2ff;--muted:#9db4dd;}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;overflow:hidden;background:#060d1c;color:var(--ink);
+  font-family:'Nunito',sans-serif;font-weight:800;user-select:none;}
+canvas{display:block;width:100%;height:100%;}
+h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
+.base{color:var(--amber);} .past{color:var(--teal);} .pp{color:var(--coral);}
+.arrow{color:#6f89b8;margin:0 .35em;}
+#vignette{position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(3,7,18,.75) 100%);}
+
+/* HUD */
+#hud{position:fixed;left:0;right:0;top:0;display:none;justify-content:space-between;
+  align-items:flex-start;padding:14px 16px;pointer-events:none;}
+#hud.on{display:flex;}
+.pill{background:rgba(13,34,64,.82);border-radius:999px;padding:7px 16px;font-size:16px;}
+#hearts{font-size:22px;letter-spacing:3px;color:var(--coral);}
+#hearts .off{color:#2b4370;}
+#mute{pointer-events:auto;cursor:pointer;border:0;color:var(--ink);font:inherit;font-size:16px;}
+#hint{position:fixed;left:50%;top:62px;transform:translateX(-50%);opacity:0;transition:opacity .3s;
+  pointer-events:none;background:rgba(13,34,64,.86);border-radius:999px;padding:8px 20px;
+  font-size:17px;color:var(--amber);white-space:nowrap;}
+#hint.on{opacity:1;}
+
+/* Question plate */
+#plate{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;
+  pointer-events:none;transition:opacity .2s,transform .2s;
+  background:rgba(13,34,64,.95);border:3px solid rgba(255,207,94,.55);border-radius:22px;
+  padding:14px 26px 16px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+#plate.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+#chain{font-family:'Fredoka One';font-weight:400;font-size:34px;white-space:nowrap;}
+#chain .blank{display:inline-block;min-width:96px;border-bottom:4px dashed #3a5584;color:#3a5584;}
+#chain .blank.ask.past{border-color:var(--teal);background:rgba(46,230,192,.12);border-radius:8px 8px 0 0;}
+#chain .blank.ask.pp{border-color:var(--coral);background:rgba(255,133,133,.12);border-radius:8px 8px 0 0;}
+#chips{display:flex;gap:12px;justify-content:center;margin-top:14px;}
+.chip{font:inherit;font-size:22px;color:var(--ink);background:#17345f;border:0;
+  border-bottom:4px solid #0a1b36;border-radius:14px;padding:9px 22px;cursor:pointer;}
+.chip small{color:#6f89b8;margin-right:8px;font-size:14px;}
+.chip:hover{background:#1f437a;}
+.chip.wrong{animation:shake .35s;background:#4a2534;color:#8d7480;cursor:default;}
+@keyframes shake{25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+#teach{margin-top:10px;font-size:16px;color:var(--muted);min-height:22px;}
+#toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);opacity:0;transition:opacity .25s;
+  pointer-events:none;background:rgba(13,34,64,.95);border:3px solid rgba(46,230,192,.5);
+  border-radius:18px;padding:10px 24px;font-family:'Fredoka One';font-weight:400;font-size:26px;
+  white-space:nowrap;}
+#toast.on{opacity:1;}
+.pop{position:fixed;pointer-events:none;font-family:'Fredoka One';font-weight:400;font-size:30px;
+  color:var(--amber);text-shadow:0 3px 0 #0a1b36;transform:translate(-50%,-50%);
+  animation:pop .9s ease-out forwards;white-space:nowrap;}
+@keyframes pop{0%{opacity:0;margin-top:0;scale:.5;}20%{opacity:1;scale:1.15;}
+  100%{opacity:0;margin-top:-70px;scale:1;}}
+
+/* Screens */
+.screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(6,13,28,.62);padding:16px;}
+.screen.on{display:flex;}
+.card{background:rgba(13,34,64,.95);border-radius:26px;padding:26px 34px 28px;text-align:center;
+  max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.55);}
+.card h1{margin:0;font-size:46px;color:var(--teal);}
+.card h2{margin:0 0 6px;font-size:36px;color:var(--teal);}
+.card p{margin:8px 0 0;color:var(--muted);font-size:17px;}
+#levels{display:flex;gap:14px;justify-content:center;margin:22px 0 18px;}
+.lvl{font:inherit;color:var(--ink);background:#17345f;border:0;border-bottom:5px solid #0a1b36;
+  border-radius:18px;padding:14px 20px 12px;cursor:pointer;min-width:150px;}
+.lvl:hover{background:#1f437a;}
+.lvl.sel{outline:3px solid var(--teal);outline-offset:2px;}
+.lvl b{display:block;font-family:'Fredoka One';font-weight:400;font-size:24px;}
+.lvl span{display:block;margin-top:4px;font-size:22px;letter-spacing:2px;color:var(--amber);}
+.lvl span i{font-style:normal;color:#2b4370;}
+.lvl:disabled{opacity:.45;cursor:default;}
+#howto{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:15px;color:var(--muted);}
+#howto div{background:rgba(6,13,28,.5);border-radius:12px;padding:7px 12px;}
+kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border-radius:6px;
+  padding:1px 7px;margin-right:4px;}
+#example{margin-top:16px;font-family:'Fredoka One';font-weight:400;font-size:24px;}
+#stars{font-size:54px;letter-spacing:6px;color:var(--amber);margin:6px 0 2px;}
+#stars i{font-style:normal;color:#2b4370;}
+#missed{margin:12px auto 0;font-family:'Fredoka One';font-weight:400;font-size:20px;line-height:1.5;}
+.btns{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.btn{font:inherit;font-size:19px;color:#06231d;background:var(--teal);border:0;
+  border-bottom:4px solid #159a80;border-radius:14px;padding:10px 22px;cursor:pointer;}
+.btn.alt{background:#17345f;color:var(--ink);border-bottom-color:#0a1b36;}
+#fade{position:fixed;inset:0;background:#060d1c;opacity:0;pointer-events:none;transition:opacity .35s;
+  display:flex;align-items:center;justify-content:center;font-family:'Fredoka One';font-weight:400;
+  font-size:30px;color:var(--teal);}
+#fade.on{opacity:1;}
+#loading{position:fixed;inset:0;background:#060d1c;display:flex;align-items:center;
+  justify-content:center;font-family:'Fredoka One';font-weight:400;font-size:26px;color:var(--teal);
+  white-space:pre-wrap;text-align:center;padding:20px;}
+#rotate{position:fixed;inset:0;background:#0d2240;display:none;align-items:center;
+  justify-content:center;text-align:center;padding:30px;font-size:20px;line-height:1.5;z-index:9;}
+@media (max-width:640px) and (orientation:portrait){#rotate{display:flex;}}
+#focus{position:fixed;inset:0;display:none;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(6,13,28,.55);z-index:8;}
+#focus.on{display:flex;}
+#focus div{background:rgba(13,34,64,.95);border:3px solid var(--teal);border-radius:20px;padding:16px 30px;
+  font-family:'Fredoka One';font-weight:400;font-size:28px;color:var(--teal);}
+#qa{position:fixed;left:0;bottom:0;margin:0;font:12px monospace;color:#9db4dd;display:none;}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+
+<div id="hud">
+  <div class="pill" id="hearts"></div>
+  <div class="pill" id="roomLabel"></div>
+  <button class="pill" id="mute"></button>
+</div>
+<div id="hint"></div>
+
+<div id="plate">
+  <div id="chain"></div>
+  <div id="chips"></div>
+  <div id="teach"></div>
+</div>
+<div id="toast"></div>
+
+<div class="screen" id="menu">
+  <div class="card">
+    <h1>Verb Dungeon</h1>
+    <p id="tagline"></p>
+    <div id="levels"></div>
+    <div id="howto"></div>
+    <div id="example"><span class="base">go</span><span class="arrow">→</span><span class="past">went</span><span class="arrow">→</span><span class="pp">gone</span></div>
+  </div>
+</div>
+
+<div class="screen" id="end">
+  <div class="card">
+    <h2 id="endTitle"></h2>
+    <div id="stars"></div>
+    <p id="endLine"></p>
+    <div id="missed"></div>
+    <div class="btns">
+      <button class="btn" id="btnNext"></button>
+      <button class="btn alt" id="btnAgain"></button>
+      <button class="btn alt" id="btnMenu"></button>
+    </div>
+  </div>
+</div>
+
+<div id="focus"><div id="focusText"></div></div>
+<div id="fade"></div>
+<div id="loading">…</div>
+<div id="rotate"></div>
+<pre id="qa"></pre>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
