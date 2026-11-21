@@ -204,7 +204,8 @@ implemented as preview-approved by the owner (Status log, "round 2").
 4. **Archer upgrade was useless (2026-11-21).** Upgraded arrows flew
    straight through one enemy and on into nowhere — fine on the old
    straight 2D roads, pointless on winding hex roads. Owner wants chain /
-   seeking arrows. Implemented (Status log, "round 3").
+   seeking arrows. Implemented (Status log, "round 3"). First version was far too
+   strong (×3 / ×5); toned down the same day (Status log, "round 3b").
 
 ## Status log
 
@@ -481,3 +482,11 @@ implemented as preview-approved by the owner (Status log, "round 2").
     0 missed arrows. Bot balance unchanged within noise.
   - From now on the session runs on Opus 5.5 (owner's choice, to save
     tokens); design-heavy work may go to a Fable 5.2 subagent.
+- 2026-11-21 — **Round 3b: chain arrows toned down** (owner: ×3 then ×5 per
+  upgrade is far too strong). Now level 2 = 1 jump (2 enemies), level 3 =
+  2 jumps (3 enemies), each jump keeps 70 % of the damage
+  (`CONFIG.chainFalloff`; modes `chain1` / `chain2`). At most ×1.7 /
+  ×2.19 base damage, only when enemies are bunched; measured in wave 6:
+  ×1.66 / ×2.13, 0 missed arrows. Value per coin: +0.70 / +0.49 "archers"
+  for 30 coins each, vs +1.0 for a new archer (20 coins, needs a spot)
+  and +0.37 for the catapult damage upgrade (40 coins).

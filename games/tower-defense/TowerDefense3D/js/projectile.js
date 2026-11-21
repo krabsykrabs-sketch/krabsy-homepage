@@ -6,7 +6,8 @@ import { state } from './main.js';
 // Projectile entity. Two variants share the class:
 //   - *directional* (archer): homes in on its target. With a chain upgrade, a hit sends
 //     the arrow on to the nearest enemy it has not hit yet (within CONFIG.chainRange);
-//     with no enemy in reach, or no jumps left, it is gone.
+//     each jump deals CONFIG.chainFalloff of the previous damage; with no enemy in
+//     reach, or no jumps left, it is gone.
 //   - *AoE* (cannon): flies in a straight line toward a snapshotted targetPosition; on
 //     arrival, damages every enemy within aoeRadius with linear falloff and explodes.
 
@@ -144,6 +145,7 @@ export class Projectile {
         if (!next) { this.isAlive = false; return; }
         this.target = next;
         this.homing = true;
+        this.damage *= CONFIG.chainFalloff;
         this.startPosition = { x: this.position.x, y: this.position.y };
         this.maxDistance = CONFIG.chainRange * 1.6;
         return;

@@ -10,6 +10,7 @@ export const CONFIG = {
 
   projectileHitRadius: 0.3,  // enemy.radius is added on top per hit check
   chainRange: 3.2,           // how far a chained arrow may jump to the next enemy
+  chainFalloff: 0.7,         // damage kept per jump (25 → 17.5 → 12.25)
 
   // The forge (always-visible question card, see forge.js). It is the main income.
   forge: {
@@ -81,11 +82,11 @@ export const CONFIG = {
       upgrades: [
         { tier: 1, cost: 30, description: 'Can hit two enemies',
           damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
-          pierceUpgrade: 'chain2', projectileRangeMultiplier: 1,
+          pierceUpgrade: 'chain1', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
         { tier: 2, cost: 30, description: 'Can hit many enemies',
           damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
-          pierceUpgrade: 'chain4', projectileRangeMultiplier: 1,
+          pierceUpgrade: 'chain2', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
       ],
     },
@@ -170,10 +171,12 @@ export const CONFIG = {
 export const TOWER_ORDER = ['basic', 'catapult', 'cannon', 'freeze'];
 
 // Archer upgrades: after a hit the arrow jumps on to the nearest enemy it has not hit
-// yet. chain2 = up to 2 jumps (3 enemies), chain4 = up to 4 jumps (5 enemies).
-// Upgrades only ever raise this, never lower it.
-export const PIERCE_ORDER = { none: 0, chain2: 1, chain4: 2 };
-export const CHAIN_HITS = { none: 1, chain2: 3, chain4: 5 };
+// yet, with CONFIG.chainFalloff of the damage per jump. chain1 = 1 jump (2 enemies),
+// chain2 = 2 jumps (3 enemies). At most ×1.7 / ×2.19 the base damage, and only when
+// enemies walk close together — a little less per coin than a new archer, which
+// needs a free spot. Upgrades only ever raise this, never lower it.
+export const PIERCE_ORDER = { none: 0, chain1: 1, chain2: 2 };
+export const CHAIN_HITS = { none: 1, chain1: 2, chain2: 3 };
 
 export function getTierForHealth(hp) {
   const tiers = CONFIG.enemyTiers;
