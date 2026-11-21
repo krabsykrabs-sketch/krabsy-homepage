@@ -130,6 +130,9 @@ export const Level = {
       startingLives: data.startingLives,
       startingCoins: data.startingCoins,
       totalWaves: data.totalWaves,
+      bossWaves: data.bossWaves || [data.totalWaves],
+      // Good first building spots, highlighted by the tutorial (level 1 only).
+      tutorialCells: data.tutorialCells || [],
       enemyScaling: data.enemyScaling,
       economy: data.economy,
     };

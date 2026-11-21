@@ -9,7 +9,11 @@ import { state } from './main.js';
 // level JSON's enemyScaling / economy sections — see spec "Wave System".
 
 export const Wave = {
-  isBossWave(n) { return n % 5 === 0; },
+  // Boss waves are listed per level (level.bossWaves); they contain bosses only.
+  isBossWave(n) {
+    const list = Level.current && Level.current.bossWaves;
+    return list ? list.includes(n) : n % 5 === 0;
+  },
 
   // Begin the next wave. Assumes state.phase === 'BUILD'.
   startNext(state) {
@@ -22,15 +26,15 @@ export const Wave = {
 
     const enemyCount    = s.baseEnemyCount + Math.floor((n - 1) * s.enemiesPerWave);
     const waveBaseHP    = s.baseEnemyHealth + (n - 1) * s.healthPerWave;
-    const enemySpeed    = s.baseEnemySpeed + (n - 1) * 0.05;
-    const spawnInterval = Math.max(0.3, 1 - (n - 1) * 0.03);
+    const enemySpeed    = s.baseEnemySpeed + (n - 1) * (s.speedPerWave ?? 0.04);
+    const spawnInterval = Math.max(0.5, (s.spawnInterval ?? 1.2) - (n - 1) * 0.04);
     const boss          = this.isBossWave(n);
 
     const queue = [];
     if (boss) {
-      // Boss waves are bosses ONLY — fewer, tougher, slower-spawning enemies.
-      const bossCount = Math.max(2, Math.round(enemyCount / 3));
-      const bossHP = waveBaseHP * 4;
+      // Boss waves are bosses ONLY — few, tough, slow-spawning enemies.
+      const bossCount = Math.max(1, Math.round(enemyCount / (s.enemiesPerBoss ?? 3)));
+      const bossHP = waveBaseHP * (s.bossHealthFactor ?? 3.5);
       for (let i = 0; i < bossCount; i++) {
         queue.push({ hp: bossHP, speed: enemySpeed, path: this._pickPath(lvl), isBoss: true });
       }

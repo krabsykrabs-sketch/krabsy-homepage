@@ -7,7 +7,10 @@ import { Forge } from './forge.js';
 import { Questions } from './questions.js';
 import { Wave } from './wave.js';
 import { t, towerText, levelText } from './i18n.js';
-import { LEVELS, state, startGame, endGame, resetRun, getHighscore, upgradeTower, sellTower } from './main.js';
+import {
+  LEVELS, state, startGame, endGame, resetRun, nextLevel, hasNextLevel,
+  getHighscore, getStars, isUnlocked, upgradeTower, sellTower,
+} from './main.js';
 
 // HUD, bottom dock (tower cards, forge, start wave), tower-info panel, the forge panel
 // and all overlays (menu, wave complete, game over, victory, quit). All player-facing
@@ -25,7 +28,8 @@ export const UI = {
       coins: $('coin-count'), livesContainer: $('lives-container'), livesCompact: $('lives-compact'),
       wave: $('wave-count'), waveTotal: $('wave-total'), phaseLabel: $('phase-label'),
       endGameBtn: $('end-game-btn'), muteBtn: $('mute-btn'), waveBanner: $('wave-banner'),
-      slowmo: $('slowmo-note'),
+      slowmo: $('slowmo-note'), coach: $('coach'), speedBtn: $('speed-btn'),
+      vcStars: $('vc-stars'), nextLevelBtn: $('next-level-btn'),
       towerButtons: $('tower-buttons'), towerInfo: $('tower-info'),
       startWaveBtn: $('start-wave-btn'), forgeBtn: $('forge-btn'), forgeBtnHammers: $('forge-btn-hammers'),
       forgePanel: $('forge-panel'), forgeSub: $('forge-sub'), forgeHammers: $('forge-hammers'),
@@ -53,6 +57,7 @@ export const UI = {
     this._lastLives = null;
     this._lastBannerWave = 0;
     this._quitOpen = false;
+    this._hintSig = null;
     this.els.muteBtn.textContent = Sound.muted ? '🔇' : '🔊';
     this.els.forgeSub.textContent = t('forgeSub', CONFIG.forge.coinsPerRight);
   },
@@ -95,7 +100,7 @@ export const UI = {
   _buildLevelCards() {
     const container = this.els.levelCards;
     container.innerHTML = '';
-    this._levelBestEls = [];
+    this._levelCards = [];
     LEVELS.forEach((lvl, i) => {
       const text = levelText(i);
       const card = document.createElement('button');
@@ -107,22 +112,41 @@ export const UI = {
       const tag = document.createElement('span');
       tag.className = 'level-tag';
       tag.textContent = text.tag;
+      const stars = document.createElement('span');
+      stars.className = 'level-stars';
       const best = document.createElement('span');
       best.className = 'level-best';
-      card.append(name, tag, best);
-      this._levelBestEls.push(best);
-      card.addEventListener('click', () => { Sound.play('click'); startGame(i); });
+      card.append(name, tag, stars, best);
+      this._levelCards.push({ card, stars, best });
+      card.addEventListener('click', () => {
+        if (!isUnlocked(i)) return;
+        Sound.play('click');
+        startGame(i);
+      });
       container.appendChild(card);
     });
-    this._refreshLevelBests();
+    this._refreshLevelCards();
   },
 
-  _refreshLevelBests() {
-    if (!this._levelBestEls) return;
-    this._levelBestEls.forEach((el, i) => {
-      const best = getHighscore(i);
-      el.textContent = best > 0 ? t('levelBest', best) : t('notPlayed');
+  // Stars, best wave and the lock on each level card (re-read when the menu shows).
+  _refreshLevelCards() {
+    if (!this._levelCards) return;
+    this._levelCards.forEach(({ card, stars, best }, i) => {
+      const open = isUnlocked(i);
+      const got = getStars(i);
+      card.classList.toggle('locked', !open);
+      stars.innerHTML = open ? this._starsHtml(got) : '🔒';
+      const wave = getHighscore(i);
+      if (!open) best.textContent = t('locked', i);
+      else if (got > 0) best.textContent = '';
+      else best.textContent = wave > 0 ? t('levelBest', wave) : t('notPlayed');
     });
+  },
+
+  _starsHtml(n) {
+    let html = '';
+    for (let i = 0; i < 3; i++) html += `<span class="star ${i < n ? 'on' : ''}">★</span>`;
+    return html;
   },
 
   // Tiny painting of the hex map: grass, the road, spawn (coral) and castles (blue).
@@ -193,6 +217,12 @@ export const UI = {
     });
 
     // Leaving a run asks first, in the page (native dialogs are awkward in an iframe).
+    this.els.speedBtn.addEventListener('click', () => {
+      state.speed = state.speed === 1 ? 2 : 1;
+      this.els.speedBtn.blur();
+    });
+    this.els.nextLevelBtn.addEventListener('click', () => nextLevel());
+
     this.els.endGameBtn.addEventListener('click', () => { this._quitOpen = true; });
     this.els.quitNo.addEventListener('click', () => { this._quitOpen = false; });
     this.els.quitYes.addEventListener('click', () => { this._quitOpen = false; endGame(); });
@@ -258,11 +288,15 @@ export const UI = {
     const PHASE_KEYS = { BUILD: 'phaseBuild', BATTLE: 'phaseBattle', WAVE_COMPLETE: 'phaseWaveDone' };
     this.els.phaseLabel.textContent = PHASE_KEYS[state.phase] ? t(PHASE_KEYS[state.phase]) : '';
     this.els.slowmo.classList.toggle('hidden', state.timeScale >= 1);
+    this.els.speedBtn.textContent = `×${state.speed}`;
+    this.els.speedBtn.classList.toggle('fast', state.speed > 1);
+    this._renderHint(state);
 
     for (const btn of this.els.towerButtons.children) {
       const type = btn.dataset.tower;
       btn.classList.toggle('disabled', state.coins < CONFIG.TOWERS[type].cost || !playing);
       btn.classList.toggle('active', state.placement.active && state.placement.towerType === type);
+      btn.classList.toggle('build-here', !!state.buildCell && state.coins >= CONFIG.TOWERS[type].cost);
     }
     document.getElementById('game-container').classList.toggle('placing', state.placement.active);
 
@@ -271,7 +305,9 @@ export const UI = {
 
     // Overlays
     this.els.menuOv.classList.toggle('hidden', state.phase !== 'MENU');
-    if (state.phase === 'MENU') this._refreshLevelBests();
+    const menuNow = state.phase === 'MENU';
+    if (menuNow && !this._menuWas) this._refreshLevelCards();
+    this._menuWas = menuNow;
 
     const showWC = state.phase === 'WAVE_COMPLETE';
     this.els.waveCompleteOv.classList.toggle('hidden', !showWC);
@@ -285,6 +321,19 @@ export const UI = {
 
     this._renderForge(state);
     this._renderTowerInfo(state);
+  },
+
+  // Tutorial coach line + a pulse on the thing to press.
+  _renderHint(state) {
+    const h = state.hint;
+    const sig = h ? `${h.key}|${h.target}` : '';
+    if (sig === this._hintSig) return;
+    this._hintSig = sig;
+    this.els.coach.classList.toggle('hidden', !h);
+    if (h) this.els.coach.textContent = t(h.key);
+    this.els.startWaveBtn.classList.toggle('hint-pulse', !!h && h.target === 'start');
+    this.els.forgeBtn.classList.toggle('hint-pulse', !!h && h.target === 'forge');
+    this.els.towerButtons.classList.toggle('hint-pulse', !!h && h.target === 'towers');
   },
 
   _renderHearts(state) {
@@ -321,6 +370,8 @@ export const UI = {
       this.els.goBest.textContent = best;
       this.els.goRecap.innerHTML = recap;
     } else {
+      this.els.vcStars.innerHTML = this._starsHtml(state.starsEarned);
+      this.els.nextLevelBtn.classList.toggle('hidden', !hasNextLevel());
       this.els.vcSub.textContent = t('victorySub', total);
       this.els.vcBest.textContent = best;
       this.els.vcRecap.innerHTML = recap;

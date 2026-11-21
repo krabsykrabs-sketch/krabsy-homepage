@@ -31,6 +31,7 @@
           </div>
           <div class="hud-group">
             <div class="hud-chip hud-wave"><span data-i18n="wave"></span> <span id="wave-count">0</span>/<span id="wave-total">0</span></div>
+            <button id="speed-btn" class="round-btn" data-i18n-title="speed">×1</button>
             <button id="mute-btn" class="round-btn" data-i18n-title="sound">🔊</button>
             <button id="end-game-btn" class="round-btn" data-i18n-title="quit">✕</button>
           </div>
@@ -38,6 +39,8 @@
 
         <div id="wave-banner" class="hidden"></div>
         <div id="slowmo-note" class="hidden" data-i18n="slowMotion"></div>
+        <!-- Tutorial coach: one short line about what to do next (level 1, first time). -->
+        <div id="coach" class="hidden"></div>
 
         <!-- Bottom dock. The wrapper ignores pointer events so clicks on empty space
              still reach the battlefield. -->
@@ -96,11 +99,13 @@
       <div id="victory-overlay" class="overlay hidden">
         <div class="overlay-panel panel">
           <div class="overlay-title amber" data-i18n="victory"></div>
+          <div class="stars-big" id="vc-stars"></div>
           <div class="overlay-subtitle" id="vc-sub"></div>
           <div class="overlay-best" id="vc-best"></div>
           <div class="recap" id="vc-recap"></div>
           <div class="overlay-actions">
-            <button class="btn btn-teal" data-action="restart" data-i18n="playAgain"></button>
+            <button class="btn btn-teal" id="next-level-btn" data-i18n="nextLevel"></button>
+            <button class="btn btn-ghost" data-action="restart" data-i18n="playAgain"></button>
             <button class="btn btn-ghost" data-action="menu" data-i18n="menu"></button>
           </div>
         </div>

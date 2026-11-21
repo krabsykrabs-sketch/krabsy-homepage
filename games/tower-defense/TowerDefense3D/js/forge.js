@@ -43,6 +43,7 @@ export const Forge = {
     state.placement.active = false;
     state.placement.towerType = null;
     state.selectedTower = null;
+    state.buildCell = null;
     Sound.play('click');
     this._ask(state);
   },

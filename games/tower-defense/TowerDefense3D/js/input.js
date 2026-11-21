@@ -67,6 +67,7 @@ export const Input = {
     const tower = Renderer.pickTower(clientX, clientY);
     if (!tower) return false;
     state.selectedTower = tower;
+    state.buildCell = null;
     return true;
   },
 
@@ -77,30 +78,36 @@ export const Input = {
 
     const { cellX, cellY } = Grid.worldToPlacementCell(worldPos.x, worldPos.y);
 
+    // Card first, then hex.
     if (state.placement.active) {
-      this._tryPlace(cellX, cellY);
+      if (this._place(state.placement.towerType, cellX, cellY)) this.cancelPlacement();
       return;
     }
 
+    // Hex first: tap a tower to select it, tap free grass to choose a building spot
+    // (the tower cards then build right there). Tapping it again lets go.
     const t = Grid.towerAtCell(cellX, cellY);
     state.selectedTower = t || null;
+    const same = state.buildCell && state.buildCell.cellX === cellX && state.buildCell.cellY === cellY;
+    state.buildCell = (!t && !same && Grid.isAvailable(cellX, cellY)) ? { cellX, cellY } : null;
+    if (state.buildCell) Sound.play('click');
   },
 
-  _tryPlace(cellX, cellY) {
-    const type = state.placement.towerType;
+  // Build a tower on a cell if it is free and affordable. Returns true when built.
+  _place(type, cellX, cellY) {
     const def = CONFIG.TOWERS[type];
-    if (!def) { this.cancelPlacement(); return; }
-
-    if (!Grid.isAvailable(cellX, cellY)) return;
-    if (state.coins < def.cost) return;
+    if (!def) return false;
+    if (!Grid.isAvailable(cellX, cellY)) return false;
+    if (state.coins < def.cost) return false;
 
     state.coins -= def.cost;
     const tower = new Tower(type, cellX, cellY);
     state.towers.push(tower);
     Grid.occupy(cellX, cellY, tower);
-    this.cancelPlacement();
+    state.buildCell = null;
     state.selectedTower = tower;
     Sound.play('place');
+    return true;
   },
 
   _onKeyDown(e) {
@@ -119,7 +126,7 @@ export const Input = {
     }
     if (e.key === 'f' || e.key === 'F') { Forge.open(state); return; }
 
-    if (e.key === 'Escape') { this.cancelPlacement(); state.selectedTower = null; return; }
+    if (e.key === 'Escape') { this.cancelPlacement(); state.selectedTower = null; state.buildCell = null; return; }
 
     if (e.key === ' ') {
       if (state.phase === 'BUILD') { Wave.startNext(state); e.preventDefault(); }
@@ -143,6 +150,11 @@ export const Input = {
   toggleTowerPlacement(type) {
     if (!CONFIG.TOWERS[type]) return;
     if (!this._gameAcceptsInput()) return;
+    // A building spot is already chosen: build there straight away.
+    if (state.buildCell) {
+      if (!this._place(type, state.buildCell.cellX, state.buildCell.cellY)) Sound.play('click');
+      return;
+    }
     Sound.play('click');
     if (state.placement.active && state.placement.towerType === type) {
       this.cancelPlacement();
@@ -152,6 +164,7 @@ export const Input = {
     state.placement.active = true;
     state.placement.towerType = type;
     state.selectedTower = null;
+    state.buildCell = null;
   },
 
   cancelPlacement() {

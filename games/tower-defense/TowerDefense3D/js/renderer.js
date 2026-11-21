@@ -186,6 +186,7 @@ export const Renderer = {
     this._animateScenery(now);
     this._syncPlacementOverlay(state);
     this._syncGhost(state);
+    this._syncCellMarks(state, now);
     this._syncSelection(state);
     this._syncTowers(state, now);
     const animDt = dt * (state.timeScale || 1);
@@ -537,6 +538,19 @@ export const Renderer = {
     this._ghost = ghost;
     this.scene.add(ghost);
 
+    // Hex highlights: the chosen building spot (amber) and tutorial tips (teal).
+    const mark = (color) => {
+      const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.6, depthWrite: false });
+      const m = new THREE.Mesh(this._geo.hex, mat);
+      m.rotation.x = -Math.PI / 2;
+      m.position.y = 0.05;
+      m.visible = false;
+      this.scene.add(m);
+      return m;
+    };
+    this._buildMark = mark(0xffcf5e);
+    this._hintMarks = [mark(0x2ee6c0), mark(0x2ee6c0), mark(0x2ee6c0), mark(0x2ee6c0)];
+
     // Range indicator for the selected tower.
     this._rangeIndicator = this._makeRangeDisc(0.12, 0.45);
     this._rangeIndicator.visible = false;
@@ -592,6 +606,23 @@ export const Renderer = {
     u.ring.material.color.set(valid ? 0x78dc78 : 0xdc5050);
     u.range.visible = valid;
     u.range.scale.set(def.range, 1, def.range);
+  },
+
+  _syncCellMarks(state, now) {
+    const place = (m, cell, pulse) => {
+      const c = Grid.placementCellToWorld(cell.cellX, cell.cellY);
+      m.position.set(c.centerX, 0.05, c.centerY);
+      m.material.opacity = 0.45 + 0.3 * pulse;
+      m.visible = true;
+    };
+    const pulse = 0.5 + 0.5 * Math.sin(now * 5);
+    if (state.buildCell) place(this._buildMark, state.buildCell, pulse);
+    else this._buildMark.visible = false;
+    const cells = state.buildCell ? [] : (state.hintCells || []);
+    this._hintMarks.forEach((m, i) => {
+      if (i < cells.length) place(m, cells[i], pulse);
+      else m.visible = false;
+    });
   },
 
   _syncSelection(state) {

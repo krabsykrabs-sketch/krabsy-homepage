@@ -6,6 +6,16 @@
 // data-i18n="key" and are filled once at boot by applyStatic().
 
 const DE = {
+  locked: (n) => `Schaffe zuerst Level ${n}`,
+  nextLevel: 'Nächstes Level',
+  speed: 'Tempo ändern',
+  tutTapCell: 'Tippe auf ein leuchtendes Feld neben dem Weg.',
+  tutPickTower: 'Gut! Wähle jetzt unten einen Turm.',
+  tutStart: 'Dein Turm steht. Starte die erste Welle!',
+  tutWatch: 'Deine Türme schießen von allein.',
+  tutForge: 'Mehr Münzen? Öffne die Schmiede!',
+  tutAnswer: 'Welche Form fehlt? Tippe die richtige Antwort.',
+  rotate: 'Dreh dein Handy quer, dann siehst du mehr.',
   title: 'Verb Towers',
   subtitle: 'Baue Türme. Schmiede Münzen mit englischen Verben.',
   loading: 'Lädt …',
@@ -79,6 +89,16 @@ const DE = {
 };
 
 const ES = {
+  locked: (n) => `Supera primero el nivel ${n}`,
+  nextLevel: 'Siguiente nivel',
+  speed: 'Cambiar velocidad',
+  tutTapCell: 'Toca una casilla brillante junto al camino.',
+  tutPickTower: '¡Bien! Ahora elige una torre abajo.',
+  tutStart: 'Tu torre está lista. ¡Empieza la primera oleada!',
+  tutWatch: 'Tus torres disparan solas.',
+  tutForge: '¿Más monedas? ¡Abre la forja!',
+  tutAnswer: '¿Qué forma falta? Toca la respuesta correcta.',
+  rotate: 'Gira el móvil en horizontal para ver más.',
   title: 'Verb Towers',
   subtitle: 'Construye torres. Forja monedas con verbos en inglés.',
   loading: 'Cargando…',
@@ -152,6 +172,16 @@ const ES = {
 };
 
 const EN = {
+  locked: (n) => `Beat level ${n} first`,
+  nextLevel: 'Next level',
+  speed: 'Change speed',
+  tutTapCell: 'Tap a glowing hex next to the road.',
+  tutPickTower: 'Good! Now pick a tower below.',
+  tutStart: 'Your tower is ready. Start the first wave!',
+  tutWatch: 'Your towers shoot by themselves.',
+  tutForge: 'Need more coins? Open the forge!',
+  tutAnswer: 'Which form is missing? Tap the right answer.',
+  rotate: 'Turn your phone sideways to see more.',
   title: 'Verb Towers',
   subtitle: 'Build towers. Forge coins with English verbs.',
   loading: 'Loading…',

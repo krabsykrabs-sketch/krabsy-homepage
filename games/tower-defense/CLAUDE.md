@@ -270,3 +270,39 @@ Rules:
     Phone portrait is playable but the board is small.
   - **Next:** M4 (first-30-seconds tutorial, touch build flow, 3 levels
     with 8–10 waves, fewer and stronger enemies, stars).
+- 2026-11-21 — **M4 (tutorial, build flow, levels, stars) done.**
+  - **Levels:** 8 / 9 / 10 waves (was 20 / 20 / 25), boss waves listed per
+    level (`bossWaves`: 4+8, 5+9, 5+10), fewer and stronger enemies (wave 1
+    of level 1 is three slow skeletons). `enemyScaling` in the level files
+    now also accepts `speedPerWave`, `spawnInterval`, `enemiesPerBoss`,
+    `bossHealthFactor`.
+  - **Balance** was tuned with a bot: `tools/balance-sim.mjs` plays every
+    level at verb accuracy 1 / 0.7 / 0.4 / 0 (needs the local server on
+    :8123 and the Playwright Chromium in `~/.cache/ms-playwright`). Result:
+    level 1 is winnable without verbs (1–2 stars) and gives 3 stars from
+    ~40 % accuracy; level 2 and 3 are lost without verbs, give 1–2 stars
+    at 40–70 % and 2–3 stars at 100 %. The bot is a simple player (builds
+    only between waves); real kids are untested.
+  - **Stars:** a won level earns 1–3 stars by lives left (3 = at most one
+    lost, 2 = at least half). Stored in `localStorage`
+    (`td3d_stars_level_N`); one star unlocks the next level. Level cards
+    show stars or a lock; the victory screen shows the stars and a
+    "next level" button.
+  - **Build flow:** tap a free hex (it glows amber), then a tower card
+    builds right there. The old order (card first, then hex) still works,
+    as do keys 1–4.
+  - **Tutorial** (`js/tutorial.js`, level 1, first time only): one short
+    coach line plus a pulse on what to press — tap a glowing hex, pick a
+    tower, start the wave, watch, open the forge, answer. Steps follow the
+    game state, so another order never blocks. Finished flag:
+    `td3d_tutorial_done`.
+  - **Speed button** ×1 / ×2 in the HUD (battle only).
+  - Checked in headless Chromium at 1366×768, 1024×768 touch, 390×844
+    touch and 844×390 touch: tutorial steps, both build orders, speed,
+    victory with stars, next level, locks on the menu. No console errors.
+  - **Known gaps for M5:** on short landscape phones the dock covers the
+    bottom rows of the board; on portrait phones the board is small.
+    Performance on a real Chromebook is unmeasured. Rig files still carry
+    unused clips (size).
+  - **Next:** M5 (polish, real-device checks, size and load time, then
+    "ready for review").

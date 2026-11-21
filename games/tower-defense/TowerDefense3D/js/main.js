@@ -12,6 +12,7 @@ import { applyStatic, t } from './i18n.js';
 import { Effects } from './effects.js';
 import { UI } from './ui.js';
 import { Wave } from './wave.js';
+import { Tutorial } from './tutorial.js';
 
 // Entry point: initialize subsystems, own the central state, run the game loop + phase
 // machine. Phase table (spec):
@@ -47,8 +48,17 @@ export const state = {
 
   forge: Forge.newState(),
   stats: { asked: 0, right: 0 },
-  // 1 normally; lower while the forge is open during a battle (slow motion).
+  // Game speed: forge slow motion × the player's speed button (1 or 2, battle only).
   timeScale: 1,
+  speed: 1,
+
+  // A free hex the player tapped: the next tower card builds right there.
+  buildCell: null,
+  // Tutorial coach: { key, target } and cells to highlight (see tutorial.js).
+  hint: null,
+  hintCells: [],
+  // Stars earned by the last victory (1–3), 0 otherwise.
+  starsEarned: 0,
 
   // Save highscore only once per run-end; cleared on resetRun.
   highscoreSaved: false,
@@ -113,6 +123,10 @@ export function resetRun() {
   state.forge = Forge.newState();
   state.stats = { asked: 0, right: 0 };
   state.timeScale = 1;
+  state.buildCell = null;
+  state.hint = null;
+  state.hintCells = [];
+  state.starsEarned = 0;
   Questions.resetRun();
   state.highscoreSaved = false;
   Grid.init(Level.current);
@@ -127,6 +141,11 @@ export function startGame(levelIndex) {
     UI.onLevelChanged();
   }
   resetRun();
+}
+
+// Start the level after the current one (victory screen).
+export function nextLevel() {
+  if (currentLevelIndex + 1 < LEVELS.length) startGame(currentLevelIndex + 1);
 }
 
 export function endGame() {
@@ -149,8 +168,39 @@ function saveHighscore() {
     if (state.currentWave > best) {
       localStorage.setItem(highscoreKey(currentLevelIndex), String(state.currentWave));
     }
+    if (state.starsEarned > getStars(currentLevelIndex)) {
+      localStorage.setItem(starsKey(currentLevelIndex), String(state.starsEarned));
+    }
   } catch { /* localStorage disabled — silently skip */ }
   state.highscoreSaved = true;
+}
+
+// ── Stars and level unlocking ─────────────────────────────────────────
+// A won level earns 1–3 stars by how many lives are left: 3 = at most one life lost,
+// 2 = at least half left, 1 = won. One star on a level unlocks the next one.
+
+function starsKey(levelIndex) {
+  return `td3d_stars_level_${levelIndex}`;
+}
+
+export function starsFor(lives, maxLives) {
+  if (lives >= maxLives - 1) return 3;
+  if (lives >= maxLives / 2) return 2;
+  return 1;
+}
+
+export function getStars(levelIndex = currentLevelIndex) {
+  try {
+    return parseInt(localStorage.getItem(starsKey(levelIndex)) || '0', 10) || 0;
+  } catch { return 0; }
+}
+
+export function isUnlocked(levelIndex) {
+  return levelIndex === 0 || getStars(levelIndex - 1) > 0;
+}
+
+export function hasNextLevel() {
+  return currentLevelIndex + 1 < LEVELS.length;
 }
 
 // ── Tower actions (step 9) ────────────────────────────────────────────
@@ -181,8 +231,10 @@ export function sellTower(tower) {
 function update(dt) {
   // The forge runs on real time; everything else slows down while it is open in battle.
   Forge.update(dt, state);
-  state.timeScale = (state.forge.open && state.phase === 'BATTLE') ? CONFIG.forge.battleTimeScale : 1;
+  const battle = state.phase === 'BATTLE';
+  state.timeScale = battle ? (state.forge.open ? CONFIG.forge.battleTimeScale : state.speed) : 1;
   dt *= state.timeScale;
+  Tutorial.update(state, currentLevelIndex);
 
   if (state.phase === 'MENU') {
     UI.update(state);
@@ -203,6 +255,7 @@ function update(dt) {
     if (state.waveCompleteTimer <= 0) {
       if (state.currentWave >= Level.current.totalWaves) {
         state.phase = 'VICTORY';
+        state.starsEarned = starsFor(state.lives, Level.current.startingLives);
         Sound.play('victory');
       } else {
         state.phase = 'BUILD';
@@ -228,6 +281,7 @@ function update(dt) {
   if (state.phase !== 'BUILD' && state.phase !== 'BATTLE') {
     if (state.placement.active) Input.cancelPlacement();
     state.selectedTower = null;
+    state.buildCell = null;
   }
 
   if (state.selectedTower && !state.towers.includes(state.selectedTower)) {
@@ -246,6 +300,6 @@ function gameLoop(timestamp) {
 }
 
 // Handle for automated play-tests and debugging in the browser console.
-window.__td = { state, Renderer, Level, Grid, Forge, Questions };
+window.__td = { state, Renderer, Level, Grid, Forge, Questions, Wave, Input, step: update, startGame };
 
 window.addEventListener('load', init);
