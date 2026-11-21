@@ -253,3 +253,29 @@ html, body {
 .level-btn .num   { color: #ff7a3a; font-weight: 800; min-width: 26px; }
 .level-btn .title { flex: 1; }
 .level-btn .tick  { color: #2bbf5f; font-weight: 800; }
+
+/* ---------- Phones (touch, small screens) ---------- */
+#rotate-hint { display: none; }
+@media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
+  #rotate-hint {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: #1f2c3a;
+  }
+  .rotate-icon { font-size: 96px; animation: rotate-nudge 1.6s ease-in-out infinite; }
+}
+@keyframes rotate-nudge { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+
+@media (max-height: 480px) {
+  .menu-card { padding: 16px 28px; min-width: 300px; max-height: 92vh; overflow-y: auto; }
+  .menu-card h1 { font-size: 28px; }
+  .menu-card .subtitle { margin-bottom: 12px; }
+  .level-btn { padding: 10px 16px; font-size: 16px; }
+  #menu-list { gap: 8px; }
+  #touch-joystick { left: 16px; bottom: 12px; }
+  #touch-jump { right: 24px; bottom: 28px; width: 84px; height: 84px; }
+  #answer-reveal { font-size: 30px; padding: 14px 24px; top: 18%; }
+  #level-complete h1 { font-size: 40px; }
+  #progress { bottom: 10px; }
+  #hud-question { bottom: 52px; font-size: 18px; }
+}

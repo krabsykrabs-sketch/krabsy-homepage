@@ -1,16 +1,20 @@
 import * as THREE from 'three';
-import { loadModel } from './assets.js';
 
-const DUST_URL  = './assets/models/dust.glb';
-const BRICK_URL = './assets/models/brick-particle.glb';
-
+// Dust + brick puff particles are built from primitives (no model files, no textures).
+// They used to be two Kenney GLBs whose shared `Textures/colormap.png` was never shipped
+// (404 on the live site, particles rendered untextured).
 let dustTpl = null;
 let brickTpl = null;
 
 export async function preloadParticles() {
-  // loadModel returns a clone; keep it as the template, future spawns clone the template.
-  dustTpl  = await loadModel(DUST_URL);
-  brickTpl = await loadModel(BRICK_URL);
+  dustTpl = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.17, 0),
+    new THREE.MeshLambertMaterial({ color: 0xf2ead8, flatShading: true }),
+  );
+  brickTpl = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.2, 0.22),
+    new THREE.MeshLambertMaterial({ color: 0xd9654f }),
+  );
 }
 
 const GRAVITY = 14;       // particle gravity (visual; not Rapier)

@@ -31,6 +31,13 @@ export function createControls(canvas) {
     return { x, y };
   }
 
+  // ---- Touch detection ----
+  // Any device whose main pointer is a finger gets the on-screen controls — phones too.
+  // The keyboard stays live in every case (touch-screen laptops, tablets with keyboards).
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
+    || (('ontouchstart' in window) && !window.matchMedia('(pointer: fine)').matches);
+  input.isTouch = isTouchDevice;
+
   // ---- Mouse + pointer lock ----
   canvas.addEventListener('click', () => {
     if (!input.pointerLocked && !input.isTouch) canvas.requestPointerLock();
@@ -44,17 +51,16 @@ export function createControls(canvas) {
     input.lookDelta.y += e.movementY;
   });
 
-  // ---- Touch (tablet+) ----
-  const isTouchDevice = 'ontouchstart' in window && window.innerWidth >= 768;
+  // ---- Touch: joystick (left), jump button (right), drag on the scene = look around ----
   let touchAxes = { x: 0, y: 0 };
 
   if (isTouchDevice) {
-    input.isTouch = true;
     const stickEl = document.getElementById('touch-joystick');
     const jumpEl = document.getElementById('touch-jump');
     stickEl.hidden = false;
     jumpEl.hidden = false;
-    document.getElementById('hint').hidden = true;
+    const hint = document.getElementById('hint');
+    if (hint) hint.hidden = true;
 
     const stick = nipplejs.create({
       zone: stickEl,
@@ -63,8 +69,11 @@ export function createControls(canvas) {
       color: 'white',
       size: 120,
     });
-    stick.on('move', (_, data) => {
-      // nipplejs angle: 0=right, 90=up, etc. We want screen-space x/y with y inverted.
+    stick.on('move', (evt) => {
+      // nipplejs 1.x passes one event object ({ type, data }).
+      // Angle: 0=right, 90=up, etc. We want screen-space x/y with y inverted.
+      const data = evt.data;
+      if (!data?.angle) return;
       const r = Math.min(data.distance / 60, 1);
       touchAxes.x = Math.cos(data.angle.radian) * r;
       touchAxes.y = -Math.sin(data.angle.radian) * r;
@@ -75,18 +84,37 @@ export function createControls(canvas) {
       e.preventDefault();
       input.jumpPressed = true;
     }, { passive: false });
+
+    // One finger dragging on the canvas turns the camera (the joystick and the jump
+    // button sit above the canvas, so their touches never arrive here).
+    const LOOK_GAIN = 1.6;
+    let lookId = null, lastX = 0, lastY = 0;
+    canvas.addEventListener('touchstart', e => {
+      if (lookId !== null) return;
+      const t = e.changedTouches[0];
+      lookId = t.identifier; lastX = t.clientX; lastY = t.clientY;
+    }, { passive: true });
+    canvas.addEventListener('touchmove', e => {
+      for (const t of e.changedTouches) {
+        if (t.identifier !== lookId) continue;
+        input.lookDelta.x += (t.clientX - lastX) * LOOK_GAIN;
+        input.lookDelta.y += (t.clientY - lastY) * LOOK_GAIN;
+        lastX = t.clientX; lastY = t.clientY;
+      }
+      e.preventDefault();
+    }, { passive: false });
+    const endLook = e => {
+      for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null;
+    };
+    canvas.addEventListener('touchend', endLook);
+    canvas.addEventListener('touchcancel', endLook);
   }
 
-  // ---- Per-frame update ----
+  // ---- Per-frame update ---- keyboard and joystick add up, clamped to [-1, 1].
   input.update = () => {
-    if (input.isTouch) {
-      input.move.x = touchAxes.x;
-      input.move.y = touchAxes.y;
-    } else {
-      const k = readKeyboard();
-      input.move.x = k.x;
-      input.move.y = k.y;
-    }
+    const k = readKeyboard();
+    input.move.x = Math.max(-1, Math.min(1, k.x + touchAxes.x));
+    input.move.y = Math.max(-1, Math.min(1, k.y + touchAxes.y));
   };
 
   input.consumeJump = () => {

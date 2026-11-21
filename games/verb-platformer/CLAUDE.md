@@ -37,17 +37,17 @@ What exists:
   was improved, what is still open).
 - **One editor-format level:** `assets/levels/level1.json` (19 objects).
   Editor levels load through `src/level-loader.js`.
-- **Local assets are incomplete:** `assets/` here only holds `levels/`
-  (the model packs are gitignored and are not on this machine).
-  The deployed copy `homepage/games/verb-platformer/assets/` has the wired
-  set (22 MB build); the master library is
+- **Local assets:** `assets/` is gitignored except `levels/`. Restored on
+  2026-11-21 by copying `homepage/games/verb-platformer/assets/` here
+  (22 MB). On a fresh machine do the same; the master library is
   `/home/janah/dev/_assets/kaykit/KayKit_Platformer_Pack_1.0_EXTRA`.
-  Restore the working copy before anything else.
+- **Libraries are self-hosted** in `vendor/` (three r169, rapier3d-compat
+  0.19.3, nipplejs 1.0.1; tracked in git). No CDN.
 
 What a level-design session should do:
 
-1. Restore the assets, play the three levels and the editor level, and
-   fix open issues 1–5 below (they are small).
+1. ~~Restore the assets, play the levels, fix open issues 1–5~~ **done
+   2026-11-21** (see "Fixed" below).
 2. Agree a **level plan** with the owner: how many levels for a first
    re-release (suggestion: 6–8), about 2–3 minutes each, one new idea per
    level (moving platforms, turns, height, a shortcut, a timed stretch),
@@ -69,33 +69,46 @@ and hub text, run `tools/render_static_games.py`, `tools/render_game_info.py`,
 `tools/generate_sitemap.py`, and get the owner's OK. Release only after the
 issues below are fixed and it has been play-tested on desktop, tablet, phone.
 
-## Open issues (verified by master session 2026-11-12)
+## Fixed 2026-11-21 (source only, NOT yet copied to `homepage/`)
 
-1. **Missing texture → 404.** `assets/models/Textures/colormap.png` is
-   requested by the models (GLB) but not in git / not deployed
-   (`https://krabsy.com/games/verb-platformer/assets/models/Textures/colormap.png`
-   → 404). It is a Kenney kit texture; copies exist in the shared library, e.g.
-   `/home/janah/dev/_assets/kenney/*/Models/GLB format/Textures/colormap.png` —
-   find out which kit the models come from and ship the matching file
-   (remember the deployed `homepage/games/verb-platformer/assets/` IS tracked).
-2. **Crash on touch tablets.** `src/controls.js:57`:
-   `document.getElementById('hint').hidden = true;` — there is no element with
-   `id="hint"` in `index.html`, so on touch devices ≥768 px wide this throws a
-   TypeError and the touch setup (joystick, jump button) never finishes.
-   Guard it (`const h = …; if (h) h.hidden = true;`) or add the element.
-3. **No controls on phones.** `src/controls.js:48`:
-   `isTouchDevice = 'ontouchstart' in window && window.innerWidth >= 768` —
-   phones (<768 px) get neither touch controls nor a message. The wrapper text
-   currently tells phone users to use a computer. Decide: support phones or
-   show an explicit "please use a computer/tablet" screen.
-4. **3D libraries from a third-party CDN.** `index.html` loads three.js
-   0.169.0 and rapier3d-compat 0.19.3 from `unpkg.com`. Self-host them under
-   the game folder (reliability on school networks that block CDNs, and
-   privacy: the privacy policy says no third parties).
-5. **Keep the SEO meta when copying the build.** `homepage/games/verb-platformer/index.html`
-   carries `<meta name="robots" content="noindex, indexifembedded">` (added
-   2026-11-12) so Google indexes the wrapper page, not the raw build. Add the
-   same tag to this source `index.html`, or the next build copy drops it.
+Checked in headless Chromium (desktop 1366×768, tablet 1024×768 touch,
+phone 844×390 touch): all three levels, the editor and the editor level
+load with 0 console errors, 0 failed requests, 0 external requests.
+
+1. **Texture 404:** the two Kenney particle models (`assets/models/`) are
+   gone; `src/particles.js` builds the dust and brick bits from
+   primitives. At release, delete `homepage/games/verb-platformer/assets/models/`.
+2. **Touch crash:** `#hint` exists now and the lookup is guarded.
+3. **Phones:** touch controls show on every device whose main pointer is
+   a finger (`pointer: coarse`), phones included. Keyboard and joystick
+   add up, so touch-screen laptops keep WASD. Portrait phones get a
+   "rotate" screen; small-height styles for landscape.
+4. **Joystick never worked** (found behind the crash): nipplejs 1.x passes
+   one event object; the handler read a second argument. Fixed.
+5. **Touch camera:** dragging on the scene turns the camera (there was no
+   way to look around on touch, which levels with turns need).
+6. **Libraries self-hosted** in `vendor/` (also for `editor.html`).
+7. **`noindex, indexifembedded`** meta is in the source `index.html`.
+
+## Open (found 2026-11-21)
+
+- **Not tested on real devices.** Joystick, look-drag and jump were only
+  driven by simulated touches. Owner: try a tablet and a phone.
+- **Small text on phones:** the question sign and answer bubbles are
+  world-space and get tiny at 844×390. Needs a HUD question on small
+  screens or bigger signs.
+- **Two level formats.** Built-in levels (`src/levels/*.js`) have gates,
+  a question queue, checkpoints and a progress bar. Editor levels
+  (`assets/levels/*.json`) have none of that: answers are hand-typed
+  labels, `gateCount` is 0. `level1.json` is a test piece without a flag.
+  Decide which format real levels use before building any.
+- **Questions:** 15 inline verbs in `src/data/questions.js`, simple past
+  only (`go → ___`), nonsense distractors ("wented"). Site rule is
+  `go → ___ → gone` from `krabsy-questions.js`, full chain after a miss.
+- **UI is English only**, system font, title "Krabsy 3D".
+- **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
+  sets of every piece). `assets/sprites/skybox.png` (3.9 MB), `coin.png`
+  and `particle.png` are not referenced by any code.
 
 Quality bar before re-release: it must feel good in the first 30 seconds
 (controls, camera, clear goal, readable verb question) on a school laptop

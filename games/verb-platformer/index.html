@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Only meant to run inside its wrapper page's iframe: index the wrapper, not this file. -->
+  <meta name="robots" content="noindex, indexifembedded">
   <title>Krabsy 3D Platformer</title>
   <link rel="stylesheet" href="./styles.css" />
 
   <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/",
-      "@dimforge/rapier3d-compat": "https://unpkg.com/@dimforge/rapier3d-compat@0.19.3/rapier.mjs",
-      "nipplejs": "https://unpkg.com/nipplejs@1.0.1/dist/index.mjs"
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "@dimforge/rapier3d-compat": "./vendor/rapier/rapier.mjs",
+      "nipplejs": "./vendor/nipplejs/index.mjs"
     }
   }
   </script>
@@ -44,6 +46,9 @@
   <div id="touch-jump" hidden>JUMP</div>
   <div id="touch-joystick" hidden></div>
 
+  <!-- Shown by CSS on touch devices held upright -->
+  <div id="rotate-hint"><div class="rotate-icon">⟳</div></div>
+
   <!-- Death flash overlay -->
   <div id="death-flash" hidden></div>
 
@@ -59,7 +64,7 @@
       <h1>Krabsy 3D</h1>
       <p class="subtitle">Pick a Level</p>
       <div id="menu-list"></div>
-      <p class="hint">Click canvas to capture mouse · WASD to move · Space to jump · Esc to release</p>
+      <p class="hint" id="hint">Click canvas to capture mouse · WASD to move · Space to jump · Esc to release</p>
     </div>
   </div>
 
