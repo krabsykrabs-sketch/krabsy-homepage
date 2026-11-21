@@ -51,6 +51,7 @@ TowerDefense3D/
 tools/
     balance-sim.mjs       bot that plays all levels (balance check)
     hex-path.py           anchor cells → full road chain for a level file
+    check-turns.mjs       checks every road: no gaps, no repeats, no turn > 60°
     strip-rigs.py         makes the animation-only GLB files
 td-html5-spec.md          original 2D spec (historic, balance ideas)
 ```
@@ -555,3 +556,12 @@ implemented as preview-approved by the owner (Status log, "round 2").
   - Checked in headless Chromium: all six levels load, enemies walk every
     road (both gates on level 5), menu with six cards and locks on
     1024×768 and 390×844 (scrolls), level-1 regression. No errors.
+- 2026-11-21 — **Owner rule: enemies never turn 90° or more.** On a hex
+  road that means at most one hex side (60°) per cell; a U-turn takes
+  three gentle steps. `tools/check-turns.mjs` checks all levels (also
+  gaps and repeated cells) — run it after editing a level. It found three
+  120° bends (level 4 lake loop, level 5 lower road at the junction,
+  level 6 first U-turn); all rerouted. Levels 1–3 were already fine.
+  Bot afterwards: levels 4–6 give 2–3 stars at 100 %, 1–2 at 70 %, lose
+  at 40 % and below.
+- `?unlock=all` opens every level (testing, teachers); stars untouched.
