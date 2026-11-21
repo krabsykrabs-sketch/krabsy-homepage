@@ -117,11 +117,11 @@ Rules:
 
 ## Working agreement
 
-- Work in the worktree `/home/janah/dev/krabsy-td` (branch
-  `tower-defense`), not in the main checkout. The master session uses
-  `main`.
-- Commit on your branch with the Co-Authored-By trailer. Don't push to
-  `main`.
+- Work in `/home/janah/dev/krabsy-homepage/games/tower-defense/` on `main`.
+  There is one shared checkout, and the master session works there too.
+- Stage only this folder (`git add games/tower-defense`, never `git add -A`
+  or `git stash`), then commit with the Co-Authored-By trailer. **Don't
+  push.** The master session pushes.
 - End every session by updating the **Status log** below: what changed,
   what's next, and open questions for the owner.
 - The owner prefers short, step-by-step explanations in chat. Ask before

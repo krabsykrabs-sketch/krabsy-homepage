@@ -13,16 +13,32 @@ at the end of each session. (Last update: 2026-11-12.)
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms |
 | Verb Platformer | 3D (Three.js) | `games/verb-platformer/` | — (wrappers kept, noindex) | **OFFLINE since 2026-11-12** (owner: not good enough) — removed from games.json/hubs/sitemap; bug list + how to bring it back in `games/verb-platformer/CLAUDE.md` |
 | Verb Flow | single-file canvas | `homepage/krabsy-verb-flow.html` (iframed) | `/de/spiele/verb-flow/` | **RELEASED 2026-06-12** (beta) — engine-refactored same day: 154-verb pool. 2026-11-16: thumbnail added, first-run interactive tutorial (+ "How to play" replay), fixed always-visible PERFECT badge / Restart button. DE/ES UI |
-| Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session in worktree `krabsy-td` (branch `tower-defense`) |
+| Tower Defense | 3D (Three.js) | `games/tower-defense/` | — | **in development** — owner chose it 2026-11-21 as the next Verb-Kitchen-quality game; brief in its `CLAUDE.md`; own session opens in `games/tower-defense/` |
 | Verb Dungeon | 3D roguelite (no assets yet) | `games/verb-dungeon/` | — | **PoC BUILT + play-verified** (see its CLAUDE.md status log) — awaiting user verdict / asset upgrade |
 | Verb Climb | 2D tower-climb platformer | `games/verb-climb/` | — | **PoC BUILT** — many playtest iterations (Trackmania-style levels/medals); awaiting user verdict |
 | Verb Valley | 3D farming life-sim (Stardew-like) | `games/verb-valley/` | — | **PoC BUILT** — 3 playtest rounds + KayKit asset rebuild; awaiting user verdict |
 | Verb Runway | 2D paper-doll dress-up (DTI-like) | `games/verb-runway/` | — | **PoC BUILT** — art contact sheet awaits user judgment () |
-| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | `/de/spiele/verb-kitchen/` (build at `/games/verb-kitchen/`) | **RELEASED** — in the catalogue since 2026-06-16 (`games.json` status `beta`); confirmed released by the user 2026-11-12 after the first organic classroom use (Uruguay, Plan Ceibal/Schoology, 2026-11-12: ~10–12 concurrent sessions, 7–12 min each) |
+| Sim Tower / Krabsy Block | 3D city-block sim (KayKit) | `games/sim-tower/` (+ `archive-tower-version/`) | — | **potential game** — merged from the old `sim-tower` branch 2026-11-21; last worked on 2026-07/08; concept in `krabsy-block-concept.md`. Models (16 MB) are gitignored in `games/sim-tower/assets/` |
+| Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | `/de/spiele/verb-kitchen/` (build at `/games/verb-kitchen/`) | **RELEASED** — ⚠ source is AHEAD of the live build since the 2026-11-21 merge: Levels 4–7 (co-op, soup, sundae), DE/ES UI (`src/i18n.js`), spaced repetition + Verb Cookbook (Jun 16–Jul 2) were never released → play-test + release next. — in the catalogue since 2026-06-16 (`games.json` status `beta`); confirmed released by the user 2026-11-12 after the first organic classroom use (Uruguay, Plan Ceibal/Schoology, 2026-11-12: ~10–12 concurrent sessions, 7–12 min each) |
 
 **Arcade-game language (2026-11-16):** Verb Flow, Verb Snake and Air Control
 show their UI in DE/ES (`?lang=` → `krabsy_lang` → DE fallback, same as the
 drills); the verbs and go → went → gone notation stay English.
+
+**Repo cleanup 2026-11-21:** the `sim-tower` branch (diverged 2026-06-16) was
+merged into `main`. It brought Verb Kitchen L4–7/i18n, the World Designer level
+editor (`tools/world-designer/`, see its README) and Sim Tower. All helper
+worktrees were removed; from now on there is one checkout on `main` (see
+`CLAUDE.md` → Session model).
+
+**Play-test 2026-11-21** (`docs/playtest-2026-11-21.md`):
+- Crab Slash → hide (central rule broken).
+- Drag Match and Falling Forms → small layout fix (start button below the
+  fold, ✕ leaves the site).
+- Verb Slash → fix the colour tell and slow start.
+- Air Control → small fixes.
+- Verb Flow → keep.
+- Owner decisions pending.
 
 ## Speed drills (irregular-verbs / prepositions topic tools)
 

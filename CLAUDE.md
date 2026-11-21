@@ -23,10 +23,17 @@ krabsy-homepage/                 ← repo root (master session works here)
 │   ├── krabsy-air-control.html  ← served single-file game (iframed)
 │   ├── sitemap.xml, robots.txt, favicons, og-image.png …
 ├── games/                       ← GAME SOURCE projects (NOT served)
-│   ├── verb-platformer/         ← full 3D dev project (editor, src, builds)
-│   ├── tower-defense/           ← 3D tower-defense dev project
-│   ├── verb-flow/               ← single-file game source (built, unreleased)
+│   ├── verb-kitchen/            ← 3D Three.js game (released; source ahead of build)
+│   ├── tower-defense/           ← 3D tower-defense dev project (next 3D game)
+│   ├── sim-tower/               ← "Krabsy Block" city-block sim (potential game;
+│   │                              archive-tower-version/ = the retired tower)
+│   ├── verb-platformer/         ← 3D platformer (offline, bug list in CLAUDE.md)
+│   ├── verb-dungeon/ verb-valley/ verb-climb/ verb-runway/ ← PoCs
+│   ├── verb-flow/               ← single-file game source
 │   ├── crab-slash/  verb-slash/ ← standalone sources (inlined into wrappers)
+├── tools/                       ← site generators (sitemap, verb pages, game
+│                                  grids) + world-designer/ (3D level editor)
+├── docs/                        ← outreach list, SEO notes, play-test reports
 ├── assets/                      ← SHARED asset library (gitignored binaries)
 ├── content/                     ← CANONICAL question catalogue (master copy)
 │   ├── irregular-verbs.json     (155 verbs)
@@ -68,6 +75,15 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
 - **One session per game** starts in `games/<name>/` (or the relevant
   homepage game folder) and owns only that game. It gets its brief from
   that folder's `CLAUDE.md`/spec and reports back by updating it.
+- **One checkout, one branch (owner decision 2026-11-21).** Everything
+  happens in `/home/janah/dev/krabsy-homepage` on `main`. **No extra git
+  worktrees or long-lived branches.** A June branch (`sim-tower`) once
+  collected five months of unreleased work that way. Game sessions open in
+  `krabsy-homepage/games/<name>/`, stage only their own folder
+  (`git add games/<name>`, never `git add -A`), commit, and don't push.
+  The master session pushes and releases. A subagent that needs isolation
+  may use a temporary worktree, but it must be merged and removed the same
+  day.
 - **All durable state lives in files, never in chat.** End every session
   by updating `STATUS.md` (master) or the game's `CLAUDE.md` (game
   session), then commit. Start every session by reading them.
@@ -86,7 +102,9 @@ URLs + the wrapper pages (this is what "re-enable Air Control" did).
 - Large binary asset packs are **gitignored** (see `.gitignore`): the
   shared `/assets/` library and the 3D source's `assets/`+`_builds/`. The
   **deployed** `homepage/games/verb-platformer/assets/` IS tracked.
-- Don't run two sessions against the repo at the same instant.
+- Two sessions may work in parallel in different folders. If a commit
+  fails with `index.lock`, wait a second and retry. Never run
+  `git add -A`, `git stash` or `git checkout -- .` in a shared checkout.
 
 ## Local preview
 
