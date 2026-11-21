@@ -34,22 +34,56 @@ keeps the remainder, caps at `MAX_STEPS=5` per frame and resets after gaps
 >250 ms (hidden tab) so it never fast-forwards. All tuning constants (gravity,
 launch vy, balloon rise, hover delay) are per *step* at 120 steps/s.
 
-## Open issues from the play-test 2026-11-21 (`docs/playtest-2026-11-21.md`)
+## Play-test fixes 2026-11-21 (`docs/playtest-2026-11-21.md`) — done, awaiting master review
 
-Verdict: fix (small). Line numbers refer to `homepage/de/spiele/verb-slash/index.html`.
+All seven items are fixed in the source and both wrappers (not committed by the
+game session).
 
-1. **Colour gives the answer away:** correct balls always get the
-   `fruit-correct` class (`:593`, CSS `:121–126`), so kids can play by
-   colour without reading. Randomise the colours.
-2. **Slow start:** balloons take 5.1 s to arrive (`:787`). A plain
-   click or tap does nothing; only a 30 px swipe counts (`:448`). Let a
-   tap count too.
-3. An ignored ball costs a life after 4.6 s, and the right answer is never
-   shown after a mistake. Show the full chain `go → went → gone`.
-4. All in-game text is English on both language pages. Add DE/ES UI (see
-   Verb Flow, Verb Snake, Air Control from 2026-11-16 for the pattern). The
-   start-screen sentence uses "simple past and past participle": rephrase
-   it without terms.
-5. Phone portrait: it renders as a 390×220 px strip with a 72×19 px
-   start button.
-Owner OK is still needed before starting.
+1. ~~Colour gives the answer away.~~ **Fixed:** `fruit-correct/-wrong/-wrong-alt`
+   and `phase-pp-ball` are gone. Each wave deals a shuffled 5-colour palette
+   (`.fruit-c0…c4`, `BALL_COLOURS=5`) by position, independent of right/wrong.
+   Right/wrong shows only after the slash (flash, particles, teach card).
+2. ~~Slow start.~~ **Fixed:** balloons start `BALLOON_START_BELOW=10` px under
+   the bottom edge (was 160) and rise with `BALLOON_EASE=0.02`,
+   `BALLOON_MIN_SPEED=0.5` per step (was 0.006 / 0.08). Measured: balloon
+   tappable 0.1–0.2 s after Start, settled after 1.3 s (portrait 1.6 s; was
+   5.1 s); first ball reachable 0.3–0.6 s after Start when the balloon is
+   tapped at once. Ball physics (`GRAVITY`, `LAUNCH_VY_*`) unchanged on the
+   landscape stage. Still 120 steps/s (measured 119–121 on start and restart).
+3. ~~Tap must work.~~ **Fixed:** `tapAt()` — pointer-down on a balloon or ball
+   counts as a slash (nearest target, radius + `TAP_PAD=10`). The 30 px swipe
+   still works; a press that already hit something doesn't also start a swipe.
+4. ~~Teach after a mistake.~~ **Fixed:** `mistake()` — a wrong slash or a missed
+   correct ball ends the wave and shows `#teach-card` for `TEACH_MS=2400`:
+   `go → went → gone`, asked form highlighted amber. The verb goes back to the
+   front of the queue (one of the next two balloons). **The first mistake of
+   each game costs no life** (`S.freeMiss`, the card says so). Game over now
+   comes after the card (was 500 ms after the hit). Changed rule: a wrong slash
+   ends the wave at once (before, the other balls kept flying).
+5. ~~DE/ES UI.~~ **Fixed:** `STR` table (de/es/en) + `t()` + `data-i18n`.
+   Lookup: wrapper `<html lang>` → `?lang=` → `krabsy_lang` → DE. EN is only
+   reachable via `?lang=en` on the standalone source.
+6. ~~Grammar terms.~~ **Fixed:** the start sentence uses `go → went → gone` in
+   all three languages.
+7. ~~Phone portrait strip.~~ **Fixed:** the stage is no longer always 1280×720.
+   `resizeWorld()` uses 720 × (up to 1600) in portrait (`GW`/`GH` are now `let`),
+   so a 390×844 phone gets a 390×760 stage instead of 390×220. Ball launch speed
+   and gravity scale with `GH/720` (per-ball `f.g`), and patterns are fanned out
+   1.4× on the narrow stage. Buttons are at least 46 CSS px tall at any scale
+   (`--tap-min`, `--btn-font`, `--txt-min`, `--hint-min`). Ball label font sizes
+   went up one step (`fontSz`: 36/31/26/21/17).
+
+**Source = wrapper again.** The source had drifted behind the wrappers (older
+physics constants, none of the perf changes). It was rebuilt from the DE
+wrapper's game parts and now differs only in: `<head>`, Google-Fonts import,
+`html,body` rule, `NAV=0,HINT=0` in `resizeWorld()` and the document
+`touchmove` listener. The game `<style>`, `#game-world` markup and `<script>`
+are identical in DE and ES.
+
+Open for the master session:
+- The info section below the game still says the in-game hints are English and
+  that you swipe "mit gedrückter Maustaste" (DE and ES; data behind
+  `tools/render_game_info.py`). Outdated now: the UI is translated and a
+  click or tap is enough.
+- JSON-LD `VideoGame.inLanguage` is still `en`.
+- Issue 3 in the first list ("Language") is closed by items 5 and 6.

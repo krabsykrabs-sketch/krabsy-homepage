@@ -29,14 +29,14 @@ CONTENT = {
             "meta": "Zerschneide Ballons und Bälle mit der richtigen Verbform – go, went, gone. Wisch-Spiel zum Üben unregelmäßiger englischer Verben. Kostenlos im Browser, ohne Anmeldung.",
             "lead": [
                 "In Verb Slash steigen Ballons und Wasserbälle über dem Strand auf – und du zerschneidest mit einem schnellen Wisch die richtige Verbform. So übst du die <strong>unregelmäßigen Verben im Englischen</strong>, ganz ohne Vokabelheft. Jede Runde dreht sich um ein Verb, zum Beispiel <em>go → went → gone</em>.",
-                "Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung. Die kurzen Hinweise im Spiel sind auf Englisch – hier erklären wir dir alles auf Deutsch.",
+                "Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung. Alle Hinweise im Spiel sind auf Deutsch, nur die Verben bleiben natürlich Englisch.",
             ],
             "howto": [
-                "Zwei Ballons mit je einem englischen Verb steigen auf. Wische über einen davon – das ist dein Verb für die Runde.",
+                "Zwei Ballons mit je einem englischen Verb steigen auf. Tippe oder wische auf einen davon – das ist dein Verb für die Runde.",
                 "Jetzt fliegen Bälle mit verschiedenen Formen hoch. Zerschneide den Ball mit der <strong>Simple-Past-Form</strong> (bei <em>go</em> also <em>went</em>).",
                 "In der zweiten Welle suchst du das <strong>Past Participle</strong> (<em>gone</em>).",
-                "Du hast drei Herzen. Eins geht verloren, wenn du einen falschen Ball triffst oder den richtigen herunterfallen lässt.",
-                "Am Computer wischst du mit gedrückter Maustaste, auf Handy und Tablet mit dem Finger.",
+                "Du hast drei Herzen. Eins geht verloren, wenn du einen falschen Ball triffst oder den richtigen herunterfallen lässt. Nach jedem Fehler zeigt dir das Spiel die richtige Reihe, zum Beispiel <em>go → went → gone</em> – und der erste Fehler pro Spiel kostet kein Herz.",
+                "Am Computer klickst du den richtigen Ball an oder wischst mit gedrückter Maustaste darüber, auf Handy und Tablet tippst oder wischst du mit dem Finger.",
             ],
             "learn": [
                 "Verb Slash trainiert 30 häufige unregelmäßige Verben, zum Beispiel {go}, {swim}, {write}, {break} und {forget}. Auf den falschen Bällen stehen ausgedachte Fehlerformen wie <em>goed</em> oder <em>writed</em> – genau die Fehler, die im Test gern passieren. Mit jeder richtigen Serie steigt dein Punkte-Multiplikator. Verben, die du verpasst hast, kommen später noch einmal dran, und deinen Rekord merkt sich das Spiel auf deinem Gerät.",
@@ -54,14 +54,14 @@ CONTENT = {
             "meta": "Corta globos y pelotas con la forma verbal correcta – go, went, gone. Juego para practicar los verbos irregulares en inglés. Gratis en el navegador, sin registro.",
             "lead": [
                 "En Verb Slash suben globos y pelotas de playa por la pantalla y tú cortas la forma verbal correcta con un movimiento rápido. Es una manera divertida de repasar los <strong>verbos irregulares en inglés</strong> sin abrir el cuaderno. Cada ronda gira alrededor de un verbo, por ejemplo <em>go → went → gone</em>.",
-                "Puedes jugar gratis en el navegador, sin descargar nada y sin registrarte. Las pocas instrucciones del juego están en inglés; aquí te lo explicamos todo en español.",
+                "Puedes jugar gratis en el navegador, sin descargar nada y sin registrarte. Todas las indicaciones del juego están en español; solo los verbos siguen en inglés, claro.",
             ],
             "howto": [
-                "Aparecen dos globos, cada uno con un verbo en inglés. Pasa el dedo o el ratón por uno para elegir el verbo de la ronda.",
+                "Aparecen dos globos, cada uno con un verbo en inglés. Toca uno o pasa el dedo o el ratón por encima para elegir el verbo de la ronda.",
                 "Luego saltan pelotas con distintas formas. Corta la que tiene el <strong>pasado simple</strong> (si elegiste <em>go</em>, es <em>went</em>).",
                 "En la segunda tanda buscas el <strong>participio pasado</strong> (<em>gone</em>).",
-                "Tienes tres vidas. Pierdes una si cortas una pelota equivocada o si dejas caer la correcta.",
-                "En la computadora mantienes pulsado el botón del ratón y deslizas; en el celular o la tablet, deslizas el dedo.",
+                "Tienes tres vidas. Pierdes una si cortas una pelota equivocada o si dejas caer la correcta. Después de cada error el juego te muestra la serie correcta, por ejemplo <em>go → went → gone</em>, y el primer error de cada partida no te quita ninguna vida.",
+                "En la computadora haces clic en la pelota correcta o la cortas manteniendo pulsado el botón del ratón; en el celular o la tablet, la tocas o deslizas el dedo.",
             ],
             "learn": [
                 "El juego usa 30 verbos irregulares muy frecuentes, como {go}, {swim}, {write}, {break} y {forget}. Las pelotas falsas llevan formas inventadas como <em>goed</em> o <em>writed</em>, justo los errores típicos del examen. Cuantos más aciertos seguidos, más alto el multiplicador de puntos. Los verbos que fallas vuelven a salir más tarde, y tu récord queda guardado en tu dispositivo.",
