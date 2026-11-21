@@ -1,10 +1,15 @@
+import { Sound } from './audio.js';
+import { CONFIG } from './config.js';
+import { Effects } from './effects.js';
+import { state } from './main.js';
+
 // Projectile entity. Two variants share the class:
 //   - *directional* (basic, circleShooter): optionally homing, checks per-enemy hits, uses
 //     pierce/maxDistance/lifetime for destruction.
 //   - *AoE* (cannon): flies in a straight line toward a snapshotted targetPosition; on
 //     arrival, damages every enemy within aoeRadius with linear falloff and explodes.
 
-class Projectile {
+export class Projectile {
   constructor({
     type,
     position,

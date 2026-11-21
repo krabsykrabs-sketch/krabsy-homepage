@@ -1,9 +1,12 @@
+import { CONFIG } from './config.js';
+import { Level } from './level.js';
+
 // Placement grid. The world tile map is partitioned into coarse 3×3 placement cells,
 // aligned to the map origin. A cell is *structurally valid* if all 9 underlying tiles are
 // ground; that flag never changes after level load. A cell is *occupied* when a tower
 // sits on it — that flag flips on place/sell. *Available* = valid AND not occupied.
 
-const Grid = {
+export const Grid = {
   cellsX: 0,
   cellsY: 0,
   structuralValid: [],           // [cellY][cellX] boolean

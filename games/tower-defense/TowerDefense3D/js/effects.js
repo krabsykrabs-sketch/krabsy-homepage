@@ -1,3 +1,6 @@
+import { Sound } from './audio.js';
+import { state } from './main.js';
+
 // Visual effects that live on the canvas.
 //   - ring:  expanding ring (freeze burst, cannon explosion)
 //   - poof:  tier-transformation cloud (5-8 white/gray puffs)
@@ -7,7 +10,7 @@
 // arrives at the HUD, its amount is added to state.coins — that's what creates the
 // "coins fly in, then the counter updates" feel the spec asks for.
 
-const Effects = {
+export const Effects = {
   update(dt, state) {
     for (const fx of state.effects) {
       fx.elapsed += dt;

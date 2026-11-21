@@ -1,8 +1,17 @@
+import { Sound } from './audio.js';
+import { CONFIG, TOWER_ORDER } from './config.js';
+import { Level } from './level.js';
+import { Renderer } from './renderer.js';
+import { Input } from './input.js';
+import { Quiz } from './quiz.js';
+import { Wave } from './wave.js';
+import { LEVELS, state, startGame, endGame, getHighscore, upgradeTower, sellTower } from './main.js';
+
 // HUD, tower buttons, tower-info panel, and all overlays (menu, wave complete, game
 // over, victory, quiz). Step 11 added the start menu, heart-icon lives, animated coin,
 // end-game button, and highscore display.
 
-const UI = {
+export const UI = {
   els: {},
 
   init() {

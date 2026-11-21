@@ -1,3 +1,8 @@
+import { Sound } from './audio.js';
+import { CONFIG, getTierForHealth } from './config.js';
+import { Effects } from './effects.js';
+import { state } from './main.js';
+
 // Enemy entity.
 //   step 2: waypoint walking
 //   step 4: takeDamage + die + damage tint
@@ -5,7 +10,7 @@
 //   step 7: tier transformation (Titan → Brute → Warrior → …)
 //   step 8: flying-coin rewards on kill (tier-transformation coins still pay immediately)
 
-class Enemy {
+export class Enemy {
   constructor({ path, maxHealth, baseSpeed, isBoss = false }) {
     this.path = path;
     this.maxHealth = maxHealth;

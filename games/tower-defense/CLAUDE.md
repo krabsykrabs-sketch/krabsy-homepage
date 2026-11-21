@@ -135,3 +135,35 @@ Rules:
 
 - 2026-11-21 — Brief written by the master session. Nothing changed in
   the game yet.
+- 2026-11-21 — **Plan approved by the owner; M0 (clean base) done.**
+  - Removed: the 2D game (root `index.html`, `js/`, `css/`, `levels/`),
+    `ToolPack/`, the old r147 `lib/`, the `assets.js` stub, `game.css`,
+    Baloo 2. All still in git history. `td-html5-spec.md` is kept for
+    balance values. The game now lives only in `TowerDefense3D/`.
+  - `TowerDefense3D/` runs on Three.js 0.169 as vendored ES modules
+    (`vendor/three/`, import map, copied from Verb Kitchen). Every
+    `js/*.js` file is a module with explicit imports/exports; level data
+    stays as classic scripts (`window.LEVELn`).
+  - `renderer.js` has a temporary compatibility shim to keep the old look:
+    `THREE.ColorManagement.enabled = false` and light intensities × PI.
+    **Remove both in M1** (GLB models need default colour management).
+  - Fonts: Fredoka One + Nunito self-hosted in `fonts/`. `noindex,
+    indexifembedded` meta added. `.claude/launch.json` serves
+    `TowerDefense3D/` on :8123.
+  - Checked in headless Chromium (1366×768 mouse, 1024×768 touch): menu,
+    placing towers, tower info, wave, quiz. No console errors, same look
+    as before.
+  - **Approved plan, milestones:** M1 hex world (KayKit Medieval Hexagon:
+    hex road tiles, castle as goal, tower models; pointy-top hexes 2 wide,
+    row step √3; road tiles A = straight, B = wide curve, C = sharp curve,
+    M = dead end, rotate in 60° steps) → M2 animated KayKit skeletons
+    (Rig_Medium/Large `Walking_A`, `Running_A`, `Death_A`, `Spawn_Ground`),
+    real projectiles → M3 verb loop: self-paced "forge" in the untimed
+    build phase (correct answer = coins, wrong = show full chain, verb
+    returns later), `krabsy-questions.js`, DE/ES UI → M4 tutorial start,
+    touch build menu, 3 levels with 8–10 waves, stars → M5 polish, device
+    tests, size check, then "ready for review".
+  - Design decisions so far: Circle Shooter is replaced by the catapult
+    tower; fewer, stronger enemies per wave for Chromebook performance;
+    crab mascot left out for now (decide after M2).
+  - **Next:** M1.

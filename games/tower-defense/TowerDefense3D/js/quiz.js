@@ -1,9 +1,15 @@
+import { Sound } from './audio.js';
+import { VERBS } from './config.js';
+import { Level } from './level.js';
+import { Effects } from './effects.js';
+import { state } from './main.js';
+
 // Quiz system (step 10). Between every wave the player answers 2 questions about the
 // same verb: simple past, then past participle. Correct answers award coins via the
 // flying-coin effect; wrong answers briefly show the correct form, award nothing, and
 // move on. After Q2, return to BUILD (or VICTORY if this was the final wave).
 
-const Quiz = {
+export const Quiz = {
   start(state) {
     state.quiz = {
       verb: VERBS[Math.floor(Math.random() * VERBS.length)],

@@ -2,7 +2,7 @@
 // levels/level1.js, which sidesteps the fetch()/CORS restrictions of opening index.html
 // over file://. The authoritative data lives in levels/level1.json; the JS bundle mirrors it.
 
-const Level = {
+export const Level = {
   current: null,
 
   load(data) {

@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, indexifembedded">
+  <link rel="icon" href="data:,">
   <title>Tower Defense 3D</title>
   <link rel="stylesheet" href="css/game3d.css">
 </head>
@@ -104,30 +106,19 @@
     </div>
   </div>
 
-  <!-- Three.js (vendored r147 classic build) + GLTFLoader for future glTF/GLB assets. -->
-  <script src="lib/three.min.js"></script>
-  <script src="lib/GLTFLoader.js"></script>
+  <!-- Three.js 0.169 as ES modules, vendored locally (no CDN, no third-party requests). -->
+  <script type="importmap">
+  { "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/"
+  } }
+  </script>
 
-  <!-- Level data (bundled as JS so file:// works without a local server). -->
+  <!-- Level data (classic scripts that set window.LEVELn; they run before the module). -->
   <script src="levels/level1.js"></script>
   <script src="levels/level2.js"></script>
   <script src="levels/level3.js"></script>
 
-  <!-- Game modules. Script order = dependency order. -->
-  <script src="js/audio.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/assets.js"></script>
-  <script src="js/level.js"></script>
-  <script src="js/grid.js"></script>
-  <script src="js/effects.js"></script>
-  <script src="js/enemy.js"></script>
-  <script src="js/projectile.js"></script>
-  <script src="js/tower.js"></script>
-  <script src="js/wave.js"></script>
-  <script src="js/quiz.js"></script>
-  <script src="js/renderer.js"></script>
-  <script src="js/input.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

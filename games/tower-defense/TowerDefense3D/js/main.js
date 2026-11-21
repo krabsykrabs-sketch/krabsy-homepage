@@ -1,3 +1,13 @@
+import { Sound } from './audio.js';
+import { Level } from './level.js';
+import { Renderer } from './renderer.js';
+import { Input } from './input.js';
+import { Grid } from './grid.js';
+import { Quiz } from './quiz.js';
+import { Effects } from './effects.js';
+import { UI } from './ui.js';
+import { Wave } from './wave.js';
+
 // Entry point: initialize subsystems, own the central state, run the game loop + phase
 // machine. Phase table (spec):
 //   MENU → BUILD → BATTLE → WAVE_COMPLETE → QUIZ → BUILD (next wave) or VICTORY
@@ -5,14 +15,14 @@
 //   End-game button → MENU (ends current run).
 
 // Level catalogue — resolved in init() once the level scripts have run.
-let LEVELS = [];
-let currentLevelIndex = 0;
+export let LEVELS = [];
+export let currentLevelIndex = 0;
 
 function highscoreKey(levelIndex) {
   return `td3d_highscore_level_${levelIndex}`;
 }
 
-const state = {
+export const state = {
   phase: 'MENU',
   enemies: [],
   towers: [],
@@ -60,13 +70,6 @@ function init() {
   UI.init();
   Input.init(canvas);
 
-  // Kick off asset loading. The game loop runs immediately; rendering falls back to
-  // colored shapes for the first few frames until images arrive.
-  Assets.load().then(() => {
-    // Trigger a resize so smoothing flag is reapplied with imageSmoothingEnabled=false
-    // — some browsers reset on first drawImage with new bitmap.
-    Renderer.resize();
-  });
 
   lastTime = performance.now();
   requestAnimationFrame(gameLoop);
@@ -91,7 +94,7 @@ function resetRun() {
   Grid.init(Level.current);
 }
 
-function startGame(levelIndex) {
+export function startGame(levelIndex) {
   if (typeof levelIndex === 'number' && LEVELS[levelIndex]) {
     currentLevelIndex = levelIndex;
     Level.load(LEVELS[levelIndex]);
@@ -102,14 +105,14 @@ function startGame(levelIndex) {
   resetRun();
 }
 
-function endGame() {
+export function endGame() {
   resetRun();
   state.phase = 'MENU';
 }
 
 // ── Highscore ─────────────────────────────────────────────────────────
 
-function getHighscore(levelIndex = currentLevelIndex) {
+export function getHighscore(levelIndex = currentLevelIndex) {
   try {
     return parseInt(localStorage.getItem(highscoreKey(levelIndex)) || '0', 10) || 0;
   } catch { return 0; }
@@ -128,7 +131,7 @@ function saveHighscore() {
 
 // ── Tower actions (step 9) ────────────────────────────────────────────
 
-function upgradeTower(tower) {
+export function upgradeTower(tower) {
   if (!tower) return;
   const up = tower.nextUpgrade();
   if (!up) return;
@@ -138,7 +141,7 @@ function upgradeTower(tower) {
   Sound.play('upgrade');
 }
 
-function sellTower(tower) {
+export function sellTower(tower) {
   if (!tower) return;
   const refund = tower.sellValue();
   state.coins += refund;

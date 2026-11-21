@@ -1,7 +1,16 @@
+import { Sound } from './audio.js';
+import { CONFIG, TOWER_ORDER } from './config.js';
+import { Level } from './level.js';
+import { Tower } from './tower.js';
+import { Renderer } from './renderer.js';
+import { Grid } from './grid.js';
+import { Wave } from './wave.js';
+import { state, sellTower } from './main.js';
+
 // Mouse, touch, and keyboard handling. Placement is allowed during BUILD and BATTLE
 // (you can keep building while enemies attack); terminal and overlay phases block it.
 
-const Input = {
+export const Input = {
   canvas: null,
 
   init(canvas) {

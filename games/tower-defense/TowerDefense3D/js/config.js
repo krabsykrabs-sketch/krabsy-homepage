@@ -1,7 +1,7 @@
 // Balance values, entity data, catalogues. Systems not yet built (waves, quiz, audio)
 // intentionally omitted — each step layers in what it needs.
 
-const CONFIG = {
+export const CONFIG = {
   placementCellSize: 2,
 
   // Visual tuning. One tile = 1 world unit; pixel size is derived per-frame from viewport.
@@ -153,12 +153,12 @@ const CONFIG = {
 };
 
 // Order for keyboard 1-4 and button display.
-const TOWER_ORDER = ['basic', 'circleShooter', 'cannon', 'freeze'];
+export const TOWER_ORDER = ['basic', 'circleShooter', 'cannon', 'freeze'];
 
 // Pierce ordering for the upgrade system — spec: "Pierce only upgrades, never downgrades."
-const PIERCE_ORDER = { none: 0, hitTwo: 1, infinite: 2 };
+export const PIERCE_ORDER = { none: 0, hitTwo: 1, infinite: 2 };
 
-function getTierForHealth(hp) {
+export function getTierForHealth(hp) {
   const tiers = CONFIG.enemyTiers;
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (tiers[i].healthThreshold <= hp) return tiers[i];
@@ -169,7 +169,7 @@ function getTierForHealth(hp) {
 // Irregular-verb catalogue for the quiz (step 10). Each entry has the base verb,
 // simple past (`past`), past participle (`pp`), and three plausible wrongs for each
 // form (`pw` for simple-past distractors, `ppw` for past-participle distractors).
-const VERBS = [
+export const VERBS = [
   { verb: "go",     past: "went",    pp: "gone",      pw: ["goed","wented","goeded"],        ppw: ["goned","wented","goden"] },
   { verb: "run",    past: "ran",     pp: "run",       pw: ["runned","ranned","runed"],       ppw: ["runned","ranned","runed"] },
   { verb: "eat",    past: "ate",     pp: "eaten",     pw: ["eated","ated","eatted"],         ppw: ["eated","aten","ated"] },

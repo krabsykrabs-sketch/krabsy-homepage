@@ -2,7 +2,7 @@
 // files. The context unlocks on the first user gesture (browser autoplay policy);
 // every public method is safe to call before that (it just no-ops).
 
-const Sound = {
+export const Sound = {
   ctx: null,
   master: null,
   sfxGain: null,

@@ -1,8 +1,15 @@
+import { Sound } from './audio.js';
+import { CONFIG, PIERCE_ORDER } from './config.js';
+import { Projectile } from './projectile.js';
+import { Grid } from './grid.js';
+import { Effects } from './effects.js';
+import { state } from './main.js';
+
 // Tower entity. Step 5 adds circleShooter (burst), cannon (AoE), and freeze (pulse)
 // firing. Each variant has its own update path; targeting logic is shared by all except
 // freeze (which pulses on any non-frozen enemy in range).
 
-class Tower {
+export class Tower {
   constructor(type, cellX, cellY) {
     const def = CONFIG.TOWERS[type];
     if (!def) throw new Error(`Unknown tower type: ${type}`);
@@ -34,7 +41,7 @@ class Tower {
 
     // Visual: random farmer outfit, default facing the path. Overridden each frame
     // when the tower has a target (4-way facing for the layered character).
-    this.outfit = (typeof Assets !== 'undefined') ? Assets.randomOutfit() : null;
+    this.outfit = null;
     this.facing = 'down';
 
     // Freeze-tower state.

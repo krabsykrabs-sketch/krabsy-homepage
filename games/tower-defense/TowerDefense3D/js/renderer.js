@@ -1,3 +1,14 @@
+import * as THREE from 'three';
+
+// M0 compatibility with the old r147 look: legacy colour handling, and light
+// intensities multiplied by PI below. Remove both when the renderer is rebuilt on
+// KayKit GLB models (M1), which need the default colour management.
+THREE.ColorManagement.enabled = false;
+import { CONFIG, TOWER_ORDER } from './config.js';
+import { Level } from './level.js';
+import { Grid } from './grid.js';
+import { state } from './main.js';
+
 // Three.js renderer (3D version). Same public API as the 2D canvas renderer —
 // init / resize / render(state) — plus screenToWorld() used by input for picking.
 //
@@ -11,7 +22,7 @@
 const BASE_ASPECT = 1.6;
 const BASE_FOV = 40;
 
-const Renderer = {
+export const Renderer = {
   canvas: null,
   // Kept for API compatibility with the 2D version (UI/debug may read it).
   // Approximate "pixels per tile" so DOM coin arcs scale with the window.
@@ -54,7 +65,7 @@ const Renderer = {
     this._r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this._r.shadowMap.enabled = true;
     this._r.shadowMap.type = THREE.PCFSoftShadowMap;
-    this._r.outputEncoding = THREE.sRGBEncoding;
+    this._r.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x8fc4ea);
@@ -161,10 +172,10 @@ const Renderer = {
     const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
     r.setPixelRatio(1);
     r.setSize(size, size);
-    r.outputEncoding = THREE.sRGBEncoding;
+    r.outputColorSpace = THREE.SRGBColorSpace;
     const scene = new THREE.Scene();
-    scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.7));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 0.95);
+    scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.7 * Math.PI));
+    const sun = new THREE.DirectionalLight(0xfff2dd, 0.95 * Math.PI);
     sun.position.set(2, 4, 3);
     scene.add(sun);
     const cam = new THREE.PerspectiveCamera(33, 1, 0.1, 20);
@@ -254,8 +265,8 @@ const Renderer = {
   },
 
   _initLights() {
-    this.scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.5));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 0.85);
+    this.scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x3a5a2a, 0.5 * Math.PI));
+    const sun = new THREE.DirectionalLight(0xfff2dd, 0.85 * Math.PI);
     sun.position.set(4, 26, 30);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -407,7 +418,7 @@ const Renderer = {
     const tex = new THREE.CanvasTexture(c);
     tex.magFilter = THREE.NearestFilter;
     tex.minFilter = THREE.NearestFilter;
-    tex.encoding = THREE.sRGBEncoding;
+    tex.colorSpace = THREE.SRGBColorSpace;
     return new THREE.MeshLambertMaterial({ map: tex });
   },
 

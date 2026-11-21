@@ -1,8 +1,14 @@
+import { Sound } from './audio.js';
+import { Level } from './level.js';
+import { Effects } from './effects.js';
+import { Enemy } from './enemy.js';
+import { state } from './main.js';
+
 // Wave system. Owns the BATTLE-phase spawn loop and triggers the BUILD→BATTLE and
 // BATTLE→WAVE_COMPLETE transitions. Balance formulas and boss cadence come from the
 // level JSON's enemyScaling / economy sections — see spec "Wave System".
 
-const Wave = {
+export const Wave = {
   isBossWave(n) { return n % 5 === 0; },
 
   // Begin the next wave. Assumes state.phase === 'BUILD'.

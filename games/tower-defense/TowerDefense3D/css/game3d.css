@@ -1,12 +1,28 @@
-/* Cozy-cartoon theme for the 3D version. This is the complete stylesheet — the 2D
-   game.css is not linked anymore. Layout: the canvas fills the window and every UI
+/* Cozy-cartoon theme for the 3D version. Layout: the canvas fills the window and every UI
    element floats on top (top HUD, bottom tower dock, overlays). */
 
+/* Krabsy site fonts, self-hosted (copied from homepage/lib/fonts). */
 @font-face {
-  font-family: 'Baloo 2';
+  font-family: 'Fredoka One';
   font-style: normal;
-  font-weight: 400 800;
-  src: url('../fonts/Baloo2-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/fredoka-one-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/nunito-400-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20C4;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/nunito-400-latin.woff2') format('woff2');
 }
 
 :root {
@@ -33,7 +49,8 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: #233a18;
-  font-family: 'Baloo 2', 'Comic Sans MS', system-ui, sans-serif;
+  font-family: 'Fredoka One', 'Nunito', system-ui, sans-serif;
+  font-synthesis: none; /* Fredoka One has one weight; no faux bold */
   color: var(--ink);
   user-select: none;
   -webkit-user-select: none;
