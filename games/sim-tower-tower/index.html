@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Krabsy Tower</title>
+<style>
+  :root { --navy:#0e141d; --teal:#2ee6c0; --amber:#ffcf5e; --muted:#7d8aa0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--navy); overflow: hidden; }
+  #c { display: block; width: 100vw; height: 100vh; }
+  #hud {
+    position: fixed; left: 12px; top: 10px; z-index: 5;
+    font: 600 13px/1.4 'Nunito', system-ui, sans-serif; color: var(--muted);
+    pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  }
+  #hud b { color: var(--teal); }
+  #overlay {
+    position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; background: var(--navy);
+    font: 700 18px 'Nunito', system-ui, sans-serif; color: var(--amber); transition: opacity .4s;
+  }
+  #overlay.hidden { opacity: 0; pointer-events: none; }
+  #spinner { width: 56px; height: 56px; border-radius: 50%;
+    border: 6px solid rgba(46,230,192,.25); border-top-color: var(--teal);
+    animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #err { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-height: 45vh; overflow:auto;
+    background: #2a0d0d; color: #ffb4b4; font: 600 12px/1.5 ui-monospace, monospace;
+    padding: 10px 14px; display: none; white-space: pre-wrap; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hud"></div>
+  <div id="overlay"><div id="spinner"></div><div id="ovmsg">building the tower…</div></div>
+  <div id="err"></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

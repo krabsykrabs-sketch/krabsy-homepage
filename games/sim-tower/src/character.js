@@ -27,11 +27,16 @@ export async function preloadCharacters() {
   if (clips) return;
   const [chars, anims] = await Promise.all([
     Promise.all(CHAR_FILES.map((f) => loadGLTF(C + f))),
-    Promise.all(ANIM_FILES.map((f) => loadGLTF(C + f))),
+    // an animation pack that isn't on disk only costs us its clips — pick()
+    // already falls back — so never let one missing rig file fail the boot.
+    Promise.all(ANIM_FILES.map((f) => loadGLTF(C + f).catch((e) => {
+      console.warn('[block] animation pack missing:', f, e?.message || e);
+      return null;
+    }))),
   ]);
   chars.forEach((g) => charScenes.push(g.scene));
   clips = {};
-  for (const g of anims) for (const c of g.animations) clips[c.name] = c;
+  for (const g of anims) if (g) for (const c of g.animations) clips[c.name] = c;
 }
 
 // pick the first clip name that exists (clip sets vary)
