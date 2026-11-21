@@ -1,6 +1,7 @@
 import { Sound } from './audio.js';
 import { Level } from './level.js';
 import { Assets } from './assets.js';
+import { Characters } from './characters.js';
 import { Renderer } from './renderer.js';
 import { Input } from './input.js';
 import { Grid } from './grid.js';
@@ -69,7 +70,7 @@ async function init() {
 
   // Models first: the board, the towers and the dock thumbnails are built from them.
   try {
-    await Assets.load();
+    await Promise.all([Assets.load(), Characters.load()]);
   } catch (err) {
     console.error('Could not load the 3D models', err);
     const note = document.getElementById('loading-note');

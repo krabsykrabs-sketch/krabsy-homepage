@@ -4,7 +4,9 @@
 export const CONFIG = {
   // Visual tuning. One hex is 2 world units wide; the road on it is narrow, so enemies
   // stay small (Grunt radius ~0.3, Titan ~0.6).
-  enemyRadiusPerScale: 0.16, // world-unit radius = tier.scale * this
+  enemyRadiusPerScale: 0.16,
+  // Seconds a normal enemy takes to climb out of the ground before it starts walking.
+  enemySpawnRise: 0.9, // world-unit radius = tier.scale * this
   projectileHitRadius: 0.3,  // spec baseline — enemy.radius is added on top per hit check
 
   colors: {

@@ -197,3 +197,31 @@ Rules:
     HUD overflows (M4/M5). Balance untouched: 20–25 waves, forced quiz
     popup (M3/M4). UI still English and cream/wood themed (M3).
   - **Next:** M2 (animated KayKit skeletons, real projectiles).
+- 2026-11-21 — **M2 (enemies and projectiles) done.**
+  - `js/characters.js`: loads six KayKit Skeletons characters and four rig
+    files from `assets/skeletons/` (4.7 MB), converts them to Lambert,
+    and hands out **pooled** instances (own mixer + own materials for
+    tinting). Clips used: `Walking_A`, `Running_A`, `Death_A`,
+    `Spawn_Ground` (the large rig has no spawn clip).
+  - Tier → character: Grunt = Minion, Soldier = Rogue, Warrior = Warrior,
+    Brute = Mage, Titan = Necromancer, Boss = Golem. A wounded enemy that
+    drops a tier swaps to the weaker character (existing poof effect).
+  - Enemies rise out of the ground for 0.9 s (`CONFIG.enemySpawnRise`,
+    they are stunned but hittable), then walk or run with the leg speed
+    matched to their real speed. Red flash on hit, blue tint when frozen,
+    blob shadow, health bar. Killed enemies play the death clip and sink
+    into the ground (`Renderer._corpses`, max 24).
+  - Projectiles are models: arrow (points along its flight path),
+    cannonball and catapult boulder (tumbling, lobbed).
+  - Checked in headless Chromium: normal wave, boss wave, deaths, all
+    three projectile types, back to menu and level switch mid-battle. No
+    console errors or warnings.
+  - **Performance risk for M5:** each character is about 10 skinned meshes,
+    so 13 enemies cost ~130 draw calls (149 total measured). Not yet
+    measured on a real Chromebook. Options: merge each character's parts
+    into one skinned mesh at load; fewer, stronger enemies (planned in M4).
+  - **Size:** game folder is now about 8 MB. The four rig files (2.7 MB)
+    contain many unused clips and a mannequin mesh; strip them in M5.
+  - Noted for M3: the "End run" button uses a native `confirm()` dialog.
+  - **Next:** M3 (self-paced verb forge, `krabsy-questions.js`, DE/ES UI,
+    Krabsy look for HUD and menus).

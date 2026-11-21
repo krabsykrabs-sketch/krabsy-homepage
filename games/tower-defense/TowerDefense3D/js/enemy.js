@@ -31,7 +31,10 @@ export class Enemy {
     this.freezeTimer = 0;
     this.isPermanentlySlowed = false;
     this.permanentSlowMultiplier = 1;
-    this.stunTimer = 0;
+    // Normal enemies rise out of the ground first (visual: Spawn_Ground animation).
+    // They can already be hit while rising. Bosses simply appear.
+    this.spawnTimer = isBoss ? 0 : CONFIG.enemySpawnRise;
+    this.stunTimer = this.spawnTimer;
     this.damageTintTimer = 0;
 
     const first = path.waypoints[0];
@@ -47,6 +50,7 @@ export class Enemy {
 
   update(dt, state) {
     if (this.damageTintTimer > 0) this.damageTintTimer -= dt;
+    if (this.spawnTimer > 0) this.spawnTimer -= dt;
     if (!this.isAlive || this.isDying) return;
 
     if (this.isFrozen) {

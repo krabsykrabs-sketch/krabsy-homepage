@@ -20,6 +20,8 @@ const HEX_MODELS = [
   'rock_single_C', 'tree_single_A', 'tree_single_B', 'cloud_small', 'cloud_big',
   // props
   'flag_red', 'flag_blue', 'barrel', 'crate_A_big', 'bucket_arrows', 'weaponrack', 'target',
+  // projectiles
+  'projectile_arrow', 'projectile_cannonball', 'projectile_catapult',
 ];
 
 export const Assets = {

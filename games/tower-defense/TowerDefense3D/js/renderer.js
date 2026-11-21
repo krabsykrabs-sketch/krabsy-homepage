@@ -3,6 +3,7 @@ import { CONFIG, TOWER_ORDER } from './config.js';
 import { Level, HEX, hexCenter } from './level.js';
 import { Grid } from './grid.js';
 import { Assets } from './assets.js';
+import { Characters } from './characters.js';
 
 // Three.js renderer. Public API: init / resize / render(state) / setLevel, plus
 // screenToWorld() used by input for picking.
@@ -49,6 +50,31 @@ function roadTile(conn) {
   return { name: 'hex_road_A', rot: 0 };
 }
 
+// Enemy tier → character. Tougher tiers look tougher; a wounded enemy drops a tier
+// (enemy.js) and visibly turns into the weaker character.
+const TIER_MODEL = {
+  Grunt: 'Skeleton_Minion',
+  Soldier: 'Skeleton_Rogue',
+  Warrior: 'Skeleton_Warrior',
+  Brute: 'Skeleton_Mage',
+  Titan: 'Necromancer',
+};
+const BOSS_MODEL = 'Skeleton_Golem';
+
+// World units per second a character covers at animation speed 1 and model scale 1.
+// Used to match the leg speed to the real movement so feet do not slide.
+const STRIDE = { walk: 2.1, run: 5.0 };
+
+const PROJECTILE_MODEL = {
+  basic: { name: 'projectile_arrow', scale: 3.2 },
+  cannon: { name: 'projectile_cannonball', scale: 2.2 },
+  catapult: { name: 'projectile_catapult', scale: 1.5 },
+};
+
+const _v1 = new THREE.Vector3();
+const _v2 = new THREE.Vector3();
+const _zAxis = new THREE.Vector3(0, 0, 1);
+
 // Unit vector (scene x, z) for a direction index.
 function dirVec(k) {
   const a = k * Math.PI / 3;
@@ -73,6 +99,8 @@ export const Renderer = {
   _enemyObjs: new Map(),   // Enemy → group
   _projObjs: new Map(),    // Projectile → mesh
   _fxObjs: new Map(),      // effect → object3d
+  _corpses: [],            // dying enemies still playing their death animation
+  _lastNow: 0,
 
   _placementGroup: null,
   _placementCells: [],
@@ -152,13 +180,16 @@ export const Renderer = {
       this.resize();
     }
     const now = performance.now() / 1000;
+    const dt = Math.min(0.05, Math.max(0, now - (this._lastNow || now)));
+    this._lastNow = now;
 
     this._animateScenery(now);
     this._syncPlacementOverlay(state);
     this._syncGhost(state);
     this._syncSelection(state);
     this._syncTowers(state, now);
-    this._syncEnemies(state, now);
+    this._syncEnemies(state, now, dt);
+    this._syncCorpses(dt);
     this._syncProjectiles(state);
     this._syncEffects(state);
     this._syncCoins(state);
@@ -189,6 +220,8 @@ export const Renderer = {
     }
     this._clouds = [];
     this._spawnRings = [];
+    for (const c of this._corpses) this._dropEnemy(c.obj);
+    this._corpses = [];
     const level = Level.current;
     this._buildBoard(level);
     this._buildPlacementOverlay();
@@ -318,6 +351,7 @@ export const Renderer = {
       overlayAvail: new THREE.MeshBasicMaterial({ color: 0x2ee6c0, transparent: true, opacity: 0.42, depthWrite: false }),
       overlayBad: new THREE.MeshBasicMaterial({ color: 0xdc5050, transparent: true, opacity: 0.32, depthWrite: false }),
       hpBg: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.6 }),
+      blobShadow: new THREE.MeshBasicMaterial({ color: 0x0b1a10, transparent: true, opacity: 0.26, depthWrite: false }),
     };
   },
 
@@ -663,54 +697,85 @@ export const Renderer = {
 
   // ─── Enemies ──────────────────────────────────────────────────────────
 
-  _syncEnemies(state, now) {
+  _syncEnemies(state, now, dt) {
     const live = new Set();
     for (const e of state.enemies) if (e.isAlive) live.add(e);
     for (const [e, obj] of this._enemyObjs) {
-      if (!live.has(e)) { this._removeObj(obj); this._enemyObjs.delete(e); }
+      if (live.has(e)) continue;
+      this._enemyObjs.delete(e);
+      // Killed enemies get a death animation; ones that reached the castle just vanish.
+      if (e.currentHealth <= 0 && obj.userData.inst.has('death') && this._corpses.length < 24) {
+        this._startCorpse(obj);
+      } else {
+        this._dropEnemy(obj);
+      }
     }
-    const tmpColor = this._tmpColor || (this._tmpColor = new THREE.Color());
+
     for (const e of live) {
       let obj = this._enemyObjs.get(e);
       if (!obj) {
-        obj = this._makeEnemy(e);
+        obj = this._makeEnemy();
         obj.userData.born = now;
         this._enemyObjs.set(e, obj);
         this.scene.add(obj);
       }
       const u = obj.userData;
-      obj.position.set(e.position.x, 0, e.position.y);
-      // Body scale follows e.radius (tier transformations shrink it live).
-      const r = e.radius;
-      u.body.scale.set(r * 1.25, r * 0.9, r * 1.25);
-      u.body.position.y = r * 0.78;
-      // Squash-and-stretch walk bob, paused while frozen.
-      if (!e.isFrozen) {
-        const bob = 1 + Math.sin((e.animTimer + e.animFrame * (1 / 8)) * Math.PI * 8) * 0.07;
-        u.body.scale.y *= bob;
-      }
-      // Spawn pop-in with a little overshoot.
-      const age = now - u.born;
-      if (age < 0.3) {
-        const x = Math.max(0.02, age / 0.3);
-        const back = 1 + 2.7 * Math.pow(x - 1, 3) + 1.7 * Math.pow(x - 1, 2);
-        u.body.scale.multiplyScalar(back);
-      }
-      u.rot.rotation.y = Math.atan2(-e.direction.y, e.direction.x);
 
-      // Tint matches the 2D renderer's rules.
-      const c = u.mat.color;
-      if (e.damageTintTimer > 0) c.set(0xff4040);
-      else if (e.isFrozen) c.set(0x80ccff);
-      else if (e.isPermanentlySlowed) { c.set(e.tier.color); c.lerp(tmpColor.set(0x80ccff), 0.3); }
-      else c.set(e.tier.color);
+      // Character for the current tier (swaps when a wounded enemy drops a tier).
+      const want = e.isBoss ? BOSS_MODEL : (TIER_MODEL[e.tier.name] || TIER_MODEL.Grunt);
+      if (u.modelName !== want) {
+        if (u.inst) Characters.release(u.inst);
+        u.inst = Characters.acquire(want);
+        u.modelName = want;
+        u.rot.add(u.inst.root);
+      }
+      const inst = u.inst;
+
+      obj.position.set(e.position.x, 0, e.position.y);
+      const r = e.radius;
+      let scale = e.isBoss ? 0.36 : 0.42 + r * 0.28;
+      u.height = scale * (e.isBoss ? 4.3 : 2.3);
+      u.shadow.scale.setScalar(0.22 + r * 0.55);
+
+      // Face the walking direction, turning smoothly through corners.
+      const targetYaw = Math.atan2(e.direction.x, e.direction.y);
+      if (u.yaw === null) u.yaw = targetYaw;
+      let diff = targetYaw - u.yaw;
+      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+      u.yaw += diff * Math.min(1, dt * 10);
+      u.rot.rotation.y = u.yaw;
+
+      // Animation: rise from the ground, then walk or run at the real movement speed.
+      let animSpeed = 1;
+      if (e.spawnTimer > 0 && inst.has('spawn')) {
+        inst.play('spawn', { once: true, fade: 0 });
+        animSpeed = inst.durations.spawn / CONFIG.enemySpawnRise;
+      } else {
+        const gait = e.moveSpeed > 1.6 && !e.isBoss ? 'run' : 'walk';
+        inst.play(gait);
+        animSpeed = THREE.MathUtils.clamp(e.moveSpeed / (STRIDE[gait] * scale), 0.5, 1.8);
+        if (e.isFrozen || e.stunTimer > 0) animSpeed = 0;
+        // Bosses have no spawn clip: pop in with a little overshoot instead.
+        const age = now - u.born;
+        if (e.isBoss && age < 0.35) {
+          const x = Math.max(0.02, age / 0.35);
+          scale *= 1 + 2.7 * Math.pow(x - 1, 3) + 1.7 * Math.pow(x - 1, 2);
+        }
+      }
+      inst.root.scale.setScalar(scale);
+      inst.mixer.update(dt * animSpeed);
+
+      if (e.damageTintTimer > 0) inst.setTint(0xff6a6a);
+      else if (e.isFrozen) inst.setTint(0x7fc8ff);
+      else if (e.isPermanentlySlowed) inst.setTint(0xc4e4ff);
+      else inst.setTint(null);
 
       // Health bar — only once damaged (or always for the boss).
       const showBar = e.isBoss || e.currentHealth < e.maxHealth;
       u.bar.visible = showBar;
       if (showBar) {
-        const w = Math.max(r * 2.4, e.isBoss ? 1.6 : 0);
-        u.bar.position.y = r * 1.9 + 0.35;
+        const w = e.isBoss ? 1.5 : 0.8;
+        u.bar.position.y = u.height + 0.25;
         u.bar.scale.set(w, 1, 1);
         const frac = Math.max(0, e.currentHealth / e.maxHealth);
         u.fill.scale.x = Math.max(frac, 0.001);
@@ -721,50 +786,67 @@ export const Renderer = {
     }
   },
 
-  _makeEnemy(e) {
-    // Outer group carries position only; `rot` carries the facing yaw. The health
-    // bar hangs off the outer group so it never tilts with the enemy's heading.
+  // Wrapper for one enemy: position on the outer group, facing on `rot` (which holds
+  // the pooled character), plus a blob shadow and a billboarded health bar.
+  _makeEnemy() {
     const g = new THREE.Group();
     const rot = new THREE.Group();
     g.add(rot);
-    const mat = new THREE.MeshLambertMaterial({ color: e.tier.color });
-    const body = new THREE.Mesh(this._geo.sphere, mat);
-    body.castShadow = true;
-    rot.add(body);
 
-    // Two eyes on the facing (+x) side make even a placeholder blob read as a creature.
-    const eyeMat = this._mats.hpBg;
-    for (const side of [-1, 1]) {
-      const eye = new THREE.Mesh(this._geo.sphere, eyeMat);
-      eye.scale.setScalar(0.16);
-      eye.position.set(0.78, 0.35, side * 0.34);
-      body.add(eye);
-    }
+    // Soft blob instead of a real shadow: skinned shadow passes are expensive.
+    const shadow = new THREE.Mesh(this._geo.circle, this._mats.blobShadow);
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.03;
+    g.add(shadow);
 
-    // Boss wears a little gold crown.
-    if (e.isBoss) {
-      for (let i = 0; i < 3; i++) {
-        const spike = new THREE.Mesh(this._geo.cone, this._mats.gold);
-        spike.scale.set(0.12, 0.3, 0.12);
-        spike.position.set(0, 1.0, (i - 1) * 0.3);
-        body.add(spike);
-      }
-    }
-
-    // Health bar (billboarded each frame).
     const bar = new THREE.Group();
     const bg = new THREE.Mesh(this._geo.plane, this._mats.hpBg);
     const fillMat = new THREE.MeshBasicMaterial({ color: 0x4caf50 });
     const fill = new THREE.Mesh(this._geo.plane, fillMat);
-    bg.scale.set(1, 0.12, 1);
-    fill.scale.set(1, 0.09, 1);
+    bg.scale.set(1.06, 0.16, 1);
+    fill.scale.set(1, 0.1, 1);
     fill.position.z = 0.01;
     bar.add(bg, fill);
     bar.visible = false;
     g.add(bar);
 
-    g.userData = { rot, body, mat, bar, fill, fillMat, own: [mat, fillMat] };
+    g.userData = { rot, shadow, bar, fill, fillMat, inst: null, modelName: null, yaw: null, height: 1, own: [fillMat] };
     return g;
+  },
+
+  _dropEnemy(obj) {
+    const u = obj.userData;
+    if (u.inst) { Characters.release(u.inst); u.inst = null; }
+    this._removeObj(obj);
+  },
+
+  // A killed enemy falls over, lies for a moment, then sinks into the ground.
+  _startCorpse(obj) {
+    const u = obj.userData;
+    u.bar.visible = false;
+    u.inst.setTint(null);
+    u.inst.play('death', { once: true, fade: 0.08 });
+    this._corpses.push({ obj, t: 0, fall: u.inst.durations.death });
+  },
+
+  _syncCorpses(dt) {
+    if (this._corpses.length === 0) return;
+    const SINK = 0.5;
+    for (const c of this._corpses) {
+      c.t += dt;
+      const u = c.obj.userData;
+      u.inst.mixer.update(dt * 1.3);
+      const over = c.t - c.fall / 1.3 - 0.25;
+      if (over > 0) {
+        c.obj.position.y = -over * 1.6;
+        u.shadow.visible = false;
+      }
+      c.done = over > SINK;
+    }
+    this._corpses = this._corpses.filter((c) => {
+      if (c.done) this._dropEnemy(c.obj);
+      return !c.done;
+    });
   },
 
   // ─── Projectiles ──────────────────────────────────────────────────────
@@ -778,21 +860,17 @@ export const Renderer = {
     for (const p of live) {
       let obj = this._projObjs.get(p);
       if (!obj) {
-        const mat = new THREE.MeshBasicMaterial({ color: p.color });
-        obj = new THREE.Mesh(this._geo.sphere, mat);
-        obj.scale.setScalar(p.isAoE ? 0.18 : 0.12);
-        obj.userData = { own: [mat] };
+        const spec = PROJECTILE_MODEL[p.type] || PROJECTILE_MODEL.basic;
+        obj = Assets.clone(spec.name);
+        obj.scale.setScalar(spec.scale);
+        obj.traverse(o => { if (o.isMesh) o.castShadow = true; });
+        obj.userData = { last: null, spin: Math.random() * 6 };
         this._projObjs.set(p, obj);
         this.scene.add(obj);
       }
-      // Directional shots stretch along their flight direction (motion read).
-      if (!p.isAoE) {
-        obj.scale.set(0.26, 0.1, 0.1);
-        obj.rotation.y = Math.atan2(-p.direction.y, p.direction.x);
-      }
       // Shots leave from the tower top and drop to enemy height.
       const gone = Math.hypot(p.position.x - p.startPosition.x, p.position.y - p.startPosition.y);
-      let y = 0.5 + 1.4 * Math.max(0, 1 - gone / 2);
+      let y = 0.55 + 1.4 * Math.max(0, 1 - gone / 2);
       if (p.isAoE) {
         // Lobbed arc from launch point to the snapshotted target.
         const total = Math.hypot(p.targetPosition.x - p.startPosition.x,
@@ -800,7 +878,19 @@ export const Renderer = {
         const f = Math.min(1, gone / total);
         y = 1.9 * (1 - f) + 0.3 * f + Math.sin(f * Math.PI) * 1.4;
       }
+      const u = obj.userData;
       obj.position.set(p.position.x, y, p.position.y);
+      if (p.isAoE) {
+        // Balls and boulders tumble.
+        u.spin += 0.2;
+        obj.rotation.set(u.spin, u.spin * 0.7, 0);
+      } else {
+        // Arrows point along their real 3D flight path.
+        if (u.last) _v1.copy(obj.position).sub(u.last);
+        else _v1.set(p.direction.x, -0.35, p.direction.y);
+        if (_v1.lengthSq() > 1e-8) obj.quaternion.setFromUnitVectors(_zAxis, _v2.copy(_v1).normalize());
+      }
+      (u.last || (u.last = new THREE.Vector3())).copy(obj.position);
     }
   },
 
