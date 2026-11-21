@@ -1,51 +1,19 @@
 [
   {
-    "id": "verb-slash",
+    "id": "verb-kitchen",
     "name": {
-      "de": "Verb Slash",
-      "es": "Verb Slash"
+      "de": "Verb Kitchen!",
+      "es": "Verb Kitchen!"
     },
     "tagline": {
-      "de": "Zerschlage die richtigen Verbformen!",
-      "es": "¡Corta las formas verbales correctas!"
+      "de": "Koch-Chaos — spüle Teller mit den richtigen Verben!",
+      "es": "¡Caos de cocina — lava platos con los verbos correctos!"
     },
-    "thumbnail": "/thumbnails/VerbSlash.png",
+    "thumbnail": "/thumbnails/verb-kitchen.png",
     "topics": [
       "irregular_verbs"
     ],
     "status": "ready"
-  },
-  {
-    "id": "crab-slash",
-    "name": {
-      "de": "Crab Slash!",
-      "es": "Crab Slash!"
-    },
-    "tagline": {
-      "de": "Schlage die Krabben mit den richtigen Verben!",
-      "es": "¡Golpea los cangrejos con los verbos correctos!"
-    },
-    "thumbnail": "/thumbnails/crab-slash.png",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "beta"
-  },
-  {
-    "id": "air-control",
-    "name": {
-      "de": "Air Control!",
-      "es": "Air Control!"
-    },
-    "tagline": {
-      "de": "Lotse die Flugzeuge sicher mit Englisch!",
-      "es": "¡Guía los aviones de forma segura con inglés!"
-    },
-    "thumbnail": "/thumbnails/aircontrol.png",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "beta"
   },
   {
     "id": "verb-snake",
@@ -64,6 +32,38 @@
     "status": "ready"
   },
   {
+    "id": "verb-slash",
+    "name": {
+      "de": "Verb Slash",
+      "es": "Verb Slash"
+    },
+    "tagline": {
+      "de": "Zerschlage die richtigen Verbformen!",
+      "es": "¡Corta las formas verbales correctas!"
+    },
+    "thumbnail": "/thumbnails/VerbSlash.png",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "air-control",
+    "name": {
+      "de": "Air Control!",
+      "es": "Air Control!"
+    },
+    "tagline": {
+      "de": "Lotse die Flugzeuge sicher mit Englisch!",
+      "es": "¡Guía los aviones de forma segura con inglés!"
+    },
+    "thumbnail": "/thumbnails/aircontrol.png",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "beta"
+  },
+  {
     "id": "verb-flow",
     "name": {
       "de": "Verb Flow!",
@@ -80,16 +80,16 @@
     "status": "beta"
   },
   {
-    "id": "verb-kitchen",
+    "id": "crab-slash",
     "name": {
-      "de": "Verb Kitchen!",
-      "es": "Verb Kitchen!"
+      "de": "Crab Slash!",
+      "es": "Crab Slash!"
     },
     "tagline": {
-      "de": "Koch-Chaos — spüle Teller mit den richtigen Verben!",
-      "es": "¡Caos de cocina — lava platos con los verbos correctos!"
+      "de": "Schlage die Krabben mit den richtigen Verben!",
+      "es": "¡Golpea los cangrejos con los verbos correctos!"
     },
-    "thumbnail": "/thumbnails/verb-kitchen.png",
+    "thumbnail": "/thumbnails/crab-slash.png",
     "topics": [
       "irregular_verbs"
     ],
