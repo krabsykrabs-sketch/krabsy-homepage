@@ -197,8 +197,14 @@ export function getStars(levelIndex = currentLevelIndex) {
   } catch { return 0; }
 }
 
+// ?unlock=all opens every level (for testing, and for teachers who want to pick one).
+const UNLOCK_ALL = (() => {
+  try { return new URLSearchParams(window.location.search).get('unlock') === 'all'; }
+  catch { return false; }
+})();
+
 export function isUnlocked(levelIndex) {
-  return levelIndex === 0 || getStars(levelIndex - 1) > 0;
+  return UNLOCK_ALL || levelIndex === 0 || getStars(levelIndex - 1) > 0;
 }
 
 export function hasNextLevel() {
