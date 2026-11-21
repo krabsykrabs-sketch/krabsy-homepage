@@ -275,6 +275,7 @@ const state = {
   tiers:   null,
   verbs:   null,
   forms:   null,
+  botPath: null,         // waypoints for tools/bot-test.cjs; kept as loaded (may go stale after edits)
   objects: new Map(),    // id -> object record
   spawn:   null,         // { id, position }
   flag:    null,         // { id, position }
@@ -1954,6 +1955,27 @@ function refreshProperties() {
       addRotationEditor(body, [id]);
       if (rec.data.type !== 'answer-label' && rec.data.type !== 'gate') addScaleEditor(body, [id]);
     }
+    // Moving platform (box pieces only): slides back and forth around the placed position.
+    const motionEntry = CATALOG_BY_TYPE[rec.data.type];
+    if (motionEntry?.kind === 'platform' && motionEntry.colliderKind !== 'trimesh') {
+      const m = rec.data.motion;
+      body.appendChild(makeRow('Moves', selectInput(['no', 'x', 'y', 'z'], m?.axis || 'no', v => {
+        pushUndo();
+        if (v === 'no') delete rec.data.motion;
+        else rec.data.motion = { axis: v, amplitude: m?.amplitude ?? 2, period: m?.period ?? 4, phase: m?.phase ?? 0 };
+        state.dirty = true;
+        refreshProperties();
+      })));
+      if (m) {
+        for (const [label, key] of [['Distance ±', 'amplitude'], ['Seconds', 'period'], ['Delay s', 'phase']]) {
+          body.appendChild(makeRow(label, textInput(String(m[key]), v => {
+            const n = parseFloat(v);
+            if (!Number.isFinite(n)) return;
+            pushUndo(); rec.data.motion[key] = n; state.dirty = true;
+          })));
+        }
+      }
+    }
     if (rec.data.type === 'gate') {
       // Both optional. Empty verb = the game picks one from the level's verb set.
       body.appendChild(makeRow('Verb', textInput(rec.data.verb || '', v => {
@@ -2617,7 +2639,7 @@ async function newLevel() {
   state.nextSeq = {};
   state.levelName = 'Untitled Level';
   state.levelId = 'untitled-level';
-  state.tiers = null; state.verbs = null; state.forms = null;
+  state.tiers = null; state.verbs = null; state.forms = null; state.botPath = null;
   syncVerbSetSelect();
   state.dirty = false;   // after the name so the title indicator shows the new name
   // Clear user prefabs too — they're per-level (stored in the level JSON).
@@ -2658,6 +2680,7 @@ async function loadFromData(data) {
   state.tiers     = Array.isArray(data.tiers) ? data.tiers : null;
   state.verbs     = Array.isArray(data.verbs) ? data.verbs : null;
   state.forms     = Array.isArray(data.forms) ? data.forms : null;
+  state.botPath   = Array.isArray(data.botPath) ? data.botPath : null;
   syncVerbSetSelect();
   document.getElementById('level-name').value = state.levelName;
   if (data.spawn?.position) await setSpawn(data.spawn.position, data.spawn.id, { suppressUndo: true });
@@ -2765,6 +2788,7 @@ function exportData() {
       type: p.type, label: p.label, icon: p.icon || '📦',
       half: p.half, snapHalf: p.snapHalf, objects: p.objects,
     })),
+    ...(state.botPath ? { botPath: state.botPath } : {}),
   };
 }
 

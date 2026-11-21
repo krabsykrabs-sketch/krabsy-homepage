@@ -1,13 +1,9 @@
 import { createGame } from './src/game.js';
 import { createMenu, markCompleted } from './src/menu.js';
 import { createUI } from './src/ui.js';
-import level2 from './src/levels/level-2.js';
-import level3 from './src/levels/level-3.js';
-
 // Levels are editor-format JSON files in assets/levels/, listed in assets/levels/index.json.
-// A new level = one file + one line in that list. Levels 2 and 3 are still the old built-in
-// layouts (they use moving platforms, which the JSON format does not have yet).
-const LEGACY_LEVELS = [level2, level3];
+// A new level = one file + one line in that list. (src/levels/*.js are the three original
+// built-in layouts; they are no longer in the menu.)
 
 async function loadJsonLevels() {
   try {
@@ -25,7 +21,7 @@ async function loadJsonLevels() {
     return [];
   }
 }
-const LEVELS = [...await loadJsonLevels(), ...LEGACY_LEVELS];
+const LEVELS = await loadJsonLevels();
 
 const canvas = document.getElementById('game');
 

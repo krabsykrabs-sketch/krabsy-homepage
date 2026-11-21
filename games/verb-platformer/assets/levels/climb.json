@@ -1,0 +1,721 @@
+{
+ "id": "climb",
+ "name": "The Climb",
+ "topic": "irregular_verbs",
+ "tiers": [
+  1,
+  2
+ ],
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -6.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    1,
+    -11.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    2,
+    -16.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    2,
+    -21.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    4,
+    -21.0
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    2,
+    -26.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    2,
+    -32.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_slope_4x6x4",
+   "position": [
+    0.0,
+    3,
+    -38.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    6,
+    -43.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    6,
+    -48.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    8,
+    -48.0
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    0.0,
+    6,
+    -53.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    6,
+    -59.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    7,
+    -59.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_4x4x1",
+   "position": [
+    11.0,
+    8,
+    -59.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_2x2x1",
+   "position": [
+    15.0,
+    9,
+    -59.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_4x4x1",
+   "position": [
+    19.0,
+    9,
+    -59.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_15",
+   "type": "platform_4x4x1",
+   "position": [
+    19.0,
+    9,
+    -64.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    19.0,
+    11,
+    -64.0
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    19.0,
+    9,
+    -69.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_16",
+   "type": "platform_6x6x1",
+   "position": [
+    19.0,
+    9,
+    -75.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_17",
+   "type": "platform_slope_4x6x4",
+   "position": [
+    19.0,
+    10,
+    -81.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_18",
+   "type": "platform_4x4x1",
+   "position": [
+    19.0,
+    13,
+    -86.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_19",
+   "type": "platform_4x4x1",
+   "position": [
+    14.0,
+    14,
+    -86.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_20",
+   "type": "platform_2x2x1",
+   "position": [
+    10.0,
+    14,
+    -86.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_21",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    15,
+    -86.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_22",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    15,
+    -91.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_4",
+   "type": "checkpoint",
+   "position": [
+    6.0,
+    17,
+    -91.0
+   ]
+  },
+  {
+   "id": "gate_4",
+   "type": "gate",
+   "position": [
+    6.0,
+    15,
+    -96.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_23",
+   "type": "platform_6x6x1",
+   "position": [
+    6.0,
+    15,
+    -102.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_24",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    13,
+    -108.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_25",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    11,
+    -113.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_26",
+   "type": "platform_2x2x1",
+   "position": [
+    6.0,
+    9,
+    -117.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_27",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    7,
+    -121.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_28",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    7,
+    -126.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_5",
+   "type": "checkpoint",
+   "position": [
+    6.0,
+    9,
+    -126.0
+   ]
+  },
+  {
+   "id": "gate_5",
+   "type": "gate",
+   "position": [
+    6.0,
+    7,
+    -131.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_29",
+   "type": "platform_6x6x1",
+   "position": [
+    6.0,
+    7,
+    -137.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_30",
+   "type": "platform_6x6x1",
+   "position": [
+    6.0,
+    7,
+    -144.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "green",
+  "position": [
+   6.0,
+   8,
+   -144.0
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -6.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    2,
+    -11.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    3,
+    -16.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    3,
+    -21.0
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    3,
+    -32.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    7,
+    -43.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    7,
+    -48.0
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    0.0,
+    7,
+    -59.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    8,
+    -59.0
+   ]
+  },
+  {
+   "p": [
+    11.0,
+    9,
+    -59.0
+   ]
+  },
+  {
+   "p": [
+    15.0,
+    10,
+    -59.0
+   ]
+  },
+  {
+   "p": [
+    19.0,
+    10,
+    -59.0
+   ]
+  },
+  {
+   "p": [
+    19.0,
+    10,
+    -64.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    19.0,
+    10,
+    -75.0
+   ]
+  },
+  {
+   "p": [
+    19.0,
+    14,
+    -86.0
+   ]
+  },
+  {
+   "p": [
+    14.0,
+    15,
+    -86.0
+   ]
+  },
+  {
+   "p": [
+    10.0,
+    15,
+    -86.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    16,
+    -86.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    16,
+    -91.0
+   ]
+  },
+  {
+   "gate": "gate_4"
+  },
+  {
+   "p": [
+    6.0,
+    16,
+    -102.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    14,
+    -108.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    12,
+    -113.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    10,
+    -117.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    8,
+    -121.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    8,
+    -126.0
+   ]
+  },
+  {
+   "gate": "gate_5"
+  },
+  {
+   "p": [
+    6.0,
+    8,
+    -137.0
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    8,
+    -144.0
+   ]
+  }
+ ]
+}

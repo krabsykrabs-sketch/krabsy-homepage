@@ -111,10 +111,12 @@ export function createControls(canvas) {
   }
 
   // ---- Per-frame update ---- keyboard and joystick add up, clamped to [-1, 1].
+  // input.virtual: a third stick, driven by the automated play-test bot (tools/bot-test.cjs).
+  input.virtual = { x: 0, y: 0 };
   input.update = () => {
     const k = readKeyboard();
-    input.move.x = Math.max(-1, Math.min(1, k.x + touchAxes.x));
-    input.move.y = Math.max(-1, Math.min(1, k.y + touchAxes.y));
+    input.move.x = Math.max(-1, Math.min(1, k.x + touchAxes.x + input.virtual.x));
+    input.move.y = Math.max(-1, Math.min(1, k.y + touchAxes.y + input.virtual.y));
   };
 
   input.consumeJump = () => {

@@ -287,7 +287,7 @@ export async function createGame(canvas) {
   }
 
   // Dev hook for automated play-tests: read-only view of the running level and player.
-  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive };
+  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive, input, world, RAPIER, followCam };
 
   // Dev hook: lets a URL param teleport the player after the level loads (for screenshots).
   window.addEventListener('krabsy-teleport', (e) => {
@@ -320,6 +320,7 @@ export async function createGame(canvas) {
         riderDelta = currentLevel.findRiderDelta(player.getPosition(), player.state.grounded, FIXED_DT);
       }
       if (currentLevel) currentLevel.prePhysics(FIXED_DT);
+      window.__krabsyDebug.onStep?.();   // play-test bot hook (tools/bot-test.cjs)
       if (alive) player.update(FIXED_DT, input, followCam, riderDelta, controlsLocked);
       // Teleport moving platforms AFTER the controller pass so they're still at the rider-assumed
       // pose during it (the platforms are fixed colliders, so they don't affect steering).

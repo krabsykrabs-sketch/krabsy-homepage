@@ -31,9 +31,9 @@
    "id": "platform_2",
    "type": "platform_4x4x1",
    "position": [
+    0.0,
     0,
-    0,
-    -5
+    -6.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -44,18 +44,18 @@
    "id": "checkpoint_1",
    "type": "checkpoint",
    "position": [
-    0,
+    0.0,
     2,
-    -5
+    -6.0
    ]
   },
   {
    "id": "gate_1",
    "type": "gate",
    "position": [
+    0.0,
     0,
-    0,
-    -10
+    -11.0
    ],
    "rotation": 0
   },
@@ -63,9 +63,9 @@
    "id": "platform_3",
    "type": "platform_4x4x1",
    "position": [
+    0.0,
     0,
-    0,
-    -15
+    -16.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -76,9 +76,9 @@
    "id": "platform_4",
    "type": "platform_4x4x1",
    "position": [
+    0.0,
     0,
-    0,
-    -20
+    -21.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -89,18 +89,18 @@
    "id": "checkpoint_2",
    "type": "checkpoint",
    "position": [
-    0,
+    0.0,
     2,
-    -20
+    -21.0
    ]
   },
   {
    "id": "gate_2",
    "type": "gate",
    "position": [
+    0.0,
     0,
-    0,
-    -25
+    -26.0
    ],
    "rotation": 0
   },
@@ -108,9 +108,9 @@
    "id": "platform_5",
    "type": "platform_4x4x1",
    "position": [
+    0.0,
     0,
-    0,
-    -30
+    -31.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -121,9 +121,9 @@
    "id": "platform_6",
    "type": "platform_4x4x1",
    "position": [
+    0.0,
     0,
-    0,
-    -35
+    -36.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -134,18 +134,18 @@
    "id": "checkpoint_3",
    "type": "checkpoint",
    "position": [
-    0,
+    0.0,
     2,
-    -35
+    -36.0
    ]
   },
   {
    "id": "gate_3",
    "type": "gate",
    "position": [
+    0.0,
     0,
-    0,
-    -40
+    -41.0
    ],
    "rotation": 0
   },
@@ -153,9 +153,9 @@
    "id": "platform_7",
    "type": "platform_6x6x1",
    "position": [
+    0.0,
     0,
-    0,
-    -46
+    -47.0
    ],
    "rotation": 0,
    "scale": 1,
@@ -168,10 +168,63 @@
   "type": "flag_C",
   "color": "blue",
   "position": [
-   0,
+   0.0,
    1,
-   -46
+   -47.0
   ]
  },
- "prefabs": []
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -6.0
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -16.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -21.0
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -31.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -36.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -47.0
+   ]
+  }
+ ]
 }

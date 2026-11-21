@@ -29,10 +29,23 @@ What exists:
   each with a word bubble; wrong ones fall on contact (`src/gates.js`).
 - **Levels are JSON files** in `assets/levels/`, listed in
   `assets/levels/index.json` (menu order). A new level = one file + one
-  line. `first-steps.json` is the old Level 1 rebuilt in this format.
-  `_test-piece.json` is an old editor experiment, not in the menu.
-- **Levels 2 and 3 are still built-in JS layouts** (`src/levels/`); they
-  use moving platforms, which the JSON format does not have yet.
+  line. Six first drafts exist (2026-11-21): First Steps, Zigzag (turns),
+  The Climb (height, ramps), Ferries (moving platforms), Hammer Works
+  (hammers, conveyor belts), Sky Finale (everything + a shortcut).
+  **The owner has not played them yet.** `_sandbox.json` and
+  `_test-piece.json` are test pieces, not in the menu.
+- **Drafts come from `tools/make_levels.py`** (short path scripts). It
+  never overwrites an existing file without `--force <id>`; once a level
+  was reshaped in the editor, the JSON is the truth.
+- **`tools/bot-test.cjs` plays a level to the flag** in a headless
+  browser, following `botPath` in the level file (needs a server with
+  the site root and `PLAYWRIGHT=<path to playwright module>`). All six
+  pass with 0 deaths; the bot plays perfectly, so this proves a level
+  can be finished, not that it is fun or fair for a child.
+- **Moving platforms** in JSON: `"motion": { "axis": "x|y|z",
+  "amplitude": 3, "period": 7, "phase": 0 }` on a box platform (editor:
+  "Moves"). Hammers hang when `rotationX` is 180, pivot 7.3 above the
+  floor. `src/levels/*.js` (old built-in layouts) are no longer in the menu.
 - **The level editor** (`editor.html`, `editor.js`): place KayKit pieces
   on a grid, Playtest opens `index.html?level=editor` from a localStorage
   draft, Save writes JSON. `WORK_LOG.md` is the editor's work log.
@@ -134,8 +147,9 @@ load with 0 console errors, 0 failed requests, 0 external requests.
 - **Small text on phones:** the question now also shows in the HUD when
   the screen is under 500 px high. The answer bubbles are still
   world-space and small on phones.
-- **Moving platforms in the JSON format** (and then Levels 2 and 3 as
-  JSON; delete `src/levels/` and the legacy loader path afterwards).
+- **Cleanup:** delete `src/levels/`, `qa-styles.js` and the legacy
+  loader path once the owner has accepted the JSON levels.
+- **Level feedback from the owner** (difficulty, length, hammer timing).
 - **Falling red platforms outside gates do not come back on respawn.**
 - **UI is English only**, system font, title "Krabsy 3D".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour

@@ -760,6 +760,19 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
       };
       // Conveyors: cache belt parameters so findRiderDelta can carry the rider along local +Z.
       // Direction is the platform's facing — a yaw of 0° means the belt runs along world +Z.
+      // Moving platform: { motion: { axis: 'x'|'y'|'z', amplitude, period, phase } } slides
+      // the piece back and forth around its placed position (sine; amplitude in units each
+      // way, period and phase in seconds). Box pieces only. The collider stays a FIXED body
+      // that is teleported each step — see the MovingPlatform comment above for why.
+      if (obj.motion && ['x', 'y', 'z'].includes(obj.motion.axis) && def.colliderKind !== 'trimesh') {
+        platform.motion = {
+          axis: obj.motion.axis,
+          amplitude: obj.motion.amplitude ?? 2,
+          period: Math.max(0.5, obj.motion.period ?? 4),
+          phase: obj.motion.phase ?? 0,
+        };
+        platform.basePos = { x, y, z };
+      }
       if (def.behavior === 'conveyor') {
         platform.behavior = 'conveyor';
         platform.speed = (obj.speed !== undefined) ? obj.speed : (def.defaults?.speed ?? 3);
@@ -963,6 +976,8 @@ export class EditorLoadedLevel {
     this._lastHudText = null;
     for (const g of this.gates) {
       g.onCleared = () => {
+        // The sign of a solved gate would hang in front of the camera once the player is past it.
+        g.banner.visible = false;
         this.clearedCount++;
         this.callbacks.onGateCleared?.(this.clearedCount - 1, g.checkpointPos, g.question);
       };
@@ -973,7 +988,7 @@ export class EditorLoadedLevel {
     this.uiHooks = uiHooks || {};
     this.callbacks = callbacks || {};
     this.elapsed = 0;
-    this.movingPlatforms = [];   // none yet in the editor format
+    this.movingPlatforms = this.platforms.filter(p => p.motion);
     // Conveyor list — subset of platforms. Cached so findRiderDelta doesn't filter every step.
     this.conveyors = this.platforms.filter(p => p.behavior === 'conveyor');
   }
@@ -1001,15 +1016,38 @@ export class EditorLoadedLevel {
     this._animateHazards();
   }
 
-  // No oscillating kinematic platforms in the editor format — conveyors are static colliders that
-  // carry the rider through findRiderDelta, so there's nothing to queue after the controller pass.
-  stepMovingPlatforms() {}
+  _movingPos(p, elapsed) {
+    const m = p.motion;
+    const out = { x: p.basePos.x, y: p.basePos.y, z: p.basePos.z };
+    out[m.axis] += Math.sin(((elapsed + m.phase) / m.period) * Math.PI * 2) * m.amplitude;
+    return out;
+  }
+
+  // Called after the player's controller pass, before world.step(): teleport the moving
+  // platforms' colliders to this step's position (the rider delta already moved the player).
+  stepMovingPlatforms() {
+    for (const p of this.movingPlatforms) {
+      if (p.state !== 'idle' || !p.body) continue;
+      const q = this._movingPos(p, this.elapsed);
+      p.pos.x = q.x; p.pos.y = q.y; p.pos.z = q.z;
+      p.top = q.y + p.height;
+      p.body.setTranslation({ x: q.x, y: q.y + p.half.y, z: q.z }, true);
+    }
+  }
 
   // If the player is standing on a conveyor, return the per-step belt translation so the player
   // gets carried along. The belt direction is the conveyor's local +Z rotated by its yaw — set
   // when the conveyor was loaded. Negative `speed` reverses direction.
   findRiderDelta(playerPos, playerGrounded, fixedDt) {
     if (!playerGrounded) return null;
+    for (const p of this.movingPlatforms) {
+      if (p.state !== 'idle') continue;
+      if (Math.abs(playerPos.x - p.pos.x) > p.half.x) continue;
+      if (Math.abs(playerPos.z - p.pos.z) > p.half.z) continue;
+      if (Math.abs(playerPos.y - p.top) > 0.4)        continue;
+      const next = this._movingPos(p, this.elapsed + fixedDt);
+      return { dx: next.x - p.pos.x, dy: next.y - p.pos.y, dz: next.z - p.pos.z };
+    }
     for (const c of this.conveyors) {
       if (Math.abs(playerPos.x - c.pos.x) > c.half.x) continue;
       if (Math.abs(playerPos.z - c.pos.z) > c.half.z) continue;
@@ -1021,6 +1059,10 @@ export class EditorLoadedLevel {
   }
 
   update(dt, playerPos, playerGrounded) {
+    for (const p of this.movingPlatforms) {
+      if (p.state === 'idle') p.mesh.position.set(p.pos.x, p.pos.y, p.pos.z);
+    }
+
     // Falling-platform state machine, per platform.
     for (const p of this.platforms) {
       if (p.state === 'shaking') {
