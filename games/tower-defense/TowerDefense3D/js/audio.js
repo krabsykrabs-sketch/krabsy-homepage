@@ -154,7 +154,10 @@ export const Sound = {
       this._tone({ at: t + 0.03, freq: 1319, type: 'square', dur: 0.07, vol: 0.04 });
       this._tone({ at: t + 0.1, freq: 988, type: 'square', dur: 0.1, vol: 0.04 });
     },
-    upgrade(t) { this._tone({ at: t, freq: 330, freqEnd: 990, type: 'triangle', dur: 0.28, vol: 0.09 }); },
+    upgrade(t) {
+      this._tone({ at: t, freq: 330, freqEnd: 660, type: 'triangle', dur: 0.16, vol: 0.09 });
+      this._tone({ at: t + 0.14, freq: 660, freqEnd: 1320, type: 'triangle', dur: 0.26, vol: 0.09 });
+    },
     victory(t) {
       [523, 659, 784, 1047, 784, 1047].forEach((f, i) =>
         this._tone({ at: t + i * 0.13, freq: f, type: 'triangle', dur: 0.26, vol: 0.09 }));

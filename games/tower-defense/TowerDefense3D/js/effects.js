@@ -40,6 +40,37 @@ export const Effects = {
     });
   },
 
+  // Upgrade: a ring in the new level's colour sweeps out and sparks fly.
+  spawnLevelUp(position, level) {
+    const gold = level >= 2;
+    state.effects.push({
+      kind: 'ring',
+      position: { x: position.x, y: position.y },
+      startRadius: 0.6,
+      endRadius: 2.4,
+      duration: 0.5,
+      elapsed: 0,
+      fill: gold ? 'rgba(255, 207, 94, 0.30)' : 'rgba(46, 230, 192, 0.28)',
+      stroke: gold ? 'rgba(255, 230, 150, 0.95)' : 'rgba(150, 255, 235, 0.95)',
+      fadeOut: true,
+      isAlive: true,
+    });
+    for (let i = 0; i < 14; i++) {
+      const angle = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+      const speed = 1.6 + Math.random() * 1.6;
+      state.effects.push({
+        kind: 'particle',
+        position: { x: position.x, y: position.y },
+        velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+        startRadius: 0.1 + Math.random() * 0.08,
+        duration: 0.45 + Math.random() * 0.25,
+        elapsed: 0,
+        color: gold ? '#ffcf5e' : '#2ee6c0',
+        isAlive: true,
+      });
+    }
+  },
+
   spawnExplosion(position, aoeRadius) {
     state.effects.push({
       kind: 'ring',

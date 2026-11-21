@@ -13,7 +13,8 @@ const HEX_MODELS = [
   'hex_road_G', 'hex_road_M',
   // buildings
   'building_tower_A_blue', 'building_tower_B_blue', 'building_tower_cannon_blue',
-  'building_tower_catapult_blue', 'building_castle_blue', 'building_destroyed',
+  'building_tower_catapult_blue', 'building_tower_base_blue', 'building_castle_blue',
+  'building_destroyed',
   // nature
   'trees_A_large', 'trees_A_medium', 'trees_A_small', 'trees_B_large', 'trees_B_medium',
   'mountain_A_grass_trees', 'hills_A_trees', 'hills_B_trees', 'rock_single_A',
@@ -28,6 +29,7 @@ export const Assets = {
   models: new Map(),   // name → THREE.Group (template; clone before use)
   material: null,      // shared atlas material
   ghostMaterial: null, // same atlas, see-through (placement preview)
+  levelMaterials: [],  // tower look per upgrade level: blue, teal, gold
   loaded: false,
 
   async load(onProgress) {
@@ -54,11 +56,43 @@ export const Assets = {
     this.ghostMaterial = new THREE.MeshLambertMaterial({
       map: atlas, transparent: true, opacity: 0.6, depthWrite: false,
     });
+    this.levelMaterials = [
+      this.material,
+      this._recolour(atlas, 0.46, 1.0, 0.02),   // teal
+      this._recolour(atlas, 0.12, 1.15, 0.12),  // gold
+    ];
     for (const scene of this.models.values()) {
       scene.traverse((o) => { if (o.isMesh) o.material = this.material; });
       scene.updateMatrixWorld(true);
     }
     this.loaded = true;
+  },
+
+  // A copy of the atlas material in which every blue swatch (roofs, flags, trim of the
+  // blue team) is turned to another hue. The atlas is a tiny palette image, so this
+  // costs a few kilobytes of memory and no download.
+  _recolour(atlas, hue, satMul, lightAdd) {
+    const img = atlas.image;
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, c.width, c.height), px = data.data;
+    const col = new THREE.Color(), hsl = {};
+    for (let i = 0; i < px.length; i += 4) {
+      col.setRGB(px[i] / 255, px[i + 1] / 255, px[i + 2] / 255).getHSL(hsl);
+      if (hsl.h > 0.5 && hsl.h < 0.72 && hsl.s > 0.3) {
+        col.setHSL(hue, Math.min(1, hsl.s * satMul), Math.min(0.9, hsl.l + lightAdd));
+        px[i] = col.r * 255; px[i + 1] = col.g * 255; px[i + 2] = col.b * 255;
+      }
+    }
+    ctx.putImageData(data, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = atlas.colorSpace;
+    tex.flipY = atlas.flipY;
+    tex.wrapS = atlas.wrapS; tex.wrapT = atlas.wrapT;
+    tex.magFilter = atlas.magFilter; tex.minFilter = atlas.minFilter;
+    return new THREE.MeshLambertMaterial({ map: tex });
   },
 
   // A fresh instance of a model. Geometry and material are shared with the template.

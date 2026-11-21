@@ -52,6 +52,7 @@ export class Tower {
 
   update(dt, state) {
     if (this.fireAnimT > 0) this.fireAnimT -= dt;
+    if (this.levelUpT > 0) this.levelUpT -= dt; // visual-only: pop after an upgrade
     if (this.type === 'freeze') { this._updateFreeze(dt, state); return; }
 
     this._updateTarget(state.enemies);

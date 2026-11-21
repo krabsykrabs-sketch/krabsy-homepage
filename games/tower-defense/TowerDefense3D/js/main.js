@@ -214,6 +214,8 @@ export function upgradeTower(tower) {
   if (state.coins < up.cost) return;
   state.coins -= up.cost;
   tower.upgrade();
+  tower.levelUpT = 0.45;
+  Effects.spawnLevelUp(tower.position, tower.upgradeLevel);
   Sound.play('upgrade');
 }
 

@@ -188,8 +188,18 @@ Rules:
    fit gets a right inset; retune with the bot (answer rate × accuracy).
    Not decided yet.
 
-Notes 1 and 2 are implemented (see the Status log entry of 2026-11-21,
-"play-test round 1").
+3. **Upgraded towers look like base towers (2026-11-21).** Today an
+   upgrade only adds small gold dots at the foot and 8 % size. Owner wants
+   a clear visual level-up (different look, maybe roof colour or glow).
+   Session's proposal, not decided: (a) silhouette — level 2 stands on the
+   pack's `building_tower_base`, level 3 on two, so higher levels are
+   taller; (b) roof colour per level via recoloured copies of the 16 KB
+   atlas (blue → teal → gold), no new models; (c) at max level a flag on
+   top and a soft glow ring; (d) a star badge above the tower; (e) a
+   level-up burst with sound. Recommended: a + b + c + e.
+
+Notes 1 and 2 are implemented (Status log, "play-test round 1"); note 3 is
+implemented as preview-approved by the owner (Status log, "round 2").
 
 ## Status log
 
@@ -431,3 +441,22 @@ Notes 1 and 2 are implemented (see the Status log entry of 2026-11-21,
     victory, next level. No console errors.
   - **Open:** is 8 answers per wave the right amount; real-device and
     real-kid testing as before.
+- 2026-11-21 — **Play-test round 2 (owner note 3): visible tower levels.**
+  - Owner approved a side-by-side preview first. Built as shown, plus a
+    foot ring on every upgraded level (the preview showed that cannon and
+    catapult, which have no roof, were hard to tell apart at level 2).
+  - Per level (`TOWER_LEVEL` in `renderer.js`): size ×1.0 / 1.14 / 1.28;
+    a low stone plinth (`building_tower_base_blue`, squashed) under levels
+    2 and 3; roof and trim colour blue → teal → gold; foot ring teal /
+    gold; a softly pulsing glow disc at the top level. The old gold dots
+    are gone.
+  - Colours come from `Assets.levelMaterials`: recoloured copies of the
+    atlas made at load time on a canvas (every blue swatch shifted in
+    hue). No extra download.
+  - Level-up moment: ring burst and sparks in the new colour
+    (`Effects.spawnLevelUp`), a size pop (`tower.levelUpT`), two rising
+    notes.
+  - Rejected on the way: stacking full tower bases (towers became two to
+    three times as tall); a flag on top (invisible at game distance).
+  - Checked in headless Chromium: all four towers at all three levels,
+    upgrade twice through the UI, a wave afterwards. No console errors.

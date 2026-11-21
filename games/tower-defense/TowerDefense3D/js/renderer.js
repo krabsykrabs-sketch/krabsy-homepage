@@ -19,6 +19,14 @@ const CAMERA_DIR = new THREE.Vector3(0, 0.92, 0.78).normalize();
 // Screen space kept free for the top HUD (px). The dock height is measured.
 const HUD_TOP = 60;
 
+// How a tower shows its upgrade level (index = upgradeLevel 0..2): it grows, stands on
+// a stone plinth, changes roof colour (Assets.levelMaterials) and gets a foot ring.
+const TOWER_LEVEL = [
+  { size: 1.0,  plinth: 0,    ring: null },
+  { size: 1.14, plinth: 0.22, ring: 0x2ee6c0 },
+  { size: 1.28, plinth: 0.44, ring: 0xffcf5e },
+];
+
 const TOWER_MODEL = {
   basic: 'building_tower_A_blue',
   catapult: 'building_tower_catapult_blue',
@@ -400,6 +408,7 @@ export const Renderer = {
       ring: new THREE.RingGeometry(0.92, 1, 48),
       // Pointy-top hexagon lying flat once rotated onto the ground.
       hex: new THREE.CircleGeometry(HEX.RADIUS * 0.88, 6, Math.PI / 6),
+      levelRing: new THREE.RingGeometry(0.74, 1, 48),
     };
     const L = (color, extra) => new THREE.MeshLambertMaterial(Object.assign({ color }, extra));
     this._mats = {
@@ -777,7 +786,11 @@ export const Renderer = {
         const s = 1 + 0.5 * Math.sin(k * Math.PI);
         u.crystal.scale.set(0.26 * s, 0.45 * s, 0.26 * s);
       }
-      if (u.lastUpgrade !== t.upgradeLevel) this._refreshUpgradePips(obj, t);
+      if (u.lastUpgrade !== t.upgradeLevel) this._applyTowerLevel(obj, t);
+      // Level-up pop, and a slow pulse on the top level's glow.
+      const pop = Math.max(0, t.levelUpT || 0) / 0.45;
+      obj.scale.setScalar(1 + 0.22 * Math.sin(pop * Math.PI));
+      if (u.halo.visible) u.halo.material.opacity = 0.16 + 0.1 * Math.sin(now * 3);
     }
   },
 
@@ -789,6 +802,28 @@ export const Renderer = {
 
     const model = Assets.clone(TOWER_MODEL[t.type]);
     g.add(model);
+    u.model = model;
+    u.topH = new THREE.Box3().setFromObject(model).max.y;
+
+    // Parts that only show on upgraded towers (see _applyTowerLevel).
+    u.plinth = Assets.clone('building_tower_base_blue');
+    u.plinthH = new THREE.Box3().setFromObject(u.plinth).max.y;
+    u.plinth.visible = false;
+    g.add(u.plinth);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, depthWrite: false });
+    const haloMat = new THREE.MeshBasicMaterial({ color: 0xffcf5e, transparent: true, opacity: 0.2, depthWrite: false });
+    own.push(ringMat, haloMat);
+    u.ring = new THREE.Mesh(this._geo.levelRing, ringMat);
+    u.ring.rotation.x = -Math.PI / 2;
+    u.ring.position.y = 0.045;
+    u.ring.visible = false;
+    u.halo = new THREE.Mesh(this._geo.circle, haloMat);
+    u.halo.rotation.x = -Math.PI / 2;
+    u.halo.scale.setScalar(1.3);
+    u.halo.position.y = 0.04;
+    u.halo.visible = false;
+    g.add(u.ring, u.halo);
+
     const part = (name) => model.getObjectByName(name) || null;
 
     if (t.type === 'basic') {
@@ -810,7 +845,7 @@ export const Renderer = {
       own.push(crystalMat);
       const crystal = new THREE.Mesh(this._geo.octa, crystalMat);
       crystal.scale.set(0.26, 0.45, 0.26);
-      crystal.position.y = new THREE.Box3().setFromObject(model).max.y + 0.5;
+      crystal.position.y = u.topH + 0.5;
       const spin = new THREE.Group();
       spin.add(crystal);
       g.add(spin);
@@ -818,27 +853,39 @@ export const Renderer = {
       u.crystal = crystal;
     }
 
-    g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    model.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    u.plinth.traverse(o => { if (o.isMesh) o.castShadow = true; });
     g.userData = u;
-    this._refreshUpgradePips(g, t);
+    this._applyTowerLevel(g, t);
     return g;
   },
 
-  _refreshUpgradePips(obj, t) {
+  // Show the tower's upgrade level: size, plinth, roof colour, foot ring (+ glow at
+  // the top level).
+  _applyTowerLevel(obj, t) {
     const u = obj.userData;
-    if (u.pips) { obj.remove(u.pips); }
-    const pips = new THREE.Group();
-    for (let i = 0; i < t.upgradeLevel; i++) {
-      const pip = new THREE.Mesh(this._geo.sphere, this._mats.gold);
-      pip.scale.setScalar(0.11);
-      pip.position.set((i - (t.upgradeLevel - 1) / 2) * 0.3, 0.14, 0.78);
-      pips.add(pip);
+    const lvl = Math.min(t.upgradeLevel, TOWER_LEVEL.length - 1);
+    const look = TOWER_LEVEL[lvl];
+    const mat = Assets.levelMaterials[lvl] || Assets.material;
+    const lift = look.plinth * u.plinthH;
+
+    u.model.position.y = lift;
+    u.model.scale.setScalar(look.size);
+    u.model.traverse(o => { if (o.isMesh) o.material = mat; });
+
+    u.plinth.visible = look.plinth > 0;
+    if (u.plinth.visible) {
+      const wide = 1.12 + lvl * 0.1;
+      u.plinth.scale.set(wide, look.plinth, wide);
+      u.plinth.traverse(o => { if (o.isMesh) o.material = mat; });
     }
-    obj.add(pips);
-    u.pips = pips;
+
+    u.ring.visible = look.ring !== null;
+    if (look.ring !== null) u.ring.material.color.set(look.ring);
+    u.halo.visible = lvl === TOWER_LEVEL.length - 1;
+
+    if (u.crystal) u.crystal.position.y = lift + u.topH * look.size + 0.5;
     u.lastUpgrade = t.upgradeLevel;
-    // Upgraded towers grow a little — readable from across the board.
-    obj.scale.setScalar(1 + 0.08 * t.upgradeLevel);
   },
 
   // ─── Enemies ──────────────────────────────────────────────────────────
