@@ -201,6 +201,11 @@ Rules:
 Notes 1 and 2 are implemented (Status log, "play-test round 1"); note 3 is
 implemented as preview-approved by the owner (Status log, "round 2").
 
+4. **Archer upgrade was useless (2026-11-21).** Upgraded arrows flew
+   straight through one enemy and on into nowhere — fine on the old
+   straight 2D roads, pointless on winding hex roads. Owner wants chain /
+   seeking arrows. Implemented (Status log, "round 3").
+
 ## Status log
 
 - 2026-11-21 — Brief written by the master session. Nothing changed in
@@ -460,3 +465,19 @@ implemented as preview-approved by the owner (Status log, "round 2").
     three times as tall); a flag on top (invisible at game distance).
   - Checked in headless Chromium: all four towers at all three levels,
     upgrade twice through the UI, a wave afterwards. No console errors.
+- 2026-11-21 — **Play-test round 3 (owner note 4): chain arrows.**
+  - Archer upgrades are now chain jumps instead of pierce: after a hit the
+    arrow homes in on the nearest enemy it has not hit yet within
+    `CONFIG.chainRange` (3.2). Level 2 hits up to 3 enemies, level 3 up to
+    5 (`CHAIN_HITS`, modes `chain2` / `chain4` in `config.js`). The old
+    range multipliers (1.5 / 10) are gone.
+  - Every arrow, upgraded or not, re-targets the nearest enemy in reach
+    when its target dies on the way, and ends when none is in reach. No
+    arrow flies off into nowhere any more.
+  - Chained arrows fly low from enemy to enemy (renderer).
+  - Upgrade texts and tower-info flags rewritten in de / es / en.
+  - Measured (one archer, wave 6): level 1 = 1 enemy per arrow; level 2
+    = mostly 3; level 3 = 2–5 depending on how bunched the enemies are;
+    0 missed arrows. Bot balance unchanged within noise.
+  - From now on the session runs on Opus 5.5 (owner's choice, to save
+    tokens); design-heavy work may go to a Fable 5.2 subagent.

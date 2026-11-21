@@ -1062,7 +1062,9 @@ export const Renderer = {
       }
       // Shots leave from the tower top and drop to enemy height.
       const gone = Math.hypot(p.position.x - p.startPosition.x, p.position.y - p.startPosition.y);
-      let y = 0.55 + 1.4 * Math.max(0, 1 - gone / 2);
+      // After a hit, a chained arrow flies low from enemy to enemy.
+      const chained = p.hitEnemies && p.hitEnemies.size > 0;
+      let y = chained ? 0.55 : 0.55 + 1.4 * Math.max(0, 1 - gone / 2);
       if (p.isAoE) {
         // Lobbed arc from launch point to the snapshotted target.
         const total = Math.hypot(p.targetPosition.x - p.startPosition.x,

@@ -456,8 +456,8 @@ export const UI = {
              + stat('statRange', tw.range.toFixed(1))
              + stat('statRate', `${tw.fireRate.toFixed(1)}/s`);
     if (tw.aoeRadius > 0) html += stat('statArea', tw.aoeRadius.toFixed(1));
-    if (tw.pierceMode === 'hitTwo') html += flag('flagPierce2');
-    if (tw.pierceMode === 'infinite') html += flag('flagPierceAll');
+    if (tw.pierceMode === 'chain2') html += flag('flagChain2');
+    if (tw.pierceMode === 'chain4') html += flag('flagChain4');
     return html;
   },
 

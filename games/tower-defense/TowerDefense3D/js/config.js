@@ -9,6 +9,7 @@ export const CONFIG = {
   enemySpawnRise: 0.9,
 
   projectileHitRadius: 0.3,  // enemy.radius is added on top per hit check
+  chainRange: 3.2,           // how far a chained arrow may jump to the next enemy
 
   // The forge (always-visible question card, see forge.js). It is the main income.
   forge: {
@@ -80,11 +81,11 @@ export const CONFIG = {
       upgrades: [
         { tier: 1, cost: 30, description: 'Can hit two enemies',
           damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
-          pierceUpgrade: 'hitTwo', projectileRangeMultiplier: 1.5,
+          pierceUpgrade: 'chain2', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
         { tier: 2, cost: 30, description: 'Can hit many enemies',
           damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
-          pierceUpgrade: 'infinite', projectileRangeMultiplier: 10,
+          pierceUpgrade: 'chain4', projectileRangeMultiplier: 1,
           aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
       ],
     },
@@ -168,8 +169,11 @@ export const CONFIG = {
 // Order for keyboard 1-4 and button display.
 export const TOWER_ORDER = ['basic', 'catapult', 'cannon', 'freeze'];
 
-// Pierce ordering for the upgrade system — spec: "Pierce only upgrades, never downgrades."
-export const PIERCE_ORDER = { none: 0, hitTwo: 1, infinite: 2 };
+// Archer upgrades: after a hit the arrow jumps on to the nearest enemy it has not hit
+// yet. chain2 = up to 2 jumps (3 enemies), chain4 = up to 4 jumps (5 enemies).
+// Upgrades only ever raise this, never lower it.
+export const PIERCE_ORDER = { none: 0, chain2: 1, chain4: 2 };
+export const CHAIN_HITS = { none: 1, chain2: 3, chain4: 5 };
 
 export function getTierForHealth(hp) {
   const tiers = CONFIG.enemyTiers;

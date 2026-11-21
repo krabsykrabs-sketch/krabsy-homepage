@@ -1,11 +1,12 @@
 import { Sound } from './audio.js';
-import { CONFIG } from './config.js';
+import { CONFIG, CHAIN_HITS } from './config.js';
 import { Effects } from './effects.js';
 import { state } from './main.js';
 
 // Projectile entity. Two variants share the class:
-//   - *directional* (basic, circleShooter): optionally homing, checks per-enemy hits, uses
-//     pierce/maxDistance/lifetime for destruction.
+//   - *directional* (archer): homes in on its target. With a chain upgrade, a hit sends
+//     the arrow on to the nearest enemy it has not hit yet (within CONFIG.chainRange);
+//     with no enemy in reach, or no jumps left, it is gone.
 //   - *AoE* (cannon): flies in a straight line toward a snapshotted targetPosition; on
 //     arrival, damages every enemy within aoeRadius with linear falloff and explodes.
 
@@ -45,10 +46,7 @@ export class Projectile {
       this.pierceMode = pierceMode || 'none';
       this.maxDistance = maxDistance;
       this.hitEnemies = new Set();
-      this.hitsLeft =
-        this.pierceMode === 'none'   ? 1 :
-        this.pierceMode === 'hitTwo' ? 2 :
-        /* infinite */                 Infinity;
+      this.hitsLeft = CHAIN_HITS[this.pierceMode] || 1;
 
       if (direction) {
         const dlen = Math.hypot(direction.x, direction.y) || 1;
@@ -101,8 +99,14 @@ export class Projectile {
   }
 
   _updateDirectional(dt, state) {
-    // Re-aim while homing and target alive. First hit disables homing permanently.
-    if (this.homing && this.target && this.target.isAlive) {
+    // Target gone (another tower got it first)? Pick the nearest enemy in reach rather
+    // than flying off into nowhere; with none in reach the arrow simply ends.
+    if (this.homing && (!this.target || !this.target.isAlive)) {
+      this.target = this._nextChainTarget(state);
+      if (!this.target) { this.isAlive = false; return; }
+    }
+    // Re-aim every frame while homing.
+    if (this.homing && this.target) {
       const dx = this.target.position.x - this.position.x;
       const dy = this.target.position.y - this.position.y;
       const d = Math.hypot(dx, dy);
@@ -134,15 +138,26 @@ export class Projectile {
         this.hitEnemies.add(e);
         this.hitsLeft -= 1;
 
-        // Spec: on first hit, stop homing and reset startPosition so piercing projectiles
-        // get full range from the hit point onward.
-        if (this.hitEnemies.size === 1) {
-          this.homing = false;
-          this.startPosition = { x: this.position.x, y: this.position.y };
-        }
-
         if (this.hitsLeft <= 0) { this.isAlive = false; return; }
+        // Chain on: home in on the nearest enemy not hit yet, or stop here.
+        const next = this._nextChainTarget(state);
+        if (!next) { this.isAlive = false; return; }
+        this.target = next;
+        this.homing = true;
+        this.startPosition = { x: this.position.x, y: this.position.y };
+        this.maxDistance = CONFIG.chainRange * 1.6;
+        return;
       }
     }
+  }
+
+  _nextChainTarget(state) {
+    let best = null, bestD = CONFIG.chainRange;
+    for (const e of state.enemies) {
+      if (!e.isAlive || e.spawnTimer > 0 || this.hitEnemies.has(e)) continue;
+      const d = Math.hypot(e.position.x - this.position.x, e.position.y - this.position.y);
+      if (d <= bestD) { best = e; bestD = d; }
+    }
+    return best;
   }
 }

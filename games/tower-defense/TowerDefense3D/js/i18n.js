@@ -47,7 +47,7 @@ const DE = {
   forgeCaption: ['Grundform', 'simple past', 'past participle'],
 
   towers: {
-    basic: { name: 'Bogenturm', desc: 'Schießt schnell auf einen Gegner.', ups: ['Trifft zwei Gegner', 'Trifft viele Gegner'] },
+    basic: { name: 'Bogenturm', desc: 'Schießt schnell auf einen Gegner.', ups: ['Pfeil springt weiter (3 Gegner)', 'Pfeil springt weiter (5 Gegner)'] },
     catapult: { name: 'Katapult', desc: 'Große Reichweite, schwere Steine.', ups: ['50 % mehr Schaden', 'Noch mehr Reichweite'] },
     cannon: { name: 'Kanone', desc: 'Langsam, aber trifft alle in der Nähe.', ups: ['Größere Explosion', 'Schießt schneller'] },
     freeze: { name: 'Frostturm', desc: 'Friert alle Gegner in der Nähe ein.', ups: ['Längerer Frost', 'Macht dauerhaft langsam'] },
@@ -62,8 +62,8 @@ const DE = {
   statArea: 'Radius',
   statFreeze: 'Frost',
   statPause: 'Pause',
-  flagPierce2: 'Trifft 2',
-  flagPierceAll: 'Trifft alle',
+  flagChain2: 'Springt zu 3 Gegnern',
+  flagChain4: 'Springt zu 5 Gegnern',
   flagSlow: 'Dauerhaft langsam',
 
   waveDone: (n) => `Welle ${n} geschafft!`,
@@ -127,7 +127,7 @@ const ES = {
   forgeCaption: ['forma base', 'simple past', 'past participle'],
 
   towers: {
-    basic: { name: 'Torre de arqueros', desc: 'Dispara rápido a un enemigo.', ups: ['Alcanza a dos enemigos', 'Alcanza a muchos enemigos'] },
+    basic: { name: 'Torre de arqueros', desc: 'Dispara rápido a un enemigo.', ups: ['La flecha salta (3 enemigos)', 'La flecha salta (5 enemigos)'] },
     catapult: { name: 'Catapulta', desc: 'Gran alcance, piedras pesadas.', ups: ['50 % más de daño', 'Aún más alcance'] },
     cannon: { name: 'Cañón', desc: 'Lento, pero golpea a todos los que están cerca.', ups: ['Explosión más grande', 'Dispara más rápido'] },
     freeze: { name: 'Torre de hielo', desc: 'Congela a todos los enemigos cercanos.', ups: ['Hielo más largo', 'Los vuelve lentos para siempre'] },
@@ -142,8 +142,8 @@ const ES = {
   statArea: 'Radio',
   statFreeze: 'Hielo',
   statPause: 'Pausa',
-  flagPierce2: 'Alcanza 2',
-  flagPierceAll: 'Alcanza a todos',
+  flagChain2: 'Salta a 3 enemigos',
+  flagChain4: 'Salta a 5 enemigos',
   flagSlow: 'Lentos para siempre',
 
   waveDone: (n) => `¡Oleada ${n} superada!`,
@@ -207,7 +207,7 @@ const EN = {
   forgeCaption: ['base form', 'simple past', 'past participle'],
 
   towers: {
-    basic: { name: 'Archer Tower', desc: 'Shoots fast at one enemy.', ups: ['Hits two enemies', 'Hits many enemies'] },
+    basic: { name: 'Archer Tower', desc: 'Shoots fast at one enemy.', ups: ['Arrow jumps on (3 enemies)', 'Arrow jumps on (5 enemies)'] },
     catapult: { name: 'Catapult', desc: 'Long range, heavy boulders.', ups: ['50% more damage', 'Even longer range'] },
     cannon: { name: 'Cannon', desc: 'Slow, but hits everyone nearby.', ups: ['Bigger explosion', 'Shoots faster'] },
     freeze: { name: 'Frost Tower', desc: 'Freezes every enemy nearby.', ups: ['Longer freeze', 'Slows them for good'] },
@@ -222,8 +222,8 @@ const EN = {
   statArea: 'Radius',
   statFreeze: 'Freeze',
   statPause: 'Pause',
-  flagPierce2: 'Hits 2',
-  flagPierceAll: 'Hits all',
+  flagChain2: 'Jumps to 3 enemies',
+  flagChain4: 'Jumps to 5 enemies',
   flagSlow: 'Slows for good',
 
   waveDone: (n) => `Wave ${n} complete!`,
