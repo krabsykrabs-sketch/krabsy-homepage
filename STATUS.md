@@ -87,12 +87,12 @@ reviews (Fable 5.2) in `_incoming/landing-mockup-2026-11-21/` (not served).
 
 Owner agreed on four phases plus a "smart mix" of questions; full concept in
 `docs/classroom-concept.md`. **Phase 1 in progress.** Shared pieces built
-2026-11-22 (committed, not pushed): `lib/krabsy-smart.js` (the mix),
+2026-11-22 (deployed): `lib/krabsy-smart.js` (the mix),
 `smart: true` + `ids` + `item` field in `getQuizSet` / `getChainSet`,
 `onAttempt()` listener + `readTopicItems()` in `krabsy-stats.js`; tested by
 node script and in headless Chromium. **Verb Snake and Air Control wired 2026-11-22** (tested in headless Chromium:
-smart queue picks the practice verbs, answers recorded right/wrong, not
-yet pushed/deployed). Next: the other games — recipe and
+smart queue picks the practice verbs, answers recorded right/wrong; **deployed 2026-11-22**, live files
+identical to the repo, both games load without console errors). Next: the other games — recipe and
 per-game table in `docs/phase1-game-wiring.md` (
 Flow, Slash, Kitchen, Towers, Dungeon, Platformer = their sessions; pointer
 added to the clean game CLAUDE.md files, not yet to verb-dungeon and
