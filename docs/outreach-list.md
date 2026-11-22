@@ -44,6 +44,22 @@ Jan Ahrens
 
 Beide Blogs zeigen Werbung bzw. verkaufen eigene Materialien: nur redaktionelle Erwähnung, **kein** bezahltes Placement.
 
+## Recherche ES/LatAm 2026-11-22 (geprüft, noch nichts gesendet außer wo vermerkt)
+
+Ergebnis: Kein staatliches Portal (educ.ar, Colombia Aprende, PerúEduca, MEP CR, SEP/PRONI, DE Puerto Rico, INTEF/Procomún, Regionalportale) nimmt externe Nicht-OER-Seiten auf. Realistisch sind Lehrkräfte-Medien und Englischlehrer-Verbände (Newsletter, Webinare, Tagungen).
+
+| # | Ziel | Land | Passung | Weg | Notiz |
+|---|---|---|---|---|---|
+| 1 | Magisnet (Zeitung Magisterio) | ES | hoch | Formular https://www.magisnet.com/contacto/ | Artikel "Actividades para dominar los verbos irregulares en inglés" (07/2025) verlinkt externe Spiele. Text entworfen 2026-11-22 (Chat). |
+| 2 | El Nuevo Día Educador | PR | hoch | Pitch an Autorin Rut N. Tellado Domenech, rut.tellado@gfrmedia.com | Lehrkräfte-Rubrik der größten PR-Zeitung, Englisch-Reihe, aktiv 2026. Kampagnen teils gesponsert: nur redaktionell. |
+| 3 | Ayuda para maestros (Manu Velasco) | ES | hoch | **kein Kontakt gefunden**, evtl. über Social Media | Sehr große Reichweite, stellt einzelne kostenlose Seiten vor (z. B. JuegaPop 10/2026), Tag "Inglés". |
+| 4 | ASOCOPI | CO | mittel-hoch | asocopicolombia@gmail.com | Nationaler Englischlehrer-Verband; um Erwähnung im Newsletter/Webinar bitten. Sponsoring ist kostenpflichtig, nicht annehmen. |
+| 5 | Puerto Rico TESOL | PR | mittel-hoch | prtesol.association@gmail.com | K-12-Englischlehrkräfte, Newsletter "PRTESOL-Gram" (Aktualität unbestätigt). |
+| 6 | ACPI-TESOL | CR | mittel | acpicostarica@gmail.com | Aktiv (Tagung 2026), keine Linkliste: nur Erwähnung. |
+| 7 | Educación 3.0, Nachfass | ES | mittel | redaccion@educaciontrespuntocero.com | Liste "webs para aprender inglés en secundaria" am 4.3.2026 aktualisiert, einziger Verben-Eintrag Learn English Teens. |
+
+Schwächer/abgelehnt: Orientación Andújar (nur bezahltes Sponsoring), TESOL-SPAIN (Websites? unklar), ARTESOL (nur Institutionslinks, kein Kontakt), educ.ar (eigene Inhalte; info@educar.gob.ar jetzt verifiziert), Peru TESOL, ANUPI (Uni-Lehrkräfte), Procomún/Didactalia (OER), eTwinning, Cristic, Tiching (tot), Maestra de Primaria (Domain zu verkaufen), APAC/GRETA (nicht gefunden). MEXTESOL: Seite nur per JavaScript, im Browser erneut prüfen (größtes Netz in MX). TESOL Colombia: Tagung 19.–21.5.2027, evtl. später ein Vortrag.
+
 ## Top 10 zuerst
 
 | # | Portal | Land | Warum lohnt es sich | Aufwand | Einreichung |
