@@ -306,7 +306,7 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 
 .tower-btn {
   position: relative;
-  width: 70px;
+  width: 76px;
   background: var(--panel);
   border: 2px solid var(--line);
   border-radius: 16px;
@@ -355,11 +355,8 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 /* Compact dock: only the tower picture and the price. Hovering the dock with a mouse
    opens it (name and stat bars); touch players long-press a card instead. */
 .tower-btn-name, .tower-btn .tower-stats { display: none; }
-#bottom-dock.open .tower-btn { width: 92px; padding: 6px 6px 8px; }
 #bottom-dock.open .tower-btn-name { display: flex; }
 #bottom-dock.open .tower-btn .tower-stats { display: flex; }
-#bottom-dock.open .tower-thumb { width: 56px; height: 56px; }
-#bottom-dock.open .ts-special { top: 4px; right: 4px; }
 #tower-pop .tower-stats { width: 150px; align-self: center; margin-top: 4px; }
 #tower-pop .ts-row { height: 12px; }
 #tower-pop .ts-icon { font-size: 11px; width: 15px; }
@@ -895,10 +892,8 @@ body.game-inactive #bottom-dock { display: none; }
 
 /* Tablets and small laptops. */
 @media (max-width: 1100px) {
-  #bottom-dock.open .tower-btn { width: 84px; }
-  #bottom-dock.open .tower-thumb { width: 50px; height: 50px; }
   .tower-thumb { width: 46px; height: 46px; }
-  .tower-btn { width: 64px; }
+  .tower-btn { width: 72px; }
   #start-wave-btn { min-width: 104px; padding: 8px 12px; }
   .dock-btn-label { font-size: 17px; }
   .hotkey { display: none; }

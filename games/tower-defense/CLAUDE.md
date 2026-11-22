@@ -706,4 +706,6 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     stable, click builds), 1024×768 and 390×844 touch (long press shows
     stats, never buys; tap hex then card builds), 844×390, 2560×1440. No
     errors.
-
+  - Owner follow-up: the cards keep their width when the dock opens; only
+    the height grows (76 px wide on laptops, 72 px ≤1100 px; long Spanish
+    names wrap to two lines).
