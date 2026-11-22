@@ -78,9 +78,9 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "coming_soon",
+    "status": "ready",
     "kind": "3d",
-    "devices": "large_screen",
+    "devices": "phone_ok",
     "new_until": "2027-03-31"
   },
   {
