@@ -22,10 +22,15 @@ master did not include them.
   **`coming_soon`** (card shows "Bald"/disabled), new tagline, thumbnails,
   `hero`, `new_until: 2027-03-31` (Dungeon agent's choice; change freely),
   `devices: large_screen` (→ `phone_ok` at release, see step 3).
-- Thumbnails (from a boss-room shot, golem dizzy, hero in front):
-  `homepage/thumbnails/verb-dungeon.png` (1280×720),
-  `homepage/thumbnails/hero/verb-dungeon.jpg` (1200×675),
-  `homepage/thumbnails/sm/verb-dungeon.jpg` (640×360, replaces the old dev shot).
+- Images (**master, 2026-11-22: replaced by Gemini key art in the Verb
+  Kitchen style** — the three heroes with the golden key at an opening
+  dungeon door, dizzy golem, bone-pile skeleton; originals in
+  `_incoming/verb-dungeon-art/`, v2 used):
+  `homepage/thumbnails/hero/verb-dungeon.jpg` (1200×675) and
+  `homepage/thumbnails/sm/verb-dungeon.jpg` (640×360). `games.json`
+  `thumbnail` now points to the sm JPG; `thumbnails/verb-dungeon.png` (the
+  boss-room screenshot) is no longer referenced. At release, use the hero
+  JPG as `og:image` / `twitter:image` on both wrapper pages.
 - `tools/game_info_content.py`: `verb-dungeon` DE/ES content (heading,
   meta, intro, how to play, what you learn, 3 FAQs, related games),
   genre Adventure. **Its device/FAQ and how-to text still says keyboard

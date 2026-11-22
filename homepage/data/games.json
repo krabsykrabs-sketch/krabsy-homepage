@@ -128,14 +128,15 @@
       "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
       "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!"
     },
-    "thumbnail": "/thumbnails/verb-platformer.png",
+    "thumbnail": "/thumbnails/sm/verb-platformer.jpg",
     "topics": [
       "irregular_verbs"
     ],
     "status": "beta",
     "kind": "3d",
     "devices": "large_screen",
-    "thumb_small": "/thumbnails/sm/verb-platformer.jpg"
+    "thumb_small": "/thumbnails/sm/verb-platformer.jpg",
+    "hero": "/thumbnails/hero/verb-platformer.jpg"
   },
   {
     "id": "verb-dungeon",
@@ -147,7 +148,7 @@
       "de": "Finde den Schlüssel, knack die Verb-Türen und mach den Golem schwindelig!",
       "es": "¡Encuentra la llave, abre las puertas de verbos y marea al gólem!"
     },
-    "thumbnail": "/thumbnails/verb-dungeon.png",
+    "thumbnail": "/thumbnails/sm/verb-dungeon.jpg",
     "thumb_small": "/thumbnails/sm/verb-dungeon.jpg",
     "hero": "/thumbnails/hero/verb-dungeon.jpg",
     "topics": [
