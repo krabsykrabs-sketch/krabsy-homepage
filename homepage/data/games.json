@@ -56,7 +56,7 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "beta",
+    "status": "ready",
     "kind": "3d",
     "devices": "large_screen",
     "thumb_small": "/thumbnails/sm/verb-platformer.jpg",
@@ -135,7 +135,7 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "beta",
+    "status": "ready",
     "kind": "arcade",
     "devices": "large_screen",
     "thumb_small": "/thumbnails/sm/air-control.jpg"
@@ -154,7 +154,7 @@
     "topics": [
       "irregular_verbs"
     ],
-    "status": "beta",
+    "status": "ready",
     "kind": "arcade",
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-flow.jpg"
