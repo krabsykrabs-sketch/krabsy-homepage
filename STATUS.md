@@ -226,6 +226,8 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
     (`/de/praepositionen/arbeitsblaetter/`, `/es/preposiciones/fichas/`), verb sheet
     "sort by pattern", teacher blocks on 7 game pages and 7 drill pages
     (`tools/render_teacher_notes.py`, TEACHER in `tools/game_info_content.py`).
+  - **School/link-list outreach research (2026-11-22):** `docs/outreach-schools-2026-11-22.md`
+    — batch 1 of 10 targets + DE/ES templates; nothing sent yet.
   - **Verb-Diplom LIVE (deployed 2026-11-22; IndexNow 8 URLs, HTTP 200; live headless run OK — 2 test runs from it are in the game-event analytics):** `/de/unregelmaessige-verben/verb-diplom/`,
     `/es/verbos-irregulares/diploma/`; logic in `homepage/lib/krabsy-verb-diplom.js` + `.css`.
     Brief (with the review fixes: 15/30/45 verbs, 90 % pass mark, stops early) in
