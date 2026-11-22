@@ -8,7 +8,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Magisnet (gesendet 2026-11-22), El Nuevo Día Educador (gesendet 2026-11-22), ASOCOPI (gesendet 2026-11-22), Puerto Rico TESOL (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
+Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Magisnet (gesendet 2026-11-22), El Nuevo Día Educador (gesendet 2026-11-22), ASOCOPI (gesendet 2026-11-22), Puerto Rico TESOL (gesendet 2026-11-22), ACPI-TESOL (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
 
 ### ~~Lehrerfreund (DE)~~: VERWORFEN 2026-11-22
 Kein Englisch-Bereich: Die Fächer sind nur Deutsch, Geschichte und Politik, und die Tools sind allgemeine Unterrichtstools. Die Kontaktseite lehnt Werbe-Anfragen ausdrücklich ab. Nicht einreichen. Text bleibt nur zur Referenz.
@@ -57,7 +57,7 @@ Ergebnis: Kein staatliches Portal (educ.ar, Colombia Aprende, PerúEduca, MEP CR
 | 3 | Ayuda para maestros (Manu Velasco) | ES | hoch | **kein Kontakt gefunden**, evtl. über Social Media | Sehr große Reichweite, stellt einzelne kostenlose Seiten vor (z. B. JuegaPop 10/2026), Tag "Inglés". |
 | 4 | ASOCOPI | CO | mittel-hoch | asocopicolombia@gmail.com | **GESENDET 2026-11-22** (Bitte um Erwähnung bei Mitgliedern, kein Sponsoring). Nationaler Englischlehrer-Verband; um Erwähnung im Newsletter/Webinar bitten. Sponsoring ist kostenpflichtig, nicht annehmen. |
 | 5 | Puerto Rico TESOL | PR | mittel-hoch | prtesol.association@gmail.com | **GESENDET 2026-11-22** (Englisch, Bitte um Erwähnung im Newsletter). K-12-Englischlehrkräfte, Newsletter "PRTESOL-Gram" (Aktualität unbestätigt). |
-| 6 | ACPI-TESOL | CR | mittel | acpicostarica@gmail.com | Aktiv (Tagung 2026), keine Linkliste: nur Erwähnung. |
+| 6 | ACPI-TESOL | CR | mittel | acpicostarica@gmail.com | **GESENDET 2026-11-22**. Aktiv (Tagung 2026), keine Linkliste: nur Erwähnung. |
 | 7 | Educación 3.0, Nachfass | ES | mittel | redaccion@educaciontrespuntocero.com | Liste "webs para aprender inglés en secundaria" am 4.3.2026 aktualisiert, einziger Verben-Eintrag Learn English Teens. |
 
 Schwächer/abgelehnt: Orientación Andújar (nur bezahltes Sponsoring), TESOL-SPAIN (Websites? unklar), ARTESOL (nur Institutionslinks, kein Kontakt), educ.ar (eigene Inhalte; info@educar.gob.ar jetzt verifiziert), Peru TESOL, ANUPI (Uni-Lehrkräfte), Procomún/Didactalia (OER), eTwinning, Cristic, Tiching (tot), Maestra de Primaria (Domain zu verkaufen), APAC/GRETA (nicht gefunden). MEXTESOL: Seite nur per JavaScript, im Browser erneut prüfen (größtes Netz in MX). TESOL Colombia: Tagung 19.–21.5.2027, evtl. später ein Vortrag.
