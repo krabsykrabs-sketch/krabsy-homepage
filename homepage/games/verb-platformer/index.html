@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <!-- Only meant to run inside its wrapper page's iframe: index the wrapper, not this file. -->
   <meta name="robots" content="noindex, indexifembedded">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Krabsy 3D Platformer</title>
+  <title>Verb Platformer</title>
+  <link rel="preload" href="./fonts/fredoka-one-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./fonts/nunito-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./styles.css" />
 
   <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/",
-      "@dimforge/rapier3d-compat": "https://unpkg.com/@dimforge/rapier3d-compat@0.19.3/rapier.mjs",
-      "nipplejs": "https://unpkg.com/nipplejs@1.0.1/dist/index.mjs"
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "@dimforge/rapier3d-compat": "./vendor/rapier/rapier.mjs",
+      "nipplejs": "./vendor/nipplejs/index.mjs"
     }
   }
   </script>
@@ -22,47 +24,124 @@
 <body>
   <canvas id="game"></canvas>
 
-  <!-- In-game HUD -->
+  <!-- In-game HUD: level name, one pip per gate, clock, pause button -->
   <div id="hud" hidden>
-    <div id="level-info">Level —</div>
-    <button id="menu-btn">Menu</button>
+    <div id="hud-pill">
+      <span id="level-info"></span>
+      <span id="gate-pips" role="img"></span>
+      <span id="hud-time">0:00</span>
+    </div>
+    <button id="pause-btn" type="button" tabindex="-1" data-i18n-aria="pause"><span class="pause-icon"></span></button>
   </div>
 
-  <!-- Bottom-center progress -->
-  <div id="progress" hidden>
-    <div id="progress-text">Gate 1 / 5</div>
-    <div id="progress-bar"><div id="progress-fill"></div></div>
-  </div>
+  <!-- Desktop, mouse not captured: how to get mouse look back -->
+  <div id="look-tip" hidden data-i18n="clickToLook"></div>
 
-  <!-- Persistent HUD question (style 5 of the Q/A test level) -->
+  <!-- The gate's question, repeated in the HUD on small screens -->
   <div id="hud-question" hidden></div>
 
-  <!-- Wrong-answer reveal overlay -->
+  <!-- After every answer: the full chain (and the wrong word after a miss) -->
   <div id="answer-reveal" hidden>
     <span id="reveal-prompt"></span><span id="reveal-correct"></span>
   </div>
 
-  <!-- Touch controls (tablet only) -->
-  <div id="touch-jump" hidden>JUMP</div>
+  <!-- Touch controls -->
+  <div id="touch-jump" hidden data-i18n="jump">JUMP</div>
   <div id="touch-joystick" hidden></div>
 
-  <!-- Death flash overlay -->
+  <!-- Death flash -->
   <div id="death-flash" hidden></div>
 
-  <!-- Level complete overlay -->
-  <div id="level-complete" hidden>
-    <h1>Level Complete!</h1>
-    <p>Returning to menu…</p>
+  <!-- Title screen + level select -->
+  <div id="menu" class="screen" hidden>
+    <div class="menu-wrap">
+      <section class="menu-side">
+        <div class="lang-switch" id="lang-switch"></div>
+        <h1 class="game-title"><span>Verb</span> <span>Platformer</span></h1>
+        <p class="tagline" data-i18n="tagline"></p>
+        <button id="play-btn" type="button" class="btn btn-primary btn-big">
+          <span class="btn-label" id="play-label"></span>
+          <span class="btn-sub" id="play-sub"></span>
+        </button>
+        <div class="stars-total" id="stars-total"></div>
+        <div class="help" id="menu-help"></div>
+      </section>
+      <section class="menu-levels">
+        <div id="menu-list"></div>
+      </section>
+    </div>
   </div>
 
-  <!-- Level select menu (initial screen) -->
-  <div id="menu" hidden>
-    <div class="menu-card">
-      <h1>Krabsy 3D</h1>
-      <p class="subtitle">Pick a Level</p>
-      <div id="menu-list"></div>
-      <p class="hint">Click canvas to capture mouse · WASD to move · Space to jump · Esc to release</p>
+  <!-- First-run hint (game paused behind it) -->
+  <div id="first-hint" class="screen overlay" hidden>
+    <div class="card hint-card">
+      <h2 data-i18n="hintTitle"></h2>
+      <div class="hint-steps" id="hint-steps"></div>
+      <button id="hint-go" type="button" class="btn btn-primary" data-i18n="hintGo"></button>
     </div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pause" class="screen overlay" hidden>
+    <div class="card pause-card">
+      <h2 data-i18n="pauseTitle"></h2>
+      <p class="pause-level" id="pause-level"></p>
+      <div class="btn-col">
+        <button id="pause-resume" type="button" class="btn btn-primary" data-i18n="resume"></button>
+        <button id="pause-restart" type="button" class="btn" data-i18n="restart"></button>
+        <button id="pause-levels" type="button" class="btn" data-i18n="toLevels"></button>
+      </div>
+      <div class="help help-compact" id="pause-help"></div>
+    </div>
+  </div>
+
+  <!-- Results. The play-test bot (tools/bot-test.cjs) reads `#level-complete.hidden`. -->
+  <div id="level-complete" class="screen overlay" hidden>
+    <canvas id="confetti"></canvas>
+    <div class="card results-card">
+      <div class="res-head">
+        <h2 data-i18n="resTitle"></h2>
+        <p class="res-level" id="res-level"></p>
+        <div class="res-stars" id="res-stars" role="img"></div>
+        <p class="res-note" id="res-note"></p>
+      </div>
+      <div class="res-body">
+        <div class="res-stats">
+          <div class="stat">
+            <span class="stat-label" data-i18n="resTime"></span>
+            <span class="stat-value" id="res-time"></span>
+            <span class="stat-sub" id="res-best"></span>
+          </div>
+          <div class="stat" id="res-first-stat">
+            <span class="stat-label" data-i18n="resFirstTry"></span>
+            <span class="stat-value" id="res-first"></span>
+          </div>
+        </div>
+        <div class="res-missed" id="res-missed-box">
+          <h3 id="res-missed-title"></h3>
+          <ul id="res-missed"></ul>
+        </div>
+        <div class="btn-row">
+          <button id="res-retry" type="button" class="btn" data-i18n="retry"></button>
+          <button id="res-levels" type="button" class="btn" data-i18n="toLevels"></button>
+          <button id="res-next" type="button" class="btn btn-primary" data-i18n="next"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boot + level loading -->
+  <div id="loader" class="screen">
+    <div class="loader-box">
+      <div class="game-title small"><span>Verb</span> <span>Platformer</span></div>
+      <div class="loader-dots"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <!-- Shown by CSS on touch phones held upright -->
+  <div id="rotate-hint">
+    <div class="rotate-icon"></div>
+    <p data-i18n="rotate"></p>
   </div>
 
   <script type="module" src="./main.js"></script>

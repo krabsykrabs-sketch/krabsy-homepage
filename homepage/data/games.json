@@ -98,6 +98,25 @@
     "thumb_small": "/thumbnails/sm/verb-flow.jpg"
   },
   {
+    "id": "verb-platformer",
+    "name": {
+      "de": "Verb Platformer!",
+      "es": "Verb Platformer!"
+    },
+    "tagline": {
+      "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
+      "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!"
+    },
+    "thumbnail": "/thumbnails/verb-platformer.png",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "beta",
+    "kind": "3d",
+    "devices": "large_screen",
+    "thumb_small": "/thumbnails/sm/verb-platformer.jpg"
+  },
+  {
     "id": "verb-towers",
     "name": {
       "de": "Verb Towers",

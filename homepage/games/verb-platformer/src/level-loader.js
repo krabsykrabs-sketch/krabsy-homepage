@@ -3,7 +3,7 @@ import { loadModel } from './assets.js';
 import { addStaticBox, addKinematicBox, addStaticTrimesh } from './physics.js';
 import { spawnGate, LANE_OFFSETS } from './gates.js';
 import { spawnStyledGate } from './qa-styles.js';
-import { buildQuestionQueue, getQuestion, formatPrompt } from './data/questions.js';
+import { buildQuestionQueue } from './data/questions.js';
 import { CATALOG_BY_TYPE, urlFor, defaultColorFor } from './kaykit-catalog.js';
 
 // Legacy size→KayKit mapping. The four .js levels in src/levels/ use 'small'/'medium'/'large'
@@ -43,13 +43,23 @@ const Q_BUBBLE_Y = 4.5;
 const Q_BUBBLE_TINT = 'rgba(255, 138, 70, 0.9)';   // coral — matches the Krabsy brand orange
 const Q_BUBBLE_FONT_PX = 220;
 const Q_BUBBLE_PAD_PX = 140;
-function makeQuestionBubble(prompt) {
+// q: a question from data/questions.js ({ parts, askIndex }) or a plain string.
+// Positional notation (site rule): the ASKED blank is a white box, a blank that is just hidden
+// (the 3rd form before it is asked) is drawn faint.
+function makeQuestionBubble(q) {
   const H = 512;
   const font = `bold ${Q_BUBBLE_FONT_PX}px Arial, sans-serif`;
+  const parts = typeof q === 'string' ? [q] : q.parts;
+  const ask = typeof q === 'string' ? -1 : q.askIndex;
+  const ARROW = '  →  ';
+  const SLOT_W = 360;      // width of a blank slot in canvas px
 
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = font;
-  const textW = measure.measureText(prompt).width;
+  const isBlank = (t) => /^_+$/.test(t);
+  const segW = parts.map(t => (isBlank(t) ? SLOT_W : measure.measureText(t).width));
+  const arrowW = measure.measureText(ARROW).width;
+  const textW = segW.reduce((a, b) => a + b, 0) + arrowW * (parts.length - 1);
   const W = Math.max(900, Math.ceil(textW + 2 * Q_BUBBLE_PAD_PX));
 
   const c = document.createElement('canvas');
@@ -58,21 +68,46 @@ function makeQuestionBubble(prompt) {
   ctx.clearRect(0, 0, W, H);
 
   const r = 90;
+  const roundRect = (x, y, w, h, rr) => {
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  };
   ctx.fillStyle = Q_BUBBLE_TINT;
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(W, 0, W, H, r);
-  ctx.arcTo(W, H, 0, H, r);
-  ctx.arcTo(0, H, 0, 0, r);
-  ctx.arcTo(0, 0, W, 0, r);
-  ctx.closePath();
+  roundRect(0, 0, W, H, r);
   ctx.fill();
 
-  ctx.fillStyle = '#ffffff';
   ctx.font = font;
-  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(prompt, W / 2, H / 2);
+  ctx.textAlign = 'left';
+  let x = (W - textW) / 2;
+  parts.forEach((t, i) => {
+    if (isBlank(t)) {
+      if (i === ask) {
+        ctx.fillStyle = '#ffffff';
+        roundRect(x + 10, H / 2 - 120, SLOT_W - 20, 240, 50);
+        ctx.fill();
+        ctx.fillStyle = Q_BUBBLE_TINT;
+        ctx.fillRect(x + 70, H / 2 + 70, SLOT_W - 140, 22);   // the blank's underline
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.fillRect(x + 50, H / 2 + 70, SLOT_W - 100, 22);
+      }
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(t, x, H / 2);
+    }
+    x += segW[i];
+    if (i < parts.length - 1) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(ARROW, x, H / 2);
+      x += arrowW;
+    }
+  });
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -236,11 +271,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
   }
   const layout = data.layout;
   const gateEntries = layout.filter(e => e.type === 'gate');
-  // Only build a shuffled question queue if any gate is missing an explicit verb.
-  const needsQueue = gateEntries.some(g => !g.verb);
-  const questionQueue = needsQueue
-    ? buildQuestionQueue(data.verbs, gateEntries.length, data.repeatsAllowed || 1)
-    : [];
+  const questionQueue = await buildQuestionQueue(data, gateEntries);
 
   const platforms = [];
   const movingPlatforms = [];
@@ -280,7 +311,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
     const e = layout[i];
     if (e.type !== 'gate') continue;
 
-    const question = e.verb ? getQuestion(e.verb) : questionQueue[qIdx];
+    const question = questionQueue[qIdx];
     const options = buildGateOptions(question);
 
     const checkpoint = nextPlatform(i);
@@ -303,10 +334,10 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
     const gateData = {
       position: e.position,
       options,
-      question: { verb: question.verb, correct: question.correct },
+      question,
     };
     const gateCallbacks = {
-      onCleared: () => callbacks.onGateCleared?.(myGateIndex, checkpointPos),
+      onCleared: () => callbacks.onGateCleared?.(myGateIndex, checkpointPos, question),
       onWrong:   (g, opt) => callbacks.onGateWrong?.(myGateIndex, gateData.question, opt),
     };
 
@@ -318,7 +349,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
       hudQuestion = styled.hudQuestion || null;
     } else {
       gate = await spawnGate(scene, world, RAPIER, particles, sfx, gateData, gateCallbacks);
-      const banner = makeQuestionBubble(formatPrompt(question.verb));
+      const banner = makeQuestionBubble(question);
       const [gx, gy, gz] = e.position;
       banner.position.set(gx, gy + Q_BUBBLE_Y, gz);
       scene.add(banner);
@@ -628,6 +659,53 @@ function extractTrimeshFromModel(root) {
   return { vertices: new Float32Array(positions), indices: new Uint32Array(indices) };
 }
 
+// Conveyor belts: the belt is the model's 'threads' material; its texture (with the arrows) runs
+// round the loop in V. Scrolling the texture's V offset makes the belt visibly move. Each belt
+// gets its own material + texture clone (the GLTF cache shares them between instances).
+// Returns { map, vPerUnit } or null. vPerUnit = how much V changes per unit of local +Z on the
+// top face (measured from the mesh, so it works for every conveyor size).
+function makeBeltScroller(root) {
+  let belt = null;
+  root.traverse(o => {
+    if (belt || !o.isMesh) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    const i = mats.findIndex(m => m?.name === 'threads' && m.map);
+    if (i < 0) return;
+    const mat = mats[i].clone();
+    mat.map = mats[i].map.clone();
+    mat.map.wrapS = mat.map.wrapT = THREE.RepeatWrapping;
+    mat.map.needsUpdate = true;
+    if (Array.isArray(o.material)) { o.material = [...o.material]; o.material[i] = mat; } else o.material = mat;
+    belt = { map: mat.map, vPerUnit: measureBeltV(o.geometry, o.geometry.groups?.find(g => g.materialIndex === i)) };
+  });
+  return belt;
+}
+
+function measureBeltV(geo, group) {
+  const pos = geo.attributes.position, uv = geo.attributes.uv, idx = geo.index;
+  if (!pos || !uv) return 0.1;
+  let ymax = -Infinity;
+  for (let i = 0; i < pos.count; i++) ymax = Math.max(ymax, pos.getY(i));
+  const start = group ? group.start : 0;
+  const end = group ? group.start + group.count : (idx ? idx.count : pos.count);
+  const vi = k => (idx ? idx.getX(k) : k);
+  const samples = [];
+  for (let k = start; k + 2 < end; k += 3) {
+    const a = vi(k), b = vi(k + 1), c = vi(k + 2);
+    if ([a, b, c].some(j => pos.getY(j) < ymax - 0.01)) continue;   // top face only
+    // Solve v = v0 + gx*(x-x0) + gz*(z-z0) on this triangle; keep gz.
+    const x1 = pos.getX(b) - pos.getX(a), z1 = pos.getZ(b) - pos.getZ(a), v1 = uv.getY(b) - uv.getY(a);
+    const x2 = pos.getX(c) - pos.getX(a), z2 = pos.getZ(c) - pos.getZ(a), v2 = uv.getY(c) - uv.getY(a);
+    const det = x1 * z2 - x2 * z1;
+    if (Math.abs(det) < 1e-6) continue;
+    const gz = (x1 * v2 - x2 * v1) / det;
+    if (Math.abs(gz) > 0.01 && Math.abs(gz) < 1) samples.push(gz);   // skip the UV seam
+  }
+  if (!samples.length) return 0.1;
+  samples.sort((p, q) => p - q);
+  return samples[Math.floor(samples.length / 2)];
+}
+
 async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callbacks, uiHooks) {
   console.log('[editor-level] loading:', { id: data.id, name: data.name, objects: data.objects?.length });
   const platforms = [];          // { id, mesh, body, pos, half, top, def, scale, isFalling, correctAnswer, state, timer, fallVel, attachedLabels[] }
@@ -643,6 +721,12 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
   //               static collider. update() animates them and checks AABB overlap with the
   //               player to fire callbacks.onHazardHit (game.js: respawn).
   const hazards = [];           // { id, mesh, behavior, params, basePos, baseRotY, halfXZ, halfY, def, isSolid }
+  // Answer gates: { type: 'gate', position, rotation?, verb?, form? }. Three red answer blocks
+  // with word bubbles and a question sign; the words come from the question queue, so a level
+  // file never contains answers. Position = bottom-centre of the middle block.
+  const gateObjs = data.objects.filter(o => o.type === 'gate');
+  const gateQuestions = gateObjs.length ? await buildQuestionQueue(data, gateObjs) : [];
+  const gates = [];             // { id, gate, question, pos, banner }
   let flag = null;
   let spawn = null;
   if (data.spawn?.position) {
@@ -674,6 +758,27 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
     if (type === 'checkpoint') {
       const [x, y, z] = obj.position;
       checkpoints.push({ id: obj.id, pos: { x, y, z } });
+      continue;
+    }
+    if (type === 'gate') {
+      const question = gateQuestions[gates.length];
+      const rotY = (obj.rotation || 0) * Math.PI / 180;
+      const entry = { id: obj.id, question, pos: { x: obj.position[0], y: obj.position[1], z: obj.position[2] } };
+      const gateData = { position: obj.position, rotY, options: buildGateOptions(question), question };
+      entry.gate = await spawnGate(scene, world, RAPIER, particles, sfx, gateData, {
+        onCleared: (g) => {
+          // The block the player just landed on is solid from now on — respawn there.
+          const o = g.options.find(o => o.state === 'cleared');
+          entry.checkpointPos = o ? { x: o.pos.x, y: o.top + RESPAWN_LIFT, z: o.pos.z } : null;
+          entry.onCleared?.();
+        },
+        onWrong: (g, opt) => entry.onWrong?.(opt),
+      });
+      entry.banner = makeQuestionBubble(question);
+      entry.banner.position.set(entry.pos.x, entry.pos.y + Q_BUBBLE_Y, entry.pos.z);
+      entry.banner.rotation.y = rotY;
+      scene.add(entry.banner);
+      gates.push(entry);
       continue;
     }
     const def = CATALOG_BY_TYPE[type];
@@ -737,11 +842,28 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
       };
       // Conveyors: cache belt parameters so findRiderDelta can carry the rider along local +Z.
       // Direction is the platform's facing — a yaw of 0° means the belt runs along world +Z.
+      // Moving platform: { motion: { axis: 'x'|'y'|'z', amplitude, period, phase } } slides
+      // the piece back and forth around its placed position (sine; amplitude in units each
+      // way, period and phase in seconds). Box pieces only. The collider stays a FIXED body
+      // that is teleported each step — see the MovingPlatform comment above for why.
+      if (obj.motion && ['x', 'y', 'z'].includes(obj.motion.axis) && def.colliderKind !== 'trimesh') {
+        platform.motion = {
+          axis: obj.motion.axis,
+          amplitude: obj.motion.amplitude ?? 2,
+          period: Math.max(0.5, obj.motion.period ?? 4),
+          phase: obj.motion.phase ?? 0,
+        };
+        platform.basePos = { x, y, z };
+      }
       if (def.behavior === 'conveyor') {
         platform.behavior = 'conveyor';
         platform.speed = (obj.speed !== undefined) ? obj.speed : (def.defaults?.speed ?? 3);
         const yaw = rotationDeg * Math.PI / 180;
         platform.beltDir = { x: Math.sin(yaw), z: Math.cos(yaw) };
+        platform.belt = makeBeltScroller(mesh);
+        // The arrows printed on the belt point along local -Z. For a belt running local +Z
+        // (speed > 0) mirror the texture so the arrows always point the way you get carried.
+        if (platform.belt && platform.speed > 0) platform.belt.map.repeat.y = -1;
       }
       platforms.push(platform);
     } else if (def.kind === 'hazard') {
@@ -909,13 +1031,13 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
   });
   // If the data had objects but none of them resolved to a known catalog entry, the runtime
   // looks empty. Most likely cause: stale localStorage with pre-migration type names.
-  const placed = platforms.length + decoratives.length + solidDecor.length + coins.length + hazards.length + (flag ? 1 : 0);
+  const placed = gates.length + platforms.length + decoratives.length + solidDecor.length + coins.length + hazards.length + (flag ? 1 : 0);
   if (data.objects.length > 0 && placed === 0) {
     console.warn(`[editor-level] all ${data.objects.length} objects in the draft failed to resolve (likely stale type names from the old editor). Open editor.html, place a new platform, and click Playtest again.`);
   }
 
   return new EditorLoadedLevel(scene, world, {
-    platforms, decoratives, solidDecor, coins, labels, checkpoints, hazards, flag, spawn,
+    platforms, decoratives, solidDecor, coins, labels, checkpoints, hazards, gates, flag, spawn,
   }, uiHooks, callbacks);
 }
 
@@ -935,21 +1057,39 @@ export class EditorLoadedLevel {
     this.labels = parts.labels;
     this.checkpoints = parts.checkpoints;
     this.hazards = parts.hazards || [];
+    this.gates = parts.gates || [];
+    this.clearedCount = 0;
+    this._lastHudText = null;
+    for (const g of this.gates) {
+      g.onCleared = () => {
+        // The sign of a solved gate would hang in front of the camera once the player is past it.
+        g.banner.visible = false;
+        this.clearedCount++;
+        this.callbacks.onGateCleared?.(this.clearedCount - 1, g.checkpointPos, g.question);
+      };
+      g.onWrong = (opt) => this.callbacks.onGateWrong?.(this.gates.indexOf(g), g.question, opt);
+    }
     this.flag = parts.flag;
     this.spawn = parts.spawn;
     this.uiHooks = uiHooks || {};
     this.callbacks = callbacks || {};
     this.elapsed = 0;
-    this.movingPlatforms = [];   // none yet in the editor format
+    this.movingPlatforms = this.platforms.filter(p => p.motion);
     // Conveyor list — subset of platforms. Cached so findRiderDelta doesn't filter every step.
     this.conveyors = this.platforms.filter(p => p.behavior === 'conveyor');
   }
 
-  // The new runtime has no "gate" progress concept — the level is a free-form playground that
-  // ends when the player touches the flag. Return 0 so the caller can hide the progress UI.
-  get gateCount() { return 0; }
+  // Number of answer gates. 0 = a free-form level without questions; the caller then hides
+  // the progress bar.
+  get gateCount() { return this.gates.length; }
 
   markCleared() {}
+
+  // Called on respawn: gates the player has not cleared get their fallen blocks back, so the
+  // question can be tried again. Cleared gates stay as they are.
+  reset() {
+    for (const g of this.gates) if (!g.gate.cleared) g.gate.reset();
+  }
 
   // Runs ONCE per FIXED_DT step, BEFORE world.step() and the player's character-controller pass.
   // We advance hazard animations here (mesh transforms + kinematic-body positions) so the
@@ -962,15 +1102,38 @@ export class EditorLoadedLevel {
     this._animateHazards();
   }
 
-  // No oscillating kinematic platforms in the editor format — conveyors are static colliders that
-  // carry the rider through findRiderDelta, so there's nothing to queue after the controller pass.
-  stepMovingPlatforms() {}
+  _movingPos(p, elapsed) {
+    const m = p.motion;
+    const out = { x: p.basePos.x, y: p.basePos.y, z: p.basePos.z };
+    out[m.axis] += Math.sin(((elapsed + m.phase) / m.period) * Math.PI * 2) * m.amplitude;
+    return out;
+  }
+
+  // Called after the player's controller pass, before world.step(): teleport the moving
+  // platforms' colliders to this step's position (the rider delta already moved the player).
+  stepMovingPlatforms() {
+    for (const p of this.movingPlatforms) {
+      if (p.state !== 'idle' || !p.body) continue;
+      const q = this._movingPos(p, this.elapsed);
+      p.pos.x = q.x; p.pos.y = q.y; p.pos.z = q.z;
+      p.top = q.y + p.height;
+      p.body.setTranslation({ x: q.x, y: q.y + p.half.y, z: q.z }, true);
+    }
+  }
 
   // If the player is standing on a conveyor, return the per-step belt translation so the player
   // gets carried along. The belt direction is the conveyor's local +Z rotated by its yaw — set
   // when the conveyor was loaded. Negative `speed` reverses direction.
   findRiderDelta(playerPos, playerGrounded, fixedDt) {
     if (!playerGrounded) return null;
+    for (const p of this.movingPlatforms) {
+      if (p.state !== 'idle') continue;
+      if (Math.abs(playerPos.x - p.pos.x) > p.half.x) continue;
+      if (Math.abs(playerPos.z - p.pos.z) > p.half.z) continue;
+      if (Math.abs(playerPos.y - p.top) > 0.4)        continue;
+      const next = this._movingPos(p, this.elapsed + fixedDt);
+      return { dx: next.x - p.pos.x, dy: next.y - p.pos.y, dz: next.z - p.pos.z };
+    }
     for (const c of this.conveyors) {
       if (Math.abs(playerPos.x - c.pos.x) > c.half.x) continue;
       if (Math.abs(playerPos.z - c.pos.z) > c.half.z) continue;
@@ -982,6 +1145,15 @@ export class EditorLoadedLevel {
   }
 
   update(dt, playerPos, playerGrounded) {
+    for (const p of this.movingPlatforms) {
+      if (p.state === 'idle') p.mesh.position.set(p.pos.x, p.pos.y, p.pos.z);
+    }
+    // Belt texture moves at the rider speed: sampled V = repeat*v + offset, and a texture
+    // feature must travel speed*dt along local +Z, so offset changes by -speed*repeat*dV/dz*dt.
+    for (const c of this.conveyors) {
+      if (c.belt) c.belt.map.offset.y -= c.speed * c.belt.map.repeat.y * c.belt.vPerUnit * dt;
+    }
+
     // Falling-platform state machine, per platform.
     for (const p of this.platforms) {
       if (p.state === 'shaking') {
@@ -1024,6 +1196,22 @@ export class EditorLoadedLevel {
         p.timer = ED_SHAKE_DURATION;
         this.callbacks.onWrongAnswer?.(p);
       }
+    }
+
+    // Answer gates. On small screens (phones) the world-space question sign is too small to
+    // read, so the question of the nearest open gate is also shown in the HUD.
+    let nearest = null, nearestD = 40 * 40;
+    for (const g of this.gates) {
+      g.gate.update(dt, playerPos, playerGrounded);
+      if (g.gate.cleared) continue;
+      const dx = playerPos.x - g.pos.x, dz = playerPos.z - g.pos.z;
+      const d = dx * dx + dz * dz;
+      if (d < nearestD) { nearestD = d; nearest = g; }
+    }
+    const wantHud = (nearest && window.innerHeight < 500) ? nearest.question.prompt : null;
+    if (wantHud !== this._lastHudText) {
+      this._lastHudText = wantHud;
+      this.uiHooks.setHudQuestion?.(wantHud);
     }
 
     // Coin spin + pickup.
@@ -1200,6 +1388,12 @@ export class EditorLoadedLevel {
     }
     for (const c of this.coins) if (!c.collected) this.scene.remove(c.mesh);
     for (const lbl of this.labels) if (lbl.mesh.parent) this.scene.remove(lbl.mesh);
+    for (const g of this.gates) {
+      g.gate.dispose();
+      this.scene.remove(g.banner);
+    }
+    this.gates = [];
+    this.uiHooks.setHudQuestion?.(null);
     if (this.flag?.mesh) this.scene.remove(this.flag.mesh);
     // Hazards: static hazard colliders were registered into solidDecor (cleaned above). Animated
     // hazards' visual meshes are detached here. Pushy pendulums own a kinematic body of their

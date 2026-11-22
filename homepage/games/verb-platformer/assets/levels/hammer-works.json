@@ -1,0 +1,989 @@
+{
+ "id": "hammer-works",
+ "name": "Hammer Works",
+ "topic": "irregular_verbs",
+ "tiers": [
+  2,
+  3
+ ],
+ "sky": {
+  "preset": "sunset"
+ },
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -7.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -11.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -15.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "hammer_1",
+   "type": "hammer",
+   "position": [
+    0.0,
+    8.3,
+    -15.5
+   ],
+   "rotation": 0,
+   "rotationX": 180,
+   "scale": 1,
+   "color": "red",
+   "period": 4,
+   "amplitude": 70,
+   "phase": 0
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -19.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -19.5
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -24.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -31.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "conveyor2x4x1_1",
+   "type": "conveyor_2x4x1",
+   "position": [
+    0.0,
+    0,
+    -36.0
+   ],
+   "rotation": 180,
+   "scale": 1,
+   "color": "yellow",
+   "speed": -2.5
+  },
+  {
+   "id": "conveyor2x4x1_2",
+   "type": "conveyor_2x4x1",
+   "position": [
+    0.0,
+    0,
+    -40.0
+   ],
+   "rotation": 180,
+   "scale": 1,
+   "color": "yellow",
+   "speed": -2.5
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -44.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -44.0
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -49.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -55.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_4x4x1",
+   "position": [
+    7.5,
+    0,
+    -55.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_4x4x1",
+   "position": [
+    11.5,
+    0,
+    -55.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "hammer_2",
+   "type": "hammer",
+   "position": [
+    11.5,
+    8.3,
+    -55.5
+   ],
+   "rotation": 90,
+   "rotationX": 180,
+   "scale": 1,
+   "color": "red",
+   "period": 4,
+   "amplitude": 70,
+   "phase": 0
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_4x4x1",
+   "position": [
+    15.5,
+    0,
+    -55.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -55.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -62.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    22.0,
+    2,
+    -62.0
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    22.0,
+    0,
+    -67.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_6x6x1",
+   "position": [
+    22.0,
+    0,
+    -73.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "conveyor2x4x1_3",
+   "type": "conveyor_2x4x1",
+   "position": [
+    22.0,
+    0,
+    -78.5
+   ],
+   "rotation": 180,
+   "scale": 1,
+   "color": "yellow",
+   "speed": 3
+  },
+  {
+   "id": "platform_15",
+   "type": "platform_6x6x1",
+   "position": [
+    22.0,
+    0,
+    -86.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_16",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -91.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "hammer_3",
+   "type": "hammer",
+   "position": [
+    22.0,
+    8.3,
+    -91.5
+   ],
+   "rotation": 0,
+   "rotationX": 180,
+   "scale": 1,
+   "color": "red",
+   "period": 4,
+   "amplitude": 70,
+   "phase": 0
+  },
+  {
+   "id": "platform_17",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -95.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_18",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -99.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "hammer_4",
+   "type": "hammer",
+   "position": [
+    22.0,
+    8.3,
+    -99.5
+   ],
+   "rotation": 0,
+   "rotationX": 180,
+   "scale": 1,
+   "color": "red",
+   "period": 4,
+   "amplitude": 70,
+   "phase": 180
+  },
+  {
+   "id": "platform_19",
+   "type": "platform_4x4x1",
+   "position": [
+    22.0,
+    0,
+    -103.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_4",
+   "type": "checkpoint",
+   "position": [
+    22.0,
+    2,
+    -103.5
+   ]
+  },
+  {
+   "id": "gate_4",
+   "type": "gate",
+   "position": [
+    22.0,
+    0,
+    -108.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_20",
+   "type": "platform_6x6x1",
+   "position": [
+    22.0,
+    0,
+    -115.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_21",
+   "type": "platform_2x2x1",
+   "position": [
+    16.0,
+    0,
+    -115.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_22",
+   "type": "platform_2x2x1",
+   "position": [
+    12.0,
+    0,
+    -115.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_23",
+   "type": "platform_2x2x1",
+   "position": [
+    8.0,
+    0,
+    -115.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_24",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -115.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_25",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -121.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "conveyor2x4x1_4",
+   "type": "conveyor_2x4x1",
+   "position": [
+    2.5,
+    0,
+    -125.5
+   ],
+   "rotation": 180,
+   "scale": 1,
+   "color": "yellow",
+   "speed": -3
+  },
+  {
+   "id": "platform_26",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -129.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_5",
+   "type": "checkpoint",
+   "position": [
+    2.5,
+    2,
+    -129.5
+   ]
+  },
+  {
+   "id": "gate_5",
+   "type": "gate",
+   "position": [
+    2.5,
+    0,
+    -134.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_27",
+   "type": "platform_6x6x1",
+   "position": [
+    2.5,
+    0,
+    -141.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_28",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -146.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "hammer_5",
+   "type": "hammer",
+   "position": [
+    2.5,
+    8.3,
+    -146.0
+   ],
+   "rotation": 0,
+   "rotationX": 180,
+   "scale": 1,
+   "color": "red",
+   "period": 3.5,
+   "amplitude": 70,
+   "phase": 0
+  },
+  {
+   "id": "platform_29",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -150.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_30",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -159.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "z",
+    "amplitude": 3,
+    "period": 7,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_31",
+   "type": "platform_4x4x1",
+   "position": [
+    2.5,
+    0,
+    -168.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_6",
+   "type": "checkpoint",
+   "position": [
+    2.5,
+    2,
+    -168.5
+   ]
+  },
+  {
+   "id": "gate_6",
+   "type": "gate",
+   "position": [
+    2.5,
+    0,
+    -173.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_32",
+   "type": "platform_6x6x1",
+   "position": [
+    2.5,
+    0,
+    -180.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_33",
+   "type": "platform_6x6x1",
+   "position": [
+    2.5,
+    0,
+    -188.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "yellow",
+  "position": [
+   2.5,
+   1,
+   -188.5
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -7.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -11.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -15.5
+   ],
+   "hammer": "hammer_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -19.5
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -31.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -37.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -41.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -44.0
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -55.5
+   ]
+  },
+  {
+   "p": [
+    7.5,
+    1,
+    -55.5
+   ]
+  },
+  {
+   "p": [
+    11.5,
+    1,
+    -55.5
+   ],
+   "hammer": "hammer_2"
+  },
+  {
+   "p": [
+    15.5,
+    1,
+    -55.5
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -55.5
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -62.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -73.5
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -80.0
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -86.5
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -91.5
+   ],
+   "hammer": "hammer_3"
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -95.5
+   ]
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -99.5
+   ],
+   "hammer": "hammer_4"
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -103.5
+   ]
+  },
+  {
+   "gate": "gate_4"
+  },
+  {
+   "p": [
+    22.0,
+    1,
+    -115.0
+   ]
+  },
+  {
+   "p": [
+    16.0,
+    1,
+    -115.0
+   ]
+  },
+  {
+   "p": [
+    12.0,
+    1,
+    -115.0
+   ]
+  },
+  {
+   "p": [
+    8.0,
+    1,
+    -115.0
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -115.0
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -121.5
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -127.0
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -129.5
+   ]
+  },
+  {
+   "gate": "gate_5"
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -141.0
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -146.0
+   ],
+   "hammer": "hammer_5"
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -150.0
+   ]
+  },
+  {
+   "ride": "platform_30",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -168.5
+   ],
+   "reach": 5.45
+  },
+  {
+   "gate": "gate_6"
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -180.0
+   ]
+  },
+  {
+   "p": [
+    2.5,
+    1,
+    -188.5
+   ]
+  }
+ ]
+}

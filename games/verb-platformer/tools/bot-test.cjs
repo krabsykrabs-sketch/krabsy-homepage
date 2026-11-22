@@ -71,7 +71,7 @@ function botMain(wps) {
       lastProgressT = performance.now();
     }
     last = { x: p.x, z: p.z };
-    if (performance.now() - lastProgressT > 25000) { bot.stuck++; lastProgressT = performance.now(); bot.log.push(`stuck at wp ${bot.i} pos ${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)}`); }
+    if (performance.now() - lastProgressT > (window.__botStuckMs || 25000)) { bot.stuck++; lastProgressT = performance.now(); bot.log.push(`stuck at wp ${bot.i} pos ${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)}`); }
 
     const wp = wps[Math.min(bot.i, wps.length - 1)];
     const t = target(L, wp);
@@ -131,6 +131,7 @@ function botMain(wps) {
     await page.waitForFunction(() => window.__krabsyDebug?.level() && window.__krabsyDebug.alive(), null, { timeout: 60000 });
     await page.waitForTimeout(1500);
     if (!lvl.botPath) { console.log(`${name}: no botPath in the level file`); failed++; continue; }
+    if (process.env.BOT_STUCK_MS) await page.evaluate(ms => { window.__botStuckMs = ms; }, +process.env.BOT_STUCK_MS);
     await page.evaluate(botMain, lvl.botPath);
     const t0 = Date.now();
     let nextShot = 0, state;

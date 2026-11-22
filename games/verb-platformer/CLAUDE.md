@@ -5,21 +5,32 @@ the built copy is served from `homepage/games/verb-platformer/` and wrapped by
 `homepage/de/spiele/verb-platformer/` + `homepage/es/juegos/verb-platformer/`.
 See also `WORK_LOG.md` in this folder.
 
-## Status: OFFLINE, to be continued (owner decision 2026-11-21)
+## Status: RELEASE PREPARED, not pushed (2026-11-22)
 
-The game was taken out of the catalogue on 2026-11-12. On 2026-11-21 the
-owner decided **not to retire it**: the mechanics and the feel are good;
-what is missing is **real levels**. The next work here is **level design**,
-plus the open issues below.
+Owner 2026-11-22: "the mechanics and the levels are good — make a proper game
+out of it so we can put it live." Done locally and committed, **not pushed,
+not deployed**:
 
-How it is offline (master session, 2026-11-12):
+- Game shell (title + level select with stars, results, pause, first-run
+  hint, DE/ES/EN, site fonts) — see "Game shell" below.
+- Questions follow the site's chain order (`src/data/questions.js`).
+- Release copy built into `homepage/games/verb-platformer/` (7.8 MB) with
+  `tools/build-release.cjs`; re-enabled on the site: `games.json` entry
+  (beta, 3d, large_screen), hub JSON-LD, new info texts
+  (`tools/game_info_content.py`), new thumbnail, noindex removed from both
+  wrappers, sitemap +2 URLs.
+- Checked: both wrappers load the game in the right language with 0 errors
+  / 0 404s; the bot finishes all six levels from the served copy.
 
-- Removed from `homepage/data/games.json` → gone from the games hub, homepage
-  strip, topic hubs, the game chip-bar and "related games" cards.
-- Removed from the hub texts/JSON-LD (`de/spiele/index.html`,
-  `es/juegos/index.html`) and from `tools/game_info_content.py` related lists.
-- Wrapper pages kept reachable (no 404 for old links) but carry
-  `<meta name="robots" content="noindex, follow">`; out of the sitemap.
+**Before pushing:** the owner plays it on a real laptop (and ideally a
+tablet / phone) — performance on integrated GPUs and real touch are
+untested. Then push, owner clicks Deploy in Coolify, verify live, IndexNow
+the two wrapper URLs + `/de/spiele/`, `/es/juegos/`.
+
+**Every later change to the game:** edit here, then rebuild the served copy:
+`PLAYWRIGHT=<playwright module> node tools/build-release.cjs <url serving this
+folder with /lib and /data beside it>` (it opens every level, records what
+loads, copies only that). Commit `homepage/games/verb-platformer/` with it.
 
 ## Next: level design
 
@@ -196,11 +207,7 @@ What a level-design session should do:
    German and Spanish, self-hosted fonts. The build is 22 MB today; the
    target for 3D games is ≤ 15 MB.
 
-**To bring it back:** re-add the `games.json` entry (see git history), remove
-the robots noindex from both wrapper pages, add it back to the related lists
-and hub text, run `tools/render_static_games.py`, `tools/render_game_info.py`,
-`tools/generate_sitemap.py`, and get the owner's OK. Release only after the
-issues below are fixed and it has been play-tested on desktop, tablet, phone.
+(The old "to bring it back" steps were done on 2026-11-22, see Status.)
 
 ## Game shell (2026-11-22; title screen, HUD, pause, results, DE/ES/EN)
 

@@ -1,0 +1,655 @@
+{
+ "id": "zigzag",
+ "name": "Zigzag",
+ "topic": "irregular_verbs",
+ "tiers": [
+  1
+ ],
+ "sky": {
+  "preset": "noon"
+ },
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -7.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -14.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -14.0
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -19.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -25.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    7.5,
+    0,
+    -25.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_4x4x1",
+   "position": [
+    14.5,
+    0,
+    -25.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_4x4x1",
+   "position": [
+    21.0,
+    0,
+    -25.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_4x4x1",
+   "position": [
+    21.0,
+    0,
+    -32.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_4x4x1",
+   "position": [
+    21.0,
+    0,
+    -38.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    21.0,
+    2,
+    -38.5
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    21.0,
+    0,
+    -43.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_6x6x1",
+   "position": [
+    21.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_2x2x1",
+   "position": [
+    15.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_2x2x1",
+   "position": [
+    11.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_2x2x1",
+   "position": [
+    7.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_4x4x1",
+   "position": [
+    1.5,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_15",
+   "type": "platform_2x2x1",
+   "position": [
+    -3.5,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_16",
+   "type": "platform_2x2x1",
+   "position": [
+    -7.5,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_17",
+   "type": "platform_4x4x1",
+   "position": [
+    -13.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_18",
+   "type": "platform_4x4x1",
+   "position": [
+    -13.0,
+    0,
+    -56.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_19",
+   "type": "platform_4x4x1",
+   "position": [
+    -13.0,
+    0,
+    -63.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    -13.0,
+    2,
+    -63.0
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    -13.0,
+    0,
+    -68.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_20",
+   "type": "platform_6x6x1",
+   "position": [
+    -13.0,
+    0,
+    -74.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_21",
+   "type": "platform_4x4x1",
+   "position": [
+    -5.0,
+    0,
+    -74.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_22",
+   "type": "platform_2x2x1",
+   "position": [
+    0.0,
+    0,
+    -74.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_23",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    0,
+    -74.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_24",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    0,
+    -81.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_25",
+   "type": "platform_4x4x1",
+   "position": [
+    6.0,
+    0,
+    -88.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_4",
+   "type": "checkpoint",
+   "position": [
+    6.0,
+    2,
+    -88.0
+   ]
+  },
+  {
+   "id": "gate_4",
+   "type": "gate",
+   "position": [
+    6.0,
+    0,
+    -93.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_26",
+   "type": "platform_6x6x1",
+   "position": [
+    6.0,
+    0,
+    -99.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_27",
+   "type": "platform_6x6x1",
+   "position": [
+    6.0,
+    0,
+    -108.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "yellow",
+  "position": [
+   6.0,
+   1,
+   -108.0
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -7.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -14.0
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -25.5
+   ]
+  },
+  {
+   "p": [
+    7.5,
+    1,
+    -25.5
+   ]
+  },
+  {
+   "p": [
+    14.5,
+    1,
+    -25.5
+   ]
+  },
+  {
+   "p": [
+    21.0,
+    1,
+    -25.5
+   ]
+  },
+  {
+   "p": [
+    21.0,
+    1,
+    -32.0
+   ]
+  },
+  {
+   "p": [
+    21.0,
+    1,
+    -38.5
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    21.0,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    11.0,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    7.0,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    1.5,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    -3.5,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    -7.5,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    -13.0,
+    1,
+    -50.0
+   ]
+  },
+  {
+   "p": [
+    -13.0,
+    1,
+    -56.5
+   ]
+  },
+  {
+   "p": [
+    -13.0,
+    1,
+    -63.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    -13.0,
+    1,
+    -74.5
+   ]
+  },
+  {
+   "p": [
+    -5.0,
+    1,
+    -74.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -74.5
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    1,
+    -74.5
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    1,
+    -81.5
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    1,
+    -88.0
+   ]
+  },
+  {
+   "gate": "gate_4"
+  },
+  {
+   "p": [
+    6.0,
+    1,
+    -99.5
+   ]
+  },
+  {
+   "p": [
+    6.0,
+    1,
+    -108.0
+   ]
+  }
+ ]
+}

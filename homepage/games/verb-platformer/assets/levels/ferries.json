@@ -1,0 +1,627 @@
+{
+ "id": "ferries",
+ "name": "Ferries",
+ "topic": "irregular_verbs",
+ "tiers": [
+  2
+ ],
+ "sky": {
+  "preset": "golden"
+ },
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -7.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -16.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "z",
+    "amplitude": 3,
+    "period": 7,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -26.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -26.0
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -31.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -37.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -44.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "y",
+    "amplitude": 1.0,
+    "period": 4,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -51.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -57.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "y",
+    "amplitude": 1.0,
+    "period": 4,
+    "phase": 2
+   }
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -63.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -63.5
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -68.5
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -75.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_4x4x1",
+   "position": [
+    11.0,
+    0,
+    -75.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "x",
+    "amplitude": 4,
+    "period": 8,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_4x4x1",
+   "position": [
+    15.0,
+    0,
+    -81.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_4x4x1",
+   "position": [
+    15.0,
+    0,
+    -88.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    15.0,
+    2,
+    -88.0
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    15.0,
+    0,
+    -93.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_6x6x1",
+   "position": [
+    15.0,
+    0,
+    -99.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_15",
+   "type": "platform_4x4x1",
+   "position": [
+    15.0,
+    0,
+    -109.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "z",
+    "amplitude": 3,
+    "period": 7,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_16",
+   "type": "platform_4x4x1",
+   "position": [
+    15.0,
+    0,
+    -121.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "z",
+    "amplitude": 3,
+    "period": 7,
+    "phase": 3.5
+   }
+  },
+  {
+   "id": "platform_17",
+   "type": "platform_4x4x1",
+   "position": [
+    15.0,
+    0,
+    -131.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_4",
+   "type": "checkpoint",
+   "position": [
+    15.0,
+    2,
+    -131.0
+   ]
+  },
+  {
+   "id": "gate_4",
+   "type": "gate",
+   "position": [
+    15.0,
+    0,
+    -136.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_18",
+   "type": "platform_6x6x1",
+   "position": [
+    15.0,
+    0,
+    -142.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_19",
+   "type": "platform_4x4x1",
+   "position": [
+    4.0,
+    0,
+    -142.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "x",
+    "amplitude": 4,
+    "period": 9,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_20",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -148.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false,
+   "motion": {
+    "axis": "y",
+    "amplitude": 1.0,
+    "period": 4,
+    "phase": 0
+   }
+  },
+  {
+   "id": "platform_21",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -155.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_5",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -155.0
+   ]
+  },
+  {
+   "id": "gate_5",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -160.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_22",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -166.5
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_23",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -175.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "blue",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "green",
+  "position": [
+   0.0,
+   1,
+   -175.0
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -7.5
+   ]
+  },
+  {
+   "ride": "platform_3",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -26.0
+   ],
+   "reach": 5.45
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -37.5
+   ]
+  },
+  {
+   "ride": "platform_6",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -51.0
+   ],
+   "reach": 5.45
+  },
+  {
+   "ride": "platform_8",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -63.5
+   ],
+   "reach": 5.45
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -75.0
+   ]
+  },
+  {
+   "ride": "platform_11",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -81.5
+   ],
+   "reach": 5.45
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -88.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -99.5
+   ]
+  },
+  {
+   "ride": "platform_15",
+   "reach": 4.9
+  },
+  {
+   "ride": "platform_16",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -131.0
+   ],
+   "reach": 5.45
+  },
+  {
+   "gate": "gate_4"
+  },
+  {
+   "p": [
+    15.0,
+    1,
+    -142.5
+   ]
+  },
+  {
+   "ride": "platform_19",
+   "reach": 4.9
+  },
+  {
+   "ride": "platform_20",
+   "reach": 4.9
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -155.0
+   ],
+   "reach": 5.45
+  },
+  {
+   "gate": "gate_5"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -166.5
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -175.0
+   ]
+  }
+ ]
+}
