@@ -77,6 +77,7 @@ L = {
         "none": "Kein Verb gefunden.",
         "table_foot": ('<a href="#muster">Verben nach Mustern</a> · '
                        '<a href="/de/unregelmaessige-verben/a-z/">Jedes Verb mit eigener Seite (A bis Z)</a> · '
+                       '<a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a> · '
                        '<a href="/de/unregelmaessige-verben/sprint/">Gleich üben im Sprint →</a>'),
         "pat_anchor": "<h3>Dein Lernweg in vier Schritten</h3>",
         "pat_h": "Unregelmäßige Verben nach Mustern",
@@ -134,6 +135,7 @@ L = {
         "none": "No se encontró ningún verbo.",
         "table_foot": ('<a href="#muster">Tipos de verbos irregulares</a> · '
                        '<a href="/es/verbos-irregulares/a-z/">Cada verbo con su página (de la A a la Z)</a> · '
+                       '<a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a> · '
                        '<a href="/es/verbos-irregulares/sprint/">Practica ya en el Sprint →</a>'),
         "pat_anchor": "<h3>Aprende paso a paso</h3>",
         "pat_h": "Tipos de verbos irregulares",

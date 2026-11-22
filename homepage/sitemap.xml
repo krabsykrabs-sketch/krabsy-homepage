@@ -3218,4 +3218,20 @@
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/write/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/write/"/>
   </url>
+  <url>
+    <loc>https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/fichas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/verbos-irregulares/fichas/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/fichas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/"/>
+  </url>
 </urlset>

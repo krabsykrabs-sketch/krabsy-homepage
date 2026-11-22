@@ -16,7 +16,11 @@ catalogue gives the same verb selection.
 Presentation mandate: task lines use positional notation (go -> ___ -> ___) or
 sentence gaps, never grammar terms; terms appear only as small captions.
 
-Run from repo root:  python3 tools/generate_worksheets.py
+Also writes the two download pages (index.html in those folders) and adds them
+to sitemap.xml once. --no-pdf rebuilds only the pages (PDF bytes change on
+every render, so skip them when the catalogue did not change).
+
+Run from repo root:  python3 tools/generate_worksheets.py [--no-pdf]
 """
 import glob
 import html
@@ -281,9 +285,218 @@ def to_pdf(html_text, out):
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+# ── download pages (/de/unregelmaessige-verben/arbeitsblaetter/, /es/verbos-irregulares/fichas/) ──
+P = {
+    "de": {
+        "path": "/de/unregelmaessige-verben/arbeitsblaetter/",
+        "hub": "/de/unregelmaessige-verben/", "hub_name": "Unregelmäßige Verben",
+        "title": "Unregelmäßige Verben Arbeitsblätter (PDF) mit Lösungen — Krabsy",
+        "desc": ("Kostenlose Arbeitsblätter zu den englischen unregelmäßigen Verben zum Ausdrucken: "
+                 "Verbliste nach Mustern, Formen-Übung und Lückensätze, jeweils mit Lösungen."),
+        "h1": "Unregelmäßige Verben: Arbeitsblätter zum Ausdrucken",
+        "crumb": "Arbeitsblätter",
+        "sub": ("Kostenlos, als PDF und mit Lösungen. Für den Englischunterricht ab Klasse 5, "
+                "für die Hausaufgabe oder zum Üben zu Hause."),
+        "download": "PDF herunterladen", "online": "Online üben",
+        "pages": lambda n: f"{n} Seiten" if n != 1 else "1 Seite",
+        "cards": {
+            "list": ("Verbliste nach Mustern",
+                     f"Alle {len(VERBS)} unregelmäßigen Verben mit deutscher Bedeutung, sortiert nach den vier Mustern "
+                     "(z. B. <em lang=\"en\">cut – cut – cut</em>, <em lang=\"en\">buy – bought – bought</em>). "
+                     "Zum Abheften oder als Spickzettel für die Vokabelmappe.",
+                     "/de/unregelmaessige-verben/#verb-liste", "Liste online ansehen"),
+            "forms": ("Die drei Formen",
+                      f"{len(FORMS_A) + len(FORMS_B)} häufige Verben: Die Lernenden ergänzen die fehlenden Formen "
+                      "(<em lang=\"en\">go → ___ → ___</em>). Im zweiten Teil ist die mittlere Form gegeben. Mit Lösungsblatt.",
+                     "/de/unregelmaessige-verben/type-race/", "Type Race"),
+            "gaps": ("Lückensätze",
+                     f"{len(GAPS)} englische Sätze, in die das Verb in der richtigen Form eingesetzt wird. "
+                     "Das Verb steht als Hilfe in Klammern. Mit Lösungsblatt.",
+                     "/de/unregelmaessige-verben/fill-the-gap/", "Fill the Gap"),
+        },
+        "tip_h": "So passen Papier und Bildschirm zusammen",
+        "tip": ("Ein Vorschlag: zuerst das Arbeitsblatt in Ruhe ausfüllen und vergleichen, danach zehn Minuten "
+                "<a href=\"/de/unregelmaessige-verben/sprint/\">Sprint</a> am Tablet oder Handy. Wer die Formen "
+                "auf Papier kann, schafft dort schnell eine neue Bestzeit."),
+        "use": ("Sie dürfen die Arbeitsblätter für Ihren Unterricht ausdrucken, kopieren und an Ihre Klasse "
+                "weitergeben. Weitere Ideen für die Stunde finden Sie auf der Seite "
+                "<a href=\"/de/lehrkraefte/\">Für Lehrkräfte</a>."),
+    },
+    "es": {
+        "path": "/es/verbos-irregulares/fichas/",
+        "hub": "/es/verbos-irregulares/", "hub_name": "Verbos irregulares",
+        "title": "Fichas de verbos irregulares en inglés (PDF) con soluciones — Krabsy",
+        "desc": ("Fichas gratis de verbos irregulares en inglés para imprimir: lista por tipos, ejercicio "
+                 "de formas y frases para completar, todas con soluciones."),
+        "h1": "Verbos irregulares en inglés: fichas para imprimir",
+        "crumb": "Fichas",
+        "sub": ("Gratis, en PDF y con soluciones. Para la clase de inglés desde 5.º de Primaria, "
+                "para deberes o para practicar en casa."),
+        "download": "Descargar PDF", "online": "Practicar online",
+        "pages": lambda n: f"{n} páginas" if n != 1 else "1 página",
+        "cards": {
+            "list": ("Lista por tipos",
+                     f"Los {len(VERBS)} verbos irregulares con su significado en español, ordenados por los cuatro tipos "
+                     "(p. ej. <em lang=\"en\">cut – cut – cut</em>, <em lang=\"en\">buy – bought – bought</em>). "
+                     "Para el cuaderno o como chuleta de repaso.",
+                     "/es/verbos-irregulares/#verb-liste", "Ver la lista online"),
+            "forms": ("Las tres formas",
+                      f"{len(FORMS_A) + len(FORMS_B)} verbos frecuentes: el alumnado completa las formas que faltan "
+                      "(<em lang=\"en\">go → ___ → ___</em>). En la segunda parte se da la forma del medio. Con soluciones.",
+                      "/es/verbos-irregulares/type-race/", "Type Race"),
+            "gaps": ("Completa las frases",
+                     f"{len(GAPS)} frases en inglés para completar con el verbo en la forma correcta. "
+                     "El verbo aparece entre paréntesis como ayuda. Con soluciones.",
+                     "/es/verbos-irregulares/fill-the-gap/", "Fill the Gap"),
+        },
+        "tip_h": "Papel y pantalla, juntos",
+        "tip": ("Una idea: primero la ficha con calma y la corrección en grupo; después, diez minutos de "
+                "<a href=\"/es/verbos-irregulares/sprint/\">Sprint</a> en la tablet o el móvil. Quien ya domina "
+                "las formas en papel, bate su récord enseguida."),
+        "use": ("Puedes imprimir, fotocopiar y repartir las fichas en tu clase. Encontrarás más ideas en la "
+                "página <a href=\"/es/docentes/\">Para docentes</a>."),
+    },
+}
+
+PAGE_CSS = """
+    body{background:var(--krabsy-cream)}
+    .logo{display:inline-flex;align-items:center;font-family:var(--font-display);font-size:1.6rem;text-decoration:none;color:var(--krabsy-ink);letter-spacing:-0.5px;line-height:1}
+    .logo-crab{display:inline-flex;width:1.15em;height:1.15em;align-items:center;justify-content:center;margin:0 -0.04em}
+    .logo-crab img{display:block;width:100%;height:100%;object-fit:contain}
+    .ws-wrap{max-width:760px;margin:0 auto;padding:0 var(--space-5,20px) var(--space-7,48px);width:100%}
+    .crumbs{font-size:0.82rem;color:var(--krabsy-ink-mute);padding:var(--space-4,16px) 0 0}
+    .crumbs a{color:inherit;text-decoration:none}
+    .ws-h1{font-family:var(--font-display);font-weight:normal;font-size:clamp(1.6rem,5vw,2.3rem);color:var(--krabsy-ink);margin:10px 0 6px;line-height:1.15}
+    .ws-sub{color:var(--krabsy-ink-mute);font-size:1rem;margin:0 0 20px;line-height:1.5}
+    .ws-card{background:#fff;border:1px solid rgba(44,42,58,0.08);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 10px rgba(31,43,61,0.04)}
+    .ws-card h2{font-family:var(--font-display);font-weight:normal;font-size:1.2rem;color:var(--krabsy-ink);margin:0 0 6px}
+    .ws-card p{margin:0 0 10px;color:var(--krabsy-ink);line-height:1.55;font-size:0.97rem}
+    .ws-meta{font-size:0.82rem;color:var(--krabsy-ink-mute)}
+    .ws-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .ws-dl{font-family:var(--font-display);font-size:0.95rem;color:#fff;background:var(--krabsy-coral-dark,#e07a64);padding:9px 18px;border-radius:30px;text-decoration:none}
+    .ws-dl:hover{filter:brightness(1.05)}
+    .ws-on{font-size:0.92rem;color:var(--krabsy-ink);text-decoration-color:var(--krabsy-coral);text-underline-offset:2px}
+    .ws-note{background:#fff8e6;border:1px solid #f5d98a;border-radius:12px;padding:12px 16px;margin:18px 0 10px;color:var(--krabsy-ink);line-height:1.55;font-size:0.95rem}
+    .ws-note h2{font-family:var(--font-display);font-weight:normal;font-size:1.05rem;margin:0 0 4px}
+    .ws-note a,.ws-use a{color:var(--krabsy-ink);text-decoration-color:var(--krabsy-coral);text-underline-offset:2px}
+    .ws-use{font-size:0.9rem;color:var(--krabsy-ink-mute);line-height:1.5}
+"""
+
+
+def pdf_pages(path):
+    import re as _re
+    return len(_re.findall(rb"/Type\s*/Page[^s]", path.read_bytes()))
+
+
+def download_page(lang):
+    t, p = L[lang], P[lang]
+    other = "es" if lang == "de" else "de"
+    url = lambda x: "https://krabsy.com" + x
+    cards = ""
+    for kind in ("list", "forms", "gaps"):
+        name, desc, on_href, on_label = p["cards"][kind]
+        f = t["dir"] / t[kind]["file"]
+        meta = f'PDF · {p["pages"](pdf_pages(f))} · {max(1, f.stat().st_size // 1024)} KB'
+        cards += (f'<section class="ws-card"><h2>{E(name)}</h2><p>{desc}</p>'
+                  f'<div class="ws-actions"><a class="ws-dl" href="{p["path"]}{t[kind]["file"]}" download>'
+                  f'{p["download"]}</a><a class="ws-on" href="{on_href}">{E(on_label) if kind == "list" else p["online"] + ": " + E(on_label)} →</a>'
+                  f'<span class="ws-meta">{meta}</span></div></section>')
+    crumbs_ld = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": url(f"/{lang}/")},
+        {"@type": "ListItem", "position": 2, "name": p["hub_name"], "item": url(p["hub"])},
+        {"@type": "ListItem", "position": 3, "name": p["crumb"], "item": url(p["path"])}]}
+    title, desc = E(p["title"]), E(p["desc"])
+    return f"""<!DOCTYPE html>
+<html lang="{lang}">
+<head>
+  <meta charset="UTF-8">
+  <script>/* krabsy_lang-from-url */try{{localStorage.setItem("krabsy_lang","{lang}");}}catch(_){{}}</script>
+  <!-- generated by tools/generate_worksheets.py -->
+  <title>{title}</title>
+  <meta name="description" content="{desc}">
+  <link rel="canonical" href="{url(p['path'])}">
+  <link rel="alternate" hreflang="{lang}" href="{url(p['path'])}">
+  <link rel="alternate" hreflang="{other}" href="{url(P[other]['path'])}">
+  <link rel="alternate" hreflang="x-default" href="{url(P['de']['path'])}">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{desc}">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="{url(p['path'])}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="{'de_DE' if lang == 'de' else 'es_ES'}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <style>{PAGE_CSS}</style>
+  <script type="application/ld+json">{json.dumps(crumbs_ld, ensure_ascii=False)}</script>
+</head><body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a href="/{lang}/" class="logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
+        <span>bsy</span>
+      </a>
+      <div class="k-lang-toggle" role="group" aria-label="{'Sprache wählen' if lang == 'de' else 'Elegir idioma'}">
+        <button class="k-lang-btn{' is-active' if lang == 'de' else ''}" type="button" data-lang="de">DE</button>
+        <button class="k-lang-btn{' is-active' if lang == 'es' else ''}" type="button" data-lang="es">ES</button>
+      </div>
+    </header>
+    <main class="ws-wrap">
+      <nav class="crumbs"><a href="{p['hub']}">{E(p['hub_name'])}</a> › {E(p['crumb'])}</nav>
+      <h1 class="ws-h1">{E(p['h1'])}</h1>
+      <p class="ws-sub">{E(p['sub'])}</p>
+      {cards}
+      <aside class="ws-note"><h2>{E(p['tip_h'])}</h2>{p['tip']}</aside>
+      <p class="ws-use">{p['use']}</p>
+    </main>
+    <footer class="k-footer">
+      <span id="footer-copyright">© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+  <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>
+"""
+
+
+def sitemap_entries():
+    """Add the two download pages to sitemap.xml once (idempotent)."""
+    sm = HP / "sitemap.xml"
+    s = sm.read_text(encoding="utf-8")
+    if P["de"]["path"] in s:
+        return
+    de, es = P["de"]["path"], P["es"]["path"]
+    block = ""
+    for loc in (de, es):
+        block += f"""  <url>
+    <loc>https://krabsy.com{loc}</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com{de}"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com{es}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com{de}"/>
+  </url>
+"""
+    sm.write_text(s.replace("</urlset>", block + "</urlset>", 1), encoding="utf-8")
+    print("sitemap: download pages added")
+
+
+import sys
 for lang, t in L.items():
-    for kind, fn in (("list", verb_list), ("forms", forms_sheet), ("gaps", gaps_sheet)):
-        out = t["dir"] / t[kind]["file"]
-        to_pdf(fn(t), out)
-        print(f"{lang}: {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+    if "--no-pdf" not in sys.argv:
+        for kind, fn in (("list", verb_list), ("forms", forms_sheet), ("gaps", gaps_sheet)):
+            out = t["dir"] / t[kind]["file"]
+            to_pdf(fn(t), out)
+            print(f"{lang}: {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+    (t["dir"] / "index.html").write_text(download_page(lang), encoding="utf-8")
+    print(f"{lang}: {(t['dir'] / 'index.html').relative_to(ROOT)}")
+sitemap_entries()
 print(f"forms A {len(FORMS_A)}, B {len(FORMS_B)}, gap sentences {len(GAPS)}")

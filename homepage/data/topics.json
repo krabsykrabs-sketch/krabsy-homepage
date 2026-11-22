@@ -30,7 +30,8 @@
       "verb-table":    { "de": "verb-tabelle",  "es": "tabla-de-verbos" },
       "free-practice": { "de": "freies-ueben",  "es": "practica-libre" },
       "reference":     { "de": "uebersicht",    "es": "resumen" },
-      "stats":         { "de": "statistik",     "es": "estadisticas" }
+      "stats":         { "de": "statistik",     "es": "estadisticas" },
+      "worksheets":    { "de": "arbeitsblaetter", "es": "fichas" }
     }
   },
   "prepositions": {
