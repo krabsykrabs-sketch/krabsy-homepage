@@ -15,6 +15,7 @@ export function newState(now = Date.now()) {
     v: VERSION, coins: 0, earned: 0, lastSave: now, created: now,
     up: { pen: 0, incubator: 0, hatchSpeed: 0, shoes: 0, backpack: 0 },
     carry: [],                                  // rarities of the eggs in the backpack
+    look: 'A',                                  // which character (player.js LOOKS)
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
     incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, start, dur, sp? }
     book: {},                                   // speciesId → times hatched

@@ -143,8 +143,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 #playBtn:disabled{opacity:.5;}
 #resetBtn{display:block;margin:14px auto 0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;}
 /* first person */
-#cross{position:fixed;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(13,34,64,.6);z-index:4;pointer-events:none;}
-#prompt{position:fixed;left:50%;top:calc(50% + 34px);transform:translateX(-50%);z-index:5;pointer-events:none;display:none;
+#cross{display:none !important;position:fixed;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(13,34,64,.6);z-index:4;pointer-events:none;}
+#prompt{position:fixed;left:50%;top:40%;transform:translate(-50%,-100%);z-index:5;pointer-events:none;display:none;
   background:var(--panel);border-radius:14px;padding:7px 16px;font-size:18px;white-space:nowrap;}
 #prompt.on{display:block;}
 #prompt .key{display:inline-block;background:var(--amber);color:var(--navy);border-radius:7px;padding:0 9px;margin-right:8px;font-family:'Fredoka One';}
@@ -169,6 +169,11 @@ body.touch .tbtn.on{display:flex;}
 #actBtn{right:24px;bottom:110px;background:var(--amber);border-color:#fff;}
 body.touch #buttons{bottom:auto;top:110px;}
 body.touch #cross{display:none;}
+#looks{display:flex;gap:12px;justify-content:center;align-items:center;margin:0 0 14px;flex-wrap:wrap;}
+.lkTitle{width:100%;color:var(--muted);font-size:14px;}
+.lk{background:#15305a;border-radius:16px;padding:4px;border:3px solid transparent;}
+.lk.on{border-color:var(--teal);background:#1d3a66;}
+.lk img{width:90px;height:108px;display:block;}
 #controls{color:var(--muted);font-size:14px;margin:0 0 16px;line-height:1.5;}
 #controls b{color:var(--ink);}
 #rotate{position:fixed;inset:0;z-index:30;background:var(--navy);display:none;align-items:center;justify-content:center;padding:30px;text-align:center;font-size:20px;}
@@ -226,6 +231,7 @@ body.touch #cross{display:none;}
 <div id="start"><div id="startBox">
   <h1>Verb Hatchery</h1>
   <div id="tagline"></div>
+  <div id="looks"></div>
   <div id="controls"></div>
   <div id="welcome"></div>
   <button id="playBtn" disabled>…</button>

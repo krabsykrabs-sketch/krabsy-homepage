@@ -176,10 +176,17 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   is the base for the coins-while-away calculation (time since last save,
   capped). Balance numbers (prices, income, hatch times, rarity chances)
   live in one file, `src/balance.js`, so they can be tuned.
-- **First person.** Desktop: click → pointer lock, mouse look, WASD /
-  arrows, Shift sprint, Space jump, E action, U upgrades, B book. Touch:
-  left half = stick, right half = drag to look, buttons for jump and
-  action. The terrain is a height function (`src/world.js`), so the
+- **Third person (owner decision 2026-11-22: "I want to see our
+  character, camera behind it, like the original").** The player is a
+  KayKit Protagonist (A = girl with glasses, B = boy; chosen on the start
+  screen, saved as `look`), animated with idle / walk / run / jump / pick
+  up / hit / interact. The camera orbits behind: desktop click → pointer
+  lock, the mouse turns the camera, wheel zooms, WASD / arrows run
+  relative to the camera, Shift sprint, Space jump, E action, U upgrades,
+  B book. Touch: left half = stick (push far = run), right half = drag to
+  turn the camera, buttons for jump and action. The camera stays above
+  the terrain and moves in front of tree trunks. Carried eggs stack above
+  the character's head. The terrain is a height function (`src/world.js`), so the
   player needs no physics engine; trees and rocks are circle colliders.
 - **Performance:** trees and rocks are `InstancedMesh`es (one draw call per
   model part), the shadow camera follows the player, fog limits the view.
@@ -240,12 +247,13 @@ steps generous waits.
 Files: `src/balance.js` (all numbers, zones), `src/state.js` (rules +
 save, pure; save key `krabsy_hatchery_save`, version 2), `src/world.js`
 (height function, terrain, zones, walls, instanced decor, base, wild
-eggs), `src/player.js` (first person, pointer lock, touch, collisions,
-eggs in hand), `src/thieves.js` (robber crabs), `src/minimap.js`,
+eggs), `src/player.js` (third-person character + camera, pointer lock,
+touch, collisions, egg stack), `src/thieves.js` (robber crabs), `src/minimap.js`,
 `src/questions.js` (tier pools), `src/creatures.js` (procedural creatures,
 names, blocklist), `src/main.js` (flow, cards, panels, HUD), `src/i18n.js`,
 `src/audio.js`, `src/analytics.js`. Decor: 19 KayKit Forest Nature models
-in `assets/nature/` (370 KB).
+in `assets/nature/` (370 KB); characters + animations in
+`assets/characters/` (1.2 MB); see `assets/CREDITS.md`.
 
 Done (checked headless at 1366×768 desktop and 1024×700 touch, EN/DE/ES):
 island with Meadow / Forest / Beach / Volcano (lava crater), locked-zone
@@ -281,3 +289,8 @@ Not done yet / to check:
 - 2026-11-22: owner found the belt version "way too boring" → rebuilt as
   a first-person 3D island (zones, carrying eggs home, thief crabs,
   minimap). Save format version 2 (v1 saves are dropped).
+- 2026-11-22: third person with a visible character (KayKit
+  Protagonists A/B, choice on the start screen), camera behind, eggs
+  stacked above the head, action prompt floats over the egg / incubator.
+  Owner asked whether to buy an animal pack: answered no (code creatures
+  stay; free CC0 packs as an option if wanted).

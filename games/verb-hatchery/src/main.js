@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import * as S from './state.js';
 import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER } from './balance.js';
 import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
-import { Player, touchMode } from './player.js';
+import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName } from './creatures.js';
@@ -408,12 +408,16 @@ function pickedUp(e) {
   A.countVisit('grabbed');
   sfx.pop();
   floatCenter(`+${fmt(res.bonus)}`);
-  // the egg flies into your hands
+  // the egg flies onto your head
   const from = e.obj.position.clone().add(new THREE.Vector3(0, 0.5, 0));
   removeWild(e);
   const m = e.obj; world.scene.add(m);
-  world.tween(0.35, (k) => { m.position.lerpVectors(from, world.camera.position, k); m.scale.setScalar(1 - k * 0.6); },
-    () => { world.scene.remove(m); player.showCarry(st.carry); });
+  player.gesture('PickUp');
+  const to = new THREE.Vector3();
+  world.tween(0.45, (k) => {
+    to.copy(player.pos).setY(player.pos.y + 2.1 + (st.carry.length - 1) * 0.5);
+    m.position.lerpVectors(from, to, k); m.position.y += Math.sin(k * Math.PI) * 1.2; m.scale.setScalar(1 - k * 0.3);
+  }, () => { world.scene.remove(m); player.showCarry(st.carry); });
   if (st.carry.length === 1) toast(t('bringHome'));
   save(); checkGoals();
 }
@@ -441,9 +445,8 @@ function thiefCatch(th) {
   const p = player.pos, dx = th.x - p.x, dz = th.z - p.z, L = Math.hypot(dx, dz) || 1;
   th.x = p.x + (dx / L) * 2.4; th.z = p.z + (dz / L) * 2.4;
   th.dir = Math.atan2(-dx, -dz);
-  player.yaw = Math.atan2(-dx, -dz); player.pitch = -0.25;
+  player.lookAtPoint(th.x, th.z);
   thieves.update(0, { x: p.x, z: p.z, carrying: true }, isOpen, true);
-  player.update(0);
   sfx.alarm();
   openCard({ kind: 'thief', thief: th, rarity: top });
 }
@@ -454,7 +457,7 @@ function thiefResult(th, ok) {
   } else {
     const r = S.stealTop(st);
     if (r) { thieves.steal(th, r); respawn.push({ zone: th.zone, t: EGG_RESPAWN }); }
-    sfx.steal(); toast(t('stolen'), 'warn');
+    sfx.steal(); toast(t('stolen'), 'warn'); player.gesture('Hit_A');
     A.ev('thief_catch', { zone: th.zone.id, result: 'stolen', rarity: r || 'none' });
   }
   thieves.graceAll();
@@ -499,7 +502,7 @@ function doHatch(i) {
   if (!res) return;
   A.ev('creature_hatched', { rarity: res.rarity, new: res.isNew, waiting: res.waiting });
   A.countVisit('hatched');
-  sfx.crack();
+  sfx.crack(); player.gesture('Interact');
   world.tween(0.55, (k) => { if (egg) { egg.rotation.z = Math.sin(k * 40) * 0.25 * k; egg.scale.setScalar(1.25 * (1 + k * 0.25)); } }, () => {
     sfx.hatch(res.rarity);
     world.clearIncubator(i);
@@ -728,8 +731,17 @@ function frame(now) {
     target = paused ? null : findTarget();
     const pt = promptFor(target);
     const pr = $('prompt');
-    if (pt) { const html = `${touchMode ? '' : '<span class="key">E</span>'}${pt}`; if (pr.innerHTML !== html) pr.innerHTML = html; pr.classList.add('on'); }
-    else pr.classList.remove('on');
+    if (pt) {
+      const html = `${touchMode ? '' : '<span class="key">E</span>'}${pt}`;
+      if (pr.innerHTML !== html) pr.innerHTML = html;
+      // float above the thing it is about
+      const tp = target.kind === 'egg' ? tmpV.set(target.ref.x, target.ref.obj.position.y + 1.6, target.ref.z)
+        : target.kind === 'inc' ? tmpV.copy(INC_POS[target.ref]).setY(INC_POS[target.ref].y + 3.0)
+        : tmpV.copy(PEN_POS[target.ref]).setY(PEN_POS[target.ref].y + 3.4);
+      const sp = toScreen(tp);
+      if (!sp.behind) { pr.style.left = `${Math.max(120, Math.min(innerWidth - 120, sp.x))}px`; pr.style.top = `${Math.max(90, sp.y)}px`; }
+      pr.classList.add('on');
+    } else pr.classList.remove('on');
     $('actBtn').classList.toggle('on', !!pt);
     $('jumpBtn').classList.toggle('on', !paused);
     // timers
@@ -749,6 +761,36 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+// ── character choice (start screen) ──
+function renderLooks() {
+  $('looks').innerHTML = `<div class="lkTitle">${t('chooseChar')}</div>` + LOOKS.map((l) =>
+    `<button class="lk ${(st.look || 'A') === l ? 'on' : ''}" data-look="${l}"><img src="${charPortrait(l)}" alt=""></button>`).join('');
+  $('looks').querySelectorAll('.lk').forEach((b) => b.addEventListener('click', () => {
+    st.look = b.dataset.look; player.setLook(st.look); save(); renderLooks(); sfx.init(); sfx.tap();
+  }));
+}
+const charPortrait = (() => {
+  const cache = {};
+  return (look) => {
+    if (cache[look]) return cache[look];
+    const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setSize(150, 180); r.outputColorSpace = THREE.SRGBColorSpace;
+    const sc = new THREE.Scene();
+    sc.add(new THREE.HemisphereLight(0xffffff, 0x8899bb, 1.8));
+    const d = new THREE.DirectionalLight(0xffffff, 1.8); d.position.set(2, 3, 4); sc.add(d);
+    const p = new Player({ scene: sc, camera: new THREE.PerspectiveCamera() }, document.createElement('canvas'));
+    p.setLook(look); p.root.rotation.y = 0.35;
+    if (!p.mixer) return '';
+    p.mixer.update(0.4);
+    const cam = new THREE.PerspectiveCamera(30, 150 / 180, 0.1, 20);
+    cam.position.set(0, 1.25, 4.6); cam.lookAt(0, 0.95, 0);
+    r.render(sc, cam);
+    cache[look] = r.domElement.toDataURL();
+    r.dispose();
+    return cache[look];
+  };
+})();
+
 // ── start ──
 async function boot() {
   syncWorld();
@@ -757,7 +799,10 @@ async function boot() {
   const decor = world.loadDecor();
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
-  await Promise.all([Q.init(), decor]);
+  await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e))]);
+  player.setLook(st.look || 'A');
+  player.spawn(SPAWN, 0);
+  renderLooks();
   fillEggs();
   away = S.applyAway(st);
   const ready = st.incubators.filter((x) => x && S.isReady(x)).length;
@@ -806,9 +851,9 @@ if (DEBUG) {
       const list = wild.filter((e) => isOpen(e.zone) && (!rarity || e.rarity === rarity));
       list.sort((a, b) => Math.hypot(a.x - player.pos.x, a.z - player.pos.z) - Math.hypot(b.x - player.pos.x, b.z - player.pos.z));
       const e = list[0]; if (!e) return null;
-      this.tp(e.x, e.z + 2.2, 0); player.pitch = -0.45; return e.rarity;
+      this.tp(e.x, e.z + 2.2); player.lookAtPoint(e.x, e.z); return e.rarity;
     },
-    home() { this.tp(PAD.x, PAD.z - 1, Math.PI); player.pitch = -0.2; },
+    home() { this.tp(PAD.x, PAD.z - 1); player.lookAtPoint(PAD.x, PAD.z + 6); },
     act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
     sync: syncWorld, open: openPanel, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
   };

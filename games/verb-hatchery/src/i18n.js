@@ -2,6 +2,7 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    chooseChar: 'Your character',
     tagline: 'Run out into the island, find eggs and answer to pick them up. Carry them home before the thief crabs get them, hatch creatures and grow your hatchery!',
     zone_meadow: 'Meadow', zone_forest: 'Forest', zone_beach: 'Beach', zone_volcano: 'Volcano',
     p_egg: 'Pick up the egg', p_hatch: 'Hatch', p_waiting: 'Into a pen', p_pen: 'Look', p_wait: 'Hatching …',
@@ -12,8 +13,8 @@ const T = {
     bonked: 'Bonk! The crab is dizzy.', stolen: 'The crab took your egg!',
     zoneOpen: (z) => `The ${z} is open!`, zoneLockedHint: (z, n) => `The ${z} opens with ${n} ★`,
     clickToPlay: 'Click to play',
-    controls: '<b>WASD</b> move · <b>Mouse</b> look · <b>Shift</b> run · <b>Space</b> jump · <b>E</b> action · <b>U</b> upgrades · <b>B</b> book',
-    controls_touch: '<b>Left thumb</b> move (push far to run) · <b>Right thumb</b> look · <b>✋</b> action',
+    controls: '<b>WASD</b> move · <b>Mouse</b> turn the camera · <b>Wheel</b> zoom · <b>Shift</b> run · <b>Space</b> jump · <b>E</b> action · <b>U</b> upgrades · <b>B</b> book',
+    controls_touch: '<b>Left thumb</b> move (push far to run) · <b>Right thumb</b> turn the camera · <b>✋</b> action',
     up_shoes: 'Running shoes', up_shoes_d: 'Run 10 % faster',
     up_backpack: 'Bigger backpack', up_backpack_d: 'Carry one more egg',
     g_home: (n) => n === 1 ? 'Bring an egg home' : `Bring ${n} eggs home`,
@@ -61,6 +62,7 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    chooseChar: 'Deine Figur',
     tagline: 'Lauf über die Insel, finde Eier und antworte, um sie aufzuheben. Bring sie nach Hause, bevor die Diebeskrabben sie schnappen, lass Wesen schlüpfen und bau deine Brüterei aus!',
     zone_meadow: 'Wiese', zone_forest: 'Wald', zone_beach: 'Strand', zone_volcano: 'Vulkan',
     p_egg: 'Ei aufheben', p_hatch: 'Schlüpfen lassen', p_waiting: 'Ab ins Gehege', p_pen: 'Ansehen', p_wait: 'Brütet …',
@@ -71,8 +73,8 @@ const T = {
     bonked: 'Bonk! Die Krabbe ist benommen.', stolen: 'Die Krabbe hat dein Ei geklaut!',
     zoneOpen: (z) => `${z}: jetzt offen!`, zoneLockedHint: (z, n) => `${z} öffnet sich mit ${n} ★`,
     clickToPlay: 'Klick zum Spielen',
-    controls: '<b>WASD</b> laufen · <b>Maus</b> umschauen · <b>Shift</b> rennen · <b>Leertaste</b> springen · <b>E</b> Aktion · <b>U</b> Verbessern · <b>B</b> Buch',
-    controls_touch: '<b>Linker Daumen</b> laufen (weit schieben = rennen) · <b>Rechter Daumen</b> umschauen · <b>✋</b> Aktion',
+    controls: '<b>WASD</b> laufen · <b>Maus</b> Kamera drehen · <b>Mausrad</b> Zoom · <b>Shift</b> rennen · <b>Leertaste</b> springen · <b>E</b> Aktion · <b>U</b> Verbessern · <b>B</b> Buch',
+    controls_touch: '<b>Linker Daumen</b> laufen (weit schieben = rennen) · <b>Rechter Daumen</b> Kamera drehen · <b>✋</b> Aktion',
     up_shoes: 'Turnschuhe', up_shoes_d: '10 % schneller laufen',
     up_backpack: 'Größerer Rucksack', up_backpack_d: 'Ein Ei mehr tragen',
     g_home: (n) => n === 1 ? 'Bring ein Ei nach Hause' : `Bring ${n} Eier nach Hause`,
@@ -120,6 +122,7 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    chooseChar: 'Tu personaje',
     tagline: 'Recorre la isla, encuentra huevos y responde para recogerlos. Llévalos a casa antes de que los cangrejos ladrones te los quiten, haz nacer criaturas y agranda tu criadero.',
     zone_meadow: 'Prado', zone_forest: 'Bosque', zone_beach: 'Playa', zone_volcano: 'Volcán',
     p_egg: 'Recoger el huevo', p_hatch: 'Abrir', p_waiting: 'Al corral', p_pen: 'Mirar', p_wait: 'Incubando …',
@@ -130,8 +133,8 @@ const T = {
     bonked: '¡Bonk! El cangrejo está mareado.', stolen: '¡El cangrejo se llevó tu huevo!',
     zoneOpen: (z) => `¡${z}: abierto!`, zoneLockedHint: (z, n) => `${z} se abre con ${n} ★`,
     clickToPlay: 'Haz clic para jugar',
-    controls: '<b>WASD</b> andar · <b>Ratón</b> mirar · <b>Shift</b> correr · <b>Espacio</b> saltar · <b>E</b> acción · <b>U</b> mejoras · <b>B</b> libro',
-    controls_touch: '<b>Pulgar izquierdo</b> andar (empuja lejos para correr) · <b>Pulgar derecho</b> mirar · <b>✋</b> acción',
+    controls: '<b>WASD</b> andar · <b>Ratón</b> girar la cámara · <b>Rueda</b> zoom · <b>Shift</b> correr · <b>Espacio</b> saltar · <b>E</b> acción · <b>U</b> mejoras · <b>B</b> libro',
+    controls_touch: '<b>Pulgar izquierdo</b> andar (empuja lejos para correr) · <b>Pulgar derecho</b> girar la cámara · <b>✋</b> acción',
     up_shoes: 'Zapatillas', up_shoes_d: 'Corre un 10 % más rápido',
     up_backpack: 'Mochila más grande', up_backpack_d: 'Lleva un huevo más',
     g_home: (n) => n === 1 ? 'Lleva un huevo a casa' : `Lleva ${n} huevos a casa`,

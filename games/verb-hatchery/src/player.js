@@ -1,37 +1,102 @@
-// First-person player: keyboard + mouse (pointer lock) and touch (left stick,
-// drag to look, buttons). Moves on the height function, pushed out of circle
-// colliders, kept on the island and out of locked zones.
+// Third-person player: an animated KayKit character with the camera behind it.
+// Keyboard + mouse (pointer lock: the mouse turns the camera) and touch (left
+// stick moves, right thumb turns the camera, buttons). The character runs where
+// the stick / keys point, relative to the camera, and turns to face that way.
+// Moves on the height function, pushed out of circle colliders, kept on the
+// island and out of locked zones. Carried eggs stack above the head.
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { PLAYER, ZONES } from './balance.js';
-import { height, onIsland } from './world.js';
-import { makeEggMesh } from './world.js';
+import { height, onIsland, makeEggMesh } from './world.js';
 
 export const touchMode = matchMedia('(pointer: coarse)').matches || /[?&]touch/.test(location.search);
+export const LOOKS = ['A', 'B']; // Protagonist_A / Protagonist_B
+const SCALE = 0.78;              // about 1.8 m tall
+const CAM = { dist: 6.2, min: 3.2, max: 11, height: 1.55 };
+
+let template = {}, clips = null;
+export async function loadCharacters() {
+  const loader = new GLTFLoader();
+  const [a, b, anim] = await Promise.all([
+    loader.loadAsync('assets/characters/Protagonist_A.glb'),
+    loader.loadAsync('assets/characters/Protagonist_B.glb'),
+    loader.loadAsync('assets/characters/anim_player.glb'),
+  ]);
+  template = { A: a.scene, B: b.scene };
+  clips = Object.fromEntries(anim.animations.map((c) => [c.name, c]));
+}
 
 export class Player {
   constructor(world, canvas) {
     this.world = world; this.canvas = canvas;
     this.pos = new THREE.Vector3();
-    this.yaw = 0; this.pitch = -0.05; this.vy = 0; this.onGround = true;
+    this.yaw = 0;          // camera yaw (0 = looking towards −z)
+    this.pitch = -0.32;    // camera pitch (negative = looking down)
+    this.facing = 0;       // the character's own yaw
+    this.vy = 0; this.onGround = true;
     this.keys = new Set();
     this.speedFactor = 1;
-    this.enabled = false;      // false while a card or panel is open
-    this.locked = false;       // pointer lock (desktop)
-    this.moved = 0;            // distance walked (head bob, footsteps)
-    this.stick = { x: 0, y: 0, id: null, ox: 0, oy: 0 };
+    this.enabled = false; this.locked = false;
+    this.moved = 0; this.speed = 0; this.camDist = CAM.dist;
+    this.stick = { x: 0, y: 0, id: null };
     this.look = { id: null, x: 0, y: 0 };
-    this.isLocked = (z) => false; // set by main: is this zone locked?
-    this.onStep = null; this.onJump = null;
+    this.isLocked = () => false;
+    this.onStep = null; this.onJump = null; this.onLand = null;
+    this.root = new THREE.Group();
+    world.scene.add(this.root);
+    this.eggStack = new THREE.Group();
+    this.root.add(this.eggStack);
+    this.oneShot = 0;      // seconds left of a one-shot animation (pick up, hit)
     this._keyboard(); this._mouse();
     if (touchMode) this._touch();
-    // eggs held in view (children of the camera)
-    this.hands = new THREE.Group();
-    world.camera.add(this.hands);
-    this.hands.position.set(0.6, -0.62, -1.1);
   }
 
-  spawn(v, yaw = Math.PI) { this.pos.copy(v); this.yaw = yaw; this.pitch = -0.08; this.vy = 0; }
+  // ── character ──
+  setLook(look) {
+    if (!template.A) return;
+    if (this.char) { this.root.remove(this.char); this.mixer.stopAllAction(); }
+    const c = cloneSkinned(template[look] || template.A);
+    c.scale.setScalar(SCALE);
+    c.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+    this.root.add(c);
+    this.char = c; this.lookId = look;
+    this.mixer = new THREE.AnimationMixer(c);
+    this.actions = {};
+    for (const [n, clip] of Object.entries(clips)) this.actions[n] = this.mixer.clipAction(clip);
+    this.current = null;
+    this.play('Idle_A');
+    this.headY = 2.05;
+  }
+  play(name, { once = false, fade = 0.18, speed = 1 } = {}) {
+    if (!this.actions || !this.actions[name]) return;
+    const next = this.actions[name];
+    next.timeScale = speed;
+    if (this.current === name) return;
+    const prev = this.current && this.actions[this.current];
+    next.reset();
+    next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
+    next.clampWhenFinished = once;
+    next.play();
+    if (prev) prev.crossFadeTo(next, fade, false);
+    this.current = name;
+  }
+  // one-shot animation (pick up, hit, interact), then back to the loop
+  gesture(name) {
+    if (!this.actions || !this.actions[name]) return;
+    this.current = null;
+    for (const a of Object.values(this.actions)) if (a !== this.actions[name]) a.fadeOut(0.1);
+    this.play(name, { once: true, fade: 0.1 });
+    this.actions[name].fadeIn(0.1);
+    this.oneShot = this.actions[name].getClip().duration * 0.85;
+  }
 
+  spawn(v, yaw = 0) {
+    this.pos.copy(v); this.yaw = yaw; this.facing = yaw + Math.PI; this.pitch = -0.32; this.vy = 0;
+    this.root.position.copy(this.pos);
+  }
+
+  // ── input ──
   _keyboard() {
     addEventListener('keydown', (e) => {
       if (e.repeat) return;
@@ -49,8 +114,11 @@ export class Player {
     });
     document.addEventListener('mousemove', (e) => {
       if (!this.locked || !this.enabled) return;
-      this.turn(e.movementX * 0.0022, e.movementY * 0.0022);
+      this.turn(e.movementX * 0.0024, e.movementY * 0.0024);
     });
+    this.canvas.addEventListener('wheel', (e) => {
+      this.camDist = Math.max(CAM.min, Math.min(CAM.max, this.camDist + Math.sign(e.deltaY) * 0.8));
+    }, { passive: true });
   }
   requestLock() {
     if (touchMode || this.locked) return;
@@ -59,25 +127,25 @@ export class Player {
   releaseLock() { if (document.pointerLockElement) document.exitPointerLock(); }
   turn(dx, dy) {
     this.yaw -= dx;
-    this.pitch = Math.max(-1.35, Math.min(1.25, this.pitch - dy));
+    this.pitch = Math.max(-1.15, Math.min(0.35, this.pitch - dy));
   }
   jump() {
     if (!this.onGround || !this.enabled) return;
     this.vy = PLAYER.jump; this.onGround = false;
+    this.current = null;
+    this.play('Jump_Start', { once: true, fade: 0.08 });
     if (this.onJump) this.onJump();
   }
-
-  // Touch: left half = floating stick, right half = drag to look.
   _touch() {
     const stickEl = document.getElementById('stick'), knob = document.getElementById('knob');
     this.canvas.addEventListener('touchstart', (e) => {
       for (const t of e.changedTouches) {
         if (t.clientX < innerWidth * 0.45 && this.stick.id === null) {
-          this.stick.id = t.identifier; this.stick.ox = t.clientX; this.stick.oy = t.clientY;
+          this.stick = { x: 0, y: 0, id: t.identifier, ox: t.clientX, oy: t.clientY };
           stickEl.style.display = 'block'; stickEl.style.left = `${t.clientX}px`; stickEl.style.top = `${t.clientY}px`;
           knob.style.transform = 'translate(-50%,-50%)';
         } else if (this.look.id === null) {
-          this.look.id = t.identifier; this.look.x = t.clientX; this.look.y = t.clientY;
+          this.look = { id: t.identifier, x: t.clientX, y: t.clientY };
         }
       }
       e.preventDefault();
@@ -91,7 +159,7 @@ export class Player {
           this.stick.x = dx / max; this.stick.y = dy / max;
           knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
         } else if (t.identifier === this.look.id) {
-          if (this.enabled) this.turn((t.clientX - this.look.x) * 0.006, (t.clientY - this.look.y) * 0.006);
+          if (this.enabled) this.turn((t.clientX - this.look.x) * 0.007, (t.clientY - this.look.y) * 0.005);
           this.look.x = t.clientX; this.look.y = t.clientY;
         }
       }
@@ -100,14 +168,12 @@ export class Player {
     const end = (e) => {
       for (const t of e.changedTouches) {
         if (t.identifier === this.stick.id) { this.stick = { x: 0, y: 0, id: null }; stickEl.style.display = 'none'; }
-        if (t.identifier === this.look.id) this.look.id = null;
+        if (t.identifier === this.look.id) this.look = { id: null, x: 0, y: 0 };
       }
     };
     this.canvas.addEventListener('touchend', end);
     this.canvas.addEventListener('touchcancel', end);
   }
-
-  // Input → wish direction (x = right, y = forward), sprint flag.
   input() {
     const k = this.keys;
     let x = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
@@ -115,80 +181,144 @@ export class Player {
     let sprint = k.has('ShiftLeft') || k.has('ShiftRight');
     if (this.stick.id !== null) {
       x = this.stick.x; y = -this.stick.y;
-      sprint = Math.hypot(x, y) > 0.85; // push the stick all the way = run
+      sprint = Math.hypot(x, y) > 0.85;
     }
     const L = Math.hypot(x, y);
     if (L > 1) { x /= L; y /= L; }
-    return { x, y, sprint };
+    return { x, y, sprint, amount: Math.min(1, L) };
   }
 
+  // ── per frame ──
   update(dt) {
-    const w = this.world;
+    let moving = false;
     if (this.enabled) {
-      const { x, y, sprint } = this.input();
-      const speed = (sprint ? PLAYER.sprint : PLAYER.walk) * this.speedFactor;
-      const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
-      // forward = (−sin, −cos), right = (cos, −sin)
-      const dx = (-sin * y + cos * x) * speed * dt, dz = (-cos * y - sin * x) * speed * dt;
-      this.tryMove(dx, dz);
-      const step = Math.hypot(dx, dz);
-      if (step > 0 && this.onGround) {
-        const before = Math.floor(this.moved / 2.2);
-        this.moved += step;
-        if (Math.floor(this.moved / 2.2) !== before && this.onStep) this.onStep(sprint);
-      }
-      this.running = sprint && step > 0;
-    }
+      const inp = this.input();
+      if (inp.amount > 0.08) {
+        // direction relative to the camera
+        const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
+        const dirX = -sin * inp.y + cos * inp.x, dirZ = -cos * inp.y - sin * inp.x;
+        const L = Math.hypot(dirX, dirZ) || 1;
+        const speed = (inp.sprint ? PLAYER.sprint : PLAYER.walk) * this.speedFactor * (touchMode ? Math.max(0.45, inp.amount) : 1);
+        const bx = this.pos.x, bz = this.pos.z;
+        this.tryMove((dirX / L) * speed * dt, (dirZ / L) * speed * dt);
+        const step = Math.hypot(this.pos.x - bx, this.pos.z - bz);
+        this.speed = step / Math.max(dt, 1e-4);
+        moving = step > 0.001;
+        // the character turns to where it runs
+        const want = Math.atan2(dirX, dirZ);
+        let d = want - this.facing; d = Math.atan2(Math.sin(d), Math.cos(d));
+        this.facing += d * Math.min(1, dt * 12);
+        if (moving && this.onGround) {
+          const b = Math.floor(this.moved / 2.4);
+          this.moved += step;
+          if (Math.floor(this.moved / 2.4) !== b && this.onStep) this.onStep(inp.sprint);
+        }
+      } else this.speed = 0;
+    } else this.speed = 0;
     // gravity / ground
     const g = height(this.pos.x, this.pos.z);
-    const floor = this.floorAt ? Math.max(g, this.floorAt(this.pos.x, this.pos.z)) : g;
-    this.vy -= PLAYER.gravity * dt;
+    const wasAir = !this.onGround;
+    this.vy -= 22 * dt;
     this.pos.y += this.vy * dt;
-    if (this.pos.y <= floor) { this.pos.y = floor; this.vy = 0; this.onGround = true; }
-    else if (this.pos.y > floor + 0.05) this.onGround = false;
-    // camera
-    const bob = this.onGround ? Math.sin(this.moved * 2.6) * 0.05 : 0;
-    w.camera.position.set(this.pos.x, this.pos.y + PLAYER.eye + bob, this.pos.z);
-    w.camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
-    this.hands.position.y = -0.62 + Math.sin(this.moved * 2.6) * 0.02;
-    this.hands.position.x = 0.6 + Math.cos(this.moved * 1.3) * 0.015;
+    if (this.pos.y <= g) {
+      this.pos.y = g; this.vy = 0;
+      if (wasAir) {
+        this.onGround = true;
+        if (this.onLand) this.onLand();
+        if (this.actions) { this.current = null; this.play('Jump_Land', { once: true, fade: 0.05 }); this.oneShot = 0.22; }
+      }
+    } else if (this.pos.y > g + 0.08) this.onGround = false;
+    // animation
+    if (this.mixer) {
+      this.oneShot -= dt;
+      if (!this.onGround) { if (this.current !== 'Jump_Start' || this.vy < 2) this.play('Jump_Idle', { fade: 0.15 }); }
+      else if (this.oneShot <= 0) {
+        if (moving && this.speed > 0.5) {
+          const run = this.speed > PLAYER.walk * 0.7;
+          this.play(run ? 'Running_A' : 'Walking_A', { speed: run ? this.speed / 6.8 : this.speed / 2.6 });
+        } else this.play('Idle_A');
+      }
+      this.mixer.update(dt);
+    }
+    this.root.position.copy(this.pos);
+    this.root.rotation.y = this.facing;
+    // eggs above the head bob a little
+    this.eggStack.position.y = (this.headY || 2) + 0.15 + Math.abs(Math.sin(this.moved * 1.3)) * 0.06;
+    this.placeCamera();
+  }
+
+  // camera behind the character, kept above the ground
+  placeCamera() {
+    const cam = this.world.camera;
+    const tx = this.pos.x, ty = this.pos.y + CAM.height, tz = this.pos.z;
+    const cp = Math.cos(this.pitch);
+    let dist = this.camDist;
+    const at = (d) => [tx + Math.sin(this.yaw) * cp * d, ty - Math.sin(this.pitch) * d, tz + Math.cos(this.yaw) * cp * d];
+    let p = at(dist);
+    // a tree trunk or rock between the character and the camera: move the camera in front of it
+    const sx = p[0] - tx, sz = p[2] - tz, sl = Math.hypot(sx, sz);
+    if (sl > 0.01) {
+      const ux = sx / sl, uz = sz / sl;
+      for (const c of this.world.nearColliders(tx, tz)) {
+        const ox = c.x - tx, oz = c.z - tz;
+        const along = ox * ux + oz * uz;
+        if (along <= 0 || along > sl + c.r) continue;
+        const side = Math.abs(ox * uz - oz * ux), r = c.r + 0.35;
+        if (side >= r) continue;
+        const hit = along - Math.sqrt(r * r - side * side);
+        if (hit > 0.5 && hit < sl) dist = Math.min(dist, Math.max(CAM.min * 0.6, (hit / sl) * dist));
+      }
+      p = at(dist);
+    }
+    for (let i = 0; i < 6; i++) {
+      const gh = height(p[0], p[2]) + 0.5;
+      if (p[1] >= gh) break;
+      dist *= 0.8; p = at(dist);
+      if (i === 5) p[1] = Math.max(p[1], gh);
+    }
+    cam.position.set(p[0], p[1], p[2]);
+    cam.lookAt(tx, ty + 0.3, tz);
   }
 
   tryMove(dx, dz) {
     const w = this.world, r = PLAYER.radius;
     let nx = this.pos.x + dx, nz = this.pos.z + dz;
-    // circle colliders (two passes)
     for (let pass = 0; pass < 2; pass++) {
       for (const c of w.nearColliders(nx, nz)) {
         const ddx = nx - c.x, ddz = nz - c.z, d = Math.hypot(ddx, ddz), min = c.r + r;
         if (d < min && d > 1e-4) { nx = c.x + (ddx / d) * min; nz = c.z + (ddz / d) * min; }
       }
     }
-    // locked zones: stay outside the wall
     for (const z of ZONES) {
       if (!z.r || !this.isLocked(z)) continue;
       const ddx = nx - z.x, ddz = nz - z.z, d = Math.hypot(ddx, ddz), min = z.r + r + 0.2;
       if (d < min) { nx = z.x + (ddx / d) * min; nz = z.z + (ddz / d) * min; }
     }
-    // stay on the island (not into deep water), and no walking up cliffs
     if (!onIsland(nx, nz)) return;
     const climb = height(nx, nz) - height(this.pos.x, this.pos.z);
     if (this.onGround && climb > 0.9) return;
     this.pos.x = nx; this.pos.z = nz;
   }
 
-  // Eggs in the backpack, held in view (bottom right).
+  // Eggs in the backpack: a stack above the head, like a trophy.
   showCarry(list) {
-    this.hands.clear();
+    this.eggStack.clear();
     list.forEach((r, i) => {
-      const m = makeEggMesh(r, 0.3);
-      m.position.set(-i * 0.16, i * 0.13, -i * 0.05);
-      m.rotation.z = 0.15 - i * 0.08;
-      m.castShadow = false;
-      this.hands.add(m);
+      const m = makeEggMesh(r, 0.85);
+      m.position.set(0, i * 0.5, 0);
+      m.rotation.z = (i % 2 ? -1 : 1) * 0.12;
+      this.eggStack.add(m);
     });
   }
 
-  // direction the player looks at, on the ground plane
-  forward() { return new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw)); }
+  // where the character looks (for "what is in front of me")
+  forward() { return new THREE.Vector3(Math.sin(this.facing), 0, Math.cos(this.facing)); }
+  // turn the camera to look from behind the player towards a point
+  lookAtPoint(x, z) {
+    const dx = x - this.pos.x, dz = z - this.pos.z;
+    this.yaw = Math.atan2(-dx, -dz);
+    this.facing = Math.atan2(dx, dz);
+    this.pitch = -0.3;
+    this.placeCamera();
+  }
 }
