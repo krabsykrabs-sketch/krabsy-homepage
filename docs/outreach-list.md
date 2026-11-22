@@ -8,7 +8,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
+Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Magisnet (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
 
 ### ~~Lehrerfreund (DE)~~: VERWORFEN 2026-11-22
 Kein Englisch-Bereich: Die Fächer sind nur Deutsch, Geschichte und Politik, und die Tools sind allgemeine Unterrichtstools. Die Kontaktseite lehnt Werbe-Anfragen ausdrücklich ab. Nicht einreichen. Text bleibt nur zur Referenz.
@@ -44,13 +44,15 @@ Jan Ahrens
 
 Beide Blogs zeigen Werbung bzw. verkaufen eigene Materialien: nur redaktionelle Erwähnung, **kein** bezahltes Placement.
 
+**Regel (Owner 2026-11-22):** Die Uruguay-Klasse in Anschreiben nicht erwähnen.
+
 ## Recherche ES/LatAm 2026-11-22 (geprüft, noch nichts gesendet außer wo vermerkt)
 
 Ergebnis: Kein staatliches Portal (educ.ar, Colombia Aprende, PerúEduca, MEP CR, SEP/PRONI, DE Puerto Rico, INTEF/Procomún, Regionalportale) nimmt externe Nicht-OER-Seiten auf. Realistisch sind Lehrkräfte-Medien und Englischlehrer-Verbände (Newsletter, Webinare, Tagungen).
 
 | # | Ziel | Land | Passung | Weg | Notiz |
 |---|---|---|---|---|---|
-| 1 | Magisnet (Zeitung Magisterio) | ES | hoch | Formular https://www.magisnet.com/contacto/ | Artikel "Actividades para dominar los verbos irregulares en inglés" (07/2025) verlinkt externe Spiele. Text entworfen 2026-11-22 (Chat). |
+| 1 | Magisnet (Zeitung Magisterio) | ES | hoch | Formular https://www.magisnet.com/contacto/ | **GESENDET 2026-11-22** (ohne Uruguay-Absatz). Aufhänger: Artikel "Actividades para dominar los verbos irregulares en inglés" (07/2025). |
 | 2 | El Nuevo Día Educador | PR | hoch | Pitch an Autorin Rut N. Tellado Domenech, rut.tellado@gfrmedia.com | Lehrkräfte-Rubrik der größten PR-Zeitung, Englisch-Reihe, aktiv 2026. Kampagnen teils gesponsert: nur redaktionell. |
 | 3 | Ayuda para maestros (Manu Velasco) | ES | hoch | **kein Kontakt gefunden**, evtl. über Social Media | Sehr große Reichweite, stellt einzelne kostenlose Seiten vor (z. B. JuegaPop 10/2026), Tag "Inglés". |
 | 4 | ASOCOPI | CO | mittel-hoch | asocopicolombia@gmail.com | Nationaler Englischlehrer-Verband; um Erwähnung im Newsletter/Webinar bitten. Sponsoring ist kostenpflichtig, nicht annehmen. |
