@@ -8,7 +8,7 @@ games (wrapper pages, `games.json`, sitemap, deploy). You don't touch
 `homepage/` or other games, and you don't push or deploy. Stage only this
 folder, in the same command that commits: `git add games/verb-hatchery && git commit …`.
 
-Status: **brief written 2026-11-22 on the owner's request, nothing built yet.**
+Status: **brief written and reviewed 2026-11-22; version 1 being built (see Log).**
 
 ## Why this game
 
@@ -51,16 +51,26 @@ incubators, and a **conveyor belt** along the front where eggs ride past.
 2. **Tap an egg** → the belt stops, the question card opens (same pattern
    as Verb Dungeon's card: large, centred, scene dimmed and paused, chips
    1–3 or tap).
-   - Common/uncommon eggs: one question (2nd form, `go → ___ → ___`).
+   - Common/uncommon eggs: one question (2nd form only, `go → ___ → ___`).
+     No 3rd-form question follows, so the teach line may show the whole
+     chain afterwards (Dungeon's `single(pair)`, `full: true`).
    - Rare and above: the chain pair (2nd form, then 3rd with the 2nd
-     filled in: `go → went → ___`), from harder verb tiers.
+     filled in: `go → went → ___`), from harder verb tiers. After the
+     2nd-form answer, don't show the 3rd form (the next step asks it).
+   - **All incubators full:** eggs on the belt still ride past, but a tap
+     shows "Incubators full! Hatch an egg first." and the full incubators
+     pulse. No question is asked, so no answer is wasted.
 3. **Right** → the egg flies into a free incubator. **Wrong** → the chip
    greys out, the teach line shows the chain, the egg wobbles and rolls
    off the belt ("Oops!"). No coins are lost; the verb comes back later
    on another egg.
 4. **Hatching:** the egg hatches after a short time (common 20 s, legendary
    a few minutes). Tap to hatch it: shake, crack, a creature pops out with
-   its name and rarity. New creatures go into the **Creature Book**
+   its name and rarity. Hatch timers run on the clock, also while the
+   player is away: eggs that finished are waiting, ready to tap, on the
+   next visit (tapping them is the welcome-back moment).
+   If all pens are full, a hatched creature waits in the incubator until
+   a pen is bought (the goal list then nudges "Buy a pen"). New creatures go into the **Creature Book**
    (missing ones are grey silhouettes).
 5. **Creatures earn coins** in their pen (numbers float up). Rarer
    creatures earn much more. Earnings keep counting while the player is
@@ -89,6 +99,16 @@ done), for example "Hatch 3 blue eggs", "Earn 1,000 coins per second",
 "Find 10 different creatures", "Answer 10 in a row". Each goal gives a
 star; stars unlock new island areas (beach, forest, volcano) with new
 creature sets.
+
+**Pacing for a lesson:** a first-time player should earn about **3 stars
+in 10–15 minutes** (the first goals are easy: "Grab 3 eggs", "Hatch your
+first creature", "Buy an upgrade"). Later goals get longer, so a returning
+player earns about 1–2 stars per lesson. The goal numbers live in
+`src/balance.js` with the other numbers.
+
+**Answer mode:** choice chips only in version 1. Typed input (via
+`checkTyped`) can come later as an upgrade ("typewriter mode, double
+coins"), not in the first build.
 
 ### Rivals (version 2, not in the first build)
 
@@ -148,24 +168,43 @@ Copy only what you use into `games/verb-hatchery/assets/`.
 - Fixed camera on the island, slightly from above. An "island map"
   button can move the camera to other areas; it never moves on its own
   while the player reads.
-- **Questions:** from `homepage/lib/krabsy-questions.js`, `getQuizSet`
-  with `withOptions` and the default chain order. Egg rarity → verb tier
-  (common/uncommon tier 1, rare tier 2, epic/legendary tier 3). Missed
-  verbs come back on the next eggs. Keep an inline fallback list (copy
-  Verb Dungeon's `src/questions.js` + `src/verbs.js`). No grammar terms in
+- **Questions:** from `homepage/lib/krabsy-questions.js`. Egg rarity →
+  verb tier (common/uncommon tier 1, rare tier 2, epic/legendary tier 3).
+  ⚠ `getQuizSet` has **no tier filter**, and its `difficulty` field is 2
+  for every verb, so it can't pick by tier. Do it like Verb Dungeon's
+  `src/questions.js` `loadPairs()`: fetch all pairs with `getQuizSet`
+  (default chain order, `withOptions: 3`), get each verb's tier from
+  `getChainSet` (`r.verb → r.tier`), and sort the pairs into one pool
+  per tier. Common/uncommon eggs ask only the pair's first step (2nd
+  form). Missed verbs come back on the next eggs. Keep an inline fallback
+  list (copy Verb Dungeon's `src/questions.js` + `src/verbs.js`). No grammar terms in
   the question; use `go → ___ → ___` with the asked blank highlighted
   (teal = 2nd form, coral = 3rd, as in the Dungeon).
 - **Interface texts EN/DE/ES** (`?lang=`, `src/i18n.js` like the Dungeon).
 - **Analytics:** call `recordAttempt()` for every answer, and send game
   events via `/lib/krabsy-game-events.js` (spec in `docs/game-analytics.md`):
   `egg_grabbed` (rarity), `egg_lost`, `creature_hatched` (rarity, new or
-  not), `upgrade_bought`, `goal_done`, plus a session summary.
+  not), `upgrade_bought`, `goal_done`.
+  **Levels:** the dashboard groups by `level` and expects
+  `level_start`/`level_end`; this game has none, so **a level = the next
+  star**. `level` = stars earned so far + 1. Send `level_start {level}`
+  when the game opens and right after each star; send `level_end {level,
+  result: 'won', seconds, answers, correct, coins, creatures}` when a goal
+  gives a star. Leaving before the next star counts as "left", which is
+  what we want to see (where players stop). There is no "lost".
+  Also send `session_summary {level, seconds, answers, correct,
+  eggs_grabbed, hatched, coins_per_sec, creatures}` on `pagehide` /
+  `visibilitychange` → hidden (once per visit).
 - WebAudio synth for sounds (belt hum, egg pop, crack and hatch fanfare
   per rarity, coin plinks, upgrade "ding").
 - Target: plays smoothly on a school Chromebook and a touch tablet. Many
   creatures on screen → merge/instance the parts; cap pens visible at once.
 
 ## Open questions for the owner
+
+Defaults used until the owner says otherwise (owner said "build it",
+2026-11-22): name **Verb Hatchery**, **creatures from code**, rivals
+stay **version 2**.
 
 - Name: "Verb Hatchery" or something else?
 - Creatures from code (recommended) or a downloaded CC0 animal pack?
@@ -174,8 +213,47 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   code from `docs/classroom-concept.md`)? School Chromebooks often clear
   their storage, so a save on the device can get lost.
 
+## Build state (version 1, 2026-11-22)
+
+Runs: `python3 tools/serve.py` → http://localhost:8143/ (add `?debug` for
+QA hooks on `window.hatchery` and event logging, `?lang=de|es|en`).
+Headless QA screenshots: `node tools/shot.cjs "?debug" out.png [w h] [steps…]`
+(`PORT=…` if 8143 is busy).
+
+Files: `src/balance.js` (all numbers), `src/state.js` (rules + save, pure),
+`src/questions.js` (tier pools, Dungeon approach), `src/creatures.js`
+(procedural creatures + names + blocklist), `src/scene.js` (island, belt,
+incubators, pens), `src/main.js` (flow, card, panels, HUD), `src/i18n.js`,
+`src/audio.js`, `src/analytics.js`. Decor: 12 KayKit Forest Nature models
+in `assets/nature/` (220 KB). Belt, eggs, incubators, pens: primitives.
+
+Done: belt with 5 rarities, question card (single 2nd form for
+common/uncommon, chain pair for rare+), wrong answer → egg rolls off and
+the verb comes back, incubators with timers (run on the clock, also while
+away), hatch animation + reveal banner, 26 species (8/6/5/4/3), pens with
+idle animations and coin floats, release a creature for coins, 4 upgrades,
+goals → stars, Creature Book with silhouettes and chances, save/load,
+coins while away (8 h cap, 20 % rate) with a welcome-back note, "start
+over", EN/DE/ES, WebAudio sounds, analytics events as specified above.
+Checked in headless Chromium at 1366×768 and 1024×700 (local fallback
+verbs only; the site engine path is untested until it runs under
+`homepage/`).
+
+Not done yet:
+- Island areas for stars (beach, forest, volcano) — stars are counted,
+  nothing unlocks yet.
+- Play-test by a person on a real Chromebook/tablet (performance with 12
+  pens, tap size of eggs).
+- Balance tuning (prices vs. away coins; 12 pens is the end of growth).
+- Wrapper pages / release (master session).
+- Rivals ("borrow a creature"), version 2.
+
 ## Log
 
 - 2026-11-22: brief written by the master session after the owner picked
   the egg collector from the Roblox research (sources: bloxodes.com
   October 2026 report, livecounts.nl live charts).
+- 2026-11-22: brief reviewed and fixed (tier pools instead of a
+  getQuizSet tier filter, single-question eggs, full incubators, hatching
+  while away, lesson pacing, analytics levels = stars). Version 1 built
+  the same day (see Build state).
