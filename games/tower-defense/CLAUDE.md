@@ -222,6 +222,31 @@ implemented as preview-approved by the owner (Status log, "round 2").
    2nd form filled in. Done in this game (Status log, "round 4"); handed
    to the master session for the shared engine (site-wide).
 
+6. **Moments too generic, and sound/music (2026-11-22).** "When you die you
+   don't really notice; you just get a text. Everything should be clear
+   without reading. Time to think about sound and music." A Fable 5.2
+   subagent wrote a design proposal (not built yet):
+   - Core idea: **the castle is the health bar.** Enemies burst at the
+     gate, the castle flashes and squashes, a heart flies to the HUD and
+     breaks, small camera shake; smoke under 60 % lives, smoke + flames +
+     lowered flag under 30 %; low lives (≤ 3): pulsing hearts, coral
+     vignette, heartbeat.
+   - Defeat: ~2.5 s sequence (skippable) — camera to the castle, castle
+     swaps to `building_destroyed`, red flag, desaturate — then an
+     icon-led panel (broken heart, waves as dots). Victory: hearts fly out,
+     confetti, towers pop, stars slam in one by one.
+   - Later: boss entrance and boss health bar, wave-start pips, streak
+     flame, build dust, "not enough coins" feedback.
+   - Sound: stay procedural WebAudio (0 MB; the asset library has no
+     audio). Music layers: calm build, drums + bass in battle, minor +
+     drone for bosses, heartbeat at low lives, end jingles. New effects
+     (castle hit, horn, boss, stars, streak, can't-afford), softer wrong
+     answer, per-sound caps. Lower default volume, separate music /
+     effects toggles, pause when the tab is hidden, `?sound=off` /
+     `?music=off` for teachers.
+   - Open decisions: music style; music on or off by default; defeat
+     sequence skippable; bosses rising out of the ground.
+
 ## Status log
 
 - 2026-11-21 — Brief written by the master session. Nothing changed in
