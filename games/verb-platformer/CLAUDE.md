@@ -72,7 +72,10 @@ What exists:
   (22 MB). On a fresh machine do the same; the master library is
   `/home/janah/dev/_assets/kaykit/KayKit_Platformer_Pack_1.0_EXTRA`.
 - **Libraries are self-hosted** in `vendor/` (three r169, rapier3d-compat
-  0.19.3, nipplejs 1.0.1; tracked in git). No CDN.
+  0.19.3, nipplejs 1.0.1; tracked in git). No CDN. **No `.mjs` files:** the
+  live server sends them as `application/octet-stream` and browsers refuse
+  them as modules (broke the first live deploy on 2026-11-22; Python's local
+  server hides this). Rapier and nipplejs are renamed to `.js`.
 
 ### Level JSON, the parts that matter
 
