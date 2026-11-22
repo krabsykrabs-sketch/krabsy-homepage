@@ -248,6 +248,9 @@ What a level-design session should do:
 - Checked: a scripted run of level 1 sends the events in order with the right gate
   numbers, records 2 answers, 2 spectators cheer per gate; shell test ALL OK
   (de/es/en × desktop/tablet/phone); editor loads; served copy 0 errors.
+  Live (deployed 2026-11-22): played through `/de/spiele/verb-platformer/`, the
+  wrapper's tracker sent `level_start` and `gate_passed` to api.krabsy.com (the
+  test intercepted them, nothing reached the dashboard).
 
 ## Game shell (2026-11-22; title screen, HUD, pause, results, DE/ES/EN)
 
