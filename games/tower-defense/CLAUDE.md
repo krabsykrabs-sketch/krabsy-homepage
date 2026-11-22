@@ -575,3 +575,7 @@ implemented as preview-approved by the owner (Status log, "round 2").
   (measured identical). 2560×1440 → ×1.8, 3840×2160 → ×2.2. Camera
   insets now use bounding rects so the board still fits beside the card.
   `tools/dev-server.py` = local test server with the site's /lib + /data.
+
+## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
+
+Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.

@@ -87,3 +87,7 @@ Open for the master session:
   click or tap is enough.
 - JSON-LD `VideoGame.inLanguage` is still `en`.
 - Issue 3 in the first list ("Language") is closed by items 5 and 6.
+
+## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
+
+Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.

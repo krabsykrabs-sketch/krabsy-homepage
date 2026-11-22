@@ -12,3 +12,7 @@ and `homepage/es/juegos/verb-flow/`.
 - The wrapper pages have an SEO info section (text in
   `tools/game_info_content.py`, rendered by `tools/render_game_info.py`). If
   features change (levels, timer, saving), update that text and re-run.
+
+## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
+
+Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.

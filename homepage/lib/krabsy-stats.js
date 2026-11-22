@@ -26,8 +26,9 @@
    `items` is topic-namespaced so multiple grammar topics (irregular verbs,
    prepositions, …) can coexist. The `overall` block is cross-topic.
 
-   The arcade games do NOT call this module. Only drills and tools that have
-   a clear right/wrong moment record stats.
+   Drills and tools record stats. Since 2026-11-22 (classroom concept phase
+   1, docs/classroom-concept.md) games record too: call recordAttempt() at
+   every right/wrong moment, with the game id as `source`.
 
    Usage:
      import { recordAttempt, getOverall, hasData, ... } from '/lib/krabsy-stats.js';
@@ -264,6 +265,43 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
   }
 
   _save();
+
+  // Listeners (e.g. a class session that sends answers to the teacher,
+  // docs/classroom-concept.md phase 2). Never let one break recording.
+  const evt = { topic, itemId, form, correct: !!correct, source: source || null, at: now };
+  for (const fn of _listeners) {
+    try { fn(evt); } catch (err) { console.warn('krabsy-stats: listener failed', err); }
+  }
+}
+
+const _listeners = new Set();
+
+/**
+ * Subscribe to every recorded answer: fn({ topic, itemId, form, correct,
+ * source, at }). Returns an unsubscribe function. Note: only answers
+ * recorded through the SAME module instance are seen — import this file
+ * as '/lib/krabsy-stats.js' (no ?v=) wherever a listener is needed.
+ */
+export function onAttempt(fn) {
+  _listeners.add(fn);
+  return () => _listeners.delete(fn);
+}
+
+/**
+ * Fresh copy of one topic's per-item records, read straight from storage
+ * (not from this instance's cache — pages load this module under several
+ * URLs, e.g. with and without ?v=, and each copy caches its own state).
+ * Used by the smart mix (krabsy-smart.js). Returns {} when nothing is stored.
+ */
+export function readTopicItems(topic = DEFAULT_TOPIC) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.version === 2 && parsed.items) return parsed.items[topic] || {};
+    }
+  } catch (_) { /* private mode / corrupted — treat as empty */ }
+  return {};
 }
 
 /**

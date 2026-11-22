@@ -86,9 +86,16 @@ reviews (Fable 5.2) in `_incoming/landing-mockup-2026-11-21/` (not served).
 ## Classroom feature (concept, 2026-11-21)
 
 Owner agreed on four phases plus a "smart mix" of questions; full concept in
-`docs/classroom-concept.md`. Next: **phase 1** — every game records answers
-(`recordAttempt`) and the question engine gets `getSmartSet()` (practice
-words / new words / spaced repeats). Open owner decisions listed at the end
+`docs/classroom-concept.md`. **Phase 1 in progress.** Shared pieces built
+2026-11-22 (committed, not pushed): `lib/krabsy-smart.js` (the mix),
+`smart: true` + `ids` + `item` field in `getQuizSet` / `getChainSet`,
+`onAttempt()` listener + `readTopicItems()` in `krabsy-stats.js`; tested by
+node script and in headless Chromium. Next: wire each game — recipe and
+per-game table in `docs/phase1-game-wiring.md` (Snake + Air Control = master;
+Flow, Slash, Kitchen, Towers, Dungeon, Platformer = their sessions; pointer
+added to the clean game CLAUDE.md files, not yet to verb-dungeon and
+verb-platformer, which had uncommitted edits). Drills still pick via
+`krabsy-data.js getQuestions` (no smart mix yet). Open owner decisions listed at the end
 of the concept (EU hosting, phase-2 without email, retention, legal review).
 
 ## Speed drills (irregular-verbs / prepositions topic tools)

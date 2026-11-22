@@ -37,6 +37,15 @@
      const topic = KQ.topicFromUrl();                  // ?topic=… or default
      const chains = await KQ.getChainSet({ topic, maxLen: 7 });
      const quiz   = await KQ.getQuizSet({ topic, count: 8 });
+   SMART MIX (classroom concept phase 1, docs/classroom-concept.md §4)
+     Pass `smart: true` to getQuizSet / getChainSet: instead of a random
+     pick, the round mixes words this child still gets wrong, new words
+     from their level, and known words that are due again (krabsy-smart.js,
+     reads the child's stats). Games should also record every answer:
+       import { recordAttempt } from '/lib/krabsy-stats.js';
+       recordAttempt(q.item, q.form, correct, '<game-id>', q.topic);
+     (`item` is on every quiz record; chain records use `verb` and the
+     forms 'past' / 'participle'.)
    Games that must also run from file:// keep a small inline fallback:
      let chains; try { chains = await KQ.getChainSet(…); }
                  catch (_) { chains = INLINE_FALLBACK; }
@@ -47,6 +56,8 @@ import {
   loadVerbTable as _loadVerbTable,
   getLang as _getLang,
 } from '/lib/krabsy-data.js';
+import { readTopicItems as _readTopicItems } from '/lib/krabsy-stats.js';
+import { rankItems as _rankItems } from '/lib/krabsy-smart.js';
 
 /* ── topic helpers ──────────────────────────────────────────────────────── */
 
@@ -88,6 +99,13 @@ function _norm(s) {
   return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+/* Smart order: ids ranked by krabsy-smart.js for a round of `count` items.
+   Returns a Map id → rank (lower = sooner). */
+function _smartRank(topic, candidates, count) {
+  const ids = _rankItems({ candidates, stats: _readTopicItems(topic), count });
+  return new Map(ids.map((id, i) => [id, i]));
+}
+
 /* ── 'chain' shape ──────────────────────────────────────────────────────── */
 
 /**
@@ -104,6 +122,9 @@ function _norm(s) {
  *   maxLen   max character length across all forms (layout constraint —
  *            Verb Snake uses 7, Verb Flow 9)
  *   shuffle  default true
+ *   ids      only these verbs (e.g. a teacher's word list)
+ *   smart    order by the smart mix instead of at random (needs `count`
+ *            to size the mix; without it the whole set is ranked)
  */
 export async function getChainSet(opts = {}) {
   const {
@@ -111,6 +132,8 @@ export async function getChainSet(opts = {}) {
     count,
     tiers,
     maxLen,
+    ids,
+    smart = false,
     shuffle = true,
   } = opts;
   if (!topicSupports(topic, 'chain')) {
@@ -128,6 +151,7 @@ export async function getChainSet(opts = {}) {
   let out = rows
     .filter((r) => r.past && r.participle)
     .filter((r) => (tiers ? tiers.includes(r.tier) : true))
+    .filter((r) => (ids ? ids.includes(r.verb) : true))
     .filter((r) => (maxLen
       ? Math.max(r.verb.length, r.past.length, r.participle.length) <= maxLen
       : true))
@@ -135,6 +159,14 @@ export async function getChainSet(opts = {}) {
       ...r,
       distractors: wrong.get(r.verb) || { past: [], participle: [] },
     }));
+  if (smart) {
+    const rank = _smartRank(topic, out.map((r) => ({ id: r.verb, tier: r.tier })),
+      typeof count === 'number' ? count : out.length);
+    out.sort((a, b) => rank.get(a.verb) - rank.get(b.verb));
+    if (typeof count === 'number') out = out.slice(0, count);
+    if (shuffle) _shuffle(out);
+    return out;
+  }
   if (shuffle) _shuffle(out);
   if (typeof count === 'number') out = out.slice(0, count);
   return out;
@@ -187,6 +219,12 @@ export async function getChainSet(opts = {}) {
  *                (a chain-order pair counts as one verb)
  *   chainOrder   default true for irregular_verbs, see above
  *   shuffle      default true
+ *   ids          only these items (verb base forms / preposition use-case
+ *                ids), e.g. a teacher's word list
+ *   smart        order by the smart mix instead of at random (see top)
+ *
+ * Every record also carries `item` (verb base form or use-case id) — the
+ * id to pass to recordAttempt(item, form, correct, source, topic).
  */
 export async function getQuizSet(opts = {}) {
   const {
@@ -196,6 +234,8 @@ export async function getQuizSet(opts = {}) {
     difficulty,
     forms,
     uniqueBy = 'verb',
+    ids,
+    smart = false,
     shuffle = true,
   } = opts;
   if (!topicSupports(topic, 'quiz')) {
@@ -205,7 +245,8 @@ export async function getQuizSet(opts = {}) {
   const chainOrder = topic === 'irregular_verbs' && allowPast
     && (opts.chainOrder !== undefined ? !!opts.chainOrder : true);
   const lang = _getLang();
-  const raw = await _rawQuestions({ topic, difficulty, shuffle: true });
+  const raw = await _rawQuestions({ topic, difficulty, ids, shuffle: true });
+  const itemOf = (q) => (topic === 'prepositions' ? q.useCaseId : q.verb);
 
   // verb-table lookup for teach chains
   let table = null;
@@ -246,6 +287,7 @@ export async function getQuizSet(opts = {}) {
     }
     return {
       id: q.id,
+      item: itemOf(q),
       topic,
       difficulty: q.difficulty,
       form: q.form || 'default',
@@ -291,22 +333,45 @@ export async function getQuizSet(opts = {}) {
     }
   }
 
-  if (shuffle) _shuffle(units);
-  const out = [];
+  if (smart && units.length) {
+    // Rank items (verbs / use cases); a verb pair is two questions.
+    const tierOf = new Map();
+    if (table) for (const r of table.values()) tierOf.set(r.verb, r.tier);
+    const cands = [];
+    const seenItem = new Set();
+    for (const u of units) {
+      const id = u[0].item;
+      if (seenItem.has(id)) continue;
+      seenItem.add(id);
+      cands.push({ id, tier: tierOf.get(id) || 1 });
+    }
+    const perUnit = chainOrder ? 2 : 1;
+    const rank = _smartRank(topic, cands, Math.max(1, Math.ceil(count / perUnit)));
+    units.sort((a, b) => rank.get(a[0].item) - rank.get(b[0].item));
+  } else if (shuffle) {
+    _shuffle(units);
+  }
+  const chosen = [];
+  let filled = 0;
   for (const u of units) {
-    if (out.length >= count) break;
+    if (filled >= count) break;
     // A pair that does not fit any more is cut to its 2nd-form question,
     // which then teaches the full chain (no 3rd form follows). Never a lone
     // 3rd form.
-    if (out.length + u.length > count) {
+    if (filled + u.length > count) {
       const first = u[0];
       const chain = first.teach.chain;
-      out.push(chain ? { ...first, teach: { line: `${chain.base} → ${chain.past} → ${chain.participle}`, chain } } : first);
+      chosen.push([chain ? { ...first, teach: { line: `${chain.base} → ${chain.past} → ${chain.participle}`, chain } } : first]);
+      filled += 1;
       continue;
     }
-    out.push(...u);
+    chosen.push(u);
+    filled += u.length;
   }
-  return out;
+  // Smart rounds were taken in rank order — mix them so practice words
+  // don't all come first (pairs stay together).
+  if (smart && shuffle) _shuffle(chosen);
+  return chosen.flat();
 }
 
 /** Typed-input ("typewriter") validation: trims, lowercases, collapses

@@ -1658,3 +1658,7 @@ welcome alternative to choice chips.
   `tools/game_info_content.py`, rendered by `tools/render_game_info.py`).
   If game features change (levels, controls, verb count — currently says
   46 verbs, 3 restaurants), update that text and re-run the renderer.
+
+## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
+
+Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.
