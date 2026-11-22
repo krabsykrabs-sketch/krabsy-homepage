@@ -529,3 +529,36 @@ geometry, one shadow light.
   - New QA hooks: `__VV.camAt(x,y,z, tx,ty,tz)` / `camView()` (park
     the camera), `__VV.krabsyAt()`.
   - Regression: EN 26 checks and tablet touch 13/13 still pass, no errors.
+- 2026-11-22 — **M3 models done** (crops, cottage, well, windmill).
+  - **Crops** (`farming.js cropMesh`): the leaves are Kenney Nature Kit
+    `crops_leafsStageA` (young) and `crops_leafsStageB` (from half
+    growth). Carrot, turnip, pumpkin and melon switch to their own Kenney
+    models in the second half and grow to full size (`KENNEY_CROP`:
+    scale + how far the root sinks into the soil). The others keep their
+    procedural fruit shapes on the Kenney leaves. Kenney's muted colours
+    are replaced by material name: `grass` → leaf green `0x5cbf3c`, fruit
+    materials → `CROPS[type].color` (growing) / `.ripe` (ready).
+  - **Cottage** = KayKit Medieval Hexagon `building_home_A_red` (×6.6,
+    door to +z). The dusk window glow is kept with transparent emissive
+    panes over the attic window and the four side windows (positions
+    found by raycasting the model, `COTTAGE_PANES`); `daycycle.js` now
+    fades their opacity with the glow. The cottage collision box is
+    updated.
+  - **Well** = KayKit `building_well_red` (×2.9), replacing the
+    procedural one. It has a small collision circle.
+  - **Windmill** (new landmark, NE corner, `LAYOUT.windmill`) = KayKit
+    `building_windmill_red` (×5.2). Its sails (`building_..._top_fan_red`)
+    turn slowly. It has a collision circle.
+  - The school stays an open-air blackboard on the beach with Krabsy's
+    podium (fits the "beach school" brief).
+  - Size: whole game 6.8 MB (assets 4.9, vendor 1.5) of the 15 MB budget.
+    Headless dusk benchmark, old vs new side by side on the same machine:
+    same speed (259 vs 277 draw calls, 38k vs 35k tris). The absolute ms
+    come from software rendering and say nothing about a Chromebook.
+  - Regression: EN 26 checks and tablet touch 13/13 pass, no errors.
+  - **Release blocker still open:** `assets/` (4.9 MB, incl. the crab) is
+    gitignored. The master session must decide how to track it (Tower
+    Defense tracks its `assets/`).
+  - **Next: M4** — daily goal card with 1–3 stars and the sleep card as
+    the end of a lesson unit, a first-day tutorial (teach by doing), save
+    slots or a clear "New farm" for shared school computers.

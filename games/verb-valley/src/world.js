@@ -44,6 +44,16 @@ function sph(r, color, opts) {
   return new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), lambert(color, opts));
 }
 
+// Cottage window panes [x, y, z, w, h] in cottage space (by eye against
+// the KayKit home_A model at scale 6.6).
+// Found by raycasting the model: front wall z≈2.08, side walls x≈±1.62.
+// [x, y, z, w, h, rotY]
+const COTTAGE_PANES = [
+  [0, 3.64, 2.17, 0.4, 0.4, 0],
+  [1.9, 1.6, -1.0, 0.45, 0.75, Math.PI / 2], [1.9, 1.6, 1.0, 0.45, 0.75, Math.PI / 2],
+  [-1.9, 1.6, -1.0, 0.45, 0.75, -Math.PI / 2], [-1.9, 1.6, 1.0, 0.45, 0.75, -Math.PI / 2],
+];
+
 export function buildWorld(scene) {
   const refs = { windows: [], lanterns: [], fireflyParent: null };
   const G = LAYOUT.ground;
@@ -80,27 +90,26 @@ export function buildWorld(scene) {
   scene.add(sea);
   refs.sea = sea;
 
-  // ── Cottage ──────────────────────────────────────────────────────────
+  // ── Cottage: KayKit home (door faces +Z toward the field) ─────────────
   const cot = new THREE.Group();
   cot.position.set(LAYOUT.cottage.x, 0, LAYOUT.cottage.z);
-  const body = box(6, 3.4, 5, 0xe8d6b0); body.position.y = 1.7; body.castShadow = true; cot.add(body);
-  // Roof — two slanted boxes.
-  const roofMat = lambert(PAL ? 0xb5503e : 0xb5503e);
-  const r1 = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.4, 3.1), roofMat);
-  r1.position.set(0, 3.9, -1.35); r1.rotation.x = -0.62; r1.castShadow = true; cot.add(r1);
-  const r2 = r1.clone(); r2.position.z = 1.35; r2.rotation.x = 0.62; cot.add(r2);
-  // Door (faces +Z toward field).
-  const door = box(1.3, 2.2, 0.2, 0x8a5a3c); door.position.set(0, 1.1, 2.55); cot.add(door);
-  // Windows — emissive so they glow after dark.
-  for (const dx of [-1.9, 1.9]) {
-    const winMat = new THREE.MeshLambertMaterial({ color: 0x9fd8e8, emissive: c(0xffcf5e), emissiveIntensity: 0 });
-    const w = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 0.2), winMat);
-    w.position.set(dx, 1.9, 2.55); cot.add(w);
+  const house = prop('cottage', 6.6);
+  cot.add(house);
+  // Warm window glow after dusk: emissive panes laid over the model's
+  // front windows (the model's own windows are part of its texture).
+  for (const [x, y, z, w, h, ry] of COTTAGE_PANES) {
+    const winMat = new THREE.MeshLambertMaterial({ color: 0x000000, emissive: c(0xffcf5e), emissiveIntensity: 0, transparent: true, opacity: 0.0 });
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), winMat);
+    pane.position.set(x, y, z); pane.rotation.y = ry; cot.add(pane);
     refs.windows.push(winMat);
   }
-  // Chimney.
-  const chim = box(0.7, 1.6, 0.7, 0x8a6a55); chim.position.set(2, 4.4, 0); cot.add(chim);
   scene.add(cot);
+
+  // Windmill landmark; its sails turn (game.js spins refs.windmillFan).
+  const mill = prop('windmill', 5.2);
+  mill.position.set(LAYOUT.windmill.x, 0, LAYOUT.windmill.z); mill.rotation.y = -0.5;
+  scene.add(mill);
+  refs.windmillFan = mill.getObjectByName('building_windmill_top_fan_red');
 
   // Bed marker outside the door (sleep spot) — a cozy little porch mat + sign.
   const mat = new THREE.Mesh(new THREE.CircleGeometry(1.3, 18), lambert(0xcf6b58));
@@ -115,17 +124,9 @@ export function buildWorld(scene) {
   scene.add(crate);
   refs.crate = crate;
   makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, t('sign.sell'), 0x9c6b3f);
-  // ── The well: stone ring, wooden roof, a bucket on the rim ─────────────
-  const well = new THREE.Group();
-  well.position.set(LAYOUT.well.x, 0, LAYOUT.well.z);
-  const ring = cyl(0.95, 1.05, 0.9, 0x9aa3ad, 16); ring.position.y = 0.45; well.add(ring);
-  const water = cyl(0.78, 0.78, 0.05, 0x3fa7d6, 16); water.position.y = 0.72; well.add(water);
-  for (const sx of [-0.85, 0.85]) { const post = box(0.16, 1.9, 0.16, 0x8a5a33); post.position.set(sx, 1.35, 0); well.add(post); }
-  const roof = box(2.3, 0.14, 1.4, 0xb4553f); roof.position.y = 2.35; roof.rotation.z = 0; well.add(roof);
-  const roof2 = box(2.3, 0.14, 1.0, 0xc4654f); roof2.position.set(0, 2.5, 0); well.add(roof2);
-  const bar = cyl(0.06, 0.06, 1.7, 0x6b4426, 8); bar.rotation.z = Math.PI / 2; bar.position.y = 1.75; well.add(bar);
-  const wb = prop('bucket', 0.9); wb.position.set(0.7, 0.9, 0.55); well.add(wb);
-  well.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  // ── The well (KayKit) ─────────────────────────────────────────────────
+  const well = prop('wellModel', 2.9);
+  well.position.set(LAYOUT.well.x, 0, LAYOUT.well.z); well.rotation.y = Math.PI / 2;
   scene.add(well);
   refs.well = well;
   makeSignpost(scene, LAYOUT.well.x - 1.4, LAYOUT.well.z + 1.2, t('sign.well'), 0x3fa7d6);

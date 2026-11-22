@@ -529,6 +529,7 @@ function frame() {
   daycycle.update(state, dt);
   if (refs.sea) refs.sea.position.y = 0.04 + Math.sin(worldClock * 0.7) * 0.04;
   if (refs.krabsy) animateKrabsy(refs.krabsy.group.userData.parts, started && school.active);
+  if (refs.windmillFan) refs.windmillFan.rotation.z += dt * 0.6;
   if (refs.bell && bellSwing > 0.01) {
     refs.bell.rotation.z = Math.sin(worldClock * 13) * 0.35 * bellSwing;
     bellSwing *= 0.96;

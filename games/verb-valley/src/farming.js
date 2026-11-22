@@ -10,6 +10,17 @@ import { prop } from './assets.js';
 
 const lambert = (c) => new THREE.MeshLambertMaterial({ color: c });
 const STRAW = new THREE.MeshLambertMaterial({ color: 0xc9a75a });
+// Crops: Kenney leaves recoloured to a fresh green; fruit materials take the
+// crop's own colour (CROPS[type].color while growing, .ripe when ready).
+const LEAF = new THREE.MeshLambertMaterial({ color: 0x5cbf3c });
+const fruitMats = new Map();
+const fruitMat = (c) => { if (!fruitMats.has(c)) fruitMats.set(c, new THREE.MeshLambertMaterial({ color: c })); return fruitMats.get(c); };
+const KENNEY_CROP = {
+  carrot:  { asset: 'cropCarrot',  scale: 2.3, sink: 0.2 },
+  turnip:  { asset: 'cropTurnip',  scale: 2.3, sink: 0.14 },
+  pumpkin: { asset: 'cropPumpkin', scale: 1.9, sink: 0 },
+  melon:   { asset: 'cropMelon',   scale: 1.8, sink: 0 },
+};
 const HAY_STALK = new THREE.MeshLambertMaterial({ color: 0xf4d870 });
 const HAY_HEAD = new THREE.MeshLambertMaterial({ color: 0xdcae48 });
 const MAT = {
@@ -64,18 +75,27 @@ export function createFarm(scene, state) {
       speck.position.y = 0.18; g.add(speck);
       return g;
     }
-    // sprout stem for every crop
-    const stemH = 0.25 + t * 0.45;
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, stemH, 6), MAT.stem);
-    stem.position.y = stemH / 2 + 0.06; g.add(stem);
-    // leaves
-    for (const a of [0.5, 2.6, 4.4]) {
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.1 + t * 0.1, 6, 5), MAT.leaf2);
-      leaf.scale.set(1.6, 0.5, 0.8);
-      leaf.position.set(Math.cos(a) * 0.18, stemH * 0.55, Math.sin(a) * 0.18);
-      leaf.rotation.y = -a;
-      g.add(leaf);
+    // Pumpkin, melon, carrot and turnip have their own Kenney model: it
+    // appears small in the second half of growth and grows to full size.
+    const own = KENNEY_CROP[type];
+    if (own && t >= 0.5) {
+      const sc = own.scale * (0.55 + 0.45 * t);
+      const m = prop(own.asset, sc);
+      m.position.y = -own.sink * sc;   // roots stay in the soil
+      m.rotation.y = (type.length * 1.3) % 6.28;
+      const fruit = fruitMat(ready ? def.ripe : def.color);
+      m.traverse((o) => { if (o.isMesh) o.material = o.material.name === 'grass' ? LEAF : o.material.name === 'dirt' ? o.material : fruit; });
+      g.add(m);
+      return g;
     }
+    // Leaves for every crop: Kenney's young (A) then bushier (B) stage.
+    const young = t < 0.5;
+    const lsc = 1.1 + 0.6 * t;
+    const leaves = prop(young ? 'leafsA' : 'leafsB', lsc);
+    leaves.rotation.y = (type.length * 0.9) % 6.28;
+    leaves.traverse((o) => { if (o.isMesh) o.material = LEAF; });
+    g.add(leaves);
+    const stemH = (young ? 0.43 : 0.68) * lsc * 0.8;
     if (t > 0.5) {
       // the fruit/body appears in the second half of growth; shape comes
       // from the crop definition so new catalogue entries need no code

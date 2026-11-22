@@ -179,7 +179,9 @@ export function createPlayer(scene, camera) {
   const tmp = new THREE.Vector3();
 
   function blocked(x, z) {
-    if (x > LAYOUT.cottage.x - 3.4 && x < LAYOUT.cottage.x + 3.4 && z > LAYOUT.cottage.z - 3 && z < LAYOUT.cottage.z + 2.2) return true;
+    if (x > LAYOUT.cottage.x - 2.9 && x < LAYOUT.cottage.x + 2.9 && z > LAYOUT.cottage.z - 3 && z < LAYOUT.cottage.z + 2.9) return true;
+    if (Math.hypot(x - LAYOUT.windmill.x, z - LAYOUT.windmill.z) < 2.6) return true;
+    if (Math.hypot(x - LAYOUT.well.x, z - LAYOUT.well.z) < 1.1) return true;
     if (Math.hypot(x - LAYOUT.pond.x, z - LAYOUT.pond.z) < LAYOUT.pond.r + 0.4) return true;
     return false;
   }

@@ -93,6 +93,7 @@ export const LAYOUT = {
   bed:     { x: -13, z: -6.5 },   // step here + E to sleep
   crate:   { x: -7.5, z: -7 },
   well:    { x: -4.4, z: -1 },     // refill the bucket: one question
+  windmill: { x: 17.5, z: -16 },   // landmark, NE corner
   shop:    { x: 13, z: -8 },
   // field grid
   field:   { cols: 6, rows: 4, gap: 1.7, cx: 2.5, cz: -1 },

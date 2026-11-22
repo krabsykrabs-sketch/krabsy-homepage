@@ -56,6 +56,17 @@ const MANIFEST = {
   // Kenney Nature Kit: the hay meadow
   wheatTall:     'assets/kenney/crops_wheatStageB.glb',
   wheatShort:    'assets/kenney/crops_wheatStageA.glb',
+  // Kenney Nature Kit: crops (recoloured per crop in farming.js)
+  // KayKit Medieval Hexagon: buildings
+  cottage:       'assets/buildings/building_home_A_red.gltf',
+  wellModel:     'assets/buildings/building_well_red.gltf',
+  windmill:      'assets/buildings/building_windmill_red.gltf',
+  cropCarrot:    'assets/kenney/crop_carrot.glb',
+  cropTurnip:    'assets/kenney/crop_turnip.glb',
+  cropPumpkin:   'assets/kenney/crop_pumpkin.glb',
+  cropMelon:     'assets/kenney/crop_melon.glb',
+  leafsA:        'assets/kenney/crops_leafsStageA.glb',
+  leafsB:        'assets/kenney/crops_leafsStageB.glb',
 };
 
 export async function loadAssets(onProgress) {

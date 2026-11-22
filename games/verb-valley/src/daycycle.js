@@ -143,7 +143,10 @@ export function createDayCycle(scene, renderer, refs, vignetteEl) {
 
     // Warm windows after dusk.
     const glow = Math.max(night, min >= 1080 ? (min - 1080) / 90 : 0);
-    for (const w of refs.windows) w.emissiveIntensity = glow * 0.95;
+    for (const w of refs.windows) {
+      w.emissiveIntensity = glow * 0.95;
+      if (w.transparent) w.opacity = Math.min(1, glow * 1.3);   // cottage panes fade in
+    }
 
     // Sleepy vignette grows late at night.
     if (vignetteEl) {
