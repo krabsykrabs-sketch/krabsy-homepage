@@ -22,6 +22,7 @@ at the end of each session. (Last update: 2026-11-22.)
 | Verb Golf | 3D mini golf (KayKit Platformer pack) | `games/verb-golf/` | — | **CHOSEN (owner 2026-11-22), not started** — floating-island holes, a question before every stroke (wrong = +1 penalty stroke), word gates from level 2, par = stars, 6 levels × 3 holes. Brief in its `CLAUDE.md`; own session opens in `games/verb-golf/` (dev port 8140) |
 | Verb Catapult | 3D catapult physics (Angry Birds-like; KayKit Medieval Hex + Skeletons) | `games/verb-catapult/` | — | **BRIEF (owner 2026-11-22), not started** — knock down skeleton forts; 2nd form right = a stone, 3rd form right = a special stone, wrong = the stone crumbles; 2D physics (planck.js) in a side view drawn in 3D; 6 levels × 3–4 castles. Brief in its `CLAUDE.md` (dev port 8141) |
 | Krabsy Quiz Show | 3D TV-studio class quiz (Kahoot/Millionaire format) | `games/quiz-show/` | — | **V1 PLAYABLE (2026-11-22), not released, not play-tested by a person** — for a whole class on one projector: 2–4 teams, rounds "everyone answers" / buzzer / bet your points, review screen with the class's most-missed words; verbs + prepositions. Phones joining = classroom-concept phase 4, later. Brief in its `CLAUDE.md` (dev port 8142) |
+| Verb Hatchery | 3D egg/creature collector (Roblox "Steal an Egg"-like; KayKit Platformer conveyor + primitives) | `games/verb-hatchery/` | — | **BRIEF (owner 2026-11-22), not started** — eggs ride past on a belt, a right answer grabs one (rarer egg = harder verb), creatures hatch and earn coins in your base (also while away), coins buy upgrades; goals give stars; no loot boxes or spin wheels; creatures built from primitives (no animal models in our packs). Brief in its `CLAUDE.md` (dev port 8143) |
 | Verb Kitchen | 3D Overcooked-like (KayKit Restaurant Bits) | `games/verb-kitchen/` | `/de/spiele/verb-kitchen/` (build at `/games/verb-kitchen/`) | **RELEASED** — ⚠ source is AHEAD of the live build since the 2026-11-21 merge: Levels 4–7 (co-op, soup, sundae), DE/ES UI (`src/i18n.js`), spaced repetition + Verb Cookbook (Jun 16–Jul 2) were never released → play-test + release next. Exception: the tablet layout fix (bigger kitchen, tickets left, tutorial right) was ported to the live build and deployed 2026-11-22. — in the catalogue since 2026-06-16 (`games.json` status `beta`); confirmed released by the user 2026-11-12 after the first organic classroom use (Uruguay, Plan Ceibal/Schoology, 2026-11-12: ~10–12 concurrent sessions, 7–12 min each) |
 
 **Arcade-game language (2026-11-16):** Verb Flow, Verb Snake and Air Control
@@ -57,6 +58,12 @@ New ideas the owner liked, not started, no folder yet:
   Kahoot-like class quiz (**Krabsy Quiz Show**). Other proven formats
   listed: Peggle, bubble shooter, Sokoban, Cut the Rope, Battleship,
   Ludo/party board game, match-3, whack-a-mole.
+- **Roblox research (2026-11-22):** top loops are collect/tycoon (Steal an
+  Egg, Steal a Brainrot), Grow a Garden, fishing (Fisch, Fish It), pet care
+  (Adopt Me), survival nights (99 Nights), dress-up (Dress To Impress).
+  Owner picked the egg collector → **Verb Hatchery** brief. Also suggested:
+  rebuild Verb Valley's core around the Grow a Garden loop (real-time
+  growing, come back tomorrow).
 
 **Play-test 2026-11-21** (`docs/playtest-2026-11-21.md`):
 - Crab Slash → **hidden 2026-11-21**.

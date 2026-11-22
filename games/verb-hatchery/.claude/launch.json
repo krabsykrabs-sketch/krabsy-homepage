@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-hatchery",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-c", "cd /home/janah/dev/krabsy-homepage/games/verb-hatchery && python3 tools/serve.py 8143"],
+      "port": 8143
+    }
+  ]
+}
