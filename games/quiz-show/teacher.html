@@ -7,7 +7,34 @@
 <title>Krabsy Quiz Room — Teacher</title>
 <link rel="stylesheet" href="src/style.css">
 <style>
-#setup .card{width:min(760px,96vw);text-align:center;}
+#setup .card{width:min(1000px,97vw);text-align:center;max-height:96vh;display:flex;flex-direction:column;padding:16px 20px;}
+#setup .row{margin:4px 0;}
+.settings{display:grid;grid-template-columns:auto auto;justify-content:center;column-gap:28px;}
+.settings>.row{justify-content:flex-start;}
+.settings .row>label{min-width:0;font-size:16px;}
+.settings .opt{font-size:16px;padding:.3em .75em;}
+#setup .sub{margin-bottom:6px;font-size:15px;}
+#setup h1{font-size:30px!important;}
+.hint{color:var(--amber);font-size:15px;margin:4px 0;}
+#editor{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:8px;text-align:left;}
+.edHead{display:flex;align-items:center;gap:12px;padding:6px 2px;font-size:18px;flex-wrap:wrap;}
+.edHead label{color:var(--muted);font-size:16px;cursor:pointer;}
+.edHead .sp{flex:1;}
+.edHead .opt{font-size:16px;padding:.3em .8em;}
+.edHead .opt:disabled{opacity:.4;cursor:default;}
+.edList{overflow:auto;flex:1;min-height:120px;display:flex;flex-direction:column;gap:6px;padding:2px;}
+.edRow{display:flex;align-items:center;gap:10px;background:#f7f9ff;color:#0d1b3d;border-radius:12px;padding:6px 10px;}
+.edRow .num{font-family:'Fredoka One';color:#5b6b92;min-width:2.6em;font-size:18px;}
+.edRow .lines{flex:1;display:flex;flex-direction:column;gap:2px;}
+.edLine{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.edLine .qline{font-size:24px;}
+.edLine .opts{display:flex;gap:6px;font-size:15px;color:#5b6b92;}
+.edLine .opts span{background:#e6ebf7;border-radius:6px;padding:0 .45em;}
+.edLine .opts .ok{background:#b9f6e7;color:#0b7a64;font-weight:900;}
+.edRow button{flex:none;width:38px;height:38px;border-radius:10px;font-size:20px;background:#e6ebf7;color:#2d4180;}
+.edRow button:hover{background:#d3dcf2;}
+.edRow .rm:hover{background:#ffd5d5;color:#b02a2a;}
+#setup .foot{display:flex;justify-content:center;gap:12px;margin-top:10px;}
 #setup h1{margin:0 0 .2em;color:var(--amber);font-size:36px;}
 #setup .sub{color:var(--muted);margin-bottom:14px;}
 .row{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0;flex-wrap:wrap;}
@@ -15,7 +42,7 @@
 .opt{background:#1c2c5c;border-radius:.6em;padding:.4em .9em;font-size:19px;box-shadow:inset 0 0 0 3px #2d4180;}
 .opt.on{background:var(--teal);color:#05261f;box-shadow:inset 0 0 0 3px #8ff7e2;}
 #setupErr{color:var(--coral);min-height:1.3em;margin-top:8px;}
-#openBtn{margin-top:10px;font-size:30px;}
+#openBtn{font-size:28px;}
 
 /* room view */
 #top{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;pointer-events:none;}
@@ -75,11 +102,15 @@
   <div class="card">
     <h1 data-t="setupTitle"></h1>
     <div class="sub" data-t="teacherOnly"></div>
+    <div class="settings">
     <div class="row"><label data-t="topic"></label><div id="optTopic" class="row" style="margin:0"></div></div>
     <div class="row"><label data-t="difficulty"></label><div id="optDiff" class="row" style="margin:0"></div></div>
     <div class="row"><label data-t="count"></label><div id="optCount" class="row" style="margin:0"></div></div>
-    <div class="row"><label data-t="timePer"></label><div id="optTime" class="row" style="margin:0"></div></div>
-    <button id="openBtn" class="btn" data-t="open"></button>
+    <div class="row" id="timeRow"><label data-t="timePer"></label><div id="optTime" class="row" style="margin:0"></div></div>
+    </div>
+    <div id="hintA" class="hint hidden" data-t="answersHint"></div>
+    <div id="editor"></div>
+    <div class="foot"><button id="cancelBtn" class="btn ghost hidden" data-t="cancel"></button><button id="openBtn" class="btn" data-t="open"></button></div>
     <div id="setupErr"></div>
   </div>
 </div>
@@ -92,6 +123,7 @@
 <div id="tTop5" class="card hidden"></div>
 <div id="controls" class="hidden">
   <button id="mainBtn" class="btn"></button>
+  <button id="editBtn" class="btn ghost" data-t="editQuestions"></button>
   <button id="lockBtn" class="btn ghost"></button>
   <button id="endBtn" class="btn ghost" data-t="end"></button>
 </div>

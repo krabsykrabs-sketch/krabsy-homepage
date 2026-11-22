@@ -15,7 +15,8 @@ One endpoint:  WS /api/quiz/ws   (JSON messages, field "t" = type)
 Teacher → server
   create  {questions:[…], time:s, lang}           → created {code, token}
   resume  {code, token}                            → snapshot of the room
-  start | next | end | lock {on} | remove {pid} | rename {pid, name}
+  start | next | end | lock {on} | remove {pid} | rename {pid, name} | close
+  questions {questions:[…]}                       (lobby only: replace the list)
 Child → server
   join    {code, name, avatar, color, token?}      → joined {pid, token, name, …}
   move    {p:[x,y,z], r, a}                        (about 10× per second)
@@ -446,7 +447,7 @@ async def quiz_ws(ws: WebSocket):
             if now - window_start >= 1.0:
                 window_start, count = now, 0
             count += 1
-            if count > MSGS_PER_S or len(raw) > MAX_MSG or (role and len(raw) > 4000):
+            if count > MSGS_PER_S or len(raw) > MAX_MSG or (role == "player" and len(raw) > 4000):
                 continue
             try:
                 msg = json.loads(raw)
@@ -563,6 +564,16 @@ async def quiz_ws(ws: WebSocket):
                         p.name = _unique_name(room, name, p.pid)
                         await room._send(p.ws, {"t": "renamed", "name": p.name})
                         await room.send_players_list()
+                elif t == "questions":
+                    # The teacher may still change the list while children are joining.
+                    if room.phase != "lobby":
+                        await err("started"); continue
+                    qs = msg.get("questions")
+                    qs = [c for c in (clean_question(q) for q in (qs if isinstance(qs, list) else [])[:MAX_QUESTIONS]) if c]
+                    if not qs:
+                        await err("no_questions"); continue
+                    room.questions = qs
+                    await ws.send_text(json.dumps({"t": "questions_set", "n": len(qs), "questions": qs}))
                 elif t == "close":
                     await room.close()
 

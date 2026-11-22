@@ -37,6 +37,9 @@ const T = {
     ranking: 'Ranking', classRight: (p) => `The class answered ${p} % right.`, newQuiz: 'New quiz', results: 'Results',
     closeRoom: 'Close room', teacherOnly: 'The teacher runs the room and does not play.',
     noQuestions: 'Not enough questions for this choice.',
+    swap: 'Swap for another question', removeQ: 'Remove', nQuestions: (n) => `${n} questions`, showAnswers: 'Show answers',
+    addQ: 'Add a question', newMix: 'New mix', editQuestions: 'Edit questions', save: 'Save', cancel: 'Cancel',
+    answersHint: 'The projector may be on: answers are hidden here unless you tick "Show answers".',
   },
   de: {
     title: 'Krabsy Quiz-Raum',
@@ -62,6 +65,9 @@ const T = {
     ranking: 'Rangliste', classRight: (p) => `Die Klasse hatte ${p} % richtig.`, newQuiz: 'Neues Quiz', results: 'Ergebnis',
     closeRoom: 'Raum schließen', teacherOnly: 'Die Lehrkraft leitet den Raum und spielt nicht mit.',
     noQuestions: 'Für diese Auswahl gibt es nicht genug Fragen.',
+    swap: 'Gegen eine andere Frage tauschen', removeQ: 'Entfernen', nQuestions: (n) => `${n} Fragen`, showAnswers: 'Antworten zeigen',
+    addQ: 'Frage hinzufügen', newMix: 'Neu mischen', editQuestions: 'Fragen bearbeiten', save: 'Speichern', cancel: 'Abbrechen',
+    answersHint: 'Der Beamer läuft vielleicht: Die Antworten sind hier versteckt, außer du hakst „Antworten zeigen“ an.',
   },
   es: {
     title: 'Krabsy Sala de Quiz',
@@ -87,6 +93,9 @@ const T = {
     ranking: 'Clasificación', classRight: (p) => `La clase acertó el ${p} %.`, newQuiz: 'Nuevo quiz', results: 'Resultados',
     closeRoom: 'Cerrar la sala', teacherOnly: 'El profe dirige la sala y no juega.',
     noQuestions: 'No hay suficientes preguntas para esta selección.',
+    swap: 'Cambiar por otra pregunta', removeQ: 'Quitar', nQuestions: (n) => `${n} preguntas`, showAnswers: 'Mostrar respuestas',
+    addQ: 'Añadir pregunta', newMix: 'Mezclar de nuevo', editQuestions: 'Editar preguntas', save: 'Guardar', cancel: 'Cancelar',
+    answersHint: 'Quizá el proyector está encendido: las respuestas están ocultas salvo que marques «Mostrar respuestas».',
   },
 };
 

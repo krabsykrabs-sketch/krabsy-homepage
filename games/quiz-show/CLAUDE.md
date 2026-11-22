@@ -13,10 +13,11 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **milestone 1 built (2026-11-22)**: room server + teacher page +
-child page; a whole quiz runs with a teacher and several children (tested
-headless with 3 and 4 children, verbs and prepositions, DE/ES; server tests
-pass). **Not deployed, not played by people yet.** The server must be
+Status: **milestones 1 and 2 built (2026-11-22)**: room server + teacher
+page + child page, and the teacher's question list (see every question,
+swap, remove, add, new mix; also in the lobby while children join). A
+whole quiz runs with a teacher and several children (tested headless with
+3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be
 deployed with the API (master session) before anyone can play online.
 
 ## How to run it locally
@@ -33,6 +34,10 @@ deployed with the API (master session) before anyone can play online.
    token is in `sessionStorage`, so each tab is its own child).
 4. QA: `node tools/qa-room.cjs <outDir> <children> "lang=de&topic=…"` plays a
    whole quiz with one teacher and N children and saves screenshots.
+   `node tools/qa-editor.cjs <outDir>` checks the question list (14 checks).
+   Known flake: in 1 of 4 runs of `qa-room.cjs` one child's answer button
+   counted as "not visible" for a moment (2026-11-22, not reproduced; watch
+   for it in a real play-test).
 5. The client picks the server from the page: `wss://api.krabsy.com` on
    krabsy.com, `ws://<host>:8150` elsewhere, or `?server=<ws url>`.
 
@@ -45,7 +50,8 @@ deployed with the API (master session) before anyone can play online.
 | `index.html` + `src/child.js` | join (code, first name, colour), walking, private answer card (click or keys 1–4 / A–D), small panel after answering, reveal (right/wrong, points, place, teach beat), top 5, end screen |
 | `src/room.js` | the 3D room, avatars (random KayKit character, colour ring, name tag, "answered" dot / thinking bubble), movement (WASD/arrows, Shift run, Space jump), cameras |
 | `src/net.js` | socket with auto-reconnect (re-sends join/resume) |
-| `src/questions.js` | builds the question list in the teacher's browser (engine or inline lists), verb pairs kept together |
+| `src/questions.js` | builds the question pool in the teacher's browser (engine or inline lists), verb pairs kept together |
+| `src/editor.js` | the teacher's question list: one row per question (a verb pair = one row), ⟳ swap for an unused one (same topic + difficulty, same length), ✕ remove, + add, new mix, "show answers" toggle |
 | `src/ui.js`, `src/style.css` | shared rendering (question line, teach beat, review) and styles |
 | `src/i18n.js`, `src/audio.js`, `src/analytics.js` | texts, synth sounds, analytics (`quiz-room`: `quiz_open`, `level_start`, `level_end`; children post answer counts) |
 
@@ -57,9 +63,19 @@ presses "Show answer"; a child who leaves the room and comes back (same
 tab) keeps name and points; a removed child can't rejoin with the same tab.
 The room's question list stays on the server; nothing is written to disk.
 
-Not in milestone 1 (next milestones): avatar choice (the avatar is random,
-the colour is chosen), question preview/swap, toys and emotes, bonus round,
-touch controls, QR code, class link.
+Question list (milestone 2): the setup page shows the list right away
+(10 questions, filled from the pool); changing the count adds or trims at
+the end and keeps the teacher's edits; changing topic or difficulty makes
+a new list. In the lobby, "Fragen bearbeiten" opens the same list with the
+**answers hidden** (the projector may be on; with hidden answers the
+3rd-form row also hides the 2nd form, shown as •••); "Speichern" sends it
+to the server (`questions` message, lobby only). The teacher's settings
+are kept in `sessionStorage` with the room token, so after a reload the
+pool can be rebuilt for swaps.
+
+Not built yet (next milestones): avatar choice (the avatar is random, the
+colour is chosen), toys and emotes, bonus round, touch controls, QR code,
+class link.
 
 ## Why this game
 
@@ -298,3 +314,6 @@ question loading, texts, sounds, character loading and the QA approach.
   quizzes pass headless with a teacher + 3 and + 4 children (verbs DE,
   prepositions ES), no console errors. Teacher screen: question panel at
   the bottom so the room stays visible.
+- 2026-11-22: milestone 2 built: question list in the teacher setup and in
+  the lobby (server: `questions` message in the lobby, + test; API suite 43
+  passed). `tools/qa-editor.cjs` 14/14; full quiz still passes.

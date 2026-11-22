@@ -61,7 +61,8 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
         if (last && qi % 3 === 2) continue;                      // skips some
         const opt = i === 0 ? correct : i === 1 ? (correct + 1) % 4 : Math.floor(Math.random() * 4);
         await k.waitForFunction((q) => window.__qr.S.qi === q, qi, { timeout: 10000 });
-        await k.click(`#qboxes .box:nth-child(${opt + 1})`);
+        try { await k.click(`#qboxes .box:nth-child(${opt + 1})`, { timeout: 8000 }); }
+        catch (e) { await k.screenshot({ path: `${out}/FAIL-${i}-${qi}.png` }); console.log('click failed', i, qi, await k.evaluate(() => JSON.stringify([...document.querySelectorAll('#qboxes .box')].map((b) => b.getBoundingClientRect().height))), JSON.stringify(await k.evaluate(() => { const S = window.__qr.S; return { phase: S.phase, qi: S.qi, mine: S.mine, pid: S.pid, hidden: document.getElementById('qcard').className, msg: document.getElementById('msg').className, join: document.getElementById('join').className }; }))); throw e; }
         if (i === 0 && qi === 0) {
           await k.keyboard.down('ArrowRight'); await wait(400); await k.keyboard.up('ArrowRight');
           await wait(200);

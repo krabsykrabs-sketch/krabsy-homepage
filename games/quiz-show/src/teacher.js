@@ -8,6 +8,7 @@ import { Room, COLORS } from './room.js';
 import * as QS from './questions.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
+import { QuestionEditor } from './editor.js';
 
 document.documentElement.lang = lang();
 document.title = `${t('title')} — ${t('setupTitle')}`;
@@ -25,7 +26,7 @@ function optRow(id, items, isOn, onClick) {
     const b = document.createElement('button');
     b.className = 'opt' + (isOn(it.v) ? ' on' : '');
     b.innerHTML = it.html;
-    b.addEventListener('click', () => { onClick(it.v); renderSetup(); });
+    b.addEventListener('click', () => { onClick(it.v); renderSetup(); settingsChanged(); });
     box.appendChild(b);
   }
 }
@@ -40,6 +41,35 @@ function renderSetup() {
   optRow('optTime', [15, 20, 30].map((v) => ({ v, html: `${v} s` })), (v) => cfg.time === v, (v) => { cfg.time = v; });
 }
 renderSetup();
+
+// ------------------------------------------------------------------ question list
+const editor = new QuestionEditor($('editor'), { onChange: (n) => { $('openBtn').disabled = n < 1; } });
+editor.onMix = () => editor.load(cfg.topic, cfg.levels, cfg.count, { fresh: true });
+let editMode = false;   // false: before the room opens; true: editing in the lobby
+function settingsChanged() { editor.load(cfg.topic, cfg.levels, cfg.count); }
+
+function setEditMode(on) {
+  editMode = on;
+  $('timeRow').classList.toggle('hidden', on);
+  $('hintA').classList.toggle('hidden', !on);
+  $('cancelBtn').classList.toggle('hidden', !on);
+  $('openBtn').textContent = on ? t('save') : t('open');
+  $('openBtn').disabled = editor.count < 1;
+  $('setupErr').textContent = '';
+}
+
+$('editBtn').addEventListener('click', async () => {
+  setEditMode(true);
+  editor.showAnswers = false;                 // the projector may be on
+  if (!editor.units.length && S.questions.length) editor.setQuestions(S.questions);
+  else editor.render();
+  $('setup').classList.remove('hidden');
+  if (!editor.pool.length) editor.loadPool(cfg.topic, cfg.levels).catch(() => {});
+});
+$('cancelBtn').addEventListener('click', () => {
+  editor.setQuestions(S.questions);
+  $('setup').classList.add('hidden');
+});
 
 // ------------------------------------------------------------------ room view
 const room = new Room($('c'), { mode: 'teacher' });
@@ -59,11 +89,11 @@ async function ensureNet() { if (!connected) { await net.connect(); connected = 
 
 $('openBtn').addEventListener('click', async () => {
   sfx.init();
+  const questions = editor.questions;
+  if (editMode) { net.send({ t: 'questions', questions }); return; }
   $('openBtn').disabled = true; $('openBtn').textContent = t('opening'); $('setupErr').textContent = '';
   try {
-    const units = await QS.loadUnits(cfg.topic, cfg.levels);
-    const questions = QS.takeQuestions(units, cfg.count);
-    if (questions.length < Math.min(5, cfg.count)) throw new Error('noQuestions');
+    if (!questions.length) throw new Error('noQuestions');
     await ensureNet();
     net.send({ t: 'create', questions, time: cfg.time, lang: lang() });
   } catch (e) {
@@ -76,21 +106,30 @@ $('openBtn').addEventListener('click', async () => {
 let saved = null;
 try { saved = JSON.parse(sessionStorage.getItem('krabsy_quiz_teacher') || 'null'); } catch (_) {}
 if (saved) {
+  if (saved.cfg) { Object.assign(cfg, saved.cfg); renderSetup(); }
   ensureNet().then(() => net.enter({ t: 'resume', code: saved.code, token: saved.token })).catch(() => {});
-}
+} else settingsChanged();
 
 net.on('created', (m) => {
-  try { sessionStorage.setItem('krabsy_quiz_teacher', JSON.stringify({ code: m.code, token: m.token })); } catch (_) {}
+  try { sessionStorage.setItem('krabsy_quiz_teacher', JSON.stringify({ code: m.code, token: m.token, cfg })); } catch (_) {}
   net.hello = { t: 'resume', code: m.code, token: m.token };
   enterRoom(m);
   analytics.event('quiz_open', { level: 1, questions: m.n, topic: cfg.topic, time: m.time });
 });
 net.on('resumed', (m) => enterRoom(m));
+net.on('questions_set', (m) => {
+  S.questions = m.questions; S.n = m.n;
+  editor.setQuestions(m.questions);
+  $('setup').classList.add('hidden');
+  setEditMode(false);
+  render();
+});
 net.on('error', (m) => {
   if (m.code === 'no_room' && S.phase === 'setup') {
     try { sessionStorage.removeItem('krabsy_quiz_teacher'); } catch (_) {}
     net.hello = null;
-  } else if (S.phase === 'setup') {
+    settingsChanged();
+  } else if (S.phase === 'setup' || editMode) {
     $('setupErr').textContent = m.code;
   }
   $('openBtn').disabled = false; $('openBtn').textContent = t('open');
@@ -193,6 +232,7 @@ function render() {
   mb.disabled = ph === 'lobby' && !online.length;
   $('controls').classList.toggle('hidden', ph === 'end' || ph === 'setup');
   $('lockBtn').textContent = S.locked ? t('unlock') : t('lock');
+  $('editBtn').classList.toggle('hidden', ph !== 'lobby');
 
   // question / reveal panel
   const qp = $('qpanel');
@@ -240,4 +280,4 @@ function tickTimer() {
   el.classList.toggle('low', left < 5000);
 }
 
-window.__qt = { S, room, net, analytics }; // QA hook
+window.__qt = { S, room, net, analytics, editor }; // QA hook

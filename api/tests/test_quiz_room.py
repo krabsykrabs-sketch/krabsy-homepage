@@ -148,6 +148,26 @@ def test_teacher_resume_and_errors():
         assert recv(x, "error")["code"] == "bad_name"
 
 
+def test_edit_questions_in_lobby_only():
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(2), "time": 30})
+        code = recv(teacher, "created")["code"]
+        teacher.send_json({"t": "questions", "questions": Q(5)})
+        assert recv(teacher, "questions_set")["n"] == 5
+        teacher.send_json({"t": "questions", "questions": []})
+        assert recv(teacher, "error")["code"] == "no_questions"
+        with c.websocket_connect(WS) as a:
+            a.send_json({"t": "join", "code": code, "name": "Ida"})
+            recv(a, "joined")
+            teacher.send_json({"t": "start"})
+            assert recv(a, "question")["n"] == 5
+            teacher.send_json({"t": "questions", "questions": Q(1)})
+            assert recv(teacher, "error")["code"] == "started"
+
+
 def test_origin_and_names():
     import quiz_room
     assert quiz_room._ORIGIN.match("https://krabsy.com")
