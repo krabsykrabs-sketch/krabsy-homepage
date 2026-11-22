@@ -226,7 +226,7 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
     (`/de/praepositionen/arbeitsblaetter/`, `/es/preposiciones/fichas/`), verb sheet
     "sort by pattern", teacher blocks on 7 game pages and 7 drill pages
     (`tools/render_teacher_notes.py`, TEACHER in `tools/game_info_content.py`).
-  - **Verb-Diplom BUILT (committed, NOT yet deployed):** `/de/unregelmaessige-verben/verb-diplom/`,
+  - **Verb-Diplom LIVE (deployed 2026-11-22; IndexNow 8 URLs, HTTP 200; live headless run OK — 2 test runs from it are in the game-event analytics):** `/de/unregelmaessige-verben/verb-diplom/`,
     `/es/verbos-irregulares/diploma/`; logic in `homepage/lib/krabsy-verb-diplom.js` + `.css`.
     Brief (with the review fixes: 15/30/45 verbs, 90 % pass mark, stops early) in
     `docs/brief-verb-diplom.md`. Linked from both hubs (drill card), teacher pages (pick
@@ -234,7 +234,6 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
     Checked headless: pass/fail, alternates, early stop, events, one-page A4 PDF, phone layout.
     Open: human play-test, real print in Firefox/Safari, owner OK on levels; thumbnail
     `/thumbnails/VerbDiplom.svg` is a placeholder (not in the crab illustration style).
-    After deploy: IndexNow for the 2 new URLs + hubs, teacher and worksheet pages.
 
 - **SEO overhaul LIVE (pushed + deployed 2026-11-12; IndexNow: all 402 sitemap URLs, HTTP 200)** — see WORK_LOG
   2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
