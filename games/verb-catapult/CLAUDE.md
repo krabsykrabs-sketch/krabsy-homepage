@@ -8,8 +8,9 @@ games (wrapper pages, `games.json`, sitemap, deploy). You don't touch
 `homepage/` or other games, and you don't push or deploy. Stage only this
 folder, in the same command that commits: `git add games/verb-catapult && git commit …`.
 
-Status: **milestones 1–2 built 2026-11-22** (physics + question loop, level 1
-with 3 castles, plain Three.js shapes as stand-ins). Next: milestone 3 (art).
+Status: **milestones 1–3 built 2026-11-22** (physics, question loop, KayKit
+art; level 1 with 3 castles). Next: milestone 4 (levels 2–6, `?edit=1`
+editor, mobile/touch pass), after an owner play-test of level 1.
 
 ### How to run / test
 
@@ -30,6 +31,18 @@ with 3 castles, plain Three.js shapes as stand-ins). Next: milestone 3 (art).
   Materials, skeleton, stone types and damage live here.
 - `src/main.js`: scene, camera fit, aiming, card, castle/level flow,
   results, analytics, QA hooks.
+- `src/art.js`: models on the bodies (crates = `crate_A_big`, planks and
+  pillars = `resource_lumber`, hay, cut stone = plain boxes, stones =
+  faceted procedural rocks, bomb = `barrel`, cannon = `projectile_cannonball`),
+  `Skeleton` (Spawn_Ground → Idle_A, Hit_A, Death_A; a dying skeleton keeps
+  its momentum and lands before it bursts into bones; `type: "warrior"` in
+  the level data = `Skeleton_Warrior`), `Catapult` (the KayKit arm swings;
+  the stone leaves the cup at RELEASE = the physics launch point, mirrored
+  in `physics.js` LAUNCH for the node tools), `buildWorld` (meadow scenery).
+- `src/assets.js`: loader + `fit(name, w, h, d)` (stretch a model into a
+  body's box). `src/chars.js` copied from the Dungeon.
+- `tools/preview.html`: a model sheet for picking art
+  (http://localhost:8141/tools/preview.html).
 - `src/questions.js` + `src/verbs.js`: copied from Verb Dungeon (engine
   pairs, inline fallback). `src/i18n.js`, `src/audio.js`.
 - `levels/level1.json`: castles (block centres; skeleton `y` = feet).
@@ -282,3 +295,19 @@ Physics is the risky part, so it is proven first, with plain boxes.
   stone, or a closer fort view between shots). The random bot clearing
   level 1 suggests skeletons may be too fragile; decide in play-testing.
   All art is placeholder (milestone 3).
+- 2026-11-22: milestone 3, art. KayKit Medieval Hexagon props (one
+  texture, 468 KB for 22 models) + Skeleton Minion/Warrior and the
+  Dungeon's animation file; first load about 2.9 MB with Three.js and
+  planck. Picked with the preview sheet: `crate_A` is the brown crate
+  (`crate_B` is grey, free for a "metal" block later); the long crates are
+  fruit trays, so planks are log bundles; the pack's catapult projectile is
+  a spiked ball, so stones are procedural rocks. Catapult scaled 3.2×,
+  arm swing 16 rad/s, release at 1.45 rad → launch point (−1.2, 3.45);
+  stone odds per shot unchanged (castle 3, normal stone: 9% clear all).
+  Skeletons drawn 1.4× the body height. A random-aim bot cleared level 1
+  in 4 shots (8 answers) this run. **This is the main play-test question:**
+  when castles fall in one shot, a level asks far fewer than the ~20
+  questions the timing plan wants. Possible fixes: sturdier skeletons
+  (hp / TIP), more skeletons per castle, or a castle asks for every stone
+  in the basket even when the last skeleton falls early (no: that wastes
+  answers). Decide after the owner plays.

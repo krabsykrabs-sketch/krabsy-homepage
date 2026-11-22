@@ -1,11 +1,13 @@
 // Verb Catapult: answer a verb pair, get a stone, knock the skeletons off their forts.
-// Milestones 1–2 (see CLAUDE.md): planck.js physics in one plane (src/physics.js), drawn
-// with plain Three.js shapes; the question card and the shot table. KayKit art comes next.
+// planck.js physics in one plane (src/physics.js), drawn with KayKit models (src/art.js);
+// the question card and the shot table (CLAUDE.md).
 import * as THREE from 'three';
-import { Sim, LAUNCH, MAX_PULL, STEP, STONES, SKEL, SPECIAL_OF_LEVEL } from './physics.js';
+import { Sim, MAX_PULL, STEP, STONES, SPECIAL_OF_LEVEL } from './physics.js';
 import { loadPairs, again, source as qSource } from './questions.js';
 import { t, lang, isTouch } from './i18n.js';
 import { sfx } from './audio.js';
+import { Assets } from './assets.js';
+import { stoneMesh, blockMesh, Skeleton, Catapult, buildWorld, basketMesh } from './art.js';
 
 const GAME = 'verb-catapult';
 const QS = new URLSearchParams(location.search);
@@ -46,114 +48,23 @@ Object.assign(sun.shadow.camera, { left: -16, right: 22, top: 14, bottom: -6, ne
 scene.add(sun, sun.target);
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
-const shade = (m) => { m.castShadow = true; m.receiveShadow = true; return m; };
-{ // meadow, hills, clouds
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 500), mat(0x7cc35a));
+{ // the meadow floor (models come in buildWorld after loading)
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 500), mat(0x86c45e));
   ground.rotation.x = -Math.PI / 2; ground.position.set(15, 0, -60); ground.receiveShadow = true;
   scene.add(ground);
-  const strip = new THREE.Mesh(new THREE.BoxGeometry(60, 0.3, 2.2), mat(0x6aae4b));
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(60, 0.3, 2.4), mat(0x78b752));
   strip.position.set(14, -0.14, 0); strip.receiveShadow = true; scene.add(strip);
-  const hill = new THREE.SphereGeometry(1, 24, 12);
-  for (const [x, z, s, c] of [[-10, -30, 14, 0x86c96a], [12, -40, 20, 0x8fd06f], [38, -32, 16, 0x86c96a], [60, -45, 22, 0x93d473]]) {
-    const h = new THREE.Mesh(hill, mat(c)); h.position.set(x, -s * 0.55, z); h.scale.set(s * 1.6, s, s); scene.add(h);
-  }
-  const cloud = mat(0xffffff);
-  for (const [x, y, z] of [[-4, 13, -25], [18, 16, -35], [34, 12, -28], [50, 17, -40]]) {
-    const g = new THREE.Group();
-    for (const [dx, dy, r] of [[0, 0, 2], [1.8, 0.4, 1.6], [-1.8, 0.2, 1.4], [0.6, 1, 1.4]]) {
-      const b = new THREE.Mesh(new THREE.SphereGeometry(r, 14, 10), cloud); b.position.set(dx, dy, 0); g.add(b);
-    }
-    g.position.set(x, y, z); g.scale.y = 0.6; scene.add(g);
-  }
 }
-
-// ---- catapult (a sturdy wooden fork for now; the KayKit model comes with the art milestone)
-const catapult = new THREE.Group();
-{
-  const wood = mat(0x9c6a3c), dark = mat(0x6b4526);
-  const base = shade(new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.35, 1.3), dark)); base.position.set(-0.3, 0.3, 0);
-  const wheelG = new THREE.CylinderGeometry(0.34, 0.34, 0.16, 16); wheelG.rotateX(Math.PI / 2);
-  for (const [x, z] of [[-0.9, 0.7], [0.3, 0.7], [-0.9, -0.7], [0.3, -0.7]]) {
-    const w = shade(new THREE.Mesh(wheelG, mat(0x4a3220))); w.position.set(x, 0.34, z); catapult.add(w);
-  }
-  const post = shade(new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.2, 0.28), wood)); post.position.set(0, 0.95, 0);
-  for (const z of [-0.45, 0.45]) {
-    const arm = shade(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 0.2), wood));
-    arm.position.set(0.05, LAUNCH.y + 0.1, z); arm.rotation.x = z > 0 ? -0.35 : 0.35; catapult.add(arm);
-  }
-  catapult.add(base, post);
-}
-scene.add(catapult);
-const bandMat = new THREE.LineBasicMaterial({ color: 0x4a2a14 });
-const bandGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]);
-const band = new THREE.Line(bandGeo, bandMat); scene.add(band);
-const forkTips = [new THREE.Vector3(0.12, LAUNCH.y + 0.42, 0.58), new THREE.Vector3(0.12, LAUNCH.y + 0.42, -0.58)];
-
-// ---- basket with the stones left
-const BASKET = { x: -2.3, y: 0.0 };
-const basket = new THREE.Group();
-{
-  const b = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.48, 0.55, 16, 1, true), mat(0xc9a15e)));
-  b.material.side = THREE.DoubleSide; b.position.y = 0.28; basket.add(b);
-  const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.48, 16), mat(0x8a6a38)); bottom.rotation.x = -Math.PI / 2; bottom.position.y = 0.03; basket.add(bottom);
-}
-basket.position.set(BASKET.x, BASKET.y, 0.3); scene.add(basket);
+let world = null, cat = null, basket = null; // built after Assets.load()
+const BASKET = { x: -2.6, y: 0.0 };
 const basketStones = [];
-
-// ---- shared geometries / materials for bodies
-const STONE_LOOK = {
-  pebble: 0xb9b4a8, normal: 0xa8a294, big: 0x8c8678, split: 0x7fa6c9, bomb: 0x9a5b2c, cannon: 0x2b2f36,
-};
 const BLOCK_LOOK = { wood: 0xc8925a, stone: 0x9aa0a8, hay: 0xe6c25a };
-function stoneMesh(type) {
-  const r = STONES[type].r;
-  let m;
-  if (type === 'bomb') {
-    m = new THREE.Group();
-    const c = shade(new THREE.Mesh(new THREE.CylinderGeometry(r, r, r * 1.7, 14), mat(STONE_LOOK.bomb)));
-    c.rotation.x = Math.PI / 2; m.add(c);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.01, 0.04, 6, 18), mat(0xd23c3c)); m.add(ring);
-  } else {
-    m = shade(new THREE.Mesh(new THREE.IcosahedronGeometry(r, type === 'cannon' ? 3 : 1), mat(STONE_LOOK[type])));
-    if (type !== 'cannon') m.geometry.scale(1, 0.92, 1);
-  }
-  return m;
-}
-function blockMesh(u) {
-  const g = new THREE.Group();
-  const depth = Math.max(1, Math.min(u.w, u.h) * 1.1);
-  const m = shade(new THREE.Mesh(new THREE.BoxGeometry(u.w, u.h, depth), mat(BLOCK_LOOK[u.mat])));
-  g.add(m);
-  if (u.mat === 'wood' && u.w > 0.6 && u.h > 0.6) { // a crate: dark planks across
-    const edge = mat(0x8d5f33);
-    for (const s of [-1, 1]) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(u.w * 1.01, 0.12, depth * 1.01), edge); bar.position.y = s * (u.h / 2 - 0.08); g.add(bar);
-    }
-    const diag = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(u.w, u.h) * 0.85, 0.1, depth * 1.015), edge);
-    diag.rotation.z = Math.atan2(u.h, u.w); g.add(diag);
-  }
-  g.userData.base = m.material.color.clone();
-  g.userData.mat = m.material;
-  return g;
-}
-function skelMesh() {
-  const g = new THREE.Group(), bone = mat(0xf1ede0), dark = mat(0x23262e);
-  const body = shade(new THREE.Mesh(new THREE.BoxGeometry(SKEL.w * 0.7, SKEL.h * 0.5, 0.35), bone)); body.position.y = -0.12;
-  const head = shade(new THREE.Mesh(new THREE.SphereGeometry(0.27, 16, 12), bone)); head.position.y = SKEL.h / 2 - 0.2;
-  for (const x of [-0.1, 0.1]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 6), dark); eye.position.set(x - 0.05, SKEL.h / 2 - 0.18, 0.22); g.add(eye);
-  }
-  for (const x of [-0.12, 0.12]) {
-    const leg = shade(new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.3, 0.09), bone)); leg.position.set(x, -SKEL.h / 2 + 0.15, 0); g.add(leg);
-  }
-  g.add(body, head);
-  g.userData.mats = [bone];
-  return g;
-}
+const skelArt = new Map(); // body → Skeleton
+const dying = [];          // skeletons playing their fall, off the physics
 
 // ---------------------------------------------------------------- camera fit
 // Fixed camera: the whole scene (catapult to fort) is visible. In portrait it backs off.
-const VIEW = { x0: -3.4, x1: 25, y0: -0.3, y1: 6.8 };
+const VIEW = { x0: -4.6, x1: 25, y0: -0.3, y1: 6.8 };
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h);
@@ -259,9 +170,18 @@ function special() {
   return c.special || G.data.special || SPECIAL_OF_LEVEL[G.level] || 'big';
 }
 
+function bodyMesh(b) {
+  const u = b.getUserData();
+  if (u.kind !== 'skel') return blockMesh(u);
+  const sk = new Skeleton(u.src.type === 'warrior' ? 'Skeleton_Warrior' : 'Skeleton_Minion');
+  skelArt.set(b, sk);
+  return sk.group;
+}
 function clearScene() {
   for (const m of meshes.values()) scene.remove(m);
   meshes.clear();
+  for (const sk of [...skelArt.values(), ...dying]) sk.dispose();
+  skelArt.clear(); dying.length = 0;
   sim.clear();
 }
 
@@ -270,8 +190,7 @@ function buildCastle() {
   const c = G.data.castles[G.castle];
   sim.build(c);
   for (const b of [...sim.blocks, ...sim.skels]) {
-    const u = b.getUserData();
-    const m = u.kind === 'skel' ? skelMesh() : blockMesh(u);
+    const m = bodyMesh(b);
     scene.add(m); meshes.set(b, m);
   }
   G.stonesLeft = c.stones; G.extraUsed = false; G.castlePoints = 0; G.shotsDone = 0;
@@ -294,8 +213,8 @@ function updateHud() {
   for (const s of basketStones) basket.remove(s);
   basketStones.length = 0;
   for (let i = 0; i < G.stonesLeft; i++) {
-    const s = stoneMesh('normal'); s.scale.setScalar(0.75);
-    s.position.set((i % 3 - 1) * 0.32, 0.45 + Math.floor(i / 3) * 0.22, (i % 2) * 0.12);
+    const s = stoneMesh('normal'); s.scale.setScalar(0.7);
+    s.position.set((i % 3 - 1) * 0.28, 0.3 + Math.floor(i / 3) * 0.2, (i % 2) * 0.1);
     basket.add(s); basketStones.push(s);
   }
 }
@@ -396,7 +315,7 @@ function closeCard() {
   const type = stoneFromResults(card.res[0], card.res[1]);
   if (type !== 'normal' && type !== 'pebble') { G.specials += 1; sfx.upgrade(); }
   G.loaded = type;
-  const m = stoneMesh(type); scene.add(m); G.cupMesh = m;
+  const m = stoneMesh(type); scene.add(m); G.cupMesh = m; G.cupType = type;
   G.pull = { x: 0, y: 0 };
   toast(t(`stone_${type}`), 1100);
   setMode('aim');
@@ -415,27 +334,26 @@ function pullFromKeys() {
   const a = THREE.MathUtils.degToRad(G.kAng), len = G.kPow * MAX_PULL;
   G.pull = { x: -Math.cos(a) * len, y: -Math.sin(a) * len };
 }
-function cupPos() {
-  const len = Math.hypot(G.pull.x, G.pull.y), k = len > MAX_PULL ? MAX_PULL / len : 1;
-  return { x: LAUNCH.x + G.pull.x * k, y: Math.max(0.3, LAUNCH.y + G.pull.y * k) };
-}
-function updateAim() {
+function updateAim(dt) {
   const showing = G.mode === 'aim';
-  const cp = showing ? cupPos() : LAUNCH;
-  if (G.cupMesh) G.cupMesh.position.set(cp.x, cp.y, 0);
-  const pos = bandGeo.attributes.position;
-  pos.setXYZ(0, forkTips[0].x, forkTips[0].y, forkTips[0].z);
-  pos.setXYZ(1, showing && G.cupMesh ? cp.x : forkTips[0].x, showing && G.cupMesh ? cp.y : LAUNCH.y + 0.2, 0);
-  pos.setXYZ(2, forkTips[1].x, forkTips[1].y, forkTips[1].z);
-  pos.needsUpdate = true;
+  const pullK = showing ? Math.min(1, Math.hypot(G.pull.x, G.pull.y) / MAX_PULL) : 0;
+  cat.update(dt, pullK);
+  if (G.cupMesh) { const c = cat.cupWorld(); G.cupMesh.position.set(c.x, c.y + STONES[G.cupType].r * 0.6, 0); }
+  // The stone leaves the cup when the swinging arm reaches the release angle.
+  if (G.pendingFire && cat.released) {
+    const { type, v } = G.pendingFire; G.pendingFire = null;
+    const body = sim.fire(type, v.x, v.y, cat.launch);
+    meshes.set(body, G.cupMesh); G.cupMesh = null;
+    sfx.thwack();
+  }
   const v = showing && G.loaded ? Sim.velocity(G.pull.x, G.pull.y) : null;
-  const st = G.loaded && STONES[G.loaded];
-  const n = v ? Math.round(6 + 14 * Math.min(1, Math.hypot(G.pull.x, G.pull.y) / MAX_PULL)) : 0;
+  const st = G.loaded && STONES[G.loaded], L = cat.launch;
+  const n = v ? Math.round(6 + 14 * pullK) : 0;
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i]; d.visible = i < n;
     if (!d.visible) continue;
     const tt = (i + 1) * 0.07, gs = st.gravity || 1;
-    d.position.set(LAUNCH.x + v.x * st.speed * tt, LAUNCH.y + v.y * st.speed * tt - 5 * gs * tt * tt, 0);
+    d.position.set(L.x + v.x * st.speed * tt, L.y + v.y * st.speed * tt - 5 * gs * tt * tt, 0);
     d.scale.setScalar(1 - i / dots.length * 0.6);
   }
 }
@@ -444,12 +362,10 @@ function fire() {
   const v = Sim.velocity(G.pull.x, G.pull.y);
   if (!v) return;
   hint('');
-  const body = sim.fire(G.loaded, v.x, v.y);
-  scene.remove(G.cupMesh); meshes.set(body, G.cupMesh); G.cupMesh = null;
-  sfx.thwack();
+  G.pendingFire = { type: G.loaded, v };
+  cat.throw(); sfx.creak();
   G.lastType = G.loaded; G.loaded = null; G.flightT = 0; G.shotsDone += 1;
   G.pull = { x: 0, y: 0 };
-  scene.add(meshes.get(body));
   setMode('flight');
   if (G.lastType === 'split' && G.level <= 2) hint('hintSplit');
 }
@@ -535,16 +451,17 @@ function handleEvents() {
         break;
       }
       case 'skel': {
-        const m = meshes.get(e.body); if (m) { scene.remove(m); meshes.delete(e.body); }
-        burst(e.x, e.y + 0.4, 0xf1ede0, 12, 0.16, 5);
+        // The skeleton leaves the physics and plays its fall; it bursts into bones after it.
+        meshes.delete(e.body);
+        const sk = skelArt.get(e.body);
+        if (sk) { skelArt.delete(e.body); const v = e.body.getLinearVelocity(); sk.die(v.x, v.y); dying.push(sk); }
         sfx.oof();
         pop(e.x, e.y + 1.4, t('oof'), 'big');
         score(e.points, e.x, e.y + 0.6);
         break;
       }
       case 'hurt': {
-        const m = meshes.get(e.body); if (!m) break;
-        m.userData.hurtT = 0.25;
+        const sk = skelArt.get(e.body); if (sk) sk.hurt();
         break;
       }
       case 'boom':
@@ -568,10 +485,6 @@ function syncMeshes() {
     const p = b.getPosition();
     m.position.set(p.x, p.y, 0);
     m.rotation.z = b.getAngle();
-    if (m.userData.hurtT > 0) {
-      m.userData.hurtT -= 1 / 60;
-      for (const mm of m.userData.mats || []) mm.color.setHex(m.userData.hurtT > 0 ? 0xff9a9a : 0xf1ede0);
-    }
   }
 }
 
@@ -683,7 +596,7 @@ function showMenu() {
   fetch('levels/level1.json').then((r) => r.json()).then((d) => {
     if (G.mode !== 'menu') return;
     sim.build(d.castles[2]);
-    for (const b of [...sim.blocks, ...sim.skels]) { const u = b.getUserData(); const m = u.kind === 'skel' ? skelMesh() : blockMesh(u); scene.add(m); meshes.set(b, m); }
+    for (const b of [...sim.blocks, ...sim.skels]) { const m = bodyMesh(b); scene.add(m); meshes.set(b, m); }
     syncMeshes();
   }).catch(() => {});
 }
@@ -717,7 +630,17 @@ function frame(now) {
     const btn = $('basketBtn'), hw = btn.offsetWidth / 2 + 10;
     btn.style.left = `${Math.max(hw, Math.min(innerWidth - hw, s.x))}px`; btn.style.top = `${Math.max(90, s.y)}px`;
   }
-  updateAim();
+  updateAim(dt);
+  world.update(dt);
+  for (const sk of skelArt.values()) sk.update(dt);
+  for (let i = dying.length - 1; i >= 0; i--) {
+    const sk = dying[i]; sk.update(dt);
+    if (sk.dead) {
+      const p = sk.group.position;
+      burst(p.x, p.y, 0xf1ede0, 12, 0.16, 5);
+      sk.dispose(); dying.splice(i, 1);
+    }
+  }
   stepParts(dt);
   renderer.render(scene, camera);
   if (perfOn) {
@@ -728,7 +651,7 @@ function frame(now) {
 
 // ---------------------------------------------------------------- QA hooks
 window.__VC = {
-  G, sim,
+  G, sim, get launch() { return cat.launch; },
   info: () => ({ mode: G.mode, level: G.level, castle: G.castle, stones: G.stonesLeft, loaded: G.loaded,
     standing: sim.standing(), bodies: sim.bodyCount(), points: G.points, answers: G.answers, correct: G.correct, q: qSource }),
   start: (n = 1) => startLevel(n),
@@ -738,6 +661,14 @@ window.__VC = {
   aim: (deg = 35, pow = 0.8) => { G.kAng = deg; G.kPow = pow; pullFromKeys(); },
 };
 
-$('loading').remove();
-showMenu();
-requestAnimationFrame(frame);
+(async () => {
+  try {
+    await Assets.load((f) => { $('loading').textContent = `${t('loading')} ${Math.round(f * 100)}%`; });
+  } catch (e) { $('loading').textContent = String(e); throw e; }
+  world = buildWorld(scene);
+  cat = new Catapult(scene);
+  basket = basketMesh(); basket.position.set(BASKET.x, 0.43, 0.5); scene.add(basket);
+  $('loading').remove();
+  showMenu();
+  requestAnimationFrame(frame);
+})();

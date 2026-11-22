@@ -6,7 +6,7 @@
 // Damage: every contact's impulse (post-solve) above a material's threshold takes hp.
 // A skeleton is also down when it tips over (> TIP rad) or falls off the world.
 
-export const LAUNCH = { x: 0, y: 1.9 };
+export const LAUNCH = { x: -1.2, y: 3.45 }; // = the catapult cup at release (art.js Catapult.launch); used by the node tools
 export const MAX_PULL = 2.6;      // metres of drag at full power
 export const MAX_SPEED = 19;      // m/s at full power
 export const STEP = 1 / 60;

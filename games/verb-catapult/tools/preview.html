@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>Model preview</title>
+<style>body{margin:0;background:#8fd3f4}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"../vendor/three/three.module.js","three/addons/":"../vendor/three/addons/"}}</script>
+<script type="module">
+// Model sheet for picking art: http://localhost:8141/tools/preview.html
+import * as THREE from 'three';
+import { Assets } from '../src/assets.js';
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(innerWidth, innerHeight); document.body.appendChild(r.domElement);
+const s = new THREE.Scene(); s.background = new THREE.Color(0x8fd3f4);
+s.add(new THREE.HemisphereLight(0xffffff, 0x557744, 1.6)); const d = new THREE.DirectionalLight(0xffffff, 2); d.position.set(3, 6, 8); s.add(d);
+const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100); cam.position.set(4.5, 2.8, 13); cam.lookAt(4.5, 1.2, 0);
+const orig = location.pathname; history.replaceState(null, '', '/'); // asset paths are relative to the game root
+await Assets.load(); history.replaceState(null, '', orig);
+const items = [['crate_A_big', 1, 1, 1], ['crate_B_big', 1, 1, 1], ['crate_long_A', 2, 0.3, 0.8], ['crate_long_B', 2, 0.3, 0.8], ['crate_long_C', 2, 0.3, 0.8],
+  ['crate_long_A', 0.3, 2, 0.8, Math.PI / 2], ['crate_long_C', 0.3, 2, 0.8, Math.PI / 2], ['resource_lumber', 2, 0.35, 0.8], ['pallet', 2, 0.3, 1],
+  ['projectile_catapult', 0.8, 0.8, 0.8], ['projectile_cannonball', 0.8, 0.8, 0.8], ['barrel', 0.8, 0.9, 0.8], ['haybale', 1.5, 0.8, 0.9], ['resource_stone', 1, 1, 1]];
+items.filter(([n]) => Assets.models.has(n)).forEach(([n, w, h, dd, rz], i) => {
+  const m = Assets.fit(n, w, h, dd, { rotZ: rz || 0 }); m.position.set((i % 5) * 2.3, 3.2 - Math.floor(i / 5) * 1.9, 0); s.add(m);
+});
+r.render(s, cam); window.__VC = { G: { mode: 'ok' }, info: () => items.map((x, i) => `${i}:${x[0]}`).join(' ') };
+</script>
