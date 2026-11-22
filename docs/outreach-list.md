@@ -8,7 +8,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Magisnet (gesendet 2026-11-22), El Nuevo Día Educador (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
+Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Magisnet (gesendet 2026-11-22), El Nuevo Día Educador (gesendet 2026-11-22), ASOCOPI (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, Antwort gesendet 2026-11-22, siehe #4).
 
 ### ~~Lehrerfreund (DE)~~: VERWORFEN 2026-11-22
 Kein Englisch-Bereich: Die Fächer sind nur Deutsch, Geschichte und Politik, und die Tools sind allgemeine Unterrichtstools. Die Kontaktseite lehnt Werbe-Anfragen ausdrücklich ab. Nicht einreichen. Text bleibt nur zur Referenz.
@@ -55,7 +55,7 @@ Ergebnis: Kein staatliches Portal (educ.ar, Colombia Aprende, PerúEduca, MEP CR
 | 1 | Magisnet (Zeitung Magisterio) | ES | hoch | Formular https://www.magisnet.com/contacto/ | **GESENDET 2026-11-22** (ohne Uruguay-Absatz). Aufhänger: Artikel "Actividades para dominar los verbos irregulares en inglés" (07/2025). |
 | 2 | El Nuevo Día Educador | PR | hoch | Pitch an Autorin Rut N. Tellado Domenech, rut.tellado@gfrmedia.com | **GESENDET 2026-11-22** per E-Mail. Lehrkräfte-Rubrik der größten PR-Zeitung, Englisch-Reihe, aktiv 2026. Kampagnen teils gesponsert: nur redaktionell. |
 | 3 | Ayuda para maestros (Manu Velasco) | ES | hoch | **kein Kontakt gefunden**, evtl. über Social Media | Sehr große Reichweite, stellt einzelne kostenlose Seiten vor (z. B. JuegaPop 10/2026), Tag "Inglés". |
-| 4 | ASOCOPI | CO | mittel-hoch | asocopicolombia@gmail.com | Nationaler Englischlehrer-Verband; um Erwähnung im Newsletter/Webinar bitten. Sponsoring ist kostenpflichtig, nicht annehmen. |
+| 4 | ASOCOPI | CO | mittel-hoch | asocopicolombia@gmail.com | **GESENDET 2026-11-22** (Bitte um Erwähnung bei Mitgliedern, kein Sponsoring). Nationaler Englischlehrer-Verband; um Erwähnung im Newsletter/Webinar bitten. Sponsoring ist kostenpflichtig, nicht annehmen. |
 | 5 | Puerto Rico TESOL | PR | mittel-hoch | prtesol.association@gmail.com | K-12-Englischlehrkräfte, Newsletter "PRTESOL-Gram" (Aktualität unbestätigt). |
 | 6 | ACPI-TESOL | CR | mittel | acpicostarica@gmail.com | Aktiv (Tagung 2026), keine Linkliste: nur Erwähnung. |
 | 7 | Educación 3.0, Nachfass | ES | mittel | redaccion@educaciontrespuntocero.com | Liste "webs para aprender inglés en secundaria" am 4.3.2026 aktualisiert, einziger Verben-Eintrag Learn English Teens. |
