@@ -2,12 +2,14 @@
 // z −8…8, walls on the back and both sides, open front (the camera looks in from
 // there), the exit door in the middle of the back wall. Rooms differ in props,
 // skeletons and chest. Static pieces are merged into one mesh.
-// Two room types change the shell: 'rune' has three doors with a word sign each,
+// Two room types change the shell: 'rune' has two walls of three doors (the first one
+// across the room at RUNE_WALL.z, the second the back wall), each door with a word sign,
 // 'bridge' has two pits across the room, each crossed by a row of three word stones,
 // with a strip of floor between them.
 import * as THREE from 'three';
 import { Assets } from './assets.js';
 import { makeLabel, brickTex } from './labels.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const H = Math.PI / 2;
 export const DOOR = { x: 0, z: -8 };
@@ -62,6 +64,80 @@ const pitFadeTex = (() => {
 })();
 const pitFadeMat = new THREE.MeshBasicMaterial({ map: pitFadeTex, transparent: true, depthWrite: false });
 export const RUNE_DOORS = [-4, 0, 4];
+// Rune room (play-test note 10): a first wall across the room with three doors (2nd form);
+// behind it an antechamber, then the back wall with three doors (3rd form). `z` = the
+// first wall's centre line (1 thick). It fades out while the hero is in or behind it, so
+// the antechamber stays visible from the fixed camera.
+export const RUNE_WALL = { z: 0, half: 0.5 };
+// The verb book (play-test note 12): a stand with an open book inside a glowing rune
+// circle near the door. Key rooms, ambushes and the treasure room have one; skeletons,
+// the golem and arrows stop at the circle's edge. `book: [x, z]` in the room data moves it.
+export const BOOK = { x: 2.8, z: -5.2, r: 1.6 };
+const bookMats = {
+  wood: new THREE.MeshLambertMaterial({ color: 0x7a4f2e }),
+  dark: new THREE.MeshLambertMaterial({ color: 0x4a2f1c }),
+  cover: new THREE.MeshLambertMaterial({ color: 0x8c2f3a }),
+  page: new THREE.MeshLambertMaterial({ color: 0xfff2d6, emissive: 0x6a5838 }),
+};
+const circleTex = (() => { // a rune ring: amber rings, teal runes between them, soft teal inside
+  const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d'), m = S / 2;
+  const fill = g.createRadialGradient(m, m, 0, m, m, m * 0.92); // a dark teal pool, so the lines read on the light floor
+  fill.addColorStop(0, 'rgba(8,40,52,.55)'); fill.addColorStop(0.85, 'rgba(8,40,52,.5)'); fill.addColorStop(1, 'rgba(8,40,52,0)');
+  g.fillStyle = fill; g.fillRect(0, 0, S, S);
+  g.strokeStyle = '#ffcf5e'; g.shadowColor = '#ffb020'; g.shadowBlur = 18;
+  for (const [r, w] of [[0.9, 16], [0.79, 6], [0.6, 7]]) { g.lineWidth = w; g.beginPath(); g.arc(m, m, r * m, 0, Math.PI * 2); g.stroke(); }
+  g.strokeStyle = '#5ffde0'; g.shadowColor = '#2ee6c0'; g.lineWidth = 9; g.lineCap = 'round';
+  const glyphs = [ // small rune strokes, in unit coordinates around the glyph centre
+    [[-1, -1, 1, 1], [-1, 1, 0, 0]], [[0, -1, 0, 1], [0, -0.3, 1, -1]], [[-1, 1, 0, -1], [0, -1, 1, 1]],
+    [[-1, -1, 1, -1], [0, -1, 0, 1]], [[-1, 0, 1, 0], [0, -1, -0.6, 1]], [[-0.8, -1, -0.8, 1], [-0.8, 0, 0.9, 0.8]],
+  ];
+  for (let i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6, r = 0.695 * m, cx = m + Math.cos(a) * r, cy = m + Math.sin(a) * r, k = 17;
+    g.save(); g.translate(cx, cy); g.rotate(a + Math.PI / 2);
+    for (const [x0, y0, x1, y1] of glyphs[i % glyphs.length]) { g.beginPath(); g.moveTo(x0 * k, y0 * k); g.lineTo(x1 * k, y1 * k); g.stroke(); }
+    g.restore();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+// A lectern with an open book, from primitives, facing the camera (+z). About 1.4 tall.
+function makeLectern() {
+  const o = new THREE.Group();
+  const add = (geo, mat, x, y, z, rx = 0, rz = 0) => {
+    const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz);
+    m.castShadow = true; m.receiveShadow = true; o.add(m); return m;
+  };
+  add(new THREE.CylinderGeometry(0.36, 0.44, 0.14, 10), bookMats.dark, 0, 0.07, 0);
+  add(new THREE.BoxGeometry(0.2, 0.95, 0.2), bookMats.wood, 0, 0.6, 0);
+  const top = new THREE.Group(); top.position.set(0, 1.08, 0); top.rotation.x = 0.55; o.add(top); // tilted to the camera
+  const tAdd = (geo, mat, x, y, z, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.z = rz; m.castShadow = true; top.add(m); return m; };
+  tAdd(new THREE.BoxGeometry(0.95, 0.07, 0.68), bookMats.wood, 0, 0, 0);
+  tAdd(new THREE.BoxGeometry(0.95, 0.06, 0.06), bookMats.dark, 0, 0.05, 0.33); // the ledge the book rests on
+  tAdd(new THREE.BoxGeometry(0.86, 0.04, 0.6), bookMats.cover, 0, 0.06, -0.01);
+  const pageGeo = new THREE.BoxGeometry(0.4, 0.05, 0.54);
+  tAdd(pageGeo, bookMats.page, -0.21, 0.1, -0.01, 0.12); // open pages, a small V
+  tAdd(pageGeo, bookMats.page, 0.21, 0.1, -0.01, -0.12);
+  const lineGeo = new THREE.BoxGeometry(0.28, 0.01, 0.03);
+  for (const side of [-1, 1]) for (let i = 0; i < 4; i++) tAdd(lineGeo, bookMats.dark, side * 0.21, 0.13, -0.18 + i * 0.11, -side * 0.12);
+  // Baked into one mesh per material (4 draw calls instead of 15).
+  o.updateMatrixWorld(true);
+  const byMat = new Map();
+  o.traverse((m) => {
+    if (!m.isMesh) return;
+    const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
+    if (!byMat.has(m.material)) byMat.set(m.material, []);
+    byMat.get(m.material).push(g);
+  });
+  const out = new THREE.Group();
+  for (const [mat, geos] of byMat) {
+    const mesh = new THREE.Mesh(mergeGeometries(geos, false), mat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    out.add(mesh);
+    for (const g of geos) g.dispose();
+  }
+  o.traverse((m) => { if (m.isMesh) m.geometry.dispose(); });
+  return out;
+}
 
 // def: { type: 'key' | 'rune' | 'bridge' | 'ambush' | 'vault' | 'boss' (default 'key'), props: [[model, x, z, rotDeg, blockRadius, y]],
 //        chest: {x, z, rot, gold} | null, skeletons: [[[x, z], …route]], banners: 'red' | 'blue',
@@ -113,6 +189,8 @@ export function buildRoom(def) {
   mount(side, -10, -4, H, 0, 0); mount(side, 10, -4, -H, 0, 0);
   if (def.trophy) mount('sword_shield_gold', 10, 0, -H, 0, 2.4, 0.58);
 
+  // Rune room: the first wall (three doorways, separate meshes with their own fading
+  // material), built after the merge below.
   for (const [name, x, z, rotDeg = 0, block = 0, y = 0] of def.props || []) {
     put(name, x, z, THREE.MathUtils.degToRad(rotDeg), y);
     if (block) obstacles.push({ x, z, r: block });
@@ -120,8 +198,8 @@ export function buildRoom(def) {
   for (const [x, z, r] of def.extraBlocks || []) obstacles.push({ x, z, r });
   const merged = Assets.mergeStatic(stat);
   group.add(merged);
-  // Search spots: props the key may be hidden in. Separate meshes (they wobble when
-  // searched); the game gives each one the "usable" marker (marker.js) until searched.
+  // Search spots: props the key may be hidden in. Separate meshes (a swing smashes them,
+  // main.js searched()); the game gives each one the "usable" marker until it breaks.
   const search = (def.search || []).map(([name, x, z, rotDeg = 0, block = 1]) => {
     const obj = Assets.clone(name);
     obj.position.set(x, 0, z);
@@ -129,7 +207,7 @@ export function buildRoom(def) {
     group.add(obj);
     obstacles.push({ x, z, r: block });
     const box = new THREE.Box3().setFromObject(obj);
-    return { x, z, r: block, obj, top: box.max.y, mark: null, done: false, shake: 0, rot: obj.rotation.y };
+    return { x, z, r: block, obj, top: box.max.y, mark: null, done: false, kind: /barrel|keg/.test(name) ? 'barrel' : 'crate' };
   });
   const box = (w, h, d, mat, x, y, z) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
@@ -195,7 +273,7 @@ export function buildRoom(def) {
     const doorway = Assets.clone('wall_doorway');
     doorway.position.set(x, 0, DOOR.z);
     group.add(doorway);
-    const d = { x, leaf: doorway.getObjectByName('wall_doorway_door'), open: false, sign: null, bricks: null };
+    const d = { x, z: DOOR.z, leaf: doorway.getObjectByName('wall_doorway_door'), open: false, sign: null, bricks: null };
     if (rune) {
       d.sign = makeLabel(3.5, 1.3);
       d.sign.mesh.position.set(x, 3.7, DOOR.z + 0.85);
@@ -207,6 +285,57 @@ export function buildRoom(def) {
     }
     return d;
   });
+
+  // Rune room, first wall: three doorways (2nd form) with signs and brick dead ends, walls
+  // to the sides, two torches on its front. One material for all of it, faded by the game.
+  let inner = null;
+  if (rune) {
+    const fade = Assets.material.clone();
+    fade.transparent = true;
+    const wz = RUNE_WALL.z, parts = [];
+    for (const x of [-8, 8]) parts.push({ name: 'wall', x, z: wz, rot: 0 });
+    for (const x of [-2, 2]) parts.push({ name: 'torch_mounted', x, z: wz + 0.5, rot: 0, y: 2.3 });
+    const wallMesh = Assets.mergeStatic(parts);
+    wallMesh.material = fade;
+    group.add(wallMesh); extras.push(wallMesh.geometry, fade);
+    const bricksMat = brickMat.clone(); bricksMat.transparent = true; extras.push(bricksMat);
+    const signs = [];
+    const gates = RUNE_DOORS.map((x) => {
+      const doorway = Assets.clone('wall_doorway');
+      doorway.position.set(x, 0, wz);
+      doorway.traverse((o) => { if (o.isMesh) o.material = fade; });
+      group.add(doorway);
+      const d = { x, z: wz, leaf: doorway.getObjectByName('wall_doorway_door'), open: false, pass: false, sign: makeLabel(3.5, 1.3), bricks: new THREE.Mesh(brickGeo, bricksMat) };
+      d.sign.mesh.position.set(x, 3.7, wz + 0.85);
+      d.sign.mesh.rotation.x = -0.6;
+      d.bricks.position.set(x, 1.7, wz - 0.3);
+      d.bricks.visible = false;
+      group.add(d.sign.mesh, d.bricks); extras.push(d.sign); signs.push(d.sign.mesh.material);
+      return d;
+    });
+    const flames = [-2, 2].map((x) => { const g = makeGlow(0xffa94d, 2.2); g.position.set(x, 2.95, wz + 0.95); group.add(g); extras.push(g.material); return g; });
+    inner = { z: wz, half: RUNE_WALL.half, gates, mats: [fade, bricksMat, ...signs, ...flames.map((f) => f.material)], fade: 1 };
+  }
+
+  // The verb book on its stand, inside a rune circle (enemies stop at its edge).
+  let book = null;
+  if (['key', 'ambush', 'vault'].includes(type)) {
+    const [bx, bz] = def.book || [BOOK.x, BOOK.z];
+    const stand = makeLectern();
+    stand.position.set(bx, 0, bz);
+    stand.scale.setScalar(1.3);
+    stand.rotation.y = Math.atan2(-bx * 0.15, 1); // a slight turn towards the room's middle
+    group.add(stand);
+    stand.traverse((o) => { if (o.isMesh) extras.push(o.geometry); });
+    const circle = new THREE.Mesh(new THREE.PlaneGeometry(BOOK.r * 2.15, BOOK.r * 2.15),
+      new THREE.MeshBasicMaterial({ map: circleTex, transparent: true, depthWrite: false, toneMapped: false }));
+    circle.rotation.x = -Math.PI / 2; circle.position.set(bx, 0.17, bz); circle.renderOrder = 1;
+    group.add(circle); extras.push(circle.geometry, circle.material);
+    const glow = makeGlow(0xffd98a, 1.5); glow.position.set(bx, 1.85, bz + 0.2); glow.material.opacity = 0.55;
+    group.add(glow); extras.push(glow.material);
+    obstacles.push({ x: bx, z: bz, r: 0.6 });
+    book = { x: bx, z: bz, r: BOOK.r, obj: stand, circle, glow, done: false, mark: null, pair: null };
+  }
 
   // Chest with a lid that can open.
   let chest = null;
@@ -234,7 +363,8 @@ export function buildRoom(def) {
   group.add(lockGlow);
 
   return {
-    def, group, obstacles, doors, stones, baseSign, chest, glows, lockGlow, search,
+    def, group, obstacles, doors, stones, baseSign, chest, glows, lockGlow, search, inner, book,
+    wards: book ? [{ x: book.x, z: book.z, r: book.r }] : [], // circles enemies and arrows cannot enter
     exitX: DOOR.x,           // x of the door that leads on (a rune room picks one of three)
     type,                    // room type = which goal unlocks the door (GOALS in main.js)
     phase: 'goal',           // goal (the room's task) → door (key taken: the lock glows) → open

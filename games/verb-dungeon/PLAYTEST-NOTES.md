@@ -7,6 +7,8 @@ edit this file.
 
 ## Open
 
+(none)
+
 ## Liked (keep)
 
 - **Boss room** (golem, "?" stone, dizzy + bonk, 3 skulls): owner
@@ -42,3 +44,9 @@ edit this file.
 5. **Word bridge with hopping is bad** → no special controls: two pits with three word stones each and a strip of floor between; walk across the right stone, a wrong one crumbles and drops you back where you came from (no heart lost).
 6. **Can't tell decoration from things you can use** → every usable thing (coins, key, search props, closed chests, boss stone) gets one teal pulsing floor ring with rising sparkles until used; decoration never moves or glows, and no coins, trunks or coin-topped boxes are used as decoration any more.
 7. **Different weapons per hero** → Knight sword + shield (teal swoosh), Barbarian a big double axe with a 2H slice (wider amber swoosh), Rogue two daggers with a dual-wield scissor cut (two coral crescents), Mage the staff upright with a glowing gem (purple arc and sparkles); same swing timing and hit rules for all, axe and daggers turn their flat side to the camera so they read from above.
+8. **Mage: the staff doesn't swing** → during a swing the staff blends out of its upright hold into the hand's pose and follows the arm through the cut (gem first), then goes back upright; the purple arc runs through the gem.
+9. **Crates and barrels should break** → a swing smashes a searchable crate / barrel: planks or staves and hoops fly out and bounce, dust, a crunch, and it is gone (no collision); the key pops out of the wreck, an empty one sometimes drops a coin; no "Empty" text.
+10. **Rune doors: picking twice in the same wall** → two walls in a row (option a): a first wall across the room with three doors (2nd form); the right one opens and you walk through into an antechamber; the back wall's three doors ask the 3rd form (2nd shown below), its right door is the exit. The first wall fades while you are behind it.
+11. **A different boss in every level** → Level 1 Golem (as before), Level 2 Necromancer (floats, keeps raising up to 3 small skeletons; a right answer breaks his spell, the minions crumble), Level 3 Skeleton Mage (keeps his distance, casts fans of slow purple orbs after a "!!" wind-up; swat or dodge them). Same pattern for all: Space on the "?" stone, answer, bonk the dizzy boss, 3 pips (💀 / 👑 / 🔮), own intro line, coins at the end.
+12. **Questions only when the player chooses** → the key asks nothing (straight to the HUD); a verb book on a stand in a glowing rune circle next to the door: walk in, Space / sword button opens the card (2nd form, then 3rd); both right → clunk, the door unlocks. Skeletons wait at the circle's edge, arrows fizzle there. Chests and the boss stone also open only with Space (a "Space: …" prompt floats over them); the treasure room's door uses the book too.
+13. **Barbarian's axe too large; swings look left-handed** (2026-11-22, owner: "The axe of the barbarian is too large, and for all characters, please make sure that the swing is in the right direction, or that the weapon is in the right hand, because right now the barbarian has the weapon in the right hand, but then the swing looks like it's coming from the left hand. It's from left to right, so it looks a bit counterintuitive.") → axe scaled 1.35 → 1.05; every swing is now a forehand: the swing clips play backwards, so the blade winds up on the weapon-hand side and sweeps right → left (the rogue's daggers each from their own side inwards, the mage's staff likewise); swooshes follow; hit still at 0.117 s with the blade ahead.

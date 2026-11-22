@@ -1,4 +1,5 @@
 // node tools/qa-touch.cjs port w h lang shotPrefix — plays level 1 by touch (stick drags via CDP, taps). See CLAUDE.md.
+// Questions open only with the sword button (book, chest, boss stone); walking onto things asks nothing.
 const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwright');
 const [port = 8152, W = 1024, H = 768, LANG = 'de', PRE = 'T-tablet'] = process.argv.slice(2);
 const w = +W, h = +H;
@@ -59,7 +60,7 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   };
   const lift = async () => { if (held) { await touch('touchEnd', []); held = false; } };
   // Walk to (x, z) by steering the stick every 60 ms.
-  const walkTo = async (x, z, tol = 0.45, ms = 20000) => {
+  const walkTo = async (x, z, tol = 0.45, ms = 40000) => {
     const t0 = Date.now();
     while (Date.now() - t0 < ms) {
       const [px, pz] = await pos();
@@ -75,14 +76,15 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   };
   const goThrough = async (x = 0) => { // walk up through the open door until the next room (or the end)
     const r0 = (await info()).room, t0 = Date.now();
-    await walkTo(x, -6.6, 0.5, 5000);
-    while (Date.now() - t0 < 12000) {
+    await walkTo(x, -5.0, 0.5, 20000); // line up first (the far ledge has columns by the door)
+    await walkTo(x, -6.6, 0.5, 20000);
+    while (Date.now() - t0 < 60000) { // generous: headless frame rates drop a lot on a busy machine
       const i = await info();
       if (i.room !== r0 || i.mode !== 'play') break;
       await stickTo(0, -1); await wait(80);
     }
     await lift();
-    await page.waitForFunction(() => window.__VD.G.mode !== 'play' || !window.__VD.G.locked, null, { timeout: 20000 });
+    await page.waitForFunction(() => window.__VD.G.mode !== 'play' || !window.__VD.G.locked, null, { timeout: 60000 });
     await wait(300);
   };
   const waitCard = async () => { for (let i = 0; i < 20 && !(await ev(() => !!window.__VD.G.card)); i++) await wait(100); };
@@ -95,6 +97,32 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
     return `${q.base}:${q.ask}:${q.options[i]}`;
   };
 
+  // The verb book: walk into its circle (beside the stand), the sword button opens the card.
+  const toBook = async () => { // from the front, so the stand is never in the way
+    const b = await ev(() => { const b = window.__VD.room.book; return [b.x, b.z]; });
+    await walkTo(b[0] - 1.1, b[1] + 2.2, 0.4);
+    const d = await walkTo(b[0] - 1.1, b[1] + 0.5, 0.35);
+    log('     to book: dist', d.toFixed(2), 'hero', (await pos()).map((v) => v.toFixed(2)).join(','), 'prompt', (await info()).prompt);
+    return d;
+  };
+  // Walk into the circle and press the sword button (once more if the walk fell short: slow headless frames).
+  const openBook = async () => {
+    let pr;
+    for (let k = 0; k < 3 && !(await info()).card; k++) { await toBook(); pr = (await info()).prompt; if (pr === 'book') { await sword(); await waitCard(); } }
+    return pr;
+  };
+  const readBook = async (wrongFirst) => {
+    const pr = await openBook();
+    const inf = await info();
+    check(pr === 'book' && inf.card === 'book:past', 'in the circle the sword button opens the book', `${pr} ${inf.card}`);
+    if (wrongFirst) log('     chip', await tapChip(false));
+    log('     chip', await tapChip(true));
+    check((await info()).card === 'book:pp', 'after the 2nd form the book asks the 3rd', (await info()).card);
+    log('     chip', await tapChip(true));
+    await wait(300);
+    const i2 = await info();
+    check(!i2.card && i2.book === 'done' && (i2.phase === 'door' || i2.phase === 'open'), 'book answered: the door unlocks', `${i2.book} ${i2.phase}`);
+  };
   const searchRoom = async () => {
     for (let k = 0; k < 4 && (await info()).key === 'hidden'; k++) {
       const sp = await ev(() => { const r = window.__VD.room; const i = r.search.findIndex((s) => !s.done); if (i < 0) return null; const s = r.search[i]; return { i, x: s.x, z: s.z, r: s.r }; });
@@ -125,24 +153,32 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   await stickTo(-0.7, -0.5); await wait(250); await shot('room'); await lift();
   check(await ev(() => window.__VD.G.mode === 'play'), 'still playing');
 
-  // ── Room 1: search the crates with the sword button ──
+  // ── Room 1: the book without the key asks nothing; smash the crates with the sword button ──
+  await toBook(); await sword(); await wait(200);
+  inf = await info();
+  check(!inf.card && inf.book === 'shut', 'sword button at the book without the key: no card (hint)', `${inf.card} ${await ev(() => document.getElementById('hint').textContent)}`);
   await searchRoom();
   inf = await info();
   check(inf.key === 'floor' || inf.key === 'fly', 'sword button searched until the key popped out', inf.key + ' ' + inf.hide);
   for (let i = 0; i < 60 && (await info()).key === 'fly'; i++) await wait(100);
   const keyAt = await ev(() => { const k = window.__VD.keyObj(); return [k.x, k.z]; });
-  await walkTo(keyAt[0], keyAt[1], 0.3); await waitCard();
+  await walkTo(keyAt[0], keyAt[1], 0.3); await wait(300);
   inf = await info();
-  check(inf.card === 'key:past', 'walking onto the key opens the card', inf.card);
+  check(!inf.card && inf.key === 'taken', 'walking onto the key takes it, no card', `${inf.card} ${inf.key}`);
+  await toBook(); await wait(200);
+  await shot('book-prompt');
+  await openBook();
+  inf = await info();
+  check(inf.card === 'book:past', 'sword button in the circle opens the book card', inf.card);
   await shot('card');
   log('     chip', await tapChip(false));
   check(await ev(() => document.querySelectorAll('#chips .chip.wrong').length === 1), 'wrong chip greys out');
   await shot('card-wrong');
   log('     chip', await tapChip(true));
-  check((await info()).card === 'key:pp', 'after the 2nd form the card asks the 3rd', (await info()).card);
+  check((await info()).card === 'book:pp', 'after the 2nd form the card asks the 3rd', (await info()).card);
   log('     chip', await tapChip(true));
   inf = await info();
-  check(!inf.card && inf.key === 'taken', 'key taken by tapping chips', inf.key);
+  check(!inf.card && inf.book === 'done', 'book answered by tapping chips', inf.book);
   // To the door, and through.
   await walkTo(0, -5.6, 0.6);
   await wait(500);
@@ -157,15 +193,18 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   if (seg(1)) {
   // ── Room 2: chest "later" by tap, bonk a skeleton with the sword, search ──
   const ch = await ev(() => ({ x: window.__VD.room.chest.x, z: window.__VD.room.chest.z }));
-  const dch = await walkTo(ch.x - 1.6, ch.z, 0.3, 25000); await waitCard();
+  const dch = await walkTo(ch.x - 1.6, ch.z, 0.3, 25000); await wait(300);
   inf = await info();
-  log('     chest at', JSON.stringify(ch), 'hero', (await pos()).map((v) => v.toFixed(2)).join(','), 'dist', dch.toFixed(2), 'armed', await ev(() => window.__VD.room.chest.armed));
-  check(inf.card === 'chest:past', 'walking into the chest opens its card', inf.card);
+  log('     chest at', JSON.stringify(ch), 'hero', (await pos()).map((v) => v.toFixed(2)).join(','), 'dist', dch.toFixed(2));
+  check(!inf.card && inf.prompt === 'chest', 'walking up to the chest asks nothing (prompt shown)', `${inf.card} ${inf.prompt}`);
+  await sword(); await waitCard();
+  inf = await info();
+  check(inf.card === 'chest:past', 'sword button at the chest opens its card', inf.card);
   await tapAt(await box('#askLater')); await wait(300);
   check(!(await info()).card, 'tapping "later" closes the chest card');
-  await walkTo(ch.x - 4.6, ch.z + 1, 0.4); await walkTo(ch.x - 1.6, ch.z, 0.3); await waitCard();
+  await sword(); await waitCard();
   inf = await info();
-  check(inf.card === 'chest:past', 'chest asks again after stepping away', inf.card);
+  check(inf.card === 'chest:past', 'sword button asks again after "later"', inf.card);
   log('     chip', await tapChip(true));
   await wait(600);
   check(await ev(() => window.__VD.room.chest.open), 'chest opened by tap');
@@ -197,11 +236,11 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   for (let i = 0; i < 60 && (await info()).key === 'fly'; i++) await wait(100);
   await wait(500);
   inf = await info();
-  if (inf.key === 'floor') { const kp = await ev(() => { const k = window.__VD.keyObj(); return [k.x, k.z]; }); await walkTo(kp[0], kp[1], 0.3); await waitCard(); }
-  if ((await info()).card) { await tapChip(true); await tapChip(true); }
+  if (inf.key === 'floor') { const kp = await ev(() => { const k = window.__VD.keyObj(); return [k.x, k.z]; }); await walkTo(kp[0], kp[1], 0.3); await wait(300); }
   inf = await info();
   check(inf.key === 'taken', 'room 2 key taken', inf.key + ' ' + inf.hide);
-  if (inf.key !== 'taken') { await ev(() => { window.__VD.findKey(); }); }
+  if (inf.key !== 'taken') { await ev(() => { window.__VD.findKey(); window.__VD.takeKey(); }); }
+  await readBook(false);
   await walkTo(0, -5.6, 0.6); await wait(400); await goThrough();
   inf = await info();
   check(inf.type === 'bridge', 'room 3 is the bridge', inf.type);
@@ -214,7 +253,20 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
       return { i, x: [-4.2, 0, 4.2][i], step: b.step, word: q.options[i] }; }, right);
     const near = st.step === 0 ? 4.4 : -1.6;
     await walkTo(st.x, near + 1.0, 0.25);
-    await push(0, -1, 1100); await wait(900);
+    // Hold the stick up until this row is decided (solved or dropped), whatever the frame rate.
+    const key = async () => (await info()).bridge;
+    const k0 = await key(), t0 = Date.now();
+    await stickTo(0, -1);
+    while (Date.now() - t0 < 8000) {
+      const k = await key();
+      if (k.split(':')[0] !== k0.split(':')[0] || /fall/.test(k)) break;
+      await wait(80);
+    }
+    if (right) { // walk on off the stone onto the floor beyond
+      const far = st.step === 0 ? 1.6 : -4.4;
+      for (let i = 0; i < 60 && (await pos())[1] > far - 0.8; i++) await wait(80);
+    }
+    await lift(); await wait(900);
     return st;
   };
   if (seg(2)) {
@@ -237,11 +289,13 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
 
   }
   // ── Room 4: rune doors, walked into ──
+  // Two walls: the first one across the room (2nd form, at z RUNE_WALL.z = 0), the back wall (3rd form).
   const runeDoor = async (right) => {
     const d = await ev((right) => { const V = window.__VD, r = V.room.rune, q = r.pair.steps[r.step];
+      const doors = r.step === 0 ? V.room.inner.gates : V.room.doors;
       const i = q.options.findIndex((o, k) => (o === q.answer) === right && !(q.tried && q.tried.includes(k)));
-      return { i, x: V.room.doors[i].x, word: q.options[i], step: r.step }; }, right);
-    await walkTo(d.x, -5.0, 0.3);
+      return { i, x: doors[i].x, word: q.options[i], step: r.step }; }, right);
+    await walkTo(d.x, d.step === 0 ? 2.8 : -5.0, 0.3);
     const key0 = await ev(() => { const V = window.__VD; return `${V.G.roomIdx}:${V.room.rune && V.room.rune.step}:${JSON.stringify(V.room.rune && V.room.rune.pair.steps.map((q) => q.tried))}`; });
     const t0 = Date.now();
     while (Date.now() - t0 < 8000) {
@@ -258,8 +312,13 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   let d = await runeDoor(false);
   inf = await info();
   log('     rune wrong', d.word, inf.phase, inf.missed.join(','));
+  check(/^0:/.test(inf.rune) && inf.missed.length >= 1, 'wrong door in the first wall: brick wall, pushed back', inf.rune);
   d = await runeDoor(true);
-  check((await info()).type === 'rune', 'right rune door (2nd form) opens the next round', (await info()).type);
+  inf = await info();
+  check(/^1:/.test(inf.rune), 'right door in the first wall opens (2nd form)', inf.rune);
+  await walkTo(d.x, -2.6, 0.4); // through the open door into the antechamber
+  inf = await info();
+  check(/^1:-/.test(inf.rune) && parseFloat(inf.rune.split(':')[1]) < -1.5, 'walked through the first wall into the antechamber', inf.rune);
   await shot('rune-round2');
   d = await runeDoor(true);
   await wait(800);
@@ -275,12 +334,14 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
     await page.waitForFunction(() => window.__VD.room.boss.stone || window.__VD.room.boss.state === 'dead', null, { timeout: 60000 });
     const s = await ev(() => window.__VD.room.boss.stone && [window.__VD.room.boss.stone.x, window.__VD.room.boss.stone.z]);
     if (!s) break;
-    await walkTo(s[0], s[1], 0.35, 8000); await waitCard();
+    await walkTo(s[0], s[1], 0.35, 8000); await wait(150);
+    if (round === 0) check(!(await info()).card, 'standing on the stone asks nothing until the sword button');
+    await sword(); await waitCard();
     if (!(await info()).card) continue;
     if (round === 0) await shot('boss-card');
     await tapChip(true); await wait(300);
     const hp0 = (await info()).boss;
-    for (let k = 0; k < 5 && /^stun/.test((await info()).boss || '') && (await info()).boss === hp0; k++) {
+    for (let k = 0; k < 5 && /:stun:/.test((await info()).boss || '') && (await info()).boss === hp0; k++) {
       const g = await ev(() => window.__VD.golemPos());
       await walkTo(g[0], g[1] + 1.9, 0.4, 2500);
       await push(0, -1, 60); await sword();
@@ -289,7 +350,8 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   }
   inf = await info();
   check(/dead/.test(inf.boss || '') || inf.phase === 'open', 'golem down by touch', inf.boss);
-  await wait(2500);
+  await page.waitForFunction(() => window.__VD.room.phase === 'open', null, { timeout: 30000 }).catch(() => {}); // coins fly, then the exit opens
+  await wait(500);
   await goThrough();
   await page.waitForFunction(() => window.__VD.G.mode === 'end', null, { timeout: 20000 }).catch(() => {});
   await wait(800);

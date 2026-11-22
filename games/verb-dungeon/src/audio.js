@@ -153,6 +153,31 @@ class SFX {
       this.noise({ t, dur: 0.05, g: 0.1, f: 1800, f1: 600, type: 'bandpass', q: 3 });
     });
   }
+  crunch() { // a crate or barrel smashed: a sharp crack, splintering, wooden knocks
+    this.noise({ dur: 0.09, g: 0.32, f: 3200, f1: 700, type: 'bandpass', q: 0.8 });
+    this.tone({ f: 210, f1: 70, type: 'triangle', dur: 0.16, g: 0.3 });
+    this.noise({ t: 0.03, dur: 0.32, g: 0.16, f: 1500, f1: 300, type: 'bandpass', q: 1.4 });
+    [0.1, 0.19, 0.3, 0.38].forEach((t, i) => this.tone({ f: 300 - i * 35, f1: 160, type: 'triangle', t, dur: 0.06, g: 0.12 - i * 0.02 }));
+  }
+  clunk() { // a lock opens: a heavy click and a low thunk
+    this.tone({ f: 1400, f1: 900, type: 'square', dur: 0.03, g: 0.08 });
+    this.tone({ f: 120, f1: 60, type: 'sine', t: 0.05, dur: 0.22, g: 0.42 });
+    this.noise({ t: 0.05, dur: 0.1, g: 0.18, f: 600, f1: 150 });
+    this.tone({ f: 1800, type: 'square', t: 0.18, dur: 0.025, g: 0.05 });
+  }
+  bookOpen() { // pages flutter open
+    for (let i = 0; i < 4; i++) this.noise({ t: i * 0.045, dur: 0.06, g: 0.07, f: 2600 + i * 300, type: 'bandpass', q: 2.5 });
+    this.tone({ f: 523, f1: 784, type: 'sine', t: 0.12, dur: 0.25, g: 0.07 });
+  }
+  fizzle() { this.noise({ dur: 0.22, g: 0.1, f: 4000, f1: 1200, type: 'highpass', q: 1 }); }
+  summon() { // the necromancer raises bones: a rising wobble
+    this.tone({ f: 180, f1: 520, type: 'sawtooth', dur: 0.55, g: 0.05, vib: 18, vibF: 9 });
+    this.tone({ f: 90, f1: 260, type: 'triangle', dur: 0.55, g: 0.08 });
+  }
+  orb() { this.tone({ f: 700, f1: 300, type: 'sine', dur: 0.3, g: 0.1, vib: 30, vibF: 14 }); }
+  laugh() { // a goofy "nyeh heh heh"
+    [0, 0.16, 0.3, 0.42].forEach((t, i) => this.tone({ f: 330 - i * 22, f1: 250 - i * 20, type: 'square', t, dur: 0.11, g: 0.05, vib: 12, vibF: 20 }));
+  }
   cardOpen() { [660, 990].forEach((f, i) => this.tone({ f, type: 'triangle', t: i * 0.07, dur: 0.18, g: 0.1 })); }
   chestCreak() { this.tone({ f: 180, f1: 420, type: 'sawtooth', dur: 0.5, g: 0.035, vib: 10, vibF: 9 }); }
   fanfare() {

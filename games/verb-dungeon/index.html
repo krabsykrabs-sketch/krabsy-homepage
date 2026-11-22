@@ -47,6 +47,18 @@ h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
   pointer-events:none;background:rgba(13,34,64,.86);border-radius:999px;padding:8px 20px;
   font-size:17px;color:var(--amber);white-space:nowrap;}
 #hint.on{opacity:1;}
+/* "Space: read the book" over the thing Space would open (book, chest, boss stone) */
+#prompt{position:fixed;left:0;top:0;transform:translate(-50%,-100%);display:none;align-items:center;gap:6px;
+  pointer-events:none;background:rgba(13,34,64,.9);border:2px solid var(--teal);border-radius:999px;
+  padding:5px 14px 5px 7px;font-size:16px;color:var(--ink);white-space:nowrap;z-index:3;
+  box-shadow:0 0 14px rgba(46,230,192,.35);animation:promptBob 1.2s ease-in-out infinite;}
+#prompt.on{display:inline-flex;}
+#prompt kbd{margin:0 2px 0 0;background:var(--teal);color:#06231d;}
+#prompt .pSw{display:inline-block;width:24px;height:24px;border-radius:50%;background:#13294d;border:2px solid var(--teal);padding:3px;}
+#prompt .pSw svg{display:block;width:100%;height:100%;}
+@keyframes promptBob{50%{margin-top:-5px;}}
+.carding #prompt{display:none;}
+@media (max-height:500px){#prompt{font-size:13px;padding:3px 10px 3px 5px;}}
 .carding #hint{opacity:0;}
 
 /* Question card: in the middle of the screen over the dimmed, paused room */
@@ -184,7 +196,8 @@ kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border
   #stars{font-size:38px;margin:2px 0 0;} #missed{font-size:17px;margin-top:6px;line-height:1.35;}
   .btns{margin-top:10px;} .btn{font-size:16px;padding:7px 16px;}
   #sign{bottom:6px;padding:3px 18px 4px;border-radius:14px;} #signChain{font-size:21px;} #signHow{font-size:12px;}
-  #toast{bottom:14px;font-size:20px;padding:6px 16px;} #hint{top:54px;font-size:14px;padding:6px 14px;}
+  #toast{bottom:14px;font-size:20px;padding:6px 16px;} #hint{top:46px;font-size:14px;padding:6px 14px;}
+  #hud{padding:6px 10px;} #hud .pill{font-size:13px;padding:4px 11px;} #hearts{font-size:17px;} #keySlot{font-size:15px;}
 }
 #focus{position:fixed;inset:0;display:none;align-items:center;justify-content:center;cursor:pointer;
   background:rgba(6,13,28,.55);z-index:8;}
@@ -241,6 +254,7 @@ kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border
   <button class="pill" id="mute"></button>
 </div>
 <div id="hint"></div>
+<div id="prompt"></div>
 
 <div id="sign"><div id="signChain"></div><div id="signHow"></div></div>
 <div id="ask">

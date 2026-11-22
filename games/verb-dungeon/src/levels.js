@@ -8,15 +8,19 @@
 //               Space next to one searches it). Needed in rooms without skeletons; also fine with skeletons.
 //               No `search` → in one of the room's skeletons (found when bonked).
 //             Which one is picked at random when the room starts; the last one searched
-//             or bonked always has it. Walking over the key asks its verb (both forms);
-//             then the key is yours and the door opens by itself.
+//             or bonked always has it. Walking over the key takes it; then the verb book
+//             (Space in its circle) asks both forms, and the door opens by itself.
 //   'ambush'  the skeletons rise when the hero walks in (each at the start of its
 //             route); one of them has the key, as in 'key'.
-//   'rune'    three doors with words, walk into the right one (no skeletons).
+//   'rune'    two walls of three doors with words, walk into the right one of each (no skeletons).
 //   'bridge'  two pits with a row of word stones each and a strip of floor between,
 //             walked across (no skeletons, no props between z −5.4 and 5.4).
-//   'vault'   treasure room: coins lie at `coins: [[x, z], …]`, the door asks its verb.
-//   'boss'    the golem (last room of a level); keep the floor open.
+//   'vault'   treasure room: coins lie at `coins: [[x, z], …]`; the verb book opens the door.
+//   'boss'    the last room of a level; `boss: 'golem' | 'necro' | 'mage'` (main.js BOSSES).
+//             Keep the floor open.
+// Key, ambush and vault rooms have the verb book on a stand in a rune circle near the door
+// (room.js BOOK, right of the door at x 2.8 z −5.2; `book: [x, z]` moves it). Keep props
+// ≥ 2.2 from it.
 // Decoration never moves or glows, and is never a coin pile or a chest: everything that
 // looks like treasure can be used (play-test note 6), so no coin_stack_*, trunk_large_A or
 // box_small_decorated (it has coins on it) as props. Usable things get the marker.
@@ -27,8 +31,7 @@ const cellar = { // barrels and a table, the look-test room
     ['barrel_large', -8.4, -6.4, 17, 1.1], ['barrel_small_stack', -6.4, -6.7, 6, 1.0],
     ['keg_decorated', -8.3, -3.4, 90, 1.5], ['table_medium_decorated_A', -6.2, 3.2, 11, 1.4],
     ['chair', -4.6, 3.4, -100, 0.5], ['stool', -6.4, 5.0, 23, 0.5],
-    ['column', -2.6, -5.6, 0, 0.6], ['candle_triple', -2.6, -5.6, 30, 0, 1.4],
-    ['column', 2.6, -5.6, 0, 0.6], ['candle_triple', 2.6, -5.6, 126, 0, 1.4],
+    ['column', -2.6, -5.6, 0, 0.6], ['candle_triple', -2.6, -5.6, 30, 0, 1.4], // the verb book stands right of the door
     ['crates_stacked', 8.1, 5.6, 11, 1.5], ['box_large', 6.1, 6.6, 29, 1.0],
   ],
 };
@@ -49,8 +52,7 @@ const hall = { // dining hall with two tables
     ['stool', -7.2, -2.6, 0, 0.5], ['table_medium_decorated_A', 5.5, 1.5, -8, 1.4],
     ['chair', 5.6, 3.2, 185, 0.5], ['stool', 3.8, 1.3, 0, 0.5],
     ['keg_decorated', 8.3, -6.2, 0, 1.5], ['barrel_small_stack', -8.2, -6.7, 10, 1.0],
-    ['column', -2.6, -5.6, 0, 0.6], ['candle_triple', -2.6, -5.6, 30, 0, 1.4],
-    ['column', 2.6, -5.6, 0, 0.6], ['candle_triple', 2.6, -5.6, 126, 0, 1.4],
+    ['column', -2.6, -5.6, 0, 0.6], ['candle_triple', -2.6, -5.6, 30, 0, 1.4], // the verb book stands right of the door
     ['barrel_large', -8.3, 6.2, 75, 1.1], ['barrel_small_stack', 8.4, 6.2, -17, 1.0],
   ],
 };
@@ -114,21 +116,21 @@ export const LEVELS = [
         ['barrel_small_stack', 6.2, -2.4, 30, 1.0]] }),
     R(chasm),
     R(runes),
-    R(arena),
+    R(arena, { boss: 'golem' }),
   ] },
   { id: 'l2', tiers: [1, 2], rooms: [
     R(hall, { type: 'ambush', skeletons: [patrolD, patrolG] }),
     R(chasm),
     R(cellar, { skeletons: [patrolA, archer([[7, -4], [7, 3]])], chest: { x: 7.6, z: -1, rot: -90 } }),
     R(runes),
-    R(vault, { type: 'vault', coins: [[-5, 2], [-2.5, -1.5], [0, 2.5], [2.5, -1.5], [5, 3], [0, -4]], chest: goldChest }),
-    R(arena),
+    R(vault, { type: 'vault', book: [2.4, -4.9], coins: [[-5, 2], [-2.5, -1.5], [0, 2.5], [2.5, -1.5], [5, 3], [0, -4]], chest: goldChest }),
+    R(arena, { boss: 'necro' }),
   ] },
   { id: 'l3', tiers: [2, 3], rooms: [
     R(runes),
     R(hall, { skeletons: [patrolD, patrolG, archer(patrolC)], chest: { x: -7.6, z: 2.2, rot: 90 } }),
     R(chasm),
     R(storage, { type: 'ambush', skeletons: [patrolD, patrolG, patrolC, archer([[7, 4.5], [7, -3]])] }),
-    R(arena),
+    R(arena, { boss: 'mage' }),
   ] },
 ];

@@ -56,7 +56,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/i18n.js` | interface texts EN/DE/ES (`?lang=`) |
 | `src/audio.js` | WebAudio synth (kept from the PoC) |
 | `src/touch.js` | touch controls: virtual stick + sword button (feeds `updateHero()` / `bonk()`) |
-| `assets/`, `vendor/three/`, `fonts/` | models (4.6 MB; about 3.4 MB in the first load, the extra heroes load when picked), Three.js 0.169, fonts; nothing from a CDN |
+| `src/debris.js` | smashed crates / barrels: a pool of plank, stave and hoop pieces (shared geometry, no lights) |
+| `assets/`, `vendor/three/`, `fonts/` | models (5.5 MB; about 3.4 MB in the first load, the extra heroes load when picked, the level 2 / 3 bosses when their level starts), Three.js 0.169, fonts; nothing from a CDN |
 | `poc/` | the June PoC, kept for reference (follow camera, primitives) |
 
 **Rules as built**
@@ -70,7 +71,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   taken). New usable things: `markUsable(obj, { radius, top })`, keep the
   handle, `unmark(m)` when done (`m.off = true` hides it for a moment,
   e.g. a coin in flight); `enterRoom` clears all marks. Decoration never
-  bobs, glows or sparkles, and there is no treasure-looking decoration:
+  bobs, glows or sparkles (the verb book's rune circle glows: it is
+  usable), and there is no treasure-looking decoration:
   no `coin_stack_*`, `trunk_large_A` or `box_small_decorated` (it has
   coins on it) in room props, so every coin you see can be collected.
 - One room on screen, fixed camera (43° down, fitted to the window). Every
@@ -78,27 +80,35 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   the door in the back wall. Room change is a short fade.
 - **Room goal, then the door.** Every room has a `type` in `levels.js`
   (`'key'` default, `'ambush'`, `'rune'`, `'bridge'`, `'vault'`, `'boss'`)
-  and three phases in `main.js`: `goal` (the room's task; the door only
-  gives a hint) → `door` (key taken: the lock glows, the door opens by
-  itself when the hero comes near; the treasure room's door asks first) →
-  `open`. A room type is one entry in `GOALS` (`enter(keep)`,
-  `update(dt)`, `onBonk(s)`, `save()`, `doorHint`, `sign()`).
+  and three phases in `main.js`: `goal` (the room's task: key + verb book;
+  the door only gives a hint) → `door` (book answered: the lock glows, the
+  door opens by itself when the hero comes near) → `open`. A room type is
+  one entry in `GOALS` (`enter(keep)`, `update(dt)`, `onBonk(s)`, `save()`,
+  `doorHint` (key or function), `sign()`).
   Rune and bridge are the verb question themselves: `sign()` gives the
   question for the small line at the bottom (chain + how-to, no chips),
   answers go through `judge(pair, q, i)` (stars, missed verb back as a
   pair), and `openExit(door)` opens the way out. They have no skeletons.
-- **Question card (2026-11-21, play-test notes 2 + 4).** The key, a
-  chest, the boss stone and the treasure-room door ask in a large card in
+- **Questions only when the player chooses (2026-11-22, play-test note
+  12).** Nothing asks by itself any more: walking over the key, up to a
+  chest or onto the boss stone asks nothing. Space (or the sword button)
+  opens the card at the verb book (inside its circle), at a closed chest
+  (within 2.4) or on the boss stone (`usable()` / `useHere()`, checked in
+  `bonk()` before the swing). A small prompt floats over that thing
+  (`#prompt`: `Space` / the sword icon + "read the book" / "open the chest"
+  / "answer"). It is hidden while the card is open.
+- **Question card (2026-11-21, play-test notes 2 + 4).** The verb book, a
+  chest and the boss stone ask in a large card in
   the middle of the screen over the dimmed room (`openCard`, `#ask`). While
   it is open the whole game is paused (`step()` returns early: skeletons,
-  golem, arrows, game-clock timers, animations, the key; only the torches
-  flicker, on `G.wall`). It opens on an event and stays until it is
-  resolved; keys 1–3 or a click answer. The card's edge and the asked
+  boss, arrows, game-clock timers, animations, the key; only the torches
+  flicker, on `G.wall`). It stays until it is resolved; keys 1–3 or a
+  click answer. The card's edge and the asked
   blank are teal for the 2nd form, coral for the 3rd; a "?" sits in the
-  asked blank. Key and door ask a pair: 2nd form, then the 3rd with the 2nd
+  asked blank. The book asks a pair: 2nd form, then the 3rd with the 2nd
   shown (two dots in the corner). Chest: one 2nd-form question, with a
-  "later" button / Esc (the chest stays shut and asks again only after the
-  hero stepped away and back). Boss: one question per round. A wrong
+  "later" button / Esc (the chest stays shut; Space there asks again).
+  Boss: one question per round (the card's icon and title are the boss's). A wrong
   answer greys the chip and shows the teach line (the chain as far as it
   may be shown: `go → went → ___` at the 2nd form, the full chain at the
   3rd). Rune doors and the bridge keep their words in the room and only
@@ -112,22 +122,58 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   (sometimes a coin stack, 30 %). Space next to a search prop searches it:
   it wobbles; empty = rattle, puff, "Empty!"; the right one pops the key
   out (towards the hero). The key lands on free floor with a light pool;
-  walking over it opens the key card (mandatory pair, no close button).
-  Both forms right → key in the HUD, lock glows, the door opens by itself
-  as the hero approaches ("Unlocked!"). Other skeletons are optional pests.
-  Level 1 rooms 1 and 2 use search props; the other key rooms use
-  skeletons.
+  walking over it takes it (no question; key in the HUD, hint "now read the
+  verb book"). Other skeletons are optional pests. Level 1 rooms 1 and 2
+  use search props; the other key rooms use skeletons.
+- **Crates and barrels break (2026-11-22, play-test note 9).** A swing that
+  reaches a search prop smashes it (`searched()`): the prop disappears and
+  its collision goes, 11 pieces fly out (`src/debris.js`: planks for a
+  crate, staves + two iron hoops for a barrel/keg; one pool of 28 meshes on
+  4 shared geometries and 3 materials, gravity, a bounce, shrink away after
+  1.15 s), a dust puff, `sfx.crunch()`, a small camera shake. The key pops
+  out of the wreck (towards the hero); an empty one drops a coin stack 30 %
+  of the time and shows no text. The "usable" marker stays until it breaks.
+  A dizzy restart keeps smashed props gone. Decoration crates don't break.
+  (A bonked skeleton without the key still shrugs "Nothing!".)
+- **Verb book (2026-11-22, play-test note 12).** Key, ambush and treasure
+  rooms have a lectern with an open book (primitives, `makeLectern()` in
+  `room.js`, × 1.3) right of the door (`BOOK` x 2.8 z −5.2; `book: [x, z]` in
+  the room data moves it; the vault's is at 2.4 / −4.9) inside a rune
+  circle (r 1.6: canvas decal with amber rings and teal runes on a dark
+  teal pool, slowly turning and pulsing; dims when read). The book has the
+  usable marker until read. Space inside the circle: without the key (key
+  rooms) a hint "Find the key first!" and "🔑 ?"; with it the card asks the
+  room's pair (2nd form, then 3rd). Both right → `sfx.clunk()`, "✓", the lock
+  glows (`goalDone`), the door opens as the hero approaches. The circle is a
+  ward (`room.wards`): skeletons, archers and bosses are pushed out of it
+  (`collide(…, enemy)`), patrol points inside it move to its edge,
+  skeletons chasing a hero who stands inside wait at the edge (idle,
+  facing the hero) and never bump; arrows and orbs fizzle at the edge
+  ("✦", `sfx.fizzle()`). The cellar and hall lost their right-hand column
+  + candle next to the door for it.
 - Ambush (`type: 'ambush'`): the door stands open. When the hero walks in
   (z < 2.2) it slams, and the room's skeletons rise from the floor one
   after the other, each at the first point of its route. One of them has
-  the key, as in the key hunt. A dizzy restart springs the trap again (the
-  key's state stays).
-- Rune doors (`type: 'rune'`): three doors in the back wall, a word sign
-  above each. Walk into a door to choose it. Round 1 asks the 2nd form,
-  round 2 the 3rd with the 2nd shown in the bottom line. Wrong door: it
-  swings open on a brick wall, sad trombone, the sign greys out, a small
-  push back. Right door in round 2 is the exit. `room.exitX` says which
-  door leads on.
+  the key, as in the key hunt; then the book. A dizzy restart springs the
+  trap again (the key's state stays), unless the key was already taken
+  (then the skeletons stay calm).
+- **Rune doors (`type: 'rune'`, rebuilt 2026-11-22, play-test note 10,
+  owner's option a: two walls in a row).** A first wall across the room
+  (`RUNE_WALL.z` = 0, 1 thick; `room.inner.gates`: three doorways at x −4 /
+  0 / 4 with a sign each, two torches on its front) and the back wall with
+  three doors (`room.doors`). Walk into a door of the wall whose turn it is
+  to choose it (`runeWall(step).line`). The first wall asks the 2nd form:
+  the right door swings open and lets the hero through (`pass`: the wall's
+  collision has a gap there, `collide()`) into the antechamber (z −7…−0.5);
+  the back wall's signs show "?" until then, then the 3rd-form choices (the
+  2nd form shown in the bottom line); its right door is the exit. Wrong
+  door (either wall): it swings open on a brick wall, sad trombone, the sign
+  greys out, a small push back that also re-arms the choice; the verb comes
+  back later. The first wall (merged mesh, doorways, signs, bricks, torch
+  glows on cloned materials) fades to 22 % while the hero is in or behind
+  it, so the antechamber stays visible from the fixed camera; the solved
+  first wall shows the right word teal, the others dim.
+  `room.exitX` says which back door leads on.
 - **Word bridge (`type: 'bridge'`, rebuilt 2026-11-22, play-test note 5).**
   No special controls: the hero walks normally everywhere. Front to back
   (`PITS`, `STONE`, `BASE_SIGN` in `room.js`): the entrance ledge with the
@@ -150,23 +196,43 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   full chain toast, the door opens. The hero enters beside the plate
   (x −3). Props on the ledges stand back from the pit edges, so bumping
   into one never pushes the hero over.
-- Boss (`type: 'boss'`, last room of every level): a big golem
-  (`Skeleton_Golem`, large rig) walks after the hero and now and then
-  charges: 0.9 s wind-up with "!!", then straight ahead without turning,
-  then a tired pause. A bump costs a heart as usual. A glowing "?" stone
-  lies on the floor (one of six spots, away from golem and hero): stand on
-  it and the card opens. Right answer: the golem is dizzy for 6 s (stars),
-  and a bonk takes one of its 3 skulls (shown in the room label). Bonking
-  it while it is not dizzy only goes "Clonk!". Wrong answer: it laughs,
-  and the stone comes back after 3 s with the same question (the tried
-  choice greyed). Questions run in chain order across rounds: 2nd form,
-  3rd form, next verb. At 0 skulls it falls over, drops 5 coin stacks, and
-  the exit opens. A dizzy restart keeps its skulls and the current
-  question. It is faster on higher levels and with fewer skulls.
+- **Bosses (`type: 'boss'`, last room of every level; a different one per
+  level since 2026-11-22, play-test note 11; `boss:` in the room data,
+  `BOSSES` in `main.js`).** The pattern the owner liked stays for all: an
+  intro beat (own line, e.g. "Rise, my bony friends!"), then the boss
+  attacks its own way; a glowing "?" stone lies on the floor (one of six
+  spots, away from boss and hero): stand on it and press Space, the card
+  asks. Right answer: the boss is dizzy for 6 s (stars) and its trick
+  stops; a bonk takes one of its 3 pips (room label "Level n · <name>" +
+  pips). Bonking it while it is not dizzy only goes "Clonk!". Wrong answer:
+  it laughs (`sfx.laugh`), and the stone comes back after 3 s with the same
+  question (the tried choice greyed). Touching it costs a heart. Questions
+  run in chain order across rounds: 2nd form, 3rd form, next verb. At 0
+  pips it falls over, drops 5 coin stacks, and the exit opens. A dizzy
+  restart keeps its pips and the current question (the intro plays again).
+  Faster on higher levels and with fewer pips.
+  - Level 1 **Golem** (💀, `Skeleton_Golem`, large rig, × 1.25): walks
+    after the hero, now and then a charge: 0.9 s wind-up with "!!", then
+    straight ahead without turning, then a tired pause.
+  - Level 2 **Necromancer** (👑, `Necromancer.glb`, medium rig, × 1.45, a
+    `Skeleton_Staff`): floats down at the start and hovers, drifts to keep
+    5–8 units from the hero, and every ~4 s raises a small skeleton
+    (`Ranged_Magic_Summon`, `sfx.summon`; at most 3 alive; 2 at once after
+    the intro) on free floor ≥ 2.6 from the hero. Minions (`minion: true`,
+    × 0.9) always chase; bonked they crumble away instead of getting up. A
+    right answer breaks his spell: "Spell broken!", every minion falls
+    apart, he sinks to the floor dizzy.
+  - Level 3 **Skeleton Mage** (🔮, `Skeleton_Mage.glb`, medium rig, × 1.5,
+    a `Skeleton_Staff`): twirls in with a puff ("Abraca-bones!"), keeps
+    5.5–9 units away, every ~3.3 s casts: 1 s wind-up
+    (`Ranged_Magic_Spellcasting`, "!!", a purple glow grows on his staff,
+    aim fixed for the last 0.3 s), then a fan of 3 slow orbs (5 at the last
+    pip; speed 4.6, hero 6.2) at where the hero stood. An orb costs a heart;
+    the weapon swats it ("Pling!"), props stop it. Dizzy: his orbs fizzle.
 - Coins: stacks worth 5 pop out of chests (2, gold chest 3), the boss (5)
   and sometimes an empty hiding place (1), or lie in the treasure room
-  (`type: 'vault'`, `coins: [[x, z], …]`, level 2; its door asks a pair
-  in the card when the hero walks up to it). Walk near a stack to collect
+  (`type: 'vault'`, `coins: [[x, z], …]`, level 2; its door is opened by
+  the verb book). Walk near a stack to collect
   it; stacks still lying when the room ends are collected for you. The
   count is in the HUD and saved at once in localStorage
   `krabsy_vdungeon_save` (`{ coins, owned, hero }`).
@@ -177,30 +243,45 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   play-test note 7), all declared in `heroes.js` (`gear`, `swing`,
   `trails`, `sparks`):
   - Knight: sword + shield, 1H horizontal slice, teal swoosh.
-  - Barbarian: big double axe (`axe_2handed` × 1.35, no shield), 2H slice
+  - Barbarian: big double axe (`axe_2handed` × 1.05 since note 13, was × 1.35; no shield), 2H slice
     (both hands on the handle), a wider amber swoosh.
   - Rogue: two daggers (`dagger` × 1.3, one per hand slot), dual-wield
-    scissor slice: two short coral crescents that cross in front (right
-    blade outside, left inside).
-  - Mage: staff held upright, gem up (leaning forward and out so it shows
-    from above, purple glow on the gem), 1H slice, purple swoosh; a hit
-    gives purple sparkles that spiral up and twinkle.
+    scissor slice: two short coral crescents, each dagger sweeping from its
+    own side inwards (right blade outside, left inside).
+  - **Forehand for everyone (2026-11-22, play-test note 13).** The weapon is
+    in the right hand, but the KayKit slices sweep left → right (a
+    backhand). Every `SWINGS` entry has `reverse: true`: `Assets` builds the
+    upper-body clip and mirrors it in time (`reverseClip`), so the reversed
+    recovery is a wind-up to the weapon side, the strike sweeps right → left
+    and the reversed wind-up is the follow-through. `swingTimes()` converts
+    the measured times (`from`, `strikeFrom/To`, `ahead`, in original clip
+    time) to the reversed clip with the same latency; trail `dir` is
+    flipped in `buildHero`. Blade yaw at the 0.117 s hit check (standing):
+    knight −0.01, barbarian +0.10, rogue −0.05 / +0.06, mage +0.03 rad.
+  - Mage: staff held upright at rest, gem up (leaning forward and out so it
+    shows from above, purple glow on the gem); during a swing the staff
+    follows the arm (1H slice, gem first) and the purple arc runs through
+    the gem (`tip` 1.55 in the trail); a hit gives purple sparkles that
+    spiral up and twinkle (play-test note 8, 2026-11-22).
   Weapons can `hold: 'faceCam'` (turned about the handle each frame so the
   flat side faces the camera: axe head and daggers read from above
   instead of edge-on) or `'upright'` (the staff), set in `updateGear()`
-  after the mixer update. The menu portraits show the weapons (wider crop,
+  after the mixer update. While `G.attackT > 0` an upright weapon is
+  slerped into the hand's own pose (`gearBlend`, in at rate 30/s, back at
+  10/s), so it swings with the arm. The menu portraits show the weapons (wider crop,
   the barbarian holds his axe up, `portraitT`).
 - Archer skeleton (`archer(route)` in `levels.js`, from level 2): keeps 4.5
   to 10 units away, shows "!" and aims for 1 s (the last 0.3 s fixed), then
   shoots one slow arrow (speed 7, hero 6.2) straight at where the hero
   stood; 3.4 s between shots. An arrow costs a heart; step aside or swat
-  it with the weapon ("Pling!"). Props stop arrows. Bonked archers get up
+  it with the weapon ("Pling!"). Props stop arrows; the verb book's circle
+  makes them fizzle. Bonked archers get up
   calm and stop shooting.
 - Missed verbs: a wrong answer anywhere (card, rune door, bridge stone)
-  puts the verb's pair back in the queue once; the next key, treasure
-  door, boss round, rune room or bridge takes missed pairs first. Chests
+  puts the verb's pair back in the queue once; the next verb book, boss
+  round, rune room or bridge takes missed pairs first. Chests
   always take a fresh verb.
-- Chests are optional bonus questions: walk into one; one 2nd-form
+- Chests are optional bonus questions: Space next to one; one 2nd-form
   question, feedback shows the full chain; +1 heart (or just treasure).
 - Skeletons that are not bonked yet chase and bump the hero (−1 heart,
   knock-back, short blink). Bonked ones get up again and only wander.
@@ -215,11 +296,12 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   (`from`): strike begins within ~0.06 s of the key press, hit check at
   0.11 s (measured 0.117 s at 60 fps for every hero) when the blade is in
   front, next swing allowed after 0.38 s (`SWING` in `main.js`). Hit rules
-  are the same for all (range 2.6, cone in `bonkCheck`). A crescent
+  are the same for all (range 2.6, cone in `bonkCheck`). Space at the book,
+  a chest or the boss stone opens it instead of swinging. A crescent
   (`trails`, one per entry in the hero's `trails`; the rogue has two)
   follows each blade's hand slot through the strike; a hit adds a flash,
   sparks in the hero's colour, a 50 ms hit-stop and a small camera shake
-  (`hitFx`). The same swing searches a search prop in reach.
+  (`hitFx`). The same swing smashes a search prop in reach.
 - Chain order: a verb's 3rd form is asked only right after its 2nd form,
   with the 2nd form shown (`go → went → ___`). After a 2nd-form answer the
   feedback also stops at `go → went → ___`; the full chain comes after the
@@ -231,7 +313,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   `single(pair)` makes the chest question, `again(pair)` the repeat.
 - **Controls and devices (touch added 2026-11-22).**
   - Keyboard (laptop, Chromebook): WASD / arrows walk, Space swings (bonk and
-    search), 1–3 answer the card, Esc = "later" at a chest, M = sound. Menu:
+    smash) or opens the book / a chest / the boss card, 1–3 answer the card, Esc = "later" at a chest, M = sound. Menu:
     1–3 or ←/→ pick a level, Enter/Space start. If the page has no keyboard
     focus during play it pauses with "Click here to play" (not in touch mode).
   - Touch (`src/touch.js`), switched on by `pointer: coarse` or the first
@@ -255,7 +337,9 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
     `contextmenu` blocked in touch mode, `gesturestart` blocked (old iOS).
     Audio is resumed on every tap (iOS starts it suspended).
   - Touch texts: i18n keys with a `_touch` twin (`howMove`, `howBonk`,
-    `howAnswer`, `hintSearch`, `clickToPlay`) use the twin in touch mode;
+    `howAnswer`, `hintSearch`, `hintBoss_golem`, `hintBoss_necro`,
+    `clickToPlay`) use the twin in touch mode; the Space prompt shows the
+    sword icon instead of the key;
     the menu how-to shows a stick icon, the sword icon and 👆; key badges
     (`1 2 3`, `Esc`) are hidden on touch.
   - Phones: portrait (≤ 640 px wide) shows "turn your device" (`#rotate`);
@@ -265,8 +349,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
     (`max-width: 100vw − 340px` in touch mode).
 - 3 hearts; at 0 the hero is dizzy and the room restarts with full hearts.
   What was reached stays: where the key is (hidden, lying on the floor or
-  taken) and which hiding places were tried, the boss's skulls and
-  question, an opened chest. (A card can't be open then: it pauses the room.)
+  taken) and which hiding places were tried (smashed props stay gone), a
+  read book, the boss's pips and question, an opened chest. (A card can't be open then: it pauses the room.)
 - Stars: 3 = every question right on the first try, 2 = at least 60 %,
   else 1. Best stars per level in localStorage `krabsy_vdungeon_stars`.
   Level n+1 unlocks with any star on level n (`?unlock` opens all).
@@ -286,21 +370,28 @@ the dev server's output. This is how the "controls don't work" report was
 solved.
 
 **QA without a keyboard:** `window.__VD` (`info()`, `run(n)`, `teleport`,
-`bonkOne`, `bonkAll`, `searchOne(i)`, `findKey()` (bonk / search the
-hiding places until the key pops out), `hideIn(i)` (choose the hiding
-place), `answerCard(wrongFirst)`, `answerRight`, `answerWrong`, `later`,
-`doGoal`, `playRoom`). `info().bridge` = `step:floor|stone|fall:broken`. `__VD.solve[type]()`
+`bonkOne`, `bonkAll`, `searchOne(i)` (smash prop i), `findKey()` (bonk /
+smash the hiding places until the key pops out), `takeKey()`, `hideIn(i)`
+(choose the hiding place), `space()` (what Space does here: swing or open),
+`toBook()`, `readBook(wrongFirst)`, `answerCard(wrongFirst)`, `answerRight`,
+`answerWrong`, `later`, `doGoal`, `playRoom`, `foe` (the boss)). `info()`
+also has `book` (shut/done), `rune` (`step:z`), `boss` (`kind:state:pips`),
+`minions` and `prompt` (what Space would open). `info().bridge` = `step:floor|stone|fall:broken`. `__VD.solve[type]()`
 and `__VD.pick(right, hold)` are the solvers per room type.
 `?qa=play&level=2` plays a level by script (per room: the locked door is
-checked, a chest is put off with "later", checked to stay shut, then
-answered; the key is found and its pair answered; the door must open by
-itself; one mistake in the first room); `&wrongall=1` makes a mistake in
-every room. `?qa=hurt` checks the dizzy restart (`&stop=N`: a room with 2+
+checked; Space at the book without the key must not open a card; walking
+up to a chest must not open it, Space does, "later" closes it, Space again,
+answered; the key is found and taken without a card, the door stays locked
+until the book is answered, then must open by itself; the rune room's
+right first-wall door must let the hero walk through; standing on the boss
+stone must not open the card; one mistake in the first room);
+`&wrongall=1` makes a mistake in every room (in a rune room at both walls). `?qa=hurt` checks the dizzy restart (`&stop=N`: a room with 2+
 skeletons or the boss — `level=2&stop=2` key, `level=3&stop=3` ambush,
-`level=1&stop=4` boss; `&pre=floor|taken|boss` = the key lies on the
-floor / is taken, one boss round won first; the result shows `before`,
+`level=1&stop=4` golem, `level=2&stop=5` necromancer, `level=3&stop=4`
+skeleton mage; `&pre=floor|taken|book|boss` = the key lies on the floor /
+is taken / the book is read too, one boss round won first; the result shows `before`,
 `dizzy` and `restarted`). `?qa=keys` sends real key events.
-`?qa=card&stop=N&gate=key|chest|boss|door` freezes with a question card
+`?qa=card&stop=N&gate=book|chest|boss` freezes with a question card
 open (`&step=2` the 3rd form, `&wrong=1` one mistake).
 `?qa=key&stop=N&pose=nothing|pop|floor|taken|open&n=frames` freezes key
 hunt moments (`&keyin=i` the hiding place). `&hold=1` keeps the floating
@@ -310,8 +401,12 @@ words (`Bonk!`, `Nothing!`) on screen for screenshots.
 stone of the current row with W; `wrong:hold` = stop once on the stone,
 e.g. mid-crumble), `goal`, `find`, `search:i`,
 `bonkone:i`, `keyin:i`, `bonkall`, `stone` (wait for the boss stone, stand
-on it), `ans:right|wrong`, `golem`, `bonk`, `menu`, `coins:n`; `&safe=1` =
-no bumps). `&hero=id` plays as that hero; `?qa=portrait&stop=0&hero=id`
+on it), `space` (press Space), `take` (walk onto the key), `book` (into the
+book's circle), `readbook`, `beside:i` (next to search prop i, facing it),
+`minions:n` (wait for n necromancer minions), `cast:t` / `orbs:t` (the
+skeleton mage mid-cast / orbs t s in flight), `still` (enemies stop),
+`ans:right|wrong`, `foe` (next to the boss; `golem` works too), `bonk`,
+`menu`, `coins:n`; `&safe=1` = no bumps). `&hero=id` plays as that hero; `?qa=portrait&stop=0&hero=id`
 is the close-up the menu portraits were cut from (640 px square from y 120, x 380 / 420 / 370 / 290 for knight / barbarian / rogue / mage, scaled to 144; `&pt=` holds the swing clip at that time);
 `?qa=swing&stop=1&n=8&fps=60` (n = frames after the key press; `&stand=1`,
 `&face=deg`, `&skel=1`) freezes a swing. On localhost the result is also
@@ -329,7 +424,9 @@ prints source, tiers, the verb pool and chain-order violations.
 `tools/qa-touch.cjs <port> <w> <h> <lang> <prefix>` plays level 1 by touch
 in a `hasTouch`/`isMobile` context (stick drags via CDP
 `Input.dispatchTouchEvent`, taps on menu, hero cards, chips, "later", end
-screen, sound; screenshots `_shots/<prefix>-*.png`); `START=n` skips the
+screen, sound; the sword button at the book (without and with the key), at
+the chest and on the boss stone; both rune walls; screenshots
+`_shots/<prefix>-*.png`; `SHOTS=dir` writes them elsewhere); `START=n` skips the
 first n rooms by script, `ONLY=n` stops after room n. Headless frame rates
 are low, so it steers by polling the hero's position.
 
@@ -860,3 +957,76 @@ geometry, at most one shadow light.
     hardware keyboard on an iPad (a key press hides the touch controls,
     the next touch shows them again), tablet in portrait (playable, room
     small). Next: owner play-test on a tablet, then release (RELEASE.md).
+- 2026-11-22 — **Play-test notes 8–12 built** ("rebuild all now"; see
+  `PLAYTEST-NOTES.md` and "Rules as built").
+  - 8 Mage staff: `updateGear()` slerps the upright staff into the hand's
+    pose while a swing runs (`gearBlend`), so it follows the arm, gem
+    first; the purple arc runs through the gem (trail `tip`). At rest it
+    stands upright as before.
+  - 9 Crates and barrels smash (new `src/debris.js`, `sfx.crunch`); no
+    "Empty!" text; collision removed; the key pops out of the wreck.
+  - 10 Rune room = two walls in a row (owner's option a): first wall at
+    z 0 with three doors (2nd form, the right one lets you through, the
+    wall fades while you are behind it), the back wall's doors ask the
+    3rd form ("?" until then).
+  - 12 Questions only on Space: the key asks nothing; a verb book on a
+    lectern in a rune circle right of the door (key, ambush, treasure
+    rooms) asks the pair and unlocks the door; skeletons wait at the
+    circle's edge, arrows / orbs fizzle there; chests and the boss stone
+    open with Space too ("Space: …" prompt, `#prompt`). Removed: the key
+    card, the treasure-door card, walking into chests, the chest's
+    step-away rule.
+  - 11 Bosses: L1 Golem (unchanged), L2 Necromancer (floats, raises up to
+    3 minions; right answer = "Spell broken!", minions crumble), L3
+    Skeleton Mage (fans of slow orbs after a "!!" wind-up). `BOSSES` in
+    `main.js`, `boss:` in `levels.js`; models load when level 2 / 3
+    starts (`Assets.loadBoss`).
+  - Decisions made here: L3 boss = Skeleton Mage (ranged orbs) rather than
+    a spinning warrior, because the golem already does the melee charge;
+    the book stands right of the door at x 2.8 z −5.2 (behind the storage
+    room's pillars it was hidden), the cellar's and hall's right-hand
+    column + candle went for it; both rune walls keep full-height KayKit
+    doorways and the first one fades instead of being lowered; a wrong
+    door's push back re-arms the choice (0.8 from the wall, was 1.2), so
+    the next door can be tried at once; a bonked skeleton without the key
+    still says "Nothing!" (only crates lost their text); a boss's touch
+    costs a heart for all three (was golem only); the bosses' staffs are
+    flipped head-up in the hand; HUD pills are smaller below 500 px
+    height so the back wall's signs clear the room label on phones.
+  - 13 (added by the master mid-round): barbarian axe × 1.35 → 1.05; all
+    swings are forehands (clips reversed, see "Forehand for everyone");
+    before/after strips `_shots/P3-swing-<hero>.png`.
+  - Sizes: `assets/` 4.61 → 5.50 MB (+ `Necromancer.glb` 409 KB,
+    `Skeleton_Mage.glb` 270 KB, `anim_boss.glb` 134 KB, `Skeleton_Staff.*`
+    72 KB; none of it in the first load), `src/` 0.18 → 0.22 MB. Draw
+    calls: the lectern is baked to 4 meshes (+ circle + glow); L1 room 1
+    25 → 29.
+  - **Checked** (headless Linux Chromium, private copy, then copied
+    over): `?qa=play&level=1..3` and `&wrongall=1` reach 'end' with hearts
+    3 (inline verbs; as all four heroes with `&wrongall=1`); the site
+    engine run `tools/qa-engine.cjs` levels 1–3 ± wrongall: 'end',
+    `source: engine`, no chain-order violations; `tools/qa-touch.cjs` at
+    1024×768 DE plays level 1 by touch (book without key → hint, key taken
+    without a card, book by the sword button with one wrong chip, chest
+    prompt / button / "later" / button again, both rune walls incl. a wrong
+    first-wall door and walking through the right one, boss stone needs the
+    button, golem down, end screen) and at 844×390 ES room 1; `?qa=hurt` in
+    a key room (`pre=floor|taken|book`), the ambush (`pre=taken`) and all
+    three boss rooms (`pre=boss`: 2 pips kept); `?qa=swing` hit at 0.117 s
+    for all four heroes, standing and running, blade ahead at the hit
+    (forehand); a ward check (hero in the circle 12 s next to a skeleton and
+    an archer: 0 hits, 2 arrows fizzled, skeleton held at 2.5 from the
+    centre); orbs hit a hero who stands still; a smashed crate has no
+    collision and shows no text; `node --check` on all `src/*.js`.
+    Screenshots `_shots/P3-*.png` (looked at; fixed from them: the book was
+    hidden behind the storage pillars, the circle was too faint, the boss
+    intro lines covered the bosses / the hint, the bosses' staffs pointed
+    into the floor, the mage's cast glow was hidden, the phone HUD touched
+    the back wall's signs).
+  - **Not checked:** a human playing (is the book a welcome pause or a
+    chore, does the faded first wall read, necromancer / mage difficulty
+    and orb speed, forehand feel), sounds (crunch, clunk, book, summon,
+    orb, laugh, fizzle), frame rate on a Chromebook (debris pool, the rune
+    room's transparent wall, minions), a real tablet / phone.
+  - **Next:** owner play-test of notes 8–13; then release (RELEASE.md:
+    new size and new info-page text).

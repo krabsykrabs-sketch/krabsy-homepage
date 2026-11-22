@@ -53,6 +53,22 @@ function upperBodyClip(src, name) {
   return new THREE.AnimationClip(name, src.duration, tracks);
 }
 
+// The same clip played backwards (keyframes mirrored in time).
+function reverseClip(clip) {
+  const D = clip.duration;
+  const tracks = clip.tracks.map((tr) => {
+    const n = tr.times.length, size = tr.getValueSize();
+    const times = new Float32Array(n), values = new Float32Array(tr.values.length);
+    for (let i = 0; i < n; i++) {
+      const j = n - 1 - i;
+      times[i] = D - tr.times[j];
+      for (let k = 0; k < size; k++) values[i * size + k] = tr.values[j * size + k];
+    }
+    return new tr.constructor(tr.name, times, values);
+  });
+  return new THREE.AnimationClip(clip.name, D, tracks);
+}
+
 export const Assets = {
   models: new Map(),
   material: null,
@@ -60,6 +76,8 @@ export const Assets = {
   clipsLarge: {},   // large rig: the golem
   heroes: {},       // hero id → model
   gear: {},         // weapon / shield name → model
+  bosses: {},       // boss id → model (golem with the first load, the others with their level)
+  bossClips: null,  // medium rig + the bosses' casting clips (anim_boss.glb)
 
   async load(onProgress) {
     const loader = new GLTFLoader();
@@ -88,8 +106,11 @@ export const Assets = {
     for (const g of [knight, skel, sword, shield, golem, rogue, crossbow, arrow]) toLambert(g.scene);
     for (const a of [...anim.animations, ...animRanged.animations]) this.clips[a.name] = a; // same rig
     for (const a of animLarge.animations) this.clipsLarge[a.name] = a;                       // the golem's rig
-    for (const [key, sw] of Object.entries(SWINGS)) this.clips[`Swing_${key}`] = upperBodyClip(this.clips[sw.clip], `Swing_${key}`);
-    this.skeleton = skel.scene; this.golem = golem.scene; this.archer = rogue.scene;
+    for (const [key, sw] of Object.entries(SWINGS)) {
+      const c = upperBodyClip(this.clips[sw.clip], `Swing_${key}`);
+      this.clips[`Swing_${key}`] = sw.reverse ? reverseClip(c) : c; // forehand (heroes.js, note 13)
+    }
+    this.skeleton = skel.scene; this.golem = this.bosses.golem = golem.scene; this.archer = rogue.scene;
     this.crossbow = crossbow.scene; this.arrow = arrow.scene;
     this.gear.sword_1handed = sword.scene; this.gear.shield_round = shield.scene;
     this.heroes.knight = knight.scene;
@@ -110,6 +131,23 @@ export const Assets = {
         .then((g) => { toLambert(g.scene); this.gear[name] = g.scene; }));
     }
     await Promise.all(jobs);
+  },
+
+  // Level 2 and 3 bosses (main.js BOSSES): loaded when their level starts, with the
+  // Skeleton_Staff and the casting clips. Necromancer and Skeleton Mage use the medium rig.
+  async loadBoss(id) {
+    const files = { necro: 'Necromancer.glb', mage: 'Skeleton_Mage.glb' };
+    if (!files[id] || this.bosses[id]) return;
+    const loader = new GLTFLoader();
+    const [model, anim, staff] = await Promise.all([
+      loader.loadAsync(`assets/characters/${files[id]}`),
+      this.bossClips ? null : loader.loadAsync('assets/characters/anim_boss.glb'),
+      this.gear.Skeleton_Staff ? null : loader.loadAsync('assets/characters/Skeleton_Staff.gltf'),
+    ]);
+    toLambert(model.scene);
+    this.bosses[id] = model.scene;
+    if (anim) { this.bossClips = { ...this.clips }; for (const a of anim.animations) this.bossClips[a.name] = a; }
+    if (staff) { toLambert(staff.scene); this.gear.Skeleton_Staff = staff.scene; }
   },
 
   clone(name) {

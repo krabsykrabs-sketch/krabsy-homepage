@@ -1,22 +1,25 @@
 // Verb Dungeon: game loop, rules and interface.
 // One room is on screen at a time, seen by a fixed camera. Rules in short:
 //   do the room's goal (GOALS, by room type): find the hidden key (in a skeleton or a
-//   crate) and answer both forms of its verb in the question card → the door opens by
-//   itself → next room. Rune doors and the word bridge are the verb question themselves
-//   and open the exit. The last room is the boss: answer on the glowing stone to stun
-//   the golem, then bonk it. Coins (chests, boss, treasure room) buy other heroes.
-//   Chests are optional bonus questions. The question card pauses the whole room.
+//   crate you smash), then read the verb book by the door (Space in its rune circle) and
+//   answer both forms → the door opens by itself → next room. Rune doors and the word
+//   bridge are the verb question themselves and open the exit. The last room is the boss
+//   (a different one per level): answer on the glowing stone to stun it, then bonk it.
+//   Coins (chests, boss, treasure room) buy other heroes. Chests are optional bonus
+//   questions. Questions open only when the player presses Space (book, chest, boss
+//   stone); the question card pauses the whole room.
 import * as THREE from 'three';
 import { Assets } from './assets.js';
 import { Char } from './chars.js';
-import { buildRoom, DOOR, BOUNDS, TORCH_SPOTS, PITS, STONE, glowTex, makeGlow } from './room.js';
+import { buildRoom, DOOR, BOUNDS, TORCH_SPOTS, PITS, STONE, RUNE_WALL, glowTex, makeGlow } from './room.js';
+import { initDebris, smash, updateDebris, clearDebris } from './debris.js';
 import { initMarks, markUsable, unmark, clearMarks, updateMarks, markCount } from './marker.js';
 import { LEVELS } from './levels.js';
 import { loadPairs, again, single } from './questions.js';
 import { makeLabel } from './labels.js';
 import * as Q from './questions.js';
 import { t, lang } from './i18n.js';
-import { HEROES, SWINGS, heroDef, Save } from './heroes.js';
+import { HEROES, SWINGS, heroDef, swingTimes, Save } from './heroes.js';
 import { sfx } from './audio.js';
 import { initTouch, stick, holdStick, touchOn, resetTouch, swordIcon } from './touch.js';
 
@@ -170,7 +173,7 @@ function drawHud() {
   $('coinN').textContent = Save.coins;
   const boss = room && room.type === 'boss' && room.boss;
   $('roomLabel').innerHTML = boss
-    ? `${t('level', G.level + 1)} · ${t('boss')} <span class="pips">${[0, 1, 2].map((i) => `<i class="${i < boss.hp ? '' : 'off'}">💀</i>`).join('')}</span>`
+    ? `${t('level', G.level + 1)} · ${t(`boss_${bossKind().id}`)} <span class="pips">${[0, 1, 2].map((i) => `<i class="${i < boss.hp ? '' : 'off'}">${bossKind().pip}</i>`).join('')}</span>`
     : `${t('level', G.level + 1)} · ${t('room', G.roomIdx + 1, LEVELS[G.level].rooms.length)}`;
   $('mute').textContent = `${sfx.muted ? '🔇' : '🔊'} ${t('sound')}`;
 }
@@ -223,23 +226,25 @@ async function pickHero(id) {
 }
 
 // ── Question card ──────────────────────────────────────────────────────────
-// The key, a chest, the boss stone and the treasure-room door ask in a card in the
-// middle of the screen. The room is dimmed and paused while it is open (step()). The card
-// opens on an event and stays until it is answered; only a chest can be put off ("later",
-// Esc), and stays closed then. card = { gate: 'key' | 'door' | 'chest' | 'boss', pair,
-// step, q? }: key and door ask both forms of the pair in a row (step 0 = 2nd form, step 1 =
-// 3rd form with the 2nd shown); the boss asks one step per round; a chest has its own q.
-// Missed pairs come first (key, door, boss, rune, bridge); chests always take a fresh verb.
+// The verb book, a chest and the boss stone ask in a card in the middle of the screen. It
+// opens only when the player presses Space (or the sword button) there (play-test note
+// 12), never by walking somewhere. The room is dimmed and paused while it is open (step()).
+// It stays until it is answered; only a chest can be put off ("later", Esc). card = { gate:
+// 'book' | 'chest' | 'boss', pair, step, q? }: the book asks both forms of the pair in a
+// row (step 0 = 2nd form, step 1 = 3rd form with the 2nd shown); the boss asks one step per
+// round; a chest has its own q. Missed pairs come first (book, boss, rune, bridge); chests
+// always take a fresh verb.
 function nextPair(retryFirst) {
   if (retryFirst && G.retry.length) return G.retry.shift();
   const pair = G.pool[G.poolIdx % G.pool.length];
   G.poolIdx += 1;
   return again(pair); // a copy with its own option order and "tried" marks
 }
-const CARD = { key: ['🔑', 'cardKey'], door: ['🚪', 'cardDoor'], chest: ['💰', 'cardChest'], boss: ['💀', 'cardBoss'] };
+const CARD = { book: ['📖', 'cardBook'], chest: ['💰', 'cardChest'], boss: ['💀', 'cardBoss'] };
 const cardQ = (c) => c.q || c.pair.steps[c.step];
 function openCard(card) {
   G.card = card;
+  $('prompt').classList.remove('on'); promptAt = '';
   keys.clear(); holdStick(); // the hero stands still when the card closes
   sfx.cardOpen();
   renderCard();
@@ -262,8 +267,8 @@ const askLog = []; // QA: every question shown (card or sign), `gate:base:ask`, 
 function renderCard() {
   const c = G.card, q = cardQ(c), [icon, title] = CARD[c.gate];
   askLog.push(`${c.gate}:${q.base}:${q.ask}`);
-  $('askIcon').textContent = icon;
-  $('askTitle').textContent = t(title);
+  $('askIcon').textContent = c.gate === 'boss' ? bossKind().pip : icon;
+  $('askTitle').textContent = c.gate === 'boss' ? t(`card_${bossKind().id}`) : t(title);
   $('askCard').className = `${q.ask} ${c.gate}`;
   const chain = $('chain');
   chain.innerHTML = chainAsk(q);
@@ -338,7 +343,7 @@ function answer(i) {
     return;
   }
   sfx.sparkle();
-  if ((c.gate === 'key' || c.gate === 'door') && c.step === 0) {
+  if (c.gate === 'book' && c.step === 0) {
     // 2nd form right: the same card now asks the 3rd form, with the 2nd written in.
     c.step = 1;
     renderCard();
@@ -346,15 +351,13 @@ function answer(i) {
   }
   closeCard();
   toast(`✓ ${askedChain(q)}`);
-  if (c.gate === 'key') takeKey();
-  else if (c.gate === 'door') openExit(room.doors[0]);
+  if (c.gate === 'book') unlockBook();
   else openChest();
 }
-// "Later" (chest only): the card closes, the chest stays shut until you come back.
+// "Later" (chest only): the card closes, the chest stays shut; Space there asks again.
 function later() {
   if (!G.card || G.card.gate !== 'chest') return;
   closeCard();
-  room.chest.armed = false; // opens again only after the hero has stepped away
   sfx.uiClick();
 }
 tap($('askLater'), later);
@@ -382,7 +385,9 @@ async function startLevel(i) {
   Object.assign(G, { level: i, roomIdx: 0, hearts: MAX_HEARTS, asked: 0, firstTry: 0, treasures: 0, coinsRun: 0,
     missed: [], poolIdx: 0, retry: [] });
   try {
-    G.pool = await loadPairs({ count: 10, tiers: LEVELS[i].tiers });
+    const bossRoom = LEVELS[i].rooms.find((r) => r.type === 'boss');
+    [G.pool] = await Promise.all([loadPairs({ count: 10, tiers: LEVELS[i].tiers }),
+      Assets.loadBoss(bossRoom && bossRoom.boss)]); // this level's boss model (golem: already there)
   } catch (err) {
     console.error(err);
     diag('error', { msg: `startLevel: ${err.message}` });
@@ -400,9 +405,18 @@ function clearSkeletons() {
   skeletons = [];
   for (const a of arrows) scene.remove(a.obj);
   arrows.length = 0;
-  if (golem) { golem.dispose(); golem = null; }
+  if (foe) { foe.dispose(); foe = null; }
+  charge.visible = false;
   for (const st of dizzy) st.visible = false;
   bossStone.mesh.visible = false;
+}
+// Patrol points inside the verb book's circle move to just outside it.
+function outOfWards(v, pad) {
+  for (const w of room.wards) {
+    const dx = v.x - w.x, dz = v.z - w.z, d = Math.hypot(dx, dz) || 1e-3;
+    if (d < w.r + pad) { v.x = w.x + dx / d * (w.r + pad); v.z = w.z + dz / d * (w.r + pad); }
+  }
+  return v;
 }
 // A skeleton entry in the level data is a patrol route, or { archer: true, route }.
 function spawnSkeletons() {
@@ -410,7 +424,7 @@ function spawnSkeletons() {
   skeletons = (room.def.skeletons || []).map((entry, i) => {
     const def = Array.isArray(entry) ? { route: entry } : entry;
     const s = new Char(def.archer ? Assets.archer : Assets.skeleton, Assets.clips);
-    s.route = def.route.map(([x, z]) => ({ x, z }));
+    s.route = def.route.map(([x, z]) => outOfWards({ x, z }, 0.9));
     s.pos.set(s.route[0].x, 0, s.route[0].z);
     s.idx = i; s.wp = 1 % s.route.length; s.mode = 'patrol'; s.t = 0; s.pause = 0; s.squash = 0;
     if (def.archer) {
@@ -456,14 +470,15 @@ function openExit(door) {
   drawHud();
 }
 // Key hunt: the key hides in one of the room's search props or, without them, in one of
-// its skeletons (hideKey, reveal). Walking over it asks its verb pair in the card; then
-// the key is yours and the door opens by itself.
+// its skeletons (hideKey, reveal). Walking over it takes it (no question). Then the verb
+// book by the door: Space in its rune circle opens the card with the pair; both right and
+// the door unlocks, and opens by itself when the hero comes near (play-test note 12).
 const keyHunt = {
-  doorHint: 'hintNoKey',
+  doorHint: () => (key.state === 'taken' ? 'hintBookFirst' : room.type === 'ambush' ? 'hintAmbushDoor' : 'hintNoKey'),
   enter(keep) {
     hideKey(keep);
     if (G.mode === 'play' && room.phase === 'goal') {
-      hint(t(key.state !== 'hidden' ? 'hintGrab' : room.hide.where === 'search' ? 'hintSearch' : 'hintSkeletons'), 5);
+      hint(t(key.state === 'taken' ? 'hintBook' : key.state !== 'hidden' ? 'hintGrab' : room.hide.where === 'search' ? 'hintSearch' : 'hintSkeletons'), 5);
     }
   },
   save: () => ({ state: key.state, x: key.to.x, z: key.to.z, hide: room.hide }),
@@ -477,11 +492,16 @@ const GOALS = {
   // One of them has the key, as in the key hunt.
   ambush: {
     ...keyHunt,
-    doorHint: 'hintAmbushDoor',
     enter(keep) {
       hideKey(keep);
       const a = room.ambush = { on: false };
       if (room.phase !== 'goal') { for (const s of skeletons) s.mode = 'calm'; a.on = true; return; }
+      if (keep && key.state === 'taken') { // a dizzy restart after the key: no second trap
+        for (const s of skeletons) s.mode = 'calm';
+        a.on = true;
+        if (G.mode === 'play') hint(t('hintBook'), 5);
+        return;
+      }
       room.doors[0].open = true;
       for (const s of skeletons) { s.mode = 'hidden'; s.setVisible(false); }
       if (G.mode === 'play') hint(t('hintAmbushEnter'), 4);
@@ -505,90 +525,99 @@ const GOALS = {
     },
   },
 
-  // Treasure room: coins lie around, nothing attacks. Its door asks a verb pair in the card.
+  // Treasure room: coins lie around, nothing attacks. Its door is opened by the verb book.
   vault: {
+    doorHint: 'hintBookFirst',
     enter() {
       for (const [x, z] of room.def.coins || []) lyingCoin(x, z);
-      if (room.phase === 'goal') room.phase = 'door';
       if (G.mode === 'play') hint(t('hintVault'), 5);
     },
   },
 
-  // Boss: a big golem walks after the hero and charges now and then. A glowing stone
-  // lies in the room: step on it and the card asks. Right = the golem is dizzy for a few
-  // seconds and can be bonked (3 bonks and it falls apart, the exit opens). Wrong = it
-  // laughs it off and the stone comes back with the same question a little later.
-  // Questions follow the chain order across rounds: 2nd form, 3rd form, next verb.
+  // Boss (last room of every level, a different one per level: BOSSES below).
   boss: {
     enter(keep) {
+      const kind = BOSSES[room.def.boss || 'golem'];
       const b = room.boss = keep || { hp: 3, pair: nextPair(true), step: 0 };
-      Object.assign(b, { state: 'intro', t: 1.8, stone: null, stoneT: 0.6, chargeT: 5, dx: 0, dz: 1, told: false });
-      golem = new Char(Assets.golem, Assets.clipsLarge);
-      golem.root.scale.setScalar(BOSS.scale);
-      golem.pos.set(0, 0, -3.5);
-      golem.pause = 0; golem.squash = 0;
-      golem.play('Flexing');
-      scene.add(golem.root);
-      if (G.mode === 'play') hint(t('hintBoss'), 6);
+      Object.assign(b, { kind: kind.id, state: 'intro', t: kind.introT, stone: null, stoneT: 0.6, chargeT: 5, castT: 2.2,
+        summonT: 0.4, dx: 0, dz: 1, told: false, y: 0 });
+      foe = new Char(Assets.bosses[kind.id], kind.rig === 'large' ? Assets.clipsLarge : Assets.bossClips);
+      foe.root.scale.setScalar(kind.scale);
+      foe.pos.set(0, 0, -3.5);
+      foe.pause = 0; foe.squash = 0;
+      if (kind.weapon) {
+        const hand = foe.root.getObjectByName('handslotr');
+        if (hand) { const w = Assets.gear[kind.weapon].clone(true); w.rotation.x = Math.PI; hand.add(w); } // head up
+      }
+      foe.hand = foe.root.getObjectByName('handslotr');
+      scene.add(foe.root);
+      kind.intro(b, foe);
+      if (G.mode === 'play') hint(t(`hintBoss_${kind.id}`), 6);
+      drawHud();
     },
     save: () => ({ hp: room.boss.hp, pair: room.boss.pair, step: room.boss.step }),
     onAnswer(right, q) {
-      const b = room.boss;
+      const b = room.boss, k = bossKind();
       b.stone = null; bossStone.mesh.visible = false; b.mark = unmark(b.mark);
-      if (!right) { // the golem laughs it off; the same question comes back
-        sfx.bzzt();
+      if (!right) { // the boss laughs it off; the same question comes back
+        sfx.bzzt(); after(0.3, () => sfx.laugh());
         toast(teachHtml(q), 2.6);
-        pop(t('bossShrug'), golem.pos.x, BOSS.head + 1, golem.pos.z, '#ff8585');
+        pop(t('bossShrug'), foe.pos.x, k.head + 1, foe.pos.z, '#ff8585');
         Object.assign(b, { state: 'taunt', t: 1.5, stoneT: 3 });
-        golem.play('Flexing');
+        foe.play(k.taunt);
         return;
       }
       sfx.sparkle();
       toast(`✓ ${askedChain(q)}`);
       if (b.step === 0) b.step = 1; else { b.pair = nextPair(true); b.step = 0; }
       Object.assign(b, { state: 'stun', t: BOSS.stun });
-      golem.play('Idle_A', { speed: 0.5 });
+      foe.play('Idle_A', { speed: 0.5 });
+      if (k.onStun) k.onStun(b, foe);
       sfx.dizzy();
       hint(t('hintBossBonk'), 4);
     },
-    onSwing(p, fx, fz) { // the hero's sword swing (bonkCheck)
-      const b = room.boss, g = golem.pos;
+    onSwing(p, fx, fz) { // the hero's weapon swing (bonkCheck)
+      const b = room.boss, g = foe.pos, k = bossKind();
       const dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);
-      if (b.state === 'dead' || d > 3.6 || (d > 1 && (dx * fx + dz * fz) / d < 0.2)) return;
+      if (b.state === 'dead' || d > k.hitR || (d > 1 && (dx * fx + dz * fz) / d < 0.2)) return;
       if (b.state !== 'stun') { // too strong while it is not dizzy
         sfx.thud();
-        pop(t('bossClonk'), g.x, BOSS.head, g.z, '#9db4dd');
+        pop(t('bossClonk'), g.x, k.head, g.z, '#9db4dd');
         if (!b.told) { b.told = true; hint(t('hintBossStone'), 4); }
         return;
       }
       b.hp -= 1;
-      golem.squash = 1;
+      foe.squash = 1;
       sfx.bonk(); after(0.15, () => sfx.boneRattle());
-      pop(t('bonk'), g.x, BOSS.head, g.z);
+      pop(t('bonk'), g.x, k.head, g.z);
       hitFx(g.x, g.z);
       for (const st of dizzy) st.visible = false;
       drawHud();
       if (b.hp > 0) {
-        Object.assign(b, { state: 'hit', t: 1.1, stoneT: 2.2, chargeT: 4 });
-        golem.play('Hit_A', { once: true, fade: 0.05 });
+        Object.assign(b, { state: 'hit', t: 1.1, stoneT: 2.2, chargeT: 4, castT: 2.4, summonT: 1.6 });
+        foe.play('Hit_A', { once: true, fade: 0.05 });
         return;
       }
       b.state = 'dead';
-      golem.play('Death_A', { once: true, fade: 0.08 });
+      foe.play('Death_A', { once: true, fade: 0.08 });
+      if (k.onStun) k.onStun(b, foe); // nothing of its tricks stays behind
       sfx.rumble(0.9); after(0.5, () => sfx.boneRattle()); after(0.8, () => sfx.boneRattle());
       FX.shake = 1;
-      hint(t('bossDown'), 5);
+      hint(t(`down_${k.id}`), 5);
       after(0.9, () => burstCoins(g.x, g.z, 5));
       after(1.4, () => { sfx.fanfare(); openExit(room.doors[0]); });
     },
     update(dt) { updateBoss(dt); },
   },
 
-  // Rune doors: three doors, each with a word. Walk into the right one. Two rounds:
-  // the 2nd form, then the 3rd with the 2nd shown. A wrong door shows a brick wall.
+  // Rune doors (play-test note 10): two walls in a row, three doors each. The first wall
+  // (across the room) asks the 2nd form: walk into the door with the right word and it
+  // opens and lets you through into the antechamber. The back wall asks the 3rd form (the
+  // 2nd shown in the line at the bottom); its right door is the exit. A wrong door shows a
+  // brick wall, the sign greys out, the verb comes back later.
   rune: {
     enter() {
-      room.rune = { pair: nextPair(true), step: 0, armed: true, busy: false };
+      room.rune = { pair: nextPair(true), step: 0, armed: true };
       dealRunes();
       $('hint').classList.remove('on'); // no hint here: it would cover the door signs
     },
@@ -598,11 +627,12 @@ const GOALS = {
     },
     update() {
       const r = room.rune, p = hero.pos;
-      if (room.phase !== 'goal' || r.busy || G.locked) return;
-      // After a choice the hero has to step back before the next one counts.
-      if (!r.armed) { r.armed = p.z > BOUNDS.minZ + 1.2; return; }
-      if (p.z > BOUNDS.minZ + 0.25) return;
-      const i = room.doors.findIndex((d) => Math.abs(p.x - d.x) < 1.1);
+      if (room.phase !== 'goal' || G.locked) return;
+      const w = runeWall(r.step);
+      // After a wrong choice the hero has to step back before the next one counts.
+      if (!r.armed) { r.armed = p.z > w.line + 0.8; return; } // the push back from a wrong door is enough
+      if (p.z > w.line || (r.step === 0 && p.z < RUNE_WALL.z)) return;
+      const i = w.doors.findIndex((d) => Math.abs(p.x - d.x) < 1.1);
       if (i >= 0) chooseRune(i);
     },
   },
@@ -626,15 +656,245 @@ const GOALS = {
   },
 };
 const goal = () => GOALS[room.type];
+const doorHintKey = () => { const h = goal().doorHint; return typeof h === 'function' ? h() : h; };
 
-// Boss.
-const BOSS = { scale: 1.25, head: 4.6, stun: 6, reach: 1.9,
-  spots: [[-6, 3], [6, 3], [-6, -3.5], [6, -3.5], [0, 4.8], [0, -1]] };
-let golem = null;
+// The verb book (play-test note 12): a stand with an open book in a rune circle near the
+// door (room.book, built in room.js). Space (or the sword button) inside the circle opens
+// it: the card asks the room's pair. Key rooms need the key first. Enemies and arrows
+// cannot enter the circle (room.wards: collide(), updateSkeleton(), updateArrows()).
+const needsKey = () => room.type === 'key' || room.type === 'ambush';
+const inWard = (p, pad = 0) => room.wards.some((w) => near(p, w.x, w.z, w.r + pad));
+const inBook = (p) => room.book && !room.book.done && near(p, room.book.x, room.book.z, room.book.r);
+function useBook() {
+  const b = room.book;
+  if (needsKey() && key.state !== 'taken') {
+    hint(t('hintBookNoKey'), 2.5);
+    sfx.popIn();
+    pop('🔑 ?', b.x, 2.6, b.z, '#ffcf5e');
+    return;
+  }
+  b.pair = b.pair || nextPair(true);
+  sfx.bookOpen();
+  openCard({ gate: 'book', pair: b.pair, step: 0 });
+}
+function unlockBook() {
+  const b = room.book;
+  b.done = true;
+  b.mark = unmark(b.mark);
+  sfx.clunk(); after(0.2, () => sfx.sparkle());
+  pop('✓', b.x, 2.6, b.z, '#2ee6c0');
+  goalDone('hintDoor');
+}
+function updateBook(dt) {
+  const b = room.book;
+  if (!b) return;
+  const m = b.circle.material;
+  m.opacity = b.done ? 0.25 : 0.62 + 0.3 * Math.sin(G.time * 2.4);
+  b.circle.rotation.z += dt * 0.12;
+  b.glow.material.opacity = b.done ? 0.15 : 0.45 + 0.2 * Math.sin(G.time * 3.1);
+}
+
+// What Space (or the sword button) does here instead of a swing, if anything: open the
+// verb book, a chest, or the boss card on the glowing stone. A floating prompt shows it.
+const CHEST_REACH = 2.4;
+function usable() {
+  if (!room || G.card || G.locked || G.mode !== 'play') return null;
+  const p = hero.pos, c = room.chest, b = room.boss;
+  if (inBook(p)) return { what: 'book', x: room.book.x, y: 2.35, z: room.book.z };
+  if (c && !c.open && near(p, c.x, c.z, CHEST_REACH)) return { what: 'chest', x: c.x, y: 2.1, z: c.z };
+  if (b && b.stone && near(p, b.stone.x, b.stone.z, 1.5) && bossCanAsk()) return { what: 'stone', x: b.stone.x, y: 1.4, z: b.stone.z };
+  return null;
+}
+function useHere() {
+  const u = usable();
+  if (!u) return false;
+  if (u.what === 'book') useBook();
+  else if (u.what === 'chest') {
+    const c = room.chest;
+    if (!c.q) { c.pair = nextPair(false); c.q = single(c.pair); }
+    openCard({ gate: 'chest', pair: c.pair, q: c.q });
+  } else openCard({ gate: 'boss', pair: room.boss.pair, step: room.boss.step });
+  return true;
+}
+let promptAt = '';
+function updatePrompt() {
+  const u = usable(), el = $('prompt');
+  const id = u ? `${u.what}:${touchOn()}` : '';
+  if (id !== promptAt) {
+    promptAt = id;
+    el.classList.toggle('on', !!u);
+    if (u) el.innerHTML = `${touchOn() ? `<i class="pSw">${swordIcon}</i>` : '<kbd>Space</kbd>'}${t(`prompt_${u.what}`)}`;
+  }
+  if (!u) return;
+  _v.set(u.x, u.y, u.z).project(camera);
+  el.style.left = `${(_v.x * 0.5 + 0.5) * window.innerWidth}px`;
+  el.style.top = `${(-_v.y * 0.5 + 0.5) * window.innerHeight}px`;
+}
+
+// ── Bosses (play-test note 11) ──────────────────────────────────────────────
+// A different boss in every level, all with the same pattern the owner liked: an intro
+// beat, then the boss attacks in its own way; a glowing "?" stone appears (away from boss
+// and hero): stand on it and press Space and the card asks one question. Right = the boss
+// is dizzy for BOSS.stun seconds (its trick stops) and a bonk takes one of its 3 pips.
+// Wrong = it laughs, the stone comes back after 3 s with the same question (the tried
+// choice greyed). Questions run in chain order across rounds. Nothing attacks while the
+// card is open. At 0 pips it falls over, drops 5 coin stacks, and the exit opens. A dizzy
+// restart keeps its pips and question. Faster on later levels and with fewer pips.
+// Kinds: intro(b, f) sets up the entrance, update(b, f, dt, ctx) moves and attacks while
+// it is awake, onStun(b, f) stops its trick (also when it falls), taunt = the laugh clip.
+const BOSS = { stun: 6, spots: [[-6, 3], [6, 3], [-6, -3.5], [6, -3.5], [0, 4.8], [0, -1]] };
+const BOSSES = {
+  // Level 1: the Golem walks after the hero and now and then charges: 0.9 s wind-up with
+  // "!!", then straight ahead without turning, then a tired pause.
+  golem: {
+    id: 'golem', pip: '💀', rig: 'large', scale: 1.25, head: 4.6, reach: 1.9, hitR: 3.6, introT: 1.8, taunt: 'Flexing',
+    intro(b, f) { f.play('Flexing'); sfx.rumble(0.6); pop(t('intro_golem'), 0, 0.6, -0.9, '#ffcf5e'); },
+    update(b, f, dt, { dx, dz, d, fast }) {
+      const p = f.pos;
+      switch (b.state) {
+        case 'chase':
+          if (f.pause > 0) { f.pause -= dt; f.play('Idle_A'); break; }
+          p.x += dx / d * 1.8 * fast * dt; p.z += dz / d * 1.8 * fast * dt;
+          collide(p, 1.3, false, true);
+          f.face(dx, dz, dt, 4);
+          f.play('Walking_A');
+          if ((b.chargeT -= dt) <= 0 && d > 3.5) { // wind up for a charge: easy to see coming
+            Object.assign(b, { state: 'windup', t: 0.9 });
+            f.play('Flexing');
+            pop('!!', p.x, this.head + 0.6, p.z, '#ff8585');
+            sfx.popIn();
+          }
+          break;
+        case 'windup':
+          f.face(dx, dz, dt, 6);
+          b.dx = dx / d; b.dz = dz / d;
+          if (b.t <= 0) { Object.assign(b, { state: 'charge', t: 0.95 }); f.play('Running_A'); }
+          break;
+        case 'charge': // straight ahead, no turning: step aside
+          p.x += b.dx * 7.5 * fast * dt; p.z += b.dz * 7.5 * fast * dt;
+          collide(p, 1.3, false, true);
+          if (b.t <= 0) { Object.assign(b, { state: 'tired', t: 1.3, chargeT: 5 }); f.play('Idle_A'); }
+          break;
+        case 'tired':
+          if (b.t <= 0) b.state = 'chase';
+          break;
+      }
+    },
+  },
+  // Level 2: the Necromancer floats around, keeps his distance and keeps raising small
+  // skeletons (at most `cap` at once). A right answer breaks his spell: every minion
+  // crumbles, and he sinks to the floor, dizzy. Bonked minions crumble too.
+  necro: {
+    id: 'necro', pip: '👑', scale: 1.45, head: 4.1, reach: 1.5, hitR: 3.4, introT: 2.4, taunt: 'Skeletons_Taunt', weapon: 'Skeleton_Staff', cap: 3,
+    intro(b, f) {
+      b.y = 4.5; f.pos.y = 4.5; // floats down
+      f.play('Skeletons_Taunt');
+      sfx.summon();
+      pop(t('intro_necro'), 0, 0.6, -0.9, '#c9a6ff');
+      b.summonT = 0; b.introRaise = 2; // raises two minions at the end of the intro
+    },
+    update(b, f, dt, { dx, dz, d, fast }) {
+      const p = f.pos;
+      if (b.state === 'cast') { // raising a minion: arms up, purple glow on the floor
+        f.face(dx, dz, dt, 5);
+        if (b.t <= 0) {
+          for (let i = 0; i < (b.introRaise || 1); i++) raiseMinion(p, i);
+          b.introRaise = 0;
+          Object.assign(b, { state: 'chase', summonT: 4.2 / fast });
+        }
+        return;
+      }
+      // Drift: keep 5–8 units from the hero, circling slowly.
+      const want = d < 5 ? -1 : d > 8 ? 1 : 0, side = Math.sin(G.time * 0.6) > 0 ? 1 : -1;
+      const vx = (dx / d) * want + (-dz / d) * side * 0.6, vz = (dz / d) * want + (dx / d) * side * 0.6;
+      if (f.pause > 0) f.pause -= dt;
+      else { p.x += vx * 1.7 * fast * dt; p.z += vz * 1.7 * fast * dt; }
+      collide(p, 0.9, false, true);
+      f.face(dx, dz, dt, 4);
+      f.play('Idle_A');
+      const alive = skeletons.filter((s) => s.minion && !s.gone && s.mode !== 'down' && s.mode !== 'crumble').length;
+      if ((b.summonT -= dt) <= 0) {
+        if (alive >= this.cap) b.summonT = 1;
+        else {
+          Object.assign(b, { state: 'cast', t: 1.0 });
+          f.play('Ranged_Magic_Summon', { once: true, fade: 0.1 });
+          sfx.summon();
+        }
+      }
+    },
+    onStun() {
+      let n = 0;
+      for (const s of skeletons) {
+        if (!s.minion || s.gone || s.mode === 'crumble') continue;
+        s.setVisible(true);
+        s.mode = 'crumble'; s.t = 0.9 + n * 0.08; n += 1;
+        s.play('Death_A', { once: true, fade: 0.05, speed: 1.7 });
+      }
+      if (n) { pop(t('spellBroken'), foe.pos.x, 3.4, foe.pos.z + 1, '#c9a6ff'); after(0.3, () => sfx.boneRattle()); }
+    },
+  },
+  // Level 3: the Skeleton Mage keeps his distance and casts slow magic orbs in a fan
+  // (three, five at the last pip): "!!" and a glow on his staff first, so you can step
+  // out of the way. Orbs cost a heart; the hero's weapon swats them ("Pling!").
+  mage: {
+    id: 'mage', pip: '🔮', scale: 1.5, head: 4.0, reach: 1.5, hitR: 3.4, introT: 2.0, taunt: 'Skeletons_Taunt', weapon: 'Skeleton_Staff',
+    intro(b, f) {
+      f.pos.set(0, 0, -4.5);
+      f.play('Skeletons_Taunt');
+      b.spin = 1.2;
+      puff(0, -4.5); sfx.whoosh(); after(0.3, () => sfx.laugh());
+      pop(t('intro_mage'), 0, 0.6, -1.9, '#c9a6ff');
+    },
+    update(b, f, dt, { dx, dz, d, fast }) {
+      const p = f.pos;
+      if (b.state === 'cast') {
+        if (b.t > 0.3) { f.face(dx, dz, dt, 8); b.dx = dx / d; b.dz = dz / d; } // the last moment is fixed: dodge now
+        if (b.t <= 0) {
+          const n = room.boss.hp <= 1 ? 5 : 3, base = Math.atan2(b.dx, b.dz);
+          for (let i = 0; i < n; i++) {
+            const a = base + (i - (n - 1) / 2) * 0.36;
+            shootOrb(f, Math.sin(a), Math.cos(a));
+          }
+          sfx.orb();
+          f.play('Ranged_Magic_Shoot', { once: true, fade: 0.05 });
+          Object.assign(b, { state: 'chase', castT: 3.3 / fast });
+          charge.visible = false;
+        }
+        return;
+      }
+      if (f.pause > 0) { f.pause -= dt; f.play('Idle_A'); return; }
+      if (d < 5.5) { // too close: back off
+        p.x -= dx / d * 2.0 * fast * dt; p.z -= dz / d * 2.0 * fast * dt;
+        f.play('Walking_A', { speed: 1.3 });
+      } else if (d > 9) {
+        p.x += dx / d * 1.6 * fast * dt; p.z += dz / d * 1.6 * fast * dt;
+        f.play('Walking_A');
+      } else f.play('Idle_A');
+      collide(p, 0.9, false, true);
+      f.face(dx, dz, dt, 5);
+      if ((b.castT -= dt) <= 0) {
+        Object.assign(b, { state: 'cast', t: 1.0, dx: dx / d, dz: dz / d });
+        f.play('Ranged_Magic_Spellcasting', { fade: 0.1 });
+        pop('!!', p.x, this.head + 0.6, p.z, '#c9a6ff');
+        sfx.popIn();
+      }
+    },
+    onStun() { // his orbs fizzle out
+      charge.visible = false;
+      for (let i = arrows.length - 1; i >= 0; i--) if (arrows[i].orb) { const q = arrows[i].obj.position; puff(q.x, q.z); removeArrow(i); }
+    },
+  },
+};
+const bossKind = () => BOSSES[(room && room.boss && room.boss.kind) || (room && room.def.boss) || 'golem'];
+const bossCanAsk = () => ['chase', 'windup', 'charge', 'tired', 'cast'].includes(room.boss.state);
+let foe = null; // the boss character
 const bossStone = makeLabel(2.4, 2.4, { flat: true }); // the glowing question stone
 bossStone.set('?', 'base');
 bossStone.mesh.visible = false;
 scene.add(bossStone.mesh);
+const charge = makeGlow(0xc77dff, 1.2); // the Skeleton Mage's staff glows before a cast
+charge.visible = false; charge.renderOrder = 6; charge.material.depthTest = false;
+scene.add(charge);
 const starTex = (() => {
   const c = document.createElement('canvas'); c.width = c.height = 64;
   const g = c.getContext('2d');
@@ -643,14 +903,14 @@ const starTex = (() => {
   g.strokeText('★', 32, 35); g.fillText('★', 32, 35);
   const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx;
 })();
-const dizzy = [0, 1, 2, 3].map(() => { // stars that circle a stunned golem's head
+const dizzy = [0, 1, 2, 3].map(() => { // stars that circle a stunned boss's head
   const st = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex, transparent: true, depthTest: false, toneMapped: false }));
   st.scale.setScalar(1.1); st.renderOrder = 7;
   st.visible = false; scene.add(st);
   return st;
 });
 function placeStone() {
-  const b = room.boss, g = golem.pos, h = hero.pos;
+  const b = room.boss, g = foe.pos, h = hero.pos;
   const far = (x, z, p) => Math.hypot(x - p.x, z - p.z);
   const ok = BOSS.spots.filter(([x, z]) => far(x, z, g) > 4.5 && far(x, z, h) > 3);
   const [x, z] = (ok.length ? ok : BOSS.spots)[Math.floor(Math.random() * (ok.length || BOSS.spots.length))];
@@ -661,72 +921,67 @@ function placeStone() {
   b.mark = markUsable(bossStone.mesh, { radius: 1.75, top: 0.6 });
   sfx.popIn();
 }
+// The Necromancer's minions: small skeletons that rise near him and chase the hero.
+function raiseMinion(from, i) {
+  const h = hero.pos, v = new THREE.Vector3();
+  const a = Math.atan2(h.x - from.x, h.z - from.z) + (i % 2 ? 0.9 : -0.9);
+  v.set(from.x + Math.sin(a) * 2.6, 0, from.z + Math.cos(a) * 2.6);
+  freeSpot(v, 0.6);
+  if (Math.hypot(v.x - h.x, v.z - h.z) < 2.6) { v.x = from.x; v.z = from.z + 1.2; } // never on top of the hero
+  const s = new Char(Assets.skeleton, Assets.clips);
+  s.route = [{ x: v.x, z: v.z }];
+  s.pos.copy(v);
+  Object.assign(s, { idx: skeletons.length, wp: 0, mode: 'rise', afterRise: 'patrol', t: s.dur('Spawn_Ground'), pause: 0, squash: 0, minion: true });
+  s.root.scale.setScalar(0.9);
+  s.play('Spawn_Ground', { once: true, fade: 0.05 });
+  scene.add(s.root);
+  skeletons.push(s);
+  sfx.reassemble();
+}
 function updateBoss(dt) {
-  const b = room.boss, g = golem, p = g.pos, hp = hero.pos, time = G.time;
-  if (g.squash > 0) {
-    g.squash = Math.max(0, g.squash - dt * 4);
-    const k = Math.sin(g.squash * Math.PI);
-    g.root.scale.set(BOSS.scale * (1 + k * 0.2), BOSS.scale * (1 - k * 0.25), BOSS.scale * (1 + k * 0.2));
+  const b = room.boss, k = bossKind(), f = foe, p = f.pos, hp = hero.pos, time = G.time;
+  if (f.squash > 0) {
+    f.squash = Math.max(0, f.squash - dt * 4);
+    const q = Math.sin(f.squash * Math.PI);
+    f.root.scale.set(k.scale * (1 + q * 0.2), k.scale * (1 - q * 0.25), k.scale * (1 + q * 0.2));
   }
   // The stone glows (the key's light is free in this room).
   keyLight.intensity = b.stone ? 22 + 8 * Math.sin(time * 5) : 0;
   if (b.stone) keyLight.position.set(b.stone.x, 1.6, b.stone.z);
   const stunned = b.state === 'stun';
+  // Floating bosses hover; dizzy, beaten or knocked over they sit on the floor.
+  const hover = k.id === 'necro' && !stunned && b.state !== 'dead' && b.state !== 'hit' ? 0.55 + 0.22 * Math.sin(time * 2.2) : 0;
+  b.y += (hover - b.y) * Math.min(1, dt * (b.state === 'intro' ? 1.6 : 4));
+  if (k.id === 'necro') p.y = b.y;
+  if (b.spin > 0) { b.spin = Math.max(0, b.spin - dt); f.root.rotation.y += dt * 14 * b.spin; } // the mage's twirl
   dizzy.forEach((st, i) => {
     st.visible = stunned;
     const a = time * 3.5 + i * (Math.PI / 2);
-    st.position.set(p.x + Math.cos(a) * 1.5, BOSS.head + 0.2 + Math.sin(a * 2) * 0.15, p.z + Math.sin(a) * 0.9);
+    st.position.set(p.x + Math.cos(a) * 1.5, p.y + k.head + 0.2 + Math.sin(a * 2) * 0.15, p.z + Math.sin(a) * 0.9);
   });
-  g.root.rotation.z = stunned ? Math.sin(time * 5) * 0.08 : 0;
+  f.root.rotation.z = stunned ? Math.sin(time * 5) * 0.08 : 0;
+  if (b.state === 'cast' && k.id === 'mage' && f.hand) { // staff glow grows before the orbs fly
+    f.hand.getWorldPosition(charge.position); charge.position.y += 0.9;
+    charge.visible = true; charge.scale.setScalar(1.2 + (1 - Math.max(0, b.t)) * 2.6);
+  }
   if (b.state === 'dead') return;
   // Nothing moves while the hero is dizzy (or a question is open: step() pauses everything).
-  if (G.locked) { if (!stunned) g.play('Idle_A'); return; }
-  // Standing on the glowing stone opens the question card.
-  if (b.stone && ['chase', 'windup', 'charge', 'tired'].includes(b.state) && near(hp, b.stone.x, b.stone.z, 1.5)) {
-    openCard({ gate: 'boss', pair: b.pair, step: b.step });
-    return;
-  }
+  if (G.locked) { if (!stunned) f.play('Idle_A'); return; }
   if (!b.stone && !stunned && b.state !== 'intro' && (b.stoneT -= dt) <= 0) placeStone();
   const dx = hp.x - p.x, dz = hp.z - p.z, d = Math.hypot(dx, dz) || 1;
   const fast = 1 + 0.12 * G.level + 0.1 * (3 - b.hp);
-  const touch = () => { if (d < BOSS.reach && G.invuln <= 0) bump(g, dx / d, dz / d); };
   b.t -= dt;
-  switch (b.state) {
-    case 'intro': case 'taunt': case 'hit':
-      if (b.t <= 0) b.state = 'chase';
-      break;
-    case 'stun':
-      if (b.t <= 0) { b.state = 'chase'; b.stoneT = 1.5; }
-      break;
-    case 'chase':
-      if (g.pause > 0) { g.pause -= dt; g.play('Idle_A'); break; }
-      p.x += dx / d * 1.8 * fast * dt; p.z += dz / d * 1.8 * fast * dt;
-      collide(p, 1.3, false);
-      g.face(dx, dz, dt, 4);
-      g.play('Walking_A');
-      touch();
-      if ((b.chargeT -= dt) <= 0 && d > 3.5) { // wind up for a charge: easy to see coming
-        Object.assign(b, { state: 'windup', t: 0.9 });
-        g.play('Flexing');
-        pop('!!', p.x, BOSS.head + 0.6, p.z, '#ff8585');
-        sfx.popIn();
-      }
-      break;
-    case 'windup':
-      g.face(dx, dz, dt, 6);
-      b.dx = dx / d; b.dz = dz / d;
-      if (b.t <= 0) { Object.assign(b, { state: 'charge', t: 0.95 }); g.play('Running_A'); }
-      break;
-    case 'charge': // straight ahead, no turning: step aside
-      p.x += b.dx * 7.5 * fast * dt; p.z += b.dz * 7.5 * fast * dt;
-      collide(p, 1.3, false);
-      touch();
-      if (b.t <= 0) { Object.assign(b, { state: 'tired', t: 1.3, chargeT: 5 }); g.play('Idle_A'); }
-      break;
-    case 'tired':
-      if (b.t <= 0) b.state = 'chase';
-      break;
+  if (stunned) { if (b.t <= 0) { b.state = 'chase'; b.stoneT = 1.5; } return; }
+  if (b.state === 'intro' || b.state === 'taunt' || b.state === 'hit') {
+    if (b.t <= 0) {
+      b.state = 'chase';
+      if (b.introRaise) { b.state = 'cast'; b.t = 0.6; f.play('Ranged_Magic_Summon', { once: true, fade: 0.1 }); }
+    }
+    return;
   }
+  k.update(b, f, dt, { dx, dz, d, fast });
+  // Bumping into the boss costs a heart (not in the book's circle).
+  if (d < k.reach && G.invuln <= 0 && !inWard(hp)) bump(f, dx / d, dz / d);
 }
 
 // Coins: small stacks that pop out of chests and the boss or lie in the treasure room.
@@ -803,22 +1058,38 @@ function shootArrow(s) {
   arrows.push({ obj, glow, vx: s.ax * ARROW.speed, vz: s.az * ARROW.speed, t: 0 });
   sfx.swing();
 }
+// The Skeleton Mage's magic orbs fly like arrows (same list): slow, big, purple.
+const ORB = { speed: 4.6, life: 5, hit: 0.85 };
+function shootOrb(f, dx, dz) {
+  const obj = new THREE.Group(), glow = makeGlow(0xc77dff, 1.7), core = makeGlow(0xffffff, 0.6);
+  glow.material.opacity = 0.95; core.material.opacity = 0.9;
+  obj.add(glow, core);
+  obj.position.set(f.pos.x + dx * 1.2, 1.3, f.pos.z + dz * 1.2);
+  scene.add(obj);
+  arrows.push({ obj, glow, core, vx: dx * ORB.speed, vz: dz * ORB.speed, t: 0, orb: true });
+}
 function removeArrow(i) {
   const a = arrows[i];
   arrows.splice(i, 1);
   scene.remove(a.obj); a.glow.material.dispose();
+  if (a.core) a.core.material.dispose();
 }
 function updateArrows(dt) {
   for (let i = arrows.length - 1; i >= 0; i--) {
-    const a = arrows[i], p = a.obj.position;
+    const a = arrows[i], p = a.obj.position, spec = a.orb ? ORB : ARROW;
     p.x += a.vx * dt; p.z += a.vz * dt; a.t += dt;
-    p.y = 1.25 + Math.sin(a.t * 14) * 0.08; // a goofy wobble
-    const out = a.t > ARROW.life || Math.abs(p.x) > 9.7 || p.z < -7.7 || p.z > 8.6
+    if (a.orb) { p.y = 1.3 + Math.sin(a.t * 6) * 0.12; a.glow.scale.setScalar(1.7 * (1 + 0.12 * Math.sin(a.t * 17))); }
+    else p.y = 1.25 + Math.sin(a.t * 14) * 0.08; // a goofy wobble
+    const out = a.t > spec.life || Math.abs(p.x) > 9.7 || p.z < -7.7 || p.z > 8.6
       || room.obstacles.some((o) => o.r > 0.8 && near(p, o.x, o.z, o.r * 0.8));
     if (out) { removeArrow(i); continue; }
-    if (G.invuln <= 0 && !G.locked && near(p, hero.pos.x, hero.pos.z, ARROW.hit)) {
+    if (inWard(p)) { // the verb book's circle: arrows and orbs fizzle at its edge
+      pop('✦', p.x, 1.6, p.z, '#2ee6c0'); sfx.fizzle();
+      removeArrow(i); continue;
+    }
+    if (G.invuln <= 0 && !G.locked && near(p, hero.pos.x, hero.pos.z, spec.hit)) {
       removeArrow(i);
-      hurt(a.vx / ARROW.speed, a.vz / ARROW.speed);
+      hurt(a.vx / spec.speed, a.vz / spec.speed);
     }
   }
 }
@@ -843,12 +1114,12 @@ function updateArcher(s, dt) {
   if (d < 4.5) { // too close: back off
     const bx = p.x, bz = p.z;
     p.x -= dx / d * 2.3 * dt; p.z -= dz / d * 2.3 * dt;
-    collide(p, 0.5, false);
+    collide(p, 0.5, false, true);
     s.face(p.x - bx, p.z - bz, dt, 8);
     s.play('Walking_A', { speed: 1.4 });
   } else if (d > 10) {
     p.x += dx / d * 1.5 * dt; p.z += dz / d * 1.5 * dt;
-    collide(p, 0.5, false);
+    collide(p, 0.5, false, true);
     s.face(dx, dz, dt, 6);
     s.play('Walking_A');
   } else {
@@ -857,40 +1128,50 @@ function updateArcher(s, dt) {
   }
 }
 
-// Rune doors.
-function dealRunes() { // write this round's words on the signs, close every door
-  const r = room.rune, q = r.pair.steps[r.step];
-  room.doors.forEach((d, i) => {
-    const tried = q.tried && q.tried.includes(i);
-    d.sign.set(q.options[i], tried ? 'wrong' : 'normal');
-    d.open = !!tried; d.bricks.visible = !!tried;
+// Rune doors: wall 0 = the first wall (room.inner.gates, 2nd form), wall 1 = the back wall
+// (room.doors, 3rd form). `line` = how far the hero must walk into a wall to choose a door.
+const runeWall = (step) => (step === 0
+  ? { doors: room.inner.gates, line: RUNE_WALL.z + RUNE_WALL.half + 0.55 + 0.2 }
+  : { doors: room.doors, line: BOUNDS.minZ + 0.25 });
+function dealRunes() { // write the words on both walls' signs (the back wall shows "?" until its turn)
+  const r = room.rune;
+  [room.inner.gates, room.doors].forEach((doors, row) => {
+    const q = r.pair.steps[row];
+    doors.forEach((d, i) => {
+      if (row > r.step) { d.sign.set('?', 'wait'); d.open = false; d.bricks.visible = false; return; }
+      const tried = q.tried && q.tried.includes(i), solved = row < r.step, right = q.options[i] === q.answer;
+      d.sign.set(q.options[i], tried ? 'wrong' : solved ? (right ? 'right' : 'wait') : 'normal');
+      d.open = !!tried || (solved && right); d.bricks.visible = !!tried;
+      if (solved && right) d.pass = true;
+    });
   });
 }
 function chooseRune(i) {
-  const r = room.rune, q = r.pair.steps[r.step], d = room.doors[i];
+  const r = room.rune, q = r.pair.steps[r.step], d = runeWall(r.step).doors[i];
   r.armed = false;
   if (q.tried && q.tried.includes(i)) return; // already a brick wall
-  G.kbz = 7; // a small push back from the door
   if (!judge(r.pair, q, i)) {
+    G.kbz = 7; // a small push back from the door
     d.open = true; d.bricks.visible = true;
     d.sign.set(q.options[i], 'wrong');
     sfx.thud(); after(0.25, () => sfx.trombone());
-    pop(t('deadEnd'), d.x, 3, DOOR.z + 1.5, '#ff8585');
+    pop(t('deadEnd'), d.x, 3, (d.z ?? DOOR.z) + 1.5, '#ff8585');
     redrawSign();
     return;
   }
   d.sign.set(q.options[i], 'right');
   sfx.sparkle();
   if (r.step === 1) { // both forms right: this door is the way out
-    G.kbz = 0;
     toast(`✓ ${chainHtml(q)}`);
     openExit(d);
     return;
   }
-  // 2nd form right: the next round asks the 3rd form on fresh signs.
-  pop(q.answer, d.x, 3, DOOR.z + 1.5, '#2ee6c0');
-  r.busy = true;
-  after(0.9, () => { r.step = 1; r.busy = false; dealRunes(); });
+  // 2nd form right: this door opens and lets the hero through; the back wall's words appear.
+  d.open = d.pass = true;
+  sfx.rumble(0.5);
+  pop(q.answer, d.x, 3, d.z + 1.5, '#2ee6c0');
+  r.step = 1; r.armed = true;
+  dealRunes();
 }
 
 // Word bridge. The hero walks normally everywhere. The pits are crossed only on the
@@ -971,14 +1252,15 @@ function dropHero(wait) {
 }
 
 // The key: one pooled model with a glow. States: none | hidden (in a skeleton or a
-// search prop; nobody can see which) | fly (pops out in an arc) | floor | taken (its
-// verb answered: in the HUD, the door opens).
+// search prop; nobody can see which) | fly (pops out in an arc) | floor | taken (walked
+// over: in the HUD; the verb book by the door then unlocks the door).
 const key = { state: 'none', obj: new THREE.Group(), glow: makeGlow(0xffcf5e, 2.4),
   from: new THREE.Vector3(), to: new THREE.Vector3(), t: 0, pair: null };
 const KEY = { flight: 0.55, arc: 2.6, reach: 1.25, floatY: 0.75, coinChance: 0.3 };
 key.obj.visible = false;
 key.obj.add(key.glow);
 scene.add(key.obj);
+initDebris(scene);
 initMarks(scene); // the "usable" marker (marker.js): rings and sparkles, two draw calls
 // One amber light pools on the floor under the dropped key (and under the boss stone):
 // the clearest "here it is" from the top-down camera.
@@ -1016,18 +1298,16 @@ function hideKey(keep) {
 // Bonked skeleton i / searched prop i at (x, z): the key pops out, or nothing does.
 function reveal(i, x, z, prop) {
   const h = room.hide;
-  if (key.state !== 'hidden' || h.checked.includes(i)) {
-    if (prop) { sfx.rattle(); puff(x, z); }
-    return;
-  }
+  if (key.state !== 'hidden' || h.checked.includes(i)) return;
   h.checked.push(i);
   if (i === h.keyIn) { dropKey(x, z, prop); return; }
-  // Nothing here: a dust puff and a shrug, sometimes a coin.
+  // Nothing here: sometimes a coin. A smashed crate says nothing (its wreck is the answer,
+  // play-test note 9); a bonked skeleton without the key shrugs "Nothing!".
   const coin = Math.random() < KEY.coinChance;
-  after(prop ? 0 : 0.35, () => {
+  if (prop) { if (coin) after(0.15, () => burstCoins(x, z, 1)); return; }
+  after(0.35, () => {
     puff(x, z);
-    if (prop) sfx.rattle();
-    pop(t(prop ? 'empty' : 'nothing'), x, prop ? 2.4 : 1.1, z, '#9db4dd');
+    pop(t('nothing'), x, 1.1, z, '#9db4dd');
     if (coin) burstCoins(x, z, 1);
   });
 }
@@ -1080,11 +1360,8 @@ function updateKey(dt) {
     o.position.y = KEY.floatY + Math.sin(time * 3) * 0.12;
     o.rotation.y += dt * 2.4;
     key.glow.material.opacity = 0.5 + 0.2 * Math.sin(time * 5);
-    // Walking over it asks its verb pair; answered, it is yours (takeKey).
-    if (!G.locked && near(hero.pos, key.to.x, key.to.z, KEY.reach)) {
-      key.pair = key.pair || nextPair(true);
-      openCard({ gate: 'key', pair: key.pair, step: 0 });
-    }
+    // Walking over it takes it, no question (the verb book by the door asks).
+    if (!G.locked && near(hero.pos, key.to.x, key.to.z, KEY.reach)) takeKey();
   }
 }
 function takeKey() {
@@ -1094,11 +1371,14 @@ function takeKey() {
   sfx.coin(2); after(0.1, () => sfx.sparkle());
   pop(t('key'), key.to.x, 2.4, key.to.z);
   flyToHud(key.to.x, 1, key.to.z);
-  goalDone('hintDoor');
+  hint(t('hintBook'), 4);
+  drawHud();
 }
 
-// Search props (levels.js `search`): Space next to one searches it. Every one not
-// searched yet has the "usable" marker (the same on all, so it does not tell which).
+// Search props (levels.js `search`): a swing that reaches one smashes it (play-test note
+// 9): planks or staves fly (debris.js), dust, a crunch, and it is gone (no collision any
+// more). If it held the key, the key pops out of the wreck; an empty one may drop a coin.
+// Every one not smashed yet has the "usable" marker (the same on all, so it tells nothing).
 function searchCheck(p, fx, fz) {
   room.search.forEach((sp, i) => {
     if (sp.done) return;
@@ -1108,20 +1388,17 @@ function searchCheck(p, fx, fz) {
     reveal(i, sp.x, sp.z, true);
   });
 }
-function searched(sp, quiet) {
+function searched(sp, quiet) { // quiet: already smashed before a dizzy restart
   sp.done = true;
   sp.mark = unmark(sp.mark);
-  if (!quiet) sp.shake = 1;
-}
-function updateSearch(dt) {
-  room.search.forEach((sp, i) => {
-    if (sp.shake > 0) { // a wobble when searched
-      sp.shake = Math.max(0, sp.shake - dt * 2.4);
-      const k = sp.shake;
-      sp.obj.rotation.z = Math.sin(k * 28) * 0.13 * k;
-      sp.obj.position.y = Math.abs(Math.sin(k * 18)) * 0.18 * k;
-    }
-  });
+  sp.obj.visible = false;
+  const o = room.obstacles.findIndex((ob) => ob.x === sp.x && ob.z === sp.z && ob.r === sp.r);
+  if (o >= 0) room.obstacles.splice(o, 1);
+  if (quiet) return;
+  smash(sp.x, sp.z, sp.kind, sp.top);
+  puff(sp.x, sp.z);
+  sfx.crunch();
+  FX.shake = Math.max(FX.shake, 0.7);
 }
 // A small dust puff (searched prop, bonked skeleton without the key). Pooled sprites.
 const puffs = [0, 1, 2, 3, 4, 5, 6, 7].map(() => {
@@ -1170,9 +1447,11 @@ function enterRoom(idx, keep = null) {
   resetKey();
   sweepCoins();
   spawnSkeletons();
+  clearDebris();
   if (keep) {
     room.phase = keep.phase;
     if (room.chest) Object.assign(room.chest, keep.chest);
+    if (room.book && keep.book) Object.assign(room.book, keep.book);
     if (room.phase === 'open') { room.doors[0].open = true; for (const s of skeletons) s.mode = 'calm'; }
   }
   // The back torches' lights follow the room's torches.
@@ -1189,6 +1468,7 @@ function enterRoom(idx, keep = null) {
   for (const sp of room.search) sp.mark = markUsable(sp.obj, { radius: sp.r + 0.25, top: sp.top });
   const ch = room.chest;
   if (ch && !ch.open) ch.mark = markUsable(ch.obj, { radius: 1.35, top: 1.1 });
+  if (room.book && !room.book.done) room.book.mark = markUsable(room.book.obj, { radius: 0.75, top: 1.5 });
   goal().enter(keep && keep.goal);
   drawHud();
   $('fade').classList.remove('on');
@@ -1238,10 +1518,11 @@ function defeat() {
   after(1.9, () => {
     G.hearts = MAX_HEARTS;
     // The room starts again, but what was reached stays: where the key is (and which
-    // hiding places were tried), a taken key, the boss's skulls, an opened chest.
-    const { phase, chest } = room;
+    // hiding places were tried), a taken key, a read book, the boss's pips, an opened chest.
+    const { phase, chest, book } = room;
     enterRoom(G.roomIdx, { phase, goal: goal().save && goal().save(),
-      chest: chest && { open: chest.open, pair: chest.pair, q: chest.q } });
+      chest: chest && { open: chest.open, pair: chest.pair, q: chest.q },
+      book: book && { done: book.done, pair: book.pair } });
   });
 }
 
@@ -1330,7 +1611,9 @@ const SWING = { hitAfter: 0.11, share: 0.97, out: 0.16, cadence: 0.38 };
 function swingWeight(share) { return share / (1 - share); } // mixer weights are relative; base clips sum to 1
 let heroSwing = null; // { hero, key, def (SWINGS entry), act (the hero's action) } — set in buildHero
 function bonk() {
-  if (G.locked || G.attackT > 0) return;
+  if (G.locked || G.card) return;
+  if (useHere()) return; // Space at the book, a chest or the boss stone opens it instead
+  if (G.attackT > 0) return;
   const { def: sw, act: a } = heroSwing;
   a.reset();
   a.time = sw.from;
@@ -1368,7 +1651,7 @@ function makeTrail(def) {
   const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true,
     blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
   mesh.frustumCulled = false; mesh.visible = false; mesh.renderOrder = 5;
-  return { mesh, N, slot: null, dir: def.dir || -1, r0: def.r0 ?? 1.0, r1: def.r1 ?? 2.3, maxLen: def.maxLen ?? 2.4,
+  return { mesh, N, slot: null, dir: def.dir || -1, r0: def.r0 ?? 1.0, r1: def.r1 ?? 2.3, maxLen: def.maxLen ?? 2.4, tip: def.tip,
     state: 'off', start: 0, head: 0, y: 1, life: 0, len: 0 };
 }
 let trails = []; // the current hero's swooshes (buildHero)
@@ -1396,9 +1679,12 @@ function updateSwoosh(dt) {
     }
     if (tr.state === 'sweep') {
       hero.root.updateMatrixWorld(true);
-      hero.root.worldToLocal(_v.set(0, SWOOSH.bladeLen, 0).applyMatrix4(tr.slot.matrixWorld));
+      hero.root.worldToLocal(_v.set(0, tr.tip ?? SWOOSH.bladeLen, 0).applyMatrix4(tr.slot.matrixWorld));
       const yaw = Math.atan2(_v.x, _v.z);
-      if (tr.start === null) { tr.start = tr.head = yaw; tr.life = 1; tr.mesh.visible = true; }
+      if (tr.start === null) {
+        tr.start = tr.head = yaw; tr.life = 1; tr.mesh.visible = true;
+        if (tr.tip) { const rr = Math.hypot(_v.x, _v.z); tr.r1 = rr + 0.25; tr.r0 = Math.max(0.5, rr - 1.0); } // the arc runs through the tip (the staff's gem)
+      }
       // The strike only moves one way: dir −1 to the hero's right, +1 to the left.
       tr.head = tr.dir < 0 ? Math.min(tr.head, yaw) : Math.max(tr.head, yaw);
       tr.y = _v.y;
@@ -1419,8 +1705,15 @@ let heldGear = []; // [{ obj, slot, hold }]
 const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _w = new THREE.Vector3();
 // Upright weapons lean forward and a little outward, so the shaft shows from the camera.
 const UPRIGHT_TILT = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, 0, 0.7));
-function updateGear() {
+// While a swing runs, an upright weapon blends into the hand's own pose, so it follows the
+// arm through the cut (play-test note 8: the mage's staff swung with the arm), then back.
+let gearBlend = 0;
+const HAND = new THREE.Quaternion(); // the weapon as the hand slot holds it (like a blade)
+function updateGear(dt = 0) {
   if (!heldGear.length) return;
+  const swinging = G.attackT > 0;
+  gearBlend += ((swinging ? 1 : 0) - gearBlend) * Math.min(1, dt * (swinging ? 30 : 10));
+  if (gearBlend < 0.002) gearBlend = 0;
   hero.root.updateMatrixWorld(true);
   for (const g of heldGear) {
     g.slot.getWorldQuaternion(_q);
@@ -1431,6 +1724,7 @@ function updateGear() {
     } else if (g.hold === 'upright') { // vertical, turned with the hero
       _q2.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, hero.root.rotation.y).multiply(UPRIGHT_TILT);
       g.obj.quaternion.copy(_q.invert()).multiply(_q2);
+      if (gearBlend > 0) g.obj.quaternion.slerp(HAND, gearBlend);
     }
   }
 }
@@ -1451,9 +1745,11 @@ function buildHero(id) {
     if (g.hold && g.hold !== 'fixed') heldGear.push({ obj, slot: slots[g.slot], hold: g.hold });
   }
   for (const tr of trails) { tr.mesh.geometry.dispose(); tr.mesh.material.dispose(); }
-  trails = def.trails.map((td) => Object.assign(makeTrail(td), { slot: slots[td.slot] || slots.r }));
+  const sw = SWINGS[def.swing], act = c.actions[`Swing_${def.swing}`];
+  // A reversed (forehand) swing sweeps the other way: flip each trail's direction.
+  trails = def.trails.map((td) => Object.assign(makeTrail(sw.reverse ? { ...td, dir: -(td.dir || -1) } : td), { slot: slots[td.slot] || slots.r }));
   for (const tr of trails) c.root.add(tr.mesh);
-  heroSwing = { hero: def.id, key: def.swing, def: SWINGS[def.swing], act: c.actions[`Swing_${def.swing}`] };
+  heroSwing = { hero: def.id, key: def.swing, def: swingTimes(sw, act.getClip().duration), act };
   sparks.material.color.setHex(def.sparks || 0xffcf5e);
   hitFlash.material.color.setHex(def.magic ? 0xe6ccff : 0xfff2c0);
   FX.magic = !!def.magic;
@@ -1470,6 +1766,7 @@ async function setHero(id) {
 }
 function cancelSwing() { // room change, dizzy
   heroSwing.act.stop();
+  gearBlend = 0;
   G.attackT = G.swingOut = 0; G.hitDone = true;
   for (const tr of trails) { tr.state = 'off'; tr.mesh.visible = false; }
 }
@@ -1522,7 +1819,7 @@ function updateFx(dt) {
 function bonkCheck() {
   const p = hero.pos, a = hero.root.rotation.y, fx = Math.sin(a), fz = Math.cos(a);
   for (const s of skeletons) {
-    if (s.mode === 'down' || s.mode === 'rise' || s.mode === 'hidden') continue;
+    if (s.mode === 'down' || s.mode === 'rise' || s.mode === 'hidden' || s.mode === 'crumble' || s.gone) continue;
     const dx = s.pos.x - p.x, dz = s.pos.z - p.z, d = Math.hypot(dx, dz);
     if (d > 2.6 || (d > 0.6 && (dx * fx + dz * fz) / d < 0.2)) continue;
     s.mode = 'down'; s.t = 2.6; s.squash = 1;
@@ -1543,14 +1840,25 @@ function bonkCheck() {
   }
 }
 
-function collide(p, r, allowDoor) {
+// enemy = skeletons and bosses: they also stay out of the verb book's circle (room.wards).
+function collide(p, r, allowDoor, enemy = false) {
   p.x = Math.min(BOUNDS.maxX, Math.max(BOUNDS.minX, p.x));
   const ex = room.exitX, inDoor = allowDoor && Math.abs(p.x - ex) < 0.7;
   p.z = Math.min(BOUNDS.maxZ, Math.max(inDoor ? -10.5 : BOUNDS.minZ, p.z));
   if (p.z < BOUNDS.minZ) p.x = Math.min(ex + 0.7, Math.max(ex - 0.7, p.x));
+  const w = room.inner; // the rune room's first wall: solid except an opened right door
+  if (w && Math.abs(p.z - w.z) < w.half + r) {
+    const g = w.gates.find((d) => d.pass && Math.abs(p.x - d.x) < 1.2);
+    if (g) p.x = Math.min(g.x + 0.7, Math.max(g.x - 0.7, p.x));
+    else p.z = p.z > w.z ? w.z + w.half + r : w.z - w.half - r;
+  }
   for (const o of room.obstacles) {
     const dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz), min = o.r + r;
     if (d < min && d > 1e-4) { p.x = o.x + dx / d * min; p.z = o.z + dz / d * min; }
+  }
+  if (enemy) for (const o of room.wards) {
+    const dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz), min = o.r + r + 0.2;
+    if (d < min) { const k = d > 1e-4 ? 1 / d : 0; p.x = o.x + (k ? dx * k : 1) * min; p.z = o.z + (k ? dz * k : 0) * min; }
   }
 }
 const near = (p, x, z, r) => (p.x - x) ** 2 + (p.z - z) ** 2 < r * r;
@@ -1594,24 +1902,13 @@ function updateHero(dt) {
   } else {
     hero.play('Idle_A');
   }
-  // The door: with the key it opens by itself (the treasure room's door asks first);
-  // without, a hint.
+  // The door: unlocked (book read) it opens by itself when the hero comes near; locked, a hint.
   if (near(p, DOOR.x, DOOR.z + 1.2, 3.2)) {
-    if (room.phase === 'door' && room.type !== 'vault') openExit(room.doors[0]);
-    else if (room.phase === 'door' && near(p, DOOR.x, DOOR.z + 1.2, 2.4)) openCard({ gate: 'door', pair: nextPair(true), step: 0 });
-    else if (room.phase === 'goal' && goal().doorHint && doorNagT <= 0) { hint(t(goal().doorHint), 2.5); doorNagT = 4; }
+    if (room.phase === 'door') openExit(room.doors[0]);
+    else if (room.phase === 'goal' && goal().doorHint && doorNagT <= 0) { hint(t(doorHintKey()), 2.5); doorNagT = 4; }
   }
   doorNagT -= dt;
-  // A chest: walking into it opens its bonus question. After "later" the hero must step
-  // away before it asks again.
-  const c = room.chest;
-  if (c && !c.open && !G.card) {
-    if (c.armed === false) c.armed = !near(p, c.x, c.z, 3.2);
-    else if (near(p, c.x, c.z, 2.0)) {
-      if (!c.q) { c.pair = nextPair(false); c.q = single(c.pair); }
-      openCard({ gate: 'chest', pair: c.pair, q: c.q });
-    }
-  }
+  // Chests, the verb book and the boss stone open with Space (useHere, in bonk()).
   showSign(goal().sign ? goal().sign() : null);
   if (p.z < -8.4) leaveRoom();
 }
@@ -1625,9 +1922,15 @@ function updateSkeleton(s, dt, frozen) {
     const k = Math.sin(s.squash * Math.PI);
     s.root.scale.set(1 + k * 0.25, 1 - k * 0.3, 1 + k * 0.25);
   }
-  if (s.mode === 'down') {
+  if (s.mode === 'down' || s.mode === 'crumble') {
     s.t -= dt;
-    if (s.t <= 0) { s.mode = 'rise'; s.t = s.dur('Spawn_Ground'); s.play('Spawn_Ground', { once: true, fade: 0.05 }); sfx.reassemble(); }
+    if (s.t > 0) return;
+    if (s.minion || s.mode === 'crumble') { // the Necromancer's minions don't get up: a puff and gone
+      puff(s.pos.x, s.pos.z);
+      s.gone = true; s.dispose();
+      return;
+    }
+    s.mode = 'rise'; s.t = s.dur('Spawn_Ground'); s.play('Spawn_Ground', { once: true, fade: 0.05 }); sfx.reassemble();
     return;
   }
   if (s.mode === 'rise') {
@@ -1639,17 +1942,19 @@ function updateSkeleton(s, dt, frozen) {
   if (frozen || s.pause > 0) { s.pause -= dt; s.play('Idle_A'); return; }
   const angry = s.mode === 'patrol'; // not bonked yet; 'calm' ones just wander, sheepish
   if (s.archer && angry) { updateArcher(s, dt); return; }
-  const chase = angry && near(p, hp.x, hp.z, 6) && hp.z > BOUNDS.minZ;
+  const chase = angry && near(p, hp.x, hp.z, s.minion ? 30 : 6) && hp.z > BOUNDS.minZ;
   const goal = chase ? hp : s.route[s.wp];
   const dx = goal.x - p.x, dz = goal.z - p.z, d = Math.hypot(dx, dz);
+  const safe = chase && inWard(hp); // the hero is in the book's circle: wait at its edge
+  if (safe && inWard(p, 0.95)) { s.face(dx, dz, dt, 6); s.play('Idle_A'); return; }
   if (chase && d < 1.15) {
-    if (G.invuln <= 0) bump(s, dx / d, dz / d);
+    if (G.invuln <= 0 && !safe) bump(s, dx / d, dz / d);
     return;
   }
   if (!chase && d < 0.4) { s.wp = (s.wp + 1) % s.route.length; return; }
   const speed = chase ? 2.7 : angry ? 1.6 : 1.1;
   p.x += dx / d * speed * dt; p.z += dz / d * speed * dt;
-  collide(p, 0.5, false);
+  collide(p, 0.5, false, true);
   s.face(dx, dz, dt, 6);
   s.play('Walking_A', { speed: chase ? 1.5 : 1 });
 }
@@ -1679,10 +1984,17 @@ function updateWorld(dt) {
   const time = G.time;
   updatePuff(dt);
   if (room) {
-    updateSearch(dt);
     updateMarks(time);
+    updateBook(dt);
     const k = Math.min(1, dt * 4);
     for (const d of room.doors) d.leaf.rotation.y += ((d.open ? 1.9 : 0) - d.leaf.rotation.y) * (room.slam ? Math.min(1, dt * 22) : k);
+    const w = room.inner;
+    if (w) { // the rune room's first wall: doors swing, and it fades while the hero is in or behind it
+      for (const d of w.gates) d.leaf.rotation.y += ((d.open ? 1.9 : 0) - d.leaf.rotation.y) * k;
+      const target = hero.pos.z < w.z + w.half + 0.3 ? 0.22 : 1;
+      w.fade += (target - w.fade) * Math.min(1, dt * 6);
+      for (const m of w.mats) { m.opacity = w.fade; m.depthWrite = w.fade > 0.97; }
+    }
     if (room.slam && room.doors[0].leaf.rotation.y < 0.02) room.slam = false;
     if (room.chest) room.chest.lid.rotation.x += ((room.chest.open ? -1.15 : 0) - room.chest.lid.rotation.x) * Math.min(1, dt * 6);
     // The lock glows once the key is yours (and at the treasure room's door).
@@ -1715,7 +2027,7 @@ function step(dt) {
   const playing = G.mode === 'play'; // the touch controls show only while a level runs
   if (playing !== playingShown) { playingShown = playing; document.body.classList.toggle('playing', playing); if (!playing) resetTouch(); }
   updateTorches();
-  // The question card pauses everything (skeletons, golem, arrows, timers, animations).
+  // The question card pauses everything (skeletons, boss, arrows, timers, animations).
   if (G.card) return;
   if (FX.stop > 0) { FX.stop -= dt; dt *= 0.1; } // hit-stop: the world nearly freezes for 50 ms
   G.time += dt;
@@ -1727,16 +2039,19 @@ function step(dt) {
     updateHero(dt);
     if (goal().update) goal().update(dt);
     for (const s of skeletons) updateSkeleton(s, dt, G.locked);
+    if (skeletons.some((s) => s.gone)) skeletons = skeletons.filter((s) => !s.gone);
     if (!G.locked) updateArrows(dt);
     updateCoins(dt);
   }
   updateWorld(dt);
+  updateDebris(dt);
   hero.mixer.update(dt);
   for (const s of skeletons) s.mixer.update(dt);
-  if (golem) golem.mixer.update(dt);
-  updateGear();
+  if (foe) foe.mixer.update(dt);
+  updateGear(dt);
   updateSwoosh(dt);
   updateFx(dt);
+  updatePrompt();
 }
 let last = 0, frameCount = 0;
 function frame(ms) {
@@ -1789,7 +2104,9 @@ Assets.load().then(async () => {
     info: () => ({ mode: G.mode, level: G.level, room: G.roomIdx, hearts: G.hearts, asked: G.asked,
       firstTry: G.firstTry, missed: G.missed.map((m) => m.base), card: G.card && `${G.card.gate}:${cardQ(G.card).ask}`,
       type: room.type, phase: room.phase, door: room.doors[0].open, coins: Save.coins, hero: Save.hero, built: heroSwing && heroSwing.hero, lying: coins.length, arrows: arrows.length,
-      boss: room.boss ? `${room.boss.state}:${room.boss.hp}` : undefined, key: key.state,
+      boss: room.boss ? `${room.boss.kind}:${room.boss.state}:${room.boss.hp}` : undefined, key: key.state,
+      book: room.book ? (room.book.done ? 'done' : 'shut') : undefined, rune: room.rune ? `${room.rune.step}:${hero.pos.z.toFixed(1)}` : undefined,
+      minions: skeletons.filter((s) => s.minion).length, prompt: (usable() || {}).what,
       hide: room.hide ? `${room.hide.where}:${room.hide.keyIn}:${room.hide.checked.join('')}` : undefined,
       bridge: room.bridge ? `${room.bridge.step}:${room.bridge.fall > 0 ? 'fall' : pitAt(hero.pos.z) >= 0 ? 'stone' : 'floor'}:${room.stones.filter((x) => x.gone).length}` : undefined,
       retry: G.retry.map((r) => r.base), skeletons: skeletons.map((s) => s.mode),
@@ -1810,7 +2127,13 @@ Assets.load().then(async () => {
     },
     hideIn: (i) => { room.hide.keyIn = i; }, // QA: choose the hiding place
     keyObj: () => key.to, // where the key lands / lies
-    golemPos: () => [golem.pos.x, golem.pos.z], cardNow: () => G.card && cardQ(G.card),
+    golemPos: () => [foe.pos.x, foe.pos.z], cardNow: () => G.card && cardQ(G.card),
+    get foe() { return foe; },
+    space: () => { G.attackT = 0; bonk(); run(1); }, // what the Space key does here (swing or open)
+    takeKey: () => { if (key.state === 'floor' || key.state === 'fly') { for (let i = 0; i < 40 && key.state === 'fly'; i++) run(1); QA.teleport(key.to.x, key.to.z + 0.5); run(2); } },
+    toBook: () => { const b = room.book; QA.teleport(b.x - 1.1, b.z + 0.55, Math.PI * 0.6); run(2); }, // beside the stand, facing it
+    // Into the book's circle, Space, answer the card (both forms). Returns what was asked.
+    readBook: (wrong) => { QA.toBook(); QA.space(); return QA.answerCard(wrong); },
     // Bonk the skeletons / search the props one by one until the key pops out.
     findKey: () => {
       const h = room.hide;
@@ -1826,7 +2149,7 @@ Assets.load().then(async () => {
       }
       for (let i = 0; i < 40 && key.state === 'fly'; i++) run(1);
     },
-    // Answers the open card: both forms of a pair (key, door), one question otherwise.
+    // Answers the open card: both forms of a pair (the book), one question otherwise.
     // wrongFirst = one mistake first. Returns what was asked.
     answerCard: (wrongFirst) => {
       const asked = [];
@@ -1835,7 +2158,7 @@ Assets.load().then(async () => {
         asked.push(`${c.gate}:${q.base}:${q.ask}`);
         if (wrongFirst && k === 0) QA.answerWrong();
         QA.answerRight();
-        if (c.gate !== 'key' && c.gate !== 'door') break;
+        if (c.gate !== 'book') break;
       }
       return asked.join(',');
     },
@@ -1844,8 +2167,13 @@ Assets.load().then(async () => {
     pick: (right, hold) => {
       const st = room.type === 'rune' ? room.rune : room.bridge, q = st.pair.steps[st.step];
       const i = q.options.findIndex((o, k) => (o === q.answer) === right && !(q.tried && q.tried.includes(k)));
-      if (room.type === 'rune') {
-        QA.teleport(room.doors[i].x, -5, Math.PI); run(3); QA.teleport(room.doors[i].x, -6.9); run(3);
+      if (room.type === 'rune') { // walk (W) into door i of the wall whose turn it is; a right first-wall door: walk on through
+        const s0 = st.step, d = runeWall(s0).doors[i], n0 = (q.tried || []).length;
+        QA.teleport(d.x, s0 === 0 ? RUNE_WALL.z + 3 : -4, Math.PI); run(2);
+        keys.add('KeyW');
+        for (let k = 0; k < 90 && st.step === s0 && (q.tried || []).length === n0 && room.phase === 'goal'; k++) run(1);
+        if (right && s0 === 0 && !hold) for (let k = 0; k < 60 && hero.pos.z > RUNE_WALL.z - 1.8; k++) run(1);
+        keys.delete('KeyW');
       } else {
         const pit = PITS[st.step], sx = STONE.cols[i];
         QA.teleport(sx, pit.near + 1.2, Math.PI); run(2);
@@ -1861,8 +2189,10 @@ Assets.load().then(async () => {
     solve: {
       key: (wrong) => {
         QA.findKey();
-        if (key.state === 'floor') { QA.teleport(key.to.x, key.to.z + 0.5); run(2); }
-        QA.log.push(QA.answerCard(wrong));
+        QA.takeKey();
+        QA.log.push(`keycard:${!!G.card}:${key.state}`); // walking over the key asks nothing
+        QA.teleport(0, -5.4); run(3); QA.log.push(`lockedWithKey:${room.phase}:${room.doors[0].open}`);
+        QA.log.push(QA.readBook(wrong));
         run(5);
       },
       ambush: (wrong) => {
@@ -1870,9 +2200,12 @@ Assets.load().then(async () => {
         for (let i = 0; i < 200 && skeletons.some((sk) => sk.mode === 'hidden' || sk.mode === 'rise'); i++) run(1);
         QA.solve.key(wrong);
       },
-      rune: (wrong) => {
+      rune: (wrong) => { // a mistake at both walls when wrong
         if (wrong) { QA.pick(false); run(40); }
-        QA.pick(true); run(40); QA.pick(true); run(10);
+        QA.pick(true); run(5);
+        QA.log.push(`through:${room.rune.step}:${hero.pos.z < RUNE_WALL.z - 1}`);
+        if (wrong) { QA.pick(false); run(40); }
+        QA.pick(true); run(10);
       },
       bridge: (wrong) => {
         if (wrong) { QA.pick(false); run(10); }
@@ -1880,20 +2213,24 @@ Assets.load().then(async () => {
       },
       vault: (wrong) => {
         for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(3); }
-        QA.teleport(0, -5.6); run(2);
-        QA.log.push(QA.answerCard(wrong));
+        QA.teleport(0, -5.4); run(2); QA.log.push(`vaultLocked:${room.phase}:${room.doors[0].open}`);
+        QA.log.push(QA.readBook(wrong));
       },
-      // Boss: wait for the stone, answer on it, bonk the dizzy golem; until it falls.
+      // Boss: wait for the stone, stand on it (no card yet), Space opens the card; answer,
+      // bonk the dizzy boss; until it falls.
       boss: (wrong) => {
         const b = room.boss;
-        for (let round = 0; round < 12 && b.state !== 'dead'; round++) {
-          for (let i = 0; i < 400 && !b.stone; i++) run(1);
+        for (let round = 0; round < 14 && b.state !== 'dead'; round++) {
+          for (let i = 0; i < 400 && !(b.stone && bossCanAsk()); i++) run(1);
           if (!b.stone) break;
           QA.teleport(b.stone.x, b.stone.z); run(2);
-          if (!G.card) continue; // the golem is mid-move; try again
+          if (round === 0) QA.log.push(`stoneNoCard:${!!G.card}`);
+          QA.space();
+          if (!G.card) continue; // the boss is mid-move; try again
           if (wrong && round === 0) { QA.answerWrong(); run(3); continue; }
           QA.answerRight(); run(3);
-          QA.teleport(golem.pos.x, golem.pos.z + 2.4, Math.PI); G.attackT = 0; bonk(); run(40);
+          if (round <= 1) QA.log.push(`stun:${b.state}:minions ${skeletons.filter((s) => s.minion && !s.gone).length}`);
+          QA.teleport(foe.pos.x, foe.pos.z + 2.4, Math.PI); G.attackT = 0; bonk(); run(40);
         }
         run(60); // coins fly, the exit opens
       },
@@ -1908,18 +2245,22 @@ Assets.load().then(async () => {
       QA.log = log;
       G.invuln = 99; // the script teleports into skeletons; keep it from getting bumped
       const keyRoom = room.type === 'key' || room.type === 'ambush';
-      if (room.type === 'key') { QA.teleport(0, -5.6); run(3); log.push(`locked:${room.phase}:${room.doors[0].open}`); }
+      if (room.type === 'key') {
+        QA.teleport(0, -5.6); run(3); log.push(`locked:${room.phase}:${room.doors[0].open}`);
+        QA.toBook(); QA.space(); log.push(`bookNoKey:${!!G.card}`); // Space at the book without the key: a hint, no card
+      }
       if (goal().sign) log.push(`${room.type}:${room[room.type].pair.base}`);
-      if (room.chest && !room.chest.open) { // first put the chest off ("later"), then come back and answer it
+      if (room.chest && !room.chest.open) { // walking up asks nothing; Space opens, "later" closes, Space again, answer
         const ch = room.chest, at = () => { QA.teleport(ch.x - 1.2, ch.z + 1.2); run(2); };
-        at(); log.push(`chest:${G.card && `${G.card.gate}:${cardQ(G.card).ask}`}`);
-        later(); run(2); at(); log.push(`later:${!!G.card}:${ch.open}`);
-        QA.teleport(0, 5); run(2); at(); log.push(`back:${!!G.card}`);
+        at(); log.push(`walkChest:${!!G.card}`);
+        QA.space(); log.push(`chest:${G.card && `${G.card.gate}:${cardQ(G.card).ask}`}`);
+        later(); run(2); log.push(`later:${!!G.card}:${ch.open}`);
+        QA.teleport(0, 5); run(2); at(); QA.space(); log.push(`back:${!!G.card}`);
         QA.answerRight(); run(25); log.push(`opened:${ch.open}`);
         for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); }
       }
       QA.doGoal(wrongFirst); run(20);
-      log.push(keyRoom ? `key:${key.state}:${room.hide.where}` : `${room.type}:${room.phase}`);
+      log.push(keyRoom ? `key:${key.state}:${room.hide.where}:book ${room.book.done}` : `${room.type}:${room.phase}`);
       for (let i = 0; i < 60 && coins.some((c) => c.state === 'fly'); i++) run(1);
       for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); } // pick up what dropped
       if (keyRoom) { QA.teleport(0, -4.4); run(3); log.push(`door:${room.phase}:${room.doors[0].open}`); }
@@ -1965,7 +2306,8 @@ Assets.load().then(async () => {
         camera.position.set(0.3, 2.3, 9.2); camera.lookAt(0, 1.45, 4); camBase.copy(camera.position);
         const pt = params.has('pt') ? Number(params.get('pt')) : heroDef(params.get('hero')).portraitT;
         if (pt != null) { // hold the swing clip at this time: the weapon shows beside the hero (heroes.js portraitT)
-          const a = heroSwing.act; a.reset(); a.setEffectiveWeight(swingWeight(SWING.share)); a.play(); a.time = pt; a.paused = true;
+          const a = heroSwing.act; a.reset(); a.setEffectiveWeight(swingWeight(SWING.share)); a.play();
+          a.time = heroSwing.def.reverse ? a.getClip().duration - pt : pt; a.paused = true; // portraitT is in original clip time
           hero.mixer.update(0);
         }
         updateGear(); // weapons that face the camera: face this one
@@ -1982,12 +2324,22 @@ Assets.load().then(async () => {
           else if (c === 'goal') QA.doGoal();
           else if (c === 'find') QA.findKey();
           else if (c === 'search') QA.searchOne(Number(a));
+          else if (c === 'beside') QA.besideProp(Number(a));
           else if (c === 'bonkone') QA.bonkOne(skeletons[Number(a)]);
           else if (c === 'keyin') QA.hideIn(Number(a));
           else if (c === 'bonkall') QA.bonkAll();
           else if (c === 'ans') { if (a === 'wrong') QA.answerWrong(); else QA.answerRight(); }
-          else if (c === 'stone') { for (let i = 0; i < 400 && !room.boss.stone; i++) run(1); QA.teleport(room.boss.stone.x, room.boss.stone.z, Math.PI); }
-          else if (c === 'golem') { QA.teleport(golem.pos.x + 1.2, golem.pos.z + 2.2, Math.PI * 1.15); }
+          else if (c === 'stone') { for (let i = 0; i < 400 && !(room.boss.stone && bossCanAsk()); i++) run(1); QA.teleport(room.boss.stone.x, room.boss.stone.z, Math.PI); }
+          else if (c === 'golem' || c === 'foe') { QA.teleport(foe.pos.x + 1.2, foe.pos.z + 2.2, Math.PI * 1.15); }
+          else if (c === 'space') QA.space();
+          else if (c === 'take') QA.takeKey();
+          else if (c === 'book') QA.toBook();
+          else if (c === 'readbook') QA.readBook();
+          else if (c === 'minions') { for (let i = 0; i < 600 && skeletons.filter((x) => x.minion && x.mode === 'patrol').length < Number(a); i++) run(1); }
+          else if (c === 'cast') { for (let i = 0; i < 600 && !(room.boss.state === 'cast' && room.boss.t < Number(a || 0.5)); i++) run(1); }
+          else if (c === 'orbs') { for (let i = 0; i < 600 && !arrows.some((x) => x.orb && x.t > Number(a || 0.5)); i++) run(1); }
+          else if (c === 'clearpops') { for (const el of document.querySelectorAll('.pop')) el.remove(); }
+          else if (c === 'still') { for (const x of skeletons) x.pause = 99; if (foe) foe.pause = 99; }
           else if (c === 'bonk') { G.attackT = 0; bonk(); }
           else if (c === 'menu') { showMenu(); }
           else if (c === 'coins') { Save.coins = Number(a); drawHud(); drawHeroes(); }
@@ -2000,14 +2352,16 @@ Assets.load().then(async () => {
         // &step=2: the 2nd form is answered, the card asks the 3rd. &wrong=1: one mistake first.
         const gate = params.get('gate') || 'key';
         G.invuln = 99;
-        if (gate === 'key') {
+        if (gate === 'book' || gate === 'key') { // the verb book (key rooms: find and take the key first)
           if (room.type === 'ambush') { QA.teleport(0, 1); run(150); }
-          QA.findKey(); QA.teleport(key.to.x, key.to.z + 0.5, Math.PI); run(2);
+          if (needsKey()) { QA.findKey(); QA.takeKey(); }
+          QA.toBook(); QA.space();
         } else if (gate === 'chest') {
-          QA.teleport(room.chest.x - 1.2, room.chest.z + 1.2, Math.PI * 0.75); run(2);
+          QA.teleport(room.chest.x - 1.2, room.chest.z + 1.2, Math.PI * 0.75); run(2); QA.space();
         } else if (gate === 'boss') {
-          for (let i = 0; i < 400 && !(room.boss.stone && G.card); i++) { run(1); if (room.boss.stone) QA.teleport(room.boss.stone.x, room.boss.stone.z, Math.PI); }
-        } else if (gate === 'door') { QA.teleport(0, -5.4, Math.PI); run(2); }
+          for (let i = 0; i < 400 && !(room.boss.stone && bossCanAsk()); i++) run(1);
+          QA.teleport(room.boss.stone.x, room.boss.stone.z, Math.PI); run(2); QA.space();
+        }
         if (params.get('step') === '2') QA.answerRight();
         if (params.has('wrong')) QA.answerWrong();
         G.invuln = 0; hero.setVisible(true);
@@ -2031,7 +2385,8 @@ Assets.load().then(async () => {
           if (pose === 'pop') tryFast(h.keyIn);
           else {
             tryOne(h.keyIn); run(30);
-            if (pose === 'taken' || pose === 'open') { QA.teleport(key.to.x, key.to.z + 0.5); run(2); QA.answerCard(); run(5); }
+            if (pose === 'taken' || pose === 'open') { QA.takeKey(); run(5); }
+            if (pose === 'open') { QA.readBook(); run(5); }
             if (pose === 'floor') QA.teleport(key.to.x + 1.6, key.to.z + 1.6, Math.PI * 1.2);
             if (pose === 'open') { QA.teleport(0.6, -4.2, Math.PI); run(n || 10); }
           }
@@ -2074,19 +2429,22 @@ Assets.load().then(async () => {
         // All must survive the restart (a key room needs 2+ skeletons).
         const pre = params.get('pre');
         if (room.type === 'ambush') { G.invuln = 99; QA.teleport(0, 1); run(150); } // spring the trap first
-        if (pre === 'boss') { // one round won (answer + bonk), then get hurt: the golem must keep 2 skulls
+        if (pre === 'boss') { // one round won (answer + bonk), then get hurt: the boss must keep 2 pips
           G.invuln = 99; const b = room.boss;
-          for (let i = 0; i < 400 && !b.stone; i++) run(1);
-          QA.teleport(b.stone.x, b.stone.z); run(2); QA.answerRight(); run(3);
-          QA.teleport(golem.pos.x, golem.pos.z + 2.4, Math.PI); G.attackT = 0; bonk(); run(50);
+          for (let i = 0; i < 400 && !(b.stone && bossCanAsk()); i++) run(1);
+          QA.teleport(b.stone.x, b.stone.z); run(2); QA.space(); QA.answerRight(); run(3);
+          QA.teleport(foe.pos.x, foe.pos.z + 2.4, Math.PI); G.attackT = 0; bonk(); run(50);
         } else if (pre) { G.invuln = 99; QA.hideIn(0); QA.findKey(); run(30); }
-        if (pre === 'taken') { QA.teleport(key.to.x, key.to.z + 0.5); run(2); QA.answerCard(); run(3); }
+        if (pre === 'taken' || pre === 'book') { QA.takeKey(); run(3); }
+        if (pre === 'book') { QA.readBook(); run(3); }
         out.push({ before: QA.info() });
         G.invuln = 0; hero.setVisible(true);
         for (let i = 0; i < 12 && G.hearts > 0; i++) {
-          const sk = skeletons.find((x) => x.mode === 'patrol') || golem;
+          const sk = skeletons.find((x) => x.mode === 'patrol') || foe;
           if (!sk) { out.push('no angry skeleton left'); break; }
-          QA.teleport(sk.pos.x, sk.pos.z + 1); run(60); out.push(`hearts ${G.hearts}`);
+          QA.teleport(sk.pos.x, sk.pos.z + 1);
+          for (let k = 0; k < 60 && G.hearts > 0; k++) run(1);
+          out.push(`hearts ${G.hearts}`);
         }
         out.push({ dizzy: QA.info() }); run(90); out.push({ restarted: QA.info() });
       }
