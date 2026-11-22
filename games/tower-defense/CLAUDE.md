@@ -685,3 +685,25 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   - Checked in headless Chromium at 1366×768 (hover), 1024×768 and
     390×844 (long press): popup, range preview, no purchase on long press,
     tap builds. No errors.
+- 2026-11-22 — **Round 8: compact dock, more room for the map** (owner: the
+  UI on the right and bottom leaves the map small).
+  - Tower cards show only the tower picture, the price and the 💥 / ❄️
+    icon. With a mouse over the dock it opens (`#bottom-dock.open`) to the
+    full cards with name and stat bars; on touch a long press shows the
+    popup, which now carries the stat bars too. The camera fit keeps the
+    compact dock height while it is open (`Renderer._compactRowH`), so the
+    board does not jump; the open cards briefly cover its bottom edge.
+  - "Start wave" is smaller; on phones it sits in the same row as the
+    cards. The question card side panel is 230 px (was 268), 220 px on
+    short landscape; on phones its streak line is hidden and spacing
+    tightened.
+  - Dock height 159 → 84 px at 1366×768 (board visibly bigger); phone
+    portrait dock + card 381 → 258 px. Tablets 1024×768 are limited by
+    width, so the gain there is small.
+  - Zoom / pan deliberately not built (owner agreed to try without first):
+    it hides part of the road and clashes with tap-to-build on touch.
+  - Checked in headless Chromium at 1366×768 (hover open/close, camera
+    stable, click builds), 1024×768 and 390×844 touch (long press shows
+    stats, never buys; tap hex then card builds), 844×390, 2560×1440. No
+    errors.
+

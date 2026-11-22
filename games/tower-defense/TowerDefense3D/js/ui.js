@@ -75,6 +75,7 @@ export const UI = {
       btn.innerHTML = `
         <span class="tower-btn-hotkey">${i + 1}</span>
         <img class="tower-thumb" src="${this._thumbs[type]}" alt="" draggable="false">
+        ${this._specialHtml(type)}
         <span class="tower-btn-name">${esc(towerText(type).name)}</span>
         ${this._statBarsHtml(type)}
         <span class="tower-btn-cost">${COIN}${def.cost}</span>
@@ -111,6 +112,17 @@ export const UI = {
       });
       container.appendChild(btn);
     });
+    // The dock stays compact (picture + price) and opens while a mouse is over it.
+    // Touch has no hover: a long press on a card shows the same details in the popup.
+    const dock = document.getElementById('bottom-dock');
+    const row = document.getElementById('dock-row');
+    row.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') dock.classList.add('open'); });
+    row.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') dock.classList.remove('open'); });
+  },
+
+  _specialHtml(type) {
+    const special = { cannon: '💥', freeze: '❄️' }[type];
+    return special ? `<span class="ts-special" aria-hidden="true">${special}</span>` : '';
   },
 
   // Three small bars compare the towers at a glance (damage, range, speed), plus an
@@ -124,14 +136,12 @@ export const UI = {
       ['🎯', clamp(Math.round(d.range - 1))],
       ['⏱', clamp(rate >= 1.2 ? 5 : rate >= 0.8 ? 4 : rate >= 0.5 ? 3 : rate >= 0.35 ? 2 : 1)],
     ];
-    const special = { cannon: '💥', freeze: '❄️' }[type] || '';
     let html = '<span class="tower-stats" aria-hidden="true">';
     for (const [icon, n] of rows) {
       let segs = '';
       for (let i = 0; i < 5; i++) segs += `<i class="${i < n ? 'on' : ''}"></i>`;
       html += `<span class="ts-row"><span class="ts-icon">${icon}</span><span class="ts-bar">${segs}</span></span>`;
     }
-    if (special) html += `<span class="ts-special">${special}</span>`;
     return html + '</span>';
   },
 
@@ -142,7 +152,9 @@ export const UI = {
     const pop = document.getElementById('tower-pop');
     if (!type) { pop.classList.add('hidden'); return; }
     const text = towerText(type);
-    pop.innerHTML = `<b>${esc(text.name)}</b><span>${esc(text.desc)}</span>`;
+    // The compact card shows no stats; the popup carries them (needed on touch).
+    const open = document.getElementById('bottom-dock').classList.contains('open');
+    pop.innerHTML = `<b>${esc(text.name)}</b>${open ? '' : this._statBarsHtml(type)}<span>${esc(text.desc)}</span>`;
     pop.classList.remove('hidden');
     const dock = document.getElementById('bottom-dock').getBoundingClientRect();
     const b = btn.getBoundingClientRect();

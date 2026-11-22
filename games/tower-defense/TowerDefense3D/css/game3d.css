@@ -306,11 +306,11 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 
 .tower-btn {
   position: relative;
-  width: 92px;
+  width: 70px;
   background: var(--panel);
   border: 2px solid var(--line);
   border-radius: 16px;
-  padding: 6px 6px 8px;
+  padding: 5px 5px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -327,8 +327,8 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 .tower-btn.build-here { border-color: var(--amber); animation: hint-pulse 1.2s ease-in-out infinite; }
 .tower-btn.disabled { filter: grayscale(0.9) brightness(0.65); cursor: not-allowed; transform: none; }
 .tower-thumb {
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 12px;
   background: radial-gradient(circle at 50% 60%, var(--navy-3), var(--navy-2));
 }
@@ -350,7 +350,20 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 .ts-bar i { flex: 1; height: 5px; border-radius: 2px; background: rgba(255, 255, 255, 0.14); }
 .ts-bar i.on { background: var(--teal); }
 .tower-btn.disabled .ts-bar i.on { background: rgba(255, 255, 255, 0.45); }
-.ts-special { position: absolute; top: -40px; right: -2px; font-size: 15px; }
+.ts-special { position: absolute; top: 2px; right: 1px; font-size: 14px; pointer-events: none; }
+
+/* Compact dock: only the tower picture and the price. Hovering the dock with a mouse
+   opens it (name and stat bars); touch players long-press a card instead. */
+.tower-btn-name, .tower-btn .tower-stats { display: none; }
+#bottom-dock.open .tower-btn { width: 92px; padding: 6px 6px 8px; }
+#bottom-dock.open .tower-btn-name { display: flex; }
+#bottom-dock.open .tower-btn .tower-stats { display: flex; }
+#bottom-dock.open .tower-thumb { width: 56px; height: 56px; }
+#bottom-dock.open .ts-special { top: 4px; right: 4px; }
+#tower-pop .tower-stats { width: 150px; align-self: center; margin-top: 4px; }
+#tower-pop .ts-row { height: 12px; }
+#tower-pop .ts-icon { font-size: 11px; width: 15px; }
+#tower-pop .ts-bar i { height: 7px; }
 
 /* Description popup above a hovered / long-pressed card. */
 #tower-pop {
@@ -402,11 +415,11 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-width: 132px;
-  padding: 10px 18px;
+  gap: 4px;
+  min-width: 120px;
+  padding: 8px 16px;
 }
-.dock-btn-label { font-size: 19px; white-space: nowrap; }
+.dock-btn-label { font-size: 18px; white-space: nowrap; }
 .dock-btn-sub { font-family: var(--body); font-size: 12px; opacity: 0.8; }
 /* ── Tower info ──────────────────────────────────────────── */
 
@@ -583,19 +596,19 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    width: 268px;
-    padding: 14px 14px 12px;
+    width: 230px;
+    padding: 12px 12px 10px;
   }
   /* Everything centred on the board now centres on the space left of the panel. */
-  #bottom-dock { right: 286px; }
-  #coach, #wave-banner { left: calc((100% - 286px) / 2); }
-  .forge-title { font-size: 20px; }
+  #bottom-dock { right: 248px; }
+  #coach, #wave-banner { left: calc((100% - 248px) / 2); }
+  .forge-title { font-size: 19px; }
   /* The chain runs top to bottom here: long verbs would not fit side by side. */
-  .forge-question { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: 2px; font-size: 24px; margin: 10px 0 12px; min-height: 178px; justify-content: center; }
+  .forge-question { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: 2px; font-size: 23px; margin: 8px 0 10px; min-height: 170px; justify-content: center; }
   .q-arrow { transform: rotate(90deg); padding: 0; font-size: 17px; line-height: 1; }
   .q-word { min-width: 120px; }
   .forge-answers { flex-direction: column; gap: 9px; }
-  .forge-answer { flex: none; padding: 12px 8px; font-size: 21px; }
+  .forge-answer { flex: none; padding: 11px 8px; font-size: 20px; }
   .forge-answer .key { display: block; top: 5px; left: 9px; font-size: 11px; }
   .forge-feedback { min-height: 28px; margin-top: 10px; font-size: 16px; }
   body #forge-panel.shake { animation: panel-shake-side 0.45s ease-out; }
@@ -616,10 +629,10 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 /* Short landscape windows (phone sideways, small iframe). */
 @media (min-width: 760px) and (orientation: landscape) and (max-height: 520px) {
   /* Sits under the top bar instead of the middle, so it never covers the HUD. */
-  #forge-panel { width: 236px; padding: 9px 11px 8px; top: 60px; transform: none; }
+  #forge-panel { width: 220px; padding: 9px 10px 8px; top: 60px; transform: none; }
   body #forge-panel.shake, body #forge-panel.celebrate { animation: none; }
-  #bottom-dock { right: 254px; }
-  #coach, #wave-banner { left: calc((100% - 254px) / 2); }
+  #bottom-dock { right: 238px; }
+  #coach, #wave-banner { left: calc((100% - 238px) / 2); }
   #coach { font-size: 15px; padding: 6px 12px; top: 60px; }
   .forge-sub { display: none; }
   .forge-question { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 3px 5px; font-size: 18px; margin: 6px 0 7px; min-height: 60px; }
@@ -882,9 +895,11 @@ body.game-inactive #bottom-dock { display: none; }
 
 /* Tablets and small laptops. */
 @media (max-width: 1100px) {
-  .tower-btn { width: 84px; }
-  .tower-thumb { width: 50px; height: 50px; }
-  #start-wave-btn { min-width: 112px; padding: 10px 12px; }
+  #bottom-dock.open .tower-btn { width: 84px; }
+  #bottom-dock.open .tower-thumb { width: 50px; height: 50px; }
+  .tower-thumb { width: 46px; height: 46px; }
+  .tower-btn { width: 64px; }
+  #start-wave-btn { min-width: 104px; padding: 8px 12px; }
   .dock-btn-label { font-size: 17px; }
   .hotkey { display: none; }
 }
@@ -908,14 +923,20 @@ body.game-inactive #bottom-dock { display: none; }
   .stars-big { font-size: 42px; }
 
   #bottom-dock { bottom: 8px; gap: 8px; }
-  #dock-row { flex-wrap: wrap; gap: 8px; }
-  #tower-buttons { gap: 6px; width: 100%; justify-content: center; }
-  .tower-btn { width: 23%; max-width: 86px; padding: 5px 3px 6px; }
-  .tower-thumb { width: 44px; height: 44px; }
-  .tower-btn-name { display: none; }
+  #dock-row { gap: 6px; width: 100%; padding: 0 8px; }
+  #tower-buttons { gap: 5px; }
+  .tower-btn, #bottom-dock.open .tower-btn { width: 56px; padding: 4px 3px 5px; }
+  .tower-thumb, #bottom-dock.open .tower-thumb { width: 40px; height: 40px; }
+  .tower-btn-cost { font-size: 13px; gap: 2px; }
+  #bottom-dock.open .tower-btn-name, #bottom-dock.open .tower-btn .tower-stats { display: none; }
   .tower-btn-hotkey { display: none; }
-  #start-wave-btn { flex: 1; min-width: 0; padding: 9px 8px; }
-  .dock-btn-label { font-size: 16px; }
+  #start-wave-btn { flex: 1; min-width: 0; padding: 8px 6px; }
+  .dock-btn-label { font-size: 15px; white-space: normal; text-align: center; line-height: 1.1; }
+  .forge-sub { display: none; }
+  #forge-panel { padding: 7px 10px 8px; }
+  .forge-question { margin: 4px 0 6px; }
+  .forge-answer { padding: 9px 6px; }
+  .forge-feedback { min-height: 20px; margin-top: 4px; font-size: 14px; }
 
   #tower-info { flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; }
   .ti-thumb { display: none; }
