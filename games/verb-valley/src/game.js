@@ -446,7 +446,7 @@ function startGame(loaded) {
     onBite: () => sfx.bite(),
     toast: (m) => ui.toast(m),
   });
-  school = createSchool(state, refs.blackboard, { onComplete: onClassComplete });
+  school = createSchool(state, refs.blackboard, { onComplete: onClassComplete, onAnswer: (ok) => { krabsyMood = { ok, t: worldClock }; } });
   ui = createUI(state, {
     onBuy: buy,
     onShip: (item, n) => { ship(item, n); ui.updateHUD(); },
@@ -510,7 +510,7 @@ function frame() {
       const back = Math.max(1, 0.8 / camera.aspect);
       camera.position.lerp(new THREE.Vector3(0, 2.5 + 1.5 * back, cz + 6.8 * back), Math.min(1, dt * 5));
       camera.lookAt(0, 2.5, cz);
-    } else {
+    } else if (camMode !== 'qa') {
       player.updateCamera(dt);
     }
 
@@ -528,19 +528,41 @@ function frame() {
   // Ambient world animation (also behind the start screen).
   daycycle.update(state, dt);
   if (refs.sea) refs.sea.position.y = 0.04 + Math.sin(worldClock * 0.7) * 0.04;
-  if (refs.krabsy) {
-    const k = refs.krabsy.group;
-    const excited = started && school.active;
-    k.position.y = Math.abs(Math.sin(worldClock * (excited ? 5 : 1.6))) * (excited ? 0.12 : 0.05);
-    k.userData.claws.rotation.x = Math.sin(worldClock * (excited ? 6 : 2)) * 0.12;
-    k.userData.eyes.rotation.z = Math.sin(worldClock * 1.1) * 0.06;
-  }
+  if (refs.krabsy) animateKrabsy(refs.krabsy.group.userData.parts, started && school.active);
   if (refs.bell && bellSwing > 0.01) {
     refs.bell.rotation.z = Math.sin(worldClock * 13) * 0.35 * bellSwing;
     bellSwing *= 0.96;
   }
 
   renderer.render(scene, camera);
+}
+
+// Professor Krabsy: claws wave, eye stalks sway, he blinks; livelier in class.
+// After an answer in class he cheers (claws up, hop) or shakes his head.
+let krabsyMood = null;
+function animateKrabsy(P, excited) {
+  if (!P?.body) return;
+  const w = worldClock;
+  const moodAge = krabsyMood ? w - krabsyMood.t : 99;
+  const rest = (o) => o.userData.rest;
+  const bob = Math.abs(Math.sin(w * (excited ? 5 : 1.6))) * (excited ? 0.05 : 0.02);
+  const crab = P.body.parent;
+  crab.position.y = bob;   // the whole crab node hops a little
+  crab.rotation.x = 0;
+  if (moodAge < 0.9 && krabsyMood.ok) crab.position.y += Math.sin((moodAge / 0.9) * Math.PI) * 0.35;
+  const shake = moodAge < 0.9 && !krabsyMood.ok ? Math.sin(moodAge * 28) * 0.18 * (1 - moodAge / 0.9) : 0;
+  crab.rotation.y = shake;   // inner model node; the wrapper already faces the bench
+  const wave = excited ? 0.45 : 0.12, spd = excited ? 6 : 2;
+  if (P.claw_L) P.claw_L.rotation.z = rest(P.claw_L).z + Math.sin(w * spd) * wave;
+  if (P.claw_R) P.claw_R.rotation.z = rest(P.claw_R).z + Math.sin(w * spd + 1.3) * wave * (excited ? 1.2 : 0.8);
+  if (moodAge < 0.9 && krabsyMood.ok) for (const c of [P.claw_L, P.claw_R]) if (c) c.rotation.z = rest(c).z + 0.9;
+  if (P.stalk_L) P.stalk_L.rotation.x = rest(P.stalk_L).x + Math.sin(w * 1.1) * 0.12;
+  if (P.stalk_R) P.stalk_R.rotation.x = rest(P.stalk_R).x + Math.sin(w * 1.1 + 0.8) * 0.12;
+  // blink: lids close for ~0.12 s every ~3.5 s
+  const blink = (w % 3.5) < 0.12;
+  for (const lid of [P.lid_L, P.lid_R]) if (lid) lid.visible = blink;
+  // brows lift while he teaches
+  for (const b of [P.brow_L, P.brow_R]) if (b) b.position.y = (b.userData.y0 ??= b.position.y) + (excited ? 0.02 + Math.sin(w * 3) * 0.01 : 0);
 }
 
 // ── QA: ?qa= frozen scenes + window.__VV ───────────────────────────────
@@ -558,6 +580,10 @@ function installQA() {
     grantSeeds(t, n) { state.seeds[t] = (state.seeds[t] ?? 0) + n; ui.refresh(); },
     teleport(x, z) { player.teleport(x, z); },
     pos: () => [player.position.x, player.position.z],
+    // QA: park the camera (x,y,z) looking at (tx,ty,tz); camView() to release.
+    camAt(x, y, z, tx, ty, tz) { camMode = 'qa'; camera.position.set(x, y, z); camera.lookAt(tx, ty, tz); },
+    camView() { camMode = 'follow'; },
+    krabsyAt() { const v = new THREE.Vector3(); refs.krabsy.group.getWorldPosition(v); return [v.x, v.y, v.z]; },
     // QA: scale the follow-cam distance (0.4 = close-up) for screenshots
     zoom(f = 1) { player.setZoom?.(f); player.updateCamera(0, true); },
     face: (rad) => player.setFacing(rad),

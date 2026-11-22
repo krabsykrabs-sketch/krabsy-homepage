@@ -170,7 +170,10 @@ export function buildWorld(scene) {
   const back = box(3, 0.6, 0.15, 0x9a6a44); back.position.set(0, 1.0, -0.3); bench.add(back);
   bench.position.set(0, 0, 3.2); school.add(bench);
   // Professor Krabsy at the board.
-  const krabsy = makeKrabsy(); krabsy.group.position.set(-2, 0, 1.4); krabsy.group.rotation.y = 0.4; school.add(krabsy.group);
+  // Krabsy stands on a crate at the board's left edge, so he stays visible
+  // above the question panel during class.
+  const podium = prop('crateWood', 1.5); podium.position.set(-2.7, 0, 1.0); school.add(podium);
+  const krabsy = makeKrabsy(); krabsy.group.position.set(-2.7, 0.78, 1.0); krabsy.group.rotation.y = 0.35; school.add(krabsy.group);
   refs.krabsy = krabsy;
   // A school bell on a post (nags via the bell sound).
   const bellPost = cyl(0.1, 0.12, 3, 0x6a5030); bellPost.position.set(3, 1.5, 1.5); school.add(bellPost);
@@ -178,7 +181,7 @@ export function buildWorld(scene) {
   bell.position.set(3, 2.9, 1.5); bell.rotation.x = Math.PI; school.add(bell);
   refs.bell = bell;
   scene.add(school);
-  makeSignpost(scene, LAYOUT.school.x - 3.5, LAYOUT.school.z + 2, t('sign.school'), 0x2ee6c0);
+  makeSignpost(scene, LAYOUT.school.x - 5.4, LAYOUT.school.z + 2.4, t('sign.school'), 0x2ee6c0);
 
   // Hay meadow sign (the tiles themselves are dynamic, built in farming.js).
   makeSignpost(scene, LAYOUT.hay.cx - 7, LAYOUT.hay.cz, t('sign.hay'), 0xd8c25e);
@@ -268,36 +271,28 @@ export function drawBoardIdle(bb) {
 }
 
 // ── Professor Krabsy — a scholarly crab built from primitives ──────────
+// Professor Krabsy: the owner's crab from BlobVideos (rigid named parts,
+// pivots at the joints, model forward = +x). Game.js animates the parts.
 function makeKrabsy() {
   const group = new THREE.Group();
-  const shell = sph(0.7, 0xe0392b); shell.scale.set(1.2, 0.75, 1); shell.position.y = 0.7; shell.castShadow = true; group.add(shell);
-  const belly = sph(0.55, 0xf2a98f); belly.scale.set(1, 0.5, 0.6); belly.position.set(0, 0.55, 0.45); group.add(belly);
-  // Eye stalks.
-  const eyes = new THREE.Group();
-  for (const dx of [-0.25, 0.25]) {
-    const stalk = cyl(0.05, 0.06, 0.5, 0xe0392b); stalk.position.set(dx, 1.25, 0.2); eyes.add(stalk);
-    const ball = sph(0.13, 0xffffff); ball.position.set(dx, 1.55, 0.2); eyes.add(ball);
-    const pup = sph(0.06, 0x1b223f); pup.position.set(dx, 1.55, 0.32); eyes.add(pup);
+  const crab = prop('crab', 1.9);
+  crab.rotation.y = -Math.PI / 2;   // +x forward → faces the bench (+z)
+  group.add(crab);
+  const names = ['body', 'shell', 'claw_L', 'claw_R', 'stalk_L', 'stalk_R', 'lid_L', 'lid_R', 'brow_L', 'brow_R'];
+  const parts = Object.fromEntries(names.map((n) => [n, crab.getObjectByName(n)]));
+  for (const p of Object.values(parts)) if (p) p.userData.rest = p.rotation.clone();
+  // The professor's mortarboard, sitting on top of the shell (model units).
+  if (parts.shell) {
+    const cap = new THREE.Group();
+    const base = cyl(0.11, 0.12, 0.09, 0x222244); cap.add(base);
+    const top = box(0.4, 0.03, 0.4, 0x222244); top.position.y = 0.06; top.rotation.y = 0.3; cap.add(top);
+    const cord = cyl(0.008, 0.008, 0.14, 0xffcf5e); cord.position.set(0.17, -0.01, 0.1); cap.add(cord);
+    const tassel = sph(0.03, 0xffcf5e); tassel.position.set(0.17, -0.09, 0.1); cap.add(tassel);
+    cap.position.set(-0.22, 0.68, 0); cap.rotation.z = -0.12;
+    cap.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+    parts.shell.add(cap);
   }
-  group.add(eyes); group.userData.eyes = eyes;
-  // Reading glasses (two rings).
-  for (const dx of [-0.25, 0.25]) {
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.025, 8, 16), lambert(0x222222));
-    rim.position.set(dx, 1.55, 0.34); group.add(rim);
-  }
-  // Mortarboard cap.
-  const capBase = cyl(0.18, 0.2, 0.18, 0x222244); capBase.position.set(0, 1.78, 0.2); group.add(capBase);
-  const capTop = box(0.7, 0.06, 0.7, 0x222244); capTop.position.set(0, 1.9, 0.2); capTop.rotation.y = 0.2; group.add(capTop);
-  const tassel = sph(0.06, 0xffcf5e); tassel.position.set(0.3, 1.78, 0.45); group.add(tassel);
-  // Claws on little arms.
-  const claws = new THREE.Group();
-  for (const dx of [-0.8, 0.8]) {
-    const arm = cyl(0.07, 0.07, 0.5, 0xe0392b); arm.position.set(dx, 0.6, 0.3); arm.rotation.z = dx < 0 ? 0.6 : -0.6; claws.add(arm);
-    const claw = sph(0.22, 0xc83228); claw.position.set(dx * 1.25, 0.75, 0.45); claw.scale.set(1, 1.2, 0.7); claws.add(claw);
-  }
-  group.add(claws); group.userData.claws = claws;
-  // Little legs.
-  for (const dx of [-0.5, -0.2, 0.2, 0.5]) { const leg = cyl(0.04, 0.04, 0.4, 0xc83228); leg.position.set(dx, 0.2, 0); leg.rotation.z = dx < 0 ? 0.5 : -0.5; group.add(leg); }
+  group.userData.parts = parts;
   return { group };
 }
 

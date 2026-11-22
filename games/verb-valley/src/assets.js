@@ -16,6 +16,7 @@ const lib = new Map();
 const MANIFEST = {
   // character + shared animation rigs (clips only)
   ranger:        'assets/char/Ranger.glb',
+  crab:          'assets/char/crab.glb',   // Professor Krabsy (owner's BlobVideos crab)
   rigMove:       'assets/char/Rig_Medium_MovementBasic.glb',
   rigGeneral:    'assets/char/Rig_Medium_General.glb',
   rigTools:      'assets/char/Rig_Medium_Tools.glb',

@@ -509,3 +509,23 @@ geometry, one shadow light.
   - **Next:** M3 models (Kenney crops for the 12 crops; cottage, school,
     Krabsy: ask the owner about the BlobVideos crab), then M4 (daily goal
     card + stars, first-day tutorial, save slots).
+- 2026-11-22 — **Professor Krabsy is the owner's BlobVideos crab** (owner
+  OK'd it in chat). `assets/char/crab.glb` is copied from
+  `/home/janah/dev/BlobVideos/renderers/assets/crab.glb`: a hermit crab
+  with a grey shell, rigid named parts with pivots at the joints (see
+  `BlobVideos/docs/asset_spec.md`), 5.6k tris, 160 KB, model forward
+  = +x (the wrapper turns it −π/2 to face the bench).
+  - `world.js makeKrabsy()` scales it 1.9×, puts a procedural mortarboard
+    on the shell, and stands him on a KayKit crate at the board's left
+    edge so he stays visible above the question panel. The School
+    signpost moved left.
+  - `game.js animateKrabsy()`: claws wave and the eye stalks sway (more
+    in class), he blinks with `lid_L/R` (shown ~0.12 s every 3.5 s), and
+    the brows lift while he teaches. After each class answer
+    (`school` hook `onAnswer`) he **hops with both claws up** (right) or
+    **shakes his head** (wrong). Gotcha: `body.parent` is the model's
+    inner `crab` node, not the wrapper, so only the shake goes on its
+    rotation.
+  - New QA hooks: `__VV.camAt(x,y,z, tx,ty,tz)` / `camView()` (park
+    the camera), `__VV.krabsyAt()`.
+  - Regression: EN 26 checks and tablet touch 13/13 still pass, no errors.

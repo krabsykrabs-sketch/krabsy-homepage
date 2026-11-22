@@ -87,6 +87,7 @@ export function createSchool(state, bb, hooks) {
         onStep: (i, ok) => {
           asked++;
           if (ok) { correct++; state.coins += COINS_PER_RIGHT; }
+          hooks.onAnswer?.(ok);
           Q.recordStep(state, unit, i, ok);
         },
       });
