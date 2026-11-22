@@ -183,6 +183,26 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
 
 ## SEO / growth (2026-11-12)
 
+- **2026-11-22 (SEO chat, deployed + IndexNow 13 URLs, HTTP 200):**
+  - Verb hubs rebuilt for the main queries after a competitor check
+    (`docs/seo-hub-pages-competition-2026-11-22.md`): full static table of all
+    172 verbs under the H1, pattern section, FAQ (+JSON-LD), query titles/H1
+    (also in ui_de/ui_es.json, which the hub JS re-applies). Generator:
+    `tools/render_hub_verb_table.py` (rerun with the catalogue).
+  - Worksheets: verb list by pattern, forms sheet, gap sentences (DE/ES PDFs with
+    answer keys) + download pages `/de/unregelmaessige-verben/arbeitsblaetter/`,
+    `/es/verbos-irregulares/fichas/`, linked from hubs and teacher pages.
+    Generator: `tools/generate_worksheets.py` (`--no-pdf` = pages only). Open: QR
+    codes, licence (CC BY-NC-SA would open OER portals), more sheets.
+  - Both hubs are indexed in Google (URL inspection); the issue is ranking.
+  - Snapshot of GSC coverage + Bing to 11-20: `docs/seo-snapshot-2026-11-22/`.
+    Copilot citations rising (69→129/day Sep→Nov); Bing search impressions down
+    ~35 % since late Oct (before the deploy; likely school-year end in LatAm).
+  - Case study einmaleins.de network: `docs/seo-case-study-einmaleins-2026-11-22.md`
+    (links mainly from school "useful links" pages, worksheets, one keyword per page).
+  - Open decision: hide the empty "Werbung" ad placeholders (visible dashed boxes on
+    ~22 pages) — conflicts with "no ads" in outreach.
+
 - **SEO overhaul LIVE (pushed + deployed 2026-11-12; IndexNow: all 402 sitemap URLs, HTTP 200)** — see WORK_LOG
   2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
   Google impressions; Bing 30k impr/quarter; Copilot ~120 citations/day.
