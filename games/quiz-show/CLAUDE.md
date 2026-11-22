@@ -22,8 +22,9 @@ the play area (avatar choice, emotes, trampolines, tower + slide, ball
 pit, balls + hoop, confetti button, dance floor, "everyone to the
 middle"), and the bonus round "run to the answer" (answer pads over a
 foam pit), touch controls, the class link (answers into each child's own
-stats and class), automatic quality steps for slow devices. Not built: the
-QR code (needs an owner yes for a vendored QR library, see `RELEASE.md`). A
+stats and class), automatic quality steps for slow devices, and the join link as a QR code
+on the teacher screen (`vendor/qrcode/qrcode.mjs`, qrcode-generator 1.4.4,
+MIT, owner yes 2026-11-22). A
 whole quiz runs with a teacher and several children (tested headless with
 3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be
 deployed with the API (master session) before anyone can play online.
@@ -365,7 +366,7 @@ Copy only what you use into `games/quiz-show/assets/`.
 ## Open questions for the owner
 
 (Release-blocking ones are also in `RELEASE.md`: name, stats/class link,
-QR library, play-test.)
+play-test. QR library: yes, done.)
 
 
 - Name: "Krabsy Quiz Room" / "Quiz-Raum" / "Sala de quiz", or something else?
@@ -420,3 +421,7 @@ question loading, texts, sounds, character loading and the QA approach.
   built: vendoring a QR library was stopped by the permission check → owner
   decision. Tests: API 47 passed, qa-editor 14/14, qa-play 13/13, qa-bonus
   14/14, qa-touch 10/10, qa-room passes, load test 30 children ~11 ms.
+- 2026-11-22: owner said yes to the QR library: `qrcode-generator` 1.4.4
+  (MIT) vendored as an ES module; the teacher's code box shows the join
+  link as a QR code (SVG). Checked headless: renders, no errors, the
+  screenshot decodes (OpenCV) to the exact join link.

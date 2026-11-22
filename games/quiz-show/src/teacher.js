@@ -9,6 +9,7 @@ import * as QS from './questions.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
 import { QuestionEditor } from './editor.js';
+import qrcode from '../vendor/qrcode/qrcode.mjs';
 
 document.documentElement.lang = lang();
 document.title = `${t('title')} — ${t('setupTitle')}`;
@@ -137,6 +138,18 @@ net.on('error', (m) => {
   $('openBtn').disabled = false; $('openBtn').textContent = t('open');
 });
 
+// The join link as a QR code (SVG, black on white with a quiet zone, scannable from a
+// projector). Error correction M; the version grows with the link length.
+function qrSvg(text) {
+  try {
+    const q = qrcode(0, 'M'); q.addData(text); q.make();
+    const n = q.getModuleCount(), b = 2, size = n + b * 2;
+    let d = '';
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += `M${x + b} ${y + b}h1v1h-1z`;
+    return `<svg viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" role="img" aria-label="QR"><rect width="${size}" height="${size}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  } catch (_) { return ''; }
+}
+
 async function enterRoom(m) {
   await roomReady;
   S.middle = !!m.middle;
@@ -149,6 +162,7 @@ async function enterRoom(m) {
   const url = new URL('index.html', location.href);
   url.search = `?code=${m.code}${new URLSearchParams(location.search).get('lang') ? `&lang=${lang()}` : ''}`;
   $('joinUrl').textContent = url.href.replace(/^https?:\/\//, '');
+  $('qr').innerHTML = qrSvg(url.href);
   if (m.question) onQuestion(m.question);
   if (m.reveal) onReveal(m.reveal);
   if (m.end) onEnd(m.end);

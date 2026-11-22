@@ -10,11 +10,10 @@ server inside the existing API. Nothing here has been done yet; it's the list.
 - [ ] Children's answers go into each child's own learning stats and, if the child
       joined a class, to that class (`recordAttempt()` on the child's device, built
       as the brief recommended). Confirm, or switch off in `src/analytics.js` `record()`.
-- [ ] QR code on the teacher screen: needs a QR library. Proposal: vendor
-      `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT, one file, ~57 KB) as
-      `vendor/qrcode/qrcode.mjs` (the session's attempt to add it was stopped by the
-      permission check, so it needs an explicit yes). Without it, children type the
-      6-character code (works, shown big).
+- [x] QR code on the teacher screen: owner said yes (2026-11-22). Vendored
+      `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT) as `vendor/qrcode/qrcode.mjs`;
+      the teacher's code box shows the join link as a QR code (checked: decodes to
+      the link). If the link changes to a short path (step 2), the QR follows.
 - [ ] Play-test: one teacher + a few real devices (ideally a class). Watch: answer card
       never stuck, frame rate on a cheap Chromebook with ~25 children (the room lowers
       its quality by itself when slow), noise level of the confetti button.
