@@ -1,7 +1,8 @@
 # Krabsy for classrooms — concept
 
-Status: **concept, agreed in principle by the owner on 2026-11-21** (all four
-phases plus the smart mix). Nothing is built yet. Open decisions are listed at
+Status: phases agreed 2026-11-21. **Phase 1** (smart mix, answers recorded) built
+2026-11-22 for the engine, drills, Snake, Air Control, Verb Towers. **Phase 2**
+(classes without teacher accounts) built 2026-11-22 — see "Phase 2 as built" at
 the end. Master session owns this document.
 
 ## 1. Why
@@ -231,3 +232,41 @@ device and the server always agree.
 5. Ready-made word lists: which school books / curricula matter most (DE,
    ES, Uruguay)?
 6. Who does the legal review (privacy policy, AVV template)?
+
+## Phase 2 as built (2026-11-22)
+
+Owner decisions 2026-11-22: server is in the EU (Hetzner DE) · teachers get a
+secret link first, no email · teachers see nicknames and per-child detail ·
+inactive classes are deleted after 6 months. Still open: word lists (5) and
+the legal review (6) — the privacy pages DE/ES have a "Klassen / Clases"
+section, but no lawyer has read it and there is no AVV template yet.
+
+- **API** (`api/classes.py`, SQLite `classes.sqlite3` in the `/data` volume):
+  `POST /api/class/create` → code + teacher token · `POST /api/class/join`
+  (code + nickname; same nickname again = same pupil, new token) ·
+  `POST /api/class/answers` (header `X-Student-Token` or `token` in the body
+  for `sendBeacon`) · `GET /api/class/dashboard`, `POST /api/class/rename`,
+  `/remove-student`, `/delete` (header `X-Teacher-Token`). Tokens stored as
+  SHA-256 only; codes 6 chars without 0/O/1/I/L; max 60 pupils; rate limits
+  per IP; background purge every 6 h (180 days after last activity). Tests:
+  `api/tests/test_classes.py`.
+- **Browser:** `lib/krabsy-class.js` (session in `localStorage.krabsy_class`,
+  answer queue `krabsy_class_queue`, flush every 8 s and by beacon on
+  pagehide). `krabsy-stats.js recordAttempt` loads it only when a class
+  session exists — so every game/drill that records answers (phase 1) feeds
+  the class automatically, also inside game iframes.
+- **Pages** (noindex, not in the sitemap): join `/de/klasse/` `/es/clase/`
+  (`?code=` prefills) · create `/de/lehrkraefte/klasse-erstellen/`
+  `/es/docentes/crear-clase/` · dashboard `/de/lehrkraefte/klasse/#t=…`
+  `/es/docentes/clase/#t=…` (token only in the URL fragment). UI in
+  `lib/krabsy-class-pages.js` + `lib/krabsy-class.css`.
+- **Entry points:** landing "Klassencode bekommen? Hier beitreten →" (becomes
+  a "👥 6b · Mia" badge after joining), the same badge in the game header,
+  teacher pages: "Klasse erstellen (neu)" button + updated FAQ/privacy list.
+- **Dashboard shows:** active pupils / answers / % right this week; words
+  the class is unsure about (≥ 3 answers, fewer than 2 of a pupil's last 3
+  right) with the nicknames; solid words; per pupil: last active, answers
+  (week/total), % right, words to practise, remove; where they practised.
+- **Not yet:** teacher-chosen word lists, assignments, picture codes,
+  email login (phase 3), live mode (phase 4); phase-1 wiring for Kitchen,
+  Flow, Slash, Platformer, Dungeon (their answers don't reach classes yet).

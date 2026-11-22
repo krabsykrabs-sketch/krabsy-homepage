@@ -493,10 +493,16 @@ app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^https://(www\.)?krabsy\.com(:\d+)?$",
     allow_credentials=False,
-    allow_methods=["POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token"],
     max_age=86400,
 )
+
+# Classes for teachers (phase 2): own router + SQLite in /data.
+import classes  # noqa: E402
+
+classes.start_background()
+app.include_router(classes.router)
 
 security = HTTPBasic()
 

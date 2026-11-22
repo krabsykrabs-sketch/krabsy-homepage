@@ -273,6 +273,16 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
     try { fn(evt); } catch (err) { console.warn('krabsy-stats: listener failed', err); }
   }
   _announce(!!correct, source);
+  _toClass(evt);
+}
+
+/* Pupils who joined a class (krabsy-class.js, phase 2) also send each answer
+   to their teacher's class. Without a class session nothing is loaded. */
+function _toClass(evt) {
+  try {
+    if (!localStorage.getItem('krabsy_class')) return;
+  } catch (_) { return; }
+  import('/lib/krabsy-class.js').then((m) => m.queueAnswer(evt)).catch(() => {});
 }
 
 /* Tell the page analytics (krabsy-analytics.js) that one question was

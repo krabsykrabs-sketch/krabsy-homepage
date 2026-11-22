@@ -455,7 +455,20 @@ async function buildGameHeader(currentKey, strings) {
   back.textContent = '← ' + (lookup(strings, 'common.back_to_hub_short') || 'Zurück');
   back.addEventListener('click', (ev) => guardedGameClick(ev, hubHref, strings));
 
-  header.append(logo, chipWrap, back);
+  // Class session (phase 2): "👥 6b · Mia" so pupils see their answers go to the class.
+  let classBadge = null;
+  try {
+    const cs = JSON.parse(localStorage.getItem('krabsy_class') || 'null');
+    if (cs && cs.name) {
+      classBadge = document.createElement('a');
+      classBadge.className = 'k-game-nav-class';
+      classBadge.href = lang === 'es' ? '/es/clase/' : '/de/klasse/';
+      classBadge.textContent = '👥 ' + cs.name + ' · ' + cs.nickname;
+      classBadge.addEventListener('click', (ev) => guardedGameClick(ev, classBadge.href, strings));
+    }
+  } catch (_) { /* no storage */ }
+
+  header.append(...[logo, chipWrap, classBadge, back].filter(Boolean));
   return header;
 }
 
@@ -519,6 +532,11 @@ function injectGameNavStyles() {
       background: #f2937e; color: #ffffff;
     }
     .k-game-nav-chip[aria-current="page"]:hover { background: #e07a64; color: #ffffff; }
+    .k-game-nav-class {
+      font-size: 0.74rem; font-weight: 700; color: #0d4d3f; background: #e6f7f2;
+      padding: 4px 10px; border-radius: 999px; text-decoration: none; white-space: nowrap;
+      flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; max-width: 30vw;
+    }
     .k-game-nav-back {
       font-size: 0.78rem; font-weight: 700;
       color: #e07a64; text-decoration: none; flex-shrink: 0;

@@ -11,7 +11,7 @@
    chips appear on their own once a second topic has a live game. The
    featured game is left out of "all" (it is right above the grid). */
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
-import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-05-24';
+import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
 
 const LANG = document.documentElement.lang === 'es' ? 'es' : 'de';
 const T = {
@@ -119,6 +119,22 @@ function expireNew() {
   }
 }
 
+/* Class session (phase 2): show "Klasse 6b · Mia" instead of the join link. */
+function initClassBadge() {
+  const el = document.getElementById('gl-join');
+  if (!el) return;
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem('krabsy_class') || 'null'); } catch (_) {}
+  if (!s || !s.name) return;
+  const a = el.querySelector('a');
+  const badge = document.createElement('a');
+  badge.href = a ? a.getAttribute('href') : '#';
+  badge.className = 'gl-class-badge';
+  badge.textContent = '👥 ' + s.name + ' · ' + s.nickname;
+  el.replaceChildren(badge);
+}
+
 expireNew();
+initClassBadge();
 initFilters();
 initProgress();

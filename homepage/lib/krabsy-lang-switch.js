@@ -51,6 +51,13 @@
     '/es/politica-privacidad/': '/de/datenschutz/',
     '/de/lehrkraefte/':         '/es/docentes/',
     '/es/docentes/':            '/de/lehrkraefte/',
+    // Classes (phase 2, 2026-11-22)
+    '/de/klasse/':                        '/es/clase/',
+    '/es/clase/':                         '/de/klasse/',
+    '/de/lehrkraefte/klasse-erstellen/':  '/es/docentes/crear-clase/',
+    '/es/docentes/crear-clase/':          '/de/lehrkraefte/klasse-erstellen/',
+    '/de/lehrkraefte/klasse/':            '/es/docentes/clase/',
+    '/es/docentes/clase/':                '/de/lehrkraefte/klasse/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a
@@ -157,6 +164,8 @@
         }
         ev.preventDefault();
         parallelUrl(target).then(function (url) {
+          // Keep ?code=… and the private #t=… of the class pages.
+          if (url.indexOf('?') < 0 && url.indexOf('#') < 0) url += window.location.search + window.location.hash;
           window.location.href = url;
         });
       });

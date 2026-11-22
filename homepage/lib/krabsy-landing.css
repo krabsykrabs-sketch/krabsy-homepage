@@ -284,3 +284,10 @@ a.gt:hover .gt-play, a.gt:focus-visible .gt-play { opacity: 1; }
 .gl-about-cols h3 { margin-top: var(--space-4); }
 
 .ch-footer-tagline { display: block; margin-top: 6px; font-size: 0.7rem; opacity: 0.85; }
+
+/* Class join link / badge under the headline (phase 2, 2026-11-22) */
+.gl-join { margin: 4px 0 0; font-size: 0.86rem; }
+.gl-join a { color: var(--coral-aa); font-weight: 700; text-decoration: none; }
+.gl-join a:hover { text-decoration: underline; }
+.gl-join .gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  background: #e6f7f2; color: #0d4d3f; font-weight: 700; }

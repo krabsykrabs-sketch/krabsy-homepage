@@ -67,6 +67,17 @@ New ideas the owner liked, not started, no folder yet:
 - Verb Flow → keep.
 - Owner decisions pending.
 
+## Classes for teachers (phase 2, built 2026-11-22)
+
+Teachers create a class without an account (code for pupils + secret
+dashboard link), pupils join with code + nickname, every recorded answer
+goes to the class, the dashboard shows hard words per class and per child.
+Details: `docs/classroom-concept.md` → "Phase 2 as built". **Deploy: API app
+first (new endpoints + SQLite in /data), then the site.** Open: legal
+review of the new privacy section + AVV template; word lists; phase 3.
+Answers only reach classes from games wired in phase 1 (drills, Snake, Air
+Control, Verb Towers).
+
 ## Analytics (api.krabsy.com, upgraded 2026-11-22)
 
 **Deployed 2026-11-22, live** (API + site; Verb Towers events live from build c14b871).
