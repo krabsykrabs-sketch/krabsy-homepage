@@ -33,7 +33,7 @@ const T = {
     joined: (n, c) => `Du bist in <strong>${n}</strong> als <strong>${c}</strong>.`,
     joinedLead: 'Alles, was du jetzt in Spielen und Übungen beantwortest, sieht deine Lehrkraft. So weiß sie, welche Wörter ihr noch üben solltet.',
     toGames: 'Zu den Spielen', toPractice: 'Zum Üben', notMe: 'Nicht du? Klasse verlassen',
-    errCode: 'Diesen Code gibt es nicht. Prüf ihn noch einmal.', errNick: 'Bitte nur Buchstaben, höchstens 20 Zeichen.',
+    errCode: 'Diesen Code gibt es nicht. Prüf ihn noch einmal.', quizCode: 'Das ist ein Code für den Quiz-Raum – du kommst gleich hinein …', errNick: 'Bitte nur Buchstaben, höchstens 20 Zeichen.',
     errFull: 'Diese Klasse ist voll.', errNet: 'Keine Verbindung. Versuch es gleich noch einmal.', errMany: 'Zu viele Versuche. Warte kurz.',
     createTitle: 'Klasse erstellen', createLead: 'Sie bekommen einen Code für die Klasse und einen privaten Link zu Ihrer Übersicht. Kein Konto, keine E-Mail.',
     className: 'Name der Klasse', classNamePh: 'z. B. 6b Englisch', createBtn: 'Klasse erstellen',
@@ -66,7 +66,7 @@ const T = {
     joined: (n, c) => `Estás en <strong>${n}</strong> como <strong>${c}</strong>.`,
     joinedLead: 'Todo lo que respondas ahora en juegos y ejercicios lo verá tu profesor. Así sabe qué palabras hay que practicar.',
     toGames: 'Ir a los juegos', toPractice: 'Ir a practicar', notMe: '¿No eres tú? Salir de la clase',
-    errCode: 'Ese código no existe. Revísalo.', errNick: 'Solo letras, máximo 20 caracteres.',
+    errCode: 'Ese código no existe. Revísalo.', quizCode: 'Ese es un código de la sala de quiz: ya te llevamos …', errNick: 'Solo letras, máximo 20 caracteres.',
     errFull: 'Esta clase está llena.', errNet: 'Sin conexión. Inténtalo de nuevo.', errMany: 'Demasiados intentos. Espera un momento.',
     createTitle: 'Crear una clase', createLead: 'Recibirá un código para la clase y un enlace privado a su resumen. Sin cuenta y sin correo.',
     className: 'Nombre de la clase', classNamePh: 'p. ej. 1.º ESO B inglés', createBtn: 'Crear clase',
@@ -94,6 +94,25 @@ const T = {
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// Quiz-Raum codes look exactly like class codes (same letters, 6 characters), so a child
+// may type one here. Ask the quiz room server whether such a room is open: a join with
+// an empty name gets "bad_name" (room exists, nothing changes) or "no_room".
+function isQuizRoom(code) {
+  const c = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (c.length !== 6) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    let ws, done = false;
+    const end = (v) => { if (done) return; done = true; try { ws && ws.close(); } catch (_) {} resolve(v); };
+    try {
+      ws = new WebSocket(apiBase().replace(/^http/, 'ws') + '/api/quiz/ws');
+      ws.onopen = () => ws.send(JSON.stringify({ t: 'join', code: c, name: '' }));
+      ws.onmessage = (e) => { let m = {}; try { m = JSON.parse(e.data); } catch (_) {} end(m.t === 'error' && m.code !== 'no_room'); };
+      ws.onerror = () => end(false);
+    } catch (_) { end(false); }
+    setTimeout(() => end(false), 4000);
+  });
+}
 
 function errorText(code) {
   return { unknown_code: T.errCode, bad_nickname: T.errNick, class_full: T.errFull, too_many: T.errMany }[code] || T.errNet;
@@ -163,6 +182,12 @@ function renderJoin(main) {
     btn.disabled = false;
     if (r.ok) { renderJoin(main); return; }
     if (r.error === 'name_taken') { askSameName(name); return; }
+    const code = $('#kc-code').value;
+    if (r.error === 'unknown_code' && await isQuizRoom(code)) {
+      err.textContent = T.quizCode; err.hidden = false;
+      setTimeout(() => { location.href = `/quiz/?code=${encodeURIComponent(code.toUpperCase().replace(/[^A-Z0-9]/g, ''))}&lang=${LANG}`; }, 1200);
+      return;
+    }
     err.textContent = errorText(r.error); err.hidden = false;
   }
   // Same first name already in the class: never merge two pupils silently.
