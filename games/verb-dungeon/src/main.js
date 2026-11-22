@@ -21,6 +21,7 @@ import * as Q from './questions.js';
 import { t, lang } from './i18n.js';
 import { HEROES, SWINGS, heroDef, swingTimes, Save } from './heroes.js';
 import { sfx } from './audio.js';
+import { Track } from './analytics.js';
 import { initTouch, stick, holdStick, touchOn, resetTouch, swordIcon } from './touch.js';
 
 const $ = (id) => document.getElementById(id);
@@ -315,6 +316,9 @@ const teachHtml = (q) => `${t('notQuite')} ${askedChain(q)} · ${t('tryAgain')}`
 // stone). Returns true if right. Wrong: the choice is remembered as tried and the verb
 // comes back later as a full pair (once per pair, however many mistakes).
 function judge(pair, q, i) {
+  const first = !q.seen; // the question's first choice: the only one for the word statistics
+  q.seen = true;
+  Track.answer(q, q.options[i] === q.answer, first);
   if (q.options[i] !== q.answer) {
     if (!q.tried) q.tried = [];
     if (!q.tried.includes(i)) q.tried.push(i);
@@ -335,7 +339,7 @@ function answer(i) {
   const q = cardQ(c);
   if (!q.options[i] || (q.tried && q.tried.includes(i))) return;
   const right = judge(c.pair, q, i);
-  if (c.gate === 'boss') { closeCard(); goal().onAnswer(right, q); return; }
+  if (c.gate === 'boss') { closeCard(); Track.bossRound(bossKind().id, right, q.ask, room.boss.hp); goal().onAnswer(right, q); return; }
   if (!right) {
     $('chips').children[i].classList.add('wrong');
     $('teach').innerHTML = teachHtml(q);
@@ -397,6 +401,7 @@ async function startLevel(i) {
   }
   G.mode = 'play';
   $('hud').classList.add('on');
+  Track.levelStart(i + 1, G.wall);
   enterRoom(0);
 }
 
@@ -474,11 +479,13 @@ function openExit(door) {
 // book by the door: Space in its rune circle opens the card with the pair; both right and
 // the door unlocks, and opens by itself when the hero comes near (play-test note 12).
 const keyHunt = {
-  doorHint: () => (key.state === 'taken' ? 'hintBookFirst' : room.type === 'ambush' ? 'hintAmbushDoor' : 'hintNoKey'),
+  doorHint: () => (key.state === 'taken' ? 'hintBookFirst' : room.type === 'ambush' ? 'hintAmbushDoor'
+    : room.book && !room.book.done ? 'hintNeedBoth' : 'hintNoKey'),
   enter(keep) {
     hideKey(keep);
     if (G.mode === 'play' && room.phase === 'goal') {
-      hint(t(key.state === 'taken' ? 'hintBook' : key.state !== 'hidden' ? 'hintGrab' : room.hide.where === 'search' ? 'hintSearch' : 'hintSkeletons'), 5);
+      hint(t(key.state === 'taken' ? 'hintBook' : key.state !== 'hidden' ? 'hintGrab'
+        : room.book && room.book.done ? 'hintKeyStill' : room.hide.where === 'search' ? 'hintSearch' : 'hintSkeletons'), 5);
     }
   },
   save: () => ({ state: key.state, x: key.to.x, z: key.to.z, hide: room.hide }),
@@ -658,21 +665,17 @@ const GOALS = {
 const goal = () => GOALS[room.type];
 const doorHintKey = () => { const h = goal().doorHint; return typeof h === 'function' ? h() : h; };
 
-// The verb book (play-test note 12): a stand with an open book in a rune circle near the
-// door (room.book, built in room.js). Space (or the sword button) inside the circle opens
-// it: the card asks the room's pair. Key rooms need the key first. Enemies and arrows
-// cannot enter the circle (room.wards: collide(), updateSkeleton(), updateArrows()).
+// The verb book (play-test notes 12 + 14): a stand with an open book in a rune circle near
+// the door (room.book, built in room.js). Space (or the sword button) inside the circle
+// opens it: the card asks the room's pair. It can be read any time, before or after the
+// key: key rooms open the door once the key is taken AND the book is read (keyDone()).
+// Read = the book closes, the circle fades out and stops warding. While it wards, enemies
+// and arrows cannot enter the circle (room.wards: collide(), updateSkeleton(), updateArrows()).
 const needsKey = () => room.type === 'key' || room.type === 'ambush';
 const inWard = (p, pad = 0) => room.wards.some((w) => near(p, w.x, w.z, w.r + pad));
 const inBook = (p) => room.book && !room.book.done && near(p, room.book.x, room.book.z, room.book.r);
 function useBook() {
   const b = room.book;
-  if (needsKey() && key.state !== 'taken') {
-    hint(t('hintBookNoKey'), 2.5);
-    sfx.popIn();
-    pop('🔑 ?', b.x, 2.6, b.z, '#ffcf5e');
-    return;
-  }
   b.pair = b.pair || nextPair(true);
   sfx.bookOpen();
   openCard({ gate: 'book', pair: b.pair, step: 0 });
@@ -683,15 +686,33 @@ function unlockBook() {
   b.mark = unmark(b.mark);
   sfx.clunk(); after(0.2, () => sfx.sparkle());
   pop('✓', b.x, 2.6, b.z, '#2ee6c0');
+  room.wards = []; // the circle fades out (updateBook) and no longer keeps enemies out
+  if (needsKey() && key.state !== 'taken') { hint(t('hintKeyStill'), 4); drawHud(); return; }
+  goalDone('hintDoor');
+}
+// Key rooms: the door unlocks when the key is taken and the book is read, in either order.
+function keyDone() {
+  if (key.state !== 'taken') return;
+  if (room.book && !room.book.done) { hint(t('hintBook'), 4); return; }
   goalDone('hintDoor');
 }
 function updateBook(dt) {
   const b = room.book;
   if (!b) return;
   const m = b.circle.material;
-  m.opacity = b.done ? 0.25 : 0.62 + 0.3 * Math.sin(G.time * 2.4);
+  if (b.done) { // read: the book closes (left half folds over, slides to the middle), the circle fades out
+    b.shut = Math.min(1, b.shut + dt / 0.7);
+    const e = b.shut * b.shut * (3 - 2 * b.shut);
+    b.halves[0].rotation.z = -Math.PI * e;
+    b.spine.position.x = -0.215 * e;
+    m.opacity = Math.max(0, 0.9 * (1 - b.shut * 1.4));
+    b.glow.material.opacity = 0.45 * (1 - e);
+    b.circle.visible = b.glow.visible = m.opacity > 0.01 || b.glow.material.opacity > 0.01;
+  } else {
+    m.opacity = 0.62 + 0.3 * Math.sin(G.time * 2.4);
+    b.glow.material.opacity = 0.45 + 0.2 * Math.sin(G.time * 3.1);
+  }
   b.circle.rotation.z += dt * 0.12;
-  b.glow.material.opacity = b.done ? 0.15 : 0.45 + 0.2 * Math.sin(G.time * 3.1);
 }
 
 // What Space (or the sword button) does here instead of a swing, if anything: open the
@@ -1371,7 +1392,7 @@ function takeKey() {
   sfx.coin(2); after(0.1, () => sfx.sparkle());
   pop(t('key'), key.to.x, 2.4, key.to.z);
   flyToHud(key.to.x, 1, key.to.z);
-  hint(t('hintBook'), 4);
+  keyDone(); // the door unlocks if the book is read too, else a hint to read it
   drawHud();
 }
 
@@ -1443,6 +1464,7 @@ function enterRoom(idx, keep = null) {
   room = buildRoom(defs[idx]);
   scene.add(room.group);
   G.roomIdx = idx;
+  if (!keep) Track.roomStart(G.wall); // a dizzy restart keeps the room's clock and hits
   clearMarks();
   resetKey();
   sweepCoins();
@@ -1452,6 +1474,7 @@ function enterRoom(idx, keep = null) {
     room.phase = keep.phase;
     if (room.chest) Object.assign(room.chest, keep.chest);
     if (room.book && keep.book) Object.assign(room.book, keep.book);
+    if (room.book && room.book.done) { room.book.shut = 1; room.wards = []; updateBook(0); } // read: closed, no circle
     if (room.phase === 'open') { room.doors[0].open = true; for (const s of skeletons) s.mode = 'calm'; }
   }
   // The back torches' lights follow the room's torches.
@@ -1476,6 +1499,7 @@ function enterRoom(idx, keep = null) {
 
 function leaveRoom() {
   G.locked = true;
+  Track.roomDone(G.roomIdx + 1, room.type, G.wall);
   const last = G.roomIdx === LEVELS[G.level].rooms.length - 1;
   $('fade').textContent = last ? '' : t('nextRoom');
   $('fade').classList.add('on');
@@ -1487,6 +1511,7 @@ function finishLevel() {
   const ratio = G.asked ? G.firstTry / G.asked : 1;
   const stars = ratio >= 1 ? 3 : ratio >= 0.6 ? 2 : 1;
   saveStars(LEVELS[G.level].id, stars);
+  Track.levelEnd({ stars, clock: G.wall, firstTry: G.firstTry, questions: G.asked, coins: G.coinsRun });
   sfx.fanfare();
   $('hud').classList.remove('on');
   showSign(null);
@@ -1509,6 +1534,7 @@ function finishLevel() {
 
 function defeat() {
   G.locked = true;
+  Track.dizzy(G.roomIdx + 1, room.type);
   sfx.dizzy();
   cancelSwing();
   hero.play('Death_A', { once: true });
@@ -1964,6 +1990,7 @@ function bump(s, nx, nz) {
 }
 function hurt(nx, nz) { // −1 heart and a push in direction (nx, nz)
   G.hearts -= 1;
+  Track.hit();
   G.invuln = 1.6; G.kbx = nx * 9; G.kbz = nz * 9;
   sfx.hurt();
   pop(t('ouch'), hero.pos.x, 3, hero.pos.z, '#ff8585');
@@ -2105,12 +2132,12 @@ Assets.load().then(async () => {
       firstTry: G.firstTry, missed: G.missed.map((m) => m.base), card: G.card && `${G.card.gate}:${cardQ(G.card).ask}`,
       type: room.type, phase: room.phase, door: room.doors[0].open, coins: Save.coins, hero: Save.hero, built: heroSwing && heroSwing.hero, lying: coins.length, arrows: arrows.length,
       boss: room.boss ? `${room.boss.kind}:${room.boss.state}:${room.boss.hp}` : undefined, key: key.state,
-      book: room.book ? (room.book.done ? 'done' : 'shut') : undefined, rune: room.rune ? `${room.rune.step}:${hero.pos.z.toFixed(1)}` : undefined,
+      book: room.book ? (room.book.done ? 'done' : 'shut') : undefined, bookShut: room.book ? room.book.shut : undefined, wards: room.wards.length, rune: room.rune ? `${room.rune.step}:${hero.pos.z.toFixed(1)}` : undefined,
       minions: skeletons.filter((s) => s.minion).length, prompt: (usable() || {}).what,
       hide: room.hide ? `${room.hide.where}:${room.hide.keyIn}:${room.hide.checked.join('')}` : undefined,
       bridge: room.bridge ? `${room.bridge.step}:${room.bridge.fall > 0 ? 'fall' : pitAt(hero.pos.z) >= 0 ? 'stone' : 'floor'}:${room.stones.filter((x) => x.gone).length}` : undefined,
       retry: G.retry.map((r) => r.base), skeletons: skeletons.map((s) => s.mode),
-      marks: markCount(), source: Q.source, tiers: Q.tierInfo, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
+      marks: markCount(), source: Q.source, tiers: Q.tierInfo, smart: Q.smartInfo, calls: renderer.info.render.calls, tris: renderer.info.render.triangles }),
     teleport: (x, z, rot) => { hero.pos.set(x, 0, z); if (rot != null) hero.root.rotation.y = rot; },
     bonkOne: (sk) => {
       hero.pos.set(sk.pos.x, 0, sk.pos.z + 1.4); hero.root.rotation.y = Math.PI;
@@ -2187,18 +2214,25 @@ Assets.load().then(async () => {
     log: [],
     // Does the room's goal like a player would. wrong = one mistake first.
     solve: {
-      key: (wrong) => {
+      // bookFirst: read the book before looking for the key (play-test note 14: either order).
+      key: (wrong, bookFirst) => {
+        if (bookFirst) {
+          QA.log.push(QA.readBook(wrong)); run(30); // the book closes, the circle fades
+          QA.teleport(0, -5.4); run(3);
+          QA.log.push(`lockedBookOnly:${room.phase}:${room.doors[0].open}:closed ${room.book.shut === 1}:ward ${room.wards.length}`);
+        }
         QA.findKey();
         QA.takeKey();
         QA.log.push(`keycard:${!!G.card}:${key.state}`); // walking over the key asks nothing
+        if (bookFirst) return;
         QA.teleport(0, -5.4); run(3); QA.log.push(`lockedWithKey:${room.phase}:${room.doors[0].open}`);
         QA.log.push(QA.readBook(wrong));
         run(5);
       },
-      ambush: (wrong) => {
+      ambush: (wrong, bookFirst) => {
         QA.teleport(0, 1); run(3); // springs the trap
         for (let i = 0; i < 200 && skeletons.some((sk) => sk.mode === 'hidden' || sk.mode === 'rise'); i++) run(1);
-        QA.solve.key(wrong);
+        QA.solve.key(wrong, bookFirst);
       },
       rune: (wrong) => { // a mistake at both walls when wrong
         if (wrong) { QA.pick(false); run(40); }
@@ -2235,7 +2269,7 @@ Assets.load().then(async () => {
         run(60); // coins fly, the exit opens
       },
     },
-    doGoal: (wrong) => QA.solve[room.type](wrong),
+    doGoal: (wrong, bookFirst) => QA.solve[room.type](wrong, bookFirst),
     answerRight: () => { if (!G.card) return; const q = cardQ(G.card); answer(q.options.indexOf(q.answer)); },
     answerWrong: () => { if (!G.card) return; const q = cardQ(G.card); answer(q.options.findIndex((o, k) => o !== q.answer && !(q.tried && q.tried.includes(k)))); },
     // Plays the current room to the next one. wrongFirst = make one mistake (at the key,
@@ -2245,9 +2279,11 @@ Assets.load().then(async () => {
       QA.log = log;
       G.invuln = 99; // the script teleports into skeletons; keep it from getting bumped
       const keyRoom = room.type === 'key' || room.type === 'ambush';
+      // Book before key in every other key room (odd room index), or everywhere with &bookfirst=1.
+      const bookFirst = keyRoom && (G.roomIdx % 2 === 1 || params.has('bookfirst'));
+      if (keyRoom) log.push(`order:${bookFirst ? 'book-key' : 'key-book'}`);
       if (room.type === 'key') {
         QA.teleport(0, -5.6); run(3); log.push(`locked:${room.phase}:${room.doors[0].open}`);
-        QA.toBook(); QA.space(); log.push(`bookNoKey:${!!G.card}`); // Space at the book without the key: a hint, no card
       }
       if (goal().sign) log.push(`${room.type}:${room[room.type].pair.base}`);
       if (room.chest && !room.chest.open) { // walking up asks nothing; Space opens, "later" closes, Space again, answer
@@ -2259,7 +2295,7 @@ Assets.load().then(async () => {
         QA.answerRight(); run(25); log.push(`opened:${ch.open}`);
         for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); }
       }
-      QA.doGoal(wrongFirst); run(20);
+      QA.doGoal(wrongFirst, bookFirst); run(20);
       log.push(keyRoom ? `key:${key.state}:${room.hide.where}:book ${room.book.done}` : `${room.type}:${room.phase}`);
       for (let i = 0; i < 60 && coins.some((c) => c.state === 'fly'); i++) run(1);
       for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); } // pick up what dropped
@@ -2311,6 +2347,19 @@ Assets.load().then(async () => {
           hero.mixer.update(0);
         }
         updateGear(); // weapons that face the camera: face this one
+        // Neutral backdrop (play-test note 15): only the hero (with its weapons) and the
+        // lights stay; a soft vertical navy gradient that fits the menu cards, plus a front key light
+        // and a cool rim so the silhouette reads.
+        for (const o of scene.children) if (o !== hero.root && !o.isLight) o.visible = false;
+        scene.fog = null;
+        const bg = document.createElement('canvas'); bg.width = bg.height = 256;
+        // vertical, so every portrait crop (different x) gets the same backdrop
+        const g2 = bg.getContext('2d'), grad = g2.createLinearGradient(0, 0, 0, 256);
+        grad.addColorStop(0, '#2d5b91'); grad.addColorStop(0.6, '#1b3a66'); grad.addColorStop(1, '#122a50');
+        g2.fillStyle = grad; g2.fillRect(0, 0, 256, 256);
+        scene.background = new THREE.CanvasTexture(bg); scene.background.colorSpace = THREE.SRGBColorSpace;
+        const keyL = new THREE.DirectionalLight(0xfff1dc, 1.6); keyL.position.set(-3, 6, 12); keyL.target = hero.root; scene.add(keyL);
+        const rim = new THREE.DirectionalLight(0x9fe8ff, 1.2); rim.position.set(4, 5, -4); rim.target = hero.root; scene.add(rim);
         window.__freeze = true;
       }
       if (params.get('qa') === 'pose') { // any room: &do=tp:x:z,run:n,… (see CLAUDE.md) — then freeze
@@ -2425,7 +2474,8 @@ Assets.load().then(async () => {
       }
       if (params.get('qa') === 'hurt') { // stand still among angry skeletons until dizzy, then wait
         // &pre=floor: the key lies on the floor first (found in the first hiding place);
-        // &pre=taken: key found and its pair answered; &pre=boss: one boss round won.
+        // &pre=taken: key found and its pair answered; &pre=boss: one boss round won;
+        // &pre=bookonly: the book read, the key still hidden (note 14: it must stay read).
         // All must survive the restart (a key room needs 2+ skeletons).
         const pre = params.get('pre');
         if (room.type === 'ambush') { G.invuln = 99; QA.teleport(0, 1); run(150); } // spring the trap first
@@ -2434,7 +2484,8 @@ Assets.load().then(async () => {
           for (let i = 0; i < 400 && !(b.stone && bossCanAsk()); i++) run(1);
           QA.teleport(b.stone.x, b.stone.z); run(2); QA.space(); QA.answerRight(); run(3);
           QA.teleport(foe.pos.x, foe.pos.z + 2.4, Math.PI); G.attackT = 0; bonk(); run(50);
-        } else if (pre) { G.invuln = 99; QA.hideIn(0); QA.findKey(); run(30); }
+        } else if (pre === 'bookonly') { G.invuln = 99; QA.readBook(); run(30); }
+        else if (pre) { G.invuln = 99; QA.hideIn(0); QA.findKey(); run(30); }
         if (pre === 'taken' || pre === 'book') { QA.takeKey(); run(3); }
         if (pre === 'book') { QA.readBook(); run(3); }
         out.push({ before: QA.info() });

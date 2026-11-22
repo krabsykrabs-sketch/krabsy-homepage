@@ -22,7 +22,7 @@ function fromEngine(q) {
   const c = q.teach && q.teach.chain;
   if (!c || q.display.kind !== 'trio' || q.options.length < 3) return null;
   const ask = q.display.askIndex === 0 ? 'past' : 'pp';
-  return { key: `${c.base}|${ask}`, base: c.base, past: c.past, pp: c.participle, ask,
+  return { key: `${c.base}|${ask}`, item: q.item, base: c.base, past: c.past, pp: c.participle, ask,
     answer: q.answer, options: q.options.slice(0, 3) };
 }
 
@@ -37,9 +37,11 @@ const pairOf = (q2, q3) => ({ base: q2.base, past: q2.past, pp: q2.pp, steps: [q
 
 export let source = 'inline';
 export let tierInfo = ''; // QA: the tiers of the engine pairs in use
+export let smartInfo = 0; // QA: how many of them came from the smart mix
 
 // Returns `count` verb pairs for a level. tiers = difficulty filter for the engine.
 export async function loadPairs({ count = 10, tiers } = {}) {
+  smartInfo = 0;
   try {
     const KQ = await import('/lib/krabsy-questions.js');
     const topic = KQ.topicFromUrl();
@@ -58,10 +60,29 @@ export async function loadPairs({ count = 10, tiers } = {}) {
         all.push({ ...pairOf(q2, q3), tier: tierOf.get(q2.base) ?? 9 });
       }
     }
-    // The level's tiers first; if they are too few, fill up with the easiest others.
-    const fits = (p) => !tiers || tiers.includes(p.tier);
-    const rest = all.filter((p) => !fits(p)).sort((a, b) => a.tier - b.tier);
-    const out = [...all.filter(fits), ...rest].slice(0, count);
+    const byBase = new Set(all.map((p) => p.base));
+    // Smart mix first (classroom phase 1, docs/phase1-game-wiring.md): words this player
+    // still gets wrong, new ones and known ones due again, ranked from the shared stats
+    // (recordAttempt in analytics.js). Asked fresh at every level start. One smart set per
+    // tier of the level, an equal share each: one set over all the level's tiers would only
+    // take new words from the lowest tier (the smart mix opens a tier when 60 % of the one
+    // below is known), so level 3 (tiers 2 + 3) would get tier 2 only.
+    const smart = [];
+    try {
+      const ts = tiers || [undefined];
+      for (let k = 0; k < ts.length; k++) {
+        const n = Math.round(count * (k + 1) / ts.length) - Math.round(count * k / ts.length);
+        const set = await KQ.getChainSet({ topic, tiers: ts[k] === undefined ? undefined : [ts[k]], count: n, smart: true });
+        smart.push(...set.map((r) => r.verb).filter((v) => byBase.has(v))); // a verb without a quiz pair is skipped
+      }
+    } catch (_) { /* no smart mix: random order as before */ }
+    const rank = new Map(shuffle(smart).map((v, k) => [v, k]));
+    const first = all.filter((p) => rank.has(p.base)).sort((a, b) => rank.get(a.base) - rank.get(b.base));
+    // Then the level's other verbs (random); if they are too few, fill up with the easiest others.
+    const fits = (p) => !rank.has(p.base) && (!tiers || tiers.includes(p.tier));
+    const rest = all.filter((p) => !rank.has(p.base) && !fits(p)).sort((a, b) => a.tier - b.tier);
+    const out = [...first, ...all.filter(fits), ...rest].slice(0, count);
+    smartInfo = first.filter((p) => out.includes(p)).length;
     tierInfo = out.map((p) => p.tier).join('');
     if (out.length >= 5) { source = 'engine'; return out; }
   } catch (_) { /* local dev or offline: use the inline list */ }
@@ -72,7 +93,8 @@ export async function loadPairs({ count = 10, tiers } = {}) {
   return pool.map((v) => pairOf(fromInline(v, 'past'), fromInline(v, 'pp')));
 }
 
-const fresh = (q) => ({ ...q, options: shuffle(q.options.slice()), tried: null });
+// seen = the question had its first choice (only that one goes to the word statistics).
+const fresh = (q) => ({ ...q, options: shuffle(q.options.slice()), tried: null, seen: false });
 
 // A missed verb comes back at a later door: the same pair, fresh option order.
 export function again(pair) {

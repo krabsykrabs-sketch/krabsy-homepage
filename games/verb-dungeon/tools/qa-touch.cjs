@@ -153,23 +153,13 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   await stickTo(-0.7, -0.5); await wait(250); await shot('room'); await lift();
   check(await ev(() => window.__VD.G.mode === 'play'), 'still playing');
 
-  // ── Room 1: the book without the key asks nothing; smash the crates with the sword button ──
-  await toBook(); await sword(); await wait(200);
-  inf = await info();
-  check(!inf.card && inf.book === 'shut', 'sword button at the book without the key: no card (hint)', `${inf.card} ${await ev(() => document.getElementById('hint').textContent)}`);
-  await searchRoom();
-  inf = await info();
-  check(inf.key === 'floor' || inf.key === 'fly', 'sword button searched until the key popped out', inf.key + ' ' + inf.hide);
-  for (let i = 0; i < 60 && (await info()).key === 'fly'; i++) await wait(100);
-  const keyAt = await ev(() => { const k = window.__VD.keyObj(); return [k.x, k.z]; });
-  await walkTo(keyAt[0], keyAt[1], 0.3); await wait(300);
-  inf = await info();
-  check(!inf.card && inf.key === 'taken', 'walking onto the key takes it, no card', `${inf.card} ${inf.key}`);
+  // ── Room 1: book first (play-test note 14: either order), by the sword button and tapped
+  // chips; it closes and the door stays locked; then smash the crates, take the key: the door opens ──
   await toBook(); await wait(200);
   await shot('book-prompt');
   await openBook();
   inf = await info();
-  check(inf.card === 'book:past', 'sword button in the circle opens the book card', inf.card);
+  check(inf.card === 'book:past', 'sword button in the circle opens the book card (no key yet)', inf.card);
   await shot('card');
   log('     chip', await tapChip(false));
   check(await ev(() => document.querySelectorAll('#chips .chip.wrong').length === 1), 'wrong chip greys out');
@@ -177,8 +167,19 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   log('     chip', await tapChip(true));
   check((await info()).card === 'book:pp', 'after the 2nd form the card asks the 3rd', (await info()).card);
   log('     chip', await tapChip(true));
+  for (let i = 0; i < 50 && (await info()).bookShut < 1; i++) await wait(100); // the book closes (0.7 s game time; headless frames are slow)
   inf = await info();
-  check(!inf.card && inf.book === 'done', 'book answered by tapping chips', inf.book);
+  check(!inf.card && inf.book === 'done' && inf.phase === 'goal' && inf.bookShut === 1 && inf.wards === 0,
+    'book read before the key: closed, circle gone, door still locked', `${inf.book} ${inf.phase} shut ${inf.bookShut} wards ${inf.wards} · ${await ev(() => document.getElementById('hint').textContent)}`);
+  await shot('book-read');
+  await searchRoom();
+  inf = await info();
+  check(inf.key === 'floor' || inf.key === 'fly', 'sword button searched until the key popped out', inf.key + ' ' + inf.hide);
+  for (let i = 0; i < 60 && (await info()).key === 'fly'; i++) await wait(100);
+  const keyAt = await ev(() => { const k = window.__VD.keyObj(); return [k.x, k.z]; });
+  await walkTo(keyAt[0], keyAt[1], 0.3); await wait(300);
+  inf = await info();
+  check(!inf.card && inf.key === 'taken' && (inf.phase === 'door' || inf.phase === 'open'), 'walking onto the key takes it, no card; book already read: unlocked', `${inf.card} ${inf.key} ${inf.phase}`);
   // To the door, and through.
   await walkTo(0, -5.6, 0.6);
   await wait(500);

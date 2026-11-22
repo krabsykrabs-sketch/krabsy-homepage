@@ -51,7 +51,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/labels.js` | word plates in the room (rune door signs, bridge stones), brick texture |
 | `src/assets.js` | model loading, shared material, static merge |
 | `src/chars.js` | animated character (hero, skeletons) |
-| `src/questions.js` | questions from the site engine, inline fallback |
+| `src/questions.js` | questions from the site engine (smart mix), inline fallback |
+| `src/analytics.js` | what the game reports to the site: word statistics (`recordAttempt`) and game events (`gameEvent`); silent without the site |
 | `src/verbs.js` | inline fallback verbs (46, copied from Verb Kitchen) |
 | `src/i18n.js` | interface texts EN/DE/ES (`?lang=`) |
 | `src/audio.js` | WebAudio synth (kept from the PoC) |
@@ -123,7 +124,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   it wobbles; empty = rattle, puff, "Empty!"; the right one pops the key
   out (towards the hero). The key lands on free floor with a light pool;
   walking over it takes it (no question; key in the HUD, hint "now read the
-  verb book"). Other skeletons are optional pests. Level 1 rooms 1 and 2
+  verb book", or the door unlocks if the book is already read). Other
+  skeletons are optional pests. Level 1 rooms 1 and 2
   use search props; the other key rooms use skeletons.
 - **Crates and barrels break (2026-11-22, play-test note 9).** A swing that
   reaches a search prop smashes it (`searched()`): the prop disappears and
@@ -141,10 +143,23 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   the room data moves it; the vault's is at 2.4 / −4.9) inside a rune
   circle (r 1.6: canvas decal with amber rings and teal runes on a dark
   teal pool, slowly turning and pulsing; dims when read). The book has the
-  usable marker until read. Space inside the circle: without the key (key
-  rooms) a hint "Find the key first!" and "🔑 ?"; with it the card asks the
-  room's pair (2nd form, then 3rd). Both right → `sfx.clunk()`, "✓", the lock
-  glows (`goalDone`), the door opens as the hero approaches. The circle is a
+  usable marker until read. **Book and key in any order (2026-11-22,
+  play-test note 14):** Space inside the circle always opens the card with
+  the room's pair (2nd form, then 3rd), key or not. Both right →
+  `sfx.clunk()`, "✓", the book is **read**: the open book folds shut on its
+  stand (the book is two halves hinged at the spine, `book.halves` /
+  `book.spine` from `makeLectern()`; the left half turns over onto the
+  right one, cover up, and the closed book slides to the middle, 0.7 s,
+  `book.shut` 0 → 1 in `updateBook`), and the rune circle and its glow
+  fade out; `room.wards` empties, so enemies may walk there again. Key
+  rooms unlock (`goalDone`, the lock glows, the door opens as the hero
+  approaches) once the key is taken AND the book is read, whichever comes
+  last (`unlockBook()` / `keyDone()`); the hint says what is missing:
+  "The book is read! Now find the key." (`hintKeyStill`), "Now read the
+  verb book" (`hintBook`), at the door "Find the key and read the verb
+  book" (`hintNeedBoth`), "Find the key first" (`hintNoKey`) or "Read the
+  verb book first" (`hintBookFirst`). A read book stays read (closed, no
+  circle) through a dizzy restart. While unread, the circle is a
   ward (`room.wards`): skeletons, archers and bosses are pushed out of it
   (`collide(…, enemy)`), patrol points inside it move to its edge,
   skeletons chasing a hero who stands inside wait at the edge (idle,
@@ -309,7 +324,10 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   pp, steps: [2nd, 3rd] }` from the site engine (two records in a row, the
   second marked `followUp`) or from the inline list. On the site the
   level's `tiers` pick the verbs by the verb table's `tier` (from
-  `getChainSet`), filled up with the easiest others if too few.
+  `getChainSet`), filled up with the easiest others if too few. The
+  level's verbs come first from the **smart mix** (`getChainSet({ smart:
+  true })`, one set per tier of the level, an equal share each; see
+  "Learning stats and game events").
   `single(pair)` makes the chest question, `again(pair)` the repeat.
 - **Controls and devices (touch added 2026-11-22).**
   - Keyboard (laptop, Chromebook): WASD / arrows walk, Space swings (bonk and
@@ -354,8 +372,40 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 - Stars: 3 = every question right on the first try, 2 = at least 60 %,
   else 1. Best stars per level in localStorage `krabsy_vdungeon_stars`.
   Level n+1 unlocks with any star on level n (`?unlock` opens all).
-- Questions: `/lib/krabsy-questions.js` (`getQuizSet`, tiers per level)
-  when served from the site, otherwise the inline list.
+- Questions: `/lib/krabsy-questions.js` (`getQuizSet`, tiers per level,
+  smart mix) when served from the site, otherwise the inline list.
+- **Learning stats and game events (2026-11-22, classroom phase 1;
+  `docs/phase1-game-wiring.md`, `docs/game-analytics.md`, all in
+  `src/analytics.js`).** Every question's FIRST choice goes to the shared
+  word statistics: `recordAttempt(verb, 'past' | 'participle', correct,
+  'verb-dungeon', 'irregular_verbs')`, called from `judge()` (book both
+  forms, chest, boss stone, rune first wall = past / back wall =
+  participle, bridge row A = past / row B = participle). The question's
+  `seen` flag (reset by `fresh()` / `again()`) keeps a retry of the same
+  question from counting again (a wrong chip and then the right one, the
+  boss stone's repeat, a second rune door, a second bridge stone); a
+  missed verb that comes back at a later room is a new question and counts
+  again. `loadPairs()` puts the smart mix first at every level start: one
+  `getChainSet({ tiers: [t], count, smart: true })` per tier of the level
+  (an equal share of the 10 verbs each), because one set over tiers 2 + 3
+  would only take new words from tier 2 (the smart mix opens a tier when
+  60 % of the one below is known); the rest of the pool and the chain
+  order stay as before. Game events (`gameEvent('verb-dungeon', …)`; the
+  helper posts to the wrapper page, or fires a `krabsy:game` DOM event
+  without a parent): `level_start {level}`, `room_done {level, room, type,
+  seconds, hits_taken}` (as the hero leaves; a dizzy restart keeps the
+  room's clock and hits), `player_dizzy {level, room, type}`, `boss_round
+  {level, boss: golem|necro|mage, result: right|wrong, form: past|pp,
+  pips}` (pips left before the bonk), `level_end {level, result: 'won',
+  stars, seconds, answers, correct, first_try, questions, coins, rooms,
+  hits_taken, dizzy}` (answers = every choice incl. retries, correct = the
+  right ones, first_try / questions = the stars' ratio, coins = this run).
+  There is no "lost" (0 hearts restarts the room); a level left midway is
+  a `level_start` without `level_end`. `level` and `room` are 1-based;
+  `seconds` run on `G.wall` (card time included). Both libs are imported
+  dynamically from `/lib/` (no `?v=`); without the site (dev server,
+  `file://`) the imports fail and everything is a no-op. `?qa=` runs
+  report nothing unless `&track=1`.
 
 **Not built yet**
 - A tutorial that teaches by doing (room 1 of level 1 has no skeletons,
@@ -379,7 +429,9 @@ also has `book` (shut/done), `rune` (`step:z`), `boss` (`kind:state:pips`),
 `minions` and `prompt` (what Space would open). `info().bridge` = `step:floor|stone|fall:broken`. `__VD.solve[type]()`
 and `__VD.pick(right, hold)` are the solvers per room type.
 `?qa=play&level=2` plays a level by script (per room: the locked door is
-checked; Space at the book without the key must not open a card; walking
+checked; key rooms with an odd index (or all with `&bookfirst=1`) read the
+book before the key, and the door must stay locked with the book closed
+and no ward (`lockedBookOnly`), the others take the key first; walking
 up to a chest must not open it, Space does, "later" closes it, Space again,
 answered; the key is found and taken without a card, the door stays locked
 until the book is answered, then must open by itself; the rune room's
@@ -390,7 +442,11 @@ skeletons or the boss — `level=2&stop=2` key, `level=3&stop=3` ambush,
 `level=1&stop=4` golem, `level=2&stop=5` necromancer, `level=3&stop=4`
 skeleton mage; `&pre=floor|taken|book|boss` = the key lies on the floor /
 is taken / the book is read too, one boss round won first; the result shows `before`,
-`dizzy` and `restarted`). `?qa=keys` sends real key events.
+`dizzy` and `restarted`; `&pre=bookonly` = the book read, the key still
+hidden: it must stay read). `?qa=keys` sends real key events. `&track=1`
+lets a QA run send its stats and game events (off by default).
+`info()` also has `bookShut` (0 open … 1 closed), `wards` and `smart`
+(verbs from the smart mix in the pool).
 `?qa=card&stop=N&gate=book|chest|boss` freezes with a question card
 open (`&step=2` the 3rd form, `&wrong=1` one mistake).
 `?qa=key&stop=N&pose=nothing|pop|floor|taken|open&n=frames` freezes key
@@ -407,7 +463,7 @@ book's circle), `readbook`, `beside:i` (next to search prop i, facing it),
 skeleton mage mid-cast / orbs t s in flight), `still` (enemies stop),
 `ans:right|wrong`, `foe` (next to the boss; `golem` works too), `bonk`,
 `menu`, `coins:n`; `&safe=1` = no bumps). `&hero=id` plays as that hero; `?qa=portrait&stop=0&hero=id`
-is the close-up the menu portraits were cut from (640 px square from y 120, x 380 / 420 / 370 / 290 for knight / barbarian / rogue / mage, scaled to 144; `&pt=` holds the swing clip at that time);
+is the close-up the menu portraits were cut from (only the hero and the lights, on a vertical navy gradient with a front key and a rim light, play-test note 15; 640 px square from y 120, x 380 / 420 / 370 / 290 for knight / barbarian / rogue / mage, scaled to 144; `&pt=` holds the swing clip at that time);
 `?qa=swing&stop=1&n=8&fps=60` (n = frames after the key press; `&stand=1`,
 `&face=deg`, `&skel=1`) freezes a swing. On localhost the result is also
 sent as a `qa-report?…` request, readable in the dev server's log.
@@ -1030,3 +1086,64 @@ geometry, at most one shadow light.
     room's transparent wall, minions), a real tablet / phone.
   - **Next:** owner play-test of notes 8–13; then release (RELEASE.md:
     new size and new info-page text).
+- 2026-11-22 — **Learning engine + game events wired (classroom phase 1,
+  master request) and play-test note 14 built** (see "Learning stats and
+  game events" and "Verb book" in "Rules as built").
+  - New `src/analytics.js` (`Track`): `recordAttempt` for every
+    question's first choice (from `judge()`, `seen` flag on the question)
+    and the events `level_start`, `room_done`, `player_dizzy`,
+    `boss_round`, `level_end`; dynamic imports of `/lib/krabsy-stats.js`
+    and `/lib/krabsy-game-events.js`, no-ops without the site; nothing from
+    `?qa=` runs unless `&track=1`. `src/questions.js`: smart mix first
+    (one `getChainSet({ smart: true })` per tier of the level), `item` on
+    engine questions, `fresh()` resets `seen`; `info().smart`.
+  - Note 14: the book can be read before or after the key; read = it folds
+    shut and the circle fades (no ward any more); key rooms unlock when
+    both are done (`keyDone()`); new hints `hintKeyStill`, `hintNeedBoth`
+    (EN/DE/ES; `hintBookNoKey` removed). `room.js` `makeLectern()`: the
+    book is two hinged halves (stand 2 + book 6 draw calls, was 4).
+    QA: `?qa=play` reads the book first in key rooms with an odd index
+    (`&bookfirst=1` = all), `&pre=bookonly` for `?qa=hurt`, `info().bookShut`
+    / `wards`; `tools/qa-touch.cjs` room 1 now goes book → key by touch.
+    `PLAYTEST-NOTES.md`: note 14 moved to done.
+  - **Checked** (headless Linux Chromium; site-like folder with `lib` /
+    `data` symlinks, and the plain dev server): with `&track=1`, level 1
+    sends `level_start {level:1}`, five `room_done` (e.g. `{level:1, room:1,
+    type:'key', seconds:4, hits_taken:0}`), three `boss_round` (`golem`,
+    right, past/pp, pips 3/2/1) and `level_end {level:1, result:'won',
+    stars:2, seconds:36, answers:13, correct:12, first_try:11,
+    questions:12, coins:40, rooms:5, hits_taken:0, dizzy:0}`; 12
+    `recordAttempt` calls (`run:past:false`, `run:participle:true`, chest
+    `take:past:true`, … source `verb-dungeon`, topic `irregular_verbs`) =
+    12 questions, retries not counted (`&wrongall=1`: 18 answers, 12
+    records). `?qa=hurt` sends `player_dizzy`, and the room's `room_done`
+    after the restart has `hits_taken: 3`. Without `&track=1`: 0 records,
+    0 events; on the dev server (no `/lib`): inline verbs, no errors.
+    Smart mix: with four tier-1 verbs stored as wrong, level 1's pool held
+    all four, levels 2/3 kept their tier mix (`1221222111`, `2333232322`).
+    `tools/qa-engine.cjs` levels 1–3 ± wrongall: 'end', hearts 3, engine,
+    no chain-order violations (site folder); the same with the inline list
+    (dev server). Book first (`?qa=play` levels 1–3, `&bookfirst=1`):
+    door stays locked with the book closed and no ward, opens when the
+    key is taken; `?qa=hurt&pre=bookonly`: the book stays read through the
+    restart. `tools/qa-touch.cjs` 1024×768 DE (site folder): all 43
+    checks OK, incl. book first by the sword button (closed, no ward,
+    door locked, hint "Das Buch ist gelesen! …"), then key → unlocked.
+    `node --check` on all `src/*.js`. Screenshots
+    `_shots/P4-book-open.png`, `P4-book-read-locked.png` (+ `-de`),
+    `P4-book-closing.png`, `P4-book-zoom.png` (half-closed / closed).
+  - **Seen, not changed:** with the circle gone, a lighter rectangle shows
+    on the floor left of the lectern in L1 room 1 (it was hidden under the
+    circle; looks like a gap in the moon shadow).
+  - **Not checked:** a real site page (iframe → wrapper → api), the
+    dashboard; a human playing book-first.
+  - **Note 15 (same round): hero portraits on a neutral background.**
+    `?qa=portrait` now hides everything but the hero (weapons are on its
+    hand slots) and the lights, drops the fog and draws a vertical navy
+    gradient (`#2d5b91` → `#122a50`, the same for every crop) with a warm
+    front key light and a cool rim light. The four `assets/portraits/*.webp`
+    re-rendered (same crop and 144 px, WebP q82: 2.1–3.2 KB each, were
+    4.6–4.8 KB). Looked at in the menu: `_shots/P4-menu-portraits.png`
+    (all unlocked) and `P4-menu-portraits-new.png` (new player: three dimmed
+    as locked); all four read clearly against the cards, weapons in frame.
+    `PLAYTEST-NOTES.md`: notes 14 and 15 done.
