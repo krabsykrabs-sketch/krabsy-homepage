@@ -121,6 +121,17 @@ export function glowTex() {
   x.fillStyle = g; x.fillRect(0, 0, 64, 64);
   return (glowTexture = new THREE.CanvasTexture(c));
 }
+let starTexture = null;
+function starTex() {
+  if (starTexture) return starTexture;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  x.fillStyle = '#ffcf5e'; x.strokeStyle = '#0d2240'; x.lineWidth = 4; x.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 13 : 28; x.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r); }
+  x.closePath(); x.fill(); x.stroke();
+  starTexture = new THREE.CanvasTexture(c); starTexture.colorSpace = THREE.SRGBColorSpace;
+  return starTexture;
+}
 const beamGeo = new THREE.CylinderGeometry(0.35, 0.9, 60, 12, 1, true).translate(0, 30, 0);
 const beamMats = {};
 function beamMat(rarity) {
@@ -496,7 +507,7 @@ export class World {
   }
 
   // ── wild eggs ──
-  makeWildEgg(rarity, x, z) {
+  makeWildEgg(rarity, x, z, { event = false } = {}) {
     const g = new THREE.Group();
     const y = height(x, z);
     g.position.set(x, y, z);
@@ -505,7 +516,17 @@ export class World {
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: RARITY[rarity].color, transparent: true,
       depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.6 }));
     glow.scale.setScalar(rarity === 'common' ? 1.8 : 2.6); glow.position.y = 0.6; g.add(glow);
-    if (RARITY[rarity].beam) { const b = new THREE.Mesh(beamGeo, beamMat(rarity)); g.add(b); g.userData.beam = b; }
+    if (RARITY[rarity].beam || event) { const b = new THREE.Mesh(beamGeo, beamMat(rarity)); g.add(b); g.userData.beam = b; }
+    if (event) {
+      // a special egg: bigger, a wide bright beam, a turning golden ring and a star
+      egg.scale.setScalar(1.7); glow.scale.multiplyScalar(1.6);
+      g.userData.beam.scale.set(2.2, 1.6, 2.2);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1.3, 0.09, 8, 40).rotateX(Math.PI / 2),
+        new THREE.MeshBasicMaterial({ color: 0xffcf5e, transparent: true, opacity: 0.9 }));
+      ring.position.y = 0.15; g.add(ring); g.userData.ring = ring;
+      const star = new THREE.Sprite(new THREE.SpriteMaterial({ map: starTex(), transparent: true, depthWrite: false }));
+      star.scale.setScalar(0.9); star.position.y = 2.4; g.add(star); g.userData.star = star;
+    }
     g.userData.egg = egg; g.userData.glow = glow;
     this.scene.add(g);
     return g;

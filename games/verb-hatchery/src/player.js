@@ -329,8 +329,8 @@ export class Player {
   // Eggs in the backpack: a stack above the head, like a trophy.
   showCarry(list) {
     this.eggStack.clear();
-    list.forEach((r, i) => {
-      const m = makeEggMesh(r, 0.85);
+    list.forEach((egg, i) => {
+      const m = makeEggMesh(egg.r || egg, 0.85);
       m.position.set(0, i * 0.5, 0);
       m.rotation.z = (i % 2 ? -1 : 1) * 0.12;
       this.eggStack.add(m);

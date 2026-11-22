@@ -3,7 +3,7 @@
 // earn coins, buy upgrades, open farther zones with stars. See ../CLAUDE.md.
 import * as THREE from 'three';
 import * as S from './state.js';
-import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER } from './balance.js';
+import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER, EVENTS, SPECIES, zoneRarities } from './balance.js';
 import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
 import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
@@ -135,13 +135,76 @@ function spawnWild(zone) {
 function removeWild(e, respawnLater = true) {
   wild = wild.filter((x) => x !== e);
   world.scene.remove(e.obj);
-  if (respawnLater) respawn.push({ zone: e.zone, t: EGG_RESPAWN });
+  if (respawnLater && !e.event) respawn.push({ zone: e.zone, t: EGG_RESPAWN });
 }
 function fillEggs() {
   for (const z of ZONES) {
-    let have = wild.filter((e) => e.zone === z).length + respawn.filter((r) => r.zone === z).length;
+    let have = wild.filter((e) => e.zone === z && !e.event).length + respawn.filter((r) => r.zone === z).length;
     while (have < z.eggs && spawnWild(z)) have++;
   }
+}
+
+// ── event eggs: now and then a zone's best egg appears, announced, for a while ──
+let evt = null;                     // { egg, zone, t (seconds left) }
+let evtTimer = EVENTS.first, lastEvtZone = null;
+function spawnEventEgg(zone) {
+  const spot = randomSpot(zone);
+  if (!spot) return null;
+  const obj = world.makeWildEgg(zone.event, spot[0], spot[1], { event: true });
+  const e = { obj, rarity: zone.event, zone, x: spot[0], z: spot[1], id: eggId++, event: true };
+  wild.push(e);
+  return e;
+}
+function startEvent() {
+  const open = ZONES.filter(isOpen);
+  let pool = open.filter((z) => z !== lastEvtZone);
+  if (!pool.length) pool = open;
+  // farther zones a little more often (they have the better eggs)
+  const w = pool.map((z) => ZONES.indexOf(z) + 1), sum = w.reduce((a, b) => a + b, 0);
+  let x = Math.random() * sum, zone = pool[0];
+  for (let i = 0; i < pool.length; i++) { x -= w[i]; if (x < 0) { zone = pool[i]; break; } }
+  const egg = spawnEventEgg(zone);
+  if (!egg) { evtTimer = 5; return; }
+  evt = { egg, zone, t: EVENTS.duration };
+  lastEvtZone = zone;
+  sfx.star();
+  toast(`⭐ ${t('evStart', rName(zone.event), zName(zone))}`, 'star');
+  A.ev('egg_event_start', { zone: zone.id, rarity: zone.event });
+}
+function endEvent(result) {
+  if (!evt) return;
+  A.ev('egg_event_end', { zone: evt.zone.id, rarity: evt.zone.event, result, seconds_left: Math.round(evt.t) });
+  if (result === 'expired') {
+    const e = evt.egg;
+    removeWild(e, false);
+    toast(t('evGone'));
+  }
+  evt = null;
+  evtTimer = EVENTS.gap[0] + Math.random() * (EVENTS.gap[1] - EVENTS.gap[0]);
+  $('evBanner').classList.remove('on');
+}
+function updateEvent(dt, paused) {
+  if (!evt) {
+    if (!paused) { evtTimer -= dt; if (evtTimer <= 0) startEvent(); }
+    return;
+  }
+  if (!paused) evt.t -= dt;
+  if (evt.t <= 0) { endEvent('expired'); return; }
+  // the egg: ring turns, star bobs
+  const ud = evt.egg.obj.userData;
+  ud.ring.rotation.y += dt * 1.5; ud.ring.scale.setScalar(1 + Math.sin(world.time * 4) * 0.08);
+  ud.star.position.y = 2.4 + Math.sin(world.time * 3) * 0.2;
+  // banner: what, where, time left, and an arrow towards it (relative to the camera)
+  const s = Math.ceil(evt.t), time = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  const dx = evt.egg.x - player.pos.x, dz = evt.egg.z - player.pos.z, dist = Math.hypot(dx, dz);
+  const fwd = dx * -Math.sin(player.yaw) + dz * -Math.cos(player.yaw), right = dx * Math.cos(player.yaw) + dz * -Math.sin(player.yaw);
+  const ang = Math.atan2(right, fwd);
+  const html = `<span class="evDot" style="background:${RARITY[evt.zone.event].css}"></span>${t('egg', rName(evt.zone.event))} · ${zName(evt.zone)}`
+    + ` <b>${time}</b> <span class="evArrow" style="transform:rotate(${ang}rad)">➤</span> ${Math.round(dist)} m`;
+  const el = $('evBanner');
+  el.innerHTML = html;
+  el.classList.toggle('urgent', evt.t < 20);
+  el.classList.add('on');
 }
 
 // ── labels above incubators ──
@@ -395,7 +458,7 @@ function closeCard(ok) {
   renderHud();
 }
 function pickedUp(e) {
-  const res = S.pickUp(st, e.rarity);
+  const res = S.pickUp(st, e.rarity, e.zone.id);
   if (!res) { eggRollsAway(e); return; }
   A.ev('egg_grabbed', { rarity: e.rarity, zone: e.zone.id, streak: st.stats.streak, carry: st.carry.length });
   A.countVisit('grabbed');
@@ -404,6 +467,7 @@ function pickedUp(e) {
   // the egg flies onto your head
   const from = e.obj.position.clone().add(new THREE.Vector3(0, 0.5, 0));
   removeWild(e);
+  if (e.event && evt && evt.egg === e) { endEvent('grabbed'); toast(`⭐ ${t('evGot')}`, 'star'); }
   const m = e.obj; world.scene.add(m);
   player.gesture('PickUp');
   const to = new THREE.Vector3();
@@ -429,11 +493,16 @@ function eggRollsAway(e) {
     if (e.obj.userData.beam) e.obj.userData.beam.visible = false;
     if (k > 0.7) egg.scale.setScalar(1.25 * (1 - (k - 0.7) / 0.3));
   }, () => world.scene.remove(e.obj));
+  // a special egg is not lost: it rolls off and waits somewhere else in its zone
+  if (e.event && evt && evt.egg === e) {
+    const again = spawnEventEgg(e.zone);
+    if (again) { evt.egg = again; toast(t('evMoved', zName(e.zone))); } else endEvent('lost');
+  }
 }
 
 // ── thieves ──
 function thiefCatch(th) {
-  const top = st.carry[st.carry.length - 1];
+  const top = st.carry[st.carry.length - 1].r;
   // put the crab a little in front of the player and look at it
   const p = player.pos, dx = th.x - p.x, dz = th.z - p.z, L = Math.hypot(dx, dz) || 1;
   th.x = p.x + (dx / L) * 2.4; th.z = p.z + (dz / L) * 2.4;
@@ -448,8 +517,8 @@ function thiefResult(th, ok) {
     S.bonked(st); thieves.bonk(th); sfx.bonk(); toast(t('bonked'));
     A.ev('thief_catch', { zone: th.zone.id, result: 'bonk' });
   } else {
-    const r = S.stealTop(st);
-    if (r) { thieves.steal(th, r); respawn.push({ zone: th.zone, t: EGG_RESPAWN }); }
+    const egg = S.stealTop(st), r = egg && egg.r;
+    if (r) thieves.steal(th, r);
     sfx.steal(); toast(t('stolen'), 'warn'); player.gesture('Hit_A');
     A.ev('thief_catch', { zone: th.zone.id, result: 'stolen', rarity: r || 'none' });
   }
@@ -623,18 +692,20 @@ function buyUp(k) {
   if (k === 'pen') st.incubators.forEach((inc, i) => { if (inc && inc.sp && S.freePen(st) >= 0) placeWaiting(i); });
   syncWorld(); renderUpgrades(); renderHud(); save(); checkGoals();
 }
+// The book has one page per zone: its two animals in each of its rarities.
 function renderBook() {
-  const total = RARITIES.reduce((a, r) => a + RARITY[r].species, 0);
-  $('bookHow').textContent = `${t('bookFound', S.bookCount(st), total)} · ${t('bookHow')}`;
-  $('bookList').innerHTML = RARITIES.map((r) => {
-    const n = RARITY[r].species;
-    const cells = Array.from({ length: n }, (_, i) => {
-      const sp = `${r}-${i}`, has = !!st.book[sp];
+  $('bookHow').textContent = `${t('bookFound', S.bookCount(st), SPECIES.length)} · ${t('bookHow')}`;
+  $('bookList').innerHTML = ZONES.map((z) => {
+    const rs = zoneRarities(z);
+    const eggs = rs.map((r) => `<span class="evDot" style="background:${RARITY[r].css}" title="${rName(r)}"></span>${z.event === r ? '⭐' : ''}`).join(' ');
+    const cells = z.animals.flatMap((a) => rs.map((r) => {
+      const sp = `${r}-${a}`, has = !!st.book[sp];
       return `<div class="bookCell ${has ? '' : 'miss'}" style="${has ? `border-color:${RARITY[r].css}` : ''}">
         <img src="${portrait(sp, !has)}" alt=""><div class="n">${has ? speciesName(sp) : '???'}</div></div>`;
-    }).join('');
-    return `<div class="bookR"><h3 style="color:${RARITY[r].css}">${rName(r)} <small>${t('bookChance', n)}</small></h3><div class="bookGrid">${cells}</div></div>`;
-  }).join('');
+    })).join('');
+    const lock = isOpen(z) ? '' : ` 🔒 ★${z.stars}`;
+    return `<div class="bookR"><h3>${zName(z)}${lock} <small>${eggs}</small></h3><div class="bookGrid bookGrid${rs.length}">${cells}</div></div>`;
+  }).join('') + `<div class="bookNote">⭐ = ${t('bookEvent')}</div>`;
 }
 
 // ── sound ──
@@ -699,6 +770,7 @@ function frame(now) {
     const due = respawn.filter((r) => r.t <= 0);
     respawn = respawn.filter((r) => r.t > 0);
     for (const r of due) spawnWild(r.zone);
+    updateEvent(dt, paused);
     // thieves
     const caught = thieves.update(dt, { x: player.pos.x, z: player.pos.z, carrying: st.carry.length > 0 }, isOpen, paused);
     for (const th of thieves.list) {
@@ -850,7 +922,8 @@ if (DEBUG) {
     },
     home() { this.tp(PAD.x, PAD.z - 1); player.lookAtPoint(PAD.x, PAD.z + 6); },
     act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
-    sync: syncWorld, open: openPanel, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
+    sync: syncWorld, open: openPanel, get evt() { return evt; }, startEvent, evtIn(sec) { evtTimer = sec; },
+    toEvent() { if (!evt) return null; this.tp(evt.egg.x, evt.egg.z + 3); player.lookAtPoint(evt.egg.x, evt.egg.z); return evt.zone.id; }, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
   };
 }
 boot();

@@ -43,7 +43,11 @@ export class Minimap {
     for (const e of eggs) {
       const [ex, ey] = this.px(e.x, e.z);
       x.fillStyle = RARITY[e.rarity].css; x.strokeStyle = 'rgba(13,34,64,.8)'; x.lineWidth = 1;
-      x.beginPath(); x.arc(ex, ey, e.rarity === 'common' ? 2.2 : 3.2, 0, Math.PI * 2); x.fill(); x.stroke();
+      x.beginPath(); x.arc(ex, ey, e.event ? 5 : e.rarity === 'common' ? 2.2 : 3.2, 0, Math.PI * 2); x.fill(); x.stroke();
+      if (e.event) { // blinking ring around the special egg
+        x.strokeStyle = '#ffcf5e'; x.lineWidth = 2.5;
+        x.beginPath(); x.arc(ex, ey, 9 + Math.sin(performance.now() / 180) * 3, 0, Math.PI * 2); x.stroke();
+      }
     }
     // thieves
     for (const t of thieves) {

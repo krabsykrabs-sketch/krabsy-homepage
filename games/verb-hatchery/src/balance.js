@@ -3,6 +3,9 @@
 
 export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
+// The 8 animals (src/animals.js models; code-built creatures without them).
+export const ANIMALS = ['Muskrat', 'Sparrow', 'Pudu', 'Colobus', 'Herring', 'Inkfish', 'Taipan', 'Gecko'];
+
 // Per rarity (same order as RARITIES). beam = light beam into the sky.
 export const RARITY = {
   common:    { color: 0xf4f1ea, accent: 0xcfc8b8, css: '#f4f1ea', tier: 1, pair: false, hatch: 20,  income: 1,   grabBonus: 5,   species: 8, beam: false },
@@ -12,7 +15,7 @@ export const RARITY = {
   legendary: { color: 0xffcf5e, accent: 0xe0a020, css: '#ffcf5e', tier: 3, pair: true,  hatch: 240, income: 600, grabBonus: 800, species: 3, beam: true },
 };
 
-// Each species of a rarity earns a little more than the one before it.
+// The second animal of a zone earns a little more than the first.
 export const SPECIES_STEP = 0.12;
 // A right answer pays a bonus: max(RARITY.grabBonus, seconds × income/s).
 export const GRAB_BONUS_SECONDS = 8;
@@ -20,16 +23,34 @@ export const GRAB_BONUS_SECONDS = 8;
 export const RELEASE_SECONDS = 60;
 
 // The island (metres). Home = the hatchery. Zones are circles; everything else
-// on the island is Meadow. weights = chance weights common … legendary.
+// on the island is Meadow.
+// Each zone has its own two animals (an egg hatches into one of its zone's
+// animals) and its own eggs: `weights` = chance weights common … legendary for
+// the everyday eggs; its best egg (`event`) only appears as an announced event.
 export const ISLAND = { cx: 0, cz: -20, r: 125 };
 export const HOME = { x: 0, z: 62 };
 export const ZONES = [
-  { id: 'meadow',  stars: 0, weights: [70, 30, 0, 0, 0], eggs: 14, thieves: 0 },
-  { id: 'forest',  stars: 2, x: -68, z: -22, r: 34, weights: [0, 55, 45, 0, 0], eggs: 8, thieves: 2 },
-  { id: 'beach',   stars: 5, x: 78, z: -14, r: 30, weights: [0, 0, 65, 35, 0], eggs: 7, thieves: 3 },
-  { id: 'volcano', stars: 9, x: 0, z: -98, r: 30, weights: [0, 0, 0, 65, 35], eggs: 5, thieves: 3 },
+  { id: 'meadow',  stars: 0, animals: ['Muskrat', 'Sparrow'], weights: [70, 30, 0, 0, 0], event: 'rare', eggs: 12, thieves: 0 },
+  { id: 'forest',  stars: 2, x: -68, z: -22, r: 34, animals: ['Pudu', 'Colobus'], weights: [0, 70, 30, 0, 0], event: 'epic', eggs: 7, thieves: 2 },
+  { id: 'beach',   stars: 5, x: 78, z: -14, r: 30, animals: ['Herring', 'Inkfish'], weights: [0, 0, 70, 30, 0], event: 'legendary', eggs: 5, thieves: 3 },
+  { id: 'volcano', stars: 9, x: 0, z: -98, r: 30, animals: ['Taipan', 'Gecko'], weights: [0, 0, 0, 100, 0], event: 'legendary', eggs: 4, thieves: 3 },
 ];
-export const EGG_RESPAWN = 12; // seconds until a taken egg is replaced in its zone
+export const EGG_RESPAWN = 15; // seconds until a taken egg is replaced in its zone
+
+// Event eggs: now and then one zone's best egg appears somewhere in that zone
+// (only open zones), announced with a countdown. One event at a time.
+export const EVENTS = {
+  first: 40,            // seconds after the game starts
+  gap: [55, 95],        // seconds between the end of one event and the next
+  duration: 120,        // seconds the egg stays
+};
+
+// Every creature that can hatch: rarity × animal, for each zone's rarities.
+// id = '<rarity>-<Animal>' (e.g. 'epic-Taipan').
+export const zoneRarities = (z) => RARITIES.filter((r, i) => z.weights[i] > 0 || z.event === r);
+export const SPECIES = ZONES.flatMap((z) => z.animals.flatMap((a) => zoneRarities(z).map((r) => ({ id: `${r}-${a}`, rarity: r, animal: a, zone: z.id }))));
+export const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((x) => [x.id, x]));
+export const zoneOfAnimal = (a) => ZONES.find((z) => z.animals.includes(a));
 
 // Player
 export const PLAYER = {
@@ -90,7 +111,7 @@ export const GOALS = [
   { id: 'g13', kind: 'cps', n: 1000 },
   { id: 'g14', kind: 'hatchR', r: 'legendary', n: 1 },
   { id: 'g15', kind: 'bonk', n: 10 },
-  { id: 'g16', kind: 'book', n: 26 },
+  { id: 'g16', kind: 'book', n: 22 }, // = SPECIES.length (all creatures)
   { id: 'g17', kind: 'cps', n: 10000 },
 ];
 export function endlessGoal(k) {

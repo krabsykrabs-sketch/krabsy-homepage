@@ -335,3 +335,25 @@ Not done yet / to check:
   models export metalness 1 → set to 0 at load (else black). Minimap shows
   paths and the pond. Measured: ~50 draw calls, ~160k triangles in a
   busy view (headless).
+- 2026-11-22: **zones matter now** (owner: "once the best area is open you
+  always go there; boring"). Built ideas 2 + 3 of the proposal (1 = heavy
+  eggs, and home raids, not built):
+  - **Each zone has its own animals** (`ZONES[].animals` in `balance.js`):
+    Meadow Muskrat + Sparrow, Forest Pudu + Colobus, Beach Herring +
+    Inkfish, Volcano Taipan + Gecko. An egg remembers its zone (carry /
+    incubator `{ r, z }`), hatching picks one of that zone's animals.
+    Species id = `<rarity>-<Animal>`; 22 species (`SPECIES`), the Book has
+    one row per zone with its egg colours. Save version 3 (older saves
+    dropped).
+  - **Best egg only as an event**: everyday eggs per zone are Meadow
+    white/green, Forest green/blue, Beach blue/purple, Volcano purple;
+    the zone's best egg (Meadow blue, Forest purple, Beach gold, Volcano
+    gold) appears as an announced event (`EVENTS`: first after 40 s, then
+    every 55–95 s, stays 120 s, farther open zones a bit more often, never
+    the same zone twice in a row). Event egg: bigger, wide beam, turning
+    gold ring, star; banner under the coins with rarity, zone, countdown,
+    an arrow (relative to the camera) and the distance; blinking ring on
+    the minimap. A wrong answer moves it elsewhere in its zone (the event
+    goes on). Events: `egg_event_start {zone, rarity}`, `egg_event_end
+    {zone, rarity, result: grabbed|expired|lost, seconds_left}`.
+  - Not tuned with real players: event frequency, egg counts per zone.

@@ -1,12 +1,12 @@
 // Game state and rules: pure data, no drawing. Saved to localStorage.
 // Every number comes from balance.js.
 import {
-  RARITIES, RARITY, SPECIES_STEP, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY,
+  RARITIES, RARITY, SPECIES_STEP, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, SPECIES_BY_ID,
   START, UPGRADES, MAX_PENS, MAX_INCUBATORS, price, GOALS, GOALS_SHOWN, endlessGoal,
 } from './balance.js';
 
 const SAVE_KEY = 'krabsy_hatchery_save';
-const VERSION = 2; // 2 = open-world version (v1 belt saves are dropped)
+const VERSION = 3; // 3 = eggs know their zone, species = '<rarity>-<Animal>' (older saves are dropped)
 
 const zeroR = () => Object.fromEntries(RARITIES.map((r) => [r, 0]));
 
@@ -14,10 +14,10 @@ export function newState(now = Date.now()) {
   const s = {
     v: VERSION, coins: 0, earned: 0, lastSave: now, created: now,
     up: { pen: 0, incubator: 0, hatchSpeed: 0, shoes: 0, backpack: 0 },
-    carry: [],                                  // rarities of the eggs in the backpack
+    carry: [],                                  // eggs in the backpack: { r: rarity, z: zone id }
     look: 'A',                                  // which character (player.js LOOKS)
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
-    incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, start, dur, sp? }
+    incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, zone, start, dur, sp? }
     book: {},                                   // speciesId → times hatched
     stats: { grabbed: 0, grabbedR: zeroR(), home: 0, bonk: 0, stolen: 0, hatched: 0, hatchedR: zeroR(), lost: 0,
       answers: 0, correct: 0, streak: 0, best: 0, upgrades: 0 },
@@ -53,8 +53,13 @@ export function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (_) { 
 // ── counts and income ──
 export const pensOwned = (s) => START.pens + s.up.pen;
 export const incubatorsOwned = (s) => START.incubators + s.up.incubator;
-export const speciesIndex = (sp) => +sp.split('-')[1];
 export const speciesRarity = (sp) => sp.split('-')[0];
+export const speciesAnimal = (sp) => sp.split('-')[1];
+// 0 or 1: the animal's place in its zone (the second earns a little more)
+export function speciesIndex(sp) {
+  const a = speciesAnimal(sp), z = ZONES.find((zz) => zz.animals.includes(a));
+  return z ? z.animals.indexOf(a) : 0;
+}
 export function speciesIncome(sp) {
   return RARITY[speciesRarity(sp)].income * (1 + SPECIES_STEP * speciesIndex(sp));
 }
@@ -93,9 +98,9 @@ export const backpackSize = (s) => START.backpack + s.up.backpack;
 export const speedFactor = (s) => Math.pow(UPGRADES.shoes.factor, s.up.shoes);
 
 // A right answer: the egg goes into the backpack. Returns the bonus, or null if full.
-export function pickUp(s, rarity) {
+export function pickUp(s, rarity, zone) {
   if (s.carry.length >= backpackSize(s)) return null;
-  s.carry.push(rarity);
+  s.carry.push({ r: rarity, z: zone });
   s.stats.grabbed++; s.stats.grabbedR[rarity]++;
   const bonus = Math.round(Math.max(RARITY[rarity].grabBonus, GRAB_BONUS_SECONDS * cps(s)));
   addCoins(s, bonus);
@@ -117,12 +122,12 @@ export function hatchDuration(s, rarity) {
 // (the rarest first). Returns [{ index, rarity }].
 export function deliver(s, now = Date.now()) {
   const out = [];
-  s.carry.sort((a, b) => RARITIES.indexOf(a) - RARITIES.indexOf(b)); // rarest last = delivered first
+  s.carry.sort((a, b) => RARITIES.indexOf(a.r) - RARITIES.indexOf(b.r)); // rarest last = delivered first
   while (s.carry.length) {
     const i = freeIncubator(s);
     if (i < 0) break;
-    const rarity = s.carry.pop();
-    s.incubators[i] = { rarity, start: now, dur: hatchDuration(s, rarity) * 1000 };
+    const { r: rarity, z: zone } = s.carry.pop();
+    s.incubators[i] = { rarity, zone, start: now, dur: hatchDuration(s, rarity) * 1000 };
     s.stats.home++;
     out.push({ index: i, rarity });
   }
@@ -146,7 +151,9 @@ export function hatch(s, i, rnd = Math.random) {
   if (!isReady(inc)) return null;
   let sp = inc.sp, isNew = false;
   if (!sp) {
-    sp = `${inc.rarity}-${Math.floor(rnd() * RARITY[inc.rarity].species)}`;
+    // one of the egg's zone animals
+    const z = ZONES.find((zz) => zz.id === inc.zone) || ZONES[0];
+    sp = `${inc.rarity}-${z.animals[Math.floor(rnd() * z.animals.length)]}`;
     isNew = !s.book[sp];
     s.book[sp] = (s.book[sp] || 0) + 1;
     s.stats.hatched++; s.stats.hatchedR[inc.rarity]++;
@@ -188,7 +195,7 @@ export function recordAnswer(s, correct) {
 }
 
 // ── goals ──
-export const bookCount = (s) => Object.keys(s.book).length;
+export const bookCount = (s) => Object.keys(s.book).filter((k) => SPECIES_BY_ID[k]).length;
 function counter(s, g) {
   const st = s.stats;
   switch (g.kind) {

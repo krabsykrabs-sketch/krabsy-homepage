@@ -2,22 +2,15 @@
 // Omabuarts; licence not confirmed yet, files kept out of git, see ../.gitignore).
 // If the files are missing, creatures.js keeps the code-built creatures.
 //
-// The same 8 animals appear in every rarity, each rarity a fancier version:
-// common = plain, uncommon = pastel colour, rare = party hat + shine,
-// epic = glow + top hat / wizard hat, legendary = gold + crown. 26 species.
+// Each zone has two animals (balance.js ZONES[].animals); a species is
+// '<rarity>-<Animal>', each rarity a fancier version: common = plain,
+// uncommon = pastel colour, rare = party hat + shine, epic = glow + top hat /
+// wizard hat, legendary = gold + crown.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
-export const ANIMALS = ['Herring', 'Muskrat', 'Sparrow', 'Gecko', 'Pudu', 'Colobus', 'Taipan', 'Inkfish'];
-// species index within a rarity → animal
-export const SPECIES_ANIMAL = {
-  common:    ['Muskrat', 'Sparrow', 'Gecko', 'Herring', 'Pudu', 'Colobus', 'Taipan', 'Inkfish'],
-  uncommon:  ['Sparrow', 'Muskrat', 'Gecko', 'Pudu', 'Herring', 'Colobus'],
-  rare:      ['Pudu', 'Colobus', 'Taipan', 'Gecko', 'Inkfish'],
-  epic:      ['Inkfish', 'Taipan', 'Colobus', 'Sparrow'],
-  legendary: ['Pudu', 'Inkfish', 'Colobus'],
-};
+import { ANIMALS } from './balance.js';
 const TINT = [0x9fe8ff, 0xffb4d8, 0xb8ffb0, 0xffe08a, 0xc9b6ff, 0x9ff5e0];
 const GLOW = [0xb57bff, 0xff6fd8, 0x6f8cff, 0x2ee6c0];
 const TRICKS = ['Bounce', 'Spin', 'Eat', 'Sit', 'Clicked', 'Idle_B', 'Idle_C', 'Jump', 'Roll'];
@@ -38,10 +31,7 @@ export async function loadAnimals() {
   models = out;
 }
 
-export function animalOf(sp) {
-  const [r, i] = sp.split('-');
-  return SPECIES_ANIMAL[r][+i % SPECIES_ANIMAL[r].length];
-}
+export const animalOf = (sp) => sp.split('-')[1];
 
 const sil = new THREE.MeshBasicMaterial({ color: 0x3a4a6a });
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, ...o });
@@ -76,8 +66,8 @@ function addHat(g, kind, top, silhouette) {
 // Builds an animal creature standing on y = 0, looking at +z. Same contract as
 // creatures.js buildCreature: group.userData = { inner, sp, height, mixer, … }.
 export function buildAnimal(sp, { silhouette = false } = {}) {
-  const [rarity, idxS] = sp.split('-'); const idx = +idxS;
-  const name = animalOf(sp), src = models[name];
+  const [rarity, name] = sp.split('-');
+  const idx = Math.max(0, ANIMALS.indexOf(name)), src = models[name];
   const g = new THREE.Group(), inner = new THREE.Group();
   g.add(inner);
   const body = cloneSkinned(src.scene);

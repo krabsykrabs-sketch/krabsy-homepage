@@ -4,7 +4,7 @@
 // and a little dance. Names are built from syllables and checked against a
 // blocklist (English, German, Spanish).
 import * as THREE from 'three';
-import { RARITY } from './balance.js';
+import { RARITY, ANIMALS } from './balance.js';
 import { animalsReady, buildAnimal, animateAnimal, animalOf } from './animals.js';
 
 function hash(str) {
@@ -61,7 +61,7 @@ export function speciesName(sp) {
   for (let tries = 0; tries < 50; tries++) {
     // with the animal models: "<title> <Animal>", e.g. "Sleepy Muskrat", "Golden Pudu"
     // (title by index, so every species has a fixed, unique name)
-    if (animalsReady()) { const T = TITLE[rarity]; name = `${T[(+sp.split('-')[1]) % T.length]} ${animalOf(sp)}`; break; }
+    if (animalsReady()) { const T = TITLE[rarity]; name = `${T[Math.max(0, ANIMALS.indexOf(animalOf(sp))) % T.length]} ${animalOf(sp)}`; break; }
     const core = pick(r, START_SYL) + pick(r, END_SYL);
     name = `${pick(r, TITLE[rarity])} ${core}`;
     if (isClean(name) && !/(.)\1\1/i.test(name) && ![...nameCache.values()].includes(name)) break;
@@ -84,7 +84,7 @@ const HAT = { rare: 'party', epic: ['topHat', 'wizard'], legendary: 'crown' };
 
 export function speciesLook(sp) {
   const rarity = sp.split('-')[0];
-  const idx = +sp.split('-')[1];
+  const idx = Math.max(0, ANIMALS.indexOf(sp.split('-')[1]));
   const r = rng(`look:${sp}`);
   const pal = PALETTE[rarity];
   const color = pal[idx % pal.length];
