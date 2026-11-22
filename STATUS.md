@@ -200,8 +200,13 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
     ~35 % since late Oct (before the deploy; likely school-year end in LatAm).
   - Case study einmaleins.de network: `docs/seo-case-study-einmaleins-2026-11-22.md`
     (links mainly from school "useful links" pages, worksheets, one keyword per page).
-  - Open decision: hide the empty "Werbung" ad placeholders (visible dashed boxes on
-    ~22 pages) — conflicts with "no ads" in outreach.
+  - Ad placeholders removed from all pages (owner OK, deployed later the same day).
+  - Later the same day (committed, NOT yet deployed): preposition worksheets
+    (`/de/praepositionen/arbeitsblaetter/`, `/es/preposiciones/fichas/`), verb sheet
+    "sort by pattern", teacher blocks on 7 game pages and 7 drill pages
+    (`tools/render_teacher_notes.py`, TEACHER in `tools/game_info_content.py`).
+  - **Brief for a "Verb-Diplom" test with printable certificate:**
+    `docs/brief-verb-diplom.md` — for the homepage/master session to build.
 
 - **SEO overhaul LIVE (pushed + deployed 2026-11-12; IndexNow: all 402 sitemap URLs, HTTP 200)** — see WORK_LOG
   2026-11-12. Baseline: Google 83 indexed / 286 crawled-not-indexed, ~0
