@@ -412,7 +412,10 @@ async function buildGameHeader(currentKey, strings) {
   const logo = document.createElement('a');
   logo.className = 'k-game-nav-logo';
   logo.href = hubHref;
-  logo.textContent = 'Krabsy';
+  logo.setAttribute('aria-label', 'Krabsy');
+  // Same brand logo as the site header: "kr" + crab + "bsy".
+  logo.innerHTML = '<span>kr</span><span class="k-game-nav-crab" aria-hidden="true">'
+    + '<img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span>';
   logo.addEventListener('click', (ev) => guardedGameClick(ev, hubHref, strings));
 
   const chipWrap = document.createElement('div');
@@ -469,6 +472,7 @@ function guardedGameClick(ev, href, strings) {
 function injectGameNavStyles() {
   if (document.getElementById('k-game-nav-styles')) return;
   const css = `
+    @import url('/lib/fonts/krabsy-fonts.css');   /* Limelight for the logo — games don't load krabsy-ui.css */
     .k-game-nav {
       position: fixed; top: 0; left: 0; right: 0; height: 48px;
       z-index: 9999;
@@ -481,10 +485,17 @@ function injectGameNavStyles() {
       box-sizing: border-box;
     }
     .k-game-nav-logo {
-      font-family: 'Limelight', cursive;
-      font-size: 1.15rem; color: #2c2a3a;
+      font-family: 'Limelight', Georgia, serif;
+      font-size: 1.35rem; color: #2c2a3a; line-height: 1;
+      letter-spacing: -0.5px;
+      display: inline-flex; align-items: center;
       text-decoration: none; flex-shrink: 0;
     }
+    .k-game-nav-crab {
+      display: inline-flex; width: 1.15em; height: 1.15em;
+      align-items: center; justify-content: center; margin: 0 -0.04em;
+    }
+    .k-game-nav-crab img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
     .k-game-nav-chips {
       display: flex; gap: 4px;
       flex: 1; justify-content: center;
@@ -523,7 +534,7 @@ function injectGameNavStyles() {
       box-shadow: 0 6px 20px rgba(44,42,58,0.20);
       font-family: Verdana, Geneva, sans-serif; color: #2c2a3a;
     }
-    .k-nav-confirm-title { font-family: 'Limelight', cursive; font-size: 1.2rem; margin: 0 0 8px; color: #2c2a3a; }
+    .k-nav-confirm-title { font-family: 'Limelight', Georgia, serif; font-size: 1.2rem; margin: 0 0 8px; color: #2c2a3a; }
     .k-nav-confirm-body { color: #6e6c80; margin: 0 0 18px; line-height: 1.45; font-size: 0.95rem; }
     .k-nav-confirm-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
     .k-nav-confirm-actions [data-action] {
