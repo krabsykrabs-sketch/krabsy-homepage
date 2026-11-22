@@ -12,10 +12,9 @@
   --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e;
   --navy:#0c1430; --navy2:#141f44; --navy3:#1d2b5c;
   --ink:#eef3ff; --muted:#9fb0d8;
-  /* Order tickets are a fixed pixel design; scale the whole strip with the
-     viewport so they read on big monitors yet stay sane on small laptops.
-     vmin tracks the kitchen (camera fits the smaller dimension). */
-  --ticket-scale:clamp(0.85, 100vmin / 640, 2.8);
+  /* Order tickets are a fixed pixel design; the whole strip is scaled with
+     the viewport. game.hudLayout() sets this from min(width,height)/700. */
+  --ticket-scale:1;
 }
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
 html,body{height:100%; overflow:hidden; background:var(--navy); font-family:'Nunito',sans-serif; color:var(--ink);}
@@ -184,6 +183,17 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 #tutorial .tBody{font-family:'Fredoka One',cursive; font-size:18px; color:#fff; line-height:1.15;
   display:flex; gap:10px; align-items:center; justify-content:center;}
 #tutorial .tIcon{font-size:23px; flex:none;}
+/* landscape screens (tablets, laptops): the HUD moves to the SIDES so the
+   kitchen gets the full height. game.hudInsets() toggles body.sideHud and
+   fits the camera into the space between the two columns. */
+body.sideHud #tickets{flex-direction:column;}
+body.sideHud #tutorial{left:auto; right:12px; bottom:auto; top:50%;
+  transform:translate(14px,-50%); width:min(calc(215px * var(--ticket-scale)), 22vw); max-width:none;
+  padding:12px 14px 14px;}
+body.sideHud #tutorial.on{transform:translate(0,-50%);}
+body.sideHud #tutorial .tStep{font-size:calc(11px * var(--ticket-scale));}
+body.sideHud #tutorial .tBody{flex-direction:column; gap:6px; font-size:calc(17px * var(--ticket-scale));}
+body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 @media (max-width:430px){
   #tutorial{bottom:50px; padding:6px 14px 9px;}
   #tutorial .tBody{font-size:15px;} #tutorial .tIcon{font-size:20px;}

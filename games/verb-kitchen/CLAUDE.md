@@ -271,8 +271,10 @@ is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
     gitignored here). Headless Edge returned blank frames; the Playwright
     Chromium in `~/.cache/ms-playwright/chromium-1234/` + a CDP script with
     `Network.setCacheDisabled` works.
-  - **Not live yet:** the live build at `homepage/games/verb-kitchen/` is
-    still the older release; this ships with the next Verb Kitchen release.
+  - **Live (same day, user's call):** ported ONLY this layout fix into the
+    older released build (`homepage/games/verb-kitchen/src/game.js` +
+    `index.html`); L4–7 and i18n are still source-only. Verified on the live
+    build headless (1180×820, 978×640, 390×844, L2, L3; 19/19 taps).
 
 - 2026-07-02 — **Improvement triple (from a whole-project review; all verified in
   a live browser via the preview tools + `__VK`): persistent spaced repetition +
