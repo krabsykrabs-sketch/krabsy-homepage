@@ -77,6 +77,8 @@ def test_full_quiz():
             b.send_json({"t": "answer", "qi": 0, "opt": 2})
             ra = recv(a, "reveal")                                     # all answered → reveal
             assert ra["correct"] == 0 and ra["you"]["right"] and ra["you"]["pts"] >= 500
+            assert ra["word"] == {"item": "go0", "topic": "irregular_verbs", "form": "past"}
+            assert "item" not in qa["q"]                                # not before the reveal
             rb = recv(b, "reveal")
             assert not rb["you"]["right"] and rb["you"]["pts"] == 0 and "counts" not in rb
             rt = recv(teacher, "reveal")

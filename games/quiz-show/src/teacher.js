@@ -77,7 +77,7 @@ const room = new Room($('c'), { mode: 'teacher' });
 const roomReady = room.load().catch((e) => console.error('room load failed', e));
 let last = performance.now();
 function frame(now) {
-  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;  // rAF time can be older than "last" on the first frame
   room.update(dt);
   tickTimer();
   requestAnimationFrame(frame);

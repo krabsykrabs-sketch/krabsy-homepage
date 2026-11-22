@@ -104,6 +104,9 @@ function iconTexture(kind) {
 const ICONS = {};
 const icon = (k) => (ICONS[k] ||= iconTexture(k));
 
+const BLOB_GEO = new THREE.CircleGeometry(0.55, 20);
+const BLOB_MAT = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
+
 export class Avatar {
   constructor(room, info) {
     this.room = room;
@@ -118,6 +121,11 @@ export class Avatar {
       new THREE.MeshBasicMaterial({ color: COLORS[info.color % COLORS.length], transparent: true, opacity: 0.9 }));
     this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.03;
     this.root.add(this.ring);
+    // Blob shadow: other children's avatars don't cast real shadows (performance: with 30
+    // avatars the shadow pass would draw every character a second time).
+    this.blob = new THREE.Mesh(BLOB_GEO, BLOB_MAT);
+    this.blob.rotation.x = -Math.PI / 2; this.blob.position.y = 0.02; this.blob.renderOrder = 1;
+    this.root.add(this.blob);
     this.tag = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
     this.tag.scale.set(2.6, 0.65, 1); this.tag.position.y = 3.05; this.tag.renderOrder = 10;
     this.root.add(this.tag);
@@ -133,7 +141,9 @@ export class Avatar {
     this.ready = loadModel(info.avatar).then((tpl) => {
       if (this.disposed) return;
       this.model = cloneSkinned(tpl);
-      this.model.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = true; } });
+      const real = room.mode === 'child' && info.pid === room.myPid;   // only your own avatar
+      this.model.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = real; o.receiveShadow = false; } });
+      this.blob.visible = !real;
       this.model.scale.setScalar(1.0);
       this.root.add(this.model);
       this.mixer = new THREE.AnimationMixer(this.model);
@@ -267,6 +277,7 @@ export class Room {
     s.add(new THREE.HemisphereLight('#c8dcff', '#3a2d58', 1.25));
     const sun = new THREE.DirectionalLight('#ffffff', 1.5);
     sun.position.set(6, 16, 10); sun.castShadow = true;
+    this.sun = sun;
     sun.shadow.mapSize.set(1024, 1024);
     Object.assign(sun.shadow.camera, { left: -W - 2, right: W + 2, top: D + 4, bottom: -D - 4, near: 1, far: 50 });
     s.add(sun);
@@ -345,6 +356,8 @@ export class Room {
     put('shelf_B_large_decorated', 4.5, -9.4, 0, 1.8, 0);
     put('cactus_medium_A', 13.5, 8.5, 0, 2, 0.5);
     put('cactus_medium_A', -14, -4, 1, 1.8, 0.5);
+    // Compile the shaders now (behind the join screen), not on the first frames in the room.
+    try { await this.renderer.compileAsync(this.scene, this.camera); } catch (_) { /* older browsers */ }
   }
 
   // The big screen: the logo, or a question (bonus round) in big letters.
@@ -378,6 +391,7 @@ export class Room {
 
   // ---------------------------------------------------------------- avatars
   syncPlayers(list, myPid) {
+    this.myPid = myPid;
     const seen = new Set();
     for (const info of list) {
       seen.add(info.pid);
@@ -415,8 +429,25 @@ export class Room {
     this.camera.updateProjectionMatrix();
   }
 
+  // Automatic quality steps for slow devices (a full class on cheap Chromebooks): if the
+  // frame rate stays under ~24 fps for 4 s, first render at 1× pixel ratio, then switch
+  // the sun's shadows off. Never goes back up (no flicker between steps).
+  adapt(dt) {
+    if (this.quality >= 2) return;
+    this.slowT = (this.slowT || 0) + (dt > 0.042 ? dt : -dt * 0.5);
+    this.slowT = Math.max(0, this.slowT);
+    if (this.slowT < 4) return;
+    this.slowT = 0;
+    this.quality = (this.quality || 0) + 1;
+    if (this.quality === 1) { this.renderer.setPixelRatio(1); this.resize(); }
+    if (this.quality === 2) { this.sun.castShadow = false; }
+    console.info('[quiz-room] quality step', this.quality);
+  }
+
   update(dt) {
+    dt = Math.max(0, dt);
     this.time += dt;
+    this.adapt(dt);
     this.bulbs.forEach((b, i) => { b.material.color.setHSL(0.12, 1, (Math.sin(this.time * 4 - i * 0.7) > 0.2) ? 0.72 : 0.32); });
     for (const a of this.avatars.values()) a.update(dt, a !== this.me);
     this.play.update(dt, this.avatars.values(), this.mode === 'child' ? this.me : null, this.frozen);
@@ -429,7 +460,7 @@ export class Room {
       const p = this.me.root.position;
       pos = new THREE.Vector3(p.x * 0.85, 9.5, p.z + 12); look = new THREE.Vector3(p.x * 0.9, 1.2, p.z - 2);
     }
-    const e = 1 - Math.exp(-dt * 4);
+    const e = Math.min(1, Math.max(0, 1 - Math.exp(-dt * 4)));   // never outside 0..1 (a negative dt made the camera fly off)
     this.camPos.lerp(pos, e); this.camLook.lerp(look, e);
     this.camera.position.copy(this.camPos); this.camera.lookAt(this.camLook);
     this.renderer.render(this.scene, this.camera);
@@ -452,7 +483,8 @@ export class Controller {
     this.vy = 0; this.enabled = true;
     this.anim = ANIM.idle;
     this.push = new THREE.Vector2();   // slide momentum
-    this.touch = { x: 0, z: 0 };       // joystick later (milestone 5)
+    this.touch = { x: 0, z: 0 };       // touch stick (src/touch.js)
+    this.touchRun = false; this.touchJump = false;
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT') return;
       const k = e.key.toLowerCase();
@@ -485,7 +517,7 @@ export class Controller {
       x += this.touch.x; z += this.touch.z;
     }
     const len = Math.hypot(x, z);
-    const run = k.has('shift');
+    const run = k.has('shift') || this.touchRun;
     const p = a.root.position;
     const here = play.ground(p.x, p.z, p.y);
     const onGround = p.y <= here.h + 0.02;
@@ -511,7 +543,7 @@ export class Controller {
     a.speed = Math.hypot(mx, mz) / Math.max(dt, 1e-3);
 
     // Jump, gravity, ground.
-    if (this.enabled && k.has(' ') && onGround) this.vy = 6.5;
+    if (this.enabled && (k.has(' ') || this.touchJump) && onGround) this.vy = 6.5;
     this.vy -= 18 * dt;
     p.y += this.vy * dt;
     const g = play.ground(p.x, p.z, Math.max(p.y, here.h));

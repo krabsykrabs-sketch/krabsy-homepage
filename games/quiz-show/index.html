@@ -25,6 +25,18 @@
 #emotes button{width:52px;height:52px;border-radius:14px;background:rgba(8,14,36,.85);font-size:28px;box-shadow:inset 0 0 0 2px #2d4180;position:relative;}
 #emotes button small{position:absolute;left:4px;top:2px;font-size:11px;color:var(--muted);}
 #emotes button:active{transform:scale(.92);}
+/* Touch controls (src/touch.js): only on touch devices */
+#tStick,#tJump{display:none;}
+.touch #tStick,.touch #tJump{display:block;}
+#tStick{position:fixed;left:84px;bottom:84px;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;z-index:8;
+  border:3px solid rgba(234,242,255,.35);background:rgba(8,14,36,.25);pointer-events:none;opacity:.45;}
+#tStick.on{opacity:1;bottom:auto;}
+#tStick .tKnob{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;transform:translate(-50%,-50%);
+  background:rgba(234,242,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+#tJump{position:fixed;right:18px;bottom:84px;width:96px;height:96px;border-radius:50%;z-index:8;padding:16px;
+  background:rgba(46,230,192,.85);box-shadow:0 5px 0 #14a387;touch-action:none;}
+#tJump.down{transform:translateY(4px);box-shadow:0 1px 0 #14a387;}
+.touch #hint{max-width:calc(100vw - 280px);}
 #midMsg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:9;font-family:'Fredoka One';font-size:30px;text-align:center;}
 #joinErr{color:var(--coral);min-height:1.4em;margin-top:10px;font-size:17px;}
 

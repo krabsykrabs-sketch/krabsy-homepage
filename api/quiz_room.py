@@ -387,6 +387,9 @@ class Room:
         if player is not None:
             a = player.answers.get(self.qi)
             rank = next((i + 1 for i, p in enumerate(self.ranking()) if p.pid == player.pid), 0)
+            # The word (item/topic/form) only now: a preposition's use-case id can hint at
+            # the answer. The child's device records it in its own learning stats.
+            msg["word"] = {"item": q["item"], "topic": q["topic"], "form": q["form"]}
             msg["you"] = {"opt": a["opt"] if a else None, "right": bool(a and a["right"]),
                           "pts": a["pts"] if a else 0, "score": player.score, "rank": rank,
                           "of": len(self.players), "streak": player.streak}

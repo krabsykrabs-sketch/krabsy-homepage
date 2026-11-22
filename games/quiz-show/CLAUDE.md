@@ -13,13 +13,17 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **milestones 1–4 built (2026-11-22)**: room server + teacher
+Status: **milestones 1–5 built (2026-11-22), ready for a play-test; not
+deployed, not played by people yet.** Release steps for the master session:
+`RELEASE.md` in this folder. Built: room server + teacher
 page + child page, the teacher's question list (see every question,
 swap, remove, add, new mix; also in the lobby while children join), and
 the play area (avatar choice, emotes, trampolines, tower + slide, ball
 pit, balls + hoop, confetti button, dance floor, "everyone to the
 middle"), and the bonus round "run to the answer" (answer pads over a
-foam pit). A
+foam pit), touch controls, the class link (answers into each child's own
+stats and class), automatic quality steps for slow devices. Not built: the
+QR code (needs an owner yes for a vendored QR library, see `RELEASE.md`). A
 whole quiz runs with a teacher and several children (tested headless with
 3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be
 deployed with the API (master session) before anyone can play online.
@@ -41,6 +45,9 @@ deployed with the API (master session) before anyone can play online.
    `node tools/qa-editor.cjs <outDir>` checks the question list (14 checks).
    `node tools/qa-play.cjs <outDir>` checks the play area (13 checks).
    `node tools/qa-bonus.cjs <outDir>` checks the bonus round (14 checks).
+   `node tools/qa-touch.cjs <outDir>` checks touch stick + jump, the answer
+   landing in the child's stats, and reconnecting (10 checks).
+   `node tools/perf.cjs 29` renders one real child with 29 simulated ones.
    `node tools/load-test.mjs 30 6` is a protocol load test without 3D (30
    children walking at 10 moves/s; 2026-11-22: question delivery median
    ~15 ms, max ~23 ms, nothing missed; 40 children the same).
@@ -126,8 +133,31 @@ anyway), nothing else; 400 behind = disconnected (it reconnects and gets a
 fresh snapshot). Before this, a send that waited over 2 s was cut off and
 the message lost silently.
 
-Not built yet (milestone 5): touch controls, QR code, class link,
-performance pass with 30 avatars on a real Chromebook, play-test, release.
+Milestone 5:
+- **Touch** (`src/touch.js`, from Verb Dungeon): stick on the left 60 % of
+  the room (full push = run), jump button bottom right, emote buttons stay;
+  on from the first touch or a coarse pointer, off again with a key press.
+- **Class link / stats:** the server sends the word (`item/topic/form`) only
+  with the reveal (a preposition's use-case id could hint at the answer).
+  The child's page then calls `recordAttempt()` (`analytics.record`), once
+  per question: the answer goes into that child's own learning stats and,
+  if the child joined a class (phase 2), to the class dashboard
+  (`krabsy-stats.js` does that). This was the brief's recommended default;
+  confirm with the owner (`RELEASE.md`).
+- **Performance:** other children's avatars use blob shadows (only your own
+  casts a real shadow); shaders compile behind the join screen
+  (`compileAsync`); slow devices step down automatically (`Room.adapt`:
+  pixel ratio 1, then no sun shadows) after 4 s under ~24 fps. Headless
+  (software GPU) numbers, not representative of a Chromebook: 1 avatar
+  ~6 fps, 30 avatars ~2 fps (≈ 240k triangles, ~400 draw calls; the
+  characters dominate). **Needs a check on a real cheap Chromebook.**
+- **Bug fixed:** the first frame's time step could be negative (the rAF
+  timestamp is older than the page's start time); the camera's smoothing
+  then swung outward and the view was empty for several seconds after
+  joining. dt is now clamped to 0..0.1 and the smoothing factor to 0..1.
+- **Reconnect** checked: a dropped connection shows "Verbindung weg", comes
+  back as the same child with its points, no duplicate player, no answer
+  counted twice.
 
 ## Why this game
 
@@ -334,6 +364,10 @@ Copy only what you use into `games/quiz-show/assets/`.
 
 ## Open questions for the owner
 
+(Release-blocking ones are also in `RELEASE.md`: name, stats/class link,
+QR library, play-test.)
+
+
 - Name: "Krabsy Quiz Room" / "Quiz-Raum" / "Sala de quiz", or something else?
 - Record answers in each child's own learning stats (recommended: yes)?
 - Public reveal: top 5 only (recommended) or the full ranking?
@@ -379,3 +413,10 @@ question loading, texts, sounds, character loading and the QA approach.
   (direct sends with a 2 s cut-off) → per-connection send queue (`Outbox`)
   + test, and `tools/load-test.mjs`. API suite 47 passed, qa-bonus 14/14,
   qa-editor 14/14, qa-play 13/13; qa-room passes on a quiet machine.
+- 2026-11-22: milestone 5 built: touch controls, class link via
+  `recordAttempt` on the child's device (word sent at the reveal), blob
+  shadows + shader precompile + automatic quality steps, camera bug fixed
+  (negative first dt), reconnect checked, `RELEASE.md` written. QR code not
+  built: vendoring a QR library was stopped by the permission check → owner
+  decision. Tests: API 47 passed, qa-editor 14/14, qa-play 13/13, qa-bonus
+  14/14, qa-touch 10/10, qa-room passes, load test 30 children ~11 ms.

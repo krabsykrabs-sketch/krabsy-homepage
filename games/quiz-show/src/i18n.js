@@ -44,6 +44,7 @@ const T = {
     middle: 'Everyone to the middle', middleOff: 'Let them play', middleMsg: 'The teacher called everyone to the middle!',
     bonus: 'Bonus round', bonusOff: 'Off', bonusTitle: (i, n) => `Bonus ${i} / ${n}`, bonusIntro: 'Bonus round: run to the answer!',
     bonusHint: 'Run onto the pad with the right answer!', bonusSection: 'Bonus round "Run to the answer"', onPads: (n) => `${n} on the pads`,
+    lobby_touch: 'Waiting for the teacher to start. Walk around! (stick: walk, ⇧ button: jump)',
   },
   de: {
     title: 'Krabsy Quiz-Raum',
@@ -76,6 +77,7 @@ const T = {
     middle: 'Alle in die Mitte', middleOff: 'Weiterspielen lassen', middleMsg: 'Die Lehrkraft hat alle in die Mitte gerufen!',
     bonus: 'Bonusrunde', bonusOff: 'Aus', bonusTitle: (i, n) => `Bonus ${i} / ${n}`, bonusIntro: 'Bonusrunde: Lauf zur Antwort!',
     bonusHint: 'Lauf auf das Feld mit der richtigen Antwort!', bonusSection: 'Bonusrunde „Lauf zur Antwort“', onPads: (n) => `${n} auf den Feldern`,
+    lobby_touch: 'Warte, bis die Lehrkraft startet. Lauf herum! (Stick: laufen, ⇧-Knopf: springen)',
   },
   es: {
     title: 'Krabsy Sala de Quiz',
@@ -108,6 +110,7 @@ const T = {
     middle: 'Todos al centro', middleOff: 'Dejar jugar', middleMsg: '¡El profe ha llamado a todos al centro!',
     bonus: 'Ronda extra', bonusOff: 'No', bonusTitle: (i, n) => `Extra ${i} / ${n}`, bonusIntro: 'Ronda extra: ¡corre a la respuesta!',
     bonusHint: '¡Corre a la casilla con la respuesta correcta!', bonusSection: 'Ronda extra «Corre a la respuesta»', onPads: (n) => `${n} en las casillas`,
+    lobby_touch: 'Espera a que el profe empiece. ¡Pasea! (stick: andar, botón ⇧: saltar)',
   },
 };
 

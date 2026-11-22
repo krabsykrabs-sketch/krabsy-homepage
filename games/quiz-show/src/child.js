@@ -4,6 +4,7 @@ import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts, plainQuestion } f
 import { Net, normCode, showCode } from './net.js';
 import { Room, Controller, COLORS, AVATARS, EMOTES } from './room.js';
 import { middleSpot } from './play.js';
+import { initTouch, resetTouch, touchOn } from './touch.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
 
@@ -16,7 +17,7 @@ const S = {
   pid: null, name: '', color: Math.floor(Math.random() * COLORS.length),
   avatar: Math.floor(Math.random() * AVATARS.length),
   phase: 'lobby', players: [], answered: new Set(), q: null, qi: -1, n: 0,
-  deadline: 0, time: 20, mine: null, score: 0, code: '', middle: false,
+  deadline: 0, time: 20, mine: null, score: 0, code: '', middle: false, recorded: new Set(),
 };
 
 // ------------------------------------------------------------------ join form
@@ -51,12 +52,14 @@ $('joinBtn').addEventListener('click', join);
 // ------------------------------------------------------------------ room
 const room = new Room($('c'), { mode: 'child' });
 const ctl = new Controller(room);
+initTouch({ canvas: $('c'), controller: ctl, playing: () => S.pid != null && ctl.enabled });
 const roomReady = room.load().catch((e) => console.error('room load failed', e));
 let last = performance.now(), sendT = 0, lastSent = '';
 function frame(now) {
-  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;  // rAF time can be older than "last" on the first frame
   ctl.enabled = !(S.phase === 'question' && S.mine == null && !S.bonus) && S.pid != null && !S.middle;
   room.frozen = !ctl.enabled;
+  if (!ctl.enabled) resetTouch();
   ctl.update(dt);
   room.update(dt);
   // Own position to the server ~10× per second, only when it changed (plus a heartbeat).
@@ -230,7 +233,11 @@ function onReveal(m) {
   if (S.bonus) room.play.sinkPads(m.correct);
   if (m.you) {
     S.score = m.you.score;
-    if (m.you.opt != null) analytics.attempt(m.you.right);
+    if (m.you.opt != null) {
+      if (S.recorded.has(m.qi)) { /* already counted (reconnect during the reveal) */ }
+      else if (m.word && m.word.item) { S.recorded.add(m.qi); analytics.record(m.word, m.you.right); }
+      else { S.recorded.add(m.qi); analytics.attempt(m.you.right); }
+    }
     if (m.you.right) sfx.right(); else sfx.wrong();
   }
   render();
@@ -271,7 +278,7 @@ function render() {
   $('bonusBar').classList.toggle('hidden', !(ph === 'question' && S.bonus && inRoom));
   $('hint').classList.toggle('hidden', !(inRoom && ph === 'lobby'));
   $('emotes').classList.toggle('hidden', !inRoom || open);
-  $('hint').textContent = t('lobby');
+  $('hint').textContent = touchOn() ? t('lobby_touch') : t('lobby');
 
   // Marks over heads: during a question, a dot for "answered", a bubble for "thinking".
   room.setMarks((pid) => (ph !== 'question' || S.bonus ? null : S.answered.has(pid) || (pid === S.pid && S.mine != null) ? 'dot' : 'think'));
