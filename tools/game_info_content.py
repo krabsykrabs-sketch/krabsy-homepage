@@ -528,3 +528,93 @@ TEACHES = {
         "crab-slash": "Verbos irregulares en inglés: pasado simple y participio pasado",
     },
 }
+
+
+# ── Teacher notes ("Im Unterricht einsetzen" / "En clase"), rendered after
+#    "what you learn" by render_game_info.py. Only games listed here get the block.
+TEACHER = {
+    "verb-towers": {
+        "de": [
+            "Läuft auf Handy, Tablet und PC, ohne Konto. Sie teilen einfach den Link.",
+            "Münzen gibt es nur für richtige Antworten: Wer genau arbeitet, baut mehr Türme. So zahlt sich Sorgfalt sichtbar aus.",
+            "Idee: als Belohnung nach einer Übungsphase oder als Hausaufgabe mit einem gemeinsamen Ziel, etwa einer bestimmten Welle.",
+        ],
+        "es": [
+            "Funciona en móvil, tablet y ordenador, sin cuenta. Solo tienes que compartir el enlace.",
+            "Las monedas solo se ganan con respuestas correctas: quien trabaja con cuidado construye más torres.",
+            "Idea: como premio después de una fase de práctica o como tarea con un objetivo común, por ejemplo llegar a cierta oleada.",
+        ],
+    },
+    "verb-kitchen": {
+        "de": [
+            "3D-Spiel für Handy, Tablet und PC, ohne Konto. Ein Level dauert einige Minuten.",
+            "Die Verbfragen kommen an der Spüle: Ohne richtige Antworten gibt es keine sauberen Teller. So wiederholen die Lernenden viele Formen, ohne dass es sich wie Üben anfühlt.",
+            "Idee: zum Abschluss einer Grammatikeinheit 10 bis 15 Minuten spielen und danach die Verben besprechen, die besonders oft falsch waren.",
+        ],
+        "es": [
+            "Juego en 3D para móvil, tablet y ordenador, sin cuenta. Cada nivel dura unos minutos.",
+            "Las preguntas de verbos llegan en el fregadero: sin respuestas correctas no hay platos limpios. Así el alumnado repasa muchas formas sin sentir que está estudiando.",
+            "Idea: al final de una unidad de gramática, jugar 10 o 15 minutos y después comentar los verbos que más se fallaron.",
+        ],
+    },
+    "verb-platformer": {
+        "de": [
+            "Am besten am PC oder Laptop mit Tastatur.",
+            "Jedes Tor zeigt eine Verbreihe mit Lücke. Ein Fehler kostet keinen Neustart: Die richtige Reihe erscheint sofort, dann geht es weiter.",
+            "Idee: am Whiteboard gemeinsam spielen, die Klasse ruft, auf welche Plattform gesprungen wird.",
+        ],
+        "es": [
+            "Mejor en ordenador o portátil con teclado.",
+            "Cada puerta muestra una serie de verbos con un hueco. Un error no obliga a empezar de nuevo: aparece la serie correcta y se sigue jugando.",
+            "Idea: jugar juntos en la pizarra digital; la clase dice en qué plataforma hay que saltar.",
+        ],
+    },
+    "verb-snake": {
+        "de": [
+            "Kurze Runden auf Handy, Tablet oder PC, ohne Konto.",
+            "Mit jedem Bissen kommt die Reihenfolge Grundform, zweite, dritte Form: Das festigt die drei Formen als Einheit.",
+            "Idee: ein Highscore-Wettbewerb in der Klasse über eine Woche.",
+        ],
+        "es": [
+            "Rondas cortas en móvil, tablet u ordenador, sin cuenta.",
+            "Con cada bocado se repite el orden de las tres formas: así se aprenden como una unidad.",
+            "Idea: un concurso de récords en la clase durante una semana.",
+        ],
+    },
+    "verb-slash": {
+        "de": [
+            "Kurze Runden, mit Finger oder Maus.",
+            "Die falschen Bälle tragen typische Fehlerformen wie <em>goed</em> oder <em>writed</em>: genau die Fehler, die in Tests vorkommen.",
+            "Idee: als Warm-up spielen und danach die Fehlerformen an der Tafel sammeln.",
+        ],
+        "es": [
+            "Rondas cortas, con el dedo o el ratón.",
+            "Las pelotas falsas llevan errores típicos como <em>goed</em> o <em>writed</em>: justo los que aparecen en los exámenes.",
+            "Idea: jugar como calentamiento y después reunir esos errores en la pizarra.",
+        ],
+    },
+    "air-control": {
+        "de": [
+            "Am besten am PC oder Laptop: Das Spiel braucht etwas Platz und Übersicht.",
+            "Die drei Formen eines Verbs müssen zusammen gefunden werden. Das übt das Denken in ganzen Verbreihen.",
+            "Idee: in Partnerarbeit spielen, eine Person sucht die Formen, die andere lotst die Flugzeuge.",
+        ],
+        "es": [
+            "Mejor en ordenador o portátil: el juego necesita algo de espacio y visión de conjunto.",
+            "Hay que encontrar juntas las tres formas de un verbo. Así se practica pensar en series completas.",
+            "Idea: jugar por parejas; una persona busca las formas y la otra guía los aviones.",
+        ],
+    },
+    "verb-flow": {
+        "de": [
+            "Ohne Zeitdruck, auf allen Geräten.",
+            "Wer die Leitung legt, muss die Reihenfolge der Formen kennen. Gut für Lernende, die bei Zeitdruck nervös werden.",
+            "Idee: als ruhige Station beim Stationenlernen.",
+        ],
+        "es": [
+            "Sin presión de tiempo, en cualquier dispositivo.",
+            "Para trazar la línea hay que saber el orden de las formas. Ideal para quien se pone nervioso con el reloj.",
+            "Idea: como estación tranquila en un trabajo por rincones.",
+        ],
+    },
+}

@@ -60,7 +60,8 @@
       "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" },
       "flashcards":    { "de": "karteikarten",  "es": "tarjetas" },
       "free-practice": { "de": "freies-ueben",  "es": "practica-libre" },
-      "reference":     { "de": "uebersicht",    "es": "resumen" }
+      "reference":     { "de": "uebersicht",    "es": "resumen" },
+      "worksheets":    { "de": "arbeitsblaetter", "es": "fichas" }
     }
   }
 }

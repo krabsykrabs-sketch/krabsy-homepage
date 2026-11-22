@@ -388,18 +388,18 @@ def pdf_pages(path):
     return len(_re.findall(rb"/Type\s*/Page[^s]", path.read_bytes()))
 
 
-def download_page(lang):
-    t, p = L[lang], P[lang]
+def download_page(lang, LL, PP, kinds):
+    t, p = LL[lang], PP[lang]
     other = "es" if lang == "de" else "de"
     url = lambda x: "https://krabsy.com" + x
     cards = ""
-    for kind in ("list", "forms", "gaps"):
+    for kind in kinds:
         name, desc, on_href, on_label = p["cards"][kind]
         f = t["dir"] / t[kind]["file"]
         meta = f'PDF · {p["pages"](pdf_pages(f))} · {max(1, f.stat().st_size // 1024)} KB'
         cards += (f'<section class="ws-card"><h2>{E(name)}</h2><p>{desc}</p>'
                   f'<div class="ws-actions"><a class="ws-dl" href="{p["path"]}{t[kind]["file"]}" download>'
-                  f'{p["download"]}</a><a class="ws-on" href="{on_href}">{E(on_label) if kind == "list" else p["online"] + ": " + E(on_label)} →</a>'
+                  f'{p["download"]}</a><a class="ws-on" href="{on_href}">{E(on_label) if kind in ("list", "sort", "overview") else p["online"] + ": " + E(on_label)} →</a>'
                   f'<span class="ws-meta">{meta}</span></div></section>')
     crumbs_ld = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": url(f"/{lang}/")},
@@ -416,8 +416,8 @@ def download_page(lang):
   <meta name="description" content="{desc}">
   <link rel="canonical" href="{url(p['path'])}">
   <link rel="alternate" hreflang="{lang}" href="{url(p['path'])}">
-  <link rel="alternate" hreflang="{other}" href="{url(P[other]['path'])}">
-  <link rel="alternate" hreflang="x-default" href="{url(P['de']['path'])}">
+  <link rel="alternate" hreflang="{other}" href="{url(PP[other]['path'])}">
+  <link rel="alternate" hreflang="x-default" href="{url(PP['de']['path'])}">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="{title}">
@@ -467,13 +467,13 @@ def download_page(lang):
 """
 
 
-def sitemap_entries():
-    """Add the two download pages to sitemap.xml once (idempotent)."""
+def sitemap_entries(PP):
+    """Add a topic's two download pages to sitemap.xml once (idempotent)."""
     sm = HP / "sitemap.xml"
     s = sm.read_text(encoding="utf-8")
-    if P["de"]["path"] in s:
+    if PP["de"]["path"] in s:
         return
-    de, es = P["de"]["path"], P["es"]["path"]
+    de, es = PP["de"]["path"], PP["es"]["path"]
     block = ""
     for loc in (de, es):
         block += f"""  <url>
@@ -489,14 +489,223 @@ def sitemap_entries():
     print("sitemap: download pages added")
 
 
-import sys
-for lang, t in L.items():
-    if "--no-pdf" not in sys.argv:
-        for kind, fn in (("list", verb_list), ("forms", forms_sheet), ("gaps", gaps_sheet)):
-            out = t["dir"] / t[kind]["file"]
-            to_pdf(fn(t), out)
-            print(f"{lang}: {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
-    (t["dir"] / "index.html").write_text(download_page(lang), encoding="utf-8")
-    print(f"{lang}: {(t['dir'] / 'index.html').relative_to(ROOT)}")
-sitemap_entries()
-print(f"forms A {len(FORMS_A)}, B {len(FORMS_B)}, gap sentences {len(GAPS)}")
+
+
+# ── extra verb sheet: sort by pattern ────────────────────────────────────────
+SORT_EX = {"AAA": "cut", "ABB": "buy", "ABA": "come", "ABC": "go"}
+SORT = {}
+for key in ("AAA", "ABB", "ABA", "ABC"):
+    pool = sorted([v for v in VERBS if v["pattern"] == key and v["verb"] != SORT_EX[key] and " " not in v["verb"]],
+                  key=lambda v: (v["tier"], v["verb"]))
+    SORT[key] = pool[:4]
+SORT_BOX = sorted((v for vs in SORT.values() for v in vs), key=lambda v: v["verb"])
+_vmap = {v["verb"]: v for v in VERBS}
+
+
+def sort_sheet(t):
+    c = t["sort"]
+    chain = lambda v: f'{v["verb"]} – {v["past"]} – {v["pp"]}'
+    box = " · ".join(E(v["verb"]) for v in SORT_BOX)
+    cols = ""
+    for key in ("AAA", "ABB", "ABA", "ABC"):
+        lines = "".join('<div class="sline"></div>' for _ in SORT[key])
+        cols += (f'<div class="scol"><h2>{E(t["list"]["groups"][key])}</h2>'
+                 f'<p class="sex">{E(chain(_vmap[SORT_EX[key]]))}</p>{lines}</div>')
+    key_html = "".join(
+        f'<h2>{E(t["list"]["groups"][k])}</h2><ol>'
+        + "".join(f'<li>{E(v["verb"])} – {E(forms(v, "past"))} – {E(forms(v, "pp"))}</li>' for v in SORT[k])
+        + "</ol>" for k in ("AAA", "ABB", "ABA", "ABC"))
+    css = ("<style>.box{border:1pt dashed #e07a64;border-radius:3mm;padding:3mm 4mm;font-size:12pt;"
+           "line-height:1.8;margin:2mm 0 5mm}.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm 10mm}"
+           ".scol h2{margin:0 0 1mm;font-size:11pt}.sex{color:#6e6c80;margin:0 0 2mm;font-style:italic}"
+           ".sline{border-bottom:.8pt solid #2c2a3a;height:9mm}</style>")
+    body = (f'{css}<div class="page">{page_head(t, c["title"])}<h2>{E(c["task"])}</h2>'
+            f'<div class="box">{box}</div><div class="sgrid">{cols}</div></div>'
+            f'<div class="page key">{page_head(t, c["title"] + " – " + t["key"], fields=False)}{key_html}</div>')
+    return doc(t, body)
+
+
+L["de"]["sort"] = {"file": "arbeitsblatt-verben-nach-mustern.pdf", "title": "Arbeitsblatt: Verben nach Mustern sortieren",
+                   "task": "Schreib jedes Verb mit seinen drei Formen in die passende Spalte. Das Beispiel zeigt das Muster."}
+L["es"]["sort"] = {"file": "ficha-verbos-irregulares-por-tipos.pdf", "title": "Ficha: Ordena los verbos por tipos",
+                   "task": "Escribe cada verbo con sus tres formas en la columna correcta. El ejemplo muestra el tipo."}
+P["de"]["cards"]["sort"] = ("Nach Mustern sortieren",
+                            f"{len(SORT_BOX)} Verben werden mit ihren drei Formen in die vier Muster einsortiert. "
+                            "Gut, um nach der Verbliste die Muster selbst zu entdecken. Mit Lösungsblatt.",
+                            "/de/unregelmaessige-verben/#muster", "Muster online ansehen")
+P["es"]["cards"]["sort"] = ("Ordena por tipos",
+                            f"{len(SORT_BOX)} verbos para clasificar con sus tres formas en los cuatro tipos. "
+                            "Ideal para descubrir los tipos después de la lista. Con soluciones.",
+                            "/es/verbos-irregulares/#muster", "Ver los tipos online")
+
+# ── prepositions ─────────────────────────────────────────────────────────────
+PREPS = json.loads((ROOT / "content" / "prepositions.json").read_text(encoding="utf-8"))
+PGROUPS = ["time", "place", "movement", "transport", "verb", "adjective", "noun", "phrase"]
+PG_NAME = {
+    "de": {"time": "Zeit", "place": "Ort", "movement": "Bewegung", "transport": "Verkehrsmittel",
+           "verb": "Nach Verben", "adjective": "Nach Adjektiven", "noun": "Nach Nomen", "phrase": "Feste Wendungen"},
+    "es": {"time": "Tiempo", "place": "Lugar", "movement": "Movimiento", "transport": "Transporte",
+           "verb": "Después de verbos", "adjective": "Después de adjetivos", "noun": "Después de sustantivos",
+           "phrase": "Expresiones fijas"},
+}
+
+
+def _first_example(it):
+    exs = sorted(it["examples"], key=lambda e: e.get("difficulty", 9))
+    ok = [e for e in exs if e["sentence"].count("___") == 1]
+    return ok[0] if ok else None
+
+
+def _prep_set(groups, n):
+    items = [it for g in groups for it in PREPS if it["group"] == g and _first_example(it)]
+    return [(_first_example(it)["sentence"], _first_example(it)["valid_answers"]) for it in spread(items, n)]
+
+
+PGAP_A = _prep_set(["time", "place", "movement", "transport"], 15)
+PGAP_B = _prep_set(["verb", "adjective", "noun"], 15)
+
+
+def prep_overview(t):
+    c = t["overview"]
+    groups = ""
+    for g in PGROUPS:
+        its = [it for it in PREPS if it["group"] == g and _first_example(it)]
+        if not its:
+            continue
+        rows = ""
+        for it in its:
+            ex = _first_example(it)
+            sent = E(ex["sentence"]).replace("___", "<b>" + E(ex["valid_answers"][0]) + "</b>", 1)
+            rows += f'<tr><td>{E(it["pattern"])}</td><td class="m">{sent}</td></tr>'
+        groups += (f'<div class="grp"><h2>{E(PG_NAME[t["lang"]][g])} <small>({len(its)})</small></h2>'
+                   f'<table class="vl"><thead><tr><th>{E(c["th"][0])}</th><th>{E(c["th"][1])}</th></tr></thead>'
+                   f"<tbody>{rows}</tbody></table></div>")
+    body = page_head(t, c["title"], fields=False) + f'<p class="sub">{E(c["sub"])}</p><div class="cols">{groups}</div>'
+    return doc(t, body)
+
+
+def _prep_gap_sheet(t, c, items):
+    words = sorted({a[0] for _, a in items})
+    box = ("<style>.box{border:1pt dashed #e07a64;border-radius:3mm;padding:2.5mm 4mm;font-size:11.5pt;"
+           "margin:1mm 0 3mm}</style>" + f'<div class="box">{E(c["box"])} ' + " · ".join(E(w) for w in words) + "</div>")
+    lis = "".join(f'<li>{E(s).replace("___", "<span class=gap></span>", 1)}</li>' for s, _ in items)
+    key = "".join(f'<li>{E(s).replace("___", "<b>" + E(" / ".join(a)) + "</b>", 1)}</li>' for s, a in items)
+    body = (f'<div class="page">{page_head(t, c["title"])}<h2>{E(c["task"])}</h2>{box}'
+            f'<ol class="sent tight">{lis}</ol></div>'
+            f'<div class="page key">{page_head(t, c["title"] + " – " + t["key"], fields=False)}'
+            f'<ol class="sent tight">{key}</ol></div>')
+    return doc(t, body.replace('<ol class="sent tight">', '<ol class="sent" style="margin-top:2mm">'))
+
+
+def prep_gaps_a(t):
+    return _prep_gap_sheet(t, t["gaps_a"], PGAP_A)
+
+
+def prep_gaps_b(t):
+    return _prep_gap_sheet(t, t["gaps_b"], PGAP_B)
+
+
+LP = {
+    "de": {
+        "lang": "de", "dir": HP / "de" / "praepositionen" / "arbeitsblaetter",
+        "practice": "krabsy.com/de/praepositionen/sprint/",
+        "footer": L["de"]["footer"], "name": "Name:", "date": "Datum:", "class": "Klasse:", "key": "Lösungen",
+        "overview": {"file": "englische-praepositionen-uebersicht.pdf", "title": "Englische Präpositionen: Übersicht",
+                     "sub": f"{len(PREPS)} Regeln mit je einem Beispielsatz, sortiert nach Themen.",
+                     "th": ["Regel", "Beispiel"]},
+        "gaps_a": {"file": "arbeitsblatt-praepositionen-zeit-ort.pdf", "title": "Arbeitsblatt: Präpositionen für Zeit und Ort",
+                   "task": "Setz die passende Präposition ein.", "box": "Diese Wörter brauchst du:"},
+        "gaps_b": {"file": "arbeitsblatt-praepositionen-verben-adjektive.pdf",
+                   "title": "Arbeitsblatt: Präpositionen nach Verben und Adjektiven",
+                   "task": "Setz die passende Präposition ein.", "box": "Diese Wörter brauchst du:"},
+    },
+    "es": {
+        "lang": "es", "dir": HP / "es" / "preposiciones" / "fichas",
+        "practice": "krabsy.com/es/preposiciones/sprint/",
+        "footer": L["es"]["footer"], "name": "Nombre:", "date": "Fecha:", "class": "Curso:", "key": "Soluciones",
+        "overview": {"file": "preposiciones-ingles-resumen.pdf", "title": "Preposiciones en inglés: resumen",
+                     "sub": f"{len(PREPS)} reglas con una frase de ejemplo cada una, ordenadas por temas.",
+                     "th": ["Regla", "Ejemplo"]},
+        "gaps_a": {"file": "ficha-preposiciones-tiempo-lugar.pdf", "title": "Ficha: Preposiciones de tiempo y lugar",
+                   "task": "Completa con la preposición correcta.", "box": "Palabras que necesitas:"},
+        "gaps_b": {"file": "ficha-preposiciones-verbos-adjetivos.pdf",
+                   "title": "Ficha: Preposiciones después de verbos y adjetivos",
+                   "task": "Completa con la preposición correcta.", "box": "Palabras que necesitas:"},
+    },
+}
+
+PPP = {
+    "de": {
+        "path": "/de/praepositionen/arbeitsblaetter/", "hub": "/de/praepositionen/", "hub_name": "Präpositionen",
+        "title": "Englische Präpositionen Arbeitsblätter (PDF) mit Lösungen — Krabsy",
+        "desc": ("Kostenlose Arbeitsblätter zu den englischen Präpositionen zum Ausdrucken: Übersicht aller Regeln, "
+                 "in/on/at für Zeit und Ort, Präpositionen nach Verben und Adjektiven. Mit Lösungen."),
+        "h1": "Englische Präpositionen: Arbeitsblätter zum Ausdrucken", "crumb": "Arbeitsblätter",
+        "sub": P["de"]["sub"], "download": P["de"]["download"], "online": P["de"]["online"], "pages": P["de"]["pages"],
+        "cards": {
+            "overview": ("Übersicht aller Regeln",
+                         f"{len(PREPS)} Regeln von <em lang=\"en\">in + Monat</em> bis <em lang=\"en\">good at</em>, "
+                         "jeweils mit Beispielsatz, sortiert nach Themen. Zum Abheften.",
+                         "/de/praepositionen/uebersicht/", "Übersicht online ansehen"),
+            "gaps_a": ("Zeit und Ort: in, on, at …",
+                       f"{len(PGAP_A)} Lückensätze zu Zeit, Ort, Bewegung und Verkehrsmitteln. "
+                       "Die benötigten Wörter stehen im Kasten. Mit Lösungsblatt.",
+                       "/de/praepositionen/sprint/", "Sprint"),
+            "gaps_b": ("Nach Verben und Adjektiven",
+                       f"{len(PGAP_B)} Lückensätze wie <em lang=\"en\">good ___ maths</em> oder "
+                       "<em lang=\"en\">afraid ___ spiders</em>. Mit Wortkasten und Lösungsblatt.",
+                       "/de/praepositionen/fill-the-gap/", "Fill the Gap"),
+        },
+        "tip_h": P["de"]["tip_h"],
+        "tip": ("Ein Vorschlag: zuerst das Arbeitsblatt in Ruhe ausfüllen und vergleichen, danach zehn Minuten "
+                "<a href=\"/de/praepositionen/sprint/\">Sprint</a> am Tablet oder Handy."),
+        "use": P["de"]["use"],
+    },
+    "es": {
+        "path": "/es/preposiciones/fichas/", "hub": "/es/preposiciones/", "hub_name": "Preposiciones",
+        "title": "Fichas de preposiciones en inglés (PDF) con soluciones — Krabsy",
+        "desc": ("Fichas gratis de preposiciones en inglés para imprimir: resumen de todas las reglas, in/on/at "
+                 "de tiempo y lugar, preposiciones después de verbos y adjetivos. Con soluciones."),
+        "h1": "Preposiciones en inglés: fichas para imprimir", "crumb": "Fichas",
+        "sub": P["es"]["sub"], "download": P["es"]["download"], "online": P["es"]["online"], "pages": P["es"]["pages"],
+        "cards": {
+            "overview": ("Resumen de todas las reglas",
+                         f"{len(PREPS)} reglas, desde <em lang=\"en\">in + mes</em> hasta <em lang=\"en\">good at</em>, "
+                         "cada una con una frase de ejemplo y ordenadas por temas.",
+                         "/es/preposiciones/resumen/", "Ver el resumen online"),
+            "gaps_a": ("Tiempo y lugar: in, on, at …",
+                       f"{len(PGAP_A)} frases para completar sobre tiempo, lugar, movimiento y transporte. "
+                       "Las palabras necesarias están en el recuadro. Con soluciones.",
+                       "/es/preposiciones/sprint/", "Sprint"),
+            "gaps_b": ("Después de verbos y adjetivos",
+                       f"{len(PGAP_B)} frases como <em lang=\"en\">good ___ maths</em> o "
+                       "<em lang=\"en\">afraid ___ spiders</em>. Con recuadro de palabras y soluciones.",
+                       "/es/preposiciones/fill-the-gap/", "Fill the Gap"),
+        },
+        "tip_h": P["es"]["tip_h"],
+        "tip": ("Una idea: primero la ficha con calma y la corrección en grupo; después, diez minutos de "
+                "<a href=\"/es/preposiciones/sprint/\">Sprint</a> en la tablet o el móvil."),
+        "use": P["es"]["use"],
+    },
+}
+
+# ── main ─────────────────────────────────────────────────────────────────────
+import sys  # noqa: E402
+
+TOPICS = [
+    (L, P, [("list", verb_list), ("forms", forms_sheet), ("gaps", gaps_sheet), ("sort", sort_sheet)]),
+    (LP, PPP, [("overview", prep_overview), ("gaps_a", prep_gaps_a), ("gaps_b", prep_gaps_b)]),
+]
+for LL, PP, sheets in TOPICS:
+    for lang, t in LL.items():
+        if "--no-pdf" not in sys.argv:
+            for kind, fn in sheets:
+                out = t["dir"] / t[kind]["file"]
+                to_pdf(fn(t), out)
+                print(f"{lang}: {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB)")
+        t["dir"].mkdir(parents=True, exist_ok=True)
+        (t["dir"] / "index.html").write_text(download_page(lang, LL, PP, [k for k, _ in sheets]), encoding="utf-8")
+        print(f"{lang}: {(t['dir'] / 'index.html').relative_to(ROOT)}")
+    sitemap_entries(PP)
+print(f"verbs: forms A {len(FORMS_A)}, B {len(FORMS_B)}, gaps {len(GAPS)}, sort {len(SORT_BOX)}; "
+      f"preps: gaps A {len(PGAP_A)}, B {len(PGAP_B)}")

@@ -31,6 +31,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from game_info_content import CONTENT, GENRE, TEACHES, v as verb_link  # noqa: E402
+try:
+    from game_info_content import TEACHER  # noqa: E402
+except ImportError:  # older content file
+    TEACHER = {}
 
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "homepage"
@@ -49,6 +53,7 @@ L = {
         "hint": "▼ Anleitung &amp; Infos zu {name}",
         "crumbs_label": "Brotkrümelnavigation", "home": "Krabsy", "games": "Spiele",
         "howto": "So spielst du {name}", "learn": "Was du dabei lernst",
+        "teach": "Im Unterricht einsetzen", "teach_more": 'Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a>',
         "faq": "Häufige Fragen", "more": "Weiter üben", "related": "Mehr Spiele mit Verben",
         "verbs_intro": "Verbformen nachschlagen:",
         "top": "▲ Zurück zum Spiel", "play": "Spielen →",
@@ -71,6 +76,7 @@ L = {
         "hint": "▼ Instrucciones e información de {name}",
         "crumbs_label": "Ruta de navegación", "home": "Krabsy", "games": "Juegos",
         "howto": "Cómo se juega {name}", "learn": "Qué aprendes",
+        "teach": "En clase: ideas para docentes", "teach_more": 'Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a>',
         "faq": "Preguntas frecuentes", "more": "Sigue practicando", "related": "Más juegos de verbos",
         "verbs_intro": "Consulta las formas de:",
         "top": "▲ Volver al juego", "play": "Jugar →",
@@ -132,6 +138,13 @@ def render_body(gid, lang, games, inline_game):
     out.append(f'  <h2>{t["learn"]}</h2>')
     for p in c["learn"]:
         out.append(f"  <p>{fill_verbs(p, lang)}</p>")
+    if gid in TEACHER:
+        out.append(f'  <h2>{t["teach"]}</h2>')
+        out.append('  <ul class="kg-steps">')
+        for li in TEACHER[gid][lang]:
+            out.append(f"    <li>{li}</li>")
+        out.append("  </ul>")
+        out.append(f'  <p>{t["teach_more"]}</p>')
     out.append(f'  <h2>{t["faq"]}</h2>')
     out.append('  <div class="kg-faq">')
     for q, a in c["faq"]:
