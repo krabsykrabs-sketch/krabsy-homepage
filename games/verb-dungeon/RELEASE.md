@@ -1,13 +1,13 @@
 # Verb Dungeon — release prep for the master session
 
-State 2026-11-22 (evening): hero weapons, **touch controls**, the **check
-pass on the site question engine** and **play-test notes 8–12** (mage staff
-swing, breakable crates, two-wall rune rooms, the verb book, a different
-boss per level) are done (see the game's `CLAUDE.md` Status log). Still open
-before going live: the owner's play-test of notes 8–12 and on a real tablet
-/ phone (headless tests only so far). Text for the info pages below
-(section "Info page text"): the game no longer asks at the key, so several
-lines changed.
+**READY TO RELEASE (owner, 2026-11-22: "It can go live").** Build =
+commit b3101a6 (`games/verb-dungeon/`): hero weapons, touch controls, the
+check pass on the site question engine and play-test notes 8–13 (mage
+staff, breakable crates, two-wall rune rooms, the verb book, a boss per
+level, forehand swings) are done. Not verified: a real tablet/phone and the
+new sounds (headless tests only). Use the "Info page text" section below
+for `tools/game_info_content.py`: the game no longer asks at the key, so
+several lines changed.
 
 Agreed with the master session (Homepage layout / Verb Towers release):
 the master does the release and pushes the shared site files; the Dungeon
