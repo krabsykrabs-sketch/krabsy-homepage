@@ -1,0 +1,8 @@
+Grund,Quelle,Validierung,Seiten
+Seite mit Weiterleitung,Website,Nicht gestartet,12
+"Durch ""noindex""-Tag ausgeschlossen",Website,Nicht gestartet,4
+Durch robots.txt-Datei blockiert,Website,Nicht gestartet,2
+Gefunden – zurzeit nicht indexiert,Google-Systeme,Nicht gestartet,45
+Gecrawlt – zurzeit nicht indexiert,Google-Systeme,Gestartet,322
+Nicht gefunden (404),Website,Bestanden,2
+Duplikat – Google hat eine andere Seite als der Nutzer als kanonische Seite bestimmt,Google-Systeme,Nicht zutreffend,0
