@@ -1,6 +1,12 @@
 import { createGame } from './src/game.js';
-import { createMenu, markCompleted } from './src/menu.js';
+import { createMenu } from './src/menu.js';
 import { createUI } from './src/ui.js';
+import { applyStatic } from './src/i18n.js';
+import { getBest, saveResult, starsFor, hintSeen, markHintSeen } from './src/progress.js';
+import { IS_TOUCH } from './src/shell-bits.js';
+
+applyStatic();
+document.documentElement.classList.toggle('is-touch', IS_TOUCH);
 // Levels are editor-format JSON files in assets/levels/, listed in assets/levels/index.json.
 // A new level = one file + one line in that list. (src/levels/*.js are the three original
 // built-in layouts; they are no longer in the menu.)
@@ -27,6 +33,8 @@ const canvas = document.getElementById('game');
 
 function showFatal(msg) {
   console.error(msg);
+  const loader = document.getElementById('loader');
+  if (loader) loader.hidden = true;
   let el = document.getElementById('fatal');
   if (!el) {
     el = document.createElement('div');
@@ -44,12 +52,37 @@ function showFatal(msg) {
 window.addEventListener('error', e => showFatal(`Error: ${e.message}\n${e.filename}:${e.lineno}`));
 window.addEventListener('unhandledrejection', e => showFatal(`Unhandled rejection: ${e.reason?.stack || e.reason}`));
 
-console.log('[krabsy3d] booting… build: v5.0-three-levels');
+console.log('[krabsy3d] booting… build: v6.0-shell');
+
+const params = new URLSearchParams(window.location.search);
+// ?level=editor: the editor's Playtest (and the play-test bot). Nothing is saved there, the
+// first-run hint is skipped and the results only offer Retry.
+const editorMode = params.get('level') === 'editor';
 
 const game = await createGame(canvas);
 
+// ---- Shell state ----
+// 'boot' → 'menu' → 'loading' → ('hint' →) 'playing' ⇄ 'paused' → 'results' → …
+let state = 'boot';
+// The state is mirrored on <body data-state> (CSS shows the touch controls only while playing).
+function setState(next) { state = next; document.body.dataset.state = next; }
+let current = null;        // the level being played
+let run = null;            // this attempt's score sheet
+let lockLostAt = 0;
+
+const newRun = () => ({ wrong: 0, firstTry: 0, cleared: 0, gates: 0, missFlag: false, missed: new Map() });
+
 const ui = createUI({
-  onMenu: () => returnToMenu(),
+  onPause: () => pauseGame(),
+  onResume: () => resumeGame(),
+  onRestart: () => { if (current) startLevel(current); },
+  onLevels: () => returnToMenu(),
+  onHintGo: () => dismissHint(),
+  onRetry: () => { if (current) startLevel(current); },
+  onNext: () => {
+    const next = LEVELS[LEVELS.indexOf(current) + 1];
+    if (next) startLevel(next); else returnToMenu();
+  },
 });
 
 const menu = createMenu({
@@ -57,48 +90,202 @@ const menu = createMenu({
   onPick: (lvl) => startLevel(lvl),
 });
 
-function startLevel(lvl) {
+// Desktop only: tell the player how to get mouse look when the mouse is not captured.
+function updateLookTip() {
+  ui.setLookTip(state === 'playing' && !IS_TOUCH && !document.pointerLockElement);
+}
+
+// Call from a click / key handler: the mouse is captured right away (except when the
+// first-run hint comes up, which needs the cursor).
+async function startLevel(lvl) {
+  const wantHint = !editorMode && params.get('hint') !== '0' && !hintSeen();
+  setState('loading');
+  current = lvl;
+  run = newRun();
+  game.setPaused(false);
   menu.hide();
+  ui.hideResults();
+  ui.hidePause();
+  ui.hideHint();
   ui.hideAnswerReveal();
-  ui.showHud();
+  ui.setLookTip(false);
   ui.setLevel(lvl.name);
-  ui.hideLevelComplete();
-  game.startLevel(lvl);
+  ui.setTime(0);
+  ui.showLoader();
+  if (!wantHint) game.lockPointer();
+  try {
+    await game.startLevel(lvl);
+  } finally {
+    ui.hideLoader();
+  }
+  if (current !== lvl || state !== 'loading') return;
+  ui.showHud();
+  if (wantHint) {
+    setState('hint');
+    game.setPaused(true);
+    ui.showHint();
+  } else {
+    setState('playing');
+    setTimeout(updateLookTip, 600);
+  }
+}
+
+function dismissHint() {
+  if (state !== 'hint') return;
+  markHintSeen();
+  ui.hideHint();
+  setState('playing');
+  game.setPaused(false);
+  game.lockPointer();
+  setTimeout(updateLookTip, 600);
+}
+
+function pauseGame() {
+  if (state !== 'playing') return;
+  setState('paused');
+  game.setPaused(true);
+  if (document.pointerLockElement) document.exitPointerLock();
+  ui.setLookTip(false);
+  ui.showPause(current?.name, { canLeave: !editorMode });
+}
+
+function resumeGame() {
+  if (state !== 'paused') return;
+  setState('playing');
+  ui.hidePause();
+  game.setPaused(false);
+  game.lockPointer();
+  setTimeout(updateLookTip, 600);
 }
 
 function returnToMenu() {
+  setState('menu');
+  current = null;
   game.stopGame();
   ui.hideHud();
-  ui.hideLevelComplete();
+  ui.hideResults();
+  ui.hidePause();
+  ui.hideHint();
   ui.hideAnswerReveal();
   menu.show();
+}
+
+// Full chain (`go → went → gone`) of every missed verb. A single question may hide the 3rd
+// form (it is the next gate's answer), so the forms are pieced together from all the gates.
+function missedChains() {
+  const forms = new Map();           // verb → [base, 2nd, 3rd]
+  const BLANK = /^_+$/;
+  const learn = (q) => {
+    if (!q?.verb) return;
+    const f = forms.get(q.verb) || [q.verb, null, null];
+    const parts = Array.isArray(q.parts) ? q.parts : String(q.chain || '').split(' → ');
+    for (const i of [1, 2]) if (parts[i] && !BLANK.test(parts[i])) f[i] = parts[i];
+    if (q.form === 'past') f[1] = q.correct;
+    else if (q.form === 'participle') f[2] = q.correct;
+    forms.set(q.verb, f);
+  };
+  game.getGateQuestions().forEach(learn);
+  run.missed.forEach(learn);
+  return [...run.missed.values()].map(q => {
+    if (q.full) return q.full;
+    const f = forms.get(q.verb);
+    return f && f[1] && f[2] ? f.join(' → ') : (q.chain || q.prompt || q.verb);
+  });
+}
+
+function finishLevel() {
+  if (!current || state === 'results') return;
+  setState('results');
+  if (document.pointerLockElement) document.exitPointerLock();
+  const time = game.getTime();
+  // A gate that was never answered (jumped past) counts like a wrong answer.
+  const skipped = Math.max(0, run.gates - run.cleared);
+  const stars = starsFor(run.wrong + skipped);
+  const idx = LEVELS.indexOf(current);
+  let saved = null;
+  let allDone = false;
+  if (!editorMode) {
+    saved = saveResult(current.id, { stars, time });
+    allDone = saved.firstFinish && LEVELS.length > 0 && LEVELS.every(l => getBest(l.id));
+  }
+  ui.hideHud();
+  ui.hideAnswerReveal();
+  ui.showResults({
+    levelName: current.name,
+    stars,
+    time,
+    bestTime: saved?.best?.time ?? null,
+    newBestTime: !!saved?.newBestTime,
+    firstTry: Math.min(run.firstTry, run.gates),
+    gates: run.gates,
+    missed: missedChains(),
+    perfect: run.gates > 0 && run.firstTry >= run.gates,
+    hasNext: !editorMode && idx >= 0 && idx < LEVELS.length - 1,
+    canLeave: !editorMode,
+    allDone,
+  });
 }
 
 game.setHandlers({
   onFall: () => { ui.deathFlash(); },
   onGateCleared: (cleared, total, question) => {
-    // currentGate is 1-based (the next gate to attempt).
-    ui.setProgress(cleared + 1, total);
+    ui.setProgress(cleared, total);
+    if (run) { run.gates = total; run.cleared = cleared; }
+    if (!question) return;            // the first call of a level only paints the progress
+    if (run) {
+      if (!run.missFlag) run.firstTry++;
+      run.missFlag = false;
+    }
     // Teach beat: the full chain, in green.
-    if (question) ui.showAnswerReveal(question.chain, null);
+    if (question.chain) ui.showAnswerReveal(question.chain, null);
   },
   onGateWrong: (question, opt) => {
+    if (run) {
+      run.wrong++;
+      run.missFlag = true;
+      // one entry per verb + blank; the full chain is built at the end (missedChains)
+      if (question) run.missed.set(`${question.verb}|${question.form}`, question);
+    }
     // Teach beat: the word the player stepped on (red ✗) and the full chain.
-    ui.showAnswerReveal(question.chain, opt?.text ?? null);
+    if (question?.chain) ui.showAnswerReveal(question.chain, opt?.text ?? null);
   },
-  onComplete: (levelId) => {
-    markCompleted(levelId);
-    ui.showLevelComplete();
-    setTimeout(returnToMenu, 2000);
-  },
+  onComplete: () => finishLevel(),
   setHudQuestion: (text) => ui.setHudQuestion(text),
 });
+
+// ---- Clock ----
+setInterval(() => { if (state === 'playing') ui.setTime(game.getTime()); }, 200);
+
+// ---- Pause triggers ----
+// Esc while the mouse is captured never reaches the page: the browser releases the mouse,
+// and that release is what opens the pause card.
+document.addEventListener('pointerlockchange', () => {
+  if (!document.pointerLockElement && state === 'playing') {
+    lockLostAt = performance.now();
+    pauseGame();
+  }
+  updateLookTip();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
+window.addEventListener('keydown', (e) => {
+  if (e.repeat) return;
+  if (e.code === 'Escape' || e.code === 'KeyP') {
+    if (state === 'playing') { e.preventDefault(); pauseGame(); }
+    else if (state === 'paused' && performance.now() - lockLostAt > 400) { e.preventDefault(); resumeGame(); }
+  } else if (e.code === 'Enter') {
+    if (state === 'hint') { e.preventDefault(); dismissHint(); }
+    else if (state === 'paused') { e.preventDefault(); resumeGame(); }
+    else if (state === 'results') { e.preventDefault(); ui.resultsPrimary()?.click(); }
+  }
+});
+
+// For tests and the console.
+window.__krabsyShell = { state: () => state, level: () => current, run: () => run, pause: pauseGame, resume: resumeGame };
 
 // ?level=N&pos=Z URL params skip the menu and (optionally) teleport the player to z=Z.
 // Used for headless screenshot capture during dev; harmless in normal use.
 // ?level=editor reads the current editor draft from localStorage and starts it directly —
 // this is the editor's "Playtest" button target. Set by editor.html before opening this page.
-const params = new URLSearchParams(window.location.search);
 const autoLevelRaw = params.get('level') || '';
 const autoLevel = parseInt(autoLevelRaw, 10);
 const autoPos   = parseFloat(params.get('pos') || '');
@@ -140,6 +327,7 @@ if (autoLevelRaw === 'editor') {
     }, 1500);
   }
 } else {
-  menu.show();
+  ui.hideLoader();
+  returnToMenu();
 }
 console.log('[krabsy3d] ready');

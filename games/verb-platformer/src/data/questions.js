@@ -20,6 +20,7 @@
 //     chain: 'go → went → ___' }                     // shown after answering (teach beat);
 //                                                     // the 3rd form stays hidden when the
 //                                                     // next gate asks it
+//     full:  'go → went → gone' }                     // always complete (results screen)
 
 const BLANK = '___';
 
@@ -103,6 +104,8 @@ function makeQuestion(row, form, pairNext = false) {
     chain: pairNext
       ? `${row.verb} → ${row.past} → ${BLANK}`
       : `${row.verb} → ${row.past} → ${row.participle}`,
+
+    full: `${row.verb} → ${row.past} → ${row.participle}`,   // always complete (results screen)
   };
 }
 

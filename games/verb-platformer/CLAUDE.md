@@ -202,6 +202,68 @@ and hub text, run `tools/render_static_games.py`, `tools/render_game_info.py`,
 `tools/generate_sitemap.py`, and get the owner's OK. Release only after the
 issues below are fixed and it has been play-tested on desktop, tablet, phone.
 
+## Game shell (2026-11-22; title screen, HUD, pause, results, DE/ES/EN)
+
+Everything around the gameplay. Plain DOM + CSS over the canvas, no build step.
+
+- **Flow** lives in `main.js`: states `boot → menu → loading → (hint →) playing ⇄
+  paused → results`, mirrored on `<body data-state>` (CSS shows the touch
+  controls only while playing) and readable as `window.__krabsyShell.state()`.
+- **Files:** `index.html` (all screens as static nodes), `styles.css`,
+  `src/i18n.js` (strings), `src/progress.js` (saved results, star rule, time
+  format), `src/menu.js` (title + level select), `src/ui.js` (HUD, pause card,
+  first-run hint, results, loader), `src/celebrate.js` (canvas confetti +
+  WebAudio jingle), `src/shell-bits.js` (stars, key caps, controls help,
+  touch test), `fonts/` (Fredoka One + Nunito woff2, copied from
+  `homepage/lib/fonts/`; `assets/` is gitignored, so they are not in there).
+- **`src/game.js` hooks for the shell:** `setPaused(bool)` (no physics, no
+  movers, no clock; the picture stays), `getTime()` (seconds played, stops
+  while paused and at the flag), `lockPointer()`, `getGateQuestions()`.
+- **Title screen:** Play starts the first level never finished (then the first
+  below 3 stars). All levels are always selectable. A card shows name, the
+  level's idea (`idea.<level id>` in `src/i18n.js`: **a new level needs its
+  line there in all three languages**, else the line is empty), verb
+  difficulty dots (highest of `tiers`), best stars, best time. Level names
+  stay English. The live sky of the game shows behind the menu.
+- **Results:** stars by wrong answers in the run (0 = 3, 1–2 = 2, more = 1;
+  `starsFor` in `src/progress.js`; a gate jumped past counts like a wrong
+  answer; falls do not count), time, gates right
+  first time, the missed verbs as full chains (`missedChains()` in `main.js`
+  pieces the three forms together from all gate questions, because one
+  question may hide the 3rd form; a `full` field on a question wins if it
+  ever exists), Retry / Levels / Next level (Enter = the yellow button).
+  The results screen is `#level-complete` — **the bot reads its `hidden`**.
+- **Pause:** the HUD button, `Esc` or `P`, a hidden tab. `Esc` while the mouse
+  is captured never reaches the page; the released pointer lock is what opens
+  the pause card. Resume / Restart level / Levels. Starting, resuming and
+  the hint's button capture the mouse again (they are clicks); if that fails
+  a tip at the bottom says "click the game".
+- **First-run hint:** before the first level ever played, game paused behind
+  it. Remembered in the progress key. Not shown with `?hint=0` and not in
+  `?level=editor`.
+- **`?level=editor`** (editor Playtest, bot): nothing is saved, no hint, the
+  results offer Retry only, pause has no "Levels".
+- **localStorage:** `krabsy_vp_progress` = `{ v: 1, levels: { <id>: { stars,
+  time } }, hint: true }` (best stars and best time, each on its own);
+  `krabsy_vp_lang` (only written by the DE/ES/EN switch on the title screen).
+  The prototype's `krabsy_3d_completed` is turned into one-star entries once
+  and removed. `krabsy_3d_editor_level` is the editor draft, as before.
+- **Language:** `?lang=de|es|en` (this visit) → `krabsy_vp_lang` →
+  `krabsy_lang` (set by the site's wrapper pages) → browser language →
+  English. Static nodes carry `data-i18n` / `data-i18n-aria`; everything else
+  calls `t()`. Verbs and the chain notation are never translated; no string
+  uses a grammar term.
+- **`tools/shell-test.cjs`** walks the whole shell in three screen sizes
+  (menu → level 1 → hint → a wrong block of gate 1 → pause → resume → flag →
+  results → next level → menu, moving the player with `krabsy-teleport`),
+  takes a screenshot of every screen and reports console errors, failed
+  requests and broken steps:
+  `PLAYWRIGHT=… node tools/shell-test.cjs <base-url> <out-dir> de es en`.
+- **Open:** the question sign and answer bubbles still draw with Arial
+  (`src/level-loader.js`, `src/gates.js`: main session); no mute button; the
+  wrapper pages do not pass a level (`?level=N` works for teacher links, but
+  nothing on the site builds such a link yet).
+
 ## Fixed 2026-11-21 (source only, NOT yet copied to `homepage/`)
 
 Checked in headless Chromium (desktop 1366×768, tablet 1024×768 touch,
@@ -244,7 +306,7 @@ load with 0 console errors, 0 failed requests, 0 external requests.
   character turns to where it is steered. When the mouse moves again
   after a pause, the camera swings round behind the character. While
   the mouse is in use (`mouseHoldMs`), A/D step sideways.
-- **UI is English only**, system font, title "Krabsy 3D".
+- ~~UI is English only, system font, title "Krabsy 3D"~~ done 2026-11-22, see "Game shell".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
   sets of every piece). `assets/sprites/skybox.png` (3.9 MB), `coin.png`
   and `particle.png` are not referenced by any code.

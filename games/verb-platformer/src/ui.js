@@ -1,51 +1,88 @@
-// In-game HUD + transient overlays.
-export function createUI({ onMenu }) {
-  const hud = document.getElementById('hud');
-  const levelInfo = document.getElementById('level-info');
-  const menuBtn = document.getElementById('menu-btn');
-  const flash = document.getElementById('death-flash');
-  const complete = document.getElementById('level-complete');
+// The game shell's DOM: in-game HUD, transient overlays, pause card, first-run hint,
+// results screen, loader. All text comes from src/i18n.js; main.js owns the flow.
+import { t } from './i18n.js';
+import { formatTime } from './progress.js';
+import { starsHtml, helpHtml, esc, IS_TOUCH } from './shell-bits.js';
+import { startConfetti, stopConfetti, playJingle } from './celebrate.js';
 
-  const progressEl = document.getElementById('progress');
-  const progressText = document.getElementById('progress-text');
-  const progressFill = document.getElementById('progress-fill');
+const $ = id => document.getElementById(id);
 
-  const reveal = document.getElementById('answer-reveal');
-  const revealPrompt = document.getElementById('reveal-prompt');
-  const revealCorrect = document.getElementById('reveal-correct');
+export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onRetry, onNext }) {
+  const hud = $('hud');
+  const levelInfo = $('level-info');
+  const pips = $('gate-pips');
+  const hudTime = $('hud-time');
+  const pauseBtn = $('pause-btn');
+  const lookTip = $('look-tip');
+  const flash = $('death-flash');
 
-  const hudQuestion = document.getElementById('hud-question');
+  const reveal = $('answer-reveal');
+  const revealPrompt = $('reveal-prompt');
+  const revealCorrect = $('reveal-correct');
+  const hudQuestion = $('hud-question');
+
+  const pause = $('pause');
+  const hint = $('first-hint');
+  const results = $('level-complete');
+  const confetti = $('confetti');
+  const loader = $('loader');
 
   let revealHideTimer = null;
   let revealClearTimer = null;
+  let shownTime = '';
 
-  menuBtn.addEventListener('click', () => onMenu?.());
+  // A HUD button must never keep the keyboard focus: Space is "jump".
+  const click = (el, fn) => el.addEventListener('click', () => { el.blur(); fn?.(); });
+  click(pauseBtn, onPause);
+  click($('pause-resume'), onResume);
+  click($('pause-restart'), onRestart);
+  click($('pause-levels'), onLevels);
+  click($('hint-go'), onHintGo);
+  click($('res-retry'), onRetry);
+  click($('res-next'), onNext);
+  click($('res-levels'), onLevels);
+
+  function hintStepsHtml() {
+    const move = IS_TOUCH
+      ? '<div class="pic pic-stick"><i></i></div>'
+      : '<div class="pic pic-wasd"><kbd class="key">W</kbd><span><kbd class="key">A</kbd><kbd class="key">S</kbd><kbd class="key">D</kbd></span></div>';
+    const jump = IS_TOUCH
+      ? `<div class="pic"><span class="pic-jump">${esc(t('jump'))}</span></div>`
+      : `<div class="pic"><kbd class="key space">${esc(t('keySpace'))}</kbd></div>`;
+    const goal = '<div class="pic pic-gate"><span class="sign">go → <b>___</b> → gone</span>' +
+      '<span class="blocks"><i class="bad">goed</i><i class="good">went</i><i class="bad">wented</i></span></div>';
+    return `<div class="hint-step">${move}<strong>${esc(t('hintMove'))}</strong></div>` +
+      `<div class="hint-step">${jump}<strong>${esc(t('hintJump'))}</strong></div>` +
+      `<div class="hint-step wide">${goal}<strong>${esc(t('hintGoal'))}</strong><small>${esc(t('hintGoalSub'))}</small></div>`;
+  }
 
   return {
-    showHud() { hud.hidden = false; progressEl.hidden = false; },
-    hideHud() { hud.hidden = true;  progressEl.hidden = true;  },
+    // ---------- HUD ----------
+    showHud() { hud.hidden = false; },
+    hideHud() { hud.hidden = true; lookTip.hidden = true; },
     setLevel(text) { levelInfo.textContent = text; },
 
-    // currentGate is 1-based: "Gate 1 / 5" before clearing any gate.
-    setProgress(currentGate, total) {
-      // Editor-format levels report total=0 (no gate concept) — hide the bar entirely.
-      if (total === 0) {
-        progressEl.hidden = true;
-        return;
-      }
-      progressEl.hidden = false;
-      if (currentGate > total) {
-        progressText.textContent = 'Reach the flag!';
-        progressFill.style.width = '100%';
-      } else {
-        progressText.textContent = `Gate ${currentGate} / ${total}`;
-        progressFill.style.width = `${((currentGate - 1) / total) * 100}%`;
-      }
+    // `cleared` gates out of `total`. One pip per gate plus the flag; no gates = no pips.
+    setProgress(cleared, total) {
+      if (!total) { pips.hidden = true; pips.innerHTML = ''; return; }
+      pips.hidden = false;
+      let html = '';
+      for (let i = 0; i < total; i++) html += `<i class="${i < cleared ? 'done' : i === cleared ? 'now' : ''}"></i>`;
+      html += `<i class="flag${cleared >= total ? ' now' : ''}"></i>`;
+      pips.innerHTML = html;
+      pips.setAttribute('aria-label', cleared >= total ? t('toFlag') : t('gateOf', cleared + 1, total));
     },
+
+    setTime(seconds) {
+      const s = formatTime(seconds);
+      if (s !== shownTime) { shownTime = s; hudTime.textContent = s; }
+    },
+
+    setLookTip(show) { lookTip.hidden = !show; },
 
     deathFlash() {
       flash.hidden = false;
-      flash.style.opacity = '0.55';
+      flash.style.opacity = '0.5';
       requestAnimationFrame(() => requestAnimationFrame(() => { flash.style.opacity = '0'; }));
       setTimeout(() => { flash.hidden = true; }, 600);
     },
@@ -71,16 +108,64 @@ export function createUI({ onMenu }) {
       reveal.style.opacity = '0';
     },
 
-    showLevelComplete() { complete.hidden = false; },
-    hideLevelComplete() { complete.hidden = true; },
-
     setHudQuestion(text) {
-      if (text == null) {
-        hudQuestion.hidden = true;
-        return;
-      }
+      if (text == null) { hudQuestion.hidden = true; return; }
       if (hudQuestion.textContent !== text) hudQuestion.textContent = text;
       hudQuestion.hidden = false;
     },
+
+    // ---------- Loader ----------
+    showLoader() { loader.hidden = false; },
+    hideLoader() { loader.hidden = true; },
+
+    // ---------- First-run hint ----------
+    showHint() { $('hint-steps').innerHTML = hintStepsHtml(); hint.hidden = false; },
+    hideHint() { hint.hidden = true; },
+
+    // ---------- Pause ----------
+    showPause(levelName, { canLeave = true } = {}) {
+      $('pause-level').textContent = levelName || '';
+      $('pause-help').innerHTML = helpHtml({ withGoal: false });
+      $('pause-levels').hidden = !canLeave;
+      pause.hidden = false;
+    },
+    hidePause() { pause.hidden = true; },
+
+    // ---------- Results ----------
+    // r: { levelName, stars, time, bestTime, newBestTime, firstTry, gates, missed: [chain…], perfect,
+    //      hasNext, canLeave, allDone }
+    showResults(r) {
+      $('res-level').textContent = r.levelName || '';
+      const starsEl = $('res-stars');
+      starsEl.innerHTML = starsHtml(r.stars, 'big');
+      $('res-note').textContent = r.allDone ? t('resAllDone') : r.stars < 3 ? t('resStarRule') : '';
+      $('res-time').textContent = formatTime(r.time);
+      const best = $('res-best');
+      best.textContent = r.newBestTime ? t('resNewBest') : (r.bestTime != null && r.bestTime < r.time - 0.5 ? t('resBest', formatTime(r.bestTime)) : '');
+      best.classList.toggle('is-new', !!r.newBestTime);
+      $('res-first-stat').hidden = !r.gates;
+      $('res-first').textContent = `${r.firstTry} / ${r.gates}`;
+
+      const box = $('res-missed-box');
+      const list = $('res-missed');
+      box.hidden = !r.missed.length && !r.perfect;
+      box.classList.toggle('is-perfect', !r.missed.length);
+      $('res-missed-title').textContent = r.missed.length ? t('resMissed') : t('resPerfect');
+      list.innerHTML = r.missed.map(chain => `<li>${esc(chain)}</li>`).join('');
+
+      const next = $('res-next');
+      const retry = $('res-retry');
+      next.hidden = !r.hasNext;
+      $('res-levels').hidden = !r.canLeave;
+      // One primary button: the next level, else back to the level list, else retry.
+      $('res-levels').classList.toggle('btn-primary', !r.hasNext && r.canLeave);
+      retry.classList.toggle('btn-primary', !r.hasNext && !r.canLeave);
+
+      results.hidden = false;
+      startConfetti(confetti, r.stars);
+      playJingle(r.stars);
+    },
+    hideResults() { results.hidden = true; stopConfetti(confetti); },
+    resultsPrimary() { return results.querySelector('.btn-primary:not([hidden])'); },
   };
 }

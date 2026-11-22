@@ -40,7 +40,10 @@ export function createControls(canvas) {
 
   // ---- Mouse + pointer lock ----
   canvas.addEventListener('click', () => {
-    if (!input.pointerLocked && !input.isTouch) canvas.requestPointerLock();
+    if (!input.pointerLocked && !input.isTouch) {
+      // The browser refuses a new lock for about a second after Esc; that is not an error.
+      try { canvas.requestPointerLock()?.catch?.(() => {}); } catch (_) { /* ignore */ }
+    }
   });
   document.addEventListener('pointerlockchange', () => {
     input.pointerLocked = document.pointerLockElement === canvas;

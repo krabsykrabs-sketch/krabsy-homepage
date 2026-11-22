@@ -271,6 +271,9 @@ export async function createGame(canvas) {
   let sinking = false;           // fell below FALL_Y: keeps dropping into the clouds until the respawn
   let scenery = null;            // background islands, puffs, deck shadows of the current level
   let sceneryToken = 0;          // a newer level start cancels a scenery build still in flight
+  let paused = false;            // shell hook (pause card, first-run hint): no physics, no clock
+  let levelTime = 0;             // seconds played in this level (stops while paused and at the flag)
+  let timing = false;
 
   // Start loading the scenery models now; levels do not wait for them (see startLevel).
   preloadScenery().catch(e => console.warn('[krabsy3d] scenery not available', e));
@@ -346,6 +349,8 @@ export async function createGame(canvas) {
     alive = true;
     lockedOut = false;
     controlsLocked = false;
+    levelTime = 0;
+    timing = true;
     // Editor-format levels have no gate progression — skip the initial progress paint so the
     // HUD doesn't flash "Gate 1 / 0". The UI hides the progress bar when total is 0.
     onGateCleared(0, currentLevel.gateCount);
@@ -363,6 +368,7 @@ export async function createGame(canvas) {
     alive = false;
     lockedOut = true;
     setTimeout(() => {
+      if (!currentLevel) return;   // left for the title screen in the meantime
       // Reset the level first (restore any answer blocks that crumbled/fell while the player was
       // attempting the gate), then drop them onto the approach platform to try the question again.
       currentLevel?.reset?.();
@@ -384,11 +390,13 @@ export async function createGame(canvas) {
     }
     disposeScenery();
     sinking = false;
-    player.mesh.visible = true;
+    player.mesh.visible = false;   // nobody stands in the sky behind the title screen
     particles.clear();
     currentLevelData = null;
     lastCheckpoint = null;
     gatesCleared = 0;
+    timing = false;
+    paused = false;
     setHudQuestion?.(null);
     if (document.pointerLockElement) document.exitPointerLock();
   }
@@ -409,7 +417,15 @@ export async function createGame(canvas) {
     requestAnimationFrame(frame);
     const dt = Math.min((now - last) / 1000, 0.1);
     last = now;
+
+    // Paused: the world stands still (no physics, no movers, no clock); the picture stays.
+    if (paused) {
+      input.consumeLook();
+      renderer.render(scene, camera);
+      return;
+    }
     acc += dt;
+    if (timing) levelTime += dt;
 
     input.update();
     const look = input.consumeLook();
@@ -478,6 +494,7 @@ export async function createGame(canvas) {
       } else if (currentLevel.flagReached(playerPos)) {
         alive = false;
         lockedOut = true;
+        timing = false;
         onComplete(currentLevelData.id);
       }
     }
@@ -489,6 +506,21 @@ export async function createGame(canvas) {
   return {
     startLevel,
     stopGame,
+    // Pause hook for the shell. Resuming drops a jump pressed while the game stood still.
+    setPaused(p) {
+      paused = !!p;
+      if (!paused) { input.consumeJump(); input.consumeLook(); acc = 0; }
+    },
+    isPaused: () => paused,
+    getTime: () => levelTime,
+    // Every gate's question of the running level (the results screen builds full chains from them).
+    getGateQuestions: () => (currentLevel?.gates || []).map(g => g.question || g.gate?.question).filter(Boolean),
+    input,
+    // Capture the mouse (desktop). Must be called from a click or key handler.
+    lockPointer() {
+      if (input.isTouch || document.pointerLockElement === canvas) return;
+      try { canvas.requestPointerLock()?.catch?.(() => {}); } catch (_) { /* not allowed right now */ }
+    },
     setHandlers(h) {
       if (h.onComplete)     onComplete     = h.onComplete;
       if (h.onFall)         onFall         = h.onFall;
