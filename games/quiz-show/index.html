@@ -16,6 +16,16 @@
 #colors button{width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25);}
 #colors button.on{outline:4px solid #fff;outline-offset:3px;}
 #joinBtn{margin-top:18px;}
+#avatars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+#avatars button{background:#16224a;border-radius:14px;padding:2px;aspect-ratio:1;box-shadow:inset 0 0 0 3px #2d4180;overflow:hidden;}
+#avatars button img{width:100%;height:100%;object-fit:cover;display:block;}
+#avatars button.on{box-shadow:inset 0 0 0 4px var(--amber),0 0 14px rgba(255,207,94,.6);background:#2a3a78;}
+#join .card{max-height:96vh;overflow:auto;}
+#emotes{position:fixed;right:10px;bottom:12px;z-index:8;display:flex;gap:6px;}
+#emotes button{width:52px;height:52px;border-radius:14px;background:rgba(8,14,36,.85);font-size:28px;box-shadow:inset 0 0 0 2px #2d4180;position:relative;}
+#emotes button small{position:absolute;left:4px;top:2px;font-size:11px;color:var(--muted);}
+#emotes button:active{transform:scale(.92);}
+#midMsg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:9;font-family:'Fredoka One';font-size:30px;text-align:center;}
 #joinErr{color:var(--coral);min-height:1.4em;margin-top:10px;font-size:17px;}
 
 #hud{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-size:18px;}
@@ -74,6 +84,8 @@
     <input id="codeIn" maxlength="7" autocomplete="off" placeholder="ABC-123">
     <label for="nameIn" data-t="name"></label>
     <input id="nameIn" maxlength="16" autocomplete="off">
+    <label data-t="avatar"></label>
+    <div id="avatars"></div>
     <label data-t="color"></label>
     <div id="colors"></div>
     <button id="joinBtn" class="btn" data-t="join"></button>
@@ -87,6 +99,8 @@
 </div>
 <div id="status" class="pill hidden"></div>
 <div id="hint" class="pill hidden"></div>
+<div id="emotes" class="hidden"></div>
+<div id="midMsg" class="card hidden" data-t="middleMsg"></div>
 
 <div id="qcard" class="hidden"><div class="card">
   <div class="head"><span id="qnum"></span><div class="timerbar" id="qtimer"><i></i></div><span id="qsec"></span></div>

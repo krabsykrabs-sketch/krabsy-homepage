@@ -5,12 +5,20 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { PlayArea } from './play.js';
 
 export const AVATARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Superhero', 'Helper_A', 'Helper_B', 'Caveman'];
 export const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#b18cff', '#5fb4ff', '#ff9f43', '#7ee06a', '#ff7ad9'];
 const FURNITURE = ['couch_pillows', 'lamp_standing', 'shelf_B_large_decorated', 'rug_oval_A',
   'cactus_medium_A', 'armchair_pillows', 'table_low_decorated'];
 export const ANIM = { idle: 0, walk: 1, run: 2, jump: 3 };
+// Emotes (keys 1–4 after answering, or the buttons): bubble + animation.
+export const EMOTES = [
+  { icon: '👋', clip: 'Interact', dur: 1.4 },          // wave
+  { icon: '💃', clip: 'Walking_A', dur: 2.4, spin: true }, // dance
+  { icon: '🎉', clip: 'Jump_Full_Short', dur: 1.6 },   // cheer
+  { icon: '👍', clip: 'Use_Item', dur: 1.4 },          // thumbs up
+];
 const CLIP = ['Idle_A', 'Walking_A', 'Running_A', 'Jump_Idle'];
 
 // Room size (floor from -W..W, -D..D). Small enough that everyone stays in view.
@@ -70,7 +78,14 @@ function tagTexture(name, color) {
 function iconTexture(kind) {
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const g = c.getContext('2d');
-  if (kind === 'dot') {
+  if (kind.startsWith('emo:')) {                 // emote bubble with an emoji
+    g.fillStyle = '#fff';
+    g.beginPath(); g.arc(64, 58, 52, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(44, 100); g.lineTo(64, 124); g.lineTo(80, 100); g.fill();
+    g.font = '64px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(kind.slice(4), 64, 62);
+  } else if (kind === 'dot') {
     const grd = g.createRadialGradient(64, 64, 10, 64, 64, 60);
     grd.addColorStop(0, '#fff6cf'); grd.addColorStop(0.45, '#ffcf5e'); grd.addColorStop(1, 'rgba(255,207,94,0)');
     g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
@@ -106,6 +121,10 @@ export class Avatar {
     this.tag = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
     this.tag.scale.set(2.6, 0.65, 1); this.tag.position.y = 3.05; this.tag.renderOrder = 10;
     this.root.add(this.tag);
+    this.emo = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
+    this.emo.scale.set(1.1, 1.1, 1); this.emo.position.y = 4.1; this.emo.renderOrder = 12; this.emo.visible = false;
+    this.root.add(this.emo);
+    this.emoteT = 0; this.emote_ = null; this.speed = 0;
     this.mark = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
     this.mark.scale.set(0.8, 0.8, 1); this.mark.position.y = 3.85; this.mark.renderOrder = 11; this.mark.visible = false;
     this.root.add(this.mark);
@@ -118,7 +137,7 @@ export class Avatar {
       this.model.scale.setScalar(1.0);
       this.root.add(this.model);
       this.mixer = new THREE.AnimationMixer(this.model);
-      for (const n of [...CLIP, 'Jump_Full_Short', 'Interact']) if (clips[n]) this.actions[n] = this.mixer.clipAction(clips[n]);
+      for (const n of [...CLIP, ...EMOTES.map((e) => e.clip)]) if (clips[n]) this.actions[n] = this.mixer.clipAction(clips[n]);
       this.play(CLIP[this.anim]);
       this.mixer.setTime(Math.random() * 2);
     });
@@ -153,7 +172,27 @@ export class Avatar {
     this.current = name;
   }
 
-  setAnim(a) { this.anim = a; this.play(CLIP[a] || CLIP[0]); }
+  setAnim(a) {
+    this.anim = a;
+    if (this.emoteT > 0 && a <= ANIM.idle) return;     // an emote plays while standing
+    if (this.emoteT > 0) this.endEmote();
+    this.play(CLIP[a] || CLIP[0]);
+  }
+
+  emote(e) {
+    const E = EMOTES[e];
+    if (!E) return;
+    this.emote_ = E; this.emoteT = E.dur;
+    this.emo.material.map = icon(`emo:${E.icon}`); this.emo.material.needsUpdate = true;
+    this.emo.visible = true;
+    this.current = null; this.play(E.clip, 0.1);
+  }
+
+  endEmote() {
+    this.emoteT = 0; this.emote_ = null; this.emo.visible = false;
+    if (this.model) this.model.rotation.y = 0;
+    this.current = null; this.play(CLIP[this.anim] || CLIP[0]);
+  }
 
   update(dt, remote) {
     if (remote) {
@@ -170,6 +209,14 @@ export class Avatar {
       const s = (this.markKind === 'dot' ? 0.75 : 0.95) * (0.6 + 0.4 * pop);
       this.mark.scale.set(s, s, 1);
       this.mark.position.y = 3.85 + Math.sin(this.markT * 3) * 0.08;
+    }
+    if (this.emoteT > 0) {
+      this.emoteT -= dt;
+      const k = Math.min(1, (this.emote_.dur - this.emoteT) * 6);
+      this.emo.scale.setScalar(1.1 * k);
+      this.emo.position.y = (this.mark.visible ? 4.7 : 4.0) + Math.sin(this.emoteT * 6) * 0.06;
+      if (this.emote_.spin && this.model) this.model.rotation.y += dt * 9;
+      if (this.emoteT <= 0) this.endEmote();
     }
     this.mixer?.update(dt);
   }
@@ -260,6 +307,9 @@ export class Room {
     const backWall = new THREE.Mesh(new THREE.PlaneGeometry(W * 2 + 1, 10), new THREE.MeshLambertMaterial({ color: '#18224a' }));
     backWall.position.set(0, 7, -D - 0.5); s.add(backWall);
 
+    this.play = new PlayArea(s);
+    this.frozen = false;
+
     // Bulb strips beside the screen.
     this.bulbs = [];
     const bulbGeo = new THREE.SphereGeometry(0.14, 10, 8);
@@ -279,7 +329,7 @@ export class Room {
       if (solid) SOLIDS.push([x, z, solid]);
     };
     SOLIDS.length = 0;
-    put('rug_oval_A', -9, 4, 0.2, 2.6);
+    put('rug_oval_A', 0, 6, 0, 2.6);
     put('couch_pillows', -11.5, -7.5, 0, 2, 1.6);
     put('armchair_pillows', 12, -6.5, -0.5, 2, 1.0);
     put('table_low_decorated', -9, -5, 0, 1.8, 0.9);
@@ -288,7 +338,7 @@ export class Room {
     put('shelf_B_large_decorated', -4.5, -9.4, 0, 1.8, 0);
     put('shelf_B_large_decorated', 4.5, -9.4, 0, 1.8, 0);
     put('cactus_medium_A', 13.5, 8.5, 0, 2, 0.5);
-    put('cactus_medium_A', -13.5, 8.5, 1, 1.8, 0.5);
+    put('cactus_medium_A', -14, -4, 1, 1.8, 0.5);
   }
 
   // ---------------------------------------------------------------- avatars
@@ -334,6 +384,7 @@ export class Room {
     this.time += dt;
     this.bulbs.forEach((b, i) => { b.material.color.setHSL(0.12, 1, (Math.sin(this.time * 4 - i * 0.7) > 0.2) ? 0.72 : 0.32); });
     for (const a of this.avatars.values()) a.update(dt, a !== this.me);
+    this.play.update(dt, this.avatars.values(), this.mode === 'child' ? this.me : null, this.frozen);
     // Camera: child = follows its own avatar from behind and above; teacher = overview.
     let pos, look;
     if (this.mode === 'teacher' || !this.me) {
@@ -357,13 +408,16 @@ function randomSpawn() {
 // ------------------------------------------------------------------ local player
 // Moves the child's own avatar: WASD / arrows, Shift = run, Space = jump. Screen
 // directions (the camera looks straight ahead), so "up" is always into the room.
+// Uses the play area for ground heights: steps and the tower, the slide (pushes you
+// down), trampolines (landing = big bounce) and the ball pit (sink in, slower).
 export class Controller {
   constructor(room) {
     this.room = room;
     this.keys = new Set();
     this.vy = 0; this.enabled = true;
     this.anim = ANIM.idle;
-    this.touch = { x: 0, z: 0 };   // joystick later (milestone 5)
+    this.push = new THREE.Vector2();   // slide momentum
+    this.touch = { x: 0, z: 0 };       // joystick later (milestone 5)
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT') return;
       const k = e.key.toLowerCase();
@@ -376,9 +430,16 @@ export class Controller {
     window.addEventListener('blur', () => this.keys.clear());
   }
 
+  teleport(v) {
+    const a = this.room.me;
+    if (!a) return;
+    a.root.position.copy(v); this.vy = 0; this.push.set(0, 0);
+  }
+
   update(dt) {
     const a = this.room.me;
     if (!a) return;
+    const play = this.room.play;
     const k = this.keys;
     let x = 0, z = 0;
     if (this.enabled) {
@@ -390,20 +451,42 @@ export class Controller {
     }
     const len = Math.hypot(x, z);
     const run = k.has('shift');
-    const speed = run ? 7.5 : 4.6;
     const p = a.root.position;
+    const here = play.ground(p.x, p.z, p.y);
+    const onGround = p.y <= here.h + 0.02;
+    let speed = run ? 7.5 : 4.6;
+    if (here.kind === 'pit' && onGround) speed *= 0.55;
+
+    // Horizontal move, axis by axis so you slide along box sides.
+    let mx = 0, mz = 0;
     if (len > 0.1) {
-      p.x += (x / Math.max(1, len)) * speed * dt;
-      p.z += (z / Math.max(1, len)) * speed * dt;
+      mx = (x / Math.max(1, len)) * speed * dt; mz = (z / Math.max(1, len)) * speed * dt;
       let d = Math.atan2(x, z) - a.root.rotation.y;
       d = Math.atan2(Math.sin(d), Math.cos(d));
       a.root.rotation.y += d * Math.min(1, dt * 12);
     }
-    // Jump and gravity.
-    if (this.enabled && k.has(' ') && p.y <= 0.001) this.vy = 6.5;
+    // The slide pushes you down (+z); momentum fades on other ground.
+    if (here.kind === 'slide' && onGround) this.push.y = Math.min(12, this.push.y + 16 * dt);
+    else this.push.multiplyScalar(Math.exp(-dt * (onGround ? 3 : 0.5)));
+    mx += this.push.x * dt; mz += this.push.y * dt;
+    if (!play.blocked(p.x + mx, p.z, p.y)) p.x += mx;
+    if (!play.blocked(p.x, p.z + mz, p.y)) p.z += mz;
+    a.speed = Math.hypot(mx, mz) / Math.max(dt, 1e-3);
+
+    // Jump, gravity, ground.
+    if (this.enabled && k.has(' ') && onGround) this.vy = 6.5;
     this.vy -= 18 * dt;
-    p.y = Math.max(0, p.y + this.vy * dt);
-    if (p.y === 0) this.vy = Math.max(this.vy, 0);
+    p.y += this.vy * dt;
+    const g = play.ground(p.x, p.z, Math.max(p.y, here.h));
+    if (p.y <= g.h) {
+      if (g.kind === 'tramp' && this.vy < -2) {
+        this.vy = Math.min(14, -this.vy * 0.9 + 4);   // bounce higher each time, up to a limit
+        play.bounce(play.trampAt(p.x, p.z));
+        p.y = g.h;
+      } else {
+        p.y = g.h; this.vy = Math.max(this.vy, 0);
+      }
+    }
     // Walls and furniture.
     p.x = Math.max(-W + 0.6, Math.min(W - 0.6, p.x));
     p.z = Math.max(-D + 0.6, Math.min(D - 0.4, p.z));
@@ -411,7 +494,8 @@ export class Controller {
       const dx = p.x - sx, dz = p.z - sz, dd = Math.hypot(dx, dz), min = r + 0.45;
       if (dd < min && dd > 1e-4) { p.x = sx + dx / dd * min; p.z = sz + dz / dd * min; }
     }
-    const anim = p.y > 0.05 ? ANIM.jump : len > 0.1 ? (run ? ANIM.run : ANIM.walk) : ANIM.idle;
+    const air = p.y > g.h + 0.05;
+    const anim = air ? ANIM.jump : len > 0.1 ? (run ? ANIM.run : ANIM.walk) : ANIM.idle;
     if (anim !== this.anim) { this.anim = anim; a.setAnim(anim); }
   }
 

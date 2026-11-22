@@ -16,14 +16,17 @@ Teacher → server
   create  {questions:[…], time:s, lang}           → created {code, token}
   resume  {code, token}                            → snapshot of the room
   start | next | end | lock {on} | remove {pid} | rename {pid, name} | close
+  middle {on}                                      (everyone to the middle, until the next question)
   questions {questions:[…]}                       (lobby only: replace the list)
 Child → server
   join    {code, name, avatar, color, token?}      → joined {pid, token, name, …}
   move    {p:[x,y,z], r, a}                        (about 10× per second)
   answer  {qi, opt}
+  emote   {e}  ball {b, p, v}  boom                (play area: relayed / rate-limited)
 Server → clients
   players {list}  pos {s:[[pid,x,y,z,r,a]…]}  question {…}  answered {pid}
   reveal  {…}     end {…}  error {code}  kicked  closed
+  emote {pid, e}  ball {b, pid, p, v}  boom {pid}  middle {on}
 """
 
 from __future__ import annotations
@@ -54,6 +57,10 @@ MAX_MSG = 200_000            # create (question list); everything else is tiny
 MSGS_PER_S = 40              # per connection; more are dropped
 CREATES_PER_HOUR = 30        # per IP
 AVATARS, COLORS = 16, 16
+MAX_BALLS = 8
+EMOTE_GAP_S = 0.8            # per child
+BALL_GAP_S = 0.08            # per child
+BOOM_GAP_S = 8.0             # per room
 
 _ORIGIN = re.compile(os.environ.get(
     "QUIZ_ORIGIN_RE",
@@ -125,6 +132,10 @@ def clean_question(q) -> Optional[dict]:
     return out
 
 
+def _vec3(v) -> bool:
+    return isinstance(v, list) and len(v) == 3 and all(isinstance(x, (int, float)) for x in v)
+
+
 def public_question(q: dict) -> dict:
     """What a child may see before the reveal: no answer, no teach beat."""
     keep = ("kind", "options", "base", "slots", "askIndex", "sentence")
@@ -153,6 +164,8 @@ class Player:
     anim: int = 0
     moved: bool = False
     answers: dict = field(default_factory=dict)   # qi → {opt, ms, right, pts}
+    emote_at: float = 0.0
+    ball_at: float = 0.0
 
     def public(self) -> dict:
         return {"pid": self.pid, "name": self.name, "avatar": self.avatar, "color": self.color,
@@ -181,6 +194,8 @@ class Room:
         self.missed: dict[str, dict] = {}   # topic|item → {q, n}
         self.task: Optional[asyncio.Task] = None
         self.closed = False
+        self.middle = False             # "everyone to the middle": avatars frozen until the next question
+        self.boom_at = 0.0              # last confetti-button blast (room-wide cooldown)
 
     # ---- sending
     async def _send(self, ws: Optional[WebSocket], msg: dict) -> None:
@@ -225,7 +240,7 @@ class Room:
 
     def snapshot(self, for_teacher: bool, player: Optional[Player] = None) -> dict:
         snap = {"phase": self.phase, "code": self.code, "n": len(self.questions), "qi": self.qi,
-                "time": self.time, "locked": self.locked,
+                "time": self.time, "locked": self.locked, "middle": self.middle,
                 "players": [p.public() for p in self.players.values()]}
         if self.phase == "question":
             snap["question"] = self.question_msg(for_teacher)
@@ -278,6 +293,7 @@ class Room:
 
     # ---- flow
     async def start_question(self, qi: int) -> None:
+        self.middle = False
         self.qi = qi
         self.phase = "question"
         self.q_started = time.monotonic()
@@ -574,6 +590,9 @@ async def quiz_ws(ws: WebSocket):
                         await err("no_questions"); continue
                     room.questions = qs
                     await ws.send_text(json.dumps({"t": "questions_set", "n": len(qs), "questions": qs}))
+                elif t == "middle":
+                    room.middle = bool(msg.get("on"))
+                    await room.to_all({"t": "middle", "on": room.middle})
                 elif t == "close":
                     await room.close()
 
@@ -592,8 +611,25 @@ async def quiz_ws(ws: WebSocket):
                     await room.answer(me, msg.get("qi"), msg.get("opt"))
                 elif t == "emote":
                     e = msg.get("e")
-                    if isinstance(e, int) and 0 <= e < 8:
+                    if isinstance(e, int) and 0 <= e < 8 and now - me.emote_at >= EMOTE_GAP_S:
+                        me.emote_at = now
                         await room.to_all({"t": "emote", "pid": me.pid, "e": e})
+                elif t == "ball":
+                    # A child kicked a ball: relay its new state to everyone else.
+                    b, pos, vel = msg.get("b"), msg.get("p"), msg.get("v")
+                    if (isinstance(b, int) and 0 <= b < MAX_BALLS and _vec3(pos) and _vec3(vel)
+                            and now - me.ball_at >= BALL_GAP_S):
+                        me.ball_at = now
+                        out = {"t": "ball", "b": b, "pid": me.pid,
+                               "p": [round(max(-60.0, min(60.0, float(x))), 2) for x in pos],
+                               "v": [round(max(-30.0, min(30.0, float(x))), 2) for x in vel]}
+                        await asyncio.gather(*(room._send(x.ws, out) for x in room.players.values()
+                                               if x.ws and x is not me), room.to_teacher(out))
+                elif t == "boom":
+                    # The big red button: confetti for the whole room, at most every BOOM_GAP_S.
+                    if now - room.boom_at >= BOOM_GAP_S:
+                        room.boom_at = now
+                        await room.to_all({"t": "boom", "pid": me.pid})
     except WebSocketDisconnect:
         pass
     except Exception:

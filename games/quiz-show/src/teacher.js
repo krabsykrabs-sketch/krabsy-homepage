@@ -137,6 +137,7 @@ net.on('error', (m) => {
 
 async function enterRoom(m) {
   await roomReady;
+  S.middle = !!m.middle;
   S.code = m.code; S.n = m.n; S.time = m.time; S.locked = m.locked; S.questions = m.questions || [];
   S.players = m.players; S.phase = m.phase; S.qi = m.qi;
   room.syncPlayers(m.players, null);
@@ -158,9 +159,19 @@ net.on('answered', (m) => { S.answered.add(m.pid); sfx.locked(); render(); });
 net.on('question', onQuestion);
 net.on('reveal', onReveal);
 net.on('end', onEnd);
+// The play area as the children see it (the teacher doesn't play).
+room.play.onSound = () => {};
+net.on('ball', (m) => room.play.applyBall(m.b, m.p, m.v));
+net.on('boom', () => { room.play.burst(); });
+net.on('emote', (m) => room.avatars.get(m.pid)?.emote(m.e));
+net.on('middle', (m) => { S.middle = m.on; render(); });
+$('midBtn').addEventListener('click', () => net.send({ t: 'middle', on: !S.middle }));
+
 net.on('closed', () => { showMsg(t('closed')); try { sessionStorage.removeItem('krabsy_quiz_teacher'); } catch (_) {} });
 
 function onQuestion(m) {
+  S.middle = false;
+  if (S.qi !== m.qi) room.play.reset();
   if (S.phase === 'lobby') { S.t0 = performance.now(); analytics.event('level_start', { level: 1, players: S.players.length, questions: m.n, topic: cfg.topic }); }
   S.phase = 'question'; S.qi = m.qi; S.n = m.n; S.q = m.q; S.time = m.time;
   S.deadline = performance.now() + m.ends_in; S.answered = new Set(m.answered || []); S.reveal = null;
@@ -233,6 +244,8 @@ function render() {
   $('controls').classList.toggle('hidden', ph === 'end' || ph === 'setup');
   $('lockBtn').textContent = S.locked ? t('unlock') : t('lock');
   $('editBtn').classList.toggle('hidden', ph !== 'lobby');
+  $('midBtn').textContent = S.middle ? t('middleOff') : t('middle');
+  $('midBtn').classList.toggle('hidden', ph === 'question');
 
   // question / reveal panel
   const qp = $('qpanel');

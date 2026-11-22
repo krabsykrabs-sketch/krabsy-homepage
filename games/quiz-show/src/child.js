@@ -2,7 +2,8 @@
 import { t, lang } from './i18n.js';
 import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts } from './ui.js';
 import { Net, normCode, showCode } from './net.js';
-import { Room, Controller, COLORS, AVATARS } from './room.js';
+import { Room, Controller, COLORS, AVATARS, EMOTES } from './room.js';
+import { middleSpot } from './play.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
 
@@ -15,7 +16,7 @@ const S = {
   pid: null, name: '', color: Math.floor(Math.random() * COLORS.length),
   avatar: Math.floor(Math.random() * AVATARS.length),
   phase: 'lobby', players: [], answered: new Set(), q: null, qi: -1, n: 0,
-  deadline: 0, time: 20, mine: null, score: 0, code: '',
+  deadline: 0, time: 20, mine: null, score: 0, code: '', middle: false,
 };
 
 // ------------------------------------------------------------------ join form
@@ -31,6 +32,18 @@ function renderColors() {
   });
 }
 renderColors();
+try { const a = +sessionStorage.getItem('krabsy_quiz_avatar'); if (sessionStorage.getItem('krabsy_quiz_avatar') != null && a >= 0 && a < AVATARS.length) S.avatar = a; } catch (_) {}
+function renderAvatars() {
+  const box = $('avatars'); box.innerHTML = '';
+  AVATARS.forEach((name, i) => {
+    const b = document.createElement('button');
+    b.className = i === S.avatar ? 'on' : '';
+    b.innerHTML = `<img src="assets/thumbs/${name}.png" alt="">`;
+    b.addEventListener('click', () => { S.avatar = i; renderAvatars(); });
+    box.appendChild(b);
+  });
+}
+renderAvatars();
 $('codeIn').addEventListener('input', (e) => { e.target.value = showCode(normCode(e.target.value)); });
 for (const id of ['codeIn', 'nameIn']) $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') join(); });
 $('joinBtn').addEventListener('click', join);
@@ -42,7 +55,8 @@ const roomReady = room.load().catch((e) => console.error('room load failed', e))
 let last = performance.now(), sendT = 0, lastSent = '';
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  ctl.enabled = !(S.phase === 'question' && S.mine == null) && S.pid != null;
+  ctl.enabled = !(S.phase === 'question' && S.mine == null) && S.pid != null && !S.middle;
+  room.frozen = !ctl.enabled;
   ctl.update(dt);
   room.update(dt);
   // Own position to the server ~10× per second, only when it changed (plus a heartbeat).
@@ -68,7 +82,7 @@ async function join() {
   if (code.length !== 6) { $('joinErr').textContent = t('err_no_room'); return; }
   if (!name) { $('joinErr').textContent = t('err_bad_name'); return; }
   $('joinErr').textContent = ''; $('joinBtn').disabled = true; $('joinBtn').textContent = t('joining');
-  try { sessionStorage.setItem('krabsy_quiz_name', name); } catch (_) {}
+  try { sessionStorage.setItem('krabsy_quiz_name', name); sessionStorage.setItem('krabsy_quiz_avatar', S.avatar); } catch (_) {}
   S.code = code;
   let token = null;
   try { token = sessionStorage.getItem(`krabsy_quiz_${code}`); } catch (_) {}
@@ -101,6 +115,7 @@ net.on('joined', async (m) => {
   S.players = m.players; S.n = m.n; S.time = m.time;
   room.syncPlayers(m.players, m.pid);
   setPhase(m.phase);
+  setMiddle(!!m.middle, false);
   if (m.question) onQuestion(m.question);
   if (m.reveal) onReveal(m.reveal);
   if (m.end) onEnd(m.end);
@@ -116,6 +131,36 @@ net.on('end', onEnd);
 net.on('renamed', (m) => { S.name = m.name; $('meName').textContent = m.name; });
 net.on('kicked', () => { net.close(); showMsg(t('kicked')); try { sessionStorage.removeItem(`krabsy_quiz_${S.code}`); } catch (_) {} });
 net.on('closed', () => { net.close(); showMsg(t('closed')); });
+// Play area: own kicks and the confetti button go to the server; others' arrive here.
+room.play.onKick = (b, p, v) => net.send({ t: 'ball', b, p, v });
+room.play.onBoom = () => net.send({ t: 'boom' });
+room.play.onSound = (n) => sfx[n]?.();
+net.on('ball', (m) => room.play.applyBall(m.b, m.p, m.v));
+net.on('boom', () => { room.play.burst(); sfx.boom(); });
+net.on('emote', (m) => { if (m.pid !== S.pid) room.avatars.get(m.pid)?.emote(m.e); });
+net.on('middle', (m) => setMiddle(m.on, true));
+
+function setMiddle(on, move) {
+  S.middle = on;
+  if (on && move) { ctl.teleport(middleSpot()); sfx.whoosh(); }
+  $('midMsg').classList.toggle('hidden', !on);
+}
+
+function emote(e) {
+  if (S.pid == null || (S.phase === 'question' && S.mine == null) || S.middle) return;
+  const me = room.me;
+  if (!me || (me.emoteT > 0)) return;
+  me.emote(e); sfx.pop();
+  net.send({ t: 'emote', e });
+}
+EMOTES.forEach((E, i) => {
+  const b = document.createElement('button');
+  b.innerHTML = `<small>${i + 1}</small>${E.icon}`;
+  b.addEventListener('click', () => { emote(i); b.blur(); });
+  $('emotes').appendChild(b);
+});
+$('emotes').title = t('emoteHint');
+
 net.on('_status', (s) => {
   $('status').textContent = t('lost');
   $('status').classList.toggle('hidden', s !== 'lost' || S.pid == null);
@@ -124,6 +169,8 @@ net.on('_status', (s) => {
 function setPhase(p) { S.phase = p; }
 
 function onQuestion(m) {
+  if (S.qi !== m.qi) room.play.reset();
+  setMiddle(false, false);
   setPhase('question');
   S.qi = m.qi; S.n = m.n; S.q = m.q; S.time = m.time;
   S.deadline = performance.now() + m.ends_in;
@@ -154,7 +201,13 @@ function answer(k) {
 }
 
 window.addEventListener('keydown', (e) => {
-  if (S.phase !== 'question' || S.mine != null || e.target.tagName === 'INPUT') return;
+  if (e.target.tagName === 'INPUT') return;
+  // Keys 1–4 answer while the card is open; otherwise they are emotes.
+  if (!(S.phase === 'question' && S.mine == null)) {
+    const k = ['1', '2', '3', '4'].indexOf(e.key);
+    if (k >= 0) emote(k);
+    return;
+  }
   const k = ['1', '2', '3', '4'].indexOf(e.key);
   const l = ['a', 'b', 'c', 'd'].indexOf(e.key.toLowerCase());
   if (k >= 0) answer(k); else if (l >= 0) answer(l);
@@ -197,6 +250,7 @@ function render() {
   $('qcard').classList.toggle('hidden', !open);
   $('mini').classList.toggle('hidden', !(ph === 'question' && S.mine != null));
   $('hint').classList.toggle('hidden', !(inRoom && ph === 'lobby'));
+  $('emotes').classList.toggle('hidden', !inRoom || open);
   $('hint').textContent = t('lobby');
 
   // Marks over heads: during a question, a dot for "answered", a bubble for "thinking".
@@ -239,4 +293,4 @@ function tickTimer() {
   }
 }
 
-window.__qr = { S, room, net }; // QA hook
+window.__qr = { S, room, net, ctl }; // QA hook

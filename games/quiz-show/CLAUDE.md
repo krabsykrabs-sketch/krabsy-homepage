@@ -13,9 +13,12 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **milestones 1 and 2 built (2026-11-22)**: room server + teacher
-page + child page, and the teacher's question list (see every question,
-swap, remove, add, new mix; also in the lobby while children join). A
+Status: **milestones 1–3 built (2026-11-22)**: room server + teacher
+page + child page, the teacher's question list (see every question,
+swap, remove, add, new mix; also in the lobby while children join), and
+the play area (avatar choice, emotes, trampolines, tower + slide, ball
+pit, balls + hoop, confetti button, dance floor, "everyone to the
+middle"). A
 whole quiz runs with a teacher and several children (tested headless with
 3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be
 deployed with the API (master session) before anyone can play online.
@@ -35,9 +38,15 @@ deployed with the API (master session) before anyone can play online.
 4. QA: `node tools/qa-room.cjs <outDir> <children> "lang=de&topic=…"` plays a
    whole quiz with one teacher and N children and saves screenshots.
    `node tools/qa-editor.cjs <outDir>` checks the question list (14 checks).
-   Known flake: in 1 of 4 runs of `qa-room.cjs` one child's answer button
-   counted as "not visible" for a moment (2026-11-22, not reproduced; watch
-   for it in a real play-test).
+   `node tools/qa-play.cjs <outDir>` checks the play area (13 checks).
+   `node tools/make-thumbs.cjs` re-renders the avatar portraits
+   (`assets/thumbs/`, via `tools/thumbs.html`).
+   Headless runs are slow (software GPU, ~7 fps with 3–4 pages; the game's
+   dt cap makes time run slower), so the scripts wait for conditions, not
+   fixed times. Known flake: about 1 in 4 runs of `qa-room.cjs` times out
+   (once a child's answer button counted as "not visible" for a moment;
+   the other time the spot wasn't found). Not reproduced on demand; watch
+   for a stuck answer card in a real play-test.
 5. The client picks the server from the page: `wss://api.krabsy.com` on
    krabsy.com, `ws://<host>:8150` elsewhere, or `?server=<ws url>`.
 
@@ -51,6 +60,7 @@ deployed with the API (master session) before anyone can play online.
 | `src/room.js` | the 3D room, avatars (random KayKit character, colour ring, name tag, "answered" dot / thinking bubble), movement (WASD/arrows, Shift run, Space jump), cameras |
 | `src/net.js` | socket with auto-reconnect (re-sends join/resume) |
 | `src/questions.js` | builds the question pool in the teacher's browser (engine or inline lists), verb pairs kept together |
+| `src/play.js` | the play area: trampolines, tower + steps + slide, ball pit, 3 balls (kicks sent to the server), hoop, big red button, dance floor, confetti; ground heights for the controller |
 | `src/editor.js` | the teacher's question list: one row per question (a verb pair = one row), ⟳ swap for an unused one (same topic + difficulty, same length), ✕ remove, + add, new mix, "show answers" toggle |
 | `src/ui.js`, `src/style.css` | shared rendering (question line, teach beat, review) and styles |
 | `src/i18n.js`, `src/audio.js`, `src/analytics.js` | texts, synth sounds, analytics (`quiz-room`: `quiz_open`, `level_start`, `level_end`; children post answer counts) |
@@ -73,9 +83,23 @@ to the server (`questions` message, lobby only). The teacher's settings
 are kept in `sessionStorage` with the room token, so after a reload the
 pool can be rebuilt for swaps.
 
-Not built yet (next milestones): avatar choice (the avatar is random, the
-colour is chosen), toys and emotes, bonus round, touch controls, QR code,
-class link.
+Play area (milestone 3): children pick one of 8 characters (portraits in
+`assets/thumbs/`) and a colour. Emotes: keys 1–4 (when no answer card is
+open) or the buttons bottom right: wave 👋, dance 💃 (spin), cheer 🎉 (jump),
+thumbs up 👍, with a bubble over the head; the server relays them (one per
+0.8 s per child). Movement: Shift runs, Space jumps; steps (0.8 / 1.6 m)
+lead up the tower (2.4 m), the slide pushes you down, trampolines bounce
+higher each time (capped), the ball pit sinks you in and slows you. Balls:
+each client simulates them; the kicker sends the new state (`ball`), the
+others apply it (exact sync doesn't matter); a basket gives confetti over
+the ring. The big red button sends `boom`; the server allows one every 8 s
+for the whole room and everyone (teacher too) gets confetti. Teacher:
+"Alle in die Mitte" (lobby and reveal) freezes everyone in the middle
+until the next question or "Weiterspielen lassen". Balls reset at every
+new question. No sitting and no swings (the rig has no sit clip).
+
+Not built yet (next milestones): bonus round, touch controls, QR code,
+class link, performance pass with 30 avatars.
 
 ## Why this game
 
@@ -317,3 +341,7 @@ question loading, texts, sounds, character loading and the QA approach.
 - 2026-11-22: milestone 2 built: question list in the teacher setup and in
   the lobby (server: `questions` message in the lobby, + test; API suite 43
   passed). `tools/qa-editor.cjs` 14/14; full quiz still passes.
+- 2026-11-22: milestone 3 built: play area, emotes, avatar choice, teacher
+  "everyone to the middle" (server: `emote` rate limit, `ball`, `boom`,
+  `middle`; + test; API suite 44 passed). `qa-play.cjs` 13/13 (twice),
+  `qa-editor.cjs` 14/14, `qa-room.cjs` passes (with the flake noted above).

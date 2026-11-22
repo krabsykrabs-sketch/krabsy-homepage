@@ -92,6 +92,23 @@ class SFX {
     }
   }
 
+  boing() { this.tone({ f: 180, f1: 520, type: 'sine', dur: 0.28, g: 0.16 }); this.tone({ f: 360, f1: 900, type: 'triangle', t: 0.02, dur: 0.2, g: 0.05 }); }
+
+  kick() { this.noise({ dur: 0.08, g: 0.18, f: 400, q: 1 }); this.tone({ f: 120, f1: 60, type: 'sine', dur: 0.12, g: 0.2 }); }
+
+  swish() {
+    this.noise({ dur: 0.35, g: 0.1, f: 3000, q: 0.7, a: 0.05 });
+    [988, 1319].forEach((f, i) => this.tone({ f, type: 'triangle', t: 0.25 + i * 0.09, dur: 0.25, g: 0.1 }));
+  }
+
+  boom() {
+    this.tone({ f: 90, f1: 40, type: 'sine', dur: 0.5, g: 0.3 });
+    this.noise({ dur: 0.6, g: 0.2, f: 900, q: 0.5 });
+    [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone({ f, type: 'square', t: 0.15 + i * 0.06, dur: 0.15, g: 0.05 }));
+  }
+
+  pop() { this.tone({ f: 600, f1: 1200, type: 'sine', dur: 0.09, g: 0.12 }); }
+
   whoosh() { this.noise({ dur: 0.35, g: 0.08, f: 900, q: 0.6, a: 0.12 }); }
 }
 

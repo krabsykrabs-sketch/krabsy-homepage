@@ -61,7 +61,8 @@
 .pl .ans{width:.9em;height:.9em;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);}
 .pl button{font-size:13px;background:#22336a;border-radius:6px;padding:2px 6px;opacity:0;}
 .pl:hover button{opacity:1;}
-#controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9;display:flex;gap:10px;}
+#controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9;display:flex;gap:8px;}
+#controls .btn{font-size:20px;white-space:nowrap;padding:.35em .85em;}
 /* question panel (the class may see the projector: no answer before the reveal) */
 #qpanel{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:8;width:min(820px,calc(100vw - 540px));min-width:560px;}
 #qpanel .card{padding:14px 18px;}
@@ -124,6 +125,7 @@
 <div id="controls" class="hidden">
   <button id="mainBtn" class="btn"></button>
   <button id="editBtn" class="btn ghost" data-t="editQuestions"></button>
+  <button id="midBtn" class="btn ghost"></button>
   <button id="lockBtn" class="btn ghost"></button>
   <button id="endBtn" class="btn ghost" data-t="end"></button>
 </div>

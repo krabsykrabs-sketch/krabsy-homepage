@@ -168,6 +168,34 @@ def test_edit_questions_in_lobby_only():
             assert recv(teacher, "error")["code"] == "started"
 
 
+def test_play_area_messages():
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(1), "time": 30})
+        code = recv(teacher, "created")["code"]
+        with c.websocket_connect(WS) as a, c.websocket_connect(WS) as b:
+            a.send_json({"t": "join", "code": code, "name": "Ana"}); recv(a, "joined")
+            b.send_json({"t": "join", "code": code, "name": "Ben"}); recv(b, "joined")
+            a.send_json({"t": "emote", "e": 2})
+            assert recv(b, "emote")["e"] == 2
+            a.send_json({"t": "ball", "b": 1, "p": [1, 0.3, 2], "v": [99, 4, 0]})
+            ball = recv(b, "ball")
+            assert ball["b"] == 1 and ball["v"][0] == 30            # clamped
+            a.send_json({"t": "boom"})
+            assert recv(b, "boom")["pid"]
+            a.send_json({"t": "boom"})                                # cooldown: dropped
+            teacher.send_json({"t": "middle", "on": True})
+            m = recv(b, "middle")                                     # (no second boom before it)
+            assert m["on"] is True
+            teacher.send_json({"t": "start"})
+            recv(b, "question")
+            with c.websocket_connect(WS) as b2:                       # middle ends with the question
+                b2.send_json({"t": "join", "code": code, "name": "Cy"})
+                assert recv(b2, "joined")["middle"] is False
+
+
 def test_origin_and_names():
     import quiz_room
     assert quiz_room._ORIGIN.match("https://krabsy.com")
