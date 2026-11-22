@@ -8,7 +8,8 @@ games (wrapper pages, `games.json`, sitemap, deploy). You don't touch
 `homepage/` or other games, and you don't push or deploy. Stage only this
 folder, in the same command that commits: `git add games/verb-golf && git commit …`.
 
-Status: **idea chosen by the owner 2026-11-22, nothing built yet.**
+Status: **first playable version built 2026-11-22: levels 1 and 2 (6 holes), card strokes and
+word gates, mouse / keyboard / touch. Not yet play-tested by a human.** See "What exists".
 
 ## Why this game
 
@@ -135,6 +136,83 @@ and keep the first load small (Verb Dungeon loads about 3.4 MB).
   cheer).
 - Target: plays smoothly on a school Chromebook and a touch tablet.
 
+## What exists (2026-11-22)
+
+Serve with `python3 tools/serve.py` (port 8140, caching off; `.claude/launch.json` does the
+same) and open `/`. `?play=1&level=n` skips the menu, `?unlock` opens all levels, `?lang=de|es`.
+
+| File | What it does |
+|---|---|
+| `index.html` | page, styles, HUD, question card, bottom sign line, toast, menu and end screens |
+| `src/main.js` | game state and rules, card, gates, strokes, camera fit, input (pointer + keys), frame loop, QA hook |
+| `src/course.js` | builds one hole from its grid: height field, wall segments, gates, merged meshes, rocky underside, slope chevrons |
+| `src/physics.js` | the ball: fixed step 1/240 s, slope pull, friction, capsule walls, cup catch / lip |
+| `src/holes.js` | level and hole data (grid format explained at the top) |
+| `src/labels.js` | word plates over the gates (canvas sprites) |
+| `src/assets.js` | model loading, baked geometries, merge into one mesh per material |
+| `src/questions.js`, `src/verbs.js` | verb pairs from the site engine, inline fallback (copied from Verb Dungeon) |
+| `src/i18n.js` | EN/DE/ES texts, `_touch` twins |
+| `src/audio.js` | WebAudio synth: putt, roll (speed-driven noise), wall clunk, lip, cup rattle, cheer, card, right/wrong |
+| `src/track.js` | analytics: `level_start`, `hole_end`, `level_end` game events; `recordAttempt` on every first answer |
+| `assets/` | 0.27 MB of KayKit models (`assets/CREDITS.md`); `vendor/three/` 0.169, `fonts/` |
+| `tools/` | `serve.py`, `shot.cjs` (headless screenshot), `qa-play.cjs` (plays levels by script), `qa-input.cjs` (real mouse/keys/touch) |
+
+First load ≈ 1.9 MB (Three.js 1.2 MB of it), 9–25 draw calls per hole.
+
+### Rules as built (a first proposal; the owner has not confirmed them)
+
+- **Holes are tile grids** (`holes.js`): 2×2-unit tiles; `#` green, `T` tee, `H` cup, `^ > v <`
+  slope rising that way, `X` raised block, `t r g` decoration tiles (tree, rocks, bushes)
+  outside the fence; optional `h` grid of levels (0.5 units each; a slope rises one level).
+  Railings go automatically on every course edge that leads nowhere or to another height.
+  Slope tiles carry white chevrons pointing downhill (otherwise a slope doesn't read from
+  the fixed camera). The course is one merged mesh; the island has a rocky underside.
+- **Camera:** fixed per hole, 54° down, fitted to the window (HUD on top, sign line at the
+  bottom kept free). It turns the hole 90° (tee on the left) only when that makes it at
+  least a third bigger, e.g. the tutorial hole on a laptop. Portrait tablets fit too.
+- **A stroke:** the ball lies still, a "Space / Tap: your stroke" bubble floats over it.
+  Space, or a tap/click anywhere on the course, opens the card (scene dimmed, nothing moves).
+  Right answer → the card closes, aim. Wrong → chip greys, teach line (`go → went → ___` at
+  the 2nd form, the full chain at the 3rd), **+1 stroke**, pick again. Card strokes ask
+  pairs: 2nd form on one stroke, the same verb's 3rd form on the next.
+- **Aiming:** drag anywhere (does not have to start on the ball) and pull back like a
+  slingshot; the arrow shows direction and power (teal → amber → coral); let go to shoot.
+  A tiny drag cancels. Keys: ← → turn the aim (starts pointing at the cup), hold Space:
+  power swings up and down, let go to shoot. Full power ≈ 26 units of roll.
+- **Ball physics:** slopes pull, friction slows, railings bounce (72 % of the normal speed),
+  the cup catches a ball slower than 6.2 u/s over it and pulls a slow ball near it a little;
+  a faster ball skips over the lip. A ball that leaves the course (not possible on the
+  current holes) goes back with +1.
+- **Word gates** (level 2): a row of three arches with word plates across the fairway. While
+  the ball is before an unsolved row, strokes need no card; the bottom line shows
+  `go → ___ → ___`. Through the right gate: plate teal, the other two close, the next row
+  (if any) shows its 3rd-form words (`go → went → ___`; "?" until then). Wrong gate: the
+  plate greys and closes, +1, the ball hops back to where it was shot from. If a card verb
+  still waits for its 3rd form when a gate stroke comes up, the card asks it first (chain order).
+- **Missed verbs** come back as a pair about three questions later and are listed on the end
+  screen.
+- **Give-up rule:** at par + 4 strokes the ball flies into the hole ("Let's go on!").
+- **Stars:** level total ≤ par 3, ≤ par + 3 2, else 1; best per level in localStorage
+  `krabsy_vgolf_stars`; level n+1 opens with any star on n. Menu shows levels 3–6 as "soon".
+- **Analytics:** `hole_end { level, hole, strokes, par, shots, penalties, gave_up }`.
+
+### QA
+
+`window.__VG`: `info()`, `ready()`, `answer(right)`, `shoot(deg, power)`, `shootAt(x, z, p)`,
+`putt()` (at the cup), `gate(right)` (puts the ball before the right / a wrong gate and shoots
+through), `sinkNow()`, `hole(n)`, `ballScreen()`, `camera`, `scene`, `G`.
+`?qa=play&level=n[&wrongall=1]` plays a level by script (real physics; the bot only putts
+straight at the cup, so it gives up on hole 1-3); the result lands in `#qa`.
+`node tools/qa-play.cjs` runs levels 1–2 with and without mistakes and checks chain order;
+`node tools/qa-input.cjs` drives real mouse, keyboard and touch (CDP) input.
+Headless Chromium comes from `~/.cache/ms-playwright` via the Worksheets app's Playwright.
+
+### Not built yet
+
+Levels 3–6 (conveyors, bumpers/swipers, springs and island jumps, saw traps), golfer
+character, music, prepositions (`?topic=`), the "click to play" focus pause (not needed so
+far: the mouse works without keyboard focus), a site-engine test (`source: 'engine'`).
+
 ## Open questions for the owner
 
 - Card before every stroke, or only before the first stroke of each hole
@@ -146,3 +224,13 @@ and keep the first load small (Verb Dungeon loads about 3.4 MB).
 
 - 2026-11-22: brief written by the master session after the owner picked
   Verb Golf from six ideas.
+- 2026-11-22: **first playable version** (game session). Levels 1 (tutorial straight, corner,
+  slope + block) and 2 (one gate row; two rows over a slope; corner with a row each way),
+  see "What exists". **Checked** in headless Chromium (software rendering): `qa-play.cjs`
+  levels 1–2 ± mistakes reach the end screen, no chain-order violations, all events sent;
+  `qa-input.cjs`: click opens the card, digits answer, mouse drag shoots, ← → turn and held
+  Space shoots, touch drag shoots through a gate; screenshots at 1366×768, 1024×768 and
+  768×1024 in EN/DE/ES (`_shots/`, gitignored). **Not checked:** a human playing (shot
+  power, friction, how hard hole 1-2's corner and 1-3's block are, whether the card on every
+  stroke feels too slow), sounds, a real tablet / Chromebook frame rate, the site question
+  engine. **Next:** owner play-test, then tune; then level 3 (conveyors, arrow platforms).

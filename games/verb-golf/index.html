@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, indexifembedded">
+<title>Verb Golf — Krabsy</title>
+<style>
+@font-face{font-family:'Fredoka One';font-weight:400;font-display:swap;
+  src:url(fonts/fredoka-one-400-latin.woff2) format('woff2');}
+@font-face{font-family:'Nunito';font-weight:400 900;font-display:swap;
+  src:url(fonts/nunito-400-latin.woff2) format('woff2');}
+:root{--navy:#0d2240;--teal:#2ee6c0;--coral:#ff8585;--amber:#ffcf5e;--ink:#eaf2ff;--muted:#9db4dd;}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;overflow:hidden;background:#7fb8ef;color:var(--ink);
+  font-family:'Nunito',sans-serif;font-weight:800;user-select:none;-webkit-user-select:none;
+  -webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:none;overscroll-behavior:none;}
+canvas{display:block;width:100%;height:100%;}
+h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
+.base{color:var(--amber);} .past{color:var(--teal);} .pp{color:var(--coral);}
+.arrow{color:#6f89b8;margin:0 .35em;}
+
+/* HUD */
+#hud{position:fixed;left:0;right:0;top:0;display:none;z-index:7;justify-content:space-between;
+  align-items:flex-start;padding:12px 14px;pointer-events:none;gap:8px;}
+#hud.on{display:flex;}
+.pill{background:rgba(13,34,64,.82);border-radius:999px;padding:7px 16px;font-size:16px;white-space:nowrap;}
+.hudLeft{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+#strokes.bump{animation:bump .5s;}
+@keyframes bump{30%{scale:1.25;background:rgba(255,133,133,.9);}}
+#mute{pointer-events:auto;cursor:pointer;border:0;color:var(--ink);font:inherit;font-size:16px;}
+#hint{position:fixed;left:50%;top:60px;transform:translateX(-50%);opacity:0;transition:opacity .3s;
+  pointer-events:none;background:rgba(13,34,64,.86);border-radius:999px;padding:8px 20px;
+  font-size:17px;color:var(--amber);white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis;}
+#hint.on{opacity:1;}
+.carding #hint{opacity:0;}
+/* the "your stroke" prompt floating over the ball */
+#prompt{position:fixed;transform:translate(-50%,-100%);pointer-events:none;opacity:0;transition:opacity .2s;
+  background:rgba(13,34,64,.9);border:3px solid var(--amber);border-radius:16px;padding:6px 14px;
+  font-size:16px;white-space:nowrap;z-index:3;animation:bob 1.2s ease-in-out infinite;}
+#prompt.on{opacity:1;}
+#prompt::after{content:'';position:absolute;left:50%;bottom:-11px;margin-left:-8px;border:8px solid transparent;
+  border-top-color:var(--amber);border-bottom:0;}
+@keyframes bob{50%{margin-top:-6px;}}
+
+/* Question card */
+#ask{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:radial-gradient(ellipse at 50% 50%,rgba(6,13,28,.35) 0%,rgba(3,7,18,.72) 100%);
+  opacity:0;pointer-events:none;transition:opacity .18s;}
+#ask.on{opacity:1;pointer-events:auto;}
+#askCard{position:relative;width:min(660px,100%);text-align:center;border-radius:30px;padding:20px 30px 18px;
+  background:linear-gradient(180deg,#16335e 0%,#0d2240 55%);border:3px solid var(--edge,var(--amber));
+  box-shadow:0 0 0 7px rgba(13,34,64,.55),0 26px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08);
+  transform:scale(.86);transition:transform .25s cubic-bezier(.3,1.5,.5,1),border-color .25s;}
+#ask.on #askCard{transform:scale(1);}
+#askCard.past{--edge:var(--teal);} #askCard.pp{--edge:var(--coral);}
+#askHead{display:inline-flex;align-items:center;gap:10px;padding:5px 18px 5px 8px;border-radius:999px;
+  background:rgba(6,13,28,.6);color:var(--amber);font-size:17px;}
+#askIcon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+  background:rgba(255,207,94,.16);font-size:20px;}
+#chain{font-family:'Fredoka One';font-weight:400;font-size:clamp(30px,4.4vw,56px);white-space:nowrap;
+  margin:20px 0 2px;line-height:1.25;}
+.blank{display:inline-block;min-width:3em;border-bottom:5px dashed #3a5584;color:transparent;}
+.blank.ask{color:inherit;border-radius:12px 12px 0 0;animation:askPulse 1.4s ease-in-out infinite;}
+.blank.ask.past{border-color:var(--teal);background:rgba(46,230,192,.13);color:var(--teal);}
+.blank.ask.pp{border-color:var(--coral);background:rgba(255,133,133,.13);color:var(--coral);}
+@keyframes askPulse{50%{background-color:rgba(255,255,255,.04);}}
+.filled{display:inline-block;animation:filled .45s ease-out;}
+@keyframes filled{0%{scale:.4;opacity:0;}60%{scale:1.25;opacity:1;}}
+#chips{display:flex;gap:14px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.chip{font:inherit;font-family:'Fredoka One';font-weight:400;font-size:clamp(22px,2.4vw,29px);color:var(--ink);
+  background:#17345f;border:0;border-bottom:5px solid #0a1b36;border-radius:16px;padding:11px 24px 9px 14px;
+  min-width:156px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  transition:transform .1s,background .1s;}
+.chip small{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;
+  background:rgba(6,13,28,.6);color:var(--muted);font-family:'Nunito';font-weight:900;font-size:15px;}
+.chip:hover{background:#1f437a;transform:translateY(-2px);}
+.chip:hover small{color:var(--edge,var(--amber));}
+.chip.wrong{animation:shake .35s;background:#3a2232;color:#7d6270;cursor:default;transform:none;}
+.chip.wrong small{color:#7d6270;}
+.chip.right{background:var(--teal);color:#06231d;}
+@keyframes shake{25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+#teach{margin-top:14px;font-size:17px;color:var(--muted);min-height:24px;}
+#teach .arrow{margin:0 .25em;}
+#teach .pen{color:var(--coral);margin-left:8px;}
+@media (max-height:640px){#askCard{padding:14px 24px 12px;} #chain{margin:12px 0 0;} #chips{margin-top:14px;}}
+@media (max-width:560px){.chip{min-width:0;flex:1 1 30%;padding:11px 10px 9px;} #askCard{padding:16px 14px 14px;}}
+
+/* gate question: the small line at the bottom */
+#sign{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);opacity:0;pointer-events:none;
+  transition:opacity .2s;background:rgba(13,34,64,.9);border:2px solid rgba(46,230,192,.45);border-radius:18px;
+  padding:7px 28px 8px;text-align:center;white-space:nowrap;z-index:3;}
+#sign.on{opacity:1;}
+#signChain{font-family:'Fredoka One';font-weight:400;font-size:28px;}
+#signChain .blank{min-width:2.6em;border-bottom-width:4px;}
+#signHow{font-size:15px;color:var(--ink);margin-top:1px;}
+#toast{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.8);opacity:0;transition:opacity .25s,transform .25s;
+  pointer-events:none;background:rgba(13,34,64,.95);border:3px solid rgba(46,230,192,.6);
+  border-radius:18px;padding:10px 26px;font-family:'Fredoka One';font-weight:400;font-size:32px;
+  white-space:nowrap;z-index:5;}
+#toast.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
+#toast.big{font-size:46px;color:var(--amber);border-color:var(--amber);}
+.pop{position:fixed;pointer-events:none;font-family:'Fredoka One';font-weight:400;font-size:28px;
+  color:var(--coral);text-shadow:0 3px 0 #0a1b36;transform:translate(-50%,-50%);
+  animation:pop 1s ease-out forwards;white-space:nowrap;z-index:5;}
+.pop.good{color:var(--teal);}
+@keyframes pop{0%{opacity:0;margin-top:0;scale:.5;}20%{opacity:1;scale:1.15;}
+  100%{opacity:0;margin-top:-70px;scale:1;}}
+
+/* Screens */
+.screen{position:fixed;inset:0;display:none;align-items:safe center;justify-content:center;
+  background:rgba(13,34,64,.45);padding:16px;overflow-y:auto;touch-action:pan-y;z-index:8;}
+.screen.on{display:flex;}
+.card{background:rgba(13,34,64,.95);border-radius:26px;padding:20px 34px 22px;text-align:center;
+  max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.45);}
+.card h1{margin:0;font-size:50px;color:var(--teal);}
+.card h1 span{color:var(--amber);}
+.card h2{margin:0 0 6px;font-size:36px;color:var(--teal);}
+.card p{margin:8px 0 0;color:var(--muted);font-size:17px;}
+#levels{display:flex;gap:12px;justify-content:center;margin:16px 0 14px;flex-wrap:wrap;}
+.lvl{font:inherit;color:var(--ink);background:#17345f;border:0;border-bottom:5px solid #0a1b36;
+  border-radius:18px;padding:12px 18px 10px;cursor:pointer;min-width:120px;}
+.lvl:hover{background:#1f437a;}
+.lvl.sel{outline:3px solid var(--teal);outline-offset:2px;}
+.lvl b{display:block;font-family:'Fredoka One';font-weight:400;font-size:22px;}
+.lvl span{display:block;margin-top:4px;font-size:20px;letter-spacing:2px;color:var(--amber);}
+.lvl span i{font-style:normal;color:#2b4370;}
+.lvl:disabled{opacity:.45;cursor:default;}
+.lvl em{display:block;font-style:normal;font-size:14px;color:var(--muted);margin-top:4px;}
+#howto{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:15px;color:var(--muted);}
+#howto div{background:rgba(6,13,28,.5);border-radius:12px;padding:7px 12px;}
+kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border-radius:6px;
+  padding:1px 7px;margin-right:4px;}
+#example{margin-top:16px;font-family:'Fredoka One';font-weight:400;font-size:24px;}
+#stars{font-size:54px;letter-spacing:6px;color:var(--amber);margin:6px 0 2px;}
+#stars i{font-style:normal;color:#2b4370;}
+#score{margin:10px auto 0;border-collapse:collapse;font-size:16px;}
+#score td,#score th{padding:3px 10px;}
+#score th{color:var(--muted);font-weight:800;}
+#score .under{color:var(--teal);} #score .over{color:var(--coral);}
+#missed{margin:12px auto 0;font-family:'Fredoka One';font-weight:400;font-size:20px;line-height:1.5;}
+.btns{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.btn{font:inherit;font-size:19px;color:#06231d;background:var(--teal);border:0;
+  border-bottom:4px solid #159a80;border-radius:14px;padding:10px 22px;cursor:pointer;}
+.btn.alt{background:#17345f;color:var(--ink);border-bottom-color:#0a1b36;}
+#fade{position:fixed;inset:0;background:#cfe6fb;opacity:0;pointer-events:none;transition:opacity .35s;z-index:9;}
+#fade.on{opacity:1;}
+#loading{position:fixed;inset:0;background:#7fb8ef;display:flex;align-items:center;z-index:10;
+  justify-content:center;font-family:'Fredoka One';font-weight:400;font-size:26px;color:#0d2240;
+  white-space:pre-wrap;text-align:center;padding:20px;}
+#focus{position:fixed;inset:0;display:none;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(6,13,28,.45);z-index:8;}
+#focus.on{display:flex;}
+#focus div{background:rgba(13,34,64,.95);border:3px solid var(--teal);border-radius:20px;padding:16px 30px;
+  font-family:'Fredoka One';font-weight:400;font-size:28px;color:var(--teal);}
+@media (max-height:500px){
+  .screen{padding:8px;}
+  .card{padding:10px 22px 12px;border-radius:20px;}
+  .card h1{font-size:32px;} .card h2{font-size:28px;}
+  .card p{font-size:14px;margin-top:4px;}
+  #levels{margin:8px 0 8px;gap:8px;} .lvl{padding:6px 14px 5px;min-width:100px;}
+  .lvl b{font-size:18px;} .lvl span{font-size:15px;margin-top:0;}
+  #howto{font-size:13px;gap:6px;} #howto div{padding:4px 9px;}
+  #example{display:none;}
+  #stars{font-size:38px;margin:2px 0 0;} #missed{font-size:17px;margin-top:6px;line-height:1.35;}
+  .btns{margin-top:10px;} .btn{font-size:16px;padding:7px 16px;}
+  #sign{bottom:6px;padding:3px 18px 4px;border-radius:14px;} #signChain{font-size:21px;} #signHow{font-size:12px;}
+  #hint{top:50px;font-size:14px;padding:6px 14px;} .pill{font-size:14px;padding:5px 12px;}
+  #toast{font-size:24px;} #toast.big{font-size:34px;}
+}
+.touch .chip small{display:none;}
+.touch .chip{padding:13px 24px 11px;}
+#qa{position:fixed;left:0;bottom:0;margin:0;font:12px monospace;color:#0d2240;display:none;}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud">
+  <div class="hudLeft"><div class="pill" id="holeLabel"></div><div class="pill" id="parLabel"></div><div class="pill" id="strokes"></div></div>
+  <button class="pill" id="mute"></button>
+</div>
+<div id="hint"></div>
+<div id="prompt"></div>
+
+<div id="sign"><div id="signChain"></div><div id="signHow"></div></div>
+<div id="ask">
+  <div id="askCard">
+    <div id="askHead"><span id="askIcon">⛳</span><span id="askTitle"></span></div>
+    <div id="chain"></div>
+    <div id="chips"></div>
+    <div id="teach"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<div class="screen" id="menu">
+  <div class="card">
+    <h1>Verb <span>Golf</span></h1>
+    <p id="tagline"></p>
+    <div id="levels"></div>
+    <div id="howto"></div>
+    <div id="example"><span class="base">go</span><span class="arrow">→</span><span class="past">went</span><span class="arrow">→</span><span class="pp">gone</span></div>
+  </div>
+</div>
+
+<div class="screen" id="end">
+  <div class="card">
+    <h2 id="endTitle"></h2>
+    <div id="stars"></div>
+    <p id="endLine"></p>
+    <table id="score"></table>
+    <p id="endFirst"></p>
+    <div id="missed"></div>
+    <div class="btns">
+      <button class="btn" id="btnNext"></button>
+      <button class="btn alt" id="btnAgain"></button>
+      <button class="btn alt" id="btnMenu"></button>
+    </div>
+  </div>
+</div>
+
+<div id="focus"><div id="focusText"></div></div>
+<div id="fade"></div>
+<div id="loading">…</div>
+<pre id="qa"></pre>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
