@@ -31,3 +31,6 @@ games/verb-platformer/assets/levels/*
 !games/verb-platformer/assets/levels/*.json
 # Small scenery models (background islands, clouds; < 1 MB) are tracked too.
 !games/verb-platformer/assets/scenery/
+
+# Local secrets (API keys) — never commit
+.env
