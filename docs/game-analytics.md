@@ -75,8 +75,12 @@ first wave). `seconds` = active play time of the level.
   `order_served`, `plate_washed`.
 - **Verb Dungeon:** `level_start/level_end` (+ `rooms, keys, hits_taken`),
   `room_cleared {level, room, seconds}`, `door_opened`, `player_down`.
-- **Verb Platformer:** `level_start/level_end` (+ `falls`), `gate_passed`,
-  `fell {level, gate}`.
+- **Verb Platformer:** built 2026-11-22 (`games/verb-platformer/src/analytics.js`):
+  `level_start {level}`, `gate_passed {level, gate, first_try, seconds}`,
+  `wrong_answer {level, gate}`, `fell {level, gate, cause: gap|wrong|hazard}`
+  (gate = the one ahead), `level_end {level, result: won, stars, seconds,
+  answers, correct, gates, falls}`. There is no "lost": a level ends at the
+  flag or is left.
 - **Arcade games** (Snake, Flow, Air Control, Slash): `level_start/level_end`
   with `score` is enough.
 

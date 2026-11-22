@@ -8,6 +8,7 @@ import { ParticleSystem, preloadParticles } from './particles.js';
 import { loadAudio, loadTexture, playSfx } from './assets.js';
 import { resolveSky } from './sky-presets.js';
 import { preloadScenery, buildScenery } from './scenery.js';
+import { playApplause } from './celebrate.js';
 
 // Sky-islands constants. The platforms float high above a cloud sea; CLOUD_Y is the visible
 // cloud deck. FALL_Y is where a fall counts (sound, respawn timer): well above the deck, so
@@ -323,12 +324,15 @@ export async function createGame(canvas) {
         gatesCleared = gateIdx + 1;
         if (checkpointPos) lastCheckpoint = checkpointPos;
         currentLevel?.markCleared(gateIdx);
+        // The spectators nearby cheer, with applause (none when nobody is in range / lite mode).
+        const cheered = scenery?.cheer(player.getPosition()) || 0;
+        if (cheered) playApplause(Math.min(1, cheered / 2));
         onGateCleared(gatesCleared, currentLevel.gateCount, question);
       },
       onGateWrong: (gateIdx, question, opt) => {
         // Commit the player to the fall: freeze controls so they can't hop off the crumbling block.
         controlsLocked = true;
-        onGateWrong(question, opt);
+        onGateWrong(question, opt, gateIdx);
       },
       // Editor-format hooks — the new mechanic uses these directly.
       onCheckpoint: (pos) => { lastCheckpoint = { ...pos }; },
@@ -339,7 +343,7 @@ export async function createGame(canvas) {
         if (!alive || lockedOut) return;
         alive = false;
         playSfx(sfx.fall);
-        onFall();
+        onFall('hazard');
         respawn();
       },
     }, {
@@ -493,7 +497,7 @@ export async function createGame(canvas) {
         alive = false;
         sinking = true;
         playSfx(sfx.fall);
-        onFall();
+        onFall(controlsLocked ? 'wrong' : 'gap');
         respawn();
       } else if (currentLevel.flagReached(playerPos)) {
         alive = false;

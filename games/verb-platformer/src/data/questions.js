@@ -118,6 +118,17 @@ function makeQuestion(row, form, pairNext = false) {
 // next gate. A gate that fixes form 'participle' becomes the 2nd gate of a pair (the gate before
 // it asks the same verb's 2nd form); if that is impossible it is asked as 2nd form instead.
 // Verbs are not repeated until the pool is used up.
+// Smart mix (site, docs/phase1-game-wiring.md): unless the level names its verbs, the first
+// verbs dealt come from getChainSet({ smart: true }) — words this player still gets wrong,
+// new words of their level, words due again — asked anew for every level start.
+async function smartVerbs(level, count) {
+  try {
+    const KQ = await import('/lib/krabsy-questions.js');
+    const tiers = Array.isArray(level.tiers) && level.tiers.length ? level.tiers : undefined;
+    return await KQ.getChainSet({ topic: 'irregular_verbs', count, tiers, maxLen: 9, smart: true });
+  } catch (_) { return []; }
+}
+
 export async function buildQuestionQueue(level, gates) {
   const all = await loadVerbPool();
   let pool = all;
@@ -134,6 +145,13 @@ export async function buildQuestionQueue(level, gates) {
 
   let bag = [];
   const used = new Set(gates.map(g => norm(g.verb)).filter(v => byVerb.has(v)));
+  if (!(Array.isArray(level.verbs) && level.verbs.length)) {
+    // smart verbs on top of the bag (it is popped from the end), the rest of the pool below
+    const smart = (await smartVerbs(level, Math.ceil(gates.length / 2) + 1))
+      .map(r => byVerb.get(norm(r.verb))).filter(r => r && !used.has(norm(r.verb)));
+    const smartSet = new Set(smart.map(r => norm(r.verb)));
+    bag = [...shuffle(pool.filter(r => !used.has(norm(r.verb)) && !smartSet.has(norm(r.verb)))), ...smart.reverse()];
+  }
   const draw = () => {
     if (bag.length === 0) bag = shuffle(pool.filter(r => !used.has(norm(r.verb))));
     if (bag.length === 0) { used.clear(); bag = shuffle([...pool]); }

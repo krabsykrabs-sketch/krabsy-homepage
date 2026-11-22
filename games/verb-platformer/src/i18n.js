@@ -48,6 +48,7 @@ const EN = {
 
   jump: 'JUMP',
   pause: 'Pause',
+  sound: 'Sound on/off (M)',
   gateOf: (n, total) => `Gate ${n} of ${total}`,
   toFlag: 'To the flag!',
   clickToLook: 'Click the game to look around with the mouse',
@@ -113,6 +114,7 @@ const DE = {
 
   jump: 'SPRUNG',
   pause: 'Pause',
+  sound: 'Ton an/aus (M)',
   gateOf: (n, total) => `Tor ${n} von ${total}`,
   toFlag: 'Auf zur Flagge!',
   clickToLook: 'Klick ins Spiel, um dich mit der Maus umzusehen',
@@ -179,6 +181,7 @@ const ES = {
 
   jump: 'SALTO',
   pause: 'Pausa',
+  sound: 'Sonido sí/no (M)',
   gateOf: (n, total) => `Puerta ${n} de ${total}`,
   toFlag: '¡A la bandera!',
   clickToLook: 'Haz clic en el juego para mirar con el ratón',

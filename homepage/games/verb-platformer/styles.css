@@ -290,7 +290,7 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
   padding: 9px 18px;
   border-radius: 999px;
   background: rgba(23, 35, 63, 0.82);
-  max-width: calc(100% - 70px);
+  max-width: calc(100% - 130px);
   box-sizing: border-box;
 }
 #level-info { font-family: var(--font-head); font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -307,6 +307,21 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
 @keyframes pip-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
 #hud-time { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; color: var(--mute); min-width: 2.6em; text-align: right; }
 
+#hud-buttons { display: flex; gap: 10px; }
+#mute-btn {
+  pointer-events: auto;
+  width: 52px; height: 52px;
+  border: none; border-radius: 50%;
+  background: rgba(23, 35, 63, 0.82);
+  display: flex; align-items: center; justify-content: center;
+}
+#mute-btn:hover { background: var(--navy); }
+#mute-btn svg { width: 24px; height: 24px; }
+#mute-btn .spk { fill: #fff; }
+#mute-btn .wave, #mute-btn .cross { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+#mute-btn .cross { display: none; stroke: var(--coral); }
+#mute-btn[aria-pressed="true"] .wave { display: none; }
+#mute-btn[aria-pressed="true"] .cross { display: inline; }
 #pause-btn {
   pointer-events: auto;
   width: 52px; height: 52px;
@@ -561,7 +576,8 @@ body:not([data-state="playing"]) #touch-jump { visibility: hidden; pointer-event
   #hud { top: 8px; left: 8px; right: 8px; }
   #hud-pill { padding: 7px 14px; gap: 10px; }
   #level-info { display: none; }
-  #pause-btn { width: 46px; height: 46px; }
+  #pause-btn, #mute-btn { width: 46px; height: 46px; }
+  #hud-buttons { gap: 8px; }
   #touch-joystick { left: 16px; bottom: 12px; }
   #touch-jump { right: 24px; bottom: 28px; width: 88px; height: 88px; }
   #answer-reveal { font-size: 26px; padding: 10px 22px; top: 17%; border-radius: 16px; }

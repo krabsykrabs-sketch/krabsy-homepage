@@ -5,6 +5,7 @@ import { spawnGate, LANE_OFFSETS } from './gates.js';
 import { spawnStyledGate } from './qa-styles.js';
 import { buildQuestionQueue } from './data/questions.js';
 import { CATALOG_BY_TYPE, urlFor, defaultColorFor } from './kaykit-catalog.js';
+import { CANVAS_FONT } from './shell-bits.js';
 
 // Legacy size→KayKit mapping. The four .js levels in src/levels/ use 'small'/'medium'/'large'
 // shorthand for their platforms — we resolve those names to KayKit 2x2x1/4x4x1/6x6x1 (blue,
@@ -48,7 +49,7 @@ const Q_BUBBLE_PAD_PX = 140;
 // (the 3rd form before it is asked) is drawn faint.
 function makeQuestionBubble(q) {
   const H = 512;
-  const font = `bold ${Q_BUBBLE_FONT_PX}px Arial, sans-serif`;
+  const font = `${Q_BUBBLE_FONT_PX}px ${CANVAS_FONT}`;
   const parts = typeof q === 'string' ? [q] : q.parts;
   const ask = typeof q === 'string' ? -1 : q.askIndex;
   const ARROW = '  →  ';
@@ -137,7 +138,7 @@ function makeFloorTag(text) {
   ctx.lineWidth = 10;
   ctx.strokeRect(5, 5, W - 10, H - 10);
   ctx.fillStyle = '#1a2435';
-  ctx.font = 'bold 140px Arial, sans-serif';
+  ctx.font = `140px ${CANVAS_FONT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text, W / 2, H / 2);
@@ -527,7 +528,7 @@ function makeAnswerLabelMesh(text, { fontSize = 'medium', color = 'white' } = {}
   })[color] ?? ANSWER_BUBBLE_TINT;
 
   const H = 512;
-  const font = `bold ${FONT_PX}px Arial, sans-serif`;
+  const font = `${FONT_PX}px ${CANVAS_FONT}`;
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = font;
   const textW = measure.measureText(text || '').width;

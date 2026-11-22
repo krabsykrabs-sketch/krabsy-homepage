@@ -1,3 +1,4 @@
+import { isMuted } from './sound.js';
 // Results-screen celebration: canvas confetti + a short WebAudio jingle. No assets.
 const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#ffffff', '#7fb6ff'];
 
@@ -64,6 +65,7 @@ let audioCtx = null;
 
 /** A rising arpeggio, then one bright note per star (timed with the stars popping in). */
 export function playJingle(stars = 3) {
+  if (isMuted()) return;
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
@@ -85,5 +87,40 @@ export function playJingle(stars = 3) {
     [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, i * 0.09, 0.28, 0.16));
     const starNotes = [1318.5, 1568, 2093];
     for (let i = 0; i < stars; i++) note(starNotes[i], 0.55 + i * 0.32, 0.4, 0.13, 'sine');
+  } catch (_) { /* no audio */ }
+}
+
+/** Soft applause from the spectators (a gate was cleared): short filtered noise claps,
+ *  thick at first and thinning out over about a second. `amount` 0..1 = how many cheer. */
+export function playApplause(amount = 1) {
+  if (isMuted() || amount <= 0) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audioCtx = audioCtx || new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    const sr = audioCtx.sampleRate;
+    // one clap: 25 ms of decaying noise
+    const clapLen = Math.floor(sr * 0.025);
+    const clap = audioCtx.createBuffer(1, clapLen, sr);
+    const d = clap.getChannelData(0);
+    for (let i = 0; i < clapLen; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clapLen * 0.22));
+    const bus = audioCtx.createBiquadFilter();
+    bus.type = 'bandpass'; bus.frequency.value = 1700; bus.Q.value = 0.8;
+    const out = audioCtx.createGain();
+    out.gain.value = 0.22 * Math.min(1, 0.5 + amount * 0.5);
+    bus.connect(out).connect(audioCtx.destination);
+    const now = audioCtx.currentTime + 0.02;
+    const claps = Math.round(18 + 22 * Math.min(1, amount));
+    for (let i = 0; i < claps; i++) {
+      const at = Math.pow(Math.random(), 1.6) * 1.1;          // denser at the start
+      const src = audioCtx.createBufferSource();
+      src.buffer = clap;
+      src.playbackRate.value = 0.8 + Math.random() * 0.5;
+      const g = audioCtx.createGain();
+      g.gain.value = (0.4 + Math.random() * 0.6) * (1 - at / 1.3);
+      src.connect(g).connect(bus);
+      src.start(now + at);
+    }
   } catch (_) { /* no audio */ }
 }

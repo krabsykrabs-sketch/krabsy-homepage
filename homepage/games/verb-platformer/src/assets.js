@@ -1,5 +1,6 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as THREE from 'three';
+import { isMuted } from './sound.js';
 
 const loader = new GLTFLoader();
 const texLoader = new THREE.TextureLoader();
@@ -79,6 +80,7 @@ export function loadAudio(url, { volume = 1, loop = false } = {}) {
 
 // Cheap "play overlapping" — clones the audio element so rapid triggers don't cut each other off.
 export function playSfx(audio) {
+  if (isMuted()) return;
   const clone = audio.cloneNode();
   clone.volume = audio.volume;
   clone.play().catch(() => {});

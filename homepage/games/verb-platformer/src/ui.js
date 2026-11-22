@@ -4,6 +4,7 @@ import { t } from './i18n.js';
 import { formatTime } from './progress.js';
 import { starsHtml, helpHtml, esc, IS_TOUCH } from './shell-bits.js';
 import { startConfetti, stopConfetti, playJingle } from './celebrate.js';
+import { toggleMuted, onMuteChange } from './sound.js';
 
 const $ = id => document.getElementById(id);
 
@@ -34,6 +35,9 @@ export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onR
   // A HUD button must never keep the keyboard focus: Space is "jump".
   const click = (el, fn) => el.addEventListener('click', () => { el.blur(); fn?.(); });
   click(pauseBtn, onPause);
+  const muteBtn = $('mute-btn');
+  click(muteBtn, toggleMuted);
+  onMuteChange(m => muteBtn.setAttribute('aria-pressed', String(m)));
   click($('pause-resume'), onResume);
   click($('pause-restart'), onRestart);
   click($('pause-levels'), onLevels);

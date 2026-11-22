@@ -804,6 +804,8 @@ export async function buildScenery(scene, level, { cloudY, sky, seed = 'level' }
 
   return {
     info,
+    // A gate was cleared: the spectators nearby cheer. Returns how many did (0 in lite mode).
+    cheer(playerPos) { return liteMode ? 0 : (life?.cheer(playerPos) || 0); },
     // playerPos: the spectators look at the player
     update(dt, playerPos) {
       time += dt;

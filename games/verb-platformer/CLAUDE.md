@@ -226,6 +226,29 @@ What a level-design session should do:
 
 (The old "to bring it back" steps were done on 2026-11-22, see Status.)
 
+## Tracking and polish (2026-11-22, after the release)
+
+- **Game events** for the site dashboard (`src/analytics.js`, docs/game-analytics.md):
+  `level_start`, `gate_passed {gate, first_try, seconds}`, `wrong_answer {gate}`,
+  `fell {gate, cause: gap|wrong|hazard}`, `level_end {stars, seconds, answers,
+  correct, gates, falls}`; `level` = menu number. A restart or the menu mid-level
+  sends nothing (= "left"). Editor playtests send nothing.
+- **Word statistics + smart mix** (docs/phase1-game-wiring.md): the first answer at
+  each gate goes to `recordAttempt` (retries after a fall do not); each level start
+  asks `getChainSet({ smart: true, tiers })` for its first verbs (`src/data/questions.js`).
+- **Mute:** HUD button next to pause and the `M` key (`src/sound.js`,
+  `krabsy_vp_mute`); `playSfx` and the jingles check it.
+- **Site font** (Fredoka One) on the question sign and the answer words
+  (`CANVAS_FONT` in `src/shell-bits.js`); `main.js` waits up to 2 s for it before
+  a level builds its signs.
+- **Answer words** 0.75 high (were 0.6), ×1.3 on screens under 560 px high.
+- **Cheering:** clearing a gate makes every spectator within 70 units cheer at once
+  (`scenery.cheer()`), with a soft synthesized applause (`playApplause` in
+  `src/celebrate.js`). No spectators in range / lite scenery = no applause.
+- Checked: a scripted run of level 1 sends the events in order with the right gate
+  numbers, records 2 answers, 2 spectators cheer per gate; shell test ALL OK
+  (de/es/en × desktop/tablet/phone); editor loads; served copy 0 errors.
+
 ## Game shell (2026-11-22; title screen, HUD, pause, results, DE/ES/EN)
 
 Everything around the gameplay. Plain DOM + CSS over the canvas, no build step.
@@ -283,8 +306,7 @@ Everything around the gameplay. Plain DOM + CSS over the canvas, no build step.
   takes a screenshot of every screen and reports console errors, failed
   requests and broken steps:
   `PLAYWRIGHT=… node tools/shell-test.cjs <base-url> <out-dir> de es en`.
-- **Open:** the question sign and answer bubbles still draw with Arial
-  (`src/level-loader.js`, `src/gates.js`: main session); no mute button; the
+- **Open:** the
   wrapper pages do not pass a level (`?level=N` works for teacher links, but
   nothing on the site builds such a link yet).
 

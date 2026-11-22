@@ -1,4 +1,7 @@
 import { createGame } from './src/game.js';
+import { Track } from './src/analytics.js';
+import { toggleMuted } from './src/sound.js';
+import { fontsReady } from './src/shell-bits.js';
 import { createMenu } from './src/menu.js';
 import { createUI } from './src/ui.js';
 import { applyStatic } from './src/i18n.js';
@@ -99,6 +102,7 @@ function updateLookTip() {
 // first-run hint comes up, which needs the cursor).
 async function startLevel(lvl) {
   const wantHint = !editorMode && params.get('hint') !== '0' && !hintSeen();
+  Track.abandon();           // a restart mid-level counts as "left" (no event)
   setState('loading');
   current = lvl;
   run = newRun();
@@ -114,11 +118,13 @@ async function startLevel(lvl) {
   ui.showLoader();
   if (!wantHint) game.lockPointer();
   try {
+    await fontsReady();      // the signs are drawn with the site font
     await game.startLevel(lvl);
   } finally {
     ui.hideLoader();
   }
   if (current !== lvl || state !== 'loading') return;
+  Track.levelStart(editorMode ? 0 : LEVELS.indexOf(lvl) + 1);
   ui.showHud();
   if (wantHint) {
     setState('hint');
@@ -159,6 +165,7 @@ function resumeGame() {
 }
 
 function returnToMenu() {
+  Track.abandon();
   setState('menu');
   current = null;
   game.stopGame();
@@ -202,6 +209,7 @@ function finishLevel() {
   const skipped = Math.max(0, run.gates - run.cleared);
   const stars = starsFor(run.wrong + skipped);
   const idx = LEVELS.indexOf(current);
+  Track.levelEnd({ stars, seconds: time, gates: run.gates });
   let saved = null;
   let allDone = false;
   if (!editorMode) {
@@ -227,20 +235,26 @@ function finishLevel() {
 }
 
 game.setHandlers({
-  onFall: () => { ui.deathFlash(); },
+  onFall: (cause) => {
+    ui.deathFlash();
+    if (run) Track.fell(run.cleared + 1, cause || 'gap');
+  },
   onGateCleared: (cleared, total, question) => {
     ui.setProgress(cleared, total);
     if (run) { run.gates = total; run.cleared = cleared; }
     if (!question) return;            // the first call of a level only paints the progress
     if (run) {
-      if (!run.missFlag) run.firstTry++;
+      if (!run.missFlag) { run.firstTry++; Track.answer(question, true); }
+      Track.gatePassed(cleared, !run.missFlag, game.getTime());
       run.missFlag = false;
     }
     // Teach beat: the full chain, in green.
     if (question.chain) ui.showAnswerReveal(question.chain, null);
   },
-  onGateWrong: (question, opt) => {
+  onGateWrong: (question, opt, gateIdx) => {
     if (run) {
+      if (!run.missFlag) Track.answer(question, false);   // first answer at this gate only
+      Track.wrongAnswer((gateIdx ?? run.cleared) + 1);
       run.wrong++;
       run.missFlag = true;
       // one entry per verb + blank; the full chain is built at the end (missedChains)
@@ -272,6 +286,8 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Escape' || e.code === 'KeyP') {
     if (state === 'playing') { e.preventDefault(); pauseGame(); }
     else if (state === 'paused' && performance.now() - lockLostAt > 400) { e.preventDefault(); resumeGame(); }
+  } else if (e.code === 'KeyM' && state !== 'menu') {
+    toggleMuted();
   } else if (e.code === 'Enter') {
     if (state === 'hint') { e.preventDefault(); dismissHint(); }
     else if (state === 'paused') { e.preventDefault(); resumeGame(); }

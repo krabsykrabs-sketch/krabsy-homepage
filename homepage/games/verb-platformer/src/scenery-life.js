@@ -384,6 +384,27 @@ export function buildLife(group, ctx) {
     }
   }
 
+  // A gate was cleared: every spectator near enough to be animated cheers at once (staggered
+  // by a few frames so they do not move in lockstep). Returns how many cheered.
+  function cheerNpcs(playerPos) {
+    let n = 0;
+    for (const s of npcs) {
+      if (!s.cheers.length || !playerPos) continue;
+      const d = Math.hypot(playerPos.x - s.root.position.x, playerPos.z - s.root.position.z);
+      if (d > NPC_ACTIVE) continue;
+      const act = s.cheers[s.turn++ % s.cheers.length];
+      const from = s.cheering || s.idle;
+      act.reset();
+      act.startAt(s.mixer.time + 0.12 * n);   // a small stagger (a negative .time would end a LoopOnce at once)
+      act.play();
+      if (from !== act) act.crossFadeFrom(from, 0.12, false);
+      s.cheering = act;
+      s.wait = 2.5 + Math.random() * 2;
+      n++;
+    }
+    return n;
+  }
+
   // Tints that follow the level's sky
   S.birdMat.color.set(sky.puff);
   S.birdMat.emissive.set(sky.puff).multiplyScalar(0.45);
@@ -392,6 +413,7 @@ export function buildLife(group, ctx) {
 
   return {
     info,
+    cheer: cheerNpcs,
     update(dt, time, playerPos) {
       placeFans(dt);
       placeShips(dt, time);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { loadModel, loadAudio, playSfx } from './assets.js';
 import { addStaticBox } from './physics.js';
+import { CANVAS_FONT } from './shell-bits.js';
 
 // All answer platforms use the KayKit 2x2x1 platform in red — the canonical "fall on contact"
 // visual under the new mechanic. Anchor is at the mesh bottom (KayKit convention), so the
@@ -20,7 +21,7 @@ export const LANE_OFFSETS = [
   [ 3.5, 0, 0],
 ];
 
-const BUBBLE_H = 0.6;             // world-space height; width is measured per-word
+const BUBBLE_H = 0.75;            // world-space height; width is measured per-word (0.6 until 2026-11-22: too small)
 const BUBBLE_MIN_W = 1.0;
 const BUBBLE_Y = 1.2;             // hover height above the platform top
 const BUBBLE_TINT = 'rgba(110, 180, 255, 0.85)';   // translucent sky-blue — test-level Style 3 colour
@@ -35,7 +36,7 @@ const BUBBLE_PAD_PX = 110;        // canvas-space horizontal padding inside the 
 function makeAnswerBubble(text) {
   const group = new THREE.Group();
   const H = 512;
-  const font = `bold ${BUBBLE_FONT_PX}px Arial, sans-serif`;
+  const font = `${BUBBLE_FONT_PX}px ${CANVAS_FONT}`;
 
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = font;
@@ -71,15 +72,17 @@ function makeAnswerBubble(text) {
   tex.generateMipmaps = false;
   tex.needsUpdate = true;
 
-  // Keep height fixed in world space; scale width to match canvas aspect.
-  const planeW = Math.max(BUBBLE_MIN_W, BUBBLE_H * (W / H));
-  const geo = new THREE.PlaneGeometry(planeW, BUBBLE_H);
+  // Keep height fixed in world space; scale width to match canvas aspect. Small screens
+  // (phones in landscape) get bigger words: 1.3× (the widest verb, "forgotten", still clears the next lane).
+  const k = window.innerHeight < 560 ? 1.3 : 1;
+  const planeW = Math.max(BUBBLE_MIN_W, BUBBLE_H * k * (W / H));
+  const geo = new THREE.PlaneGeometry(planeW, BUBBLE_H * k);
   const mat = new THREE.MeshBasicMaterial({
     map: tex, transparent: true, depthWrite: false, fog: false,
     side: THREE.DoubleSide, opacity: 0.95,
   });
   const sign = new THREE.Mesh(geo, mat);
-  sign.position.y = BUBBLE_Y;
+  sign.position.y = BUBBLE_Y + (k - 1) * BUBBLE_H / 2;   // same gap above the block
   group.add(sign);
 
   return { group, sign, mats: [mat] };

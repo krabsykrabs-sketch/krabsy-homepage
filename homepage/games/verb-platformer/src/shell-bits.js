@@ -45,3 +45,15 @@ export function helpHtml({ withGoal = true } = {}) {
   }
   return html;
 }
+
+// Font for text drawn into canvas textures (question sign, answer bubbles): the site's
+// heading font, as in the HUD. Fredoka One has one weight, so no 'bold' (it would be faked).
+// main.js waits for it (fontsReady) before a level builds its signs.
+export const CANVAS_FONT = "'Fredoka One', 'Nunito', Arial, sans-serif";
+export function fontsReady(ms = 2000) {
+  if (!document.fonts?.load) return Promise.resolve();
+  return Promise.race([
+    document.fonts.load("100px 'Fredoka One'").catch(() => {}),
+    new Promise(r => setTimeout(r, ms)),
+  ]);
+}
