@@ -19,7 +19,6 @@ class SFX {
     this.noiseBuf = this.ctx.createBuffer(1, len, len);
     const d = this.noiseBuf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    this._hum();
   }
   setMuted(m) {
     this.muted = m;
@@ -58,6 +57,14 @@ class SFX {
   }
   belt(on) { if (this.humGain) this.humGain.gain.linearRampToValueAtTime(on ? 0.025 : 0, this.ctx.currentTime + 0.3); }
 
+  step(run) { this.noise({ dur: 0.05, f: run ? 900 : 700, q: 0.8, g: run ? 0.05 : 0.035, type: 'lowpass' }); }
+  jump() { this.tone({ f: 300, f1: 520, type: 'sine', dur: 0.15, g: 0.08 }); }
+  land() { this.noise({ dur: 0.08, f: 400, q: 0.7, g: 0.06, type: 'lowpass' }); }
+  alarm() { this.tone({ f: 880, type: 'square', dur: 0.09, g: 0.04 }); this.tone({ f: 660, type: 'square', t: 0.11, dur: 0.12, g: 0.04 }); }
+  bonk() { this.tone({ f: 180, f1: 90, type: 'sine', dur: 0.25, g: 0.25 }); this.noise({ dur: 0.06, f: 1200, g: 0.12 });
+    [1400, 1700, 1400].forEach((f, i) => this.tone({ f, type: 'triangle', t: 0.15 + i * 0.08, dur: 0.1, g: 0.06 })); }
+  steal() { [600, 500, 400, 300].forEach((f, i) => this.tone({ f, type: 'square', t: i * 0.09, dur: 0.1, g: 0.05 })); }
+  whoosh() { this.noise({ dur: 0.35, f: 1500, q: 0.6, g: 0.1 }); this.tone({ f: 500, f1: 1200, type: 'sine', t: 0.1, dur: 0.3, g: 0.08 }); }
   tap() { this.tone({ f: 660, f1: 880, type: 'triangle', dur: 0.08, g: 0.1 }); }
   open() { this.tone({ f: 420, f1: 620, type: 'sine', dur: 0.18, g: 0.12 }); }
   right() {

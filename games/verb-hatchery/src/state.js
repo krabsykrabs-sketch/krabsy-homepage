@@ -1,23 +1,24 @@
 // Game state and rules: pure data, no drawing. Saved to localStorage.
 // Every number comes from balance.js.
 import {
-  RARITIES, RARITY, SPECIES_STEP, GRAB_BONUS_SECONDS, RELEASE_SECONDS, BELT, AWAY,
+  RARITIES, RARITY, SPECIES_STEP, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY,
   START, UPGRADES, MAX_PENS, MAX_INCUBATORS, price, GOALS, GOALS_SHOWN, endlessGoal,
 } from './balance.js';
 
 const SAVE_KEY = 'krabsy_hatchery_save';
-const VERSION = 1;
+const VERSION = 2; // 2 = open-world version (v1 belt saves are dropped)
 
 const zeroR = () => Object.fromEntries(RARITIES.map((r) => [r, 0]));
 
 export function newState(now = Date.now()) {
   const s = {
     v: VERSION, coins: 0, earned: 0, lastSave: now, created: now,
-    up: { pen: 0, incubator: 0, hatchSpeed: 0, beltLuck: 0 },
+    up: { pen: 0, incubator: 0, hatchSpeed: 0, shoes: 0, backpack: 0 },
+    carry: [],                                  // rarities of the eggs in the backpack
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
     incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, start, dur, sp? }
     book: {},                                   // speciesId → times hatched
-    stats: { grabbed: 0, grabbedR: zeroR(), hatched: 0, hatchedR: zeroR(), lost: 0,
+    stats: { grabbed: 0, grabbedR: zeroR(), home: 0, bonk: 0, stolen: 0, hatched: 0, hatchedR: zeroR(), lost: 0,
       answers: 0, correct: 0, streak: 0, best: 0, upgrades: 0 },
     goals: { active: [], next: 0, stars: 0 },
   };
@@ -35,6 +36,10 @@ export function load() {
     // Arrays may be shorter if the balance grew; pad them.
     while (s.pens.length < MAX_PENS) s.pens.push(null);
     while (s.incubators.length < MAX_INCUBATORS) s.incubators.push(null);
+    const fresh = newState();
+    s.up = { ...fresh.up, ...s.up };
+    s.stats = { ...fresh.stats, ...s.stats };
+    s.carry = s.carry || [];
     return s;
   } catch (_) { return null; }
 }
@@ -75,17 +80,29 @@ export function applyAway(s, now = Date.now()) {
   return { seconds: secs, coins, capped: secs > AWAY.capSeconds };
 }
 
-// ── belt ──
-export function rarityWeights(s) {
-  const L = s.up.beltLuck;
-  return BELT.weights.map((w, i) => w * (1 + L * BELT.luckGain[i]));
-}
-export function rollRarity(s, rnd = Math.random) {
-  const w = rarityWeights(s), sum = w.reduce((a, b) => a + b, 0);
+// ── zones, player ──
+export const zoneOpen = (s, zone) => s.goals.stars >= zone.stars;
+export function rollRarity(zone, rnd = Math.random) {
+  const w = zone.weights, sum = w.reduce((a, b) => a + b, 0);
   let x = rnd() * sum;
   for (let i = 0; i < w.length; i++) { x -= w[i]; if (x < 0) return RARITIES[i]; }
-  return RARITIES[0];
+  return RARITIES[w.findIndex((v) => v > 0)];
 }
+export const backpackSize = (s) => START.backpack + s.up.backpack;
+export const speedFactor = (s) => Math.pow(UPGRADES.shoes.factor, s.up.shoes);
+
+// A right answer: the egg goes into the backpack. Returns the bonus, or null if full.
+export function pickUp(s, rarity) {
+  if (s.carry.length >= backpackSize(s)) return null;
+  s.carry.push(rarity);
+  s.stats.grabbed++; s.stats.grabbedR[rarity]++;
+  const bonus = Math.round(Math.max(RARITY[rarity].grabBonus, GRAB_BONUS_SECONDS * cps(s)));
+  addCoins(s, bonus);
+  return { bonus };
+}
+// A thief got the top egg.
+export function stealTop(s) { s.stats.stolen++; return s.carry.pop() || null; }
+export function bonked(s) { s.stats.bonk++; }
 
 // ── incubators ──
 export function freeIncubator(s) {
@@ -95,15 +112,20 @@ export function freeIncubator(s) {
 export function hatchDuration(s, rarity) {
   return RARITY[rarity].hatch * Math.pow(UPGRADES.hatchSpeed.factor, s.up.hatchSpeed);
 }
-// A right answer: the egg goes into a free incubator. Returns the index and the bonus.
-export function grabEgg(s, rarity, now = Date.now()) {
-  const i = freeIncubator(s);
-  if (i < 0) return null;
-  s.incubators[i] = { rarity, start: now, dur: hatchDuration(s, rarity) * 1000 };
-  s.stats.grabbed++; s.stats.grabbedR[rarity]++;
-  const bonus = Math.round(Math.max(RARITY[rarity].grabBonus, GRAB_BONUS_SECONDS * cps(s)));
-  addCoins(s, bonus);
-  return { index: i, bonus };
+// At home on the egg pad: eggs move from the backpack into free incubators
+// (the rarest first). Returns [{ index, rarity }].
+export function deliver(s, now = Date.now()) {
+  const out = [];
+  s.carry.sort((a, b) => RARITIES.indexOf(a) - RARITIES.indexOf(b)); // rarest last = delivered first
+  while (s.carry.length) {
+    const i = freeIncubator(s);
+    if (i < 0) break;
+    const rarity = s.carry.pop();
+    s.incubators[i] = { rarity, start: now, dur: hatchDuration(s, rarity) * 1000 };
+    s.stats.home++;
+    out.push({ index: i, rarity });
+  }
+  return out;
 }
 export function loseEgg(s) { s.stats.lost++; }
 export function isReady(inc, now = Date.now()) {
@@ -171,6 +193,8 @@ function counter(s, g) {
   switch (g.kind) {
     case 'grab': return st.grabbed;
     case 'grabR': return st.grabbedR[g.r];
+    case 'home': return st.home;
+    case 'bonk': return st.bonk;
     case 'hatch': return st.hatched;
     case 'hatchR': return st.hatchedR[g.r];
     case 'upgrades': return st.upgrades;

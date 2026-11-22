@@ -29,7 +29,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 #cps{font-size:14px;color:var(--teal);}
 #money.bump #coins{animation:bump .3s;}
 @keyframes bump{40%{transform:scale(1.12);}}
-#starsBox{position:absolute;top:12px;right:14px;background:var(--panel);border-radius:999px;padding:8px 16px;font-family:'Fredoka One';font-size:22px;}
+#starsBox{position:absolute;top:12px;right:14px;z-index:1;background:var(--panel);border-radius:999px;padding:8px 16px;font-family:'Fredoka One';font-size:22px;}
 #goals{position:absolute;top:12px;left:12px;background:var(--panel);border-radius:16px;padding:10px 12px;width:min(270px,30vw);}
 #goals h3{font-size:15px;color:var(--amber);margin-bottom:6px;}
 .goal{font-size:13.5px;margin:5px 0;line-height:1.25;}
@@ -44,7 +44,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 .badge{position:absolute;top:-6px;right:-6px;background:var(--coral);color:#fff;border-radius:999px;font-size:12px;padding:1px 7px;display:none;}
 .badge.on{display:block;animation:pulse 1.2s infinite;}
 @keyframes pulse{50%{transform:scale(1.2);}}
-#soundBtn{position:absolute;left:14px;bottom:14px;pointer-events:auto;padding:8px 12px;font-size:20px;}
+#soundBtn{position:absolute;left:190px;bottom:14px;pointer-events:auto;padding:8px 12px;font-size:20px;}
 
 /* floating labels */
 .lbl{position:fixed;transform:translate(-50%,-100%);pointer-events:none;z-index:4;white-space:nowrap;font-size:13px;
@@ -142,6 +142,35 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 #playBtn{background:var(--teal);color:var(--navy);border-radius:18px;padding:14px 44px;font-family:'Fredoka One';font-size:28px;box-shadow:0 5px 0 #1a9c82;}
 #playBtn:disabled{opacity:.5;}
 #resetBtn{display:block;margin:14px auto 0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;}
+/* first person */
+#cross{position:fixed;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(13,34,64,.6);z-index:4;pointer-events:none;}
+#prompt{position:fixed;left:50%;top:calc(50% + 34px);transform:translateX(-50%);z-index:5;pointer-events:none;display:none;
+  background:var(--panel);border-radius:14px;padding:7px 16px;font-size:18px;white-space:nowrap;}
+#prompt.on{display:block;}
+#prompt .key{display:inline-block;background:var(--amber);color:var(--navy);border-radius:7px;padding:0 9px;margin-right:8px;font-family:'Fredoka One';}
+#hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border-radius:14px;padding:8px 16px;font-size:16px;display:none;white-space:nowrap;}
+#hint.on{display:block;}
+#zoneName{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;font-family:'Fredoka One';font-size:46px;
+  color:#fff;text-shadow:0 3px 0 rgba(13,34,64,.6);opacity:0;transition:opacity .6s;}
+#zoneName.on{opacity:1;}
+#mapWrap{position:absolute;left:12px;bottom:12px;width:170px;height:170px;}
+#map{width:170px;height:170px;display:block;}
+#carryBox{position:absolute;right:14px;top:66px;background:var(--panel);border-radius:999px;padding:6px 14px;font-size:16px;}
+#clickPlay{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:rgba(6,13,28,.35);cursor:pointer;}
+#clickPlay.on{display:flex;}
+#clickPlay div{background:var(--navy);border-radius:20px;padding:16px 30px;font-family:'Fredoka One';font-size:28px;color:var(--teal);}
+#stick{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.4);
+  display:none;z-index:6;pointer-events:none;}
+#knob{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.55);transform:translate(-50%,-50%);}
+.tbtn{position:fixed;z-index:6;width:78px;height:78px;border-radius:50%;background:rgba(13,34,64,.7);border:3px solid rgba(255,255,255,.35);
+  font-size:34px;display:none;align-items:center;justify-content:center;pointer-events:auto;}
+body.touch .tbtn.on{display:flex;}
+#jumpBtn{right:110px;bottom:24px;}
+#actBtn{right:24px;bottom:110px;background:var(--amber);border-color:#fff;}
+body.touch #buttons{bottom:auto;top:110px;}
+body.touch #cross{display:none;}
+#controls{color:var(--muted);font-size:14px;margin:0 0 16px;line-height:1.5;}
+#controls b{color:var(--ink);}
 #rotate{position:fixed;inset:0;z-index:30;background:var(--navy);display:none;align-items:center;justify-content:center;padding:30px;text-align:center;font-size:20px;}
 @media (orientation:portrait) and (max-width:700px){#rotate{display:flex;}}
 @media (max-height:520px){#goals{width:220px;padding:7px 10px;} .goal{font-size:12px;} #money{padding:4px 14px;} #coins{font-size:24px;}
@@ -157,6 +186,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 <body>
 <canvas id="c"></canvas>
 
+<div id="cross"></div><div id="prompt"></div><div id="zoneName"></div>
 <div id="hud">
   <div id="money"><div id="coins"><span class="coin"></span><span id="coinN">0</span></div><div id="cps">+0/s</div></div>
   <div id="starsBox"><span class="starI">★</span> <span id="starN">0</span></div>
@@ -165,9 +195,15 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
     <button class="bigBtn" id="upBtn"><span class="ico">⬆️</span><span id="upLbl">Upgrades</span><span class="badge" id="upBadge">!</span></button>
     <button class="bigBtn" id="bookBtn"><span class="ico">📖</span><span id="bookLbl">Book</span></button>
   </div>
+  <div id="mapWrap"><canvas id="map" width="340" height="340"></canvas></div>
+  <div id="carryBox">🎒 <span id="carryN">0/1</span></div>
+  <div id="hint"></div>
   <button class="bigBtn" id="soundBtn">🔊</button>
 </div>
 
+<div id="clickPlay"><div></div></div>
+<div id="stick"><div id="knob"></div></div>
+<button class="tbtn" id="jumpBtn">⤒</button><button class="tbtn" id="actBtn">✋</button>
 <div id="shade"></div>
 <div id="card">
   <div id="cardEgg">egg</div>
@@ -190,6 +226,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 <div id="start"><div id="startBox">
   <h1>Verb Hatchery</h1>
   <div id="tagline"></div>
+  <div id="controls"></div>
   <div id="welcome"></div>
   <button id="playBtn" disabled>…</button>
   <button id="resetBtn"></button>

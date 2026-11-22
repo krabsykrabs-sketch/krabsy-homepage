@@ -8,7 +8,7 @@ games (wrapper pages, `games.json`, sitemap, deploy). You don't touch
 `homepage/` or other games, and you don't push or deploy. Stage only this
 folder, in the same command that commits: `git add games/verb-hatchery && git commit …`.
 
-Status: **brief written and reviewed 2026-11-22; version 1 being built (see Log).**
+Status: **open-world version playable 2026-11-22, not play-tested by a person, not released (see Build state).**
 
 ## Why this game
 
@@ -19,105 +19,116 @@ and Steal an Egg* were also in the top 12. Simulation/tycoon games had
 37 % of the top-100 players. We copy the **loop only**: our own name,
 creatures, art and texts, nothing from those games.
 
-The loop is: things you can grab ride past on a belt → you collect them →
-they earn coins in your base → coins make the base bigger and the belt
-better → rarer things. Kids come back to see their collection grow.
+**Owner decision 2026-11-22 (after seeing v1):** the fixed-camera belt
+version was "way too boring". The game is now a **first-person 3D world**:
+you run out into the fields, find eggs, carry them home, and other
+creatures try to steal them. Same kind of game as the Roblox hits, still
+**our own** name, world, characters and look (no copied maps, names, art).
+
+The loop is: run out → find an egg → answer to pick it up → carry it home
+while thief crabs try to steal it → it hatches in your base → creatures
+earn coins → coins buy upgrades (faster shoes, bigger backpack, more pens)
+→ stars open farther zones with rarer eggs. Kids come back to see their
+collection grow.
 
 How it fits Krabsy:
 
-- **Grammar is the currency.** You grab an egg by answering; harder verbs
-  give rarer eggs.
-- **Self-paced question moment.** When the player taps an egg, the belt
-  stops and the card opens. Nothing is missed while reading; there is
-  always another egg coming.
-- **Coming back tomorrow** (the coins that pile up while away, eggs that
-  hatch) is spaced repetition for free: the next visit asks again.
-- **Fixed camera, tap controls.** Works on a Chromebook and a tablet.
+- **Grammar is the currency.** You pick up an egg by answering; rarer
+  eggs ask harder verbs. You keep an egg from a thief by answering.
+- **Self-paced question moment.** When a card opens, the whole world
+  pauses (thieves too) and the mouse is released. Nothing chases you
+  while you read.
+- **Coming back tomorrow** (coins that pile up while away, eggs that
+  hatch) is spaced repetition for free.
+- **Runs on a school Chromebook and a tablet:** keyboard + mouse (pointer
+  lock) and touch (left stick, drag to look, buttons).
 
-This game is **different from the level-based games**: no levels, one
-growing base. Stars come from goals (below), so a lesson still has a
-clear "done".
+No levels, one growing base. Stars come from goals (below), so a lesson
+still has a clear "done".
 
 ## The game
 
-Krabsy's sunny island has a **hatchery**: pens for creatures, a few
-incubators, and a **conveyor belt** along the front where eggs ride past.
+### The world
+
+One island, about 250 m across, with **Krabsy's hatchery** in the south
+and zones around it. Rarer eggs live farther away:
+
+| Zone | Where | Eggs | Opens with |
+|---|---|---|---|
+| Meadow | around the hatchery | common, some uncommon | start |
+| Forest | west | uncommon, rare | 2 ★ |
+| Beach | east | rare, epic | 5 ★ |
+| Volcano | far north | epic, legendary | 9 ★ |
+
+A locked zone has a shimmering wall with its star number; you can see the
+glowing eggs behind it. Rare and better eggs send a light beam into the
+sky so they can be found from far away. A **minimap** (bottom left) shows
+home, the zones, eggs nearby and the player; a **beacon** over the
+hatchery shows the way home.
 
 ### Core loop
 
-1. **Eggs ride past on the belt** (slowly, a few at a time). Each egg's
-   colour shows its rarity: white (common), green (uncommon), blue
-   (rare), purple (epic), gold (legendary).
-2. **Tap an egg** → the belt stops, the question card opens (same pattern
-   as Verb Dungeon's card: large, centred, scene dimmed and paused, chips
-   1–3 or tap).
-   - Common/uncommon eggs: one question (2nd form only, `go → ___ → ___`).
-     No 3rd-form question follows, so the teach line may show the whole
-     chain afterwards (Dungeon's `single(pair)`, `full: true`).
-   - Rare and above: the chain pair (2nd form, then 3rd with the 2nd
-     filled in: `go → went → ___`), from harder verb tiers. After the
-     2nd-form answer, don't show the 3rd form (the next step asks it).
-   - **All incubators full:** eggs on the belt still ride past, but a tap
-     shows "Incubators full! Hatch an egg first." and the full incubators
-     pulse. No question is asked, so no answer is wasted.
-3. **Right** → the egg flies into a free incubator. **Wrong** → the chip
-   greys out, the teach line shows the chain, the egg wobbles and rolls
-   off the belt ("Oops!"). No coins are lost; the verb comes back later
-   on another egg.
-4. **Hatching:** the egg hatches after a short time (common 20 s, legendary
-   a few minutes). Tap to hatch it: shake, crack, a creature pops out with
-   its name and rarity. Hatch timers run on the clock, also while the
-   player is away: eggs that finished are waiting, ready to tap, on the
-   next visit (tapping them is the welcome-back moment).
-   If all pens are full, a hatched creature waits in the incubator until
-   a pen is bought (the goal list then nudges "Buy a pen"). New creatures go into the **Creature Book**
-   (missing ones are grey silhouettes).
-5. **Creatures earn coins** in their pen (numbers float up). Rarer
-   creatures earn much more. Earnings keep counting while the player is
-   away, up to a cap (about 8 hours), so coming back is rewarded.
-6. **Coins buy upgrades:** more pens, more incubators, faster hatching, a
-   better belt (rarer eggs appear more often), decorations for the island.
+1. **Find an egg** in the world (on a little nest). Colour = rarity:
+   white, green, blue (+ beam), purple (+ beam), gold (+ beam).
+2. **Walk up and press E / tap the hand button** → the world pauses, the
+   question card opens (chips 1–3 or tap).
+   - Common/uncommon: one question (2nd form only, `go → ___ → ___`, the
+     teach line may then show the whole chain).
+   - Rare and above: the chain pair (2nd form, then `go → went → ___`);
+     after the 2nd-form answer, don't show the 3rd form.
+   - **Right** → the egg goes into your backpack (shown in your hands at
+     the bottom of the screen). **Wrong** → the egg cracks a little and
+     rolls off into the grass (it respawns somewhere else); the verb comes
+     back soon.
+   - **Backpack full:** no question; "Backpack full! Bring your eggs home."
+3. **Carry it home.** In Forest, Beach and Volcano, **thief crabs** (our
+   own cute robber crabs with masks) chase a player who carries eggs. When
+   one catches you, the world pauses and a card asks a question: **right →
+   the crab is bonked and runs away dizzy; wrong → it grabs your top egg
+   and runs off** (the egg goes back to its zone). Crabs are slower than a
+   sprinting player, so running is a real choice.
+4. **At home**, walking onto the glowing **egg pad** puts the eggs from
+   your backpack into free incubators (if all are full, they stay in the
+   backpack: "Incubators full!").
+5. **Hatching** as before: timers run on the clock (also while away); walk
+   to a ready incubator and press E → shake, crack, the creature pops out
+   (banner with name, rarity, NEW!) and jumps into a free pen. If all pens
+   are full it waits in the incubator until a pen is bought.
+6. **Creatures earn coins** in their pens (coins float up), also while
+   away (capped, reduced rate). Press E at a pen to see a creature and
+   let it go for coins.
+7. **Upgrades** (button / U key): extra pen, extra incubator, warm lamps
+   (faster hatching), running shoes (faster), bigger backpack (carry
+   more eggs).
 
-The numbers grow fast (1.2K, 45K, 3.1M): that is a big part of the fun in
-this genre.
+The numbers grow fast (1.2K, 45K, 3.1M): that is part of the fun.
 
 ### Rarity is earned, not gambled
 
-- The rarity of an egg is visible on the belt and decides the difficulty
-  of its question. Getting rare creatures means answering harder verbs,
-  not luck.
+- An egg's rarity is visible from afar and decides the difficulty of its
+  question. Rare creatures come from harder verbs and farther zones, not
+  luck.
 - Inside one rarity, which creature hatches is random, and the chances
   are shown in the Creature Book.
 - **No spin wheels, no loot boxes, no countdown offers, no real money,
-  nothing that looks like a shop with prices in euros.** This is for
-  school kids.
+  nothing that looks like a shop with prices in euros.**
 
 ### Goals and stars (gives each lesson a "done")
 
-A short list of goals is always shown (3 at a time, a new one when one is
-done), for example "Hatch 3 blue eggs", "Earn 1,000 coins per second",
-"Find 10 different creatures", "Answer 10 in a row". Each goal gives a
-star; stars unlock new island areas (beach, forest, volcano) with new
-creature sets.
+3 goals shown at a time (e.g. "Bring 3 eggs home", "Hatch your first
+creature", "Buy an upgrade", "Answer 5 in a row", "Find a blue egg"),
+each gives a star; stars open the zones above.
 
 **Pacing for a lesson:** a first-time player should earn about **3 stars
-in 10–15 minutes** (the first goals are easy: "Grab 3 eggs", "Hatch your
-first creature", "Buy an upgrade"). Later goals get longer, so a returning
-player earns about 1–2 stars per lesson. The goal numbers live in
-`src/balance.js` with the other numbers.
+in 10–15 minutes** and reach the Forest in the first lesson. Later goals
+get longer. The goal numbers live in `src/balance.js`.
 
-**Answer mode:** choice chips only in version 1. Typed input (via
-`checkTyped`) can come later as an upgrade ("typewriter mode, double
-coins"), not in the first build.
+**Answer mode:** choice chips only in version 1.
 
-### Rivals (version 2, not in the first build)
+### Rivals' bases (later)
 
-The "steal" part of the Roblox games needs other players. Our version:
-two computer neighbours (crabs on the islands next door) whose pens you
-can visit. When their guard is asleep you can **borrow** a creature by
-answering 3 questions in a row correctly; sometimes they come for one of
-yours, and a right answer streak locks your gate. Build this only after
-the core loop has been play-tested.
+Visiting a computer neighbour's base and "borrowing" a creature with a
+streak of 3 answers stays an idea for later (see the open questions).
 
 ## Creatures (the main art question)
 
@@ -165,9 +176,13 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   is the base for the coins-while-away calculation (time since last save,
   capped). Balance numbers (prices, income, hatch times, rarity chances)
   live in one file, `src/balance.js`, so they can be tuned.
-- Fixed camera on the island, slightly from above. An "island map"
-  button can move the camera to other areas; it never moves on its own
-  while the player reads.
+- **First person.** Desktop: click → pointer lock, mouse look, WASD /
+  arrows, Shift sprint, Space jump, E action, U upgrades, B book. Touch:
+  left half = stick, right half = drag to look, buttons for jump and
+  action. The terrain is a height function (`src/world.js`), so the
+  player needs no physics engine; trees and rocks are circle colliders.
+- **Performance:** trees and rocks are `InstancedMesh`es (one draw call per
+  model part), the shadow camera follows the player, fog limits the view.
 - **Questions:** from `homepage/lib/krabsy-questions.js`. Egg rarity →
   verb tier (common/uncommon tier 1, rare tier 2, epic/legendary tier 3).
   ⚠ `getQuizSet` has **no tier filter**, and its `difficulty` field is 2
@@ -213,40 +228,46 @@ stay **version 2**.
   code from `docs/classroom-concept.md`)? School Chromebooks often clear
   their storage, so a save on the device can get lost.
 
-## Build state (version 1, 2026-11-22)
+## Build state (version 2 = open world, 2026-11-22)
 
 Runs: `python3 tools/serve.py` → http://localhost:8143/ (add `?debug` for
-QA hooks on `window.hatchery` and event logging, `?lang=de|es|en`).
-Headless QA screenshots: `node tools/shot.cjs "?debug" out.png [w h] [steps…]`
-(`PORT=…` if 8143 is busy).
+QA hooks on `window.hatchery` and event logging, `?lang=de|es|en`,
+`?touch` to force the touch controls). Headless QA screenshots:
+`node tools/shot.cjs "?debug" out.png [w h] [steps…]` (`PORT=…` if 8143
+is busy). Headless Chromium renders in software (~2–10 fps), so give
+steps generous waits.
 
-Files: `src/balance.js` (all numbers), `src/state.js` (rules + save, pure),
-`src/questions.js` (tier pools, Dungeon approach), `src/creatures.js`
-(procedural creatures + names + blocklist), `src/scene.js` (island, belt,
-incubators, pens), `src/main.js` (flow, card, panels, HUD), `src/i18n.js`,
-`src/audio.js`, `src/analytics.js`. Decor: 12 KayKit Forest Nature models
-in `assets/nature/` (220 KB). Belt, eggs, incubators, pens: primitives.
+Files: `src/balance.js` (all numbers, zones), `src/state.js` (rules +
+save, pure; save key `krabsy_hatchery_save`, version 2), `src/world.js`
+(height function, terrain, zones, walls, instanced decor, base, wild
+eggs), `src/player.js` (first person, pointer lock, touch, collisions,
+eggs in hand), `src/thieves.js` (robber crabs), `src/minimap.js`,
+`src/questions.js` (tier pools), `src/creatures.js` (procedural creatures,
+names, blocklist), `src/main.js` (flow, cards, panels, HUD), `src/i18n.js`,
+`src/audio.js`, `src/analytics.js`. Decor: 19 KayKit Forest Nature models
+in `assets/nature/` (370 KB).
 
-Done: belt with 5 rarities, question card (single 2nd form for
-common/uncommon, chain pair for rare+), wrong answer → egg rolls off and
-the verb comes back, incubators with timers (run on the clock, also while
-away), hatch animation + reveal banner, 26 species (8/6/5/4/3), pens with
-idle animations and coin floats, release a creature for coins, 4 upgrades,
-goals → stars, Creature Book with silhouettes and chances, save/load,
-coins while away (8 h cap, 20 % rate) with a welcome-back note, "start
-over", EN/DE/ES, WebAudio sounds, analytics events as specified above.
-Checked in headless Chromium at 1366×768 and 1024×700 (local fallback
-verbs only; the site engine path is untested until it runs under
-`homepage/`).
+Done (checked headless at 1366×768 desktop and 1024×700 touch, EN/DE/ES):
+island with Meadow / Forest / Beach / Volcano (lava crater), locked-zone
+walls with star signs that dissolve when opened, eggs on nests with glow
+and light beams, pick-up card (single 2nd form or chain pair), wrong =
+the egg rolls away and respawns, backpack (eggs in hand), thief crabs
+chase and catch → card (bonk / stolen), egg pad delivers to incubators,
+hatching, pens, release, 5 upgrades (pen, incubator, lamps, shoes,
+backpack), goals → stars → zones, minimap, home beacon, zone names,
+coins while away, welcome-back note, auto quality drop on slow devices
+(`quality_down` event), analytics events (`egg_grabbed`, `egg_lost`,
+`eggs_home`, `thief_catch`, `zone_opened`, `creature_hatched`,
+`upgrade_bought`, `goal_done`, levels = stars, `session_summary`).
 
-Not done yet:
-- Island areas for stars (beach, forest, volcano) — stars are counted,
-  nothing unlocks yet.
-- Play-test by a person on a real Chromebook/tablet (performance with 12
-  pens, tap size of eggs).
-- Balance tuning (prices vs. away coins; 12 pens is the end of growth).
+Not done yet / to check:
+- **Play-test by a person** on a real Chromebook and tablet: frame rate in
+  the forest (150 trees), mouse sensitivity, touch look speed, whether
+  kids find eggs and the way home, crab speed vs. sprint.
+- Balance: egg counts per zone, crab speed, prices, away coins.
+- The site question engine path is untested (local fallback verbs only).
+- Rival bases ("borrow" a creature), version 2+.
 - Wrapper pages / release (master session).
-- Rivals ("borrow a creature"), version 2.
 
 ## Log
 
@@ -257,3 +278,6 @@ Not done yet:
   getQuizSet tier filter, single-question eggs, full incubators, hatching
   while away, lesson pacing, analytics levels = stars). Version 1 built
   the same day (see Build state).
+- 2026-11-22: owner found the belt version "way too boring" → rebuilt as
+  a first-person 3D island (zones, carrying eggs home, thief crabs,
+  minimap). Save format version 2 (v1 saves are dropped).

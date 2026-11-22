@@ -1,9 +1,13 @@
-// Verb Hatchery: eggs ride past on a belt, a right answer grabs one, eggs hatch
-// into creatures that earn coins, coins buy upgrades. See ../CLAUDE.md.
+// Verb Hatchery (open-world version): run around the island in first person,
+// answer to pick up eggs, carry them home past thief crabs, hatch creatures,
+// earn coins, buy upgrades, open farther zones with stars. See ../CLAUDE.md.
 import * as THREE from 'three';
 import * as S from './state.js';
-import { RARITIES, RARITY, BELT, UPGRADES, MAX_PENS } from './balance.js';
-import { World, INC_POS, PEN_POS, BELT_Y, BELT_Z } from './scene.js';
+import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER } from './balance.js';
+import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
+import { Player, touchMode } from './player.js';
+import { Thieves } from './thieves.js';
+import { Minimap } from './minimap.js';
 import { buildCreature, speciesName } from './creatures.js';
 import * as Q from './questions.js';
 import { t, lang, fmt, fmtRate, fmtTime } from './i18n.js';
@@ -11,23 +15,43 @@ import { sfx } from './audio.js';
 import * as A from './analytics.js';
 
 const $ = (id) => document.getElementById(id);
+const DEBUG = /[?&]debug/.test(location.search);
+if (touchMode) document.body.classList.add('touch');
+
 const world = new World($('c'));
+const player = new Player(world, $('c'));
+const thieves = new Thieves(world);
+const map = new Minimap($('map'));
 let st = S.load() || S.newState();
 let away = { seconds: 0, coins: 0 };
 let running = false;
-let card = null;        // the open question: { egg, pair, steps, i, answered, ok }
-let panel = null;       // open panel element
-let spawnT = 1.2, eggId = 0, saveT = 0, goalT = 0, lastCoins = 0;
+let card = null;     // open question card
+let panel = null;    // open panel element
+let wild = [];       // eggs in the world: { obj, rarity, zone, x, z, id }
+let respawn = [];    // { zone, t }
+let eggId = 0, saveT = 0, goalT = 0, mapT = 0, lastCoins = -1;
+let target = null;   // what E would act on
+let curZone = null, zoneTimer = 0;
+const openZones = new Set();
 
 // ── static texts ──
 $('tagline').textContent = t('tagline');
+$('controls').innerHTML = touchMode ? t('controls_touch') : t('controls');
 $('goalsTitle').textContent = t('goals');
 $('upLbl').textContent = t('upgrades'); $('upTitle').textContent = t('upgrades');
 $('bookLbl').textContent = t('book'); $('bookTitle').textContent = t('book');
 $('goOn').textContent = t('goOn');
 $('rotate').textContent = t('rotate');
 $('resetBtn').textContent = t('newGame');
+$('clickPlay').firstElementChild.textContent = t('clickToPlay');
 const rName = (r) => t(`r_${r}`);
+const zName = (z) => t(`zone_${z.id}`);
+const isOpen = (z) => S.zoneOpen(st, z);
+player.isLocked = (z) => !isOpen(z);
+
+// colliders for the base: incubators and pens
+INC_POS.forEach((p) => world.addCollider(p.x, p.z, 0.95));
+PEN_POS.forEach((p) => world.addCollider(p.x, p.z, 1.9));
 
 // ── creature portraits (book, reveal, info) ──
 const portrait = (() => {
@@ -54,7 +78,7 @@ const portrait = (() => {
   };
 })();
 
-// ── rebuild the 3D world from the state ──
+// ── sync the base with the state ──
 function syncWorld() {
   world.setOwned(S.pensOwned(st), S.incubatorsOwned(st));
   for (let i = 0; i < MAX_PENS; i++) {
@@ -67,6 +91,55 @@ function syncWorld() {
     if (inc.sp) { if (!c.waiting) world.showWaiting(i, inc.sp); return; }
     if (!c.egg || c.eggRarity !== inc.rarity) world.putEgg(i, inc.rarity);
   });
+  player.showCarry(st.carry);
+  player.speedFactor = S.speedFactor(st);
+  $('carryN').textContent = `${st.carry.length}/${S.backpackSize(st)}`;
+  for (const z of ZONES) if (z.r) {
+    const open = isOpen(z);
+    if (open && !openZones.has(z.id)) openZones.add(z.id);
+    world.setZoneOpen(z.id, open, false);
+  }
+}
+
+// ── wild eggs ──
+function randomSpot(zone) {
+  for (let tries = 0; tries < 60; tries++) {
+    let x, z;
+    if (zone.r) {
+      const a = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * (zone.r - 3);
+      x = zone.x + Math.cos(a) * d; z = zone.z + Math.sin(a) * d;
+    } else {
+      const a = Math.random() * Math.PI * 2, d = 32 + Math.sqrt(Math.random()) * (ISLAND.r - 50);
+      x = HOME.x + Math.cos(a) * d; z = HOME.z - Math.abs(Math.sin(a)) * d * 0.9 - 6;
+      if (zoneAt(x, z) !== zone) continue;
+      if (Math.hypot(x - ISLAND.cx, z - ISLAND.cz) > ISLAND.r - 16) continue;
+    }
+    if (!onIsland(x, z) || height(x, z) < 0.3) continue;
+    if (world.nearColliders(x, z).some((c) => Math.hypot(x - c.x, z - c.z) < c.r + 1.2)) continue;
+    if (wild.some((e) => Math.hypot(x - e.x, z - e.z) < 6)) continue;
+    if (Math.hypot(x - HOME.x, z - HOME.z) < 26) continue;
+    return [x, z];
+  }
+  return null;
+}
+function spawnWild(zone) {
+  const spot = randomSpot(zone);
+  if (!spot) return false;
+  const rarity = S.rollRarity(zone);
+  const obj = world.makeWildEgg(rarity, spot[0], spot[1]);
+  wild.push({ obj, rarity, zone, x: spot[0], z: spot[1], id: eggId++ });
+  return true;
+}
+function removeWild(e, respawnLater = true) {
+  wild = wild.filter((x) => x !== e);
+  world.scene.remove(e.obj);
+  if (respawnLater) respawn.push({ zone: e.zone, t: EGG_RESPAWN });
+}
+function fillEggs() {
+  for (const z of ZONES) {
+    let have = wild.filter((e) => e.zone === z).length + respawn.filter((r) => r.zone === z).length;
+    while (have < z.eggs && spawnWild(z)) have++;
+  }
 }
 
 // ── labels above incubators ──
@@ -74,32 +147,47 @@ const incLabels = world.incubators.map(() => {
   const el = document.createElement('div'); el.className = 'lbl'; el.style.display = 'none';
   document.body.appendChild(el); return el;
 });
+const tmpV = new THREE.Vector3();
+function toScreen(v3) {
+  tmpV.copy(v3).project(world.camera);
+  return { x: (tmpV.x + 1) / 2 * innerWidth, y: (1 - tmpV.y) / 2 * innerHeight, behind: tmpV.z > 1 };
+}
 function updateLabels() {
   const now = Date.now();
   st.incubators.forEach((inc, i) => {
     const el = incLabels[i], c = world.incubators[i];
-    if (!inc || !c.owned || !running) { el.style.display = 'none'; c.ready = false; return; }
-    const ready = S.isReady(inc, now);
-    c.ready = ready && !inc.sp;
-    const p = world.toScreen(INC_POS[i].clone().setY(2.0));
+    c.ready = !!inc && !inc.sp && S.isReady(inc, now);
+    const near = player.pos.distanceTo(INC_POS[i]) < 30;
+    if (!inc || !c.owned || !running || card || panel || !near) { el.style.display = 'none'; return; }
+    const p = toScreen(tmpV.copy(INC_POS[i]).setY(INC_POS[i].y + 2.3));
+    if (p.behind) { el.style.display = 'none'; return; }
     el.style.display = ''; el.style.left = `${p.x}px`; el.style.top = `${p.y}px`;
     let cls = 'lbl', txt;
     if (inc.sp) { cls += ' wait'; txt = t('waitingPen'); }
-    else if (ready) { cls += ' ready'; txt = t('tapToHatch'); }
+    else if (c.ready) { cls += ' ready'; txt = `${touchMode ? '✋' : 'E'} · ${t('p_hatch')}`; }
     else { const s = Math.ceil(S.hatchLeft(inc, now)); txt = s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : `${s}s`; }
     if (el.className !== cls) el.className = cls;
     if (el.textContent !== txt) el.textContent = txt;
   });
 }
 
-// ── floating numbers and toasts ──
+// ── floating numbers, toasts, hints ──
 function floatAt(v3, text, big = false) {
-  const p = world.toScreen(v3);
+  const p = toScreen(v3);
+  if (p.behind || p.x < 0 || p.x > innerWidth || p.y < 0 || p.y > innerHeight) return;
   const el = document.createElement('div');
   el.className = 'float' + (big ? ' big' : '');
   el.textContent = text; el.style.left = `${p.x}px`; el.style.top = `${p.y}px`;
   document.body.appendChild(el);
   requestAnimationFrame(() => { el.style.transform = 'translate(-50%,-50%) translateY(-60px)'; el.style.opacity = '0'; });
+  setTimeout(() => el.remove(), 1200);
+}
+function floatCenter(text) {
+  const el = document.createElement('div');
+  el.className = 'float big'; el.textContent = text;
+  el.style.left = '50%'; el.style.top = '40%';
+  document.body.appendChild(el);
+  requestAnimationFrame(() => { el.style.transform = 'translate(-50%,-50%) translateY(-70px)'; el.style.opacity = '0'; });
   setTimeout(() => el.remove(), 1200);
 }
 let toastEl = null, toastTimer = 0;
@@ -109,14 +197,24 @@ function toast(text, kind = '') {
   document.body.appendChild(toastEl);
   clearTimeout(toastTimer);
   const el = toastEl;
-  toastTimer = setTimeout(() => { el.remove(); if (toastEl === el) toastEl = null; }, kind === 'star' ? 2600 : 2200);
+  toastTimer = setTimeout(() => { el.remove(); if (toastEl === el) toastEl = null; }, kind === 'star' ? 2600 : 2400);
+}
+function setHint(text) {
+  const el = $('hint');
+  if (!text) { el.classList.remove('on'); return; }
+  if (el.textContent !== text) el.textContent = text;
+  el.classList.add('on');
+}
+function showZoneName(text) {
+  const el = $('zoneName');
+  el.textContent = text; el.classList.add('on');
+  clearTimeout(zoneTimer); zoneTimer = setTimeout(() => el.classList.remove('on'), 1800);
 }
 
 // ── HUD ──
 function goalText(g) {
   const r = g.r ? rName(g.r) : '';
-  const n = g.kind === 'cps' ? fmt(g.n) : g.n;
-  return t(`g_${g.kind}`, n, r);
+  return t(`g_${g.kind}`, g.kind === 'cps' ? fmt(g.n) : g.n, r);
 }
 let goalSig = '';
 function renderGoals(force) {
@@ -134,18 +232,18 @@ function renderHud() {
   const c = Math.floor(st.coins);
   if (c !== lastCoins) {
     $('coinN').textContent = fmt(c);
-    if (c > lastCoins + 0.5 && c - lastCoins > S.cps(st) * 1.5) { $('money').classList.remove('bump'); void $('money').offsetWidth; $('money').classList.add('bump'); }
+    if (lastCoins >= 0 && c - lastCoins > Math.max(2, S.cps(st) * 1.5)) { $('money').classList.remove('bump'); void $('money').offsetWidth; $('money').classList.add('bump'); }
     lastCoins = c;
   }
   $('cps').textContent = `+${fmtRate(S.cps(st))}${t('perSec')}`;
   $('starN').textContent = st.goals.stars;
-  const affordable = Object.keys(UPGRADES).some((k) => S.canBuy(st, k));
-  $('upBadge').classList.toggle('on', affordable);
+  $('carryN').textContent = `${st.carry.length}/${S.backpackSize(st)}`;
+  $('upBadge').classList.toggle('on', Object.keys(UPGRADES).some((k) => S.canBuy(st, k)));
   renderGoals();
   if (panel === $('upPanel')) refreshUpgradeButtons();
 }
 
-// ── goals and stars ──
+// ── goals, stars, zones ──
 function checkGoals() {
   const done = S.checkGoals(st);
   for (const g of done) {
@@ -155,55 +253,100 @@ function checkGoals() {
     A.levelEnd({ coins: Math.floor(st.coins), creatures: S.bookCount(st), cps: Math.round(S.cps(st)) });
     A.levelStart(st.goals.stars + 1);
   }
-  if (done.length) { renderGoals(true); save(); }
+  if (!done.length) return;
+  renderGoals(true);
+  for (const z of ZONES) {
+    if (!z.r || openZones.has(z.id) || !isOpen(z)) continue;
+    openZones.add(z.id);
+    world.setZoneOpen(z.id, true, true);
+    setTimeout(() => { toast(t('zoneOpen', zName(z)), 'star'); sfx.ding(); }, 1400);
+    A.ev('zone_opened', { zone: z.id, stars: st.goals.stars });
+  }
+  save();
 }
 
-// ── belt ──
-function spawn() {
-  const r = S.rollRarity(st);
-  world.spawnEgg(r, eggId++);
+// ── actions (E key, click while playing, ✋ button) ──
+function findTarget() {
+  const p = player.pos, f = player.forward();
+  let best = null, bestScore = 1e9;
+  const consider = (kind, ref, x, z, reach) => {
+    const dx = x - p.x, dz = z - p.z, d = Math.hypot(dx, dz);
+    if (d > reach) return;
+    const dot = d > 0.01 ? (dx * f.x + dz * f.z) / d : 1;
+    if (d > 1.6 && dot < 0.35) return;
+    const score = d * (1.6 - dot);
+    if (score < bestScore) { bestScore = score; best = { kind, ref }; }
+  };
+  for (const e of wild) if (isOpen(e.zone)) consider('egg', e, e.x, e.z, PLAYER.reach);
+  if (Math.hypot(p.x - HOME.x, p.z - HOME.z) < 30) {
+    st.incubators.forEach((inc, i) => { if (inc && world.incubators[i].owned) consider('inc', i, INC_POS[i].x, INC_POS[i].z, PLAYER.reach); });
+    st.pens.forEach((c, i) => { if (c && i < S.pensOwned(st)) consider('pen', i, PEN_POS[i].x, PEN_POS[i].z, PLAYER.reach + 1.4); });
+  }
+  return best;
 }
-const beltRunning = () => running && !card && !panel;
-
-// ── taps ──
-$('c').addEventListener('pointerdown', (e) => {
-  if (!running || card || panel) return;
+function promptFor(tg) {
+  if (!tg) return null;
+  if (tg.kind === 'egg') return `${t('p_egg')} · ${rName(tg.ref.rarity)}`;
+  if (tg.kind === 'inc') {
+    const inc = st.incubators[tg.ref];
+    if (inc.sp) return t('p_waiting');
+    return S.isReady(inc) ? t('p_hatch') : `${t('p_wait')} ${Math.ceil(S.hatchLeft(inc))}s`;
+  }
+  if (tg.kind === 'pen') return `${t('p_pen')} · ${speciesName(st.pens[tg.ref].sp)}`;
+  return null;
+}
+function act() {
+  if (!running || card || panel || !target) return;
   sfx.init();
-  const hit = world.pick(e.clientX, e.clientY);
-  if (!hit) return;
-  if (hit.type === 'egg') tapEgg(hit.egg);
-  else if (hit.type === 'inc') tapIncubator(hit.i);
-  else if (hit.type === 'pen') tapPen(hit.i);
-  else if (hit.type === 'lockedPen') openPanel('upPanel');
-});
-
-function tapEgg(egg) {
-  if (S.freeIncubator(st) < 0) {
-    sfx.denied();
-    const waiting = st.incubators.some((x) => x && x.sp);
-    toast(waiting ? t('incFullWaiting') : t('incFull'), 'warn');
-    world.incubators.forEach((c) => {
-      if (!c.owned) return;
-      world.tween(0.5, (k) => c.group.scale.setScalar(1 + Math.sin(k * Math.PI) * 0.15), () => c.group.scale.setScalar(1));
-    });
+  if (target.kind === 'egg') tryPickUp(target.ref);
+  else if (target.kind === 'inc') tapIncubator(target.ref);
+  else if (target.kind === 'pen') showCreature(target.ref);
+}
+addEventListener('keydown', (e) => {
+  if (card) {
+    if (!card.answered && ['Digit1', 'Digit2', 'Digit3', 'Numpad1', 'Numpad2', 'Numpad3'].includes(e.code)) answer(+e.key - 1);
+    else if (card.answered && $('goOn').classList.contains('on') && (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyE')) { e.preventDefault(); closeCard(false); }
     return;
   }
-  sfx.open();
-  openCard(egg);
+  if (panel) { if (e.code === 'Escape' || e.code === 'KeyU' || e.code === 'KeyB') closePanel(); return; }
+  if (!running) return;
+  if (e.code === 'KeyE') act();
+  else if (e.code === 'KeyU') openPanel('upPanel');
+  else if (e.code === 'KeyB') openPanel('bookPanel');
+});
+$('c').addEventListener('mousedown', () => {
+  if (!running || touchMode || card || panel) return;
+  if (!player.locked) { player.requestLock(); sfx.init(); return; }
+  act();
+});
+$('clickPlay').addEventListener('click', () => { sfx.init(); player.requestLock(); });
+player.onLockChange = (locked) => { updateClickPlay(); if (locked) sfx.init(); };
+function updateClickPlay() {
+  $('clickPlay').classList.toggle('on', running && !touchMode && !player.locked && !card && !panel);
 }
+$('actBtn').addEventListener('touchstart', (e) => { e.preventDefault(); act(); }, { passive: false });
+$('jumpBtn').addEventListener('touchstart', (e) => { e.preventDefault(); player.jump(); }, { passive: false });
+player.onStep = (run) => sfx.step(run);
+player.onJump = () => sfx.jump();
 
-// ── question card ──
-function openCard(egg) {
-  const R = RARITY[egg.rarity];
+// ── question card (egg pick-up or thief catch) ──
+function tryPickUp(e) {
+  if (st.carry.length >= S.backpackSize(st)) { sfx.denied(); toast(t('backpackFull'), 'warn'); return; }
+  sfx.open();
+  openCard({ kind: 'egg', egg: e, rarity: e.rarity });
+}
+function openCard(c) {
+  const R = RARITY[c.rarity];
   const pair = Q.nextPair(R.tier);
-  card = { egg, pair, steps: Q.stepsFor(pair, R.pair), i: 0, ok: true };
-  egg.obj.position.y = BELT_Y + 0.25;
-  sfx.belt(false);
+  card = { ...c, pair, steps: Q.stepsFor(pair, c.kind === 'egg' && R.pair), i: 0 };
+  player.enabled = false;
+  player.releaseLock();
   const el = $('card');
-  el.style.setProperty('--rc', R.css);
-  $('cardEgg').textContent = t('egg', rName(egg.rarity));
-  $('cardSub').textContent = card.steps.length > 1 ? t('cardTwo') : t('cardOne');
+  el.style.setProperty('--rc', c.kind === 'thief' ? '#ff6b4a' : R.css);
+  $('cardEgg').textContent = c.kind === 'thief' ? `🦀 ${t('thiefTitle')}` : t('egg', rName(c.rarity));
+  $('cardSub').textContent = c.kind === 'thief' ? t('thiefSub') : (card.steps.length > 1 ? t('cardTwo') : t('cardOne'));
   $('shade').classList.add('on'); el.classList.add('on');
+  updateClickPlay();
   showStep();
 }
 function trioHtml(q, reveal) {
@@ -222,20 +365,14 @@ function showStep() {
   $('chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => answer(+b.dataset.k)));
 }
 function answer(k) {
-  if (!card || card.answered) return;
+  if (!card || card.answered || !card.steps[card.i].options[k]) return;
   const q = card.steps[card.i];
-  const chosen = q.options[k];
-  const ok = chosen === q.answer;
+  const ok = q.options[k] === q.answer;
   card.answered = true;
   S.recordAnswer(st, ok); Q.record(q, ok); A.countAnswer(ok);
-  const chips = [...$('chips').querySelectorAll('.chip')];
-  chips.forEach((c, j) => {
-    if (q.options[j] === q.answer) c.classList.add('right');
-    else c.classList.add('off');
-  });
-  // what the trio may show now: never reveal a 3rd form that the next step asks
+  $('chips').querySelectorAll('.chip').forEach((c, j) => c.classList.add(q.options[j] === q.answer ? 'right' : 'off'));
   const last = card.i === card.steps.length - 1;
-  const showPp = q.ask === 'pp' || q.full;
+  const showPp = q.ask === 'pp' || q.full; // never reveal a 3rd form the next step asks
   $('trio').innerHTML = trioHtml(q, { past: true, pp: showPp });
   if (ok) {
     sfx.right();
@@ -244,66 +381,114 @@ function answer(k) {
     setTimeout(() => closeCard(true), 650);
   } else {
     sfx.wrong();
-    card.ok = false;
     Q.missed(card.pair);
     const chain = `<span class="base">${q.base}</span><span class="arrow">→</span><span class="past">${q.past}</span><span class="arrow">→</span>` +
       (showPp ? `<span class="pp">${q.pp}</span>` : '<span style="color:#42577f">___</span>');
-    $('feedback').innerHTML = `<div class="bad">${t('wrong')}</div><div class="teach">${chain}</div><div class="small">${t('eggRolled')}</div>`;
+    const after = card.kind === 'thief' ? t('stolen') : t('eggRolled');
+    $('feedback').innerHTML = `<div class="bad">${t('wrong')}</div><div class="teach">${chain}</div><div class="small">${after}</div>`;
     $('goOn').classList.add('on');
   }
 }
 $('goOn').addEventListener('click', () => closeCard(false));
 function closeCard(ok) {
   if (!card) return;
-  const { egg } = card;
+  const c = card;
   card = null;
   $('card').classList.remove('on'); $('shade').classList.remove('on');
-  sfx.belt(true);
-  world.removeEgg(egg);
-  if (ok) grab(egg); else lose(egg);
+  player.requestLock();
+  if (c.kind === 'egg') { if (ok) pickedUp(c.egg); else eggRollsAway(c.egg); }
+  else thiefResult(c.thief, ok);
   renderHud();
+  setTimeout(updateClickPlay, 300);
 }
-function grab(egg) {
-  const res = S.grabEgg(st, egg.rarity);
-  if (!res) { lose(egg); return; }
-  A.ev('egg_grabbed', { rarity: egg.rarity, streak: st.stats.streak });
+function pickedUp(e) {
+  const res = S.pickUp(st, e.rarity);
+  if (!res) { eggRollsAway(e); return; }
+  A.ev('egg_grabbed', { rarity: e.rarity, zone: e.zone.id, streak: st.stats.streak, carry: st.carry.length });
   A.countVisit('grabbed');
-  floatAt(egg.obj.position.clone().setY(1.6), `+${fmt(res.bonus)}`, true);
   sfx.pop();
-  const from = egg.obj.position.clone(), to = INC_POS[res.index].clone().setY(0.55);
-  world.tween(0.6, (k) => {
-    egg.obj.position.lerpVectors(from, to, k);
-    egg.obj.position.y += Math.sin(k * Math.PI) * 3;
-    egg.obj.rotation.z = k * Math.PI * 2;
-  }, () => { world.scene.remove(egg.obj); syncWorld(); });
-  save();
-  checkGoals();
+  floatCenter(`+${fmt(res.bonus)}`);
+  // the egg flies into your hands
+  const from = e.obj.position.clone().add(new THREE.Vector3(0, 0.5, 0));
+  removeWild(e);
+  const m = e.obj; world.scene.add(m);
+  world.tween(0.35, (k) => { m.position.lerpVectors(from, world.camera.position, k); m.scale.setScalar(1 - k * 0.6); },
+    () => { world.scene.remove(m); player.showCarry(st.carry); });
+  if (st.carry.length === 1) toast(t('bringHome'));
+  save(); checkGoals();
 }
-function lose(egg) {
+function eggRollsAway(e) {
   S.loseEgg(st);
-  A.ev('egg_lost', { rarity: egg.rarity });
+  A.ev('egg_lost', { rarity: e.rarity, zone: e.zone.id });
   sfx.roll();
-  const from = egg.obj.position.clone();
-  world.tween(1.0, (k) => {
-    egg.obj.position.set(from.x + k * 1.5, from.y + Math.sin(k * Math.PI) * 0.6 - k * k * 2.2, from.z + k * 2.6);
-    egg.obj.rotation.x = k * 8;
-  }, () => world.scene.remove(egg.obj));
+  removeWild(e);
+  const egg = e.obj.userData.egg, from = egg.position.clone();
+  const dir = Math.random() * Math.PI * 2;
+  world.scene.add(e.obj);
+  world.tween(1.2, (k) => {
+    egg.position.set(from.x + Math.sin(dir) * k * 4, from.y + Math.sin(k * Math.PI) * 0.8, from.z + Math.cos(dir) * k * 4);
+    egg.rotation.x = k * 10;
+    e.obj.userData.glow.material.opacity = 0.6 * (1 - k);
+    if (e.obj.userData.beam) e.obj.userData.beam.visible = false;
+    if (k > 0.7) egg.scale.setScalar(1.25 * (1 - (k - 0.7) / 0.3));
+  }, () => world.scene.remove(e.obj));
 }
-addEventListener('keydown', (e) => {
-  if (card) {
-    if (!card.answered && ['1', '2', '3'].includes(e.key)) answer(+e.key - 1);
-    else if (card.answered && $('goOn').classList.contains('on') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); closeCard(false); }
-  } else if (panel && e.key === 'Escape') closePanel();
-});
 
-// ── hatching ──
+// ── thieves ──
+function thiefCatch(th) {
+  const top = st.carry[st.carry.length - 1];
+  // put the crab a little in front of the player and look at it
+  const p = player.pos, dx = th.x - p.x, dz = th.z - p.z, L = Math.hypot(dx, dz) || 1;
+  th.x = p.x + (dx / L) * 2.4; th.z = p.z + (dz / L) * 2.4;
+  th.dir = Math.atan2(-dx, -dz);
+  player.yaw = Math.atan2(-dx, -dz); player.pitch = -0.25;
+  thieves.update(0, { x: p.x, z: p.z, carrying: true }, isOpen, true);
+  player.update(0);
+  sfx.alarm();
+  openCard({ kind: 'thief', thief: th, rarity: top });
+}
+function thiefResult(th, ok) {
+  if (ok) {
+    S.bonked(st); thieves.bonk(th); sfx.bonk(); toast(t('bonked'));
+    A.ev('thief_catch', { zone: th.zone.id, result: 'bonk' });
+  } else {
+    const r = S.stealTop(st);
+    if (r) { thieves.steal(th, r); respawn.push({ zone: th.zone, t: EGG_RESPAWN }); }
+    sfx.steal(); toast(t('stolen'), 'warn');
+    A.ev('thief_catch', { zone: th.zone.id, result: 'stolen', rarity: r || 'none' });
+  }
+  thieves.graceAll();
+  player.showCarry(st.carry);
+  save(); checkGoals();
+}
+
+// ── home: egg pad, hatching, pens ──
+let padCooldown = 0;
+function checkPad(dt) {
+  padCooldown -= dt;
+  if (!st.carry.length || padCooldown > 0) return;
+  if (Math.hypot(player.pos.x - PAD.x, player.pos.z - PAD.z) > 2.7) return;
+  const moved = S.deliver(st);
+  padCooldown = 2;
+  if (!moved.length) { sfx.denied(); toast(t('incFullCarry'), 'warn'); return; }
+  sfx.whoosh();
+  toast(t('delivered', moved.length));
+  A.ev('eggs_home', { n: moved.length, left: st.carry.length });
+  player.showCarry(st.carry);
+  // eggs fly from the pad to the incubators
+  moved.forEach(({ index, rarity }, k) => {
+    const egg = world.putEgg(index, rarity);
+    const to = egg.position.clone();
+    const fromLocal = world.incubators[index].group.worldToLocal(PAD.clone().setY(PAD.y + 1.2));
+    egg.position.copy(fromLocal);
+    world.tween(0.7 + k * 0.15, (q) => { egg.position.lerpVectors(fromLocal, to, q); egg.position.y += Math.sin(q * Math.PI) * 2.5; });
+  });
+  renderHud(); save(); checkGoals();
+}
 function tapIncubator(i) {
   const inc = st.incubators[i];
   if (!inc) return;
-  if (inc.sp) { // waiting for a pen
-    if (S.freePen(st) >= 0) placeWaiting(i); else { sfx.denied(); toast(t('incFullWaiting'), 'warn'); }
-    return;
-  }
+  if (inc.sp) { if (S.freePen(st) >= 0) placeWaiting(i); else { sfx.denied(); toast(t('incFullWaiting'), 'warn'); } return; }
   if (!S.isReady(inc)) { sfx.tap(); return; }
   doHatch(i);
 }
@@ -315,41 +500,34 @@ function doHatch(i) {
   A.ev('creature_hatched', { rarity: res.rarity, new: res.isNew, waiting: res.waiting });
   A.countVisit('hatched');
   sfx.crack();
-  // shake, then burst
-  world.tween(0.55, (k) => { if (egg) { egg.rotation.z = Math.sin(k * 40) * 0.25 * k; egg.scale.setScalar(1 + k * 0.25); } }, () => {
+  world.tween(0.55, (k) => { if (egg) { egg.rotation.z = Math.sin(k * 40) * 0.25 * k; egg.scale.setScalar(1.25 * (1 + k * 0.25)); } }, () => {
     sfx.hatch(res.rarity);
     world.clearIncubator(i);
-    shellBurst(INC_POS[i].clone().setY(0.9), res.rarity);
+    shellBurst(INC_POS[i].clone().setY(INC_POS[i].y + 0.9), res.rarity);
     showReveal(res);
     const cr = buildCreature(res.sp);
-    cr.position.copy(INC_POS[i]).setY(0.55);
+    cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
     world.scene.add(cr);
-    world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * 1.3 : 1.3 - (k - 0.7) / 0.3 * 0.3)));
-    if (res.waiting) {
-      setTimeout(() => { world.scene.remove(cr); syncWorld(); }, 900);
-    } else {
-      jumpToPen(cr, res.pen, 0.9);
-    }
-    save();
-    checkGoals();
+    world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * 1.5 : 1.5 - (k - 0.7) / 0.3 * 0.2)));
+    if (res.waiting) setTimeout(() => { world.scene.remove(cr); syncWorld(); }, 900);
+    else jumpToPen(cr, res.pen, 0.9);
+    save(); checkGoals();
   });
 }
 function jumpToPen(cr, pen, delay) {
   setTimeout(() => {
-    const from = cr.position.clone(), to = PEN_POS[pen].clone().setY(0.3);
-    world.tween(0.8, (k) => {
-      cr.position.lerpVectors(from, to, k); cr.position.y += Math.sin(k * Math.PI) * 3.2;
-      cr.scale.setScalar(1 + k * 0.25);
-    }, () => { world.scene.remove(cr); syncWorld(); });
+    const from = cr.position.clone(), to = PEN_POS[pen].clone().setY(PEN_POS[pen].y + 0.25);
+    world.tween(0.8, (k) => { cr.position.lerpVectors(from, to, k); cr.position.y += Math.sin(k * Math.PI) * 3.5; },
+      () => { world.scene.remove(cr); syncWorld(); });
   }, delay * 1000);
 }
 function placeWaiting(i) {
-  const inc = st.incubators[i];
+  const sp = st.incubators[i].sp;
   const res = S.hatch(st, i);
   if (!res || res.waiting) return;
   world.clearIncubator(i);
-  const cr = buildCreature(inc.sp || res.sp);
-  cr.position.copy(INC_POS[i]).setY(0.55);
+  const cr = buildCreature(sp);
+  cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
   world.scene.add(cr);
   sfx.pop();
   jumpToPen(cr, res.pen, 0);
@@ -358,10 +536,10 @@ function placeWaiting(i) {
 const shellGeo = new THREE.TetrahedronGeometry(0.13);
 function shellBurst(at, rarity) {
   const m = new THREE.MeshStandardMaterial({ color: RARITY[rarity].color, roughness: 0.6 });
-  for (let k = 0; k < 10; k++) {
+  for (let k = 0; k < 12; k++) {
     const s = new THREE.Mesh(shellGeo, m); s.position.copy(at); world.scene.add(s);
     const v = new THREE.Vector3((Math.random() - 0.5) * 5, 3 + Math.random() * 3, (Math.random() - 0.5) * 5);
-    world.tween(0.9, (q, dt) => { v.y -= 12 * dt; s.position.addScaledVector(v, dt); s.rotation.x += dt * 8; if (s.position.y < 0.05) s.position.y = 0.05; },
+    world.tween(0.9, (q, dt) => { v.y -= 12 * dt; s.position.addScaledVector(v, dt); s.rotation.x += dt * 8; if (s.position.y < at.y - 0.8) s.position.y = at.y - 0.8; },
       () => world.scene.remove(s));
   }
 }
@@ -379,12 +557,10 @@ function showReveal(res) {
   clearTimeout(revealTimer);
   revealTimer = setTimeout(() => el.classList.remove('on'), res.waiting ? 4200 : 3000);
 }
-
-// ── pens: tap a creature to see it (and let it go) ──
 let infoPen = -1;
-function tapPen(i) {
+function showCreature(i) {
   const c = st.pens[i];
-  if (!c) { sfx.tap(); toast(t('penEmpty')); return; }
+  if (!c) return;
   sfx.tap();
   infoPen = i;
   const r = S.speciesRarity(c.sp);
@@ -399,11 +575,10 @@ function tapPen(i) {
 $('ciRelease').addEventListener('click', () => {
   if (infoPen < 0) return;
   const coins = S.release(st, infoPen);
-  floatAt(PEN_POS[infoPen].clone().setY(1.8), `+${fmt(coins)}`, true);
+  floatCenter(`+${fmt(coins)}`);
   sfx.ding();
   infoPen = -1;
-  closePanel();
-  syncWorld(); renderHud(); save();
+  closePanel(); syncWorld(); renderHud(); save();
 });
 
 // ── panels ──
@@ -413,20 +588,23 @@ function openPanel(id) {
   if (id === 'upPanel') renderUpgrades();
   if (id === 'bookPanel') renderBook();
   panel.classList.add('on'); $('shade').classList.add('on');
-  sfx.belt(false);
+  player.enabled = false;
+  player.releaseLock();
+  updateClickPlay();
 }
 function closePanel() {
   if (!panel) return;
   panel.classList.remove('on'); $('shade').classList.remove('on');
   panel = null;
-  sfx.belt(true);
+  player.requestLock();
+  setTimeout(updateClickPlay, 300);
 }
 document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closePanel));
 $('shade').addEventListener('click', () => { if (panel) closePanel(); });
 $('upBtn').addEventListener('click', () => { sfx.init(); sfx.tap(); openPanel('upPanel'); });
 $('bookBtn').addEventListener('click', () => { sfx.init(); sfx.tap(); openPanel('bookPanel'); });
 
-const UP_ICON = { pen: '🏡', incubator: '🥚', hatchSpeed: '💡', beltLuck: '🍀' };
+const UP_ICON = { pen: '🏡', incubator: '🥚', hatchSpeed: '💡', shoes: '👟', backpack: '🎒' };
 function renderUpgrades() {
   $('upList').innerHTML = Object.keys(UPGRADES).map((k) => `
     <div class="upRow"><div class="ico">${UP_ICON[k]}</div>
@@ -449,11 +627,9 @@ function buyUp(k) {
   if (!S.buy(st, k)) { sfx.denied(); return; }
   sfx.ding();
   A.ev('upgrade_bought', { upgrade: k, lvl: st.up[k], cost, coins_left: Math.floor(st.coins) });
-  // new pens take creatures that wait in incubators
   if (k === 'pen') st.incubators.forEach((inc, i) => { if (inc && inc.sp && S.freePen(st) >= 0) placeWaiting(i); });
   syncWorld(); renderUpgrades(); renderHud(); save(); checkGoals();
 }
-
 function renderBook() {
   const total = RARITIES.reduce((a, r) => a + RARITY[r].species, 0);
   $('bookHow').textContent = `${t('bookFound', S.bookCount(st), total)} · ${t('bookHow')}`;
@@ -468,7 +644,7 @@ function renderBook() {
   }).join('');
 }
 
-// ── sound button ──
+// ── sound ──
 function soundIcon() { $('soundBtn').textContent = sfx.muted ? '🔇' : '🔊'; }
 soundIcon();
 $('soundBtn').addEventListener('click', () => { sfx.init(); sfx.setMuted(!sfx.muted); soundIcon(); });
@@ -479,31 +655,94 @@ A.onSummary(() => ({ coins_per_sec: Math.round(S.cps(st)), creatures: S.bookCoun
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
 addEventListener('pagehide', save);
 
+// ── slow device? lower the resolution and the shadows (once each) ──
+let qT = 0, qN = 0, qLevel = 0;
+function adaptQuality(dt) {
+  if (!running || card || panel || qLevel >= 2) return;
+  qT += dt; qN++;
+  if (qT < 4) return;
+  const fps = qN / qT; qT = 0; qN = 0;
+  if (fps > 32) return;
+  qLevel++;
+  if (qLevel === 1) world.renderer.setPixelRatio(1);
+  else { world.sun.shadow.mapSize.set(1024, 1024); world.sun.shadow.map?.dispose(); world.sun.shadow.map = null; world.renderer.shadowMap.type = THREE.PCFShadowMap; }
+  world.resize();
+  A.ev('quality_down', { level: qLevel, fps: Math.round(fps) });
+}
+
 // ── main loop ──
 let last = performance.now();
+const chasing = new Set();
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
+  adaptQuality(dt);
   if (running) {
-    const earned = S.tick(st, dt);
-    // coin floats over pens (visual only, the real income is continuous)
+    const paused = !!card || !!panel;
+    player.enabled = !paused && (touchMode || player.locked || DEBUG);
+    player.update(dt);
+    world.followSun(player.pos);
+    S.tick(st, dt);
+    // coins floating from pens (visual; the real income is continuous)
     world.pens.forEach((p, i) => {
       if (!p.owned || !st.pens[i]) return;
       p.nextCoin -= dt;
       if (p.nextCoin <= 0) {
         p.nextCoin = 3 + Math.random() * 1.5;
-        floatAt(PEN_POS[i].clone().setY(2.2), `+${fmt(S.speciesIncome(st.pens[i].sp) * 3)}`);
-        sfx.plink();
+        if (player.pos.distanceTo(PEN_POS[i]) < 25) {
+          floatAt(PEN_POS[i].clone().setY(PEN_POS[i].y + 2.6), `+${fmt(S.speciesIncome(st.pens[i].sp) * 3)}`);
+          sfx.plink();
+        }
       }
     });
-    if (beltRunning()) {
-      spawnT -= dt;
-      if (spawnT <= 0) { spawnT = BELT.spawnEvery * (0.8 + Math.random() * 0.4); spawn(); }
+    // wild eggs: bob and glow; respawn
+    for (const e of wild) {
+      const ud = e.obj.userData;
+      ud.egg.rotation.y += dt * 0.8;
+      ud.glow.material.opacity = 0.45 + Math.sin(world.time * 3 + e.id) * 0.2;
+      if (ud.beam) ud.beam.visible = Math.hypot(e.x - player.pos.x, e.z - player.pos.z) > 6;
     }
-    world.updateBelt(beltRunning() ? dt : 0, BELT.speed, card ? card.egg : null);
+    for (const r of respawn) r.t -= dt;
+    const due = respawn.filter((r) => r.t <= 0);
+    respawn = respawn.filter((r) => r.t > 0);
+    for (const r of due) spawnWild(r.zone);
+    // thieves
+    const caught = thieves.update(dt, { x: player.pos.x, z: player.pos.z, carrying: st.carry.length > 0 }, isOpen, paused);
+    for (const th of thieves.list) {
+      if (th.state === 'chase' && !chasing.has(th)) { chasing.add(th); sfx.alarm(); }
+      if (th.state !== 'chase') chasing.delete(th);
+    }
+    if (caught && !paused && st.carry.length) thiefCatch(caught);
+    if (!paused) checkPad(dt);
+    // zone name when entering
+    const z = zoneAt(player.pos.x, player.pos.z);
+    if (z !== curZone) { curZone = z; showZoneName(zName(z)); }
+    // locked zone close by → hint
+    let hint = null;
+    for (const zz of ZONES) {
+      if (zz.r && !isOpen(zz) && Math.hypot(player.pos.x - zz.x, player.pos.z - zz.z) < zz.r + 6) hint = t('zoneLockedHint', zName(zz), zz.stars);
+    }
+    if (!hint && st.carry.length) hint = st.carry.length >= S.backpackSize(st) ? t('backpackFull') : t('bringHome');
+    setHint(paused ? null : hint);
+    // E target
+    target = paused ? null : findTarget();
+    const pt = promptFor(target);
+    const pr = $('prompt');
+    if (pt) { const html = `${touchMode ? '' : '<span class="key">E</span>'}${pt}`; if (pr.innerHTML !== html) pr.innerHTML = html; pr.classList.add('on'); }
+    else pr.classList.remove('on');
+    $('actBtn').classList.toggle('on', !!pt);
+    $('jumpBtn').classList.toggle('on', !paused);
+    // timers
     saveT += dt; if (saveT > 5) { saveT = 0; save(); }
     goalT += dt; if (goalT > 0.4) { goalT = 0; checkGoals(); renderHud(); }
-    void earned;
+    mapT += dt; if (mapT > 0.1) {
+      mapT = 0;
+      map.draw({ player: player.pos, yaw: player.yaw, eggs: wild, thieves: thieves.list, isOpen, carrying: st.carry.length > 0 });
+    }
+  } else {
+    // before Play: a slow look around from the hatchery
+    player.yaw += dt * 0.08;
+    player.update(0);
   }
   world.update(dt);
   updateLabels();
@@ -513,12 +752,13 @@ function frame(now) {
 // ── start ──
 async function boot() {
   syncWorld();
-  world.loadDecor();
-  // a few eggs already on the belt
-  for (let k = 0; k < 6; k++) { const e = world.spawnEgg(S.rollRarity(st), eggId++); e.x = -12 + k * 4.2; e.obj.position.x = e.x; }
+  player.spawn(SPAWN, 0);
+  world.followSun(player.pos);
+  const decor = world.loadDecor();
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
-  await Q.init();
+  await Promise.all([Q.init(), decor]);
+  fillEggs();
   away = S.applyAway(st);
   const ready = st.incubators.filter((x) => x && S.isReady(x)).length;
   const parts = [];
@@ -528,38 +768,49 @@ async function boot() {
   $('resetBtn').style.display = st.stats.answers ? '' : 'none';
   $('playBtn').textContent = t('play');
   $('playBtn').disabled = false;
-  lastCoins = -1;
 }
 $('playBtn').addEventListener('click', () => {
   sfx.init();
   $('start').classList.add('off');
   $('hud').classList.add('on');
+  player.spawn(SPAWN, 0);
   running = true;
-  if (away.coins >= 1) floatAt(new THREE.Vector3(0, 3, 0), `+${fmt(away.coins)}`, true);
+  player.requestLock();
+  if (away.coins >= 1) floatCenter(`+${fmt(away.coins)}`);
   renderHud(); renderGoals(true);
   A.levelStart(st.goals.stars + 1);
-  A.ev('game_open', { lang, source: Q.source, returning: st.stats.answers > 0, away_min: Math.round(away.seconds / 60),
-    stars: st.goals.stars, creatures: S.bookCount(st) });
+  A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
+    away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st) });
+  setTimeout(updateClickPlay, 400);
   save();
 });
 $('resetBtn').addEventListener('click', () => {
   if (!confirm(t('confirmReset'))) return;
   S.wipe(); st = S.newState(); away = { seconds: 0, coins: 0 };
+  openZones.clear();
   $('welcome').classList.remove('on'); $('resetBtn').style.display = 'none';
   syncWorld();
 });
 
-// QA hooks (?debug): window.hatchery.state, .give(n), .ready()
-if (/[?&]debug/.test(location.search)) {
+// QA hooks (?debug)
+if (DEBUG) {
   window.hatchery = {
-    get state() { return st; }, world, S,
+    get state() { return st; }, world, player, thieves, S, get wild() { return wild; },
+    get card() { return card; }, get target() { return target; },
     give(n) { S.addCoins(st, n); renderHud(); },
     ready() { st.incubators.forEach((x) => { if (x) x.start = 0; }); },
-    get card() { return card; },
-    // tap the k-th egg near the middle of the belt; answer right (true) or wrong
-    tapEgg(k = 0) { const e = world.eggs.filter((x) => x.x > -9 && x.x < 9)[k] || world.eggs[0]; tapEgg(e); return e.rarity; },
-    answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
-    tapInc(i) { tapIncubator(i); }, sync: syncWorld, tapPen(i) { tapPen(i); }, open: openPanel,
+    stars(n) { st.goals.stars = n; checkGoals(); for (const z of ZONES) if (z.r && isOpen(z) && !openZones.has(z.id)) { openZones.add(z.id); world.setZoneOpen(z.id, true, true); } },
+    tp(x, z, yaw) { player.pos.set(x, height(x, z), z); if (yaw !== undefined) player.yaw = yaw; },
+    // stand next to the nearest open egg (of a rarity) and look at it
+    toEgg(rarity) {
+      const list = wild.filter((e) => isOpen(e.zone) && (!rarity || e.rarity === rarity));
+      list.sort((a, b) => Math.hypot(a.x - player.pos.x, a.z - player.pos.z) - Math.hypot(b.x - player.pos.x, b.z - player.pos.z));
+      const e = list[0]; if (!e) return null;
+      this.tp(e.x, e.z + 2.2, 0); player.pitch = -0.45; return e.rarity;
+    },
+    home() { this.tp(PAD.x, PAD.z - 1, Math.PI); player.pitch = -0.2; },
+    act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
+    sync: syncWorld, open: openPanel, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
   };
 }
 boot();
