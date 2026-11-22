@@ -76,7 +76,7 @@ keys. Keep the Verb Cookbook reading the shared stats
 | Verb Flow | `games/verb-flow/` → `homepage/krabsy-verb-flow.html` | verb-flow session | no |
 | Verb Slash | `games/verb-slash/` (inlined into wrappers) | verb-slash session | no |
 | Verb Kitchen | `games/verb-kitchen/` (+ step 3) | verb-kitchen session | no |
-| Verb Towers | `games/tower-defense/` | tower-defense session | no — before release |
+| Verb Towers | `games/tower-defense/` | tower-defense session | **yes, 2026-11-22** (master, release prep) — smart words first in the pool at start and each new run; every forge answer recorded |
 | Verb Dungeon | `games/verb-dungeon/` | verb-dungeon session | no — before release |
 | Verb Platformer | `games/verb-platformer/` | verb-platformer session | no — before release |
 | Drills | `homepage/de|es/…` | master | **yes, 2026-11-22** — Sprint (verbs + prepositions, DE + ES) uses `getQuestions({ smart: true })`; free practice "all" (4 pages) and verb flashcards "all" (DE + ES) use `pickSmartItems()`. They already recorded answers. Prepositions flashcards and the speed drills in `homepage/games/*.html` (type-race, fill-the-gap, drag-match, falling-forms) neither record nor use the mix yet |

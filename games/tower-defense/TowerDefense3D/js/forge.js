@@ -66,6 +66,7 @@ export const Forge = {
     f.ore -= 1;
     state.stats.asked += 1;
 
+    Questions.record(f.q, index === f.q.correctIndex);
     if (index === f.q.correctIndex) {
       state.stats.right += 1;
       f.lastGain = this.reward(f.streak);

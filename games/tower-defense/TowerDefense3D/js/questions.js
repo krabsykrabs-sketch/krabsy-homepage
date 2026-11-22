@@ -91,11 +91,15 @@ export const Questions = {
   missed: new Map(),  // id → { q, times } for the end-of-game recap
   followUp: null,     // the 3rd-form question that comes right after its 2nd form
   _sinceStart: 0,
+  _kq: null,          // site question engine (null in fallback mode)
+  _stats: null,       // site stats module: every answer is recorded (phase 1)
 
   async init() {
     let set = null;
+    try { this._stats = await import('/lib/krabsy-stats.js'); } catch (_) { this._stats = null; }
     try {
       const KQ = await import('/lib/krabsy-questions.js');
+      this._kq = KQ;
       set = await KQ.getQuizSet({ topic: KQ.topicFromUrl(), count: 1000, withOptions: 3, uniqueBy: 'id' });
       if (!set || set.length < 6) set = null;
       else {
@@ -114,6 +118,33 @@ export const Questions = {
     if (!set) { set = fallbackSet(); this.source = 'fallback'; }
     this.all = set;
     this._refill();
+    await this._smartFront();
+  },
+
+  // Shared learning engine (docs/classroom-concept.md phase 1): move the words the
+  // smart mix picks for this player (still wrong, new from their level, due again)
+  // to the front of the pool. Called at start and for every new run.
+  async _smartFront() {
+    if (!this._kq) return;
+    try {
+      const KQ = this._kq;
+      const topic = KQ.topicFromUrl();
+      const picked = await KQ.getQuizSet({ topic, count: 16, smart: true, withOptions: 3 });
+      const items = [...new Set(picked.map(q => q.item))];
+      if (!items.length) return;
+      const rank = new Map(items.map((id, i) => [id, i]));
+      const front = this.pool.filter(q => rank.has(q.item)).sort((a, b) => rank.get(a.item) - rank.get(b.item));
+      const rest = this.pool.filter(q => !rank.has(q.item));
+      this.pool = [...front, ...rest];
+    } catch (_) { /* keep the level order */ }
+  },
+
+  // Record one answer in the player's stats (krabsy-stats.js).
+  record(q, correct) {
+    if (!this._stats || !q) return;
+    const item = q.item || (q.display && q.display.base);
+    if (!item) return;
+    try { this._stats.recordAttempt(item, q.form || 'default', !!correct, 'verb-towers', q.topic || 'irregular_verbs'); } catch (_) {}
   },
 
   // Easier questions first, but shuffled within the same level.
@@ -128,6 +159,7 @@ export const Questions = {
     this.missed.clear();
     this.followUp = null;
     this._sinceStart = 0;
+    this._smartFront();   // async; the first question is drawn after the run starts
   },
 
   next() {

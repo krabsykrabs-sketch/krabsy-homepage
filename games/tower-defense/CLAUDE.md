@@ -579,6 +579,7 @@ implemented as preview-approved by the owner (Status log, "round 2").
 ## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
 
 Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.
+**Done 2026-11-22 by the master session** (release prep): `js/questions.js` `_smartFront()` puts the smart-mix words at the front of the pool at init and on every `resetRun()`; `Questions.record(q, correct)` → `recordAttempt(item, form, correct, 'verb-towers', topic)`, called once per answer in `js/forge.js` `answer()`.
 - 2026-11-22 — **Economy: verbs are now required** (owner play-test: won
   level 5 "Two Gates" with archers only and without answering a single
   question; one boss got through).
