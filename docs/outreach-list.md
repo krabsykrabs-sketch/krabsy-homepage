@@ -8,9 +8,10 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, siehe #4).
+Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, siehe #4).
 
-### Lehrerfreund (DE): https://www.lehrerfreund.de/kontakt
+### ~~Lehrerfreund (DE)~~: VERWORFEN 2026-11-22
+Kein Englisch-Bereich: Die Fächer sind nur Deutsch, Geschichte und Politik, und die Tools sind allgemeine Unterrichtstools. Die Kontaktseite lehnt Werbe-Anfragen ausdrücklich ab. Nicht einreichen. Text bleibt nur zur Referenz.
 Name: Jan Ahrens · E-Mail: hallo@krabsy.com · Betreff: Tool-Tipp: kostenlose Übungsseite für englische unregelmäßige Verben
 
 ```
@@ -24,7 +25,8 @@ Viele Grüße
 Jan Ahrens
 ```
 
-### Aula PT (ES): https://www.aulapt.org/contacto/
+### Aula PT (ES): **GESENDET 2026-11-22** per E-Mail an colaboraaulapt@gmail.com (kein Formular)
+Passung mittel: Grundschul-/PT-Blog (Autorin: PT in Valencia), Kategorie "ENGLISH RESOURCES" (18 Beiträge), Rubrik "Juegos online" seit 2020 nicht erweitert. Text auf 5.º/6.º Primaria angepasst (siehe Chat 2026-11-22).
 Nombre: Jan Ahrens · Email: hola@krabsy.com · Asunto: Recurso gratuito: juegos para practicar los verbos irregulares en inglés
 
 ```
@@ -55,7 +57,7 @@ Beide Blogs zeigen Werbung bzw. verkaufen eigene Materialien: nur redaktionelle 
 | 7 | Eduthek (BMB Österreich) | AT | Offizielles Ministeriumsportal mit "sorgfältig ausgewählten Ressourcen". | 10 min | E-Mail an eduthek@bildung.gv.at (Mitmachen-Seite nur teilweise geprüft) |
 | 8 | 4teachers, Linkportal | DE | Großes Lehrkräfteportal, im Linkportal steht ausdrücklich: "Du kannst jederzeit Links … vorschlagen". | 15 min (Konto nötig) | https://www.4teachers.de/?action=show&id=18 |
 | 9 | educ.ar | AR | Staatliches Bildungsportal Argentiniens mit Hinweisen auf empfohlene Englisch-Seiten. | 10 min | E-Mail an info@educar.gob.ar (**nicht verifiziert**, Seite von hier aus nicht erreichbar) |
-| 10 | Lehrerfreund | DE | Viel gelesener Lehrkräfte-Blog mit Newsletter, Rubrik Tools und Web-Apps. | 5 min | https://www.lehrerfreund.de/kontakt |
+| 10 | ~~Lehrerfreund~~ (verworfen 2026-11-22: kein Englisch) | DE | Viel gelesener Lehrkräfte-Blog mit Newsletter, Rubrik Tools und Web-Apps. | 5 min | https://www.lehrerfreund.de/kontakt |
 
 **Vor dem Einreichen klären:** Die Lehrkräfte-Seiten `/de/lehrkraefte/` und `/es/docentes/` nennen noch **155 Verben** und **Verb Platformer**. Die Verb-Hubs nennen **172 Verben**, und Verb Platformer ist offline. Die Redaktionen prüfen die Seiten. Deshalb die Lehrkräfte-Seiten angleichen, bevor ihr sie als Zusatzinfo angebt. Die Texte unten verwenden 172 und erwähnen Verb Platformer nicht.
 
