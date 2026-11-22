@@ -16,6 +16,7 @@ import * as save from './save.js';
 import * as Q from './questions.js';
 import * as quiz from './quiz.js';
 import { t, NameOf, applyStatic } from './i18n.js';
+import { createTouch } from './touch.js';
 
 applyStatic();
 import { unlock, sfx, birds } from './audio.js';
@@ -58,7 +59,7 @@ const daycycle = createDayCycle(scene, renderer, refs, document.getElementById('
 let state = { timeMin: 600, day: 1 };
 let started = false;
 let frozen = false;            // QA clock freeze
-let player = null, farm = null, school = null, ui = null, fishing = null;
+let player = null, farm = null, school = null, ui = null, fishing = null, touch = null;
 let camMode = 'follow';        // 'follow' | 'class'
 let lastNagMin = TIME.WAKE;
 let bellSwing = 0;
@@ -464,6 +465,7 @@ function startGame(loaded) {
   player.setTool('shovel');        // mirror the default selection
   player.updateCamera(0, true);
   document.getElementById('hud').hidden = false;
+  if (!touch) touch = createTouch(input, { onAction: () => { unlock(); interact(); } });
   started = true;
   if (!loaded && !QA_SCENE) {
     setTimeout(() => ui.toast(t('welcome'), 4200), 600);
@@ -504,7 +506,9 @@ function frame() {
 
     if (camMode === 'class') {
       const cz = LAYOUT.school.z;
-      camera.position.lerp(new THREE.Vector3(0, 4.0, cz + 6.8), Math.min(1, dt * 5));
+      // Portrait screens: step back so the whole board fits.
+      const back = Math.max(1, 0.8 / camera.aspect);
+      camera.position.lerp(new THREE.Vector3(0, 2.5 + 1.5 * back, cz + 6.8 * back), Math.min(1, dt * 5));
       camera.lookAt(0, 2.5, cz);
     } else {
       player.updateCamera(dt);
@@ -513,7 +517,9 @@ function frame() {
     if (!ui.anyPanelOpen() && !school.active && !quiz.isOpen()) {
       const tg = computeTarget();
       ui.prompt(tg.kind === 'none' ? null : tg.label);
-    } else ui.prompt(null);
+      touch.setReady(tg.kind !== 'none' && tg.kind !== 'info');
+      touch.setVisible(true);
+    } else { ui.prompt(null); touch.setVisible(false); }
 
     ui.updateHUD();
     ui.projectBubble(camera);
@@ -551,6 +557,7 @@ function installQA() {
     grantCoins(n) { state.coins += n; ui.updateHUD(); },
     grantSeeds(t, n) { state.seeds[t] = (state.seeds[t] ?? 0) + n; ui.refresh(); },
     teleport(x, z) { player.teleport(x, z); },
+    pos: () => [player.position.x, player.position.z],
     // QA: scale the follow-cam distance (0.4 = close-up) for screenshots
     zoom(f = 1) { player.setZoom?.(f); player.updateCamera(0, true); },
     face: (rad) => player.setFacing(rad),
@@ -559,7 +566,7 @@ function installQA() {
     selectTool: (t) => ui.selectTool(t),
     startClass: (seed) => startClass(seed),
     // Question panel (all stations): answer index, skip the feedback pause.
-    answer: (i) => quiz.answer(i),
+    answer: (i) => quiz.answer(i, true),
     flush: () => quiz.flush(),
     quizOpen: () => quiz.isOpen(),
     currentStep: () => quiz.currentStep(),
@@ -568,7 +575,7 @@ function installQA() {
       const st = quiz.currentStep();
       if (!st) return { ok: false };
       const k = st.options.indexOf(st.answer);
-      const r = quiz.answer(right ? k : (k + 1) % st.options.length);
+      const r = quiz.answer(right ? k : (k + 1) % st.options.length, true);
       quiz.flush();
       await new Promise((res) => setTimeout(res, 0));
       return r;

@@ -152,7 +152,8 @@ export function createUI(state, hooks) {
     const el = $('prompt');
     if (!text) { el.hidden = true; return; }
     el.hidden = false;
-    el.innerHTML = text;
+    // On touch the action button (✋) stands in for the E key.
+    el.innerHTML = document.body.classList.contains('touch') ? text.replace('<b>E</b>', '<b>✋</b>') : text;
   }
 
   // ── World-anchored speech bubble ──

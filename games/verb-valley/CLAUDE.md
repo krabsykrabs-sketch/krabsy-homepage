@@ -482,3 +482,30 @@ geometry, one shadow light.
   - **Next: M2** — high fixed camera, touch controls (virtual stick + one
     action button; the hotbar, inventory and question chips are already
     tappable), phone HUD layout.
+- 2026-11-22 — **M2 (touch + phone) mostly done.**
+  - New `src/touch.js`: a floating virtual stick (the left half of the
+    lower screen; the base appears where the thumb lands, with a dead
+    zone) writes `input.joy`, plus a big ✋ action button (= E) that
+    glows teal when there is something to do. They switch on for
+    `(pointer: coarse)` or on the first touch, and hide while a question
+    or panel is open. On touch the prompts show ✋ instead of E.
+  - **Ghost-tap guard** (`quiz.js`): answers within 350 ms of a question
+    appearing are ignored. On a phone, the tap on ✋ that opened the class
+    landed on the chip that appeared under the finger and counted as a
+    wrong answer. QA (`__VV.answer`/`solve`) bypasses it.
+  - **Phone layout** (≤640 px): smaller chips, a second HUD row for
+    water/coins/sound, the inventory under the HUD (max 38vh), a smaller
+    hotbar, the prompt wraps. The class camera steps back on portrait
+    screens so the whole board fits.
+  - Verified with emulated touch (Playwright `hasTouch`) at 1024×768 and
+    390×844: stick walks the player, ✋ starts class, the opening tap does
+    not answer, chip taps answer, hotbar taps select, HUD chips don't
+    overlap and fit the width, zero errors (13/13 each). New QA hook
+    `__VV.pos()`.
+  - **Camera:** kept the existing follow camera (offset 0/15.5/17, about
+    42° down). In play it already reads well; the low view in the first
+    play-test screenshots was the class camera. Revisit in M3 together with
+    the new models if signs stay hard to read.
+  - **Next:** M3 models (Kenney crops for the 12 crops; cottage, school,
+    Krabsy: ask the owner about the BlobVideos crab), then M4 (daily goal
+    card + stars, first-day tutorial, save slots).

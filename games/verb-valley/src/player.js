@@ -187,7 +187,7 @@ export function createPlayer(scene, camera) {
   function update(dt, input, locked) {
     let dx = 0, dz = 0;
     // Moving cuts a one-shot stroke short once it has visibly started.
-    const wantsMove = input.up || input.down || input.left || input.right || !!input.joy;
+    const wantsMove = input.up || input.down || input.left || input.right || !!(input.joy && (input.joy.x || input.joy.y));
     if (busy() && wantsMove && actionAge >= CANCEL_AFTER && !locked) actionLock = 0;
     if (!locked && !busy() && !loopingAction) {
       if (input.up) dz -= 1; if (input.down) dz += 1;

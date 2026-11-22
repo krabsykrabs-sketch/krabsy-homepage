@@ -78,11 +78,17 @@ function showStep() {
     chips.appendChild(b);
   });
   current.locked = false;
+  current.shownAt = performance.now();
   opts.onShow?.(step, i);
 }
 
-export function answer(k) {
+// Answers in the first moments after a question appears are ignored: on a
+// touch screen the tap that opened the panel (✋ button) could otherwise
+// land on the chip that just appeared under the finger. QA passes force.
+const GUARD_MS = 350;
+export function answer(k, force = false) {
   if (!current || current.locked) return { ok: false };
+  if (!force && performance.now() - current.shownAt < GUARD_MS) return { ok: false, reason: 'too-soon' };
   const { unit, i, opts } = current;
   const step = unit.steps[i];
   if (k < 0 || k >= step.options.length) return { ok: false };
