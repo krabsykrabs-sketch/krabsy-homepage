@@ -363,11 +363,11 @@ Copy only what you use into `games/quiz-show/assets/`.
 
 ## Open questions for the owner
 
-(Release-blocking ones are also in `RELEASE.md`: name, play-test.
-Decided 2026-11-22: QR library yes; answers into stats + class yes.)
+(Release-blocking: only the play-test, see `RELEASE.md`. Decided
+2026-11-22: name "Quiz-Raum" / "Sala de quiz" (EN "Quiz Room"); QR library
+yes; answers into stats + class yes.)
 
 
-- Name: "Krabsy Quiz Room" / "Quiz-Raum" / "Sala de quiz", or something else?
 - Public reveal: top 5 only (recommended) or the full ranking?
 - Max players per room: 40 enough?
 - Should the teacher's results (who answered what) be downloadable, or
@@ -424,3 +424,5 @@ question loading, texts, sounds, character loading and the QA approach.
   screenshot decodes (OpenCV) to the exact join link.
 - 2026-11-22: owner confirmed: answers go into each child's stats and class
   (as built). Open before release: name, play-test.
+- 2026-11-22: owner chose the name: DE "Quiz-Raum", ES "Sala de quiz" (page
+  titles already used them; ES casing fixed). Open before release: play-test.

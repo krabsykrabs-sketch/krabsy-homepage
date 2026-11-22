@@ -6,7 +6,8 @@ server inside the existing API. Nothing here has been done yet; it's the list.
 
 ## 0. Before releasing: owner decisions
 
-- [ ] Name (DE "Quiz-Raum" / ES "Sala de quiz" / EN "Quiz Room"?).
+- [x] Name: DE "Quiz-Raum", ES "Sala de quiz" (EN "Quiz Room"); owner 2026-11-22.
+      Use these on the wrapper pages, `games.json` and the teacher pages.
 - [x] Children's answers go into each child's own learning stats and, if the child
       joined a class, to that class (`recordAttempt()` on the child's device):
       confirmed by the owner 2026-11-22.

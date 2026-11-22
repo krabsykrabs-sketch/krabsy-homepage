@@ -80,7 +80,7 @@ const T = {
     lobby_touch: 'Warte, bis die Lehrkraft startet. Lauf herum! (Stick: laufen, ⇧-Knopf: springen)',
   },
   es: {
-    title: 'Krabsy Sala de Quiz',
+    title: 'Krabsy Sala de quiz',
     joinTitle: 'Entra en la sala de quiz', code: 'Código de la sala', name: 'Tu nombre', color: 'Tu color',
     join: 'Entrar', joining: 'Conectando …',
     err_no_room: 'No hay sala con este código. Mira la pizarra otra vez.', err_locked: 'La sala está cerrada para nuevos jugadores.',
