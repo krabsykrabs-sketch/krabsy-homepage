@@ -209,8 +209,11 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
    `games/verb-dungeon/`, `games/verb-valley/`, and level design in
    `games/verb-platformer/`.
 5. **Outreach:** Aula PT sent 2026-11-22; Lehrerfreund dropped (no English); 4teachers sent 2026-11-22. See
-   `docs/outreach-list.md` ("Offen"). Eduthek declined (Moodle courses
-   only); owner decision open.
+   `docs/outreach-list.md`. Eduthek declined (Moodle courses only);
+   friendly reply sent 2026-11-22, door left open. Idea for later (review
+   in December): one CC-licensed "Irregular Verbs" pack (printable list +
+   exercises) for free-education (OER) portals (Eduthek, WirLernenOnline
+   OER, …), each linking to krabsy.com.
 6. **Mid/late December:** compare GSC/Bing exports with
    `docs/seo-baseline-2026-11-12/`; evaluate the tier-3 Google-noindex
    experiment; check backlinks (Bildungsserver) in both tools.
