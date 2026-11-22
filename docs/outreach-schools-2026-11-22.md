@@ -10,7 +10,7 @@ were left out on purpose.
 naming their page and the sites they already list. Measure replies and new links
 after 3–4 weeks; scale only if it works. Track status in the "Status" column.
 
-Rules: no paid listings, no link exchange, say up front that you built Krabsy, no
+Rules: no paid listings, no link exchange, sign as the maker of Krabsy ("Jan Ahrens, Entwickler von Krabsy"), no
 Uruguay anecdote (owner rule). Sign "Jan Ahrens" from hallo@ / hola@krabsy.com.
 
 ## Batch 1 (send first)
@@ -87,7 +87,7 @@ Betreff: Linkvorschlag für Ihre Englisch-Linkliste: unregelmäßige Verben übe
 ```
 Guten Tag,
 
-auf Ihrer Seite „{Seitentitel}“ empfehlen Sie Ihren Schülerinnen und Schülern Übungsseiten wie {zwei Seiten von der Liste}. Vielleicht passt dort auch Krabsy dazu. Ich habe die Seite selbst gebaut, deshalb sage ich das gleich dazu.
+auf Ihrer Seite „{Seitentitel}“ empfehlen Sie Ihren Schülerinnen und Schülern Übungsseiten wie {zwei Seiten von der Liste}. Vielleicht passt dort auch Krabsy dazu.
 
 Krabsy (https://krabsy.com/de/unregelmaessige-verben/) ist kostenlos und ohne Anmeldung: 172 unregelmäßige Verben als Liste, Übungen und kurze Spiele, dazu Präpositionen und Arbeitsblätter mit Lösungen zum Ausdrucken. Es gibt keine Werbung und keine Cookies. Gedacht ist es für Klasse 5 bis 8.
 
@@ -96,7 +96,7 @@ Für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
 Falls es nicht passt, ist das völlig in Ordnung. Ich erwarte keine Antwort.
 
 Freundliche Grüße
-Jan Ahrens
+Jan Ahrens, Entwickler von Krabsy
 ```
 
 Optional, wenn zutreffend: „Mir ist aufgefallen, dass der Link zu {toter Link} nicht mehr
@@ -109,7 +109,7 @@ Asunto: Sugerencia para vuestros enlaces de inglés: verbos irregulares
 ```
 Hola:
 
-En vuestra página «{título de la página}» recomendáis webs para practicar inglés como {dos webs de la lista}. Os escribo por si Krabsy también os encaja. Lo digo de entrada: la web la he creado yo.
+En vuestra página «{título de la página}» recomendáis webs para practicar inglés como {dos webs de la lista}. Os escribo por si Krabsy también os encaja.
 
 Krabsy (https://krabsy.com/es/verbos-irregulares/) es gratis y sin registro: la lista de 172 verbos irregulares, ejercicios y juegos cortos, además de preposiciones y fichas con soluciones para imprimir. No tiene publicidad ni cookies. Está pensada para alumnado de 5.º de Primaria a 4.º de ESO.
 
@@ -118,7 +118,7 @@ Para docentes: https://krabsy.com/es/docentes/
 Si no encaja, no pasa nada; no hace falta responder.
 
 Un saludo,
-Jan Ahrens
+Jan Ahrens, creador de Krabsy
 ```
 
 ### DE (Bildungsserver / Linksammlung)
