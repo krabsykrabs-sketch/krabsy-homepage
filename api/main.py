@@ -504,6 +504,11 @@ import classes  # noqa: E402
 classes.start_background()
 app.include_router(classes.router)
 
+# Quiz Room (games/quiz-show): live rooms over WebSocket, in memory only.
+import quiz_room  # noqa: E402
+
+app.include_router(quiz_room.router)
+
 security = HTTPBasic()
 
 

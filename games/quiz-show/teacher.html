@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Krabsy Quiz Room — Teacher</title>
+<link rel="stylesheet" href="src/style.css">
+<style>
+#setup .card{width:min(760px,96vw);text-align:center;}
+#setup h1{margin:0 0 .2em;color:var(--amber);font-size:36px;}
+#setup .sub{color:var(--muted);margin-bottom:14px;}
+.row{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0;flex-wrap:wrap;}
+.row>label{color:var(--muted);min-width:9em;text-align:right;font-size:18px;}
+.opt{background:#1c2c5c;border-radius:.6em;padding:.4em .9em;font-size:19px;box-shadow:inset 0 0 0 3px #2d4180;}
+.opt.on{background:var(--teal);color:#05261f;box-shadow:inset 0 0 0 3px #8ff7e2;}
+#setupErr{color:var(--coral);min-height:1.3em;margin-top:8px;}
+#openBtn{margin-top:10px;font-size:30px;}
+
+/* room view */
+#top{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;pointer-events:none;}
+#codeBox{pointer-events:auto;background:var(--panel);border-radius:16px;padding:8px 18px;box-shadow:0 0 0 3px #2d4180;}
+#codeBox .lbl{color:var(--muted);font-size:15px;}
+#codeBox .code{font-family:'Fredoka One';font-size:52px;color:var(--amber);letter-spacing:.06em;line-height:1.05;}
+#codeBox .url{font-size:15px;color:#fff;word-break:break-all;max-width:420px;}
+#count{font-family:'Fredoka One';font-size:24px;}
+#players{position:fixed;right:10px;top:10px;max-height:calc(100vh - 100px);z-index:8;width:250px;overflow:auto;background:var(--panel);border-radius:16px;padding:10px;box-shadow:0 0 0 3px #2d4180;}
+#players h3{margin:0 0 6px;font-size:20px;color:var(--teal);}
+.pl{display:flex;align-items:center;gap:6px;padding:4px 4px;border-radius:8px;font-size:16px;}
+.pl:hover{background:#18275a;}
+.pl i{width:.8em;height:.8em;border-radius:50%;display:block;flex:none;}
+.pl .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pl.off .nm{opacity:.45;}
+.pl .ans{width:.9em;height:.9em;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);}
+.pl button{font-size:13px;background:#22336a;border-radius:6px;padding:2px 6px;opacity:0;}
+.pl:hover button{opacity:1;}
+#controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9;display:flex;gap:10px;}
+/* question panel (the class may see the projector: no answer before the reveal) */
+#qpanel{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:8;width:min(820px,calc(100vw - 540px));min-width:560px;}
+#qpanel .card{padding:14px 18px;}
+#qpanel .qline{background:#f7f9ff;border-radius:14px;padding:4px 16px;text-align:center;font-size:36px;}
+#qpanel .head{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:18px;margin-bottom:8px;}
+#qpanel .head .timerbar{flex:1;}
+#qpanel .boxes{gap:8px;}
+#qpanel .box{font-size:24px;position:relative;overflow:hidden;}
+#qpanel .box .bar{position:absolute;left:0;bottom:0;height:7px;background:rgba(255,255,255,.85);}
+#qpanel .box .cnt{font-size:.8em;opacity:.95;}
+#qpanel .teach{font-family:'Fredoka One';font-size:22px;text-align:center;margin-top:10px;}
+#qpanel .answered{font-family:'Fredoka One';font-size:22px;color:var(--amber);}
+#tTop5{position:fixed;left:10px;top:170px;z-index:8;width:240px;font-size:17px;}
+#tTop5 h3{margin:0 0 6px;font-size:18px;color:var(--teal);}
+#endT .card{width:min(1000px,96vw);}
+#endT h2{margin:0 0 10px;color:var(--amber);font-size:36px;text-align:center;}
+.cols{display:flex;gap:24px;align-items:flex-start;}
+.cols>div{flex:1;}
+.cols h3{margin:0 0 8px;color:var(--teal);font-size:22px;}
+.cols .toplist{font-size:18px;max-height:52vh;overflow:auto;}
+.review{display:flex;flex-direction:column;gap:6px;}
+.review div{display:flex;justify-content:space-between;gap:10px;background:#18275a;border-radius:10px;padding:.2em .7em;font-family:'Fredoka One';font-size:22px;}
+.review small{font-family:'Nunito';font-size:14px;color:var(--muted);white-space:nowrap;}
+#endT .stat{text-align:center;color:var(--muted);margin:10px 0 0;font-size:18px;}
+#endT .btns{display:flex;justify-content:center;gap:12px;margin-top:16px;}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="setup" class="overlay">
+  <div class="card">
+    <h1 data-t="setupTitle"></h1>
+    <div class="sub" data-t="teacherOnly"></div>
+    <div class="row"><label data-t="topic"></label><div id="optTopic" class="row" style="margin:0"></div></div>
+    <div class="row"><label data-t="difficulty"></label><div id="optDiff" class="row" style="margin:0"></div></div>
+    <div class="row"><label data-t="count"></label><div id="optCount" class="row" style="margin:0"></div></div>
+    <div class="row"><label data-t="timePer"></label><div id="optTime" class="row" style="margin:0"></div></div>
+    <button id="openBtn" class="btn" data-t="open"></button>
+    <div id="setupErr"></div>
+  </div>
+</div>
+
+<div id="top" class="hidden">
+  <div id="codeBox"><div class="lbl" data-t="code"></div><div class="code" id="code"></div><div class="url" id="joinUrl"></div><div id="count"></div></div>
+</div>
+<div id="players" class="hidden"></div>
+<div id="qpanel" class="hidden"><div class="card" id="qcardT"></div></div>
+<div id="tTop5" class="card hidden"></div>
+<div id="controls" class="hidden">
+  <button id="mainBtn" class="btn"></button>
+  <button id="lockBtn" class="btn ghost"></button>
+  <button id="endBtn" class="btn ghost" data-t="end"></button>
+</div>
+<div id="endT" class="overlay hidden"><div class="card" id="endCardT"></div></div>
+<div id="msg" class="overlay hidden"><div class="card" id="msgCard"></div></div>
+
+<script type="module" src="src/teacher.js"></script>
+</body>
+</html>

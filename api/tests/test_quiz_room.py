@@ -1,0 +1,166 @@
+"""Quiz Room: create, join, answer, reveal, end, teacher controls (games/quiz-show).
+
+Runs under pytest or standalone; needs fastapi + httpx (skipped without).
+"""
+
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+API_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(API_DIR))
+os.environ.setdefault("KRABSY_DATA_DIR", tempfile.mkdtemp(prefix="krabsy-test-"))
+
+WS = "/api/quiz/ws"
+
+
+def _client():
+    try:
+        from fastapi.testclient import TestClient
+    except Exception:
+        return None
+    import main
+    import quiz_room
+    quiz_room.ROOMS.clear()
+    quiz_room._creates.clear()
+    return TestClient(main.app)
+
+
+def Q(n=3):
+    out = []
+    for i in range(n):
+        out.append({"kind": "trio", "base": f"go{i}", "slots": [None, None], "askIndex": 0,
+                    "options": ["went", "goed", "gone", "wented"], "correct": 0,
+                    "teach": f"go{i} → went → ___", "item": f"go{i}", "topic": "irregular_verbs",
+                    "form": "past"})
+    return out
+
+
+def recv(ws, t, limit=50):
+    """Next message of type t (skips players/pos/answered noise)."""
+    for _ in range(limit):
+        m = ws.receive_json()
+        if m["t"] == t:
+            return m
+    raise AssertionError(f"no {t}")
+
+
+def test_full_quiz():
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(2), "time": 30, "lang": "de"})
+        created = recv(teacher, "created")
+        code = created["code"]
+        assert len(code) == 6 and created["token"] and created["phase"] == "lobby"
+        with c.websocket_connect(WS) as a, c.websocket_connect(WS) as b:
+            a.send_json({"t": "join", "code": code[:3] + "-" + code[3:].lower(), "name": "Mia", "avatar": 2})
+            ja = recv(a, "joined")
+            assert ja["name"] == "Mia" and ja["phase"] == "lobby" and "questions" not in ja
+            b.send_json({"t": "join", "code": code, "name": "mia"})
+            jb = recv(b, "joined")
+            assert jb["name"] == "mia 2"                       # names are unique in a room
+            pl = recv(teacher, "players")
+            assert len(pl["list"]) >= 1
+
+            teacher.send_json({"t": "start"})
+            qa = recv(a, "question")
+            assert "correct" not in qa["q"] and "teach" not in qa["q"]   # no answer leaks
+            assert recv(teacher, "question")["q"]["correct"] == 0
+            recv(b, "question")
+
+            a.send_json({"t": "answer", "qi": 0, "opt": 0})
+            a.send_json({"t": "answer", "qi": 0, "opt": 1})          # second answer ignored
+            assert recv(b, "answered")["pid"] == ja["pid"]
+            b.send_json({"t": "answer", "qi": 0, "opt": 2})
+            ra = recv(a, "reveal")                                     # all answered → reveal
+            assert ra["correct"] == 0 and ra["you"]["right"] and ra["you"]["pts"] >= 500
+            rb = recv(b, "reveal")
+            assert not rb["you"]["right"] and rb["you"]["pts"] == 0 and "counts" not in rb
+            rt = recv(teacher, "reveal")
+            assert rt["counts"] == [1, 0, 1, 0] and rt["top"][0]["name"] == "Mia"
+
+            teacher.send_json({"t": "next"})
+            recv(a, "question")
+            teacher.send_json({"t": "next"})                          # nobody answered: reveal
+            r2 = recv(a, "reveal")
+            assert r2["you"]["opt"] is None and r2["you"]["streak"] == 0
+            teacher.send_json({"t": "next"})                          # after the last → end
+            ea = recv(a, "end")
+            assert ea["you"]["rank"] == 1 and "review" not in ea
+            et = recv(teacher, "end")
+            assert et["ranking"][0]["name"] == "Mia"
+            # q0: one wrong; q1: both missed → go1 first
+            assert [r["q"]["item"] for r in et["review"]] == ["go1", "go0"]
+            assert et["review"][0]["n"] == 2
+
+
+def test_rejoin_lock_remove_rename():
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(1), "time": 30})
+        code = recv(teacher, "created")["code"]
+        with c.websocket_connect(WS) as a:
+            a.send_json({"t": "join", "code": code, "name": "Leo"})
+            ja = recv(a, "joined")
+        # Same token comes back as the same player (reload / sleeping Chromebook).
+        with c.websocket_connect(WS) as a2:
+            a2.send_json({"t": "join", "code": code, "name": "Other", "token": ja["token"]})
+            j2 = recv(a2, "joined")
+            assert j2["pid"] == ja["pid"] and j2["name"] == "Leo"
+            teacher.send_json({"t": "rename", "pid": ja["pid"], "name": "Leon"})
+            assert recv(a2, "renamed")["name"] == "Leon"
+            teacher.send_json({"t": "lock", "on": True})
+            recv(a2, "players")
+            with c.websocket_connect(WS) as x:
+                x.send_json({"t": "join", "code": code, "name": "New"})
+                assert recv(x, "error")["code"] == "locked"
+            teacher.send_json({"t": "remove", "pid": ja["pid"]})
+            assert recv(a2, "kicked")
+        with c.websocket_connect(WS) as a3:
+            a3.send_json({"t": "join", "code": code, "name": "Leo", "token": ja["token"]})
+            assert recv(a3, "error")["code"] == "removed"
+
+
+def test_teacher_resume_and_errors():
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": [{"kind": "trio"}], "time": 30})
+        assert recv(teacher, "error")["code"] == "no_questions"
+        teacher.send_json({"t": "create", "questions": Q(1), "time": 1})
+        created = recv(teacher, "created")
+        assert created["time"] == 5                                   # clamped
+    with c.websocket_connect(WS) as t2:
+        t2.send_json({"t": "resume", "code": created["code"], "token": "wrong"})
+        assert recv(t2, "error")["code"] == "no_room"
+        t2.send_json({"t": "resume", "code": created["code"], "token": created["token"]})
+        assert recv(t2, "resumed")["questions"][0]["correct"] == 0
+    with c.websocket_connect(WS) as x:
+        x.send_json({"t": "join", "code": "ZZZZZZ", "name": "A"})
+        assert recv(x, "error")["code"] == "no_room"
+        x.send_json({"t": "join", "code": created["code"], "name": "  ##  "})
+        assert recv(x, "error")["code"] == "bad_name"
+
+
+def test_origin_and_names():
+    import quiz_room
+    assert quiz_room._ORIGIN.match("https://krabsy.com")
+    assert quiz_room._ORIGIN.match("http://localhost:8142")
+    assert not quiz_room._ORIGIN.match("https://evil.example")
+    assert quiz_room.clean_name("  Ana   María ") == "Ana María"
+    assert quiz_room.clean_name("<b>Tom</b>") == "bTomb"   # tags stripped to letters
+    assert quiz_room.clean_name("Shithead") == ""
+    assert quiz_room.points(0, 20) == 1000 and quiz_room.points(20000, 20) == 500
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn()
+            print("ok", name)

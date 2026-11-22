@@ -4,152 +4,58 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, indexifembedded">
-<title>Krabsy Quiz Show</title>
+<title>Krabsy Quiz Room</title>
+<link rel="stylesheet" href="src/style.css">
 <style>
-@font-face{font-family:'Fredoka One';font-weight:400;font-display:block;
-  src:url(fonts/fredoka-one-400-latin.woff2) format('woff2');}
-@font-face{font-family:'Nunito';font-weight:400 900;font-display:swap;
-  src:url(fonts/nunito-400-latin.woff2) format('woff2');}
-:root{--navy:#0d2240;--teal:#2ee6c0;--coral:#ff8585;--amber:#ffcf5e;--purple:#b18cff;--ink:#ffffff;--muted:#c4d3f2;
-  --boxA:#3f7cff;--boxB:#ff8a2b;--boxC:#22b85a;--boxD:#d94fc6;
-  --u:min(1vw,1.78vh);} /* 1 unit = 1% of a 16:9 frame's width */
-*{box-sizing:border-box;}
-html,body{margin:0;height:100%;overflow:hidden;background:#0b1430;color:var(--ink);
-  font-family:'Nunito',sans-serif;font-weight:800;user-select:none;-webkit-user-select:none;
-  -webkit-tap-highlight-color:transparent;}
-canvas#c{position:fixed;inset:0;display:block;width:100%;height:100%;}
-.fredoka,h1,h2{font-family:'Fredoka One';font-weight:400;}
-button{font:inherit;color:inherit;cursor:pointer;border:0;}
-.hidden{display:none!important;}
-.base{color:var(--amber);} .past{color:var(--teal);} .pp{color:var(--coral);}
+#join .card{width:min(520px,94vw);text-align:center;}
+#join h1{margin:0 0 .4em;color:var(--amber);font-size:34px;}
+#join label{display:block;text-align:left;color:var(--muted);font-size:16px;margin:12px 0 4px;}
+#join input{width:100%;font-size:28px;padding:.3em .5em;border-radius:12px;border:3px solid #2d4180;background:#0d1735;color:#fff;font-weight:900;}
+#join #codeIn{font-family:'Fredoka One';letter-spacing:.12em;text-transform:uppercase;text-align:center;}
+#colors{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+#colors button{width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25);}
+#colors button.on{outline:4px solid #fff;outline-offset:3px;}
+#joinBtn{margin-top:18px;}
+#joinErr{color:var(--coral);min-height:1.4em;margin-top:10px;font-size:17px;}
 
-/* ---------- setup ---------- */
-#setup{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 30%,rgba(27,61,120,.92),rgba(8,12,32,.97));overflow:auto;padding:2vh 2vw;}
-.panel{width:min(980px,96vw);text-align:center;}
-#setup h1{font-size:calc(var(--u)*5.6);margin:0;color:var(--amber);text-shadow:0 .08em 0 #8a5a00;}
-#setup h1 span{color:var(--teal);text-shadow:0 .08em 0 #0b6b58;}
-#setup .tag{font-size:calc(var(--u)*1.9);color:var(--muted);margin:.4em 0 1.2em;}
-.row{display:flex;align-items:center;justify-content:center;gap:calc(var(--u)*1);margin:calc(var(--u)*1.1) 0;flex-wrap:wrap;}
-.row>label{font-size:calc(var(--u)*1.8);color:var(--muted);min-width:9em;text-align:right;}
-.opt{background:#1c2c5c;border-radius:.6em;padding:.45em 1em;font-size:calc(var(--u)*1.9);box-shadow:inset 0 0 0 3px #2d4180;}
-.opt.on{background:var(--teal);color:#05261f;box-shadow:inset 0 0 0 3px #8ff7e2;}
-.opt small{display:block;font-size:.62em;opacity:.8;font-weight:700;}
-#teamNames{display:flex;gap:calc(var(--u)*1);justify-content:center;flex-wrap:wrap;margin:calc(var(--u)*1.2) 0;}
-#teamNames input{width:calc(var(--u)*17);font:inherit;font-size:calc(var(--u)*2);padding:.35em .6em;border-radius:.5em;
-  border:4px solid var(--c);background:#101a3a;color:#fff;text-align:center;}
-#startBtn{margin-top:calc(var(--u)*1.6);font-family:'Fredoka One';font-size:calc(var(--u)*3.4);padding:.35em 1.6em;border-radius:.6em;
-  background:var(--amber);color:#3a2600;box-shadow:0 .14em 0 #b07d10;}
-#startBtn:hover{filter:brightness(1.08);}
-#langs{margin-top:1.4em;font-size:calc(var(--u)*1.5);color:var(--muted);}
-#langs a{color:var(--muted);margin:0 .4em;} #langs a.on{color:#fff;}
-#loading{font-size:calc(var(--u)*2);color:var(--muted);margin-top:1em;}
+#hud{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-size:18px;}
+#hud .me{display:flex;gap:.6em;align-items:center;}
+#hud .dot{width:.9em;height:.9em;border-radius:50%;display:inline-block;}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;font-size:18px;text-align:center;max-width:94vw;}
+#status{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:9;font-size:16px;background:#5a2232;}
 
-/* ---------- top bar ---------- */
-#bar{position:fixed;top:0;left:0;right:0;z-index:8;display:flex;justify-content:space-between;align-items:center;
-  padding:calc(var(--u)*.8) calc(var(--u)*1.2);pointer-events:none;}
-#bar .pill{background:rgba(8,14,36,.85);border-radius:999px;padding:.25em .9em;font-size:calc(var(--u)*1.9);}
-#bar .tools{display:flex;gap:.5em;pointer-events:auto;}
-#bar .tools button{background:rgba(8,14,36,.85);border-radius:999px;padding:.3em .8em;font-size:calc(var(--u)*1.5);}
-#timer{position:fixed;top:calc(var(--u)*.6);left:50%;transform:translateX(-50%);z-index:9;
-  width:calc(var(--u)*6.4);height:calc(var(--u)*6.4);border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka One';font-size:calc(var(--u)*3);background:conic-gradient(var(--amber) var(--p,100%),#1c2c5c 0);}
-#timer::before{content:'';position:absolute;inset:calc(var(--u)*.5);border-radius:50%;background:#0b1430;}
-#timer span{position:relative;}
-#timer.low{animation:pulse .5s infinite alternate;--amber:var(--coral);}
-@keyframes pulse{to{scale:1.12;}}
-
-/* ---------- question + boxes ---------- */
-#stage{position:fixed;left:0;right:0;top:calc(var(--u)*7.6);z-index:6;display:flex;flex-direction:column;align-items:center;pointer-events:none;}
-#qcard{background:rgba(255,255,255,.97);color:#0d1b3d;border-radius:calc(var(--u)*1.4);padding:calc(var(--u)*1.2) calc(var(--u)*3);
-  min-width:calc(var(--u)*52);max-width:92vw;text-align:center;box-shadow:0 calc(var(--u)*.6) 0 rgba(0,0,0,.3);
-  font-family:'Fredoka One';font-size:calc(var(--u)*4.8);line-height:1.2;}
-#qcard .lbl{font-family:'Nunito';font-weight:900;font-size:calc(var(--u)*1.6);color:#5b6b92;margin-bottom:.2em;letter-spacing:.02em;}
-#qcard .arrow{color:#9aa8c8;margin:0 .3em;}
-#qcard .slot{display:inline-block;min-width:3.2em;border-bottom:.08em solid #9aa8c8;color:#0d1b3d;}
-#qcard .slot.ask{background:#ffe9a8;border-radius:.2em .2em 0 0;border-bottom-color:#e0a100;color:#b47a00;}
-#qcard .slot.ask.filled{background:#b9f6e7;border-bottom-color:#14a387;color:#0b7a64;}
-#qcard .gap{display:inline-block;min-width:2.4em;background:#ffe9a8;border-bottom:.08em solid #e0a100;border-radius:.2em .2em 0 0;color:#b47a00;}
-#qcard .gap.filled{background:#b9f6e7;border-bottom-color:#14a387;color:#0b7a64;}
-#qcard.sentence{font-size:calc(var(--u)*4.2);}
-#boxes{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.1);margin-top:calc(var(--u)*1.6);width:min(calc(var(--u)*86),94vw);pointer-events:auto;}
-.box{display:flex;align-items:center;gap:.5em;border-radius:calc(var(--u)*1.1);padding:calc(var(--u)*.7) calc(var(--u)*1.4);
-  font-family:'Fredoka One';font-size:calc(var(--u)*3.6);text-align:left;color:#fff;box-shadow:0 calc(var(--u)*.45) 0 rgba(0,0,0,.35);
-  transition:opacity .3s,transform .3s,filter .3s;text-shadow:0 .05em 0 rgba(0,0,0,.25);}
-.box .k{flex:none;width:1.4em;height:1.4em;border-radius:.3em;background:rgba(255,255,255,.95);color:#0d1b3d;display:flex;align-items:center;justify-content:center;font-size:.8em;text-shadow:none;}
-.box .w{flex:1;}
-.box .who{display:flex;gap:.25em;}
-.box .who i{width:.7em;height:.7em;border-radius:50%;border:3px solid #fff;display:block;}
-.box:nth-child(1){background:var(--boxA);} .box:nth-child(2){background:var(--boxB);}
-.box:nth-child(3){background:var(--boxC);} .box:nth-child(4){background:var(--boxD);}
-.box:hover{filter:brightness(1.1);}
-.box.dim{opacity:.22;transform:scale(.96);}
-.box.right{transform:scale(1.04);box-shadow:0 0 0 calc(var(--u)*.5) #fff,0 0 calc(var(--u)*3) rgba(255,255,255,.8);}
-.box.struck{opacity:.35;text-decoration:line-through;}
-#teach{margin-top:calc(var(--u)*-.6);background:#0d1b3d;border-radius:0 0 calc(var(--u)*1.2) calc(var(--u)*1.2);padding:.25em 1.2em .3em;
-  font-family:'Fredoka One';font-size:calc(var(--u)*2.8);max-width:80vw;text-align:center;position:relative;z-index:1;}
-#teach .arrow{color:#7d90bd;margin:0 .3em;}
-#teach small{font-family:'Nunito';font-size:.55em;color:var(--muted);margin-left:.5em;}
-#hint{margin-top:calc(var(--u)*1.2);font-size:calc(var(--u)*2.2);background:rgba(8,14,36,.85);border-radius:999px;padding:.25em 1em;}
-
-/* ---------- podium labels (on the podium's front) ---------- */
-.tlabel{position:fixed;z-index:7;transform:translate(-50%,-100%);text-align:center;pointer-events:auto;cursor:pointer;min-width:calc(var(--u)*15);
-  display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.3);}
-.tlabel .plate{display:flex;align-items:center;gap:.4em;background:var(--c);color:#0b1430;border-radius:.5em;padding:.05em .3em .05em .7em;
-  font-family:'Fredoka One';font-size:calc(var(--u)*2.4);box-shadow:0 .12em 0 rgba(0,0,0,.35);white-space:nowrap;}
-.tlabel .score{background:#0b1430;color:#fff;border-radius:.35em;padding:0 .4em;font-size:1.25em;min-width:2.2em;}
-.tlabel .st{font-size:calc(var(--u)*1.8);background:rgba(8,14,36,.9);border-radius:999px;padding:.12em .8em;white-space:nowrap;}
-.tlabel .st.ok{background:var(--c);color:#0b1430;}
-.tlabel .st.bad{background:#5a2232;color:#ffc2c2;}
-.tlabel .keys{position:absolute;top:100%;margin-top:.2em;font-size:calc(var(--u)*1.4);color:#dfe8ff;background:rgba(8,14,36,.7);border-radius:.4em;padding:0 .5em;letter-spacing:.15em;white-space:nowrap;}
-.tlabel .keys:empty{display:none;}
-.tlabel.sel .plate{outline:calc(var(--u)*.4) solid #fff;outline-offset:3px;}
-.tlabel.buzz .plate{animation:buzzA .25s 4 alternate;}
-@keyframes buzzA{to{scale:1.2;}}
-.gain{position:fixed;z-index:9;font-family:'Fredoka One';font-size:calc(var(--u)*3.6);transform:translate(-50%,-50%);pointer-events:none;
-  animation:gainUp 1.4s ease-out forwards;text-shadow:0 .08em 0 rgba(0,0,0,.6);}
-@keyframes gainUp{from{opacity:0;translate:0 30px;scale:.6;}20%{opacity:1;scale:1.25;}to{opacity:0;translate:0 -70px;scale:1;}}
-
-/* ---------- next button ---------- */
-#bar{z-index:12;}
-#bar .tools #next{font-family:'Fredoka One';font-size:calc(var(--u)*2.4);padding:.15em .9em;border-radius:.6em;background:var(--amber);color:#3a2600;box-shadow:0 .12em 0 #b07d10;}
-#next small{font-family:'Nunito';font-size:.55em;opacity:.7;margin-left:.4em;}
-
-/* ---------- overlays: round title, bets, standings, end ---------- */
-.overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 40%,rgba(11,20,48,.55),rgba(5,9,24,.85));}
-.card{background:rgba(13,26,62,.96);border-radius:calc(var(--u)*2);padding:calc(var(--u)*2.2) calc(var(--u)*3.4);text-align:center;
-  box-shadow:0 0 0 4px #2d4180,0 calc(var(--u)*1) calc(var(--u)*4) rgba(0,0,0,.5);max-width:92vw;}
-.card h2{margin:0;font-size:calc(var(--u)*6);color:var(--amber);}
-.card h3{margin:.1em 0 .4em;font-family:'Fredoka One';font-weight:400;font-size:calc(var(--u)*3.4);color:var(--teal);}
-.card p{font-size:calc(var(--u)*2.3);max-width:34em;margin:.4em auto;line-height:1.35;}
-.keymap{display:flex;gap:calc(var(--u)*1.2);justify-content:center;margin-top:calc(var(--u)*1.4);flex-wrap:wrap;}
-.keymap div{border:4px solid var(--c);border-radius:.6em;padding:.3em .8em;font-size:calc(var(--u)*2);}
-.keymap b{display:block;color:var(--c);font-family:'Fredoka One';font-weight:400;}
-.keymap kbd{font-family:'Fredoka One';font-size:1.1em;background:#22336a;border-radius:.25em;padding:0 .3em;margin:0 .1em;}
-#roundTitle .card{animation:popIn .45s cubic-bezier(.3,1.6,.5,1);}
-@keyframes popIn{from{scale:.5;opacity:0;}}
-.bets{display:flex;gap:calc(var(--u)*1.6);justify-content:center;margin-top:calc(var(--u)*1.4);flex-wrap:wrap;}
-.bet{border:4px solid var(--c);border-radius:.7em;padding:.5em .9em;width:calc(var(--u)*19);}
-.bet b{display:block;font-family:'Fredoka One';font-weight:400;font-size:calc(var(--u)*2.4);color:var(--c);}
-.bet .v{font-family:'Fredoka One';font-size:calc(var(--u)*4.4);}
-.bet input{width:100%;accent-color:var(--c);height:calc(var(--u)*3);}
-.bet .of{font-size:calc(var(--u)*1.5);color:var(--muted);}
-.rank{display:flex;flex-direction:column;gap:calc(var(--u)*.7);margin-top:calc(var(--u)*1.2);}
-.rank div{display:flex;align-items:center;gap:.6em;font-size:calc(var(--u)*3.2);font-family:'Fredoka One';border-radius:.5em;padding:.15em .7em;background:#18275a;}
-.rank .pos{width:1.4em;color:var(--muted);} .rank .nm{flex:1;text-align:left;color:var(--c);} .rank .pt{min-width:3em;text-align:right;}
-.endcols{display:flex;gap:calc(var(--u)*2.4);align-items:flex-start;text-align:left;margin-top:calc(var(--u)*1);}
-.endcols>div:first-child{min-width:calc(var(--u)*26);}
-.endcols h3{margin-top:0;font-size:calc(var(--u)*2.6);}
-#endCard h2{font-size:calc(var(--u)*5);}
-#endCard .rank div{font-size:calc(var(--u)*2.8);}
-.review{margin-top:calc(var(--u)*.6);display:flex;flex-direction:column;gap:calc(var(--u)*.6);}
-.review div{font-family:'Fredoka One';font-size:calc(var(--u)*2.3);background:#18275a;border-radius:.5em;padding:.15em .8em;display:flex;align-items:center;gap:.6em;justify-content:space-between;}
-.review .arrow{color:#7d90bd;margin:0 .25em;}
-.review small{white-space:nowrap;font-family:'Nunito';font-size:.55em;color:var(--muted);}
-.review .gapa{color:var(--teal);}
-.btns{display:flex;gap:1em;justify-content:center;margin-top:calc(var(--u)*1.8);}
-.btns button{font-family:'Fredoka One';font-size:calc(var(--u)*2.8);padding:.3em 1.2em;border-radius:.6em;background:var(--amber);color:#3a2600;box-shadow:0 .12em 0 #b07d10;}
+/* question card: covers the screen until answered */
+#qcard{position:fixed;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;background:rgba(6,10,28,.55);padding:12px;}
+#qcard .card{width:min(860px,96vw);background:#f7f9ff;color:#0d1b3d;padding:18px 22px 22px;}
+#qcard .head{display:flex;justify-content:space-between;align-items:center;font-size:18px;color:#5b6b92;margin-bottom:10px;gap:12px;}
+#qcard .head .timerbar{flex:1;background:#dfe6f7;}
+#qcard .qline{font-size:clamp(30px,6vw,56px);text-align:center;margin:10px 0 18px;}
+#qcard .box{font-size:clamp(24px,4.2vw,40px);min-height:2em;}
+/* after answering: a small panel */
+#mini{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:9;width:min(560px,92vw);text-align:center;}
+#mini .card{padding:10px 16px;}
+#mini .qline{color:#fff;font-size:26px;}
+#mini .qline .slot{border-bottom-color:#7d90bd;}
+#mini .sub{font-size:16px;color:var(--muted);margin-top:6px;}
+#mini .timerbar{margin-top:8px;}
+/* reveal */
+#reveal{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:9;width:min(620px,94vw);text-align:center;}
+#reveal .card{padding:14px 18px;}
+#reveal h2{margin:0;font-size:34px;}
+#reveal h2.ok{color:var(--teal);} #reveal h2.no{color:var(--coral);}
+#reveal .qline{color:#fff;font-size:28px;margin:6px 0;}
+#reveal .teach{font-family:'Fredoka One';font-size:22px;margin:4px 0;}
+#reveal .meta{display:flex;justify-content:center;gap:14px;font-size:18px;color:var(--muted);flex-wrap:wrap;}
+#reveal .meta b{color:var(--amber);}
+#top5{position:fixed;right:10px;top:56px;z-index:8;width:220px;font-size:17px;}
+#top5 h3{margin:0 0 6px;font-size:18px;color:var(--teal);}
+#endc .card{text-align:center;width:min(560px,94vw);}
+#endc h2{margin:0;color:var(--amber);font-size:36px;}
+#endc .you{font-size:22px;margin:8px 0 14px;}
+#endc .toplist{font-size:22px;text-align:left;}
+#endc{background:rgba(6,10,28,.55);}
+#msg .card{text-align:center;font-size:22px;}
+@media (max-width:700px){#top5{display:none;}}
 </style>
 <script type="importmap">
 { "imports": {
@@ -161,40 +67,38 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;}
 <body>
 <canvas id="c"></canvas>
 
-<div id="setup">
-  <div class="panel">
-    <h1 class="fredoka">Krabsy <span>Quiz Show</span></h1>
-    <div class="tag" data-t="tagline"></div>
-    <div class="row"><label data-t="topic"></label><div id="optTopic" class="row" style="margin:0"></div></div>
-    <div class="row"><label data-t="teams"></label><div id="optTeams" class="row" style="margin:0"></div></div>
-    <div id="teamNames"></div>
-    <div class="row"><label data-t="length"></label><div id="optLength" class="row" style="margin:0"></div></div>
-    <div class="row"><label data-t="timer"></label><div id="optTimer" class="row" style="margin:0"></div></div>
-    <button id="startBtn" data-t="start"></button>
-    <div id="loading" class="hidden">…</div>
-    <div id="langs"><a href="?lang=de" data-l="de">Deutsch</a>·<a href="?lang=es" data-l="es">Español</a>·<a href="?lang=en" data-l="en">English</a></div>
+<div id="join" class="overlay">
+  <div class="card">
+    <h1 data-t="joinTitle"></h1>
+    <label for="codeIn" data-t="code"></label>
+    <input id="codeIn" maxlength="7" autocomplete="off" placeholder="ABC-123">
+    <label for="nameIn" data-t="name"></label>
+    <input id="nameIn" maxlength="16" autocomplete="off">
+    <label data-t="color"></label>
+    <div id="colors"></div>
+    <button id="joinBtn" class="btn" data-t="join"></button>
+    <div id="joinErr"></div>
   </div>
 </div>
 
-<div id="bar" class="hidden">
-  <div class="pill" id="roundPill"></div>
-  <div class="tools"><button id="next" class="hidden"></button><button id="soundBtn"></button><button id="fsBtn" data-t="fullscreen"></button></div>
+<div id="hud" class="hidden">
+  <div class="me pill"><span class="dot" id="meDot"></span><span id="meName"></span></div>
+  <div class="pill"><span id="meScore">0</span> <span data-t="score"></span></div>
 </div>
-<div id="timer" class="hidden"><span id="timerNum">20</span></div>
+<div id="status" class="pill hidden"></div>
+<div id="hint" class="pill hidden"></div>
 
-<div id="stage" class="hidden">
-  <div id="qcard"></div>
-  <div id="teach" class="hidden"></div>
-  <div id="boxes"></div>
-  <div id="hint" class="hidden"></div>
-</div>
-<div id="labels"></div>
+<div id="qcard" class="hidden"><div class="card">
+  <div class="head"><span id="qnum"></span><div class="timerbar" id="qtimer"><i></i></div><span id="qsec"></span></div>
+  <div class="qline" id="qline"></div>
+  <div class="boxes" id="qboxes"></div>
+</div></div>
+<div id="mini" class="hidden"><div class="card"><div class="qline" id="miniLine"></div><div class="sub" data-t="sent"></div><div class="timerbar" id="miniTimer"><i></i></div></div></div>
+<div id="reveal" class="hidden"><div class="card" id="revealCard"></div></div>
+<div id="top5" class="card hidden"></div>
+<div id="endc" class="overlay hidden"><div class="card" id="endCard"></div></div>
+<div id="msg" class="overlay hidden"><div class="card" id="msgCard"></div></div>
 
-<div id="roundTitle" class="overlay hidden"><div class="card" id="roundCard"></div></div>
-<div id="betPanel" class="overlay hidden"><div class="card" id="betCard"></div></div>
-<div id="standings" class="overlay hidden" style="background:linear-gradient(rgba(5,9,24,.7),rgba(5,9,24,.25) 60%,transparent);align-items:flex-start;padding-top:calc(var(--u)*5)"><div class="card" id="standCard"></div></div>
-<div id="endPanel" class="overlay hidden"><div class="card" id="endCard"></div></div>
-
-<script type="module" src="src/main.js"></script>
+<script type="module" src="src/child.js"></script>
 </body>
 </html>

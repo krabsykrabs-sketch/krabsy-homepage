@@ -1,16 +1,15 @@
-// Analytics for the show (docs/game-analytics.md). Game id: 'quiz-show'.
-// • Game events via /lib/krabsy-game-events.js (standard level_start / level_end, one
-//   "level" per round, plus show_end). Only counts and slugs; team names are never sent.
-// • Answer counts: the same {type:'krabsy:attempt'} message krabsy-stats.js announces,
-//   but WITHOUT recordAttempt(): on a class device the answers of a whole class must not
-//   land in that browser's personal learning stats (brief, "Answers and stats").
-const GAME = 'quiz-show';
+// Analytics for the Quiz Room (docs/game-analytics.md). Game id: 'quiz-room'.
+// • The teacher page sends the game events (/lib/krabsy-game-events.js): level_start /
+//   level_end for the quiz. Only counts and slugs, never names.
+// • Child pages send answer counts: the same {type:'krabsy:attempt'} message
+//   krabsy-stats.js announces. (Whether to also call recordAttempt() is an open
+//   question for the owner, see CLAUDE.md.)
+const GAME = 'quiz-room';
 let send = null;
 const ready = import('/lib/krabsy-game-events.js').then((m) => { send = m.gameEvent; }).catch(() => {});
 
 export const analytics = {
-  log: [], // QA: what would have been sent
-  reset() { this.log = []; },
+  log: [], // QA: what was sent
   event(name, data) {
     this.log.push({ name, data });
     ready.then(() => { try { send?.(GAME, name, data); } catch (_) {} });

@@ -13,10 +13,53 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **concept changed by the owner on 2026-11-22: an online quiz room,
-every child on their own device.** Nothing of the online version is built
-yet. The folder still holds the first prototype (one projector, teams on
-one keyboard, see "Version 1" below); parts of it are reused.
+Status: **milestone 1 built (2026-11-22)**: room server + teacher page +
+child page; a whole quiz runs with a teacher and several children (tested
+headless with 3 and 4 children, verbs and prepositions, DE/ES; server tests
+pass). **Not deployed, not played by people yet.** The server must be
+deployed with the API (master session) before anyone can play online.
+
+## How to run it locally
+
+1. Room server (the API): a Python env with `api/requirements.txt`, then in
+   `api/`: `KRABSY_DATA_DIR=/tmp/krabsy uvicorn main:app --port 8150`.
+   Port **8150** (8000 is the homepage preview, 8140–8144 are game dev
+   servers). Tests: `python -m pytest api/tests/test_quiz_room.py`.
+2. Game files: `python3 tools/serve.py` here (port 8142; also serves `/lib/`
+   and `/data/` from `homepage/`, so the real question engine is used).
+3. Teacher: http://localhost:8142/teacher.html · Children:
+   http://localhost:8142/index.html?code=XXXXXX (the teacher page shows the
+   link). Several children = several browser windows/profiles (the child's
+   token is in `sessionStorage`, so each tab is its own child).
+4. QA: `node tools/qa-room.cjs <outDir> <children> "lang=de&topic=…"` plays a
+   whole quiz with one teacher and N children and saves screenshots.
+5. The client picks the server from the page: `wss://api.krabsy.com` on
+   krabsy.com, `ws://<host>:8150` elsewhere, or `?server=<ws url>`.
+
+## How it's built (milestone 1)
+
+| File | Job |
+|---|---|
+| `api/quiz_room.py` | the room server (WebSocket `/api/quiz/ws`, rooms in memory, referee + scoring) |
+| `teacher.html` + `src/teacher.js` | setup (topic, difficulty, count, time), room code + link, player list (rename ✎ / remove ✕), lock, start/next/end, question panel with answer counts at the reveal, top 5, results with ranking + most-missed words |
+| `index.html` + `src/child.js` | join (code, first name, colour), walking, private answer card (click or keys 1–4 / A–D), small panel after answering, reveal (right/wrong, points, place, teach beat), top 5, end screen |
+| `src/room.js` | the 3D room, avatars (random KayKit character, colour ring, name tag, "answered" dot / thinking bubble), movement (WASD/arrows, Shift run, Space jump), cameras |
+| `src/net.js` | socket with auto-reconnect (re-sends join/resume) |
+| `src/questions.js` | builds the question list in the teacher's browser (engine or inline lists), verb pairs kept together |
+| `src/ui.js`, `src/style.css` | shared rendering (question line, teach beat, review) and styles |
+| `src/i18n.js`, `src/audio.js`, `src/analytics.js` | texts, synth sounds, analytics (`quiz-room`: `quiz_open`, `level_start`, `level_end`; children post answer counts) |
+
+Server rules worth knowing: a child gets only the question and the four
+options until the reveal; the first answer counts; points 500–1000 by speed
++100 from the 3rd right answer in a row; the reveal comes when every child
+who is online has answered, when the time is up, or when the teacher
+presses "Show answer"; a child who leaves the room and comes back (same
+tab) keeps name and points; a removed child can't rejoin with the same tab.
+The room's question list stays on the server; nothing is written to disk.
+
+Not in milestone 1 (next milestones): avatar choice (the avatar is random,
+the colour is chosen), question preview/swap, toys and emotes, bonus round,
+touch controls, QR code, class link.
 
 ## Why this game
 
@@ -233,16 +276,11 @@ Copy only what you use into `games/quiz-show/assets/`.
 
 ## Version 1 (one projector, built 2026-11-22, superseded)
 
-The first prototype in this folder: one laptop + projector, 2–4 teams
-entering answers on one keyboard, rounds "everyone answers" / buzzer /
-bets, a 3D TV studio. The owner didn't like the concept (children only
-watch, one child per team presses keys). Reusable for the online room:
-`src/questions.js` (engine + inline fallback, chain-order units),
-`src/i18n.js`, `src/audio.js` (show sounds), `src/scene.js` (character
-loading, animation helper, confetti, lights), the review list from
-`src/show.js`, and `tools/qa.cjs` (headless play-through). Run it with
-`python3 tools/serve.py` → http://localhost:8142/. Delete what isn't
-reused once milestone 1 stands.
+The first prototype: one laptop + projector, teams on one keyboard, a 3D TV
+studio. Rejected by the owner. Its show-only files (`src/main.js`,
+`src/show.js`, `src/input.js`, `src/scene.js`, `tools/qa.cjs`) were removed
+for milestone 1; they are in git at commit `94ab6f5`. Reused: the
+question loading, texts, sounds, character loading and the QA approach.
 
 ## Log
 
@@ -255,3 +293,8 @@ reused once milestone 1 stands.
   over the head; the teacher only runs the room and chooses topic,
   difficulty and the questions (see all, skip/swap); the physical
   "run to the answer pads" idea as a bonus round. Brief rewritten.
+- 2026-11-22: milestone 1 built: `api/quiz_room.py` (+ 4 tests; whole API
+  suite 42 passed), teacher and child pages, shared room scene. Whole
+  quizzes pass headless with a teacher + 3 and + 4 children (verbs DE,
+  prepositions ES), no console errors. Teacher screen: question panel at
+  the bottom so the room stays visible.
