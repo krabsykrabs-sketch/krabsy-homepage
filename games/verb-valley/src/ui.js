@@ -12,16 +12,14 @@
 import * as THREE from 'three';
 import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI, BUCKET_CAP } from './config.js';
 import { sfx, toggle as toggleSound, isEnabled as soundOn } from './audio.js';
+import { t, nameOf, NameOf } from './i18n.js';
+const tr = t;   // for loops whose variable is called t
 
 const $ = (id) => document.getElementById(id);
 
 const TOOL_DEFS = [
-  { id: 'shovel', icon: '🪏', name: 'Shovel — tills soil' },
-  { id: 'bucket', icon: '🪣', name: 'Bucket — waters crops' },
-  { id: 'sword', icon: '⚔️', name: 'Sword — cuts hay' },
-  { id: 'axe', icon: '🪓', name: 'Axe — chops trees' },
-  { id: 'pickaxe', icon: '⛏️', name: 'Pickaxe — mines the quarry' },
-  { id: 'rod', icon: '🎣', name: 'Fishing rod' },
+  { id: 'shovel', icon: '🪏' }, { id: 'bucket', icon: '🪣' }, { id: 'sword', icon: '⚔️' },
+  { id: 'axe', icon: '🪓' }, { id: 'pickaxe', icon: '⛏️' }, { id: 'rod', icon: '🎣' },
 ];
 const SEED_ORDER = CROP_ORDER;
 const PRODUCE_ORDER = [...CROP_ORDER, 'berry', 'hay', 'wood', 'stone', 'gold', 'gem', 'fish', 'goldfish'];
@@ -47,7 +45,7 @@ export function createUI(state, hooks) {
       const slot = document.createElement('div');
       slot.className = 'slot' + (sel.kind === 'tool' && sel.id === t.id ? ' active' : '') + (owned ? '' : ' locked');
       slot.innerHTML = `<span>${owned ? t.icon : '🔒'}</span><i class="key">${i + 1}</i>`;
-      slot.title = t.name;
+      slot.title = tr('tool.' + t.id);
       slot.onclick = () => selectTool(t.id);
       hotbar.appendChild(slot);
     });
@@ -55,12 +53,12 @@ export function createUI(state, hooks) {
   }
 
   function selectTool(id) {
-    if (!state.tools[id]) { sfx.deny(); toast(`No ${TOOL_DEFS.find((t) => t.id === id)?.name.split(' —')[0].toLowerCase() ?? id} yet — check the shop!`); return; }
+    if (!state.tools[id]) { sfx.deny(); toast(t('noTool')); return; }
     setSel({ kind: 'tool', id });
   }
 
   function selectSeed(type) {
-    if ((state.seeds[type] ?? 0) < 1) { sfx.deny(); toast(`No ${CROPS[type].name} seeds left`); return; }
+    if ((state.seeds[type] ?? 0) < 1) { sfx.deny(); toast(t('noSeedsOf', nameOf(type))); return; }
     setSel({ kind: 'seed', id: type });
   }
 
@@ -72,7 +70,7 @@ export function createUI(state, hooks) {
   // Cycle through seed types you actually have (key 4).
   function cycleSeed() {
     const have = SEED_ORDER.filter((t) => (state.seeds[t] ?? 0) > 0);
-    if (!have.length) { sfx.deny(); toast('No seeds — visit the shop 🛒'); return; }
+    if (!have.length) { sfx.deny(); toast(t('noSeeds')); return; }
     const cur = sel.kind === 'seed' ? have.indexOf(sel.id) : -1;
     setSel({ kind: 'seed', id: have[(cur + 1) % have.length] });
   }
@@ -89,11 +87,11 @@ export function createUI(state, hooks) {
       const chip = document.createElement('div');
       chip.className = 'inv-chip seed' + (sel.kind === 'seed' && sel.id === t ? ' active' : '');
       chip.innerHTML = `<span class="bag"><span class="bag-emoji">${CROPS[t].emoji}</span></span><b class="count">${n}</b>`;
-      chip.title = `${CROPS[t].name} seeds — click to hold`;
+      chip.title = tr('seedTip', NameOf(t));
       chip.onclick = () => selectSeed(t);
       seedsEl.appendChild(chip);
     }
-    if (!anySeed) seedsEl.innerHTML = '<p class="inv-empty">No seeds<br>🛒 shop!</p>';
+    if (!anySeed) seedsEl.innerHTML = `<p class="inv-empty">${t('invEmpty')}</p>`;
 
     const itemsEl = $('inv-items');
     itemsEl.innerHTML = '';
@@ -105,7 +103,7 @@ export function createUI(state, hooks) {
       const chip = document.createElement('div');
       chip.className = 'inv-chip' + (sel.kind === 'item' && sel.id === t ? ' active' : '');
       chip.innerHTML = `<span class="ic">${ITEM_EMOJI[t]}</span><b class="count">${n}</b>`;
-      chip.title = `${CROPS[t]?.name ?? t} — sells ${SELLABLE[t]}c at the crate`;
+      chip.title = tr('itemTip', NameOf(t), SELLABLE[t]);
       chip.onclick = () => selectItem(t);
       itemsEl.appendChild(chip);
     }
@@ -130,7 +128,7 @@ export function createUI(state, hooks) {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }
   function updateHUD() {
-    $('hud-day').textContent = `Day ${state.day}`;
+    $('hud-day').textContent = t('day', state.day);
     $('hud-clock').textContent = fmtTime(state.timeMin);
     $('hud-coins').textContent = state.coins;
     $('hud-water-n').textContent = `${state.water ?? 0}/${BUCKET_CAP}`;
@@ -190,17 +188,17 @@ export function createUI(state, hooks) {
       const secret = c.schoolOnly && !got;   // school rares stay mysterious
       const row = document.createElement('div');
       row.className = 'panel-row' + (got ? '' : ' dim');
-      const src = c.schoolOnly ? '🦀 class reward (6+ correct)'
-        : tierUnlocked(c.tier) ? '🛒 in the shop'
-        : `🔒 grow ${TIER_UNLOCK[c.tier]} different crops`;
+      const src = c.schoolOnly ? t('albumSchool')
+        : tierUnlocked(c.tier) ? t('albumShop')
+        : t('albumLocked', TIER_UNLOCK[c.tier]);
       row.innerHTML = `<span class="ic">${secret ? '❓' : c.emoji}</span>
-        <span class="nm">${secret ? '???' : c.name}<small>${c.days} days · sells ${c.sell}c · ${src}</small></span>
+        <span class="nm">${secret ? '???' : NameOf(k)}<small>${t('albumRow', c.days, c.sell, src)}</small></span>
         <span class="album-check">${got ? '✓' : ''}</span>`;
       list.appendChild(row);
     }
     const n = collectedCount(), total = CROP_ORDER.length;
     $('album-fill').style.width = `${Math.round((n / total) * 100)}%`;
-    $('album-progress').textContent = n === total ? '🌈 100% — album complete!' : `${n} / ${total} crops grown`;
+    $('album-progress').textContent = n === total ? t('albumDone') : t('albumProgress', n, total);
     $('album-panel').hidden = false;
   }
   $('hud-album').onclick = openAlbum;
@@ -212,15 +210,15 @@ export function createUI(state, hooks) {
     list.innerHTML = '';
     const rows = [
       ...SEED_ORDER.filter((t) => !CROPS[t].schoolOnly).map((t) => ({
-        id: 'seed:' + t, icon: CROPS[t].emoji, name: `${CROPS[t].name} seed`,
+        id: 'seed:' + t, icon: CROPS[t].emoji, name: tr('seedName', NameOf(t)),
         desc: tierUnlocked(CROPS[t].tier)
-          ? `${CROPS[t].days} days · sells ${CROPS[t].sell}c`
-          : `🔒 grow ${TIER_UNLOCK[CROPS[t].tier]} different crops`,
+          ? tr('seedDesc', CROPS[t].days, CROPS[t].sell)
+          : tr('albumLocked', TIER_UNLOCK[CROPS[t].tier]),
         cost: CROPS[t].seed, locked: !tierUnlocked(CROPS[t].tier),
       })),
-      { id: 'axe', icon: '🪓', name: 'Axe', desc: state.tools.axe ? 'owned!' : 'chop trees for wood', cost: TOOL_COST.axe, disabled: state.tools.axe },
-      { id: 'pickaxe', icon: '⛏️', name: 'Pickaxe', desc: state.tools.pickaxe ? 'owned!' : 'mine the quarry — stone, gold, gems', cost: TOOL_COST.pickaxe, disabled: state.tools.pickaxe },
-      { id: 'rod', icon: '🎣', name: 'Fishing rod', desc: state.tools.rod ? 'owned!' : 'fish the pond', cost: TOOL_COST.rod, disabled: state.tools.rod },
+      { id: 'axe', icon: '🪓', name: t('axeName'), desc: state.tools.axe ? t('owned') : t('axeDesc'), cost: TOOL_COST.axe, disabled: state.tools.axe },
+      { id: 'pickaxe', icon: '⛏️', name: t('pickName'), desc: state.tools.pickaxe ? t('owned') : t('pickDesc'), cost: TOOL_COST.pickaxe, disabled: state.tools.pickaxe },
+      { id: 'rod', icon: '🎣', name: t('rodName'), desc: state.tools.rod ? t('owned') : t('rodDesc'), cost: TOOL_COST.rod, disabled: state.tools.rod },
     ];
     for (const r of rows) {
       const row = document.createElement('div');
@@ -231,7 +229,7 @@ export function createUI(state, hooks) {
       if (!r.locked) row.querySelector('button').onclick = () => { hooks.onBuy(r.id); openShop(); refresh(); };
       list.appendChild(row);
     }
-    $('shop-coins').textContent = `You have ${state.coins} 🪙`;
+    $('shop-coins').textContent = t('youHave', state.coins);
     $('shop-panel').hidden = false;
   }
 
@@ -242,9 +240,9 @@ export function createUI(state, hooks) {
     // Krabsy's deal: an optional question for a better price on the next sale.
     const deal = $('ship-deal');
     if (state.saleBonus > 0) {
-      deal.innerHTML = `<div class="deal">🦀<span>Krabsy's deal: <b>+${Math.round(state.saleBonus * 100)}%</b> on your next sale — tap “All”!</span></div>`;
+      deal.innerHTML = `<div class="deal">🦀<span>${t('dealOn', Math.round(state.saleBonus * 100))}</span></div>`;
     } else {
-      deal.innerHTML = `<div class="deal">🦀<span>Krabsy's deal: answer for a better price (up to +50%)</span><button class="chip-btn">Deal!</button></div>`;
+      deal.innerHTML = `<div class="deal">🦀<span>${t('dealOffer')}</span><button class="chip-btn">${t('dealBtn')}</button></div>`;
       deal.querySelector('button').onclick = () => hooks.onDeal?.();
     }
     let any = false;
@@ -254,15 +252,15 @@ export function createUI(state, hooks) {
       const row = document.createElement('div');
       row.className = 'panel-row';
       row.innerHTML = `<span class="ic">${ITEM_EMOJI[item] ?? '❔'}</span>
-        <span class="nm">${CROPS[item]?.name ?? item} ×${n}<small>${SELLABLE[item]}c each</small></span>
-        <button class="chip-btn">Sell 1</button><button class="chip-btn">All</button>`;
+        <span class="nm">${NameOf(item)} ×${n}<small>${t('each', SELLABLE[item])}</small></span>
+        <button class="chip-btn">${t('sell1')}</button><button class="chip-btn">${t('sellAll')}</button>`;
       const [b1, bAll] = row.querySelectorAll('button');
       b1.onclick = () => { hooks.onShip(item, 1); openShip(); };
       bAll.onclick = () => { hooks.onShip(item, n); openShip(); };
       list.appendChild(row);
     }
-    if (!any) list.innerHTML = '<p class="empty">Nothing to sell — harvest something first!</p>';
-    $('ship-crate').textContent = `You have ${state.coins} 🪙`;
+    if (!any) list.innerHTML = `<p class="empty">${t('nothingToSell')}</p>`;
+    $('ship-crate').textContent = t('youHave', state.coins);
     $('ship-panel').hidden = false;
   }
 
@@ -282,26 +280,26 @@ export function createUI(state, hooks) {
   // ── Sleep overlay ──
   function showSleep(summary, dozedOff) {
     const el = $('sleep-overlay');
-    $('sleep-title').textContent = dozedOff ? '💤 You dozed off…' : '🌙 Good night!';
+    $('sleep-title').textContent = dozedOff ? t('dozed') : t('goodNight');
     let html = '';
     if (summary.earned > 0) {
       const items = Object.entries(summary.sold).map(([it, n]) => `${ITEM_EMOJI[it] ?? ''} ×${n}`).join('  ');
-      html += `<p class="earn">${items}</p><p class="earn big">+${summary.earned} 🪙 from the crate</p>`;
+      html += `<p class="earn">${items}</p><p class="earn big">${t('fromCrate', summary.earned)}</p>`;
     }
-    if (summary.grew) html += `<p>${summary.grew} crop${summary.grew > 1 ? 's' : ''} grew overnight 🌱</p>`;
-    if (summary.ripened) html += `<p>${summary.ripened} ready to harvest! ✨</p>`;
-    if (summary.hayRegrown) html += `<p>${summary.hayRegrown} hay tile${summary.hayRegrown > 1 ? 's' : ''} regrew 🌾</p>`;
-    if (summary.nodesRegrown) html += `<p>Fresh rocks in the quarry ⛏</p>`;
-    if (!html) html = '<p>A quiet night on the farm.</p>';
+    if (summary.grew) html += `<p>${t('grew', summary.grew)}</p>`;
+    if (summary.ripened) html += `<p>${t('ripe', summary.ripened)}</p>`;
+    if (summary.hayRegrown) html += `<p>${t('hayRegrew', summary.hayRegrown)}</p>`;
+    if (summary.nodesRegrown) html += `<p>${t('quarryFresh')}</p>`;
+    if (!html) html = `<p>${t('quiet')}</p>`;
     const en = summary.english;
     if (en && en.asked > 0) {
-      html += `<div class="english"><p>English today: <b>${en.correct} / ${en.asked}</b> ✓</p>`;
-      if (en.lines?.length) html += `<p>Practise again tomorrow:</p>` + en.lines.map((l) => `<p class="chain">${l}</p>`).join('');
+      html += `<div class="english"><p>${t('englishToday', en.correct, en.asked)}</p>`;
+      if (en.lines?.length) html += `<p>${t('practise')}</p>` + en.lines.map((l) => `<p class="chain">${l}</p>`).join('');
       html += '</div>';
     }
-    if (state.school.stickers > 0) html += `<p class="stickers">Sticker collection: ${'🌟'.repeat(Math.min(state.school.stickers, 8))}</p>`;
+    if (state.school.stickers > 0) html += `<p class="stickers">${t('stickers')} ${'🌟'.repeat(Math.min(state.school.stickers, 8))}</p>`;
     $('sleep-body').innerHTML = html;
-    $('sleep-day').textContent = `Day ${summary.day}`;
+    $('sleep-day').textContent = t('day', summary.day);
     el.hidden = false;
   }
   $('sleep-continue').onclick = () => { $('sleep-overlay').hidden = true; hooks.onWake?.(); };
@@ -310,11 +308,11 @@ export function createUI(state, hooks) {
   function showStart(hasSave) {
     $('start-screen').hidden = false;
     $('btn-continue').hidden = !hasSave;
-    $('btn-new').textContent = hasSave ? 'New Farm' : 'Start Farming';
+    $('btn-new').textContent = hasSave ? t('btnNewFarm') : t('btnStart');
     $('btn-new').classList.toggle('secondary', hasSave);
     $('btn-continue').onclick = () => { $('start-screen').hidden = true; hooks.onContinue(); };
     $('btn-new').onclick = () => {
-      if (hasSave && !confirm('Start over? Your current farm will be lost.')) return;
+      if (hasSave && !confirm(t('confirmNew'))) return;
       $('start-screen').hidden = true; hooks.onNewFarm();
     };
   }

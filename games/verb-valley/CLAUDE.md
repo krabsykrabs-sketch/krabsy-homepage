@@ -466,3 +466,19 @@ geometry, one shadow light.
     `assets/kenney/` (gitignored like the rest of `assets/`; listed in
     `assets/CREDITS.md`; the source is the shared library's
     `kenney/nature-kit/Models/GLTF format/`).
+- 2026-11-22 — **M1 done: DE/ES UI.** New `src/i18n.js` (Verb Kitchen
+  pattern): `?lang=de|es|en`, persisted in `krabsy_vvalley_lang`, else
+  the browser language, English fallback per key. Every player-facing
+  string is translated: start screen, HUD, tools, crop/item names,
+  album, shop, sell crate + deal, sleep card, all world prompts and
+  toasts, the question panel, the blackboard and the signposts (canvas
+  textures are drawn in the chosen language). Static nodes use
+  `data-i18n` / `data-i18n-title`. The verbs and sentences being
+  practised stay English. German uses "du"; Spanish uses "tú", with
+  Latin-American-friendly wording (balde, frutilla) and no vosotros.
+  Checked by screenshot in DE and ES; the EN regression (26 checks) still
+  passes. **For the master session:** the wrappers must pass `?lang=de` /
+  `?lang=es` (and `?topic=` if wanted) to the iframe.
+  - **Next: M2** — high fixed camera, touch controls (virtual stick + one
+    action button; the hotbar, inventory and question chips are already
+    tappable), phone HUD layout.

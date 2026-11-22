@@ -3,6 +3,7 @@
 // (cottage windows glow at dusk, the blackboard gets chalk text, Professor
 // Krabsy idles). Dynamic farm geometry (soil, crops, trees) lives in farming.js.
 
+import { t } from './i18n.js';
 import * as THREE from 'three';
 import { LAYOUT, PAL } from './config.js';
 import { prop } from './assets.js';
@@ -104,7 +105,7 @@ export function buildWorld(scene) {
   // Bed marker outside the door (sleep spot) — a cozy little porch mat + sign.
   const mat = new THREE.Mesh(new THREE.CircleGeometry(1.3, 18), lambert(0xcf6b58));
   mat.rotation.x = -Math.PI / 2; mat.position.set(LAYOUT.bed.x, 0.03, LAYOUT.bed.z); scene.add(mat);
-  refs.bedSign = makeSignpost(scene, LAYOUT.bed.x + 1.4, LAYOUT.bed.z, '🛏 Sleep', 0xcf6b58);
+  refs.bedSign = makeSignpost(scene, LAYOUT.bed.x + 1.4, LAYOUT.bed.z, t('sign.sleep'), 0xcf6b58);
 
   // ── Selling crate (KayKit wood crate + a berry crate beside it) ──────
   const crate = new THREE.Group();
@@ -113,7 +114,7 @@ export function buildWorld(scene) {
   const cb2 = prop('crateBerries', 1.2); cb2.position.set(1.3, 0, 0.6); cb2.rotation.y = -0.4; crate.add(cb2);
   scene.add(crate);
   refs.crate = crate;
-  makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, '📦 Sell', 0x9c6b3f);
+  makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, t('sign.sell'), 0x9c6b3f);
   // ── The well: stone ring, wooden roof, a bucket on the rim ─────────────
   const well = new THREE.Group();
   well.position.set(LAYOUT.well.x, 0, LAYOUT.well.z);
@@ -127,7 +128,7 @@ export function buildWorld(scene) {
   well.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   scene.add(well);
   refs.well = well;
-  makeSignpost(scene, LAYOUT.well.x - 1.4, LAYOUT.well.z + 1.2, '🪣 Well', 0x3fa7d6);
+  makeSignpost(scene, LAYOUT.well.x - 1.4, LAYOUT.well.z + 1.2, t('sign.well'), 0x3fa7d6);
 
 
   // ── Shop stand ───────────────────────────────────────────────────────
@@ -140,7 +141,7 @@ export function buildWorld(scene) {
   for (let i = -1; i <= 1; i++) { const stripe = box(0.7, 0.27, 1.8, 0xffffff); stripe.position.set(i * 1.1, 2.6, 0); stripe.rotation.x = 0.12; shop.add(stripe); }
   scene.add(shop);
   refs.shop = shop;
-  makeSignpost(scene, LAYOUT.shop.x, LAYOUT.shop.z + 1.4, '🛒 Shop', 0xffcf5e);
+  makeSignpost(scene, LAYOUT.shop.x, LAYOUT.shop.z + 1.4, t('sign.shop'), 0xffcf5e);
 
   // ── Pond (decor) ─────────────────────────────────────────────────────
   const pond = new THREE.Mesh(new THREE.CircleGeometry(LAYOUT.pond.r, 28),
@@ -177,14 +178,14 @@ export function buildWorld(scene) {
   bell.position.set(3, 2.9, 1.5); bell.rotation.x = Math.PI; school.add(bell);
   refs.bell = bell;
   scene.add(school);
-  makeSignpost(scene, LAYOUT.school.x - 3.5, LAYOUT.school.z + 2, '🦀 School', 0x2ee6c0);
+  makeSignpost(scene, LAYOUT.school.x - 3.5, LAYOUT.school.z + 2, t('sign.school'), 0x2ee6c0);
 
   // Hay meadow sign (the tiles themselves are dynamic, built in farming.js).
-  makeSignpost(scene, LAYOUT.hay.cx - 7, LAYOUT.hay.cz, '🌾 Hay', 0xd8c25e);
+  makeSignpost(scene, LAYOUT.hay.cx - 7, LAYOUT.hay.cz, t('sign.hay'), 0xd8c25e);
 
   // Quarry sign + permanent dressing rocks framing the mining corner
   // (the mineable nodes themselves are dynamic, built in farming.js).
-  makeSignpost(scene, LAYOUT.mine[1].x + 2.2, LAYOUT.mine[1].z - 1.6, '⛏ Quarry', 0xb8c4d0);
+  makeSignpost(scene, LAYOUT.mine[1].x + 2.2, LAYOUT.mine[1].z - 1.6, t('sign.quarry'), 0xb8c4d0);
   for (const [k, x, z, s] of [['rock5', -20.5, -4.5, 3.2], ['rock5', -20.8, 4.8, 2.6], ['rock1', -15.0, 4.6, 2.0]]) {
     const r = prop(k, s); r.position.set(x, 0, z); r.rotation.y = x * 2.1; scene.add(r);
   }
@@ -260,9 +261,9 @@ export function drawBoardIdle(bb) {
   ctx.fillStyle = '#1e3a2f'; ctx.fillRect(0, 0, cv.width, cv.height);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 4;
   ctx.font = 'italic 64px "Fredoka One", cursive'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillText('English Class', cv.width / 2, 200);
+  ctx.fillText(t('boardIdle'), cv.width / 2, 200);
   ctx.font = '40px Nunito, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText('Press E to begin', cv.width / 2, 300);
+  ctx.fillText(t('boardIdleSub'), cv.width / 2, 300);
   tex.needsUpdate = true;
 }
 

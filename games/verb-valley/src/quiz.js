@@ -14,6 +14,7 @@
 //   opts.onShow    (step) → mirror hook (the 3D blackboard)
 
 import { sfx } from './audio.js';
+import { t } from './i18n.js';
 
 const FORM_COL = ['var(--teal)', 'var(--coral)'];   // 2nd form teal, 3rd coral
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -64,7 +65,7 @@ function showStep() {
   const total = unit.steps.length;
   el.querySelector('.qz-prog').textContent = (opts.progress ?? '') + (total > 1 ? ` ${'●'.repeat(i + 1)}${'○'.repeat(total - i - 1)}` : '');
   el.querySelector('.qz-prompt').innerHTML = promptHTML(step.display);
-  el.querySelector('.qz-feedback').innerHTML = unit.isReview && i === 0 ? '<span class="qz-review">★ again from before</span>' : '';
+  el.querySelector('.qz-feedback').innerHTML = unit.isReview && i === 0 ? `<span class="qz-review">${t('againBefore')}</span>` : '';
   const chips = el.querySelector('.qz-chips');
   chips.innerHTML = '';
   const col = step.display.kind === 'trio' ? FORM_COL[step.display.askIndex] : 'var(--amber)';
@@ -100,13 +101,13 @@ export function answer(k) {
   const fb = el.querySelector('.qz-feedback');
   if (correct) {
     sfx.correct();
-    fb.innerHTML = `<span class="qz-ok">✓ ${esc(opts.reward?.(i) ?? 'Right!')}</span>`;
+    fb.innerHTML = `<span class="qz-ok">✓ ${esc(opts.reward?.(i) ?? t('right'))}</span>`;
   } else {
     sfx.wrong();
     const line = d.kind === 'gap'
       ? esc(step.teach).replace('___', `<b style="color:var(--amber)">${esc(step.answer)}</b>`)
       : teachHTML(step.teach);
-    fb.innerHTML = `<span class="qz-no">Professor Krabsy:</span> ${line}`;
+    fb.innerHTML = `<span class="qz-no">${t('krabsySays')}</span> ${line}`;
   }
   opts.onStep?.(i, correct);
   current.timer = setTimeout(next, correct ? 750 : 2300);

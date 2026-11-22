@@ -15,6 +15,9 @@ import { createUI } from './ui.js';
 import * as save from './save.js';
 import * as Q from './questions.js';
 import * as quiz from './quiz.js';
+import { t, NameOf, applyStatic } from './i18n.js';
+
+applyStatic();
 import { unlock, sfx, birds } from './audio.js';
 
 const QA_SCENE = new URLSearchParams(location.search).get('qa');
@@ -43,7 +46,7 @@ addEventListener('resize', () => {
 await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1800))]);
 const loadingEl = document.getElementById('loading');
 await Promise.all([
-  loadAssets((p) => { loadingEl.textContent = `🦀 Loading the valley… ${Math.round(p * 100)}%`; }),
+  loadAssets((p) => { loadingEl.textContent = t('loadingPct', Math.round(p * 100)); }),
   Q.initQuestions(),
 ]);
 
@@ -106,7 +109,7 @@ function gated(fn) {
   if (!attended()) {
     sfx.deny();
     ui.bubble(new THREE.Vector3(player.position.x, 2.4, player.position.z),
-      '🤷 School first! Professor Krabsy is waiting 🔔', 2800);
+      t('schoolFirst'), 2800);
     return { ok: false, reason: 'school-gate' };
   }
   return fn();
@@ -114,7 +117,7 @@ function gated(fn) {
 
 function bucketEmpty() {
   sfx.deny();
-  ui.bubble(new THREE.Vector3(player.position.x, 2.4, player.position.z), '🪣 Empty! Refill it at the well', 2400);
+  ui.bubble(new THREE.Vector3(player.position.x, 2.4, player.position.z), t('bucketEmptyBubble'), 2400);
   return { ok: false, reason: 'bucket-empty' };
 }
 
@@ -124,14 +127,14 @@ function bucketEmpty() {
 async function useWell() {
   if (quiz.isOpen()) return { ok: false, reason: 'busy' };
   if (state.water >= BUCKET_CAP) {
-    ui.toast('🪣 Your bucket is already full');
+    ui.toast(t('bucketFull'));
     return { ok: false, reason: 'full' };
   }
   const unit = Q.nextUnit();
   const perRight = unit.steps.length > 1 ? WATER_PER_RIGHT : BUCKET_CAP;
   player.playAction('Use_Item');
   const r = await quiz.ask(unit, {
-    title: '🪣 The well',
+    title: t('wellTitle'),
     reward: () => `+${perRight} 💧`,
     onStep: (i, ok) => {
       Q.recordStep(state, unit, i, ok);
@@ -141,7 +144,7 @@ async function useWell() {
   });
   Q.recordUnit(state, unit, r.correct === r.total);
   state.today.wells += 1;
-  if (r.correct === 0) ui.toast('🪣 Try the well again — a new word is waiting');
+  if (r.correct === 0) ui.toast(t('wellAgain'));
   return { ok: true, ...r, water: state.water };
 }
 
@@ -151,7 +154,7 @@ async function krabsyDeal() {
   const per = unit.steps.length > 1 ? SALE_BONUS_PER_RIGHT : SALE_BONUS_PER_RIGHT * 2;
   ui.closePanels();
   const r = await quiz.ask(unit, {
-    title: '📦 Krabsy’s deal',
+    title: t('dealTitle'),
     reward: () => `+${Math.round(per * 100)}% 🪙`,
     onStep: (i, ok) => { Q.recordStep(state, unit, i, ok); if (ok) state.saleBonus += per; },
   });
@@ -179,13 +182,13 @@ const act = {
         state.collection[r.type] = true;
         const n = Object.keys(state.collection).length;
         sfx.star();
-        ui.toast(`📖 New crop collected: ${CROPS[r.type].emoji} ${CROPS[r.type].name} (${n}/${Object.keys(CROPS).length})`, 3800);
+        ui.toast(t('cropCollected', CROPS[r.type].emoji, NameOf(r.type), n, Object.keys(CROPS).length), 3800);
         if (n === Object.keys(CROPS).length) {
           state.school.stickers += 1;
-          setTimeout(() => ui.toast('🌈 CROP ALBUM COMPLETE! You are the valley legend! 🌟', 6000), 4000);
+          setTimeout(() => ui.toast(t('albumComplete'), 6000), 4000);
         }
       } else {
-        ui.toast(`${CROPS[r.type].emoji} ${CROPS[r.type].name} harvested!`);
+        ui.toast(t('harvested', CROPS[r.type].emoji, NameOf(r.type)));
       }
       ui.refresh();
     }
@@ -204,14 +207,14 @@ const act = {
   }),
   chop: (i) => gated(() => {
     const r = farm.actions.chop(i);
-    if (r.ok) { sfx.chop(); player.playAction('Chop'); ui.toast('🪵 +3 wood'); ui.refresh(); }
+    if (r.ok) { sfx.chop(); player.playAction('Chop'); ui.toast(t('woodToast')); ui.refresh(); }
     return r;
   }),
   mine: (i) => gated(() => {
     const r = farm.actions.mine(i);
     if (r.ok) {
       sfx.clink(); player.playAction('Pickaxe');
-      ui.toast(`${ITEM_EMOJI[r.drop]} +${r.n} ${r.drop}`);
+      ui.toast(t('mineToast', ITEM_EMOJI[r.drop], r.n, NameOf(r.drop)));
       ui.refresh();
     }
     return r;
@@ -231,46 +234,46 @@ function computeTarget() {
 
   // During fishing, E is the reaction button.
   if (fishing.active) {
-    if (fishing.phase === 'bite') return { kind: 'fishPress', label: '<b>E</b> — NOW! Reel it in! 🐟' };
-    return { kind: 'fishPress', label: 'Wait for the bobber to dip… 🎣' };
+    if (fishing.phase === 'bite') return { kind: 'fishPress', label: t('fishNow') };
+    return { kind: 'fishPress', label: t('fishWait') };
   }
 
   if (d2(LAYOUT.school.x, LAYOUT.school.z) < 4.2) {
     if (school.active) return { kind: 'none' };
-    if (attended()) return { kind: 'info', label: 'Class is done for today 🦀' };
-    return { kind: 'school', label: '<b>E</b> — Attend class 🦀' };
+    if (attended()) return { kind: 'info', label: t('classDoneLabel') };
+    return { kind: 'school', label: t('attendClass') };
   }
   if (d2(LAYOUT.bed.x, LAYOUT.bed.z) < 2.1) {
-    return { kind: 'sleep', label: '<b>E</b> — Sleep 🛏' };
+    return { kind: 'sleep', label: t('sleepLabel') };
   }
-  if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: '<b>E</b> — Sell produce 📦' };
+  if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: t('sellLabel') };
   if (d2(LAYOUT.well.x, LAYOUT.well.z) < 2.2) {
-    if (!attended()) return { kind: 'info', label: 'The well opens after school 🦀' };
-    if (state.water >= BUCKET_CAP) return { kind: 'info', label: `Bucket full 🪣 ${state.water}/${BUCKET_CAP}` };
-    return { kind: 'well', label: `<b>E</b> — Fill the bucket 🪣 ${state.water}/${BUCKET_CAP}` };
+    if (!attended()) return { kind: 'info', label: t('wellAfterSchool') };
+    if (state.water >= BUCKET_CAP) return { kind: 'info', label: t('bucketFullLabel', state.water, BUCKET_CAP) };
+    return { kind: 'well', label: t('fillBucket', state.water, BUCKET_CAP) };
   }
-  if (d2(LAYOUT.shop.x, LAYOUT.shop.z) < 2.8) return { kind: 'shop', label: '<b>E</b> — Shop 🛒' };
+  if (d2(LAYOUT.shop.x, LAYOUT.shop.z) < 2.8) return { kind: 'shop', label: t('shopLabel') };
 
   const bi = farm.nearestBerry(p, 1.7);
-  if (bi >= 0) return { kind: 'berry', i: bi, label: '<b>E</b> — Pick berries 🫐' };
+  if (bi >= 0) return { kind: 'berry', i: bi, label: t('pickBerries') };
 
   const pi = farm.nearestPlot(p, 1.6);
   if (pi >= 0) {
     const plot = state.plots[pi];
     const lock = attended() ? '' : ' 🔒';
     if (plot.crop && plot.stage >= CROPS[plot.crop].days)
-      return { kind: 'harvest', i: pi, label: `<b>E</b> — Harvest ${CROPS[plot.crop].emoji}${lock}` };
+      return { kind: 'harvest', i: pi, label: t('harvestLabel', CROPS[plot.crop].emoji) + lock };
     const tool = ui.tool, seed = ui.seedType;
     if (seed && plot.tilled && !plot.crop)
-      return { kind: 'plant', i: pi, t: seed, label: `<b>E</b> — Plant ${CROPS[seed].emoji} ${CROPS[seed].name}${lock}` };
-    if (seed && !plot.tilled) return { kind: 'info', label: 'Till this first — press 1 for the shovel 🪏' };
-    if (tool === 'shovel' && !plot.tilled) return { kind: 'till', i: pi, label: `<b>E</b> — Till soil 🪏${lock}` };
+      return { kind: 'plant', i: pi, t: seed, label: t('plantLabel', CROPS[seed].emoji, NameOf(seed)) + lock };
+    if (seed && !plot.tilled) return { kind: 'info', label: t('tillFirst') };
+    if (tool === 'shovel' && !plot.tilled) return { kind: 'till', i: pi, label: t('tillLabel') + lock };
     if (tool === 'bucket' && plot.tilled && !plot.watered) {
-      if (state.water <= 0) return { kind: 'info', label: '🪣 Bucket empty — fill it at the well' };
-      return { kind: 'water', i: pi, label: `<b>E</b> — Water 🪣 ${state.water}/${BUCKET_CAP}${lock}` };
+      if (state.water <= 0) return { kind: 'info', label: t('bucketEmptyLabel') };
+      return { kind: 'water', i: pi, label: t('waterLabel', state.water, BUCKET_CAP) + lock };
     }
-    if (plot.tilled && plot.watered && plot.crop) return { kind: 'info', label: 'Watered for today ✓' };
-    if (plot.tilled && !plot.crop) return { kind: 'info', label: 'Click a seed bag in your inventory 🌱' };
+    if (plot.tilled && plot.watered && plot.crop) return { kind: 'info', label: t('wateredLabel') };
+    if (plot.tilled && !plot.crop) return { kind: 'info', label: t('pickSeedBag') };
     return { kind: 'none' };
   }
 
@@ -280,62 +283,62 @@ function computeTarget() {
     const lock = attended() ? '' : ' 🔒';
     const tool = ui.tool;
     if (!h.cut) {
-      if (tool === 'sword') return { kind: 'cutHay', i: hi, label: `<b>E</b> — Cut hay ⚔️${lock}` };
-      return { kind: 'info', label: 'Tall hay — press 3 for the sword ⚔️' };
+      if (tool === 'sword') return { kind: 'cutHay', i: hi, label: t('cutHayLabel') + lock };
+      return { kind: 'info', label: t('hayNeedSword') };
     }
     if (!h.watered) {
       if (tool === 'bucket') {
-        if (state.water <= 0) return { kind: 'info', label: '🪣 Bucket empty — fill it at the well' };
-        return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🪣 ${state.water}/${BUCKET_CAP}${lock}` };
+        if (state.water <= 0) return { kind: 'info', label: t('bucketEmptyLabel') };
+        return { kind: 'waterHay', i: hi, label: t('waterStubble', state.water, BUCKET_CAP) + lock };
       }
-      return { kind: 'info', label: 'Water the stubble and it regrows overnight 🚿' };
+      return { kind: 'info', label: t('stubbleHint') };
     }
-    return { kind: 'info', label: 'Regrows tomorrow ✓' };
+    return { kind: 'info', label: t('regrowsTomorrow') };
   }
 
   const ti = farm.nearestTree(p, 2.2);
   if (ti >= 0) {
-    if (!state.tools.axe) return { kind: 'info', label: 'You need an axe — check the shop 🛒' };
+    if (!state.tools.axe) return { kind: 'info', label: t('needAxe') };
     const lock = attended() ? '' : ' 🔒';
-    return { kind: 'chop', i: ti, label: `<b>E</b> — Chop tree 🪓${lock}` };
+    return { kind: 'chop', i: ti, label: t('chopLabel') + lock };
   }
 
   const mi = farm.nearestMine(p, 2.2);
   if (mi >= 0) {
-    if (!state.tools.pickaxe) return { kind: 'info', label: 'You need a pickaxe — check the shop 🛒' };
+    if (!state.tools.pickaxe) return { kind: 'info', label: t('needPickaxe') };
     const lock = attended() ? '' : ' 🔒';
     const node = MINE_NODES[state.mine[mi].type];
-    return { kind: 'mine', i: mi, label: `<b>E</b> — Mine ${node.emoji} ${node.name}${lock}` };
+    return { kind: 'mine', i: mi, label: t('mineLabel', node.emoji, NameOf(node.drop)) + lock };
   }
 
   // Pond edge: fish (rod selected) — pond is decor otherwise.
   if (d2(LAYOUT.pond.x, LAYOUT.pond.z) < LAYOUT.pond.r + 1.6) {
-    if (!state.tools.rod) return { kind: 'info', label: 'Fish are jumping! Buy a rod at the shop 🎣' };
-    if (ui.tool !== 'rod') return { kind: 'info', label: 'Press 6 for the fishing rod 🎣' };
+    if (!state.tools.rod) return { kind: 'info', label: t('fishJumping') };
+    if (ui.tool !== 'rod') return { kind: 'info', label: t('pressRod') };
     const lock = attended() ? '' : ' 🔒';
-    return { kind: 'fish', label: `<b>E</b> — Cast the line 🎣${lock}` };
+    return { kind: 'fish', label: t('castLabel') + lock };
   }
   return { kind: 'none' };
 }
 
 function interact() {
   if (!started || ui.anyPanelOpen() || quiz.isOpen()) return;
-  const t = computeTarget();
-  switch (t.kind) {
+  const tg = computeTarget();
+  switch (tg.kind) {
     case 'school': startClass(); break;
     case 'sleep': doSleep(); break;
     case 'ship': ui.openShip(); break;
     case 'well': useWell(); break;
     case 'shop': ui.openShop(); break;
-    case 'berry': { const r = farm.actions.pickBerry(t.i); if (r.ok) { sfx.harvest(); ui.toast('🫐 Wild berries!'); ui.refresh(); } break; }
-    case 'harvest': act.harvest(t.i); break;
-    case 'till': act.till(t.i); break;
-    case 'plant': act.plant(t.i, t.t); break;
-    case 'water': act.water(t.i); break;
-    case 'chop': act.chop(t.i); break;
-    case 'cutHay': act.cutHay(t.i); break;
-    case 'waterHay': act.waterHay(t.i); break;
-    case 'mine': act.mine(t.i); break;
+    case 'berry': { const r = farm.actions.pickBerry(tg.i); if (r.ok) { sfx.harvest(); ui.toast(t('berriesToast')); ui.refresh(); } break; }
+    case 'harvest': act.harvest(tg.i); break;
+    case 'till': act.till(tg.i); break;
+    case 'plant': act.plant(tg.i, tg.t); break;
+    case 'water': act.water(tg.i); break;
+    case 'chop': act.chop(tg.i); break;
+    case 'cutHay': act.cutHay(tg.i); break;
+    case 'waterHay': act.waterHay(tg.i); break;
+    case 'mine': act.mine(tg.i); break;
     case 'fish': act.fish(); break;
     case 'fishPress': fishing.press(); break;
   }
@@ -360,9 +363,9 @@ function onClassComplete(sum) {
   state.timeMin += TIME.CLASS_LENGTH;   // class takes an in-game hour
   ui.refresh();
   daycycle.applyInstant(state);
-  let msg = `Class done — +${sum.coins} 🪙`;
-  if (sum.specialSeed) msg += ` · ${CROPS[sum.seedAwarded].emoji} rare seed!`;
-  if (sum.sticker) msg += ' · 🌟 sticker!';
+  let msg = t('classDone', sum.coins);
+  if (sum.specialSeed) msg += t('rareSeed', CROPS[sum.seedAwarded].emoji);
+  if (sum.sticker) msg += t('stickerToast');
   ui.toast(msg, 4200);
   save.save(state);
 }
@@ -399,12 +402,11 @@ function ship(item, n) {
   if (move <= 0) return { ok: false, reason: 'none' };
   const base = (SELLABLE[item] ?? 0) * move;
   const earned = Math.round(base * (1 + (state.saleBonus || 0)));
-  const bonusText = earned > base ? ` (🦀 +${earned - base})` : '';
   state.saleBonus = 0;
   state.inventory[item] -= move;
   state.coins += earned;
   sfx.coin();
-  ui.toast(`+${earned} 🪙${bonusText}`);
+  ui.toast(earned > base ? t('soldBonus', earned, earned - base) : t('sold', earned));
   ui.autoStow();
   ui.refresh();
   return { ok: true, moved: move, earned };
@@ -436,10 +438,10 @@ function startGame(loaded) {
     onCatch: (type) => {
       state.inventory[type] = (state.inventory[type] ?? 0) + 1;
       sfx.catch_();
-      ui.toast(type === 'goldfish' ? '🐠 A GOLDFISH! Lucky catch!' : '🐟 Fish caught!', 3000);
+      ui.toast(type === 'goldfish' ? t('goldfishToast') : t('fishToast'), 3000);
       ui.refresh();
     },
-    onMiss: () => { sfx.deny(); ui.toast('It got away… cast again! 🎣'); },
+    onMiss: () => { sfx.deny(); ui.toast(t('gotAway')); },
     onBite: () => sfx.bite(),
     toast: (m) => ui.toast(m),
   });
@@ -464,7 +466,7 @@ function startGame(loaded) {
   document.getElementById('hud').hidden = false;
   started = true;
   if (!loaded && !QA_SCENE) {
-    setTimeout(() => ui.toast('Welcome! Professor Krabsy is waiting at the school 🦀', 4200), 600);
+    setTimeout(() => ui.toast(t('welcome'), 4200), 600);
   }
   installQA();
 }
@@ -490,7 +492,7 @@ function frame() {
         && state.timeMin - lastNagMin > 45) {
       lastNagMin = state.timeMin;
       sfx.bell(); bellSwing = 1;
-      ui.bubble(BELL_POS, '🔔 Ding-ding! English class!', 2600);
+      ui.bubble(BELL_POS, t('bellNag'), 2600);
     }
 
     // Walking away cancels a fishing session.
@@ -509,8 +511,8 @@ function frame() {
     }
 
     if (!ui.anyPanelOpen() && !school.active && !quiz.isOpen()) {
-      const t = computeTarget();
-      ui.prompt(t.kind === 'none' ? null : t.label);
+      const tg = computeTarget();
+      ui.prompt(tg.kind === 'none' ? null : tg.label);
     } else ui.prompt(null);
 
     ui.updateHUD();

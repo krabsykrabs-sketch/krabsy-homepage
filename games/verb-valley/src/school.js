@@ -8,6 +8,7 @@ import { sfx } from './audio.js';
 import { CROPS, SCHOOL_LADDER } from './config.js';
 import * as Q from './questions.js';
 import * as quiz from './quiz.js';
+import { t, NameOf } from './i18n.js';
 
 const W = 768, H = 512;
 export const CLASS_QUESTIONS = 4;
@@ -52,20 +53,20 @@ export function createSchool(state, bb, hooks) {
     ctx.fillStyle = '#1e3a2f'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; chalk(ctx);
     ctx.font = '54px "Fredoka One", cursive';
-    ctx.fillText('Class over!', W / 2, 120);
+    ctx.fillText(t('boardOver'), W / 2, 120);
     ctx.font = '44px Nunito, sans-serif';
     ctx.fillText(`${sum.correct} / ${sum.total} ✓`, W / 2, 200);
     ctx.fillStyle = '#ffcf5e';
-    ctx.fillText(`+${sum.coins} coins`, W / 2, 270);
+    ctx.fillText(t('boardCoins', sum.coins), W / 2, 270);
     let y = 340;
     if (sum.specialSeed) {
       const c = CROPS[sum.seedAwarded];
       ctx.fillStyle = '#2ee6c0';
-      ctx.fillText(`${c.emoji} ${c.name} seed!`, W / 2, y); y += 64;
+      ctx.fillText(t('boardSeed', c.emoji, NameOf(sum.seedAwarded)), W / 2, y); y += 64;
     }
-    if (sum.sticker) { ctx.fillStyle = '#ff8585'; ctx.fillText('🌟 Star sticker!', W / 2, y); }
+    if (sum.sticker) { ctx.fillStyle = '#ff8585'; ctx.fillText(t('boardSticker'), W / 2, y); }
     ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '30px Nunito, sans-serif';
-    ctx.fillText('The farm is open!', W / 2, 470);
+    ctx.fillText(t('boardOpen'), W / 2, 470);
     tex.needsUpdate = true;
   }
 
@@ -80,7 +81,7 @@ export function createSchool(state, bb, hooks) {
     for (const unit of units) {
       if (asked >= CLASS_QUESTIONS) break;
       const r = await quiz.ask(unit, {
-        title: 'Professor Krabsy’s class',
+        title: t('classTitle'),
         reward: () => `+${COINS_PER_RIGHT} 🪙`,
         onShow: (step) => { sfx.chalk(); drawStep(step); },
         onStep: (i, ok) => {

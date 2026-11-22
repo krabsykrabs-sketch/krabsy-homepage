@@ -3,6 +3,7 @@
 // game.js drives it: start() on E at the pond, press() on E during play,
 // tick(dt) every frame. Moving cancels (game.js calls cancel()).
 
+import { t } from './i18n.js';
 import * as THREE from 'three';
 import { LAYOUT, FISHING } from './config.js';
 
@@ -56,7 +57,7 @@ export function createFishing(scene, player, hooks) {
     if (phase === 'waiting' || phase === 'casting') {
       // reeled in too early — quietly reset
       cancel();
-      hooks.toast?.('Too soon — wait for the bite! 🎣');
+      hooks.toast?.(t('tooSoon'));
       return { ok: false, reason: 'too-soon' };
     }
     return { ok: false, reason: 'not-fishing' };

@@ -205,7 +205,7 @@
 </head>
 <body>
 <canvas id="game"></canvas>
-<div id="loading">🦀 Loading the valley…</div>
+<div id="loading" data-i18n="loading">🦀 Loading the valley…</div>
 <div id="vignette"></div>
 
 <!-- HUD -->
@@ -213,20 +213,20 @@
   <div id="hud-topleft">
     <span class="chip" id="hud-day">Day 1</span>
     <span class="chip" id="hud-clock">06:00</span>
-    <button class="chip" id="hud-album" title="Crop album">📖 0/12</button>
+    <button class="chip" id="hud-album" data-i18n-title="albumTip">📖 0/12</button>
   </div>
   <div id="hud-topright">
     <span class="chip" id="hud-stickers"></span>
-    <span class="chip" id="hud-water" title="Water in the bucket">🪣 <span id="hud-water-n">6</span></span>
+    <span class="chip" id="hud-water" data-i18n-title="waterTip">🪣 <span id="hud-water-n">6</span></span>
     <span class="chip" id="hud-coins-wrap">🪙 <span id="hud-coins">0</span></span>
     <button id="btn-sound">🔊</button>
   </div>
-  <div id="gate-pill">🔒 Farm tools unlock after school</div>
+  <div id="gate-pill" data-i18n="gatePill"></div>
   <div id="inventory">
-    <span class="inv-label">Seeds</span>
+    <span class="inv-label" data-i18n="invSeeds"></span>
     <div id="inv-seeds"></div>
     <div id="inv-items-wrap" hidden>
-      <span class="inv-label">Harvest</span>
+      <span class="inv-label" data-i18n="invHarvest"></span>
       <div id="inv-items"></div>
     </div>
   </div>
@@ -239,8 +239,8 @@
 <!-- Shop -->
 <div class="panel" id="shop-panel" hidden>
   <button class="close" id="shop-close">✕</button>
-  <h2>🛒 Valley Shop</h2>
-  <p class="sub">Seeds &amp; tools — fresh every day</p>
+  <h2 data-i18n="shopTitle"></h2>
+  <p class="sub" data-i18n="shopSub"></p>
   <div id="shop-list"></div>
   <p id="shop-coins"></p>
 </div>
@@ -248,8 +248,8 @@
 <!-- Shipping crate -->
 <div class="panel" id="ship-panel" hidden>
   <button class="close" id="ship-close">✕</button>
-  <h2>📦 Sell Produce</h2>
-  <p class="sub">Coins on the spot — straight into your pocket</p>
+  <h2 data-i18n="shipTitle"></h2>
+  <p class="sub" data-i18n="shipSub"></p>
   <div id="ship-deal"></div>
   <div id="ship-list"></div>
   <p id="ship-crate"></p>
@@ -258,8 +258,8 @@
 <!-- Crop album -->
 <div class="panel" id="album-panel" hidden>
   <button class="close" id="album-close">✕</button>
-  <h2>📖 Crop Album</h2>
-  <p class="sub">Grow every crop in the valley!</p>
+  <h2 data-i18n="albumTitle"></h2>
+  <p class="sub" data-i18n="albumSub"></p>
   <div id="album-list"></div>
   <div id="album-bar"><div id="album-fill"></div></div>
   <p id="album-progress"></p>
@@ -271,7 +271,7 @@
     <h2 id="sleep-title">🌙 Good night!</h2>
     <p id="sleep-day">Day 2</p>
     <div id="sleep-body"></div>
-    <button class="big-btn" id="sleep-continue">Rise &amp; shine ☀️</button>
+    <button class="big-btn" id="sleep-continue" data-i18n="riseShine"></button>
   </div>
 </div>
 
@@ -280,15 +280,15 @@
   <div class="start-card">
     <div class="mascot">🦀🌱</div>
     <h1>Verb Valley</h1>
-    <p class="tag">Grandpa's farm needs you — and so does English class!</p>
+    <p class="tag" data-i18n="tag"></p>
     <div class="howto">
-      <div><span class="em">🏫</span><span>Attend Professor Krabsy's class each morning<small>4 quick questions — they open the farm and pay coins &amp; rare seeds</small></span></div>
-      <div><span class="em">🌱</span><span>Then farm the day away<small>Till, plant, water — fill your bucket at the well with one more word</small></span></div>
-      <div><span class="em">📦</span><span>Sell your harvest, grow your fortune<small>WASD move · E interact · 1–6 tools · click a seed bag to hold it</small></span></div>
-      <div><span class="em">⛏</span><span>Mine the quarry &amp; fish the pond<small>Buy the pickaxe and rod at the shop as you earn</small></span></div>
+      <div><span class="em">🏫</span><span><span data-i18n="how1"></span><small data-i18n="how1s"></small></span></div>
+      <div><span class="em">🌱</span><span><span data-i18n="how2"></span><small data-i18n="how2s"></small></span></div>
+      <div><span class="em">📦</span><span><span data-i18n="how3"></span><small data-i18n="how3s"></small></span></div>
+      <div><span class="em">⛏</span><span><span data-i18n="how4"></span><small data-i18n="how4s"></small></span></div>
     </div>
     <div class="start-btns">
-      <button class="big-btn" id="btn-continue" hidden>Continue</button>
+      <button class="big-btn" id="btn-continue" hidden data-i18n="btnContinue"></button>
       <button class="big-btn" id="btn-new">Start Farming</button>
     </div>
   </div>
