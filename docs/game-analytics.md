@@ -73,8 +73,12 @@ first wave). `seconds` = active play time of the level.
 
 - **Verb Kitchen:** `level_start/level_end` (+ `stars, orders, dishes_burnt`),
   `order_served`, `plate_washed`.
-- **Verb Dungeon:** `level_start/level_end` (+ `rooms, keys, hits_taken`),
-  `room_cleared {level, room, seconds}`, `door_opened`, `player_down`.
+- **Verb Dungeon (built 2026-11-22, baeb208):** `level_start {level}`,
+  `room_done {level, room, type, seconds, hits_taken}`, `player_dizzy {level,
+  room, type}`, `boss_round {level, boss, result, form, pips}`, `level_end
+  {level, result: 'won', stars, seconds, answers, correct, first_try,
+  questions, coins, rooms, hits_taken, dizzy}`. There is no `lost` (0 hearts
+  restarts the room); quitting shows as "left".
 - **Verb Platformer:** built 2026-11-22 (`games/verb-platformer/src/analytics.js`):
   `level_start {level}`, `gate_passed {level, gate, first_try, seconds}`,
   `wrong_answer {level, gate}`, `fell {level, gate, cause: gap|wrong|hazard}`

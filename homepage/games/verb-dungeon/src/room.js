@@ -101,6 +101,32 @@ const circleTex = (() => { // a rune ring: amber rings, teal runes between them,
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 })();
 // A lectern with an open book, from primitives, facing the camera (+z). About 1.4 tall.
+// The book is not baked into the stand: it is two halves hinged at the spine (`book.halves`),
+// so main.js can close it once it is read (play-test note 14: the left half folds over onto
+// the right one, the closed book slides to the middle). Pivot = the spine at the height of
+// the page tops, so the folded half lands on top, cover up.
+const BOOK_PIVOT = [0, 0.135, -0.01];
+function bookHalf(side) { // side −1 = left, 1 = right; each half baked to one mesh per material
+  const geos = new Map();
+  const add = (geo, mat, x, y, z, rz = 0) => {
+    const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.z = rz; m.updateMatrix();
+    if (!geos.has(mat)) geos.set(mat, []);
+    geos.get(mat).push(geo.clone().applyMatrix4(m.matrix));
+    geo.dispose();
+  };
+  const [, py, pz] = BOOK_PIVOT;
+  add(new THREE.BoxGeometry(0.43, 0.04, 0.6), bookMats.cover, side * 0.215, 0.06 - py, -0.01 - pz);
+  add(new THREE.BoxGeometry(0.4, 0.05, 0.54), bookMats.page, side * 0.21, 0.1 - py, -0.01 - pz, -side * 0.12); // open pages, a small V
+  for (let i = 0; i < 4; i++) add(new THREE.BoxGeometry(0.28, 0.01, 0.03), bookMats.dark, side * 0.21, 0.13 - py, -0.18 + i * 0.11 - pz, -side * 0.12);
+  const g = new THREE.Group();
+  for (const [mat, list] of geos) {
+    const mesh = new THREE.Mesh(mergeGeometries(list, false), mat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    g.add(mesh);
+    for (const x of list) x.dispose();
+  }
+  return g;
+}
 function makeLectern() {
   const o = new THREE.Group();
   const add = (geo, mat, x, y, z, rx = 0, rz = 0) => {
@@ -113,13 +139,7 @@ function makeLectern() {
   const tAdd = (geo, mat, x, y, z, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.z = rz; m.castShadow = true; top.add(m); return m; };
   tAdd(new THREE.BoxGeometry(0.95, 0.07, 0.68), bookMats.wood, 0, 0, 0);
   tAdd(new THREE.BoxGeometry(0.95, 0.06, 0.06), bookMats.dark, 0, 0.05, 0.33); // the ledge the book rests on
-  tAdd(new THREE.BoxGeometry(0.86, 0.04, 0.6), bookMats.cover, 0, 0.06, -0.01);
-  const pageGeo = new THREE.BoxGeometry(0.4, 0.05, 0.54);
-  tAdd(pageGeo, bookMats.page, -0.21, 0.1, -0.01, 0.12); // open pages, a small V
-  tAdd(pageGeo, bookMats.page, 0.21, 0.1, -0.01, -0.12);
-  const lineGeo = new THREE.BoxGeometry(0.28, 0.01, 0.03);
-  for (const side of [-1, 1]) for (let i = 0; i < 4; i++) tAdd(lineGeo, bookMats.dark, side * 0.21, 0.13, -0.18 + i * 0.11, -side * 0.12);
-  // Baked into one mesh per material (4 draw calls instead of 15).
+  // The stand is baked into one mesh per material (2 draw calls), the book halves 3 each.
   o.updateMatrixWorld(true);
   const byMat = new Map();
   o.traverse((m) => {
@@ -136,6 +156,11 @@ function makeLectern() {
     for (const g of geos) g.dispose();
   }
   o.traverse((m) => { if (m.isMesh) m.geometry.dispose(); });
+  const top2 = new THREE.Group(); top2.position.copy(top.position); top2.rotation.copy(top.rotation);
+  const spine = new THREE.Group(); spine.position.set(...BOOK_PIVOT);
+  const halves = [bookHalf(-1), bookHalf(1)];
+  spine.add(...halves); top2.add(spine); out.add(top2);
+  out.userData.book = { spine, halves };
   return out;
 }
 
@@ -334,7 +359,8 @@ export function buildRoom(def) {
     const glow = makeGlow(0xffd98a, 1.5); glow.position.set(bx, 1.85, bz + 0.2); glow.material.opacity = 0.55;
     group.add(glow); extras.push(glow.material);
     obstacles.push({ x: bx, z: bz, r: 0.6 });
-    book = { x: bx, z: bz, r: BOOK.r, obj: stand, circle, glow, done: false, mark: null, pair: null };
+    book = { x: bx, z: bz, r: BOOK.r, obj: stand, circle, glow, done: false, mark: null, pair: null,
+      ...stand.userData.book, shut: 0 }; // shut: 0 open … 1 closed (main.js updateBook)
   }
 
   // Chest with a lid that can open.

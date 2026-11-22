@@ -77,6 +77,6 @@ keys. Keep the Verb Cookbook reading the shared stats
 | Verb Slash | `games/verb-slash/` (inlined into wrappers) | verb-slash session | no |
 | Verb Kitchen | `games/verb-kitchen/` (+ step 3) | verb-kitchen session | no |
 | Verb Towers | `games/tower-defense/` | tower-defense session | **yes, 2026-11-22** (master, release prep) — smart words first in the pool at start and each new run; every forge answer recorded |
-| Verb Dungeon | `games/verb-dungeon/` | verb-dungeon session | no — before release |
+| Verb Dungeon | `games/verb-dungeon/` | verb-dungeon session | **yes, 2026-11-22** (baeb208) — first answer per question recorded (book, chest, boss, rune doors, bridge); verbs via `getChainSet({ smart: true })` per tier |
 | Verb Platformer | `games/verb-platformer/` | verb-platformer session | **yes, 2026-11-22** — each level's first verbs come from `getChainSet({ smart: true })` (tiers of the level kept); the first answer at each gate recorded (`past` for the 2nd form, `participle` for the 3rd), retries after a fall not; editor playtests record nothing |
 | Drills | `homepage/de|es/…` | master | **yes, 2026-11-22** — Sprint (verbs + prepositions, DE + ES) uses `getQuestions({ smart: true })`; free practice "all" (4 pages) and verb flashcards "all" (DE + ES) use `pickSmartItems()`. They already recorded answers. Prepositions flashcards and the speed drills in `homepage/games/*.html` (type-race, fill-the-gap, drag-match, falling-forms) neither record nor use the mix yet |
