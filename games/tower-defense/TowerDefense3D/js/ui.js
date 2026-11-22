@@ -8,7 +8,7 @@ import { Questions } from './questions.js';
 import { Wave } from './wave.js';
 import { t, towerText, levelText } from './i18n.js';
 import {
-  LEVELS, state, startGame, endGame, resetRun, nextLevel, hasNextLevel,
+  LEVELS, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
   getHighscore, getStars, isUnlocked, upgradeTower, sellTower,
 } from './main.js';
 
@@ -58,7 +58,7 @@ export const UI = {
     this._lastBannerWave = 0;
     this._quitOpen = false;
     this._hintSig = null;
-    this.els.muteBtn.textContent = Sound.muted ? '🔇' : '🔊';
+    this._soundIcon();
   },
 
   _buildTowerButtons() {
@@ -80,6 +80,13 @@ export const UI = {
       `;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        // Not enough coins: the card shakes and a dull tock plays (no text needed).
+        if (state.coins < def.cost && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
+          btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
+          Sound.play('nope');
+          btn.blur();
+          return;
+        }
         Input.toggleTowerPlacement(type);
         btn.blur();
       });
@@ -214,8 +221,8 @@ export const UI = {
     });
 
     this.els.muteBtn.addEventListener('click', () => {
-      const muted = Sound.toggleMute();
-      this.els.muteBtn.textContent = muted ? '🔇' : '🔊';
+      Sound.cycleMode();
+      this._soundIcon();
       this.els.muteBtn.blur();
     });
 
@@ -338,6 +345,11 @@ export const UI = {
     this.els.towerButtons.classList.toggle('hint-pulse', !!h && h.target === 'towers');
   },
 
+  // Speaker button: 🔊 all, 🔈 effects only (no music), 🔇 off.
+  _soundIcon() {
+    this.els.muteBtn.textContent = { all: '🔊', sfx: '🔈', off: '🔇' }[Sound.mode];
+  },
+
   _renderHearts(state) {
     const max = Level.current.startingLives;
     const sig = `${state.lives}/${max}`;
@@ -350,13 +362,19 @@ export const UI = {
     }
     this.els.livesContainer.innerHTML = html;
     this.els.livesCompact.textContent = `♥ ${state.lives}`; // shown instead on phones
+    const danger = state.lives > 0 && state.lives <= dangerLives();
+    this.els.livesContainer.parentElement.classList.toggle('danger', danger);
+    document.getElementById('danger-vignette').classList.toggle('on', danger);
   },
 
   // ── Game over / victory, with the verbs to practise ─────────────────
 
   _renderEndScreens(state) {
-    const showGO = state.phase === 'GAME_OVER';
-    const showV = state.phase === 'VICTORY';
+    // The defeat / victory scene plays first; the panel comes when it ends (tap skips).
+    const ready = state.endT <= 0;
+    const showGO = state.phase === 'GAME_OVER' && ready;
+    const showV = state.phase === 'VICTORY' && ready;
+    document.getElementById('danger-vignette').classList.toggle('defeat', state.phase === 'GAME_OVER');
     this.els.gameOverOv.classList.toggle('hidden', !showGO);
     this.els.victoryOv.classList.toggle('hidden', !showV);
     if (!showGO && !showV) { this._endSig = null; return; }
@@ -368,6 +386,10 @@ export const UI = {
     const best = t('best', Math.max(getHighscore(), state.currentWave));
     const recap = this._recapHtml(state);
     if (showGO) {
+      // How far you got, as dots: one per wave, filled up to the wave reached.
+      let dots = '';
+      for (let i = 1; i <= total; i++) dots += `<span class="wdot ${i < state.currentWave ? 'done' : i === state.currentWave ? 'lost' : ''}"></span>`;
+      document.getElementById('go-dots').innerHTML = dots;
       this.els.goSub.textContent = t('reached', state.currentWave, total);
       this.els.goBest.textContent = best;
       this.els.goRecap.innerHTML = recap;
@@ -377,6 +399,9 @@ export const UI = {
       this.els.vcSub.textContent = t('victorySub', total);
       this.els.vcBest.textContent = best;
       this.els.vcRecap.innerHTML = recap;
+      // Stars slam in one by one, each with its own note, then confetti.
+      for (let i = 0; i < state.starsEarned; i++) setTimeout(() => Sound.play('star', i), 350 + i * 330);
+      setTimeout(() => this._spawnConfetti(this.els.victoryOv.querySelector('.overlay-panel'), 48), 350 + state.starsEarned * 330);
     }
   },
 
@@ -589,9 +614,9 @@ export const UI = {
 
   // Coloured squares bursting from the panel centre; each gets a random trajectory
   // via CSS custom properties and is removed when its animation ends.
-  _spawnConfetti(panel) {
+  _spawnConfetti(panel, count = 24) {
     const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#ffffff'];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < count; i++) {
       const c = document.createElement('span');
       c.className = 'confetti';
       const angle = Math.random() * Math.PI * 2;

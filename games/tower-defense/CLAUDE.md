@@ -246,6 +246,9 @@ implemented as preview-approved by the owner (Status log, "round 2").
      `?music=off` for teachers.
    - Open decisions: music style; music on or off by default; defeat
      sequence skippable; bosses rising out of the ground.
+   Owner chose (2026-11-22): build the first batch; music style **soft
+   medieval**; music **on but quiet** by default. Built (Status log,
+   "round 6").
 
 ## Status log
 
@@ -627,3 +630,42 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     of coins). If the owner wants more challenge for strong players, the
     next levers are fewer coins per answer later in a level, or tougher
     late waves; not done yet.
+- 2026-11-22 — **Round 6 (owner note 6): clear moments, sound and music.**
+  - **The castle is the health bar** (`renderer.js` `_addCastle`,
+    `_castleHit`, `_syncCastles`): each castle is its own object with its
+    own material. An enemy at the gate (`Effects.spawnCastleHit`) makes the
+    castle flash coral and squash, throws dust and stone chips, shakes the
+    camera briefly (not with prefers-reduced-motion) and sends a heart
+    from the castle to the HUD hearts. Smoke rises below 60 % lives,
+    smoke + flames below 30 %.
+  - **Low lives** (`dangerLives()` = 30 % of the start lives, at least 2):
+    HUD hearts pulse coral, a red edge breathes (`#danger-vignette`), and
+    a heartbeat joins the music.
+  - **Defeat scene** (`state.endT` 2.6 s, a tap or key skips): the world
+    greys out, skeletons freeze, the camera glides to the castle, it
+    collapses into `building_destroyed` in a dust cloud with smoke, then
+    the panel: a broken heart, the title, and one dot per wave (teal =
+    survived, coral = where it fell). "Play again" restores the castle
+    (`Renderer.onRunReset`).
+  - **Victory** (1.6 s): the towers pop one after another, then the panel
+    with a castle icon; stars slam in one by one, each with a rising note,
+    then confetti.
+  - **Not enough coins:** the tower card shakes and a dull "tock" plays.
+  - **Audio** (`js/audio.js` rewritten, still 0 bytes of files): master
+    about half as loud as before, music clearly under effects. The speaker
+    button cycles all 🔊 → effects only 🔈 → off 🔇 (`td3d_sound`);
+    `?sound=off` / `?music=off` for teacher links; audio pauses when the
+    tab is hidden. Per-sound rate caps (arrows, deaths, explosions,
+    coins). New sounds: castle hit, wave horn, star slams, "nope", a
+    castle-collapse defeat jingle, softer wrong answer.
+  - **Music, soft medieval** in D dorian (Dm–C–Bb–C, 100 bpm): plucked
+    lute arpeggios, soft bass, a breathy flute phrase every second bar.
+    Battle adds a frame drum and a walking bass; the end screens stop the
+    music; low lives add a heartbeat (`Sound.setMood`, `setDanger`).
+  - Checked in headless Chromium (1366×768, German): sound button cycle,
+    "nope" shake, castle hit with chips and heart, danger state, defeat
+    scene and panel with dots, play again restores the castle, victory
+    with three stars. No console errors. Not heard by a human yet — the
+    music and sounds need the owner's ears.
+  - Not built yet (second batch): boss entrance and boss health bar, boss
+    music, wave-start pips and icon banner, streak flame, build dust.

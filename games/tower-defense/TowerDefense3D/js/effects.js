@@ -178,6 +178,14 @@ export const Effects = {
 
   // Red vignette flash when a life is lost. 0.35s, fading. Drawn once globally —
   // multiple overlapping flashes would just look muddy, so dedupe to a single one.
+  // An enemy reached the castle: the renderer shakes the castle and the camera and
+  // sends a heart to the HUD; here only the dust and stone chips at the gate.
+  spawnCastleHit(position) {
+    state.effects.push({ kind: 'castleHit', position: { x: position.x, y: position.y }, duration: 0.5, elapsed: 0, isAlive: true });
+    this.spawnKillParticles(position, '#c9b79c');
+    this.spawnKillParticles(position, '#8a8f98');
+  },
+
   spawnScreenFlash() {
     for (const fx of state.effects) {
       if (fx.kind === 'screenFlash') { fx.elapsed = 0; return; } // refresh existing

@@ -57,6 +57,8 @@ export const state = {
   // Tutorial coach: { key, target } and cells to highlight (see tutorial.js).
   hint: null,
   hintCells: [],
+  // Seconds left of the defeat / victory scene before the end panel shows (tap skips).
+  endT: 0,
   // Stars earned by the last victory (1–3), 0 otherwise.
   starsEarned: 0,
 
@@ -119,6 +121,11 @@ async function init() {
   requestAnimationFrame(gameLoop);
 }
 
+// Lives at which the low-lives warning starts (heartbeat, pulsing hearts, red edge).
+export function dangerLives() {
+  return Math.max(2, Math.round(Level.current.startingLives * 0.3));
+}
+
 export function resetRun() {
   state.phase = 'BUILD';
   state.enemies.length = 0;
@@ -140,6 +147,8 @@ export function resetRun() {
   state.hint = null;
   state.hintCells = [];
   state.starsEarned = 0;
+  state.endT = 0;
+  Renderer.onRunReset();
   Questions.resetRun();
   state.highscoreSaved = false;
   Grid.init(Level.current);
@@ -262,7 +271,14 @@ function update(dt, realDt = dt) {
     UI.update(state);
     return;
   }
+  // Music follows the game: calm in menus and while building, drums in battle,
+  // silence (and a jingle) at the end; a heartbeat when lives run low.
+  Sound.setMood({ BATTLE: 'battle', GAME_OVER: 'end', VICTORY: 'end' }[state.phase] || 'build');
+  Sound.setDanger((state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE')
+    && state.lives > 0 && state.lives <= dangerLives());
+
   if (state.phase === 'GAME_OVER' || state.phase === 'VICTORY') {
+    if (state.endT > 0) state.endT = Math.max(0, state.endT - realDt);
     saveHighscore();
     // Effects still tick so any tail-end flashes / particles fade gracefully under the overlay.
     Effects.update(dt, state);
@@ -278,6 +294,7 @@ function update(dt, realDt = dt) {
       if (state.currentWave >= Level.current.totalWaves) {
         state.phase = 'VICTORY';
         state.starsEarned = starsFor(state.lives, Level.current.startingLives);
+        state.endT = 1.6;
         Sound.play('victory');
       } else {
         state.phase = 'BUILD';
@@ -296,6 +313,7 @@ function update(dt, realDt = dt) {
 
   if (state.lives <= 0 && state.phase !== 'VICTORY') {
     state.phase = 'GAME_OVER';
+    state.endT = 2.6;
     Sound.play('gameOver');
   }
 
@@ -323,5 +341,10 @@ function gameLoop(timestamp) {
 
 // Handle for automated play-tests and debugging in the browser console.
 window.__td = { state, Renderer, Level, Grid, Forge, Questions, Wave, Input, CONFIG, step: update, startGame };
+
+// A tap or key during the defeat / victory scene skips to the end panel.
+for (const ev of ['pointerdown', 'keydown']) {
+  window.addEventListener(ev, () => { if (state.endT > 0) state.endT = 0; });
+}
 
 window.addEventListener('load', init);

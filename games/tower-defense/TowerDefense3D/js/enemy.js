@@ -170,8 +170,9 @@ export class Enemy {
     this.isAlive = false;
     if (state) {
       state.lives = Math.max(0, state.lives - 1);
+      Effects.spawnCastleHit(this.position);
       Effects.spawnScreenFlash();
-      Sound.play('lifeLost');
+      Sound.play('castleHit');
     }
   }
 }

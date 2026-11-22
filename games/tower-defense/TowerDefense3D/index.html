@@ -38,6 +38,8 @@
         </div>
 
         <div id="wave-banner" class="hidden"></div>
+        <!-- Red edge that breathes when lives are low; darkens on defeat. -->
+        <div id="danger-vignette"></div>
         <!-- Tutorial coach: one short line about what to do next (level 1, first time). -->
         <div id="coach" class="hidden"></div>
 
@@ -81,7 +83,9 @@
 
       <div id="game-over-overlay" class="overlay hidden">
         <div class="overlay-panel panel">
+          <div class="end-icon broken" aria-hidden="true">💔</div>
           <div class="overlay-title coral" data-i18n="gameOver"></div>
+          <div class="wave-dots" id="go-dots" aria-hidden="true"></div>
           <div class="overlay-subtitle" id="go-sub"></div>
           <div class="overlay-best" id="go-best"></div>
           <div class="recap" id="go-recap"></div>
@@ -94,6 +98,7 @@
 
       <div id="victory-overlay" class="overlay hidden">
         <div class="overlay-panel panel">
+          <div class="end-icon" aria-hidden="true">🏰</div>
           <div class="overlay-title amber" data-i18n="victory"></div>
           <div class="stars-big" id="vc-stars"></div>
           <div class="overlay-subtitle" id="vc-sub"></div>

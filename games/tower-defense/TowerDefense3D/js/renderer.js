@@ -112,6 +112,12 @@ export const Renderer = {
   _projObjs: new Map(),    // Projectile → mesh
   _fxObjs: new Map(),      // effect → object3d
   _corpses: [],            // dying enemies still playing their death animation
+  _castles: [],            // { group, model, ruin, x, z, top, hitT } — the castle is the health bar
+  _puffs: [],              // smoke, flame and dust particles
+  _shakeT: 0,
+  _camBase: null,          // camera position + look-at target from the last fit
+  _lastPhase: null,
+  _phaseT: 0,              // seconds since the phase changed (defeat / victory scenes)
   _lastNow: 0,
 
   _placementGroup: null,
@@ -202,7 +208,13 @@ export const Renderer = {
     this._syncCellMarks(state, now);
     this._syncSelection(state);
     this._syncTowers(state, now);
-    const animDt = dt * (state.timeScale || 1);
+    // Scene timing on wall-clock time, like the end-panel timer in main.js, so the
+    // castle falls before the panel even on a slow device.
+    if (state.phase !== this._lastPhase) { this._lastPhase = state.phase; this._phaseStart = now; }
+    this._phaseT = now - this._phaseStart;
+    this.canvas.classList.toggle('defeated', state.phase === 'GAME_OVER');
+    // Skeletons freeze in place once the castle has fallen.
+    const animDt = state.phase === 'GAME_OVER' ? 0 : dt * (state.timeScale || 1);
     this._syncEnemies(state, now, animDt);
     this._syncCorpses(animDt);
     this._syncProjectiles(state);
@@ -210,6 +222,9 @@ export const Renderer = {
     this._syncCoins(state);
     this._syncFlash(state);
 
+    this._syncCastles(state, dt, now);
+    this._syncPuffs(dt);
+    this._applyCamera(state, dt);
     this._syncShadows(state);
     this._r.render(this.scene, this.camera);
   },
@@ -304,6 +319,8 @@ export const Renderer = {
     }
     this._clouds = [];
     this._spawnRings = [];
+    this._castles = [];
+    this._clearPuffs();
     for (const c of this._corpses) this._dropEnemy(c.obj);
     this._corpses = [];
     const level = Level.current;
@@ -516,6 +533,7 @@ export const Renderer = {
     const dx = ((safe.minX + safe.maxX) - (box.minX + box.maxX)) / 2;
     const dy = ((safe.minY + safe.maxY) - (box.minY + box.maxY)) / 2;
     cam.setViewOffset(w, h, -dx * w / 2, dy * h / 2, w, h);
+    this._camBase = { pos: cam.position.clone(), target: target.clone() };
     cam.updateProjectionMatrix();
     if (this._sun) this._aimSun(level);
   },
@@ -555,7 +573,7 @@ export const Renderer = {
       } else if (cell.type === 'goal') {
         // Castle with its gate toward the incoming road, a blue flag beside it.
         const k = [...cell.conn][0];
-        put(keep, 'building_castle_blue', c, r, { rot: k * Math.PI / 3 + Math.PI / 2 });
+        this._addCastle(g, p.x, p.y, k * Math.PI / 3 + Math.PI / 2);
       } else if (cell.type === 'spawn') {
         // Two red flags frame the spot where enemies appear, plus a pulsing ring.
         const k = [...cell.conn][0];
@@ -815,7 +833,12 @@ export const Renderer = {
       }
       if (u.lastUpgrade !== t.upgradeLevel) this._applyTowerLevel(obj, t);
       // Level-up pop, and a slow pulse on the top level's glow.
-      const pop = Math.max(0, t.levelUpT || 0) / 0.45;
+      let pop = Math.max(0, t.levelUpT || 0) / 0.45;
+      // Victory: the towers pop one after another.
+      if (state.phase === 'VICTORY') {
+        const vt = this._phaseT - 0.3 - state.towers.indexOf(t) * 0.12;
+        if (vt > 0 && vt < 0.45) pop = 1 - vt / 0.45;
+      }
       obj.scale.setScalar(1 + 0.22 * Math.sin(pop * Math.PI));
       if (u.halo.visible) u.halo.material.opacity = 0.16 + 0.1 * Math.sin(now * 3);
     }
@@ -920,6 +943,190 @@ export const Renderer = {
 
     if (u.crystal) u.crystal.position.y = lift + u.topH * look.size + 0.5;
     u.lastUpgrade = t.upgradeLevel;
+  },
+
+  // ─── The castle: the health bar you can see ───────────────────────────
+
+  _addCastle(parent, x, z, rot) {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+    group.rotation.y = rot;
+    // Own copy of the summer material, so only the castle flashes when hit.
+    const mat = Assets.towerMaterial.clone();
+    mat.emissive = new THREE.Color(0x000000);
+    const model = Assets.clone('building_castle_blue');
+    model.traverse(o => { if (o.isMesh) { o.material = mat; o.castShadow = o.receiveShadow = true; } });
+    group.add(model);
+    group.userData.own = [mat];
+    parent.add(group);
+    const top = new THREE.Box3().setFromObject(model).max.y;
+    this._castles.push({ group, model, mat, ruin: null, x, z, top, hitT: 0, smokeT: 0, fireT: 0 });
+  },
+
+  // An enemy reached the gate: the castle flashes and squashes, the camera shakes, and a
+  // heart flies from the castle to the HUD hearts.
+  _castleHit(pos) {
+    let c = null, best = Infinity;
+    for (const k of this._castles) {
+      const d = Math.hypot(k.x - pos.x, k.z - pos.y);
+      if (d < best) { best = d; c = k; }
+    }
+    if (!c) return;
+    c.hitT = 0.4;
+    if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) this._shakeT = 0.28;
+    for (let i = 0; i < 6; i++) this._puff('chip', c.x, c.top * 0.5, c.z);
+    this._flyHeart(c);
+  },
+
+  _flyHeart(c) {
+    const start = this._worldToFrame(c.x, c.z, c.top * 0.8);
+    const hearts = document.querySelector('.hud-lives');
+    if (!start || !hearts || !this._domLayer) return;
+    const hr = hearts.getBoundingClientRect(), fr = this.canvas.getBoundingClientRect();
+    const tx = hr.left + hr.width * 0.75 - fr.left, ty = hr.top + hr.height / 2 - fr.top;
+    const el = document.createElement('div');
+    el.className = 'heart-fly';
+    el.textContent = '♥';
+    this._domLayer.appendChild(el);
+    const at = (x, y, s) => `translate(${x - 17}px, ${y - 20}px) scale(${s})`;
+    const mx = (start.x + tx) / 2, my = Math.min(start.y, ty) - 60;
+    const anim = el.animate([
+      { transform: at(start.x, start.y, 0.6), opacity: 0 },
+      { transform: at(start.x, start.y - 30, 1.5), opacity: 1, offset: 0.15 },
+      { transform: at(mx, my, 1.2), opacity: 1, offset: 0.55 },
+      { transform: at(tx, ty, 1.0), opacity: 1, offset: 0.85 },
+      { transform: at(tx, ty, 2.0), opacity: 0 },
+    ], { duration: 1000, easing: 'ease-in-out' });
+    anim.onfinish = () => el.remove();
+  },
+
+  _syncCastles(state, dt, now) {
+    const level = Level.current;
+    const frac = level.startingLives ? state.lives / level.startingLives : 1;
+    const playing = state.phase !== 'MENU';
+    const damage = !playing ? 0 : frac <= 0.3 ? 2 : frac <= 0.6 ? 1 : 0;
+    for (const c of this._castles) {
+      // Hit: squash and a coral flash.
+      if (c.hitT > 0) c.hitT = Math.max(0, c.hitT - dt);
+      const s = c.hitT > 0 ? Math.sin((1 - c.hitT / 0.4) * Math.PI) : 0;
+      c.model.scale.set(1 + 0.07 * s, 1 - 0.1 * s, 1 + 0.07 * s);
+      c.mat.emissive.setRGB(0.9 * s, 0.25 * s, 0.25 * s);
+
+      // Defeat: the castle collapses into ruins in a cloud of dust.
+      if (state.phase === 'GAME_OVER' && !c.ruin && this._phaseT > 0.5) {
+        c.ruin = Assets.clone('building_destroyed');
+        c.ruin.scale.setScalar(1.25);
+        c.ruin.traverse(o => { if (o.isMesh) { o.material = c.mat; o.castShadow = true; } });
+        c.group.add(c.ruin);
+        c.model.visible = false;
+        this._r.shadowMap.needsUpdate = true;
+        for (let i = 0; i < 26; i++) this._puff('dust', c.x, 0.6 + Math.random() * 1.5, c.z);
+      }
+
+      // Damage: a smoke column below 60 % lives, smoke and flames below 30 %.
+      const smoky = damage >= 1 || c.ruin;
+      if (smoky) {
+        c.smokeT -= dt;
+        if (c.smokeT <= 0) {
+          c.smokeT = damage >= 2 || c.ruin ? 0.09 : 0.18;
+          this._puff('smoke', c.x + (Math.random() - 0.5) * 0.8, (c.ruin ? 1.0 : c.top * 0.85), c.z + (Math.random() - 0.5) * 0.8);
+        }
+      }
+      if (damage >= 2 && !c.ruin) {
+        c.fireT -= dt;
+        if (c.fireT <= 0) {
+          c.fireT = 0.07;
+          this._puff('fire', c.x + (Math.random() - 0.5) * 1.0, c.top * (0.55 + Math.random() * 0.3), c.z + (Math.random() - 0.5) * 1.0);
+        }
+      }
+    }
+  },
+
+  // Small particle system for smoke, flames, dust and stone chips.
+  _puff(kind, x, y, z) {
+    if (this._puffs.length > 90) return;
+    if (!this._puffMats) {
+      const M = (color, opacity) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+      this._puffMats = { smoke: M(0x4a4f57, 0.5), dust: M(0xc9b79c, 0.6), fire: M(0xffa23a, 0.9), chip: M(0x8a8f98, 1) };
+    }
+    const mat = this._puffMats[kind].clone();
+    const m = new THREE.Mesh(this._geo.sphere, mat);
+    m.position.set(x, y, z);
+    const spec = {
+      smoke: { v: [0.15, 0.9, 0.15], life: 2.2, s0: 0.18, s1: 0.75 },
+      dust: { v: [2.2, 1.2, 2.2], life: 1.3, s0: 0.25, s1: 0.8 },
+      fire: { v: [0.2, 1.6, 0.2], life: 0.55, s0: 0.16, s1: 0.04 },
+      chip: { v: [2.6, 2.4, 2.6], life: 0.8, s0: 0.08, s1: 0.06, gravity: 7 },
+    }[kind];
+    const r = () => (Math.random() - 0.5) * 2;
+    m.userData = {
+      vx: r() * spec.v[0], vy: spec.v[1] * (0.6 + Math.random() * 0.6), vz: r() * spec.v[2],
+      life: 0, max: spec.life * (0.8 + Math.random() * 0.4), s0: spec.s0, s1: spec.s1,
+      gravity: spec.gravity || 0, alpha: mat.opacity,
+    };
+    m.scale.setScalar(spec.s0);
+    this.scene.add(m);
+    this._puffs.push(m);
+  },
+
+  _syncPuffs(dt) {
+    if (this._puffs.length === 0) return;
+    this._puffs = this._puffs.filter((m) => {
+      const u = m.userData;
+      u.life += dt;
+      const k = u.life / u.max;
+      if (k >= 1) { this.scene.remove(m); m.material.dispose(); return false; }
+      u.vy -= u.gravity * dt;
+      m.position.x += u.vx * dt; m.position.y += u.vy * dt; m.position.z += u.vz * dt;
+      if (m.position.y < 0.05 && u.gravity) { m.position.y = 0.05; u.vx *= 0.5; u.vz *= 0.5; u.vy = 0; }
+      m.scale.setScalar(u.s0 + (u.s1 - u.s0) * k);
+      m.material.opacity = u.alpha * (1 - k);
+      return true;
+    });
+  },
+
+  _clearPuffs() {
+    for (const m of this._puffs) { this.scene.remove(m); m.material.dispose(); }
+    this._puffs = [];
+  },
+
+  // Camera on top of the fitted base view: a short shake when the castle is hit, and
+  // on defeat a slow glide towards the fallen castle.
+  _applyCamera(state, dt) {
+    const base = this._camBase;
+    if (!base) return;
+    const cam = this.camera;
+    const pos = _v1.copy(base.pos), tgt = _v2.copy(base.target);
+    if (state.phase === 'GAME_OVER' && this._castles.length) {
+      const c = this._castles[0];
+      const k = Math.min(1, this._phaseT / 2.0);
+      const e = k * k * (3 - 2 * k);
+      const castle = new THREE.Vector3(c.x, 1.2, c.z);
+      const near = castle.clone().addScaledVector(CAMERA_DIR, base.pos.distanceTo(base.target) * 0.55);
+      pos.lerp(near, e * 0.85);
+      tgt.lerp(castle, e * 0.85);
+    }
+    if (this._shakeT > 0) {
+      this._shakeT = Math.max(0, this._shakeT - dt);
+      const a = 0.35 * (this._shakeT / 0.28);
+      pos.x += (Math.random() - 0.5) * a; pos.y += (Math.random() - 0.5) * a * 0.6;
+    }
+    cam.position.copy(pos);
+    cam.lookAt(tgt);
+  },
+
+  // A new run on the same level: castles stand again, camera back in place.
+  onRunReset() {
+    for (const c of this._castles) {
+      if (c.ruin) { c.group.remove(c.ruin); c.ruin = null; }
+      c.model.visible = true;
+      c.hitT = 0;
+    }
+    this._clearPuffs();
+    this._shakeT = 0;
+    this._lastPhase = null;
+    if (this.canvas) this.canvas.classList.remove('defeated');
+    if (this._r) this._r.shadowMap.needsUpdate = true;
   },
 
   // ─── Enemies ──────────────────────────────────────────────────────────
@@ -1128,6 +1335,10 @@ export const Renderer = {
     const live = new Set();
     for (const fx of state.effects) {
       if (fx.kind === 'coin' || fx.kind === 'screenFlash') continue; // DOM-rendered
+      if (fx.kind === 'castleHit') {
+        if (!fx.handled) { fx.handled = true; this._castleHit(fx.position); }
+        continue;
+      }
       live.add(fx);
       let obj = this._fxObjs.get(fx);
       if (!obj) {
