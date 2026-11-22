@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-catapult",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-c", "cd /home/janah/dev/krabsy-homepage/games/verb-catapult && python3 tools/serve.py 8141"],
+      "port": 8141
+    }
+  ]
+}
