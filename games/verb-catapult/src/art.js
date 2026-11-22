@@ -150,7 +150,7 @@ export class Catapult {
   cupWorld() { return this.cupAt(this.a); }
   throw() { this.phase = 'throw'; }
   get released() { return this.phase !== 'throw' || this.a >= RELEASE; }
-  // `cock` 0..1 while aiming: the arm trembles a little, more with more pull.
+  // `cock` 0..1 while aiming (the pull's power).
   update(dt, cock = 0) {
     if (this.phase === 'throw') {
       this.a = Math.min(STOP, this.a + dt * 16);
@@ -159,7 +159,8 @@ export class Catapult {
       this.a = Math.max(0, this.a - dt * 1.6);
       if (this.a === 0) this.phase = 'rest';
     } else {
-      this.a = cock > 0 ? Math.sin(performance.now() / 30) * 0.012 * cock : 0;
+      // winds back with the pull and trembles a little under the strain
+      this.a = cock > 0 ? -0.32 * cock + Math.sin(performance.now() / 30) * 0.015 * cock : 0;
     }
     this.arm.rotation.x = this.a;
   }

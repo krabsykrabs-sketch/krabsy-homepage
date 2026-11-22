@@ -311,3 +311,18 @@ Physics is the risky part, so it is proven first, with plain boxes.
   (hp / TIP), more skeletons per castle, or a castle asks for every stone
   in the basket even when the last skeleton falls early (no: that wastes
   answers). Decide after the owner plays.
+- 2026-11-22: controls reworked after the owner's first try ("the controls
+  need to be better"). Cause: the pull was measured in world metres, so
+  full power was ~120 px of mouse on a laptop and ~35 px on a phone, and
+  nothing showed the grab point or the power. Now: drag anywhere, power =
+  drag length in **screen pixels** (full power = 38% of the short screen
+  side, 130–300 px); launch angle clamped −8°…82°; a 2D overlay (`#ui`
+  canvas) draws the grab point, a band to the finger, a power ring
+  (teal → amber → coral) and an arrow the way the stone will go; the
+  catapult arm winds back and trembles with the pull; the dotted path
+  shows the first 55% of the flight; the last shot leaves a faint trail
+  (Angry-Birds style) until the next shot; letting go with < 12% power
+  cancels ("Pull further back to shoot!"), as do right click and Esc;
+  arrow keys start from the last shot's angle and power. QA: `__VC.drag(x,
+  y, dx, dy)`, and `tools/shot.cjs` takes `!drag x0 y0 x1 y1 [up]` (a real
+  mouse drag) and `@file.png` (a screenshot mid-sequence).

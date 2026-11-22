@@ -13,6 +13,13 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   await page.waitForTimeout(800);
   for (const js of steps) {
     if (/^\d+$/.test(js)) { await page.waitForTimeout(+js); continue; }
+    if (js.startsWith('!drag')) { // '!drag x0 y0 x1 y1 [up]': a real mouse drag
+      const [x0, y0, x1, y1, up] = js.split(' ').slice(1);
+      await page.mouse.move(+x0, +y0); await page.mouse.down();
+      for (let i = 1; i <= 12; i++) await page.mouse.move(+x0 + (x1 - x0) * i / 12, +y0 + (y1 - y0) * i / 12);
+      if (up === 'up') await page.mouse.up();
+      await page.waitForTimeout(400); continue;
+    }
     if (js.startsWith('@')) { await page.screenshot({ path: js.slice(1) }); continue; } // '@file.png' = a shot mid-sequence
     const r = await page.evaluate(js); if (r !== undefined) console.log('js:', JSON.stringify(r));
     await page.waitForTimeout(js.includes("NOWAIT") ? 0 : 1200);

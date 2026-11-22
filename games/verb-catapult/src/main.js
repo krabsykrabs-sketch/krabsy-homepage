@@ -195,7 +195,7 @@ function buildCastle() {
   }
   G.stonesLeft = c.stones; G.extraUsed = false; G.castlePoints = 0; G.shotsDone = 0;
   G.castleAnswers = 0; G.castleCorrect = 0;
-  G.loaded = null;
+  G.loaded = null; G.trail = []; G.trackBody = null;
   syncMeshes();
   updateHud();
   setMode('need');
@@ -324,78 +324,185 @@ function closeCard() {
 }
 
 // ---------------------------------------------------------------- aiming + firing
-let drag = null; // { x0, y0 } world point where the drag started
-const dots = [];
+// Drag anywhere and pull back from where you pressed. Power comes from the drag length in
+// screen pixels (full power = pullPx()), so it feels the same on a laptop and a phone.
+// A 2D overlay shows the grab point, the band, a power ring and an arrow; the dotted
+// path shows the first part of the flight; the last shot's path stays as a faint trail.
+// Letting go with almost no pull cancels.
+const ui = $('ui'), uctx = ui.getContext('2d');
+let drag = null; // screen points: { sx, sy } where the drag started, { x, y } where it is now
+const AIM_MIN = THREE.MathUtils.degToRad(-8), AIM_MAX = THREE.MathUtils.degToRad(82);
+const MIN_POW = 0.12;
+const pullPx = () => Math.max(130, Math.min(300, Math.min(innerWidth, innerHeight) * 0.38));
+G.aimPow = 0; G.aimAng = THREE.MathUtils.degToRad(35);
+function setPull(pow, ang) {
+  ang = Math.max(AIM_MIN, Math.min(AIM_MAX, ang));
+  G.aimPow = pow; G.aimAng = ang;
+  G.pull = { x: -Math.cos(ang) * pow * MAX_PULL, y: -Math.sin(ang) * pow * MAX_PULL };
+}
+function pullFromKeys() { setPull(G.kPow, THREE.MathUtils.degToRad(G.kAng)); }
+function pullFromDrag() {
+  const dx = drag.x - drag.sx, dy = drag.y - drag.sy, len = Math.hypot(dx, dy);
+  if (len < 4) { setPull(0, G.aimAng); return; }
+  // The shot goes the opposite way of the pull (screen y points down).
+  setPull(Math.min(1, len / pullPx()), Math.atan2(dy, -dx));
+}
+
+const dots = [], trailDots = [];
 {
-  const g = new THREE.SphereGeometry(0.07, 8, 6), m = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
-  for (let i = 0; i < 22; i++) { const d = new THREE.Mesh(g, m); d.visible = false; scene.add(d); dots.push(d); }
+  const g = new THREE.SphereGeometry(0.08, 8, 6);
+  const m = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+  const mt = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+  for (let i = 0; i < 40; i++) { const d = new THREE.Mesh(g, m); d.visible = false; scene.add(d); dots.push(d); }
+  for (let i = 0; i < 90; i++) { const d = new THREE.Mesh(g, mt); d.visible = false; d.scale.setScalar(0.55); scene.add(d); trailDots.push(d); }
 }
-function pullFromKeys() {
-  const a = THREE.MathUtils.degToRad(G.kAng), len = G.kPow * MAX_PULL;
-  G.pull = { x: -Math.cos(a) * len, y: -Math.sin(a) * len };
+G.trail = [];
+function recordTrail(dt) {
+  const s = G.trackBody;
+  if (!s || !sim.stones.includes(s) || G.trail.length >= trailDots.length) return;
+  G.trailT = (G.trailT || 0) + dt;
+  if (G.trailT < 0.05) return;
+  G.trailT = 0;
+  const p = s.getPosition();
+  const last = G.trail[G.trail.length - 1];
+  if (!last || Math.hypot(p.x - last.x, p.y - last.y) > 0.35) G.trail.push({ x: p.x, y: p.y });
 }
+function drawTrail() {
+  const on = G.mode !== 'menu' && G.mode !== 'results';
+  for (let i = 0; i < trailDots.length; i++) {
+    const d = trailDots[i], p = G.trail[i];
+    d.visible = on && !!p;
+    if (d.visible) d.position.set(p.x, p.y, 0);
+  }
+}
+
 function updateAim(dt) {
   const showing = G.mode === 'aim';
-  const pullK = showing ? Math.min(1, Math.hypot(G.pull.x, G.pull.y) / MAX_PULL) : 0;
-  cat.update(dt, pullK);
+  cat.update(dt, showing ? G.aimPow : 0);
   if (G.cupMesh) { const c = cat.cupWorld(); G.cupMesh.position.set(c.x, c.y + STONES[G.cupType].r * 0.6, 0); }
   // The stone leaves the cup when the swinging arm reaches the release angle.
   if (G.pendingFire && cat.released) {
     const { type, v } = G.pendingFire; G.pendingFire = null;
     const body = sim.fire(type, v.x, v.y, cat.launch);
     meshes.set(body, G.cupMesh); G.cupMesh = null;
+    G.trackBody = body; G.trail = []; G.trailT = 1;
     sfx.thwack();
   }
-  const v = showing && G.loaded ? Sim.velocity(G.pull.x, G.pull.y) : null;
-  const st = G.loaded && STONES[G.loaded], L = cat.launch;
-  const n = v ? Math.round(6 + 14 * pullK) : 0;
-  for (let i = 0; i < dots.length; i++) {
-    const d = dots[i]; d.visible = i < n;
-    if (!d.visible) continue;
-    const tt = (i + 1) * 0.07, gs = st.gravity || 1;
-    d.position.set(L.x + v.x * st.speed * tt, L.y + v.y * st.speed * tt - 5 * gs * tt * tt, 0);
-    d.scale.setScalar(1 - i / dots.length * 0.6);
+  recordTrail(dt);
+  drawTrail();
+  // Dotted path: the first 55% of the way to the ground.
+  const v = showing && G.loaded && G.aimPow >= MIN_POW ? Sim.velocity(G.pull.x, G.pull.y) : null;
+  let n = 0;
+  if (v) {
+    const st = STONES[G.loaded], L = cat.launch, gs = st.gravity || 1;
+    const vx = v.x * st.speed, vy = v.y * st.speed;
+    const tGround = (vy + Math.sqrt(vy * vy + 2 * 10 * gs * L.y)) / (10 * gs);
+    const tEnd = tGround * 0.55, step = Math.max(0.05, tEnd / dots.length);
+    for (let tt = step; tt <= tEnd && n < dots.length; tt += step, n++) {
+      const d = dots[n];
+      d.position.set(L.x + vx * tt, L.y + vy * tt - 5 * gs * tt * tt, 0);
+      d.scale.setScalar(1 - (tt / tEnd) * 0.55);
+    }
+  }
+  for (let i = 0; i < dots.length; i++) dots[i].visible = i < n;
+  drawOverlay();
+}
+
+// The 2D overlay: grab point, band, power ring and an arrow the way the stone will go.
+const POW_COL = (k) => (k < 0.45 ? '#2ee6c0' : k < 0.8 ? '#ffcf5e' : '#ff8585');
+function drawOverlay() {
+  const dpr = Math.min(devicePixelRatio, 2);
+  if (ui.width !== Math.round(innerWidth * dpr) || ui.height !== Math.round(innerHeight * dpr)) {
+    ui.width = Math.round(innerWidth * dpr); ui.height = Math.round(innerHeight * dpr);
+  }
+  uctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  uctx.clearRect(0, 0, innerWidth, innerHeight);
+  if (G.mode !== 'aim' || !G.loaded) return;
+  const k = G.aimPow, col = POW_COL(k);
+  let ax, ay; // where the arrow starts
+  if (drag) {
+    ax = drag.sx; ay = drag.sy;
+    // band from the grab point to the finger
+    uctx.lineCap = 'round';
+    uctx.strokeStyle = 'rgba(13,34,64,.55)'; uctx.lineWidth = 9;
+    uctx.beginPath(); uctx.moveTo(ax, ay); uctx.lineTo(drag.x, drag.y); uctx.stroke();
+    uctx.strokeStyle = '#8a5a2e'; uctx.lineWidth = 5;
+    uctx.beginPath(); uctx.moveTo(ax, ay); uctx.lineTo(drag.x, drag.y); uctx.stroke();
+    // power ring around the finger
+    uctx.lineWidth = 7;
+    uctx.strokeStyle = 'rgba(13,34,64,.6)';
+    uctx.beginPath(); uctx.arc(drag.x, drag.y, 26, 0, Math.PI * 2); uctx.stroke();
+    if (k > 0) {
+      uctx.strokeStyle = k >= MIN_POW ? col : '#9db4dd';
+      uctx.beginPath(); uctx.arc(drag.x, drag.y, 26, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k); uctx.stroke();
+    }
+    // grab point
+    uctx.fillStyle = 'rgba(255,255,255,.95)';
+    uctx.beginPath(); uctx.arc(ax, ay, 7, 0, Math.PI * 2); uctx.fill();
+  } else {
+    if (k < MIN_POW) return; // keyboard aim not touched yet
+    const c = toScreen(cat.launch.x, cat.launch.y); ax = c.x; ay = c.y;
+  }
+  if (k < MIN_POW) return;
+  // arrow the way the shot goes
+  const len = 34 + 70 * k, dx = Math.cos(G.aimAng), dy = -Math.sin(G.aimAng);
+  const ex = ax + dx * len, ey = ay + dy * len;
+  uctx.lineCap = 'round';
+  for (const [w, c] of [[11, 'rgba(13,34,64,.6)'], [6, col]]) {
+    uctx.strokeStyle = c; uctx.lineWidth = w;
+    uctx.beginPath(); uctx.moveTo(ax, ay); uctx.lineTo(ex, ey); uctx.stroke();
+    uctx.beginPath();
+    uctx.moveTo(ex + dy * 10 - dx * 12, ey - dx * 10 - dy * 12); uctx.lineTo(ex, ey); uctx.lineTo(ex - dy * 10 - dx * 12, ey + dx * 10 - dy * 12);
+    uctx.stroke();
   }
 }
+
 function fire() {
-  if (G.mode !== 'aim' || !G.loaded) return;
+  if (G.mode !== 'aim' || !G.loaded || G.aimPow < MIN_POW) return;
   const v = Sim.velocity(G.pull.x, G.pull.y);
   if (!v) return;
   hint('');
+  // Arrow keys start from this shot next time.
+  G.kAng = THREE.MathUtils.radToDeg(G.aimAng); G.kPow = Math.max(0.2, G.aimPow);
   G.pendingFire = { type: G.loaded, v };
   cat.throw(); sfx.creak();
   G.lastType = G.loaded; G.loaded = null; G.flightT = 0; G.shotsDone += 1;
-  G.pull = { x: 0, y: 0 };
+  setPull(0, G.aimAng);
   setMode('flight');
   if (G.lastType === 'split' && G.level <= 2) hint('hintSplit');
 }
 
 const canvas = renderer.domElement;
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 canvas.addEventListener('pointerdown', (e) => {
   sfx.init();
   if (G.mode === 'need') { openCard(); return; }
   if (G.mode === 'aim') {
-    const p = toWorld(e.clientX, e.clientY); if (!p) return;
-    drag = { x0: p.x, y0: p.y, id: e.pointerId };
+    if (e.button === 2) { drag = null; setPull(0, G.aimAng); return; } // right click cancels
+    drag = { sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY, id: e.pointerId };
     canvas.setPointerCapture(e.pointerId);
-    sfx.creak();
+    setPull(0, G.aimAng);
     return;
   }
   if (G.mode === 'flight') trySplit();
 });
+let creakAt = 0;
 canvas.addEventListener('pointermove', (e) => {
-  if (!drag || G.mode !== 'aim') return;
-  const p = toWorld(e.clientX, e.clientY); if (!p) return;
-  G.pull = { x: Math.min(p.x - drag.x0, 0.4), y: p.y - drag.y0 };
-  const len = Math.hypot(G.pull.x, G.pull.y);
-  if (len > MAX_PULL) { G.pull.x *= MAX_PULL / len; G.pull.y *= MAX_PULL / len; }
+  if (!drag || G.mode !== 'aim' || e.pointerId !== drag.id) return;
+  const before = G.aimPow;
+  drag.x = e.clientX; drag.y = e.clientY;
+  pullFromDrag();
+  // a creak now and then while the pull grows
+  if (G.aimPow > before + 0.002 && performance.now() - creakAt > 260) { creakAt = performance.now(); sfx.creak(); }
 });
-canvas.addEventListener('pointerup', () => {
-  if (!drag) return;
+canvas.addEventListener('pointerup', (e) => {
+  if (!drag || e.pointerId !== drag.id) return;
   drag = null;
-  if (G.mode === 'aim') { if (Sim.velocity(G.pull.x, G.pull.y)) fire(); else G.pull = { x: 0, y: 0 }; }
+  if (G.mode !== 'aim') return;
+  if (G.aimPow >= MIN_POW) fire();
+  else { setPull(0, G.aimAng); hint('hintPull'); }
 });
-canvas.addEventListener('pointercancel', () => { drag = null; });
+canvas.addEventListener('pointercancel', () => { drag = null; setPull(0, G.aimAng); });
 $('basketBtn').addEventListener('click', () => openCard());
 
 function trySplit() {
@@ -416,13 +523,14 @@ addEventListener('keydown', (e) => {
   sfx.init();
   if (G.mode === 'card' && /^[1-3]$/.test(e.key)) { answer(+e.key - 1); return; }
   if (G.mode === 'need' && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); openCard(); return; }
+  if (G.mode === 'aim' && e.key === 'Escape') { drag = null; setPull(0, G.aimAng); return; }
   if (G.mode === 'aim') {
     const step = e.shiftKey ? 5 : 1.5;
     if (e.key === 'ArrowLeft') { G.kAng = Math.min(80, G.kAng + step); pullFromKeys(); }
     else if (e.key === 'ArrowRight') { G.kAng = Math.max(-10, G.kAng - step); pullFromKeys(); }
     else if (e.key === 'ArrowUp') { G.kPow = Math.min(1, G.kPow + 0.03); pullFromKeys(); }
     else if (e.key === 'ArrowDown') { G.kPow = Math.max(0.2, G.kPow - 0.03); pullFromKeys(); }
-    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!Sim.velocity(G.pull.x, G.pull.y)) pullFromKeys(); fire(); }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (G.aimPow < MIN_POW) pullFromKeys(); fire(); }
     if (/^Arrow/.test(e.key)) e.preventDefault();
     return;
   }
@@ -659,6 +767,8 @@ window.__VC = {
   answer: (right = true) => { const q = card.pair.steps[card.step]; const i = q.options.findIndex((o) => (o === q.answer) === right); answer(i); },
   shoot: (deg = 35, pow = 0.8) => { G.kAng = deg; G.kPow = pow; pullFromKeys(); fire(); },
   aim: (deg = 35, pow = 0.8) => { G.kAng = deg; G.kPow = pow; pullFromKeys(); },
+  // a drag in screen pixels from (x, y) by (dx, dy), without letting go
+  drag: (x, y, dx, dy) => { drag = { sx: x, sy: y, x: x + dx, y: y + dy, id: -1 }; pullFromDrag(); },
 };
 
 (async () => {
