@@ -70,6 +70,18 @@ PAD_SEND_S = 0.5             # live pad counts to the teacher
 PAD_X = (-6.6, -2.2, 2.2, 6.6)
 PAD_Z = 3.5
 PAD_HALF = 1.8
+# The room grows with the group (never shrinks): scale of the floor plan by players in
+# the room. Stations move apart, sizes stay; the answer pads grow a little. Same rule in
+# games/quiz-show/src/layout.js (the client gets the scale from the server: "size").
+SIZES = ((15, 1.0), (28, 1.25), (MAX_PLAYERS, 1.5))     # (up to n players, scale)
+
+
+def size_for(n: int) -> float:
+    return next((sc for lim, sc in SIZES if n <= lim), SIZES[-1][1])
+
+
+def pad_half(scale: float) -> float:
+    return round(PAD_HALF + (scale - 1.0) * 0.9, 3)
 EMOTE_GAP_S = 0.8            # per child
 BALL_GAP_S = 0.08            # per child
 BOOM_GAP_S = 8.0             # per room
@@ -232,12 +244,13 @@ def _vec3(v) -> bool:
     return isinstance(v, list) and len(v) == 3 and all(isinstance(x, (int, float)) for x in v)
 
 
-def pad_at(pos) -> Optional[int]:
+def pad_at(pos, scale: float = 1.0) -> Optional[int]:
     x, y, z = pos
-    if abs(z - PAD_Z) > PAD_HALF or y < -0.5:
+    half = pad_half(scale)
+    if abs(z - PAD_Z * scale) > half or y < -0.5:
         return None
     for i, cx in enumerate(PAD_X):
-        if abs(x - cx) <= PAD_HALF:
+        if abs(x - cx * scale) <= half:
             return i
     return None
 
@@ -310,6 +323,7 @@ class Room:
         self.teacher_left = time.monotonic()
         self.created = time.monotonic()
         self.next_pid = 1
+        self.size = 1.0                  # floor-plan scale, grows with the group
         self.missed: dict[str, dict] = {}   # topic|item → {q, n}
         self.task: Optional[asyncio.Task] = None
         self.closed = False
@@ -329,6 +343,16 @@ class Room:
 
     async def to_all(self, msg: dict) -> None:
         await asyncio.gather(self.to_teacher(msg), self.to_players(msg))
+
+    async def grow(self) -> None:
+        """Make the room bigger when the group has outgrown it (never smaller). Not while a
+        bonus question runs: the pads would move under the children's feet."""
+        if self.phase == "question" and self.questions[self.qi].get("bonus"):
+            return
+        new = size_for(len(self.players))
+        if new > self.size:
+            self.size = new
+            await self.to_all({"t": "size", "s": self.size})
 
     async def send_players_list(self) -> None:
         await self.to_all({"t": "players", "list": [p.public() for p in self.players.values()],
@@ -358,7 +382,7 @@ class Room:
 
     def snapshot(self, for_teacher: bool, player: Optional[Player] = None) -> dict:
         snap = {"phase": self.phase, "code": self.code, "n": len(self.questions), "qi": self.qi,
-                "time": self.time, "locked": self.locked, "middle": self.middle,
+                "time": self.time, "size": self.size, "locked": self.locked, "middle": self.middle,
                 "players": [p.public() for p in self.players.values()]}
         if self.phase == "question":
             snap["question"] = self.question_msg(for_teacher)
@@ -420,6 +444,8 @@ class Room:
         self.q_started = time.monotonic()
         self.deadline = self.q_started + self.time + (BONUS_EXTRA_S if self.questions[qi].get("bonus") else 0)
         self.asked = {p.pid for p in self.players.values() if p.ws is not None}
+        if not self.questions[qi].get("bonus"):
+            await self.grow()            # a size step held back during a bonus question
         await self.to_teacher(self.question_msg(True))
         await self.to_players(self.question_msg(False))
 
@@ -433,7 +459,7 @@ class Room:
             for p in self.players.values():
                 if p.pid not in self.asked and p.ws is None:
                     continue
-                opt = pad_at(p.pos)
+                opt = pad_at(p.pos, self.size)
                 if opt is None:
                     continue
                 right = opt == q["correct"]
@@ -520,7 +546,7 @@ class Room:
                     self.pads_sent = now
                     counts = [0, 0, 0, 0]
                     for p in self.players.values():
-                        i = pad_at(p.pos) if p.ws is not None else None
+                        i = pad_at(p.pos, self.size) if p.ws is not None else None
                         if i is not None:
                             counts[i] += 1
                     await self.to_teacher({"t": "pads", "counts": counts})
@@ -681,6 +707,7 @@ async def quiz_ws(ws: WebSocket):
                                                    "you": {"score": p.score, "avatar": p.avatar, "color": p.color},
                                                    **room.snapshot(False, p)}))
                     await room.send_players_list()
+                    await room.grow()
                     # Everyone needs the newcomer's position once.
                     p.moved = True
                     send_to(ws, ({"t": "pos", "s": [

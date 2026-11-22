@@ -155,6 +155,7 @@ async function enterRoom(m) {
   S.middle = !!m.middle;
   S.code = m.code; S.n = m.n; S.time = m.time; S.locked = m.locked; S.questions = m.questions || [];
   S.players = m.players; S.phase = m.phase; S.qi = m.qi;
+  room.setSize(m.size);
   room.syncPlayers(m.players, null);
   $('setup').classList.add('hidden');
   for (const id of ['top', 'players', 'controls']) $(id).classList.remove('hidden');
@@ -173,6 +174,7 @@ async function enterRoom(m) {
 }
 
 net.on('players', (m) => { S.players = m.list; S.locked = m.locked; room.syncPlayers(m.list, null); render(); });
+net.on('size', (m) => room.setSize(m.s));   // the room grows with the group
 net.on('pos', (m) => room.applyPositions(m.s));
 net.on('answered', (m) => { S.answered.add(m.pid); sfx.locked(); render(); });
 net.on('question', onQuestion);

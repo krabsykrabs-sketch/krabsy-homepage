@@ -12,32 +12,49 @@
 import * as THREE from 'three';
 
 const BALL_R = 0.38;
-const HOOP = new THREE.Vector3(7, 3.6, -8.55);   // ring centre
 const HOOP_R = 0.55;
-const BUTTON = new THREE.Vector3(6.5, 0, 7.2);
-const PIT = { x0: -14.6, x1: -10.4, z0: 4.2, z1: 9.4, depth: 0.38 };
-const DANCE = { x0: -3, z0: -8.8, n: 4, size: 1.5 };
-const BALL_SPAWN = [[-1, -1.2], [-5.5, -2.5], [4.5, -1.5]];
-// Answer pads (bonus round). Same numbers as PAD_X / PAD_Z / PAD_HALF in api/quiz_room.py.
-export const PADS = { x: [-6.6, -2.2, 2.2, 6.6], z: 3.5, half: 1.8 };
 const PAD_TOP = 0.06, PAD_SUNK = -1.15, PIT_DEPTH = 1.6;
 export const PAD_COLORS = ['#3f7cff', '#ff8a2b', '#22b85a', '#d94fc6'];
-const BALL_COLORS = ['#ffcf5e', '#ff8585', '#5fb4ff'];
-
-// Boxes you can stand on / bump into: [x0, x1, z0, z1, top].
-const BOXES = [
-  [9.0, 10.0, -3.2, -0.6, 0.8],           // step 1
-  [10.0, 11.0, -3.2, -0.6, 1.6],          // step 2
-  [11.0, 13.6, -3.2, -0.6, 2.4],          // tower top
-  [PIT.x0 - 0.3, PIT.x1 + 0.3, PIT.z0 - 0.3, PIT.z0, 0.5],   // ball pit rims
-  [PIT.x0 - 0.3, PIT.x1 + 0.3, PIT.z1, PIT.z1 + 0.3, 0.5],
-  [PIT.x0 - 0.3, PIT.x0, PIT.z0, PIT.z1, 0.5],
-  [PIT.x1, PIT.x1 + 0.3, PIT.z0, PIT.z1, 0.5],
-];
-// The slide: from the tower top (z = -0.6, h 2.4) down to the floor (z = 5.4).
-const SLIDE = { x0: 11.4, x1: 13.2, z0: -0.6, z1: 5.4, h: 2.4 };
-const TRAMPS = [[-12.5, -1.0], [-12.3, 2.3]];
+const BALL_COLORS = ['#ffcf5e', '#ff8585', '#5fb4ff', '#2ee6c0', '#b18cff', '#ff9f43', '#7ee06a'];
 const TRAMP_R = 1.25, TRAMP_H = 0.55;
+
+// ---------------------------------------------------------------- floor plan
+// The room grows with the group (api/quiz_room.py SIZES; the server sends the scale).
+// At scale s the floor is 2W × 2D = 30s × 20s m. Stations keep their size and move apart
+// (each one shifted with its anchor point); things on the back wall stay on the wall.
+// The answer pads grow a little: same numbers as PAD_X / PAD_Z / pad_half() on the server.
+// Live bindings: room.js and the controller read these after every applyLayout().
+export let W, D, PADS, HOOP, BUTTON, PIT, DANCE, BALL_SPAWN, BOXES, SLIDE, TRAMPS, BACK;
+export function applyLayout(s = 1) {
+  const sh = (ax, az) => [ax * (s - 1), az * (s - 1)];          // station shift
+  W = 15 * s; D = 10 * s;
+  BACK = -D;                                                     // back wall (z)
+  const zb = -10 * (s - 1);                                      // shift for things on the back wall
+  PADS = { x: [-6.6, -2.2, 2.2, 6.6].map((x) => x * s), z: 3.5 * s, half: +(1.8 + (s - 1) * 0.9).toFixed(3) };
+  HOOP = new THREE.Vector3(7 * s, 3.6, -8.55 + zb);              // ring centre
+  BUTTON = new THREE.Vector3(6.5 * s, 0, 7.2 * s);
+  const [px, pz] = sh(-12.5, 6.8);
+  PIT = { x0: -14.6 + px, x1: -10.4 + px, z0: 4.2 + pz, z1: 9.4 + pz, depth: 0.38 };
+  DANCE = { x0: -3, z0: -8.8 + zb, n: 4, size: 1.5 };
+  // Balls: 3, and more in a bigger room (server allows 8).
+  const spawns = [[-1, -1.2], [-5.5, -2.5], [4.5, -1.5], [2, 6], [-7.5, 1], [9, 6.5], [-2, -5.5]];
+  BALL_SPAWN = spawns.slice(0, s >= 1.5 ? 7 : s >= 1.25 ? 5 : 3).map(([x, z]) => [x * s, z * s]);
+  const [tx, tz] = sh(11.3, -1.9);
+  // Boxes you can stand on / bump into: [x0, x1, z0, z1, top].
+  BOXES = [
+    [9.0 + tx, 10.0 + tx, -3.2 + tz, -0.6 + tz, 0.8],           // step 1
+    [10.0 + tx, 11.0 + tx, -3.2 + tz, -0.6 + tz, 1.6],          // step 2
+    [11.0 + tx, 13.6 + tx, -3.2 + tz, -0.6 + tz, 2.4],          // tower top
+    [PIT.x0 - 0.3, PIT.x1 + 0.3, PIT.z0 - 0.3, PIT.z0, 0.5],   // ball pit rims
+    [PIT.x0 - 0.3, PIT.x1 + 0.3, PIT.z1, PIT.z1 + 0.3, 0.5],
+    [PIT.x0 - 0.3, PIT.x0, PIT.z0, PIT.z1, 0.5],
+    [PIT.x1, PIT.x1 + 0.3, PIT.z0, PIT.z1, 0.5],
+  ];
+  // The slide: from the tower top (h 2.4) down to the floor.
+  SLIDE = { x0: 11.4 + tx, x1: 13.2 + tx, z0: -0.6 + tz, z1: 5.4 + tz, h: 2.4 };
+  TRAMPS = [[-12.5 * s, -1.0 * s], [-12.3 * s, 2.3 * s]];
+}
+applyLayout(1);
 
 function confettiMesh(n) {
   const m = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.22, 0.12), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }), n);
@@ -57,11 +74,22 @@ export class PlayArea {
     this.onSound = null;    // (name) → play a sound
     this.boomCool = 0;
     this.pads = [];
+    this.group = new THREE.Group();
+    scene.add(this.group);
     this._build();
   }
 
+  // Remove everything this play area added (the room is rebuilt at a new size).
+  dispose() {
+    this.scene.remove(this.group);
+    this.group.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      for (const m of [].concat(o.material || [])) { m.map?.dispose(); m.dispose(); }
+    });
+  }
+
   _build() {
-    const s = this.scene;
+    const s = this.group;
     const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
     const box = (x0, x1, z0, z1, h, mat, y0 = 0) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, h - y0, z1 - z0), mat);
@@ -124,9 +152,9 @@ export class PlayArea {
 
     // Basketball hoop on the back wall.
     const board = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.5, 0.1), lam('#f7f9ff'));
-    board.position.set(HOOP.x, HOOP.y + 0.6, -9.85); s.add(board);
+    board.position.set(HOOP.x, HOOP.y + 0.6, BACK + 0.15); s.add(board);
     const sq = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 0.02), lam('#ff8585'));
-    sq.position.set(HOOP.x, HOOP.y + 0.45, -9.79); s.add(sq);
+    sq.position.set(HOOP.x, HOOP.y + 0.45, BACK + 0.21); s.add(sq);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(HOOP_R, 0.05, 8, 32), lam('#ff6a2b'));
     ring.rotation.x = Math.PI / 2; ring.position.copy(HOOP); s.add(ring);
     const net = new THREE.Mesh(new THREE.CylinderGeometry(HOOP_R, HOOP_R * 0.6, 0.6, 16, 1, true),
@@ -144,7 +172,7 @@ export class PlayArea {
     // Balls.
     const ballGeo = new THREE.SphereGeometry(BALL_R, 20, 14);
     BALL_SPAWN.forEach(([x, z], i) => {
-      const m = new THREE.Mesh(ballGeo, lam(BALL_COLORS[i]));
+      const m = new THREE.Mesh(ballGeo, lam(BALL_COLORS[i % BALL_COLORS.length]));
       m.castShadow = true; s.add(m);
       // A stripe so you can see it roll.
       const st = new THREE.Mesh(new THREE.TorusGeometry(BALL_R * 1.001, 0.04, 6, 24), lam('#ffffff'));
@@ -292,7 +320,7 @@ export class PlayArea {
         k.p.copy(center).add(new THREE.Vector3((Math.random() - 0.5) * 1.5, Math.random(), (Math.random() - 0.5) * 1.5));
         k.v.set((Math.random() - 0.5) * 6, 3 + Math.random() * 5, (Math.random() - 0.5) * 6);
       } else {
-        k.p.set((Math.random() - 0.5) * 30, 9 + Math.random() * 5, (Math.random() - 0.5) * 20);
+        k.p.set((Math.random() - 0.5) * 2 * W, 9 + Math.random() * 5, (Math.random() - 0.5) * 2 * D);
         k.v.set((Math.random() - 0.5) * 2, -1 - Math.random() * 2, (Math.random() - 0.5));
       }
       k.w.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
@@ -377,9 +405,9 @@ export class PlayArea {
         const f = Math.exp(-dt * 1.6); b.v.x *= f; b.v.z *= f;
       }
       // walls
-      const W = 14.6, D0 = -9.6, D1 = 9.6;
-      if (b.p.x < -W) { b.p.x = -W; b.v.x = Math.abs(b.v.x) * 0.7; }
-      if (b.p.x > W) { b.p.x = W; b.v.x = -Math.abs(b.v.x) * 0.7; }
+      const WX = W - 0.4, D0 = -D + 0.4, D1 = D - 0.4;
+      if (b.p.x < -WX) { b.p.x = -WX; b.v.x = Math.abs(b.v.x) * 0.7; }
+      if (b.p.x > WX) { b.p.x = WX; b.v.x = -Math.abs(b.v.x) * 0.7; }
       if (b.p.z < D0) { b.p.z = D0; b.v.z = Math.abs(b.v.z) * 0.7; }
       if (b.p.z > D1) { b.p.z = D1; b.v.z = -Math.abs(b.v.z) * 0.7; }
       // boxes: bounce off the sides
@@ -393,8 +421,8 @@ export class PlayArea {
         }
       }
       // backboard
-      if (b.p.z < -9.75 + BALL_R && Math.abs(b.p.x - HOOP.x) < 1.1 && Math.abs(b.p.y - (HOOP.y + 0.6)) < 0.75) {
-        b.p.z = -9.75 + BALL_R; b.v.z = Math.abs(b.v.z) * 0.6;
+      if (b.p.z < BACK + 0.25 + BALL_R && Math.abs(b.p.x - HOOP.x) < 1.1 && Math.abs(b.p.y - (HOOP.y + 0.6)) < 0.75) {
+        b.p.z = BACK + 0.25 + BALL_R; b.v.z = Math.abs(b.v.z) * 0.6;
       }
       // basket: falls through the ring from above
       const dh = Math.hypot(b.p.x - HOOP.x, b.p.z - HOOP.z);
@@ -432,6 +460,6 @@ export class PlayArea {
 
 // Where avatars land when the teacher calls everyone to the middle.
 export function middleSpot() {
-  const a = Math.random() * Math.PI * 2, r = 1 + Math.random() * 3;
-  return new THREE.Vector3(Math.cos(a) * r, 0, 3 + Math.sin(a) * r * 0.7);
+  const a = Math.random() * Math.PI * 2, r = (1 + Math.random() * 3) * Math.sqrt(W / 15);
+  return new THREE.Vector3(Math.cos(a) * r, 0, 3 * (W / 15) + Math.sin(a) * r * 0.7);
 }

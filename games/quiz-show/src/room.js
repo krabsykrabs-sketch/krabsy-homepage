@@ -5,7 +5,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
-import { PlayArea, PADS } from './play.js';
+import * as LAYOUT from './play.js';
+import { PlayArea } from './play.js';
 
 export const AVATARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Superhero', 'Helper_A', 'Helper_B', 'Caveman'];
 export const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#b18cff', '#5fb4ff', '#ff9f43', '#7ee06a', '#ff7ad9'];
@@ -21,8 +22,7 @@ export const EMOTES = [
 ];
 const CLIP = ['Idle_A', 'Walking_A', 'Running_A', 'Jump_Idle'];
 
-// Room size (floor from -W..W, -D..D). Small enough that everyone stays in view.
-export const W = 15, D = 10;
+// Room size: floor from -W..W, -D..D; grows with the group (LAYOUT.applyLayout, play.js).
 // Solid things (circles: x, z, r) avatars can't walk through.
 const SOLIDS = [];
 
@@ -267,20 +267,33 @@ export class Room {
     this.me = null;           // own Avatar (child page)
     this.time = 0;
     this.camPos = new THREE.Vector3(0, 12, 16); this.camLook = new THREE.Vector3();
+    this.size = 1;
+    this.furniture = null;
     this._build();
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
 
   _build() {
-    const s = this.scene;
-    s.add(new THREE.HemisphereLight('#c8dcff', '#3a2d58', 1.25));
+    this.scene.add(new THREE.HemisphereLight('#c8dcff', '#3a2d58', 1.25));
     const sun = new THREE.DirectionalLight('#ffffff', 1.5);
     sun.position.set(6, 16, 10); sun.castShadow = true;
     this.sun = sun;
     sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -W - 2, right: W + 2, top: D + 4, bottom: -D - 4, near: 1, far: 50 });
-    s.add(sun);
+    this.scene.add(sun);
+    this.screenMat = new THREE.MeshBasicMaterial({ map: logoTexture() });
+    this._buildWorld();
+  }
+
+  // Everything that depends on the room size, in one group (rebuilt by setSize).
+  _buildWorld() {
+    const { W, D, PADS } = LAYOUT;
+    const s = this.world = new THREE.Group();
+    this.scene.add(s);
+    const sc = W / 15;                                   // room scale
+    Object.assign(this.sun.shadow.camera, { left: -W - 2, right: W + 2, top: D + 4, bottom: -D - 4, near: 1, far: 50 + 30 * (sc - 1) });
+    this.sun.position.set(6 * sc, 16 * sc, 10 * sc);
+    this.sun.shadow.camera.updateProjectionMatrix();
 
     // Floor: checker of two soft blues inside a teal border, outside darker.
     const fc = document.createElement('canvas'); fc.width = fc.height = 256;
@@ -316,48 +329,78 @@ export class Room {
     wall(-W - 0.25, 0, 0.5, D * 2, 1.2);
     wall(W + 0.25, 0, 0.5, D * 2, 1.2);
 
-    // The big screen on the back wall.
-    this.screenMat = new THREE.MeshBasicMaterial({ map: logoTexture() });
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(12, 5.2), this.screenMat);
-    screen.position.set(0, 7.2, -D - 0.1); s.add(screen);
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(12.8, 6, 0.3), new THREE.MeshLambertMaterial({ color: '#0a0f24' }));
-    frame.position.set(0, 7.2, -D - 0.3); s.add(frame);
-    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(W * 2 + 1, 10), new THREE.MeshLambertMaterial({ color: '#18224a' }));
-    backWall.position.set(0, 7, -D - 0.5); s.add(backWall);
+    // The big screen on the back wall (bigger in a bigger room, bottom edge stays put).
+    const k = 1 + (sc - 1) * 0.6, sy = 4.6 + 2.6 * k;
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(12 * k, 5.2 * k), this.screenMat);
+    screen.position.set(0, sy, -D - 0.1); s.add(screen);
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(12 * k + 0.8, 5.2 * k + 0.8, 0.3), new THREE.MeshLambertMaterial({ color: '#0a0f24' }));
+    frame.position.set(0, sy, -D - 0.3); s.add(frame);
+    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(W * 2 + 1, 10 * k), new THREE.MeshLambertMaterial({ color: '#18224a' }));
+    backWall.position.set(0, 5 * k + 2, -D - 0.5); s.add(backWall);
 
     this.play = new PlayArea(s);
-    this.frozen = false;
+    this.frozen = this.frozen || false;
 
     // Bulb strips beside the screen.
     this.bulbs = [];
     const bulbGeo = new THREE.SphereGeometry(0.14, 10, 8);
     for (const side of [-1, 1]) for (let i = 0; i < 8; i++) {
       const b = new THREE.Mesh(bulbGeo, new THREE.MeshBasicMaterial({ color: '#ffcf5e' }));
-      b.position.set(side * 7, 4.8 + i * 0.7, -D - 0.05); s.add(b); this.bulbs.push(b);
+      b.position.set(side * 7 * k, 4.8 + i * 0.7 * k, -D - 0.05); s.add(b); this.bulbs.push(b);
+    }
+    if (this.furniture) this._placeFurniture();
+  }
+
+  // The room grows with the group (scale from the server, see play.js applyLayout).
+  // Rebuilds the floor, walls, screen, furniture and play area; avatars stay where they are.
+  setSize(sc) {
+    if (!(sc > this.size)) return;               // only ever grows (messages may arrive out of order)
+    this.size = sc;
+    const old = this.play, words = old.padWords;
+    this.scene.remove(this.world);
+    old.dispose();
+    this.world.traverse((o) => {
+      if (o.isMesh && !o.userData.shared) { o.geometry.dispose(); for (const m of [].concat(o.material)) if (m !== this.screenMat) m.dispose(); }
+    });
+    LAYOUT.applyLayout(sc);
+    this._buildWorld();
+    Object.assign(this.play, { onKick: old.onKick, onBoom: old.onBoom, onSound: old.onSound });
+    if (words) this.play.setPads(words);
+    // Own avatar inside a moved station (box side) → put it somewhere free.
+    if (this.me) {
+      const p = this.me.root.position;
+      if (this.play.blocked(p.x, p.z, p.y) || this.play.blocked(p.x, p.z, 0)) p.copy(randomSpawn());
     }
   }
 
   async load() {
     await loadClips();
     const fur = await Promise.all(FURNITURE.map((f) => loader.loadAsync(`assets/furniture/${f}.gltf`).then((g) => lambert(g.scene))));
-    const F = Object.fromEntries(FURNITURE.map((f, i) => [f, fur[i]]));
-    const put = (name, x, z, rot = 0, sc = 1.6, solid = 0) => {
-      const o = F[name].clone(true); o.position.set(x, 0, z); o.rotation.y = rot; o.scale.setScalar(sc);
-      this.scene.add(o);
+    this.furniture = Object.fromEntries(FURNITURE.map((f, i) => [f, fur[i]]));
+    this._placeFurniture();
+    // Compile the shaders now (behind the join screen), not on the first frames in the room.
+    try { await this.renderer.compileAsync(this.scene, this.camera); } catch (_) { /* older browsers */ }
+  }
+
+  // Furniture along the walls; positions follow the room size (corners stay corners).
+  _placeFurniture() {
+    const { W, D } = LAYOUT, sc = W / 15, F = this.furniture;
+    const put = (name, x, z, rot = 0, size = 1.6, solid = 0) => {
+      const o = F[name].clone(true); o.position.set(x, 0, z); o.rotation.y = rot; o.scale.setScalar(size);
+      o.traverse((m) => { if (m.isMesh) m.userData.shared = true; });   // geometry shared with the loaded model
+      this.world.add(o);
       if (solid) SOLIDS.push([x, z, solid]);
     };
     SOLIDS.length = 0;
-    put('couch_pillows', -11.5, -7.5, 0, 2, 1.6);
-    put('armchair_pillows', 12, -6.5, -0.5, 2, 1.0);
-    put('table_low_decorated', -9, -5, 0, 1.8, 0.9);
-    put('lamp_standing', -14, -9, 0, 2.2, 0.4);
-    put('lamp_standing', 14, -9, 0, 2.2, 0.4);
-    put('shelf_B_large_decorated', -4.5, -9.4, 0, 1.8, 0);
-    put('shelf_B_large_decorated', 4.5, -9.4, 0, 1.8, 0);
-    put('cactus_medium_A', 13.5, 8.5, 0, 2, 0.5);
-    put('cactus_medium_A', -14, -4, 1, 1.8, 0.5);
-    // Compile the shaders now (behind the join screen), not on the first frames in the room.
-    try { await this.renderer.compileAsync(this.scene, this.camera); } catch (_) { /* older browsers */ }
+    put('couch_pillows', -11.5 * sc, -D + 2.5, 0, 2, 1.6);
+    put('armchair_pillows', 12 * sc, -D + 3.5, -0.5, 2, 1.0);
+    put('table_low_decorated', -9 * sc, -D + 5, 0, 1.8, 0.9);
+    put('lamp_standing', -W + 1, -D + 1, 0, 2.2, 0.4);
+    put('lamp_standing', W - 1, -D + 1, 0, 2.2, 0.4);
+    put('shelf_B_large_decorated', -4.5 * sc, -D + 0.6, 0, 1.8, 0);
+    put('shelf_B_large_decorated', 4.5 * sc, -D + 0.6, 0, 1.8, 0);
+    put('cactus_medium_A', W - 1.5, D - 1.5, 0, 2, 0.5);
+    put('cactus_medium_A', -W + 1, -4 * sc, 1, 1.8, 0.5);
   }
 
   // The big screen: the logo, or a question (bonus round) in big letters.
@@ -454,8 +497,8 @@ export class Room {
     // Camera: child = follows its own avatar from behind and above; teacher = overview.
     let pos, look;
     if (this.mode === 'teacher' || !this.me) {
-      const k = Math.max(1, (16 / 9) / this.camera.aspect);
-      pos = new THREE.Vector3(0, 25 * k, 25 * k); look = new THREE.Vector3(0, 0, 5.5); // room in the upper part, panels below
+      const k = Math.max(1, (16 / 9) / this.camera.aspect) * (LAYOUT.W / 15);       // whole room in view at any size
+      pos = new THREE.Vector3(0, 25 * k, 25 * k); look = new THREE.Vector3(0, 0, 5.5 * (LAYOUT.W / 15)); // room in the upper part, panels below
     } else {
       const p = this.me.root.position;
       pos = new THREE.Vector3(p.x * 0.85, 9.5, p.z + 12); look = new THREE.Vector3(p.x * 0.9, 1.2, p.z - 2);
@@ -468,7 +511,8 @@ export class Room {
 }
 
 function randomSpawn() {
-  return new THREE.Vector3((Math.random() - 0.5) * 10, 0, 2 + Math.random() * 5);
+  const sc = LAYOUT.W / 15;
+  return new THREE.Vector3((Math.random() - 0.5) * 10 * sc, 0, (2 + Math.random() * 5) * sc);
 }
 
 // ------------------------------------------------------------------ local player
@@ -557,6 +601,7 @@ export class Controller {
       }
     }
     // Walls and furniture.
+    const { W, D } = LAYOUT;
     p.x = Math.max(-W + 0.6, Math.min(W - 0.6, p.x));
     p.z = Math.max(-D + 0.6, Math.min(D - 0.4, p.z));
     for (const [sx, sz, r] of SOLIDS) {

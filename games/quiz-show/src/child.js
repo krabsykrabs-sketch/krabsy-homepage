@@ -117,6 +117,7 @@ net.on('joined', async (m) => {
   $('join').classList.add('hidden'); $('hud').classList.remove('hidden');
   $('meName').textContent = m.name; $('meDot').style.background = COLORS[m.you.color];
   S.players = m.players; S.n = m.n; S.time = m.time;
+  room.setSize(m.size);
   room.syncPlayers(m.players, m.pid);
   setPhase(m.phase);
   setMiddle(!!m.middle, false);
@@ -127,6 +128,7 @@ net.on('joined', async (m) => {
 });
 
 net.on('players', (m) => { S.players = m.list; room.syncPlayers(m.list, S.pid); render(); });
+net.on('size', (m) => room.setSize(m.s));   // the room grows with the group
 net.on('pos', (m) => room.applyPositions(m.s));
 net.on('answered', (m) => { S.answered.add(m.pid); render(); });
 net.on('question', onQuestion);

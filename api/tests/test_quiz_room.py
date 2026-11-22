@@ -232,6 +232,48 @@ def test_bonus_round_by_position():
             assert not rb["you"]["right"] and rb["you"]["opt"] == 2
 
 
+def test_room_grows_with_the_group():
+    """The floor plan grows in steps as children join (never shrinks), not during a bonus
+    question; bonus answers are judged on the grown pads."""
+    c = _client()
+    if c is None:
+        return
+    import quiz_room
+    old = quiz_room.SIZES
+    quiz_room.SIZES = ((1, 1.0), (2, 1.25), (40, 1.5))      # small steps for the test
+    try:
+        with c.websocket_connect(WS) as teacher:
+            teacher.send_json({"t": "create", "questions": Q(1), "bonus": Q(1), "time": 30})
+            created = recv(teacher, "created")
+            assert created["size"] == 1.0
+            code = created["code"]
+            with c.websocket_connect(WS) as a, c.websocket_connect(WS) as b, c.websocket_connect(WS) as d:
+                a.send_json({"t": "join", "code": code, "name": "Ana"}); assert recv(a, "joined")["size"] == 1.0
+                b.send_json({"t": "join", "code": code, "name": "Ben"})
+                assert recv(b, "joined")["size"] == 1.0                    # snapshot before the step
+                assert recv(b, "size")["s"] == 1.25 and recv(a, "size")["s"] == 1.25
+                assert recv(teacher, "size")["s"] == 1.25
+                teacher.send_json({"t": "start"}); recv(a, "question")
+                teacher.send_json({"t": "next"}); recv(a, "reveal")
+                teacher.send_json({"t": "next"}); qb = recv(a, "question"); assert qb["q"]["bonus"]
+                d.send_json({"t": "join", "code": code, "name": "Dan"}); jd = recv(d, "joined")
+                assert jd["size"] == 1.25                                  # held back in the bonus round
+                # Ana stands on pad A as it is at 1.25 (would be off the pad at 1.0).
+                x, z = quiz_room.PAD_X[0] * 1.25, quiz_room.PAD_Z * 1.25 + quiz_room.pad_half(1.25) - 0.1
+                assert quiz_room.pad_at([x, 0, z]) is None and quiz_room.pad_at([x, 0, z], 1.25) == 0
+                a.send_json({"t": "move", "p": [x, 0, z], "r": 0, "a": 0})
+                for _ in range(10):
+                    pads = recv(teacher, "pads")
+                    if pads["counts"][0] == 1:
+                        break
+                assert pads["counts"][0] == 1
+                teacher.send_json({"t": "next"}); ra = recv(a, "reveal")
+                assert ra["you"]["right"] and ra["you"]["opt"] == 0
+    finally:
+        quiz_room.SIZES = old
+    assert quiz_room.size_for(1) == 1.0 and quiz_room.size_for(16) == 1.25 and quiz_room.size_for(40) == 1.5
+
+
 def test_outbox_slow_device():
     """A slow device gets every important message, in order; old positions are dropped."""
     try:

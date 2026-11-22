@@ -161,6 +161,23 @@ Milestone 5:
   back as the same child with its points, no duplicate player, no answer
   counted twice.
 
+Room size (2026-11-22, owner: "the room should scale for larger groups"):
+the floor plan grows with the group and never shrinks. Server `SIZES` in
+`api/quiz_room.py`: up to 15 players scale 1.0 (30 × 20 m), up to 28 →
+1.25, up to 40 → 1.5 (45 × 30 m). The server sends `size` in every snapshot
+and a `size` message when it steps up (on join; held back while a bonus
+question runs, applied at the next normal question). Client: `play.js`
+`applyLayout(s)` sets the live layout (`W, D, PADS, BOXES, …`): stations
+keep their size and move apart with their anchor, back-wall things stay
+on the wall, answer pads grow (`half = 1.8 + (s-1)·0.9`, same as the
+server's `pad_half`), more balls (3 / 5 / 7), bigger screen; `Room.setSize`
+rebuilds the floor, walls, screen, furniture and play area in place
+(avatars stay; one standing inside a moved station is re-spawned). The
+teacher camera zooms out with the room. Scales below 1.0 don't fit the
+stations (pit and pad A would overlap), so small groups keep 1.0.
+`tools/qa-grow.cjs` checks it (1 real child + 29 simulated: 1.0 → 1.25 →
+1.5, layout and pads match the server, walking past the old wall).
+
 ## Why this game
 
 Teachers are Krabsy's main channel, and in many of their classes every
@@ -433,3 +450,9 @@ question loading, texts, sounds, character loading and the QA approach.
   it: short join link krabsy.com/quiz on the site (teacher screen + QR), join
   URL always carries the room's language, "Lehrkraft? Quiz-Raum öffnen →" link on
   the child's join screen (hidden on phones).
+- 2026-11-22: owner: "the room should scale for larger groups" → chose "room
+  grows with players" (same max 40). Built: size steps 1.0 / 1.25 / 1.5 by
+  player count (server decides, never shrinks, not during a bonus question),
+  layout rebuilt in place on both pages. Tests: API 48 passed (new
+  `test_room_grows_with_the_group`), qa-grow 9/9, qa-bonus, qa-play,
+  qa-touch pass. Needs the API deploy too (server sends the size).
