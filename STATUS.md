@@ -57,6 +57,8 @@ New ideas the owner liked, not started, no folder yet:
 
 ## Analytics (api.krabsy.com, upgraded 2026-11-22)
 
+**Deployed 2026-11-22, live** (API + site; Verb Towers events live from build c14b871).
+
 - **Answer counts:** every `recordAttempt()` also tells the page tracker
   (`krabsy:attempt` DOM event / postMessage from game iframes); heartbeats
   carry `answers`, `correct`, `answer_source` (running counts, no content).
