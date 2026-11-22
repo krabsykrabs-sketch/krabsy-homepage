@@ -116,7 +116,7 @@ export const TREE_REGROW_DAYS = 2;
 export const INTERACT_RANGE = 2.3;
 export const SAVE_KEY = 'krabsy_vvalley_save';
 export const SOUND_KEY = 'krabsy_vvalley_sound';
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 // ── Question stations ──────────────────────────────────────────────────
 // The bucket waters BUCKET_CAP tiles; refilling it at the well asks one

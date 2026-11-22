@@ -562,3 +562,49 @@ geometry, one shadow light.
   - **Next: M4** — daily goal card with 1–3 stars and the sleep card as
     the end of a lesson unit, a first-day tutorial (teach by doing), save
     slots or a clear "New farm" for shared school computers.
+- 2026-11-22 — **M4 done: daily goals + stars, day-1 tutorial, farm
+  slots.**
+  - **Daily goals** (`src/goals.js`): 3 stars per in-game day, generated
+    each morning (`state.goals = {day, list}`):
+    ⭐ go to class · ⭐ a farm task picked from the field that morning
+    (harvest N if something is ripe, else water N growing crops, else
+    plant N seeds, else cut 4 hay; every 3rd day prefers watering) · ⭐
+    an English task (even days: fill the bucket at the well 2×; odd days:
+    7 right answers). Progress comes from new `state.today` counters
+    (`planted, watered, harvested, hayCut, wellsFilled, sold`), checked
+    every 0.25 s in the loop. A finished goal → star sfx + toast; stars
+    go to `state.stars` (all time). HUD chip `⭐ n/3` plus a goal list
+    under the top-left chips (closed by default on phones, tap the chip).
+    The **sleep card** opens with the day's stars (⭐⭐☆, "Stars today",
+    "All your stars"): one day = one lesson unit with a result a class
+    can compare.
+  - **Day-1 tutorial** (teach by doing): day-1 goals are fixed (class →
+    plant 3 → water 3). A hint line (replaces the gate pill) names the
+    next step: class → dig with the shovel → plant a seed bag → water →
+    sleep. A bouncing amber 3D arrow marks the target (school, the next
+    plot, the bed). When the target is off-screen, a pointer at the
+    screen edge shows the direction. New farms now start with **3 carrot
+    + 2 turnip** seeds: carrots ripen overnight, so day 2 opens with a
+    harvest goal.
+  - **Farm slots** for shared school computers (`save.js`): up to 4
+    named farms per browser (`krabsy_vvalley_save_slots` index + one key
+    per farm `krabsy_vvalley_save_<id>`). The start screen lists them
+    (name, day, stars; tap to continue, ✕ deletes after a confirm), plus
+    an optional name field and "Start Farming". A save from before slots
+    (plain `krabsy_vvalley_save`) becomes slot 1 automatically. Returning
+    players get a compact start card (no how-to); it scrolls on short
+    screens.
+  - **Save v5** (`goals`, `stars`, `farmName`, more `today` counters);
+    v1→v5 migrations chain.
+  - All new strings in EN/DE/ES.
+  - **Verified** (headless): new M4 test 26/26 (legacy save → slot, named
+    farm, day-1 goals + hints at every step + arrow, 3 stars, sleep card,
+    day-2 goals pick the ripe carrots, harvest/wells stars, two farms
+    listed, delete, continue). EN regression 26 (+1 known test-timing
+    quirk), touch tablet + phone 13/13 each, DE/ES sleep card checked by
+    screenshot. Phone: the hint sits right of the inventory and toasts
+    moved lower so they don't overlap.
+  - **Next: M5** — device tests on real hardware (Chromebook, tablet,
+    phone), first-load time check, polish from an owner play-test, then
+    "ready for review". Open for the master session: tracking `assets/`
+    (4.9 MB) for release; wrappers must pass `?lang=`.

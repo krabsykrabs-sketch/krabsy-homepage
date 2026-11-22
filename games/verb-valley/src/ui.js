@@ -49,7 +49,7 @@ export function createUI(state, hooks) {
       slot.onclick = () => selectTool(t.id);
       hotbar.appendChild(slot);
     });
-    $('gate-pill').hidden = state.schooledDay === state.day;
+    renderPill();
   }
 
   function selectTool(id) {
@@ -137,6 +137,27 @@ export function createUI(state, hooks) {
     $('hud-stickers').hidden = stickers === 0;
     $('hud-stickers').textContent = stickers > 0 ? '🌟'.repeat(Math.min(stickers, 5)) + (stickers > 5 ? `×${stickers}` : '') : '';
     $('hud-album').textContent = `📖 ${collectedCount()}/${CROP_ORDER.length}`;
+  }
+
+  // Top pill: the day-1 guide when there is one, else the school gate.
+  let hint = '';
+  function renderPill() {
+    const pill = $('gate-pill');
+    pill.classList.toggle('hint', !!hint);
+    if (hint) { pill.textContent = hint; pill.hidden = false; return; }
+    pill.textContent = t('gatePill');
+    pill.hidden = state.schooledDay === state.day;
+  }
+  function setHint(text) { hint = text || ''; renderPill(); }
+
+  // ── Daily goals (chip + list; the list starts closed on phones) ──
+  const goalsList = $('goals-list');
+  if (innerWidth <= 640) goalsList.classList.add('closed');
+  $('hud-goals').onclick = () => goalsList.classList.toggle('closed');
+  function renderGoals(items, stars) {
+    $('hud-goals').textContent = `⭐ ${stars}/${items.length}`;
+    goalsList.innerHTML = items.map((g) => `<div class="g${g.done ? ' done' : ''}"><span class="st">${g.done ? '⭐' : '☆'}</span>`
+      + `<span>${g.label}</span><span class="pr">${g.n > 1 ? `${g.cur}/${g.n}` : ''}</span></div>`).join('');
   }
 
   // ── Toasts + interaction prompt ──
@@ -283,6 +304,12 @@ export function createUI(state, hooks) {
     const el = $('sleep-overlay');
     $('sleep-title').textContent = dozedOff ? t('dozed') : t('goodNight');
     let html = '';
+    if (summary.goals?.length) {
+      const n = summary.goals.filter((g) => g.done).length;
+      html += `<p class="sleep-stars">${'⭐'.repeat(n)}${'☆'.repeat(summary.goals.length - n)}</p>`
+        + `<p>${t('starsDay', n, summary.goals.length)}</p>`
+        + `<p class="sleep-goals">${t('starsTotal', summary.starsTotal)}</p>`;
+    }
     if (summary.earned > 0) {
       const items = Object.entries(summary.sold).map(([it, n]) => `${ITEM_EMOJI[it] ?? ''} ×${n}`).join('  ');
       html += `<p class="earn">${items}</p><p class="earn big">${t('fromCrate', summary.earned)}</p>`;
@@ -306,16 +333,33 @@ export function createUI(state, hooks) {
   $('sleep-continue').onclick = () => { $('sleep-overlay').hidden = true; hooks.onWake?.(); };
 
   // ── Start screen ──
-  function showStart(hasSave) {
+  // Farms on this browser (tap to continue, ✕ to delete) + a new farm
+  // with an optional name, so several kids can share one school computer.
+  function showStart() {
     $('start-screen').hidden = false;
-    $('btn-continue').hidden = !hasSave;
-    $('btn-new').textContent = hasSave ? t('btnNewFarm') : t('btnStart');
-    $('btn-new').classList.toggle('secondary', hasSave);
-    $('btn-continue').onclick = () => { $('start-screen').hidden = true; hooks.onContinue(); };
-    $('btn-new').onclick = () => {
-      if (hasSave && !confirm(t('confirmNew'))) return;
-      $('start-screen').hidden = true; hooks.onNewFarm();
-    };
+    const box = $('slots');
+    const slots = hooks.listSlots();
+    document.querySelector('.start-card').classList.toggle('returning', slots.length > 0);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const nameOf = (s, i) => (s.name ? esc(s.name) : t('farmN', i + 1));
+    let html = '';
+    if (slots.length) {
+      html += `<h3>${t('yourFarms')}</h3>` + slots.map((s, i) => `<div class="slot-row">
+        <button class="slot-btn" data-id="${s.id}">🌱 ${nameOf(s, i)}<small>${t('day', s.day)} · ⭐ ${s.stars}</small></button>
+        <button class="slot-del" data-id="${s.id}" data-name="${nameOf(s, i)}" aria-label="delete">✕</button></div>`).join('');
+      html += `<h3>${t('newFarmHead')}</h3>`;
+    }
+    if (slots.length < hooks.maxSlots) {
+      html += `<input id="farm-name" maxlength="16" autocomplete="off" placeholder="${t('namePh')}">
+        <button class="big-btn" id="btn-new">${t('btnStart')}</button>`;
+    } else html += `<p class="slots-full">${t('slotsFull')}</p>`;
+    box.innerHTML = html;
+    box.querySelectorAll('.slot-btn').forEach((b) => { b.onclick = () => { $('start-screen').hidden = true; hooks.onPickSlot(+b.dataset.id); }; });
+    box.querySelectorAll('.slot-del').forEach((b) => {
+      b.onclick = () => { if (confirm(t('confirmDelete', b.dataset.name))) { hooks.onDeleteSlot(+b.dataset.id); showStart(); } };
+    });
+    const go = () => { const nm = $('farm-name').value; $('start-screen').hidden = true; if (!hooks.onNewSlot(nm)) showStart(); };
+    if ($('btn-new')) { $('btn-new').onclick = go; $('farm-name').onkeydown = (e) => { if (e.key === 'Enter') go(); e.stopPropagation(); }; }
   }
 
   // ── Sound toggle ──
@@ -327,7 +371,7 @@ export function createUI(state, hooks) {
   refresh();
 
   return {
-    updateHUD, refresh, toast, prompt, bubble, projectBubble,
+    updateHUD, refresh, toast, prompt, bubble, projectBubble, renderGoals, setHint,
     openShop, openShip, openAlbum, closePanels, anyPanelOpen, showSleep, showStart,
     selectTool, selectSeed, selectItem, cycleSeed, autoStow, collectedCount,
     get selection() { return sel; },

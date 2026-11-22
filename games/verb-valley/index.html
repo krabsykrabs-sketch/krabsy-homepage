@@ -149,8 +149,13 @@
   .big-btn.secondary { background: rgba(255,255,255,0.12); color: #fff; box-shadow: none; }
 
   /* ── Start screen ── */
-  #start-screen { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  #start-screen { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center;
+    overflow-y: auto; padding: 16px 0;
     background: linear-gradient(180deg, rgba(13,17,40,0.88), rgba(13,17,40,0.96)); }
+  /* centred when it fits, scrollable from the top when it doesn't */
+  .start-card { margin: auto 0; }
+  .start-card.returning .howto { display: none; }
+  .start-card.returning .mascot { font-size: 44px; }
   .start-card { text-align: center; width: min(460px, 94vw); background: var(--navy2);
     border-radius: 32px; padding: 38px 36px; border: 3px solid rgba(255,255,255,0.1);
     box-shadow: 0 24px 80px rgba(0,0,0,0.55); }
@@ -238,6 +243,46 @@
     #btn-action { right: 16px; bottom: 76px; width: 78px; height: 78px; font-size: 34px; }
     body.touch #prompt { left: 42%; }
   }
+
+  /* ── Daily goals (goals.js) ── */
+  #hud-goals { color: var(--amber); cursor: pointer; }
+  #goals-list { position: absolute; top: 62px; left: 14px; pointer-events: auto; background: rgba(16,20,42,0.82);
+    border: 2px solid rgba(255,207,94,0.3); border-radius: 16px; padding: 8px 12px; font-size: 14px; font-weight: 700;
+    display: grid; gap: 4px; max-width: 300px; }
+  #goals-list.closed { display: none; }
+  #goals-list .g { display: flex; gap: 8px; align-items: center; color: rgba(255,255,255,0.85); }
+  #goals-list .g .st { width: 18px; text-align: center; }
+  #goals-list .g.done { color: var(--teal); }
+  #goals-list .g .pr { margin-left: auto; color: rgba(255,255,255,0.5); font-variant-numeric: tabular-nums; }
+  #gate-pill.hint { color: #fff; border-color: rgba(46,230,192,0.6); background: rgba(16,20,42,0.92); max-width: 92vw; white-space: normal; text-align: center; }
+  #inventory { top: calc(50% + 40px); }
+  .sleep-stars { font-size: 34px; letter-spacing: 6px; margin: 4px 0 2px; }
+  .sleep-stars + p { color: var(--amber); font-weight: 800; }
+  .sleep-goals { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 8px; }
+  /* ── Farm slots on the start screen ── */
+  #slots { display: grid; gap: 8px; margin-top: 6px; }
+  #slots h3 { font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--teal); margin-top: 6px; }
+  .slot-row { display: flex; gap: 6px; }
+  .slot-btn { flex: 1; text-align: left; border: 2px solid rgba(46,230,192,0.4); background: rgba(255,255,255,0.06); color: #fff;
+    border-radius: 14px; padding: 10px 14px; font: 800 16px Nunito, sans-serif; cursor: pointer; }
+  .slot-btn small { display: block; font-weight: 700; color: rgba(255,255,255,0.6); font-size: 13px; }
+  .slot-btn:hover { background: rgba(46,230,192,0.15); }
+  .slot-del { width: 40px; border: 0; border-radius: 12px; background: rgba(255,133,133,0.15); color: var(--coral); font-size: 16px; cursor: pointer; }
+  #farm-name { width: 100%; border: 2px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.25); color: #fff; border-radius: 14px;
+    padding: 10px 14px; font: 700 16px Nunito, sans-serif; text-align: center; }
+  .slots-full { color: rgba(255,255,255,0.6); font-size: 13px; }
+  #slots .big-btn { justify-self: center; margin-top: 6px; }
+  @media (max-width: 640px) {
+    #gate-pill.hint { left: 76px; right: 10px; transform: none; max-width: none; font-size: 12px; text-align: left; }
+    #toast { top: 190px; }
+    #goals-list { top: 84px; left: auto; right: 10px; font-size: 12px; max-width: 70vw; }
+    #inventory { top: 84px; }
+  }
+  /* screen-edge pointer to the day-1 guide target when it is off-screen */
+  #edge-arrow { position: fixed; width: 46px; height: 46px; margin: -23px 0 0 -23px; z-index: 11; pointer-events: none;
+    display: grid; place-items: center; font-size: 28px; color: var(--amber); border-radius: 50%;
+    background: rgba(16,20,42,0.85); border: 3px solid var(--amber);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); animation: pulse 1s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -251,7 +296,9 @@
     <span class="chip" id="hud-day">Day 1</span>
     <span class="chip" id="hud-clock">06:00</span>
     <button class="chip" id="hud-album" data-i18n-title="albumTip">📖 0/12</button>
+    <button class="chip" id="hud-goals">⭐ 0/3</button>
   </div>
+  <div id="goals-list"></div>
   <div id="hud-topright">
     <span class="chip" id="hud-stickers"></span>
     <span class="chip" id="hud-water" data-i18n-title="waterTip">🪣 <span id="hud-water-n">6</span></span>
@@ -272,6 +319,7 @@
   <div id="hotbar"></div>
 </div>
 <div id="bubble" hidden></div>
+<div id="edge-arrow" hidden><span>➤</span></div>
 
 <!-- Shop -->
 <div class="panel" id="shop-panel" hidden>
@@ -324,10 +372,7 @@
       <div><span class="em">📦</span><span><span data-i18n="how3"></span><small data-i18n="how3s"></small></span></div>
       <div><span class="em">⛏</span><span><span data-i18n="how4"></span><small data-i18n="how4s"></small></span></div>
     </div>
-    <div class="start-btns">
-      <button class="big-btn" id="btn-continue" hidden data-i18n="btnContinue"></button>
-      <button class="big-btn" id="btn-new">Start Farming</button>
-    </div>
+    <div id="slots"></div>
   </div>
 </div>
 

@@ -17,6 +17,7 @@ import * as Q from './questions.js';
 import * as quiz from './quiz.js';
 import { t, NameOf, applyStatic } from './i18n.js';
 import { createTouch } from './touch.js';
+import * as G from './goals.js';
 
 applyStatic();
 import { unlock, sfx, birds } from './audio.js';
@@ -145,6 +146,7 @@ async function useWell() {
   });
   Q.recordUnit(state, unit, r.correct === r.total);
   state.today.wells += 1;
+  if (r.correct > 0) state.today.wellsFilled += 1;
   if (r.correct === 0) ui.toast(t('wellAgain'));
   return { ok: true, ...r, water: state.water };
 }
@@ -167,16 +169,17 @@ async function krabsyDeal() {
 // ── Gated farm actions (single path for player input AND QA) ────────────
 const act = {
   till: (i) => gated(() => { const r = farm.actions.till(i); if (r.ok) { sfx.till(); player.playAction('Dig'); } return r; }),
-  plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { sfx.plant(); ui.autoStow(); ui.refresh(); } return r; }),
+  plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { state.today.planted++; sfx.plant(); ui.autoStow(); ui.refresh(); } return r; }),
   water: (i) => gated(() => {
     if (state.water <= 0) return bucketEmpty();
     const r = farm.actions.water(i);
-    if (r.ok) { state.water--; sfx.water(); player.playAction('Use_Item'); ui.updateHUD(); }
+    if (r.ok) { state.water--; state.today.watered++; sfx.water(); player.playAction('Use_Item'); ui.updateHUD(); }
     return r;
   }),
   harvest: (i) => gated(() => {
     const r = farm.actions.harvest(i);
     if (r.ok) {
+      state.today.harvested++;
       sfx.harvest();
       // crop album: first harvest of a type collects it
       if (!state.collection[r.type]) {
@@ -197,7 +200,7 @@ const act = {
   }),
   cutHay: (i) => gated(() => {
     const r = farm.actions.cutHay(i);
-    if (r.ok) { sfx.till(); player.playAction('Chop'); ui.refresh(); }
+    if (r.ok) { state.today.hayCut++; sfx.till(); player.playAction('Chop'); ui.refresh(); }
     return r;
   }),
   waterHay: (i) => gated(() => {
@@ -404,6 +407,7 @@ function ship(item, n) {
   const base = (SELLABLE[item] ?? 0) * move;
   const earned = Math.round(base * (1 + (state.saleBonus || 0)));
   state.saleBonus = 0;
+  state.today.sold += earned;
   state.inventory[item] -= move;
   state.coins += earned;
   sfx.coin();
@@ -416,7 +420,12 @@ function ship(item, n) {
 function doSleep(dozed = false) {
   fishing?.cancel();
   sfx.sleep();
+  goalTick(true);
+  const goalsDay = state.goals?.list.map((g) => ({ ...g })) ?? [];
   const summary = save.advanceDay(state);
+  summary.goals = goalsDay;
+  summary.starsTotal = state.stars;
+  G.makeGoals(state);
   summary.english.lines = summary.english.missed.map((m) => Q.chainLine(m));
   Q.resetDay();
   save.save(state);
@@ -467,10 +476,13 @@ function startGame(loaded) {
   document.getElementById('hud').hidden = false;
   if (!touch) touch = createTouch(input, { onAction: () => { unlock(); interact(); } });
   started = true;
+  if (!state.goals || state.goals.day !== state.day) G.makeGoals(state);
+  if (!arrow) arrow = makeArrow();
   if (!loaded && !QA_SCENE) {
     setTimeout(() => ui.toast(t('welcome'), 4200), 600);
   }
   installQA();
+  goalTick(true);
 }
 
 // ── Main loop ───────────────────────────────────────────────────────────
@@ -488,6 +500,10 @@ function frame() {
       state.timeMin += dt * TIME.MIN_PER_SEC;
       if (state.timeMin >= TIME.PASS_OUT) doSleep(true);
     }
+
+    goalTimer -= dt;
+    if (goalTimer <= 0) { goalTimer = 0.25; goalTick(); }
+    updateArrow(dt);
 
     // Bell nag: every 45 in-game minutes between 08:00 and dusk.
     if (!attended() && !school.active && state.timeMin >= TIME.SCHOOL_BELL && state.timeMin < TIME.DUSK
@@ -536,6 +552,81 @@ function frame() {
   }
 
   renderer.render(scene, camera);
+}
+
+// ── Daily goals + day-1 guide ───────────────────────────────────────────
+let goalTimer = 0, arrow = null, lastHint = null, lastGoalsKey = '';
+const goalLabel = (g) => t('goal.' + g.kind, g.n);
+function goalTick(force = false) {
+  if (!state.goals) return;
+  const fresh = G.checkGoals(state);
+  fresh.forEach((g, k) => setTimeout(() => {
+    sfx.star(); ui.toast(t('goalDone', goalLabel(g)), 3000);
+  }, 1400 + k * 1800));
+  const items = state.goals.list.map((g) => ({
+    label: goalLabel(g), cur: Math.min(G.progressOf(state, g), g.n), n: g.n, done: g.done,
+  }));
+  const key = JSON.stringify(items);
+  if (force || key !== lastGoalsKey) { ui.renderGoals(items, G.starsToday(state)); lastGoalsKey = key; }
+  if (fresh.length) save.save(state);
+  // Day-1 guide: a hint line (instead of the gate pill) and an arrow.
+  const free = state.plots.filter((p) => p.tilled && !p.crop).length;
+  const step = G.tutorialStep(state, free);
+  const hint = step ? t(step.key) : '';
+  if (hint !== lastHint) { ui.setHint(hint); lastHint = hint; }
+  arrowTarget = step ? targetPos(step) : null;
+}
+let arrowTarget = null;
+function targetPos(step) {
+  if (step.target === 'school') return new THREE.Vector3(LAYOUT.school.x, 3.6, LAYOUT.school.z + 3.2);
+  if (step.target === 'bed') return new THREE.Vector3(LAYOUT.bed.x, 2.2, LAYOUT.bed.z);
+  // field: the plot that needs the next action
+  const p = state.plots;
+  let i = -1;
+  if (step.key === 'tutTill') i = p.findIndex((q) => !q.tilled);
+  else if (step.key === 'tutPlant') i = p.findIndex((q) => q.tilled && !q.crop);
+  else if (step.key === 'tutWater') i = p.findIndex((q) => q.crop && !q.watered);
+  if (i < 0) return null;
+  const c = farm.plotCenter(i);
+  return new THREE.Vector3(c.x, 1.9, c.z);
+}
+function makeArrow() {
+  const g = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: 0xffcf5e, emissive: 0xffcf5e, emissiveIntensity: 0.45 });
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.6, 12), mat);
+  cone.rotation.x = Math.PI; g.add(cone);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.5, 10), mat);
+  stem.position.y = 0.5; g.add(stem);
+  g.visible = false;
+  scene.add(g);
+  return g;
+}
+const edgeEl = document.getElementById('edge-arrow');
+const _v = new THREE.Vector3();
+function updateArrow(dt) {
+  if (!arrow) return;
+  const show = !!arrowTarget && !school.active && !quiz.isOpen() && !ui.anyPanelOpen();
+  arrow.visible = show;
+  // Off-screen target: a pointer at the screen edge shows the way.
+  let edge = false;
+  if (show) {
+    _v.copy(arrowTarget).project(camera);
+    const off = _v.z > 1 || Math.abs(_v.x) > 0.92 || Math.abs(_v.y) > 0.88;
+    if (off) {
+      edge = true;
+      let x = _v.x, y = _v.y;
+      if (_v.z > 1) { x = -x; y = -y; }
+      const m = Math.max(Math.abs(x) / 0.86, Math.abs(y) / 0.74, 1e-6);
+      x /= m; y /= m;
+      edgeEl.style.left = `${(x * 0.5 + 0.5) * innerWidth}px`;
+      edgeEl.style.top = `${(-y * 0.5 + 0.5) * innerHeight}px`;
+      edgeEl.firstChild.style.transform = `rotate(${Math.atan2(-y, x)}rad)`;
+    }
+  }
+  edgeEl.hidden = !edge;
+  if (!show) return;
+  arrow.position.set(arrowTarget.x, arrowTarget.y + Math.abs(Math.sin(worldClock * 3)) * 0.35, arrowTarget.z);
+  arrow.rotation.y += dt * 1.5;
 }
 
 // Professor Krabsy: claws wave, eye stalks sway, he blinks; livelier in class.
@@ -729,11 +820,23 @@ if (qa) {
   setupQAScene(qa);
 } else {
   // Show the start screen over the live world (set a pleasant backdrop hour).
-  const bootUI = createUI(save.load() ?? save.createNewState(), {
+  // Start screen: the farms saved on this browser (named slots, so several
+  // kids can share one school computer) plus "new farm".
+  const bootUI = createUI(save.createNewState(), {
     onBuy: () => {}, onShip: () => {},
-    onContinue: () => startGame(save.load()),
-    onNewFarm: () => { save.wipe(); startGame(null); },
+    listSlots: () => save.listSlots(),
+    maxSlots: save.MAX_SLOTS,
+    onPickSlot: (id) => { save.useSlot(id); startGame(save.load()); },
+    onNewSlot: (name) => {
+      const id = save.createSlot(name);
+      if (id == null) return false;
+      startGame(null);
+      state.farmName = String(name ?? '').trim().slice(0, 16);
+      save.save(state);
+      return true;
+    },
+    onDeleteSlot: (id) => save.deleteSlot(id),
   });
-  bootUI.showStart(save.hasSave());
+  bootUI.showStart();
 }
 frame();
