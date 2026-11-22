@@ -43,13 +43,23 @@ const Q_BUBBLE_Y = 4.5;
 const Q_BUBBLE_TINT = 'rgba(255, 138, 70, 0.9)';   // coral — matches the Krabsy brand orange
 const Q_BUBBLE_FONT_PX = 220;
 const Q_BUBBLE_PAD_PX = 140;
-function makeQuestionBubble(prompt) {
+// q: a question from data/questions.js ({ parts, askIndex }) or a plain string.
+// Positional notation (site rule): the ASKED blank is a white box, a blank that is just hidden
+// (the 3rd form before it is asked) is drawn faint.
+function makeQuestionBubble(q) {
   const H = 512;
   const font = `bold ${Q_BUBBLE_FONT_PX}px Arial, sans-serif`;
+  const parts = typeof q === 'string' ? [q] : q.parts;
+  const ask = typeof q === 'string' ? -1 : q.askIndex;
+  const ARROW = '  →  ';
+  const SLOT_W = 360;      // width of a blank slot in canvas px
 
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = font;
-  const textW = measure.measureText(prompt).width;
+  const isBlank = (t) => /^_+$/.test(t);
+  const segW = parts.map(t => (isBlank(t) ? SLOT_W : measure.measureText(t).width));
+  const arrowW = measure.measureText(ARROW).width;
+  const textW = segW.reduce((a, b) => a + b, 0) + arrowW * (parts.length - 1);
   const W = Math.max(900, Math.ceil(textW + 2 * Q_BUBBLE_PAD_PX));
 
   const c = document.createElement('canvas');
@@ -58,21 +68,46 @@ function makeQuestionBubble(prompt) {
   ctx.clearRect(0, 0, W, H);
 
   const r = 90;
+  const roundRect = (x, y, w, h, rr) => {
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  };
   ctx.fillStyle = Q_BUBBLE_TINT;
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(W, 0, W, H, r);
-  ctx.arcTo(W, H, 0, H, r);
-  ctx.arcTo(0, H, 0, 0, r);
-  ctx.arcTo(0, 0, W, 0, r);
-  ctx.closePath();
+  roundRect(0, 0, W, H, r);
   ctx.fill();
 
-  ctx.fillStyle = '#ffffff';
   ctx.font = font;
-  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(prompt, W / 2, H / 2);
+  ctx.textAlign = 'left';
+  let x = (W - textW) / 2;
+  parts.forEach((t, i) => {
+    if (isBlank(t)) {
+      if (i === ask) {
+        ctx.fillStyle = '#ffffff';
+        roundRect(x + 10, H / 2 - 120, SLOT_W - 20, 240, 50);
+        ctx.fill();
+        ctx.fillStyle = Q_BUBBLE_TINT;
+        ctx.fillRect(x + 70, H / 2 + 70, SLOT_W - 140, 22);   // the blank's underline
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.fillRect(x + 50, H / 2 + 70, SLOT_W - 100, 22);
+      }
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(t, x, H / 2);
+    }
+    x += segW[i];
+    if (i < parts.length - 1) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(ARROW, x, H / 2);
+      x += arrowW;
+    }
+  });
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -314,7 +349,7 @@ export async function loadLevel(scene, world, RAPIER, particles, sfx, data, call
       hudQuestion = styled.hudQuestion || null;
     } else {
       gate = await spawnGate(scene, world, RAPIER, particles, sfx, gateData, gateCallbacks);
-      const banner = makeQuestionBubble(question.prompt);
+      const banner = makeQuestionBubble(question);
       const [gx, gy, gz] = e.position;
       banner.position.set(gx, gy + Q_BUBBLE_Y, gz);
       scene.add(banner);
@@ -739,7 +774,7 @@ async function loadEditorLevel(scene, world, RAPIER, particles, sfx, data, callb
         },
         onWrong: (g, opt) => entry.onWrong?.(opt),
       });
-      entry.banner = makeQuestionBubble(question.prompt);
+      entry.banner = makeQuestionBubble(question);
       entry.banner.position.set(entry.pos.x, entry.pos.y + Q_BUBBLE_Y, entry.pos.z);
       entry.banner.rotation.y = rotY;
       scene.add(entry.banner);

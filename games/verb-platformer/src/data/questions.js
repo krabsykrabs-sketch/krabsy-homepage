@@ -5,12 +5,21 @@
 // its own (dev server in this folder, file://) that import fails and the small inline list
 // below is used instead.
 //
-// Presentation follows the site rule: no grammar terms, the position in the chain is the
-// question —  `go → ___ → gone`  or  `go → went → ___`.
+// Presentation follows the site rules (root CLAUDE.md): no grammar terms, the position in the
+// chain is the question, and the 3rd form is asked ONLY directly after the same verb's 2nd
+// form, with the 2nd form filled in:
+//     gate n:    go → [___] → ___        (2nd form; 3rd stays hidden)
+//     gate n+1:  go → went → [___]       (3rd form)
+// A 2nd-form question that is NOT followed by its 3rd form shows the 3rd form as a hint:
+//     go → [___] → gone
 //
 // A question:
 //   { verb, form: 'past'|'participle', correct, wrong: [a, b],
-//     prompt: 'go → ___ → gone', chain: 'go → went → gone' }
+//     parts: ['go', '___', '___'], askIndex: 1,      // for the sign; asked slot highlighted
+//     prompt: 'go → ___ → ___',                      // the same as plain text (HUD)
+//     chain: 'go → went → ___' }                     // shown after answering (teach beat);
+//                                                     // the 3rd form stays hidden when the
+//                                                     // next gate asks it
 
 const BLANK = '___';
 
@@ -63,7 +72,8 @@ function shuffle(arr) {
 
 const norm = s => String(s || '').trim().toLowerCase();
 
-function makeQuestion(row, form) {
+// pairNext: true when the next gate asks this verb's 3rd form (so it must not be shown yet).
+function makeQuestion(row, form, pairNext = false) {
   const correct = row[form];
   const other = form === 'past' ? row.participle : row.past;
   // Never offer as "wrong" a word that is also right, or one already printed in the prompt.
@@ -79,23 +89,31 @@ function makeQuestion(row, form) {
     taken.add(norm(w));
     wrong.push(w);
   }
+  const parts = form === 'past'
+    ? [row.verb, BLANK, pairNext ? BLANK : row.participle]
+    : [row.verb, row.past, BLANK];
   return {
     verb: row.verb,
     form,
     correct,
     wrong,
-    prompt: form === 'past'
-      ? `${row.verb} → ${BLANK} → ${row.participle}`
-      : `${row.verb} → ${row.past} → ${BLANK}`,
-    chain: `${row.verb} → ${row.past} → ${row.participle}`,
+    parts,
+    askIndex: form === 'past' ? 1 : 2,
+    prompt: parts.join(' → '),
+    chain: pairNext
+      ? `${row.verb} → ${row.past} → ${BLANK}`
+      : `${row.verb} → ${row.past} → ${row.participle}`,
   };
 }
 
-// One question per gate.
+// One question per gate, in gate order.
 //   level.verbs  ['go', 'eat', …]   only these verbs (optional)
 //   level.tiers  [1, 2]             only these difficulty tiers (optional)
-//   level.forms  ['past']           only this blank (optional; default both, mixed)
-//   gates        [{ verb? }, …]     a gate may fix its verb
+//   level.forms  ['past']           only the 2nd form (optional; default: 2nd + 3rd in pairs)
+//   gates        [{ verb?, form? }, …]  a gate may fix its verb and/or form
+// With both forms on, gates are dealt in pairs: 2nd form of a verb, then its 3rd form on the
+// next gate. A gate that fixes form 'participle' becomes the 2nd gate of a pair (the gate before
+// it asks the same verb's 2nd form); if that is impossible it is asked as 2nd form instead.
 // Verbs are not repeated until the pool is used up.
 export async function buildQuestionQueue(level, gates) {
   const all = await loadVerbPool();
@@ -108,9 +126,7 @@ export async function buildQuestionQueue(level, gates) {
   }
   if (pool.length === 0) pool = all;
 
-  const forms = (Array.isArray(level.forms) && level.forms.length)
-    ? level.forms.filter(f => f === 'past' || f === 'participle')
-    : ['past', 'participle'];
+  const pastOnly = Array.isArray(level.forms) && level.forms.length && !level.forms.includes('participle');
   const byVerb = new Map(all.map(r => [norm(r.verb), r]));
 
   let bag = [];
@@ -123,18 +139,28 @@ export async function buildQuestionQueue(level, gates) {
     return r;
   };
 
-  // Mixed forms: deal them evenly so a level never asks one blank only by chance.
-  let formBag = [];
-  const drawForm = () => {
-    if (formBag.length === 0) formBag = shuffle([...forms]);
-    return formBag.pop();
-  };
+  // Plan forms, left to right: which gates are the 2nd gate of a pair.
+  const n = gates.length;
+  const second = new Array(n).fill(false);
+  const canPair = (i) => i + 1 < n
+    && gates[i].form !== 'participle' && gates[i + 1].form !== 'past'
+    && (!gates[i].verb || !gates[i + 1].verb || norm(gates[i].verb) === norm(gates[i + 1].verb));
+  for (let i = 0; i < n && !pastOnly; ) {
+    // leave gate i+1 free if it is needed for a fixed 3rd-form gate right after it
+    const nextNeeded = gates[i + 2]?.form === 'participle' && canPair(i + 1);
+    if (canPair(i) && !nextNeeded) { second[i + 1] = true; i += 2; } else i += 1;
+  }
 
-  return gates.map(g => {
-    const row = byVerb.get(norm(g.verb)) || draw();
-    const form = (g.form === 'past' || g.form === 'participle') ? g.form : drawForm();
-    return makeQuestion(row, form);
-  });
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    if (second[i]) continue;   // filled together with its 1st gate
+    const pair = i + 1 < n && second[i + 1];
+    const fixed = gates[i].verb || (pair && gates[i + 1].verb);
+    const row = byVerb.get(norm(fixed)) || draw();
+    out[i] = makeQuestion(row, 'past', pair);
+    if (pair) out[i + 1] = makeQuestion(row, 'participle');
+  }
+  return out;
 }
 
 // Kept for the Q/A style test bench (qa-styles.js).
