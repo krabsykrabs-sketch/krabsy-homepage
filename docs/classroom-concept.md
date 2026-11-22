@@ -119,6 +119,10 @@ The numbers above are starting values to tune with real play data.
 
 ### Phase 4 — live mode on the projector
 
+> 2026-11-22: being designed as the **Krabsy Quiz Room** (`games/quiz-show/CLAUDE.md`):
+> every child joins a 3D room with a room code (no class needed; a phase-2 class
+> can be linked), the server is a WebSocket module in `api/`.
+
 - The teacher starts a live round (5 minutes, one topic or word list) on the
   classroom screen; children join with the code; a live ranking shows on the
   projector; results land in the dashboard.

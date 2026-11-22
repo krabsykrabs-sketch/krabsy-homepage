@@ -1,245 +1,257 @@
-# Krabsy Quiz Show — game brief
+# Krabsy Quiz Room — game brief
 
-You are the **game session** for the Krabsy Quiz Show on **Krabsy**
+You are the **game session** for the Krabsy Quiz Room on **Krabsy**
 (krabsy.com): a free browser site where German- and Spanish-speaking kids
 (about 10–14) practise English irregular verbs and prepositions. Read the
-repo-root `CLAUDE.md` once for the site rules, then work only in this
-folder. The master session releases games (wrapper pages, `games.json`,
-sitemap, deploy, the teacher pages). You don't touch `homepage/` or other
-games, and you don't push or deploy. Stage only this folder, in the same
-command that commits: `git add games/quiz-show && git commit …`.
+repo-root `CLAUDE.md` once for the site rules.
 
-Status: **version 1 playable (2026-11-22)**: all three rounds, 2–4 teams,
-verbs + prepositions, DE/ES/EN, timer on/off, review screen. Tested only in
-headless Chromium (`tools/qa.cjs`), **not yet played by a person or in a
-class, not released**.
+**What you own:** this folder (`games/quiz-show/`, the client) and the room
+server module `api/quiz_room.py` (+ its tests in `api/tests/`). In
+`api/main.py` you only add the `include_router` line and, if needed, the
+file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
+`api/` belongs to the master session. You don't push or deploy. Stage only
+your files, in the same command that commits:
+`git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-## How it's built (v1)
-
-| File | Job |
-|---|---|
-| `index.html` | all CSS + the HTML overlays (setup, question card, boxes, labels, round cards, bets, standings, end) |
-| `src/main.js` | screens and glue: renders `show.state`, sounds/effects on show events |
-| `src/show.js` | the show logic, no DOM: rounds, scoring, bets, timer, reveal, missed-words list |
-| `src/input.js` | keys / clicks → show actions (swap for a network input in phase 4) |
-| `src/questions.js` | engine (`getQuizSet`, 4 options, chain order; easy verb tiers first) or inline fallback (`src/verbs.js`, `src/preps.js`) |
-| `src/scene.js` | the 3D studio: podiums, characters, host, screen, lights, confetti, camera |
-| `src/audio.js` | WebAudio synth sounds |
-| `src/analytics.js` | game events + answer counts (no `recordAttempt`) |
-| `src/i18n.js` | EN/DE/ES texts |
-
-- Dev: `python3 tools/serve.py` (port 8142) also serves `/lib/` and `/data/`
-  from `../../homepage/`, so dev uses the real question engine; `?offline=1`
-  forces the inline lists. `?lang=` and `?topic=` work as on the site.
-- QA: `node tools/qa.cjs "?lang=de" <outDir> 1280 720 <teams> <on|off>` plays a
-  whole show by keys and saves a screenshot per stage. QA hook: `window.__qs`.
-- Assets in `assets/`: 5 Mystery Monthly characters (teams: Protagonist A/B,
-  Hiker, Witch; host: Superhero), the Rig_Medium animations, 8 Furniture
-  Bits models (all CC0, licences copied alongside). About 3.7 MB, tracked.
-- Mouse flow, round 1: click a team's label, then a box. A box click with no
-  team chosen goes to the next team that hasn't answered (fast with A–D cards).
-- The dev server sometimes logs `ERR_ABORTED` for a furniture `.bin` in
-  headless Chromium; the studio still loads (no load error). Dev only.
-
-## Next steps
-
-1. **Play-test with a person** (owner), then in a class if possible: is the
-   text readable from the back row, is the buzzer round OK on one keyboard?
-2. Check on a real projector / dim screen (washed-out colours).
-3. Touch screen: labels work as buzzers / team pickers, but nothing is
-   tuned for an interactive whiteboard yet.
-4. Release (master session): wrapper pages, `games.json` entry `quiz-show`,
-   sitemap, teacher pages; game id for analytics is already `quiz-show`.
+Status: **concept changed by the owner on 2026-11-22: an online quiz room,
+every child on their own device.** Nothing of the online version is built
+yet. The folder still holds the first prototype (one projector, teams on
+one keyboard, see "Version 1" below); parts of it are reused.
 
 ## Why this game
 
-The owner wants games that copy a **proven format**. Classroom quiz shows
-(Kahoot, and TV shows like Who Wants to Be a Millionaire) are among the
-best-known things teachers already use. We copy the **format only**: our
-own name, our own studio and look, no logos, names, music or show
-elements from those products.
+Teachers are Krabsy's main channel, and in many of their classes every
+child has a device (the first organic class came from Uruguay, Plan
+Ceibal: a laptop per child). Classroom quizzes in the Kahoot style are
+what teachers already know. We copy the **format only**: our own name,
+look, sounds and rules, no logos or elements from other products.
 
-**Teachers are Krabsy's main channel** (see `docs/classroom-concept.md`: the
-first organic class came from Uruguay via Bing). Every other game is built for one child
-at one device; this is the first one built for **a whole class in front of
-one projector**. It's the thing a teacher can start in the first or last
-10 minutes of a lesson.
+What makes ours different: the quiz happens **inside a 3D room where every
+child is an avatar**. Once a child has answered, they can walk around,
+play with things in the room and goof around until the next question.
+Children who are fast and sure get playtime; the room is the reward.
 
-## The game
+## A lesson with the Quiz Room
 
-A bright 3D TV studio (KayKit Furniture Bits + stage lights, built from
-primitives). A host stands in the middle, 2–4 team podiums stand in a
-row, a big screen behind them shows the question. The class plays in
-teams; the teacher (or one child) runs the laptop.
+1. **Teacher** opens the Quiz Room page and sets up the quiz (below). Krabsy
+   creates a room and shows a **room code** (6 characters, same alphabet as
+   the class codes, e.g. `QR7-K2M`), a join link and a QR code.
+2. **Children** open the link (or krabsy.com → "Quiz-Raum beitreten" /
+   "Unirse a la sala"), type the code and their **first name**, pick an
+   **avatar**, and land in the room. They can walk around at once.
+3. The teacher's screen (on the projector if there is one) shows the room
+   from above, the code, and every avatar arriving: "18 in the room".
+4. Teacher presses **Start**. Each question appears on **every child's own
+   screen** as a private answer card (`go → ___ → ___`, four answers). While
+   a child hasn't answered, the card covers their screen and their avatar
+   stands still with a thinking bubble.
+5. **After answering**, the card shrinks to a corner and the child is free:
+   walk, jump, play with the toys, dance. Above every avatar that has
+   answered floats **a dot** (same colour for everyone, so it shows
+   *that* they answered, never *what*). The teacher sees "21 / 24 answered".
+6. **Reveal** (timer ends or everyone answered): each child sees privately
+   whether they were right and their points. Publicly (in the room and on
+   the teacher screen): the right answer, the teach beat, and the **top 5**.
+   Nobody's wrong answer is shown to the others.
+7. After the last question: a **winners' podium in the room** with confetti,
+   every child sees their own place and score, and the teacher gets the
+   **review: the words the class missed most** (all forms shown).
 
-### Setup screen (teacher)
+### Bonus round: "Run to the answer" (owner: yes, as a bonus)
 
-- **Topic:** irregular verbs or prepositions (both work with the
-  question engine's `quiz` shape). Later: the class word list from the
-  classroom concept.
-- **Teams:** 2, 3 or 4, with a colour and an editable name each
-  (default: Teal, Coral, Amber, Purple). (A solo mode against computer
-  contestants is **later**, not version 1: it needs its own rules for how
-  often the computer answers right.)
-- **Length** (round 1 + buzzer + final; round 1 and buzzer counts are even
-  so verb pairs never straddle a round): short 6 + 4 + 3 = 13 questions
-  (about 10 minutes), normal 10 + 8 + 3 = 21 (about 20), long 14 + 12 + 3 =
-  29 (about 30).
-- **Timer:** on (20 s per question, the default) or off. The time limit
-  is the teacher's choice, and it's generous because the whole class reads
-  the question together.
-- Language of the interface DE/ES/EN: `?lang=` → `localStorage
-  krabsy_lang` → DE, like the other games; the questions stay English.
+An optional round of 3–5 questions (default at the end, before the
+podium). The question appears big on a wall of the room, and four coloured
+**answer pads** (A–D) light up on the floor. Children run to the pad they
+think is right. When the timer ends, the wrong pads sink into a soft foam
+pit (bouncy, funny, nobody "dies"), the right pad shoots confetti and
+everyone standing on it gets points. Children can copy the crowd here;
+that's accepted, it's the loud fun part, not the test.
 
-### Rounds (one show)
+## The teacher (runs the room, doesn't play)
 
-1. **Round 1 — "Everyone answers".** Each question goes to all teams. The
-   question is on the big screen (`go → ___ → ___`, the asked blank
-   highlighted), four big answer boxes A–D in four colours. Each team
-   picks one letter and enters it (the teacher taps the team's podium,
-   then the letter; or keys: team 1 = `1 2 3 4`, team 2 = `Q W E R`,
-   team 3 = `A S D F`, team 4 = `Z X C V`). A team may change its letter
-   until the reveal.
-   **Entries are secret:** the screen shows only "Team ✓ locked in", never
-   the letter, so later teams can't copy. (Variant for loud classes: every
-   team holds up an A–D card at the same moment and the teacher types them
-   in; same input, nothing extra to build.)
-   The reveal comes when all teams are locked in, when the timer runs out,
-   or when the teacher presses Enter: drum roll, the right box lights up,
-   points fly to the teams that had it. **Right = 100 points, no speed
-   bonus** (teams enter one after another, so speed would always punish
-   the last team).
-2. **Round 2 — "Buzzer".** One question at a time, and the first team to
-   buzz answers (keys: team 1 = A, team 2 = L, team 3 = V, team 4 = P;
-   on a touch screen, a big buzzer per podium). The buzzing team then
-   answers on the boxes (click, or keys `1 2 3 4`; buzzer keys are dead
-   until the answer is in). Right = 200 points; wrong = no points, that
-   team is out for this question and the others may buzz again. Nobody
-   left, or the timer runs out → reveal. This is the loud, exciting round.
-3. **Final — "Bet your points".** 3 questions, each with its own bet:
-   before the question is shown, every team sets its bet (slider, 0 up to
-   its points; a team with fewer than 100 points may still bet up to 100
-   so it can come back). Then all teams answer secretly as in round 1.
-   Right = + the bet, wrong = − the bet (never below 0). For verbs the
-   final asks single 2nd-form questions (`go → ___ → ___`), and the teach
-   beat then shows the whole chain, as Verb Dungeon's chests do.
+### Setting up the quiz (before the room opens)
 
-After each round a ranking with podium heights and confetti. At the end
-the winners' podium, applause, and the **review screen for the teacher:
-the 5 words the class missed most** (`go → went → gone`, all forms shown
-now), so the teacher knows what to repeat.
+- **Topic:** irregular verbs or prepositions (more topics later, all from
+  the question engine's `quiz` shape).
+- **Difficulty:** verbs by tier (1 = most common … 3 = rare), prepositions
+  by level (1–3); several can be ticked.
+- **Number of questions** (10 / 15 / 20 / 30), **time per question**
+  (15 / 20 / 30 s), **bonus round** on/off.
+- **Question list preview:** the teacher sees every question before the
+  quiz starts and can **remove** a question, **swap** it for another one
+  from the same topic and difficulty, or **add** more. Verb pairs (2nd form,
+  then 3rd form) are shown and swapped as one unit, so the chain order rule
+  always holds.
+- Later (phase 2 classes): "use my class's word list" and "practise the
+  class's most-missed words".
 
-### Rules from the site
+### During the quiz
+
+- Buttons: **Start**, **Next** (skip the rest of the timer), **Pause**,
+  **End quiz**. Keyboard: Enter = next, P = pause.
+- Player list: rename a player (silly names), **remove** a player, **lock
+  the room** (no new joins). A removed player can't rejoin that room.
+- **Sound for everyone** on/off (25 laptops making noise in one room).
+- **"Everyone to the middle"**: freezes all avatars and pulls them back
+  (when the goofing gets too wild), until the next question.
+
+## The children
+
+- **Join:** code + first name (same rule as the classes: first names; a
+  name already in the room gets a number, "Mia 2"). No account.
+- **Avatar:** pick one of ~8 KayKit characters plus a colour (shirt or
+  hat tint). Name tag over the head.
+- **Moving:** WASD / arrows + Space to jump; on touch screens a stick and a
+  jump button (as in Verb Valley / Verb Dungeon). Camera follows behind.
+- **Emotes** (keys 1–4 or a small wheel): wave, dance, cheer, thumbs up.
+  **No chat, no free text** anywhere (child safety, nothing to moderate).
+- **Answer card:** big text, four buttons A–D (click/tap or keys 1–4 / A–D
+  while the card is open). Faster answers give a few more points (fair
+  here: everyone answers at the same moment on their own device). Right =
+  500–1000 by speed, wrong = 0. A streak of 3+ right gives a small bonus.
+- **Reconnect:** a child whose Chromebook sleeps or reloads comes back with
+  their name, avatar and points (token in `sessionStorage`).
+
+### The play area (what "doing nonsense" means)
+
+Things to do between questions, all harmless to others:
+- **Balls** to kick around (soft physics), a **basketball hoop**.
+- **Trampolines** and a **slide**; a **bouncy foam pit** (shared with the
+  bonus round).
+- **Couches and swings** to sit on (KayKit Furniture Bits).
+- A **big red button** that fires confetti over the whole room (cooldown).
+- A **dance floor** with coloured tiles that light up under avatars.
+
+Rules: no pushing other avatars, no blocking doors or pads, nothing that
+can trap someone. Avatars pass through each other. Toys reset when the next
+question starts. Keep the room small enough that the answer card is never
+far away and everybody stays in view of the teacher camera.
+
+## Rules from the site
 
 - **No grammar terminology** in the questions: positional notation
   `go → ___ → ___` or a sentence gap (`My birthday is ___ July.`).
 - **Chain order** (verbs): the 3rd form only directly after the 2nd, with
-  the 2nd filled in (`go → went → ___`). In round 1 both are a pair of
-  questions in a row; in the buzzer round the 3rd form goes to the team
-  that won the 2nd form (if no team got the 2nd form right, the 3rd form
-  is an open buzzer question again). After the 2nd-form answer, don't
-  reveal the 3rd form.
-- **After every question a short teach beat** (the chain as far as it
-  may be shown), so the class learns, not only scores.
-- Readable on a projector from the back row: very large text, strong
-  contrast, nothing important in small type. Test at 1280×720 and on a
-  dim projector (washed-out colours).
-
-## Assets
-
-The shared KayKit library is at `/home/janah/dev/krabsy-homepage/assets/`
-(gitignored, CC0; some packs are symlinks into `/home/janah/dev/_assets/kaykit/`).
-Copy only what you use into `games/quiz-show/assets/`.
-
-- **`KayKit_Furniture_Bits_1.0_SOURCE`** — desks (podiums), monitors,
-  lamps, rugs, shelves, couches for the studio set.
-- **`KayKit_Mystery_Monthly_Series_5`** — the host (Protagonists, or the
-  Superhero as a show host) and one character per team on its podium.
-  ⚠ The pack's `Animations` (Rig_Medium General + MovementBasic) have **no
-  cheer or sad clip**: only Idle, Hit, Death, Interact, PickUp, Throw,
-  Use_Item, Jump, Run, Walk. Cheer = `Jump_Full_Short` (looped a few
-  times, arms are fine), sad = `Hit_A` then a slumped `Idle_B`, plus small
-  procedural moves (bob, turn to the screen). An alternative host is the
-  BlobVideos hermit crab that Verb Valley uses for Professor Krabsy
-  (already cheers and shakes its head).
-- Stage lights, the big screen and the floor are simple primitives with
-  emissive colours; confetti as particles.
-- Team colours from the site palette: teal `#2ee6c0`, coral `#ff8585`,
-  amber `#ffcf5e`, plus one purple.
+  the 2nd filled in (`go → went → ___`). After the 2nd-form answer, don't
+  reveal the 3rd form. In the bonus round: single 2nd-form questions; the
+  teach beat then shows the whole chain.
+- **After every question a short teach beat** (the chain as far as it may
+  be shown, or the preposition rule), so the class learns, not only scores.
+- Readable on a projector from the back row (teacher screen) and on a small
+  Chromebook screen (child): large text, strong contrast.
 
 ## Technical direction
 
-- Plain ES modules, Three.js vendored (copy `vendor/three/` from Verb
-  Dungeon, 0.169), no CDN, no build step. Dev server: `python3
-  tools/serve.py` (no cache), this folder's port is **8142**.
-- The 3D scene is the backdrop; **the question and answer boxes are HTML
-  over the canvas**, so text stays sharp on any projector. Camera: a
-  fixed wide shot, with short camera moves to a podium only between
-  questions (TV feel, never while the class reads).
-- **Questions:** from `homepage/lib/krabsy-questions.js`, `getQuizSet`
-  with `withOptions` (4 options here; ask for 4 or add one distractor)
-  and the default chain order. Inline fallback lists for verbs and
-  prepositions (copy from Verb Dungeon's `src/questions.js` +
-  `src/verbs.js`, and a few prepositions from `content/prepositions.json`).
-- **Interface texts EN/DE/ES** (`src/i18n.js` like the Dungeon).
-- **Answers and stats:** **don't call `recordAttempt()`** (default,
-  confirm with the owner). It writes to the learning stats of *that
-  browser*; on a teacher's laptop or a shared classroom PC the whole
-  class's answers would land in one device's personal stats and skew the
-  smart mix for whoever plays there next. There are no classroom stats
-  yet (that's phase 2 of `docs/classroom-concept.md`). Instead, post the
-  same `{type:'krabsy:attempt', correct, source:'quiz-show'}` message that
-  `krabsy-stats.js` `_announce()` sends, so the wrapper's answer counts
-  still work. For the same reason the question set uses **no `smart`
-  mix**. When classes exist, team answers go to the class instead.
-  (General recipe for other games: `docs/phase1-game-wiring.md`.)
-- **Game events** via `/lib/krabsy-game-events.js`, game id `quiz-show`,
-  using the dashboard's standard names (`docs/game-analytics.md`): one
-  "level" per round: `level_start {level: 1|2|3, teams, timer, length}`,
-  `level_end {level, result: 'won', seconds, answers, correct}`, and
-  `show_end {level: 3, teams, questions, pct}`. Team names are free text
-  and are **never** sent, only the number of teams.
-- WebAudio synth for the show sounds: a short jingle, drum roll, right
-  and wrong stings, buzzer, applause, ticking clock in the last 5 s.
-- **Fullscreen button** and keyboard-first control (the teacher is at a
-  laptop); everything must also work with a mouse alone.
+### Server (`api/quiz_room.py`, FastAPI WebSocket)
 
-### Later: children on their own devices (not in version 1)
+- The analytics API (`api.krabsy.com`, Coolify, base directory `/api`) is a
+  **single uvicorn process**, so rooms can live **in memory**: no database,
+  nothing stored after the room closes. Rooms close 15 min after the
+  teacher leaves or after 2 hours.
+- **The server is the referee:** it holds the question list, sends a child
+  only the question and the four options (never the answer before the
+  reveal), records each child's first answer and time, scores, and
+  broadcasts results. Clients can't cheat by reading their messages.
+- **Questions come from the teacher's browser:** the setup page builds the
+  list with `homepage/lib/krabsy-questions.js` (`getQuizSet`, 4 options,
+  default chain order, `ids` for swaps) and uploads it with "open room".
+  No need to port the engine to Python.
+- **Movement:** each client sends its own position/rotation/animation about
+  10× per second; the server relays them (no physics on the server) and
+  clients interpolate. Toys: simulated by each client locally, with a
+  "kick" event broadcast so everyone sees the same ball roughly; exact sync
+  doesn't matter.
+- Limits: max 40 children per room, rate limits per socket, name filter (a
+  short block list) on top of the teacher's rename/remove.
+- **Phase 2 classes (`api/classes.py`):** optional. If the teacher picks
+  one of their classes at setup, children who are in that class (student
+  token in their browser) have their answers sent to the class dashboard
+  like any game answer. Without a class, nothing is stored.
+- Check early: WebSockets through Coolify's Traefik on `api.krabsy.com`
+  (`wss://`), and whether school networks block them (fallback: long
+  polling, only if it really happens).
 
-Version 1 is **one screen, no server, no accounts**. The bigger version
-(every child joins on a Chromebook or phone with a class code, the
-projector shows the live ranking) is **phase 4, "live mode on the
-projector", of `docs/classroom-concept.md`**. It needs a live server
-connection in `api/` and the class codes from phase 2, so it's built
-there, by the master session, after the classroom phases. Keep the show
-logic (rounds, scoring, reveal) separate from the input (`src/input.js`:
-who answered what), so a network input can replace the keyboard later.
+### Client (`games/quiz-show/`)
+
+- Plain ES modules, Three.js 0.169 vendored, no build step (as now). Dev
+  server `python3 tools/serve.py`, port **8142** (serves `/lib/` and
+  `/data/` from `homepage/`); the room server runs locally with
+  `uvicorn main:app` in `api/`.
+- Two entry pages: `teacher.html` (setup, question preview, room overview,
+  results) and `index.html` (child: join, avatar, room). Shared modules
+  for the room scene, avatars and the socket protocol.
+- Performance budget: **30 avatars at 30 fps on a cheap Chromebook**.
+  Low-poly room, one shared texture atlas, simple shadows (blob shadows
+  under avatars instead of a shadow map if needed), name tags as sprites.
+- Interface texts DE/ES/EN (`?lang=` → `krabsy_lang` → DE).
+- **Analytics** (`/lib/krabsy-game-events.js`, game id `quiz-room`): the
+  teacher page sends `level_start {level: 1, players, questions, topic}`,
+  `level_end {level: 1, result: 'won', seconds, answers, correct}` and
+  `bonus_end {level: 2, …}`; the child pages send nothing but answer counts
+  (`krabsy:attempt` message). Counts only, never names.
+- **`recordAttempt()` on the child's device: recommended yes** (confirm
+  with the owner). Unlike the one-projector version, every child has their
+  own device here, so their answers belong in their own browser's learning
+  stats and smart mix. The teacher page records nothing.
+
+### Assets
+
+KayKit library at `/home/janah/dev/krabsy-homepage/assets/` (gitignored, CC0).
+Copy only what you use into `games/quiz-show/assets/`.
+- Avatars: `KayKit_Mystery_Monthly_Series_5` (Protagonists, Hiker, Witch,
+  Superhero, Helpers, Caveman …) and the Adventurers if present; all on the
+  Rig_Medium animations (Idle, Walk, Run, Jump, Interact …). There is **no
+  cheer or dance clip**: build emotes from Jump/Interact/Use_Item plus
+  procedural moves (spin, bob, arms via bone rotation).
+- Room: `KayKit_Furniture_Bits` (couches, lamps, rugs, shelves), toys and
+  pads from primitives, balls from the Platformer pack if it fits.
+
+## Milestones
+
+1. **Core loop with 2 browser tabs:** room server (create, join, questions,
+   answers, scoring, reveal), teacher setup *without* preview, child join
+   with a default avatar, a plain room where avatars walk and see each
+   other, answer cards, "answered" dots, top 5, review. Test with
+   several headless clients.
+2. **Teacher question preview:** remove / swap / add, difficulty filters.
+3. **The play area:** toys, trampolines, emotes, avatar choice, sounds,
+   "everyone to the middle".
+4. **Bonus round** with the answer pads and the foam pit.
+5. **Class link** (phase 2 classes), reconnect polish, touch controls,
+   performance pass on a real Chromebook, play-test in a class, release
+   (master session: wrapper pages, `games.json`, sitemap, teacher pages).
 
 ## Open questions for the owner
 
-- Name: "Krabsy Quiz Show" or something else (DE/ES names too)?
-- Is the buzzer round OK on one keyboard, or too chaotic in a real class?
-- Defaults chosen by the master session on 2026-11-22, to confirm: no
-  `recordAttempt` / no smart mix on a class device; secret round-1 entry;
-  no speed bonus in round 1; buzzer 200 / wrong = out for that question;
-  final = one bet per question, minimum bet room 100; solo mode later.
-- Should the show also appear on the teacher pages (`/de/lehrkraefte/`,
-  `/es/docentes/`) as the featured "for your lesson" game? (Master
-  session's job at release.)
+- Name: "Krabsy Quiz Room" / "Quiz-Raum" / "Sala de quiz", or something else?
+- Record answers in each child's own learning stats (recommended: yes)?
+- Public reveal: top 5 only (recommended) or the full ranking?
+- Max players per room: 40 enough?
+- Should the teacher's results (who answered what) be downloadable, or
+  only the class-wide review? (Downloadable means personal data on paper;
+  without a class, recommended: class-wide only.)
+
+## Version 1 (one projector, built 2026-11-22, superseded)
+
+The first prototype in this folder: one laptop + projector, 2–4 teams
+entering answers on one keyboard, rounds "everyone answers" / buzzer /
+bets, a 3D TV studio. The owner didn't like the concept (children only
+watch, one child per team presses keys). Reusable for the online room:
+`src/questions.js` (engine + inline fallback, chain-order units),
+`src/i18n.js`, `src/audio.js` (show sounds), `src/scene.js` (character
+loading, animation helper, confetti, lights), the review list from
+`src/show.js`, and `tools/qa.cjs` (headless play-through). Run it with
+`python3 tools/serve.py` → http://localhost:8142/. Delete what isn't
+reused once milestone 1 stands.
 
 ## Log
 
-- 2026-11-22: brief written by the master session (owner: "something like
-  Kahoot / a quiz show").
-- 2026-11-22: brief reviewed against the repo and fixed (animations don't
-  include cheer/sad, recordAttempt on a class device, standard analytics
-  names, secret entry, no round-1 speed bonus, missing buzzer/final rules,
-  round split, key map, lang fallback, solo mode moved to later).
-- 2026-11-22: version 1 built (same session, owner: "update the brief and
-  then start building"): all rounds, setup, studio, sounds, i18n, analytics,
-  review screen. Full shows pass in headless Chromium at 1280×720 and
-  1024×768, with 2/3/4 teams, timer on/off, engine and offline lists, no
-  console errors. Changes found while testing: the teach line sits under the
-  question card and only shows when it adds something (full chain, or the
-  preposition rule in the show's language); Next button is in the top bar;
-  the camera push on a buzzer win is small so no podium leaves the frame.
+- 2026-11-22: first brief (owner: "something like Kahoot / a quiz show"),
+  reviewed and fixed, version 1 (one projector, teams) built and tested
+  headless.
+- 2026-11-22: owner rejected the one-projector concept. New concept: online
+  quiz room, every child on their own device with an avatar, walking and
+  playing between questions; private answer cards with an "answered" dot
+  over the head; the teacher only runs the room and chooses topic,
+  difficulty and the questions (see all, skip/swap); the physical
+  "run to the answer pads" idea as a bonus round. Brief rewritten.
