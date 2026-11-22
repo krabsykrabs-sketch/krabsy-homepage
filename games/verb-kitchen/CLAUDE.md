@@ -238,6 +238,13 @@ is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
 
 ## Status log
 
+- 2026-11-22 — **"Next" ticket highlight** (user idea). The oldest ticket
+  (the one whose serve earns the +5 in-order bonus) gets an amber frame and
+  a small "NEXT" tab (`Orders.markNext()`, called on spawn and remove; i18n
+  key `nextUp`: Next / Als Nächstes / Siguiente). Ported to the live build
+  too (English "Next"; that build has no i18n). Verified headless: the frame
+  moves to the following ticket after a serve, in both builds.
+
 - 2026-11-22 — **Tablet layout: bigger kitchen, HUD moved to the sides**
   (user played L1 on a tablet: kitchen small with empty sides, tutorial
   banner covered the cutting board).

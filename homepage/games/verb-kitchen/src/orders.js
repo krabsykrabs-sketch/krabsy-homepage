@@ -36,10 +36,12 @@ export class Orders {
     el.className = 'ticket';
     const ings = d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' ');
     el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${d.name}</div>` +
-      `<div class="ings">${ings}</div>`;
+      `<div class="ings">${ings}</div>` +
+      `<div class="nextTag">Next</div>`;
     this.bar.appendChild(el);
     t.el = el;
     this.tickets.push(t);
+    this.markNext();
     audio.tick();
     return t;
   }
@@ -70,8 +72,16 @@ export class Orders {
   remaining() { return this.total - this.served; }
   allServed() { return this.served >= this.total; }
 
+  /** Frame the oldest ticket: that's the one to cook next (serving it
+   *  first earns the in-order bonus). */
+  markNext() {
+    this.tickets.forEach((x, i) => x.el.classList.toggle('next', i === 0));
+  }
+
   remove(t, animClass) {
     this.tickets = this.tickets.filter((x) => x !== t);
+    t.el.classList.remove('next');
+    this.markNext();
     t.el.classList.add(animClass);
     setTimeout(() => t.el.remove(), 600);
   }

@@ -7,7 +7,7 @@
 import { DISHES, ITEMS } from './recipes.js';
 import { audio } from './audio.js';
 import { rng } from './verbs.js';
-import { dishName } from './i18n.js';
+import { dishName, t as tr } from './i18n.js';
 
 let nextId = 1;
 const PATIENCE_DEFAULT = 90;   // seconds until the (cosmetic) bar runs dry
@@ -42,12 +42,14 @@ export class Orders {
     const ings = d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' ');
     el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${dishName(dish, d.name)}</div>` +
       `<div class="ings">${ings}</div>` +
-      `<div class="pbar"><div class="pfill" style="width:100%"></div></div><div class="mood">😊</div>`;
+      `<div class="pbar"><div class="pfill" style="width:100%"></div></div><div class="mood">😊</div>` +
+      `<div class="nextTag">${tr('nextUp')}</div>`;
     this.bar.appendChild(el);
     t.el = el;
     t.fill = el.querySelector('.pfill');
     t.mood = el.querySelector('.mood');
     this.tickets.push(t);
+    this.markNext();
     audio.tick();
     return t;
   }
@@ -93,8 +95,16 @@ export class Orders {
   remaining() { return this.total - this.served; }
   allServed() { return this.served >= this.total; }
 
+  /** Frame the oldest ticket: that's the one to cook next (serving it
+   *  first earns the in-order bonus). */
+  markNext() {
+    this.tickets.forEach((x, i) => x.el.classList.toggle('next', i === 0));
+  }
+
   remove(t, animClass) {
     this.tickets = this.tickets.filter((x) => x !== t);
+    t.el.classList.remove('next');
+    this.markNext();
     t.el.classList.remove('hurry');   // the shake animation would fight the exit
     t.el.classList.add(animClass);
     setTimeout(() => t.el.remove(), 600);
