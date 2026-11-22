@@ -357,3 +357,12 @@ Not done yet / to check:
     goes on). Events: `egg_event_start {zone, rarity}`, `egg_event_end
     {zone, rarity, result: grabbed|expired|lost, seconds_left}`.
   - Not tuned with real players: event frequency, egg counts per zone.
+- 2026-11-22: **invisible wall fixed** (owner, near the forest path at
+  about (-31, 2)). Cause: the rolling meadow dipped to −0.44 m there, and
+  "walkable" was `height > water + 0.25` (−0.35), so a dry-looking dip
+  counted as sea. Fix: inland ground +0.8 m (lowest inland point now on
+  the beach slope), and `onIsland()` = not the deep pond middle, and
+  always walkable within `ISLAND.r − 20` of the centre; only the coast
+  uses the height test. Checked by walking from home towards 144 points
+  all over the island (`tryMove`): no stop without a visible object,
+  except the pond's deep water (intended).

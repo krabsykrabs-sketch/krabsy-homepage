@@ -40,7 +40,7 @@ export function height(x, z) {
   const d = dist(x, z, ISLAND.cx, ISLAND.cz);
   let h = 1.2 * Math.sin(x * 0.045) * Math.cos(z * 0.04) + 0.6 * Math.sin(x * 0.11 + 1.3) * Math.sin(z * 0.09 + 0.4)
     + 0.25 * Math.sin(x * 0.27) * Math.cos(z * 0.23);
-  h += 1.2;
+  h += 2.0; // keeps every inland dip well above the sea (an inland dip below it was an invisible wall)
   // forest: rolling hills
   const df = dist(x, z, FOREST.x, FOREST.z);
   h += (1 - smooth(FOREST.r * 0.6, FOREST.r + 8, df)) * (1.6 + 1.4 * Math.sin(x * 0.13) * Math.sin(z * 0.15));
@@ -64,7 +64,13 @@ export function height(x, z) {
   h -= smooth(ISLAND.r - 18, ISLAND.r + 6, d) * 6;
   return h;
 }
-export function onIsland(x, z) { return height(x, z) > WATER_Y + 0.25; }
+// Walkable = not the sea and not the deep middle of the pond. Inland ground is
+// always walkable, so a low dip in a meadow can never act as an invisible wall.
+export function onIsland(x, z) {
+  if (Math.hypot(x - POND.x, z - POND.z) < POND.r * 0.7) return false;
+  if (Math.hypot(x - ISLAND.cx, z - ISLAND.cz) < ISLAND.r - 20) return true;
+  return height(x, z) > WATER_Y + 0.25;
+}
 
 export function zoneAt(x, z) {
   for (const zz of ZONES) if (zz.r && dist(x, z, zz.x, zz.z) < zz.r) return zz;
