@@ -118,6 +118,10 @@
       "input_placeholder": "Form eintippen…",
       "end_title": "Lückentext geschafft!"
     },
+    "verb_diplom": {
+      "name": "Verb-Diplom",
+      "tagline": "Der Test mit Urkunde: Bronze, Silber, Gold."
+    },
     "falling_forms": {
       "name": "Falling Forms",
       "tagline": "Tippe die richtige Form, bevor der Block unten ankommt.",

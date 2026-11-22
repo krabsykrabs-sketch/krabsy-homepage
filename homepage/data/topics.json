@@ -31,7 +31,8 @@
       "free-practice": { "de": "freies-ueben",  "es": "practica-libre" },
       "reference":     { "de": "uebersicht",    "es": "resumen" },
       "stats":         { "de": "statistik",     "es": "estadisticas" },
-      "worksheets":    { "de": "arbeitsblaetter", "es": "fichas" }
+      "worksheets":    { "de": "arbeitsblaetter", "es": "fichas" },
+      "verb-diplom":   { "de": "verb-diplom",   "es": "diploma" }
     }
   },
   "prepositions": {

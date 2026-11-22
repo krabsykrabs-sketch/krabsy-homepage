@@ -118,6 +118,10 @@
       "input_placeholder": "Escribe la forma…",
       "end_title": "¡Huecos completados!"
     },
+    "verb_diplom": {
+      "name": "Diploma de verbos",
+      "tagline": "El test con diploma: Bronce, Plata, Oro."
+    },
     "falling_forms": {
       "name": "Falling Forms",
       "tagline": "Toca la forma correcta antes de que caiga abajo.",

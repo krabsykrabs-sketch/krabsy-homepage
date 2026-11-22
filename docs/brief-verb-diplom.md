@@ -22,13 +22,28 @@ and gives us a page with its own search intent:
 A test page per language with three levels. Passing a level shows a certificate
 the pupil can print or save as PDF.
 
-| Level | Verbs | Pass |
-|---|---|---|
-| Bronze | the 20 most frequent (tier 1 subset) | at most 2 mistakes |
-| Silber / Plata | all 43 tier-1 verbs | at most 3 mistakes |
-| Gold / Oro | 60 verbs from tiers 1–2 | at most 4 mistakes |
+Each verb is asked as **two typed answers** (2nd form, then 3rd form with the 2nd
+filled in — the CLAUDE.md chain order). Counts below are in verbs; the test length
+in answers is twice that. A **mistake is one wrong answer** (not one wrong verb).
+Pass mark is **90 % of the answers** for every level.
 
-Numbers are a starting proposal; tune after a play-test.
+| Level | Verbs (answers) | Which verbs | Pass |
+|---|---|---|---|
+| Bronze | 15 (30) | fixed list, see below | at most 3 mistakes |
+| Silber / Plata | 30 (60) | 30 drawn at random from the 43 tier-1 verbs | at most 6 mistakes |
+| Gold / Oro | 45 (90) | 15 random tier-1 + 30 random tier-2 verbs | at most 9 mistakes |
+
+Bronze list (the data has no frequency field, so this is hand-picked from tier 1):
+be, have, do, go, get, make, say, see, come, take, give, know, think, write, eat.
+Silber and Gold draw a new set on every attempt, so a retry is not the same test.
+Pass the verb list to `getQuizSet` with `ids` and `count = 2 × verbs`
+(`count` counts answers, not verbs).
+
+- **Stops early:** once the mistakes exceed the pass mark the test ends (it can no
+  longer be passed), so pupils on a phone don't type 60 more answers for nothing.
+  The result screen lists the verbs to practise and offers "try again".
+- **Levels are not locked:** a teacher may assign Silber directly.
+- Numbers are a starting proposal; tune after a play-test (analytics below).
 
 - **Questions:** typed answers (the "typewriter" mode), validated with
   `checkTyped` from `homepage/lib/krabsy-questions.js` (accepts burnt/burned etc.).
@@ -45,6 +60,9 @@ Numbers are a starting proposal; tune after a play-test.
   analytics, not stored on a server (privacy promise on the teacher pages).
 - **Progress:** passed levels stored in localStorage like other drill stats.
 - **No login, no class accounts** (that is a separate, later product decision).
+- **Self-reported:** the certificate is made in the pupil's browser, so anyone can
+  print one. Say so plainly in the teacher block ("a motivation tool, not proof";
+  for a real check, let pupils do the test in class).
 
 ## URLs and SEO
 
@@ -61,8 +79,12 @@ Numbers are a starting proposal; tune after a play-test.
 
 ## Analytics
 
-Use the existing anonymous events (`krabsy-analytics.js`): level started, level
-passed/failed, certificate printed (button click). No name, no free text.
+Use the existing anonymous game events (`gameEvent` from
+`homepage/lib/krabsy-game-events.js`, game slug `verb-diplom`): `level_start {level}`,
+`level_end {level, result: 'won'|'lost', answers, correct, mistakes, seconds}`,
+`certificate_print {level}`. Levels are numbered 1–3 (Bronze–Gold). Also
+`recordAttempt(verb, form, correct, 'verb_diplom')` so answers feed the stats page.
+No name, no free text.
 
 ## Acceptance
 
@@ -73,9 +95,11 @@ passed/failed, certificate printed (button click). No name, no free text.
 - DE and ES complete, language toggle works.
 - Page validates (title, description, canonical, hreflang, JSON-LD).
 
-## Open owner decisions
+## Decisions
 
-1. Level sizes and pass marks (table above is a proposal).
-2. Name on the certificate: free text field (proposed) or no name.
+1. Level sizes and pass marks: taken as in the table above (review 2026-11-22:
+   the first proposal, 2/3/4 mistakes out of 40/86/120 answers, was ~96 % and too
+   long on a phone). Owner may still change them.
+2. Name on the certificate: optional free text field (stays in the browser).
 3. Later, separate: a teacher view that shows which pupils passed would need
    accounts or class codes and a backend. Not part of this brief.

@@ -36,7 +36,7 @@ krabsy-homepage/                 ← repo root (master session works here)
 ├── docs/                        ← outreach list, SEO notes, play-test reports
 ├── assets/                      ← SHARED asset library (gitignored binaries)
 ├── content/                     ← CANONICAL question catalogue (master copy)
-│   ├── irregular-verbs.json     (155 verbs)
+│   ├── irregular-verbs.json     (172 verbs)
 │   └── prepositions.json        (99 items)
 ├── api/                         ← FastAPI analytics backend (SEPARATE Coolify app)
 └── _incoming/                   ← local staging (gitignored)

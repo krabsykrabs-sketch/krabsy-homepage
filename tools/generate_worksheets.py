@@ -317,7 +317,7 @@ P = {
         "tip_h": "So passen Papier und Bildschirm zusammen",
         "tip": ("Ein Vorschlag: zuerst das Arbeitsblatt in Ruhe ausfüllen und vergleichen, danach zehn Minuten "
                 "<a href=\"/de/unregelmaessige-verben/sprint/\">Sprint</a> am Tablet oder Handy. Wer die Formen "
-                "auf Papier kann, schafft dort schnell eine neue Bestzeit."),
+                "auf Papier kann, schafft dort schnell eine neue Bestzeit. Zum Abschluss: das <a href=\"/de/unregelmaessige-verben/verb-diplom/\">Verb-Diplom</a> mit Urkunde."),
         "use": ("Sie dürfen die Arbeitsblätter für Ihren Unterricht ausdrucken, kopieren und an Ihre Klasse "
                 "weitergeben. Weitere Ideen für die Stunde finden Sie auf der Seite "
                 "<a href=\"/de/lehrkraefte/\">Für Lehrkräfte</a>."),
@@ -352,7 +352,7 @@ P = {
         "tip_h": "Papel y pantalla, juntos",
         "tip": ("Una idea: primero la ficha con calma y la corrección en grupo; después, diez minutos de "
                 "<a href=\"/es/verbos-irregulares/sprint/\">Sprint</a> en la tablet o el móvil. Quien ya domina "
-                "las formas en papel, bate su récord enseguida."),
+                "las formas en papel, bate su récord enseguida. Para terminar: el <a href=\"/es/verbos-irregulares/diploma/\">diploma de verbos</a> con certificado."),
         "use": ("Puedes imprimir, fotocopiar y repartir las fichas en tu clase. Encontrarás más ideas en la "
                 "página <a href=\"/es/docentes/\">Para docentes</a>."),
     },
