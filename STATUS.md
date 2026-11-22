@@ -69,6 +69,8 @@ New ideas the owner liked, not started, no folder yet:
 
 ## Classes for teachers (phase 2, built 2026-11-22)
 
+**Live since 2026-11-22** (API + site deployed; a round trip create → join → answers → dashboard → delete passed on krabsy.com with a test class, deleted afterwards).
+
 Teachers create a class without an account (code for pupils + secret
 dashboard link), pupils join with code + nickname, every recorded answer
 goes to the class, the dashboard shows hard words per class and per child.
