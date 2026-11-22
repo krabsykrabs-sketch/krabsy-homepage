@@ -208,7 +208,7 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
    Also ready for their own chats (briefs in each `CLAUDE.md`):
    `games/verb-dungeon/`, `games/verb-valley/`, and level design in
    `games/verb-platformer/`.
-5. **Outreach:** Aula PT sent 2026-11-22; Lehrerfreund dropped (no English). Next: 4teachers, see
+5. **Outreach:** Aula PT sent 2026-11-22; Lehrerfreund dropped (no English); 4teachers sent 2026-11-22. See
    `docs/outreach-list.md` ("Offen"). Eduthek declined (Moodle courses
    only); owner decision open.
 6. **Mid/late December:** compare GSC/Bing exports with

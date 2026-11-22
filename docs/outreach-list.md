@@ -8,7 +8,7 @@ Bereits erledigt: **Deutscher Bildungsserver**, eingereicht am 2026-11-16, am se
 
 ## Offen: Texte fertig, noch nicht abgeschickt (Stand 2026-11-18)
 
-Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, siehe #4).
+Erledigt bisher: Bildungsserver (live), Aula PT (gesendet 2026-11-22), 4teachers (gesendet 2026-11-22), Lehrerfreund (verworfen 2026-11-22), Ceibal en Inglés, Educación 3.0, schule.at, fragFINN, WirLernenOnline, EducarChile, Eduthek (**abgelehnt** 2026-11-17, siehe #4).
 
 ### ~~Lehrerfreund (DE)~~: VERWORFEN 2026-11-22
 Kein Englisch-Bereich: Die Fächer sind nur Deutsch, Geschichte und Politik, und die Tools sind allgemeine Unterrichtstools. Die Kontaktseite lehnt Werbe-Anfragen ausdrücklich ab. Nicht einreichen. Text bleibt nur zur Referenz.
@@ -155,7 +155,8 @@ Seiten zum Einreichen:
 - **Mail:** wie bei schule.at, Betreff "Vorschlag für die Eduthek: kostenlose Englisch-Grammatikübungen (Sek I)".
 - **Antwort 2026-11-17 (Redaktion, E. Leimhofer): in dieser Form abgelehnt.** Die neue Eduthek nimmt keine Links mehr auf, sondern nur digital aufbereitete Kursräume (Moodle auf bildung.gv.at, OER-orientiert), die Lehrkräfte anpassen können. Leitfaden: https://www.bildung.gv.at/course/view.php?id=24. Die Redaktion bietet Unterstützung beim Adaptieren an. Empfehlung: vorerst nicht (hoher Aufwand, Krabsy ist kein OER), kurz und freundlich antworten und die Tür offen lassen. Owner-Entscheidung offen. Später denkbar: ein kleiner Moodle-Kurs "Unregelmäßige Verben" unter CC-Lizenz, der Krabsy-Übungen einbettet.
 
-### 5. 4teachers, Linkportal (DE)
+### 5. 4teachers, Linkportal (DE): **GESENDET 2026-11-22** (Nachricht an Redaktion Englisch, Rubrik Grammar)
+- **Geprüft 2026-11-22:** Englisch-Linkportal hat 688 Links (https://www.4teachers.de/?action=show&id=1904). Ziel-Rubrik **Grammar** (https://www.4teachers.de/?action=show&id=670453) hat 10 Links, der neueste ist von 2020, darunter Macmillan "Irregular Verb Wheel" (das Macmillan Dictionary ist eingestellt). Einreichen per interner Nachricht an **Redaktion Englisch** (Link auf der Englisch-Seite), Konto nötig. Keine Regeln gegen kostenlose Seiten.
 - **Einreichung:** https://www.4teachers.de/?action=show&id=18. Dort steht: "Du kannst jederzeit Links und Rubriken für die jeweiligen Bereiche vorschlagen" (Weg: Nachricht an die Mitgliederbetreuung).
 - **Verifiziert:** ja (2026-11-16). Ein Konto ist vermutlich nötig (Registrierung: https://www.4teachers.de/?action=register), das ist unbestätigt.
 - **Voraussetzungen:** kostenloses Konto. Sinnvolle Rubrik: Fächer › Englisch (Unterrubriken nicht geprüft).
