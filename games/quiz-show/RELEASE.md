@@ -7,9 +7,9 @@ server inside the existing API. Nothing here has been done yet; it's the list.
 ## 0. Before releasing: owner decisions
 
 - [ ] Name (DE "Quiz-Raum" / ES "Sala de quiz" / EN "Quiz Room"?).
-- [ ] Children's answers go into each child's own learning stats and, if the child
-      joined a class, to that class (`recordAttempt()` on the child's device, built
-      as the brief recommended). Confirm, or switch off in `src/analytics.js` `record()`.
+- [x] Children's answers go into each child's own learning stats and, if the child
+      joined a class, to that class (`recordAttempt()` on the child's device):
+      confirmed by the owner 2026-11-22.
 - [x] QR code on the teacher screen: owner said yes (2026-11-22). Vendored
       `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT) as `vendor/qrcode/qrcode.mjs`;
       the teacher's code box shows the join link as a QR code (checked: decodes to

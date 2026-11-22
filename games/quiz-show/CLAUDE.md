@@ -143,8 +143,7 @@ Milestone 5:
   The child's page then calls `recordAttempt()` (`analytics.record`), once
   per question: the answer goes into that child's own learning stats and,
   if the child joined a class (phase 2), to the class dashboard
-  (`krabsy-stats.js` does that). This was the brief's recommended default;
-  confirm with the owner (`RELEASE.md`).
+  (`krabsy-stats.js` does that). Confirmed by the owner 2026-11-22.
 - **Performance:** other children's avatars use blob shadows (only your own
   casts a real shadow); shaders compile behind the join screen
   (`compileAsync`); slow devices step down automatically (`Room.adapt`:
@@ -331,8 +330,7 @@ far away and everybody stays in view of the teacher camera.
   `level_end {level: 1, result: 'won', seconds, answers, correct}` and
   `bonus_end {level: 2, …}`; the child pages send nothing but answer counts
   (`krabsy:attempt` message). Counts only, never names.
-- **`recordAttempt()` on the child's device: recommended yes** (confirm
-  with the owner). Unlike the one-projector version, every child has their
+- **`recordAttempt()` on the child's device: yes** (owner, 2026-11-22). Unlike the one-projector version, every child has their
   own device here, so their answers belong in their own browser's learning
   stats and smart mix. The teacher page records nothing.
 
@@ -365,12 +363,11 @@ Copy only what you use into `games/quiz-show/assets/`.
 
 ## Open questions for the owner
 
-(Release-blocking ones are also in `RELEASE.md`: name, stats/class link,
-play-test. QR library: yes, done.)
+(Release-blocking ones are also in `RELEASE.md`: name, play-test.
+Decided 2026-11-22: QR library yes; answers into stats + class yes.)
 
 
 - Name: "Krabsy Quiz Room" / "Quiz-Raum" / "Sala de quiz", or something else?
-- Record answers in each child's own learning stats (recommended: yes)?
 - Public reveal: top 5 only (recommended) or the full ranking?
 - Max players per room: 40 enough?
 - Should the teacher's results (who answered what) be downloadable, or
@@ -425,3 +422,5 @@ question loading, texts, sounds, character loading and the QA approach.
   (MIT) vendored as an ES module; the teacher's code box shows the join
   link as a QR code (SVG). Checked headless: renders, no errors, the
   screenshot decodes (OpenCV) to the exact join link.
+- 2026-11-22: owner confirmed: answers go into each child's stats and class
+  (as built). Open before release: name, play-test.
