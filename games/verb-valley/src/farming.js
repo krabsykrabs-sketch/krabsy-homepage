@@ -9,6 +9,9 @@ import { makeDotTexture } from './world.js';
 import { prop } from './assets.js';
 
 const lambert = (c) => new THREE.MeshLambertMaterial({ color: c });
+const STRAW = new THREE.MeshLambertMaterial({ color: 0xc9a75a });
+const HAY_STALK = new THREE.MeshLambertMaterial({ color: 0xf4d870 });
+const HAY_HEAD = new THREE.MeshLambertMaterial({ color: 0xdcae48 });
 const MAT = {
   soilDry: lambert(0x9a6b42),
   soilWet: lambert(0x5e3f26),
@@ -227,22 +230,19 @@ export function createFarm(scene, state) {
     patch.rotation.x = -Math.PI / 2; patch.position.y = 0.02;
     g.add(patch);
     if (!h.cut) {
-      // tall hay: a few golden blades, deterministic per tile
-      for (let b = 0; b < 5; b++) {
-        const a = (i * 2.39996 + b * 1.3) % (Math.PI * 2);
-        const blade = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.95 + (b % 3) * 0.18, 5), lambert(b % 2 ? 0xd8c25e : 0xc8b04e));
-        blade.position.set(Math.cos(a) * 0.38, 0.5, Math.sin(a) * 0.38);
-        blade.rotation.z = Math.cos(a) * 0.15;
-        g.add(blade);
-      }
+      // tall hay: a Kenney wheat clump (white stalks → golden), turned
+      // per tile so the rows don't repeat
+      const w = prop('wheatTall', 2.5 + (i % 3) * 0.2);
+      w.rotation.y = (i * 1.7) % (Math.PI * 2);
+      w.traverse((o) => { if (o.isMesh) o.material = o.material.name === 'woodInner' ? HAY_HEAD : HAY_STALK; });
+      g.add(w);
     } else {
-      // stubble
-      for (let b = 0; b < 3; b++) {
-        const a = (i * 2.39996 + b * 2.1) % (Math.PI * 2);
-        const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.16, 5), lambert(0xb8a04e));
-        stub.position.set(Math.cos(a) * 0.3, 0.08, Math.sin(a) * 0.3);
-        g.add(stub);
-      }
+      // stubble: the short wheat stage, squashed and dried to straw
+      const st = prop('wheatShort', 2.0);
+      st.scale.y = 0.45;
+      st.rotation.y = i * 1.3;
+      st.traverse((o) => { if (o.isMesh) o.material = STRAW; });
+      g.add(st);
     }
   }
   function refreshHay() { state.hay.forEach((_, i) => refreshHayTile(i)); }

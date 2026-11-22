@@ -52,6 +52,9 @@ const MANIFEST = {
   berryBasket:   'assets/resource/Food_Basket_A_Berries.gltf',
   crateWood:     'assets/resource/Containers_Crate_Medium_Wood.gltf',
   crateBerries:  'assets/resource/Food_Crate_Small_Berries.gltf',
+  // Kenney Nature Kit: the hay meadow
+  wheatTall:     'assets/kenney/crops_wheatStageB.glb',
+  wheatShort:    'assets/kenney/crops_wheatStageA.glb',
 };
 
 export async function loadAssets(onProgress) {

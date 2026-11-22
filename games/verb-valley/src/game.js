@@ -193,7 +193,7 @@ const act = {
   }),
   cutHay: (i) => gated(() => {
     const r = farm.actions.cutHay(i);
-    if (r.ok) { sfx.till(); player.playAction('Chop', { timeScale: 1.8 }); ui.refresh(); }
+    if (r.ok) { sfx.till(); player.playAction('Chop'); ui.refresh(); }
     return r;
   }),
   waterHay: (i) => gated(() => {
@@ -553,6 +553,7 @@ function installQA() {
     zoom(f = 1) { player.setZoom?.(f); player.updateCamera(0, true); },
     face: (rad) => player.setFacing(rad),
     playAction: (n, o) => player.playAction(n, o),
+    poseAt: (n, t) => player.poseAt(n, t),
     selectTool: (t) => ui.selectTool(t),
     startClass: (seed) => startClass(seed),
     // Question panel (all stations): answer index, skip the feedback pause.

@@ -447,3 +447,22 @@ geometry, one shadow light.
     390 px). Watch in play-tests: whether ~10 questions/day feels right,
     and whether the deal is found without a hint (the daily goals in M4
     can point to it).
+- 2026-11-22 — **Play-test fixes (owner): one-stroke work, shovel grip,
+  real hay.**
+  - Work animations were the long KayKit clips with 3 strokes (`Dig` 4.7 s,
+    `Chop` 4.3 s, `Pickaxe` 6 s). `player.js` `ONE_STROKE` now maps them to
+    the single-cycle clips: `Digging` 0.8 s, `Chopping` 0.8 s, `Pickaxing`
+    cut to its first swing (subclip `Pickaxe_One`) 1.1 s, `Use_Item`
+    0.8 s. Moving cancels the rest of a stroke after 0.2 s; the result is
+    applied on the key press anyway.
+  - **Shovel grip:** the KayKit shovel is modelled blade at −y and D-grip
+    at +y with its origin mid-shaft, but the hand slot points a tool's
+    working end along +y. It is now flipped (rot z π) and shifted 0.42 so
+    the fist holds the grip; checked frame by frame with
+    `__VV.poseAt(clip, t)` (new QA hook).
+  - **Hay meadow:** the procedural cones are replaced by Kenney Nature Kit
+    `crops_wheatStageB` (tall hay, white stalks recoloured gold) and a
+    squashed straw-coloured `crops_wheatStageA` (stubble). Files are in
+    `assets/kenney/` (gitignored like the rest of `assets/`; listed in
+    `assets/CREDITS.md`; the source is the shared library's
+    `kenney/nature-kit/Models/GLTF format/`).

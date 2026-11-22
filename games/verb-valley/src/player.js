@@ -10,10 +10,12 @@ import { makeRanger, prop } from './assets.js';
 
 const lambert = (c) => new THREE.MeshLambertMaterial({ color: c });
 
-// Tool id → { asset, attach tweaks }. Rotations found by eye against the
-// KayKit hand slot (tools rest in the right fist, blade forward).
+// Tool id → { asset, attach tweaks }. The KayKit hand slot points a tool's
+// working end along +y (sword blade, pickaxe head). The shovel model is
+// the other way round (blade at -y, D-grip at +y, origin mid-shaft), so it
+// is flipped and shifted until the fist holds the grip end.
 const TOOL_FIT = {
-  shovel:  { asset: 'shovel',  rot: [0, 0, 0], pos: [0, 0, 0] },
+  shovel:  { asset: 'shovel',  rot: [0, 0, Math.PI], pos: [0, 0.42, 0] },
   bucket:  { asset: 'bucket',  rot: [0, 0, 0], pos: [0, 0, 0] },
   sword:   { asset: 'sword',   rot: [0, 0, 0], pos: [0, 0, 0] },
   axe:     { asset: 'axe',     rot: [0, 0, 0], pos: [0, 0, 0] },
@@ -50,12 +52,15 @@ export function createPlayer(scene, camera) {
   // ── Animation control ──
   const clip = (n) => THREE.AnimationClip.findByName(clips, n);
   const actions = {};
-  for (const n of ['Idle_A', 'Walking_A', 'Running_A', 'Dig', 'Chop', 'Pickaxe',
+  for (const n of ['Idle_A', 'Walking_A', 'Running_A', 'Dig', 'Chop', 'Pickaxe', 'Digging', 'Chopping', 'Pickaxing',
     'Interact', 'PickUp', 'Use_Item', 'Holding_A',
     'Fishing_Cast', 'Fishing_Idle', 'Fishing_Bite', 'Fishing_Reeling', 'Fishing_Catch']) {
     const c = clip(n);
     if (c) actions[n] = mixer.clipAction(c);
   }
+  // Pickaxing holds two swings: keep the first one only.
+  const pick = clip('Pickaxing');
+  if (pick) actions.Pickaxe_One = mixer.clipAction(THREE.AnimationUtils.subclip(pick, 'Pickaxe_One', 0, 55, 30));
   let current = null;
   function play(name, { once = false, fade = 0.18, timeScale = 1 } = {}) {
     const a = actions[name];
@@ -73,19 +78,42 @@ export function createPlayer(scene, camera) {
 
   // One-shot work action: locks movement, returns to locomotion when done.
   // loop:true keeps the clip repeating until stopAction() (fishing states).
-  let actionLock = 0;
+  // Farm work is ONE stroke (play-test 2026-11-22: "till should be one
+  // move, not 3"). Game code asks for the old long clip names; they map to
+  // the single-cycle clips here. The result of the action is applied on
+  // the key press, so moving cancels the rest of the stroke after a moment.
+  const ONE_STROKE = {
+    Dig:      { clip: 'Digging',     timeScale: 1.7 },   // 1.4 s → 0.8 s
+    Chop:     { clip: 'Chopping',    timeScale: 1.7 },   // 1.33 s → 0.8 s
+    Pickaxe:  { clip: 'Pickaxe_One', timeScale: 1.6 },   // 1.83 s → 1.1 s
+    Use_Item: { clip: 'Use_Item',    timeScale: 2.0 },   // 1.6 s → 0.8 s
+  };
+  const CANCEL_AFTER = 0.2;   // s of the stroke before movement may cut it
+  let actionLock = 0, actionAge = 0;
   let loopingAction = false;
-  function playAction(name, { loop = false, timeScale = 1.4 } = {}) {
-    const a = actions[name];
+  function playAction(name, { loop = false, timeScale } = {}) {
+    const map = !loop && ONE_STROKE[name];
+    const a = actions[map ? map.clip : name];
     if (!a) return 0;
+    const ts = timeScale ?? (map ? map.timeScale : 1.4);
     loopingAction = loop;
-    if (loop) { play(name, { timeScale }); actionLock = Infinity; return Infinity; }
-    play(name, { once: true, timeScale });
-    const dur = a.getClip().duration / timeScale;
-    actionLock = dur;
+    if (loop) { play(map ? map.clip : name, { timeScale: ts }); actionLock = Infinity; return Infinity; }
+    play(map ? map.clip : name, { once: true, timeScale: ts, fade: 0.08 });
+    const dur = a.getClip().duration / ts;
+    actionLock = dur; actionAge = 0;
     return dur;
   }
   function stopAction() { actionLock = 0; loopingAction = false; }
+  // QA: freeze the rig on one frame of a clip (for screenshots).
+  function poseAt(name, t) {
+    const a = actions[name] ?? mixer.clipAction(clip(name));
+    if (!a) return false;
+    mixer.stopAllAction(); current = null;
+    a.reset(); a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; a.play();
+    a.paused = false; a.time = t; mixer.update(0); a.paused = true;
+    actionLock = Infinity; loopingAction = true;
+    return a.getClip().duration;
+  }
   const busy = () => actionLock > 0 && !loopingAction;
 
   // ── Held item: a seed bag or produce hoisted over the head ──
@@ -158,6 +186,9 @@ export function createPlayer(scene, camera) {
 
   function update(dt, input, locked) {
     let dx = 0, dz = 0;
+    // Moving cuts a one-shot stroke short once it has visibly started.
+    const wantsMove = input.up || input.down || input.left || input.right || !!input.joy;
+    if (busy() && wantsMove && actionAge >= CANCEL_AFTER && !locked) actionLock = 0;
     if (!locked && !busy() && !loopingAction) {
       if (input.up) dz -= 1; if (input.down) dz += 1;
       if (input.left) dx -= 1; if (input.right) dx += 1;
@@ -183,7 +214,7 @@ export function createPlayer(scene, camera) {
     // Locomotion unless a one-shot action holds the rig.
     const idleClip = holding ? 'Holding_A' : 'Idle_A';
     if (actionLock > 0 && !loopingAction) {
-      actionLock -= dt;
+      actionLock -= dt; actionAge += dt;
       if (actionLock <= 0) { actionLock = 0; play(moving ? 'Running_A' : idleClip); }
     } else if (!loopingAction) {
       play(moving ? 'Running_A' : idleClip);
@@ -211,7 +242,7 @@ export function createPlayer(scene, camera) {
 
   return {
     root, update, updateCamera, teleport, setHeld, setTool, setZoom,
-    playAction, stopAction,
+    playAction, stopAction, poseAt,
     get position() { return pos; },
     get facing() { return facing; },
     setFacing(f) { facing = f; rig.rotation.y = f; },
