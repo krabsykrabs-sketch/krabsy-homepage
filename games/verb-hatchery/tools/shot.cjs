@@ -15,6 +15,14 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   for (const js of steps) {
     if (/^\d+$/.test(js)) { await page.waitForTimeout(+js); continue; }
     if (js.startsWith('@')) { await page.screenshot({ path: js.slice(1) }); continue; }
+    if (js.startsWith('!drag')) { // '!drag x0 y0 x1 y1' = a real mouse drag
+      const [x0, y0, x1, y1] = js.split(' ').slice(1).map(Number);
+      await page.mouse.move(x0, y0); await page.mouse.down();
+      for (let i = 1; i <= 10; i++) await page.mouse.move(x0 + (x1 - x0) * i / 10, y0 + (y1 - y0) * i / 10);
+      await page.mouse.up(); await page.waitForTimeout(500); continue;
+    }
+    if (js.startsWith('!clickjs ')) { const p = await page.evaluate(js.slice(9)); await page.mouse.click(p.x, p.y); await page.waitForTimeout(500); continue; }
+    if (js.startsWith('!key')) { await page.keyboard.press(js.split(' ')[1]); await page.waitForTimeout(500); continue; }
     if (js.startsWith('!click')) { const [x, y] = js.split(' ').slice(1); await page.mouse.click(+x, +y); await page.waitForTimeout(500); continue; }
     const r = await page.evaluate(js);
     if (r !== undefined) console.log('js:', JSON.stringify(r));

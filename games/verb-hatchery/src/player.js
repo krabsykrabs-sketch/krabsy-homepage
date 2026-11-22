@@ -1,6 +1,8 @@
 // Third-person player: an animated KayKit character with the camera behind it.
-// Keyboard + mouse (pointer lock: the mouse turns the camera) and touch (left
-// stick moves, right thumb turns the camera, buttons). The character runs where
+// Keyboard + mouse (the mouse stays free for the buttons; dragging on the game
+// turns the camera, a short click acts) and touch (left stick moves, right thumb
+// turns the camera, buttons). While running forward the camera slowly swings in
+// behind the character, so steering the camera is optional. The character runs where
 // the stick / keys point, relative to the camera, and turns to face that way.
 // Moves on the height function, pushed out of circle colliders, kept on the
 // island and out of locked zones. Carried eggs stack above the head.
@@ -37,7 +39,10 @@ export class Player {
     this.vy = 0; this.onGround = true;
     this.keys = new Set();
     this.speedFactor = 1;
-    this.enabled = false; this.locked = false;
+    this.enabled = false;
+    this.drag = null;      // mouse drag on the game: { id, x, y, moved }
+    this.onClick = null;   // a short click on the game (no drag)
+    this.camIdle = 0;      // seconds since the player last turned the camera
     this.moved = 0; this.speed = 0; this.camDist = CAM.dist;
     this.stick = { x: 0, y: 0, id: null };
     this.look = { id: null, x: 0, y: 0 };
@@ -107,25 +112,39 @@ export class Player {
     addEventListener('blur', () => this.keys.clear());
   }
   _mouse() {
-    document.addEventListener('pointerlockchange', () => {
-      this.locked = document.pointerLockElement === this.canvas;
-      if (!this.locked) this.keys.clear();
-      if (this.onLockChange) this.onLockChange(this.locked);
+    const c = this.canvas;
+    c.addEventListener('contextmenu', (e) => e.preventDefault());
+    c.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || (e.button !== 0 && e.button !== 2)) return;
+      this.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0, button: e.button };
+      try { c.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
     });
-    document.addEventListener('mousemove', (e) => {
-      if (!this.locked || !this.enabled) return;
-      this.turn(e.movementX * 0.0024, e.movementY * 0.0024);
+    c.addEventListener('pointermove', (e) => {
+      const d = this.drag;
+      if (!d || e.pointerId !== d.id) return;
+      const dx = e.clientX - d.x, dy = e.clientY - d.y;
+      d.x = e.clientX; d.y = e.clientY;
+      d.moved += Math.abs(dx) + Math.abs(dy);
+      if (d.moved > 5) {
+        c.classList.add('dragging');
+        if (this.enabled) this.turn(dx * 0.006, dy * 0.0045);
+      }
     });
+    const up = (e) => {
+      const d = this.drag;
+      if (!d || e.pointerId !== d.id) return;
+      this.drag = null;
+      c.classList.remove('dragging');
+      if (d.moved <= 5 && d.button === 0 && this.onClick) this.onClick();
+    };
+    c.addEventListener('pointerup', up);
+    c.addEventListener('pointercancel', up);
     this.canvas.addEventListener('wheel', (e) => {
       this.camDist = Math.max(CAM.min, Math.min(CAM.max, this.camDist + Math.sign(e.deltaY) * 0.8));
     }, { passive: true });
   }
-  requestLock() {
-    if (touchMode || this.locked) return;
-    try { const p = this.canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) { /* ignore */ }
-  }
-  releaseLock() { if (document.pointerLockElement) document.exitPointerLock(); }
   turn(dx, dy) {
+    this.camIdle = 0;
     this.yaw -= dx;
     this.pitch = Math.max(-1.15, Math.min(0.35, this.pitch - dy));
   }
@@ -205,6 +224,13 @@ export class Player {
         this.speed = step / Math.max(dt, 1e-4);
         moving = step > 0.001;
         // the character turns to where it runs
+        // running forward: the camera slowly swings in behind (not while the
+        // player turns it, and not when running sideways or back)
+        this.camIdle += dt;
+        if (inp.y > 0.5 && this.camIdle > 0.8 && !this.drag && this.look.id === null) {
+          let dy = (this.facing + Math.PI) - this.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+          this.yaw += dy * Math.min(1, dt * 1.6);
+        }
         const want = Math.atan2(dirX, dirZ);
         let d = want - this.facing; d = Math.atan2(Math.sin(d), Math.cos(d));
         this.facing += d * Math.min(1, dt * 12);

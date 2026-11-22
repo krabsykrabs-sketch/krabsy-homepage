@@ -180,10 +180,16 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   character, camera behind it, like the original").** The player is a
   KayKit Protagonist (A = girl with glasses, B = boy; chosen on the start
   screen, saved as `look`), animated with idle / walk / run / jump / pick
-  up / hit / interact. The camera orbits behind: desktop click → pointer
-  lock, the mouse turns the camera, wheel zooms, WASD / arrows run
-  relative to the camera, Shift sprint, Space jump, E action, U upgrades,
-  B book. Touch: left half = stick (push far = run), right half = drag to
+  up / hit / interact. The camera orbits behind. Desktop (owner, same day:
+  "I can't click the upgrade button, I don't see the mouse"): **no pointer
+  lock**, the mouse stays visible for the buttons; dragging on the game
+  (left or right button) turns the camera, a short click on the game does
+  the action (like E), wheel zooms; WASD / arrows run relative to the
+  camera, Shift sprint, Space jump, U upgrades, B book. While running
+  forward the camera slowly swings in behind the character (not while
+  dragging, not when running sideways or back), so turning it is
+  optional. Buttons drop keyboard focus after a click (Space must not
+  press them again). Touch: left half = stick (push far = run), right half = drag to
   turn the camera, buttons for jump and action. The camera stays above
   the terrain and moves in front of tree trunks. Carried eggs stack above
   the character's head. The terrain is a height function (`src/world.js`), so the
@@ -294,3 +300,8 @@ Not done yet / to check:
   stacked above the head, action prompt floats over the egg / incubator.
   Owner asked whether to buy an animal pack: answered no (code creatures
   stay; free CC0 packs as an option if wanted).
+- 2026-11-22: mouse controls reworked (no pointer lock; drag = camera,
+  click = action, camera follows when running forward). Checked with real
+  Playwright mouse input: drag turns, Upgrades opens/closes, Space jumps
+  without re-pressing a button, click on an egg opens the card, click on a
+  chip answers.

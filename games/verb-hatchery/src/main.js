@@ -43,7 +43,6 @@ $('bookLbl').textContent = t('book'); $('bookTitle').textContent = t('book');
 $('goOn').textContent = t('goOn');
 $('rotate').textContent = t('rotate');
 $('resetBtn').textContent = t('newGame');
-$('clickPlay').firstElementChild.textContent = t('clickToPlay');
 const rName = (r) => t(`r_${r}`);
 const zName = (z) => t(`zone_${z.id}`);
 const isOpen = (z) => S.zoneOpen(st, z);
@@ -314,16 +313,11 @@ addEventListener('keydown', (e) => {
   else if (e.code === 'KeyU') openPanel('upPanel');
   else if (e.code === 'KeyB') openPanel('bookPanel');
 });
-$('c').addEventListener('mousedown', () => {
-  if (!running || touchMode || card || panel) return;
-  if (!player.locked) { player.requestLock(); sfx.init(); return; }
-  act();
-});
-$('clickPlay').addEventListener('click', () => { sfx.init(); player.requestLock(); });
-player.onLockChange = (locked) => { updateClickPlay(); if (locked) sfx.init(); };
-function updateClickPlay() {
-  $('clickPlay').classList.toggle('on', running && !touchMode && !player.locked && !card && !panel);
-}
+// buttons drop the keyboard focus after a click, so Space (jump) can't press them again
+document.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setTimeout(() => b.blur(), 0); });
+// a short click on the game (no drag) acts like E
+player.onClick = () => { sfx.init(); act(); };
+$('c').addEventListener('pointerdown', () => sfx.init());
 $('actBtn').addEventListener('touchstart', (e) => { e.preventDefault(); act(); }, { passive: false });
 $('jumpBtn').addEventListener('touchstart', (e) => { e.preventDefault(); player.jump(); }, { passive: false });
 player.onStep = (run) => sfx.step(run);
@@ -340,13 +334,11 @@ function openCard(c) {
   const pair = Q.nextPair(R.tier);
   card = { ...c, pair, steps: Q.stepsFor(pair, c.kind === 'egg' && R.pair), i: 0 };
   player.enabled = false;
-  player.releaseLock();
   const el = $('card');
   el.style.setProperty('--rc', c.kind === 'thief' ? '#ff6b4a' : R.css);
   $('cardEgg').textContent = c.kind === 'thief' ? `🦀 ${t('thiefTitle')}` : t('egg', rName(c.rarity));
   $('cardSub').textContent = c.kind === 'thief' ? t('thiefSub') : (card.steps.length > 1 ? t('cardTwo') : t('cardOne'));
   $('shade').classList.add('on'); el.classList.add('on');
-  updateClickPlay();
   showStep();
 }
 function trioHtml(q, reveal) {
@@ -395,11 +387,9 @@ function closeCard(ok) {
   const c = card;
   card = null;
   $('card').classList.remove('on'); $('shade').classList.remove('on');
-  player.requestLock();
   if (c.kind === 'egg') { if (ok) pickedUp(c.egg); else eggRollsAway(c.egg); }
   else thiefResult(c.thief, ok);
   renderHud();
-  setTimeout(updateClickPlay, 300);
 }
 function pickedUp(e) {
   const res = S.pickUp(st, e.rarity);
@@ -592,15 +582,11 @@ function openPanel(id) {
   if (id === 'bookPanel') renderBook();
   panel.classList.add('on'); $('shade').classList.add('on');
   player.enabled = false;
-  player.releaseLock();
-  updateClickPlay();
 }
 function closePanel() {
   if (!panel) return;
   panel.classList.remove('on'); $('shade').classList.remove('on');
   panel = null;
-  player.requestLock();
-  setTimeout(updateClickPlay, 300);
 }
 document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closePanel));
 $('shade').addEventListener('click', () => { if (panel) closePanel(); });
@@ -682,7 +668,7 @@ function frame(now) {
   adaptQuality(dt);
   if (running) {
     const paused = !!card || !!panel;
-    player.enabled = !paused && (touchMode || player.locked || DEBUG);
+    player.enabled = !paused;
     player.update(dt);
     world.followSun(player.pos);
     S.tick(st, dt);
@@ -820,13 +806,11 @@ $('playBtn').addEventListener('click', () => {
   $('hud').classList.add('on');
   player.spawn(SPAWN, 0);
   running = true;
-  player.requestLock();
   if (away.coins >= 1) floatCenter(`+${fmt(away.coins)}`);
   renderHud(); renderGoals(true);
   A.levelStart(st.goals.stars + 1);
   A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
     away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st) });
-  setTimeout(updateClickPlay, 400);
   save();
 });
 $('resetBtn').addEventListener('click', () => {

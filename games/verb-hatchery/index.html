@@ -156,9 +156,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 #mapWrap{position:absolute;left:12px;bottom:12px;width:170px;height:170px;}
 #map{width:170px;height:170px;display:block;}
 #carryBox{position:absolute;right:14px;top:66px;background:var(--panel);border-radius:999px;padding:6px 14px;font-size:16px;}
-#clickPlay{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:rgba(6,13,28,.35);cursor:pointer;}
-#clickPlay.on{display:flex;}
-#clickPlay div{background:var(--navy);border-radius:20px;padding:16px 30px;font-family:'Fredoka One';font-size:28px;color:var(--teal);}
+#c{cursor:grab;} #c.dragging{cursor:grabbing;}
 #stick{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.4);
   display:none;z-index:6;pointer-events:none;}
 #knob{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.55);transform:translate(-50%,-50%);}
@@ -206,7 +204,6 @@ body.touch #cross{display:none;}
   <button class="bigBtn" id="soundBtn">🔊</button>
 </div>
 
-<div id="clickPlay"><div></div></div>
 <div id="stick"><div id="knob"></div></div>
 <button class="tbtn" id="jumpBtn">⤒</button><button class="tbtn" id="actBtn">✋</button>
 <div id="shade"></div>
