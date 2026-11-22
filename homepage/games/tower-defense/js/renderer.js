@@ -244,7 +244,11 @@ export const Renderer = {
     const w = this.canvas.clientWidth || 1366;
     const row = document.getElementById('dock-row');
     // Rects, not offsetHeight: they include the UI scale (CSS zoom, see main.js).
-    const rowH = row ? row.getBoundingClientRect().height : 0;
+    // While the mouse has the dock opened, keep the compact height: the board must not
+    // jump when the cards grow (they briefly cover the bottom edge instead).
+    const open = document.getElementById('bottom-dock')?.classList.contains('open');
+    const rowH = open && this._compactRowH != null ? this._compactRowH
+      : (this._compactRowH = row ? row.getBoundingClientRect().height : 0);
     let bottom = rowH > 0 ? Math.round(rowH + 22 * uiScale()) : 0;
     let right = 6;
     const panel = document.getElementById('forge-panel');
