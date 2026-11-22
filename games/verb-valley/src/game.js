@@ -2,7 +2,8 @@
 // gate, sleep/pass-out flow, ?qa= frozen scenes and the window.__VV QA harness.
 
 import * as THREE from 'three';
-import { TIME, LAYOUT, CROPS, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI, MINE_NODES } from './config.js';
+import { TIME, LAYOUT, CROPS, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI, MINE_NODES,
+  BUCKET_CAP, WATER_PER_RIGHT, SALE_BONUS_PER_RIGHT } from './config.js';
 import { loadAssets } from './assets.js';
 import { buildWorld, drawBoardIdle } from './world.js';
 import { createDayCycle } from './daycycle.js';
@@ -12,6 +13,8 @@ import { createFishing } from './fishing.js';
 import { createSchool } from './school.js';
 import { createUI } from './ui.js';
 import * as save from './save.js';
+import * as Q from './questions.js';
+import * as quiz from './quiz.js';
 import { unlock, sfx, birds } from './audio.js';
 
 const QA_SCENE = new URLSearchParams(location.search).get('qa');
@@ -39,7 +42,10 @@ addEventListener('resize', () => {
 // then pull in every GLTF asset (the loading screen shows progress).
 await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1800))]);
 const loadingEl = document.getElementById('loading');
-await loadAssets((p) => { loadingEl.textContent = `🦀 Loading the valley… ${Math.round(p * 100)}%`; });
+await Promise.all([
+  loadAssets((p) => { loadingEl.textContent = `🦀 Loading the valley… ${Math.round(p * 100)}%`; }),
+  Q.initQuestions(),
+]);
 
 const refs = buildWorld(scene);
 drawBoardIdle(refs.blackboard);
@@ -68,12 +74,13 @@ addEventListener('keydown', (e) => {
   if (KEYMAP[e.code]) { input[KEYMAP[e.code]] = true; e.preventDefault(); }
   if (!started) return;
   if (e.code === 'Escape') ui.closePanels();
-  if (school.active) {
-    if (e.code === 'Digit1') school.answer(0);
-    if (e.code === 'Digit2') school.answer(1);
-    if (e.code === 'Digit3') school.answer(2);
+  if (quiz.isOpen()) {
+    if (e.code === 'Digit1') quiz.answer(0);
+    if (e.code === 'Digit2') quiz.answer(1);
+    if (e.code === 'Digit3') quiz.answer(2);
     return;
   }
+  if (school.active) return;
   if (e.code === 'Digit1') ui.selectTool('shovel');
   if (e.code === 'Digit2') ui.selectTool('bucket');
   if (e.code === 'Digit3') ui.selectTool('sword');
@@ -86,19 +93,10 @@ addEventListener('keydown', (e) => {
 addEventListener('keyup', (e) => { if (KEYMAP[e.code]) input[KEYMAP[e.code]] = false; });
 
 // Click: board chips during class, otherwise same as E.
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
 addEventListener('pointerdown', (e) => {
   unlock();
-  if (!started || e.target.closest('#hud, .panel, #start-screen, #sleep-overlay')) return;
-  if (school.active) {
-    pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    raycaster.setFromCamera(pointer, camera);
-    const boardMesh = refs.blackboard.group.children.find((c) => c.isMesh && c.material.map === refs.blackboard.tex);
-    const hit = raycaster.intersectObject(boardMesh)[0];
-    if (hit?.uv) school.handleBoardClick(hit.uv);
-    return;
-  }
+  if (!started || e.target.closest('#hud, .panel, #start-screen, #sleep-overlay, #quiz-panel')) return;
+  if (school.active || quiz.isOpen()) return;
   interact();
 });
 
@@ -114,11 +112,64 @@ function gated(fn) {
   return fn();
 }
 
+function bucketEmpty() {
+  sfx.deny();
+  ui.bubble(new THREE.Vector3(player.position.x, 2.4, player.position.z), '🪣 Empty! Refill it at the well', 2400);
+  return { ok: false, reason: 'bucket-empty' };
+}
+
+// ── Question stations (the Verb Kitchen sink pattern) ───────────────────
+// Self-paced: the player walks up when they choose. The clock pauses while
+// a question is open. Wrong = the chain is shown, nothing is lost.
+async function useWell() {
+  if (quiz.isOpen()) return { ok: false, reason: 'busy' };
+  if (state.water >= BUCKET_CAP) {
+    ui.toast('🪣 Your bucket is already full');
+    return { ok: false, reason: 'full' };
+  }
+  const unit = Q.nextUnit();
+  const perRight = unit.steps.length > 1 ? WATER_PER_RIGHT : BUCKET_CAP;
+  player.playAction('Use_Item');
+  const r = await quiz.ask(unit, {
+    title: '🪣 The well',
+    reward: () => `+${perRight} 💧`,
+    onStep: (i, ok) => {
+      Q.recordStep(state, unit, i, ok);
+      if (ok) { state.water = Math.min(BUCKET_CAP, state.water + perRight); sfx.water(); }
+      ui.updateHUD();
+    },
+  });
+  Q.recordUnit(state, unit, r.correct === r.total);
+  state.today.wells += 1;
+  if (r.correct === 0) ui.toast('🪣 Try the well again — a new word is waiting');
+  return { ok: true, ...r, water: state.water };
+}
+
+async function krabsyDeal() {
+  if (quiz.isOpen() || state.saleBonus > 0) return { ok: false, reason: 'busy' };
+  const unit = Q.nextUnit();
+  const per = unit.steps.length > 1 ? SALE_BONUS_PER_RIGHT : SALE_BONUS_PER_RIGHT * 2;
+  ui.closePanels();
+  const r = await quiz.ask(unit, {
+    title: '📦 Krabsy’s deal',
+    reward: () => `+${Math.round(per * 100)}% 🪙`,
+    onStep: (i, ok) => { Q.recordStep(state, unit, i, ok); if (ok) state.saleBonus += per; },
+  });
+  Q.recordUnit(state, unit, r.correct === r.total);
+  ui.openShip();
+  return { ok: true, ...r, bonus: state.saleBonus };
+}
+
 // ── Gated farm actions (single path for player input AND QA) ────────────
 const act = {
   till: (i) => gated(() => { const r = farm.actions.till(i); if (r.ok) { sfx.till(); player.playAction('Dig'); } return r; }),
   plant: (i, t) => gated(() => { const r = farm.actions.plant(i, t); if (r.ok) { sfx.plant(); ui.autoStow(); ui.refresh(); } return r; }),
-  water: (i) => gated(() => { const r = farm.actions.water(i); if (r.ok) { sfx.water(); player.playAction('Use_Item'); } return r; }),
+  water: (i) => gated(() => {
+    if (state.water <= 0) return bucketEmpty();
+    const r = farm.actions.water(i);
+    if (r.ok) { state.water--; sfx.water(); player.playAction('Use_Item'); ui.updateHUD(); }
+    return r;
+  }),
   harvest: (i) => gated(() => {
     const r = farm.actions.harvest(i);
     if (r.ok) {
@@ -146,8 +197,9 @@ const act = {
     return r;
   }),
   waterHay: (i) => gated(() => {
+    if (state.water <= 0) return bucketEmpty();
     const r = farm.actions.waterHay(i);
-    if (r.ok) { sfx.water(); player.playAction('Use_Item'); }
+    if (r.ok) { state.water--; sfx.water(); player.playAction('Use_Item'); ui.updateHUD(); }
     return r;
   }),
   chop: (i) => gated(() => {
@@ -192,6 +244,11 @@ function computeTarget() {
     return { kind: 'sleep', label: '<b>E</b> — Sleep 🛏' };
   }
   if (d2(LAYOUT.crate.x, LAYOUT.crate.z) < 2.4) return { kind: 'ship', label: '<b>E</b> — Sell produce 📦' };
+  if (d2(LAYOUT.well.x, LAYOUT.well.z) < 2.2) {
+    if (!attended()) return { kind: 'info', label: 'The well opens after school 🦀' };
+    if (state.water >= BUCKET_CAP) return { kind: 'info', label: `Bucket full 🪣 ${state.water}/${BUCKET_CAP}` };
+    return { kind: 'well', label: `<b>E</b> — Fill the bucket 🪣 ${state.water}/${BUCKET_CAP}` };
+  }
   if (d2(LAYOUT.shop.x, LAYOUT.shop.z) < 2.8) return { kind: 'shop', label: '<b>E</b> — Shop 🛒' };
 
   const bi = farm.nearestBerry(p, 1.7);
@@ -208,7 +265,10 @@ function computeTarget() {
       return { kind: 'plant', i: pi, t: seed, label: `<b>E</b> — Plant ${CROPS[seed].emoji} ${CROPS[seed].name}${lock}` };
     if (seed && !plot.tilled) return { kind: 'info', label: 'Till this first — press 1 for the shovel 🪏' };
     if (tool === 'shovel' && !plot.tilled) return { kind: 'till', i: pi, label: `<b>E</b> — Till soil 🪏${lock}` };
-    if (tool === 'bucket' && plot.tilled && !plot.watered) return { kind: 'water', i: pi, label: `<b>E</b> — Water 🪣${lock}` };
+    if (tool === 'bucket' && plot.tilled && !plot.watered) {
+      if (state.water <= 0) return { kind: 'info', label: '🪣 Bucket empty — fill it at the well' };
+      return { kind: 'water', i: pi, label: `<b>E</b> — Water 🪣 ${state.water}/${BUCKET_CAP}${lock}` };
+    }
     if (plot.tilled && plot.watered && plot.crop) return { kind: 'info', label: 'Watered for today ✓' };
     if (plot.tilled && !plot.crop) return { kind: 'info', label: 'Click a seed bag in your inventory 🌱' };
     return { kind: 'none' };
@@ -224,7 +284,10 @@ function computeTarget() {
       return { kind: 'info', label: 'Tall hay — press 3 for the sword ⚔️' };
     }
     if (!h.watered) {
-      if (tool === 'bucket') return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🪣${lock}` };
+      if (tool === 'bucket') {
+        if (state.water <= 0) return { kind: 'info', label: '🪣 Bucket empty — fill it at the well' };
+        return { kind: 'waterHay', i: hi, label: `<b>E</b> — Water stubble 🪣 ${state.water}/${BUCKET_CAP}${lock}` };
+      }
       return { kind: 'info', label: 'Water the stubble and it regrows overnight 🚿' };
     }
     return { kind: 'info', label: 'Regrows tomorrow ✓' };
@@ -256,12 +319,13 @@ function computeTarget() {
 }
 
 function interact() {
-  if (!started || ui.anyPanelOpen()) return;
+  if (!started || ui.anyPanelOpen() || quiz.isOpen()) return;
   const t = computeTarget();
   switch (t.kind) {
     case 'school': startClass(); break;
     case 'sleep': doSleep(); break;
     case 'ship': ui.openShip(); break;
+    case 'well': useWell(); break;
     case 'shop': ui.openShop(); break;
     case 'berry': { const r = farm.actions.pickBerry(t.i); if (r.ok) { sfx.harvest(); ui.toast('🫐 Wild berries!'); ui.refresh(); } break; }
     case 'harvest': act.harvest(t.i); break;
@@ -333,11 +397,14 @@ function ship(item, n) {
   const have = state.inventory[item] ?? 0;
   const move = Math.min(have, n);
   if (move <= 0) return { ok: false, reason: 'none' };
-  const earned = (SELLABLE[item] ?? 0) * move;
+  const base = (SELLABLE[item] ?? 0) * move;
+  const earned = Math.round(base * (1 + (state.saleBonus || 0)));
+  const bonusText = earned > base ? ` (🦀 +${earned - base})` : '';
+  state.saleBonus = 0;
   state.inventory[item] -= move;
   state.coins += earned;
   sfx.coin();
-  ui.toast(`+${earned} 🪙`);
+  ui.toast(`+${earned} 🪙${bonusText}`);
   ui.autoStow();
   ui.refresh();
   return { ok: true, moved: move, earned };
@@ -347,6 +414,8 @@ function doSleep(dozed = false) {
   fishing?.cancel();
   sfx.sleep();
   const summary = save.advanceDay(state);
+  summary.english.lines = summary.english.missed.map((m) => Q.chainLine(m));
+  Q.resetDay();
   save.save(state);
   farm.refreshAll();
   player.teleport(LAYOUT.bed.x, LAYOUT.bed.z + 1);
@@ -378,6 +447,7 @@ function startGame(loaded) {
   ui = createUI(state, {
     onBuy: buy,
     onShip: (item, n) => { ship(item, n); ui.updateHUD(); },
+    onDeal: () => { krabsyDeal(); },
     onContinue: () => {}, onNewFarm: () => {},
     onWake: () => {},
     // Mirror the inventory selection onto the rig: seed bags and produce
@@ -409,7 +479,7 @@ function frame() {
   worldClock += dt;
 
   if (started) {
-    const paused = school.active || ui.anyPanelOpen();
+    const paused = school.active || ui.anyPanelOpen() || quiz.isOpen();
     if (!paused && !frozen) {
       state.timeMin += dt * TIME.MIN_PER_SEC;
       if (state.timeMin >= TIME.PASS_OUT) doSleep(true);
@@ -429,7 +499,6 @@ function frame() {
 
     player.update(dt, input, paused || fishing.active);
     farm.update(worldClock);
-    school.update(dt);
 
     if (camMode === 'class') {
       const cz = LAYOUT.school.z;
@@ -439,7 +508,7 @@ function frame() {
       player.updateCamera(dt);
     }
 
-    if (!ui.anyPanelOpen() && !school.active) {
+    if (!ui.anyPanelOpen() && !school.active && !quiz.isOpen()) {
       const t = computeTarget();
       ui.prompt(t.kind === 'none' ? null : t.label);
     } else ui.prompt(null);
@@ -486,24 +555,39 @@ function installQA() {
     playAction: (n, o) => player.playAction(n, o),
     selectTool: (t) => ui.selectTool(t),
     startClass: (seed) => startClass(seed),
-    answer: (i) => school.answer(i),
-    tickSchool: (dt = 10) => school.update(dt),
+    // Question panel (all stations): answer index, skip the feedback pause.
+    answer: (i) => quiz.answer(i),
+    flush: () => quiz.flush(),
+    quizOpen: () => quiz.isOpen(),
+    currentStep: () => quiz.currentStep(),
+    // Answer the open panel right (true) or wrong (false), then flush.
+    async solve(right = true) {
+      const st = quiz.currentStep();
+      if (!st) return { ok: false };
+      const k = st.options.indexOf(st.answer);
+      const r = quiz.answer(right ? k : (k + 1) % st.options.length);
+      quiz.flush();
+      await new Promise((res) => setTimeout(res, 0));
+      return r;
+    },
+    // Answer until the panel closes with a pattern like [true, false, ...].
+    async solveAll(pattern = [true]) {
+      let i = 0, guard = 0;
+      while (quiz.isOpen() && guard++ < 20) await this.solve(pattern[Math.min(i++, pattern.length - 1)]);
+      return { ok: true };
+    },
     classActive: () => school.active,
-    currentQuestion: () => school.currentQuestion,
-    // Run a full class, getting exactly `wantCorrect` answers right.
-    attendClass(wantCorrect = 8, seed = 42) {
-      const r = startClass(seed);
+    async attendClass(wantCorrect = 4) {
+      const r = startClass();
       if (!r.ok) return r;
-      let togo = wantCorrect;
-      let guard = 0;
-      while (school.active && guard++ < 20) {
-        const q = school.currentQuestion;
-        const right = q.chips.indexOf(q.correct);
-        school.answer(togo-- > 0 ? right : (right + 1) % q.chips.length);
-        school.update(10);   // fast-forward the feedback pause
-      }
+      const pattern = Array.from({ length: 4 }, (_, k) => k < wantCorrect);
+      await this.solveAll(pattern);
+      await new Promise((res) => setTimeout(res, 0));
       return { ok: true, correct: school.progress.correct };
     },
+    useWell: () => useWell(),
+    deal: () => krabsyDeal(),
+    questions: () => ({ source: Q.source, topic: Q.topic, size: Q._qa.pool.length, reask: Q._qa.reask.slice() }),
     till: (i) => act.till(i),
     plant: (i, t) => act.plant(i, t),
     water: (i) => act.water(i),
@@ -561,7 +645,7 @@ function setupQAScene(name) {
       break;
     case 'school-open':
       VV.setTime(485);
-      startClass(42);
+      startClass();
       break;
     case 'field-with-crops': {
       state.day = 3; state.schooledDay = 3;

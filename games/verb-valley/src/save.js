@@ -2,12 +2,14 @@
 // through. State is plain JSON in localStorage, versioned so v1.1 schema bumps
 // can migrate instead of wiping farms.
 
-import { SAVE_KEY, SAVE_VERSION, TIME, LAYOUT, CROPS, SELLABLE, TREE_REGROW_DAYS, MINE_NODES } from './config.js';
+import { SAVE_KEY, SAVE_VERSION, TIME, LAYOUT, CROPS, SELLABLE, TREE_REGROW_DAYS, MINE_NODES, BUCKET_CAP } from './config.js';
 
 const FIELD_TILES = LAYOUT.field.cols * LAYOUT.field.rows;
 const HAY_TILES = LAYOUT.hay.cols * LAYOUT.hay.rows;
 
 const zeroPerCrop = () => Object.fromEntries(Object.keys(CROPS).map((k) => [k, 0]));
+
+export const freshToday = () => ({ asked: 0, correct: 0, missed: [], wells: 0 });
 
 export function createNewState() {
   return {
@@ -30,6 +32,9 @@ export function createNewState() {
     mine: LAYOUT.mine.map((_, i) => ({ type: rollNode(1, i), mined: false })),
     berries: spawnBerries(1),
     school: { missed: [], stickers: 0, totalCorrect: 0, classesAttended: 0, lastReview: null },
+    water: BUCKET_CAP,               // tiles the bucket can still water
+    saleBonus: 0,                    // Krabsy's deal: +x on the next sale
+    today: freshToday(),             // questions asked today (sleep card)
     sound: true,
   };
 }
@@ -96,6 +101,14 @@ function migrate(s) {
     s.inventory = { ...fresh.inventory, ...s.inventory };
     s.mine = fresh.mine;
     s.version = 3;
+    return migrate(s);
+  }
+  if (s.version === 3) {
+    // v3 → v4: question stations (bucket water, sale bonus, day stats).
+    s.water = BUCKET_CAP;
+    s.saleBonus = 0;
+    s.today = freshToday();
+    s.version = 4;
     return s;
   }
   return null;
@@ -162,5 +175,9 @@ export function advanceDay(state) {
   state.timeMin = TIME.WAKE;
   state.berries = spawnBerries(state.day);
 
-  return { earned, sold, grew, ripened, hayRegrown, nodesRegrown, day: state.day };
+  // 5. The day's English: shown on the sleep card, then reset.
+  const english = state.today ?? freshToday();
+  state.today = freshToday();
+
+  return { earned, sold, grew, ripened, hayRegrown, nodesRegrown, day: state.day, english };
 }

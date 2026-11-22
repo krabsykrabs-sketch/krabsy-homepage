@@ -391,3 +391,59 @@ geometry, one shadow light.
     the question stations? (b) OK to make the camera high and fixed?
     (c) Use the BlobVideos crab for Professor Krabsy? (d) How should
     `assets/` be tracked for release (copy Tower Defense)?
+- 2026-11-22 — **Owner OK'd the plan ("go with it"). M0 done, M1 core
+  done (question stations); DE/ES UI still open.**
+  - **M0:** Three.js 0.169 vendored (`vendor/three/`, copied from Verb
+    Kitchen, import map) and fonts self-hosted (`fonts/fonts.css`; Nunito
+    is a variable font, so one file covers all weights). Added
+    `noindex, indexifembedded`. Verified: no third-party requests.
+  - **New `src/questions.js`** (deck shared by every station): uses the
+    question engine (`/lib/krabsy-questions.js`, `?topic=`) with the
+    inline lists in `verbs.js` as fallback (local dev 404s on `/lib/` by
+    design). Verbs come as **chain-order pairs** (`go → ? → ___`, then
+    `go → went → ?`); other topics as single sentence gaps. Easy tiers
+    come first. Missed items go to `state.school.missed` (the next class
+    opens with them) and are asked again **the same day** 3 units later
+    (Kitchen re-ask). Answering a review fully right graduates it.
+    `buildClass`/`makeVerbQ` (with the grammar-term prompts) are removed.
+  - **New `src/quiz.js`:** one DOM question card for all stations: big
+    tappable chips plus keys 1–3, asked blank highlighted in its form
+    colour (2nd teal, 3rd coral, base amber). Wrong = Professor Krabsy
+    shows `go → went → ___` (never reveals the 3rd form before it is
+    asked) or the full chain, or for gaps the sentence with the answer.
+    The clock pauses while it is open.
+  - **School** = 4 questions (2 pairs; review first). 5 coins per right
+    answer, rare seed at 3+/4, sticker at 4/4. The 3D blackboard mirrors
+    the question in chalk (no more board raycast).
+  - **The well** (new, procedural, west of the field, `LAYOUT.well`):
+    the bucket holds 6 waterings (`state.water`, HUD chip 🪣 n/6, pulses
+    when empty). Field and hay watering use it. A refill asks one pair:
+    +3 water per right answer (a gap topic fills all 6). It opens after
+    school. A new farm starts with a full bucket.
+  - **Krabsy's deal** at the sell crate: optional, one pair, +25% per
+    right answer on the next sale (shown in the panel, reset after it is
+    applied).
+  - **Sleep card:** "English today: x / y ✓" plus the missed chains to
+    practise tomorrow. `state.today` is reset by `advanceDay`.
+  - **Save v4** (`water`, `saleBonus`, `today`). v3→v4 migration is
+    verified, and the v1/v2 chains now run through to v4.
+  - **Verified** (headless Chromium; test script in the session
+    scratchpad): 26 checks pass on both the inline and engine paths
+    (served `homepage/lib`+`data` next to the game via symlinks on
+    :8133). They cover: positional prompts with no terms, follow-up shows
+    the 2nd form, class 4 Qs/coins/unlock, bucket 6 then empty, well
+    partial/full refill, refusal when full, clock pause, same-day re-ask,
+    deal +50% sale, sleep English summary + chains, next-day review +
+    graduation, save round trip, v3 migration, zero console errors
+    (engine path), no third-party hosts. `?topic=prepositions` works on
+    the engine.
+  - **QA API changes:** `__VV.answer(i)` answers the open panel;
+    `flush()`, `quizOpen()`, `currentStep()`, `solve(right)`,
+    `solveAll(pattern)`, `attendClass(nRight)` (async), `useWell()`,
+    `deal()`, `questions()`. `startClass` no longer takes a seed.
+  - **Next:** M1 rest = DE/ES UI (`src/i18n.js` like Kitchen; all UI
+    strings are still English). Then M2 camera (high, fixed) + touch
+    (stick + action button) + phone HUD (the top-right chips overlap at
+    390 px). Watch in play-tests: whether ~10 questions/day feels right,
+    and whether the deal is found without a hint (the daily goals in M4
+    can point to it).

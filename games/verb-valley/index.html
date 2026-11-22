@@ -4,13 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Verb Valley — Krabsy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="./fonts/fonts.css">
 <script type="importmap">
 { "imports": {
-    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/" } }
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/" } }
 </script>
 <style>
   :root {
@@ -164,6 +163,44 @@
   .howto .em { font-size: 24px; width: 32px; text-align: center; }
   .howto small { display: block; color: rgba(255,255,255,0.55); font-size: 12.5px; }
   .start-btns { display: grid; gap: 10px; justify-items: center; }
+
+  /* ── Question panel (quiz.js): every station asks here ── */
+  #hud-water { color: #7fd3ff; }
+  #hud-water.empty { color: var(--coral); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.08); } }
+  #quiz-panel { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 30;
+    width: min(620px, calc(100vw - 24px)); background: rgba(16,20,42,0.94); border: 2px solid rgba(46,230,192,0.35);
+    border-radius: 22px; padding: 14px 18px 16px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    font-family: Nunito, sans-serif; text-align: center; }
+  #quiz-panel[hidden] { display: none; }
+  .qz-head { display: flex; align-items: center; gap: 8px; font-weight: 800; color: rgba(255,255,255,0.7); font-size: 15px; }
+  .qz-crab { font-size: 22px; }
+  .qz-title { flex: 1; text-align: left; }
+  .qz-prog { color: var(--teal); letter-spacing: 2px; }
+  .qz-prompt { font-family: 'Fredoka One', cursive; font-size: clamp(26px, 5.2vw, 40px); margin: 10px 0 14px;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; line-height: 1.25; }
+  .qz-arrow { color: rgba(255,255,255,0.45); }
+  .qz-blank { display: inline-block; min-width: 2.6em; padding: 0 10px; border-bottom: 4px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.35); }
+  .qz-blank.ask { border: 3px dashed; border-radius: 12px; color: #fff; background: rgba(255,255,255,0.06); }
+  .qz-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .qz-chip { position: relative; font-family: 'Fredoka One', cursive; font-size: clamp(20px, 4vw, 28px); color: #fff;
+    background: rgba(255,255,255,0.07); border: 3px solid var(--c); border-radius: 16px; padding: 14px 6px 12px;
+    cursor: pointer; min-height: 64px; touch-action: manipulation; }
+  .qz-chip small { position: absolute; top: 4px; left: 9px; font: 700 12px Nunito, sans-serif; color: rgba(255,255,255,0.4); }
+  .qz-chip:hover { background: rgba(255,255,255,0.14); }
+  .qz-chip.right { background: var(--teal); color: #10142a; border-color: var(--teal); }
+  .qz-chip.wrong { background: var(--coral); color: #10142a; border-color: var(--coral); animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  .qz-feedback { min-height: 30px; margin-top: 10px; font-size: 20px; font-weight: 800; }
+  .qz-feedback .qz-arrow { font-weight: 400; }
+  .qz-ok { color: var(--teal); }
+  .qz-no { color: var(--coral); margin-right: 6px; }
+  .qz-review { color: var(--amber); font-size: 15px; }
+  .deal { display: flex; align-items: center; gap: 10px; background: rgba(255,207,94,0.12); border: 2px dashed var(--amber);
+    border-radius: 14px; padding: 8px 12px; margin: 6px 0 10px; text-align: left; font-weight: 700; }
+  .deal span { flex: 1; }
+  .english { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .english .chain { font-family: 'Fredoka One', cursive; color: var(--amber); font-size: 20px; }
 </style>
 </head>
 <body>
@@ -180,6 +217,7 @@
   </div>
   <div id="hud-topright">
     <span class="chip" id="hud-stickers"></span>
+    <span class="chip" id="hud-water" title="Water in the bucket">🪣 <span id="hud-water-n">6</span></span>
     <span class="chip" id="hud-coins-wrap">🪙 <span id="hud-coins">0</span></span>
     <button id="btn-sound">🔊</button>
   </div>
@@ -212,6 +250,7 @@
   <button class="close" id="ship-close">✕</button>
   <h2>📦 Sell Produce</h2>
   <p class="sub">Coins on the spot — straight into your pocket</p>
+  <div id="ship-deal"></div>
   <div id="ship-list"></div>
   <p id="ship-crate"></p>
 </div>
@@ -243,8 +282,8 @@
     <h1>Verb Valley</h1>
     <p class="tag">Grandpa's farm needs you — and so does English class!</p>
     <div class="howto">
-      <div><span class="em">🏫</span><span>Attend Professor Krabsy's class each morning<small>Answer verb questions, earn coins &amp; rare seeds</small></span></div>
-      <div><span class="em">🌱</span><span>Then farm the day away<small>Till, plant, water — crops grow while you sleep</small></span></div>
+      <div><span class="em">🏫</span><span>Attend Professor Krabsy's class each morning<small>4 quick questions — they open the farm and pay coins &amp; rare seeds</small></span></div>
+      <div><span class="em">🌱</span><span>Then farm the day away<small>Till, plant, water — fill your bucket at the well with one more word</small></span></div>
       <div><span class="em">📦</span><span>Sell your harvest, grow your fortune<small>WASD move · E interact · 1–6 tools · click a seed bag to hold it</small></span></div>
       <div><span class="em">⛏</span><span>Mine the quarry &amp; fish the pond<small>Buy the pickaxe and rod at the shop as you earn</small></span></div>
     </div>

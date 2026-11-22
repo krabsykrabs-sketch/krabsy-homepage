@@ -114,6 +114,21 @@ export function buildWorld(scene) {
   scene.add(crate);
   refs.crate = crate;
   makeSignpost(scene, LAYOUT.crate.x + 1.6, LAYOUT.crate.z, '📦 Sell', 0x9c6b3f);
+  // ── The well: stone ring, wooden roof, a bucket on the rim ─────────────
+  const well = new THREE.Group();
+  well.position.set(LAYOUT.well.x, 0, LAYOUT.well.z);
+  const ring = cyl(0.95, 1.05, 0.9, 0x9aa3ad, 16); ring.position.y = 0.45; well.add(ring);
+  const water = cyl(0.78, 0.78, 0.05, 0x3fa7d6, 16); water.position.y = 0.72; well.add(water);
+  for (const sx of [-0.85, 0.85]) { const post = box(0.16, 1.9, 0.16, 0x8a5a33); post.position.set(sx, 1.35, 0); well.add(post); }
+  const roof = box(2.3, 0.14, 1.4, 0xb4553f); roof.position.y = 2.35; roof.rotation.z = 0; well.add(roof);
+  const roof2 = box(2.3, 0.14, 1.0, 0xc4654f); roof2.position.set(0, 2.5, 0); well.add(roof2);
+  const bar = cyl(0.06, 0.06, 1.7, 0x6b4426, 8); bar.rotation.z = Math.PI / 2; bar.position.y = 1.75; well.add(bar);
+  const wb = prop('bucket', 0.9); wb.position.set(0.7, 0.9, 0.55); well.add(wb);
+  well.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(well);
+  refs.well = well;
+  makeSignpost(scene, LAYOUT.well.x - 1.4, LAYOUT.well.z + 1.2, '🪣 Well', 0x3fa7d6);
+
 
   // ── Shop stand ───────────────────────────────────────────────────────
   const shop = new THREE.Group();

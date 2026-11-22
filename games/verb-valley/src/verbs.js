@@ -1,5 +1,6 @@
-// Curated question bank for Professor Krabsy's class. Irregular verbs ordered
-// roughly by frequency, plus a dozen preposition items for lesson variety.
+// Inline fallback question bank (local dev / offline; on the site the
+// question engine is used, see questions.js). Irregular verbs ordered
+// roughly by frequency; preposition gaps for ?topic=prepositions.
 // Forms verified against the canonical content/irregular-verbs.json catalogue.
 
 export const VERBS = [
@@ -61,73 +62,3 @@ export const PREPS = [
   { q: 'I’ll see you ___ the weekend.',a: 'at', opts: ['at', 'in', 'on'] },
   { q: 'The frog sat ___ the pond.',        a: 'in', opts: ['in', 'on', 'at'] },
 ];
-
-// Plausible wrong forms for a verb question. Mixes regularized forms, swapped
-// past/participle, and a near-neighbour so distractors aren't gimmes.
-function verbDistractors(verb, form) {
-  const correct = form === 'past' ? verb.past : verb.pp;
-  const other = form === 'past' ? verb.pp : verb.past;
-  const regular = verb.v.endsWith('e') ? verb.v + 'd' : verb.v + 'ed';
-  const pool = [other, regular, verb.v + 'ed', verb.v + 's', verb.v + 'en'];
-  const out = [];
-  for (const c of pool) {
-    if (c !== correct && !out.includes(c) && out.length < 2) out.push(c);
-  }
-  // Guarantee two distractors.
-  let i = 0;
-  while (out.length < 2) { const c = verb.v + (['t', 'n', 'd'][i++] || 'x'); if (c !== correct && !out.includes(c)) out.push(c); }
-  return out;
-}
-
-// Build one class's worth of questions. `count` questions, optionally led by a
-// review question drawn from `reviewVerb` (a verb string the player missed).
-// `seedRandom` is a 0..1 function so QA can make classes deterministic.
-export function buildClass(count, reviewVerb, rng = Math.random) {
-  const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  const shuffle = (arr) => {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-    return a;
-  };
-
-  const questions = [];
-
-  const makeVerbQ = (verb, form, isReview = false) => {
-    const correct = form === 'past' ? verb.past : verb.pp;
-    const formWord = form === 'past' ? 'simple past' : 'past participle';
-    const chips = shuffle([correct, ...verbDistractors(verb, form)]);
-    return {
-      kind: 'verb', verb: verb.v, form, isReview,
-      prompt: `${formWord} of ${verb.v.toUpperCase()}?`,
-      chain: `${verb.v} → ${verb.past} → ${verb.pp}`,
-      chips, correct,
-      color: form === 'past' ? 'teal' : 'coral',
-    };
-  };
-
-  const makePrepQ = (p) => {
-    const chips = shuffle(p.opts.slice(0, 3));
-    return { kind: 'prep', prompt: p.q, chips, correct: p.a, color: 'amber',
-             chain: `Correct: ${p.a}` };
-  };
-
-  // Lead with a review question if we have one and the verb is known.
-  if (reviewVerb) {
-    const v = VERBS.find((x) => x.v === reviewVerb);
-    if (v) questions.push(makeVerbQ(v, rng() < 0.5 ? 'past' : 'pp', true));
-  }
-
-  const usedVerbs = new Set(reviewVerb ? [reviewVerb] : []);
-  while (questions.length < count) {
-    // ~1 in 4 is a preposition lesson for variety.
-    if (rng() < 0.25) {
-      questions.push(makePrepQ(pick(PREPS)));
-    } else {
-      let v = pick(VERBS), guard = 0;
-      while (usedVerbs.has(v.v) && guard++ < 10) v = pick(VERBS);
-      usedVerbs.add(v.v);
-      questions.push(makeVerbQ(v, rng() < 0.5 ? 'past' : 'pp'));
-    }
-  }
-  return questions.slice(0, count);
-}

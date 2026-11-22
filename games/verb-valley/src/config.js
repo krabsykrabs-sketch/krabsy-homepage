@@ -92,6 +92,7 @@ export const LAYOUT = {
   cottage: { x: -13, z: -11 },
   bed:     { x: -13, z: -6.5 },   // step here + E to sleep
   crate:   { x: -7.5, z: -7 },
+  well:    { x: -4.4, z: -1 },     // refill the bucket: one question
   shop:    { x: 13, z: -8 },
   // field grid
   field:   { cols: 6, rows: 4, gap: 1.7, cx: 2.5, cz: -1 },
@@ -114,4 +115,12 @@ export const TREE_REGROW_DAYS = 2;
 export const INTERACT_RANGE = 2.3;
 export const SAVE_KEY = 'krabsy_vvalley_save';
 export const SOUND_KEY = 'krabsy_vvalley_sound';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
+
+// ── Question stations ──────────────────────────────────────────────────
+// The bucket waters BUCKET_CAP tiles; refilling it at the well asks one
+// unit (a verb pair = 2 questions, each right answer pours WATER_PER_RIGHT).
+export const BUCKET_CAP = 6;
+export const WATER_PER_RIGHT = 3;
+// Krabsy's deal at the sell crate: +25% per right answer on the next sale.
+export const SALE_BONUS_PER_RIGHT = 0.25;

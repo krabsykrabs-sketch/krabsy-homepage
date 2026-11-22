@@ -10,7 +10,7 @@
 // selection onto the player rig via hooks.onSelect.
 
 import * as THREE from 'three';
-import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI } from './config.js';
+import { CROPS, CROP_ORDER, TIER_UNLOCK, SELLABLE, TOOL_COST, ITEM_EMOJI, BUCKET_CAP } from './config.js';
 import { sfx, toggle as toggleSound, isEnabled as soundOn } from './audio.js';
 
 const $ = (id) => document.getElementById(id);
@@ -133,6 +133,8 @@ export function createUI(state, hooks) {
     $('hud-day').textContent = `Day ${state.day}`;
     $('hud-clock').textContent = fmtTime(state.timeMin);
     $('hud-coins').textContent = state.coins;
+    $('hud-water-n').textContent = `${state.water ?? 0}/${BUCKET_CAP}`;
+    $('hud-water').classList.toggle('empty', (state.water ?? 0) <= 0 && state.schooledDay === state.day);
     const stickers = state.school.stickers;
     $('hud-stickers').hidden = stickers === 0;
     $('hud-stickers').textContent = stickers > 0 ? '🌟'.repeat(Math.min(stickers, 5)) + (stickers > 5 ? `×${stickers}` : '') : '';
@@ -237,6 +239,14 @@ export function createUI(state, hooks) {
   function openShip() {
     const list = $('ship-list');
     list.innerHTML = '';
+    // Krabsy's deal: an optional question for a better price on the next sale.
+    const deal = $('ship-deal');
+    if (state.saleBonus > 0) {
+      deal.innerHTML = `<div class="deal">🦀<span>Krabsy's deal: <b>+${Math.round(state.saleBonus * 100)}%</b> on your next sale — tap “All”!</span></div>`;
+    } else {
+      deal.innerHTML = `<div class="deal">🦀<span>Krabsy's deal: answer for a better price (up to +50%)</span><button class="chip-btn">Deal!</button></div>`;
+      deal.querySelector('button').onclick = () => hooks.onDeal?.();
+    }
     let any = false;
     for (const [item, n] of Object.entries(state.inventory)) {
       if (!n) continue;
@@ -283,6 +293,12 @@ export function createUI(state, hooks) {
     if (summary.hayRegrown) html += `<p>${summary.hayRegrown} hay tile${summary.hayRegrown > 1 ? 's' : ''} regrew 🌾</p>`;
     if (summary.nodesRegrown) html += `<p>Fresh rocks in the quarry ⛏</p>`;
     if (!html) html = '<p>A quiet night on the farm.</p>';
+    const en = summary.english;
+    if (en && en.asked > 0) {
+      html += `<div class="english"><p>English today: <b>${en.correct} / ${en.asked}</b> ✓</p>`;
+      if (en.lines?.length) html += `<p>Practise again tomorrow:</p>` + en.lines.map((l) => `<p class="chain">${l}</p>`).join('');
+      html += '</div>';
+    }
     if (state.school.stickers > 0) html += `<p class="stickers">Sticker collection: ${'🌟'.repeat(Math.min(state.school.stickers, 8))}</p>`;
     $('sleep-body').innerHTML = html;
     $('sleep-day').textContent = `Day ${summary.day}`;
