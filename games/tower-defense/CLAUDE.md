@@ -669,3 +669,19 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     music and sounds need the owner's ears.
   - Not built yet (second batch): boss entrance and boss health bar, boss
     music, wave-start pips and icon banner, streak flame, build dust.
+- 2026-11-22 — **Round 7: see what a tower does before buying** (owner:
+  "can the player see what the towers do before buying them?" — before,
+  only a mouse tooltip, nothing on touch).
+  - Each tower card has three 5-step bars from the config (`ui._statBarsHtml`):
+    ⚔️ damage (ceil(damage/15)), 🎯 range (round(range−1)), ⏱ speed
+    (fire rate bands; frost uses 1/cooldown), plus 💥 (cannon, hits a
+    group) or ❄️ (frost). Archer 2·3·5, catapult 5·5·2, cannon 4·3·1,
+    frost 0·3·1.
+  - Mouse hover or a touch long press (420 ms) on a card shows a popup
+    with name and description (`#tower-pop`) and, if a hex is already
+    chosen, the see-through tower with its range circle there
+    (`state.previewType`, `renderer._syncGhost`). A long press never
+    buys; a normal tap still builds at once.
+  - Checked in headless Chromium at 1366×768 (hover), 1024×768 and
+    390×844 (long press): popup, range preview, no purchase on long press,
+    tap builds. No errors.

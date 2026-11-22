@@ -54,6 +54,8 @@ export const state = {
 
   // A free hex the player tapped: the next tower card builds right there.
   buildCell: null,
+  // Tower card under the mouse / long-pressed: its range is previewed at buildCell.
+  previewType: null,
   // Tutorial coach: { key, target } and cells to highlight (see tutorial.js).
   hint: null,
   hintCells: [],

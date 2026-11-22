@@ -71,15 +71,34 @@ export const UI = {
       const btn = document.createElement('button');
       btn.className = 'tower-btn';
       btn.dataset.tower = type;
-      btn.title = towerText(type).desc;
+      btn.setAttribute('aria-label', `${towerText(type).name}: ${towerText(type).desc}`);
       btn.innerHTML = `
         <span class="tower-btn-hotkey">${i + 1}</span>
         <img class="tower-thumb" src="${this._thumbs[type]}" alt="" draggable="false">
         <span class="tower-btn-name">${esc(towerText(type).name)}</span>
+        ${this._statBarsHtml(type)}
         <span class="tower-btn-cost">${COIN}${def.cost}</span>
       `;
+      // Preview before buying: hover (mouse) or long press (touch) shows the
+      // description and, when a hex is chosen, the tower's range on the board.
+      btn.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') this._preview(type, btn); });
+      btn.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') this._preview(null); });
+      btn.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse') return;
+        clearTimeout(this._pressTimer);
+        this._pressTimer = setTimeout(() => { this._longPressed = btn; this._preview(type, btn); }, 420);
+      });
+      const endPress = () => {
+        clearTimeout(this._pressTimer);
+        if (this._longPressed === btn) setTimeout(() => this._preview(null), 1200);
+      };
+      btn.addEventListener('pointerup', endPress);
+      btn.addEventListener('pointercancel', endPress);
+      btn.addEventListener('contextmenu', (e) => e.preventDefault());
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        // A long press only previews; it never buys.
+        if (this._longPressed === btn) { this._longPressed = null; btn.blur(); return; }
         // Not enough coins: the card shakes and a dull tock plays (no text needed).
         if (state.coins < def.cost && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
           btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
@@ -92,6 +111,44 @@ export const UI = {
       });
       container.appendChild(btn);
     });
+  },
+
+  // Three small bars compare the towers at a glance (damage, range, speed), plus an
+  // icon for what is special. Values come from the tower config, scaled to 1–5.
+  _statBarsHtml(type) {
+    const d = CONFIG.TOWERS[type];
+    const clamp = (v) => Math.max(1, Math.min(5, v));
+    const rate = type === 'freeze' ? 1 / (d.freezeCooldown || 4) : d.fireRate;
+    const rows = [
+      ['⚔️', d.damage > 0 ? clamp(Math.ceil(d.damage / 15)) : 0],
+      ['🎯', clamp(Math.round(d.range - 1))],
+      ['⏱', clamp(rate >= 1.2 ? 5 : rate >= 0.8 ? 4 : rate >= 0.5 ? 3 : rate >= 0.35 ? 2 : 1)],
+    ];
+    const special = { cannon: '💥', freeze: '❄️' }[type] || '';
+    let html = '<span class="tower-stats" aria-hidden="true">';
+    for (const [icon, n] of rows) {
+      let segs = '';
+      for (let i = 0; i < 5; i++) segs += `<i class="${i < n ? 'on' : ''}"></i>`;
+      html += `<span class="ts-row"><span class="ts-icon">${icon}</span><span class="ts-bar">${segs}</span></span>`;
+    }
+    if (special) html += `<span class="ts-special">${special}</span>`;
+    return html + '</span>';
+  },
+
+  // Show (or hide with null) the preview for a tower card: a popup with the name and
+  // description above the card, and the range on the board at the chosen hex.
+  _preview(type, btn) {
+    state.previewType = type;
+    const pop = document.getElementById('tower-pop');
+    if (!type) { pop.classList.add('hidden'); return; }
+    const text = towerText(type);
+    pop.innerHTML = `<b>${esc(text.name)}</b><span>${esc(text.desc)}</span>`;
+    pop.classList.remove('hidden');
+    const dock = document.getElementById('bottom-dock').getBoundingClientRect();
+    const b = btn.getBoundingClientRect();
+    const zoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
+    pop.style.left = `${(b.left + b.width / 2 - dock.left) / zoom}px`;
+    pop.style.top = `${(b.top - dock.top) / zoom - 8}px`;
   },
 
   // Re-sync everything that depends on the loaded level (totals, hearts cap).

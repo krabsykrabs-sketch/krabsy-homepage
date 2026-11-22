@@ -747,16 +747,24 @@ export const Renderer = {
 
   _syncGhost(state) {
     const g = this._ghost;
-    if (!state.placement.active || !state.mouseWorld) { g.visible = false; return; }
-    const { cellX, cellY } = Grid.worldToPlacementCell(state.mouseWorld.x, state.mouseWorld.y);
+    // Two ways to preview: placing a tower (card first, follows the pointer), or a
+    // hovered / long-pressed card while a hex is already chosen (hex first).
+    let cellX, cellY, type;
+    if (state.placement.active && state.mouseWorld) {
+      ({ cellX, cellY } = Grid.worldToPlacementCell(state.mouseWorld.x, state.mouseWorld.y));
+      type = state.placement.towerType;
+    } else if (state.previewType && state.buildCell) {
+      ({ cellX, cellY } = state.buildCell);
+      type = state.previewType;
+    } else { g.visible = false; return; }
     if (!Grid.inBounds(cellX, cellY)) { g.visible = false; return; }
 
     const valid = Grid.isAvailable(cellX, cellY);
-    const def = CONFIG.TOWERS[state.placement.towerType];
+    const def = CONFIG.TOWERS[type];
     const c = Grid.placementCellToWorld(cellX, cellY);
     g.visible = true;
     g.position.set(c.centerX, 0, c.centerY);
-    const u = g.userData, type = state.placement.towerType;
+    const u = g.userData;
     if (u.shown !== type) {
       if (u.shown) u.models[u.shown].visible = false;
       if (!u.models[type]) {
