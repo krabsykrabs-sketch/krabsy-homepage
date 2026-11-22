@@ -1,0 +1,188 @@
+// Balance values, entity data, catalogues. Systems not yet built (waves, quiz, audio)
+// intentionally omitted — each step layers in what it needs.
+
+export const CONFIG = {
+  // Visual tuning. One hex is 2 world units wide; the road on it is narrow, so enemies
+  // stay small (Grunt radius ~0.3, Titan ~0.6).
+  enemyRadiusPerScale: 0.16,
+  // Seconds a normal enemy takes to climb out of the ground before it starts walking.
+  enemySpawnRise: 0.9,
+
+  projectileHitRadius: 0.3,  // enemy.radius is added on top per hit check
+  chainRange: 3.2,           // how far a chained arrow may jump to the next enemy
+  chainFalloff: 0.7,         // damage kept per jump (25 → 17.5 → 12.25)
+
+  // The forge (always-visible question card, see forge.js). It is the main income.
+  forge: {
+    orePerWave: 8,       // answers per wave (right or wrong)
+    coinsPerRight: 5,
+    streakEvery: 3,      // every 3 right answers in a row …
+    streakBonus: 1,      // … the next ones pay 1 coin more …
+    streakBonusMax: 3,   // … up to +3
+    rightPause: 0.9,     // seconds before the next question
+    wrongLock: 4,        // seconds the card stays locked after a wrong answer
+  },
+
+  colors: {
+    ground:        '#4a7c2e',
+    path:          '#c4a35a',
+    water:         '#3a8fd4',
+    obstacle:      '#2d5a1e',
+    spawn:         '#c4a35a',
+    goal:          '#c4a35a',
+    spawnMarker:   '#ffe66d',
+    goalMarker:    '#e63946',
+    obstacleDot:   '#2d5a1e',
+    gridLine:      'rgba(0,0,0,0.10)',
+
+    // Placement overlay (spec: Placement Grid > Placement Overlay).
+    overlayAvailable:   'rgba(40,40,40,0.28)',
+    overlayUnavailable: 'rgba(220,50,50,0.30)',
+    overlayCellLine:    'rgba(255,255,255,0.22)',
+    ghostValid:         'rgba(120,220,120,0.55)',
+    ghostInvalid:       'rgba(220,80,80,0.55)',
+
+    towerSelectedRing: 'rgba(255,255,255,0.85)',
+    rangeRing:         'rgba(255,255,255,0.12)',
+    rangeRingBorder:   'rgba(255,255,255,0.45)',
+
+    projectileBasic:         '#ffffff',
+    projectileCatapult:      '#8a8f98',
+    projectileCannon:        '#a06a30',
+  },
+
+  // Kills pay nothing (bosses 2): coins come from the forge (owner play-test
+  // 2026-11-22: with kill coins, archers alone beat level 5 without a single answer).
+  // ENEMY_TIERS — see spec "Enemy System". Thresholds are walked high→low; first match wins.
+  enemyTiers: [
+    { name: 'Grunt',   healthThreshold: 0,   scale: 1.8, speedMultiplier: 1.2, coinReward: 0, color: '#5bc14a' },
+    { name: 'Soldier', healthThreshold: 50,  scale: 2.3, speedMultiplier: 1.0, coinReward: 0, color: '#3d7dd8' },
+    { name: 'Warrior', healthThreshold: 100, scale: 2.8, speedMultiplier: 0.9, coinReward: 0, color: '#f2c94c' },
+    { name: 'Brute',   healthThreshold: 200, scale: 3.3, speedMultiplier: 0.8, coinReward: 0, color: '#e25c4d' },
+    { name: 'Titan',   healthThreshold: 400, scale: 3.8, speedMultiplier: 0.7, coinReward: 0, color: '#9b59d0' },
+  ],
+
+  // 3D version: bosses are big and unmistakable (boss waves contain only bosses).
+  bossType: { name: 'Boss', scale: 3.2, speedMultiplier: 0.6, coinReward: 2, color: '#2a2333' },
+
+  // TOWERS — full catalogue per spec "Tower System". Only `basic` fires in step 4;
+  // the rest are placeable statues until step 5 wires up their firing logic.
+  TOWERS: {
+    basic: {
+      name: 'Archer Tower',
+      cost: 30,
+      range: 3.5,
+      fireRate: 1.5,
+      damage: 20,
+      projectileSpeed: 10,
+      type: 'basic',
+      pierceMode: 'none',
+      projectileRangeMultiplier: 1,
+      color: '#3a6fd8',
+      description: 'Reliable single-target shooter.',
+      upgrades: [
+        { tier: 1, cost: 30, description: 'Can hit two enemies',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'chain1', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
+        { tier: 2, cost: 30, description: 'Can hit many enemies',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'chain2', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
+      ],
+    },
+
+    catapult: {
+      name: 'Catapult',
+      cost: 40,
+      range: 6,
+      fireRate: 0.4,
+      damage: 70,
+      projectileSpeed: 9,
+      type: 'catapult',
+      aoeRadius: 0.7,
+      pierceMode: 'none',
+      projectileRangeMultiplier: 1,
+      color: '#8e4fd8',
+      description: 'Long range, heavy boulders.',
+      upgrades: [
+        { tier: 1, cost: 40, description: '50% more damage',
+          damageMultiplier: 1.5, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
+        { tier: 2, cost: 50, description: 'Even longer range',
+          damageMultiplier: 1, rangeMultiplier: 1.3, fireRateMultiplier: 1,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
+      ],
+    },
+
+    cannon: {
+      name: 'Cannon',
+      cost: 50,
+      range: 3.5,
+      fireRate: 0.3,
+      damage: 60,
+      projectileSpeed: 10,
+      type: 'cannon',
+      aoeRadius: 1.5,
+      pierceMode: 'none',
+      projectileRangeMultiplier: 1,
+      color: '#8a5a2b',
+      description: 'Slow but mighty splash damage.',
+      upgrades: [
+        { tier: 1, cost: 45, description: 'Bigger boom',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1.5, freezeDurationMultiplier: 1, permanentSlow: false },
+        { tier: 2, cost: 55, description: 'Faster shooting',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1.5,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: false },
+      ],
+    },
+
+    freeze: {
+      name: 'Freeze Tower',
+      cost: 40,
+      range: 4,
+      fireRate: 0,
+      damage: 0,
+      type: 'freeze',
+      freezeDuration: 2,
+      freezeCooldown: 4,
+      freezeRange: 4,
+      color: '#6cc3d8',
+      description: 'Chills every enemy in range.',
+      upgrades: [
+        { tier: 1, cost: 35, description: 'Deep freeze',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1.3, permanentSlow: false },
+        { tier: 2, cost: 55, description: 'Slows permanently.',
+          damageMultiplier: 1, rangeMultiplier: 1, fireRateMultiplier: 1,
+          pierceUpgrade: 'none', projectileRangeMultiplier: 1,
+          aoeRadiusMultiplier: 1, freezeDurationMultiplier: 1, permanentSlow: true },
+      ],
+    },
+  },
+};
+
+// Order for keyboard 1-4 and button display.
+export const TOWER_ORDER = ['basic', 'catapult', 'cannon', 'freeze'];
+
+// Archer upgrades: after a hit the arrow jumps on to the nearest enemy it has not hit
+// yet, with CONFIG.chainFalloff of the damage per jump. chain1 = 1 jump (2 enemies),
+// chain2 = 2 jumps (3 enemies). At most ×1.7 / ×2.19 the base damage, and only when
+// enemies walk close together — a little less per coin than a new archer, which
+// needs a free spot. Upgrades only ever raise this, never lower it.
+export const PIERCE_ORDER = { none: 0, chain1: 1, chain2: 2 };
+export const CHAIN_HITS = { none: 1, chain1: 2, chain2: 3 };
+
+export function getTierForHealth(hp) {
+  const tiers = CONFIG.enemyTiers;
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (tiers[i].healthThreshold <= hp) return tiers[i];
+  }
+  return tiers[0];
+}

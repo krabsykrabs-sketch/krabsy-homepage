@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, indexifembedded">
+  <link rel="icon" href="data:,">
+  <title>Verb Towers</title>
+  <link rel="stylesheet" href="css/game3d.css">
+</head>
+<body class="state-menu game-inactive">
+  <div id="game-wrapper">
+    <div id="game-container">
+      <!-- The canvas fills the window; all UI floats on top of it. -->
+      <div id="canvas-frame">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="top-hud">
+          <div class="hud-group">
+            <div class="hud-chip hud-coins">
+              <span class="coin-icon" aria-hidden="true"></span>
+              <span id="coin-count">0</span>
+            </div>
+            <div class="hud-chip hud-lives">
+              <span id="lives-container"></span>
+              <span id="lives-compact"></span>
+            </div>
+          </div>
+          <div class="hud-group hud-center">
+            <div class="hud-chip hud-phase" id="phase-label"></div>
+          </div>
+          <div class="hud-group">
+            <div class="hud-chip hud-wave"><span data-i18n="wave"></span> <span id="wave-count">0</span>/<span id="wave-total">0</span></div>
+            <button id="speed-btn" class="round-btn" data-i18n-title="speed">×1</button>
+            <button id="mute-btn" class="round-btn" data-i18n-title="sound">🔊</button>
+            <button id="end-game-btn" class="round-btn" data-i18n-title="quit">✕</button>
+          </div>
+        </div>
+
+        <div id="wave-banner" class="hidden"></div>
+        <!-- Red edge that breathes when lives are low; darkens on defeat. -->
+        <div id="danger-vignette"></div>
+        <!-- Tutorial coach: one short line about what to do next (level 1, first time). -->
+        <div id="coach" class="hidden"></div>
+
+        <!-- Bottom dock. The wrapper ignores pointer events so clicks on empty space
+             still reach the battlefield. -->
+        <div id="bottom-dock">
+          <div id="tower-info" class="panel hidden"></div>
+
+          <!-- The forge: one question is always on screen here (side panel on wide
+               screens, a strip above the dock on phones). It never stops the game. -->
+          <div id="forge-panel" class="panel hidden">
+            <div class="forge-head">
+              <span class="forge-title">⚒ <span data-i18n="forgeTitle"></span></span>
+              <span class="forge-ore" data-i18n-title="oreLeft">🔨 <span id="forge-ore">0</span></span>
+            </div>
+            <div class="forge-sub" id="forge-sub"></div>
+            <div class="forge-question" id="forge-question"></div>
+            <div class="forge-answers" id="forge-answers"></div>
+            <div class="forge-feedback" id="forge-feedback"></div>
+            <div class="forge-lock"><div id="forge-lock-bar"></div></div>
+          </div>
+
+          <div id="dock-row">
+            <div id="tower-buttons"></div>
+            <button id="start-wave-btn" class="btn btn-teal">
+              <span class="dock-btn-label" data-i18n="startWave"></span>
+              <span class="dock-btn-sub hotkey" data-i18n="hotkeySpace"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlays cover the whole game container. -->
+      <div id="wave-complete-overlay" class="overlay overlay-light hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title" id="wc-title"></div>
+          <div class="overlay-subtitle">+<span id="wc-bonus"></span> <span class="coin-icon coin-icon-sm" aria-hidden="true"></span></div>
+          <div class="overlay-hint" data-i18n="tapToContinue"></div>
+        </div>
+      </div>
+
+      <div id="game-over-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="end-icon broken" aria-hidden="true">💔</div>
+          <div class="overlay-title coral" data-i18n="gameOver"></div>
+          <div class="wave-dots" id="go-dots" aria-hidden="true"></div>
+          <div class="overlay-subtitle" id="go-sub"></div>
+          <div class="overlay-best" id="go-best"></div>
+          <div class="recap" id="go-recap"></div>
+          <div class="overlay-actions">
+            <button class="btn btn-teal" data-action="restart" data-i18n="playAgain"></button>
+            <button class="btn btn-ghost" data-action="menu" data-i18n="menu"></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="victory-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="end-icon" aria-hidden="true">🏰</div>
+          <div class="overlay-title amber" data-i18n="victory"></div>
+          <div class="stars-big" id="vc-stars"></div>
+          <div class="overlay-subtitle" id="vc-sub"></div>
+          <div class="overlay-best" id="vc-best"></div>
+          <div class="recap" id="vc-recap"></div>
+          <div class="overlay-actions">
+            <button class="btn btn-teal" id="next-level-btn" data-i18n="nextLevel"></button>
+            <button class="btn btn-ghost" data-action="restart" data-i18n="playAgain"></button>
+            <button class="btn btn-ghost" data-action="menu" data-i18n="menu"></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quit-overlay" class="overlay hidden">
+        <div class="overlay-panel panel">
+          <div class="overlay-title small" data-i18n="quitTitle"></div>
+          <div class="overlay-actions">
+            <button class="btn btn-teal" id="quit-no" data-i18n="quitNo"></button>
+            <button class="btn btn-ghost" id="quit-yes" data-i18n="quitYes"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start menu with level selection. -->
+    <div id="menu-overlay" class="menu-fullscreen">
+      <div class="menu-panel">
+        <div class="menu-title" data-i18n="title"></div>
+        <div class="menu-subtitle" data-i18n="subtitle"></div>
+        <div class="menu-chain" aria-hidden="true">
+          <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-part">gone</span>
+        </div>
+        <div id="level-cards"><div id="loading-note" data-i18n="loading"></div></div>
+        <div class="menu-hint" data-i18n="menuHint"></div>
+        <div class="rotate-note">↻ <span data-i18n="rotate"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js 0.169 as ES modules, vendored locally (no CDN, no third-party requests). -->
+  <script type="importmap">
+  { "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/"
+  } }
+  </script>
+
+  <!-- Level data (classic scripts that set window.LEVELn; they run before the module). -->
+  <script src="levels/level1.js"></script>
+  <script src="levels/level2.js"></script>
+  <script src="levels/level3.js"></script>
+  <script src="levels/level4.js"></script>
+  <script src="levels/level5.js"></script>
+  <script src="levels/level6.js"></script>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

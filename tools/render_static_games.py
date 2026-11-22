@@ -107,7 +107,7 @@ def _flags(g, lang):
     out = []
     if g.get("kind") == "3d":
         out.append('<span class="bdg bdg-3d">3D</span>')
-    if g.get("new_until"):
+    if g.get("new_until") and g.get("status") != "coming_soon":   # NEU only once playable
         out.append(f'<span class="bdg bdg-new"{_new_attr(g)}>{L["new"]}</span>')
     return "".join(out)
 
@@ -130,7 +130,7 @@ def _sr(g, lang):
     bits = []
     if g.get("kind") == "3d":
         bits.append(L["sr_3d"])
-    if g.get("new_until"):
+    if g.get("new_until") and g.get("status") != "coming_soon":
         bits.append(L["sr_new"])
     return f'<span class="vh">{", ".join(bits)}. </span>' if bits else ""
 

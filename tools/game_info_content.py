@@ -362,7 +362,7 @@ CONTENT = {
                 ("Kann man in Verb Kitchen verlieren?", "Nein. Bestellungen laufen nicht ab. Die Uhr zählt nur mit, und je schneller du bist, desto mehr Sterne bekommst du."),
                 ("Was kann ich mit Sternen freischalten?", "Mit gesammelten Sternen schaltest du neue Spielfiguren frei. Sterne, Bestzeiten und Fortschritt werden auf deinem Gerät gespeichert."),
             ],
-            "related": ["verb-platformer", "air-control", "verb-flow"],
+            "related": ["verb-towers", "air-control", "verb-flow"],
         },
         "es": {
             "h1": "Verb Kitchen: juego de cocina con verbos irregulares",
@@ -386,7 +386,112 @@ CONTENT = {
                 ("¿Se puede perder en Verb Kitchen?", "No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas."),
                 ("¿Para qué sirven las estrellas?", "Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo."),
             ],
-            "related": ["verb-platformer", "air-control", "verb-flow"],
+            "related": ["verb-towers", "air-control", "verb-flow"],
+        },
+    },
+    "verb-towers": {
+        "de": {
+            "h1": "Verb Towers – Tower Defense mit unregelmäßigen Verben",
+            "lead": [
+                "In Verb Towers verteidigst du deine Burg gegen Wellen von Skelett-Kriegern. Baue Bogentürme, Katapulte, Kanonen und Frosttürme an den Weg – aber Münzen gibt es nur in der <strong>Schmiede</strong>: Jede richtige Antwort auf eine Verbfrage bringt dir Münzen für neue Türme.",
+                "So trainierst du die <strong>unregelmäßigen Verben</strong> ganz nebenbei, während du deine Verteidigung planst. Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung.",
+            ],
+            "howto": [
+                "Wähle ein Feld neben dem Weg und einen Turm aus der Leiste unten – oder zuerst den Turm (Tasten <kbd>1</kbd>–<kbd>4</kbd>) und dann das Feld.",
+                "In der Schmiede rechts beantwortest du Verbfragen per Klick oder mit <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Richtig = Münzen, eine Serie bringt einen Bonus.",
+                "Mit <kbd>Leertaste</kbd> oder „Welle starten“ geht es los. Tippe einen Turm an, um ihn auszubauen oder zu verkaufen.",
+                "Auf Tablet und Handy spielst du mit Tippen; auf dem Handy am besten im Querformat.",
+                "Kommt kein Gegner bis zur Burg durch, bekommst du drei Sterne – und Sterne schalten neue Level frei.",
+            ],
+            "learn": [
+                "Die Schmiede fragt die zweite und dritte Form, zum Beispiel <em>go → ___</em> und gleich danach <em>go → went → ___</em> – ohne Grammatik-Fachbegriffe. Nach einem Fehler siehst du die ganze Reihe, und verpasste Verben kommen kurz darauf wieder, etwa {think}, {bring} oder {catch}. Es gibt sechs Level von der Wiese bis zum Winterpass, mit Herbst, Seen und Schnee.",
+            ],
+            "verbs": ["think", "bring", "catch"],
+            "faq": [
+                ("Kann ich Verb Towers ohne Antworten gewinnen?", "Nein. Gegner bringen kaum Münzen – fast alles Geld kommt aus der Schmiede. Wer die Verben kann, baut die stärkere Verteidigung."),
+                ("Läuft das Spiel auf dem Handy?", "Ja, mit Tippen. Am besten hältst du das Handy quer; auf Tablet, Chromebook und Computer ist das Spielfeld größer."),
+                ("Wird mein Fortschritt gespeichert?", "Ja, Sterne, Bestwerte und freigeschaltete Level werden nur auf deinem Gerät gespeichert. Es gibt kein Konto."),
+            ],
+            "related": ["verb-kitchen", "air-control", "verb-snake"],
+        },
+        "es": {
+            "h1": "Verb Towers: tower defense con verbos irregulares",
+            "lead": [
+                "En Verb Towers defiendes tu castillo de oleadas de guerreros esqueleto. Construye torres de arqueros, catapultas, cañones y torres de hielo junto al camino, pero las monedas solo salen de la <strong>forja</strong>: cada respuesta correcta a una pregunta de verbos te da monedas para nuevas torres.",
+                "Así practicas los <strong>verbos irregulares en inglés</strong> mientras planeas tu defensa. Se juega gratis en el navegador, sin descargas y sin registro.",
+            ],
+            "howto": [
+                "Elige una casilla junto al camino y una torre de la barra de abajo, o primero la torre (teclas <kbd>1</kbd>–<kbd>4</kbd>) y luego la casilla.",
+                "En la forja, a la derecha, respondes preguntas de verbos con un clic o con <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Respuesta correcta = monedas; una racha da un bonus.",
+                "Con la <kbd>barra espaciadora</kbd> o «Iniciar oleada» empieza el ataque. Toca una torre para mejorarla o venderla.",
+                "En tablet y celular se juega tocando la pantalla; en el celular, mejor en horizontal.",
+                "Si ningún enemigo llega al castillo, consigues tres estrellas, y las estrellas desbloquean nuevos niveles.",
+            ],
+            "learn": [
+                "La forja pregunta la segunda y la tercera forma, por ejemplo <em>go → ___</em> y justo después <em>go → went → ___</em>, sin términos gramaticales. Si fallas, ves la secuencia completa, y los verbos que fallaste vuelven poco después, como {think}, {bring} o {catch}. Hay seis niveles, de la pradera al paso de invierno, con otoño, lagos y nieve.",
+            ],
+            "verbs": ["think", "bring", "catch"],
+            "faq": [
+                ("¿Se puede ganar Verb Towers sin responder?", "No. Los enemigos casi no dan monedas: casi todo el dinero sale de la forja. Quien sabe los verbos construye la mejor defensa."),
+                ("¿Funciona en el celular?", "Sí, tocando la pantalla. Lo mejor es poner el celular en horizontal; en tablet, Chromebook o computadora el tablero se ve más grande."),
+                ("¿Se guarda mi progreso?", "Sí. Las estrellas, los récords y los niveles desbloqueados se guardan solo en tu dispositivo. No hace falta cuenta."),
+            ],
+            "related": ["verb-kitchen", "air-control", "verb-snake"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────── Verb Dungeon
+    "verb-dungeon": {
+        "de": {
+            "h1": "Verb Dungeon – Abenteuer im Verlies mit unregelmäßigen Verben",
+            "meta": "Ein 3D-Dungeon-Abenteuer mit englischen Verben: Finde den versteckten Schlüssel, öffne Verb-Türen und mach den Golem schwindelig. Kostenlos im Browser, ohne Anmeldung.",
+            "lead": [
+                "In Verb Dungeon läuft dein kleiner Held mit Schwert durch ein Verlies voller Fackeln, Fässer und frecher Skelette. In jedem Raum ist die Tür verschlossen. Den Schlüssel musst du erst finden – er steckt in einem Fass, einer Kiste oder bei einem Skelett. Aufschließen kannst du nur mit Englisch: <strong>zwei richtige Verbformen</strong>, und die Tür geht auf.",
+                "Das ist ein bisschen gruselig, aber nie zum Fürchten: Umgehauene Skelette fallen zu einem ordentlichen Knochenhaufen zusammen und stehen etwas verlegen wieder auf. Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung. Die Texte im Spiel sind auf Deutsch, nur die Verben bleiben Englisch.",
+            ],
+            "howto": [
+                "Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, hauen und durchsuchen mit der <kbd>Leertaste</kbd>.",
+                "Alles, was du benutzen kannst, hat einen leuchtenden Ring am Boden. Durchsuche Fässer und Kisten oder hau die Skelette um, bis der Schlüssel herausfällt.",
+                "Lauf über den Schlüssel, dann erscheint eine Frage wie <em>go → ___ → ___</em>. Antworte mit einem Klick oder mit den Tasten <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. Solange die Frage offen ist, steht das ganze Verlies still.",
+                "Manche Räume haben eigene Rätsel: drei Runentüren mit Wörtern (nur eine führt weiter), eine Wortbrücke, auf der nur die Steine mit der richtigen Form halten, oder einen Hinterhalt, bei dem die Tür hinter dir zufällt.",
+                "Am Ende jedes Levels wartet ein großer Golem. Stell dich auf den leuchtenden Stein und beantworte die Frage – dann ist der Golem kurz schwindelig, und du kannst ihn hauen.",
+            ],
+            "learn": [
+                "Geübt werden die <strong>zweite und dritte Form</strong> der unregelmäßigen Verben, zum Beispiel {go}, {see}, {fly}, {find} und {drive}. Erst fragt das Spiel die zweite Form (<em>go → ___</em>), gleich danach die dritte mit der zweiten schon eingetragen (<em>go → went → ___</em>) – ohne Grammatik-Fachbegriffe. Nach einem Fehler siehst du die Reihe, und das verpasste Verb kommt an einer späteren Tür noch einmal dran.",
+                "Es gibt drei Level mit fünf bis sechs Räumen, von leichten Verben in Level 1 bis zu schwierigeren in Level 3. Wer alles beim ersten Versuch richtig hat, bekommt drei Sterne. Mit Münzen aus Truhen, der Schatzkammer und vom Golem schaltest du neue Helden frei: Barbar, Schurke und Magier.",
+            ],
+            "verbs": ["go", "see", "fly", "find", "drive"],
+            "faq": [
+                ("Kann ich Verb Dungeon auf dem Handy oder Tablet spielen?", "Im Moment brauchst du eine Tastatur, also einen Laptop, PC oder ein Tablet mit Tastatur. Auf schmalen Handys zeigt das Spiel einen Hinweis. Eine Touch-Steuerung ist in Arbeit."),
+                ("Ist das Spiel gruselig?", "Nur ein bisschen. Es gibt Fackeln, Skelette und einen Golem, aber kein Blut und nichts zum Fürchten. Wer alle Herzen verliert, ist kurz schwindelig und startet den Raum neu – was du schon geschafft hast, bleibt."),
+                ("Wird mein Fortschritt gespeichert?", "Ja. Sterne, Münzen und freigeschaltete Helden werden nur auf deinem Gerät gespeichert. Es gibt kein Konto."),
+            ],
+            "related": ["verb-kitchen", "verb-towers", "verb-snake"],
+        },
+        "es": {
+            "h1": "Verb Dungeon: aventura en la mazmorra con verbos irregulares",
+            "meta": "Una aventura en 3D con verbos en inglés: encuentra la llave escondida, abre puertas de verbos y marea al gólem. Gratis en el navegador, sin registro.",
+            "lead": [
+                "En Verb Dungeon tu pequeño héroe con espada recorre una mazmorra llena de antorchas, barriles y esqueletos traviesos. En cada sala la puerta está cerrada con llave, y primero tienes que encontrarla: está escondida en un barril, una caja o la lleva un esqueleto. Para abrir la puerta necesitas inglés: <strong>dos formas verbales correctas</strong> y la puerta se abre.",
+                "Da un poquito de miedo, pero nada de terror: los esqueletos que derribas se desarman en un montoncito de huesos y se levantan otra vez, algo avergonzados. Se juega gratis en el navegador, sin descargas y sin registro. Los textos del juego están en español; solo los verbos siguen en inglés.",
+            ],
+            "howto": [
+                "Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas; golpea y registra con la <kbd>barra espaciadora</kbd>.",
+                "Todo lo que puedes usar tiene un anillo brillante en el suelo. Registra barriles y cajas o derriba a los esqueletos hasta que aparezca la llave.",
+                "Pasa por encima de la llave y aparece una pregunta como <em>go → ___ → ___</em>. Responde con un clic o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. Mientras la pregunta está abierta, toda la mazmorra se queda quieta.",
+                "Algunas salas tienen su propio reto: tres puertas de runas con palabras (solo una sigue adelante), un puente de palabras donde solo aguantan las piedras con la forma correcta, o una emboscada en la que la puerta se cierra detrás de ti.",
+                "Al final de cada nivel te espera un gólem enorme. Párate sobre la piedra brillante y responde la pregunta: el gólem se marea un momento y puedes golpearlo.",
+            ],
+            "learn": [
+                "Practicas la <strong>segunda y la tercera forma</strong> de los verbos irregulares, por ejemplo {go}, {see}, {fly}, {find} y {drive}. Primero el juego pregunta la segunda forma (<em>go → ___</em>) y justo después la tercera, con la segunda ya escrita (<em>go → went → ___</em>), sin términos gramaticales. Si fallas, ves la secuencia y el verbo vuelve a salir en una puerta más adelante.",
+                "Hay tres niveles con cinco o seis salas, desde verbos fáciles en el nivel 1 hasta otros más difíciles en el nivel 3. Si aciertas todo al primer intento, consigues tres estrellas. Con las monedas de los cofres, la sala del tesoro y el gólem desbloqueas nuevos héroes: bárbaro, pícaro y mago.",
+            ],
+            "verbs": ["go", "see", "fly", "find", "drive"],
+            "faq": [
+                ("¿Puedo jugar Verb Dungeon en el celular o la tablet?", "Por ahora necesitas un teclado: una laptop, una computadora o una tablet con teclado. En celulares estrechos el juego muestra un aviso. Los controles táctiles están en camino."),
+                ("¿Da miedo el juego?", "Solo un poquito. Hay antorchas, esqueletos y un gólem, pero nada de sangre ni de terror. Si pierdes todos los corazones, te mareas un momento y la sala empieza de nuevo; lo que ya lograste se queda."),
+                ("¿Se guarda mi progreso?", "Sí. Las estrellas, las monedas y los héroes desbloqueados se guardan solo en tu dispositivo. No hace falta cuenta."),
+            ],
+            "related": ["verb-kitchen", "verb-towers", "verb-snake"],
         },
     },
 }
@@ -400,6 +505,8 @@ GENRE = {
     "verb-flow": ["Puzzle", "Educational"],
     "verb-platformer": ["Platformer", "Educational"],
     "verb-kitchen": ["Simulation", "Educational"],
+    "verb-towers": ["Strategy", "Educational"],
+    "verb-dungeon": ["Adventure", "Educational"],
 }
 
 # What each game asks for (JSON-LD "teaches").
@@ -408,12 +515,16 @@ TEACHES = {
         "default": "Unregelmäßige englische Verben: Grundform, Simple Past und Past Participle",
         "verb-platformer": "Unregelmäßige englische Verben: Simple Past und Past Participle",
         "verb-kitchen": "Unregelmäßige englische Verben: Simple Past und Past Participle",
+        "verb-towers": "Unregelmäßige englische Verben: Simple Past und Past Participle",
+        "verb-dungeon": "Unregelmäßige englische Verben: Simple Past und Past Participle",
         "crab-slash": "Unregelmäßige englische Verben: Simple Past und Past Participle",
     },
     "es": {
         "default": "Verbos irregulares en inglés: forma base, pasado simple y participio pasado",
         "verb-platformer": "Verbos irregulares en inglés: pasado simple y participio pasado",
         "verb-kitchen": "Verbos irregulares en inglés: pasado simple y participio pasado",
+        "verb-towers": "Verbos irregulares en inglés: pasado simple y participio pasado",
+        "verb-dungeon": "Verbos irregulares en inglés: pasado simple y participio pasado",
         "crab-slash": "Verbos irregulares en inglés: pasado simple y participio pasado",
     },
 }

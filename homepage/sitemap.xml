@@ -44,7 +44,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/</loc>
-    <lastmod>2026-11-21</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
@@ -145,6 +145,14 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-snake/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-snake/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-snake/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/spiele/verb-towers/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/</loc>
@@ -1683,6 +1691,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-snake/"/>
   </url>
   <url>
+    <loc>https://krabsy.com/es/juegos/verb-towers/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
+  </url>
+  <url>
     <loc>https://krabsy.com/es/politica-privacidad/</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
@@ -1692,7 +1708,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/</loc>
-    <lastmod>2026-11-21</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
