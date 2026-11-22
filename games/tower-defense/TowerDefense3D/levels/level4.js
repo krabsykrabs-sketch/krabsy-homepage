@@ -26,11 +26,11 @@ window.LEVEL4 = {
   totalWaves: 10,
   bossWaves: [5, 10],
   enemyScaling: {
-    baseEnemyHealth: 70,
-    healthPerWave: 52,
+    baseEnemyHealth: 63,
+    healthPerWave: 47,
     baseEnemyCount: 5,
     enemiesPerWave: 1.2,
     baseEnemySpeed: 2.2,
   },
-  economy: { baseCoinsPerKill: 1, waveCompletionBonus: 5 },
+  economy: { baseCoinsPerKill: 1, waveCompletionBonus: 3 },
 };

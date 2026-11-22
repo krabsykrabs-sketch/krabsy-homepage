@@ -161,7 +161,7 @@ export class Enemy {
     this.isAlive = false;
     if (state) {
       Effects.spawnKillParticles(this.position, this.tier.color);
-      Effects.spawnFlyingCoins(this.position, this.coinReward);
+      if (this.coinReward > 0) Effects.spawnFlyingCoins(this.position, this.coinReward);
       Sound.play('enemyDie');
     }
   }

@@ -49,7 +49,7 @@ TowerDefense3D/
     assets.js characters.js renderer.js   models, pooled skeletons, 3D
     input.js ui.js        mouse/touch/keys, HUD and overlays
 tools/
-    balance-sim.mjs       bot that plays all levels (balance check)
+    balance-sim.mjs       bot that plays levels (strategies: mix, archers)
     hex-path.py           anchor cells → full road chain for a level file
     check-turns.mjs       checks every road: no gaps, no repeats, no turn > 60°
     strip-rigs.py         makes the animation-only GLB files
@@ -579,3 +579,25 @@ implemented as preview-approved by the owner (Status log, "round 2").
 ## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
 
 Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.
+- 2026-11-22 — **Economy: verbs are now required** (owner play-test: won
+  level 5 "Two Gates" with archers only and without answering a single
+  question; one boss got through).
+  - Cause: kill coins (1 per kill) + wave bonus (5) + cheap archers (20
+    coins, best damage per coin by far). The bot missed it because it
+    mixed tower types and built only between waves.
+  - `tools/balance-sim.mjs` now has a third argument, the strategy:
+    `mix` (old) or `archers` (archers only, best spots, builds whenever
+    it has coins, also mid-wave — like a sharp human). It reads tower
+    costs from the game (`__td.CONFIG`) and uses `dev-server.py` (:8125).
+  - Changes: kills pay **0** coins (bosses 2; no coin animation for 0),
+    wave bonus **3** on every level, archer **30 coins, 20 damage** (was
+    20 / 25). Enemy health −10 % on levels 3, 4 and 6.
+  - Bot now (archers / mix): 0 % answers = lost on every level (level 1
+    around wave 6); 40 % = level 1–2 won (1–3 stars), 3–6 lost; 70 % =
+    archers win with 1–3 stars (level 4 about half the time), the weaker
+    mix bot loses from level 3; 100 % = 3 stars with archers, 2–3 with
+    mix. Archers no longer beat the mixed build at equal answers.
+  - **Open:** with all answers right the game is still comfortable (lots
+    of coins). If the owner wants more challenge for strong players, the
+    next levers are fewer coins per answer later in a level, or tougher
+    late waves; not done yet.

@@ -322,6 +322,6 @@ function gameLoop(timestamp) {
 }
 
 // Handle for automated play-tests and debugging in the browser console.
-window.__td = { state, Renderer, Level, Grid, Forge, Questions, Wave, Input, step: update, startGame };
+window.__td = { state, Renderer, Level, Grid, Forge, Questions, Wave, Input, CONFIG, step: update, startGame };
 
 window.addEventListener('load', init);

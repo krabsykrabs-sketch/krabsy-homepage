@@ -51,28 +51,29 @@ export const CONFIG = {
     projectileCannon:        '#a06a30',
   },
 
-  // Kills pay a token coin whatever the tier: coins come from the forge.
+  // Kills pay nothing (bosses 2): coins come from the forge (owner play-test
+  // 2026-11-22: with kill coins, archers alone beat level 5 without a single answer).
   // ENEMY_TIERS — see spec "Enemy System". Thresholds are walked high→low; first match wins.
   enemyTiers: [
-    { name: 'Grunt',   healthThreshold: 0,   scale: 1.8, speedMultiplier: 1.2, coinReward: 1, color: '#5bc14a' },
-    { name: 'Soldier', healthThreshold: 50,  scale: 2.3, speedMultiplier: 1.0, coinReward: 1, color: '#3d7dd8' },
-    { name: 'Warrior', healthThreshold: 100, scale: 2.8, speedMultiplier: 0.9, coinReward: 1, color: '#f2c94c' },
-    { name: 'Brute',   healthThreshold: 200, scale: 3.3, speedMultiplier: 0.8, coinReward: 1, color: '#e25c4d' },
-    { name: 'Titan',   healthThreshold: 400, scale: 3.8, speedMultiplier: 0.7, coinReward: 1, color: '#9b59d0' },
+    { name: 'Grunt',   healthThreshold: 0,   scale: 1.8, speedMultiplier: 1.2, coinReward: 0, color: '#5bc14a' },
+    { name: 'Soldier', healthThreshold: 50,  scale: 2.3, speedMultiplier: 1.0, coinReward: 0, color: '#3d7dd8' },
+    { name: 'Warrior', healthThreshold: 100, scale: 2.8, speedMultiplier: 0.9, coinReward: 0, color: '#f2c94c' },
+    { name: 'Brute',   healthThreshold: 200, scale: 3.3, speedMultiplier: 0.8, coinReward: 0, color: '#e25c4d' },
+    { name: 'Titan',   healthThreshold: 400, scale: 3.8, speedMultiplier: 0.7, coinReward: 0, color: '#9b59d0' },
   ],
 
   // 3D version: bosses are big and unmistakable (boss waves contain only bosses).
-  bossType: { name: 'Boss', scale: 3.2, speedMultiplier: 0.6, coinReward: 3, color: '#2a2333' },
+  bossType: { name: 'Boss', scale: 3.2, speedMultiplier: 0.6, coinReward: 2, color: '#2a2333' },
 
   // TOWERS — full catalogue per spec "Tower System". Only `basic` fires in step 4;
   // the rest are placeable statues until step 5 wires up their firing logic.
   TOWERS: {
     basic: {
       name: 'Archer Tower',
-      cost: 20,
+      cost: 30,
       range: 3.5,
       fireRate: 1.5,
-      damage: 25,
+      damage: 20,
       projectileSpeed: 10,
       type: 'basic',
       pierceMode: 'none',

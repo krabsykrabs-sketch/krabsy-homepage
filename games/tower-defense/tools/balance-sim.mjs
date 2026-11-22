@@ -1,5 +1,10 @@
-// Balance simulation: a simple bot plays every level at several verb accuracies.
-// usage: node sim.mjs [trials]
+// Balance simulation: a bot plays levels at several verb accuracies.
+// usage: node tools/balance-sim.mjs [trials] [levels, e.g. 0,1,2] [strategy]
+//   strategy "mix"     (default) — a mixed set of towers, built between waves
+//   strategy "archers" — only archer towers on the best spots, built whenever there
+//                        are coins (also during a wave), like a sharp human player;
+//                        the owner beat level 5 this way without answering (2026-11-22)
+// Needs tools/dev-server.py running on :8125.
 import { createRequire } from 'module';
 const require = createRequire(process.env.HOME + '/.npm/_npx/e78b33305587cb7c/node_modules/');
 const { chromium } = require('playwright');
@@ -8,9 +13,10 @@ const b = await chromium.launch({ executablePath: process.env.HOME + '/.cache/ms
 const p = await b.newPage({ viewport: { width: 800, height: 500 } });
 const errs = [];
 p.on('pageerror', e => errs.push('pageerror: ' + e.message));
-await p.goto('http://127.0.0.1:8123/?lang=en'); await p.waitForSelector('.level-card', { timeout: 30000 });
+const strategy = process.argv[4] || 'mix';
+await p.goto('http://127.0.0.1:8125/?lang=en&unlock=all'); await p.waitForSelector('.level-card', { timeout: 30000 });
 await p.evaluate(() => { localStorage.setItem('td3d_tutorial_done', '1'); });
-const run = (level, acc) => p.evaluate(([level, acc]) => {
+const run = (level, acc) => p.evaluate(([level, acc, strategy]) => {
   const T = __td, st = T.state;
   T.startGame(level);
   const lvl = T.Level.current;
@@ -24,8 +30,10 @@ const run = (level, acc) => p.evaluate(([level, acc]) => {
     spots.push({ c, r, n });
   }
   spots.sort((a, b) => b.n - a.n);
-  const order = ['basic', 'basic', 'cannon', 'basic', 'catapult', 'freeze', 'cannon', 'basic', 'catapult', 'cannon'];
-  const cost = { basic: 20, catapult: 40, cannon: 50, freeze: 40 };
+  const order = strategy === 'archers'
+    ? new Array(spots.length).fill('basic')
+    : ['basic', 'basic', 'cannon', 'basic', 'catapult', 'freeze', 'cannon', 'basic', 'catapult', 'cannon'];
+  const cost = Object.fromEntries(Object.entries(T.CONFIG.TOWERS).map(([k, d]) => [k, d.cost]));
   let bought = 0, upgrades = 0;
   const spend = () => {
     for (;;) {
@@ -58,14 +66,15 @@ const run = (level, acc) => p.evaluate(([level, acc]) => {
       T.Wave.startNext(st);
     } else {
       T.step(0.05);
+      if (strategy === 'archers' && guard % 20 === 0) { spend(); st.selectedTower = null; }
     }
   }
   return { level: level + 1, acc, result: st.phase === 'VICTORY' ? 'WIN' : 'lose', wave: st.currentWave, lives: st.lives, stars: st.starsEarned, towers: bought, upgrades, coins: st.coins, right, asked };
-}, [level, acc]);
+}, [level, acc, strategy]);
 for (const level of (process.argv[3] || "0,1,2").split(",").map(Number)) {
   for (const acc of [1, 0.7, 0.4, 0]) {
     const rs = []; for (let i = 0; i < trials; i++) rs.push(await run(level, acc));
-    console.log(`L${level + 1} acc ${acc}: ` + rs.map(r => `${r.result} w${r.wave} ♥${r.lives} ★${r.stars} t${r.towers}+${r.upgrades}`).join(' | '));
+    console.log(`L${level + 1} ${strategy} acc ${acc}: ` + rs.map(r => `${r.result} w${r.wave} ♥${r.lives} ★${r.stars} t${r.towers}+${r.upgrades}`).join(' | '));
   }
 }
 console.log(errs.length ? [...new Set(errs)].join('\n') : 'no page errors');
