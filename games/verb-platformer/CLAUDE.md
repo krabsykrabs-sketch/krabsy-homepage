@@ -5,7 +5,7 @@ the built copy is served from `homepage/games/verb-platformer/` and wrapped by
 `homepage/de/spiele/verb-platformer/` + `homepage/es/juegos/verb-platformer/`.
 See also `WORK_LOG.md` in this folder.
 
-## Status: RELEASE PREPARED, not pushed (2026-11-22)
+## Status: PUSHED (c68ef88, 2026-11-22), waiting for the Coolify deploy
 
 Owner 2026-11-22: "the mechanics and the levels are good — make a proper game
 out of it so we can put it live." Done locally and committed, **not pushed,
@@ -31,6 +31,13 @@ the two wrapper URLs + `/de/spiele/`, `/es/juegos/`.
 `PLAYWRIGHT=<playwright module> node tools/build-release.cjs <url serving this
 folder with /lib and /data beside it>` (it opens every level, records what
 loads, copies only that). Commit `homepage/games/verb-platformer/` with it.
+
+**Key art belongs to the master session** (Gemini, Verb Kitchen style,
+commit 9c99a50): `homepage/thumbnails/sm/verb-platformer.jpg`,
+`homepage/thumbnails/hero/verb-platformer.jpg`, the `games.json` thumbnail
+(points to the sm JPG; `thumbnails/verb-platformer.png` is unused) and the
+wrappers' og:image / twitter:image (hero JPG). Never replace them with
+screenshots; on a re-release keep these fields as they are.
 
 ## Next: level design
 
