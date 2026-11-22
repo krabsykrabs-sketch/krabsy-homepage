@@ -344,7 +344,10 @@ def compute_visitor_hash(ip: str, user_agent: str) -> Optional[str]:
 # Rate limit (in-memory, per-IP, sliding window)
 # ---------------------------------------------------------------------------
 
-RATE_LIMIT = 60          # events per IP
+# A whole class often shares ONE school IP: 30 pupils x 4 heartbeats/min
+# alone is 120/min, plus game events. 60 silently dropped classroom data
+# (found 2026-11-22). 600/min still stops a single runaway client.
+RATE_LIMIT = 600         # events per IP
 RATE_WINDOW = 60.0       # seconds
 _buckets: dict[str, deque] = defaultdict(deque)
 
@@ -440,9 +443,43 @@ class TrackEvent(BaseModel):
     # Browser IANA time zone, used only to derive a country when no local
     # GeoIP DB is configured. Not persisted.
     timezone: Optional[str] = Field(None, max_length=64)
+    # Heartbeats only: running counts of questions answered in this page
+    # visit and how many were right, plus the game/drill id that asked them
+    # (krabsy-stats.js → krabsy-analytics.js). Counts only, never content.
+    answers: Optional[int] = Field(None, ge=0, le=100000)
+    correct: Optional[int] = Field(None, ge=0, le=100000)
+    answer_source: Optional[str] = Field(None, max_length=32)
+    # game_event only: what happened in a game (see GAME EVENTS in
+    # homepage/lib/krabsy-game-events.js). game + name are slugs, level a
+    # number, data a small flat dict of numbers / short strings.
+    game: Optional[str] = Field(None, max_length=32)
+    name: Optional[str] = Field(None, max_length=32)
+    level: Optional[int] = Field(None, ge=0, le=1000)
+    data: Optional[dict] = None
 
 
-KNOWN_EVENT_TYPES = {"page_view", "page_heartbeat"}
+KNOWN_EVENT_TYPES = {"page_view", "page_heartbeat", "game_event"}
+_SLUG = re.compile(r"[a-z0-9_-]{1,32}")
+GAME_DATA_MAX_KEYS = 24
+
+
+def clean_game_data(data: Optional[dict]) -> dict:
+    """Keep only a small flat dict: slug keys, numbers / bools / short
+    strings. Anything else (nested objects, long text) is dropped, so a game
+    can never send free text or personal data by accident."""
+    out: dict = {}
+    if not isinstance(data, dict):
+        return out
+    for k, v in data.items():
+        if len(out) >= GAME_DATA_MAX_KEYS:
+            break
+        if not isinstance(k, str) or not _SLUG.fullmatch(k):
+            continue
+        if isinstance(v, bool) or (isinstance(v, (int, float)) and abs(v) < 1e9):
+            out[k] = v
+        elif isinstance(v, str) and len(v) <= 32 and _SLUG.fullmatch(v):
+            out[k] = v
+    return out
 MAX_BODY_BYTES = 8 * 1024  # 8 KB — well above any legitimate payload
 
 
@@ -503,6 +540,10 @@ async def track(request: Request) -> JSONResponse:
         return JSONResponse({"ok": True})
 
     event_type = event.event_type if event.event_type in KNOWN_EVENT_TYPES else "page_view"
+    if event_type == "game_event" and not (
+        event.game and _SLUG.fullmatch(event.game) and event.name and _SLUG.fullmatch(event.name)
+    ):
+        return JSONResponse({"ok": True})   # unusable game event: drop silently
     user_agent = request.headers.get("user-agent", "")[:512]
     country = await country_for_ip(ip)
     country_source = "geoip" if country != "unknown" else None
@@ -537,6 +578,17 @@ async def track(request: Request) -> JSONResponse:
     }
     if event_type == "page_heartbeat":
         record["elapsed_seconds"] = event.elapsed_seconds
+        if event.answers:
+            record["answers"] = event.answers
+            record["correct"] = min(event.correct or 0, event.answers)
+            if event.answer_source and _SLUG.fullmatch(event.answer_source):
+                record["answer_source"] = event.answer_source
+    elif event_type == "game_event":
+        record["game"] = event.game
+        record["name"] = event.name
+        if event.level is not None:
+            record["level"] = event.level
+        record["data"] = clean_game_data(event.data)
     try:
         append_event(record)
     except Exception as exc:

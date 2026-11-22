@@ -5,6 +5,7 @@ on each request from the JSONL file. At our expected volume (<1k events/day
 for months) this is plenty fast.
 """
 
+import re
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from html import escape
@@ -238,6 +239,193 @@ def concurrent_peak(sessions: list[dict]) -> tuple[int, Optional[datetime]]:
     return peak, peak_at
 
 
+# --- Games, learning, landing flow (2026-11-22) -----------------------------
+_GAME_PAGE = re.compile(r"^/(?:de/spiele|es/juegos)/([a-z0-9-]+)/$")
+LANDING_PATHS = ("/de/", "/es/")
+
+
+def game_id_for_path(path: Optional[str]) -> Optional[str]:
+    """'/de/spiele/verb-towers/' -> 'verb-towers' (wrapper pages only)."""
+    m = _GAME_PAGE.match(path or "")
+    return m.group(1) if m else None
+
+
+def internal_referrer_path(referrer: Optional[str]) -> Optional[str]:
+    """Path of a krabsy.com referrer (same-origin referrers keep the full
+    URL), else None."""
+    if not referrer:
+        return None
+    try:
+        u = urlparse(referrer)
+    except Exception:
+        return None
+    if not (u.hostname or "").endswith("krabsy.com"):
+        return None
+    return u.path or "/"
+
+
+def learning_rows(sessions: list[dict]) -> list[dict]:
+    """Answer counts per game/drill (answer_source, else the page path),
+    from the running totals on heartbeats. Sessions without answers are
+    ignored."""
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for sess in sessions:
+        if sess.get("answers"):
+            groups[sess.get("answer_source") or sess["path"]].append(sess)
+    rows = []
+    for name, group in groups.items():
+        answers = sum(x["answers"] for x in group)
+        correct = sum(x["correct"] for x in group)
+        seconds = sum(x["max_elapsed"] or 0 for x in group)
+        rows.append({
+            "name": name,
+            "sessions": len(group),
+            "answers": answers,
+            "correct_pct": (correct / answers * 100) if answers else None,
+            "per_session": answers / len(group),
+            "per_minute": (answers / (seconds / 60)) if seconds >= 60 else None,
+        })
+    rows.sort(key=lambda r: (-r["answers"], r["name"]))
+    return rows
+
+
+def game_stats(game_events: list[tuple[str, dict]]) -> dict:
+    """Per-game breakdown from game_event records.
+
+    game_events: (session_key, event) in log order. Standard names:
+    level_start, level_end {result: won|lost, seconds, answers, correct}.
+    A level_start with no later level_end of that level in the same page
+    visit counts as LEFT (closed / quit mid-level); the last event seen in
+    that visit tells where (wave, lives, coins …). Every other event name is
+    counted per level and per string attribute, with averages of its
+    numeric fields.
+    """
+    games: dict[str, dict] = {}
+    open_levels: dict[tuple, dict] = {}     # (session, game, level) -> last event data
+    for key, ev in game_events:
+        g = games.setdefault(ev["game"], {"levels": defaultdict(lambda: {
+            "starts": 0, "won": 0, "lost": 0, "left": 0, "seconds": [], "answers": 0,
+            "correct": 0, "ended": 0, "left_at": []}), "other": defaultdict(lambda: {
+            "count": 0, "nums": defaultdict(list)})})
+        name, level = ev["name"], ev.get("level")
+        data = ev.get("data") or {}
+        lv = g["levels"][level]
+        okey = (key, ev["game"], level)
+        if name == "level_start":
+            lv["starts"] += 1
+            open_levels[okey] = {}
+        elif name == "level_end":
+            result = data.get("result")
+            if result == "won":
+                lv["won"] += 1
+            elif result == "lost":
+                lv["lost"] += 1
+            lv["ended"] += 1
+            if isinstance(data.get("seconds"), (int, float)):
+                lv["seconds"].append(data["seconds"])
+            if isinstance(data.get("answers"), int):
+                lv["answers"] += data["answers"]
+                lv["correct"] += data.get("correct") or 0
+            open_levels.pop(okey, None)
+        else:
+            attrs = tuple(sorted((k, v) for k, v in data.items() if isinstance(v, str)))
+            o = g["other"][(name, level, attrs)]
+            o["count"] += 1
+            for k, v in data.items():
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                    o["nums"][k].append(v)
+            if okey in open_levels:
+                open_levels[okey] = data
+    for (key, game, level), last in open_levels.items():
+        lv = games[game]["levels"][level]
+        lv["left"] += 1
+        lv["left_at"].append(last)
+
+    out = {}
+    for game, g in sorted(games.items()):
+        level_rows = []
+        for level, lv in sorted(g["levels"].items(), key=lambda kv: (kv[0] is None, kv[0] or 0)):
+            if not (lv["starts"] or lv["ended"]):
+                continue
+            finished = lv["won"] + lv["lost"]
+            left_waves = [d.get("wave") for d in lv["left_at"] if isinstance(d.get("wave"), (int, float))]
+            level_rows.append({
+                "level": level, "starts": lv["starts"], "won": lv["won"], "lost": lv["lost"],
+                "left": lv["left"],
+                "win_rate": (lv["won"] / finished * 100) if finished else None,
+                "median_minutes": (_median(lv["seconds"]) / 60) if lv["seconds"] else None,
+                "answers_per_end": (lv["answers"] / lv["ended"]) if lv["ended"] else None,
+                "correct_pct": (lv["correct"] / lv["answers"] * 100) if lv["answers"] else None,
+                "left_median_wave": _median(left_waves),
+            })
+        other_rows = []
+        for (name, level, attrs), o in g["other"].items():
+            avgs = {k: sum(v) / len(v) for k, v in o["nums"].items() if k != "level"}
+            other_rows.append({"name": name, "level": level, "attrs": attrs,
+                               "count": o["count"], "avgs": avgs})
+        other_rows.sort(key=lambda r: (r["name"], r["level"] if r["level"] is not None else -1, -r["count"]))
+        out[game] = {"levels": level_rows, "other": other_rows}
+    return out
+
+
+def weekly_summary(events: Optional[list[dict]] = None, now: Optional[datetime] = None) -> dict:
+    """Last 7 days vs the 7 days before, humans only, no filters.
+
+    Metrics: visitors (sum of daily unique hashes), engaged sessions,
+    classroom sessions (school referrer), minutes on game pages, answers and
+    % right. Plus the top games of the last 7 days by play time.
+    """
+    now = now or datetime.now(timezone.utc)
+    start_prev = now - timedelta(days=14)
+    start_cur = now - timedelta(days=7)
+    truncated = False
+    if events is None:
+        events, truncated = read_newest(MAX_EVENTS, since=start_prev.isoformat())
+    sessions, _ = build_sessions(events)
+
+    def window_of(ts: Optional[str]) -> Optional[str]:
+        dt = _parse_ts(ts or "")
+        if dt is None or dt < start_prev or dt > now:
+            return None
+        return "cur" if dt >= start_cur else "prev"
+
+    m = {w: {"visitors": 0, "engaged": 0, "school": 0, "game_minutes": 0.0,
+             "answers": 0, "correct": 0} for w in ("cur", "prev")}
+    daily: dict[tuple, set] = defaultdict(set)
+    games: dict[str, dict] = defaultdict(lambda: {"seconds": 0, "sessions": 0, "answers": 0})
+    for sess in sessions.values():
+        if sess["class"] in HIDDEN_BY_DEFAULT:
+            continue
+        w = window_of(sess["start"])
+        if not w:
+            continue
+        mw = m[w]
+        if sess["class"] == CLASS_ENGAGED:
+            mw["engaged"] += 1
+        if school_platform(sess["referrer"]):
+            mw["school"] += 1
+        mw["answers"] += sess.get("answers") or 0
+        mw["correct"] += sess.get("correct") or 0
+        gid = game_id_for_path(sess["path"])
+        if gid:
+            secs = sess["max_elapsed"] or 0
+            mw["game_minutes"] += secs / 60
+            if w == "cur":
+                g = games[gid]
+                g["seconds"] += secs
+                g["sessions"] += 1
+                g["answers"] += sess.get("answers") or 0
+        if sess["visitor_hash"] and sess["page_views"]:
+            dt = _parse_ts(sess["start"])
+            daily[(w, dt.date().isoformat())].add(sess["visitor_hash"])
+    for (w, _day), hashes in daily.items():
+        m[w]["visitors"] += len(hashes)
+    for w in m.values():
+        w["correct_pct"] = (w["correct"] / w["answers"] * 100) if w["answers"] else None
+    top_games = sorted(games.items(), key=lambda kv: -kv[1]["seconds"])[:5]
+    return {"cur": m["cur"], "prev": m["prev"], "top_games": top_games, "truncated": truncated}
+
+
 def aggregate(
     range_key: str,
     show_bots: bool,
@@ -291,6 +479,8 @@ def aggregate(
     countries_u: dict[str, set] = defaultdict(set)
     devices_u: dict[str, set] = defaultdict(set)
     all_uniques: set = set()
+    landing_next: Counter = Counter()      # page views whose referrer is /de/ or /es/
+    game_events: list[tuple[str, dict]] = []
 
     # Classification bookkeeping (always over every class).
     included: set = set()                 # session keys with >=1 event passing filters
@@ -321,6 +511,10 @@ def aggregate(
         sess = sessions[key]
         cls = sess["class"]
 
+        if event_type == "game_event":
+            if cls not in hidden and ev.get("game") and ev.get("name"):
+                game_events.append((key, ev))
+            continue
         if event_type != "page_view":
             continue  # heartbeats only feed the session table (build_sessions)
 
@@ -341,6 +535,8 @@ def aggregate(
         lang = _lang_short(ev.get("language"))
 
         paths[path] += 1
+        if internal_referrer_path(ev.get("referrer")) in LANDING_PATHS and path not in LANDING_PATHS:
+            landing_next[path] += 1
         referrers[ref] += 1
         sources[src] += 1
         if src == "Search":
@@ -407,6 +603,8 @@ def aggregate(
         )
 
     overall_avg = sum(all_durations) / len(all_durations) if all_durations else None
+
+    learning = learning_rows([sessions[k] for k in included if sessions[k]["class"] not in hidden])
 
     # School / classroom: sessions whose referrer is an LMS / school domain.
     # Hard bots are always excluded (likely_bot can't occur: it requires no
@@ -500,6 +698,10 @@ def aggregate(
         "devices": sorted(devices_out.items(), key=lambda kv: -kv[1]),
         "hours": hours,
         "engagement_rows": engagement_rows,
+        "learning_rows": learning,
+        "games": game_stats(game_events),
+        "landing_next": landing_next.most_common(15),
+        "landing_next_total": sum(landing_next.values()),
         "overall_avg_engagement": overall_avg,
         "available_countries": available_countries,
         "country_filter": country_filter,
@@ -775,6 +977,123 @@ CLASS_LABELS = {
 }
 
 
+def _delta(cur: float, prev: float) -> str:
+    if not prev:
+        return '<span class="muted">new</span>' if cur else '<span class="muted">–</span>'
+    pct = (cur - prev) / prev * 100
+    color = TEAL if pct > 0 else (CORAL if pct < 0 else MUTED)
+    return f'<span style="color:{color};font-weight:bold">{pct:+.0f}%</span>'
+
+
+def _weekly_section(ws: dict) -> str:
+    cur, prev = ws["cur"], ws["prev"]
+
+    def pct(v):
+        return f"{v:.0f}%" if v is not None else "–"
+
+    rows = [
+        ("Visitors (sum of daily uniques)", f"{cur['visitors']:,}", f"{prev['visitors']:,}", _delta(cur["visitors"], prev["visitors"])),
+        ("Engaged sessions (≥15 s)", f"{cur['engaged']:,}", f"{prev['engaged']:,}", _delta(cur["engaged"], prev["engaged"])),
+        ("Classroom sessions (school referrer)", f"{cur['school']:,}", f"{prev['school']:,}", _delta(cur["school"], prev["school"])),
+        ("Minutes played on game pages", f"{cur['game_minutes']:,.0f}", f"{prev['game_minutes']:,.0f}", _delta(cur["game_minutes"], prev["game_minutes"])),
+        ("Questions answered", f"{cur['answers']:,}", f"{prev['answers']:,}", _delta(cur["answers"], prev["answers"])),
+        ("… of them right", pct(cur["correct_pct"]), pct(prev["correct_pct"]), ""),
+    ]
+    body = "".join(
+        f"<tr><td>{escape(a)}</td><td class='num'>{b}</td><td class='num muted'>{c}</td><td class='num'>{d}</td></tr>"
+        for a, b, c, d in rows
+    )
+    games = "".join(
+        f"<tr><td>{escape(gid)}</td><td class='num'>{g['seconds'] / 60:,.0f}</td>"
+        f"<td class='num'>{g['sessions']:,}</td><td class='num'>{g['answers']:,}</td></tr>"
+        for gid, g in ws["top_games"]
+    ) or "<tr><td colspan='4' class='muted'>No game sessions in the last 7 days.</td></tr>"
+    warn = ('<p class="warn">The event cap was reached: older events of these 14 days are missing.</p>'
+            if ws.get("truncated") else "")
+    return f"""<section>
+    <h2>This week</h2>
+    {warn}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;max-width:1040px">
+      <table><tr><th></th><th class="num">Last 7 days</th><th class="num">7 days before</th><th class="num">Change</th></tr>{body}</table>
+      <table><tr><th>Top games (last 7 days)</th><th class="num">Minutes</th><th class="num">Sessions</th><th class="num">Answers</th></tr>{games}</table>
+    </div>
+    <p class="muted" style="margin-top:8px;font-size:12px">Always the last 7 days against the 7 days before, humans only, all countries and devices (ignores the selectors above). Minutes = active foreground time on game pages. Answers are counted since 2026-11-22 and only in games and drills that record answers.</p>
+  </section>"""
+
+
+def _learning_table(rows: list[dict]) -> str:
+    if not rows:
+        return '<p class="empty">No answers recorded in this range yet (counted since 2026-11-22).</p>'
+    lines = []
+    for r in rows:
+        right = f"{r['correct_pct']:.0f}%" if r["correct_pct"] is not None else "–"
+        per_min = f"{r['per_minute']:.1f}" if r["per_minute"] is not None else "–"
+        lines.append(
+            f"<tr><td>{escape(r['name'])}</td><td class='num'>{r['sessions']:,}</td>"
+            f"<td class='num'>{r['answers']:,}</td><td class='num'>{right}</td>"
+            f"<td class='num'>{r['per_session']:.1f}</td><td class='num'>{per_min}</td></tr>"
+        )
+    return ("<table><tr><th>Game / drill</th><th class='num'>Sessions</th><th class='num'>Answers</th>"
+            "<th class='num'>Right</th><th class='num'>Per session</th><th class='num'>Per minute</th></tr>"
+            + "".join(lines) + "</table>")
+
+
+def _fmt(v, digits=0, suffix=""):
+    if v is None:
+        return "–"
+    return f"{v:,.{digits}f}{suffix}"
+
+
+def _games_section(games: dict) -> str:
+    if not games:
+        return ('<p class="empty">No game events in this range yet. Games report them through '
+                '/lib/krabsy-game-events.js (since 2026-11-22).</p>')
+    parts = []
+    for game, gs in games.items():
+        lrows = "".join(
+            f"<tr><td>{escape(str(r['level']) if r['level'] is not None else '–')}</td>"
+            f"<td class='num'>{r['starts']:,}</td><td class='num'>{r['won']:,}</td>"
+            f"<td class='num'>{r['lost']:,}</td><td class='num'>{r['left']:,}</td>"
+            f"<td class='num'>{_fmt(r['win_rate'], 0, '%')}</td>"
+            f"<td class='num'>{_fmt(r['median_minutes'], 1)}</td>"
+            f"<td class='num'>{_fmt(r['answers_per_end'], 0)}</td>"
+            f"<td class='num'>{_fmt(r['correct_pct'], 0, '%')}</td>"
+            f"<td class='num'>{_fmt(r['left_median_wave'], 0)}</td></tr>"
+            for r in gs["levels"]
+        )
+        level_table = (
+            "<table style='max-width:1040px'><tr><th>Level</th><th class='num'>Started</th><th class='num'>Won</th>"
+            "<th class='num'>Lost</th><th class='num'>Left</th><th class='num'>Win rate</th>"
+            "<th class='num'>Median min</th><th class='num'>Answers / level</th><th class='num'>Right</th>"
+            "<th class='num'>Left at wave</th></tr>" + lrows + "</table>"
+        ) if gs["levels"] else ""
+        orows = "".join(
+            f"<tr><td>{escape(r['name'])}</td><td>{escape(str(r['level']) if r['level'] is not None else '–')}</td>"
+            f"<td>{escape(', '.join(f'{k}={v}' for k, v in r['attrs']) or '–')}</td>"
+            f"<td class='num'>{r['count']:,}</td>"
+            f"<td class='muted'>{escape(', '.join(f'{k} {v:.1f}' for k, v in sorted(r['avgs'].items())) or '–')}</td></tr>"
+            for r in gs["other"][:80]
+        )
+        other_table = (
+            "<details style='margin-top:8px'><summary class='muted' style='cursor:pointer'>All other events "
+            f"({len(gs['other'])} rows: towers built, waves, upgrades …)</summary>"
+            "<table style='max-width:1040px;margin-top:6px'><tr><th>Event</th><th>Level</th><th>Details</th>"
+            "<th class='num'>Count</th><th>Averages</th></tr>" + orows + "</table></details>"
+        ) if gs["other"] else ""
+        parts.append(f"<h3 style='margin:14px 0 6px;font-size:15px'>{escape(game)}</h3>{level_table}{other_table}")
+    return "".join(parts)
+
+
+def _landing_table(rows: list, total: int) -> str:
+    if not rows:
+        return '<p class="empty">No clicks from the landing pages in this range.</p>'
+    body = "".join(
+        f"<tr><td>{escape(path)}</td><td class='num'>{n:,}</td><td class='num'>{n / total * 100:.0f}%</td></tr>"
+        for path, n in rows
+    )
+    return "<table><tr><th>Next page</th><th class='num'>Views</th><th class='num'>Share</th></tr>" + body + "</table>"
+
+
 def _class_table(data: dict, show_bots: bool) -> str:
     rows = []
     for c in CLASSES:
@@ -900,6 +1219,7 @@ def render_dashboard(
     country_filter, device_filter = normalize_filters(country_filter, device_filter)
     data = aggregate(range_key, show_bots, view, country_filter=country_filter,
                      device_filter=device_filter, events=events)
+    weekly = weekly_summary(events=events)
 
     range_label = next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
     bot_pct = (data["bot_count"] / data["total_all"] * 100) if data["total_all"] else 0
@@ -1012,6 +1332,8 @@ def render_dashboard(
   <p class="muted">{header_line}</p>
   <p class="muted" style="font-style:italic;font-size:12px;margin-top:-8px">Per-day unique count. Cross-day totals may include the same visitor counted on multiple days.</p>
 
+  {_weekly_section(weekly)}
+
   <section>
     <div class="numbers">{numbers}</div>
   </section>
@@ -1038,6 +1360,24 @@ def render_dashboard(
     <h2>Engagement by path</h2>
     {_engagement_table(data["engagement_rows"])}
     <p class="muted" style="margin-top:8px;font-size:12px">Avg and median are computed across session_page_id buckets, regardless of the view toggle. Bounces (no heartbeat fired before the visitor left) are counted as ~7s and render as &lt;15s.</p>
+  </section>
+
+  <section>
+    <h2>Learning activity (games &amp; drills)</h2>
+    {_learning_table(data["learning_rows"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Questions answered per page visit, grouped by the game or drill that asked them. Counts only — no words, no answers, no person. Recorded since 2026-11-22 by everything that uses the shared engine (Sprint, free practice, flashcards, Verb Snake, Air Control, Verb Towers; more games follow with phase 1).</p>
+  </section>
+
+  <section>
+    <h2>Games in detail</h2>
+    {_games_section(data["games"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">From the games' own events. <em>Left</em> = a level was started but never finished in that page visit (quit, closed the tab, or switched away for good); <em>Left at wave</em> = median wave of the last event before leaving. Answers / level and Right come from level_end events. Humans only; follows the range, country and device selectors.</p>
+  </section>
+
+  <section>
+    <h2>From the landing page</h2>
+    {_landing_table(data["landing_next"], data["landing_next_total"])}
+    <p class="muted" style="margin-top:8px;font-size:12px">Page views whose previous page was /de/ or /es/ — which games and pages visitors open from the landing page (featured game, grid, practice row, teacher link).</p>
   </section>
 
   <section>

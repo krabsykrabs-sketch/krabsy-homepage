@@ -55,6 +55,29 @@ New ideas the owner liked, not started, no folder yet:
 - Verb Flow → keep.
 - Owner decisions pending.
 
+## Analytics (api.krabsy.com, upgraded 2026-11-22)
+
+- **Answer counts:** every `recordAttempt()` also tells the page tracker
+  (`krabsy:attempt` DOM event / postMessage from game iframes); heartbeats
+  carry `answers`, `correct`, `answer_source` (running counts, no content).
+- **Game events:** `/lib/krabsy-game-events.js` `gameEvent(game, name, data)`
+  → tracker → `event_type: game_event` (server keeps only slug keys and
+  numbers/short slugs). Spec and per-game proposals: `docs/game-analytics.md`.
+  Verb Towers session briefed; other games follow.
+- **Dashboard:** new "This week" (last 7 vs previous 7 days: visitors,
+  engaged, classroom sessions, game minutes, answers, % right, top games),
+  "Learning activity", "Games in detail" (per level: started / won / lost /
+  left, win rate, minutes, answers, wave where players left; all other
+  events per level), "From the landing page" (next page after /de/, /es/).
+- **Per-IP rate limit 60 → 600 events/min:** a class behind one school IP
+  sent ~100 heartbeats/min, so classroom data was silently dropped before.
+- Privacy pages DE/ES updated (Stand 22.11.2026). Tracker import bumped to
+  `?v=2026-11-22` on all pages and in `tools/generate_verb_pages.py`.
+- Tests: `api/tests` 34 pass (7 new in `test_learning_games.py`); end-to-end
+  checked in headless Chromium (Verb Towers iframe + Sprint).
+- **Deploy order: API app first, then the static site** (the old API would
+  store the new `game_event`s as page views).
+
 ## Game art (2026-11-22)
 
 3D games get key art in the Verb Kitchen style (same three chibi heroes,

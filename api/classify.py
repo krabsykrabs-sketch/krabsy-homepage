@@ -167,6 +167,7 @@ def build_sessions(events: Iterable[dict]) -> tuple[dict[str, dict], list[str]]:
                 "first_hb_elapsed": None, "referrer": None, "language": None,
                 "ua": "", "visitor_hash": None, "stored_bot": False,
                 "stored_reason": None,
+                "answers": 0, "correct": 0, "answer_source": None,
             }
         if ts and (not s["start"] or ts < s["start"]):
             s["start"] = ts
@@ -194,6 +195,13 @@ def build_sessions(events: Iterable[dict]) -> tuple[dict[str, dict], list[str]]:
             s["heartbeats"] += 1
             if s["max_elapsed"] is None or elapsed > s["max_elapsed"]:
                 s["max_elapsed"] = elapsed
+            # Answer counts are running totals per page visit: keep the max.
+            a = ev.get("answers")
+            if isinstance(a, int) and a > s["answers"]:
+                s["answers"] = a
+                c = ev.get("correct")
+                s["correct"] = c if isinstance(c, int) and 0 <= c <= a else s["correct"]
+                s["answer_source"] = ev.get("answer_source") or s["answer_source"]
             # heartbeat-only session (page_view outside the range): borrow
             # its context so it can still be classified / attributed.
             s["referrer"] = s["referrer"] or ev.get("referrer")

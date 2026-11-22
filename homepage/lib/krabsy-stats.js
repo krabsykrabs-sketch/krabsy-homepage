@@ -272,6 +272,19 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
   for (const fn of _listeners) {
     try { fn(evt); } catch (err) { console.warn('krabsy-stats: listener failed', err); }
   }
+  _announce(!!correct, source);
+}
+
+/* Tell the page analytics (krabsy-analytics.js) that one question was
+   answered: only right/wrong and the game/drill id, never the word. Works
+   on the same page (DOM event) and from a game iframe to its wrapper page
+   (postMessage, same origin only). */
+function _announce(correct, source) {
+  const msg = { type: 'krabsy:attempt', correct, source: source || null };
+  try { window.dispatchEvent(new CustomEvent('krabsy:attempt', { detail: msg })); } catch (_) {}
+  try {
+    if (window.parent && window.parent !== window) window.parent.postMessage(msg, window.location.origin);
+  } catch (_) { /* cross-origin parent or no window */ }
 }
 
 const _listeners = new Set();

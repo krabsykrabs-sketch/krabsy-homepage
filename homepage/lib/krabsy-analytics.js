@@ -12,6 +12,15 @@
    page_heartbeat (every 15s while the tab is in the foreground, plus a
    final beacon on pagehide)
      • path, session_page_id, elapsed_seconds (active foreground time)
+     • answers, correct, answer_source — running COUNTS of questions
+       answered in this page visit (games and drills, via krabsy-stats.js
+       recordAttempt → 'krabsy:attempt' event / postMessage from a game
+       iframe). Only counts and the game/drill id; never which word, never
+       what was typed. Omitted while nothing was answered.
+
+   game_event (sent right away when a game reports something)
+     • path, session_page_id, game, name, level, data — see
+       /lib/krabsy-game-events.js. Max 300 per page visit.
 
    Visibility-aware: when the tab is hidden, the heartbeat pauses and the
    elapsed counter freezes — so elapsed_seconds reflects active foreground
@@ -66,6 +75,43 @@
   var hiddenSinceMs = 0; // 0 = currently visible; else timestamp hidden began
   var fired = false;
   var heartbeatTimer = null;
+
+  // Answer counts for this page visit (see header).
+  var answers = 0, correctAnswers = 0, answerSource = null;
+  function countAttempt(d) {
+    if (!d || d.type !== 'krabsy:attempt') return;
+    answers += 1;
+    if (d.correct) correctAnswers += 1;
+    if (typeof d.source === 'string' && d.source) answerSource = d.source.slice(0, 32);
+  }
+  // Game events (krabsy-game-events.js) are forwarded right away.
+  var gameEventsSent = 0;
+  function forwardGameEvent(d) {
+    if (!d || d.type !== 'krabsy:game' || !fired || gameEventsSent >= 300) return;
+    gameEventsSent += 1;
+    var p = basePayload();
+    p.event_type = 'game_event';
+    p.game = String(d.game || '').slice(0, 32);
+    p.name = String(d.name || '').slice(0, 32);
+    var data = {};
+    if (d.data && typeof d.data === 'object') {
+      for (var k in d.data) if (Object.prototype.hasOwnProperty.call(d.data, k)) data[k] = d.data[k];
+    }
+    if (typeof data.level === 'number') { p.level = Math.floor(data.level); delete data.level; }
+    p.data = data;
+    send(p, document.hidden);   // beacon if the tab is closing / hidden
+  }
+  try {
+    // Same page (drills): krabsy-stats.js dispatches a DOM event.
+    window.addEventListener('krabsy:attempt', function (e) { countAttempt(e && e.detail); });
+    window.addEventListener('krabsy:game', function (e) { forwardGameEvent(e && e.detail); });
+    // Game in an iframe on this site: it posts to its parent.
+    window.addEventListener('message', function (e) {
+      if (e.origin !== window.location.origin) return;
+      countAttempt(e.data);
+      forwardGameEvent(e.data);
+    });
+  } catch (_) { /* old browser: no answer counts / game events */ }
 
   function nowMs() { return Date.now(); }
 
@@ -144,6 +190,11 @@
     var p = basePayload();
     p.event_type = 'page_heartbeat';
     p.elapsed_seconds = elapsed;
+    if (answers > 0) {
+      p.answers = answers;
+      p.correct = correctAnswers;
+      p.answer_source = answerSource;
+    }
     if (typeof console !== 'undefined' && console.debug) {
       console.debug('[krabsy-analytics] heartbeat', elapsed + 's', useBeacon ? '(beacon)' : '');
     }

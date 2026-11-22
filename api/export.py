@@ -33,6 +33,7 @@ FORMATS = ("json", "csv")
 CSV_COLUMNS = (
     "ts_server", "event_type", "class", "bot_reason", "path", "referrer",
     "language", "country", "device_type", "viewport_width", "elapsed_seconds",
+    "answers", "correct", "answer_source", "game", "name", "level",
     "session_page_id", "visitor_hash", "ts_client", "bot", "ua",
 )
 
