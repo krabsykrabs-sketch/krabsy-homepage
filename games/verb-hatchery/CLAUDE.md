@@ -319,3 +319,19 @@ Not done yet / to check:
   `assets/animals/` is git-ignored, and without it the game falls back to
   the code-built creatures. Before release: owner confirms the licence
   (or asks omabuarts), then un-ignore and commit the 8 files (2.2 MB).
+- 2026-11-22: **world dressing** (owner: "the world looks a bit boring … be
+  creative" + "the floor in our base overlaps"). Base floor fixed: the
+  terrain under the deck is lowered 0.15 m (`DECK` in `world.js`), the deck
+  got a plank texture and a trim. New `src/decor.js` (all CC0, 2 MB in
+  `assets/props/`): dirt paths from home to each zone with signposts at
+  the fork (`PATHS`, `FORK`), a pond (`POND`, not walkable in the middle),
+  flower fields with butterflies, a stone circle, base lanterns / benches /
+  flower beds / fountain, a playground, a picnic, a small farm; forest
+  mushrooms (some giant), stumps, logs, a campsite with a flickering fire,
+  fireflies; beach palms, shipwreck, dock into the sea, barrels / chest,
+  sandcastles, rowing boat, seagulls, a pirate ship bobbing offshore;
+  volcano stone heads facing home, glowing crystals, crater smoke; a
+  lighthouse with a turning beam on a sea rock; drifting clouds. Kenney
+  models export metalness 1 → set to 0 at load (else black). Minimap shows
+  paths and the pond. Measured: ~50 draw calls, ~160k triangles in a
+  busy view (headless).

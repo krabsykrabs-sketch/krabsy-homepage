@@ -10,6 +10,7 @@ import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName } from './creatures.js';
 import { loadAnimals, trick } from './animals.js';
+import { reserveSpots, buildDecor } from './decor.js';
 import * as Q from './questions.js';
 import { t, lang, fmt, fmtRate, fmtTime } from './i18n.js';
 import { sfx } from './audio.js';
@@ -786,7 +787,8 @@ async function boot() {
   syncWorld();
   player.spawn(SPAWN, 0);
   world.followSun(player.pos);
-  const decor = world.loadDecor();
+  reserveSpots(world);
+  const decor = world.loadDecor().then(() => buildDecor(world)).catch((e) => console.error('decor', e));
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
   await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e)),

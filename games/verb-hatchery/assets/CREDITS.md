@@ -1,13 +1,20 @@
 # Asset credits
 
-All models are CC0 (public domain), by Kay Lousberg (kaylousberg.com), copied
-from the shared library `/home/janah/dev/krabsy-homepage/assets/` (gitignored).
+All models are CC0 (public domain) unless noted (KayKit by Kay Lousberg,
+Kenney, Tiny Treats by Isa Lousberg), copied from the shared library `/home/janah/dev/krabsy-homepage/assets/` and `/home/janah/dev/_assets/` (not in git).
 Only the files in use are copied here.
 
 | Files | Pack |
 |---|---|
 | `nature/*` (trees, bushes, rocks, grass, `forest_texture.png`) | KayKit Forest Nature Pack 1.0 (EXTRA), Color1 |
 | `characters/Protagonist_A.glb`, `Protagonist_B.glb` (player characters) | KayKit Mystery Monthly Series 5, "10 – April 2025 – Protagonists" |
+| `props/nature/*` (flowers, mushrooms, stumps, logs, tent, campfire, lily pads, statues, crops, fence, reeds, canoe, pot) | Kenney Nature Kit (kenney.nl) — CC0 |
+| `props/pirate/*` (palms, shipwreck, pirate ship, rowing boat, dock, barrels, crate, chest, flag, sand rocks, tower = lighthouse) | Kenney Pirate Kit — CC0 |
+| `props/survival/*` (signpost, bedroll) | Kenney Survival Kit — CC0 |
+| `props/playground/*` | Tiny Treats – Fun Playground 1.0 FREE (Isa Lousberg) — CC0 |
+| `props/picnic/*` | Tiny Treats – Pleasant Picnic 1.0 FREE (Isa Lousberg) — CC0 |
+| `props/park/*` (street lantern, bench, fountain, bush) | Tiny Treats – Pretty Park 1.0 FREE (Isa Lousberg) — CC0 |
+| `props/gems/*` (volcano crystals) | KayKit Resource Bits 1.0 (EXTRA) — CC0 |
 | `characters/anim_player.glb` (animation only) | KayKit Mystery Monthly Series 5, `Animations/gltf/Rig_Medium` |
 
 `anim_player.glb` keeps only the bones and 9 clips, built with the Tower

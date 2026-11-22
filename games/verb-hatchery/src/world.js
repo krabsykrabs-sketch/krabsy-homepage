@@ -10,7 +10,30 @@ export const WATER_Y = -0.6;
 const zone = (id) => ZONES.find((z) => z.id === id);
 const FOREST = zone('forest'), BEACH = zone('beach'), VOLCANO = zone('volcano');
 const dist = (x, z, ax, az) => Math.hypot(x - ax, z - az);
+const dp = (x, z) => Math.hypot(x - POND.x, z - POND.z);
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+// A pond in the meadow and dirt paths from home to each zone (also used by decor.js).
+export const POND = { x: 38, z: 20, r: 10, water: 0.15 };
+export const PATHS = [
+  [[0, 46], [0, 24], [-20, 8], [-38, -8]],          // to the Forest
+  [[0, 24], [26, 12], [50, -4]],                    // to the Beach
+  [[0, 24], [-4, -8], [2, -40], [0, -64]],          // to the Volcano
+];
+export const FORK = { x: 3, z: 22 };
+function segDist(x, z, a, b) {
+  const dx = b[0] - a[0], dz = b[1] - a[1], L = dx * dx + dz * dz;
+  const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / L));
+  return Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t);
+}
+export function pathDist(x, z) {
+  let d = 1e9;
+  for (const p of PATHS) for (let i = 1; i < p.length; i++) d = Math.min(d, segDist(x, z, p[i - 1], p[i]));
+  return d;
+}
+// The base's wooden deck (the terrain under it is lowered so the two never flicker).
+export const DECK = { x0: HOME.x - 15.2, x1: HOME.x + 15.2, z0: HOME.z - 11.2, z1: HOME.z + 15.2 };
+const onDeck = (x, z) => x > DECK.x0 && x < DECK.x1 && z > DECK.z0 && z < DECK.z1;
 
 // ── height function (metres) ──
 export function height(x, z) {
@@ -34,6 +57,9 @@ export function height(x, z) {
   const dh = dist(x, z, HOME.x, HOME.z);
   const home = 1 - smooth(20, 30, dh);
   h = h * (1 - home) + 0.4 * home;
+  // the pond: a bowl below its water
+  const dp = dist(x, z, POND.x, POND.z);
+  if (dp < POND.r + 4) h = h * smooth(POND.r * 0.45, POND.r + 4, dp) + (-1.3) * (1 - smooth(POND.r * 0.45, POND.r + 4, dp));
   // island edge: down into the sea
   h -= smooth(ISLAND.r - 18, ISLAND.r + 6, d) * 6;
   return h;
@@ -113,6 +139,19 @@ const MAT = {
   ghost: new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, roughness: 1, depthWrite: false }),
   glass: new THREE.MeshStandardMaterial({ color: 0xcff6ff, transparent: true, opacity: 0.25, roughness: 0.05, depthWrite: false }),
 };
+// wooden planks for the deck (canvas texture, repeats)
+function deckMat() {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+  const x = c.getContext('2d');
+  for (let i = 0; i < 8; i++) {
+    x.fillStyle = ['#d9a46a', '#d29c62', '#ddaa72', '#cf975c'][i % 4]; x.fillRect(0, i * 32, 64, 32);
+    x.fillStyle = 'rgba(90,50,20,.35)'; x.fillRect(0, i * 32, 64, 2);
+    x.fillStyle = 'rgba(90,50,20,.25)'; x.fillRect((i * 23) % 60, i * 32 + 6, 3, 3); x.fillRect((i * 41 + 30) % 60, i * 32 + 20, 3, 3);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 3.5);
+  return new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 });
+}
 function box(w, h, d, m, x, y, z) {
   const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
   o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; return o;
@@ -147,8 +186,11 @@ export class World {
     this.grid = new Map(); // cell → colliders
     this.incubators = []; this.pens = []; this.walls = [];
     this.fx = []; this.time = 0;
+    this.animators = []; // per-frame functions (decor life: clouds, birds, smoke …)
+    // spots kept free of random trees/rocks for the set pieces: [x, z, radius] (decor.js)
+    this.reserved = [];
     this.extra = new Set(); // creatures outside pens (jumping to a pen) that still animate
-    this._lights(); this._terrain(); this._water(); this._base(); this._walls();
+    this._lights(); this._terrain(); this._water(); this._pond(); this._base(); this._walls();
     this.resize();
     addEventListener('resize', () => this.resize());
   }
@@ -180,7 +222,7 @@ export class World {
       RO = new THREE.Color(0x6b5a55), LA = new THREE.Color(0x3d3236), DI = new THREE.Color(0xc9a46f);
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), h = height(x, z);
-      p.setY(i, h);
+      p.setY(i, onDeck(x, z) ? h - 0.15 : h);
       const n = Math.sin(x * 0.3) * Math.cos(z * 0.27) * 0.5 + 0.5;
       c.copy(GR).lerp(GR2, n);
       const df = dist(x, z, FOREST.x, FOREST.z);
@@ -192,6 +234,10 @@ export class World {
       if (h < 0.5) c.lerp(SA, smooth(0.5, -0.2, h));
       const dh = dist(x, z, HOME.x, HOME.z);
       if (dh < 24) c.lerp(DI, (1 - smooth(16, 24, dh)) * 0.35);
+      // dirt paths (a little noisy at the edge), pond banks
+      const pd = pathDist(x, z) + Math.sin(x * 0.7 + z * 0.4) * 0.4;
+      if (pd < 2.6) c.lerp(DI, 1 - smooth(1.4, 2.6, pd));
+      if (dp(x, z) < POND.r + 2) c.lerp(SA, 1 - smooth(POND.r - 1, POND.r + 2, dp(x, z)));
       col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -209,6 +255,13 @@ export class World {
     this.scene.add(lavaGlow); this.lavaGlow = lavaGlow;
   }
 
+  _pond() {
+    const w = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 1.2, 40).rotateX(-Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0x4cc6e8, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.88 }));
+    w.position.set(POND.x, POND.water, POND.z); w.receiveShadow = true;
+    this.scene.add(w); this.pond = w;
+  }
+
   _water() {
     const w = new THREE.Mesh(new THREE.CircleGeometry(600, 48).rotateX(-Math.PI / 2),
       new THREE.MeshStandardMaterial({ color: 0x3fb8e8, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.92 }));
@@ -219,7 +272,13 @@ export class World {
   _base() {
     const s = this.scene, H = HOME;
     // deck
-    const deck = box(30, 0.3, 26, MAT.deck, H.x, HY - 0.15, H.z + 2); deck.castShadow = false; s.add(deck);
+    const deck = box(DECK.x1 - DECK.x0, 0.3, DECK.z1 - DECK.z0, deckMat(), H.x, HY - 0.15, (DECK.z0 + DECK.z1) / 2);
+    deck.castShadow = false; s.add(deck);
+    // a darker trim around the deck
+    for (const [w, d, x, z] of [[DECK.x1 - DECK.x0 + 0.4, 0.4, H.x, DECK.z0], [DECK.x1 - DECK.x0 + 0.4, 0.4, H.x, DECK.z1],
+      [0.4, DECK.z1 - DECK.z0, DECK.x0, (DECK.z0 + DECK.z1) / 2], [0.4, DECK.z1 - DECK.z0, DECK.x1, (DECK.z0 + DECK.z1) / 2]]) {
+      const t = box(w, 0.36, d, MAT.woodDark, x, HY - 0.16, z); t.castShadow = false; s.add(t);
+    }
     // house behind
     const hx = H.x, hz = H.z + 17;
     s.add(box(10, 5, 6, MAT.wall, hx, HY + 2.5, hz));
@@ -324,6 +383,8 @@ export class World {
     const free = (x, z, rr = 3) => {
       if (!onIsland(x, z) || height(x, z) < 0.3) return false;
       if (dist(x, z, HOME.x, HOME.z) < 26) return false;
+      if (pathDist(x, z) < 3 || dist(x, z, POND.x, POND.z) < POND.r + 3) return false;
+      if (this.reserved && this.reserved.some((r) => dist(x, z, r[0], r[1]) < r[2])) return false;
       for (const zz of ZONES) if (zz.r && Math.abs(dist(x, z, zz.x, zz.z) - zz.r) < 2.5) return false; // keep walls clear
       return !place.some((p) => dist(x, z, p[1], p[2]) < rr);
     };
@@ -483,6 +544,7 @@ export class World {
     this.padSign.visible = !!this.wantPadSign && this.camera.position.distanceTo(this.padSign.position) > 7;
     this.lava.material.color.setHSL(0.05 + Math.sin(this.time * 1.5) * 0.01, 1, 0.55 + Math.sin(this.time * 2) * 0.05);
     for (const w of this.walls) if (!w.open) w.mat.opacity = 0.16 + Math.sin(this.time * 2 + w.zone.x) * 0.06;
+    for (const f of this.animators) f(dt, this.time);
     this.renderer.render(this.scene, this.camera);
   }
 }

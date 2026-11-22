@@ -1,6 +1,7 @@
 // Minimap (bottom left): island, zones, home, eggs, thieves, player arrow.
 // North-up, so it reads like a map; the arrow shows where the player looks.
 import { ISLAND, HOME, ZONES, RARITY } from './balance.js';
+import { PATHS, POND } from './world.js';
 
 const ZONE_COLOR = { forest: '#3f8f43', beach: '#f2d9a0', volcano: '#6b4a45' };
 
@@ -29,6 +30,11 @@ export class Minimap {
         x.fillText(`🔒${z.stars}★`, zx, zy);
       }
     }
+    // paths and the pond
+    x.strokeStyle = '#c9a46f'; x.lineWidth = 2.5; x.lineCap = 'round'; x.lineJoin = 'round';
+    for (const p of PATHS) { x.beginPath(); p.forEach(([a, b], i) => { const [u, v] = this.px(a, b); if (i) x.lineTo(u, v); else x.moveTo(u, v); }); x.stroke(); }
+    const [qx, qy] = this.px(POND.x, POND.z);
+    x.fillStyle = '#4cc6e8'; x.beginPath(); x.arc(qx, qy, POND.r * this.scale, 0, Math.PI * 2); x.fill();
     // home
     const [hx, hy] = this.px(HOME.x, HOME.z);
     x.fillStyle = '#2ee6c0'; x.strokeStyle = '#0d2240'; x.lineWidth = 2;
