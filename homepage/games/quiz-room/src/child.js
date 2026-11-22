@@ -3,7 +3,7 @@ import { t, lang } from './i18n.js';
 import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, normCode, showCode } from './net.js';
 import { Room, Controller, COLORS, AVATARS, EMOTES } from './room.js';
-import { middleSpot } from './play.js';
+import { middleSpot, PAD_COLORS } from './play.js';
 import { initTouch, resetTouch, touchOn } from './touch.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
@@ -72,6 +72,14 @@ function frame(now) {
     else if (sendT >= 2) sendT = 0;
   }
   tickTimer();
+  if (S.bonus && S.phase === 'question' && room.me) {
+    const p = room.me.root.position, pad = room.play.padAt(p.x, p.z);
+    const here = pad && p.y > -0.5 ? pad.i : -1;
+    if (here !== S.padHere) {
+      S.padHere = here;
+      [...$('bonusOpts').children].forEach((el, k) => el.classList.toggle('here', k === here));
+    }
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -188,6 +196,11 @@ function onQuestion(m) {
     room.play.setPads(m.q.options);
     room.setScreen({ title: t('bonusTitle', S.bonus.i + 1, S.bonus.n), line: plainQuestion(m.q) });
     $('bonusLine').innerHTML = questionHTML(m.q);
+    // The four answers on the own screen too (the floor gets covered in a crowd); the one
+    // under your feet is marked.
+    $('bonusOpts').innerHTML = m.q.options.map((o, k) =>
+      `<div class="bopt" style="background:${PAD_COLORS[k]}"><b>${LETTERS[k]}</b><span>${esc(o)}</span></div>`).join('');
+    S.padHere = null;
     $('bonusTitle').textContent = `★ ${t('bonusTitle', S.bonus.i + 1, S.bonus.n)}`;
     if (!wasBonus) { flash(t('bonusIntro')); sfx.jingle(); }
   } else if (wasBonus || room.play.padWords) { room.play.setPads(null); room.setScreen(null); }

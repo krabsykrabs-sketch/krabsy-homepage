@@ -129,6 +129,14 @@ counts per pad (`pads` message every 0.5 s). Reveal: the wrong pads sink
 into the foam pit (the floor has holes there) for 3.5 s and come back up;
 children inside can't walk out meanwhile; the right pad gets confetti.
 
+Crowded pads (owner, 2026-11-22: "you can't see the answers anymore when people
+are standing on the fields"): every pad has a sign floating above it
+(letter + word, pad colour, drawn over everything, `play.js` `_drawPad`); at
+the reveal the right sign stays bright, the wrong ones fade. The child's
+bonus bar also shows the four answers as A–D chips in the pad colours and
+marks the pad under the child's feet. `tools/qa-crowd.cjs` (16 simulated
+children on the pads + 1 real child) checks it.
+
 Sending (server): every connection has its own `Outbox` (one sender task,
 in order). A slow device can't hold up the room; when it falls more than 8
 messages behind, position updates to it are dropped (they're superseded
@@ -456,3 +464,6 @@ question loading, texts, sounds, character loading and the QA approach.
   layout rebuilt in place on both pages. Tests: API 48 passed (new
   `test_room_grows_with_the_group`), qa-grow 9/9, qa-bonus, qa-play,
   qa-touch pass. Needs the API deploy too (server sends the size).
+- 2026-11-22: answers stay readable in a crowded bonus round: signs above the
+  pads + answer chips in the child's bonus bar (pad under your feet marked).
+  qa-crowd 5/5, qa-bonus passes.

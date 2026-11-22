@@ -204,7 +204,16 @@ export class PlayArea {
       const label = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.1, L - 0.1), new THREE.MeshLambertMaterial({ map: tex, transparent: true }));
       label.rotation.x = -Math.PI / 2; label.position.y = PAD_TOP + 0.005; label.receiveShadow = true; g.add(label);
       s.add(g);
-      const pad = { i, x, g, lc, tex, y: PAD_TOP, target: PAD_TOP, glow: 0, sinkT: 0 };
+      // A sign above the pad with the same word: the floor gets covered when children
+      // stand on it. Drawn over everything (depthTest off), so no avatar can hide it.
+      const sc = document.createElement('canvas'); sc.width = 512; sc.height = 192;
+      const stex = new THREE.CanvasTexture(sc); stex.colorSpace = THREE.SRGBColorSpace;
+      const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: stex, depthTest: false, transparent: true }));
+      const sw = Math.min(PADS.half * 2 + 0.2, 4.2);
+      sign.scale.set(sw, sw * 192 / 512, 1);
+      sign.position.set(x, 3.3, PADS.z - PADS.half * 0.6);
+      sign.renderOrder = 10; sign.visible = false; s.add(sign);
+      const pad = { i, x, g, lc, tex, sign, sc, stex, y: PAD_TOP, target: PAD_TOP, glow: 0, sinkT: 0 };
       this.pads.push(pad);
       this._drawPad(pad, null);
     });
@@ -236,6 +245,24 @@ export class PlayArea {
       g.fillText(word, S / 2, 172);
     }
     pad.tex.needsUpdate = true;
+    // The sign: shown only while the pads carry words; after the reveal the right one stays
+    // bright, the wrong ones fade.
+    pad.sign.visible = !!word;
+    if (!word) return;
+    const c = pad.sc.getContext('2d'), w = pad.sc.width, h = pad.sc.height;
+    c.clearRect(0, 0, w, h);
+    c.fillStyle = col; c.beginPath(); c.roundRect(8, 8, w - 16, h - 16, 36); c.fill();
+    c.lineWidth = 10; c.strokeStyle = state === 'right' ? '#ffffff' : 'rgba(10,18,44,.55)';
+    c.beginPath(); c.roundRect(12, 12, w - 24, h - 24, 32); c.stroke();
+    c.fillStyle = 'rgba(10,18,44,.35)'; c.beginPath(); c.arc(100, h / 2, 62, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.font = '700 84px "Fredoka One", sans-serif'; c.fillText('ABCD'[pad.i], 100, h / 2 + 4);
+    let size = 84;
+    c.font = `700 ${size}px "Fredoka One", sans-serif`;
+    while (c.measureText(word).width > w - 210 && size > 30) { size -= 4; c.font = `700 ${size}px "Fredoka One", sans-serif`; }
+    c.fillText(word, (180 + w - 20) / 2, h / 2 + 4);
+    pad.stex.needsUpdate = true;
+    pad.sign.material.opacity = state === 'wrong' ? 0.3 : 1;
   }
 
   // options: the four answers (bonus question) or null (pads idle).
@@ -248,7 +275,7 @@ export class PlayArea {
   sinkPads(correct) {
     this.pads.forEach((p) => {
       if (p.i === correct) { this._drawPad(p, this.padWords?.[p.i], 'right'); p.glow = 1; }
-      else { p.target = PAD_SUNK; p.sinkT = 3.5; }
+      else { p.target = PAD_SUNK; p.sinkT = 3.5; if (this.padWords) this._drawPad(p, this.padWords[p.i], 'wrong'); }
     });
     const right = this.pads[correct];
     if (right) this.burst(new THREE.Vector3(right.x, 0.5, PADS.z), 260);
