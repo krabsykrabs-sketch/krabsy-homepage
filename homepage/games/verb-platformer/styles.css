@@ -389,6 +389,20 @@ body[data-state="results"] #hud-question, body[data-state="menu"] #hud-question 
   touch-action: none;
 }
 
+/* nipplejs draws two faint, equally pale circles (looked like a duplicated stick on the
+   tablet): a clear ring and a solid knob instead. Its inline styles need !important. */
+#touch-joystick .back {
+  background: rgba(15, 24, 48, 0.22) !important;
+  border: 3px solid rgba(255, 255, 255, 0.75);
+  box-sizing: border-box;
+  opacity: 1 !important;
+}
+#touch-joystick .front {
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 3px 8px rgba(15, 24, 48, 0.35);
+  opacity: 1 !important;
+}
+
 /* only while playing (kept in the layout: the joystick is measured at start-up) */
 body:not([data-state="playing"]) #touch-joystick,
 body:not([data-state="playing"]) #touch-jump { visibility: hidden; pointer-events: none; }

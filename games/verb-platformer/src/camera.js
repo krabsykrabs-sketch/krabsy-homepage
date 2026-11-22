@@ -50,6 +50,19 @@ export function createFollowCamera(camera) {
     state.pitch = Math.max(state.pitchMin, Math.min(state.pitchMax, state.pitch));
   }
 
+  // Touch screens have no mouse to aim with (owner, tablet play-test 2026-11-22): the camera
+  // swings behind the character by itself. Only while the stick points forward-ish (weight =
+  // its forward part, 0..1): pushing purely sideways or back leaves the camera where it is, so
+  // the player can line up with an answer block. A finger drag on the scene still turns the
+  // camera by hand and pauses the auto-swing for touchHoldMs.
+  state.touchFollow = 1.2;     // 1/s at full forward push (about 35°/s on a held diagonal)
+  state.touchHoldMs = 1500;
+  function autoFollow(dt, facingYaw, weight) {
+    if (weight <= 0 || performance.now() - lastLookT < state.touchHoldMs) return;
+    const target = state.aimYaw + wrap(facingYaw - Math.PI - state.aimYaw);
+    state.aimYaw += (target - state.aimYaw) * (1 - Math.exp(-dt * state.touchFollow * weight));
+  }
+
   function update(targetPos) {
     const now = performance.now();
     const dt = Math.min((now - lastUpdateT) / 1000, 0.1);
@@ -78,5 +91,5 @@ export function createFollowCamera(camera) {
     return out;
   }
 
-  return { state, applyLook, update, getForwardXZ, mouseActive };
+  return { state, applyLook, autoFollow, update, getForwardXZ, mouseActive };
 }

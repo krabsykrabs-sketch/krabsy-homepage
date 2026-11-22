@@ -430,6 +430,10 @@ export async function createGame(canvas) {
     input.update();
     const look = input.consumeLook();
     if (look.x || look.y) followCam.applyLook(look.x, look.y, player.state.facingYaw);
+    // Touch: the camera follows the character (no mouse to aim with), see camera.js.
+    if (input.isTouch && alive && !controlsLocked && Math.hypot(input.move.x, input.move.y) > 0.2) {
+      followCam.autoFollow(dt, player.state.facingYaw, Math.max(0, -input.move.y));
+    }
 
     // Advance the cloud drift on the wall clock — independent of the fixed-step loop so the sky
     // keeps flowing even when no physics tick lands this frame.

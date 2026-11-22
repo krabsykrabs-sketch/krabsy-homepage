@@ -330,6 +330,13 @@ load with 0 console errors, 0 failed requests, 0 external requests.
   character turns to where it is steered. When the mouse moves again
   after a pause, the camera swings round behind the character. While
   the mouse is in use (`mouseHoldMs`), A/D step sideways.
+  **Touch (owner's tablet test on the live site, 2026-11-22):** no mouse
+  to aim with, so the camera swings behind the character by itself while
+  the stick points forward or diagonally (`autoFollow`, `touchFollow` 1.2,
+  about 35°/s on a held diagonal); pushing sideways or back leaves it
+  still. A finger drag on the scene still turns it and pauses the swing
+  for 1.5 s. The joystick was nipplejs's default (two equally pale
+  circles, "looks duplicated"): now a ring and a solid knob (`styles.css`).
 - ~~UI is English only, system font, title "Krabsy 3D"~~ done 2026-11-22, see "Game shell".
 - **Size:** 22 MB. `assets/kaykit-platformer/` is 16 MB (five colour
   sets of every piece). `assets/sprites/skybox.png` (3.9 MB), `coin.png`
