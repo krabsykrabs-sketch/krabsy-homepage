@@ -5,11 +5,18 @@ the built copy is served from `homepage/games/verb-platformer/` and wrapped by
 `homepage/de/spiele/verb-platformer/` + `homepage/es/juegos/verb-platformer/`.
 See also `WORK_LOG.md` in this folder.
 
-## Status: PUSHED (c68ef88, 2026-11-22), waiting for the Coolify deploy
+## Status: LIVE (beta), 2026-11-22
+
+Deployed (c68ef88 + hotfix b2b206c: the `.mjs` vendor files). Checked on
+krabsy.com: both wrappers show the menu and level 1 runs, with 0 errors and
+0 failed requests. IndexNow sent for the two wrappers + `/de/spiele/`,
+`/es/juegos/`. **Still untested on real devices** (school laptop GPU,
+tablet/phone touch).
+
+History of the release:
 
 Owner 2026-11-22: "the mechanics and the levels are good — make a proper game
-out of it so we can put it live." Done locally and committed, **not pushed,
-not deployed**:
+out of it so we can put it live." What went into the release:
 
 - Game shell (title + level select with stars, results, pause, first-run
   hint, DE/ES/EN, site fonts) — see "Game shell" below.
