@@ -215,7 +215,64 @@ welcome alternative to choice chips.
 - Commit locally as you go; never push.
 - Keep this CLAUDE.md current — it is the only memory between sessions.
 
+## Asset candidates (audit 2026-11-22)
+
+All packs in `/home/janah/dev/_assets/` are CC0 and arrived Aug–Oct 2026
+(the repo `assets/` folder only symlinks 12 KayKit packs). Restaurant Bits
+is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
+- **More chefs / customers:** KayKit Mystery Monthly S4/S5/S6 characters
+  (same Rig_Medium → Character Animations 1.1 should work). Quickest win:
+  Adventurers 2.0 EXTRA `Textures/*_alt_A/B/C.png` = 3 recolours per chef.
+  No pack has a real chef (hat/apron).
+- **Kitchen decor:** Tiny Treats *Charming Kitchen* (window walls, shelves,
+  knife rack, fridge, toaster, kettle, blinds) and *House Plants*.
+- **Drinks / front of house:** Tiny Treats *Bakery Interior* (coffee
+  machine, cups, cash register, display case, signs, flour, eggs, mixer);
+  KayKit Holiday Bits (hot chocolate, milk, cookies).
+- **Sandwich level + sundae toppings:** Tiny Treats *Baked Goods* +
+  *Pleasant Picnic* (bread, bread_slice, cheese, sandwich, jam, waffle,
+  cookie, donut, pie_cherry, serving trays).
+- **Verb Forge idea:** RPGToolsBits (anvil, hammer, tongs, grindstone),
+  ResourceBits (ore nuggets, bars), FantasyWeaponsBits (swords/axes/shields).
+- No steam/smoke particle or UI-icon packs; keep FX procedural.
+
 ## Status log
+
+- 2026-11-22 — **Tablet layout: bigger kitchen, HUD moved to the sides**
+  (user played L1 on a tablet: kitchen small with empty sides, tutorial
+  banner covered the cutting board).
+  - **Camera fit rewritten** (`game.fitCamera` / `kitchenPoints` /
+    `hudLayout`). It now fits ~2.5k sampled vertices of the real kitchen
+    (only geometry ≤ `FIT_MAX_Y` 2.6, so the tall upper walls may run under
+    the HUD while the hatch window stays visible). It also treats the HUD as
+    rectangles to avoid, instead of reserving whole columns: a binary search
+    on camera distance, then a 2D image shift via `camera.setViewOffset`
+    (perspective unchanged; raycasts and `project()` follow it). The old fit
+    stepped distance in 1.2 increments against a guessed box. Result: the
+    kitchen is ~1.3–1.5× bigger on landscape screens.
+  - **Landscape (`body.sideHud`, aspect ≥ 1.15 and width ≥ 600):** tickets
+    stack vertically on the left, and the guided tutorial is a card on the
+    right, vertically centred. Portrait and phones keep tickets on top and
+    the tutorial at the bottom, and the camera now fits around them too.
+    Space for 3 tickets is always kept, so the camera never moves mid-round.
+  - **Fixed a long-standing bug:** `--ticket-scale` was
+    `clamp(0.85, 100vmin / 640, 2.8)`, which is invalid CSS (a length
+    divided by a number), so tickets never scaled. `hudLayout` now sets it
+    from JS (`min(W,H)/700`, 0.85–2.2); the side tutorial card scales with it.
+  - **Verified** in headless Chromium (CDP, `?qa=` scenes) at 1920×1080,
+    1280×800, 1180×820, 1024×768, 978×640, 844×390, 820×1180 and 390×844,
+    plus L2, L3, soup and ice cream. No console errors. `__touch.pick` hits
+    the correct tile for all 19 L1 stations through the view offset. Fit
+    takes 10–40 ms per resize (headless).
+  - **Testing setup gotcha:** this source folder has NO `assets/`, and the
+    released build's `homepage/games/verb-kitchen/assets` lacks the L4–7
+    models. The full working set is `/home/janah/dev/brocco-dev/verb-kitchen/assets`;
+    symlink it in temporarily to test, then remove the link (it is NOT
+    gitignored here). Headless Edge returned blank frames; the Playwright
+    Chromium in `~/.cache/ms-playwright/chromium-1234/` + a CDP script with
+    `Network.setCacheDisabled` works.
+  - **Not live yet:** the live build at `homepage/games/verb-kitchen/` is
+    still the older release; this ships with the next Verb Kitchen release.
 
 - 2026-07-02 — **Improvement triple (from a whole-project review; all verified in
   a live browser via the preview tools + `__VK`): persistent spaced repetition +

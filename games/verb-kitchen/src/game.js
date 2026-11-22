@@ -18,6 +18,7 @@ import { t } from './i18n.js';
 
 const CHOP_TIME = 1.4;
 const PLATE_RETURN_DELAY = 5;
+const FIT_MAX_Y = 2.6;           // camera fit ignores the tall upper walls (the hatch window stays in view)
 const ANSWERS_PER_PLATE = 3;       // correct verb answers needed to wash one plate
 
 export class Game {
@@ -156,6 +157,7 @@ export class Game {
     ui.setPlates(this.rackStation.plates);
     ui.setOrders(0, this.orders.total);
 
+    this._fitPts = null;             // re-sample now that start items + plates are placed
     this.onResize();
     if (!opts.skipCountdown) {
       this.renderOnce();
@@ -167,35 +169,147 @@ export class Game {
     if (!this._loopStarted) { this._loopStarted = true; this.loop(); }
   }
 
-  fitCamera() {
-    const w = this.world.cols * TILE, d = this.world.rows * TILE;
-    const pitch = THREE.MathUtils.degToRad(56);
-    const target = new THREE.Vector3(0, 0, -d * 0.06);
-    const dir = new THREE.Vector3(0, Math.sin(pitch), Math.cos(pitch));
-    // tight side margin (the kitchen is rectangular now that the floor/wall
-    // overhang is trimmed) so the kitchen fills the portrait width → more zoom;
-    // keep a deeper front/back margin for the back wall + front counters
-    const mx = 0.4;
-    const corners = [
-      new THREE.Vector3(-w / 2 - mx, 0, -d / 2 - 1), new THREE.Vector3(w / 2 + mx, 0, -d / 2 - 1),
-      new THREE.Vector3(-w / 2 - mx, 0, d / 2 + 1), new THREE.Vector3(w / 2 + mx, 0, d / 2 + 1),
-      new THREE.Vector3(0, 4, -d / 2),
-    ];
-    let dist = 8;
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    for (let i = 0; i < 60; i++) {
-      this.camera.position.copy(target).addScaledVector(dir, dist);
-      this.camera.lookAt(target);
-      this.camera.updateMatrixWorld();
-      this.camera.updateProjectionMatrix();
-      let fits = true;
-      for (const c of corners) {
-        const p = c.clone().project(this.camera);
-        if (Math.abs(p.x) > 0.94 || Math.abs(p.y) > 0.92) { fits = false; break; }
+  /** World-space sample of the kitchen's actual geometry (walls, counters,
+   *  stations), cached per level. Fitting real vertices instead of a guessed
+   *  bounding box is what lets the camera zoom in tight. */
+  kitchenPoints() {
+    if (this._fitPts && this._fitPtsWorld === this.world) return this._fitPts;
+    const g = this.world.group;
+    g.updateMatrixWorld(true);
+    const meshes = [];
+    let total = 0;
+    g.traverse((o) => {
+      if (!o.isMesh || !o.visible || !o.geometry?.attributes?.position) return;
+      let vis = true;
+      for (let p = o.parent; p && p !== g; p = p.parent) if (!p.visible) { vis = false; break; }
+      if (!vis) return;
+      meshes.push(o); total += o.geometry.attributes.position.count;
+    });
+    const stride = Math.max(1, Math.floor(total / 7000));   // ~2.5k kept after the height cut
+    const pts = [];
+    const v = new THREE.Vector3();
+    for (const m of meshes) {
+      const pos = m.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i += stride) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+        // only what you play on: floor, counters, stations and the items on
+        // them. The tall walls are backdrop — they may run under the HUD, which
+        // buys a lot of zoom.
+        if (v.y <= FIT_MAX_Y) pts.push(v.clone());
       }
-      if (fits) break;
-      dist += 1.2;
     }
+    // ~2.5k points is plenty for the fit and keeps a resize under a few ms
+    const keep = Math.max(1, Math.ceil(pts.length / 2500));
+    this._fitPts = keep > 1 ? pts.filter((_, i) => i % keep === 0) : pts;
+    this._fitPtsWorld = this.world;
+    return this._fitPts;
+  }
+
+  /** Where the HUD sits on screen, for the camera fit: `frame` = the usable
+   *  screen margins, `blocks` = HUD rectangles (px) the kitchen must stay out
+   *  of. On landscape screens (`sideHud`) the tickets stack in a column on the
+   *  left and the tutorial card sits on the right; on portrait screens the
+   *  tickets run along the top and the tutorial along the bottom. Space for
+   *  all 3 tickets is always kept, so the camera never moves mid-round. */
+  hudLayout(W, H) {
+    const side = W / H >= 1.15 && W >= 600;
+    document.body.classList.toggle('sideHud', side);
+    // ticket size follows the screen (the CSS-only formula divided a length by
+    // a number, which is invalid, so tickets never scaled)
+    const ts = Math.min(2.2, Math.max(0.85, Math.min(W, H) / 700));
+    document.documentElement.style.setProperty('--ticket-scale', ts.toFixed(3));
+    const tk = document.getElementById('tickets');
+    const m = tk && getComputedStyle(tk).transform.match(/matrix\(([^,]+)/);
+    const s = m ? parseFloat(m[1]) || 1 : 1;             // rendered ticket scale
+    const tw = 128 * s, th = 96 * s, gap = 10 * s;       // one ticket card
+    const topbar = document.getElementById('topbar');
+    const barBottom = (topbar && topbar.getBoundingClientRect().bottom) || 52;
+    const tkTop = (tk && tk.getBoundingClientRect().top) || barBottom + 4;
+    const pad = 8;
+    const blocks = [];
+    // the hint pill, bottom centre
+    blocks.push({ x0: W / 2 - Math.min(270, W * 0.45), x1: W / 2 + Math.min(270, W * 0.45), y0: H - 52, y1: H });
+    if (side) blocks.push({ x0: 0, x1: 10 + tw + pad, y0: 0, y1: tkTop + 3 * th + 2 * gap + pad });
+    else blocks.push({ x0: 0, x1: 10 + 3 * tw + 2 * gap + pad, y0: 0, y1: tkTop + th + pad });
+    const tut = document.getElementById('tutorial');
+    if (this.level?.guided && tut) {
+      const r = tut.getBoundingClientRect();
+      // steps differ in length: leave room for a taller card than the current one
+      const grow = side ? 40 : 16;
+      blocks.push({ x0: r.left - pad - 14, x1: r.right + pad, y0: r.top - pad - grow, y1: r.bottom + pad + grow });
+    }
+    return { frame: { x0: 6, x1: W - 6, y0: barBottom + 4, y1: H - 6 }, blocks };
+  }
+
+  fitCamera() {
+    const W = window.innerWidth, H = window.innerHeight;
+    const cam = this.camera;
+    const pitch = THREE.MathUtils.degToRad(56);
+    const target = new THREE.Vector3(0, 0, 0);
+    const dir = new THREE.Vector3(0, Math.sin(pitch), Math.cos(pitch));
+    const pts = this.kitchenPoints();
+    const { frame, blocks } = this.hudLayout(W, H);
+    const n = pts.length;
+    const sx = new Float32Array(n), sy = new Float32Array(n);
+
+    cam.aspect = W / H;
+    cam.clearViewOffset();
+    const p = new THREE.Vector3();
+    let found = null;
+    // project the kitchen at camera distance `dist`, then look for a 2D image
+    // shift (view offset) that keeps every point on screen and out of every
+    // HUD block. Returns the shift, or null if the kitchen is too big.
+    const tryDist = (dist) => {
+      cam.position.copy(target).addScaledVector(dir, dist);
+      cam.lookAt(target);
+      cam.updateMatrixWorld();
+      cam.updateProjectionMatrix();
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (let i = 0; i < n; i++) {
+        p.copy(pts[i]).project(cam);
+        const x = (p.x + 1) / 2 * W, y = (1 - p.y) / 2 * H;
+        sx[i] = x; sy[i] = y;
+        if (x < x0) x0 = x; if (x > x1) x1 = x;
+        if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+      // a point lands at (x - ox, y - oy); the frame bounds the shift
+      const oxLo = x1 - frame.x1, oxHi = x0 - frame.x0;
+      const oyLo = y1 - frame.y1, oyHi = y0 - frame.y0;
+      if (oxLo > oxHi || oyLo > oyHi) return null;
+      const cx = (x0 + x1) / 2 - (frame.x0 + frame.x1) / 2;   // centred shift
+      const cy = (y0 + y1) / 2 - (frame.y0 + frame.y1) / 2;
+      const N = 12, cands = [];
+      for (let i = 0; i <= N; i++) for (let j = 0; j <= N; j++) {
+        const ox = oxLo + (oxHi - oxLo) * i / N, oy = oyLo + (oyHi - oyLo) * j / N;
+        cands.push({ ox, oy, d: (ox - cx) ** 2 + (oy - cy) ** 2 });
+      }
+      cands.push({ ox: Math.min(oxHi, Math.max(oxLo, cx)), oy: Math.min(oyHi, Math.max(oyLo, cy)), d: -1 });
+      cands.sort((a, b) => a.d - b.d);
+      for (const c of cands) {
+        let ok = true;
+        for (const b of blocks) {
+          const bx0 = b.x0 + c.ox, bx1 = b.x1 + c.ox, by0 = b.y0 + c.oy, by1 = b.y1 + c.oy;
+          for (let i = 0; i < n; i++) {
+            if (sx[i] > bx0 && sx[i] < bx1 && sy[i] > by0 && sy[i] < by1) { ok = false; break; }
+          }
+          if (!ok) break;
+        }
+        if (ok) return c;
+      }
+      return null;
+    };
+    // closer camera = bigger kitchen; binary search the closest one that fits
+    let lo = 3, hi = 80, best = null;
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      const c = tryDist(mid);
+      if (c) { hi = mid; best = c; } else lo = mid;
+    }
+    found = tryDist(hi) || best || { ox: 0, oy: 0 };
+    // a view offset is a pure 2D image shift: perspective unchanged, and
+    // raycasts / project() (touch, FX pops) follow it automatically
+    cam.setViewOffset(W, H, found.ox, found.oy, W, H);
+    cam.updateProjectionMatrix();
   }
 
   onResize() {
