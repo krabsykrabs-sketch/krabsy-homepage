@@ -43,6 +43,47 @@
     "hero": "/thumbnails/hero/verb-kitchen.jpg"
   },
   {
+    "id": "verb-platformer",
+    "name": {
+      "de": "Verb Platformer!",
+      "es": "Verb Platformer!"
+    },
+    "tagline": {
+      "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
+      "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!"
+    },
+    "thumbnail": "/thumbnails/sm/verb-platformer.jpg",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "beta",
+    "kind": "3d",
+    "devices": "large_screen",
+    "thumb_small": "/thumbnails/sm/verb-platformer.jpg",
+    "hero": "/thumbnails/hero/verb-platformer.jpg"
+  },
+  {
+    "id": "verb-dungeon",
+    "name": {
+      "de": "Verb Dungeon",
+      "es": "Verb Dungeon"
+    },
+    "tagline": {
+      "de": "Finde den Schlüssel, knack die Verb-Türen und mach den Golem schwindelig!",
+      "es": "¡Encuentra la llave, abre las puertas de verbos y marea al gólem!"
+    },
+    "thumbnail": "/thumbnails/sm/verb-dungeon.jpg",
+    "thumb_small": "/thumbnails/sm/verb-dungeon.jpg",
+    "hero": "/thumbnails/hero/verb-dungeon.jpg",
+    "topics": [
+      "irregular_verbs"
+    ],
+    "status": "coming_soon",
+    "kind": "3d",
+    "devices": "large_screen",
+    "new_until": "2027-03-31"
+  },
+  {
     "id": "verb-snake",
     "name": {
       "de": "Verb Snake!",
@@ -117,46 +158,5 @@
     "kind": "arcade",
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-flow.jpg"
-  },
-  {
-    "id": "verb-platformer",
-    "name": {
-      "de": "Verb Platformer!",
-      "es": "Verb Platformer!"
-    },
-    "tagline": {
-      "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
-      "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!"
-    },
-    "thumbnail": "/thumbnails/sm/verb-platformer.jpg",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "beta",
-    "kind": "3d",
-    "devices": "large_screen",
-    "thumb_small": "/thumbnails/sm/verb-platformer.jpg",
-    "hero": "/thumbnails/hero/verb-platformer.jpg"
-  },
-  {
-    "id": "verb-dungeon",
-    "name": {
-      "de": "Verb Dungeon",
-      "es": "Verb Dungeon"
-    },
-    "tagline": {
-      "de": "Finde den Schlüssel, knack die Verb-Türen und mach den Golem schwindelig!",
-      "es": "¡Encuentra la llave, abre las puertas de verbos y marea al gólem!"
-    },
-    "thumbnail": "/thumbnails/sm/verb-dungeon.jpg",
-    "thumb_small": "/thumbnails/sm/verb-dungeon.jpg",
-    "hero": "/thumbnails/hero/verb-dungeon.jpg",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "coming_soon",
-    "kind": "3d",
-    "devices": "large_screen",
-    "new_until": "2027-03-31"
   }
 ]

@@ -196,10 +196,14 @@ def featured_only(games):
 
 
 def landing_order(games):
-    # Featured first (hidden under "all"), then playable, then coming soon.
+    # Featured first (hidden under "all"), then the 3D games, then the 2D
+    # arcade games (owner 2026-11-22); inside each group playable first,
+    # then coming soon, otherwise games.json order.
     feat = featured_only(games)
     rest = [g for g in games if g not in feat]
-    return feat + strip_order(rest)
+    three_d = [g for g in rest if g.get("kind") == "3d"]
+    others = [g for g in rest if g.get("kind") != "3d"]
+    return feat + strip_order(three_d) + strip_order(others)
 
 
 def all_games(games):
