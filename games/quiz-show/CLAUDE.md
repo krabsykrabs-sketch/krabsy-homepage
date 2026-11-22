@@ -25,7 +25,7 @@ pit, balls + hoop, confetti button, dance floor, "everyone to the
 middle"), and the bonus round "run to the answer" (answer pads over a
 foam pit), touch controls, the class link (answers into each child's own
 stats and class), automatic quality steps for slow devices, and the join link as a QR code
-on the teacher screen (`vendor/qrcode/qrcode.mjs`, qrcode-generator 1.4.4,
+on the teacher screen (`vendor/qrcode/qrcode.js`, qrcode-generator 1.4.4,
 MIT, owner yes 2026-11-22). A
 whole quiz runs with a teacher and several children (tested headless with
 3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be

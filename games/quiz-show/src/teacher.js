@@ -9,7 +9,7 @@ import * as QS from './questions.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
 import { QuestionEditor } from './editor.js';
-import qrcode from '../vendor/qrcode/qrcode.mjs';
+import qrcode from '../vendor/qrcode/qrcode.js';
 
 document.documentElement.lang = lang();
 document.title = `${t('title')} — ${t('setupTitle')}`;

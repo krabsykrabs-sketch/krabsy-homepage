@@ -12,7 +12,7 @@ clicks in Coolify; then the live checks below. The play-test stays open.
       joined a class, to that class (`recordAttempt()` on the child's device):
       confirmed by the owner 2026-11-22.
 - [x] QR code on the teacher screen: owner said yes (2026-11-22). Vendored
-      `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT) as `vendor/qrcode/qrcode.mjs`;
+      `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT) as `vendor/qrcode/qrcode.js`;
       the teacher's code box shows the join link as a QR code (checked: decodes to
       the link). If the link changes to a short path (step 2), the QR follows.
 - [ ] Play-test (owner chose to release first, 2026-11-22; still to do): one teacher + a few real devices (ideally a class). Watch: answer card
