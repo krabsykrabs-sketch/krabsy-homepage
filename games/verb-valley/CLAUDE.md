@@ -328,3 +328,66 @@ geometry, one shadow light.
   replaced the PoC brief with this one. Nothing changed in the code.
   `assets/` is missing locally (see "Known weaknesses"). **Next:** the
   first task above (restore assets, play, propose a plan).
+- 2026-11-22 — **Assets restored + three days played; plan proposed
+  (awaiting owner OK).**
+  - `assets/` rebuilt from the shared library (34 manifest files + their
+    `.bin`/texture deps, 4.4 MB) with `assets/CREDITS.md`. Still
+    gitignored. `.claude/launch.json` pointed at an old path
+    (`/home/jan/...`) and is fixed.
+  - Played days 1–3 in headless Chromium through `window.__VV` and took
+    screenshots: loads with zero console errors, 4.3 ms/frame. The school
+    gate, class rewards, missed-verb review on the next morning, growth,
+    harvest and the album all work.
+  - **Findings:**
+    1. The blackboard asks `past participle of BEGIN?` /
+       `simple past of SLEEP?`: terminology as the question, which breaks
+       the mandate (`src/verbs.js` `makeVerbQ`). The preposition questions
+       (`My birthday is ___ July.`) are fine.
+    2. Grammar = 8 questions at about 06:00, then zero for the rest of
+       the day. The bucket has unlimited water, so nothing in farming
+       needs English.
+    3. The follow camera sits low behind the player: signs (Sell, Hay,
+       Quarry) are unreadable, the empty sky/off-map void fills the top
+       third, and trees hide the player at the school bench.
+    4. Keyboard only. On 1024×768 there is no way to move; on 390×844
+       the HUD overlaps (coins over the album chip) and the inventory
+       covers the field.
+    5. Crops, cottage, school and Krabsy are still procedural. Kenney
+       `nature-kit` has crop stages (`crops_cornStageA–D`,
+       `crop_pumpkin`, `crop_carrot`, dirt rows, fences): a real option
+       for crops.
+    6. Good base for the rework: every farm action already goes through
+       one `gated()` wrapper in `src/game.js`, so new question stations
+       hook in at one place.
+  - **Proposed plan (needs owner OK):**
+    - **Questions spread through the day, Kitchen sink pattern** (self-
+      paced, the work depends on it, wrong = chain shown + fresh question,
+      nothing lost, clock pauses while a question is open):
+      - **School** shrinks to 4 questions (opens with yesterday's review
+        verb). It still unlocks the farm and gives the rare seed.
+      - **The well (main station):** the bucket holds water for 6 tiles,
+        refilling is 1 question. About 3–5 per day, rising as the field
+        grows.
+      - **Selling at the crate:** answer one question for a +50% price on
+        that batch (optional, so selling never blocks).
+      - Target is about 10–14 questions per day, all from
+        `krabsy-questions.js` `getQuizSet` in positional notation
+        (`go → ___ → gone`) and `chainOrder` pairs.
+    - **One day = one lesson unit (about 6 min):** a daily goal card in
+      the morning ("harvest 3 turnips", "fill the well 4×") with 1–3
+      stars on the sleep card, next to the day's missed chains.
+    - **Camera:** a high, fixed-angle camera (like Kitchen) that follows
+      the player loosely and needs no camera input. Signs get bigger.
+    - **Touch:** a virtual stick plus one big action button; the hotbar
+      and inventory are already tappable chips.
+    - **Freeze the scope:** keep fishing/quarry/meadow as they are, add
+      nothing new.
+  - **Milestones:** M0 clean base (vendored Three.js + fonts, noindex,
+    no-terminology fix): about 1 session. M1 question stations + DE/ES:
+    2 sessions. M2 camera + touch: 1–2. M3 models (Kenney crops, cottage,
+    school, crab): 1–2. M4 daily goals, first-day tutorial, save slots:
+    1–2. M5 device tests + review: 1. **Total about 7–9 sessions.**
+  - **Open questions for the owner:** (a) well + crate + short school as
+    the question stations? (b) OK to make the camera high and fixed?
+    (c) Use the BlobVideos crab for Professor Krabsy? (d) How should
+    `assets/` be tracked for release (copy Tower Defense)?
