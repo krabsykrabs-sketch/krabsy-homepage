@@ -20,6 +20,18 @@ python3 ../tower-defense/tools/strip-rigs.py assets/characters/anim_player.glb \
 ```
 
 `<pack>` = `assets/KayKit_Mystery_Monthly_Series_5/Animations/gltf/Rig_Medium`
-(repo root). Eggs, incubators, pens, the base, thief crabs and the hatched
+(repo root).
+
+**Hatched creatures, `animals/*_Animations.glb` — NOT in git (see `../.gitignore`):**
+Quirky Series – FREE Animals v1.4 by Omabuarts Studio (8 animals: Colobus,
+Gecko, Herring, Inkfish, Muskrat, Pudu, Sparrow, Taipan; model + texture +
+18 clips each, ~270 KB). Source: `/home/janah/dev/_assets/_zips/Quirky Series
+- FREE Animals v1.4.7z` (extract with Windows `tar.exe -xf`; copy
+`3D Files/GLTF/Animations/*_Animations.glb`). **Licence not confirmed:** no
+licence file in the archive, blank on https://omabuarts.itch.io/quirky-series-free-animals
+(not CC0, unlike the rest of the library). Confirm before committing or
+releasing. Without these files the game uses the code-built creatures.
+
+Eggs, incubators, pens, the base, thief crabs, hats and the fallback
 creatures are built from primitives in code. Three.js 0.169 (MIT) is in
 `vendor/three/`; fonts Fredoka One and Nunito (OFL) in `fonts/`.

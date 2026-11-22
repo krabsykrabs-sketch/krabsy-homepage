@@ -5,6 +5,7 @@
 // blocklist (English, German, Spanish).
 import * as THREE from 'three';
 import { RARITY } from './balance.js';
+import { animalsReady, buildAnimal, animateAnimal, animalOf } from './animals.js';
 
 function hash(str) {
   let h = 2166136261;
@@ -31,7 +32,7 @@ const TITLE = {
   common: ['Little', 'Tiny', 'Sleepy', 'Happy', 'Fuzzy', 'Wobbly', 'Bouncy', 'Chubby'],
   uncommon: ['Fuzzy', 'Bouncy', 'Giggly', 'Sneaky', 'Jolly', 'Wiggly'],
   rare: ['Sir', 'Lady', 'Captain', 'Sparkly', 'Lucky'],
-  epic: ['Professor', 'Captain', 'Cosmic', 'Mighty', 'Wizard'],
+  epic: ['Professor', 'Super', 'Cosmic', 'Mighty', 'Wizard'],
   legendary: ['King', 'Queen', 'Golden', 'Grand', 'Royal'],
 };
 // Substrings that must never appear in a name (lowercase, spaces removed).
@@ -52,16 +53,20 @@ export function isClean(name) {
 }
 const nameCache = new Map();
 export function speciesName(sp) {
-  if (nameCache.has(sp)) return nameCache.get(sp);
+  const key = (animalsReady() ? 'a:' : 'c:') + sp;
+  if (nameCache.has(key)) return nameCache.get(key);
   const rarity = sp.split('-')[0];
   const r = rng(`name:${sp}`);
   let name = '';
   for (let tries = 0; tries < 50; tries++) {
+    // with the animal models: "<title> <Animal>", e.g. "Sleepy Muskrat", "Golden Pudu"
+    // (title by index, so every species has a fixed, unique name)
+    if (animalsReady()) { const T = TITLE[rarity]; name = `${T[(+sp.split('-')[1]) % T.length]} ${animalOf(sp)}`; break; }
     const core = pick(r, START_SYL) + pick(r, END_SYL);
     name = `${pick(r, TITLE[rarity])} ${core}`;
     if (isClean(name) && !/(.)\1\1/i.test(name) && ![...nameCache.values()].includes(name)) break;
   }
-  nameCache.set(sp, name);
+  nameCache.set(key, name);
   return name;
 }
 
@@ -150,6 +155,7 @@ const BODY = {
 // Builds a creature, about 1 unit tall, standing on y = 0, looking at +z.
 // Returns a Group; group.userData.inner is the part to animate.
 export function buildCreature(sp, { silhouette = false } = {}) {
+  if (animalsReady()) return buildAnimal(sp, { silhouette });
   const L = speciesLook(sp);
   const g = new THREE.Group();
   const inner = new THREE.Group();
@@ -235,6 +241,7 @@ export function buildCreature(sp, { silhouette = false } = {}) {
 
 // Idle animation (call every frame). t = seconds.
 export function animateCreature(g, t, dt, excited = 0) {
+  if (g.userData.mixer) { animateAnimal(g, t, dt, excited); return; }
   const { inner, look, phase } = g.userData;
   const p = t * (1.6 + excited) + phase;
   if (look.dance === 'spin') {

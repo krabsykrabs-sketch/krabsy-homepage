@@ -9,6 +9,7 @@ import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName } from './creatures.js';
+import { loadAnimals, trick } from './animals.js';
 import * as Q from './questions.js';
 import { t, lang, fmt, fmtRate, fmtTime } from './i18n.js';
 import { sfx } from './audio.js';
@@ -66,6 +67,7 @@ const portrait = (() => {
     if (cache.has(key)) return cache.get(key);
     const c = buildCreature(sp, { silhouette });
     c.rotation.y = -0.35;
+    if (c.userData.mixer) c.userData.mixer.update(0.35); // a pose from the idle, not the bind pose
     sc.add(c);
     const h = c.userData.height + 0.35;
     cam.position.set(0, h * 0.7, 1.7 + h * 1.25); cam.lookAt(0, h * 0.45, 0);
@@ -500,9 +502,10 @@ function doHatch(i) {
     showReveal(res);
     const cr = buildCreature(res.sp);
     cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
-    world.scene.add(cr);
+    world.scene.add(cr); world.extra.add(cr);
+    if (cr.userData.mixer) trick(cr, res.isNew ? 'Spin' : 'Bounce');
     world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * 1.5 : 1.5 - (k - 0.7) / 0.3 * 0.2)));
-    if (res.waiting) setTimeout(() => { world.scene.remove(cr); syncWorld(); }, 900);
+    if (res.waiting) setTimeout(() => { world.scene.remove(cr); world.extra.delete(cr); syncWorld(); }, 900);
     else jumpToPen(cr, res.pen, 0.9);
     save(); checkGoals();
   });
@@ -511,7 +514,7 @@ function jumpToPen(cr, pen, delay) {
   setTimeout(() => {
     const from = cr.position.clone(), to = PEN_POS[pen].clone().setY(PEN_POS[pen].y + 0.25);
     world.tween(0.8, (k) => { cr.position.lerpVectors(from, to, k); cr.position.y += Math.sin(k * Math.PI) * 3.5; },
-      () => { world.scene.remove(cr); syncWorld(); });
+      () => { world.scene.remove(cr); world.extra.delete(cr); syncWorld(); });
   }, delay * 1000);
 }
 function placeWaiting(i) {
@@ -521,7 +524,7 @@ function placeWaiting(i) {
   world.clearIncubator(i);
   const cr = buildCreature(sp);
   cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
-  world.scene.add(cr);
+  world.scene.add(cr); world.extra.add(cr);
   sfx.pop();
   jumpToPen(cr, res.pen, 0);
   save();
@@ -703,6 +706,7 @@ function frame(now) {
     }
     if (caught && !paused && st.carry.length) thiefCatch(caught);
     if (!paused) checkPad(dt);
+    world.wantPadSign = st.carry.length > 0;
     // zone name when entering
     const z = zoneAt(player.pos.x, player.pos.z);
     if (z !== curZone) { curZone = z; showZoneName(zName(z)); }
@@ -785,7 +789,12 @@ async function boot() {
   const decor = world.loadDecor();
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
-  await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e))]);
+  await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e)),
+    loadAnimals().catch(() => { /* no animal files (not in git yet): code-built creatures */ })]);
+  // creatures built before the animals were loaded: build them again
+  world.pens.forEach((p) => { if (p.sp) p.sp = '#reload'; });
+  world.incubators.forEach((c, i) => { if (c.waiting) world.clearIncubator(i); });
+  syncWorld();
   player.setLook(st.look || 'A');
   player.spawn(SPAWN, 0);
   renderLooks();

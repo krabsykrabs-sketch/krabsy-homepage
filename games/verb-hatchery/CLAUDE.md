@@ -230,6 +230,9 @@ Copy only what you use into `games/verb-hatchery/assets/`.
 
 ## Open questions for the owner
 
+- **Quirky animals licence:** may we ship the Quirky Series FREE
+  Animals on krabsy.com? (blocks release while they are used)
+
 Defaults used until the owner says otherwise (owner said "build it",
 2026-11-22): name **Verb Hatchery**, **creatures from code**, rivals
 stay **version 2**.
@@ -305,3 +308,14 @@ Not done yet / to check:
   Playwright mouse input: drag turns, Upgrades opens/closes, Space jumps
   without re-pressing a button, click on an egg opens the card, click on a
   chip answers.
+- 2026-11-22: hatched creatures are now the **Quirky Series animals**
+  (owner: "use the quirky animals that we have"), `src/animals.js`: the 8
+  animals in every rarity as fancier versions (common plain, uncommon
+  pastel, rare party hat + shine, epic glow + top / wizard hat, legendary
+  gold + crown; hats follow the head / body bone), idle plus a random
+  trick every few seconds (bounce, spin, eat, sit, jump, roll …), names
+  "<title> <Animal>" (e.g. "Sleepy Muskrat", "King Pudu"). **Licence of
+  that pack is not confirmed** (no file in the archive, blank on itch.io):
+  `assets/animals/` is git-ignored, and without it the game falls back to
+  the code-built creatures. Before release: owner confirms the licence
+  (or asks omabuarts), then un-ignore and commit the 8 files (2.2 MB).

@@ -147,6 +147,7 @@ export class World {
     this.grid = new Map(); // cell → colliders
     this.incubators = []; this.pens = []; this.walls = [];
     this.fx = []; this.time = 0;
+    this.extra = new Set(); // creatures outside pens (jumping to a pen) that still animate
     this._lights(); this._terrain(); this._water(); this._base(); this._walls();
     this.resize();
     addEventListener('resize', () => this.resize());
@@ -468,6 +469,7 @@ export class World {
       if (k >= 1) { this.fx.splice(this.fx.indexOf(f), 1); if (f.end) f.end(); }
     }
     for (const p of this.pens) if (p.creature) animateCreature(p.creature, this.time, dt);
+    for (const c of this.extra) animateCreature(c, this.time, dt, 1);
     for (const c of this.incubators) {
       if (c.waiting) animateCreature(c.waiting, this.time, dt, 1);
       if (c.egg) c.egg.rotation.z = c.ready ? Math.sin(this.time * 14) * 0.12 * (Math.sin(this.time * 2.2) > 0.2 ? 1 : 0.2) : 0;
@@ -477,7 +479,8 @@ export class World {
     this.beacon.visible = this.camera.position.distanceTo(PAD) > 14;
     this.padRing.scale.setScalar(1 + Math.sin(this.time * 3) * 0.04);
     this.padSign.position.y = HY + 3.2 + Math.sin(this.time * 2.5) * 0.2;
-    this.padSign.visible = this.camera.position.distanceTo(this.padSign.position) > 7;
+    // only while carrying eggs (set by main), and not right in front of the camera
+    this.padSign.visible = !!this.wantPadSign && this.camera.position.distanceTo(this.padSign.position) > 7;
     this.lava.material.color.setHSL(0.05 + Math.sin(this.time * 1.5) * 0.01, 1, 0.55 + Math.sin(this.time * 2) * 0.05);
     for (const w of this.walls) if (!w.open) w.mat.opacity = 0.16 + Math.sin(this.time * 2 + w.zone.x) * 0.06;
     this.renderer.render(this.scene, this.camera);
