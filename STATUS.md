@@ -72,7 +72,7 @@ New ideas the owner liked, not started, no folder yet:
 **Live since 2026-11-22** (API + site deployed; a round trip create → join → answers → dashboard → delete passed on krabsy.com with a test class, deleted afterwards).
 
 Teachers create a class without an account (code for pupils + secret
-dashboard link), pupils join with code + nickname, every recorded answer
+dashboard link), pupils join with code + first name (same name twice: "that's me" or add the surname's initial, e.g. "Mia S."), every recorded answer
 goes to the class, the dashboard shows hard words per class and per child.
 Details: `docs/classroom-concept.md` → "Phase 2 as built". **Deploy: API app
 first (new endpoints + SQLite in /data), then the site.** Open: legal

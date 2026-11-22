@@ -43,12 +43,15 @@ export function leave() {
   try { localStorage.removeItem(SESSION_KEY); localStorage.removeItem(QUEUE_KEY); } catch (_) {}
 }
 
-/** Join a class. Resolves { ok, session } or { ok: false, error }. */
-export async function join(code, nickname) {
+/** Join a class with the pupil's first name. Resolves { ok, session } or
+    { ok: false, error } — error 'name_taken' when the class already has
+    that name: call again with samePerson=true ("that's me") or with the
+    surname's initial added ("Mia S."). */
+export async function join(code, nickname, samePerson = false) {
   try {
     const r = await fetch(apiBase() + '/api/class/join', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, nickname }), credentials: 'omit',
+      body: JSON.stringify({ code, nickname, same_person: !!samePerson }), credentials: 'omit',
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.ok) return { ok: false, error: d.error || ('http_' + r.status) };

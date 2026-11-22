@@ -44,7 +44,12 @@ def test_full_flow():
     mia = c.post("/api/class/join", json={"code": code.lower().replace("-", " "), "nickname": "Mia"}).json()
     assert mia["ok"] and mia["class_name"] == "Klasse 6b"
     tom = c.post("/api/class/join", json={"code": code, "nickname": "Tom"}).json()
-    again = c.post("/api/class/join", json={"code": code, "nickname": "mia"}).json()
+    taken = c.post("/api/class/join", json={"code": code, "nickname": "mia"})
+    assert taken.status_code == 409 and taken.json()["error"] == "name_taken"   # second Mia must choose
+    mia_s = c.post("/api/class/join", json={"code": code, "nickname": "Mia S."}).json()
+    assert mia_s["ok"] and mia_s["nickname"] == "Mia S."
+    c.post("/api/class/remove-student", json={"nickname": "Mia S."}, headers={"X-Teacher-Token": teacher})
+    again = c.post("/api/class/join", json={"code": code, "nickname": "mia", "same_person": True}).json()
     assert again["ok"]
     assert c.post("/api/class/join", json={"code": "ZZZ-ZZZ", "nickname": "X"}).status_code == 404
     assert c.post("/api/class/join", json={"code": code, "nickname": "<script>"}).status_code == 400

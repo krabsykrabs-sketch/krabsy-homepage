@@ -236,14 +236,16 @@ device and the server always agree.
 ## Phase 2 as built (2026-11-22)
 
 Owner decisions 2026-11-22: server is in the EU (Hetzner DE) · teachers get a
-secret link first, no email · teachers see nicknames and per-child detail ·
+secret link first, no email · teachers see names and per-child detail ·
 inactive classes are deleted after 6 months. Still open: word lists (5) and
 the legal review (6) — the privacy pages DE/ES have a "Klassen / Clases"
 section, but no lawyer has read it and there is no AVV template yet.
 
 - **API** (`api/classes.py`, SQLite `classes.sqlite3` in the `/data` volume):
   `POST /api/class/create` → code + teacher token · `POST /api/class/join`
-  (code + nickname; same nickname again = same pupil, new token) ·
+  (code + first name; a name already in the class returns `name_taken` → the
+  page asks "that's me (other device)" → `same_person: true`, or "someone
+  else" → add the surname's initial, e.g. "Mia S.") ·
   `POST /api/class/answers` (header `X-Student-Token` or `token` in the body
   for `sendBeacon`) · `GET /api/class/dashboard`, `POST /api/class/rename`,
   `/remove-student`, `/delete` (header `X-Teacher-Token`). Tokens stored as
@@ -260,6 +262,8 @@ section, but no lawyer has read it and there is no AVV template yet.
   `/es/docentes/crear-clase/` · dashboard `/de/lehrkraefte/klasse/#t=…`
   `/es/docentes/clase/#t=…` (token only in the URL fragment). UI in
   `lib/krabsy-class-pages.js` + `lib/krabsy-class.css`.
+- **First names, not nicknames** (owner 2026-11-22): pupils type their first
+  name; two pupils with the same name are never merged silently (see join).
 - **Entry points:** landing "Klassencode bekommen? Hier beitreten →" (becomes
   a "👥 6b · Mia" badge after joining), the same badge in the game header,
   teacher pages: "Klasse erstellen (neu)" button + updated FAQ/privacy list.

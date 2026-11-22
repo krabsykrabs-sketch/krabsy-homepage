@@ -192,7 +192,8 @@ class CreateBody(BaseModel):
 
 class JoinBody(BaseModel):
     code: str = Field(..., max_length=16)
-    nickname: str = Field(..., max_length=40)
+    nickname: str = Field(..., max_length=40)      # the pupil's first name (API name kept)
+    same_person: bool = False                      # "yes, that's me on another device"
 
 
 class Answer(BaseModel):
@@ -256,9 +257,14 @@ def join_class(body: JoinBody, request: Request) -> JSONResponse:
             return _err(404, "unknown_code")
         existing = con.execute("SELECT id FROM students WHERE class_id = ? AND nickname = ? COLLATE NOCASE",
                                (cls["id"], nick)).fetchone()
+        if existing and not body.same_person:
+            # Two pupils with the same first name are common. Ask instead of
+            # silently merging them: the page offers "that's me (other
+            # device)" or "I'm another one -> add your surname's initial".
+            return _err(409, "name_taken")
         if existing:
-            # Same nickname again (other device, cleared browser): continue as
-            # that pupil. Phase 3 adds picture codes against impersonation.
+            # Same pupil on another device / cleared browser: continue as
+            # them. Phase 3 adds picture codes against impersonation.
             con.execute("UPDATE students SET token_hash = ?, last_active = ? WHERE id = ?",
                         (_hash(token), now, existing["id"]))
         else:

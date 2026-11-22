@@ -13,7 +13,7 @@
    localStorage["krabsy_teacher_classes"] (name, code, token) for a "your
    classes" list — nothing else.
    ────────────────────────────────────────────────────────────────────────── */
-import { apiBase, getSession, join, leave } from '/lib/krabsy-class.js?v=2026-11-22';
+import { apiBase, getSession, join, leave } from '/lib/krabsy-class.js?v=2026-11-22b';
 
 const LANG = document.documentElement.lang === 'es' ? 'es' : 'de';
 const PATHS = {
@@ -25,12 +25,15 @@ const PATHS = {
 
 const T = {
   de: {
-    joinTitle: 'Einer Klasse beitreten', joinLead: 'Gib den Code ein, den deine Lehrerin oder dein Lehrer dir gegeben hat, und deinen Spitznamen.',
-    code: 'Klassencode', nick: 'Dein Spitzname', nickHint: 'Vorname oder Spitzname, kein Nachname.', joinBtn: 'Beitreten',
+    joinTitle: 'Einer Klasse beitreten', joinLead: 'Gib den Code ein, den deine Lehrerin oder dein Lehrer dir gegeben hat, und deinen Vornamen.',
+    code: 'Klassencode', nick: 'Dein Vorname', nickHint: 'Nur der Vorname. Gibt es ihn in der Klasse zweimal, häng den ersten Buchstaben deines Nachnamens an, z. B. „Mia S.“', joinBtn: 'Beitreten',
+    takenQ: (n) => `In dieser Klasse gibt es schon „${n}“. Bist du das?`,
+    takenMe: (n) => `Ja, ich bin ${n} (anderes Gerät)`, takenOther: 'Nein, ich bin jemand anderes',
+    takenHint: 'Dann schreib den ersten Buchstaben deines Nachnamens dazu, z. B. „Mia S.“',
     joined: (n, c) => `Du bist in <strong>${n}</strong> als <strong>${c}</strong>.`,
     joinedLead: 'Alles, was du jetzt in Spielen und Übungen beantwortest, sieht deine Lehrkraft. So weiß sie, welche Wörter ihr noch üben solltet.',
     toGames: 'Zu den Spielen', toPractice: 'Zum Üben', notMe: 'Nicht du? Klasse verlassen',
-    errCode: 'Diesen Code gibt es nicht. Prüf ihn noch einmal.', errNick: 'Bitte nur Buchstaben und Zahlen, höchstens 20 Zeichen.',
+    errCode: 'Diesen Code gibt es nicht. Prüf ihn noch einmal.', errNick: 'Bitte nur Buchstaben, höchstens 20 Zeichen.',
     errFull: 'Diese Klasse ist voll.', errNet: 'Keine Verbindung. Versuch es gleich noch einmal.', errMany: 'Zu viele Versuche. Warte kurz.',
     createTitle: 'Klasse erstellen', createLead: 'Sie bekommen einen Code für die Klasse und einen privaten Link zu Ihrer Übersicht. Kein Konto, keine E-Mail.',
     className: 'Name der Klasse', classNamePh: 'z. B. 6b Englisch', createBtn: 'Klasse erstellen',
@@ -42,12 +45,12 @@ const T = {
     dashTitle: 'Klassenübersicht', noToken: 'Diese Klasse gibt es nicht (mehr). Der Link ist unvollständig oder die Klasse wurde gelöscht.',
     week: 'Diese Woche', active: 'aktiv', answers: 'Antworten', right: 'richtig',
     hard: 'Diese Wörter sind für die Klasse noch schwer', hardNone: 'Noch keine schwierigen Wörter – oder noch zu wenige Antworten.',
-    unsure: 'unsicher', solid: 'Das sitzt schon', pupils: 'Schülerinnen und Schüler', nickCol: 'Spitzname',
+    unsure: 'unsicher', solid: 'Das sitzt schon', pupils: 'Schülerinnen und Schüler', nickCol: 'Vorname',
     lastActive: 'zuletzt aktiv', thisWeek: 'diese Woche', total: 'gesamt', practise: 'noch üben',
     remove: 'Entfernen', removeQ: (n) => `${n} aus der Klasse entfernen? Die Antworten werden gelöscht.`,
     noPupils: 'Noch niemand beigetreten. Geben Sie der Klasse den Code oder den Link.',
     where: 'Womit geübt wurde', rename: 'Umbenennen', renamePrompt: 'Neuer Name der Klasse:',
-    del: 'Klasse löschen', delQ: 'Klasse mit allen Spitznamen und Antworten endgültig löschen?',
+    del: 'Klasse löschen', delQ: 'Klasse mit allen Namen und Antworten endgültig löschen?',
     deleted: 'Die Klasse wurde gelöscht.', retention: (d) => `Ohne Aktivität wird die Klasse nach ${d} Tagen automatisch gelöscht.`,
     never: '–', today: 'heute', daysAgo: (n) => (n === 1 ? 'gestern' : `vor ${n} Tagen`),
     sources: { sprint: 'Sprint', flashcards: 'Karteikarten', 'free-practice': 'Freies Üben', 'verb-towers': 'Verb Towers',
@@ -55,12 +58,15 @@ const T = {
     topicPrep: 'Präposition',
   },
   es: {
-    joinTitle: 'Unirse a una clase', joinLead: 'Escribe el código que te dio tu profesor o profesora y tu apodo.',
-    code: 'Código de la clase', nick: 'Tu apodo', nickHint: 'Nombre o apodo, sin apellido.', joinBtn: 'Unirme',
+    joinTitle: 'Unirse a una clase', joinLead: 'Escribe el código que te dio tu profesor o profesora y tu nombre.',
+    code: 'Código de la clase', nick: 'Tu nombre', nickHint: 'Solo el nombre. Si en tu clase hay dos con el mismo nombre, añade la inicial de tu apellido, p. ej. «Lucía M.»', joinBtn: 'Unirme',
+    takenQ: (n) => `En esta clase ya hay «${n}». ¿Eres tú?`,
+    takenMe: (n) => `Sí, soy ${n} (otro dispositivo)`, takenOther: 'No, soy otra persona',
+    takenHint: 'Entonces añade la inicial de tu apellido, p. ej. «Lucía M.»',
     joined: (n, c) => `Estás en <strong>${n}</strong> como <strong>${c}</strong>.`,
     joinedLead: 'Todo lo que respondas ahora en juegos y ejercicios lo verá tu profesor. Así sabe qué palabras hay que practicar.',
     toGames: 'Ir a los juegos', toPractice: 'Ir a practicar', notMe: '¿No eres tú? Salir de la clase',
-    errCode: 'Ese código no existe. Revísalo.', errNick: 'Solo letras y números, máximo 20 caracteres.',
+    errCode: 'Ese código no existe. Revísalo.', errNick: 'Solo letras, máximo 20 caracteres.',
     errFull: 'Esta clase está llena.', errNet: 'Sin conexión. Inténtalo de nuevo.', errMany: 'Demasiados intentos. Espera un momento.',
     createTitle: 'Crear una clase', createLead: 'Recibirá un código para la clase y un enlace privado a su resumen. Sin cuenta y sin correo.',
     className: 'Nombre de la clase', classNamePh: 'p. ej. 1.º ESO B inglés', createBtn: 'Crear clase',
@@ -72,12 +78,12 @@ const T = {
     dashTitle: 'Resumen de la clase', noToken: 'Esta clase no existe (o ya no existe). El enlace está incompleto o la clase se eliminó.',
     week: 'Esta semana', active: 'activos', answers: 'respuestas', right: 'correctas',
     hard: 'Estas palabras aún le cuestan a la clase', hardNone: 'Todavía no hay palabras difíciles, o aún hay pocas respuestas.',
-    unsure: 'inseguros', solid: 'Esto ya lo dominan', pupils: 'Alumnado', nickCol: 'Apodo',
+    unsure: 'inseguros', solid: 'Esto ya lo dominan', pupils: 'Alumnado', nickCol: 'Nombre',
     lastActive: 'última actividad', thisWeek: 'esta semana', total: 'total', practise: 'por practicar',
     remove: 'Quitar', removeQ: (n) => `¿Quitar a ${n} de la clase? Se borrarán sus respuestas.`,
     noPupils: 'Todavía no se ha unido nadie. Comparta el código o el enlace.',
     where: 'Con qué se practicó', rename: 'Cambiar nombre', renamePrompt: 'Nuevo nombre de la clase:',
-    del: 'Eliminar la clase', delQ: '¿Eliminar definitivamente la clase con todos los apodos y respuestas?',
+    del: 'Eliminar la clase', delQ: '¿Eliminar definitivamente la clase con todos los nombres y respuestas?',
     deleted: 'La clase se ha eliminado.', retention: (d) => `Sin actividad, la clase se elimina automáticamente tras ${d} días.`,
     never: '–', today: 'hoy', daysAgo: (n) => (n === 1 ? 'ayer' : `hace ${n} días`),
     sources: { sprint: 'Sprint', flashcards: 'Tarjetas', 'free-practice': 'Práctica libre', 'verb-towers': 'Verb Towers',
@@ -143,20 +149,36 @@ function renderJoin(main) {
         <input id="kc-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false"
                maxlength="9" placeholder="ABC-123" value="${esc(pre)}" class="kc-code-input" required></label>
       <label class="kc-field"><span>${T.nick}</span>
-        <input id="kc-nick" name="nickname" autocomplete="nickname" maxlength="20" required>
+        <input id="kc-nick" name="nickname" autocomplete="given-name" maxlength="20" required>
         <small>${T.nickHint}</small></label>
       <p class="kc-error" id="kc-err" role="alert" hidden></p>
       <button class="kc-btn" type="submit">${T.joinBtn}</button>
     </form>`;
   (pre ? $('#kc-nick') : $('#kc-code')).focus();
-  $('#kc-join').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const btn = ev.submitter || $('#kc-join button'); btn.disabled = true;
-    const r = await join($('#kc-code').value, $('#kc-nick').value);
+  const err = $('#kc-err');
+  async function tryJoin(samePerson) {
+    const btn = $('#kc-join button[type=submit]'); btn.disabled = true;
+    const name = $('#kc-nick').value.trim();
+    const r = await join($('#kc-code').value, name, samePerson);
     btn.disabled = false;
-    if (r.ok) renderJoin(main);
-    else { const e = $('#kc-err'); e.textContent = errorText(r.error); e.hidden = false; }
-  });
+    if (r.ok) { renderJoin(main); return; }
+    if (r.error === 'name_taken') { askSameName(name); return; }
+    err.textContent = errorText(r.error); err.hidden = false;
+  }
+  // Same first name already in the class: never merge two pupils silently.
+  function askSameName(name) {
+    err.hidden = false;
+    err.innerHTML = `<span>${esc(T.takenQ(name))}</span>
+      <span class="kc-row" style="margin-top:8px">
+        <button type="button" class="kc-btn kc-btn-ghost" id="kc-me">${esc(T.takenMe(name))}</button>
+        <button type="button" class="kc-btn kc-btn-ghost" id="kc-other">${esc(T.takenOther)}</button></span>`;
+    $('#kc-me').addEventListener('click', () => tryJoin(true));
+    $('#kc-other').addEventListener('click', () => {
+      err.textContent = T.takenHint;
+      const input = $('#kc-nick'); input.value = name + ' '; input.focus();
+    });
+  }
+  $('#kc-join').addEventListener('submit', (ev) => { ev.preventDefault(); tryJoin(false); });
 }
 
 /* ── create ────────────────────────────────────────────────────────────── */
