@@ -55,6 +55,16 @@ New ideas the owner liked, not started, no folder yet:
 - Verb Flow → keep.
 - Owner decisions pending.
 
+## Game art (2026-11-22)
+
+3D games get key art in the Verb Kitchen style (same three chibi heroes,
+warm toy-like 3D), made with Gemini (`gemini-3-pro-image`, Kitchen hero
+image as style reference; key in the gitignored root `.env`, billing on).
+Done: Verb Towers, Verb Platformer, Verb Dungeon (its "Bald" tile).
+Files: `thumbnails/hero/<id>.jpg` 1200×675 + `thumbnails/sm/<id>.jpg`
+640×360; originals in `_incoming/<id>-art/`. 2D games (Snake, Flow) keep
+flat title cards; Slash and Air Control are already illustrated.
+
 ## Landing pages /de/ and /es/ (games-first, 2026-11-21)
 
 Rebuilt like a game portal: one headline line, a big featured game, then
