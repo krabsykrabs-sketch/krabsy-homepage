@@ -13,6 +13,7 @@ import { Effects } from './effects.js';
 import { UI } from './ui.js';
 import { Wave } from './wave.js';
 import { Tutorial } from './tutorial.js';
+import { Track } from './analytics.js';
 
 // Entry point: initialize subsystems, own the central state, run the game loop + phase
 // machine. Phase table (spec):
@@ -128,7 +129,13 @@ export function dangerLives() {
   return Math.max(2, Math.round(Level.current.startingLives * 0.3));
 }
 
+// A new attempt at the current level (start, retry, next level).
 export function resetRun() {
+  clearRun();
+  Track.levelStart(currentLevelIndex, state);
+}
+
+function clearRun() {
   state.phase = 'BUILD';
   state.enemies.length = 0;
   state.towers.length = 0;
@@ -173,7 +180,8 @@ export function nextLevel() {
 }
 
 export function endGame() {
-  resetRun();
+  Track.abandon();
+  clearRun();
   state.phase = 'MENU';
 }
 
@@ -239,9 +247,10 @@ export function upgradeTower(tower) {
   if (!tower) return;
   const up = tower.nextUpgrade();
   if (!up) return;
-  if (state.coins < up.cost) return;
+  if (state.coins < up.cost) { Track.notEnoughCoins(state, tower.type); return; }
   state.coins -= up.cost;
   tower.upgrade();
+  Track.upgraded(state, tower, up.cost);
   tower.levelUpT = 0.45;
   Effects.spawnLevelUp(tower.position, tower.upgradeLevel);
   Sound.play('upgrade');
@@ -251,6 +260,7 @@ export function sellTower(tower) {
   if (!tower) return;
   const refund = tower.sellValue();
   state.coins += refund;
+  Track.sold(state, tower, refund);
   Grid.free(tower.cellX, tower.cellY);
   const idx = state.towers.indexOf(tower);
   if (idx >= 0) state.towers.splice(idx, 1);
@@ -265,6 +275,7 @@ export function sellTower(tower) {
 function update(dt, realDt = dt) {
   // The forge card runs on real time, whatever the game speed or frame rate.
   Forge.update(realDt, state);
+  if (state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE') Track.tick(realDt);
   state.timeScale = state.phase === 'BATTLE' ? state.speed : 1;
   dt *= state.timeScale;
   Tutorial.update(state, currentLevelIndex);
@@ -298,6 +309,7 @@ function update(dt, realDt = dt) {
         state.starsEarned = starsFor(state.lives, Level.current.startingLives);
         state.endT = 1.6;
         Sound.play('victory');
+        Track.levelEnd(state, true);
       } else {
         state.phase = 'BUILD';
         Forge.refill(state);
@@ -317,6 +329,7 @@ function update(dt, realDt = dt) {
     state.phase = 'GAME_OVER';
     state.endT = 2.6;
     Sound.play('gameOver');
+    Track.levelEnd(state, false);
   }
 
   // Drop stale placement/selection when the game leaves an interactive phase.

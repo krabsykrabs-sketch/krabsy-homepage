@@ -7,6 +7,7 @@ import { Renderer } from './renderer.js';
 import { Grid } from './grid.js';
 import { Wave } from './wave.js';
 import { state, sellTower } from './main.js';
+import { Track } from './analytics.js';
 
 // Mouse, touch, and keyboard handling. Placement is allowed during BUILD and BATTLE
 // (you can keep building while enemies attack); terminal and overlay phases block it.
@@ -104,6 +105,7 @@ export const Input = {
     const tower = new Tower(type, cellX, cellY);
     state.towers.push(tower);
     Grid.occupy(cellX, cellY, tower);
+    Track.built(state, tower, def.cost);
     state.buildCell = null;
     // Not selected automatically: the info panel would cover the board on small screens.
     state.selectedTower = null;
@@ -153,7 +155,7 @@ export const Input = {
       this.cancelPlacement();
       return;
     }
-    if (state.coins < CONFIG.TOWERS[type].cost) return;
+    if (state.coins < CONFIG.TOWERS[type].cost) { Track.notEnoughCoins(state, type); return; }
     state.placement.active = true;
     state.placement.towerType = type;
     state.selectedTower = null;

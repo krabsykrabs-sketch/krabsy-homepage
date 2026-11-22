@@ -1,4 +1,5 @@
 import { Sound } from './audio.js';
+import { Track } from './analytics.js';
 import { CONFIG, getTierForHealth } from './config.js';
 import { Effects } from './effects.js';
 import { state } from './main.js';
@@ -170,6 +171,7 @@ export class Enemy {
     this.isAlive = false;
     if (state) {
       state.lives = Math.max(0, state.lives - 1);
+      Track.leak();
       Effects.spawnCastleHit(this.position);
       Effects.spawnScreenFlash();
       Sound.play('castleHit');
