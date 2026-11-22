@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "verb-golf",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": ["-e", "bash", "-c", "cd /home/janah/dev/krabsy-homepage/games/verb-golf && python3 tools/serve.py 8140"],
+      "port": 8140
+    }
+  ]
+}
