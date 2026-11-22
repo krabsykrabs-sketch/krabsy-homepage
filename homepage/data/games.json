@@ -23,6 +23,28 @@
     "hero": "/thumbnails/hero/verb-towers.jpg"
   },
   {
+    "id": "quiz-room",
+    "name": {
+      "de": "Quiz-Raum",
+      "es": "Sala de quiz"
+    },
+    "tagline": {
+      "de": "Live-Quiz mit deiner Klasse – lauf als Figur durch den 3D-Raum!",
+      "es": "¡Quiz en vivo con tu clase: recorre la sala 3D con tu personaje!"
+    },
+    "thumbnail": "/thumbnails/sm/quiz-room.jpg",
+    "thumb_small": "/thumbnails/sm/quiz-room.jpg",
+    "topics": [
+      "irregular_verbs",
+      "prepositions"
+    ],
+    "status": "ready",
+    "kind": "3d",
+    "devices": "phone_ok",
+    "new_until": "2027-02-28",
+    "hero": "/thumbnails/hero/quiz-room.jpg"
+  },
+  {
     "id": "verb-kitchen",
     "name": {
       "de": "Verb Kitchen!",

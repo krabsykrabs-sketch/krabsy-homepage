@@ -54,7 +54,7 @@ const T = {
     deleted: 'Die Klasse wurde gelöscht.', retention: (d) => `Ohne Aktivität wird die Klasse nach ${d} Tagen automatisch gelöscht.`,
     never: '–', today: 'heute', daysAgo: (n) => (n === 1 ? 'gestern' : `vor ${n} Tagen`),
     sources: { sprint: 'Sprint', flashcards: 'Karteikarten', 'free-practice': 'Freies Üben', 'verb-towers': 'Verb Towers',
-               'verb-snake': 'Verb Snake', 'air-control': 'Air Control', other: 'Sonstiges' },
+               'verb-snake': 'Verb Snake', 'air-control': 'Air Control', 'quiz-room': 'Quiz-Raum', other: 'Sonstiges' },
     topicPrep: 'Präposition',
   },
   es: {
@@ -87,7 +87,7 @@ const T = {
     deleted: 'La clase se ha eliminado.', retention: (d) => `Sin actividad, la clase se elimina automáticamente tras ${d} días.`,
     never: '–', today: 'hoy', daysAgo: (n) => (n === 1 ? 'ayer' : `hace ${n} días`),
     sources: { sprint: 'Sprint', flashcards: 'Tarjetas', 'free-practice': 'Práctica libre', 'verb-towers': 'Verb Towers',
-               'verb-snake': 'Verb Snake', 'air-control': 'Air Control', other: 'Otros' },
+               'verb-snake': 'Verb Snake', 'air-control': 'Air Control', 'quiz-room': 'Sala de quiz', other: 'Otros' },
     topicPrep: 'preposición',
   },
 }[LANG];

@@ -14,7 +14,7 @@ const T = {
   en: {
     title: 'Krabsy Quiz Room',
     // child
-    joinTitle: 'Join the quiz room', code: 'Room code', name: 'Your first name', color: 'Your colour',
+    joinTitle: 'Join the quiz room', teacherLink: 'Teacher? Open a quiz room →', code: 'Room code', name: 'Your first name', color: 'Your colour',
     join: 'Join', joining: 'Joining …',
     err_no_room: 'No room with this code. Check the code on the board.', err_locked: 'The room is closed for new players.',
     err_full: 'The room is full.', err_removed: 'You were removed from this room.', err_bad_name: 'Please type your first name.',
@@ -48,7 +48,7 @@ const T = {
   },
   de: {
     title: 'Krabsy Quiz-Raum',
-    joinTitle: 'Ab in den Quiz-Raum', code: 'Raum-Code', name: 'Dein Vorname', color: 'Deine Farbe',
+    joinTitle: 'Ab in den Quiz-Raum', teacherLink: 'Lehrkraft? Quiz-Raum öffnen →', code: 'Raum-Code', name: 'Dein Vorname', color: 'Deine Farbe',
     join: 'Beitreten', joining: 'Verbinde …',
     err_no_room: 'Kein Raum mit diesem Code. Schau nochmal an die Tafel.', err_locked: 'Der Raum ist für neue Spieler geschlossen.',
     err_full: 'Der Raum ist voll.', err_removed: 'Du wurdest aus diesem Raum entfernt.', err_bad_name: 'Bitte gib deinen Vornamen ein.',
@@ -81,7 +81,7 @@ const T = {
   },
   es: {
     title: 'Krabsy Sala de quiz',
-    joinTitle: 'Entra en la sala de quiz', code: 'Código de la sala', name: 'Tu nombre', color: 'Tu color',
+    joinTitle: 'Entra en la sala de quiz', teacherLink: '¿Docente? Abre una sala de quiz →', code: 'Código de la sala', name: 'Tu nombre', color: 'Tu color',
     join: 'Entrar', joining: 'Conectando …',
     err_no_room: 'No hay sala con este código. Mira la pizarra otra vez.', err_locked: 'La sala está cerrada para nuevos jugadores.',
     err_full: 'La sala está llena.', err_removed: 'Te han sacado de esta sala.', err_bad_name: 'Escribe tu nombre, por favor.',

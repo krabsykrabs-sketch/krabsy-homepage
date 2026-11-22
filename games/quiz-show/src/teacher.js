@@ -159,9 +159,12 @@ async function enterRoom(m) {
   $('setup').classList.add('hidden');
   for (const id of ['top', 'players', 'controls']) $(id).classList.remove('hidden');
   $('code').textContent = showCode(m.code);
-  const url = new URL('index.html', location.href);
-  url.search = `?code=${m.code}${new URLSearchParams(location.search).get('lang') ? `&lang=${lang()}` : ''}`;
-  $('joinUrl').textContent = url.href.replace(/^https?:\/\//, '');
+  // On krabsy.com the children's link is the short path /quiz/ (it forwards to the child
+  // page with the same parameters); the room's language travels along.
+  const onSite = /(^|\.)krabsy\.com$/.test(location.hostname);
+  const url = onSite ? new URL('/quiz/', location.origin) : new URL('index.html', location.href);
+  url.search = `?code=${m.code}&lang=${lang()}`;
+  $('joinUrl').textContent = onSite ? `${location.host}/quiz` : url.href.replace(/^https?:\/\//, '');
   $('qr').innerHTML = qrSvg(url.href);
   if (m.question) onQuestion(m.question);
   if (m.reveal) onReveal(m.reveal);

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, indexifembedded">
+<title>Krabsy Quiz Room</title>
+<link rel="stylesheet" href="src/style.css">
+<style>
+#join .card{width:min(520px,94vw);text-align:center;}
+#join h1{margin:0 0 .4em;color:var(--amber);font-size:34px;}
+#join label{display:block;text-align:left;color:var(--muted);font-size:16px;margin:12px 0 4px;}
+#join input{width:100%;font-size:28px;padding:.3em .5em;border-radius:12px;border:3px solid #2d4180;background:#0d1735;color:#fff;font-weight:900;}
+#join #codeIn{font-family:'Fredoka One';letter-spacing:.12em;text-transform:uppercase;text-align:center;}
+#colors{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+#colors button{width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25);}
+#colors button.on{outline:4px solid #fff;outline-offset:3px;}
+#joinBtn{margin-top:18px;}
+#avatars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+#avatars button{background:#16224a;border-radius:14px;padding:2px;aspect-ratio:1;box-shadow:inset 0 0 0 3px #2d4180;overflow:hidden;}
+#avatars button img{width:100%;height:100%;object-fit:cover;display:block;}
+#avatars button.on{box-shadow:inset 0 0 0 4px var(--amber),0 0 14px rgba(255,207,94,.6);background:#2a3a78;}
+#join .card{max-height:96vh;overflow:auto;}
+#emotes{position:fixed;right:10px;bottom:12px;z-index:8;display:flex;gap:6px;}
+#emotes button{width:52px;height:52px;border-radius:14px;background:rgba(8,14,36,.85);font-size:28px;box-shadow:inset 0 0 0 2px #2d4180;position:relative;}
+#emotes button small{position:absolute;left:4px;top:2px;font-size:11px;color:var(--muted);}
+#emotes button:active{transform:scale(.92);}
+/* Touch controls (src/touch.js): only on touch devices */
+#tStick,#tJump{display:none;}
+.touch #tStick,.touch #tJump{display:block;}
+#tStick{position:fixed;left:84px;bottom:84px;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;z-index:8;
+  border:3px solid rgba(234,242,255,.35);background:rgba(8,14,36,.25);pointer-events:none;opacity:.45;}
+#tStick.on{opacity:1;bottom:auto;}
+#tStick .tKnob{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;transform:translate(-50%,-50%);
+  background:rgba(234,242,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+#tJump{position:fixed;right:18px;bottom:84px;width:96px;height:96px;border-radius:50%;z-index:8;padding:16px;
+  background:rgba(46,230,192,.85);box-shadow:0 5px 0 #14a387;touch-action:none;}
+#tJump.down{transform:translateY(4px);box-shadow:0 1px 0 #14a387;}
+.touch #hint{max-width:calc(100vw - 280px);}
+#midMsg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:9;font-family:'Fredoka One';font-size:30px;text-align:center;}
+#teacherLink{position:fixed;top:10px;right:12px;z-index:5;padding:7px 14px;border-radius:999px;background:var(--panel);box-shadow:0 0 0 2px #2d4180;color:#eaf2ff;font-size:15px;font-weight:800;text-decoration:none;}
+#teacherLink:hover{box-shadow:0 0 0 2px var(--amber);}
+#join.hidden #teacherLink{display:none;}
+@media (max-width:700px){#teacherLink{display:none;}} /* phones: the page info below links the teacher page */
+#joinErr{color:var(--coral);min-height:1.4em;margin-top:10px;font-size:17px;}
+
+#hud{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-size:18px;}
+#hud .me{display:flex;gap:.6em;align-items:center;}
+#hud .dot{width:.9em;height:.9em;border-radius:50%;display:inline-block;}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;font-size:18px;text-align:center;max-width:94vw;}
+#status{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:9;font-size:16px;background:#5a2232;}
+
+/* question card: covers the screen until answered */
+#qcard{position:fixed;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;background:rgba(6,10,28,.55);padding:12px;}
+#qcard .card{width:min(860px,96vw);background:#f7f9ff;color:#0d1b3d;padding:18px 22px 22px;}
+#qcard .head{display:flex;justify-content:space-between;align-items:center;font-size:18px;color:#5b6b92;margin-bottom:10px;gap:12px;}
+#qcard .head .timerbar{flex:1;background:#dfe6f7;}
+#qcard .qline{font-size:clamp(30px,6vw,56px);text-align:center;margin:10px 0 18px;}
+#qcard .box{font-size:clamp(24px,4.2vw,40px);min-height:2em;}
+/* after answering: a small panel */
+#mini{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:9;width:min(560px,92vw);text-align:center;}
+#mini .card{padding:10px 16px;}
+#mini .qline{color:#fff;font-size:26px;}
+#mini .qline .slot{border-bottom-color:#7d90bd;}
+#mini .sub{font-size:16px;color:var(--muted);margin-top:6px;}
+#mini .timerbar{margin-top:8px;}
+/* reveal */
+#reveal{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:9;width:min(620px,94vw);text-align:center;}
+#reveal .card{padding:14px 18px;}
+#reveal h2{margin:0;font-size:34px;}
+#reveal h2.ok{color:var(--teal);} #reveal h2.no{color:var(--coral);}
+#reveal .qline{color:#fff;font-size:28px;margin:6px 0;}
+#reveal .teach{font-family:'Fredoka One';font-size:22px;margin:4px 0;}
+#reveal .meta{display:flex;justify-content:center;gap:14px;font-size:18px;color:var(--muted);flex-wrap:wrap;}
+#reveal .meta b{color:var(--amber);}
+#bonusBar{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:9;width:min(640px,94vw);text-align:center;}
+#bonusBar .card{padding:10px 16px;box-shadow:0 0 0 4px var(--amber),0 12px 40px rgba(0,0,0,.5);}
+#bonusBar .bt{font-family:'Fredoka One';color:var(--amber);font-size:20px;}
+#bonusBar .qline{color:#fff;font-size:34px;}
+#bonusBar .qline .slot{border-bottom-color:#7d90bd;}
+#bonusBar .sub{font-size:17px;color:var(--muted);margin:4px 0 8px;}
+#flash{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:15;font-family:'Fredoka One';font-size:clamp(34px,6vw,64px);
+  color:var(--amber);text-shadow:0 4px 0 #8a5a00,0 0 30px rgba(0,0,0,.6);text-align:center;pointer-events:none;animation:flashIn 2.6s ease-out forwards;}
+@keyframes flashIn{0%{opacity:0;scale:.4}12%{opacity:1;scale:1.1}20%{scale:1}80%{opacity:1}100%{opacity:0}}
+#top5{position:fixed;right:10px;top:56px;z-index:8;width:220px;font-size:17px;}
+#top5 h3{margin:0 0 6px;font-size:18px;color:var(--teal);}
+#endc .card{text-align:center;width:min(560px,94vw);}
+#endc h2{margin:0;color:var(--amber);font-size:36px;}
+#endc .you{font-size:22px;margin:8px 0 14px;}
+#endc .toplist{font-size:22px;text-align:left;}
+#endc{background:rgba(6,10,28,.55);}
+#msg .card{text-align:center;font-size:22px;}
+@media (max-width:700px){#top5{display:none;}}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="join" class="overlay">
+  <a id="teacherLink" target="_top" data-t="teacherLink"></a>
+  <div class="card">
+    <h1 data-t="joinTitle"></h1>
+    <label for="codeIn" data-t="code"></label>
+    <input id="codeIn" maxlength="7" autocomplete="off" placeholder="ABC-123">
+    <label for="nameIn" data-t="name"></label>
+    <input id="nameIn" maxlength="16" autocomplete="off">
+    <label data-t="avatar"></label>
+    <div id="avatars"></div>
+    <label data-t="color"></label>
+    <div id="colors"></div>
+    <button id="joinBtn" class="btn" data-t="join"></button>
+    <div id="joinErr"></div>
+  </div>
+</div>
+
+<div id="hud" class="hidden">
+  <div class="me pill"><span class="dot" id="meDot"></span><span id="meName"></span></div>
+  <div class="pill"><span id="meScore">0</span> <span data-t="score"></span></div>
+</div>
+<div id="status" class="pill hidden"></div>
+<div id="hint" class="pill hidden"></div>
+<div id="emotes" class="hidden"></div>
+<div id="midMsg" class="card hidden" data-t="middleMsg"></div>
+
+<div id="qcard" class="hidden"><div class="card">
+  <div class="head"><span id="qnum"></span><div class="timerbar" id="qtimer"><i></i></div><span id="qsec"></span></div>
+  <div class="qline" id="qline"></div>
+  <div class="boxes" id="qboxes"></div>
+</div></div>
+<div id="mini" class="hidden"><div class="card"><div class="qline" id="miniLine"></div><div class="sub" data-t="sent"></div><div class="timerbar" id="miniTimer"><i></i></div></div></div>
+<div id="bonusBar" class="hidden"><div class="card"><div class="bt" id="bonusTitle"></div><div class="qline" id="bonusLine"></div>
+  <div class="sub" data-t="bonusHint"></div><div class="timerbar" id="bonusTimer"><i></i></div></div></div>
+<div id="flash" class="hidden"></div>
+<div id="reveal" class="hidden"><div class="card" id="revealCard"></div></div>
+<div id="top5" class="card hidden"></div>
+<div id="endc" class="overlay hidden"><div class="card" id="endCard"></div></div>
+<div id="msg" class="overlay hidden"><div class="card" id="msgCard"></div></div>
+
+<script type="module" src="src/child.js"></script>
+</body>
+</html>

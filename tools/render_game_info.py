@@ -35,6 +35,10 @@ try:
     from game_info_content import TEACHER  # noqa: E402
 except ImportError:  # older content file
     TEACHER = {}
+try:
+    from game_info_content import PLAYMODE  # noqa: E402
+except ImportError:
+    PLAYMODE = {}
 
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "homepage"
@@ -212,7 +216,7 @@ def render_head(gid, lang, games, title, description):
             "gamePlatform": "Web browser",
             "applicationCategory": "EducationalApplication",
             "operatingSystem": "Any",
-            "playMode": "SinglePlayer",
+            "playMode": PLAYMODE.get(gid, "SinglePlayer"),
             "isAccessibleForFree": True,
             "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
             "learningResourceType": t["resource"],

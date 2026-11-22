@@ -1,8 +1,8 @@
 # Krabsy Quiz Room — release checklist (for the master session)
 
-Status 2026-11-22: milestones 1–5 built and tested headless; **not deployed, not
-played by people**. The game is two pages (teacher + child) plus a WebSocket room
-server inside the existing API. Nothing here has been done yet; it's the list.
+Status 2026-11-22: **released (pushed) on the owner's word, without a play-test.**
+Steps 2–3 done in the repo; step 1 (API deploy) and the site deploy are the owner's
+clicks in Coolify; then the live checks below. The play-test stays open.
 
 ## 0. Before releasing: owner decisions
 
@@ -15,7 +15,7 @@ server inside the existing API. Nothing here has been done yet; it's the list.
       `qrcode-generator` 1.4.4 (Kazuhiko Arase, MIT) as `vendor/qrcode/qrcode.mjs`;
       the teacher's code box shows the join link as a QR code (checked: decodes to
       the link). If the link changes to a short path (step 2), the QR follows.
-- [ ] Play-test: one teacher + a few real devices (ideally a class). Watch: answer card
+- [ ] Play-test (owner chose to release first, 2026-11-22; still to do): one teacher + a few real devices (ideally a class). Watch: answer card
       never stuck, frame rate on a cheap Chromebook with ~25 children (the room lowers
       its quality by itself when slow), noise level of the confetti button.
 
@@ -64,3 +64,24 @@ server inside the existing API. Nothing here has been done yet; it's the list.
 - Dashboard: game id `quiz-room` (`quiz_open`, `level_start`, `level_end` from the
   teacher page; answers from the children).
 - STATUS.md and the brief's log.
+
+## Done 2026-11-22 (release commit)
+
+- Game copied to `homepage/games/quiz-room/` (re-copy after every change in
+  `games/quiz-show/`).
+- Children's short link `homepage/quiz/index.html` (krabsy.com/quiz, noindex): forwards
+  to the child page with `?code=…&lang=…`. On krabsy.com the teacher screen shows
+  "krabsy.com/quiz" and the QR code points there.
+- Wrapper pages `/de/spiele/quiz-room/`, `/es/juegos/quiz-room/` (iframe of the child
+  join screen; info section via `tools/render_game_info.py`, content in
+  `tools/game_info_content.py`, `PLAYMODE` MultiPlayer). Child join screen has a
+  "Lehrkraft? Quiz-Raum öffnen →" link (desktop only).
+- `games.json` entry `quiz-room` (NEU until 2027-02-28; not featured), static grids,
+  hub JSON-LD + intro sentence, thumbnail `thumbnails/sm/quiz-room.jpg` + hero.
+- Teacher pages DE/ES: hero button + "Neu: der Quiz-Raum" section; privacy summary item.
+- Privacy pages DE/ES: section "Quiz-Raum" (in memory only, closes after 2 h / 15 min).
+- Class dashboard source label `quiz-room` (krabsy-class-pages.js, cache v 2026-11-22c).
+- Sitemap: the two wrapper pages.
+- Checked locally (site on :8000 + API on :8150): wrapper pages DE/ES, chip bar, hub
+  and teacher-page links, Spanish teacher page, /quiz/ forwarding with code, join,
+  a question, answer recorded in the child's stats through the site's /lib; no errors.

@@ -439,6 +439,63 @@ CONTENT = {
             "related": ["verb-kitchen", "air-control", "verb-snake"],
         },
     },
+    # ─────────────────────────────────────────────────────────── Quiz-Raum
+    "quiz-room": {
+        "de": {
+            "h1": "Quiz-Raum – das Live-Quiz für die ganze Klasse",
+            "meta": "Live-Quiz für die Englischstunde: Jedes Kind spielt am eigenen Gerät als Figur in einem 3D-Raum und beantwortet Fragen zu unregelmäßigen Verben und Präpositionen. Kostenlos, ohne Konto.",
+            "lead": [
+                "Im Quiz-Raum spielt die ganze Klasse gleichzeitig. Jedes Kind öffnet den Raum am eigenen Gerät, gibt den <strong>Raum-Code</strong> und seinen Vornamen ein und läuft als kleine Figur durch einen bunten 3D-Raum. Die Fragen kommen auf einer privaten Antwortkarte – wer geantwortet hat, darf bis zur Auflösung herumlaufen, Trampolin springen, rutschen und Bälle in den Korb werfen.",
+                'Die Lehrkraft spielt nicht mit, sie leitet den Raum: <a href="/games/quiz-room/teacher.html?lang=de"><strong>Quiz-Raum öffnen</strong></a>, Thema und Schwierigkeit wählen, die Fragen ansehen und tauschen, starten. Kostenlos im Browser, ohne Konto und ohne Download.',
+            ],
+            "howto": [
+                "Lehrkraft: Öffnen Sie den <a href=\"/games/quiz-room/teacher.html?lang=de\">Quiz-Raum</a>, wählen Sie Thema, Schwierigkeit, Anzahl der Fragen und die Zeit pro Frage. Die Fragenliste lässt sich vorher durchsehen: Fragen entfernen, tauschen oder neue dazunehmen.",
+                "Kinder: <strong>krabsy.com/quiz</strong> öffnen oder den QR-Code scannen, den Code und den Vornamen eingeben, eine Figur und eine Farbe wählen – schon steht man im Raum.",
+                "Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, <kbd>Umschalt</kbd> zum Rennen, <kbd>Leertaste</kbd> zum Springen. Auf Tablets erscheinen ein Joystick und ein Sprung-Knopf.",
+                "Zu jeder Frage gibt es vier Antworten (Klick oder Tasten <kbd>1</kbd>–<kbd>4</kbd>). Schnelle richtige Antworten bringen mehr Punkte. Über dem Kopf zeigt ein Punkt, <em>dass</em> jemand geantwortet hat – nie, <em>was</em>.",
+                "Nach jeder Frage sehen alle die Lösung und die Top 5. Zum Schluss gibt es optional eine Bonusrunde: Die Antworten liegen auf vier Feldern am Boden, und alle rennen zum richtigen Feld.",
+            ],
+            "learn": [
+                "Geübt werden die <strong>unregelmäßigen Verben</strong> und die <strong>Präpositionen</strong>, jeweils in drei Schwierigkeitsstufen. Bei den Verben fragt das Quiz erst die zweite Form (<em>go → ___</em>) und gleich danach die dritte (<em>go → went → ___</em>), zum Beispiel bei {go}, {think} oder {bring} – ohne Grammatik-Fachbegriffe. Präpositionen kommen als Lückensatz wie <em>My birthday is ___ July.</em>",
+                "Nach jeder Frage zeigt der Raum die ganze Verbreihe oder die Regel zur Präposition. Am Ende sieht die Lehrkraft, welche Wörter die Klasse am häufigsten falsch hatte.",
+            ],
+            "verbs": ["go", "think", "bring"],
+            "faq": [
+                ("Brauchen die Kinder ein Konto?", "Nein. Die Kinder geben nur den Raum-Code und einen Vornamen ein. Namen und Punkte gibt es nur, solange der Raum offen ist; danach wird nichts gespeichert."),
+                ("Wie viele Kinder können mitspielen?", "Bis zu 40 Kinder pro Raum, jedes an seinem eigenen Gerät: Chromebook, Laptop, Tablet oder Handy."),
+                ("Kann ich die Fragen selbst auswählen?", "Ja. Vor dem Start sehen Sie alle Fragen und können einzelne entfernen, gegen andere tauschen oder neue hinzufügen. Beim Projektor-Bild sind die Antworten verdeckt."),
+                ("Was passiert, wenn ein Kind die Verbindung verliert?", "Es kommt automatisch zurück und behält Namen und Punkte. Die Lehrkraft kann Namen ändern, Kinder entfernen und den Raum sperren."),
+            ],
+            "related": ["verb-towers", "verb-kitchen", "verb-snake"],
+        },
+        "es": {
+            "h1": "Sala de quiz: el quiz en vivo para toda la clase",
+            "meta": "Quiz en vivo para la clase de inglés: cada alumno juega en su propio dispositivo con un personaje en una sala 3D y responde preguntas de verbos irregulares y preposiciones. Gratis y sin cuenta.",
+            "lead": [
+                "En la sala de quiz juega toda la clase a la vez. Cada alumno abre la sala en su propio dispositivo, escribe el <strong>código de la sala</strong> y su nombre, y recorre una sala 3D llena de color con su personaje. Las preguntas llegan en una tarjeta privada; quien ya respondió puede pasear, saltar en la cama elástica, tirarse por el tobogán y encestar pelotas hasta que se muestra la respuesta.",
+                'El docente no juega: dirige la sala. <a href="/games/quiz-room/teacher.html?lang=es"><strong>Abre una sala de quiz</strong></a>, elige el tema y la dificultad, revisa y cambia las preguntas y empieza. Gratis en el navegador, sin cuenta y sin descargas.',
+            ],
+            "howto": [
+                "Docente: abre la <a href=\"/games/quiz-room/teacher.html?lang=es\">sala de quiz</a> y elige el tema, la dificultad, el número de preguntas y el tiempo por pregunta. Antes de empezar puedes ver la lista: quitar preguntas, cambiarlas o añadir más.",
+                "Alumnos: abren <strong>krabsy.com/quiz</strong> o escanean el código QR, escriben el código y su nombre, eligen personaje y color, y ya están en la sala.",
+                "Se camina con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o las flechas, <kbd>Mayús</kbd> para correr y la <kbd>barra espaciadora</kbd> para saltar. En tablets aparecen un joystick y un botón de salto.",
+                "Cada pregunta tiene cuatro respuestas (clic o teclas <kbd>1</kbd>–<kbd>4</kbd>). Las respuestas correctas y rápidas dan más puntos. Un punto sobre la cabeza muestra <em>que</em> alguien respondió, nunca <em>qué</em>.",
+                "Después de cada pregunta todos ven la solución y el top 5. Al final hay una ronda extra opcional: las respuestas están en cuatro casillas del suelo y todos corren a la correcta.",
+            ],
+            "learn": [
+                "Se practican los <strong>verbos irregulares</strong> y las <strong>preposiciones</strong>, cada uno en tres niveles. Con los verbos, el quiz pregunta primero la segunda forma (<em>go → ___</em>) y justo después la tercera (<em>go → went → ___</em>), por ejemplo con {go}, {think} o {bring}, sin términos gramaticales. Las preposiciones aparecen en frases con hueco como <em>My birthday is ___ July.</em>",
+                "Después de cada pregunta la sala muestra la serie completa del verbo o la regla de la preposición. Al final, el docente ve qué palabras falló más la clase.",
+            ],
+            "verbs": ["go", "think", "bring"],
+            "faq": [
+                ("¿Los alumnos necesitan una cuenta?", "No. Solo escriben el código de la sala y un nombre. Los nombres y los puntos existen solo mientras la sala está abierta; después no se guarda nada."),
+                ("¿Cuántos alumnos pueden jugar?", "Hasta 40 por sala, cada uno en su propio dispositivo: Chromebook, portátil, tablet o celular."),
+                ("¿Puedo elegir las preguntas?", "Sí. Antes de empezar ves todas las preguntas y puedes quitar algunas, cambiarlas por otras o añadir nuevas. En la imagen del proyector las respuestas están ocultas."),
+                ("¿Qué pasa si un alumno pierde la conexión?", "Vuelve solo y conserva su nombre y sus puntos. El docente puede cambiar nombres, sacar a alguien de la sala y cerrar la sala a nuevos jugadores."),
+            ],
+            "related": ["verb-towers", "verb-kitchen", "verb-snake"],
+        },
+    },
     # ─────────────────────────────────────────────────────────── Verb Dungeon
     "verb-dungeon": {
         "de": {
@@ -507,7 +564,11 @@ GENRE = {
     "verb-kitchen": ["Simulation", "Educational"],
     "verb-towers": ["Strategy", "Educational"],
     "verb-dungeon": ["Adventure", "Educational"],
+    "quiz-room": ["Trivia", "Educational"],
 }
+
+# Multiplayer games (JSON-LD "playMode"; default SinglePlayer).
+PLAYMODE = {"quiz-room": "MultiPlayer"}
 
 # What each game asks for (JSON-LD "teaches").
 TEACHES = {
@@ -517,6 +578,7 @@ TEACHES = {
         "verb-kitchen": "Unregelmäßige englische Verben: Simple Past und Past Participle",
         "verb-towers": "Unregelmäßige englische Verben: Simple Past und Past Participle",
         "verb-dungeon": "Unregelmäßige englische Verben: Simple Past und Past Participle",
+        "quiz-room": "Unregelmäßige englische Verben und englische Präpositionen",
         "crab-slash": "Unregelmäßige englische Verben: Simple Past und Past Participle",
     },
     "es": {
@@ -525,6 +587,7 @@ TEACHES = {
         "verb-kitchen": "Verbos irregulares en inglés: pasado simple y participio pasado",
         "verb-towers": "Verbos irregulares en inglés: pasado simple y participio pasado",
         "verb-dungeon": "Verbos irregulares en inglés: pasado simple y participio pasado",
+        "quiz-room": "Verbos irregulares y preposiciones en inglés",
         "crab-slash": "Verbos irregulares en inglés: pasado simple y participio pasado",
     },
 }
@@ -533,6 +596,18 @@ TEACHES = {
 # ── Teacher notes ("Im Unterricht einsetzen" / "En clase"), rendered after
 #    "what you learn" by render_game_info.py. Only games listed here get the block.
 TEACHER = {
+    "quiz-room": {
+        "de": [
+            "Für Klassen, in denen jedes Kind ein Gerät hat (Chromebook, Laptop, Tablet). Ein Beamer ist hilfreich, aber nicht nötig.",
+            "Ein Quiz mit 10 Fragen dauert etwa 10 Minuten. Wer schon geantwortet hat, darf im Raum spielen; mit „Alle in die Mitte“ holen Sie alle zurück.",
+            "Die Antworten zählen in die Lernstatistik jedes Kindes auf seinem Gerät und, wenn die Kinder Ihrer <a href=\"/de/lehrkraefte/\">Krabsy-Klasse</a> beigetreten sind, ins Klassen-Dashboard.",
+        ],
+        "es": [
+            "Para clases en las que cada alumno tiene un dispositivo (Chromebook, portátil, tablet). Un proyector ayuda, pero no hace falta.",
+            "Un quiz de 10 preguntas dura unos 10 minutos. Quien ya respondió puede jugar en la sala; con «Todos al centro» los traes de vuelta.",
+            "Las respuestas cuentan en las estadísticas de cada alumno en su dispositivo y, si tus alumnos se unieron a tu <a href=\"/es/docentes/\">clase de Krabsy</a>, en el panel de la clase.",
+        ],
+    },
     "verb-towers": {
         "de": [
             "Läuft auf Handy, Tablet und PC, ohne Konto. Sie teilen einfach den Link.",

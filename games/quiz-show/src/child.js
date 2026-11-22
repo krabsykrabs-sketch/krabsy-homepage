@@ -11,6 +11,7 @@ import { analytics } from './analytics.js';
 document.documentElement.lang = lang();
 document.title = t('title');
 applyTexts(t);
+$('teacherLink').href = `teacher.html?lang=${lang()}`;
 
 const params = new URLSearchParams(location.search);
 const S = {

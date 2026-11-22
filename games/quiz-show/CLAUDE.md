@@ -13,8 +13,10 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **milestones 1–5 built (2026-11-22), ready for a play-test; not
-deployed, not played by people yet.** Release steps for the master session:
+Status: **released 2026-11-22 (pushed; owner chose to release before a
+play-test). Not played by people yet.** Served copy: `homepage/games/quiz-room/`
+(re-copy `index.html teacher.html src vendor assets fonts` after every change);
+pages `/de/spiele/quiz-room/`, `/es/juegos/quiz-room/`, short link `/quiz/`. Release steps for the master session:
 `RELEASE.md` in this folder. Built: room server + teacher
 page + child page, the teacher's question list (see every question,
 swap, remove, add, new mix; also in the lobby while children join), and
@@ -426,3 +428,8 @@ question loading, texts, sounds, character loading and the QA approach.
   (as built). Open before release: name, play-test.
 - 2026-11-22: owner chose the name: DE "Quiz-Raum", ES "Sala de quiz" (page
   titles already used them; ES casing fixed). Open before release: play-test.
+- 2026-11-22: owner: "Release it" (before a play-test). Released by this session
+  (acting as master for the release): see `RELEASE.md` "Done". Game changes for
+  it: short join link krabsy.com/quiz on the site (teacher screen + QR), join
+  URL always carries the room's language, "Lehrkraft? Quiz-Raum öffnen →" link on
+  the child's join screen (hidden on phones).
