@@ -102,7 +102,7 @@ What exists:
   `src/sky-presets.js`. The editor has no UI for it but keeps the block
   on load/save.
 
-### Art pass 1 (2026-11-21; owner: "not bad, actually quite good", wants scenery closer and more of it)
+### Art pass 1 (2026-11-21; owner: "not bad, actually quite good", wants scenery closer and more of it → art pass 2 below)
 
 - `src/game.js`: cloud deck at y −10 (`CLOUD_Y`), a fall counts at y −5
   (`FALL_Y`); the character keeps dropping during the respawn delay and
@@ -117,6 +117,66 @@ What exists:
   colliders. +4 draw calls, about +67k triangles.
 - `assets/scenery/` (tracked, 0.7 MB): the pieces used from the KayKit
   Medieval Hexagon pack (`/home/janah/dev/_assets/kaykit/KayKit_Medieval_Hexagon_Pack_1.0_EXTRA`).
+
+### Art pass 2 (2026-11-21; closer scenery, more clouds, life)
+  Look-out and camp islets keep 13+ units from the path (main session, after the owner's review screenshots showed a spectator right beside an answer block).
+
+Three depth layers now: **islets** 10–22 units from the path, islands
+25–48 (four of them), islands and the castle far out (eight islands in all,
+was seven). Everything is still placed automatically from the level's
+pieces and seeded by the level id; the new parts use their own random
+stream (`id + ':near'`), so the far layer did not move. Still no colliders.
+
+- `src/scenery.js`
+  - **Islets** (`addIslet`, `ISLET_THEMES`): 7–16 per level (one per ~12
+    units of level), spread along the path. Themes: look-out (a spectator
+    stands there), windmill + wheat field, village (well, two houses,
+    horse), hamlet, camp, grove. Rim 10+ units from every path piece, grass
+    4.5–8 below the **lowest** walkway nearby (so nothing on an islet can
+    stand in front of the path), at least 2.5 above the clouds. They float
+    free (short keel). The first look-out and the first windmill are placed
+    in view of the start. Merged into one mesh per 110 × 110 map cell
+    (3–6 cells per level, cells out of view are skipped); the season
+    texture (`sky.season`) applies to them too.
+  - **Close cloud puffs**: 25 more (same two InstancedMeshes), three
+    kinds: under and beside the path (top 5+ below the underside of the
+    pieces, checked along the whole drift), beside the path between deck and
+    walkway, five big mounds sunk in the deck. They drift 5–13 units, slowly.
+  - Two small flags on the back corners of the start platform (merged, no
+    collider).
+- `src/scenery-life.js` (new) — everything that moves:
+  windmill sails, one or two **cloud ships** sailing circles on the deck (8+ units from
+  the path, masts below it), **hot-air balloons** in teal / coral / amber
+  (procedural, 13+ units from the path), **birds** in small flocks circling
+  beside the path and round the castle (procedural, flapped on the CPU),
+  and up to three **spectators**: the KayKit Mage with its eight parts
+  merged into one skinned mesh, same Rig_Medium as the player, clips shared
+  through `loadRigClips()` in `src/player-character.js`. They turn to the
+  player and hop / wave when the player is within 34 units; their mixers
+  only run within 70 units and they are not drawn beyond 100.
+- **Slow-device guard** (`setLite` in `src/scenery.js`): when the game
+  runs below 12 frames a second for three seconds, everything art pass 2
+  added is switched off for the rest of the visit (art pass 1 stays).
+  `?scenery=full` / `?scenery=lite` in the URL force one or the other.
+  Headless Chromium with software GL is such a device: **the bot and plain
+  screenshots show the lite scenery after a few seconds; use
+  `?scenery=full` for screenshots.** (The game runs in slow motion below
+  10 fps, and the bot's finale needs 116 of its 120 seconds even at full
+  speed.)
+- `src/game.js`: `scenery.update(dt, playerPos)`; `__krabsyDebug.scenery()`
+  returns the scenery (its `info` lists islets, ships, balloons, flocks,
+  spectators with positions, for screenshots and tests).
+- **Cost** (start view, 1024×768, `?scenery=full`): scenery draw calls
+  4 → 13–16 (+3–6 islet cells, +1 sails, +1 ships, +1 balloons, +1 birds,
+  +1 per spectator in view); scenery triangles about 50k → 90–111k (frame
+  total 61–71k → 102–133k). If a device struggles before the guard kicks
+  in: fewer islets (`isletCount`), no village, two spectators.
+- `assets/scenery/` is now 1.6 MB: + windmill, two houses, well, ship,
+  tent, pawn, horse, hay bale, flag, banner, single trees, small wood,
+  hill, rock, wheat field (same Hexagon pack, same palette texture) and
+  `Mage.glb` (KayKit Adventurers, 0.35 MB).
+- Bot: all six levels pass. Not done: nothing on the checkpoint platforms;
+  the spectators react to distance only (not to a cleared gate); no sound.
 
 What a level-design session should do:
 

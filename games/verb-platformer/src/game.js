@@ -394,7 +394,7 @@ export async function createGame(canvas) {
   }
 
   // Dev hook for automated play-tests: read-only view of the running level and player.
-  window.__krabsyDebug = { level: () => currentLevel, player, alive: () => alive, input, world, RAPIER, followCam, renderer };
+  window.__krabsyDebug = { level: () => currentLevel, scenery: () => scenery, player, alive: () => alive, input, world, RAPIER, followCam, renderer };
 
   // Dev hook: lets a URL param teleport the player after the level loads (for screenshots).
   window.addEventListener('krabsy-teleport', (e) => {
@@ -458,7 +458,7 @@ export async function createGame(canvas) {
     cloudSea.position.set(camera.position.x, CLOUD_Y, camera.position.z);
 
     if (currentLevel) currentLevel.update(dt, playerPos, player.state.grounded);
-    scenery?.update(dt);
+    scenery?.update(dt, playerPos);
     particles.update(dt);
 
     if (alive && player.state.grounded) {

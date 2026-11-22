@@ -53,12 +53,22 @@ function loadGLB(url) {
   return new Promise((resolve, reject) => gltfLoader.load(url, resolve, undefined, reject));
 }
 
+// The Rig_Medium animation clips, loaded once. The spectators on the scenery islets
+// (scenery-life.js) use the same rig and share these clips.
+let clipPromise = null;
+export function loadRigClips() {
+  if (!clipPromise) {
+    clipPromise = Promise.all([loadGLB(ANIM_MOVEMENT_BASE), loadGLB(ANIM_GENERAL)])
+      .then(([mov, gen]) => [...(mov.animations || []), ...(gen.animations || [])]);
+  }
+  return clipPromise;
+}
+
 export async function createPlayerCharacter(scene) {
   // Load the character model + both animation .glb files in parallel.
-  const [modelGltf, movGltf, genGltf] = await Promise.all([
+  const [modelGltf, clipPool] = await Promise.all([
     loadGLB(CHARACTER_MODEL),
-    loadGLB(ANIM_MOVEMENT_BASE),
-    loadGLB(ANIM_GENERAL),
+    loadRigClips(),
   ]);
 
   const root = modelGltf.scene;
@@ -72,7 +82,6 @@ export async function createPlayerCharacter(scene) {
   scene.add(root);
 
   // Pool of available clips from both animation source files.
-  const clipPool = [...(movGltf.animations || []), ...(genGltf.animations || [])];
   const findClip = (name) => clipPool.find(c => c.name === name);
 
   // Build a mixer rooted at the character. clipAction retargets bones by name — works for any
