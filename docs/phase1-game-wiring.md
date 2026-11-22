@@ -71,8 +71,8 @@ keys. Keep the Verb Cookbook reading the shared stats
 
 | Game | Where | Owner | Done |
 |---|---|---|---|
-| Verb Snake | `homepage/krabsy-verb-snake.html` | master | no |
-| Air Control | `homepage/krabsy-air-control.html` | master | no |
+| Verb Snake | `homepage/krabsy-verb-snake.html` | master | **yes, 2026-11-22** — smart queue of 12 verbs per game; records the needed form = right, another form of the same verb = wrong; other verbs' fruits hit while steering are not counted |
+| Air Control | `homepage/krabsy-air-control.html` | master | **yes, 2026-11-22** — smart queue of 12 verbs per game (maxLen 9) ahead of the inline list; a 2nd/3rd-form plane landing on its verb's runway = right, steered to another verb's runway = wrong; one answer per plane; tutorial level 1 not counted |
 | Verb Flow | `games/verb-flow/` → `homepage/krabsy-verb-flow.html` | verb-flow session | no |
 | Verb Slash | `games/verb-slash/` (inlined into wrappers) | verb-slash session | no |
 | Verb Kitchen | `games/verb-kitchen/` (+ step 3) | verb-kitchen session | no |

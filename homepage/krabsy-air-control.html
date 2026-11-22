@@ -768,6 +768,34 @@ function resize(){
 window.addEventListener('resize',resize);
 resize();
 
+// ── Shared learning engine (docs/classroom-concept.md phase 1) ──
+// Each game starts with a SMART queue of verbs (ones this player still
+// misses, new ones from their level, due repeats) from the question
+// engine; the inline VERBS list fills up after that and is the offline
+// (file://) fallback. Landings are recorded as answers (recordLanding).
+let KQ_MOD=null,STATS_MOD=null;
+const engineReady=(async()=>{
+  try{STATS_MOD=await import('/lib/krabsy-stats.js');}catch(_){}
+  try{KQ_MOD=await import('/lib/krabsy-questions.js');}catch(_){}
+})();
+async function loadSmartVerbs(runId){
+  try{
+    await engineReady;
+    if(!KQ_MOD)return;
+    const rows=await KQ_MOD.getChainSet({topic:'irregular_verbs',maxLen:9,count:12,smart:true});
+    if(G.runId!==runId)return;               // a new game started meanwhile
+    const smart=rows.map(r=>VERBS.find(v=>v.verb===r.verb)||{verb:r.verb,past:r.past,pp:r.participle});
+    const names=new Set(smart.map(v=>v.verb));
+    G.verbQueue=[...smart,...G.verbQueue.filter(v=>!names.has(v.verb))];
+  }catch(_){/* keep the inline queue */}
+}
+// One answer per plane: the first time it is sent to a runway. Base forms
+// are not questions. A plane steered to ANOTHER verb's runway = wrong.
+function recordLanding(ac,correct){
+  if(!STATS_MOD||G.level===1||ac.isHeli||ac.answered||(ac.form!=='past'&&ac.form!=='pp'))return;
+  ac.answered=true;
+  try{STATS_MOD.recordAttempt(ac.verbObj.verb,ac.form==='past'?'past':'participle',correct,'air-control','irregular_verbs');}catch(_){}
+}
 function fillQueue(){
   let av=VERBS.filter((_,i)=>!G.usedVerbs.has(i));
   if(av.length<3){G.usedVerbs.clear();av=[...VERBS];}
@@ -1173,6 +1201,8 @@ function onInputEnd(e){
           pushPopup(ac.x,ac.y-30,L10N('p_lands',{v:ac.verbObj.verb.toUpperCase(),n:(1-ev.stripIdx)+1}),'#ffcf5e',14);
         }else{
           pushPopup(ac.x,ac.y-30,L10N('p_wrong'),'#ff8585',14);
+          const sd=G.strips[ev.stripIdx];
+          if(sd&&sd.verbObj!==ac.verbObj&&!stripCompleting(ev.stripIdx))recordLanding(ac,false);
         }
         SFX.wrong();
       }else if(ac.isHeli&&!ev.heli&&G.drawPath.length>6){
@@ -1343,6 +1373,7 @@ function completePlaneLanding(ac){
   const si=ac.landingStripIdx;
   const sd=G.strips[si];if(!sd)return;
   claimSlot(ac,sd);
+  recordLanding(ac,true);
   // after-landing feedback: the parked plane takes its slot colour (matches the panel)
   ac.formColor=FORM_COLOR[ac.form];ac.wingColor=slotWing(ac.form);
   sd.landed[ac.form]=true;sd.landOrder.push(ac.form);
@@ -2177,6 +2208,7 @@ function startGame(level){
   G.running=true;G.paused=false;G.score=0;G.verbsCompleted=0;
   G.aircraft=[];G.strips=[null,null];
   G.verbQueue=[];G.usedVerbs=new Set();
+  G.runId=(G.runId||0)+1;loadSmartVerbs(G.runId);
   G.spawnTimer=180;G.frame=0;G.difficulty=0;
   G.drawingAC=null;G.drawPath=[];
   G.drawPathValid=false;G.drawPathStripIdx=-1;G.drawPathHeli=false;
