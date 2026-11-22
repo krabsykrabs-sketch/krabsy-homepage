@@ -416,10 +416,11 @@
       loadVerbTable,
       loadStrings,
       pickRandomVerbs,
+      pickSmartItems,
       getVerbRow,
       getLang,
       setLang,
-    } from '/lib/krabsy-data.js?v=2026-05-24';
+    } from '/lib/krabsy-data.js?v=2026-11-22';
     import {
       recordAttempt,
       getStrugglers,
@@ -529,12 +530,12 @@
         }
         if (out.length === 0) {
           // Fall back to all verbs; the empty-note will be shown by caller.
-          return await pickRandomVerbs(state.table.length);
+          return await pickSmartItems('irregular_verbs', 20);
         }
         return out;
       }
       // 'all' — random order
-      return await pickRandomVerbs(state.table.length);
+      return await pickSmartItems('irregular_verbs', 20);
     }
 
     // ─── Hint helper ────────────────────────────────────────────────────

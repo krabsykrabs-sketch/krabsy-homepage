@@ -14,7 +14,8 @@
      const ui = await loadStrings();
    ────────────────────────────────────────────────────────────────────────── */
 
-import { getOverall } from './krabsy-stats.js';
+import { getOverall, readTopicItems } from './krabsy-stats.js';
+import { rankItems } from './krabsy-smart.js';
 
 const DATA_BASE = new URL('/data/', import.meta.url);
 const LANG_KEY = 'krabsy_lang';
@@ -455,6 +456,11 @@ function _adaptPrepositionToQuestions(useCases, type) {
  *   form:        "past" | "participle" | "default"
  *   shuffle:     boolean (default false)
  *   limit:       number (applied after shuffle)
+ *   smart:       boolean (default false) — order by the smart mix instead of
+ *                at random: words this child still gets wrong, new words from
+ *                their level, due repeats (krabsy-smart.js,
+ *                docs/classroom-concept.md §4). One question per word first,
+ *                then further questions per word. Works with chainOrder.
  *
  * Throws on unknown topics so future topic additions fail loudly.
  */
@@ -469,6 +475,7 @@ export async function getQuestions(opts = {}) {
     limit,
     verbIds,
     chainOrder = false,
+    smart = false,
   } = opts;
   const itemIds = ids ?? verbIds;
 
@@ -501,10 +508,79 @@ export async function getQuestions(opts = {}) {
     throw new Error(`getQuestions: unknown topic "${topic}"`);
   }
 
-  if (shuffle) out = _shuffle(out.slice());
+  if (smart) {
+    const perItem = chainOrder && topic === 'irregular_verbs' && !form ? 2 : 1;
+    const want = typeof limit === 'number' ? Math.max(1, Math.ceil(limit / perItem)) : null;
+    out = await _smartOrder(topic, out, want, perItem);
+  } else if (shuffle) {
+    out = _shuffle(out.slice());
+  }
   if (chainOrder && topic === 'irregular_verbs' && !form) return _chainOrder(out, limit);
   if (typeof limit === 'number' && limit >= 0) out = out.slice(0, limit);
   return out;
+}
+
+/* Item id of a question record (verb base form / preposition use case). */
+function _itemOf(q) {
+  return q.topic === 'prepositions' || q.useCaseId ? q.useCaseId : q.verb;
+}
+
+/* Smart order for getQuestions: rank the items in `list`, then emit one
+   question per item in rank order, then a second round, … (so a word's
+   questions don't cluster). With perItem = 2 (verb chain order) each verb
+   keeps both of its forms together; _chainOrder pairs them afterwards. */
+async function _smartOrder(topic, list, want, perItem) {
+  const byItem = new Map();
+  for (const q of _shuffle(list.slice())) {
+    const id = _itemOf(q);
+    if (!byItem.has(id)) byItem.set(id, []);
+    byItem.get(id).push(q);
+  }
+  let tierOf = new Map();
+  if (topic === 'irregular_verbs') {
+    const table = await loadVerbTable();
+    tierOf = new Map(table.map((r) => [r.verb, r.tier]));
+  }
+  const candidates = [...byItem.keys()].map((id) => ({ id, tier: tierOf.get(id) || 1 }));
+  const ranked = rankItems({
+    candidates,
+    stats: readTopicItems(topic),
+    count: want || candidates.length,
+  });
+  const out = [];
+  if (perItem === 2) {
+    for (const id of ranked) out.push(...byItem.get(id));   // _chainOrder pairs per verb
+    return out;
+  }
+  for (let round = 0; out.length < list.length; round++) {
+    let added = false;
+    for (const id of ranked) {
+      const qs = byItem.get(id);
+      if (qs.length > round) { out.push(qs[round]); added = true; }
+    }
+    if (!added) break;
+  }
+  return out;
+}
+
+/**
+ * All item ids of a topic in smart order (krabsy-smart.js): the first
+ * `count` follow the practice / new / repeat mix, the rest follow in
+ * fallback order. For decks (free practice, flashcards "all").
+ *   topic: 'irregular_verbs' | 'prepositions'
+ */
+export async function pickSmartItems(topic = 'irregular_verbs', count = 20) {
+  let candidates;
+  if (topic === 'irregular_verbs') {
+    const table = await loadVerbTable();
+    candidates = table.map((r) => ({ id: r.verb, tier: r.tier || 1 }));
+  } else if (topic === 'prepositions') {
+    const useCases = await loadPrepositions();
+    candidates = useCases.map((uc) => ({ id: uc.id, tier: 1 }));
+  } else {
+    throw new Error(`pickSmartItems: unknown topic "${topic}"`);
+  }
+  return rankItems({ candidates, stats: readTopicItems(topic), count });
 }
 
 /* Chain order (owner decision 2026-11-21): a verb's 3rd form is asked only

@@ -426,10 +426,11 @@
   <script type="module">
     import {
       loadVerbTable,
+      pickSmartItems,
       loadStrings,
       getLang,
       setLang,
-    } from '/lib/krabsy-data.js?v=2026-05-24';
+    } from '/lib/krabsy-data.js?v=2026-11-22';
     import {
       recordAttempt,
       getStrugglers,
@@ -495,6 +496,11 @@
 
     function buildDeck(filter) {
       if (filter === 'all') {
+        // Smart order (krabsy-smart.js): practice / new / due words first.
+        if (state.smartOrder) {
+          const byVerb = new Map(state.table.map((t) => [t.verb, t]));
+          return state.smartOrder.map((v) => byVerb.get(v)).filter(Boolean);
+        }
         return shuffleInPlace(state.table.slice());
       }
 
@@ -700,6 +706,7 @@
         ]);
         state.ui = ui;
         state.table = table;
+        try { state.smartOrder = await pickSmartItems('irregular_verbs', 20); } catch (_) { state.smartOrder = null; }
       } catch (err) {
         console.error('Flashcards init failed:', err);
         document.body.innerHTML = '<p style="padding:24px;font-family:Verdana,sans-serif;">Konnte Daten nicht laden.</p>';

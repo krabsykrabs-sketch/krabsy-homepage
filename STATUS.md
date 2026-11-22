@@ -96,8 +96,12 @@ identical to the repo, both games load without console errors). Next: the other 
 per-game table in `docs/phase1-game-wiring.md` (
 Flow, Slash, Kitchen, Towers, Dungeon, Platformer = their sessions; pointer
 added to the clean game CLAUDE.md files, not yet to verb-dungeon and
-verb-platformer, which had uncommitted edits). Drills still pick via
-`krabsy-data.js getQuestions` (no smart mix yet). Open owner decisions listed at the end
+verb-platformer, which had uncommitted edits). **Drills on the smart mix 2026-11-22** (not
+pushed yet): Sprint ×4, free practice "all" ×4, verb flashcards ×2, via
+`getQuestions({ smart })` / `pickSmartItems()` in `krabsy-data.js`
+(import bumped to `?v=2026-11-22` on those pages). Not yet: prepositions
+flashcards, and the speed drills in `homepage/games/*.html`, which record
+nothing. Open owner decisions listed at the end
 of the concept (EU hosting, phase-2 without email, retention, legal review).
 
 ## Speed drills (irregular-verbs / prepositions topic tools)

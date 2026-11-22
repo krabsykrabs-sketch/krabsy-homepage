@@ -274,8 +274,8 @@
 
   <script type="module">
     import {
-      loadStrings, loadPrepositions, pickRandomPrepositions, getPrepositionUseCase, getLang, setLang,
-    } from '/lib/krabsy-data.js?v=2026-05-24';
+      loadStrings, loadPrepositions, pickRandomPrepositions, pickSmartItems, getPrepositionUseCase, getLang, setLang,
+    } from '/lib/krabsy-data.js?v=2026-11-22';
     import {
       recordAttempt, getStrugglers, getOverall,
     } from '/lib/krabsy-stats.js?v=2026-05-24';
@@ -385,11 +385,11 @@
           out.push(id);
         }
         if (out.length === 0) {
-          return await pickRandomPrepositions(state.useCasesById.size);
+          return (await pickSmartItems('prepositions', 20)).filter((id) => state.useCasesById.has(id));
         }
         return out;
       }
-      return await pickRandomPrepositions(state.useCasesById.size);
+      return (await pickSmartItems('prepositions', 20)).filter((id) => state.useCasesById.has(id));
     }
 
     /* Pick an example for the current use case. Uniform random across the

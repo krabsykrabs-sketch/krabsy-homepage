@@ -555,7 +555,7 @@
   <div id="sprint-flash-wrong" class="k-flash is-wrong" aria-hidden="true"></div>
 
   <script type="module">
-    import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-05-24';
+    import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-11-22';
     import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-05-24';
 
     /* ── State ──────────────────────────────────────────────────────── */
@@ -838,6 +838,7 @@
           type: 'fill_gap',
           difficulty: 2,
           shuffle: true,
+          smart: true,        // smart mix: practice / new / due words (krabsy-smart.js)
           limit: QUESTIONS_PER_RUN,
         });
       } catch (err) {
