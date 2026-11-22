@@ -9,9 +9,10 @@ class SFX {
 
   // must be called from a user gesture (start button)
   init() {
-    if (this.ctx) return;
+    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; } // iOS starts it suspended
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
     this.master = this.ctx.createGain();
     this.master.gain.value = this.muted ? 0 : 0.9;
     this.master.connect(this.ctx.destination);
@@ -146,6 +147,13 @@ class SFX {
     this.thud();
     this.noise({ dur: 0.4, g: 0.2, f: 250, f1: 60 });
   }
+  rattle() { // an empty crate or barrel: a few dry wooden knocks
+    [0, 0.07, 0.15].forEach((t, i) => {
+      this.tone({ f: 260 - i * 40, f1: 140, type: 'triangle', t, dur: 0.07, g: 0.16 });
+      this.noise({ t, dur: 0.05, g: 0.1, f: 1800, f1: 600, type: 'bandpass', q: 3 });
+    });
+  }
+  cardOpen() { [660, 990].forEach((f, i) => this.tone({ f, type: 'triangle', t: i * 0.07, dur: 0.18, g: 0.1 })); }
   chestCreak() { this.tone({ f: 180, f1: 420, type: 'sawtooth', dur: 0.5, g: 0.035, vib: 10, vibF: 9 }); }
   fanfare() {
     const seq = [[523, 0], [659, 0.13], [784, 0.26], [1047, 0.42]];

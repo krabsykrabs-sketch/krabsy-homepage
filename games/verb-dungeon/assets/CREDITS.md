@@ -9,16 +9,39 @@ All models are CC0 (public domain), copied from the shared library
 | `characters/Knight.glb`, `sword_1handed.*`, `shield_round.*`, `knight_texture.png` | KayKit Adventurers 2.0 | Kay Lousberg | CC0 |
 | `characters/Skeleton_Minion.glb` | KayKit Skeletons 1.1 | Kay Lousberg | CC0 |
 | `characters/anim_medium.glb` | KayKit Character Animations 1.1 | Kay Lousberg | CC0 |
+| `characters/Barbarian.glb`, `Rogue_Hooded.glb`, `Mage.glb`, `axe_2handed.*`, `dagger.*`, `staff.*`, `barbarian_texture.png`, `rogue_texture.png`, `mage_texture.png` | KayKit Adventurers 2.0 | Kay Lousberg | CC0 |
+| `characters/Skeleton_Golem.glb`, `Skeleton_Rogue.glb`, `Skeleton_Crossbow.*`, `Skeleton_Arrow.*`, `skeleton_texture_A.png` | KayKit Skeletons 1.1 | Kay Lousberg | CC0 |
+| `characters/anim_large.glb`, `anim_ranged.glb` | KayKit Character Animations 1.1 | Kay Lousberg | CC0 |
+| `portraits/*.webp` | screenshots of the hero models (made with `?qa=portrait&stop=0&hero=<id>`, cropped to 144 px) | — | CC0 |
 
-`anim_medium.glb` is an animation-only file (bones + 8 clips) built with
+`anim_medium.glb` is an animation-only file (bones + 10 clips) built with
 `games/tower-defense/tools/strip-rigs.py` from `Rig_Medium_General`,
 `Rig_Medium_MovementBasic` and `Rig_Medium_CombatMelee`:
 
 ```
 python3 ../tower-defense/tools/strip-rigs.py assets/characters/anim_medium.glb \
-  Idle_A,Walking_A,Running_A,Death_A,Spawn_Ground,Hit_A,Interact,Melee_1H_Attack_Chop \
+  Idle_A,Walking_A,Running_A,Death_A,Spawn_Ground,Hit_A,Interact,Melee_1H_Attack_Slice_Horizontal,Melee_2H_Attack_Slice,Melee_Dualwield_Attack_Slice \
   <pack>/Rig_Medium_General.glb <pack>/Rig_Medium_MovementBasic.glb <pack>/Rig_Medium_CombatMelee.glb
 ```
 
+`<pack>` = `/home/janah/dev/_assets/kaykit/KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium`.
+Hero swings (`SWINGS` in `src/heroes.js`): knight and mage `Melee_1H_Attack_Slice_Horizontal`
+(added 2026-11-21), barbarian `Melee_2H_Attack_Slice`, rogue `Melee_Dualwield_Attack_Slice`
+(both added 2026-11-22, when `Melee_1H_Attack_Chop` was dropped).
+
 Three.js 0.169 (MIT) is vendored in `vendor/three/`. Fonts Fredoka One and
 Nunito (OFL) are in `fonts/`.
+
+Added 2026-11-21 (boss, archer, heroes). `anim_large.glb` (golem, large rig, 6 clips)
+and `anim_ranged.glb` (archer, medium rig, 2 clips) are animation-only files too:
+
+```
+python3 ../tower-defense/tools/strip-rigs.py assets/characters/anim_large.glb \
+  Idle_A,Walking_A,Running_A,Death_A,Hit_A,Flexing \
+  <large>/Rig_Large_General.glb <large>/Rig_Large_MovementBasic.glb <large>/Rig_Large_Simulation.glb
+python3 ../tower-defense/tools/strip-rigs.py assets/characters/anim_ranged.glb \
+  Ranged_2H_Aiming,Ranged_2H_Shoot <pack>/Rig_Medium_CombatRanged.glb
+```
+
+`<large>` = the same pack's `Rig_Large` folder. Hero models other than the knight
+(about 350 KB each) and their gear are loaded only when the player picks them.
