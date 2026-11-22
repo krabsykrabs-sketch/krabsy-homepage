@@ -13,12 +13,13 @@ file to the `Dockerfile` `COPY` line. Everything else in `homepage/` and
 your files, in the same command that commits:
 `git add games/quiz-show api/quiz_room.py api/tests/test_quiz_room.py && git commit …`.
 
-Status: **milestones 1–3 built (2026-11-22)**: room server + teacher
+Status: **milestones 1–4 built (2026-11-22)**: room server + teacher
 page + child page, the teacher's question list (see every question,
 swap, remove, add, new mix; also in the lobby while children join), and
 the play area (avatar choice, emotes, trampolines, tower + slide, ball
 pit, balls + hoop, confetti button, dance floor, "everyone to the
-middle"). A
+middle"), and the bonus round "run to the answer" (answer pads over a
+foam pit). A
 whole quiz runs with a teacher and several children (tested headless with
 3 and 4 children, verbs and prepositions, DE/ES; server tests pass). **Not deployed, not played by people yet.** The server must be
 deployed with the API (master session) before anyone can play online.
@@ -39,14 +40,19 @@ deployed with the API (master session) before anyone can play online.
    whole quiz with one teacher and N children and saves screenshots.
    `node tools/qa-editor.cjs <outDir>` checks the question list (14 checks).
    `node tools/qa-play.cjs <outDir>` checks the play area (13 checks).
+   `node tools/qa-bonus.cjs <outDir>` checks the bonus round (14 checks).
+   `node tools/load-test.mjs 30 6` is a protocol load test without 3D (30
+   children walking at 10 moves/s; 2026-11-22: question delivery median
+   ~15 ms, max ~23 ms, nothing missed; 40 children the same).
    `node tools/make-thumbs.cjs` re-renders the avatar portraits
    (`assets/thumbs/`, via `tools/thumbs.html`).
    Headless runs are slow (software GPU, ~7 fps with 3–4 pages; the game's
    dt cap makes time run slower), so the scripts wait for conditions, not
-   fixed times. Known flake: about 1 in 4 runs of `qa-room.cjs` times out
-   (once a child's answer button counted as "not visible" for a moment;
-   the other time the spot wasn't found). Not reproduced on demand; watch
-   for a stuck answer card in a real play-test.
+   fixed times. When other sessions run headless tests at the same time
+   (load 15 on 12 cores on 2026-11-22), the browser scripts time out
+   (screenshots, page loads); run them on a quiet machine. The earlier
+   "child gets the question late" flake was partly real: see "Sending"
+   below.
 5. The client picks the server from the page: `wss://api.krabsy.com` on
    krabsy.com, `ws://<host>:8150` elsewhere, or `?server=<ws url>`.
 
@@ -98,8 +104,30 @@ for the whole room and everyone (teacher too) gets confetti. Teacher:
 until the next question or "Weiterspielen lassen". Balls reset at every
 new question. No sitting and no swings (the rig has no sit clip).
 
-Not built yet (next milestones): bonus round, touch controls, QR code,
-class link, performance pass with 30 avatars.
+Bonus round (milestone 4): setup option "Bonusrunde" Aus / 3 / 5 (default
+3); the bonus questions are single questions (a verb's 2nd form; the teach
+beat then shows the whole chain), shown in the editor under ★ with swap and
+remove. They come after the normal questions (`create`/`questions` take
+`bonus:[…]`; the server marks them `bonus`). During a bonus question the
+children get no card: a bar shows the question and "run onto the pad", the
+big screen in the room shows it too, the four pads (A–D, `PADS` in
+`play.js` = `PAD_X/PAD_Z/PAD_HALF` in the server) carry the words, and
+everyone can run (and switch pads) until the time is up (+5 s extra).
+The server takes each child's last position (`pad_at`): right pad = 500
+(+100 from a streak of 3), no pad = no answer. The teacher sees live
+counts per pad (`pads` message every 0.5 s). Reveal: the wrong pads sink
+into the foam pit (the floor has holes there) for 3.5 s and come back up;
+children inside can't walk out meanwhile; the right pad gets confetti.
+
+Sending (server): every connection has its own `Outbox` (one sender task,
+in order). A slow device can't hold up the room; when it falls more than 8
+messages behind, position updates to it are dropped (they're superseded
+anyway), nothing else; 400 behind = disconnected (it reconnects and gets a
+fresh snapshot). Before this, a send that waited over 2 s was cut off and
+the message lost silently.
+
+Not built yet (milestone 5): touch controls, QR code, class link,
+performance pass with 30 avatars on a real Chromebook, play-test, release.
 
 ## Why this game
 
@@ -345,3 +373,9 @@ question loading, texts, sounds, character loading and the QA approach.
   "everyone to the middle" (server: `emote` rate limit, `ball`, `boom`,
   `middle`; + test; API suite 44 passed). `qa-play.cjs` 13/13 (twice),
   `qa-editor.cjs` 14/14, `qa-room.cjs` passes (with the flake noted above).
+- 2026-11-22: milestone 4 built: bonus round "run to the answer" (server
+  scores by position; floor with pits; editor section; live pad counts).
+  Found while testing: a slow child could get messages late or lose them
+  (direct sends with a 2 s cut-off) → per-connection send queue (`Outbox`)
+  + test, and `tools/load-test.mjs`. API suite 47 passed, qa-bonus 14/14,
+  qa-editor 14/14, qa-play 13/13; qa-room passes on a quiet machine.

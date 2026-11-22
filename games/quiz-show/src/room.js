@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
-import { PlayArea } from './play.js';
+import { PlayArea, PADS } from './play.js';
 
 export const AVATARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Superhero', 'Helper_A', 'Helper_B', 'Caveman'];
 export const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#b18cff', '#5fb4ff', '#ff9f43', '#7ee06a', '#ff7ad9'];
@@ -278,11 +278,18 @@ export class Room {
       fg.fillStyle = (x + y) % 2 ? '#2b3b74' : '#33478a'; fg.fillRect(x * 32, y * 32, 32, 32);
     }
     const ft = new THREE.CanvasTexture(fc); ft.colorSpace = THREE.SRGBColorSpace;
-    ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(W / 4, D / 4);
+    ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(1 / 8, 1 / 8);   // shape UVs are in metres
     ft.magFilter = THREE.NearestFilter;
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(W * 2, D * 2), new THREE.MeshLambertMaterial({ map: ft }));
+    // The floor has four holes: the foam pits under the answer pads (play.js).
+    // Shape coordinates (x, y) become world (x, 0, -y) after the rotation.
+    const rect = (x0, y0, x1, y1, path) => { path.moveTo(x0, y0); path.lineTo(x1, y0); path.lineTo(x1, y1); path.lineTo(x0, y1); path.lineTo(x0, y0); return path; };
+    const floorShape = rect(-W, -D, W, D, new THREE.Shape());
+    for (const x of PADS.x) floorShape.holes.push(rect(x - PADS.half, -PADS.z - PADS.half, x + PADS.half, -PADS.z + PADS.half, new THREE.Path()));
+    const floor = new THREE.Mesh(new THREE.ShapeGeometry(floorShape), new THREE.MeshLambertMaterial({ map: ft }));
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; s.add(floor);
-    const outer = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshLambertMaterial({ color: '#131c3d' }));
+    const outerShape = rect(-60, -60, 60, 60, new THREE.Shape());
+    outerShape.holes.push(rect(-W, -D, W, D, new THREE.Path()));
+    const outer = new THREE.Mesh(new THREE.ShapeGeometry(outerShape), new THREE.MeshLambertMaterial({ color: '#131c3d' }));
     outer.rotation.x = -Math.PI / 2; outer.position.y = -0.02; s.add(outer);
 
     // Low walls on three sides (front stays open for the camera), teal top edge.
@@ -329,7 +336,6 @@ export class Room {
       if (solid) SOLIDS.push([x, z, solid]);
     };
     SOLIDS.length = 0;
-    put('rug_oval_A', 0, 6, 0, 2.6);
     put('couch_pillows', -11.5, -7.5, 0, 2, 1.6);
     put('armchair_pillows', 12, -6.5, -0.5, 2, 1.0);
     put('table_low_decorated', -9, -5, 0, 1.8, 0.9);
@@ -339,6 +345,35 @@ export class Room {
     put('shelf_B_large_decorated', 4.5, -9.4, 0, 1.8, 0);
     put('cactus_medium_A', 13.5, 8.5, 0, 2, 0.5);
     put('cactus_medium_A', -14, -4, 1, 1.8, 0.5);
+  }
+
+  // The big screen: the logo, or a question (bonus round) in big letters.
+  setScreen(text = null) {
+    this.screenMat.map?.dispose();
+    if (!text) { this.screenMat.map = logoTexture(); this.screenMat.needsUpdate = true; return; }
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    const g = c.getContext('2d');
+    g.fillStyle = '#f7f9ff'; g.fillRect(0, 0, 1024, 512);
+    g.fillStyle = '#ffcf5e'; g.fillRect(0, 0, 1024, 90);
+    g.fillStyle = '#3a2600'; g.font = '700 58px "Fredoka One", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(text.title || '', 512, 48);
+    g.fillStyle = '#0d1b3d';
+    let size = 110;
+    g.font = `700 ${size}px "Fredoka One", sans-serif`;
+    // Wrap long sentences on two lines.
+    const words = text.line.split(' ');
+    let lines = [text.line];
+    while (size > 40) {
+      g.font = `700 ${size}px "Fredoka One", sans-serif`;
+      if (g.measureText(text.line).width <= 960) { lines = [text.line]; break; }
+      const half = Math.ceil(words.length / 2);
+      lines = [words.slice(0, half).join(' '), words.slice(half).join(' ')];
+      if (Math.max(...lines.map((l) => g.measureText(l).width)) <= 960) break;
+      size -= 8;
+    }
+    lines.forEach((l, i) => g.fillText(l, 512, 300 + (i - (lines.length - 1) / 2) * size * 1.1));
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    this.screenMat.map = t; this.screenMat.needsUpdate = true;
   }
 
   // ---------------------------------------------------------------- avatars
@@ -469,8 +504,10 @@ export class Controller {
     if (here.kind === 'slide' && onGround) this.push.y = Math.min(12, this.push.y + 16 * dt);
     else this.push.multiplyScalar(Math.exp(-dt * (onGround ? 3 : 0.5)));
     mx += this.push.x * dt; mz += this.push.y * dt;
+    const prev = { x: p.x, z: p.z };
     if (!play.blocked(p.x + mx, p.z, p.y)) p.x += mx;
     if (!play.blocked(p.x, p.z + mz, p.y)) p.z += mz;
+    play.clampPit(p, prev);
     a.speed = Math.hypot(mx, mz) / Math.max(dt, 1e-3);
 
     // Jump, gravity, ground.

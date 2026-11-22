@@ -13,7 +13,9 @@ after the teacher left).
 One endpoint:  WS /api/quiz/ws   (JSON messages, field "t" = type)
 
 Teacher → server
-  create  {questions:[…], time:s, lang}           → created {code, token}
+  create  {questions:[…], bonus:[…], time:s, lang} → created {code, token}
+          bonus = the "run to the answer" round at the end: the answer is the pad a
+          child stands on when the time runs out (pad_at), no answer messages.
   resume  {code, token}                            → snapshot of the room
   start | next | end | lock {on} | remove {pid} | rename {pid, name} | close
   middle {on}                                      (everyone to the middle, until the next question)
@@ -27,6 +29,7 @@ Server → clients
   players {list}  pos {s:[[pid,x,y,z,r,a]…]}  question {…}  answered {pid}
   reveal  {…}     end {…}  error {code}  kicked  closed
   emote {pid, e}  ball {b, pid, p, v}  boom {pid}  middle {on}
+  pads {counts}  (teacher, during a bonus question: children on each pad)
 """
 
 from __future__ import annotations
@@ -37,6 +40,7 @@ import os
 import re
 import secrets
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -58,6 +62,14 @@ MSGS_PER_S = 40              # per connection; more are dropped
 CREATES_PER_HOUR = 30        # per IP
 AVATARS, COLORS = 16, 16
 MAX_BALLS = 8
+MAX_BONUS = 5
+BONUS_EXTRA_S = 5            # bonus questions: a little longer, the children have to run
+PAD_SEND_S = 0.5             # live pad counts to the teacher
+# Bonus round answer pads (same as PADS in games/quiz-show/src/play.js): centres x, one z,
+# half size. A child counts for the pad its feet were on when the time ran out.
+PAD_X = (-6.6, -2.2, 2.2, 6.6)
+PAD_Z = 3.5
+PAD_HALF = 1.8
 EMOTE_GAP_S = 0.8            # per child
 BALL_GAP_S = 0.08            # per child
 BOOM_GAP_S = 8.0             # per room
@@ -71,8 +83,92 @@ _NAME_OK = re.compile(r"[^\w \-'.]", re.UNICODE)
 _BLOCK = {"fuck", "shit", "bitch", "nazi", "hitler", "sex", "porn", "puta", "puto", "mierda",
           "joder", "polla", "fotze", "hure", "wichser", "arsch", "fick", "nigger", "nigga"}
 
+OUTBOX_POS_LIMIT = 8         # queued messages after which position updates are dropped
+OUTBOX_MAX = 400             # a device this far behind is cut off (it reconnects and resyncs)
+
 ROOMS: dict[str, "Room"] = {}
 _creates: dict[str, list[float]] = {}
+
+
+# --------------------------------------------------------------------------- sending
+
+class Outbox:
+    """One sender task per connection. Messages go out in order, never two sends at once,
+    and a slow device can't hold up the room or anyone else. If a device falls behind,
+    position updates (superseded a tenth of a second later anyway) are dropped first;
+    nothing else is dropped. A device hopelessly behind is disconnected; it reconnects
+    by itself and gets a fresh snapshot."""
+
+    def __init__(self, ws: WebSocket):
+        self.ws = ws
+        self.q: deque = deque()
+        self.ev = asyncio.Event()
+        self.dead = False
+        # Wake-ups go through the socket's own loop: uvicorn has one loop, but the test
+        # client runs every connection in its own loop and thread.
+        self.loop = asyncio.get_running_loop()
+        self.task = asyncio.create_task(self._run())
+
+    def put(self, msg: Optional[dict]) -> None:
+        if self.dead:
+            return
+        if msg is not None:
+            if msg.get("t") == "pos" and len(self.q) > OUTBOX_POS_LIMIT:
+                return
+            if len(self.q) > OUTBOX_MAX:
+                self.q.clear()
+                msg = None                      # close it
+            else:
+                msg = json.dumps(msg, separators=(",", ":"))
+        self.q.append(msg)                      # None = close the socket after the rest
+        try:
+            self.loop.call_soon_threadsafe(self.ev.set)
+        except RuntimeError:                    # loop already closed
+            self.dead = True
+
+    async def _run(self) -> None:
+        try:
+            while True:
+                while not self.q:
+                    self.ev.clear()
+                    await self.ev.wait()
+                txt = self.q.popleft()
+                if txt is None:
+                    self.dead = True
+                    await self.ws.close()
+                    return
+                await self.ws.send_text(txt)
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            self.dead = True
+
+    def stop(self) -> None:
+        self.dead = True
+        self.task.cancel()
+
+
+OUTBOXES: dict[int, Outbox] = {}
+
+
+def send_to(ws: Optional[WebSocket], msg: dict) -> None:
+    ob = OUTBOXES.get(id(ws)) if ws is not None else None
+    if ob is not None:
+        ob.put(msg)
+
+
+async def close_ws(ws: Optional[WebSocket]) -> None:
+    """Close after everything already queued for this socket has gone out."""
+    if ws is None:
+        return
+    ob = OUTBOXES.get(id(ws))
+    if ob is not None:
+        ob.put(None)
+    else:
+        try:
+            await ws.close()
+        except Exception:
+            pass
 
 
 # --------------------------------------------------------------------------- helpers
@@ -136,9 +232,32 @@ def _vec3(v) -> bool:
     return isinstance(v, list) and len(v) == 3 and all(isinstance(x, (int, float)) for x in v)
 
 
+def pad_at(pos) -> Optional[int]:
+    x, y, z = pos
+    if abs(z - PAD_Z) > PAD_HALF or y < -0.5:
+        return None
+    for i, cx in enumerate(PAD_X):
+        if abs(x - cx) <= PAD_HALF:
+            return i
+    return None
+
+
+def questions_from(msg: dict) -> list:
+    """The quiz list from a create/questions message: normal questions, then the bonus
+    round (single questions only; marked "bonus")."""
+    qs = msg.get("questions")
+    qs = [c for c in (clean_question(q) for q in (qs if isinstance(qs, list) else [])[:MAX_QUESTIONS]) if c]
+    bs = msg.get("bonus")
+    bs = [c for c in (clean_question(q) for q in (bs if isinstance(bs, list) else [])[:MAX_BONUS]) if c]
+    for b in bs:
+        b["bonus"] = True
+        b["followUp"] = False
+    return qs + bs if qs else []
+
+
 def public_question(q: dict) -> dict:
     """What a child may see before the reveal: no answer, no teach beat."""
-    keep = ("kind", "options", "base", "slots", "askIndex", "sentence")
+    keep = ("kind", "options", "base", "slots", "askIndex", "sentence", "bonus")
     return {k: q[k] for k in keep if k in q}
 
 
@@ -196,15 +315,11 @@ class Room:
         self.closed = False
         self.middle = False             # "everyone to the middle": avatars frozen until the next question
         self.boom_at = 0.0              # last confetti-button blast (room-wide cooldown)
+        self.pads_sent = 0.0
 
     # ---- sending
     async def _send(self, ws: Optional[WebSocket], msg: dict) -> None:
-        if ws is None:
-            return
-        try:
-            await asyncio.wait_for(ws.send_text(json.dumps(msg, separators=(",", ":"))), 2.0)
-        except Exception:
-            pass
+        send_to(ws, msg)
 
     async def to_teacher(self, msg: dict) -> None:
         await self._send(self.teacher, msg)
@@ -236,6 +351,9 @@ class Room:
                "ends_in": max(0, int((self.deadline - time.monotonic()) * 1000)),
                "q": q if for_teacher else public_question(q),
                "answered": self.answered_pids()}
+        if q.get("bonus"):
+            bonus = [i for i, x in enumerate(self.questions) if x.get("bonus")]
+            msg["bonus"] = {"i": bonus.index(self.qi), "n": len(bonus)}
         return msg
 
     def snapshot(self, for_teacher: bool, player: Optional[Player] = None) -> dict:
@@ -297,7 +415,7 @@ class Room:
         self.qi = qi
         self.phase = "question"
         self.q_started = time.monotonic()
-        self.deadline = self.q_started + self.time
+        self.deadline = self.q_started + self.time + (BONUS_EXTRA_S if self.questions[qi].get("bonus") else 0)
         self.asked = {p.pid for p in self.players.values() if p.ws is not None}
         await self.to_teacher(self.question_msg(True))
         await self.to_players(self.question_msg(False))
@@ -307,6 +425,23 @@ class Room:
             return
         self.phase = "reveal"
         q = self.questions[self.qi]
+        if q.get("bonus"):
+            # Answers come from where the children stand.
+            for p in self.players.values():
+                if p.pid not in self.asked and p.ws is None:
+                    continue
+                opt = pad_at(p.pos)
+                if opt is None:
+                    continue
+                right = opt == q["correct"]
+                pts = 0
+                if right:
+                    p.streak += 1
+                    pts = 500 + (100 if p.streak >= 3 else 0)
+                else:
+                    p.streak = 0
+                p.score += pts
+                p.answers[self.qi] = {"opt": opt, "ms": 0, "right": right, "pts": pts}
         missed = 0
         for p in self.players.values():
             a = p.answers.get(self.qi)
@@ -346,6 +481,8 @@ class Room:
     async def answer(self, p: Player, qi, opt) -> None:
         if self.phase != "question" or qi != self.qi or self.qi in p.answers:
             return
+        if self.questions[self.qi].get("bonus"):
+            return                      # bonus round: the pad you stand on is the answer
         if not isinstance(opt, int) or not 0 <= opt < 4:
             return
         ms = int((time.monotonic() - self.q_started) * 1000)
@@ -376,6 +513,14 @@ class Room:
                     for p in moved:
                         p.moved = False
                     await self.to_all({"t": "pos", "s": s})
+                if self.phase == "question" and self.questions[self.qi].get("bonus") and now - self.pads_sent >= PAD_SEND_S:
+                    self.pads_sent = now
+                    counts = [0, 0, 0, 0]
+                    for p in self.players.values():
+                        i = pad_at(p.pos) if p.ws is not None else None
+                        if i is not None:
+                            counts[i] += 1
+                    await self.to_teacher({"t": "pads", "counts": counts})
                 if self.phase == "question" and now >= self.deadline:
                     await self.reveal()
                 gone = self.teacher is None and now - self.teacher_left > TEACHER_GONE_S
@@ -390,11 +535,7 @@ class Room:
         self.closed = True
         await self.to_all({"t": "closed"})
         for ws in [self.teacher, *(p.ws for p in self.players.values())]:
-            if ws is not None:
-                try:
-                    await ws.close()
-                except Exception:
-                    pass
+            await close_ws(ws)
         ROOMS.pop(self.code, None)
 
 
@@ -448,13 +589,14 @@ async def quiz_ws(ws: WebSocket):
         await ws.close(code=1008)
         return
     await ws.accept()
+    OUTBOXES[id(ws)] = Outbox(ws)
     role: Optional[str] = None
     room: Optional[Room] = None
     me: Optional[Player] = None
     window_start, count = time.monotonic(), 0
 
     async def err(code: str):
-        await ws.send_text(json.dumps({"t": "error", "code": code}))
+        send_to(ws, {"t": "error", "code": code})
 
     try:
         while True:
@@ -480,8 +622,7 @@ async def quiz_ws(ws: WebSocket):
                         await err("rate_limited"); continue
                     if len(ROOMS) >= MAX_ROOMS:
                         await err("busy"); continue
-                    qs = msg.get("questions")
-                    qs = [c for c in (clean_question(q) for q in (qs if isinstance(qs, list) else [])[:MAX_QUESTIONS]) if c]
+                    qs = questions_from(msg)
                     if not qs:
                         await err("no_questions"); continue
                     try:
@@ -493,20 +634,17 @@ async def quiz_ws(ws: WebSocket):
                     ROOMS[room.code] = room
                     room.teacher, role = ws, "teacher"
                     room.task = asyncio.create_task(room.run())
-                    await ws.send_text(json.dumps({"t": "created", "code": room.code, "token": room.token,
+                    send_to(ws, ({"t": "created", "code": room.code, "token": room.token,
                                                    **room.snapshot(True)}))
                 elif t == "resume":
                     r = ROOMS.get(_norm_code(msg.get("code")))
                     if not r or not secrets.compare_digest(str(msg.get("token") or ""), r.token):
                         await err("no_room"); continue
                     if r.teacher is not None and r.teacher is not ws:
-                        try:
-                            await r.teacher.close()
-                        except Exception:
-                            pass
+                        await close_ws(r.teacher)
                     room, role = r, "teacher"
                     room.teacher = ws
-                    await ws.send_text(json.dumps({"t": "resumed", "code": room.code, **room.snapshot(True)}))
+                    send_to(ws, ({"t": "resumed", "code": room.code, **room.snapshot(True)}))
                 elif t == "join":
                     r = ROOMS.get(_norm_code(msg.get("code")))
                     if not r:
@@ -529,23 +667,20 @@ async def quiz_ws(ws: WebSocket):
                     elif p.ws is not None and p.ws is not ws:
                         old = p.ws
                         p.ws = None
-                        try:
-                            await old.close()
-                        except Exception:
-                            pass
+                        await close_ws(old)
                     for k, lim in (("avatar", AVATARS), ("color", COLORS)):
                         v = msg.get(k)
                         if isinstance(v, int) and 0 <= v < lim:
                             setattr(p, k, v)
                     p.ws = ws
                     room, me, role = r, p, "player"
-                    await ws.send_text(json.dumps({"t": "joined", "pid": p.pid, "token": p.token, "name": p.name,
+                    send_to(ws, ({"t": "joined", "pid": p.pid, "token": p.token, "name": p.name,
                                                    "you": {"score": p.score, "avatar": p.avatar, "color": p.color},
                                                    **room.snapshot(False, p)}))
                     await room.send_players_list()
                     # Everyone needs the newcomer's position once.
                     p.moved = True
-                    await ws.send_text(json.dumps({"t": "pos", "s": [
+                    send_to(ws, ({"t": "pos", "s": [
                         [x.pid, *[round(v, 2) for v in x.pos], round(x.rot, 2), x.anim]
                         for x in room.players.values() if x.pid != p.pid]}))
                 continue
@@ -568,10 +703,7 @@ async def quiz_ws(ws: WebSocket):
                         room.banned.add(p.token)
                         if p.ws:
                             await room._send(p.ws, {"t": "kicked"})
-                            try:
-                                await p.ws.close()
-                            except Exception:
-                                pass
+                            await close_ws(p.ws)
                         await room.send_players_list()
                 elif t == "rename":
                     p = room.players.get(msg.get("pid")) if isinstance(msg.get("pid"), int) else None
@@ -584,12 +716,11 @@ async def quiz_ws(ws: WebSocket):
                     # The teacher may still change the list while children are joining.
                     if room.phase != "lobby":
                         await err("started"); continue
-                    qs = msg.get("questions")
-                    qs = [c for c in (clean_question(q) for q in (qs if isinstance(qs, list) else [])[:MAX_QUESTIONS]) if c]
+                    qs = questions_from(msg)
                     if not qs:
                         await err("no_questions"); continue
                     room.questions = qs
-                    await ws.send_text(json.dumps({"t": "questions_set", "n": len(qs), "questions": qs}))
+                    send_to(ws, ({"t": "questions_set", "n": len(qs), "questions": qs}))
                 elif t == "middle":
                     room.middle = bool(msg.get("on"))
                     await room.to_all({"t": "middle", "on": room.middle})
@@ -635,6 +766,9 @@ async def quiz_ws(ws: WebSocket):
     except Exception:
         pass
     finally:
+        ob = OUTBOXES.pop(id(ws), None)
+        if ob is not None:
+            ob.stop()
         if room is not None and not room.closed:
             if role == "teacher" and room.teacher is ws:
                 room.teacher = None

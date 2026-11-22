@@ -42,6 +42,8 @@ const T = {
     answersHint: 'The projector may be on: answers are hidden here unless you tick "Show answers".',
     avatar: 'Your character', emoteHint: 'Keys 1–4: wave, dance, cheer, thumbs up',
     middle: 'Everyone to the middle', middleOff: 'Let them play', middleMsg: 'The teacher called everyone to the middle!',
+    bonus: 'Bonus round', bonusOff: 'Off', bonusTitle: (i, n) => `Bonus ${i} / ${n}`, bonusIntro: 'Bonus round: run to the answer!',
+    bonusHint: 'Run onto the pad with the right answer!', bonusSection: 'Bonus round "Run to the answer"', onPads: (n) => `${n} on the pads`,
   },
   de: {
     title: 'Krabsy Quiz-Raum',
@@ -72,6 +74,8 @@ const T = {
     answersHint: 'Der Beamer läuft vielleicht: Die Antworten sind hier versteckt, außer du hakst „Antworten zeigen“ an.',
     avatar: 'Deine Figur', emoteHint: 'Tasten 1–4: winken, tanzen, jubeln, Daumen hoch',
     middle: 'Alle in die Mitte', middleOff: 'Weiterspielen lassen', middleMsg: 'Die Lehrkraft hat alle in die Mitte gerufen!',
+    bonus: 'Bonusrunde', bonusOff: 'Aus', bonusTitle: (i, n) => `Bonus ${i} / ${n}`, bonusIntro: 'Bonusrunde: Lauf zur Antwort!',
+    bonusHint: 'Lauf auf das Feld mit der richtigen Antwort!', bonusSection: 'Bonusrunde „Lauf zur Antwort“', onPads: (n) => `${n} auf den Feldern`,
   },
   es: {
     title: 'Krabsy Sala de Quiz',
@@ -102,6 +106,8 @@ const T = {
     answersHint: 'Quizá el proyector está encendido: las respuestas están ocultas salvo que marques «Mostrar respuestas».',
     avatar: 'Tu personaje', emoteHint: 'Teclas 1–4: saludar, bailar, celebrar, pulgar arriba',
     middle: 'Todos al centro', middleOff: 'Dejar jugar', middleMsg: '¡El profe ha llamado a todos al centro!',
+    bonus: 'Ronda extra', bonusOff: 'No', bonusTitle: (i, n) => `Extra ${i} / ${n}`, bonusIntro: 'Ronda extra: ¡corre a la respuesta!',
+    bonusHint: '¡Corre a la casilla con la respuesta correcta!', bonusSection: 'Ronda extra «Corre a la respuesta»', onPads: (n) => `${n} en las casillas`,
   },
 };
 

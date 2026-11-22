@@ -6,6 +6,8 @@
 //   • three balls to kick, and a basketball hoop on the back wall
 //   • the big red button: confetti over the whole room (server cooldown)
 //   • a dance floor whose tiles light up under every avatar
+//   • four answer pads A–D over a soft foam pit (the bonus round "run to the answer":
+//     when the time is up the wrong pads sink into the pit, the right one shoots confetti)
 // Ground heights and solids are used by the controller (room.js) for the own avatar.
 import * as THREE from 'three';
 
@@ -15,7 +17,11 @@ const HOOP_R = 0.55;
 const BUTTON = new THREE.Vector3(6.5, 0, 7.2);
 const PIT = { x0: -14.6, x1: -10.4, z0: 4.2, z1: 9.4, depth: 0.38 };
 const DANCE = { x0: -3, z0: -8.8, n: 4, size: 1.5 };
-const BALL_SPAWN = [[0, 2.5], [-3.5, 5], [3.5, 4.5]];
+const BALL_SPAWN = [[-1, -1.2], [-5.5, -2.5], [4.5, -1.5]];
+// Answer pads (bonus round). Same numbers as PAD_X / PAD_Z / PAD_HALF in api/quiz_room.py.
+export const PADS = { x: [-6.6, -2.2, 2.2, 6.6], z: 3.5, half: 1.8 };
+const PAD_TOP = 0.06, PAD_SUNK = -1.15, PIT_DEPTH = 1.6;
+export const PAD_COLORS = ['#3f7cff', '#ff8a2b', '#22b85a', '#d94fc6'];
 const BALL_COLORS = ['#ffcf5e', '#ff8585', '#5fb4ff'];
 
 // Boxes you can stand on / bump into: [x0, x1, z0, z1, top].
@@ -30,7 +36,7 @@ const BOXES = [
 ];
 // The slide: from the tower top (z = -0.6, h 2.4) down to the floor (z = 5.4).
 const SLIDE = { x0: 11.4, x1: 13.2, z0: -0.6, z1: 5.4, h: 2.4 };
-const TRAMPS = [[-12, -1.5], [-8.2, 1.2]];
+const TRAMPS = [[-12.5, -1.0], [-12.3, 2.3]];
 const TRAMP_R = 1.25, TRAMP_H = 0.55;
 
 function confettiMesh(n) {
@@ -50,6 +56,7 @@ export class PlayArea {
     this.onBoom = null;     // () → ask the server for confetti
     this.onSound = null;    // (name) → play a sound
     this.boomCool = 0;
+    this.pads = [];
     this._build();
   }
 
@@ -145,10 +152,93 @@ export class PlayArea {
       this.balls.push({ m, p: new THREE.Vector3(x, BALL_R, z), v: new THREE.Vector3(), cool: 0, scored: 0, above: false });
     });
 
+    // Answer pads over the foam pit (the floor has holes here, see Room._build).
+    const pitWall = new THREE.MeshLambertMaterial({ color: '#2a1d58', side: THREE.DoubleSide });
+    const foamCols = ['#ff8585', '#ffcf5e', '#2ee6c0', '#5fb4ff', '#b18cff', '#ffffff'];
+    const foam = new THREE.InstancedMesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), lam('#ffffff'), 4 * 40);
+    let fi = 0;
+    const L = PADS.half * 2;
+    PADS.x.forEach((x, i) => {
+      for (const [dx, dz, ry] of [[0, -PADS.half, 0], [0, PADS.half, 0], [-PADS.half, 0, Math.PI / 2], [PADS.half, 0, Math.PI / 2]]) {
+        const w = new THREE.Mesh(new THREE.PlaneGeometry(L, PIT_DEPTH), pitWall);
+        w.position.set(x + dx, -PIT_DEPTH / 2, PADS.z + dz); w.rotation.y = ry; s.add(w);
+      }
+      for (let k = 0; k < 40; k++) {
+        m4.makeRotationY(Math.random() * 3).setPosition(x + (Math.random() - 0.5) * (L - 0.5), -PIT_DEPTH + 0.2 + Math.random() * 0.3,
+          PADS.z + (Math.random() - 0.5) * (L - 0.5));
+        foam.setMatrixAt(fi, m4); foam.setColorAt(fi, c.set(foamCols[k % foamCols.length])); fi++;
+      }
+      const g = new THREE.Group(); g.position.set(x, 0, PADS.z);
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(L - 0.04, 0.25, L - 0.04), lam('#1d2a5c'));
+      slab.position.y = PAD_TOP - 0.125; slab.receiveShadow = true; g.add(slab);
+      const lc = document.createElement('canvas'); lc.width = lc.height = 256;
+      const tex = new THREE.CanvasTexture(lc); tex.colorSpace = THREE.SRGBColorSpace;
+      const label = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.1, L - 0.1), new THREE.MeshLambertMaterial({ map: tex, transparent: true }));
+      label.rotation.x = -Math.PI / 2; label.position.y = PAD_TOP + 0.005; label.receiveShadow = true; g.add(label);
+      s.add(g);
+      const pad = { i, x, g, lc, tex, y: PAD_TOP, target: PAD_TOP, glow: 0, sinkT: 0 };
+      this.pads.push(pad);
+      this._drawPad(pad, null);
+    });
+    s.add(foam);
+
     // Confetti (button and baskets).
     this.confetti = confettiMesh(500);
     s.add(this.confetti);
     this.cf = Array.from({ length: 500 }, () => ({ p: new THREE.Vector3(), v: new THREE.Vector3(), r: new THREE.Euler(), w: new THREE.Vector3(), life: 0 }));
+  }
+
+  // ---------------------------------------------------------------- answer pads
+  _drawPad(pad, word, state = '') {
+    const g = pad.lc.getContext('2d'), S = 256;
+    g.clearRect(0, 0, S, S);
+    const col = PAD_COLORS[pad.i];
+    g.globalAlpha = word ? 1 : 0.35;
+    g.fillStyle = col; g.beginPath(); g.roundRect(6, 6, S - 12, S - 12, 26); g.fill();
+    g.globalAlpha = 1;
+    g.lineWidth = 10; g.strokeStyle = state === 'right' ? '#ffffff' : 'rgba(255,255,255,.35)';
+    g.beginPath(); g.roundRect(10, 10, S - 20, S - 20, 22); g.stroke();
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '700 92px "Fredoka One", sans-serif';
+    g.fillText('ABCD'[pad.i], S / 2, word ? 82 : S / 2);
+    if (word) {
+      let size = 64;
+      g.font = `700 ${size}px "Fredoka One", sans-serif`;
+      while (g.measureText(word).width > S - 30 && size > 24) { size -= 4; g.font = `700 ${size}px "Fredoka One", sans-serif`; }
+      g.fillText(word, S / 2, 172);
+    }
+    pad.tex.needsUpdate = true;
+  }
+
+  // options: the four answers (bonus question) or null (pads idle).
+  setPads(options) {
+    this.padWords = options;
+    this.pads.forEach((p) => { p.target = PAD_TOP; p.sinkT = 0; this._drawPad(p, options ? options[p.i] : null); });
+  }
+
+  // Reveal: the wrong pads sink into the foam pit for a moment, the right one celebrates.
+  sinkPads(correct) {
+    this.pads.forEach((p) => {
+      if (p.i === correct) { this._drawPad(p, this.padWords?.[p.i], 'right'); p.glow = 1; }
+      else { p.target = PAD_SUNK; p.sinkT = 3.5; }
+    });
+    const right = this.pads[correct];
+    if (right) this.burst(new THREE.Vector3(right.x, 0.5, PADS.z), 260);
+  }
+
+  padAt(x, z) {
+    if (Math.abs(z - PADS.z) > PADS.half) return null;
+    return this.pads.find((p) => Math.abs(x - p.x) <= PADS.half) || null;
+  }
+
+  // Inside a sunk pit you stay in the pit (no walking through its walls).
+  clampPit(p, prev) {
+    if (p.y > -0.15) return;
+    const pad = this.padAt(prev.x, prev.z);
+    if (!pad) return;
+    const m = PADS.half - 0.35;
+    p.x = Math.max(pad.x - m, Math.min(pad.x + m, p.x));
+    p.z = Math.max(PADS.z - m, Math.min(PADS.z + m, p.z));
   }
 
   // ---------------------------------------------------------------- for the controller
@@ -156,6 +246,8 @@ export class PlayArea {
   // `step` above the feet. Also says what the surface is.
   ground(x, z, y, step = 0.35) {
     let h = 0, kind = 'floor';
+    const pad = this.padAt(x, z);
+    if (pad) { h = pad.y; kind = 'pad'; }               // over a pit: the pad is the ground
     if (x > PIT.x0 && x < PIT.x1 && z > PIT.z0 && z < PIT.z1) { h = -PIT.depth; kind = 'pit'; }
     for (const [x0, x1, z0, z1, top] of BOXES) {
       if (x > x0 && x < x1 && z > z0 && z < z1 && top <= y + step && top > h) { h = top; kind = 'box'; }
@@ -216,6 +308,14 @@ export class PlayArea {
   update(dt, avatars, me, frozen = false) {
     this.t += dt;
     this.boomCool = Math.max(0, this.boomCool - dt);
+
+    // Answer pads move toward their target; sunk ones come back up after a while.
+    for (const p of this.pads) {
+      if (p.sinkT > 0) { p.sinkT -= dt; if (p.sinkT <= 0) p.target = PAD_TOP; }
+      const sp = p.target < p.y ? 3.2 : 1.6;
+      p.y += Math.sign(p.target - p.y) * Math.min(Math.abs(p.target - p.y), sp * dt);
+      p.g.position.y = p.y - PAD_TOP;
+    }
 
     // Trampolines spring back.
     for (const t of this.tramps) {

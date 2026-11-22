@@ -20,6 +20,12 @@ export function questionHTML(q, answer = null) {
   return esc(q.sentence).split('___').join(gap);
 }
 
+// The question as plain text (for the big screen in the room).
+export function plainQuestion(q) {
+  if (q.kind === 'trio') return `${q.base} → ${q.slots[0] ?? '___'} → ${q.slots[1] ?? '___'}`;
+  return q.sentence;
+}
+
 // The teach beat: a verb chain in colour (only when it adds to the filled-in question),
 // or the preposition rule.
 export function teachHTML(q, teach) {

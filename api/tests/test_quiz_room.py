@@ -196,6 +196,85 @@ def test_play_area_messages():
                 assert recv(b2, "joined")["middle"] is False
 
 
+def test_bonus_round_by_position():
+    c = _client()
+    if c is None:
+        return
+    import quiz_room
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(1), "bonus": Q(2), "time": 30})
+        created = recv(teacher, "created")
+        assert created["n"] == 3 and created["questions"][1]["bonus"] is True
+        with c.websocket_connect(WS) as a, c.websocket_connect(WS) as b:
+            a.send_json({"t": "join", "code": created["code"], "name": "Ana"}); recv(a, "joined")
+            b.send_json({"t": "join", "code": created["code"], "name": "Ben"}); recv(b, "joined")
+            teacher.send_json({"t": "start"}); recv(a, "question")
+            teacher.send_json({"t": "next"}); recv(a, "reveal"); recv(b, "reveal")   # normal question, nobody answered
+            teacher.send_json({"t": "next"})
+            qb = recv(a, "question")
+            assert qb["q"]["bonus"] and qb["bonus"] == {"i": 0, "n": 2} and "correct" not in qb["q"]
+            assert qb["ends_in"] > 30000                                # extra time to run
+            a.send_json({"t": "answer", "qi": qb["qi"], "opt": 0})     # ignored in the bonus round
+            # Ana on pad A (right), Ben on pad C (wrong).
+            a.send_json({"t": "move", "p": [quiz_room.PAD_X[0], 0, quiz_room.PAD_Z], "r": 0, "a": 0})
+            b.send_json({"t": "move", "p": [quiz_room.PAD_X[2] + 1, 0, quiz_room.PAD_Z - 1], "r": 0, "a": 0})
+            pads = recv(teacher, "pads")
+            for _ in range(10):
+                if pads["counts"] == [1, 0, 1, 0]:
+                    break
+                pads = recv(teacher, "pads")
+            assert pads["counts"] == [1, 0, 1, 0]
+            teacher.send_json({"t": "next"})
+            ra = recv(a, "reveal"); rb = recv(b, "reveal")
+            assert ra["you"]["right"] and ra["you"]["opt"] == 0 and ra["you"]["pts"] == 500
+            assert not rb["you"]["right"] and rb["you"]["opt"] == 2
+
+
+def test_outbox_slow_device():
+    """A slow device gets every important message, in order; old positions are dropped."""
+    try:
+        import quiz_room
+    except Exception:
+        return
+    import asyncio
+
+    class Slow:
+        def __init__(self):
+            self.sent = []
+
+        async def send_text(self, txt):
+            await asyncio.sleep(0.02)
+            self.sent.append(txt)
+
+        async def close(self):
+            self.sent.append("CLOSED")
+
+    async def run():
+        ws = Slow()
+        ob = quiz_room.Outbox(ws)
+        for i in range(40):
+            ob.put({"t": "pos", "i": i})
+        ob.put({"t": "question", "qi": 1})
+        ob.put({"t": "reveal", "qi": 1})
+        ob.put(None)
+        await asyncio.sleep(0.6)
+        return ws.sent
+
+    sent = asyncio.run(run())
+    pos = [x for x in sent if '"pos"' in x]
+    assert len(pos) <= quiz_room.OUTBOX_POS_LIMIT + 1
+    assert sent[-3:] == ['{"t":"question","qi":1}', '{"t":"reveal","qi":1}', "CLOSED"]
+
+
+def test_pad_at():
+    import quiz_room
+    assert quiz_room.pad_at([-6.6, 0, 3.5]) == 0
+    assert quiz_room.pad_at([6.6 + 1.7, 0.3, 3.5 - 1.7]) == 3
+    assert quiz_room.pad_at([-4.4, 0, 3.5]) is None                   # gap between pads
+    assert quiz_room.pad_at([2.2, -1.1, 3.5]) is None                 # fell into the pit
+    assert quiz_room.pad_at([2.2, 0, 6.0]) is None
+
+
 def test_origin_and_names():
     import quiz_room
     assert quiz_room._ORIGIN.match("https://krabsy.com")

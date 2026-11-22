@@ -2,7 +2,7 @@
 // The teacher doesn't play. The screen may be on the projector, so the right answer
 // is shown only at the reveal.
 import { t, lang } from './i18n.js';
-import { $, esc, LETTERS, questionHTML, teachHTML, reviewHTML, applyTexts } from './ui.js';
+import { $, esc, LETTERS, questionHTML, teachHTML, reviewHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, showCode } from './net.js';
 import { Room, COLORS } from './room.js';
 import * as QS from './questions.js';
@@ -15,7 +15,7 @@ document.title = `${t('title')} — ${t('setupTitle')}`;
 applyTexts(t);
 
 const cfg = { topic: QS.TOPICS.includes(new URLSearchParams(location.search).get('topic')) ? new URLSearchParams(location.search).get('topic') : 'irregular_verbs',
-  levels: [1, 2], count: 10, time: 20 };
+  levels: [1, 2], count: 10, time: 20, bonus: 3 };
 const S = { code: '', phase: 'setup', players: [], answered: new Set(), q: null, qi: -1, n: 0, time: 20,
   deadline: 0, reveal: null, end: null, locked: false, questions: [], t0: 0 };
 
@@ -39,6 +39,7 @@ function renderSetup() {
   });
   optRow('optCount', [10, 15, 20, 30].map((v) => ({ v, html: String(v) })), (v) => cfg.count === v, (v) => { cfg.count = v; });
   optRow('optTime', [15, 20, 30].map((v) => ({ v, html: `${v} s` })), (v) => cfg.time === v, (v) => { cfg.time = v; });
+  optRow('optBonus', [0, 3, 5].map((v) => ({ v, html: v ? String(v) : esc(t('bonusOff')) })), (v) => cfg.bonus === v, (v) => { cfg.bonus = v; });
 }
 renderSetup();
 
@@ -46,7 +47,7 @@ renderSetup();
 const editor = new QuestionEditor($('editor'), { onChange: (n) => { $('openBtn').disabled = n < 1; } });
 editor.onMix = () => editor.load(cfg.topic, cfg.levels, cfg.count, { fresh: true });
 let editMode = false;   // false: before the room opens; true: editing in the lobby
-function settingsChanged() { editor.load(cfg.topic, cfg.levels, cfg.count); }
+function settingsChanged() { editor.bonusCount = cfg.bonus; editor.load(cfg.topic, cfg.levels, cfg.count); }
 
 function setEditMode(on) {
   editMode = on;
@@ -90,12 +91,13 @@ async function ensureNet() { if (!connected) { await net.connect(); connected = 
 $('openBtn').addEventListener('click', async () => {
   sfx.init();
   const questions = editor.questions;
-  if (editMode) { net.send({ t: 'questions', questions }); return; }
+  const bonus = editor.bonusQuestions;
+  if (editMode) { net.send({ t: 'questions', questions, bonus }); return; }
   $('openBtn').disabled = true; $('openBtn').textContent = t('opening'); $('setupErr').textContent = '';
   try {
     if (!questions.length) throw new Error('noQuestions');
     await ensureNet();
-    net.send({ t: 'create', questions, time: cfg.time, lang: lang() });
+    net.send({ t: 'create', questions, bonus, time: cfg.time, lang: lang() });
   } catch (e) {
     $('setupErr').textContent = e.message === 'noQuestions' ? t('noQuestions') : t('err_net');
     $('openBtn').disabled = false; $('openBtn').textContent = t('open');
@@ -175,11 +177,22 @@ function onQuestion(m) {
   if (S.phase === 'lobby') { S.t0 = performance.now(); analytics.event('level_start', { level: 1, players: S.players.length, questions: m.n, topic: cfg.topic }); }
   S.phase = 'question'; S.qi = m.qi; S.n = m.n; S.q = m.q; S.time = m.time;
   S.deadline = performance.now() + m.ends_in; S.answered = new Set(m.answered || []); S.reveal = null;
+  S.dur = Math.max(m.ends_in, S.time * 1000);
+  const wasBonus = !!S.bonus;
+  S.bonus = m.bonus || null; S.pads = [0, 0, 0, 0];
+  if (S.bonus) {
+    room.play.setPads(m.q.options);
+    room.setScreen({ title: t('bonusTitle', S.bonus.i + 1, S.bonus.n), line: plainQuestion(m.q) });
+    if (!wasBonus) sfx.jingle();
+  } else if (wasBonus || room.play.padWords) { room.play.setPads(null); room.setScreen(null); }
   sfx.whoosh();
   render();
 }
+net.on('pads', (m) => { S.pads = m.counts; render(); });
+
 function onReveal(m) {
   S.phase = 'reveal'; S.reveal = m;
+  if (S.bonus) room.play.sinkPads(m.correct);
   sfx.drumroll(0.6); setTimeout(() => sfx.right(), 600);
   render();
 }
@@ -235,7 +248,7 @@ function render() {
     pl.appendChild(d);
   }
 
-  room.setMarks((pid) => (ph !== 'question' ? null : S.answered.has(pid) ? 'dot' : 'think'));
+  room.setMarks((pid) => (ph !== 'question' || S.bonus ? null : S.answered.has(pid) ? 'dot' : 'think'));
 
   // main button
   const mb = $('mainBtn');
@@ -254,13 +267,17 @@ function render() {
     const rv = ph === 'reveal' ? S.reveal : null;
     const asked = rv ? rv.asked : online.length;
     const answered = rv ? rv.answered : S.answered.size;
-    const total = rv ? Math.max(1, rv.counts.reduce((a, b) => a + b, 0)) : 1;
-    $('qcardT').innerHTML = `<div class="head"><span>${esc(t('question', S.qi + 1, S.n))}</span>
+    // Bonus round: live counts of children on each pad, while the time runs.
+    const counts = rv ? rv.counts : S.bonus ? S.pads : null;
+    const total = counts ? Math.max(1, counts.reduce((a, b) => a + b, 0)) : 1;
+    const title = S.bonus ? `★ ${t('bonusTitle', S.bonus.i + 1, S.bonus.n)}` : t('question', S.qi + 1, S.n);
+    const status = S.bonus && !rv ? t('onPads', S.pads.reduce((a, b) => a + b, 0)) : t('answeredOf', answered, asked);
+    $('qcardT').innerHTML = `<div class="head"><span>${esc(title)}</span>
         ${rv ? '' : '<div class="timerbar" id="tTimer"><i></i></div>'}
-        <span class="answered">${esc(t('answeredOf', answered, asked))}</span></div>
+        <span class="answered">${esc(status)}</span></div>
       <div class="qline">${questionHTML(S.q, rv ? S.q.options[S.q.correct] : null)}</div>
       <div class="boxes" style="margin-top:12px">${S.q.options.map((o, k) => `<div class="box ${rv ? (k === S.q.correct ? 'right' : 'dim') : ''}">
-        <span class="k">${LETTERS[k]}</span><span class="w">${esc(o)}</span>${rv ? `<span class="cnt">${rv.counts[k]}</span><span class="bar" style="width:${rv.counts[k] / total * 100}%"></span>` : ''}</div>`).join('')}</div>
+        <span class="k">${LETTERS[k]}</span><span class="w">${esc(o)}</span>${counts ? `<span class="cnt">${counts[k]}</span><span class="bar" style="width:${counts[k] / total * 100}%"></span>` : ''}</div>`).join('')}</div>
       ${rv && teachHTML(S.q, S.q.teach) ? `<div class="teach">${teachHTML(S.q, S.q.teach)}</div>` : ''}`;
   }
   $('tTop5').classList.toggle('hidden', ph !== 'reveal' || !S.reveal);
@@ -289,7 +306,7 @@ function tickTimer() {
   const el = document.getElementById('tTimer');
   if (!el) return;
   const left = Math.max(0, S.deadline - performance.now());
-  el.querySelector('i').style.width = `${left / (S.time * 1000) * 100}%`;
+  el.querySelector('i').style.width = `${left / (S.dur || S.time * 1000) * 100}%`;
   el.classList.toggle('low', left < 5000);
 }
 

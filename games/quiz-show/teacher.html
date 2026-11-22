@@ -24,6 +24,8 @@
 .edHead .opt:disabled{opacity:.4;cursor:default;}
 .edList{overflow:auto;flex:1;min-height:120px;display:flex;flex-direction:column;gap:6px;padding:2px;}
 .edRow{display:flex;align-items:center;gap:10px;background:#f7f9ff;color:#0d1b3d;border-radius:12px;padding:6px 10px;}
+.edSub{font-family:'Fredoka One';color:var(--amber);font-size:19px;margin:10px 2px 2px;}
+.edRow.bonus{box-shadow:inset 0 0 0 3px var(--amber);}
 .edRow .num{font-family:'Fredoka One';color:#5b6b92;min-width:2.6em;font-size:18px;}
 .edRow .lines{flex:1;display:flex;flex-direction:column;gap:2px;}
 .edLine{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
@@ -108,6 +110,7 @@
     <div class="row"><label data-t="difficulty"></label><div id="optDiff" class="row" style="margin:0"></div></div>
     <div class="row"><label data-t="count"></label><div id="optCount" class="row" style="margin:0"></div></div>
     <div class="row" id="timeRow"><label data-t="timePer"></label><div id="optTime" class="row" style="margin:0"></div></div>
+    <div class="row" id="bonusRow"><label data-t="bonus"></label><div id="optBonus" class="row" style="margin:0"></div></div>
     </div>
     <div id="hintA" class="hint hidden" data-t="answersHint"></div>
     <div id="editor"></div>

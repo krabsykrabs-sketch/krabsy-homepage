@@ -48,19 +48,37 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   await teacher.screenshot({ path: `${out}/04-teacher-lobby.png` });
 
   await teacher.click('#mainBtn');
-  let qn = 0;
+  let qn = 0; const shots = new Set();
   for (let guard = 0; guard < 80; guard++) {
     await wait(400);
     const ph = await teacher.evaluate(() => window.__qt.S.phase);
     if (ph === 'end') break;
     if (ph === 'question') {
-      const { correct, qi } = await teacher.evaluate(() => ({ correct: window.__qt.S.q.correct, qi: window.__qt.S.qi }));
+      const { correct, qi, bonus } = await teacher.evaluate(() => ({ correct: window.__qt.S.q.correct, qi: window.__qt.S.qi, bonus: !!window.__qt.S.bonus }));
+      if (bonus) {
+        // Bonus round: stand on a pad instead of clicking (child 0 on the right one).
+        const PADX = [-6.6, -2.2, 2.2, 6.6];
+        for (const [i, k] of kids.entries()) {
+          const opt = i === 0 ? correct : (correct + 1 + i) % 4;
+          await k.waitForFunction((q) => window.__qr.S.qi === q, qi, { timeout: 10000 });
+          await k.evaluate(([x]) => window.__qr.ctl.teleport({ x, y: 0.1, z: 3.5 }), [PADX[opt]]);
+        }
+        await wait(1500);
+        if (!shots.has('bonus')) { shots.add('bonus'); await kids[0].screenshot({ path: `${out}/10b-child-bonus.png` }); }
+        await teacher.click('#mainBtn');
+        await teacher.waitForFunction(() => window.__qt.S.phase === 'reveal', null, { timeout: 10000 });
+        await wait(700);
+        qn++;
+        await teacher.click('#mainBtn');
+        continue;
+      }
       if (qi === 0) { await wait(300); await kids[0].screenshot({ path: `${out}/05-child-card.png` }); }
       for (const [i, k] of kids.entries()) {
         const last = i === kids.length - 1 && kids.length > 2;
         if (last && qi % 3 === 2) continue;                      // skips some
         const opt = i === 0 ? correct : i === 1 ? (correct + 1) % 4 : Math.floor(Math.random() * 4);
-        await k.waitForFunction((q) => window.__qr.S.qi === q, qi, { timeout: 10000 });
+        try { await k.waitForFunction((q) => window.__qr.S.qi === q, qi, { timeout: 10000 }); }
+        catch (e) { console.log('wait failed kid', i, 'qi', qi, await k.evaluate(() => JSON.stringify({ qi: window.__qr.S.qi, ph: window.__qr.S.phase, net: window.__qr.net.status, pid: window.__qr.S.pid }))); throw e; }
         try { await k.click(`#qboxes .box:nth-child(${opt + 1})`, { timeout: 8000 }); }
         catch (e) { await k.screenshot({ path: `${out}/FAIL-${i}-${qi}.png` }); console.log('click failed', i, qi, await k.evaluate(() => JSON.stringify([...document.querySelectorAll('#qboxes .box')].map((b) => b.getBoundingClientRect().height))), JSON.stringify(await k.evaluate(() => { const S = window.__qr.S; return { phase: S.phase, qi: S.qi, mine: S.mine, pid: S.pid, hidden: document.getElementById('qcard').className, msg: document.getElementById('msg').className, join: document.getElementById('join').className }; }))); throw e; }
         if (i === 0 && qi === 0) {

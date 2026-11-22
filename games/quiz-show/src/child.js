@@ -1,6 +1,6 @@
 // Child page: join a room, walk around as an avatar, answer on a private card.
 import { t, lang } from './i18n.js';
-import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts } from './ui.js';
+import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, normCode, showCode } from './net.js';
 import { Room, Controller, COLORS, AVATARS, EMOTES } from './room.js';
 import { middleSpot } from './play.js';
@@ -55,7 +55,7 @@ const roomReady = room.load().catch((e) => console.error('room load failed', e))
 let last = performance.now(), sendT = 0, lastSent = '';
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  ctl.enabled = !(S.phase === 'question' && S.mine == null) && S.pid != null && !S.middle;
+  ctl.enabled = !(S.phase === 'question' && S.mine == null && !S.bonus) && S.pid != null && !S.middle;
   room.frozen = !ctl.enabled;
   ctl.update(dt);
   room.update(dt);
@@ -147,7 +147,7 @@ function setMiddle(on, move) {
 }
 
 function emote(e) {
-  if (S.pid == null || (S.phase === 'question' && S.mine == null) || S.middle) return;
+  if (S.pid == null || (S.phase === 'question' && S.mine == null && !S.bonus) || S.middle) return;
   const me = room.me;
   if (!me || (me.emoteT > 0)) return;
   me.emote(e); sfx.pop();
@@ -174,6 +174,17 @@ function onQuestion(m) {
   setPhase('question');
   S.qi = m.qi; S.n = m.n; S.q = m.q; S.time = m.time;
   S.deadline = performance.now() + m.ends_in;
+  S.dur = Math.max(m.ends_in, S.time * 1000);
+  // Bonus round: no card, the answer is the pad you stand on.
+  const wasBonus = !!S.bonus;
+  S.bonus = m.bonus || null;
+  if (S.bonus) {
+    room.play.setPads(m.q.options);
+    room.setScreen({ title: t('bonusTitle', S.bonus.i + 1, S.bonus.n), line: plainQuestion(m.q) });
+    $('bonusLine').innerHTML = questionHTML(m.q);
+    $('bonusTitle').textContent = `★ ${t('bonusTitle', S.bonus.i + 1, S.bonus.n)}`;
+    if (!wasBonus) { flash(t('bonusIntro')); sfx.jingle(); }
+  } else if (wasBonus || room.play.padWords) { room.play.setPads(null); room.setScreen(null); }
   S.answered = new Set(m.answered || []);
   S.mine = m.mine ?? (S.answered.has(S.pid) ? -1 : null);
   S.reveal = null;
@@ -203,7 +214,7 @@ function answer(k) {
 window.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
   // Keys 1–4 answer while the card is open; otherwise they are emotes.
-  if (!(S.phase === 'question' && S.mine == null)) {
+  if (!(S.phase === 'question' && S.mine == null) || S.bonus) {
     const k = ['1', '2', '3', '4'].indexOf(e.key);
     if (k >= 0) emote(k);
     return;
@@ -216,6 +227,7 @@ window.addEventListener('keydown', (e) => {
 function onReveal(m) {
   setPhase('reveal');
   S.reveal = m;
+  if (S.bonus) room.play.sinkPads(m.correct);
   if (m.you) {
     S.score = m.you.score;
     if (m.you.opt != null) analytics.attempt(m.you.right);
@@ -232,6 +244,13 @@ function onEnd(m) {
   render();
 }
 
+function flash(text) {
+  const el = $('flash');
+  el.textContent = text; el.classList.remove('hidden');
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  clearTimeout(flash.t); flash.t = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
 function showMsg(text) {
   $('msgCard').textContent = text;
   $('msg').classList.remove('hidden');
@@ -246,15 +265,16 @@ function topHTML(top) {
 function render() {
   const ph = S.phase, inRoom = S.pid != null;
   $('meScore').textContent = S.score;
-  const open = ph === 'question' && S.mine == null && inRoom;
+  const open = ph === 'question' && S.mine == null && inRoom && !S.bonus;
   $('qcard').classList.toggle('hidden', !open);
-  $('mini').classList.toggle('hidden', !(ph === 'question' && S.mine != null));
+  $('mini').classList.toggle('hidden', !(ph === 'question' && S.mine != null && !S.bonus));
+  $('bonusBar').classList.toggle('hidden', !(ph === 'question' && S.bonus && inRoom));
   $('hint').classList.toggle('hidden', !(inRoom && ph === 'lobby'));
   $('emotes').classList.toggle('hidden', !inRoom || open);
   $('hint').textContent = t('lobby');
 
   // Marks over heads: during a question, a dot for "answered", a bubble for "thinking".
-  room.setMarks((pid) => (ph !== 'question' ? null : S.answered.has(pid) || (pid === S.pid && S.mine != null) ? 'dot' : 'think'));
+  room.setMarks((pid) => (ph !== 'question' || S.bonus ? null : S.answered.has(pid) || (pid === S.pid && S.mine != null) ? 'dot' : 'think'));
 
   const rv = $('reveal');
   rv.classList.toggle('hidden', ph !== 'reveal' || !S.reveal || !S.q);
@@ -280,8 +300,8 @@ function render() {
 function tickTimer() {
   if (S.phase !== 'question') return;
   const left = Math.max(0, S.deadline - performance.now());
-  const frac = left / (S.time * 1000);
-  for (const id of ['qtimer', 'miniTimer']) {
+  const frac = left / (S.dur || S.time * 1000);
+  for (const id of ['qtimer', 'miniTimer', 'bonusTimer']) {
     const el = $(id);
     el.querySelector('i').style.width = `${frac * 100}%`;
     el.classList.toggle('low', left < 5000);
@@ -289,7 +309,7 @@ function tickTimer() {
   const sec = Math.ceil(left / 1000);
   if ($('qsec').textContent !== String(sec)) {
     $('qsec').textContent = sec;
-    if (sec <= 5 && sec > 0 && S.mine == null) sfx.tick(sec === 1);
+    if (sec <= 5 && sec > 0 && (S.mine == null || S.bonus)) sfx.tick(sec === 1);
   }
 }
 

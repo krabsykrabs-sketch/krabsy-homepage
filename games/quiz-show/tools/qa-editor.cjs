@@ -54,7 +54,7 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
 
   await T.click('#optTopic .opt:nth-child(1)');   // back to verbs, open the room
   await T.waitForFunction(() => window.__qt.editor.questions[0]?.kind === 'trio', null, { timeout: 15000 });
-  const sent = await T.evaluate(() => window.__qt.editor.questions.length);
+  const sent = await T.evaluate(() => window.__qt.editor.questions.length + window.__qt.editor.bonusQuestions.length);
   await T.click('#openBtn');
   await T.waitForFunction(() => window.__qt.S.code, null, { timeout: 20000 });
   const code = await T.evaluate(() => window.__qt.S.code);
@@ -71,7 +71,7 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   await T.screenshot({ path: `${out}/03-lobby-edit.png` });
   await T.click('.edRow:nth-child(1) .rm');
   await T.click('.edRow:nth-child(1) .rm');
-  const n2 = await T.evaluate(() => window.__qt.editor.questions.length);
+  const n2 = await T.evaluate(() => window.__qt.editor.questions.length + window.__qt.editor.bonusQuestions.length);
   await T.click('#openBtn');
   await T.waitForFunction((n) => window.__qt.S.n === n, n2, { timeout: 10000 });
   ok(await T.evaluate(() => document.getElementById('setup').classList.contains('hidden')), 'saved and closed');
