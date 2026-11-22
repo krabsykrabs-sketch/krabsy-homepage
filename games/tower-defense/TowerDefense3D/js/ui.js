@@ -1,4 +1,5 @@
 import { Sound } from './audio.js';
+import { Track } from './analytics.js';
 import { CONFIG, TOWER_ORDER } from './config.js';
 import { Level, HEX, hexCenter } from './level.js';
 import { Renderer } from './renderer.js';
@@ -104,6 +105,7 @@ export const UI = {
         if (state.coins < def.cost && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
           btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
           Sound.play('nope');
+          Track.notEnoughCoins(state, type);
           btn.blur();
           return;
         }

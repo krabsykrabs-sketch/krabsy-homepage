@@ -1,4 +1,5 @@
 import { Sound } from './audio.js';
+import { Track } from './analytics.js';
 import { Level } from './level.js';
 import { Effects } from './effects.js';
 import { Enemy } from './enemy.js';
@@ -53,6 +54,7 @@ export const Wave = {
       interval: boss ? spawnInterval * 2.5 : spawnInterval,
     };
     Sound.play('waveStart');
+    Track.waveStart(state);
   },
 
   update(dt, state) {
@@ -97,6 +99,7 @@ export const Wave = {
     // BATTLE → WAVE_COMPLETE → (BUILD | VICTORY); main.js makes that last step.
     state.phase = 'WAVE_COMPLETE';
     state.waveCompleteTimer = 1.8;
+    Track.waveEnd(state);
     Sound.play('waveComplete');
   },
 

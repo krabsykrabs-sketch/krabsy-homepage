@@ -709,3 +709,17 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   - Owner follow-up: the cards keep their width when the dock opens; only
     the height grows (76 px wide on laptops, 72 px ≤1100 px; long Spanish
     names wrap to two lines).
+- 2026-11-22 — **Game analytics events** (master request, spec in the
+  repo's `docs/game-analytics.md`). New `js/analytics.js` (`Track`) loads
+  `/lib/krabsy-game-events.js` and sends: `level_start`, `wave_start`,
+  `tower_built`, `tower_upgraded`, `tower_sold`, `not_enough_coins` (card
+  shake, key 1–4, or upgrade without money), `wave_end` (leaked enemies,
+  answers / correct since the last wave), `level_end` (won/lost, stars,
+  wave, lives, active seconds, answers, correct, coins_earned = coins +
+  spent − refunds − start coins, towers_built). Levels are 1-based like the
+  menu. Back to the menu mid-level sends nothing (= "left"). Without the
+  helper (local dev) every call is a no-op; without a parent page (bot,
+  tests) the helper only fires a DOM event. Counts only, no words.
+  Checked in headless Chromium by listening to the DOM events: all eight
+  events with correct values, retry = new `level_start`, quit = nothing.
+
