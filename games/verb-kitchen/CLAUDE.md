@@ -270,6 +270,54 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **Star times calibrated (all 8 levels).** Source only; NOT in
+  the live build. `starTimes` in `src/levels.js` only; orders, spawn timing
+  and layouts unchanged.
+  - **Method: measured, every level.** A headless full-round bot per level
+    (CDP, scripts in the session scratchpad `star-times/`). It runs the real
+    game logic: stations, cook/burn timers, ticket spawns, plate returns, the
+    L4/L5 helper, the sink quiz. Only walking is simulated: the chef is
+    teleported and the clock advanced by the 8-connected floor path / 3.6
+    tiles/s (SPEED 7.2), +0.25 s per action. It washes 3 correct answers per
+    plate after 3 s of reading each, plus the 0.64 s / 0.95 s quiz beats, so
+    11.2 s per plate. The clock includes the 0.9 s before the round ends.
+    Runs are repeatable to ±0.4 s.
+  - **Thresholds from the bot time E:** author ≈ E, gold ≈ E×1.3,
+    2★ ≈ E×1.75, 1★ ≈ E×2.6, each rounded to the nearest 5 s. (1★ is
+    "finished" in code anyway.)
+
+    | Level | E (s) | | old [1★, 2★, 3★, author] | new |
+    |---|---|---|---|---|
+    | L1 Garden Bistro | 56 | measured | 150, 115, 85, 62 | 145, 100, 75, 55 |
+    | L2 Burger Bar | 103 | measured | 215, 165, 130, 100 | 270, 180, 135, 105 |
+    | L3 Pizza Palace | 130 | measured | 265, 205, 160, 125 | 340, 230, 170, 130 |
+    | L4 Burger Bar Co-op | 141 | measured | 300, 230, 180, 140 | 365, 245, 185, 140 |
+    | L5 Split Kitchen | 158 | measured | 340, 270, 215, 170 | 410, 275, 205, 160 |
+    | L6 Soup Kitchen | 127 | measured | 320, 250, 195, 150 | 330, 220, 165, 125 |
+    | L7 Sundae Sunday | 82 | measured | 260, 200, 155, 120 | 215, 145, 105, 80 |
+    | L8 Sandwich Bar | 196 | measured | 360, 285, 225, 175 | 510, 345, 255, 195 |
+
+  - **Where the expert's time goes (walk / wash / idle waits / chopping, s):**
+    L1 23/22/0/10 · L2 60/34/1/7 · L3 61/34/15/20 (oven) · L4 49/45/47/0
+    (patties + helper cheese) · L5 60/56/41/0 (patties + helper) ·
+    L6 54/45/5/22 · L7 36/45/0/0 · L8 114/45/5/31. Ticket spawns never held
+    the bot up in any level.
+  - **Pacing notes (not changed):**
+    - Washing is 25–55 % of an expert round (L7: 55 %). Each plate costs 11 s
+      and freezes cooking and the helper, so it can't overlap with anything.
+    - L8 Sandwich Bar: walking is 58 % of the round (crates left, boards
+      right, toasters back-left: every item crosses the kitchen 2–3 times). It
+      is now the longest level by far (E 196 s for 6 orders, vs 127 s for
+      6 soups). Owner may want a shorter route.
+    - L4: the helper is the bottleneck in the 2nd half. Cheese in 6 of 7
+      orders, one slice in stock per board, ~9 s per slice: waits of 9–13 s for
+      cheese. The player has nothing else to do then. Starting 2 patties ahead
+      burns one during these waits, so the bot cooks one patty ahead.
+    - L7 is the easiest level after L1 (no cooking, no chopping). It sits 7th.
+    - In the bot's routes, L1/L4/L6/L7/L8 author times round down to just under
+      E (by 0.4–1.8 s). A cleverer route beats the bot, but a human has more
+      movement overhead than a teleporting bot.
+
 - 2026-11-23 — **Recipe pictures for Soup, Sundae, Sandwich (Gemini).**
   `assets/ChatGPT/Soup.webp`, `Sundae.webp`, `Sandwich.webp` (~45 KB each, in
   the gitignored source assets at `/home/janah/dev/brocco-dev/verb-kitchen/assets/`;
