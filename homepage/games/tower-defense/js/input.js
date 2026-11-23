@@ -147,7 +147,10 @@ export const Input = {
     if (!this._gameAcceptsInput()) return;
     // A building spot is already chosen: build there straight away.
     if (state.buildCell) {
-      if (!this._place(type, state.buildCell.cellX, state.buildCell.cellY)) Sound.play('click');
+      if (!this._place(type, state.buildCell.cellX, state.buildCell.cellY)) {
+        Sound.play('click');
+        if (state.coins < CONFIG.TOWERS[type].cost) Forge.noCoins(state, type);
+      }
       return;
     }
     Sound.play('click');
@@ -155,7 +158,7 @@ export const Input = {
       this.cancelPlacement();
       return;
     }
-    if (state.coins < CONFIG.TOWERS[type].cost) { Track.notEnoughCoins(state, type); return; }
+    if (state.coins < CONFIG.TOWERS[type].cost) { Forge.noCoins(state, type); return; }
     state.placement.active = true;
     state.placement.towerType = type;
     state.selectedTower = null;
