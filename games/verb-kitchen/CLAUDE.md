@@ -314,6 +314,13 @@ ours 2×1×2).
        then 1. (6 sandwiches → only 2 loaves to cut.)
     2. Toast burns too fast → longer time before ready toast burns
        (currently 10 s after ready).
+  - L4 Co-op: needs a short intro of the helper at the start — the helper
+    says in one or two lines what it will do (e.g. "I'll chop the lettuce
+    and cheese for you!"), optionally what the player does. Keep it short.
+  - ALL levels — mistake helper: the speech bubble that says e.g. "a plate
+    is needed" is good; additionally SHOW WHERE the needed thing is (e.g.
+    highlight / point at the plate rack or clean-plate spot). Same idea for
+    other missing items.
 
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
