@@ -270,28 +270,130 @@ ours 2×1×2).
 
 ## Status log
 
-- 2026-11-23 — **OWNER PLAY-TEST FEEDBACK (collecting; not built yet).**
+- 2026-11-23 — **Owner play-test fixes built (everything except L7).** Source only;
+  NOT in the live build. Code commit `c2baea0`. L7 Sundae Sunday is untouched
+  (level, recipes, ice-cream icons) for the separate redesign.
+  - **Pick up WITH what you hold (audit of held item × station content).**
+    Already worked and kept: bun/burger-in-progress takes a ready patty from the
+    pan, chopped veg from a board / counter / the L5 pass counter; a plate takes
+    a ready patty or toast, chopped items from boards/counters, a burger from a
+    counter; toast takes fillings from boards, counters and the toaster.
+    Gaps that failed and are fixed (game.js):
+    1. A **base lying on a board** (bun or toast parked there, pizza dough rolled
+       there) now takes the held addition (cheese, lettuce, tomato, patty,
+       ketchup — the bottle stays in hand). Before, only base-in-hand worked.
+    2. Carrying a **plate to the bun crate** puts a bun on it (`ITEMS.bun.ontoPlate`;
+       e.g. a patty taken onto a plate first). Only the bun crate does this —
+       every other crate holds raw food that needs chopping/cooking, and the L7
+       tubs are left alone.
+    3. A **bun takes tomato** too (`BURGER_LAYERS` + tomato). No burger dish
+       uses tomato, so such a burger stays open-faced and isn't servable —
+       same as tomato on a burger plate always was.
+    Rejected on purpose: a second bun onto a bun, a raw patty onto a bun, veg
+    onto a hot patty in the pan.
+  - **Ticket icons.** `icons.itemIcon(id)` renders any ITEMS entry exactly as in
+    the kitchen (tints, flat toast, lay-flat carrot …) from a low side-on view,
+    cached. `DISHES.*.iconItems` lists the ticket ingredients (bun, veggie
+    patty, cheese slice, lettuce, tomato, toast, ketchup, mushroom, carrot,
+    potato, onion). `icons` (emoji) remains only as fallback — the L7 sundaes.
+    The crate hint pill ("E — grab …") shows the crate's item icon; the "too
+    hot, use a plate or bun" pill lost its 🍞; the stove bubble shows the bun icon.
+  - **L6 Soup Kitchen (no new mechanics).** Raw carrot lies on its side
+    (`ITEMS.carrot.lay`), same direction as the half-cut one. The soup surface
+    uses the pot's inner radius (0.37, not the bounding box 0.70 incl. handles)
+    and sits inside the rim. **Colour bug:** the boiled onion–mushroom soup used
+    `pot_B_stew` / `food_stew` tinted `#e9dcb6`, but a tint only multiplies the
+    orange atlas texture, so it stayed orange. Pots and bowls are now composed
+    (pot/bowl + flat-colour soup surface + veg bits). Colour = veg SET only
+    (`recipes.SOUP_COLORS`): one veg = clear water `#bfdde3` with that veg
+    (never looks like soup); a complete recipe turns from water into its
+    colour while it boils (Station.update lerps); done = carrot–potato
+    `#e2672a` (reddish orange) / onion–mushroom `#d8c39a` (beige). Wrong mixes
+    can't be made (a one-veg pot only accepts its partner). `pot_B_stew` and
+    `food_stew` are no longer used (still listed in `release-assets.txt`).
+  - **L8 Sandwich Bar.** Chopping a loaf leaves **3 slices** on the board
+    (`bread_half.yield: 3`): one board item with a count (`item.n`), drawn as a
+    shingled stack 3 → 2 → 1. E takes one (`Station.takeOne`); a held slice
+    can go back on its stack (`bread_slice.stackMax: 3`). The stack is only
+    created on the board and never moves as a whole. Toast burns 20 s after it
+    pops up (was 10 s).
+  - **Helper intro (L4 + L5).** 0.6 s into the round the helper says one line
+    in a speech bubble that follows it for 5.5 s (`fx.say`, `coop.intro` i18n
+    key `helperIntroCoop` / `helperIntroSplit`, EN/DE/ES). No input needed.
+  - **Mistake pointer (all levels, `src/pointer.js`).** When a station bubble
+    says something is missing, `game.missing()` also marks WHERE it is: a
+    bobbing teal arrow + pulsing ring for 3.2 s, max 3 places, nearest first.
+    3D in the scene (no DOM, no input), so it works on tablets and never covers
+    the view. Wired to: food at the hatch without a plate (→ clean plates /
+    bowls: rack or an empty one set down; none → the sink), hot pizza / patty /
+    soup without plate, bun or bowl (→ plates + bun crate), E at an empty rack
+    (→ the sink, bubble shows a dirty plate), unfinished pizza into the oven
+    (→ ketchup + cheese), whole loaf at the toaster (→ the boards), raw item at
+    a board with the wrong tool (→ boards with the right tool).
+  - **Washing: one verb per plate, 2 answers in chain order.** Step 1
+    `go → [___] → ___` (2nd form), step 2 `go → went → [___]` (3rd form, 2nd
+    filled in); the 3rd form is not shown after step 1. Wash bar 2 segments,
+    "2 correct = 1 clean plate" (EN/DE/ES). Grammar words only as the small
+    caption (as before). Clock keeps running.
+    - **Source:** on the site (path `…/games/verb-kitchen/`) `verbs.loadQuestionEngine()`
+      takes pairs from `/lib/krabsy-questions.js` `getQuizSet` (chainOrder on by
+      default, `ids` = this game's 46 curated verbs, `followUp` pairs). Local dev
+      (`/lib/` missing) builds the same pairs from the inline list. Verified
+      with a mirror of the site layout: all 46 engine pairs OK. The catalogue
+      repeats a distractor for some verbs (e.g. have → "haved" twice), so chips
+      are de-duplicated and topped up from the inline distractors.
+    - **Wrong answer (decision):** plate stays dirty, wash progress back to 0,
+      full chain shown, the pair is dropped; "Keep washing" starts a NEW verb.
+      The missed verb comes back as a whole pair after one other plate and is
+      saved for the cookbook as before. Re-asking its 3rd form right after the
+      chain was shown would only test reading the screen, and a lone 3rd-form
+      question is never asked. Leaving the sink mid-pair (Esc) keeps the pair:
+      the next visit continues with its 3rd form. Practice verbs from earlier
+      rounds count as mastered when both forms are right on the first showing.
+    - `?qa=question` shows step 1; `?qa=question&step=2` shows the follow-up.
+  - **Verified** headless (CDP, scripts + screenshots in the session scratchpad
+    `playtest-fixes/`): 22/22 driven combine checks (L2, L3, L5, L8); both soups
+    in both orders (same colour either way, water while one veg); 3→2→1 slices,
+    put-back, burn exactly 20.0 s after ready; helper intro in DE on L4 + L5 (up
+    at 4.5 s, gone at 6.5 s); pointer cases; washing = exactly 2 chained
+    questions per plate (correct path, wrong path, Esc resume); no console
+    errors on all 8 levels at 1180×820 (EN/DE) and 1920×1080 (ES) and in the
+    `?qa=` scenes.
+  - **Star-time bots** (copies in `playtest-fixes/bots/`, `lib2.js` washes 2
+    answers per plate; new `l8new.js` uses the 3-slice loaf) all finish.
+    Bot E now: L1 49.1 · L2 92.1 · L3 119.5 · L4 126.5 · L5 139.6 · L6 112.3 ·
+    L8 166.7 s (2 loaves for 6 sandwiches). `starTimes` NOT changed — they get
+    re-calibrated after the L7 redesign.
+  - **For the L7 redesign:** reusable pieces — `combine()`/`accepts` for
+    "held thing + thing on a station"; the board/counter base-takes-held rule;
+    `ontoPlate` (plate at a crate); `item.n` stacks + `Station.takeOne`;
+    `itemIcon()` + `DISHES.iconItems` for ticket pictures (L7 still uses its
+    emoji `icons`); `game.missing(station, icons, ...sources)` for bubble +
+    pointer; `fx.say()` for a spoken line.
+
+- 2026-11-23 — **OWNER PLAY-TEST FEEDBACK.** Built 2026-11-23 (`c2baea0`, see
+  the entry above) except L7 Sundae Sunday (separate redesign). [DONE] marks.
   - L5 Split Kitchen: "good, I like it a lot" — only mechanics to update.
-  - Pick up WITH what you hold (sometimes it doesn't work):
+  - [DONE] Pick up WITH what you hold (sometimes it doesn't work):
     1. Holding a bun → take the cooked patty from the pan with it.
     2. Holding a bun → also add lettuce / tomato / cheese to it.
     3. Carrying a plate with a partly built burger → press E at a station/
        counter to add the item there (patty from pan, chopped veg, …).
-  - Order-ticket icons: the new bread symbol is too small and reads as
+  - [DONE] Order-ticket icons: the new bread symbol is too small and reads as
     cheese → use the burger bun. Don't use the meat-on-the-bone symbol for
     meat (we have a veggie patty) → show the patty itself.
   - L6 Soup Kitchen:
-    1. Whole carrot stands upright on the cutting board → rotate 90° so it
+    1. [DONE] Whole carrot stands upright on the cutting board → rotate 90° so it
        lies flat, same orientation as the half-chopped (interim) state.
-    2. Soup inside the pot is too big — sticks out over the pot rim on all
+    2. [DONE] Soup inside the pot is too big — sticks out over the pot rim on all
        sides. Scale it to sit inside the pot.
-    3. Owner put onion + mushroom in a pot and it looked like the red
+    3. [DONE] Owner put onion + mushroom in a pot and it looked like the red
        carrot-potato soup. Make the soup colour depend only on WHICH
        ingredients are in (any order): reddish/orange = carrot-potato,
        beige/brown-white = onion-mushroom. Double-check the logic.
-    4. Felt a bit boring, but the owner wants the MECHANICS UNCHANGED —
+    4. [KEPT] Felt a bit boring, but the owner wants the MECHANICS UNCHANGED —
        rejected boil-over, stirring and similar ideas. Don't add mechanics.
-  - L7 Sundae Sunday — "completely broken", REDESIGN the level:
+  - [OPEN — separate redesign agent] L7 Sundae Sunday — "completely broken", REDESIGN the level:
     1. Pressing E at a tub puts a scoop TOOL in your hand out of nothing,
        and the tool itself can be dropped into the bowl. Makes no sense.
     2. Wanted flow: ONE ice-cream scoop tool in the kitchen. Grab the tool →
@@ -309,19 +411,19 @@ ours 2×1×2).
        confusing → draw actual ice-cream balls: white (vanilla), pink/red
        (strawberry), brown (chocolate).
   - L8 Sandwich Bar:
-    1. Cutting bread is "super annoying". One chop of a loaf should give
+    1. [DONE] Cutting bread is "super annoying". One chop of a loaf should give
        3 slices of bread lying on the board; taking one leaves 2 visible,
        then 1. (6 sandwiches → only 2 loaves to cut.)
-    2. Toast burns too fast → longer time before ready toast burns
+    2. [DONE, 20 s] Toast burns too fast → longer time before ready toast burns
        (currently 10 s after ready).
-  - L4 Co-op: needs a short intro of the helper at the start — the helper
+  - [DONE, also L5] L4 Co-op: needs a short intro of the helper at the start — the helper
     says in one or two lines what it will do (e.g. "I'll chop the lettuce
     and cheese for you!"), optionally what the player does. Keep it short.
-  - ALL levels — mistake helper: the speech bubble that says e.g. "a plate
+  - [DONE] ALL levels — mistake helper: the speech bubble that says e.g. "a plate
     is needed" is good; additionally SHOW WHERE the needed thing is (e.g.
     highlight / point at the plate rack or clean-plate spot). Same idea for
     other missing items.
-  - ALL levels — washing: 2 answers per plate instead of 3, and the two
+  - [DONE; star times NOT re-calibrated — after the L7 redesign] ALL levels — washing: 2 answers per plate instead of 3, and the two
     are the two forms of ONE verb in chain order (`go → ___ → ___` asks
     the 2nd form, then `go → went → ___` asks the 3rd; see "Chain order"
     in the root CLAUDE.md). Master agreed. Cuts wash time by about a third
