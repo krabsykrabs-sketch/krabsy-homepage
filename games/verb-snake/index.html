@@ -1218,10 +1218,10 @@ function drawRow(items,x,y,fs,now){
   }
 }
 
-// ── Chain bubble on the head ──
-// A cream speech bubble follows the head and shows the chain in positional
-// notation (go → ___ → ___). It keeps away from the fence, from the cells
-// ahead and from fruit; on a wrong eat it turns into the teach card.
+// ── Wrong-order card near the head ──
+// Shown for TEACH_MS after a wrong eat only (the always-on chain bubble was
+// removed, owner 2026-11-23). It keeps away from the fence, from the cells
+// ahead and from fruit.
 const bub={x:0,y:0,side:''};
 function bubbleTarget(bw,bh){
   const hp=state.headPx,cell=LY.cell,fr=LY.frame*0.6;
@@ -1246,7 +1246,11 @@ function bubbleTarget(bw,bh){
 }
 function drawHeadBubble(now){
   const teach=state.teach&&now-state.teach.t0<TEACH_MS?state.teach:null;
-  if(!state.headPx||!(state.mode==='playing'||(teach&&state.mode==='dying')))return;
+  // Owner 2026-11-23: an always-on bubble was annoying. Only the short card
+  // after a wrong eat shows; the chain itself lives in the top tracker and
+  // on the coloured beads.
+  if(!teach)return;
+  if(!state.headPx||!(state.mode==='playing'||state.mode==='dying'))return;
   const cell=LY.cell,ch=state.chain;
   let items;
   if(teach)items=teach.items;
