@@ -134,6 +134,13 @@ Files: `thumbnails/hero/<id>.jpg` 1200×675 + `thumbnails/sm/<id>.jpg`
 640×360; originals in `_incoming/<id>-art/`. 2D games (Snake, Flow) keep
 flat title cards; Slash and Air Control are already illustrated.
 
+## Teacher pages + teacher-only games (2026-11-23, live)
+
+- `/de/lehrkraefte/` + `/es/docentes/` redesigned (ef2918b, Fable subagent): image hero, three ways (share link / Quiz-Raum / create class), Quiz-Raum block, drawn class-dashboard example, starting-point cards, condensed why/share/ideas/privacy, FAQ unchanged. Shared CSS `lib/krabsy-teachers.css`. Spanish body copy uses tú; two FAQ answers still usted (kept equal to JSON-LD).
+- `games.json` `audience: "teacher"` (quiz-room): skipped on the landing grid/featured, in the in-game chip bar and the "Probier auch das" strip; hub + topic hubs show a "Für Lehrkräfte / Para docentes" badge. Landing join line has a second link to `/quiz/` (fee6da0).
+- Verb Snake thumbnails renamed to `sm/hero/verb-snake-v2.jpg` (the old URL was browser-cached for 7 days). Old files kept for cached pages.
+- Deployed and checked live 2026-11-23; IndexNow sent.
+
 ## Landing pages /de/ and /es/ (games-first, 2026-11-21)
 
 Rebuilt like a game portal: one headline line, a big featured game, then
