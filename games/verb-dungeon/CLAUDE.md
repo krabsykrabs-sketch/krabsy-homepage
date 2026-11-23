@@ -1147,3 +1147,5 @@ geometry, at most one shadow light.
     (all unlocked) and `P4-menu-portraits-new.png` (new player: three dimmed
     as locked); all four read clearly against the cards, weapons in frame.
     `PLAYTEST-NOTES.md`: notes 14 and 15 done.
+
+- 2026-11-23 — Master session: the Space key cap (controls box + use prompt) now reads Leertaste / Espacio (i18n key `keySpace`), source + live build (25a1ae2). Owner: menus in the child's language, English only for what is learned.

@@ -370,3 +370,5 @@ load with 0 console errors, 0 failed requests, 0 external requests.
 Quality bar before re-release: it must feel good in the first 30 seconds
 (controls, camera, clear goal, readable verb question) on a school laptop
 and on a 1024×768 touch tablet.
+
+- 2026-11-23 — Master session: level names translated for DE/ES (i18n keys `name.<level id>`: Erste Schritte … / Primeros pasos …) on the level cards, play button, pause and result screens; EN keeps the JSON names. Source + live build (25a1ae2). Owner: menus in the child's language, English only for what is learned.
