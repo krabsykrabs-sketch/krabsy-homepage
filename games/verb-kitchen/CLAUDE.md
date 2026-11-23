@@ -270,6 +270,17 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **OWNER PLAY-TEST FEEDBACK (collecting; not built yet).**
+  - L5 Split Kitchen: "good, I like it a lot" — only mechanics to update.
+  - Pick up WITH what you hold (sometimes it doesn't work):
+    1. Holding a bun → take the cooked patty from the pan with it.
+    2. Holding a bun → also add lettuce / tomato / cheese to it.
+    3. Carrying a plate with a partly built burger → press E at a station/
+       counter to add the item there (patty from pan, chopped veg, …).
+  - Order-ticket icons: the new bread symbol is too small and reads as
+    cheese → use the burger bun. Don't use the meat-on-the-bone symbol for
+    meat (we have a veggie patty) → show the patty itself.
+
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
     `b8b04af`): levels 1–8, i18n EN/DE/ES (`?lang=de|es`), cookbook,
