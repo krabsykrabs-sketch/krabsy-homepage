@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<!-- Only meant to run inside its wrapper page's iframe: index the wrapper, not this file. -->
+<meta name="robots" content="noindex, indexifembedded">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#5f9e3c">
+<title>Krabsy – Verb Snake!</title>
+<link rel="preload" href="assets/foods.webp" as="image">
+<style>
+  @import url('/lib/fonts/krabsy-fonts.css');
+  :root{
+    --teal:#2ee6c0; --coral:#ff8585; --amber:#ffcf5e;
+    --cream:#fff8ec; --cream2:#f6ead4; --ink:#3b2a1a; --ink2:#7a6048;
+    --wood:#a8693a; --leaf:#4f9a3a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{font-family:'Nunito',sans-serif;overflow:hidden;width:100vw;height:100svh;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  body{background:#6fae48}
+  #bg{position:fixed;inset:-12px;background:url(assets/backdrop.webp) center/cover no-repeat;filter:blur(2.5px) brightness(.92) saturate(.95)}
+  body::before{content:"";position:fixed;inset:0;z-index:1;background:radial-gradient(ellipse at center,rgba(40,70,20,0) 40%,rgba(30,55,15,0.45) 100%);pointer-events:none}
+  canvas{position:fixed;inset:0;z-index:2;display:block;width:100vw;height:100svh;touch-action:none}
+
+  /* ── HUD: cream toy chips over the lawn ── */
+  #hud{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 0;z-index:50;pointer-events:none}
+  .chip{background:var(--cream);border-radius:16px;box-shadow:0 3px 0 rgba(90,55,25,0.35),0 6px 14px rgba(0,0,0,0.18);padding:3px 11px;display:flex;align-items:center;gap:7px;height:42px}
+  #hud-logo{font-family:'Fredoka One',cursive;font-size:17px;color:var(--ink)}
+  #hud-logo span{color:#ef6a5f}
+  .hud-stats{display:flex;gap:6px}
+  .hud-stat{text-align:center;line-height:1.05;min-width:38px}
+  .hud-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--ink2)}
+  .hud-value{font-family:'Fredoka One',cursive;font-size:18px;color:var(--ink)}
+  .goal-dots{display:flex;gap:3px;margin-top:2px;justify-content:center}
+  .goal-dots i{width:9px;height:9px;border-radius:50%;background:#e3d4b8;box-shadow:inset 0 1px 0 rgba(0,0,0,0.12)}
+  .goal-dots i.on{background:var(--teal);box-shadow:0 0 0 1.5px #17a385 inset}
+  .goal-dots i.pop{animation:dotpop .5s cubic-bezier(.2,2.2,.4,1)}
+  @keyframes dotpop{0%{transform:scale(.2)}100%{transform:scale(1)}}
+  .hud-btn{pointer-events:auto;font-size:18px;width:42px;height:42px;border-radius:14px;border:none;background:var(--cream);box-shadow:0 3px 0 rgba(90,55,25,0.35),0 6px 14px rgba(0,0,0,0.18);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s}
+  .hud-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(90,55,25,0.35)}
+  .hud-btn.muted{opacity:0.55}
+  @media (max-width:420px){#hud-logo{display:none}.chip{padding:3px 8px}.hud-stat{min-width:34px}}
+
+  /* ── Overlay screens: cream card on a soft garden blur ── */
+  .screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(36,66,22,0.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:14px;overflow-y:auto}
+  .card{background:var(--cream);border-radius:26px;box-shadow:0 8px 0 #d9c29c,0 20px 50px rgba(0,0,0,0.35);width:100%;max-width:470px;margin:auto;text-align:center;overflow:hidden;animation:cardin .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes cardin{0%{transform:translateY(30px) scale(.92);opacity:0}100%{transform:none;opacity:1}}
+  .card-art{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#9fd27a}
+  .card-art.short{aspect-ratio:16/6;object-position:50% 38%}
+  .card-body{padding:12px 18px 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .title{font-family:'Fredoka One',cursive;font-size:clamp(30px,8vw,42px);color:var(--ink);line-height:1.05;margin-top:-34px;text-shadow:0 0 0 #fff,-3px -3px 0 var(--cream),3px -3px 0 var(--cream),-3px 3px 0 var(--cream),3px 3px 0 var(--cream),0 6px 10px rgba(0,0,0,0.15)}
+  .title span{color:#13b391}
+  .sub{font-size:14px;color:var(--ink2);max-width:400px;line-height:1.45;font-weight:700}
+  .sub b{color:var(--ink)}
+  .order-strip{display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap}
+  .wchip{padding:5px 14px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:16px;color:var(--ink);border:2.5px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,0.18)}
+  .wc-base{background:var(--amber)} .wc-past{background:var(--teal)} .wc-pp{background:var(--coral)}
+  .order-arrow{font-family:'Fredoka One',cursive;color:#b79c7c;font-size:16px}
+  .howto{display:flex;flex-direction:column;gap:6px;width:100%}
+  .howto-row{display:flex;gap:10px;align-items:center;background:var(--cream2);padding:8px 12px;border-radius:14px;font-size:13px;color:var(--ink);text-align:left;line-height:1.35;font-weight:600}
+  .howto-ico{width:30px;height:30px;flex-shrink:0;background:url(assets/foods.webp) 0 0/120px 120px no-repeat}
+  .howto-ico.e{background:none;font-size:22px;display:flex;align-items:center;justify-content:center}
+  .howto-row b{color:#c2410c}
+  .btn{font-family:'Fredoka One',cursive;font-size:20px;padding:12px 34px;border-radius:50px;border:none;cursor:pointer;letter-spacing:.4px;color:#fff;transition:transform .12s,box-shadow .12s}
+  .btn-primary{background:linear-gradient(#36d3ad,#14a988);box-shadow:0 5px 0 #0c7b62,0 10px 20px rgba(20,169,136,0.35);text-shadow:0 2px 0 rgba(0,0,0,0.15)}
+  .btn-primary:active{transform:translateY(4px);box-shadow:0 1px 0 #0c7b62}
+  .btn-secondary{background:var(--cream2);color:var(--ink);font-size:15px;padding:9px 22px;box-shadow:0 3px 0 #d9c29c}
+  .btn-secondary:active{transform:translateY(2px);box-shadow:0 1px 0 #d9c29c}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .stars{display:flex;gap:6px;justify-content:center;margin-top:-30px;position:relative}
+  .stars svg{width:62px;height:62px;filter:drop-shadow(0 3px 0 rgba(120,80,20,0.35))}
+  .stars svg:nth-child(2){width:78px;height:78px;margin-top:-12px}
+  .stars .s-fill{fill:#e6d7bc}
+  .stars svg.on .s-fill{fill:url(#sg)}
+  .stars svg.on{animation:starpop .55s cubic-bezier(.2,2.2,.4,1) both}
+  @keyframes starpop{0%{transform:scale(0) rotate(-40deg)}100%{transform:scale(1) rotate(0)}}
+  .stats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .stat{background:var(--cream2);border-radius:14px;padding:6px 12px;min-width:76px}
+  .stat .v{font-family:'Fredoka One',cursive;font-size:20px;color:var(--ink)}
+  .stat .l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;color:var(--ink2)}
+  .newbest{font-family:'Fredoka One',cursive;font-size:14px;color:var(--ink);background:linear-gradient(135deg,#ffe27a,#ffb84d);padding:4px 16px;border-radius:30px;animation:starpop .5s cubic-bezier(.2,2,.4,1)}
+  .logo-text{font-family:'Fredoka One',cursive;font-size:15px;color:#c9b08c;letter-spacing:1px}
+  .logo-text em{font-style:normal;color:#ef8b80}
+
+  /* ── Touch d-pad (toy buttons) ── */
+  #dpad{position:fixed;z-index:48;width:160px;height:160px;display:none;pointer-events:none}
+  #dpad.show{display:block}
+  .dbtn{position:absolute;width:54px;height:54px;border-radius:16px;background:var(--cream);box-shadow:0 4px 0 #c9ad83,0 8px 14px rgba(0,0,0,0.2);color:var(--ink);font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
+  .dbtn.press{transform:translateY(3px);box-shadow:0 1px 0 #c9ad83;background:#d8fff4}
+  #d-up{left:53px;top:0}#d-down{left:53px;top:106px}#d-left{left:0;top:53px}#d-right{left:106px;top:53px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#ffb020"/></linearGradient></defs></svg>
+<div id="bg"></div>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="chip"><div id="hud-logo">Krab<span>sy</span></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_round">Round</div><div class="hud-value" id="hud-round">1</div></div>
+  </div>
+  <div class="chip hud-stats">
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_verbs">Verbs</div><div class="goal-dots" id="hud-dots"></div></div>
+    <div class="hud-stat"><div class="hud-label" data-i18n="hud_score">Score</div><div class="hud-value" id="hud-score">0</div></div>
+  </div>
+  <button class="hud-btn" id="btn-sound" data-i18n-title="t_sound" title="Sound">🔊</button>
+</div>
+
+<div id="dpad">
+  <div class="dbtn" id="d-up">▲</div>
+  <div class="dbtn" id="d-left">◀</div>
+  <div class="dbtn" id="d-right">▶</div>
+  <div class="dbtn" id="d-down">▼</div>
+</div>
+
+<div class="screen" id="start-screen">
+  <div class="card">
+    <img class="card-art" src="assets/keyart.webp" alt="" width="960" height="540">
+    <div class="card-body">
+      <div class="title">Verb <span>Snake!</span></div>
+      <div class="sub" data-i18n="sub">Eat each verb's 3 forms in order. Eat <b>5 verbs</b> to finish the round!</div>
+      <div class="order-strip">
+        <span class="wchip wc-base">go</span><span class="order-arrow">→</span>
+        <span class="wchip wc-past">went</span><span class="order-arrow">→</span>
+        <span class="wchip wc-pp">gone</span>
+      </div>
+      <div class="howto">
+        <div class="howto-row"><div class="howto-ico"></div><div data-i18n="how1">Each fruit carries a word. Eat them <b>1 → 2 → 3</b> — every finished verb makes your snake longer.</div></div>
+        <div class="howto-row"><div class="howto-ico e">👆</div><div data-i18n="how2">Steer with the <b>arrow keys</b>, the buttons, or tap the side you want to turn to.</div></div>
+        <div class="howto-row"><div class="howto-ico e">⭐</div><div data-i18n="how3">Wrong order makes you shorter. No mistakes = <b>3 stars</b>. Don't hit the fence — or yourself!</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="start-btn" data-i18n="play">Play! 🐍</button>
+        <button class="btn btn-secondary hidden" id="continue-btn"></button>
+      </div>
+      <div class="logo-text">Krab<em>sy</em></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen hidden" id="end-screen">
+  <div class="card">
+    <img class="card-art short" src="assets/keyart.webp" alt="" width="960" height="540">
+    <div class="card-body">
+      <div class="stars" id="end-stars"></div>
+      <div class="title" id="end-title" style="margin-top:0;font-size:clamp(28px,7vw,38px)"></div>
+      <div class="newbest hidden" id="newbest-badge" data-i18n="newbest">🌟 New best!</div>
+      <div class="sub" id="end-sub"></div>
+      <div class="stats" id="end-stats"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="next-btn"></button>
+        <button class="btn btn-secondary" id="again-btn"></button>
+        <button class="btn btn-secondary" id="menu-btn" data-i18n="menu">Menu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── i18n ──
+// UI chrome follows the site language (DE/ES/EN); verb words stay English.
+// Same lookup as the drills: ?lang= → site-wide krabsy_lang → German.
+function getLang(){
+  try{const q=new URLSearchParams(location.search).get('lang');if(q==='de'||q==='es'||q==='en')return q;}catch(_){}
+  try{const l=localStorage.getItem('krabsy_lang');if(l==='de'||l==='es'||l==='en')return l;}catch(_){}
+  return 'de';
+}
+const LANG=getLang();
+const STR={
+  en:{
+    hud_round:'Round',hud_verbs:'Verbs',hud_score:'Score',t_sound:'Sound',
+    sub:"Eat each verb's 3 forms in order. Eat <b>5 verbs</b> to finish the round!",
+    how1:'Each fruit carries a word. Eat them <b>1 → 2 → 3</b> — every finished verb makes your snake longer.',
+    how2:'Steer with the <b>arrow keys</b>, the buttons, or tap the side you want to turn to.',
+    how3:"Wrong order makes you shorter. No mistakes = <b>3 stars</b>. Don't hit the fence — or yourself!",
+    play:'Play! 🐍',cont:'Round {n} ▶',newbest:'🌟 New best!',menu:'Menu',
+    next:'Next round ▶',again:'Again',retry:'Try again 🐍',
+    win_title:'Round {n} done!',lose_title:'Oops!',
+    win_sub:'Yum! Round {n+1} is a little faster.',
+    lose_sub_crash:'Your snake bumped into something.',lose_sub_short:'Wrong order with only a head left.',
+    st_verbs:'Verbs',st_mistakes:'Mistakes',st_time:'Time',st_score:'Score',
+    start_hint:'Eat a yellow word to start!',
+    coach0:'each verb has 3 forms — eat them in order!',
+    coach1:'next: {a} → ___',coach2:'finish: {a} → {b} → ___',
+    combo:'Combo x{n}!',goal:'Eat 5 verbs!',round:'Round {n}',
+  },
+  de:{
+    hud_round:'Runde',hud_verbs:'Verben',hud_score:'Punkte',t_sound:'Ton',
+    sub:'Friss die 3 Formen jedes Verbs der Reihe nach. Schaff <b>5 Verben</b>, dann ist die Runde geschafft!',
+    how1:'Jede Frucht trägt ein Wort. Friss sie <b>1 → 2 → 3</b> — jedes fertige Verb macht deine Schlange länger.',
+    how2:'Steuern mit den <b>Pfeiltasten</b>, den Knöpfen oder tipp auf die Seite, in die du abbiegen willst.',
+    how3:'Falsche Reihenfolge macht dich kürzer. Keine Fehler = <b>3 Sterne</b>. Nicht gegen den Zaun — und nicht dich selbst beißen!',
+    play:'Los geht’s! 🐍',cont:'Runde {n} ▶',newbest:'🌟 Neuer Rekord!',menu:'Menü',
+    next:'Nächste Runde ▶',again:'Nochmal',retry:'Nochmal 🐍',
+    win_title:'Runde {n} geschafft!',lose_title:'Hoppla!',
+    win_sub:'Lecker! Runde {n+1} ist ein bisschen schneller.',
+    lose_sub_crash:'Deine Schlange ist irgendwo angestoßen.',lose_sub_short:'Falsche Reihenfolge – und nur noch ein Kopf übrig.',
+    st_verbs:'Verben',st_mistakes:'Fehler',st_time:'Zeit',st_score:'Punkte',
+    start_hint:'Friss ein gelbes Wort, um zu starten!',
+    coach0:'jedes Verb hat 3 Formen — friss sie der Reihe nach!',
+    coach1:'als Nächstes: {a} → ___',coach2:'fertig machen: {a} → {b} → ___',
+    combo:'Combo x{n}!',goal:'Friss 5 Verben!',round:'Runde {n}',
+  },
+  es:{
+    hud_round:'Ronda',hud_verbs:'Verbos',hud_score:'Puntos',t_sound:'Sonido',
+    sub:'Cómete las 3 formas de cada verbo en orden. ¡Completa <b>5 verbos</b> para terminar la ronda!',
+    how1:'Cada fruta lleva una palabra. Cómetelas <b>1 → 2 → 3</b> — cada verbo completo alarga tu serpiente.',
+    how2:'Muévete con las <b>flechas</b>, los botones o toca el lado hacia el que quieres girar.',
+    how3:'El orden equivocado te encoge. Sin errores = <b>3 estrellas</b>. ¡No choques con la valla — ni con tu cola!',
+    play:'¡A jugar! 🐍',cont:'Ronda {n} ▶',newbest:'🌟 ¡Nuevo récord!',menu:'Menú',
+    next:'Siguiente ronda ▶',again:'Otra vez',retry:'Otra vez 🐍',
+    win_title:'¡Ronda {n} superada!',lose_title:'¡Uy!',
+    win_sub:'¡Qué rico! La ronda {n+1} es un poco más rápida.',
+    lose_sub_crash:'Tu serpiente se ha chocado.',lose_sub_short:'Orden equivocado y solo quedaba la cabeza.',
+    st_verbs:'Verbos',st_mistakes:'Errores',st_time:'Tiempo',st_score:'Puntos',
+    start_hint:'¡Cómete una palabra amarilla para empezar!',
+    coach0:'cada verbo tiene 3 formas — ¡cómetelas en orden!',
+    coach1:'siguiente: {a} → ___',coach2:'termina: {a} → {b} → ___',
+    combo:'¡Combo x{n}!',goal:'¡Cómete 5 verbos!',round:'Ronda {n}',
+  },
+};
+function t(key,vars){
+  let s=(STR[LANG]&&STR[LANG][key])??STR.en[key]??key;
+  if(vars)for(const k in vars)s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+document.documentElement.lang=LANG;
+document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.dataset.i18nTitle);});
+
+// ════════════════════════════════════════════════════════════
+// KRABSY VERB SNAKE v4 — garden overhaul (2026-11-23)
+// Same mechanics as v3, new look: illustrated garden board, toy snake,
+// Gemini food sprites (assets/foods.webp), juicy feedback, rounds with
+// a goal (5 verbs) and stars.
+//
+// Mechanics kept from v3:
+//  • snake starts as HEAD ONLY; grows +1 per correct eat
+//  • warm-up (round 1): exactly 1 fruit on the field until 2 verb sets
+//    are completed, then the field holds 3 (later rounds: 3 from the start)
+//  • rolling form queue: fruits appear in strict chain order
+//  • eating another verb's BASE abandons the current chain
+//    (lose chain-progress segments, -5 each); out-of-order forms
+//    are wrong eats (-10 score, -3 segments, respawn same form)
+//  • wrong eat while head-only = round lost
+//  • gentle speed curve 250→140 ms by round score, −8 ms per round
+//  • input QUEUE (2 deep) so quick U-turns work (e.g. ↑ then ←)
+// ════════════════════════════════════════════════════════════
+
+// All forms ≤ 7 characters so word pills stay compact (original rule).
+const VERBS=[
+  {v:'go',past:'went',pp:'gone'},{v:'eat',past:'ate',pp:'eaten'},
+  {v:'run',past:'ran',pp:'run'},{v:'see',past:'saw',pp:'seen'},
+  {v:'come',past:'came',pp:'come'},{v:'take',past:'took',pp:'taken'},
+  {v:'give',past:'gave',pp:'given'},{v:'know',past:'knew',pp:'known'},
+  {v:'make',past:'made',pp:'made'},{v:'do',past:'did',pp:'done'},
+  {v:'have',past:'had',pp:'had'},{v:'get',past:'got',pp:'got'},
+  {v:'find',past:'found',pp:'found'},{v:'say',past:'said',pp:'said'},
+  {v:'tell',past:'told',pp:'told'},{v:'feel',past:'felt',pp:'felt'},
+  {v:'keep',past:'kept',pp:'kept'},{v:'leave',past:'left',pp:'left'},
+  {v:'win',past:'won',pp:'won'},{v:'lose',past:'lost',pp:'lost'},
+  {v:'send',past:'sent',pp:'sent'},{v:'spend',past:'spent',pp:'spent'},
+  {v:'pay',past:'paid',pp:'paid'},{v:'meet',past:'met',pp:'met'},
+  {v:'think',past:'thought',pp:'thought'},{v:'bring',past:'brought',pp:'brought'},
+  {v:'write',past:'wrote',pp:'written'},{v:'speak',past:'spoke',pp:'spoken'},
+  {v:'drink',past:'drank',pp:'drunk'},{v:'break',past:'broke',pp:'broken'},
+  {v:'fly',past:'flew',pp:'flown'},{v:'grow',past:'grew',pp:'grown'},
+  {v:'fall',past:'fell',pp:'fallen'},{v:'ride',past:'rode',pp:'ridden'},
+];
+let VERB_BY_NAME={};VERBS.forEach(v=>VERB_BY_NAME[v.v]=v);
+// Inline VERBS above are the OFFLINE FALLBACK (file:// dev). When served,
+// the shared question engine swaps in the full catalogue (forms ≤ 7 chars
+// so word pills stay readable) and makes the game topic-ready via ?topic=.
+// Shared learning engine (docs/classroom-concept.md phase 1): every game
+// starts with a SMART queue (words this player still misses, new words
+// from their level, due repeats); after it runs out, verbs are random.
+// Answers are recorded per verb form (see recordForm).
+let KQ_MOD=null,STATS_MOD=null,EVENTS_MOD=null;
+async function smartQueue(){
+  try{
+    if(!KQ_MOD)return[];
+    const rows=await KQ_MOD.getChainSet({topic:KQ_MOD.topicFromUrl(),maxLen:7,count:12,smart:true});
+    return rows.map(r=>r.verb).filter(v=>VERB_BY_NAME[v]);
+  }catch(_){return[];}
+}
+function recordForm(verb,formIdx,correct){
+  // formIdx 1 = 2nd form ('past'), 2 = 3rd form ('participle'). Only the
+  // first answer per form in a chain counts (retries are not new answers).
+  const ch=state.chain;
+  if(!STATS_MOD||formIdx<1||!ch.recorded||ch.recorded.has(formIdx))return;
+  ch.recorded.add(formIdx);
+  try{STATS_MOD.recordAttempt(verb,formIdx===1?'past':'participle',correct,'verb-snake','irregular_verbs');}catch(_){}
+}
+// Dashboard events (docs/game-analytics.md). No-op when the lib is missing.
+function gameEvent(name,data){
+  try{if(EVENTS_MOD)EVENTS_MOD.gameEvent('verb-snake',name,data);}catch(_){}
+}
+const verbsReady=(async()=>{
+  try{STATS_MOD=await import('/lib/krabsy-stats.js');}catch(_){/* file:// */}
+  try{EVENTS_MOD=await import('/lib/krabsy-game-events.js');}catch(_){/* file:// */}
+  try{
+    const KQ=await import('/lib/krabsy-questions.js');
+    KQ_MOD=KQ;
+    const rows=await KQ.getChainSet({topic:KQ.topicFromUrl(),maxLen:7,shuffle:false});
+    if(rows.length>=20){
+      VERBS.length=0;
+      for(const r of rows)VERBS.push({v:r.verb,past:r.past,pp:r.participle});
+      VERB_BY_NAME={};VERBS.forEach(v=>VERB_BY_NAME[v.v]=v);
+    }
+  }catch(_){/* offline/file:// — inline list stays */}
+})();
+function formText(verb,idx){return idx===0?verb.v:idx===1?verb.past:verb.pp;}
+const FORM_TYPE=['base','past','pp'];
+const FORM_COLOR={base:'#ffcf5e',past:'#2ee6c0',pp:'#ff8585'};
+const FORM_DARK={base:'#c98a00',past:'#0f9c7e',pp:'#d94f4f'};
+
+// ── Food sprites: 4×4 sheet, 128 px cells (tools/build_assets.py) ──
+const FOOD_SHEET=new Image();
+let foodReady=false;
+FOOD_SHEET.onload=()=>{foodReady=true;};
+FOOD_SHEET.src='assets/foods.webp';
+// juice/sparkle colour per sprite (apple, strawberry, cherries, orange,
+// pear, melon, carrot, tomato, corn, lemon, peach, blueberries, banana,
+// green apple, cookie, cupcake)
+const FOOD_COLOR=['#e8343a','#ef3f4a','#c8102e','#ff9b1f','#e4cc3a','#ff5d6c','#ff8a1f','#ec3b2c',
+                  '#ffd23a','#ffe03a','#ffab6e','#4a5fd0','#ffd84a','#8fd43a','#a8693a','#ff8fc0'];
+const GOAL_VERBS=5;
+
+// Speed curve — exactly the original's (by round score), faster per round.
+function tickIntervalForScore(score){
+  if(score<200) return 250;
+  if(score<400) return 230;
+  if(score<600) return 210;
+  if(score<800) return 190;
+  if(score<1000)return 170;
+  if(score<1300)return 155;
+  return 140;
+}
+function currentInterval(){return Math.max(120,tickIntervalForScore(state.roundScore)-(state.level-1)*8);}
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+const TOUCH=!!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);
+
+// ── Layout: landscape 18×13 like the original, portrait flips ──
+// On touch screens the d-pad gets its own strip (below the board in
+// portrait, right of it in landscape) so it never covers fruit.
+const HUD_H=58, TRACKER_H=56, MARGIN=12, DPAD=172;
+let GRID_W=18, GRID_H=13;
+let LY={};
+function computeLayout(){
+  const top=HUD_H+TRACKER_H;
+  const portrait=W<H;
+  const padR=TOUCH&&!portrait?DPAD:0, padB=TOUCH&&portrait?DPAD-10:0;
+  const availW=Math.max(200,W-MARGIN*2-padR);
+  const availH=Math.max(240,H-top-MARGIN*2-padB);
+  if(availW>=availH){GRID_W=18;GRID_H=13;}else{GRID_W=13;GRID_H=18;}
+  const frame=(c)=>Math.max(8,Math.round(c*0.34));
+  let cell=Math.max(16,Math.floor(Math.min(availW/GRID_W,availH/GRID_H)));
+  // leave room for the wooden fence around the grass
+  while(cell>16&&(cell*GRID_W+frame(cell)*2>availW||cell*GRID_H+frame(cell)*2>availH))cell--;
+  const gw=cell*GRID_W, gh=cell*GRID_H;
+  LY={cell,gw,gh,frame:frame(cell),x:Math.round(MARGIN+(availW-gw)/2),y:Math.round(top+MARGIN+(availH-gh)/2),
+      trackerY:HUD_H+6};
+  const dp=document.getElementById('dpad');
+  if(TOUCH){
+    dp.classList.add('show');
+    if(portrait){dp.style.left=Math.round(W/2-80)+'px';dp.style.top='';dp.style.right='';
+      dp.style.bottom='max(8px,env(safe-area-inset-bottom))';}
+    else{dp.style.left='';dp.style.right='max(10px,env(safe-area-inset-right))';dp.style.bottom='';
+      dp.style.top=Math.round(Math.max(top,LY.y+gh/2-80))+'px';}
+  }
+  boardCache=null;
+}
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  computeLayout();
+}
+let boardCache=null;
+window.addEventListener('resize',resize);
+resize();
+
+const DIR_DELTA={up:{dc:0,dr:-1},down:{dc:0,dr:1},left:{dc:-1,dr:0},right:{dc:1,dr:0}};
+const DIR_ANGLE={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2};
+const OPP={up:'down',down:'up',left:'right',right:'left'};
+function cellCenter(col,row){return{x:LY.x+col*LY.cell+LY.cell/2,y:LY.y+row*LY.cell+LY.cell/2};}
+function randInt(n){return (Math.random()*n)|0;}
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+const state={
+  mode:'menu',           // menu | playing | dying | won | over
+  snake:[],prev:[],dir:'right',queuedDirs:[],
+  fruits:[],             // {verb, formIdx, cell:{col,row}, sprite, born}
+  chain:{verb:null,step:0},
+  formQueue:{verbs:[],nextTripleIdx:0,nextFormInTriple:0},
+  recentlyUsed:new Set(),
+  level:1,score:0,roundScore:0,combo:0,setsCompleted:0,
+  answers:0,correct:0,mistakes:0,roundStart:0,loseReason:'crash',
+  best:parseInt(localStorage.getItem('krabsy_vsnake_best')||'0'),
+  maxLevel:parseInt(localStorage.getItem('krabsy_vsnake_level')||'1'),
+  newBest:false,
+  sound:localStorage.getItem('krabsy_vsnake_sound')!=='off',
+  tickInterval:250,lastTickTime:0,
+  effects:[],shake:0,glowColor:null,glowUntil:0,
+  dieStart:0,eatPulse:0,ouchUntil:0,gulps:[],headAngle:0,
+};
+
+// ════════════════════════════════════════════════════════════
+// FORM QUEUE + FIELD  (original rolling-window system)
+// ════════════════════════════════════════════════════════════
+function targetFieldSize(){return state.level===1&&state.setsCompleted<2?1:3;}
+function pickRandomVerb(excludeNames){
+  while(state.smartQueue&&state.smartQueue.length){
+    const name=state.smartQueue.shift();
+    if(!excludeNames.has(name)&&!state.recentlyUsed.has(name)&&VERB_BY_NAME[name])return VERB_BY_NAME[name];
+  }
+  let pool=VERBS.filter(v=>!excludeNames.has(v.v)&&!state.recentlyUsed.has(v.v));
+  if(!pool.length){state.recentlyUsed.clear();pool=VERBS.filter(v=>!excludeNames.has(v.v));}
+  if(!pool.length)return null;
+  return pool[randInt(pool.length)];
+}
+function nextScheduledForm(){
+  const q=state.formQueue;
+  if(q.nextTripleIdx>=q.verbs.length){
+    const onField=new Set(state.fruits.map(f=>f.verb));
+    const v=pickRandomVerb(onField);
+    if(!v)return null;
+    q.verbs.push(v.v);
+    state.recentlyUsed.add(v.v);
+    if(state.recentlyUsed.size>12){state.recentlyUsed.delete(state.recentlyUsed.values().next().value);}
+  }
+  const verb=q.verbs[q.nextTripleIdx];
+  const formIdx=q.nextFormInTriple;
+  q.nextFormInTriple++;
+  if(q.nextFormInTriple>=3){q.nextFormInTriple=0;q.nextTripleIdx++;}
+  return{verb,formIdx};
+}
+function rewindQueueBy1(){
+  const q=state.formQueue;
+  if(q.nextFormInTriple===0){
+    if(q.nextTripleIdx>0){q.nextTripleIdx--;q.nextFormInTriple=2;}
+  }else q.nextFormInTriple--;
+}
+
+// ── Spawn placement (original rules) ──
+const SPAWN_FREE_RADIUS=4, MIN_FRUIT_SEPARATION=2;
+function cellOccupiedBySnake(col,row){return state.snake.some(s=>s.col===col&&s.row===row);}
+function isMapEdge(col,row){return col===0||row===0||col===GRID_W-1||row===GRID_H-1;}
+function inSpawnFreeZone(col,row){
+  if(!state.snake.length)return false;
+  const h=state.snake[0];
+  const dx=col-h.col,dy=row-h.row;
+  return dx*dx+dy*dy<=SPAWN_FREE_RADIUS*SPAWN_FREE_RADIUS;
+}
+function nearOtherFruit(col,row){
+  return state.fruits.some(f=>Math.max(Math.abs(col-f.cell.col),Math.abs(row-f.cell.row))<MIN_FRUIT_SEPARATION);
+}
+function isHorizontallyAdjacent(col,row){
+  return state.fruits.some(f=>f.cell.row===row&&Math.abs(col-f.cell.col)<=1);
+}
+function pickFruitCell(){
+  const useEdgeRule=targetFieldSize()===1;
+  const exclude=useEdgeRule?isMapEdge:inSpawnFreeZone;
+  // Tier 1: all constraints. Tier 2: drop cluster rule. Tier 3: drop zone rule.
+  for(let tier=0;tier<3;tier++){
+    for(let i=0;i<200;i++){
+      const col=randInt(GRID_W),row=randInt(GRID_H);
+      if(cellOccupiedBySnake(col,row))continue;
+      if(state.fruits.some(f=>f.cell.col===col&&f.cell.row===row))continue;
+      if(isHorizontallyAdjacent(col,row))continue;          // hard rule (label width)
+      if(tier<2&&exclude(col,row))continue;
+      if(tier<1&&nearOtherFruit(col,row))continue;
+      return{col,row};
+    }
+  }
+  return null;
+}
+let lastSprite=-1;
+function makeFruit(verbName,formIdx){
+  const cell=pickFruitCell();
+  if(!cell)return null;
+  let sprite=randInt(16);
+  if(sprite===lastSprite)sprite=(sprite+1+randInt(15))%16;
+  lastSprite=sprite;
+  return{verb:verbName,formIdx,cell,sprite,born:performance.now()};
+}
+function rebuildField(){
+  const fieldSize=targetFieldSize();
+  let safety=50;
+  while(state.fruits.length<fieldSize&&safety-->0){
+    const next=nextScheduledForm();
+    if(!next)break;
+    const f=makeFruit(next.verb,next.formIdx);
+    if(!f)break;
+    state.fruits.push(f);
+  }
+  // Safety net: the chain's needed form must exist on the field (text-based,
+  // so say/said/said is satisfied by either slot with the same text).
+  const ch=state.chain;
+  if(ch.step>=1){
+    const V=VERB_BY_NAME[ch.verb];
+    const neededText=ch.step===1?V.past:V.pp;
+    const has=state.fruits.some(f=>f.verb===ch.verb&&formText(VERB_BY_NAME[f.verb],f.formIdx)===neededText);
+    if(!has&&state.fruits.length>0){
+      state.fruits.pop();
+      rewindQueueBy1();
+      const f=makeFruit(ch.verb,ch.step);
+      if(f)state.fruits.push(f);
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// CHAIN RESOLUTION (original, text-based)
+// ════════════════════════════════════════════════════════════
+function resolveEat(fruit){
+  const V=VERB_BY_NAME[fruit.verb];
+  const T=formText(V,fruit.formIdx);
+  const ch=state.chain;
+  if(ch.step===0){
+    if(T===V.v)return{type:'correct-start',verbName:fruit.verb};
+    return{type:'wrong'};
+  }
+  const cv=VERB_BY_NAME[ch.verb];
+  if(fruit.verb===ch.verb){
+    if(ch.step===1&&T===cv.past)return{type:'correct-advance'};
+    if(ch.step===2&&T===cv.pp)return{type:'correct-complete'};
+    return{type:'wrong'};
+  }
+  if(T===V.v)return{type:'abandon',verbName:fruit.verb};
+  return{type:'wrong'};
+}
+function findFruitAt(col,row){
+  for(let i=0;i<state.fruits.length;i++){
+    const f=state.fruits[i];
+    if(f.cell.col===col&&f.cell.row===row)return{fruit:f,idx:i};
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════════════════
+// INPUT — queued (2 deep) so fast double-turns/U-turns register
+// ════════════════════════════════════════════════════════════
+function queueDirection(d){
+  if(state.mode!=='playing')return;
+  const last=state.queuedDirs.length>0?state.queuedDirs[state.queuedDirs.length-1]:state.dir;
+  if(OPP[last]===d||last===d)return;
+  if(state.queuedDirs.length<2)state.queuedDirs.push(d);
+  // Responsiveness: if this is the first queued turn and the snake is already
+  // most of the way through its current step, fire the tick NOW instead of
+  // waiting out the interval.
+  if(state.queuedDirs.length===1){
+    const now=performance.now();
+    const t=(now-state.lastTickTime)/state.tickInterval;
+    if(t>=0.55){state.lastTickTime=now;tick();}
+  }
+}
+window.addEventListener('keydown',e=>{
+  audioInit();
+  const k=e.key;
+  if(k==='ArrowUp'||k==='w'||k==='W'){queueDirection('up');e.preventDefault();}
+  else if(k==='ArrowDown'||k==='s'||k==='S'){queueDirection('down');e.preventDefault();}
+  else if(k==='ArrowLeft'||k==='a'||k==='A'){queueDirection('left');e.preventDefault();}
+  else if(k==='ArrowRight'||k==='d'||k==='D'){queueDirection('right');e.preventDefault();}
+  else if((k==='Enter'||k===' ')&&state.mode!=='playing'){
+    const btn=['start-screen','end-screen'].map(id=>document.getElementById(id))
+      .find(s=>!s.classList.contains('hidden'))?.querySelector('.btn-primary');
+    if(btn){btn.click();e.preventDefault();}
+  }
+});
+// Tap-to-turn relative to current travel axis (original behaviour).
+canvas.addEventListener('pointerdown',e=>{
+  audioInit();
+  if(state.mode!=='playing')return;
+  const r=canvas.getBoundingClientRect();
+  const cx=e.clientX-r.left,cy=e.clientY-r.top;
+  if(cx<LY.x-10||cx>LY.x+LY.gw+10||cy<LY.y-10||cy>LY.y+LY.gh+10)return;
+  const last=state.queuedDirs.length>0?state.queuedDirs[state.queuedDirs.length-1]:state.dir;
+  const headC=cellCenter(state.snake[0].col,state.snake[0].row);
+  if(last==='left'||last==='right')queueDirection(cy<headC.y?'up':'down');
+  else queueDirection(cx<headC.x?'left':'right');
+  e.preventDefault();
+});
+document.addEventListener('touchmove',e=>{if(state.mode==='playing')e.preventDefault();},{passive:false});
+function dpadBind(id,d){
+  const el=document.getElementById(id);
+  const fire=e=>{e.preventDefault();e.stopPropagation();audioInit();queueDirection(d);
+    el.classList.add('press');setTimeout(()=>el.classList.remove('press'),110);};
+  el.addEventListener('touchstart',fire,{passive:false});
+  el.addEventListener('mousedown',fire);
+}
+dpadBind('d-up','up');dpadBind('d-down','down');dpadBind('d-left','left');dpadBind('d-right','right');
+
+// ════════════════════════════════════════════════════════════
+// TICK (original flow)
+// ════════════════════════════════════════════════════════════
+function addScore(n){state.score=Math.max(0,state.score+n);state.roundScore=Math.max(0,state.roundScore+n);}
+function tick(){
+  if(state.mode!=='playing')return;
+  if(state.queuedDirs.length>0){
+    const next=state.queuedDirs.shift();
+    if(OPP[state.dir]!==next)state.dir=next;
+  }
+  const head=state.snake[0];
+  const d=DIR_DELTA[state.dir];
+  const nc={col:head.col+d.dc,row:head.row+d.dr};
+
+  if(nc.col<0||nc.row<0||nc.col>=GRID_W||nc.row>=GRID_H)return endGame('crash');
+  for(let i=1;i<state.snake.length-1;i++){
+    if(state.snake[i].col===nc.col&&state.snake[i].row===nc.row)return endGame('crash');
+  }
+
+  const hit=findFruitAt(nc.col,nc.row);
+  let willGrow=false,segmentsLost=0,wrongWhileHeadOnly=false,roundWon=false;
+
+  if(hit){
+    const{fruit:f,idx}=hit;
+    const result=resolveEat(f);
+    state.fruits.splice(idx,1);
+    const c=cellCenter(nc.col,nc.row);
+    state.answers++;
+
+    // Record answers: the needed form eaten = right; another form of the
+    // SAME verb eaten instead = wrong (a real mix-up). Other verbs' fruits
+    // hit while steering are not counted as answers.
+    if(state.chain.step>=1&&f.verb===state.chain.verb){
+      if(result.type==='correct-advance'||result.type==='correct-complete')recordForm(f.verb,state.chain.step,true);
+      else if(result.type==='wrong')recordForm(f.verb,state.chain.step,false);
+    }
+    if(result.type==='correct-start'){
+      state.chain.verb=result.verbName;state.chain.step=1;state.chain.recorded=new Set();
+      addScore(10);willGrow=true;state.correct++;
+      onCorrectEat(f,c,0);
+    }else if(result.type==='correct-advance'){
+      addScore(10);willGrow=true;state.correct++;
+      onCorrectEat(f,c,state.chain.step);
+      state.chain.step++;
+    }else if(result.type==='correct-complete'){
+      addScore(60);willGrow=true;state.correct++;
+      onCorrectEat(f,c,state.chain.step);
+      const V=VERB_BY_NAME[f.verb];
+      state.combo++;state.setsCompleted++;
+      state.chain={verb:null,step:0,recorded:new Set()};
+      scorePop(c.x,c.y-18,'+60!','#ffb020');
+      chainBanner(V);
+      confetti(c.x,c.y,26);
+      glow('rgba(255,230,120,0.25)');
+      sfx('complete');
+      if(state.combo>1){comboPop(state.combo);}
+      bumpDots();
+      if(state.setsCompleted>=GOAL_VERBS)roundWon=true;
+    }else if(result.type==='abandon'){
+      const lostN=state.chain.step,oldVerb=state.chain.verb;
+      segmentsLost=lostN;state.mistakes++;
+      addScore(-5*lostN);
+      state.fruits=state.fruits.filter(x=>x.verb!==oldVerb);
+      state.chain.verb=result.verbName;state.chain.step=1;state.chain.recorded=new Set();
+      state.combo=0;
+      scorePop(c.x,c.y,`-${lostN*5}`,'#e08a00');
+      flyWord(f,c,0);
+      sparkle(c.x,c.y,FOOD_COLOR[f.sprite],10);
+      glow('rgba(255,224,102,0.22)');
+      state.ouchUntil=performance.now()+350;
+      sfx('abandon');
+    }else{ // wrong (out of order)
+      addScore(-10);state.mistakes++;
+      state.combo=0;segmentsLost=3;
+      scorePop(c.x,c.y,'-10','#e5484d');
+      splat(c.x,c.y,FOOD_COLOR[f.sprite]);
+      state.shake=13;
+      glow('rgba(255,70,70,0.25)');
+      state.ouchUntil=performance.now()+600;
+      sfx('wrong');
+      const respawn=makeFruit(f.verb,f.formIdx);
+      if(respawn)state.fruits.push(respawn);
+      if(state.snake.length===1)wrongWhileHeadOnly=true;
+    }
+    state.eatPulse=performance.now();
+    if(willGrow)state.gulps.push({t0:performance.now(),color:FOOD_COLOR[f.sprite]});
+  }
+
+  state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+  state.snake.unshift({col:nc.col,row:nc.row,dir:state.dir});
+  if(willGrow){
+    // keep tail
+  }else if(segmentsLost>0){
+    const targetLen=Math.max(1,state.snake.length-1-segmentsLost);
+    for(let i=targetLen;i<state.snake.length;i++){
+      const cc=cellCenter(state.snake[i].col,state.snake[i].row);
+      setTimeout(()=>sparkle(cc.x,cc.y,'#2ee6c0',5),(i-targetLen)*50);
+    }
+    state.snake.length=targetLen;
+    if(wrongWhileHeadOnly)return endGame('short');
+  }else{
+    state.snake.pop();
+  }
+  while(state.prev.length<state.snake.length)state.prev.unshift(state.prev[0]||state.snake[0]);
+  state.prev.length=state.snake.length;
+
+  if(roundWon)return winRound();
+  rebuildField();
+  state.tickInterval=currentInterval();
+  updateHUD();
+}
+
+function onCorrectEat(f,c,slotIdx){
+  sparkle(c.x,c.y,FOOD_COLOR[f.sprite],14);
+  ring(c.x,c.y,FORM_COLOR[FORM_TYPE[f.formIdx]]);
+  if(slotIdx<2)scorePop(c.x,c.y,'+10','#2f9e44');
+  flyWord(f,c,slotIdx);
+  sfx(slotIdx===0?'eat0':slotIdx===1?'eat1':'eat2');
+}
+
+function roundSeconds(){return Math.round((performance.now()-state.roundStart)/1000);}
+function starsFor(m){return m===0?3:m<=2?2:1;}
+function endGame(reason){
+  state.mode='dying';
+  state.loseReason=reason;
+  state.dieStart=performance.now();
+  state.shake=20;
+  state.mistakes+=reason==='crash'?1:0;
+  saveBest();
+  state.snake.forEach((s,i)=>{
+    const c=cellCenter(s.col,s.row);
+    setTimeout(()=>sparkle(c.x,c.y,i===0?'#3df0cc':'#20b894',6),i*40);
+  });
+  sfx('die');
+  gameEvent('level_end',{level:state.level,result:'lost',reason,stars:0,score:state.roundScore,
+    length:state.snake.length,sets:state.setsCompleted,seconds:roundSeconds(),
+    answers:state.answers,correct:state.correct,mistakes:state.mistakes});
+  setTimeout(()=>showEnd(false),1100);
+}
+function winRound(){
+  state.mode='won';
+  state.dieStart=performance.now();
+  const stars=starsFor(state.mistakes);
+  state.lastStars=stars;
+  saveBest();
+  if(state.level+1>state.maxLevel){state.maxLevel=state.level+1;try{localStorage.setItem('krabsy_vsnake_level',state.maxLevel);}catch(_){}}
+  updateHUD();
+  for(let i=0;i<4;i++)setTimeout(()=>confetti(LY.x+LY.gw*(0.2+0.2*i),LY.y+LY.gh*0.35,30),i*140);
+  sfx('win');
+  gameEvent('level_end',{level:state.level,result:'won',stars,score:state.roundScore,
+    length:state.snake.length,sets:state.setsCompleted,seconds:roundSeconds(),
+    answers:state.answers,correct:state.correct,mistakes:state.mistakes});
+  setTimeout(()=>showEnd(true),1300);
+}
+function saveBest(){
+  state.newBest=state.score>state.best&&state.score>0;
+  if(state.newBest){state.best=state.score;try{localStorage.setItem('krabsy_vsnake_best',state.best);}catch(_){}}
+}
+
+// ════════════════════════════════════════════════════════════
+// EFFECTS (screen-space, drawn after the board)
+// ════════════════════════════════════════════════════════════
+const MAX_FX=260;
+function pushFx(e){if(state.effects.length<MAX_FX)state.effects.push(e);}
+function sparkle(x,y,color,n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=1.4+Math.random()*3;
+    pushFx({type:i%3===0?'star':'p',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,age:0,max:28+Math.random()*16,
+      color:i%3===0?'#fff6b0':color,r:2+Math.random()*2.6,rot:Math.random()*6,vr:(Math.random()-0.5)*0.3});
+  }
+}
+function splat(x,y,color){
+  for(let i=0;i<18;i++){
+    const a=Math.random()*Math.PI*2,s=2+Math.random()*3.5;
+    pushFx({type:'p',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.2,age:0,max:30+Math.random()*12,color,r:2.5+Math.random()*3});
+  }
+  pushFx({type:'ring',x,y,color:'#e5484d',age:0,max:22});
+}
+function ring(x,y,color){pushFx({type:'ring',x,y,color,age:0,max:20});}
+function confetti(x,y,n){
+  const cols=['#ffcf5e','#2ee6c0','#ff8585','#8fd43a','#ffffff','#7fb6ff'];
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+(Math.random()-0.5)*2.4,s=3+Math.random()*5;
+    pushFx({type:'conf',x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,age:0,max:70+Math.random()*30,
+      color:cols[i%cols.length],w:5+Math.random()*4,h:3+Math.random()*3,rot:Math.random()*6,vr:(Math.random()-0.5)*0.4});
+  }
+}
+function scorePop(x,y,text,color){pushFx({type:'pop',x,y,text,color,age:0,max:55});}
+function comboPop(n){state.effects=state.effects.filter(e=>e.type!=='combo');pushFx({type:'combo',text:t('combo',{n}),age:0,max:70});}
+function chainBanner(V){state.effects=state.effects.filter(e=>e.type!=='banner');pushFx({type:'banner',words:[V.v,V.past,V.pp],age:0,max:95});}
+function glow(color){state.glowColor=color;state.glowUntil=performance.now()+260;}
+function flyWord(f,c,slotIdx){
+  const target=trackerSlotPos(slotIdx);
+  pushFx({type:'fly',x:c.x,y:c.y,tx:target.x,ty:target.y,
+    text:formText(VERB_BY_NAME[f.verb],f.formIdx),
+    color:FORM_COLOR[FORM_TYPE[f.formIdx]],age:0,max:30});
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════
+function draw(now){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  if(state.shake>0){
+    ctx.translate((Math.random()-0.5)*state.shake*0.7,(Math.random()-0.5)*state.shake*0.7);
+    state.shake*=0.86;if(state.shake<0.4)state.shake=0;
+  }
+  drawBoard(now);
+  ctx.restore();
+  drawTracker(now);
+  drawOverlayFx(now);
+}
+
+// Seeded RNG so the lawn decoration stays the same between redraws.
+function rng(seed){return()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};}
+function renderBoardCache(){
+  const{gw,gh,cell,frame}=LY;
+  const pad=frame+10;
+  const c=document.createElement('canvas');
+  c.width=Math.ceil((gw+pad*2)*dpr);c.height=Math.ceil((gh+pad*2)*dpr);
+  const g=c.getContext('2d');
+  g.scale(dpr,dpr);g.translate(pad,pad);
+  const R=Math.max(10,cell*0.45);
+  // drop shadow under the whole plot
+  g.fillStyle='rgba(40,30,10,0.35)';
+  g.beginPath();g.roundRect(-frame+2,-frame+7,gw+frame*2,gh+frame*2,R+frame*0.6);g.fill();
+  // wooden frame
+  const wg=g.createLinearGradient(0,-frame,0,gh+frame);
+  wg.addColorStop(0,'#c98a52');wg.addColorStop(1,'#9a5c2e');
+  g.fillStyle=wg;
+  g.beginPath();g.roundRect(-frame,-frame,gw+frame*2,gh+frame*2,R+frame*0.6);g.fill();
+  // plank seams + nails
+  g.strokeStyle='rgba(90,50,20,0.45)';g.lineWidth=1.5;
+  const seam=(x1,y1,x2,y2)=>{g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();};
+  for(let x=cell*3;x<gw;x+=cell*3){seam(x,-frame+2,x,-1);seam(x,gh+1,x,gh+frame-2);}
+  for(let y=cell*3;y<gh;y+=cell*3){seam(-frame+2,y,-1,y);seam(gw+1,y,gw+frame-2,y);}
+  g.fillStyle='rgba(70,40,15,0.6)';
+  for(let x=cell*1.5;x<gw;x+=cell*3){for(const yy of[-frame/2,gh+frame/2]){g.beginPath();g.arc(x,yy,Math.max(1.2,frame*0.08),0,7);g.fill();}}
+  // top highlight on the wood
+  g.strokeStyle='rgba(255,230,190,0.45)';g.lineWidth=2;
+  g.beginPath();g.roundRect(-frame+1.5,-frame+1.5,gw+frame*2-3,gh+frame*2-3,R+frame*0.6);g.stroke();
+  // grass
+  g.save();
+  g.beginPath();g.roundRect(0,0,gw,gh,R*0.6);g.clip();
+  for(let r=0;r<GRID_H;r++)for(let col=0;col<GRID_W;col++){
+    g.fillStyle=(r+col)%2?'#8ed06a':'#9bd876';
+    g.fillRect(col*cell,r*cell,cell,cell);
+  }
+  // inner shade along the fence
+  const ig=g.createLinearGradient(0,0,0,cell*0.6);
+  ig.addColorStop(0,'rgba(40,70,20,0.28)');ig.addColorStop(1,'rgba(40,70,20,0)');
+  g.fillStyle=ig;g.fillRect(0,0,gw,cell*0.6);
+  // tufts, clover and tiny flowers
+  const rnd=rng(GRID_W*131+GRID_H);
+  for(let r=0;r<GRID_H;r++)for(let col=0;col<GRID_W;col++){
+    const x=col*cell,y=r*cell,k=rnd();
+    if(k<0.42){
+      g.strokeStyle='rgba(60,130,40,0.55)';g.lineWidth=Math.max(1,cell*0.04);g.lineCap='round';
+      const bx=x+cell*(0.2+rnd()*0.6),by=y+cell*(0.3+rnd()*0.5),s=cell*0.12;
+      for(const dx of[-1,0,1]){g.beginPath();g.moveTo(bx+dx*s*0.5,by);g.quadraticCurveTo(bx+dx*s*0.7,by-s*0.6,bx+dx*s,by-s*(dx?0.9:1.3));g.stroke();}
+    }else if(k<0.5){
+      const fx=x+cell*(0.2+rnd()*0.6),fy=y+cell*(0.2+rnd()*0.6),pr=cell*0.06;
+      g.fillStyle=['#ffffff','#ffd9e6','#fff2a8'][(rnd()*3)|0];
+      for(let p=0;p<5;p++){const a=p*1.2566;g.beginPath();g.arc(fx+Math.cos(a)*pr*1.3,fy+Math.sin(a)*pr*1.3,pr,0,7);g.fill();}
+      g.fillStyle='#ffc23a';g.beginPath();g.arc(fx,fy,pr*0.8,0,7);g.fill();
+    }else if(k<0.56){
+      const fx=x+cell*(0.25+rnd()*0.5),fy=y+cell*(0.25+rnd()*0.5),pr=cell*0.07;
+      g.fillStyle='rgba(70,150,50,0.7)';
+      for(let p=0;p<3;p++){const a=p*2.094-1.57;g.beginPath();g.arc(fx+Math.cos(a)*pr,fy+Math.sin(a)*pr,pr,0,7);g.fill();}
+    }
+  }
+  g.restore();
+  boardCache={c,pad};
+}
+
+function drawBoard(now){
+  if(!boardCache)renderBoardCache();
+  const{x,y,gw,gh}=LY;
+  ctx.drawImage(boardCache.c,x-boardCache.pad,y-boardCache.pad,gw+boardCache.pad*2,gh+boardCache.pad*2);
+  if(state.mode==='menu')return;
+  drawFruits(now);
+  drawSnake(now);
+}
+
+function drawFruits(now){
+  const cell=LY.cell;
+  // shadows + sprites first, word pills on top (pills hang into the next row)
+  for(const f of state.fruits){
+    const c=cellCenter(f.cell.col,f.cell.row);
+    const age=Math.max(0,(now-f.born)/1000);
+    // springy pop-in: overshoot, settle
+    const sc=age>=0.5?1:1-Math.exp(-age*9)*Math.cos(age*18);
+    const breathe=1+Math.sin(now*0.004+f.cell.col*1.7)*0.035;
+    const s=cell*1.14;
+    ctx.save();
+    ctx.translate(c.x,c.y);
+    ctx.fillStyle='rgba(30,60,10,0.25)';
+    ctx.beginPath();ctx.ellipse(0,cell*0.3,cell*0.3*sc,cell*0.09*sc,0,0,Math.PI*2);ctx.fill();
+    ctx.translate(0,-cell*0.13-Math.max(0,Math.sin(now*0.004+f.cell.col*1.7))*cell*0.04);
+    ctx.scale(sc*(2-breathe),sc*breathe);
+    if(foodReady){
+      ctx.drawImage(FOOD_SHEET,(f.sprite%4)*128,((f.sprite/4)|0)*128,128,128,-s/2,-s/2,s,s);
+    }else{
+      ctx.fillStyle=FOOD_COLOR[f.sprite];ctx.beginPath();ctx.arc(0,0,cell*0.34,0,7);ctx.fill();
+    }
+    ctx.restore();
+  }
+  for(const f of state.fruits){
+    const c=cellCenter(f.cell.col,f.cell.row);
+    const age=Math.max(0,(now-f.born)/1000);
+    if(age<0.12)continue;
+    const ft=FORM_TYPE[f.formIdx];
+    const word=formText(VERB_BY_NAME[f.verb],f.formIdx);
+    let fs=Math.max(10,Math.round(cell*0.28));
+    ctx.font=`${fs}px "Fredoka One",cursive`;
+    let tw=ctx.measureText(word).width;
+    const maxW=cell*1.75;
+    if(tw>maxW){fs=Math.max(9,fs*maxW/tw);ctx.font=`${fs}px "Fredoka One",cursive`;tw=ctx.measureText(word).width;}
+    const pw=tw+fs*0.9,ph=fs+6,py=c.y+cell*0.44+ph*0.3;
+    ctx.fillStyle='rgba(40,50,20,0.3)';
+    ctx.beginPath();ctx.roundRect(c.x-pw/2,py-ph/2+2,pw,ph,ph/2);ctx.fill();
+    ctx.fillStyle=FORM_COLOR[ft];
+    ctx.beginPath();ctx.roundRect(c.x-pw/2,py-ph/2,pw,ph,ph/2);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#2b1d10';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(word,c.x,py+1);
+  }
+}
+
+// ── The toy snake ──
+// Top-down: plump teal beads with a gloss highlight, tapering to the tail;
+// a round head with big eyes, rosy cheeks, a snout that opens when food is
+// right ahead; a "gulp" lump travels down the body after each eat.
+const SNAKE_A=['#33d6b4','#27c3a2'], SNAKE_DEAD=['#9fb3ad','#8aa19a'];
+function drawSnake(now){
+  if(!state.snake.length)return;
+  const cell=LY.cell;
+  const dying=state.mode==='dying';
+  const t=state.mode==='playing'?Math.min(1,(now-state.lastTickTime)/state.tickInterval*1.18):1;
+  const pts=state.snake.map((s,i)=>{
+    const p=state.prev[i]||s;
+    const cc=cellCenter(s.col,s.row),pc=cellCenter(p.col,p.row);
+    return{x:pc.x+(cc.x-pc.x)*t,y:pc.y+(cc.y-pc.y)*t};
+  });
+  const n=pts.length;
+  const dieT=dying?Math.min(1,(now-state.dieStart)/900):0;
+  const cols=dying?SNAKE_DEAD:SNAKE_A;
+  // gulp lumps: position along the body in segments
+  state.gulps=state.gulps.filter(g=>(now-g.t0)/state.tickInterval<n+1);
+  const lump=(pos)=>{let m=1;for(const g of state.gulps){const gp=(now-g.t0)/Math.max(90,state.tickInterval)*1.1;const d=pos-gp;m+=0.32*Math.exp(-d*d*1.6);}return Math.min(1.4,m);};
+  const radius=(i)=>{const k=n>1?i/(n-1):0;return cell*(0.4-0.2*k*k)*lump(i);};
+
+  ctx.save();
+  if(dying)ctx.globalAlpha=1-dieT*0.6;
+  // body: beads + half-step beads, tail first so the head sits on top
+  const beads=[];
+  for(let i=n-1;i>=1;i--){
+    beads.push({x:pts[i].x,y:pts[i].y,r:radius(i),i});
+    beads.push({x:(pts[i].x+pts[i-1].x)/2,y:(pts[i].y+pts[i-1].y)/2,r:radius(i-0.5),i:i-0.5});
+  }
+  // shadow
+  ctx.fillStyle='rgba(30,60,10,0.22)';
+  for(const b of beads){ctx.beginPath();ctx.arc(b.x+cell*0.05,b.y+cell*0.12,b.r,0,7);ctx.fill();}
+  // outline
+  ctx.fillStyle=dying?'#6c7f79':'#0f8a70';
+  for(const b of beads){ctx.beginPath();ctx.arc(b.x,b.y,b.r+Math.max(1.5,cell*0.05),0,7);ctx.fill();}
+  // fill (alternating shades read as plump segments)
+  for(const b of beads){ctx.fillStyle=cols[Math.round(b.i)%2];ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();}
+  // back stripe dots (cream) on whole segments + gloss
+  for(const b of beads){
+    if(b.i%1!==0)continue;
+    ctx.fillStyle=dying?'rgba(255,255,255,0.3)':'rgba(255,246,214,0.85)';
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r*0.28,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.beginPath();ctx.ellipse(b.x-b.r*0.35,b.y-b.r*0.4,b.r*0.32,b.r*0.18,-0.6,0,7);ctx.fill();
+  }
+
+  // head
+  const h=pts[0];
+  const faceDir=state.queuedDirs.length>0?state.queuedDirs[0]:state.dir;
+  let target=DIR_ANGLE[faceDir],a=state.headAngle;
+  let da=((target-a+Math.PI*3)%(Math.PI*2))-Math.PI;
+  state.headAngle=a+da*0.35;
+  const eatT=Math.max(0,1-(now-state.eatPulse)/260);
+  const hr=cell*0.52*(1+eatT*0.2);
+  const ouch=now<state.ouchUntil;
+  // food right ahead → mouth opens
+  const hd=state.snake[0],dd=DIR_DELTA[state.dir];
+  const ahead=state.mode==='playing'&&(findFruitAt(hd.col+dd.dc,hd.row+dd.dr)||findFruitAt(hd.col+dd.dc*2,hd.row+dd.dr*2));
+  ctx.save();
+  ctx.translate(h.x,h.y);
+  ctx.rotate(state.headAngle);
+  // squash on eat: wider sideways, shorter forward
+  ctx.scale(1-eatT*0.12,1+eatT*0.12);
+  ctx.fillStyle='rgba(30,60,10,0.25)';
+  ctx.beginPath();ctx.ellipse(cell*0.06,cell*0.12,hr*1.12,hr,0,0,7);ctx.fill();
+  ctx.fillStyle=dying?'#6c7f79':'#0f8a70';
+  ctx.beginPath();ctx.ellipse(hr*0.1,0,hr*1.12+2,hr+2,0,0,7);ctx.fill();
+  const hg=ctx.createRadialGradient(-hr*0.2,-hr*0.35,hr*0.1,0,0,hr*1.2);
+  hg.addColorStop(0,dying?'#c3d0cc':'#5ff0d2');hg.addColorStop(1,dying?'#8aa19a':'#22c09e');
+  ctx.fillStyle=hg;
+  ctx.beginPath();ctx.ellipse(hr*0.1,0,hr*1.12,hr,0,0,7);ctx.fill();
+  // cream snout
+  ctx.fillStyle=dying?'#d9dcd6':'#fff1cf';
+  ctx.beginPath();ctx.ellipse(hr*0.72,0,hr*0.46,hr*0.62,0,0,7);ctx.fill();
+  // mouth
+  if(ahead&&!dying){
+    const open=0.55+0.15*Math.sin(now*0.03);
+    ctx.fillStyle='#7a1f2b';
+    ctx.beginPath();ctx.ellipse(hr*0.95,0,hr*0.28*open,hr*0.42*open,0,0,7);ctx.fill();
+    ctx.fillStyle='#ff7a8a';
+    ctx.beginPath();ctx.ellipse(hr*0.9,0,hr*0.12*open,hr*0.2*open,0,0,7);ctx.fill();
+  }else{
+    ctx.strokeStyle='#a34a3a';ctx.lineWidth=Math.max(1.2,hr*0.08);ctx.lineCap='round';
+    ctx.beginPath();
+    if(ouch)ctx.arc(hr*1.02,0,hr*0.22,Math.PI*0.6,Math.PI*1.4);
+    else ctx.arc(hr*0.62,0,hr*0.34,-0.7,0.7);
+    ctx.stroke();
+    // nostrils
+    ctx.fillStyle='#c98a6a';
+    for(const s of[1,-1]){ctx.beginPath();ctx.arc(hr*1.02,s*hr*0.17,hr*0.05,0,7);ctx.fill();}
+  }
+  // tongue flick every ~2.6 s (not when the mouth is open)
+  if(!dying&&!ahead&&(now%2600)<260){
+    const tl=hr*(0.35+0.35*Math.sin((now%2600)/260*Math.PI));
+    ctx.strokeStyle='#ff5d73';ctx.lineWidth=Math.max(1.5,hr*0.09);ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(hr*1.15,0);ctx.lineTo(hr*1.15+tl,0);
+    ctx.moveTo(hr*1.15+tl,0);ctx.lineTo(hr*1.15+tl+hr*0.15,-hr*0.1);
+    ctx.moveTo(hr*1.15+tl,0);ctx.lineTo(hr*1.15+tl+hr*0.15,hr*0.1);ctx.stroke();
+  }
+  // cheeks
+  ctx.fillStyle='rgba(255,120,140,0.45)';
+  for(const s of[1,-1]){ctx.beginPath();ctx.ellipse(hr*0.42,s*hr*0.66,hr*0.17,hr*0.12,0,0,7);ctx.fill();}
+  // eyes
+  const blink=!dying&&!ouch&&(now%3700)<120;
+  for(const s of[1,-1]){
+    const ex=hr*0.12,ey=s*hr*0.44,er=hr*0.3;
+    if(dying){
+      // dizzy spirals
+      ctx.strokeStyle='#2b1d10';ctx.lineWidth=Math.max(1.2,hr*0.07);
+      ctx.beginPath();
+      for(let k=0;k<20;k++){const aa=k*0.6+now*0.01,rr=er*k/20;ctx.lineTo(ex+Math.cos(aa)*rr,ey+Math.sin(aa)*rr);}
+      ctx.stroke();
+    }else if(blink||ouch){
+      ctx.strokeStyle='#2b1d10';ctx.lineWidth=Math.max(1.5,hr*0.09);ctx.lineCap='round';
+      ctx.beginPath();
+      if(ouch){ctx.moveTo(ex-er*0.6,ey-er*0.5*s);ctx.lineTo(ex+er*0.4,ey);ctx.lineTo(ex-er*0.6,ey+er*0.5*s);}
+      else{ctx.moveTo(ex,ey-er*0.7);ctx.lineTo(ex,ey+er*0.7);}
+      ctx.stroke();
+    }else{
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,ey,er,0,7);ctx.fill();
+      ctx.strokeStyle='rgba(15,138,112,0.6)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#2b1d10';ctx.beginPath();ctx.arc(ex+er*0.3,ey,er*0.66,0,7);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex+er*0.1,ey-er*0.25,er*0.24,0,7);ctx.fill();
+      ctx.beginPath();ctx.arc(ex+er*0.5,ey+er*0.22,er*0.1,0,7);ctx.fill();
+    }
+  }
+  ctx.restore();
+  ctx.restore();
+}
+
+// ── Tracker: the chain in positional notation (no grammar terms) ──
+function trackerDims(){
+  const w=Math.min(W-24,400),h=44;
+  return{x:(W-w)/2,y:LY.trackerY,w,h};
+}
+function trackerSlotPos(slotIdx){
+  const{x,y,w,h}=trackerDims();
+  return{x:x+w*(0.18+0.32*slotIdx),y:y+h/2};
+}
+function drawTracker(now){
+  if(state.mode==='menu')return;
+  const{x,y,w,h}=trackerDims();
+  ctx.fillStyle='rgba(90,55,25,0.35)';
+  ctx.beginPath();ctx.roundRect(x,y+3,w,h,h/2);ctx.fill();
+  ctx.fillStyle='#fff8ec';
+  ctx.beginPath();ctx.roundRect(x,y,w,h,h/2);ctx.fill();
+
+  const ch=state.chain;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  if(!ch.verb){
+    ctx.font='800 14px Nunito,sans-serif';
+    const m=t('start_hint');
+    if(ctx.measureText(m).width>w-60)ctx.font='800 12px Nunito,sans-serif';
+    const tw=ctx.measureText(m).width;
+    // little amber dot = "the yellow word"
+    ctx.fillStyle='#ffcf5e';ctx.beginPath();ctx.arc(x+w/2-tw/2-12,y+h/2,6,0,7);ctx.fill();
+    ctx.fillStyle='#3b2a1a';ctx.fillText(m,x+w/2+6,y+h/2+1);
+  }else{
+    const V=VERB_BY_NAME[ch.verb];
+    const pulse=0.5+0.5*Math.sin(now*0.008);
+    for(let i=0;i<3;i++){
+      const p=trackerSlotPos(i);
+      const eaten=ch.step>i,isNext=ch.step===i;
+      const ft=FORM_TYPE[i];
+      const word=eaten?formText(V,i):'___';
+      ctx.font=`${eaten?16:15}px "Fredoka One",cursive`;
+      let tw=ctx.measureText(word).width;
+      if(tw>w*0.26){ctx.font='12px "Fredoka One",cursive';tw=ctx.measureText(word).width;}
+      const cw=Math.max(tw+18,54),chh=30;
+      if(eaten){
+        ctx.fillStyle=FORM_COLOR[ft];
+        ctx.beginPath();ctx.roundRect(p.x-cw/2,p.y-chh/2,cw,chh,chh/2);ctx.fill();
+        ctx.fillStyle='#2b1d10';ctx.fillText(word,p.x,p.y+1);
+      }else if(isNext){
+        ctx.setLineDash([5,4]);ctx.lineWidth=2.5;
+        ctx.strokeStyle=FORM_DARK[ft];
+        ctx.globalAlpha=0.55+0.45*pulse;
+        ctx.beginPath();ctx.roundRect(p.x-cw/2,p.y-chh/2,cw,chh,chh/2);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=FORM_DARK[ft];ctx.fillText('___',p.x,p.y+1);
+        ctx.globalAlpha=1;
+      }else{
+        ctx.fillStyle='#d9c9ad';ctx.fillText(word,p.x,p.y+1);
+      }
+      if(i<2){
+        ctx.font='15px "Fredoka One",cursive';
+        ctx.fillStyle='#b79c7c';
+        ctx.fillText('→',x+w*(0.34+0.32*i),y+h/2+1);
+      }
+    }
+  }
+  // Warm-up coaching line under the tracker (round 1, first two verb sets).
+  if(state.level===1&&state.setsCompleted<2&&state.mode==='playing'){
+    let hint;
+    if(!ch.verb)hint=t('coach0');
+    else{
+      const V=VERB_BY_NAME[ch.verb];
+      hint=ch.step===1?t('coach1',{a:V.v}):t('coach2',{a:V.v,b:V.past});
+    }
+    ctx.font='800 12px Nunito,sans-serif';
+    const tw=ctx.measureText(hint).width+20;
+    const hy=Math.min(y+h+15,LY.y-LY.frame-10);
+    ctx.fillStyle='rgba(40,60,20,0.55)';
+    ctx.beginPath();ctx.roundRect(x+w/2-tw/2,hy-10,tw,20,10);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.fillText(hint,x+w/2,hy+1);
+  }
+  // combo badge
+  if(state.combo>1){
+    const bx=x+w-2,by=y-2;
+    ctx.font='13px "Fredoka One",cursive';
+    const txt='x'+state.combo;
+    const bw=ctx.measureText(txt).width+14;
+    ctx.fillStyle='#ffb020';
+    ctx.beginPath();ctx.roundRect(bx-bw,by-8,bw,20,10);ctx.fill();
+    ctx.fillStyle='#3b2a1a';
+    ctx.fillText(txt,bx-bw/2,by+2);
+  }
+}
+
+function drawStar(x,y,r,rot){
+  ctx.beginPath();
+  for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,rr=i%2?r*0.45:r;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}
+  ctx.closePath();ctx.fill();
+}
+function outlinedText(text,x,y,size,fill,stroke){
+  ctx.font=`${size}px "Fredoka One",cursive`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.lineJoin='round';ctx.lineWidth=Math.max(3,size*0.18);ctx.strokeStyle=stroke;ctx.strokeText(text,x,y);
+  ctx.fillStyle=fill;ctx.fillText(text,x,y);
+}
+function drawOverlayFx(now){
+  if(state.glowColor&&now<state.glowUntil){
+    ctx.fillStyle=state.glowColor;
+    ctx.globalAlpha=(state.glowUntil-now)/260*0.8;
+    ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=1;
+  }
+  state.effects=state.effects.filter(e=>e.age<e.max);
+  const bx=LY.x+LY.gw/2,by=LY.y+LY.gh*0.42;
+  for(const e of state.effects){
+    e.age++;
+    const p=e.age/e.max;
+    if(e.type==='p'||e.type==='star'){
+      e.x+=e.vx;e.y+=e.vy;e.vy+=0.09;e.vx*=0.98;
+      ctx.globalAlpha=1-p*p;ctx.fillStyle=e.color;
+      if(e.type==='star'){e.rot+=e.vr;drawStar(e.x,e.y,e.r*1.6*(1-p*0.5),e.rot);}
+      else{ctx.beginPath();ctx.arc(e.x,e.y,e.r*(1-p*0.4),0,7);ctx.fill();}
+    }else if(e.type==='conf'){
+      e.x+=e.vx;e.y+=e.vy;e.vy+=0.12;e.vx*=0.985;e.rot+=e.vr;
+      ctx.globalAlpha=p>0.8?(1-p)*5:1;ctx.fillStyle=e.color;
+      ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot);ctx.scale(1,Math.cos(e.age*0.2));
+      ctx.fillRect(-e.w/2,-e.h/2,e.w,e.h);ctx.restore();
+    }else if(e.type==='ring'){
+      ctx.globalAlpha=1-p;ctx.strokeStyle=e.color;ctx.lineWidth=3*(1-p)+1;
+      ctx.beginPath();ctx.arc(e.x,e.y,LY.cell*(0.3+p*0.9),0,7);ctx.stroke();
+    }else if(e.type==='pop'){
+      ctx.globalAlpha=p>0.6?(1-p)/0.4:1;
+      const s=p<0.15?0.6+p/0.15*0.5:1.1-Math.min(0.1,(p-0.15));
+      outlinedText(e.text,e.x,e.y-22-p*26,Math.round(19*s),e.color,'#fff');
+    }else if(e.type==='combo'){
+      const s=p<0.2?p/0.2*1.25:p<0.3?1.25-(p-0.2)*2.5:1;
+      ctx.globalAlpha=p>0.75?(1-p)/0.25:1;
+      outlinedText(e.text,bx,by+LY.gh*0.18,Math.round(Math.min(40,LY.cell*1.1)*s),'#ffb020','#3b2a1a');
+    }else if(e.type==='banner'){
+      // teach beat: the whole chain, big, for a moment
+      const s=p<0.15?p/0.15:1;
+      ctx.globalAlpha=p>0.8?(1-p)/0.2:1;
+      const size=Math.round(Math.min(34,LY.cell*0.95)*(0.6+0.4*s));
+      ctx.font=`${size}px "Fredoka One",cursive`;
+      const sep='  →  ';
+      const parts=[e.words[0],sep,e.words[1],sep,e.words[2]];
+      const ws=parts.map(x=>ctx.measureText(x).width);
+      let total=ws.reduce((a,b)=>a+b,0);
+      let xx=bx-total/2;
+      const yy=by-p*10;
+      const cs=['#ffcf5e',null,'#2ee6c0',null,'#ff8585'];
+      parts.forEach((txt,i)=>{
+        outlinedText(txt,xx+ws[i]/2,yy,size,cs[i]||'#fff','#3b2a1a');
+        xx+=ws[i];
+      });
+    }else if(e.type==='fly'){
+      const k=1-Math.pow(1-p,3);
+      const fx=e.x+(e.tx-e.x)*k,fy=e.y+(e.ty-e.y)*k-Math.sin(p*Math.PI)*40;
+      ctx.globalAlpha=1-p*0.3;
+      outlinedText(e.text,fx,fy,17,e.color,'#3b2a1a');
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN LOOP
+// ════════════════════════════════════════════════════════════
+function frameLoop(now){
+  if(state.mode==='playing'){
+    if(now-state.lastTickTime>=state.tickInterval){
+      state.lastTickTime=now;
+      tick();
+    }
+  }
+  draw(now);
+  requestAnimationFrame(frameLoop);
+}
+requestAnimationFrame(frameLoop);
+
+// ════════════════════════════════════════════════════════════
+// AUDIO — WebAudio synth, no files
+// ════════════════════════════════════════════════════════════
+let AC=null;
+function audioInit(){
+  if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(_){}}
+  if(AC&&AC.state==='suspended')AC.resume();
+}
+function tone(freq,dur,type,gain,when,slide){
+  if(!AC||!state.sound)return;
+  const t=AC.currentTime+(when||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(gain||0.1,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(t);o.stop(t+dur+0.02);
+}
+function sfx(kind){
+  if(!AC||!state.sound)return;
+  switch(kind){
+    case 'eat0': tone(500,0.08,'sine',0.12,0,800);tone(740,0.1,'sine',0.06,0.06);break;
+    case 'eat1': tone(560,0.08,'sine',0.12,0,900);tone(880,0.1,'sine',0.06,0.06);break;
+    case 'eat2': tone(620,0.08,'sine',0.12,0,1000);break;
+    case 'complete':[523,659,784,1047].forEach((f,i)=>tone(f,0.13,'triangle',0.1,i*0.07));break;
+    case 'abandon': tone(440,0.1,'sine',0.09);tone(330,0.16,'sine',0.09,0.09);break;
+    case 'wrong': tone(220,0.22,'square',0.06,0,110);tone(160,0.18,'sine',0.1,0.02);break;
+    case 'die':[392,311,247,196].forEach((f,i)=>tone(f,0.2,'triangle',0.1,i*0.1));break;
+    case 'win':[523,659,784,659,784,1047].forEach((f,i)=>tone(f,0.16,'triangle',0.1,i*0.09));break;
+    case 'star': tone(1047,0.12,'sine',0.1);tone(1568,0.18,'sine',0.06,0.05);break;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// HUD / SCREENS / FLOW
+// ════════════════════════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('hud-score').textContent=state.score;
+  document.getElementById('hud-round').textContent=state.level;
+  const dots=document.getElementById('hud-dots');
+  if(dots.children.length!==GOAL_VERBS)dots.innerHTML='<i></i>'.repeat(GOAL_VERBS);
+  [...dots.children].forEach((d,i)=>d.classList.toggle('on',i<state.setsCompleted));
+  const sb=document.getElementById('btn-sound');
+  sb.textContent=state.sound?'🔊':'🔇';
+  sb.classList.toggle('muted',!state.sound);
+}
+function bumpDots(){
+  const d=document.getElementById('hud-dots').children[state.setsCompleted-1];
+  if(d){d.classList.remove('pop');void d.offsetWidth;d.classList.add('pop');}
+}
+
+async function startRound(level,keepScore){
+  audioInit();
+  await verbsReady;   // engine catalogue (or inline fallback) is in place
+  state.smartQueue=await smartQueue();   // fresh each round: last answers count
+  state.level=level;
+  if(!keepScore)state.score=0;
+  computeLayout();
+  state.dir='right';state.headAngle=0;
+  state.snake=[{col:Math.floor(GRID_W/2)-1,row:Math.floor(GRID_H/2),dir:'right'}];
+  state.prev=state.snake.map(s=>({...s}));
+  state.queuedDirs=[];
+  state.fruits=[];state.gulps=[];
+  state.chain={verb:null,step:0,recorded:new Set()};
+  state.roundScore=0;state.combo=0;state.setsCompleted=0;
+  state.answers=0;state.correct=0;state.mistakes=0;
+  state.recentlyUsed=new Set();
+  state.effects=[];state.shake=0;state.newBest=false;
+  state.tickInterval=currentInterval();
+  state.formQueue={verbs:[],nextTripleIdx:0,nextFormInTriple:0};
+  rebuildField();
+  // short "Round N — eat 5 verbs" beat before the snake moves
+  state.mode='playing';
+  state.lastTickTime=performance.now()+900;
+  state.roundStart=performance.now()+900;
+  pushFx({type:'combo',text:t('round',{n:level})+' · '+t('goal'),age:0,max:80});
+  updateHUD();
+  ['start-screen','end-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('hud').classList.remove('hidden');
+  gameEvent('level_start',{level});
+}
+
+const STAR_SVG='<svg viewBox="0 0 24 24"><path class="s-fill" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" d="M12 2.2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>';
+function fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function showEnd(won){
+  state.mode='over';
+  const stars=won?state.lastStars:0;
+  const starsEl=document.getElementById('end-stars');
+  starsEl.innerHTML=STAR_SVG.repeat(3);
+  [...starsEl.children].forEach((s,i)=>{
+    if(i<stars){s.style.animationDelay=(0.25+i*0.3)+'s';s.classList.add('on');
+      setTimeout(()=>sfx('star'),250+i*300);}
+  });
+  document.getElementById('end-title').innerHTML=won?t('win_title',{n:state.level}):t('lose_title');
+  document.getElementById('end-sub').textContent=won
+    ?t('win_sub',{n:state.level,'n+1':state.level+1})
+    :t(state.loseReason==='short'?'lose_sub_short':'lose_sub_crash');
+  document.getElementById('newbest-badge').classList.toggle('hidden',!state.newBest);
+  const stat=(v,l)=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  document.getElementById('end-stats').innerHTML=
+    stat(state.setsCompleted+' / '+GOAL_VERBS,t('st_verbs'))+
+    stat(state.mistakes,t('st_mistakes'))+
+    stat(fmtTime(Math.max(0,roundSeconds())),t('st_time'))+
+    stat(state.score,t('st_score'));
+  const next=document.getElementById('next-btn'),again=document.getElementById('again-btn');
+  if(won){
+    next.textContent=t('next');next.onclick=()=>startRound(state.level+1,true);
+    again.textContent=t('again');again.onclick=()=>startRound(state.level,false);
+    again.classList.remove('hidden');
+  }else{
+    next.textContent=t('retry');next.onclick=()=>startRound(state.level,false);
+    again.classList.add('hidden');
+  }
+  document.getElementById('end-screen').classList.remove('hidden');
+}
+function showMenu(){
+  state.mode='menu';
+  document.getElementById('end-screen').classList.add('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  refreshContinue();
+  document.getElementById('start-screen').classList.remove('hidden');
+}
+function refreshContinue(){
+  const c=document.getElementById('continue-btn');
+  c.classList.toggle('hidden',state.maxLevel<=1);
+  c.textContent=t('cont',{n:state.maxLevel});
+}
+document.getElementById('start-btn').addEventListener('click',()=>startRound(1,false));
+document.getElementById('continue-btn').addEventListener('click',()=>startRound(state.maxLevel,false));
+document.getElementById('menu-btn').addEventListener('click',showMenu);
+document.getElementById('btn-sound').addEventListener('click',()=>{
+  state.sound=!state.sound;
+  try{localStorage.setItem('krabsy_vsnake_sound',state.sound?'on':'off');}catch(_){}
+  audioInit();updateHUD();if(state.sound)sfx('eat0');
+});
+refreshContinue();
+updateHUD();
+
+// ── QA: ?qa=board renders a frozen mid-game scene (for headless shots) ──
+if(location.search.includes('qa=board')){
+  (async function(){
+    await startRound(1,false);
+    state.lastTickTime=performance.now();
+    for(let i=0;i<4;i++){
+      const f=state.fruits[0];if(!f)break;
+      let col=f.cell.col-1,row=f.cell.row,dir='right';
+      if(col<0){col=f.cell.col+1;dir='left';}
+      state.snake[0]={col,row,dir};
+      state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+      state.dir=dir;state.queuedDirs=[];
+      tick();
+    }
+    state.setsCompleted=2;state.fruits=[];rebuildField();updateHUD();
+    state.snake=[{col:5,row:9,dir:'right'},{col:4,row:9},{col:3,row:9},{col:3,row:10},{col:2,row:10},{col:1,row:10}];
+    state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+    state.dir='right';state.tickInterval=9e9;state.lastTickTime=performance.now();
+  })();
+}
+
+// ── QA hook ──
+window.__VS={
+  get state(){return state;},
+  get VERBS(){return VERBS;},
+  verbsReady,
+  get GRID(){return{w:GRID_W,h:GRID_H};},
+  tick,queueDirection,targetFieldSize,resolveEat,startRound,
+  forceDraw(){draw(performance.now());},
+  cellCenter,
+  // place the head one cell left of a fruit and tick into it (real code path)
+  eatFruitIdx(i){
+    const f=state.fruits[i];if(!f)return null;
+    let col=f.cell.col-1,row=f.cell.row,dir='right';
+    if(col<0){col=f.cell.col+1;dir='left';}
+    state.snake[0]={col,row,dir};
+    state.prev=state.snake.map(s=>({col:s.col,row:s.row}));
+    state.dir=dir;state.queuedDirs=[];
+    tick();
+    return f;
+  },
+  neededIdx(){
+    const ch=state.chain;
+    if(ch.step===0){
+      const v=state.formQueue.verbs[state.formQueue.nextTripleIdx>0?state.formQueue.nextTripleIdx-1:0];
+      let i=state.fruits.findIndex(f=>f.verb===v&&f.formIdx===0);
+      if(i<0)i=state.fruits.findIndex(f=>f.formIdx===0);
+      return i;
+    }
+    const V=VERB_BY_NAME[ch.verb];
+    const t=ch.step===1?V.past:V.pp;
+    return state.fruits.findIndex(f=>f.verb===ch.verb&&formText(VERB_BY_NAME[f.verb],f.formIdx)===t);
+  },
+};
+</script>
+</body>
+</html>

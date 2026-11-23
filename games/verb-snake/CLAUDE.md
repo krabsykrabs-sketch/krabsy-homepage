@@ -80,3 +80,40 @@ say so here and message the master session.
 - 2026-11-23 — Brief written by the master session (owner: "take weak games
   offline"; data showed Snake is the most-played game, so it gets an
   overhaul instead). Nothing built yet.
+- 2026-11-23 — **Overhaul built, ready for review** (game session).
+  Owner picked: **sunny garden** board, **cute toy snake**, **goal rounds +
+  stars**.
+  - Build = `index.html` + `assets/` (foods.webp 4×4 sprite sheet,
+    keyart.webp, backdrop.webp). First load ≈ 260 KB + fonts. It is now
+    several files, so **release to `homepage/games/verb-snake/`** (copy
+    `index.html` + `assets/`) and change both wrappers' iframe `src` from
+    `/krabsy-verb-snake.html` to `/games/verb-snake/`. Asset paths are
+    relative; `/lib/...` imports are absolute as before.
+  - Art: Gemini `gemini-3-pro-image` with the Kitchen hero as style ref
+    (`tools/gen_art.py`), keyed/sized by `tools/build_assets.py`.
+    Originals are in `_incoming/verb-snake-art/` (gitignored, in the
+    worktree the session ran in). Snake + board are drawn in canvas (the
+    board is pre-rendered once per resize).
+  - Rounds: eat **5 verbs** = round won. Stars: 0 mistakes ★★★, ≤ 2 ★★,
+    else ★. Mistakes = wrong order, abandoned chain, crash. Crash or a wrong
+    eat with head only = round lost (retry same round). Next round: −8 ms
+    per tick (curve still 250→140 by round score, floor 120); warm-up with
+    one fruit only in round 1; score carries over with "Next round".
+    Highest round reached is saved (`krabsy_vsnake_level`) → "Round N ▶"
+    on the start screen.
+  - Juice: springy fruit pop-in, open mouth when food is ahead, blink,
+    tongue, squash on eat, a gulp bulge running down the body, sparkles +
+    ring, the whole chain flashes big after each verb (`go → went → gone`,
+    form colours), combo pop, confetti, shake + ouch face on mistakes,
+    dizzy eyes on crash. HUD: round, 5 verb dots, score.
+  - Kept: all mechanics, `smartQueue`, `recordForm`/`recordAttempt`, input
+    queue, tap-to-turn, positional notation (`go → ___`, no grammar
+    terms), form colours. D-pad gets its own strip (below the board in
+    portrait, right of it in landscape) so it never covers fruit.
+  - New: EN UI (`?lang=en`), Enter/Space presses the main button.
+  - Events: `level_start {level}`, `level_end {level, result: won|lost,
+    reason: crash|short (lost only), stars, score, length, sets, seconds,
+    answers, correct, mistakes}`.
+  - Tested headless (Playwright) at 390×844 touch, 1024×768 touch,
+    1366×768: start/board/win/lose screens, full scripted round, events,
+    61 fps, no console errors. **Not yet played by hand on a real phone.**
