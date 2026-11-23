@@ -292,7 +292,8 @@ ours 2×1×2).
        L7 is the second-easiest level but sits in slot 7.
     4. Hint pills say "E — grab …" also on touch devices (no E key there).
     5. Sundae recipe picture shows a cherry; the orders don't use one.
-    6. Old live saves (levels 1–3 stars) carry over — not tested yet.
+    6. Old live saves carry over: same localStorage key `krabsy_vkitchen_save`
+       and save format v2 in both builds (not tested with a real old save).
 
 - 2026-11-23 — **Star times calibrated (all 8 levels).** Source only; NOT in
   the live build. `starTimes` in `src/levels.js` only; orders, spawn timing
