@@ -915,57 +915,102 @@ def _hourly_svg(hours: Counter) -> str:
     )
 
 
+def _nice_ticks(max_v: int, want: int = 4) -> tuple[int, list[int]]:
+    """Round axis maximum and evenly spaced ticks (0, 25, 50, ...)."""
+    raw = max(1, max_v) / want
+    mag = 10 ** (len(str(int(raw))) - 1)
+    step = next(m * mag for m in (1, 2, 2.5, 5, 10) if m * mag >= raw)
+    step = max(1, int(step))
+    top = step * -(-max(1, max_v) // step)
+    return top, list(range(0, top + 1, step))
+
+
 def _timeseries_svg(rows: list[tuple]) -> str:
-    """Daily trend line chart: unique visitors (teal) + page views (coral)."""
+    """Daily trend line chart: unique visitors (teal) + page views (coral).
+
+    Each day shows its numbers next to the dots (up to 31 days) and a
+    hover column with a tooltip box (pure SVG + CSS, no JS)."""
     if not rows:
         return '<div class="empty">No data in this range</div>'
-    width, height = 720, 220
-    pad_left, pad_right, pad_top, pad_bottom = 40, 12, 14, 40
+    width, height = 720, 290
+    n = len(rows)
+    pad_left, pad_right, pad_top = 40, 16, 14
+    pad_bottom = 80 if n <= 16 else 46
     chart_w = width - pad_left - pad_right
     chart_h = height - pad_top - pad_bottom
-    n = len(rows)
-    max_v = max((max(v, u) for _, v, u in rows), default=1) or 1
-    # one x per day; with a single day, centre it
+    top, ticks = _nice_ticks(max((max(v, u) for _, v, u in rows), default=1))
+    show_values = n <= 16          # numbers row under the dates
+
     def xpos(i):
         return pad_left + (chart_w * (i / (n - 1)) if n > 1 else chart_w / 2)
-    def ypos(val):
-        return pad_top + (chart_h - (val / max_v) * chart_h)
 
-    def series(idx, color, label_id):
+    def ypos(val):
+        return pad_top + (chart_h - (val / top) * chart_h)
+
+    grid = "".join(
+        f'<line x1="{pad_left}" y1="{ypos(t):.1f}" x2="{width - pad_right}" y2="{ypos(t):.1f}" '
+        f'stroke="{"#e7e2d4" if t == 0 else "#f2efe6"}"/>'
+        f'<text x="{pad_left - 6}" y="{ypos(t) + 4:.1f}" font-size="11" text-anchor="end" fill="{MUTED}">{t}</text>'
+        for t in ticks
+    )
+
+    def line(idx, color):
         pts = " ".join(f"{xpos(i):.1f},{ypos(r[idx]):.1f}" for i, r in enumerate(rows))
         dots = "".join(
-            f'<circle cx="{xpos(i):.1f}" cy="{ypos(r[idx]):.1f}" r="3" fill="{color}">'
-            f'<title>{escape(r[0])} — {r[idx]} {label_id}</title></circle>'
+            f'<circle cx="{xpos(i):.1f}" cy="{ypos(r[idx]):.1f}" r="3.5" fill="{color}"/>'
             for i, r in enumerate(rows)
         )
-        poly = (f'<polyline points="{pts}" fill="none" stroke="{color}" '
-                f'stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>')
-        return poly + dots
+        return (f'<polyline points="{pts}" fill="none" stroke="{color}" '
+                f'stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' + dots)
 
-    # gridlines: 0 and max
-    grid = (
-        f'<line x1="{pad_left}" y1="{ypos(0):.1f}" x2="{width - pad_right}" y2="{ypos(0):.1f}" stroke="#e7e2d4"/>'
-        f'<line x1="{pad_left}" y1="{ypos(max_v):.1f}" x2="{width - pad_right}" y2="{ypos(max_v):.1f}" stroke="#f2efe6"/>'
-        f'<text x="4" y="{ypos(max_v) + 4:.1f}" font-size="10" fill="{MUTED}">{max_v}</text>'
-        f'<text x="4" y="{ypos(0) + 4:.1f}" font-size="10" fill="{MUTED}">0</text>'
-    )
-    # x labels: ~6 evenly spaced dates (MM-DD)
-    step = max(1, n // 6)
-    xlabels = "".join(
-        f'<text x="{xpos(i):.1f}" y="{height - pad_bottom + 16}" font-size="10" '
-        f'text-anchor="middle" fill="{MUTED}">{escape(rows[i][0][5:])}</text>'
-        for i in range(0, n, step)
-    )
+    # numbers under each date: visitors (teal) and page views (coral)
+    step = 1 if n <= 16 else max(1, round(n / 8))
+    base = height - pad_bottom
+    xlabels = ""
+    for i in range(0, n, step):
+        day, views, visitors = rows[i]
+        x = xpos(i)
+        xlabels += (f'<text x="{x:.1f}" y="{base + 16}" font-size="11" text-anchor="middle" '
+                    f'fill="{MUTED}">{escape(day[5:])}</text>')
+        if show_values:
+            xlabels += (f'<text x="{x:.1f}" y="{base + 33}" font-size="13" font-weight="700" '
+                        f'text-anchor="middle" fill="#1f9c7f">{visitors}</text>'
+                        f'<text x="{x:.1f}" y="{base + 49}" font-size="13" font-weight="700" '
+                        f'text-anchor="middle" fill="#d9674f">{views}</text>')
+    values = ""
+
+    # hover columns with a tooltip box
+    col_w = chart_w / max(1, n - 1) if n > 1 else chart_w
+    hovers = ""
+    for i, (day, views, visitors) in enumerate(rows):
+        x = xpos(i)
+        bw, bh = 150, 54
+        bx = x + 10 if x + 10 + bw <= width - pad_right else x - 10 - bw
+        by = pad_top
+        hovers += (
+            f'<g class="ts-day"><title>{escape(day)}: {visitors} visitors, {views} page views</title>'
+            f'<rect x="{x - col_w / 2:.1f}" y="{pad_top}" width="{col_w:.1f}" height="{chart_h}" fill="transparent"/>'
+            f'<g class="ts-tip">'
+            f'<line x1="{x:.1f}" y1="{pad_top}" x2="{x:.1f}" y2="{ypos(0):.1f}" stroke="#b9b3a3" stroke-dasharray="3 3"/>'
+            f'<rect x="{bx:.1f}" y="{by:.1f}" width="{bw}" height="{bh}" rx="6" fill="white" stroke="#d8d2c2"/>'
+            f'<text x="{bx + 10:.1f}" y="{by + 17:.1f}" font-size="12" font-weight="700" fill="{INK}">{escape(day)}</text>'
+            f'<text x="{bx + 10:.1f}" y="{by + 33:.1f}" font-size="12" fill="#1f9c7f">● {visitors} visitors</text>'
+            f'<text x="{bx + 10:.1f}" y="{by + 48:.1f}" font-size="12" fill="#d9674f">● {views} page views</text>'
+            f'</g></g>'
+        )
+
     legend = (
-        f'<rect x="{pad_left}" y="{height - 14}" width="11" height="11" rx="2" fill="{TEAL}"/>'
-        f'<text x="{pad_left + 16}" y="{height - 5}" font-size="11" fill="{INK}">Unique visitors</text>'
-        f'<rect x="{pad_left + 130}" y="{height - 14}" width="11" height="11" rx="2" fill="{CORAL}"/>'
-        f'<text x="{pad_left + 146}" y="{height - 5}" font-size="11" fill="{INK}">Page views</text>'
+        f'<rect x="{pad_left}" y="{height - 15}" width="11" height="11" rx="2" fill="{TEAL}"/>'
+        f'<text x="{pad_left + 16}" y="{height - 6}" font-size="12" fill="{INK}">Unique visitors</text>'
+        f'<rect x="{pad_left + 140}" y="{height - 15}" width="11" height="11" rx="2" fill="{CORAL}"/>'
+        f'<text x="{pad_left + 156}" y="{height - 6}" font-size="12" fill="{INK}">Page views</text>'
     )
+    style = ('<style>.ts-day .ts-tip{display:none}.ts-day:hover .ts-tip{display:inline}'
+             '.ts-day:hover>rect{fill:rgba(0,0,0,.035)}</style>')
     return (
         f'<svg viewBox="0 0 {width} {height}" width="100%" '
         f'style="max-width:{width}px" role="img" aria-label="Daily visitors and page views">'
-        f'{grid}{xlabels}{series(1, CORAL, "views")}{series(2, TEAL, "visitors")}{legend}</svg>'
+        f'{style}{grid}{xlabels}{line(1, CORAL)}{line(2, TEAL)}{values}{hovers}{legend}</svg>'
     )
 
 
@@ -1353,7 +1398,7 @@ def render_dashboard(
   <section>
     <h2>Over time (daily)</h2>
     <div class="chart">{_timeseries_svg(data["timeseries"])}</div>
-    <p class="muted" style="margin-top:8px;font-size:12px">Unique visitors and page views per day across the selected range. Hover a dot for the exact count.</p>
+    <p class="muted" style="margin-top:8px;font-size:12px">Unique visitors (green) and page views (red) per day; the numbers are under each date. Hover a day for details.</p>
   </section>
 
   <section>
