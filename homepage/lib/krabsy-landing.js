@@ -126,12 +126,13 @@ function initClassBadge() {
   let s = null;
   try { s = JSON.parse(localStorage.getItem('krabsy_class') || 'null'); } catch (_) {}
   if (!s || !s.name) return;
-  const a = el.querySelector('a');
+  const a = el.querySelector('a:not(.gl-join-quiz)');   // the quiz-room link stays
+  if (!a) return;
   const badge = document.createElement('a');
-  badge.href = a ? a.getAttribute('href') : '#';
+  badge.href = a.getAttribute('href');
   badge.className = 'gl-class-badge';
   badge.textContent = '👥 ' + s.name + ' · ' + s.nickname;
-  el.replaceChildren(badge);
+  a.replaceWith(badge);
 }
 
 expireNew();

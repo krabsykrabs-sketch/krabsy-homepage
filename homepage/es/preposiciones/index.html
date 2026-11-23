@@ -60,7 +60,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
@@ -464,7 +464,7 @@
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
         <a class="k-game-card" href="/es/juegos/verb-towers/" data-game-id="verb-towers"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Towers</h3><p class="k-game-card-tagline">Construye torres. Forja monedas con verbos en inglés.</p><span class="k-game-card-cta">Jugar →</span></div></a>
-        <a class="k-game-card" href="/es/juegos/quiz-room/" data-game-id="quiz-room"><div class="k-game-card-thumb"><img src="/thumbnails/sm/quiz-room.jpg" alt="Escena del juego Sala de quiz" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Sala de quiz</h3><p class="k-game-card-tagline">¡Quiz en vivo con tu clase: recorre la sala 3D con tu personaje!</p><span class="k-game-card-cta">Jugar →</span></div></a>
+        <a class="k-game-card" href="/es/juegos/quiz-room/" data-game-id="quiz-room"><span class="k-game-card-badge is-teacher">Para docentes</span><div class="k-game-card-thumb"><img src="/thumbnails/sm/quiz-room.jpg" alt="Escena del juego Sala de quiz" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Sala de quiz</h3><p class="k-game-card-tagline">¡Quiz en vivo con tu clase: recorre la sala 3D con tu personaje!</p><span class="k-game-card-cta">Jugar →</span></div></a>
         <!-- STATIC-GAMES:END -->
       </div>
       <p class="games-all-link-row">
@@ -708,7 +708,13 @@
       card.className = 'k-game-card' + (isPlayable ? '' : ' is-disabled');
       if (isPlayable) card.href = `/${LANG}/juegos/${g.id}/`;
 
-      if (g.status === 'beta') {
+      // Teacher-led games (audience: teacher) — a child can't start them alone.
+      if (g.audience === 'teacher') {
+        const badge = document.createElement('span');
+        badge.className = 'k-game-card-badge is-teacher';
+        badge.textContent = 'Para docentes';
+        card.appendChild(badge);
+      } else if (g.status === 'beta') {
         const badge = document.createElement('span');
         badge.className = 'k-game-card-badge';
         badge.textContent = 'Beta';

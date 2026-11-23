@@ -258,7 +258,8 @@ async function buildGameStrip(strings, count, topic) {
   catch (err) { console.error('krabsy-nav: games.json fetch failed', err); }
 
   // Only playable games — coming-soon entries don't belong on a recommendation strip.
-  games = games.filter((g) => g.status !== 'coming_soon');
+  // Teacher-led games (Quiz-Raum) aren't something a child can start alone.
+  games = games.filter((g) => g.status !== 'coming_soon' && g.audience !== 'teacher');
   if (!games.length) return null;
 
   const wrap = document.createElement('section');
@@ -433,6 +434,7 @@ async function buildGameHeader(currentKey, strings) {
 
   for (const g of games) {
     if (g.status === 'coming_soon') continue;   // no page yet
+    if (g.audience === 'teacher' && g.id !== currentId) continue;   // teacher-led (Quiz-Raum)
     const a = document.createElement('a');
     a.className = 'k-game-nav-chip';
     const isCurrent = (g.id === currentId);

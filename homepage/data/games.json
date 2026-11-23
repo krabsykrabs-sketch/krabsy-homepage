@@ -24,6 +24,7 @@
   },
   {
     "id": "quiz-room",
+    "audience": "teacher",
     "name": {
       "de": "Quiz-Raum",
       "es": "Sala de quiz"
@@ -115,15 +116,15 @@
       "de": "Friss Verbformen in der richtigen Reihenfolge!",
       "es": "¡Come las formas verbales en el orden correcto!"
     },
-    "thumbnail": "/thumbnails/sm/verb-snake.jpg",
+    "thumbnail": "/thumbnails/sm/verb-snake-v2.jpg",
     "topics": [
       "irregular_verbs"
     ],
     "status": "ready",
     "kind": "arcade",
     "devices": "phone_ok",
-    "thumb_small": "/thumbnails/sm/verb-snake.jpg",
-    "hero": "/thumbnails/hero/verb-snake.jpg"
+    "thumb_small": "/thumbnails/sm/verb-snake-v2.jpg",
+    "hero": "/thumbnails/hero/verb-snake-v2.jpg"
   },
   {
     "id": "air-control",

@@ -30,9 +30,9 @@ START = "<!-- STATIC-GAMES:START (tools/render_static_games.py) -->"
 END = "<!-- STATIC-GAMES:END -->"
 
 L10N = {
-    "de": {"folder": "spiele", "beta": "Beta", "soon": "Bald", "play": "Spielen →",
+    "de": {"folder": "spiele", "beta": "Beta", "soon": "Bald", "teacher": "Für Lehrkräfte", "play": "Spielen →",
            "alt": "Spielszene aus {name}"},
-    "es": {"folder": "juegos", "beta": "Beta", "soon": "Pronto", "play": "Jugar →",
+    "es": {"folder": "juegos", "beta": "Beta", "soon": "Pronto", "teacher": "Para docentes", "play": "Jugar →",
            "alt": "Escena del juego {name}"},
 }
 
@@ -57,7 +57,9 @@ def card(g, lang, *, decoding=True):
     cls = "k-game-card" + ("" if playable else " is-disabled")
     href = f' href="/{lang}/{t["folder"]}/{g["id"]}/"' if playable else ""
     parts = [f'<{tag} class="{cls}"{href} data-game-id="{esc(g["id"])}">']
-    if g.get("status") == "beta":
+    if g.get("audience") == "teacher":   # teacher-led: a child can't start it alone
+        parts.append(f'<span class="k-game-card-badge is-teacher">{t["teacher"]}</span>')
+    elif g.get("status") == "beta":
         parts.append(f'<span class="k-game-card-badge">{t["beta"]}</span>')
     elif g.get("status") == "coming_soon":
         parts.append(f'<span class="k-game-card-badge is-coming-soon">{t["soon"]}</span>')
@@ -190,8 +192,15 @@ def landing_featured(g, lang):
             f'<span class="feat-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
 
 
+def for_kids(games):
+    # The landing page is for children: teacher-led games (audience "teacher",
+    # e.g. the Quiz-Raum) live on the games hub and the teacher pages instead
+    # (owner 2026-11-23).
+    return [g for g in games if g.get("audience") != "teacher"]
+
+
 def featured_only(games):
-    f = [g for g in games if g.get("featured") and g.get("status") != "coming_soon"]
+    f = [g for g in for_kids(games) if g.get("featured") and g.get("status") != "coming_soon"]
     return f[:1]
 
 
@@ -200,7 +209,7 @@ def landing_order(games):
     # arcade games (owner 2026-11-22); inside each group playable first,
     # then coming soon, otherwise games.json order.
     feat = featured_only(games)
-    rest = [g for g in games if g not in feat]
+    rest = [g for g in for_kids(games) if g not in feat]
     three_d = [g for g in rest if g.get("kind") == "3d"]
     others = [g for g in rest if g.get("kind") != "3d"]
     return feat + strip_order(three_d) + strip_order(others)

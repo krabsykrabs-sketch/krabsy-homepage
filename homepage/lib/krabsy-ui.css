@@ -727,6 +727,10 @@ body.k-is-playing .k-intro-card { display: none; }
   color: #5a7a3a;
   z-index: 1;
 }
+.k-game-card-badge.is-teacher {
+  background: var(--krabsy-coral-soft);
+  color: #a8442f;
+}
 .k-game-card-badge.is-coming-soon {
   background: var(--krabsy-lavender-soft);
   color: var(--krabsy-ink-mute);
