@@ -18,6 +18,9 @@
     { "model": "floor_kitchen_styleB", "col": 7, "row": 5, "rot": 0 },
 
     { "model": "wall_orderwindow", "col": 3, "row": 0, "rot": 2 },
+    { "model": "wall", "col": 1, "row": 0, "rot": 2 },
+    { "model": "wall_window_closed_curtains_green", "col": 5, "row": 0, "rot": 2 },
+    { "model": "wall_half", "col": 7, "row": 0, "rot": 2 },
 
     { "model": "kitchencounter_innercorner_backsplash_styleB", "col": 1, "row": 1, "rot": 1 },
     { "model": "kitchencounter_straight_B_backsplash_styleB", "col": 2, "row": 1, "rot": 0 },

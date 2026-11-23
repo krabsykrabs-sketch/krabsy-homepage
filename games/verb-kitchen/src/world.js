@@ -167,18 +167,27 @@ export class World {
     const wallZ = this.tileWorld(0, -0.5).z - 0.35;
     const hatchCols = [];
     for (let c = 0; c < this.cols; c++) if (lv.map[0][c] === 'H') hatchCols.push(c);
-    // (`level.backWall` overrides the piece cycle — e.g. solid walls to hang props on)
-    const windowDecor = lv.backWall || ['wall_tiles_A', 'wall', 'wall_tiles_B', 'wall_window_closed_curtains_' + (sB ? 'green' : 'red')];
+    // `level.backWall` = the piece cycle, left → right (default: all solid
+    // `wall`). The old default mixed in `wall_tiles_A/B`, but those are only
+    // counter backsplash panels — with no wall behind them they floated.
+    const windowDecor = lv.backWall || ['wall'];
     const hatchMid = hatchCols.length ? (hatchCols[0] + hatchCols[hatchCols.length - 1]) / 2 : 0.5;
     const centers = [];
     for (let cc = hatchMid; cc > -1; cc -= 2) centers.unshift(cc);   // left of (and incl.) the hatch
     for (let cc = hatchMid + 2; cc < this.cols; cc += 2) centers.push(cc);
     let di = 0;
     for (const center of centers) {
-      // drop a 2-wide back-wall piece that would overhang the kitchen's right
-      // edge (the odd-offset window decor on Burger Bar / Pizzeria) — keeps the
-      // level rectangular and a touch narrower
-      if (center > this.cols - 1.5) continue;
+      // a 2-wide piece that would overhang the kitchen's left or right edge by
+      // one tile becomes a 1-wide `wall_half` on the tile that is in bounds —
+      // the wall then closes exactly at both corners (no gap, no overhang)
+      const overL = center < 0, overR = center > this.cols - 1;
+      if (overL || overR) {
+        const w = getModel('wall_half');           // spans x 0..2 from its origin
+        const p = this.tileWorld(overL ? 0 : this.cols - 1, 0);
+        w.position.set(p.x - TILE / 2, 0, wallZ);
+        staticG.add(w);
+        continue;
+      }
       const isHatch = Math.abs(center - hatchMid) < 0.01;
       const name = isHatch ? 'wall_orderwindow' : windowDecor[di++ % windowDecor.length];
       const w = getModel(name);
@@ -208,9 +217,18 @@ export class World {
       }
     }
 
-    // --- level props (Tiny Treats decor): free placement in tile coords ---
-    const wallFace = wallZ + 0.25;       // front face of the back wall
-    for (const pr of lv.props || []) {
+    this._placeProps(staticG, wallZ + 0.25);   // front face of the back wall
+
+    this._finishStatic(staticG);
+  }
+
+  /** Level props (decor): free placement in LOCAL tile coords (fractions are
+   *  fine), shared by the ASCII and the editor-JSON path. `wall: true` hangs the
+   *  prop on the back wall (its front face is at z = `wallFace`), `y` = height
+   *  of the prop's origin; otherwise it stands at tile (col,row) at height `y`
+   *  (1.02 = on a counter). `rot` in radians, `scale` number or [x,y,z]. */
+  _placeProps(staticG, wallFace) {
+    for (const pr of this.level.props || []) {
       const m = getModel(pr.model);
       const p = this.tileWorld(pr.col, pr.row || 0);
       m.position.set(p.x, pr.y || 0, pr.wall ? wallFace : p.z);
@@ -218,8 +236,6 @@ export class World {
       if (pr.scale) m.scale.set(...(Array.isArray(pr.scale) ? pr.scale : [pr.scale, pr.scale, pr.scale]));
       staticG.add(m);
     }
-
-    this._finishStatic(staticG);
   }
 
   /** Merge static geometry → one draw call, then add live holders, station
@@ -288,20 +304,45 @@ export class World {
       if (spawnCell) spawnCell = { col: C - 1 - spawnCell.col, row: R - 1 - spawnCell.row };
     }
 
+    // `level.trimFloor`: the editor's floor tiles are 2×2, so a kitchen with an
+    // odd width/depth gets a strip of bare floor outside the counters. Clip the
+    // floor to the columns/rows that hold counters, crates or cookers (cut tiles are
+    // scaled, like the ASCII path does). Purely visual — the strip is outside
+    // the counter ring, so nobody could walk there anyway.
+    if (this.level.trimFloor) {
+      const isKitchen = (m) => isCounter(m) || m.startsWith('crate') || m.startsWith('stove_') || m === 'oven' || m === 'pizza_oven';
+      let c0 = Infinity, c1 = -Infinity, r0 = Infinity, r1 = -Infinity;
+      for (const o of objs) {
+        if (!isKitchen(o.model)) continue;         // walls / pillars may stand outside
+        c0 = Math.min(c0, o.col); c1 = Math.max(c1, o.col);
+        r0 = Math.min(r0, o.row); r1 = Math.max(r1, o.row);
+      }
+      objs = objs.map((o) => {
+        if (!GROUND.has(o.model) || !isFinite(c0)) return o;
+        const [w, d] = fp(o.model);
+        const a = Math.max(o.col, c0), b = Math.min(o.col + w - 1, c1);
+        const e = Math.max(o.row, r0), f = Math.min(o.row + d - 1, r1);
+        if (a > b || e > f) return null;                       // wholly outside
+        return { ...o, _span: [a, e, b - a + 1, f - e + 1], _full: [w, d] };
+      }).filter(Boolean);
+    }
+    // footprint → [col, row, width, depth] (the clipped span of a trimmed floor)
+    const span = (o) => o._span || [o.col, o.row, ...fp(o.model)];
+
     // pass 1 — stack heights (array order matters)
     const tops = new Map();
     for (const o of objs) {
-      const [w, d] = fp(o.model); let base = 0;
-      for (let c = o.col; c < o.col + w; c++) for (let r = o.row; r < o.row + d; r++)
+      const [sc, sr, w, d] = span(o); let base = 0;
+      for (let c = sc; c < sc + w; c++) for (let r = sr; r < sr + d; r++)
         base = Math.max(base, tops.get(c + ',' + r) || 0);
       o._y = base;
       const top = base + (GROUND.has(o.model) ? 0 : isCounter(o.model) ? COUNTER_SURFACE : measureModel(o.model).height);
-      for (let c = o.col; c < o.col + w; c++) for (let r = o.row; r < o.row + d; r++) tops.set(c + ',' + r, top);
+      for (let c = sc; c < sc + w; c++) for (let r = sr; r < sr + d; r++) tops.set(c + ',' + r, top);
     }
     // pass 2 — world positions (JSON frame, centred on the 12×12 grid)
     for (const o of objs) {
-      const [w, d] = fp(o.model);
-      const ctr = jcell(o.col + (w - 1) / 2, o.row + (d - 1) / 2);
+      const [sc, sr, w, d] = span(o);
+      const ctr = jcell(sc + (w - 1) / 2, sr + (d - 1) / 2);
       const yB = GROUND.has(o.model) ? o._y : o._y - measureModel(o.model).minY;
       const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : { x: 0, y: 0, z: 0 };
       const off = o.off || { x: 0, y: 0, z: 0 };
@@ -313,9 +354,9 @@ export class World {
     let minC = Infinity, maxC = -Infinity, minR = Infinity, maxR = -Infinity;
     for (const o of objs) {
       if (!GROUND.has(o.model)) continue;
-      const [w, d] = fp(o.model);
-      minC = Math.min(minC, o.col); maxC = Math.max(maxC, o.col + w - 1);
-      minR = Math.min(minR, o.row); maxR = Math.max(maxR, o.row + d - 1);
+      const [sc, sr, w, d] = span(o);
+      minC = Math.min(minC, sc); maxC = Math.max(maxC, sc + w - 1);
+      minR = Math.min(minR, sr); maxR = Math.max(maxR, sr + d - 1);
     }
     if (!isFinite(minC)) { minC = 0; maxC = jcols - 1; minR = 0; maxR = jrows - 1; }
     const kc = jcell((minC + maxC) / 2, (minR + maxR) / 2);
@@ -349,9 +390,9 @@ export class World {
     let orderWindow = null;
     for (const o of objs) {
       if (GROUND.has(o.model)) {
-        const [w, d] = fp(o.model);
+        const [sc, sr, w, d] = span(o);
         for (let c = 0; c < w; c++) for (let r = 0; r < d; r++) {
-          const l = toLocal(o.col + c, o.row + r); floorTiles.add(l.c + ',' + l.r);
+          const l = toLocal(sc + c, sr + r); floorTiles.add(l.c + ',' + l.r);
         }
         continue;
       }
@@ -381,6 +422,11 @@ export class World {
       if (o.model === 'crate') mdl.scale.setScalar(0.92);
       mdl.position.set(o._pos.x, o._pos.y, o._pos.z);
       mdl.rotation.set((o.rotX || 0) * Math.PI / 180, o.rot * Math.PI / 2, 0);
+      if (o._span) {                 // a trimmed floor tile: squeeze it into its span
+        const quarter = o.rot % 2 === 1;   // rotated a quarter turn: local x runs along world z
+        const kx = o._span[2] / o._full[0], kz = o._span[3] / o._full[1];
+        mdl.scale.set(quarter ? kz : kx, 1, quarter ? kx : kz);
+      }
       staticG.add(mdl);
     }
 
@@ -436,6 +482,10 @@ export class World {
       const l = toLocal(c, r);
       this.startItems.push({ c: l.c, r: l.r, item: s.item });
     }
+
+    // level props (code-side decor, see _placeProps): wall props hang on the
+    // face of the wall the order window sits in
+    this._placeProps(staticG, (orderWindow ? orderWindow._pos.z : this.tileWorld(0, -0.5).z - 0.5) + 0.25);
 
     this._finishStatic(staticG);
   }

@@ -240,8 +240,8 @@ const DE = {
   'lvTut.pizzapalace': { title: 'Pizza', text: 'Roll den Teig aus, gib Soße und Käse drauf (Pilze, wenn du magst), back sie im Ofen und servier sie!' },
   'lvTut.burger_coop': { title: 'Burger-Bar — mit Helfer!', text: 'Ein Küchenhelfer schneidet Käse und Salat für dich — konzentrier dich aufs Braten, Burger-Bauen, Servieren und Spülen!' },
   'lvTut.split_coop': { title: 'Geteilte Küche (Co-op)', text: 'Du teilst dir eine geteilte Küche mit einem Helfer! Er schneidet Käse, Salat und Tomate und reicht sie über die Mitte — du brätst, baust Burger und Salate, servierst und spülst.' },
-  'lvTut.soup': { title: 'Suppenküche', text: 'Zwei Töpfe warten auf den Herden! Schneide das Gemüse und kipp es in einen Topf (E) — Karotte + Kartoffel gibt die eine Suppe, Zwiebel + Pilz die andere. Wenn sie kocht, schöpf sie in eine Schüssel und servier sie!' },
-  'lvTut.sundae': { title: 'Eisbecher-Sonntag', text: 'Heute wird nicht gekocht! Schnapp dir eine Schüssel, hol Kugeln aus den Eiswannen (Vanille, Erdbeere, Schokolade) — eine Kugel, zwei fürs Beeren-Duo oder alle drei für den Neapolitaner — dann servieren und abspülen!' },
+  'lvTut.soup': { title: 'Suppenküche', text: 'Zwei Töpfe warten auf den Herden! Schneide das Gemüse und kipp es in einen Topf — Karotte + Kartoffel gibt die eine Suppe, Zwiebel + Pilz die andere. Wenn sie kocht, schöpf sie in eine Schüssel und servier sie!' },
+  'lvTut.sundae': { title: 'Eisbecher-Sonntag', text: 'Heute wird nicht gekocht! Schnapp dir eine Schüssel, und hol Kugeln aus den Eiswannen — Vanille für die Vanille-Kugel, Erdbeere und Schokolade fürs Beeren-Duo oder alle drei für den Neapolitaner-Becher. Dann servieren und abspülen!' },
   'lvTut.sandwich': { title: 'Sandwich', text: 'Schneide das Brot und toaste eine Scheibe — lass sie nicht verbrennen! Dann kommt geschnittener Käse drauf für den Käse-Toast, Salat und Tomate fürs Garten-Sandwich oder alle drei fürs Club-Sandwich.' },
 };
 
@@ -369,8 +369,8 @@ const ES = {
   'lvTut.pizzapalace': { title: 'Pizza', text: 'Estira la masa, añade salsa y queso (y champiñón si quieres), hornéala ¡y a servir!' },
   'lvTut.burger_coop': { title: '¡Bar de burgers — con ayudante!', text: 'Un ayudante te corta el queso y la lechuga en las tablas — tú céntrate en cocinar la carne, montar las burgers, servir ¡y fregar!' },
   'lvTut.split_coop': { title: 'Cocina dividida (co-op)', text: '¡Compartes una cocina dividida con un ayudante! Él prepara queso, lechuga y tomate y los pasa por el mostrador central — tú cocinas, montas burgers y ensaladas, sirves y friegas.' },
-  'lvTut.soup': { title: 'Cocina de sopas', text: '¡Dos ollas esperan en los fogones! Corta la verdura y échala a una olla (E) — zanahoria + patata hace una sopa, cebolla + champiñón la otra. Cuando hierva, sírvela en un bol ¡y a la ventanilla!' },
-  'lvTut.sundae': { title: 'Domingo de helado', text: '¡Hoy no se cocina! Coge un bol, saca bolas de las tarrinas (vainilla, fresa, chocolate) — una bola, dos para el Dúo de bayas o las tres para la Copa napolitana — ¡sirve y friega!' },
+  'lvTut.soup': { title: 'Cocina de sopas', text: '¡Dos ollas esperan en los fogones! Corta la verdura y échala a una olla — zanahoria + patata hace una sopa, cebolla + champiñón la otra. Cuando hierva, sírvela en un bol ¡y a la ventanilla!' },
+  'lvTut.sundae': { title: 'Domingo de helado', text: '¡Hoy no se cocina! Coge un bol, y saca bolas de las tarrinas — vainilla para la Bola de vainilla, fresa y chocolate para el Dúo de bayas, o las tres para la Copa napolitana. ¡Luego sirve y friega!' },
   'lvTut.sandwich': { title: 'Sándwich', text: 'Corta el pan y tuesta una rebanada — ¡que no se queme! Luego añade queso cortado para la Tostada de queso, lechuga y tomate para el Sándwich vegetal, o los tres para el Sándwich club.' },
 };
 

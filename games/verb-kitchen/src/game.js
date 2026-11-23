@@ -56,7 +56,8 @@ export class Game {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       }, level.jsonUrl);
-      decorModels = [...new Set(level.scene.objects.map((o) => o.model)), 'knife'];
+      decorModels = [...new Set(level.scene.objects.map((o) => o.model)), 'knife',
+        ...(level.props || []).map((p) => p.model)];   // + code-side decor props
     } else {
       decorModels = levelModelNames(level);
     }

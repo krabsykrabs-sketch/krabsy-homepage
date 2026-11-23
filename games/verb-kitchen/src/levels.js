@@ -13,6 +13,26 @@
 // menu until the gold star is earned, and the 4th author star only shows once
 // earned). All times are PLACEHOLDERS — tune from real playthroughs. Starting
 // `plates` is below the order count so the player MUST wash (and study).
+// Decor (`props`) — see the Sandwich Bar for the field docs. Tile coords are the
+// level's LOCAL grid (ASCII map coords; for editor-JSON levels the grid the
+// stations use, col 0 / row 0 = the back-left counter). Props only ever stand
+// on the dead corner counters the chef can't reach, or hang on the back wall.
+// Burger Bar and its co-op copy share one kitchen, so they share the decor.
+const BURGER_PROPS = [
+  { model: 'tt_wall_knife_rack', col: 0, wall: true, y: 2.8 },
+  { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3.5, wall: true, y: 3.3 },
+  { model: 'wall_tiles_A', col: 5, row: 0 },            // tiled splash behind sink + rack
+  { model: 'wall_tiles_B', col: 6, row: 0 },
+  { model: 'tt_wall_papertowel_holder', col: 5, wall: true, y: 2.85 },
+  { model: 'tt_wall_cabinet_straight', col: 6.5, wall: true, y: 2.9, scale: [1.5, 1, 0.6] },
+  { model: 'tt_sansevieria_plant_small_potted', col: 0, row: 0, y: 1.02 },
+  // the cook's corner next to the stoves
+  { model: 'tt_utensils_cup', col: 6.85, row: -0.15, y: 1.02, rot: -0.4, scale: 1.1 },
+  { model: 'tt_container_kitchen_A_red', col: 7.2, row: 0.1, y: 1.02, scale: 1.3 },
+  { model: 'tt_monstera_plant_small_potted', col: 0, row: 5, y: 1.02, rot: 0.6 },
+  { model: 'tt_pothos_plant_small_potted', col: 7, row: 5, y: 1.3, rot: 2.4 },
+];
+
 export const LEVELS = [
   {
     id: 'garden',
@@ -25,6 +45,16 @@ export const LEVELS = [
     // Starts with one clean plate on a counter, an empty rack, and one dirty
     // plate at the sink (1 clean + 1 dirty), so washing is load-bearing.
     jsonUrl: 'levels/salad1.json',
+    trimFloor: true,             // no bare floor strip behind the back wall
+    // a garden bistro: plants on the four dead corners, mugs + towels on the wall
+    props: [
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3, wall: true, y: 3.3 },
+      { model: 'tt_wall_papertowel_holder', col: 4.15, wall: true, y: 2.85 },
+      { model: 'tt_monstera_plant_small_potted', col: -0.1, row: -0.15, y: 1.02, rot: 0.4 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 5, row: 0, y: 1.02 },
+      { model: 'tt_zzplant_plant_small_potted', col: 0, row: 4, y: 1.02 },
+      { model: 'tt_pothos_plant_small_potted', col: 5, row: 4, y: 1.3, rot: 2.4 },
+    ],
     rotate: 2,                   // 180° — serving hatch at the back (camera convention)
     spawn: { col: 6, row: 4 },   // chef start in JSON cell coords
     guided: true,
@@ -55,6 +85,7 @@ export const LEVELS = [
       'CCbCbCtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
+    props: BURGER_PROPS,
     // big burger appears exactly once, in slot 4 (or 5); the rest are
     // hamburgers / cheeseburgers in any order. 5 · 2 plates → 3 washes.
     orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
@@ -78,6 +109,13 @@ export const LEVELS = [
     emoji: '🍕',
     style: 'A',
     jsonUrl: 'levels/pizza3.json',
+    // a bakery corner: flour, scale and mixing bowl on the dead corners
+    props: [
+      { model: 'tt_utensils_cup', col: 5.05, row: 0.3, y: 1.02, rot: 0.3, scale: 1.1 },
+      { model: 'tt_scale', col: -0.05, row: 5, y: 1.02, rot: 0.5, scale: 1.2 },
+      { model: 'tt_monstera_plant_small_potted', col: 5.1, row: 4.85, y: 1.02, rot: 2.2 },
+      { model: 'tt_flour_sack_closed', col: 4.72, row: 5.15, y: 1.02, rot: 0.4, scale: 1.4 },
+    ],
     rotate: 2,                   // 180° — put the serving hatch at the back (camera convention)
     spawn: { col: 6, row: 4 },   // chef start in JSON cell coords (editor stores none)
     // pizza3.json no longer includes the ketchup/sauce bottle (pizza4 had one at
@@ -117,6 +155,7 @@ export const LEVELS = [
       'CCbCbCtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
+    props: BURGER_PROPS,
     orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
     spawnEvery: [5, 8],
     plates: 2,
@@ -168,6 +207,21 @@ export const LEVELS = [
       'CCCCCkrtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese', 5: 'tomato' },
+    backWall: ['wall', 'wall', 'wall_window_closed_curtains_red'],   // window stays right of the hatch
+    props: [
+      { model: 'tt_wall_knife_rack', col: 2, wall: true, y: 2.8 },          // the prep wing
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3.6, wall: true, y: 3.3 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 0, row: 0, y: 1.02 },
+      { model: 'tt_scale', col: 4, row: 0, y: 1.02, rot: 0.3, scale: 1.2 },  // head of the pass counter
+      // the dead counters behind the stoves: the cook's shelf
+      { model: 'tt_utensils_cup', col: 8, row: 0, y: 1.02, rot: -0.4, scale: 1.1 },
+      { model: 'tt_container_kitchen_A_red', col: 8.1, row: 1, y: 1.02, scale: 1.3 },
+      { model: 'tt_container_kitchen_B_blue', col: 7.95, row: 1.4, y: 1.02, scale: 1.3 },
+      { model: 'tt_cookie_jar', col: 8.05, row: 2.1, y: 1.02, scale: 1.2 },
+      { model: 'tt_monstera_plant_small_potted', col: 0, row: 6, y: 1.02, rot: 0.6 },
+      { model: 'tt_zzplant_plant_small_potted', col: 4, row: 6, y: 1.02 },
+      { model: 'tt_pothos_plant_small_potted', col: 8, row: 6, y: 1.3, rot: 2.4 },
+    ],
     // burgers (cheese) + big burgers (cheese+lettuce) + salads (lettuce+tomato)
     // → all three of the bot's prep streams stay busy.
     orders: ['cheeseburger', 'salad', 'bigburger', 'hamburger', 'salad', 'cheeseburger', 'bigburger', 'salad'],
@@ -218,6 +272,18 @@ export const LEVELS = [
     emoji: '🍲',
     style: 'B',
     jsonUrl: 'levels/soup6.json',
+    trimFloor: true,             // no bare floor strip right of the counters
+    props: [
+      // shallow + high, so the hood never hides the pots from the camera
+      { model: 'tt_extractor_hood', col: 4.5, wall: true, y: 2.95, scale: [1.5, 1, 0.7] },
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 0.6, wall: true, y: 3.3 },
+      { model: 'tt_wall_knife_rack', col: 6, wall: true, y: 2.8 },
+      { model: 'tt_teapot', col: -0.05, row: 0.1, y: 1.02, rot: 0.6, scale: 1.2 },
+      { model: 'tt_utensils_cup', col: 5.9, row: -0.1, y: 1.02, rot: -0.3, scale: 1.1 },
+      { model: 'tt_container_kitchen_A_red', col: 6.25, row: 0.15, y: 1.02, scale: 1.3 },
+      { model: 'tt_cacti_plant_pot_small', col: 0, row: 5, y: 1.02 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 6, row: 5, y: 1.02 },
+    ],
     vessel: 'bowl',              // serve in bowls, not plates (see stations.setVessel)
     spawn: { col: 4, row: 4 },   // chef start in JSON cell coords
     // two empty pots pre-placed on the two stoves (JSON cell coords)
@@ -232,9 +298,9 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [320, 250, 195, 150],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.webp',
+      // no soup picture yet — text-only card (it used to show the salad picture)
       title: 'Soup Kitchen',
-      text: 'Two pots wait on the stoves! Chop the veg on the boards, then tip each into a pot (E) — carrot + potato makes one soup, onion + mushroom another. When it boils, scoop it into a bowl and serve!',
+      text: 'Two pots wait on the stoves! Chop the veg on the boards, then tip each into a pot — carrot + potato makes one soup, onion + mushroom another. When it boils, scoop it into a bowl and serve!',
     },
   },
   {
@@ -256,6 +322,12 @@ export const LEVELS = [
     emoji: '🍨',
     style: 'B',
     jsonUrl: 'levels/icecream7.json',
+    trimFloor: true,             // no bare floor strips outside the counters
+    props: [
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 0.6, wall: true, y: 3.3 },
+      { model: 'tt_cookie_jar', col: 0, row: 4, y: 1.02, scale: 1.2 },
+      { model: 'tt_pothos_plant_small_potted', col: 6, row: 4, y: 1.3, rot: 2.4 },
+    ],
     vessel: 'bowl',              // sundaes are served in a bowl (no plate)
     spawn: { col: 4, row: 3 },   // chef start in JSON cell coords
     // a mix of the three sundaes; lets the player batch scoops. 6 orders · 2
@@ -265,9 +337,9 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [260, 200, 155, 120],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.webp',
+      // no sundae picture yet — text-only card (it used to show the salad picture)
       title: 'Sundae Sunday',
-      text: 'No cooking today! Grab a bowl, scoop ice cream from the flavour tubs (vanilla, strawberry, chocolate) — one scoop, two for a Berry Duo, or all three for a Neapolitan — then serve and wash up!',
+      text: 'No cooking today! Grab a bowl, and scoop ice cream from the tubs — vanilla for a Vanilla Scoop, strawberry and chocolate for a Berry Duo, or all three for a Neapolitan Sundae. Then serve and wash up!',
     },
   },
   {
