@@ -722,4 +722,17 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   tests) the helper only fires a DOM event. Counts only, no words.
   Checked in headless Chromium by listening to the DOM events: all eight
   events with correct values, retry = new `level_start`, quit = nothing.
+- 2026-11-23 — **Weak connections** (owner request).
+  - `js/retry.js` `withRetry()`: every model and texture download
+    (`assets.js` hex models + season atlases, `characters.js` skeletons)
+    is retried after 0.6 s, 1.5 s and 3 s before the game gives up with
+    `loadError`. A failing `.bin` / texture inside a glTF retries the whole
+    file. Retries log a console warning.
+  - Three.js is now the official minified `three.module.min.js` 0.169
+    (687 KB, was 1.3 MB; from the npm package, whose unminified file is
+    byte-identical to the old vendored copy). Import map updated; the
+    unminified file is removed.
+  - Checked in headless Chromium: 4 files failing twice each → game loads
+    and plays, no errors; one file always failing → 4 attempts, then the
+    reload message; build-flow regression fine.
 

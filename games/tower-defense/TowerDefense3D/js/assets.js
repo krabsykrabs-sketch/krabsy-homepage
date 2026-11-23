@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { withRetry } from './retry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Model loading. Everything in assets/hex/ comes from the KayKit Medieval Hexagon
@@ -39,7 +40,8 @@ export const Assets = {
     const loader = new GLTFLoader();
     let done = 0;
     await Promise.all(HEX_MODELS.map(async (name) => {
-      const gltf = await loader.loadAsync(`assets/hex/${name}.gltf`);
+      const url = `assets/hex/${name}.gltf`;
+      const gltf = await withRetry(() => loader.loadAsync(url), url);
       this.models.set(name, gltf.scene);
       done += 1;
       if (onProgress) onProgress(done / HEX_MODELS.length);
@@ -58,7 +60,8 @@ export const Assets = {
     // Seasons: same palette layout, other colours for grass, trees and water.
     const texLoader = new THREE.TextureLoader();
     const seasonTex = async (file) => {
-      const tex = await texLoader.loadAsync(`assets/hex/${file}`);
+      const url = `assets/hex/${file}`;
+      const tex = await withRetry(() => texLoader.loadAsync(url), url);
       tex.colorSpace = atlas.colorSpace;
       tex.flipY = atlas.flipY;
       tex.wrapS = atlas.wrapS; tex.wrapT = atlas.wrapT;

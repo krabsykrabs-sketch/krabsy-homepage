@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { withRetry } from './retry.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 // Animated enemy characters (KayKit Skeletons). The character files hold a skinned
@@ -116,7 +117,10 @@ export const Characters = {
 
   async load() {
     const loader = new GLTFLoader();
-    const file = (n) => loader.loadAsync(`assets/skeletons/${n}.glb`);
+    const file = (n) => {
+      const url = `assets/skeletons/${n}.glb`;
+      return withRetry(() => loader.loadAsync(url), url);
+    };
 
     const charJobs = Object.keys(CHARACTERS).map(async (name) => {
       const gltf = await file(name);
