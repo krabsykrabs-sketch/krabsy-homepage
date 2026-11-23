@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Creature viewer</title>
+<!-- Dev tool. Open through the game's dev server:  http://localhost:8143/tools/creatures/viewer.html
+     ?zone=meadow|forest|beach|volcano   show one zone (default: all)     ?id=fox   one creature
+     ?clip=idle|walk|jump|eat|fun        clip to play (default idle)       ?t=0.4    freeze at that time (seconds)
+     ?real   use the manifest's suggested size instead of the normalised 1 m     The red arrow on the floor = +Z (the way a creature must look). -->
+<style>html,body{margin:0;height:100%;background:#dfe8e4;font:13px system-ui}canvas{display:block}#log{position:fixed;left:8px;top:6px;white-space:pre}</style>
+<script type="importmap">{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}</script>
+<div id="log">loading…</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const q = new URLSearchParams(location.search), BASE = '../../assets/creatures/';
+const man = await (await fetch(BASE + 'creatures.json')).json();
+let list = man.creatures.filter((c) => (!q.get('zone') || c.zone === q.get('zone')) && (!q.get('id') || q.get('id').split(',').includes(c.id)));
+const clipName = q.get('clip') || 'idle', real = q.has('real');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(innerWidth, innerHeight); document.body.appendChild(renderer.domElement);
+renderer.toneMapping = THREE.NeutralToneMapping;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xdfe8e4);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x99aa88, 1.6));
+const sun = new THREE.DirectionalLight(0xfff2dd, 2.2); sun.position.set(-3, 6, 4); scene.add(sun);
+const cols = Math.ceil(Math.sqrt(list.length * (innerWidth / innerHeight))), rows = Math.ceil(list.length / cols), CELL = 1.7;
+const report = { errors: [], creatures: {} }, mixers = [];
+const loader = new GLTFLoader();
+const label = (text, sub) => {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d');
+  g.font = 'bold 26px system-ui'; g.textAlign = 'center'; g.fillStyle = '#123'; g.fillText(text, 128, 26);
+  g.font = '20px system-ui'; g.fillStyle = '#456'; g.fillText(sub, 128, 52);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); s.scale.set(1.3, 0.325, 1); return s;
+};
+await Promise.all(list.map(async (c, i) => {
+  const x = ((i % cols) - (cols - 1) / 2) * CELL, z = (Math.floor(i / cols) - (rows - 1) / 2) * CELL;
+  try {
+    const g = await loader.loadAsync(q.has('raw') ? '.tmp/' + c.file : BASE + c.file); // ?raw = Blender's output before optimize.cjs
+    const holder = new THREE.Group(); holder.position.set(x, 0, z); scene.add(holder);
+    const k = real ? c.scale / c.size[1] : 1; g.scene.scale.setScalar(k); g.scene.position.y = real ? c.hover : 0; holder.add(g.scene);
+    const names = g.animations.map((a) => a.name), want = c.clips[clipName] || c.clips.idle;
+    const mixer = new THREE.AnimationMixer(g.scene), clip = g.animations.find((a) => a.name === want);
+    if (clip) { mixer.clipAction(clip).play(); mixers.push(mixer); mixer.setTime(+q.get('t') || 0); } // without a clip a model shows its bind pose, which can look odd
+    g.scene.updateMatrixWorld(true);
+    g.scene.traverse((o) => { if (o.isSkinnedMesh) o.computeBoundingBox(); });
+    const box = new THREE.Box3().setFromObject(g.scene, true), s = box.getSize(new THREE.Vector3());
+    let tris = 0, metal = 0; g.scene.traverse((o) => { if (o.isMesh) { tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; metal = Math.max(metal, o.material.metalness || 0); o.frustumCulled = false; } });
+    const missing = Object.values(c.clips).filter((n) => !names.includes(n));
+    report.creatures[c.id] = { clips: names, size: [s.x, s.y, s.z].map((v) => +v.toFixed(3)), minY: +box.min.y.toFixed(3), tris, metal, durations: Object.fromEntries(g.animations.map((a) => [a.name, +a.duration.toFixed(2)])) };
+    if (missing.length) report.errors.push(`${c.id}: clips missing in file: ${missing}`);
+    if (metal > 0) report.errors.push(`${c.id}: metalness ${metal}`);
+    if (!real && (Math.max(s.x, s.y, s.z) > 1.5 || Math.max(s.x, s.y, s.z) < 0.6 || Math.abs(box.min.y) > 0.3)) report.errors.push(`${c.id}: size ${[s.x, s.y, s.z].map((v) => v.toFixed(2))} minY ${box.min.y.toFixed(2)}`);
+    const arrow = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0.01, 0.45), 0.3, 0xe04040, 0.12, 0.1); holder.add(arrow);
+    const l = label(c.name.en, `${c.rarity} · ${names.length} clips`); l.position.set(0, -0.02, 0.86); holder.add(l);
+  } catch (e) { report.errors.push(`${c.id}: ${e.message}`); }
+}));
+const W = cols * CELL, D = rows * CELL;
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, D + 2), new THREE.MeshStandardMaterial({ color: 0xcfdccb })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+const fit = Math.max((W + D * 0.5) / (innerWidth / innerHeight), (D + W * 0.3) * 0.75) / 2;
+cam.left = -fit * innerWidth / innerHeight; cam.right = -cam.left; cam.top = fit; cam.bottom = -fit; cam.updateProjectionMatrix();
+const az = +(q.get('az') ?? 0.45); cam.position.set(Math.sin(az) * 40, 30, Math.cos(az) * 40); cam.lookAt(0, 0.25, 0);
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => { const dt = clock.getDelta(); if (!q.get('t')) mixers.forEach((m) => m.update(dt)); renderer.render(scene, cam); });
+document.getElementById('log').textContent = `${list.length} creatures · clip ${clipName}` + (report.errors.length ? '\n' + report.errors.join('\n') : ' · no errors');
+window.report = report; window.ready = true;
+</script>
