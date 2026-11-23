@@ -149,7 +149,8 @@ function clearRun() {
   state.selectedTower = null;
   state.wave = null;
   state.waveCompleteTimer = 0;
-  state.forge = Forge.newState();
+  // Level 1 the first time: the question card comes in when the money runs out.
+  state.forge = Forge.newState(currentLevelIndex === 0 && !Tutorial.isDone());
   state.stats = { asked: 0, right: 0 };
   state.timeScale = 1;
   state.buildCell = null;
@@ -247,7 +248,7 @@ export function upgradeTower(tower) {
   if (!tower) return;
   const up = tower.nextUpgrade();
   if (!up) return;
-  if (state.coins < up.cost) { Track.notEnoughCoins(state, tower.type); return; }
+  if (state.coins < up.cost) { Forge.noCoins(state, tower.type); return; }
   state.coins -= up.cost;
   tower.upgrade();
   Track.upgraded(state, tower, up.cost);

@@ -14,8 +14,8 @@ export const CONFIG = {
 
   // The forge (always-visible question card, see forge.js). It is the main income.
   forge: {
-    orePerWave: 8,       // answers per wave (right or wrong)
-    coinsPerRight: 5,
+    orePerWave: 5,       // answers per wave (right or wrong)
+    coinsPerRight: 9,
     streakEvery: 3,      // every 3 right answers in a row …
     streakBonus: 1,      // … the next ones pay 1 coin more …
     streakBonusMax: 3,   // … up to +3

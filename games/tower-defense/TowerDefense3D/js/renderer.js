@@ -14,10 +14,9 @@ import { Characters } from './characters.js';
 // projectiles and effects are still simple shapes.
 
 const CAMERA_FOV = 34;
-// Direction from the board centre to the camera: a fixed angled view from the south.
-const CAMERA_DIR = new THREE.Vector3(0, 0.92, 0.78).normalize();
-// Screen space kept free for the top HUD (px). The dock height is measured.
-const HUD_TOP = 60;
+// Direction from the board centre to the camera: an angled view from the south. The
+// tilt (50–62°) is chosen per screen shape in _frameCamera.
+const _camDir = new THREE.Vector3(0, 0.92, 0.78).normalize();
 
 // Current UI scale (the --ui CSS variable set in main.js; 1 on laptops and smaller).
 const uiScale = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
@@ -238,26 +237,29 @@ export const Renderer = {
     if (`${i.bottom}|${i.right}` !== this._fitSig && Level.current) this._frameCamera(Level.current);
   },
 
-  // Screen space taken by the UI (px): the dock at the bottom, and the forge card —
-  // a side panel on wide screens, a strip above the dock otherwise.
+  // Screen space the board must keep clear of (px). The map uses (almost) the full
+  // height: the top bar and the tower dock may overlap its edges (owner, 2026-11-23). Only the
+  // question card keeps its own space — a side panel on wide screens (right inset),
+  // or a strip above the dock on phones / narrow windows (bottom inset up to its top).
   _insets() {
     const w = this.canvas.clientWidth || 1366;
+    const h = this.canvas.clientHeight || 768;
+    const edge = Math.round(8 * uiScale());
+    // The board may run under most of the tower dock ("a bit" of overlap): only 40 %
+    // of the dock row's height is kept free, so the bottom hexes stay tappable.
     const row = document.getElementById('dock-row');
-    // Rects, not offsetHeight: they include the UI scale (CSS zoom, see main.js).
-    // While the mouse has the dock opened, keep the compact height: the board must not
-    // jump when the cards grow (they briefly cover the bottom edge instead).
     const open = document.getElementById('bottom-dock')?.classList.contains('open');
     const rowH = open && this._compactRowH != null ? this._compactRowH
       : (this._compactRowH = row ? row.getBoundingClientRect().height : 0);
-    let bottom = rowH > 0 ? Math.round(rowH + 22 * uiScale()) : 0;
-    let right = 6;
+    let bottom = Math.max(edge, Math.round(rowH * 0.4)), right = 6;
     const panel = document.getElementById('forge-panel');
     if (panel && panel.getBoundingClientRect().width > 0) {
       const r = panel.getBoundingClientRect();
       if (getComputedStyle(panel).position === 'fixed') right = Math.round(w - r.left + 8);
-      else bottom += Math.ceil((r.height + 10) / 12) * 12; // rounded: small height changes must not re-fit
+      // Rounded: small height changes of the card must not re-fit the camera.
+      else bottom = Math.ceil((h - r.top + 8) / 12) * 12;
     }
-    return { bottom, right };
+    return { top: edge, bottom, right };
   },
 
   // Shadow map: towers and scenery only (enemies use blob shadows). Redraw when the
@@ -438,6 +440,21 @@ export const Renderer = {
       hex: new THREE.CircleGeometry(HEX.RADIUS * 0.88, 6, Math.PI / 6),
       levelRing: new THREE.RingGeometry(0.74, 1, 48),
     };
+    // "Can upgrade" marker: an amber badge with an up arrow, floating above a tower.
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#ffcf5e';
+    g.strokeStyle = '#0d1b3a';
+    g.lineWidth = 8;
+    g.beginPath(); g.arc(64, 64, 52, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = '#0d1b3a';
+    g.beginPath();
+    g.moveTo(64, 24); g.lineTo(98, 62); g.lineTo(77, 62); g.lineTo(77, 100);
+    g.lineTo(51, 100); g.lineTo(51, 62); g.lineTo(30, 62); g.closePath(); g.fill();
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._upMat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
     const L = (color, extra) => new THREE.MeshLambertMaterial(Object.assign({ color }, extra));
     this._mats = {
       ground: L(0x4a7c2e),
@@ -495,7 +512,7 @@ export const Renderer = {
     const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
     const insets = this._insets();
     this._fitSig = `${insets.bottom}|${insets.right}`;
-    const top = HUD_TOP * uiScale(), bottom = insets.bottom || Math.min(140, h * 0.2), side = 6;
+    const top = insets.top, bottom = insets.bottom, side = 6;
 
     // Free area in normalised device coordinates (-1..1, y up).
     const safe = {
@@ -514,7 +531,7 @@ export const Renderer = {
     cam.clearViewOffset();
     const box = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
     const measure = (dist) => {
-      cam.position.copy(target).addScaledVector(CAMERA_DIR, dist);
+      cam.position.copy(target).addScaledVector(_camDir, dist);
       cam.lookAt(target);
       cam.updateMatrixWorld();
       cam.updateProjectionMatrix();
@@ -526,12 +543,43 @@ export const Renderer = {
       }
       return box.maxX - box.minX <= safe.maxX - safe.minX && box.maxY - box.minY <= safe.maxY - safe.minY;
     };
-    let lo = 8, hi = 260;
-    for (let i = 0; i < 22; i++) {
-      const mid = (lo + hi) / 2;
-      if (measure(mid)) hi = mid; else lo = mid;
+    const fit = () => {
+      let lo = 8, hi = 260;
+      for (let i = 0; i < 22; i++) {
+        const mid = (lo + hi) / 2;
+        if (measure(mid)) hi = mid; else lo = mid;
+      }
+      return hi;
+    };
+    // Size of the board on screen: area of the flat board (a trapezoid in perspective).
+    const nearEdge = () => {
+      const p = [[0, H], [W, H], [W, 0], [0, 0]].map(([x, z]) => {
+        _v1.set(x, 0, z).project(cam);
+        return [_v1.x * w, _v1.y * h];
+      });
+      let area = 0;
+      for (let i = 0; i < 4; i++) {
+        const [x1, y1] = p[i], [x2, y2] = p[(i + 1) % 4];
+        area += x1 * y2 - x2 * y1;
+      }
+      return Math.abs(area);
+    };
+    // Tilt: 50° by default. When the free area has height to spare (the board is limited
+    // by the width), look down more steeply so the board fills the height too. A
+    // steeper step must make the board clearly bigger (2 %), so the 3D look is kept
+    // when it gains little.
+    let best = null;
+    for (let deg = 50; deg <= 62; deg += 3) {
+      const rad = deg * Math.PI / 180;
+      _camDir.set(0, Math.sin(rad), Math.cos(rad));
+      const dist = fit();
+      measure(dist);
+      const size = nearEdge();
+      if (!best || size > best.size * 1.02) best = { deg, dist, size };
     }
-    measure(hi);
+    const rad = best.deg * Math.PI / 180;
+    _camDir.set(0, Math.sin(rad), Math.cos(rad));
+    measure(best.dist);
 
     // Slide the picture so the board sits in the middle of the free area.
     const dx = ((safe.minX + safe.maxX) - (box.minX + box.maxX)) / 2;
@@ -852,6 +900,11 @@ export const Renderer = {
         if (vt > 0 && vt < 0.45) pop = 1 - vt / 0.45;
       }
       obj.scale.setScalar(1 + 0.22 * Math.sin(pop * Math.PI));
+      // ⬆ badge while an upgrade is affordable (bobs gently; tap it to select the tower).
+      const up = t.nextUpgrade();
+      u.upBadge.visible = (state.phase === 'BUILD' || state.phase === 'BATTLE')
+        && !!up && state.coins >= up.cost && state.selectedTower !== t;
+      if (u.upBadge.visible) u.upBadge.position.y = u.badgeY + 0.12 * Math.sin(now * 4);
       if (u.halo.visible) u.halo.material.opacity = 0.16 + 0.1 * Math.sin(now * 3);
     }
   },
@@ -885,6 +938,11 @@ export const Renderer = {
     u.halo.position.y = 0.04;
     u.halo.visible = false;
     g.add(u.ring, u.halo);
+    u.upBadge = new THREE.Sprite(this._upMat);
+    u.upBadge.scale.setScalar(0.8);
+    u.upBadge.renderOrder = 10;
+    u.upBadge.visible = false;
+    g.add(u.upBadge);
 
     const part = (name) => model.getObjectByName(name) || null;
 
@@ -954,6 +1012,7 @@ export const Renderer = {
     u.halo.visible = lvl === TOWER_LEVEL.length - 1;
 
     if (u.crystal) u.crystal.position.y = lift + u.topH * look.size + 0.5;
+    u.badgeY = lift + u.topH * look.size + (u.crystal ? 1.15 : 0.55);
     u.lastUpgrade = t.upgradeLevel;
   },
 
@@ -1114,7 +1173,7 @@ export const Renderer = {
       const k = Math.min(1, this._phaseT / 2.0);
       const e = k * k * (3 - 2 * k);
       const castle = new THREE.Vector3(c.x, 1.2, c.z);
-      const near = castle.clone().addScaledVector(CAMERA_DIR, base.pos.distanceTo(base.target) * 0.55);
+      const near = castle.clone().addScaledVector(_camDir, base.pos.distanceTo(base.target) * 0.55);
       pos.lerp(near, e * 0.85);
       tgt.lerp(castle, e * 0.85);
     }

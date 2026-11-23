@@ -735,4 +735,36 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   - Checked in headless Chromium: 4 files failing twice each → game loads
     and plays, no errors; one file always failing → 4 attempts, then the
     reload message; build-flow regression fine.
+- 2026-11-23 — **Round 9: tutorial, fewer questions, map uses the height**
+  (owner: upgrades are hidden; fewer questions per round; no questions
+  before the money runs out; map still too small).
+  - **Questions:** 5 per wave (was 8). Owner chose 5 × 8 coins; the bot
+    showed that was harder than before (fewer answers → streak bonus
+    rarely reached; 70 % lost levels 4–6), so it is **5 × 9 coins**. Bot
+    (2 runs each, both strategies): 0 % = every level lost; 40 % = level
+    1–2 won; 70 % = archers win all six (1–3 stars), mix bot wins 1–3 and
+    some of 6; 100 % = 3 stars archers, 1–3 mix. Same as before.
+  - **Card arrives later (level 1, first time only):** `Forge.newState(hidden)`;
+    the card is hidden until the player first can't afford something
+    (`Forge.noCoins`: card shake, keys 1–4, chosen hex, upgrade) or after
+    wave 1 (`refill`). It fades in with a glow (`#forge-panel.reveal`).
+    From level 2 on, and after the tutorial, it is there from the start.
+  - **Upgrades visible:** an amber ⬆ badge bobs above every tower whose
+    upgrade is affordable (`u.upBadge` sprite in `renderer.js`, hidden
+    while that tower is selected; tapping it selects the tower).
+  - **Tutorial** (`tutorial.js`): tap hex → pick tower → start wave; the
+    card's first appearance → "Out of coins? Answer the question"; as soon
+    as an upgrade is affordable → "Tap your tower with the ⬆" (its hex
+    glows) → "Now press Upgrade" (button pulses). Finished after the first
+    upgrade (or when the level ends after at least one answer).
+  - **Camera:** the board uses (almost) the full height. Only the question
+    card keeps its space; the top bar overlaps freely and the dock keeps
+    only 40 % of its height. The tilt is chosen per screen shape, 50–62°,
+    the one that gives the biggest board area (+2 % per step needed);
+    in practice 62° on laptop, tablet and phones, so the board is taller
+    and hexes are bigger tap targets.
+  - Checked in headless Chromium: the full tutorial flow at 1366×768
+    (mouse), 1024×768 and 390×844 (touch) — card hidden, appears on the
+    "nope", answer hint, ⬆ badge, upgrade hint and button pulse, done flag;
+    camera at 1366×768, 1024×768, 390×844, 844×390, 1920×1080. No errors.
 

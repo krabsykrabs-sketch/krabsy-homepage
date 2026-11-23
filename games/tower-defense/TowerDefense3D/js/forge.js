@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { Level } from './level.js';
 import { Effects } from './effects.js';
 import { Questions } from './questions.js';
+import { Track } from './analytics.js';
 
 // The forge: the game's question moment and its main source of coins.
 //
@@ -20,27 +21,44 @@ import { Questions } from './questions.js';
 // one, right or wrong. That keeps the untimed build phase from being an endless coin
 // farm and makes accuracy matter.
 //
+// Level 1, first time (tutorial): the card starts hidden and slides in the first time
+// the player cannot afford something, or after wave 1 at the latest (reveal()).
+//
 // state.forge = { ore, q, stage: 'ask'|'right'|'wrong'|'empty', picked, timer, lock,
-//                 streak, lastGain }
+//                 streak, lastGain, hidden }
 // state.stats = { asked, right }
 
 export const Forge = {
-  newState() {
+  newState(hidden = false) {
     return {
       ore: CONFIG.forge.orePerWave, q: null, stage: 'empty', picked: -1,
-      timer: 0, lock: 0, streak: 0, lastGain: 0,
+      timer: 0, lock: 0, streak: 0, lastGain: 0, hidden,
     };
+  },
+
+  reveal(state) {
+    if (!state.forge.hidden) return;
+    state.forge.hidden = false;
+    Sound.play('upgrade');
+  },
+
+  // The player tried to buy without the money: count it, and bring in the card.
+  noCoins(state, towerType) {
+    Track.notEnoughCoins(state, towerType);
+    this.reveal(state);
   },
 
   // New wave cycle: fresh ore, and a question if the card was empty.
   refill(state) {
     const f = state.forge;
     f.ore = CONFIG.forge.orePerWave;
+    this.reveal(state);
     if (f.stage === 'empty') this._ask(state);
   },
 
   active(state) {
-    return state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE';
+    return !state.forge.hidden
+      && (state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE');
   },
 
   _ask(state) {

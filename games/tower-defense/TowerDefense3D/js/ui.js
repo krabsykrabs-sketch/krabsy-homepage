@@ -1,5 +1,4 @@
 import { Sound } from './audio.js';
-import { Track } from './analytics.js';
 import { CONFIG, TOWER_ORDER } from './config.js';
 import { Level, HEX, hexCenter } from './level.js';
 import { Renderer } from './renderer.js';
@@ -105,7 +104,7 @@ export const UI = {
         if (state.coins < def.cost && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
           btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
           Sound.play('nope');
-          Track.notEnoughCoins(state, type);
+          Forge.noCoins(state, type);
           btn.blur();
           return;
         }
@@ -414,6 +413,7 @@ export const UI = {
     this.els.startWaveBtn.classList.toggle('hint-pulse', !!h && h.target === 'start');
     this.els.forgePanel.classList.toggle('hint-pulse', !!h && h.target === 'forge');
     this.els.towerButtons.classList.toggle('hint-pulse', !!h && h.target === 'towers');
+    this.els.towerInfo.classList.toggle('hint-upgrade', !!h && h.target === 'upgrade');
   },
 
   // Speaker button: 🔊 all, 🔈 effects only (no music), 🔇 off.
@@ -579,7 +579,10 @@ export const UI = {
       this._forgeHeadSig = null;
       return;
     }
-    panel.classList.remove('hidden');
+    if (panel.classList.contains('hidden')) {
+      // Slides in (first time in level 1, or a new run).
+      panel.classList.remove('hidden', 'reveal'); void panel.offsetWidth; panel.classList.add('reveal');
+    }
 
     // Head: questions left this wave, what the next right answer pays, the streak.
     const headSig = `${f.ore}|${f.streak}`;
