@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { TILE, getModel, mergeStatic, measureModel } from './models.js';
-import { Station, makeRingSprite, TOASTER_SCALE } from './stations.js';
+import { Station, makeRingSprite, TOASTER_SCALE, SCOOP_SCALE } from './stations.js';
 import { CRATE_MODELS } from './levels.js';
 
 export class World {
@@ -388,6 +388,8 @@ export class World {
     const toLocal = (c, r) => ({ c: c - minC, r: r - minR });
 
     // --- classify station tiles, collect floor tiles / start items / hatch anchor ---
+    const CRATE_ITEM = {};                 // crate model → the item it gives
+    for (const k in CRATE_MODELS) if (CRATE_MODELS[k] !== 'crate') CRATE_ITEM[CRATE_MODELS[k]] = k;
     const PRI = { counter: 0, sink: 1, oven: 1, board: 1, rack: 1, crate: 1, trash: 1, stove: 1 };
     const typeOf = (m) => {
       if (m.startsWith('kitchencounter_sink')) return 'sink';
@@ -398,11 +400,11 @@ export class World {
       if (m === 'crate') return 'trash';          // an EMPTY crate = trash bin (like the burger level)
       if (m.startsWith('crate_')) return 'crate';
       if (m.startsWith('icecream_container_icecream')) return 'crate';   // ice-cream flavour tubs
+      if (CRATE_ITEM[m]) return 'crate';          // topping bowls (cherries / waffles / cookie sticks)
 
       if (m.startsWith('kitchencounter_')) return 'counter';
       return null;
     };
-    const CRATE_ITEM = {}; for (const k in CRATE_MODELS) CRATE_ITEM[CRATE_MODELS[k]] = k;
     const floorTiles = new Set();
     const tileStation = new Map();        // local "c,r" → { type, item }
     const startItems = [];
@@ -441,6 +443,7 @@ export class World {
       if (o.model === 'crate') mdl.scale.setScalar(0.92);
       mdl.position.set(o._pos.x, o._pos.y, o._pos.z);
       mdl.rotation.set((o.rotX || 0) * Math.PI / 180, o.rot * Math.PI / 2, 0);
+      if (o.scale) mdl.scale.setScalar(o.scale);     // optional uniform scale (topping bowls)
       if (o._span) {                 // a trimmed floor tile: squeeze it into its span
         const quarter = o.rot % 2 === 1;   // rotated a quarter turn: local x runs along world z
         const kx = o._span[2] / o._full[0], kz = o._span[3] / o._full[1];
@@ -478,6 +481,32 @@ export class World {
       }
       this.stations.push(st);
       this.stationAt.set(key, st);
+    }
+
+    // --- the scoop stand (`level.scoopStand`, JSON cell coords): a counter that
+    //     is the ice-cream scoop's home. A small metal cup stands on it; the
+    //     scoop stands in the cup, handle down (stations.composeScoop). ---
+    if (this.level.scoopStand) {
+      const l = toLocal(this.level.scoopStand.c, this.level.scoopStand.r);
+      const st = this.stationAtTile(l.c, l.r);
+      if (st && st.type === 'counter') {
+        st.stand = 'scoop';
+        // a teal mat marks the spot (also while the scoop is away), a pale
+        // enamel cup stands on it
+        const mat = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.66, 0.05, 28),
+          new THREE.MeshStandardMaterial({ color: 0x2bb8a0, roughness: 0.8 }));
+        mat.position.set(st.pos.x, st.topY + 0.025, st.pos.z);
+        mat.receiveShadow = true;
+        staticG.add(mat);
+        const R = 0.22 * SCOOP_SCALE, H = 0.3 * SCOOP_SCALE;
+        const cup = new THREE.Mesh(
+          new THREE.LatheGeometry([[0, 0.03], [R * 0.86, 0.03], [R, H], [R * 0.86, H], [R * 0.76, 0.07], [0, 0.07]]
+            .map(([x, y]) => new THREE.Vector2(x, y)), 20),
+          new THREE.MeshStandardMaterial({ color: 0xe6ebf2, roughness: 0.5 }));
+        cup.position.set(st.pos.x, st.topY + 0.05, st.pos.z);
+        cup.castShadow = true; cup.receiveShadow = true;
+        staticG.add(cup);
+      }
     }
 
     // --- hatch: retype the counter(s) directly in front of the order window ---

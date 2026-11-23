@@ -371,6 +371,8 @@ export class Game {
 
     switch (st.type) {
       case 'crate': {
+        // an ice-cream tub: only the scoop takes ice cream out of it
+        if (ITEMS[st.crateItem].needsTool) { this.scoopAtTub(st, held); break; }
         if (!held) {
           const item = makeIngredient(st.crateItem);
           this.chef.setCarried(item, buildItemMesh(item));
@@ -417,7 +419,13 @@ export class Game {
         break;
       }
       case 'trash': {
-        if (held && held.type === 'ing' && ITEMS[held.id].reusable) {
+        if (held && held.type === 'ing' && ITEMS[held.id].holds) {
+          // a loaded scoop: the ball goes in the bin, the scoop stays in hand
+          const empty = makeIngredient(ITEMS[held.id].emptyTo);
+          this.chef.setCarried(empty, buildItemMesh(empty));
+          audio.trash();
+          this.fx.pop(st.pos.clone().setY(1.6), '🗑️', 'var(--muted)');
+        } else if (held && held.type === 'ing' && ITEMS[held.id].reusable) {
           this.reject(st);            // the only ketchup bottle is not trash
         } else if (held && held.type === 'ing') {
           this.chef.setCarried(null);
@@ -585,6 +593,17 @@ export class Game {
   }
 
   counterInteract(st, held) {
+    // the scoop stand: the ice-cream scoop's home — nothing else goes here
+    if (st.stand) {
+      if (!held && st.item) {
+        const it = st.takeItem();
+        this.chef.setCarried(it, buildItemMesh(it));
+      } else if (held && !st.item && held.type === 'ing' && ITEMS[held.id].scoopTool) {
+        st.setItem(held);
+        this.chef.setCarried(null);
+      } else this.reject(st);
+      return;
+    }
     if (!held && st.item) {
       const it = st.takeOne();
       this.chef.setCarried(it, buildItemMesh(it));
@@ -596,21 +615,10 @@ export class Game {
       return;
     }
     if (held && st.item) {
-      // sauce-bottle DRIZZLE (reusable): a `drizzle` bottle — held OR sitting on
-      // the counter — adds its sauce to a plated dish-in-progress; the bottle is
-      // NOT consumed (works either orientation, like the pizza ketchup).
-      const bottle = (held.type === 'ing' && ITEMS[held.id].drizzle) ? held
-        : (st.item.type === 'ing' && ITEMS[st.item.id].drizzle) ? st.item : null;
-      const plate = held.type === 'plate' ? held : (st.item.type === 'plate' ? st.item : null);
-      if (bottle && plate && !plate.dirty && plate.contents.length &&
-          canPlate(plate.contents, ITEMS[bottle.id].drizzle)) {
-        this.plateAdd(plate, ITEMS[bottle.id].drizzle);
-        if (plate === st.item) st.setItem(plate);
-        else this.chef.setCarried(plate, buildItemMesh(plate));
-        this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
-        audio[plate.dish ? 'ding' : 'putdown']();
-        return;
-      }
+      // the ice-cream scoop and a bowl (either one may be the one lying here)
+      const scoop = this.isScoop(held) ? held : this.isScoop(st.item) ? st.item : null;
+      const bowl = held.type === 'plate' ? held : (st.item.type === 'plate' ? st.item : null);
+      if (scoop && bowl) { this.scoopIntoBowl(st, scoop, bowl); return; }
       // plate on counter + plateable in hand
       if (st.item.type === 'plate' && !st.item.dirty && held.type === 'ing' &&
           ITEMS[held.id].plateable && canPlate(st.item.contents, held.id)) {
@@ -654,6 +662,58 @@ export class Game {
     this.reject(st);
   }
 
+  isScoop(item) { return !!(item && item.type === 'ing' && ITEMS[item.id].scoopTool); }
+
+  /** E at an ice-cream tub. Only the ONE scoop takes ice cream out: the empty
+   *  scoop comes back loaded (same tool, a ball in it). A loaded scoop can put
+   *  its ball back into its own tub. Empty hands / a bowl / anything else: the
+   *  bubble shows the scoop and the pointer marks where it is. */
+  scoopAtTub(st, held) {
+    const ball = st.crateItem;
+    if (this.isScoop(held) && !ITEMS[held.id].holds) {
+      const full = makeIngredient(ITEMS[ball].loaded);
+      this.chef.setCarried(full, buildItemMesh(full));
+      this.fx.sparkle(st.pos.clone().setY(1.4));
+    } else if (this.isScoop(held) && ITEMS[held.id].holds === ball) {
+      const empty = makeIngredient(ITEMS[held.id].emptyTo);
+      this.chef.setCarried(empty, buildItemMesh(empty));
+      audio.putdown();
+      this.fx.pop(st.pos.clone().setY(1.5), '↩', 'var(--muted)');
+    } else if (this.isScoop(held)) {
+      this.reject(st);                 // the scoop is full of another flavour
+    } else {
+      this.reject(st);
+      this.missing(st, [itemIcon('scoop')], 'scoop');
+    }
+  }
+
+  /** The scoop meets a bowl on a counter (the scoop in hand and the bowl on
+   *  the counter, or the bowl in hand and the scoop lying there). A loaded
+   *  scoop drops its ball into the bowl and is EMPTY again — the tool itself
+   *  never goes into the bowl. An empty scoop: the bubble shows the ice cream
+   *  and the pointer marks the tubs. */
+  scoopIntoBowl(st, scoop, bowl) {
+    const ball = ITEMS[scoop.id].holds;
+    if (!ball) {
+      this.reject(st);
+      const tubs = this.world.stations.filter((s) => s.type === 'crate' && ITEMS[s.crateItem].needsTool).map((s) => s.crateItem);
+      if (tubs.length) this.missing(st, tubs.map((id) => itemIcon(id)), ...tubs);
+      return;
+    }
+    if (bowl.dirty || !canPlate(bowl.contents, ball)) { this.reject(st); return; }
+    this.plateAdd(bowl, ball);
+    const empty = makeIngredient(ITEMS[scoop.id].emptyTo);
+    if (scoop === st.item) {             // bowl in hand, the loaded scoop lay on the counter
+      st.setItem(empty, false);
+      this.chef.setCarried(bowl, buildItemMesh(bowl));
+    } else {                             // scoop in hand, the bowl stands on the counter
+      st.setItem(bowl);
+      this.chef.setCarried(empty, buildItemMesh(empty));
+    }
+    this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
+    audio[bowl.dish ? 'ding' : 'putdown']();
+  }
+
   reject(st) {
     audio.reject();
     if (st && st.itemMesh) {
@@ -679,7 +739,8 @@ export class Game {
 
   /** Where the player can get `what` right now. 'plate' = clean plates (rack
    *  or an empty one set down somewhere; none left → the sink, wash one);
-   *  'sink' = the sink; { board: tool } = the boards with that tool; anything
+   *  'sink' = the sink; 'scoop' = wherever the ice-cream scoop lies;
+   *  { board: tool } = the boards with that tool; anything
    *  else is an item id: its crate + every board/counter it lies on. */
   sourcesOf(what) {
     const S = this.world.stations;
@@ -693,6 +754,7 @@ export class Game {
       if (!out.length) out.push(this.sinkStation.dirtyPlates > 0 ? this.sinkStation : this.rackStation);
       return out;
     }
+    if (what === 'scoop') return S.filter((s) => this.isScoop(s.item));
     if (what && what.board) return S.filter((s) => s.type === 'board' && (s.tool || 'knife') === what.board);
     return S.filter((s) => (s.type === 'crate' && s.crateItem === what) ||
       (s.item && s.item.type === 'ing' && s.item.id === what) ||
@@ -915,11 +977,18 @@ export class Game {
   refreshHint(force = false) {
     const st = this.targetStation();
     const held = this.chef.carried;
-    let text = '', icon = null;
+    let text = '', icon = null, iconId = '';   // iconId: which item the pill's picture shows
+    const bowlLevel = this.level.vessel === 'bowl';
     if (st) {
-      if (st.type === 'crate') {
-        if (!held) { text = t('hintGrab', '@'); icon = itemIcon(st.crateItem); }
-        else if (held.type === 'plate' && !held.dirty && ITEMS[st.crateItem].ontoPlate && canPlate(held.contents, st.crateItem)) text = t('hintAddPlate');
+      if (st.type === 'crate' && ITEMS[st.crateItem].needsTool) {
+        // an ice-cream tub: needs the scoop
+        if (!this.isScoop(held)) { text = t('hintNeedScoop', '@'); iconId = 'scoop'; }
+        else if (!ITEMS[held.id].holds) { text = t('hintScoopIce', '@'); iconId = st.crateItem; }
+        else text = ITEMS[held.id].holds === st.crateItem ? t('hintScoopBack') : t('hintScoopFull');
+      }
+      else if (st.type === 'crate') {
+        if (!held) { text = t('hintGrab', '@'); iconId = st.crateItem; }
+        else if (held.type === 'plate' && !held.dirty && ITEMS[st.crateItem].ontoPlate && canPlate(held.contents, st.crateItem)) text = t(bowlLevel ? 'hintIntoBowl' : 'hintAddPlate');
       }
       else if (st.type === 'board') {
         const heldPlate = held && held.type === 'plate' && !held.dirty;
@@ -983,16 +1052,28 @@ export class Game {
         else if (held) text = t('hintStartCooking');
       }
       else if (st.type === 'sink') text = st.dirtyPlates > 0 ? t('hintWashPlate') : t('hintNoDirty');
-      else if (st.type === 'rack') text = held ? '' : t('hintTakePlate');
+      else if (st.type === 'rack') text = this.isScoop(held) ? t('hintBowlFirst') : held ? '' : t('hintTakePlate');
       else if (st.type === 'hatch') text = (held && held.type === 'plate' && held.dish) ? t('hintServe') : t('hintHatch');
       else if (st.type === 'trash') text = held ? t('hintThrowAway') : '';
+      else if (st.type === 'counter' && st.stand) {
+        if (!held && st.item) text = t('hintTakeScoop');
+        else if (this.isScoop(held) && !st.item) text = t('hintParkScoop');
+        else if (!st.item) text = t('hintScoopHome');
+      }
       else if (st.type === 'counter') {
-        if (held && st.item) text = t('hintCombine');
+        const scoop = this.isScoop(held) ? held : this.isScoop(st.item) ? st.item : null;
+        const bowl = held && held.type === 'plate' ? held : (st.item && st.item.type === 'plate' ? st.item : null);
+        if (held && st.item && scoop && bowl) {
+          const ball = ITEMS[scoop.id].holds;
+          text = !ball ? t('hintScoopEmpty') : canPlate(bowl.contents, ball) ? t('hintIntoBowl') : t('hintAlreadyIn');
+        }
+        else if (held && st.item) text = t('hintCombine');
         else if (held) text = t('hintPutDown');
         else if (st.item) text = t('hintPickUp');
       }
     }
-    const key = text + (icon ? '|' + st.crateItem : '');
+    if (iconId) icon = itemIcon(iconId);
+    const key = text + '|' + iconId;
     if (key !== this.lastHint || force) {
       ui.hint(text, icon);
       this.lastHint = key;

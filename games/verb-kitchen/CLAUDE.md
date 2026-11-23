@@ -270,6 +270,84 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **L7 Sundae Sunday REDESIGNED (owner play-test: "completely broken").**
+  Source only; NOT in the live build. Scripts + screenshots in the session
+  scratchpad `sundae-redesign/`.
+  - **Flow (as the owner asked).** There is ONE ice-cream scoop, a real object
+    like a knife. It stands in its stand (teal mat + cup, back counter). Grab
+    it → E at a tub: the same scoop now has a ball in it → E at a bowl on a
+    counter: the ball is in the bowl, the scoop is empty again → park the scoop
+    (stand or any free counter) → carry the bowl. The scoop can never go into
+    a bowl, onto the hatch, the bowl stack or into the bin. Both directions
+    work: scoop in hand + bowl on the counter, or bowl in hand + loaded scoop
+    lying on the counter.
+  - **Items** (`recipes.js`): `scoop` (empty tool), `scoop_vanilla|chocolate|
+    strawberry` (the tool with a ball: `holds`, `emptyTo`), `ball_*` (what lies
+    in the bowl; `needsTool`, `loaded`), toppings `cherry`, `waffle`,
+    `cookiestick` (`ontoPlate`: carrying the bowl to a topping bowl adds it).
+    Do NOT name an item property `scoop` — the soup pots use it. The old
+    tinted-tool "balls", `choc_syrup`/`syrup` and the drizzle code are gone.
+  - **Rules** (`game.js`): `scoopAtTub`, `scoopIntoBowl`, `isScoop`; the stand
+    is a counter with `st.stand` (only the scoop goes there). Loaded scoop +
+    own tub = ball back; loaded scoop + bin = ball binned, tool stays; a
+    flavour already in the bowl is refused. `game.missing`: E at a tub without
+    the scoop (empty hands or a bowl) → bubble with the scoop + pointer where
+    it lies; empty scoop at a bowl → bubble with the three balls + pointer at
+    the tubs. Hint pills for every case (EN/DE/ES, `hintNeedScoop` …).
+  - **Layout** (`levels/icecream7.json`, rewritten by hand; local grid 8×5,
+    drawing in `levels.js`). Left wall: the three tubs. Col 1 is the ice-cream
+    aisle: tubs on the left, a two-tile island (peninsula) on the right — turn
+    left to fill the scoop, turn right to drop the ball into the bowl. Scoop
+    stand at the head of the aisle. Front row: topping bowls (waffles, cookie
+    sticks, cherries; the pack's bowl models, ×1.3) and the bin. Right: sink,
+    clean bowls, a free counter. Hatch in the middle of the back wall. Decor
+    only on the four dead corners and the dead counter in front of the island.
+    New in `world.js`: JSON object `scale`, `level.scoopStand` (JSON cell
+    coords), topping bowls as crates (`CRATE_MODELS`).
+  - **Z-fighting fixed.** The tubs were sunk so far that the ice-cream surface
+    (y 0.97–1.07) cut through the counter top (y 1.02). Tub and ice cream are
+    0.1 higher now (surface 1.07–1.17, rim 1.22).
+  - **Orders: 4 sundaes, every one has a topping.** Cherry Vanilla (vanilla +
+    cherry, 24), Choco Crunch (chocolate + cookie stick, 24), Choco-Berry
+    (strawberry + chocolate + waffle, 36), Neapolitan Sundae (all three +
+    cherry, 48). DE: Vanille-Kirsch-Becher, Schoko-Knusper-Becher,
+    Schoko-Erdbeer-Becher, Neapolitaner-Becher. ES: Vainilla con cereza, Choco
+    crujiente, Choco-Fresa, Copa napolitana. Dish ids: `sundae_vanilla`,
+    `sundae_crunch` (new), `sundae_deluxe`, `sundae_neapolitan`.
+    Round: 7 orders (V, Crunch, Berry, V, Neapolitan, Berry, Neapolitan),
+    13 balls, 7 toppings, 2 bowls → 5 washes (was 6 orders, 4 washes).
+  - **Bowl + tickets.** The bowl always shows exactly what is in it
+    (`stations.composeSundae`: balls side by side, cherry on top, waffle at the
+    back, cookie stick leaning out), so the finished-dish models are no longer
+    used. Tickets: real ice-cream balls (white / brown / pink) and toppings via
+    `iconItems`; the ticket's top picture is the finished bowl
+    (`DISHES.picture` → `icons.dishIcon`) instead of 🍨, which showed three
+    balls on every ticket. `ITEMS.iconTilt` leans the cookie stick in its icon.
+  - **Recipe card.** New text EN/DE/ES (bowl on the counter → scoop → ball
+    into the bowl → park the scoop → topping → serve; no grammar terms).
+    Picture `Sundae.webp` kept: it shows a ball taken from each tub and a
+    glass with three balls and a cherry = the Neapolitan. It shows neither the
+    single scoop tool nor waffle / cookie stick, and a glass instead of a bowl.
+  - **Assets.** New from the KayKit pack (same atlas, ~10 KB each):
+    `icecream_waffle`, `icecream_cookiestick`,
+    `icecream_bowl_icecream_chocolate`, `icecream_bowl_icecream_strawberry`.
+    `icecream_bowl_decorated_A` is no longer used. `release-assets.txt` updated
+    (288 files).
+  - **Verified** headless (CDP): 31/31 driven checks of the scoop flow (grab,
+    load, fill, park, both directions, every refusal, toppings by hand and
+    with the bowl); walking the aisle with real key input; all 4 sundaes
+    served and 5 bowls washed in a full bot round; every station on screen and
+    clear of the HUD at 1180×820 and 1920×1080; no console errors on all 8
+    levels (1180×820 DE, 1920×1080 EN) and in `?qa=icecream`; texts checked in
+    EN/DE/ES.
+  - **Star times NOT changed** (`starTimes` still holds the old layout's
+    values). New full-round bot `playtest-fixes/bots/l7new.js`
+    (`node run.mjs l7new.js lib2.js`): E = 105.6 s (walk 66.7, wash 37.9).
+    Estimate for the old layout with today's 2-answer washing: about 68 s
+    (82 s minus 4 washes × 3.4 s; not measured).
+  - **Not done / to decide:** no human play-test yet; hint pills still say
+    "E — …" on touch devices (as on all levels).
+
 - 2026-11-23 — **Owner play-test fixes built (everything except L7).** Source only;
   NOT in the live build. Code commit `c2baea0`. L7 Sundae Sunday is untouched
   (level, recipes, ice-cream icons) for the separate redesign.
@@ -371,8 +449,8 @@ ours 2×1×2).
     emoji `icons`); `game.missing(station, icons, ...sources)` for bubble +
     pointer; `fx.say()` for a spoken line.
 
-- 2026-11-23 — **OWNER PLAY-TEST FEEDBACK.** Built 2026-11-23 (`c2baea0`, see
-  the entry above) except L7 Sundae Sunday (separate redesign). [DONE] marks.
+- 2026-11-23 — **OWNER PLAY-TEST FEEDBACK.** Built 2026-11-23 (`c2baea0`; L7
+  Sundae Sunday in its own redesign, see the top entry). [DONE] marks.
   - L5 Split Kitchen: "good, I like it a lot" — only mechanics to update.
   - [DONE] Pick up WITH what you hold (sometimes it doesn't work):
     1. Holding a bun → take the cooked patty from the pan with it.
@@ -393,7 +471,7 @@ ours 2×1×2).
        beige/brown-white = onion-mushroom. Double-check the logic.
     4. [KEPT] Felt a bit boring, but the owner wants the MECHANICS UNCHANGED —
        rejected boil-over, stirring and similar ideas. Don't add mechanics.
-  - [OPEN — separate redesign agent] L7 Sundae Sunday — "completely broken", REDESIGN the level:
+  - [DONE 2026-11-23, see the entry "L7 Sundae Sunday REDESIGNED"; star times still to calibrate] L7 Sundae Sunday — "completely broken", REDESIGN the level:
     1. Pressing E at a tub puts a scoop TOOL in your hand out of nothing,
        and the tool itself can be dropped into the bowl. Makes no sense.
     2. Wanted flow: ONE ice-cream scoop tool in the kitchen. Grab the tool →

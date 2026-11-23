@@ -1,7 +1,7 @@
 // Stations hold state + item visuals; the interaction *rules* live in game.js.
 import * as THREE from 'three';
 import { TILE, getModel, measureModel } from './models.js';
-import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS, SANDWICH_MODEL, SANDWICH_LAYER_MODELS, SOUP_COLORS } from './recipes.js';
+import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS, SANDWICH_MODEL, SANDWICH_LAYER_MODELS, SOUP_COLORS, SUNDAE_BALLS } from './recipes.js';
 import { audio } from './audio.js';
 
 // ---------- items ----------
@@ -207,9 +207,84 @@ function composeSandwich(contents, closed, baseY = 0) {
   return g;
 }
 
+/** The ice-cream scoop (L7's one tool), optionally with a ball of ice cream in
+ *  it. The model stands on its handle with the cup opening sideways (−z):
+ *  handle y −0.24…0.25, cup centre at y ≈ 0.5.
+ *  Lying (in hand / on a counter): tipped onto its back so the cup opens
+ *  UPWARD and the ball sits in it; turned a little so it reads from the
+ *  camera and in the icons. Upright (`upright`, in the scoop stand): handle
+ *  down in the cup of the stand, the ball perched on top. */
+export const SCOOP_SCALE = 1.35;
+function composeScoop(ballId, upright = false) {
+  const g = new THREE.Group();
+  const tool = getModel('icecream_scoop');
+  const ball = ballId ? getModel(ITEMS[ballId].model) : null;
+  if (ball) ball.scale.setScalar(0.92);
+  if (upright) {
+    tool.rotation.y = Math.PI;                 // cup opening toward the camera
+    tool.position.y = 0.27;                    // handle end near the bottom of the stand's cup
+    g.add(tool);
+    if (ball) { ball.position.set(0, 0.27 + 0.56, 0.04); g.add(ball); }
+  } else {
+    const lie = new THREE.Group();
+    tool.rotation.x = Math.PI / 2;             // (x, y, z) → (x, −z, y): cup up, head toward +z
+    tool.position.set(0, 0.13, -0.22);         // rest on the surface, centred lengthwise
+    lie.add(tool);
+    if (ball) { ball.position.set(0, 0.1, 0.28); lie.add(ball); }
+    lie.rotation.y = -0.6;
+    g.add(lie);
+  }
+  g.scale.setScalar(SCOOP_SCALE);
+  return g;
+}
+
+/** A sundae bowl (L7): the clean bowl + exactly what is in it — the balls
+ *  side by side (canonical flavour order), then the toppings: the cherry on
+ *  top, the waffle standing at the back, the cookie stick leaning out on the
+ *  right. Works for a part-built bowl and a finished sundae alike. */
+function composeSundae(contents) {
+  const g = new THREE.Group();
+  g.add(getModel('bowl'));
+  const FLOOR = 0.06;
+  const balls = SUNDAE_BALLS.filter((id) => contents.includes(id));
+  const BALL = [1, 1.2, 0.98, 0.88][balls.length];             // one ball fills the bowl, three share it
+  const spots = [[], [[0, 0]], [[-0.2, 0.03], [0.2, 0.03]], [[-0.2, -0.1], [0.2, -0.1], [0, 0.2]]][balls.length];
+  balls.forEach((id, i) => {
+    const b = getModel(ITEMS[id].model);
+    b.scale.setScalar(BALL);
+    b.position.set(spots[i][0], FLOOR, spots[i][1]);
+    b.rotation.y = i * 2.1;
+    g.add(b);
+  });
+  const top = balls.length ? FLOOR + 0.36 * BALL : FLOOR;      // top of the balls
+  if (contents.includes('waffle')) {
+    const w = getModel('icecream_waffle');
+    w.scale.setScalar(0.95);
+    w.rotation.set(-1.15, 0, 0.12);            // standing, leaning back
+    w.position.set(-0.1, top + 0.08, -0.26);
+    g.add(w);
+  }
+  if (contents.includes('cookiestick')) {
+    const c = getModel('icecream_cookiestick');
+    c.scale.setScalar(1.35);
+    c.rotation.set(-0.25, 0, -0.5);            // leaning out to the right
+    c.position.set(0.27, top + 0.12, -0.12);
+    g.add(c);
+  }
+  if (contents.includes('cherry')) {
+    const c = getModel('icecream_cherry');
+    c.scale.setScalar(1.1);
+    // on top of the single ball / in the dip between several
+    c.position.set(0, balls.length > 1 ? top - 0.07 : top - 0.03, balls.length === 3 ? 0.03 : 0.02);
+    g.add(c);
+  }
+  return g;
+}
+
 /** Build the visual for one ingredient (handles composed items). */
 function ingredientMesh(id) {
   const def = ITEMS[id];
+  if (def.compose === 'scoop') return composeScoop(def.holds);
   if (def.compose === 'pizza') return composePizza(def.toppings);
   if (def.compose === 'burger') return composeBurger(def.expandsTo, !!def.dish, 0);
   if (def.compose === 'pot') return composePot(def.veg, def.broth, !!def.cooked);
@@ -286,13 +361,9 @@ export function buildItemMesh(item) {
   // A filled SOUP bowl: bowl + soup surface in the recipe colour (no nesting).
   const soup = isBowl && item.contents.find((id) => ITEMS[id] && ITEMS[id].compose === 'bowlsoup');
   if (soup) { g.add(composeBowlSoup(ITEMS[soup])); return g; }
-  // A finished SUNDAE (L7): the dish model IS already a bowl, so it REPLACES
-  // the empty bowl (no nesting) and carries the recipe tint.
-  if (isBowl && item.dish && DISHES[item.dish].model) {
-    const d = DISHES[item.dish];
-    const dm = getModel(d.model, d.model_tint || null);
-    dm.scale.setScalar(0.9);
-    g.add(dm);
+  // A SUNDAE bowl (L7), part-built or finished: bowl + its balls and toppings.
+  if (isBowl && item.contents.some((id) => ITEMS[id] && ITEMS[id].sundae)) {
+    g.add(composeSundae(item.contents));
     return g;
   }
   const plate = getModel(vesselModel(false));
@@ -376,6 +447,8 @@ export class Station {
 
     // crate
     this.crateItem = null;
+    // counter: 'scoop' = the scoop stand (L7) — only the ice-cream scoop goes here
+    this.stand = null;
     // board
     this.progress = 0;
     // stove / oven (cooker: 'toaster' = a stove-type station for bread slices)
@@ -393,7 +466,10 @@ export class Station {
     this.item = item;
     // a toaster shows its slice standing in the slot (see refreshToasterItem)
     const inToaster = item && this.cooker === 'toaster' && item.type === 'ing' && ITEMS[item.id].flat;
-    this.itemMesh = !item ? null : inToaster ? toasterSliceMesh(item.id, this.state) : buildItemMesh(item);
+    // the scoop stand (L7) holds the scoop upright, handle down
+    const inStand = item && this.stand && item.type === 'ing' && ITEMS[item.id].scoopTool;
+    this.itemMesh = !item ? null : inToaster ? toasterSliceMesh(item.id, this.state)
+      : inStand ? composeScoop(ITEMS[item.id].holds, true) : buildItemMesh(item);
     if (inToaster) bounce = false;
     if (this.itemMesh) {
       // long items (pepperoni!) lie along the board, not across it

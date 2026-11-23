@@ -8,7 +8,7 @@ import { DISHES, ITEMS } from './recipes.js';
 import { audio } from './audio.js';
 import { rng } from './verbs.js';
 import { dishName, t as tr } from './i18n.js';
-import { itemIcon } from './icons.js';
+import { itemIcon, dishIcon } from './icons.js';
 
 let nextId = 1;
 const PATIENCE_DEFAULT = 90;   // seconds until the (cosmetic) bar runs dry
@@ -40,12 +40,14 @@ export class Orders {
     const t = { id: nextId++, dish, el: null, left: this.patience };
     const el = document.createElement('div');
     el.className = 'ticket';
-    // rendered game objects (the real bun, veggie patty, cheese slice …);
-    // emoji only where a dish has no iconItems (the L7 sundaes)
+    // rendered game objects (the real bun, veggie patty, ice-cream balls …);
+    // emoji only as a fallback for a dish without iconItems
     const ings = d.iconItems
       ? d.iconItems.map((id) => `<img src="${itemIcon(id)}" alt="">`).join('')
       : (d.icons || d.parts.map((p) => ITEMS[p].emoji).join(' '));
-    el.innerHTML = `<div class="dish">${d.emoji}</div><div class="dn">${dishName(dish, d.name)}</div>` +
+    // `picture`: the finished dish as a rendered object instead of the emoji
+    const top = d.picture ? `<img src="${dishIcon(dish)}" alt="">` : d.emoji;
+    el.innerHTML = `<div class="dish${d.picture ? ' pic' : ''}">${top}</div><div class="dn">${dishName(dish, d.name)}</div>` +
       `<div class="ings${d.iconItems ? ' pics' : ''}">${ings}</div>` +
       `<div class="pbar"><div class="pfill" style="width:100%"></div></div><div class="mood">😊</div>` +
       `<div class="nextTag">${tr('nextUp')}</div>`;

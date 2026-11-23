@@ -2,6 +2,7 @@
 # Measured 2026-11-23 by loading everything in a headless browser. Paths are relative to
 # /home/janah/dev/brocco-dev/verb-kitchen/ and must land at the same paths in homepage/games/verb-kitchen/.
 # Copy with: cd /home/janah/dev/brocco-dev/verb-kitchen && rsync -a --files-from=<this file minus comments> . <dest>/
+# 2026-11-23 L7 redesign: + icecream_waffle, icecream_cookiestick, icecream_bowl_icecream_chocolate/_strawberry; - icecream_bowl_decorated_A.
 assets/ChatGPT/Burger.webp
 assets/ChatGPT/MainMenu.webp
 assets/ChatGPT/Pizza.webp
@@ -127,8 +128,10 @@ assets/models/restaurant/icecream_bowl_cherries.bin
 assets/models/restaurant/icecream_bowl_cherries.gltf
 assets/models/restaurant/icecream_bowl_cookiesticks.bin
 assets/models/restaurant/icecream_bowl_cookiesticks.gltf
-assets/models/restaurant/icecream_bowl_decorated_A.bin
-assets/models/restaurant/icecream_bowl_decorated_A.gltf
+assets/models/restaurant/icecream_bowl_icecream_chocolate.bin
+assets/models/restaurant/icecream_bowl_icecream_chocolate.gltf
+assets/models/restaurant/icecream_bowl_icecream_strawberry.bin
+assets/models/restaurant/icecream_bowl_icecream_strawberry.gltf
 assets/models/restaurant/icecream_bowl_icecream_vanilla.bin
 assets/models/restaurant/icecream_bowl_icecream_vanilla.gltf
 assets/models/restaurant/icecream_bowl_waffles.bin
@@ -145,8 +148,12 @@ assets/models/restaurant/icecream_container_icecream_strawberry.bin
 assets/models/restaurant/icecream_container_icecream_strawberry.gltf
 assets/models/restaurant/icecream_container_icecream_vanilla.bin
 assets/models/restaurant/icecream_container_icecream_vanilla.gltf
+assets/models/restaurant/icecream_cookiestick.bin
+assets/models/restaurant/icecream_cookiestick.gltf
 assets/models/restaurant/icecream_scoop.bin
 assets/models/restaurant/icecream_scoop.gltf
+assets/models/restaurant/icecream_waffle.bin
+assets/models/restaurant/icecream_waffle.gltf
 assets/models/restaurant/ketchup.bin
 assets/models/restaurant/ketchup.gltf
 assets/models/restaurant/kitchencabinet_corner.bin

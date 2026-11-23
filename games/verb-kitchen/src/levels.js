@@ -347,17 +347,25 @@ export const LEVELS = [
     },
   },
   {
-    // Level 7 "Sundae Sunday" — the FIRST cold-assembly level. Single player.
-    // NO stove, NO cutting board, NO cooking — this proves the assemble→serve→
-    // wash loop works with none of those stations present. Scoops are grabbed
-    // straight from their tubs (crates) as plateable ingredients, spooned onto a
-    // bowl (the standard washable PLATE) in any order — exactly the SALAD pattern,
-    // but cold. A cherry is an extra plateable topping. The plated sundae renders
-    // a finished ice-cream-bowl model (so it reads as a bowl of ice cream), but
-    // the plate underneath stays the washable vessel → the sink quiz is unchanged.
-    // Three distinct sundaes (1-scoop / 2-scoop / 3-scoop) give variety. Editor
-    // JSON layout (levels/icecream7.json, the user's `Ice.json` completed to a
-    // playable 8×6) served in BOWLS. style 'B' kitchen.
+    // Level 7 "Sundae Sunday" — cold assembly with ONE tool (no stove, no board).
+    // Redesigned 2026-11-23 after the owner's play-test. Editor-JSON layout
+    // (levels/icecream7.json), served in BOWLS. Local grid 8×5:
+    //
+    //      0 1 2 3 4 5 6 7        V S X  the three ice-cream tubs (vanilla,
+    //   0  # h C H H C C #               strawberry, chocolate), left wall
+    //   1  V . . . . . . k        h      the scoop stand (the ONE scoop's home)
+    //   2  S . I . . . . r        I      the island: bowls are filled here
+    //   3  X . I . . . . C        w c s  topping bowls: waffles, cookie sticks,
+    //   4  # C # w c s t #               cherries (front row) · t trash
+    //                             k sink · r clean bowls · H hatch · # dead corner
+    //
+    // The ice-cream aisle (col 1) runs between the tubs and the island: turn
+    // left to fill the scoop, turn right to drop the ball into a bowl on the
+    // island. The scoop is a real object (recipes.js `scoop`): grab it from its
+    // stand, load it at a tub, empty it into a bowl, park it (stand or any free
+    // counter) — you need a free hand to carry the bowl. Toppings are taken by
+    // hand, or simply carry the bowl to a topping bowl. Every sundae on the
+    // tickets has a topping. Rules: game.js scoopAtTub / scoopIntoBowl.
     id: 'sundae',
     num: 7,
     open: true,                  // selectable for playtest
@@ -366,32 +374,33 @@ export const LEVELS = [
     style: 'B',
     jsonUrl: 'levels/icecream7.json',
     trimFloor: true,             // no bare floor strips outside the counters
+    // Decor only on the dead corners + the dead counter in front of the island
+    // (col 2, row 4), and on the wall. Nothing that looks like a topping bowl
+    // or a scoop: everything on a reachable counter is usable.
     props: [
-      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 0.6, wall: true, y: 3.3 },
-      // The topping display (cones, waffles, cherries, cookie sticks) stands on
-      // the four DEAD corners only. It used to sit on reachable counters and
-      // looked like toppings you could grab (there is no topping mechanic).
-      { model: 'food_icecream_cone_chocolate', col: 0.26, row: -0.24, y: 1.02 },
-      { model: 'icecream_bowl_waffles', col: 5.8, row: -0.2, y: 1.02, rot: 0.5 },
-      { model: 'icecream_bowl_cherries', col: 6.24, row: -0.12, y: 1.02 },
-      { model: 'icecream_bowl_cookiesticks', col: 6.04, row: 0.26, y: 1.02, rot: 2.6 },
-      { model: 'tt_cookie_jar', col: -0.16, row: 4.18, y: 1.02, scale: 1.2 },
-      { model: 'icecream_cone_stacked', col: 0.2, row: 3.84, y: 1.02 },
-      { model: 'icecream_bowl_decorated_A', col: 5.84, row: 3.84, y: 1.02, rot: 0.6 },
-      { model: 'tt_pothos_plant_small_potted', col: 6.16, row: 4.16, y: 1.3, rot: 2.4 },
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 0.4, wall: true, y: 3.3 },
+      { model: 'tt_cookie_jar', col: -0.14, row: -0.1, y: 1.02, scale: 1.2 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 7, row: 0, y: 1.02 },
+      { model: 'tt_monstera_plant_small_potted', col: 0, row: 4, y: 1.02, rot: 0.6 },
+      { model: 'icecream_cone_stacked', col: 1.84, row: 4.1, y: 1.02 },
+      { model: 'food_icecream_cone_chocolate', col: 2.2, row: 3.9, y: 1.02 },
+      { model: 'tt_pothos_plant_small_potted', col: 7, row: 4, y: 1.3, rot: 2.4 },
     ],
     vessel: 'bowl',              // sundaes are served in a bowl (no plate)
-    spawn: { col: 4, row: 3 },   // chef start in JSON cell coords
-    // a mix of the three sundaes; lets the player batch scoops. 6 orders · 2
-    // bowls → washing stays load-bearing (below the order count).
-    orders: ['sundae_vanilla', 'sundae_neapolitan', 'sundae_deluxe', 'sundae_vanilla', 'sundae_deluxe', 'sundae_neapolitan'],
+    spawn: { col: 5, row: 3 },   // chef start in JSON cell coords
+    scoopStand: { c: 2, r: 1 },  // JSON cell coords: back counter at the head of the aisle
+    startItems: [{ c: 2, r: 1, item: 'scoop' }],   // the one and only scoop, in its stand
+    // 1 ball + topping twice to learn the flow, then 2 balls, then all three;
+    // the round ends on the big one. 13 balls + 7 toppings in all;
+    // 7 orders · 2 bowls → 5 washes (the old level was the second-easiest).
+    orders: ['sundae_vanilla', 'sundae_crunch', 'sundae_deluxe', 'sundae_vanilla', 'sundae_neapolitan', 'sundae_deluxe', 'sundae_neapolitan'],
     spawnEvery: [5, 8],
     plates: 2,                   // 2 clean bowls to start
-    starTimes: [215, 145, 105, 80],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=82s)
+    starTimes: [215, 145, 105, 80],   // 1★ / 2★ / 3★(gold) / author — from the OLD layout (bot E=82s); re-calibrate
     tutorial: {
       image: 'assets/ChatGPT/Sundae.webp',   // made with Gemini 2026-11-23
       title: 'Sundae Sunday',
-      text: 'No cooking today! Grab a bowl, and scoop ice cream from the tubs — vanilla for a Vanilla Scoop, strawberry and chocolate for a Choco-Berry, or all three for a Neapolitan Sundae. Then serve and wash up!',
+      text: 'Put a bowl on the counter and grab the ice-cream scoop. Scoop a ball from a tub and drop it into the bowl — one ball for each on the ticket. Park the scoop, add the topping (cherry, waffle or cookie stick) and serve!',
     },
   },
   {
@@ -483,10 +492,6 @@ export function levelModelNames(level) {
     'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_potatoes',
     'crate_cheese', 'crate_dough', 'crate_mushrooms',
     'crate_onions', 'crate_carrots', 'pot_A',
-    // ice-cream tubs (crate art) — the scoop/cherry/bowl item+dish models come
-    // through itemModelNames(); the tub container models are only named here.
-    'icecream_container_icecream_vanilla', 'icecream_container_icecream_chocolate',
-    'icecream_container_icecream_strawberry',
   ];
 }
 
@@ -504,9 +509,12 @@ export const CRATE_MODELS = {
   potato: 'crate_potatoes',
   pot_empty: 'crate',   // generic crate of clean pots (no pot-crate art in the pack)
   // sundae tubs: filled ice-cream containers read clearly as flavour tubs.
-  scoop_vanilla: 'icecream_container_icecream_vanilla',
-  scoop_chocolate: 'icecream_container_icecream_chocolate',
-  scoop_strawberry: 'icecream_container_icecream_strawberry',
-  cherry: 'crate',      // cherries from a generic crate (no cherry-crate art)
+  ball_vanilla: 'icecream_container_icecream_vanilla',
+  ball_chocolate: 'icecream_container_icecream_chocolate',
+  ball_strawberry: 'icecream_container_icecream_strawberry',
+  // sundae toppings: the pack's topping bowls stand on a counter (editor JSON)
+  cherry: 'icecream_bowl_cherries',
+  waffle: 'icecream_bowl_waffles',
+  cookiestick: 'icecream_bowl_cookiesticks',
   bread: 'crate_buns',  // bread loaves come from the bakery crate (no loaf-crate art)
 };

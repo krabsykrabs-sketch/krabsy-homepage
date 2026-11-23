@@ -78,26 +78,29 @@ export const ITEMS = {
   cp_soup:         { compose: 'bowlsoup', soup: 'cp', veg: ['carrot', 'potato'], emoji: '🥕', plateable: true, steamy: true },
   om_soup:         { compose: 'bowlsoup', soup: 'om', veg: ['onion', 'mushroom'], emoji: '🍄', plateable: true, steamy: true },
 
-  // --- level 7: ice cream / sundaes (the first COLD-ASSEMBLY level: no stove,
-  // no cutting board, no cooking) ---
-  // Scoops are grabbed STRAIGHT from their tubs (crates) as plateable
-  // ingredients — exactly the salad pattern, but cold. There is no chopping and
-  // no cooking: the player grabs a plate (a bowl), spoons scoops + an optional
-  // cherry onto it (order-free, side-by-side like a salad), it matches a sundae
-  // DISH, then serves at the hatch → dirty plate → sink quiz (grammar reused
-  // unchanged). One `icecream_scoop` model, tinted per flavour (flat cream /
-  // chocolate / pink reads cleanly as a scoop ball — like the burnt-item tints).
-  // The cherry is a separate plateable topping that adds an assembly step.
-  scoop_vanilla:    { model: 'icecream_scoop', tint: '#fdf0cf', emoji: '🍨', scale: 1.15, plateable: true },
-  scoop_chocolate:  { model: 'icecream_scoop', tint: '#6b4321', emoji: '🍫', scale: 1.15, plateable: true },
-  scoop_strawberry: { model: 'icecream_scoop', tint: '#ff9ec2', emoji: '🍓', scale: 1.15, plateable: true },
-  cherry:           { model: 'icecream_cherry', emoji: '🍒', scale: 1.4, plateable: true },
-  // reusable chocolate-syrup bottle (like the pizza ketchup): drizzle it onto a
-  // sundae-in-progress to add `syrup` — the Deluxe's extra step. `drizzle` names
-  // the content it deposits; the bottle is the ketchup model tinted dark, the
-  // drizzle that lands in the bowl is a tinted sauce blob.
-  choc_syrup:       { model: 'ketchup', tint: '#3a2113', emoji: '🍫', scale: 1.9, reusable: true, drizzle: 'syrup' },
-  syrup:            { model: 'food_ingredient_tomato_sauce', tint: '#3a2113', emoji: '🍯', scale: 1.0 },
+  // --- level 7: ice cream / sundaes (cold assembly: no stove, no board) ---
+  // There is ONE ice-cream scoop in the kitchen — a real tool, like a knife:
+  //   `scoop`            the empty tool (lies on a counter / stands in its stand)
+  //   `scoop_<flavour>`  the SAME tool with a ball of ice cream in it (`holds`)
+  // E at a tub with the empty scoop loads it; E at a bowl drops the ball into
+  // the bowl and the scoop is empty again (`emptyTo`). The scoop itself is not
+  // plateable, so it can never end up in a bowl. Rules: game.js (tub = a crate
+  // whose item `needsTool`, see scoopAtTub / scoopIntoBowl).
+  // `ball_<flavour>` is what lies IN the bowl (the pack's real ice-cream balls:
+  // white / brown / pink). A ball never exists loose — only in the scoop or in
+  // a bowl. `loaded` = the scoop state that carries it.
+  scoop:            { compose: 'scoop', scoopTool: true, reusable: true, emoji: '🥄' },
+  scoop_vanilla:    { compose: 'scoop', scoopTool: true, reusable: true, holds: 'ball_vanilla',    emptyTo: 'scoop', emoji: '🍨' },
+  scoop_chocolate:  { compose: 'scoop', scoopTool: true, reusable: true, holds: 'ball_chocolate',  emptyTo: 'scoop', emoji: '🍨' },
+  scoop_strawberry: { compose: 'scoop', scoopTool: true, reusable: true, holds: 'ball_strawberry', emptyTo: 'scoop', emoji: '🍨' },
+  ball_vanilla:     { model: 'icecream_bowl_icecream_vanilla',    emoji: '🍨', plateable: true, sundae: 'ball', needsTool: 'scoop', loaded: 'scoop_vanilla' },
+  ball_chocolate:   { model: 'icecream_bowl_icecream_chocolate',  emoji: '🍨', plateable: true, sundae: 'ball', needsTool: 'scoop', loaded: 'scoop_chocolate' },
+  ball_strawberry:  { model: 'icecream_bowl_icecream_strawberry', emoji: '🍨', plateable: true, sundae: 'ball', needsTool: 'scoop', loaded: 'scoop_strawberry' },
+  // toppings: taken by hand from the three topping bowls (crates). `ontoPlate`:
+  // carrying a bowl to a topping bowl drops the topping straight into it.
+  cherry:           { model: 'icecream_cherry',      emoji: '🍒', scale: 1.4,  plateable: true, sundae: 'top', ontoPlate: true },
+  waffle:           { model: 'icecream_waffle',      emoji: '🧇', scale: 1.15, plateable: true, sundae: 'top', ontoPlate: true },
+  cookiestick:      { model: 'icecream_cookiestick', emoji: '🥖', scale: 1.5,  plateable: true, sundae: 'top', ontoPlate: true, lay: 'z', iconTilt: 0.9 },
 
   // --- level 8: sandwiches (chop + TOASTER) ---
   // Bread is a two-stage chop like lettuce/cheese: whole loaf → cut loaf
@@ -197,6 +200,11 @@ const RECIPE_KEY = { 'carrot,potato': 'cp', 'onion,mushroom': 'om' };
     };
   }
 })();
+
+// The sundae parts in canonical render order (the bowl's look depends only on
+// WHAT is in it, never on the order it went in).
+export const SUNDAE_BALLS = ['ball_vanilla', 'ball_chocolate', 'ball_strawberry'];
+export const SUNDAE_TOPPINGS = ['cherry', 'waffle', 'cookiestick'];
 
 // Scatter models used to dress an in-progress pot per vegetable (the final
 // chopped look: rings / pieces / mashed / mushroom bits — matching each veg's
@@ -373,7 +381,7 @@ export const DISHES = {
   // `iconItems`: the ticket shows these ITEMS as small rendered game objects
   // (icons.itemIcon) — the real bun / veggie patty / cheese slice — instead of
   // emoji (🍞 read as cheese, 🍖 is meat but the patty is veggie). `icons` is
-  // the emoji fallback (kept only where no iconItems are set: the L7 sundaes).
+  // the emoji fallback (no dish needs it any more).
   salad:           { name: 'Salad',        emoji: '🥗', parts: ['lettuce_chopped', 'tomato_slices'], coins: 20, model: null, iconItems: ['lettuce_chopped', 'tomato_slices'] },
   hamburger:       { name: 'Hamburger',    emoji: '🍔',   parts: ['bun', 'patty_cooked'],                                    coins: 25, model: null, iconItems: ['bun', 'patty_cooked'] },
   cheeseburger:    { name: 'Cheeseburger', emoji: '🧀🍔', parts: ['bun', 'patty_cooked', 'cheese_chopped'],                  coins: 30, model: null, iconItems: ['bun', 'patty_cooked', 'cheese_chopped'] },
@@ -383,18 +391,15 @@ export const DISHES = {
   // soups render as bowl + composed soup surface (see stations.buildItemMesh)
   carrot_potato_soup:  { name: 'Carrot–Potato Soup',  emoji: '🍲', parts: ['cp_soup'], coins: 40, model: null, iconItems: ['carrot', 'potato'] },
   onion_mushroom_soup: { name: 'Onion–Mushroom Soup', emoji: '🍲', parts: ['om_soup'], coins: 40, model: null, iconItems: ['onion', 'mushroom'] },
-  // --- level 7 sundaes (cold assembly; served in a bowl on the washable plate) ---
-  // Each sundae is an exact, distinct SET of plateable scoops/cherry (order-free,
-  // like the salad). The plated dish renders a finished ice-cream-bowl model so it
-  // reads as a bowl of ice cream sitting on the plate (the plate stays the
-  // washable vessel → the sink grammar is untouched). Variety: a single-scoop +
-  // cherry, a three-scoop mix (no topping), and a two-scoop deluxe + cherry.
-  // Ice-cream level dishes — scoop SETS served in a bowl (no cherry/syrup source
-  // in the editor layout yet; those items stay defined for when the user adds a
-  // topping source). Order-free exact-set match, like the salad.
-  sundae_vanilla:    { name: 'Vanilla Scoop',     emoji: '🍨', parts: ['scoop_vanilla'],                                        coins: 20, model: 'icecream_bowl_icecream_vanilla', icons: '🍨' },
-  sundae_deluxe:     { name: 'Choco-Berry',       emoji: '🍨', parts: ['scoop_strawberry', 'scoop_chocolate'],                  coins: 32, model: 'icecream_bowl_cherries',        icons: '🍓🍫' },
-  sundae_neapolitan: { name: 'Neapolitan Sundae', emoji: '🍨', parts: ['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry'], coins: 44, model: 'icecream_bowl_decorated_A',      icons: '🍨🍫🍓' },
+  // --- level 7 sundaes: an exact SET of ice-cream balls + ONE topping (order-
+  // free, like the salad), built in a bowl. The bowl always shows exactly what
+  // is in it (stations.composeSundae), so there is no finished-dish model. The
+  // ticket shows the balls and the topping as rendered game objects, and
+  // (`picture`) the finished bowl itself in place of the dish emoji. ---
+  sundae_vanilla:    { name: 'Cherry Vanilla',    emoji: '🍨', picture: true, parts: ['ball_vanilla', 'cherry'],                                         coins: 24, model: null, iconItems: ['ball_vanilla', 'cherry'] },
+  sundae_crunch:     { name: 'Choco Crunch',      emoji: '🍨', picture: true, parts: ['ball_chocolate', 'cookiestick'],                                  coins: 24, model: null, iconItems: ['ball_chocolate', 'cookiestick'] },
+  sundae_deluxe:     { name: 'Choco-Berry',       emoji: '🍨', picture: true, parts: ['ball_strawberry', 'ball_chocolate', 'waffle'],                    coins: 36, model: null, iconItems: ['ball_strawberry', 'ball_chocolate', 'waffle'] },
+  sundae_neapolitan: { name: 'Neapolitan Sundae', emoji: '🍨', picture: true, parts: ['ball_vanilla', 'ball_chocolate', 'ball_strawberry', 'cherry'],    coins: 48, model: null, iconItems: ['ball_vanilla', 'ball_chocolate', 'ball_strawberry', 'cherry'] },
   // --- level 8 sandwiches: toast + an exact filling set (order-free, like the
   // burgers). All three render the finished Tiny Treats sandwich on the plate. ---
   cheese_toastie:  { name: 'Cheese Toastie',  emoji: '🥪', parts: ['toast', 'cheese_chopped'],                                     coins: 30, model: 'tt_sandwich', model_scale: 1.45, iconItems: ['toast', 'cheese_chopped'] },
@@ -458,7 +463,7 @@ export function itemModelNames(level = null) {
   for (const m of Object.values(BURGER_LAYER_MODELS)) names.add(m);
   for (const m of Object.values(POT_VEG_MODELS)) names.add(m);
   ['food_ingredient_bun_top', 'food_ingredient_bun_bottom', 'food_ingredient_dough_base',
-   'plate', 'plate_dirty', 'bowl', 'bowl_dirty'].forEach((m) => names.add(m));
+   'plate', 'plate_dirty', 'bowl', 'bowl_dirty', 'icecream_scoop'].forEach((m) => names.add(m));
   for (const m of Object.values(SANDWICH_LAYER_MODELS)) names.add(m);
   if (!(level && level.tt)) return [...names].filter((m) => !m.startsWith('tt_'));
   return [...names];

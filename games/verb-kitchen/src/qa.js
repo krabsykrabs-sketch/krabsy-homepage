@@ -157,13 +157,16 @@ export function initQA(game, save, startLevel, params) {
       VK.givePlate(['cp_soup']);   // a finished bowl of soup in hand
       VK.tick(0.5);
     } else if (scene === 'icecream' || scene === 'level7') {
-      // ice-cream showcase (bowls, cold assembly): a ticket per recipe, a
-      // finished Neapolitan bowl in hand, and a part-built bowl on a counter.
-      VK.spawnTicket('sundae_neapolitan');
+      // ice-cream showcase: a ticket per sundae, a finished Neapolitan in hand,
+      // a part-built bowl on the island and the loaded scoop lying next to it.
+      VK.spawnTicket('sundae_vanilla');
       VK.spawnTicket('sundae_deluxe');
-      VK.givePlate(['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry']);   // finished Neapolitan in hand
-      const counter = game.world.stations.find((s) => s.type === 'counter');
-      if (counter) counter.setItem(makePlate(['scoop_strawberry']), false);     // a part-built bowl
+      VK.spawnTicket('sundae_neapolitan');
+      VK.givePlate(['ball_vanilla', 'ball_chocolate', 'ball_strawberry', 'cherry']);
+      const stand = game.world.stations.find((s) => s.stand);
+      if (stand) stand.setItem(null);
+      put(2, 2, makePlate(['ball_strawberry', 'ball_chocolate']));
+      put(2, 3, makeIngredient('scoop_vanilla'));
       VK.tick(0.5);
     } else if (scene === 'sandwich' || scene === 'level8') {
       // sandwich showcase: a ticket per sandwich, a slice toasting + a toast

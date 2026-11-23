@@ -4,7 +4,8 @@
 // portraits.js; cached per model name (these models never change in a session).
 import * as THREE from 'three';
 import { getModel } from './models.js';
-import { buildItemMesh, makeIngredient } from './stations.js';
+import { buildItemMesh, makeIngredient, makePlate } from './stations.js';
+import { ITEMS, DISHES } from './recipes.js';
 
 const S = 128;                       // icon render size (square)
 const cache = new Map();             // model name → data URL
@@ -35,8 +36,22 @@ export function modelIcon(name) {
 export function itemIcon(id) {
   // a lower, side-on view than the plate icons: a bun then reads as a domed
   // bun and a patty as a flat brown disc (top-down, both were brown circles)
-  return renderIcon('item:' + id, () => buildItemMesh(makeIngredient(id)), ITEM_DIR, 1.25);
+  // `iconTilt` (radians): a long thin item (the cookie stick lies flat) is shown
+  // leaning, so it fills the square icon instead of being a thin cropped line
+  const tilt = (ITEMS[id] && ITEMS[id].iconTilt) || 0;
+  return renderIcon('item:' + id, () => {
+    const m = buildItemMesh(makeIngredient(id));
+    if (tilt) { m.rotation.z = tilt; m.rotation.y = 0.5; }
+    return m;
+  }, ITEM_DIR, tilt ? 0.95 : 1.25);
 }
+/** Icon of a finished DISH as it is served (the sundae bowl with its balls and
+ *  topping) — the ticket's main picture where an emoji would mislead (🍨 shows
+ *  three balls on every ticket). Rendered in the level's serving vessel. */
+export function dishIcon(dishId) {
+  return renderIcon('dish:' + dishId, () => buildItemMesh(makePlate(DISHES[dishId].parts.slice())), DISH_DIR, 1.12);
+}
+const DISH_DIR = new THREE.Vector3(0.2, 0.8, 1).normalize();     // ~38° down: into the bowl, toppings still stand out
 const PLATE_DIR = new THREE.Vector3(0, 0.95, 0.5).normalize();   // look down ~62°, slight front tilt
 const ITEM_DIR = new THREE.Vector3(0.25, 0.62, 1).normalize();   // ~31° down, a little from the right
 
