@@ -280,6 +280,17 @@ ours 2×1×2).
   - Order-ticket icons: the new bread symbol is too small and reads as
     cheese → use the burger bun. Don't use the meat-on-the-bone symbol for
     meat (we have a veggie patty) → show the patty itself.
+  - L6 Soup Kitchen:
+    1. Whole carrot stands upright on the cutting board → rotate 90° so it
+       lies flat, same orientation as the half-chopped (interim) state.
+    2. Soup inside the pot is too big — sticks out over the pot rim on all
+       sides. Scale it to sit inside the pot.
+    3. Owner put onion + mushroom in a pot and it looked like the red
+       carrot-potato soup. Make the soup colour depend only on WHICH
+       ingredients are in (any order): reddish/orange = carrot-potato,
+       beige/brown-white = onion-mushroom. Double-check the logic.
+    4. Level feels a bit boring, especially after the burger level. Owner
+       has no fix in mind yet — needs ideas.
 
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
