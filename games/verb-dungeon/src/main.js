@@ -744,7 +744,7 @@ function updatePrompt() {
   if (id !== promptAt) {
     promptAt = id;
     el.classList.toggle('on', !!u);
-    if (u) el.innerHTML = `${touchOn() ? `<i class="pSw">${swordIcon}</i>` : '<kbd>Space</kbd>'}${t(`prompt_${u.what}`)}`;
+    if (u) el.innerHTML = `${touchOn() ? `<i class="pSw">${swordIcon}</i>` : `<kbd>${t('keySpace')}</kbd>`}${t(`prompt_${u.what}`)}`;
   }
   if (!u) return;
   _v.set(u.x, u.y, u.z).project(camera);
@@ -2098,7 +2098,7 @@ function applyStatic() {
     ? `<div><i class="ico stickIco"></i>${t('howMove')}</div><div><i class="ico swordIco">${swordIcon}</i>${t('howBonk')}</div>`
       + `<div><i class="ico">👆</i>${t('howAnswer')}</div>`
     : `<div><kbd>WASD</kbd><kbd>↑↓←→</kbd>${t('howMove')}</div>`
-      + `<div><kbd>Space</kbd>${t('howBonk')}</div><div><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>${t('howAnswer')}</div>`;
+      + `<div><kbd>${t('keySpace')}</kbd>${t('howBonk')}</div><div><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>${t('howAnswer')}</div>`;
   $('btnNext').textContent = t('next');
   $('btnAgain').textContent = t('again');
   $('btnMenu').textContent = t('menu');

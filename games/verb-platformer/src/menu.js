@@ -44,7 +44,7 @@ export function createMenu({ levels, onPick }) {
     if (nextLevel) {
       const n = levels.indexOf(nextLevel) + 1;
       playLabel.textContent = finished === 0 ? t('play') : finished >= levels.length ? t('playAgain') : t('playContinue');
-      playSub.textContent = `${t('levelN', n)} · ${nextLevel.name}`;
+      playSub.textContent = `${t('levelN', n)} · ${t(`name.${nextLevel.id}`) || nextLevel.name}`;
     }
     const got = bests.reduce((s, b) => s + (b ? b.stars : 0), 0);
     starsTotal.innerHTML = levels.length
@@ -68,7 +68,7 @@ export function createMenu({ levels, onPick }) {
         : '';
       btn.innerHTML =
         `<span class="num">${i + 1}</span>` +
-        `<span class="info"><span class="name">${esc(lvl.name)}</span>` +
+        `<span class="info"><span class="name">${esc(t(`name.${lvl.id}`) || lvl.name)}</span>` +
         `<span class="idea">${esc(idea)}</span>${dots}</span>` +
         `<span class="score">${starsHtml(best ? best.stars : 0)}` +
         `<span class="time" title="${esc(t('bestTime'))}">${best && best.time !== null ? CLOCK_SVG + formatTime(best.time) : '&nbsp;'}</span></span>`;

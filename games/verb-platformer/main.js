@@ -4,7 +4,7 @@ import { toggleMuted } from './src/sound.js';
 import { fontsReady } from './src/shell-bits.js';
 import { createMenu } from './src/menu.js';
 import { createUI } from './src/ui.js';
-import { applyStatic } from './src/i18n.js';
+import { applyStatic, t } from './src/i18n.js';
 import { getBest, saveResult, starsFor, hintSeen, markHintSeen } from './src/progress.js';
 import { IS_TOUCH } from './src/shell-bits.js';
 
@@ -152,7 +152,7 @@ function pauseGame() {
   game.setPaused(true);
   if (document.pointerLockElement) document.exitPointerLock();
   ui.setLookTip(false);
-  ui.showPause(current?.name, { canLeave: !editorMode });
+  ui.showPause(current && (t(`name.${current.id}`) || current.name), { canLeave: !editorMode });
 }
 
 function resumeGame() {
@@ -219,7 +219,7 @@ function finishLevel() {
   ui.hideHud();
   ui.hideAnswerReveal();
   ui.showResults({
-    levelName: current.name,
+    levelName: t(`name.${current.id}`) || current.name,
     stars,
     time,
     bestTime: saved?.best?.time ?? null,
