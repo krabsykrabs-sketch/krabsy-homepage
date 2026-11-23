@@ -236,6 +236,38 @@ is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
   ResourceBits (ore nuggets, bars), FantasyWeaponsBits (swords/axes/shields).
 - No steam/smoke particle or UI-icon packs; keep FX procedural.
 
+### Tiny Treats deep-check (2026-11-23, test renders next to our KayKit pieces)
+Path `/home/janah/dev/_assets/tinytreats/<pack>/Tiny_Treats_*_FREE/Assets/gltf/`
+(CC0, Isa Lousberg). Verdict: **style matches KayKit well** (same chunky,
+soft, flat-palette look); scale matches (`countertop_straight_A` = 2×1×1.5,
+ours 2×1×2).
+- **Tech:** Kitchen, Bakery Interior, Picnic, House Plants (+ Bathroom,
+  Playground) share ONE identical atlas `tiny_treats_texture_1.png`
+  (1024², md5 60ab4b…) → all their props can share one material (one extra
+  draw call next to the KayKit atlas). **Baked Goods ships a DIFFERENT atlas
+  with the SAME filename** (md5 825f5e…) — rename it on import
+  (e.g. `tiny_treats_baked.png`) or the files overwrite each other.
+- **Don't mix counter rows:** TT counters are white top + orange drawers,
+  the inverse of KayKit's — a mixed row looks wrong. Either keep KayKit
+  counters and use TT for props, or build a whole room from TT (new theme).
+- **Small food:** TT food is ~0.6× ours (apple vs KayKit tomato); scale TT
+  items ×1.5–2 so they read at game zoom. `fridge` is 3 wide (too big),
+  `bread_oven` is ~2×2 tiles and tall.
+- **Chop chains (fit our whole → chopped → slice mechanic directly):**
+  `apple → apple_cut → apple_piece` (picnic); `cake_strawberry|chocolate|
+  birthday → _cut → _slice`; `pie_apple|cherry → _cut → _slice`;
+  `bread → bread_half → bread_slice`; `baguette → _half → _slice`;
+  `dough_ball → dough_rolled_A/B` (bakery).
+- **Level ideas:** Sandwich bar (chop bread → slices + KayKit cheese/tomato/
+  lettuce → `sandwich`, `toaster` as the cook station); Bakery (dough →
+  roll → `bread_oven` → bread/croissant, `display_case` as serving hatch,
+  `cash_register`); Cake shop (cut whole cakes/pies into slices, plate a
+  slice); Café/breakfast (`coffee_machine` + mugs, waffle, donut, croissant).
+- **Cheap decor for EXISTING kitchens (bare back walls):** `extractor_hood`
+  over the stove, `wall_knife_rack`, `wall_shelf_kitchen_hooks_decorated`
+  (mugs), `wall_papertowel_holder`, `utensils_cup`, `kettle`, `toaster`,
+  potted plants (`monstera/pothos/sansevieria_*_potted`), `wall_sign_*`.
+
 ## Status log
 
 - 2026-11-23 — **Slow connections (user report from Argentina): retry +
