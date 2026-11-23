@@ -270,6 +270,86 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **Level fixes from the review (owner: "do all the fixes").**
+  Source only; NOT in the live build. Proposals 2–7 and 9 of the entry below
+  are built; 1 (recipe pictures) and 8 (star times, level order) stay open.
+  - **L7 Sundae Sunday.**
+    - The topping display (cone, cone stack, waffle / cherry / cookie-stick
+      bowls, decorated bowl) is off the reachable counters. It left
+      `icecream7.json` and is now `props` on the four dead corners (several per
+      corner; a JSON cell can only stack objects on top of each other). Every
+      reachable counter is a free work surface. No topping mechanic was added.
+    - Two counters on the open floor right of the hatch (`icecream7.json`
+      cols 5–6, row 1). The back row is now closed: 3 parking tiles there.
+    - "Berry Duo" → **Choco-Berry** / **Schoko-Erdbeer-Becher** /
+      **Choco-Fresa** (dish name in `recipes.js`, `dish.sundae_deluxe` and the
+      `lvTut.sundae` card text in `i18n.js`, the card text in `levels.js`).
+      The dish id is still `sundae_deluxe`.
+  - **L6 Soup Kitchen: one row shorter (7×5).** The front counter row was a
+    whole floor row away from the boards, so nobody used it. Dropping that
+    floor row puts the front counters directly behind the boards: turn around
+    after chopping and park the veg or a full bowl there. The mushroom crate
+    moved from the left wall into the front row (first tile), the right-hand
+    counter of the dropped row is gone, the trash and both front corners moved
+    up. Chosen over "move the boards or bowls to the front": the boards are
+    already central and the bowls belong next to the stoves, so moving them
+    would only have lengthened the paths. The kitchen also renders larger.
+  - **L3 Pizza Palace.** `pizza3.json`: the sauce counter and the dough crate
+    swapped rows (5 ↔ 6), so no counter stands in front of a crate any more
+    (left side, back to front: sauce, dough, mushrooms, cheese). The second
+    wall cabinet (`kitchencabinet` over that tile) is removed: it shaded the
+    sauce bottle. The corner cabinet stays. `startItems` ketchup is now `r: 6`.
+  - **Side walls + hoods (L2, L5), engine.**
+    - `world.js`: new ASCII-level field `sideWall: { right: n }` (or `left`)
+      runs the side wall n tiles forward from the back corner (default 1 = the
+      old stub). Props take `wall: 'right'` (+ `row`) to hang on that wall,
+      facing the room. A level with its own `tt_extractor_hood` prop no longer
+      gets the automatic KayKit hood over back-row stoves.
+    - L2 Burger Bar: `sideWall: { right: 3 }`, TT hood over the two stoves
+      (`scale [1.7, 1, 0.6]`, y 2.95: shallow and high, the pans stay visible).
+      Layout unchanged; the camera zoom is unchanged too (walls above y 2.6
+      are not part of the fit).
+    - L5 Split Kitchen: the stoves moved one tile right, onto the edge
+      (col 8, rows 1–2; the dead counters behind them are gone), then the same
+      wall + hood. The service wing floor is now 3 tiles wide in rows 1–2.
+  - **L4 Burger Bar Co-op: its own kitchen** (was a copy of L2 plus the bot).
+    - ASCII 9×7, stoves at the BACK wall (TT hood), hatch in the middle, sink +
+      rack + trash on the right, buns + patties on the left. A 5-tile prep
+      island (row 3) splits the room into the player's back lane and the
+      helper's front lane; the room stays open at both ends of the island.
+      The helper's crates (lettuce, cheese) are bottom-left, its two boards
+      are on the island facing the front, and each slice lands on the island
+      tile right of its board. The player takes it from the back side.
+    - Orders 5 → 7: `cheeseburger, hamburger, bigburger, cheeseburger,
+      bigburger, cheeseburger, bigburger` (6 cheese + 3 lettuce from the
+      helper). `plates` 2 → 3, `spawnEvery` [5,8] → [4,7]. `starTimes` are
+      Burger Bar's × 7/5 = `[300, 230, 180, 140]`: PLACEHOLDERS.
+    - Helper config: same bot, same mode (keeps one slice per board in stock),
+      new coordinates. `helper.js` is unchanged. Card text updated (EN/DE/ES).
+    - The helper lane is 2 tiles deep on purpose. A first 9×6 version had a
+      1-tile lane: the walking helper pushed a standing player along the lane
+      onto the only tile in front of its crates and then waited there forever.
+    - L5 stays distinct: divided room, pass pool, demand-driven, tomato + salads.
+  - **Verified** headless (CDP, 1180×820 and 1920×1080), no console errors:
+    - L2–L7: every station reachable from the spawn (L5 prep wing excepted),
+      one order served at the hatch → dirty plate → sink quiz → clean plate.
+    - Real flows: L3 whole pizza with the sauce from its new spot; L6 whole
+      soup with the mushroom crate and the front counters; L7 Choco-Berry
+      built on a new back counter; L2 and L5 side stoves cook; L5 helper still
+      passes cheese / lettuce / tomato.
+    - L4: all 7 orders played with the helper's slices (110 asserts). The
+      helper made 9 slices, about 9 s per slice, never left its lane, paused
+      during sink questions, and idled 26 of 116 s. Longest wait for a slice:
+      9.5 s (two cheese orders in a row). A player parked anywhere in the
+      helper lane no longer stalls it (restock in 19–22 s in all 6 spots).
+  - **For the star-time calibration.** L4 is a new level (layout, 7 orders,
+    3 plates). L6: all walks to the mushroom crate, sink, trash and front
+    counters are one tile shorter. L5: stoves one tile further from the pass
+    counter. L3: dough one tile nearer the boards, sauce one tile further.
+    L7: unchanged walks, 2 more parking tiles. L2: no gameplay change.
+  - **No new asset files**: every model was already in the brocco-dev
+    `tinytreats/` and KayKit folders. No `image:` fields were added.
+
 - 2026-11-23 — **All-level review: older kitchens dressed to the Sandwich Bar
   standard.** Source only; NOT in the live build. Sandwich Bar itself is
   unchanged (it is the reference).

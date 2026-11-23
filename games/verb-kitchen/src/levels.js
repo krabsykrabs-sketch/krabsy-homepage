@@ -17,7 +17,8 @@
 // level's LOCAL grid (ASCII map coords; for editor-JSON levels the grid the
 // stations use, col 0 / row 0 = the back-left counter). Props only ever stand
 // on the dead corner counters the chef can't reach, or hang on the back wall.
-// Burger Bar and its co-op copy share one kitchen, so they share the decor.
+// `wall: 'right'` hangs a prop on the right side wall (see `sideWall`).
+// Burger Bar's decor (the co-op level has its own kitchen and its own props).
 const BURGER_PROPS = [
   { model: 'tt_wall_knife_rack', col: 0, wall: true, y: 2.8 },
   { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3.5, wall: true, y: 3.3 },
@@ -31,6 +32,9 @@ const BURGER_PROPS = [
   { model: 'tt_container_kitchen_A_red', col: 7.2, row: 0.1, y: 1.02, scale: 1.3 },
   { model: 'tt_monstera_plant_small_potted', col: 0, row: 5, y: 1.02, rot: 0.6 },
   { model: 'tt_pothos_plant_small_potted', col: 7, row: 5, y: 1.3, rot: 2.4 },
+  // hood over the two side stoves, on the right side wall; shallow and high so
+  // it never hides the pans from the camera
+  { model: 'tt_extractor_hood', wall: 'right', row: 1.5, y: 2.95, scale: [1.7, 1, 0.6] },
 ];
 
 export const LEVELS = [
@@ -85,6 +89,7 @@ export const LEVELS = [
       'CCbCbCtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
+    sideWall: { right: 3 },      // a wall behind the side stoves (carries the hood)
     props: BURGER_PROPS,
     // big burger appears exactly once, in slot 4 (or 5); the rest are
     // hamburgers / cheeseburgers in any order. 5 · 2 plates → 3 washes.
@@ -138,12 +143,23 @@ export const LEVELS = [
     },
   },
   {
-    // Level 4 — CO-OP TEST: an exact copy of Burger Bar (level 2) plus a bot
-    // kitchen helper. The helper owns the two cutting boards: it fetches raw
-    // cheese / lettuce, chops each on its dedicated board, and parks the slice
-    // on the counter to the RIGHT of that board (col+1). It is demand-driven
-    // (only cuts what the orders need) and keeps at most one slice per board
-    // (par=1). It never cooks, plates, serves or washes — see helper.js.
+    // Level 4 "Burger Bar Co-op" — ONE open room shared with a bot helper, split
+    // into two lanes by a prep island (row 3) instead of a wall:
+    //   • back lane (rows 1–2) = the player's cook line: buns + patties on the
+    //     left, two stoves at the back wall (hood), hatch, sink, rack, trash;
+    //   • front lane (rows 4–5) = the helper's: lettuce + cheese crates
+    //     bottom-left, its two boards on the island, facing the front. The lane
+    //     is two tiles deep on purpose: in a one-tile lane the walking helper
+    //     bulldozed a waiting player onto the only tile in front of its crates
+    //     and then stood there blocked.
+    // The helper chops on a board and parks the slice on the island tile to the
+    // RIGHT of that board (col+1); the player takes it from the back side. So
+    // the island is the hand-over point and the two chefs never have to cross.
+    // The helper keeps one slice per board in stock (par = 1, no demand gate),
+    // and never cooks, plates, serves or washes — see helper.js.
+    // (Until 2026-11-23 this level was an exact copy of Burger Bar plus the bot.
+    // Level 5 stays distinct: there a counter wall divides the room, the bot
+    // also cuts tomato for salads and drops onto a shared pass pool.)
     // The `coop` block lives entirely in code (not the editor JSON schema).
     id: 'burger_coop',
     num: 4,
@@ -152,36 +168,52 @@ export const LEVELS = [
     emoji: '🤝',
     style: 'A',
     map: [
-      'CHHCCkrC',
-      '1......s',
-      '2.CCC..s',
-      '3..P...C',
-      '4......C',
-      'CCbCbCtC',
+      'CssCHHCkC',
+      '1.......r',
+      '2...P...t',
+      'C.CbCbC.C',
+      'C.......C',
+      '3.......C',
+      'C4CCCCCCC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese' },
-    props: BURGER_PROPS,
-    orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
-    spawnEvery: [5, 8],
-    plates: 2,
-    starTimes: [215, 165, 130, 100],   // copied from Burger Bar — placeholders
+    props: [
+      // shallow and high, so the hood never hides the pans from the camera
+      { model: 'tt_extractor_hood', col: 1.5, wall: true, y: 2.95, scale: [1.5, 1, 0.7] },
+      { model: 'tt_wall_knife_rack', col: 3, wall: true, y: 2.8 },
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 6.1, wall: true, y: 3.3 },
+      { model: 'wall_tiles_A', col: 7, row: 0 },            // tiled splash behind the sink
+      { model: 'tt_wall_papertowel_holder', col: 7.2, wall: true, y: 2.85 },
+      // the four dead corners
+      { model: 'tt_utensils_cup', col: -0.15, row: -0.15, y: 1.02, rot: 0.4, scale: 1.1 },
+      { model: 'tt_container_kitchen_A_red', col: 0.2, row: 0.1, y: 1.02, scale: 1.3 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 8, row: 0, y: 1.02 },
+      { model: 'tt_monstera_plant_small_potted', col: 0, row: 6, y: 1.02, rot: 0.6 },
+      { model: 'tt_pothos_plant_small_potted', col: 8, row: 6, y: 1.3, rot: 2.4 },
+    ],
+    // An order mix for two: six of the seven burgers need a topping from the
+    // helper (6 cheese, 3 lettuce), only one is plain. 7 · 3 plates → 4 washes.
+    orders: ['cheeseburger', 'hamburger', 'bigburger', 'cheeseburger', 'bigburger', 'cheeseburger', 'bigburger'],
+    spawnEvery: [4, 7],
+    plates: 3,
+    starTimes: [300, 230, 180, 140],   // Burger Bar's times × 7/5 orders — placeholders
     tutorial: {
       image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger Bar — with a helper!',
-      text: 'A kitchen helper preps your cheese and lettuce on the cutting boards — focus on cooking the patties, building the burgers, serving and washing up!',
+      text: 'A kitchen helper chops cheese and lettuce for you and puts them on the middle counter — you cook the patties, build the burgers, serve and wash up!',
     },
     coop: {
       char: 'knight',                  // helper character (player defaults to rogue)
-      spawn: { col: 2, row: 4 },       // helper starts near its boards
-      idle: { col: 1, row: 4 },        // parks here (bottom-left) when both boards are stocked
+      spawn: { col: 2, row: 5 },       // helper starts in its lane, near its crates
+      idle: { col: 2, row: 5 },        // parks here (bottom-left) when both boards are stocked
       moveSpeed: 0.5,                  // walks at 50% of the player's speed (unhurried)
       workSpeed: 0.55,                 // chops slower than the player too
       reaction: 0.7,                   // pauses ~0.7s to "think" before each action
-      // left board (col 2) = lettuce, right board (col 4) = cheese; each stages
-      // onto the counter immediately to its right (col 3 / col 5).
+      // left board (col 3) = cheese (needed most, nearest its crates), right
+      // board (col 5) = lettuce; each stages onto the island tile to its right.
       stations: [
-        { ingredient: 'lettuce', board: { col: 2, row: 5 }, staging: { col: 3, row: 5 } },
-        { ingredient: 'cheese',  board: { col: 4, row: 5 }, staging: { col: 5, row: 5 } },
+        { ingredient: 'cheese',  board: { col: 3, row: 3 }, staging: { col: 4, row: 3 } },
+        { ingredient: 'lettuce', board: { col: 5, row: 3 }, staging: { col: 6, row: 3 } },
       ],
     },
   },
@@ -204,25 +236,28 @@ export const LEVELS = [
     style: 'A',
     map: [
       'CCCCCHHCC',
-      '4...C..sC',
-      '3.b.C.PsC',
+      '4...C...s',
+      '3.b.C.P.s',
       '5...C...1',
       'C...C.C.2',
       'C...C...C',
       'CCCCCkrtC',
     ],
     crates: { 1: 'bun', 2: 'patty_raw', 3: 'lettuce', 4: 'cheese', 5: 'tomato' },
+    // The stoves stand against the right side wall (they used to stand one tile
+    // in, with a dead counter behind them), so they get a wall and a hood.
+    sideWall: { right: 3 },
     backWall: ['wall', 'wall', 'wall_window_closed_curtains_red'],   // window stays right of the hatch
     props: [
       { model: 'tt_wall_knife_rack', col: 2, wall: true, y: 2.8 },          // the prep wing
       { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3.6, wall: true, y: 3.3 },
       { model: 'tt_sansevieria_plant_small_potted', col: 0, row: 0, y: 1.02 },
       { model: 'tt_scale', col: 4, row: 0, y: 1.02, rot: 0.3, scale: 1.2 },  // head of the pass counter
-      // the dead counters behind the stoves: the cook's shelf
-      { model: 'tt_utensils_cup', col: 8, row: 0, y: 1.02, rot: -0.4, scale: 1.1 },
-      { model: 'tt_container_kitchen_A_red', col: 8.1, row: 1, y: 1.02, scale: 1.3 },
-      { model: 'tt_container_kitchen_B_blue', col: 7.95, row: 1.4, y: 1.02, scale: 1.3 },
-      { model: 'tt_cookie_jar', col: 8.05, row: 2.1, y: 1.02, scale: 1.2 },
+      // the dead corner next to the stoves: the cook's corner
+      { model: 'tt_utensils_cup', col: 7.85, row: -0.15, y: 1.02, rot: -0.4, scale: 1.1 },
+      { model: 'tt_container_kitchen_A_red', col: 8.2, row: 0.1, y: 1.02, scale: 1.3 },
+      // shallow and high, so the hood never hides the pans from the camera
+      { model: 'tt_extractor_hood', wall: 'right', row: 1.5, y: 2.95, scale: [1.7, 1, 0.6] },
       { model: 'tt_monstera_plant_small_potted', col: 0, row: 6, y: 1.02, rot: 0.6 },
       { model: 'tt_zzplant_plant_small_potted', col: 4, row: 6, y: 1.02 },
       { model: 'tt_pothos_plant_small_potted', col: 8, row: 6, y: 1.3, rot: 2.4 },

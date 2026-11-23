@@ -195,28 +195,41 @@ export class World {
       w.position.set(p.x, 0, wallZ);
       staticG.add(w);
     }
-    // side stub walls (half height) for depth
+    // side walls: a one-tile stub next to the back row for depth. `level.sideWall
+    // = { right: n }` (or `left`) runs the wall n tiles forward from the back
+    // corner instead, so side stoves get a wall behind them (and a hood on it).
+    // Pieces: `wall` = 2 tiles, `wall_half` = 1 tile (origin at one end).
+    const sideX = { '-1': this.tileWorld(-0.5, 0).x - 0.35, 1: this.tileWorld(this.cols - 0.5, 0).x + 0.35 };
     for (const side of [-1, 1]) {
-      const c = side < 0 ? -0.5 : this.cols - 0.5;
-      for (let r = 0; r < Math.min(2, this.rows); r += 2) {
-        const w = getModel('wall_half');
-        const p = this.tileWorld(c, r + 0.5);
-        w.position.set(p.x + side * 0.35 * 0, 0, p.z);
+      const want = (lv.sideWall && lv.sideWall[side < 0 ? 'left' : 'right']) || 1;
+      const len = Math.min(want, this.rows);
+      let r = 0;
+      for (; r + 2 <= len; r += 2) {
+        const w = getModel('wall');
+        w.position.set(sideX[side], 0, this.tileWorld(0, r + 0.5).z);
         w.rotation.y = Math.PI / 2;
-        w.position.x = this.tileWorld(c, 0).x + side * 0.35;
+        staticG.add(w);
+      }
+      if (r < len) {
+        const w = getModel('wall_half');           // rotated: runs from its origin toward the back
+        w.position.set(sideX[side], 0, this.tileWorld(0, r + 0.5).z);
+        w.rotation.y = Math.PI / 2;
         staticG.add(w);
       }
     }
 
-    // --- decor: extractor hood over stoves/ovens, fridge near crates ---
+    // --- decor: KayKit extractor hood over back-row stoves — unless the level
+    // hangs its own Tiny Treats hood (`tt_extractor_hood` prop) ---
+    const ownHood = (lv.props || []).some((pr) => pr.model === 'tt_extractor_hood');
     for (const st of this.stations) {
-      if (st.type === 'stove' && st.row === 0 && !st.cooker) {
+      if (st.type === 'stove' && st.row === 0 && !st.cooker && !ownHood) {
         const hood = getModel('extractorhood');
         hood.position.set(st.pos.x, 2.6, st.pos.z);
         staticG.add(hood);
       }
     }
 
+    this._wallFaceRight = sideX[1] - 0.25;       // inner face of the right side wall
     this._placeProps(staticG, wallZ + 0.25);   // front face of the back wall
 
     this._finishStatic(staticG);
@@ -225,13 +238,19 @@ export class World {
   /** Level props (decor): free placement in LOCAL tile coords (fractions are
    *  fine), shared by the ASCII and the editor-JSON path. `wall: true` hangs the
    *  prop on the back wall (its front face is at z = `wallFace`), `y` = height
-   *  of the prop's origin; otherwise it stands at tile (col,row) at height `y`
+   *  of the prop's origin; `wall: 'right'` hangs it on the right side wall at
+   *  `row` (ASCII levels with `sideWall`); otherwise it stands at tile (col,row) at height `y`
    *  (1.02 = on a counter). `rot` in radians, `scale` number or [x,y,z]. */
   _placeProps(staticG, wallFace) {
     for (const pr of this.level.props || []) {
       const m = getModel(pr.model);
-      const p = this.tileWorld(pr.col, pr.row || 0);
-      m.position.set(p.x, pr.y || 0, pr.wall ? wallFace : p.z);
+      const p = this.tileWorld(pr.col || 0, pr.row || 0);
+      if (pr.wall === 'right') {                 // on the right side wall, facing into the room
+        m.position.set(this._wallFaceRight ?? p.x, pr.y || 0, p.z);
+        m.rotation.y = -Math.PI / 2;
+      } else {
+        m.position.set(p.x, pr.y || 0, pr.wall ? wallFace : p.z);
+      }
       if (pr.rot) m.rotation.y = pr.rot;
       if (pr.scale) m.scale.set(...(Array.isArray(pr.scale) ? pr.scale : [pr.scale, pr.scale, pr.scale]));
       staticG.add(m);

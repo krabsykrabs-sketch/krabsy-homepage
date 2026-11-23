@@ -186,8 +186,8 @@ export function initQA(game, save, startLevel, params) {
       toaster.startCooking(makeIngredient('toast'));
       VK.tick(10.5);
     } else if (scene === 'coop') {
-      // co-op helper showcase: with no demand gate it stocks both boards (slowly,
-      // unhurried), then parks in the bottom-left idle corner. No RNG in the bot.
+      // co-op helper showcase: with no demand gate it stocks both island boards
+      // (slowly, unhurried), then parks bottom-left in its lane. No RNG in the bot.
       VK.tick(28);
     } else if (scene === 'split') {
       // split-kitchen showcase: a few orders → the planner cuts only what they
