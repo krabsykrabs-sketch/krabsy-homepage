@@ -228,6 +228,17 @@
     },
     {
       "model": "wall_half",
+      "col": 4,
+      "row": 7,
+      "rot": 0,
+      "off": {
+        "x": 0,
+        "y": 0,
+        "z": -0.2
+      }
+    },
+    {
+      "model": "wall_half",
       "col": 10,
       "row": 6,
       "rot": 1,

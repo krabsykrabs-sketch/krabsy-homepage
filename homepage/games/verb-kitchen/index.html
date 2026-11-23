@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<!-- Only meant to run inside its wrapper page's iframe: index the wrapper, not this file. -->
-<meta name="robots" content="noindex, indexifembedded">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verb Kitchen 🍳 — Krabsy</title>
+<!-- Only meant to run inside its wrapper page's iframe: index the wrapper, not this file. -->
+<meta name="robots" content="noindex, indexifembedded">
 <link href="/lib/fonts/krabsy-fonts.css" rel="stylesheet">
 <style>
 :root{
@@ -53,6 +53,10 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .form-base{color:var(--amber); font-weight:800;}
 .form-past{color:var(--teal); font-weight:800;}
 .form-pp{color:var(--coral); font-weight:800;}
+/* sink prompt: the asked blank is highlighted, a later blank is dimmed */
+#quizPrompt .slot{opacity:.38;}
+#quizPrompt .slot.ask{opacity:1; text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:6px;
+  background:rgba(255,255,255,.08); border-radius:8px; padding:0 6px;}
 
 /* ---------- menus share ONE fixed illustrated-kitchen background ---------- */
 /* a single persistent element behind every menu screen: it never reloads when
@@ -95,6 +99,17 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .ctag.sel{color:var(--teal);}
 .ctag.cost{color:var(--amber);}
 .charCard .clock{position:absolute; top:9px; right:11px; font-size:18px;}
+
+/* ---------- verb cookbook ---------- */
+.ckSection{background:rgba(12,20,48,.88); border-radius:16px; padding:14px 22px; width:min(94vw,720px);}
+.ckSection h3{font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:9px; font-weight:800;}
+.ckSection.practice{border:2px solid var(--coral);}
+.ckSection.practice h3{color:var(--coral);}
+.ckList{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:6px 18px;
+  font-family:'Fredoka One',cursive; font-size:17px;}
+.ckList .ck{white-space:nowrap;}
+#missedList .ckMore{font-family:'Nunito',sans-serif; font-size:13px; color:var(--muted); font-weight:800;}
+@media (max-width:430px){ .ckList{font-size:15px; grid-template-columns:repeat(auto-fill,minmax(182px,1fr));} }
 
 /* ---------- level select ---------- */
 #levelGrid{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:760px;}
@@ -143,13 +158,21 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 .ticket.gone{transition:transform .5s ease-in, opacity .5s; transform:translateY(-110px) rotate(6deg) !important; opacity:0;}
 .ticket.servedAnim{transition:transform .45s ease-in, opacity .45s; transform:scale(1.18); opacity:0;}
 .ticket .dish{font-size:30px; text-align:center; line-height:1.1;}
+.ticket .dish.pic{line-height:0;}
+.ticket .dish.pic img{height:40px; width:40px; object-fit:contain; margin:-3px 0 -2px;}
 .ticket .dn{font-weight:800; font-size:12px; text-align:center;}
 .ticket .ings{text-align:center; font-size:14px; letter-spacing:1px; min-height:18px;}
+.ticket .ings.pics{line-height:0; letter-spacing:0;}
+.ticket .ings img{height:27px; width:27px; object-fit:contain; margin:-3px -1px -2px; vertical-align:middle;}
+#hint .hintIcon{height:28px; width:28px; object-fit:contain; vertical-align:middle; margin:-8px 1px -6px;}
 .ticket .pbar{height:7px; background:#e8dcc8; border-radius:99px; margin-top:5px; overflow:hidden;}
 .ticket .pfill{height:100%; border-radius:99px; background:var(--teal); transition:width .2s linear;}
 .ticket.hurry{animation:shake .35s infinite;}
 .ticket.hurry .pfill{background:var(--coral);}
 .ticket.warn .pfill{background:var(--amber);}
+/* the customer's mood sours as the (cosmetic) patience bar drains */
+.ticket .mood{position:absolute; top:-9px; left:-9px; font-size:19px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));}
 /* the oldest ticket = the one to cook next: amber frame + a small tab */
 .ticket{transition:box-shadow .25s;}
 .ticket.next{box-shadow:0 0 0 3px var(--amber), 0 0 16px rgba(255,207,94,.55), 0 6px 14px rgba(0,0,0,.35);}
@@ -225,13 +248,19 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 .fxbubble img{height:40px; width:40px; object-fit:contain; vertical-align:middle; display:inline-block;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.22));}
 .fxbubble img + img{margin-left:1px;}
+/* a chef's spoken line (co-op helper intro): same bubble, wrapped text */
+.fxbubble.fxsay{font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; line-height:1.3; white-space:normal;
+  width:max-content; max-width:min(250px, 60vw); text-align:center; padding:8px 12px; pointer-events:none; z-index:12;}
 @keyframes bubbleIn{from{transform:translate(-50%,-80%) scale(.6); opacity:0;}}
 
 /* ---------- sink question ---------- */
 #quiz{position:absolute; inset:0; z-index:30; display:none; align-items:center; justify-content:center;
   background:rgba(7,11,28,.62); backdrop-filter:blur(2px);}
 #quiz.on{display:flex;}
-#quizCard{background:var(--navy2); border-radius:24px; padding:26px 34px; text-align:center; max-width:480px; width:92%;
+/* width sizes to the answers: narrow for short ones, wider for long ones (up to
+   a cap / the viewport), so the chips stay on ONE row instead of wrapping. */
+#quizCard{background:var(--navy2); border-radius:24px; padding:26px 34px; text-align:center;
+  width:fit-content; max-width:min(94vw,660px); min-width:min(92vw,340px);
   box-shadow:0 18px 50px rgba(0,0,0,.5); border:3px solid var(--teal); animation:qIn .22s ease-out;}
 @keyframes qIn{from{transform:scale(.85); opacity:0;}}
 #quizCard.wrongState{border-color:var(--coral);}
@@ -240,7 +269,8 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 #quizSub{color:var(--muted); font-weight:700; font-size:14px; margin-bottom:16px; min-height:18px;}
 #chips{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
 .chip{background:var(--navy3); color:var(--ink); font-family:'Fredoka One',cursive; font-size:21px; padding:12px 26px;
-  border-radius:999px; border:3px solid rgba(255,255,255,.16); transition:transform .08s, border-color .08s; min-width:110px;}
+  border-radius:999px; border:3px solid rgba(255,255,255,.16); transition:transform .08s, border-color .08s;
+  min-width:110px; white-space:nowrap;}
 .chip:hover{transform:translateY(-2px); border-color:var(--teal);}
 .chip.good{background:var(--teal); color:#06281f; border-color:var(--teal); animation:pop .3s;}
 .chip.bad{background:var(--coral); color:#4a1010; border-color:var(--coral); animation:shake .3s 2;}
@@ -299,11 +329,13 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 #postStars span.off2{opacity:.18; transform:none;}
 #postStars span.author{color:var(--teal); text-shadow:0 0 18px var(--teal);}
 @keyframes starIn{to{opacity:1; transform:scale(1) rotate(0);}}
-#postAuthor{color:var(--teal); font-weight:800; font-size:14.5px; min-height:18px; margin-top:-4px;}
+#postAuthor{display:inline-block; align-self:center; color:var(--teal); font-weight:800; font-size:15.5px; margin-top:-2px;
+  background:rgba(16,24,58,.92); padding:6px 16px; border-radius:99px; box-shadow:0 3px 10px rgba(0,0,0,.35);}
+#postAuthor:empty{display:none;}
 #missedBox{background:var(--navy2); border-radius:16px; padding:14px 26px; max-width:460px;}
 #missedBox h3{font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800;}
 #missedList{display:flex; flex-direction:column; gap:5px; font-family:'Fredoka One',cursive; font-size:19px;}
-#missedBox.empty #missedList::after{content:"Perfect washing! ✨"; color:var(--teal); font-size:17px;}
+#missedBox.empty #missedList::after{content:attr(data-empty); color:var(--teal); font-size:17px;}
 .postBtns{display:flex; gap:14px;}
 #countdown{position:absolute; inset:0; z-index:35; display:none; align-items:center; justify-content:center; pointer-events:none;}
 #countdown.on{display:flex;}
@@ -351,17 +383,17 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 
 <div id="quiz">
   <div id="quizCard">
-    <div id="quizTitle">🧽 Wash a plate — 3 correct = 1 clean plate</div>
-    <div id="washBar"><div class="seg"></div><div class="seg"></div><div class="seg"></div></div>
+    <div id="quizTitle" data-i18n="quizTitle">🧽 Wash a plate — 2 correct = 1 clean plate</div>
+    <div id="washBar"><div class="seg"></div><div class="seg"></div></div>
     <div id="washLabel">🍽️ 0/3</div>
     <div id="quizPrompt"></div>
     <div id="quizSub"></div>
     <div id="chips"></div>
     <div id="quizChain"></div>
     <div class="quizBtns">
-      <button id="quizGo" class="btn-ghost">Keep washing 🧽</button>
+      <button id="quizGo" class="btn-ghost" data-i18n="keepWashing">Keep washing 🧽</button>
     </div>
-    <div id="quizKeys">press <span class="key">1</span> <span class="key">2</span> <span class="key">3</span></div>
+    <div id="quizKeys" data-i18n="quizKeys">press <span class="key">1</span> <span class="key">2</span> <span class="key">3</span></div>
   </div>
 </div>
 
@@ -373,25 +405,40 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 <div id="startScreen" class="screen">
   <div class="menuTop">
     <h1 class="logo"><span class="pan">🍳</span>Verb Kitchen</h1>
-    <div class="tagline">Cook fast · Wash smart · Master your irregular verbs</div>
-    <button id="playBtn" class="btn-primary">Play! 🍳</button>
-    <button id="charsBtn" class="btn-ghost">🧑‍🍳 Characters</button>
+    <div class="tagline" data-i18n="tagline">Cook fast · Wash smart · Master your irregular verbs</div>
+    <button id="playBtn" class="btn-primary" data-i18n="play">Play! 🍳</button>
+    <button id="charsBtn" class="btn-ghost" data-i18n="characters">🧑‍🍳 Characters</button>
+    <button id="cookbookBtn" class="btn-ghost" data-i18n="cookbook">📖 Cookbook</button>
     <div id="loadingNote"></div>
   </div>
-  <div class="menuHint"><span class="key">WASD</span> move · <span class="key">E</span> pick up · <span class="key">Space</span> chop — then wash dirty plates with verbs: <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-pp">gone</span></div>
+  <div class="menuHint" data-i18n="menuHint"><span class="key">WASD</span> move · <span class="key">E</span> pick up · <span class="key">Space</span> chop — then wash dirty plates with verbs: <span class="form-base">go</span> → <span class="form-past">went</span> → <span class="form-pp">gone</span></div>
 </div>
 
 <div id="levelScreen" class="screen hidden">
-  <h1 class="logo" style="font-size:36px;">Choose your shift</h1>
+  <h1 class="logo" style="font-size:36px;" data-i18n="chooseShift">Choose your shift</h1>
   <div id="levelGrid"></div>
-  <button id="backBtn" class="btn-ghost">← Back</button>
+  <button id="backBtn" class="btn-ghost" data-i18n="back">← Back</button>
 </div>
 
 <div id="shopScreen" class="screen hidden">
-  <h1 class="logo" style="font-size:34px;">Characters</h1>
-  <div class="tagline">Earn stars to unlock new chefs — <span id="shopStars" class="form-base">0</span> ⭐ collected</div>
+  <h1 class="logo" style="font-size:34px;" data-i18n="shopTitle">Characters</h1>
+  <div class="tagline" data-i18n="shopTag">Earn stars to unlock new chefs — <span id="shopStars" class="form-base">0</span> ⭐ collected</div>
   <div id="shopGrid"></div>
-  <button id="shopBack" class="btn-ghost">← Back</button>
+  <button id="shopBack" class="btn-ghost" data-i18n="back">← Back</button>
+</div>
+
+<div id="cookbookScreen" class="screen hidden">
+  <h1 class="logo" style="font-size:34px;" data-i18n="cookbookTitle">📖 Verb Cookbook</h1>
+  <div class="tagline" id="cookbookSub"></div>
+  <div id="cookbookPractice" class="ckSection practice hidden">
+    <h3 data-i18n="ckPractice">🧽 To practice</h3>
+    <div class="ckList" id="cookbookPracticeList"></div>
+  </div>
+  <div class="ckSection">
+    <h3 data-i18n="ckAll">All verbs</h3>
+    <div class="ckList" id="cookbookAllList"></div>
+  </div>
+  <button id="cookbookBack" class="btn-ghost" data-i18n="back">← Back</button>
 </div>
 
 <div id="post" class="screen hidden">
@@ -401,17 +448,18 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
   <div class="tagline" id="postCoins"></div>
   <div class="tagline" id="postBest"></div>
   <div id="postAuthor"></div>
-  <div id="missedBox"><h3>Verbs to practice</h3><div id="missedList"></div></div>
+  <div id="missedBox"><h3 data-i18n="verbsToPractice">Verbs to practice</h3><div id="missedList"></div>
+    <button id="postCookbook" class="btn-ghost" style="margin-top:10px; font-size:13px; padding:6px 16px;" data-i18n="cookbook">📖 Cookbook</button></div>
   <div class="postBtns">
-    <button id="retryBtn" class="btn-ghost">↻ Retry</button>
-    <button id="nextBtn" class="btn-primary" style="font-size:19px; padding:11px 34px;">Next level →</button>
-    <button id="menuBtn" class="btn-ghost">Levels</button>
+    <button id="retryBtn" class="btn-ghost" data-i18n="retry">↻ Retry</button>
+    <button id="nextBtn" class="btn-primary" style="font-size:19px; padding:11px 34px;" data-i18n="nextLevel">Next level →</button>
+    <button id="menuBtn" class="btn-ghost" data-i18n="levels">Levels</button>
   </div>
 </div>
 
 <div id="recipe" class="hidden">
   <div id="recipeCard">
-    <div id="recipeTag">New<br>Recipe!</div>
+    <div id="recipeTag" data-i18n="newRecipe">New<br>Recipe!</div>
     <div id="recipeTitle">Recipe</div>
     <div id="recipeRule"></div>
     <img id="recipeImg" alt="recipe">
@@ -421,11 +469,11 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
       <div id="recipeLoaderMsg">Heating the ovens</div>
     </div>
     <div id="recipeErr">
-      <div id="recipeErrMsg">The download didn’t finish. Check your internet connection and try again.</div>
-      <button id="recipeRetry" class="btn-primary" style="font-size:18px; padding:10px 32px;">↻ Try again</button>
+      <div id="recipeErrMsg" data-i18n="loadFailed">The download didn’t finish. Check your internet connection and try again.</div>
+      <button id="recipeRetry" class="btn-primary" style="font-size:18px; padding:10px 32px;" data-i18n="tryAgain">↻ Try again</button>
     </div>
-    <button id="recipeBtn" class="btn-primary" style="font-size:20px; padding:12px 40px;">Let's cook! 🍳</button>
-    <div id="recipeHint">out of clean plates? wash them by answering verb questions 🧽</div>
+    <button id="recipeBtn" class="btn-primary" style="font-size:20px; padding:12px 40px;" data-i18n="letsCook">Let's cook! 🍳</button>
+    <div id="recipeHint" data-i18n="recipeHint">out of clean plates? wash them by answering verb questions 🧽</div>
   </div>
 </div>
 
@@ -434,7 +482,7 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 <div id="loader" class="hidden">
   <div id="loaderPizza"></div>
   <div id="loaderMsg">Rolling the dough</div>
-  <div id="loaderSub">your kitchen is being set up</div>
+  <div id="loaderSub" data-i18n="loaderSub">your kitchen is being set up</div>
 </div>
 <script type="module" src="src/main.js"></script>
 </body>

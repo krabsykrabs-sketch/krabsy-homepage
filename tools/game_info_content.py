@@ -343,8 +343,8 @@ CONTENT = {
         "de": {
             "h1": "Verb Kitchen – Kochspiel mit unregelmäßigen Verben",
             "lead": [
-                "Willkommen in der Verb Kitchen! In diesem 3D-Kochspiel nimmst du Bestellungen an, schnippelst Zutaten, brätst und backst – und servierst die fertigen Teller durch die Durchreiche. Doch die Teller kommen schmutzig zurück. Sauber werden sie nur mit Englisch: Für <strong>drei richtige Antworten</strong> an der Spüle bekommst du einen sauberen Teller.",
-                "So wird aus Küchenstress ein Training für die <strong>unregelmäßigen Verben</strong>. Das Spiel läuft kostenlos im Browser; die Texte im Spiel sind auf Englisch.",
+                "Willkommen in der Verb Kitchen! In diesem 3D-Kochspiel nimmst du Bestellungen an, schnippelst Zutaten, brätst und backst – und servierst die fertigen Teller durch die Durchreiche. Doch die Teller kommen schmutzig zurück. Sauber werden sie nur mit Englisch: Für <strong>zwei richtige Antworten</strong> an der Spüle bekommst du einen sauberen Teller.",
+                "So wird aus Küchenstress ein Training für die <strong>unregelmäßigen Verben</strong>. Das Spiel läuft kostenlos im Browser, die Texte im Spiel sind auf Deutsch.",
             ],
             "howto": [
                 "Bewegen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, aufnehmen und ablegen mit <kbd>E</kbd>, schneiden mit gedrückter <kbd>Leertaste</kbd>.",
@@ -354,7 +354,7 @@ CONTENT = {
                 "Je schneller du alle Bestellungen schaffst, desto mehr Sterne bekommst du.",
             ],
             "learn": [
-                "An der Spüle fragt das Spiel mal nach dem Simple Past, mal nach dem Past Participle, zum Beispiel <em>go → ___</em> oder <em>go → went → ___</em>. Insgesamt sind 46 Verben dabei – auch Küchenverben wie {cut}, {burn}, {break} und {eat}. Nach einem Fehler siehst du die ganze Reihe, verpasste Verben kommen wieder, und am Ende zeigt dir das Spiel, welche Verben du noch üben solltest. Es gibt drei Restaurants: Garden Bistro mit Tutorial, Burger Bar und Pizza Palace.",
+                "Jeder Teller ist ein Verb: Erst fragt das Spiel nach der zweiten Form (<em>go → ___</em>), dann nach der dritten (<em>go → went → ___</em>). Insgesamt sind 46 Verben dabei – auch Küchenverben wie {cut}, {burn}, {break} und {eat}. Nach einem Fehler siehst du die ganze Reihe, verpasste Verben kommen wieder, und am Ende zeigt dir das Spiel, welche Verben du noch üben solltest. Es gibt acht Level: vom Salat im Garden Bistro mit Tutorial über Burger, Pizza, Suppe und Eisbecher bis zur Sandwich Bar – in zwei Leveln kocht ein Helfer mit.",
             ],
             "verbs": ["cut", "burn", "break", "eat"],
             "faq": [
@@ -367,8 +367,8 @@ CONTENT = {
         "es": {
             "h1": "Verb Kitchen: juego de cocina con verbos irregulares",
             "lead": [
-                "¡Bienvenido a Verb Kitchen! En este juego de cocina en 3D recibes pedidos, cortas ingredientes, cocinas en la estufa o en el horno y sirves los platos por la ventanilla. Pero los platos vuelven sucios, y solo se limpian con inglés: cada <strong>tres respuestas correctas</strong> en el fregadero te dan un plato limpio.",
-                "Así el caos de la cocina se convierte en práctica de los <strong>verbos irregulares en inglés</strong>. Se juega gratis en el navegador; los textos del juego están en inglés.",
+                "¡Bienvenido a Verb Kitchen! En este juego de cocina en 3D recibes pedidos, cortas ingredientes, cocinas en la estufa o en el horno y sirves los platos por la ventanilla. Pero los platos vuelven sucios, y solo se limpian con inglés: cada <strong>dos respuestas correctas</strong> en el fregadero te dan un plato limpio.",
+                "Así el caos de la cocina se convierte en práctica de los <strong>verbos irregulares en inglés</strong>. Se juega gratis en el navegador y los textos del juego están en español.",
             ],
             "howto": [
                 "Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas, toma y deja cosas con <kbd>E</kbd> y corta manteniendo pulsada la <kbd>barra espaciadora</kbd>.",
@@ -378,7 +378,7 @@ CONTENT = {
                 "Cuanto más rápido entregues todos los pedidos, más estrellas consigues.",
             ],
             "learn": [
-                "En el fregadero el juego te pregunta a veces el pasado simple y a veces el participio, por ejemplo <em>go → ___</em> o <em>go → went → ___</em>. Hay 46 verbos, entre ellos verbos de cocina como {cut}, {burn}, {break} y {eat}. Si fallas, ves la secuencia completa; los verbos que fallaste vuelven a salir y al final el juego te muestra cuáles debes repasar. Hay tres restaurantes: Garden Bistro, con tutorial, Burger Bar y Pizza Palace.",
+                "Cada plato es un verbo: primero el juego te pide la segunda forma (<em>go → ___</em>) y luego la tercera (<em>go → went → ___</em>). Hay 46 verbos, entre ellos verbos de cocina como {cut}, {burn}, {break} y {eat}. Si fallas, ves la secuencia completa; los verbos que fallaste vuelven a salir y al final el juego te muestra cuáles debes repasar. Hay ocho niveles: desde la ensalada del Garden Bistro, con tutorial, pasando por hamburguesas, pizza, sopa y copas de helado, hasta el Sandwich Bar; en dos niveles cocinas con un ayudante.",
             ],
             "verbs": ["cut", "burn", "break", "eat"],
             "faq": [

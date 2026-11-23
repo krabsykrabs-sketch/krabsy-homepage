@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { TILE, getModel, mergeStatic, measureModel } from './models.js';
-import { Station, makeRingSprite } from './stations.js';
+import { Station, makeRingSprite, TOASTER_SCALE, SCOOP_SCALE } from './stations.js';
 import { CRATE_MODELS } from './levels.js';
 
 export class World {
@@ -108,10 +108,26 @@ export class World {
           counter.position.copy(p); counter.rotation.y = facing;
           const stove = getModel('stove_single_countertop');
           stove.position.set(p.x, 0.07, p.z); stove.rotation.y = facing;
-          const pan = getModel('pan_A');
-          pan.position.set(p.x, 1.22, p.z); pan.rotation.y = facing + Math.PI * 0.35;
-          staticG.add(counter, stove, pan);
+          staticG.add(counter, stove);
+          // a decorative frying pan — hidden on `bareStoves` levels (e.g. the
+          // soup level, where you set your own POT on the hob, not a pan)
+          if (!lv.bareStoves) {
+            const pan = getModel('pan_A');
+            pan.position.set(p.x, 1.22, p.z); pan.rotation.y = facing + Math.PI * 0.35;
+            staticG.add(pan);
+          }
           st = new Station('stove', c, r, p, 1.28);
+        } else if (ch === 'T') {
+          // toaster: a Tiny Treats toaster on a plain counter. Gameplay-wise a
+          // stove (cook → ready → burn) that only takes bread slices.
+          const counter = getModel('kitchencounter_straight_B' + sB);
+          counter.position.copy(p); counter.rotation.y = facing;
+          const toaster = getModel('tt_toaster');
+          toaster.scale.setScalar(TOASTER_SCALE);
+          toaster.position.set(p.x, 1.02, p.z); toaster.rotation.y = facing;
+          staticG.add(counter, toaster);
+          st = new Station('stove', c, r, p, 1.02 + measureModel('tt_toaster').height * TOASTER_SCALE);
+          st.cooker = 'toaster';
         } else if (ch === 'o') {
           const oven = getModel(lv.id === 'pizzeria' ? 'pizza_oven' : 'oven');
           oven.position.copy(p); oven.rotation.y = facing;
@@ -151,17 +167,27 @@ export class World {
     const wallZ = this.tileWorld(0, -0.5).z - 0.35;
     const hatchCols = [];
     for (let c = 0; c < this.cols; c++) if (lv.map[0][c] === 'H') hatchCols.push(c);
-    const windowDecor = ['wall_tiles_A', 'wall', 'wall_tiles_B', 'wall_window_closed_curtains_' + (sB ? 'green' : 'red')];
+    // `level.backWall` = the piece cycle, left → right (default: all solid
+    // `wall`). The old default mixed in `wall_tiles_A/B`, but those are only
+    // counter backsplash panels — with no wall behind them they floated.
+    const windowDecor = lv.backWall || ['wall'];
     const hatchMid = hatchCols.length ? (hatchCols[0] + hatchCols[hatchCols.length - 1]) / 2 : 0.5;
     const centers = [];
     for (let cc = hatchMid; cc > -1; cc -= 2) centers.unshift(cc);   // left of (and incl.) the hatch
     for (let cc = hatchMid + 2; cc < this.cols; cc += 2) centers.push(cc);
     let di = 0;
     for (const center of centers) {
-      // drop a 2-wide back-wall piece that would overhang the kitchen's right
-      // edge (the odd-offset window decor on Burger Bar / Pizzeria) — keeps the
-      // level rectangular and a touch narrower
-      if (center > this.cols - 1.5) continue;
+      // a 2-wide piece that would overhang the kitchen's left or right edge by
+      // one tile becomes a 1-wide `wall_half` on the tile that is in bounds —
+      // the wall then closes exactly at both corners (no gap, no overhang)
+      const overL = center < 0, overR = center > this.cols - 1;
+      if (overL || overR) {
+        const w = getModel('wall_half');           // spans x 0..2 from its origin
+        const p = this.tileWorld(overL ? 0 : this.cols - 1, 0);
+        w.position.set(p.x - TILE / 2, 0, wallZ);
+        staticG.add(w);
+        continue;
+      }
       const isHatch = Math.abs(center - hatchMid) < 0.01;
       const name = isHatch ? 'wall_orderwindow' : windowDecor[di++ % windowDecor.length];
       const w = getModel(name);
@@ -169,29 +195,66 @@ export class World {
       w.position.set(p.x, 0, wallZ);
       staticG.add(w);
     }
-    // side stub walls (half height) for depth
+    // side walls: a one-tile stub next to the back row for depth. `level.sideWall
+    // = { right: n }` (or `left`) runs the wall n tiles forward from the back
+    // corner instead, so side stoves get a wall behind them (and a hood on it).
+    // Pieces: `wall` = 2 tiles, `wall_half` = 1 tile (origin at one end).
+    const sideX = { '-1': this.tileWorld(-0.5, 0).x - 0.35, 1: this.tileWorld(this.cols - 0.5, 0).x + 0.35 };
     for (const side of [-1, 1]) {
-      const c = side < 0 ? -0.5 : this.cols - 0.5;
-      for (let r = 0; r < Math.min(2, this.rows); r += 2) {
-        const w = getModel('wall_half');
-        const p = this.tileWorld(c, r + 0.5);
-        w.position.set(p.x + side * 0.35 * 0, 0, p.z);
+      const want = (lv.sideWall && lv.sideWall[side < 0 ? 'left' : 'right']) || 1;
+      const len = Math.min(want, this.rows);
+      let r = 0;
+      for (; r + 2 <= len; r += 2) {
+        const w = getModel('wall');
+        w.position.set(sideX[side], 0, this.tileWorld(0, r + 0.5).z);
         w.rotation.y = Math.PI / 2;
-        w.position.x = this.tileWorld(c, 0).x + side * 0.35;
+        staticG.add(w);
+      }
+      if (r < len) {
+        const w = getModel('wall_half');           // rotated: runs from its origin toward the back
+        w.position.set(sideX[side], 0, this.tileWorld(0, r + 0.5).z);
+        w.rotation.y = Math.PI / 2;
         staticG.add(w);
       }
     }
 
-    // --- decor: extractor hood over stoves/ovens, fridge near crates ---
+    // --- decor: KayKit extractor hood over back-row stoves — unless the level
+    // hangs its own Tiny Treats hood (`tt_extractor_hood` prop) ---
+    const ownHood = (lv.props || []).some((pr) => pr.model === 'tt_extractor_hood');
     for (const st of this.stations) {
-      if (st.type === 'stove' && st.row === 0) {
+      if (st.type === 'stove' && st.row === 0 && !st.cooker && !ownHood) {
         const hood = getModel('extractorhood');
         hood.position.set(st.pos.x, 2.6, st.pos.z);
         staticG.add(hood);
       }
     }
 
+    this._wallFaceRight = sideX[1] - 0.25;       // inner face of the right side wall
+    this._placeProps(staticG, wallZ + 0.25);   // front face of the back wall
+
     this._finishStatic(staticG);
+  }
+
+  /** Level props (decor): free placement in LOCAL tile coords (fractions are
+   *  fine), shared by the ASCII and the editor-JSON path. `wall: true` hangs the
+   *  prop on the back wall (its front face is at z = `wallFace`), `y` = height
+   *  of the prop's origin; `wall: 'right'` hangs it on the right side wall at
+   *  `row` (ASCII levels with `sideWall`); otherwise it stands at tile (col,row) at height `y`
+   *  (1.02 = on a counter). `rot` in radians, `scale` number or [x,y,z]. */
+  _placeProps(staticG, wallFace) {
+    for (const pr of this.level.props || []) {
+      const m = getModel(pr.model);
+      const p = this.tileWorld(pr.col || 0, pr.row || 0);
+      if (pr.wall === 'right') {                 // on the right side wall, facing into the room
+        m.position.set(this._wallFaceRight ?? p.x, pr.y || 0, p.z);
+        m.rotation.y = -Math.PI / 2;
+      } else {
+        m.position.set(p.x, pr.y || 0, pr.wall ? wallFace : p.z);
+      }
+      if (pr.rot) m.rotation.y = pr.rot;
+      if (pr.scale) m.scale.set(...(Array.isArray(pr.scale) ? pr.scale : [pr.scale, pr.scale, pr.scale]));
+      staticG.add(m);
+    }
   }
 
   /** Merge static geometry → one draw call, then add live holders, station
@@ -206,7 +269,7 @@ export class World {
       if (st.toolMesh) this.group.add(st.toolMesh);   // resting board tool (hidden while chopping)
       if (st.type === 'stove' || st.type === 'oven' || st.type === 'board') {
         st.ring = makeRingSprite();
-        st.ring.position.set(st.pos.x, st.topY + 1.5, st.pos.z);
+        st.ring.position.set(st.pos.x, st.topY + (st.cooker === 'toaster' ? 1.1 : 1.5), st.pos.z);
         this.group.add(st.ring);
       }
     }
@@ -260,20 +323,45 @@ export class World {
       if (spawnCell) spawnCell = { col: C - 1 - spawnCell.col, row: R - 1 - spawnCell.row };
     }
 
+    // `level.trimFloor`: the editor's floor tiles are 2×2, so a kitchen with an
+    // odd width/depth gets a strip of bare floor outside the counters. Clip the
+    // floor to the columns/rows that hold counters, crates or cookers (cut tiles are
+    // scaled, like the ASCII path does). Purely visual — the strip is outside
+    // the counter ring, so nobody could walk there anyway.
+    if (this.level.trimFloor) {
+      const isKitchen = (m) => isCounter(m) || m.startsWith('crate') || m.startsWith('stove_') || m === 'oven' || m === 'pizza_oven';
+      let c0 = Infinity, c1 = -Infinity, r0 = Infinity, r1 = -Infinity;
+      for (const o of objs) {
+        if (!isKitchen(o.model)) continue;         // walls / pillars may stand outside
+        c0 = Math.min(c0, o.col); c1 = Math.max(c1, o.col);
+        r0 = Math.min(r0, o.row); r1 = Math.max(r1, o.row);
+      }
+      objs = objs.map((o) => {
+        if (!GROUND.has(o.model) || !isFinite(c0)) return o;
+        const [w, d] = fp(o.model);
+        const a = Math.max(o.col, c0), b = Math.min(o.col + w - 1, c1);
+        const e = Math.max(o.row, r0), f = Math.min(o.row + d - 1, r1);
+        if (a > b || e > f) return null;                       // wholly outside
+        return { ...o, _span: [a, e, b - a + 1, f - e + 1], _full: [w, d] };
+      }).filter(Boolean);
+    }
+    // footprint → [col, row, width, depth] (the clipped span of a trimmed floor)
+    const span = (o) => o._span || [o.col, o.row, ...fp(o.model)];
+
     // pass 1 — stack heights (array order matters)
     const tops = new Map();
     for (const o of objs) {
-      const [w, d] = fp(o.model); let base = 0;
-      for (let c = o.col; c < o.col + w; c++) for (let r = o.row; r < o.row + d; r++)
+      const [sc, sr, w, d] = span(o); let base = 0;
+      for (let c = sc; c < sc + w; c++) for (let r = sr; r < sr + d; r++)
         base = Math.max(base, tops.get(c + ',' + r) || 0);
       o._y = base;
       const top = base + (GROUND.has(o.model) ? 0 : isCounter(o.model) ? COUNTER_SURFACE : measureModel(o.model).height);
-      for (let c = o.col; c < o.col + w; c++) for (let r = o.row; r < o.row + d; r++) tops.set(c + ',' + r, top);
+      for (let c = sc; c < sc + w; c++) for (let r = sr; r < sr + d; r++) tops.set(c + ',' + r, top);
     }
     // pass 2 — world positions (JSON frame, centred on the 12×12 grid)
     for (const o of objs) {
-      const [w, d] = fp(o.model);
-      const ctr = jcell(o.col + (w - 1) / 2, o.row + (d - 1) / 2);
+      const [sc, sr, w, d] = span(o);
+      const ctr = jcell(sc + (w - 1) / 2, sr + (d - 1) / 2);
       const yB = GROUND.has(o.model) ? o._y : o._y - measureModel(o.model).minY;
       const pl = WALL.has(o.model) ? rotY(WALL_PLACE, o.rot) : { x: 0, y: 0, z: 0 };
       const off = o.off || { x: 0, y: 0, z: 0 };
@@ -285,9 +373,9 @@ export class World {
     let minC = Infinity, maxC = -Infinity, minR = Infinity, maxR = -Infinity;
     for (const o of objs) {
       if (!GROUND.has(o.model)) continue;
-      const [w, d] = fp(o.model);
-      minC = Math.min(minC, o.col); maxC = Math.max(maxC, o.col + w - 1);
-      minR = Math.min(minR, o.row); maxR = Math.max(maxR, o.row + d - 1);
+      const [sc, sr, w, d] = span(o);
+      minC = Math.min(minC, sc); maxC = Math.max(maxC, sc + w - 1);
+      minR = Math.min(minR, sr); maxR = Math.max(maxR, sr + d - 1);
     }
     if (!isFinite(minC)) { minC = 0; maxC = jcols - 1; minR = 0; maxR = jrows - 1; }
     const kc = jcell((minC + maxC) / 2, (minR + maxR) / 2);
@@ -300,27 +388,32 @@ export class World {
     const toLocal = (c, r) => ({ c: c - minC, r: r - minR });
 
     // --- classify station tiles, collect floor tiles / start items / hatch anchor ---
-    const PRI = { counter: 0, sink: 1, oven: 1, board: 1, rack: 1, crate: 1, trash: 1 };
+    const CRATE_ITEM = {};                 // crate model → the item it gives
+    for (const k in CRATE_MODELS) if (CRATE_MODELS[k] !== 'crate') CRATE_ITEM[CRATE_MODELS[k]] = k;
+    const PRI = { counter: 0, sink: 1, oven: 1, board: 1, rack: 1, crate: 1, trash: 1, stove: 1 };
     const typeOf = (m) => {
       if (m.startsWith('kitchencounter_sink')) return 'sink';
       if (m === 'pizza_oven' || m === 'oven') return 'oven';
+      if (m.startsWith('stove_')) return 'stove';   // stove_single(_countertop) / stove_multi…
       if (m === 'cuttingboard') return 'board';
       if (m === 'dishrack') return 'rack';
       if (m === 'crate') return 'trash';          // an EMPTY crate = trash bin (like the burger level)
       if (m.startsWith('crate_')) return 'crate';
+      if (m.startsWith('icecream_container_icecream')) return 'crate';   // ice-cream flavour tubs
+      if (CRATE_ITEM[m]) return 'crate';          // topping bowls (cherries / waffles / cookie sticks)
+
       if (m.startsWith('kitchencounter_')) return 'counter';
       return null;
     };
-    const CRATE_ITEM = {}; for (const k in CRATE_MODELS) CRATE_ITEM[CRATE_MODELS[k]] = k;
     const floorTiles = new Set();
     const tileStation = new Map();        // local "c,r" → { type, item }
     const startItems = [];
     let orderWindow = null;
     for (const o of objs) {
       if (GROUND.has(o.model)) {
-        const [w, d] = fp(o.model);
+        const [sc, sr, w, d] = span(o);
         for (let c = 0; c < w; c++) for (let r = 0; r < d; r++) {
-          const l = toLocal(o.col + c, o.row + r); floorTiles.add(l.c + ',' + l.r);
+          const l = toLocal(sc + c, sr + r); floorTiles.add(l.c + ',' + l.r);
         }
         continue;
       }
@@ -329,7 +422,7 @@ export class World {
       const t = typeOf(o.model);
       if (!t) continue;
       const l = toLocal(o.col, o.row), key = l.c + ',' + l.r, cur = tileStation.get(key);
-      if (!cur || PRI[t] > PRI[cur.type]) tileStation.set(key, { type: t, item: t === 'crate' ? CRATE_ITEM[o.model] : null });
+      if (!cur || PRI[t] > PRI[cur.type]) tileStation.set(key, { type: t, item: t === 'crate' ? CRATE_ITEM[o.model] : null, model: o.model });
     }
 
     // --- walkable = floor tile with no station on it ---
@@ -342,11 +435,20 @@ export class World {
     const TOOLS = new Set(['knife', 'rollingpin']);   // board tools are auto-added live below
     for (const o of objs) {
       if (o.model === 'ketchup' || TOOLS.has(o.model)) continue;
+      // bowl levels (soup) drop the dish rack — clean bowls just stack on the
+      // counter in its place (refreshStack handles the bowl stack)
+      if (o.model === 'dishrack' && this.level.vessel === 'bowl') continue;
       // an empty `crate` is a trash bin — tint it dark blue-grey + shrink like the ASCII levels
       const mdl = getModel(o.model, o.model === 'crate' ? '#4a5366' : null);
       if (o.model === 'crate') mdl.scale.setScalar(0.92);
       mdl.position.set(o._pos.x, o._pos.y, o._pos.z);
       mdl.rotation.set((o.rotX || 0) * Math.PI / 180, o.rot * Math.PI / 2, 0);
+      if (o.scale) mdl.scale.setScalar(o.scale);     // optional uniform scale (topping bowls)
+      if (o._span) {                 // a trimmed floor tile: squeeze it into its span
+        const quarter = o.rot % 2 === 1;   // rotated a quarter turn: local x runs along world z
+        const kx = o._span[2] / o._full[0], kz = o._span[3] / o._full[1];
+        mdl.scale.set(quarter ? kz : kx, 1, quarter ? kx : kz);
+      }
       staticG.add(mdl);
     }
 
@@ -357,7 +459,12 @@ export class World {
       const [lc, lr] = key.split(',').map(Number);
       const pos = this.tileWorld(lc, lr);
       const facing = this.faceToFloor(lc, lr);
-      const st = new Station(info.type, lc, lr, pos, TOP_Y[info.type] ?? 1.02);
+      // a bare floor stove (soup) carries its pot on the burner — sit items at the
+      // stove model's measured top rather than a fixed counter height
+      const topY = info.type === 'stove'
+        ? measureModel(info.model || 'stove_single').height
+        : (TOP_Y[info.type] ?? 1.02);
+      const st = new Station(info.type, lc, lr, pos, topY);
       st.rot = facing;
       if (info.type === 'crate') st.crateItem = info.item;
       if (info.type === 'board') {
@@ -374,6 +481,32 @@ export class World {
       }
       this.stations.push(st);
       this.stationAt.set(key, st);
+    }
+
+    // --- the scoop stand (`level.scoopStand`, JSON cell coords): a counter that
+    //     is the ice-cream scoop's home. A small metal cup stands on it; the
+    //     scoop stands in the cup, handle down (stations.composeScoop). ---
+    if (this.level.scoopStand) {
+      const l = toLocal(this.level.scoopStand.c, this.level.scoopStand.r);
+      const st = this.stationAtTile(l.c, l.r);
+      if (st && st.type === 'counter') {
+        st.stand = 'scoop';
+        // a teal mat marks the spot (also while the scoop is away), a pale
+        // enamel cup stands on it
+        const mat = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.66, 0.05, 28),
+          new THREE.MeshStandardMaterial({ color: 0x2bb8a0, roughness: 0.8 }));
+        mat.position.set(st.pos.x, st.topY + 0.025, st.pos.z);
+        mat.receiveShadow = true;
+        staticG.add(mat);
+        const R = 0.22 * SCOOP_SCALE, H = 0.3 * SCOOP_SCALE;
+        const cup = new THREE.Mesh(
+          new THREE.LatheGeometry([[0, 0.03], [R * 0.86, 0.03], [R, H], [R * 0.86, H], [R * 0.76, 0.07], [0, 0.07]]
+            .map(([x, y]) => new THREE.Vector2(x, y)), 20),
+          new THREE.MeshStandardMaterial({ color: 0xe6ebf2, roughness: 0.5 }));
+        cup.position.set(st.pos.x, st.topY + 0.05, st.pos.z);
+        cup.castShadow = true; cup.receiveShadow = true;
+        staticG.add(cup);
+      }
     }
 
     // --- hatch: retype the counter(s) directly in front of the order window ---
@@ -397,6 +530,10 @@ export class World {
       const l = toLocal(c, r);
       this.startItems.push({ c: l.c, r: l.r, item: s.item });
     }
+
+    // level props (code-side decor, see _placeProps): wall props hang on the
+    // face of the wall the order window sits in
+    this._placeProps(staticG, (orderWindow ? orderWindow._pos.z : this.tileWorld(0, -0.5).z - 0.5) + 0.25);
 
     this._finishStatic(staticG);
   }

@@ -3,20 +3,22 @@ import { LEVELS, PLACEHOLDERS } from './levels.js';
 import { VERBS } from './verbs.js';
 import { CHEF_CHARACTERS, totalStars } from './models.js';
 import { characterPortrait } from './portraits.js';
+import { t, levelTut } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
 // Robust tap: pointerup (touch/pen) + click, deduped — some tablet browsers
 // don't fire `click` after a touch, which would make level/character cards inert.
 function tap(el, fn) {
-  let viaPointer = false;
   el.addEventListener('pointerup', (e) => {
     if (e.pointerType === 'mouse') return;
-    viaPointer = true; setTimeout(() => { viaPointer = false; }, 600);
+    window.__touchTapAt = performance.now();
     fn(e);
   });
   el.addEventListener('click', (e) => {
-    if (viaPointer) { viaPointer = false; return; }
+    // ignore the ghost click trailing a touch (shared guard with main.js) so a
+    // tap on "Play" can't ghost-click the level card that appears beneath it
+    if (performance.now() - (window.__touchTapAt || -9999) < 700) return;
     fn(e);
   });
 }
@@ -28,7 +30,7 @@ function fmtTime(sec) {
 
 export const ui = {
   showScreen(id) {
-    const screens = ['startScreen', 'levelScreen', 'shopScreen', 'post'];
+    const screens = ['startScreen', 'levelScreen', 'shopScreen', 'cookbookScreen', 'post'];
     for (const s of screens) $(s).classList.toggle('hidden', s !== id);
     if (!id) for (const s of screens) $(s).classList.add('hidden');
     // the shared illustrated-kitchen background is on for any menu screen, off
@@ -48,7 +50,7 @@ export const ui = {
       const card = document.createElement('div');
       card.className = 'charCard' + (unlocked ? '' : ' locked') + (id === selected ? ' active' : '');
       const tag = !unlocked ? `<div class="ctag cost">⭐ ${def.cost}</div>`
-        : (id === selected ? '<div class="ctag sel">✓ Selected</div>' : '<div class="ctag">Select</div>');
+        : (id === selected ? `<div class="ctag sel">${t('selected')}</div>` : `<div class="ctag">${t('select')}</div>`);
       card.innerHTML = `<div class="cportrait"><img alt="${def.name}"></div>` +
         `<div class="cname">${def.name}</div>${tag}` +
         (unlocked ? '' : '<div class="clock">🔒</div>');
@@ -60,14 +62,30 @@ export const ui = {
 
   hud(on) { $('hud').classList.toggle('on', on); },
 
+  /** Verb Cookbook: every chain in the game. Verbs missed in earlier rounds
+   *  (the persisted practice list) sit in their own box on top — the sink asks
+   *  exactly those first next round. */
+  renderCookbook(save) {
+    const chain = (v) => `<span class="ck"><span class="form-base">${v.v}</span> → ` +
+      `<span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span></span>`;
+    const practice = VERBS.filter((v) => (save.missed || []).includes(v.v));
+    $('cookbookPractice').classList.toggle('hidden', practice.length === 0);
+    $('cookbookPracticeList').innerHTML = practice.map(chain).join('');
+    $('cookbookAllList').innerHTML = VERBS.map(chain).join('');
+    $('cookbookSub').textContent = practice.length
+      ? t('ckSubPractice', practice.length)
+      : t('ckSubAll', VERBS.length);
+  },
+
   renderLevelGrid(save, onPick) {
     const grid = $('levelGrid');
     grid.innerHTML = '';
     LEVELS.forEach((lv, i) => {
       const stars = save.stars[lv.id] || 0;
       const best = save.bestTime[lv.id];
-      // first 3 levels are always open; later ones need ≥1 star in the previous
-      const locked = i >= 3 && (save.stars[LEVELS[i - 1].id] || 0) < 1;
+      // levels flagged `open` (the co-op test levels) are always selectable;
+      // otherwise the first 3 are open and later ones need ≥1 star in the previous
+      const locked = !lv.open && i >= 3 && (save.stars[LEVELS[i - 1].id] || 0) < 1;
       const [, s2, s3, sA] = lv.starTimes;   // 1★ is just "finish" now (no time)
       // 3 normal stars (filled/empty) + the author star ONLY when earned (never empty)
       const starStr = [1, 2, 3].map((n) => `<span class="${n <= stars ? '' : 'off'}">⭐</span>`).join('')
@@ -75,12 +93,12 @@ export const ui = {
       // the three target times are always visible; the author time hides until gold (3★)
       const tgt = (cls, label, secs) => `<div class="tgt ${cls}"><b>${label}</b>${fmtTime(secs)}</div>`;
       const targets =
-        `<div class="tgt"><b>★</b>finish</div>` + tgt('', '★★', s2) + tgt('gold', '★★★', s3) +
+        `<div class="tgt"><b>★</b>${t('finish')}</div>` + tgt('', '★★', s2) + tgt('gold', '★★★', s3) +
         `<div class="tgt author"><b>★</b>${stars >= 3 ? fmtTime(sA) : '?:??'}</div>`;
       const el = document.createElement('div');
       el.className = 'lvl' + (locked ? ' locked' : '');
       el.innerHTML = `${locked ? '<div class="lock">🔒</div>' : ''}<div class="em">${lv.emoji}</div>` +
-        `<div class="nm">Level ${lv.num}</div><div class="stars">${starStr}</div>` +
+        `<div class="nm">${t('levelN', lv.num)}</div><div class="stars">${starStr}</div>` +
         `<div class="best">${best != null ? '⏱ ' + fmtTime(best) : '&nbsp;'}</div>` +
         `<div class="targets">${targets}</div>`;
       if (!locked) {
@@ -93,7 +111,7 @@ export const ui = {
       const el = document.createElement('div');
       el.className = 'lvl locked teaser';
       el.innerHTML = `<div class="lock">🔒</div><div class="em">${ph.emoji}</div>` +
-        `<div class="nm">Level ${ph.num}</div><div class="soon">coming soon</div>`;
+        `<div class="nm">${t('levelN', ph.num)}</div><div class="soon">${t('comingSoon')}</div>`;
       grid.appendChild(el);
     }
   },
@@ -129,19 +147,31 @@ export const ui = {
       setTimeout(() => d.remove(), 1400);
     }
   },
+  setFrantic(on) { $('timerPill').classList.toggle('frantic', on); },
   setCombo(n) {
     const pill = $('comboPill');
     pill.classList.toggle('on', n >= 2);
     if (n >= 2) $('comboVal').textContent = 'x' + n;
   },
   setPlates() {},   // plate-count HUD removed (the bottom-left counter was noise)
-  hint(text) { $('hint').textContent = text || ''; },
+  /** Hint pill. `icon` (an image data-URL) replaces the '@' in `text` with a
+   *  small rendered game object (the crate's real bun / patty, not an emoji). */
+  hint(text, icon = null) {
+    const el = $('hint');
+    if (!icon || !text || !text.includes('@')) { el.textContent = text || ''; return; }
+    const [a, b] = text.split('@');
+    el.textContent = '';
+    el.append(a);
+    const img = document.createElement('img');
+    img.src = icon; img.alt = ''; img.className = 'hintIcon';
+    el.append(img, b);
+  },
 
   // --- guided tutorial banner (salad level) ---
   tutorialStep(icon, text, n, total) {
     const el = $('tutorial');
     el.classList.remove('done');
-    el.innerHTML = `<div class="tStep">Step ${n} of ${total}</div>` +
+    el.innerHTML = `<div class="tStep">${t('stepOf', n, total)}</div>` +
       `<div class="tBody"><span class="tIcon">${icon}</span><span>${text}</span></div>`;
     el.classList.remove('on'); void el.offsetWidth;   // restart the slide-in
     el.classList.add('on');
@@ -162,13 +192,13 @@ export const ui = {
    *  `loadPromise` (assets + image) resolves. Resolves when the player taps Start. */
   showTutorial(level, load) {
     return new Promise((resolve) => {
-      const t = level.tutorial || {};
+      const tut = levelTut(level);   // localized title/text, image from levels.js
       const ov = $('recipe'), btn = $('recipeBtn'), img = $('recipeImg'), err = $('recipeErr');
-      $('recipeTitle').textContent = t.title || level.name;
-      $('recipeText').textContent = t.text || '';
+      $('recipeTitle').textContent = tut.title || level.name;
+      $('recipeText').textContent = tut.text || '';
       let imgP = Promise.resolve();
-      if (t.image) {
-        img.src = t.image;
+      if (tut.image) {
+        img.src = tut.image;
         img.style.display = 'block';
         imgP = (img.complete && img.naturalWidth)
           ? Promise.resolve()
@@ -208,8 +238,7 @@ export const ui = {
     if (box) box.style.display = on ? 'flex' : 'none';
     clearInterval(this._rLoadTimer);
     if (!on) return;
-    const MSGS = ['Heating the ovens', 'Sharpening the knives', 'Stocking the crates',
-                  'Polishing the plates', 'Rolling out the dough', 'Tying the apron'];
+    const MSGS = t('loadMsgs');
     const pie = $('recipeLoaderPizza'), msg = $('recipeLoaderMsg');
     let step = 0;
     const SLICES = 8;
@@ -228,10 +257,10 @@ export const ui = {
   },
 
   renderPost(level, elapsed, score, stars, missedKeys, bestTime, hasNext, isNewBest) {
-    $('postTitle').textContent = `${level.emoji} Level ${level.num} — all served!`;
+    $('postTitle').textContent = `${level.emoji} ${t('levelN', level.num)} — ${t('allServedShort')}`;
     $('postScore').textContent = fmtTime(elapsed);
-    $('postCoins').textContent = `🪙 ${score} earned`;
-    $('postBest').textContent = isNewBest ? '🎉 New best time!' : (bestTime != null ? `Best: ⏱ ${fmtTime(bestTime)}` : '');
+    $('postCoins').textContent = t('earned', score);
+    $('postBest').textContent = isNewBest ? t('newBest') : (bestTime != null ? `${t('best')} ⏱ ${fmtTime(bestTime)}` : '');
     const starEls = [...$('postStars').children];   // [⭐, ⭐, ⭐, author ★]
     starEls.forEach((el, i) => {
       el.classList.remove('on', 'off2');
@@ -249,8 +278,8 @@ export const ui = {
     const sA = level.starTimes[3];
     const authEl = $('postAuthor');
     if (authEl) {
-      if (stars >= 4) authEl.textContent = `★ Author star earned! (author time ⏱ ${fmtTime(sA)})`;
-      else if (stars >= 3) authEl.textContent = `★ Author time: ⏱ ${fmtTime(sA)} — beat it for the 4th star!`;
+      if (stars >= 4) authEl.textContent = t('authorEarned', fmtTime(sA));
+      else if (stars >= 3) authEl.textContent = t('authorBeat', fmtTime(sA));
       else authEl.textContent = '';
     }
     const box = $('missedBox');
@@ -263,6 +292,13 @@ export const ui = {
       if (!v) continue;
       const row = document.createElement('div');
       row.innerHTML = `<span class="form-base">${v.v}</span> → <span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span>`;
+      list.appendChild(row);
+    }
+    if (uniq.length > 6) {
+      // don't truncate silently — the rest is one tap away in the Cookbook
+      const row = document.createElement('div');
+      row.className = 'ckMore';
+      row.textContent = t('moreInCookbook', uniq.length - 6);
       list.appendChild(row);
     }
     $('nextBtn').style.display = hasNext && stars >= 1 ? '' : 'none';
@@ -290,8 +326,7 @@ export const ui = {
     $('loader').classList.toggle('hidden', !on);
     clearInterval(this._loadTimer);
     if (!on) return;
-    const MSGS = ['Rolling the dough', 'Firing up the oven', 'Sharpening the knives',
-                  'Polishing the plates', 'Reading the order tickets', 'Tying the apron'];
+    const MSGS = t('loadMsgs');
     const pie = $('loaderPizza'), msg = $('loaderMsg');
     let step = 0;
     const SLICES = 8;

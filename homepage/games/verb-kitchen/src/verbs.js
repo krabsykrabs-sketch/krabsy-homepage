@@ -73,35 +73,110 @@ function shuffle(arr) {
 function pick(arr) { return arr[Math.floor(rng.next() * arr.length)]; }
 
 /**
- * Build one sink question.
- * missed: array of verb keys ("go|past") queued for re-asking — takes priority.
- * recentlyAsked: Set of verb base forms to avoid immediate repeats.
+ * Start-of-round practice: verbs missed in EARLIER rounds (the persisted
+ * save.missed list) come back as the first plates of the next round.
+ * Returns up to n verb base forms; verbs no longer in the current subset are
+ * skipped. Consumes no rng draws when the list is empty (QA seeds).
  */
-export function makeQuestion(missed = [], recentlyAsked = new Set()) {
-  let verb = null, form = null, fromMissed = false;
-  if (missed.length) {
-    const key = missed.shift();
-    const [base, f] = key.split('|');
-    verb = VERBS.find((x) => x.v === base);
-    form = f;
-    fromMissed = true;
+export function seedPractice(missedList = [], n = 3) {
+  const known = missedList.filter((v) => VERBS.some((x) => x.v === v));
+  return shuffle(known.slice()).slice(0, n);
+}
+
+// ---------- washing questions: ONE verb per plate, its two forms in chain order ----------
+// Owner decision 2026-11-23 (+ "Chain order" in the root CLAUDE.md): a plate is
+// washed by TWO answers — the 2nd and 3rd form of one verb, in that order:
+//   1. go → [___] → ___     asks "went"
+//   2. go → went → [___]    asks "gone" (the 2nd form is written in)
+// After step 1 the 3rd form is NOT revealed (step 2 asks it). On the site the
+// pairs come from the shared question engine (getQuizSet, chainOrder on by
+// default, restricted to this game's curated verbs via `ids`); in local dev
+// (no /lib/) they are built from the inline list above, the same way.
+
+/** One question of a pair → the record the sink renders. */
+function stepRecord(base, past, pp, ask, answer, options) {
+  const chain = `<span class="form-base">${base}</span> → <span class="form-past">${past}</span> → <span class="form-pp">${pp}</span>`;
+  const prompt = ask === 'past'
+    ? `<span class="form-base">${base}</span> → <span class="form-past slot ask">___</span> → <span class="form-pp slot">___</span>`
+    : `<span class="form-base">${base}</span> → <span class="form-past">${past}</span> → <span class="form-pp slot ask">___</span>`;
+  return {
+    verb: base, form: ask, answer, chips: options.slice(), prompt, chain,
+    key: `${base}|${ask}`,
+    sub: ask === 'past' ? 'simple past' : 'past participle',   // small caption only
+  };
+}
+
+function inlinePair(v) {
+  const step = (ask) => {
+    const answer = ask === 'past' ? v.past : v.pp;
+    const wrong = shuffle((ask === 'past' ? v.wp : v.wpp).filter((w) => w !== answer)).slice(0, 2);
+    return stepRecord(v.v, v.past, v.pp, ask, answer, shuffle([answer, ...wrong]));
+  };
+  return { verb: v.v, steps: [step('past'), step('pp')] };
+}
+
+/** Engine pairs keyed by verb (null until/unless the site engine loaded). */
+let enginePairs = null;
+export let questionSource = 'inline';
+
+/** Load the pairs from the site question engine. Only tried where the game is
+ *  served by the site (path …/games/verb-kitchen/) — the local dev server has
+ *  no /lib/, and a failed import would only log a 404. Never throws. */
+export async function loadQuestionEngine() {
+  if (enginePairs) return;
+  try {
+    if (!/\/games\/verb-kitchen\//.test(location.pathname)) return;
+    const KQ = await import('/lib/krabsy-questions.js');
+    if (KQ.topicFromUrl() !== 'irregular_verbs') return;
+    const set = await KQ.getQuizSet({ topic: 'irregular_verbs', count: 1000, withOptions: 3,
+      ids: VERBS.map((v) => v.v) });            // chainOrder is on by default for verbs
+    const map = new Map();
+    for (let i = 1; i < set.length; i++) {
+      const q3 = set[i], q2 = set[i - 1];
+      if (!q3.followUp) continue;                // the engine keeps each pair adjacent
+      const c = q2.teach && q2.teach.chain;
+      if (!c || q2.display.askIndex !== 0 || q3.display.askIndex !== 1) continue;
+      // three DIFFERENT chips (the catalogue repeats a distractor for a few
+      // verbs, e.g. have → "haved" twice): dedupe, top up from the inline list
+      const inline = VERBS.find((x) => x.v === c.base);
+      const chips = (q, extra) => {
+        const out = [q.answer];
+        for (const o of [...q.options, ...extra]) {
+          if (out.length >= 3) break;
+          if (o && !out.some((x) => x.toLowerCase() === o.toLowerCase())) out.push(o);
+        }
+        return out.length === 3 ? shuffle(out) : null;
+      };
+      const o2 = chips(q2, inline ? inline.wp : []), o3 = chips(q3, inline ? inline.wpp : []);
+      if (!o2 || !o3) continue;                  // that verb keeps its inline pair
+      map.set(c.base, { verb: c.base, steps: [
+        stepRecord(c.base, c.past, c.participle, 'past', q2.answer, o2),
+        stepRecord(c.base, c.past, c.participle, 'pp', q3.answer, o3),
+      ] });
+    }
+    if (map.size >= 10) { enginePairs = map; questionSource = 'engine'; }
+  } catch (e) { /* offline / local dev: keep the inline list */ }
+}
+
+/**
+ * The next plate's question pair: { verb, steps: [2nd-form q, 3rd-form q], fromMissed }.
+ * missed: verbs queued for re-asking (take priority); recentlyAsked: verbs to
+ * avoid repeating right away. Option order is shuffled fresh every time.
+ */
+export function makePair(missed = [], recentlyAsked = new Set()) {
+  let verb = null, fromMissed = false;
+  while (missed.length && !verb) {
+    const base = missed.shift();
+    if (VERBS.some((x) => x.v === base)) { verb = base; fromMissed = true; }
   }
   if (!verb) {
     const fresh = VERBS.filter((x) => !recentlyAsked.has(x.v));
-    verb = pick(fresh.length ? fresh : VERBS);
-    form = rng.next() < 0.5 ? 'past' : 'pp';
+    verb = pick(fresh.length ? fresh : VERBS).v;
   }
-  const answer = form === 'past' ? verb.past : verb.pp;
-  const wrongPool = (form === 'past' ? verb.wp : verb.wpp).filter((w) => w !== answer);
-  const wrong = shuffle(wrongPool.slice()).slice(0, 2);
-  const chips = shuffle([answer, ...wrong]);
-  const prompt = form === 'past'
-    ? `<span class="form-base">${verb.v}</span> → <span class="form-past">___</span>`
-    : `<span class="form-base">${verb.v}</span> → <span class="form-past">${verb.past}</span> → <span class="form-pp">___</span>`;
-  const chain = `<span class="form-base">${verb.v}</span> → <span class="form-past">${verb.past}</span> → <span class="form-pp">${verb.pp}</span>`;
-  return {
-    verb: verb.v, form, answer, chips, prompt, chain, fromMissed,
-    key: `${verb.v}|${form}`,
-    sub: form === 'past' ? 'simple past' : 'past participle',
-  };
+  const src = enginePairs && enginePairs.get(verb);
+  const pair = src
+    ? { verb, steps: src.steps.map((q) => ({ ...q, chips: shuffle(q.chips.slice()) })) }
+    : inlinePair(VERBS.find((x) => x.v === verb));
+  pair.fromMissed = fromMissed;
+  return pair;
 }
