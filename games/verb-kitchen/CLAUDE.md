@@ -270,6 +270,30 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
+  - **Release-ready source = the commit that adds this entry** (on top of
+    `b8b04af`): levels 1–8, i18n EN/DE/ES (`?lang=de|es`), cookbook,
+    retry/Try again, minified three.js, calibrated star times, recipe pictures.
+  - **Assets:** `release-assets.txt` (this folder) lists the exact 282 files
+    (≈8.8 MB; the source assets folder is 16.5 MB, the live one 7.7 MB). It
+    was measured by loading the menu, character shop (all 5 chefs), cookbook
+    and every level in a browser, plus the 7 ChatGPT/Gemini `.webp` cards.
+    Per level only its own models download; the first level loads far less
+    than 8.8 MB. Also copy the git-tracked `src/`, `vendor/`, `levels/`,
+    `index.html`. The live `assets/` has 119 files no longer used (old burger/
+    pepperoni models, `JSON Levels/`) — the new build can drop them.
+  - **Open items for the owner (none technically blocking):**
+    1. No human play-test yet of the new L4 Co-op layout, L8 Sandwich Bar,
+       and the layout changes in L2/L3/L5/L6/L7 (all bot-tested headless).
+    2. L4–L8 have `open: true` (selectable without earning stars) — fine
+       for play-testing; decide whether to gate them before release.
+    3. Pacing (from the star-time bot): L8 is the longest level (196 s, 58 %
+       walking); L4's helper is the bottleneck (cheese in 6 of 7 orders);
+       L7 is the second-easiest level but sits in slot 7.
+    4. Hint pills say "E — grab …" also on touch devices (no E key there).
+    5. Sundae recipe picture shows a cherry; the orders don't use one.
+    6. Old live saves (levels 1–3 stars) carry over — not tested yet.
+
 - 2026-11-23 — **Star times calibrated (all 8 levels).** Source only; NOT in
   the live build. `starTimes` in `src/levels.js` only; orders, spawn timing
   and layouts unchanged.
