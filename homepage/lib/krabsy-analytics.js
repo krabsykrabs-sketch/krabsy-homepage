@@ -33,7 +33,8 @@
 
    Backend lives at https://api.krabsy.com (separate Coolify app). Override
    window.KRABSY_ANALYTICS_ENDPOINT or set window.KRABSY_ANALYTICS_DISABLED
-   to true to opt out per page.
+   to true to opt out per page. Owner opt-out per browser: ?krabsy-notrack=1
+   (stored in localStorage, never sent; ?krabsy-notrack=0 turns it off).
 
    Loaded as a plain <script>, not a module, so it works in arcade game
    pages that don't use ES modules.
@@ -47,9 +48,28 @@
     || 'https://api.krabsy.com/api/track';
   var HEARTBEAT_INTERVAL_MS = 15000;
 
+  // Owner opt-out: open any page once with ?krabsy-notrack=1 and this
+  // browser stops sending analytics for good (?krabsy-notrack=0 undoes it).
+  // The flag lives only in this browser's localStorage and is never sent.
+  var OPTOUT_KEY = 'krabsy_notrack';
+  function ownerOptedOut() {
+    try {
+      var m = /[?&]krabsy-notrack=([01])/.exec(window.location.search || '');
+      if (m) {
+        if (m[1] === '1') localStorage.setItem(OPTOUT_KEY, '1');
+        else localStorage.removeItem(OPTOUT_KEY);
+        if (typeof console !== 'undefined' && console.info) {
+          console.info('[krabsy-analytics] owner opt-out ' + (m[1] === '1' ? 'ON' : 'OFF'));
+        }
+      }
+      return localStorage.getItem(OPTOUT_KEY) === '1';
+    } catch (_) { return false; }
+  }
+
   function shouldSkip() {
     try {
       if (window.KRABSY_ANALYTICS_DISABLED) return true;
+      if (ownerOptedOut()) return true;
       var host = (window.location && window.location.hostname) || '';
       if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return true;
       if (host.indexOf('192.168.') === 0 || host.indexOf('10.') === 0) return true;
