@@ -157,3 +157,4 @@ say so here and message the master session.
     Chromebook, a full hand-played round, and that game events still reach
     the API (code untouched; the test server has no API).
 - 2026-11-23 — Owner: "the speech bubble is annoying". The always-on chain bubble on the head is gone (master session); the card near the head now only appears for ~1.3 s after a wrong eat. The chain stays visible in the bigger top tracker and on the coloured beads.
+- 2026-11-23 — Owner: the 1/2/3 badges on the fruit only in round 1 (master session); from round 2 the form colours carry the order alone. The round-1 arrow (warm-up) is unchanged.

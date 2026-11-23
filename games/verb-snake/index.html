@@ -948,7 +948,9 @@ function drawFruits(now){
     ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle='#2b1d10';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(word,c.x,py+1);
-    // order badge: 1/2/3 in the form colour, on the pill's top-left corner
+    // order badge: 1/2/3 in the form colour, on the pill's top-left corner.
+    // Round 1 only (owner 2026-11-23): later rounds rely on the colours alone.
+    if(state.level!==1)continue;
     const br=Math.max(6.5,fs*0.6),bx=c.x-pw/2+br*0.2,by=py-ph/2+br*0.15;
     ctx.fillStyle=FORM_DARK[ft];
     ctx.beginPath();ctx.arc(bx,by,br,0,7);ctx.fill();
