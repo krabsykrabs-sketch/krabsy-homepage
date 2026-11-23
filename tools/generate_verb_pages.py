@@ -137,21 +137,19 @@ def fill_ctx(ctx, form):
 
 E = html.escape
 
-# ── DE title (SEO-tuned 2026-06, unchanged; see docs/seo-verb-titles-before-after.md) ──
-# Title ≤60 chars: verb + key form(s) + "Simple Past & unregelmäßige Verben" +
-# brand. Past participle shown only when it differs from the past. On a length
-# breach: first drop "unregelmäßige Verben" (keep the higher-volume "Simple
-# Past"), then drop "Simple Past" as a last resort.
-def _de_forms(v):
-    return v["past"] if v["past"] == v["pp"] else f"{v['past']}, {v['pp']}"
-
+# ── DE title (2026-11-23): front-load the dominant Bing query shape
+# "simple past von X" (also "was ist das simple past von X"); keep the forms.
+# Was "take – took, taken: Simple Past | Krabsy" (2026-06, see
+# docs/seo-verb-titles-before-after.md). ≤60 chars; on a length breach drop
+# the participle. (Never use generate_verb_pages' own sitemap rewrite alone:
+# run tools/generate_sitemap.py afterwards.)
 def _de_title(v):
-    f = _de_forms(v)
-    t1 = f"{v['verb']} – {f}: Simple Past & unregelmäßige Verben | Krabsy"
-    if len(t1) <= 60: return t1
-    t2 = f"{v['verb']} – {f}: Simple Past | Krabsy"
-    if len(t2) <= 60: return t2
-    return f"{v['verb']} – {f} | Krabsy"
+    b, p, pp = v["verb"], _past_disp(v), v["pp"]
+    cands = [f"Simple Past von {b}: {p}, {pp} | Krabsy",
+             f"Simple Past von {b}: {p} | Krabsy"]
+    for c in cands:
+        if len(c) <= 60: return c
+    return cands[-1]
 
 # ── ES title (2026-11): front-load the observed query shapes "pasado de X",
 # "pasado (simple) de X", "participio de X"; keep the forms (answer value for
