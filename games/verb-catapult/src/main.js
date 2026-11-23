@@ -56,7 +56,7 @@ const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
   strip.position.set(14, -0.14, 0); strip.receiveShadow = true; scene.add(strip);
 }
 let world = null, cat = null, basket = null; // built after Assets.load()
-const BASKET = { x: -2.6, y: 0.0 };
+const BASKET = { x: -4.3, y: 0.0, z: -0.5 }; // behind the catapult's back end (x −3.3)
 const basketStones = [];
 const BLOCK_LOOK = { wood: 0xc8925a, stone: 0x9aa0a8, hay: 0xe6c25a };
 const skelArt = new Map(); // body → Skeleton
@@ -64,7 +64,10 @@ const dying = [];          // skeletons playing their fall, off the physics
 
 // ---------------------------------------------------------------- camera fit
 // Fixed camera: the whole scene (catapult to fort) is visible. In portrait it backs off.
-const VIEW = { x0: -4.6, x1: 25, y0: -0.3, y1: 6.8 };
+// x0 leaves room left of the catapult (cup at x −1.2, about a quarter in) to pull back;
+// x1 follows the castle (buildCastle), so a small fort is seen bigger.
+const VIEW = { x0: -9, x1: 25, y0: -0.3, y1: 6.8 };
+const CAM = { pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 35 }; // the resting camera
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h);
@@ -74,8 +77,12 @@ function resize() {
   const dH = (VIEW.y1 - VIEW.y0) / 2 / vt, dW = (VIEW.x1 - VIEW.x0) / 2 / (vt * camera.aspect);
   const d = Math.max(dH, dW) * 1.02;
   const portrait = h > w;
-  camera.position.set(cx - 2.5, cy + 1.3 + (portrait ? 1 : 0), d);
-  camera.lookAt(cx, cy + 0.9 - (portrait ? 0.5 : 0), 0);
+  // When the width decides the distance there is spare height: show it as sky (flight
+  // arcs), not as empty grass in front.
+  const lift = Math.min(3, Math.max(0, d * vt - (VIEW.y1 - VIEW.y0) / 2) * 0.45);
+  CAM.pos.set(cx - 2.5, cy + 1.3 + lift + (portrait ? 1 : 0), d);
+  CAM.look.set(cx, cy + 0.9 + lift - (portrait ? 0.5 : 0), 0);
+  camera.position.copy(CAM.pos); camera.lookAt(CAM.look);
   camera.far = d + 160;
   scene.fog.near = d + 25; scene.fog.far = d + 100; // a far camera (portrait) must not fog the fort
   camera.updateProjectionMatrix();
@@ -93,6 +100,39 @@ function toWorld(cx, cy) {
   const p = new THREE.Vector3(); return ray.ray.intersectPlane(plane, p) ? p : null;
 }
 
+// ---------------------------------------------------------------- juice: shake, slow motion, hit-stop
+// shake(a): adds trauma 0..1 (offset = trauma², so small hits barely move it). slowMo(): the
+// last skeleton falls in slow motion with the camera leaning in. hitStop(s): a near-freeze.
+const FX = { trauma: 0, slow: 0, slowLen: 0, slowScale: 1, stop: 0, focus: new THREE.Vector3(), lean: 0 };
+function shake(a) { FX.trauma = Math.min(1, FX.trauma + a); }
+function slowMo(x, y, len = 1.8, scale = 0.25) { FX.slow = FX.slowLen = len; FX.slowScale = scale; FX.focus.set(x, Math.max(1.2, y), 0); }
+function hitStop(s) { FX.stop = Math.max(FX.stop, s); }
+// game-time factor for this frame (real dt in)
+function timeScale(rdt) {
+  if (FX.stop > 0) { FX.stop -= rdt; return 0.04; }
+  if (FX.slow > 0) {
+    FX.slow -= rdt;
+    const out = Math.min(1, FX.slow / 0.5); // the last half second eases back to full speed
+    return 1 - (1 - FX.slowScale) * out;
+  }
+  return 1;
+}
+const _cp = new THREE.Vector3(), _cl = new THREE.Vector3(), _ct = new THREE.Vector3();
+function applyCamera(rdt, now) {
+  FX.lean += ((FX.slow > 0.35 ? 1 : 0) - FX.lean) * Math.min(1, rdt * (FX.slow > 0.35 ? 5 : 2.5));
+  const k = FX.lean * FX.lean * (3 - 2 * FX.lean) * 0.42;
+  _cl.copy(CAM.look).lerp(FX.focus, k * 1.4 > 1 ? 1 : k * 1.4);
+  _cp.copy(CAM.pos).lerp(_ct.set(FX.focus.x - 2, FX.focus.y + 2, CAM.pos.z * 0.45), k);
+  FX.trauma = Math.max(0, FX.trauma - rdt * 1.5);
+  const s = FX.trauma * FX.trauma, t = now / 1000;
+  if (s > 0) {
+    _cp.x += s * 0.55 * (Math.sin(t * 61) + Math.sin(t * 23.7) * 0.6);
+    _cp.y += s * 0.45 * (Math.sin(t * 53 + 1) + Math.sin(t * 31.3) * 0.6);
+  }
+  camera.position.copy(_cp); camera.lookAt(_cl);
+  if (s > 0) camera.rotateZ(s * 0.035 * Math.sin(t * 41));
+}
+
 // ---------------------------------------------------------------- particles + pops
 const parts = [];
 const partGeo = new THREE.BoxGeometry(1, 1, 1);
@@ -105,6 +145,26 @@ function burst(x, y, color, n = 8, size = 0.22, speed = 4) {
     p.userData = { vx: (Math.random() - 0.5) * speed, vy: Math.random() * speed, vz: (Math.random() - 0.5) * 2,
       spin: (Math.random() - 0.5) * 12, life: 0.9 + Math.random() * 0.6 };
     p.castShadow = true; scene.add(p); parts.push(p);
+  }
+}
+// soft dust puffs: grow, rise a little and fade
+const puffs = [], puffGeo = new THREE.SphereGeometry(1, 10, 8);
+function dust(x, y, n = 6) {
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.Mesh(puffGeo, new THREE.MeshLambertMaterial({ color: 0xe8dcc0, transparent: true, opacity: 0.75, depthWrite: false }));
+    m.position.set(x + (Math.random() - 0.5) * 1.2, y + Math.random() * 0.4, (Math.random() - 0.5) * 1.2);
+    m.userData = { vx: (Math.random() - 0.5) * 2.4, vy: 0.4 + Math.random() * 0.8, t: 0, life: 0.7 + Math.random() * 0.5, r: 0.2 + Math.random() * 0.25 };
+    m.scale.setScalar(0.01); scene.add(m); puffs.push(m);
+  }
+}
+function stepPuffs(dt) {
+  for (let i = puffs.length - 1; i >= 0; i--) {
+    const m = puffs[i], u = m.userData; u.t += dt;
+    const f = u.t / u.life;
+    if (f >= 1) { scene.remove(m); m.material.dispose(); puffs.splice(i, 1); continue; }
+    m.position.x += u.vx * dt; m.position.y += u.vy * dt; u.vx *= 1 - dt * 2;
+    m.scale.setScalar(u.r * (1 + f * 2.2));
+    m.material.opacity = 0.75 * (1 - f) * (1 - f);
   }
 }
 let flash = null;
@@ -188,6 +248,8 @@ function clearScene() {
 function buildCastle() {
   clearScene();
   const c = G.data.castles[G.castle];
+  VIEW.x1 = Math.max(20, ...c.blocks.map((b) => b.x + (b.w || 1) / 2 + 2.5), ...(c.skeletons || []).map((k) => k.x + 2.5));
+  resize();
   sim.build(c);
   for (const b of [...sim.blocks, ...sim.skels]) {
     const m = bodyMesh(b);
@@ -383,6 +445,7 @@ function updateAim(dt) {
   // The stone leaves the cup when the swinging arm reaches the release angle.
   if (G.pendingFire && cat.released) {
     const { type, v } = G.pendingFire; G.pendingFire = null;
+    shake(0.18);
     const body = sim.fire(type, v.x, v.y, cat.launch);
     meshes.set(body, G.cupMesh); G.cupMesh = null;
     G.trackBody = body; G.trail = []; G.trailT = 1;
@@ -542,6 +605,8 @@ function handleEvents() {
   for (const e of sim.events) {
     switch (e.type) {
       case 'impact':
+        if (e.imp > 6) { shake(Math.min(0.45, e.imp / 40)); dust(e.x, Math.max(0.1, e.y - 0.3), e.imp > 15 ? 9 : 5); }
+        if (e.imp > 14 && e.on !== 'ground') hitStop(0.07);
         if (e.mat === 'stone' || e.on === 'ground') sfx.stoneHit(Math.min(1, e.imp / 10)); else sfx.woodHit(Math.min(1, e.imp / 8));
         break;
       case 'crack': {
@@ -554,6 +619,7 @@ function handleEvents() {
       case 'break': {
         const m = meshes.get(e.body); if (m) { scene.remove(m); meshes.delete(e.body); }
         burst(e.x, e.y, BLOCK_LOOK[e.mat], e.mat === 'stone' ? 10 : 8);
+        shake(e.mat === 'stone' ? 0.32 : 0.16);
         if (e.mat === 'stone') sfx.crumble(); else sfx.crack();
         score(e.points, e.x, e.y);
         break;
@@ -565,6 +631,8 @@ function handleEvents() {
         if (sk) { skelArt.delete(e.body); const v = e.body.getLinearVelocity(); sk.die(v.x, v.y); dying.push(sk); }
         sfx.oof();
         pop(e.x, e.y + 1.4, t('oof'), 'big');
+        shake(0.22);
+        if (sim.standing() === 0) { slowMo(e.x, e.y); }
         score(e.points, e.x, e.y + 0.6);
         break;
       }
@@ -573,7 +641,8 @@ function handleEvents() {
         break;
       }
       case 'boom':
-        boomFlash(e.x, e.y, e.r); burst(e.x, e.y, 0x6b3b1a, 14, 0.2, 7); sfx.boom(); pop(e.x, e.y + 1, t('boom'), 'big');
+        boomFlash(e.x, e.y, e.r); burst(e.x, e.y, 0x6b3b1a, 14, 0.2, 7); dust(e.x, e.y, 12);
+        shake(0.75); hitStop(0.09); sfx.boom(); pop(e.x, e.y + 1, t('boom'), 'big');
         break;
       default: break;
     }
@@ -719,7 +788,8 @@ const perfOn = QA.includes('perf');
 if (perfOn) $('perf').style.display = 'block';
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const rdt = Math.min(0.1, (now - last) / 1000); last = now;
+  const dt = rdt * timeScale(rdt); // game time (slow motion, hit-stop)
   const running = G.mode === 'need' || G.mode === 'aim' || G.mode === 'flight' || G.mode === 'between' || G.mode === 'card';
   if (running && G.mode !== 'card') {
     acc += dt;
@@ -734,12 +804,12 @@ function frame(now) {
     if ((G.flightT > 1.2 && sim.settled()) || G.flightT > 8) endShot();
   }
   if (G.mode === 'need') {
-    const s = toScreen(BASKET.x, BASKET.y + 1.5, 0.3);
+    const s = toScreen(BASKET.x, BASKET.y + 1.5, BASKET.z);
     const btn = $('basketBtn'), hw = btn.offsetWidth / 2 + 10;
     btn.style.left = `${Math.max(hw, Math.min(innerWidth - hw, s.x))}px`; btn.style.top = `${Math.max(90, s.y)}px`;
   }
   updateAim(dt);
-  world.update(dt);
+  world.update(rdt);
   for (const sk of skelArt.values()) sk.update(dt);
   for (let i = dying.length - 1; i >= 0; i--) {
     const sk = dying[i]; sk.update(dt);
@@ -749,7 +819,8 @@ function frame(now) {
       sk.dispose(); dying.splice(i, 1);
     }
   }
-  stepParts(dt);
+  stepParts(dt); stepPuffs(dt);
+  applyCamera(rdt, now);
   renderer.render(scene, camera);
   if (perfOn) {
     fpsN++; fpsT += dt;
@@ -759,7 +830,7 @@ function frame(now) {
 
 // ---------------------------------------------------------------- QA hooks
 window.__VC = {
-  G, sim, get launch() { return cat.launch; },
+  G, sim, FX, THREE, scene, get cat() { return cat; }, get basket() { return basket; }, get launch() { return cat.launch; },
   info: () => ({ mode: G.mode, level: G.level, castle: G.castle, stones: G.stonesLeft, loaded: G.loaded,
     standing: sim.standing(), bodies: sim.bodyCount(), points: G.points, answers: G.answers, correct: G.correct, q: qSource }),
   start: (n = 1) => startLevel(n),
@@ -777,7 +848,7 @@ window.__VC = {
   } catch (e) { $('loading').textContent = String(e); throw e; }
   world = buildWorld(scene);
   cat = new Catapult(scene);
-  basket = basketMesh(); basket.position.set(BASKET.x, 0.43, 0.5); scene.add(basket);
+  basket = basketMesh(); basket.position.set(BASKET.x, 0.43, BASKET.z); scene.add(basket);
   $('loading').remove();
   showMenu();
   requestAnimationFrame(frame);

@@ -326,3 +326,20 @@ Physics is the risky part, so it is proven first, with plain boxes.
   arrow keys start from the last shot's angle and power. QA: `__VC.drag(x,
   y, dx, dy)`, and `tools/shot.cjs` takes `!drag x0 y0 x1 y1 [up]` (a real
   mouse drag) and `@file.png` (a screenshot mid-sequence).
+- 2026-11-23: juice + layout, after the owner's second try ("can't really
+  pull, the catapult is at the edge; it floats; the bucket blocks it; add
+  screen shake and slow motion"). Layout: the catapult floated 0.39 m
+  (the model's wheels sit at its origin) → now on the ground, so the
+  launch point is (−1.2, 3.08) (`physics.js` LAUNCH updated); the view
+  starts at x −9 so the cup sits about a quarter in and a full pull fits;
+  the view's right edge follows the castle (`VIEW.x1` = fort + 2.5 m, at
+  least 20, set in `buildCastle`); spare height goes to sky, not
+  foreground grass; the bucket moved behind the catapult (x −4.3,
+  z −0.5) and the camp props further left. Juice (`FX` in `main.js`):
+  trauma screen shake (stone hit by force, block breaks, skeleton down,
+  bomb, catapult release); a short hit-stop on hard first hits and bombs;
+  dust puffs on impact; **the last skeleton falls in slow motion**
+  (¼ speed, 1.8 s, eases back) while the camera leans in on it. Game time
+  is scaled; clouds and the UI use real time. `__VC.FX` for QA. Portrait
+  phones: still a tiny scene (open).
+

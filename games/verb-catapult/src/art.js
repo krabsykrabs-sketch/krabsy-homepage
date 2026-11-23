@@ -132,7 +132,7 @@ export class Catapult {
     this.arm = this.root.getObjectByName('catapult_arm');
     this.root.rotation.y = Math.PI / 2;
     this.root.scale.setScalar(SCALE);
-    this.root.position.set(x, 0.12 * SCALE, 0);
+    this.root.position.set(x, 0, 0); // the wheels' bottom is the model's origin height
     shade(this.root);
     this.cup = new THREE.Object3D(); this.cup.position.set(0, 0.07, -0.56); this.arm.add(this.cup);
     scene.add(this.root);
@@ -181,11 +181,11 @@ export function buildWorld(scene) {
     ['tree_single_B', -9, -6, 4, 0], ['tree_single_A', 11, -10, 3.6, 1]]) put(n, x, z, s, r);
   for (const [n, x, z, s, r] of [['rock_single_C', 4, -4, 3, 0.4], ['rock_single_A', 27, -3, 4, 1], ['rock_single_C', 9, 3.4, 2, 2]]) put(n, x, z, s, r);
   // the catapult camp
-  put('tent', -6.5, -3.5, 5, 0.6);
-  put('flag_red', -4.4, -1.6, 5, -0.6);
-  put('cannonball_pallet', -4.2, 1.6, 3, 0.2);
-  put('wheelbarrow', -5.6, 1.2, 4, 1.1);
-  put('fence_wood_straight', -8.5, -1.5, 2.4, 0.3);
+  put('tent', -8.6, -4.2, 5, 0.6);
+  put('flag_red', -6, -2.2, 5, -0.6);
+  put('cannonball_pallet', -8.2, 1.4, 3, 0.2);
+  put('wheelbarrow', -9.6, 0.4, 4, 1.1);
+  put('fence_wood_straight', -11.5, -1.8, 2.4, 0.3);
   // clouds
   const clouds = [];
   for (const [n, x, y, z, s] of [['cloud_big', -6, 14, -30, 2.6], ['cloud_small', 12, 17, -38, 2.8], ['cloud_big', 30, 13, -32, 2.4], ['cloud_small', 46, 16, -40, 3]]) {
