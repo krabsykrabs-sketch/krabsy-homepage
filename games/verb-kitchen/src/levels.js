@@ -338,7 +338,7 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [320, 250, 195, 150],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      // no soup picture yet — text-only card (it used to show the salad picture)
+      image: 'assets/ChatGPT/Soup.webp',   // made with Gemini 2026-11-23
       title: 'Soup Kitchen',
       text: 'Two pots wait on the stoves! Chop the veg on the boards, then tip each into a pot — carrot + potato makes one soup, onion + mushroom another. When it boils, scoop it into a bowl and serve!',
     },
@@ -386,7 +386,7 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [260, 200, 155, 120],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      // no sundae picture yet — text-only card (it used to show the salad picture)
+      image: 'assets/ChatGPT/Sundae.webp',   // made with Gemini 2026-11-23
       title: 'Sundae Sunday',
       text: 'No cooking today! Grab a bowl, and scoop ice cream from the tubs — vanilla for a Vanilla Scoop, strawberry and chocolate for a Choco-Berry, or all three for a Neapolitan Sundae. Then serve and wash up!',
     },
@@ -425,7 +425,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [360, 285, 225, 175],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      // no recipe picture yet (the others are in assets/ChatGPT/) — the card shows text only
+      image: 'assets/ChatGPT/Sandwich.webp',   // made with Gemini 2026-11-23
       title: 'Sandwich',
       text: 'Slice the bread and toast a slice — don’t let it burn! Then add chopped cheese for a Cheese Toastie, lettuce and tomato for a Garden Sandwich, or all three for a Club Sandwich.',
     },

@@ -270,6 +270,15 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **Recipe pictures for Soup, Sundae, Sandwich (Gemini).**
+  `assets/ChatGPT/Soup.webp`, `Sundae.webp`, `Sandwich.webp` (~45 KB each, in
+  the gitignored source assets at `/home/janah/dev/brocco-dev/verb-kitchen/assets/`;
+  copy them along when porting to the live build). Made with
+  `gemini-3-pro-image` (key in the repo's gitignored `.env`, `GEMINI_API_KEY`),
+  passing Burger.webp + Salad.webp as style references and describing each
+  row of steps; 3:2 aspect. Sundae picture shows a cherry on top (orders don't
+  use one) — owner may want a cherry-less redo. `image:` set in `src/levels.js`.
+
 - 2026-11-23 — **Level fixes from the review (owner: "do all the fixes").**
   Source only; NOT in the live build. Proposals 2–7 and 9 of the entry below
   are built; 1 (recipe pictures) and 8 (star times, level order) stay open.
