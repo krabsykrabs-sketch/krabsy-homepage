@@ -1,12 +1,14 @@
 // The island: terrain (a height function, so the player needs no physics engine),
-// zones, decoration (instanced KayKit trees/rocks), the home base with incubators
+// zones, nature (Quaternius trees / rocks / plants in the static batch), the home base with incubators
 // and pens, wild eggs with nests and light beams, locked-zone walls.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RARITY, MAX_PENS, MAX_INCUBATORS, ISLAND, HOME, ZONES } from './balance.js';
 import { buildCreature, animateCreature, rng } from './creatures.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { StaticBatch, paint, paintMat } from './merge.js';
+import { StaticBatch, paint, paintMat, setAtlas, seeThrough } from './merge.js';
+import { loadQ } from './qnature.js';
+import { GroundCover } from './ground.js';
 
 export const WATER_Y = -0.6;
 const zone = (id) => ZONES.find((z) => z.id === id);
@@ -70,6 +72,15 @@ function beachProfile(x, z) {
   if (s <= 0) return WATER_Y + Math.max(-1.8, s * 0.075);            // shallow water, then the bay floor
   if (s <= 12) return WATER_Y + s * 0.085;                            // wet sand up to the dry beach
   return 0.42 + 1.1 * smooth(12, 44, s) + smooth(15, 26, s) * 0.3 * Math.sin(x * 0.21 + 1) * Math.cos(z * 0.17); // low dunes behind
+}
+
+// Slow noise for the ground colours (−1 … 1): [meadow patches, ragged zone edges, forest litter]
+export function groundNoise(x, z) {
+  return [
+    (Math.sin(x * 0.052 + 1.7) * Math.cos(z * 0.047 - 0.4) + 0.55 * Math.sin(x * 0.11 - z * 0.093 + 2.2) + 0.3 * Math.sin(x * 0.23 + z * 0.19)) / 1.5,
+    (Math.sin(x * 0.19 + z * 0.13) + 0.6 * Math.sin(x * 0.31 - z * 0.37 + 1.1)) / 1.6,
+    Math.sin(x * 0.16 + 0.5) * Math.sin(z * 0.14 + 2.0) + 0.4 * Math.sin(x * 0.4 - z * 0.33),
+  ];
 }
 
 // ── height function (metres) ──
@@ -342,21 +353,35 @@ export class World {
     const c = new THREE.Color(), tmp = new THREE.Color();
     const GR = new THREE.Color(0x86d46c), GR2 = new THREE.Color(0x6fc25a), FO = new THREE.Color(0x4f9e48), SA = new THREE.Color(0xf2d9a0),
       RO = new THREE.Color(0x6b5a55), LA = new THREE.Color(0x3d3236), DI = new THREE.Color(0xc9a46f),
-      SA2 = new THREE.Color(0xf7e3b4), WET = new THREE.Color(0xd3b47e), FLOOR = new THREE.Color(0xe6e0b8), PFLOOR = new THREE.Color(0xcfe3bd);
+      SA2 = new THREE.Color(0xf7e3b4), WET = new THREE.Color(0xd3b47e), FLOOR = new THREE.Color(0xe6e0b8), PFLOOR = new THREE.Color(0xcfe3bd),
+      MOSS = new THREE.Color(0x3f8f45), MOSS2 = new THREE.Color(0x57983c), LITTER = new THREE.Color(0x7d8a45),
+      DRY = new THREE.Color(0xc6cf62), DRY2 = new THREE.Color(0xd8cf6e), LUSH = new THREE.Color(0x63c063),
+      ASH = new THREE.Color(0x9c9791), ASH2 = new THREE.Color(0x7d7673);
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), h = terrainH(x, z);
       p.setY(i, onDeck(x, z) ? h - 0.15 : h);
       const n = Math.sin(x * 0.3) * Math.cos(z * 0.27) * 0.5 + 0.5;
       c.copy(GR).lerp(GR2, n);
-      const df = dist(x, z, FOREST.x, FOREST.z);
-      c.lerp(tmp.copy(FO).lerp(GR2, n * 0.4), 1 - smooth(FOREST.r * 0.7, FOREST.r + 6, df));
+      const [n1, n2, n3] = groundNoise(x, z);
+      // meadow: dry yellow patches on the rises, lusher green in between
+      c.lerp(tmp.copy(DRY).lerp(DRY2, n), smooth(0.25, 0.7, n1) * 0.8);
+      c.lerp(LUSH, smooth(0.3, 0.8, -n1) * 0.45);
+      // forest: a dark mossy floor with patches of leaf litter; it fades out with a
+      // ragged edge where the trees thin out
+      const df = dist(x, z, FOREST.x, FOREST.z) + n2 * 5;
+      const fo = 1 - smooth(FOREST.r * 0.75, FOREST.r + 12, df);
+      c.lerp(tmp.copy(MOSS).lerp(MOSS2, n).lerp(LITTER, smooth(0.2, 0.7, n3) * 0.7), fo);
+      void FO;
       // beach sand: the zone circle and the shore strip beside it, with a ragged edge
       const en = Math.sin(x * 0.45 + z * 0.3) * 1.6 + Math.sin(x * 0.19 - z * 0.37) * 2.2;
       const sand = Math.max(1 - smooth(BEACH.r - 3 + en, BEACH.r + 3 + en, dist(x, z, BEACH.x, BEACH.z)),
         smooth(0.5, 0.85, beachW(x, z)) * (1 - smooth(30 + en, 37 + en, bayS(x, z))));
       c.lerp(tmp.copy(SA).lerp(SA2, n), sand);
+      // volcano: a ring of grey ash around the foot (ragged edge, a few tongues
+      // reaching into the meadow), dark rock up the cone
       const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
-      c.lerp(tmp.copy(RO).lerp(LA, n), 1 - smooth(VOLCANO.r * 0.7, VOLCANO.r + 10, dv));
+      c.lerp(tmp.copy(ASH).lerp(ASH2, n), 1 - smooth(VOLCANO.r + 9 + n2 * 5, VOLCANO.r + 17 + n2 * 7, dv));
+      c.lerp(tmp.copy(RO).lerp(LA, n), 1 - smooth(VOLCANO.r * 0.55, VOLCANO.r + 8, dv));
       if (h < 0.5) c.lerp(SA, smooth(0.5, -0.2, h));
       const dh = dist(x, z, HOME.x, HOME.z);
       if (dh < 24) c.lerp(DI, (1 - smooth(16, 24, dh)) * 0.35);
@@ -380,7 +405,7 @@ export class World {
     g.computeVertexNormals();
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, flatShading: true }));
     m.receiveShadow = true;
-    this.scene.add(m);
+    this.scene.add(m); this.terrain = m; this._terrainGrid = { size, seg };
     // lava in the crater
     const lava = new THREE.Mesh(new THREE.CircleGeometry(5.5, 24).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({ color: 0xff6a2a }));
@@ -389,6 +414,26 @@ export class World {
     const lavaGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xff7a30, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.8 }));
     lavaGlow.scale.setScalar(26); lavaGlow.position.copy(lava.position).add(new THREE.Vector3(0, 3, 0));
     this.scene.add(lavaGlow); this.lavaGlow = lavaGlow;
+  }
+
+  // Tint the ground in a soft round patch (decor.js: the flower fields colour the
+  // grass around them). Only grass is tinted: sand, paths and rock keep their colour.
+  tintGround(patches) { // [x, z, radius, hex, strength]
+    const { size, seg } = this._terrainGrid, a = this.terrain.geometry.attributes.color, p = this.terrain.geometry.attributes.position;
+    const step = size / seg, c = new THREE.Color(), t = new THREE.Color();
+    for (const [x, z, r, hex, k] of patches) {
+      t.setHex(hex);
+      const i0 = Math.floor((x - r - ISLAND.cx + size / 2) / step), i1 = Math.ceil((x + r - ISLAND.cx + size / 2) / step);
+      const j0 = Math.floor((z - r - ISLAND.cz + size / 2) / step), j1 = Math.ceil((z + r - ISLAND.cz + size / 2) / step);
+      for (let j = Math.max(0, j0); j <= Math.min(seg, j1); j++) for (let i = Math.max(0, i0); i <= Math.min(seg, i1); i++) {
+        const v = j * (seg + 1) + i, vx = p.getX(v), vz = p.getZ(v);
+        const w = (1 - smooth(r * 0.35, r, dist(vx, vz, x, z) + Math.sin(vx * 0.9 + vz * 0.6) * 0.8)) * k;
+        c.fromBufferAttribute(a, v);
+        if (w <= 0 || c.g < c.r * 1.12 || c.g < c.b * 1.2) continue; // not grass
+        c.lerp(t, w); a.setXYZ(v, c.r, c.g, c.b);
+      }
+    }
+    a.needsUpdate = true;
   }
 
   // The pond uses the sea's shader (light shallows, foam at the waterline, calmer
@@ -572,59 +617,80 @@ export class World {
       () => { w.group.visible = false; });
   }
 
-  // ── decoration: instanced KayKit models + colliders ──
+  // ── nature: Quaternius trees, bushes, rocks and plants (static batch) + colliders ──
+  // The Forest is a dense mix of leaf trees, pines and a few huge twisted trees that
+  // thins out beyond its edge; scattered leaf trees and flowering bushes in the
+  // Meadow (a few in autumn colours); dead trees and dark rocks on the Volcano.
   async loadDecor() {
-    const loader = new GLTFLoader();
-    const names = ['Tree_1_A', 'Tree_2_B', 'Tree_3_A', 'Tree_4_A', 'Tree_6_B', 'Tree_5_B', 'Tree_7_A', 'Tree_Bare_1_A', 'Tree_Bare_2_B',
-      'Bush_1_A', 'Bush_2_C', 'Bush_4_A', 'Bush_3_A', 'Rock_1_A', 'Rock_3_C', 'Rock_2_B', 'Rock_1_J', 'Rock_3_A', 'Grass_1_A'];
-    const models = {};
-    await Promise.all(names.map(async (n) => {
-      try { models[n] = (await loader.loadAsync(`assets/nature/${n}_Color1.gltf`)).scene; } catch (_) { /* optional */ }
-    }));
+    const Q = this.q = await loadQ();
+    setAtlas(Q.atlas);
+    const M = Q.models;
     const R = rng('decor');
-    const place = []; // [name, x, z, scale, rotY, colliderR]
+    const place = []; // [name, x, z, scale, rotY, colliderR, options]
     const free = (x, z, rr = 3, beachOk = false) => {
       if (!onIsland(x, z) || height(x, z) < 0.3) return false;
       // meadow plants stay off the sand
       if (!beachOk && (beachW(x, z) > 0.4 || dist(x, z, BEACH.x, BEACH.z) < BEACH.r + 3)) return false;
       if (dist(x, z, HOME.x, HOME.z) < 26) return false;
-      if (pathDist(x, z) < 3 || dist(x, z, POND.x, POND.z) < POND.r + 3) return false; // (a circle: wider than the water anywhere)
+      if (pathDist(x, z) < 4.4 || dist(x, z, POND.x, POND.z) < POND.r + 3) return false; // (a circle: wider than the water anywhere)
       if (this.reserved && this.reserved.some((r) => dist(x, z, r[0], r[1]) < r[2])) return false;
       for (const zz of ZONES) if (zz.r && Math.abs(dist(x, z, zz.x, zz.z) - zz.r) < 2.5) return false; // keep walls clear
-      return !place.some((p) => dist(x, z, p[1], p[2]) < rr);
+      return !place.some((p) => dist(x, z, p[1], p[2]) < Math.max(rr, p[7] || 0));
     };
-    const add = (list, n, cx, cz, rad, scale, col, minGap, beachOk) => {
+    // n models from `list` ([name, scale, collider radius at scale 1, tints]) in a disc.
+    // o: gap (to other things), keepOut (things this size stay away from it), beachOk,
+    // ok(x, z, d) → chance 0–1 that the spot is used, where(x, z) = extra test
+    const add = (list, n, cx, cz, rad, o = {}) => {
       let tries = 0;
-      while (n > 0 && tries++ < n * 30) {
+      while (n > 0 && tries++ < n * 40) {
         const a = R() * Math.PI * 2, d = Math.sqrt(R()) * rad;
         const x = cx + Math.cos(a) * d, z = cz + Math.sin(a) * d;
-        if (!free(x, z, minGap, beachOk)) continue;
-        const name = list[Math.floor(R() * list.length)];
-        const s = scale * (0.8 + R() * 0.45);
-        place.push([name, x, z, s, R() * 6.28, col * s]); n--;
+        if (o.ok && R() > o.ok(x, z, d)) continue;
+        if (!free(x, z, o.gap ?? 3, o.beachOk)) continue;
+        const [name, scale, col, tints] = list[Math.floor(R() * list.length)];
+        const s = scale * (0.82 + R() * 0.4);
+        place.push([name, x, z, s, R() * 6.28, col * s, { tint: tints ? tints[Math.floor(R() * tints.length)] : undefined, mul: o.mul, sink: o.sink }, o.keepOut]); n--;
       }
     };
-    const trees = ['Tree_1_A', 'Tree_2_B', 'Tree_3_A', 'Tree_4_A', 'Tree_6_B', 'Tree_5_B', 'Tree_7_A'];
-    const bushes = ['Bush_1_A', 'Bush_2_C', 'Bush_4_A', 'Bush_3_A'];
-    const rocks = ['Rock_1_A', 'Rock_3_C', 'Rock_2_B', 'Rock_1_J', 'Rock_3_A'];
-    add(trees, 150, FOREST.x, FOREST.z, FOREST.r - 1, 2.4, 0.55, 5);     // dense forest
-    add(trees, 45, ISLAND.cx, ISLAND.cz, ISLAND.r - 12, 2.2, 0.55, 9);    // meadow trees
-    add(bushes, 70, ISLAND.cx, ISLAND.cz, ISLAND.r - 10, 1.6, 0, 3);
-    add(['Grass_1_A'], 120, ISLAND.cx, ISLAND.cz, ISLAND.r - 8, 1.6, 0, 1.5);
-    add(rocks, 30, ISLAND.cx, ISLAND.cz, ISLAND.r - 8, 1.6, 1.0, 6);
+    const GREEN = [0x86c843, 0x77bb3e, 0x93cf4c], DEEP = [0x5fa945, 0x529d42, 0x6cb449], PINE = [0x3f9458, 0x4a9f5a, 0x398a5c], AUTUMN = [0xf2a53a, 0xe9793a, 0xf6c244];
+    const common = (tints, k = 1) => [1, 2, 3, 4, 5].map((i) => [`CommonTree_${i}`, 0.95 * k, 0.42, tints]);
+    const pines = [1, 2, 3, 4, 5].map((i) => [`Pine_${i}`, 1.05, 0.42, PINE]);
+    const twisted = [1, 3, 5].map((i) => [`TwistedTree_${i}`, 0.78, 1.0, DEEP]);
+    const bushes = [['Bush_Common', 1.0, 0, GREEN], ['Bush_Common_Flowers', 1.0, 0, GREEN], ['Bush_Common_Flowers', 1.1, 0, DEEP]];
+    const rocks = [1, 2, 3].map((i) => [`Rock_Medium_${i}`, 0.62, 1.45]);
+    const df = (x, z) => dist(x, z, FOREST.x, FOREST.z);
+    // forest: a few giants first, then the dense mix; beyond the edge fewer and fewer trees
+    const thinOut = (x, z) => 1 - smooth(FOREST.r * 0.72, FOREST.r + 15, df(x, z)) * 0.97;
+    add(twisted, 6, FOREST.x, FOREST.z, FOREST.r - 9, { gap: 13, keepOut: 7 });
+    add([...common(DEEP, 1.05), ...pines, ...pines], 108, FOREST.x, FOREST.z, FOREST.r + 15, { gap: 5, ok: thinOut });
+    // meadow: single trees and small groups, two autumn groves
+    add(common(GREEN), 34, ISLAND.cx, ISLAND.cz, ISLAND.r - 12, { gap: 9, ok: (x, z) => (dist(x, z, VOLCANO.x, VOLCANO.z) < VOLCANO.r + 8 ? 0 : 1) });
+    for (const [gx, gz] of [[52, 44], [-44, 62]]) add(common(AUTUMN, 0.9), 5, gx, gz, 9, { gap: 4.5 });
+    add(bushes, 64, ISLAND.cx, ISLAND.cz, ISLAND.r - 10, { gap: 3, ok: (x, z) => (dist(x, z, VOLCANO.x, VOLCANO.z) < VOLCANO.r + 4 ? 0 : 1) });
+    // undergrowth: ferns and big leafy plants in and around the forest, tall grass in the meadow
+    add([['Fern_1', 0.3, 0], ['Fern_1', 0.24, 0], ['Plant_1_Big', 0.55, 0]], 46, FOREST.x, FOREST.z, FOREST.r + 10, { gap: 2.2, sink: 0.02 });
+    add([['Grass_Common_Tall', 1.1, 0, GREEN], ['Grass_Wispy_Tall', 1.0, 0, GREEN], ['Plant_1_Big', 0.4, 0]], 70, ISLAND.cx, ISLAND.cz, ISLAND.r - 8,
+      { gap: 1.6, ok: (x, z) => (dist(x, z, VOLCANO.x, VOLCANO.z) < VOLCANO.r + 6 || df(x, z) < FOREST.r ? 0 : 1) });
+    add(rocks, 26, ISLAND.cx, ISLAND.cz, ISLAND.r - 8, { gap: 6, sink: 0.25, ok: (x, z) => (dist(x, z, VOLCANO.x, VOLCANO.z) < VOLCANO.r + 6 ? 0 : 1) });
     // (the beach is dressed in decor.js; a few bushes mark where the sand ends)
-    add(['Bush_3_A', 'Bush_1_A'], 16, BEACH.x - 8, BEACH.z, BEACH.r + 12, 1.4, 0, 5);
-    add(['Tree_Bare_1_A', 'Tree_Bare_2_B'], 26, VOLCANO.x, VOLCANO.z, VOLCANO.r + 4, 2.2, 0.45, 5);
-    add(rocks, 30, VOLCANO.x, VOLCANO.z, VOLCANO.r + 6, 2.2, 1.3, 5);
-    // every tree, bush and rock goes into the static batch (merged per cell, see merge.js)
+    add([['Bush_Common', 0.9, 0, GREEN]], 14, BEACH.x - 8, BEACH.z, BEACH.r + 12, { gap: 5 });
+    // volcano: dead trees and dark, mossless rocks on the ash
+    add([1, 2, 3, 4, 5].map((i) => [`DeadTree_${i}`, 0.5, 0.75]), 24, VOLCANO.x, VOLCANO.z, VOLCANO.r + 5, { gap: 5 });
+    add(rocks.map(([n, s, c]) => [n, s * 1.25, c]), 30, VOLCANO.x, VOLCANO.z, VOLCANO.r + 7, { gap: 5, sink: 0.3, mul: 0xb9aaa6 });
+    // everything goes into the static batch (merged per cell, see merge.js)
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+    let tris = 0;
     for (const p of place) {
-      const root = models[p[0]]; if (!root) continue;
+      const model = M[p[0]]; if (!model) continue;
       q.setFromAxisAngle(v.set(0, 1, 0), p[4]); sc.setScalar(p[3]);
-      this.batch.addModel(root, m4.compose(new THREE.Vector3(p[1], height(p[1], p[2]) - 0.1, p[2]), q, sc));
+      this.batch.addQ(model, m4.compose(new THREE.Vector3(p[1], height(p[1], p[2]) - 0.08 - (p[6].sink || 0) * p[3] * model.h - model.minY * p[3], p[2]), q, sc), p[6]);
+      tris += model.geo.index.count / 3;
     }
     for (const p of place) if (p[5] > 0) this.addCollider(p[1], p[2], p[5]);
-    this.decorCount = place.length;
+    this.decorCount = place.length; this.decorTris = tris;
+    // grass and small plants near the player (the sun's target is the player, see followSun)
+    this.cover = new GroundCover(this);
+    this.animators.push(() => this.cover.update(this.sun.target.position));
   }
 
   // ── colliders (circles in a grid) ──
@@ -766,6 +832,9 @@ export class World {
     this.lava.material.color.setHSL(0.05 + Math.sin(this.time * 1.5) * 0.01, 1, 0.55 + Math.sin(this.time * 2) * 0.05);
     for (const w of this.walls) if (!w.open) w.mat.opacity = 0.16 + Math.sin(this.time * 2 + w.zone.x) * 0.06;
     for (const f of this.animators) f(dt, this.time);
+    // the see-through tube runs from the camera to the player's chest (merge.js)
+    // (world.seeThrough = false switches it off, for comparing)
+    seeThrough.player.value.copy(this.sun.target.position).y += this.seeThrough === false ? -1e4 : 0.85;
     this.renderer.render(this.scene, this.camera);
   }
 }

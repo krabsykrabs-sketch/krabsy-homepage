@@ -729,7 +729,7 @@ function adaptQuality(dt) {
   if (fps > 32) return;
   qLevel++;
   if (qLevel === 1) world.renderer.setPixelRatio(1);
-  else { world.sun.shadow.mapSize.set(1024, 1024); world.sun.shadow.map?.dispose(); world.sun.shadow.map = null; world.renderer.shadowMap.type = THREE.PCFShadowMap; }
+  else { world.cover?.setDensity(0.5); world.sun.shadow.mapSize.set(1024, 1024); world.sun.shadow.map?.dispose(); world.sun.shadow.map = null; world.renderer.shadowMap.type = THREE.PCFShadowMap; }
   world.resize();
   A.ev('quality_down', { level: qLevel, fps: Math.round(fps) });
 }

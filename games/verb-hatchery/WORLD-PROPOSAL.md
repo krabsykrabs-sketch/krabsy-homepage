@@ -1,8 +1,11 @@
 # Verb Hatchery — world review and proposal (2026-11-23)
 
 The owner approved all 15 items (2026-11-23); they are built step by step.
-**Built: Step 1 = items 1–4** (2026-11-23, see the Log in `CLAUDE.md` for
-what was done and the measured draw calls). Not built yet: items 5–15.
+**Built: Step 1 = items 1–4 and Step 2 = items 5–7** (both 2026-11-23, see
+the Log in `CLAUDE.md` for what was done and the measured draw calls). Step 2
+also switched all trees, bushes, rocks, plants and flowers to the Quaternius
+*Stylized Nature MegaKit* (owner's wish) and built the first half of item 10
+(the forest thins out at its edge, undergrowth). Not built yet: items 8–15.
 
 Pictures are in `_shots/` (not in git): `review-*.png` = the world today,
 `beach-before-*.png` / `beach-after-*.png` = the Beach rebuild.
@@ -34,13 +37,13 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 | 3 ✅ | **Egg beams** | Thinner, in the egg's colour, fading out with height; only the event egg keeps a big beam. | S | none |
 | 4 ✅ | **Pond like the sea** | Use the new shore shader (light shallows, foam line) on the pond, give it an irregular shape, fix the teal reeds. | S | none |
 
-### Step 2 — the ground (biggest visual gain)
+### Step 2 — the ground (biggest visual gain) — ✅ built 2026-11-23
 
 | # | What | How | Effort | Cost |
 |---|---|---|---|---|
-| 5 | **Ground colour per zone** | Darker, mossy floor in the Forest; grey ash ring around the Volcano; dry yellow patches and flower-coloured patches in the Meadow. Vertex colours only. | S | none |
-| 6 | **Grass and small plants** | Many small tufts, clover, ferns and pebbles as instanced meshes, drawn only near the player. Models: Quaternius *Stylized Nature MegaKit* (already in `/home/janah/dev/_assets/quaternius/`, CC0, not used yet). | M | +4–6 draw calls, +20–30k triangles near the player |
-| 7 | **Paths you can read** | Stepping stones (`RockPath_*` from the same kit), a few fence posts and lanterns, a gate where a path enters a zone. | S–M | +3 draw calls |
+| 5 ✅ | **Ground colour per zone** | Darker, mossy floor in the Forest; grey ash ring around the Volcano; dry yellow patches and flower-coloured patches in the Meadow. Vertex colours only. | S | none |
+| 6 ✅ | **Grass and small plants** | Many small tufts, clover, ferns and pebbles as instanced meshes, drawn only near the player. Models: Quaternius *Stylized Nature MegaKit* (already in `/home/janah/dev/_assets/quaternius/`, CC0, not used yet). | M | +5 draw calls, up to +31k triangles near the player (measured; the new Quaternius trees add more: +12 % to +39 % triangles per view in total) |
+| 7 ✅ | **Paths you can read** | Stepping stones (`RockPath_*` from the same kit), a few fence posts and lanterns, a gate where a path enters a zone. | S–M | +0–1 draw calls (measured) |
 
 ### Step 3 — give each zone a face
 
@@ -48,7 +51,7 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 |---|---|---|---|---|
 | 8 | **Home: a real hatchery** | Replace the box house with a building from KayKit *Medieval Hexagon* (owned) plus a windmill or tower as a landmark seen from far; fence around the yard; bigger sign. | M | about the same |
 | 9 | **Volcano** | Rough rocky cone (ridges in the height function), glowing lava streams running down (colours + glow, no new models), embers, no lawn on the slope. | M | +2 draw calls |
-| 10 | **Forest** | Trees thin out at the edge instead of ending in a circle; undergrowth (ferns, bushes); a clearing with the camp as a place to reach; greenish haze inside. | M | +2–4 draw calls |
+| 10 (half ✅) | **Forest** | ✅ Trees thin out at the edge instead of ending in a circle; ✅ undergrowth (ferns, big leafy plants). Still open: a clearing with the camp as a place to reach; greenish haze inside. | M | +2–4 draw calls |
 | 11 | **Meadow landmarks** | 3–4 things to navigate by: a hill with one huge tree, a small stone bridge over a stream from the pond to the sea, a scarecrow field, a ruin. Kenney *Nature Kit* / KayKit (owned). | M | +5–8 draw calls (fine after #1) |
 | 12 | **Coast all round** | Alternate small coves, sand strips and rocky bits; move the lighthouse from the far west (hardly ever seen) to the Beach's north headland; 2–3 tiny islands on the horizon. | S–M | none |
 

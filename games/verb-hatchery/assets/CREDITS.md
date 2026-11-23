@@ -1,21 +1,35 @@
 # Asset credits
 
-All models are CC0 (public domain) unless noted (KayKit by Kay Lousberg,
+All models are CC0 (public domain) unless noted (Quaternius, KayKit by Kay Lousberg,
 Kenney, Tiny Treats by Isa Lousberg), copied from the shared library `/home/janah/dev/krabsy-homepage/assets/` and `/home/janah/dev/_assets/` (not in git).
 Only the files in use are copied here.
 
 | Files | Pack |
 |---|---|
-| `nature/*` (trees, bushes, rocks, grass, `forest_texture.png`) | KayKit Forest Nature Pack 1.0 (EXTRA), Color1 |
+| `qnature/qnature.glb` + `qnature/atlas.webp`: all trees (CommonTree, Pine, TwistedTree, DeadTree), bushes, ferns, clover, plants, grass, flowers, petals, mushrooms, rocks, pebbles, stepping stones (`RockPath_*`) | Quaternius Stylized Nature MegaKit (Standard, free) — CC0, quaternius.com |
+| in the same file: `Lantern_Wall`, `Banner_1_Cloth` | Quaternius Fantasy Props MegaKit (Standard, free) — CC0 |
+| in the same file: `Prop_WoodenFence_Single`, `Prop_WoodenFence_Extension1/2` | Quaternius Medieval Village MegaKit (Standard, free) — CC0 |
 | `characters/Protagonist_A.glb`, `Protagonist_B.glb` (player characters) | KayKit Mystery Monthly Series 5, "10 – April 2025 – Protagonists" |
-| `props/nature/*` (flowers, mushrooms, stumps, logs, tent, campfire, lily pads, statues, crops, fence, reeds, canoe, pot) | Kenney Nature Kit (kenney.nl) — CC0 |
-| `props/pirate/*` (palms, shipwreck, pirate ship, rowing boats, barrels, crate, chest, flag, sand rocks, grey rocks `rocks-a/b/c`, dune grass `grass-plant` / `grass-patch`, `bottle`, `tool-shovel`, `hole`, tower = lighthouse) + `Textures/colormap.png` | Kenney Pirate Kit — CC0 |
+| `props/nature/*` (stumps, logs, tent, campfire, lily pads, statues, sea rock, crops, farm fence, canoe, pot) | Kenney Nature Kit (kenney.nl) — CC0 |
+| `props/pirate/*` (palms, shipwreck, pirate ship, rowing boats, barrels, crate, chest, flag, sand rocks, grey rocks `rocks-a/b/c`, `bottle`, `tool-shovel`, `hole`, tower = lighthouse) + `Textures/colormap.png` | Kenney Pirate Kit — CC0 |
 | `props/survival/*` (signpost, bedroll) | Kenney Survival Kit — CC0 |
 | `props/playground/*` | Tiny Treats – Fun Playground 1.0 FREE (Isa Lousberg) — CC0 |
 | `props/picnic/*` | Tiny Treats – Pleasant Picnic 1.0 FREE (Isa Lousberg) — CC0 |
-| `props/park/*` (street lantern, bench, fountain, bush) | Tiny Treats – Pretty Park 1.0 FREE (Isa Lousberg) — CC0 |
+| `props/park/*` (street lantern, bench, fountain) | Tiny Treats – Pretty Park 1.0 FREE (Isa Lousberg) — CC0 |
 | `props/gems/*` (volcano crystals) | KayKit Resource Bits 1.0 (EXTRA) — CC0 |
 | `characters/anim_player.glb` (animation only) | KayKit Mystery Monthly Series 5, `Animations/gltf/Rig_Medium` |
+
+`qnature/` is built from the kits in `/home/janah/dev/_assets/quaternius/packs/`
+by `tools/build-qnature.mjs` (see its header): the models are simplified (the
+kit's trees have 3,000–10,000 triangles, ours 500–1,300), bark / wood / metal are
+baked into vertex colours, the leaf shapes, plants, flowers, rocks and stones
+share one 1024 × 1272 texture atlas, normal maps are not used. Rebuild:
+
+```
+mkdir /tmp/q && cd /tmp/q && npm i meshoptimizer sharp
+MESHOPT=/tmp/q/node_modules/meshoptimizer/index.js SHARP=/tmp/q/node_modules/sharp \
+  node tools/build-qnature.mjs
+```
 
 `anim_player.glb` keeps only the bones and 9 clips, built with the Tower
 Defense tool:

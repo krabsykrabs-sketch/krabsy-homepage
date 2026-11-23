@@ -128,7 +128,9 @@ export class Thieves {
     const h = height(nx, nz);
     if (h < WATER_Y - 0.22 || (onPier(nx, nz) !== onPier(t.x, t.z) && Math.abs(h - height(t.x, t.z)) > 0.45)) { t.dir += Math.PI * 0.6; return; }
     // crabs walk around trees, not through them
-    for (const c of this.world.nearColliders(nx, nz)) if (Math.hypot(nx - c.x, nz - c.z) < c.r + 0.5) { t.dir += 0.8; return; }
+    // (a step that leads away from the tree is always fine: a crab that starts right
+    // beside a trunk must not be stuck there)
+    for (const c of this.world.nearColliders(nx, nz)) { const d = Math.hypot(nx - c.x, nz - c.z); if (d < c.r + 0.5 && d < Math.hypot(t.x - c.x, t.z - c.z)) { t.dir += 0.8; return; } }
     t.x = nx; t.z = nz;
   }
 

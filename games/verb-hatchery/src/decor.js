@@ -20,19 +20,18 @@ import { t } from './i18n.js';
 const Z = Object.fromEntries(ZONES.map((z) => [z.id, z]));
 const F = {}; // short name → file
 const add = (dir, ext, names) => names.forEach((n) => { F[n] = `assets/props/${dir}/${n}.${ext}`; });
-add('nature', 'glb', ['flower_redA', 'flower_yellowA', 'flower_purpleA', 'flower_redB', 'flower_yellowB', 'mushroom_red',
-  'mushroom_redTall', 'mushroom_tanGroup', 'mushroom_redGroup', 'mushroom_tanTall', 'stump_roundDetailed', 'stump_old', 'log',
+add('nature', 'glb', ['stump_roundDetailed', 'stump_old', 'log',
   'log_large', 'tent_detailedOpen', 'campfire_logs', 'lily_large', 'lily_small', 'statue_column', 'statue_obelisk', 'statue_head',
-  'stone_tallA', 'stone_tallD', 'stone_largeB', 'crop_pumpkin', 'crop_carrot', 'crops_cornStageD', 'fence_simple', 'plant_flatTall',
+  'stone_largeB', 'crop_pumpkin', 'crop_carrot', 'crops_cornStageD', 'fence_simple',
   'canoe', 'pot_large']);
 add('pirate', 'glb', ['palm-detailed-bend', 'palm-detailed-straight', 'palm-bend', 'ship-wreck', 'ship-pirate-large', 'boat-row-small',
   'barrel', 'crate', 'chest', 'flag-pirate-high', 'rocks-sand-a', 'rocks-sand-b', 'tower-complete-small',
-  'palm-straight', 'rocks-a', 'rocks-b', 'rocks-c', 'grass-plant', 'grass-patch', 'boat-row-large', 'bottle', 'tool-shovel', 'hole']);
+  'palm-straight', 'rocks-a', 'rocks-b', 'rocks-c', 'boat-row-large', 'bottle', 'tool-shovel', 'hole']);
 add('survival', 'glb', ['signpost', 'bedroll']);
 add('playground', 'gltf', ['swing_A_large', 'slide_A', 'seesaw_large', 'merry_go_round', 'sandbox_round_decorated', 'spring_horse_A',
   'sandcastle_A', 'sandcastle_B', 'sandcastle_C', 'picnic_table']);
 add('picnic', 'gltf', ['picnic_blanket_red', 'picnic_basket_round', 'teapot', 'apple', 'sandwich', 'pillow_large_blue']);
-add('park', 'gltf', ['street_lantern', 'bench', 'fountain', 'bush_large']);
+add('park', 'gltf', ['street_lantern', 'bench', 'fountain']);
 add('gems', 'gltf', ['Gem_Large', 'Gem_Medium']);
 
 // Spots kept free of random trees and rocks (world.loadDecor reads them): [x, z, r]
@@ -93,8 +92,11 @@ export async function buildDecor(world) {
   // { live: true } keeps it a separate object (returned) for things that move.
   // Batch options: color (replace the model's colour), mul (multiply it), glow.
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), v3 = new THREE.Vector3(), sc = new THREE.Vector3();
+  // Names of the Quaternius pack (world.q, e.g. 'Flower_3_Single') work too; for those
+  // the options are tint (foliage colour) and mul.
+  const Q = world.q ? world.q.models : {};
   const put = (n, x, z, o = {}) => {
-    const c = cache[n]; if (!c) return null;
+    const c = cache[n] || Q[n]; if (!c) return null;
     const s = o.s ?? (o.w ? o.w / c.w : (o.h ?? 1) / c.h);
     const ry = o.ry ?? R() * Math.PI * 2, y = (o.y ?? height(x, z)) - c.minY * s + (o.lift ?? 0);
     if (o.col) world.addCollider(x, z, o.col);
@@ -104,17 +106,19 @@ export async function buildDecor(world) {
       S.add(m);
       return m;
     }
-    world.batch.addModel(c.scene, m4.compose(v3.set(x, y, z), q.setFromAxisAngle(up, ry), sc.setScalar(s)), o);
+    m4.compose(v3.set(x, y, z), q.setFromAxisAngle(up, ry), sc.setScalar(s));
+    if (c.q) world.batch.addQ(c, m4, o); else world.batch.addModel(c.scene, m4, o);
     return true;
   };
   // many copies of one model (also baked into the batch)
   const inst = (n, pts, o = {}) => {
-    const c = cache[n]; if (!c) return;
+    const c = cache[n] || Q[n]; if (!c) return;
     let burn = 0;
     for (const p of pts) {
       const s = p.h / c.h;
       if (p.ry === undefined) burn += c.parts - 1;
-      world.batch.addModel(c.scene, m4.compose(v3.set(p.x, (p.y ?? height(p.x, p.z)) - c.minY * s, p.z), q.setFromAxisAngle(up, p.ry ?? R() * 6.28), sc.setScalar(s)), o);
+      m4.compose(v3.set(p.x, (p.y ?? height(p.x, p.z)) - c.minY * s, p.z), q.setFromAxisAngle(up, p.ry ?? R() * 6.28), sc.setScalar(s));
+      if (c.q) world.batch.addQ(c, m4, p.tint !== undefined ? { ...o, tint: p.tint } : o); else world.batch.addModel(c.scene, m4, o);
     }
     // (the old code drew one random number per model PART; use up the same amount, so
     // every later random placement stays exactly where it was)
@@ -130,14 +134,14 @@ export async function buildDecor(world) {
     put('street_lantern', H.x + sx * 4.2, H.z - 11.6, { h: 3.2, ry: 0, col: 0.3 });
     put('street_lantern', H.x + sx * 14.6, H.z - 11.6, { h: 3.2, ry: 0, col: 0.3 });
     put('bench', H.x + sx * 9.5, H.z - 12.6, { h: 1.0, ry: Math.PI, col: 0.9 });
-    for (let k = 0; k < 3; k++) put('bush_large', H.x + sx * (17 + k * 0.2), H.z - 6 + k * 8, { h: 1.6, col: 0.9 });
+    for (let k = 0; k < 3; k++) put('Bush_Common_Flowers', H.x + sx * (17 + k * 0.2), H.z - 6 + k * 8, { h: 1.7, col: 0.9, tint: 0x77bb3e });
     put('pot_large', H.x + sx * 6.5, H.z - 10.2, { h: 0.9 });
   }
   put('fountain', H.x + 13, H.z - 19, { h: 2.4, ry: 0, col: 2.4 });
   // flower beds along the front edge of the deck
-  ['flower_redA', 'flower_yellowA', 'flower_purpleA'].forEach((n, k) => inst(n, Array.from({ length: 6 }, (_, i) => {
+  ['Flower_3_Single', 'Flower_4_Single', 'Flower_3_Group'].forEach((n, k) => inst(n, Array.from({ length: 6 }, (_, i) => {
     const x = H.x + (i < 3 ? -1 : 1) * (7.5 + (i % 3) * 1.7 + k * 0.55);
-    return { x, z: H.z - 12.0 + (k % 2) * 0.45, h: 0.55 + ((i + k) % 3) * 0.1 };
+    return { x, z: H.z - 12.0 + (k % 2) * 0.45, h: 0.6 + ((i + k) % 3) * 0.1 };
   })));
   // playground (west of the base)
   const [px, pz] = SPOT.playground;
@@ -181,21 +185,30 @@ export async function buildDecor(world) {
     world.scene.add(signBoard(`${ICON[id]} ${t(`zone_${id}`)}`, Z[id].stars, FORK.x, height(FORK.x, FORK.z) + 2.4 - k * 0.55, FORK.z, dir));
   });
 
+  // ── paths you can read: stepping stones, lantern posts, bits of fence, a gate at each zone ──
+  pathDressing(world, Q, rng('paths'));
+
   // ── meadow: flower fields, stone circle, pond ──
-  const flowerNames = ['flower_redA', 'flower_yellowA', 'flower_purpleA', 'flower_redB', 'flower_yellowB'];
-  const flowers = Object.fromEntries(flowerNames.map((n) => [n, []]));
+  // (each field: one or two kinds of flowers, single ones around a group, fallen petals)
+  const flowerNames = ['Flower_3_Single', 'Flower_4_Single', 'Flower_3_Group', 'Flower_4_Group', 'Flower_3_Single'];
+  const petalNames = ['Petal_1', 'Petal_2', 'Petal_3', 'Petal_4', 'Petal_5'];
+  const flowers = Object.fromEntries([...flowerNames, ...petalNames].map((n) => [n, []]));
   const fieldCenters = [];
   for (let tries = 0; fieldCenters.length < 34 && tries < 600; tries++) {
     const [x, z] = around(ISLAND.cx, ISLAND.cz + 10, ISLAND.r - 22);
     if (zoneAt(x, z).id !== 'meadow' || !free(x, z, 4) || ZONES.some((zz) => zz.r && Math.hypot(x - zz.x, z - zz.z) < zz.r + 5)) continue;
     fieldCenters.push([x, z]);
     const kind = flowerNames[Math.floor(R() * flowerNames.length)];
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 7; i++) {
       const [fx2, fz2] = around(x, z, 3.2);
-      if (free(fx2, fz2, 2)) flowers[(R() < 0.75 ? kind : flowerNames[Math.floor(R() * flowerNames.length)])].push({ x: fx2, z: fz2, h: 0.45 + R() * 0.35 });
+      const n = i < 3 ? petalNames[Math.floor(R() * 5)] : (R() < 0.75 ? kind : flowerNames[Math.floor(R() * flowerNames.length)]);
+      if (free(fx2, fz2, 2)) flowers[n].push(i < 3 ? { x: fx2, z: fz2, h: 0.1, y: height(fx2, fz2) + 0.03 } : { x: fx2, z: fz2, h: (n.endsWith('Group') ? 0.75 : 0.6) + R() * 0.3 });
     }
   }
   for (const [n, pts] of Object.entries(flowers)) inst(n, pts);
+  // the grass around a flower field is lighter: fresh, yellowish or minty green
+  // (mixing in the petal colours themselves turned the green to grey)
+  world.tintGround(fieldCenters.map(([x, z], i) => [x, z, 6.5, [0xa6e072, 0xd3e060, 0x8fdc98, 0xbfe57a][i % 4], 0.5]));
   // an old stone circle
   const [sx0, sz0] = SPOT.circle;
   for (let i = 0; i < 8; i++) {
@@ -211,23 +224,24 @@ export async function buildDecor(world) {
   inst('lily_large', onWater(7).map((p) => ({ ...p, h: 0.12 })));
   inst('lily_small', onWater(6).map((p) => ({ ...p, h: 0.1 })));
   // (the kit's reed is teal; real reed colours instead, three greens so the clumps look alive)
-  [0x6aa843, 0x86b84c, 0x4f9440].forEach((color, k) => inst('plant_flatTall', Array.from({ length: 9 }, () => {
+  [0x6aa843, 0x86b84c, 0x4f9440].forEach((tint, k) => inst(k === 1 ? 'Grass_Wispy_Tall' : 'Grass_Common_Tall', Array.from({ length: 9 }, () => {
     const a = [0.5, 2.2, 5.0][Math.floor(RP() * 3)] + (RP() - 0.5) * 1.5;
     const [x, z] = pondPoint(a, 7.5 + RP() * 1.7);
     return { x, z, y: Math.max(height(x, z), POND.water - 0.1), h: 0.9 + RP() * 0.8 + (k === 0 ? 0.3 : 0), ry: RP() * 6.28 };
-  }), { color }));
+  }), { tint }));
   put('canoe', ...pondPoint(3.5, 9.3), { w: 3.2, ry: 1.2, lift: 0.05 });
   for (let i = 0; i < 123; i++) R(); // the old round pond used 123 random numbers here (keeps the later placements)
 
   // ── forest: mushrooms (some giant), stumps, logs, a campsite ──
   const F0 = Z.forest;
-  const mush = { mushroom_red: [], mushroom_redTall: [], mushroom_tanGroup: [], mushroom_redGroup: [], mushroom_tanTall: [] };
-  const mNames = Object.keys(mush);
-  for (let i = 0, tries = 0; i < 70 && tries < 900; tries++) {
+  const mush = { Mushroom_Common: [], Mushroom_Laetiporus: [] };
+  const mNames = ['Mushroom_Common', 'Mushroom_Common', 'Mushroom_Laetiporus'];
+  for (let i = 0, tries = 0; i < 48 && tries < 900; tries++) {
     const [x, z] = around(F0.x, F0.z, F0.r - 2);
     if (!free(x, z, 1.5)) continue;
     const giant = i < 9;
-    mush[mNames[Math.floor(R() * mNames.length)]].push({ x, z, h: giant ? 2.6 + R() * 1.8 : 0.4 + R() * 0.6 });
+    if (giant) put('Mushroom_Common', x, z, { h: 2.6 + R() * 1.8, mul: [0xffa07a, 0xffd27a, 0xd9b0ff][i % 3] }); // (the giants are coloured)
+    else mush[mNames[Math.floor(R() * mNames.length)]].push({ x, z, h: 0.4 + R() * 0.5 });
     if (giant) world.addCollider(x, z, 0.5);
     i++;
   }
@@ -280,12 +294,12 @@ export async function buildDecor(world) {
   palm(ISLET.x + 1.2, ISLET.z - 0.8, 7.5); palm(ISLET.x - 1.6, ISLET.z + 1.4, 5.5);
   for (const [n, pts] of Object.entries(palms)) inst(n, pts);
   // dune grass where the sand ends, sand-coloured rocks between the palms
-  const tufts = { 'grass-plant': [], 'grass-patch': [] };
+  const tufts = { Grass_Common_Short: [], Grass_Wispy_Short: [] };
   for (let i = 0; i < 60; i++) {
     const [x, z] = bayPoint(-1.15 + R() * 2.3, 15 + R() * 26);
-    if (clear(x, z, 0.6) && offPier(x, z) && pathDist(x, z) > 2.5 && beachW(x, z) > 0.3) tufts[i % 3 ? 'grass-plant' : 'grass-patch'].push({ x, z, h: 0.3 + R() * 0.3 });
+    if (clear(x, z, 0.6) && offPier(x, z) && pathDist(x, z) > 2.5 && beachW(x, z) > 0.3) tufts[i % 3 ? 'Grass_Common_Short' : 'Grass_Wispy_Short'].push({ x, z, h: 0.45 + R() * 0.35 });
   }
-  for (const [n, pts] of Object.entries(tufts)) inst(n, pts);
+  for (const [n, pts] of Object.entries(tufts)) inst(n, pts, { tint: 0xb7c46c }); // dry dune grass
   for (let i = 0; i < 7; i++) { const [x, z] = bayPoint(-0.9 + R() * 1.8, 20 + R() * 16); if (clear(x, z, 1.5) && offPier(x, z) && pathDist(x, z) > 3.5) put(i % 2 ? 'rocks-sand-a' : 'rocks-sand-b', x, z, { h: 0.9 + R() * 0.5, col: 0.9 }); }
   inst('rocks-sand-a', [{ x: ISLET.x + 3.2, z: ISLET.z + 2.6, h: 0.7 }]);
   // a day at the beach: parasols, towels, a ball, sandcastles by the water
@@ -331,6 +345,82 @@ export async function buildDecor(world) {
   life.push(butterflies(S, fieldCenters, R));
   world.animators.push((dt, time) => { for (const f of life) if (f) f(dt, time); });
 }
+
+// Stepping stones along the dirt paths, a lantern post and a short fence at the bends,
+// and a wooden gate with a banner in the zone's colour where each path reaches its zone.
+function pathDressing(world, Q, R) {
+  if (!Q.RockPath_Round_Small_1) return;
+  const B = world.batch, m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), q2 = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0), nrm = new THREE.Vector3();
+  const stones = ['RockPath_Round_Small_1', 'RockPath_Square_Small_1', 'RockPath_Round_Small_2', 'RockPath_Square_Small_2', 'RockPath_Round_Small_3', 'RockPath_Square_Small_3'];
+  const WOOD = 0x8a5c36, WOOD_DARK = 0x6e4628, BANNER = { forest: 0x4fb857, beach: 0x35b8e8, volcano: 0xf2643c };
+  // a model lying on the ground, tilted with the slope
+  const lay = (name, x, z, s, ry, sink = 0.03) => {
+    const m = Q[name]; if (!m) return;
+    nrm.set(terrainH(x - 0.6, z) - terrainH(x + 0.6, z), 1.2, terrainH(x, z - 0.6) - terrainH(x, z + 0.6)).normalize();
+    q.setFromUnitVectors(up, nrm).multiply(q2.setFromAxisAngle(up, ry));
+    B.addQ(m, m4.compose(v.set(x, terrainH(x, z) - m.minY * s - sink, z), q, sc.setScalar(s)));
+  };
+  const stand = (name, x, y, z, s, ry, o) => { const m = Q[name]; if (m) B.addQ(m, m4.compose(v.set(x, y, z), q.setFromAxisAngle(up, ry), sc.setScalar(s)), o); };
+  const box = (w, h, d, hex, x, y, z, ry) => B.addPainted(paint(new THREE.BoxGeometry(w, h, d), hex).rotateY(ry).translate(x, y, z), x, z);
+  // a post with a hanging lantern; the flame is a small bright shape (its colour is over 1, so it looks lit)
+  const lantern = (x, z, ry, postH = 2.5) => {
+    const y = height(x, z);
+    box(0.17, postH, 0.17, WOOD_DARK, x, y + postH / 2 - 0.1, z, ry);
+    stand('Lantern_Wall', x + Math.sin(ry) * 0.06, y + postH - 1.45, z + Math.cos(ry) * 0.06, 1, ry);
+    const flame = paint(new THREE.OctahedronGeometry(0.13), 0xffffff); flame.attributes.color.array.forEach((_, i, a) => { a[i] = [5, 3.2, 1.1][i % 3]; });
+    B.addPainted(flame.translate(x + Math.sin(ry) * LANTERN_OUT, y + postH - 1.45 + LANTERN_UP, z + Math.cos(ry) * LANTERN_OUT), x, z);
+    world.addCollider(x, z, 0.25);
+  };
+  PATHS.forEach((path, k) => {
+    const zone = [Z.forest, Z.beach, Z.volcano][k];
+    // walk along the path
+    let gate = null, walked = 0, next = 1.5, n = 0;
+    for (let i = 1; i < path.length; i++) {
+      const [ax, az] = path[i - 1], [bx, bz] = path[i], L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L, dir = Math.atan2(dx, dz);
+      for (let t = 0; t < L; t += 0.5) {
+        const x = ax + dx * t, z = az + dz * t; walked += 0.5;
+        const dZone = Math.hypot(x - zone.x, z - zone.z);
+        if (!gate && dZone < zone.r + 3.2) gate = [x, z, dir];
+        const inBase = z > H.z - 14 && Math.abs(x - H.x) < 17; // (the first path starts on the deck)
+        if (walked >= next && !inBase && beachW(x, z) < 0.35 && !(gate && Math.hypot(x - gate[0], z - gate[1]) < 1.2)) {
+          const side = (n % 2 ? 1 : -1) * (0.25 + R() * 0.45);
+          lay(stones[Math.floor(R() * stones.length)], x + dz * side, z - dx * side, 0.95 + R() * 0.35, dir + (R() - 0.5) * 0.7);
+          next = walked + 3.2 + R() * 1.2; n++;
+        }
+      }
+      // at each bend: a lantern post on the outside, a short fence on the inside
+      // (not at the fork: the signpost stands there)
+      if (i < path.length - 1 && !(k === 0 && i === 1)) {
+        const [cx, cz] = path[i + 1], turn = Math.sign((bx - ax) * (cz - bz) - (bz - az) * (cx - bx)) || 1;
+        const ox = dz * turn, oz = -dx * turn; // unit vector to the outside of the bend
+        lantern(bx + ox * 3.3, bz + oz * 3.3, Math.atan2(-ox, -oz));
+        for (let s = 0; s < 3; s++) {
+          const fx = bx - ox * 3.4 - dx * (2.1 * (s - 1)), fz = bz - oz * 3.4 - dz * (2.1 * (s - 1));
+          stand(s === 1 ? 'Prop_WoodenFence_Extension1' : 'Prop_WoodenFence_Single', fx, height(fx, fz) + 0.02, fz, 1.05, dir + Math.PI / 2);
+          world.addCollider(fx, fz, 0.8);
+        }
+      }
+    }
+    const [gx, gz, dir] = gate || [...path[path.length - 1], Math.atan2(path[path.length - 1][0] - path[path.length - 2][0], path[path.length - 1][1] - path[path.length - 2][1])];
+    // the gate: two posts, a beam and a little roof, the zone's banner, a lantern on each post
+    const px = Math.cos(dir), pz = -Math.sin(dir), W = 2.9, Hh = 4.3; // (px, pz) = across the path
+    const yb = Math.max(height(gx + px * W, gz + pz * W), height(gx - px * W, gz - pz * W));
+    for (const sd of [-1, 1]) {
+      const x = gx + px * W * sd, z = gz + pz * W * sd, y = height(x, z);
+      box(0.42, yb + Hh - y + 0.3, 0.42, WOOD, x, (y + yb + Hh) / 2 - 0.15, z, dir);
+      box(0.6, 0.35, 0.6, WOOD_DARK, x, y + 0.12, z, dir);
+      stand('Lantern_Wall', x - Math.sin(dir) * 0.22, yb + 1.25, z - Math.cos(dir) * 0.22, 0.95, dir + Math.PI);
+      const flame = paint(new THREE.OctahedronGeometry(0.1), 0xffffff); flame.attributes.color.array.forEach((_, i, a) => { a[i] = [5, 3.2, 1.1][i % 3]; });
+      B.addPainted(flame.translate(x - Math.sin(dir) * (0.22 + LANTERN_OUT * 0.95), yb + 1.25 + LANTERN_UP * 0.95, z - Math.cos(dir) * (0.22 + LANTERN_OUT * 0.95)), x, z);
+      world.addCollider(x, z, 0.45);
+    }
+    box(W * 2 + 1.5, 0.36, 0.36, WOOD, gx, yb + Hh - 0.25, gz, dir);
+    box(W * 2 + 2.3, 0.2, 0.75, WOOD_DARK, gx, yb + Hh + 0.08, gz, dir);
+    stand('Banner_1_Cloth', gx, yb + Hh - 0.42, gz, 0.9, dir + Math.PI, { tint: BANNER[zone.id] });
+    stand('Banner_1_Cloth', gx - Math.sin(dir) * 0.02, yb + Hh - 0.42, gz - Math.cos(dir) * 0.02, 0.9, dir, { tint: BANNER[zone.id] });
+  });
+}
+const LANTERN_OUT = 1.1, LANTERN_UP = 0.25; // where the lamp hangs on the Lantern_Wall model
 
 // A wooden board with a zone name, pointing along `dir` (both sides readable).
 function signBoard(text, stars, x, y, z, dir) {
@@ -426,7 +516,7 @@ function beachSet(world, spots, R) {
   const [bx, bz] = [spots[0][0] + 2.6, spots[0][1] - 2.2];
   parts.push(paint(new THREE.SphereGeometry(0.38, 12, 8), 0xff8585, 0xffffff).applyMatrix4(new THREE.Matrix4().makeTranslation(bx, terrainH(bx, bz) + 0.36, bz)));
   world.addCollider(bx, bz, 0.4);
-  world.batch.addPainted(mergeGeometries(parts), spots[0][0], spots[0][1], THREE.DoubleSide);
+  world.batch.addPainted(mergeGeometries(parts), spots[0][0], spots[0][1]);
 }
 
 function additive(color, opacity = 0.8) {

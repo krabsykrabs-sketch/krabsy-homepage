@@ -199,6 +199,9 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   (`src/merge.js`, see the Log 2026-11-23 "Step 1"); the shadow camera
   follows the player, fog limits the view. New static props must go through
   `world.batch` (`put` / `inst` in `decor.js` do that), not `scene.add`.
+  All batch meshes share ONE material (vertex colours × the Quaternius
+  atlas, cut-out leaves, see-through between camera and player); see the
+  Log 2026-11-23 "Step 2".
 - **Questions:** from `homepage/lib/krabsy-questions.js`. Egg rarity →
   verb tier (common/uncommon tier 1, rare tier 2, epic/legendary tier 3).
   ⚠ `getQuizSet` has **no tier filter**, and its `difficulty` field is 2
@@ -264,8 +267,10 @@ merges per cell), `src/decor.js` (set pieces, life), `src/player.js` (third-pers
 touch, collisions, egg stack), `src/thieves.js` (robber crabs), `src/minimap.js`,
 `src/questions.js` (tier pools), `src/creatures.js` (procedural creatures,
 names, blocklist), `src/main.js` (flow, cards, panels, HUD), `src/i18n.js`,
-`src/audio.js`, `src/analytics.js`. Decor: 19 KayKit Forest Nature models
-in `assets/nature/` (370 KB); characters + animations in
+`src/audio.js`, `src/analytics.js`, `src/qnature.js` (loads the Quaternius
+pack), `src/ground.js` (grass and small plants near the player). Nature: the
+Quaternius pack `assets/qnature/` (one .glb + one atlas, 960 KB, built by
+`tools/build-qnature.mjs`); characters + animations in
 `assets/characters/` (1.2 MB); see `assets/CREDITS.md`.
 
 Done (checked headless at 1366×768 desktop and 1024×700 touch, EN/DE/ES):
@@ -501,3 +506,124 @@ Not done yet / to check:
   (FBX/OBJ only) into `/home/janah/dev/_assets/quaternius/`. Use: missing
   monsters → add to `tools/creatures/roster.json` when wiring creatures;
   crops → the farm next to the base (world step 3).
+- 2026-11-23: **World proposal Step 2 built (items 5–7) + the whole island's
+  nature is now Quaternius** (owner: "The Quaternius kits look amazing. Why
+  don't we use them for our world?") **+ see-through camera** (owner: "the
+  leaves often block my view and I can't see my player anymore"). Fable 5.2
+  subagent, lead session reviews. Pictures: `_shots/step2-before-*.png` /
+  `step2-after-*.png` (same views as Step 1, plus `gate-forest`,
+  `gate-volcano`, `path-fork`, `forest-edge`, `grass-closeup`,
+  `seethrough-*-off/on`).
+  - **The pack** (`assets/qnature/qnature.glb` 800 KB + `atlas.webp` 160 KB,
+    built by `tools/build-qnature.mjs`, loaded by `src/qnature.js`): 70 models
+    from the Stylized Nature MegaKit (trees, bushes, plants, grass, flowers,
+    petals, mushrooms, rocks, pebbles, stepping stones), Fantasy Props MegaKit
+    (`Lantern_Wall`, `Banner_1_Cloth`) and Medieval Village MegaKit (wooden
+    fence). The kits as downloaded are too heavy (a tree = 3–10k triangles,
+    2048 px textures, normal maps), so the tool simplifies them (a tree is now
+    400–700 triangles, a twisted giant about 1,300; leaf cards are thinned out
+    and made bigger), bakes bark / wood / metal / the grass palette into vertex
+    colours and packs the cut-out leaf shapes, plants, flowers, rocks and stones
+    into one 1024 × 1272 atlas. No normal maps. Leaf crowns are stored grey and
+    get their colour when placed (`tint`), so one mesh gives light, dark and
+    autumn trees.
+  - **One material for the whole static world** (`merge.js`): vertex colours ×
+    the atlas, alpha test for the leaf shapes, double-sided; plain painted
+    geometry has uv (0, 0) = a white texel. So trees with cut-out leaves and
+    textured rocks sit in the same per-cell mesh as the old props: no extra
+    draw calls (the two old buckets "front side" / "double side" became one;
+    41 → 33 batch meshes). `world.batch.addQ(model, matrix, { tint, mul })`;
+    in `decor.js`, `put` / `inst` take pack names too.
+  - **Replaced:** all KayKit Forest Nature trees / bushes / rocks / grass
+    (`assets/nature/` deleted) and the Kenney flowers, mushrooms, reeds, the
+    park bush and the pirate kit's dune grass (files deleted). Forest = leaf
+    trees + pines + 6 huge twisted trees, up to 114 in all (was 150), dense in the
+    middle and **thinning out to 15 m beyond the zone's edge** (this is the
+    "trees thin out" part of item 10), ferns and big leafy plants as
+    undergrowth; Meadow = 34 single leaf trees, two small autumn groves,
+    flowering bushes, tall grass; Volcano = dead trees and dark rocks. Kept
+    (no Quaternius equivalent): palms and all beach props, stumps, logs, tent,
+    campfire, lily pads, canoe, statues / stone heads, crops and farm fence,
+    playground, picnic, park lanterns / benches / fountain, signpost.
+  - **5 Ground colour** (`_terrain()`, `groundNoise()`): dark mossy Forest floor
+    with leaf-litter patches and a ragged edge, a grey ash ring around the
+    Volcano with dark rock above it (no lawn on the cone any more), dry yellow
+    and lusher green patches in the Meadow, lighter grass around each flower
+    field (`world.tintGround`; mixing in the petal colours turned the green to
+    grey, so the patches are fresh / yellowish / minty greens). Sand and paths
+    as before.
+  - **6 Grass and small plants** (`src/ground.js`): grass tufts (30 triangles
+    each), clover, small ferns, fallen petals and pebbles as 5 `InstancedMesh`es
+    (5 draw calls, no shadows cast) in a 23 m ring around the player; 4 m cells
+    filled from a hash, so the same spot always looks the same; what grows
+    follows the zone and the ground patches; nothing on paths, the deck, sand
+    (pebbles only) or in water. At most about 31k triangles (the caps of the five kinds added up).
+    The second quality drop (`adaptQuality`) halves it.
+  - **7 Paths** (`pathDressing()` in `decor.js`): stepping stones along all
+    three paths (tilted with the slope), a lantern post on the outside and a
+    short fence on the inside of each bend, and a wooden gate with a banner in
+    the zone's colour and two lanterns where each path reaches its zone (the
+    Volcano gate stands at the end of the path, between the stone heads). The
+    lantern flames are small shapes with a colour above 1 (no sprites, no extra
+    draw calls). The signpost at the fork is unchanged. Posts and fences have
+    colliders.
+  - **See-through camera** (`merge.js` `seeThrough`, set in `world.update`): the
+    shared static material does not draw what lies between the camera and the
+    player's chest inside a tube around that line (2.3 m wide at the camera,
+    1.25 m at the player, dithered edge, stops 0.7 m before the player). It
+    covers everything in the batch: crowns, trunks, bushes, rocks, big
+    mushrooms, the house, gates. Not the terrain, water, eggs, crabs, pens or
+    the grass near the player. The shadow pass uses its own depth material, so
+    a tree with a hole still throws its whole shadow. `world.seeThrough = false`
+    switches it off (for comparing).
+  - **Also fixed:** a crab that started right beside a trunk could not move
+    (every step counted as "into the tree"); steps away from a collider are
+    now always allowed (`thieves.js`).
+  - **Draw calls / triangles**, same cameras as Step 1, headless 1366×768, all
+    zones open, shadow pass included. "World only" = eggs and crabs hidden,
+    which is the fair comparison: the total changes from run to run with the
+    eggs and crabs in view (3–7 calls each).
+
+    | View | Step 1, all | Step 2, all | Step 1, world only | Step 2, world only |
+    |---|---|---|---|---|
+    | Home | 30 / 126k | 34 / 175k | 30 / 126k | 34 / 175k |
+    | Beach, ground | 55 / 137k | 52 / 147k | 24 / 118k | 24 / 132k |
+    | Beach, from above | 35 / 124k | 49 / 144k | 20 / 113k | 20 / 129k |
+    | Forest | 54 / 170k | 62 / 213k | 24 / 154k | 30 / 197k |
+    | Volcano | 67 / 150k | 72 / 171k | 33 / 130k | 38 / 151k |
+    | Meadow (towards the pond) | 80 / 180k | 95 / 231k | 36 / 157k | 36 / 203k |
+    | Pond | 58 / 159k | 67 / 199k | 29 / 144k | 29 / 184k |
+
+    (Step 1 columns measured again today from the committed version.) World
+    draw calls: +0 to +6 (5 of them are the grass). **Triangles: +12 % to
+    +39 %**, more than the +20–30k planned for item 6 alone, because the
+    Quaternius trees and plants are heavier than the KayKit ones even after
+    simplifying (static world 211k → 280k triangles). Views across the whole
+    island are the heaviest: from the fork looking north 306k → 422k, and the forest gate 218k → 314k,
+    both measured before the last trim (static world 319k → 280k) and not again.
+    Colliders 354 → 401. Game size without `assets/animals/`,
+    `assets/creatures/`, `_shots/`: 6.3 MB (was 5.7).
+  - **Checked (headless, EN / DE / ES):** walk test `walk2.js` after
+    `stars(9)`: 9 stops without an object, all in the pond's deep water (as
+    before); eggs 12 / 7 / 5 / 4 per zone; 40 forced events landed in all four
+    zones; all 8 crabs move; egg card → right answer → carried, for common,
+    uncommon, rare and epic eggs; see-through on / off behind trunks, under
+    crowns and behind a giant mushroom; console shows only the three expected
+    `/lib/*.js` 404s.
+  - **Not checked:** a real Chromebook / tablet (the triangle increase, the
+    cost of alpha test + no back-face culling on the static world, how the
+    dithered see-through looks at low resolution), `?touch`, the base flow
+    (incubators, pens, upgrades: code not touched), the game without
+    `assets/animals/`. During this session the dev PC was busy with other
+    headless browsers, so the headless frame rates say nothing.
+  - **Notes for Step 3:** style clashes left on purpose: the Kenney stumps /
+    logs / tent (flat, pale) next to the Quaternius trees in the Forest camp;
+    the grey Kenney stone heads and columns; the Tiny Treats park lanterns at
+    the base next to the new wooden lantern posts; the box house. Pieces to
+    use: Medieval Village MegaKit for the hatchery building and yard fence
+    (item 8; `Prop_WoodenFence_*` is already in the pack), Fantasy Props
+    `Barrel`, `Crate_Wooden`, `Stall_Empty`, `Bench` for the yard and a
+    Forest camp; `TwistedTree_*` on a hill as the Meadow landmark (item 11);
+    `Rock_Medium_*` in big scales + `DeadTree_*` for the Volcano's ridges
+    (item 9); `Mushroom_Laetiporus` on trunks. Add a model = one line in
+    `MODELS` in `tools/build-qnature.mjs`, then rebuild.
