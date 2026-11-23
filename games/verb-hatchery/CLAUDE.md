@@ -496,3 +496,8 @@ Not done yet / to check:
   quaternius.com Google Drive links answered "quota exceeded". Open:
   native Spanish check of the invented monster names; wiring (fixed rarity
   per creature + golden bonus, lazy model loading) after world step 4.
+- 2026-11-23: owner downloaded the full **Ultimate Monsters** (glTF, incl.
+  the 5 missing from Poly Pizza, e.g. the blob Dog) and **Ultimate Crops**
+  (FBX/OBJ only) into `/home/janah/dev/_assets/quaternius/`. Use: missing
+  monsters → add to `tools/creatures/roster.json` when wiring creatures;
+  crops → the farm next to the base (world step 3).
