@@ -608,8 +608,9 @@ ours 2×1×2).
   copy them along when porting to the live build). Made with
   `gemini-3-pro-image` (key in the repo's gitignored `.env`, `GEMINI_API_KEY`),
   passing Burger.webp + Salad.webp as style references and describing each
-  row of steps; 3:2 aspect. Sundae picture shows a cherry on top (orders don't
-  use one) — owner may want a cherry-less redo. `image:` set in `src/levels.js`.
+  row of steps; 3:2 aspect. `image:` set in `src/levels.js`. Sundae.webp
+  was REGENERATED the same evening for the L7 redesign (scoop stand → tub →
+  bowl, then waffle; finished dish in a bowl).
 
 - 2026-11-23 — **Level fixes from the review (owner: "do all the fixes").**
   Source only; NOT in the live build. Proposals 2–7 and 9 of the entry below
