@@ -194,8 +194,11 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   the terrain and moves in front of tree trunks. Carried eggs stack above
   the character's head. The terrain is a height function (`src/world.js`), so the
   player needs no physics engine; trees and rocks are circle colliders.
-- **Performance:** trees and rocks are `InstancedMesh`es (one draw call per
-  model part), the shadow camera follows the player, fog limits the view.
+- **Performance:** everything that never moves (trees, rocks, props, the
+  house) is baked into a few merged meshes, one per 48 m cell of the island
+  (`src/merge.js`, see the Log 2026-11-23 "Step 1"); the shadow camera
+  follows the player, fog limits the view. New static props must go through
+  `world.batch` (`put` / `inst` in `decor.js` do that), not `scene.add`.
 - **Questions:** from `homepage/lib/krabsy-questions.js`. Egg rarity →
   verb tier (common/uncommon tier 1, rare tier 2, epic/legendary tier 3).
   ⚠ `getQuizSet` has **no tier filter**, and its `difficulty` field is 2
@@ -255,8 +258,9 @@ steps generous waits.
 
 Files: `src/balance.js` (all numbers, zones), `src/state.js` (rules +
 save, pure; save key `krabsy_hatchery_save`, version 2), `src/world.js`
-(height function, terrain, zones, walls, instanced decor, base, wild
-eggs), `src/player.js` (third-person character + camera, pointer lock,
+(height function, terrain, sea + pond, sky, zones, walls, trees / rocks, base,
+wild eggs), `src/merge.js` (static batches: bakes colours into vertex colours and
+merges per cell), `src/decor.js` (set pieces, life), `src/player.js` (third-person character + camera, pointer lock,
 touch, collisions, egg stack), `src/thieves.js` (robber crabs), `src/minimap.js`,
 `src/questions.js` (tier pools), `src/creatures.js` (procedural creatures,
 names, blocklist), `src/main.js` (flow, cards, panels, HUD), `src/i18n.js`,
@@ -415,3 +419,71 @@ Not done yet / to check:
     texts were added).
   - `WORLD-PROPOSAL.md`: review of the whole world with 15 prioritised
     ideas. **Nothing from it is built**; the owner decides.
+- 2026-11-23: **World proposal Step 1 built (items 1–4)**; the owner approved
+  all 15 items, they are built step by step (Fable 5.2 subagent, lead session
+  reviews). Pictures: `_shots/step1-before-*.png` / `step1-after-*.png`.
+  - **1 Merged static props** (new `src/merge.js`, `world.batch`). Every
+    static model is baked: its colour (material colour × palette texture at
+    the vertex) becomes a vertex colour, so all models share one Lambert
+    material; the geometry is merged per 48 m cell (41 meshes for the whole
+    island, 209k triangles; cells outside the view or the shadow box are
+    culled). A texture that is a real picture (checked per triangle: only the
+    picnic blanket and pillow) keeps its texture. Baked: all KayKit trees /
+    bushes / rocks / grass (were 74 `InstancedMesh`es that were always drawn,
+    twice with the shadow pass), all `put` / `inst` props, farm beds, pier
+    posts, parasols, the house / roof / door / deck trim / egg pad. `put(…, {
+    live: true })` keeps a model separate (pirate ship, pier boat; merged to
+    one mesh each). Batch options: `color`, `mul`, `glow` (crystals).
+    Owned pens + incubators are ONE mesh and the glass domes a second one,
+    rebuilt in `setOwned` after a purchase; one ghost mesh per kind; the
+    groups hold only bulb, egg, creature. Also merged, although they move:
+    a thief crab is 7 meshes (was 26, `thieves.js`), the player character 3
+    skinned meshes (was 9, `mergeSkinned` in `player.js`), each cloud 1 mesh,
+    butterflies 1 `InstancedMesh` (was 52 meshes), seagulls 2 (was 18).
+    Colliders are unchanged (354), random placements are identical to before
+    (the old code's random-number use is reproduced, see `inst`).
+    The merge runs once after loading (about 80 ms on the dev PC).
+    Draw calls / triangles, same camera, headless 1366×768, all zones open,
+    new save (shadow pass included):
+
+    | View | before | after |
+    |---|---|---|
+    | Home | 191 / 217k | 30 / 126k |
+    | Beach, ground | 173 / 224k | 49 / 132k |
+    | Beach, from above | 96 / 211k | 35 / 124k |
+    | Forest | 155 / 226k | 55 / 169k |
+    | Volcano | 188 / 233k | 67 / 150k |
+    | Meadow (towards the pond) | 287 / 273k | 79 / 180k |
+    | Pond | 142 / 235k | 52 / 154k |
+
+    Scene objects: 885 meshes + 74 instanced → 215 + 3. What is left in a view:
+    eggs (nest, egg, glow, beam: 3–5 calls each), crabs (7 each), creatures in
+    pens, sprites, sign boards.
+  - **2 Sky, light, colour** (`world.js` `_sky`, `_lights`): gradient sky dome
+    (pale horizon, deeper blue above, drawn only where nothing else is) with a
+    visible sun in the west-south-west, 37° up; the fog has the horizon colour.
+    Tone mapping is **Neutral** (three.js `NeutralToneMapping`), not ACES / AgX:
+    those grey our teal / coral / amber, Neutral keeps them and only softens
+    the highlights. More sky light, warmer and stronger sun (lower sun = longer,
+    lighter shadows; the ground is as bright as before). No extra render pass.
+  - **3 Egg beams**: thin (0.2 m), in the egg's colour, fading out over 30 m;
+    `main.js` widens them with the distance (up to ×5) so they stay a few
+    pixels wide from far away. The event egg keeps a big beam (×4.5, 72 m).
+  - **4 Pond**: irregular outline (`pondF` / `pondD` / `pondPoint` in
+    `world.js`), the sea's shore shader with calmer waves (`_waterMat`), a
+    shallower bowl (its floor stays above sea level), sand bank + pale floor,
+    reeds in three greens in clumps, minimap draws the real outline. The Kenney
+    Nature Kit's teal leaves (flower stems, crops, lily pads) are recoloured
+    green at load (`LEAF` in `decor.js`).
+  - **Checked (headless, EN / DE / ES, desktop + `?touch`):** egg card right /
+    wrong, carry, egg pad → incubator, hatch → pen, buy pen + incubator (the
+    new ones appear, ghosts move on), release, locked wall + signs, zone
+    opening, event egg (start, wrong answer moves it), thief card, minimap;
+    walk test `walk2.js` after `stars(9)`: 9 stops without an object, all in
+    the pond's deep water (intended, as before); no console errors.
+  - **Not checked:** a real Chromebook / tablet (frame rate, look of the tone
+    mapping on a real screen), the game without `assets/animals/` (not touched
+    by this step), memory use on a 4 GB device (the merged geometry is about
+    10 MB of buffers).
+  - Left as it was: the wide teal home beacon (not in the list; it now looks
+    heavy next to the thin egg beams).

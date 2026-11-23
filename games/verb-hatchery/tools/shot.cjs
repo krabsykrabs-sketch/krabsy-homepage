@@ -6,6 +6,8 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   const [query, out, w = 1366, h = 768, ...steps] = process.argv.slice(2);
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const page = await (await browser.newContext({ viewport: { width: +w, height: +h } })).newPage();
+  // BLOCK=substring: make matching requests fail (e.g. BLOCK=assets/animals to test without them)
+  if (process.env.BLOCK) await page.route((u) => u.href.includes(process.env.BLOCK), (r) => r.abort());
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); else if (m.text().startsWith('[event]')) console.log(m.text()); });

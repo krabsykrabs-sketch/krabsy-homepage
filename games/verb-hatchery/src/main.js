@@ -764,7 +764,11 @@ function frame(now) {
       const ud = e.obj.userData;
       ud.egg.rotation.y += dt * 0.8;
       ud.glow.material.opacity = 0.45 + Math.sin(world.time * 3 + e.id) * 0.2;
-      if (ud.beam) ud.beam.visible = Math.hypot(e.x - player.pos.x, e.z - player.pos.z) > 6;
+      if (ud.beam) {
+        ud.beam.visible = Math.hypot(e.x - player.pos.x, e.z - player.pos.z) > 6;
+        // thin up close, but never thinner than a few pixels from far away (event beams are big anyway)
+        if (!e.event) { const k = Math.min(5, Math.max(1, world.camera.position.distanceTo(e.obj.position) / 28)); ud.beam.scale.set(k, 1, k); }
+      }
     }
     for (const r of respawn) r.t -= dt;
     const due = respawn.filter((r) => r.t <= 0);
@@ -860,7 +864,8 @@ async function boot() {
   player.spawn(SPAWN, 0);
   world.followSun(player.pos);
   reserveSpots(world);
-  const decor = world.loadDecor().then(() => buildDecor(world)).catch((e) => console.error('decor', e));
+  const decor = world.loadDecor().then(() => buildDecor(world)).catch((e) => console.error('decor', e))
+    .then(() => world.batch.build(true)); // merge all static props into a few meshes
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
   await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e)),

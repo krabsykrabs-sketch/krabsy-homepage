@@ -4,49 +4,42 @@
 import * as THREE from 'three';
 import { THIEF, ZONES } from './balance.js';
 import { height, makeEggMesh, onPier, WATER_Y } from './world.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { paint, paintMat } from './merge.js';
 
-const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, ...o });
-const RED = M(0xff6b4a), DARK = M(0xd94a30), BLACK = M(0x1a1a2e), WHITE = M(0xffffff), MASK = M(0x22223a);
+// A crab is 7 meshes (it was 26): the body, two claws, three leg pairs and the dizzy
+// stars. All crabs share the same painted geometry (vertex colours, see merge.js).
+const RED = 0xff6b4a, DARK = 0xd94a30, BLACK = 0x1a1a2e, WHITE = 0xffffff, MASK = 0x22223a;
 const sph = new THREE.SphereGeometry(1, 16, 12), cylG = new THREE.CylinderGeometry(1, 1, 1, 8);
-function mesh(g, m, x, y, z, sx, sy = sx, sz = sx) {
-  const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); o.castShadow = true; return o;
+const part = (g, hex, x, y, z, sx, sy = sx, sz = sx, rz = 0) => { const p = paint(g, hex).scale(sx, sy, sz); if (rz) p.rotateZ(rz); return p.translate(x, y, z); };
+let GEO = null;
+function crabGeo() {
+  if (GEO) return GEO;
+  const body = [part(sph, RED, 0, 0.75, 0, 0.85, 0.5, 0.65), part(sph, DARK, 0, 0.62, 0, 0.8, 0.32, 0.6),
+    part(cylG, MASK, 0, 1.2, 0.18, 0.5, 0.12, 0.5),                                       // robber mask across the eyes
+    paint(new THREE.TorusGeometry(0.12, 0.03, 6, 12, Math.PI), BLACK).rotateZ(Math.PI).translate(0, 0.85, 0.63)]; // smile
+  const arms = {}, legs = [];
+  for (const s of [-1, 1]) {
+    body.push(part(cylG, DARK, s * 0.22, 1.05, 0.3, 0.05, 0.4, 0.05), part(sph, WHITE, s * 0.22, 1.3, 0.32, 0.15),
+      part(sph, BLACK, s * 0.22, 1.3, 0.45, 0.07), part(sph, MASK, s * 0.22, 1.3, 0.28, 0.17, 0.08, 0.17)); // eyes, mask band
+    arms[s] = mergeGeometries([part(sph, RED, 0, 0, 0, 0.14), part(sph, RED, s * 0.18, 0.18, 0.25, 0.3, 0.2, 0.25), part(sph, DARK, s * 0.18, 0.38, 0.32, 0.22, 0.09, 0.2)]);
+  }
+  // a left and a right leg swing together, so each pair is one mesh
+  for (let i = 0; i < 3; i++) legs.push(mergeGeometries([-1, 1].map((s) => part(cylG, DARK, s * (0.75 + i * 0.05), 0, 0, 0.06, 0.7, 0.06, s * 0.7))));
+  const stars = mergeGeometries([0, 1, 2].map((i) => new THREE.OctahedronGeometry(0.1).translate(Math.cos(i * 2.1) * 0.45, 0, Math.sin(i * 2.1) * 0.45)));
+  return (GEO = { body: mergeGeometries(body), arms, legs, stars, starMat: new THREE.MeshStandardMaterial({ color: 0xffcf5e, roughness: 0.6, emissive: 0xffcf5e, emissiveIntensity: 0.6 }) });
 }
 
 export function buildCrab() {
+  const G = crabGeo(), mat = paintMat();
+  const mk = (geo, m = mat) => { const o = new THREE.Mesh(geo, m); o.castShadow = true; return o; };
   const g = new THREE.Group(), body = new THREE.Group();
   g.add(body);
-  body.add(mesh(sph, RED, 0, 0.75, 0, 0.85, 0.5, 0.65));
-  body.add(mesh(sph, DARK, 0, 0.62, 0, 0.8, 0.32, 0.6));
-  // robber mask across the eyes
-  body.add(mesh(cylG, MASK, 0, 1.2, 0.18, 0.5, 0.12, 0.5));
-  for (const s of [-1, 1]) {
-    body.add(mesh(cylG, DARK, s * 0.22, 1.05, 0.3, 0.05, 0.4, 0.05));
-    body.add(mesh(sph, WHITE, s * 0.22, 1.3, 0.32, 0.15));
-    body.add(mesh(sph, BLACK, s * 0.22, 1.3, 0.45, 0.07));
-    // mask band behind the eyes
-    body.add(mesh(sph, MASK, s * 0.22, 1.3, 0.28, 0.17, 0.08, 0.17));
-    // claws
-    const arm = new THREE.Group(); arm.position.set(s * 0.8, 0.85, 0.35);
-    arm.add(mesh(sph, RED, 0, 0, 0, 0.14));
-    arm.add(mesh(sph, RED, s * 0.18, 0.18, 0.25, 0.3, 0.2, 0.25));
-    const pin = mesh(sph, DARK, s * 0.18, 0.38, 0.32, 0.22, 0.09, 0.2); arm.add(pin);
-    arm.userData.side = s;
-    body.add(arm);
-    // legs
-    for (let i = 0; i < 3; i++) {
-      const leg = mesh(cylG, DARK, s * (0.75 + i * 0.05), 0.35, -0.25 + i * 0.25, 0.06, 0.7, 0.06);
-      leg.rotation.z = s * 0.7; leg.userData.leg = i; body.add(leg);
-    }
-  }
-  // smile
-  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 6, 12, Math.PI), BLACK);
-  smile.position.set(0, 0.85, 0.63); smile.rotation.z = Math.PI; body.add(smile);
+  body.add(mk(G.body));
+  for (const s of [-1, 1]) { const arm = mk(G.arms[s]); arm.position.set(s * 0.8, 0.85, 0.35); arm.userData.side = s; body.add(arm); } // claws
+  G.legs.forEach((geo, i) => { const leg = mk(geo); leg.position.set(0, 0.35, -0.25 + i * 0.25); leg.userData.leg = i; body.add(leg); });
   // dizzy stars
-  const stars = new THREE.Group(); stars.position.y = 1.75; stars.visible = false;
-  for (let i = 0; i < 3; i++) {
-    const s = mesh(new THREE.OctahedronGeometry(1), M(0xffcf5e, { emissive: 0xffcf5e, emissiveIntensity: 0.6 }), Math.cos(i * 2.1) * 0.45, 0, Math.sin(i * 2.1) * 0.45, 0.1);
-    stars.add(s);
-  }
+  const stars = mk(G.stars, G.starMat); stars.position.y = 1.75; stars.visible = false;
   g.add(stars);
   g.userData = { body, stars };
   g.scale.setScalar(0.9);

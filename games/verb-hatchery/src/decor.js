@@ -12,7 +12,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { ZONES, ISLAND, HOME } from './balance.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { height, terrainH, zoneAt, pathDist, POND, PATHS, FORK, WATER_Y, glowTex, BAY, PIER, ISLET, bayPoint, beachW } from './world.js';
+import { height, terrainH, zoneAt, pathDist, POND, pondPoint, PATHS, FORK, WATER_Y, glowTex, BAY, PIER, ISLET, bayPoint, beachW } from './world.js';
+import { paint } from './merge.js';
 import { rng } from './creatures.js';
 import { t } from './i18n.js';
 
@@ -45,6 +46,9 @@ export function reserveSpots(world) {
     [...SPOT.camp, 8], [FORK.x, FORK.z, 4]);
 }
 
+// Kenney's Nature Kit paints all leaves teal; in our warm meadow that looks wrong.
+const LEAF = { grass: 0x79c85a, leafsGreen: 0x6dbe52, leafsDark: 0x4d9c48 };
+const dir = (url) => url.split('/')[2];
 const cache = {};
 async function loadAll(loader) {
   await Promise.all(Object.entries(F).map(async ([n, url]) => {
@@ -56,46 +60,65 @@ async function loadAll(loader) {
         if (!o.isMesh) return;
         o.castShadow = true; o.receiveShadow = true;
         // some packs export metalness 1, which renders black without an environment map
-        for (const m of [].concat(o.material)) { m.metalness = 0; m.roughness = Math.max(m.roughness ?? 1, 0.6); }
+        for (const m of [].concat(o.material)) {
+          m.metalness = 0; m.roughness = Math.max(m.roughness ?? 1, 0.6);
+          if (LEAF[m.name] && dir(url) === 'nature') m.color.setHex(LEAF[m.name]); // the kit's leaves are mint / teal
+        }
       });
-      cache[n] = { scene: g.scene, h: size.y || 1, w: Math.max(size.x, size.z) || 1, minY: box.min.y };
+      let parts = 0; g.scene.traverse((o) => { if (o.isMesh) parts++; });
+      cache[n] = { scene: g.scene, h: size.y || 1, w: Math.max(size.x, size.z) || 1, minY: box.min.y, parts };
     } catch (_) { /* a missing prop is skipped */ }
   }));
+}
+
+// A copy of a model for things that move (ship, boat): its parts are merged into one
+// mesh per material, so the whole model is one draw call.
+function liveModel(scene) {
+  const by = new Map(), g = new THREE.Group();
+  scene.updateMatrixWorld(true);
+  scene.traverse((o) => { if (o.isMesh) { if (!by.has(o.material)) by.set(o.material, []); by.get(o.material).push(o.geometry.clone().applyMatrix4(o.matrixWorld)); } });
+  for (const [mat, geos] of by) {
+    const one = mergeGeometries(geos);
+    for (const geo of one ? [one] : geos) { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; g.add(m); }
+  }
+  return g;
 }
 
 export async function buildDecor(world) {
   await loadAll(new GLTFLoader());
   const S = world.scene, R = rng('decor-2');
   const life = [];
-  // place one model: h = target height, w = target width (else s = scale)
+  // Place one model: h = target height, w = target width (else s = scale).
+  // It is baked into the static batch (merge.js) and can't be moved afterwards;
+  // { live: true } keeps it a separate object (returned) for things that move.
+  // Batch options: color (replace the model's colour), mul (multiply it), glow.
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), v3 = new THREE.Vector3(), sc = new THREE.Vector3();
   const put = (n, x, z, o = {}) => {
     const c = cache[n]; if (!c) return null;
-    const m = c.scene.clone(true);
     const s = o.s ?? (o.w ? o.w / c.w : (o.h ?? 1) / c.h);
-    m.scale.setScalar(s);
-    m.rotation.y = o.ry ?? R() * Math.PI * 2;
-    m.position.set(x, (o.y ?? height(x, z)) - c.minY * s + (o.lift ?? 0), z);
-    S.add(m);
+    const ry = o.ry ?? R() * Math.PI * 2, y = (o.y ?? height(x, z)) - c.minY * s + (o.lift ?? 0);
     if (o.col) world.addCollider(x, z, o.col);
-    return m;
+    if (o.live) {
+      const m = liveModel(c.scene);
+      m.scale.setScalar(s); m.rotation.y = ry; m.position.set(x, y, z);
+      S.add(m);
+      return m;
+    }
+    world.batch.addModel(c.scene, m4.compose(v3.set(x, y, z), q.setFromAxisAngle(up, ry), sc.setScalar(s)), o);
+    return true;
   };
-  // many copies of one model as instanced meshes
-  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
-  const inst = (n, pts) => {
-    const c = cache[n]; if (!c || !pts.length) return;
-    c.scene.traverse((o) => {
-      if (!o.isMesh) return;
-      const im = new THREE.InstancedMesh(o.geometry, o.material, pts.length);
-      im.castShadow = true; im.receiveShadow = true;
-      pts.forEach((p, i) => {
-        const s = p.h / c.h;
-        q.setFromAxisAngle(up, p.ry ?? R() * 6.28);
-        m4.compose(new THREE.Vector3(p.x, (p.y ?? height(p.x, p.z)) - c.minY * s, p.z), q, new THREE.Vector3(s, s, s)).multiply(o.matrixWorld);
-        im.setMatrixAt(i, m4);
-      });
-      im.computeBoundingSphere();
-      S.add(im);
-    });
+  // many copies of one model (also baked into the batch)
+  const inst = (n, pts, o = {}) => {
+    const c = cache[n]; if (!c) return;
+    let burn = 0;
+    for (const p of pts) {
+      const s = p.h / c.h;
+      if (p.ry === undefined) burn += c.parts - 1;
+      world.batch.addModel(c.scene, m4.compose(v3.set(p.x, (p.y ?? height(p.x, p.z)) - c.minY * s, p.z), q.setFromAxisAngle(up, p.ry ?? R() * 6.28), sc.setScalar(s)), o);
+    }
+    // (the old code drew one random number per model PART; use up the same amount, so
+    // every later random placement stays exactly where it was)
+    while (burn-- > 0) R();
   };
   const free = (x, z, gap = 2.5) => height(x, z) > 0.45 && pathDist(x, z) > gap
     && Math.hypot(x - POND.x, z - POND.z) > POND.r + 2 && Math.hypot(x - H.x, z - H.z) > 24
@@ -135,12 +158,10 @@ export async function buildDecor(world) {
   put('pillow_large_blue', cx + 1.3, cz - 0.9, { h: 0.35, lift: 0.03 });
   // a small farm behind the base: three rows (pumpkins, carrots, corn) with a fence
   const [fx, fz] = SPOT.farm;
-  const soil = new THREE.MeshStandardMaterial({ color: 0x8a5a33, roughness: 1 });
   const rows = [['crop_pumpkin', 0.7], ['crop_carrot', 0.5], ['crops_cornStageD', 2.0]];
   rows.forEach(([n, h], r) => {
     const z = fz - 3 + r * 3;
-    const bed = new THREE.Mesh(new THREE.BoxGeometry(10, 0.25, 1.4), soil);
-    bed.position.set(fx, height(fx, z) + 0.05, z); bed.receiveShadow = true; S.add(bed);
+    world.batch.addPainted(paint(new THREE.BoxGeometry(10, 0.25, 1.4), 0x8a5a33).translate(fx, height(fx, z) + 0.05, z), fx, fz);
     inst(n, Array.from({ length: 7 }, (_, i) => ({ x: fx - 4.2 + i * 1.4, z, y: height(fx, z) + 0.17, h: h * (0.85 + R() * 0.3) })));
   });
   if (cache.fence_simple) {
@@ -182,13 +203,21 @@ export async function buildDecor(world) {
     put('statue_column', sx0 + Math.cos(a) * 6.5, sz0 + Math.sin(a) * 6.5, { h: 3.2 + R() * 0.8, ry: a, col: 0.6 });
   }
   put('statue_obelisk', sx0, sz0, { h: 4.5, ry: 0.4, col: 0.9 });
-  // pond: lily pads, reeds, a canoe on the bank
-  inst('lily_large', Array.from({ length: 7 }, () => { const [x, z] = around(POND.x, POND.z, POND.r - 3); return { x, z, y: POND.water + 0.02, h: 0.12 }; }));
-  inst('lily_small', Array.from({ length: 6 }, () => { const [x, z] = around(POND.x, POND.z, POND.r - 2); return { x, z, y: POND.water + 0.02, h: 0.1 }; }));
-  inst('plant_flatTall', Array.from({ length: 16 }, (_, i) => {
-    const a = R() * 6.28, r = POND.r + 0.3 + R() * 1.5; return { x: POND.x + Math.cos(a) * r, z: POND.z + Math.sin(a) * r, h: 1.0 + R() * 0.6 };
-  }));
-  put('canoe', POND.x - POND.r - 0.5, POND.z + 2, { w: 3.2, ry: 1.2, lift: 0.05 });
+  // pond: lily pads on the water, green reeds along the waterline (thicker on two
+  // sides, none where the canoe lies), a canoe on the bank. Positions follow the
+  // pond's outline: pondPoint(direction, metres from the middle of a round pond).
+  const RP = rng('pond');
+  const onWater = (n) => Array.from({ length: n }, () => { const [x, z] = pondPoint(RP() * 6.28, Math.sqrt(RP()) * 6.3); return { x, z, y: POND.water + 0.02, ry: RP() * 6.28 }; });
+  inst('lily_large', onWater(7).map((p) => ({ ...p, h: 0.12 })));
+  inst('lily_small', onWater(6).map((p) => ({ ...p, h: 0.1 })));
+  // (the kit's reed is teal; real reed colours instead, three greens so the clumps look alive)
+  [0x6aa843, 0x86b84c, 0x4f9440].forEach((color, k) => inst('plant_flatTall', Array.from({ length: 9 }, () => {
+    const a = [0.5, 2.2, 5.0][Math.floor(RP() * 3)] + (RP() - 0.5) * 1.5;
+    const [x, z] = pondPoint(a, 7.5 + RP() * 1.7);
+    return { x, z, y: Math.max(height(x, z), POND.water - 0.1), h: 0.9 + RP() * 0.8 + (k === 0 ? 0.3 : 0), ry: RP() * 6.28 };
+  }), { color }));
+  put('canoe', ...pondPoint(3.5, 9.3), { w: 3.2, ry: 1.2, lift: 0.05 });
+  for (let i = 0; i < 123; i++) R(); // the old round pond used 123 random numbers here (keeps the later placements)
 
   // ── forest: mushrooms (some giant), stumps, logs, a campsite ──
   const F0 = Z.forest;
@@ -272,7 +301,7 @@ export async function buildDecor(world) {
   put('chest', tx - 1.9, tz + 0.9, { h: 0.9, ry: 2.2, col: 0.7 });
   put('crate', tx - 2.2, tz - 1.4, { h: 0.8, col: 0.6 });
   // the pirate ship lies at anchor in the mouth of the bay
-  const ship = put('ship-pirate-large', BAY.x + 24, BAY.z - 26, { w: 22, ry: -1.0, y: WATER_Y - 2.2 });
+  const ship = put('ship-pirate-large', BAY.x + 24, BAY.z - 26, { w: 22, ry: -1.0, y: WATER_Y - 2.2, live: true });
   if (ship) { const y0 = ship.position.y; life.push((dt, time) => { ship.position.y = y0 + Math.sin(time * 0.8) * 0.25; ship.rotation.z = Math.sin(time * 0.6) * 0.04; ship.rotation.x = Math.sin(time * 0.5 + 1) * 0.03; }); }
   life.push(seagulls(S, BAY.x - 16, BAY.z, R));
 
@@ -283,10 +312,7 @@ export async function buildDecor(world) {
     const x = V.x + Math.sin(a) * r, z = V.z + Math.cos(a) * r;
     put('statue_head', x, z, { h: 3.4, ry: a - Math.PI / 2, col: 1.2 }); // the model faces +x: turn it to look outwards
   }
-  const crystal = (n, x, z, h, color) => {
-    const m = put(n, x, z, { h, col: 0.3 });
-    if (m) m.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setHex(color); o.material.emissive = new THREE.Color(color); o.material.emissiveIntensity = 0.6; } });
-  };
+  const crystal = (n, x, z, h, color) => put(n, x, z, { h, col: 0.3, mul: color, glow: 0.6 });
   for (let i = 0; i < 14; i++) {
     const a = R() * 6.28, r = 8 + R() * (V.r - 10);
     crystal(i % 2 ? 'Gem_Large' : 'Gem_Medium', V.x + Math.cos(a) * r, V.z + Math.sin(a) * r, 1.0 + R() * 1.2, [0xb57bff, 0xff8a3d, 0xff5fb0][i % 3]);
@@ -342,7 +368,6 @@ function buildPier(world, put) {
   ['#c98f58', '#bd844f', '#d09a63', '#b97d48'].forEach((col, i) => { x.fillStyle = col; x.fillRect(i * 16, 0, 16, 64); x.fillStyle = 'rgba(70,35,10,.45)'; x.fillRect(i * 16, 0, 1.5, 64); });
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   const planks = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x7a4a26, roughness: 0.9 });
   // deck parts: [from, to, half width, y at from, y at to]; u of the texture runs along the pier
   const parts = [[0, P.ramp, P.half, P.y0, P.top], [P.ramp, P.len - P.headLen, P.half, P.top, P.top], [P.len - P.headLen, P.len, P.headHalf, P.top, P.top]];
   const decks = parts.map(([a0, a1, hw, y0, y1]) => {
@@ -358,7 +383,8 @@ function buildPier(world, put) {
   for (let a = 2.5; a < P.len - P.headLen - 1; a += 4) for (const sd of [-1, 1]) post(a, sd * (P.half - 0.05), P.top + (a > 6 ? 0.45 : 0.05));
   for (const a of [P.len - P.headLen + 0.2, P.len - 0.2]) for (const sd of [-1, 1]) post(a, sd * (P.headHalf - 0.2), P.top + 0.75);
   for (const sd of [-1, 1]) wood.push(new THREE.BoxGeometry(P.len - P.headLen - P.ramp, 0.14, 0.16).translate((P.ramp + P.len - P.headLen) / 2, P.top - 0.2, sd * (P.half - 0.05)));
-  const posts = new THREE.Mesh(mergeGeometries(wood), dark); posts.castShadow = true; g.add(posts);
+  g.updateMatrix();
+  world.batch.addPainted(paint(mergeGeometries(wood), 0x7a4a26).applyMatrix4(g.matrix), P.x0, P.z0);
   world.scene.add(g);
   // things on the pier head, and a boat tied up beside it
   const at = (a, b) => [P.x0 + a * P.ux - b * P.uz, P.z0 + a * P.uz + b * P.ux];
@@ -367,7 +393,7 @@ function buildPier(world, put) {
   put('crate', ...at(P.len - 4.4, 2.6), { h: 0.9, y: P.top, col: 0.6 });
   const lamp = new THREE.Sprite(additive(0xffd27a, 0.7)); lamp.scale.setScalar(1.6);
   lamp.position.set(...(([px, pz]) => [px, P.top + 1.0, pz])(at(P.len - 0.2, P.headHalf - 0.2))); world.scene.add(lamp);
-  const boat = put('boat-row-large', ...at(P.len - 8, -P.half - 1.5), { w: 4.6, ry: g.rotation.y, y: WATER_Y - 0.28 });
+  const boat = put('boat-row-large', ...at(P.len - 8, -P.half - 1.5), { w: 4.6, ry: g.rotation.y, y: WATER_Y - 0.28, live: true });
   return (dt, time) => {
     if (boat) { boat.position.y = WATER_Y - 0.28 + Math.sin(time * 1.1) * 0.05; boat.rotation.z = Math.sin(time * 0.9) * 0.05; }
     lamp.material.opacity = 0.6 + Math.sin(time * 5) * 0.08;
@@ -400,9 +426,7 @@ function beachSet(world, spots, R) {
   const [bx, bz] = [spots[0][0] + 2.6, spots[0][1] - 2.2];
   parts.push(paint(new THREE.SphereGeometry(0.38, 12, 8), 0xff8585, 0xffffff).applyMatrix4(new THREE.Matrix4().makeTranslation(bx, terrainH(bx, bz) + 0.36, bz)));
   world.addCollider(bx, bz, 0.4);
-  const mesh = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }));
-  mesh.castShadow = true; mesh.receiveShadow = true;
-  world.scene.add(mesh);
+  world.batch.addPainted(mergeGeometries(parts), spots[0][0], spots[0][1], THREE.DoubleSide);
 }
 
 function additive(color, opacity = 0.8) {
@@ -462,54 +486,57 @@ function clouds(S, R) {
   const mat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xc8d4e0, flatShading: true, transparent: true, opacity: 0.95, fog: false });
   const geo = new THREE.IcosahedronGeometry(1, 1);
   const list = Array.from({ length: 16 }, () => {
-    const g = new THREE.Group();
-    const n = 4 + Math.floor(R() * 4);
-    for (let i = 0; i < n; i++) {
-      const m = new THREE.Mesh(geo, mat);
-      m.position.set((i - n / 2) * 3.2 + R() * 1.5, R() * 1.5, R() * 3); m.scale.setScalar(3 + R() * 3); m.scale.y *= 0.65;
-      g.add(m);
+    const n = 4 + Math.floor(R() * 4), puffs = [];
+    for (let i = 0; i < n; i++) { // one mesh per cloud
+      const sc = 3 + R() * 3;
+      puffs.push(geo.clone().scale(sc, sc * 0.65, sc).translate((i - n / 2) * 3.2 + R() * 1.5, R() * 1.5, R() * 3));
     }
+    const g = new THREE.Mesh(mergeGeometries(puffs), mat);
     g.position.set(-220 + R() * 440, 55 + R() * 25, -180 + R() * 320);
     S.add(g); return { g, v: 1.2 + R() * 1.5 };
   });
   return (dt) => { for (const c of list) { c.g.position.x += c.v * dt; if (c.g.position.x > 240) c.g.position.x = -240; } };
 }
+// Birds and butterflies: all wings of a kind are one InstancedMesh (matrices set every frame).
+const _g = new THREE.Matrix4(), _w = new THREE.Matrix4(), _m = new THREE.Matrix4();
+const _flip = new THREE.Matrix4().makeRotationY(Math.PI);
+function wingPair(im, i, pos, yaw, flap) {
+  _g.makeRotationY(yaw).setPosition(pos[0], pos[1], pos[2]);
+  im.setMatrixAt(i * 2, _m.multiplyMatrices(_g, _w.makeRotationZ(flap)));
+  im.setMatrixAt(i * 2 + 1, _m.multiplyMatrices(_g, _flip).multiply(_w.makeRotationZ(-flap)));
+}
 function seagulls(S, cx, cz, R) {
   const mat = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-  const wing = new THREE.PlaneGeometry(0.9, 0.3).translate(0.45, 0, 0);
-  const birds = Array.from({ length: 6 }, (_, i) => {
-    const g = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 4), mat); body.scale.z = 2.2; g.add(body);
-    const l = new THREE.Mesh(wing, mat), r = new THREE.Mesh(wing, mat); r.rotation.y = Math.PI; g.add(l, r);
-    S.add(g); return { g, l, r, rad: 10 + R() * 14, h: 14 + R() * 8, sp: 0.25 + R() * 0.2, ph: R() * 6.28 };
-  });
+  const n = 6;
+  const wings = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.9, 0.3).translate(0.45, 0, 0), mat, n * 2);
+  const bodies = new THREE.InstancedMesh(new THREE.SphereGeometry(0.16, 6, 4).scale(1, 1, 2.2), mat, n);
+  wings.frustumCulled = bodies.frustumCulled = false; S.add(wings, bodies);
+  const birds = Array.from({ length: n }, () => ({ rad: 10 + R() * 14, h: 14 + R() * 8, sp: 0.25 + R() * 0.2, ph: R() * 6.28 }));
   return (dt, time) => {
-    for (const b of birds) {
-      const a = time * b.sp + b.ph;
-      b.g.position.set(cx + Math.cos(a) * b.rad, b.h + Math.sin(time * 0.7 + b.ph) * 1.5, cz + Math.sin(a) * b.rad);
-      b.g.rotation.y = -a; // fly along the circle
-      const f = Math.sin(time * 8 + b.ph) * 0.5;
-      b.l.rotation.z = f; b.r.rotation.z = -f;
-    }
+    birds.forEach((b, i) => {
+      const a = time * b.sp + b.ph, pos = [cx + Math.cos(a) * b.rad, b.h + Math.sin(time * 0.7 + b.ph) * 1.5, cz + Math.sin(a) * b.rad];
+      wingPair(wings, i, pos, -a, Math.sin(time * 8 + b.ph) * 0.5); // fly along the circle
+      bodies.setMatrixAt(i, _g);
+    });
+    wings.instanceMatrix.needsUpdate = bodies.instanceMatrix.needsUpdate = true;
   };
 }
 function butterflies(S, centers, R) {
   if (!centers.length) return null;
-  const geo = new THREE.PlaneGeometry(0.22, 0.18).translate(0.11, 0, 0);
-  const list = Array.from({ length: 26 }, (_, i) => {
+  const n = 26, col = new THREE.Color();
+  const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.22, 0.18).translate(0.11, 0, 0), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }), n * 2);
+  im.frustumCulled = false; S.add(im);
+  const list = Array.from({ length: n }, (_, i) => {
     const c = centers[i % centers.length];
-    const mat = new THREE.MeshBasicMaterial({ color: [0xff8585, 0xffcf5e, 0x9fe8ff, 0xc9b6ff, 0xffffff][i % 5], side: THREE.DoubleSide });
-    const g = new THREE.Group(), l = new THREE.Mesh(geo, mat), r = new THREE.Mesh(geo, mat);
-    r.rotation.y = Math.PI; g.add(l, r); S.add(g);
-    return { g, l, r, cx: c[0], cz: c[1], y: height(c[0], c[1]) + 0.9, ph: R() * 10, sp: 0.5 + R() * 0.5 };
+    col.setHex([0xff8585, 0xffcf5e, 0x9fe8ff, 0xc9b6ff, 0xffffff][i % 5]); im.setColorAt(i * 2, col); im.setColorAt(i * 2 + 1, col);
+    return { cx: c[0], cz: c[1], y: height(c[0], c[1]) + 0.9, ph: R() * 10, sp: 0.5 + R() * 0.5 };
   });
   return (dt, time) => {
-    for (const b of list) {
+    list.forEach((b, i) => {
       const p = time * b.sp + b.ph;
-      b.g.position.set(b.cx + Math.sin(p) * 2.5, b.y + Math.sin(p * 2.3) * 0.4, b.cz + Math.sin(p * 1.3) * 2.5);
-      b.g.rotation.y = Math.atan2(Math.cos(p), Math.cos(p * 1.3));
-      const f = Math.sin(time * 18 + b.ph) * 1.1;
-      b.l.rotation.x = 0; b.l.rotation.z = f; b.r.rotation.z = -f;
-    }
+      wingPair(im, i, [b.cx + Math.sin(p) * 2.5, b.y + Math.sin(p * 2.3) * 0.4, b.cz + Math.sin(p * 1.3) * 2.5],
+        Math.atan2(Math.cos(p), Math.cos(p * 1.3)), Math.sin(time * 18 + b.ph) * 1.1);
+    });
+    im.instanceMatrix.needsUpdate = true;
   };
 }

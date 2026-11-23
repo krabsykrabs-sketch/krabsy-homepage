@@ -1,7 +1,8 @@
 # Verb Hatchery — world review and proposal (2026-11-23)
 
-Nothing in this file is built yet (except the Beach, see the Log in `CLAUDE.md`).
-The owner picks; then a session builds the picked items.
+The owner approved all 15 items (2026-11-23); they are built step by step.
+**Built: Step 1 = items 1–4** (2026-11-23, see the Log in `CLAUDE.md` for
+what was done and the measured draw calls). Not built yet: items 5–15.
 
 Pictures are in `_shots/` (not in git): `review-*.png` = the world today,
 `beach-before-*.png` / `beach-after-*.png` = the Beach rebuild.
@@ -24,14 +25,14 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 
 ## Proposal, in the order I would build it
 
-### Step 1 — quick wins, no new assets
+### Step 1 — quick wins, no new assets — ✅ built 2026-11-23
 
 | # | What | How | Effort | Cost |
 |---|---|---|---|---|
-| 1 | **Merge the static props** | `decor.js` `put()` adds every model as its own mesh. Merge all props that never move into one mesh per material (like the new pier and parasols). Same for pens and incubators. | M | **Saves** roughly 100–300 draw calls (estimate) |
-| 2 | **Sky, light, colour** | Gradient sky dome (light at the horizon, deeper blue above), a visible sun, softer shadows, tone mapping, slightly warm light. | S | none |
-| 3 | **Egg beams** | Thinner, in the egg's colour, fading out with height; only the event egg keeps a big beam. | S | none |
-| 4 | **Pond like the sea** | Use the new shore shader (light shallows, foam line) on the pond, give it an irregular shape, fix the teal reeds. | S | none |
+| 1 ✅ | **Merge the static props** | `decor.js` `put()` adds every model as its own mesh. Merge all props that never move into one mesh per material (like the new pier and parasols). Same for pens and incubators. | M | **Saved** 60–210 draw calls per view (measured: Home 191 → 30, Meadow 287 → 79) |
+| 2 ✅ | **Sky, light, colour** | Gradient sky dome (light at the horizon, deeper blue above), a visible sun, softer shadows, tone mapping, slightly warm light. | S | none |
+| 3 ✅ | **Egg beams** | Thinner, in the egg's colour, fading out with height; only the event egg keeps a big beam. | S | none |
+| 4 ✅ | **Pond like the sea** | Use the new shore shader (light shallows, foam line) on the pond, give it an irregular shape, fix the teal reeds. | S | none |
 
 ### Step 2 — the ground (biggest visual gain)
 

@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { PLAYER, ZONES } from './balance.js';
 import { height, onIsland, makeEggMesh, WATER_Y } from './world.js';
 
@@ -26,7 +27,33 @@ export async function loadCharacters() {
     loader.loadAsync('assets/characters/anim_player.glb'),
   ]);
   template = { A: a.scene, B: b.scene };
+  mergeSkinned(a.scene); mergeSkinned(b.scene);
   clips = Object.fromEntries(anim.animations.map((c) => [c.name, c]));
+}
+
+// The characters come as 8 skinned body parts on one skeleton: merge the parts that
+// share skeleton, material and placement into one mesh (fewer draw calls, and in the
+// shadow pass too). Anything that does not fit stays as it is.
+function mergeSkinned(root) {
+  const groups = new Map();
+  root.updateMatrixWorld(true);
+  root.traverse((o) => {
+    if (!o.isSkinnedMesh || Array.isArray(o.material) || Object.keys(o.geometry.morphAttributes).length) return;
+    const k = [o.skeleton.uuid, o.material.uuid, o.parent.uuid, o.matrix.elements.join(), o.bindMatrix.elements.join(),
+      Object.keys(o.geometry.attributes).sort().join(), !!o.geometry.index].join('|');
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(o);
+  });
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const geo = mergeGeometries(list.map((o) => o.geometry));
+    if (!geo) continue;
+    const first = list[0], m = new THREE.SkinnedMesh(geo, first.material);
+    m.name = 'body'; m.position.copy(first.position); m.quaternion.copy(first.quaternion); m.scale.copy(first.scale);
+    first.parent.add(m);
+    m.bind(first.skeleton, first.bindMatrix);
+    for (const o of list) o.parent.remove(o);
+  }
 }
 
 export class Player {
