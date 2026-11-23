@@ -17,7 +17,7 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 export const POND = { x: 38, z: 20, r: 10, water: 0.15 };
 export const PATHS = [
   [[0, 46], [0, 24], [-20, 8], [-38, -8]],          // to the Forest
-  [[0, 24], [26, 12], [50, -4]],                    // to the Beach
+  [[0, 24], [26, 12], [50, -2], [70, -12]],         // to the Beach
   [[0, 24], [-4, -8], [2, -40], [0, -64]],          // to the Volcano
 ];
 export const FORK = { x: 3, z: 22 };
@@ -35,8 +35,37 @@ export function pathDist(x, z) {
 export const DECK = { x0: HOME.x - 15.2, x1: HOME.x + 15.2, z0: HOME.z - 11.2, z1: HOME.z + 15.2 };
 const onDeck = (x, z) => x > DECK.x0 && x < DECK.x1 && z > DECK.z0 && z < DECK.z1;
 
+// The beach is a bay cut into the east coast: sand runs down into shallow water.
+// BAY = the circle of sea that bites into the island; its edge is the waterline.
+export const BAY = { x: BEACH.x + 36, z: BEACH.z, r: 28 };
+const bayS = (x, z) => dist(x, z, BAY.x, BAY.z) - BAY.r; // metres inland from the bay's waterline (< 0 = in the bay)
+// 1 on the beach, 0 where the normal island terrain takes over
+export function beachW(x, z) {
+  return (1 - smooth(34, 50, bayS(x, z))) * (1 - smooth(38, 56, dist(x, z, BEACH.x, BEACH.z)));
+}
+export const bayPoint = (ang, s) => [BAY.x - Math.cos(ang) * (BAY.r + s), BAY.z + Math.sin(ang) * (BAY.r + s)]; // ang 0 = due west of the bay centre
+// A small sand islet in the bay, reached by wading along a sandbar.
+export const ISLET = (() => { const [x, z] = bayPoint(0.8, -13.5); return { x, z, r: 6.5, bar: bayPoint(0.8, 1) }; })();
+// A wooden pier from the sand out over the water (walkable: part of height()).
+export const PIER = (() => {
+  const ang = -0.35, [x0, z0] = bayPoint(ang, 10.5);
+  return { x0, z0, ux: Math.cos(ang), uz: -Math.sin(ang), len: 26.5, half: 1.5, headLen: 5.5, headHalf: 3.4, top: 0.55, ramp: 3 };
+})();
+// → [metres along the pier, metres sideways]
+export function pierLocal(x, z) {
+  const dx = x - PIER.x0, dz = z - PIER.z0;
+  return [dx * PIER.ux + dz * PIER.uz, -dx * PIER.uz + dz * PIER.ux];
+}
+function beachProfile(x, z) {
+  const s = bayS(x, z);
+  if (s <= 0) return WATER_Y + Math.max(-1.8, s * 0.075);            // shallow water, then the bay floor
+  if (s <= 12) return WATER_Y + s * 0.085;                            // wet sand up to the dry beach
+  return 0.42 + 1.1 * smooth(12, 44, s) + smooth(15, 26, s) * 0.3 * Math.sin(x * 0.21 + 1) * Math.cos(z * 0.17); // low dunes behind
+}
+
 // ── height function (metres) ──
-export function height(x, z) {
+// terrainH = the ground itself (the terrain mesh); height = what you stand on (ground or pier).
+export function terrainH(x, z) {
   const d = dist(x, z, ISLAND.cx, ISLAND.cz);
   let h = 1.2 * Math.sin(x * 0.045) * Math.cos(z * 0.04) + 0.6 * Math.sin(x * 0.11 + 1.3) * Math.sin(z * 0.09 + 0.4)
     + 0.25 * Math.sin(x * 0.27) * Math.cos(z * 0.23);
@@ -44,10 +73,6 @@ export function height(x, z) {
   // forest: rolling hills
   const df = dist(x, z, FOREST.x, FOREST.z);
   h += (1 - smooth(FOREST.r * 0.6, FOREST.r + 8, df)) * (1.6 + 1.4 * Math.sin(x * 0.13) * Math.sin(z * 0.15));
-  // beach: flat sand sloping into the sea
-  const db = dist(x, z, BEACH.x, BEACH.z);
-  const beach = 1 - smooth(BEACH.r * 0.5, BEACH.r + 10, db);
-  h = h * (1 - beach) + (0.35 + (BEACH.x - x) * 0.02) * beach;
   // volcano: a cone with a crater
   const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
   const cone = Math.max(0, 1 - dv / (VOLCANO.r + 8));
@@ -62,14 +87,37 @@ export function height(x, z) {
   if (dp < POND.r + 4) h = h * smooth(POND.r * 0.45, POND.r + 4, dp) + (-1.3) * (1 - smooth(POND.r * 0.45, POND.r + 4, dp));
   // island edge: down into the sea
   h -= smooth(ISLAND.r - 18, ISLAND.r + 6, d) * 6;
+  // the beach and its bay replace all of that on the east coast
+  const w = beachW(x, z);
+  if (w > 0) {
+    h = h * (1 - w) + beachProfile(x, z) * w;
+    const bar = 1 - smooth(1.6, 5, segDist(x, z, ISLET.bar, [ISLET.x, ISLET.z]));   // sandbar: ankle-deep
+    h = Math.max(h, h + (WATER_Y - 0.12 - h) * bar);
+    const isl = 1 - smooth(2, ISLET.r + 1.5, dist(x, z, ISLET.x, ISLET.z));          // the islet
+    h = Math.max(h, h + (0.8 - h) * isl);
+  }
   return h;
 }
-// Walkable = not the sea and not the deep middle of the pond. Inland ground is
-// always walkable, so a low dip in a meadow can never act as an invisible wall.
+export function onPier(x, z) {
+  const [a, b] = pierLocal(x, z);
+  return a >= 0 && a <= PIER.len && Math.abs(b) <= (a > PIER.len - PIER.headLen ? PIER.headHalf : PIER.half);
+}
+export function height(x, z) {
+  const h = terrainH(x, z);
+  if (!onPier(x, z)) return h;
+  const [a] = pierLocal(x, z);
+  return Math.max(h, PIER.y0 + (PIER.top - PIER.y0) * smooth(0, PIER.ramp, a));
+}
+PIER.y0 = terrainH(PIER.x0, PIER.z0); // the pier starts level with the sand
+// How deep you can wade into the sea.
+export const WADE = 0.28; // the character is small: this is up to its waist
+// Walkable = not the sea (wading is fine) and not the deep middle of the pond. Inland
+// ground is always walkable, so a low dip in a meadow can never act as an invisible
+// wall; only the coast and the beach (which has a bay inland) use the height test.
 export function onIsland(x, z) {
   if (Math.hypot(x - POND.x, z - POND.z) < POND.r * 0.7) return false;
-  if (Math.hypot(x - ISLAND.cx, z - ISLAND.cz) < ISLAND.r - 20) return true;
-  return height(x, z) > WATER_Y + 0.25;
+  if (Math.hypot(x - ISLAND.cx, z - ISLAND.cz) < ISLAND.r - 20 && beachW(x, z) < 0.01) return true;
+  return height(x, z) > WATER_Y - WADE;
 }
 
 export function zoneAt(x, z) {
@@ -236,16 +284,20 @@ export class World {
     const col = new Float32Array(p.count * 3);
     const c = new THREE.Color(), tmp = new THREE.Color();
     const GR = new THREE.Color(0x86d46c), GR2 = new THREE.Color(0x6fc25a), FO = new THREE.Color(0x4f9e48), SA = new THREE.Color(0xf2d9a0),
-      RO = new THREE.Color(0x6b5a55), LA = new THREE.Color(0x3d3236), DI = new THREE.Color(0xc9a46f);
+      RO = new THREE.Color(0x6b5a55), LA = new THREE.Color(0x3d3236), DI = new THREE.Color(0xc9a46f),
+      SA2 = new THREE.Color(0xf7e3b4), WET = new THREE.Color(0xd3b47e), FLOOR = new THREE.Color(0xe6e0b8);
     for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i), z = p.getZ(i), h = height(x, z);
+      const x = p.getX(i), z = p.getZ(i), h = terrainH(x, z);
       p.setY(i, onDeck(x, z) ? h - 0.15 : h);
       const n = Math.sin(x * 0.3) * Math.cos(z * 0.27) * 0.5 + 0.5;
       c.copy(GR).lerp(GR2, n);
       const df = dist(x, z, FOREST.x, FOREST.z);
       c.lerp(tmp.copy(FO).lerp(GR2, n * 0.4), 1 - smooth(FOREST.r * 0.7, FOREST.r + 6, df));
-      const db = dist(x, z, BEACH.x, BEACH.z);
-      c.lerp(SA, 1 - smooth(BEACH.r * 0.6, BEACH.r + 6, db));
+      // beach sand: the zone circle and the shore strip beside it, with a ragged edge
+      const en = Math.sin(x * 0.45 + z * 0.3) * 1.6 + Math.sin(x * 0.19 - z * 0.37) * 2.2;
+      const sand = Math.max(1 - smooth(BEACH.r - 3 + en, BEACH.r + 3 + en, dist(x, z, BEACH.x, BEACH.z)),
+        smooth(0.5, 0.85, beachW(x, z)) * (1 - smooth(30 + en, 37 + en, bayS(x, z))));
+      c.lerp(tmp.copy(SA).lerp(SA2, n), sand);
       const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
       c.lerp(tmp.copy(RO).lerp(LA, n), 1 - smooth(VOLCANO.r * 0.7, VOLCANO.r + 10, dv));
       if (h < 0.5) c.lerp(SA, smooth(0.5, -0.2, h));
@@ -255,6 +307,11 @@ export class World {
       const pd = pathDist(x, z) + Math.sin(x * 0.7 + z * 0.4) * 0.4;
       if (pd < 2.6) c.lerp(DI, 1 - smooth(1.4, 2.6, pd));
       if (dp(x, z) < POND.r + 2) c.lerp(SA, 1 - smooth(POND.r - 1, POND.r + 2, dp(x, z)));
+      // the shore: wet sand at the waterline, pale sea floor under the shallows
+      if (h < WATER_Y + 0.5 && dp(x, z) > POND.r + 4) {
+        c.lerp(WET, smooth(WATER_Y + 0.5, WATER_Y + 0.12, h));
+        c.lerp(FLOOR, smooth(WATER_Y - 0.1, WATER_Y - 1.2, h));
+      }
       col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -279,9 +336,49 @@ export class World {
     this.scene.add(w); this.pond = w;
   }
 
+  // The sea: one mesh, fine over the island and coarse far out. Every vertex knows
+  // how far it is from the shore (aShore, metres), so the shader can paint light
+  // shallows, foam at the waterline and little waves running in. No extra passes.
   _water() {
-    const w = new THREE.Mesh(new THREE.CircleGeometry(600, 48).rotateX(-Math.PI / 2),
-      new THREE.MeshStandardMaterial({ color: 0x3fb8e8, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.92 }));
+    const N = 104, K = 0.875, inner = 142, outer = 620; // ~3 m cells over the island, 21k triangles
+    const g = new THREE.PlaneGeometry(2, 2, N, N).rotateX(-Math.PI / 2);
+    const p = g.attributes.position, shore = new Float32Array(p.count);
+    const warp = (u) => { const a = Math.abs(u); return Math.sign(u) * (a < K ? (a / K) * inner : inner + Math.pow((a - K) / (1 - K), 2) * (outer - inner)); };
+    for (let i = 0; i < p.count; i++) {
+      const x = ISLAND.cx + warp(p.getX(i)), z = ISLAND.cz + warp(p.getZ(i));
+      p.setXYZ(i, x, 0, z);
+      const depth = WATER_Y - terrainH(x, z);
+      const grad = Math.hypot(terrainH(x + 1, z) - terrainH(x - 1, z), terrainH(x, z + 1) - terrainH(x, z - 1)) / 2;
+      // distance to the shore ≈ depth / slope; on flat shallows (sandbar) use the depth alone
+      shore[i] = Math.max(-6, Math.min(40, depth / Math.max(grad, 0.03), depth / 0.075));
+    }
+    g.setAttribute('aShore', new THREE.BufferAttribute(shore, 1));
+    g.computeBoundingSphere();
+    const mat = new THREE.MeshLambertMaterial({ color: 0x35aee6, transparent: true, opacity: 1 });
+    const uni = this.waterUni = { uTime: { value: 0 }, uShallow: { value: new THREE.Color(0x6fe6e0) } };
+    mat.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, uni);
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nattribute float aShore;\nvarying float vShore;\nvarying vec2 vW;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvShore = aShore;\nvW = position.xz;');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\nuniform float uTime;\nuniform vec3 uShallow;\nvarying float vShore;\nvarying vec2 vW;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          float sd = vShore;
+          float wob = sin(vW.x * 0.33 + uTime * 0.7) * sin(vW.y * 0.29 - uTime * 0.5);       // -1..1, breaks up straight lines
+          float shallow = 1.0 - smoothstep(0.0, 15.0, sd);
+          diffuseColor.rgb = mix(diffuseColor.rgb, uShallow, shallow * 0.9);
+          diffuseColor.rgb *= 1.0 + 0.05 * sin(vW.x * 0.11 + vW.y * 0.07 + uTime * 0.4);
+          // two wave lines that run in to the beach and fade, and foam on the waterline
+          float p1 = fract(uTime * 0.09), p2 = fract(uTime * 0.09 + 0.5);
+          float l1 = (1.0 - smoothstep(0.0, 0.5, abs(sd - (1.0 - p1) * 10.0 + wob * 0.9))) * smoothstep(0.0, 0.25, p1);
+          float l2 = (1.0 - smoothstep(0.0, 0.5, abs(sd - (1.0 - p2) * 10.0 - wob * 0.9))) * smoothstep(0.0, 0.25, p2);
+          float edge = 1.0 - smoothstep(0.2, 1.1 + wob * 0.4, sd);
+          float foam = clamp(edge * 0.85 + (l1 + l2) * 0.55, 0.0, 1.0);
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), foam);
+          diffuseColor.a = max(mix(0.62, 0.93, smoothstep(0.0, 7.0, sd)), foam * 0.95);`);
+    };
+    const w = new THREE.Mesh(g, mat);
     w.position.y = WATER_Y; w.receiveShadow = true;
     this.scene.add(w); this.water = w;
   }
@@ -397,20 +494,22 @@ export class World {
     }));
     const R = rng('decor');
     const place = []; // [name, x, z, scale, rotY, colliderR]
-    const free = (x, z, rr = 3) => {
+    const free = (x, z, rr = 3, beachOk = false) => {
       if (!onIsland(x, z) || height(x, z) < 0.3) return false;
+      // meadow plants stay off the sand
+      if (!beachOk && (beachW(x, z) > 0.4 || dist(x, z, BEACH.x, BEACH.z) < BEACH.r + 3)) return false;
       if (dist(x, z, HOME.x, HOME.z) < 26) return false;
       if (pathDist(x, z) < 3 || dist(x, z, POND.x, POND.z) < POND.r + 3) return false;
       if (this.reserved && this.reserved.some((r) => dist(x, z, r[0], r[1]) < r[2])) return false;
       for (const zz of ZONES) if (zz.r && Math.abs(dist(x, z, zz.x, zz.z) - zz.r) < 2.5) return false; // keep walls clear
       return !place.some((p) => dist(x, z, p[1], p[2]) < rr);
     };
-    const add = (list, n, cx, cz, rad, scale, col, minGap) => {
+    const add = (list, n, cx, cz, rad, scale, col, minGap, beachOk) => {
       let tries = 0;
       while (n > 0 && tries++ < n * 30) {
         const a = R() * Math.PI * 2, d = Math.sqrt(R()) * rad;
         const x = cx + Math.cos(a) * d, z = cz + Math.sin(a) * d;
-        if (!free(x, z, minGap)) continue;
+        if (!free(x, z, minGap, beachOk)) continue;
         const name = list[Math.floor(R() * list.length)];
         const s = scale * (0.8 + R() * 0.45);
         place.push([name, x, z, s, R() * 6.28, col * s]); n--;
@@ -424,8 +523,8 @@ export class World {
     add(bushes, 70, ISLAND.cx, ISLAND.cz, ISLAND.r - 10, 1.6, 0, 3);
     add(['Grass_1_A'], 120, ISLAND.cx, ISLAND.cz, ISLAND.r - 8, 1.6, 0, 1.5);
     add(rocks, 30, ISLAND.cx, ISLAND.cz, ISLAND.r - 8, 1.6, 1.0, 6);
-    add(rocks, 18, BEACH.x, BEACH.z, BEACH.r - 2, 1.8, 1.1, 6);
-    add(['Bush_3_A', 'Bush_1_A'], 14, BEACH.x, BEACH.z, BEACH.r - 4, 1.4, 0, 5);
+    // (the beach is dressed in decor.js; a few bushes mark where the sand ends)
+    add(['Bush_3_A', 'Bush_1_A'], 16, BEACH.x - 8, BEACH.z, BEACH.r + 12, 1.4, 0, 5);
     add(['Tree_Bare_1_A', 'Tree_Bare_2_B'], 26, VOLCANO.x, VOLCANO.z, VOLCANO.r + 4, 2.2, 0.45, 5);
     add(rocks, 30, VOLCANO.x, VOLCANO.z, VOLCANO.r + 6, 2.2, 1.3, 5);
     // build one InstancedMesh per model part
@@ -569,6 +668,8 @@ export class World {
     this.padSign.position.y = HY + 3.2 + Math.sin(this.time * 2.5) * 0.2;
     // only while carrying eggs (set by main), and not right in front of the camera
     this.padSign.visible = !!this.wantPadSign && this.camera.position.distanceTo(this.padSign.position) > 7;
+    this.waterUni.uTime.value = this.time;
+    this.water.position.y = WATER_Y + Math.sin(this.time * 0.9) * 0.03; // the sea laps at the sand
     this.lava.material.color.setHSL(0.05 + Math.sin(this.time * 1.5) * 0.01, 1, 0.55 + Math.sin(this.time * 2) * 0.05);
     for (const w of this.walls) if (!w.open) w.mat.opacity = 0.16 + Math.sin(this.time * 2 + w.zone.x) * 0.06;
     for (const f of this.animators) f(dt, this.time);

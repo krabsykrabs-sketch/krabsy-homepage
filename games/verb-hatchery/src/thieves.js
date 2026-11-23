@@ -3,7 +3,7 @@
 // wrong = the crab takes the top egg and runs home with it.
 import * as THREE from 'three';
 import { THIEF, ZONES } from './balance.js';
-import { height, makeEggMesh } from './world.js';
+import { height, makeEggMesh, onPier, WATER_Y } from './world.js';
 
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, ...o });
 const RED = M(0xff6b4a), DARK = M(0xd94a30), BLACK = M(0x1a1a2e), WHITE = M(0xffffff), MASK = M(0x22223a);
@@ -61,8 +61,14 @@ export class Thieves {
       for (let i = 0; i < z.thieves; i++) {
         const obj = buildCrab();
         world.scene.add(obj);
-        const a = Math.random() * Math.PI * 2, d = Math.random() * z.r * 0.6;
-        const t = { obj, zone: z, x: z.x + Math.cos(a) * d, z: z.z + Math.sin(a) * d, dir: Math.random() * 6.28,
+        // start on dry ground (the Beach circle is partly sea)
+        let x = z.x, zz = z.z;
+        for (let k = 0; k < 40; k++) {
+          const a = Math.random() * Math.PI * 2, d = Math.random() * z.r * 0.6;
+          x = z.x + Math.cos(a) * d; zz = z.z + Math.sin(a) * d;
+          if (height(x, zz) > 0.3) break;
+        }
+        const t = { obj, zone: z, x, z: zz, dir: Math.random() * 6.28,
           state: 'wander', timer: 0, carry: null, phase: Math.random() * 10 };
         this.list.push(t);
       }
@@ -124,7 +130,10 @@ export class Thieves {
 
   _step(t, dx, dz, len) {
     const nx = t.x + dx * len, nz = t.z + dz * len;
-    if (height(nx, nz) < 0) { t.dir += Math.PI * 0.6; return; }
+    // crabs paddle through the shallows but not into deep water, and they don't hop
+    // on or off the pier from the side
+    const h = height(nx, nz);
+    if (h < WATER_Y - 0.22 || (onPier(nx, nz) !== onPier(t.x, t.z) && Math.abs(h - height(t.x, t.z)) > 0.45)) { t.dir += Math.PI * 0.6; return; }
     // crabs walk around trees, not through them
     for (const c of this.world.nearColliders(nx, nz)) if (Math.hypot(nx - c.x, nz - c.z) < c.r + 0.5) { t.dir += 0.8; return; }
     t.x = nx; t.z = nz;

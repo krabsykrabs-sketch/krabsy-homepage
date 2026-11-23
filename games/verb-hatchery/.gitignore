@@ -3,3 +3,6 @@
 # the owner confirms it may be used and shipped. The game falls back to the
 # code-built creatures when these files are missing.
 assets/animals/
+
+# QA screenshots for the owner (not part of the game)
+_shots/

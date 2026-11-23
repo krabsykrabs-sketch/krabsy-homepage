@@ -32,7 +32,7 @@ export const HOME = { x: 0, z: 62 };
 export const ZONES = [
   { id: 'meadow',  stars: 0, animals: ['Muskrat', 'Sparrow'], weights: [70, 30, 0, 0, 0], event: 'rare', eggs: 12, thieves: 0 },
   { id: 'forest',  stars: 2, x: -68, z: -22, r: 34, animals: ['Pudu', 'Colobus'], weights: [0, 70, 30, 0, 0], event: 'epic', eggs: 7, thieves: 2 },
-  { id: 'beach',   stars: 5, x: 78, z: -14, r: 30, animals: ['Herring', 'Inkfish'], weights: [0, 0, 70, 30, 0], event: 'legendary', eggs: 5, thieves: 3 },
+  { id: 'beach',   stars: 5, x: 88, z: -14, r: 34, animals: ['Herring', 'Inkfish'], weights: [0, 0, 70, 30, 0], event: 'legendary', eggs: 5, thieves: 3 },
   { id: 'volcano', stars: 9, x: 0, z: -98, r: 30, animals: ['Taipan', 'Gecko'], weights: [0, 0, 0, 100, 0], event: 'legendary', eggs: 4, thieves: 3 },
 ];
 export const EGG_RESPAWN = 15; // seconds until a taken egg is replaced in its zone

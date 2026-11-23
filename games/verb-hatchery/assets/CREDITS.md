@@ -9,7 +9,7 @@ Only the files in use are copied here.
 | `nature/*` (trees, bushes, rocks, grass, `forest_texture.png`) | KayKit Forest Nature Pack 1.0 (EXTRA), Color1 |
 | `characters/Protagonist_A.glb`, `Protagonist_B.glb` (player characters) | KayKit Mystery Monthly Series 5, "10 – April 2025 – Protagonists" |
 | `props/nature/*` (flowers, mushrooms, stumps, logs, tent, campfire, lily pads, statues, crops, fence, reeds, canoe, pot) | Kenney Nature Kit (kenney.nl) — CC0 |
-| `props/pirate/*` (palms, shipwreck, pirate ship, rowing boat, dock, barrels, crate, chest, flag, sand rocks, tower = lighthouse) | Kenney Pirate Kit — CC0 |
+| `props/pirate/*` (palms, shipwreck, pirate ship, rowing boats, barrels, crate, chest, flag, sand rocks, grey rocks `rocks-a/b/c`, dune grass `grass-plant` / `grass-patch`, `bottle`, `tool-shovel`, `hole`, tower = lighthouse) + `Textures/colormap.png` | Kenney Pirate Kit — CC0 |
 | `props/survival/*` (signpost, bedroll) | Kenney Survival Kit — CC0 |
 | `props/playground/*` | Tiny Treats – Fun Playground 1.0 FREE (Isa Lousberg) — CC0 |
 | `props/picnic/*` | Tiny Treats – Pleasant Picnic 1.0 FREE (Isa Lousberg) — CC0 |
@@ -39,6 +39,7 @@ licence file in the archive, blank on https://omabuarts.itch.io/quirky-series-fr
 (not CC0, unlike the rest of the library). Confirm before committing or
 releasing. Without these files the game uses the code-built creatures.
 
-Eggs, incubators, pens, the base, thief crabs, hats and the fallback
-creatures are built from primitives in code. Three.js 0.169 (MIT) is in
+Eggs, incubators, pens, the base, thief crabs, hats, the fallback
+creatures, the beach pier, parasols, towels and beach ball are built from
+primitives in code. Three.js 0.169 (MIT) is in
 `vendor/three/`; fonts Fredoka One and Nunito (OFL) in `fonts/`.

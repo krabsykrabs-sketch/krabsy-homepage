@@ -370,3 +370,48 @@ Not done yet / to check:
   down). Still open as ideas: heavy eggs, crab raids on the home base.
   Next: beach overhaul (a real beach by the water, not a sand patch) and a
   graphics / level-design review of the whole world (Fable 5.2 subagent).
+- 2026-11-23: **Beach rebuilt as a real beach** (owner: "a proper beach …
+  by the water"; built by a Fable 5.2 subagent, lead session reviews).
+  Before / after pictures: `_shots/beach-*.png` (git-ignored).
+  - **Island:** a bay (`BAY` in `world.js`, a 28 m circle of sea) is cut
+    into the east coast. Sand runs down into shallow water, low dunes
+    behind. The Beach zone moved 10 m east and grew (`balance.js`: x 88,
+    r 34, was 78 / 30), so its circle now covers sand **and** part of the
+    bay. The Beach path got one more point and ends on the sand. A small
+    **islet** (`ISLET`) is reached by wading along a sandbar. A **pier**
+    (`PIER`, built in code) is walkable: `height()` = ground or pier top,
+    `terrainH()` = ground only (terrain mesh, water).
+  - **Sea:** one mesh with a per-vertex "distance to shore" (`_water()`):
+    light turquoise shallows, foam on the waterline, two wave lines running
+    in, the level rises and falls 3 cm. No extra render pass. It runs
+    around the whole island, not only the beach.
+  - **Rules:** you can wade (`WADE` = 0.28 m, waist-high), deeper water
+    stops you. `onIsland()`: inland ground is still always walkable, except
+    on the beach (`beachW() > 0`), where the height test decides. Crabs
+    start on dry ground, paddle through the shallows (so the islet is no
+    safe spot) and don't hop on or off the pier from the side. The camera
+    stays above the sea. Meadow trees / bushes / grass stay off the sand.
+  - **Dressing** (`decor.js`): palm belt along the dunes, grey rocks at both
+    ends of the bay, wreck on the north rocks, pier with barrels, lamp and a
+    tied-up boat, parasols + towels + beach ball (one mesh, code), sand
+    castles, a treasure dig, dune grass, a bottle, two palms on the islet,
+    the pirate ship at anchor in the bay mouth. New models (Kenney Pirate
+    Kit, about 250 KB): `rocks-a/b/c`, `grass-plant`, `grass-patch`,
+    `boat-row-large`, `bottle`, `tool-shovel`, `hole`, `palm-straight`;
+    `structure-platform-dock` removed. Game size without animals: 5.8 MB.
+  - **Minimap:** the island is drawn once from the height function (real
+    coast, bay, pier, sand); locked zones are shaded with a dashed ring.
+  - **Checked (headless, EN + DE):** eggs 12 / 7 / 5 / 4 per zone; 40 forced
+    events landed in all four zones (Beach ones on sand); 3 beach crabs
+    start dry and move; walk test from home, from the beach and from the
+    islet (about 480 walks): every stop is at an object, at water, or at the
+    pier deck when coming from the water; islet and pier head reachable on
+    foot. Same camera, old vs new: Beach ground view 201 → 210 draw calls,
+    219k → 243k triangles (measured before the sea mesh was cut from 33k to
+    21k triangles). **These counts are far above the "~50" noted earlier**:
+    see `WORLD-PROPOSAL.md` item 1.
+  - Not checked: a real device (cost of the sea shader on a Chromebook),
+    touch controls, how crabs in the water feel in play, ES texts (no new
+    texts were added).
+  - `WORLD-PROPOSAL.md`: review of the whole world with 15 prioritised
+    ideas. **Nothing from it is built**; the owner decides.

@@ -3,14 +3,16 @@
 //   pads and a canoe, signposts where the paths fork.
 // Home: lanterns, benches, bushes, a fountain, a playground, a picnic, a small farm.
 // Forest: mushrooms (some giant), stumps, logs, a campsite with a crackling fire, fireflies.
-// Beach: palm trees, a shipwreck, a dock with barrels and a chest, sandcastles, a
-//   rowing boat, seagulls, a pirate ship at anchor.
+// Beach: a bay with a walkable pier, palms along the dunes, a shipwreck on the rocks,
+//   parasols and towels, sandcastles, boats, a treasure dig, an islet, seagulls, a
+//   pirate ship at anchor in the bay mouth.
 // Volcano: stone heads guarding it, glowing crystals, smoke from the crater.
 // Sea: a lighthouse on a rock. Sky: drifting clouds.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { ZONES, ISLAND, HOME } from './balance.js';
-import { height, zoneAt, pathDist, POND, PATHS, FORK, WATER_Y, glowTex } from './world.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { height, terrainH, zoneAt, pathDist, POND, PATHS, FORK, WATER_Y, glowTex, BAY, PIER, ISLET, bayPoint, beachW } from './world.js';
 import { rng } from './creatures.js';
 import { t } from './i18n.js';
 
@@ -23,7 +25,8 @@ add('nature', 'glb', ['flower_redA', 'flower_yellowA', 'flower_purpleA', 'flower
   'stone_tallA', 'stone_tallD', 'stone_largeB', 'crop_pumpkin', 'crop_carrot', 'crops_cornStageD', 'fence_simple', 'plant_flatTall',
   'canoe', 'pot_large']);
 add('pirate', 'glb', ['palm-detailed-bend', 'palm-detailed-straight', 'palm-bend', 'ship-wreck', 'ship-pirate-large', 'boat-row-small',
-  'structure-platform-dock', 'barrel', 'crate', 'chest', 'flag-pirate-high', 'rocks-sand-a', 'rocks-sand-b', 'tower-complete-small']);
+  'barrel', 'crate', 'chest', 'flag-pirate-high', 'rocks-sand-a', 'rocks-sand-b', 'tower-complete-small',
+  'palm-straight', 'rocks-a', 'rocks-b', 'rocks-c', 'grass-plant', 'grass-patch', 'boat-row-large', 'bottle', 'tool-shovel', 'hole']);
 add('survival', 'glb', ['signpost', 'bedroll']);
 add('playground', 'gltf', ['swing_A_large', 'slide_A', 'seesaw_large', 'merry_go_round', 'sandbox_round_decorated', 'spring_horse_A',
   'sandcastle_A', 'sandcastle_B', 'sandcastle_C', 'picnic_table']);
@@ -35,12 +38,11 @@ add('gems', 'gltf', ['Gem_Large', 'Gem_Medium']);
 const H = HOME;
 const SPOT = {
   playground: [H.x - 29, H.z - 2], picnic: [H.x + 24, H.z - 5], farm: [H.x + 30, H.z + 16],
-  circle: [-30, 30], camp: [Z.forest.x + 12, Z.forest.z + 16], wreck: [Z.beach.x + 14, Z.beach.z - 16],
-  dock: [Z.beach.x + 20, Z.beach.z + 4],
+  circle: [-30, 30], camp: [Z.forest.x + 12, Z.forest.z + 16],
 };
 export function reserveSpots(world) {
   world.reserved.push([...SPOT.playground, 12], [...SPOT.picnic, 6], [...SPOT.farm, 10], [...SPOT.circle, 10],
-    [...SPOT.camp, 8], [...SPOT.wreck, 9], [...SPOT.dock, 8], [FORK.x, FORK.z, 4]);
+    [...SPOT.camp, 8], [FORK.x, FORK.z, 4]);
 }
 
 const cache = {};
@@ -212,32 +214,67 @@ export async function buildDecor(world) {
   life.push(campfire(S, kx, height(kx, kz) + 0.35, kz));
   life.push(fireflies(S, F0, R));
 
-  // ── beach: palms, wreck, dock, sandcastles, boats ──
+  // ── beach: a bay. Positions are bay coordinates: bayPoint(angle, metres inland
+  // from the waterline); angle 0 = the middle of the beach, − = north, + = south ──
   const B = Z.beach;
-  const palms = { 'palm-detailed-bend': [], 'palm-detailed-straight': [], 'palm-bend': [] };
-  for (let i = 0, tries = 0; i < 18 && tries < 400; tries++) {
-    const [x, z] = around(B.x, B.z, B.r - 2);
-    if (!free(x, z, 2) || height(x, z) < 0.3) continue;
-    palms[Object.keys(palms)[i % 3]].push({ x, z, h: 6 + R() * 3 });
-    world.addCollider(x, z, 0.5); i++;
+  const clear = (x, z, gap) => !world.nearColliders(x, z).some((c) => Math.hypot(x - c.x, z - c.z) < c.r + gap);
+  const offPier = (x, z) => { const dx = x - PIER.x0, dz = z - PIER.z0, a = dx * PIER.ux + dz * PIER.uz; return a < -3 || a > PIER.len + 3 || Math.abs(-dx * PIER.uz + dz * PIER.ux) > 5; };
+  life.push(buildPier(world, put));
+  // the wreck lies on the rocks of the north headland, half in the water
+  const [wx, wz] = bayPoint(-0.98, -1.5);
+  put('ship-wreck', wx, wz, { w: 12, ry: 2.5, col: 3.6, y: WATER_Y - 0.55 });
+  put('flag-pirate-high', ...bayPoint(-0.86, 6), { h: 4.5, col: 0.3 });
+  // grey rocks close the bay at both ends, a few stand in the shallows
+  const rk = { 'rocks-a': [], 'rocks-b': [], 'rocks-c': [] }, rkN = Object.keys(rk);
+  const rock = (ang, s, h) => {
+    const [x, z] = bayPoint(ang, s);
+    rk[rkN[Math.floor(R() * 3)]].push({ x, z, h, y: terrainH(x, z) - h * 0.12 });
+    world.addCollider(x, z, h * 0.55);
+  };
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 7; i++) rock(side * (1.14 + i * 0.075 + R() * 0.03), -3 + R() * 8 + i * 0.9, 1.6 + R() * 2.2 + (i > 3 ? 1 : 0));
+    rock(side * 1.02, -9, 1.6); rock(side * 1.2, -13, 2.4); rock(side * 0.9, -6.5, 1.0);
   }
+  rock(-0.75, -4.5, 1.2); rock(-1.08, 2.5, 1.5);
+  // (the kit's rocks are almost black: lighten them to a warm grey that fits the sand)
+  for (const n of rkN) cache[n]?.scene.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setRGB(1.9, 1.8, 1.7); } });
+  for (const [n, pts] of Object.entries(rk)) inst(n, pts);
+  // palms: a belt along the dunes behind the beach, a few down by the water, two on the islet
+  const palms = { 'palm-detailed-bend': [], 'palm-detailed-straight': [], 'palm-bend': [], 'palm-straight': [] }, palmN = Object.keys(palms);
+  const palm = (x, z, h) => { palms[palmN[Math.floor(R() * 4)]].push({ x, z, h }); world.addCollider(x, z, 0.5); };
+  for (let i = 0, tries = 0; i < 20 && tries < 500; tries++) {
+    const [x, z] = bayPoint(-1.0 + R() * 2.0, 17 + R() * R() * 24);
+    if (!clear(x, z, 3.2) || !offPier(x, z) || pathDist(x, z) < 3.5 || terrainH(x, z) < 0.5) continue;
+    palm(x, z, 6 + R() * 3.5); i++;
+  }
+  for (const [ang, s] of [[-0.6, 10.5], [0.56, 10], [1.0, 12.5]]) palm(...bayPoint(ang, s), 6.5 + R() * 2);
+  palm(ISLET.x + 1.2, ISLET.z - 0.8, 7.5); palm(ISLET.x - 1.6, ISLET.z + 1.4, 5.5);
   for (const [n, pts] of Object.entries(palms)) inst(n, pts);
-  const [wx, wz] = SPOT.wreck;
-  put('ship-wreck', wx, wz, { w: 11, ry: 2.3, col: 3.5, lift: -0.4 });
-  put('flag-pirate-high', wx - 5, wz + 4, { h: 4.5, col: 0.3 });
-  const [dx, dz] = SPOT.dock;
-  // the dock reaches from the beach out into the sea
-  put('structure-platform-dock', dx + 14, dz, { w: 9, ry: Math.PI / 2, y: WATER_Y - 0.4 });
-  put('barrel', dx - 1, dz + 2, { h: 1.0, col: 0.5 });
-  put('barrel', dx - 0.2, dz + 3, { h: 1.0, col: 0.5 });
-  put('crate', dx - 2, dz - 2, { h: 0.9, col: 0.6 });
-  put('chest', dx - 3.2, dz + 0.2, { h: 0.8, ry: 1.2, col: 0.6 });
-  put('boat-row-small', dx + 14, dz + 6, { w: 4, ry: 0.4, y: WATER_Y - 0.3 });
-  for (const [n, ox, oz] of [['sandcastle_A', -12, 6], ['sandcastle_B', -10, 9], ['sandcastle_C', -14, 10]]) put(n, B.x + ox, B.z + oz, { h: 1.0, col: 0.7 });
-  for (let i = 0; i < 6; i++) { const [x, z] = around(B.x, B.z, B.r - 2); if (free(x, z, 1)) put(i % 2 ? 'rocks-sand-a' : 'rocks-sand-b', x, z, { h: 0.8, col: 0.8 }); }
-  const ship = put('ship-pirate-large', B.x + 68, B.z - 26, { w: 18, ry: -0.9, y: WATER_Y - 1.8 });
+  // dune grass where the sand ends, sand-coloured rocks between the palms
+  const tufts = { 'grass-plant': [], 'grass-patch': [] };
+  for (let i = 0; i < 60; i++) {
+    const [x, z] = bayPoint(-1.15 + R() * 2.3, 15 + R() * 26);
+    if (clear(x, z, 0.6) && offPier(x, z) && pathDist(x, z) > 2.5 && beachW(x, z) > 0.3) tufts[i % 3 ? 'grass-plant' : 'grass-patch'].push({ x, z, h: 0.3 + R() * 0.3 });
+  }
+  for (const [n, pts] of Object.entries(tufts)) inst(n, pts);
+  for (let i = 0; i < 7; i++) { const [x, z] = bayPoint(-0.9 + R() * 1.8, 20 + R() * 16); if (clear(x, z, 1.5) && offPier(x, z) && pathDist(x, z) > 3.5) put(i % 2 ? 'rocks-sand-a' : 'rocks-sand-b', x, z, { h: 0.9 + R() * 0.5, col: 0.9 }); }
+  inst('rocks-sand-a', [{ x: ISLET.x + 3.2, z: ISLET.z + 2.6, h: 0.7 }]);
+  // a day at the beach: parasols, towels, a ball, sandcastles by the water
+  beachSet(world, [[0.2, 13.5, 0xff8585], [0.36, 15, 0x2ee6c0], [0.52, 13, 0xffcf5e], [-0.66, 15.5, 0x2ee6c0]].map(([a, s, c]) => [...bayPoint(a, s), c]), R);
+  for (const [n, ang, s] of [['sandcastle_A', 0.03, 10.6], ['sandcastle_B', 0.09, 12.2], ['sandcastle_C', -0.04, 12.6]]) put(n, ...bayPoint(ang, s), { h: 1.0, col: 0.7 });
+  // boats: one pulled up on the sand, one tied to the pier head
+  put('boat-row-small', ...bayPoint(-0.7, 4.5), { w: 4, ry: 0.9, lift: -0.08, col: 1.5 });
+  put('bottle', ...bayPoint(0.95, 1.2), { h: 0.45, lift: -0.05 });
+  // someone has been digging for treasure under the palms
+  const [tx, tz] = bayPoint(-0.7, 24);
+  put('hole', tx, tz, { w: 2.6, lift: 0.02 });
+  put('tool-shovel', tx + 1.6, tz + 0.6, { h: 1.3, ry: 0.5, col: 0.3 });
+  put('chest', tx - 1.9, tz + 0.9, { h: 0.9, ry: 2.2, col: 0.7 });
+  put('crate', tx - 2.2, tz - 1.4, { h: 0.8, col: 0.6 });
+  // the pirate ship lies at anchor in the mouth of the bay
+  const ship = put('ship-pirate-large', BAY.x + 24, BAY.z - 26, { w: 22, ry: -1.0, y: WATER_Y - 2.2 });
   if (ship) { const y0 = ship.position.y; life.push((dt, time) => { ship.position.y = y0 + Math.sin(time * 0.8) * 0.25; ship.rotation.z = Math.sin(time * 0.6) * 0.04; ship.rotation.x = Math.sin(time * 0.5 + 1) * 0.03; }); }
-  life.push(seagulls(S, B.x + 6, B.z, R));
+  life.push(seagulls(S, BAY.x - 16, BAY.z, R));
 
   // ── volcano: stone heads guarding it, glowing crystals, smoke ──
   const V = Z.volcano;
@@ -293,6 +330,79 @@ function signBoard(text, stars, x, y, z, dir) {
   grp.rotation.y = dir - Math.PI / 2;
   grp.position.set(x + Math.sin(dir) * 1.1, y, z + Math.cos(dir) * 1.1);
   return grp;
+}
+
+// The pier: planks on posts from the sand out over the water. You can walk on it
+// (world.height() knows it), so it has no colliders except the things standing on it.
+function buildPier(world, put) {
+  const P = PIER, g = new THREE.Group();
+  g.position.set(P.x0, 0, P.z0); g.rotation.y = Math.atan2(-P.uz, P.ux); // local +x runs out to sea
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+  const x = c.getContext('2d');
+  ['#c98f58', '#bd844f', '#d09a63', '#b97d48'].forEach((col, i) => { x.fillStyle = col; x.fillRect(i * 16, 0, 16, 64); x.fillStyle = 'rgba(70,35,10,.45)'; x.fillRect(i * 16, 0, 1.5, 64); });
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  const planks = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x7a4a26, roughness: 0.9 });
+  // deck parts: [from, to, half width, y at from, y at to]; u of the texture runs along the pier
+  const parts = [[0, P.ramp, P.half, P.y0, P.top], [P.ramp, P.len - P.headLen, P.half, P.top, P.top], [P.len - P.headLen, P.len, P.headHalf, P.top, P.top]];
+  const decks = parts.map(([a0, a1, hw, y0, y1]) => {
+    const L = Math.hypot(a1 - a0, y1 - y0), b = new THREE.BoxGeometry(L, 0.16, hw * 2);
+    const uv = b.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * L / 2.2 + a0 / 2.2, uv.getY(i));
+    b.rotateZ(Math.atan2(y1 - y0, a1 - a0)); b.translate((a0 + a1) / 2, (y0 + y1) / 2 - 0.08, 0);
+    return b;
+  });
+  const deck = new THREE.Mesh(mergeGeometries(decks), planks); deck.castShadow = true; deck.receiveShadow = true; g.add(deck);
+  // posts (down to the bay floor) and the beams along both edges
+  const wood = [];
+  const post = (a, b, top) => wood.push(new THREE.CylinderGeometry(0.17, 0.2, top + 3.2, 7).translate(a, top - (top + 3.2) / 2, b));
+  for (let a = 2.5; a < P.len - P.headLen - 1; a += 4) for (const sd of [-1, 1]) post(a, sd * (P.half - 0.05), P.top + (a > 6 ? 0.45 : 0.05));
+  for (const a of [P.len - P.headLen + 0.2, P.len - 0.2]) for (const sd of [-1, 1]) post(a, sd * (P.headHalf - 0.2), P.top + 0.75);
+  for (const sd of [-1, 1]) wood.push(new THREE.BoxGeometry(P.len - P.headLen - P.ramp, 0.14, 0.16).translate((P.ramp + P.len - P.headLen) / 2, P.top - 0.2, sd * (P.half - 0.05)));
+  const posts = new THREE.Mesh(mergeGeometries(wood), dark); posts.castShadow = true; g.add(posts);
+  world.scene.add(g);
+  // things on the pier head, and a boat tied up beside it
+  const at = (a, b) => [P.x0 + a * P.ux - b * P.uz, P.z0 + a * P.uz + b * P.ux];
+  put('barrel', ...at(P.len - 1, -2.5), { h: 1.0, y: P.top, col: 0.5 });
+  put('barrel', ...at(P.len - 2.1, -2.7), { h: 1.0, y: P.top, col: 0.5 });
+  put('crate', ...at(P.len - 4.4, 2.6), { h: 0.9, y: P.top, col: 0.6 });
+  const lamp = new THREE.Sprite(additive(0xffd27a, 0.7)); lamp.scale.setScalar(1.6);
+  lamp.position.set(...(([px, pz]) => [px, P.top + 1.0, pz])(at(P.len - 0.2, P.headHalf - 0.2))); world.scene.add(lamp);
+  const boat = put('boat-row-large', ...at(P.len - 8, -P.half - 1.5), { w: 4.6, ry: g.rotation.y, y: WATER_Y - 0.28 });
+  return (dt, time) => {
+    if (boat) { boat.position.y = WATER_Y - 0.28 + Math.sin(time * 1.1) * 0.05; boat.rotation.z = Math.sin(time * 0.9) * 0.05; }
+    lamp.material.opacity = 0.6 + Math.sin(time * 5) * 0.08;
+  };
+}
+
+// Parasols with towels and a beach ball, all in one mesh (vertex colours).
+function beachSet(world, spots, R) {
+  const parts = [], col = new THREE.Color();
+  const paint = (geo, hex, hex2) => {
+    const g = geo.index ? geo.toNonIndexed() : geo, n = g.attributes.position.count, a = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { col.setHex(hex2 !== undefined && Math.floor(i / 6) % 2 ? hex2 : hex); a[i * 3] = col.r; a[i * 3 + 1] = col.g; a[i * 3 + 2] = col.b; }
+    g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.deleteAttribute('uv');
+    return g;
+  };
+  spots.forEach(([x, z, hex], k) => {
+    const y = terrainH(x, z), tilt = 0.12 + R() * 0.1, ry = R() * 6.28;
+    const m = new THREE.Matrix4().makeTranslation(x, y, z).multiply(new THREE.Matrix4().makeRotationY(ry)).multiply(new THREE.Matrix4().makeRotationZ(tilt));
+    parts.push(paint(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 6).translate(0, 1.25, 0), 0xf5f0e6).applyMatrix4(m));
+    // canopy: 12 segments, the colour changes every second one
+    parts.push(paint(new THREE.ConeGeometry(1.9, 0.75, 12, 1, true).translate(0, 2.55, 0), hex, 0xffffff).applyMatrix4(m));
+    // two towels beside it, lying on the sand
+    for (const side of [-1, 1]) {
+      const tx = x + Math.cos(ry + side * 1.3) * 1.5, tz = z + Math.sin(ry + side * 1.3) * 1.5;
+      const tm = new THREE.Matrix4().makeTranslation(tx, terrainH(tx, tz) + 0.04, tz).multiply(new THREE.Matrix4().makeRotationY(ry + 0.4 * side));
+      parts.push(paint(new THREE.BoxGeometry(0.9, 0.04, 1.9, 1, 1, 4), side > 0 ? hex : 0xffffff, side > 0 ? 0xffffff : [0x5aa8ff, 0xff8585, 0xb57bff, 0xffcf5e][k % 4]).applyMatrix4(tm));
+    }
+    world.addCollider(x, z, 0.3);
+  });
+  const [bx, bz] = [spots[0][0] + 2.6, spots[0][1] - 2.2];
+  parts.push(paint(new THREE.SphereGeometry(0.38, 12, 8), 0xff8585, 0xffffff).applyMatrix4(new THREE.Matrix4().makeTranslation(bx, terrainH(bx, bz) + 0.36, bz)));
+  world.addCollider(bx, bz, 0.4);
+  const mesh = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }));
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  world.scene.add(mesh);
 }
 
 function additive(color, opacity = 0.8) {

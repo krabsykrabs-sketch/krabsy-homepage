@@ -10,7 +10,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { PLAYER, ZONES } from './balance.js';
-import { height, onIsland, makeEggMesh } from './world.js';
+import { height, onIsland, makeEggMesh, WATER_Y } from './world.js';
 
 export const touchMode = matchMedia('(pointer: coarse)').matches || /[?&]touch/.test(location.search);
 export const LOOKS = ['A', 'B']; // Protagonist_A / Protagonist_B
@@ -297,7 +297,7 @@ export class Player {
       p = at(dist);
     }
     for (let i = 0; i < 6; i++) {
-      const gh = height(p[0], p[2]) + 0.5;
+      const gh = Math.max(height(p[0], p[2]), WATER_Y) + 0.5; // above the ground and above the sea
       if (p[1] >= gh) break;
       dist *= 0.8; p = at(dist);
       if (i === 5) p[1] = Math.max(p[1], gh);
