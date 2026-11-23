@@ -19,9 +19,15 @@ export const Input = {
     this.canvas = canvas;
     canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
     canvas.addEventListener('mousedown', (e) => this._onMouseDown(e));
+    window.addEventListener('mousemove', (e) => this._onMouseDrag(e));
+    window.addEventListener('mouseup', (e) => this._onMouseUp(e));
     canvas.addEventListener('mouseleave', () => { state.mouseWorld = null; });
-    canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cancelPlacement(); });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    canvas.addEventListener('wheel', (e) => this._onWheel(e), { passive: false });
     canvas.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
+    canvas.addEventListener('touchmove', (e) => this._onTouchMove(e), { passive: false });
+    canvas.addEventListener('touchend', (e) => this._onTouchEnd(e), { passive: false });
+    canvas.addEventListener('touchcancel', (e) => this._onTouchEnd(e), { passive: false });
     window.addEventListener('keydown', (e) => this._onKeyDown(e));
   },
 
@@ -41,25 +47,115 @@ export const Input = {
     state.mouseWorld = this._screenToWorld(e.clientX, e.clientY);
   },
 
-  _onMouseDown(e) {
-    if (e.button !== 0) return;
+  // Camera moves (zoom, pan) work while a level is on screen.
+  _cameraAllowed() {
+    return state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE';
+  },
+
+  // A tap / click on the board: select a tower, choose a hex, or build.
+  _tap(clientX, clientY) {
     if (!this._gameAcceptsInput()) return;
-    if (this._selectTowerAt(e.clientX, e.clientY)) return;
-    const w = this._screenToWorld(e.clientX, e.clientY);
+    if (this._selectTowerAt(clientX, clientY)) return;
+    const w = this._screenToWorld(clientX, clientY);
     if (!w) return;
     this._handleClick(w);
   },
 
+  // Mouse: a short click acts on release; dragging pans the map (left button after a
+  // few pixels, right / middle button at once). The wheel zooms toward the pointer.
+  _onMouseDown(e) {
+    if (e.button > 2) return;
+    this._drag = {
+      x: e.clientX, y: e.clientY, button: e.button,
+      moved: e.button !== 0,
+      grab: this._cameraAllowed() ? Renderer.screenToWorld(e.clientX, e.clientY) : null,
+    };
+  },
+
+  _onMouseDrag(e) {
+    const d = this._drag;
+    if (!d || !d.grab) return;
+    if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) d.moved = true;
+    if (d.moved) {
+      Renderer.panTo(e.clientX, e.clientY, d.grab);
+      this.canvas.style.cursor = 'grabbing';
+    }
+  },
+
+  _onMouseUp(e) {
+    const d = this._drag;
+    this._drag = null;
+    this.canvas.style.cursor = '';
+    if (!d || d.moved) return;
+    if (d.button === 0) this._tap(d.x, d.y);
+    else if (d.button === 2) this.cancelPlacement();
+  },
+
+  _onWheel(e) {
+    e.preventDefault();
+    if (!this._cameraAllowed()) return;
+    const dy = e.deltaY * (e.deltaMode === 1 ? 30 : 1);
+    Renderer.zoomAt(e.clientX, e.clientY, Math.exp(-dy * 0.0015));
+  },
+
+  // Touch: one finger taps (on release, if it did not move) or drags the map; two
+  // fingers pinch to zoom and move the map together.
   _onTouchStart(e) {
     if (!e.touches || !e.touches[0]) return;
-    if (!this._gameAcceptsInput()) return;
     e.preventDefault();
-    const t = e.touches[0];
     state.mouseWorld = null;
-    if (this._selectTowerAt(t.clientX, t.clientY)) return;
-    const w = this._screenToWorld(t.clientX, t.clientY);
-    if (!w) return;
-    this._handleClick(w);
+    const cam = this._cameraAllowed();
+    if (e.touches.length === 1 && !this._touch) {
+      const t = e.touches[0];
+      this._touch = { x: t.clientX, y: t.clientY, moved: false, pinched: false,
+        grab: cam ? Renderer.screenToWorld(t.clientX, t.clientY) : null };
+    } else if (e.touches.length >= 2 && this._touch) {
+      this._touch.pinched = true;
+      this._startPinch(e);
+    }
+  },
+
+  _pinchInfo(e) {
+    const a = e.touches[0], b = e.touches[1];
+    return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2,
+      dist: Math.max(10, Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)) };
+  },
+
+  _startPinch(e) {
+    const p = this._pinchInfo(e);
+    this._touch.pinch = { dist: p.dist, grab: this._cameraAllowed() ? Renderer.screenToWorld(p.x, p.y) : null };
+  },
+
+  _onTouchMove(e) {
+    e.preventDefault();
+    const t = this._touch;
+    if (!t) return;
+    if (e.touches.length >= 2 && t.pinch) {
+      const p = this._pinchInfo(e);
+      if (!t.pinch.grab) return;
+      Renderer.zoomAt(p.x, p.y, p.dist / t.pinch.dist);
+      Renderer.panTo(p.x, p.y, t.pinch.grab);
+      t.pinch.dist = p.dist;
+      return;
+    }
+    if (e.touches.length === 1 && !t.pinched && t.grab) {
+      const f = e.touches[0];
+      if (!t.moved && Math.hypot(f.clientX - t.x, f.clientY - t.y) > 10) t.moved = true;
+      if (t.moved) Renderer.panTo(f.clientX, f.clientY, t.grab);
+    }
+  },
+
+  _onTouchEnd(e) {
+    e.preventDefault();
+    const t = this._touch;
+    if (!t) return;
+    if (e.touches.length > 0) {
+      // A pinch lost one finger: wait until all are up; no tap from this gesture.
+      if (t.pinch && e.touches.length === 1) t.pinch = null;
+      return;
+    }
+    this._touch = null;
+    if (!t.moved && !t.pinched) this._tap(t.x, t.y);
   },
 
   // When not placing, a click on a tower model selects that tower.
@@ -133,6 +229,13 @@ export const Input = {
     if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedTower) {
       sellTower(state.selectedTower);
       e.preventDefault();
+      return;
+    }
+
+    // + / − zoom in and out around the middle of the map.
+    if ((e.key === '+' || e.key === '=' || e.key === '-' || e.key === '_') && this._cameraAllowed()) {
+      const r = this.canvas.getBoundingClientRect();
+      Renderer.zoomAt(r.left + r.width * 0.42, r.top + r.height / 2, e.key === '-' || e.key === '_' ? 1 / 1.25 : 1.25);
       return;
     }
 
