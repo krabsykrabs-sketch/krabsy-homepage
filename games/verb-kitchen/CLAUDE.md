@@ -303,6 +303,11 @@ ours 2×1×2).
        can't be reached). Note: the 2026-11-23 review moved them to dead
        corners as pure decor — reverse that; they should be usable.
     5. Plan the whole level anew around this flow.
+    6. Toppings (waffle, cherry/fruit, …) ARE PART OF THE ORDERS (owner
+       answer).
+    7. Ticket icons: the strawberry (and chocolate-bar) emoji are
+       confusing → draw actual ice-cream balls: white (vanilla), pink/red
+       (strawberry), brown (chocolate).
   - L8 Sandwich Bar:
     1. Cutting bread is "super annoying". One chop of a loaf should give
        3 slices of bread lying on the board; taking one leaves 2 visible,
