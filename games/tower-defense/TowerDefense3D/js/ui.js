@@ -28,7 +28,7 @@ export const UI = {
       coins: $('coin-count'), livesContainer: $('lives-container'), livesCompact: $('lives-compact'),
       wave: $('wave-count'), waveTotal: $('wave-total'), phaseLabel: $('phase-label'),
       endGameBtn: $('end-game-btn'), muteBtn: $('mute-btn'), waveBanner: $('wave-banner'),
-      coach: $('coach'), speedBtn: $('speed-btn'),
+      coach: $('coach'), speedBtn: $('speed-btn'), fitBtn: $('fit-btn'),
       vcStars: $('vc-stars'), nextLevelBtn: $('next-level-btn'),
       towerButtons: $('tower-buttons'), towerInfo: $('tower-info'),
       startWaveBtn: $('start-wave-btn'),
@@ -297,6 +297,7 @@ export const UI = {
     });
 
     // Leaving a run asks first, in the page (native dialogs are awkward in an iframe).
+    this.els.fitBtn.addEventListener('click', () => { Renderer.resetView(true); this.els.fitBtn.blur(); });
     this.els.speedBtn.addEventListener('click', () => {
       state.speed = state.speed === 1 ? 2 : 1;
       this.els.speedBtn.blur();
@@ -367,6 +368,7 @@ export const UI = {
 
     const PHASE_KEYS = { BUILD: 'phaseBuild', BATTLE: 'phaseBattle', WAVE_COMPLETE: 'phaseWaveDone' };
     this.els.phaseLabel.textContent = PHASE_KEYS[state.phase] ? t(PHASE_KEYS[state.phase]) : '';
+    this.els.fitBtn.classList.toggle('hidden', !Renderer.isZoomed() || !playing);
     this.els.speedBtn.textContent = `×${state.speed}`;
     this.els.speedBtn.classList.toggle('fast', state.speed > 1);
     this._renderHint(state);

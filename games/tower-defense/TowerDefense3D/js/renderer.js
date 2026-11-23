@@ -17,6 +17,8 @@ const CAMERA_FOV = 34;
 // Direction from the board centre to the camera: an angled view from the south. The
 // tilt (50–62°) is chosen per screen shape in _frameCamera.
 const _camDir = new THREE.Vector3(0, 0.92, 0.78).normalize();
+// How far the player may zoom in (1 = whole board).
+const MAX_ZOOM = 2.0;
 
 // Current UI scale (the --ui CSS variable set in main.js; 1 on laptops and smaller).
 const uiScale = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
@@ -309,6 +311,7 @@ export const Renderer = {
   // objects (towers/enemies/projectiles) are cleared by their sync passes once
   // resetRun() empties the state arrays.
   setLevel() {
+    this.resetView(false);
     if (this._board) {
       this.scene.remove(this._board);
       this._board.traverse(o => {
@@ -1163,11 +1166,96 @@ export const Renderer = {
 
   // Camera on top of the fitted base view: a short shake when the castle is hit, and
   // on defeat a slow glide towards the fallen castle.
+  // ─── Player camera: zoom and pan on top of the fitted view ────────────
+  // zoom 1 = the whole board (the fitted view); up to MAX_ZOOM closer. The pan moves
+  // the look-at point over the ground and is clamped so the board never leaves the
+  // screen. `goal` animates back to the full view (fit button, end of a level).
+
+  _view: { zoom: 1, panX: 0, panZ: 0, goal: null },
+
+  isZoomed() { const v = this._view; return v.zoom > 1.02 || Math.abs(v.panX) + Math.abs(v.panZ) > 0.05; },
+
+  resetView(animate = true) {
+    if (animate) this._view.goal = { zoom: 1, panX: 0, panZ: 0 };
+    else Object.assign(this._view, { zoom: 1, panX: 0, panZ: 0, goal: null });
+  },
+
+  _clampView() {
+    const v = this._view, lvl = Level.current;
+    v.zoom = Math.min(MAX_ZOOM, Math.max(1, v.zoom));
+    if (!lvl) return;
+    const k = 1 - 1 / v.zoom;
+    const mx = lvl.gridWidth / 2 * k, mz = lvl.gridHeight / 2 * k;
+    v.panX = Math.min(mx, Math.max(-mx, v.panX));
+    v.panZ = Math.min(mz, Math.max(-mz, v.panZ));
+  },
+
+  // Camera from the fitted base + the player's view (no shake). Returns pos, target.
+  _viewCam(pos, tgt) {
+    const base = this._camBase, v = this._view;
+    tgt.copy(base.target); tgt.x += v.panX; tgt.z += v.panZ;
+    pos.copy(base.pos).sub(base.target).multiplyScalar(1 / v.zoom).add(tgt);
+  },
+
+  _setCamNow() {
+    if (!this._camBase) return;
+    this._viewCam(_v1, _v2);
+    this.camera.position.copy(_v1);
+    this.camera.lookAt(_v2);
+    this.camera.updateMatrixWorld();
+  },
+
+  // Zoom by `factor` keeping the ground point under (clientX, clientY) in place.
+  zoomAt(clientX, clientY, factor) {
+    if (!this._camBase) return;
+    this._view.goal = null;
+    const before = this.screenToWorld(clientX, clientY);
+    this._view.zoom *= factor;
+    this._clampView();
+    this._setCamNow();
+    const after = this.screenToWorld(clientX, clientY);
+    if (before && after) { this._view.panX += before.x - after.x; this._view.panZ += before.y - after.y; }
+    this._clampView();
+    this._setCamNow();
+  },
+
+  // Drag: keep the ground point `grab` (tile coords) under the pointer.
+  panTo(clientX, clientY, grab) {
+    if (!this._camBase || !grab) return;
+    this._view.goal = null;
+    const w = this.screenToWorld(clientX, clientY);
+    if (!w) return;
+    this._view.panX += grab.x - w.x;
+    this._view.panZ += grab.y - w.y;
+    this._clampView();
+    this._setCamNow();
+  },
+
   _applyCamera(state, dt) {
     const base = this._camBase;
     if (!base) return;
     const cam = this.camera;
-    const pos = _v1.copy(base.pos), tgt = _v2.copy(base.target);
+    const v = this._view;
+    // End of a level: glide back to the full view (the defeat scene starts from it).
+    if ((state.phase === 'GAME_OVER' || state.phase === 'VICTORY' || state.phase === 'MENU') && this.isZoomed() && !v.goal) {
+      v.goal = { zoom: 1, panX: 0, panZ: 0 };
+    }
+    // Wall-clock time: the glide takes the same time on a slow device.
+    const nowMs = performance.now();
+    const rdt = Math.min(0.1, (nowMs - (this._viewClock || nowMs)) / 1000);
+    this._viewClock = nowMs;
+    if (v.goal) {
+      const k = 1 - Math.exp(-rdt * 9);
+      v.zoom += (v.goal.zoom - v.zoom) * k;
+      v.panX += (v.goal.panX - v.panX) * k;
+      v.panZ += (v.goal.panZ - v.panZ) * k;
+      if (Math.abs(v.zoom - v.goal.zoom) < 0.003 && Math.abs(v.panX - v.goal.panX) + Math.abs(v.panZ - v.goal.panZ) < 0.01) {
+        Object.assign(v, v.goal); v.goal = null;
+      }
+    }
+    this._clampView();
+    const pos = _v1, tgt = _v2;
+    this._viewCam(pos, tgt);
     if (state.phase === 'GAME_OVER' && this._castles.length) {
       const c = this._castles[0];
       const k = Math.min(1, this._phaseT / 2.0);
@@ -1196,6 +1284,7 @@ export const Renderer = {
     this._clearPuffs();
     this._shakeT = 0;
     this._lastPhase = null;
+    this.resetView(false);
     if (this.canvas) this.canvas.classList.remove('defeated');
     if (this._r) this._r.shadowMap.needsUpdate = true;
   },

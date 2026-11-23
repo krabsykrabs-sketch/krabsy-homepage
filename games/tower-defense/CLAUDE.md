@@ -767,4 +767,25 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     (mouse), 1024×768 and 390×844 (touch) — card hidden, appears on the
     "nope", answer hint, ⬆ badge, upgrade hint and button pulse, done flag;
     camera at 1366×768, 1024×768, 390×844, 844×390, 1920×1080. No errors.
+- 2026-11-23 — **Camera control: zoom and pan** (owner request).
+  - `renderer.js` `_view` {zoom 1–2, panX, panZ} on top of the fitted view;
+    `zoomAt()` keeps the ground point under the pointer, `panTo()` keeps a
+    grabbed ground point under the finger; pan is clamped so the board
+    never leaves the screen; `resetView()` glides back (wall-clock).
+  - Mouse: wheel zooms toward the pointer; left-drag (> 6 px) pans, a
+    short click still taps on release; right / middle drag pans; a right
+    click without moving still cancels placement. Keys `+` / `-`.
+  - Touch: one finger taps on release (if it did not move > 10 px) or
+    drags the map; two fingers pinch-zoom and move. Taps now act on
+    touchend instead of touchstart.
+  - ⤢ button in the top bar, only while zoomed: back to the whole map.
+    New level, play again, victory, defeat and the menu also return to
+    the whole map (the defeat scene starts from it).
+  - Menu hint mentions "Mausrad: zoomen".
+  - Checked in headless Chromium: 1366×768 (wheel, drag, click builds
+    after zoom, `-`, fit button, zoom out stops at the whole map),
+    1024×768 and 390×844 touch (pinch, one-finger drag, tap builds while
+    zoomed, fit button); regressions: build flow, tutorial, analytics
+    events. No errors. Under heavy machine load a test tap can land while
+    the camera re-fits (seen once in a parallel run, passes alone).
 
