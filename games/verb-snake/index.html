@@ -50,10 +50,8 @@
   .title span{color:#13b391}
   .sub{font-size:14px;color:var(--ink2);max-width:400px;line-height:1.45;font-weight:700}
   .sub b{color:var(--ink)}
-  .order-strip{display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap}
-  .wchip{padding:5px 14px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:16px;color:var(--ink);border:2.5px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,0.18)}
-  .wc-base{background:var(--amber)} .wc-past{background:var(--teal)} .wc-pp{background:var(--coral)}
-  .order-arrow{font-family:'Fredoka One',cursive;color:#b79c7c;font-size:16px}
+  .demo-row{width:100%;background:var(--cream2);border-radius:14px;padding:4px 6px;display:flex;justify-content:center}
+  #demo{position:static;inset:auto;z-index:auto;width:300px;max-width:100%;height:72px;touch-action:auto}
   .howto{display:flex;flex-direction:column;gap:6px;width:100%}
   .howto-row{display:flex;gap:10px;align-items:center;background:var(--cream2);padding:8px 12px;border-radius:14px;font-size:13px;color:var(--ink);text-align:left;line-height:1.35;font-weight:600}
   .howto-ico{width:30px;height:30px;flex-shrink:0;background:url(assets/foods.webp) 0 0/120px 120px no-repeat}
@@ -116,11 +114,7 @@
     <div class="card-body">
       <div class="title">Verb <span>Snake!</span></div>
       <div class="sub" data-i18n="sub">Eat each verb's 3 forms in order. Eat <b>5 verbs</b> to finish the round!</div>
-      <div class="order-strip">
-        <span class="wchip wc-base">go</span><span class="order-arrow">→</span>
-        <span class="wchip wc-past">went</span><span class="order-arrow">→</span>
-        <span class="wchip wc-pp">gone</span>
-      </div>
+      <div class="demo-row"><canvas id="demo" width="300" height="72" aria-hidden="true"></canvas></div>
       <div class="howto">
         <div class="howto-row"><div class="howto-ico"></div><div data-i18n="how1">Each fruit carries a word. Eat them <b>1 → 2 → 3</b> — every finished verb makes your snake longer.</div></div>
         <div class="howto-row"><div class="howto-ico e">👆</div><div data-i18n="how2">Steer with the <b>arrow keys</b>, the buttons, or tap the side you want to turn to.</div></div>
@@ -179,6 +173,7 @@ const STR={
     coach0:'each verb has 3 forms — eat them in order!',
     coach1:'next: {a} → ___',coach2:'finish: {a} → {b} → ___',
     combo:'Combo x{n}!',goal:'Eat 5 verbs!',round:'Round {n}',
+    wrong_then:'First ‘{a}’, then ‘{b}’!',wrong_start:'Start with ‘{a}’!',wrong_finish:'Finish ‘{a}’ first!',
   },
   de:{
     hud_round:'Runde',hud_verbs:'Verben',hud_score:'Punkte',t_sound:'Ton',
@@ -196,6 +191,7 @@ const STR={
     coach0:'jedes Verb hat 3 Formen — friss sie der Reihe nach!',
     coach1:'als Nächstes: {a} → ___',coach2:'fertig machen: {a} → {b} → ___',
     combo:'Combo x{n}!',goal:'Friss 5 Verben!',round:'Runde {n}',
+    wrong_then:'Erst ‚{a}‘, dann ‚{b}‘!',wrong_start:'Fang mit ‚{a}‘ an!',wrong_finish:'Erst ‚{a}‘ fertig machen!',
   },
   es:{
     hud_round:'Ronda',hud_verbs:'Verbos',hud_score:'Puntos',t_sound:'Sonido',
@@ -213,6 +209,7 @@ const STR={
     coach0:'cada verbo tiene 3 formas — ¡cómetelas en orden!',
     coach1:'siguiente: {a} → ___',coach2:'termina: {a} → {b} → ___',
     combo:'¡Combo x{n}!',goal:'¡Cómete 5 verbos!',round:'Ronda {n}',
+    wrong_then:'¡Primero «{a}», luego «{b}»!',wrong_start:'¡Empieza por «{a}»!',wrong_finish:'¡Primero termina «{a}»!',
   },
 };
 function t(key,vars){
@@ -342,7 +339,7 @@ const TOUCH=!!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)
 // ── Layout: landscape 18×13 like the original, portrait flips ──
 // On touch screens the d-pad gets its own strip (below the board in
 // portrait, right of it in landscape) so it never covers fruit.
-const HUD_H=58, TRACKER_H=56, MARGIN=12, DPAD=172;
+const HUD_H=58, TRACKER_H=66, MARGIN=12, DPAD=172;
 let GRID_W=18, GRID_H=13;
 let LY={};
 function computeLayout(){
@@ -358,7 +355,7 @@ function computeLayout(){
   while(cell>16&&(cell*GRID_W+frame(cell)*2>availW||cell*GRID_H+frame(cell)*2>availH))cell--;
   const gw=cell*GRID_W, gh=cell*GRID_H;
   LY={cell,gw,gh,frame:frame(cell),x:Math.round(MARGIN+(availW-gw)/2),y:Math.round(top+MARGIN+(availH-gh)/2),
-      trackerY:HUD_H+6};
+      trackerY:HUD_H-2};
   const dp=document.getElementById('dpad');
   if(TOUCH){
     dp.classList.add('show');
@@ -405,6 +402,9 @@ const state={
   tickInterval:250,lastTickTime:0,
   effects:[],shake:0,glowColor:null,glowUntil:0,
   dieStart:0,eatPulse:0,ouchUntil:0,gulps:[],headAngle:0,
+  chainFlash:null,       // {t0,words[3]} — the finished verb's beads flash
+  teach:null,            // {t0,items,text} — wrong-order card near the head
+  headPx:null,           // interpolated head position (set by drawSnake)
 };
 
 // ════════════════════════════════════════════════════════════
@@ -645,6 +645,7 @@ function tick(){
       state.chain={verb:null,step:0,recorded:new Set()};
       scorePop(c.x,c.y-18,'+60!','#ffb020');
       chainBanner(V);
+      state.chainFlash={t0:performance.now(),words:[V.v,V.past,V.pp]};
       confetti(c.x,c.y,26);
       glow('rgba(255,230,120,0.25)');
       sfx('complete');
@@ -665,9 +666,9 @@ function tick(){
       state.ouchUntil=performance.now()+350;
       sfx('abandon');
     }else{ // wrong (out of order)
+      state.teach=makeTeach(f);
       addScore(-10);state.mistakes++;
       state.combo=0;segmentsLost=3;
-      scorePop(c.x,c.y,'-10','#e5484d');
       splat(c.x,c.y,FOOD_COLOR[f.sprite]);
       state.shake=13;
       glow('rgba(255,70,70,0.25)');
@@ -703,6 +704,32 @@ function tick(){
   rebuildField();
   state.tickInterval=currentInterval();
   updateHUD();
+}
+
+// Wrong-order teach card: the chain with the right next slot highlighted
+// and the eaten word crossed out, plus one short sentence.
+function makeTeach(f){
+  const V=VERB_BY_NAME[f.verb],ch=state.chain,eaten=formText(V,f.formIdx);
+  const items=[];let text;
+  const slot=(i,it)=>{if(i>0)items.push({k:'arr'});items.push({f:i,...it});};
+  if(ch.step===0){
+    // no chain yet and a 2nd/3rd form was eaten: start with the 1st
+    for(let i=0;i<3;i++)slot(i,i===0?{k:'hl',t:V.v,n:1}:i===f.formIdx?{k:'x',t:eaten}:{k:'later',t:'___'});
+    text=t('wrong_start',{a:V.v});
+  }else{
+    const cv=VERB_BY_NAME[ch.verb];
+    if(f.verb===ch.verb&&f.formIdx>ch.step){
+      // skipped a form of the same verb (go → gone)
+      for(let i=0;i<3;i++)slot(i,i<ch.step?{k:'done',t:formText(cv,i)}:i===ch.step?{k:'hl',t:formText(cv,i),n:i+1}:{k:'x',t:eaten});
+      text=t('wrong_then',{a:formText(cv,ch.step),b:eaten});
+    }else{
+      // a form of another verb: finish this one first (its answer stays hidden)
+      items.push({k:'x',t:eaten},{k:'gap'});
+      for(let i=0;i<3;i++)slot(i,i<ch.step?{k:'done',t:formText(cv,i)}:i===ch.step?{k:'next',t:'___',n:i+1}:{k:'later',t:'___'});
+      text=t('wrong_finish',{a:cv.v});
+    }
+  }
+  return{t0:performance.now(),items,text};
 }
 
 function onCorrectEat(f,c,slotIdx){
@@ -803,6 +830,7 @@ function draw(now){
   }
   drawBoard(now);
   ctx.restore();
+  drawHeadBubble(now);
   drawTracker(now);
   drawOverlayFx(now);
 }
@@ -920,8 +948,31 @@ function drawFruits(now){
     ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle='#2b1d10';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(word,c.x,py+1);
+    // order badge: 1/2/3 in the form colour, on the pill's top-left corner
+    const br=Math.max(6.5,fs*0.6),bx=c.x-pw/2+br*0.2,by=py-ph/2+br*0.15;
+    ctx.fillStyle=FORM_DARK[ft];
+    ctx.beginPath();ctx.arc(bx,by,br,0,7);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font=`${Math.round(br*1.4)}px "Fredoka One",cursive`;
+    ctx.fillText(f.formIdx+1,bx,by+0.5);
+  }
+  // warm-up: a soft bouncing arrow over the fruit that is next in order
+  if(inWarmup()&&state.mode==='playing'){
+    for(const f of state.fruits){
+      if(now-f.born<250||!resolveEat(f).type.startsWith('correct'))continue;
+      const c=cellCenter(f.cell.col,f.cell.row),ft=FORM_TYPE[f.formIdx];
+      const s=Math.max(9,cell*0.3),ay=c.y-cell*0.82-Math.abs(Math.sin(now*0.006))*cell*0.24;
+      ctx.globalAlpha=0.92;
+      ctx.beginPath();
+      ctx.moveTo(c.x,ay);ctx.lineTo(c.x-s*0.75,ay-s*0.7);ctx.lineTo(c.x-s*0.3,ay-s*0.7);ctx.lineTo(c.x-s*0.3,ay-s*1.35);
+      ctx.lineTo(c.x+s*0.3,ay-s*1.35);ctx.lineTo(c.x+s*0.3,ay-s*0.7);ctx.lineTo(c.x+s*0.75,ay-s*0.7);ctx.closePath();
+      ctx.lineJoin='round';ctx.lineWidth=Math.max(2.5,s*0.3);ctx.strokeStyle=FORM_DARK[ft];ctx.stroke();
+      ctx.fillStyle='#fff';ctx.fill();
+      ctx.globalAlpha=1;
+    }
   }
 }
+function inWarmup(){return state.level===1&&state.setsCompleted<2;}
 
 // ── The toy snake ──
 // Top-down: plump teal beads with a gloss highlight, tapering to the tail;
@@ -944,35 +995,68 @@ function drawSnake(now){
   // gulp lumps: position along the body in segments
   state.gulps=state.gulps.filter(g=>(now-g.t0)/state.tickInterval<n+1);
   const lump=(pos)=>{let m=1;for(const g of state.gulps){const gp=(now-g.t0)/Math.max(90,state.tickInterval)*1.1;const d=pos-gp;m+=0.32*Math.exp(-d*d*1.6);}return Math.min(1.4,m);};
-  const radius=(i)=>{const k=n>1?i/(n-1):0;return cell*(0.4-0.2*k*k)*lump(i);};
+  // Chain progress on the body: the segments right behind the head carry the
+  // forms eaten so far (newest next to the head) in the form colours, with
+  // the word on a tag. A finished verb flashes, then turns back to teal.
+  const ch=state.chain;
+  const fl=!dying&&state.chainFlash&&now-state.chainFlash.t0<FLASH_MS?state.chainFlash:null;
+  const flT=fl?(now-fl.t0)/FLASH_MS:0;
+  const segForm=(i)=>{
+    if(dying||i<1)return null;
+    if(i<=ch.step)return{f:ch.step-i,word:formText(VERB_BY_NAME[ch.verb],ch.step-i)};
+    if(fl&&i-ch.step<=3)return{f:3-(i-ch.step),word:fl.words[3-(i-ch.step)],flash:true};
+    return null;
+  };
+  const radius=(i)=>{
+    const k=n>1?i/(n-1):0;let r=cell*(0.4-0.2*k*k);
+    const sf=segForm(Math.ceil(i));
+    if(sf){r=Math.max(r,cell*0.41);if(sf.flash)r*=1+0.2*Math.sin(Math.min(1,flT*1.5)*Math.PI);}
+    return r*lump(i);
+  };
 
   ctx.save();
   if(dying)ctx.globalAlpha=1-dieT*0.6;
   // body: beads + half-step beads, tail first so the head sits on top
   const beads=[];
   for(let i=n-1;i>=1;i--){
-    beads.push({x:pts[i].x,y:pts[i].y,r:radius(i),i});
-    beads.push({x:(pts[i].x+pts[i-1].x)/2,y:(pts[i].y+pts[i-1].y)/2,r:radius(i-0.5),i:i-0.5});
+    const sf=segForm(i);
+    beads.push({x:pts[i].x,y:pts[i].y,r:radius(i),i,sf});
+    beads.push({x:(pts[i].x+pts[i-1].x)/2,y:(pts[i].y+pts[i-1].y)/2,r:radius(i-0.5),i:i-0.5,sf});
   }
   // shadow
   ctx.fillStyle='rgba(30,60,10,0.22)';
   for(const b of beads){ctx.beginPath();ctx.arc(b.x+cell*0.05,b.y+cell*0.12,b.r,0,7);ctx.fill();}
   // outline
-  ctx.fillStyle=dying?'#6c7f79':'#0f8a70';
-  for(const b of beads){ctx.beginPath();ctx.arc(b.x,b.y,b.r+Math.max(1.5,cell*0.05),0,7);ctx.fill();}
-  // fill (alternating shades read as plump segments)
-  for(const b of beads){ctx.fillStyle=cols[Math.round(b.i)%2];ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();}
+  for(const b of beads){
+    ctx.fillStyle=dying?'#6c7f79':b.sf&&!b.sf.flash?FORM_DARK[FORM_TYPE[b.sf.f]]:'#0f8a70';
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r+Math.max(1.5,cell*0.05),0,7);ctx.fill();
+  }
+  // fill (alternating shades read as plump segments; chain beads in form colours)
+  const flashA=flT<0.65?1:(1-flT)/0.35, flashOn=Math.floor(flT*8)%2===0;
+  for(const b of beads){
+    ctx.fillStyle=b.sf&&!b.sf.flash?FORM_COLOR[FORM_TYPE[b.sf.f]]:cols[Math.round(b.i)%2];
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();
+    if(b.sf&&b.sf.flash){
+      const ga=ctx.globalAlpha;ctx.globalAlpha=ga*flashA;
+      ctx.fillStyle=flashOn?'#fffbe6':FORM_COLOR[FORM_TYPE[b.sf.f]];
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();
+      ctx.globalAlpha=ga;
+    }
+  }
   // back stripe dots (cream) on whole segments + gloss
   for(const b of beads){
     if(b.i%1!==0)continue;
-    ctx.fillStyle=dying?'rgba(255,255,255,0.3)':'rgba(255,246,214,0.85)';
-    ctx.beginPath();ctx.arc(b.x,b.y,b.r*0.28,0,7);ctx.fill();
+    if(!b.sf){
+      ctx.fillStyle=dying?'rgba(255,255,255,0.3)':'rgba(255,246,214,0.85)';
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r*0.28,0,7);ctx.fill();
+    }
     ctx.fillStyle='rgba(255,255,255,0.35)';
     ctx.beginPath();ctx.ellipse(b.x-b.r*0.35,b.y-b.r*0.4,b.r*0.32,b.r*0.18,-0.6,0,7);ctx.fill();
   }
 
   // head
   const h=pts[0];
+  state.headPx={x:h.x,y:h.y};
   const faceDir=state.queuedDirs.length>0?state.queuedDirs[0]:state.dir;
   let target=DIR_ANGLE[faceDir],a=state.headAngle;
   let da=((target-a+Math.PI*3)%(Math.PI*2))-Math.PI;
@@ -1052,12 +1136,185 @@ function drawSnake(now){
     }
   }
   ctx.restore();
+
+  // word tags riding on the chain beads (drawn last so they stay readable)
+  const tags=[];
+  for(let i=1;i<n;i++){const sf=segForm(i);if(sf)tags.push({sf,x:pts[i].x,y:pts[i].y,off:0});}
+  if(tags.length){
+    const fs=Math.max(10,Math.min(15,Math.round(cell*0.3))),ph=fs+5;
+    ctx.font=`${fs}px "Fredoka One",cursive`;ctx.textAlign='center';ctx.textBaseline='middle';
+    for(const g of tags)g.pw=ctx.measureText(g.sf.word).width+fs*0.8;
+    // neighbours in one row whose tags would collide: one rides high, one low
+    for(let k=0;k<tags.length-1;k++){
+      const a=tags[k],b=tags[k+1];
+      if(Math.abs(a.y-b.y)<ph&&Math.abs(a.x-b.x)<(a.pw+b.pw)/2+2){
+        if(!a.off)a.off=k%2?1:-1;
+        b.off=-a.off;
+      }
+    }
+    for(const g of tags){
+      const ft=FORM_TYPE[g.sf.f],ty=g.y+g.off*ph*0.56;
+      const ga=ctx.globalAlpha;if(g.sf.flash)ctx.globalAlpha=ga*flashA;
+      ctx.fillStyle=g.sf.flash&&flashOn?'#fffbe6':FORM_COLOR[ft];
+      ctx.beginPath();ctx.roundRect(g.x-g.pw/2,ty-ph/2,g.pw,ph,ph/2);ctx.fill();
+      ctx.strokeStyle=FORM_DARK[ft];ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle='#2b1d10';ctx.fillText(g.sf.word,g.x,ty+1);
+      ctx.globalAlpha=ga;
+    }
+  }
+  ctx.restore();
+}
+const FLASH_MS=750, TEACH_MS=1300;
+
+// ── Chain row: shared by the head bubble and the wrong-order card ──
+// items: {k:'done'|'next'|'hl'|'later'|'x'|'arr'|'gap', t:text, f:formIdx, n:badge}
+function measureRow(items,fs){
+  ctx.font=`${fs}px "Fredoka One",cursive`;
+  let w=0;
+  for(const it of items){
+    if(it.k==='arr')it.w=ctx.measureText('→').width+fs*0.7;
+    else if(it.k==='gap')it.w=fs*0.9;
+    else if(it.k==='next'||it.k==='hl')it.w=ctx.measureText(it.t).width+fs*0.9+(it.n?fs*0.35:0);
+    else it.w=ctx.measureText(it.t).width+2;
+    w+=it.w;
+  }
+  return w;
+}
+function drawRow(items,x,y,fs,now){
+  ctx.font=`${fs}px "Fredoka One",cursive`;ctx.textAlign='center';ctx.textBaseline='middle';
+  const pulse=0.5+0.5*Math.sin(now*0.009);
+  for(const it of items){
+    const cx=x+it.w/2,ft=FORM_TYPE[it.f];
+    if(it.k==='arr'){ctx.fillStyle='#b79c7c';ctx.fillText('→',cx,y+1);}
+    else if(it.k==='done'){
+      ctx.fillStyle=FORM_COLOR[ft];
+      ctx.beginPath();ctx.roundRect(x,y+fs*0.52,it.w,3,1.5);ctx.fill();
+      ctx.fillStyle='#3b2a1a';ctx.fillText(it.t,cx,y+1);
+    }else if(it.k==='later'){ctx.fillStyle='#cdb999';ctx.fillText(it.t,cx,y+1);}
+    else if(it.k==='x'){
+      ctx.fillStyle='#8a7460';ctx.fillText(it.t,cx,y+1);
+      ctx.strokeStyle='#e5484d';ctx.lineWidth=Math.max(2,fs*0.16);ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(x-1,y+fs*0.22);ctx.lineTo(x+it.w+1,y-fs*0.18);ctx.stroke();
+    }else if(it.k==='next'||it.k==='hl'){
+      // the open slot: a pill in the colour of the form that comes next, pulsing
+      const off=it.n?fs*0.35:0,pw=it.w-off-2,ph=fs+7,px=x+off+1;
+      const sc=1+0.07*pulse,mx=px+pw/2;
+      ctx.save();ctx.translate(mx,y);ctx.scale(sc,sc);
+      ctx.fillStyle=FORM_COLOR[ft];
+      ctx.beginPath();ctx.roundRect(-pw/2,-ph/2,pw,ph,ph/2);ctx.fill();
+      ctx.strokeStyle=FORM_DARK[ft];ctx.lineWidth=1.5+pulse;ctx.stroke();
+      ctx.fillStyle='#2b1d10';ctx.fillText(it.t,0,1);
+      if(it.n){
+        const br=Math.max(6,fs*0.5);
+        ctx.fillStyle=FORM_DARK[ft];ctx.beginPath();ctx.arc(-pw/2,-ph/2+br*0.35,br,0,7);ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='#fff';ctx.font=`${Math.round(br*1.4)}px "Fredoka One",cursive`;
+        ctx.fillText(it.n,-pw/2,-ph/2+br*0.35+0.5);
+        ctx.font=`${fs}px "Fredoka One",cursive`;
+      }
+      ctx.restore();
+    }
+    x+=it.w;
+  }
+}
+
+// ── Chain bubble on the head ──
+// A cream speech bubble follows the head and shows the chain in positional
+// notation (go → ___ → ___). It keeps away from the fence, from the cells
+// ahead and from fruit; on a wrong eat it turns into the teach card.
+const bub={x:0,y:0,side:''};
+function bubbleTarget(bw,bh){
+  const hp=state.headPx,cell=LY.cell,fr=LY.frame*0.6;
+  const x0=LY.x-fr,x1=LY.x+LY.gw+fr,y0=LY.y-fr,y1=LY.y+LY.gh+fr;
+  const gap=cell*0.62+10;
+  const cX=v=>Math.max(x0+bw/2,Math.min(x1-bw/2,v)),cY=v=>Math.max(y0+bh/2,Math.min(y1-bh/2,v));
+  const pos={
+    up:{x:cX(hp.x),y:hp.y-gap-bh/2},down:{x:cX(hp.x),y:hp.y+gap+bh/2},
+    left:{x:hp.x-gap-bw/2,y:cY(hp.y)},right:{x:hp.x+gap+bw/2,y:cY(hp.y)},
+  };
+  const inB=p=>p.x-bw/2>=x0-1&&p.x+bw/2<=x1+1&&p.y-bh/2>=y0-1&&p.y+bh/2<=y1+1;
+  const topPad=inWarmup()?1.5:0.7;
+  const free=p=>!state.fruits.some(f=>{
+    const c=cellCenter(f.cell.col,f.cell.row);
+    return p.x-bw/2<c.x+cell*0.95&&p.x+bw/2>c.x-cell*0.95&&p.y-bh/2<c.y+cell*1.05&&p.y+bh/2>c.y-cell*topPad;
+  });
+  const d=state.dir,side=hp.x<LY.x+LY.gw/2?'right':'left';
+  const order=d==='left'||d==='right'?['up','down',OPP[d]]:[side,OPP[side],OPP[d]];
+  const ok=s=>inB(pos[s])&&free(pos[s]);
+  const pick=order.includes(bub.side)&&ok(bub.side)?bub.side:order.find(ok)||order.find(s=>inB(pos[s]))||order[0];
+  return{side:pick,...pos[pick]};
+}
+function drawHeadBubble(now){
+  const teach=state.teach&&now-state.teach.t0<TEACH_MS?state.teach:null;
+  if(!state.headPx||!(state.mode==='playing'||(teach&&state.mode==='dying')))return;
+  const cell=LY.cell,ch=state.chain;
+  let items;
+  if(teach)items=teach.items;
+  else if(!ch.verb)items=[{k:'next',t:'___',f:0,n:1}];
+  else{
+    const V=VERB_BY_NAME[ch.verb];items=[];
+    for(let i=0;i<3;i++){
+      if(i>0)items.push({k:'arr'});
+      items.push(i<ch.step?{k:'done',t:formText(V,i),f:i}:i===ch.step?{k:'next',t:'___',f:i,n:i+1}:{k:'later',t:'___',f:i});
+    }
+  }
+  let fs=Math.max(13,Math.min(17,Math.round(cell*0.36)))+(teach?Math.min(4,Math.round(cell*0.08)):0),rowW,textW=0,bw;
+  const maxW=LY.gw+LY.frame-6;
+  for(let pass=0;pass<2;pass++){
+    rowW=measureRow(items,fs);
+    if(teach){ctx.font=`800 ${fs-1}px Nunito,sans-serif`;textW=ctx.measureText(teach.text).width;}
+    bw=Math.max(rowW,textW)+fs*1.5;
+    if(bw<=maxW)break;
+    fs=Math.max(10,Math.floor(fs*maxW/bw));
+  }
+  const bh=teach?fs*2+30:fs+15;
+  const tg=bubbleTarget(bw,bh);
+  if(!bub.side||Math.abs(tg.x-bub.x)+Math.abs(tg.y-bub.y)>cell*9){bub.x=tg.x;bub.y=tg.y;}
+  else{bub.x+=(tg.x-bub.x)*0.28;bub.y+=(tg.y-bub.y)*0.28;}
+  bub.side=tg.side;
+  const hp=state.headPx,x=bub.x-bw/2,y=bub.y-bh/2,r=Math.min(bh/2,15);
+  ctx.save();
+  if(teach){
+    // pop in, fade out
+    const a=now-teach.t0,sc=a<140?0.7+0.3*(a/140):1;
+    ctx.globalAlpha=a>TEACH_MS-200?(TEACH_MS-a)/200:1;
+    ctx.translate(bub.x,bub.y);ctx.scale(sc,sc);ctx.translate(-bub.x,-bub.y);
+  }else ctx.globalAlpha=0.97;
+  // tail towards the head
+  const tl=7,tw=6;
+  let tx,ty,ax,ay;
+  if(tg.side==='up'||tg.side==='down'){
+    tx=Math.max(x+r,Math.min(x+bw-r,hp.x));ty=tg.side==='up'?y+bh:y;ax=0;ay=tg.side==='up'?tl:-tl;
+  }else{
+    ty=Math.max(y+r*0.6,Math.min(y+bh-r*0.6,hp.y));tx=tg.side==='left'?x+bw:x;ay=0;ax=tg.side==='left'?tl:-tl;
+  }
+  const shape=(dy)=>{
+    ctx.beginPath();ctx.roundRect(x,y+dy,bw,bh,r);
+    if(ax)ctx.moveTo(tx-ax*0.3,ty-tw+dy),ctx.lineTo(tx+ax,ty+dy),ctx.lineTo(tx-ax*0.3,ty+tw+dy);
+    else ctx.moveTo(tx-tw,ty-ay*0.3+dy),ctx.lineTo(tx,ty+ay+dy),ctx.lineTo(tx+tw,ty-ay*0.3+dy);
+    ctx.closePath();
+  };
+  ctx.fillStyle='rgba(60,40,15,0.3)';shape(3);ctx.fill();
+  ctx.fillStyle=teach?'#e5484d':'#d9c29c';
+  ctx.lineJoin='round';ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=teach?5:3;shape(0);ctx.stroke();
+  ctx.fillStyle='#fff8ec';shape(0);ctx.fill();
+  if(teach){
+    drawRow(items,bub.x-rowW/2,y+fs*0.5+10,fs,now);
+    ctx.font=`800 ${fs-1}px Nunito,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#b3261e';ctx.fillText(teach.text,bub.x,y+bh-fs*0.5-8);
+    // the −10 rides on the card's corner (a floating pop would cover the text)
+    const pr=fs*0.95;
+    ctx.fillStyle='#e5484d';ctx.beginPath();ctx.arc(x+bw-pr*0.35,y+pr*0.1,pr,0,7);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font=`${Math.round(fs*0.85)}px "Fredoka One",cursive`;
+    ctx.fillText('−10',x+bw-pr*0.35,y+pr*0.1+1);
+  }else drawRow(items,bub.x-rowW/2,bub.y,fs,now);
   ctx.restore();
 }
 
 // ── Tracker: the chain in positional notation (no grammar terms) ──
 function trackerDims(){
-  const w=Math.min(W-24,400),h=44;
+  const w=Math.min(W-24,460),h=54;
   return{x:(W-w)/2,y:LY.trackerY,w,h};
 }
 function trackerSlotPos(slotIdx){
@@ -1075,13 +1332,14 @@ function drawTracker(now){
   const ch=state.chain;
   ctx.textAlign='center';ctx.textBaseline='middle';
   if(!ch.verb){
-    ctx.font='800 14px Nunito,sans-serif';
+    ctx.font='800 17px Nunito,sans-serif';
     const m=t('start_hint');
-    if(ctx.measureText(m).width>w-60)ctx.font='800 12px Nunito,sans-serif';
+    if(ctx.measureText(m).width>w-70)ctx.font='800 14px Nunito,sans-serif';
     const tw=ctx.measureText(m).width;
     // little amber dot = "the yellow word"
-    ctx.fillStyle='#ffcf5e';ctx.beginPath();ctx.arc(x+w/2-tw/2-12,y+h/2,6,0,7);ctx.fill();
-    ctx.fillStyle='#3b2a1a';ctx.fillText(m,x+w/2+6,y+h/2+1);
+    ctx.fillStyle='#ffcf5e';ctx.beginPath();ctx.arc(x+w/2-tw/2-12,y+h/2,8,0,7);ctx.fill();
+    ctx.strokeStyle='#c98a00';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#3b2a1a';ctx.fillText(m,x+w/2+8,y+h/2+1);
   }else{
     const V=VERB_BY_NAME[ch.verb];
     const pulse=0.5+0.5*Math.sin(now*0.008);
@@ -1090,19 +1348,22 @@ function drawTracker(now){
       const eaten=ch.step>i,isNext=ch.step===i;
       const ft=FORM_TYPE[i];
       const word=eaten?formText(V,i):'___';
-      ctx.font=`${eaten?16:15}px "Fredoka One",cursive`;
+      ctx.font=`${eaten?21:19}px "Fredoka One",cursive`;
       let tw=ctx.measureText(word).width;
-      if(tw>w*0.26){ctx.font='12px "Fredoka One",cursive';tw=ctx.measureText(word).width;}
-      const cw=Math.max(tw+18,54),chh=30;
+      if(tw>w*0.25){ctx.font='16px "Fredoka One",cursive';tw=ctx.measureText(word).width;}
+      const cw=Math.max(tw+22,66),chh=40;
       if(eaten){
         ctx.fillStyle=FORM_COLOR[ft];
         ctx.beginPath();ctx.roundRect(p.x-cw/2,p.y-chh/2,cw,chh,chh/2);ctx.fill();
         ctx.fillStyle='#2b1d10';ctx.fillText(word,p.x,p.y+1);
       }else if(isNext){
-        ctx.setLineDash([5,4]);ctx.lineWidth=2.5;
+        // the open slot: tinted with the colour of the form that comes next
+        ctx.globalAlpha=0.3+0.3*pulse;ctx.fillStyle=FORM_COLOR[ft];
+        ctx.beginPath();ctx.roundRect(p.x-cw/2,p.y-chh/2,cw,chh,chh/2);ctx.fill();
+        ctx.setLineDash([6,4]);ctx.lineWidth=3;
         ctx.strokeStyle=FORM_DARK[ft];
-        ctx.globalAlpha=0.55+0.45*pulse;
-        ctx.beginPath();ctx.roundRect(p.x-cw/2,p.y-chh/2,cw,chh,chh/2);ctx.stroke();
+        ctx.globalAlpha=0.6+0.4*pulse;
+        ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle=FORM_DARK[ft];ctx.fillText('___',p.x,p.y+1);
         ctx.globalAlpha=1;
@@ -1110,14 +1371,14 @@ function drawTracker(now){
         ctx.fillStyle='#d9c9ad';ctx.fillText(word,p.x,p.y+1);
       }
       if(i<2){
-        ctx.font='15px "Fredoka One",cursive';
+        ctx.font='19px "Fredoka One",cursive';
         ctx.fillStyle='#b79c7c';
         ctx.fillText('→',x+w*(0.34+0.32*i),y+h/2+1);
       }
     }
   }
   // Warm-up coaching line under the tracker (round 1, first two verb sets).
-  if(state.level===1&&state.setsCompleted<2&&state.mode==='playing'){
+  if(inWarmup()&&state.mode==='playing'&&LY.y-LY.frame-(y+h)>=26){
     let hint;
     if(!ch.verb)hint=t('coach0');
     else{
@@ -1126,7 +1387,7 @@ function drawTracker(now){
     }
     ctx.font='800 12px Nunito,sans-serif';
     const tw=ctx.measureText(hint).width+20;
-    const hy=Math.min(y+h+15,LY.y-LY.frame-10);
+    const hy=Math.min(y+h+16,LY.y-LY.frame-12);
     ctx.fillStyle='rgba(40,60,20,0.55)';
     ctx.beginPath();ctx.roundRect(x+w/2-tw/2,hy-10,tw,20,10);ctx.fill();
     ctx.fillStyle='#fff';
@@ -1215,6 +1476,73 @@ function drawOverlayFx(now){
   ctx.globalAlpha=1;
 }
 
+// ── Start-screen demo: a tiny snake eats 1 → 2 → 3, then a ✓ ──
+const demo=document.getElementById('demo'),dctx=demo.getContext('2d');
+const DEMO_W=300,DEMO_H=72;
+const REDUCED=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+let demoDpr=0;
+function drawDemo(now){
+  const g=dctx,d=Math.min(window.devicePixelRatio||1,2);
+  if(d!==demoDpr){demoDpr=d;demo.width=DEMO_W*d;demo.height=DEMO_H*d;}
+  g.setTransform(d,0,0,d,0,0);
+  g.clearRect(0,0,DEMO_W,DEMO_H);
+  // words wait in a row on top, the snake passes below and gulps them 1 → 2 → 3
+  const T=5000,tt=REDUCED?3600:now%T;
+  const py=17,sy=52,words=['go','went','gone'],px=[62,142,222],X0=14,X1=244,END=2800,DROP=220;
+  const hx=X0+(X1-X0)*Math.min(1,tt/END);
+  const tEat=px.map(p=>END*(p-X0)/(X1-X0));
+  const eaten=tEat.filter(te=>tt>=te+DROP).length,done=tt>=END;
+  const A=tt<250?tt/250:tt>T-450?Math.max(0,(T-tt)/450):1;
+  g.textAlign='center';g.textBaseline='middle';
+  const pill=(k,x,y,sc,a)=>{
+    const ft=FORM_TYPE[k];
+    g.save();g.translate(x,y);g.scale(sc,sc);g.globalAlpha=A*a;
+    g.font='15px "Fredoka One",cursive';
+    const pw=g.measureText(words[k]).width+20,ph=24;
+    g.fillStyle=FORM_COLOR[ft];
+    g.beginPath();g.roundRect(-pw/2,-ph/2,pw,ph,ph/2);g.fill();
+    g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    g.fillStyle='#2b1d10';g.fillText(words[k],0,1);
+    g.fillStyle=FORM_DARK[ft];g.beginPath();g.arc(-pw/2+1,-ph/2+3,8.5,0,7);g.fill();
+    g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke();
+    g.fillStyle='#fff';g.font='12px "Fredoka One",cursive';g.fillText(k+1,-pw/2+1,-ph/2+3.5);
+    g.restore();
+  };
+  for(let k=0;k<3;k++){
+    if(k>0){g.globalAlpha=A;g.font='15px "Fredoka One",cursive';g.fillStyle='#b79c7c';g.fillText('→',(px[k-1]+px[k])/2+3,py+1);}
+    const dt=tt-tEat[k];
+    pill(k,px[k],py,1,dt<0?1:0.4);                      // stays as a faint reminder
+    if(dt>=0&&dt<DROP){const q=dt/DROP;pill(k,px[k]+(hx-px[k])*q,py+(sy-py)*q,1-0.6*q,1);}  // drops into the mouth
+  }
+  g.globalAlpha=A;
+  // body: one bead per eaten word, newest next to the head
+  const blink=done&&tt<END+700&&Math.floor((tt-END)/90)%2===0;
+  for(let j=Math.max(eaten,2);j>=1;j--){
+    const bx=hx-16*j,f=eaten-j;
+    if(bx<-10)continue;
+    g.fillStyle=f>=0?FORM_DARK[FORM_TYPE[f]]:'#0f8a70';g.beginPath();g.arc(bx,sy,f>=0?10.5:8.5,0,7);g.fill();
+    g.fillStyle=f<0?'#33d6b4':blink?'#fffbe6':FORM_COLOR[FORM_TYPE[f]];g.beginPath();g.arc(bx,sy,f>=0?9:7,0,7);g.fill();
+  }
+  // head
+  g.fillStyle='#0f8a70';g.beginPath();g.ellipse(hx+1,sy,14.5,13.5,0,0,7);g.fill();
+  g.fillStyle='#3fdcbb';g.beginPath();g.ellipse(hx+1,sy,13,12,0,0,7);g.fill();
+  g.fillStyle='#fff1cf';g.beginPath();g.ellipse(hx+9,sy,5.5,7,0,0,7);g.fill();
+  for(const s of[1,-1]){
+    g.fillStyle='#fff';g.beginPath();g.arc(hx+1,sy+s*5.5,3.8,0,7);g.fill();
+    g.fillStyle='#2b1d10';g.beginPath();g.arc(hx+2.2,sy+s*5.5,2.4,0,7);g.fill();
+  }
+  // ✓ once all three are eaten in order
+  if(done){
+    const p=Math.min(1,(tt-END)/260),sc=p<1?p*1.25:1+0.25*Math.max(0,1-(tt-END-260)/160);
+    g.save();g.translate(280,sy);g.scale(sc,sc);
+    g.fillStyle='#2f9e44';g.beginPath();g.arc(0,0,13,0,7);g.fill();
+    g.strokeStyle='#fff';g.lineWidth=3.4;g.lineCap='round';g.lineJoin='round';
+    g.beginPath();g.moveTo(-6,0.5);g.lineTo(-1.5,5);g.lineTo(6,-4.5);g.stroke();
+    g.restore();
+  }
+  g.globalAlpha=1;
+}
+
 // ════════════════════════════════════════════════════════════
 // MAIN LOOP
 // ════════════════════════════════════════════════════════════
@@ -1226,6 +1554,7 @@ function frameLoop(now){
     }
   }
   draw(now);
+  if(state.mode==='menu')drawDemo(now);
   requestAnimationFrame(frameLoop);
 }
 requestAnimationFrame(frameLoop);
@@ -1299,6 +1628,7 @@ async function startRound(level,keepScore){
   state.answers=0;state.correct=0;state.mistakes=0;
   state.recentlyUsed=new Set();
   state.effects=[];state.shake=0;state.newBest=false;
+  state.chainFlash=null;state.teach=null;state.headPx=null;bub.side='';
   state.tickInterval=currentInterval();
   state.formQueue={verbs:[],nextTripleIdx:0,nextFormInTriple:0};
   rebuildField();
@@ -1398,6 +1728,7 @@ window.__VS={
   get GRID(){return{w:GRID_W,h:GRID_H};},
   tick,queueDirection,targetFieldSize,resolveEat,startRound,
   forceDraw(){draw(performance.now());},
+  bub,inWarmup,
   cellCenter,
   // place the head one cell left of a fruit and tick into it (real code path)
   eatFruitIdx(i){

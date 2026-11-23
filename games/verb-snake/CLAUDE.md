@@ -118,3 +118,41 @@ say so here and message the master session.
     1366×768: start/board/win/lose screens, full scripted round, events,
     61 fps, no console errors. **Not yet played by hand on a real phone.**
 - 2026-11-23 — Master session merged b7a0b9e (the worktree was removed) and removed the HUD "Krabsy" text logo and the start card's "Krabsy" line (one brand look: the wrapper header already shows kr🦀bsy). Release prepared, waiting for the owner's OK.
+- 2026-11-23 — **Readability pass after owner feedback** ("UI barely
+  noticeable when focusing on the snake; hard to track which verbs you just
+  collected; not clear you must collect them in order"). Only `index.html`
+  changed, no new assets.
+  - **Chain bubble on the head** (`drawHeadBubble`, `bubbleTarget`): cream
+    speech bubble, `go → ___ → ___`; the open blank is a pulsing pill in the
+    colour of the next form with its number badge (before a chain: amber
+    blank + 1). It picks a side that is inside the fence, not ahead of the
+    snake and not on a fruit, keeps that side while it stays valid, and
+    eases to it. Top tracker kept and made bigger (54 px high, 21 px words).
+  - **Chain beads**: the 1–3 segments right behind the head (newest next to
+    the head) take the form colours and carry the word on a tag (always a
+    tag: words don't fit a bead at phone size; neighbours in one row ride
+    high/low so tags don't collide). A finished verb flashes 0.75 s
+    (`state.chainFlash`), then the beads are teal again.
+  - **Order cue**: 1/2/3 badge on every word pill; in the warm-up (round 1,
+    first two verbs, `inWarmup()`) a bouncing arrow over the fruit that is
+    next. The grey coach line under the tracker is only drawn when there is
+    room (not at 1366×768).
+  - **Wrong-order card** (`makeTeach`, 1.3 s, replaces the bubble, red
+    border, −10 on its corner instead of the floating pop; shake kept).
+    Three cases: skipped a form of the same verb → `go → [went] → gone̶`,
+    "Erst ‚went‘, dann ‚gone‘!"; a form of another verb → eaten word crossed
+    out + `go → [___] → ___`, "Erst ‚go‘ fertig machen!" (the open answer
+    stays hidden); no chain yet → `[eat] → ___ → eaten̶`, "Fang mit ‚eat‘
+    an!". DE/ES/EN.
+  - **Start screen**: the static chips are now a canvas demo (`drawDemo`):
+    numbered pills go/went/gone, a small snake gulps them 1 → 2 → 3, beads
+    take the colours, then ✓; loops every 5 s; static with
+    prefers-reduced-motion.
+  - Kept: mechanics, chain order, `smartQueue`, `recordForm`, events, no
+    grammar terms, no Krabsy text logo.
+  - Checked headless at 390×844 touch, 1024×768 touch, 1366×768 (DE/ES/EN):
+    start demo, bubble near all four walls + corners, beads/tags/flash, badges
+    + arrow, all three card cases incl. head-only loss, 60 fps with real
+    ticking, no console errors. **Not checked:** a real phone / real
+    Chromebook, a full hand-played round, and that game events still reach
+    the API (code untouched; the test server has no API).
