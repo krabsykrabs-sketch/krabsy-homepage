@@ -91,3 +91,11 @@ Open for the master session:
 ## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
 
 Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.
+
+## OFFLINE since 2026-11-23 (master session, owner decision)
+
+Taken off the site like Crab Slash: out of `games.json`, the hubs, related
+lists and the sitemap; the wrappers stay reachable with `noindex, follow`.
+Reason: the 2D games look weak next to the 3D games, median time 0:39, and
+the colour tell (the right ball is always the same colour) from the play
+test. It can come back after a redesign — ask the owner first.

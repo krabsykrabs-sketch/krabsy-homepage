@@ -4,7 +4,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://krabsy.com/de/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -100,7 +100,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -108,7 +108,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/air-control/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/air-control/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/air-control/"/>
@@ -132,7 +132,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-flow/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-flow/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-flow/"/>
@@ -155,14 +155,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-platformer/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/de/spiele/verb-slash/</loc>
-    <lastmod>2026-11-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-slash/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-slash/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-slash/"/>
-  </url>
-  <url>
     <loc>https://krabsy.com/de/spiele/verb-snake/</loc>
     <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
@@ -180,7 +172,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/"/>
@@ -1676,7 +1668,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -1684,7 +1676,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/air-control/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/air-control/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/air-control/"/>
@@ -1708,7 +1700,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-flow/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-flow/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-flow/"/>
@@ -1729,14 +1721,6 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-platformer/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-platformer/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-platformer/"/>
-  </url>
-  <url>
-    <loc>https://krabsy.com/es/juegos/verb-slash/</loc>
-    <lastmod>2026-11-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-slash/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-slash/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-slash/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-snake/</loc>
@@ -1820,7 +1804,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/"/>

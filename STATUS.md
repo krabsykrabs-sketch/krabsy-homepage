@@ -7,7 +7,7 @@ at the end of each session. (Last update: 2026-11-22.)
 
 | Game | Type | Source | Served at | Status |
 |------|------|--------|-----------|--------|
-| Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | `/de/spiele/verb-slash/` | **live** |
+| Verb Slash | single-file canvas | `games/verb-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-23** (owner: 2D games look weak next to the 3D ones; median 0:39, colour tell from the play test) — out of games.json, hubs, related lists, sitemap; can come back with a redesign |
 | Crab Slash | single-file canvas | `games/crab-slash/` (+ inlined wrapper) | — (wrappers kept, noindex) | **OFFLINE since 2026-11-21, parked** — play-test: core rule broken (other verbs' correct forms count as wrong); redesign notes in `games/crab-slash/CLAUDE.md` |
 | Verb Snake | single-file canvas | `homepage/krabsy-verb-snake.html` (iframed) | `/de/spiele/verb-snake/` | **LIVE** (v3) — engine-refactored 2026-06-12: 148-verb pool, dotted no-terminology tracker. 2026-11-16: DE/ES UI, New Best badge fix |
 | Air Control | single-file canvas | `homepage/krabsy-air-control.html` | `/de/spiele/air-control/` | **live** (beta) — 2026-11-16: DE/ES UI, legend no longer uses grammar terms. 2026-11-21 (**deployed**, live file verified): no ①②③ answer tell (planes all white, word only; panel shows go → ___ → ___), phone-legible labels/bubbles/hints, safer spawn lanes on phones, level-complete screen auto-continues after 8 s, same-word forms (run/ran/run) take the earlier slot. Still to check on a real phone |
@@ -73,6 +73,17 @@ New ideas the owner liked, not started, no folder yet:
 - Air Control → small fixes — **done and deployed 2026-11-21**.
 - Verb Flow → keep.
 - Owner decisions pending.
+
+## 2D games review (owner, 2026-11-23)
+
+The 2D games look weak next to the 3D games. Decision, based on median time
+on page (play-test report 2026-11-21): **Verb Snake** (2:09, longest of all)
+stays and gets a full visual overhaul — brief `games/verb-snake/CLAUDE.md`,
+own session. **Verb Slash** (0:39, colour tell) is offline. **Verb Flow**
+(0:22, mostly before its tutorial) and **Air Control** (0:39, fixed
+2026-11-21) are measured with the new dashboard until **~2026-12-07**
+(median engaged time per game page, answers, % right; Flow needs its phase-1
+wiring to show answers). Rule: median below ~1 min → offline or overhaul.
 
 ## Classes for teachers (phase 2, built 2026-11-22)
 

@@ -100,7 +100,7 @@ CONTENT = {
                 ("Wie lange dauert eine Runde?", "Eine Runde ist vorbei, wenn du alle 30 Verben vollständig gefunden hast – je nach Tempo ein paar Minuten."),
                 ("Funktioniert das Spiel auf dem Tablet?", "Ja. Du wischst mit dem Finger über die Krabben, genau wie mit der Maus am Computer."),
             ],
-            "related": ["verb-slash", "verb-flow", "verb-snake"],
+            "related": ["verb-dungeon", "verb-flow", "verb-snake"],
         },
         "es": {
             "h1": "Crab Slash: atrapa las formas verbales en la playa",
@@ -125,7 +125,7 @@ CONTENT = {
                 ("¿Cuánto dura una partida?", "Termina cuando encuentras las formas de los 30 verbos; según tu ritmo, unos pocos minutos."),
                 ("¿Funciona en tablet o celular?", "Sí. Deslizas el dedo sobre los cangrejos igual que con el ratón en la computadora. En horizontal se ve mejor."),
             ],
-            "related": ["verb-slash", "verb-flow", "verb-snake"],
+            "related": ["verb-dungeon", "verb-flow", "verb-snake"],
         },
     },
     # ──────────────────────────────────────────────────────────── Air Control
@@ -153,7 +153,7 @@ CONTENT = {
                 ("Wie schalte ich neue Level frei?", "Die drei Level werden der Reihe nach freigeschaltet. Dein Fortschritt und dein Rekord werden auf deinem Gerät gespeichert."),
                 ("Ist Air Control auf Deutsch?", "Ja. Alle Texte im Spiel sind auf Deutsch (auf der spanischen Seite auf Spanisch). Nur die Verbformen selbst bleiben Englisch – die übst du ja."),
             ],
-            "related": ["verb-snake", "verb-kitchen", "verb-slash"],
+            "related": ["verb-snake", "verb-kitchen", "verb-dungeon"],
         },
         "es": {
             "h1": "Air Control: aterriza aviones con los verbos irregulares",
@@ -178,7 +178,7 @@ CONTENT = {
                 ("¿Cómo se desbloquean los niveles?", "Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo."),
                 ("¿El juego está en español?", "Sí. Todos los textos del juego están en español (en la página alemana, en alemán). Solo las formas verbales siguen en inglés, que es justo lo que practicas."),
             ],
-            "related": ["verb-snake", "verb-kitchen", "verb-slash"],
+            "related": ["verb-snake", "verb-kitchen", "verb-dungeon"],
         },
     },
     # ───────────────────────────────────────────────────────────── Verb Snake
@@ -258,7 +258,7 @@ CONTENT = {
                 ("Wird mein Fortschritt gespeichert?", "Ja, das erreichte Level und dein bester Punktestand werden auf deinem Gerät gespeichert. Mit „Restart at Level 1“ kannst du von vorn beginnen."),
                 ("Was bringt mir das Rätsel fürs Englische?", "Du musst für jedes Verb alle drei Formen erkennen und in die richtige Reihenfolge bringen. Genau diese Reihe wird im Unterricht und im Test abgefragt."),
             ],
-            "related": ["verb-snake", "verb-slash", "verb-kitchen"],
+            "related": ["verb-snake", "verb-dungeon", "verb-kitchen"],
         },
         "es": {
             "h1": "Verb Flow: el rompecabezas de los verbos irregulares",
@@ -282,7 +282,7 @@ CONTENT = {
                 ("¿Se guarda mi progreso?", "Sí, el nivel alcanzado y tu mejor puntuación se guardan en tu dispositivo. Con «Restart at Level 1» vuelves al principio."),
                 ("¿Cómo me ayuda con el inglés?", "Para cada verbo tienes que reconocer sus tres formas y ponerlas en orden, que es justo lo que te preguntan en clase y en los exámenes."),
             ],
-            "related": ["verb-snake", "verb-slash", "verb-kitchen"],
+            "related": ["verb-snake", "verb-dungeon", "verb-kitchen"],
         },
     },
     # ──────────────────────────────────────────────────────── Verb Platformer

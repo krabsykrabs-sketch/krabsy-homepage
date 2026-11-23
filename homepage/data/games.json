@@ -125,25 +125,6 @@
     "thumb_small": "/thumbnails/sm/verb-snake.jpg"
   },
   {
-    "id": "verb-slash",
-    "name": {
-      "de": "Verb Slash",
-      "es": "Verb Slash"
-    },
-    "tagline": {
-      "de": "Zerschlage die richtigen Verbformen!",
-      "es": "¡Corta las formas verbales correctas!"
-    },
-    "thumbnail": "/thumbnails/VerbSlash.png",
-    "topics": [
-      "irregular_verbs"
-    ],
-    "status": "ready",
-    "kind": "arcade",
-    "devices": "phone_ok",
-    "thumb_small": "/thumbnails/sm/verb-slash.jpg"
-  },
-  {
     "id": "air-control",
     "name": {
       "de": "Air Control!",
