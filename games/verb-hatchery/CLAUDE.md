@@ -366,3 +366,7 @@ Not done yet / to check:
   uses the height test. Checked by walking from home towards 144 points
   all over the island (`tryMove`): no stop without a visible object,
   except the pond's deep water (intended).
+- 2026-11-23: owner **parked the heavy-eggs idea** (rarer eggs slow you
+  down). Still open as ideas: heavy eggs, crab raids on the home base.
+  Next: beach overhaul (a real beach by the water, not a sand patch) and a
+  graphics / level-design review of the whole world (Fable 5.2 subagent).
