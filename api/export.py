@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from typing import Iterable, Iterator, NamedTuple, Optional
 
 from classify import HIDDEN_BY_DEFAULT, bot_reason, build_sessions
-from dashboard import event_passes_filters, normalize_range, since_iso
+from dashboard import event_passes_filters, normalize_range, since_iso, until_iso
 from storage import find_window, read_events
 
 # Newest events kept per export (same as the dashboard). ~600 bytes each as
@@ -47,13 +47,13 @@ class Export(NamedTuple):
     truncated: bool
 
 
-def _tagged_events(since, start, end, include_bots, country_filter, device_filter) -> Iterator[dict]:
-    sessions, keys = build_sessions(read_events(since, start=start, end=end))
+def _tagged_events(since, start, end, include_bots, country_filter, device_filter, until=None) -> Iterator[dict]:
+    sessions, keys = build_sessions(read_events(since, until, start=start, end=end))
 
     def gen():
         # Same byte window + same filter => exactly the sequence `keys` was
         # built from, so zip lines them up.
-        for ev, key in zip(read_events(since, start=start, end=end), keys):
+        for ev, key in zip(read_events(since, until, start=start, end=end), keys):
             if not event_passes_filters(ev, country_filter, device_filter):
                 continue
             if key:
@@ -125,15 +125,17 @@ def prepare_export(
     range_key = normalize_range(range_key)
     fmt = fmt if fmt in FORMATS else "json"
     since = since_iso(range_key)
-    start, end, truncated = find_window(since=since, max_count=MAX_EVENTS)
-    rows, first = _tagged_events(since, start, end, include_bots, country_filter, device_filter)
+    until = until_iso(range_key)
+    start, end, truncated = find_window(since=since, until=until, max_count=MAX_EVENTS)
+    rows, first = _tagged_events(since, start, end, include_bots, country_filter, device_filter, until)
 
     today = datetime.now(timezone.utc).date().isoformat()
     if since and not truncated:
         date_from = since[:10]
     else:
         date_from = (first or today)[:10]
-    parts = ["krabsy-analytics", date_from, today]
+    date_to = until[:10] if until else today
+    parts = ["krabsy-analytics", date_from, date_to]
     if country_filter:
         parts.append(_slug(country_filter))
     if device_filter:

@@ -7,7 +7,7 @@ for months) this is plenty fast.
 
 import re
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from html import escape
 from typing import Optional
 from urllib.parse import urlparse
@@ -49,8 +49,63 @@ MAX_EVENTS = 200_000
 DEVICE_OPTIONS = [("", "All devices"), ("desktop", "Desktop"), ("tablet", "Tablet"), ("mobile", "Mobile")]
 
 
+# Custom ranges: "d:2026-11-22" (one UTC day) or "d:2026-11-16..2026-11-22"
+# (inclusive). They travel through the same `range` parameter as the presets,
+# so the filters, the download box and the export keep working unchanged.
+_CUSTOM_RE = re.compile(r"^d:(\d{4}-\d{2}-\d{2})(?:\.\.(\d{4}-\d{2}-\d{2}))?$")
+
+
+def custom_range(range_key: Optional[str]) -> Optional[tuple[date, date]]:
+    """(first_day, last_day) for a custom key, None for presets/garbage."""
+    m = _CUSTOM_RE.match(range_key or "")
+    if not m:
+        return None
+    try:
+        a = date.fromisoformat(m.group(1))
+        b = date.fromisoformat(m.group(2) or m.group(1))
+    except ValueError:
+        return None
+    if b < a:
+        a, b = b, a
+    return a, b
+
+
+def custom_key(a: date, b: Optional[date] = None) -> str:
+    b = b or a
+    return f"d:{a.isoformat()}" if a == b else f"d:{a.isoformat()}..{b.isoformat()}"
+
+
+def range_from_dates(date_from: Optional[str], date_to: Optional[str]) -> Optional[str]:
+    """Range key from the dashboard's two date inputs (either may be empty)."""
+    try:
+        a = date.fromisoformat((date_from or "").strip()) if (date_from or "").strip() else None
+        b = date.fromisoformat((date_to or "").strip()) if (date_to or "").strip() else None
+    except ValueError:
+        return None
+    if not a and not b:
+        return None
+    a = a or b
+    b = b or a
+    if b < a:
+        a, b = b, a
+    return custom_key(a, b)
+
+
+def range_label_for(range_key: str) -> str:
+    c = custom_range(range_key)
+    if c:
+        a, b = c
+        if a == b:
+            return a.strftime("%a %d %b %Y")
+        return f"{a.strftime('%a %d %b')} – {b.strftime('%a %d %b %Y')} ({(b - a).days + 1} days)"
+    return next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
+
+
 def normalize_range(range_key: Optional[str]) -> str:
     """Unknown/missing range keys fall back to the default (7 days)."""
+    if custom_range(range_key):
+        a, b = custom_range(range_key)
+        return custom_key(a, b)
     return range_key if range_key in {k for k, _, _ in RANGES} else DEFAULT_RANGE
 
 
@@ -72,8 +127,19 @@ def event_passes_filters(ev: dict, country_filter: Optional[str], device_filter:
     return True
 
 
+def until_iso(range_key: str) -> Optional[str]:
+    """ISO upper bound (None = up to now). Only custom ranges have one."""
+    c = custom_range(range_key)
+    if not c:
+        return None
+    return datetime.combine(c[1], datetime.max.time(), tzinfo=timezone.utc).isoformat()
+
+
 def since_iso(range_key: str) -> Optional[str]:
     """ISO lower bound for a range key (None = all time)."""
+    c = custom_range(range_key)
+    if c:
+        return datetime.combine(c[0], datetime.min.time(), tzinfo=timezone.utc).isoformat()
     days = next(d for k, _, d in RANGES if k == normalize_range(range_key))
     if days is None:
         return None
@@ -443,9 +509,10 @@ def aggregate(
     shows all four counts. `events` is injectable for tests.
     """
     since = since_iso(range_key)
+    until = until_iso(range_key)
     truncated = False
     if events is None:
-        events, truncated = read_newest(MAX_EVENTS, since=since)
+        events, truncated = read_newest(MAX_EVENTS, since=since, until=until)
     sessions, keys = build_sessions(events)
     hidden = frozenset() if show_bots else HIDDEN_BY_DEFAULT
 
@@ -462,6 +529,8 @@ def aggregate(
     hours: Counter = Counter()
     daily_views: Counter = Counter()            # YYYY-MM-DD -> page views
     daily_uniques: dict[str, set] = defaultdict(set)  # YYYY-MM-DD -> visitor_hashes
+    daily_country_views: dict[str, Counter] = defaultdict(Counter)          # day -> country -> views
+    daily_country_u: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
 
     # Universe of dimensions present in the date range *before* filters are
     # applied. Used to populate the filter dropdowns — a user who filters to
@@ -551,6 +620,7 @@ def aggregate(
             hours[dt.hour] += 1
             ev_date = dt.date().isoformat()
             daily_views[ev_date] += 1
+            daily_country_views[ev_date][country] += 1
         except Exception:
             pass
 
@@ -558,6 +628,7 @@ def aggregate(
             paths_u[path].add(vh)
             if ev_date:
                 daily_uniques[ev_date].add(vh)
+                daily_country_u[ev_date][country].add(vh)
             referrers_u[ref].add(vh)
             sources_u[src].add(vh)
             if src == "Search":
@@ -662,20 +733,30 @@ def aggregate(
     # gaps) so the chart reads continuously. Each row: (date, views, uniques).
     observed = set(daily_views) | set(daily_uniques)
     timeseries: list[tuple] = []
-    if observed:
+    crange = custom_range(range_key)
+    if observed or crange:
         from datetime import date as _date, timedelta as _td
-        d0 = _date.fromisoformat(min(observed))
-        d1 = _date.fromisoformat(max(observed))
+        # A picked range always shows all its days, even the empty ones.
+        d0 = crange[0] if crange else _date.fromisoformat(min(observed))
+        d1 = crange[1] if crange else _date.fromisoformat(max(observed))
         d = d0
         while d <= d1:
             k = d.isoformat()
             timeseries.append((k, daily_views.get(k, 0), len(daily_uniques.get(k, ()))))
             d += _td(days=1)
     countries_out = _by_view(countries, countries_u)
+    # Countries per day (same view mode as the rest of the page).
+    days_list = [r[0] for r in timeseries]
+    if view == VIEW_UNIQUES:
+        cd = {d: {c: len(v) for c, v in daily_country_u.get(d, {}).items()} for d in days_list}
+    else:
+        cd = {d: dict(daily_country_views.get(d, {})) for d in days_list}
+    country_days = {"days": days_list, "order": [c for c, _ in countries_out.most_common()], "cells": cd}
     devices_out = _by_view(devices, devices_u)
 
     return {
         "view": view,
+        "country_days": country_days,
         "total_all": total_all,
         "bot_count": hidden_views,      # page views of bot + likely_bot
         "counted": counted,
@@ -806,6 +887,18 @@ table.engagement th.col-num, table.engagement td.col-num {{
   text-align: right; font-variant-numeric: tabular-nums; width: 88px;
 }}
 .muted {{ color: {MUTED}; }}
+.datepick {{ background: white; border: 1px solid #e0e0e0; padding: 10px 12px; margin: 0 0 16px; max-width: 980px; }}
+.datepick form {{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0; }}
+.datepick form > strong {{ font-size: 15px; margin-right: 6px; }}
+.datepick input[type=date] {{ font: inherit; padding: 3px 6px; }}
+.datepick button {{ font: inherit; padding: 4px 12px; cursor: pointer; }}
+.datepick .quick, .datepick .nav {{ font-size: 13px; }}
+.datepick .nav {{ font-weight: 700; }}
+.datepick p {{ margin: 6px 0 0; font-size: 12px; }}
+.scroll-x {{ overflow-x: auto; max-width: 100%; }}
+table.countrydays {{ max-width: none; width: auto; }}
+table.countrydays th, table.countrydays td {{ padding: 4px 8px; white-space: nowrap; }}
+table.countrydays th a {{ color: inherit; }}
 .chart {{ background: white; padding: 12px; border: 1px solid #e0e0e0; max-width: 720px; }}
 .empty {{ color: {MUTED}; font-style: italic; padding: 24px; background: white; border: 1px dashed #ccc; }}
 @media (max-width: 600px) {{
@@ -925,7 +1018,7 @@ def _nice_ticks(max_v: int, want: int = 4) -> tuple[int, list[int]]:
     return top, list(range(0, top + 1, step))
 
 
-def _timeseries_svg(rows: list[tuple]) -> str:
+def _timeseries_svg(rows: list[tuple], day_href=None) -> str:
     """Daily trend line chart: unique visitors (teal) + page views (coral).
 
     Each day shows its numbers next to the dots (up to 31 days) and a
@@ -987,7 +1080,10 @@ def _timeseries_svg(rows: list[tuple]) -> str:
         bw, bh = 150, 54
         bx = x + 10 if x + 10 + bw <= width - pad_right else x - 10 - bw
         by = pad_top
-        hovers += (
+        open_a, close_a = "", ""
+        if day_href:
+            open_a, close_a = f'<a href="{escape(day_href(day))}">', "</a>"
+        hovers += open_a + (
             f'<g class="ts-day"><title>{escape(day)}: {visitors} visitors, {views} page views</title>'
             f'<rect x="{x - col_w / 2:.1f}" y="{pad_top}" width="{col_w:.1f}" height="{chart_h}" fill="transparent"/>'
             f'<g class="ts-tip">'
@@ -997,7 +1093,7 @@ def _timeseries_svg(rows: list[tuple]) -> str:
             f'<text x="{bx + 10:.1f}" y="{by + 33:.1f}" font-size="12" fill="#1f9c7f">● {visitors} visitors</text>'
             f'<text x="{bx + 10:.1f}" y="{by + 48:.1f}" font-size="12" fill="#d9674f">● {views} page views</text>'
             f'</g></g>'
-        )
+        ) + close_a
 
     legend = (
         f'<rect x="{pad_left}" y="{height - 15}" width="11" height="11" rx="2" fill="{TEAL}"/>'
@@ -1005,7 +1101,7 @@ def _timeseries_svg(rows: list[tuple]) -> str:
         f'<rect x="{pad_left + 140}" y="{height - 15}" width="11" height="11" rx="2" fill="{CORAL}"/>'
         f'<text x="{pad_left + 156}" y="{height - 6}" font-size="12" fill="{INK}">Page views</text>'
     )
-    style = ('<style>.ts-day .ts-tip{display:none}.ts-day:hover .ts-tip{display:inline}'
+    style = ('<style>.ts-day{cursor:pointer}.ts-day .ts-tip{display:none}.ts-day:hover .ts-tip{display:inline}'
              '.ts-day:hover>rect{fill:rgba(0,0,0,.035)}</style>')
     return (
         f'<svg viewBox="0 0 {width} {height}" width="100%" '
@@ -1249,6 +1345,91 @@ def _download_box(range_key: str, range_label: str, country_filter: Optional[str
   </div>"""
 
 
+def _dash_href(range_key: str, view: str, country: Optional[str], device: Optional[str],
+                show_bots: bool) -> str:
+    """Dashboard URL for another range, keeping the other selectors."""
+    from urllib.parse import urlencode
+    q = {"range": range_key, "view": view}
+    if country:
+        q["country"] = country
+    if device:
+        q["device"] = device
+    if show_bots:
+        q["bots"] = "1"
+    return "/dashboard/?" + urlencode(q)
+
+
+def _date_picker(range_key: str, href) -> str:
+    """Pick any day / week: date inputs, quick links, previous / next."""
+    today = datetime.now(timezone.utc).date()
+    c = custom_range(range_key)
+    a, b = c if c else (None, None)
+    monday = today - timedelta(days=today.weekday())
+    quick = [
+        ("Today", custom_key(today)),
+        ("Yesterday", custom_key(today - timedelta(days=1))),
+        ("This week", custom_key(monday, today)),
+        ("Last week", custom_key(monday - timedelta(days=7), monday - timedelta(days=1))),
+    ]
+    links = " · ".join(f'<a href="{escape(href(k))}">{lbl}</a>' for lbl, k in quick)
+    nav = ""
+    if c:
+        span = (b - a).days + 1
+        unit = "day" if span == 1 else ("week" if span == 7 else f"{span} days")
+        prev_k = custom_key(a - timedelta(days=span), b - timedelta(days=span))
+        nav = f'<a href="{escape(href(prev_k))}">← previous {unit}</a>'
+        if b < today:
+            next_k = custom_key(a + timedelta(days=span), b + timedelta(days=span))
+            nav += f' · <a href="{escape(href(next_k))}">next {unit} →</a>'
+        if span == 1:
+            mon = a - timedelta(days=a.weekday())
+            nav += f' · <a href="{escape(href(custom_key(mon, mon + timedelta(days=6))))}">whole week</a>'
+        nav = f'<span class="nav">{nav}</span>'
+    return f"""<div class="datepick">
+    <form method="get" action="/dashboard/">
+      <strong>Pick days</strong>
+      <label>from <input type="date" name="from" value="{a.isoformat() if a else ''}" max="{today.isoformat()}"></label>
+      <label>to <input type="date" name="to" value="{b.isoformat() if b else ''}" max="{today.isoformat()}"></label>
+      <button type="submit">Show</button>
+      <span class="quick">{links}</span>
+      {nav}
+    </form>
+    <p class="muted">Days are UTC. Leave "to" empty for a single day. Tip: click a day in the chart below to open just that day.</p>
+  </div>"""
+
+
+def _country_days_section(data: dict, href, count_header: str) -> str:
+    """Countries × days table (top 12 countries, the rest summed)."""
+    cdays = data["country_days"]
+    days = cdays["days"]
+    if not days:
+        return ""
+    if len(days) > 31:
+        return ('<section><h2>Countries per day</h2><p class="muted" style="font-size:12px">'
+                'Pick 31 days or fewer to see countries per day.</p></section>')
+    order = cdays["order"]
+    top, rest = order[:12], order[12:]
+    cells = cdays["cells"]
+    head = "".join(
+        f'<th class="num"><a href="{escape(href(custom_key(date.fromisoformat(d))))}">'
+        f'{date.fromisoformat(d).strftime("%a")}<br>{escape(d[5:])}</a></th>' for d in days)
+    def row(label, codes):
+        vals = [sum(cells[d].get(c, 0) for c in codes) for d in days]
+        tds = "".join(f'<td class="num">{v if v else "<span class=muted>·</span>"}</td>' for v in vals)
+        return f'<tr><td><strong>{escape(label)}</strong></td>{tds}<td class="num"><strong>{sum(vals)}</strong></td></tr>'
+    body = "".join(row(c, [c]) for c in top)
+    if rest:
+        body += row(f"{len(rest)} others", rest)
+    if not order:
+        body = f'<tr><td colspan="{len(days) + 2}" class="muted">No visits in this range.</td></tr>'
+    note = ("Unique visitors per day and country; a visitor who comes back on another day counts again in the total column."
+            if count_header == "Visitors" else "Page views per day and country.")
+    return f"""<section><h2>Countries per day</h2>
+    <div class="scroll-x"><table class="countrydays"><tr><th>Country</th>{head}<th class="num">Total</th></tr>{body}</table></div>
+    <p class="muted" style="margin-top:8px;font-size:12px">{note} Country comes from the browser's time zone. Click a day to open it.</p>
+  </section>"""
+
+
 def render_dashboard(
     range_key: str,
     show_bots: bool,
@@ -1266,7 +1447,8 @@ def render_dashboard(
                      device_filter=device_filter, events=events)
     weekly = weekly_summary(events=events)
 
-    range_label = next((label for k, label, _ in RANGES if k == range_key), "Last 7 days")
+    range_label = range_label_for(range_key)
+    href = lambda k: _dash_href(k, view, country_filter, device_filter, show_bots)
     bot_pct = (data["bot_count"] / data["total_all"] * 100) if data["total_all"] else 0
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     is_uniques = view == VIEW_UNIQUES
@@ -1276,6 +1458,9 @@ def render_dashboard(
         f'<option value="{k}"{" selected" if k == range_key else ""}>{escape(label)}</option>'
         for k, label, _ in RANGES
     )
+    if custom_range(range_key):
+        range_options = (f'<option value="{escape(range_key)}" selected>{escape(range_label)}</option>'
+                         + range_options)
     view_options = "".join(
         f'<option value="{val}"{" selected" if val == view else ""}>{escape(label)}</option>'
         for val, label in [(VIEW_VIEWS, "Page views"), (VIEW_UNIQUES, "Unique visitors (per day)")]
@@ -1372,6 +1557,7 @@ def render_dashboard(
   </form>
 </header>
 <main>
+  {_date_picker(range_key, href)}
   {_download_box(range_key, range_label, country_filter, device_filter)}
   {truncated_warning}
   <p class="muted">{header_line}</p>
@@ -1398,9 +1584,11 @@ def render_dashboard(
 
   <section>
     <h2>Over time (daily)</h2>
-    <div class="chart">{_timeseries_svg(data["timeseries"])}</div>
+    <div class="chart">{_timeseries_svg(data["timeseries"], lambda d: href(custom_key(date.fromisoformat(d))))}</div>
     <p class="muted" style="margin-top:8px;font-size:12px">Unique visitors (green) and page views (red) per day; the numbers are under each date. Hover a day for details.</p>
   </section>
+
+  {_country_days_section(data, href, count_header)}
 
   <section>
     <h2>Engagement by path</h2>

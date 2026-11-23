@@ -39,7 +39,7 @@ from pydantic import BaseModel, Field, ValidationError
 from classify import bot_reason
 from tz import country_for_tz
 from storage import append_event, read_newest
-from dashboard import normalize_filters, render_dashboard, since_iso
+from dashboard import normalize_filters, range_from_dates, render_dashboard, since_iso, until_iso
 from export import prepare_export
 
 # ---------------------------------------------------------------------------
@@ -620,8 +620,12 @@ def dashboard(
     view: str = Query("uniques"),   # default headline = unique visitors (reach)
     country: str = Query(""),
     device: str = Query(""),
+    date_from: str = Query("", alias="from"),
+    date_to: str = Query("", alias="to"),
 ) -> HTMLResponse:
     country_filter, device_filter = normalize_filters(country, device)
+    # The "Pick days" form sends from/to; they win over the range menu.
+    range_ = range_from_dates(date_from, date_to) or range_
     return HTMLResponse(
         render_dashboard(
             range_,
@@ -645,7 +649,8 @@ def dashboard_raw(
     """The newest `limit` events (optionally within a dashboard range), in
     chronological order (oldest of them first, newest last)."""
     since = since_iso(range_) if range_ else None
-    events, _ = read_newest(limit, since=since)
+    until = until_iso(range_) if range_ else None
+    events, _ = read_newest(limit, since=since, until=until)
     return JSONResponse(events)
 
 
