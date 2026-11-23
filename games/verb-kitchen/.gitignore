@@ -1,4 +1,5 @@
 # Working copy of shared KayKit assets — master session promotes the used
 # subset to homepage/ at release (see CLAUDE.md "Assets").
 assets/
-assets   # also the symlink to brocco-dev assets used for local play-testing
+# the same folder as a symlink to brocco-dev (used for local play-testing)
+assets
