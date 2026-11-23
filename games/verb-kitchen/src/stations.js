@@ -1,11 +1,13 @@
 // Stations hold state + item visuals; the interaction *rules* live in game.js.
 import * as THREE from 'three';
 import { TILE, getModel, measureModel } from './models.js';
-import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS, SANDWICH_MODEL, SANDWICH_LAYER_MODELS } from './recipes.js';
+import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS, SANDWICH_MODEL, SANDWICH_LAYER_MODELS, SOUP_COLORS } from './recipes.js';
 import { audio } from './audio.js';
 
 // ---------- items ----------
-export function makeIngredient(id) { return { type: 'ing', id }; }
+// `n` (optional, > 1) = a STACK of identical items on one tile (the 3 bread
+// slices a cut loaf leaves on the board). Taken one at a time: Station.takeOne.
+export function makeIngredient(id, n = 1) { return n > 1 ? { type: 'ing', id, n } : { type: 'ing', id }; }
 export function makePlate(contents = [], dirty = false) {
   return { type: 'plate', contents, dirty, dish: matchDish(contents) };
 }
@@ -101,38 +103,61 @@ function composeBurger(contents, closed, baseY = 0) {
   return g;
 }
 
-/** Pot-in-progress: the empty pot (`pot_B`) + a tinted BROTH surface + the
- *  chopped veg resting in it, always in canonical order. The broth COLOUR (per
- *  recipe) is what distinguishes a half-filled pot — carrot–potato reads orange,
- *  onion–mushroom reads creamy — so "soup forming without the second veg" is
- *  legible at a glance. Order-free, like composePizza. */
-function composePot(veg, broth) {
+/** Pot-in-progress: the empty pot (`pot_B`) + a soup SURFACE + the chopped veg
+ *  resting in it, always in canonical order (order-free, like composePizza).
+ *  The surface colour comes from the veg SET only (recipes.SOUP_COLORS):
+ *  one veg = clear water, a complete recipe = water that turns into the recipe
+ *  colour while it boils (Station.update), a boiled soup (`cooked`) = the full
+ *  recipe colour, filled a little higher. The surface sits INSIDE the rim: its
+ *  radius is the pot's inner wall (≈0.40 of the model), not the bounding box
+ *  (0.70 — that includes the handles and made the soup stick out). */
+const POT_SCALE = 0.9;
+const POT_INNER_R = 0.37;            // pot_B inner wall radius near the top (model units)
+const POT_H = 0.5;                   // pot_B height (model units)
+function composePot(veg, broth, cooked = false) {
   const g = new THREE.Group();
   const pot = getModel('pot_B');
-  pot.scale.multiplyScalar(0.9);
+  pot.scale.multiplyScalar(POT_SCALE);
   g.add(pot);
-  const m = measureModel('pot_B');
-  const r = m.radius || 0.5;
-  // broth disc sitting just below the rim, tinted to the recipe
+  const r = POT_INNER_R * POT_SCALE;
+  const level = POT_H * POT_SCALE * (cooked ? 0.8 : 0.72);
   if (broth) {
-    const disc = new THREE.Mesh(
-      new THREE.CylinderGeometry(r * 0.74, r * 0.7, 0.05, 22),
-      new THREE.MeshStandardMaterial({ color: broth, roughness: 0.5 }),
-    );
-    disc.position.y = m.height * 0.6;
+    const mat = new THREE.MeshStandardMaterial({ color: SOUP_COLORS[broth] || broth, roughness: cooked ? 0.55 : 0.25 });
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.96, 0.04, 24), mat);
+    disc.position.y = level;
     g.add(disc);
+    g.userData.brothMat = mat;
   }
-  // chopped bits floating in the broth, spread around the centre
-  const spots = { carrot: [0.2, 0.06], potato: [0, -0.2], onion: [-0.18, 0.1], mushroom: [0.16, -0.14] };
+  // chopped bits floating on the surface, spread around the centre
+  const spots = { carrot: [0.34, 0.1], potato: [-0.05, -0.36], onion: [-0.34, 0.14], mushroom: [0.28, -0.26] };
   for (const t of POT_LAYERS) {
     if (!veg.includes(t)) continue;
     const bit = getModel(POT_VEG_MODELS[t]);
-    bit.scale.setScalar(0.55);
+    bit.scale.setScalar(cooked ? 0.4 : 0.45);
     const [sx, sz] = spots[t] || [0, 0];
-    bit.position.set(sx * r, m.height * 0.63, sz * r);
+    bit.position.set(sx * r, level - 0.03, sz * r);
     bit.rotation.y = (sx * 9 + sz * 11) % (Math.PI * 2);
     g.add(bit);
   }
+  return g;
+}
+
+/** A served soup: the clean bowl + the soup surface (recipe colour) + a couple
+ *  of its veg bits. Bowl inner radius ≈0.40, height 0.30 (model units). */
+function composeBowlSoup(def) {
+  const g = new THREE.Group();
+  g.add(getModel('bowl'));
+  const mat = new THREE.MeshStandardMaterial({ color: SOUP_COLORS[def.soup], roughness: 0.55 });
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.33, 0.04, 24), mat);
+  disc.position.y = 0.22;
+  g.add(disc);
+  (def.veg || []).forEach((t, i) => {
+    const bit = getModel(POT_VEG_MODELS[t]);
+    bit.scale.setScalar(0.36);
+    bit.position.set(i ? -0.13 : 0.12, 0.2, i ? 0.08 : -0.06);
+    bit.rotation.y = i * 2.1 + 0.4;
+    g.add(bit);
+  });
   return g;
 }
 
@@ -187,12 +212,40 @@ function ingredientMesh(id) {
   const def = ITEMS[id];
   if (def.compose === 'pizza') return composePizza(def.toppings);
   if (def.compose === 'burger') return composeBurger(def.expandsTo, !!def.dish, 0);
-  if (def.compose === 'pot') return composePot(def.veg, def.broth);
+  if (def.compose === 'pot') return composePot(def.veg, def.broth, !!def.cooked);
+  if (def.compose === 'bowlsoup') return composeBowlSoup(def);
   if (def.compose === 'sandwich') return composeSandwich(def.expandsTo, !!def.dish, 0);
   if (def.flat) return flatSlice(def);
   const m = getModel(def.model, def.tint || null);
   if (def.scale) m.scale.multiplyScalar(def.scale);
+  if (def.lay) {
+    // lay a standing model on its side: tip it 90° about z (its long axis then
+    // runs along x) and rest the now-lowest side on y = 0
+    const g = new THREE.Group();
+    m.rotation.z = Math.PI / 2;
+    const mm = measureModel(def.model);
+    m.position.y = mm.radius * (def.scale || 1) * 0.98;
+    g.add(m);
+    return g;
+  }
   return m;
+}
+
+/** A stack of `n` identical items (bread slices on the board): shingled like
+ *  fanned cards — each slice sits a bit higher and further along, slightly
+ *  turned — so every slice's edge shows and the player can COUNT what's left
+ *  (3 → 2 → 1). */
+function stackMesh(id, n) {
+  const g = new THREE.Group();
+  const step = 0.2;
+  for (let i = 0; i < n; i++) {
+    const m = ingredientMesh(id);
+    const k = i - (n - 1) / 2;
+    m.position.set(k * step, i * 0.07, -k * 0.05);
+    m.rotation.y = k * 0.28;
+    g.add(m);
+  }
+  return g;
 }
 
 /** A slice standing upright in a toaster slot (the toaster holder sits at the
@@ -215,12 +268,12 @@ export function buildItemMesh(item) {
   const g = new THREE.Group();
   if (!item) return g;
   if (item.type === 'ing') {
-    const m = ingredientMesh(item.id);
+    const m = item.n > 1 ? stackMesh(item.id, item.n) : ingredientMesh(item.id);
     m.scale.multiplyScalar(ITEM_SCALE);
     // lift models whose origin sits above their geometry (cheese slice) so they
     // rest on the surface instead of sinking into the board / counter
     const def = ITEMS[item.id];
-    if (def.model && !def.flat) {
+    if (def.model && !def.flat && !def.lay) {
       const mm = measureModel(def.model);
       if (mm.minY < -0.001) m.position.y -= mm.minY * ITEM_SCALE * (def.scale || 1);
     }
@@ -230,8 +283,11 @@ export function buildItemMesh(item) {
   // plate / bowl (the serving vessel is per-level)
   const isBowl = VESSEL === 'bowl';
   if (item.dirty) { g.add(getModel(vesselModel(true))); return g; }
-  // A filled SOUP bowl: the `food_stew` dish model IS already a bowl of soup, so
-  // it REPLACES the empty bowl (no nesting) and carries the recipe tint.
+  // A filled SOUP bowl: bowl + soup surface in the recipe colour (no nesting).
+  const soup = isBowl && item.contents.find((id) => ITEMS[id] && ITEMS[id].compose === 'bowlsoup');
+  if (soup) { g.add(composeBowlSoup(ITEMS[soup])); return g; }
+  // A finished SUNDAE (L7): the dish model IS already a bowl, so it REPLACES
+  // the empty bowl (no nesting) and carries the recipe tint.
   if (isBowl && item.dish && DISHES[item.dish].model) {
     const d = DISHES[item.dish];
     const dm = getModel(d.model, d.model_tint || null);
@@ -303,6 +359,8 @@ export function drawRing(spr, frac, color = '#2ee6c0', warn = false) {
   tex.needsUpdate = true;
 }
 
+const _soupCol = new THREE.Color();
+
 // ---------- station ----------
 export class Station {
   /** type: counter|crate|board|stove|oven|sink|rack|trash|hatch */
@@ -353,6 +411,18 @@ export class Station {
     const it = this.item;
     this.setItem(null);
     return it;
+  }
+
+  /** Take ONE item: from a stack (item.n > 1) one comes off and the rest stay
+   *  (re-rendered with one fewer); otherwise the whole item. */
+  takeOne() {
+    const it = this.item;
+    if (it && it.type === 'ing' && it.n > 1) {
+      const rest = it.n - 1;
+      this.setItem(makeIngredient(it.id, rest), false, true);
+      return makeIngredient(it.id);
+    }
+    return this.takeItem();
   }
 
   /** Refresh plate visuals on rack/sink. */
@@ -406,6 +476,11 @@ export class Station {
       if (this.state === 'cooking' && def && (def.cookTo || def.bakeTo)) {
         const total = def.cookTime || def.bakeTime;
         this.cookT += dt;
+        // a complete soup pot: the clear water turns into the recipe colour as it boils
+        if (def.boilsTo && this.itemMesh) {
+          const mat = this._brothMat(this.itemMesh);
+          if (mat) mat.color.set(SOUP_COLORS.water).lerp(_soupCol.set(SOUP_COLORS[def.boilsTo]), Math.min(1, this.cookT / total));
+        }
         if (this.cookT >= total) {
           this.state = 'ready'; this.burnT = 0;
           this.setItem(makeIngredient(def.cookTo || def.bakeTo), false);   // (toast pops up: state first)
@@ -434,6 +509,12 @@ export class Station {
       }
     }
     return ev;
+  }
+
+  _brothMat(mesh) {
+    let mat = null;
+    mesh.traverse((o) => { if (!mat && o.userData.brothMat) mat = o.userData.brothMat; });
+    return mat;
   }
 
   /** Put a cookable on the stove/oven/toaster. */

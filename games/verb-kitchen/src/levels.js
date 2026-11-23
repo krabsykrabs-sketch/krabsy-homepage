@@ -205,6 +205,7 @@ export const LEVELS = [
     },
     coop: {
       char: 'knight',                  // helper character (player defaults to rogue)
+      intro: 'helperIntroCoop',        // i18n key: the helper's first line (who does what)
       spawn: { col: 2, row: 5 },       // helper starts in its lane, near its crates
       idle: { col: 2, row: 5 },        // parks here (bottom-left) when both boards are stocked
       moveSpeed: 0.5,                  // walks at 50% of the player's speed (unhurried)
@@ -276,6 +277,7 @@ export const LEVELS = [
     },
     coop: {
       char: 'knight',
+      intro: 'helperIntroSplit',       // i18n key: the helper's first line (who does what)
       spawn: { col: 1, row: 4 },
       idle: { col: 1, row: 5 },        // parks bottom-left of the prep wing
       moveSpeed: 0.5, workSpeed: 0.55, reaction: 0.7,
@@ -480,7 +482,7 @@ export function levelModelNames(level) {
     'crate', 'crate_lid',
     'crate_lettuce', 'crate_tomatoes', 'crate_buns', 'crate_potatoes',
     'crate_cheese', 'crate_dough', 'crate_mushrooms',
-    'crate_onions', 'crate_carrots', 'pot_A', 'food_stew',
+    'crate_onions', 'crate_carrots', 'pot_A',
     // ice-cream tubs (crate art) — the scoop/cherry/bowl item+dish models come
     // through itemModelNames(); the tub container models are only named here.
     'icecream_container_icecream_vanilla', 'icecream_container_icecream_chocolate',

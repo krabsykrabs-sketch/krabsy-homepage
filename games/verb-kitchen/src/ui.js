@@ -154,7 +154,18 @@ export const ui = {
     if (n >= 2) $('comboVal').textContent = 'x' + n;
   },
   setPlates() {},   // plate-count HUD removed (the bottom-left counter was noise)
-  hint(text) { $('hint').textContent = text || ''; },
+  /** Hint pill. `icon` (an image data-URL) replaces the '@' in `text` with a
+   *  small rendered game object (the crate's real bun / patty, not an emoji). */
+  hint(text, icon = null) {
+    const el = $('hint');
+    if (!icon || !text || !text.includes('@')) { el.textContent = text || ''; return; }
+    const [a, b] = text.split('@');
+    el.textContent = '';
+    el.append(a);
+    const img = document.createElement('img');
+    img.src = icon; img.alt = ''; img.className = 'hintIcon';
+    el.append(img, b);
+  },
 
   // --- guided tutorial banner (salad level) ---
   tutorialStep(icon, text, n, total) {

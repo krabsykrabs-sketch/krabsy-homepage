@@ -15,7 +15,8 @@ export const ITEMS = {
   tomato_slices:   { model: 'food_ingredient_tomato_slices',   emoji: '🍅', plateable: true },
 
   // --- level 2: burgers ---
-  bun:             { model: 'food_ingredient_bun',             emoji: '🍞', plateable: true },
+  // `ontoPlate`: carrying a plate to the bun crate drops a bun straight onto it
+  bun:             { model: 'food_ingredient_bun',             emoji: '🍞', plateable: true, ontoPlate: true },
   // veggie patties (asset swap only — mechanics unchanged): raw → cooked → burnt
   patty_raw:       { model: 'food_ingredient_vegetableburger_uncooked', emoji: '🥩', cookTo: 'patty_cooked', cookTime: 10.5 },
   patty_cooked:    { model: 'food_ingredient_vegetableburger_cooked',   emoji: '🍖', plateable: true, burnTo: 'patty_burnt', burnTime: 12, steamy: true },
@@ -51,9 +52,12 @@ export const ITEMS = {
   // identified by the SET of veg it holds, order-free). A complete recipe boils
   // (cookTo) into a finished soup-in-the-pot; you then scoop it into a BOWL
   // (`scoop`) and serve. TWO 2-veg recipes: carrot+potato = Carrot–Potato Soup
-  // (orange `food_stew`); onion+mushroom = Onion–Mushroom Soup (same model tinted
-  // creamy). Veg are a TWO-stage chop (raw → `_half` interim → `_chopped` final).
-  carrot:          { model: 'food_ingredient_carrot',         emoji: '🥕', chopTo: 'carrot_half', chopTime: 1.8 },
+  // (reddish orange); onion+mushroom = Onion–Mushroom Soup (beige). The colour
+  // comes from the veg SET only — see SOUP_COLORS below.
+  // Veg are a TWO-stage chop (raw → `_half` interim → `_chopped` final).
+  // `lay`: the raw carrot model stands on its tip; lay it on its side (long
+  // axis along x, like the half-chopped model) wherever it is shown
+  carrot:          { model: 'food_ingredient_carrot',         emoji: '🥕', chopTo: 'carrot_half', chopTime: 1.8, lay: 'z' },
   carrot_half:     { model: 'food_ingredient_carrot_chopped', emoji: '🥕', chopTo: 'carrot_chopped', chopTime: 1.8, interim: true },
   carrot_chopped:  { model: 'food_ingredient_carrot_pieces',  emoji: '🥕' },
   potato:          { model: 'food_ingredient_potato',         emoji: '🥔', chopTo: 'potato_half', chopTime: 1.8 },
@@ -65,11 +69,14 @@ export const ITEMS = {
   // (mushroom raw→half→chopped reuses the pizza mushroom chain defined below.)
   pot_empty:       { model: 'pot_B',                          emoji: '🍲' },   // empty pot on a stove; .accepts wired below
   // cooked soup sitting IN the pot — scoop it into a bowl. `scoop` = the bowl soup.
-  pot_soup_cp:     { model: 'pot_B_stew',                     emoji: '🍲', scoop: 'cp_soup', steamy: true },
-  pot_soup_om:     { model: 'pot_B_stew', tint: '#e9dcb6',    emoji: '🍲', scoop: 'om_soup', steamy: true },
-  // the soup once it's in a bowl (the served dish content). Renders the stew bowl.
-  cp_soup:         { model: 'food_stew',                      emoji: '🥕', plateable: true, steamy: true },
-  om_soup:         { model: 'food_stew', tint: '#e9dcb6',     emoji: '🍄', plateable: true, steamy: true },
+  // Both are composed (pot + soup surface in the recipe colour + its veg), NOT
+  // the textured `pot_B_stew` / `food_stew` models: a tint only MULTIPLIES the
+  // orange atlas texture, so a "creamy" tinted stew still read as carrot soup.
+  pot_soup_cp:     { compose: 'pot', veg: ['carrot', 'potato'], broth: 'cp', cooked: true, emoji: '🍲', scoop: 'cp_soup', steamy: true },
+  pot_soup_om:     { compose: 'pot', veg: ['onion', 'mushroom'], broth: 'om', cooked: true, emoji: '🍲', scoop: 'om_soup', steamy: true },
+  // the soup once it's in a bowl (the served dish content): bowl + soup surface.
+  cp_soup:         { compose: 'bowlsoup', soup: 'cp', veg: ['carrot', 'potato'], emoji: '🥕', plateable: true, steamy: true },
+  om_soup:         { compose: 'bowlsoup', soup: 'om', veg: ['onion', 'mushroom'], emoji: '🍄', plateable: true, steamy: true },
 
   // --- level 7: ice cream / sundaes (the first COLD-ASSEMBLY level: no stove,
   // no cutting board, no cooking) ---
@@ -101,10 +108,12 @@ export const ITEMS = {
   // Models are Tiny Treats (`tt_` prefix, ~0.6× KayKit food size → scaled up).
   // A slice model stands upright; `flat` lays it down everywhere but in the toaster.
   bread:           { model: 'tt_bread',       scale: 1.5, emoji: '🍞', chopTo: 'bread_half', chopTime: 1.8 },
-  bread_half:      { model: 'tt_bread_half',  scale: 1.5, emoji: '🍞', chopTo: 'bread_slice', chopTime: 1.8, interim: true },
-  bread_slice:     { model: 'tt_bread_slice', scale: 1.6, flat: true, emoji: '🍞', cooker: 'toaster', cookTo: 'toast', cookTime: 7 },
+  // `yield`: one cut loaf gives THREE slices; they stay on the board as a stack
+  // (item.n) and you take them one at a time (see Station.takeOne)
+  bread_half:      { model: 'tt_bread_half',  scale: 1.5, emoji: '🍞', chopTo: 'bread_slice', chopTime: 1.8, interim: true, yield: 3 },
+  bread_slice:     { model: 'tt_bread_slice', scale: 1.6, flat: true, emoji: '🍞', cooker: 'toaster', cookTo: 'toast', cookTime: 7, stackMax: 3 },
   toast:           { model: 'tt_bread_slice', scale: 1.6, flat: true, tint: '#e9b77c', emoji: '🍞', cooker: 'toaster',
-                     plateable: true, bareHand: true, burnTo: 'toast_burnt', burnTime: 10, steamy: true },   // .accepts wired below
+                     plateable: true, bareHand: true, burnTo: 'toast_burnt', burnTime: 20, steamy: true },   // .accepts wired below
   toast_burnt:     { model: 'tt_bread_slice', scale: 1.6, flat: true, tint: '#3b2a20', emoji: '💀', trashOnly: true },
 };
 
@@ -141,13 +150,15 @@ export function potWipId(set) {
 
 // which recipe (if any) a single veg belongs to, and the OTHER veg it pairs with
 const POT_PARTNER = {};               // veg → the veg that completes its recipe
-const POT_BROTH = {};                 // veg/recipe → broth tint (color of the interim)
 for (const [a, b] of POT_RECIPES) { POT_PARTNER[a] = b; POT_PARTNER[b] = a; }
-// broth colour by recipe (which soup is forming): carrot–potato = orange stew,
-// onion–mushroom = creamy. A one-veg pot already shows its recipe's broth.
-const CP_BROTH = '#d8761e', OM_BROTH = '#e9dcb6';
-POT_BROTH.carrot = POT_BROTH.potato = CP_BROTH;
-POT_BROTH.onion = POT_BROTH.mushroom = OM_BROTH;
+// Soup colour depends ONLY on the SET of veg in the pot (never the order):
+//   one veg            → clear WATER with that veg floating in it (never a soup look)
+//   a complete recipe  → water turns into the recipe colour while it boils
+//                        (stations.js lerps it by cook progress), then stays
+//   carrot + potato    → reddish orange   ·   onion + mushroom → beige / brown-white
+// Wrong mixes (carrot + onion …) can't happen: a one-veg pot only takes its partner.
+export const SOUP_COLORS = { water: '#bfdde3', cp: '#e2672a', om: '#d8c39a' };
+const RECIPE_KEY = { 'carrot,potato': 'cp', 'onion,mushroom': 'om' };
 
 // Generate the valid pot states: empty, each single veg (interim broth + that
 // veg), and the two complete 2-veg recipes (boilable). Invalid mixes (e.g.
@@ -168,7 +179,7 @@ POT_BROTH.onion = POT_BROTH.mushroom = OM_BROTH;
       if (tok === partner) accepts[held] = potWipId(new Set([token, partner]));
     }
     ITEMS[id] = {
-      compose: 'pot', veg: [token], broth: POT_BROTH[token],
+      compose: 'pot', veg: [token], broth: 'water',
       emoji: POT_EMOJI[token], accepts,
     };
   }
@@ -179,7 +190,8 @@ POT_BROTH.onion = POT_BROTH.mushroom = OM_BROTH;
     const tokens = potTokens(set);
     const id = potWipId(set);
     ITEMS[id] = {
-      compose: 'pot', veg: tokens, broth: POT_BROTH[tokens[0]],
+      // still water until it boils; Station.update blends it into the recipe colour
+      compose: 'pot', veg: tokens, broth: 'water', boilsTo: RECIPE_KEY[tokens.join(',')],
       emoji: tokens.map((t) => POT_EMOJI[t]).join(''),
       ...(POT_BOILS[tokens.join(',')] || {}),
     };
@@ -262,9 +274,12 @@ export const BURGER_LAYER_MODELS = {
 // plate required (a plate is only the serving tray). Identity = the topping SET,
 // exactly like the pizza system. A set that matches a DISH closes with a top bun;
 // any other set stays open-faced (buildable, but not servable).
-export const BURGER_LAYERS = ['patty', 'cheese', 'lettuce'];   // canonical bottom→top
-const BURGER_ADDERS = { patty_cooked: 'patty', cheese_chopped: 'cheese', lettuce_chopped: 'lettuce' };
-const BURGER_TOKEN_ITEM = { patty: 'patty_cooked', cheese: 'cheese_chopped', lettuce: 'lettuce_chopped' };
+// Tomato is a valid layer too (owner: "a bun takes lettuce / tomato / cheese"),
+// but no burger dish uses it — a tomato burger stays open-faced (not servable),
+// exactly like putting tomato on a burger plate always did.
+export const BURGER_LAYERS = ['patty', 'cheese', 'lettuce', 'tomato'];   // canonical bottom→top
+const BURGER_ADDERS = { patty_cooked: 'patty', cheese_chopped: 'cheese', lettuce_chopped: 'lettuce', tomato_slices: 'tomato' };
+const BURGER_TOKEN_ITEM = { patty: 'patty_cooked', cheese: 'cheese_chopped', lettuce: 'lettuce_chopped', tomato: 'tomato_slices' };
 const BURGER_DISHES = {           // complete servable sets (canonical join) → dish id
   'patty': 'hamburger',
   'patty,cheese': 'cheeseburger',
@@ -355,14 +370,19 @@ export function sandwichWipId(set) {
 
 // Dishes: parts must exactly match a plate's contents (order-free).
 export const DISHES = {
-  salad:           { name: 'Salad',        emoji: '🥗', parts: ['lettuce_chopped', 'tomato_slices'], coins: 20, model: null },
-  hamburger:       { name: 'Hamburger',    emoji: '🍔',   parts: ['bun', 'patty_cooked'],                                    coins: 25, model: null, icons: '🍞🍖' },
-  cheeseburger:    { name: 'Cheeseburger', emoji: '🧀🍔', parts: ['bun', 'patty_cooked', 'cheese_chopped'],                  coins: 30, model: null, icons: '🍞🍖🧀' },
-  bigburger:       { name: 'Big Burger',   emoji: '🍔⭐', parts: ['bun', 'patty_cooked', 'cheese_chopped', 'lettuce_chopped'], coins: 40, model: null, icons: '🍞🍖🧀🥬' },
-  pizza_cheese:    { name: 'Cheese Pizza',    emoji: '🍕', parts: ['pizza_cheese'],    coins: 40, model: 'food_pizza_cheese_plated',    icons: '🥫🧀' },
-  pizza_mushroom:  { name: 'Mushroom Pizza',  emoji: '🍕', parts: ['pizza_mushroom'],  coins: 40, model: 'food_pizza_mushroom_plated',  icons: '🥫🧀🍄' },
-  carrot_potato_soup:  { name: 'Carrot–Potato Soup',  emoji: '🍲', parts: ['cp_soup'], coins: 40, model: 'food_stew',                model_tint: null,      icons: '🥕🥔' },
-  onion_mushroom_soup: { name: 'Onion–Mushroom Soup', emoji: '🍲', parts: ['om_soup'], coins: 40, model: 'food_stew',                model_tint: '#e9dcb6', icons: '🧅🍄' },
+  // `iconItems`: the ticket shows these ITEMS as small rendered game objects
+  // (icons.itemIcon) — the real bun / veggie patty / cheese slice — instead of
+  // emoji (🍞 read as cheese, 🍖 is meat but the patty is veggie). `icons` is
+  // the emoji fallback (kept only where no iconItems are set: the L7 sundaes).
+  salad:           { name: 'Salad',        emoji: '🥗', parts: ['lettuce_chopped', 'tomato_slices'], coins: 20, model: null, iconItems: ['lettuce_chopped', 'tomato_slices'] },
+  hamburger:       { name: 'Hamburger',    emoji: '🍔',   parts: ['bun', 'patty_cooked'],                                    coins: 25, model: null, iconItems: ['bun', 'patty_cooked'] },
+  cheeseburger:    { name: 'Cheeseburger', emoji: '🧀🍔', parts: ['bun', 'patty_cooked', 'cheese_chopped'],                  coins: 30, model: null, iconItems: ['bun', 'patty_cooked', 'cheese_chopped'] },
+  bigburger:       { name: 'Big Burger',   emoji: '🍔⭐', parts: ['bun', 'patty_cooked', 'cheese_chopped', 'lettuce_chopped'], coins: 40, model: null, iconItems: ['bun', 'patty_cooked', 'cheese_chopped', 'lettuce_chopped'] },
+  pizza_cheese:    { name: 'Cheese Pizza',    emoji: '🍕', parts: ['pizza_cheese'],    coins: 40, model: 'food_pizza_cheese_plated',    iconItems: ['ketchup', 'cheese_chopped'] },
+  pizza_mushroom:  { name: 'Mushroom Pizza',  emoji: '🍕', parts: ['pizza_mushroom'],  coins: 40, model: 'food_pizza_mushroom_plated',  iconItems: ['ketchup', 'cheese_chopped', 'mushroom'] },
+  // soups render as bowl + composed soup surface (see stations.buildItemMesh)
+  carrot_potato_soup:  { name: 'Carrot–Potato Soup',  emoji: '🍲', parts: ['cp_soup'], coins: 40, model: null, iconItems: ['carrot', 'potato'] },
+  onion_mushroom_soup: { name: 'Onion–Mushroom Soup', emoji: '🍲', parts: ['om_soup'], coins: 40, model: null, iconItems: ['onion', 'mushroom'] },
   // --- level 7 sundaes (cold assembly; served in a bowl on the washable plate) ---
   // Each sundae is an exact, distinct SET of plateable scoops/cherry (order-free,
   // like the salad). The plated dish renders a finished ice-cream-bowl model so it
@@ -377,9 +397,9 @@ export const DISHES = {
   sundae_neapolitan: { name: 'Neapolitan Sundae', emoji: '🍨', parts: ['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry'], coins: 44, model: 'icecream_bowl_decorated_A',      icons: '🍨🍫🍓' },
   // --- level 8 sandwiches: toast + an exact filling set (order-free, like the
   // burgers). All three render the finished Tiny Treats sandwich on the plate. ---
-  cheese_toastie:  { name: 'Cheese Toastie',  emoji: '🥪', parts: ['toast', 'cheese_chopped'],                                     coins: 30, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🧀' },
-  garden_sandwich: { name: 'Garden Sandwich', emoji: '🥪', parts: ['toast', 'lettuce_chopped', 'tomato_slices'],                   coins: 38, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🥬🍅' },
-  club_sandwich:   { name: 'Club Sandwich',   emoji: '🥪⭐', parts: ['toast', 'cheese_chopped', 'lettuce_chopped', 'tomato_slices'], coins: 46, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🧀🥬🍅' },
+  cheese_toastie:  { name: 'Cheese Toastie',  emoji: '🥪', parts: ['toast', 'cheese_chopped'],                                     coins: 30, model: 'tt_sandwich', model_scale: 1.45, iconItems: ['toast', 'cheese_chopped'] },
+  garden_sandwich: { name: 'Garden Sandwich', emoji: '🥪', parts: ['toast', 'lettuce_chopped', 'tomato_slices'],                   coins: 38, model: 'tt_sandwich', model_scale: 1.45, iconItems: ['toast', 'lettuce_chopped', 'tomato_slices'] },
+  club_sandwich:   { name: 'Club Sandwich',   emoji: '🥪⭐', parts: ['toast', 'cheese_chopped', 'lettuce_chopped', 'tomato_slices'], coins: 46, model: 'tt_sandwich', model_scale: 1.45, iconItems: ['toast', 'cheese_chopped', 'lettuce_chopped', 'tomato_slices'] },
 };
 
 export function isBurgerDish(dishId) {

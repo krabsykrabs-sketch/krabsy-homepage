@@ -70,6 +70,13 @@ export class FX {
   }
 
   update(dt) {
+    // speech bubbles that follow a chef (the co-op helper's intro)
+    for (const sp of this.says || []) {
+      sp.left -= dt;
+      this._placeAt(sp.el, sp.at());
+      if (sp.left <= 0 && !sp.out) { sp.out = true; sp.el.classList.add('out'); setTimeout(() => sp.el.remove(), 500); }
+    }
+    if (this.says) this.says = this.says.filter((sp) => !sp.out);
     // continuous smoke from burnt stations
     this.smokeT -= dt;
     if (this.smokeT <= 0 && this.smokeSources.size) {
@@ -121,6 +128,32 @@ export class FX {
     setTimeout(() => el.remove(), 1600);
   }
 
+  /** A chef SAYS something: a text speech bubble that follows `at()` (a world
+   *  position, re-read every frame) for `seconds`, then fades. Same look as the
+   *  station bubbles; pointer-events off, so it never blocks touch input. */
+  say(at, text, seconds = 5) {
+    const el = document.createElement('div');
+    el.className = 'fxbubble fxsay';
+    el.textContent = text;
+    document.body.appendChild(el);
+    this._placeAt(el, at());
+    (this.says = this.says || []).push({ el, at, left: seconds, out: false });
+    return el;
+  }
+
+  /** Remove any spoken lines still on screen (round ended / quit). */
+  hushSays() {
+    for (const sp of this.says || []) sp.el.remove();
+    this.says = [];
+  }
+
+  _placeAt(el, worldPos) {
+    const v = worldPos.clone().project(this.camera);
+    const r = this.renderer.domElement.getBoundingClientRect();
+    el.style.left = ((v.x * 0.5 + 0.5) * r.width + r.left) + 'px';
+    el.style.top = ((-v.y * 0.5 + 0.5) * r.height + r.top) + 'px';
+  }
+
   /** DOM popup at a world position (+12 🪙 etc). */
   pop(worldPos, text, color = 'var(--amber)') {
     const v = worldPos.clone().project(this.camera);
@@ -138,6 +171,8 @@ export class FX {
   }
 
   clear() {
+    for (const sp of this.says || []) sp.el.remove();
+    this.says = [];
     for (const s of this.parts) this.scene.remove(s);
     this.parts = [];
     this.smokeSources.clear();

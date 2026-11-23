@@ -10,9 +10,11 @@ import { Helper } from './helper.js';
 import { makeIngredient, makePlate, buildItemMesh, drawRing, setVessel } from './stations.js';
 import { Orders } from './orders.js';
 import { SinkQuiz } from './sink.js';
+import { loadQuestionEngine } from './verbs.js';
 import { FX } from './fx.js';
-import { modelIcon } from './icons.js';
+import { modelIcon, itemIcon } from './icons.js';
 import { Tutorial } from './tutorial.js';
+import { MistakePointer } from './pointer.js';
 import { ui } from './ui.js';
 import { audio } from './audio.js';
 import { t } from './i18n.js';
@@ -20,7 +22,7 @@ import { t } from './i18n.js';
 const CHOP_TIME = 1.4;
 const PLATE_RETURN_DELAY = 5;
 const FIT_MAX_Y = 2.6;           // camera fit ignores the tall upper walls (the hatch window stays in view)
-const ANSWERS_PER_PLATE = 3;       // correct verb answers needed to wash one plate
+const ANSWERS_PER_PLATE = 2;       // one verb per plate: its 2nd form, then its 3rd (see sink.js)
 
 export class Game {
   constructor(renderer, save, onRoundEnd) {
@@ -64,6 +66,7 @@ export class Game {
     const tasks = [
       preloadRestaurant([...decorModels, ...itemModelNames(level)]),
       preloadChef(charName),
+      loadQuestionEngine(),            // site question engine (chain-order pairs); inline fallback
     ];
     // co-op levels load a SECOND character for the helper (kept apart from the
     // player's so the two chefs read as different people)
@@ -127,7 +130,9 @@ export class Game {
       this.helper = null;
     }
 
+    if (this.fx) this.fx.hushSays();         // a line still up from the previous round
     this.fx = new FX(this.scene, this.camera, this.renderer);
+    this.pointer = new MistakePointer(this.scene);
     this.quiz = new SinkQuiz(this);
     this.orders = new Orders(this.level);
 
@@ -154,6 +159,8 @@ export class Game {
     this.plateReturns = [];          // timers for dirty plates in transit
     this.roundOver = false;
     this.lastHint = null;
+    // co-op: the helper introduces itself once, shortly after the round starts
+    this.helperIntroT = this.helper && this.level.coop.intro ? 0.6 : null;
 
     // guided step-by-step tutorial on the salad level (banner + pointer arrow)
     if (this.level.guided) this.tutorial = new Tutorial(this);
@@ -372,6 +379,13 @@ export class Game {
           this.chef.setCarried(null);
           audio.putdown();
           this.fx.pop(st.pos.clone().setY(1.5), `${ITEMS[st.crateItem].emoji}↩`, 'var(--muted)');
+        } else if (held.type === 'plate' && !held.dirty && ITEMS[st.crateItem].ontoPlate &&
+                   canPlate(held.contents, st.crateItem)) {
+          // carrying a plate (e.g. with a patty on it) to the bun box: a bun
+          // goes straight onto the plate — no need to set the plate down first
+          this.plateAdd(held, st.crateItem);
+          this.chef.setCarried(held, buildItemMesh(held));
+          if (held.dish) { audio.ding(); this.fx.sparkle(st.pos.clone().setY(1.4)); } else audio.putdown();
         } else this.reject(st);
         break;
       }
@@ -395,6 +409,10 @@ export class Game {
           ui.setPlates(st.plates);
           this.chef.setCarried(null);
           audio.clatter();
+        } else if (st.plates === 0 && (!held || held.type === 'ing')) {
+          // no clean plates left → the bubble shows a dirty one: wash it at the sink
+          this.reject(st);
+          if (this.sinkStation.dirtyPlates > 0) this.missing(st, [modelIcon(this.vesselIcon(true))], 'sink');
         } else this.reject(st);
         break;
       }
@@ -418,7 +436,7 @@ export class Game {
           if (res) { this.serveSuccess(held, res, st); break; }
         }
         // trying to send out food that isn't on a plate → show the "use a plate" bubble
-        if (held && held.type === 'ing') this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('plate')]);
+        if (held && held.type === 'ing') this.missing(st, [modelIcon(this.vesselIcon())], 'plate');
         this.reject(st);
         break;
       }
@@ -428,10 +446,29 @@ export class Game {
         const boardInto = held && held.type === 'ing' && st.item && st.item.type === 'ing'
           ? combine(held.id, st.item.id) : null;
         if (boardInto) {
-          st.takeItem();
+          st.takeOne();
           const r = makeIngredient(boardInto);
           this.chef.setCarried(r, buildItemMesh(r));
           this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
+          audio.putdown();
+          break;
+        }
+        // the other way round: a BASE lies on the board (a bun or toast parked
+        // there, the pizza dough rolled there) and the held item goes onto it
+        const ontoBoard = held && held.type === 'ing' && st.item && st.item.type === 'ing' && !(st.item.n > 1)
+          ? combine(st.item.id, held.id) : null;
+        if (ontoBoard) {
+          st.setItem(makeIngredient(ontoBoard));
+          if (!ITEMS[held.id].reusable) this.chef.setCarried(null);   // the ketchup bottle stays in hand
+          this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5));
+          audio.putdown();
+          break;
+        }
+        // a slice back onto its stack (a cut loaf leaves up to 3 on the board)
+        if (held && held.type === 'ing' && st.item && st.item.type === 'ing' && held.id === st.item.id &&
+            ITEMS[held.id].stackMax && (st.item.n || 1) < ITEMS[held.id].stackMax) {
+          st.setItem(makeIngredient(held.id, (st.item.n || 1) + 1), false);
+          this.chef.setCarried(null);
           audio.putdown();
           break;
         }
@@ -443,17 +480,21 @@ export class Game {
             st.setItem(held);
             if (def.interim) st.progress = 0.5;   // resume the bar at halfway
             this.chef.setCarried(null);
-          } else this.reject(st);
+          } else {
+            // dough at a knife board (or veg at the rolling-pin board): point at the right one
+            this.reject(st);
+            this.missing(st, null, { board: def.tool || 'knife' });
+          }
         } else if (held && held.type === 'plate' && !held.dirty && st.item && st.item.type === 'ing' &&
                    ITEMS[st.item.id].plateable && canPlate(held.contents, st.item.id)) {
           // scoop a chopped ingredient straight onto the plate in hand
-          const ing = st.takeItem();
+          const ing = st.takeOne();
           this.plateAdd(held, ing.id);
           if (ing.steam > 0) held.steam = Math.max(held.steam || 0, ing.steam);
           this.chef.setCarried(held, buildItemMesh(held));
           if (held.dish) { audio.ding(); this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5)); }
         } else if (!held && st.item) {
-          const it = st.takeItem();
+          const it = st.takeOne();          // one slice off a stack, else the whole item
           this.chef.setCarried(it, buildItemMesh(it));
         } else this.reject(st);
         break;
@@ -473,7 +514,20 @@ export class Game {
           const ok = wantsBake ? !!def.bakeTo
             : ((!!def.cookTo || (!!def.burnTo && !def.bakeTo)) && (def.cooker || null) === (st.cooker || null));
           if (ok) { st.startCooking(held); this.chef.setCarried(null); }
-          else this.reject(st);
+          else {
+            this.reject(st);
+            // a pizza still missing sauce / cheese → show where they are
+            if (wantsBake && (def.compose === 'pizza' || held.id === 'dough_base')) {
+              const have = def.toppings || [];
+              const need = [];
+              if (!have.includes('sauce')) need.push('ketchup');
+              if (!have.includes('cheese')) need.push('cheese_chopped');
+              if (need.length) this.missing(st, need.map((id) => itemIcon(id)), ...need);
+            } else if (st.cooker === 'toaster' && def.chopTo) {
+              // a whole loaf at the toaster: slice it on a board first
+              this.missing(st, [itemIcon('bread_slice')], { board: def.tool || 'knife' });
+            }
+          }
           break;
         }
         const ready = st.item && st.state === 'ready';
@@ -482,7 +536,7 @@ export class Game {
         if (wantsBake && (ready || burnt)) {
           if (held && held.type === 'plate' && !held.dirty && held.contents.length === 0) {
             this.takeHotOntoPlate(st, held);
-          } else { this.reject(st); this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('plate')]); }
+          } else { this.reject(st); this.missing(st, [modelIcon('plate')], 'plate'); }
           break;
         }
         // 3) take a cooked patty — a plate, or a bun (→ bun+patty). NOT bare hands.
@@ -503,7 +557,7 @@ export class Game {
             this.updateSizzle();
             audio.putdown();
           } else if (st.cooker === 'toaster') this.reject(st);
-          else { this.reject(st); this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('plate'), modelIcon('food_ingredient_bun')]); }
+          else { this.reject(st); this.missing(st, [modelIcon('plate'), itemIcon('bun')], 'plate', 'bun'); }
           break;
         }
         // 4) bare-hand take what's left: a burnt patty (→ trash) or a mid-cook item
@@ -532,7 +586,7 @@ export class Game {
 
   counterInteract(st, held) {
     if (!held && st.item) {
-      const it = st.takeItem();
+      const it = st.takeOne();
       this.chef.setCarried(it, buildItemMesh(it));
       return;
     }
@@ -607,6 +661,44 @@ export class Game {
     }
   }
 
+  /** Something is missing: the station's speech bubble shows WHAT (icons, may
+   *  be null), and the mistake pointer lights up WHERE it is (see sourcesOf). */
+  missing(st, icons, ...whats) {
+    if (icons) this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), icons);
+    const p = this.chef.pos;
+    const sts = [...new Set(whats.flatMap((w) => this.sourcesOf(w)))]
+      .sort((a, b) => a.pos.distanceToSquared(p) - b.pos.distanceToSquared(p));
+    this.pointer.show(sts);
+  }
+
+  /** The serving vessel's icon model (bowls on the soup level). */
+  vesselIcon(dirty = false) {
+    const v = this.level.vessel === 'bowl' ? 'bowl' : 'plate';
+    return dirty ? v + '_dirty' : v;
+  }
+
+  /** Where the player can get `what` right now. 'plate' = clean plates (rack
+   *  or an empty one set down somewhere; none left → the sink, wash one);
+   *  'sink' = the sink; { board: tool } = the boards with that tool; anything
+   *  else is an item id: its crate + every board/counter it lies on. */
+  sourcesOf(what) {
+    const S = this.world.stations;
+    if (what === 'sink') return [this.sinkStation];
+    if (what === 'plate') {
+      const out = [];
+      if (this.rackStation.plates > 0) out.push(this.rackStation);
+      for (const s of S) {
+        if (s.item && s.item.type === 'plate' && !s.item.dirty && s.item.contents.length === 0) out.push(s);
+      }
+      if (!out.length) out.push(this.sinkStation.dirtyPlates > 0 ? this.sinkStation : this.rackStation);
+      return out;
+    }
+    if (what && what.board) return S.filter((s) => s.type === 'board' && (s.tool || 'knife') === what.board);
+    return S.filter((s) => (s.type === 'crate' && s.crateItem === what) ||
+      (s.item && s.item.type === 'ing' && s.item.id === what) ||
+      (what === 'cheese_chopped' && s.type === 'crate' && s.crateItem === 'cheese'));
+  }
+
   /** Add a plateable ingredient to a plate, unpacking combos (burgerwip → bun + fillings). */
   plateAdd(plate, ingId) {
     const parts = ITEMS[ingId].expandsTo || [ingId];
@@ -642,7 +734,7 @@ export class Game {
         st.setItem(makeIngredient('pot_empty'), false);   // pot stays, empty, reusable
         this.updateSizzle();
         if (held.dish) { audio.ding(); this.fx.sparkle(st.pos.clone().setY(st.topY + 0.5)); }
-      } else { this.reject(st); this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('bowl')]); }
+      } else { this.reject(st); this.missing(st, [modelIcon('bowl')], 'plate'); }
       return;
     }
     // still cooking — hands off
@@ -692,7 +784,7 @@ export class Game {
         if (ITEMS[def.chopTo]?.interim) {
           if (st.progress >= 0.5) st.setItem(makeIngredient(def.chopTo), true, true);
         } else if (st.progress >= 1) {
-          st.setItem(makeIngredient(def.chopTo));
+          st.setItem(makeIngredient(def.chopTo, def.yield || 1));   // a cut loaf → 3 slices
           this.fx.sparkle(st.pos.clone().setY(st.topY + 0.4));
         }
       }
@@ -751,7 +843,7 @@ export class Game {
     this.chef.frozen = false;
     audio.duck(false);
   }
-  /** One correct verb answer = 1/3 of a wash. Three banked → one clean plate.
+  /** One correct answer = 1/2 of a wash: the verb's 2nd form, then its 3rd.
    *  Progress is kept if the player leaves the sink mid-wash. */
   onWashCorrect() {
     this.washProgress++;
@@ -771,6 +863,11 @@ export class Game {
     }
     ui.setWashProgress(this.washProgress, ANSWERS_PER_PLATE);
     return { plateDone: false };
+  }
+  /** A wrong answer: the plate stays dirty and its pair starts over (a new verb). */
+  onWashWrong() {
+    this.washProgress = 0;
+    ui.setWashProgress(0, ANSWERS_PER_PLATE);
   }
   onPlateMissed(q) {
     // persist right away (onRoundEnd is the save hook) — quitting mid-round
@@ -818,12 +915,16 @@ export class Game {
   refreshHint(force = false) {
     const st = this.targetStation();
     const held = this.chef.carried;
-    let text = '';
+    let text = '', icon = null;
     if (st) {
-      if (st.type === 'crate') text = held ? '' : t('hintGrab', ITEMS[st.crateItem].emoji);
+      if (st.type === 'crate') {
+        if (!held) { text = t('hintGrab', '@'); icon = itemIcon(st.crateItem); }
+        else if (held.type === 'plate' && !held.dirty && ITEMS[st.crateItem].ontoPlate && canPlate(held.contents, st.crateItem)) text = t('hintAddPlate');
+      }
       else if (st.type === 'board') {
         const heldPlate = held && held.type === 'plate' && !held.dirty;
         if (held && held.type === 'ing' && st.item && st.item.type === 'ing' && combine(held.id, st.item.id)) text = ITEMS[held.id].compose === 'pot' || held.id === 'pot_empty' ? t('hintAddPot') : t('hintAddMix');
+        else if (held && held.type === 'ing' && st.item && st.item.type === 'ing' && !(st.item.n > 1) && combine(st.item.id, held.id)) text = t('hintAddMix');
         else if (st.item && ITEMS[st.item.id]?.interim) text = t('hintHalfway');
         else if (st.item && ITEMS[st.item.id]?.chopTo) text = ITEMS[st.item.id].chopVerb ? t('hintRoll') : t('hintChop');
         else if (st.item && heldPlate && ITEMS[st.item.id]?.plateable && canPlate(held.contents, st.item.id)) text = t('hintAddPlate');
@@ -891,9 +992,10 @@ export class Game {
         else if (st.item) text = t('hintPickUp');
       }
     }
-    if (text !== this.lastHint || force) {
-      ui.hint(text);
-      this.lastHint = text;
+    const key = text + (icon ? '|' + st.crateItem : '');
+    if (key !== this.lastHint || force) {
+      ui.hint(text, icon);
+      this.lastHint = key;
     }
   }
 
@@ -983,12 +1085,23 @@ export class Game {
     if (st) this.world.highlight.position.set(st.pos.x, 1.12, st.pos.z);
 
     if (this.tutorial) this.tutorial.update(dt);
+    this.pointer.update(dt);
+    if (this.helperIntroT != null) {
+      this.helperIntroT -= dt;
+      if (this.helperIntroT <= 0) {
+        this.helperIntroT = null;
+        const hc = this.helper.chef;
+        this.fx.say(() => hc.pos.clone().setY(2.7), t(this.level.coop.intro), 5.5);
+      }
+    }
     this.refreshHint();
     this.fx.update(dt);
   }
 
   endRound() {
     this.roundOver = true;
+    this.pointer.clear();
+    this.fx.hushSays();
     ui.setFrantic(false);
     audio.stopAll();
     audio.serve();
@@ -1016,6 +1129,8 @@ export class Game {
 
   stopRound() {
     this.running = false;
+    if (this.fx) this.fx.hushSays();
+    if (this.pointer) this.pointer.clear();
     ui.setFrantic(false);
     audio.stopAll();
     if (this.quiz && this.quiz.open) this.quiz.close();

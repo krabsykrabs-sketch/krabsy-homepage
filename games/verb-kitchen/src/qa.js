@@ -81,6 +81,7 @@ export function initQA(game, save, startLevel, params) {
     saveRaw: () => localStorage.getItem('krabsy_vkitchen_save'),
     // persistent spaced repetition: the practice keys seeded this round
     practiceKeys: () => (game.quiz ? [...game.quiz.practiceKeys] : null),
+    questionSource: async () => (await import('./verbs.js')).questionSource,
     missedSaved: () => [...save.missed],
   };
   game.carried = () => {
@@ -216,9 +217,13 @@ export function initQA(game, save, startLevel, params) {
     } else if (scene === 'question') {
       VK.spawnTicket('salad');
       VK.dirtyPlates(2);
-      VK.setWashProgress(1);          // show the 3-segment wash bar mid-progress
       VK.tick(0.3);
-      VK.openQuestion();
+      VK.openQuestion();              // the plate's 1st question: go → [___] → ___
+      if (params.get('step') === '2') {
+        // ?step=2: its follow-up (go → went → [___]), wash bar half full
+        VK.answer(true);
+        setTimeout(() => VK.freeze(true), 900);
+      }
     } else if (scene === 'recipe') {
       ui.showTutorial(game.level);                  // loaded state (Start button)
     } else if (scene === 'recipeload') {
