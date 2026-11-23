@@ -487,3 +487,12 @@ Not done yet / to check:
     10 MB of buffers).
   - Left as it was: the wide teal home beacon (not in the list; it now looks
     heavy next to the thin egg beams).
+- 2026-11-23: **creature collection prepared** (not wired in yet): 60
+  creatures (44 animals, 16 monsters, all Quaternius CC0) in
+  `assets/creatures/` (`creatures.json` manifest, GLBs, icons +
+  silhouettes), pipeline in `tools/creatures/` (README). Owner confirmed
+  **Poly Pizza** (poly.pizza, per-model pages "By Quaternius, Public
+  Domain (CC0)") as an acceptable download source, because the
+  quaternius.com Google Drive links answered "quota exceeded". Open:
+  native Spanish check of the invented monster names; wiring (fixed rarity
+  per creature + golden bonus, lazy model loading) after world step 4.
