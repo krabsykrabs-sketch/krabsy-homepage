@@ -303,6 +303,12 @@ ours 2×1×2).
        can't be reached). Note: the 2026-11-23 review moved them to dead
        corners as pure decor — reverse that; they should be usable.
     5. Plan the whole level anew around this flow.
+  - L8 Sandwich Bar:
+    1. Cutting bread is "super annoying". One chop of a loaf should give
+       3 slices of bread lying on the board; taking one leaves 2 visible,
+       then 1. (6 sandwiches → only 2 loaves to cut.)
+    2. Toast burns too fast → longer time before ready toast burns
+       (currently 10 s after ready).
 
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
