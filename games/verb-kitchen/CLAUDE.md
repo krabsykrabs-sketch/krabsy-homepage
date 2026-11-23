@@ -321,6 +321,12 @@ ours 2×1×2).
     is needed" is good; additionally SHOW WHERE the needed thing is (e.g.
     highlight / point at the plate rack or clean-plate spot). Same idea for
     other missing items.
+  - ALL levels — washing: 2 answers per plate instead of 3, and the two
+    are the two forms of ONE verb in chain order (`go → ___ → ___` asks
+    the 2nd form, then `go → went → ___` asks the 3rd; see "Chain order"
+    in the root CLAUDE.md). Master agreed. Cuts wash time by about a third
+    (bot: washing was 25–55 % of a round) → RE-RUN the star-time bot
+    afterwards (`scratchpad/star-times/`).
 
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
