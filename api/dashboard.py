@@ -1375,6 +1375,7 @@ def render_dashboard(
   {_download_box(range_key, range_label, country_filter, device_filter)}
   {truncated_warning}
   <p class="muted">{header_line}</p>
+  <p class="muted" style="font-size:12px">Not counting yourself? Open <a href="https://krabsy.com/de/?krabsy-notrack=1" target="_blank" rel="noopener">krabsy.com/?krabsy-notrack=1</a> once in every browser you use (incl. phone); private windows forget it.</p>
   <p class="muted" style="font-style:italic;font-size:12px;margin-top:-8px">Per-day unique count. Cross-day totals may include the same visitor counted on multiple days.</p>
 
   {_weekly_section(weekly)}
