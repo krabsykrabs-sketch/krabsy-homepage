@@ -1,11 +1,11 @@
 # Verb Hatchery — world review and proposal (2026-11-23)
 
 The owner approved all 15 items (2026-11-23); they are built step by step.
-**Built: Step 1 = items 1–4 and Step 2 = items 5–7** (both 2026-11-23, see
-the Log in `CLAUDE.md` for what was done and the measured draw calls). Step 2
-also switched all trees, bushes, rocks, plants and flowers to the Quaternius
-*Stylized Nature MegaKit* (owner's wish) and built the first half of item 10
-(the forest thins out at its edge, undergrowth). Not built yet: items 8–15.
+**Built: Step 1 = items 1–4, Step 2 = items 5–7 and Step 3 = items 8–12** (all
+2026-11-23, see the Log in `CLAUDE.md` for what was done and the measured draw
+calls). Step 2 also switched all trees, bushes, rocks, plants and flowers to the
+Quaternius *Stylized Nature MegaKit* (owner's wish). Not built yet: items 13–15
+(Step 4).
 
 Pictures are in `_shots/` (not in git): `review-*.png` = the world today,
 `beach-before-*.png` / `beach-after-*.png` = the Beach rebuild.
@@ -45,15 +45,15 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 | 6 ✅ | **Grass and small plants** | Many small tufts, clover, ferns and pebbles as instanced meshes, drawn only near the player. Models: Quaternius *Stylized Nature MegaKit* (already in `/home/janah/dev/_assets/quaternius/`, CC0, not used yet). | M | +5 draw calls, up to +31k triangles near the player (measured; the new Quaternius trees add more: +12 % to +39 % triangles per view in total) |
 | 7 ✅ | **Paths you can read** | Stepping stones (`RockPath_*` from the same kit), a few fence posts and lanterns, a gate where a path enters a zone. | S–M | +0–1 draw calls (measured) |
 
-### Step 3 — give each zone a face
+### Step 3 — give each zone a face — ✅ built 2026-11-23
 
 | # | What | How | Effort | Cost |
 |---|---|---|---|---|
-| 8 | **Home: a real hatchery** | Replace the box house with a building from KayKit *Medieval Hexagon* (owned) plus a windmill or tower as a landmark seen from far; fence around the yard; bigger sign. | M | about the same |
-| 9 | **Volcano** | Rough rocky cone (ridges in the height function), glowing lava streams running down (colours + glow, no new models), embers, no lawn on the slope. | M | +2 draw calls |
-| 10 (half ✅) | **Forest** | ✅ Trees thin out at the edge instead of ending in a circle; ✅ undergrowth (ferns, big leafy plants). Still open: a clearing with the camp as a place to reach; greenish haze inside. | M | +2–4 draw calls |
-| 11 | **Meadow landmarks** | 3–4 things to navigate by: a hill with one huge tree, a small stone bridge over a stream from the pond to the sea, a scarecrow field, a ruin. Kenney *Nature Kit* / KayKit (owned). | M | +5–8 draw calls (fine after #1) |
-| 12 | **Coast all round** | Alternate small coves, sand strips and rocky bits; move the lighthouse from the far west (hardly ever seen) to the Beach's north headland; 2–3 tiny islands on the horizon. | S–M | none |
+| 8 ✅ | **Home: a real hatchery** | Built from the Quaternius *Medieval Village MegaKit* instead of KayKit (owner's wish): a long house with a coral tiled roof, a stone tower with a turning wind wheel (16 m, seen from far), a big sign board on posts, a fenced yard with lantern posts; the farm has real crops (Quaternius *Ultimate Crops*), a wagon and a market stall. | M | +1 draw call (the wind wheel), +16k triangles in the Home view (measured: 175k → 191k) |
+| 9 ✅ | **Volcano** | Seven ridges and gullies in the height function, a deeper crater with a lava pool; four lava streams run down the gullies facing the island (one flowing mesh + glowing, scorched rock beside them), embers, big boulders on the ridges; stone heads darkened to the Volcano's rock. | M | +0 draw calls (lava pool + streams are one mesh, embers +1, smoke puffs 10 → 7) |
+| 10 ✅ | **Forest** | Trees thin out at the edge instead of ending in a circle; undergrowth (ferns, big leafy plants); the camp is a clearing you reach by a trail of stones from the end of the path (tent, fire, log seats, supplies, a tall banner pole); green, close haze deep in the forest (fog + horizon colour follow the player). | M | +0 draw calls |
+| 11 ✅ | **Meadow landmarks** | A hill with one huge tree (north-east); a stream from the pond to the sea with a walkable stone bridge (south-east); a wheat field with a scarecrow beyond the bridge; a ruin near the standing stones (south-west). All from Quaternius kits or built in code (no Kenney / KayKit: they clash). The stream and the bridge are on the minimap. | M | +0 draw calls (all in the static batch; the stream's water is part of the pond's mesh) |
+| 12 ✅ | **Coast all round** | The coast is no longer a circle (`coast()` in `world.js`): coves with wide sand, headlands with grey rock and boulders in the water; the lighthouse stands on a rocky knoll on the Beach's north headland; three tiny islands off the coast (pines / a rock stack / palms; not reachable). | S–M | +0 draw calls |
 
 ### Step 4 — life
 

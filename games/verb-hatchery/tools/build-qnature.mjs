@@ -1,5 +1,6 @@
 // Builds assets/qnature/qnature.glb + atlas.webp from the Quaternius kits (CC0):
-// Stylized Nature MegaKit, Fantasy Props MegaKit, Medieval Village MegaKit.
+// Stylized Nature MegaKit, Fantasy Props MegaKit, Medieval Village MegaKit (glTF) and
+// Ultimate Crops (OBJ + MTL: plain colours per material, no textures).
 //
 //   MESHOPT=<dir>/node_modules/meshoptimizer/index.js SHARP=<dir>/node_modules/sharp \
 //     node tools/build-qnature.mjs
@@ -34,6 +35,7 @@ const DIRS = {
   nature: `${LIB}/Stylized_Nature_MegaKit_Standard_/glTF`,
   props: `${LIB}/Fantasy_Props_MegaKit_Standard_/Exports/glTF`,
   village: `${LIB}/Medieval_Village_MegaKit_Standard_/Medieval Village MegaKit[Standard]/glTF`,
+  crops: process.env.QCROPS || `${LIB}/../ultimate-crops/OBJ`,
 };
 const OUT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../assets/qnature');
 
@@ -42,6 +44,8 @@ const OUT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../as
 //  sample : texture (blurred) sampled at each vertex → vertex colour, no texture
 //  mask   : cut-out shape in the atlas (white), colour = foliage (tinted in the game)
 //  atlas  : picture in the atlas
+//  solid  : one fixed colour (window glass: the kit's material has no texture)
+//  vcol   : the colour comes with the model (Ultimate Crops: the .mtl colours)
 const MATS = {
   Bark_NormalTree: { mode: 'flat' }, Bark_DeadTree: { mode: 'flat' }, Bark_TwistedTree: { mode: 'flat' },
   Leaves_NormalTree: { mode: 'mask', scale: 0.25 }, Leaves_TwistedTree: { mode: 'mask', scale: 0.25 }, Leaves_Pine: { mode: 'mask', scale: 0.125 },
@@ -50,7 +54,16 @@ const MATS = {
   Rocks: { mode: 'atlas', scale: 0.25 }, PathRocks: { mode: 'atlas', scale: 0.5 }, Mushrooms: { mode: 'atlas', scale: 0.25 },
   MI_Trim_Metal: { mode: 'sample' }, MI_Trim_Furniture: { mode: 'sample' }, MI_Banner: { mode: 'sample', foliage: true, grey: true },
   MI_WoodTrim: { mode: 'sample' }, MI_Trim_Props_Vertex: { mode: 'sample' },
+  // the village kit's wall / roof textures repeat (uv far outside 0–1), so they can't go
+  // into the atlas: walls and roofs get their blurred texture colour per vertex. Roof
+  // tiles are stored grey and tinted when placed (like leaves), so roofs can be any colour.
+  MI_WoodTrim_Wear: { mode: 'sample' }, MI_Plaster: { mode: 'sample', gain: [1.45, 1.52, 1.7] }, MI_UnevenBrick: { mode: 'sample', gain: [1.5, 1.52, 1.58] }, MI_Brick: { mode: 'sample', gain: [1.35, 1.35, 1.38] },
+  MI_RockTrim: { mode: 'sample', gain: [1.3, 1.3, 1.32] }, MI_MetalOrnaments: { mode: 'sample' }, MI_RoundTiles: { mode: 'sample', foliage: true, grey: true },
+  MI_WindowGlass: { mode: 'solid', color: [0.2, 0.33, 0.45] }, MI_Vine: { mode: 'atlas', scale: 0.25, cut: true, white: true, foliage: true },
+  MI_Trim_Cloth: { mode: 'sample' }, MI_Trim_Props: { mode: 'sample' },
+  __vcol: { mode: 'vcol' },
 };
+const SOLID = ['flat', 'sample', 'solid', 'vcol']; // modes without a texture
 // Models: [name, kit, { tris: target triangles for solid parts, ratio: share of the
 // triangles kept, keep: share of leaf cards / blades kept, grow: how much the kept ones
 // grow, src: source file when the name is our own }]
@@ -74,14 +87,59 @@ const MODELS = [
   ...[1, 2, 3, 4, 5].map((i) => [`Pebble_Round_${i}`, 'nature', { ratio: 0.4 }]), ...[1, 2, 3, 4, 5, 6].map((i) => [`Pebble_Square_${i}`, 'nature', {}]),
   ...['Round_Small_1', 'Round_Small_2', 'Round_Small_3', 'Square_Small_1', 'Square_Small_2', 'Square_Small_3']
     .map((n) => [`RockPath_${n}`, 'nature', { ratio: 0.2 }]),
-  ['Lantern_Wall', 'props', { tris: 420 }], ['Banner_1_Cloth', 'props', {}],
+  ['Lantern_Wall', 'props', { tris: 240 }], ['Banner_1_Cloth', 'props', {}],
   ['Prop_WoodenFence_Single', 'village', {}], ['Prop_WoodenFence_Extension1', 'village', {}], ['Prop_WoodenFence_Extension2', 'village', {}],
+  // ── world step 3 ──
+  // the hatchery building, the tower and the ruin (Medieval Village MegaKit)
+  ...['Wall_Plaster_Straight', 'Wall_Plaster_Window_Wide_Round', 'Wall_Plaster_Door_Round', 'Wall_Plaster_WoodGrid', 'Wall_UnevenBrick_Straight',
+    'Wall_UnevenBrick_Window_Wide_Round', 'Wall_UnevenBrick_Door_Round', 'Corner_Exterior_Wood', 'WindowShutters_Wide_Round_Open', 'Prop_Chimney2',
+    'Prop_Vine5', 'Prop_Vine2'].map((n) => [n, 'village', {}]),
+  ['Window_Wide_Round1', 'village', { tris: 150 }], ['Door_1_Round', 'village', { tris: 170 }], ['DoorFrame_Round_WoodDark', 'village', { tris: 120 }],
+  ['Roof_RoundTiles_8x12', 'village', { tris: 700 }], ['Roof_Front_Brick8', 'village', { tris: 200 }], ['Roof_Tower_RoundTiles', 'village', { tris: 560 }],
+  ['Prop_Wagon', 'village', { tris: 380 }], ['Prop_Brick1', 'village', { tris: 30 }], ['Prop_Brick3', 'village', { tris: 30 }],
+  // yard, farm and forest camp (Fantasy Props MegaKit)
+  ['Barrel', 'props', { tris: 170 }], ['Crate_Wooden', 'props', { tris: 150 }], ['Bench', 'props', { tris: 150 }], ['Bag', 'props', { tris: 140 }],
+  ['Cauldron', 'props', { tris: 200 }], ['Stall_Empty', 'props', { tris: 300 }], ['FarmCrate_Carrot', 'props', { tris: 260 }], ['Stool', 'props', { tris: 70 }],
+  // light rocks for the coast and the volcano's ridges, one detailed giant tree for the Meadow hill
+  // (plain: no texture, one colour, lighter on top: bare grey sea rocks instead of the kit's mossy ones)
+  ...[1, 2, 3].map((i) => [`Rock_Lo_${i}`, 'nature', { src: `Rock_Medium_${i}`, ratio: 0.32, plain: [0.84, 0.85, 0.9] }]),
+  ['TwistedTree_Big', 'nature', { src: 'TwistedTree_4', tris: 800, keep: 0.42, grow: 1.4 }],
+  // the farm (Ultimate Crops)
+  ['Crop_Pumpkin', 'crops', { src: 'Pumpkin_4', tris: 200 }], ['Crop_Carrot', 'crops', { src: 'Carrot_4', tris: 100 }], ['Crop_Corn', 'crops', { src: 'Corn_4', tris: 180 }],
+  ['Crop_Tomato', 'crops', { src: 'Tomato_4', tris: 180 }], ['Crop_Wheat', 'crops', { src: 'Wheat_4', tris: 28 }],
 ];
 
 // ── reading the source files ──
 const TYPES = { 5120: Int8Array, 5121: Uint8Array, 5122: Int16Array, 5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array };
 const NUM = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 };
+// Ultimate Crops: .obj (positions + faces per material) and .mtl (one colour per
+// material, linear). → one primitive per material, colour in `col` (sRGB), no uv.
+function readObj(dir, name) {
+  const kd = {}; let cur = null;
+  for (const l of fs.readFileSync(`${dir}/${name}.mtl`, 'utf8').split('\n')) {
+    const t = l.trim().split(/\s+/);
+    if (t[0] === 'newmtl') cur = t[1]; else if (t[0] === 'Kd') kd[cur] = t.slice(1, 4).map((v) => lin2srgb(+v));
+  }
+  const V = [], groups = new Map(); let g = null;
+  for (const l of fs.readFileSync(`${dir}/${name}.obj`, 'utf8').split('\n')) {
+    const t = l.trim().split(/\s+/);
+    if (t[0] === 'v') V.push([+t[1], +t[2], +t[3]]);
+    else if (t[0] === 'usemtl') { if (!groups.has(t[1])) groups.set(t[1], []); g = groups.get(t[1]); }
+    else if (t[0] === 'f') { const ix = t.slice(1).map((s) => parseInt(s, 10) - 1); for (let k = 1; k < ix.length - 1; k++) g.push(ix[0], ix[k], ix[k + 1]); }
+  }
+  const prims = [];
+  for (const [mat, tri] of groups) {
+    const map = new Map(), pos = [], idx = [];
+    for (const i of tri) { if (!map.has(i)) { map.set(i, pos.length / 3); pos.push(...V[i]); } idx.push(map.get(i)); }
+    const n = pos.length / 3, col = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) col.set([...kd[mat], 1], i * 4);
+    const p = { mat: '__vcol', image: null, pos: Float32Array.from(pos), nor: new Float32Array(n * 3), uv: null, col, idx: Uint32Array.from(idx) };
+    smoothNormals(p); prims.push(p);
+  }
+  return prims;
+}
 function readModel(dir, name) {
+  if (fs.existsSync(`${dir}/${name}.obj`)) return readObj(dir, name);
   const j = JSON.parse(fs.readFileSync(`${dir}/${name}.gltf`)), bin = fs.readFileSync(`${dir}/${j.buffers[0].uri}`);
   const acc = (i) => {
     const a = j.accessors[i], bv = j.bufferViews[a.bufferView], n = NUM[a.type], T = TYPES[a.componentType];
@@ -209,7 +267,7 @@ for (const [name, kit, o] of MODELS) {
     const M = MATS[p.mat]; if (!M) throw new Error(`${name}: no rule for material ${p.mat}`);
     if (M.mode === 'mask' || M.mode === 'atlas') {
       unwrapUV(p);
-      const r = regions.get(p.image) || { u0: 1, v0: 1, u1: 0, v1: 0, scale: M.scale, cut: !!M.cut, mask: M.mode === 'mask' };
+      const r = regions.get(p.image) || { u0: 1, v0: 1, u1: 0, v1: 0, scale: M.scale, cut: !!M.cut, mask: M.mode === 'mask', white: !!M.white };
       for (let i = 0; i < p.uv.length; i += 2) {
         if (p.uv[i] < -0.15 || p.uv[i] > 1.15 || p.uv[i + 1] < -0.15 || p.uv[i + 1] > 1.15) throw new Error(`${name}/${p.mat}: uv far outside 0–1 (${p.uv[i]}, ${p.uv[i + 1]})`);
         p.uv[i] = Math.min(1, Math.max(0, p.uv[i])); p.uv[i + 1] = Math.min(1, Math.max(0, p.uv[i + 1])); // (a few cards stick out a little)
@@ -246,7 +304,7 @@ let AH = 0;
     let { data, info } = await sharp(file).ensureAlpha().extract({ left: r.x0, top: r.y0, width: r.x1 - r.x0, height: r.y1 - r.y0 })
       .resize(r.w, r.h, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
     const n = info.width * info.height;
-    if (r.mask) for (let i = 0; i < n; i++) { data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = 255; }
+    if (r.mask || r.white) for (let i = 0; i < n; i++) { data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = 255; }
     else if (r.cut) { // spread the colours into the transparent pixels (no dark fringe at the cut-out edge)
       const W = info.width, Hh = info.height;
       let done = new Uint8Array(n); for (let i = 0; i < n; i++) done[i] = data[i * 4 + 3] > 100 ? 1 : 0;
@@ -292,20 +350,24 @@ for (const { name, o, prims } of loaded) {
     const keep = o.keepMat?.[p.mat] ?? (M.mode === 'mask' || M.cut || p.mat === 'Grass' ? o.keep : undefined);
     if (keep) { const t = thin(p, keep, M.mode === 'mask' || p.mat === 'Grass' || p.mat === 'Leaves' ? o.grow : 1, name.length * 7919 + before); p = t.out; }
     if (keep && o.ratio) p = simplify(p, (p.idx.length / 3) * o.ratio, true); // (blades with fewer bends)
-    if (keep) { /* done */ } else if (M.mode === 'flat' || M.mode === 'sample') { if (o.tris) p = simplify(p, o.tris * (before / prims.filter((q) => ['flat', 'sample'].includes(MATS[q.mat].mode)).reduce((s, q) => s + q.idx.length / 3, 0)), true); }
+    if (keep) { /* done */ } else if (SOLID.includes(M.mode)) { if (o.tris) p = simplify(p, o.tris * (before / prims.filter((q) => SOLID.includes(MATS[q.mat].mode)).reduce((s, q) => s + q.idx.length / 3, 0)), true); }
     else if (o.tris) p = simplify(p, o.tris, false);
     else if (o.ratio) p = simplify(p, before * (o.ratioMat?.[p.mat] ?? o.ratio), false);
     const n = p.pos.length / 3, uv = new Float32Array(n * 2), col = new Float32Array(n * 4), nor = Float32Array.from(p.nor);
     const r = regions.get(p.image);
     const mean = M.mode === 'flat' ? meanColour(img) : null, bl = M.mode === 'sample' ? await blur(p.image) : null;
+    const fixed = p.col; // (vcol: the model's own colours)
     for (let i = 0; i < n; i++) {
       const ao = p.col[i * 4]; // the kit's vertex colour is a grey value: AO on trunks, 0 at the root of grass and leaves
       let c = [1, 1, 1], a = 1;
       if (M.mode === 'flat') { const k = 0.45 + 0.55 * ao; c = mean.map((v) => v * k); }
+      else if (M.mode === 'solid') c = M.color;
+      else if (M.mode === 'vcol') c = [fixed[i * 4], fixed[i * 4 + 1], fixed[i * 4 + 2]];
       else if (M.mode === 'sample') {
         const u = Math.min(0.999, Math.max(0, p.uv[i * 2] - Math.floor(p.uv[i * 2]))), v = Math.min(0.999, Math.max(0, p.uv[i * 2 + 1] - Math.floor(p.uv[i * 2 + 1])));
         const k = (Math.floor(v * bl.N) * bl.N + Math.floor(u * bl.N)) * 3, sh = M.ao ? 1 - M.ao + M.ao * ao : 1;
         c = [bl.data[k] / 255 * sh, bl.data[k + 1] / 255 * sh, bl.data[k + 2] / 255 * sh];
+        if (M.gain) c = c.map((v, k) => Math.min(1, v * M.gain[k])); // (the kit's plaster and stone are a dull khaki in our light, and the hatchery's front is always in the shade: lift them to cream / sandstone)
         if (M.grey) { const g = Math.max(...c); c = [g, g, g].map((v) => Math.min(1, v * 1.5)); }
         if (M.foliage) a = 0;
       } else {
@@ -316,6 +378,8 @@ for (const { name, o, prims } of loaded) {
           const t = (p.pos[i * 3 + 1] - leafBox.min[1]) / Math.max(0.01, leafBox.max[1] - leafBox.min[1]);
           const g = 0.66 + 0.34 * t; c = [g, g, g]; a = 0;
         } else if (M.ao) { const k = 1 - M.ao + M.ao * ao; c = [k, k, k]; }
+        if (M.foliage) a = 0;
+        if (o.plain) { const k = 0.72 + 0.28 * Math.max(0, p.nor[i * 3 + 1]); c = o.plain.map((v) => v * k); uv[i * 2] = uv[i * 2 + 1] = 0; }
       }
       col.set([c[0], c[1], c[2], a], i * 4);
       if (M.mode === 'mask') { // soft normals: away from the middle of the crown, a bit upwards

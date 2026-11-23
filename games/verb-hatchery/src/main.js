@@ -116,7 +116,7 @@ function randomSpot(zone) {
       if (zoneAt(x, z) !== zone) continue;
       if (Math.hypot(x - ISLAND.cx, z - ISLAND.cz) > ISLAND.r - 16) continue;
     }
-    if (!onIsland(x, z) || height(x, z) < 0.3) continue;
+    if (!onIsland(x, z) || height(x, z) < 0.3 || world.noEggSpot(x, z)) continue;
     if (world.nearColliders(x, z).some((c) => Math.hypot(x - c.x, z - c.z) < c.r + 1.2)) continue;
     if (wild.some((e) => Math.hypot(x - e.x, z - e.z) < 6)) continue;
     if (Math.hypot(x - HOME.x, z - HOME.z) < 26) continue;

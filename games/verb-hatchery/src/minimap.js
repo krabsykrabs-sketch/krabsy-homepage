@@ -1,13 +1,13 @@
 // Minimap (bottom left): island, zones, home, eggs, thieves, player arrow.
 // North-up, so it reads like a map; the arrow shows where the player looks.
 import { ISLAND, HOME, ZONES, RARITY } from './balance.js';
-import { PATHS, POND, pondPoint, WATER_Y, terrainH, zoneAt, onPier } from './world.js';
+import { PATHS, POND, pondPoint, WATER_Y, terrainH, zoneAt, onPier, STREAM, BRIDGE, LIGHT, HILL } from './world.js';
 
 export class Minimap {
   constructor(canvas) {
     this.c = canvas; this.x = canvas.getContext('2d');
     this.size = canvas.width;
-    this.scale = this.size / (ISLAND.r * 2 + 16);
+    this.scale = this.size / (ISLAND.r * 2 + 32); // (room for the tiny islands off the coast)
     this.base = this._base();
   }
   // The island as it really is (coast, bay, zones), drawn once from the height function.
@@ -22,6 +22,13 @@ export class Minimap {
       d.set(COL[k], (j * S + i) * 4); d[(j * S + i) * 4 + 3] = 255;
     }
     x.putImageData(img, 0, 0);
+    // step-3 landmarks: the stream and its bridge, the hill's giant tree, the lighthouse
+    x.strokeStyle = '#4cc6e8'; x.lineWidth = 3; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+    STREAM.pts.forEach(([a, b], i) => { const [u, v] = this.px(a, b); if (i) x.lineTo(u, v); else x.moveTo(u, v); }); x.stroke();
+    x.strokeStyle = '#8d887c'; x.lineWidth = 3.5; x.lineCap = 'butt'; x.beginPath();
+    x.moveTo(...this.px(BRIDGE.x - BRIDGE.ux * 6, BRIDGE.z - BRIDGE.uz * 6)); x.lineTo(...this.px(BRIDGE.x + BRIDGE.ux * 6, BRIDGE.z + BRIDGE.uz * 6)); x.stroke();
+    x.fillStyle = '#3f8f43'; x.beginPath(); x.arc(...this.px(HILL.x, HILL.z), 4, 0, 6.3); x.fill();
+    x.fillStyle = '#fff'; x.strokeStyle = '#55657f'; x.lineWidth = 1.5; x.beginPath(); x.arc(...this.px(LIGHT.x, LIGHT.z), 2.6, 0, 6.3); x.fill(); x.stroke();
     return c;
   }
   px(x, z) { return [this.size / 2 + (x - ISLAND.cx) * this.scale, this.size / 2 + (z - ISLAND.cz) * this.scale]; }

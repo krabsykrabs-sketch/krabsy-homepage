@@ -198,7 +198,10 @@ Copy only what you use into `games/verb-hatchery/assets/`.
   house) is baked into a few merged meshes, one per 48 m cell of the island
   (`src/merge.js`, see the Log 2026-11-23 "Step 1"); the shadow camera
   follows the player, fog limits the view. New static props must go through
-  `world.batch` (`put` / `inst` in `decor.js` do that), not `scene.add`.
+  `world.batch` (`put` / `inst` / `Qp` / `box` in `decor.js` do that), not `scene.add`.
+  What you stand on is `height()` = the terrain MESH's height (`groundH`, a
+  cached 2 m grid) or the pier / bridge deck; `terrainH` is the smooth
+  function behind it (see the Log 2026-11-23 "Step 3").
   All batch meshes share ONE material (vertex colours × the Quaternius
   atlas, cut-out leaves, see-through between camera and player); see the
   Log 2026-11-23 "Step 2".
@@ -268,8 +271,9 @@ touch, collisions, egg stack), `src/thieves.js` (robber crabs), `src/minimap.js`
 `src/questions.js` (tier pools), `src/creatures.js` (procedural creatures,
 names, blocklist), `src/main.js` (flow, cards, panels, HUD), `src/i18n.js`,
 `src/audio.js`, `src/analytics.js`, `src/qnature.js` (loads the Quaternius
-pack), `src/ground.js` (grass and small plants near the player). Nature: the
-Quaternius pack `assets/qnature/` (one .glb + one atlas, 960 KB, built by
+pack), `src/ground.js` (grass and small plants near the player). Nature,
+the hatchery building, the ruin, yard / camp props and the crops: the
+Quaternius pack `assets/qnature/` (one .glb + one atlas, 1.2 MB, built by
 `tools/build-qnature.mjs`); characters + animations in
 `assets/characters/` (1.2 MB); see `assets/CREDITS.md`.
 
@@ -627,3 +631,125 @@ Not done yet / to check:
     `Rock_Medium_*` in big scales + `DeadTree_*` for the Volcano's ridges
     (item 9); `Mushroom_Laetiporus` on trunks. Add a model = one line in
     `MODELS` in `tools/build-qnature.mjs`, then rebuild.
+- 2026-11-23: **World proposal Step 3 built (items 8–12): every zone has a face.**
+  Fable 5.2 subagent, lead session reviews. Pictures: `_shots/step3-before-*.png` /
+  `step3-after-*.png` (the seven standard views) and `step3-after-base-full.png`.
+  - **The pack grew** (`tools/build-qnature.mjs`, 108 models, 26.7k triangles,
+    `qnature.glb` 1.04 MB + `atlas.webp` 130 KB): walls, windows, door, roofs,
+    chimney, wagon, bricks and vines from the **Medieval Village MegaKit**; barrel,
+    crate, bench, bag, cauldron, stall, carrot crate, stool from **Fantasy Props**;
+    pumpkin, carrot, corn, tomato, wheat from the owner's **Ultimate Crops** (the
+    tool now reads OBJ + MTL itself: no Blender needed); `Rock_Lo_*` (bare grey
+    rocks, 80–170 triangles) and `TwistedTree_Big`. The village kit's wall and roof
+    textures repeat, so they cannot go into the atlas: walls and roofs are plain
+    colours per vertex (plaster and stone are lifted to cream / sandstone, because
+    the hatchery's front never gets sun); roof tiles are stored grey and tinted
+    when placed. A roof went from 6,400 to 700 triangles. `Lantern_Wall` 420 → 240.
+    Tints may now be `[r, g, b]` above 1 (golden wheat from the green grass models).
+  - **8 Home** (`buildHatchery` in `decor.js`, footprint `HATCHERY` in `world.js`):
+    a long house (14 × 8 m, half-timbered, coral tiled roof, door, windows with
+    shutters, chimney) with a three-storey stone tower on its east end (16 m to the
+    roof's tip) and a slowly turning **wind wheel** on the tower's front (its own
+    mesh: +1 draw call); the sign is a 8.4 m board on two posts in front of the
+    roof (a mesh, not a sprite any more); a wooden yard fence, open to the north,
+    with a gate on each side, eight lantern posts, benches and barrels from the
+    Fantasy kit (the Tiny Treats lanterns and bench are gone; the fountain stays).
+    Deck, egg pad, incubators, pens, `PAD` / `INC_POS` / `PEN_POS` are unchanged.
+    The farm has four beds of real crops, a fence, a wagon, a market stall, crates.
+  - **9 Volcano** (`terrainH`, `_terrain`, `embers`): seven ridges and gullies, a
+    little bumpy all over, a deeper crater with a lava pool (a collider keeps
+    players and eggs out of it); **four lava streams** run down the gullies that
+    face the island: one mesh for pool + streams with a small texture that drifts
+    downhill (it replaces the old lava disc: +0 draw calls), the rock beside them
+    is scorched and glows (vertex colours above 1); embers rise from the streams
+    (one `Points`, only drawn when the Volcano is in view); up to nine big dark
+    boulders on the ridges; the stone heads are darkened. No egg spawns in a lava stream
+    (`world.noEggSpot`, used by `randomSpot` in `main.js`). Smoke puffs 10 → 7.
+  - **10 Forest**: the camp (`CAMP`, `camp()` in `decor.js`) is a clearing with a
+    dirt floor: an A-frame tent, a fire in a ring of stones, two log seats, a
+    stool, cauldron, barrel, crates, a lantern post and a 6 m pole with a green
+    banner; a trail of stepping stones leads to it from the end of the Forest
+    path. Stumps and logs everywhere in the Forest are now built in code in the
+    trees' bark colour (the pale Kenney ones are gone). **Haze** (`_haze` in
+    `world.js`): deep in the Forest the fog turns green and close (far 190 → 78 m)
+    and the sky's horizon follows; on the Volcano's slope it is warm and dusty.
+    It fades in over about a second; no extra drawing.
+  - **11 Meadow landmarks**: `HILL` (north-east, 5 m high) with one **huge twisted
+    tree** (about 28 m), a bench and a lantern; a **stream** from the pond to the
+    sea (`STREAM`, a shallow bed in a gentle valley, ankle-deep: you can wade
+    through anywhere; its water is part of the pond's mesh) with a walkable **stone
+    bridge** (`BRIDGE`, built in code, three arched openings; `height()` knows its
+    deck like the pier's; its parapets are colliders, so you cross from end to end
+    and cannot walk under it); a **wheat field with a scarecrow** beyond the bridge
+    (`FIELD`); a **ruin** in the south-west near the standing stones (`RUIN`: kit
+    walls sunk and tilted, one corner two floors high, vines, rubble). The old
+    stone circle's Kenney columns are now standing stones made of `Rock_Lo`.
+  - **12 Coast** (`coast()` in `world.js`): the island's edge moves in and out by
+    −8 … +5.5 m: coves with wide sand, headlands with a grey rock strip and about
+    40 boulders along the waterline (some in the water); behind the hatchery the
+    land always reaches out. The **lighthouse** stands on a 3 m rocky knoll on the
+    Beach's north headland (`LIGHT`; it lies outside the Beach's wall, so you can
+    walk there from the start). Three **tiny islands** (`ISLETS`: pines / a rock
+    stack with a dead tree / palms) lie 20–30 m off the coast, deep water in
+    between; five rock stacks further out.
+  - **`height()` now follows the terrain mesh** (`groundH`: the 2 m grid, cached),
+    not the smooth function: on the ridges the two differ by up to 0.3 m, and feet,
+    eggs and props must touch what is drawn. `terrainH` (the smooth function) is
+    still what fills the grid, the sea's shore line and the minimap.
+  - **Minimap**: the coast, the islands and the stream come from the height
+    function; the stream, the bridge, the hill's tree and the lighthouse are drawn
+    on top. Its scale is 6 % smaller (the islands fit).
+  - **Removed files** (0.28 MB): Kenney stumps, logs, tent, campfire, columns,
+    obelisk, sea rock, crops, farm fence, pot; Tiny Treats street lantern + bench.
+  - **Draw calls / triangles**, world only (eggs and crabs hidden), same cameras
+    and method as Step 2 (`measure.cjs`, headless 1366×768, all zones open):
+
+    | View | Step 2 | Step 3 |
+    |---|---|---|
+    | Home | 34 / 175k | 36 / 191k |
+    | Beach, ground | 24 / 132k | 28 / 138k |
+    | Beach, from above | 20 / 129k | 23 / 135k |
+    | Forest | 30 / 197k | 29 / 204k |
+    | Volcano | 38 / 151k | 38 / 161k |
+    | Meadow (towards the pond) | 35 / 203k | 41 / 233k |
+    | Pond | 29 / 184k | 33 / 204k |
+
+    Static world 280k → **314k triangles** (36 batch meshes, was 33). Where the
+    extra draw calls come from (counted per object in the Meadow view): 3 more
+    batch cells in view (the islands are cells of their own, and cells with tall
+    things have bigger bounds), the lighthouse beam, and clouds (their positions
+    changed; they have their own random stream now, so later steps won't move
+    them). Triangles per view: +3 % to +15 %. Colliders 401 → 621 (fences, the
+    bridge's parapets, coast boulders; they sit in a grid, so this costs nothing
+    measurable). Game size without `assets/animals/`, `assets/creatures/`,
+    `tools/creatures/`, `_shots/`: 6.3 MB (as before: +0.21 MB pack, −0.28 MB
+    removed props).
+  - **Checked (headless; all of it in EN and in DE without `assets/animals/`
+    (`BLOCK`), the base flow also in ES, the start also with `?touch`):** new
+    save: egg card → right answer → carried → egg pad → incubator → hatch → pen
+    (state), buying pens and incubators shows them and moves the ghosts (12 pens +
+    6 incubators in `step3-after-base-full.png`); after `stars(9)`: all walls
+    open, 8 of 8 crabs move, eggs 12 / 7 / 5 / 4 per zone (one Meadow egg was
+    carried in the test), 40 forced events land in all four zones, no egg in the
+    lava, in the stream or on the bridge; walk test `walk2.js`: 9 stops without
+    an object, all in the pond's deep water (as before); `walk3.js` (beach, islet,
+    pier): the islet and the pier head are reachable, the stops without a collider
+    are at the wading limit or beside the pier deck (as before); new `walk4.js`
+    (scratchpad `s3/`): over the bridge both ways, wading across the stream at 5
+    places, up the hill, to the lighthouse, the camp, the field, the ruin and the
+    crater's rim: all reached; the three tiny islands are not reachable; 2 stops
+    without a collider (the sea at the stream's mouth, the pier's side). Console:
+    only the three expected `/lib/*.js` 404s (plus the blocked animal files in
+    the `BLOCK` run). See-through: seen working on trunks in the Forest; behind
+    the hatchery the camera moves in front of the building's colliders instead
+    (as with any big collider).
+  - **Not checked:** a real Chromebook / tablet (the +34k triangles, the lava
+    texture and the haze on a real screen), `?touch`, how the haze feels while
+    walking in and out (headless runs at 1–2 frames per second: the dev PC was
+    busy), thief crabs meeting the lava pool's collider or the stream in play,
+    the minimap at phone size.
+  - **Left as it was / to decide:** the Tiny Treats fountain, playground and
+    picnic at the base (no Quaternius equivalent); the Kenney stone heads (only
+    darkened); the pirate-kit lighthouse tower (it fits the Beach); the wide teal
+    home beacon; the walls of the hatchery are plain colours (no brick or plaster
+    texture, see above); the sign text is English in all languages (as before).

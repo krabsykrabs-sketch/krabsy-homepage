@@ -127,7 +127,8 @@ function finish(g, col, uv = null) {
 const _c = new THREE.Color();
 export function paintQ(model, tint = 0xffffff, mul = 0xffffff) {
   const src = model.geo, n = src.attributes.position.count, sc = src.attributes.color, col = new Float32Array(n * 3);
-  const t = new THREE.Color(tint), m = new THREE.Color(mul);
+  // (tint as [r, g, b] may go over 1: the pack's grass is green, wheat needs more than white)
+  const t = Array.isArray(tint) ? new THREE.Color().setRGB(tint[0], tint[1], tint[2]) : new THREE.Color(tint), m = new THREE.Color(mul);
   for (let i = 0; i < n; i++) {
     _c.setRGB(sc.getX(i), sc.getY(i), sc.getZ(i), THREE.SRGBColorSpace);
     if (sc.getW(i) < 0.5) _c.multiply(t);

@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { ZONES, HOME, ISLAND } from './balance.js';
 import { paintQ, paintMat } from './merge.js';
-import { terrainH, pathDist, pondD, POND, beachW, groundNoise, DECK } from './world.js';
+import { groundH, pathDist, pondD, POND, beachW, groundNoise, DECK, streamAt, CAMP, LAVA_ANGLES, lavaPoint } from './world.js';
 
 const CELL = 4, RADIUS = 23, PER_CELL = 11;
 const zone = (id) => ZONES.find((z) => z.id === id);
@@ -50,13 +50,15 @@ export class GroundCover {
       if (pd < 1.7) continue;                                        // the paths stay clear
       if (x > DECK.x0 - 1.5 && x < DECK.x1 + 1.5 && z > DECK.z0 - 1.5 && z < DECK.z1 + 9) continue; // the base and the house
       if (pondD(x, z) < POND.r + 0.3) continue;
-      const h = terrainH(x, z); if (h < 0.5 || Math.hypot(x - ISLAND.cx, z - ISLAND.cz) > ISLAND.r - 6) continue;
+      if (streamAt(x, z)[0] < 5 || Math.hypot(x - CAMP.x, z - CAMP.z) < 2) continue;           // the stream's bed and banks, the camp fire
+      const h = groundH(x, z); if (h < 0.5 || Math.hypot(x - ISLAND.cx, z - ISLAND.cz) > ISLAND.r - 6) continue;
       const sand = beachW(x, z) > 0.45 || Math.hypot(x - zone('beach').x, z - zone('beach').z) < zone('beach').r + 1;
       const [n1, , n3] = groundNoise(x, z);
       const dv = Math.hypot(x - VOLCANO.x, z - VOLCANO.z), df = Math.hypot(x - FOREST.x, z - FOREST.z);
       let kind = 'grass', scale = 0.3 + sc * 0.22;
       if (sand) { if (pick > 0.1) continue; kind = 'pebbles'; }
       else if (dv < VOLCANO.r + 12) {                                // ash and rock: pebbles, a little dry grass at the foot
+        if (LAVA_ANGLES.some((_, k) => { const [lx, lz] = lavaPoint(k, dv); return Math.hypot(x - lx, z - lz) < 2.6; })) continue; // not in the lava
         if (pick < 0.07) kind = 'pebbles'; else if (pick < 0.3 && dv > VOLCANO.r + 2) { kind = 'grass'; c.setHex(0xb9b27a); } else continue;
       } else if (df < FOREST.r + 6) {                                // forest floor: ferns, clover, darker grass
         kind = pick < 0.035 ? 'fern' : pick < 0.11 ? 'clover' : pick < 0.13 ? 'pebbles' : pick < 0.8 ? 'grass' : '';

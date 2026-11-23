@@ -1,5 +1,6 @@
 // The Quaternius pack (CC0): trees, bushes, plants, flowers, rocks, stepping stones,
-// a lantern, banners, fences. One file with all models + one texture atlas, built by
+// a lantern, banners, fences; since world step 3 also the hatchery's walls and roofs,
+// yard and camp props, and the farm's crops. One file with all models + one texture atlas, built by
 // tools/build-qnature.mjs (simplified, bark and wood baked into vertex colours).
 // A model = { name, geo, h, w, minY }. Its geometry has position, normal, uv (atlas)
 // and color (rgb = sRGB colour, a = 0 marks foliage that gets a tint when placed).

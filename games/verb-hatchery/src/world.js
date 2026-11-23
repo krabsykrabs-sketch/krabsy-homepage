@@ -1,6 +1,8 @@
 // The island: terrain (a height function, so the player needs no physics engine),
 // zones, nature (Quaternius trees / rocks / plants in the static batch), the home base with incubators
 // and pens, wild eggs with nests and light beams, locked-zone walls.
+// World step 3 added the island's shape: an irregular coast (coast), the Volcano's ridges and lava
+// streams, the Meadow's hill, the stream with its bridge, the lighthouse knoll, three tiny islands.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RARITY, MAX_PENS, MAX_INCUBATORS, ISLAND, HOME, ZONES } from './balance.js';
@@ -74,6 +76,78 @@ function beachProfile(x, z) {
   return 0.42 + 1.1 * smooth(12, 44, s) + smooth(15, 26, s) * 0.3 * Math.sin(x * 0.21 + 1) * Math.cos(z * 0.17); // low dunes behind
 }
 
+// ── world step 3: what gives the island its shape beyond the round stamps ──
+// The coast is not a circle: coast(x, z) = metres the sea reaches further in (+, a cove)
+// or the land further out (−, a headland / rocky bit). Behind the hatchery the land
+// always reaches out, so the house and the farm stand well inland.
+export function coast(x, z) {
+  const a = Math.atan2(z - ISLAND.cz, x - ISLAND.cx);
+  const n = 3.6 * Math.sin(3 * a + 0.6) + 2.6 * Math.sin(5 * a + 2.1) + 1.7 * Math.sin(8 * a + 4.4) + 1.0 * Math.sin(13 * a + 1.0);
+  let da = Math.abs(a - Math.PI / 2); if (da > Math.PI) da = 2 * Math.PI - da;
+  const m = 1 - smooth(0.55, 1.0, da);
+  return Math.max(-8, Math.min(5.5, n)) * (1 - m) - 5 * m;
+}
+// The Volcano's cone has ridges and gullies; lava runs down some of the gullies.
+const RIDGES = 7;
+const ridgeAt = (a) => Math.sin(a * RIDGES + 0.9 + 0.55 * Math.sin(a * 3 + 1.3)); // −1 = bottom of a gully, 1 = crest
+export const LAVA_RIM = 6;            // crater radius
+export const LAVA_ANGLES = (() => {   // the gullies that carry lava (those facing the island, not the open sea)
+  const out = [];
+  for (let i = 0; i < 720; i++) {
+    const a = (i / 720) * Math.PI * 2, v = ridgeAt(a);
+    if (v < ridgeAt(a - 0.0087) && v <= ridgeAt(a + 0.0087) && v < -0.9) out.push(a);
+  }
+  return out.filter((a) => Math.sin(a) > -0.35); // (z grows towards home: sin > 0 = the side you see)
+})();
+// a lava stream's centre line: [x, z] at `d` metres from the crater's middle
+export const lavaPoint = (k, d) => { const a = LAVA_ANGLES[k] + 0.07 * Math.sin(d * 0.33 + k * 2.1) * smooth(7, 12, d); return [VOLCANO.x + Math.cos(a) * d, VOLCANO.z + Math.sin(a) * d]; };
+export const LAVA_END = VOLCANO.r + 4; // where the streams cool and stop
+// The Meadow's landmarks: a hill with one huge tree; a stream from the pond to the sea
+// with a stone bridge; a scarecrow field beyond the bridge; a ruin near the stone circle.
+export const CAMP = { x: FOREST.x + 12, z: FOREST.z + 16 }; // the Forest camp's clearing
+export const HILL = { x: 36, z: -37, r: 20, h: 5.2 };
+export const FIELD = { x: 82, z: 41 };
+export const RUIN = { x: -57, z: 37 };
+// the stream's centre line (a smooth curve through a few points), pond → sea
+export const STREAM = (() => {
+  const P = [[38, 20], [44.5, 27.5], [52, 37], [58, 48], [68, 59], [78, 72], [85, 82]], out = [];
+  for (let i = 1; i < P.length - 2; i++) for (let k = 0; k < 6; k++) {
+    const t = k / 6, a = P[i - 1], b = P[i], c = P[i + 1], d = P[i + 2];
+    out.push([0, 1].map((j) => 0.5 * (2 * b[j] + (c[j] - a[j]) * t + (2 * a[j] - 5 * b[j] + 4 * c[j] - d[j]) * t * t + (3 * b[j] - a[j] - 3 * c[j] + d[j]) * t * t * t)));
+  }
+  out.push(P[P.length - 2]);
+  let L = 0; const len = [0];
+  for (let i = 1; i < out.length; i++) { L += Math.hypot(out[i][0] - out[i - 1][0], out[i][1] - out[i - 1][1]); len.push(L); }
+  return { pts: out, len, L };
+})();
+// → [distance to the stream's centre line, 0…1 along it]
+export function streamAt(x, z) {
+  if (x < 34 || x > 92 || z < 16 || z > 86) return [99, 0];
+  let best = 1e9, bt = 0; const { pts, len, L } = STREAM;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], dx = b[0] - a[0], dz = b[1] - a[1], LL = dx * dx + dz * dz;
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / LL)), d = Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t);
+    if (d < best) { best = d; bt = (len[i - 1] + (len[i] - len[i - 1]) * t) / L; }
+  }
+  return [best, bt];
+}
+// the stream's water level at t (0 = pond, 1 = sea) and how deep it is
+export const streamLevel = (t) => POND.water + (WATER_Y + 0.12 - POND.water) * Math.pow(t, 0.85);
+export const STREAM_DEPTH = 0.34; // (ankle-deep: you can wade through anywhere)
+// A stone bridge over the stream (walkable: part of height(), like the pier).
+export const BRIDGE = (() => {
+  const { pts } = STREAM, i = 15, c = pts[i], dx = pts[i + 1][0] - pts[i - 1][0], dz = pts[i + 1][1] - pts[i - 1][1], L = Math.hypot(dx, dz);
+  return { x: c[0], z: c[1], ux: -dz / L, uz: dx / L, len: 15, half: 1.7 }; // (ux, uz) = along the bridge, across the stream
+})();
+export function bridgeLocal(x, z) { const dx = x - BRIDGE.x, dz = z - BRIDGE.z; return [dx * BRIDGE.ux + dz * BRIDGE.uz, -dx * BRIDGE.uz + dz * BRIDGE.ux]; }
+export const onBridge = (x, z) => { if (Math.abs(x - BRIDGE.x) > 9 || Math.abs(z - BRIDGE.z) > 9) return false; const [a, b] = bridgeLocal(x, z); return Math.abs(a) <= BRIDGE.len / 2 && Math.abs(b) <= BRIDGE.half; };
+export const bridgeTop = (a) => { const t = a / (BRIDGE.len / 2); return BRIDGE.y0 + (BRIDGE.y1 - BRIDGE.y0) * (t + 1) / 2 + BRIDGE.rise * (1 - t * t); };
+// The lighthouse stands on a rocky knoll on the Beach's north headland.
+export const LIGHT = (() => { const [x, z] = bayPoint(-1.3, 8.5); return { x, z, r: 11, h: 3.0 }; })();
+// Three tiny islands off the coast (not reachable: deep water in between). r = where the
+// sea floor starts to rise; what shows above the water is a little under half of that.
+export const ISLETS = [{ x: -98, z: -118, r: 19, h: 2.6 }, { x: -97, z: 79, r: 17, h: 2.2 }, { x: 106, z: 82, r: 14, h: 2.0 }];
+
 // Slow noise for the ground colours (−1 … 1): [meadow patches, ragged zone edges, forest litter]
 export function groundNoise(x, z) {
   return [
@@ -94,10 +168,20 @@ export function terrainH(x, z) {
   const df = dist(x, z, FOREST.x, FOREST.z);
   h += (1 - smooth(FOREST.r * 0.6, FOREST.r + 8, df)) * (1.6 + 1.4 * Math.sin(x * 0.13) * Math.sin(z * 0.15));
   // volcano: a cone with a crater
+  // (a rough cone: ridges and gullies run down from the crater, a little bumpy all over;
+  // the gullies that carry lava cut a notch into the crater's rim)
   const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
   const cone = Math.max(0, 1 - dv / (VOLCANO.r + 8));
-  h += 24 * Math.pow(cone, 1.6);
-  if (dv < 6) h -= (6 - dv) * 1.4;
+  if (cone > 0) {
+    const va = Math.atan2(z - VOLCANO.z, x - VOLCANO.x), rg = ridgeAt(va);
+    const rough = 1 + (0.24 * rg + 0.07 * Math.sin(x * 0.52 + 1) * Math.sin(z * 0.58 + 2)) * smooth(5, 14, dv);
+    h += 24 * Math.pow(cone, 1.6) * rough;
+    if (dv < LAVA_RIM) h -= (LAVA_RIM - dv) * 2.1; // the crater (the cone itself rises about 1 m per metre here)
+    else if (dv < 11) for (const la of LAVA_ANGLES) { let da = Math.abs(va - la); if (da > Math.PI) da = 2 * Math.PI - da; h -= 1.5 * (1 - smooth(0, 0.3, da)) * (1 - smooth(LAVA_RIM, 11, dv)); }
+  }
+  // the meadow's hill with the giant tree
+  const dhl = dist(x, z, HILL.x, HILL.z);
+  if (dhl < HILL.r) h += HILL.h * (1 - smooth(1.5, HILL.r, dhl));
   // home: flat
   const dh = dist(x, z, HOME.x, HOME.z);
   const home = 1 - smooth(20, 30, dh);
@@ -106,8 +190,15 @@ export function terrainH(x, z) {
   // (its floor stays above the sea level, so the sea mesh never shows through)
   const pd = pondD(x, z);
   if (pd < POND.r + 3) { const k = smooth(POND.r * 0.6, POND.r + 3, pd); h = h * k + (WATER_Y + 0.15) * (1 - k); }
-  // island edge: down into the sea
-  h -= smooth(ISLAND.r - 18, ISLAND.r + 6, d) * 6;
+  // island edge: down into the sea (coves and headlands, see coast())
+  if (d > ISLAND.r - 30) h -= smooth(ISLAND.r - 18, ISLAND.r + 6, d + coast(x, z)) * 6;
+  // the stream from the pond to the sea: a shallow bed in a gentle valley
+  const [sd, st] = streamAt(x, z);
+  if (sd < 11.5) {
+    const bed = streamLevel(st) - STREAM_DEPTH;
+    // (the bed is flat for 3 m each side: the terrain mesh is a 2 m grid and has to catch it)
+    if (h > bed) h = bed + (h - bed) * smooth(3.0, 10.5, sd + 0.5 * Math.sin(x * 0.4 + z * 0.3));
+  }
   // the beach and its bay replace all of that on the east coast
   const w = beachW(x, z);
   if (w > 0) {
@@ -117,19 +208,46 @@ export function terrainH(x, z) {
     const isl = 1 - smooth(2, ISLET.r + 1.5, dist(x, z, ISLET.x, ISLET.z));          // the islet
     h = Math.max(h, h + (0.8 - h) * isl);
   }
+  // the lighthouse knoll, and the tiny islands out at sea
+  const dl = dist(x, z, LIGHT.x, LIGHT.z);
+  if (dl < LIGHT.r) h = Math.max(h, h + (LIGHT.h - h) * (1 - smooth(3, LIGHT.r, dl)));
+  if (d > ISLAND.r) for (const I of ISLETS) {
+    const di = dist(x, z, I.x, I.z);
+    if (di < I.r) h = Math.max(h, h + (I.h - h) * (1 - smooth(1.5, I.r, di + 1.2 * Math.sin(x * 0.5) * Math.cos(z * 0.45))));
+  }
   return h;
+}
+// The ground as it is drawn: the terrain mesh is a 2 m grid of triangles, and on rough
+// ground (the Volcano's ridges) the smooth function above and the mesh differ by a few
+// decimetres. Everything that stands on the ground uses the mesh's own height, so feet,
+// eggs and props touch what you see. (The grid is filled on first use.)
+export const TGRID = { size: 300, seg: 150 };
+let tgrid = null;
+export function groundH(x, z) {
+  const { size, seg } = TGRID, step = size / seg, n = seg + 1;
+  const fx = (x - ISLAND.cx + size / 2) / step, fz = (z - ISLAND.cz + size / 2) / step;
+  if (!(fx >= 0 && fz >= 0 && fx < seg && fz < seg)) return terrainH(x, z);
+  if (!tgrid) { tgrid = new Float32Array(n * n); for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) tgrid[j * n + i] = terrainH(ISLAND.cx - size / 2 + i * step, ISLAND.cz - size / 2 + j * step); }
+  const ix = Math.floor(fx), iz = Math.floor(fz), u = fx - ix, v = fz - iz, k = iz * n + ix;
+  const a = tgrid[k], b = tgrid[k + n], c = tgrid[k + n + 1], dd = tgrid[k + 1]; // PlaneGeometry: triangles (a, b, d) and (b, c, d)
+  return u + v <= 1 ? a + u * (dd - a) + v * (b - a) : c + (1 - u) * (b - c) + (1 - v) * (dd - c);
 }
 export function onPier(x, z) {
   const [a, b] = pierLocal(x, z);
   return a >= 0 && a <= PIER.len && Math.abs(b) <= (a > PIER.len - PIER.headLen ? PIER.headHalf : PIER.half);
 }
 export function height(x, z) {
-  const h = terrainH(x, z);
+  const h = groundH(x, z);
+  if (onBridge(x, z)) return Math.max(h, bridgeTop(bridgeLocal(x, z)[0]));
   if (!onPier(x, z)) return h;
   const [a] = pierLocal(x, z);
   return Math.max(h, PIER.y0 + (PIER.top - PIER.y0) * smooth(0, PIER.ramp, a));
 }
 PIER.y0 = terrainH(PIER.x0, PIER.z0); // the pier starts level with the sand
+{ // the bridge's ends lie on the banks, its middle arches over the water
+  const e = (s) => groundH(BRIDGE.x + BRIDGE.ux * s * BRIDGE.len / 2, BRIDGE.z + BRIDGE.uz * s * BRIDGE.len / 2);
+  BRIDGE.y0 = e(-1) + 0.05; BRIDGE.y1 = e(1) + 0.05; BRIDGE.rise = 1.0;
+}
 // Distance to the shore (metres, > 0 = in the water) of water standing at `level`:
 // ≈ depth / slope; on flat shallows (sandbar, pond floor) the depth alone.
 function shoreDist(x, z, level) {
@@ -266,11 +384,20 @@ export const PEN_POS = Array.from({ length: MAX_PENS }, (_, i) => {
   return new THREE.Vector3(HOME.x - 11 + col * 4.4, HY, HOME.z + 3.5 + row * 4.4);
 });
 export const SPAWN = new THREE.Vector3(HOME.x, HY, HOME.z - 17);
+// The hatchery building (decor.js builds it; kit walls are 2 m wide and 3.1 m high).
+// hall: a long house behind the deck, ridge along x; tower: on its east end, a little forward.
+export const HATCHERY = {
+  y: HY, wallH: 3.1,
+  hall: { x: HOME.x, z: HOME.z + 19.6, w: 14, d: 8 },
+  tower: { x: HOME.x + 9, z: HOME.z + 16.1, floors: 3 },
+  sign: { w: 8.4, y: HY + 5.0, z: HOME.z + 14.6 },
+};
 
 // Sky colours and where the sun stands: in the west-south-west, about 37° up. You
 // see it over the Forest; what you look at on the way out from home is lit, not in shade.
 const SKY = { top: 0x3f97ea, horizon: 0xcfeeff, sun: 0xfff6d8 };
 const SUN_DIR = new THREE.Vector3(-48, 42, 30).normalize();
+const HAZE = { forest: new THREE.Color(0xb9e3a4), forestTop: new THREE.Color(0x7fc7a0), volcano: new THREE.Color(0xf0c9a8) };
 
 export class World {
   constructor(canvas) {
@@ -284,6 +411,7 @@ export class World {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(SKY.horizon);
     this.scene.fog = new THREE.Fog(SKY.horizon, 70, 190); // the fog is the horizon colour, so land and sea fade into the sky
+    this._hazeK = [0, 0];
     this.batch = new StaticBatch(this.scene); // everything that never moves (see merge.js)
     this.camera = new THREE.PerspectiveCamera(70, 1, 0.1, 400);
     this.scene.add(this.camera);
@@ -338,6 +466,19 @@ export class World {
     sky.frustumCulled = false; sky.renderOrder = 1000; // after the opaque world: only the free pixels are shaded
     this.scene.add(sky); this.sky = sky;
   }
+  // Haze: deep in the Forest the air turns green and close (you see about 60 m), on the
+  // Volcano's slope it is warm and dusty. Only the fog and the horizon colour change,
+  // smoothly with how far in the player is: no extra drawing.
+  _haze() {
+    const p = this.sun.target.position, K = this._hazeK;
+    const f = 1 - smooth(FOREST.r * 0.5, FOREST.r + 8, dist(p.x, p.z, FOREST.x, FOREST.z)), v = 1 - smooth(VOLCANO.r * 0.45, VOLCANO.r + 10, dist(p.x, p.z, VOLCANO.x, VOLCANO.z));
+    K[0] += (f - K[0]) * 0.04; K[1] += (v - K[1]) * 0.04;
+    const fog = this.scene.fog;
+    fog.color.setHex(SKY.horizon).lerp(HAZE.forest, K[0] * 0.85).lerp(HAZE.volcano, K[1] * 0.7);
+    fog.near = 70 - 58 * K[0] - 40 * K[1]; fog.far = 190 - 112 * K[0] - 70 * K[1];
+    this.sky.material.uniforms.uHorizon.value.copy(fog.color);
+    this.sky.material.uniforms.uTop.value.setHex(SKY.top).lerp(HAZE.forestTop, K[0] * 0.5).lerp(HAZE.volcano, K[1] * 0.35);
+  }
   // shadows follow the player
   followSun(p) {
     this.sun.position.copy(p).add(this.sunOffset);
@@ -345,7 +486,7 @@ export class World {
   }
 
   _terrain() {
-    const size = 300, seg = 150;
+    const { size, seg } = TGRID;
     const g = new THREE.PlaneGeometry(size, size, seg, seg).rotateX(-Math.PI / 2);
     g.translate(ISLAND.cx, 0, ISLAND.cz);
     const p = g.attributes.position;
@@ -356,7 +497,10 @@ export class World {
       SA2 = new THREE.Color(0xf7e3b4), WET = new THREE.Color(0xd3b47e), FLOOR = new THREE.Color(0xe6e0b8), PFLOOR = new THREE.Color(0xcfe3bd),
       MOSS = new THREE.Color(0x3f8f45), MOSS2 = new THREE.Color(0x57983c), LITTER = new THREE.Color(0x7d8a45),
       DRY = new THREE.Color(0xc6cf62), DRY2 = new THREE.Color(0xd8cf6e), LUSH = new THREE.Color(0x63c063),
-      ASH = new THREE.Color(0x9c9791), ASH2 = new THREE.Color(0x7d7673);
+      ASH = new THREE.Color(0x9c9791), ASH2 = new THREE.Color(0x7d7673),
+      BED = new THREE.Color(0x58b3b4), CLIFF = new THREE.Color(0x8f8d86), CLIFF2 = new THREE.Color(0x77756f), STRAW = new THREE.Color(0xd9bf62), FLAG = new THREE.Color(0xa9a79c),
+      SCORCH = new THREE.Color(0x2a1d1d), GLOW = new THREE.Color().setRGB(3.4, 0.85, 0.12); // (over 1: it glows in the sun's shade too)
+    const dIsl = (x, z) => dist(x, z, ISLAND.cx, ISLAND.cz);
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), h = terrainH(x, z);
       p.setY(i, onDeck(x, z) ? h - 0.15 : h);
@@ -382,7 +526,34 @@ export class World {
       const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
       c.lerp(tmp.copy(ASH).lerp(ASH2, n), 1 - smooth(VOLCANO.r + 9 + n2 * 5, VOLCANO.r + 17 + n2 * 7, dv));
       c.lerp(tmp.copy(RO).lerp(LA, n), 1 - smooth(VOLCANO.r * 0.55, VOLCANO.r + 8, dv));
+      // lighter rock on the ridges' crests, darker in the gullies
+      if (dv < VOLCANO.r + 6) c.multiplyScalar(1 + 0.22 * ridgeAt(Math.atan2(z - VOLCANO.z, x - VOLCANO.x)) * smooth(5, 12, dv));
+      // lava: the crater glows, and so does the rock beside each lava stream (scorched black at its edge)
+      if (dv < LAVA_END + 2) {
+        if (dv < LAVA_RIM + 1) c.lerp(GLOW, (1 - smooth(LAVA_RIM - 2.5, LAVA_RIM + 1, dv)) * 0.8);
+        for (let k = 0; k < LAVA_ANGLES.length; k++) {
+          const [lx, lz] = lavaPoint(k, dv), dl = dist(x, z, lx, lz), fade = 1 - smooth(LAVA_END - 9, LAVA_END + 1, dv);
+          if (dl > 6) continue;
+          c.lerp(SCORCH, (1 - smooth(1.5, 5.5, dl)) * 0.55 * fade);
+          c.lerp(GLOW, (1 - smooth(0.2, 3.0, dl)) * 0.7 * fade);
+        }
+      }
       if (h < 0.5) c.lerp(SA, smooth(0.5, -0.2, h));
+      // the coast: wide sand in the coves, grey rock on the headlands
+      const di = dIsl(x, z);
+      if (di > ISLAND.r - 26 && di < ISLAND.r + 8 && beachW(x, z) < 0.5) {
+        // (only the strip along the water: di + cv is about ISLAND.r − 7 at the waterline)
+        const cv = coast(x, z), wB = 1 - smooth(0.1, 0.5, beachW(x, z)), strip = smooth(ISLAND.r - 17, ISLAND.r - 11, di + cv + n2 * 1.5);
+        c.lerp(tmp.copy(SA).lerp(SA2, n), smooth(1.5, 4, cv) * smooth(1.7, 0.8, h) * wB * smooth(ISLAND.r - 20, ISLAND.r - 14, di + cv));
+        c.lerp(tmp.copy(CLIFF).lerp(CLIFF2, n), smooth(-2.2, -4.2, cv) * smooth(-1.6, -0.5, h) * wB * strip * 0.9);
+      }
+      // the lighthouse's knoll is rock too
+      const dlh = dist(x, z, LIGHT.x, LIGHT.z);
+      if (dlh < LIGHT.r) c.lerp(tmp.copy(CLIFF).lerp(CLIFF2, n), (1 - smooth(4.5, LIGHT.r - 1, dlh + n2 * 1.5)) * 0.92);
+      // the camp's clearing, the wheat field, the ruin's old floor
+      c.lerp(DI, (1 - smooth(4, 9, dist(x, z, CAMP.x, CAMP.z) + n2 * 1.2)) * 0.55);
+      c.lerp(STRAW, (1 - smooth(6.5, 10.5, Math.max(Math.abs(x - FIELD.x) * 0.8, Math.abs(z - FIELD.z)) + n2)) * 0.6);
+      c.lerp(FLAG, (1 - smooth(3.5, 8, dist(x, z, RUIN.x, RUIN.z) + n2 * 1.5)) * 0.5);
       const dh = dist(x, z, HOME.x, HOME.z);
       if (dh < 24) c.lerp(DI, (1 - smooth(16, 24, dh)) * 0.35);
       // dirt paths (a little noisy at the edge), pond banks
@@ -394,8 +565,16 @@ export class World {
         c.lerp(WET, smooth(POND.water + 0.3, POND.water, h) * 0.8);
         c.lerp(PFLOOR, smooth(POND.water - 0.05, POND.water - 0.5, h));
       }
+      // the stream: a pebbly bank and a pale bed
+      const [sd, st] = streamAt(x, z);
+      if (sd < 7.5 && pdd > POND.r - 1) {
+        const lv = streamLevel(st);
+        c.lerp(SA, (1 - smooth(4.2, 6.6, sd + n2 * 0.6)) * 0.85);
+        c.lerp(WET, smooth(lv + 0.35, lv, h) * 0.7);
+        c.lerp(BED, smooth(lv - 0.02, lv - 0.24, h) * 0.85); // (a blue-green bed: the shallow water over it reads as water, not as wet sand)
+      }
       // the shore: wet sand at the waterline, pale sea floor under the shallows
-      if (h < WATER_Y + 0.5 && dp(x, z) > POND.r + 4) {
+      if (h < WATER_Y + 0.5 && dp(x, z) > POND.r + 4 && !(sd < 4 && st < 0.8)) {
         c.lerp(WET, smooth(WATER_Y + 0.5, WATER_Y + 0.12, h));
         c.lerp(FLOOR, smooth(WATER_Y - 0.1, WATER_Y - 1.2, h));
       }
@@ -406,13 +585,47 @@ export class World {
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, flatShading: true }));
     m.receiveShadow = true;
     this.scene.add(m); this.terrain = m; this._terrainGrid = { size, seg };
-    // lava in the crater
-    const lava = new THREE.Mesh(new THREE.CircleGeometry(5.5, 24).rotateX(-Math.PI / 2),
-      new THREE.MeshBasicMaterial({ color: 0xff6a2a }));
-    lava.position.set(VOLCANO.x, height(VOLCANO.x, VOLCANO.z) + 1.2, VOLCANO.z);
+    // lava: the crater's pool and the streams that run down the gullies, one mesh. A small
+    // texture of bright and dark blotches drifts downhill (see update), so the lava flows.
+    const lavaY = Math.min(...LAVA_ANGLES.map((a) => groundH(VOLCANO.x + Math.cos(a) * (LAVA_RIM + 0.4), VOLCANO.z + Math.sin(a) * (LAVA_RIM + 0.4)))) + 0.1;
+    this.lavaY = lavaY;
+    const lp = [], luv = [], lc = [], li = [];
+    const lv = (x, y, z, u, v, hot) => { lp.push(x - VOLCANO.x, y, z - VOLCANO.z); luv.push(u, v); lc.push(hot, hot * (0.55 + 0.35 * hot), hot * 0.5); return lp.length / 3 - 1; };
+    { // the pool (a fan; its edge disappears in the crater's wall)
+      const c0 = lv(VOLCANO.x, lavaY, VOLCANO.z, 0.5, 0.5, 1);
+      for (let k = 0; k <= 20; k++) { const a = (k / 20) * Math.PI * 2; lv(VOLCANO.x + Math.cos(a) * 6.6, lavaY, VOLCANO.z + Math.sin(a) * 6.6, 0.5 + Math.cos(a) * 0.9, 0.5 + Math.sin(a) * 0.9, 0.9); if (k) li.push(c0, c0 + k + 1, c0 + k); }
+    }
+    for (let k = 0; k < LAVA_ANGLES.length; k++) {
+      let prev = null;
+      for (let d = LAVA_RIM - 1.4; d <= LAVA_END + 0.01; d += 0.8) {
+        const [x, z] = lavaPoint(k, d), [x2, z2] = lavaPoint(k, d + 0.4), L = Math.hypot(x2 - x, z2 - z), nx = -(z2 - z) / L, nz = (x2 - x) / L;
+        const end = 1 - smooth(LAVA_END - 7, LAVA_END, d), w = (0.5 + 0.55 * smooth(LAVA_RIM, 16, d) + 0.25 * Math.sin(d * 0.9 + k)) * (0.25 + 0.75 * end);
+        const y = (px, pz) => Math.max(groundH(px, pz), d < LAVA_RIM + 0.5 ? lavaY - 0.12 : -99) + 0.11;
+        const row = [lv(x + nx * w, y(x + nx * w, z + nz * w), z + nz * w, 0, d / 3.2, 0.72 * (0.5 + 0.5 * end)), lv(x, y(x, z) + 0.04, z, 0.5, d / 3.2, 0.55 + 0.45 * end), lv(x - nx * w, y(x - nx * w, z - nz * w), z - nz * w, 1, d / 3.2, 0.72 * (0.5 + 0.5 * end))];
+        if (prev) for (let j = 0; j < 2; j++) li.push(prev[j], row[j], prev[j + 1], prev[j + 1], row[j], row[j + 1]);
+        prev = row;
+      }
+    }
+    const lg = new THREE.BufferGeometry();
+    lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3)); lg.setAttribute('uv', new THREE.Float32BufferAttribute(luv, 2));
+    lg.setAttribute('color', new THREE.Float32BufferAttribute(lc, 3)); lg.setIndex(li);
+    const lt = (() => {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 64; const x = cv.getContext('2d');
+      x.fillStyle = '#ff7a1c'; x.fillRect(0, 0, 64, 64);
+      for (let i = 0; i < 46; i++) { // bright veins and dark crust, wrapped at the edges
+        const px = (i * 37) % 64, py = (i * 23 + (i % 5) * 9) % 64, r = 3 + (i % 4) * 2;
+        x.fillStyle = i % 3 === 0 ? 'rgba(120,30,10,.55)' : i % 3 === 1 ? 'rgba(255,214,90,.75)' : 'rgba(255,150,40,.6)';
+        for (const [ox, oy] of [[0, 0], [64, 0], [-64, 0], [0, 64], [0, -64]]) { x.beginPath(); x.ellipse(px + ox, py + oy, r * 0.6, r * 1.6, 0, 0, 6.3); x.fill(); }
+      }
+      const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+    })();
+    const lava = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ map: lt, vertexColors: true, side: THREE.DoubleSide, toneMapped: false }));
+    lava.material.color.setRGB(1.5, 1.25, 1.1); // (hotter than white: stays bright through the tone mapping's absence and the fog)
+    lava.position.set(VOLCANO.x, 0, VOLCANO.z);
     this.scene.add(lava); this.lava = lava;
+    this.addCollider(VOLCANO.x, VOLCANO.z, 4.3); // nobody walks (and no egg lies) in the lava pool
     const lavaGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xff7a30, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.8 }));
-    lavaGlow.scale.setScalar(26); lavaGlow.position.copy(lava.position).add(new THREE.Vector3(0, 3, 0));
+    lavaGlow.scale.setScalar(26); lavaGlow.position.set(VOLCANO.x, lavaY + 3, VOLCANO.z);
     this.scene.add(lavaGlow); this.lavaGlow = lavaGlow;
   }
 
@@ -450,6 +663,20 @@ export class World {
     for (let k = 0; k < segs; k++) {
       idx.push(0, at(1, k + 1), at(1, k));
       for (let r = 1; r < rings; r++) idx.push(at(r, k), at(r, k + 1), at(r + 1, k), at(r, k + 1), at(r + 1, k + 1), at(r + 1, k));
+    }
+    // the stream to the sea: a ribbon along its centre line, sloping down with the bed
+    // (same mesh and shader as the pond; y is relative to the pond's level)
+    {
+      const { pts, len, L } = STREAM, W = [-5, -2.5, 0, 2.5, 5];
+      let prev = -1;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dl = Math.hypot(b[0] - a[0], b[1] - a[1]), nx = -(b[1] - a[1]) / dl, nz = (b[0] - a[0]) / dl;
+        const lv = streamLevel(len[i] / L), first = pos.length / 3;
+        // (distance to the bank, set by hand: a thin foam line where the water meets the banks, clear water in between)
+        W.forEach((w, j) => { pos.push(pts[i][0] + nx * w, lv - POND.water, pts[i][1] + nz * w); shore.push([-1.6, 2.4, 5, 2.4, -1.6][j]); });
+        if (prev >= 0) for (let j = 0; j < W.length - 1; j++) idx.push(prev + j, first + j, prev + j + 1, prev + j + 1, first + j, first + j + 1);
+        prev = first;
+      }
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -522,15 +749,31 @@ export class World {
       [0.4, DECK.z1 - DECK.z0, DECK.x0, (DECK.z0 + DECK.z1) / 2], [0.4, DECK.z1 - DECK.z0, DECK.x1, (DECK.z0 + DECK.z1) / 2]]) {
       B.addPainted(pbox(w, 0.36, d, COL.woodDark, x, HY - 0.16, z), H.x, H.z);
     }
-    // house behind
-    const hx = H.x, hz = H.z + 17;
-    B.addPainted(pbox(10, 5, 6, COL.wall, hx, HY + 2.5, hz), H.x, H.z);
-    B.addPainted(paint(new THREE.ConeGeometry(7.8, 3.5, 4), COL.coral, true).rotateY(Math.PI / 4).scale(1, 1, 0.62).translate(hx, HY + 6.7, hz), H.x, H.z);
-    B.addPainted(pbox(2, 3, 0.2, COL.woodDark, hx, HY + 1.5, hz - 3.05), H.x, H.z);
-    this.addBoxCollider(hx, hz, 10, 6);
-    // sign "Hatchery"
-    const sign = this._textSprite('🥚 Krabsy Hatchery', '#ffcf5e', '#0d2240', 512);
-    sign.position.set(hx, HY + 9.4, hz); sign.scale.set(8, 2, 1); s.add(sign);
+    // The hatchery building behind the deck (hall + tower) is built in decor.js from the
+    // Quaternius village kit, once the pack is loaded. Its footprint is solid from the start:
+    const { hall: HL, tower: TW } = HATCHERY;
+    for (let i = 0; i < 6; i++) for (const dz of [-2, 2]) this.addCollider(HL.x - 5 + i * 2, HL.z + dz, 2.25);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) this.addCollider(HL.x + sx * (HL.w / 2 - 1), HL.z + sz * (HL.d / 2 - 1), 1.0);
+    this.addCollider(TW.x, TW.z, 2.2);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) this.addCollider(TW.x + sx * 1.3, TW.z + sz * 1.3, 0.75);
+    // the big sign board in front of the hall (a plank board on two posts; the posts are in decor.js)
+    {
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+      const x = c.getContext('2d');
+      x.fillStyle = '#7a4a26'; x.beginPath(); x.roundRect(0, 0, 1024, 256, 26); x.fill();
+      x.fillStyle = '#ffcf5e'; x.beginPath(); x.roundRect(14, 14, 996, 228, 18); x.fill();
+      x.strokeStyle = 'rgba(122,74,38,.35)'; x.lineWidth = 3; for (const y of [90, 168]) { x.beginPath(); x.moveTo(14, y); x.lineTo(1010, y); x.stroke(); }
+      const text = () => { x.fillStyle = '#0d2240'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        let px = 124; do { px -= 4; x.font = `${px}px 'Fredoka One', sans-serif`; } while (x.measureText('🥚 Krabsy Hatchery').width > 930 && px > 40);
+        x.fillText('🥚 Krabsy Hatchery', 512, 134); };
+      text();
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(HATCHERY.sign.w, HATCHERY.sign.w / 4), new THREE.MeshLambertMaterial({ map: t }));
+      sign.position.set(HL.x, HATCHERY.sign.y, HATCHERY.sign.z - 0.09); sign.rotation.y = Math.PI; // faces the yard (north)
+      s.add(sign); this.sign = sign;
+      // (the canvas is drawn before the web font may be ready: draw the text again when it is)
+      document.fonts?.ready.then(() => { x.fillStyle = '#ffcf5e'; x.fillRect(30, 30, 964, 196); text(); t.needsUpdate = true; });
+    }
     // egg pad
     B.addPainted(pcyl(2.4, 2.6, 0.25, COL.teal, PAD.x, HY + 0.05, PAD.z, 32), H.x, H.z);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.12, 8, 40).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffffff }));
@@ -633,6 +876,8 @@ export class World {
       if (!beachOk && (beachW(x, z) > 0.4 || dist(x, z, BEACH.x, BEACH.z) < BEACH.r + 3)) return false;
       if (dist(x, z, HOME.x, HOME.z) < 26) return false;
       if (pathDist(x, z) < 4.4 || dist(x, z, POND.x, POND.z) < POND.r + 3) return false; // (a circle: wider than the water anywhere)
+      if (streamAt(x, z)[0] < 7 || onBridge(x, z)) return false;
+      if (dist(x, z, VOLCANO.x, VOLCANO.z) < VOLCANO.r + 6 && LAVA_ANGLES.some((_, k) => { const [lx, lz] = lavaPoint(k, dist(x, z, VOLCANO.x, VOLCANO.z)); return dist(x, z, lx, lz) < 3.2; })) return false; // not in the lava
       if (this.reserved && this.reserved.some((r) => dist(x, z, r[0], r[1]) < r[2])) return false;
       for (const zz of ZONES) if (zz.r && Math.abs(dist(x, z, zz.x, zz.z) - zz.r) < 2.5) return false; // keep walls clear
       return !place.some((p) => dist(x, z, p[1], p[2]) < Math.max(rr, p[7] || 0));
@@ -677,6 +922,28 @@ export class World {
     // volcano: dead trees and dark, mossless rocks on the ash
     add([1, 2, 3, 4, 5].map((i) => [`DeadTree_${i}`, 0.5, 0.75]), 24, VOLCANO.x, VOLCANO.z, VOLCANO.r + 5, { gap: 5 });
     add(rocks.map(([n, s, c]) => [n, s * 1.25, c]), 30, VOLCANO.x, VOLCANO.z, VOLCANO.r + 7, { gap: 5, sink: 0.3, mul: 0xb9aaa6 });
+    // ── world step 3 ──
+    // big dark boulders on the Volcano's ridges (light models: they are seen from afar)
+    const lo = [1, 2, 3].map((i) => [`Rock_Lo_${i}`, 1, 1.3]);
+    add(lo.map(([n, , c]) => [n, 1.9, c]), 9, VOLCANO.x, VOLCANO.z, VOLCANO.r + 2, { gap: 9, sink: 0.3, mul: 0x7d7170,
+      ok: (x, z, d) => (d > 9 && ridgeAt(Math.atan2(z - VOLCANO.z, x - VOLCANO.x)) > 0.55 ? 1 : 0) });
+    // the Meadow's hill: one huge old tree on top
+    place.push(['TwistedTree_Big', HILL.x, HILL.z, 1.5, 2.4, 1.7, { tint: 0x5fa945 }, 9]);
+    // rocky bits of the coast: boulders along the waterline of every headland, some standing in the water
+    {
+      const RC = rng('coast');
+      for (let a = 0; a < Math.PI * 2; a += 0.035) {
+        const cx = Math.cos(a), cz = Math.sin(a);
+        if (coast(ISLAND.cx + cx * ISLAND.r, ISLAND.cz + cz * ISLAND.r) > -2.4 || RC() < 0.42) continue;
+        let r0 = ISLAND.r - 26; while (r0 < ISLAND.r + 12 && terrainH(ISLAND.cx + cx * r0, ISLAND.cz + cz * r0) > WATER_Y + 0.15) r0 += 0.5; // the waterline
+        const r = r0 - 3.5 + RC() * 6, x = ISLAND.cx + cx * r, z = ISLAND.cz + cz * r;
+        if (beachW(x, z) > 0.02 || streamAt(x, z)[0] < 7 || dist(x, z, LIGHT.x, LIGHT.z) < LIGHT.r || terrainH(x, z) < WATER_Y - 1.3) continue;
+        if (ZONES.some((zz) => zz.r && Math.abs(dist(x, z, zz.x, zz.z) - zz.r) < 3)) continue;
+        if (place.some((p) => dist(x, z, p[1], p[2]) < 2.6)) continue;
+        const s = 0.7 + RC() * RC() * 1.5;
+        place.push([`Rock_Lo_${1 + Math.floor(RC() * 3)}`, x, z, s, RC() * 6.28, 1.3 * s, { sink: 0.22, mul: [0xe6e2d8, 0xd6d2c8, 0xf2eee4][Math.floor(RC() * 3)] }]);
+      }
+    }
     // everything goes into the static batch (merged per cell, see merge.js)
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
     let tris = 0;
@@ -687,10 +954,17 @@ export class World {
       tris += model.geo.index.count / 3;
     }
     for (const p of place) if (p[5] > 0) this.addCollider(p[1], p[2], p[5]);
-    this.decorCount = place.length; this.decorTris = tris;
+    this.decorCount = place.length; this.decorTris = tris; this.coastRocks = place.filter((p) => p[0].startsWith('Rock_Lo')).length; // (for QA)
     // grass and small plants near the player (the sun's target is the player, see followSun)
     this.cover = new GroundCover(this);
     this.animators.push(() => this.cover.update(this.sun.target.position));
+  }
+
+  // Places where no egg should lie although you can walk there: in a lava stream, on the bridge.
+  noEggSpot(x, z) {
+    if (onBridge(x, z)) return true;
+    const dv = dist(x, z, VOLCANO.x, VOLCANO.z);
+    return dv < LAVA_END + 1 && LAVA_ANGLES.some((_, k) => { const [lx, lz] = lavaPoint(k, dv); return dist(x, z, lx, lz) < 2.4; });
   }
 
   // ── colliders (circles in a grid) ──
@@ -829,7 +1103,9 @@ export class World {
     this.padSign.visible = !!this.wantPadSign && this.camera.position.distanceTo(this.padSign.position) > 7;
     this.waterTime.value = this.time;
     this.water.position.y = WATER_Y + Math.sin(this.time * 0.9) * 0.03; // the sea laps at the sand
-    this.lava.material.color.setHSL(0.05 + Math.sin(this.time * 1.5) * 0.01, 1, 0.55 + Math.sin(this.time * 2) * 0.05);
+    this.lava.material.map.offset.y = this.time * 0.22; // the lava creeps downhill
+    { const k = 1 + Math.sin(this.time * 2) * 0.07; this.lava.material.color.setRGB(1.5 * k, 1.25 * k, 1.1 * k); }
+    this._haze();
     for (const w of this.walls) if (!w.open) w.mat.opacity = 0.16 + Math.sin(this.time * 2 + w.zone.x) * 0.06;
     for (const f of this.animators) f(dt, this.time);
     // the see-through tube runs from the camera to the player's chest (merge.js)
