@@ -238,6 +238,25 @@ is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
 
 ## Status log
 
+- 2026-11-23 — **Slow connections (user report from Argentina): retry +
+  "Try again", minified three.js, WebP pictures.** Source and live build.
+  - `src/retry.js` `withRetry()` — 3 attempts, 0.8 s / 2 s pause. Every
+    GLTF/GLB goes through `models.js` `loadGLTF`, which uses it; a URL that
+    failed all attempts is dropped from the cache so a retry downloads it again.
+    The editor-JSON level fetch (`level.jsonUrl`) also retries.
+  - `ui.showTutorial(level, load)` now takes a FUNCTION. If `load()` rejects,
+    the recipe card shows `#recipeErr` (message + "↻ Try again", i18n keys
+    `loadFailed`/`tryAgain`; live build: English text); the button calls
+    `load()` again. Before, the card showed "Let's cook!" anyway and the
+    game then broke on the missing model. A failed recipe image just hides.
+  - importmap → `vendor/three/three.module.min.js` (687 KB instead of 1.3 MB;
+    same r169 file as Verb Towers). `three.module.js` removed.
+  - `assets/ChatGPT/*.png` → `.webp` (q82); duplicate `Main Menu.png`
+    deleted. Copies of the WebPs also put in the brocco-dev assets source.
+  - Tested headless (CDP `Fetch.failRequest`): every model failing once →
+    level loads normally; `Rig_Medium_General.glb` failing for good → error
+    card after ~3 s, "Try again" → loads and plays. DE strings checked.
+
 - 2026-11-22 — **"Next" ticket highlight** (user idea). The oldest ticket
   (the one whose serve earns the +5 in-order bonus) gets an amber frame and
   a small "NEXT" tab (`Orders.markNext()`, called on spawn and remove; i18n
@@ -628,11 +647,12 @@ is still 1.0 EXTRA. Best fits for this game, all glTF and in a matching style:
     models it uses that aren't already in `assets/models/restaurant/` from the
     KayKit EXTRA pack. ASCII levels (2,4,5) still use `map`/`build()`; World
     branches on `level.jsonUrl`.
-  - **Main menu = `assets/ChatGPT/MainMenu.png`.** ONE fixed `#menuBg` element
+  - **Main menu = `assets/ChatGPT/MainMenu.webp`.** ONE fixed `#menuBg` element
     (index.html) sits behind EVERY menu screen — `ui.showScreen` toggles its
     `.on`; the screens are transparent overlays, so switching never reloads/moves
     the background and only a screen's own content scrolls. Title + buttons
-    centred. (Recipe cards still use `Salad/Burger/Pizza.png` in `assets/ChatGPT/`.)
+    centred. (Recipe cards use `Salad/Burger/Pizza.webp` in `assets/ChatGPT/`; PNGs were
+    converted 2026-11-23, 1.2–1.5 MB → 50–70 KB each.)
   - **Guided salad tutorial** (`src/tutorial.js`, only on `guided` levels): Level 1
     walks the first salad (grab→chop→plate→repeat→serve→wash) with a bottom banner
     + a bobbing 3D arrow at the target station, then frees play for the other 2.

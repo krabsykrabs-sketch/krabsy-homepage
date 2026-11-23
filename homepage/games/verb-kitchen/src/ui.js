@@ -160,10 +160,10 @@ export const ui = {
   /** Recipe card that doubles as the loading screen: framed image + title +
    *  instruction, with a pizza-building animation in place of the button until
    *  `loadPromise` (assets + image) resolves. Resolves when the player taps Start. */
-  showTutorial(level, loadPromise) {
+  showTutorial(level, load) {
     return new Promise((resolve) => {
       const t = level.tutorial || {};
-      const ov = $('recipe'), btn = $('recipeBtn'), img = $('recipeImg');
+      const ov = $('recipe'), btn = $('recipeBtn'), img = $('recipeImg'), err = $('recipeErr');
       $('recipeTitle').textContent = t.title || level.name;
       $('recipeText').textContent = t.text || '';
       let imgP = Promise.resolve();
@@ -172,23 +172,33 @@ export const ui = {
         img.style.display = 'block';
         imgP = (img.complete && img.naturalWidth)
           ? Promise.resolve()
-          : new Promise((res) => { img.onload = res; img.onerror = res; });
+          : new Promise((res) => { img.onload = res; img.onerror = () => { img.style.display = 'none'; res(); }; });
       } else {
         img.style.display = 'none';
       }
       // start in loading state: animation shown, button hidden
       btn.style.display = 'none';
-      this.recipeLoading(true);
       ov.classList.remove('hidden');
       const go = () => { btn.removeEventListener('click', go); this.recipeLoading(false); ov.classList.add('hidden'); resolve(); };
       btn.addEventListener('click', go);
       // everything loaded → swap the pizza animation for the Start button.
-      // Tolerate a failed preload/image (a single bad asset must never softlock
-      // the loading screen) — show the button anyway.
-      Promise.all([Promise.resolve(loadPromise).catch(() => {}), imgP]).then(() => {
-        this.recipeLoading(false);
-        btn.style.display = '';
-      });
+      // A failed recipe image is tolerated (imgP never rejects), but a model
+      // that failed all its retries (models.js) would break the level, so
+      // show "Try again" instead, which downloads what is still missing.
+      const attempt = () => {
+        err.style.display = 'none';
+        this.recipeLoading(true);
+        Promise.all([load(), imgP]).then(() => {
+          this.recipeLoading(false);
+          btn.style.display = '';
+        }, (e) => {
+          console.error('[VK] level download failed', e);
+          this.recipeLoading(false);
+          err.style.display = 'flex';
+        });
+      };
+      $('recipeRetry').onclick = attempt;
+      attempt();
     });
   },
 

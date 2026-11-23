@@ -34,7 +34,7 @@ export const LEVELS = [
     startDirty: 1,   // one dirty plate already at the sink (1 clean + 1 dirty to start)
     starTimes: [150, 115, 85, 62],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.png',
+      image: 'assets/ChatGPT/Salad.webp',
       title: 'Salad',
       text: 'Chop the lettuce and the tomato, pop them on a plate, and serve it up!',
     },
@@ -61,7 +61,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [215, 165, 130, 100],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Burger.png',
+      image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger',
       text: 'Cook a patty on a bun for a hamburger — add cheese for a cheeseburger, plus lettuce for a Big Burger!',
     },
@@ -88,7 +88,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [265, 205, 160, 125],   // placeholders — tune from playthroughs
     tutorial: {
-      image: 'assets/ChatGPT/Pizza.png',
+      image: 'assets/ChatGPT/Pizza.webp',
       title: 'Pizza',
       text: 'Roll the dough, add sauce and cheese (and mushroom if you like), bake it, then serve!',
     },

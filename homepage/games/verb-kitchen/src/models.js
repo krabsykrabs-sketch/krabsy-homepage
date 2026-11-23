@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
+import { withRetry } from './retry.js';
 
 export const TILE = 2;               // KayKit counters are 2×2 world units
 
@@ -11,9 +12,11 @@ const cache = new Map();             // url → Promise<gltf>
 
 export function loadGLTF(url) {
   if (!cache.has(url)) {
-    cache.set(url, new Promise((resolve, reject) => {
-      loader.load(url, resolve, undefined, reject);
-    }));
+    const p = withRetry(() => loader.loadAsync(url), url);
+    cache.set(url, p);
+    // a download that failed every attempt must not stay cached, so the
+    // "Try again" button on the recipe card really downloads it again
+    p.catch(() => { if (cache.get(url) === p) cache.delete(url); });
   }
   return cache.get(url);
 }

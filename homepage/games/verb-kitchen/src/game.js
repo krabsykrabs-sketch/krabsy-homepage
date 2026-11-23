@@ -1,5 +1,6 @@
 // Core game orchestrator: scene, loop, interactions, scoring, round flow.
 import * as THREE from 'three';
+import { withRetry } from './retry.js';
 import { TILE, preloadRestaurant, charUnlocked } from './models.js';
 import { ITEMS, DISHES, matchDish, canPlate, combine, itemModelNames } from './recipes.js';
 import { LEVELS, levelModelNames } from './levels.js';
@@ -48,7 +49,11 @@ export class Game {
     // (+ the gameplay item models / board knife) instead of the ASCII set.
     let decorModels;
     if (level.jsonUrl) {
-      if (!level.scene) level.scene = await (await fetch(level.jsonUrl, { cache: 'no-cache' })).json();
+      if (!level.scene) level.scene = await withRetry(async () => {
+        const r = await fetch(level.jsonUrl, { cache: 'no-cache' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }, level.jsonUrl);
       decorModels = [...new Set(level.scene.objects.map((o) => o.model)), 'knife'];
     } else {
       decorModels = levelModelNames(level);
@@ -65,9 +70,11 @@ export class Game {
     // The recipe card doubles as the loading screen: it appears immediately
     // with a pizza-building animation, and the "Let's cook!" button only
     // unlocks once all assets (models + the recipe image) have loaded.
-    const loadP = this.preload(this.level);
-    if (!opts.skipCountdown) await ui.showTutorial(this.level, loadP);
-    else await loadP;
+    // ui.showTutorial calls load() again when the player taps "Try again"
+    // after a download failed; it only resolves once everything has loaded.
+    const load = () => this.preload(this.level);
+    if (!opts.skipCountdown) await ui.showTutorial(this.level, load);
+    else await load();
 
     // --- scene ---
     this.disposeScene();

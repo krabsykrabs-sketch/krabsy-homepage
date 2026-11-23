@@ -58,7 +58,7 @@ h1.logo .pan{display:inline-block; transform:rotate(-8deg); margin-right:8px;}
 /* a single persistent element behind every menu screen: it never reloads when
    you switch screens, and stays FIXED while a screen's content scrolls. */
 #menuBg{position:fixed; inset:0; z-index:39; display:none;
-  background:#e9e2cf url('assets/ChatGPT/MainMenu.png') center/cover no-repeat;}
+  background:#e9e2cf url('assets/ChatGPT/MainMenu.webp') center/cover no-repeat;}
 #menuBg.on{display:block;}
 /* menu screens are transparent so #menuBg shows through; their content is
    centred (the .screen auto-margins) and only the CONTENT scrolls on overflow. */
@@ -282,6 +282,8 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
   box-shadow:inset 0 0 0 2px #8a5f33; transition:background .25s;}
 #recipeLoaderMsg{font-family:'Fredoka One',cursive; font-size:14px; color:var(--amber);}
 #recipeLoaderMsg::after{content:'…';}
+#recipeErr{display:none; flex-direction:column; align-items:center; gap:12px; padding:2px 0;}
+#recipeErrMsg{font-family:'Nunito',sans-serif; font-weight:800; font-size:15.5px; color:var(--coral); max-width:420px; line-height:1.35;}
 #recipeTag{position:absolute; top:-16px; right:-12px; transform:rotate(6deg); background:#f3ead9; color:#3a2c18;
   font-family:'Fredoka One',cursive; font-size:15px; line-height:1.02; padding:9px 15px; border-radius:4px;
   box-shadow:0 5px 12px rgba(0,0,0,.45); text-transform:uppercase; letter-spacing:.6px;}
@@ -324,7 +326,7 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 </style>
 <script type="importmap">
 { "imports": {
-    "three": "./vendor/three/three.module.js",
+    "three": "./vendor/three/three.module.min.js",
     "three/addons/": "./vendor/three/addons/"
 } }
 </script>
@@ -417,6 +419,10 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
     <div id="recipeLoader">
       <div id="recipeLoaderPizza"></div>
       <div id="recipeLoaderMsg">Heating the ovens</div>
+    </div>
+    <div id="recipeErr">
+      <div id="recipeErrMsg">The download didn’t finish. Check your internet connection and try again.</div>
+      <button id="recipeRetry" class="btn-primary" style="font-size:18px; padding:10px 32px;">↻ Try again</button>
     </div>
     <button id="recipeBtn" class="btn-primary" style="font-size:20px; padding:12px 40px;">Let's cook! 🍳</button>
     <div id="recipeHint">out of clean plates? wash them by answering verb questions 🧽</div>

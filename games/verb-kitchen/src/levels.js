@@ -34,7 +34,7 @@ export const LEVELS = [
     startDirty: 1,   // one dirty plate already at the sink (1 clean + 1 dirty to start)
     starTimes: [150, 115, 85, 62],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.png',
+      image: 'assets/ChatGPT/Salad.webp',
       title: 'Salad',
       text: 'Chop the lettuce and the tomato, pop them on a plate, and serve it up!',
     },
@@ -61,7 +61,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [215, 165, 130, 100],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Burger.png',
+      image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger',
       text: 'Cook a patty on a bun for a hamburger — add cheese for a cheeseburger, plus lettuce for a Big Burger!',
     },
@@ -88,7 +88,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [265, 205, 160, 125],   // placeholders — tune from playthroughs
     tutorial: {
-      image: 'assets/ChatGPT/Pizza.png',
+      image: 'assets/ChatGPT/Pizza.webp',
       title: 'Pizza',
       text: 'Roll the dough, add sauce and cheese (and mushroom if you like), bake it, then serve!',
     },
@@ -121,7 +121,7 @@ export const LEVELS = [
     plates: 2,
     starTimes: [215, 165, 130, 100],   // copied from Burger Bar — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Burger.png',
+      image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger Bar — with a helper!',
       text: 'A kitchen helper preps your cheese and lettuce on the cutting boards — focus on cooking the patties, building the burgers, serving and washing up!',
     },
@@ -174,7 +174,7 @@ export const LEVELS = [
     plates: 3,
     starTimes: [340, 270, 215, 170],   // bigger level — placeholders, tune from play
     tutorial: {
-      image: 'assets/ChatGPT/Burger.png',
+      image: 'assets/ChatGPT/Burger.webp',
       title: 'Split Kitchen (co-op)',
       text: 'You share a divided kitchen with a helper! It preps cheese, lettuce and tomato and passes them across the middle counter — you cook the patties, build burgers and salads, serve, and wash up.',
     },
@@ -231,7 +231,7 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [320, 250, 195, 150],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.png',
+      image: 'assets/ChatGPT/Salad.webp',
       title: 'Soup Kitchen',
       text: 'Two pots wait on the stoves! Chop the veg on the boards, then tip each into a pot (E) — carrot + potato makes one soup, onion + mushroom another. When it boils, scoop it into a bowl and serve!',
     },
@@ -264,7 +264,7 @@ export const LEVELS = [
     plates: 2,                   // 2 clean bowls to start
     starTimes: [260, 200, 155, 120],   // 1★ / 2★ / 3★(gold) / author — placeholders
     tutorial: {
-      image: 'assets/ChatGPT/Salad.png',
+      image: 'assets/ChatGPT/Salad.webp',
       title: 'Sundae Sunday',
       text: 'No cooking today! Grab a bowl, scoop ice cream from the flavour tubs (vanilla, strawberry, chocolate) — one scoop, two for a Berry Duo, or all three for a Neapolitan — then serve and wash up!',
     },
