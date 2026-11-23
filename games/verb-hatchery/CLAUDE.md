@@ -753,3 +753,17 @@ Not done yet / to check:
     darkened); the pirate-kit lighthouse tower (it fits the Beach); the wide teal
     home beacon; the walls of the hatchery are plain colours (no brick or plaster
     texture, see above); the sign text is English in all languages (as before).
+- 2026-11-23 (pause): **world step 4 (items 13–15: wind, water life,
+  beach extras) is HALF DONE and NOT committed** — the Fable agent was
+  stopped mid-run at the owner's request (usage limit). Uncommitted:
+  `src/decor.js`, `src/ground.js`, `src/merge.js`, `src/world.js`, new
+  `src/waterlife.js`, new `assets/props/watercraft/` (Kenney Watercraft
+  Kit), `assets/CREDITS.md`, `WORLD-PROPOSAL.md`. Smoke test passed (game
+  starts, egg pick-up works, no console errors). Next session: read
+  `git diff games/verb-hatchery`, finish items 13–15 (see WORLD-PROPOSAL.md
+  and the step-4 brief: wind via a per-vertex sway weight baked in
+  merge.js, splashes, jumping fish, sailing boat, beach hut/shells/buoys,
+  stream contrast, fading the home beacon), verify (walk tests, base flow,
+  `BLOCK=assets/animals`), commit. Crab steering was changed by the lead
+  (committed). After that: wire the 60 creatures (`assets/creatures/`) into
+  the game, plus the missing Ultimate Monsters from the owner's download.
