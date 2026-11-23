@@ -117,3 +117,4 @@ say so here and message the master session.
   - Tested headless (Playwright) at 390×844 touch, 1024×768 touch,
     1366×768: start/board/win/lose screens, full scripted round, events,
     61 fps, no console errors. **Not yet played by hand on a real phone.**
+- 2026-11-23 — Master session merged b7a0b9e (the worktree was removed) and removed the HUD "Krabsy" text logo and the start card's "Krabsy" line (one brand look: the wrapper header already shows kr🦀bsy). Release prepared, waiting for the owner's OK.

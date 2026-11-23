@@ -25,8 +25,6 @@
   /* ── HUD: cream toy chips over the lawn ── */
   #hud{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 0;z-index:50;pointer-events:none}
   .chip{background:var(--cream);border-radius:16px;box-shadow:0 3px 0 rgba(90,55,25,0.35),0 6px 14px rgba(0,0,0,0.18);padding:3px 11px;display:flex;align-items:center;gap:7px;height:42px}
-  #hud-logo{font-family:'Fredoka One',cursive;font-size:17px;color:var(--ink)}
-  #hud-logo span{color:#ef6a5f}
   .hud-stats{display:flex;gap:6px}
   .hud-stat{text-align:center;line-height:1.05;min-width:38px}
   .hud-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--ink2)}
@@ -39,7 +37,7 @@
   .hud-btn{pointer-events:auto;font-size:18px;width:42px;height:42px;border-radius:14px;border:none;background:var(--cream);box-shadow:0 3px 0 rgba(90,55,25,0.35),0 6px 14px rgba(0,0,0,0.18);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s}
   .hud-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(90,55,25,0.35)}
   .hud-btn.muted{opacity:0.55}
-  @media (max-width:420px){#hud-logo{display:none}.chip{padding:3px 8px}.hud-stat{min-width:34px}}
+  @media (max-width:420px){.chip{padding:3px 8px}.hud-stat{min-width:34px}}
 
   /* ── Overlay screens: cream card on a soft garden blur ── */
   .screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(36,66,22,0.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:14px;overflow-y:auto}
@@ -79,8 +77,6 @@
   .stat .v{font-family:'Fredoka One',cursive;font-size:20px;color:var(--ink)}
   .stat .l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;color:var(--ink2)}
   .newbest{font-family:'Fredoka One',cursive;font-size:14px;color:var(--ink);background:linear-gradient(135deg,#ffe27a,#ffb84d);padding:4px 16px;border-radius:30px;animation:starpop .5s cubic-bezier(.2,2,.4,1)}
-  .logo-text{font-family:'Fredoka One',cursive;font-size:15px;color:#c9b08c;letter-spacing:1px}
-  .logo-text em{font-style:normal;color:#ef8b80}
 
   /* ── Touch d-pad (toy buttons) ── */
   #dpad{position:fixed;z-index:48;width:160px;height:160px;display:none;pointer-events:none}
@@ -97,7 +93,7 @@
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
-  <div class="chip"><div id="hud-logo">Krab<span>sy</span></div>
+  <div class="chip">
     <div class="hud-stat"><div class="hud-label" data-i18n="hud_round">Round</div><div class="hud-value" id="hud-round">1</div></div>
   </div>
   <div class="chip hud-stats">
@@ -134,7 +130,6 @@
         <button class="btn btn-primary" id="start-btn" data-i18n="play">Play! 🐍</button>
         <button class="btn btn-secondary hidden" id="continue-btn"></button>
       </div>
-      <div class="logo-text">Krab<em>sy</em></div>
     </div>
   </div>
 </div>
