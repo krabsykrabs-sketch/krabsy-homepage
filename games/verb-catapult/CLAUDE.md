@@ -343,3 +343,15 @@ Physics is the risky part, so it is proven first, with plain boxes.
   is scaled; clouds and the UI use real time. `__VC.FX` for QA. Portrait
   phones: still a tiny scene (open).
 
+- 2026-11-23: shorter wait after a shot (owner: "quite some waiting at
+  the end of each shot … boring"). Cause: the shot ended only when every
+  body was still, including the stone, which rolled on across the meadow
+  out of view (or the 8 s cap). Now: a stone that has hit something
+  stops counting once it rolls on the ground or is slower than 3 m/s, and
+  it gets rolling resistance after its first hit; a stone that leaves the
+  picture (right of `VIEW.x1` + 4) is removed; the fort must be calm for
+  0.3 s; when every skeleton is down the shot ends after the slow motion
+  and the falls (no waiting for rubble); cap 6 s; leftover stones vanish
+  in a dust puff. Measured on 9 fixed shots: 6.6–10.1 s → 1.8–4.8 s game
+  time (the rest is a fort still falling). Full level-1 bot run: 10
+  shots, 20 answers, no errors.

@@ -529,7 +529,7 @@ function fire() {
   G.kAng = THREE.MathUtils.radToDeg(G.aimAng); G.kPow = Math.max(0.2, G.aimPow);
   G.pendingFire = { type: G.loaded, v };
   cat.throw(); sfx.creak();
-  G.lastType = G.loaded; G.loaded = null; G.flightT = 0; G.shotsDone += 1;
+  G.lastType = G.loaded; G.loaded = null; G.flightT = 0; G.calmT = 0; G.shotsDone += 1;
   setPull(0, G.aimAng);
   setMode('flight');
   if (G.lastType === 'split' && G.level <= 2) hint('hintSplit');
@@ -667,7 +667,7 @@ function syncMeshes() {
 
 // ---------------------------------------------------------------- shot end, castle end
 function endShot() {
-  for (const s of [...sim.stones]) { sim.dead.add(s); }
+  for (const s of [...sim.stones]) { const p = s.getPosition(); if (p.x < VIEW.x1 + 2) dust(p.x, p.y, 4); sim.dead.add(s); }
   sim.step(); handleEvents(); syncMeshes();
   if (sim.standing() === 0) { castleWon(); return; }
   if (G.stonesLeft > 0) { setMode('need'); return; }
@@ -801,7 +801,11 @@ function frame(now) {
   }
   if (G.mode === 'flight') {
     G.flightT += dt;
-    if ((G.flightT > 1.2 && sim.settled()) || G.flightT > 8) endShot();
+    G.calmT = sim.settled() ? (G.calmT || 0) + dt : 0; // calm for a moment (not a block at the top of a teeter)
+    // a stone that left the picture is gone (no waiting while it flies to x 70)
+    for (const st of sim.stones) { const p = st.getPosition(); if (p.x > VIEW.x1 + 4 || p.y < -1) sim.dead.add(st); }
+    const allDown = sim.standing() === 0 && FX.slow <= 0 && dying.length === 0; // won: no need to wait for the rubble
+    if ((G.flightT > 1.2 && (G.calmT > 0.3 || allDown)) || G.flightT > 6) endShot();
   }
   if (G.mode === 'need') {
     const s = toScreen(BASKET.x, BASKET.y + 1.5, BASKET.z);

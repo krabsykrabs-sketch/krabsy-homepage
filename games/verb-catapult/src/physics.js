@@ -145,6 +145,7 @@ export class Sim {
         const ou = other.getUserData();
         if (!u.hit && ou) {
           u.hit = true;
+          body.setAngularDamping(2.5); body.setLinearDamping(0.4); // rolls out soon instead of across the meadow
           this.events.push({ type: 'impact', x: body.getPosition().x, y: body.getPosition().y, imp: total, on: ou.kind, mat: ou.mat });
           if (STONES[u.type].bomb) this._pendingBomb = body;
         }
@@ -227,10 +228,13 @@ export class Sim {
   standing() { return this.skels.filter((s) => !s.getUserData().down).length; }
 
   // Everything has (nearly) stopped.
+  // Everything that matters lies still. A stone that has hit something no longer counts
+  // once it rolls on the ground or is slow: the shot is about the fort, not the stone.
   settled() {
     for (let b = this.world.getBodyList(); b; b = b.getNext()) {
       if (b === this.ground || !b.isAwake()) continue;
-      const v = b.getLinearVelocity();
+      const v = b.getLinearVelocity(), u = b.getUserData();
+      if (u && u.kind === 'stone' && u.hit && (b.getPosition().y < STONES[u.type].r + 0.3 || Math.hypot(v.x, v.y) < 3)) continue;
       if (Math.hypot(v.x, v.y) > 0.25 || Math.abs(b.getAngularVelocity()) > 0.4) return false;
     }
     return true;
