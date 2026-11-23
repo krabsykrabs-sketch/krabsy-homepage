@@ -270,6 +270,27 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 (evening) — **Star times re-calibrated** after the play-test
+  fixes (2 answers per plate, 3 slices per loaf) and the L7 redesign. Bots in
+  `scratchpad/playtest-fixes/bots/` (`node run.mjs <l1|l2|l3|l4best|l5best|l6|
+  l7new|l8new>.js lib2.js`). Thresholds: 1★ E×2.6, 2★ E×1.75, gold E×1.3
+  (rounded to 5 s), author = E rounded UP to 5 s (earlier rounding put some
+  author times below the bot's own time).
+
+  | Level | E (s) | starTimes |
+  |---|---|---|
+  | L1 Garden Bistro | 48.2 | 125, 85, 65, 50 |
+  | L2 Burger Bar | 91.2 | 235, 160, 120, 95 |
+  | L3 Pizza Palace | 118.6 | 310, 210, 155, 120 |
+  | L4 Co-op | 125.6 | 325, 220, 165, 130 |
+  | L5 Split Kitchen | 138.7 | 360, 245, 180, 140 |
+  | L6 Soup Kitchen | 111.4 | 290, 195, 145, 115 |
+  | L7 Sundae Sunday | 104.7 | 270, 185, 135, 105 |
+  | L8 Sandwich Bar | 165.8 | 430, 290, 215, 170 |
+
+  Also removed the no-longer-used `food_stew`/`pot_B_stew` from
+  `release-assets.txt` (284 files now).
+
 - 2026-11-23 — **L7 Sundae Sunday REDESIGNED (owner play-test: "completely broken").**
   Source only; NOT in the live build. Scripts + screenshots in the session
   scratchpad `sundae-redesign/`.

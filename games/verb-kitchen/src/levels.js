@@ -68,7 +68,7 @@ export const LEVELS = [
     plates: 0,
     startItems: [{ c: 7, r: 4, item: 'plate' }],   // clean plate pre-placed on a counter (JSON cell coords)
     startDirty: 1,   // one dirty plate already at the sink (1 clean + 1 dirty to start)
-    starTimes: [145, 100, 75, 55],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=56s)
+    starTimes: [125, 85, 65, 50],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=48.2s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Salad.webp',
       title: 'Salad',
@@ -97,7 +97,7 @@ export const LEVELS = [
     orders: ['hamburger', 'cheeseburger', 'hamburger', 'bigburger', 'cheeseburger'],
     spawnEvery: [5, 8],
     plates: 2,
-    starTimes: [270, 180, 135, 105],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=103s)
+    starTimes: [235, 160, 120, 95],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=91.2s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger',
@@ -136,7 +136,7 @@ export const LEVELS = [
     orders: ['pizza_cheese', 'pizza_mushroom', 'pizza_cheese', 'pizza_cheese', 'pizza_mushroom'],
     spawnEvery: [6, 9],
     plates: 2,
-    starTimes: [340, 230, 170, 130],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=130s)
+    starTimes: [310, 210, 155, 120],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=118.6s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Pizza.webp',
       title: 'Pizza',
@@ -197,7 +197,7 @@ export const LEVELS = [
     orders: ['cheeseburger', 'hamburger', 'bigburger', 'cheeseburger', 'bigburger', 'cheeseburger', 'bigburger'],
     spawnEvery: [4, 7],
     plates: 3,
-    starTimes: [365, 245, 185, 140],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=141s)
+    starTimes: [325, 220, 165, 130],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=125.6s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Burger.webp',
       title: 'Burger Bar — with a helper!',
@@ -269,7 +269,7 @@ export const LEVELS = [
     orders: ['cheeseburger', 'salad', 'bigburger', 'hamburger', 'salad', 'cheeseburger', 'bigburger', 'salad'],
     spawnEvery: [5, 8],
     plates: 3,
-    starTimes: [410, 275, 205, 160],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=158s)
+    starTimes: [360, 245, 180, 140],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=138.7s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Burger.webp',
       title: 'Split Kitchen (co-op)',
@@ -339,7 +339,7 @@ export const LEVELS = [
     orders: ['carrot_potato_soup', 'onion_mushroom_soup', 'carrot_potato_soup', 'onion_mushroom_soup', 'carrot_potato_soup', 'onion_mushroom_soup'],
     spawnEvery: [7, 11],
     plates: 2,                   // 2 clean bowls to start
-    starTimes: [330, 220, 165, 125],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=127s)
+    starTimes: [290, 195, 145, 115],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=111.4s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Soup.webp',   // made with Gemini 2026-11-23
       title: 'Soup Kitchen',
@@ -396,7 +396,7 @@ export const LEVELS = [
     orders: ['sundae_vanilla', 'sundae_crunch', 'sundae_deluxe', 'sundae_vanilla', 'sundae_neapolitan', 'sundae_deluxe', 'sundae_neapolitan'],
     spawnEvery: [5, 8],
     plates: 2,                   // 2 clean bowls to start
-    starTimes: [215, 145, 105, 80],   // 1★ / 2★ / 3★(gold) / author — from the OLD layout (bot E=82s); re-calibrate
+    starTimes: [270, 185, 135, 105],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=104.7s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Sundae.webp',   // made with Gemini 2026-11-23
       title: 'Sundae Sunday',
@@ -435,7 +435,7 @@ export const LEVELS = [
     orders: ['cheese_toastie', 'garden_sandwich', 'cheese_toastie', 'club_sandwich', 'garden_sandwich', 'club_sandwich'],
     spawnEvery: [6, 9],
     plates: 2,
-    starTimes: [510, 345, 255, 195],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 (bot E=196s)
+    starTimes: [430, 290, 215, 170],   // 1★ / 2★ / 3★(gold) / author — calibrated 2026-11-23 evening (bot E=165.8s, 2-answer washing)
     tutorial: {
       image: 'assets/ChatGPT/Sandwich.webp',   // made with Gemini 2026-11-23
       title: 'Sandwich',

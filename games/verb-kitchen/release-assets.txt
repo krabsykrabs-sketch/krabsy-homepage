@@ -120,8 +120,6 @@ assets/models/restaurant/food_pizza_cheese_plated.bin
 assets/models/restaurant/food_pizza_cheese_plated.gltf
 assets/models/restaurant/food_pizza_mushroom_plated.bin
 assets/models/restaurant/food_pizza_mushroom_plated.gltf
-assets/models/restaurant/food_stew.bin
-assets/models/restaurant/food_stew.gltf
 assets/models/restaurant/fridge_A.bin
 assets/models/restaurant/fridge_A.gltf
 assets/models/restaurant/icecream_bowl_cherries.bin
@@ -210,8 +208,6 @@ assets/models/restaurant/pot_A.bin
 assets/models/restaurant/pot_A.gltf
 assets/models/restaurant/pot_B.bin
 assets/models/restaurant/pot_B.gltf
-assets/models/restaurant/pot_B_stew.bin
-assets/models/restaurant/pot_B_stew.gltf
 assets/models/restaurant/restaurantbits_extra.png
 assets/models/restaurant/rollingpin.bin
 assets/models/restaurant/rollingpin.gltf
