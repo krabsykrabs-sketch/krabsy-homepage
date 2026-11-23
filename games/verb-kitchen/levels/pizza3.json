@@ -143,7 +143,7 @@
     {
       "model": "crate_dough",
       "col": 9,
-      "row": 6,
+      "row": 5,
       "rot": 3
     },
     {
@@ -161,7 +161,7 @@
     {
       "model": "kitchencounter_straight_A_backsplash",
       "col": 9,
-      "row": 5,
+      "row": 6,
       "rot": 3
     },
     {
@@ -318,17 +318,6 @@
       "off": {
         "x": 1,
         "y": 0.8,
-        "z": 0
-      }
-    },
-    {
-      "model": "kitchencabinet",
-      "col": 9,
-      "row": 6,
-      "rot": 3,
-      "off": {
-        "x": 1,
-        "y": 1.1,
         "z": 0
       }
     },

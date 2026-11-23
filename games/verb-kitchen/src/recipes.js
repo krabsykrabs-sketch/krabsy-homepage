@@ -373,7 +373,7 @@ export const DISHES = {
   // in the editor layout yet; those items stay defined for when the user adds a
   // topping source). Order-free exact-set match, like the salad.
   sundae_vanilla:    { name: 'Vanilla Scoop',     emoji: '🍨', parts: ['scoop_vanilla'],                                        coins: 20, model: 'icecream_bowl_icecream_vanilla', icons: '🍨' },
-  sundae_deluxe:     { name: 'Berry Duo',         emoji: '🍨', parts: ['scoop_strawberry', 'scoop_chocolate'],                  coins: 32, model: 'icecream_bowl_cherries',        icons: '🍓🍫' },
+  sundae_deluxe:     { name: 'Choco-Berry',       emoji: '🍨', parts: ['scoop_strawberry', 'scoop_chocolate'],                  coins: 32, model: 'icecream_bowl_cherries',        icons: '🍓🍫' },
   sundae_neapolitan: { name: 'Neapolitan Sundae', emoji: '🍨', parts: ['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry'], coins: 44, model: 'icecream_bowl_decorated_A',      icons: '🍨🍫🍓' },
   // --- level 8 sandwiches: toast + an exact filling set (order-free, like the
   // burgers). All three render the finished Tiny Treats sandwich on the plate. ---

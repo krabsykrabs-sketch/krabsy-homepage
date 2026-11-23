@@ -121,7 +121,12 @@ export const LEVELS = [
     // pizza3.json no longer includes the ketchup/sauce bottle (pizza4 had one at
     // 9,5) — without a sauce source no pizza can bake, so re-add it as a start
     // item on that counter. Remove if the editor exports it again.
-    startItems: [{ c: 9, r: 5, item: 'ketchup' }],
+    // The sauce counter and the dough crate swapped places (JSON rows 5 ↔ 6): the
+    // low crate used to sit BEHIND the taller counter and under the wall
+    // cabinets, half hidden from the camera. Now no counter stands in front of
+    // a crate on the left side: sauce (back), dough, mushrooms, cheese. The second
+    // wall cabinet (over the sauce counter) is gone: it shaded the bottle.
+    startItems: [{ c: 9, r: 6, item: 'ketchup' }],
     orders: ['pizza_cheese', 'pizza_mushroom', 'pizza_cheese', 'pizza_cheese', 'pizza_mushroom'],
     spawnEvery: [6, 9],
     plates: 2,
@@ -281,8 +286,8 @@ export const LEVELS = [
       { model: 'tt_teapot', col: -0.05, row: 0.1, y: 1.02, rot: 0.6, scale: 1.2 },
       { model: 'tt_utensils_cup', col: 5.9, row: -0.1, y: 1.02, rot: -0.3, scale: 1.1 },
       { model: 'tt_container_kitchen_A_red', col: 6.25, row: 0.15, y: 1.02, scale: 1.3 },
-      { model: 'tt_cacti_plant_pot_small', col: 0, row: 5, y: 1.02 },
-      { model: 'tt_sansevieria_plant_small_potted', col: 6, row: 5, y: 1.02 },
+      { model: 'tt_cacti_plant_pot_small', col: 0, row: 4, y: 1.02 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 6, row: 4, y: 1.02 },
     ],
     vessel: 'bowl',              // serve in bowls, not plates (see stations.setVessel)
     spawn: { col: 4, row: 4 },   // chef start in JSON cell coords
@@ -325,8 +330,17 @@ export const LEVELS = [
     trimFloor: true,             // no bare floor strips outside the counters
     props: [
       { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 0.6, wall: true, y: 3.3 },
-      { model: 'tt_cookie_jar', col: 0, row: 4, y: 1.02, scale: 1.2 },
-      { model: 'tt_pothos_plant_small_potted', col: 6, row: 4, y: 1.3, rot: 2.4 },
+      // The topping display (cones, waffles, cherries, cookie sticks) stands on
+      // the four DEAD corners only. It used to sit on reachable counters and
+      // looked like toppings you could grab (there is no topping mechanic).
+      { model: 'food_icecream_cone_chocolate', col: 0.26, row: -0.24, y: 1.02 },
+      { model: 'icecream_bowl_waffles', col: 5.8, row: -0.2, y: 1.02, rot: 0.5 },
+      { model: 'icecream_bowl_cherries', col: 6.24, row: -0.12, y: 1.02 },
+      { model: 'icecream_bowl_cookiesticks', col: 6.04, row: 0.26, y: 1.02, rot: 2.6 },
+      { model: 'tt_cookie_jar', col: -0.16, row: 4.18, y: 1.02, scale: 1.2 },
+      { model: 'icecream_cone_stacked', col: 0.2, row: 3.84, y: 1.02 },
+      { model: 'icecream_bowl_decorated_A', col: 5.84, row: 3.84, y: 1.02, rot: 0.6 },
+      { model: 'tt_pothos_plant_small_potted', col: 6.16, row: 4.16, y: 1.3, rot: 2.4 },
     ],
     vessel: 'bowl',              // sundaes are served in a bowl (no plate)
     spawn: { col: 4, row: 3 },   // chef start in JSON cell coords
@@ -339,7 +353,7 @@ export const LEVELS = [
     tutorial: {
       // no sundae picture yet — text-only card (it used to show the salad picture)
       title: 'Sundae Sunday',
-      text: 'No cooking today! Grab a bowl, and scoop ice cream from the tubs — vanilla for a Vanilla Scoop, strawberry and chocolate for a Berry Duo, or all three for a Neapolitan Sundae. Then serve and wash up!',
+      text: 'No cooking today! Grab a bowl, and scoop ice cream from the tubs — vanilla for a Vanilla Scoop, strawberry and chocolate for a Choco-Berry, or all three for a Neapolitan Sundae. Then serve and wash up!',
     },
   },
   {
