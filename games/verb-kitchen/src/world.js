@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { TILE, getModel, mergeStatic, measureModel } from './models.js';
-import { Station, makeRingSprite } from './stations.js';
+import { Station, makeRingSprite, TOASTER_SCALE } from './stations.js';
 import { CRATE_MODELS } from './levels.js';
 
 export class World {
@@ -117,6 +117,17 @@ export class World {
             staticG.add(pan);
           }
           st = new Station('stove', c, r, p, 1.28);
+        } else if (ch === 'T') {
+          // toaster: a Tiny Treats toaster on a plain counter. Gameplay-wise a
+          // stove (cook → ready → burn) that only takes bread slices.
+          const counter = getModel('kitchencounter_straight_B' + sB);
+          counter.position.copy(p); counter.rotation.y = facing;
+          const toaster = getModel('tt_toaster');
+          toaster.scale.setScalar(TOASTER_SCALE);
+          toaster.position.set(p.x, 1.02, p.z); toaster.rotation.y = facing;
+          staticG.add(counter, toaster);
+          st = new Station('stove', c, r, p, 1.02 + measureModel('tt_toaster').height * TOASTER_SCALE);
+          st.cooker = 'toaster';
         } else if (ch === 'o') {
           const oven = getModel(lv.id === 'pizzeria' ? 'pizza_oven' : 'oven');
           oven.position.copy(p); oven.rotation.y = facing;
@@ -156,7 +167,8 @@ export class World {
     const wallZ = this.tileWorld(0, -0.5).z - 0.35;
     const hatchCols = [];
     for (let c = 0; c < this.cols; c++) if (lv.map[0][c] === 'H') hatchCols.push(c);
-    const windowDecor = ['wall_tiles_A', 'wall', 'wall_tiles_B', 'wall_window_closed_curtains_' + (sB ? 'green' : 'red')];
+    // (`level.backWall` overrides the piece cycle — e.g. solid walls to hang props on)
+    const windowDecor = lv.backWall || ['wall_tiles_A', 'wall', 'wall_tiles_B', 'wall_window_closed_curtains_' + (sB ? 'green' : 'red')];
     const hatchMid = hatchCols.length ? (hatchCols[0] + hatchCols[hatchCols.length - 1]) / 2 : 0.5;
     const centers = [];
     for (let cc = hatchMid; cc > -1; cc -= 2) centers.unshift(cc);   // left of (and incl.) the hatch
@@ -189,11 +201,22 @@ export class World {
 
     // --- decor: extractor hood over stoves/ovens, fridge near crates ---
     for (const st of this.stations) {
-      if (st.type === 'stove' && st.row === 0) {
+      if (st.type === 'stove' && st.row === 0 && !st.cooker) {
         const hood = getModel('extractorhood');
         hood.position.set(st.pos.x, 2.6, st.pos.z);
         staticG.add(hood);
       }
+    }
+
+    // --- level props (Tiny Treats decor): free placement in tile coords ---
+    const wallFace = wallZ + 0.25;       // front face of the back wall
+    for (const pr of lv.props || []) {
+      const m = getModel(pr.model);
+      const p = this.tileWorld(pr.col, pr.row || 0);
+      m.position.set(p.x, pr.y || 0, pr.wall ? wallFace : p.z);
+      if (pr.rot) m.rotation.y = pr.rot;
+      if (pr.scale) m.scale.set(...(Array.isArray(pr.scale) ? pr.scale : [pr.scale, pr.scale, pr.scale]));
+      staticG.add(m);
     }
 
     this._finishStatic(staticG);
@@ -211,7 +234,7 @@ export class World {
       if (st.toolMesh) this.group.add(st.toolMesh);   // resting board tool (hidden while chopping)
       if (st.type === 'stove' || st.type === 'oven' || st.type === 'board') {
         st.ring = makeRingSprite();
-        st.ring.position.set(st.pos.x, st.topY + 1.5, st.pos.z);
+        st.ring.position.set(st.pos.x, st.topY + (st.cooker === 'toaster' ? 1.1 : 1.5), st.pos.z);
         this.group.add(st.ring);
       }
     }

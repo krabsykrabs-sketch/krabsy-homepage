@@ -97,7 +97,7 @@ export function initQA(game, save, startLevel, params) {
 
   (async () => {
     const scene = qa;
-    const lvIdx = { level1: 0, level2: 1, level3: 2, level4: 3, coop: 3, level5: 4, split: 4, level6: 5, soup: 5, level7: 6, icecream: 6, question: 0, burn: 1, stars: 0, recipe: 0, recipeload: 0, washing: 0, shop: 0 }[scene] ?? 0;
+    const lvIdx = { level1: 0, level2: 1, level3: 2, level4: 3, coop: 3, level5: 4, split: 4, level6: 5, soup: 5, level7: 6, icecream: 6, level8: 7, sandwich: 7, toast: 7, question: 0, burn: 1, stars: 0, recipe: 0, recipeload: 0, washing: 0, shop: 0 }[scene] ?? 0;
     if (scene === 'loading') {       // loader overlay showcase (stays up)
       ui.loading(true);
       window.__VK_READY = true;
@@ -164,6 +164,27 @@ export function initQA(game, save, startLevel, params) {
       const counter = game.world.stations.find((s) => s.type === 'counter');
       if (counter) counter.setItem(makePlate(['scoop_strawberry']), false);     // a part-built bowl
       VK.tick(0.5);
+    } else if (scene === 'sandwich' || scene === 'level8') {
+      // sandwich showcase: a ticket per sandwich, a slice toasting + a toast
+      // popped up, the build steps on the island, a finished Club on a plate.
+      VK.spawnTicket('cheese_toastie');
+      VK.spawnTicket('garden_sandwich');
+      VK.spawnTicket('club_sandwich');
+      const toasters = game.world.stations.filter((s) => s.cooker === 'toaster');
+      toasters[0].startCooking(makeIngredient('bread_slice'));
+      toasters[1].startCooking(makeIngredient('toast'));
+      put(2, 2, makeIngredient('sandwichwip_cheese_lettuce'));   // open-faced, still being built
+      put(3, 2, makePlate(['toast', 'cheese_chopped', 'lettuce_chopped', 'tomato_slices']));   // Club Sandwich
+      put(7, 3, makeIngredient('bread_half'));                   // a loaf half-cut on a board
+      put(7, 2, makeIngredient('toast'));
+      put(3, 5, makeIngredient('bread'));
+      VK.tick(2.5);
+    } else if (scene === 'toast') {
+      // burnt toast: smoke from the toaster
+      VK.spawnTicket('cheese_toastie');
+      const toaster = game.world.stations.find((s) => s.cooker === 'toaster');
+      toaster.startCooking(makeIngredient('toast'));
+      VK.tick(10.5);
     } else if (scene === 'coop') {
       // co-op helper showcase: with no demand gate it stocks both boards (slowly,
       // unhurried), then parks in the bottom-left idle corner. No RNG in the bot.

@@ -1,7 +1,7 @@
 // Stations hold state + item visuals; the interaction *rules* live in game.js.
 import * as THREE from 'three';
 import { TILE, getModel, measureModel } from './models.js';
-import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS } from './recipes.js';
+import { ITEMS, DISHES, matchDish, isBurgerDish, PIZZA_TOPPING_MODELS, BURGER_LAYER_ORDER, BURGER_LAYER_MODELS, POT_LAYERS, POT_VEG_MODELS, SANDWICH_MODEL, SANDWICH_LAYER_MODELS } from './recipes.js';
 import { audio } from './audio.js';
 
 // ---------- items ----------
@@ -136,16 +136,79 @@ function composePot(veg, broth) {
   return g;
 }
 
+/** A bread slice lying FLAT (the model stands upright, origin at its bottom
+ *  edge): tipped onto its back and centred, resting on y = 0. */
+function flatSlice(def) {
+  const g = new THREE.Group();
+  const mm = measureModel(def.model);
+  const s = def.scale || 1;
+  const m = getModel(def.model, def.tint || null);
+  m.scale.setScalar(s);
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(0, SLICE_THICK * s / 2, mm.height * s / 2);
+  g.add(m);
+  return g;
+}
+const SLICE_THICK = 0.1;             // Tiny Treats bread_slice thickness (model units)
+const SANDWICH_ORDER = ['cheese_chopped', 'lettuce_chopped', 'tomato_slices'];
+
+/** Sandwich build on a slice of toast (contents must include 'toast'): an
+ *  open-faced toast with the real filling layers while it is being built; a
+ *  filling set that matches a dish (`closed`) shows the finished sandwich. */
+function composeSandwich(contents, closed, baseY = 0) {
+  const g = new THREE.Group();
+  if (closed) {
+    const sw = getModel(SANDWICH_MODEL);
+    sw.scale.setScalar(1.45);
+    sw.position.y = baseY;
+    g.add(sw);
+    return g;
+  }
+  const toast = flatSlice(ITEMS.toast);
+  toast.position.y = baseY;
+  g.add(toast);
+  let y = baseY + SLICE_THICK * ITEMS.toast.scale;
+  const S = 0.78;
+  for (const layer of SANDWICH_ORDER) {
+    if (!contents.includes(layer)) continue;
+    const model = SANDWICH_LAYER_MODELS[layer];
+    const mm = measureModel(model);
+    const lm = getModel(model);
+    lm.scale.setScalar(S);
+    lm.position.y = y - (mm.minY || 0) * S;   // low-origin models (cheese slice) rest on `y`
+    g.add(lm);
+    y += Math.max(0.06, mm.height * S * 0.8);
+  }
+  return g;
+}
+
 /** Build the visual for one ingredient (handles composed items). */
 function ingredientMesh(id) {
   const def = ITEMS[id];
   if (def.compose === 'pizza') return composePizza(def.toppings);
   if (def.compose === 'burger') return composeBurger(def.expandsTo, !!def.dish, 0);
   if (def.compose === 'pot') return composePot(def.veg, def.broth);
+  if (def.compose === 'sandwich') return composeSandwich(def.expandsTo, !!def.dish, 0);
+  if (def.flat) return flatSlice(def);
   const m = getModel(def.model, def.tint || null);
   if (def.scale) m.scale.multiplyScalar(def.scale);
   return m;
 }
+
+/** A slice standing upright in a toaster slot (the toaster holder sits at the
+ *  toaster's top edge): deep in the slot while it toasts, popped up when done. */
+function toasterSliceMesh(id, state) {
+  const def = ITEMS[id];
+  const g = new THREE.Group();
+  const m = getModel(def.model, def.tint || null);
+  m.scale.setScalar(TOASTER_SCALE);
+  const h = measureModel(def.model).height * TOASTER_SCALE;
+  m.position.set(0, -h * (state === 'cooking' ? 0.62 : 0.3), TOASTER_SLOT_Z);
+  g.add(m);
+  return g;
+}
+export const TOASTER_SCALE = 1.5;    // Tiny Treats toaster on a KayKit counter
+const TOASTER_SLOT_Z = 0;
 
 /** Build the visual for any logical item (ingredient or plate w/ stack). */
 export function buildItemMesh(item) {
@@ -157,9 +220,9 @@ export function buildItemMesh(item) {
     // lift models whose origin sits above their geometry (cheese slice) so they
     // rest on the surface instead of sinking into the board / counter
     const def = ITEMS[item.id];
-    if (def.model) {
+    if (def.model && !def.flat) {
       const mm = measureModel(def.model);
-      if (mm.minY < 0) m.position.y -= mm.minY * ITEM_SCALE * (def.scale || 1);
+      if (mm.minY < -0.001) m.position.y -= mm.minY * ITEM_SCALE * (def.scale || 1);
     }
     g.add(m);
     return g;
@@ -182,11 +245,13 @@ export function buildItemMesh(item) {
   if (item.dish && DISHES[item.dish].model) {
     // baked pizzas keep the finished plated model (small — see PIZZA_SCALE)
     const dm = getModel(DISHES[item.dish].model, DISHES[item.dish].model_tint || null);
-    dm.scale.setScalar(0.66);
+    dm.scale.setScalar(DISHES[item.dish].model_scale || 0.66);
     dm.position.y = PLATE_TOP;
     g.add(dm);
   } else if (item.contents.includes('bun')) {
     g.add(composeBurger(item.contents, isBurgerDish(item.dish), PLATE_TOP));
+  } else if (item.contents.includes('toast')) {
+    g.add(composeSandwich(item.contents, false, PLATE_TOP));   // a dish set took the branch above
   } else {
     // salad & loose items: arranged side by side, not stacked
     const n = item.contents.length;
@@ -255,7 +320,8 @@ export class Station {
     this.crateItem = null;
     // board
     this.progress = 0;
-    // stove / oven
+    // stove / oven (cooker: 'toaster' = a stove-type station for bread slices)
+    this.cooker = null;
     this.cookT = 0; this.burnT = 0; this.state = 'idle';  // idle|cooking|ready|burnt
     this.ring = null;
     // rack / sink
@@ -267,7 +333,10 @@ export class Station {
   setItem(item, bounce = true, keepProgress = false) {
     if (this.itemMesh) this.holder.remove(this.itemMesh);
     this.item = item;
-    this.itemMesh = item ? buildItemMesh(item) : null;
+    // a toaster shows its slice standing in the slot (see refreshToasterItem)
+    const inToaster = item && this.cooker === 'toaster' && item.type === 'ing' && ITEMS[item.id].flat;
+    this.itemMesh = !item ? null : inToaster ? toasterSliceMesh(item.id, this.state) : buildItemMesh(item);
+    if (inToaster) bounce = false;
     if (this.itemMesh) {
       // long items (pepperoni!) lie along the board, not across it
       if (this.type === 'board') this.itemMesh.rotation.y = this.rot || 0;
@@ -338,15 +407,15 @@ export class Station {
         const total = def.cookTime || def.bakeTime;
         this.cookT += dt;
         if (this.cookT >= total) {
-          this.setItem(makeIngredient(def.cookTo || def.bakeTo), false);
           this.state = 'ready'; this.burnT = 0;
+          this.setItem(makeIngredient(def.cookTo || def.bakeTo), false);   // (toast pops up: state first)
           ev.push('ready');
         }
       } else if (this.state === 'ready' && def && def.burnTo) {
         this.burnT += dt;
         if (this.burnT >= def.burnTime) {
-          this.setItem(makeIngredient(def.burnTo), false);
           this.state = 'burnt';
+          this.setItem(makeIngredient(def.burnTo), false);
           ev.push('burnt');
         }
       }
@@ -367,14 +436,14 @@ export class Station {
     return ev;
   }
 
-  /** Put a cookable on the stove/oven. */
+  /** Put a cookable on the stove/oven/toaster. */
   startCooking(item) {
-    this.setItem(item, false);
     const def = ITEMS[item.id];
     if (def.cookTo || def.bakeTo) { this.state = 'cooking'; this.cookT = 0; }
     else if (def.burnTo) { this.state = 'ready'; this.burnT = 0; }
     else this.state = 'idle';
-    if (this.type === 'stove') audio.sizzle(true);
+    this.setItem(item, false);       // after the state: a toaster slice sits by state
+    if (this.type === 'stove' && this.cooker !== 'toaster') audio.sizzle(true);
   }
 
   clearCooking() {

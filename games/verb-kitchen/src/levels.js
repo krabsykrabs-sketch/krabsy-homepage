@@ -3,6 +3,7 @@
 //   d  dough-rolling station (rolling pin; dough only)
 //   s  stove          o  oven (pizza oven)  k  sink
 //   r  plate rack     t  trash              H  serving hatch (2 wide)
+//   T  toaster (a cook station like the stove, but only for bread slices)
 //   1-9 ingredient crates (per-level `crates` mapping)
 //   P  chef spawn (floor)
 // High-score (race-the-clock) mode: each level is a FIXED list of orders,
@@ -269,20 +270,80 @@ export const LEVELS = [
       text: 'No cooking today! Grab a bowl, scoop ice cream from the flavour tubs (vanilla, strawberry, chocolate) — one scoop, two for a Berry Duo, or all three for a Neapolitan — then serve and wash up!',
     },
   },
+  {
+    // Level 8 "Sandwich Bar" — chop + TOASTER. Bread comes as a whole loaf:
+    // chop it into a slice (two-stage chop), toast the slice in one of the two
+    // toasters (cook → ready → BURNS if you forget it, like a burger patty), then
+    // build the sandwich on the toast with chopped cheese / lettuce / tomato in
+    // any order — no plate needed until you serve (the burger pattern). Three
+    // sandwiches vary the fillings. Routing dance: crates on the left, boards on
+    // the right, toasters at the back-left, the island in the middle to assemble.
+    // The first kitchen dressed with Tiny Treats props (`tt`, `props`): toaster,
+    // extractor hood, shelf with mugs, knife rack, paper towels, kettle, plants.
+    id: 'sandwich',
+    num: 8,
+    open: true,                  // selectable for playtest
+    name: 'Sandwich Bar',
+    emoji: '🥪',
+    style: 'B',                  // dark counters: bread + the red toasters read well on them
+    tt: true,                    // preload the Tiny Treats item models (bread, sandwich)
+    backWall: ['wall'],          // solid back wall all along (the wall props hang on it)
+    map: [
+      'CTTCHHkC',
+      '1......r',
+      '2.CC...C',
+      '3..P...b',
+      '4......b',
+      'CCCCCCtC',
+    ],
+    crates: { 1: 'bread', 2: 'cheese', 3: 'tomato', 4: 'lettuce' },
+    // the Club (all three fillings) comes exactly twice; 6 orders · 2 plates →
+    // 4 washes, so washing stays load-bearing.
+    orders: ['cheese_toastie', 'garden_sandwich', 'cheese_toastie', 'club_sandwich', 'garden_sandwich', 'club_sandwich'],
+    spawnEvery: [6, 9],
+    plates: 2,
+    starTimes: [360, 285, 225, 175],   // 1★ / 2★ / 3★(gold) / author — placeholders
+    tutorial: {
+      // no recipe picture yet (the others are in assets/ChatGPT/) — the card shows text only
+      title: 'Sandwich',
+      text: 'Slice the bread and toast a slice — don’t let it burn! Then add chopped cheese for a Cheese Toastie, lettuce and tomato for a Garden Sandwich, or all three for a Club Sandwich.',
+    },
+    // Tiny Treats decor. Tile coords may be fractional. `wall: true` hangs the
+    // prop on the back wall (y = height of its origin); otherwise it stands at
+    // height `y` (1.02 = on a counter). The four corner counters can't be
+    // reached by the chef, so props there never block a work surface.
+    props: [
+      // the hood is kept shallow and high so it never hides the toasters from the camera
+      { model: 'tt_extractor_hood', col: 1.5, wall: true, y: 2.95, scale: [1.5, 1, 0.7] },
+      { model: 'tt_wall_shelf_kitchen_hooks_decorated', col: 3.05, wall: true, y: 3.3 },
+      { model: 'tt_wall_papertowel_holder', col: 6, wall: true, y: 2.75 },
+      { model: 'tt_wall_knife_rack', col: 7, wall: true, y: 2.8 },
+      { model: 'tt_kettle', col: -0.12, row: 0.1, y: 1.02, rot: 0.5, scale: 1.2 },
+      { model: 'tt_utensils_cup', col: 0.2, row: -0.2, y: 1.02, rot: -0.3, scale: 1.1 },
+      { model: 'tt_sansevieria_plant_small_potted', col: 7, row: 0, y: 1.02 },
+      { model: 'tt_monstera_plant_small_potted', col: 0, row: 5, y: 1.02, rot: 0.6 },
+      { model: 'tt_pothos_plant_small_potted', col: 7, row: 5, y: 1.3, rot: 2.4 },
+    ],
+  },
 ];
 
 // Locked "coming soon" slots shown after the playable levels (levels grow to
 // ~10–15; dish themes repeat). Numbers only; emoji is a decorative hint.
 export const PLACEHOLDERS = [
-  { id: 'lv8',  num: 8,  emoji: '🍕' },
-  { id: 'lv9',  num: 9,  emoji: '🥪' },
+  { id: 'lv9',  num: 9,  emoji: '🍕' },
   { id: 'lv10', num: 10, emoji: '🍲' },
 ];
 
 // Static decor models every level needs preloaded, keyed by visual style.
 export function levelModelNames(level) {
   const sB = level.style === 'B' ? '_styleB' : '';
+  // Tiny Treats pieces only where a level uses them (toaster + its decor props)
+  const tt = [
+    ...(level.map && level.map.some((row) => row.includes('T')) ? ['tt_toaster'] : []),
+    ...(level.props || []).map((p) => p.model),
+  ];
   return [
+    ...tt,
     'floor_kitchen' + sB,
     'wall', 'wall_half', 'wall_orderwindow', 'wall_window_open',
     'wall_window_closed_curtains_red', 'wall_window_closed_curtains_green',
@@ -323,4 +384,5 @@ export const CRATE_MODELS = {
   scoop_chocolate: 'icecream_container_icecream_chocolate',
   scoop_strawberry: 'icecream_container_icecream_strawberry',
   cherry: 'crate',      // cherries from a generic crate (no cherry-crate art)
+  bread: 'crate_buns',  // bread loaves come from the bakery crate (no loaf-crate art)
 };

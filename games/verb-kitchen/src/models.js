@@ -1,5 +1,6 @@
 // GLTF loading + caching. All Restaurant Bits share one atlas material, so
-// static level geometry merges into a single draw call (see level.js).
+// static level geometry merges into a single draw call (see world.js); Tiny
+// Treats props add one material (and one merged mesh) per atlas.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
@@ -22,26 +23,49 @@ export function loadGLTF(url) {
 }
 
 const R = 'assets/models/restaurant/';
+// Tiny Treats props (CC0, Isa Lousberg): model names carry a `tt_` prefix and
+// load from their own folder. They use two atlases of their own (kitchen /
+// picnic / plants share one, baked goods has another), so every atlas gets ONE
+// shared material — the KayKit one (`sharedMat`) is never touched by them.
+const TT = 'assets/models/tinytreats/';
+const modelUrl = (n) => (n.startsWith('tt_') ? TT + n.slice(3) : R + n) + '.gltf';
 const restaurantCache = new Map();   // name → THREE.Object3D (template)
-let sharedMat = null;                // single shared atlas material
+let sharedMat = null;                // the KayKit atlas material (first one loaded)
+const atlasMats = new Map();         // atlas image uri → shared material
+const mergeable = new Set();         // every shared atlas material (static merge)
+const tintCache = new Map();         // material uuid + tint → tinted clone
+
+/** One shared, flat-looking material per texture atlas. */
+function atlasMaterial(gltf, loaded) {
+  const key = gltf.parser?.json?.images?.[0]?.uri || 'none';
+  let mat = atlasMats.get(key);
+  if (!mat) {
+    // Tiny Treats materials arrive as MeshPhysicalMaterial (specular / ior
+    // extensions) — give them the same plain standard material as KayKit
+    mat = loaded.isMeshPhysicalMaterial
+      ? new THREE.MeshStandardMaterial({ map: loaded.map, name: loaded.name })
+      : loaded;
+    mat.metalness = 0;
+    mat.roughness = 0.9;
+    if (mat.map) {
+      mat.map.colorSpace = THREE.SRGBColorSpace;
+      mat.map.magFilter = THREE.NearestFilter;
+    }
+    atlasMats.set(key, mat);
+    mergeable.add(mat);
+    if (!sharedMat && !key.startsWith('tiny_treats')) sharedMat = mat;
+  }
+  return mat;
+}
 
 export async function preloadRestaurant(names) {
   await Promise.all([...new Set(names)].map(async (n) => {
     if (restaurantCache.has(n)) return;
-    const gltf = await loadGLTF(R + n + '.gltf');
+    const gltf = await loadGLTF(modelUrl(n));
     const tpl = gltf.scene;
     tpl.traverse((o) => {
       if (o.isMesh) {
-        if (!sharedMat) {
-          sharedMat = o.material;
-          sharedMat.metalness = 0;
-          sharedMat.roughness = 0.9;
-          if (sharedMat.map) {
-            sharedMat.map.colorSpace = THREE.SRGBColorSpace;
-            sharedMat.map.magFilter = THREE.NearestFilter;
-          }
-        }
-        o.material = sharedMat;
+        o.material = atlasMaterial(gltf, o.material);
         o.castShadow = true;
         o.receiveShadow = true;
       }
@@ -50,15 +74,23 @@ export async function preloadRestaurant(names) {
   }));
 }
 
-/** Clone of a preloaded restaurant model. tint clones the material (rare). */
+/** Clone of a preloaded model. tint swaps in a tinted copy of its atlas material. */
 export function getModel(name, tint = null) {
   const tpl = restaurantCache.get(name);
   if (!tpl) { console.error('[VK] model not preloaded:', name); return new THREE.Group(); }
   const obj = tpl.clone(true);
   if (tint) {
-    const tinted = sharedMat.clone();
-    tinted.color = new THREE.Color(tint);
-    obj.traverse((o) => { if (o.isMesh) o.material = tinted; });
+    obj.traverse((o) => {
+      if (!o.isMesh) return;
+      const key = o.material.uuid + tint;
+      let tinted = tintCache.get(key);
+      if (!tinted) {
+        tinted = o.material.clone();
+        tinted.color = new THREE.Color(tint);
+        tintCache.set(key, tinted);
+      }
+      o.material = tinted;
+    });
   }
   return obj;
 }
@@ -81,29 +113,31 @@ export function measureModel(name) {
   return boxCache.get(name);
 }
 
-/** Merge all static meshes of a group into one mesh (one draw call). */
+/** Merge all static meshes of a group into one mesh per atlas material (one
+ *  draw call each: KayKit, plus one per Tiny Treats atlas the level uses). */
 export function mergeStatic(group, BufferGeometryUtils) {
   group.updateMatrixWorld(true);
-  const geos = [];
+  const byMat = new Map();           // atlas material → geometries
   const tinted = [];                 // tinted meshes keep their own draw call
   group.traverse((o) => {
     if (!o.isMesh) return;
-    if (o.material === sharedMat) {
+    if (mergeable.has(o.material)) {
       const g = o.geometry.clone();
       g.applyMatrix4(o.matrixWorld);
       // drop attributes that differ between kit pieces so merge succeeds
       for (const key of Object.keys(g.attributes)) {
         if (key !== 'position' && key !== 'normal' && key !== 'uv') g.deleteAttribute(key);
       }
-      geos.push(g);
+      if (!byMat.has(o.material)) byMat.set(o.material, []);
+      byMat.get(o.material).push(g);
     } else {
       tinted.push(o);
     }
   });
   const out = new THREE.Group();
-  if (geos.length) {
+  for (const [mat, geos] of byMat) {
     const merged = BufferGeometryUtils.mergeGeometries(geos, false);
-    const mesh = new THREE.Mesh(merged, sharedMat);
+    const mesh = new THREE.Mesh(merged, mat);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     out.add(mesh);

@@ -270,6 +270,76 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **Level 8 "Sandwich Bar" (chop + toaster) + first Tiny Treats
+  props.** Source only; NOT in the live build. `open: true`, so it is
+  selectable for the owner's play-test.
+  - **Recipe.** Bread loaf (crate) → two-stage chop on a board (`bread` →
+    `bread_half` → `bread_slice`, 1.8 s in total) → slice into a **toaster**
+    (7 s) → `toast`, which burns after 10 more seconds (`toast_burnt`, smoke +
+    alarm, goes to the trash). Toast is the sandwich BASE, like the burger's
+    bun: chopped cheese / lettuce / tomato go on it in any order, with or
+    without a plate (`buildSandwichStates` in `recipes.js`, ids
+    `sandwichwip_<set>`). Three dishes: **Cheese Toastie** (toast + cheese,
+    30🪙), **Garden Sandwich** (toast + lettuce + tomato, 38🪙), **Club
+    Sandwich** (all three, 46🪙). Other filling sets stay open-faced and can't
+    be served. A finished set shows the Tiny Treats `sandwich` model (in hand
+    and on the plate); all three dishes look the same once finished.
+  - **Toaster = a stove with `st.cooker = 'toaster'`** (map char `T`). It reuses
+    the stove's cook/ready/burn logic, ring and smoke. Differences: it only
+    takes items with `cooker: 'toaster'` (a stove refuses those), no sizzle
+    sound, toast may be taken with bare hands (`bareHand`), a held filling goes
+    straight onto the toast in the toaster, and the slice stands in the slot
+    (low while toasting, popped up when ready; `toasterSliceMesh`). Hints:
+    `hintToaster/ToastIt/SliceFirst/Toasting/TakeToast/ToastReady/BinToast`.
+  - **Level** (`levels.js`, id `sandwich`): ASCII 8×6, style B (bread and the
+    red toasters read badly on the orange style-A counters). Crates left
+    (bread = `crate_buns` art, cheese, tomato, lettuce), 2 boards right,
+    2 toasters back-left, 2-tile island. 6 orders (2 of each), 2 plates,
+    star times `[360, 285, 225, 175]` are placeholders. `lv8` placeholder
+    removed (9 and 10 remain).
+  - **New level fields:** `tt: true` (preload the `tt_` item models; other
+    levels download none of them), `backWall: [...]` (back-wall piece cycle;
+    here all `wall`, because `wall_tiles_A/B` are only tile panels with no wall
+    behind them), `props: [{ model, col, row, y, rot, scale, wall }]` (free
+    decor placement; `wall: true` hangs it on the back wall). Decor: TT
+    `extractor_hood` over the toasters (scaled `[1.5, 1, 0.7]` and hung high,
+    otherwise it hides the toasters from the camera),
+    `wall_shelf_kitchen_hooks_decorated`, `wall_papertowel_holder`,
+    `wall_knife_rack`, `kettle` + `utensils_cup` and three potted plants on
+    the four corner counters (the chef can't reach those). Older kitchens are
+    unchanged.
+  - **Tiny Treats in `models.js`.** Model names with a `tt_` prefix load from
+    `assets/models/tinytreats/`. Materials are now one shared material per
+    atlas image (`atlasMaterial`, keyed by the gltf's image uri); the KayKit
+    `sharedMat` is untouched. TT materials arrive as MeshPhysicalMaterial and
+    are replaced by a MeshStandardMaterial (sRGB, NearestFilter, metalness 0,
+    roughness 0.9). `mergeStatic` merges per atlas material (level 8 = 26 draw
+    calls). Tints clone the model's own material and are cached.
+  - **Files copied** to `/home/janah/dev/brocco-dev/verb-kitchen/assets/models/tinytreats/`
+    (gltf + bin each): from Charming Kitchen `toaster`, `extractor_hood`,
+    `wall_knife_rack`, `wall_shelf_kitchen_hooks_decorated`,
+    `wall_papertowel_holder`, `utensils_cup`, `kettle` +
+    `tiny_treats_texture_1.png`; from Pleasant Picnic `sandwich`; from House
+    Plants `monstera_/sansevieria_/pothos_plant_small_potted`; from Baked Goods
+    `bread`, `bread_half`, `bread_slice` with the atlas renamed to
+    `tiny_treats_baked.png` (the three .gltf `uri`s edited to match).
+    `cheese_A` was not needed (KayKit cheese is used).
+  - **Test:** symlink the assets (see the 2026-11-22 entry), then
+    `?qa=sandwich` (or `level8`: staged showcase), `?qa=toast` (burnt toast +
+    smoke), or pick Level 8 in the menu. Verified headless (CDP, 1180×820 and
+    1920×1080, EN/DE/ES): a driven loop of about 50 asserts — loaf → slice → toast →
+    bare-hand take, burn → smoke → trash, toaster refuses a loaf and a patty,
+    cheese chop → toastie → plate → serve → dirty plate → sink quiz (wrong,
+    then 3 right → clean plate; toaster paused meanwhile), toast straight onto
+    a plate, filling onto toast in the toaster, rack grab with a finished
+    sandwich, all 6 served → post screen + star saved. No console errors;
+    levels 1–7 and the burn/question scenes still load and request no TT file.
+  - **Left to do:** a recipe picture (`assets/ChatGPT/Sandwich.webp`, then add
+    `image:` to the level's `tutorial`; the card is text-only now); tune star
+    times and order count from a play-through; port to the live build
+    (`homepage/games/verb-kitchen/` has no L4–8 and no i18n) and copy the
+    `tinytreats/` folder with it; the helper bot does not know sandwiches.
+
 - 2026-11-23 — **Slow connections (user report from Argentina): retry +
   "Try again", minified three.js, WebP pictures.** Source and live build.
   - `src/retry.js` `withRetry()` — 3 attempts, 0.8 s / 2 s pause. Every

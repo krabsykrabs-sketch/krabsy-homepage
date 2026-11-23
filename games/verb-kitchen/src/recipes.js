@@ -91,6 +91,21 @@ export const ITEMS = {
   // drizzle that lands in the bowl is a tinted sauce blob.
   choc_syrup:       { model: 'ketchup', tint: '#3a2113', emoji: '🍫', scale: 1.9, reusable: true, drizzle: 'syrup' },
   syrup:            { model: 'food_ingredient_tomato_sauce', tint: '#3a2113', emoji: '🍯', scale: 1.0 },
+
+  // --- level 8: sandwiches (chop + TOASTER) ---
+  // Bread is a two-stage chop like lettuce/cheese: whole loaf → cut loaf
+  // (interim) → one slice. The slice goes into a TOASTER (`cooker`), which runs
+  // the stove's cook → ready → burn logic. Toast is the sandwich BASE, like the
+  // burger's bun: fillings build on it in any order (see buildSandwichStates).
+  // Unlike a hot patty it may be taken out with bare hands (`bareHand`).
+  // Models are Tiny Treats (`tt_` prefix, ~0.6× KayKit food size → scaled up).
+  // A slice model stands upright; `flat` lays it down everywhere but in the toaster.
+  bread:           { model: 'tt_bread',       scale: 1.5, emoji: '🍞', chopTo: 'bread_half', chopTime: 1.8 },
+  bread_half:      { model: 'tt_bread_half',  scale: 1.5, emoji: '🍞', chopTo: 'bread_slice', chopTime: 1.8, interim: true },
+  bread_slice:     { model: 'tt_bread_slice', scale: 1.6, flat: true, emoji: '🍞', cooker: 'toaster', cookTo: 'toast', cookTime: 7 },
+  toast:           { model: 'tt_bread_slice', scale: 1.6, flat: true, tint: '#e9b77c', emoji: '🍞', cooker: 'toaster',
+                     plateable: true, bareHand: true, burnTo: 'toast_burnt', burnTime: 10, steamy: true },   // .accepts wired below
+  toast_burnt:     { model: 'tt_bread_slice', scale: 1.6, flat: true, tint: '#3b2a20', emoji: '💀', trashOnly: true },
 };
 
 // ---------- pot-in-progress states (order-free veg assembly) ----------
@@ -288,6 +303,56 @@ export function burgerWipId(set) {
   }
 })();
 
+// ---------- sandwich-in-progress states (order-free, PLATE-LESS assembly) ----------
+// Sandwiches build on a slice of TOAST exactly like burgers build on a bun:
+// add chopped cheese / lettuce / tomato in ANY order, no plate needed until you
+// serve. Identity = the filling SET. A set that matches a DISH closes into the
+// finished sandwich model; any other set stays open-faced (not servable).
+export const SANDWICH_LAYERS = ['cheese', 'lettuce', 'tomato'];   // canonical bottom→top
+const SANDWICH_ADDERS = { cheese_chopped: 'cheese', lettuce_chopped: 'lettuce', tomato_slices: 'tomato' };
+const SANDWICH_TOKEN_ITEM = { cheese: 'cheese_chopped', lettuce: 'lettuce_chopped', tomato: 'tomato_slices' };
+const SANDWICH_DISHES = {         // complete servable sets (canonical join) → dish id
+  'cheese': 'cheese_toastie',
+  'lettuce,tomato': 'garden_sandwich',
+  'cheese,lettuce,tomato': 'club_sandwich',
+};
+export const SANDWICH_MODEL = 'tt_sandwich';   // the finished sandwich (Tiny Treats)
+export const SANDWICH_LAYER_MODELS = {
+  cheese_chopped: 'food_ingredient_cheese_slice',
+  lettuce_chopped: 'food_ingredient_lettuce_slice',
+  tomato_slices: 'food_ingredient_tomato_slices',
+};
+
+const sandwichTokens = (set) => SANDWICH_LAYERS.filter((t) => set.has(t));
+/** Canonical id for a filling set on toast: empty set = bare `toast`. */
+export function sandwichWipId(set) {
+  const t = sandwichTokens(set);
+  return t.length ? 'sandwichwip_' + t.join('_') : 'toast';
+}
+
+(function buildSandwichStates() {
+  const n = SANDWICH_LAYERS.length;
+  for (let mask = 0; mask < (1 << n); mask++) {
+    const set = new Set();
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) set.add(SANDWICH_LAYERS[i]);
+    const id = sandwichWipId(set);
+    const accepts = {};
+    for (const [held, token] of Object.entries(SANDWICH_ADDERS)) {
+      if (set.has(token)) continue;
+      const next = new Set(set); next.add(token);
+      accepts[held] = sandwichWipId(next);
+    }
+    if (id === 'toast') { ITEMS.toast.accepts = accepts; continue; }
+    const tokens = sandwichTokens(set);
+    ITEMS[id] = {
+      compose: 'sandwich',
+      expandsTo: ['toast', ...tokens.map((t) => SANDWICH_TOKEN_ITEM[t])],   // for plating + dish match
+      dish: SANDWICH_DISHES[tokens.join(',')] || null,                      // set → finished sandwich
+      emoji: '🥪', plateable: true, accepts,
+    };
+  }
+})();
+
 // Dishes: parts must exactly match a plate's contents (order-free).
 export const DISHES = {
   salad:           { name: 'Salad',        emoji: '🥗', parts: ['lettuce_chopped', 'tomato_slices'], coins: 20, model: null },
@@ -310,6 +375,11 @@ export const DISHES = {
   sundae_vanilla:    { name: 'Vanilla Scoop',     emoji: '🍨', parts: ['scoop_vanilla'],                                        coins: 20, model: 'icecream_bowl_icecream_vanilla', icons: '🍨' },
   sundae_deluxe:     { name: 'Berry Duo',         emoji: '🍨', parts: ['scoop_strawberry', 'scoop_chocolate'],                  coins: 32, model: 'icecream_bowl_cherries',        icons: '🍓🍫' },
   sundae_neapolitan: { name: 'Neapolitan Sundae', emoji: '🍨', parts: ['scoop_vanilla', 'scoop_chocolate', 'scoop_strawberry'], coins: 44, model: 'icecream_bowl_decorated_A',      icons: '🍨🍫🍓' },
+  // --- level 8 sandwiches: toast + an exact filling set (order-free, like the
+  // burgers). All three render the finished Tiny Treats sandwich on the plate. ---
+  cheese_toastie:  { name: 'Cheese Toastie',  emoji: '🥪', parts: ['toast', 'cheese_chopped'],                                     coins: 30, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🧀' },
+  garden_sandwich: { name: 'Garden Sandwich', emoji: '🥪', parts: ['toast', 'lettuce_chopped', 'tomato_slices'],                   coins: 38, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🥬🍅' },
+  club_sandwich:   { name: 'Club Sandwich',   emoji: '🥪⭐', parts: ['toast', 'cheese_chopped', 'lettuce_chopped', 'tomato_slices'], coins: 46, model: 'tt_sandwich', model_scale: 1.45, icons: '🍞🧀🥬🍅' },
 };
 
 export function isBurgerDish(dishId) {
@@ -357,8 +427,10 @@ export function combine(baseId, heldId) {
   return (def && def.accepts && def.accepts[heldId]) || null;
 }
 
-// Every restaurant model the game ever instantiates (preload manifest).
-export function itemModelNames() {
+// Every item/dish model the game instantiates (preload manifest). The Tiny
+// Treats ones (`tt_`) are only loaded on levels that ask for them (`level.tt`),
+// so the older levels download nothing new.
+export function itemModelNames(level = null) {
   const names = new Set();
   for (const def of Object.values(ITEMS)) if (def.model) names.add(def.model);
   for (const d of Object.values(DISHES)) if (d.model) names.add(d.model);
@@ -367,5 +439,7 @@ export function itemModelNames() {
   for (const m of Object.values(POT_VEG_MODELS)) names.add(m);
   ['food_ingredient_bun_top', 'food_ingredient_bun_bottom', 'food_ingredient_dough_base',
    'plate', 'plate_dirty', 'bowl', 'bowl_dirty'].forEach((m) => names.add(m));
+  for (const m of Object.values(SANDWICH_LAYER_MODELS)) names.add(m);
+  if (!(level && level.tt)) return [...names].filter((m) => !m.startsWith('tt_'));
   return [...names];
 }

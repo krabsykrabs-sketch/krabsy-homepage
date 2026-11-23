@@ -61,7 +61,7 @@ export class Game {
       decorModels = levelModelNames(level);
     }
     const tasks = [
-      preloadRestaurant([...decorModels, ...itemModelNames()]),
+      preloadRestaurant([...decorModels, ...itemModelNames(level)]),
       preloadChef(charName),
     ];
     // co-op levels load a SECOND character for the helper (kept apart from the
@@ -468,7 +468,9 @@ export class Game {
         // 1) put a raw item on to cook / bake
         if (held && held.type === 'ing' && !st.item) {
           const def = ITEMS[held.id];
-          const ok = wantsBake ? !!def.bakeTo : (!!def.cookTo || (!!def.burnTo && !def.bakeTo));
+          // a toaster only takes bread slices / toast, a stove everything else
+          const ok = wantsBake ? !!def.bakeTo
+            : ((!!def.cookTo || (!!def.burnTo && !def.bakeTo)) && (def.cooker || null) === (st.cooker || null));
           if (ok) { st.startCooking(held); this.chef.setCarried(null); }
           else this.reject(st);
           break;
@@ -483,8 +485,12 @@ export class Game {
           break;
         }
         // 3) take a cooked patty — a plate, or a bun (→ bun+patty). NOT bare hands.
-        if (st.type === 'stove' && ready) {
-          const ontoBurger = held && held.type === 'ing' && combine(held.id, st.item.id);
+        //    (Toast is fine in bare hands → case 4. A held filling goes straight
+        //    onto the toast in the toaster.)
+        const bareOk = ready && !held && ITEMS[st.item.id].bareHand;
+        if (st.type === 'stove' && ready && !bareOk) {
+          const ontoBurger = held && held.type === 'ing' &&
+            (combine(held.id, st.item.id) || (st.cooker === 'toaster' && combine(st.item.id, held.id)));
           if (held && held.type === 'plate' && !held.dirty && canPlate(held.contents, st.item.id)) {
             this.takeHotOntoPlate(st, held);
           } else if (ontoBurger) {
@@ -495,7 +501,8 @@ export class Game {
             this.chef.setCarried(carry, buildItemMesh(carry));
             this.updateSizzle();
             audio.putdown();
-          } else { this.reject(st); this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('plate'), modelIcon('food_ingredient_bun')]); }
+          } else if (st.cooker === 'toaster') this.reject(st);
+          else { this.reject(st); this.fx.bubble(st.pos.clone().setY(st.topY + 1.15), [modelIcon('plate'), modelIcon('food_ingredient_bun')]); }
           break;
         }
         // 4) bare-hand take what's left: a burnt patty (→ trash) or a mid-cook item
@@ -786,7 +793,7 @@ export class Game {
     if (this.fx.smokeSources.size === 0) audio.alarm(false);
   }
   updateSizzle() {
-    const any = this.world.stations.some((s) => s.type === 'stove' && (s.state === 'cooking' || s.state === 'ready'));
+    const any = this.world.stations.some((s) => s.type === 'stove' && !s.cooker && (s.state === 'cooking' || s.state === 'ready'));
     audio.sizzle(any);
   }
 
@@ -837,6 +844,19 @@ export class Game {
           else if (st.state === 'cooking') text = t('hintBoiling');
           else if (held && held.type === 'ing' && combine(st.item.id, held.id)) text = t('hintAddPot');
           else text = potRecipeHint(pdef.veg || []);
+        }
+        else if (st.cooker === 'toaster') {
+          const plate = held && held.type === 'plate' && !held.dirty;
+          if (st.state === 'cooking') text = t('hintToasting');
+          else if (st.state === 'ready') {
+            text = !held ? t('hintTakeToast')
+              : plate && canPlate(held.contents, st.item.id) ? t('hintAddPlate')
+              : heldDef && combine(st.item.id, held.id) ? t('hintAddMix') : t('hintToastReady');
+          }
+          else if (st.state === 'burnt') text = held ? t('hintFreeHand') : t('hintBinToast');
+          else if (heldDef && heldDef.cooker === 'toaster') text = t('hintToastIt');
+          else if (held && (held.id === 'bread' || held.id === 'bread_half')) text = t('hintSliceFirst');
+          else text = t('hintToaster');
         }
         else if (st.state === 'ready') {
           if (st.type === 'oven') text = emptyPlate ? t('hintPlatePizza') : t('hintTooHotPlate');
