@@ -259,9 +259,9 @@ function composeSundae(contents) {
   const top = balls.length ? FLOOR + 0.36 * BALL : FLOOR;      // top of the balls
   if (contents.includes('waffle')) {
     const w = getModel('icecream_waffle');
-    w.scale.setScalar(0.95);
-    w.rotation.set(-1.15, 0, 0.12);            // standing, leaning back
-    w.position.set(-0.1, top + 0.08, -0.26);
+    w.scale.setScalar(0.9);
+    w.rotation.set(-1.35, 0, 0.1);             // nearly upright, slight lean back
+    w.position.set(-0.04, top + 0.02, -0.2);   // inside the bowl behind the balls, peeking up
     g.add(w);
   }
   if (contents.includes('cookiestick')) {
