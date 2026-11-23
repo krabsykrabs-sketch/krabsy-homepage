@@ -329,7 +329,9 @@ body.sideHud #tutorial .tIcon{font-size:calc(30px * var(--ticket-scale));}
 #postStars span.off2{opacity:.18; transform:none;}
 #postStars span.author{color:var(--teal); text-shadow:0 0 18px var(--teal);}
 @keyframes starIn{to{opacity:1; transform:scale(1) rotate(0);}}
-#postAuthor{color:var(--teal); font-weight:800; font-size:14.5px; min-height:18px; margin-top:-4px;}
+#postAuthor{display:inline-block; align-self:center; color:var(--teal); font-weight:800; font-size:15.5px; margin-top:-2px;
+  background:rgba(16,24,58,.92); padding:6px 16px; border-radius:99px; box-shadow:0 3px 10px rgba(0,0,0,.35);}
+#postAuthor:empty{display:none;}
 #missedBox{background:var(--navy2); border-radius:16px; padding:14px 26px; max-width:460px;}
 #missedBox h3{font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800;}
 #missedList{display:flex; flex-direction:column; gap:5px; font-family:'Fredoka One',cursive; font-size:19px;}
