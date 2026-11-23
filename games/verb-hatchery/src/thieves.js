@@ -105,7 +105,12 @@ export class Thieves {
       // pose
       const y = height(t.x, t.z);
       t.obj.position.set(t.x, y, t.z);
-      t.obj.rotation.y = t.dir;
+      // face where it walks, turning smoothly (never snap or spin on the spot)
+      const target = t.move ?? t.dir;
+      if (t.face === undefined) t.face = target;
+      let df = target - t.face; df = Math.atan2(Math.sin(df), Math.cos(df));
+      if (!paused) t.face += df * Math.min(1, dt * 8);
+      t.obj.rotation.y = t.face;
       const time = this.world.time + t.phase;
       const moving = !paused && t.state !== 'dizzy';
       const { body, stars } = t.obj.userData;
@@ -121,17 +126,39 @@ export class Thieves {
     return caught;
   }
 
-  _step(t, dx, dz, len) {
-    const nx = t.x + dx * len, nz = t.z + dz * len;
+  // Is one step from the crab's spot to (nx, nz) allowed?
+  _free(t, nx, nz) {
     // crabs paddle through the shallows but not into deep water, and they don't hop
     // on or off the pier from the side
     const h = height(nx, nz);
-    if (h < WATER_Y - 0.22 || (onPier(nx, nz) !== onPier(t.x, t.z) && Math.abs(h - height(t.x, t.z)) > 0.45)) { t.dir += Math.PI * 0.6; return; }
-    // crabs walk around trees, not through them
-    // (a step that leads away from the tree is always fine: a crab that starts right
-    // beside a trunk must not be stuck there)
-    for (const c of this.world.nearColliders(nx, nz)) { const d = Math.hypot(nx - c.x, nz - c.z); if (d < c.r + 0.5 && d < Math.hypot(t.x - c.x, t.z - c.z)) { t.dir += 0.8; return; } }
-    t.x = nx; t.z = nz;
+    if (h < WATER_Y - 0.22 || (onPier(nx, nz) !== onPier(t.x, t.z) && Math.abs(h - height(t.x, t.z)) > 0.45)) return false;
+    // crabs walk around trees, not through them (a step that leads away from a tree is
+    // always fine: a crab that starts right beside a trunk must not be stuck there)
+    for (const c of this.world.nearColliders(nx, nz)) {
+      const d = Math.hypot(nx - c.x, nz - c.z);
+      if (d < c.r + 0.5 && d < Math.hypot(t.x - c.x, t.z - c.z)) return false;
+    }
+    return true;
+  }
+  // One step towards (dx, dz). If the way is blocked, the crab steers around the obstacle
+  // (tries directions further and further to the side, on the side it tried last) instead of
+  // turning on the spot. Returns true if it moved. t.move = the direction it actually walked.
+  _step(t, dx, dz, len) {
+    const want = Math.atan2(dx, dz);
+    const side = t.side || (Math.random() < 0.5 ? 1 : -1);
+    for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6, 2.3, -2.3]) {
+      const a = want + off * side;
+      const nx = t.x + Math.sin(a) * len, nz = t.z + Math.cos(a) * len;
+      if (!this._free(t, nx, nz)) continue;
+      t.x = nx; t.z = nz; t.move = a;
+      t.side = off === 0 ? t.side : Math.sign(off) * side; // keep going round the same way
+      if (off === 0) t.side = 0;
+      return true;
+    }
+    // boxed in: a wandering crab picks a new direction (once), a chasing one waits
+    t.blocked = (t.blocked || 0) + 1;
+    if (t.state === 'wander') t.dir = want + Math.PI * (0.7 + Math.random() * 0.6);
+    return false;
   }
 
   bonk(t) {
