@@ -270,6 +270,83 @@ ours 2×1×2).
 
 ## Status log
 
+- 2026-11-23 — **All-level review: older kitchens dressed to the Sandwich Bar
+  standard.** Source only; NOT in the live build. Sandwich Bar itself is
+  unchanged (it is the reference).
+  - **Engine (`world.js`, `game.js`).**
+    - `props` now work in editor-JSON levels too (`_placeProps`, shared by both
+      build paths; JSON levels preload the prop models). Coords are the LOCAL
+      station grid (col 0 / row 0 = back-left counter); wall props hang on the
+      wall the order window sits in.
+    - ASCII back wall: a 2-wide piece that would overhang the left/right edge
+      is now a 1-wide `wall_half` on the in-bounds tile, so the wall closes at
+      both corners (before: an overhang on the left and a gap on the right
+      whenever the hatch is not centred). Default piece cycle is now solid
+      `wall`; the old default mixed in `wall_tiles_A/B`, which are counter
+      backsplash panels (1 tile, y 1–2) and FLOATED with no wall behind them
+      (L2, L4, L5). They are now used as what they are: a splash prop on a
+      counter tile (`{ model: 'wall_tiles_A', col, row: 0 }`).
+    - New JSON-level flag `trimFloor: true`: clips the 2×2 editor floor tiles
+      to the columns/rows that hold counters/crates/cookers. Removes the bare
+      floor strip outside the counters (soup: right; sundae: right + front;
+      garden: behind the wall). Visual only (the strips were unreachable); the
+      camera fit zooms in a little as a result. NOTE: on a `rotate: 2` level it
+      shifts the local grid (garden is now 6×5, back counters = row 0).
+  - **Per level.**
+    - L1 Garden Bistro: back wall closed at the right corner (`wall_half` added
+      in `salad1.json`), mug shelf + paper towels on the wall, a plant on each
+      of the four dead corners, `trimFloor`.
+    - L2 Burger Bar + L4 Co-op (shared `BURGER_PROPS`): solid back wall, knife
+      rack, mug shelf, tiled splash + paper towels behind the sink, wall
+      cabinet over the rack, utensils + red jar next to the stoves, 3 plants.
+    - L3 Pizza Palace (already had cabinets/window): utensil cup by the oven,
+      scale, flour sack and a plant on the dead front corners.
+    - L5 Split Kitchen: solid back wall (window kept right of the hatch), knife
+      rack + mug shelf over the prep wing, scale on the head of the pass
+      counter, cook's shelf (utensils, jars) on the dead counters behind the
+      stoves, 4 plants.
+    - L6 Soup Kitchen: full back wall (3 pieces added in `soup6.json`), TT hood
+      over the two stoves, mug shelf, knife rack, teapot, utensils, 2 plants,
+      `trimFloor`. Recipe card: no longer shows the SALAD picture (text-only
+      until there is a soup picture); "(E)" removed from the text (EN/DE/ES) —
+      tablets have no E key.
+    - L7 Sundae Sunday: full back wall with a window over the open floor
+      (3 pieces added in `icecream7.json`), mug shelf, cookie jar, plant,
+      `trimFloor`. Recipe card: salad picture removed; the text now names the
+      three sundaes exactly as the tickets do (EN/DE/ES) — before it said "one
+      scoop", but only vanilla counts.
+    - L8 Sandwich Bar: nothing.
+  - **Props only stand on counters the chef cannot reach** (dead corners) or
+    hang on the back wall, so no work surface is lost.
+  - **More Tiny Treats files copied** to the brocco-dev `tinytreats/` folder
+    (all on the shared `tiny_treats_texture_1.png` atlas, ~250 KB in total;
+    a level only downloads the ones it uses): `wall_cabinet_straight`,
+    `container_kitchen_A_red`, `container_kitchen_B_blue`, `cookie_jar`,
+    `flour_sack_closed`, `scale`, `teapot`, `cacti_plant_pot_small`,
+    `zzplant_plant_small_potted`. (TT `milk` lies on its side — not usable as is.)
+  - **Verified** headless (CDP): all 8 levels at 1180×820 and 1920×1080, no
+    console errors; per level a serve at the hatch → dirty plate → sink quiz →
+    clean plate on the rack; every station reachable from the spawn (L5 prep
+    wing excepted, by design); draw calls 22–34.
+  - **Open proposals (not built, owner decides):**
+    1. Recipe pictures for Soup, Sundae and Sandwich (cards are text-only).
+    2. L7: the cone stack / waffle / cherry / cookie bowls sit on REACHABLE
+       counters and look like toppings you can grab — move them to the dead
+       corners or make cherry a real topping.
+    3. L7: two back-row tiles right of the hatch are open floor; two counters
+       there would give more room to park bowls.
+    4. L7 "Berry Duo" is strawberry + chocolate — rename (e.g. Choco-Berry)?
+    5. L6: the bottom counter row is far from everything and unused — move the
+       boards or the bowl stack there, or shorten the kitchen by a row.
+    6. L4 is an exact copy of L2 plus the helper — give it its own layout or
+       orders, or drop it now that L5 is the real co-op level.
+    7. L2/L4/L5: side stoves have no wall behind them, so no hood; a full
+       right side wall (as in L3) would allow one.
+    8. Level order: L6–L8 are `open: true` test levels; star times everywhere
+       are still placeholders — tune from play-throughs.
+    9. L3: the dough crate at the back-left sits half hidden behind the wall
+       cabinets and the ketchup counter.
+
 - 2026-11-23 — **Level 8 "Sandwich Bar" (chop + toaster) + first Tiny Treats
   props.** Source only; NOT in the live build. `open: true`, so it is
   selectable for the owner's play-test.
