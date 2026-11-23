@@ -289,8 +289,20 @@ ours 2×1×2).
        carrot-potato soup. Make the soup colour depend only on WHICH
        ingredients are in (any order): reddish/orange = carrot-potato,
        beige/brown-white = onion-mushroom. Double-check the logic.
-    4. Level feels a bit boring, especially after the burger level. Owner
-       has no fix in mind yet — needs ideas.
+    4. Felt a bit boring, but the owner wants the MECHANICS UNCHANGED —
+       rejected boil-over, stirring and similar ideas. Don't add mechanics.
+  - L7 Sundae Sunday — "completely broken", REDESIGN the level:
+    1. Pressing E at a tub puts a scoop TOOL in your hand out of nothing,
+       and the tool itself can be dropped into the bowl. Makes no sense.
+    2. Wanted flow: ONE ice-cream scoop tool in the kitchen. Grab the tool →
+       take ice cream from a tub with it → put the ice cream into a bowl →
+       put the scoop down / park it somewhere.
+    3. Graphical glitch: the ice cream (in the tubs) sits in the same layer
+       as another surface (z-fighting) → raise it a little.
+    4. Waffles, fruit/cherries and other extras must be REACHABLE (corners
+       can't be reached). Note: the 2026-11-23 review moved them to dead
+       corners as pure decor — reverse that; they should be usable.
+    5. Plan the whole level anew around this flow.
 
 - 2026-11-23 — **RELEASE PREP (asked by the homepage session: DE/ES menus live).**
   - **Release-ready source = the commit that adds this entry** (on top of
