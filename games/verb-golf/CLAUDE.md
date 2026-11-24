@@ -91,6 +91,44 @@ means the verb returns later.
 
 Level 1 hole 1 is the tutorial: one question, one straight putt.
 
+
+## Topics and languages (master session, 2026-11-24) — required
+
+Owner direction (`docs/vision.md`): Krabsy becomes grammar practice in
+**any learning language**, starting with Spanish for English speakers
+(`/en/spanish/`, live as a pilot). **Every game must play any topic**, not
+only English verbs. Questions come from the engine's `quiz` shape; topic
+files are described in `content/FORMAT.md`.
+
+- **Read `?topic=`** (`KQ.topicFromUrl()`) and ask that topic. Test with
+  `?topic=es_ser&lang=en` (Spanish "Yo soy …", 38 sentences),
+  `?topic=prepositions&lang=de` and the default verbs.
+- **Pass the game's own language** to the engine:
+  `getQuizSet({ …, lang })` with the `lang` from `src/i18n.js`. Without it
+  the teach lines come in the site's stored language (Verb Towers showed
+  German explanations in its English game until 2026-11-24).
+- **Two question displays:** `display.kind === 'trio'` (verbs,
+  `go → ___ → ___`) and `'gap'` (a sentence with one `___`; any hint is
+  already in brackets in `display.sentence`, e.g. `Me llamo Pablo. Soy ___. (tall)`).
+  Sentences are longer than verb forms: plan room for ~45 characters on
+  cards, plates and signs, and fonts need á é í ó ú ñ ¿ ¡.
+- **After a wrong answer** show `teach.line` for gap questions (the short
+  rule, in the interface language); verbs keep showing the chain.
+- **Menu and HUD texts must not say "English verbs"** for other topics: keep a
+  small per-topic text table (pattern: `TOPIC_TEXT` in Verb Towers'
+  `js/i18n.js`: subtitle, example line, "words to practise" heading).
+- Record answers with `recordAttempt(q.item, q.form, correct, '<game-id>', q.topic)`.
+- **Mechanics tied to the verb pair need a topic-neutral rule** (below).
+  The verb version stays as it is.
+- Interface languages: EN/DE/ES as now. The English interface matters most
+  for the Spanish section.
+
+**Verb Golf:** card strokes simply ask single questions for gap topics.
+**Word gates** for gap topics: the sentence shows on the bottom line and the
+three gates carry the answer and two wrong choices (one gate row per hole;
+the second row asks a different sentence of the same topic instead of the
+3rd form).
+
 ## Assets
 
 The shared KayKit library is at `/home/janah/dev/krabsy-homepage/assets/`

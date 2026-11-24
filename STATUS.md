@@ -32,7 +32,11 @@ Spanish.
   strings + `topic_overrides.es_ser`). Footer knows `/en/` (legal links,
   no catalogue grid). Fill the Gap: format-v2 topics, English texts,
   accents optional when typing Spanish, hint behind "?". Verb Towers plays
-  es_ser but is left out: its menu says "English verbs, go → went → gone".
+  es_ser; **since 2026-11-24 it's in the section** (`/en/spanish/games/verb-towers/`,
+  topic texts per topic, explanations in the game's language).
+- **Game briefs** (Golf, Catapult, Hatchery) got a required "Topics and
+  languages" section 2026-11-24: any topic, `lang` passed, gap display,
+  topic-neutral replacements for the verb-pair mechanics.
   Not in the sitemap, games.json or nav on purpose. **To go public:**
   Nora's OK on the content, then remove noindex (landing page +
   `NOINDEX` in the generator), add sitemap URLs, IndexNow.

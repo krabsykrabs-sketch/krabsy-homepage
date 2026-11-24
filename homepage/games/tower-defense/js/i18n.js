@@ -1,4 +1,4 @@
-// Localisation. The site serves German and Spanish kids; English verbs stay English.
+// Localisation. Interface DE/ES/EN; the questions stay in the language being learned.
 // Language: ?lang=de|es|en, else the site's saved choice (localStorage 'krabsy_lang',
 // shared with the wrapper pages), else the browser language, else German.
 //
@@ -281,9 +281,36 @@ function detectLang() {
 export const lang = detectLang();
 const S = TABLES[lang];
 
+// Topic texts (?topic=, 2026-11-24): the tables above are written for verbs. Other
+// topics (prepositions, Spanish es_ser, …) override the few texts that name verbs;
+// menuExample = [before, highlighted word, after] replaces the go → went → gone line.
+const TOPIC = (() => {
+  try { return new URLSearchParams(window.location.search).get('topic') || 'irregular_verbs'; }
+  catch (_) { return 'irregular_verbs'; }
+})();
+const TOPIC_TEXT = {
+  prepositions: {
+    de: { subtitle: 'Baue Türme. Schmiede Münzen mit englischen Präpositionen.',
+      recapTitle: 'Diese Sätze üben:', menuExample: ['My birthday is ', 'in', ' July.'] },
+    es: { subtitle: 'Construye torres. Forja monedas con preposiciones en inglés.',
+      recapTitle: 'Frases para practicar:', menuExample: ['My birthday is ', 'in', ' July.'] },
+    en: { subtitle: 'Build towers. Forge coins with English prepositions.',
+      recapTitle: 'Sentences to practise:', menuExample: ['My birthday is ', 'in', ' July.'] },
+  },
+  es_ser: {
+    de: { subtitle: 'Baue Türme. Schmiede Münzen mit spanischen Sätzen.',
+      recapTitle: 'Diese Sätze üben:', menuExample: ['Yo ', 'soy', ' Lucas.'] },
+    es: { subtitle: 'Construye torres. Forja monedas con frases en español.',
+      recapTitle: 'Frases para practicar:', menuExample: ['Yo ', 'soy', ' Lucas.'] },
+    en: { subtitle: 'Build towers. Forge coins with Spanish sentences.',
+      recapTitle: 'Sentences to practise:', menuExample: ['Yo ', 'soy', ' Lucas.'] },
+  },
+};
+const TT = (TOPIC_TEXT[TOPIC] && (TOPIC_TEXT[TOPIC][lang] || TOPIC_TEXT[TOPIC].en)) || {};
+
 // t('key') → string; t('key', a, b) calls template functions.
 export function t(key, ...args) {
-  const v = S[key] !== undefined ? S[key] : EN[key];
+  const v = TT[key] !== undefined ? TT[key] : S[key] !== undefined ? S[key] : EN[key];
   if (typeof v === 'function') return v(...args);
   return v !== undefined ? v : key;
 }
@@ -295,6 +322,12 @@ export const levelText = (index) => S.levels[index] || EN.levels[index] || { nam
 export function applyStatic(root = document) {
   document.documentElement.lang = lang;
   root.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  const ex = TT.menuExample;
+  const chainEl = root.querySelector('.menu-chain');
+  if (ex && chainEl) {
+    const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    chainEl.innerHTML = `${esc(ex[0])}<span class="form-past">${esc(ex[1])}</span>${esc(ex[2])}`;
+  }
   root.querySelectorAll('[data-i18n-title]').forEach((el) => {
     const text = t(el.dataset.i18nTitle);
     el.title = text;

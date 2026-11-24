@@ -648,6 +648,10 @@ export const UI = {
     } else if (f.stage === 'wrong') {
       fb.className = 'forge-feedback bad';
       fb.textContent = t('forgeWrong');
+      // Sentence topics: the short rule teaches why (verbs show the whole chain instead).
+      if (q.display.kind === 'gap' && q.teach && q.teach.line) {
+        fb.innerHTML += `<div class="forge-teach">${esc(q.teach.line)}</div>`;
+      }
     } else {
       fb.className = 'forge-feedback';
       fb.innerHTML = '';

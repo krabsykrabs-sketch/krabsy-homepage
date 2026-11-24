@@ -788,4 +788,12 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     zoomed, fit button); regressions: build flow, tutorial, analytics
     events. No errors. Under heavy machine load a test tap can land while
     the camera re-fits (seen once in a parallel run, passes alone).
+- 2026-11-24 (master session): plays any topic properly. `js/i18n.js`
+  `TOPIC_TEXT` (subtitle, menu example line, recap heading per topic;
+  prepositions and Spanish `es_ser`), `js/questions.js` passes the game's
+  `lang` to `getQuizSet` (teach lines were in the stored site language),
+  `js/ui.js` shows `teach.line` under "This is right:" for sentence topics
+  (`.forge-teach` in `css/game3d.css`). Checked headless: es_ser/en
+  (menu, forge, wrong-answer rule in English), verbs/de unchanged.
+  Served in the Spanish section: `/en/spanish/games/verb-towers/`.
 

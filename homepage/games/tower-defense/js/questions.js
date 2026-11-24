@@ -17,6 +17,7 @@
 // comes as the follow-up to the same verb's 2nd-form question, with the 2nd form
 // filled in: `go → ? → ___`, then `go → went → ?`. Simply showing the 2nd form would
 // give the answer away for the 61 % of verbs whose 2nd and 3rd forms are the same.
+import { lang } from './i18n.js'; // teach lines in the game's language, not the stored site one
 
 // base, past, participle, wrong pasts, wrong participles
 const FALLBACK_VERBS = [
@@ -100,7 +101,7 @@ export const Questions = {
     try {
       const KQ = await import('/lib/krabsy-questions.js');
       this._kq = KQ;
-      set = await KQ.getQuizSet({ topic: KQ.topicFromUrl(), count: 1000, withOptions: 3, uniqueBy: 'id' });
+      set = await KQ.getQuizSet({ topic: KQ.topicFromUrl(), count: 1000, withOptions: 3, uniqueBy: 'id', lang });
       if (!set || set.length < 6) set = null;
       else {
         this.source = 'site';
@@ -129,7 +130,7 @@ export const Questions = {
     try {
       const KQ = this._kq;
       const topic = KQ.topicFromUrl();
-      const picked = await KQ.getQuizSet({ topic, count: 16, smart: true, withOptions: 3 });
+      const picked = await KQ.getQuizSet({ topic, count: 16, smart: true, withOptions: 3, lang });
       const items = [...new Set(picked.map(q => q.item))];
       if (!items.length) return;
       const rank = new Map(items.map((id, i) => [id, i]));
