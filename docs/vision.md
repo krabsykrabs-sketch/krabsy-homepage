@@ -126,7 +126,8 @@ content before games.
    Not deployed yet (no visible change; goes out with step 3).
 2. **English interface texts** (`data/ui_en.json`), first for the Quiz
    Room children's page and the drills.
-3. **Spanish pilot topic "ser"** (Nora's request): *ser* with *yo*, name,
+3. 🟡 (built 2026-11-24, waiting for Nora's check + deploy; see STATUS.md)
+   **Spanish pilot topic "ser"** (Nora's request): *ser* with *yo*, name,
    origin, descriptions (`Yo ___ Lucas.` → soy, `Soy ___ Inglaterra.`
    → de, `Yo soy ___. (tall)` → alto/alta). 30–40 questions in
    `content/`, checked by Nora. Runs in Quiz Room + drills. Direct link

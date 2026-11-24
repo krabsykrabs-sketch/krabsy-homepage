@@ -467,3 +467,9 @@ question loading, texts, sounds, character loading and the QA approach.
 - 2026-11-22: answers stay readable in a crowded bonus round: signs above the
   pads + answer chips in the child's bonus bar (pad under your feet marked).
   qa-crowd 5/5, qa-bonus passes.
+- 2026-11-24 (master session): third topic `es_ser` (Spanish "Yo soy …", format v2,
+  `content/FORMAT.md`) for a Spanish teacher's 1:1 lessons: `TOPICS`, topic and
+  difficulty names in `i18n.js`, `getQuizSet` gets the room's `lang`, no inline
+  fallback for newer topics. Editor `unused()`: unused items first, then other
+  sentences of used items (es_ser has 8 items, 38 sentences). qa-editor 14/14,
+  qa-room passes with `lang=en&topic=es_ser` (2 children) and prepositions DE.

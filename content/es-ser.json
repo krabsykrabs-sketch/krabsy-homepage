@@ -1,0 +1,528 @@
+{
+  "format": 2,
+  "id": "es_ser",
+  "learn_lang": "es",
+  "level": "A1",
+  "title": {
+    "en": "I am … (ser): name, origin, describing yourself",
+    "es": "Yo soy …: nombre, origen y descripciones",
+    "de": "Ich bin … (ser): Name, Herkunft, Beschreibungen"
+  },
+  "status": "draft — waiting for Nora's check (2026-11-24)",
+  "items": [
+    {
+      "id": "ser_name",
+      "group": "name",
+      "label": "soy + name",
+      "explanation": {
+        "en": "To say who you are: (Yo) soy + your name. You can leave out \"yo\": Soy Ana.",
+        "es": "Para decir quién eres: (Yo) soy + nombre. Se puede omitir \"yo\": Soy Ana.",
+        "de": "So sagst du, wer du bist: (Yo) soy + Name. \"Yo\" kann man weglassen: Soy Ana."
+      },
+      "distractors": [
+        "estoy",
+        "es",
+        "eres"
+      ],
+      "examples": [
+        {
+          "sentence": "Yo ___ Lucas.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Hola, ___ Ana.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Hola, yo ___ Pablo.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "¡Buenos días! ___ Marta.",
+          "answers": [
+            "Soy"
+          ],
+          "distractors": [
+            "Estoy",
+            "Es",
+            "Eres"
+          ],
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "id": "ser_me_llamo",
+      "group": "name",
+      "label": "me llamo + name",
+      "explanation": {
+        "en": "Another way to say your name: Me llamo Ana. (= My name is Ana.)",
+        "es": "Otra forma de decir tu nombre: Me llamo Ana.",
+        "de": "Noch eine Art, deinen Namen zu sagen: Me llamo Ana. (= Ich heiße Ana.)"
+      },
+      "distractors": [
+        "soy",
+        "llama",
+        "llamas"
+      ],
+      "examples": [
+        {
+          "sentence": "Me ___ Sofía.",
+          "answers": [
+            "llamo"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Hola, me ___ Tom.",
+          "answers": [
+            "llamo"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo me ___ Daniel.",
+          "answers": [
+            "llamo"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ser_origin_soy",
+      "group": "origin",
+      "label": "soy de + place",
+      "explanation": {
+        "en": "To say where you are from: Soy de + country or city. Soy de Inglaterra.",
+        "es": "Para decir de dónde eres: Soy de + país o ciudad. Soy de Inglaterra.",
+        "de": "So sagst du, woher du kommst: Soy de + Land oder Stadt. Soy de Inglaterra."
+      },
+      "distractors": [
+        "estoy",
+        "es",
+        "eres"
+      ],
+      "examples": [
+        {
+          "sentence": "Yo ___ de Inglaterra.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ de Escocia.",
+          "answers": [
+            "Soy"
+          ],
+          "distractors": [
+            "Estoy",
+            "Es",
+            "Eres"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo ___ de Londres.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Me llamo Ana y ___ de Madrid.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "No ___ de Francia.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ser_origin_de",
+      "group": "origin",
+      "label": "de (not en) + place",
+      "explanation": {
+        "en": "Where you are from always uses \"de\": Soy de Irlanda. Not \"en\" (en = in).",
+        "es": "El origen siempre va con \"de\": Soy de Irlanda. No \"en\".",
+        "de": "Herkunft immer mit \"de\": Soy de Irlanda. Nicht \"en\" (en = in)."
+      },
+      "distractors": [
+        "en",
+        "a",
+        "por"
+      ],
+      "examples": [
+        {
+          "sentence": "Soy ___ Inglaterra.",
+          "answers": [
+            "de"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo soy ___ Irlanda.",
+          "answers": [
+            "de"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Soy ___ Barcelona.",
+          "answers": [
+            "de"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Me llamo Liam. Soy ___ Gales.",
+          "answers": [
+            "de"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ser_nationality",
+      "group": "origin",
+      "label": "soy inglés / inglesa",
+      "explanation": {
+        "en": "Boys and girls say it differently: Tom is inglés, Emma is inglesa. Most nationality words end in -o for a boy and -a for a girl.",
+        "es": "Cambia para chicos y chicas: Tom es inglés, Emma es inglesa. Muchas nacionalidades terminan en -o (chico) y -a (chica).",
+        "de": "Jungen und Mädchen sagen es verschieden: Tom ist inglés, Emma ist inglesa. Viele Nationalitäten enden auf -o (Junge) und -a (Mädchen)."
+      },
+      "examples": [
+        {
+          "sentence": "Me llamo Tom. Soy de Inglaterra. Soy ___.",
+          "answers": [
+            "inglés"
+          ],
+          "distractors": [
+            "inglesa",
+            "Inglaterra",
+            "ingleses"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Emma. Soy de Inglaterra. Soy ___.",
+          "answers": [
+            "inglesa"
+          ],
+          "distractors": [
+            "inglés",
+            "Inglaterra",
+            "inglesas"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Lucía. Soy de España. Soy ___.",
+          "answers": [
+            "española"
+          ],
+          "distractors": [
+            "español",
+            "España",
+            "españolas"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Hugo. Soy de España. Soy ___.",
+          "answers": [
+            "español"
+          ],
+          "distractors": [
+            "española",
+            "España",
+            "españoles"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Liam. Soy de Irlanda. Soy ___.",
+          "answers": [
+            "irlandés"
+          ],
+          "distractors": [
+            "irlandesa",
+            "Irlanda",
+            "irlandeses"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Me llamo Chloé. Soy de Francia. Soy ___.",
+          "answers": [
+            "francesa"
+          ],
+          "distractors": [
+            "francés",
+            "Francia",
+            "francesas"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Me llamo Max. Soy de Alemania. Soy ___.",
+          "answers": [
+            "alemán"
+          ],
+          "distractors": [
+            "alemana",
+            "Alemania",
+            "alemanes"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ser_describe_soy",
+      "group": "describe",
+      "label": "soy + describing word",
+      "explanation": {
+        "en": "To say what you are like: Soy + describing word. Soy alto. Soy simpática.",
+        "es": "Para describirte: Soy + adjetivo. Soy alto. Soy simpática.",
+        "de": "So sagst du, wie du bist: Soy + Eigenschaft. Soy alto. Soy simpática."
+      },
+      "distractors": [
+        "estoy",
+        "es",
+        "eres"
+      ],
+      "examples": [
+        {
+          "sentence": "Yo ___ alto.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo ___ simpática.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ muy divertido.",
+          "answers": [
+            "Soy"
+          ],
+          "distractors": [
+            "Estoy",
+            "Es",
+            "Eres"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Me llamo Leo y ___ un poco tímido.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Yo no ___ aburrida.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ser_describe_word",
+      "group": "describe",
+      "label": "soy alto / alta",
+      "explanation": {
+        "en": "A boy says alto, a girl says alta: the ending changes (-o / -a). Words ending in -e stay the same: inteligente.",
+        "es": "Un chico dice alto, una chica dice alta (-o / -a). Las palabras en -e no cambian: inteligente.",
+        "de": "Ein Junge sagt alto, ein Mädchen alta (-o / -a). Wörter auf -e bleiben gleich: inteligente."
+      },
+      "examples": [
+        {
+          "sentence": "Me llamo Pablo. Soy ___.",
+          "answers": [
+            "alto"
+          ],
+          "hint": {
+            "en": "tall",
+            "de": "groß"
+          },
+          "distractors": [
+            "alta",
+            "altos",
+            "bajo"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Marta. Soy ___.",
+          "answers": [
+            "alta"
+          ],
+          "hint": {
+            "en": "tall",
+            "de": "groß"
+          },
+          "distractors": [
+            "alto",
+            "altas",
+            "baja"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Leo. Soy ___.",
+          "answers": [
+            "bajo"
+          ],
+          "hint": {
+            "en": "short",
+            "de": "klein"
+          },
+          "distractors": [
+            "baja",
+            "bajos",
+            "alto"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Sara. Soy ___.",
+          "answers": [
+            "simpática"
+          ],
+          "hint": {
+            "en": "nice",
+            "de": "nett"
+          },
+          "distractors": [
+            "simpático",
+            "simpáticas",
+            "antipática"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Mateo. Soy ___.",
+          "answers": [
+            "divertido"
+          ],
+          "hint": {
+            "en": "funny",
+            "de": "lustig"
+          },
+          "distractors": [
+            "divertida",
+            "divertidos",
+            "aburrido"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Hugo. Soy ___.",
+          "answers": [
+            "tímido"
+          ],
+          "hint": {
+            "en": "shy",
+            "de": "schüchtern"
+          },
+          "distractors": [
+            "tímida",
+            "tímidos",
+            "simpático"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Me llamo Elena. Soy ___.",
+          "answers": [
+            "rubia"
+          ],
+          "hint": {
+            "en": "blonde",
+            "de": "blond"
+          },
+          "distractors": [
+            "rubio",
+            "rubias",
+            "morena"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Me llamo Lola. Soy ___.",
+          "answers": [
+            "inteligente"
+          ],
+          "hint": {
+            "en": "clever",
+            "de": "klug"
+          },
+          "distractors": [
+            "inteligentes",
+            "divertida",
+            "aburrida"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ser_age_tengo",
+      "group": "contrast",
+      "label": "tengo … años (not soy)",
+      "explanation": {
+        "en": "Careful: your age uses tengo (= I have), not soy. Tengo diez años.",
+        "es": "Ojo: la edad va con tengo, no con soy. Tengo diez años.",
+        "de": "Achtung: Das Alter sagt man mit tengo (= ich habe), nicht mit soy. Tengo diez años."
+      },
+      "distractors": [
+        "soy",
+        "estoy",
+        "es"
+      ],
+      "examples": [
+        {
+          "sentence": "Yo ___ diez años.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Soy Ana y ___ ocho años.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

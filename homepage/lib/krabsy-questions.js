@@ -350,7 +350,7 @@ export async function getQuizSet(opts = {}) {
     const seen = new Set();
     const extra = []; // further questions of an item already used
     for (const q of raw) {
-      const dedupKey = uniqueBy === 'verb' ? q.verb : q.id;
+      const dedupKey = uniqueBy === 'verb' ? itemOf(q) : q.id; // one per item (verb / use case)
       const rec = build(q);
       if (!rec) continue;
       if (seen.has(dedupKey)) { extra.push([rec]); continue; }

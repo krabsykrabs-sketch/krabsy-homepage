@@ -89,6 +89,8 @@ export function loadPrepositions() {
 const TOPIC_REGISTRY = {
   irregular_verbs: { learn: 'en', level: null, shapes: ['chain', 'quiz'] },
   prepositions:    { learn: 'en', level: null, shapes: ['quiz'] },
+  // Spanish pilot (2026-11-24, for a teacher's 1:1 lessons): no public page yet
+  es_ser:          { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser.json' },
 };
 
 /** Live list of topic ids (the same array object stays valid after

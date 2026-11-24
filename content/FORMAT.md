@@ -92,6 +92,10 @@ synced to `homepage/data/<file>.json` at release.
   random words. At least 3 per question (games show 2–4 options).
 - **Wrong choices must really be wrong** in that sentence. `Soy ___ (tall)`
   with `alta` as a wrong choice only works if the sentence says it's a boy.
+- **All options look alike.** When the gap starts a sentence, capitalise
+  the answer *and* every wrong choice (`Soy / Estoy / Es / Eres`); a lone
+  lowercase or uppercase option gives the answer away.
+- **Labels are unique per topic** (games show them as the item name).
 - One gap per sentence. Keep sentences short (games have small cards).
 - Interface languages: write `en` first (pilot interface), add `es`/`de`
   when that interface goes live. Missing languages fall back

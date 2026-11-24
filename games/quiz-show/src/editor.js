@@ -6,6 +6,7 @@ import { esc, questionHTML } from './ui.js';
 import * as QS from './questions.js';
 
 const key = (u) => `${u[0].topic}|${u[0].item}`;
+const qkey = (u) => `${key(u)}|${u[0].sentence || u[0].form}`;
 const len = (units) => units.reduce((n, u) => n + u.length, 0);
 
 export class QuestionEditor {
@@ -59,9 +60,16 @@ export class QuestionEditor {
     this.render();
   }
 
+  // Units not in the list yet: first those whose item (verb / use case) isn't used,
+  // then other sentences of used items (small topics like es_ser have few items with
+  // many sentences each; the big topics never get that far).
   unused() {
-    const used = new Set([...this.units, ...this.bonus].map(key));
-    return this.pool.filter((u) => !used.has(key(u)));
+    const all = [...this.units, ...this.bonus];
+    const usedItem = new Set(all.map(key));
+    const usedQ = new Set(all.map(qkey));
+    const fresh = this.pool.filter((u) => !usedItem.has(key(u)));
+    const more = this.pool.filter((u) => usedItem.has(key(u)) && !usedQ.has(qkey(u)));
+    return [...fresh, ...more];
   }
 
   // Grow or shrink to `count` questions, keeping the teacher's edits at the front.

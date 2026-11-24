@@ -16,7 +16,7 @@ import { VERBS } from './verbs.js';
 import { PREPS } from './preps.js';
 import { lang } from './i18n.js';
 
-export const TOPICS = ['irregular_verbs', 'prepositions'];
+export const TOPICS = ['irregular_verbs', 'prepositions', 'es_ser'];
 
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
@@ -96,14 +96,16 @@ export async function loadUnits(topic, levels) {
         const tierOf = new Map((await KQ.getChainSet({ topic, shuffle: false })).map((r) => [r.verb, r.tier]));
         units = units.filter((u) => !levels || levels.includes(tierOf.get(u[0].item) ?? 3));
       } else {
-        units = engineUnits(await KQ.getQuizSet({ topic, count: 1000, withOptions: 4, difficulty: levels }));
+        units = engineUnits(await KQ.getQuizSet({ topic, count: 1000, withOptions: 4, difficulty: levels, lang: lang() }));
       }
       units = units.filter((u) => u.every((q) => q.correct >= 0));
       if (units.length >= 3) { source = 'engine'; return units; }
     } catch (_) { /* local file or offline: inline lists */ }
   }
   source = 'inline';
-  return topic === 'prepositions' ? inlinePrepUnits(levels) : inlineVerbUnits(levels);
+  if (topic === 'prepositions') return inlinePrepUnits(levels);
+  if (topic === 'irregular_verbs') return inlineVerbUnits(levels);
+  return []; // newer topics have no inline copy: they need the site engine
 }
 
 // A pair cut to its 2nd-form question: then the full chain may be taught.
