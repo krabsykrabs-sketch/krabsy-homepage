@@ -3,7 +3,7 @@
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-22.)
 
-## Spanish pilot + question format v2 (2026-11-24, not deployed)
+## Spanish pilot + question format v2 (2026-11-24, LIVE)
 
 Direction: `docs/vision.md` (curated grammar in any learning language,
 universal games, teacher tools). Trigger: a Spanish teacher (Nora, 1:1
@@ -20,8 +20,8 @@ Spanish.
   fills small topics with more sentences per item) and `api/classes.py`
   TOPICS. Full quiz passes headless in English (`qa-room` 2 children,
   `qa-editor` 14/14, API 50 passed).
-- **To go live:** push, deploy the static site AND the API (TOPICS).
-  Nora's link: `https://krabsy.com/games/quiz-room/teacher.html?topic=es_ser&lang=en`
+- **Live 2026-11-24** (site + API deployed; checked headless on krabsy.com:
+  teacher page lists the ser questions in English, no errors). Nora's link: `https://krabsy.com/games/quiz-room/teacher.html?topic=es_ser&lang=en`
   (the children's join link carries `lang=en`). No public page, no
   games.json/sitemap change on purpose.
 - Not done: English interface for the drills (`ui_en.json`, step 2);
