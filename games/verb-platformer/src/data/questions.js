@@ -22,7 +22,69 @@
 //                                                     // next gate asks it
 //     full:  'go → went → gone' }                     // always complete (results screen)
 
+import { TOPIC, getLang } from '../i18n.js';
+
 const BLANK = '___';
+
+// ---------- sentence topics (?topic=es_ser, prepositions …; 2026-11-24) ----------
+// One sentence with a gap per gate, three answers, from the site question engine ('quiz'
+// shape). Gate fields `verb` / `form` and level `tiers` / `verbs` / `forms` are verb-only
+// and ignored here. Served alone (no /lib/) there is no inline copy: the game falls back
+// to the verbs.
+// A sentence question:
+//   { verb: <item id>, form: 'default', topic, correct, wrong: [a, b],
+//     parts: ['Yo', '___', 'de Londres.'], askIndex: 1, sep: ' ',   // the sign
+//     prompt: 'Yo ___ de Londres.', chain: 'Yo soy de Londres.', full: (same), teach }
+const IS_SENTENCE = TOPIC !== 'irregular_verbs';
+
+function sentenceQuestion(q) {
+  const s = String(q.display.sentence);
+  const m = s.match(/_{2,}/);
+  if (!m) return null;
+  const pre = s.slice(0, m.index).trim(), post = s.slice(m.index + m[0].length).trim();
+  const wrong = [];
+  for (const o of q.options) {
+    if (wrong.length === 2) break;
+    if (o && norm(o) !== norm(q.answer) && !wrong.some(w => norm(w) === norm(o))) wrong.push(o);
+  }
+  if (wrong.length < 2) return null;
+  const parts = [], filled = [];
+  if (pre) { parts.push(pre); filled.push(pre); }
+  const askIndex = parts.length;
+  parts.push(BLANK); filled.push(q.answer);
+  if (post) { parts.push(post); filled.push(post); }
+  // "Soy ___." → no space before the punctuation that follows the gap
+  const join = (arr) => arr.join(' ').replace(/ ([.,!?;:)])/g, '$1');
+  const full = join(filled);
+  return {
+    verb: q.item, form: 'default', topic: q.topic, correct: q.answer, wrong,
+    parts, askIndex, sep: ' ', prompt: join(parts), chain: full, full,
+    teach: (q.teach && q.teach.line) || '', difficulty: q.difficulty || 1,
+  };
+}
+
+// The level's verb tiers (1 easy … 3 hard) double as the sentence difficulty cap, so
+// "First Steps" asks the easy sentences; too few of them → all sentences.
+async function buildSentenceQueue(level, gates) {
+  const KQ = await import('/lib/krabsy-questions.js');
+  const set = await KQ.getQuizSet({ topic: TOPIC, count: 1000, withOptions: 3, uniqueBy: 'id', lang: getLang() });
+  let all = set.filter(q => q.display && q.display.kind === 'gap').map(sentenceQuestion).filter(Boolean);
+  if (!all.length) throw new Error('no sentences');
+  const cap = Array.isArray(level.tiers) && level.tiers.length ? Math.max(...level.tiers) : 3;
+  const easy = all.filter(q => q.difficulty <= cap);
+  if (easy.length >= Math.min(6, gates.length)) all = easy;
+  // one sentence per gate, different items first, then any unused sentence
+  const byItem = new Map();
+  for (const q of shuffle(all.slice())) {
+    if (!byItem.has(q.verb)) byItem.set(q.verb, []);
+    byItem.get(q.verb).push(q);
+  }
+  const order = [];
+  for (let round = 0; order.length < all.length; round++) {
+    for (const list of shuffle([...byItem.values()])) if (list[round]) order.push(list[round]);
+  }
+  return gates.map((_, i) => order[i % order.length]);
+}
 
 const FALLBACK = [
   ['go', 'went', 'gone', ['goed', 'wented'], ['goed', 'goen']],
@@ -130,6 +192,9 @@ async function smartVerbs(level, count) {
 }
 
 export async function buildQuestionQueue(level, gates) {
+  if (IS_SENTENCE) {
+    try { return await buildSentenceQueue(level, gates); } catch (_) { /* not on the site: verbs below */ }
+  }
   const all = await loadVerbPool();
   let pool = all;
   if (Array.isArray(level.verbs) && level.verbs.length) {

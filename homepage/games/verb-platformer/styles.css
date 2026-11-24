@@ -368,10 +368,11 @@ body[data-state="results"] #hud-question, body[data-state="menu"] #hud-question 
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.55s ease-out;
-  white-space: nowrap;
+  white-space: normal; max-width: 92vw;   /* sentence topics wrap; verb chains stay one line */
 }
 #reveal-prompt  { display: block; color: var(--coral); font-size: 0.7em; margin-bottom: 4px; }  /* the wrong word the player stepped on */
 #reveal-correct { color: var(--teal); }   /* the full chain */
+.reveal-teach { display: block; margin-top: 6px; font-family: 'Nunito', sans-serif; font-size: 0.5em; font-weight: 700; line-height: 1.35; color: #fff; opacity: .9; max-width: 34em; }
 
 #death-flash {
   position: fixed; inset: 0;

@@ -1,6 +1,6 @@
 // The game shell's DOM: in-game HUD, transient overlays, pause card, first-run hint,
 // results screen, loader. All text comes from src/i18n.js; main.js owns the flow.
-import { t } from './i18n.js';
+import { t, exampleHtml, exampleBlocks } from './i18n.js';
 import { formatTime } from './progress.js';
 import { starsHtml, helpHtml, esc, IS_TOUCH } from './shell-bits.js';
 import { startConfetti, stopConfetti, playJingle } from './celebrate.js';
@@ -53,8 +53,9 @@ export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onR
     const jump = IS_TOUCH
       ? `<div class="pic"><span class="pic-jump">${esc(t('jump'))}</span></div>`
       : `<div class="pic"><kbd class="key space">${esc(t('keySpace'))}</kbd></div>`;
-    const goal = '<div class="pic pic-gate"><span class="sign">go → <b>___</b> → gone</span>' +
-      '<span class="blocks"><i class="bad">goed</i><i class="good">went</i><i class="bad">wented</i></span></div>';
+    const [w1, ok, w2] = exampleBlocks();
+    const goal = `<div class="pic pic-gate"><span class="sign">${exampleHtml()}</span>` +
+      `<span class="blocks"><i class="bad">${w1}</i><i class="good">${ok}</i><i class="bad">${w2}</i></span></div>`;
     return `<div class="hint-step">${move}<strong>${esc(t('hintMove'))}</strong></div>` +
       `<div class="hint-step">${jump}<strong>${esc(t('hintJump'))}</strong></div>` +
       `<div class="hint-step wide">${goal}<strong>${esc(t('hintGoal'))}</strong><small>${esc(t('hintGoalSub'))}</small></div>`;
@@ -93,15 +94,20 @@ export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onR
 
     // After every answer: the full chain (`go → went → gone`) in green. After a wrong answer
     // the word the player stepped on is shown above it with a red ✗, and it stays longer.
-    showAnswerReveal(chain, wrongWord = null) {
+    showAnswerReveal(chain, wrongWord = null, teach = '') {
       revealPrompt.textContent = wrongWord ? `${wrongWord} ✗` : '';
       revealPrompt.hidden = !wrongWord;
       revealCorrect.textContent = chain;
+      // sentence topics: the short rule under the sentence after a miss
+      let teachEl = reveal.querySelector('.reveal-teach');
+      if (!teachEl) { teachEl = document.createElement('span'); teachEl.className = 'reveal-teach'; reveal.appendChild(teachEl); }
+      teachEl.textContent = wrongWord && teach ? teach : '';
+      teachEl.hidden = !(wrongWord && teach);
       reveal.hidden = false;
       reveal.style.opacity = '1';
       clearTimeout(revealHideTimer);
       clearTimeout(revealClearTimer);
-      const hold = wrongWord ? 2600 : 1400;
+      const hold = wrongWord ? (teach ? 4200 : 2600) : 1400;
       revealHideTimer  = setTimeout(() => { reveal.style.opacity = '0'; }, hold);
       revealClearTimer = setTimeout(() => { reveal.hidden = true; },        hold + 600);
     },

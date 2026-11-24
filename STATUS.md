@@ -37,7 +37,10 @@ Spanish.
 - **Verb Kitchen plays Spanish** (2026-11-24): sentence topics at the sink (one
   plate = two sentences of one item), Sentence Cookbook, per-topic texts;
   `/en/spanish/games/verb-kitchen/`, first game card on the landing page.
-  Next candidate: Verb Platformer (gate sign must fit a sentence).
+- **Verb Platformer plays Spanish** (2026-11-24): one sentence per gate, sign fits
+  sentences, rule after a miss, stats under the topic, level tiers cap the sentence
+  difficulty; `/en/spanish/games/verb-platformer/`. The section now has 3 games
+  (Kitchen, Towers, Platformer) + Quiz Room + 2 drills.
 - **Game briefs** (Golf, Catapult, Hatchery) got a required "Topics and
   languages" section 2026-11-24: any topic, `lang` passed, gap display,
   topic-neutral replacements for the verb-pair mechanics.

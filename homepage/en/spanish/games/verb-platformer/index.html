@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
+  <title>Verb Platformer: Spanish jump-and-run — Krabsy</title>
+  <!-- Pilot (2026-11-24): not public yet, see /en/spanish/index.html. -->
+  <meta name="robots" content="noindex">
+  <meta name="description" content="A 3D jump-and-run for Spanish: jump on the block with the right word, the wrong ones fall. Free, no sign-up.">
+  <link rel="canonical" href="https://krabsy.com/en/spanish/games/verb-platformer/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body { margin: 0; padding: 0; background: #0c1430; color: #fff; font-family: 'Nunito', system-ui, sans-serif; }
+    html { overflow-x: hidden; }
+    .vt-bar { position: fixed; inset: 0 0 auto 0; height: 48px; display: flex; align-items: center; gap: 16px;
+      padding: 0 16px; background: #0c1430; border-bottom: 1px solid rgba(255,255,255,.08); z-index: 5; box-sizing: border-box; }
+    .vt-bar a { color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; }
+    .vt-bar a:hover, .vt-bar a:focus-visible { color: #2ee6c0; }
+    .vt-logo { display: inline-flex; align-items: center; font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 20px; }
+    .vt-logo img { width: 22px; height: 22px; margin: 0 1px; }
+    .vt-bar .vt-back { margin-left: auto; white-space: nowrap; }
+    #game-frame { display: block; border: 0; width: 100%; margin-top: 48px;
+      height: calc(100vh - 48px - 36px); height: calc(100svh - 48px - 36px); }
+    .vt-hint { display: block; height: 36px; line-height: 36px; text-align: center; color: #b9c7e6;
+      font-size: 14px; text-decoration: none; background: #0f1b3d; }
+    .vt-info { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; line-height: 1.55; }
+    .vt-info h1 { font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 28px; margin: 0 0 12px; color: #2ee6c0; }
+    .vt-info h2 { font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 20px; margin: 24px 0 8px; color: #ffcf5e; }
+    .vt-info ol, .vt-info ul { padding-left: 1.3em; }
+    .vt-info a { color: #2ee6c0; }
+    .vt-info .vt-foot { margin-top: 32px; font-size: 13px; color: #b9c7e6; }
+    .vt-info .vt-foot a { color: #b9c7e6; }
+  </style>
+</head>
+<body>
+  <nav class="vt-bar" aria-label="Krabsy">
+    <a class="vt-logo" href="/en/spanish/" aria-label="Krabsy">kr<img src="/favicon.png" alt="" decoding="async">bsy</a>
+    <a class="vt-back" href="/en/spanish/">← Spanish topics</a>
+  </nav>
+
+  <iframe id="game-frame" title="Verb Platformer" loading="eager" allow="autoplay; fullscreen; gamepad"></iframe>
+  <a class="vt-hint" href="#how">▼ How to play</a>
+
+  <main class="vt-info" id="how">
+    <h1>Verb Platformer in Spanish</h1>
+    <p>A jump-and-run high above the clouds. On the way to the flag you reach <b>answer gates</b>: a Spanish sentence with a gap floats above three blocks, each with a word. Jump on the block with the right word. The wrong blocks crumble and fall!</p>
+    <h2>How to play</h2>
+    <ol>
+      <li>Run with WASD or the arrow keys, jump with Space, look around with the mouse (on a tablet: the stick and the jump button).</li>
+      <li>Read the sentence on the orange sign, then jump on the block with the missing word.</li>
+      <li>Wrong block? You fall, see the right sentence and why, and try again from the last checkpoint.</li>
+      <li>Reach the flag. Fewer wrong answers = more stars.</li>
+    </ol>
+    <h2>Good to know</h2>
+    <ul>
+      <li>Best on a computer or Chromebook; it also works on tablets. Phones only in landscape and with small text.</li>
+      <li>Stars and best times are saved on this device only. No account.</li>
+    </ul>
+    <p><a href="#">▲ Back to the game</a> · <a href="/en/spanish/">All Spanish topics</a></p>
+    <p class="vt-foot">© 2026 Krabsy · <a href="/de/impressum/">Legal notice (German)</a> · <a href="/en/privacy/">Privacy</a></p>
+  </main>
+
+  <script>
+    // Topic from this page's URL (?topic=es_…), default es_ser; only Spanish topics here.
+    (function () {
+      var t = 'es_ser';
+      try {
+        var q = new URLSearchParams(location.search).get('topic');
+        if (q && /^es_[a-z0-9_]{1,36}$/.test(q)) t = q;
+      } catch (_) {}
+      document.getElementById('game-frame').src = '/games/verb-platformer/?lang=en&topic=' + t;
+    })();
+  </script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>

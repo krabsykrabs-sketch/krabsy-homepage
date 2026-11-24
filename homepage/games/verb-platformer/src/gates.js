@@ -74,7 +74,11 @@ function makeAnswerBubble(text) {
 
   // Keep height fixed in world space; scale width to match canvas aspect. Small screens
   // (phones in landscape) get bigger words: 1.3× (the widest verb, "forgotten", still clears the next lane).
-  const k = window.innerHeight < 560 ? 1.3 : 1;
+  let k = window.innerHeight < 560 ? 1.3 : 1;
+  // Long words (Spanish "inteligentes", 12 letters) shrink so the bubble stays narrower than
+  // the 3.5 m lane spacing.
+  const maxW = 3.2;
+  if (BUBBLE_H * k * (W / H) > maxW) k = maxW / (BUBBLE_H * (W / H));
   const planeW = Math.max(BUBBLE_MIN_W, BUBBLE_H * k * (W / H));
   const geo = new THREE.PlaneGeometry(planeW, BUBBLE_H * k);
   const mat = new THREE.MeshBasicMaterial({

@@ -253,9 +253,38 @@ export function setLang(l) {
   applyStatic();
 }
 
+// Topic (?topic=, 2026-11-24): the strings above are written for irregular verbs. Sentence
+// topics (Spanish es_ser, prepositions, …; data/questions.js) override the few that say "verbs".
+export const TOPIC = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('topic');
+    if (q && /^[a-z0-9_]{1,40}$/.test(q)) return q;
+  } catch (_) { /* no URL */ }
+  return 'irregular_verbs';
+})();
+const SENTENCE_TEXT = {
+  en: { verbs: 'Difficulty', verbsLevel: (n) => `Difficulty ${n} of 3`, resMissed: 'Practise these sentences' },
+  de: { verbs: 'Schwierigkeit', verbsLevel: (n) => `Schwierigkeit ${n} von 3`, resMissed: 'Diese Sätze noch üben' },
+  es: { verbs: 'Dificultad', verbsLevel: (n) => `Dificultad ${n} de 3`, resMissed: 'Practica estas frases' },
+};
+
+/** The small example on the help card and the first-run hint ('<b>' marks the gap). */
+export function exampleHtml() {
+  if (TOPIC === 'es_ser') return 'Yo <b>___</b> Lucas.';
+  if (TOPIC === 'prepositions') return 'My birthday is <b>___</b> July.';
+  return 'go → <b>___</b> → gone';
+}
+/** Three example answer blocks for the first-run hint: [wrong, right, wrong]. */
+export function exampleBlocks() {
+  if (TOPIC === 'es_ser') return ['es', 'soy', 'estoy'];
+  if (TOPIC === 'prepositions') return ['on', 'in', 'at'];
+  return ['goed', 'went', 'wented'];
+}
+
 /** Translate a key; template keys take args. Falls back to English, then to `undefined`. */
 export function t(key, ...args) {
-  const v = STRINGS[lang][key] ?? EN[key];
+  const tt = TOPIC !== 'irregular_verbs' ? (SENTENCE_TEXT[lang] || SENTENCE_TEXT.en) : null;
+  const v = (tt && tt[key]) ?? STRINGS[lang][key] ?? EN[key];
   return typeof v === 'function' ? v(...args) : v;
 }
 

@@ -372,3 +372,18 @@ Quality bar before re-release: it must feel good in the first 30 seconds
 and on a 1024×768 touch tablet.
 
 - 2026-11-23 — Master session: level names translated for DE/ES (i18n keys `name.<level id>`: Erste Schritte … / Primeros pasos …) on the level cards, play button, pause and result screens; EN keeps the JSON names. Source + live build (25a1ae2). Owner: menus in the child's language, English only for what is learned.
+- 2026-11-24 — Master session: **sentence topics** (`?topic=es_ser`, `prepositions`, any
+  format-v2 topic; docs/vision.md). `src/data/questions.js` `buildSentenceQueue`: one
+  sentence per gate from `getQuizSet` (game `lang`), different items first; level `tiers`
+  cap the sentence difficulty (First Steps = easy sentences); gate `verb`/`form` ignored.
+  Sign (`level-loader.js`): `q.sep` (' ' instead of the arrow), long sentences drawn
+  smaller; answer bubbles shrink above 3.2 m (`gates.js`). After a miss the reveal shows
+  the filled sentence + `teach` (`.reveal-teach`; `#answer-reveal` may wrap now).
+  `analytics.js` records under `question.topic`. Texts: `TOPIC`, sentence wording for
+  "Verbs"/"Practise these verbs", `exampleHtml()`/`exampleBlocks()` for the help card
+  and the first-run hint (`src/i18n.js`). The changed files were copied straight into
+  `homepage/games/verb-platformer/` (the served copy matched the source; no new assets,
+  so no `build-release.cjs` run). Checked headless: gate 1 wrong + right (es_ser/en,
+  stats under es_ser), verbs/de unchanged, menu + hint. Served in the Spanish section:
+  `/en/spanish/games/verb-platformer/`.
+

@@ -261,7 +261,7 @@ game.setHandlers({
       if (question) run.missed.set(`${question.verb}|${question.form}`, question);
     }
     // Teach beat: the word the player stepped on (red ✗) and the full chain.
-    if (question?.chain) ui.showAnswerReveal(question.chain, opt?.text ?? null);
+    if (question?.chain) ui.showAnswerReveal(question.chain, opt?.text ?? null, question.teach || '');
   },
   onComplete: () => finishLevel(),
   setHudQuestion: (text) => ui.setHudQuestion(text),

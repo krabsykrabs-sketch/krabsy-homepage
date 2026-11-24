@@ -52,7 +52,8 @@ function makeQuestionBubble(q) {
   const font = `${Q_BUBBLE_FONT_PX}px ${CANVAS_FONT}`;
   const parts = typeof q === 'string' ? [q] : q.parts;
   const ask = typeof q === 'string' ? -1 : q.askIndex;
-  const ARROW = '  →  ';
+  // verbs: go  →  ___  →  ___ ; sentence topics: Yo ___ de Londres. (q.sep = ' ')
+  const ARROW = typeof q === 'object' && q.sep != null ? q.sep : '  →  ';
   const SLOT_W = 360;      // width of a blank slot in canvas px
 
   const measure = document.createElement('canvas').getContext('2d');
@@ -61,12 +62,16 @@ function makeQuestionBubble(q) {
   const segW = parts.map(t => (isBlank(t) ? SLOT_W : measure.measureText(t).width));
   const arrowW = measure.measureText(ARROW).width;
   const textW = segW.reduce((a, b) => a + b, 0) + arrowW * (parts.length - 1);
+  // Long sentences (sentence topics) are drawn smaller so the sign stays about as wide as
+  // the gate: above ~2900 px of text the whole canvas is scaled down.
+  const fit = Math.min(1, 2900 / (textW + 2 * Q_BUBBLE_PAD_PX));
   const W = Math.max(900, Math.ceil(textW + 2 * Q_BUBBLE_PAD_PX));
 
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const ctx = c.getContext('2d');
   ctx.clearRect(0, 0, W, H);
+  // (fit < 1: same drawing, the plane below gets narrower and lower instead)
 
   const r = 90;
   const roundRect = (x, y, w, h, rr) => {
@@ -117,8 +122,9 @@ function makeQuestionBubble(q) {
   tex.generateMipmaps = false;
   tex.needsUpdate = true;
 
-  const planeW = Math.max(Q_BUBBLE_MIN_W, Q_BUBBLE_H * (W / H));
-  const geo = new THREE.PlaneGeometry(planeW, Q_BUBBLE_H);
+  const planeH = Q_BUBBLE_H * fit;
+  const planeW = Math.max(Q_BUBBLE_MIN_W, planeH * (W / H));
+  const geo = new THREE.PlaneGeometry(planeW, planeH);
   const mat = new THREE.MeshBasicMaterial({
     map: tex, transparent: true, depthWrite: false, fog: false,
     side: THREE.DoubleSide, opacity: 0.95,

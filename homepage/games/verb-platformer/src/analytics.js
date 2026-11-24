@@ -76,6 +76,6 @@ export const Track = {
   // not counted again). Not in editor playtests.
   answer(question, correct) {
     if (!run.active || !question?.verb) return;
-    try { record(question.verb, question.form, !!correct, GAME, 'irregular_verbs'); } catch (_) { /* ignore */ }
+    try { record(question.verb, question.form, !!correct, GAME, question.topic || 'irregular_verbs'); } catch (_) { /* ignore */ }
   },
 };

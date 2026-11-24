@@ -1,5 +1,5 @@
 // Small pieces shared by the title screen, the pause card, the first-run hint and the results.
-import { t } from './i18n.js';
+import { t, exampleHtml } from './i18n.js';
 
 // Same test as src/controls.js: the main pointer is a finger.
 export const IS_TOUCH = window.matchMedia('(pointer: coarse)').matches
@@ -41,7 +41,7 @@ export function helpHtml({ withGoal = true } = {}) {
   let html = '<div class="help-rows">' + rows.map(([k, label]) =>
     `<span class="help-row"><span class="keys">${k}</span><span>${esc(label)}</span></span>`).join('') + '</div>';
   if (withGoal) {
-    html += `<p class="help-goal">${esc(t('helpGoal'))} <span class="chain">go → <b>___</b> → gone</span></p>`;
+    html += `<p class="help-goal">${esc(t('helpGoal'))} <span class="chain">${exampleHtml()}</span></p>`;
   }
   return html;
 }
