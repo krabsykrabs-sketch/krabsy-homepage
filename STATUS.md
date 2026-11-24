@@ -34,6 +34,10 @@ Spanish.
   accents optional when typing Spanish, hint behind "?". Verb Towers plays
   es_ser; **since 2026-11-24 it's in the section** (`/en/spanish/games/verb-towers/`,
   topic texts per topic, explanations in the game's language).
+- **Verb Kitchen plays Spanish** (2026-11-24): sentence topics at the sink (one
+  plate = two sentences of one item), Sentence Cookbook, per-topic texts;
+  `/en/spanish/games/verb-kitchen/`, first game card on the landing page.
+  Next candidate: Verb Platformer (gate sign must fit a sentence).
 - **Game briefs** (Golf, Catapult, Hatchery) got a required "Topics and
   languages" section 2026-11-24: any topic, `lang` passed, gap display,
   topic-neutral replacements for the verb-pair mechanics.

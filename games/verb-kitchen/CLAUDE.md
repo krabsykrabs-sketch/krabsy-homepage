@@ -2330,6 +2330,18 @@ ours 2×1×2).
     Headless-Edge note: kill stray headless msedge + use
     `--user-data-dir=%TEMP%\vk_edge_profile` if screenshots hang.
 
+- 2026-11-24 (master session): **sentence topics** (`?topic=es_ser`, `prepositions`,
+  any format-v2 topic). `src/verbs.js` `IS_GAP`: loads the topic via `getQuizSet`
+  (`uniqueBy: 'id'`, the game's `lang`); one plate = two sentences of the same item
+  (`makeGapPair`); a wrong answer shows the filled sentence + `teach.line`
+  (`.gapS` / `.gapTeach` in `index.html`). `cookbookRows()` feeds the Cookbook and
+  the round recap (one example sentence per item; the Cookbook awaits
+  `loadQuestionEngine()` first). Texts per topic in `src/i18n.js` (`TOPIC`,
+  `TOPIC_TEXT`: tagline, menu hint, recipe hint, "Sentence Cookbook"). The verb game is
+  unchanged. Checked headless: sink pair, wrong answer, recap, Cookbook (es_ser/en),
+  verbs unchanged. Served in the Spanish section: `/en/spanish/games/verb-kitchen/`.
+  Still no `recordAttempt` (phase-1 TODO below), for any topic.
+
 ## Notes from the master session (2026-11-12)
 
 - **RELEASED** (owner's decision 2026-11-12) after the first organic classroom

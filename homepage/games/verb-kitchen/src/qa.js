@@ -2,7 +2,7 @@
 import { makeIngredient, makePlate, buildItemMesh } from './stations.js';
 import { ITEMS } from './recipes.js';
 import { modelIcon } from './icons.js';
-import { seedRng } from './verbs.js';
+import { seedRng, loadQuestionEngine } from './verbs.js';
 import { ui } from './ui.js';
 
 export function initQA(game, save, startLevel, params) {
@@ -113,7 +113,8 @@ export function initQA(game, save, startLevel, params) {
       return;
     }
     if (scene === 'cookbook') {      // verb cookbook with a sample practice list
-      save.missed = ['go', 'eat', 'think', 'catch'];
+      await loadQuestionEngine();     // sentence topics (?topic=) need their items first
+      save.missed = ['go', 'eat', 'think', 'catch', 'ser_origin_de', 'ser_nationality'];
       ui.renderCookbook(save);
       ui.showScreen('cookbookScreen');
       window.__VK_READY = true;

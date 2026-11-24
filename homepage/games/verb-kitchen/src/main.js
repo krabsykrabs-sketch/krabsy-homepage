@@ -5,7 +5,7 @@ import { ui } from './ui.js';
 import { audio } from './audio.js';
 import { LEVELS } from './levels.js';
 import { charUnlocked } from './models.js';
-import { seedRng } from './verbs.js';
+import { seedRng, loadQuestionEngine } from './verbs.js';
 import { initQA } from './qa.js';
 import { initTouch } from './touch.js';
 import { applyStatic } from './i18n.js';
@@ -118,8 +118,9 @@ function pickChar(id) {
 }
 // --- verb cookbook (opens from the start screen AND the post-level recap) ---
 let cookbookReturn = 'startScreen';
-function showCookbook(from) {
+async function showCookbook(from) {
   cookbookReturn = from;
+  await loadQuestionEngine();          // sentence topics: their items load with the engine
   ui.renderCookbook(save);
   ui.showScreen('cookbookScreen');
 }

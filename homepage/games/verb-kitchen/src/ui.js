@@ -1,6 +1,6 @@
 // Screens (start / level select / post-level), HUD, hint bar.
 import { LEVELS, PLACEHOLDERS } from './levels.js';
-import { VERBS } from './verbs.js';
+import { VERBS, IS_GAP, cookbookRows } from './verbs.js';
 import { CHEF_CHARACTERS, totalStars } from './models.js';
 import { characterPortrait } from './portraits.js';
 import { t, levelTut } from './i18n.js';
@@ -66,15 +66,15 @@ export const ui = {
    *  (the persisted practice list) sit in their own box on top — the sink asks
    *  exactly those first next round. */
   renderCookbook(save) {
-    const chain = (v) => `<span class="ck"><span class="form-base">${v.v}</span> → ` +
-      `<span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span></span>`;
-    const practice = VERBS.filter((v) => (save.missed || []).includes(v.v));
+    // rows of the current topic (verb chains, or one example sentence per item)
+    const rows = cookbookRows();
+    const practice = rows.filter((r) => (save.missed || []).includes(r.id));
     $('cookbookPractice').classList.toggle('hidden', practice.length === 0);
-    $('cookbookPracticeList').innerHTML = practice.map(chain).join('');
-    $('cookbookAllList').innerHTML = VERBS.map(chain).join('');
+    $('cookbookPracticeList').innerHTML = practice.map((r) => r.html).join('');
+    $('cookbookAllList').innerHTML = rows.map((r) => r.html).join('');
     $('cookbookSub').textContent = practice.length
       ? t('ckSubPractice', practice.length)
-      : t('ckSubAll', VERBS.length);
+      : t('ckSubAll', rows.length);
   },
 
   renderLevelGrid(save, onPick) {
@@ -287,11 +287,17 @@ export const ui = {
     list.innerHTML = '';
     const uniq = [...new Set(missedKeys.map((k) => k.split('|')[0]))];
     box.classList.toggle('empty', uniq.length === 0);
+    const rowOf = IS_GAP ? new Map(cookbookRows().map((r) => [r.id, r.html])) : null;
     for (const base of uniq.slice(0, 6)) {
-      const v = VERBS.find((x) => x.v === base);
-      if (!v) continue;
       const row = document.createElement('div');
-      row.innerHTML = `<span class="form-base">${v.v}</span> → <span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span>`;
+      if (IS_GAP) {
+        if (!rowOf.has(base)) continue;
+        row.innerHTML = rowOf.get(base);
+      } else {
+        const v = VERBS.find((x) => x.v === base);
+        if (!v) continue;
+        row.innerHTML = `<span class="form-base">${v.v}</span> → <span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span>`;
+      }
       list.appendChild(row);
     }
     if (uniq.length > 6) {

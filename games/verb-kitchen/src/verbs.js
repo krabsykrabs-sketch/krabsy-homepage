@@ -1,3 +1,12 @@
+import { TOPIC, LANG } from './i18n.js';
+
+// Sentence topics (2026-11-24, docs/vision.md): with ?topic=<id> other than
+// irregular_verbs (Spanish es_ser, prepositions …) the sink asks sentences with
+// a gap from the site question engine instead of verb pairs. One plate = two
+// sentences, preferably of the same item ("soy de + place" twice). The verb
+// game below is unchanged.
+export const IS_GAP = TOPIC !== 'irregular_verbs';
+
 // Curated irregular-verb subset (from content/irregular-verbs.json, tier 1
 // + kitchen-flavored tier 2). Shape: v=base, past, pp, wp/wpp = catalogue
 // distractors for past / participle.
@@ -79,7 +88,8 @@ function pick(arr) { return arr[Math.floor(rng.next() * arr.length)]; }
  * skipped. Consumes no rng draws when the list is empty (QA seeds).
  */
 export function seedPractice(missedList = [], n = 3) {
-  const known = missedList.filter((v) => VERBS.some((x) => x.v === v));
+  const known = missedList.filter((v) => (IS_GAP
+    ? !!(gapItems && gapItems.has(v)) : VERBS.some((x) => x.v === v)));
   return shuffle(known.slice()).slice(0, n);
 }
 
@@ -123,10 +133,11 @@ export let questionSource = 'inline';
  *  served by the site (path …/games/verb-kitchen/) — the local dev server has
  *  no /lib/, and a failed import would only log a 404. Never throws. */
 export async function loadQuestionEngine() {
-  if (enginePairs) return;
+  if (enginePairs || gapItems) return;
   try {
     if (!/\/games\/verb-kitchen\//.test(location.pathname)) return;
     const KQ = await import('/lib/krabsy-questions.js');
+    if (IS_GAP) { await loadGapTopic(KQ); return; }
     if (KQ.topicFromUrl() !== 'irregular_verbs') return;
     const set = await KQ.getQuizSet({ topic: 'irregular_verbs', count: 1000, withOptions: 3,
       ids: VERBS.map((v) => v.v) });            // chainOrder is on by default for verbs
@@ -158,12 +169,81 @@ export async function loadQuestionEngine() {
   } catch (e) { /* offline / local dev: keep the inline list */ }
 }
 
+// ---------- sentence topics ----------
+/** item id → { label, recs: [sink records] } (null until loaded). */
+let gapItems = null;
+
+const escHtml = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/** One engine quiz record (display.kind 'gap') → the record the sink renders. */
+function gapRecord(q) {
+  const parts = String(q.display.sentence).split(/_{2,}/);
+  const pre = escHtml(parts[0] || ''), post = escHtml(parts.slice(1).join('___'));
+  const chips = [];
+  for (const o of q.options) if (o && !chips.some((x) => x.toLowerCase() === o.toLowerCase())) chips.push(o);
+  if (chips.length < 3 || !chips.includes(q.answer)) return null;
+  const filled = `${pre}<span class="form-past">${escHtml(q.answer)}</span>${post}`;
+  return {
+    verb: q.item, form: 'default', answer: q.answer, chips: chips.slice(0, 3),
+    prompt: `<span class="gapS">${pre}<span class="form-past slot ask">___</span>${post}</span>`,
+    chain: `<span class="gapS">${filled}</span>` +
+      (q.teach && q.teach.line ? `<div class="gapTeach">${escHtml(q.teach.line)}</div>` : ''),
+    filled, key: `${q.item}|${q.id}`, sub: '', topic: q.topic, id: q.id,
+  };
+}
+
+async function loadGapTopic(KQ) {
+  const set = await KQ.getQuizSet({ topic: TOPIC, count: 1000, withOptions: 3, uniqueBy: 'id', lang: LANG });
+  const map = new Map();
+  for (const q of set) {
+    if (!q.display || q.display.kind !== 'gap') continue;
+    const r = gapRecord(q);
+    if (!r) continue;
+    if (!map.has(r.verb)) map.set(r.verb, { recs: [] });
+    map.get(r.verb).recs.push(r);
+  }
+  if (map.size >= 3) { gapItems = map; questionSource = 'engine'; }
+}
+
+/** Cookbook / recap rows for the current topic: [{ id, html }]. Verbs: the chain;
+ *  sentence topics: one example sentence per item, the answer highlighted. */
+export function cookbookRows() {
+  if (IS_GAP) {
+    if (!gapItems) return [];                     // not loaded (yet): never show the verbs here
+    return [...gapItems.entries()].map(([id, it]) => ({ id, html: `<span class="ck ckS">${it.recs[0].filled}</span>` }));
+  }
+  return VERBS.map((v) => ({ id: v.v, html: `<span class="ck"><span class="form-base">${v.v}</span> → ` +
+    `<span class="form-past">${v.past}</span> → <span class="form-pp">${v.pp}</span></span>` }));
+}
+
+function makeGapPair(missed, recentlyAsked) {
+  const ids = [...gapItems.keys()];
+  let item = null, fromMissed = false;
+  while (missed.length && !item) {
+    const k = missed.shift();
+    if (gapItems.has(k)) { item = k; fromMissed = true; }
+  }
+  if (!item) {
+    const fresh = ids.filter((k) => !recentlyAsked.has(k));
+    item = pick(fresh.length ? fresh : ids);
+  }
+  const own = shuffle(gapItems.get(item).recs.slice());
+  let second = own[1];
+  if (!second) {                                  // an item with one sentence: borrow another item's
+    const other = pick(ids.filter((k) => k !== item)) || item;
+    second = pick(gapItems.get(other).recs);
+  }
+  const fresh = (q) => ({ ...q, chips: shuffle(q.chips.slice()) });
+  return { verb: item, steps: [fresh(own[0]), fresh(second)], fromMissed };
+}
+
 /**
  * The next plate's question pair: { verb, steps: [2nd-form q, 3rd-form q], fromMissed }.
  * missed: verbs queued for re-asking (take priority); recentlyAsked: verbs to
  * avoid repeating right away. Option order is shuffled fresh every time.
  */
 export function makePair(missed = [], recentlyAsked = new Set()) {
+  if (IS_GAP && gapItems) return makeGapPair(missed, recentlyAsked);
   let verb = null, fromMissed = false;
   while (missed.length && !verb) {
     const base = missed.shift();

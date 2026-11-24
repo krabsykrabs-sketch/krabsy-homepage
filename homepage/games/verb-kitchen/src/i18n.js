@@ -428,9 +428,55 @@ export const LANG = (() => {
   return STRINGS[nav] ? nav : 'en';
 })();
 
+// Topic (?topic=, 2026-11-24): the texts above are written for irregular verbs.
+// Sentence topics override the few that name verbs (see verbs.js IS_GAP).
+export const TOPIC = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('topic');
+    if (q && /^[a-z0-9_]{1,40}$/.test(q)) return q;
+  } catch (e) {}
+  return 'irregular_verbs';
+})();
+const SENT = {
+  en: { cookbookTitle: '📖 Sentence Cookbook', ckAll: 'All sentences', verbsToPractice: 'Sentences to practise',
+    ckSubAll: (n) => `All ${n} patterns — miss one at the sink and it lands here`,
+    quizTitle: '🧽 Wash a plate — 2 correct = 1 clean plate' },
+  de: { cookbookTitle: '📖 Satz-Kochbuch', ckAll: 'Alle Sätze', verbsToPractice: 'Diese Sätze üben',
+    ckSubAll: (n) => `Alle ${n} Muster — verpasst du eins an der Spüle, landet es hier` },
+  es: { cookbookTitle: '📖 Recetario de frases', ckAll: 'Todas las frases', verbsToPractice: 'Frases para practicar',
+    ckSubAll: (n) => `Los ${n} patrones — si fallas uno en el fregadero, aparece aquí` },
+};
+const hint = (lead, ex) => `<span class="key">WASD</span> · <span class="key">E</span> · <span class="key">Space</span> — ${lead}: ${ex}`;
+const TOPIC_TEXT = {
+  es_ser: {
+    en: { ...SENT.en, tagline: 'Cook fast · Wash smart · Master your Spanish',
+      menuHint: hint('then wash dirty plates with Spanish', 'Yo <span class="form-past">soy</span> Lucas.'),
+      recipeHint: 'out of clean plates? wash them by answering Spanish sentences 🧽' },
+    de: { ...SENT.de, tagline: 'Schnell kochen · Klug spülen · Spanisch meistern',
+      menuHint: hint('dann spülst du Teller mit Spanisch', 'Yo <span class="form-past">soy</span> Lucas.'),
+      recipeHint: 'keine sauberen Teller? Spüle sie mit spanischen Sätzen 🧽' },
+    es: { ...SENT.es, tagline: 'Cocina rápido · Friega con cabeza · Domina el español',
+      menuHint: hint('luego friega platos con frases en español', 'Yo <span class="form-past">soy</span> Lucas.'),
+      recipeHint: '¿sin platos limpios? Friégalos respondiendo frases en español 🧽' },
+  },
+  prepositions: {
+    en: { ...SENT.en, tagline: 'Cook fast · Wash smart · Master English prepositions',
+      menuHint: hint('then wash dirty plates with prepositions', 'My birthday is <span class="form-past">in</span> July.'),
+      recipeHint: 'out of clean plates? wash them by answering preposition questions 🧽' },
+    de: { ...SENT.de, tagline: 'Schnell kochen · Klug spülen · Englische Präpositionen meistern',
+      menuHint: hint('dann spülst du Teller mit Präpositionen', 'My birthday is <span class="form-past">in</span> July.'),
+      recipeHint: 'keine sauberen Teller? Spüle sie mit Präpositionen 🧽' },
+    es: { ...SENT.es, tagline: 'Cocina rápido · Friega con cabeza · Domina las preposiciones en inglés',
+      menuHint: hint('luego friega platos con preposiciones', 'My birthday is <span class="form-past">in</span> July.'),
+      recipeHint: '¿sin platos limpios? Friégalos respondiendo preposiciones 🧽' },
+  },
+};
+const TT = (TOPIC_TEXT[TOPIC] && (TOPIC_TEXT[TOPIC][LANG] || TOPIC_TEXT[TOPIC].en))
+  || (TOPIC !== 'irregular_verbs' ? (SENT[LANG] || SENT.en) : {});
+
 /** Translate a key; template keys take args. Falls back to English. */
 export function t(key, ...args) {
-  const v = STRINGS[LANG][key] ?? EN[key];
+  const v = TT[key] ?? STRINGS[LANG][key] ?? EN[key];
   return typeof v === 'function' ? v(...args) : v;
 }
 
