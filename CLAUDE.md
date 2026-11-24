@@ -4,6 +4,10 @@ Krabsy is a browser-based English-grammar learning site (German + Spanish
 UI) with a growing catalogue of arcade games. This file is read by every
 session; keep it accurate.
 
+**Direction (2026-11-24): `docs/vision.md`.** Curated grammar content
+in any learning language (Spanish pilot next), games that play any
+topic (new games must take the `quiz` shape), teacher tools around them.
+
 ## Repository layout
 
 ```
