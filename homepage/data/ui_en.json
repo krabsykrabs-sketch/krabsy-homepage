@@ -1,0 +1,371 @@
+{
+  "lang": "en",
+  "common": {
+    "start": "Let's go!",
+    "play_again": "Play again",
+    "back_to_hub": "Back to overview",
+    "back_to_hub_short": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "submit": "Submit",
+    "submit_enter_hint": "Press Enter to submit",
+    "loading": "Loading…",
+    "correct": "Correct!",
+    "wrong": "Wrong",
+    "show_hint": "Show hint",
+    "hide_hint": "Hide hint",
+    "your_score": "Your score",
+    "your_time": "Your time",
+    "best_score": "Best score",
+    "best_time": "Best time",
+    "no_best_yet": "no best time yet",
+    "time": "Time",
+    "accuracy": "Accuracy",
+    "attempts": "Attempts",
+    "streak": "Streak",
+    "current_streak": "Current streak",
+    "best_streak": "Best streak",
+    "lives": "Lives",
+    "score": "Points",
+    "missed": "You missed these",
+    "missed_short": "Missed",
+    "verb_base": "Base form",
+    "verb_past": "Simple Past",
+    "verb_pp": "Past Participle",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "question_of": "Question {n} of {total}",
+    "seconds_short": "s",
+    "try_also": "Try this too",
+    "leave_drill_title": "Leave the game?",
+    "leave_drill_body": "Your progress will be lost.",
+    "leave_drill_confirm": "Leave",
+    "leave_drill_cancel": "Keep playing",
+    "aria_lang_toggle": "Language"
+  },
+  "homepage": {
+    "seo_title": "English Irregular Verbs: List & Table (172 Verbs) — Krabsy",
+    "seo_h1": "English Irregular Verbs: List with Exercises",
+    "meta_description": "A printable list of all 172 English irregular verbs with their German meanings. Plus exercises and games. Free, no sign-up.",
+    "hero_title": "Master English — one game at a time!",
+    "hero_sub": "Learn irregular verbs: play, practise, look them up.",
+    "hero_sub_empty": "Start with a speed drill — you'll see your progress after just one minute.",
+    "progress_practice": "{n} verbs to practise",
+    "section_drills": "Speed Drills",
+    "section_drills_sub": "Quick challenges. Beat your best time.",
+    "section_tools": "Learning Tools",
+    "section_tools_sub": "Classic practice, no gimmicks.",
+    "section_games": "Games",
+    "section_games_sub": "Arcade games for verb training.",
+    "section_reference": "Verb List",
+    "section_reference_sub": "All the key irregular verbs at a glance.",
+    "section_stats": "Your Stats",
+    "section_stats_sub": "What you know — and what you don't yet.",
+    "card_play": "Play",
+    "card_open": "Open",
+    "card_coming_soon": "Coming soon",
+    "footer_more_topics": "More grammar topics coming soon.",
+    "footer_copyright": "© {year} Krabsy"
+  },
+  "progress_widget": {
+    "empty_hint": "Start a drill to track your progress.",
+    "tile_accuracy": "Accuracy",
+    "tile_streak": "Streak",
+    "tile_today_practice": "To practise today",
+    "tile_today_empty": "Nothing to review yet — great!",
+    "tile_link_stats": "See your stats",
+    "aria_label": "Progress"
+  },
+  "drills": {
+    "sprint": {
+      "name": "Sprint",
+      "tagline": "20 verbs, as fast as you can.",
+      "intro": "Pick the right form for 20 verbs. Wrong answer = 3-second penalty. Can you set a new best time?",
+      "penalty_hint": "Wrong answer: +3 seconds",
+      "end_title": "Sprint complete!",
+      "aria_choices": "Answers"
+    },
+    "type_race": {
+      "name": "Type Race",
+      "tagline": "Type all three forms. Beat the clock.",
+      "intro": "You see the base form. Type the Simple Past and Past Participle, then press Enter. 10 verbs, one clock.",
+      "input_past": "Simple Past",
+      "input_pp": "Past Participle",
+      "end_title": "Type Race complete!"
+    },
+    "drag_match": {
+      "name": "Drag Match",
+      "tagline": "Match the base form, Simple Past and Past Participle.",
+      "intro": "Drag each form to the matching base form. You can also tap: first tap the base form, then the matching form. A wrong match costs 2 seconds. Two stages: first the Simple Past, then the Past Participle.",
+      "column_base": "Base form",
+      "column_past": "Simple Past",
+      "column_pp": "Past Participle",
+      "wrong_drop_hint": "Wrong match: +2 s",
+      "stage_label": "Stage {stage} of 2",
+      "stage_past": "Simple Past",
+      "stage_pp": "Past Participle",
+      "stage_complete_past": "Great! Now the Past Participle.",
+      "drop_here_past": "Simple Past goes here",
+      "drop_here_pp": "Past Participle goes here",
+      "end_title": "All forms found!"
+    },
+    "fill_gap": {
+      "name": "Fill the Gap",
+      "tagline": "Fill in the right form.",
+      "intro": "10 sentences, each with one gap. Read the sentence, work out the tense and type the right form. Press Enter to submit.",
+      "input_placeholder": "Type the form…",
+      "end_title": "Fill the Gap complete!"
+    },
+    "verb_diplom": {
+      "name": "Verb Diploma",
+      "tagline": "The test with a certificate: bronze, silver, gold."
+    },
+    "falling_forms": {
+      "name": "Falling Forms",
+      "tagline": "Tap the right form before the block hits the bottom.",
+      "intro": "Blocks fall from the top. Each block shows two forms. Tap the right one before the block hits the ground. You have 3 lives. Endless mode.",
+      "game_over": "Game Over",
+      "end_title": "Round over",
+      "aria_lives": "Lives"
+    }
+  },
+  "tools": {
+    "flashcards": {
+      "name": "Flashcards",
+      "tagline": "Classic learning, at your own pace.",
+      "intro": "Front: the base form. Tap the card to flip it. Then be honest: did you know it, or do you need more practice?",
+      "filter_label": "What to practise?",
+      "filter_all": "All verbs",
+      "filter_review": "Only ones to review",
+      "filter_mastered": "Only mastered ones",
+      "flip_hint": "Tap to flip",
+      "btn_got_it": "Knew it",
+      "btn_again": "Again",
+      "deck_position": "Card {n} of {total}",
+      "deck_empty": "No cards in this deck — choose a different filter.",
+      "deck_finished": "Deck done! Want to go again?",
+      "aria_flip_card": "Flip card"
+    },
+    "verb_table": {
+      "name": "Verb Table",
+      "tagline": "Hide columns and test yourself.",
+      "intro": "Hide columns and challenge yourself. Click a column heading to hide it.",
+      "search_placeholder": "Search for a verb…",
+      "toggle_hide_base": "Hide base form",
+      "toggle_hide_past": "Hide past",
+      "toggle_hide_pp": "Hide participle",
+      "toggle_hide_meaning": "Hide meaning",
+      "lock_hint": "At least one column must stay visible",
+      "hidden_cell": "•••",
+      "no_results": "No verb found.",
+      "load_error": "Couldn't load the data.",
+      "aria_table": "Verb table"
+    },
+    "free_practice": {
+      "name": "Free Practice",
+      "tagline": "Practise without time pressure, with hints.",
+      "intro": "No timer, no score. Type the form and click Hint if you get stuck. You can stop any time.",
+      "filter_label": "Which verbs?",
+      "filter_all": "All verbs",
+      "filter_weak": "Only weak verbs",
+      "btn_hint": "Hint",
+      "btn_skip": "Skip",
+      "btn_done": "Done",
+      "session_stats": "Session: {attempts} attempts · {accuracy}% correct · Streak: {streak}",
+      "fixed_deck_note": "You're practising a set selection of {n} verbs.",
+      "fixed_deck_remaining": "{n} left to practise.",
+      "fixed_deck_done_title": "All verbs done! 🦀",
+      "fixed_deck_done_body": "You got every verb on your practice list right.",
+      "fixed_deck_continue_all": "Continue with all verbs",
+      "weak_empty_note": "Practise for a few minutes — then your weak verbs will show up here."
+    }
+  },
+  "stats": {
+    "title": "Your Stats",
+    "overall": "Overall",
+    "block_overall_heading": "Overall",
+    "block_review_heading": "To review",
+    "block_mastered_heading": "Already mastered",
+    "block_full_heading": "Full verb list",
+    "total_attempts": "Total answers",
+    "to_review": "To review",
+    "mastered": "Already mastered",
+    "practice_these": "Practise these now",
+    "no_data": "Practise for a few minutes — then your numbers will show up here.",
+    "back_to_hub_btn": "Back to overview",
+    "reset_btn": "Reset progress",
+    "reset_confirm_title": "Really reset?",
+    "reset_confirm_body": "All your saved stats will be deleted. This can't be undone.",
+    "reset_confirm_yes": "Yes, reset",
+    "reset_confirm_no": "Cancel",
+    "row_form_past": "Past",
+    "row_form_pp": "Participle",
+    "last_seen": "Last practised",
+    "last_seen_today": "today",
+    "last_seen_yesterday": "yesterday",
+    "last_seen_days_ago": "{n} days ago",
+    "col_attempts": "Attempts",
+    "col_accuracy": "Accuracy",
+    "table_empty": "No data yet.",
+    "aria_full_verb_list": "Full verb list"
+  },
+  "reference": {
+    "title": "Irregular Verbs — Overview",
+    "subtitle": "All the key irregular verbs at a glance.",
+    "search_placeholder": "Search for a verb…",
+    "sort_label": "Sort by",
+    "sort_alpha": "A–Z",
+    "sort_mastery": "By skill",
+    "col_base": "Base form",
+    "col_past": "Simple Past",
+    "col_pp": "Past Participle",
+    "col_meaning": "Meaning",
+    "col_mastery": "Your level",
+    "no_results": "No verb found.",
+    "aria_verb_list": "Verb list"
+  },
+  "mastery_bands": {
+    "0": "new",
+    "1": "learning",
+    "2": "learning",
+    "3": "familiar",
+    "4": "familiar",
+    "5": "mastered"
+  },
+  "games": {
+    "verb_slash": {
+      "name": "Verb Slash!",
+      "tagline": "Smash the right verb forms!"
+    },
+    "crab_slash": {
+      "name": "Crab Slash!",
+      "tagline": "Hit the crabs with the right verbs!"
+    },
+    "air_control": {
+      "name": "Air Control!",
+      "tagline": "Guide the planes safely with English!"
+    },
+    "verb_snake": {
+      "name": "Verb Snake!",
+      "tagline": "Eat the verb forms in the right order!"
+    },
+    "verb_flow": {
+      "name": "Verb Flow!",
+      "tagline": "Connect the three verb forms — in the right order!"
+    },
+    "verb_platformer": {
+      "name": "Verb Platformer!",
+      "tagline": "Jump through 3D worlds and pick the right verb form!"
+    },
+    "verb_kitchen": {
+      "name": "Verb Kitchen!",
+      "tagline": "Kitchen chaos — wash the plates with the right verbs!"
+    }
+  },
+  "feedback": {
+    "correct_msgs": [
+      "Correct!",
+      "Super!",
+      "Exactly!",
+      "Brilliant!",
+      "Great!"
+    ],
+    "wrong_msgs": [
+      "So close!",
+      "Try again!",
+      "Not quite.",
+      "Take another look."
+    ]
+  },
+  "topic_overrides": {
+    "prepositions": {
+      "homepage": {
+        "seo_title": "Practise English Prepositions — Krabsy",
+        "seo_h1": "Practise English Prepositions",
+        "meta_description": "Practise English prepositions with games, drills and learning tools. in, on, at, for, since — all the key rules at a glance. Free, no sign-up.",
+        "hero_sub": "Learn English prepositions: play, practise, look them up.",
+        "progress_practice": "{n} rules to practise",
+        "section_games_sub": "Arcade games for preposition training.",
+        "section_reference": "Prepositions Overview",
+        "section_reference_sub": "All the key preposition rules by category."
+      },
+      "drills": {
+        "sprint": {
+          "tagline": "20 gap sentences, as fast as you can."
+        },
+        "type_race": {
+          "tagline": "Type the right preposition. Beat the clock."
+        },
+        "drag_match": {
+          "tagline": "Match each preposition to the right sentence."
+        },
+        "fill_gap": {
+          "tagline": "Fill in the right preposition."
+        }
+      },
+      "reference": {
+        "title": "English Prepositions — Overview",
+        "subtitle": "All the key preposition rules by category.",
+        "search_placeholder": "Search for a rule or example…",
+        "category_labels": {
+          "time": "Time",
+          "place": "Place",
+          "movement": "Movement",
+          "adjective": "Adjective + preposition",
+          "verb": "Verb + preposition",
+          "noun": "Noun + preposition",
+          "transport": "Transport",
+          "phrase": "Fixed phrases"
+        },
+        "category_descriptions": {
+          "time": "When something happens: in, on, at, since, for, by, during.",
+          "place": "Where something is: in, on, at, between, next to, under.",
+          "movement": "Where something is going: to, into, onto, from, through, across.",
+          "adjective": "Fixed adjective + preposition pairs like 'afraid of', 'good at'.",
+          "verb": "Fixed verb + preposition pairs like 'wait for', 'depend on'.",
+          "noun": "Fixed noun + preposition pairs like 'reason for', 'example of'.",
+          "transport": "How you get around: by bus, on foot, in a car.",
+          "phrase": "Fixed phrases with a preposition: on time, by accident, for example."
+        },
+        "level_label": "Level",
+        "show_more_examples": "More examples",
+        "show_fewer_examples": "Fewer examples",
+        "no_results": "No rule found.",
+        "filter_label": "Filter",
+        "filter_all": "All",
+        "filter_review": "To review",
+        "filter_mastered": "Mastered",
+        "filter_practiced": "Already practised"
+      },
+      "tools": {
+        "flashcards": {
+          "intro": "Front: an example sentence with a gap. Tap the card to flip it and see the preposition and the rule. Then be honest.",
+          "filter_all": "All rules"
+        },
+        "free_practice": {
+          "intro": "No timer, no score. Type the right preposition; click Hint if you get stuck. You can stop any time.",
+          "filter_all": "All rules",
+          "filter_weak": "Only weak rules",
+          "fixed_deck_note": "You're practising a set selection of {n} rules.",
+          "fixed_deck_remaining": "{n} left to practise.",
+          "fixed_deck_done_title": "All rules done! 🦀",
+          "fixed_deck_done_body": "You got every rule on your practice list right.",
+          "fixed_deck_continue_all": "Continue with all rules"
+        }
+      }
+    },
+    "es_ser": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 Spanish sentences, as fast as you can.",
+          "intro": "Pick the right word for 20 sentences. Wrong answer = 3 extra seconds. Can you set a new best time?"
+        },
+        "fill_gap": {
+          "tagline": "Type the missing Spanish word."
+        }
+      }
+    }
+  }
+}

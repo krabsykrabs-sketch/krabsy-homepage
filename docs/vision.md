@@ -124,7 +124,7 @@ content before games.
    registry in `krabsy-data.js`; engine takes `lang`. Tested headless
    with a fixture topic; verbs, prepositions and drill pages unchanged.
    Not deployed yet (no visible change; goes out with step 3).
-2. **English interface texts** (`data/ui_en.json`), first for the Quiz
+2. 🟡 (2026-11-24: `ui_en.json` + `/en/spanish/` pilot section, noindex) **English interface texts** (`data/ui_en.json`), first for the Quiz
    Room children's page and the drills.
 3. 🟡 (built 2026-11-24, waiting for Nora's check + deploy; see STATUS.md)
    **Spanish pilot topic "ser"** (Nora's request): *ser* with *yo*, name,

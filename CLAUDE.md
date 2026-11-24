@@ -17,6 +17,8 @@ krabsy-homepage/                 ← repo root (master session works here)
 ├── WORK_LOG.md                  ← session journal
 ├── homepage/                    ← THE DEPLOYED SITE (Coolify web root)
 │   ├── de/  es/                 ← per-language pages (spiele/juegos, topics)
+│   ├── en/                      ← English interface: /en/spanish/ (Spanish for
+│   │                              English speakers, pilot) + /en/privacy/
 │   ├── lib/                     ← shared site JS/CSS (krabsy-*.js)
 │   ├── data/                    ← SERVED data: games.json, topics.json,
 │   │                              ui_de/ui_es.json, irregular-verbs.json,

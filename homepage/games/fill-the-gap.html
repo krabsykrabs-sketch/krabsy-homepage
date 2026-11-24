@@ -984,15 +984,42 @@ body::before {
 const TOPIC = new URLSearchParams(location.search).get('topic')
               || 'irregular_verbs';
 let SENTENCES = [];   // populated by loadSentences()
+// Newer topics (format v2, content/FORMAT.md) live in /data/<id with - for _>.json,
+// e.g. es_ser → /data/es-ser.json.
+const GAP_TOPIC = TOPIC !== 'prepositions' && TOPIC !== 'irregular_verbs'
+  && /^[a-z0-9_]{1,40}$/.test(TOPIC);
 const DATA_URL = TOPIC === 'prepositions'
   ? '/data/prepositions.json'
+  : GAP_TOPIC ? '/data/' + TOPIC.replace(/_/g, '-') + '.json'
   : '/data/irregular-verbs.json';
+let LEARN_LANG = 'en';
 
 async function loadSentences() {
-  const res = await fetch(DATA_URL, { cache: 'force-cache' });
+  const res = await fetch(DATA_URL, { cache: GAP_TOPIC ? 'no-cache' : 'force-cache' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const all = await res.json();
-  if (TOPIC === 'prepositions') {
+  if (GAP_TOPIC) {
+    // Format v2: items → examples; the hint (interface language) goes in
+    // brackets after the sentence, like in every other game.
+    LEARN_LANG = all.learn_lang || 'en';
+    SENTENCES = [];
+    for (const it of (all.items || [])) {
+      for (const ex of (it.examples || [])) {
+        if (typeof ex.sentence !== 'string' || !ex.sentence.includes('___')) continue;
+        const ans = Array.isArray(ex.answers) ? ex.answers : [];
+        if (!ans[0]) continue;
+        const h = ex.hint ? (typeof ex.hint === 'string' ? ex.hint : (ex.hint[LANG] || ex.hint.en || '')) : '';
+        SENTENCES.push({
+          verb: it.label || it.id,
+          form: 'default',
+          correct: ans[0],
+          alts: ans.slice(1),
+          sentence: h ? ex.sentence + ' (' + h + ')' : ex.sentence,
+          hintLabel: 'pattern_hint',
+        });
+      }
+    }
+  } else if (TOPIC === 'prepositions') {
     SENTENCES = [];
     for (const uc of (all || [])) {
       for (const ex of (uc.examples || [])) {
@@ -1129,16 +1156,55 @@ const STRINGS = {
     aria_history: 'Verbos recientes y próximo',
     aria_chain_grid: 'Cadenas completadas',
   },
+  en: {
+    round: 'Round',
+    score: 'Points',
+    level: 'Level',
+    streak: 'Streak',
+    lives: 'Lives',
+    quick_guide: 'Overview',
+    coming_up: 'Coming up',
+    paused: 'PAUSED',
+    tap_resume: 'Tap to continue',
+    enter_hint: 'PRESS ENTER',
+    input_placeholder: 'Type the missing word…',
+    verb_hint: 'Verb',
+    pattern_hint: 'Pattern',
+    hint_show: 'Hint',
+    aria_input: 'Type the missing word',
+    loading: 'Loading sentences…',
+    load_failed: 'The sentences could not be loaded.',
+    title: 'Fill the Gap',
+    start_tagline: 'Read the sentence, type the missing word and press Enter. Three lives per round.',
+    start_btn: "Let's go!",
+    best_label: 'Best',
+    new_best: 'New best score!',
+    game_over: 'Game over',
+    final_score: 'Final score',
+    play_again: 'Play again',
+    menu: 'Menu',
+    no_chains: 'nothing finished this round',
+    levelup_sub: 'Keep going!',
+    narrow_title: 'Landscape only',
+    narrow_sub: 'Open Fill the Gap on a screen at least 1024 px wide.',
+    aria_sound: 'Sound on/off',
+    aria_pause: 'Pause',
+    aria_close: 'Close',
+    aria_stats: 'Statistics',
+    aria_playarea: 'Play area',
+    aria_history: 'Recent and next',
+    aria_chain_grid: 'Finished sentences',
+  },
 };
 
 function getLang() {
   try {
     const q = new URLSearchParams(window.location.search).get('lang');
-    if (q === 'es' || q === 'de') return q;
+    if (q === 'es' || q === 'de' || q === 'en') return q;
   } catch (_) {}
   try {
     const ls = localStorage.getItem(LANG_KEY);
-    if (ls === 'es' || ls === 'de') return ls;
+    if (ls === 'es' || ls === 'de' || ls === 'en') return ls;
   } catch (_) {}
   return 'de';
 }
@@ -1288,8 +1354,12 @@ function drawItem() {
   return SENTENCES[state.deck[state.deckPos++]];
 }
 // Normalize a typed input or correct answer for comparison.
+// Spanish topics: accents are not required when typing (kids on English
+// keyboards); the blank then shows the right spelling with the accent.
 function normalizeAnswer(s) {
-  return (s == null ? '' : String(s)).trim().toLowerCase();
+  let v = (s == null ? '' : String(s)).trim().toLowerCase();
+  if (LEARN_LANG === 'es') v = v.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return v;
 }
 
 function levelFromCompletions(c) { return Math.floor(c / LEVEL_STEP) + 1; }
@@ -1384,7 +1454,8 @@ function renderHistory() {
   }
 }
 function renderNext() {
-  els.next.textContent = state.nextItem ? state.nextItem.verb : '—';
+  // Newer topics' labels contain the answer ("soy + name"): don't preview them.
+  els.next.textContent = state.nextItem ? (GAP_TOPIC ? '•••' : state.nextItem.verb) : '—';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1409,7 +1480,7 @@ function spawnBlock() {
   // Prep hints reveal the answer ("interested + in") — start collapsed
   // behind a "?" button. Verb hints show the base form, which IS the
   // question, so they stay always-visible.
-  const hintCollapsed = (TOPIC === 'prepositions');
+  const hintCollapsed = (TOPIC === 'prepositions' || GAP_TOPIC);
   const hintLabelKey = item.hintLabel || 'verb_hint';
   const hintLabelText = t('hint_show') || (LANG === 'es' ? 'Pista' : 'Tipp');
   const hintInnerHtml = `<span data-string="${hintLabelKey}">${t(hintLabelKey)}</span> <b>${escapeHtml(item.verb)}</b>`;

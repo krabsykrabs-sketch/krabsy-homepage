@@ -23,7 +23,7 @@
   /* ── shared helpers ─────────────────────────────────────────────────── */
 
   function currentLang() {
-    var m = location.pathname.match(/^\/(de|es)\//);
+    var m = location.pathname.match(/^\/(de|es|en)\//);
     if (m) return m[1];
     try {
       var ls = localStorage.getItem('krabsy_lang');
@@ -49,6 +49,12 @@
     es: [
       ['Aviso Legal',            '/es/aviso-legal/'],
       ['Política de Privacidad', '/es/politica-privacidad/']
+    ],
+    // English interface (/en/, Spanish pilot 2026-11-24): the legal notice
+    // exists in German only.
+    en: [
+      ['Legal notice (German)', '/de/impressum/'],
+      ['Privacy',               '/en/privacy/']
     ]
   };
 
@@ -176,6 +182,9 @@
 
   function renderGrid(topics, games) {
     var lang = currentLang();
+    // /en/ has its own small section (Spanish for English speakers); the
+    // topic/game catalogue is the English-learning one, so no grid there.
+    if (lang === 'en') return;
     // Match both class names because the topic hubs still use class="footer"
     // (a normalization sweep will unify these to k-footer separately).
     var footers = document.querySelectorAll('footer.k-footer, footer.footer');
