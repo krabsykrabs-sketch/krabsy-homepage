@@ -270,13 +270,13 @@ const SENTENCE_TEXT = {
 
 /** The small example on the help card and the first-run hint ('<b>' marks the gap). */
 export function exampleHtml() {
-  if (TOPIC === 'es_ser') return 'Yo <b>___</b> Lucas.';
+  if (/^es_/.test(TOPIC)) return 'Yo <b>___</b> Lucas.';   // any Spanish topic
   if (TOPIC === 'prepositions') return 'My birthday is <b>___</b> July.';
   return 'go → <b>___</b> → gone';
 }
 /** Three example answer blocks for the first-run hint: [wrong, right, wrong]. */
 export function exampleBlocks() {
-  if (TOPIC === 'es_ser') return ['es', 'soy', 'estoy'];
+  if (/^es_/.test(TOPIC)) return ['es', 'soy', 'estoy'];
   if (TOPIC === 'prepositions') return ['on', 'in', 'at'];
   return ['goed', 'went', 'wented'];
 }

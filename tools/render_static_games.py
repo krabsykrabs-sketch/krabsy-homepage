@@ -60,7 +60,7 @@ def name_of(g, lang):
     return (g.get("name") or {}).get(lang) or g["id"]
 
 
-def card(g, lang, *, decoding=True):
+def card(g, lang, *, decoding=True, topic=None):
     """Big card (.k-game-card) — games hub + topic hubs. Mirrors the
     buildGameCard()/buildTopicGameCard() DOM in those pages."""
     t = L10N[lang]
@@ -68,7 +68,8 @@ def card(g, lang, *, decoding=True):
     name = name_of(g, lang)
     tag = "a" if playable else "div"
     cls = "k-game-card" + ("" if playable else " is-disabled")
-    href = f' href="/{lang}/{t["folder"]}/{g["id"]}/"' if playable else ""
+    q = f"?topic={topic}" if topic else ""   # topic pages of a multi-topic section
+    href = f' href="/{lang}/{t["folder"]}/{g["id"]}/{q}"' if playable else ""
     parts = [f'<{tag} class="{cls}"{href} data-game-id="{esc(g["id"])}">']
     if g.get("audience") == "teacher":   # teacher-led: a child can't start it alone
         parts.append(f'<span class="k-game-card-badge is-teacher">{t["teacher"]}</span>')
@@ -275,8 +276,6 @@ TARGETS = [
     ("en/spanish/index.html", "gl-grid", None, lambda gs: landing_order(gs, "en"), lambda g: landing_tile(g, "en")),
     ("en/spanish/games/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "en")],
      lambda g: card(g, "en")),
-    ("en/spanish/ser/index.html", "games-grid", "games-section", for_topic("es_ser"),
-     lambda g: card(g, "en", decoding=False)),
     ("de/unregelmaessige-verben/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
      lambda g: card(g, "de", decoding=False)),
     ("es/verbos-irregulares/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
@@ -285,6 +284,12 @@ TARGETS = [
      lambda g: card(g, "de", decoding=False)),
     ("es/preposiciones/index.html", "games-grid", "games-section", for_topic("prepositions"),
      lambda g: card(g, "es", decoding=False)),
+] + [
+    # one topic hub per Spanish topic (topics.json entries with an "en" URL);
+    # its game cards carry ?topic= so the game asks that topic
+    (f"en/{t['en']}/index.html", "games-grid", "games-section", for_topic(tid),
+     (lambda tid: lambda g: card(g, "en", decoding=False, topic=tid))(tid))
+    for tid, t in json.loads((HOME / "data/topics.json").read_text(encoding="utf-8")).items() if t.get("en")
 ]
 
 

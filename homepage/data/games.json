@@ -16,7 +16,10 @@
     "topics": [
       "irregular_verbs",
       "prepositions",
-      "es_ser"
+      "es_ser",
+      "es_estar",
+      "es_ser_estar",
+      "es_tener"
     ],
     "status": "ready",
     "kind": "3d",
@@ -63,7 +66,10 @@
     "thumbnail": "/thumbnails/verb-kitchen.png",
     "topics": [
       "irregular_verbs",
-      "es_ser"
+      "es_ser",
+      "es_estar",
+      "es_ser_estar",
+      "es_tener"
     ],
     "status": "ready",
     "kind": "3d",
@@ -89,7 +95,10 @@
     "thumbnail": "/thumbnails/sm/verb-platformer.jpg",
     "topics": [
       "irregular_verbs",
-      "es_ser"
+      "es_ser",
+      "es_estar",
+      "es_ser_estar",
+      "es_tener"
     ],
     "status": "ready",
     "kind": "3d",

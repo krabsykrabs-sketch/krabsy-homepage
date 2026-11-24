@@ -86,5 +86,71 @@
       "sprint":        { "en": "sprint" },
       "fill-the-gap":  { "en": "fill-the-gap" }
     }
+  },
+  "es_estar": {
+    "en": "spanish/estar",
+    "learn": "es",
+    "display_name": {
+      "en": "Estoy … (estar)"
+    },
+    "short_name": {
+      "en": "Estoy (estar)"
+    },
+    "status": "live",
+    "description": {
+      "en": "How you feel and where things are: Estoy cansado. Estoy en casa. El libro está en la mesa."
+    },
+    "card_stats": {
+      "en": "5 patterns · 25 sentences · 2 drills"
+    },
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "en": "sprint" },
+      "fill-the-gap":  { "en": "fill-the-gap" }
+    }
+  },
+  "es_ser_estar": {
+    "en": "spanish/ser-or-estar",
+    "learn": "es",
+    "display_name": {
+      "en": "Ser or estar?"
+    },
+    "short_name": {
+      "en": "Ser or estar?"
+    },
+    "status": "live",
+    "description": {
+      "en": "Soy or estoy? What you are like and where you come from, or how you feel and where you are."
+    },
+    "card_stats": {
+      "en": "4 patterns · 21 sentences · 2 drills"
+    },
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "en": "sprint" },
+      "fill-the-gap":  { "en": "fill-the-gap" }
+    }
+  },
+  "es_tener": {
+    "en": "spanish/tener",
+    "learn": "es",
+    "display_name": {
+      "en": "Tengo … (tener)"
+    },
+    "short_name": {
+      "en": "Tengo (tener)"
+    },
+    "status": "live",
+    "description": {
+      "en": "Age, things you have, hungry and cold: Tengo diez años. Tengo un perro. Tengo hambre."
+    },
+    "card_stats": {
+      "en": "4 patterns · 18 sentences · 2 drills"
+    },
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "en": "sprint" },
+      "fill-the-gap":  { "en": "fill-the-gap" }
+    }
   }
 }

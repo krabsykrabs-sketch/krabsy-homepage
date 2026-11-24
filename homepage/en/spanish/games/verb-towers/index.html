@@ -91,7 +91,7 @@
           },
           "learningResourceType": "Educational game",
           "educationalLevel": "beginners, from about 8 (Spanish as a foreign language)",
-          "teaches": "Spanish grammar for beginners: ser (yo soy) with name, origin and descriptions",
+          "teaches": "Spanish grammar for beginners: ser, estar, ser or estar, tener",
           "audience": {
             "@type": "EducationalAudience",
             "educationalRole": "student"
@@ -173,13 +173,20 @@
   ></iframe>
   <script>
     (function () {
+      var t = 'es_ser', ok = /^es_[a-z0-9_]{1,36}$/;
       try {
         var q = new URLSearchParams(location.search).get('topic');
-        if (q && /^es_[a-z0-9_]{1,36}$/.test(q) && q !== 'es_ser') {
-          var f = document.getElementById('game-frame');
-          f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + q);
-        }
+        var saved = localStorage.getItem('krabsy_es_topic');
+        if (q && ok.test(q)) { t = q; localStorage.setItem('krabsy_es_topic', q); }
+        else if (saved && ok.test(saved)) t = saved;
       } catch (_) {}
+      var f = document.getElementById('game-frame');
+      f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + t);
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-es-topic]').forEach(function (a) {
+          if (a.getAttribute('data-es-topic') === t) a.setAttribute('aria-current', 'true');
+        });
+      });
     })();
   </script>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
@@ -187,6 +194,7 @@
   <main class="kg-info" id="how-to-play" lang="en">
     <nav class="kg-crumbs" aria-label="Breadcrumbs"><a href="/en/spanish/">Krabsy Spanish</a> › <a href="/en/spanish/games/">Games</a> › <span aria-current="page">Verb Towers</span></nav>
     <h1>Verb Towers: a Spanish tower-defence game</h1>
+    <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> · <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> · <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> · <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
     <p>Enemies march along the road to your castle, and your towers stop them. Towers cost coins, and you earn coins in the <strong>forge</strong>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.</p>
     <p>The game is free in the browser, with English menus and Spanish sentences.</p>
     <h2>How to play Verb Towers</h2>
@@ -209,9 +217,10 @@
     </div>
     <h2>Keep practising</h2>
     <ul class="kg-links">
-      <li><a href="/en/spanish/ser/">Yo soy … (ser): all games and drills</a></li>
-      <li><a href="/en/spanish/ser/sprint/">Sprint: 20 Spanish sentences against the clock</a></li>
-      <li><a href="/en/spanish/ser/fill-the-gap/">Fill the Gap: type the missing word</a></li>
+      <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
+      <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
+      <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
+      <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
       <li><a href="/en/spanish/games/">All Spanish games</a></li>
     </ul>
     <h2>More Spanish games</h2>

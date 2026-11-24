@@ -148,3 +148,7 @@ html { scroll-behavior: smooth; }
 .kg-related-tag { padding: 0 12px 12px; font-size: 0.88rem; line-height: 1.4; color: #b9c6db; }
 
 .kg-info .kg-top { margin: 28px 0 0; text-align: center; }
+/* Spanish section (/en/spanish/games/<id>/): topic bar under the h1; the page script marks the topic being played */
+.kg-topics { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.kg-topic { padding: 3px 12px; border-radius: 999px; border: 2px solid currentColor; text-decoration: none; font-weight: 700; }
+.kg-topic[aria-current] { background: #2ee6c0; border-color: #2ee6c0; color: #0d1b3a; }

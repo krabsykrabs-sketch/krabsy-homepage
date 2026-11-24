@@ -111,9 +111,10 @@ L = {
         "top": "▲ Back to the game", "play": "Play →",
         "alt": "Scene from {name}",
         "links": [
-            ("/en/spanish/ser/", "Yo soy … (ser): all games and drills"),
-            ("/en/spanish/ser/sprint/", "Sprint: 20 Spanish sentences against the clock"),
-            ("/en/spanish/ser/fill-the-gap/", "Fill the Gap: type the missing word"),
+            ("/en/spanish/ser/", "Yo soy … (ser): games and drills"),
+            ("/en/spanish/estar/", "Estoy … (estar): games and drills"),
+            ("/en/spanish/ser-or-estar/", "Ser or estar? games and drills"),
+            ("/en/spanish/tener/", "Tengo … (tener): games and drills"),
             ("/en/spanish/games/", "All Spanish games"),
         ],
         "level": "beginners, from about 8 (Spanish as a foreign language)",
@@ -155,6 +156,11 @@ def render_body(gid, lang, games, inline_game):
     out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="{t.get("home_href", f"/{lang}/")}">{t["home"]}</a> › '
                f'<a href="{url_games}">{t["games"]}</a> › <span aria-current="page">{esc(name)}</span></nav>')
     out.append(f'  <h1>{c["h1"]}</h1>')
+    if lang == "en":   # Spanish section: which topic the game asks (game page script marks the current one)
+        topics = json.loads((HOME / "data/topics.json").read_text(encoding="utf-8"))
+        chips = " · ".join(f'<a class="kg-topic" data-es-topic="{tid}" href="?topic={tid}">{esc(t["display_name"]["en"])}</a>'
+                           for tid, t in topics.items() if t.get("en"))
+        out.append(f'  <p class="kg-topics"><strong>Topic:</strong> {chips}</p>')
     for p in c["lead"]:
         out.append(f"  <p>{fill_verbs(p, lang)}</p>")
     out.append(f'  <h2>{t["howto"].format(name=esc(name))}</h2>')

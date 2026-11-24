@@ -471,7 +471,9 @@ const TOPIC_TEXT = {
       recipeHint: '¿sin platos limpios? Friégalos respondiendo preposiciones 🧽' },
   },
 };
-const TT = (TOPIC_TEXT[TOPIC] && (TOPIC_TEXT[TOPIC][LANG] || TOPIC_TEXT[TOPIC].en))
+// Any Spanish topic (es_…) uses the Spanish texts (the menu example only shows the idea).
+const TOPIC_KEY = TOPIC_TEXT[TOPIC] ? TOPIC : (/^es_/.test(TOPIC) ? 'es_ser' : TOPIC);
+const TT = (TOPIC_TEXT[TOPIC_KEY] && (TOPIC_TEXT[TOPIC_KEY][LANG] || TOPIC_TEXT[TOPIC_KEY].en))
   || (TOPIC !== 'irregular_verbs' ? (SENT[LANG] || SENT.en) : {});
 
 /** Translate a key; template keys take args. Falls back to English. */

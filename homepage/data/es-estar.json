@@ -1,0 +1,370 @@
+{
+  "format": 2,
+  "id": "es_estar",
+  "learn_lang": "es",
+  "level": "A1",
+  "title": {
+    "en": "I am … (estar): how you feel and where things are",
+    "es": "Estoy …: cómo estás y dónde está",
+    "de": "Ich bin … (estar): wie du dich fühlst und wo etwas ist"
+  },
+  "status": "draft — waiting for Nora's check (2026-11-24)",
+  "items": [
+    {
+      "id": "estar_feel_estoy",
+      "group": "feel",
+      "label": "estoy + feeling",
+      "explanation": {
+        "en": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+        "es": "Cómo te sientes ahora: Estoy + estado. Estoy cansado. Estoy contenta.",
+        "de": "Wie du dich gerade fühlst: Estoy + Gefühl. Estoy cansado. Estoy contenta."
+      },
+      "distractors": [
+        "soy",
+        "está",
+        "estás"
+      ],
+      "examples": [
+        {
+          "sentence": "Hoy ___ cansado.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo ___ muy contenta.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ un poco triste.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Está",
+            "Estás"
+          ]
+        },
+        {
+          "sentence": "Mamá, ___ enfermo.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "No ___ nerviosa.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "estar_feel_word",
+      "group": "feel",
+      "label": "estoy cansado / cansada",
+      "explanation": {
+        "en": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+        "es": "Un chico dice cansado, una chica dice cansada (-o / -a). Triste no cambia.",
+        "de": "Ein Junge sagt cansado, ein Mädchen cansada (-o / -a). Triste bleibt gleich."
+      },
+      "examples": [
+        {
+          "sentence": "Me llamo Pablo. Estoy ___.",
+          "answers": [
+            "cansado"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "cansada",
+            "cansados",
+            "contento"
+          ],
+          "hint": {
+            "en": "tired",
+            "de": "müde"
+          }
+        },
+        {
+          "sentence": "Me llamo Marta. Estoy ___.",
+          "answers": [
+            "contenta"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "contento",
+            "contentas",
+            "triste"
+          ],
+          "hint": {
+            "en": "happy",
+            "de": "froh"
+          }
+        },
+        {
+          "sentence": "Me llamo Leo. Estoy ___.",
+          "answers": [
+            "triste"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "tristes",
+            "contento",
+            "cansado"
+          ],
+          "hint": {
+            "en": "sad",
+            "de": "traurig"
+          }
+        },
+        {
+          "sentence": "Me llamo Sara. Estoy ___.",
+          "answers": [
+            "enfadada"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "enfadado",
+            "enfadadas",
+            "contenta"
+          ],
+          "hint": {
+            "en": "angry",
+            "de": "wütend"
+          }
+        },
+        {
+          "sentence": "Me llamo Hugo. Estoy ___.",
+          "answers": [
+            "enfermo"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "enferma",
+            "enfermos",
+            "cansado"
+          ],
+          "hint": {
+            "en": "ill",
+            "de": "krank"
+          }
+        },
+        {
+          "sentence": "Me llamo Lola. Estoy ___.",
+          "answers": [
+            "nerviosa"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "nervioso",
+            "nerviosas",
+            "tranquila"
+          ],
+          "hint": {
+            "en": "nervous",
+            "de": "nervös"
+          }
+        }
+      ]
+    },
+    {
+      "id": "estar_bien",
+      "group": "feel",
+      "label": "estoy bien",
+      "explanation": {
+        "en": "¿Cómo estás? (How are you?) → Estoy bien. Bien, not bueno: Estoy bien.",
+        "es": "¿Cómo estás? → Estoy bien. Bien, no bueno.",
+        "de": "¿Cómo estás? (Wie geht's?) → Estoy bien. Bien, nicht bueno."
+      },
+      "examples": [
+        {
+          "sentence": "¿Cómo estás? ___ bien, gracias.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Está",
+            "Es"
+          ]
+        },
+        {
+          "sentence": "¿Cómo estás? Estoy ___, gracias.",
+          "answers": [
+            "bien"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "bueno",
+            "buena",
+            "mal"
+          ],
+          "hint": {
+            "en": "well",
+            "de": "gut"
+          }
+        },
+        {
+          "sentence": "Hoy no estoy ___.",
+          "answers": [
+            "bien"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "bueno",
+            "buena",
+            "buenos"
+          ],
+          "hint": {
+            "en": "well",
+            "de": "gut"
+          }
+        },
+        {
+          "sentence": "Estoy ___, tengo fiebre.",
+          "answers": [
+            "mal"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "bien",
+            "bueno",
+            "buena"
+          ],
+          "hint": {
+            "en": "unwell",
+            "de": "schlecht"
+          }
+        }
+      ]
+    },
+    {
+      "id": "estar_place_yo",
+      "group": "place",
+      "label": "estoy en + place",
+      "explanation": {
+        "en": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+        "es": "Dónde estás: Estoy en + lugar. Estoy en casa. Estoy en el colegio.",
+        "de": "Wo du bist: Estoy en + Ort. Estoy en casa. Estoy en el colegio."
+      },
+      "distractors": [
+        "soy",
+        "está",
+        "estás"
+      ],
+      "examples": [
+        {
+          "sentence": "Ahora ___ en casa.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Yo ___ en el colegio.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ en el parque con mi perro.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Está",
+            "Estás"
+          ]
+        },
+        {
+          "sentence": "Estoy ___ Madrid.",
+          "answers": [
+            "en"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "de",
+            "a",
+            "por"
+          ]
+        },
+        {
+          "sentence": "Estoy ___ casa.",
+          "answers": [
+            "en"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "a",
+            "de",
+            "por"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "estar_place_thing",
+      "group": "place",
+      "label": "está en + place",
+      "explanation": {
+        "en": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+        "es": "Dónde está algo: está. El libro está en la mesa. ¿Dónde está el baño?",
+        "de": "Wo etwas ist: está. El libro está en la mesa. ¿Dónde está el baño?"
+      },
+      "distractors": [
+        "es",
+        "estoy",
+        "están"
+      ],
+      "examples": [
+        {
+          "sentence": "El libro ___ en la mesa.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Mi perro ___ en el jardín.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "¿Dónde ___ el baño?",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "La pelota ___ debajo de la cama.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Mi mochila ___ en la clase.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

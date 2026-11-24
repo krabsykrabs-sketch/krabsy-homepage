@@ -42,6 +42,27 @@ TOPICS = [
                  '<em lang="es">Yo soy Lucas. Soy de Inglaterra. Soy alto.</em> '
                  'Play one of the games, or practise with the two quick drills.',
     },
+    {
+        'topic': 'es_estar', 'slug': 'estar', 'name': 'I am … (estar)', 'title': 'Estoy … (estar)',
+        'short': 'how you feel and where things are', 'level': 'Beginners (A1)',
+        'intro': 'Say how you feel and where you or things are: '
+                 '<em lang="es">Estoy cansado. Estoy en casa. El libro está en la mesa.</em> '
+                 'Play one of the games, or practise with the two quick drills.',
+    },
+    {
+        'topic': 'es_ser_estar', 'slug': 'ser-or-estar', 'name': 'ser or estar?', 'title': 'Ser or estar?',
+        'short': 'soy or estoy, es or está', 'level': 'Beginners (A1)',
+        'intro': '<em lang="es">Soy</em> for what you are like and where you come from, '
+                 '<em lang="es">estoy</em> for how you feel and where you are: '
+                 '<em lang="es">Soy de Londres, pero estoy en Madrid.</em> Play, or practise with the drills.',
+    },
+    {
+        'topic': 'es_tener', 'slug': 'tener', 'name': 'I have … (tener)', 'title': 'Tengo … (tener)',
+        'short': 'age, things you have, hungry and cold', 'level': 'Beginners (A1)',
+        'intro': 'Your age, what you have, and how hungry or cold you are: '
+                 '<em lang="es">Tengo diez años. Tengo un perro. Tengo hambre.</em> '
+                 'Play one of the games, or practise with the two quick drills.',
+    },
 ]
 
 # Games of the section: id → (German page to copy, served game path)
@@ -162,6 +183,7 @@ def build_sprint(t):
     s = sub(s, "loadingEl.textContent = 'Fehler beim Laden.';",
             "loadingEl.textContent = 'Could not load.';")
     s = sub(s, '    </main>', links_block(t, 'sprint/') + '\n    </main>')
+    s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s
 
 
@@ -184,6 +206,7 @@ def build_fill(t):
                r'\1Fill the Gap needs a wider screen. Open this page on a device at least 900&nbsp;px wide, in landscape.\2',
                s, count=1, flags=re.S)
     s = sub(s, '    </main>', links_block(t, 'fill-the-gap/') + '\n    </main>')
+    s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s
 
 
@@ -274,6 +297,7 @@ def build_topic_hub(t):
 </section>
 
 {FOOTER}'''
+    s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s
 
 
@@ -308,6 +332,33 @@ def build_games_hub():
     return url, s
 
 
+TOPIC_KEY = 'krabsy_es_topic'
+TOPIC_SCRIPT = f'''  <script>
+    (function () {{
+      var t = 'es_ser', ok = /^es_[a-z0-9_]{{1,36}}$/;
+      try {{
+        var q = new URLSearchParams(location.search).get('topic');
+        var saved = localStorage.getItem('{TOPIC_KEY}');
+        if (q && ok.test(q)) {{ t = q; localStorage.setItem('{TOPIC_KEY}', q); }}
+        else if (saved && ok.test(saved)) t = saved;
+      }} catch (_) {{}}
+      var f = document.getElementById('game-frame');
+      f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + t);
+      document.addEventListener('DOMContentLoaded', function () {{
+        document.querySelectorAll('[data-es-topic]').forEach(function (a) {{
+          if (a.getAttribute('data-es-topic') === t) a.setAttribute('aria-current', 'true');
+        }});
+      }});
+    }})();
+  </script>
+'''
+
+
+def remember_topic(topic):
+    """Inline script for topic hubs and drills: games opened later play this topic."""
+    return f"  <script>try{{localStorage.setItem('{TOPIC_KEY}','{topic}')}}catch(_){{}}</script>\n"
+
+
 def build_game_page(gid):
     src_path, game_path = GAMES[gid]
     src = (HOME / src_path).read_text()
@@ -319,19 +370,9 @@ def build_game_page(gid):
         sys.exit(f'{gid}: iframe src not found')
     s = re.sub(r'\s*<script src="/lib/krabsy-lang-switch.js[^"]*" defer></script>', '', s)
     s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
-    # Spanish topics only (a later topic picker can pass ?topic=es_…)
-    s = s.replace('  <!-- GAME-INFO:START', '''  <script>
-    (function () {
-      try {
-        var q = new URLSearchParams(location.search).get('topic');
-        if (q && /^es_[a-z0-9_]{1,36}$/.test(q) && q !== 'es_ser') {
-          var f = document.getElementById('game-frame');
-          f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + q);
-        }
-      } catch (_) {}
-    })();
-  </script>
-  <!-- GAME-INFO:START''', 1)
+    # Topic: ?topic=es_… (topic pages, the topic bar below the game), else the last
+    # Spanish topic chosen on a topic page or drill (localStorage), else es_ser.
+    s = s.replace('  <!-- GAME-INFO:START', TOPIC_SCRIPT + '  <!-- GAME-INFO:START', 1)
     return url, s
 
 

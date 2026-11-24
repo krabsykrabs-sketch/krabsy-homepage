@@ -772,4 +772,4 @@ EN_SPANISH = {
 for _gid, _c in EN_SPANISH.items():
     CONTENT[_gid]["en"] = _c
 
-TEACHES["en"] = {"default": "Spanish grammar for beginners: ser (yo soy) with name, origin and descriptions"}
+TEACHES["en"] = {"default": "Spanish grammar for beginners: ser, estar, ser or estar, tener"}

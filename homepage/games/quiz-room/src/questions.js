@@ -16,7 +16,7 @@ import { VERBS } from './verbs.js';
 import { PREPS } from './preps.js';
 import { lang } from './i18n.js';
 
-export const TOPICS = ['irregular_verbs', 'prepositions', 'es_ser'];
+export const TOPICS = ['irregular_verbs', 'prepositions', 'es_ser', 'es_estar', 'es_ser_estar', 'es_tener'];
 
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {

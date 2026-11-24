@@ -306,7 +306,9 @@ const TOPIC_TEXT = {
       recapTitle: 'Sentences to practise:', menuExample: ['Yo ', 'soy', ' Lucas.'] },
   },
 };
-const TT = (TOPIC_TEXT[TOPIC] && (TOPIC_TEXT[TOPIC][lang] || TOPIC_TEXT[TOPIC].en)) || {};
+// Any Spanish topic (es_…) uses the Spanish texts: the example only shows how the forge works.
+const TOPIC_KEY = TOPIC_TEXT[TOPIC] ? TOPIC : (/^es_/.test(TOPIC) ? 'es_ser' : TOPIC);
+const TT = (TOPIC_TEXT[TOPIC_KEY] && (TOPIC_TEXT[TOPIC_KEY][lang] || TOPIC_TEXT[TOPIC_KEY].en)) || {};
 
 // t('key') → string; t('key', a, b) calls template functions.
 export function t(key, ...args) {

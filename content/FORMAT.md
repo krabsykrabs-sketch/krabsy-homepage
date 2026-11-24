@@ -104,13 +104,23 @@ synced to `homepage/data/<file>.json` at release.
 
 ## Registering a topic
 
-1. Add the file here and copy it to `homepage/data/`.
-2. Add a row to `TOPIC_REGISTRY` in `homepage/lib/krabsy-data.js`:
+1. Add the file here and copy it to `homepage/data/` (file name = topic id with
+   `-` for `_`, e.g. `es_ser_estar` → `es-ser-estar.json`; Fill the Gap finds it by that rule).
+2. `TOPIC_REGISTRY` in `homepage/lib/krabsy-data.js`:
    `es_ser: { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser.json' }`.
-3. Add the id to `TOPICS` in `api/classes.py` (else class stats drop the
-   answers) and deploy the API.
-4. Games that keep their own topic list (Quiz Room `src/questions.js`,
-   `src/i18n.js` topic names) need the id too.
+3. `TOPICS` in `api/classes.py` (else class stats drop the answers) → deploy the API.
+4. Quiz Room: `TOPICS` in `games/quiz-show/src/questions.js`, `topic_<id>` and
+   `diff_<id>` in `src/i18n.js` (EN/DE/ES); copy `src/` to `homepage/games/quiz-room/`.
+5. Section pages (Spanish for English speakers, CLAUDE.md "Sections"):
+   `homepage/data/topics.json` entry with its `en` URL (`spanish/<slug>`), the topic id
+   in the `topics` of every game that should play it (`games.json`), a row in `TOPICS`
+   of `tools/build_en_spanish.py`, a card + filter chip on `homepage/en/spanish/index.html`;
+   then `python3 tools/build_en_spanish.py && python3 tools/render_static_games.py &&
+   python3 tools/render_game_info.py`.
+6. Review sheet for a teacher: `python3 tools/es_review_sheet.py content/<file>.json > docs/<name>.md`.
+
+Games need no change: they pick their menu texts by learning language (`es_…` →
+Spanish), and the game pages choose the topic via `?topic=` or the last topic visited.
 
 The engine then serves it via `getQuizSet({ topic: 'es_ser', lang })` and
 `getQuestions({ topic: 'es_ser' })`; `?topic=es_ser` works in every game

@@ -34,6 +34,13 @@ Spanish.
   accents optional when typing Spanish, hint behind "?". Verb Towers plays
   es_ser; **since 2026-11-24 it's in the section** (`/en/spanish/games/verb-towers/`,
   topic texts per topic, explanations in the game's language).
+- **Three more Spanish topics** (2026-11-24, drafts for Nora): `es_estar` (25 sentences),
+  `es_ser_estar` (21), `es_tener` (18), each with a topic page, Sprint + Fill the Gap,
+  in all three games and the Quiz Room. Games choose their texts by learning language
+  now (any `es_…` topic); game pages play `?topic=` or the last topic visited
+  (`krabsy_es_topic`), with a topic bar under the game. Review sheet:
+  `docs/es-revision-nora-estar-ser-estar-tener.md` (`tools/es_review_sheet.py`).
+  **Needs the API deploy too** (`api/classes.py` TOPICS).
 - **Section rebuilt on the site's own templates** (2026-11-24, owner: "same style,
   same layout as the original pages"): landing on the /de/ skeleton (featured
   game, filterable grid, practice band, teacher strip), games hub, topic hub

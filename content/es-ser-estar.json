@@ -1,0 +1,314 @@
+{
+  "format": 2,
+  "id": "es_ser_estar",
+  "learn_lang": "es",
+  "level": "A1",
+  "title": {
+    "en": "Ser or estar? soy or estoy",
+    "es": "¿Ser o estar? soy o estoy",
+    "de": "Ser oder estar? soy oder estoy"
+  },
+  "status": "draft — waiting for Nora's check (2026-11-24)",
+  "items": [
+    {
+      "id": "se_from_vs_in",
+      "group": "place",
+      "label": "soy de / estoy en",
+      "explanation": {
+        "en": "Where you come from: soy de. Where you are now: estoy en. Soy de Londres, pero estoy en Madrid.",
+        "es": "Origen: soy de. Dónde estás ahora: estoy en. Soy de Londres, pero estoy en Madrid.",
+        "de": "Woher du kommst: soy de. Wo du gerade bist: estoy en. Soy de Londres, pero estoy en Madrid."
+      },
+      "examples": [
+        {
+          "sentence": "Yo ___ de Londres.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "estoy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "Ahora ___ en Madrid.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "Soy de Escocia, pero hoy ___ en Barcelona.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "___ de Irlanda.",
+          "answers": [
+            "Soy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Estoy",
+            "Es",
+            "Está"
+          ]
+        },
+        {
+          "sentence": "___ en el parque.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Es",
+            "Está"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "se_what_vs_how",
+      "group": "describe",
+      "label": "soy alto / estoy cansado",
+      "explanation": {
+        "en": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
+        "es": "Cómo eres (siempre): soy. Cómo estás ahora: estoy. Soy alto. Hoy estoy cansado.",
+        "de": "Wie du bist (immer): soy. Wie du dich jetzt fühlst: estoy. Soy alto. Hoy estoy cansado."
+      },
+      "examples": [
+        {
+          "sentence": "___ alto y simpático.",
+          "answers": [
+            "Soy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Estoy",
+            "Es",
+            "Está"
+          ]
+        },
+        {
+          "sentence": "Hoy ___ cansado.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "Soy una persona tranquila, pero hoy ___ nerviosa.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "Yo ___ muy simpática.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "estoy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "Yo ___ enferma, no voy al colegio.",
+          "answers": [
+            "estoy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "___ contento porque es mi cumpleaños.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "Soy",
+            "Es",
+            "Está"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "se_name_feel",
+      "group": "describe",
+      "label": "soy Ana / estoy bien",
+      "explanation": {
+        "en": "Your name: soy. How you are: estoy. Hola, soy Ana. Estoy bien, gracias.",
+        "es": "Tu nombre: soy. Cómo estás: estoy. Hola, soy Ana. Estoy bien, gracias.",
+        "de": "Dein Name: soy. Wie es dir geht: estoy. Hola, soy Ana. Estoy bien, gracias."
+      },
+      "examples": [
+        {
+          "sentence": "Hola, ___ Ana.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "estoy",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "¿Cómo estás? ___ bien, gracias.",
+          "answers": [
+            "Estoy"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Es",
+            "Está"
+          ]
+        },
+        {
+          "sentence": "Hola, ___ Tom, el hermano de Lucía.",
+          "answers": [
+            "soy"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "estoy",
+            "es",
+            "está"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "se_es_esta",
+      "group": "things",
+      "label": "es grande / está en",
+      "explanation": {
+        "en": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+        "es": "Cómo es algo: es. Dónde está algo: está. Mi casa es grande. Mi casa está en Madrid.",
+        "de": "Wie etwas ist: es. Wo etwas ist: está. Mi casa es grande. Mi casa está en Madrid."
+      },
+      "examples": [
+        {
+          "sentence": "Mi casa ___ grande.",
+          "answers": [
+            "es"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "está",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "Mi casa ___ en Madrid.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "es",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "La mesa ___ en la cocina.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "es",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "Mi perro ___ muy pequeño.",
+          "answers": [
+            "es"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "está",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "Madrid ___ en España.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "es",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "Mi hermano ___ de Barcelona.",
+          "answers": [
+            "es"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "está",
+            "soy",
+            "estoy"
+          ]
+        },
+        {
+          "sentence": "Mi hermano ___ enfermo hoy.",
+          "answers": [
+            "está"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "es",
+            "soy",
+            "estoy"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
+  <title>Fill the Gap: Spanish ser or estar? — Krabsy</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Type the missing Spanish word: soy or estoy, es or está. Three lives. Free, no sign-up.">
+  <link rel="canonical" href="https://krabsy.com/en/spanish/ser-or-estar/fill-the-gap/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Fill the Gap: Spanish ser or estar? — Krabsy">
+  <meta property="og:description" content="Type the missing Spanish word: soy or estoy, es or está. Three lives. Free, no sign-up.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/en/spanish/ser-or-estar/fill-the-gap/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fill the Gap: Spanish ser or estar? — Krabsy">
+  <meta name="twitter:description" content="Type the missing Spanish word: soy or estoy, es or está. Three lives. Free, no sign-up.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
+  <style>
+    /* ── Lückentext wrapper layout ────────────────────────────────────────
+       The game itself lives at /games/fill-the-gap.html and is dropped in
+       via an iframe. The wrapper provides: page header, intro card, footer.
+       The iframe is told to load preposition content via ?topic=prepositions.
+       ─────────────────────────────────────────────────────────────────── */
+    .fg-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: var(--space-5) var(--space-4);
+      width: 100%;
+    }
+
+    .fg-game-frame {
+      display: block;
+      width: 100%;
+      height: 700px;
+      border: 0;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      background: transparent;
+      overflow: hidden;
+    }
+
+    /* Fallback shown when the viewport is too narrow for the game grid */
+    .fg-narrow-note {
+      display: none;
+      text-align: center;
+      padding: var(--space-6) var(--space-5);
+      color: var(--krabsy-ink-mute);
+    }
+    @media (max-width: 899px) {
+      .fg-game-frame  { display: none; }
+      .fg-narrow-note { display: block; }
+    }
+  </style>
+  <script>try{localStorage.setItem('krabsy_es_topic','es_ser_estar')}catch(_){}</script>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a class="k-logo" href="/en/spanish/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span></a>
+    </header>
+
+    <main class="fg-wrap">
+      <h1 class="k-page-h1">Fill the Gap: Spanish Ser or estar?</h1>
+      <aside class="k-intro-card" aria-label="About this drill">
+        <p>Spanish sentences with a gap. Type the missing word and press Enter. You have three lives: a wrong answer costs one. You don't need to type accents (ingles counts as inglés), but look at how it's spelled when the answer appears.</p>
+      </aside>
+
+      <iframe
+        class="fg-game-frame"
+        src="/games/fill-the-gap.html?lang=en&topic=es_ser_estar"
+        title="Fill the Gap — Spanish ser or estar?"
+        loading="eager"
+        allow="autoplay"
+      ></iframe>
+
+      <p class="fg-narrow-note">Fill the Gap needs a wider screen. Open this page on a device at least 900&nbsp;px wide, in landscape.</p>
+
+
+      <section class="k-article" aria-label="More practice">
+        <h2>More practice</h2>
+        <ul class="k-article-links">
+        <li><a href="/en/spanish/ser-or-estar/sprint/">Sprint</a>: tap the right word, as fast as you can.</li>
+          <li><a href="/en/spanish/ser-or-estar/">Ser or estar?: all games and drills</a></li>
+          <li><a href="/en/spanish/">Krabsy Spanish: home</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-24';
+    // Prep ships only 2 drill pages today; pass an explicit allow-list so
+    // the chip-bar doesn't render dead chips for verb-only drills.
+    initDrillPage('fill_gap', 'es_ser_estar', ['sprint', 'fill_gap']);
+  </script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>

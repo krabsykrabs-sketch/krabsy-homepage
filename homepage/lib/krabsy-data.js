@@ -91,6 +91,9 @@ const TOPIC_REGISTRY = {
   prepositions:    { learn: 'en', level: null, shapes: ['quiz'] },
   // Spanish pilot (2026-11-24, for a teacher's 1:1 lessons): no public page yet
   es_ser:          { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser.json' },
+  es_estar:        { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-estar.json' },
+  es_ser_estar:    { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser-estar.json' },
+  es_tener:        { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-tener.json' },
 };
 
 /** Live list of topic ids (the same array object stays valid after

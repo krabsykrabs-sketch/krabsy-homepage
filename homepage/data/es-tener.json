@@ -1,0 +1,298 @@
+{
+  "format": 2,
+  "id": "es_tener",
+  "learn_lang": "es",
+  "level": "A1",
+  "title": {
+    "en": "I have … (tener): age, things, hungry and cold",
+    "es": "Tengo …: edad, cosas, hambre y frío",
+    "de": "Ich habe … (tener): Alter, Dinge, Hunger und Kälte"
+  },
+  "status": "draft — waiting for Nora's check (2026-11-24)",
+  "items": [
+    {
+      "id": "tener_age",
+      "group": "age",
+      "label": "tengo … años",
+      "explanation": {
+        "en": "Your age: tengo … años (= I have … years). Not soy: Tengo diez años.",
+        "es": "La edad: tengo … años. No soy: Tengo diez años.",
+        "de": "Dein Alter: tengo … años (= ich habe … Jahre). Nicht soy: Tengo diez años."
+      },
+      "examples": [
+        {
+          "sentence": "Yo ___ diez años.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "estoy",
+            "tiene"
+          ]
+        },
+        {
+          "sentence": "___ ocho años.",
+          "answers": [
+            "Tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Estoy",
+            "Tiene"
+          ]
+        },
+        {
+          "sentence": "Me llamo Ana y ___ nueve años.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "estoy",
+            "tiene"
+          ]
+        },
+        {
+          "sentence": "Mi hermana ___ cinco años.",
+          "answers": [
+            "tiene"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "tengo",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "¿Cuántos años ___?",
+          "answers": [
+            "tienes"
+          ],
+          "difficulty": 3,
+          "distractors": [
+            "tengo",
+            "eres",
+            "estás"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tener_have",
+      "group": "things",
+      "label": "tengo + thing",
+      "explanation": {
+        "en": "Things you have: tengo. Tengo un perro. No tengo gato.",
+        "es": "Lo que tienes: tengo. Tengo un perro. No tengo gato.",
+        "de": "Was du hast: tengo. Tengo un perro. No tengo gato."
+      },
+      "examples": [
+        {
+          "sentence": "___ un perro.",
+          "answers": [
+            "Tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Soy",
+            "Estoy",
+            "Tiene"
+          ]
+        },
+        {
+          "sentence": "Yo ___ dos hermanos.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "estoy",
+            "tiene"
+          ]
+        },
+        {
+          "sentence": "No ___ gato.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "estoy",
+            "tiene"
+          ]
+        },
+        {
+          "sentence": "Mi amiga ___ una bici nueva.",
+          "answers": [
+            "tiene"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "tengo",
+            "es",
+            "está"
+          ]
+        },
+        {
+          "sentence": "En mi mochila ___ un libro y un lápiz.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "estoy",
+            "tiene"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tener_feel",
+      "group": "feel",
+      "label": "tengo hambre / frío",
+      "explanation": {
+        "en": "Hungry, thirsty, cold, hot, sleepy use tener: tengo hambre (= I have hunger). Not estoy.",
+        "es": "Hambre, sed, frío, calor y sueño van con tener: tengo hambre. No estoy.",
+        "de": "Hunger, Durst, Kälte, Hitze, Müdigkeit mit tener: tengo hambre (= ich habe Hunger). Nicht estoy."
+      },
+      "examples": [
+        {
+          "sentence": "___ hambre.",
+          "answers": [
+            "Tengo"
+          ],
+          "difficulty": 1,
+          "distractors": [
+            "Estoy",
+            "Soy",
+            "Tiene"
+          ]
+        },
+        {
+          "sentence": "Yo ___ mucha sed.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "estoy",
+            "soy",
+            "es"
+          ]
+        },
+        {
+          "sentence": "En invierno ___ frío.",
+          "answers": [
+            "tengo"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "estoy",
+            "es",
+            "tiene"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tener_feel_word",
+      "group": "feel",
+      "label": "tengo hambre / sed / frío …",
+      "explanation": {
+        "en": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+        "es": "hambre, sed, frío, calor, sueño.",
+        "de": "hambre = Hunger, sed = Durst, frío = kalt, calor = heiß, sueño = müde."
+      },
+      "examples": [
+        {
+          "sentence": "Es la hora de comer. Tengo ___.",
+          "answers": [
+            "hambre"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "sed",
+            "frío",
+            "sueño"
+          ],
+          "hint": {
+            "en": "hungry",
+            "de": "Hunger"
+          }
+        },
+        {
+          "sentence": "Quiero agua. Tengo ___.",
+          "answers": [
+            "sed"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "hambre",
+            "calor",
+            "frío"
+          ],
+          "hint": {
+            "en": "thirsty",
+            "de": "Durst"
+          }
+        },
+        {
+          "sentence": "Hace mucho frío. Tengo ___.",
+          "answers": [
+            "frío"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "calor",
+            "sed",
+            "hambre"
+          ],
+          "hint": {
+            "en": "cold",
+            "de": "kalt"
+          }
+        },
+        {
+          "sentence": "Es verano y tengo ___.",
+          "answers": [
+            "calor"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "frío",
+            "sed",
+            "sueño"
+          ],
+          "hint": {
+            "en": "hot",
+            "de": "heiß"
+          }
+        },
+        {
+          "sentence": "Son las once de la noche. Tengo ___.",
+          "answers": [
+            "sueño"
+          ],
+          "difficulty": 2,
+          "distractors": [
+            "frío",
+            "hambre",
+            "sed"
+          ],
+          "hint": {
+            "en": "sleepy",
+            "de": "müde"
+          }
+        }
+      ]
+    }
+  ]
+}
