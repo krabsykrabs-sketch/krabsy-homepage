@@ -119,8 +119,11 @@ content before games.
 
 ## Order of steps
 
-1. **Question format v2**: learning language, interface-language hints,
-   level. Engine (`krabsy-questions.js`) becomes language-aware.
+1. ✅ **Question format v2** (done 2026-11-24): learning language,
+   interface-language hints, level. Spec `content/FORMAT.md`; topic
+   registry in `krabsy-data.js`; engine takes `lang`. Tested headless
+   with a fixture topic; verbs, prepositions and drill pages unchanged.
+   Not deployed yet (no visible change; goes out with step 3).
 2. **English interface texts** (`data/ui_en.json`), first for the Quiz
    Room children's page and the drills.
 3. **Spanish pilot topic "ser"** (Nora's request): *ser* with *yo*, name,

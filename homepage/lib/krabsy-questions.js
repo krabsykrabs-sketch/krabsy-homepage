@@ -55,23 +55,31 @@ import {
   getQuestions as _rawQuestions,
   loadVerbTable as _loadVerbTable,
   getLang as _getLang,
+  pickLang as _pickLang,
+  TOPIC_IDS as _TOPIC_IDS,
+  topicInfo as _topicInfo,
+  registerTopic,
 } from '/lib/krabsy-data.js';
 import { readTopicItems as _readTopicItems } from '/lib/krabsy-stats.js';
 import { rankItems as _rankItems } from '/lib/krabsy-smart.js';
 
 /* ── topic helpers ──────────────────────────────────────────────────────── */
 
-export const TOPICS = ['irregular_verbs', 'prepositions'];
+/** All topic ids (live: grows with registerTopic). The registry lives in
+    krabsy-data.js; a topic's `learn` says which language it teaches. */
+export const TOPICS = _TOPIC_IDS;
+export { registerTopic };
 
-/** Which shapes a topic can serve. Future topics: add a row, games adapt
-    automatically (chain games skip topics without chains). */
-const SHAPE_SUPPORT = {
-  irregular_verbs: ['chain', 'quiz'],
-  prepositions: ['quiz'],
-};
+/** { learn, level, shapes, file? } or null. */
+export function topicInfo(topic) {
+  return _topicInfo(topic);
+}
 
+/** Which shapes a topic can serve. Chain games skip topics without
+    chains; new topics are 'quiz' only. */
 export function topicSupports(topic, shape) {
-  return (SHAPE_SUPPORT[topic] || []).includes(shape);
+  const info = _topicInfo(topic);
+  return !!info && info.shapes.includes(shape);
 }
 
 /** Read ?topic= from the current URL (works inside game iframes too).
@@ -183,8 +191,12 @@ export async function getChainSet(opts = {}) {
  *     display:
  *       { kind: 'trio', base, slots: [{ text|null }, { text|null }],
  *         askIndex }                         // verbs: go → ___ → ___
- *     | { kind: 'gap', sentence }            // sentence with ___ gap
+ *     | { kind: 'gap', sentence,             // sentence with ___ gap
+ *         plain, hint }                      // sentence = plain + " (hint)";
+ *                                            // hint in the interface language
+ *                                            // ("Yo soy ___. (tall)"), '' if none
  *     answer,            // canonical correct string
+ *     learnLang,         // language being learned: 'en', 'es', …
  *     accepts,           // [answer, ...alternates] for typed input
  *     options,           // shuffled strings incl. answer (withOptions long)
  *     correctIndex,      // index of answer within options
@@ -222,6 +234,9 @@ export async function getChainSet(opts = {}) {
  *   ids          only these items (verb base forms / preposition use-case
  *                ids), e.g. a teacher's word list
  *   smart        order by the smart mix instead of at random (see top)
+ *   lang         interface language for hints and teach lines ('en' | 'de'
+ *                | 'es'); default: the stored site language. Games with
+ *                their own ?lang= pass it here.
  *
  * Every record also carries `item` (verb base form or use-case id) — the
  * id to pass to recordAttempt(item, form, correct, source, topic).
@@ -244,9 +259,10 @@ export async function getQuizSet(opts = {}) {
   const allowPast = !forms || forms.includes('past');
   const chainOrder = topic === 'irregular_verbs' && allowPast
     && (opts.chainOrder !== undefined ? !!opts.chainOrder : true);
-  const lang = _getLang();
-  const raw = await _rawQuestions({ topic, difficulty, ids, shuffle: true });
-  const itemOf = (q) => (topic === 'prepositions' ? q.useCaseId : q.verb);
+  const lang = opts.lang || _getLang();
+  const learnLang = _topicInfo(topic).learn;
+  const raw = await _rawQuestions({ topic, difficulty, ids, shuffle: true, lang });
+  const itemOf = (q) => q.useCaseId || q.verb;
 
   // verb-table lookup for teach chains
   let table = null;
@@ -279,9 +295,16 @@ export async function getQuizSet(opts = {}) {
         chain: row ? { base: row.verb, past: row.past, participle: row.participle } : null,
       };
     } else {
-      display = { kind: 'gap', sentence: q.context_sentence || q.prompt };
+      const sentence = q.context_sentence || q.prompt;
+      display = {
+        kind: 'gap',
+        sentence,
+        plain: q.sentence_plain || sentence,
+        hint: q.hint_text || '',
+      };
       teach = {
-        line: (lang === 'es' ? q.meaning_es : q.meaning_de) || q.pattern || null,
+        line: _pickLang({ en: q.meaning_en, de: q.meaning_de, es: q.meaning_es }, lang)
+          || q.pattern || null,
         chain: null,
       };
     }
@@ -289,6 +312,7 @@ export async function getQuizSet(opts = {}) {
       id: q.id,
       item: itemOf(q),
       topic,
+      learnLang,
       difficulty: q.difficulty,
       form: q.form || 'default',
       display,
@@ -302,6 +326,7 @@ export async function getQuizSet(opts = {}) {
 
   // Units: a single record, or a [2nd form, 3rd form] pair (chain order).
   const units = [];
+  let fill = [];
   if (chainOrder) {
     const pp = new Map(); // verb → raw participle question
     for (const q of raw) if (q.form === 'participle' && !pp.has(q.verb)) pp.set(q.verb, q);
@@ -323,14 +348,19 @@ export async function getQuizSet(opts = {}) {
     }
   } else {
     const seen = new Set();
+    const extra = []; // further questions of an item already used
     for (const q of raw) {
       const dedupKey = uniqueBy === 'verb' ? q.verb : q.id;
-      if (seen.has(dedupKey)) continue;
       const rec = build(q);
       if (!rec) continue;
+      if (seen.has(dedupKey)) { extra.push([rec]); continue; }
       seen.add(dedupKey);
       units.push([rec]);
     }
+    // Small topics (few items, many sentences each): one question per item
+    // is the preference, not a cap — further sentences fill up the set
+    // (appended after ordering, below) so a game asking for 10 gets 10.
+    if (units.length < count) fill = extra;
   }
 
   if (smart && units.length) {
@@ -351,6 +381,7 @@ export async function getQuizSet(opts = {}) {
   } else if (shuffle) {
     _shuffle(units);
   }
+  if (fill.length) units.push(...(shuffle ? _shuffle(fill) : fill));
   const chosen = [];
   let filled = 0;
   for (const u of units) {

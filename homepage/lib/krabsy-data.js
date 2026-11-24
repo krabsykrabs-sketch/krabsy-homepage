@@ -77,6 +77,125 @@ export function loadPrepositions() {
   return _prepositionsPromise;
 }
 
+/* ── Question topics: registry (format v2, docs/vision.md) ──────────────────
+   Every topic a game or drill can ask. `learn` = the language being
+   learned (the sentences); the interface language is getLang().
+   `file` = a gap-topic file in /data/ (format v2, see content/FORMAT.md);
+   the two original topics keep their own loaders and formats.
+   Topic ids: the original English topics are unprefixed; new topics start
+   with their learning language (es_ser, en_…). Ids must also be in the
+   API's TOPICS set (api/classes.py) or class stats drop them. */
+
+const TOPIC_REGISTRY = {
+  irregular_verbs: { learn: 'en', level: null, shapes: ['chain', 'quiz'] },
+  prepositions:    { learn: 'en', level: null, shapes: ['quiz'] },
+};
+
+/** Live list of topic ids (the same array object stays valid after
+    registerTopic, so importers may keep a reference). */
+export const TOPIC_IDS = Object.keys(TOPIC_REGISTRY);
+
+/** { learn, level, shapes, file? } for a topic id, or null. */
+export function topicInfo(id) {
+  return TOPIC_REGISTRY[id] || null;
+}
+
+/** Add a gap topic at runtime (tests, previews, a teacher's own list
+    later). info: { learn, level?, file } — file is resolved against /data/
+    unless it is an absolute URL. */
+export function registerTopic(id, info) {
+  if (!/^[a-z0-9_]{1,40}$/.test(id)) throw new Error(`registerTopic: bad id "${id}"`);
+  TOPIC_REGISTRY[id] = { level: null, shapes: ['quiz'], ...info };
+  if (!TOPIC_IDS.includes(id)) TOPIC_IDS.push(id);
+  _gapTopicPromises.delete(id);
+}
+
+/** Pick the text for the interface language from a per-language object
+    ({ en, de, es }) or a plain string. Fallback: lang → en → de → es →
+    whatever is there. */
+export function pickLang(obj, lang) {
+  if (obj == null) return '';
+  if (typeof obj === 'string') return obj;
+  for (const l of [lang, 'en', 'de', 'es']) if (l && obj[l]) return obj[l];
+  const any = Object.values(obj).find((v) => typeof v === 'string' && v);
+  return any || '';
+}
+
+const _gapTopicPromises = new Map();
+
+/** Load a gap topic file (format v2). Returns the parsed object. */
+export function loadGapTopic(id) {
+  const info = TOPIC_REGISTRY[id];
+  if (!info || !info.file) return Promise.reject(new Error(`loadGapTopic: "${id}" is not a gap topic`));
+  if (!_gapTopicPromises.has(id)) {
+    const url = new URL(info.file, DATA_BASE);
+    const p = fetch(url, { cache: 'no-cache' })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load topic ${id}: ${r.status}`);
+        return r.json();
+      })
+      .then((def) => {
+        if (def.format !== 2) throw new Error(`Topic ${id}: expected format 2`);
+        return def;
+      })
+      .catch((err) => {
+        _gapTopicPromises.delete(id); // allow retry on next call
+        throw err;
+      });
+    _gapTopicPromises.set(id, p);
+  }
+  return _gapTopicPromises.get(id);
+}
+
+/* Gap topic (format v2) → question records in the same shape as the
+   preposition records, so drills and games read them the same way.
+   The hint (in the interface language) is appended to the sentence in
+   brackets ("Yo soy ___. (tall)") so every renderer shows it; the parts
+   are also kept apart (sentence_plain, hint_text) for renderers that want
+   to style the hint. */
+function _adaptGapTopic(topicId, def, type, lang) {
+  const effectiveType = type || 'fill_gap';
+  const out = [];
+  for (const it of def.items || []) {
+    if (!Array.isArray(it.examples)) continue;
+    const expl = it.explanation || {};
+    for (let i = 0; i < it.examples.length; i++) {
+      const ex = it.examples[i];
+      const answers = Array.isArray(ex.answers) ? ex.answers : [];
+      if (!answers.length) continue;
+      const hint = pickLang(ex.hint, lang);
+      const sentence = hint ? `${ex.sentence} (${hint})` : ex.sentence;
+      const wrong = Array.isArray(ex.distractors) ? ex.distractors
+        : Array.isArray(it.distractors) ? it.distractors : [];
+      out.push({
+        id:               `${it.id}_ex${i}`,
+        topic:            topicId,
+        verb:             it.label || it.id,     // back-compat field, see prepositions
+        form:             'default',
+        type:             effectiveType,
+        difficulty:       ex.difficulty || 1,
+        prompt:           sentence,
+        correct_answer:   answers[0],
+        correct_alt:      answers.slice(1),
+        wrong_answers:    wrong.slice(),
+        hint:             hint || it.label || '',
+        context_sentence: sentence,
+        sentence_plain:   ex.sentence,
+        hint_text:        hint,
+        meaning:          pickLang(expl, lang),
+        meaning_en:       expl.en || '',
+        meaning_de:       expl.de || '',
+        meaning_es:       expl.es || '',
+        learn_lang:       def.learn_lang,
+        useCaseId:        it.id,                  // item id (stats, smart mix)
+        group:            it.group,
+        pattern:          it.label || '',
+      });
+    }
+  }
+  return out;
+}
+
 /* ── Topics (URL slug catalogue) ────────────────────────────────────────── */
 
 let _topicsPromise = null;
@@ -504,6 +623,15 @@ export async function getQuestions(opts = {}) {
       if (form && q.form !== form) return false;
       return true;
     });
+  } else if (TOPIC_REGISTRY[topic] && TOPIC_REGISTRY[topic].file) {
+    const def = await loadGapTopic(topic);
+    const records = _adaptGapTopic(topic, def, type, opts.lang || getLang());
+    out = records.filter((q) => {
+      if (diffSet && !diffSet.has(q.difficulty)) return false;
+      if (idSet && !idSet.has(q.useCaseId)) return false;
+      if (form && q.form !== form) return false;
+      return true;
+    });
   } else {
     throw new Error(`getQuestions: unknown topic "${topic}"`);
   }
@@ -522,7 +650,7 @@ export async function getQuestions(opts = {}) {
 
 /* Item id of a question record (verb base form / preposition use case). */
 function _itemOf(q) {
-  return q.topic === 'prepositions' || q.useCaseId ? q.useCaseId : q.verb;
+  return q.useCaseId || q.verb;
 }
 
 /* Smart order for getQuestions: rank the items in `list`, then emit one
@@ -577,6 +705,9 @@ export async function pickSmartItems(topic = 'irregular_verbs', count = 20) {
   } else if (topic === 'prepositions') {
     const useCases = await loadPrepositions();
     candidates = useCases.map((uc) => ({ id: uc.id, tier: 1 }));
+  } else if (TOPIC_REGISTRY[topic] && TOPIC_REGISTRY[topic].file) {
+    const def = await loadGapTopic(topic);
+    candidates = (def.items || []).map((it) => ({ id: it.id, tier: 1 }));
   } else {
     throw new Error(`pickSmartItems: unknown topic "${topic}"`);
   }

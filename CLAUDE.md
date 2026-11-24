@@ -133,9 +133,19 @@ Games import it and declare a SHAPE instead of inlining data:
   typed input; works for every topic (verbs, prepositions, future).
 
 Key API: `topicFromUrl()` (reads `?topic=`), `getChainSet({topic,
-maxLen, tiers, count})`, `getQuizSet({topic, count, withOptions})`,
+maxLen, tiers, count})`, `getQuizSet({topic, count, withOptions, lang})`,
 `checkTyped(q, input)`. Unsupported topic/shape combos throw — games
 catch and keep their small inline fallback (also covers file:// dev).
+
+**Topics in any learning language (format v2, 2026-11-24).** All topics
+are listed in `TOPIC_REGISTRY` in `krabsy-data.js` (`learn` = language
+being learned). New topics are "gap topic" files, spec in
+`content/FORMAT.md`: sentence with one gap, answers, wrong choices, hint
+and teach note per interface language. Quiz records carry `learnLang`
+and, on gap questions, `display.plain` + `display.hint` (`display.sentence`
+already includes the hint in brackets). Games with their own `?lang=`
+pass `lang` to `getQuizSet`. New topic ids also go into `TOPICS` in
+`api/classes.py`.
 
 **Presentation mandate (user decision, 2026-06-12): questions must never
 require grammar terminology.** Use the Sprint drill's positional
