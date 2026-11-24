@@ -15,6 +15,10 @@
   <meta property="og:url" content="https://krabsy.com/en/spanish/ser/fill-the-gap/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fill the Gap: Spanish I am … (ser) — Krabsy">
+  <meta name="twitter:description" content="Type the missing Spanish word: name, where you are from, what you are like. Three lives. Free, no sign-up.">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
@@ -62,7 +66,7 @@
     </header>
 
     <main class="fg-wrap">
-      <h1 class="k-page-h1">Fill the Gap: Spanish I am … (ser)</h1>
+      <h1 class="k-page-h1">Fill the Gap: Spanish Yo soy … (ser)</h1>
       <aside class="k-intro-card" aria-label="About this drill">
         <p>Spanish sentences with a gap. Type the missing word and press Enter. You have three lives: a wrong answer costs one. You don't need to type accents (ingles counts as inglés), but look at how it's spelled when the answer appears.</p>
       </aside>
@@ -82,7 +86,8 @@
         <h2>More practice</h2>
         <ul class="k-article-links">
         <li><a href="/en/spanish/ser/sprint/">Sprint</a>: tap the right word, as fast as you can.</li>
-          <li><a href="/en/spanish/">All Spanish topics and games</a></li>
+          <li><a href="/en/spanish/ser/">Yo soy … (ser): all games and drills</a></li>
+          <li><a href="/en/spanish/">Krabsy Spanish: home</a></li>
         </ul>
       </section>
     </main>
@@ -93,7 +98,15 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
+
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-24';
+    // Prep ships only 2 drill pages today; pass an explicit allow-list so
+    // the chip-bar doesn't render dead chips for verb-only drills.
+    initDrillPage('fill_gap', 'es_ser', ['sprint', 'fill_gap']);
+  </script>
   <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

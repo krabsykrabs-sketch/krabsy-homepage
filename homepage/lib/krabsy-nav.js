@@ -27,7 +27,7 @@
    the end-actions block by class and inserts itself after them.
    ────────────────────────────────────────────────────────────────────────── */
 
-import { loadStrings, buildPageUrl, getTopicSlug, getAllGames, getGamesForTopic } from './krabsy-data.js';
+import { loadStrings, buildPageUrl, getTopicSlug, getAllGames, getGamesForTopic, loadTopics } from './krabsy-data.js';
 
 /* For the chip bar we need a key (i18n lookup) and a pageId understood by
    buildPageUrl(). Slugs themselves now come from /data/topics.json — see
@@ -51,7 +51,20 @@ const TOOLS = [
    The actual game catalogue (names, taglines, thumbnails, topic affinity,
    status) lives in /data/games.json and is loaded via getAllGames() /
    getGamesForTopic() — see buildGameStrip() and buildGameHeader() below. */
-const GAMES_FOLDER = { de: 'spiele', es: 'juegos' };
+const GAMES_FOLDER = { de: 'spiele', es: 'juegos', en: 'spanish/games' };
+
+/* Section home per interface language. /en/ is the Spanish section for English
+   speakers (2026-11-24): its pages live under /en/spanish/. */
+const SECTION_HOME = { de: '/de/', es: '/es/', en: '/en/spanish/' };
+
+/* A section shows only the games that play one of its topics (topics with a URL
+   in that language, topics.json). For /de/ and /es/ that is every game. */
+async function sectionGames(games, lang) {
+  let topics = {};
+  try { topics = await loadTopics(); } catch (_) { return games; }
+  const own = new Set(Object.keys(topics).filter((id) => topics[id] && topics[id][lang]));
+  return games.filter((g) => (g.topics || []).some((t) => own.has(t)));
+}
 
 /* Default topic when a caller doesn't specify one. Drill/tool pages that
    pre-date the topic chooser (every verb-side page) omit the topic arg and
@@ -69,7 +82,7 @@ function gameUrl(lang, slug) {
    to DE for any path that doesn't match either tree. */
 function currentLang() {
   if (typeof window !== 'undefined' && window.location) {
-    const m = window.location.pathname.match(/^\/(de|es)(\/|$)/);
+    const m = window.location.pathname.match(/^\/(de|es|en)(\/|$)/);
     if (m) return m[1];
   }
   return 'de';
@@ -408,7 +421,7 @@ async function buildGameHeader(currentKey, strings) {
   // Arcade pages live OUTSIDE the topic tree, under /<lang>/<spiele|juegos>/.
   // The logo and back link go to the brand home (the topic chooser at
   // /<lang>/), which is the canonical entry point of the site.
-  const hubHref = `/${lang}/`;
+  const hubHref = SECTION_HOME[lang] || `/${lang}/`;
 
   const logo = document.createElement('a');
   logo.className = 'k-game-nav-logo';
@@ -425,7 +438,7 @@ async function buildGameHeader(currentKey, strings) {
   // Load chip list from games.json. The chip bar is platform-level navigation
   // (not topic-filtered) — every page shows every game.
   let games = [];
-  try { games = await getAllGames(); }
+  try { games = await sectionGames(await getAllGames(), lang); }
   catch (err) { console.error('krabsy-nav: games.json fetch failed', err); }
 
   // Normalize the page-supplied currentKey ("verb_slash") to the games.json
@@ -461,7 +474,7 @@ async function buildGameHeader(currentKey, strings) {
   let classBadge = null;
   try {
     const cs = JSON.parse(localStorage.getItem('krabsy_class') || 'null');
-    if (cs && cs.name) {
+    if (cs && cs.name && lang !== 'en') {          // classes exist on /de/ and /es/ only
       classBadge = document.createElement('a');
       classBadge.className = 'k-game-nav-class';
       classBadge.href = lang === 'es' ? '/es/clase/' : '/de/klasse/';

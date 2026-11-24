@@ -13,10 +13,11 @@
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
 
-const LANG = document.documentElement.lang === 'es' ? 'es' : 'de';
+const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
 const T = {
   de: { one: 'Spiel', many: 'Spiele', soon: 'bald verfügbar' },
   es: { one: 'juego', many: 'juegos', soon: 'disponibles pronto' },
+  en: { one: 'game', many: 'games', soon: 'coming soon' },   // /en/spanish/ (2026-11-24)
 }[LANG];
 
 function initFilters() {

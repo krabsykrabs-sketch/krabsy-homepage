@@ -3,17 +3,20 @@
     "id": "verb-towers",
     "name": {
       "de": "Verb Towers",
-      "es": "Verb Towers"
+      "es": "Verb Towers",
+      "en": "Verb Towers"
     },
     "tagline": {
       "de": "Baue Türme. Schmiede Münzen mit englischen Verben.",
-      "es": "Construye torres. Forja monedas con verbos en inglés."
+      "es": "Construye torres. Forja monedas con verbos en inglés.",
+      "en": "Build towers. Forge coins with the right words."
     },
     "thumbnail": "/thumbnails/sm/verb-towers.jpg",
     "thumb_small": "/thumbnails/sm/verb-towers.jpg",
     "topics": [
       "irregular_verbs",
-      "prepositions"
+      "prepositions",
+      "es_ser"
     ],
     "status": "ready",
     "kind": "3d",
@@ -49,35 +52,44 @@
     "id": "verb-kitchen",
     "name": {
       "de": "Verb Kitchen!",
-      "es": "Verb Kitchen!"
+      "es": "Verb Kitchen!",
+      "en": "Verb Kitchen!"
     },
     "tagline": {
       "de": "Koch-Chaos — spüle Teller mit den richtigen Verben!",
-      "es": "¡Caos de cocina — lava platos con los verbos correctos!"
+      "es": "¡Caos de cocina — lava platos con los verbos correctos!",
+      "en": "Cooking chaos: wash the plates with the right words!"
     },
     "thumbnail": "/thumbnails/verb-kitchen.png",
     "topics": [
-      "irregular_verbs"
+      "irregular_verbs",
+      "es_ser"
     ],
     "status": "ready",
     "kind": "3d",
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-kitchen.jpg",
-    "hero": "/thumbnails/hero/verb-kitchen.jpg"
+    "hero": "/thumbnails/hero/verb-kitchen.jpg",
+    "featured_langs": [
+      "en"
+    ]
   },
   {
     "id": "verb-platformer",
     "name": {
       "de": "Verb Platformer!",
-      "es": "Verb Platformer!"
+      "es": "Verb Platformer!",
+      "en": "Verb Platformer!"
     },
     "tagline": {
       "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
-      "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!"
+      "es": "¡Salta sobre las nubes y cae en la forma verbal correcta!",
+      "en": "Jump over the clouds and land on the right word!"
     },
     "thumbnail": "/thumbnails/sm/verb-platformer.jpg",
     "topics": [
-      "irregular_verbs"
+      "irregular_verbs",
+      "es_ser"
     ],
     "status": "ready",
     "kind": "3d",

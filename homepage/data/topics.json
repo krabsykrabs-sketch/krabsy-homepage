@@ -64,5 +64,27 @@
       "reference":     { "de": "uebersicht",    "es": "resumen" },
       "worksheets":    { "de": "arbeitsblaetter", "es": "fichas" }
     }
+  },
+  "es_ser": {
+    "en": "spanish/ser",
+    "learn": "es",
+    "display_name": {
+      "en": "Yo soy … (ser)"
+    },
+    "short_name": {
+      "en": "Yo soy (ser)"
+    },
+    "status": "live",
+    "description": {
+      "en": "Say who you are, where you are from and what you are like: Yo soy Lucas. Soy de Inglaterra. Soy alto."
+    },
+    "card_stats": {
+      "en": "8 patterns · 38 sentences · 2 drills"
+    },
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "en": "sprint" },
+      "fill-the-gap":  { "en": "fill-the-gap" }
+    }
   }
 }

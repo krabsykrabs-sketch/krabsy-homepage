@@ -34,7 +34,20 @@ L10N = {
            "alt": "Spielszene aus {name}"},
     "es": {"folder": "juegos", "beta": "Beta", "soon": "Pronto", "teacher": "Para docentes", "play": "Jugar →",
            "alt": "Escena del juego {name}"},
+    # English interface = the Spanish section for English speakers (/en/spanish/, 2026-11-24)
+    "en": {"folder": "spanish/games", "beta": "Beta", "soon": "Soon", "teacher": "For teachers", "play": "Play →",
+           "alt": "Scene from {name}"},
 }
+
+# A language's section shows only the topics that have a URL in that language
+# (topics.json: irregular_verbs/prepositions have de+es, es_ser has en), and only
+# the games that play one of them. /de/ and /es/ are unchanged by Spanish topics.
+def section_topics(lang):
+    return {tid for tid, t in _topics().items() if t.get(lang)}
+
+
+def in_section(g, lang):
+    return bool(section_topics(lang) & set(g.get("topics") or []))
 
 EMOJI = "✏️"
 
@@ -91,6 +104,10 @@ LANDING = {
            "kicker_new": "Nuevo en Krabsy", "kicker": "Destacado",
            "phone_ok": "Móvil ✓", "large_screen": "Pantalla grande", "beta": "Beta",
            "sr_3d": "juego 3D", "sr_new": "nuevo", "sr_soon": "disponible pronto", "sr_game": "juego"},
+    "en": {"play_now": "Play now", "play": "Play", "new": "NEW", "soon": "Soon",
+           "kicker_new": "New on Krabsy", "kicker": "Featured",
+           "phone_ok": "Phone ✓", "large_screen": "Big screen", "beta": "Beta",
+           "sr_3d": "3D game", "sr_new": "new", "sr_soon": "coming soon", "sr_game": "game"},
 }
 PLAY_SVG = '<svg><use href="#i-play"/></svg>'
 
@@ -143,7 +160,8 @@ def landing_tile(g, lang):
     gid = g["id"]
     name = name_of(g, lang)
     playable = g.get("status") != "coming_soon"
-    tags = " ".join([g.get("kind") or "arcade"] + list(g.get("topics") or []))
+    sec = section_topics(lang)
+    tags = " ".join([g.get("kind") or "arcade"] + [tid for tid in (g.get("topics") or []) if tid in sec])
     img = g.get("thumb_small") or g.get("thumbnail") or ""
     thumb = (f'<img src="{esc(img)}" alt="" width="640" height="360" loading="lazy" decoding="async">'
              if img else "")
@@ -151,7 +169,7 @@ def landing_tile(g, lang):
     flags_html = f'<div class="gt-flags" aria-hidden="true">{flags}</div>' if flags else ""
     tagline = esc((g.get("tagline") or {}).get(lang, ""))
     if playable:
-        feat = " data-featured hidden" if g.get("featured") else ""
+        feat = " data-featured hidden" if is_featured(g, lang) else ""
         return (f'<a class="gt" href="/{lang}/{t["folder"]}/{gid}/" data-game-id="{esc(gid)}" data-tags="{tags}"{feat} '
                 f'aria-labelledby="n-{gid}" aria-describedby="d-{gid}">'
                 f'<div class="gt-thumb">{thumb}{flags_html}<span class="gt-play" aria-hidden="true">{L["play"]}</span></div>'
@@ -173,7 +191,7 @@ def landing_featured(g, lang):
     topics = _topics()
     topic_pills = "".join(
         f'<span class="bdg bdg-topic">{esc(topics[tid]["display_name"][lang])}</span>'
-        for tid in (g.get("topics") or []) if tid in topics)
+        for tid in (g.get("topics") or []) if tid in topics and topics[tid].get(lang))
     img = g.get("hero") or g.get("thumb_small") or g.get("thumbnail") or ""
     if g.get("new_until"):
         kicker = (f'<p class="feat-kicker" data-new-until="{esc(g["new_until"])}" '
@@ -199,17 +217,30 @@ def for_kids(games):
     return [g for g in games if g.get("audience") != "teacher"]
 
 
-def featured_only(games):
-    f = [g for g in for_kids(games) if g.get("featured") and g.get("status") != "coming_soon"]
+def is_featured(g, lang):
+    # "featured_langs": ["en"] features a game on those landings only;
+    # plain "featured": true is the DE/ES landing pick.
+    if g.get("featured_langs"):
+        return lang in g["featured_langs"]
+    return bool(g.get("featured")) and not any(
+        lang in (x.get("featured_langs") or []) for x in _games_cache)
+
+
+_games_cache = []
+
+
+def featured_only(games, lang="de"):
+    f = [g for g in for_kids(games) if in_section(g, lang) and is_featured(g, lang)
+         and g.get("status") != "coming_soon"]
     return f[:1]
 
 
-def landing_order(games):
+def landing_order(games, lang="de"):
     # Featured first (hidden under "all"), then the 3D games, then the 2D
     # arcade games (owner 2026-11-22); inside each group playable first,
     # then coming soon, otherwise games.json order.
-    feat = featured_only(games)
-    rest = [g for g in for_kids(games) if g not in feat]
+    feat = featured_only(games, lang)
+    rest = [g for g in for_kids(games) if g not in feat and in_section(g, lang)]
     three_d = [g for g in rest if g.get("kind") == "3d"]
     others = [g for g in rest if g.get("kind") != "3d"]
     return feat + strip_order(three_d) + strip_order(others)
@@ -234,10 +265,18 @@ def for_topic(topic):
 TARGETS = [
     ("de/spiele/index.html", "games-grid", None, all_games, lambda g: card(g, "de")),
     ("es/juegos/index.html", "games-grid", None, all_games, lambda g: card(g, "es")),
-    ("de/index.html", "gl-featured", None, featured_only, lambda g: landing_featured(g, "de")),
-    ("es/index.html", "gl-featured", None, featured_only, lambda g: landing_featured(g, "es")),
-    ("de/index.html", "gl-grid", None, landing_order, lambda g: landing_tile(g, "de")),
-    ("es/index.html", "gl-grid", None, landing_order, lambda g: landing_tile(g, "es")),
+    ("de/index.html", "gl-featured", None, lambda gs: featured_only(gs, "de"), lambda g: landing_featured(g, "de")),
+    ("es/index.html", "gl-featured", None, lambda gs: featured_only(gs, "es"), lambda g: landing_featured(g, "es")),
+    ("de/index.html", "gl-grid", None, lambda gs: landing_order(gs, "de"), lambda g: landing_tile(g, "de")),
+    ("es/index.html", "gl-grid", None, lambda gs: landing_order(gs, "es"), lambda g: landing_tile(g, "es")),
+    # Spanish for English speakers (/en/spanish/): its own games only
+    ("en/spanish/index.html", "gl-featured", None, lambda gs: featured_only(gs, "en"),
+     lambda g: landing_featured(g, "en")),
+    ("en/spanish/index.html", "gl-grid", None, lambda gs: landing_order(gs, "en"), lambda g: landing_tile(g, "en")),
+    ("en/spanish/games/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "en")],
+     lambda g: card(g, "en")),
+    ("en/spanish/ser/index.html", "games-grid", "games-section", for_topic("es_ser"),
+     lambda g: card(g, "en", decoding=False)),
     ("de/unregelmaessige-verben/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
      lambda g: card(g, "de", decoding=False)),
     ("es/verbos-irregulares/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
@@ -293,9 +332,13 @@ def render_page(text, grid_id, section_id, items, render):
 def main():
     check = "--check" in sys.argv
     games = json.loads((HOME / "data/games.json").read_text(encoding="utf-8"))
+    _games_cache[:] = games
     stale = []
     for rel, grid_id, section_id, select, render in TARGETS:
         p = HOME / rel
+        if not p.exists():
+            print(f"skipped (no page yet): homepage/{rel}")
+            continue
         old = p.read_text(encoding="utf-8")
         new = render_page(old, grid_id, section_id, select(games), render)
         if new != old:

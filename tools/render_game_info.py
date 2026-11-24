@@ -97,6 +97,29 @@ L = {
         "resource": "Juego educativo",
         "page_suffix": " — Krabsy",
     },
+    # English interface = the Spanish section for English speakers (2026-11-24)
+    "en": {
+        "folder": "spanish/games", "hub": "/en/spanish/ser", "home_href": "/en/spanish/",
+        "game_lang": "es",
+        "anchor": "how-to-play",
+        "hint": "▼ How to play {name}",
+        "crumbs_label": "Breadcrumbs", "home": "Krabsy Spanish", "games": "Games",
+        "howto": "How to play {name}", "learn": "What you practise",
+        "teach": "Using it in lessons", "teach_more": 'For live lessons: <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">open the Quiz Room</a>',
+        "faq": "Questions and answers", "more": "Keep practising", "related": "More Spanish games",
+        "verbs_intro": "",
+        "top": "▲ Back to the game", "play": "Play →",
+        "alt": "Scene from {name}",
+        "links": [
+            ("/en/spanish/ser/", "Yo soy … (ser): all games and drills"),
+            ("/en/spanish/ser/sprint/", "Sprint: 20 Spanish sentences against the clock"),
+            ("/en/spanish/ser/fill-the-gap/", "Fill the Gap: type the missing word"),
+            ("/en/spanish/games/", "All Spanish games"),
+        ],
+        "level": "beginners, from about 8 (Spanish as a foreign language)",
+        "resource": "Educational game",
+        "page_suffix": " — Krabsy",
+    },
 }
 
 
@@ -129,7 +152,7 @@ def render_body(gid, lang, games, inline_game):
         out.append('<div class="kg-stage-spacer" aria-hidden="true"></div>')
     out.append(f'<a class="kg-scroll-hint" href="#{t["anchor"]}">{t["hint"].format(name=esc(name))}</a>')
     out.append(f'<main class="kg-info" id="{t["anchor"]}" lang="{lang}">')
-    out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="/{lang}/">{t["home"]}</a> › '
+    out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="{t.get("home_href", f"/{lang}/")}">{t["home"]}</a> › '
                f'<a href="{url_games}">{t["games"]}</a> › <span aria-current="page">{esc(name)}</span></nav>')
     out.append(f'  <h1>{c["h1"]}</h1>')
     for p in c["lead"]:
@@ -142,7 +165,7 @@ def render_body(gid, lang, games, inline_game):
     out.append(f'  <h2>{t["learn"]}</h2>')
     for p in c["learn"]:
         out.append(f"  <p>{fill_verbs(p, lang)}</p>")
-    if gid in TEACHER:
+    if gid in TEACHER and lang in TEACHER[gid]:
         out.append(f'  <h2>{t["teach"]}</h2>')
         out.append('  <ul class="kg-steps">')
         for li in TEACHER[gid][lang]:
@@ -211,7 +234,7 @@ def render_head(gid, lang, games, title, description):
             "url": page,
             "description": description,
             "image": image,
-            "inLanguage": "en",
+            "inLanguage": t.get("game_lang", "en"),
             "genre": GENRE[gid],
             "gamePlatform": "Web browser",
             "applicationCategory": "EducationalApplication",
@@ -230,7 +253,7 @@ def render_head(gid, lang, games, title, description):
             "@type": "BreadcrumbList",
             "@id": page + "#breadcrumb",
             "itemListElement": [
-                {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": f"{SITE}/{lang}/"},
+                {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": SITE + t.get("home_href", f"/{lang}/")},
                 {"@type": "ListItem", "position": 2, "name": t["games"], "item": f"{SITE}/{lang}/{t['folder']}/"},
                 {"@type": "ListItem", "position": 3, "name": name, "item": page},
             ],
@@ -311,7 +334,7 @@ def main():
     games = json.loads((HOME / "data/games.json").read_text(encoding="utf-8"))
     stale, missing = [], []
     for g in games:
-        for lang in ("de", "es"):
+        for lang in ("de", "es", "en"):
             path = HOME / lang / L[lang]["folder"] / g["id"] / "index.html"
             if not path.exists():
                 continue

@@ -1,158 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
-  <title>Spanish practice for kids — Krabsy</title>
-  <!-- Pilot (2026-11-24): not public yet. Remove noindex + add to the sitemap
-       when the section goes live (tools/build_en_spanish.py has NOINDEX too). -->
+  <title>Krabsy — Learn Spanish with games</title>
+  <!-- Pilot (2026-11-24): not public yet. To go public: remove noindex here and in
+       tools/build_en_spanish.py (NOINDEX), add the URLs to the sitemap, IndexNow. -->
   <meta name="robots" content="noindex">
-  <meta name="description" content="Free Spanish grammar practice for kids: quick drills and a live quiz room for teachers. No sign-up.">
+  <meta name="description" content="Free Spanish grammar games and drills for kids: cook, jump and build towers with Spanish sentences. No sign-up, right in the browser.">
   <link rel="canonical" href="https://krabsy.com/en/spanish/">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-  <meta property="og:title" content="Spanish practice for kids — Krabsy">
-  <meta property="og:description" content="Free Spanish grammar practice for kids: quick drills and a live quiz room for teachers. No sign-up.">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <meta property="og:title" content="Krabsy — Learn Spanish with games">
+  <meta property="og:description" content="Free Spanish grammar games and drills for kids. No sign-up, right in the browser.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/en/spanish/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Krabsy">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta property="og:locale" content="en_GB">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
-  <style>
-    .sp-wrap { max-width: 960px; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); width: 100%; }
-    .sp-hero { text-align: center; padding: var(--space-5) 0 var(--space-6); }
-    .sp-hero h1 { font-family: var(--font-display); font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 0 0 var(--space-3); color: var(--krabsy-ink); }
-    .sp-hero p { font-size: 18px; color: var(--krabsy-ink-mute); margin: 0 auto; max-width: 560px; }
-    .sp-hero .sp-flag { font-size: 40px; display: block; margin-bottom: var(--space-2); }
-    .sp-section { margin-top: var(--space-6); }
-    .sp-section > h2 { font-family: var(--font-display); font-size: 24px; margin: 0 0 var(--space-2); color: var(--krabsy-ink); }
-    .sp-section > p.sp-sub { color: var(--krabsy-ink-mute); margin: 0 0 var(--space-4); }
-    .sp-topic { background: var(--krabsy-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-5); display: grid; gap: var(--space-4); }
-    .sp-topic-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); }
-    .sp-topic-head h3 { font-family: var(--font-display); font-size: 26px; margin: 0; color: var(--krabsy-ink); }
-    .sp-level { font-size: 13px; font-weight: 800; letter-spacing: .04em; padding: 3px 10px; border-radius: var(--radius-pill); background: var(--krabsy-sage-soft); color: var(--krabsy-ink); }
-    .sp-topic-desc { margin: 0; color: var(--krabsy-ink-mute); }
-    .sp-examples { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .sp-examples li { font-weight: 700; background: var(--krabsy-cream); border-radius: var(--radius-sm); padding: 6px 12px; color: var(--krabsy-ink); }
-    .sp-examples b { color: var(--krabsy-coral-dark); }
-    .sp-acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); }
-    .sp-act { display: block; text-decoration: none; color: inherit; border: 2px solid var(--krabsy-cream); border-radius: var(--radius-md); padding: var(--space-4); transition: transform .12s, border-color .12s; }
-    .sp-act:hover, .sp-act:focus-visible { border-color: var(--krabsy-coral); transform: translateY(-2px); }
-    .sp-act strong { display: block; font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; color: var(--krabsy-ink); }
-    .sp-act span { font-size: 15px; color: var(--krabsy-ink-mute); }
-    .sp-act .sp-emoji { font-size: 26px; display: block; margin-bottom: 6px; }
-    .sp-game { display: flex; align-items: center; gap: var(--space-4); text-decoration: none; color: #fff;
-      background: linear-gradient(135deg, #16294f, #0d1b3a); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
-      transition: transform .12s, box-shadow .12s; box-shadow: var(--shadow-card); }
-    .sp-game:hover, .sp-game:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-elev); }
-    .sp-game-art { font-size: 48px; line-height: 1; flex: none; }
-    .sp-game-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
-    .sp-game-text strong { font-family: var(--font-display); font-size: 24px; color: #2ee6c0; }
-    .sp-game-text span { color: #d6def2; font-size: 15px; }
-    .sp-game-text .sp-game-tag { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #ffcf5e; }
-    .sp-game-cta { flex: none; font-family: var(--font-display); font-size: 18px; background: #2ee6c0; color: #0d1b3a;
-      padding: 10px 18px; border-radius: var(--radius-pill); }
-    @media (max-width: 560px) { .sp-game { flex-wrap: wrap; } .sp-game-cta { width: 100%; text-align: center; } }
-    .sp-teacher { background: var(--krabsy-lavender-soft); border-radius: var(--radius-lg); padding: var(--space-5); display: grid; gap: var(--space-3); }
-    .sp-teacher h2 { font-family: var(--font-display); font-size: 24px; margin: 0; color: var(--krabsy-ink); }
-    .sp-teacher ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
-    .sp-teacher .k-btn-primary { justify-self: start; text-decoration: none; }
-    .sp-soon { color: var(--krabsy-ink-mute); font-size: 15px; }
-    @media (max-width: 520px) { .sp-topic, .sp-teacher { padding: var(--space-4); } }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-22">
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.640A1 1 0 0 0 7 4.500z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2 4.5 13.500h6L9.5 22l10-12.500h-6.500z"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="12" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 3.5 18.5 2a2 2 0 0 1 2.3 1.700L22 14.500a2 2 0 0 1-1.7 2.300L18.5 17"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6.5 12h5M6.5 16h3"/></symbol>
+    <symbol id="i-teach" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 4 2 9l10 5 10-5z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 11.500V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.500M22 9v5.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.300 1.5 1 2.5 2 3C10.5 8.5 11 5 12 2z"/></symbol>
+  </svg>
+
   <div class="k-page">
+
+    <!-- ── Header (same as /de/: static nav, games first) ───────────── -->
     <header class="k-page-header">
-      <a class="k-logo" href="/en/spanish/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span></a>
+      <a href="/en/spanish/" class="logo" aria-label="Krabsy">
+        <span>kr</span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
+        <span>bsy</span>
+      </a>
+      <nav class="k-topic-nav" aria-label="Topics and games">
+        <a class="k-nav-chip" href="/en/spanish/games/">Games</a>
+        <span class="k-topic-nav-sep" aria-hidden="true">·</span>
+        <a class="k-nav-chip" href="/en/spanish/ser/">Yo soy (ser)</a>
+      </nav>
+      <div class="hd-right">
+        <a class="hd-teach" href="#teachers">
+          <svg aria-hidden="true"><use href="#i-teach"/></svg>
+          <span class="hd-teach-long">For teachers</span><span class="hd-teach-short">Teachers</span>
+        </a>
+      </div>
     </header>
 
-    <main class="sp-wrap">
-      <section class="sp-hero">
-        <span class="sp-flag" aria-hidden="true">🇪🇸</span>
-        <h1>Spanish practice for kids</h1>
-        <p>Games and quick drills for Spanish grammar. Free, no sign-up, right in the browser.</p>
+    <main>
+      <div class="wrap gl-head" id="gl-head">
+        <img class="gl-head-crab" src="/thumbnails/sm/crab.png" alt="" width="44" height="44" decoding="async">
+        <div>
+          <h1>Learn Spanish with games — <span>free, no sign-up.</span></h1>
+          <p class="gl-head-sub">Spanish grammar games and quick drills for kids, right in the browser.</p>
+          <p class="gl-join" id="gl-join"><a class="gl-join-quiz" href="/games/quiz-room/?lang=en">Got a Quiz Room code? Join here →</a></p>
+        </div>
+      </div>
+
+      <!-- ── Featured game (games.json "featured_langs": ["en"]) ─────── -->
+      <div class="wrap" id="gl-featured">
+        <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+        <a class="feat" href="/en/spanish/games/verb-kitchen/" data-game-id="verb-kitchen" aria-labelledby="feat-name" aria-describedby="feat-tag feat-meta"><div class="feat-shot"><img src="/thumbnails/hero/verb-kitchen.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high"><div class="feat-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div></div><div class="feat-body"><p class="feat-kicker">Featured</p><h2 class="feat-name" id="feat-name">Verb Kitchen!</h2><p class="feat-tag" id="feat-tag">Cooking chaos: wash the plates with the right words!</p><div class="feat-meta" id="feat-meta"><span class="vh">3D game. </span><span class="bdg bdg-topic">Yo soy … (ser)</span><span class="bdg">Phone ✓</span></div><span class="feat-cta" aria-hidden="true"><svg><use href="#i-play"/></svg>Play now</span></div></a>
+        <!-- STATIC-GAMES:END -->
+      </div>
+
+      <!-- ── Game grid with filter chips ─────────────────────────────── -->
+      <section class="wrap gl-games" aria-labelledby="gl-games-h">
+        <div class="gl-bar">
+          <h2 id="gl-games-h">All games</h2>
+          <div class="gl-chips-wrap" id="gl-chips-wrap">
+            <div class="gl-chips" role="group" aria-label="Filter games" id="gl-chips">
+              <button class="gl-chip" type="button" data-filter="all" data-label="All" aria-pressed="true">All</button>
+              <button class="gl-chip" type="button" data-filter="3d" data-label="3D" aria-pressed="false">3D</button>
+              <button class="gl-chip" type="button" data-filter="arcade" data-label="Arcade" aria-pressed="false">Arcade</button>
+              <button class="gl-chip" type="button" data-filter="es_ser" data-label="Yo soy (ser)" aria-pressed="false">Yo soy (ser)</button>
+            </div>
+          </div>
+        </div>
+        <p class="vh" id="gl-status" role="status" aria-live="polite"></p>
+        <div class="gl-grid" id="gl-grid">
+          <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+          <a class="gt" href="/en/spanish/games/verb-kitchen/" data-game-id="verb-kitchen" data-tags="3d es_ser" data-featured hidden aria-labelledby="n-verb-kitchen" aria-describedby="d-verb-kitchen"><div class="gt-thumb"><img src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div><span class="gt-play" aria-hidden="true">Play</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-kitchen">Verb Kitchen!</h3><div id="d-verb-kitchen" style="display:contents"><p class="gt-tag">Cooking chaos: wash the plates with the right words!</p><div class="gt-meta"><span class="vh">3D game. </span><span class="bdg bdg-phone">Phone ✓</span></div></div></div></a>
+          <a class="gt" href="/en/spanish/games/verb-towers/" data-game-id="verb-towers" data-tags="3d es_ser" aria-labelledby="n-verb-towers" aria-describedby="d-verb-towers"><div class="gt-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span><span class="bdg bdg-new" data-new-until="2027-02-28">NEW</span></div><span class="gt-play" aria-hidden="true">Play</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-towers">Verb Towers</h3><div id="d-verb-towers" style="display:contents"><p class="gt-tag">Build towers. Forge coins with the right words.</p><div class="gt-meta"><span class="vh">3D game, new. </span><span class="bdg bdg-phone">Phone ✓</span></div></div></div></a>
+          <a class="gt" href="/en/spanish/games/verb-platformer/" data-game-id="verb-platformer" data-tags="3d es_ser" aria-labelledby="n-verb-platformer" aria-describedby="d-verb-platformer"><div class="gt-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div><span class="gt-play" aria-hidden="true">Play</span></div><div class="gt-body"><h3 class="gt-name" id="n-verb-platformer">Verb Platformer!</h3><div id="d-verb-platformer" style="display:contents"><p class="gt-tag">Jump over the clouds and land on the right word!</p><div class="gt-meta"><span class="vh">3D game. </span><span class="bdg bdg-big">Big screen</span></div></div></div></a>
+          <!-- STATIC-GAMES:END -->
+        </div>
       </section>
 
-      <section class="sp-section" aria-labelledby="sp-topics">
-        <h2 id="sp-topics">Topics</h2>
-        <p class="sp-sub">Pick a topic, then play the game or a quick drill.</p>
-
-        <article class="sp-topic" aria-labelledby="sp-ser">
-          <div class="sp-topic-head">
-            <h3 id="sp-ser">Yo soy … <span lang="es">(ser)</span></h3>
-            <span class="sp-level">Beginners · A1</span>
-          </div>
-          <p class="sp-topic-desc">Say who you are, where you are from and what you are like.</p>
-          <ul class="sp-examples" lang="es" aria-label="Examples">
-            <li>Yo <b>soy</b> Lucas.</li>
-            <li>Soy <b>de</b> Inglaterra.</li>
-            <li>Soy <b>inglesa</b>.</li>
-            <li>Soy <b>alto</b>.</li>
-          </ul>
-          <a class="sp-game" href="/en/spanish/games/verb-kitchen/?topic=es_ser">
-            <span class="sp-game-art" aria-hidden="true">🍳</span>
-            <span class="sp-game-text">
-              <span class="sp-game-tag">3D game</span>
-              <strong>Verb Kitchen</strong>
-              <span>Cook, serve, and wash the dirty plates by answering Spanish sentences. 8 kitchens.</span>
-            </span>
-            <span class="sp-game-cta" aria-hidden="true">Play ▶</span>
-          </a>
-          <a class="sp-game" href="/en/spanish/games/verb-towers/?topic=es_ser">
-            <span class="sp-game-art" aria-hidden="true">🏰</span>
-            <span class="sp-game-text">
-              <span class="sp-game-tag">3D game</span>
-              <strong>Verb Towers</strong>
-              <span>Build towers, stop the enemies. Answer Spanish sentences in the forge to earn coins.</span>
-            </span>
-            <span class="sp-game-cta" aria-hidden="true">Play ▶</span>
-          </a>
-          <a class="sp-game" href="/en/spanish/games/verb-platformer/?topic=es_ser">
-            <span class="sp-game-art" aria-hidden="true">🦘</span>
-            <span class="sp-game-text">
-              <span class="sp-game-tag">3D game</span>
-              <strong>Verb Platformer</strong>
-              <span>Jump on the block with the right word. The wrong ones fall!</span>
-            </span>
-            <span class="sp-game-cta" aria-hidden="true">Play ▶</span>
-          </a>
-          <div class="sp-acts">
-            <a class="sp-act" href="/en/spanish/ser/sprint/">
-              <span class="sp-emoji" aria-hidden="true">⚡</span>
-              <strong>Sprint</strong>
-              <span>20 sentences against the clock. Tap the right word.</span>
+      <!-- ── Practice without a game ─────────────────────────────────── -->
+      <section class="gl-band" aria-labelledby="gl-practice-h">
+        <div class="wrap">
+          <h2 class="gl-h2" id="gl-practice-h">Practise without a game</h2>
+          <p class="gl-sub">Quick drills against the clock or at your own pace.</p>
+          <div class="pr-grid">
+            <a class="pr-card" href="/en/spanish/ser/">
+              <img src="/thumbnails/sm/crab.png" alt="" width="96" height="72" loading="lazy" decoding="async">
+              <div><h3>Yo soy … (ser)</h3>
+                <p><span class="pr-ex" lang="es">Yo soy Lucas · Soy de Inglaterra</span></p>
+                <p>8 patterns · 38 sentences · 2 drills · Beginners (A1)</p></div>
+              <svg class="pr-arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
             </a>
-            <a class="sp-act" href="/en/spanish/ser/fill-the-gap/">
-              <span class="sp-emoji" aria-hidden="true">⌨️</span>
-              <strong>Fill the Gap</strong>
-              <span>Type the missing word yourself. Three lives. For a tablet or computer.</span>
-            </a>
+            <div class="pr-quick">
+              <a class="pr-q" href="/en/spanish/ser/sprint/"><svg aria-hidden="true"><use href="#i-bolt"/></svg><span><b>Sprint</b><small>20 sentences against the clock</small></span></a>
+              <a class="pr-q" href="/en/spanish/ser/fill-the-gap/"><svg aria-hidden="true"><use href="#i-cards"/></svg><span><b>Fill the Gap</b><small>Type the missing word</small></span></a>
+            </div>
           </div>
-        </article>
-
-        <p class="sp-soon">More topics are on the way, chosen together with teachers.</p>
+        </div>
       </section>
 
-      <section class="sp-section sp-teacher" aria-labelledby="sp-teach">
-        <h2 id="sp-teach">For teachers: the Quiz Room</h2>
-        <p>A live quiz where every pupil is a little character in a 3D room. Works with a whole class or with one pupil in an online lesson.</p>
-        <ol>
-          <li>Open the Quiz Room, check the questions (swap or remove any) and open the room.</li>
-          <li>Send your pupils the link or the room code. No accounts, first names only.</li>
-          <li>Questions appear on each pupil's screen; you see who has answered and, at the end, which sentences to practise again.</li>
-        </ol>
-        <a class="k-btn-primary" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room</a>
+      <!-- ── Teacher strip ───────────────────────────────────────────── -->
+      <div class="wrap gl-teach-wrap" id="teachers">
+        <a class="gl-teach" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">
+          <svg aria-hidden="true"><use href="#i-teach"/></svg>
+          <span class="gl-teach-txt"><b>Teaching Spanish?</b><span>Run a live Quiz Room with your class or one pupil online. No accounts.</span></span>
+          <span class="gl-teach-cta">Open the Quiz Room →</span>
+        </a>
+      </div>
+
+      <section class="k-article gl-about" aria-labelledby="ka-title">
+        <h2 id="ka-title">Spanish grammar practice on Krabsy</h2>
+        <p>Krabsy is a free learning site with real browser games. In the Spanish section, children practise Spanish grammar while they cook in a busy kitchen, jump across the clouds or build towers. Every game asks short Spanish sentences with a gap, and after a mistake it shows the right sentence and a short rule.</p>
+        <div class="gl-about-cols">
+          <div>
+            <h3>Yo soy … (ser)</h3>
+            <p>The first topic is for beginners: say who you are, where you are from and what you are like. <em lang="es">Yo soy Lucas. Soy de Inglaterra. Soy alto.</em> More topics are on the way, chosen together with Spanish teachers.</p>
+          </div>
+          <div>
+            <h3>For whom?</h3>
+            <p>For children learning Spanish at school or in lessons, and for their teachers. Everything works without an account on computers, tablets and many phones; progress is saved only on your device.</p>
+          </div>
+        </div>
       </section>
     </main>
 
     <footer class="k-footer">
-      <span>© 2026 Krabsy</span>
+      <span id="footer-copyright">© 2026 Krabsy</span>
       <span class="k-footer-legal-sep" aria-hidden="true">·</span>
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
+
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-24"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

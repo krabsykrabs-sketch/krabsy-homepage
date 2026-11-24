@@ -4,77 +4,230 @@
   <meta charset="utf-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
   <title>Verb Towers: Spanish tower defence — Krabsy</title>
-  <!-- Pilot (2026-11-24): not public yet, see /en/spanish/index.html. -->
   <meta name="robots" content="noindex">
-  <meta name="description" content="A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free, no sign-up.">
+  <meta name="description" content="A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.">
   <link rel="canonical" href="https://krabsy.com/en/spanish/games/verb-towers/">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="Verb Towers: Spanish tower defence — Krabsy">
+  <meta property="og:description" content="A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/en/spanish/games/verb-towers/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verb Towers: Spanish tower defence — Krabsy">
+  <meta name="twitter:description" content="A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    html, body { margin: 0; padding: 0; background: #0c1430; color: #fff; font-family: 'Nunito', system-ui, sans-serif; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0c1430;
+    }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
-    .vt-bar { position: fixed; inset: 0 0 auto 0; height: 48px; display: flex; align-items: center; gap: 16px;
-      padding: 0 16px; background: #0c1430; border-bottom: 1px solid rgba(255,255,255,.08); z-index: 5; box-sizing: border-box; }
-    .vt-bar a { color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; }
-    .vt-bar a:hover, .vt-bar a:focus-visible { color: #2ee6c0; }
-    .vt-logo { display: inline-flex; align-items: center; font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 20px; }
-    .vt-logo img { width: 22px; height: 22px; margin: 0 1px; }
-    .vt-bar .vt-back { margin-left: auto; white-space: nowrap; }
-    #game-frame { display: block; border: 0; width: 100%; margin-top: 48px;
-      height: calc(100vh - 48px - 36px); height: calc(100svh - 48px - 36px); }
-    .vt-hint { display: block; height: 36px; line-height: 36px; text-align: center; color: #b9c7e6;
-      font-size: 14px; text-decoration: none; background: #0f1b3d; }
-    .vt-info { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; line-height: 1.55; }
-    .vt-info h1 { font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 28px; margin: 0 0 12px; color: #2ee6c0; }
-    .vt-info h2 { font-family: 'Fredoka One', 'Nunito', sans-serif; font-size: 20px; margin: 24px 0 8px; color: #ffcf5e; }
-    .vt-info ol, .vt-info ul { padding-left: 1.3em; }
-    .vt-info a { color: #2ee6c0; }
-    .vt-info .vt-foot { margin-top: 32px; font-size: 13px; color: #b9c7e6; }
-    .vt-info .vt-foot a { color: #b9c7e6; }
+    /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
+    #game-frame {
+      display: block;
+      border: 0;
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
+      margin-top: 48px;
+    }
   </style>
-</head>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/en/spanish/games/verb-towers/",
+          "url": "https://krabsy.com/en/spanish/games/verb-towers/",
+          "name": "Verb Towers: Spanish tower defence — Krabsy",
+          "description": "A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.",
+          "inLanguage": "en",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/en/spanish/games/verb-towers/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/en/spanish/games/verb-towers/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/sm/verb-towers.jpg"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/en/spanish/games/verb-towers/#game",
+          "name": "Verb Towers",
+          "url": "https://krabsy.com/en/spanish/games/verb-towers/",
+          "description": "A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.",
+          "image": "https://krabsy.com/thumbnails/sm/verb-towers.jpg",
+          "inLanguage": "es",
+          "genre": [
+            "Strategy",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Educational game",
+          "educationalLevel": "beginners, from about 8 (Spanish as a foreign language)",
+          "teaches": "Spanish grammar for beginners: ser (yo soy) with name, origin and descriptions",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/en/spanish/games/verb-towers/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/en/spanish/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Games",
+              "item": "https://krabsy.com/en/spanish/games/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Towers",
+              "item": "https://krabsy.com/en/spanish/games/verb-towers/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/en/spanish/games/verb-towers/#faq",
+          "inLanguage": "en",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Does it work on a phone?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens if I answer wrong?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The forge locks for a moment and shows the right word and a short rule. Then the next sentence comes."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is my progress saved?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, stars and unlocked levels are saved on your device only. There is no account."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
+  </head>
 <body>
-  <nav class="vt-bar" aria-label="Krabsy">
-    <a class="vt-logo" href="/en/spanish/" aria-label="Krabsy">kr<img src="/favicon.png" alt="" decoding="async">bsy</a>
-    <a class="vt-back" href="/en/spanish/">← Spanish topics</a>
-  </nav>
-
-  <iframe id="game-frame" title="Verb Towers" loading="eager" allow="autoplay; fullscreen; gamepad"></iframe>
-  <a class="vt-hint" href="#how">▼ How to play</a>
-
-  <main class="vt-info" id="how">
-    <h1>Verb Towers in Spanish</h1>
-    <p>A tower-defence game. Enemies march along the road to your castle; your towers stop them. Towers cost coins, and you earn coins in the <b>forge</b>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.</p>
-    <h2>How to play</h2>
-    <ol>
-      <li>Tap a glowing field next to the road and build a tower.</li>
-      <li>Start the wave. While the enemies walk, answer the sentences in the forge (tap, or keys Q, W, E).</li>
-      <li>A wrong answer locks the forge for a moment and shows you the right word and why.</li>
-      <li>Use your coins for more towers and upgrades. Protect the castle to win stars.</li>
-    </ol>
-    <h2>Good to know</h2>
-    <ul>
-      <li>Works on computers, Chromebooks and tablets; on a phone, turn it sideways.</li>
-      <li>Stars and unlocked levels are saved on this device only. No account.</li>
-    </ul>
-    <p><a href="#">▲ Back to the game</a> · <a href="/en/spanish/">All Spanish topics</a></p>
-    <p class="vt-foot">© 2026 Krabsy · <a href="/de/impressum/">Legal notice (German)</a> · <a href="/en/privacy/">Privacy</a></p>
-  </main>
-
+  <iframe
+    id="game-frame"
+    src="/games/tower-defense/?lang=en&amp;topic=es_ser"
+    title="Verb Towers"
+    loading="eager"
+    allow="autoplay; fullscreen; gamepad"
+  ></iframe>
   <script>
-    // Topic from this page's URL (?topic=es_…), default es_ser; only Spanish topics here.
     (function () {
-      var t = 'es_ser';
       try {
         var q = new URLSearchParams(location.search).get('topic');
-        if (q && /^es_[a-z0-9_]{1,36}$/.test(q)) t = q;
+        if (q && /^es_[a-z0-9_]{1,36}$/.test(q) && q !== 'es_ser') {
+          var f = document.getElementById('game-frame');
+          f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + q);
+        }
       } catch (_) {}
-      document.getElementById('game-frame').src = '/games/tower-defense/?lang=en&topic=' + t;
     })();
   </script>
-  <!-- Space/arrow keys in the game must not scroll this page (same guard as the DE/ES game pages). -->
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <a class="kg-scroll-hint" href="#how-to-play">▼ How to play Verb Towers</a>
+  <main class="kg-info" id="how-to-play" lang="en">
+    <nav class="kg-crumbs" aria-label="Breadcrumbs"><a href="/en/spanish/">Krabsy Spanish</a> › <a href="/en/spanish/games/">Games</a> › <span aria-current="page">Verb Towers</span></nav>
+    <h1>Verb Towers: a Spanish tower-defence game</h1>
+    <p>Enemies march along the road to your castle, and your towers stop them. Towers cost coins, and you earn coins in the <strong>forge</strong>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.</p>
+    <p>The game is free in the browser, with English menus and Spanish sentences.</p>
+    <h2>How to play Verb Towers</h2>
+    <ul class="kg-steps">
+      <li>Tap or click a glowing field next to the road to build a tower.</li>
+      <li>Start the wave. While the enemies walk, answer the sentences in the forge: tap an answer or press <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>.</li>
+      <li>A wrong answer locks the forge for a moment and shows you the right word and a short rule.</li>
+      <li>Spend your coins on more towers and upgrades. Protect the castle to win stars and unlock the next level.</li>
+    </ul>
+    <h2>What you practise</h2>
+    <p>The forge asks Spanish sentences with a gap, like <em lang="es">Me ___ Sofía.</em> Right answers give coins, so practising is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.</p>
+    <h2>Questions and answers</h2>
+    <div class="kg-faq">
+      <h3>Does it work on a phone?</h3>
+      <p>Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map.</p>
+      <h3>What happens if I answer wrong?</h3>
+      <p>The forge locks for a moment and shows the right word and a short rule. Then the next sentence comes.</p>
+      <h3>Is my progress saved?</h3>
+      <p>Yes, stars and unlocked levels are saved on your device only. There is no account.</p>
+    </div>
+    <h2>Keep practising</h2>
+    <ul class="kg-links">
+      <li><a href="/en/spanish/ser/">Yo soy … (ser): all games and drills</a></li>
+      <li><a href="/en/spanish/ser/sprint/">Sprint: 20 Spanish sentences against the clock</a></li>
+      <li><a href="/en/spanish/ser/fill-the-gap/">Fill the Gap: type the missing word</a></li>
+      <li><a href="/en/spanish/games/">All Spanish games</a></li>
+    </ul>
+    <h2>More Spanish games</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/en/spanish/games/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Scene from Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen!</span><span class="kg-related-tag">Cooking chaos: wash the plates with the right words!</span></a>
+      <a class="kg-related-card" href="/en/spanish/games/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Scene from Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer!</span><span class="kg-related-tag">Jump over the clouds and land on the right word!</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Back to the game</a></p>
+  </main>
   <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <!-- GAME-INFO:END -->
+
+  <script type="module">
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-24';
+    initGamePage('verb_towers');
+  </script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

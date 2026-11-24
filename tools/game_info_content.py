@@ -693,3 +693,83 @@ TEACHER = {
         ],
     },
 }
+
+
+# ── English interface = the Spanish section for English speakers (/en/spanish/games/<id>/,
+#    2026-11-24). Added to CONTENT below; facts checked against the games' sentence-topic mode.
+EN_SPANISH = {
+    "verb-kitchen": {
+        "h1": "Verb Kitchen: a Spanish cooking game",
+        "lead": [
+            "Welcome to Verb Kitchen! In this 3D cooking game you take orders, chop ingredients, fry and bake, and serve the dishes through the hatch. But the plates come back dirty, and they only get clean with Spanish: <strong>two right answers</strong> at the sink wash one plate.",
+            "That turns kitchen chaos into Spanish practice. The game is free in the browser, with English menus and Spanish sentences.",
+        ],
+        "howto": [
+            "Move with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, pick up and put down with <kbd>E</kbd>, chop by holding <kbd>Space</kbd>.",
+            "On a tablet or phone, tap where your chef should go and tap a station to use it.",
+            "Take ingredients from the crates, chop and cook them, put them on a plate and serve. Don't let anything burn!",
+            "At the sink you answer Spanish sentences with one of three buttons: click them or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.",
+            "The faster you finish all orders, the more stars you get.",
+        ],
+        "learn": [
+            "Each plate asks two Spanish sentences with a gap, usually of the same kind: <em lang=\"es\">Yo ___ de Londres.</em> After a mistake you see the whole sentence and a short rule in English. Sentences you missed come back a few plates later and land in the <strong>Sentence Cookbook</strong>, so the sink asks them first next time. There are eight kitchens, from a salad bistro with a tutorial to burgers, pizza, soup, ice cream and a sandwich bar.",
+        ],
+        "faq": [
+            ("Do I need a keyboard?", "On a computer you play with the keyboard. On tablets and phones tapping works: your chef walks to the place you tap."),
+            ("Can I lose in Verb Kitchen?", "No. Orders never run out. The clock only measures your time, and faster cooks get more stars."),
+            ("What is the Sentence Cookbook?", "It lists the Spanish sentences of the topic. The ones you missed are at the top, and the sink asks them first in your next round."),
+        ],
+        "related": ["verb-platformer", "verb-towers"],
+        "meta": "A 3D cooking game for Spanish: cook, serve and wash the dirty plates by answering Spanish sentences. Free in the browser, no sign-up.",
+    },
+    "verb-platformer": {
+        "h1": "Verb Platformer: a Spanish jump-and-run",
+        "lead": [
+            "Jump across floating islands high above the clouds. On the way to the flag you reach <strong>answer gates</strong>: a Spanish sentence with a gap floats above three red blocks, each with a word. Land on the right one. The wrong blocks crumble and fall!",
+            "The game is free in the browser, with English menus and Spanish sentences.",
+        ],
+        "howto": [
+            "Run with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, jump with <kbd>Space</kbd> and look around with the mouse. On a tablet: the stick and the jump button.",
+            "Read the sentence on the orange sign, then jump on the block with the missing word.",
+            "Wrong block? You fall into the clouds, see the right sentence and why, and try again from the last checkpoint.",
+            "Reach the flag. Fewer wrong answers mean more stars.",
+        ],
+        "learn": [
+            "Every gate is one Spanish sentence with a gap, for example <em lang=\"es\">Soy ___ Inglaterra.</em> After a wrong block the game shows the whole sentence and a short rule in English. The first levels ask the easiest sentences; later levels mix in harder ones. There are six levels, from First Steps to the Sky Finale with hammers and moving platforms.",
+        ],
+        "faq": [
+            ("Does it work on a tablet?", "Yes, with a stick and a jump button. It is best on a computer or Chromebook with a big screen."),
+            ("How do I get three stars?", "Answer every gate right the first time. One or two wrong answers give two stars, more give one. Falling into a gap costs no stars."),
+            ("Is my progress saved?", "Yes, stars and best times are saved on your device only. There is no account."),
+        ],
+        "related": ["verb-kitchen", "verb-towers"],
+        "meta": "A 3D jump-and-run for Spanish: jump on the block with the right word, the wrong ones fall. Free in the browser, no sign-up.",
+    },
+    "verb-towers": {
+        "h1": "Verb Towers: a Spanish tower-defence game",
+        "lead": [
+            "Enemies march along the road to your castle, and your towers stop them. Towers cost coins, and you earn coins in the <strong>forge</strong>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.",
+            "The game is free in the browser, with English menus and Spanish sentences.",
+        ],
+        "howto": [
+            "Tap or click a glowing field next to the road to build a tower.",
+            "Start the wave. While the enemies walk, answer the sentences in the forge: tap an answer or press <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>.",
+            "A wrong answer locks the forge for a moment and shows you the right word and a short rule.",
+            "Spend your coins on more towers and upgrades. Protect the castle to win stars and unlock the next level.",
+        ],
+        "learn": [
+            "The forge asks Spanish sentences with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Right answers give coins, so practising is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.",
+        ],
+        "faq": [
+            ("Does it work on a phone?", "Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map."),
+            ("What happens if I answer wrong?", "The forge locks for a moment and shows the right word and a short rule. Then the next sentence comes."),
+            ("Is my progress saved?", "Yes, stars and unlocked levels are saved on your device only. There is no account."),
+        ],
+        "related": ["verb-kitchen", "verb-platformer"],
+        "meta": "A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.",
+    },
+}
+for _gid, _c in EN_SPANISH.items():
+    CONTENT[_gid]["en"] = _c
+
+TEACHES["en"] = {"default": "Spanish grammar for beginners: ser (yo soy) with name, origin and descriptions"}

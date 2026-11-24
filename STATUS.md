@@ -34,6 +34,14 @@ Spanish.
   accents optional when typing Spanish, hint behind "?". Verb Towers plays
   es_ser; **since 2026-11-24 it's in the section** (`/en/spanish/games/verb-towers/`,
   topic texts per topic, explanations in the game's language).
+- **Section rebuilt on the site's own templates** (2026-11-24, owner: "same style,
+  same layout as the original pages"): landing on the /de/ skeleton (featured
+  game, filterable grid, practice band, teacher strip), games hub, topic hub
+  `/en/spanish/ser/`, game pages with the info section and the game chip bar,
+  drills with the normal chip bar. Catalogue-driven (topics.json `es_ser`,
+  games.json `en` texts + `featured_langs`). DE/ES unchanged (render diff
+  empty; 10 pages live vs local: same chips, footer links, no errors). See
+  CLAUDE.md "Sections".
 - **Verb Kitchen plays Spanish** (2026-11-24): sentence topics at the sink (one
   plate = two sentences of one item), Sentence Cookbook, per-topic texts;
   `/en/spanish/games/verb-kitchen/`, first game card on the landing page.

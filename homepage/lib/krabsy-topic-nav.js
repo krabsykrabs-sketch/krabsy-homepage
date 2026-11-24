@@ -23,20 +23,23 @@
 
   var SPIELE = {
     de: { label: 'Spiele', href: '/de/spiele/', urlSegment: 'spiele' },
-    es: { label: 'Juegos', href: '/es/juegos/', urlSegment: 'juegos' }
+    es: { label: 'Juegos', href: '/es/juegos/', urlSegment: 'juegos' },
+    // /en/ = the Spanish section for English speakers (2026-11-24)
+    en: { label: 'Games', href: '/en/spanish/games/', urlSegment: 'spanish/games' }
   };
 
   var NAV_LABEL = {
     de: 'Themen und Spiele',
-    es: 'Temas y juegos'
+    es: 'Temas y juegos',
+    en: 'Topics and games'
   };
 
   function currentLang() {
-    var m = location.pathname.match(/^\/(de|es)\//);
+    var m = location.pathname.match(/^\/(de|es|en)\//);
     if (m) return m[1];
     try {
       var ls = localStorage.getItem('krabsy_lang');
-      if (ls === 'de' || ls === 'es') return ls;
+      if (ls === 'de' || ls === 'es' || ls === 'en') return ls;
     } catch (_) {}
     return 'de';
   }
@@ -48,12 +51,13 @@
        - returns null on the language hub or unrelated pages (legal, 404) */
   function detectActive(topics, lang) {
     var path = location.pathname;
-    var rest = path.replace(/^\/(de|es)\/?/, '');
+    var rest = path.replace(/^\/(de|es|en)\/?/, '');
     if (!rest) return null; // lang hub
-    var firstSeg = rest.split('/')[0];
-    if (firstSeg === SPIELE[lang].urlSegment) return '_games';
+    // Slugs may span two segments on /en/ ("spanish/games", "spanish/ser"): prefix match.
+    var under = function (slug) { return !!slug && (rest === slug || rest.indexOf(slug + '/') === 0); };
+    if (SPIELE[lang] && under(SPIELE[lang].urlSegment)) return '_games';
     for (var id in topics) {
-      if (Object.prototype.hasOwnProperty.call(topics, id) && topics[id][lang] === firstSeg) {
+      if (Object.prototype.hasOwnProperty.call(topics, id) && under(topics[id][lang])) {
         return id;
       }
     }
@@ -95,6 +99,7 @@
     for (var id in topics) {
       if (!Object.prototype.hasOwnProperty.call(topics, id)) continue;
       var t = topics[id];
+      if (!t[lang]) continue;   // topic of another section (e.g. es_ser has only an /en/ URL)
       var label = (t.short_name && t.short_name[lang])
         || (t.display_name && t.display_name[lang])
         || id;

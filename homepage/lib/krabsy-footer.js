@@ -90,7 +90,23 @@
       alle_spiele: 'Todos los juegos',
       bald: 'pronto',
       kontakt: null
+    },
+    en: {
+      themen: 'Topics',
+      spiele: 'Games',
+      ueber: 'About',
+      alle_spiele: 'All games',
+      bald: 'soon',
+      kontakt: null
     }
+  };
+
+  /* Section home + games folder per interface language; /en/ is the Spanish
+     section for English speakers (2026-11-24). */
+  var SECTION = {
+    de: { games: '/de/spiele/', teacher: { label: 'Für Lehrkräfte', href: '/de/lehrkraefte/' } },
+    es: { games: '/es/juegos/', teacher: { label: 'Para docentes', href: '/es/docentes/' } },
+    en: { games: '/en/spanish/games/', teacher: { label: 'For teachers: Quiz Room', href: '/games/quiz-room/teacher.html?topic=es_ser&lang=en' } }
   };
 
   function fetchJSON(url) {
@@ -134,6 +150,7 @@
     for (var id in topics) {
       if (!Object.prototype.hasOwnProperty.call(topics, id)) continue;
       var t = topics[id];
+      if (!t[lang]) continue;   // topic of another section (only topics with a URL here)
       var label = (t.short_name && t.short_name[lang])
         || (t.display_name && t.display_name[lang])
         || id;
@@ -148,23 +165,24 @@
     return out;
   }
 
-  function gameLinksFor(gamesArr, lang, s) {
-    var seg = lang === 'es' ? 'juegos' : 'spiele';
+  function gameLinksFor(gamesArr, lang, s, topics) {
+    var base = (SECTION[lang] || SECTION.de).games;
+    var own = {};
+    for (var id in topics) if (topics[id] && topics[id][lang]) own[id] = true;
     var out = [];
     (gamesArr || []).forEach(function (g) {
       if (g.status === 'coming_soon') return;
+      if (!(g.topics || []).some(function (t) { return own[t]; })) return;   // other section's game
       var label = (g.name && g.name[lang]) || (g.name && (g.name.de || g.name.es)) || g.id;
-      out.push({ label: label, href: '/' + lang + '/' + seg + '/' + g.id + '/' });
+      out.push({ label: label, href: base + g.id + '/' });
     });
     if (out.length > 5) out = out.slice(0, 5);
-    out.push({ label: s.alle_spiele + ' →', href: '/' + lang + '/' + seg + '/' });
+    out.push({ label: s.alle_spiele + ' →', href: base });
     return out;
   }
 
   function aboutLinksFor(lang) {
-    var teacher = lang === 'es'
-      ? { label: 'Para docentes', href: '/es/docentes/' }
-      : { label: 'Für Lehrkräfte', href: '/de/lehrkraefte/' };
+    var teacher = (SECTION[lang] || SECTION.de).teacher;
     return [teacher].concat((LEGAL_LINKS[lang] || LEGAL_LINKS.de).map(function (p) {
       return { label: p[0], href: p[1] };
     }));
@@ -175,16 +193,13 @@
     var grid = document.createElement('div');
     grid.className = 'k-footer-grid';
     grid.appendChild(buildColumn(s.themen, topicLinksFor(topics, lang, s)));
-    grid.appendChild(buildColumn(s.spiele, gameLinksFor(games, lang, s)));
+    grid.appendChild(buildColumn(s.spiele, gameLinksFor(games, lang, s, topics)));
     grid.appendChild(buildColumn(s.ueber, aboutLinksFor(lang)));
     return grid;
   }
 
   function renderGrid(topics, games) {
     var lang = currentLang();
-    // /en/ has its own small section (Spanish for English speakers); the
-    // topic/game catalogue is the English-learning one, so no grid there.
-    if (lang === 'en') return;
     // Match both class names because the topic hubs still use class="footer"
     // (a normalization sweep will unify these to k-footer separately).
     var footers = document.querySelectorAll('footer.k-footer, footer.footer');

@@ -15,6 +15,10 @@
   <meta property="og:url" content="https://krabsy.com/en/spanish/ser/sprint/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sprint: Spanish I am … (ser) — Krabsy">
+  <meta name="twitter:description" content="20 Spanish sentences with a gap, as fast as you can: name, where you are from, what you are like. Free, no sign-up.">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
@@ -361,7 +365,7 @@
     </header>
 
     <main class="sprint-wrap">
-      <h1 class="k-page-h1">Sprint: Spanish I am … (ser)</h1>
+      <h1 class="k-page-h1">Sprint: Spanish Yo soy … (ser)</h1>
       <aside class="k-intro-card" aria-label="About this drill">
         <p>20 Spanish sentences with a gap. Tap the right word as fast as you can; a wrong answer adds 3 seconds. Stuck? The <b>?</b> button shows a small hint.</p>
       </aside>
@@ -437,7 +441,7 @@
 
         <div class="sprint-end-actions">
           <button id="sprint-replay-btn" type="button" class="k-btn-primary" data-string="common.play_again">Nochmal spielen</button>
-          <a href="/en/spanish/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
+          <a href="/en/spanish/ser/" class="k-btn-secondary" data-string="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
 
       </section>
@@ -447,7 +451,8 @@
         <h2>More practice</h2>
         <ul class="k-article-links">
         <li><a href="/en/spanish/ser/fill-the-gap/">Fill the Gap</a>: type the missing word yourself.</li>
-          <li><a href="/en/spanish/">All Spanish topics and games</a></li>
+          <li><a href="/en/spanish/ser/">Yo soy … (ser): all games and drills</a></li>
+          <li><a href="/en/spanish/">Krabsy Spanish: home</a></li>
         </ul>
       </section>
     </main>
@@ -475,7 +480,7 @@
     // overwrite each other — the drills feel different and a unified slot
     // would be misleading.
     const BEST_KEY = 'krabsy_best_sprint_es_ser';
-    const HUB_URL = '/en/spanish/';
+    const HUB_URL = '/en/spanish/ser/';
 
     let strings = null;
     let questions = [];
@@ -842,7 +847,14 @@
       replayBtn.addEventListener('click', beginRun);
     })();
   </script>
+  <script type="module">
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-24';
+    // Prep ships only 2 drill pages today; pass an explicit allow-list so
+    // the chip-bar doesn't render dead chips for verb-only drills.
+    initDrillPage('sprint', 'es_ser', ['sprint', 'fill_gap']);
+  </script>
     <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
+    <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
