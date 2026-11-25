@@ -265,7 +265,7 @@ figure") is the player character. **Master session: rebuild the served copy** wi
   all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
   and on file:// the old Ranger loads and the link is hidden.
 
-## Hero picker on the title screen (2026-11-25; source only, served copy NOT rebuilt)
+## Hero picker on the title screen (2026-11-25; built + stamped by the master session, v=11f2c2a9bf)
 
 Master-session job (docs/game-contract.md "Hero choice on the start screen"). **Master
 session: rebuild the served copy** (`tools/build-release.cjs`, server with `/lib`, `/data`
@@ -292,6 +292,10 @@ and `/assets/figures/`) and stamp.
   beside them: 44 px, the old pill was 40 (the German phone menu was already 408 px tall
   in 390 and scrolls; now 412). Strings `heroPick`, `heroMine`, `hero.Ranger`
   (Waldläufer / Guardabosques / Ranger) in `src/i18n.js`.
+- **Idea (master, 2026-11-25):** the figure shop is now a reward system (no prices;
+  gifts via shells, milestones, practice days) with a `grantGift()` API for in-game finds
+  (docs/game-contract.md "Gifts found in a game"). A hat or cape waiting at a level's flag
+  would fit. Not built. (The "other characters cost shells" reason below is outdated.)
 - More heroes: add the id to `HEROES`, a branch in `loadCharacterRoot()`, a
   `hero.<id>` string and a portrait. Only the Ranger for now (the game's old hero); other
   catalogue characters cost shells on the figure page, so they are not given away here.
