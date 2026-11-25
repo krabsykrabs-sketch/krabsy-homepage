@@ -172,6 +172,19 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
   -webkit-tap-highlight-color: transparent;
 }
 .lf-stage { position: relative; flex: 0 0 auto; width: 122px; height: 126px; }
+/* arrows to switch figures right here (owner 2026-11-25) */
+.lf-pick { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
+.lf-arrow {
+  position: relative; z-index: 2; flex: 0 0 auto; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%;
+  background: #fff; color: var(--krabsy-ink); box-shadow: 0 2px 0 rgba(38, 36, 60, 0.18), inset 0 0 0 1.5px rgba(38, 36, 60, 0.12);
+  display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.lf-arrow[hidden] { display: none; }
+.lf-arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.lf-arrow:hover { background: var(--g-amber, #ffcf5e); }
+.lf-arrow:active { transform: scale(0.92); }
+.lf-arrow:focus-visible { outline: 3px solid var(--krabsy-ink); outline-offset: 2px; }
 .is-live .lf-stage { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 .lf-img { -webkit-user-drag: none; user-select: none; }
 .is-live .lf-stage:active { cursor: grabbing; }

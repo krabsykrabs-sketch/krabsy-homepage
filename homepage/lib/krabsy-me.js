@@ -35,6 +35,49 @@ export function savedChar() {
 }
 
 export const DEFAULT_CHAR = 'Protagonist_A';
+
+/* ── Quick figure pick on the landing pages (owner 2026-11-25: "switch between characters
+   on the main page with arrows … this gives students the idea that the heroes can change").
+   No three.js here: the config is written in the figure page's format by hand. */
+// Keep in sync with FREE_CHARS in krabsy-figure.js (Schülerin first: the default figure).
+export const FREE_CHARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Helper_A', 'Helper_B',
+  'Knight', 'Rogue', 'Druid', 'OrcRaider', 'Skeleton_Minion', 'Robot_One'];
+const FIG_KEY = 'krabsy_figure_v2', CUSTOM_KEY = 'krabsy_figure_custom';
+const plainConfig = (char) => ({ v: 2, char, hat: 'own', glasses: 'own', back: 'own',
+  skin: -1, hair: -1, main: -1, legs: -1, acc: -1 });
+const readJSON = (k) => { try { const o = JSON.parse(localStorage.getItem(k) || 'null'); return o && typeof o === 'object' && /^[A-Za-z_]{1,40}$/.test(o.char) ? o : null; } catch (_) { return null; } };
+/** true when the figure was changed in the builder (accessories or colours), not just picked */
+export function isCustomFigure(c) {
+  return !!c && (['hat', 'glasses', 'back'].some((k) => c[k] && c[k] !== 'own')
+    || ['skin', 'hair', 'main', 'legs', 'acc'].some((k) => typeof c[k] === 'number' && c[k] >= 0));
+}
+/** The figures the arrows go through: the child's own built figure (if any), then the free
+    characters, then characters unlocked with shells. Each: { char, config, custom }. */
+export function figurePicks(ownedIds = []) {
+  const saved = readJSON(FIG_KEY);
+  const custom = isCustomFigure(saved) ? saved : readJSON(CUSTOM_KEY);
+  const out = custom ? [{ char: custom.char, config: custom, custom: true }] : [];
+  const chars = [...FREE_CHARS, ...ownedIds.filter((id) => /^char:/.test(id)).map((id) => id.slice(5))];
+  for (const c of new Set(chars)) out.push({ char: c, config: plainConfig(c), custom: false });
+  let index = 0;
+  if (saved) {
+    const i = isCustomFigure(saved) ? 0 : out.findIndex((p) => !p.custom && p.char === saved.char);
+    index = i >= 0 ? i : 0;
+  } else {
+    index = out.findIndex((p) => !p.custom && p.char === DEFAULT_CHAR);
+  }
+  return { picks: out, index: Math.max(0, index) };
+}
+/** Save a pick as the child's figure. A built figure is kept aside first, so the arrows
+    can always come back to it. */
+export function savePick(pick) {
+  try {
+    const saved = readJSON(FIG_KEY);
+    if (isCustomFigure(saved) && !pick.custom) localStorage.setItem(CUSTOM_KEY, JSON.stringify(saved));
+    localStorage.setItem(FIG_KEY, JSON.stringify(pick.config));
+    return true;
+  } catch (_) { return false; }
+}
 export const portraitUrl = (char) => `/assets/figures/portraits/${char || DEFAULT_CHAR}.webp`;
 
 /** { name, nickname } of the class this child joined (krabsy-class.js), or null. */

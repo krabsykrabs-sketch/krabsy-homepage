@@ -22,14 +22,14 @@
 import { createLiveFigure } from '/lib/krabsy-figure-live.js?v=2026-11-25';
 
 // Free characters a new visitor sees (the first is the picture in the page).
-const TEASERS = ['Witch', 'Robot_One', 'Protagonist_A'];   // Witch first: a small file (0.3 MB)
+const TEASERS = ['Protagonist_A'];   // the default figure (Schülerin); the arrows pick others
 
 /**
  * root    #gl-figure      link  the <a> around figure + label
  * stage   .lf-stage       canvas  the <canvas> in it
  * char    the saved character id, or null for a visitor without a figure
  */
-export async function startLandingFigure({ root, link, stage, canvas, char }) {
+export async function startLandingFigure({ root, link, stage, canvas, char, config = null }) {
   const t0 = performance.now();
   const conn = navigator.connection || {};
   const slowNet = conn.effectiveType === '3g' || (conn.downlink > 0 && conn.downlink < 1.5);
@@ -39,7 +39,7 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
   try {
     live = await createLiveFigure({
       canvas, box: canvas,
-      configFrom: (F) => F.playerConfig()
+      configFrom: (F) => (config ? F.normalize(config) : null) || F.playerConfig()
         || F.normalize({ char: char && F.FREE_CHARS.includes(char) ? char : TEASERS[0] }),
       fps: 30, maxRatio: 2, maxSize: 520, shadow: true,
       lights: { sky: '#ffffff', ground: '#c9b8a0', hemi: 1.9, sun: 1.5 },
@@ -90,7 +90,7 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
     sinceSwap++;
   }
   // A visitor without a figure: the next free character comes in with a spin.
-  const cycle = !char && !slowNet;
+  const cycle = false;   // owner 2026-11-25: the child switches with the arrows instead
   async function nextTeaser() {
     swapping = true;
     teaser = (teaser + 1) % TEASERS.length;
@@ -184,5 +184,20 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
   stage.addEventListener('pointerenter', (e) => { if (alive && mouse(e) && !live.busy && !drag) { moves.wave(); wait = Math.max(wait, 3); } });
   link.addEventListener('focus', () => { if (alive && !live.busy && link.matches(':focus-visible')) moves.wave(); });
 
+  // ---- the arrows: another figure comes in with a spin (dir -1 / +1)
+  let showing = 0;
+  api.show = async (cfg, dir = 1) => {
+    const my = ++showing;
+    swapping = true; wait = Math.max(wait, 3);
+    try {
+      await live.setFigure(cfg, {
+        at: (mount) => {
+          const go = () => { if (!alive || my !== showing) return; if (live.busy) { setTimeout(go, 120); return; } live.spin(0.6, { half: mount, squash: 0.25 }); };
+          go();
+        },
+      });
+    } catch (_) { /* that one couldn't load; keep the current figure */ }
+    if (my === showing) swapping = false;
+  };
   return api;
 }

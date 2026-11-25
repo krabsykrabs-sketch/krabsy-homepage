@@ -16,7 +16,7 @@
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
-import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25b';
+import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang, figurePicks, savePick } from '/lib/krabsy-me.js?v=2026-11-25c';
 
 const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
 const T = {
@@ -158,6 +158,7 @@ function initFigure() {
   const link = document.getElementById('lf-link');
   const img = document.getElementById('lf-img');
   const char = savedChar();
+  let liveApi = null;
   try {
     img.onerror = () => { if (!img.dataset.fb) { img.dataset.fb = '1'; img.src = portraitUrl(DEFAULT_CHAR); } };
     if (char && !img.src.endsWith(portraitUrl(char))) img.src = portraitUrl(char);
@@ -165,7 +166,7 @@ function initFigure() {
       const s = getShells();
       let answered = false;
       try { answered = hasData(); } catch (_) { /* no stats */ }
-      if (!char && !(s.earned > 0) && !answered) return;
+      if (!savedChar() && !(s.earned > 0) && !answered) return;
       link.href = link.dataset.profileHref;
       document.getElementById('lf-cta').textContent = link.dataset.profileCta;
       document.getElementById('lf-shells-n').textContent = String(s.balance);
@@ -174,6 +175,29 @@ function initFigure() {
     };
     render();
     onShellsChange(render);
+
+    // Arrows: pick another figure right here; it becomes the child's figure in the games.
+    const { picks, index } = figurePicks(getShells().owned);
+    let at = index;
+    const step = (dir) => {
+      at = (at + dir + picks.length) % picks.length;
+      const p = picks[at];
+      savePick(p);
+      img.src = portraitUrl(p.char);
+      render();
+      if (liveApi && liveApi.show) liveApi.show(p.config, dir);
+    };
+    root.querySelectorAll('[data-pick]').forEach((b) => {
+      b.hidden = false;
+      b.addEventListener('click', () => step(Number(b.dataset.pick)));
+    });
+    root.addEventListener('keydown', (e) => {
+      if (e.target.closest('[data-pick]') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1);
+      }
+    });
+    root.dataset.startPick = String(at);
+    initFigure.pick = () => picks[at];
   } catch (err) {
     console.warn('landing: figure label left as is', err);
   }
@@ -184,8 +208,10 @@ function initFigure() {
     try {
       const { liveFigureBlocked, hasWebGL } = await import('/lib/krabsy-figure-live.js?v=2026-11-25');
       if (liveFigureBlocked() || !hasWebGL(force !== '3d')) return;
-      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25d');
-      await startLandingFigure({ root, link, stage: document.getElementById('lf-stage'), canvas: document.getElementById('lf-canvas'), char });
+      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25e');
+      const cur = initFigure.pick && initFigure.pick();
+      liveApi = await startLandingFigure({ root, link, stage: document.getElementById('lf-stage'), canvas: document.getElementById('lf-canvas'),
+        char: cur ? cur.char : char, config: cur ? cur.config : null });
     } catch (err) {
       console.warn('landing: live figure skipped', err);
     }

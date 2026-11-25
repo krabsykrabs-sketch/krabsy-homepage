@@ -44,7 +44,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25d">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25e">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
 </head>
@@ -117,10 +117,14 @@
         </div>
         <div class="lf" id="gl-figure">
           <div class="lf-link">
-            <span class="lf-stage" id="lf-stage" aria-hidden="true">
-              <img class="lf-img" id="lf-img" draggable="false" src="/assets/figures/portraits/Witch.webp" alt="" width="192" height="192" decoding="async">
+            <div class="lf-pick">
+              <button class="lf-arrow lf-prev" type="button" data-pick="-1" aria-label="Vorherige Figur" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <span class="lf-stage" id="lf-stage" aria-hidden="true">
+              <img class="lf-img" id="lf-img" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
               <canvas class="lf-canvas" id="lf-canvas" hidden></canvas>
             </span>
+              <button class="lf-arrow lf-next" type="button" data-pick="1" aria-label="Nächste Figur" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+            </div>
             <a class="lf-label" id="lf-link" href="/de/meine-figur/" data-profile-href="/de/profil/" data-profile-cta="Mein Profil">
               <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> Muscheln</span></span>
               <span class="lf-cta"><span id="lf-cta">Bau deine Figur</span> <span aria-hidden="true">→</span></span>
@@ -230,7 +234,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25g"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25h"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
