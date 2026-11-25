@@ -106,5 +106,6 @@ teach line after a miss, 0 console errors.
 | Quiz Room | ✅ | teacher tool; topics listed in its own `src/questions.js` TOPICS |
 | Verb Kitchen | ✅ | sentence pairs on plates, "Sentence Cookbook" |
 | Verb Platformer | ✅ | one sentence per gate; level tiers cap difficulty |
-| Verb Golf, Catapult, Hatchery | planned | their CLAUDE.md files carry this checklist |
+| Verb Hatchery | ✅ | 2026-11-25 (cc61034): gap cards, rare eggs ask two sentences, `TOPIC_TEXT`; tester release only |
+| Verb Golf, Catapult | planned | their CLAUDE.md files carry this checklist |
 | Verb Dungeon, Snake, Air Control, Flow | verbs only | Snake / Air Control are candidates; Air Control + Flow have no English menus |
