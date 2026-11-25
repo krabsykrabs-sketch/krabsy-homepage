@@ -770,15 +770,15 @@ EN_SPANISH = {
         "meta": "A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.",
     },
     "verb-hatchery": {
-        "h1": "Verb Hatchery: a Spanish island adventure",
+        "h1": "Egg Island: a Spanish island adventure",
         "lead": [
-            "Run across a sunny 3D island and look for eggs. To pick an egg up you answer a <strong>Spanish sentence</strong>. Carry it home before the thief crabs grab it, put it in the incubator and watch a creature hatch.",
+            "Run across a sunny 3D island and look for eggs. To pick an egg up you answer a <strong>Spanish sentence</strong>. Carry it to your farm before the thief crabs grab it, put it in the incubator and watch a creature hatch.",
             "Your creatures earn coins for upgrades, and rarer eggs ask more. The game is free in the browser, with English menus and Spanish sentences.",
         ],
         "howto": [
             "Walk with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>, turn the camera by dragging the mouse, run with <kbd>Shift</kbd> and jump with <kbd>Space</kbd>. On a tablet: the stick and the hand button (turn the tablet sideways).",
             "Walk to a glowing egg and press <kbd>E</kbd> (or click it). Answer the sentence to pick the egg up.",
-            "Follow the arrow home to the green pad. The egg goes into the incubator and hatches after a moment.",
+            "Follow the arrow back to your farm. The egg goes into the incubator and hatches after a moment.",
             "Watch out for thief crabs: answer right and you keep your egg. Spend the coins your creatures earn on upgrades (<kbd>U</kbd>) and look at your creatures in the Creature Book (<kbd>B</kbd>).",
         ],
         "learn": [
@@ -786,7 +786,7 @@ EN_SPANISH = {
         ],
         "faq": [
             ("Does it work on a phone?", "It needs a wide screen: a computer, a Chromebook or a tablet held sideways. Phones are not tested yet."),
-            ("Can I lose in Verb Hatchery?", "No. A wrong answer only lets the egg roll away; it comes back soon. Thief crabs can take an egg, but you can catch them."),
+            ("Can I lose in Egg Island?", "No. A wrong answer only lets the egg roll away; it comes back soon. Thief crabs can take an egg, but you can catch them."),
             ("Is my progress saved?", "Yes, your creatures, coins and upgrades are saved on your device only. There is no account."),
         ],
         "related": ["verb-kitchen", "verb-towers"],

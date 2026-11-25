@@ -78,7 +78,7 @@ GAME_TITLES = {
     'verb-kitchen': 'Verb Kitchen: Spanish cooking game',
     'verb-platformer': 'Verb Platformer: Spanish jump-and-run',
     'verb-towers': 'Verb Towers: Spanish tower defence',
-    'verb-hatchery': 'Verb Hatchery: Spanish island adventure',
+    'verb-hatchery': 'Egg Island: Spanish island adventure',
 }
 
 
@@ -427,7 +427,7 @@ def build_game_page(gid):
         skel_id = game_path.strip('/').split('/')[-1]
         src = src.replace(f'src="{game_path}', f'src="{real[0]}', 1)
         src = src.replace(f'initGamePage(\'{skel_id.replace("-", "_")}\')', f'initGamePage(\'{gid.replace("-", "_")}\')')
-        src = src.replace(f'title="{skel_id.replace("-", " ").title()}"', f'title="{gid.replace("-", " ").title()}"', 1)
+        src = src.replace(f'title="{skel_id.replace("-", " ").title()}"', f'title="{GAME_TITLES[gid].split(":")[0]}"', 1)
         game_path = real[0]
     url = f'/en/spanish/games/{gid}/'
     title = GAME_TITLES[gid]
