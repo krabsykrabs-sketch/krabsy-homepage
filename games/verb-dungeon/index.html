@@ -79,7 +79,7 @@ h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
 #steps{position:absolute;top:22px;right:24px;display:flex;gap:7px;}
 #steps i{width:13px;height:13px;border-radius:50%;background:#2b4370;}
 #steps i.now{background:var(--edge);box-shadow:0 0 10px var(--edge);} #steps i.done{background:var(--teal);}
-#chain{font-family:'Fredoka One';font-weight:400;font-size:clamp(34px,4.4vw,56px);white-space:nowrap;
+#chain{font-family:'Fredoka One';font-weight:400;font-size:clamp(34px,calc(4.4 * var(--lvw,1vw)),56px);white-space:nowrap;
   margin:20px 0 2px;line-height:1.25;}
 .blank{display:inline-block;min-width:3em;border-bottom:5px dashed #3a5584;color:transparent;}
 .blank.ask{color:inherit;border-radius:12px 12px 0 0;animation:askPulse 1.4s ease-in-out infinite;}
@@ -89,7 +89,7 @@ h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
 .filled{display:inline-block;animation:filled .45s ease-out;}
 @keyframes filled{0%{scale:.4;opacity:0;}60%{scale:1.25;opacity:1;}}
 #chips{display:flex;gap:14px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
-.chip{font:inherit;font-family:'Fredoka One';font-weight:400;font-size:clamp(22px,2.4vw,29px);color:var(--ink);
+.chip{font:inherit;font-family:'Fredoka One';font-weight:400;font-size:clamp(22px,calc(2.4 * var(--lvw,1vw)),29px);color:var(--ink);
   background:#17345f;border:0;border-bottom:5px solid #0a1b36;border-radius:16px;padding:11px 24px 9px 14px;
   min-width:156px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:12px;
   transition:transform .1s,background .1s;}
@@ -179,7 +179,10 @@ kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border
   white-space:pre-wrap;text-align:center;padding:20px;}
 #rotate{position:fixed;inset:0;background:#0d2240;display:none;align-items:center;
   justify-content:center;text-align:center;padding:30px;font-size:20px;line-height:1.5;z-index:9;}
-@media (max-width:640px) and (orientation:portrait){#rotate{display:flex;}}
+/* Sideways mode (src/rotate.js): a phone held upright gets the game turned by 90°, so it
+   plays in landscape even with rotation lock on. #rotate only shows if scripts fail. */
+html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overflow:hidden;
+  transform-origin:top left;transform:rotate(90deg) translateY(-100%);}
 /* phones in landscape (and other short screens): the menu and end screen fit without scrolling */
 @media (max-height:500px){
   .screen{padding:8px;}
@@ -230,8 +233,8 @@ kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border
 /* touch: no key hints; the bottom sign keeps clear of stick and button */
 .touch #askLater kbd,.touch .chip small{display:none;}
 .touch .chip{padding:13px 24px 11px;}
-.touch #sign{max-width:calc(100vw - 340px);white-space:normal;}
-.touch #toast{max-width:calc(100vw - 300px);white-space:normal;text-align:center;}
+.touch #sign{max-width:calc(var(--lw,100vw) - 340px);white-space:normal;}
+.touch #toast{max-width:calc(var(--lw,100vw) - 300px);white-space:normal;text-align:center;}
 #howto .ico{display:inline-block;width:22px;height:22px;vertical-align:-6px;margin-right:6px;font-style:normal;}
 #howto .stickIco{border-radius:50%;border:2px solid var(--muted);background:radial-gradient(circle,var(--ink) 0 4px,transparent 5px);}
 #howto .swordIco svg{width:22px;height:22px;}

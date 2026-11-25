@@ -140,3 +140,14 @@ ui.showScreen('startScreen');
 const params = new URLSearchParams(location.search);
 if (params.has('seed')) seedRng(parseInt(params.get('seed'), 10) || 1);
 initQA(game, save, startLevel, params);
+
+// Phones: start downloading the level the player will most likely pick (the
+// first one without stars) while they are still on the menu, so its recipe
+// card is ready sooner. Everything lands in the model cache that
+// game.preload uses again on start; a failed download is simply retried then.
+if (!params.has('qa')) {
+  const next = LEVELS.findIndex((lv) => !(save.stars && save.stars[lv.id]));
+  const warm = () => game.preload(LEVELS[Math.max(0, next)]).catch(() => {});
+  if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 1500 });
+  else setTimeout(warm, 500);
+}

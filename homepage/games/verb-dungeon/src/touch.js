@@ -13,9 +13,11 @@
 // is coarse. A key press on a device with both (touch Chromebook) hides them again.
 // The controls are drawn only while a level is being played (html.touch body.playing).
 
+import { VW, VH, toLocal } from './rotate.js';
+
 export const stick = { x: 0, z: 0, speed: 0 }; // direction (screen right = +x, down = +z) and 0…1 speed
 
-const R = () => (Math.min(innerWidth, innerHeight) < 500 ? 46 : 58); // stick radius in px
+const R = () => (Math.min(VW(), VH()) < 500 ? 46 : 58); // stick radius in px
 const DEAD = 0.16, FULL = 0.62, SNAP = 0.36; // dead zone, full speed from, axis snap (radians, ~20°)
 let id = null, blocked = false, ox = 0, oy = 0;
 let on = false, opts = null, $stick, $knob, $sword;
@@ -43,8 +45,8 @@ function setMode(v) {
 
 function place(x, y) { // the stick's centre, kept clear of the screen edges and the HUD
   const r = R();
-  ox = Math.min(innerWidth * 0.6, Math.max(r + 14, x));
-  oy = Math.min(innerHeight - r - 10, Math.max(r + 70, y));
+  ox = Math.min(VW() * 0.6, Math.max(r + 14, x));
+  oy = Math.min(VH() - r - 10, Math.max(r + 70, y));
   $stick.style.left = `${ox}px`; $stick.style.top = `${oy}px`;
   $stick.style.right = $stick.style.bottom = 'auto';
 }
@@ -104,16 +106,17 @@ export function initTouch(o) {
     for (const t of e.changedTouches) {
       if (t.target !== o.canvas) continue;
       e.preventDefault(); // no zoom, no scrolling, no long-press menu
-      if (id === null && t.clientX < innerWidth * 0.6) {
+      const p = toLocal(t.clientX, t.clientY); // screen → game coordinates (rotate.js)
+      if (id === null && p.x < VW() * 0.6) {
         id = t.identifier; blocked = false;
-        place(t.clientX, t.clientY);
+        place(p.x, p.y);
         $stick.classList.add('on');
-        move(t.clientX, t.clientY);
+        move(p.x, p.y);
       }
     }
   }, { passive: false });
   window.addEventListener('touchmove', (e) => {
-    for (const t of e.changedTouches) if (t.identifier === id) { e.preventDefault(); move(t.clientX, t.clientY); }
+    for (const t of e.changedTouches) if (t.identifier === id) { e.preventDefault(); const p = toLocal(t.clientX, t.clientY); move(p.x, p.y); }
   }, { passive: false });
   const end = (e) => { for (const t of e.changedTouches) if (t.identifier === id) release(); };
   window.addEventListener('touchend', end);

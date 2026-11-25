@@ -14,9 +14,7 @@ assets/models/chef/Barbarian.glb
 assets/models/chef/Knight.glb
 assets/models/chef/Mage.glb
 assets/models/chef/Ranger.glb
-assets/models/chef/Rig_Medium_General.glb
-assets/models/chef/Rig_Medium_MovementBasic.glb
-assets/models/chef/Rig_Medium_Tools.glb
+assets/models/chef/Rig_Medium_Kitchen.glb
 assets/models/chef/Rogue.glb
 assets/models/restaurant/bowl.bin
 assets/models/restaurant/bowl.gltf

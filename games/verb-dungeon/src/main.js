@@ -8,6 +8,7 @@
 //   Coins (chests, boss, treasure room) buy other heroes. Chests are optional bonus
 //   questions. Questions open only when the player presses Space (book, chest, boss
 //   stone); the question card pauses the whole room.
+import { VW, VH, centreOf } from './rotate.js'; // first: sets the turned layout before anything measures
 import * as THREE from 'three';
 import { Assets } from './assets.js';
 import { Char } from './chars.js';
@@ -58,7 +59,7 @@ const camera = new THREE.PerspectiveCamera(36, 1, 1, 120);
 const CAM_TARGET = new THREE.Vector3(0, 1.0, -0.2);
 const CAM_ELEV = THREE.MathUtils.degToRad(43);
 function fitCamera() {
-  const w = window.innerWidth, h = window.innerHeight;
+  const w = VW(), h = VH(); // the game's own size (turned on an upright phone, rotate.js)
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
@@ -144,8 +145,8 @@ function pop(text, x, y, z, color) {
   el.className = 'pop';
   el.textContent = text;
   if (color) el.style.color = color;
-  el.style.left = `${(_v.x * 0.5 + 0.5) * window.innerWidth}px`;
-  el.style.top = `${(-_v.y * 0.5 + 0.5) * window.innerHeight}px`;
+  el.style.left = `${(_v.x * 0.5 + 0.5) * VW()}px`;
+  el.style.top = `${(-_v.y * 0.5 + 0.5) * VH()}px`;
   document.body.appendChild(el);
   if (params.has('hold')) el.classList.add('hold'); // QA screenshots: keep it on screen
   else setTimeout(() => el.remove(), 950);
@@ -748,8 +749,8 @@ function updatePrompt() {
   }
   if (!u) return;
   _v.set(u.x, u.y, u.z).project(camera);
-  el.style.left = `${(_v.x * 0.5 + 0.5) * window.innerWidth}px`;
-  el.style.top = `${(-_v.y * 0.5 + 0.5) * window.innerHeight}px`;
+  el.style.left = `${(_v.x * 0.5 + 0.5) * VW()}px`;
+  el.style.top = `${(-_v.y * 0.5 + 0.5) * VH()}px`;
 }
 
 // ── Bosses (play-test note 11) ──────────────────────────────────────────────
@@ -1448,11 +1449,11 @@ function flyToHud(x, y, z, target = 'keySlot', html = '🔑') {
   const el = document.createElement('div');
   el.className = 'keyfly';
   el.innerHTML = html;
-  el.style.left = `${(_v.x * 0.5 + 0.5) * window.innerWidth}px`;
-  el.style.top = `${(-_v.y * 0.5 + 0.5) * window.innerHeight}px`;
+  el.style.left = `${(_v.x * 0.5 + 0.5) * VW()}px`;
+  el.style.top = `${(-_v.y * 0.5 + 0.5) * VH()}px`;
   document.body.appendChild(el);
-  const r = $(target).getBoundingClientRect();
-  requestAnimationFrame(() => { el.style.left = `${r.left + r.width / 2}px`; el.style.top = `${r.top + r.height / 2}px`; el.style.scale = '0.6'; });
+  const c = centreOf($(target));
+  requestAnimationFrame(() => { el.style.left = `${c.x}px`; el.style.top = `${c.y}px`; el.style.scale = '0.6'; });
   setTimeout(() => el.remove(), 650);
 }
 

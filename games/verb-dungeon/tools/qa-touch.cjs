@@ -1,8 +1,13 @@
 // node tools/qa-touch.cjs port w h lang shotPrefix — plays level 1 by touch (stick drags via CDP, taps). See CLAUDE.md.
 // Questions open only with the sword button (book, chest, boss stone); walking onto things asks nothing.
-const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwright');
+const { chromium } = require(process.env.PW || '/home/janah/dev/Worksheets/app/node_modules/playwright');
 const [port = 8152, W = 1024, H = 768, LANG = 'de', PRE = 'T-tablet'] = process.argv.slice(2);
-const w = +W, h = +H;
+const sw = +W, sh = +H;
+// An upright phone (≤ 640 wide) plays the game turned by 90° (src/rotate.js): w × h is the
+// game's own landscape size, and every touch point is turned back to the screen.
+const ROT = sw <= 640 && sh > sw;
+const [w, h] = ROT ? [sh, sw] : [sw, sh];
+const toScreen = ([x, y]) => (ROT ? [sw - y, x] : [x, y]);
 const SHOTS = process.env.SHOTS || require('path').join(__dirname, '..', '_shots');
 const log = (...a) => console.log(...a);
 let fails = 0;
@@ -10,7 +15,7 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
 
 (async () => {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: { width: sw, height: sh }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
   await ctx.addInitScript(() => {
     localStorage.setItem('krabsy_vdungeon_save', JSON.stringify({ coins: 60, owned: ['knight'], hero: 'knight' }));
     document.hasFocus = () => false; // an iframe without keyboard focus: touch must still play
@@ -18,7 +23,7 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   const page = await ctx.newPage();
   const errs = []; page.on('pageerror', (e) => errs.push(e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
   const cdp = await ctx.newCDPSession(page);
-  const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map(([x, y], i) => ({ x, y, id: i + 1 })) });
+  const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map((pt, i) => { const [x, y] = toScreen(pt); return { x, y, id: i + 1 }; }) });
   const ev = (fn, arg) => page.evaluate(fn, arg);
   const info = () => ev(() => window.__VD.info());
   const pos = () => ev(() => [window.__VD.hero.pos.x, window.__VD.hero.pos.z]);

@@ -180,16 +180,16 @@ export function charUnlocked(name, save) {
 /** Load one character + the shared animation clips (everything is cached). */
 export async function loadChefAssets(charName = 'rogue') {
   const def = CHEF_CHARACTERS[charName] || CHEF_CHARACTERS.rogue;
-  const [char, move, general, tools] = await Promise.all([
+  // Rig_Medium_Kitchen.glb = only the 6 clips chef.js plays (Idle_A, Running_A,
+  // Chopping, PickUp, Holding_B, Working_A), cut from the three KayKit
+  // Rig_Medium_* files (3 MB) to 0.3 MB for a faster first load on phones.
+  // Rebuild with tools/slim-rig.mjs when chef.js needs another clip.
+  const [char, rig] = await Promise.all([
     loadGLTF(C + def.file),
-    loadGLTF(C + 'Rig_Medium_MovementBasic.glb'),
-    loadGLTF(C + 'Rig_Medium_General.glb'),
-    loadGLTF(C + 'Rig_Medium_Tools.glb'),
+    loadGLTF(C + 'Rig_Medium_Kitchen.glb'),
   ]);
   const clips = {};
-  for (const g of [move, general, tools]) {
-    for (const c of g.animations) clips[c.name] = c;
-  }
+  for (const c of rig.animations) clips[c.name] = c;
   return { charScene: char.scene, clips };
 }
 

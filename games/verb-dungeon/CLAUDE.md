@@ -360,8 +360,17 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
     sword icon instead of the key;
     the menu how-to shows a stick icon, the sword icon and 👆; key badges
     (`1 2 3`, `Esc`) are hidden on touch.
-  - Phones: portrait (≤ 640 px wide) shows "turn your device" (`#rotate`);
-    **landscape is playable** (tested at 844×390): below 500 px height the
+  - Phones: **upright (portrait, ≤ 640 px wide) plays sideways (2026-11-25,
+    owner's first phone test: the "turn your device" wall stopped him).**
+    `src/rotate.js` turns `<body>` by 90° (`html.rot`), so the game is landscape
+    on screen even with rotation lock on; if the phone does rotate the page it
+    is drawn normally again. While turned, use `VW()`/`VH()` instead of
+    `innerWidth`/`innerHeight` and `toLocal()` / `centreOf()` for screen
+    coordinates (touch, `getBoundingClientRect`); CSS uses `var(--lw)` /
+    `var(--lvw)` for the game's width. The `@media (max-height:…)` rules are
+    copied into extra sheets that switch on by the LOGICAL height.
+    `tools/qa-touch.cjs` at 390×844 plays in this mode (touch points turned).
+    `#rotate` only shows if scripts fail. **Landscape is playable** (tested at 844×390): below 500 px height the
     menu, end screen, hint, sign and toast are compact, stick and button
     smaller. The bottom sign keeps clear of the stick and the button
     (`max-width: 100vw − 340px` in touch mode).
@@ -1149,3 +1158,11 @@ geometry, at most one shadow light.
     `PLAYTEST-NOTES.md`: notes 14 and 15 done.
 
 - 2026-11-23 — Master session: the Space key cap (controls box + use prompt) now reads Leertaste / Espacio (i18n key `keySpace`), source + live build (25a1ae2). Owner: menus in the child's language, English only for what is learned.
+
+- 2026-11-25 — Master session (owner's first real phone test): **upright phones
+  play sideways** (`src/rotate.js`, see "Controls and devices"); `main.js` and
+  `touch.js` use the logical size; `tools/qa-touch.cjs` supports 390×844. The
+  wrapper pages now hide the site header on short landscape screens
+  (`homepage/lib/krabsy-game-info.css`), so landscape gets 354 px instead of 306.
+  Checked headless (Linux Chromium): touch run at 390×844, `?qa=play&level=1` at
+  1366×768, 844×390, 768×1024 (no turn there). **Not checked:** a real phone.

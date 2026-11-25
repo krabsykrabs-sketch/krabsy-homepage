@@ -2361,3 +2361,15 @@ ours 2×1×2).
 ## TODO: phase 1 — shared learning engine (from master, 2026-11-22)
 
 Record every answer with `recordAttempt()` and take rounds with `smart: true`. Recipe: `docs/phase1-game-wiring.md`. Mark it done there and here when finished.
+
+- 2026-11-25 — Master session (owner's first phone test: first load very slow).
+  **Chef animations slimmed:** `assets/models/chef/Rig_Medium_Kitchen.glb` holds
+  only the 6 clips `chef.js` plays (0.31 MB, was 3 MB across `Rig_Medium_General` /
+  `_MovementBasic` / `_Tools`); `models.js` `loadChefAssets` loads it; rebuild with
+  `tools/slim-rig.mjs` (add a clip name to `KEEP` when the chef plays a new one).
+  **Menu prefetch:** `main.js` starts `game.preload()` of the first level without
+  stars while the player is on the menu (not with `?qa=`). Level 1 download
+  6.5 → 3.8 MB; on a simulated 10 Mbit line the recipe card's button came 7.6 s
+  after tapping Level 1 before, now 2.7 s (tapped at once) / 0.3 s (3 s on the
+  menu). Checked headless: all 6 clips with original lengths, chef runs, no errors.
+  Not checked: a real phone.

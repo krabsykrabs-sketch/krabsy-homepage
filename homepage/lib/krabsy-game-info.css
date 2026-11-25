@@ -156,3 +156,16 @@ html { scroll-behavior: smooth; }
 .kg-scroll-hint.has-teacher-set { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
 .kg-teacher-set { font-weight: 800; color: #ffcf5e; }
 
+
+/* Phones in landscape (2026-11-25): the 48 px site header and the hint bar left 3D
+   games only ~300 px of height, and Verb Dungeon's menu was cut off. On short
+   landscape screens an iframed game hides the header and takes the whole screen
+   above the hint bar (the browser's back button leaves the game). */
+@media (orientation: landscape) and (max-height: 500px) {
+  body:has(#game-frame) .k-game-nav { display: none; }
+  body:has(#game-frame) #game-frame {
+    margin-top: 0;
+    height: calc(100vh - var(--kg-hint-h));
+    height: calc(100svh - var(--kg-hint-h));
+  }
+}

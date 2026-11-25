@@ -14,6 +14,15 @@ builders, links followed into Towers (DE/ES/EN), the games apply difficulty
 without a link unchanged (10 DE/ES pages live vs local identical).
 Later: the class code in the link (answers to the class dashboard).
 
+## Phone fixes (2026-11-25, NOT YET PUSHED)
+
+- **Phone fixes (2026-11-25, owner's first phone test):** Verb Kitchen first load
+  lighter (chef animations 3 → 0.3 MB, level prefetched on the menu: level 1 ready
+  2.7 s after tapping instead of 7.6 s on 10 Mbit). Verb Dungeon plays sideways on
+  an upright phone (`src/rotate.js`) instead of "turn your device". Game pages
+  hide the site header on short landscape screens (`krabsy-game-info.css`).
+  Headless-tested; not yet on a real phone.
+
 ## Spanish pilot + question format v2 (2026-11-24, LIVE)
 
 Direction: `docs/vision.md` (curated grammar in any learning language,
