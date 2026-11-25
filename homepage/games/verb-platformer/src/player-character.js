@@ -68,9 +68,30 @@ function figureModule() {
   return figureModP;
 }
 
-/** Which figure is played: { own, char } once the player is built (null before). */
+/** Which figure is played: { own, char, hero } once the player is built (null before). */
 let figureInfo = null;
 export function playerFigureInfo() { return figureInfo; }
+
+// ─── Heroes (owner decision 2026-11-25, docs/game-contract.md "Hero choice on the start
+// screen") ──────────────────────────────────────────────────────────────────
+// 'mine'   = the child's figure (site page "Meine Figur"); a child without one plays the
+//            default figure, the Schülerin (Protagonist_A).
+// 'Ranger' = this game's own hero, free, the original model WITH its quiver (a game item
+//            here; the figure catalogue drops it). Never saved as the child's figure.
+// The title screen remembers the choice in localStorage krabsy_vp_hero (src/hero.js).
+export const DEFAULT_FIGURE = 'Protagonist_A';
+export const HEROES = ['mine', 'Ranger'];
+
+/** Which character 'mine' shows, without loading any 3D: { char, own } or null when the
+    figure module is not there (file://, bare dev server). Never throws. */
+export async function mineInfo() {
+  const mod = await figureModule();
+  if (!mod) return null;
+  try {
+    const cfg = mod.playerConfig();
+    return cfg ? { char: cfg.char, own: true } : { char: DEFAULT_FIGURE, own: false };
+  } catch (_) { return { char: DEFAULT_FIGURE, own: false }; }
+}
 
 // The Rig_Medium animation clips, loaded once. The spectators on the scenery islets
 // (scenery-life.js) use the same rig and share these clips. They come from the figure
@@ -90,28 +111,43 @@ export function loadRigClips() {
   return clipPromise;
 }
 
-// The visible character: the child's figure (or the Ranger fallback from the figure module),
-// else the local Ranger.glb. Never throws for a figure problem.
-async function loadCharacterRoot() {
-  const mod = await figureModule();
-  if (mod) {
-    try {
-      // lambert: false — the game shows the Ranger with its standard (PBR) material today.
-      const fig = await mod.loadPlayerFigure({ fallback: 'Ranger', lambert: false, clips: false });
-      figureInfo = { own: fig.own, char: fig.config?.char || 'Ranger' };
-      return fig.root;
-    } catch (e) {
-      console.warn('[player-character] figure failed, loading the Ranger the old way', e);
+// The visible character for a hero (see HEROES). 'mine': the child's figure, or the
+// Schülerin when there is none, via the figure module; 'Ranger': the local Ranger.glb.
+// Any figure problem (no module, a failed load) → the local Ranger. Never throws for that.
+async function loadCharacterRoot(hero) {
+  if (hero !== 'Ranger') {
+    const mod = await figureModule();
+    if (mod) {
+      try {
+        // lambert: false — the game shows its hero with the standard (PBR) material.
+        const fig = await mod.loadPlayerFigure({ fallback: DEFAULT_FIGURE, lambert: false, clips: false });
+        figureInfo = { hero: 'mine', own: fig.own, char: fig.config?.char || DEFAULT_FIGURE };
+        return { root: fig.root, dispose: fig.dispose };
+      } catch (e) {
+        console.warn('[player-character] figure failed, loading the Ranger the old way', e);
+      }
     }
   }
-  figureInfo = { own: false, char: 'Ranger', local: true };
-  return (await loadGLB(CHARACTER_MODEL)).scene;
+  const gltf = await loadGLB(CHARACTER_MODEL);
+  figureInfo = { hero: hero === 'Ranger' ? 'Ranger' : 'mine', own: false, char: 'Ranger', local: hero !== 'Ranger' };
+  const root = gltf.scene;
+  return {
+    root,
+    dispose() {
+      root.traverse(o => {
+        if (!o.isMesh) return;
+        o.geometry?.dispose();
+        for (const m of [].concat(o.material || [])) { m.map?.dispose(); m.dispose(); }
+      });
+    },
+  };
 }
 
-export async function createPlayerCharacter(scene) {
+// hero: 'mine' (default) or 'Ranger', see HEROES.
+export async function createPlayerCharacter(scene, hero = 'mine') {
   // Load the character + both animation .glb files in parallel.
-  const [root, clipPool] = await Promise.all([
-    loadCharacterRoot(),
+  const [{ root, dispose: disposeRoot }, clipPool] = await Promise.all([
+    loadCharacterRoot(hero),
     loadRigClips(),
   ]);
 
@@ -169,5 +205,13 @@ export async function createPlayerCharacter(scene) {
   // Default state on spawn.
   setState('idle');
 
-  return { root, setState, setFacing, update };
+  // Throw this character away (hero switch): stop the animations, free the GPU buffers.
+  function dispose() {
+    mixer.stopAllAction();
+    mixer.uncacheRoot(root);
+    root.parent?.remove(root);
+    try { disposeRoot?.(); } catch (_) { /* ignore */ }
+  }
+
+  return { root, hero, setState, setFacing, update, dispose };
 }

@@ -17,29 +17,30 @@
     "three/addons/": "./vendor/three/addons/",
     "@dimforge/rapier3d-compat": "./vendor/rapier/rapier.js",
     "nipplejs": "./vendor/nipplejs/index.js",
-    "./src/analytics.js": "./src/analytics.js?v=75a85f4a86",
-    "./src/assets.js": "./src/assets.js?v=75a85f4a86",
-    "./src/camera.js": "./src/camera.js?v=75a85f4a86",
-    "./src/celebrate.js": "./src/celebrate.js?v=75a85f4a86",
-    "./src/controls.js": "./src/controls.js?v=75a85f4a86",
-    "./src/game.js": "./src/game.js?v=75a85f4a86",
-    "./src/gates.js": "./src/gates.js?v=75a85f4a86",
-    "./src/i18n.js": "./src/i18n.js?v=75a85f4a86",
-    "./src/kaykit-catalog.js": "./src/kaykit-catalog.js?v=75a85f4a86",
-    "./src/level-loader.js": "./src/level-loader.js?v=75a85f4a86",
-    "./src/menu.js": "./src/menu.js?v=75a85f4a86",
-    "./src/particles.js": "./src/particles.js?v=75a85f4a86",
-    "./src/physics.js": "./src/physics.js?v=75a85f4a86",
-    "./src/player-character.js": "./src/player-character.js?v=75a85f4a86",
-    "./src/player.js": "./src/player.js?v=75a85f4a86",
-    "./src/progress.js": "./src/progress.js?v=75a85f4a86",
-    "./src/qa-styles.js": "./src/qa-styles.js?v=75a85f4a86",
-    "./src/scenery-life.js": "./src/scenery-life.js?v=75a85f4a86",
-    "./src/scenery.js": "./src/scenery.js?v=75a85f4a86",
-    "./src/shell-bits.js": "./src/shell-bits.js?v=75a85f4a86",
-    "./src/sky-presets.js": "./src/sky-presets.js?v=75a85f4a86",
-    "./src/sound.js": "./src/sound.js?v=75a85f4a86",
-    "./src/ui.js": "./src/ui.js?v=75a85f4a86"
+    "./src/analytics.js": "./src/analytics.js?v=11f2c2a9bf",
+    "./src/assets.js": "./src/assets.js?v=11f2c2a9bf",
+    "./src/camera.js": "./src/camera.js?v=11f2c2a9bf",
+    "./src/celebrate.js": "./src/celebrate.js?v=11f2c2a9bf",
+    "./src/controls.js": "./src/controls.js?v=11f2c2a9bf",
+    "./src/game.js": "./src/game.js?v=11f2c2a9bf",
+    "./src/gates.js": "./src/gates.js?v=11f2c2a9bf",
+    "./src/hero.js": "./src/hero.js?v=11f2c2a9bf",
+    "./src/i18n.js": "./src/i18n.js?v=11f2c2a9bf",
+    "./src/kaykit-catalog.js": "./src/kaykit-catalog.js?v=11f2c2a9bf",
+    "./src/level-loader.js": "./src/level-loader.js?v=11f2c2a9bf",
+    "./src/menu.js": "./src/menu.js?v=11f2c2a9bf",
+    "./src/particles.js": "./src/particles.js?v=11f2c2a9bf",
+    "./src/physics.js": "./src/physics.js?v=11f2c2a9bf",
+    "./src/player-character.js": "./src/player-character.js?v=11f2c2a9bf",
+    "./src/player.js": "./src/player.js?v=11f2c2a9bf",
+    "./src/progress.js": "./src/progress.js?v=11f2c2a9bf",
+    "./src/qa-styles.js": "./src/qa-styles.js?v=11f2c2a9bf",
+    "./src/scenery-life.js": "./src/scenery-life.js?v=11f2c2a9bf",
+    "./src/scenery.js": "./src/scenery.js?v=11f2c2a9bf",
+    "./src/shell-bits.js": "./src/shell-bits.js?v=11f2c2a9bf",
+    "./src/sky-presets.js": "./src/sky-presets.js?v=11f2c2a9bf",
+    "./src/sound.js": "./src/sound.js?v=11f2c2a9bf",
+    "./src/ui.js": "./src/ui.js?v=11f2c2a9bf"
   }
 }
   </script>
@@ -92,11 +93,13 @@
           <span class="btn-sub" id="play-sub"></span>
         </button>
         <div class="stars-total" id="stars-total"></div>
-        <!-- The child's figure (site: Meine Figur); the game runs in an iframe → _top -->
-        <a class="figure-link" id="figure-link" target="_top" hidden>
-          <img id="figure-pic" alt="" width="48" height="48" decoding="async">
-          <span><b id="figure-mine"></b><span id="figure-text"></span></span>
-        </a>
+        <!-- Hero picker (docs/game-contract.md "Hero choice on the start screen"): the child's
+             figure first, then this game's free heroes. Filled by src/menu.js; hidden when the
+             site's figure module is missing. The game runs in an iframe → the link uses _top. -->
+        <div class="hero-pick" id="hero-pick" hidden>
+          <div class="hero-tiles" id="hero-tiles" role="radiogroup" data-i18n-aria="heroPick"></div>
+          <a class="figure-link" id="figure-link" target="_top"></a>
+        </div>
         <div class="help" id="menu-help"></div>
       </section>
       <section class="menu-levels">
@@ -177,6 +180,6 @@
     <p data-i18n="rotate"></p>
   </div>
 
-  <script type="module" src="./main.js?v=75a85f4a86"></script>
+  <script type="module" src="./main.js?v=11f2c2a9bf"></script>
 </body>
 </html>
