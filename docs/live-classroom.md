@@ -205,3 +205,28 @@ Tested headless with two browser contexts (tutor and student) against the local 
 6. End lesson → summary → lesson note saved.
 7. Tutor page usable at 700 px and 1360 px; student page at 1280 px and 820 px (tablet).
 8. API tests pass (`api/tests/`), 0 console errors.
+
+## Deviations
+
+### L1 relay (`api/live.py`)
+
+Additions to the protocol (nothing in the contract changed):
+- `ready` also carries `adult` (bool).
+- Replaced connection: the old one gets `{t:'error', code:'replaced'}` and is closed.
+  Clients must **not** auto-reconnect after `replaced` (two tabs would fight).
+- Non-fatal `{t:'error', code:'too_big'}` (connection stays open) for a message
+  > 256 KB or a `load` material > 200 KB. Only hello errors close the socket.
+- Lesson queue: `start` and `load` accept optional `items` (≤ 60, stored as given)
+  and `index`; a new tutor message `queue {items, index}` stores the queue without
+  relaying. The snapshot returns them, so a tutor reload restores the queue.
+- `load` without a running lesson starts one (the student gets `start`, then `load`).
+  `start` during a running lesson keeps it (no reset).
+- Snapshot differs per role. Student: `{started, material, state, items, index}`,
+  or null once the lesson ended. Tutor: also `answers` (last 400, each with
+  server `at`), `ended` (iso or null) and `summary`.
+- `point` is limited like `cursor` (20/s); x/y are clamped to 0..1, anchor ≤ 80 chars.
+- Server sends `{t:'ping'}` every 25 s; a client `{t:'ping'}` gets `{t:'pong'}`.
+- Presence `visible` is false while the student is not connected; a new student
+  hello resets it to true (the page sends `focus` if it is hidden).
+- Rooms are swept (no connection + 3 h since last message) when the 500-room limit
+  is reached; a room with someone connected is never swept.

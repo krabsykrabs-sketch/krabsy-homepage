@@ -511,6 +511,9 @@ app.include_router(tutors.router)
 import tutor_auth  # noqa: E402  (email sign-in for tutors)
 
 app.include_router(tutor_auth.router)
+import live  # noqa: E402  (live classroom: WebSocket relay, docs/live-classroom.md)
+
+app.include_router(live.router)
 
 # Quiz Room (games/quiz-show): live rooms over WebSocket, in memory only.
 import quiz_room  # noqa: E402
