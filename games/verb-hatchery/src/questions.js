@@ -59,7 +59,24 @@ let linkDiff = null;                 // ?difficulty=N from a teacher link: overr
 let KQ = null;               // the engine module, if loaded
 const pools = { 1: [], 2: [], 3: [] };
 const queue = { 1: [], 2: [], 3: [] }; // missed verbs, asked again soon
-let recent = [];             // last few bases, to avoid repeats
+let recent = [];             // last few questions asked (qid), to avoid repeats
+// Repeat guard (docs/tutor-platform-v2.md §2.1, owner report 2026-11-25: the same
+// Forest question three times in a row). Memory is per QUESTION (a gap sentence's id,
+// a verb's base), a fixed window, never cleared by a small pool.
+const RECENT_MAX = 8;
+const qid = (p) => (p.gap ? p.steps[0].key : p.base);
+const lastAsked = new Map();  // qid → turn number, to pick an item's least-recent sentence
+let turn = 0;
+function remember(p) {
+  const id = qid(p);
+  recent = [id, ...recent.filter((x) => x !== id)].slice(0, RECENT_MAX);
+  lastAsked.set(id, ++turn);
+}
+// Too recent for this pool? The window shrinks for small pools so a pick always exists.
+function isRecent(p, pool) {
+  const w = Math.min(RECENT_MAX, Math.max(0, pool.length - 1));
+  return recent.slice(0, w).includes(qid(p));
+}
 // The site's smart mix (docs/phase1-game-wiring.md): per tier a short queue of verbs
 // this player should see now (still wrong / new / due again), refilled when empty, so
 // answers from the last eggs count for the next ones.
@@ -87,6 +104,10 @@ export async function init() {
         const t = Math.min(3, Math.max(1, g.difficulty));
         if (linkDiff) for (const k of [1, 2, 3]) pools[k].push({ base: g.item, tier: k, gap: true, steps: [g] });
         else pools[t].push({ base: g.item, tier: t, gap: true, steps: [g] });
+      }
+      // A tier with fewer than 4 sentences would repeat itself: merge it into the one below.
+      if (!linkDiff) for (const k of [3, 2]) {
+        if (pools[k].length && pools[k].length < 4) { pools[k - 1].push(...pools[k].map((p) => ({ ...p, tier: k - 1 }))); pools[k].length = 0; }
       }
       isVerbs = false; source = 'engine';
       for (const k of [1, 2, 3]) refillSmart(k);
@@ -120,29 +141,40 @@ export async function init() {
 
 const fresh = (q) => ({ ...q, options: shuffle(q.options.slice()) });
 
-// The pair for an egg of the given tier. Missed verbs of that tier come first
-// (after at least one other egg), then random ones not asked recently.
-export function nextPair(tier, avoid = null) {
+// The pair for an egg of the given tier. Missed questions of that tier come first
+// (after at least one other egg), then the smart mix, then random ones not asked
+// recently. `avoid` (a qid) is never returned when anything else exists; `noQueue`
+// (the second sentence of a rare egg) leaves the missed queue alone.
+export function nextPair(tier, avoid = null, noQueue = false) {
   let t = tier;
   while (t > 1 && !pools[t].length) t--;
   if (!pools[t].length) t = [1, 2, 3].find((k) => pools[k].length) || 1; // (a topic without easy sentences)
-  const q = queue[t];
-  if (q.length && q[0].wait <= 0) return withFresh(q.shift().pair);
-  q.forEach((e) => e.wait--);
   const pool = pools[t];
+  const ok = (p) => p && qid(p) !== avoid && !isRecent(p, pool);
+  const q = queue[t];
+  if (!noQueue) {
+    const i = q.findIndex((e) => e.wait <= 0 && qid(e.pair) !== avoid && !recent.slice(0, 3).includes(qid(e.pair)));
+    if (i >= 0) { const e = q.splice(i, 1)[0]; remember(e.pair); return withFresh(e.pair); }
+    q.forEach((e) => e.wait--);
+  }
   let pick = null;
-  // the smart mix first (site only)
+  // the smart mix first (site only): ids are items; take that item's least-recent sentence
   while (smart[t].length && !pick) {
     const v = smart[t].shift();
-    if (!recent.includes(v)) pick = pool.find((p) => p.base === v) || null;
+    const cands = pool.filter((p) => p.base === v && ok(p));
+    if (cands.length) pick = cands.sort((a, b) => (lastAsked.get(qid(a)) || 0) - (lastAsked.get(qid(b)) || 0))[0];
   }
   if (!smart[t].length) refillSmart(t);
-  if (pick) { recent = [pick.base, ...recent].slice(0, Math.min(8, Math.floor(pool.length / 2))); return withFresh(pick); }
-  for (let tries = 0; tries < 8; tries++) {
-    pick = pool[Math.floor(Math.random() * pool.length)];
-    if (!recent.includes(pick.base) && pick.base !== avoid) break;
+  if (!pick) {
+    const fresh = pool.filter(ok);
+    const from = fresh.length ? fresh : pool.filter((p) => qid(p) !== avoid);
+    const list = from.length ? from : pool;
+    // prefer what was asked longest ago (never-asked first), random among equals
+    const oldest = Math.min(...list.map((p) => lastAsked.get(qid(p)) || 0));
+    const best = list.filter((p) => (lastAsked.get(qid(p)) || 0) === oldest);
+    pick = best[Math.floor(Math.random() * best.length)];
   }
-  recent = [pick.base, ...recent].slice(0, Math.min(8, Math.floor(pool.length / 2)));
+  remember(pick);
   return withFresh(pick);
 }
 function withFresh(p) { return { ...p, steps: p.steps.map(fresh) }; }
@@ -150,7 +182,7 @@ function withFresh(p) { return { ...p, steps: p.steps.map(fresh) }; }
 // A missed verb comes back on one of the next eggs of the same tier.
 export function missed(pair) {
   const q = queue[pair.tier] || queue[1];
-  if (!q.some((e) => e.pair.base === pair.base)) q.push({ pair, wait: 1 });
+  if (!q.some((e) => qid(e.pair) === qid(pair))) q.push({ pair, wait: 2 });
 }
 
 // Steps to ask for an egg: one 2nd-form step (common/uncommon) or the pair.
@@ -159,7 +191,7 @@ export function missed(pair) {
 export function stepsFor(pair, isPair) {
   if (pair.gap) {
     if (!isPair) return [pair.steps[0]];
-    const other = nextPair(pair.tier, pair.base);
+    const other = nextPair(pair.tier, qid(pair), true);
     return [pair.steps[0], other.steps[0]];
   }
   return isPair ? pair.steps : [{ ...pair.steps[0], full: true }];
@@ -174,3 +206,12 @@ export function record(step, correct) {
       correct, 'verb-hatchery', step.topic || topic);
   } catch (_) { /* never break the game */ }
 }
+
+// Test hooks (tests/repeat-test.mjs): load pools directly, inspect state.
+export const _test = {
+  load(gaps) { KQ = null; isVerbs = false; source = 'test'; recent = []; lastAsked.clear(); turn = 0;
+    for (const k of [1, 2, 3]) { pools[k].length = 0; queue[k].length = 0; smart[k].length = 0; }
+    for (const g of gaps) { const t = Math.min(3, Math.max(1, g.difficulty || 1)); pools[t].push({ base: g.item, tier: t, gap: true, steps: [g] }); }
+    for (const k of [3, 2]) if (pools[k].length && pools[k].length < 4) { pools[k - 1].push(...pools[k].map((p) => ({ ...p, tier: k - 1 }))); pools[k].length = 0; } },
+  pools, queue, qid,
+};
