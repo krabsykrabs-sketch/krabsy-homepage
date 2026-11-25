@@ -73,6 +73,29 @@ function initFilters() {
   if (m && chips.some((c) => c.dataset.filter === m[1] && !c.hidden)) apply(m[1], false);
 }
 
+/* What a child reads on a practice chip. Verbs: the base word. Other topics store
+   ids (prepositions: "prep_at_point"), so show the answer in its first example:
+   "I'll meet you ___ the bus stop." → "at the bus stop". Unknown → no chip. */
+let _preps = null;
+async function itemLabel(topic, id) {
+  if (topic === 'irregular_verbs') return id;
+  if (topic !== 'prepositions') return null;
+  try {
+    if (!_preps) {
+      const d = await (await fetch('/data/prepositions.json')).json();
+      const items = Array.isArray(d) ? d : (d.items || []);
+      _preps = new Map(items.map((it) => [it.id, it]));
+    }
+    const it = _preps.get(id);
+    if (!it) return null;
+    const ex = (it.examples || [])[0];
+    const after = ex && ex.sentence.includes('___')
+      ? ex.sentence.split('___')[1].replace(/[.?!,]+$/, '').trim().split(/\s+/).slice(0, 3).join(' ')
+      : '';
+    return (it.correct + ' ' + after).trim();
+  } catch (_) { return null; }
+}
+
 async function initProgress() {
   const row = document.getElementById('gl-prog');
   if (!row) return;
@@ -93,11 +116,13 @@ async function initProgress() {
       seen.add(r.topic + '/' + r.verb);
       const href = await buildPageUrl(r.topic, 'free-practice', LANG).catch(() => null);
       if (!href) continue;
+      const label = await itemLabel(r.topic, r.verb);
+      if (!label) continue;
       const a = document.createElement('a');
       a.className = 'gl-prog-chip';
       a.lang = 'en';
       a.href = href + '?verbs=' + encodeURIComponent(r.verb);
-      a.textContent = r.verb;
+      a.textContent = label;
       chipsEl.appendChild(a);
       added++;
     }
