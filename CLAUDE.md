@@ -6,7 +6,8 @@ session; keep it accurate.
 
 **Direction (2026-11-24): `docs/vision.md`.** Curated grammar content
 in any learning language (Spanish pilot next), games that play any
-topic (new games must take the `quiz` shape), teacher tools around them.
+topic (new games must take the `quiz` shape, rules in
+`docs/game-contract.md`), teacher tools around them.
 
 ## Repository layout
 

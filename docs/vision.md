@@ -35,12 +35,12 @@ curated catalogue.
 
 ## The four layers
 
-| Layer | What it is | Status 2026-11-24 |
+| Layer | What it is | Status 2026-11-25 |
 |---|---|---|
-| **Content** | Topic catalogues per learning language, sorted by level (A1, A2 …) | English: irregular verbs (172), prepositions (99). Spanish: none |
-| **Games** | Any game plays any topic | 2 of 8 released games (Verb Towers, Quiz Room) |
-| **Teacher tools** | Quiz Room, class page, stats, own question lists, sending a topic as a link | Mostly built |
-| **Languages** | Learning language × interface language | English × de/es. No English interface yet |
+| **Content** | Topic catalogues per learning language, sorted by level (A1, A2 …) | English: irregular verbs (172), prepositions (99). Spanish: ser, estar, ser vs estar, tener (A1, waiting for Nora's check) |
+| **Games** | Any game plays any topic | 4 of 8 released games (Verb Towers, Quiz Room, Verb Kitchen, Verb Platformer); rules in `docs/game-contract.md` |
+| **Teacher tools** | Quiz Room, class page, stats, own question lists, sending a topic as a link | Mostly built; practice links done 2026-11-25 |
+| **Languages** | Learning language × interface language | English × de/es; Spanish × en (`/en/spanish/`, noindex pilot) |
 
 ### 1. Content: one universal question format
 
@@ -73,8 +73,11 @@ The presentation mandate stays: questions never require grammar terms.
   any topic in any learning language.
 - The verb-form games (`chain` shape) stay as a few English specials.
   Convert old games one by one where it's cheap: Air Control and Verb
-  Snake are candidates. Verb Kitchen and Verb Flow are built around verb
-  forms and stay English-verb games.
+  Snake are candidates. (Verb Kitchen and the Platformer were converted
+  on 2026-11-24 after all; Verb Flow stays a verb game.)
+- **How a game does it: `docs/game-contract.md`** (topic and language from
+  the URL, `lang` to the engine, gap display, per-topic texts, test URLs,
+  registering in `games.json`).
 - Games must not assume English in their own texts (fonts with ñ, á, ¿ ¡;
   room for longer Spanish words).
 
