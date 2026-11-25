@@ -544,7 +544,7 @@
 
       document.getElementById('stats-title').textContent = t('stats.title', 'Deine Statistik');
       document.getElementById('stats-subtitle').textContent = t('homepage.section_stats_sub', 'Was du kannst — und was noch nicht.');
-      document.getElementById('stats-back-link').textContent = t('common.back_to_hub', 'Zurück zur Übersicht');
+      { const back = document.getElementById('stats-back-link'); if (back) back.textContent = t('common.back_to_hub', 'Zurück zur Übersicht'); }   // the link was removed from the page; without the check the page stayed empty
       document.getElementById('stats-footer-link').textContent = t('common.back_to_hub', 'Zurück zur Übersicht');
 
       // Empty state
