@@ -95,7 +95,7 @@ fig.clips                          // Idle, Walk, Run, Jump, Interact … (share
 
 ## Shells (the cross-game points)
 
-**Decide — name.** Recommendation: **Muscheln / conchas / shells** 🐚. It
+**Decide — name.** Recommendation: **Muscheln / caracolas / shells** 🐚 (not "conchas": vulgar slang in Uruguay, Argentina, Chile and parts of Peru — our first class is from Uruguay). It
 fits the crab, and it doesn't clash with the games' own coins and stars,
 which stay what they are inside each game (Verb Towers' forge coins buy
 towers in a level, stars rate a level). Shells are the one thing that
@@ -269,7 +269,7 @@ start once the figure page is live? Recommendation: after part 1's steps
 
 ## Open decisions (summary)
 
-1. Shell name (recommended: Muscheln / conchas / shells).
+1. Shell name (recommended: Muscheln / caracolas / shells; never "conchas").
 2. Earning rules (recommended: table above).
 3. The 12 free characters and the prices.
 4. Verb Dungeon: keep the sword as a game item, or a non-weapon.
