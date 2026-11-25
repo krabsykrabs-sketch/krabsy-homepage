@@ -847,7 +847,7 @@ Not done yet / to check:
   Monsters from the owner's download (add via `tools/creatures/`), a real
   Chromebook check of many animated creatures in view.
 
-## Play-test notes (owner, 2026-11-25) — collecting, not built yet
+## Play-test notes (owner, 2026-11-25) — all built 2026-11-25 (see below)
 
 Owner: "collect comments before rebuilding".
 1. **Creatures look sad / scary**: too dark under the scene lighting
@@ -863,3 +863,41 @@ Owner: "collect comments before rebuilding".
    encounter presentation and outcome.
 5. **Hatching creature should face the player** (it pops out of the egg
    looking at the player, not in a fixed direction).
+6. **Windmill sails should turn the other way.**
+7. **Top messages overlap** (hatch banner, star toast, event banner).
+8. **"Find N creatures" goals must count the Book, not the pens.**
+
+Built (lead, Opus, 2026-11-25):
+- 1: creature materials get a soft fill of their own colour (emissive ≈
+  0.42 × colour, or the texture as emissive map) and a little more
+  brightness (`roster.js` load); golden ones keep their gold glow.
+- 2: pen / incubator colliders exist from the start but are `.off` until
+  bought (`world.setOwned` → `penCols` / `incCols`; `nearColliders` skips
+  `.off`).
+- 3: carried eggs hop along **behind** the player like ducklings
+  (`player.js` `showCarry` / `trailPoint` / `_updateTrail`: each egg 1 m
+  further back along the player's recent path); a picked-up egg hops from
+  its nest to the end of the line.
+- 4: crab encounters: a red '!' over a chasing crab, a pulsing red screen
+  edge + heartbeat sound + hint "A crab is after your eggs! Run!"; on a
+  catch the world stops for ~0.85 s (camera turns to the crab, it snaps at
+  your last egg), then a **compact card at the bottom** over a light shade
+  so the scene stays visible. Right → the crab is thrown back and dizzy,
+  "💥 Egg saved!". Wrong → it runs off with the egg; for `THIEF.fleeTime`
+  (10 s) a hint counts down "Catch the crab to get your egg back!";
+  catching it (≤ 1.7 m) returns the egg and leaves the crab dizzy
+  ("Got it back!"), else "The crab got away with the egg." Events
+  `thief_catch` result bonk / stolen / recovered / escaped.
+- 5: the hatched creature turns to face the player, does a jump, and stays
+  1.6 s before it hops (turning) into its pen.
+- 6: wind wheel turns the other way.
+- 7: `#topStack` under the coins: event banner, hatch banner and toasts
+  stack in one column (measured: no overlap).
+- 8: was already Book-based (`bookCount` = entries in `s.book`, releasing
+  doesn't lower it; checked); goal text now says "(Book)" / "(Buch)" /
+  "(libro)" to make it clear.
+Checked headless (machine heavily loaded by another session's leftover
+headless Chrome, so mostly state checks instead of screenshots): egg
+trail, hunted hint, compact card, steal → chase → recover, bonk, banner
+stacking. Not checked by eye: brightness of all 60 creatures, the
+heartbeat volume, touch.

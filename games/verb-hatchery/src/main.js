@@ -51,8 +51,9 @@ const isOpen = (z) => S.zoneOpen(st, z);
 player.isLocked = (z) => !isOpen(z);
 
 // colliders for the base: incubators and pens
-INC_POS.forEach((p) => world.addCollider(p.x, p.z, 0.95));
-PEN_POS.forEach((p) => world.addCollider(p.x, p.z, 1.9));
+// (switched on only once bought: world.setOwned sets .off; an unbought slot must not be an invisible wall)
+world.incCols = INC_POS.map((p) => world.addCollider(p.x, p.z, 0.95));
+world.penCols = PEN_POS.map((p) => world.addCollider(p.x, p.z, 1.9));
 
 // ── creature portraits (book, reveal, info) ──
 const portrait = (() => {
@@ -260,7 +261,7 @@ let toastEl = null, toastTimer = 0;
 function toast(text, kind = '') {
   if (toastEl) toastEl.remove();
   toastEl = document.createElement('div'); toastEl.className = 'toast ' + kind; toastEl.textContent = text;
-  document.body.appendChild(toastEl);
+  $('toasts').appendChild(toastEl);
   clearTimeout(toastTimer);
   const el = toastEl;
   toastTimer = setTimeout(() => { el.remove(); if (toastEl === el) toastEl = null; }, kind === 'star' ? 2600 : 2400);
@@ -405,6 +406,8 @@ function openCard(c) {
   el.style.setProperty('--rc', c.kind === 'thief' ? '#ff6b4a' : R.css);
   $('cardEgg').textContent = c.kind === 'thief' ? `🦀 ${t('thiefTitle')}` : t('egg', rName(c.rarity));
   $('cardSub').textContent = c.kind === 'thief' ? t('thiefSub') : (card.steps.length > 1 ? t('cardTwo') : t('cardOne'));
+  const compact = c.kind === 'thief';
+  el.classList.toggle('compact', compact); $('shade').classList.toggle('light', compact);
   $('shade').classList.add('on'); el.classList.add('on');
   showStep();
 }
@@ -453,7 +456,7 @@ function closeCard(ok) {
   if (!card) return;
   const c = card;
   card = null;
-  $('card').classList.remove('on'); $('shade').classList.remove('on');
+  $('card').classList.remove('on'); $('shade').classList.remove('on', 'light');
   if (c.kind === 'egg') { if (ok) pickedUp(c.egg); else eggRollsAway(c.egg); }
   else thiefResult(c.thief, ok);
   renderHud();
@@ -466,16 +469,18 @@ function pickedUp(e) {
   A.countVisit('grabbed');
   sfx.pop();
   floatCenter(`+${fmt(res.bonus)}`);
-  // the egg flies onto your head
+  // the egg joins your line of eggs
   const from = e.obj.position.clone().add(new THREE.Vector3(0, 0.5, 0));
   removeWild(e);
   if (e.event && evt && evt.egg === e) { endEvent('grabbed'); toast(`⭐ ${t('evGot')}`, 'star'); }
   const m = e.obj; world.scene.add(m);
   player.gesture('PickUp');
+  // the egg hops off its nest to the end of your line of eggs
   const to = new THREE.Vector3();
-  world.tween(0.45, (k) => {
-    to.copy(player.pos).setY(player.pos.y + 2.1 + (st.carry.length - 1) * 0.5);
-    m.position.lerpVectors(from, to, k); m.position.y += Math.sin(k * Math.PI) * 1.2; m.scale.setScalar(1 - k * 0.3);
+  world.tween(0.5, (k) => {
+    const [tx, tz] = player.trailPoint(st.carry.length - 1);
+    to.set(tx, height(tx, tz), tz);
+    m.position.lerpVectors(from, to, k); m.position.y += Math.sin(k * Math.PI) * 1.4; m.scale.setScalar(1 - k * 0.15);
   }, () => { world.scene.remove(m); player.showCarry(st.carry); });
   if (st.carry.length === 1) toast(t('bringHome'));
   save(); checkGoals();
@@ -503,25 +508,56 @@ function eggRollsAway(e) {
 }
 
 // ── thieves ──
+// A crab catches you: a short moment (the world stops, the camera turns to the crab,
+// it snaps at the last egg of your line), then a compact card at the bottom so the
+// scene stays visible. (owner: it was hard to see what happened)
+let grab = null; // { th, t, egg }
 function thiefCatch(th) {
   const top = st.carry[st.carry.length - 1].r;
   // put the crab a little in front of the player and look at it
   const p = player.pos, dx = th.x - p.x, dz = th.z - p.z, L = Math.hypot(dx, dz) || 1;
   th.x = p.x + (dx / L) * 2.4; th.z = p.z + (dz / L) * 2.4;
-  th.dir = Math.atan2(-dx, -dz);
+  th.dir = Math.atan2(-dx, -dz); th.move = th.dir; th.face = th.dir;
   player.lookAtPoint(th.x, th.z);
+  player.camDist = Math.min(player.camDist, 7);
   thieves.update(0, { x: p.x, z: p.z, carrying: true }, isOpen, true);
-  sfx.alarm();
-  openCard({ kind: 'thief', thief: th, rarity: top });
+  player.enabled = false;
+  sfx.alarm(); player.gesture('Hit_A');
+  grab = { th, t: 0, rarity: top };
+  toast(`🦀 ${t('thiefTitle')}`, 'warn');
+}
+function updateGrab(dt) {
+  grab.t += dt;
+  // the crab's claws snap, it leans towards your last egg
+  const body = grab.th.obj.userData.body;
+  body.rotation.x = Math.sin(grab.t * 18) * 0.15;
+  const tail = player.trail[player.trail.length - 1];
+  if (tail) tail.mesh.position.lerp(new THREE.Vector3(grab.th.x, tail.mesh.position.y + 0.02, grab.th.z), Math.min(1, dt * 1.2));
+  if (grab.t > 0.85) {
+    body.rotation.x = 0;
+    const g = grab; grab = null;
+    openCard({ kind: 'thief', thief: g.th, rarity: g.rarity });
+  }
+}
+function recoverEgg(th) {
+  const egg = thieves.recover(th);
+  if (!egg) return;
+  st.carry.push(egg);
+  player.showCarry(st.carry);
+  sfx.ding(); sfx.bonk();
+  floatCenter(`🥚 ${t('gotBack')}`);
+  A.ev('thief_catch', { zone: th.zone.id, result: 'recovered', rarity: egg.r });
+  save();
 }
 function thiefResult(th, ok) {
   if (ok) {
-    S.bonked(st); thieves.bonk(th); sfx.bonk(); toast(t('bonked'));
+    S.bonked(st); thieves.knock(th, player.pos.x, player.pos.z); sfx.bonk();
+    floatCenter(`💥 ${t('eggSaved')}`);
     A.ev('thief_catch', { zone: th.zone.id, result: 'bonk' });
   } else {
     const egg = S.stealTop(st), r = egg && egg.r;
-    if (r) thieves.steal(th, r);
-    sfx.steal(); toast(t('stolen'), 'warn'); player.gesture('Hit_A');
+    if (r) thieves.steal(th, r, egg);
+    sfx.steal(); toast(t('stolenChase'), 'warn'); player.gesture('Hit_A');
     A.ev('thief_catch', { zone: th.zone.id, result: 'stolen', rarity: r || 'none' });
   }
   thieves.graceAll();
@@ -574,19 +610,21 @@ function doHatch(i) {
     showReveal(res);
     const cr = buildCreature(res.sp);
     cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
+    cr.rotation.y = Math.atan2(player.pos.x - cr.position.x, player.pos.z - cr.position.z); // (it looks at you when it hatches)
     world.scene.add(cr); world.extra.add(cr);
     const S0 = cr.userData.real ? Math.min(1.7, 2.0 / cr.userData.height) : 1.5; // (its size when it pops out)
     if (cr.userData.real) setTimeout(() => rosterTrick(cr, 'jump'), 450);
     world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * S0 * 1.1 : S0 * (1.1 - (k - 0.7) / 0.3 * 0.1))));
     if (res.waiting) setTimeout(() => { world.scene.remove(cr); world.extra.delete(cr); syncWorld(); }, 900);
-    else jumpToPen(cr, res.pen, 0.9);
+    else jumpToPen(cr, res.pen, 1.6);
     save(); checkGoals();
   });
 }
 function jumpToPen(cr, pen, delay) {
   setTimeout(() => {
     const from = cr.position.clone(), to = PEN_POS[pen].clone().setY(PEN_POS[pen].y + 0.25);
-    world.tween(0.8, (k) => { cr.position.lerpVectors(from, to, k); cr.position.y += Math.sin(k * Math.PI) * 3.5; },
+    const r0 = cr.rotation.y; let d = Math.PI - r0; d = Math.atan2(Math.sin(d), Math.cos(d)); // (turns to face the path while it jumps, like in the pen)
+    world.tween(0.8, (k) => { cr.position.lerpVectors(from, to, k); cr.position.y += Math.sin(k * Math.PI) * 3.5; cr.rotation.y = r0 + d * k; },
       () => { world.scene.remove(cr); world.extra.delete(cr); syncWorld(); });
   }, delay * 1000);
 }
@@ -745,12 +783,13 @@ function adaptQuality(dt) {
 // ── main loop ──
 let last = performance.now();
 const chasing = new Set();
+let heartT = 0;
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   adaptQuality(dt);
   if (running) {
-    const paused = !!card || !!panel;
+    const paused = !!card || !!panel || !!grab;
     player.enabled = !paused;
     player.update(dt);
     world.followSun(player.pos);
@@ -785,11 +824,23 @@ function frame(now) {
     updateEvent(dt, paused);
     // thieves
     const caught = thieves.update(dt, { x: player.pos.x, z: player.pos.z, carrying: st.carry.length > 0 }, isOpen, paused);
+    let hunted = false, runner = null;
     for (const th of thieves.list) {
       if (th.state === 'chase' && !chasing.has(th)) { chasing.add(th); sfx.alarm(); }
       if (th.state !== 'chase') chasing.delete(th);
+      if (th.state === 'chase') hunted = true;
+      // a crab running off with your egg: catch it to get the egg back
+      if (th.state === 'flee' && th.stolen) {
+        runner = th;
+        if (!paused && Math.hypot(th.x - player.pos.x, th.z - player.pos.z) < 1.7) recoverEgg(th);
+      }
+      if (th.escaped) { th.escaped = false; toast(t('crabEscaped'), 'warn'); A.ev('thief_catch', { zone: th.zone.id, result: 'escaped' }); }
     }
+    // being hunted: red pulsing screen edge + heartbeat
+    document.body.classList.toggle('hunted', hunted && !paused);
+    if (hunted && !paused) { heartT -= dt; if (heartT <= 0) { heartT = 0.62; sfx.heart(); } } else heartT = 0;
     if (caught && !paused && st.carry.length) thiefCatch(caught);
+    if (grab) updateGrab(dt);
     if (!paused) checkPad(dt);
     world.wantPadSign = st.carry.length > 0;
     // zone name when entering
@@ -800,6 +851,8 @@ function frame(now) {
     for (const zz of ZONES) {
       if (zz.r && !isOpen(zz) && Math.hypot(player.pos.x - zz.x, player.pos.z - zz.z) < zz.r + 6) hint = t('zoneLockedHint', zName(zz), zz.stars);
     }
+    if (runner) hint = t('getBack', Math.max(1, Math.ceil(runner.timer)));
+    else if (hunted) hint = t('huntWarn');
     if (!hint && st.carry.length) hint = st.carry.length >= S.backpackSize(st) ? t('backpackFull') : t('bringHome');
     setHint(paused ? null : hint);
     // E target

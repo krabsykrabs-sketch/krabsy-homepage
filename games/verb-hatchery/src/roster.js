@@ -48,7 +48,16 @@ function load(id) {
       g.scene.traverse((o) => {
         if (!o.isMesh) return;
         o.castShadow = true; o.frustumCulled = false;
-        for (const m of [].concat(o.material)) { if ('metalness' in m) m.metalness = 0; }
+        // (owner: the creatures looked dark and a bit scary under the scene light) — a soft
+        // fill of their own colour lights the shaded side, so faces and eyes stay friendly
+        for (const m of [].concat(o.material)) {
+          if ('metalness' in m) { m.metalness = 0; m.roughness = Math.max(0.55, Math.min(m.roughness ?? 1, 0.85)); }
+          if (m.emissive && m.color) {
+            if (m.map) { m.emissiveMap = m.map; m.emissive.setRGB(0.42, 0.42, 0.42); }
+            else m.emissive.copy(m.color).multiplyScalar(0.42);
+            m.color.multiplyScalar(1.08);
+          }
+        }
       });
       return { scene: g.scene, clips: Object.fromEntries(g.animations.map((a) => [a.name, a])) };
     }));
@@ -77,7 +86,7 @@ export function buildRosterCreature(sp) {
         const k = m.clone();
         if (k.color) k.color.lerp(GOLD, 0.65);
         if ('metalness' in k) { k.metalness = 0.45; k.roughness = 0.3; }
-        if (k.emissive) { k.emissive.copy(GOLD); k.emissiveIntensity = 0.25; }
+        if (k.emissive) { k.emissive.copy(GOLD).multiplyScalar(0.55); k.emissiveMap = null; k.emissiveIntensity = 1; }
         return k;
       });
       if (o.material.length === 1) o.material = o.material[0];

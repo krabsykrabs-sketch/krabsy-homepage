@@ -60,6 +60,7 @@ class SFX {
   step(run) { this.noise({ dur: 0.05, f: run ? 900 : 700, q: 0.8, g: run ? 0.05 : 0.035, type: 'lowpass' }); }
   jump() { this.tone({ f: 300, f1: 520, type: 'sine', dur: 0.15, g: 0.08 }); }
   land() { this.noise({ dur: 0.08, f: 400, q: 0.7, g: 0.06, type: 'lowpass' }); }
+  heart() { this.tone({ f: 70, f1: 45, type: 'sine', dur: 0.12, g: 0.16 }); this.tone({ f: 62, f1: 40, type: 'sine', t: 0.16, dur: 0.14, g: 0.12 }); }
   alarm() { this.tone({ f: 880, type: 'square', dur: 0.09, g: 0.04 }); this.tone({ f: 660, type: 'square', t: 0.11, dur: 0.12, g: 0.04 }); }
   bonk() { this.tone({ f: 180, f1: 90, type: 'sine', dur: 0.25, g: 0.25 }); this.noise({ dur: 0.06, f: 1200, g: 0.12 });
     [1400, 1700, 1400].forEach((f, i) => this.tone({ f, type: 'triangle', t: 0.15 + i * 0.08, dur: 0.1, g: 0.06 })); }

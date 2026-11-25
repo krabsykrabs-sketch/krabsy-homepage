@@ -751,7 +751,7 @@ function buildHatchery(world, T) {
   fenceRun(world, T, [[fe - 4.2, fz], [fe, fz], [fe, g0]]); fenceRun(world, T, [[fe, g1], [fe, z0 + 0.6], [W.x + 2.4, z0 + 0.6]]);
   for (const x of [fw + 4.6, -4.6, 4.6, fe - 4.6]) T.lantern(x, fz, PI);
   for (const [x, ry] of [[fw, PI / 2], [fe, -PI / 2]]) { T.lantern(x, g0 + 0.25, ry, 2.7); T.lantern(x, g1 - 0.25, ry, 2.7); }
-  return (dt, time) => { wheel.rotation.z = -time * 0.45; };
+  return (dt, time) => { wheel.rotation.z = time * 0.45; }; // (owner: turn the other way)
 }
 
 // ── Meadow landmark: the hill with the giant tree (the tree itself: world.loadDecor) ──

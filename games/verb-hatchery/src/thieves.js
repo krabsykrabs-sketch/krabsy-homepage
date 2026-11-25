@@ -30,6 +30,17 @@ function crabGeo() {
   return (GEO = { body: mergeGeometries(body), arms, legs, stars, starMat: new THREE.MeshStandardMaterial({ color: 0xffcf5e, roughness: 0.6, emissive: 0xffcf5e, emissiveIntensity: 0.6 }) });
 }
 
+let _alertTex = null;
+function alertTex() {
+  if (_alertTex) return _alertTex;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  x.fillStyle = '#ff5a4a'; x.beginPath(); x.arc(32, 32, 28, 0, Math.PI * 2); x.fill();
+  x.lineWidth = 4; x.strokeStyle = '#fff'; x.stroke();
+  x.fillStyle = '#fff'; x.font = "bold 44px 'Fredoka One', sans-serif"; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('!', 32, 35);
+  _alertTex = new THREE.CanvasTexture(c); _alertTex.colorSpace = THREE.SRGBColorSpace;
+  return _alertTex;
+}
 export function buildCrab() {
   const G = crabGeo(), mat = paintMat();
   const mk = (geo, m = mat) => { const o = new THREE.Mesh(geo, m); o.castShadow = true; return o; };
@@ -38,10 +49,14 @@ export function buildCrab() {
   body.add(mk(G.body));
   for (const s of [-1, 1]) { const arm = mk(G.arms[s]); arm.position.set(s * 0.8, 0.85, 0.35); arm.userData.side = s; body.add(arm); } // claws
   G.legs.forEach((geo, i) => { const leg = mk(geo); leg.position.set(0, 0.35, -0.25 + i * 0.25); leg.userData.leg = i; body.add(leg); });
+  // a big '!' over its head while it chases you (owner: you barely noticed being hunted)
+  const alert = new THREE.Sprite(new THREE.SpriteMaterial({ map: alertTex(), depthTest: false, transparent: true }));
+  alert.scale.set(0.9, 0.9, 1); alert.position.y = 2.6; alert.visible = false; alert.renderOrder = 5;
+  g.add(alert);
   // dizzy stars
   const stars = mk(G.stars, G.starMat); stars.position.y = 1.75; stars.visible = false;
   g.add(stars);
-  g.userData = { body, stars };
+  g.userData = { body, stars, alert };
   g.scale.setScalar(0.9);
   return g;
 }
@@ -78,7 +93,9 @@ export class Thieves {
         const dp = Math.hypot(player.x - t.x, player.z - t.z);
         const dz = Math.hypot(t.x - z.x, t.z - z.z);
         if (t.state === 'dizzy' && t.timer <= 0) t.state = 'wander';
-        if (t.state === 'flee' && t.timer <= 0) { t.state = 'wander'; t.carry && this._dropCarry(t); }
+        if (t.state === 'flee' && t.timer <= 0) { t.state = 'wander'; if (t.carry) { this._dropCarry(t); t.escaped = true; } }
+        // knocked back by a right answer: slides away from the player, hopping
+        if (t.kb) { t.kb.t -= dt; t.x += t.kb.vx * dt; t.z += t.kb.vz * dt; if (t.kb.t <= 0) t.kb = null; }
         if (t.state === 'wander') {
           if (player.carrying && isOpen(z) && dp < THIEF.see && t.timer <= 0 && dz < z.r + THIEF.leash) t.state = 'chase';
           else {
@@ -95,11 +112,12 @@ export class Thieves {
             if (dp < 1.4) caught = caught || t;
           }
         } else if (t.state === 'flee') {
-          // runs back to the zone centre with the egg
-          const dx = z.x - t.x, dzz = z.z - t.z, L = Math.hypot(dx, dzz) || 1;
-          t.dir = Math.atan2(dx, dzz);
-          if (L > 2) this._step(t, dx / L, dzz / L, THIEF.speed * 1.1 * dt);
-          else { t.timer = Math.min(t.timer, 0.5); }
+          // runs away from the player with the egg (but stays in its zone); a sprinting
+          // player is faster and can catch it to get the egg back (main.js)
+          let ax = (t.x - player.x) / (dp || 1), az = (t.z - player.z) / (dp || 1);
+          if (dz > z.r * 0.75) { const k = Math.min(1, (dz - z.r * 0.75) / 6); ax = ax * (1 - k) + (z.x - t.x) / dz * k; az = az * (1 - k) + (z.z - t.z) / dz * k; }
+          const L = Math.hypot(ax, az) || 1;
+          this._step(t, ax / L, az / L, THIEF.speed * 0.95 * dt);
         }
       }
       // pose
@@ -114,7 +132,8 @@ export class Thieves {
       const time = this.world.time + t.phase;
       const moving = !paused && t.state !== 'dizzy';
       const { body, stars } = t.obj.userData;
-      body.position.y = moving ? Math.abs(Math.sin(time * 12)) * 0.08 : 0;
+      body.position.y = (moving ? Math.abs(Math.sin(time * 12)) * 0.08 : 0) + (t.kb ? Math.sin((0.55 - t.kb.t) / 0.55 * Math.PI) * 1.4 : 0);
+      const al = t.obj.userData.alert; al.visible = t.state === 'chase' && !paused; al.position.y = 2.6 + Math.abs(Math.sin(time * 6)) * 0.2;
       body.rotation.z = t.state === 'dizzy' ? Math.sin(time * 4) * 0.2 : 0;
       for (const c of body.children) {
         if (c.userData.leg !== undefined) c.rotation.x = moving ? Math.sin(time * 14 + c.userData.leg * 2) * 0.4 : 0;
@@ -164,13 +183,26 @@ export class Thieves {
   bonk(t) {
     t.state = 'dizzy'; t.timer = THIEF.dizzy;
   }
-  steal(t, rarity) {
-    t.state = 'flee'; t.timer = 8;
-    const egg = makeEggMesh(rarity, 1.1);
-    egg.position.set(0, 1.45, 0);
-    t.obj.add(egg); t.carry = egg;
+  // a right answer: the crab is thrown back, away from (px, pz), and is dizzy
+  knock(t, px, pz) {
+    this.bonk(t);
+    const dx = t.x - px, dz = t.z - pz, L = Math.hypot(dx, dz) || 1;
+    t.kb = { vx: (dx / L) * 6, vz: (dz / L) * 6, t: 0.55 };
   }
-  _dropCarry(t) { t.obj.remove(t.carry); t.carry = null; t.timer = THIEF.cooldown; }
+  // the player caught the fleeing crab: it drops the egg and is dizzy
+  recover(t) {
+    const egg = t.stolen; t.stolen = null;
+    if (t.carry) { t.obj.remove(t.carry); t.carry = null; }
+    this.bonk(t);
+    return egg;
+  }
+  steal(t, rarity, egg = null) {
+    t.state = 'flee'; t.timer = THIEF.fleeTime; t.stolen = egg;
+    const mesh = makeEggMesh(rarity, 1.1);
+    mesh.position.set(0, 1.45, 0);
+    t.obj.add(mesh); t.carry = mesh;
+  }
+  _dropCarry(t) { t.obj.remove(t.carry); t.carry = null; t.stolen = null; t.timer = THIEF.cooldown; }
   // short grace period for every thief after a catch
   graceAll() { for (const t of this.list) if (t.state === 'chase') { t.state = 'wander'; t.timer = THIEF.cooldown; } }
 }

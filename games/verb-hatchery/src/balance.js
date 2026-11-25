@@ -67,6 +67,7 @@ export const THIEF = {
   leash: 12,           // gives up this far outside its zone
   dizzy: 9,            // seconds stunned after a right answer
   cooldown: 4,         // seconds of grace after any catch
+  fleeTime: 10,        // seconds a crab runs with a stolen egg before it gets away
 };
 
 // Coins earned while away: capped, and at a reduced rate.

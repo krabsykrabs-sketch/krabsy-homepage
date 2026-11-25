@@ -984,6 +984,7 @@ export class World {
     const k = `${cx},${cz}`;
     if (!this.grid.has(k)) this.grid.set(k, []);
     this.grid.get(k).push(c);
+    return c;
   }
   addBoxCollider(x, z, w, d) { // a row of circles along a box
     const r = Math.min(w, d) / 2;
@@ -996,13 +997,15 @@ export class World {
   nearColliders(x, z) {
     const out = [], cx = Math.floor(x / 8), cz = Math.floor(z / 8);
     for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
-      const l = this.grid.get(`${cx + i},${cz + j}`); if (l) out.push(...l);
+      const l = this.grid.get(`${cx + i},${cz + j}`); if (l) for (const c of l) if (!c.off) out.push(c);
     }
     return out;
   }
 
   // ── base state ──
   setOwned(pens, incubators) {
+    (this.penCols || []).forEach((c, i) => { c.off = i >= pens; });
+    (this.incCols || []).forEach((c, i) => { c.off = i >= incubators; });
     this.pens.forEach((p, i) => { p.owned = i < pens; p.group.visible = p.owned; });
     this.incubators.forEach((c, i) => { c.owned = i < incubators; c.group.visible = c.owned; });
     this.penGhost.visible = pens < MAX_PENS; if (pens < MAX_PENS) this.penGhost.position.copy(PEN_POS[pens]);

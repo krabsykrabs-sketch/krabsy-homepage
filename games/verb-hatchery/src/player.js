@@ -77,8 +77,9 @@ export class Player {
     this.onStep = null; this.onJump = null; this.onLand = null;
     this.root = new THREE.Group();
     world.scene.add(this.root);
-    this.eggStack = new THREE.Group();
-    this.root.add(this.eggStack);
+    // carried eggs hop along behind the player like ducklings (owner: not stacked on the head)
+    this.trail = [];   // { mesh, x, z, y, ph }
+    this.crumbs = [];  // the player's recent path, newest first: [x, z]
     this.oneShot = 0;      // seconds left of a one-shot animation (pick up, hit)
     this._keyboard(); this._mouse();
     if (touchMode) this._touch();
@@ -296,7 +297,7 @@ export class Player {
     this.root.position.copy(this.pos);
     this.root.rotation.y = this.facing;
     // eggs above the head bob a little
-    this.eggStack.position.y = (this.headY || 2) + 0.15 + Math.abs(Math.sin(this.moved * 1.3)) * 0.06;
+    this._updateTrail(dt);
     this.placeCamera();
   }
 
@@ -353,14 +354,53 @@ export class Player {
     this.pos.x = nx; this.pos.z = nz;
   }
 
-  // Eggs in the backpack: a stack above the head, like a trophy.
+  // Carried eggs: a little line of eggs hopping along behind the player (the newest
+  // first, the oldest at the end of the line, where a crab grabs it).
   showCarry(list) {
-    this.eggStack.clear();
-    list.forEach((egg, i) => {
-      const m = makeEggMesh(egg.r || egg, 0.85);
-      m.position.set(0, i * 0.5, 0);
-      m.rotation.z = (i % 2 ? -1 : 1) * 0.12;
-      this.eggStack.add(m);
+    const old = this.trail;
+    this.trail = list.map((egg, i) => {
+      const prev = old[i];
+      const mesh = makeEggMesh(egg.r || egg, 1.05);
+      mesh.castShadow = true;
+      this.world.scene.add(mesh);
+      const [x, z] = prev ? [prev.x, prev.z] : this.trailPoint(i);
+      return { mesh, x, z, y: prev ? prev.y : this.pos.y, ph: i * 1.3 };
+    });
+    for (const t of old) this.world.scene.remove(t.mesh);
+    this._updateTrail(0);
+  }
+  // Where egg i follows: (i + 1) × 1.0 m back along the player's path.
+  trailPoint(i) {
+    const want = (i + 1) * 1.0;
+    let px = this.pos.x, pz = this.pos.z, d = 0;
+    for (const [x, z] of this.crumbs) {
+      const s = Math.hypot(x - px, z - pz);
+      if (d + s >= want) { const k = (want - d) / (s || 1); return [px + (x - px) * k, pz + (z - pz) * k]; }
+      d += s; px = x; pz = z;
+    }
+    // (no path yet: line up behind the player)
+    const back = want - d;
+    return [px - Math.sin(this.facing) * back, pz - Math.cos(this.facing) * back];
+  }
+  // The world position of the last egg in the line (for a crab that steals it).
+  trailTail() { const t = this.trail[this.trail.length - 1]; return t ? t.mesh.position : null; }
+  _updateTrail(dt) {
+    const last = this.crumbs[0];
+    if (!last || Math.hypot(this.pos.x - last[0], this.pos.z - last[1]) > 0.25) {
+      this.crumbs.unshift([this.pos.x, this.pos.z]);
+      if (this.crumbs.length > 80) this.crumbs.pop();
+    }
+    const moving = this.speed > 0.5;
+    this.trail.forEach((t, i) => {
+      const [tx, tz] = this.trailPoint(i);
+      const k = dt ? Math.min(1, dt * 10) : 1;
+      t.x += (tx - t.x) * k; t.z += (tz - t.z) * k;
+      const g = height(t.x, t.z);
+      t.ph += dt * (moving ? 11 : 2.5);
+      const hop = moving ? Math.abs(Math.sin(t.ph)) * 0.3 : Math.abs(Math.sin(t.ph)) * 0.05;
+      t.mesh.position.set(t.x, g + hop, t.z);
+      t.mesh.rotation.z = moving ? Math.sin(t.ph) * 0.18 : 0;
+      t.mesh.rotation.y = this.facing;
     });
   }
 
