@@ -14,7 +14,7 @@ builders, links followed into Towers (DE/ES/EN), the games apply difficulty
 without a link unchanged (10 DE/ES pages live vs local identical).
 Later: the class code in the link (answers to the class dashboard).
 
-## Phone fixes (2026-11-25, NOT YET PUSHED)
+## Phone fixes (2026-11-25, LIVE, verified headless on krabsy.com)
 
 - **Phone fixes (2026-11-25, owner's first phone test):** Verb Kitchen first load
   lighter (chef animations 3 → 0.3 MB, level prefetched on the menu: level 1 ready
