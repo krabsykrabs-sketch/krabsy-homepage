@@ -907,3 +907,9 @@ heartbeat volume, touch.
   Added the **smart mix** (`questions.js`: per tier a queue from
   `getChainSet({ tiers: [t], count: 6, smart: true })`, refilled when
   empty; picks come from it first). Local fallback unchanged.
+- 2026-11-25: **first-minutes guidance** (new players only, `st.tutDone`):
+  a practice egg 9 m in front of the spawn, a bouncing amber arrow and a
+  teal coach box (`#coach`): walk to the egg → pick it up → bring it to the
+  pad → it hatches in 8 s → hatch it → "earns coins, find more eggs, buy
+  upgrades" (8 s) → done. Touch texts use ✋ / ⬆️. No event egg during
+  the guidance. Event `tutorial {step}` 1–6. Checked headless (all steps).

@@ -163,6 +163,11 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
   background:var(--panel);border-radius:14px;padding:7px 16px;font-size:18px;white-space:nowrap;}
 #prompt.on{display:block;}
 #prompt .key{display:inline-block;background:var(--amber);color:var(--navy);border-radius:7px;padding:0 9px;margin-right:8px;font-family:'Fredoka One';}
+#coach{position:absolute;left:50%;bottom:66px;transform:translateX(-50%);background:var(--teal);color:var(--navy);border-radius:16px;
+  padding:10px 20px;font-family:'Fredoka One';font-size:20px;display:none;max-width:92vw;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.25);}
+#coach.on{display:block;}
+#coach.pop{animation:coachPop .35s cubic-bezier(.3,1.6,.5,1);}
+@keyframes coachPop{from{transform:translateX(-50%) scale(.7);}}
 #hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border-radius:14px;padding:8px 16px;font-size:16px;display:none;white-space:nowrap;}
 #hint.on{display:block;}
 #zoneName{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;font-family:'Fredoka One';font-size:46px;
@@ -227,6 +232,7 @@ body.touch #cross{display:none;}
   <div id="mapWrap"><canvas id="map" width="340" height="340"></canvas></div>
   <div id="carryBox">🎒 <span id="carryN">0/1</span></div>
   <div id="hint"></div>
+  <div id="coach"></div>
   <button class="bigBtn" id="soundBtn">🔊</button>
 </div>
 

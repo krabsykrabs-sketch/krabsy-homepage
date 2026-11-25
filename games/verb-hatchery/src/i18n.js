@@ -2,6 +2,12 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    tut1: 'Walk to the glowing egg (W A S D)', tut1_touch: 'Walk to the glowing egg (left thumb)',
+    tut2: 'Press E to pick it up – answer the question!', tut2_touch: 'Tap ✋ to pick it up – answer the question!',
+    tut3: 'Bring it home: follow the arrow to the green pad',
+    tut4: 'Your egg is in the incubator. It hatches in a moment …',
+    tut5: 'Ready! Walk to the incubator and press E', tut5_touch: 'Ready! Walk to the incubator and tap ✋',
+    tut6: 'Your creature earns coins! Find more eggs and buy upgrades (U).', tut6_touch: 'Your creature earns coins! Find more eggs and buy upgrades (⬆️).',
     huntWarn: '🦀 A crab is after your eggs! Run!',
     eggSaved: 'Egg saved!',
     stolenChase: 'The crab took your egg! Catch it to get it back!',
@@ -75,6 +81,12 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    tut1: 'Lauf zum leuchtenden Ei (W A S D)', tut1_touch: 'Lauf zum leuchtenden Ei (linker Daumen)',
+    tut2: 'Drück E zum Aufheben – beantworte die Frage!', tut2_touch: 'Tippe ✋ zum Aufheben – beantworte die Frage!',
+    tut3: 'Bring es nach Hause: folge dem Pfeil zur grünen Platte',
+    tut4: 'Dein Ei ist im Brutkasten. Gleich schlüpft es …',
+    tut5: 'Fertig! Geh zum Brutkasten und drück E', tut5_touch: 'Fertig! Geh zum Brutkasten und tippe ✋',
+    tut6: 'Dein Wesen verdient Münzen! Finde mehr Eier und kauf Verbesserungen (U).', tut6_touch: 'Dein Wesen verdient Münzen! Finde mehr Eier und kauf Verbesserungen (⬆️).',
     huntWarn: '🦀 Eine Krabbe ist hinter deinen Eiern her! Lauf!',
     eggSaved: 'Ei gerettet!',
     stolenChase: 'Die Krabbe hat dein Ei! Fang sie, dann bekommst du es zurück!',
@@ -148,6 +160,12 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    tut1: 'Camina hasta el huevo brillante (W A S D)', tut1_touch: 'Camina hasta el huevo brillante (pulgar izquierdo)',
+    tut2: 'Pulsa E para recogerlo: ¡responde la pregunta!', tut2_touch: 'Toca ✋ para recogerlo: ¡responde la pregunta!',
+    tut3: 'Llévalo a casa: sigue la flecha hasta la plataforma verde',
+    tut4: 'Tu huevo está en la incubadora. Enseguida se abre …',
+    tut5: '¡Listo! Ve a la incubadora y pulsa E', tut5_touch: '¡Listo! Ve a la incubadora y toca ✋',
+    tut6: '¡Tu criatura gana monedas! Busca más huevos y compra mejoras (U).', tut6_touch: '¡Tu criatura gana monedas! Busca más huevos y compra mejoras (⬆️).',
     huntWarn: '🦀 ¡Un cangrejo va a por tus huevos! ¡Corre!',
     eggSaved: '¡Huevo salvado!',
     stolenChase: '¡El cangrejo se llevó tu huevo! ¡Atrápalo para recuperarlo!',

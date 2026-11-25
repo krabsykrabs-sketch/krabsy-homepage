@@ -146,6 +146,76 @@ function fillEggs() {
   }
 }
 
+// ── first minutes: guidance for new players (learning by doing) ──
+// 1 walk to the egg → 2 pick it up → 3 bring it home to the pad → 4 it hatches (fast)
+// → 5 hatch it → 6 "it earns coins" → done. A bouncing arrow shows where to go.
+let tut = null; // { step, egg, t }
+const tutArrow = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d');
+  x.fillStyle = '#ffcf5e'; x.strokeStyle = '#0d2240'; x.lineWidth = 5;
+  x.beginPath(); x.moveTo(20, 6); x.lineTo(44, 6); x.lineTo(44, 30); x.lineTo(58, 30); x.lineTo(32, 58); x.lineTo(6, 30); x.lineTo(20, 30); x.closePath(); x.fill(); x.stroke();
+  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true }));
+  s.scale.set(1.4, 1.4, 1); s.renderOrder = 6; s.visible = false;
+  return s;
+})();
+function tutEgg() {
+  const x = SPAWN.x + 1.5, z = SPAWN.z - 9; // just in front of the player
+  const obj = world.makeWildEgg('common', x, z);
+  const e = { obj, rarity: 'common', zone: ZONES[0], x, z, id: eggId++, tut: true };
+  wild.push(e);
+  return e;
+}
+function startTutorial() {
+  if (st.tutDone || st.stats.answers > 0) { st.tutDone = true; return; }
+  world.scene.add(tutArrow);
+  tut = { step: 1, egg: tutEgg(), t: 0 };
+  evtTimer = 1e9; // (no event egg while learning)
+  A.ev('tutorial', { step: 1 });
+}
+function tutSay(key) {
+  const k = touchMode && T_TOUCH.has(key) ? `${key}_touch` : key;
+  const el = $('coach'), txt = t(k);
+  if (el.textContent !== txt) { el.textContent = txt; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+  el.classList.add('on');
+}
+const T_TOUCH = new Set(['tut1', 'tut2', 'tut5', 'tut6']);
+function tutStep(n) { tut.step = n; tut.t = 0; sfx.tap(); A.ev('tutorial', { step: n }); }
+function updateTutorial(dt) {
+  if (!tut) return;
+  tut.t += dt;
+  const bob = Math.abs(Math.sin(world.time * 3)) * 0.4;
+  const point = (x, y, z) => { tutArrow.visible = true; tutArrow.position.set(x, y + bob, z); };
+  if (tut.step === 1 || tut.step === 2) {
+    if (!wild.includes(tut.egg) && !st.carry.length) tut.egg = tutEgg(); // (it rolled away: a new one)
+    if (st.carry.length) tutStep(3);
+    else {
+      point(tut.egg.x, tut.egg.obj.position.y + 2.4, tut.egg.z);
+      if (tut.step === 1 && target && target.kind === 'egg') tutStep(2);
+      tutSay(tut.step === 1 ? 'tut1' : 'tut2');
+    }
+  }
+  if (tut.step === 3) {
+    point(PAD.x, PAD.y + 3.4, PAD.z); tutSay('tut3');
+    const i = st.incubators.findIndex(Boolean);
+    if (i >= 0) { st.incubators[i].dur = 8000; tut.inc = i; tutStep(4); } // (the first egg hatches fast)
+  }
+  if (tut.step === 4) {
+    const inc = st.incubators[tut.inc];
+    if (st.stats.hatched > 0) tutStep(5);
+    else if (inc) { point(INC_POS[tut.inc].x, INC_POS[tut.inc].y + 3.2, INC_POS[tut.inc].z); tutSay(S.isReady(inc) ? 'tut5' : 'tut4'); }
+  }
+  if (tut.step === 5) {
+    tutArrow.visible = false; tutSay('tut6');
+    if (tut.t > 8) {
+      tut = null; st.tutDone = true; evtTimer = EVENTS.first; save();
+      $('coach').classList.remove('on'); world.scene.remove(tutArrow);
+      A.ev('tutorial', { step: 6 });
+    }
+  }
+}
+
 // ── event eggs: now and then a zone's best egg appears, announced, for a while ──
 let evt = null;                     // { egg, zone, t (seconds left) }
 let evtTimer = EVENTS.first, lastEvtZone = null;
@@ -822,6 +892,7 @@ function frame(now) {
     respawn = respawn.filter((r) => r.t > 0);
     for (const r of due) spawnWild(r.zone);
     updateEvent(dt, paused);
+    if (!paused) updateTutorial(dt);
     // thieves
     const caught = thieves.update(dt, { x: player.pos.x, z: player.pos.z, carrying: st.carry.length > 0 }, isOpen, paused);
     let hunted = false, runner = null;
@@ -957,6 +1028,7 @@ $('playBtn').addEventListener('click', () => {
   running = true;
   if (away.coins >= 1) floatCenter(`+${fmt(away.coins)}`);
   renderHud(); renderGoals(true);
+  startTutorial();
   A.levelStart(st.goals.stars + 1);
   A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
     away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st) });
