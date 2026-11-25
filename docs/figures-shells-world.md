@@ -271,7 +271,7 @@ start once the figure page is live? Recommendation: after part 1's steps
 
 1. Name: **Muscheln / caracolas / shells** 🐚.
 2. Earning rules: **as in the table above** (+1 per right answer, +1 extra for a weak or new word, never taken away, after 200 a day 1 per 3 right answers).
-3. Free from the start: **the 12 proposed** (Schülerin, Schüler, Wanderer, Hexe, Superheld, Elf, Ritter, Abenteurerin, Druidin, Ork, Skelett, Roboter Eins); other characters 150–400, accessories 40–150, all colours free.
+3. Free from the start: **12 characters** (Schülerin, Schüler, Wanderer, Hexe, Wichtel, Elf, Ritter, Abenteurerin, Druidin, Ork, Skelett, Roboter Eins; owner 2026-11-25 before launch: the female Wichtel `Helper_A` free, Superheld `Superhero` locked at 200 instead); other characters 150–400, accessories 40–150, all colours free.
 4. Verb Dungeon: **keep the sword as the Dungeon's game item**; the figure catalogue stays weapon-free.
 5. Teacher switch-off: not now.
 6. First build: **steps 2–4** (shared code + assets, shells counting + header counter, figure page DE/ES/EN with locks and prices, game-contract addition). Games follow one session each, Verb Hatchery first. The Krabsy world waits until part 1 is done.
@@ -289,7 +289,7 @@ start once the figure page is live? Recommendation: after part 1's steps
 | For games | `docs/game-contract.md`, "The player's figure" |
 
 Free characters (ids): Protagonist_A (Schülerin), Protagonist_B (Schüler), Hiker
-(Wanderer), Witch (Hexe), Superhero (Superheld), Helper_B (Elf), Knight (Ritter),
+(Wanderer), Witch (Hexe), Helper_A (Wichtel), Helper_B (Elf), Knight (Ritter),
 Rogue (Abenteurerin), Druid (Druidin), OrcRaider (Ork), Skeleton_Minion (Skelett),
 Robot_One (Roboter Eins). Locked things can be tried on in the builder but not
 saved. Next: step 5, Verb Hatchery first.

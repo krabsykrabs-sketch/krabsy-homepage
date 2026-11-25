@@ -111,12 +111,12 @@ export function normalize(c) {
 // the start, the others cost 150–400 shells (rarer = more), accessories 40–150, ALL
 // colours are free, and so are each character's own accessories ('own') and 'none'.
 // Whatever is free at launch stays free: never move an id from FREE_CHARS into PRICES.
-export const FREE_CHARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Superhero', 'Helper_B',
+export const FREE_CHARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Helper_A', 'Helper_B',
   'Knight', 'Rogue', 'Druid', 'OrcRaider', 'Skeleton_Minion', 'Robot_One'];
 export const PRICES = {
   char: {
-    Helper_A: 150, Farmer_A: 150, Farmer_B: 150,
-    Caveman: 200, Driver: 200, Survivalist: 200, Clown: 200, Engineer: 200, Lorekeeper: 200,
+    Farmer_A: 150, Farmer_B: 150,
+    Superhero: 200, Caveman: 200, Driver: 200, Survivalist: 200, Clown: 200, Engineer: 200, Lorekeeper: 200,
     Ranger: 200, Rogue_Hooded: 200, Cleric: 200,
     MagicalGirl: 250, Werewolf_Man: 250, ToySoldier: 250, Paladin: 250, Barbarian: 250,
     Skeleton_Warrior: 250, Skeleton_Rogue: 250,
