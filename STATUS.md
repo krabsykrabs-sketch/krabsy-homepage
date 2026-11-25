@@ -3,6 +3,25 @@
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-25.)
 
+## ⭐ BIG TODO: 4teachers route (owner, 2026-11-25: "I definitely need to go down this route", start in a few days)
+
+The 4teachers English editor (liko, 4t-Eng-Red.) answered on 2026-11-25 and
+**invited** us to add the Krabsy link and to upload worksheets with a Krabsy
+footnote. **Not answered yet, nothing uploaded yet.** 4teachers has 1.78 M
+members; its 148 irregular-verb materials are mostly 2004–2012 Word files
+without answer keys, the Grammar link list is from 2020, the "Interaktive
+Materialien" section has nothing newer than 2014. A competitor
+(englishonline.training) added 7 links there in Sept–Nov 2026.
+Everything is prepared: `docs/outreach-4teachers-2026-11-25.md` (research,
+positioning, step plan, status table). Steps:
+1. Reply to liko (draft in that doc; du-form, signed "Jan Ahrens, Entwickler von Krabsy").
+2. Link in Grammar → https://krabsy.com/de/unregelmaessige-verben/
+3. Upload worksheets "Die drei Formen" + "Lückensätze" (PDFs in
+   `homepage/de/unregelmaessige-verben/arbeitsblaetter/`, footer fixed 2026-11-25).
+4. Test the class flow once, then upload the teacher guide
+   `docs/4teachers/krabsy-vertretungsstunde-unregelmaessige-verben.pdf`.
+5. Ask liko about 2–3 deep links; later prepositions sheets + a lesson plan.
+
 ## Tutor spaces (2026-11-25, LIVE on hidden links, verified on krabsy.com)
 
 Owner decision 2026-11-25: live with all functions but unlinked; test with Nora

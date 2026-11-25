@@ -64,6 +64,19 @@ over the sheet.
 
 Skip: forums, paid advertorials (news4teachers), blog4schools.
 
+## Draft reply to liko (not sent yet)
+
+> Hallo liko,
+>
+> vielen Dank für die freundliche Rückmeldung und die gute Idee!
+>
+> Ich lade den Link in die Rubrik Grammar hoch und dazu zwei Arbeitsblätter zu den unregelmäßigen Verben: „Die drei Formen“ (go → ___ → ___) und „Lückensätze“, jeweils mit Lösungsblatt. In der Fußzeile steht der Hinweis auf Krabsy. Alles ist kostenlos und ohne Anmeldung.
+>
+> Falls du für die Arbeitsblätter lieber Word als PDF hast, sag gern Bescheid.
+>
+> Viele Grüße
+> Jan Ahrens, Entwickler von Krabsy
+
 ## Status
 
 | Step | Date | Notes |
