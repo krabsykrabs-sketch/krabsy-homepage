@@ -10,7 +10,7 @@ import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName, animateCreature } from './creatures.js';
 import { Hall, ROOM, HALL_DOOR, HALL_SPAWN, BARN_DOOR, BARN_OUT, PEDESTALS } from './hall.js';
-import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload } from './roster.js';
+import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload, entry as ENTRY } from './roster.js';
 import { reserveSpots, buildDecor } from './decor.js';
 import * as Q from './questions.js';
 import { t, lang, fmt, fmtRate, fmtTime } from './i18n.js';
@@ -150,6 +150,7 @@ function fillEggs() {
   }
 }
 
+const entryHeight = (sp) => { const c = ENTRY(sp); return c ? c.scale : 1; };
 // ── first minutes: guidance for new players (learning by doing) ──
 // 1 walk to the egg → 2 pick it up → 3 bring it home to the pad → 4 it hatches (fast)
 // → 5 hatch it → 6 "it earns coins" → done. A bouncing arrow shows where to go.
@@ -736,7 +737,7 @@ function doHatch(i) {
   A.countVisit('hatched');
   sfx.crack(); player.gesture('Interact');
   world.tween(0.55, (k) => { if (egg) { egg.rotation.z = Math.sin(k * 40) * 0.25 * k; egg.scale.setScalar(1.25 * (1 + k * 0.25)); } }, () => {
-    sfx.hatch(res.rarity);
+    sfx.hatch(res.rarity); setTimeout(() => sfx.creature(entryHeight(res.sp)), 450);
     world.clearIncubator(i);
     shellBurst(INC_POS[i].clone().setY(INC_POS[i].y + 0.9), res.rarity);
     showReveal(res);
@@ -803,6 +804,7 @@ function showCreature(where, i) {
   if (!c) return;
   sfx.tap();
   infoPen = i; infoWhere = where;
+  sfx.creature(entryHeight(c.sp));
   const r = S.speciesRarity(c.sp);
   $('ciImg').src = portrait(c.sp);
   $('ciName').textContent = speciesName(c.sp);
@@ -886,9 +888,9 @@ function renderBook() {
 }
 
 // ── sound ──
-function soundIcon() { $('soundBtn').textContent = sfx.muted ? '🔇' : '🔊'; }
+function soundIcon() { $('soundBtn').textContent = { all: '🔊', fx: '🔈', off: '🔇' }[sfx.mode]; $('soundBtn').title = t(`sound_${sfx.mode}`); }
 soundIcon();
-$('soundBtn').addEventListener('click', () => { sfx.init(); sfx.setMuted(!sfx.muted); soundIcon(); });
+$('soundBtn').addEventListener('click', () => { sfx.init(); sfx.cycleMode(); soundIcon(); toast(t(`sound_${sfx.mode}`)); });
 
 // ── save ──
 function save() { S.save(st); }
@@ -970,6 +972,7 @@ function frame(now) {
     }
     // being hunted: red pulsing screen edge + heartbeat
     document.body.classList.toggle('hunted', hunted && !paused);
+    sfx.setMood(player.indoor ? 'hall' : hunted || runner ? 'chase' : 'calm');
     if (hunted && !paused) { heartT -= dt; if (heartT <= 0) { heartT = 0.62; sfx.heart(); } } else heartT = 0;
     if (caught && !paused && st.carry.length) thiefCatch(caught);
     if (grab) updateGrab(dt);
@@ -1107,7 +1110,7 @@ $('resetBtn').addEventListener('click', () => {
 // QA hooks (?debug)
 if (DEBUG) {
   window.hatchery = {
-    get state() { return st; }, world, player, thieves, S, get wild() { return wild; },
+    get state() { return st; }, world, player, thieves, S, sfx, get wild() { return wild; },
     get card() { return card; }, get target() { return target; },
     give(n) { S.addCoins(st, n); renderHud(); },
     ready() { st.incubators.forEach((x) => { if (x) x.start = 0; }); },

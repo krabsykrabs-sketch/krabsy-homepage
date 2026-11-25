@@ -930,3 +930,11 @@ heartbeat volume, touch.
   `place()`, `toBook()`, `available()`, `placedSet()`; cps includes the
   hall. Events `hall_enter`, `creature_placed`. Checked headless: enter,
   target pedestal, place, leave, income.
+- 2026-11-25: **music + sound modes** (`audio.js`): procedural island loop
+  (C major pentatonic, C–Am–F–G, 96 bpm: marimba plucks, soft pad, bass),
+  moods 'calm' / 'chase' (a crab hunts you or runs with your egg: busier
+  bass, kick, shaker) / 'hall' (Hall of Fame: chimes, no bass); a creature
+  "voice" (chirp, pitch by size) when it hatches and when you look at it.
+  The speaker button cycles 🔊 all → 🔈 effects only → 🔇 off (saved;
+  `?sound=off`, `?music=off` for teacher links); audio pauses while the
+  tab is hidden. Not heard by a human yet.

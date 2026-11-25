@@ -2,6 +2,7 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    sound_all: 'Music and sounds on', sound_fx: 'Sounds only', sound_off: 'Sound off',
     hallTitle: 'Hall of Fame', hallWelcome: 'Welcome to your Hall of Fame! Creatures here earn ×1.5',
     p_enterHall: 'Enter the Hall of Fame', p_leaveHall: 'Go outside', p_place: 'Place a creature from your Book',
     pickPen: 'Which creature goes into this pen?', pickHall: 'Which creature gets this pedestal?',
@@ -87,6 +88,7 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    sound_all: 'Musik und Töne an', sound_fx: 'Nur Töne', sound_off: 'Ton aus',
     hallTitle: 'Ruhmeshalle', hallWelcome: 'Willkommen in deiner Ruhmeshalle! Wesen hier verdienen ×1,5',
     p_enterHall: 'In die Ruhmeshalle', p_leaveHall: 'Nach draußen', p_place: 'Ein Wesen aus deinem Buch hinstellen',
     pickPen: 'Welches Wesen kommt in dieses Gehege?', pickHall: 'Welches Wesen bekommt diesen Sockel?',
@@ -172,6 +174,7 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    sound_all: 'Música y sonidos', sound_fx: 'Solo sonidos', sound_off: 'Sin sonido',
     hallTitle: 'Salón de la Fama', hallWelcome: '¡Bienvenido a tu Salón de la Fama! Aquí las criaturas ganan ×1,5',
     p_enterHall: 'Entrar al Salón de la Fama', p_leaveHall: 'Salir', p_place: 'Colocar una criatura de tu libro',
     pickPen: '¿Qué criatura va a este corral?', pickHall: '¿Qué criatura recibe este pedestal?',

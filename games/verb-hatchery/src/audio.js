@@ -1,9 +1,26 @@
 // All sound is synthesized with WebAudio, no audio files.
+// Sound modes (the speaker button cycles): 'all' (effects + music) → 'fx' (effects
+// only) → 'off'. Saved in localStorage; ?sound=off / ?music=off for teacher links.
 const STORE_KEY = 'krabsy_hatchery_sound';
-function readMuted() { try { return localStorage.getItem(STORE_KEY) === 'off'; } catch (_) { return false; } }
+function readMode() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('sound') === 'off') return 'off';
+  let m = 'all';
+  try { const v = localStorage.getItem(STORE_KEY); if (v === 'off' || v === 'fx' || v === 'all') m = v; else if (v === 'on') m = 'all'; } catch (_) { /* ignore */ }
+  if (q.get('music') === 'off' && m === 'all') m = 'fx';
+  return m;
+}
+
+// Island music: a slow, sunny loop in C major pentatonic (marimba-like plucks, a soft
+// pad, a bass), 96 bpm. Moods: 'calm' (outside), 'chase' (a crab hunts you: drums and
+// a busier bass join), 'hall' (Hall of Fame: chimes, no bass).
+const BPM = 96, STEP = 60 / BPM / 2; // eighth notes
+const CHORDS = [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]]; // C, Am, F, G
+const MEL = [72, null, 69, 67, null, 64, 67, null, 69, null, 72, 74, null, 72, 69, null];
+const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
 
 class SFX {
-  constructor() { this.ctx = null; this.muted = readMuted(); this.lastPlink = 0; }
+  constructor() { this.ctx = null; this.mode = readMode(); this.muted = this.mode === 'off'; this.lastPlink = 0; this.mood = 'calm'; this.step = 0; }
 
   // must be called from a user gesture
   init() {
@@ -15,15 +32,69 @@ class SFX {
     this.master = this.ctx.createGain();
     this.master.gain.value = this.muted ? 0 : 0.8;
     this.master.connect(this.ctx.destination);
+    this.music = this.ctx.createGain(); this.music.gain.value = this.mode === 'all' ? 0.55 : 0; this.music.connect(this.master);
+    this.nextT = this.ctx.currentTime + 0.3;
+    this.timer = setInterval(() => this._schedule(), 100);
+    // silence while the tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (!this.ctx) return;
+      if (document.visibilityState === 'hidden') this.ctx.suspend(); else this.ctx.resume();
+    });
     const len = this.ctx.sampleRate;
     this.noiseBuf = this.ctx.createBuffer(1, len, len);
     const d = this.noiseBuf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
   }
-  setMuted(m) {
-    this.muted = m;
-    try { localStorage.setItem(STORE_KEY, m ? 'off' : 'on'); } catch (_) { /* ignore */ }
-    if (this.master) this.master.gain.linearRampToValueAtTime(m ? 0 : 0.8, this.ctx.currentTime + 0.15);
+  setMode(m) {
+    this.mode = m; this.muted = m === 'off';
+    try { localStorage.setItem(STORE_KEY, m); } catch (_) { /* ignore */ }
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime + 0.2;
+    this.master.gain.linearRampToValueAtTime(this.muted ? 0 : 0.8, t);
+    this.music.gain.linearRampToValueAtTime(m === 'all' ? 0.55 : 0, t);
+  }
+  cycleMode() { this.setMode({ all: 'fx', fx: 'off', off: 'all' }[this.mode]); return this.mode; }
+  setMuted(m) { this.setMode(m ? 'off' : 'all'); }
+  setMood(m) { this.mood = m; }
+  // ── music: schedule the next eighth notes a little ahead ──
+  _schedule() {
+    if (!this.ctx || this.mode !== 'all' || this.ctx.state !== 'running') { if (this.ctx) this.nextT = this.ctx.currentTime + 0.1; return; }
+    while (this.nextT < this.ctx.currentTime + 0.35) { this._note(this.step, this.nextT); this.step++; this.nextT += STEP; }
+  }
+  _voice(f, t0, dur, g, type, dest, a = 0.01) {
+    const o = this.ctx.createOscillator(); o.type = type; o.frequency.value = f;
+    const gn = this.ctx.createGain();
+    gn.gain.setValueAtTime(0, t0); gn.gain.linearRampToValueAtTime(g, t0 + a); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(gn); gn.connect(dest); o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  _note(i, t0) {
+    const bar = Math.floor(i / 8) % 4, beat = i % 8, ch = CHORDS[bar], M = this.music, mood = this.mood;
+    if (mood !== 'hall') {
+      // bass on 1 and 5 (busier when chased)
+      if (beat === 0 || beat === 4 || (mood === 'chase' && beat % 2 === 0)) this._voice(midi(ch[0] - 24), t0, 0.35, 0.16, 'triangle', M);
+      // marimba melody (calm: every other bar a little quieter)
+      const n = MEL[(i % 16)];
+      if (n) { this._voice(midi(n), t0, 0.5, bar % 2 ? 0.06 : 0.08, 'sine', M); this._voice(midi(n) * 4, t0, 0.12, 0.015, 'sine', M); }
+    } else if (beat === 0 || beat === 3 || beat === 6) {
+      // hall: chimes from the chord, high and soft
+      this._voice(midi(ch[(beat / 3) % 3] + 24), t0, 1.4, 0.035, 'sine', M, 0.005);
+    }
+    // pad: the chord, swelling once per bar
+    if (beat === 0) for (const nn of ch) this._voice(midi(nn), t0, STEP * 8, mood === 'hall' ? 0.03 : 0.022, 'triangle', M, 0.6);
+    if (mood === 'chase') {
+      // drums: kick on 1/5, a shaker on every eighth
+      if (beat === 0 || beat === 4) { this._voice(110, t0, 0.18, 0.22, 'sine', M); }
+      const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf;
+      const fl = this.ctx.createBiquadFilter(); fl.type = 'highpass'; fl.frequency.value = 6000;
+      const gn = this.ctx.createGain(); gn.gain.setValueAtTime(beat % 2 ? 0.03 : 0.05, t0); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+      s.connect(fl); fl.connect(gn); gn.connect(M); s.start(t0, Math.random() * 0.5); s.stop(t0 + 0.08);
+    }
+  }
+  // a little "voice" for a creature: a chirp whose pitch depends on its size
+  creature(size = 1, happy = true) {
+    const f = 900 / Math.max(0.4, Math.min(2.5, size));
+    this.tone({ f, f1: f * (happy ? 1.6 : 0.7), type: 'sine', dur: 0.14, g: 0.12 });
+    this.tone({ f: f * 1.25, f1: f * (happy ? 2 : 0.8), type: 'triangle', t: 0.13, dur: 0.16, g: 0.09 });
   }
   tone({ f = 440, f1, type = 'sine', t = 0, dur = 0.2, g = 0.15, a = 0.008 } = {}) {
     if (!this.ctx) return;
