@@ -861,3 +861,5 @@ Owner: "collect comments before rebuilding".
    caught, the question card blocks everything and it's hard to see what
    happens; the end of the encounter is unclear → needs better build-up,
    encounter presentation and outcome.
+5. **Hatching creature should face the player** (it pops out of the egg
+   looking at the player, not in a fixed direction).
