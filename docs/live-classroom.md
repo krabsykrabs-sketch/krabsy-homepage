@@ -230,3 +230,20 @@ Additions to the protocol (nothing in the contract changed):
   hello resets it to true (the page sends `focus` if it is hidden).
 - Rooms are swept (no connection + 3 h since last message) when the 500-room limit
   is reached; a room with someone connected is never swept.
+
+### L3 content (`content/materials/`, `content/vocab/`, `from-engine.js`)
+
+Final shapes: `content/materials/README.md`. Against the example above:
+- **Nothing is shuffled by the player**: options, `tap.items[].options`, `match.right`,
+  `sort.cards`, the drag `bank` are stored in display order (mirror = student without
+  sending an order). `from-engine.js` mixes once when it makes a material.
+- `tap` = `items[{word, options}]` (as above); `match` = `words` + `right` (ids, not
+  `pairs`); `sort` = prototype `baskets[{id,label,sub,pic}]` + `cards[{w,b}]`.
+- `gap` sentence `hint` = the **visible** bracket clue (engine / v1 meaning, e.g. `(tall)`);
+  the prototype's hidden translation for hint step 1 is `en`. Drag steps carry `bank`.
+  `options` may be `[]` only in a runtime typed step (v1 question saved without choices).
+- Vocab entries also have `set` (and `f` = feminine form for feelings); `en` has no article.
+  `index.json` rows also carry `blurb`. Extra kind `cards` (only `cards` steps).
+- Vocabulary topics (`es_animals`, `es_feelings`, `es_food`) are not registered question
+  topics, so tap/match/sort answers have no star-map target yet; gap sentences in every
+  worksheet do carry a real `item` + `topic` (es_ser … es_tener).

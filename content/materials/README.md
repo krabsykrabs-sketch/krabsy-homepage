@@ -121,7 +121,7 @@ vocab entry) in `right` order (`right` is the same ids, mixed).
 | `sentences[].text` | Spanish, exactly one `___` |
 | `answer` | the right answer, as shown (capitalised when the gap starts the sentence) |
 | `accepts` | typed answers that count as right, lower case (compare trimmed, lower-cased, spaces collapsed; accents count: `está` ≠ `esta`) |
-| `options` | 3 choices in display order, `answer` among them. Every sentence has them in every mode, so the tutor can switch a step's mode without new data |
+| `options` | 3 choices in display order, `answer` among them (2–4 allowed). Required in `choice` and `drag`; curated sentences have them in every mode, so the tutor can switch a step's mode without new data. Only a runtime `typed` step may have `[]` (a v1 question saved without choices) |
 | `hint` | **visible clue shown in brackets after the sentence from the start**, e.g. `Me llamo Pablo. Soy ___.` + `"tall"` → `Me llamo Pablo. Soy ___. (tall)`. Part of the question (without it the gap is ambiguous); empty for most sentences. Same meaning as the engine's `display.hint` and v1 worksheets' `hint` |
 | `en` | the whole sentence in English: **hint ladder step 1** (hidden until 💡 is pressed; the prototype called this `hint`). Optional (runtime materials from the engine have none; then the ladder starts at "one option out") |
 | `teach` | the after-answer teach line (grammar words allowed here, never in `text`/`hint`) |
