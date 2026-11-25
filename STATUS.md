@@ -3,7 +3,16 @@
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-25.)
 
-## Tutor spaces, phase 1 (2026-11-25, not deployed; API + pages)
+## Tutor spaces (2026-11-25, LIVE on hidden links, verified on krabsy.com)
+
+Owner decision 2026-11-25: live with all functions but unlinked; test with Nora
+until it's good, then link it. Verified live after deploy (API + site): the full
+headless scenario (anonymous play → Lucas's link, Emma on the same device,
+"Who's playing?", second device restores, adult page, parents' report without
+private notes, homework progress) passed on krabsy.com; DE/ES pages for normal
+visitors load no sync code and make no tutor/profile requests. Test space deleted.
+Nora starts at https://krabsy.com/en/spanish/tutors/.
+
 
 Plan `docs/tutor-platform.md` (tutors = first paying audience; kids and teachers
 stay free). Phase 1 built for Nora (English interface, Spanish section):
@@ -27,9 +36,7 @@ shells), read-only parents' report link `/en/spanish/report/#r=`. Details:
 Privacy (2026-11-25): EN/DE/ES privacy pages have a tutor-space section and a
 "saved profile" bullet under Classes (class pupils' profiles are saved too);
 the "your rights" placeholder now says what is true. Not read by a lawyer.
-**Before Nora uses it:** deploy the API first (Coolify app `/api`, new module in
-the Dockerfile), then the site (shared `krabsy-analytics.js` / `krabsy-shells.js`
-changed). Before going public: link from the teacher pages, AVV template, lawyer
+Before going public: link from the teacher pages, AVV template, lawyer
 check of the privacy texts.
 
 ## Lesson plans "Unterrichtsideen" (2026-11-25, DE, not deployed)
