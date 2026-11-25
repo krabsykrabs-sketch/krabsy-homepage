@@ -28,6 +28,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 import { loadStrings, buildPageUrl, getTopicSlug, getAllGames, getGamesForTopic, loadTopics } from './krabsy-data.js';
+import { mountShellCounter } from './krabsy-shells.js';
 
 /* For the chip bar we need a key (i18n lookup) and a pageId understood by
    buildPageUrl(). Slugs themselves now come from /data/topics.json — see
@@ -484,6 +485,9 @@ async function buildGameHeader(currentKey, strings) {
   } catch (_) { /* no storage */ }
 
   header.append(...[logo, chipWrap, classBadge, back].filter(Boolean));
+  // Shell counter "🐚 240" (krabsy-shells.js): links to the figure page.
+  const shells = mountShellCounter(header);
+  if (shells) shells.addEventListener('click', (ev) => guardedGameClick(ev, shells.href, strings));
   return header;
 }
 

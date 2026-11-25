@@ -52,6 +52,8 @@
    backs up v1 data to krabsy_stats_v1_backup before transforming.
    ────────────────────────────────────────────────────────────────────────── */
 
+import { earnForAnswer } from './krabsy-shells.js';
+
 const STORAGE_KEY        = 'krabsy_stats_v2';
 const STORAGE_KEY_V1     = 'krabsy_stats_v1';
 const STORAGE_KEY_BACKUP = 'krabsy_stats_v1_backup';
@@ -243,6 +245,9 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
     itemsInTopic[itemId][form] = { attempts: 0, correct: 0, mastery: 0, last_seen: now };
   }
   const rec = itemsInTopic[itemId][form];
+  // Shells (krabsy-shells.js): a right answer on a new or weak item (never
+  // answered, or mastery ≤ 2 BEFORE this answer) earns one shell extra.
+  const weakOrNew = !(rec.attempts > 0) || !(rec.mastery > 2);
   rec.attempts += 1;
   rec.last_seen = now;
   if (correct) {
@@ -266,9 +271,14 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
 
   _save();
 
+  // Shells for right answers, counted here so every game and drill earns
+  // without game code. Never let it break recording.
+  let shells = 0;
+  try { shells = earnForAnswer(!!correct, weakOrNew) || 0; } catch (_) { /* no shells then */ }
+
   // Listeners (e.g. a class session that sends answers to the teacher,
   // docs/classroom-concept.md phase 2). Never let one break recording.
-  const evt = { topic, itemId, form, correct: !!correct, source: source || null, at: now };
+  const evt = { topic, itemId, form, correct: !!correct, source: source || null, at: now, shells };
   for (const fn of _listeners) {
     try { fn(evt); } catch (err) { console.warn('krabsy-stats: listener failed', err); }
   }

@@ -13,6 +13,8 @@
       Driven by /data/topics.json + /games.json so new topics/games appear
       everywhere automatically.
 
+   3. Shell counter: mounts the "🐚 240" header counter (krabsy-shells.js).
+
    Loaded as a plain <script>, not a module, so any page (incl. arcade
    games / non-ESM contexts) can use it.
    ────────────────────────────────────────────────────────────────────────── */
@@ -213,8 +215,18 @@
 
   /* ── boot ───────────────────────────────────────────────────────────── */
 
+  /* Shell counter "🐚 240" in the site header (krabsy-shells.js, 2026-11-25).
+     Game pages get theirs from krabsy-nav.js. */
+  function mountShells() {
+    try {
+      if (!document.querySelector('header.k-page-header')) return;
+      import('/lib/krabsy-shells.js').then(function (m) { m.mountShellCounter(); }).catch(function () {});
+    } catch (_) { /* no dynamic import: no counter */ }
+  }
+
   function init() {
     renderLegalMount();
+    mountShells();
     Promise.all([
       fetchJSON('/data/topics.json'),
       fetchJSON('/data/games.json')
