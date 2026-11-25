@@ -250,6 +250,15 @@ Owner decisions 2026-11-25: one overview page for the child, the figure builder 
 - `?v=`: `krabsy-shells.js` is loaded without `?v=` (by footer, nav, stats), so the counter's new link arrives when the browser cache (1 h) expires. `krabsy-lang-switch.js` was bumped only on the profile and figure pages (the new entry matters only there), not on the other ~420 pages.
 - Not verified: real devices; Spanish wording by a native speaker. A game that changes its save format shows "Noch nicht gespielt" on the profile until `GAME_SAVES` is updated.
 
+## Live 2026-11-25: profile, figure in 3 games, Egg Island, slim landing
+
+- **"Mein Krabsy"** `/de/mein-krabsy/`, `/es/mi-krabsy/`, `/en/my-krabsy/` (EN noindex): figure, shells, progress per topic, Verb-Diplom, game stars (`GAME_SAVES` in `lib/krabsy-profile.js`: update it when a game changes its save format), class badge. Shell counter + "Mein Fortschritt →" link here.
+- **Landing:** featured game = wide white tile + profile card; tiles show picture + name only (taglines/badges visually hidden).
+- **Player figure live in:** Verb Dungeon (sword = Dungeon item; coin hero shop removed, bought heroes → Barbarian / Rogue_Hooded / Cleric + wizard hat), Verb Platformer (fallback Ranger, no quiver), Egg Island (fallback Protagonist A/B). Still to do: Quiz-Raum (after class Chromebook test), Verb Kitchen (after its L4–8 + DE/ES release), Verb Towers (builder figure, new feature), Verb Valley.
+- **Egg Island** = renamed Verb Hatchery (home base Hof / granja / farm); id and URLs stay `verb-hatchery` until the public release. Tester links + Spanish section (`/en/spanish/`, Nora's link builder) only.
+- `tools/stamp_game_modules.py` also handles a root `./main.js` (Platformer). Platformer build: `tools/build-release.cjs` (needs a server with /lib, /data, /assets/figures).
+- Checked live: files match, figure shows in Platformer + Dungeon with a saved figure, 0 errors; IndexNow sent.
+
 ## Teacher pages + teacher-only games (2026-11-23, live)
 
 - `/de/lehrkraefte/` + `/es/docentes/` redesigned (ef2918b, Fable subagent): image hero, three ways (share link / Quiz-Raum / create class), Quiz-Raum block, drawn class-dashboard example, starting-point cards, condensed why/share/ideas/privacy, FAQ unchanged. Shared CSS `lib/krabsy-teachers.css`. Spanish body copy uses tú; two FAQ answers still usted (kept equal to JSON-LD).
