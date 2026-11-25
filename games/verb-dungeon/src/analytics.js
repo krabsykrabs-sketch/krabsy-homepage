@@ -15,6 +15,8 @@
 //      boss_round   { level, boss, result: 'right' | 'wrong', form: 'past' | 'pp', pips }
 //      level_end    { level, result: 'won', stars, seconds, answers, correct, first_try,
 //                     questions, coins, rooms, hits_taken, dizzy }
+//      gift_found   { level, slot: 'hat' | 'back' …, item: 'helmet' … }   a figure gift from the
+//                   boss chest (src/gifts.js); the catalogue key in lower case, nothing else
 //    There is no "lost": 0 hearts restarts the room, so a level ends won or is left (a
 //    level_start without level_end = "left"; the last room_done / player_dizzy shows where).
 //    answers = every choice made (retries included), correct = the right ones, first_try =
@@ -71,6 +73,11 @@ export const Track = {
   bossRound(boss, right, form, pips) {
     if (!run.active) return;
     emit('boss_round', { level: run.level, boss, result: right ? 'right' : 'wrong', form, pips });
+  },
+  giftFound(slot, key) {
+    if (!run.active) return;
+    const slug = (v) => String(v || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 32);
+    emit('gift_found', { level: run.level, slot: slug(slot), item: slug(key) });
   },
   levelEnd({ stars, clock, firstTry, questions, coins }) {
     if (!run.active) return;

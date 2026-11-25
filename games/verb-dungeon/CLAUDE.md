@@ -48,6 +48,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/levels.js` | level data: 3 levels of 5 rooms, room templates, room types |
 | `src/heroes.js` | the Dungeon heroes (Knight, Barbarian, Rogue, Mage: model, weapons, swing, swoosh), `SWINGS`, the hero picker's tiles (`PICKS`) and remembered choice (`Choice`, `krabsy_vdungeon_hero`), the saved progress (`krabsy_vdungeon_save`) |
 | `src/figure.js` | the child's figure for the "your figure" tile (`loadPlayerFigure`, fallback the Schülerin `Protagonist_A`) and the one-time move of old hero-shop purchases into the shells store |
+| `src/gifts.js` | figure gifts in the boss chests (`GIFTS` per level, `giftFor` = `pickGift`, `takeGift` = `grantGift` from `/lib/krabsy-rewards.js`); "no gift" without the site |
 | `src/marker.js` | the one "you can use this" marker: `markUsable(obj, {radius, top})` / `unmark(m)` (all rings one InstancedMesh, all sparkles one Points: 2 draw calls) |
 | `src/labels.js` | word plates in the room (rune door signs, bridge stones), brick texture |
 | `src/assets.js` | model loading, shared material, static merge |
@@ -245,7 +246,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
     aim fixed for the last 0.3 s), then a fan of 3 slow orbs (5 at the last
     pip; speed 4.6, hero 6.2) at where the hero stood. An orb costs a heart;
     the weapon swats it ("Pling!"), props stop it. Dizzy: his orbs fizzle.
-- Coins: stacks worth 5 pop out of chests (2, gold chest 3), the boss (5)
+- Coins: stacks worth 5 pop out of chests (2, gold chest 3, the boss chest 3 when it holds no gift), the boss (5)
   and sometimes an empty hiding place (1), or lie in the treasure room
   (`type: 'vault'`, `coins: [[x, z], …]`, level 2; its door is opened by
   the verb book). Walk near a stack to collect
@@ -319,6 +320,48 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   and swooshes, all forehands (the clip is mirrored in time, `reverse:
   true`, `swingTimes()`, play-test note 13). `Assets` builds `Swing_<key>`
   for every `SWINGS` entry.
+- **Figure gifts in the boss chests (owner yes, 2026-11-25; `docs/game-contract.md`
+  "Gifts found in a game"; `src/gifts.js`).** When the boss falls, a golden chest
+  (`chest_gold`) rises out of the floor at the back of the arena (x ±4.4, z −3.4, the
+  side away from hero and boss; collision, usable marker once risen; hint "Eine goldene
+  Truhe! …"). **What the Dungeon hides** (one per level, ids of
+  `krabsy-figure-catalog.js`): level 1 after the Golem `back:capeRogue`
+  (Abenteuer-Umhang / Capa de aventura / Explorer's cape: a back item, so the default
+  Schülerin, who can't wear hats, can wear it too), level 2 after the Necromancer
+  `hat:helmet` (Ritterhelm / Casco / Knight's helmet), level 3 after the Skeleton Mage
+  `hat:wizard` (Zauberhut, the Mage's own hat).
+  - **Shown before it is given:** `pickGift({ source: 'verb-dungeon', id })` when the
+    chest spawns; a gift → its picture (the catalogue's 192 px WebP on a round navy badge
+    with an amber ring, `giftBadge()`, a canvas sprite) floats over the chest, bobbing,
+    with a warm glow. `null` (owned, the lib's 2-per-day limit, no site) → the same
+    chest without a picture, holding 3 coin stacks (as every chest before).
+  - **Opening:** Space / the sword button at the chest (reach 2.4, prompt "open the
+    chest"), no question: the boss fight was the questions ("earned by playing and
+    answering"; "questions only when the player chooses" holds: walking up opens
+    nothing). `grantGift({ source, id })` gives exactly the shown entry; ok → the
+    picture rises out of the chest, `sfx.gift()`, after 0.45 s the **reveal card**
+    (`#gift`: "🎁 Geschenk gefunden!" / "¡Regalo encontrado!" / "Gift found!", the
+    item pops in spinning (CSS rotateY, 1.3 s) over turning amber rays, then floats;
+    its name in the game's language (`giftInfo(id, lang)`); "Das gehört jetzt dir. Du
+    findest es bei deiner Figur." / ES / EN; button "Weiter" / "Seguir" / "Continue",
+    also Enter / Space / Esc, not within 0.6 s of opening). The room is paused while it
+    is open (`G.reveal`, like the question card). Not ok (limit reached meanwhile,
+    storage) → coins instead, nothing shown. No link to the figure page in the level
+    (contract rule 4).
+  - **End screen:** "🎁 Gefunden: Abenteuer-Umhang" with the picture and the link "Zu
+    deiner Figur →" / "Míralo en tu personaje →" / "See it on your figure →" to
+    `/de/meine-figur/#neu=<id>` (…, `target="_top"`): the figure page opens the gift's
+    tab, tries it on and shows "Neu"; nothing is saved until the child taps Save. The
+    game never changes the saved figure itself (the figure page's rule), so the item is
+    not put on the hero in the game.
+  - Once owned, that level's chest gives coins from then on, without nagging. The site's
+    own "Neues Geschenk! 🎁" card shows on the next site page (not in the game iframe).
+  - Game event `gift_found { level, slot, item }` (catalogue key in lower case, e.g.
+    `slot: 'back', item: 'caperogue'`), only when granted.
+  - Without `/lib/` (dev server, `file://`) the import fails: always the coin chest.
+  - QA: `info().giftChest` (`<id|coins>:rising|shut|open`), `info().reveal`,
+    `info().giftFound`; `__VD.giftChest(log)` (run by `?qa=play` in every boss room:
+    walk up → nothing, Space → reveal, paused, closed), `__VD.closeReveal()`.
 - Archer skeleton (`archer(route)` in `levels.js`, from level 2): keeps 4.5
   to 10 units away, shows "!" and aims for 1 s (the last 0.3 s fixed), then
   shoots one slow arrow (speed 7, hero 6.2) straight at where the hero
@@ -330,7 +373,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   puts the verb's pair back in the queue once; the next verb book, boss
   round, rune room or bridge takes missed pairs first. Chests
   always take a fresh verb.
-- Chests are optional bonus questions: Space next to one; one 2nd-form
+- Chests in the rooms are optional bonus questions (the boss chest asks nothing, see "Figure gifts"): Space next to one; one 2nd-form
   question, feedback shows the full chain; +1 heart (or just treasure).
 - Skeletons that are not bonked yet chase and bump the hero (−1 heart,
   knock-back, short blink). Bonked ones get up again and only wander.
@@ -1304,3 +1347,55 @@ geometry, at most one shadow light.
   - **Release (master):** copy the restored `assets/characters/*` hero files and
     `assets/portraits/` into the build again (they were removed from
     `homepage/games/verb-dungeon/` in 3e20bb5); `RELEASE.md`'s hero lines.
+- 2026-11-25 (night) — **Figure gifts in the boss chests** (owner yes, via the master
+  session; `docs/game-contract.md` "Gifts found in a game"; see "Figure gifts in the boss
+  chests" in "Rules as built").
+  - What the Dungeon hides (for the figure page's "found in the 3D games" list): level 1
+    `back:capeRogue`, level 2 `hat:helmet`, level 3 `hat:wizard`, each in a golden chest
+    that rises after the boss. Owned / today's limit / no site → the same chest holds 3
+    coin stacks.
+  - New `src/gifts.js`; `main.js` (`spawnGiftChest`, `giftBadge`, `updateGiftChest`,
+    `openRewardChest`, `openReveal` / `closeReveal`, `G.reveal` pauses `step()` and blocks
+    `bonk()` / `usable()`, keys Enter/Space/Esc, end-screen line `drawEndGift`, QA
+    `giftChest` / `closeReveal` / `info().giftChest|reveal|giftFound`; the hint is cleared on
+    the end screen; `applyStatic()` no longer throws on a key press in touch mode after
+    `#loading` is gone, a bug from before); `analytics.js` `gift_found`; `audio.js`
+    `sfx.gift()`; `i18n.js` DE/ES/EN texts; `index.html` `#gift` card + `#endGift`, styles
+    (compact below 500 px), restamped `v=f077ea88ee`; `tools/qa-touch.cjs` opens the gift
+    chest with the sword button and taps "Weiter".
+  - Decisions: the boss chest asks no question (the fight was the questions); no link to
+    the figure page during the level (contract rule 4), it is on the end screen
+    (`#neu=<id>`, the figure page tries it on; nothing saved by the game); the gift is
+    not put on the hero in the game, because saving the figure is the figure page's job
+    (Save button). Level 1 is a back item because the default Schülerin (and Protagonist_B)
+    can't wear hats (`NO_HAT`).
+  - **Checked** (headless Linux Chromium, site-like folder with `/games/verb-dungeon/`
+    = this folder + symlinks to everything in `homepage/`, `api.krabsy.com` blocked):
+    first run of L1 → `krabsy_shells_v1.owned` + `back:capeRogue`, rewards log
+    `{ id, src: 'game:verb-dungeon' }`, `game.n['verb-dungeon'] = 1`, reveal shown, room
+    paused, `gift_found {level:1, slot:'back', item:'caperogue'}` (with `&track=1`), end
+    screen line + link `/de/meine-figur/#neu=back%3AcapeRogue`; L1 again → coins, no
+    second grant; L2 (ES) → `hat:helmet` ("Casco"); L3 the same day → limit → coins (2 per
+    game and day); fresh profile L3 (EN, wrongall) → `hat:wizard`, then L1 → cape, then L2
+    → limit, coins. `/de/` afterwards shows the site's "Neues Geschenk! 🎁 Abenteuer-Umhang
+    · In einem Spiel gefunden · Anziehen →" card once (not again on reload);
+    `/de/meine-figur/#neu=back:capeRogue` opens Zubehör with the cape tried on and "Neu".
+    Dev server without `/lib`: L1–3 (+ L2 wrongall) → coin chest, 0 errors.
+    `?qa=play` L1–3 ± wrongall (`tools/qa-engine.cjs`, engine) → 'end', hearts 3, no
+    chain-order violations. `tools/qa-touch.cjs` 1024×768 DE with `START=4`: chest rises,
+    walking up opens nothing, sword button → reveal, tap "Weiter" → closed, end screen, ALL
+    OK. `node --check` on all `src/*.js`. Screenshots (looked at): `_shots/G-de-l1-chest.png`,
+    `G-de-l3-witch-chest.png` (badge over the chest), `G-*-open.png`, `G-*-reveal-spin.png`,
+    `G-de-l1-reveal.png` (DE card), `G-es-phone-l2-reveal.png` (ES, 844×390),
+    `G-de-l1-end.png` (end screen line), `G-tablet-gift-*.png`, `G-site-popup-de.png`,
+    `G-figure-page-cape.png`.
+  - **Not checked:** a real device; the real wrapper iframe; the sound; a full touch run
+    from room 1 (one run stuck in the rune room by slow headless frames, before any
+    gift code; the run from the boss room passed).
+  - **For the master:** copy + stamp the build as usual (new `src/gifts.js`; it uses
+    `/lib/krabsy-rewards.js` and `/assets/figures/items/*.webp` from the site). The figure
+    page's "found in the 3D games" list: Verb Dungeon = Abenteuer-Umhang (L1), Ritterhelm
+    (L2), Zauberhut (L3). Seen in the lib: `krabsy-rewards.js` reads
+    `krabsy_shells_v1.owned` raw, without `STARTER_ITEMS`, so `pickGift`/random gifts can
+    offer a starter item (e.g. `back:capeKnight`) to a child whose store has never been
+    written by `krabsy-shells.js`; the Dungeon avoids starter items.

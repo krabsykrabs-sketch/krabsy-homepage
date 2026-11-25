@@ -367,6 +367,27 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   check(/dead/.test(inf.boss || '') || inf.phase === 'open', 'golem down by touch', inf.boss);
   await page.waitForFunction(() => window.__VD.room.phase === 'open', null, { timeout: 30000 }).catch(() => {}); // coins fly, then the exit opens
   await wait(500);
+  // ── The boss chest (src/gifts.js): it rises, walking up opens nothing, the sword button
+  // opens it; a gift shows the reveal card, "Weiter" by tap closes it; else coins. ──
+  await page.waitForFunction(() => { const c = window.__VD.room.chest; return c && c.reward && c.rise >= 1; }, null, { timeout: 20000 }).catch(() => {});
+  const gc = await ev(() => { const c = window.__VD.room.chest; return c && c.reward ? [c.x + (c.x < 0 ? 1.4 : -1.4), c.z + 1.3, c.gift ? c.gift.id : 'coins'] : null; });
+  check(!!gc, 'gift chest rose after the boss', gc && gc[2]);
+  if (gc) {
+    await walkTo(gc[0], gc[1], 0.4, 8000); await wait(200);
+    inf = await info();
+    check(!inf.reveal && /:shut$/.test(inf.giftChest || '') && inf.prompt === 'chest', 'walking up to the gift chest opens nothing (prompt shown)', `${inf.giftChest} ${inf.prompt}`);
+    await shot('gift-chest');
+    for (let k = 0; k < 3 && /:shut$/.test((await info()).giftChest || ''); k++) { await walkTo(gc[0], gc[1], 0.4, 3000); await sword(); }
+    await wait(1600);
+    inf = await info();
+    if (gc[2] !== 'coins') {
+      check(inf.reveal === gc[2], 'sword button opened the gift chest: reveal card', `${inf.giftChest} reveal ${inf.reveal}`);
+      await shot('gift-reveal');
+      await tapAt(await box('#giftNext')); await wait(500);
+      inf = await info();
+      check(!inf.reveal && inf.giftFound === gc[2], '"Weiter" by tap closed the reveal, gift kept', `${inf.reveal} ${inf.giftFound}`);
+    } else check(/:open$/.test(inf.giftChest || '') && !inf.reveal, 'sword button opened the coin chest', inf.giftChest);
+  }
   await goThrough();
   await page.waitForFunction(() => window.__VD.G.mode === 'end', null, { timeout: 20000 }).catch(() => {});
   await wait(800);
