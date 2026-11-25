@@ -378,6 +378,13 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
 
 ## Next steps / open items
 
+### Parked 2026-11-25: staged rollout for new games (owner: "not needed now")
+
+Idea for when there is a real player base, so a weak game doesn't reach everyone at once (like einmaleins.de testing in a small country, but with one domain):
+- **Steps:** unlisted (link to 2–3 known teachers/classes) → one language only (`/es/` or `/de/` = our "small country") at 20–50 % of visitors → that language fully → both languages.
+- **Mechanism:** `games.json` field such as `"rollout": {"es": 0.3, "de": 0}`. A random bucket per browser, saved in localStorage, decides whether the tile shows; the game's own page always works (teachers' links). Keep the game out of the sitemap until fully released.
+- **Gate per step (~1 week, dashboard game events):** median time > ~1:30, ≥ 50 % finish level 1, < 25 % quit in the first 30 s, enough answers per session, no Chromebook frame-rate or error reports.
+
 ### Handover 2026-11-21: start here (new master chat in `krabsy-homepage`)
 
 1. ~~Deploy pending~~ **Done 2026-11-21:** Crab Slash hidden + Impressum DDG/MStV are live; IndexNow sent (15 URLs).
