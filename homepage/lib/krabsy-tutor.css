@@ -76,3 +76,10 @@
 .kt-weeks > div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; font-size: 0.8rem; text-align: center; }
 .kt-wbar { display: block; width: 100%; max-width: 56px; min-height: 3px; background: #e0a100; border-radius: 8px 8px 3px 3px; }
 .kt-repnote { border-left: 6px solid #2ec4a0; }
+
+/* email sign-in (2026-11-25c) */
+.kt-auth { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.kt-auth .kc-card { margin: 0; }
+.kt-auth { margin-bottom: 8px; }
+.kt-sent { margin: 0; font-size: 1.05rem; }
+.kt-addemail { border-left: 6px solid #ffcf5e; }

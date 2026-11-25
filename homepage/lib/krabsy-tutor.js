@@ -3,7 +3,11 @@
 
    One module for three pages, chosen by <main data-tutor-page="…">:
      start    /en/spanish/tutors/                 what it is + create a space
-     space    /en/spanish/tutors/space/#t=…       students; &s=<id> = one profile
+     space    /en/spanish/tutors/space/           students; #s=<id> = one profile
+     login    /en/spanish/tutors/login/#l=…       the sign-in link from the email
+   Tutors sign in by email (api/tutor_auth.py): the session token is kept in
+   localStorage["krabsy_tutor_session"] and sent as X-Tutor-Token. Spaces made
+   earlier with a private link (#t=…) still open with it until an email is added.
      student  /en/spanish/me/#k=…                 the student's own page (homework)
 
    The tutor token (#t=) and the student key (#k=) travel only in the URL
@@ -27,7 +31,7 @@ const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/'
 
 const T = {
   title: 'Krabsy for tutors',
-  lead: 'Run your Spanish lessons on Krabsy. Every student gets a profile with a star map per topic. Their answers in the games fill it in by themselves, and you can always correct it. You send homework as a game, and you keep a note for every lesson.',
+  lead: 'Run your Spanish lessons on Krabsy. Every student gets a profile with a star map per topic. Their answers in the games fill it in by themselves, and you can always correct it. You give homework as a topic and a goal, they pick the game, and you keep a note for every lesson.',
   pilot: 'Pilot: free while we build it with tutors. Tell us what is missing.',
   how: [
     ['Add a student', 'First name only. Krabsy makes a personal link for them: no email, no password.'],
@@ -36,6 +40,14 @@ const T = {
   ],
   createH: 'Create your tutor space', yourName: 'Your name (students see it)', yourNamePh: 'e.g. Nora',
   createBtn: 'Create my space', yourSpaces: 'Your spaces on this device',
+  email: 'Your email', emailPh: 'you@example.com', signInH: 'Sign in', signInBtn: 'Send me a sign-in link',
+  noPassword: 'No password: we email you a link that signs you in. It works once and for 20 minutes.',
+  checkMail: (e) => `Check your email: we sent a link to <strong>${e}</strong>. Open it on this device or any other. Nothing there? Look in the spam folder.`,
+  errEmail: 'That doesn’t look like an email address.', signedIn: 'Open my space', signedInAs: (e) => `Signed in as ${e}`,
+  signOut: 'Sign out', loginWorking: 'Signing you in …', loginBad: 'This sign-in link has expired or was already used. Ask for a new one.',
+  loginAgain: 'Sign in again', addEmailH: 'Add your email', addEmailLead: 'So you can sign in from any device and never lose your space. After you confirm it, this private link stops working and you sign in by email.',
+  addEmailBtn: 'Confirm my email', emailTaken: 'This email already has a tutor space.',
+  needSignIn: 'Please sign in to see your students.',
   created: 'Your space is ready', yourLink: 'Your private link',
   yourLinkWarn: 'Save this link as a bookmark. Whoever has it sees your students. There is no other way in.',
   open: 'Open my space', copy: 'Copy', copied: 'Copied ✓',
@@ -48,7 +60,7 @@ const T = {
     ['★★★★★', 'Uses it freely in their own sentences', 'only you set this'],
   ],
   privacyH: 'Privacy',
-  privacy: 'Krabsy stores the first name you type, the level and notes you write, the answers the student gives in games (word, right or wrong, when), and, so they can continue on another device, their figure, shells and game progress. No email, no surname, nothing about the device. Ask the parents before you send the link. A space that nobody uses for 6 months is deleted with everything in it, and you can delete it any time. Details in the <a href="/en/privacy/">privacy policy</a>.',
+  privacy: 'Krabsy stores your email, only to send you sign-in links. For your students it stores the first name you type, the level and notes you write, the answers the student gives in games (word, right or wrong, when), and, so they can continue on another device, their figure, shells and game progress. No email, no surname, nothing about the device. Ask the parents before you send the link. A space that nobody uses for 6 months is deleted with everything in it, and you can delete it any time. Details in the <a href="/en/privacy/">privacy policy</a>.',
   noSpace: 'This space doesn’t exist (any more). The link is incomplete or the space was deleted.',
   errNet: 'No connection. Try again in a moment.', errName: 'Letters only, at most 20 characters.',
   errMany: 'Too many tries. Wait a moment.', errFull: 'This space is full.',
@@ -126,7 +138,7 @@ function copyButton(text) {
 }
 
 function errorText(code) {
-  return { bad_name: T.errName, too_many: T.errMany, space_full: T.errFull }[code] || T.errNet;
+  return { bad_name: T.errName, too_many: T.errMany, space_full: T.errFull, bad_email: T.errEmail, email_taken: T.emailTaken }[code] || T.errNet;
 }
 
 /* ── local memory on the tutor's device ─────────────────────────────────── */
@@ -135,9 +147,12 @@ function write(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } c
 const spaces = () => read('krabsy_tutor_spaces', []);
 function rememberSpace(s) { write('krabsy_tutor_spaces', [s, ...spaces().filter((x) => x.token !== s.token)].slice(0, 10)); }
 function forgetSpace(token) { write('krabsy_tutor_spaces', spaces().filter((x) => x.token !== token)); }
-const keyId = (token, sid) => `${token.slice(0, 10)}:${sid}`;
-const getKey = (token, sid) => read('krabsy_tutor_keys', {})[keyId(token, sid)] || null;
-function setKey(token, sid, key) { const k = read('krabsy_tutor_keys', {}); k[keyId(token, sid)] = key; write('krabsy_tutor_keys', k); }
+// Student links shown again on this device: by student id (ids are unique across spaces);
+// keys saved before sign-in existed used "<token prefix>:<id>".
+const getKey = (token, sid) => { const k = read('krabsy_tutor_keys', {}); return k['id:' + sid] || (token ? k[`${token.slice(0, 10)}:${sid}`] : null) || null; };
+function setKey(token, sid, key) { const k = read('krabsy_tutor_keys', {}); k['id:' + sid] = key; write('krabsy_tutor_keys', k); }
+const SESSION = 'krabsy_tutor_session';
+const session = () => read(SESSION, null);
 
 const spaceUrl = (token) => `${location.origin}${PATHS.space}#t=${token}`;
 const studentUrl = (key) => `${location.origin}${PATHS.me}#k=${key}`;
@@ -216,40 +231,64 @@ function starsHtml(n, { max = 5, cls = '' } = {}) {
 /* ── start page ─────────────────────────────────────────────────────────── */
 function renderStart(main) {
   const list = spaces();
+  const ses = session();
   main.innerHTML = `
     <h1>${T.title}</h1>
     <p class="kc-lead">${T.lead}</p>
     <p class="kt-pilot">${T.pilot}</p>
+    ${ses ? `<p class="kc-row"><a class="kc-btn" href="${PATHS.space}">${T.signedIn}</a></p>` : ''}
     <ol class="kt-how">${T.how.map(([h, p]) => `<li><strong>${h}</strong><span>${p}</span></li>`).join('')}</ol>
     ${list.length ? `<section class="kc-card"><h2>${T.yourSpaces}</h2><ul class="kc-list">${list.map((s) =>
       `<li><a href="${PATHS.space}#t=${esc(s.token)}">${esc(s.name)}</a></li>`).join('')}</ul></section>` : ''}
-    <form class="kc-card" id="kt-create">
-      <h2>${T.createH}</h2>
-      <label class="kc-field"><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" required></label>
-      <p class="kc-error" id="kt-err" role="alert" hidden></p>
-      <button class="kc-btn" type="submit">${T.createBtn}</button>
-    </form>
-    <div id="kt-result"></div>
+    <div class="kt-auth">
+      <form class="kc-card" id="kt-create">
+        <h2>${T.createH}</h2>
+        <label class="kc-field"><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" autocomplete="name" required></label>
+        <label class="kc-field"><span>${T.email}</span><input id="kt-cemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
+        <p class="kc-error" role="alert" hidden></p>
+        <button class="kc-btn" type="submit">${T.createBtn}</button>
+      </form>
+      <form class="kc-card" id="kt-signin">
+        <h2>${T.signInH}</h2>
+        <label class="kc-field"><span>${T.email}</span><input id="kt-semail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
+        <p class="kc-error" role="alert" hidden></p>
+        <button class="kc-btn kc-btn-ghost" type="submit">${T.signInBtn}</button>
+      </form>
+    </div>
+    <p class="kc-muted">${T.noPassword}</p>
     <section class="kc-card"><h2>${T.scaleH}</h2>${scaleTable()}</section>
     <section class="kc-card"><h2>${T.privacyH}</h2><p>${T.privacy}</p></section>`;
-  $('#kt-create').addEventListener('submit', async (ev) => {
+  const wire = (form, body) => form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const btn = $('#kt-create button'); btn.disabled = true;
+    const btn = form.querySelector('button'); const err = form.querySelector('.kc-error');
+    btn.disabled = true; err.hidden = true;
     try {
-      const d = await api('/api/tutor/create', '', { name: $('#kt-name').value, lang: LANG });
-      rememberSpace({ name: d.name, token: d.tutor_token });
-      $('#kt-create').hidden = true;
-      const box = $('#kt-result');
-      box.innerHTML = `<section class="kc-card kc-done"><h2>${T.created}</h2>
-        <p class="kc-label">${T.yourLink}</p>
-        <p class="kc-row"><code class="kc-url">${esc(spaceUrl(d.tutor_token))}</code><span id="kt-c"></span></p>
-        <p class="kc-warn">${T.yourLinkWarn}</p>
-        <p><a class="kc-btn" href="${PATHS.space}#t=${esc(d.tutor_token)}">${T.open}</a></p></section>`;
-      $('#kt-c').appendChild(copyButton(spaceUrl(d.tutor_token)));
+      const b = body();
+      await api('/api/tutor/login', '', Object.assign({ lang: LANG }, b));
+      form.innerHTML = `<p class="kt-sent">${T.checkMail(esc(b.email.trim()))}</p>`;
+      form.classList.add('kc-done');
     } catch (e) {
-      const el = $('#kt-err'); el.textContent = errorText(e.message); el.hidden = false; btn.disabled = false;
+      err.textContent = errorText(e.message); err.hidden = false; btn.disabled = false;
     }
   });
+  wire($('#kt-create'), () => ({ name: $('#kt-name').value, email: $('#kt-cemail').value }));
+  wire($('#kt-signin'), () => ({ email: $('#kt-semail').value }));
+}
+
+/* ── the link from the email ───────────────────────────────────────────── */
+async function renderLogin(main) {
+  const m = location.hash.match(/[#&]l=([A-Za-z0-9_-]{20,80})/);
+  main.innerHTML = `<h1>${T.title}</h1><p class="kc-card">${T.loginWorking}</p>`;
+  try { history.replaceState(null, '', location.pathname); } catch (_) {}
+  try {
+    if (!m) throw new Error('link_expired');
+    const d = await api('/api/tutor/verify', '', { token: m[1] });
+    write(SESSION, { token: d.session_token, name: d.name, id: d.space_id });
+    location.replace(PATHS.space);
+  } catch (e) {
+    main.innerHTML = `<h1>${T.title}</h1><p class="kc-card">${e.message === 'link_expired' ? T.loginBad : T.errNet}</p>
+      <p><a class="kc-btn" href="${PATHS.start}">${T.loginAgain}</a></p>`;
+  }
 }
 
 function scaleTable() {
@@ -258,11 +297,16 @@ function scaleTable() {
 }
 
 /* ── space page ─────────────────────────────────────────────────────────── */
+let LEGACY = false;          // opened with an old private link (#t=…)
 function hashParams() {
   const h = new URLSearchParams(location.hash.slice(1));
   const t = h.get('t');
-  return { token: t && /^[A-Za-z0-9_-]{20,64}$/.test(t) ? t : null, sid: parseInt(h.get('s') || '', 10) || null };
+  LEGACY = !!(t && /^[A-Za-z0-9_-]{20,64}$/.test(t));
+  const ses = session();
+  return { token: LEGACY ? t : (ses && ses.token) || null, sid: parseInt(h.get('s') || '', 10) || null };
 }
+// Links inside the space keep the private token only for old spaces.
+const hrefTo = (token, sid) => (LEGACY ? `#t=${esc(token)}${sid ? `&s=${sid}` : ''}` : (sid ? `#s=${sid}` : '#'));
 
 async function renderSpace(main) {
   const { token, sid } = hashParams();
@@ -272,24 +316,28 @@ async function renderSpace(main) {
     if (!token) throw new Error('unknown_space');
     [d, cat] = await Promise.all([api('/api/tutor/space', token), catalogue()]);
   } catch (e) {
-    main.innerHTML = `<h1>${T.students}</h1><p class="kc-card">${e.message === 'unknown_space' ? T.noSpace : T.errNet}</p>
-      <p><a class="kc-btn" href="${PATHS.start}">${T.createH}</a></p>`;
-    if (e.message === 'unknown_space' && token) forgetSpace(token);
+    if (e.message === 'unknown_space' && token) { if (LEGACY) forgetSpace(token); else write(SESSION, null); }
+    main.innerHTML = `<h1>${T.students}</h1><p class="kc-card">${!token ? T.needSignIn : (e.message === 'unknown_space' ? T.noSpace : T.errNet)}</p>
+      <p><a class="kc-btn" href="${PATHS.start}">${T.signInH}</a></p>`;
     return;
   }
-  rememberSpace({ name: d.space.name, token });
+  if (LEGACY) rememberSpace({ name: d.space.name, token });
   const cards = d.students.map((s) => {
     const tps = Object.entries(s.stars).filter(([, n]) => n > 0)
       .sort((a, b) => cat.ids.indexOf(a[0]) - cat.ids.indexOf(b[0]));
-    return `<a class="kt-scard" href="#t=${esc(token)}&s=${s.id}">
+    return `<a class="kt-scard" href="${hrefTo(token, s.id)}">
       <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
       <span class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span>
       ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>` : ''}
     </a>`;
   }).join('');
   main.innerHTML = `
-    <div class="kc-head"><div><h1>${esc(d.space.name)}</h1><p class="kc-muted">${T.students}: ${d.students.length}</p></div>
-      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-rename">${T.rename}</button></p></div>
+    <div class="kc-head"><div><h1>${esc(d.space.name)}</h1><p class="kc-muted">${T.students}: ${d.students.length}${d.space.email ? ` · ${esc(T.signedInAs(d.space.email))}` : ''}</p></div>
+      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-rename">${T.rename}</button>
+        ${LEGACY ? '' : `<button class="kc-btn kc-btn-ghost" id="kt-signout">${T.signOut}</button>`}</p></div>
+    ${d.space.email ? '' : `<form class="kc-card kt-addemail" id="kt-addemail"><h2>${T.addEmailH}</h2><p>${T.addEmailLead}</p>
+      <label class="kc-field"><span>${T.email}</span><input id="kt-aemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
+      <p class="kc-error" role="alert" hidden></p><button class="kc-btn" type="submit">${T.addEmailBtn}</button></form>`}
     <section class="kt-grid">${cards || `<p class="kc-card kc-muted">${T.noStudents}</p>`}</section>
     <form class="kc-card" id="kt-add">
       <h2>${T.addH}</h2>
@@ -306,6 +354,16 @@ async function renderSpace(main) {
     <section class="kc-card"><h2>${T.scaleH}</h2>${scaleTable()}</section>
     <p class="kc-muted">${T.retention(d.space.delete_after_days)}</p>
     <p><button class="kc-btn kc-btn-danger" id="kt-delspace">${T.delSpace}</button></p>`;
+  $('#kt-signout')?.addEventListener('click', async () => {
+    try { await api('/api/tutor/logout', token, {}); } catch (_) {}
+    write(SESSION, null); location.href = PATHS.start;
+  });
+  $('#kt-addemail')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const f = $('#kt-addemail'); const err = f.querySelector('.kc-error'); const em = $('#kt-aemail').value;
+    try { await api('/api/tutor/email', token, { email: em }); f.innerHTML = `<p class="kt-sent">${T.checkMail(esc(em.trim()))}</p>`; f.classList.add('kc-done'); }
+    catch (e) { err.textContent = errorText(e.message); err.hidden = false; }
+  });
   $('#kt-rename').addEventListener('click', async () => {
     const name = prompt(T.renamePrompt, d.space.name);
     if (name && name.trim()) { await api('/api/tutor/rename', token, { name }); renderSpace(main); }
@@ -316,7 +374,7 @@ async function renderSpace(main) {
     try {
       const r = await api('/api/tutor/student/add', token, { name: $('#kt-sname').value.trim(), level: $('#kt-slevel').value, goals: $('#kt-sgoals').value, adult: $('#kt-sadult').checked });
       setKey(token, r.id, r.student_key);
-      location.hash = `t=${token}&s=${r.id}`;
+      location.hash = hrefTo(token, r.id).slice(1);
     } catch (e) {
       const el = $('#kt-err'); el.textContent = errorText(e.message); el.hidden = false; btn.disabled = false;
     }
@@ -324,7 +382,7 @@ async function renderSpace(main) {
   $('#kt-delspace').addEventListener('click', async () => {
     if (!confirm(T.delSpaceQ)) return;
     await api('/api/tutor/delete', token, {});
-    forgetSpace(token);
+    forgetSpace(token); write(SESSION, null);
     main.innerHTML = `<h1>${T.students}</h1><p class="kc-card">${T.deleted}</p>`;
   });
 }
@@ -335,7 +393,7 @@ async function renderStudent(main, token, sid) {
   try {
     [d, cat] = await Promise.all([api(`/api/tutor/student?id=${sid}`, token), catalogue()]);
   } catch (e) {
-    main.innerHTML = `<p><a href="#t=${esc(token || '')}">${T.back}</a></p><p class="kc-card">${e.message === 'unknown_student' ? T.noSpace : T.errNet}</p>`;
+    main.innerHTML = `<p><a href="${hrefTo(token, null)}">${T.back}</a></p><p class="kc-card">${e.message === 'unknown_student' ? T.noSpace : T.errNet}</p>`;
     return;
   }
   const s = d.student;
@@ -362,7 +420,7 @@ async function renderStudent(main, token, sid) {
 
   const hwTopic = topicIds.find((tp) => cat.ids.includes(tp)) || topicIds[0];
   main.innerHTML = `
-    <p><a href="#t=${esc(token)}">${T.back}</a></p>
+    <p><a href="${hrefTo(token, null)}">${T.back}</a></p>
     <div class="kc-head"><div><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}</h1>
       <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p></div></div>
 
@@ -523,7 +581,7 @@ async function renderStudent(main, token, sid) {
   $('#kt-remove').addEventListener('click', async () => {
     if (!confirm(T.removeQ(s.name))) return;
     await post('/api/tutor/student/remove', {});
-    location.hash = `t=${token}`;
+    location.hash = hrefTo(token, null).slice(1);
   });
 }
 
@@ -616,4 +674,5 @@ if (main) {
     window.addEventListener('hashchange', () => { if (/[#&]k=/.test(location.hash)) renderMe(main); });
   }
   else if (page === 'report') renderReport(main);
+  else if (page === 'login') renderLogin(main);
 }

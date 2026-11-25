@@ -325,3 +325,21 @@ For Nora:
   Emma's answers don't count for Lucas's homework.
 - Limits: a game already open in another tab keeps the old person until it is
   reloaded; pages show synced changes from another device on the next page load.
+
+## Email sign-in for tutors (2026-11-25)
+
+Owner decision: accounts for tutors now, before real student data. **No passwords**:
+the tutor types their email and gets a one-time link (20 minutes). `api/tutor_auth.py`:
+`POST /api/tutor/login {email, name?}` (with a name and an unknown email = create a
+space), `POST /api/tutor/verify {token}` → session token (60 days after last use,
+per device), `POST /api/tutor/email` (an old private-link space adds an email; once
+confirmed, the private link stops working), `POST /api/tutor/logout`. Every tutor
+endpoint takes the session token as `X-Tutor-Token` (`tutors._tutor`). Answers never
+reveal whether an email has a space; the email says what happened. Only hashes are
+stored. Pages: `/en/spanish/tutors/` (create + sign in), `/en/spanish/tutors/login/#l=`
+(the link from the email), space links are now `#s=<id>` (old spaces keep `#t=`).
+
+Sending: `api/mailer.py`, SMTP from the environment (`SMTP_HOST`, `SMTP_PORT`,
+`SMTP_USER`, `SMTP_PASSWORD`, optional `MAIL_FROM`, `SITE_URL`). Mailbox:
+**hello@krabsy.com at Namecheap Private Email** (`mail.privateemail.com`, port 465).
+Without `SMTP_HOST` the mail is printed to the log (local preview prints links there).

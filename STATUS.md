@@ -12,6 +12,14 @@ headless scenario (anonymous play → Lucas's link, Emma on the same device,
 private notes, homework progress) passed on krabsy.com; DE/ES pages for normal
 visitors load no sync code and make no tutor/profile requests. Test space deleted.
 Nora starts at https://krabsy.com/en/spanish/tutors/.
+**Email sign-in (built 2026-11-25, NOT deployed):** tutors sign up / sign in with a
+one-time email link, no passwords (`api/tutor_auth.py`, `api/mailer.py`). Before
+deploying: (1) Namecheap DNS for krabsy.com: SPF must include Private Email
+(`include:spf.privateemail.com`) and its DKIM record must be added, otherwise mails
+from hello@krabsy.com land in spam; (2) Coolify API app env: `SMTP_HOST=mail.privateemail.com`,
+`SMTP_PORT=465`, `SMTP_USER=hello@krabsy.com`, `SMTP_PASSWORD` (owner sets it).
+Deploy API, then site; then test a real sign-in. Without SMTP, sign-up mails are
+only logged, so don't deploy the site before the API has SMTP.
 
 
 Plan `docs/tutor-platform.md` (tutors = first paying audience; kids and teachers

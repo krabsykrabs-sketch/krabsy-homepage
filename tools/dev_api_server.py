@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 os.environ.setdefault("KRABSY_DATA_DIR", str(ROOT / "_incoming" / "dev-data"))
 Path(os.environ["KRABSY_DATA_DIR"]).mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("SITE_URL", "http://localhost:8010")   # sign-in links in the log point here
 os.environ.setdefault("GEOIP_DB_PATH", str(Path(os.environ["KRABSY_DATA_DIR"]) / "none.mmdb"))
 sys.path.insert(0, str(ROOT / "api"))
 

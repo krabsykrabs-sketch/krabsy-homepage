@@ -122,12 +122,16 @@ def init_db() -> None:
             cols = {r["name"] for r in con.execute(f"PRAGMA table_info({table})")}
             if col not in cols:
                 con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
+    import tutor_auth          # email sign-in (tutors.email, links, sessions)
+    tutor_auth.init_db()
 
 
 def purge_inactive(now: Optional[datetime] = None) -> int:
     """Delete tutor spaces idle for RETENTION_DAYS, with their students' classes."""
     cutoff = ((now or datetime.now(timezone.utc)) - timedelta(days=classes.RETENTION_DAYS)).isoformat(timespec="seconds")
     with _lock, connect() as con:
+        import tutor_auth
+        tutor_auth.purge(con)                  # expired sign-in links and sessions
         ids = [r["id"] for r in con.execute("SELECT id FROM tutors WHERE last_active < ?", (cutoff,))]
         for tid in ids:
             con.execute("DELETE FROM classes WHERE id IN (SELECT class_id FROM tutor_students WHERE tutor_id = ?)", (tid,))
@@ -140,7 +144,13 @@ def _clean(raw: str, n: int) -> str:
 
 
 def _tutor(con: sqlite3.Connection, token: str):
-    return con.execute("SELECT * FROM tutors WHERE tutor_hash = ?", (_hash(token or "-"),)).fetchone()
+    """The tutor for a private link token (old spaces) or an email sign-in session."""
+    t = con.execute("SELECT * FROM tutors WHERE tutor_hash = ?", (_hash(token or "-"),)).fetchone()
+    if t:
+        return t
+    import tutor_auth
+    tid = tutor_auth.session_tutor_id(con, token)
+    return con.execute("SELECT * FROM tutors WHERE id = ?", (tid,)).fetchone() if tid else None
 
 
 def _touch(con: sqlite3.Connection, tutor_id: int) -> None:
@@ -327,7 +337,8 @@ def get_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
                         "last_active": s["seen"] if att else None,
                         "answers_week": sum(1 for a in att if a["at"] >= week_ago),
                         "answers": len(att), "stars": stars})
-    return JSONResponse({"ok": True, "space": {"name": t["name"], "lang": t["lang"], "created": t["created"],
+    return JSONResponse({"ok": True, "space": {"id": t["id"], "name": t["name"], "lang": t["lang"], "created": t["created"],
+                                               "email": t["email"],
                                                "delete_after_days": classes.RETENTION_DAYS},
                          "students": out})
 
