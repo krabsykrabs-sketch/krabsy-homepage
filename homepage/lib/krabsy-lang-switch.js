@@ -61,9 +61,9 @@
     // Figure builder + shells (2026-11-25)
     '/de/meine-figur/':                   '/es/mi-personaje/',
     '/es/mi-personaje/':                  '/de/meine-figur/',
-    // Profile page "Mein Krabsy" (2026-11-25)
-    '/de/mein-krabsy/':                   '/es/mi-krabsy/',
-    '/es/mi-krabsy/':                     '/de/mein-krabsy/',
+    // Profile page "Mein Profil" (2026-11-25)
+    '/de/profil/':                   '/es/perfil/',
+    '/es/perfil/':                     '/de/profil/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a

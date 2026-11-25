@@ -121,6 +121,19 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
       if (n === 60 && sum / 45 > 0.085) { giveUp(); return; }
     }
     if (mouseX != null) { target = Math.max(-0.6, Math.min(0.6, (mouseX - mid()) / 520)); mouseX = null; }
+    if (spinning) {                                         // a drag or a flick turns the figure
+      if (!drag) {
+        live.yaw += vel * dt;
+        vel *= Math.pow(0.06, dt);                          // slows down over about a second
+        if (Math.abs(vel) < 0.4) {                          // done: come back the short way
+          spinning = false;
+          const d = live.yaw - target;
+          live.yaw = target + Math.atan2(Math.sin(d), Math.cos(d));
+        }
+      }
+      wait = Math.max(wait, 2.5);
+      return;
+    }
     live.yaw += (target - live.yaw) * Math.min(1, dt * 4);
     if (live.busy || swapping || !api.auto) return;
     wait -= dt;
@@ -134,7 +147,35 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
   // ---- reactions
   const mouse = (e) => e.pointerType === 'mouse';
   link.addEventListener('pointerenter', (e) => { if (alive && mouse(e) && !live.busy) { moves.wave(); wait = Math.max(wait, 3); } });
-  link.addEventListener('pointerdown', () => { if (alive && !live.busy) { moves.jump(); wait = Math.max(wait, 3); } });
+  // ---- drag to spin (owner 2026-11-25: "be able to interact with the character, e.g. spinning
+  // them"). A drag turns the figure, a flick keeps it turning for a moment; a tap without a
+  // drag still follows the link. touch-action: pan-y keeps vertical page scrolling on phones.
+  let drag = null, vel = 0, spinning = false, dragged = false;
+  canvas.style.touchAction = 'pan-y';
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!alive) return;
+    drag = { x: e.clientX, t: performance.now(), id: e.pointerId }; dragged = false; vel = 0;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    if (!dragged && Math.abs(dx) < 6) return;
+    if (!dragged) { dragged = true; spinning = true; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} }
+    const now = performance.now();
+    const d = dx * 0.016;
+    live.yaw += d;
+    vel = d / Math.max(0.012, (now - drag.t) / 1000);
+    drag.x = e.clientX; drag.t = now;
+    live.kick();
+  }, { passive: true });
+  const endDrag = (e) => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    if (performance.now() - drag.t > 120) vel = 0;          // held still before letting go: no flick
+    vel = Math.max(-25, Math.min(25, vel));
+    drag = null;
+  };
+  addEventListener('pointerup', endDrag); addEventListener('pointercancel', endDrag);
+  link.addEventListener('click', (e) => { if (dragged) { e.preventDefault(); dragged = false; } }, true);
   link.addEventListener('focus', () => { if (alive && !live.busy && link.matches(':focus-visible')) moves.wave(); });
 
   return api;

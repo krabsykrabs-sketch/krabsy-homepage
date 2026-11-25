@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
+  <title>My profile — Krabsy</title>
+  <meta name="description" content="My profile: your figure, your shells and your progress in all games and exercises at a glance. Free, no sign-up, saved on your device only.">
+  <!-- /en/ is the Spanish pilot section (noindex), so this page is too. -->
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://krabsy.com/en/my-profile/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="My profile — Krabsy">
+  <meta property="og:description" content="My profile: your figure, your shells and your progress in all games and exercises at a glance. Free, no sign-up, saved on your device only.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/en/my-profile/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-25">
+  <!-- The live figure (lib/krabsy-figure.js) imports three.js by name. It is loaded only
+       after the page is up, and only for a child who saved a figure (lib/krabsy-profile.js). -->
+  <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a href="/en/spanish/" class="k-logo" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span></a>
+    </header>
+
+    <main class="pf-main">
+      <div class="pf-head">
+        <h1 class="pf-title">My profile</h1>
+        <p class="pf-sub">Your figure, your shells and everything you have achieved so far.</p>
+        <span class="pf-class-box" id="pfClass" hidden></span>
+      </div>
+
+      <!-- Figure + shells. The static content is the new-visitor state; lib/krabsy-profile.js
+           replaces it for a child who has a figure or shells. -->
+      <section class="pf-hero">
+        <div class="pf-stage is-new" id="pfStage">
+          <div class="pf-portraits" id="pfPortraits">
+            <img src="/assets/figures/portraits/Hiker.webp" alt="" width="192" height="192" decoding="async">
+            <img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
+            <img src="/assets/figures/portraits/Robot_One.webp" alt="" width="192" height="192" decoding="async">
+          </div>
+          <canvas id="pfCanvas" hidden></canvas>
+        </div>
+        <div class="pf-hero-body" id="pfHeroBody">
+          <h2 class="pf-hero-title">Build your own figure</h2>
+          <p class="pf-hero-text">Pick a figure and give it a hat, glasses and your colours. Every right answer earns you shells 🐚, and shells unlock more.</p>
+          <div class="pf-actions">
+            <a class="pf-btn pf-btn-main" href="/en/my-figure/">Build your figure →</a>
+            <a class="pf-btn" href="/en/spanish/games/">Play a game →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress, Verb-Diplom and games: rendered by lib/krabsy-profile.js -->
+      <div class="pf-body" id="pfBody"><noscript><p class="pf-muted" style="margin-top:18px">Krabsy needs JavaScript for this page.</p></noscript></div>
+
+      <section class="pf-card pf-note">
+        <h2>On this device only</h2>
+        <p>Your figure, your shells and your progress are saved in this browser on this device, without an account. If you clear the browser data or use another device, they are gone.</p>
+      </section>
+    </main>
+
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-25c"></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────────────────
    Krabsy — "me" helpers shared by the landing pages' profile card
-   (krabsy-landing.js) and the profile page "Mein Krabsy" (krabsy-profile.js).
+   (krabsy-landing.js) and the profile page "Mein Profil" (krabsy-profile.js).
 
    Small on purpose: no three.js, no stats module. Everything is read from
    localStorage on this device; nothing here may throw.
@@ -13,7 +13,7 @@
      itemLabel(topic, id)       what a child reads for a stored item id
    ────────────────────────────────────────────────────────────────────────── */
 
-export const PROFILE_URL = { de: '/de/mein-krabsy/', es: '/es/mi-krabsy/', en: '/en/my-krabsy/' };
+export const PROFILE_URL = { de: '/de/profil/', es: '/es/perfil/', en: '/en/my-profile/' };
 export const FIGURE_URL = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
 
 export function pageLang() {

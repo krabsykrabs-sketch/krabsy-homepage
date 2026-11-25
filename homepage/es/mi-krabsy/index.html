@@ -2,87 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
-  <title>Mi Krabsy — Krabsy</title>
-  <meta name="description" content="Mi Krabsy: tu personaje, tus caracolas y tu progreso en todos los juegos y ejercicios, de un vistazo. Gratis, sin registro y guardado solo en tu dispositivo.">
-  <link rel="canonical" href="https://krabsy.com/es/mi-krabsy/">
-  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/mein-krabsy/">
-  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/mi-krabsy/">
-  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/mein-krabsy/">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-  <meta property="og:title" content="Mi Krabsy — Krabsy">
-  <meta property="og:description" content="Mi Krabsy: tu personaje, tus caracolas y tu progreso en todos los juegos y ejercicios, de un vistazo. Gratis, sin registro y guardado solo en tu dispositivo.">
-  <meta property="og:image" content="https://krabsy.com/og-image.png">
-  <meta property="og:url" content="https://krabsy.com/es/mi-krabsy/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Krabsy">
-  <meta property="og:locale" content="es_ES">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
-  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-25">
-  <!-- The live figure (lib/krabsy-figure.js) imports three.js by name. It is loaded only
-       after the page is up, and only for a child who saved a figure (lib/krabsy-profile.js). -->
-  <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
+  <!-- Moved 2026-11-25 (owner: "Mein Profil" instead of "Mein Krabsy"). Forwards old links. -->
+  <title>Krabsy</title>
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://krabsy.com/es/perfil/">
+  <meta http-equiv="refresh" content="0; url=/es/perfil/">
+  <script>location.replace('/es/perfil/' + location.search + location.hash);</script>
 </head>
-<body>
-  <div class="k-page">
-    <header class="k-page-header">
-      <a href="/es/" class="k-logo" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span></a>
-      <div class="k-lang-toggle" role="group" aria-label="Elegir idioma">
-        <button class="k-lang-btn" type="button" data-lang="de">DE</button>
-        <button class="k-lang-btn is-active" type="button" data-lang="es">ES</button>
-      </div>
-    </header>
-
-    <main class="pf-main">
-      <div class="pf-head">
-        <h1 class="pf-title">Mi Krabsy</h1>
-        <p class="pf-sub">Tu personaje, tus caracolas y todo lo que ya has conseguido.</p>
-        <span class="pf-class-box" id="pfClass" hidden></span>
-      </div>
-
-      <!-- Figure + shells. The static content is the new-visitor state; lib/krabsy-profile.js
-           replaces it for a child who has a figure or shells. -->
-      <section class="pf-hero">
-        <div class="pf-stage is-new" id="pfStage">
-          <div class="pf-portraits" id="pfPortraits">
-            <img src="/assets/figures/portraits/Hiker.webp" alt="" width="192" height="192" decoding="async">
-            <img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
-            <img src="/assets/figures/portraits/Robot_One.webp" alt="" width="192" height="192" decoding="async">
-          </div>
-          <canvas id="pfCanvas" hidden></canvas>
-        </div>
-        <div class="pf-hero-body" id="pfHeroBody">
-          <h2 class="pf-hero-title">Crea tu propio personaje</h2>
-          <p class="pf-hero-text">Elige un personaje y ponle gorro, gafas y tus colores. Por cada respuesta correcta ganas caracolas 🐚 y con ellas desbloqueas más.</p>
-          <div class="pf-actions">
-            <a class="pf-btn pf-btn-main" href="/es/mi-personaje/">Crea tu personaje →</a>
-            <a class="pf-btn" href="/es/juegos/">Juega a un juego →</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Progress, Verb-Diplom and games: rendered by lib/krabsy-profile.js -->
-      <div class="pf-body" id="pfBody"><noscript><p class="pf-muted" style="margin-top:18px">Krabsy necesita JavaScript para esta página.</p></noscript></div>
-
-      <section class="pf-card pf-note">
-        <h2>Solo en este dispositivo</h2>
-        <p>Tu personaje, tus caracolas y tu progreso se guardan en este navegador y en este dispositivo, sin registro. Si borras los datos del navegador o usas otro dispositivo, ya no estarán.</p>
-      </section>
-    </main>
-
-    <footer class="k-footer">
-      <span>© 2026 Krabsy</span>
-      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
-      <span class="k-footer-legal-mount"></span>
-    </footer>
-  </div>
-  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-25b"></script>
-  <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
-  <script src="/lib/krabsy-lang-switch.js?v=2026-11-25c" defer></script>
-  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
-</body>
+<body><p><a href="/es/perfil/">/es/perfil/</a></p></body>
 </html>

@@ -1,5 +1,5 @@
-// "Mein Krabsy" / "Mi Krabsy" / "My Krabsy" — the child's overview page
-// (/de/mein-krabsy/, /es/mi-krabsy/, /en/my-krabsy/). Owner decision 2026-11-25: one
+// "Mein Profil" / "Mi perfil" / "My profile" — the child's overview page
+// (/de/profil/, /es/perfil/, /en/my-profile/). Owner decision 2026-11-25: one
 // page for everything a child owns on Krabsy; the figure builder stays its own page.
 //
 // What it shows and where each number comes from (all on this device, localStorage):
@@ -16,7 +16,7 @@
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
 import { hasData, getOverall, readTopicItems } from '/lib/krabsy-stats.js?v=2026-11-22';
 import { FIGURE_URL, pageLang, savedChar, portraitUrl, DEFAULT_CHAR, classSession,
-  itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25';
+  itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25b';
 import { createLiveFigure, liveFigureBlocked, whenIdle } from '/lib/krabsy-figure-live.js?v=2026-11-25';
 
 const LANG = pageLang();

@@ -6,7 +6,7 @@
    2. fills the progress row for returning players (krabsy-stats.js), and
    3. shows the child's figure next to the featured tile: picture first, then
       the live 3D figure (krabsy-landing-figure.js), with shells and the link
-      to "Mein Krabsy" (krabsy-me.js).
+      to "Mein Profil" (krabsy-me.js).
 
    Filter rules: a tile matches when its data-tags contain the filter. Counts
    use PLAYABLE games only (<a> tiles, the featured game included). A chip is
@@ -16,7 +16,7 @@
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
-import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25';
+import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25b';
 
 const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
 const T = {
@@ -146,7 +146,7 @@ function initClassBadge() {
 /* The child's figure next to the featured game (#gl-figure), standing freely on the page.
    Static HTML = a visitor without anything: a free character's picture and "Bau deine
    Figur →" (to the figure page). A child with a figure, shells or answers gets their own
-   figure, the shell count and "Mein Krabsy →" (to the profile page).
+   figure, the shell count and "Mein Profil →" (to the profile page).
    The picture comes first. The live 3D figure (krabsy-landing-figure.js → three.js, one
    character, the animations) replaces it only after `load` + idle with the spot in view,
    and not at all with "save data", reduced motion, a 2g connection, a very small device or
@@ -184,7 +184,7 @@ function initFigure() {
     try {
       const { liveFigureBlocked, hasWebGL } = await import('/lib/krabsy-figure-live.js?v=2026-11-25');
       if (liveFigureBlocked() || !hasWebGL(force !== '3d')) return;
-      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25');
+      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25b');
       await startLandingFigure({ root, link, stage: document.getElementById('lf-stage'), canvas: document.getElementById('lf-canvas'), char });
     } catch (err) {
       console.warn('landing: live figure skipped', err);
