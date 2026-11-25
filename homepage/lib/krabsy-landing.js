@@ -4,8 +4,9 @@
    /data/games.json by tools/render_static_games.py. This script only:
    1. wires the filter chips above the game grid,
    2. fills the progress row for returning players (krabsy-stats.js), and
-   3. turns the profile card next to the featured tile into "my figure, my
-      shells" for a child who has a figure, shells or answers (krabsy-me.js).
+   3. shows the child's figure next to the featured tile: picture first, then
+      the live 3D figure (krabsy-landing-figure.js), with shells and the link
+      to "Mein Krabsy" (krabsy-me.js).
 
    Filter rules: a tile matches when its data-tags contain the filter. Counts
    use PLAYABLE games only (<a> tiles, the featured game included). A chip is
@@ -142,44 +143,66 @@ function initClassBadge() {
   a.replaceWith(badge);
 }
 
-/* Profile card (#gl-profile). Static HTML = the new-visitor state ("Bau deine Figur →",
-   to the figure page). A child with a figure, shells or answers gets their figure's
-   picture, the shell count and the link to "Mein Krabsy". */
-function initProfileCard() {
-  const card = document.getElementById('gl-profile');
-  if (!card) return;
+/* The child's figure next to the featured game (#gl-figure), standing freely on the page.
+   Static HTML = a visitor without anything: a free character's picture and "Bau deine
+   Figur →" (to the figure page). A child with a figure, shells or answers gets their own
+   figure, the shell count and "Mein Krabsy →" (to the profile page).
+   The picture comes first. The live 3D figure (krabsy-landing-figure.js → three.js, one
+   character, the animations) replaces it only after `load` + idle with the spot in view,
+   and not at all with "save data", reduced motion, a 2g connection, a very small device or
+   without a graphics chip (software drawing would keep a slow computer busy).
+   For testing: ?fig=3d allows software drawing too, ?fig=off keeps the picture. */
+function initFigure() {
+  const root = document.getElementById('gl-figure');
+  if (!root) return;
+  const link = document.getElementById('lf-link');
+  const img = document.getElementById('lf-img');
+  const char = savedChar();
   try {
-    const char = savedChar();
+    img.onerror = () => { if (!img.dataset.fb) { img.dataset.fb = '1'; img.src = portraitUrl(DEFAULT_CHAR); } };
+    if (char && !img.src.endsWith(portraitUrl(char))) img.src = portraitUrl(char);
     const render = () => {
       const s = getShells();
       let answered = false;
       try { answered = hasData(); } catch (_) { /* no stats */ }
       if (!char && !(s.earned > 0) && !answered) return;
-      card.href = card.dataset.profileHref;
-      document.getElementById('pc-cta').textContent = card.dataset.profileCta;
-      document.getElementById('pc-title').textContent = card.dataset.profileTitle;
-      document.getElementById('pc-text').hidden = true;
-      document.getElementById('pc-shells-n').textContent = String(s.balance);
-      document.getElementById('pc-shells').hidden = false;
-      const stage = document.getElementById('pc-stage');
-      if (!stage.dataset.done) {
-        stage.dataset.done = '1';
-        const img = new Image(192, 192);
-        img.alt = ''; img.decoding = 'async';
-        img.onerror = () => { if (!img.dataset.fb) { img.dataset.fb = '1'; img.src = portraitUrl(DEFAULT_CHAR); } };
-        img.src = portraitUrl(char || DEFAULT_CHAR);
-        stage.replaceChildren(img);
-      }
+      link.href = link.dataset.profileHref;
+      document.getElementById('lf-cta').textContent = link.dataset.profileCta;
+      document.getElementById('lf-shells-n').textContent = String(s.balance);
+      document.getElementById('lf-shells').hidden = !(s.earned > 0);
+      root.classList.add('is-mine');
     };
     render();
     onShellsChange(render);
   } catch (err) {
-    console.warn('landing: profile card left as is', err);
+    console.warn('landing: figure label left as is', err);
   }
+
+  const force = new URLSearchParams(location.search).get('fig');
+  if (force === 'off') return;
+  const go = async () => {
+    try {
+      const { liveFigureBlocked, hasWebGL } = await import('/lib/krabsy-figure-live.js?v=2026-11-25');
+      if (liveFigureBlocked() || !hasWebGL(force !== '3d')) return;
+      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25');
+      await startLandingFigure({ root, link, stage: document.getElementById('lf-stage'), canvas: document.getElementById('lf-canvas'), char });
+    } catch (err) {
+      console.warn('landing: live figure skipped', err);
+    }
+  };
+  // after load + idle, and only once the spot is on screen
+  const idle = () => (window.requestIdleCallback ? requestIdleCallback(seen, { timeout: 2500 }) : setTimeout(seen, 300));
+  const seen = () => {
+    try {
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); go(); } });
+      io.observe(root);
+    } catch (_) { go(); }
+  };
+  if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
 }
 
 expireNew();
-initProfileCard();
+initFigure();
 initClassBadge();
 initFilters();
 initProgress();

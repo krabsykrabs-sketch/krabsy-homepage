@@ -17,6 +17,7 @@ import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
 import { hasData, getOverall, readTopicItems } from '/lib/krabsy-stats.js?v=2026-11-22';
 import { FIGURE_URL, pageLang, savedChar, portraitUrl, DEFAULT_CHAR, classSession,
   itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25';
+import { createLiveFigure, liveFigureBlocked, whenIdle } from '/lib/krabsy-figure-live.js?v=2026-11-25';
 
 const LANG = pageLang();
 const T = {
@@ -159,75 +160,45 @@ function renderPortraits() {
   box.classList.toggle('is-one', ids.length === 1);
 }
 
-// The live figure: three.js (0.7 MB) + one character + the shared animations. Loaded only
+// The live figure: three.js (0.7 MB) + one character + the small animation file. Loaded only
 // for a child who saved a figure (then it is in the browser cache from the builder), after
 // the page is up, and never with "save data" on. The picture stays if anything fails.
+// The 3D part is shared with the landing pages (krabsy-figure-live.js).
 async function start3D() {
   const stage = $('pfStage'), canvas = $('pfCanvas');
   try {
-    const [THREE, F] = await Promise.all([import('three'), import('/lib/krabsy-figure.js')]);
-    const cfg = F.playerConfig() || F.normalize({ char: F.FREE_CHARS.includes(char) ? char : F.DEFAULT.char });
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setClearAlpha(0);
-    const scene = new THREE.Scene();
-    scene.add(new THREE.HemisphereLight('#dfe9ff', '#3a2d58', 1.5));
-    const sun = new THREE.DirectionalLight('#ffffff', 1.6); sun.position.set(3, 6, 5); scene.add(sun);
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const live = await createLiveFigure({
+      canvas, box: stage, still, fps: 60, maxSize: 1000, yaw: 0.35,
+      configFrom: (F) => F.playerConfig() || F.normalize({ char: F.FREE_CHARS.includes(char) ? char : F.DEFAULT.char }),
+      place(camera, aspect) {
+        camera.position.set(0, 1.5, 5.7 * Math.max(1, 1.08 / aspect));   // narrow stage: step back
+        camera.lookAt(0, 1.05, 0);
+      },
+    });
+    const { THREE, scene } = live;
     // the builder's floor and ring, so the figure stands on the same spot as there
     const floor = new THREE.Mesh(new THREE.CircleGeometry(1.6, 48), new THREE.MeshLambertMaterial({ color: '#2b3b74' }));
     floor.rotation.x = -Math.PI / 2; scene.add(floor);
     const ring = new THREE.Mesh(new THREE.RingGeometry(1.6, 1.72, 48), new THREE.MeshBasicMaterial({ color: '#2ee6c0' }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.005; scene.add(ring);
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
-    const turn = new THREE.Group(); scene.add(turn);
-    const [fig, clips] = await Promise.all([F.buildFigure(cfg), F.loadClips()]);
-    turn.add(fig.root);
-    const mixer = new THREE.AnimationMixer(fig.root);
-    const idle = clips.Idle_A && mixer.clipAction(clips.Idle_A);
-    const wave = clips.Interact && mixer.clipAction(clips.Interact);
-    if (idle) idle.play();
-    if (wave) { wave.setLoop(THREE.LoopOnce, 1); wave.clampWhenFinished = false; }
-    mixer.addEventListener('finished', () => { if (idle) idle.reset().fadeIn(0.2).play(); });
 
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let yaw = 0.35, drag = null, moved = 0, visible = true, raf = 0, last = performance.now();
-    function resize() {
-      const r = stage.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      renderer.setSize(r.width, r.height, false);
-      camera.aspect = r.width / r.height;
-      camera.position.set(0, 1.5, 5.7 * Math.max(1, 1.08 / camera.aspect));       // narrow stage: step back
-      camera.lookAt(0, 1.05, 0);
-      camera.updateProjectionMatrix();
-      draw(0);
-    }
-    function draw(dt) { turn.rotation.y = yaw; mixer.update(dt); renderer.render(scene, camera); }
-    function frame(now) {
-      raf = 0;
-      const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;
-      draw(still && drag == null ? 0 : dt);
-      if (visible && !document.hidden && (!still || drag != null)) raf = requestAnimationFrame(frame);
-    }
-    const kick = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
-    canvas.addEventListener('pointerdown', (e) => { drag = e.clientX; moved = 0; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} kick(); });
+    // drag to turn, tap to wave
+    let drag = null, moved = 0;
+    canvas.addEventListener('pointerdown', (e) => { drag = e.clientX; moved = 0; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} live.hold(true); });
     canvas.addEventListener('pointermove', (e) => {
       if (drag == null) return;
-      yaw += (e.clientX - drag) * 0.012; moved += Math.abs(e.clientX - drag); drag = e.clientX;
+      live.yaw += (e.clientX - drag) * 0.012; moved += Math.abs(e.clientX - drag); drag = e.clientX;
     });
     const end = () => {
-      if (drag != null && moved < 6 && wave && !still) { mixer.stopAllAction(); wave.reset().play(); }   // a tap: wave
-      drag = null;
+      if (drag != null && moved < 6) live.wave();
+      drag = null; live.hold(false);
     };
-    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', () => { drag = null; });
-    try { new ResizeObserver(resize).observe(stage); } catch (_) { addEventListener('resize', resize); }
-    try { new IntersectionObserver((es) => { visible = es[0].isIntersecting; if (visible) kick(); }).observe(stage); } catch (_) { /* always on */ }
-    document.addEventListener('visibilitychange', kick);
-    if (still) mixer.update(0.4);
-    resize();
+    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', () => { drag = null; live.hold(false); });
     canvas.hidden = false;
+    live.resize();
     canvas.title = T.turn;
     stage.classList.add('is-live');
-    kick();
   } catch (err) {
     console.warn('profile: live figure skipped', err);
     canvas.hidden = true;
@@ -484,9 +455,4 @@ renderClass();
 onShellsChange(renderHero);
 renderBody().catch((err) => { console.warn('profile: sections skipped', err); });
 
-if (char) {
-  const conn = navigator.connection || {};
-  const go = () => { if (!conn.saveData) start3D(); };
-  const idle = () => (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 2500 }) : setTimeout(go, 300));
-  if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
-}
+if (char && !liveFigureBlocked({ motion: false })) whenIdle(start3D);

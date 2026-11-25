@@ -122,8 +122,8 @@ a.k-lang-btn { text-decoration: none; display: inline-flex; align-items: center;
    Owner 2026-11-25: the old dark banner was too big and too different from
    the other games. The featured game is now a tile like the grid's (.gt),
    only wider, with a visible play button; next to it the child's figure and
-   shells (.pc, filled by krabsy-landing.js). On wide screens the row sits on
-   the grid's four columns: tile = three columns, card = one. */
+   shells (.lf, see below). On wide screens the row sits on the grid's four
+   columns: tile = three columns, figure = one. */
 .gl-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .gl-top-feat { display: grid; min-width: 0; }
 .gt-wide .gt-thumb { aspect-ratio: 2 / 1; }
@@ -158,48 +158,53 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
   .gl-top-feat { grid-column: span 3; }
 }
 
-/* Profile card: figure picture(s) on the figure page's dark stage, text below.
-   Below 1000px it is a slim bar under the featured tile. */
-.pc {
-  display: flex; align-items: stretch; background: var(--krabsy-white);
-  border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card);
-  color: var(--krabsy-ink); text-decoration: none; transition: transform 0.18s ease; min-width: 0;
+/* The child's figure (#gl-figure): it stands freely on the page, no tile, with a soft
+   shadow under its feet and a small label (shells, link). First the picture, then the
+   live 3D figure on a transparent canvas (krabsy-landing-figure.js, class .is-live).
+   The canvas is larger than the spot (room for a jump and a wave) and lets clicks
+   through; the whole thing is one link. Below 1000px: figure left, label right, in the
+   slot under the featured tile. */
+.lf { display: flex; min-width: 0; margin-top: 8px; }   /* a tall hat stays off the tile above */
+.lf-link {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 4px 12px;
+  color: var(--krabsy-ink); text-decoration: none; border-radius: var(--radius-md);
+  -webkit-tap-highlight-color: transparent;
 }
-.pc:hover { transform: translateY(-3px); color: var(--krabsy-ink); }
-.pc:focus-visible { border-radius: var(--radius-md); }
-.pc-stage {
-  position: relative; flex: 0 0 132px; display: flex; align-items: center; justify-content: center;
-  background: #13204a; overflow: hidden; padding: 8px;
+.lf-link:hover { color: var(--krabsy-ink); }
+.lf-stage { position: relative; flex: 0 0 auto; width: 122px; height: 126px; }
+.lf-stage::before {            /* ground shadow under the picture */
+  content: ""; position: absolute; left: 50%; bottom: 3%; width: 70%; height: 13%; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(38, 36, 60, 0.26), rgba(38, 36, 60, 0.1) 60%, rgba(38, 36, 60, 0));
+  transition: opacity 0.35s ease;
 }
-.pc-stage img { display: block; width: 44%; height: auto; aspect-ratio: 1; border-radius: 50%; background: #16245a; box-shadow: 0 0 0 2px #2d4180; margin: 0 -7%; }
-.pc-stage img:nth-child(2) { width: 54%; z-index: 1; box-shadow: 0 0 0 3px var(--g-amber); }
-.pc-stage img:only-child { width: 76%; max-width: 132px; margin: 0; box-shadow: 0 0 0 3px var(--g-amber); }
-.pc-body { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 10px 14px 12px; min-width: 0; flex: 1 1 auto; }
-.pc-kicker { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #0d6b5a; }
-.pc-title { font-family: var(--font-display); font-weight: normal; font-size: 1.08rem; line-height: 1.2; }
-.pc-text { font-size: 0.82rem; line-height: 1.35; color: var(--krabsy-ink-mute); }
-.pc-text[hidden], .pc-shells[hidden] { display: none; }
-.pc-shells {
-  align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; margin-top: 3px; padding: 3px 12px;
-  border-radius: var(--radius-pill); background: #fff4d6; box-shadow: inset 0 0 0 1.5px var(--g-amber);
-  font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+.lf-img {
+  position: absolute; left: 50%; bottom: -1%; height: 116%; width: auto; aspect-ratio: 1; transform: translateX(-50%);
+  transition: opacity 0.35s ease;
 }
-.pc-shells b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-.pc-cta { margin-top: 5px; font-weight: 700; font-size: 0.88rem; color: var(--coral-aa); }
-.pc:hover .pc-cta { color: var(--coral-aa-deep); }
-@media (max-width: 559px) {
-  .pc-stage { flex-basis: 108px; }
-  .pc-body { padding: 8px 12px 10px; }
+.lf-canvas {
+  position: absolute; left: -22%; top: -50%; width: 144%; height: 152%;
+  pointer-events: none; opacity: 0; transition: opacity 0.35s ease;
 }
+.lf-canvas[hidden] { display: none; }
+.is-live .lf-canvas { opacity: 1; }
+.is-live .lf-img, .is-live .lf-stage::before { opacity: 0; }
+.lf-label { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.lf-shells {
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 12px; border-radius: var(--radius-pill);
+  background: #fff4d6; box-shadow: inset 0 0 0 1.5px var(--g-amber);
+  font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+}
+.lf-shells[hidden] { display: none; }
+.lf-shells b { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+.lf-cta { font-weight: 700; font-size: 0.95rem; color: var(--coral-aa); }
+.lf-link:hover .lf-cta { color: var(--coral-aa-deep); text-decoration: underline; text-underline-offset: 3px; }
 @media (min-width: 1000px) {
-  .pc { flex-direction: column; }
-  .pc-stage { flex: 1 1 96px; min-height: 96px; padding: 7px; }
-  .pc-stage img { width: 36%; max-width: 84px; margin: 0 -5%; }
-  .pc-stage img:nth-child(2) { width: 44%; max-width: 100px; }
-  .pc-stage img:only-child { width: auto; height: 100%; max-height: 132px; max-width: 86%; }
-  .pc-body { flex: 0 0 auto; padding: 10px 14px 13px; }
+  .lf { margin-top: 0; }
+  .lf-link { flex-direction: column; justify-content: flex-end; gap: 2px; padding-bottom: 4px; }
+  .lf-stage { width: 180px; height: 186px; }
+  .lf-label { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 10px; }
 }
-@media (prefers-reduced-motion: reduce) { .pc { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .lf-canvas, .lf-img, .lf-stage::before { transition: none; } }
 
 /* ── Games grid ───────────────────────────────────────────────────── */
 .gl-games { padding-top: 16px; padding-bottom: 28px; }

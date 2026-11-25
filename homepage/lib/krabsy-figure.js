@@ -410,11 +410,24 @@ export async function buildFigure(config, opts = {}) {
   };
 }
 
-// The shared animation clips (Idle, Walk, Run, Jump, Interact …).
+// The shared animation clips, in two files: 'General' (Idle_A, Interact, PickUp, Throw …,
+// 0.8 MB) and 'MovementBasic' (Walking_A, Running_A, Jump_Full_Short …, 0.7 MB).
+// loadClips() loads both, as games do. loadClipSet(name) loads one file: 'General',
+// 'MovementBasic', or 'Mini' (Idle_A + Jump_Full_Short only, 0.06 MB, for the live figure
+// on the landing and profile pages; made by tools/make_mini_anim.py).
+const clipSets = new Map();
+export function loadClipSet(name, base = ASSET_BASE) {
+  const key = base + name;
+  if (!clipSets.has(key)) {
+    clipSets.set(key, loader.loadAsync(`${base}anim/Rig_Medium_${name}.glb`)
+      .then((g) => Object.fromEntries(g.animations.map((a) => [a.name, a]))));
+  }
+  return clipSets.get(key);
+}
 let clipsP = null;
 export function loadClips(base = ASSET_BASE) {
-  clipsP ||= Promise.all(['General', 'MovementBasic'].map((n) => loader.loadAsync(`${base}anim/Rig_Medium_${n}.glb`)))
-    .then((gs) => Object.fromEntries(gs.flatMap((g) => g.animations).map((a) => [a.name, a])));
+  clipsP ||= Promise.all(['General', 'MovementBasic'].map((n) => loadClipSet(n, base)))
+    .then((sets) => Object.assign({}, ...sets));
   return clipsP;
 }
 

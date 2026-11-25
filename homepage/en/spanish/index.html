@@ -22,12 +22,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25b">
   <style>
     /* Spanish landing: four topic cards in two equal columns (the /de/ grid has 2 cards + quick links) */
     .pr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     @media (max-width: 720px) { .pr-grid { grid-template-columns: 1fr; } }
   </style>
+  <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
+  <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
 </head>
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -74,29 +76,29 @@
         </div>
       </div>
 
-      <!-- ── Featured game (wide tile, tools/render_static_games.py) + profile card.
-           The card's static content is the new-visitor state; krabsy-landing.js turns it
-           into "my figure, my shells" for a child who has a figure or shells. -->
+      <!-- ── Featured game (wide tile, tools/render_static_games.py) + the child's figure,
+           standing freely on the page. Static content = a visitor without a figure;
+           krabsy-landing.js shows the child's own picture, shells and link, and swaps in
+           the live 3D figure after load (krabsy-landing-figure.js). -->
       <div class="wrap gl-top">
         <div class="gl-top-feat" id="gl-featured">
           <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
           <a class="gt gt-wide" href="/en/spanish/games/verb-kitchen/" data-game-id="verb-kitchen" aria-labelledby="feat-name" aria-describedby="feat-desc"><div class="gt-thumb"><img src="/thumbnails/hero/verb-kitchen.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span></div></div><div class="gt-body"><h2 class="gt-name" id="feat-name">Verb Kitchen!</h2><div id="feat-desc" class="vh"><p class="gt-tag">Cooking chaos: wash the plates with the right words!</p><div class="gt-meta"><span class="vh">3D game. </span><span class="bdg bdg-phone">Phone ✓</span></div></div><span class="gt-cta" aria-hidden="true"><svg><use href="#i-play"/></svg>Play now</span></div></a>
           <!-- STATIC-GAMES:END -->
         </div>
-        <a class="pc" id="gl-profile" href="/en/my-figure/" data-profile-href="/en/my-krabsy/" data-profile-title="Your figure" data-profile-cta="To my Krabsy →">
-          <span class="pc-stage" id="pc-stage" aria-hidden="true">
-            <img src="/assets/figures/portraits/Hiker.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
-            <img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
-            <img src="/assets/figures/portraits/Robot_One.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
-          </span>
-          <span class="pc-body">
-            <span class="pc-kicker">My Krabsy</span>
-            <strong class="pc-title" id="pc-title">Your own figure</strong>
-            <span class="pc-text" id="pc-text">With a hat, glasses and your colours.</span>
-            <span class="pc-shells" id="pc-shells" hidden><span aria-hidden="true">🐚</span> <b id="pc-shells-n">0</b> shells</span>
-            <span class="pc-cta" id="pc-cta">Build your figure →</span>
-          </span>
-        </a>
+        <div class="lf" id="gl-figure">
+          <a class="lf-link" id="lf-link" href="/en/my-figure/" data-profile-href="/en/my-krabsy/" data-profile-cta="My Krabsy">
+            <span class="lf-stage" id="lf-stage" aria-hidden="true">
+              <img class="lf-img" id="lf-img" src="/assets/figures/portraits/Witch.webp" alt="" width="192" height="192" decoding="async">
+              <canvas class="lf-canvas" id="lf-canvas" hidden></canvas>
+            </span>
+            <span class="lf-label">
+              <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> shells</span></span>
+              <span class="lf-cta"><span id="lf-cta">Build your figure</span> <span aria-hidden="true">→</span></span>
+            </span>
+          </a>
+        </div>
+        <script>/* own figure's picture right away (no flash of the default one) */try{var f=JSON.parse(localStorage.getItem("krabsy_figure_v2")||"null");if(f&&/^[A-Za-z_]{1,40}$/.test(f.char))document.getElementById("lf-img").src="/assets/figures/portraits/"+f.char+".webp"}catch(_){}</script>
       </div>
 
       <!-- ── Game grid with filter chips ─────────────────────────────── -->
@@ -196,7 +198,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25c"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25d"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
