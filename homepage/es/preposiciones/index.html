@@ -464,7 +464,6 @@
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
         <a class="k-game-card" href="/es/juegos/verb-towers/" data-game-id="verb-towers"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Towers</h3><p class="k-game-card-tagline">Construye torres. Forja monedas con verbos en inglés.</p><span class="k-game-card-cta">Jugar →</span></div></a>
-        <a class="k-game-card" href="/es/juegos/quiz-room/" data-game-id="quiz-room"><span class="k-game-card-badge is-teacher">Para docentes</span><div class="k-game-card-thumb"><img src="/thumbnails/sm/quiz-room.jpg" alt="Escena del juego Sala de quiz" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Sala de quiz</h3><p class="k-game-card-tagline">¡Quiz en vivo con tu clase: recorre la sala 3D con tu personaje!</p><span class="k-game-card-cta">Jugar →</span></div></a>
         <!-- STATIC-GAMES:END -->
       </div>
       <p class="games-all-link-row">
@@ -688,6 +687,7 @@
       let games = [];
       try { games = await getGamesForTopic(CURRENT_TOPIC); }
       catch (err) { console.error('topic-hub: games.json fetch failed', err); }
+      if (games) games = games.filter((g) => g.audience !== 'teacher');   // Quiz-Raum: teacher pages only
 
       if (!games.length) {
         section.hidden = true;

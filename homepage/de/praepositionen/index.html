@@ -467,7 +467,6 @@
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
         <a class="k-game-card" href="/de/spiele/verb-towers/" data-game-id="verb-towers"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Spielszene aus Verb Towers" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Towers</h3><p class="k-game-card-tagline">Baue Türme. Schmiede Münzen mit englischen Verben.</p><span class="k-game-card-cta">Spielen →</span></div></a>
-        <a class="k-game-card" href="/de/spiele/quiz-room/" data-game-id="quiz-room"><span class="k-game-card-badge is-teacher">Für Lehrkräfte</span><div class="k-game-card-thumb"><img src="/thumbnails/sm/quiz-room.jpg" alt="Spielszene aus Quiz-Raum" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Quiz-Raum</h3><p class="k-game-card-tagline">Live-Quiz mit deiner Klasse – lauf als Figur durch den 3D-Raum!</p><span class="k-game-card-cta">Spielen →</span></div></a>
         <!-- STATIC-GAMES:END -->
       </div>
       <p class="games-all-link-row">
@@ -691,6 +690,7 @@
       let games = [];
       try { games = await getGamesForTopic(CURRENT_TOPIC); }
       catch (err) { console.error('topic-hub: games.json fetch failed', err); }
+      if (games) games = games.filter((g) => g.audience !== 'teacher');   // Quiz-Raum: teacher pages only
 
       if (!games.length) {
         // No topic-compatible games yet — hide the section entirely (heading,

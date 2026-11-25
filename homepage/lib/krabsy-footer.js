@@ -174,6 +174,7 @@
     var out = [];
     (gamesArr || []).forEach(function (g) {
       if (g.status === 'coming_soon') return;
+      if (g.audience === 'teacher') return;   // teacher-led (Quiz-Raum): on the teacher pages
       if (!(g.topics || []).some(function (t) { return own[t]; })) return;   // other section's game
       var label = (g.name && g.name[lang]) || (g.name && (g.name.de || g.name.es)) || g.id;
       out.push({ label: label, href: base + g.id + '/' });

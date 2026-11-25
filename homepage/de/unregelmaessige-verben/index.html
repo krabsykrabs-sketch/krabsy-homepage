@@ -521,7 +521,6 @@
       <div class="card-grid-games card-grid" id="games-grid">
         <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
         <a class="k-game-card" href="/de/spiele/verb-towers/" data-game-id="verb-towers"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Spielszene aus Verb Towers" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Towers</h3><p class="k-game-card-tagline">Baue Türme. Schmiede Münzen mit englischen Verben.</p><span class="k-game-card-cta">Spielen →</span></div></a>
-        <a class="k-game-card" href="/de/spiele/quiz-room/" data-game-id="quiz-room"><span class="k-game-card-badge is-teacher">Für Lehrkräfte</span><div class="k-game-card-thumb"><img src="/thumbnails/sm/quiz-room.jpg" alt="Spielszene aus Quiz-Raum" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Quiz-Raum</h3><p class="k-game-card-tagline">Live-Quiz mit deiner Klasse – lauf als Figur durch den 3D-Raum!</p><span class="k-game-card-cta">Spielen →</span></div></a>
         <a class="k-game-card" href="/de/spiele/verb-kitchen/" data-game-id="verb-kitchen"><div class="k-game-card-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen!" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Kitchen!</h3><p class="k-game-card-tagline">Koch-Chaos — spüle Teller mit den richtigen Verben!</p><span class="k-game-card-cta">Spielen →</span></div></a>
         <a class="k-game-card" href="/de/spiele/verb-platformer/" data-game-id="verb-platformer"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Spielszene aus Verb Platformer!" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Platformer!</h3><p class="k-game-card-tagline">Spring über die Wolken und lande auf der richtigen Verbform!</p><span class="k-game-card-cta">Spielen →</span></div></a>
         <a class="k-game-card" href="/de/spiele/verb-dungeon/" data-game-id="verb-dungeon"><div class="k-game-card-thumb"><img src="/thumbnails/sm/verb-dungeon.jpg" alt="Spielszene aus Verb Dungeon" loading="lazy"></div><div class="k-game-card-body"><h3 class="k-game-card-title">Verb Dungeon</h3><p class="k-game-card-tagline">Finde den Schlüssel, knack die Verb-Türen und mach den Golem schwindelig!</p><span class="k-game-card-cta">Spielen →</span></div></a>
@@ -762,6 +761,7 @@
       let games = [];
       try { games = await getGamesForTopic(CURRENT_TOPIC); }
       catch (err) { console.error('topic-hub: games.json fetch failed', err); }
+      if (games) games = games.filter((g) => g.audience !== 'teacher');   // Quiz-Raum: teacher pages only
 
       if (!games.length) {
         // No topic-compatible games yet — hide the section entirely (heading,

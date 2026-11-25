@@ -211,9 +211,9 @@ def landing_featured(g, lang):
 
 
 def for_kids(games):
-    # The landing page is for children: teacher-led games (audience "teacher",
-    # e.g. the Quiz-Raum) live on the games hub and the teacher pages instead
-    # (owner 2026-11-23).
+    # Children's lists (landing, games hubs, topic hubs, footer, in-game chips) skip
+    # teacher-led games (audience "teacher", e.g. the Quiz-Raum); they live on the
+    # teacher pages (owner 2026-11-23, hubs too 2026-11-25).
     return [g for g in games if g.get("audience") != "teacher"]
 
 
@@ -257,15 +257,16 @@ def strip_order(games):
 
 
 def for_topic(topic):
-    return lambda games: [g for g in games if topic in (g.get("topics") or [])]
+    # children's lists: no teacher-led games (Quiz-Raum; owner 2026-11-25)
+    return lambda games: [g for g in for_kids(games) if topic in (g.get("topics") or [])]
 
 
 # page, grid element id, section id whose `hidden` follows emptiness (or None),
 # selector of games, renderer
 TARGETS = [
-    ("de/spiele/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "de")],
+    ("de/spiele/index.html", "games-grid", None, lambda gs: [g for g in for_kids(gs) if in_section(g, "de")],
      lambda g: card(g, "de")),   # section games only (Verb Hatchery is /en/ only)
-    ("es/juegos/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "es")],
+    ("es/juegos/index.html", "games-grid", None, lambda gs: [g for g in for_kids(gs) if in_section(g, "es")],
      lambda g: card(g, "es")),   # section games only (Verb Hatchery is /en/ only)
     ("de/index.html", "gl-featured", None, lambda gs: featured_only(gs, "de"), lambda g: landing_featured(g, "de")),
     ("es/index.html", "gl-featured", None, lambda gs: featured_only(gs, "es"), lambda g: landing_featured(g, "es")),
@@ -275,7 +276,7 @@ TARGETS = [
     ("en/spanish/index.html", "gl-featured", None, lambda gs: featured_only(gs, "en"),
      lambda g: landing_featured(g, "en")),
     ("en/spanish/index.html", "gl-grid", None, lambda gs: landing_order(gs, "en"), lambda g: landing_tile(g, "en")),
-    ("en/spanish/games/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "en")],
+    ("en/spanish/games/index.html", "games-grid", None, lambda gs: [g for g in for_kids(gs) if in_section(g, "en")],
      lambda g: card(g, "en")),
     ("de/unregelmaessige-verben/index.html", "games-grid", "games-section", for_topic("irregular_verbs"),
      lambda g: card(g, "de", decoding=False)),
