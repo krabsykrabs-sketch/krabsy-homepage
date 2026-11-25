@@ -22,21 +22,21 @@ const T = {
     wear: 'Anziehen', look: 'Ansehen', close: 'Schließen', more: 'und {n} mehr',
     why: { shells: 'Für 150 gesammelte Muscheln', right: 'Für {n} richtige Antworten', safe: 'Weil {n} Wörter schon sitzen',
       topics: 'Für ein zweites Thema', diplom: 'Für dein Verb-Diplom', days: 'Für {n} Übungstage',
-      week: 'Für eine neue Übungswoche', game: 'In einem Spiel gefunden' },
+      week: 'Für eine neue Übungswoche', game: 'In einem Spiel gefunden', tutor: 'Von deiner Lehrkraft' },
   },
   es: {
     title: '¡Regalo nuevo!', titleMany: '¡{n} regalos nuevos!', intro: 'Tienes algo nuevo:',
     wear: 'Probar', look: 'Ver', close: 'Cerrar', more: 'y {n} más',
     why: { shells: 'Por reunir 150 caracolas', right: 'Por {n} respuestas correctas', safe: 'Porque ya te salen {n} palabras',
       topics: 'Por probar un segundo tema', diplom: 'Por tu diploma de verbos', days: 'Por {n} días de práctica',
-      week: 'Por una nueva semana de práctica', game: 'Lo encontraste en un juego' },
+      week: 'Por una nueva semana de práctica', game: 'Lo encontraste en un juego', tutor: 'De tu profesor o profesora' },
   },
   en: {
     title: 'New gift!', titleMany: '{n} new gifts!', intro: 'You got something new:',
     wear: 'Put it on', look: 'Have a look', close: 'Close', more: 'and {n} more',
     why: { shells: 'For collecting 150 shells', right: 'For {n} right answers', safe: 'Because you know {n} words',
       topics: 'For trying a second topic', diplom: 'For your verb diploma', days: 'For {n} practice days',
-      week: 'For a new practice week', game: 'Found in a game' },
+      week: 'For a new practice week', game: 'Found in a game', tutor: 'From your tutor' },
   },
 };
 const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
@@ -45,6 +45,7 @@ const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
 export function reasonText(source, lang = 'de') {
   const t = (T[lang] || T.de).why;
   const [type, arg] = String(source || '').split(':');
+  if (type === 'game' && arg === 'tutor' && t.tutor) return t.tutor;      // sent live by a tutor
   if (!Object.hasOwn(t, type)) return '';
   return fill(t[type], { n: arg });
 }

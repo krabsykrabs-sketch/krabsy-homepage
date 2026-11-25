@@ -96,6 +96,22 @@ CREATE TABLE IF NOT EXISTS tutor_homework (
   created TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS tutor_students_tutor ON tutor_students(tutor_id);
+CREATE TABLE IF NOT EXISTS tutor_worksheets (
+  id INTEGER PRIMARY KEY,
+  ts_id INTEGER NOT NULL REFERENCES tutor_students(id) ON DELETE CASCADE,
+  topic TEXT NOT NULL,
+  title TEXT NOT NULL,
+  mode TEXT NOT NULL DEFAULT 'typed',        -- typed | choice | mixed
+  questions TEXT NOT NULL,                   -- JSON list, snapshot from the question engine
+  answers TEXT NOT NULL DEFAULT '{}',        -- JSON {index: {given, correct, at}} (first try only)
+  created TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tutor_live (
+  ts_id INTEGER PRIMARY KEY REFERENCES tutor_students(id) ON DELETE CASCADE,
+  worksheet_id INTEGER,
+  started TEXT NOT NULL,
+  events TEXT NOT NULL DEFAULT '[]'          -- JSON [{seq, kind, text, at}] rewards and messages
+);
 CREATE TABLE IF NOT EXISTS student_profiles (
   student_id INTEGER PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
   data TEXT NOT NULL,
@@ -110,6 +126,7 @@ MIGRATIONS = [
     ("tutor_students", "adult", "INTEGER NOT NULL DEFAULT 0"),
     ("tutor_students", "report_hash", "TEXT"),                  # parents' read-only link
     ("tutor_students", "report_note", "TEXT NOT NULL DEFAULT ''"),
+    ("tutor_students", "plan", "TEXT NOT NULL DEFAULT ''"),     # lesson builder: the current plan (JSON)
 ]
 PROFILE_MAX = 400 * 1024                                       # bytes of profile JSON per student
 _PKEY = re.compile(r"[A-Za-z0-9_]{1,80}")
@@ -433,6 +450,8 @@ def get_student(id: int, x_tutor_token: str = Header("", max_length=64)) -> JSON
         lessons = [dict(r) for r in con.execute("SELECT id, day, note FROM tutor_lessons WHERE ts_id = ? ORDER BY day DESC, id DESC", (s["id"],))]
         hw = con.execute("SELECT * FROM tutor_homework WHERE ts_id = ? ORDER BY created DESC", (s["id"],)).fetchall()
         seen = con.execute("SELECT last_active FROM students WHERE class_id = ?", (s["class_id"],)).fetchone()
+        wss = con.execute("SELECT * FROM tutor_worksheets WHERE ts_id = ? ORDER BY created DESC LIMIT 20", (s["id"],)).fetchall()
+        live = con.execute("SELECT worksheet_id FROM tutor_live WHERE ts_id = ?", (s["id"],)).fetchone()
     summ = topic_summary(att)
     topics = {}
     for tp in set(summ) | set(set_rows):
@@ -451,7 +470,10 @@ def get_student(id: int, x_tutor_token: str = Header("", max_length=64)) -> JSON
         "topics": topics, "lessons": lessons,
         "homework": [dict(id=h["id"], topic=h["topic"], target=h["target"], goal=h["goal"], difficulty=h["difficulty"],
                           glang=h["glang"], note=h["note"], created=h["created"], **homework_progress(h, att)) for h in hw],
-        "sources": sorted(sources.items(), key=lambda kv: -kv[1])})
+        "sources": sorted(sources.items(), key=lambda kv: -kv[1]),
+        "worksheets": [_ws_out(w, with_answers=False) for w in wss],
+        "live": {"worksheet_id": live["worksheet_id"]} if live else None,
+        "plan": s["plan"] or ""})
 
 
 @router.post("/api/tutor/student/update")
@@ -698,3 +720,231 @@ async def post_profile(request: Request, x_student_token: str = Header("", max_l
                     "ON CONFLICT (student_id) DO UPDATE SET data = excluded.data, updated = excluded.updated",
                     (sid, out, now))
     return JSONResponse({"ok": True, "updated": now})
+
+
+# ── interactive worksheets (made by the tutor, filled in by the student) ────────
+import json as _json
+
+MAX_WS_QUESTIONS = 30
+WS_MAX_BYTES = 40 * 1024
+_WS_MODES = ("typed", "choice", "mixed")
+
+
+class WsQuestion(BaseModel):
+    item: str = Field(..., max_length=80)
+    form: str = Field("default", max_length=40)
+    sentence: str = Field(..., max_length=300)
+    hint: str = Field("", max_length=200)
+    answer: str = Field(..., max_length=80)
+    accepts: list[str] = Field(default_factory=list, max_length=8)
+    options: list[str] = Field(default_factory=list, max_length=6)
+    teach: str = Field("", max_length=400)
+
+
+class WorksheetBody(BaseModel):
+    id: int
+    topic: str = Field(..., max_length=40)
+    title: str = Field("", max_length=80)
+    mode: str = Field("typed", max_length=10)
+    questions: list[WsQuestion] = Field(..., min_length=1, max_length=MAX_WS_QUESTIONS)
+
+
+class WsRef(BaseModel):
+    id: int
+    worksheet_id: int
+
+
+def _ws_out(w, with_answers=True) -> dict:
+    qs = _json.loads(w["questions"])
+    ans = _json.loads(w["answers"] or "{}")
+    done = len(ans)
+    right = sum(1 for a in ans.values() if a.get("correct"))
+    out = {"id": w["id"], "topic": w["topic"], "title": w["title"], "mode": w["mode"], "created": w["created"],
+           "count": len(qs), "done": done, "right": right}
+    if with_answers:
+        out["questions"] = qs
+        out["answers"] = ans
+    return out
+
+
+@router.post("/api/tutor/student/worksheet")
+def add_worksheet(body: WorksheetBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    if body.topic not in classes.TOPICS or body.mode not in _WS_MODES:
+        return _err(400, "bad_worksheet")
+    qs = [q.model_dump() for q in body.questions]
+    raw = _json.dumps(qs, ensure_ascii=False)
+    if len(raw.encode()) > WS_MAX_BYTES:
+        return _err(413, "too_big")
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        n = con.execute("SELECT COUNT(*) FROM tutor_worksheets WHERE ts_id = ?", (s["id"],)).fetchone()[0]
+        if n >= MAX_HOMEWORK:
+            con.execute("DELETE FROM tutor_worksheets WHERE id = (SELECT id FROM tutor_worksheets WHERE ts_id = ? ORDER BY created LIMIT 1)", (s["id"],))
+        cur = con.execute("INSERT INTO tutor_worksheets (ts_id, topic, title, mode, questions, created) VALUES (?,?,?,?,?,?)",
+                          (s["id"], body.topic, _clean(body.title, 80), body.mode, raw, _now()))
+    return JSONResponse({"ok": True, "worksheet_id": cur.lastrowid})
+
+
+@router.get("/api/tutor/student/worksheet")
+def get_worksheet(id: int, worksheet_id: int, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], id)
+        w = s and con.execute("SELECT * FROM tutor_worksheets WHERE id = ? AND ts_id = ?", (worksheet_id, s["id"])).fetchone()
+        if not w:
+            return _err(404, "unknown_worksheet")
+    return JSONResponse({"ok": True, "worksheet": _ws_out(w)})
+
+
+@router.post("/api/tutor/student/worksheet-delete")
+def delete_worksheet(body: WsRef, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        con.execute("DELETE FROM tutor_worksheets WHERE id = ? AND ts_id = ?", (body.worksheet_id, s["id"]))
+    return JSONResponse({"ok": True})
+
+
+def _student_ts(con, token: str):
+    st = con.execute("SELECT class_id FROM students WHERE token_hash = ?", (_hash(token or "-"),)).fetchone()
+    return st and con.execute("SELECT * FROM tutor_students WHERE class_id = ?", (st["class_id"],)).fetchone()
+
+
+@router.get("/api/tutor/me/worksheet")
+def me_worksheet(worksheet_id: int, x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        ts = _student_ts(con, x_student_token)
+        w = ts and con.execute("SELECT * FROM tutor_worksheets WHERE id = ? AND ts_id = ?", (worksheet_id, ts["id"])).fetchone()
+        if not w:
+            return _err(404, "unknown_worksheet")
+    return JSONResponse({"ok": True, "worksheet": _ws_out(w)})
+
+
+class WsAnswer(BaseModel):
+    worksheet_id: int
+    index: int = Field(..., ge=0, lt=MAX_WS_QUESTIONS)
+    given: str = Field("", max_length=80)
+    correct: bool
+
+
+@router.post("/api/tutor/me/worksheet-answer")
+def me_worksheet_answer(body: WsAnswer, request: Request, x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    """First try per question counts (later tries after a hint are practice)."""
+    if limited("answers", _ip(request)):
+        return _err(429, "too_many")
+    with _lock, connect() as con:
+        ts = _student_ts(con, x_student_token)
+        w = ts and con.execute("SELECT * FROM tutor_worksheets WHERE id = ? AND ts_id = ?", (body.worksheet_id, ts["id"])).fetchone()
+        if not w:
+            return _err(404, "unknown_worksheet")
+        if body.index >= len(_json.loads(w["questions"])):
+            return _err(400, "bad_index")
+        ans = _json.loads(w["answers"] or "{}")
+        key = str(body.index)
+        if key not in ans:
+            ans[key] = {"given": body.given.strip()[:80], "correct": bool(body.correct), "at": _now()}
+            con.execute("UPDATE tutor_worksheets SET answers = ? WHERE id = ?", (_json.dumps(ans, ensure_ascii=False), w["id"]))
+    return JSONResponse({"ok": True})
+
+
+@router.get("/api/tutor/me/worksheets")
+def me_worksheets(x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        ts = _student_ts(con, x_student_token)
+        if not ts:
+            return _err(404, "unknown_student")
+        rows = con.execute("SELECT * FROM tutor_worksheets WHERE ts_id = ? ORDER BY created DESC LIMIT 20", (ts["id"],)).fetchall()
+    return JSONResponse({"ok": True, "worksheets": [_ws_out(w, with_answers=False) for w in rows]})
+
+
+# ── live lesson: the tutor shows a worksheet on the student's screen, sends rewards ──
+
+class LiveBody(BaseModel):
+    id: int
+    worksheet_id: Optional[int] = None          # None = stop
+
+
+class RewardBody(BaseModel):
+    id: int
+    kind: str = Field("star", max_length=10)     # star | gift
+    text: str = Field("", max_length=120)
+
+
+@router.post("/api/tutor/student/live")
+def set_live(body: LiveBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        if body.worksheet_id is None:
+            con.execute("DELETE FROM tutor_live WHERE ts_id = ?", (s["id"],))
+            return JSONResponse({"ok": True, "live": None})
+        if not con.execute("SELECT 1 FROM tutor_worksheets WHERE id = ? AND ts_id = ?", (body.worksheet_id, s["id"])).fetchone():
+            return _err(404, "unknown_worksheet")
+        row = con.execute("SELECT events FROM tutor_live WHERE ts_id = ?", (s["id"],)).fetchone()
+        con.execute("INSERT INTO tutor_live (ts_id, worksheet_id, started, events) VALUES (?,?,?,?) "
+                    "ON CONFLICT (ts_id) DO UPDATE SET worksheet_id = excluded.worksheet_id, started = excluded.started",
+                    (s["id"], body.worksheet_id, _now(), row["events"] if row else "[]"))
+    return JSONResponse({"ok": True, "live": {"worksheet_id": body.worksheet_id}})
+
+
+@router.post("/api/tutor/student/reward")
+def send_reward(body: RewardBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    kind = body.kind if body.kind in ("star", "gift") else "star"
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        row = con.execute("SELECT events FROM tutor_live WHERE ts_id = ?", (s["id"],)).fetchone()
+        ev = _json.loads(row["events"]) if row else []
+        seq = (ev[-1]["seq"] + 1) if ev else 1
+        ev = (ev + [{"seq": seq, "kind": kind, "text": _clean(body.text, 120), "at": _now()}])[-20:]
+        con.execute("INSERT INTO tutor_live (ts_id, worksheet_id, started, events) VALUES (?,?,?,?) "
+                    "ON CONFLICT (ts_id) DO UPDATE SET events = excluded.events",
+                    (s["id"], None, _now(), _json.dumps(ev, ensure_ascii=False)))
+    return JSONResponse({"ok": True, "seq": seq})
+
+
+@router.get("/api/tutor/me/live")
+def me_live(since: int = 0, x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    """Polled by the student's page every few seconds while it is open."""
+    with _lock, connect() as con:
+        ts = _student_ts(con, x_student_token)
+        if not ts:
+            return _err(404, "unknown_student")
+        row = con.execute("SELECT * FROM tutor_live WHERE ts_id = ?", (ts["id"],)).fetchone()
+    if not row:
+        return JSONResponse({"ok": True, "worksheet_id": None, "events": [], "seq": 0})
+    ev = _json.loads(row["events"])
+    return JSONResponse({"ok": True, "worksheet_id": row["worksheet_id"],
+                         "events": [e for e in ev if e["seq"] > since], "seq": ev[-1]["seq"] if ev else 0})
+
+
+# ── lesson builder: the current plan per student (JSON made by the page) ────────
+
+class PlanBody(BaseModel):
+    id: int
+    plan: str = Field("", max_length=20000)     # JSON string, "" = no plan
+
+
+@router.post("/api/tutor/student/plan")
+def save_plan(body: PlanBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    if body.plan:
+        try:
+            assert isinstance(_json.loads(body.plan), dict)
+        except Exception:  # noqa: BLE001
+            return _err(400, "bad_plan")
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        con.execute("UPDATE tutor_students SET plan = ? WHERE id = ?", (body.plan, s["id"]))
+    return JSONResponse({"ok": True})

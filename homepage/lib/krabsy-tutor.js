@@ -24,6 +24,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-25';
+import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet, meLive } from '/lib/krabsy-tutor-lesson.js?v=2026-11-25';
 
 const LANG = 'en';
 const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',
@@ -340,7 +341,7 @@ async function renderSpace(main) {
   main.innerHTML = `
     <div class="kc-head"><div><h1>${esc(d.space.name)}</h1>
       <p class="kc-muted">${d.space.email ? `${esc(T.signedInAs(d.space.email))} · ` : ''}<button class="kc-link" id="kt-rename">${T.rename}</button>${LEGACY ? '' : ` · <button class="kc-link" id="kt-signout">${T.signOut}</button>`}</p></div>
-      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-addopen" aria-expanded="false">＋ ${T.addH}</button></p></div>
+      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-addopen" aria-expanded="false">+ ${T.addH}</button></p></div>
     ${d.space.email ? '' : `<form class="kc-card kt-addemail" id="kt-addemail"><h2>${T.addEmailH}</h2><p>${T.addEmailLead}</p>
       <label class="kc-field"><span>${T.email}</span><input id="kt-aemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
       <p class="kc-error" role="alert" hidden></p><button class="kc-btn" type="submit">${T.addEmailBtn}</button></form>`}
@@ -354,15 +355,16 @@ async function renderSpace(main) {
       <label class="kt-check"><input type="checkbox" id="kt-sadult"> <span><strong>${T.adult}</strong> <span class="kc-muted">${T.adultHint}</span></span></label>
       <p class="kc-muted">${T.consent}</p>
       <p class="kc-error" id="kt-err" role="alert" hidden></p>
-      <button class="kc-btn" type="submit">${T.addBtn}</button>
+      <p class="kc-row"><button class="kc-btn" type="submit">${T.addBtn}</button>${d.students.length ? `<button class="kc-btn kc-btn-ghost" type="button" id="kt-addcancel">${T.cancel}</button>` : ''}</p>
     </form>
     <section class="kt-grid">${cards || `<p class="kc-card kc-muted">${T.noStudents}</p>`}</section>
     <details class="kc-card kt-more"><summary>${T.scaleH}</summary>${scaleTable()}</details>
     <p class="kc-muted">${T.retention(d.space.delete_after_days)} <button class="kc-link" id="kt-delspace">${T.delSpace}</button></p>`;
   $('#kt-addopen').addEventListener('click', () => {
-    const f = $('#kt-add'); f.hidden = !f.hidden; $('#kt-addopen').setAttribute('aria-expanded', String(!f.hidden));
-    if (!f.hidden) $('#kt-sname').focus();
+    const f = $('#kt-add'); f.hidden = false; $('#kt-addopen').setAttribute('aria-expanded', 'true');
+    f.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); $('#kt-sname').focus();
   });
+  $('#kt-addcancel')?.addEventListener('click', () => { $('#kt-add').hidden = true; $('#kt-addopen').setAttribute('aria-expanded', 'false'); });
   $('#kt-signout')?.addEventListener('click', async () => {
     try { await api('/api/tutor/logout', token, {}); } catch (_) {}
     write(SESSION, null); location.href = PATHS.start;
@@ -428,35 +430,14 @@ async function renderStudent(main, token, sid) {
   }).join('');
 
   const hwTopic = topicIds.find((tp) => cat.ids.includes(tp)) || topicIds[0];
+  const lctx = { d: Object.assign({}, d, { topics: d.topics, plan: d.plan }), cat, sid, name: s.name, topicName, linkFor,
+    api: (path) => api(path, token), post, reload };
   main.innerHTML = `
     <p><a href="${hrefTo(token, null)}">${T.back}</a></p>
     <div class="kc-head"><div><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}</h1>
       <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p></div></div>
 
-    <section class="kc-card" id="kt-profile">
-      <h2>${T.profileH}</h2>
-      <div id="kt-prof-view"><p><strong>${T.goals}:</strong> ${esc(s.goals) || '–'}${s.adult ? ` · <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</p>
-        <button type="button" class="kc-btn kc-btn-ghost" id="kt-edit">${T.edit}</button></div>
-      <form id="kt-prof-form" hidden>
-        <div class="kt-form-row">
-          <label class="kc-field"><span>${T.firstName}</span><input id="kt-pname" maxlength="20" value="${esc(s.name)}" required></label>
-          <label class="kc-field kt-narrow"><span>${T.level}</span><input id="kt-plevel" maxlength="20" value="${esc(s.level)}" placeholder="${T.levelPh}"></label>
-        </div>
-        <label class="kc-field kt-wide"><span>${T.goals}</span><input id="kt-pgoals" maxlength="600" value="${esc(s.goals)}" placeholder="${T.goalsPh}"></label>
-        <label class="kt-check"><input type="checkbox" id="kt-padult"${s.adult ? ' checked' : ''}> <span><strong>${T.adult}</strong> <span class="kc-muted">${T.adultHint}</span></span></label>
-        <p class="kc-row"><button class="kc-btn" type="submit">${T.save}</button><button class="kc-btn kc-btn-ghost" type="button" id="kt-pcancel">${T.cancel}</button></p>
-      </form>
-      <label class="kc-field kt-wide"><span>${T.notes}</span>
-        <textarea id="kt-notes" rows="3" maxlength="4000" placeholder="${T.notesPh}">${esc(s.notes)}</textarea>
-        <small id="kt-notes-ok" hidden>${T.saved}</small></label>
-    </section>
-
-    <section class="kc-card">
-      <h2>${T.linkH}</h2>
-      <p>${T.linkLead(esc(s.name))}</p>
-      ${key ? `<p class="kc-row"><code class="kc-url">${esc(studentUrl(key))}</code><span id="kt-lc"></span></p>` : `<p class="kc-muted">${T.linkUnknown}</p>`}
-      <p><button type="button" class="kc-btn kc-btn-ghost" id="kt-newlink">${T.newLink}</button></p>
-    </section>
+${tutorTopHtml(lctx)}
 
     <section class="kc-card">
       <h2>${T.mapH}</h2>
@@ -465,6 +446,8 @@ async function renderStudent(main, token, sid) {
         <th class="num">${T.answers}</th><th class="num">${T.right}</th><th>${T.practise}</th><th></th></tr></thead>
         <tbody>${rows}</tbody></table></div>
     </section>
+
+${tutorHtml(lctx)}
 
     <section class="kc-card">
       <h2>${T.hwH}</h2>
@@ -494,6 +477,31 @@ async function renderStudent(main, token, sid) {
         <span class="kt-lnote">${esc(l.note)}</span><button type="button" class="kc-link" data-dellesson="${l.id}">${T.del}</button></li>`).join('')}</ul>` : `<p class="kc-muted">${T.lessonNone}</p>`}
     </section>
 
+    <section class="kc-card" id="kt-profile">
+      <h2>${T.profileH}</h2>
+      <div id="kt-prof-view"><p><strong>${T.goals}:</strong> ${esc(s.goals) || '–'}${s.adult ? ` · <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</p>
+        <button type="button" class="kc-btn kc-btn-ghost" id="kt-edit">${T.edit}</button></div>
+      <form id="kt-prof-form" hidden>
+        <div class="kt-form-row">
+          <label class="kc-field"><span>${T.firstName}</span><input id="kt-pname" maxlength="20" value="${esc(s.name)}" required></label>
+          <label class="kc-field kt-narrow"><span>${T.level}</span><input id="kt-plevel" maxlength="20" value="${esc(s.level)}" placeholder="${T.levelPh}"></label>
+        </div>
+        <label class="kc-field kt-wide"><span>${T.goals}</span><input id="kt-pgoals" maxlength="600" value="${esc(s.goals)}" placeholder="${T.goalsPh}"></label>
+        <label class="kt-check"><input type="checkbox" id="kt-padult"${s.adult ? ' checked' : ''}> <span><strong>${T.adult}</strong> <span class="kc-muted">${T.adultHint}</span></span></label>
+        <p class="kc-row"><button class="kc-btn" type="submit">${T.save}</button><button class="kc-btn kc-btn-ghost" type="button" id="kt-pcancel">${T.cancel}</button></p>
+      </form>
+      <label class="kc-field kt-wide"><span>${T.notes}</span>
+        <textarea id="kt-notes" rows="3" maxlength="4000" placeholder="${T.notesPh}">${esc(s.notes)}</textarea>
+        <small id="kt-notes-ok" hidden>${T.saved}</small></label>
+    </section>
+
+    <section class="kc-card">
+      <h2>${T.linkH}</h2>
+      <p>${T.linkLead(esc(s.name))}</p>
+      ${key ? `<p class="kc-row"><code class="kc-url">${esc(studentUrl(key))}</code><span id="kt-lc"></span></p>` : `<p class="kc-muted">${T.linkUnknown}</p>`}
+      <p><button type="button" class="kc-btn kc-btn-ghost" id="kt-newlink">${T.newLink}</button></p>
+    </section>
+
     <section class="kc-card">
       <h2>${T.reportH}</h2>
       <p class="kc-muted">${T.reportLead}</p>
@@ -509,6 +517,7 @@ async function renderStudent(main, token, sid) {
     <p><button class="kc-btn kc-btn-danger" id="kt-remove">${T.remove}</button></p>`;
 
   if (key) $('#kt-lc').appendChild(copyButton(studentUrl(key)));
+  tutorWire(main, lctx);
   if (rkey) $('#kt-rc').appendChild(copyButton(reportUrl(rkey)));
   const rnote = $('#kt-rnote');
   rnote.addEventListener('change', async () => {
@@ -615,6 +624,11 @@ async function renderMe(main) {
   if (m) { try { history.replaceState(null, '', location.pathname); } catch (_) {} }
   const adult = !!d.adult;
   const others = people().list.length > 1;
+  let wsList = [];
+  try { wsList = (await api('/api/tutor/me/worksheets', key, undefined, 'X-Student-Token')).worksheets; } catch (_) {}
+  ME = { key, tutor: d.tutor_name, adult };
+  const wm = location.hash.match(/[#&]w=(\d+)/);
+  if (wm) { await showWorksheet(main, Number(wm[1])); startMeLive(main); return; }
   const card = (h) => {
     const quick = targetsFor(cat, h.topic).filter((x) => x.id.startsWith('drill:'));
     const games = targetsFor(cat, h.topic).filter((x) => !x.id.startsWith('drill:'));
@@ -634,12 +648,31 @@ async function renderMe(main) {
   main.innerHTML = `
     <h1>${esc(adult ? T.meAdultHi(d.name) : T.meHi(d.name))}</h1>
     <p class="kc-muted">${esc(adult ? T.meAdultFrom(d.tutor_name) : T.meFrom(d.tutor_name))}</p>
+    ${meHtml(wsList, d.tutor_name, topicName, cat)}
     ${d.homework.length ? d.homework.map(card).join('') : `<p class="kc-card">${adult ? T.meAdultNone : T.meNone}</p>`}
     <p class="kc-row"><a class="kc-btn kc-btn-ghost" href="${PATHS.games}">${T.meAll}</a>
       ${adult ? '' : `<a class="kc-btn kc-btn-ghost" href="${PATHS.profile}">${T.meProfile}</a>`}</p>
     <p class="kc-muted">${adult ? T.meAdultCounts : T.meCounts}</p>
     ${others ? `<p><button type="button" class="kc-link" id="kt-who">${T.meWho}</button></p>` : ''}`;
   if (others) $('#kt-who').addEventListener('click', () => showPicker({ onDone: () => { location.href = PATHS.me; location.reload(); } }));
+  startMeLive(main);
+}
+
+/* the student's page: one worksheet, and the tutor's live state */
+let ME = null, ME_TIMER = null;
+async function showWorksheet(main, wid) {
+  try {
+    await renderWorksheet(main, { key: ME.key, wid, api, tutor: ME.tutor,
+      onBack: () => { try { history.replaceState(null, '', location.pathname); } catch (_) {} renderMe(main); } });
+  } catch (_) { try { history.replaceState(null, '', location.pathname); } catch (_) {} renderMe(main); }
+}
+function startMeLive(main) {
+  if (ME_TIMER) return;
+  ME_TIMER = meLive({ key: ME.key, api, tutor: ME.tutor, adult: ME.adult,
+    onWorksheet: (wid) => {
+      const cur = location.hash.match(/[#&]w=(\d+)/);
+      if (!cur || Number(cur[1]) !== wid) location.hash = 'w=' + wid;
+    } });
 }
 
 /* ── the parents' report ───────────────────────────────────────────────── */
@@ -680,7 +713,11 @@ if (main) {
   else if (page === 'student') {
     renderMe(main);
     // another student's link opened in the same tab only changes the #fragment
-    window.addEventListener('hashchange', () => { if (/[#&]k=/.test(location.hash)) renderMe(main); });
+    window.addEventListener('hashchange', () => {
+      if (/[#&]k=/.test(location.hash)) renderMe(main);
+      else if (/[#&]w=\d+/.test(location.hash) && ME) showWorksheet(main, Number(location.hash.match(/w=(\d+)/)[1]));
+      else if (!location.hash && ME) renderMe(main);
+    });
   }
   else if (page === 'report') renderReport(main);
   else if (page === 'login') renderLogin(main);

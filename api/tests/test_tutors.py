@@ -184,3 +184,44 @@ def test_goal_homework_adult_report_profile():
     assert c.get("/api/profile", headers=S).status_code == 401
     big = "x" * (500 * 1024)
     assert c.post("/api/profile", json={"changes": {"k": big}}, headers={"X-Student-Token": new}).status_code == 413
+
+
+def test_worksheet_live_plan():
+    c = _client()
+    if c is None:
+        return
+    T = {"X-Tutor-Token": c.post("/api/tutor/create", json={"name": "Nora"}).json()["tutor_token"]}
+    s = c.post("/api/tutor/student/add", json={"name": "Lucas"}, headers=T).json()
+    sid, S = s["id"], {"X-Student-Token": s["student_key"]}
+    q = {"item": "soy_name", "sentence": "Yo ___ Lucas.", "answer": "soy", "accepts": ["soy"], "options": ["soy", "estoy", "es"], "teach": "name: soy"}
+    w = c.post("/api/tutor/student/worksheet", json={"id": sid, "topic": "es_ser", "title": "Ser 1", "mode": "typed", "questions": [q, q, q]}, headers=T).json()
+    wid = w["worksheet_id"]
+    assert c.post("/api/tutor/student/worksheet", json={"id": sid, "topic": "es_ser", "mode": "nope", "questions": [q]}, headers=T).status_code == 400
+    # the student sees and fills it in; only the first try counts
+    assert c.get("/api/tutor/me/worksheets", headers=S).json()["worksheets"][0]["count"] == 3
+    assert c.get(f"/api/tutor/me/worksheet?worksheet_id={wid}", headers=S).json()["worksheet"]["questions"][0]["answer"] == "soy"
+    c.post("/api/tutor/me/worksheet-answer", json={"worksheet_id": wid, "index": 0, "given": "estoy", "correct": False}, headers=S)
+    c.post("/api/tutor/me/worksheet-answer", json={"worksheet_id": wid, "index": 0, "given": "soy", "correct": True}, headers=S)
+    c.post("/api/tutor/me/worksheet-answer", json={"worksheet_id": wid, "index": 1, "given": "soy", "correct": True}, headers=S)
+    assert c.post("/api/tutor/me/worksheet-answer", json={"worksheet_id": wid, "index": 9, "given": "x", "correct": True}, headers=S).status_code == 400
+    ws = c.get(f"/api/tutor/student/worksheet?id={sid}&worksheet_id={wid}", headers=T).json()["worksheet"]
+    assert ws["done"] == 2 and ws["right"] == 1 and ws["answers"]["0"]["given"] == "estoy"
+    assert c.get(f"/api/tutor/student?id={sid}", headers=T).json()["worksheets"][0]["done"] == 2
+    # live: start, rewards, stop
+    assert c.get("/api/tutor/me/live", headers=S).json()["worksheet_id"] is None
+    c.post("/api/tutor/student/live", json={"id": sid, "worksheet_id": wid}, headers=T)
+    c.post("/api/tutor/student/reward", json={"id": sid, "kind": "gift", "text": "Great!"}, headers=T)
+    c.post("/api/tutor/student/reward", json={"id": sid, "kind": "star"}, headers=T)
+    lv = c.get("/api/tutor/me/live?since=0", headers=S).json()
+    assert lv["worksheet_id"] == wid and [e["kind"] for e in lv["events"]] == ["gift", "star"]
+    assert c.get(f"/api/tutor/me/live?since={lv['seq']}", headers=S).json()["events"] == []
+    assert c.get(f"/api/tutor/student?id={sid}", headers=T).json()["live"]["worksheet_id"] == wid
+    c.post("/api/tutor/student/live", json={"id": sid, "worksheet_id": None}, headers=T)
+    assert c.get("/api/tutor/me/live", headers=S).json()["worksheet_id"] is None
+    # plan
+    assert c.post("/api/tutor/student/plan", json={"id": sid, "plan": "not json"}, headers=T).status_code == 400
+    c.post("/api/tutor/student/plan", json={"id": sid, "plan": '{"minutes": 50, "blocks": []}'}, headers=T)
+    assert '"minutes": 50' in c.get(f"/api/tutor/student?id={sid}", headers=T).json()["plan"]
+    # another student can't read this worksheet
+    o = c.post("/api/tutor/student/add", json={"name": "Emma"}, headers=T).json()
+    assert c.get(f"/api/tutor/me/worksheet?worksheet_id={wid}", headers={"X-Student-Token": o["student_key"]}).status_code == 404

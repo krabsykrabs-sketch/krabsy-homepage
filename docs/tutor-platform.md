@@ -346,7 +346,7 @@ Without `SMTP_HOST` the mail is printed to the log (local preview prints links t
 
 ## Owner feedback round 1 (2026-11-25, first real sign-in on krabsy.com)
 
-Collected, not built yet:
+Built the same day (all four):
 
 1. **No shells counter on tutor pages.** The 🐚 counter (top right) belongs to
    children's pages, not to the tutor's space, sign-in or report pages.
@@ -363,3 +363,37 @@ Collected, not built yet:
 Fixed right away (privacy, not tutor-specific): the API's uvicorn access log wrote
 every client IP into the Coolify log; `--no-access-log` in `api/Dockerfile`.
 Mail: Hetzner blocks outgoing port 465; `SMTP_PORT=587` (STARTTLS) works.
+
+## Lesson tools as built (2026-11-25)
+
+Owner decisions: worksheets for tutors are **interactive** (on screen, typed or
+chosen answers), not PDFs; printable PDFs are a separate item for **teachers**
+(classes; the DE teacher section already has worksheet pages to build on).
+
+- **Interactive worksheets** (`tutor_worksheets`): on the student profile, "Make a
+  worksheet" → topic, 6/10/15 questions, answers typed / choose / mixed, "focus on
+  the words to practise" (the star map's practise list first) → preview with swap
+  and remove → save. Questions are a snapshot from the question engine. The
+  student opens it on their page (`/en/spanish/me/#w=<id>`), types or picks each
+  answer and sees right/wrong plus the teach line at once. The first try counts:
+  saved on the worksheet (tutor sees results) and recorded like a game answer with
+  `mode` typed/choice, so **typed answers now count towards ★★★★**.
+- **Live lesson** (`tutor_live`): "Show live" on a worksheet → it opens by itself on
+  the student's page (if it is open), the tutor's panel shows each answer as it
+  comes in (polling 2 s / 2.5 s, no extra server parts), "Send a star ⭐" / "Send a
+  gift 🎁" (a real gift from the rewards system, "From your tutor"; adults get a
+  star only), "End live".
+- **Lesson builder** (`tutor_students.plan`): "Plan a lesson" (30–90 minutes) →
+  warm-up on a topic that sits, check homework (if any), explain, worksheet live,
+  game, homework, on the weakest topic; minutes split by share. Each block: topic
+  can be changed, ticked off, removed; actions: open the drill/topic page, "Make
+  worksheet & show live", "Give homework" (goal 40). "Save as lesson note" writes
+  the plan with ticks into the lesson notes.
+- Student profile order for daily use: live panel, lesson plan, star map,
+  worksheets, homework, lesson notes, then profile, personal link, report.
+- Tested: `api/tests/test_tutors.py::test_worksheet_live_plan`; headless end to end
+  (sign-up → plan → live worksheet → student answers typed → tutor sees them →
+  star + gift arrive → homework from the plan → lesson note).
+
+Next candidates: AI drafts of questions (needs an Anthropic API key + cost limit),
+DE/ES tutor pages, teacher PDFs, typing mode in the drills (Sprint / Fill the Gap).

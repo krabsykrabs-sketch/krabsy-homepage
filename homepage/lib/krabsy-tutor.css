@@ -90,3 +90,49 @@
 .kt-cardhw { font-size: 0.82rem; }
 .kt-more summary { cursor: pointer; font-family: var(--font-display); font-size: 1.1rem; }
 .kt-more[open] summary { margin-bottom: 10px; }
+
+/* lesson tools: worksheets, live, lesson plan (2026-11-25d) */
+.kt-sm { min-height: 36px; padding: 0 14px; font-size: 0.88rem; }
+.kt-live { border: 3px solid #e2574c; }
+.kt-live h2 { margin: 0; }
+.kt-wsres { flex-basis: 100%; }
+.kt-wsresults, .kt-wsprev { margin: 8px 0 12px; padding-left: 22px; display: grid; gap: 6px; }
+.kt-wsresults li.is-right::marker { color: #2ec4a0; }
+.kt-wsresults li.is-wrong { color: #a63f2b; }
+.kt-wsprev li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+.kt-plan { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.kt-plan li { display: grid; grid-template-columns: 70px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #faf8f2; }
+.kt-plan li.is-done { opacity: 0.6; }
+.kt-plan li.is-done strong { text-decoration: line-through; }
+.kt-plan-tick { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.kt-plan-tick input { width: 20px; height: 20px; }
+.kt-plan-min { font-family: var(--font-display); font-size: 1.1rem; color: #bf4a33; }
+.kt-plan-topic { font: inherit; font-size: 0.9rem; border: 1px solid var(--krabsy-lavender); border-radius: 8px; padding: 2px 6px; background: #fff; }
+@media (max-width: 640px) { .kt-plan li { grid-template-columns: 60px 1fr; } .kt-plan-act { grid-column: 1 / -1; } }
+
+/* the worksheet the student fills in */
+.kt-sheet { padding-left: 26px; display: grid; gap: 14px; font-size: 1.15rem; }
+.kt-q { background: var(--krabsy-white); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: 14px 16px; border-left: 6px solid transparent; }
+.kt-q.is-right { border-left-color: #2ec4a0; }
+.kt-q.is-wrong { border-left-color: #e2574c; }
+.kt-q-s { line-height: 2.2; }
+.kt-gap { font: inherit; font-weight: 700; width: 7.5em; padding: 2px 8px; border: none; border-bottom: 3px solid #bf4a33; background: #fff6dd; border-radius: 6px 6px 0 0; text-align: center; }
+.kt-gap:focus { outline: 3px solid var(--krabsy-ink); }
+.kt-gap:disabled { color: var(--krabsy-ink); background: #f4f2ec; }
+.kt-gap-blank { font-weight: 700; color: #bf4a33; }
+.kt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.kt-chip { font: inherit; font-weight: 700; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--krabsy-lavender); background: #fff; cursor: pointer; }
+.kt-chip:hover:not(:disabled) { border-color: #bf4a33; }
+.kt-chip.is-picked { background: #fff6dd; border-color: #bf4a33; }
+.kt-chip:disabled { cursor: default; }
+.kt-fb { font-size: 1rem; margin-top: 4px; }
+.kt-ok { color: #1f8f74; font-weight: 700; }
+.kt-no { color: #a63f2b; font-weight: 700; }
+.kt-sheet-end { font-family: var(--font-display); font-size: 1.6rem; text-align: center; margin: 20px 0; }
+.kt-burst { position: fixed; inset: 0; z-index: 10060; display: grid; place-items: center; background: rgba(13,34,64,.35); cursor: pointer; animation: kt-fade .3s ease-out; }
+.kt-burst > div { background: #fffdf7; border-radius: 22px; padding: 24px 34px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.25); font-weight: 700; font-size: 1.2rem; }
+.kt-burst-ico { display: block; font-size: 4.5rem; line-height: 1; animation: kt-pop .6s ease-out; }
+@keyframes kt-pop { 0% { transform: scale(.2) rotate(-20deg); } 60% { transform: scale(1.25) rotate(8deg); } 100% { transform: scale(1); } }
+@keyframes kt-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .kt-burst, .kt-burst-ico { animation: none; } }
+.kt-q [data-check][hidden], .kc-btn[hidden] { display: none; }
