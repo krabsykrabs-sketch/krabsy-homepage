@@ -1039,7 +1039,7 @@ export class World {
   showWaiting(i, sp) {
     const c = this.incubators[i];
     this.clearIncubator(i);
-    const cr = buildCreature(sp); cr.position.y = 0.55; cr.scale.setScalar(0.9);
+    const cr = buildCreature(sp); cr.position.y = 0.55; cr.scale.setScalar(cr.userData.real ? Math.min(1.5, 1.4 / cr.userData.height) : 0.9);
     c.group.add(cr); c.waiting = cr;
   }
   setPenCreature(i, sp) {
@@ -1048,7 +1048,8 @@ export class World {
     p.sp = sp || null;
     if (sp) {
       const cr = buildCreature(sp);
-      cr.position.set(0, 0.25, 0); cr.scale.setScalar(1.5); cr.rotation.y = Math.PI; // look at the path (−z)
+      // (roster creatures come at their real size; big ones are shrunk to fit the pen)
+      cr.position.set(0, 0.25, 0); cr.scale.setScalar(cr.userData.real ? Math.min(Math.max(1.7, 1.1 / cr.userData.height), 2.4 / cr.userData.height) : 1.5); cr.rotation.y = Math.PI; // look at the path (−z)
       p.group.add(cr); p.creature = cr;
     }
   }

@@ -1,12 +1,13 @@
 // Game state and rules: pure data, no drawing. Saved to localStorage.
 // Every number comes from balance.js.
 import {
-  RARITIES, RARITY, SPECIES_STEP, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, SPECIES_BY_ID,
+  RARITIES, RARITY, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, GOLDEN,
   START, UPGRADES, MAX_PENS, MAX_INCUBATORS, price, GOALS, GOALS_SHOWN, endlessGoal,
 } from './balance.js';
 
 const SAVE_KEY = 'krabsy_hatchery_save';
-const VERSION = 3; // 3 = eggs know their zone, species = '<rarity>-<Animal>' (older saves are dropped)
+import { BY_ID, isGolden, baseId, rosterRarity, creaturesOf } from './roster.js';
+const VERSION = 4; // 3 = eggs know their zone, species = '<rarity>-<Animal>' (older saves are dropped)
 
 const zeroR = () => Object.fromEntries(RARITIES.map((r) => [r, 0]));
 
@@ -18,7 +19,8 @@ export function newState(now = Date.now()) {
     look: 'A',                                  // which character (player.js LOOKS)
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
     incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, zone, start, dur, sp? }
-    book: {},                                   // speciesId → times hatched
+    book: {},                                   // creature id → times hatched
+    gold: {},                                   // creature id → found as a golden version
     stats: { grabbed: 0, grabbedR: zeroR(), home: 0, bonk: 0, stolen: 0, hatched: 0, hatchedR: zeroR(), lost: 0,
       answers: 0, correct: 0, streak: 0, best: 0, upgrades: 0 },
     goals: { active: [], next: 0, stars: 0 },
@@ -53,15 +55,9 @@ export function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (_) { 
 // ── counts and income ──
 export const pensOwned = (s) => START.pens + s.up.pen;
 export const incubatorsOwned = (s) => START.incubators + s.up.incubator;
-export const speciesRarity = (sp) => sp.split('-')[0];
-export const speciesAnimal = (sp) => sp.split('-')[1];
-// 0 or 1: the animal's place in its zone (the second earns a little more)
-export function speciesIndex(sp) {
-  const a = speciesAnimal(sp), z = ZONES.find((zz) => zz.animals.includes(a));
-  return z ? z.animals.indexOf(a) : 0;
-}
+export const speciesRarity = (sp) => rosterRarity(sp);
 export function speciesIncome(sp) {
-  return RARITY[speciesRarity(sp)].income * (1 + SPECIES_STEP * speciesIndex(sp));
+  return RARITY[rosterRarity(sp)].income * (isGolden(sp) ? GOLDEN.income : 1);
 }
 export function cps(s) {
   let c = 0;
@@ -151,11 +147,18 @@ export function hatch(s, i, rnd = Math.random) {
   if (!isReady(inc)) return null;
   let sp = inc.sp, isNew = false;
   if (!sp) {
-    // one of the egg's zone animals
-    const z = ZONES.find((zz) => zz.id === inc.zone) || ZONES[0];
-    sp = `${inc.rarity}-${z.animals[Math.floor(rnd() * z.animals.length)]}`;
-    isNew = !s.book[sp];
-    s.book[sp] = (s.book[sp] || 0) + 1;
+    // a creature of the egg's zone with the egg's rarity (if the zone has none of that
+    // rarity: the nearest one below, then above); now and then a golden one
+    const zone = inc.zone || 'meadow', ri = RARITIES.indexOf(inc.rarity);
+    let pool = [];
+    for (const d of [0, -1, -2, -3, -4, 1, 2, 3, 4]) { const r = RARITIES[ri + d]; if (r && (pool = creaturesOf(zone, r)).length) break; }
+    if (!pool.length) pool = creaturesOf(zone);
+    const pick = pool[Math.floor(rnd() * pool.length)];
+    const golden = rnd() < GOLDEN.chance;
+    sp = pick.id + (golden ? '*' : '');
+    isNew = golden ? !(s.gold || {})[pick.id] : !s.book[pick.id];
+    s.book[pick.id] = (s.book[pick.id] || 0) + 1;
+    if (golden) (s.gold = s.gold || {})[pick.id] = true;
     s.stats.hatched++; s.stats.hatchedR[inc.rarity]++;
   }
   const pen = freePen(s);
@@ -195,7 +198,7 @@ export function recordAnswer(s, correct) {
 }
 
 // ── goals ──
-export const bookCount = (s) => Object.keys(s.book).filter((k) => SPECIES_BY_ID[k]).length;
+export const bookCount = (s) => Object.keys(s.book).filter((k) => BY_ID[k]).length;
 function counter(s, g) {
   const st = s.stats;
   switch (g.kind) {

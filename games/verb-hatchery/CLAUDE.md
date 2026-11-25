@@ -276,8 +276,7 @@ Copy only what you use into `games/verb-hatchery/assets/`.
 
 ## Open questions for the owner
 
-- **Quirky animals licence:** may we ship the Quirky Series FREE
-  Animals on krabsy.com? (blocks release while they are used)
+- ~~Quirky animals licence~~: no longer used (60 CC0 creatures instead, 2026-11-25).
 
 Defaults used until the owner says otherwise (owner said "build it",
 2026-11-22): name **Verb Hatchery**, **creatures from code**, rivals
@@ -824,3 +823,26 @@ Not done yet / to check:
   triangles (all incl. eggs/crabs). Not checked: a real Chromebook (wind
   shader cost), touch beyond earlier steps. Owner note (same day): Fable
   is expensive — use it only where it clearly improves quality.
+- 2026-11-25: **the 60-creature collection is in the game** (lead, Opus).
+  New `src/roster.js`: loads `assets/creatures/creatures.json` (top-level
+  await), creature id = roster id (`fox`), golden version = id + `*`
+  (`fox*`); models load on first use and are cached (`preload()` of the
+  zone's creatures when an egg is picked up); idle clip always playing, a
+  random jump / eat / fun trick every 4–10 s; swimmers and flyers bob at
+  their `hover` height; golden = gold-tinted, shiny, earns ×3
+  (`GOLDEN` in balance.js, 4 % per hatch, own ✨ mark in the Book).
+  `creatures.js` hands roster ids to roster.js (pens, incubators, hatch
+  animation unchanged); unknown ids fall back to a code-built stand-in.
+  Hatching (`state.js` `hatch`): a creature of the egg's zone with the
+  egg's rarity (nearest rarity if the zone has none). Egg weights per zone
+  changed so every roster rarity can hatch: Meadow 55/35/10 + event epic
+  (Bunbun), Forest 40/40/20 + event epic, Beach 25/35/30/10 + event
+  legendary (Squidle), Volcano 15/30/35/20 + event legendary (Drakonix).
+  Pens show creatures at their real height ×1.7 (at least 1.1 m, at most
+  2.4 m). Book: one section per zone, sorted by rarity, icons /
+  silhouettes from the pipeline, found count per zone, ✨ for golden.
+  Book goals: 5, 15, 30, 60. Save version 4 (older saves dropped). The
+  Quirky animals (`src/animals.js`, git-ignored files) are no longer
+  loaded; their licence question is moot. Not done: the 5 extra Ultimate
+  Monsters from the owner's download (add via `tools/creatures/`), a real
+  Chromebook check of many animated creatures in view.

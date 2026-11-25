@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { RARITY, ANIMALS } from './balance.js';
 import { animalsReady, buildAnimal, animateAnimal, animalOf } from './animals.js';
+import { isRosterId, rosterName, buildRosterCreature, animateRoster } from './roster.js';
 
 function hash(str) {
   let h = 2166136261;
@@ -53,6 +54,7 @@ export function isClean(name) {
 }
 const nameCache = new Map();
 export function speciesName(sp) {
+  if (isRosterId(sp)) return rosterName(sp);
   const key = (animalsReady() ? 'a:' : 'c:') + sp;
   if (nameCache.has(key)) return nameCache.get(key);
   const rarity = sp.split('-')[0];
@@ -155,6 +157,8 @@ const BODY = {
 // Builds a creature, about 1 unit tall, standing on y = 0, looking at +z.
 // Returns a Group; group.userData.inner is the part to animate.
 export function buildCreature(sp, { silhouette = false } = {}) {
+  if (isRosterId(sp)) return buildRosterCreature(sp);
+  if (!RARITY[String(sp).split('-')[0]]) sp = 'common-Muskrat'; // (an unknown id: a plain stand-in instead of a crash)
   if (animalsReady()) return buildAnimal(sp, { silhouette });
   const L = speciesLook(sp);
   const g = new THREE.Group();
@@ -241,6 +245,7 @@ export function buildCreature(sp, { silhouette = false } = {}) {
 
 // Idle animation (call every frame). t = seconds.
 export function animateCreature(g, t, dt, excited = 0) {
+  if (g.userData.real) { animateRoster(g, t, dt, excited); return; }
   if (g.userData.mixer) { animateAnimal(g, t, dt, excited); return; }
   const { inner, look, phase } = g.userData;
   const p = t * (1.6 + excited) + phase;

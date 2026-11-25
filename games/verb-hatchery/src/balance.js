@@ -30,11 +30,13 @@ export const RELEASE_SECONDS = 60;
 export const ISLAND = { cx: 0, cz: -20, r: 125 };
 export const HOME = { x: 0, z: 62 };
 export const ZONES = [
-  { id: 'meadow',  stars: 0, animals: ['Muskrat', 'Sparrow'], weights: [70, 30, 0, 0, 0], event: 'rare', eggs: 12, thieves: 0 },
-  { id: 'forest',  stars: 2, x: -68, z: -22, r: 34, animals: ['Pudu', 'Colobus'], weights: [0, 70, 30, 0, 0], event: 'epic', eggs: 7, thieves: 2 },
-  { id: 'beach',   stars: 5, x: 88, z: -14, r: 34, animals: ['Herring', 'Inkfish'], weights: [0, 0, 70, 30, 0], event: 'legendary', eggs: 5, thieves: 3 },
-  { id: 'volcano', stars: 9, x: 0, z: -98, r: 30, animals: ['Taipan', 'Gecko'], weights: [0, 0, 0, 100, 0], event: 'legendary', eggs: 4, thieves: 3 },
+  { id: 'meadow',  stars: 0, animals: ['Muskrat', 'Sparrow'], weights: [55, 35, 10, 0, 0], event: 'epic', eggs: 12, thieves: 0 },
+  { id: 'forest',  stars: 2, x: -68, z: -22, r: 34, animals: ['Pudu', 'Colobus'], weights: [40, 40, 20, 0, 0], event: 'epic', eggs: 7, thieves: 2 },
+  { id: 'beach',   stars: 5, x: 88, z: -14, r: 34, animals: ['Herring', 'Inkfish'], weights: [25, 35, 30, 10, 0], event: 'legendary', eggs: 5, thieves: 3 },
+  { id: 'volcano', stars: 9, x: 0, z: -98, r: 30, animals: ['Taipan', 'Gecko'], weights: [15, 30, 35, 20, 0], event: 'legendary', eggs: 4, thieves: 3 },
 ];
+// A hatched creature can be a golden version: rarer, earns more, own mark in the Book.
+export const GOLDEN = { chance: 0.04, income: 3 };
 export const EGG_RESPAWN = 15; // seconds until a taken egg is replaced in its zone
 
 // Event eggs: now and then one zone's best egg appears somewhere in that zone
@@ -107,11 +109,12 @@ export const GOALS = [
   { id: 'g9',  kind: 'pens', n: 6 },
   { id: 'g10', kind: 'grabR', r: 'epic', n: 1 },
   { id: 'g11', kind: 'streak', n: 10 },
-  { id: 'g12', kind: 'book', n: 12 },
+  { id: 'g12', kind: 'book', n: 15 },
   { id: 'g13', kind: 'cps', n: 1000 },
   { id: 'g14', kind: 'hatchR', r: 'legendary', n: 1 },
   { id: 'g15', kind: 'bonk', n: 10 },
-  { id: 'g16', kind: 'book', n: 22 }, // = SPECIES.length (all creatures)
+  { id: 'g16', kind: 'book', n: 30 },
+  { id: 'g18', kind: 'book', n: 60 }, // = the whole collection (src/roster.js)
   { id: 'g17', kind: 'cps', n: 10000 },
 ];
 export function endlessGoal(k) {

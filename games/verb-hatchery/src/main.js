@@ -3,13 +3,13 @@
 // earn coins, buy upgrades, open farther zones with stars. See ../CLAUDE.md.
 import * as THREE from 'three';
 import * as S from './state.js';
-import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER, EVENTS, SPECIES, zoneRarities } from './balance.js';
+import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER, EVENTS, zoneRarities } from './balance.js';
 import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
 import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName } from './creatures.js';
-import { loadAnimals, trick } from './animals.js';
+import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload } from './roster.js';
 import { reserveSpots, buildDecor } from './decor.js';
 import * as Q from './questions.js';
 import { t, lang, fmt, fmtRate, fmtTime } from './i18n.js';
@@ -64,6 +64,7 @@ const portrait = (() => {
   const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
   const cache = new Map();
   return (sp, silhouette = false) => {
+    if (isRosterId(sp)) return iconUrl(sp, silhouette); // (roster creatures have pre-made icons)
     const key = sp + (silhouette ? '#s' : '');
     if (cache.has(key)) return cache.get(key);
     const c = buildCreature(sp, { silhouette });
@@ -459,6 +460,7 @@ function closeCard(ok) {
 }
 function pickedUp(e) {
   const res = S.pickUp(st, e.rarity, e.zone.id);
+  preload(creaturesOf(e.zone.id).map((c) => c.id)); // (their models load while the player walks home)
   if (!res) { eggRollsAway(e); return; }
   A.ev('egg_grabbed', { rarity: e.rarity, zone: e.zone.id, streak: st.stats.streak, carry: st.carry.length });
   A.countVisit('grabbed');
@@ -573,8 +575,9 @@ function doHatch(i) {
     const cr = buildCreature(res.sp);
     cr.position.copy(INC_POS[i]).setY(INC_POS[i].y + 0.55);
     world.scene.add(cr); world.extra.add(cr);
-    if (cr.userData.mixer) trick(cr, res.isNew ? 'Spin' : 'Bounce');
-    world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * 1.5 : 1.5 - (k - 0.7) / 0.3 * 0.2)));
+    const S0 = cr.userData.real ? Math.min(1.7, 2.0 / cr.userData.height) : 1.5; // (its size when it pops out)
+    if (cr.userData.real) setTimeout(() => rosterTrick(cr, 'jump'), 450);
+    world.tween(0.4, (k) => cr.scale.setScalar(Math.max(0.01, k < 0.7 ? k / 0.7 * S0 * 1.1 : S0 * (1.1 - (k - 0.7) / 0.3 * 0.1))));
     if (res.waiting) setTimeout(() => { world.scene.remove(cr); world.extra.delete(cr); syncWorld(); }, 900);
     else jumpToPen(cr, res.pen, 0.9);
     save(); checkGoals();
@@ -619,6 +622,7 @@ function showReveal(res) {
   $('revNew').textContent = res.isNew ? t('isNew') : '';
   $('revNew').style.display = res.isNew ? '' : 'none';
   $('revInfo').textContent = res.waiting ? t('waitsForPen') : t('earns', fmtRate(S.speciesIncome(res.sp)));
+  if (isGolden(res.sp)) $('revInfo').textContent = `${t('goldenFound')} · ${$('revInfo').textContent}`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   clearTimeout(revealTimer);
   revealTimer = setTimeout(() => el.classList.remove('on'), res.waiting ? 4200 : 3000);
@@ -692,20 +696,24 @@ function buyUp(k) {
   if (k === 'pen') st.incubators.forEach((inc, i) => { if (inc && inc.sp && S.freePen(st) >= 0) placeWaiting(i); });
   syncWorld(); renderUpgrades(); renderHud(); save(); checkGoals();
 }
-// The book has one page per zone: its two animals in each of its rarities.
+// The Book: one section per zone with all its creatures (sorted by rarity, border in
+// the rarity's colour), found ones with picture and name, missing ones as silhouettes;
+// ✨ = also found as a golden version.
 function renderBook() {
-  $('bookHow').textContent = `${t('bookFound', S.bookCount(st), SPECIES.length)} · ${t('bookHow')}`;
+  $('bookHow').textContent = `${t('bookFound', S.bookCount(st), ROSTER.length)} · ${t('bookHow')}`;
+  const gold = st.gold || {};
   $('bookList').innerHTML = ZONES.map((z) => {
-    const rs = zoneRarities(z);
-    const eggs = rs.map((r) => `<span class="evDot" style="background:${RARITY[r].css}" title="${rName(r)}"></span>${z.event === r ? '⭐' : ''}`).join(' ');
-    const cells = z.animals.flatMap((a) => rs.map((r) => {
-      const sp = `${r}-${a}`, has = !!st.book[sp];
-      return `<div class="bookCell ${has ? '' : 'miss'}" style="${has ? `border-color:${RARITY[r].css}` : ''}">
-        <img src="${portrait(sp, !has)}" alt=""><div class="n">${has ? speciesName(sp) : '???'}</div></div>`;
-    })).join('');
+    const list = creaturesOf(z.id);
+    const found = list.filter((c) => st.book[c.id]).length;
+    const eggs = zoneRarities(z).map((r) => `<span class="evDot" style="background:${RARITY[r].css}" title="${rName(r)}"></span>${z.event === r ? '⭐' : ''}`).join(' ');
+    const cells = list.map((c) => {
+      const has = !!st.book[c.id];
+      return `<div class="bookCell ${has ? '' : 'miss'}" style="border-color:${has ? RARITY[c.rarity].css : 'transparent'}" title="${rName(c.rarity)}">
+        ${gold[c.id] ? '<span class="goldMark">✨</span>' : ''}<img src="${portrait(c.id, !has)}" alt="" loading="lazy"><div class="n">${has ? speciesName(c.id) : '???'}</div></div>`;
+    }).join('');
     const lock = isOpen(z) ? '' : ` 🔒 ★${z.stars}`;
-    return `<div class="bookR"><h3>${zName(z)}${lock} <small>${eggs}</small></h3><div class="bookGrid bookGrid${rs.length}">${cells}</div></div>`;
-  }).join('') + `<div class="bookNote">⭐ = ${t('bookEvent')}</div>`;
+    return `<div class="bookR"><h3>${zName(z)}${lock} <small>${found}/${list.length} &nbsp; ${eggs}</small></h3><div class="bookGrid">${cells}</div></div>`;
+  }).join('') + `<div class="bookNote">⭐ = ${t('bookEvent')} · ✨ = ${t('bookGolden')}</div>`;
 }
 
 // ── sound ──
@@ -869,7 +877,7 @@ async function boot() {
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
   await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e)),
-    loadAnimals().catch(() => { /* no animal files (not in git yet): code-built creatures */ })]);
+  ]);
   // creatures built before the animals were loaded: build them again
   world.pens.forEach((p) => { if (p.sp) p.sp = '#reload'; });
   world.incubators.forEach((c, i) => { if (c.waiting) world.clearIncubator(i); });
