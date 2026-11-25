@@ -20,8 +20,11 @@ EXPOSE 8000
 # --proxy-headers + --forwarded-allow-ips * are required so the in-memory
 # rate limiter and geoip lookup see the real client IP, not the Traefik
 # container IP. Coolify's default ingress sets X-Forwarded-For.
+# --no-access-log: uvicorn would write every client IP into the container log
+# (Coolify keeps it); the privacy policy says IP addresses are not stored.
 CMD ["uvicorn", "main:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
      "--proxy-headers", \
-     "--forwarded-allow-ips", "*"]
+     "--forwarded-allow-ips", "*", \
+     "--no-access-log"]

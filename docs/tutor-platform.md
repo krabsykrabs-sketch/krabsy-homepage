@@ -355,3 +355,11 @@ Collected, not built yet:
 3. **The space is for managing existing students.** The student list comes first
    and big; "Add a student" becomes a small button that opens the form. The star
    scale explanation moves down or behind a link.
+4. **"No tutor space" email is a dead end.** A space is only created when the
+   sign-up link is clicked; if that mail is lost (first try failed on port 465),
+   "Sign in" answers "no space". That email should offer "create it with one
+   click" instead.
+
+Fixed right away (privacy, not tutor-specific): the API's uvicorn access log wrote
+every client IP into the Coolify log; `--no-access-log` in `api/Dockerfile`.
+Mail: Hetzner blocks outgoing port 465; `SMTP_PORT=587` (STARTTLS) works.
