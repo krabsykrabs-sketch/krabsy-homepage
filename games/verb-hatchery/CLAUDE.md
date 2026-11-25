@@ -846,3 +846,18 @@ Not done yet / to check:
   loaded; their licence question is moot. Not done: the 5 extra Ultimate
   Monsters from the owner's download (add via `tools/creatures/`), a real
   Chromebook check of many animated creatures in view.
+
+## Play-test notes (owner, 2026-11-25) — collecting, not built yet
+
+Owner: "collect comments before rebuilding".
+1. **Creatures look sad / scary**: too dark under the scene lighting
+   (tone mapping + Lambert/standard materials of the Quaternius GLBs);
+   some look scary because of it.
+2. **Unbought incubators are invisible obstacles** (their colliders exist
+   before they are bought).
+3. **Eggs stacked above the head** while carried: owner doesn't like it;
+   needs a better way to show the backpack's eggs.
+4. **Crab "battles" unclear**: barely noticeable that you are hunted; when
+   caught, the question card blocks everything and it's hard to see what
+   happens; the end of the encounter is unclear → needs better build-up,
+   encounter presentation and outcome.
