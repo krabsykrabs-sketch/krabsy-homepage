@@ -1064,3 +1064,20 @@ write `RELEASE.md` when the owner says go.
   incubadora / incubator stay. Unchanged on purpose: folder, ids, the
   analytics game id `verb-hatchery`, localStorage keys (`krabsy_hatchery_*`),
   code names (`HATCHERY`, `buildHatchery`). The 4 topic URLs pass, 0 errors.
+- 2026-11-25: **hero picker on the start screen** (owner decision via the
+  master session; `docs/game-contract.md` "Hero choice on the start screen").
+  "Wer spielt?" / "¿Quién juega?" / "Who plays?" with four tiles: **Deine
+  Figur** (the child's figure, or the Schülerin Protagonist_A; live portrait
+  when it is the one playing, else the figure page's portrait of its
+  character), then the island's own free heroes **Schüler** (Protagonist_B),
+  **Wanderer** (Hiker) and **Bäuerin** (Farmer_B, fits the farm). Game heroes
+  are built with `buildFigure({ char })` + `loadClips()` from
+  `/lib/krabsy-figure.js`, never saved as the child's figure; the last choice
+  is kept in `krabsy_hatchery_hero` (unknown values → 'me'; a hero that fails
+  to load → 'me'). Tiles are buttons (click / tap / Enter, ← → move between
+  them), a picked hero loads while its tile is dimmed. Events `hero_pick
+  {hero}`, `game_open` has `hero`. Local dev without `/lib`: the old A/B
+  choice, unchanged. Checked on the site-like server: no figure → Schülerin
+  preselected; saved Knight → Knight; each game hero from storage; a bad
+  stored value → 'me'; click Bäuerin → reload → Bäuerin, `krabsy_figure_v2`
+  untouched; egg pick-up with each, 0 errors; the 4 topic URLs pass.

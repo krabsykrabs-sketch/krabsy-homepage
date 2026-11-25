@@ -20,22 +20,62 @@ const CAM = { dist: 6.2, min: 3.2, max: 11, height: 1.55 };
 
 let template = {}, clips = null;
 // The child's own figure from the site (docs/game-contract.md "The player's figure"):
-// null until loaded, then { own, config, portrait }. Not available in local dev
-// (no /lib, no /assets/figures/): then the two Protagonists load the old way.
+// null until loaded, then { own, config }. Not available in local dev (no /lib, no
+// /assets/figures/): then the two Protagonists load the old way.
 export let figure = null;
+// Hero choice (docs/game-contract.md "Hero choice on the start screen"): 'me' = the
+// child's figure (or the Schülerin, Protagonist_A), then three free Egg Island heroes.
+// They are the game's own: never saved as the child's figure. Last choice is kept in
+// krabsy_hatchery_hero.
+export const HEROES = ['me', 'Protagonist_B', 'Hiker', 'Farmer_B'];
+const HERO_KEY = 'krabsy_hatchery_hero';
+export function savedHero() { try { const h = localStorage.getItem(HERO_KEY); return HEROES.includes(h) ? h : 'me'; } catch (_) { return 'me'; } }
+export function rememberHero(h) { try { localStorage.setItem(HERO_KEY, h); } catch (_) { /* ignore */ } }
+export let hero = 'me';
+let FM = null;                 // the site's figure module
+const heroCache = {};          // hero → Promise<{ root, own, config }>
+function buildHero(h) {
+  heroCache[h] ||= (async () => {
+    let root, own = false, config;
+    if (h === 'me') {
+      const fig = await FM.loadPlayerFigure({ fallback: 'Protagonist_A', lambert: true });
+      ({ root, own, config } = fig); clips = clips || fig.clips;
+    } else {
+      const [fig, cl] = await Promise.all([FM.buildFigure({ char: h }, { lambert: true }), FM.loadClips()]);
+      ({ root, config } = fig); clips = clips || cl;
+    }
+    if (!root || !clips || !clips.Idle_A) throw new Error('figure without clips');
+    mergeSkinned(root);
+    return { root, own, config };
+  })();
+  heroCache[h].catch(() => { delete heroCache[h]; });
+  return heroCache[h];
+}
+// Switch to a hero (site only); the Player shows it after setLook('F'). Throws on failure.
+export async function useHero(h) {
+  if (!FM) throw new Error('no figure module');
+  if (!HEROES.includes(h)) h = 'me';
+  const c = await buildHero(h);
+  template = { F: c.root }; hero = h;
+  if (h === 'me') figure = { own: c.own, config: c.config };
+  return c;
+}
+// The character id behind "your figure" (for its portrait before it is loaded).
+export function myChar() {
+  if (figure) return figure.config.char;
+  try { const c = FM && FM.playerConfig(); return (c && c.char) || 'Protagonist_A'; } catch (_) { return 'Protagonist_A'; }
+}
 export async function loadCharacters(look = 'A') {
   try {
-    const F = await import('/lib/krabsy-figure.js');
-    const fig = await F.loadPlayerFigure({ fallback: `Protagonist_${LOOKS.includes(look) ? look : 'A'}`, lambert: true });
-    if (!fig || !fig.root || !fig.clips || !fig.clips.Idle_A) throw new Error('figure without clips');
-    mergeSkinned(fig.root);
-    template = { F: fig.root };
-    clips = fig.clips;
-    figure = { own: fig.own, config: fig.config }; // (same rig size as the Protagonists: same SCALE)
+    FM = await import('/lib/krabsy-figure.js');
+    const want = savedHero();
+    try { await useHero(want); } catch (e) { if (want === 'me') throw e; await useHero('me'); }
+    if (!figure) figure = { own: !!(FM.playerConfig && FM.playerConfig()), config: { char: myChar() } };
     return;
   } catch (e) {
     if (!/Failed to fetch|import|module/i.test(String(e && e.message))) console.warn('[hatchery] figure: using the old character', e);
   }
+  FM = null;
   figure = null;
   const loader = new GLTFLoader();
   const [a, b, anim] = await Promise.all([

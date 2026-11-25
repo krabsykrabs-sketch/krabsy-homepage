@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import * as S from './state.js';
 import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER, EVENTS, zoneRarities } from './balance.js';
 import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
-import { Player, touchMode, loadCharacters, LOOKS, figure } from './player.js';
+import { Player, touchMode, loadCharacters, LOOKS, figure, HEROES, hero, useHero, rememberHero, myChar } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName, animateCreature } from './creatures.js';
@@ -1190,10 +1190,23 @@ function frameBody(now) {
 const FIG_PAGE = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
 function renderLooks() {
   if (figure) {
-    $('looks').innerHTML = `<div class="lkTitle">${t('chooseChar')}</div>`
-      + `<div class="lk on lkFig"><img src="${charPortrait('F')}" alt=""></div>`
+    // hero picker: your figure first, then the island's own heroes
+    const img = (h) => h === 'me'
+      ? (hero === 'me' ? charPortrait('F', 'me') : `/assets/figures/portraits/${myChar()}.webp`)
+      : `/assets/figures/portraits/${h}.webp`;
+    $('looks').innerHTML = `<div class="lkTitle">${t('chooseHero')}</div>`
+      + HEROES.map((h) => `<button class="lk${hero === h ? ' on' : ''}${h === 'me' ? ' lkMe' : ''}" data-hero="${h}" aria-pressed="${hero === h}" title="${t('hero_' + h)}">`
+        + `<img src="${img(h)}" alt=""><span class="lkName">${t('hero_' + h)}</span></button>`).join('')
       + `<a class="figLink" href="${FIG_PAGE[lang] || FIG_PAGE.en}" target="_top">${t('figLink')}</a>`;
     $('looks').querySelector('.figLink').addEventListener('click', () => { save(); A.ev('figure_link', {}); });
+    const tiles = [...$('looks').querySelectorAll('.lk')];
+    tiles.forEach((b, i) => {
+      b.addEventListener('click', () => pickHero(b.dataset.hero));
+      b.addEventListener('keydown', (e) => { // arrow keys move between the tiles
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) { e.preventDefault(); e.stopPropagation(); tiles[(i + d + tiles.length) % tiles.length].focus(); }
+      });
+    });
     return;
   }
   $('looks').innerHTML = `<div class="lkTitle">${t('chooseChar')}</div>` + LOOKS.map((l) =>
@@ -1202,10 +1215,22 @@ function renderLooks() {
     st.look = b.dataset.look; player.setLook(st.look); save(); renderLooks(); sfx.init(); sfx.tap();
   }));
 }
+let heroBusy = false;
+async function pickHero(h) {
+  sfx.init(); sfx.tap();
+  if (h === hero || heroBusy) return;
+  heroBusy = true;
+  document.querySelector(`#looks .lk[data-hero="${h}"]`)?.classList.add('busy');
+  try { await useHero(h); player.setLook('F'); rememberHero(h); A.ev('hero_pick', { hero: h.toLowerCase() }); }
+  catch (e) { console.warn('[hatchery] hero', h, e); }
+  heroBusy = false;
+  renderLooks();
+  document.querySelector(`#looks .lk[data-hero="${hero}"]`)?.focus();
+}
 const charPortrait = (() => {
   const cache = {};
-  return (look) => {
-    if (cache[look]) return cache[look];
+  return (look, key = look) => {
+    if (cache[key]) return cache[key];
     const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     r.setSize(150, 180); r.outputColorSpace = THREE.SRGBColorSpace;
     const sc = new THREE.Scene();
@@ -1218,9 +1243,9 @@ const charPortrait = (() => {
     const cam = new THREE.PerspectiveCamera(30, 150 / 180, 0.1, 20);
     cam.position.set(0, 1.25, 4.6); cam.lookAt(0, 0.95, 0);
     r.render(sc, cam);
-    cache[look] = r.domElement.toDataURL();
+    cache[key] = r.domElement.toDataURL();
     r.dispose();
-    return cache[look];
+    return cache[key];
   };
 })();
 
@@ -1277,7 +1302,7 @@ $('playBtn').addEventListener('click', () => {
   A.levelStart(st.goals.stars + 1);
   A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
     away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st),
-    figure: figure ? (figure.own ? 'own' : 'fallback') : 'old' });
+    figure: figure ? (figure.own ? 'own' : 'fallback') : 'old', hero: figure ? hero.toLowerCase() : 'old' });
   save();
 });
 $('resetBtn').addEventListener('click', () => {
