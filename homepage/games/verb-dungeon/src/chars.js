@@ -3,8 +3,9 @@ import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 export class Char {
-  constructor(template, clips) {
-    this.root = cloneSkinned(template);
+  // own: use `template` itself instead of a copy (the player's figure, built for this game).
+  constructor(template, clips, { own = false } = {}) {
+    this.root = own ? template : cloneSkinned(template);
     this.materials = [];
     const cloned = new Map();
     this.root.traverse((o) => {

@@ -81,7 +81,7 @@ export const Assets = {
 
   async load(onProgress) {
     const loader = new GLTFLoader();
-    const chars = ['characters/Knight.glb', 'characters/Skeleton_Minion.glb',
+    const chars = ['characters/Skeleton_Minion.glb',
       'characters/anim_medium.glb', 'characters/sword_1handed.gltf', 'characters/shield_round.gltf',
       'characters/Skeleton_Golem.glb', 'characters/Skeleton_Rogue.glb', 'characters/anim_large.glb',
       'characters/anim_ranged.glb', 'characters/Skeleton_Crossbow.gltf', 'characters/Skeleton_Arrow.gltf'];
@@ -91,7 +91,7 @@ export const Assets = {
 
     const jobs = DUNGEON.map((name) => loader.loadAsync(`assets/dungeon/${name}.gltf`)
       .then((g) => { this.models.set(name, g.scene); tick(); }));
-    const [knight, skel, anim, sword, shield, golem, rogue, animLarge, animRanged, crossbow, arrow] = await Promise.all(
+    const [skel, anim, sword, shield, golem, rogue, animLarge, animRanged, crossbow, arrow] = await Promise.all(
       chars.map((f) => loader.loadAsync(`assets/${f}`).then(tick)));
     await Promise.all(jobs);
 
@@ -103,7 +103,7 @@ export const Assets = {
       });
       sc.updateMatrixWorld(true);
     }
-    for (const g of [knight, skel, sword, shield, golem, rogue, crossbow, arrow]) toLambert(g.scene);
+    for (const g of [skel, sword, shield, golem, rogue, crossbow, arrow]) toLambert(g.scene);
     for (const a of [...anim.animations, ...animRanged.animations]) this.clips[a.name] = a; // same rig
     for (const a of animLarge.animations) this.clipsLarge[a.name] = a;                       // the golem's rig
     for (const [key, sw] of Object.entries(SWINGS)) {
@@ -113,11 +113,10 @@ export const Assets = {
     this.skeleton = skel.scene; this.golem = this.bosses.golem = golem.scene; this.archer = rogue.scene;
     this.crossbow = crossbow.scene; this.arrow = arrow.scene;
     this.gear.sword_1handed = sword.scene; this.gear.shield_round = shield.scene;
-    this.heroes.knight = knight.scene;
   },
 
-  // Hero models and their gear (heroes.js) are loaded when first chosen; the knight
-  // comes with the first load.
+  // The old Knight model (heroes.js) is only loaded when the child's figure can't be
+  // (main.js loadHero: no /lib or /assets/figures/, e.g. the dev server).
   async loadHero(def) {
     const loader = new GLTFLoader();
     const jobs = [];
