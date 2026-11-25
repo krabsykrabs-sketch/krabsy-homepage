@@ -349,3 +349,5 @@ games hide their first gifts (`grantGift`), one session each.
 4. Verb Dungeon: keep the sword as a game item, or a non-weapon.
 5. Teachers switching shells off: needed? (recommended: not at first).
 6. When the Krabsy world starts (recommended: after part 1, steps 2–5).
+
+- 2026-11-25, owner: new children start with **4 starter accessories** (cap, round glasses, backpack, knight's cape; `STARTER_ITEMS` in `homepage/lib/krabsy-shells.js`), not the 14 the free figures wear and not 0.

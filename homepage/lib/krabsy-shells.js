@@ -46,6 +46,8 @@ function today() {
 }
 const int = (v) => (Number.isFinite(v) && v > 0 ? Math.floor(v) : 0);
 
+export const STARTER_ITEMS = ['hat:cap', 'glasses:round', 'back:pack', 'back:capeKnight'];
+
 function read() {
   const s = { v: 1, balance: 0, earned: 0, day: today(), dayShells: 0, slow: 0, owned: [] };
   try {
@@ -58,6 +60,9 @@ function read() {
       }
     }
   } catch (_) { /* private mode / broken JSON: start empty */ }
+  // Starter accessories every child owns from the start (owner 2026-11-25: fewer than the
+  // 14 the free figures wear; ids as in krabsy-figure-catalog.js). Merged in, never removed.
+  s.owned = [...new Set([...STARTER_ITEMS, ...s.owned])];
   return s;
 }
 function write(s) {
