@@ -152,8 +152,12 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
   // drag still follows the link. touch-action: pan-y keeps vertical page scrolling on phones.
   let drag = null, vel = 0, spinning = false, dragged = false;
   // The canvas lets clicks through (it overlaps the featured tile), so the stage takes the drag.
+  // A real mouse drag would otherwise start the browser's own image drag (the picture is
+  // still in the stage under the canvas) or a text selection, which cancels the pointer.
+  stage.addEventListener('dragstart', (e) => e.preventDefault());
   stage.addEventListener('pointerdown', (e) => {
     if (!alive) return;
+    if (e.pointerType === 'mouse') e.preventDefault();
     drag = { x: e.clientX, t: performance.now(), id: e.pointerId }; dragged = false; vel = 0;
   });
   addEventListener('pointermove', (e) => {

@@ -184,7 +184,7 @@ function initFigure() {
     try {
       const { liveFigureBlocked, hasWebGL } = await import('/lib/krabsy-figure-live.js?v=2026-11-25');
       if (liveFigureBlocked() || !hasWebGL(force !== '3d')) return;
-      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25c');
+      const { startLandingFigure } = await import('/lib/krabsy-landing-figure.js?v=2026-11-25d');
       await startLandingFigure({ root, link, stage: document.getElementById('lf-stage'), canvas: document.getElementById('lf-canvas'), char });
     } catch (err) {
       console.warn('landing: live figure skipped', err);

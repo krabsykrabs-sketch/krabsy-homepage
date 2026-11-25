@@ -172,7 +172,8 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
   -webkit-tap-highlight-color: transparent;
 }
 .lf-stage { position: relative; flex: 0 0 auto; width: 122px; height: 126px; }
-.is-live .lf-stage { cursor: grab; touch-action: pan-y; }
+.is-live .lf-stage { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.lf-img { -webkit-user-drag: none; user-select: none; }
 .is-live .lf-stage:active { cursor: grabbing; }
 .lf-stage::before {            /* ground shadow under the picture */
   content: ""; position: absolute; left: 50%; bottom: 3%; width: 70%; height: 13%; transform: translateX(-50%);
