@@ -343,3 +343,15 @@ Sending: `api/mailer.py`, SMTP from the environment (`SMTP_HOST`, `SMTP_PORT`,
 `SMTP_USER`, `SMTP_PASSWORD`, optional `MAIL_FROM`, `SITE_URL`). Mailbox:
 **hello@krabsy.com at Namecheap Private Email** (`mail.privateemail.com`, port 465).
 Without `SMTP_HOST` the mail is printed to the log (local preview prints links there).
+
+## Owner feedback round 1 (2026-11-25, first real sign-in on krabsy.com)
+
+Collected, not built yet:
+
+1. **No shells counter on tutor pages.** The 🐚 counter (top right) belongs to
+   children's pages, not to the tutor's space, sign-in or report pages.
+2. **One sign-in, not two forms side by side.** Main: "Sign in" (email). Below it,
+   small: "No tutor space yet? Create one", which opens the name field.
+3. **The space is for managing existing students.** The student list comes first
+   and big; "Add a student" becomes a small button that opens the form. The star
+   scale explanation moves down or behind a link.
