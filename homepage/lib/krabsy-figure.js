@@ -20,7 +20,7 @@
 //   hat / glasses / back: 'own' (what the character comes with), 'none' or a catalogue key.
 //
 // Source of this file: the prototype games/figure-builder/src/figure.js (moved here
-// 2026-11-25). Assets: /assets/figures/ (chars/, anim/, portraits/).
+// 2026-11-25). Assets: /assets/figures/ (chars/, anim/, portraits/, items/ = accessory pictures).
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
@@ -84,7 +84,11 @@ const SLOT_ROLES = {
 };
 
 // Palettes (index -1 = the character's own colour).
-export const SKIN = ['#f7cfb0', '#eab38b', '#cf9469', '#a86c45', '#7d4c2e', '#563322'];
+// Skin: four tones. The two darkest ('#7d4c2e', '#563322', index 4 and 5) were removed on
+// 2026-11-25 (owner: the figures' black eyes disappear on them). A figure saved with one
+// of them gets the darkest tone that is left (normalize). Don't reorder this list.
+export const SKIN = ['#f7cfb0', '#eab38b', '#cf9469', '#a86c45'];
+const SKIN_REMOVED = 2;
 export const HAIR = ['#2a2220', '#5b3a24', '#8f5b30', '#c98b45', '#ecca72', '#d4582c', '#c3c8d2', '#7c5ce0', '#3f9be8', '#ff7ad9'];
 export const COLORS = ['#2ee6c0', '#ff8585', '#ffcf5e', '#3f7cff', '#9b6bff', '#ff7ad9', '#4cbf5a', '#e0453a', '#f2f4f8', '#2f3444'];
 
@@ -101,7 +105,8 @@ export function normalize(c) {
   o.glasses = slot(c.glasses, GLASSES);
   o.back = slot(c.back, BACKS);
   const idx = (v, list) => (Number.isInteger(v) && v >= -1 && v < list.length ? v : -1);
-  o.skin = idx(c.skin, SKIN); o.hair = idx(c.hair, HAIR);
+  const oldDark = Number.isInteger(c.skin) && c.skin >= SKIN.length && c.skin < SKIN.length + SKIN_REMOVED;
+  o.skin = oldDark ? SKIN.length - 1 : idx(c.skin, SKIN); o.hair = idx(c.hair, HAIR);
   o.main = idx(c.main, COLORS); o.legs = idx(c.legs, COLORS); o.acc = idx(c.acc, COLORS);
   return o;
 }
@@ -350,7 +355,7 @@ export async function buildFigure(config, opts = {}) {
   // (source bone scale / target bone scale) at the bone it hangs on.
   root.updateMatrixWorld(true);
   const ws = (o) => o.getWorldScale(new THREE.Vector3());
-  for (const [, figName, roles] of extra) {
+  for (const [slot, figName, roles] of extra) {
     figs[figName].scene.updateMatrixWorld(true);
     for (const r of roles) for (const p of figs[figName].parts[r] || []) {
       if (p.onMesh) continue;                                              // copied with its parent
@@ -372,7 +377,8 @@ export async function buildFigure(config, opts = {}) {
         m.bind(new THREE.Skeleton(src.skeleton.bones.map((b) => bones[b.name]), inv), src.bindMatrix);
         holder.add(m);
       }
-      m.traverse((o) => { if (o.isMesh) meshes.push({ mesh: o, fig: figName, plain: !o.material.map }); });
+      // userData.figureSlot marks an added accessory (tools/render_accessory_thumbs.cjs shows only these).
+      m.traverse((o) => { if (o.isMesh) { o.userData.figureSlot = slot; meshes.push({ mesh: o, fig: figName, plain: !o.material.map }); } });
     }
   }
 

@@ -1,24 +1,29 @@
 // "Meine Figur" / "Mi personaje" / "My figure" — the figure builder page
 // (/de/meine-figur/, /es/mi-personaje/, /en/my-figure/).
-// Step 1: pick a character (picture gallery, three groups). Step 2: customise it: hat,
-// glasses, back item (★ = the character's own) and colours. Locked characters and
-// accessories show a lock and a price in shells; they can be tried on, and are unlocked
-// with shells (krabsy-shells.js) before the figure can be saved. Colours are always free.
+// The live 3D figure on one side, four tabs on the other (owner request 2026-11-25):
+//   1 the character (all of them, in three sections), 2 accessories (hat, glasses, back
+//   item: a grid of pictures per slot, ★ = the character's own), 3 skin + hair colours,
+//   4 clothing colours.
+// Locked characters and accessories show a lock and a price in shells; they can be tried
+// on, and are unlocked with shells (krabsy-shells.js) before the figure can be saved.
+// Colours are always free. Accessory pictures: tools/render_accessory_thumbs.cjs.
 // From the prototype games/figure-builder/src/builder.js (2026-11-25).
 import * as THREE from 'three';
 import { CHARS, GROUPS, HATS, GLASSES, BACKS, SKIN, HAIR, COLORS, DEFAULT, ASSET_BASE, normalize,
   buildFigure, loadClips, charInfo, priceOf, isUnlocked, lockedParts, unlockId,
-  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js';
+  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25b';
 import { getShells, unlock, onShellsChange } from './krabsy-shells.js';
 
 const LANG = (location.pathname.match(/^\/(de|es|en)\//) || [])[1] || 'de';
 const T = {
   de: {
-    loading: 'Figur wird gebaut …', h1: 'Wähle deine Figur', h2: 'Gestalte sie',
+    loading: 'Figur wird gebaut …', tabsLabel: 'Figur gestalten',
+    tabs: { char: 'Figur wählen', items: 'Zubehör', skin: 'Haut & Haare', clothes: 'Kleidung' },
+    noSkin: 'Bei dieser Figur gibt es keine Haut- und Haarfarbe zum Ändern. Schau bei „Kleidung“ vorbei!',
     groups: { people: 'Menschen', fantasy: 'Fantasy', monsters: 'Monster & Roboter' },
     hat: 'Kopfbedeckung', glasses: 'Brille', back: 'Rücken', skin: 'Hautfarbe', hair: 'Haarfarbe',
     main: 'Hauptfarbe', legs: 'Hosenfarbe', acc: 'Farbe vom Zubehör',
-    own: '★ Original', none: 'nichts', noHat: 'passt hier nicht', orig: 'Original',
+    own: '★ Original', none: 'nichts', noHat: 'Eine andere Kopfbedeckung passt bei dieser Figur nicht.', orig: 'Original',
     rand: '🎲 Zufall', reset: 'Zurücksetzen', save: 'Speichern',
     saved: 'Gespeichert ✓ Deine Figur ist auf diesem Gerät.', unsaved: 'Noch nicht gespeichert.',
     lockedSave: 'Erst freischalten 🔒, dann speichern.',
@@ -47,10 +52,12 @@ const T = {
       cape: 'Heldenumhang', capeKnight: 'Ritterumhang', capeRanger: 'Waldläufer-Umhang', capeRogue: 'Abenteuer-Umhang', capePaladin: 'Paladin-Umhang' },
   },
   es: {
-    loading: 'Creando personaje …', h1: 'Elige tu personaje', h2: 'Personalízalo',
+    loading: 'Creando personaje …', tabsLabel: 'Crear personaje',
+    tabs: { char: 'Elige personaje', items: 'Accesorios', skin: 'Piel y pelo', clothes: 'Ropa' },
+    noSkin: 'Este personaje no tiene color de piel ni de pelo para cambiar. ¡Mira en «Ropa»!',
     groups: { people: 'Personas', fantasy: 'Fantasía', monsters: 'Monstruos y robots' },
     hat: 'Gorro', glasses: 'Gafas', back: 'Espalda', skin: 'Piel', hair: 'Pelo', main: 'Color principal',
-    legs: 'Pantalón', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'aquí no cabe', orig: 'Original',
+    legs: 'Pantalón', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
     rand: '🎲 Al azar', reset: 'Reiniciar', save: 'Guardar',
     saved: 'Guardado ✓ Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',
     lockedSave: 'Primero desbloquea 🔒, luego guarda.',
@@ -81,10 +88,12 @@ const T = {
       capeRogue: 'Capa de aventura', capePaladin: 'Capa de paladín' },
   },
   en: {
-    loading: 'Building your figure …', h1: 'Pick your figure', h2: 'Make it yours',
+    loading: 'Building your figure …', tabsLabel: 'Build your figure',
+    tabs: { char: 'Choose figure', items: 'Accessories', skin: 'Skin & hair', clothes: 'Clothes' },
+    noSkin: 'This figure has no skin or hair colour to change. Have a look at “Clothes”!',
     groups: { people: 'People', fantasy: 'Fantasy', monsters: 'Monsters & robots' },
     hat: 'Hat', glasses: 'Glasses', back: 'Back', skin: 'Skin', hair: 'Hair', main: 'Main colour',
-    legs: 'Trousers', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: "doesn't fit here", orig: 'Original',
+    legs: 'Trousers', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
     rand: '🎲 Random', reset: 'Reset', save: 'Save',
     saved: 'Saved ✓ Your figure is on this device.', unsaved: 'Not saved yet.',
     lockedSave: 'Unlock 🔒 first, then save.',
@@ -117,7 +126,6 @@ const NAMES = { char: T.chars, hat: T.hats, glasses: T.glassesN, back: T.backs }
 const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k]);
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-$('mfH1').textContent = T.h1; $('mfH2').textContent = T.h2;
 
 // The saved figure; anything in it that is (no longer) unlocked falls back to the free version.
 let cfg = normalize(playerConfig() || DEFAULT);
@@ -278,115 +286,216 @@ async function askUnlock(slot, id) {
   const back = anim === 'jump' ? 'idle' : anim;
   clearTimeout(cheer); play('jump'); cheer = setTimeout(() => play(back), 1900);
 }
-function refreshLocks() { renderLocks(); renderGallery(); showAll(); }
+function refreshLocks() { renderLocks(); invalidate('char', 'items'); showAll(); }
 onShellsChange((s) => {                        // earned in another tab, or spent here
   const grew = s.balance > shells.balance;
   shells = s; renderWallet(grew); refreshLocks();
 });
 
-// ------------------------------------------------------------------ step 1: the character
-let group = CHARS.find((c) => c.id === cfg.char)?.group || 'people';
-function renderTabs() {
-  $('mfTabs').innerHTML = '';
+// ------------------------------------------------------------------ the four tabs
+// Each tab's content is built the first time the tab is opened (so the portraits and the
+// accessory pictures load only when they are looked at) and again when what it shows has
+// changed (another character, something unlocked). sync() only moves the selection marks.
+const TABS = ['char', 'items', 'skin', 'clothes'];
+const TAB_ICON = { char: '🧑', items: '🎩', skin: '🎨', clothes: '👕' };
+const tablist = $('mfTabs'), panesBox = $('mfPanes');
+tablist.setAttribute('aria-label', T.tabsLabel);
+let tab = 'char';
+const panes = {};
+for (const name of TABS) {
+  const b = el('button', 'mf-tab'); b.type = 'button'; b.id = `mfTab-${name}`; b.dataset.tab = name;
+  b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', `mfPane-${name}`);
+  const ic = el('span', 'mf-tab-ic', TAB_ICON[name]); ic.setAttribute('aria-hidden', 'true');
+  b.append(ic, el('span', 'mf-tab-label', T.tabs[name]));
+  b.addEventListener('click', () => openTab(name));
+  tablist.appendChild(b);
+  const p = el('div', 'mf-pane'); p.id = `mfPane-${name}`; p.setAttribute('role', 'tabpanel');
+  p.setAttribute('aria-labelledby', b.id); p.tabIndex = 0; p.hidden = true;
+  panesBox.appendChild(p);
+  panes[name] = { btn: b, el: p, dirty: true, render() {}, sync() {} };
+}
+// Arrow keys move between the tabs (and open them), Home / End jump to the first / last.
+tablist.addEventListener('keydown', (e) => {
+  const i = TABS.indexOf(e.target?.dataset?.tab);
+  if (i < 0) return;
+  const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: TABS.length - 1 }[e.key];
+  if (to == null) return;
+  e.preventDefault();
+  const name = TABS[(to + TABS.length) % TABS.length];
+  openTab(name); panes[name].btn.focus();
+});
+function openTab(name) {
+  const moved = name !== tab;
+  tab = name;
+  for (const n of TABS) {
+    const on = n === tab;
+    panes[n].btn.classList.toggle('on', on);
+    panes[n].btn.setAttribute('aria-selected', String(on));
+    panes[n].btn.tabIndex = on ? 0 : -1;
+    panes[n].el.hidden = !on;
+  }
+  refresh();
+  if (!moved) return;
+  // Start the new tab at its top: the panel's own scroller on wide screens, the page on
+  // phones (only when the old tab was scrolled past the sticky tab bar).
+  panesBox.scrollTop = 0;
+  if (getComputedStyle(panesBox).overflowY !== 'visible') return;
+  const hdr = document.querySelector('header.k-page-header')?.offsetHeight || 0;
+  const stuck = getComputedStyle(stage).position === 'sticky';
+  const top = stuck
+    ? panesBox.getBoundingClientRect().top + scrollY - (hdr + stage.offsetHeight + tablist.offsetHeight)
+    : tablist.getBoundingClientRect().top + scrollY - hdr;
+  if (scrollY > top + 1) scrollTo({ top, behavior: 'instant' });
+}
+const invalidate = (...names) => names.forEach((n) => { panes[n].dirty = true; });
+function refresh() {
+  const p = panes[tab];
+  if (p.dirty) { p.dirty = false; p.render(); }
+  p.sync();
+}
+const section = (title) => {
+  const s = el('section', 'mf-sec'); s.appendChild(el('h3', '', title)); return s;
+};
+// One tile: a picture (or a sign), a lock with the price when it is locked, maybe a name.
+function tile({ slot, id, name, img, sign, caption, star }) {
+  const price = priceOf(slot, id), open = unlocked(slot, id);
+  const b = el('button', 'mf-tile' + (open ? '' : ' locked')); b.type = 'button';
+  b.dataset.slot = slot; b.dataset.id = id; b.title = name;
+  b.setAttribute('aria-label', open ? name : `${name}, ${T.locked}, ${price} ${T.shells}`);
+  const pic = el('span', 'mf-tile-pic');
+  if (img) {
+    const i = el('img'); i.src = img; i.alt = ''; i.loading = 'lazy'; i.decoding = 'async'; i.width = 192; i.height = 192;
+    pic.appendChild(i);
+  } else pic.appendChild(el('span', 'mf-tile-sign', sign));
+  if (star) pic.appendChild(el('span', 'mf-tile-star', '★'));
+  if (!open) pic.append(el('span', 'mf-tile-lock', '🔒'), el('span', 'mf-tile-price', `🐚 ${price}`));
+  b.appendChild(pic);
+  if (caption) b.appendChild(el('span', 'mf-tile-name', caption));
+  return b;
+}
+const markTiles = (root, isOn) => root.querySelectorAll('.mf-tile').forEach((b) => {
+  const on = isOn(b.dataset.slot, b.dataset.id);
+  b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+});
+// Free and unlocked entries first, then the locked ones, cheapest first.
+const byPrice = (slot, ids) => ids.map((id, i) => [id, i, unlocked(slot, id) ? 0 : priceOf(slot, id)])
+  .sort((a, b) => a[2] - b[2] || a[1] - b[1]).map((x) => x[0]);
+
+// ---- tab 1: the character (all of them, in three sections)
+panes.char.render = () => {
+  const box = panes.char.el; box.textContent = '';
   for (const g of GROUPS) {
-    const b = el('button', g === group ? 'on' : '', T.groups[g]); b.type = 'button';
-    b.setAttribute('aria-pressed', String(g === group));
-    b.addEventListener('click', () => { group = g; renderTabs(); renderGallery(); });
-    $('mfTabs').appendChild(b);
+    const sec = section(T.groups[g]), grid = el('div', 'mf-grid chars');
+    for (const id of byPrice('char', CHARS.filter((c) => c.group === g).map((c) => c.id))) {
+      const b = tile({ slot: 'char', id, name: T.chars[id], img: `${ASSET_BASE}portraits/${id}.webp` });
+      b.addEventListener('click', () => chooseChar(id));
+      grid.appendChild(b);
+    }
+    sec.appendChild(grid); box.appendChild(sec);
   }
-}
-function renderGallery() {
-  const box = $('mfGallery'); box.innerHTML = '';
-  // Free and unlocked characters first, then the locked ones, cheapest first.
-  const rank = (c) => (unlocked('char', c.id) ? 0 : priceOf('char', c.id));
-  const list = CHARS.filter((x) => x.group === group).map((c, i) => [c, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]);
-  for (const [c] of list) {
-    const name = T.chars[c.id], price = priceOf('char', c.id), open = unlocked('char', c.id);
-    const b = el('button', 'mf-pic' + (c.id === cfg.char ? ' on' : '') + (open ? '' : ' locked')); b.type = 'button';
-    b.title = name; b.dataset.char = c.id;
-    b.setAttribute('aria-label', open ? name : `${name}, ${T.locked}, ${price} ${T.shells}`);
-    const img = el('img'); img.src = `${ASSET_BASE}portraits/${c.id}.webp`; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
-    img.width = 192; img.height = 192;
-    b.appendChild(img);
-    if (!open) b.append(el('span', 'mf-pic-lock', '🔒'), el('span', 'mf-pic-price', `🐚 ${price}`));
-    b.addEventListener('click', () => chooseChar(c.id));
-    box.appendChild(b);
-  }
-}
-// A new character starts plain: its own accessories, its own colours.
-async function chooseChar(id) {
+};
+panes.char.sync = () => markTiles(panes.char.el, (_, id) => id === cfg.char);
+// A new character starts plain: its own accessories, its own colours. A second tap on a
+// locked character asks to unlock it.
+async function chooseChar(id, again) {
+  if (id === cfg.char && !again) { if (!unlocked('char', id)) askUnlock('char', id); return; }
   cfg = normalize({ ...DEFAULT, char: id });
-  renderGallery();
+  invalidate('items');
+  panes.char.sync();
   await refreshInfo();
   changed();
 }
 
-// ------------------------------------------------------------------ step 2: customise
-function cycleRow(key, label, list, names, ownKey) {
-  const div = el('div', 'mf-slot');
-  div.innerHTML = `<h3></h3><div class="mf-cycle"><button type="button" aria-label="‹">‹</button><button type="button" class="mf-cycle-label"></button><button type="button" aria-label="›">›</button></div>`;
-  div.querySelector('h3').textContent = label;
-  const [prev, mid, next] = div.querySelectorAll('button');
-  // Options: ★ the character's own (if it has one), nothing, then the catalogue.
-  const options = () => [...(info?.[ownKey] ? ['own', 'none'] : ['own']), ...Object.keys(list)];
-  const label_ = (v) => (v === 'own' ? (info?.[ownKey] ? T.own : T.none) : v === 'none' ? T.none : names[v]);
-  div.show = () => {
-    const off = key === 'hat' && info && !info.hats;
-    const lock = !off && !unlocked(key, cfg[key]);
-    div.classList.toggle('off', !!off); div.classList.toggle('locked', lock);
-    mid.textContent = '';
-    mid.append(el('span', '', off ? T.noHat : (lock ? '🔒 ' : '') + label_(cfg[key])));
-    if (lock) mid.append(el('span', 'mf-cycle-price', `🐚 ${priceOf(key, cfg[key])}`));
-    mid.disabled = !lock;
-  };
-  const step = (d) => {
-    if (div.classList.contains('off')) return;
-    const o = options(), i = Math.max(0, o.indexOf(cfg[key]));
-    cfg = normalize({ ...cfg, [key]: o[(i + d + o.length) % o.length] });
-    changed();
-  };
-  prev.addEventListener('click', () => step(-1)); next.addEventListener('click', () => step(1));
-  mid.addEventListener('click', () => { if (!unlocked(key, cfg[key])) askUnlock(key, cfg[key]); });
-  return div;
+// ---- tab 2: accessories (hat, glasses, back), a grid of pictures per slot
+const ITEM_SLOTS = [['hat', HATS, 'ownHat'], ['glasses', GLASSES, 'ownGlasses'], ['back', BACKS, 'ownBack']];
+// The catalogue entry that is this character's own accessory (the Hiker's cap), if any:
+// it gives "★ Original" its picture, and is not offered a second time with a price.
+const ownKey = (list, char) => Object.keys(list).find((k) => list[k][0] === char) || null;
+panes.items.render = () => {
+  const box = panes.items.el; box.textContent = '';
+  if (!info) { panes.items.dirty = true; return; }
+  for (const [slot, list, ownFlag] of ITEM_SLOTS) {
+    const sec = section(T[slot]);
+    if (slot === 'hat' && !info.hats) {                       // head shape no other hat fits
+      sec.appendChild(el('p', 'mf-note', T.noHat)); box.appendChild(sec); continue;
+    }
+    const grid = el('div', 'mf-grid items');
+    const twin = info[ownFlag] ? ownKey(list, cfg.char) : null;
+    const add = (o) => {
+      const b = tile({ slot, ...o });
+      b.addEventListener('click', () => chooseItem(slot, o.id));
+      grid.appendChild(b);
+    };
+    // "★ Original" only when the character brings something; "nichts" is then 'none',
+    // otherwise 'own' (which is nothing).
+    if (info[ownFlag]) add({ id: 'own', name: T.own, caption: T.own, star: !!twin, img: twin && `${ASSET_BASE}items/${slot}-${twin}.webp`, sign: '★' });
+    add({ id: info[ownFlag] ? 'none' : 'own', name: T.none, caption: T.none, sign: '∅' });
+    for (const id of byPrice(slot, Object.keys(list).filter((k) => k !== twin))) {
+      add({ id, name: NAMES[slot][id], caption: NAMES[slot][id], img: `${ASSET_BASE}items/${slot}-${id}.webp` });
+    }
+    sec.appendChild(grid); box.appendChild(sec);
+  }
+};
+panes.items.sync = () => {
+  if (!info) return;
+  markTiles(panes.items.el, (slot, id) => {
+    const [, list, ownFlag] = ITEM_SLOTS.find((s) => s[0] === slot);
+    const v = cfg[slot];
+    if (v === id) return true;
+    if (id === 'own') return (!info[ownFlag] && v === 'none') || (info[ownFlag] && v === ownKey(list, cfg.char));
+    return false;
+  });
+};
+function chooseItem(slot, id) {
+  if (cfg[slot] === id) { if (!unlocked(slot, id)) askUnlock(slot, id); return; }
+  cfg = normalize({ ...cfg, [slot]: id });
+  changed();
 }
-function swatchRow(key, label, palette) {
-  const div = el('div', 'mf-slot');
-  div.innerHTML = '<h3></h3><div class="mf-swatches"></div>';
-  div.querySelector('h3').textContent = label;
-  const box = div.querySelector('.mf-swatches');
-  const btns = [-1, ...palette.keys()].map((i) => {
-    const b = el('button', 'mf-sw' + (i < 0 ? ' orig' : '')); b.type = 'button';
+
+// ---- tabs 3 and 4: colours (always free)
+function swatches(key, label, palette) {
+  const sec = section(label), box = el('div', 'mf-swatches');
+  for (const i of [-1, ...palette.keys()]) {
+    const b = el('button', 'mf-sw' + (i < 0 ? ' orig' : '')); b.type = 'button'; b.dataset.key = key; b.dataset.i = String(i);
     b.title = i < 0 ? T.orig : `${label} ${i + 1}`; b.setAttribute('aria-label', b.title);
     if (i >= 0) b.style.background = palette[i]; else b.textContent = '★';
     b.addEventListener('click', () => { cfg = normalize({ ...cfg, [key]: i }); changed(); });
-    box.appendChild(b); return b;
-  });
-  div.show = () => btns.forEach((b, j) => { b.classList.toggle('on', j - 1 === cfg[key]); b.setAttribute('aria-pressed', String(j - 1 === cfg[key])); });
-  return div;
+    box.appendChild(b);
+  }
+  sec.appendChild(box); return sec;
 }
-const rows = {
-  hat: cycleRow('hat', T.hat, HATS, T.hats, 'ownHat'),
-  glasses: cycleRow('glasses', T.glasses, GLASSES, T.glassesN, 'ownGlasses'),
-  back: cycleRow('back', T.back, BACKS, T.backs, 'ownBack'),
-  skin: swatchRow('skin', T.skin, SKIN),
-  hair: swatchRow('hair', T.hair, HAIR),
-  main: swatchRow('main', T.main, COLORS),
-  legs: swatchRow('legs', T.legs, COLORS),
-  acc: swatchRow('acc', T.acc, COLORS),
+const markSwatches = (root) => root.querySelectorAll('.mf-sw').forEach((b) => {
+  const on = Number(b.dataset.i) === cfg[b.dataset.key];
+  b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+});
+panes.skin.render = () => {
+  const box = panes.skin.el; box.textContent = '';
+  if (!info) { panes.skin.dirty = true; return; }
+  if (!info.skin) { box.appendChild(el('p', 'mf-note', T.noSkin)); return; }      // robots, skeletons …
+  box.append(swatches('skin', T.skin, SKIN), swatches('hair', T.hair, HAIR));
 };
-Object.values(rows).forEach((r) => $('mfSlots').appendChild(r));
+panes.skin.sync = () => markSwatches(panes.skin.el);
+panes.clothes.render = () => {
+  const box = panes.clothes.el; box.textContent = '';
+  box.append(swatches('main', T.main, COLORS), swatches('legs', T.legs, COLORS), swatches('acc', T.acc, COLORS));
+};
+panes.clothes.sync = () => markSwatches(panes.clothes.el);
 
 function status(text, kind) { const s = $('mfSaved'); s.textContent = text; s.className = 'mf-saved' + (kind ? ` ${kind}` : ''); }
 function showAll() {
-  Object.values(rows).forEach((r) => r.show());
-  rows.skin.classList.toggle('hidden', !info?.skin);       // only for human skin
-  rows.hair.classList.toggle('hidden', !info?.hair);
+  refresh();
   $('mfCharName').textContent = T.chars[cfg.char];
   const locked = lockedParts(cfg, shells.owned).length > 0;
   $('mfSave').disabled = locked;
   $('mfSave').classList.toggle('dirty', !locked && JSON.stringify(cfg) !== savedJson);
 }
-async function refreshInfo() { info = await charInfo(cfg.char); showAll(); }
+let infoFor = null;
+async function refreshInfo() {
+  const char = cfg.char, next = await charInfo(char);
+  if (char !== cfg.char) return;                              // a newer choice won
+  if (infoFor !== char) invalidate('items', 'skin');
+  info = next; infoFor = char; showAll();
+}
 
 let timer = 0;
 function changed() {
@@ -408,18 +517,19 @@ function randomOwned(char) {
 }
 $('mfRand').textContent = T.rand; $('mfReset').textContent = T.reset; $('mfSave').textContent = T.save;
 $('mfRand').addEventListener('click', () => { cfg = randomOwned(cfg.char); changed(); });
-$('mfReset').addEventListener('click', () => chooseChar(cfg.char));
+$('mfReset').addEventListener('click', () => chooseChar(cfg.char, true));
 $('mfSave').addEventListener('click', () => {
   shells = getShells();
   if (lockedParts(cfg, shells.owned).length) { changed(); return; }      // a locked part is never saved
   if (saveFigure(cfg)) { savedJson = JSON.stringify(cfg); showAll(); status(T.saved, 'ok'); }
 });
 
-renderWallet(false); renderTabs(); renderGallery(); renderLocks();
+renderWallet(false); openTab('char'); renderLocks();
 refreshInfo().then(rebuild).catch(showError);
 
 // For QA scripts (tools / headless checks).
 window.__mf = {
   view(y) { yaw = y; }, get cfg() { return cfg; }, get fig() { return fig; }, get info() { return info; },
-  async set(v) { cfg = normalize(v); group = CHARS.find((c) => c.id === cfg.char)?.group || group; renderTabs(); renderGallery(); await refreshInfo(); changed(); },
+  async set(v) { cfg = normalize(v); await refreshInfo(); changed(); },
+  tab: openTab, get tabName() { return tab; },
 };

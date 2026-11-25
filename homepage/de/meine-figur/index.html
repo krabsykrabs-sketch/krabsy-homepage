@@ -21,7 +21,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
-  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25">
+  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25b">
   <!-- The figure builder (lib/krabsy-figure-page.js) and the shared figure code
        (lib/krabsy-figure.js) import three.js by name. -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -52,15 +52,14 @@
           <div class="mf-bar" id="mfBar"></div>
         </div>
         <div class="mf-panel">
-          <h2><span class="mf-step">1</span><span id="mfH1"></span></h2>
-          <div class="mf-tabs" id="mfTabs"></div>
-          <div class="mf-gallery" id="mfGallery"></div>
-          <h2><span class="mf-step">2</span><span id="mfH2"></span></h2>
-          <div id="mfSlots"></div>
-          <div class="mf-actions">
-            <button type="button" id="mfRand"></button><button type="button" id="mfReset"></button><button type="button" id="mfSave" class="mf-save"></button>
+          <div class="mf-tabs" id="mfTabs" role="tablist"></div>
+          <div class="mf-panes" id="mfPanes"></div>
+          <div class="mf-foot">
+            <div class="mf-saved" id="mfSaved" role="status"></div>
+            <div class="mf-actions">
+              <button type="button" id="mfRand"></button><button type="button" id="mfReset"></button><button type="button" id="mfSave" class="mf-save"></button>
+            </div>
           </div>
-          <div class="mf-saved" id="mfSaved" role="status"></div>
         </div>
       </div>
 
@@ -93,7 +92,7 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25"></script>
+  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25b"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-25c" defer></script>
