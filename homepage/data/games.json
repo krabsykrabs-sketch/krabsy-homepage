@@ -127,6 +127,36 @@
     ]
   },
   {
+    "id": "verb-hatchery",
+    "name": {
+      "de": "Verb Hatchery",
+      "es": "Verb Hatchery",
+      "en": "Verb Hatchery"
+    },
+    "tagline": {
+      "de": "Finde Eier auf der Insel, beantworte Fragen und lass Wesen schlüpfen!",
+      "es": "¡Encuentra huevos en la isla, responde preguntas y haz nacer criaturas!",
+      "en": "Find eggs on the island, answer Spanish sentences and hatch creatures!"
+    },
+    "thumbnail": "/thumbnails/sm/verb-hatchery.jpg",
+    "thumb_small": "/thumbnails/sm/verb-hatchery.jpg",
+    "hero": "/thumbnails/hero/verb-hatchery.jpg",
+    "topics": [
+      "es_ser",
+      "es_estar",
+      "es_ser_estar",
+      "es_tener"
+    ],
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ],
+    "status": "ready",
+    "kind": "3d",
+    "devices": "large_screen"
+  },
+  {
     "id": "verb-dungeon",
     "name": {
       "de": "Verb Dungeon",

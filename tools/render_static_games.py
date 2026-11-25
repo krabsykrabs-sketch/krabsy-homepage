@@ -264,8 +264,10 @@ def for_topic(topic):
 # page, grid element id, section id whose `hidden` follows emptiness (or None),
 # selector of games, renderer
 TARGETS = [
-    ("de/spiele/index.html", "games-grid", None, all_games, lambda g: card(g, "de")),
-    ("es/juegos/index.html", "games-grid", None, all_games, lambda g: card(g, "es")),
+    ("de/spiele/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "de")],
+     lambda g: card(g, "de")),   # section games only (Verb Hatchery is /en/ only)
+    ("es/juegos/index.html", "games-grid", None, lambda gs: [g for g in gs if in_section(g, "es")],
+     lambda g: card(g, "es")),   # section games only (Verb Hatchery is /en/ only)
     ("de/index.html", "gl-featured", None, lambda gs: featured_only(gs, "de"), lambda g: landing_featured(g, "de")),
     ("es/index.html", "gl-featured", None, lambda gs: featured_only(gs, "es"), lambda g: landing_featured(g, "es")),
     ("de/index.html", "gl-grid", None, lambda gs: landing_order(gs, "de"), lambda g: landing_tile(g, "de")),

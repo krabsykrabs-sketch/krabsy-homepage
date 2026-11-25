@@ -70,11 +70,15 @@ GAMES = {
     'verb-kitchen':    ('de/spiele/verb-kitchen/index.html', '/games/verb-kitchen/'),
     'verb-platformer': ('de/spiele/verb-platformer/index.html', '/games/verb-platformer/'),
     'verb-towers':     ('de/spiele/verb-towers/index.html', '/games/tower-defense/'),
+    # Verb Hatchery's own DE/ES pages are lean tester pages (noindex, no info section),
+    # so its /en/ page is built on Verb Dungeon's page skeleton (3rd value = the game).
+    'verb-hatchery':   ('de/spiele/verb-dungeon/index.html', '/games/verb-dungeon/', '/games/verb-hatchery/'),
 }
 GAME_TITLES = {
     'verb-kitchen': 'Verb Kitchen: Spanish cooking game',
     'verb-platformer': 'Verb Platformer: Spanish jump-and-run',
     'verb-towers': 'Verb Towers: Spanish tower defence',
+    'verb-hatchery': 'Verb Hatchery: Spanish island adventure',
 }
 
 
@@ -416,8 +420,14 @@ def remember_topic(topic):
 
 
 def build_game_page(gid):
-    src_path, game_path = GAMES[gid]
+    src_path, game_path, *real = GAMES[gid]
     src = (HOME / src_path).read_text()
+    if real:   # another game's page as skeleton: swap the frame, its title and the nav key
+        skel_id = game_path.strip('/').split('/')[-1]
+        src = src.replace(f'src="{game_path}', f'src="{real[0]}', 1)
+        src = src.replace(f'initGamePage(\'{skel_id.replace("-", "_")}\')', f'initGamePage(\'{gid.replace("-", "_")}\')')
+        src = src.replace(f'title="{skel_id.replace("-", " ").title()}"', f'title="{gid.replace("-", " ").title()}"', 1)
+        game_path = real[0]
     url = f'/en/spanish/games/{gid}/'
     title = GAME_TITLES[gid]
     s = head(title, '(set by render_game_info.py)', url) + src[src.index('  <meta name="viewport"'):]

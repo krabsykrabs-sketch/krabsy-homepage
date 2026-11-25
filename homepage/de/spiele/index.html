@@ -209,6 +209,12 @@
       let games;
       try { games = await getAllGames(); }
       catch (err) { console.error('games-hub: failed to load games.json', err); return; }
+      // Only this section's games (topics with a URL in this language, topics.json);
+      // the Spanish-for-English-speakers games live under /en/spanish/games/.
+      try {
+        const topics = await (await fetch('/data/topics.json')).json();
+        if (games) games = games.filter((g) => (g.topics || []).some((t) => topics[t] && topics[t][LANG]));
+      } catch (_) { /* keep all */ }
 
       const grid = document.getElementById('games-grid');
       // Static cards pre-rendered by tools/render_static_games.py already match games.json — keep them (no flash).

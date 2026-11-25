@@ -565,6 +565,7 @@ GENRE = {
     "verb-towers": ["Strategy", "Educational"],
     "verb-dungeon": ["Adventure", "Educational"],
     "quiz-room": ["Trivia", "Educational"],
+    "verb-hatchery": ["Adventure", "Educational"],
 }
 
 # Multiplayer games (JSON-LD "playMode"; default SinglePlayer).
@@ -768,8 +769,31 @@ EN_SPANISH = {
         "related": ["verb-kitchen", "verb-platformer"],
         "meta": "A 3D tower-defence game for Spanish: answer Spanish sentences to forge coins, build towers and stop the enemies. Free in the browser, no sign-up.",
     },
+    "verb-hatchery": {
+        "h1": "Verb Hatchery: a Spanish island adventure",
+        "lead": [
+            "Run across a sunny 3D island and look for eggs. To pick an egg up you answer a <strong>Spanish sentence</strong>. Carry it home before the thief crabs grab it, put it in the incubator and watch a creature hatch.",
+            "Your creatures earn coins for upgrades, and rarer eggs ask more. The game is free in the browser, with English menus and Spanish sentences.",
+        ],
+        "howto": [
+            "Walk with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>, turn the camera by dragging the mouse, run with <kbd>Shift</kbd> and jump with <kbd>Space</kbd>. On a tablet: the stick and the hand button (turn the tablet sideways).",
+            "Walk to a glowing egg and press <kbd>E</kbd> (or click it). Answer the sentence to pick the egg up.",
+            "Follow the arrow home to the green pad. The egg goes into the incubator and hatches after a moment.",
+            "Watch out for thief crabs: answer right and you keep your egg. Spend the coins your creatures earn on upgrades (<kbd>U</kbd>) and look at your creatures in the Creature Book (<kbd>B</kbd>).",
+        ],
+        "learn": [
+            "Each egg asks a Spanish sentence with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Rare eggs ask two. After a mistake the egg rolls away, and you see the whole sentence and a short rule in English. The sentence comes back soon, and the Creature Book lists the sentences you still need to practise.",
+        ],
+        "faq": [
+            ("Does it work on a phone?", "It needs a wide screen: a computer, a Chromebook or a tablet held sideways. Phones are not tested yet."),
+            ("Can I lose in Verb Hatchery?", "No. A wrong answer only lets the egg roll away; it comes back soon. Thief crabs can take an egg, but you can catch them."),
+            ("Is my progress saved?", "Yes, your creatures, coins and upgrades are saved on your device only. There is no account."),
+        ],
+        "related": ["verb-kitchen", "verb-towers"],
+        "meta": "A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.",
+    },
 }
 for _gid, _c in EN_SPANISH.items():
-    CONTENT[_gid]["en"] = _c
+    CONTENT.setdefault(_gid, {})["en"] = _c
 
 TEACHES["en"] = {"default": "Spanish grammar for beginners: ser, estar, ser or estar, tener"}

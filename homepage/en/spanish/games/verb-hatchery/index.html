@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
+  <title>Verb Hatchery: Spanish island adventure — Krabsy</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.">
+  <link rel="canonical" href="https://krabsy.com/en/spanish/games/verb-hatchery/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Verb Hatchery: Spanish island adventure — Krabsy">
+  <meta property="og:description" content="A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/en/spanish/games/verb-hatchery/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verb Hatchery: Spanish island adventure — Krabsy">
+  <meta name="twitter:description" content="A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0c1430;
+    }
+    /* SEO info section below the game (tools/render_game_info.py): the page
+       scrolls vertically, but the game still fills the first screen minus a
+       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+    html { overflow-x: hidden; }
+    /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
+    #game-frame {
+      display: block;
+      border: 0;
+      width: 100%;
+      height: calc(100vh - 48px - var(--kg-hint-h, 36px));
+      height: calc(100svh - 48px - var(--kg-hint-h, 36px));
+      margin-top: 48px;
+    }
+  </style>
+  <!-- GAME-HEAD:START (tools/render_game_info.py) -->
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-25">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/",
+          "url": "https://krabsy.com/en/spanish/games/verb-hatchery/",
+          "name": "Verb Hatchery: Spanish island adventure — Krabsy",
+          "description": "A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.",
+          "inLanguage": "en",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          },
+          "breadcrumb": {
+            "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/#breadcrumb"
+          },
+          "mainEntity": {
+            "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/#game"
+          },
+          "primaryImageOfPage": "https://krabsy.com/thumbnails/sm/verb-hatchery.jpg"
+        },
+        {
+          "@type": "VideoGame",
+          "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/#game",
+          "name": "Verb Hatchery",
+          "url": "https://krabsy.com/en/spanish/games/verb-hatchery/",
+          "description": "A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.",
+          "image": "https://krabsy.com/thumbnails/sm/verb-hatchery.jpg",
+          "inLanguage": "es",
+          "genre": [
+            "Adventure",
+            "Educational"
+          ],
+          "gamePlatform": "Web browser",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any",
+          "playMode": "SinglePlayer",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "learningResourceType": "Educational game",
+          "educationalLevel": "beginners, from about 8 (Spanish as a foreign language)",
+          "teaches": "Spanish grammar for beginners: ser, estar, ser or estar, tener",
+          "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+          },
+          "typicalAgeRange": "10-16",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Krabsy",
+            "url": "https://krabsy.com/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Krabsy",
+              "item": "https://krabsy.com/en/spanish/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Games",
+              "item": "https://krabsy.com/en/spanish/games/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Verb Hatchery",
+              "item": "https://krabsy.com/en/spanish/games/verb-hatchery/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://krabsy.com/en/spanish/games/verb-hatchery/#faq",
+          "inLanguage": "en",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Does it work on a phone?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It needs a wide screen: a computer, a Chromebook or a tablet held sideways. Phones are not tested yet."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I lose in Verb Hatchery?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. A wrong answer only lets the egg roll away; it comes back soon. Thief crabs can take an egg, but you can catch them."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is my progress saved?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, your creatures, coins and upgrades are saved on your device only. There is no account."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+  <!-- GAME-HEAD:END -->
+</head>
+<body>
+  <iframe
+    id="game-frame"
+    src="/games/verb-hatchery/?lang=en&amp;topic=es_ser"
+    title="Verb Hatchery"
+    loading="eager"
+    allow="autoplay; fullscreen; gamepad"
+  ></iframe>
+  <script>
+    (function () {
+      var t = 'es_ser', ok = /^es_[a-z0-9_]{1,36}$/;
+      try {
+        var q = new URLSearchParams(location.search).get('topic');
+        var saved = localStorage.getItem('krabsy_es_topic');
+        if (q && ok.test(q)) { t = q; localStorage.setItem('krabsy_es_topic', q); }
+        else if (saved && ok.test(saved)) t = saved;
+      } catch (_) {}
+      var f = document.getElementById('game-frame');
+      f.src = f.getAttribute('src').replace('topic=es_ser', 'topic=' + t);
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-es-topic]').forEach(function (a) {
+          if (a.getAttribute('data-es-topic') === t) a.setAttribute('aria-current', 'true');
+        });
+      });
+    })();
+  </script>
+  <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
+  <a class="kg-scroll-hint" href="#how-to-play">▼ How to play Verb Hatchery</a>
+  <main class="kg-info" id="how-to-play" lang="en">
+    <nav class="kg-crumbs" aria-label="Breadcrumbs"><a href="/en/spanish/">Krabsy Spanish</a> › <a href="/en/spanish/games/">Games</a> › <span aria-current="page">Verb Hatchery</span></nav>
+    <h1>Verb Hatchery: a Spanish island adventure</h1>
+    <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> · <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> · <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> · <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
+    <p>Run across a sunny 3D island and look for eggs. To pick an egg up you answer a <strong>Spanish sentence</strong>. Carry it home before the thief crabs grab it, put it in the incubator and watch a creature hatch.</p>
+    <p>Your creatures earn coins for upgrades, and rarer eggs ask more. The game is free in the browser, with English menus and Spanish sentences.</p>
+    <h2>How to play Verb Hatchery</h2>
+    <ul class="kg-steps">
+      <li>Walk with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>, turn the camera by dragging the mouse, run with <kbd>Shift</kbd> and jump with <kbd>Space</kbd>. On a tablet: the stick and the hand button (turn the tablet sideways).</li>
+      <li>Walk to a glowing egg and press <kbd>E</kbd> (or click it). Answer the sentence to pick the egg up.</li>
+      <li>Follow the arrow home to the green pad. The egg goes into the incubator and hatches after a moment.</li>
+      <li>Watch out for thief crabs: answer right and you keep your egg. Spend the coins your creatures earn on upgrades (<kbd>U</kbd>) and look at your creatures in the Creature Book (<kbd>B</kbd>).</li>
+    </ul>
+    <h2>What you practise</h2>
+    <p>Each egg asks a Spanish sentence with a gap, like <em lang="es">Me ___ Sofía.</em> Rare eggs ask two. After a mistake the egg rolls away, and you see the whole sentence and a short rule in English. The sentence comes back soon, and the Creature Book lists the sentences you still need to practise.</p>
+    <h2>Questions and answers</h2>
+    <div class="kg-faq">
+      <h3>Does it work on a phone?</h3>
+      <p>It needs a wide screen: a computer, a Chromebook or a tablet held sideways. Phones are not tested yet.</p>
+      <h3>Can I lose in Verb Hatchery?</h3>
+      <p>No. A wrong answer only lets the egg roll away; it comes back soon. Thief crabs can take an egg, but you can catch them.</p>
+      <h3>Is my progress saved?</h3>
+      <p>Yes, your creatures, coins and upgrades are saved on your device only. There is no account.</p>
+    </div>
+    <h2>Keep practising</h2>
+    <ul class="kg-links">
+      <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
+      <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
+      <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
+      <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
+      <li><a href="/en/spanish/games/">All Spanish games</a></li>
+    </ul>
+    <h2>More Spanish games</h2>
+    <div class="kg-related">
+      <a class="kg-related-card" href="/en/spanish/games/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Scene from Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen!</span><span class="kg-related-tag">Cooking chaos: wash the plates with the right words!</span></a>
+      <a class="kg-related-card" href="/en/spanish/games/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Scene from Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Build towers. Forge coins with the right words.</span></a>
+    </div>
+    <p class="kg-top"><a href="#">▲ Back to the game</a></p>
+  </main>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-25" defer></script>
+  <!-- GAME-INFO:END -->
+
+  <script type="module">
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-24';
+    initGamePage('verb_hatchery');
+  </script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>

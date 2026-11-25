@@ -352,6 +352,9 @@ def main():
             path = HOME / lang / L[lang]["folder"] / g["id"] / "index.html"
             if not path.exists():
                 continue
+            head = path.read_text(encoding="utf-8")
+            if "GAME-INFO:START" not in head and 'content="noindex' in head:
+                continue   # lean tester page (Verb Hatchery's DE/ES pages), no info section
             if g["id"] not in CONTENT or lang not in CONTENT[g["id"]]:
                 missing.append(str(path.relative_to(ROOT)))
                 continue
