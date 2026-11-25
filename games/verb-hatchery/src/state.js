@@ -237,9 +237,11 @@ export function recordAnswer(s, correct) {
 // ── words to practise: every missed verb, until it is answered right twice ──
 export function trackWord(s, q, ok) {
   const W = s.words || (s.words = {});
-  const w = W[q.base];
-  if (!ok) W[q.base] = { past: q.past, pp: q.pp, miss: (w ? w.miss : 0) + 1, ok: 0, t: Date.now() };
-  else if (w && ++w.ok >= 2) delete W[q.base];
+  const key = q.kind === 'gap' ? `${q.topic}:${q.item}` : q.base, w = W[key];
+  if (!ok) W[key] = q.kind === 'gap'
+    ? { kind: 'gap', text: String(q.plain).replace('___', q.answer), miss: (w ? w.miss : 0) + 1, ok: 0, t: Date.now() }
+    : { past: q.past, pp: q.pp, miss: (w ? w.miss : 0) + 1, ok: 0, t: Date.now() };
+  else if (w && ++w.ok >= 2) delete W[key];
 }
 export const wordsToPractise = (s) => Object.entries(s.words || {}).map(([base, w]) => ({ base, ...w })).sort((a, b) => b.t - a.t);
 

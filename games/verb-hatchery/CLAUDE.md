@@ -990,3 +990,27 @@ write `RELEASE.md` when the owner says go.
   `world.fx` is dropped; `webglcontextlost` (weak GPU drops the 3D context
   = a silent freeze) saves and shows "graphics stopped, reload". If it
   happens again: F12 console → the red `[hatchery]` line tells the cause.
+- 2026-11-25: **any topic (docs/game-contract.md)**, on request of the
+  homepage session. `questions.js`: topic from `KQ.topicFromUrl()`;
+  `getQuizSet({ topic, count, withOptions, lang })`; verbs keep their
+  pairs (trio, chain order unchanged); other topics: `display.kind 'gap'`
+  steps (`fromEngineGap`) in pools by `difficulty` 1–3 (= egg tier), rare+
+  eggs ask **two different sentences** (`stepsFor`), smart mix per topic;
+  `?difficulty=N` (`difficultyFromUrl`) puts the engine's filtered set into
+  every pool (overrides the egg-tier cap); `record()` passes `q.item`,
+  `q.form`, `q.topic`; inline verb fallback kept. Card: `gapHtml` (blank
+  highlighted, hint small, filled after the answer), long sentences (> 45
+  chars) get a smaller font and wrap; after a miss: filled sentence +
+  `teach.line`. `i18n.js`: language = ?lang (stored as
+  `krabsy_hatchery_lang`) → own stored → `krabsy_lang` → browser;
+  `TOPIC_TEXT` / `TOPIC_KEY` (prepositions + every `es_*`): "sentences"
+  instead of "verbs" in the Book, the roll-away line, the practise list.
+  Words to practise: sentences stored filled. Analytics: every event
+  carries `topic`. Test URLs (site-like server with the real /lib),
+  all 0 console errors: `?topic=es_ser&lang=en` (gap, 2 sentences on a
+  rare egg, English teach line, no verb wording),
+  `?topic=es_ser_estar&lang=en&difficulty=1` (only difficulty 1, also on a
+  rare egg), `?topic=prepositions&lang=de` (German teach line, "Sätze zum
+  Üben"), no params (verbs unchanged, chain order kept). Longest sentence
+  (54 chars) fits the card. Language order checked. Open: first load ~6 MB
+  (heaviest Krabsy game; slow connections) before a public release.

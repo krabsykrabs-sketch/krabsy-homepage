@@ -638,10 +638,24 @@ function trioHtml(q, reveal) {
   const pp = reveal.pp ? `<span class="pp">${q.pp}</span>` : `<span class="blank ${q.ask === 'pp' ? 'ask-pp' : ''}">${q.pp}</span>`;
   return b + ar + past + ar + pp;
 }
+// A sentence with one gap (topics other than verbs): the blank is highlighted; after
+// the answer it shows the answer. The hint (e.g. "(tall)") is small. Long sentences
+// get a smaller font instead of being cut (docs/game-contract.md 5).
+const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function gapHtml(q, filled) {
+  const parts = String(q.plain).split('___'), blank = filled ? `<span class="gapFill">${esc(q.answer)}</span>` : '<span class="blank ask-past gapBlank">?</span>';
+  return esc(parts[0]) + blank + esc(parts.slice(1).join('___')) + (q.hint ? ` <span class="gapHint">(${esc(q.hint)})</span>` : '');
+}
+function stepHtml(q, reveal) {
+  const el = $('trio');
+  el.classList.toggle('gap', q.kind === 'gap');
+  el.classList.toggle('long', q.kind === 'gap' && String(q.sentence).length > 45);
+  return q.kind === 'gap' ? gapHtml(q, !!reveal) : trioHtml(q, reveal || {});
+}
 function showStep() {
   const q = card.steps[card.i];
   card.answered = false;
-  $('trio').innerHTML = trioHtml(q, {});
+  $('trio').innerHTML = stepHtml(q, null);
   $('feedback').innerHTML = card.steps.length > 1 ? `<div class="small">${t('step', card.i + 1, card.steps.length)}</div>` : '';
   $('goOn').classList.remove('on');
   $('typeToggle').classList.toggle('on', !!st.typing);
@@ -685,7 +699,7 @@ function judge(q, ok) {
   S.recordAnswer(st, ok); Q.record(q, ok); S.trackWord(st, q, ok); A.countAnswer(ok);
   const last = card.i === card.steps.length - 1;
   const showPp = q.ask === 'pp' || q.full; // never reveal a 3rd form the next step asks
-  $('trio').innerHTML = trioHtml(q, { past: true, pp: showPp });
+  $('trio').innerHTML = q.kind === 'gap' ? stepHtml(q, true) : stepHtml(q, { past: true, pp: showPp });
   if (ok) {
     sfx.right();
     $('feedback').innerHTML = `<div class="ok">${t('right')}</div>`;
@@ -694,7 +708,9 @@ function judge(q, ok) {
   } else {
     sfx.wrong();
     Q.missed(card.pair);
-    const chain = `<span class="base">${q.base}</span><span class="arrow">→</span><span class="past">${q.past}</span><span class="arrow">→</span>` +
+    // verbs: the chain (as far as it may be shown); sentences: the filled sentence + the teach line
+    const chain = q.kind === 'gap' ? `<span class="gapTeach">${gapHtml(q, true)}</span>${q.teach ? `<div class="small teachLine">${esc(q.teach)}</div>` : ''}`
+      : `<span class="base">${q.base}</span><span class="arrow">→</span><span class="past">${q.past}</span><span class="arrow">→</span>` +
       (showPp ? `<span class="pp">${q.pp}</span>` : '<span style="color:#42577f">___</span>');
     const after = card.kind === 'thief' ? t('stolenChase') : t('eggRolled');
     $('feedback').innerHTML = `<div class="bad">${t('wrong')}</div><div class="teach">${chain}</div><div class="small">${after}</div>`;
@@ -999,7 +1015,7 @@ function renderBook() {
   const gold = st.gold || {};
   const words = S.wordsToPractise(st).slice(0, 12);
   const wordsHtml = `<div class="bookR words"><h3>📝 ${t('wordsTitle')} <small>${words.length ? t('wordsHow') : ''}</small></h3>` +
-    (words.length ? `<div class="wordList">${words.map((w) => `<div class="word"><span class="base">${w.base}</span><span class="arrow">→</span><span class="past">${w.past}</span><span class="arrow">→</span><span class="pp">${w.pp}</span>${w.ok ? ' <span class="wOk">✓</span>' : ''}</div>`).join('')}</div>`
+    (words.length ? `<div class="wordList">${words.map((w) => `<div class="word">${w.kind === 'gap' ? `<span class="wGap">${esc(w.text)}</span>` : `<span class="base">${w.base}</span><span class="arrow">→</span><span class="past">${w.past}</span><span class="arrow">→</span><span class="pp">${w.pp}</span>`}${w.ok ? ' <span class="wOk">✓</span>' : ''}</div>`).join('')}</div>`
       : `<div class="wordNone">${t('wordsNone')}</div>`) + '</div>';
   $('bookList').innerHTML = wordsHtml + ZONES.map((z) => {
     const list = creaturesOf(z.id);

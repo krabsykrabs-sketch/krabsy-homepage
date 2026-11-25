@@ -1,4 +1,4 @@
-// Interface texts (verbs and creature names always stay English).
+// Interface texts (creature names and the learning content are not translated here).
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
@@ -282,17 +282,40 @@ const T = {
   },
 };
 
+// Interface language (docs/game-contract.md 2): ?lang for this visit (and remembered as
+// the game's own choice), then the game's own stored choice, then krabsy_lang (set by
+// the site), then the browser. The interface language is not the learning language.
+const OWN_KEY = 'krabsy_hatchery_lang';
 function pickLang() {
-  try {
-    const q = new URLSearchParams(location.search).get('lang');
-    if (q && T[q]) return q;
-  } catch (_) { /* ignore */ }
+  const ok = (x) => (x && T[x] ? x : null);
+  let q = null;
+  try { q = ok(new URLSearchParams(location.search).get('lang')); } catch (_) { /* ignore */ }
+  if (q) { try { localStorage.setItem(OWN_KEY, q); } catch (_) { /* ignore */ } return q; }
+  try { const own = ok(localStorage.getItem(OWN_KEY)); if (own) return own; } catch (_) { /* ignore */ }
+  try { const site = ok(localStorage.getItem('krabsy_lang')); if (site) return site; } catch (_) { /* ignore */ }
   const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
   return T[nav] ? nav : 'en';
 }
 export const lang = pickLang();
+// Topic-neutral texts (docs/game-contract.md 7): the default texts speak of verbs;
+// other topics override those few keys. One set covers every Spanish topic (es_*).
+const TOPIC = (() => { try { return new URLSearchParams(location.search).get('topic') || 'irregular_verbs'; } catch (_) { return 'irregular_verbs'; } })();
+const SENTENCES = {
+  en: { bookHow: 'Each place on the island has its own creatures. Rarer eggs ask harder sentences.',
+    eggRolled: 'The egg rolled away. This sentence comes back soon.',
+    wordsTitle: 'Sentences to practise', wordsNone: 'No sentences to practise right now. Great!' },
+  de: { bookHow: 'Jeder Ort der Insel hat seine eigenen Wesen. Seltenere Eier fragen schwierigere Sätze.',
+    eggRolled: 'Das Ei ist weggerollt. Dieser Satz kommt bald wieder.',
+    wordsTitle: 'Sätze zum Üben', wordsNone: 'Gerade keine Sätze zum Üben. Super!' },
+  es: { bookHow: 'Cada lugar de la isla tiene sus propias criaturas. Los huevos más raros preguntan frases más difíciles.',
+    eggRolled: 'El huevo se fue rodando. Esta frase volverá pronto.',
+    wordsTitle: 'Frases para practicar', wordsNone: '¡Ahora no hay frases para practicar. Genial!' },
+};
+const TOPIC_TEXT = { prepositions: SENTENCES, es_ser: SENTENCES };
+const TOPIC_KEY = TOPIC_TEXT[TOPIC] ? TOPIC : (/^es_/.test(TOPIC) ? 'es_ser' : TOPIC);
 export function t(key, ...args) {
-  const v = (T[lang] && T[lang][key]) ?? T.en[key];
+  const TT = TOPIC_TEXT[TOPIC_KEY] && (TOPIC_TEXT[TOPIC_KEY][lang] || TOPIC_TEXT[TOPIC_KEY].en);
+  const v = (TT && TT[key]) ?? (T[lang] && T[lang][key]) ?? T.en[key];
   if (v === undefined) return key;
   return typeof v === 'function' ? v(...args) : v;
 }
