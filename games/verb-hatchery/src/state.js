@@ -48,8 +48,28 @@ export function load() {
     while (s.hall.length < MAX_HALL) s.hall.push(null);
     s.stats = { ...fresh.stats, ...s.stats };
     s.carry = s.carry || [];
+    renameCreatures(s);
     return s;
   } catch (_) { return null; }
+}
+// Creatures replaced on 2026-11-25 (head-only models → full-body ones of the same zone
+// and rarity): saves from the tester release keep what they had under the new id.
+const RENAMED = { chicken: 'birb', cat: 'monkroose', pigeon: 'alpaking', bat: 'armabee', panda: 'yeti',
+  pipo: 'toadus', crab: 'parrotfish', penguin: 'sunfish', blobby: 'dinoro' };
+const renamed = (sp) => {
+  if (typeof sp !== 'string') return sp;
+  const g = sp.endsWith('*'), id = g ? sp.slice(0, -1) : sp;
+  return RENAMED[id] ? RENAMED[id] + (g ? '*' : '') : sp;
+};
+function renameCreatures(s) {
+  for (const list of [s.pens, s.hall]) for (const p of list) if (p && p.sp) p.sp = renamed(p.sp);
+  for (const x of [...s.incubators, ...s.carry]) if (x) { if (x.pick) x.pick = renamed(x.pick); if (x.sp) x.sp = renamed(x.sp); }
+  for (const key of ['book', 'gold']) {
+    const o = s[key]; if (!o || typeof o !== 'object' || Array.isArray(o)) continue;
+    const b = {};
+    for (const [k, v] of Object.entries(o)) { const n = renamed(k); b[n] = typeof b[n] === 'number' && typeof v === 'number' ? b[n] + v : (b[n] ?? v); }
+    s[key] = b;
+  }
 }
 export function save(s, now = Date.now()) {
   s.lastSave = now;

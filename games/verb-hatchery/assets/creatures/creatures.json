@@ -116,120 +116,6 @@
    "source": "https://quaternius.com/packs/farmanimal.html"
   },
   {
-   "id": "chicken",
-   "name": {
-    "en": "Chicken",
-    "de": "Huhn",
-    "es": "Gallina"
-   },
-   "zone": "meadow",
-   "rarity": "common",
-   "kind": "animal",
-   "file": "chicken.glb",
-   "icon": "icons/chicken.webp",
-   "silhouette": "icons/chicken_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.5,
-   "move": "walk",
-   "hover": 0,
-   "size": [0.98, 1, 0.877],
-   "tris": 2904,
-   "bytes": 79832,
-   "pack": "Ultimate Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
-   "id": "cat",
-   "name": {
-    "en": "Cat",
-    "de": "Katze",
-    "es": "Gato"
-   },
-   "zone": "meadow",
-   "rarity": "common",
-   "kind": "animal",
-   "file": "cat.glb",
-   "icon": "icons/cat.webp",
-   "silhouette": "icons/cat_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.5,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.952, 0.821],
-   "tris": 1772,
-   "bytes": 62428,
-   "pack": "Ultimate Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
-   "id": "pigeon",
-   "name": {
-    "en": "Pigeon",
-    "de": "Taube",
-    "es": "Paloma"
-   },
-   "zone": "meadow",
-   "rarity": "common",
-   "kind": "animal",
-   "file": "pigeon.glb",
-   "icon": "icons/pigeon.webp",
-   "silhouette": "icons/pigeon_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.45,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.788, 0.856],
-   "tris": 2184,
-   "bytes": 62532,
-   "pack": "Ultimate Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
    "id": "donkey",
    "name": {
     "en": "Donkey",
@@ -775,39 +661,6 @@
    "source": "https://quaternius.com/packs/easyenemy.html"
   },
   {
-   "id": "bat",
-   "name": {
-    "en": "Bat",
-    "de": "Fledermaus",
-    "es": "Murciélago"
-   },
-   "zone": "forest",
-   "rarity": "uncommon",
-   "kind": "animal",
-   "file": "bat.glb",
-   "icon": "icons/bat.webp",
-   "silhouette": "icons/bat_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "idle",
-    "eat": "eat"
-   },
-   "sourceClips": {
-    "idle": "Flying",
-    "eat": "Bite_Front"
-   },
-   "scale": 0.4,
-   "move": "fly",
-   "hover": 0.3,
-   "size": [1, 0.594, 0.442],
-   "tris": 1200,
-   "bytes": 56432,
-   "pack": "Cute Animated Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://opengameart.org/content/textured-cute-monster-pack"
-  },
-  {
    "id": "husky",
    "name": {
     "en": "Husky",
@@ -922,82 +775,6 @@
    "source": "https://quaternius.com/packs/ultimateanimatedanimals.html"
   },
   {
-   "id": "panda",
-   "name": {
-    "en": "Panda",
-    "de": "Panda",
-    "es": "Panda"
-   },
-   "zone": "forest",
-   "rarity": "rare",
-   "kind": "animal",
-   "file": "panda.glb",
-   "icon": "icons/panda.webp",
-   "silhouette": "icons/panda_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.7,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.926, 0.805],
-   "tris": 1428,
-   "bytes": 69812,
-   "pack": "Cute Animated Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://opengameart.org/content/textured-cute-monster-pack"
-  },
-  {
-   "id": "pipo",
-   "name": {
-    "en": "Pipo",
-    "de": "Pipo",
-    "es": "Pipo"
-   },
-   "zone": "forest",
-   "rarity": "rare",
-   "kind": "monster",
-   "file": "pipo.glb",
-   "icon": "icons/pipo.webp",
-   "silhouette": "icons/pipo_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.6,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.958, 0.986],
-   "tris": 2954,
-   "bytes": 91404,
-   "pack": "Ultimate Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
    "id": "mushnub",
    "name": {
     "en": "Mushnub",
@@ -1070,44 +847,6 @@
    "author": "Quaternius",
    "licence": "CC0 1.0",
    "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
-   "id": "crab",
-   "name": {
-    "en": "Crab",
-    "de": "Krabbe",
-    "es": "Cangrejo"
-   },
-   "zone": "beach",
-   "rarity": "common",
-   "kind": "animal",
-   "file": "crab.glb",
-   "icon": "icons/crab.webp",
-   "silhouette": "icons/crab_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.35,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.631, 0.552],
-   "tris": 1820,
-   "bytes": 72272,
-   "pack": "Cute Animated Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://opengameart.org/content/textured-cute-monster-pack"
   },
   {
    "id": "clownfish",
@@ -1283,37 +1022,6 @@
    "author": "Quaternius",
    "licence": "CC0 1.0",
    "source": "https://quaternius.com/packs/cutefish.html"
-  },
-  {
-   "id": "penguin",
-   "name": {
-    "en": "Penguin",
-    "de": "Pinguin",
-    "es": "Pingüino"
-   },
-   "zone": "beach",
-   "rarity": "uncommon",
-   "kind": "animal",
-   "file": "penguin.glb",
-   "icon": "icons/penguin.webp",
-   "silhouette": "icons/penguin_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "idle"
-   },
-   "sourceClips": {
-    "idle": "Idle"
-   },
-   "scale": 0.6,
-   "move": "walk",
-   "hover": 0,
-   "size": [1, 0.734, 0.685],
-   "tris": 1040,
-   "bytes": 40288,
-   "pack": "Cute Animated Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://opengameart.org/content/textured-cute-monster-pack"
   },
   {
    "id": "dolphin",
@@ -1692,44 +1400,6 @@
    "source": "https://quaternius.com/packs/animateddinosaurs.html"
   },
   {
-   "id": "blobby",
-   "name": {
-    "en": "Blobby",
-    "de": "Blobby",
-    "es": "Blobby"
-   },
-   "zone": "volcano",
-   "rarity": "common",
-   "kind": "monster",
-   "file": "blobby.glb",
-   "icon": "icons/blobby.webp",
-   "silhouette": "icons/blobby_s.webp",
-   "clips": {
-    "idle": "idle",
-    "walk": "walk",
-    "jump": "jump",
-    "eat": "eat",
-    "fun": "fun"
-   },
-   "sourceClips": {
-    "idle": "Idle",
-    "walk": "Walk",
-    "jump": "Jump",
-    "eat": "Bite_Front",
-    "fun": "Dance"
-   },
-   "scale": 0.5,
-   "move": "walk",
-   "hover": 0,
-   "size": [0.89, 1, 0.843],
-   "tris": 1030,
-   "bytes": 34540,
-   "pack": "Ultimate Monsters",
-   "author": "Quaternius",
-   "licence": "CC0 1.0",
-   "source": "https://quaternius.com/packs/ultimatemonsters.html"
-  },
-  {
    "id": "triceratops",
    "name": {
     "en": "Triceratops",
@@ -1991,7 +1661,7 @@
     "es": "Dinoro"
    },
    "zone": "volcano",
-   "rarity": "rare",
+   "rarity": "common",
    "kind": "monster",
    "file": "dinoro.glb",
    "icon": "icons/dinoro.webp",
@@ -2159,6 +1829,330 @@
    "tris": 2954,
    "bytes": 143708,
    "pack": "Ultimate Monsters",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "birb",
+   "name": {
+    "en": "Birb",
+    "de": "Birb",
+    "es": "Birb"
+   },
+   "zone": "meadow",
+   "rarity": "common",
+   "kind": "monster",
+   "file": "birb.glb",
+   "icon": "icons/birb.webp",
+   "silhouette": "icons/birb_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "jump": "Jump",
+    "fun": "Wave"
+   },
+   "scale": 0.7,
+   "move": "walk",
+   "hover": 0,
+   "size": [0.999, 1, 0.536],
+   "tris": 2955,
+   "bytes": 123408,
+   "pack": "Ultimate Monsters (Big, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "monkroose",
+   "name": {
+    "en": "Monkroose",
+    "de": "Monkroose",
+    "es": "Monkroose"
+   },
+   "zone": "meadow",
+   "rarity": "common",
+   "kind": "monster",
+   "file": "monkroose.glb",
+   "icon": "icons/monkroose.webp",
+   "silhouette": "icons/monkroose_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "jump": "Jump",
+    "fun": "Wave"
+   },
+   "scale": 0.8,
+   "move": "walk",
+   "hover": 0,
+   "size": [1, 0.891, 0.508],
+   "tris": 2955,
+   "bytes": 124768,
+   "pack": "Ultimate Monsters (Big, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "alpaking",
+   "name": {
+    "en": "Alpaking",
+    "de": "Alpaking",
+    "es": "Alpaking"
+   },
+   "zone": "meadow",
+   "rarity": "common",
+   "kind": "monster",
+   "file": "alpaking.glb",
+   "icon": "icons/alpaking.webp",
+   "silhouette": "icons/alpaking_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Flying_Idle",
+    "walk": "Fast_Flying",
+    "jump": "Headbutt",
+    "fun": "Yes"
+   },
+   "scale": 0.8,
+   "move": "walk",
+   "hover": 0,
+   "size": [1, 0.555, 0.484],
+   "tris": 2508,
+   "bytes": 80100,
+   "pack": "Ultimate Monsters (Flying, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "armabee",
+   "name": {
+    "en": "Armabee",
+    "de": "Armabee",
+    "es": "Armabee"
+   },
+   "zone": "forest",
+   "rarity": "uncommon",
+   "kind": "monster",
+   "file": "armabee.glb",
+   "icon": "icons/armabee.webp",
+   "silhouette": "icons/armabee_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Flying_Idle",
+    "walk": "Fast_Flying",
+    "jump": "Headbutt",
+    "fun": "Yes"
+   },
+   "scale": 0.6,
+   "move": "fly",
+   "hover": 0.3,
+   "size": [1, 0.51, 0.442],
+   "tris": 2280,
+   "bytes": 76796,
+   "pack": "Ultimate Monsters (Flying, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "yeti",
+   "name": {
+    "en": "Yeti",
+    "de": "Yeti",
+    "es": "Yeti"
+   },
+   "zone": "forest",
+   "rarity": "rare",
+   "kind": "monster",
+   "file": "yeti.glb",
+   "icon": "icons/yeti.webp",
+   "silhouette": "icons/yeti_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "jump": "Jump",
+    "fun": "Wave"
+   },
+   "scale": 1.1,
+   "move": "walk",
+   "hover": 0,
+   "size": [1, 0.838, 0.483],
+   "tris": 2955,
+   "bytes": 117632,
+   "pack": "Ultimate Monsters (Big, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "toadus",
+   "name": {
+    "en": "Toadus",
+    "de": "Toadus",
+    "es": "Toadus"
+   },
+   "zone": "forest",
+   "rarity": "rare",
+   "kind": "monster",
+   "file": "toadus.glb",
+   "icon": "icons/toadus.webp",
+   "silhouette": "icons/toadus_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "jump": "Jump",
+    "fun": "Wave"
+   },
+   "scale": 0.8,
+   "move": "walk",
+   "hover": 0,
+   "size": [1, 0.795, 0.518],
+   "tris": 2954,
+   "bytes": 115620,
+   "pack": "Ultimate Monsters (Big, full download)",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/ultimatemonsters.html"
+  },
+  {
+   "id": "parrotfish",
+   "name": {
+    "en": "Parrotfish",
+    "de": "Papageifisch",
+    "es": "Pez loro"
+   },
+   "zone": "beach",
+   "rarity": "common",
+   "kind": "animal",
+   "file": "parrotfish.glb",
+   "icon": "icons/parrotfish.webp",
+   "silhouette": "icons/parrotfish_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "eat": "eat"
+   },
+   "sourceClips": {
+    "idle": "Swimming_Normal",
+    "walk": "Swimming_Fast",
+    "jump": "Swimming_Impulse",
+    "eat": "Attack"
+   },
+   "scale": 0.35,
+   "move": "swim",
+   "hover": 0.25,
+   "size": [0.688, 0.534, 1],
+   "tris": 1352,
+   "bytes": 80164,
+   "pack": "Cute Fish Pack",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/cutefish.html"
+  },
+  {
+   "id": "sunfish",
+   "name": {
+    "en": "Sunfish",
+    "de": "Mondfisch",
+    "es": "Pez luna"
+   },
+   "zone": "beach",
+   "rarity": "uncommon",
+   "kind": "animal",
+   "file": "sunfish.glb",
+   "icon": "icons/sunfish.webp",
+   "silhouette": "icons/sunfish_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "eat": "eat"
+   },
+   "sourceClips": {
+    "idle": "Swimming_Normal",
+    "walk": "Swimming_Fast",
+    "jump": "Swimming_Impulse",
+    "eat": "Attack"
+   },
+   "scale": 0.55,
+   "move": "swim",
+   "hover": 0.25,
+   "size": [0.629, 1, 0.657],
+   "tris": 1430,
+   "bytes": 84824,
+   "pack": "Cute Fish Pack",
+   "author": "Quaternius",
+   "licence": "CC0 1.0",
+   "source": "https://quaternius.com/packs/cutefish.html"
+  },
+  {
+   "id": "gillgor",
+   "name": {
+    "en": "Gillgor",
+    "de": "Gillgor",
+    "es": "Gillgor"
+   },
+   "zone": "volcano",
+   "rarity": "rare",
+   "kind": "monster",
+   "file": "gillgor.glb",
+   "icon": "icons/gillgor.webp",
+   "silhouette": "icons/gillgor_s.webp",
+   "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "jump": "jump",
+    "fun": "fun"
+   },
+   "sourceClips": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "jump": "Jump",
+    "fun": "Wave"
+   },
+   "scale": 0.9,
+   "move": "walk",
+   "hover": 0,
+   "size": [0.885, 1, 0.657],
+   "tris": 2955,
+   "bytes": 119216,
+   "pack": "Ultimate Monsters (Big, full download)",
    "author": "Quaternius",
    "licence": "CC0 1.0",
    "source": "https://quaternius.com/packs/ultimatemonsters.html"

@@ -1014,3 +1014,20 @@ write `RELEASE.md` when the owner says go.
   Üben"), no params (verbs unchanged, chain order kept). Longest sentence
   (54 chars) fits the card. Language order checked. Open: first load ~6 MB
   (heaviest Krabsy game; slow connections) before a public release.
+- 2026-11-25: **head-only creatures replaced** (owner: "the chicken and the
+  pipo … seem a bit out of place"; chose "8 heads plus crab", replaced by
+  monsters + fish). Out: chicken, cat, pigeon, pipo, blobby (Ultimate Monsters
+  blob heads), bat, panda, crab, penguin (Cute Animated Monsters). In, same
+  zone and rarity (the collection stays 60, each zone keeps its count): Birb,
+  Monkroose, Alpaking (Meadow common), Armabee (Forest uncommon), Yeti and
+  Toadus (Forest rare), Parrotfish (Beach common), Sunfish (Beach uncommon),
+  Gillgor (Volcano rare; Dinoro moved to Volcano common). New packs in
+  `roster.json`: `umbig` / `umfly` = the full Ultimate Monsters download (Big
+  and Flying sets). Rejected while picking: evolved forms that repeat a
+  creature or are heads with wings (Armabee_Evolved, Goleling_Evolved,
+  Glub_Evolved), BlueDemon (holds a bat) and Demon (trident), like Ninja /
+  Orc / Tribal before. Old saves: `state.js` `RENAMED` maps the removed ids
+  to their replacements on load (pens, hall, Book, golden marks, incubators,
+  carried daily eggs). GLBs 7.71 MB (was 7.68). Checked: `check.cjs` 120
+  loads, no errors; an old save with chicken in a pen loads as Birb; smoke
+  test clean. The homepage copy needs a re-copy + re-stamp (master session).
