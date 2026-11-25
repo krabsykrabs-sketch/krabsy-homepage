@@ -41,6 +41,18 @@ let KQ = null;               // the engine module, if loaded
 const pools = { 1: [], 2: [], 3: [] };
 const queue = { 1: [], 2: [], 3: [] }; // missed verbs, asked again soon
 let recent = [];             // last few bases, to avoid repeats
+// The site's smart mix (docs/phase1-game-wiring.md): per tier a short queue of verbs
+// this player should see now (still wrong / new / due again), refilled when empty, so
+// answers from the last eggs count for the next ones.
+const smart = { 1: [], 2: [], 3: [] }, smartBusy = {};
+function refillSmart(t) {
+  if (!KQ || smartBusy[t]) return;
+  smartBusy[t] = true;
+  KQ.getChainSet({ topic: 'irregular_verbs', tiers: [t], count: 6, smart: true })
+    .then((set) => { smart[t] = set.map((r) => r.verb).filter((v) => pools[t].some((p) => p.base === v)); })
+    .catch(() => {})
+    .finally(() => { smartBusy[t] = false; });
+}
 
 export async function init() {
   try {
@@ -58,7 +70,7 @@ export async function init() {
         pools[t].push(pairOf(q2, q3, t)); n++;
       }
     }
-    if (n >= 20 && pools[1].length) { source = 'engine'; return; }
+    if (n >= 20 && pools[1].length) { source = 'engine'; for (const t of [1, 2, 3]) refillSmart(t); return; }
   } catch (_) { /* local dev or offline */ }
   KQ = null;
   source = 'inline';
@@ -83,6 +95,13 @@ export function nextPair(tier) {
   q.forEach((e) => e.wait--);
   const pool = pools[t];
   let pick = null;
+  // the smart mix first (site only)
+  while (smart[t].length && !pick) {
+    const v = smart[t].shift();
+    if (!recent.includes(v)) pick = pool.find((p) => p.base === v) || null;
+  }
+  if (!smart[t].length) refillSmart(t);
+  if (pick) { recent = [pick.base, ...recent].slice(0, Math.min(8, Math.floor(pool.length / 2))); return withFresh(pick); }
   for (let tries = 0; tries < 8; tries++) {
     pick = pool[Math.floor(Math.random() * pool.length)];
     if (!recent.includes(pick.base)) break;

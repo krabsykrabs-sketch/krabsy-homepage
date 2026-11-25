@@ -901,3 +901,9 @@ headless Chrome, so mostly state checks instead of screenshots): egg
 trail, hunted hint, compact card, steal → chase → recover, bonk, banner
 stacking. Not checked by eye: brightness of all 60 creatures, the
 heartbeat volume, touch.
+- 2026-11-25: **site question engine checked** (site-like server: game
+  files + `lib` / `data` symlinks to `homepage/`, port 8165): `source:
+  engine`, tier pools 1/2/3 right, answers recorded in `krabsy_stats_v2`.
+  Added the **smart mix** (`questions.js`: per tier a queue from
+  `getChainSet({ tiers: [t], count: 6, smart: true })`, refilled when
+  empty; picks come from it first). Local fallback unchanged.
