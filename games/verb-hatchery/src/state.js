@@ -226,6 +226,15 @@ export function recordAnswer(s, correct) {
   else s.stats.streak = 0;
 }
 
+// ── words to practise: every missed verb, until it is answered right twice ──
+export function trackWord(s, q, ok) {
+  const W = s.words || (s.words = {});
+  const w = W[q.base];
+  if (!ok) W[q.base] = { past: q.past, pp: q.pp, miss: (w ? w.miss : 0) + 1, ok: 0, t: Date.now() };
+  else if (w && ++w.ok >= 2) delete W[q.base];
+}
+export const wordsToPractise = (s) => Object.entries(s.words || {}).map(([base, w]) => ({ base, ...w })).sort((a, b) => b.t - a.t);
+
 // ── goals ──
 export const bookCount = (s) => Object.keys(s.book).filter((k) => BY_ID[k]).length;
 function counter(s, g) {

@@ -564,7 +564,7 @@ function answer(k) {
   const q = card.steps[card.i];
   const ok = q.options[k] === q.answer;
   card.answered = true;
-  S.recordAnswer(st, ok); Q.record(q, ok); A.countAnswer(ok);
+  S.recordAnswer(st, ok); Q.record(q, ok); S.trackWord(st, q, ok); A.countAnswer(ok);
   $('chips').querySelectorAll('.chip').forEach((c, j) => c.classList.add(q.options[j] === q.answer ? 'right' : 'off'));
   const last = card.i === card.steps.length - 1;
   const showPp = q.ask === 'pp' || q.full; // never reveal a 3rd form the next step asks
@@ -873,7 +873,11 @@ function buyUp(k) {
 function renderBook() {
   $('bookHow').textContent = `${t('bookFound', S.bookCount(st), ROSTER.length)} · ${t('bookHow')}`;
   const gold = st.gold || {};
-  $('bookList').innerHTML = ZONES.map((z) => {
+  const words = S.wordsToPractise(st).slice(0, 12);
+  const wordsHtml = `<div class="bookR words"><h3>📝 ${t('wordsTitle')} <small>${words.length ? t('wordsHow') : ''}</small></h3>` +
+    (words.length ? `<div class="wordList">${words.map((w) => `<div class="word"><span class="base">${w.base}</span><span class="arrow">→</span><span class="past">${w.past}</span><span class="arrow">→</span><span class="pp">${w.pp}</span>${w.ok ? ' <span class="wOk">✓</span>' : ''}</div>`).join('')}</div>`
+      : `<div class="wordNone">${t('wordsNone')}</div>`) + '</div>';
+  $('bookList').innerHTML = wordsHtml + ZONES.map((z) => {
     const list = creaturesOf(z.id);
     const found = list.filter((c) => st.book[c.id]).length;
     const eggs = zoneRarities(z).map((r) => `<span class="evDot" style="background:${RARITY[r].css}" title="${rName(r)}"></span>${z.event === r ? '⭐' : ''}`).join(' ');

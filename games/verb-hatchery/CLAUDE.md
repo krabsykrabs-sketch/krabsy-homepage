@@ -938,3 +938,8 @@ heartbeat volume, touch.
   The speaker button cycles 🔊 all → 🔈 effects only → 🔇 off (saved;
   `?sound=off`, `?music=off` for teacher links); audio pauses while the
   tab is hidden. Not heard by a human yet.
+- 2026-11-25: **words to practise** (`state.js` `trackWord` / `wordsToPractise`,
+  `s.words`): every missed verb is listed at the top of the Creature Book
+  as a full chain (newest first, max 12); it leaves the list after two
+  later right answers (a ✓ after the first). Checked headless (two wrong
+  answers → two chains in the Book).

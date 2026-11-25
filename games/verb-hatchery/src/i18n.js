@@ -2,6 +2,7 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    wordsTitle: 'Words to practise', wordsHow: 'answer each one right twice and it leaves the list', wordsNone: 'No words to practise right now. Great!',
     sound_all: 'Music and sounds on', sound_fx: 'Sounds only', sound_off: 'Sound off',
     hallTitle: 'Hall of Fame', hallWelcome: 'Welcome to your Hall of Fame! Creatures here earn ×1.5',
     p_enterHall: 'Enter the Hall of Fame', p_leaveHall: 'Go outside', p_place: 'Place a creature from your Book',
@@ -88,6 +89,7 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    wordsTitle: 'Wörter zum Üben', wordsHow: 'zweimal richtig beantwortet – dann verschwindet es', wordsNone: 'Gerade keine Wörter zum Üben. Super!',
     sound_all: 'Musik und Töne an', sound_fx: 'Nur Töne', sound_off: 'Ton aus',
     hallTitle: 'Ruhmeshalle', hallWelcome: 'Willkommen in deiner Ruhmeshalle! Wesen hier verdienen ×1,5',
     p_enterHall: 'In die Ruhmeshalle', p_leaveHall: 'Nach draußen', p_place: 'Ein Wesen aus deinem Buch hinstellen',
@@ -174,6 +176,7 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    wordsTitle: 'Palabras para practicar', wordsHow: 'respóndela bien dos veces y sale de la lista', wordsNone: '¡Ahora no hay palabras para practicar. Genial!',
     sound_all: 'Música y sonidos', sound_fx: 'Solo sonidos', sound_off: 'Sin sonido',
     hallTitle: 'Salón de la Fama', hallWelcome: '¡Bienvenido a tu Salón de la Fama! Aquí las criaturas ganan ×1,5',
     p_enterHall: 'Entrar al Salón de la Fama', p_leaveHall: 'Salir', p_place: 'Colocar una criatura de tu libro',

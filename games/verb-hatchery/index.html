@@ -122,6 +122,10 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .bookCell img{width:84px;height:84px;display:block;margin:0 auto;}
 .bookCell.miss{color:#5d729a;}
 .bookCell .n{min-height:2.4em;line-height:1.2;}
+.wordList{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;}
+.word{background:#15305a;border-radius:10px;padding:6px 10px;font-family:'Fredoka One';font-size:17px;}
+.wOk{color:var(--teal);font-size:14px;}
+.wordNone{color:var(--muted);font-size:14px;}
 #bookHow{color:var(--muted);font-size:14px;}
 .bookCell{position:relative;}
 .goldMark{position:absolute;top:2px;right:4px;font-size:16px;}
