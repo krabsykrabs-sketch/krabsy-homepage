@@ -9,11 +9,9 @@ All models are CC0 (public domain), copied from the shared library
 | `characters/Knight.glb`, `sword_1handed.*`, `shield_round.*`, `knight_texture.png` | KayKit Adventurers 2.0 | Kay Lousberg | CC0 |
 | `characters/Skeleton_Minion.glb` | KayKit Skeletons 1.1 | Kay Lousberg | CC0 |
 | `characters/anim_medium.glb` | KayKit Character Animations 1.1 | Kay Lousberg | CC0 |
-| `characters/Barbarian.glb`, `Rogue_Hooded.glb`, `Mage.glb`, `axe_2handed.*`, `dagger.*`, `staff.*`, `barbarian_texture.png`, `rogue_texture.png`, `mage_texture.png` | KayKit Adventurers 2.0 | Kay Lousberg | CC0 |
 | `characters/Skeleton_Golem.glb`, `Skeleton_Rogue.glb`, `Skeleton_Crossbow.*`, `Skeleton_Arrow.*`, `skeleton_texture_A.png` | KayKit Skeletons 1.1 | Kay Lousberg | CC0 |
 | `characters/anim_large.glb`, `anim_ranged.glb`, `anim_boss.glb` | KayKit Character Animations 1.1 | Kay Lousberg | CC0 |
 | `characters/Necromancer.glb`, `Skeleton_Mage.glb`, `Skeleton_Staff.*` (level 2 and 3 bosses) | KayKit Skeletons 1.1 (EXTRA) | Kay Lousberg | CC0 |
-| `portraits/*.webp` | screenshots of the hero models alone on a navy gradient (made with `?qa=portrait&stop=0&hero=<id>`, 640 px crop scaled to 144 px, WebP q82) | — | CC0 |
 
 `anim_medium.glb` is an animation-only file (bones + 10 clips) built with
 `games/tower-defense/tools/strip-rigs.py` from `Rig_Medium_General`,
