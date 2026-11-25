@@ -141,3 +141,46 @@ def test_purge_idle_space():
 if __name__ == "__main__":
     test_measure_stars_scale(); test_space_student_flow(); test_purge_idle_space()
     print("ok")
+
+
+def test_goal_homework_adult_report_profile():
+    c = _client()
+    if c is None:
+        return
+    T = {"X-Tutor-Token": c.post("/api/tutor/create", json={"name": "Nora"}).json()["tutor_token"]}
+    s = c.post("/api/tutor/student/add", json={"name": "Ana", "adult": True}, headers=T).json()
+    sid, key = s["id"], s["student_key"]
+    S = {"X-Student-Token": key}
+    assert c.get("/api/tutor/me", headers=S).json()["adult"] is True
+
+    # homework without a game, with a goal in answers
+    assert c.post("/api/tutor/student/homework", json={"id": sid, "topic": "es_ser", "goal": 40}, headers=T).json()["ok"]
+    c.post("/api/class/answers", json={"answers": [A("soy_name", True, "2099-01-01T00:00:00+00:00")] * 3}, headers=S)
+    hw = c.get("/api/tutor/me", headers=S).json()["homework"][0]
+    assert hw["goal"] == 40 and hw["target"] == "" and hw["answers"] == 3
+
+    # report link: parents see stars + note, never the private notes
+    c.post("/api/tutor/student/update", json={"id": sid, "notes": "PRIVATE", "report_note": "Great week!"}, headers=T)
+    rk = c.post("/api/tutor/student/report-link", json={"id": sid}, headers=T).json()["report_key"]
+    rep = c.get("/api/report", headers={"X-Report-Key": rk})
+    assert rep.status_code == 200 and "PRIVATE" not in rep.text
+    r = rep.json()
+    assert r["note"] == "Great week!" and r["topics"]["es_ser"]["answers"] == 3 and len(r["weeks"]) == 4
+    rk2 = c.post("/api/tutor/student/report-link", json={"id": sid}, headers=T).json()["report_key"]
+    assert c.get("/api/report", headers={"X-Report-Key": rk}).status_code == 404
+    assert c.get("/api/report", headers={"X-Report-Key": rk2}).status_code == 200
+
+    # profile: save, read back, delete a key, token in body (beacon), survives a new link
+    assert c.get("/api/profile", headers=S).json()["data"] == {}
+    c.post("/api/profile", json={"changes": {"krabsy_shells_v1": '{"earned":5}', "bad key!": "x"}}, headers=S)
+    d = c.get("/api/profile", headers=S).json()["data"]
+    assert d["krabsy_shells_v1"]["v"] == '{"earned":5}' and "bad key!" not in d
+    c.post("/api/profile", content='{"token": "%s", "changes": {"krabsy_shells_v1": null, "td3d_stars_level_0": "3"}}' % key,
+           headers={"Content-Type": "text/plain"})
+    d = c.get("/api/profile", headers=S).json()["data"]
+    assert "krabsy_shells_v1" not in d and d["td3d_stars_level_0"]["v"] == "3"
+    new = c.post("/api/tutor/student/new-link", json={"id": sid}, headers=T).json()["student_key"]
+    assert c.get("/api/profile", headers={"X-Student-Token": new}).json()["data"]["td3d_stars_level_0"]["v"] == "3"
+    assert c.get("/api/profile", headers=S).status_code == 401
+    big = "x" * (500 * 1024)
+    assert c.post("/api/profile", json={"changes": {"k": big}}, headers={"X-Student-Token": new}).status_code == 413

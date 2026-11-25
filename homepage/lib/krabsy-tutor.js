@@ -18,10 +18,11 @@
                           keeps a hash).
    English only for the pilot; texts in T for later languages.
    ────────────────────────────────────────────────────────────────────────── */
-import { apiBase, adopt, getSession } from '/lib/krabsy-class.js?v=2026-11-25';
+import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
+import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-25';
 
 const LANG = 'en';
-const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/',
+const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',
   games: '/en/spanish/games/', home: '/en/spanish/' };
 
 const T = {
@@ -69,16 +70,31 @@ const T = {
   mapH: 'Star map', mapLead: 'Measured from the answers. Click a star to set it yourself; your stars win.',
   measured: 'measured', set: 'set by you', auto: 'back to measured', answers: 'answers', right: 'right',
   practise: 'practise', noteFor: 'Note', notePrompt: 'Note for this topic (e.g. “mixes up ser/estar with feelings”):',
-  hwH: 'Homework', hwLead: 'Shows up on the student’s page. Progress counts the answers in that topic since you gave it.',
-  hwTopic: 'Topic', hwTarget: 'Game or drill', hwDiff: 'Difficulty', hwNote: 'Note for the student', hwNotePh: 'e.g. 10 minutes, twice this week',
-  hwAdd: 'Give homework', hwNone: 'No homework yet.', hwProgress: (n, p) => (n ? `${n} answers since then · ${p} % right` : 'not started'),
+  hwH: 'Homework', hwLead: 'You give the content and a goal; the student picks any game or drill. Every answer in that topic since you gave it counts.',
+  hwTopic: 'Topic', hwGoal: 'Goal', hwGoals: [20, 40, 60, 100], hwGoalUnit: 'answers', hwDiff: 'Difficulty', hwNote: 'Note for the student', hwNotePh: 'e.g. before Thursday',
+  hwAdd: 'Give homework', hwNone: 'No homework yet.',
+  hwProgress: (n, goal, p) => (goal ? `${Math.min(n, goal)} of ${goal} answers` : `${n} answers`) + (n ? ` · ${p} % right` : ''),
+  hwDone: 'done ✓',
+  adult: 'Adult learner', adultHint: 'Calmer student page: no shells, no gifts, quick practice first.', adultTag: 'adult',
+  reportH: 'Report for parents', reportLead: 'A read-only link for the parents: star map, homework progress, number of lessons and your note below. Never your private notes.',
+  reportNote: 'Note for the parents', reportNotePh: 'e.g. Lucas worked hard on ser vs estar this month …',
+  reportMake: 'Make the parents’ link', reportNew: 'Make a new link', reportNewQ: 'Make a new parents’ link? The old one stops working.',
+  reportUnknown: 'A parents’ link exists, but it was made on another device. Make a new one to see it here.',
+  reportOpen: 'Open the report',
   levels: [['', 'Everything'], ['1', 'Easy'], ['2', 'Easy + medium']],
   lessonsH: 'Lesson notes', lessonDay: 'Date', lessonNote: 'What you did, what comes next',
   lessonAdd: 'Add note', lessonNone: 'No lesson notes yet.', del: 'Delete',
   where: 'Where they practised', remove: 'Remove student', removeQ: (n) => `Remove ${n}? Their notes and answers are deleted.`,
   meHi: (n) => `Hi ${n}!`, meFrom: (t) => `Homework from ${t}`, meNone: 'No homework right now. Play anything you like!',
+  meAdultHi: (n) => `Your practice, ${n}`, meAdultFrom: (t) => `From ${t}`, meAdultNone: 'Nothing set right now. Quick practice is always here.',
   meGo: 'Play', meAll: 'All games', meBad: 'This link doesn’t work any more. Ask your tutor for a new one.',
-  meCounts: 'Everything you answer on this device goes to your tutor.',
+  meCounts: 'Everything you answer on this device goes to your tutor, and your figure and shells are saved for your other devices.',
+  meAdultCounts: 'Everything you answer on this device goes to your tutor.',
+  meQuick: 'Quick practice', meQuickSub: 'fastest way to your goal', meGames: 'Games', meGamesSub: 'more fun, takes a bit longer',
+  meProfile: 'My figure and shells →', meWho: 'Not you? Switch player', meDone: 'Goal reached! 🎉',
+  repTitle: (n) => `${n}: progress report`, repFrom: (t) => `from ${t}`, repWeeks: 'Answers per week', repWeekNames: ['this week', 'last week', '2 weeks ago', '3 weeks ago'],
+  repLessons: (n, d) => `${n} lesson${n === 1 ? '' : 's'} noted${d ? `, the last on ${d}` : ''}`, repMap: 'Star map', repHw: 'Homework', repBad: 'This report link doesn’t work any more. Ask the tutor for a new one.',
+  repNote: 'Note from the tutor',
   topicFallback: (id) => id.replace(/^es_/, '').replace(/_/g, ' '),
   sources: { sprint: 'Sprint', 'fill-the-gap': 'Fill the Gap', flashcards: 'Flashcards', free_practice: 'Free practice',
     'verb-towers': 'Verb Towers', 'verb-kitchen': 'Verb Kitchen', 'verb-platformer': 'Verb Platformer',
@@ -125,6 +141,12 @@ function setKey(token, sid, key) { const k = read('krabsy_tutor_keys', {}); k[ke
 
 const spaceUrl = (token) => `${location.origin}${PATHS.space}#t=${token}`;
 const studentUrl = (key) => `${location.origin}${PATHS.me}#k=${key}`;
+const reportUrl = (key) => `${location.origin}${PATHS.report}#r=${key}`;
+const levelName = (d) => (T.levels.find((l) => l[0] === String(d)) || ['', ''])[1];
+function progressBar(h) {
+  const pct = h.goal ? Math.min(100, Math.round((h.answers / h.goal) * 100)) : (h.answers ? 100 : 0);
+  return `<span class="kt-bar${h.goal && h.answers >= h.goal ? ' is-done' : ''}" role="img" aria-label="${pct} %"><span style="width:${pct}%"></span></span>`;
+}
 
 /* ── catalogue: topic names, homework targets and their links ──────────── */
 let _cat = null;
@@ -148,6 +170,9 @@ function targetsFor(cat, topic) {
     .map((x) => ({ id: x.id, name: (x.name && (x.name[LANG] || x.name.en || x.name.de)) || x.id, thumb: x.thumb_small || x.thumbnail || '' }));
   const d = DRILLS.filter((x) => t.pages && t.pages[x.id] && t.pages[x.id][LANG]).map((x) => ({ id: 'drill:' + x.id, name: x.name, thumb: '' }));
   return [...g, ...d];
+}
+function linkFor(cat, topic, target, difficulty, glang) {
+  return homeworkUrl(cat, { topic, target, difficulty, glang });
 }
 function targetName(cat, topic, target) {
   const x = targetsFor(cat, topic).find((y) => y.id === target);
@@ -257,7 +282,7 @@ async function renderSpace(main) {
     const tps = Object.entries(s.stars).filter(([, n]) => n > 0)
       .sort((a, b) => cat.ids.indexOf(a[0]) - cat.ids.indexOf(b[0]));
     return `<a class="kt-scard" href="#t=${esc(token)}&s=${s.id}">
-      <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}</span>
+      <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
       <span class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span>
       ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>` : ''}
     </a>`;
@@ -273,6 +298,7 @@ async function renderSpace(main) {
         <label class="kc-field kt-narrow"><span>${T.level}</span><input id="kt-slevel" maxlength="20" placeholder="${T.levelPh}"></label>
       </div>
       <label class="kc-field kt-wide"><span>${T.goals}</span><input id="kt-sgoals" maxlength="600" placeholder="${T.goalsPh}"></label>
+      <label class="kt-check"><input type="checkbox" id="kt-sadult"> <span><strong>${T.adult}</strong> <span class="kc-muted">${T.adultHint}</span></span></label>
       <p class="kc-muted">${T.consent}</p>
       <p class="kc-error" id="kt-err" role="alert" hidden></p>
       <button class="kc-btn" type="submit">${T.addBtn}</button>
@@ -288,7 +314,7 @@ async function renderSpace(main) {
     ev.preventDefault();
     const btn = $('#kt-add button'); btn.disabled = true;
     try {
-      const r = await api('/api/tutor/student/add', token, { name: $('#kt-sname').value.trim(), level: $('#kt-slevel').value, goals: $('#kt-sgoals').value });
+      const r = await api('/api/tutor/student/add', token, { name: $('#kt-sname').value.trim(), level: $('#kt-slevel').value, goals: $('#kt-sgoals').value, adult: $('#kt-sadult').checked });
       setKey(token, r.id, r.student_key);
       location.hash = `t=${token}&s=${r.id}`;
     } catch (e) {
@@ -314,6 +340,7 @@ async function renderStudent(main, token, sid) {
   }
   const s = d.student;
   const key = getKey(token, sid);
+  const rkey = getKey(token, 'r' + sid);
   const reload = () => renderStudent(main, token, sid);
   const post = (path, body) => api(path, token, Object.assign({ id: sid }, body));
 
@@ -341,7 +368,7 @@ async function renderStudent(main, token, sid) {
 
     <section class="kc-card" id="kt-profile">
       <h2>${T.profileH}</h2>
-      <div id="kt-prof-view"><p><strong>${T.goals}:</strong> ${esc(s.goals) || '–'}</p>
+      <div id="kt-prof-view"><p><strong>${T.goals}:</strong> ${esc(s.goals) || '–'}${s.adult ? ` · <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</p>
         <button type="button" class="kc-btn kc-btn-ghost" id="kt-edit">${T.edit}</button></div>
       <form id="kt-prof-form" hidden>
         <div class="kt-form-row">
@@ -349,6 +376,7 @@ async function renderStudent(main, token, sid) {
           <label class="kc-field kt-narrow"><span>${T.level}</span><input id="kt-plevel" maxlength="20" value="${esc(s.level)}" placeholder="${T.levelPh}"></label>
         </div>
         <label class="kc-field kt-wide"><span>${T.goals}</span><input id="kt-pgoals" maxlength="600" value="${esc(s.goals)}" placeholder="${T.goalsPh}"></label>
+        <label class="kt-check"><input type="checkbox" id="kt-padult"${s.adult ? ' checked' : ''}> <span><strong>${T.adult}</strong> <span class="kc-muted">${T.adultHint}</span></span></label>
         <p class="kc-row"><button class="kc-btn" type="submit">${T.save}</button><button class="kc-btn kc-btn-ghost" type="button" id="kt-pcancel">${T.cancel}</button></p>
       </form>
       <label class="kc-field kt-wide"><span>${T.notes}</span>
@@ -375,14 +403,13 @@ async function renderStudent(main, token, sid) {
       <h2>${T.hwH}</h2>
       <p class="kc-muted">${T.hwLead}</p>
       ${d.homework.length ? `<ul class="kt-hw">${d.homework.map((h) => `<li>
-          <span><strong>${esc(topicName(cat, h.topic))}</strong> · ${esc(targetName(cat, h.topic, h.target))}${h.difficulty ? ` · ${esc((T.levels.find((l) => l[0] === String(h.difficulty)) || ['', ''])[1])}` : ''}
+          <span><strong>${esc(topicName(cat, h.topic))}</strong>${h.target ? ` · ${esc(targetName(cat, h.topic, h.target))}` : ''}${h.difficulty ? ` · ${esc(levelName(h.difficulty))}` : ''}
           ${h.note ? `<br><span class="kc-muted">“${esc(h.note)}”</span>` : ''}</span>
-          <span class="kc-muted">${new Date(h.created).toLocaleDateString(LANG)} · ${T.hwProgress(h.answers, h.correct_pct)}</span>
-          <span class="kc-row"><a href="${esc(homeworkUrl(cat, h))}" target="_blank" rel="noopener">${T.meGo} ↗</a>
-          <button type="button" class="kc-link" data-delhw="${h.id}">${T.del}</button></span></li>`).join('')}</ul>` : `<p class="kc-muted">${T.hwNone}</p>`}
+          <span class="kt-hwprog">${progressBar(h)}<span class="kc-muted">${new Date(h.created).toLocaleDateString(LANG)} · ${T.hwProgress(h.answers, h.goal, h.correct_pct)}</span></span>
+          <button type="button" class="kc-link" data-delhw="${h.id}">${T.del}</button></li>`).join('')}</ul>` : `<p class="kc-muted">${T.hwNone}</p>`}
       <form id="kt-hwform" class="kt-hwform">
         <label class="kc-field"><span>${T.hwTopic}</span><select id="kt-hwtopic">${cat.ids.map((tp) => `<option value="${esc(tp)}"${tp === hwTopic ? ' selected' : ''}>${esc(topicName(cat, tp))}</option>`).join('')}</select></label>
-        <label class="kc-field"><span>${T.hwTarget}</span><select id="kt-hwtarget"></select></label>
+        <label class="kc-field"><span>${T.hwGoal}</span><select id="kt-hwgoal">${T.hwGoals.map((n) => `<option value="${n}"${n === 40 ? ' selected' : ''}>${n} ${T.hwGoalUnit}</option>`).join('')}</select></label>
         <label class="kc-field"><span>${T.hwDiff}</span><select id="kt-hwdiff">${T.levels.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
         <label class="kc-field kt-wide"><span>${T.hwNote}</span><input id="kt-hwnote" maxlength="300" placeholder="${T.hwNotePh}"></label>
         <button class="kc-btn" type="submit">${T.hwAdd}</button>
@@ -400,17 +427,40 @@ async function renderStudent(main, token, sid) {
         <span class="kt-lnote">${esc(l.note)}</span><button type="button" class="kc-link" data-dellesson="${l.id}">${T.del}</button></li>`).join('')}</ul>` : `<p class="kc-muted">${T.lessonNone}</p>`}
     </section>
 
+    <section class="kc-card">
+      <h2>${T.reportH}</h2>
+      <p class="kc-muted">${T.reportLead}</p>
+      <label class="kc-field kt-wide"><span>${T.reportNote}</span>
+        <textarea id="kt-rnote" rows="3" maxlength="1000" placeholder="${T.reportNotePh}">${esc(s.report_note)}</textarea>
+        <small id="kt-rnote-ok" hidden>${T.saved}</small></label>
+      ${rkey ? `<p class="kc-row"><code class="kc-url">${esc(reportUrl(rkey))}</code><span id="kt-rc"></span><a href="${esc(reportUrl(rkey))}" target="_blank" rel="noopener">${T.reportOpen} ↗</a></p>`
+        : (s.has_report ? `<p class="kc-muted">${T.reportUnknown}</p>` : '')}
+      <p><button type="button" class="kc-btn kc-btn-ghost" id="kt-rlink">${rkey || s.has_report ? T.reportNew : T.reportMake}</button></p>
+    </section>
+
     ${d.sources.length ? `<section class="kc-card"><h2>${T.where}</h2><p>${d.sources.map(([k, n]) => `${esc(T.sources[k] || k)} <span class="kc-muted">${n}</span>`).join(' · ')}</p></section>` : ''}
     <p><button class="kc-btn kc-btn-danger" id="kt-remove">${T.remove}</button></p>`;
 
   if (key) $('#kt-lc').appendChild(copyButton(studentUrl(key)));
+  if (rkey) $('#kt-rc').appendChild(copyButton(reportUrl(rkey)));
+  const rnote = $('#kt-rnote');
+  rnote.addEventListener('change', async () => {
+    try { await post('/api/tutor/student/update', { report_note: rnote.value }); const ok = $('#kt-rnote-ok'); ok.hidden = false; setTimeout(() => { ok.hidden = true; }, 1800); }
+    catch (e) { alert(errorText(e.message)); }
+  });
+  $('#kt-rlink').addEventListener('click', async () => {
+    if ((rkey || s.has_report) && !confirm(T.reportNewQ)) return;
+    const r = await post('/api/tutor/student/report-link', {});
+    setKey(token, 'r' + sid, r.report_key);
+    reload();
+  });
 
   // profile edit
   $('#kt-edit').addEventListener('click', () => { $('#kt-prof-view').hidden = true; $('#kt-prof-form').hidden = false; $('#kt-pname').focus(); });
   $('#kt-pcancel').addEventListener('click', () => { $('#kt-prof-view').hidden = false; $('#kt-prof-form').hidden = true; });
   $('#kt-prof-form').addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    try { await post('/api/tutor/student/update', { name: $('#kt-pname').value.trim(), level: $('#kt-plevel').value, goals: $('#kt-pgoals').value }); reload(); }
+    try { await post('/api/tutor/student/update', { name: $('#kt-pname').value.trim(), level: $('#kt-plevel').value, goals: $('#kt-pgoals').value, adult: $('#kt-padult').checked }); reload(); }
     catch (e) { alert(errorText(e.message)); }
   });
   const notes = $('#kt-notes');
@@ -448,16 +498,10 @@ async function renderStudent(main, token, sid) {
   }));
 
   // homework
-  const fillTargets = () => {
-    $('#kt-hwtarget').innerHTML = targetsFor(cat, $('#kt-hwtopic').value).map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');
-  };
-  fillTargets();
-  $('#kt-hwtopic').addEventListener('change', fillTargets);
   $('#kt-hwform').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const diff = $('#kt-hwdiff').value;
-    if (!$('#kt-hwtarget').value) return;
-    await post('/api/tutor/student/homework', { topic: $('#kt-hwtopic').value, target: $('#kt-hwtarget').value,
+    await post('/api/tutor/student/homework', { topic: $('#kt-hwtopic').value, goal: Number($('#kt-hwgoal').value),
       difficulty: diff ? Number(diff) : null, note: $('#kt-hwnote').value });
     reload();
   });
@@ -486,7 +530,8 @@ async function renderStudent(main, token, sid) {
 /* ── the student's page ─────────────────────────────────────────────────── */
 async function renderMe(main) {
   const m = location.hash.match(/[#&]k=([A-Za-z0-9_-]{20,64})/);
-  const key = m ? m[1] : (getSession() || {}).token;
+  const ap = activePerson();
+  const key = m ? m[1] : ((ap && ap.token) || (getSession() || {}).token);
   let d, cat;
   try {
     if (!key) throw new Error('unknown_student');
@@ -496,20 +541,68 @@ async function renderMe(main) {
       <p><a class="kc-btn" href="${PATHS.games}">${T.meAll}</a></p>`;
     return;
   }
-  adopt({ code: d.code, name: d.tutor_name, nickname: d.name, token: key });
-  // Keep the key out of the address bar (screenshots, sharing); the session remembers it.
+  // This device now plays as this student (another person on the device is parked,
+  // see krabsy-sync.js), and their saved figure/shells come back from the server.
+  await enter({ code: d.code, name: d.tutor_name, nickname: d.name, token: key }, { adult: d.adult });
+  // Keep the key out of the address bar (screenshots, sharing); the device remembers it.
   if (m) { try { history.replaceState(null, '', location.pathname); } catch (_) {} }
+  const adult = !!d.adult;
+  const others = people().list.length > 1;
+  const card = (h) => {
+    const quick = targetsFor(cat, h.topic).filter((x) => x.id.startsWith('drill:'));
+    const games = targetsFor(cat, h.topic).filter((x) => !x.id.startsWith('drill:'));
+    const done = h.goal && h.answers >= h.goal;
+    const tile = (x) => `<a class="kt-tile" href="${esc(linkFor(cat, h.topic, x.id, h.difficulty, h.glang))}">
+      ${x.thumb ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" decoding="async">` : '<span class="kt-tile-ico" aria-hidden="true">⚡</span>'}<span>${esc(x.name)}</span></a>`;
+    const groups = [[T.meQuick, T.meQuickSub, quick], [T.meGames, T.meGamesSub, games]];
+    if (!adult) groups.reverse();          // children: games first; adults: quick practice first
+    return `<section class="kc-card kt-mecard">
+      <h2>${esc(topicName(cat, h.topic))}</h2>
+      ${h.note ? `<p class="kc-muted">${esc(h.note)}</p>` : ''}
+      <div class="kt-hwprog">${progressBar(h)}<span>${done ? T.meDone : T.hwProgress(h.answers, h.goal, h.correct_pct)}</span></div>
+      ${groups.filter((g) => g[2].length).map(([title, sub, list]) => `<h3 class="kt-group">${title} <span class="kc-muted">· ${sub}</span></h3>
+        <div class="kt-tiles">${list.map(tile).join('')}</div>`).join('')}
+    </section>`;
+  };
   main.innerHTML = `
-    <h1>${esc(T.meHi(d.name))}</h1>
-    <section class="kc-card">
-      <h2>${esc(T.meFrom(d.tutor_name))}</h2>
-      ${d.homework.length ? `<ul class="kt-mehw">${d.homework.map((h) => `<li>
-        <span><strong>${esc(targetName(cat, h.topic, h.target))}</strong> · ${esc(topicName(cat, h.topic))}
-        ${h.note ? `<br><span class="kc-muted">${esc(h.note)}</span>` : ''}</span>
-        <a class="kc-btn" href="${esc(homeworkUrl(cat, h))}">${T.meGo}</a></li>`).join('')}</ul>` : `<p>${T.meNone}</p>`}
-    </section>
-    <p class="kc-row"><a class="kc-btn kc-btn-ghost" href="${PATHS.games}">${T.meAll}</a></p>
-    <p class="kc-muted">${T.meCounts}</p>`;
+    <h1>${esc(adult ? T.meAdultHi(d.name) : T.meHi(d.name))}</h1>
+    <p class="kc-muted">${esc(adult ? T.meAdultFrom(d.tutor_name) : T.meFrom(d.tutor_name))}</p>
+    ${d.homework.length ? d.homework.map(card).join('') : `<p class="kc-card">${adult ? T.meAdultNone : T.meNone}</p>`}
+    <p class="kc-row"><a class="kc-btn kc-btn-ghost" href="${PATHS.games}">${T.meAll}</a>
+      ${adult ? '' : `<a class="kc-btn kc-btn-ghost" href="${PATHS.profile}">${T.meProfile}</a>`}</p>
+    <p class="kc-muted">${adult ? T.meAdultCounts : T.meCounts}</p>
+    ${others ? `<p><button type="button" class="kc-link" id="kt-who">${T.meWho}</button></p>` : ''}`;
+  if (others) $('#kt-who').addEventListener('click', () => showPicker({ onDone: () => { location.href = PATHS.me; location.reload(); } }));
+}
+
+/* ── the parents' report ───────────────────────────────────────────────── */
+async function renderReport(main) {
+  const m = location.hash.match(/[#&]r=([A-Za-z0-9_-]{20,64})/);
+  let d, cat;
+  try {
+    if (!m) throw new Error('unknown_report');
+    [d, cat] = await Promise.all([api('/api/report', m[1], undefined, 'X-Report-Key'), catalogue()]);
+  } catch (e) {
+    main.innerHTML = `<h1>Krabsy</h1><p class="kc-card">${e.message === 'unknown_report' ? T.repBad : T.errNet}</p>`;
+    return;
+  }
+  const tps = [...cat.ids.filter((t) => d.topics[t]), ...Object.keys(d.topics).filter((t) => !cat.ids.includes(t))];
+  const maxW = Math.max(1, ...d.weeks);
+  const fmt = (day) => new Date(day + 'T12:00:00').toLocaleDateString(LANG, { day: 'numeric', month: 'short' });
+  main.innerHTML = `
+    <h1>${esc(T.repTitle(d.name))}</h1>
+    <p class="kc-muted">${esc(T.repFrom(d.tutor_name))} · ${esc(T.repLessons(d.lessons, d.last_lesson ? fmt(d.last_lesson) : ''))}</p>
+    ${d.note ? `<section class="kc-card kt-repnote"><h2>${T.repNote}</h2><p class="kt-lnote">${esc(d.note)}</p></section>` : ''}
+    <section class="kc-card"><h2>${T.repMap}</h2>
+      ${tps.length ? `<table class="kc-table kt-scale"><tbody>${tps.map((tp) => `<tr><td><strong>${esc(topicName(cat, tp))}</strong></td>
+        <td>${starsHtml(d.topics[tp].stars)}</td><td class="kc-muted">${esc(T.scale[Math.max(0, d.topics[tp].stars - 1)][1])}</td>
+        <td class="num kc-muted">${d.topics[tp].answers} ${T.answers}</td></tr>`).join('')}</tbody></table>` : `<p class="kc-muted">–</p>`}
+      <p class="kc-muted">${T.scaleH}: ${T.scale.map((x, i) => `${i + 1} = ${x[1]}`).join(' · ')}</p></section>
+    <section class="kc-card"><h2>${T.repWeeks}</h2>
+      <div class="kt-weeks">${d.weeks.map((n, i) => `<div><span class="kt-wbar" style="height:${Math.round((n / maxW) * 100)}%"></span><b>${n}</b><small>${T.repWeekNames[i]}</small></div>`).reverse().join('')}</div></section>
+    ${d.homework.length ? `<section class="kc-card"><h2>${T.repHw}</h2><ul class="kt-hw">${d.homework.map((h) => `<li>
+      <span><strong>${esc(topicName(cat, h.topic))}</strong>${h.note ? `<br><span class="kc-muted">${esc(h.note)}</span>` : ''}</span>
+      <span class="kt-hwprog">${progressBar(h)}<span class="kc-muted">${new Date(h.created).toLocaleDateString(LANG)} · ${T.hwProgress(h.answers, h.goal, h.correct_pct)}</span></span></li>`).join('')}</ul></section>` : ''}`;
 }
 
 const main = document.querySelector('[data-tutor-page]');
@@ -517,5 +610,10 @@ if (main) {
   const page = main.dataset.tutorPage;
   if (page === 'start') renderStart(main);
   else if (page === 'space') { renderSpace(main); window.addEventListener('hashchange', () => renderSpace(main)); }
-  else if (page === 'student') renderMe(main);
+  else if (page === 'student') {
+    renderMe(main);
+    // another student's link opened in the same tab only changes the #fragment
+    window.addEventListener('hashchange', () => { if (/[#&]k=/.test(location.hash)) renderMe(main); });
+  }
+  else if (page === 'report') renderReport(main);
 }

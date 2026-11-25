@@ -102,6 +102,8 @@ const MAX_ROWS = 3;
 /** Show the card for these gifts ([{ id, slot, key, name, image, source }]). Returns the element. */
 export function showGifts(gifts, { lang = 'de' } = {}) {
   if (!gifts || !gifts.length) return null;
+  // Adult learners (tutor's "adult" flag): no gift cards; the gifts stay owned quietly.
+  try { if (localStorage.getItem('krabsy_adult') === '1') return null; } catch (_) {}
   styles();
   document.querySelector('.k-gift')?.remove();
   const t = T[lang] || T.de;

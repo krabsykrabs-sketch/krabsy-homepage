@@ -42,6 +42,17 @@
 
 (function () {
   'use strict';
+  // People on this device + profile saved to the student's key (krabsy-sync.js,
+  // docs/tutor-platform.md). Only for devices with a tutor/class student; the
+  // anonymous path loads nothing. Not inside game iframes (the wrapper syncs).
+  try {
+    if (window.top === window && (localStorage.getItem('krabsy_people') || localStorage.getItem('krabsy_class'))) {
+      var sm = document.createElement('script');
+      sm.type = 'module';
+      sm.textContent = "import('/lib/krabsy-sync.js?v=2026-11-25').then(function (m) { m.start(); }).catch(function () {});";
+      (document.head || document.documentElement).appendChild(sm);
+    }
+  } catch (_) { /* storage blocked / old browser */ }
 
   var SHOULD_POST = true;
   var ENDPOINT = (typeof window !== 'undefined' && window.KRABSY_ANALYTICS_ENDPOINT)

@@ -18,9 +18,15 @@ stars. All noindex, **not linked from any page yet**. Tests: `api/tests/test_tut
 (54 API tests pass); headless browser check of all three pages + a game answer
 on the student's device reaching the tutor. Local preview with the API:
 `python3 tools/dev_api_server.py` → http://localhost:8010/.
+**Accounts round (same day):** homework = topic + goal in answers (child picks
+any game; quick practice vs games on the student page), profile (figure, shells,
+gifts, stats, game saves) saved to the student's key and restored on other
+devices, "Who's playing?" for siblings on one device, adult flag (calm page, no
+shells), read-only parents' report link `/en/spanish/report/#r=`. Details:
+`docs/tutor-platform.md` "Accounts round as built".
 **Before Nora uses it:** deploy the API (Coolify app `/api`, new module in the
 Dockerfile) + site; update `/en/privacy/` (tutor spaces store first name, notes,
-answers). Before going public: link from the teacher pages, privacy DE/ES,
+answers, and the saved profile of students with a link). Before going public: link from the teacher pages, privacy DE/ES,
 AVV template.
 
 ## Lesson plans "Unterrichtsideen" (2026-11-25, DE, not deployed)

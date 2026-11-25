@@ -143,6 +143,41 @@ the word data up into stars per topic.
 a simple booking link, payments through the tutor's **own** Stripe/PayPal
 account.
 
+## Accounts, devices, siblings, adults, parents (owner decisions 2026-11-25)
+
+**The rule: children never have an email or password. Accounts only ever
+belong to adults who own the data.**
+
+| | Login (email, later) | Personal link / key | Read-only link |
+|---|---|---|---|
+| Tutor, teacher | ✅ (secret link until then) | | |
+| Adult learner alone (later) | ✅ | | |
+| Adult learner with a tutor | | ✅ | |
+| Child | **never** | ✅ | |
+| Parent | only if Krabsy ever sells to families | uses the child's key | ✅ report |
+
+- **Homework = content, not a game.** The tutor gives a topic, a goal in answers
+  (e.g. 40) and a difficulty; the student picks any game or drill. Answers from
+  everywhere count. The student page shows two groups: *Quick practice* (drills,
+  "fastest way to your goal") and *Games* ("more fun, takes a bit longer").
+  Counting answers instead of minutes keeps game choice fair.
+- **Profile saved to the student's key.** Figure, shells, gifts, practice stats
+  and game saves are saved on the server under the student (classes and tutor
+  students alike) and restored when the link is opened on another device. Children
+  without a key stay anonymous, on their device only (an optional "save code" may
+  come later).
+- **Siblings on one device: "Who's playing?"** A device can hold several people.
+  Switching parks one person's data and loads the other's into the slots the
+  games read, so games need no changes. A child without a key plays as *Guest*.
+  The first person who opens a link on a device takes over what was played there
+  anonymously before.
+- **Adults:** a *child / adult* flag on the student. Adults get a calmer student
+  page ("Your practice", quick practice first, no shells or gifts). Same content,
+  star map and homework; no parental consent needed.
+- **Parents: no account.** They use the child's link, and get a read-only **report
+  link** from the tutor: star map, homework progress, number of lessons and a
+  "note for parents" the tutor writes. Never the tutor's private notes.
+
 ## AI task generator (for tutors and teachers)
 
 The gap that stops a tutor from moving over is **content coverage**: a
@@ -253,3 +288,40 @@ For Nora:
   the space keeps its students' classes alive.
 - Not yet: other interface languages, rewards from the tutor, parent report,
   live mode (phase 2).
+
+## Accounts round as built (2026-11-25)
+
+- **Homework = topic + goal + difficulty** (`tutor_homework.goal`, `target` now
+  empty = any game). The student page shows per homework a progress bar
+  (answers since it was given / goal) and two groups of tiles: *Quick practice*
+  (Sprint, Fill the Gap) and *Games* (every game that plays the topic). Children
+  see games first, adults quick practice first.
+- **Profile saved to the key:** `GET/POST /api/profile` (`student_profiles`, one JSON
+  per student, max 400 KB; works for class pupils and tutor students; survives a
+  new link). Client `lib/krabsy-sync.js`, loaded by `krabsy-analytics.js` on
+  every top-level page when the device has a person or a class session. Synced:
+  every `krabsy_*` / `td3d_*` key except device settings (language, sound/mute,
+  class/tutor bookkeeping). Pull on page load, push every 20 s and on leaving.
+  Both sides changed → shells (higher `earned`, owned united), stats (per word the
+  record with more attempts) and rewards (done/log united) are merged; anything
+  else: this device wins.
+- **People on a device** (`krabsy_people`): opening a student link or joining a
+  class makes that person active. The first person takes over what was played
+  anonymously before; a second person parks the first one's keys
+  (`krabsy_stash_<id>`) and starts with their own. With 2+ people (or a guest), the
+  first page of a browser session asks "Who's playing?" (not on the tutor,
+  student and report pages); the student page has "Switch player".
+- **Adults:** `tutor_students.adult`; checkbox when adding/editing. Adult student
+  page "Your practice, Ana", quick practice first, no figure link; `krabsy_adult=1`
+  on the device (synced with the person) hides the shells counter and gift cards.
+- **Parents' report:** `POST /api/tutor/student/report-link` (new link replaces the
+  old) → `/en/spanish/report/#r=…` (`GET /api/report`): note for the parents
+  (`report_note`), star map, answers per week (4 weeks), homework progress, number
+  of lessons. Never the private notes, topic notes or lesson texts.
+- Tested: `api/tests/test_tutors.py` (55 API tests); headless: anonymous play →
+  Lucas's link keeps it; Emma on the same device starts at 0; picker switches back
+  to Lucas with his shells; Lucas's link on a second device restores his shells;
+  adult page without shells; the report shows the note but not the private note;
+  Emma's answers don't count for Lucas's homework.
+- Limits: a game already open in another tab keeps the old person until it is
+  reloaded; pages show synced changes from another device on the next page load.

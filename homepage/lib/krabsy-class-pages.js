@@ -180,7 +180,11 @@ function renderJoin(main) {
     const name = $('#kc-nick').value.trim();
     const r = await join($('#kc-code').value, name, samePerson);
     btn.disabled = false;
-    if (r.ok) { renderJoin(main); return; }
+    if (r.ok) {
+      // Register the pupil as this device's person (siblings, profile saved to the key: krabsy-sync.js).
+      try { await (await import('/lib/krabsy-sync.js?v=2026-11-25')).enter(r.session); } catch (_) {}
+      renderJoin(main); return;
+    }
     if (r.error === 'name_taken') { askSameName(name); return; }
     const code = $('#kc-code').value;
     if (r.error === 'unknown_code' && await isQuizRoom(code)) {

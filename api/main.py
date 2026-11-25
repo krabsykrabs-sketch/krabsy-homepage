@@ -494,7 +494,7 @@ app.add_middleware(
     allow_origin_regex=r"^https://(www\.)?krabsy\.com(:\d+)?$",
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token", "X-Tutor-Token"],
+    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token", "X-Tutor-Token", "X-Report-Key"],
     max_age=86400,
 )
 

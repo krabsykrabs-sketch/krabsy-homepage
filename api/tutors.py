@@ -96,15 +96,32 @@ CREATE TABLE IF NOT EXISTS tutor_homework (
   created TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS tutor_students_tutor ON tutor_students(tutor_id);
+CREATE TABLE IF NOT EXISTS student_profiles (
+  student_id INTEGER PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  data TEXT NOT NULL,
+  updated TEXT NOT NULL
+);
 """
+
+# Columns added after the first version (ALTER on existing databases).
+MIGRATIONS = [
+    ("attempts", "mode", "TEXT"),                               # how the answer was given
+    ("tutor_homework", "goal", "INTEGER"),                      # answers to reach
+    ("tutor_students", "adult", "INTEGER NOT NULL DEFAULT 0"),
+    ("tutor_students", "report_hash", "TEXT"),                  # parents' read-only link
+    ("tutor_students", "report_note", "TEXT NOT NULL DEFAULT ''"),
+]
+PROFILE_MAX = 400 * 1024                                       # bytes of profile JSON per student
+_PKEY = re.compile(r"[A-Za-z0-9_]{1,80}")
 
 
 def init_db() -> None:
     with _lock, connect() as con:
         con.executescript(SCHEMA)
-        cols = {r["name"] for r in con.execute("PRAGMA table_info(attempts)")}
-        if "mode" not in cols:                       # how the answer was given
-            con.execute("ALTER TABLE attempts ADD COLUMN mode TEXT")
+        for table, col, decl in MIGRATIONS:
+            cols = {r["name"] for r in con.execute(f"PRAGMA table_info({table})")}
+            if col not in cols:
+                con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
 
 
 def purge_inactive(now: Optional[datetime] = None) -> int:
@@ -226,6 +243,7 @@ class StudentAdd(BaseModel):
     name: str = Field(..., max_length=40)
     level: str = Field("", max_length=40)
     goals: str = Field("", max_length=600)
+    adult: bool = False
 
 
 class StudentRef(BaseModel):
@@ -238,6 +256,8 @@ class StudentUpdate(BaseModel):
     level: Optional[str] = Field(None, max_length=40)
     goals: Optional[str] = Field(None, max_length=600)
     notes: Optional[str] = Field(None, max_length=4000)
+    adult: Optional[bool] = None
+    report_note: Optional[str] = Field(None, max_length=1000)
 
 
 class StarsBody(BaseModel):
@@ -261,7 +281,8 @@ class ItemRef(BaseModel):
 class HomeworkBody(BaseModel):
     id: int
     topic: str = Field(..., max_length=40)
-    target: str = Field(..., max_length=50)
+    target: str = Field("", max_length=50)               # "" = any game or drill (default)
+    goal: Optional[int] = Field(None, ge=1, le=500)      # answers to reach
     difficulty: Optional[int] = Field(None, ge=1, le=3)
     glang: Optional[str] = Field(None, max_length=5)
     note: str = Field("", max_length=300)
@@ -302,7 +323,7 @@ def get_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
             summ = topic_summary(att)
             stars = {tp: v["measured"] for tp, v in summ.items()}
             stars.update({tp: v for tp, v in set_stars.items() if v is not None})   # the tutor's stars win
-            out.append({"id": s["id"], "name": s["name"], "level": s["level"],
+            out.append({"id": s["id"], "name": s["name"], "level": s["level"], "adult": bool(s["adult"]),
                         "last_active": s["seen"] if att else None,
                         "answers_week": sum(1 for a in att if a["at"] >= week_ago),
                         "answers": len(att), "stars": stars})
@@ -380,8 +401,8 @@ def add_student(body: StudentAdd, request: Request, x_tutor_token: str = Header(
         else:
             return _err(500, "no_code")
         class_id = cur.lastrowid
-        cur = con.execute("INSERT INTO tutor_students (tutor_id, class_id, name, level, goals, created) VALUES (?,?,?,?,?,?)",
-                          (t["id"], class_id, name, _clean(body.level, 20), _clean(body.goals, 600), now))
+        cur = con.execute("INSERT INTO tutor_students (tutor_id, class_id, name, level, goals, adult, created) VALUES (?,?,?,?,?,?,?)",
+                          (t["id"], class_id, name, _clean(body.level, 20), _clean(body.goals, 600), 1 if body.adult else 0, now))
         key = _new_key(con, class_id, name)
         _touch(con, t["id"])
     return JSONResponse({"ok": True, "id": cur.lastrowid, "name": name, "student_key": key})
@@ -411,10 +432,11 @@ def get_student(id: int, x_tutor_token: str = Header("", max_length=64)) -> JSON
         sources[a["source"] or "other"] += 1
     return JSONResponse({"ok": True, "student": {
         "id": s["id"], "name": s["name"], "level": s["level"], "goals": s["goals"], "notes": s["notes"],
+        "adult": bool(s["adult"]), "report_note": s["report_note"], "has_report": bool(s["report_hash"]),
         "created": s["created"], "last_active": seen["last_active"] if (seen and att) else None,
         "answers": len(att)},
         "topics": topics, "lessons": lessons,
-        "homework": [dict(id=h["id"], topic=h["topic"], target=h["target"], difficulty=h["difficulty"],
+        "homework": [dict(id=h["id"], topic=h["topic"], target=h["target"], goal=h["goal"], difficulty=h["difficulty"],
                           glang=h["glang"], note=h["note"], created=h["created"], **homework_progress(h, att)) for h in hw],
         "sources": sorted(sources.items(), key=lambda kv: -kv[1])})
 
@@ -431,11 +453,13 @@ def update_student(body: StudentUpdate, x_tutor_token: str = Header("", max_leng
             name = classes.clean_nickname(body.name)
             if not name:
                 return _err(400, "bad_name")
-        con.execute("UPDATE tutor_students SET name = ?, level = ?, goals = ?, notes = ? WHERE id = ?",
+        con.execute("UPDATE tutor_students SET name = ?, level = ?, goals = ?, notes = ?, adult = ?, report_note = ? WHERE id = ?",
                     (name,
                      _clean(body.level, 20) if body.level is not None else s["level"],
                      _clean(body.goals, 600) if body.goals is not None else s["goals"],
                      (body.notes or "").replace("\r", "")[:4000] if body.notes is not None else s["notes"],
+                     (1 if body.adult else 0) if body.adult is not None else s["adult"],
+                     (body.report_note or "").replace("\r", "").strip()[:1000] if body.report_note is not None else s["report_note"],
                      s["id"]))
         con.execute("UPDATE students SET nickname = ? WHERE class_id = ?", (name, s["class_id"]))
         con.execute("UPDATE classes SET name = ? WHERE id = ?", (name, s["class_id"]))
@@ -487,7 +511,7 @@ def delete_lesson(body: ItemRef, x_tutor_token: str = Header("", max_length=64))
 
 @router.post("/api/tutor/student/homework")
 def add_homework(body: HomeworkBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
-    if body.topic not in classes.TOPICS or not _TARGET.fullmatch(body.target):
+    if body.topic not in classes.TOPICS or (body.target and not _TARGET.fullmatch(body.target)):
         return _err(400, "bad_homework")
     glang = body.glang if body.glang in ("de", "es", "en") else None
     with _lock, connect() as con:
@@ -498,8 +522,8 @@ def add_homework(body: HomeworkBody, x_tutor_token: str = Header("", max_length=
         n = con.execute("SELECT COUNT(*) FROM tutor_homework WHERE ts_id = ?", (s["id"],)).fetchone()[0]
         if n >= MAX_HOMEWORK:
             con.execute("DELETE FROM tutor_homework WHERE id = (SELECT id FROM tutor_homework WHERE ts_id = ? ORDER BY created LIMIT 1)", (s["id"],))
-        cur = con.execute("INSERT INTO tutor_homework (ts_id, topic, target, difficulty, glang, note, created) VALUES (?,?,?,?,?,?,?)",
-                          (s["id"], body.topic, body.target, body.difficulty, glang, _clean(body.note, 300), _now()))
+        cur = con.execute("INSERT INTO tutor_homework (ts_id, topic, target, goal, difficulty, glang, note, created) VALUES (?,?,?,?,?,?,?,?)",
+                          (s["id"], body.topic, body.target, body.goal, body.difficulty, glang, _clean(body.note, 300), _now()))
     return JSONResponse({"ok": True, "homework_id": cur.lastrowid})
 
 
@@ -549,8 +573,115 @@ def student_me(x_student_token: str = Header("", max_length=64)) -> JSONResponse
             return _err(404, "unknown_student")
         att = _attempts(con, ts["class_id"])
         hw = con.execute("SELECT * FROM tutor_homework WHERE ts_id = ? ORDER BY created DESC LIMIT 10", (ts["id"],)).fetchall()
-    return JSONResponse({"ok": True, "name": ts["name"], "tutor_name": ts["tutor_name"],
+    return JSONResponse({"ok": True, "name": ts["name"], "tutor_name": ts["tutor_name"], "adult": bool(ts["adult"]),
                          "code": classes.format_code(st["code"]),
-                         "homework": [dict(id=h["id"], topic=h["topic"], target=h["target"], difficulty=h["difficulty"],
+                         "homework": [dict(id=h["id"], topic=h["topic"], target=h["target"], goal=h["goal"], difficulty=h["difficulty"],
                                            glang=h["glang"], note=h["note"], created=h["created"],
                                            **homework_progress(h, att)) for h in hw]})
+
+
+# ── parents' report (read-only link, #r=… ) ──────────────────────────────────
+
+@router.post("/api/tutor/student/report-link")
+def report_link(body: StudentRef, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
+    """A new read-only link for the parents (the old one stops working)."""
+    with _lock, connect() as con:
+        t = _tutor(con, x_tutor_token)
+        s = t and _student(con, t["id"], body.id)
+        if not s:
+            return _err(404, "unknown_student")
+        key = secrets.token_urlsafe(24)
+        con.execute("UPDATE tutor_students SET report_hash = ? WHERE id = ?", (_hash(key), s["id"]))
+    return JSONResponse({"ok": True, "report_key": key})
+
+
+@router.get("/api/report")
+def parent_report(x_report_key: str = Header("", max_length=64)) -> JSONResponse:
+    """What parents see: stars, homework progress, lessons count, the tutor's note
+    for parents. Never the tutor's private notes or per-topic notes."""
+    with _lock, connect() as con:
+        ts = con.execute("SELECT ts.*, t.name AS tutor_name FROM tutor_students ts JOIN tutors t ON t.id = ts.tutor_id "
+                         "WHERE ts.report_hash = ?", (_hash(x_report_key or "-"),)).fetchone()
+        if not ts:
+            return _err(404, "unknown_report")
+        att = _attempts(con, ts["class_id"])
+        set_stars = {r["topic"]: r["stars"] for r in con.execute("SELECT topic, stars FROM tutor_stars WHERE ts_id = ?", (ts["id"],))}
+        hw = con.execute("SELECT * FROM tutor_homework WHERE ts_id = ? ORDER BY created DESC LIMIT 10", (ts["id"],)).fetchall()
+        lessons = con.execute("SELECT day FROM tutor_lessons WHERE ts_id = ? ORDER BY day DESC", (ts["id"],)).fetchall()
+    summ = topic_summary(att)
+    topics = {}
+    for tp in set(summ) | {k for k, v in set_stars.items() if v is not None}:
+        m = summ.get(tp, {"measured": 0, "answers": 0, "correct_pct": None})
+        topics[tp] = {"stars": set_stars[tp] if set_stars.get(tp) is not None else m["measured"],
+                      "answers": m["answers"], "correct_pct": m["correct_pct"]}
+    now = datetime.now(timezone.utc)
+    weeks = []
+    for w in range(4):          # answers per week, this week first
+        hi = (now - timedelta(days=7 * w)).isoformat()
+        lo = (now - timedelta(days=7 * (w + 1))).isoformat()
+        weeks.append(sum(1 for a in att if lo <= a["at"] < hi))
+    return JSONResponse({"ok": True, "name": ts["name"], "tutor_name": ts["tutor_name"], "adult": bool(ts["adult"]),
+                         "note": ts["report_note"], "topics": topics, "weeks": weeks,
+                         "lessons": len(lessons), "last_lesson": lessons[0]["day"] if lessons else None,
+                         "homework": [dict(topic=h["topic"], goal=h["goal"], note=h["note"], created=h["created"],
+                                           **homework_progress(h, att)) for h in hw]})
+
+
+# ── profile saved to the student's key (figure, shells, gifts, stats, game saves) ──
+# Any student with a token (teacher classes and tutor students) can save. The data
+# is opaque to the server: { "<localStorage key>": {"v": "<string>", "at": "<iso>"} }.
+
+def _student_id(con: sqlite3.Connection, token: str):
+    row = con.execute("SELECT id FROM students WHERE token_hash = ?", (_hash(token or "-"),)).fetchone()
+    return row["id"] if row else None
+
+
+@router.get("/api/profile")
+def get_profile(x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    with _lock, connect() as con:
+        sid = _student_id(con, x_student_token)
+        if not sid:
+            return _err(401, "not_in_class")
+        row = con.execute("SELECT data, updated FROM student_profiles WHERE student_id = ?", (sid,)).fetchone()
+    import json
+    return JSONResponse({"ok": True, "data": json.loads(row["data"]) if row else {}, "updated": row["updated"] if row else None})
+
+
+@router.post("/api/profile")
+async def post_profile(request: Request, x_student_token: str = Header("", max_length=64)) -> JSONResponse:
+    """Merge changed keys: {"changes": {"<key>": "<value string>" | null}, "token"?: …}.
+    Raw body so it also works from sendBeacon (token in the body)."""
+    import json
+    if limited("answers", _ip(request)):
+        return _err(429, "too_many")
+    raw = await request.body()
+    if len(raw) > PROFILE_MAX + 4096:
+        return _err(413, "too_big")
+    try:
+        body = json.loads(raw)
+        changes = body.get("changes") or {}
+        assert isinstance(changes, dict)
+    except Exception:  # noqa: BLE001
+        return _err(400, "bad_body")
+    token = x_student_token or str(body.get("token") or "")[:64]
+    now = _now()
+    with _lock, connect() as con:
+        sid = _student_id(con, token)
+        if not sid:
+            return _err(401, "not_in_class")
+        row = con.execute("SELECT data FROM student_profiles WHERE student_id = ?", (sid,)).fetchone()
+        data = json.loads(row["data"]) if row else {}
+        for k, v in changes.items():
+            if not _PKEY.fullmatch(str(k)):
+                continue
+            if v is None:
+                data.pop(k, None)
+            elif isinstance(v, str):
+                data[k] = {"v": v, "at": now}
+        out = json.dumps(data, separators=(",", ":"))
+        if len(out) > PROFILE_MAX:
+            return _err(413, "too_big")
+        con.execute("INSERT INTO student_profiles (student_id, data, updated) VALUES (?,?,?) "
+                    "ON CONFLICT (student_id) DO UPDATE SET data = excluded.data, updated = excluded.updated",
+                    (sid, out, now))
+    return JSONResponse({"ok": True, "updated": now})

@@ -205,6 +205,8 @@ function injectCounterStyles() {
  * Idempotent; returns the <a> element or null. Never throws.
  */
 export function mountShellCounter(header) {
+  // Adult learners (tutor's "adult" flag, docs/tutor-platform.md): no shells, no gifts.
+  if ((() => { try { return localStorage.getItem('krabsy_adult') === '1'; } catch (_) { return false; } })()) return null;
   try {
     const host = header || document.querySelector('header.k-page-header, header.k-game-nav');
     if (!host) return null;

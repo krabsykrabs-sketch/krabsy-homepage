@@ -54,3 +54,25 @@
   .kt-lday { grid-column: 1 / -1; }
   .kt-narrow { max-width: none; }
 }
+
+/* 2026-11-25b: adult flag, goal progress, student page groups, parents' report */
+.kt-level.is-adult { background: #e6f0fb; }
+.kt-check { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 14px; cursor: pointer; }
+.kt-check input { width: 20px; height: 20px; margin-top: 2px; flex: none; }
+.kt-bar { display: inline-block; width: 140px; height: 10px; border-radius: 999px; background: #ece7da; overflow: hidden; vertical-align: middle; }
+.kt-bar > span { display: block; height: 100%; background: #e0a100; border-radius: 999px; }
+.kt-bar.is-done > span { background: #2ec4a0; }
+.kt-hwprog { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.kt-mecard .kt-hwprog { margin: 4px 0 12px; font-weight: 700; }
+.kt-mecard .kt-bar { width: 200px; height: 14px; }
+.kt-group { font-family: var(--font-body, inherit); font-size: 1rem; margin: 10px 0 8px; }
+.kt-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.kt-tile { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--krabsy-ink); background: #fff; border: 2px solid var(--krabsy-lavender);
+  border-radius: 14px; padding: 8px; font-weight: 700; font-size: 0.9rem; text-align: center; }
+.kt-tile:hover, .kt-tile:focus-visible { border-color: #bf4a33; }
+.kt-tile img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 9px; }
+.kt-tile-ico { display: grid; place-items: center; aspect-ratio: 16 / 10; background: #fff6dd; border-radius: 9px; font-size: 2rem; }
+.kt-weeks { display: flex; gap: 14px; align-items: flex-end; height: 150px; padding-top: 8px; }
+.kt-weeks > div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; font-size: 0.8rem; text-align: center; }
+.kt-wbar { display: block; width: 100%; max-width: 56px; min-height: 3px; background: #e0a100; border-radius: 8px 8px 3px 3px; }
+.kt-repnote { border-left: 6px solid #2ec4a0; }
