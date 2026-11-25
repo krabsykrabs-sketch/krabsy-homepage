@@ -46,7 +46,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/main.js` | game loop and rules, input, interface, QA hook |
 | `src/room.js` | builds one room from data (shell + props, merged to one mesh; search props separate) |
 | `src/levels.js` | level data: 3 levels of 5 rooms, room templates, room types |
-| `src/heroes.js` | hero list (model, weapons, swing, swoosh colours, price), the swing clips (`SWINGS`) and the saved coins / owned heroes |
+| `src/heroes.js` | the hero's game items (sword; shield only on the fallback Knight), the swing clip (`SWINGS`) and the saved progress (`krabsy_vdungeon_save`) |
+| `src/figure.js` | the child's figure as the hero (`loadPlayerFigure`, fallback Knight) and the one-time move of old hero-shop purchases into the shells store |
 | `src/marker.js` | the one "you can use this" marker: `markUsable(obj, {radius, top})` / `unmark(m)` (all rings one InstancedMesh, all sparkles one Points: 2 draw calls) |
 | `src/labels.js` | word plates in the room (rune door signs, bridge stones), brick texture |
 | `src/assets.js` | model loading, shared material, static merge |
@@ -248,43 +249,48 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   and sometimes an empty hiding place (1), or lie in the treasure room
   (`type: 'vault'`, `coins: [[x, z], …]`, level 2; its door is opened by
   the verb book). Walk near a stack to collect
-  it; stacks still lying when the room ends are collected for you. The
-  count is in the HUD and saved at once in localStorage
-  `krabsy_vdungeon_save` (`{ coins, owned, hero }`).
-- Heroes: Knight (free), Barbarian 40, Rogue 90, Mage 150 coins
-  (`heroes.js`), chosen in the menu under the levels; a click buys (if the
-  coins are there) and selects. Same rig, same swing timing and hit rules;
-  each hero has its own weapon, swing clip and swoosh colour (2026-11-22,
-  play-test note 7), all declared in `heroes.js` (`gear`, `swing`,
-  `trails`, `sparks`):
-  - Knight: sword + shield, 1H horizontal slice, teal swoosh.
-  - Barbarian: big double axe (`axe_2handed` × 1.05 since note 13, was × 1.35; no shield), 2H slice
-    (both hands on the handle), a wider amber swoosh.
-  - Rogue: two daggers (`dagger` × 1.3, one per hand slot), dual-wield
-    scissor slice: two short coral crescents, each dagger sweeping from its
-    own side inwards (right blade outside, left inside).
-  - **Forehand for everyone (2026-11-22, play-test note 13).** The weapon is
-    in the right hand, but the KayKit slices sweep left → right (a
-    backhand). Every `SWINGS` entry has `reverse: true`: `Assets` builds the
-    upper-body clip and mirrors it in time (`reverseClip`), so the reversed
-    recovery is a wind-up to the weapon side, the strike sweeps right → left
-    and the reversed wind-up is the follow-through. `swingTimes()` converts
-    the measured times (`from`, `strikeFrom/To`, `ahead`, in original clip
-    time) to the reversed clip with the same latency; trail `dir` is
-    flipped in `buildHero`. Blade yaw at the 0.117 s hit check (standing):
-    knight −0.01, barbarian +0.10, rogue −0.05 / +0.06, mage +0.03 rad.
-  - Mage: staff held upright at rest, gem up (leaning forward and out so it
-    shows from above, purple glow on the gem); during a swing the staff
-    follows the arm (1H slice, gem first) and the purple arc runs through
-    the gem (`tip` 1.55 in the trail); a hit gives purple sparkles that
-    spiral up and twinkle (play-test note 8, 2026-11-22).
-  Weapons can `hold: 'faceCam'` (turned about the handle each frame so the
-  flat side faces the camera: axe head and daggers read from above
-  instead of edge-on) or `'upright'` (the staff), set in `updateGear()`
-  after the mixer update. While `G.attackT > 0` an upright weapon is
-  slerped into the hand's own pose (`gearBlend`, in at rate 30/s, back at
-  10/s), so it swings with the arm. The menu portraits show the weapons (wider crop,
-  the barbarian holds his axe up, `portraitT`).
+  it; stacks still lying when the room ends are collected for you. Since
+  2026-11-25 coins are the treasure of one level run: the HUD shows this
+  run's coins, the end screen "+N coins"; they buy nothing (the hero shop
+  is gone). The lifetime total is still kept in localStorage
+  `krabsy_vdungeon_save` (`{ coins, owned, hero, migrated }`; `owned` /
+  `hero` are the old shop's data, read once by the migration, never
+  written again). Never call coins shells / Muscheln / caracolas.
+- **The hero is the child's figure (2026-11-25, owner decision; see
+  `docs/game-contract.md` "The player's figure").** `src/figure.js`
+  `loadHeroFigure()` = `loadPlayerFigure({ fallback: 'Knight', lambert:
+  true, clips: false })` from `/lib/krabsy-figure.js` (the Dungeon's own
+  clips from `anim_medium.glb` etc. play on it, same skeleton; nothing is
+  hidden: capes and back items fit). It loads in parallel with the room
+  assets; `buildHero({ root, own })` uses the figure as it is (`Char`
+  option `own`). The sword is the Dungeon's item on `handslot.r` (scaled
+  against the slot's world scale, so it keeps its size on every figure);
+  the shield only goes on the fallback Knight (no saved figure, or a
+  locked character). Without the site (dev server, `file://`) or on any
+  error the old `assets/characters/Knight.glb` with sword + shield is
+  built (`info().hero`: `figure` | `fallback` | `knight`). Collisions,
+  swing timing and hit rules are unchanged. Menu: "Dein Held" + "Du
+  spielst mit deiner eigenen Figur." / "Du spielst den Ritter. Bau dir
+  deine eigene Figur!" and the link "Spiel mit deiner Figur →" /
+  "Juega con tu personaje →" / "Play with your figure →" to `/de/meine-figur/`
+  / `/es/mi-personaje/` / `/en/my-figure/` (`target="_top"`).
+- **Hero-shop migration (`migrateHeroes()`, before the figure loads).**
+  Runs once (flag `migrated` in the save; unlocking an owned id is a no-op
+  and a saved figure is never replaced, so it is safe to run again). Each
+  old purchase is unlocked as a gift (`unlock(id, 0)` from
+  `/lib/krabsy-shells.js`, balance untouched): barbarian → `char:Barbarian`,
+  rogue → `char:Rogue_Hooded` (the Dungeon's rogue was the hooded model),
+  mage → `char:Cleric` + `hat:wizard` (the Mage is the Quiz-Raum
+  teacher's, not in the catalogue). A child whose chosen hero was one of
+  them and who has no figure yet gets that look saved as the figure
+  (Barbarian / Rogue_Hooded / the Witch in purple with the wizard hat).
+  Without the site the import fails and the flag stays unset.
+- Heroes (until 2026-11-25): a coin shop with Knight, Barbarian, Rogue and
+  Mage, each with its own weapon, swing and swoosh (see git history before
+  this date). Now one hero, the child's figure, with the Knight's sword and
+  its 1H slice (forehand: the clip is mirrored in time, `reverse: true`,
+  `swingTimes()`, play-test note 13). `Assets` still builds `Swing_<key>`
+  for every `SWINGS` entry (now only `slice`).
 - Archer skeleton (`archer(route)` in `levels.js`, from level 2): keeps 4.5
   to 10 units away, shows "!" and aims for 1 s (the last 0.3 s fixed), then
   shoots one slow arrow (speed 7, hero 6.2) straight at where the hero
@@ -303,11 +309,9 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 - Swing: Space does a flat cut across the front (the hero's swing clip
   from `SWINGS` in `heroes.js`, played as `Swing_<key>` = its upper body,
   built at load in `assets.js`; the hips' turn is folded into the spine so
-  the legs keep running). Clips: knight and mage
-  `Melee_1H_Attack_Slice_Horizontal` (`slice`), barbarian
-  `Melee_2H_Attack_Slice` (`heavy`, speed 1.1), rogue
-  `Melee_Dualwield_Attack_Slice` (`dual`, speed 1.2); the measured blade
-  angles are in the comments there. Each starts inside its wind-up
+  the legs keep running). Clip: `Melee_1H_Attack_Slice_Horizontal`
+  (`slice`; the shop heroes' `heavy` / `dual` swings went with the shop on
+  2026-11-25); the measured blade angles are in the comments there. Each starts inside its wind-up
   (`from`): strike begins within ~0.06 s of the key press, hit check at
   0.11 s (measured 0.117 s at 60 fps for every hero) when the blade is in
   front, next swing allowed after 0.38 s (`SWING` in `main.js`). Hit rules
@@ -347,7 +351,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
     112 px, 92 on short screens) = Space, fires on touchstart, works while
     the other thumb holds the stick. Opening a card or dropping off the
     bridge stops the stick until the finger is lifted (`holdStick()`).
-    Everything else is a button: level, hero (buy + select), card chips,
+    Everything else is a button: level, the figure link, card chips,
     "later", end-screen buttons, sound. Buttons use `tap()` (pointerup for
     touch, click for the mouse, ghost click ignored, as in Verb Kitchen).
   - No page scroll / zoom / selection / long-press menu: `touch-action:none`
@@ -1172,3 +1176,52 @@ geometry, at most one shadow light.
   (repo root). Reason: the owner's phone ran a cached old `main.js` with the new
   `index.html` after the deploy. `#rotate` ("turn your device") shows again on an upright phone
   whenever sideways mode is not running (`html:not(.rot)`).
+- 2026-11-25 — **The hero is the child's figure; the coin hero shop is gone**
+  (owner decisions 2026-11-25, `docs/figures-shells-world.md`; see "The hero
+  is the child's figure" and "Hero-shop migration" in "Rules as built").
+  - New `src/figure.js` (`loadHeroFigure`, `migrateHeroes`, the mapping
+    barbarian → `char:Barbarian`, rogue → `char:Rogue_Hooded`, mage →
+    `char:Cleric` + `hat:wizard`). `src/main.js`: `buildHero({ root, own })`
+    / `{ template }`, `loadHero()` in parallel with `Assets.load()`, old
+    Knight on any failure, menu "your figure" line + link instead of the
+    hero cards, HUD coins = this run's coins, QA `&hero=` removed,
+    `info().hero` = figure | fallback | knight, `coinsRun`. `src/heroes.js`:
+    one hero def (sword; shield `figure: false`), `SWINGS` only `slice`,
+    `Save` keeps the old fields untouched + `migrated`. `src/assets.js`:
+    `Knight.glb` no longer in the first load (only for the no-site
+    fallback). `src/chars.js`: option `own`. `src/i18n.js`: `figureOwn`,
+    `figureNone`, `figureLink` (DE/ES/EN); `needCoins`, `hero_*` gone.
+    `index.html`: menu styles; import map restamped (`figure.js` added).
+    `tools/qa-touch.cjs`: checks the figure link instead of buying a hero.
+  - Events: there never was a hero-purchase event, so nothing was dropped;
+    `level_end.coins` stays (this run's coins).
+  - First load: the figure (one character file 0.2–0.6 MB, + one per
+    borrowed accessory, from `/assets/figures/`, shared with the site's
+    figure page) instead of the Dungeon's `Knight.glb` (336 KB); the shared
+    animation files are not loaded (`clips: false`).
+  - **Checked** (headless Linux Chromium, scratch copy of `homepage/` with
+    this build, `api.krabsy.com` blocked): no figure → catalogue Knight with
+    sword + shield; free figure (Witch, recoloured) → sword only; Hiker
+    with the toy-soldier hat, wings and goggles (owned) and Knight with
+    the long cape → shown, nothing clips in the rooms, no `hide` needed; a
+    saved Vampire not owned → fallback Knight; save owning Barbarian + Mage
+    (hero mage) → shells owned `char:Barbarian`, `char:Cleric`, `hat:wizard`,
+    figure saved = Witch + wizard hat in purple, balance unchanged, reload =
+    identical storage; rogue + barbarian save (Barbarian already owned) →
+    `char:Rogue_Hooded` added, the same again with the flag removed;
+    dev server without `/lib` → old Knight, migration not marked.
+    `?qa=play&level=1` (none / free / hat+back) and `level=3` (migrated
+    figure, ES) reach the end screen with hearts 3 (book, key, chest, rune,
+    bridge, boss stone); `?qa=swing`: hit at 0.117 s as before; hands at
+    0.43 from the body in idle (no T-pose); 0 console errors on the site
+    copy. Menu at 1366×768 DE and 844×390 ES touch looked at.
+  - **Not done / not checked:** the shop heroes' files (`Barbarian.glb`,
+    `Rogue_Hooded.glb`, `Mage.glb`, `axe_2handed.*`, `dagger.*`, `staff.*`,
+    their textures, `assets/portraits/`) are unused now but still in the
+    folder (deleting them was not allowed in this session): remove them and
+    their `CREDITS.md` line, and leave them out of the build copy (−1.2 MB).
+    `tools/qa-touch.cjs` not re-run. A real device; the figure page link
+    from inside the real wrapper iframe.
+  - **Release (master):** copy + stamp as usual; `RELEASE.md`'s "the other
+    heroes load when picked" and the thumbnails' "three heroes" key art are
+    out of date.

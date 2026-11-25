@@ -17,7 +17,6 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const ctx = await browser.newContext({ viewport: { width: sw, height: sh }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
   await ctx.addInitScript(() => {
-    localStorage.setItem('krabsy_vdungeon_save', JSON.stringify({ coins: 60, owned: ['knight'], hero: 'knight' }));
     document.hasFocus = () => false; // an iframe without keyboard focus: touch must still play
   });
   const page = await ctx.newPage();
@@ -36,16 +35,11 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   // The first touch switches the touch controls on (coarse pointer already does).
   check(await ev(() => document.documentElement.classList.contains('touch')), 'touch mode on (pointer: coarse)');
   check(/Stick|stick|Joystick/.test(await ev(() => document.getElementById('howto').textContent)), 'menu how-to shows the stick', await ev(() => document.getElementById('howto').textContent));
-  // Buy + select the barbarian by tapping its card.
   const box = async (sel, i = 0) => { const b = await page.locator(sel).nth(i).boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2]; };
   const tapAt = async ([x, y]) => { await page.touchscreen.tap(x, y); };
-  await tapAt(await box('#heroes .hero', 1));
-  await wait(1200);
-  const sv = await ev(() => JSON.parse(localStorage.getItem('krabsy_vdungeon_save')));
-  check(sv.hero === 'barbarian' && sv.owned.includes('barbarian') && sv.coins === 20, 'tap buys + selects the barbarian', JSON.stringify(sv));
-  await tapAt(await box('#heroes .hero', 3)); await wait(300); // too expensive: stays barbarian
-  check((await ev(() => JSON.parse(localStorage.getItem('krabsy_vdungeon_save')).hero)) === 'barbarian', 'tap on a hero you cannot afford keeps the choice');
-  await tapAt(await box('#heroes .hero', 0)); await wait(600); // back to the knight (owned)
+  // The hero is the child's figure (no hero shop since 2026-11-25): the menu links to the figure page.
+  const fl = await ev(() => { const a = document.querySelector('#heroes .figLink'); return a && [a.getAttribute('href'), a.target]; });
+  check(fl && /^\/(de|es|en)\/(meine-figur|mi-personaje|my-figure)\/$/.test(fl[0]) && fl[1] === '_top', 'menu links to the figure page (top window)', JSON.stringify(fl));
   await shot('menu');
   // Start level 1 by tapping it.
   await tapAt(await box('#levels .lvl', 0));
