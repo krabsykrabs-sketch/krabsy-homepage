@@ -52,6 +52,8 @@ over the sheet.
 3. **Teacher guide** (1 page, new) in Interaktive Materialien (`id=4752`):
    "Unregelmäßige Verben in der Vertretungsstunde: 45 Minuten mit Klassencode
    und Verb-Diplom". Fills the empty interactive section.
+   **Written 2026-11-25:** `docs/4teachers/krabsy-vertretungsstunde-unregelmaessige-verben.pdf`
+   (source `tools/generate_teacher_guide.py`, needs `pip install segno`).
 4. **2–3 deep links** (not 7 at once): Verb-Diplom in Online Exercises
    (`id=666850`), "Für Lehrkräfte"/class mode in Teachers' Resources
    (`id=668396`), games hub in Games (`id=668740`). Ask liko first whether
