@@ -3,6 +3,20 @@
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-22.)
 
+## Lesson plans "Unterrichtsideen" (2026-11-25, DE, not deployed)
+
+After a look at the competitor englishonline.training (its edge: ready-made
+lesson plans and a school-year structure). Plan: `docs/lesson-plans-plan.md`.
+Hub `/de/lehrkraefte/unterrichtsideen/` + 3 plans, each a page and a one-page
+PDF from one source (`tools/generate_lesson_plans.py`, needs segno + headless
+Chrome; checks every link against `homepage/`): cover lesson on irregular verbs
+(45 min, replaces `generate_teacher_guide.py`, also writes the 4teachers copy),
+in/on/at (45 min), Quiz-Raum to end a lesson (10–15 min). Linked from the DE
+teacher page ("Ideen für die Stunde") and both DE worksheet pages; sitemap
+regenerated. ES toggle on these pages goes to `/es/docentes/`.
+Next: plans 4–5 (review before a test, a homework week), then ES; owner
+decisions open: winter/Christmas lesson this year? Klasse ranges only?
+
 ## Teacher practice links (2026-11-25, not deployed)
 
 Owner idea: a teacher picks topic, game, difficulty and game language and gets a

@@ -116,6 +116,10 @@
     if (PARALLEL[path] && PARALLEL[path].indexOf('/' + targetLang + '/') === 0) {
       return Promise.resolve(PARALLEL[path]);
     }
+    // Lesson plans (2026-11-25): DE only so far → the ES teacher page.
+    if (path.indexOf('/de/lehrkraefte/unterrichtsideen/') === 0 && targetLang === 'es') {
+      return Promise.resolve('/es/docentes/');
+    }
 
     // Try the topic-aware translation for /<lang>/<topicSlug>/<pageSlug?>/
     const m = path.match(/^\/(de|es)\/([^\/]+)(?:\/([^\/]+))?\/?$/);

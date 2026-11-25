@@ -38,7 +38,7 @@ pages too ("Mit diesem Blatt: Stundenablauf").
 7. Footer: Datenschutz in two lines, "Stand: <Monat Jahr>".
 
 Rules:
-- Facts must match the live site (same rule as `tools/generate_teacher_guide.py`).
+- Facts must match the live site (the generator also checks every link).
   Every URL in a plan is checked by the generator (file exists under `homepage/`).
 - No grammar terms as tasks for the children (presentation mandate); fine in
   the teacher-facing text.
@@ -84,7 +84,7 @@ A1–A2") instead of German Klassen.
 
 ## Order of work
 
-1. Generator + hub + plans 1–3 (DE). Localhost preview for the owner.
+1. ~~Generator + hub + plans 1–3 (DE).~~ Built 2026-11-25 (`tools/generate_lesson_plans.py`).
 2. Plans 4–5 (DE), then ES 1–5.
 3. Upload PDFs 1–2 to 4teachers (per `docs/outreach-4teachers-2026-11-25.md`).
 4. Phase 2 level chips; plan 6 if the date still works.

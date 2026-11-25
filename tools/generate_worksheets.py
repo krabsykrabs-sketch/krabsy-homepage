@@ -319,7 +319,8 @@ P = {
                 "<a href=\"/de/unregelmaessige-verben/sprint/\">Sprint</a> am Tablet oder Handy. Wer die Formen "
                 "auf Papier kann, schafft dort schnell eine neue Bestzeit. Zum Abschluss: das <a href=\"/de/unregelmaessige-verben/verb-diplom/\">Verb-Diplom</a> mit Urkunde."),
         "use": ("Sie dürfen die Arbeitsblätter für Ihren Unterricht ausdrucken, kopieren und an Ihre Klasse "
-                "weitergeben. Weitere Ideen für die Stunde finden Sie auf der Seite "
+                "weitergeben. Fertige Stundenabläufe mit diesen Blättern finden Sie unter "
+                "<a href=\"/de/lehrkraefte/unterrichtsideen/\">Unterrichtsideen</a>, weitere Ideen auf der Seite "
                 "<a href=\"/de/lehrkraefte/\">Für Lehrkräfte</a>."),
     },
     "es": {

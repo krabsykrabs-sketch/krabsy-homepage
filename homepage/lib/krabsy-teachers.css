@@ -460,6 +460,15 @@ body.tc-page {
   .tc-idea-img { width: 72px; height: 72px; }
 }
 
+/* Lesson plans teaser (2026-11-25) */
+.tc-plans {
+  margin-top: 22px; background: #fff; border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: 0 2px 0 rgba(44, 42, 58, 0.06), 0 8px 22px rgba(44, 42, 58, 0.08);
+}
+.tc-plans h3 { font-family: var(--tc-display); font-weight: normal; font-size: 1.3rem; line-height: 1.15; margin: 0 0 10px; }
+.tc-plans ul { margin: 0 0 16px; padding-left: 1.2em; display: grid; gap: 6px; line-height: 1.45; }
+.tc-plans a:not(.tc-btn) { color: var(--coral-aa); font-weight: 800; }
+
 /* ── Privacy ──────────────────────────────────────────────────────── */
 .tc-priv-head { display: flex; gap: 16px; align-items: flex-start; }
 .tc-priv-shield {
