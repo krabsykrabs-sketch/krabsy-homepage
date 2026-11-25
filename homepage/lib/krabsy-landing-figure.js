@@ -151,8 +151,8 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
   // them"). A drag turns the figure, a flick keeps it turning for a moment; a tap without a
   // drag still follows the link. touch-action: pan-y keeps vertical page scrolling on phones.
   let drag = null, vel = 0, spinning = false, dragged = false;
-  canvas.style.touchAction = 'pan-y';
-  canvas.addEventListener('pointerdown', (e) => {
+  // The canvas lets clicks through (it overlaps the featured tile), so the stage takes the drag.
+  stage.addEventListener('pointerdown', (e) => {
     if (!alive) return;
     drag = { x: e.clientX, t: performance.now(), id: e.pointerId }; dragged = false; vel = 0;
   });
@@ -160,7 +160,7 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
     if (!drag || e.pointerId !== drag.id) return;
     const dx = e.clientX - drag.x;
     if (!dragged && Math.abs(dx) < 6) return;
-    if (!dragged) { dragged = true; spinning = true; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} }
+    if (!dragged) { dragged = true; spinning = true; try { stage.setPointerCapture(e.pointerId); } catch (_) {} }
     const now = performance.now();
     const d = dx * 0.016;
     live.yaw += d;
@@ -175,7 +175,9 @@ export async function startLandingFigure({ root, link, stage, canvas, char }) {
     drag = null;
   };
   addEventListener('pointerup', endDrag); addEventListener('pointercancel', endDrag);
-  link.addEventListener('click', (e) => { if (dragged) { e.preventDefault(); dragged = false; } }, true);
+  // a tap on the figure (no drag) makes it jump; the profile opens only from the button below
+  stage.addEventListener('click', () => { if (!dragged && alive && !live.busy) { moves.jump(); wait = Math.max(wait, 3); } dragged = false; });
+  stage.addEventListener('pointerenter', (e) => { if (alive && mouse(e) && !live.busy && !drag) { moves.wave(); wait = Math.max(wait, 3); } });
   link.addEventListener('focus', () => { if (alive && !live.busy && link.matches(':focus-visible')) moves.wave(); });
 
   return api;

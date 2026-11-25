@@ -44,7 +44,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25b">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25c">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
 </head>
@@ -116,16 +116,16 @@
           <!-- STATIC-GAMES:END -->
         </div>
         <div class="lf" id="gl-figure">
-          <a class="lf-link" id="lf-link" href="/de/meine-figur/" data-profile-href="/de/profil/" data-profile-cta="Mein Profil">
+          <div class="lf-link">
             <span class="lf-stage" id="lf-stage" aria-hidden="true">
               <img class="lf-img" id="lf-img" src="/assets/figures/portraits/Witch.webp" alt="" width="192" height="192" decoding="async">
               <canvas class="lf-canvas" id="lf-canvas" hidden></canvas>
             </span>
-            <span class="lf-label">
+            <a class="lf-label" id="lf-link" href="/de/meine-figur/" data-profile-href="/de/profil/" data-profile-cta="Mein Profil">
               <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> Muscheln</span></span>
               <span class="lf-cta"><span id="lf-cta">Bau deine Figur</span> <span aria-hidden="true">→</span></span>
-            </span>
-          </a>
+            </a>
+          </div>
         </div>
         <script>/* own figure's picture right away (no flash of the default one) */try{var f=JSON.parse(localStorage.getItem("krabsy_figure_v2")||"null");if(f&&/^[A-Za-z_]{1,40}$/.test(f.char))document.getElementById("lf-img").src="/assets/figures/portraits/"+f.char+".webp"}catch(_){}</script>
       </div>
@@ -230,7 +230,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25e"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25f"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
