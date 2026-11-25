@@ -16,7 +16,7 @@
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
-import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang, figurePicks, savePick } from '/lib/krabsy-me.js?v=2026-11-25c';
+import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang, figurePicks, savePick, isCustomFigure } from '/lib/krabsy-me.js?v=2026-11-25c';
 
 const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
 const T = {
@@ -177,7 +177,11 @@ function initFigure() {
     onShellsChange(render);
 
     // Arrows: pick another figure right here; it becomes the child's figure in the games.
-    const { picks, index } = figurePicks(getShells().owned);
+    // Only until the child builds a figure in the builder (owner 2026-11-25): then the
+    // arrows go, so a stray tap can't replace it. ("Mein Profil" → "Figur ändern" instead.)
+    let builtFigure = false;
+    try { builtFigure = isCustomFigure(JSON.parse(localStorage.getItem('krabsy_figure_v2') || 'null')); } catch (_) { /* none */ }
+    const { picks, index } = figurePicks(builtFigure ? [] : getShells().owned);
     let at = index;
     const step = (dir) => {
       at = (at + dir + picks.length) % picks.length;
@@ -187,7 +191,7 @@ function initFigure() {
       render();
       if (liveApi && liveApi.show) liveApi.show(p.config, dir);
     };
-    root.querySelectorAll('[data-pick]').forEach((b) => {
+    if (!builtFigure) root.querySelectorAll('[data-pick]').forEach((b) => {
       b.hidden = false;
       b.addEventListener('click', () => step(Number(b.dataset.pick)));
     });
