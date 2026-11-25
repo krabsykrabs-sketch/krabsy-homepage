@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
-FOOTER_V = '2026-11-24'
+FOOTER_V = '2026-11-25'
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [
@@ -376,6 +376,7 @@ def build_games_hub():
     <section class="gh-hero">
       <h1 class="gh-hero-title">Krabsy Spanish games</h1>
       <p class="gh-hero-sub">Every game here asks Spanish sentences. Play, and practise Spanish on the way.</p>
+      <p class="gh-figure"><a class="gh-figure-link" href="/en/my-figure/"><img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="44" height="44" loading="lazy" decoding="async"><span>My figure →<small>Build your figure and collect shells 🐚</small></span></a></p>
     </section>
 
     <section class="gh-section">

@@ -1,0 +1,151 @@
+/* "Meine Figur" / "Mi personaje" / "My figure" — the figure builder page.
+   Site chrome from krabsy-ui.css; the builder itself is a dark "game card" in the
+   game palette (teal #2ee6c0 / coral #ff8585 / amber #ffcf5e, Fredoka One + Nunito). */
+:root {
+  --mf-teal: #2ee6c0; --mf-coral: #ff8585; --mf-amber: #ffcf5e;
+  --mf-panel: #101a3d; --mf-deep: #0d1735; --mf-line: #2d4180; --mf-muted: #c4d3f2;
+  --mf-hdr: 58px; --mf-app-h: 600px;
+}
+.mf-main { width: 100%; max-width: 1400px; margin: 0 auto; padding: 14px 20px 28px; font-family: Nunito, system-ui, sans-serif; flex: 1 0 auto; }
+.mf-main button { font-family: inherit; }
+
+/* ── Title row: h1 + the child's shells ─────────────────────────────── */
+.mf-head { display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; margin: 0 4px 12px; }
+.mf-title { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.9rem; line-height: 1.1; margin: 0; color: var(--krabsy-ink); }
+.mf-sub { flex: 1 1 320px; margin: 0; font-size: 0.98rem; line-height: 1.35; color: var(--krabsy-ink-mute); font-weight: 600; }
+.mf-wallet {
+  display: inline-flex; align-items: center; gap: 7px; margin-left: auto; padding: 7px 16px; border-radius: 999px;
+  background: #fff4d6; box-shadow: inset 0 0 0 2px var(--mf-amber); color: var(--krabsy-ink);
+  font-weight: 800; font-size: 1rem; white-space: nowrap;
+}
+.mf-wallet b { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.35rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.mf-wallet.is-pop { animation: mf-pop 0.5s ease-out; }
+@keyframes mf-pop { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
+
+/* ── The builder card ───────────────────────────────────────────────── */
+.mf-app {
+  display: grid; grid-template-columns: minmax(0, 1fr) 460px; height: var(--mf-app-h);
+  background: #0b1430; color: #fff; border-radius: 22px; overflow: hidden;
+  box-shadow: 0 6px 20px rgba(44, 42, 58, 0.18);
+}
+.mf-stage { position: relative; min-height: 0; min-width: 0; background: #13204a; }
+.mf-stage canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.mf-stage canvas:active { cursor: grabbing; }
+.mf-char-name { position: absolute; top: 14px; left: 18px; max-width: 48%; font-family: 'Fredoka One', Nunito, sans-serif; font-size: 1.5rem; line-height: 1.15; color: var(--mf-amber); pointer-events: none; }
+.mf-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--mf-muted); font-size: 1.1rem; font-weight: 700; pointer-events: none; text-align: center; padding: 0 16px; }
+.mf-bar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: max-content; max-width: 96%; }
+.mf-bar button, .mf-actions button {
+  font-weight: 800; font-size: 1rem; color: #fff; background: var(--mf-panel); border: 2px solid var(--mf-line);
+  border-radius: 999px; padding: 8px 14px; cursor: pointer; min-height: 40px;
+}
+.mf-bar button.on { border-color: var(--mf-teal); }
+.mf-bar .mf-spin { margin-left: 8px; }
+
+/* Lock pills on the stage: what still has to be unlocked in this figure. */
+.mf-locks { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 50%; }
+.mf-lock {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-height: 40px; padding: 6px 8px 6px 12px;
+  border-radius: 999px; border: 2px solid var(--mf-amber); background: #1b2450; color: #fff; cursor: pointer;
+  font-weight: 800; font-size: 0.95rem; line-height: 1.15; text-align: left;
+}
+.mf-lock-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.mf-lock-price { flex: 0 0 auto; padding: 4px 10px; border-radius: 999px; background: #33407a; color: var(--mf-amber); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mf-lock.can .mf-lock-price { background: var(--mf-amber); color: #3a2600; }
+.mf-lock:hover { background: #26327a; }
+
+.mf-panel { background: var(--mf-panel); border-left: 3px solid var(--mf-line); overflow: auto; padding: 14px 18px 22px; min-height: 0; }
+.mf-panel h2 { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.35rem; color: var(--mf-amber); margin: 4px 0 10px; display: flex; align-items: center; }
+.mf-step { display: inline-grid; place-items: center; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; background: var(--mf-amber); color: #3a2600; font-size: 1.05rem; margin-right: 8px; }
+.mf-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.mf-tabs button { flex: 1; font-weight: 800; font-size: 0.94rem; line-height: 1.15; color: var(--mf-muted); background: var(--mf-deep); border: 2px solid var(--mf-line); border-radius: 12px; padding: 7px 6px; min-height: 42px; cursor: pointer; }
+.mf-tabs button.on { color: #fff; border-color: var(--mf-teal); }
+.mf-gallery { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 18px; }
+.mf-pic { aspect-ratio: 1; border-radius: 14px; border: 3px solid var(--mf-line); background: #16245a; cursor: pointer; padding: 0; overflow: hidden; position: relative; }
+.mf-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mf-pic.on { border-color: var(--mf-amber); box-shadow: 0 0 0 2px var(--mf-amber); }
+.mf-pic:hover { border-color: #5b74c4; }
+.mf-pic.on:hover { border-color: var(--mf-amber); }
+.mf-pic.locked img { opacity: 0.78; }
+.mf-pic-lock { position: absolute; top: 2px; right: 3px; font-size: 0.8rem; line-height: 1; }
+.mf-pic-price {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 0 3px; background: rgba(11, 20, 48, 0.86);
+  color: var(--mf-amber); font-weight: 800; font-size: 0.74rem; line-height: 1.1; text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.mf-slot { margin: 0 0 14px; }
+.mf-slot h3 { margin: 0 0 6px; font-size: 0.86rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mf-muted); font-weight: 800; }
+.mf-cycle { display: grid; grid-template-columns: 46px 1fr 46px; align-items: center; background: var(--mf-deep); border-radius: 14px; border: 2px solid var(--mf-line); }
+.mf-cycle button { height: 46px; border: 0; background: none; color: #fff; font-size: 1.6rem; cursor: pointer; border-radius: 12px; }
+.mf-cycle button:hover:not(:disabled) { background: #1b2a5c; }
+.mf-cycle .mf-cycle-label { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-weight: 900; font-size: 1.08rem; line-height: 1.15; padding: 2px 4px; min-width: 0; }
+.mf-cycle .mf-cycle-label:disabled { color: #fff; cursor: default; opacity: 1; }
+.mf-cycle-price { padding: 3px 9px; border-radius: 999px; background: var(--mf-amber); color: #3a2600; font-size: 0.84rem; white-space: nowrap; }
+.mf-slot.locked .mf-cycle { border-color: var(--mf-amber); }
+.mf-slot.off .mf-cycle { opacity: 0.45; }
+.mf-slot.off .mf-cycle button { cursor: default; }
+.mf-swatches { display: flex; flex-wrap: wrap; gap: 7px; }
+.mf-sw { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: 0 0 0 2px #0b1430 inset; padding: 0; }
+.mf-sw.on { border-color: #fff; }
+.mf-sw.orig { background: conic-gradient(#2ee6c0, #ff8585, #ffcf5e, #3f7cff, #2ee6c0); font-size: 0.8rem; font-weight: 900; color: #0b1430; }
+.mf-panel .hidden { display: none !important; }
+.mf-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.mf-actions .mf-save { background: var(--mf-amber); color: #3a2600; border-color: var(--mf-amber); padding: 8px 22px; }
+.mf-actions .mf-save.dirty { box-shadow: 0 0 0 3px rgba(255, 207, 94, 0.35); }
+.mf-actions .mf-save:disabled { background: #3a4270; border-color: #3a4270; color: #aab4d8; cursor: not-allowed; }
+.mf-saved { font-weight: 800; min-height: 1.4em; margin-top: 8px; color: var(--mf-muted); }
+.mf-saved.ok { color: var(--mf-teal); }
+.mf-saved.warn { color: var(--mf-amber); }
+.mf-app :focus-visible, .mf-dialog :focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* ── Below the builder: how shells work, the device note ─────────────── */
+.mf-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0 0; }
+.mf-card { background: var(--krabsy-white); border-radius: 18px; padding: 16px 18px; box-shadow: var(--shadow-card); color: var(--krabsy-ink); }
+.mf-card h2 { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.15rem; margin: 0 0 6px; }
+.mf-card p, .mf-card li { font-size: 0.98rem; line-height: 1.45; margin: 0 0 6px; }
+.mf-card ul { margin: 0; padding-left: 1.2em; }
+.mf-card a { font-weight: 800; }
+.mf-card.note { background: #fff4d6; box-shadow: inset 0 0 0 2px var(--mf-amber); }
+
+/* ── Unlock dialog ───────────────────────────────────────────────────── */
+.mf-dialog { border: none; padding: 0; background: transparent; max-width: 92vw; font-family: Nunito, system-ui, sans-serif; }
+.mf-dialog::backdrop { background: rgba(11, 20, 48, 0.6); }
+.mf-dialog-card { background: #fff; color: #2c2a3a; border-radius: 20px; padding: 22px 22px 18px; width: 400px; max-width: 100%; box-shadow: 0 6px 20px rgba(44, 42, 58, 0.25); }
+.mf-dialog-card h3 { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.35rem; line-height: 1.2; margin: 0 0 8px; }
+.mf-dialog-card p { margin: 0 0 18px; font-size: 1.05rem; line-height: 1.45; font-weight: 600; }
+.mf-dialog-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.mf-dialog-actions button { font-family: inherit; font-weight: 800; font-size: 1rem; min-height: 44px; padding: 8px 20px; border-radius: 999px; border: 2px solid #babfd8; background: #fff; color: #2c2a3a; cursor: pointer; }
+.mf-dialog-actions button.primary { background: var(--mf-amber); border-color: var(--mf-amber); color: #3a2600; }
+.mf-dialog :focus-visible { outline-color: #2c2a3a; }
+
+/* ── Tablets (1024 × 768): narrower panel ───────────────────────────── */
+@media (max-width: 1100px) {
+  .mf-app { grid-template-columns: minmax(0, 1fr) 420px; }
+  .mf-char-name { font-size: 1.3rem; }
+}
+/* ── Phones and small tablets: figure on top (sticky), options below ── */
+@media (max-width: 860px) {
+  .mf-main { padding: 10px 10px 24px; }
+  .mf-title { font-size: 1.5rem; }
+  .mf-sub { flex-basis: 100%; order: 3; font-size: 0.92rem; }
+  .mf-wallet { padding: 5px 13px; font-size: 0.92rem; }
+  .mf-wallet b { font-size: 1.2rem; }
+  .mf-app { display: block; height: auto; overflow: visible; border-radius: 18px; }
+  .mf-stage { height: min(40vh, 340px); min-height: 250px; border-radius: 18px 18px 0 0; overflow: hidden; }
+  .mf-panel { border-left: 0; border-top: 3px solid var(--mf-line); overflow: visible; border-radius: 0 0 18px 18px; padding: 12px 12px 20px; }
+  .mf-gallery { grid-template-columns: repeat(6, 1fr); }
+  .mf-char-name { top: 10px; left: 12px; font-size: 1.15rem; }
+  .mf-locks { top: 8px; right: 8px; max-width: 56%; gap: 4px; }
+  .mf-lock { min-height: 34px; padding: 3px 5px 3px 10px; font-size: 0.82rem; gap: 6px; }
+  .mf-lock-price { padding: 3px 8px; }
+  .mf-bar { bottom: 8px; gap: 5px; flex-wrap: nowrap; }
+  .mf-bar button { font-size: 0.84rem; padding: 5px 10px; min-height: 36px; }
+  .mf-bar .mf-spin { margin-left: 2px; }
+  .mf-bar .mf-spin span { display: none; }
+}
+@media (max-width: 860px) and (min-height: 600px) {
+  .mf-stage { position: sticky; top: var(--mf-hdr); z-index: 5; }
+}
+@media (max-width: 480px) {
+  .mf-gallery { grid-template-columns: repeat(4, 1fr); }
+  .mf-bar button { padding: 5px 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .mf-wallet.is-pop { animation: none; } }

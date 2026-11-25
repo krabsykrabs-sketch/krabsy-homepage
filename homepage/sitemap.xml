@@ -71,6 +71,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
   </url>
   <url>
+    <loc>https://krabsy.com/de/meine-figur/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/meine-figur/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-personaje/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/meine-figur/"/>
+  </url>
+  <url>
     <loc>https://krabsy.com/de/praepositionen/</loc>
     <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -128,7 +136,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -1696,7 +1704,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/"/>
@@ -1765,6 +1773,14 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/mi-personaje/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/meine-figur/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-personaje/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/meine-figur/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/politica-privacidad/</loc>

@@ -71,6 +71,18 @@
       .gh-hero-sub { font-size: 1.05rem; }
     }
 
+    /* "Meine Figur" link under the hero (figure builder + shells, 2026-11-25). */
+    .gh-figure { margin: 16px 0 0; }
+    .gh-figure-link {
+      display: inline-flex; align-items: center; gap: 10px; text-align: left;
+      padding: 6px 18px 6px 6px; border-radius: 999px;
+      background: var(--krabsy-white); box-shadow: inset 0 0 0 1.5px var(--krabsy-lavender);
+      color: var(--krabsy-ink); text-decoration: none; font-weight: 700; font-size: 0.92rem; line-height: 1.25;
+    }
+    .gh-figure-link:hover { background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); }
+    .gh-figure-link img { width: 44px; height: 44px; border-radius: 50%; background: #16245a; flex: 0 0 auto; }
+    .gh-figure-link small { display: block; font-weight: 400; font-size: 0.8rem; color: var(--krabsy-ink-mute); }
+
     /* Games grid — 3 cols desktop, 2 tablet, 1 narrow. */
     .gh-section {
       max-width: 1100px;
@@ -127,6 +139,7 @@
     <section class="gh-hero">
       <h1 class="gh-hero-title">Krabsy Spanish games</h1>
       <p class="gh-hero-sub">Every game here asks Spanish sentences. Play, and practise Spanish on the way.</p>
+      <p class="gh-figure"><a class="gh-figure-link" href="/en/my-figure/"><img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="44" height="44" loading="lazy" decoding="async"><span>My figure →<small>Build your figure and collect shells 🐚</small></span></a></p>
     </section>
 
     <section class="gh-section">
@@ -152,8 +165,8 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-25" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

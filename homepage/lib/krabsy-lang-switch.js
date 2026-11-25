@@ -58,6 +58,9 @@
     '/es/docentes/crear-clase/':          '/de/lehrkraefte/klasse-erstellen/',
     '/de/lehrkraefte/klasse/':            '/es/docentes/clase/',
     '/es/docentes/clase/':                '/de/lehrkraefte/klasse/',
+    // Figure builder + shells (2026-11-25)
+    '/de/meine-figur/':                   '/es/mi-personaje/',
+    '/es/mi-personaje/':                  '/de/meine-figur/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a

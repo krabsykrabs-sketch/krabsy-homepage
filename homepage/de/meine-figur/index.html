@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <title>Meine Figur — Krabsy</title>
+  <meta name="description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Mit Muscheln aus Spielen und Übungen schaltest du mehr frei. Kostenlos, ohne Anmeldung.">
+  <link rel="canonical" href="https://krabsy.com/de/meine-figur/">
+  <link rel="alternate" hreflang="de" href="https://krabsy.com/de/meine-figur/">
+  <link rel="alternate" hreflang="es" href="https://krabsy.com/es/mi-personaje/">
+  <link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/meine-figur/">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <meta property="og:title" content="Meine Figur — Krabsy">
+  <meta property="og:description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Mit Muscheln aus Spielen und Übungen schaltest du mehr frei. Kostenlos, ohne Anmeldung.">
+  <meta property="og:image" content="https://krabsy.com/og-image.png">
+  <meta property="og:url" content="https://krabsy.com/de/meine-figur/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Krabsy">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25">
+  <!-- The figure builder (lib/krabsy-figure-page.js) and the shared figure code
+       (lib/krabsy-figure.js) import three.js by name. -->
+  <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
+</head>
+<body>
+  <div class="k-page">
+    <header class="k-page-header">
+      <a href="/de/" class="k-logo" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span></a>
+      <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">
+        <button class="k-lang-btn is-active" type="button" data-lang="de">DE</button>
+        <button class="k-lang-btn" type="button" data-lang="es">ES</button>
+      </div>
+    </header>
+
+    <main class="mf-main">
+      <div class="mf-head">
+        <h1 class="mf-title">Meine Figur</h1>
+        <p class="mf-sub">Bau dir deine eigene Figur. Mit Muscheln 🐚 aus Spielen und Übungen schaltest du neue Figuren und Zubehör frei.</p>
+        <div class="mf-wallet" id="mfWallet"><span aria-hidden="true">🐚</span><b id="mfBalance">0</b><span>Muscheln</span></div>
+      </div>
+
+      <div class="mf-app" id="mfApp">
+        <div class="mf-stage" id="mfStage">
+          <canvas id="mfCanvas"></canvas>
+          <div class="mf-char-name" id="mfCharName"></div>
+          <div class="mf-loading" id="mfLoading"><noscript>Für die Figur braucht Krabsy JavaScript.</noscript></div>
+          <div class="mf-locks" id="mfLocks"></div>
+          <div class="mf-bar" id="mfBar"></div>
+        </div>
+        <div class="mf-panel">
+          <h2><span class="mf-step">1</span><span id="mfH1"></span></h2>
+          <div class="mf-tabs" id="mfTabs"></div>
+          <div class="mf-gallery" id="mfGallery"></div>
+          <h2><span class="mf-step">2</span><span id="mfH2"></span></h2>
+          <div id="mfSlots"></div>
+          <div class="mf-actions">
+            <button type="button" id="mfRand"></button><button type="button" id="mfReset"></button><button type="button" id="mfSave" class="mf-save"></button>
+          </div>
+          <div class="mf-saved" id="mfSaved" role="status"></div>
+        </div>
+      </div>
+
+      <section class="mf-info">
+        <div class="mf-card">
+          <h2>So bekommst du Muscheln 🐚</h2>
+          <ul>
+          <li>Für jede richtige Antwort gibt es 1 Muschel, in allen Spielen und Übungen.</li>
+          <li>Für Wörter, die neu für dich sind oder die du noch übst, gibt es 1 Muschel extra.</li>
+          <li>Bei einer falschen Antwort verlierst du nichts.</li>
+          <li>Nach 200 Muscheln an einem Tag kommen sie langsamer.</li>
+          </ul>
+          <p style="margin-top:8px"><a href="/de/spiele/">Zu den Spielen →</a></p>
+        </div>
+        <div class="mf-card">
+          <h2>Was du freischalten kannst</h2>
+        <p>12 Figuren sind von Anfang an frei, alle Farben auch. Weitere Figuren kosten 150 bis 400 Muscheln, Hüte, Brillen und Rucksäcke 40 bis 150. Was du freischaltest, bleibt dir.</p>
+        <p>Die 3D-Spiele bekommen deine Figur nach und nach.</p>
+        </div>
+        <div class="mf-card note">
+          <h2>Nur auf diesem Gerät</h2>
+          <p>Deine Figur und deine Muscheln sind in diesem Browser auf diesem Gerät gespeichert, ohne Anmeldung. Wenn du die Browserdaten löschst oder ein anderes Gerät nimmst, sind sie nicht mehr da.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="k-footer">
+      <span>© 2026 Krabsy</span>
+      <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+      <span class="k-footer-legal-mount"></span>
+    </footer>
+  </div>
+  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25"></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-11-25b" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>
