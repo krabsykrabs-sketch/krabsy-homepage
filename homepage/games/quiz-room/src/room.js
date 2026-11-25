@@ -315,10 +315,15 @@ export class Room {
     // The floor has four holes: the foam pits under the answer pads (play.js).
     // Shape coordinates (x, y) become world (x, 0, -y) after the rotation.
     const rect = (x0, y0, x1, y1, path) => { path.moveTo(x0, y0); path.lineTo(x1, y0); path.lineTo(x1, y1); path.lineTo(x0, y1); path.lineTo(x0, y0); return path; };
+    // Two versions: closed (most of the quiz) and with the holes (bonus round, the pads are up).
+    const solidShape = rect(-W, -D, W, D, new THREE.Shape());
     const floorShape = rect(-W, -D, W, D, new THREE.Shape());
     for (const x of PADS.x) floorShape.holes.push(rect(x - PADS.half, -PADS.z - PADS.half, x + PADS.half, -PADS.z + PADS.half, new THREE.Path()));
-    const floor = new THREE.Mesh(new THREE.ShapeGeometry(floorShape), new THREE.MeshLambertMaterial({ map: ft }));
+    const geoClosed = new THREE.ShapeGeometry(solidShape), geoOpen = new THREE.ShapeGeometry(floorShape);
+    const floor = new THREE.Mesh(geoClosed, new THREE.MeshLambertMaterial({ map: ft }));
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; s.add(floor);
+    floor.userData.other = geoOpen;
+    this.floor = floor; this.floorGeo = { closed: geoClosed, open: geoOpen };
     const outerShape = rect(-60, -60, 60, 60, new THREE.Shape());
     outerShape.holes.push(rect(-W, -D, W, D, new THREE.Path()));
     const outer = new THREE.Mesh(new THREE.ShapeGeometry(outerShape), new THREE.MeshLambertMaterial({ color: '#131c3d' }));
@@ -347,6 +352,10 @@ export class Room {
     backWall.position.set(0, 5 * k + 2, -D - 0.5); s.add(backWall);
 
     this.play = new PlayArea(s);
+    this.play.onFloor = (open) => {
+      this.floor.geometry = open ? this.floorGeo.open : this.floorGeo.closed;
+      this.floor.userData.other = open ? this.floorGeo.closed : this.floorGeo.open;
+    };
     this.frozen = this.frozen || false;
 
     // Bulb strips beside the screen.
@@ -368,7 +377,7 @@ export class Room {
     this.scene.remove(this.world);
     old.dispose();
     this.world.traverse((o) => {
-      if (o.isMesh && !o.userData.shared) { o.geometry.dispose(); for (const m of [].concat(o.material)) if (m !== this.screenMat) m.dispose(); }
+      if (o.isMesh && !o.userData.shared) { o.geometry.dispose(); o.userData.other?.dispose(); for (const m of [].concat(o.material)) if (m !== this.screenMat) m.dispose(); }
     });
     LAYOUT.applyLayout(sc);
     this._buildWorld();

@@ -144,6 +144,12 @@ keys 1–4 = emotes, and it waves when a child arrives (lobby), cheers at
 each reveal, dances at the end. The projector keeps the overview camera.
 `tools/qa-host.cjs` checks it (8 checks).
 
+Pads only when needed (owner, 2026-11-25: "the A/B/C/D answer fields are
+irritating"): outside the bonus round there are no pads, no pits and the
+floor is closed (`Room` keeps two floor geometries; `PlayArea.setPads`
+opens the floor and the pads rise out of the foam pit; `setPads(null)`
+closes it, also at the end). `padAt` is null while the pads are away.
+
 Crowded pads (owner, 2026-11-22: "you can't see the answers anymore when people
 are standing on the fields"): every pad has a sign floating above it
 (letter + word, pad colour, drawn over everything, `play.js` `_drawPad`); at
@@ -492,3 +498,6 @@ question loading, texts, sounds, character loading and the QA approach.
   emotes, name from the setup). Server test `test_teacher_figure`, API 51
   passed; qa-host 8/8, qa-editor, qa-room (3 children) pass. Needs the API
   and the site deploy.
+- 2026-11-25: answer pads only in the bonus round (floor closed otherwise).
+  qa-crowd 9/9 (incl. lobby / normal question / end without pads), qa-bonus
+  14/14, qa-grow pass.

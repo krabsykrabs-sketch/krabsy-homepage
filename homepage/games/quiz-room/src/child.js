@@ -264,6 +264,7 @@ function onReveal(m) {
 function onEnd(m) {
   setPhase('end');
   S.end = m;
+  if (room.play.padsOn) { room.play.setPads(null); room.setScreen(null); }   // the answer pads go away
   if (m.you) S.score = m.you.score;
   sfx.applause(3); sfx.jingle();
   render();

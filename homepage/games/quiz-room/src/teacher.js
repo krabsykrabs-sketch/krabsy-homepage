@@ -248,6 +248,7 @@ function onReveal(m) {
 }
 function onEnd(m) {
   S.phase = 'end'; S.end = m;
+  if (room.play.padsOn) { room.play.setPads(null); room.setScreen(null); }   // the answer pads go away
   if (m.answers != null) {
     analytics.event('level_end', { level: 1, result: 'won', seconds: Math.round((performance.now() - S.t0) / 1000),
       answers: m.answers, correct: m.right, players: m.ranking.length });

@@ -74,6 +74,9 @@ export class PlayArea {
     this.onSound = null;    // (name) → play a sound
     this.boomCool = 0;
     this.pads = [];
+    this.padsOn = false;    // the pads exist only during the bonus round
+    this.pitParts = [];     // pit walls + foam, shown with the pads
+    this.onFloor = null;    // (open) → the room opens / closes the floor over the pits
     this.group = new THREE.Group();
     scene.add(this.group);
     this._build();
@@ -189,14 +192,15 @@ export class PlayArea {
     PADS.x.forEach((x, i) => {
       for (const [dx, dz, ry] of [[0, -PADS.half, 0], [0, PADS.half, 0], [-PADS.half, 0, Math.PI / 2], [PADS.half, 0, Math.PI / 2]]) {
         const w = new THREE.Mesh(new THREE.PlaneGeometry(L, PIT_DEPTH), pitWall);
-        w.position.set(x + dx, -PIT_DEPTH / 2, PADS.z + dz); w.rotation.y = ry; s.add(w);
+        w.position.set(x + dx, -PIT_DEPTH / 2, PADS.z + dz); w.rotation.y = ry; w.visible = false; s.add(w);
+        this.pitParts.push(w);
       }
       for (let k = 0; k < 40; k++) {
         m4.makeRotationY(Math.random() * 3).setPosition(x + (Math.random() - 0.5) * (L - 0.5), -PIT_DEPTH + 0.2 + Math.random() * 0.3,
           PADS.z + (Math.random() - 0.5) * (L - 0.5));
         foam.setMatrixAt(fi, m4); foam.setColorAt(fi, c.set(foamCols[k % foamCols.length])); fi++;
       }
-      const g = new THREE.Group(); g.position.set(x, 0, PADS.z);
+      const g = new THREE.Group(); g.position.set(x, 0, PADS.z); g.visible = false;
       const slab = new THREE.Mesh(new THREE.BoxGeometry(L - 0.04, 0.25, L - 0.04), lam('#1d2a5c'));
       slab.position.y = PAD_TOP - 0.125; slab.receiveShadow = true; g.add(slab);
       const lc = document.createElement('canvas'); lc.width = lc.height = 256;
@@ -213,11 +217,12 @@ export class PlayArea {
       sign.scale.set(sw, sw * 192 / 512, 1);
       sign.position.set(x, 3.3, PADS.z - PADS.half * 0.6);
       sign.renderOrder = 10; sign.visible = false; s.add(sign);
-      const pad = { i, x, g, lc, tex, sign, sc, stex, y: PAD_TOP, target: PAD_TOP, glow: 0, sinkT: 0 };
+      const pad = { i, x, g, lc, tex, sign, sc, stex, y: PAD_SUNK, target: PAD_SUNK, glow: 0, sinkT: 0 };
       this.pads.push(pad);
       this._drawPad(pad, null);
     });
-    s.add(foam);
+    foam.visible = false; s.add(foam);
+    this.pitParts.push(foam);
 
     // Confetti (button and baskets).
     this.confetti = confettiMesh(500);
@@ -266,8 +271,17 @@ export class PlayArea {
   }
 
   // options: the four answers (bonus question) or null (pads idle).
+  // The pads exist only in the bonus round: with options they rise out of the foam pit
+  // (the floor opens), with null they vanish and the floor is closed again.
   setPads(options) {
     this.padWords = options;
+    const on = !!options;
+    if (on !== this.padsOn) {
+      this.padsOn = on;
+      this.onFloor?.(on);
+      for (const o of this.pitParts) o.visible = on;
+      this.pads.forEach((p) => { p.g.visible = on; p.y = PAD_SUNK; });     // rise from the pit
+    }
     this.pads.forEach((p) => { p.target = PAD_TOP; p.sinkT = 0; this._drawPad(p, options ? options[p.i] : null); });
   }
 
@@ -282,7 +296,7 @@ export class PlayArea {
   }
 
   padAt(x, z) {
-    if (Math.abs(z - PADS.z) > PADS.half) return null;
+    if (!this.padsOn || Math.abs(z - PADS.z) > PADS.half) return null;
     return this.pads.find((p) => Math.abs(x - p.x) <= PADS.half) || null;
   }
 

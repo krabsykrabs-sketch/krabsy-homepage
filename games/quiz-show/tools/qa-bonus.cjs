@@ -68,6 +68,7 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
 
   await T.click('#mainBtn');                                        // reveal
   await A.waitForFunction(() => window.__qr.S.phase === 'reveal', null, { timeout: 10000 });
+  await B.waitForFunction(() => window.__qr.S.phase === 'reveal' && window.__qr.S.reveal, null, { timeout: 10000 });
   ok(await A.evaluate(() => window.__qr.S.reveal.you.right && window.__qr.S.reveal.you.pts === 500), 'A on the right pad: right, 500 points');
   ok(await B.evaluate((w) => !window.__qr.S.reveal.you.right && window.__qr.S.reveal.you.opt === w, wrong), 'B on a wrong pad: wrong');
   ok(await until(() => B.evaluate(() => window.__qr.room.me.root.position.y < -0.6), 15000), 'B sinks into the foam pit');

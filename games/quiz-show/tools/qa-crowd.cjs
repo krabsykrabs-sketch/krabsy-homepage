@@ -1,4 +1,5 @@
-// node tools/qa-crowd.cjs [outDir] — bonus round in a crowd: 16 simulated children stand
+// node tools/qa-crowd.cjs [outDir] — the answer pads exist only in the bonus round (gone
+// in the lobby, in normal questions and at the end). Bonus round in a crowd: 16 simulated children stand
 // on the answer pads; a real child must still see the four answers (signs above the
 // pads, chips in its bonus bar) and its bar marks the pad it stands on. Needs :8142, :8150.
 const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwright');
@@ -24,9 +25,18 @@ const Q = (base, opts) => ({ kind: 'trio', base, slots: [null, null], askIndex: 
   await K.goto(`http://localhost:8142/index.html?code=${code}&lang=de`);
   await K.fill('#nameIn', 'Lena'); await K.click('#joinBtn');
   await K.waitForFunction(() => window.__qr.S.pid != null, null, { timeout: 20000 });
+  const padState = () => K.evaluate(() => { const r = window.__qr.room; return { on: r.play.padsOn, vis: r.play.pads.some((p) => p.g.visible), open: r.floor.geometry === r.floorGeo.open }; });
+  await wait(1500);
+  let ps = await padState();
+  ok(!ps.on && !ps.vis && !ps.open, 'lobby: no answer pads, floor closed');
+  await K.screenshot({ path: `${out}/0-lobby-no-pads.png` });
   const kids = [];
   for (let i = 0; i < 16; i++) { const k = client(); await k.open; k.send({ t: 'join', code, name: `Kid${i}`, avatar: i % 8, color: i % 8 }); await k.next('joined'); kids.push(k); }
-  T.send({ t: 'start' }); await T.next('question'); T.send({ t: 'next' }); await T.next('reveal'); T.send({ t: 'next' });
+  T.send({ t: 'start' }); await T.next('question');
+  await K.waitForFunction(() => window.__qr.S.phase === 'question', null, { timeout: 10000 });
+  ps = await padState();
+  ok(!ps.on && !ps.vis && !ps.open, 'normal question: no answer pads');
+  T.send({ t: 'next' }); await T.next('reveal'); T.send({ t: 'next' });
   await K.waitForFunction(() => window.__qr.S.bonus && window.__qr.S.phase === 'question', null, { timeout: 15000 });
   // Everyone crowds the pads (4 per pad), standing still.
   const P = await K.evaluate(async () => (await import('./src/play.js')).PADS);
@@ -35,6 +45,8 @@ const Q = (base, opts) => ({ kind: 'trio', base, slots: [null, null], askIndex: 
   await wait(4000);
   const signs = await K.evaluate(() => window.__qr.room.play.pads.map((p) => p.sign.visible));
   ok(signs.every(Boolean), 'signs above all four pads');
+  ps = await padState();
+  ok(ps.on && ps.vis && ps.open, 'bonus question: pads up, floor open over the pits');
   const chips = await K.$$eval('#bonusOpts .bopt span', (els) => els.map((e) => e.textContent));
   ok(JSON.stringify(chips) === JSON.stringify(['brought', 'brang', 'bringed', 'brung']) && await K.isVisible('#bonusOpts'), `answers in the bonus bar: ${chips.join(' / ')}`);
   ok(await K.$$eval('#bonusOpts .here', (e) => e.length) === 0, 'no pad marked while off the pads');
@@ -49,6 +61,10 @@ const Q = (base, opts) => ({ kind: 'trio', base, slots: [null, null], askIndex: 
   const op = await K.evaluate(() => window.__qr.room.play.pads.map((p) => p.sign.material.opacity));
   ok(op[0] === 1 && op.slice(1).every((o) => o < 0.5), `reveal: right sign bright, wrong ones faded (${op.join(', ')})`);
   await K.screenshot({ path: `${out}/3-reveal.png` });
+  T.send({ t: 'next' });
+  await K.waitForFunction(() => window.__qr.S.phase === 'end', null, { timeout: 10000 });
+  ps = await padState();
+  ok(!ps.on && !ps.vis && !ps.open, 'end: pads gone again');
   clearInterval(stand);
   console.log(errs.length ? 'ERRORS ' + JSON.stringify(errs.slice(0, 5)) : 'no errors');
   kids.forEach((k) => k.ws.close()); T.ws.close();
