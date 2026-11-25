@@ -1081,3 +1081,17 @@ write `RELEASE.md` when the owner says go.
   preselected; saved Knight → Knight; each game hero from storage; a bad
   stored value → 'me'; click Bäuerin → reload → Bäuerin, `krabsy_figure_v2`
   untouched; egg pick-up with each, 0 errors; the 4 topic URLs pass.
+- 2026-11-25: **no repeated questions** (owner: "in the Forest I got the same
+  question 3 times in a row", es_tener; master session, WP 0.1 of
+  `docs/tutor-platform-v2.md`). `questions.js`: memory per question (`qid` =
+  sentence key, verb base), fixed window 8 (shrinks only for tiny pools), an
+  item from the smart mix gives its least-recently-asked sentence, a tier with
+  fewer than 4 sentences is merged into the one below (es_tener's tier 3 had
+  1 sentence), `avoid` is checked for the queue and the smart mix too, a
+  missed question comes back after at least 3 others, and a rare egg's second
+  sentence (`nextPair(…, noQueue)`) no longer uses up the missed queue.
+  Test: `node tests/repeat-test.mjs` (`TOPIC=es_ser …`): 400 eggs per Spanish
+  topic, OK for all four. In the browser with the real engine: es_tener 480
+  questions, the closest repeat 7 questions apart; verbs 12 apart. Copied to
+  `homepage/games/verb-hatchery/`, modules stamped. The shared engine deck
+  (WP 0.3/0.9) replaces this later.
