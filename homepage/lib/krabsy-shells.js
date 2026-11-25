@@ -29,9 +29,11 @@ const KEY = 'krabsy_shells_v1';
 export const DAILY_FULL = 200;      // shells per calendar day at the full rate
 export const SLOW_EVERY = 3;        // after that: 1 shell per 3 right answers
 
-const FIGURE_URL = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
+// The counter opens the child's overview page "Mein Krabsy" (krabsy-profile.js); the
+// figure builder is one tap further (owner decision 2026-11-25).
+const PROFILE_URL = { de: '/de/mein-krabsy/', es: '/es/mi-krabsy/', en: '/en/my-krabsy/' };
 const WORD = { de: 'Muscheln', es: 'caracolas', en: 'shells' };
-const FIGURE_WORD = { de: 'Meine Figur', es: 'Mi personaje', en: 'My figure' };
+const PROFILE_WORD = { de: 'Mein Krabsy', es: 'Mi Krabsy', en: 'My Krabsy' };
 
 function today() {
   const d = new Date();
@@ -132,8 +134,8 @@ export function onShellsChange(fn) {
 
 /* ── Header counter "🐚 240" ─────────────────────────────────────────────
    Mounted into the site header (header.k-page-header, by krabsy-footer.js)
-   and the game header (.k-game-nav, by krabsy-nav.js). Links to the figure
-   page. Hidden until the first shell was ever earned, so first-time visitors
+   and the game header (.k-game-nav, by krabsy-nav.js). Links to the profile
+   page "Mein Krabsy". Hidden until the first shell was ever earned, so first-time visitors
    and teachers see the header as before; it appears with the first right
    answer and stays (also at balance 0 after spending). */
 
@@ -193,7 +195,7 @@ export function mountShellCounter(header) {
     const lang = pageLang();
     const a = document.createElement('a');
     a.className = 'k-shells';
-    a.href = FIGURE_URL[lang] || FIGURE_URL.de;
+    a.href = PROFILE_URL[lang] || PROFILE_URL.de;
     a.innerHTML = '<span class="k-shells-icon" aria-hidden="true">🐚</span><span class="k-shells-n">0</span>';
     const num = a.querySelector('.k-shells-n');
 
@@ -213,8 +215,8 @@ export function mountShellCounter(header) {
     const render = (s) => {
       a.hidden = !(s.earned > 0);
       num.textContent = String(s.balance);
-      a.setAttribute('aria-label', `${s.balance} ${WORD[lang] || WORD.de} – ${FIGURE_WORD[lang] || FIGURE_WORD.de}`);
-      a.title = FIGURE_WORD[lang] || FIGURE_WORD.de;
+      a.setAttribute('aria-label', `${s.balance} ${WORD[lang] || WORD.de} – ${PROFILE_WORD[lang] || PROFILE_WORD.de}`);
+      a.title = PROFILE_WORD[lang] || PROFILE_WORD.de;
       if (shown !== null && s.balance > shown) {
         a.classList.remove('is-pop'); void a.offsetWidth; a.classList.add('is-pop');
       }

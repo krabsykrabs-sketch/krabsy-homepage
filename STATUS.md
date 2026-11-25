@@ -239,6 +239,17 @@ Plan + owner decisions: `docs/figures-shells-world.md`. Pushed 2026-11-25 (060dc
 - **For games:** `loadPlayerFigure({ fallback })` in `lib/krabsy-figure.js`, rules in `docs/game-contract.md` ("The player's figure"). Assets `homepage/assets/figures/` (17 MB, one character per game). No game uses it yet; next: Verb Hatchery, then Platformer, Quiz-Raum (after the Chromebook check), Kitchen, Dungeon (sword stays a Dungeon item), Valley; Verb Towers builder figure.
 - Not verified: real devices, a real in-game answer, Spanish wording by a native speaker.
 
+## Profile page "Mein Krabsy" + new landing top (built 2026-11-25, not pushed)
+
+Owner decisions 2026-11-25: one overview page for the child, the figure builder stays its own page; the big featured banner on the landing pages goes.
+- **Profile page** `/de/mein-krabsy/`, `/es/mi-krabsy/`, `/en/my-krabsy/` (EN noindex). `lib/krabsy-profile.js` + `lib/krabsy-profile.css`; everything is read from localStorage: figure (`krabsy_figure_v2`; picture first, the live 3D figure only for a child with a saved figure, after page load, not with "save data"), shells (`krabsy_shells_v1`: balance, today, total), overall accuracy + streaks and per topic of the section accuracy / "x von y sitzen schon" / words to practise with links (`krabsy_stats_v2`), Verb-Diplom (`krabsy_verb_diplom`), games (each game's own save, table `GAME_SAVES` in krabsy-profile.js), class badge (`krabsy_class`), device note. New visitors get "Bau deine Figur" / "Spiel ein Spiel". The verbs statistics page stays and is linked as "Mehr Zahlen zu den Verben →".
+- **Shared:** `lib/krabsy-me.js` (profile/figure URLs, `savedChar()`, `portraitUrl()`, `classSession()`, `itemLabel(topic, id)` for readable labels: verbs = the word, prepositions = "at the bus stop", Spanish topics = the item's `label`). The landing uses it too.
+- **Landing `/de/`, `/es/`, `/en/spanish/`:** the dark banner is replaced by one row: the featured game as a wide tile (`.gt.gt-wide`, from `landing_featured` in `tools/render_static_games.py`) and a profile card (`#gl-profile`, hand-written in the three pages, filled by `krabsy-landing.js`). The progress row's link goes to the profile ("Mein Fortschritt →").
+- Header shell counter → profile page (`krabsy-shells.js`); language switch knows the page; sitemap has DE + ES.
+- Fixed on the way: the verbs statistics pages (DE + ES) threw on a removed element (`#stats-back-link`) and stayed empty.
+- `?v=`: `krabsy-shells.js` is loaded without `?v=` (by footer, nav, stats), so the counter's new link arrives when the browser cache (1 h) expires. `krabsy-lang-switch.js` was bumped only on the profile and figure pages (the new entry matters only there), not on the other ~420 pages.
+- Not verified: real devices; Spanish wording by a native speaker. A game that changes its save format shows "Noch nicht gespielt" on the profile until `GAME_SAVES` is updated.
+
 ## Teacher pages + teacher-only games (2026-11-23, live)
 
 - `/de/lehrkraefte/` + `/es/docentes/` redesigned (ef2918b, Fable subagent): image hero, three ways (share link / Quiz-Raum / create class), Quiz-Raum block, drawn class-dashboard example, starting-point cards, condensed why/share/ideas/privacy, FAQ unchanged. Shared CSS `lib/krabsy-teachers.css`. Spanish body copy uses tú; two FAQ answers still usted (kept equal to JSON-LD).

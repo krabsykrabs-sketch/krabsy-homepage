@@ -4,7 +4,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://krabsy.com/de/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -69,6 +69,14 @@
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/de/mein-krabsy/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/mein-krabsy/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-krabsy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/mein-krabsy/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/meine-figur/</loc>
@@ -1773,6 +1781,14 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/mi-krabsy/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/mein-krabsy/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-krabsy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/mein-krabsy/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/mi-personaje/</loc>

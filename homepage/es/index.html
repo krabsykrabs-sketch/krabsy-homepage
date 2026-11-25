@@ -44,7 +44,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-22">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25">
 </head>
 <body>
 <body>
@@ -98,16 +98,34 @@
             <span class="gl-prog-stat">Precisión <strong id="gl-prog-acc"></strong></span>
             <span class="gl-prog-stat"><svg aria-hidden="true"><use href="#i-flame"/></svg>Racha <strong id="gl-prog-streak"></strong></span>
             <span class="gl-prog-chips" id="gl-prog-chips"><span>Practica ahora:</span></span>
-            <a class="gl-prog-link" href="/es/verbos-irregulares/estadisticas/"><span>Ver </span>estadísticas →</a>
+            <a class="gl-prog-link" href="/es/mi-krabsy/"><span>Mi </span>progreso →</a>
           </div>
         </div>
       </div>
 
-      <!-- ── Featured game (games.json "featured") ───────────────────── -->
-      <div class="wrap" id="gl-featured">
-        <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
-        <a class="feat" href="/es/juegos/verb-towers/" data-game-id="verb-towers" aria-labelledby="feat-name" aria-describedby="feat-tag feat-meta"><div class="feat-shot"><img src="/thumbnails/hero/verb-towers.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high"><div class="feat-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span><span class="bdg bdg-new" data-new-until="2027-02-28">NUEVO</span></div></div><div class="feat-body"><p class="feat-kicker" data-new-until="2027-02-28" data-alt="Destacado">Nuevo en Krabsy</p><h2 class="feat-name" id="feat-name">Verb Towers</h2><p class="feat-tag" id="feat-tag">Construye torres. Forja monedas con verbos en inglés.</p><div class="feat-meta" id="feat-meta"><span class="vh">juego 3D, nuevo. </span><span class="bdg bdg-topic">Verbos Irregulares</span><span class="bdg bdg-topic">Preposiciones</span><span class="bdg">Móvil ✓</span></div><span class="feat-cta" aria-hidden="true"><svg><use href="#i-play"/></svg>Jugar ahora</span></div></a>
-        <!-- STATIC-GAMES:END -->
+      <!-- ── Featured game (wide tile, tools/render_static_games.py) + profile card.
+           The card's static content is the new-visitor state; krabsy-landing.js turns it
+           into "my figure, my shells" for a child who has a figure or shells. -->
+      <div class="wrap gl-top">
+        <div class="gl-top-feat" id="gl-featured">
+          <!-- STATIC-GAMES:START (tools/render_static_games.py) -->
+          <a class="gt gt-wide" href="/es/juegos/verb-towers/" data-game-id="verb-towers" aria-labelledby="feat-name" aria-describedby="feat-desc"><div class="gt-thumb"><img src="/thumbnails/hero/verb-towers.jpg" alt="" width="1200" height="675" decoding="async" fetchpriority="high"><div class="gt-flags" aria-hidden="true"><span class="bdg bdg-3d">3D</span><span class="bdg bdg-new" data-new-until="2027-02-28">NUEVO</span></div></div><div class="gt-body"><h2 class="gt-name" id="feat-name">Verb Towers</h2><div id="feat-desc" style="display:contents"><p class="gt-tag">Construye torres. Forja monedas con verbos en inglés.</p><div class="gt-meta"><span class="vh">juego 3D, nuevo. </span><span class="bdg bdg-topic">Verbos Irregulares</span><span class="bdg bdg-topic">Preposiciones</span><span class="bdg bdg-phone">Móvil ✓</span></div></div><span class="gt-cta" aria-hidden="true"><svg><use href="#i-play"/></svg>Jugar ahora</span></div></a>
+          <!-- STATIC-GAMES:END -->
+        </div>
+        <a class="pc" id="gl-profile" href="/es/mi-personaje/" data-profile-href="/es/mi-krabsy/" data-profile-title="Tu personaje" data-profile-cta="Ir a mi Krabsy →">
+          <span class="pc-stage" id="pc-stage" aria-hidden="true">
+            <img src="/assets/figures/portraits/Hiker.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
+            <img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
+            <img src="/assets/figures/portraits/Robot_One.webp" alt="" width="192" height="192" loading="lazy" decoding="async">
+          </span>
+          <span class="pc-body">
+            <span class="pc-kicker">Mi Krabsy</span>
+            <strong class="pc-title" id="pc-title">Tu propio personaje</strong>
+            <span class="pc-text" id="pc-text">Con gorro, gafas y tus colores.</span>
+            <span class="pc-shells" id="pc-shells" hidden><span aria-hidden="true">🐚</span> <b id="pc-shells-n">0</b> caracolas</span>
+            <span class="pc-cta" id="pc-cta">Crea tu personaje →</span>
+          </span>
+        </a>
       </div>
 
       <!-- ── Game grid with filter chips ─────────────────────────────── -->
@@ -210,7 +228,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25b"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25c"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

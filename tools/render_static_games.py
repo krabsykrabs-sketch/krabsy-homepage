@@ -93,20 +93,18 @@ def card(g, lang, *, decoding=True, topic=None):
     return "".join(parts)
 
 
-# ── Landing pages (/de/, /es/): featured game + tile grid ─────────────────
+# ── Landing pages (/de/, /es/, /en/spanish/): featured tile + tile grid ───
 # Markup mirrors homepage/lib/krabsy-landing.css; krabsy-landing.js only
-# filters it (data-tags) and drops NEU flags past `new_until`.
+# filters it (data-tags), drops NEU flags past `new_until` and fills the
+# profile card next to the featured tile.
 LANDING = {
     "de": {"play_now": "Jetzt spielen", "play": "Spielen", "new": "NEU", "soon": "Bald",
-           "kicker_new": "Neu auf Krabsy", "kicker": "Empfohlen",
            "phone_ok": "Handy ✓", "large_screen": "Großer Bildschirm", "beta": "Beta",
            "sr_3d": "3D-Spiel", "sr_new": "neu", "sr_soon": "bald verfügbar", "sr_game": "Spiel"},
     "es": {"play_now": "Jugar ahora", "play": "Jugar", "new": "NUEVO", "soon": "Pronto",
-           "kicker_new": "Nuevo en Krabsy", "kicker": "Destacado",
            "phone_ok": "Móvil ✓", "large_screen": "Pantalla grande", "beta": "Beta",
            "sr_3d": "juego 3D", "sr_new": "nuevo", "sr_soon": "disponible pronto", "sr_game": "juego"},
     "en": {"play_now": "Play now", "play": "Play", "new": "NEW", "soon": "Soon",
-           "kicker_new": "New on Krabsy", "kicker": "Featured",
            "phone_ok": "Phone ✓", "large_screen": "Big screen", "beta": "Beta",
            "sr_3d": "3D game", "sr_new": "new", "sr_soon": "coming soon", "sr_game": "game"},
 }
@@ -186,29 +184,30 @@ def landing_tile(g, lang):
 
 
 def landing_featured(g, lang):
+    """The featured game on the landing page: a tile like the grid's (.gt), only
+    wider (.gt-wide), with the picture beside the text and a visible play button.
+    Owner 2026-11-25: the old dark banner (.feat) was too big and looked like an
+    unclickable banner. The profile card next to it is hand-written in the pages."""
     L = LANDING[lang]
     t = L10N[lang]
     name = name_of(g, lang)
     topics = _topics()
+    mine = [tid for tid in (g.get("topics") or []) if tid in topics and topics[tid].get(lang)]
+    # topic pills only while they fit on one line (a game that plays every topic needs none)
     topic_pills = "".join(
-        f'<span class="bdg bdg-topic">{esc(topics[tid]["display_name"][lang])}</span>'
-        for tid in (g.get("topics") or []) if tid in topics and topics[tid].get(lang))
+        f'<span class="bdg bdg-topic">{esc(topics[tid]["display_name"][lang])}</span>' for tid in mine
+    ) if len(mine) <= 2 else ""
     img = g.get("hero") or g.get("thumb_small") or g.get("thumbnail") or ""
-    if g.get("new_until"):
-        kicker = (f'<p class="feat-kicker" data-new-until="{esc(g["new_until"])}" '
-                  f'data-alt="{esc(L["kicker"])}">{L["kicker_new"]}</p>')
-    else:
-        kicker = f'<p class="feat-kicker">{L["kicker"]}</p>'
     flags = _flags(g, lang)
-    return (f'<a class="feat" href="/{lang}/{t["folder"]}/{g["id"]}/" data-game-id="{esc(g["id"])}" '
-            f'aria-labelledby="feat-name" aria-describedby="feat-tag feat-meta">'
-            f'<div class="feat-shot"><img src="{esc(img)}" alt="" width="1200" height="675" decoding="async" fetchpriority="high">'
-            + (f'<div class="feat-flags" aria-hidden="true">{flags}</div>' if flags else "") +
-            f'</div><div class="feat-body">{kicker}'
-            f'<h2 class="feat-name" id="feat-name">{esc(name)}</h2>'
-            f'<p class="feat-tag" id="feat-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
-            f'<div class="feat-meta" id="feat-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang, cls_device=False)}</div>'
-            f'<span class="feat-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
+    return (f'<a class="gt gt-wide" href="/{lang}/{t["folder"]}/{g["id"]}/" data-game-id="{esc(g["id"])}" '
+            f'aria-labelledby="feat-name" aria-describedby="feat-desc">'
+            f'<div class="gt-thumb"><img src="{esc(img)}" alt="" width="1200" height="675" decoding="async" fetchpriority="high">'
+            + (f'<div class="gt-flags" aria-hidden="true">{flags}</div>' if flags else "") +
+            f'</div><div class="gt-body"><h2 class="gt-name" id="feat-name">{esc(name)}</h2>'
+            f'<div id="feat-desc" style="display:contents">'
+            f'<p class="gt-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
+            f'<div class="gt-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang)}</div></div>'
+            f'<span class="gt-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
 
 
 def for_kids(games):

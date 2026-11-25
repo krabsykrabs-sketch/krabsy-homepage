@@ -1,5 +1,5 @@
-/* Language landing pages (/de/, /es/) — games-first layout, 2026-11-21.
-   Tiles and featured game are pre-rendered by tools/render_static_games.py. */
+/* Language landing pages (/de/, /es/, /en/spanish/) — games-first layout, 2026-11-21.
+   Tiles and the featured tile are pre-rendered by tools/render_static_games.py. */
 :root {
   /* Game accent colours (already used inside the games) */
   --g-teal:  #2ee6c0;
@@ -19,7 +19,7 @@ body { background: var(--krabsy-cream); }
 a:focus-visible, button:focus-visible {
   outline: 3px solid var(--krabsy-ink); outline-offset: 3px; border-radius: 6px;
 }
-.feat:focus-visible, .gt:focus-visible, .pr-card:focus-visible, .pr-q:focus-visible, .gl-teach:focus-visible { border-radius: var(--radius-md); }
+.gt:focus-visible, .pr-card:focus-visible, .pr-q:focus-visible, .gl-teach:focus-visible { border-radius: var(--radius-md); }
 
 /* ── Header (logo markup + CSS copied from de/index.html) ─────────── */
 .logo {
@@ -118,51 +118,88 @@ a.k-lang-btn { text-decoration: none; display: inline-flex; align-items: center;
 .bdg-big   { background: transparent; color: var(--krabsy-ink); box-shadow: inset 0 0 0 1px var(--krabsy-lavender); }
 .bdg-soon  { background: var(--krabsy-ink); color: var(--g-amber); }
 
-/* ── Featured game ────────────────────────────────────────────────── */
-.feat {
-  display: grid; grid-template-columns: 1fr;
-  background: var(--g-navy); color: #fff;
-  border-radius: var(--radius-lg); overflow: hidden;
-  text-decoration: none; box-shadow: var(--shadow-elev);
-  transition: transform 0.18s ease;
-}
-.feat:hover { transform: translateY(-2px); color: #fff; }
-.feat-shot { position: relative; aspect-ratio: 21 / 9; overflow: hidden; background: #f3dcc0; }
-.feat-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; display: block; }
-.feat-flags { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
-.feat-flags .bdg { font-size: 0.8rem; padding: 3px 11px; }
-.feat-body { padding: 16px 22px 20px; display: flex; flex-direction: column; gap: 8px; }
-.feat-kicker { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--g-teal); margin: 0; }
-.feat-name { font-family: var(--font-display); font-weight: normal; font-size: 1.6rem; line-height: 1.1; margin: 0; color: #fff; }
-.feat-tag { margin: 0; font-size: 0.95rem; line-height: 1.4; color: #d5dcee; }
-.feat-meta { display: flex; flex-wrap: wrap; gap: 6px; }
-.feat-meta .bdg { background: rgba(255,255,255,0.14); color: #eef1fa; box-shadow: none; }
-.feat-cta {
-  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
-  margin-top: 4px; padding: 11px 24px; border-radius: var(--radius-pill);
-  background: var(--coral-aa); color: #fff; font-weight: 700; font-size: 1rem;
+/* ── Top row: the featured game (a wide tile) + the profile card ────
+   Owner 2026-11-25: the old dark banner was too big and too different from
+   the other games. The featured game is now a tile like the grid's (.gt),
+   only wider, with a visible play button; next to it the child's figure and
+   shells (.pc, filled by krabsy-landing.js). On wide screens the row sits on
+   the grid's four columns: tile = three columns, card = one. */
+.gl-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.gl-top-feat { display: grid; min-width: 0; }
+.gt-wide .gt-thumb { aspect-ratio: 2 / 1; }
+.gt-wide .gt-thumb img { object-position: 50% 60%; }
+.gt-wide .gt-flags { top: 10px; left: 10px; gap: 6px; }
+.gt-wide .gt-flags .bdg { font-size: 0.8rem; padding: 3px 11px; }
+.gt-wide .gt-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 12px 14px 14px; flex: 0 0 auto; }
+.gt-wide .gt-name { font-size: 1.25rem; grid-column: 1; }
+.gt-wide .gt-tag { grid-column: 1; flex: none; }
+.gt-wide .gt-meta { grid-column: 1; }
+.gt-wide .bdg-topic { display: none; }
+.gt-cta {
+  grid-column: 2; grid-row: 1 / span 3; display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 16px; border-radius: var(--radius-pill);
+  background: var(--coral-aa); color: #fff; font-weight: 700; font-size: 0.9rem;
   box-shadow: 0 4px 0 var(--coral-aa-deep); white-space: nowrap;
 }
-.feat-cta svg { width: 14px; height: 14px; }
-.feat:hover .feat-cta { background: #cf5a42; }
+.gt-cta svg { width: 14px; height: 14px; }
+a.gt-wide:hover .gt-cta { background: #cf5a42; }
+@media (min-width: 560px) {
+  .gl-top { gap: 16px; }
+  .gt.gt-wide { flex-direction: row; }
+  .gt-wide .gt-thumb { flex: 0 0 46%; aspect-ratio: 16 / 9; }
+  .gt-wide .gt-body { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; padding: 14px 22px 16px; flex: 1 1 auto; min-width: 0; }
+  .gt-wide .gt-name { font-size: 1.6rem; }
+  .gt-wide .gt-tag { font-size: 0.95rem; line-height: 1.4; }
+  .gt-wide .bdg-topic { display: inline-flex; }
+  .gt-cta { margin-top: 4px; padding: 10px 22px; font-size: 0.95rem; }
+}
+@media (min-width: 1000px) {
+  .gl-top { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+  .gl-top-feat { grid-column: span 3; }
+}
+
+/* Profile card: figure picture(s) on the figure page's dark stage, text below.
+   Below 1000px it is a slim bar under the featured tile. */
+.pc {
+  display: flex; align-items: stretch; background: var(--krabsy-white);
+  border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card);
+  color: var(--krabsy-ink); text-decoration: none; transition: transform 0.18s ease; min-width: 0;
+}
+.pc:hover { transform: translateY(-3px); color: var(--krabsy-ink); }
+.pc:focus-visible { border-radius: var(--radius-md); }
+.pc-stage {
+  position: relative; flex: 0 0 132px; display: flex; align-items: center; justify-content: center;
+  background: #13204a; overflow: hidden; padding: 8px;
+}
+.pc-stage img { display: block; width: 44%; height: auto; aspect-ratio: 1; border-radius: 50%; background: #16245a; box-shadow: 0 0 0 2px #2d4180; margin: 0 -7%; }
+.pc-stage img:nth-child(2) { width: 54%; z-index: 1; box-shadow: 0 0 0 3px var(--g-amber); }
+.pc-stage img:only-child { width: 76%; max-width: 132px; margin: 0; box-shadow: 0 0 0 3px var(--g-amber); }
+.pc-body { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 10px 14px 12px; min-width: 0; flex: 1 1 auto; }
+.pc-kicker { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #0d6b5a; }
+.pc-title { font-family: var(--font-display); font-weight: normal; font-size: 1.08rem; line-height: 1.2; }
+.pc-text { font-size: 0.82rem; line-height: 1.35; color: var(--krabsy-ink-mute); }
+.pc-text[hidden], .pc-shells[hidden] { display: none; }
+.pc-shells {
+  align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; margin-top: 3px; padding: 3px 12px;
+  border-radius: var(--radius-pill); background: #fff4d6; box-shadow: inset 0 0 0 1.5px var(--g-amber);
+  font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+}
+.pc-shells b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.pc-cta { margin-top: 5px; font-weight: 700; font-size: 0.88rem; color: var(--coral-aa); }
+.pc:hover .pc-cta { color: var(--coral-aa-deep); }
 @media (max-width: 559px) {
-  .feat-shot { aspect-ratio: 2 / 1; }
-  .feat-body { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 12px; padding: 12px 14px 16px; }
-  .feat-kicker, .feat-meta .bdg-topic { display: none; }
-  .feat-name { font-size: 1.2rem; }
-  .feat-tag { grid-column: 1; font-size: 0.82rem; }
-  .feat-meta { grid-column: 1; margin-top: 2px; }
-  .feat-cta { grid-column: 2; grid-row: 1 / span 3; margin: 0; padding: 11px 16px; font-size: 0.9rem; }
+  .pc-stage { flex-basis: 108px; }
+  .pc-body { padding: 8px 12px 10px; }
 }
-/* Two columns only from 900px; the panel grows with its text (no fixed height) */
-@media (min-width: 900px) {
-  .feat { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); min-height: 244px; }
-  .feat-shot { aspect-ratio: auto; min-height: 244px; }
-  .feat-shot img { object-position: 50% 65%; }
-  .feat-body { padding: 16px 26px 20px; justify-content: center; gap: 9px; }
-  .feat-name { font-size: 2rem; }
-  .feat-tag { font-size: 1rem; }
+@media (min-width: 1000px) {
+  .pc { flex-direction: column; }
+  .pc-stage { flex: 1 1 96px; min-height: 96px; padding: 7px; }
+  .pc-stage img { width: 36%; max-width: 84px; margin: 0 -5%; }
+  .pc-stage img:nth-child(2) { width: 44%; max-width: 100px; }
+  .pc-stage img:only-child { width: auto; height: 100%; max-height: 132px; max-width: 86%; }
+  .pc-body { flex: 0 0 auto; padding: 10px 14px 13px; }
 }
+@media (prefers-reduced-motion: reduce) { .pc { transition: none; } }
 
 /* ── Games grid ───────────────────────────────────────────────────── */
 .gl-games { padding-top: 16px; padding-bottom: 28px; }

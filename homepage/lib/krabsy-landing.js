@@ -2,8 +2,10 @@
 
    The featured game and all game tiles are static HTML, pre-rendered from
    /data/games.json by tools/render_static_games.py. This script only:
-   1. wires the filter chips above the game grid, and
-   2. fills the progress row for returning players (krabsy-stats.js).
+   1. wires the filter chips above the game grid,
+   2. fills the progress row for returning players (krabsy-stats.js), and
+   3. turns the profile card next to the featured tile into "my figure, my
+      shells" for a child who has a figure, shells or answers (krabsy-me.js).
 
    Filter rules: a tile matches when its data-tags contain the filter. Counts
    use PLAYABLE games only (<a> tiles, the featured game included). A chip is
@@ -12,6 +14,8 @@
    featured game is left out of "all" (it is right above the grid). */
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
+import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
+import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25';
 
 const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
 const T = {
@@ -73,29 +77,6 @@ function initFilters() {
   if (m && chips.some((c) => c.dataset.filter === m[1] && !c.hidden)) apply(m[1], false);
 }
 
-/* What a child reads on a practice chip. Verbs: the base word. Other topics store
-   ids (prepositions: "prep_at_point"), so show the answer in its first example:
-   "I'll meet you ___ the bus stop." → "at the bus stop". Unknown → no chip. */
-let _preps = null;
-async function itemLabel(topic, id) {
-  if (topic === 'irregular_verbs') return id;
-  if (topic !== 'prepositions') return null;
-  try {
-    if (!_preps) {
-      const d = await (await fetch('/data/prepositions.json')).json();
-      const items = Array.isArray(d) ? d : (d.items || []);
-      _preps = new Map(items.map((it) => [it.id, it]));
-    }
-    const it = _preps.get(id);
-    if (!it) return null;
-    const ex = (it.examples || [])[0];
-    const after = ex && ex.sentence.includes('___')
-      ? ex.sentence.split('___')[1].replace(/[.?!,]+$/, '').trim().split(/\s+/).slice(0, 3).join(' ')
-      : '';
-    return (it.correct + ' ' + after).trim();
-  } catch (_) { return null; }
-}
-
 async function initProgress() {
   const row = document.getElementById('gl-prog');
   if (!row) return;
@@ -120,7 +101,7 @@ async function initProgress() {
       if (!label) continue;
       const a = document.createElement('a');
       a.className = 'gl-prog-chip';
-      a.lang = 'en';
+      a.lang = labelLang(r.topic);
       a.href = href + '?verbs=' + encodeURIComponent(r.verb);
       a.textContent = label;
       chipsEl.appendChild(a);
@@ -161,7 +142,44 @@ function initClassBadge() {
   a.replaceWith(badge);
 }
 
+/* Profile card (#gl-profile). Static HTML = the new-visitor state ("Bau deine Figur →",
+   to the figure page). A child with a figure, shells or answers gets their figure's
+   picture, the shell count and the link to "Mein Krabsy". */
+function initProfileCard() {
+  const card = document.getElementById('gl-profile');
+  if (!card) return;
+  try {
+    const char = savedChar();
+    const render = () => {
+      const s = getShells();
+      let answered = false;
+      try { answered = hasData(); } catch (_) { /* no stats */ }
+      if (!char && !(s.earned > 0) && !answered) return;
+      card.href = card.dataset.profileHref;
+      document.getElementById('pc-cta').textContent = card.dataset.profileCta;
+      document.getElementById('pc-title').textContent = card.dataset.profileTitle;
+      document.getElementById('pc-text').hidden = true;
+      document.getElementById('pc-shells-n').textContent = String(s.balance);
+      document.getElementById('pc-shells').hidden = false;
+      const stage = document.getElementById('pc-stage');
+      if (!stage.dataset.done) {
+        stage.dataset.done = '1';
+        const img = new Image(192, 192);
+        img.alt = ''; img.decoding = 'async';
+        img.onerror = () => { if (!img.dataset.fb) { img.dataset.fb = '1'; img.src = portraitUrl(DEFAULT_CHAR); } };
+        img.src = portraitUrl(char || DEFAULT_CHAR);
+        stage.replaceChildren(img);
+      }
+    };
+    render();
+    onShellsChange(render);
+  } catch (err) {
+    console.warn('landing: profile card left as is', err);
+  }
+}
+
 expireNew();
+initProfileCard();
 initClassBadge();
 initFilters();
 initProgress();
