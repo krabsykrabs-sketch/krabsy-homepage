@@ -96,6 +96,17 @@ Batch 1 (2026-11-25) — **done** in v2: rotation button; "not all
 combinations work" → one character + accessories; more characters (orc,
 skeletons and others); main decision first, then accessories + colours.
 
+**Parked (owner, 2026-11-25):** weeding out combinations that don't look
+good is owner work and is parked for now. Idea for when it resumes: a review
+page built from the contact sheets where the owner clicks bad pairs
+(character × item) and it writes the exclusion list.
+
+Batch 2 (collecting, 2026-11-25):
+1. The bird character (AvianSwordsman) has no preview picture in the
+   gallery. Cause known: `tools/portraits.html` hides parts matching
+   /Sword/, which matches the character's own name → empty picture. Fix the
+   filter and re-render its portrait.
+
 ## Log
 
 - 2026-11-25: brief + first prototype (owner: "work on the character builder").
