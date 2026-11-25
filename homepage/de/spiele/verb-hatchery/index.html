@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <!-- TESTER PAGE (2026-11-25): reachable only by direct link. Not in games.json,
+       not in the sitemap, not linked anywhere; noindex. See games/verb-hatchery/RELEASE.md. -->
+  <title>Verb Hatchery (Testversion) — Krabsy</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Testversion: Lauf über die Insel, sammle Eier mit englischen Verben und lass Wesen schlüpfen.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #0c1430; overflow: hidden; }
+    /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
+    #game-frame { display: block; border: 0; width: 100%; height: calc(100vh - 48px); height: calc(100svh - 48px); margin-top: 48px; }
+  </style>
+</head>
+<body>
+  <iframe id="game-frame" src="/games/verb-hatchery/?lang=de" title="Verb Hatchery" loading="eager" allow="autoplay; fullscreen; gamepad"></iframe>
+  <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
+  <script type="module">
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-23';
+    initGamePage('verb_hatchery');
+  </script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
+</body>
+</html>

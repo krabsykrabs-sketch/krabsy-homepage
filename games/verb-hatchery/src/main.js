@@ -987,7 +987,7 @@ function buyUp(k) {
   const cost = S.upgradePrice(st, k);
   if (!S.buy(st, k)) { sfx.denied(); return; }
   sfx.ding();
-  A.ev('upgrade_bought', { upgrade: k, lvl: st.up[k], cost, coins_left: Math.floor(st.coins) });
+  A.ev('upgrade_bought', { upgrade: k.toLowerCase(), lvl: st.up[k], cost, coins_left: Math.floor(st.coins) });
   if (k === 'pen') st.incubators.forEach((inc, i) => { if (inc && inc.sp && S.freePen(st) >= 0) placeWaiting(i); });
   syncWorld(); renderUpgrades(); renderHud(); save(); checkGoals();
 }
@@ -1038,7 +1038,7 @@ function adaptQuality(dt) {
   if (qLevel === 1) world.renderer.setPixelRatio(1);
   else { world.cover?.setDensity(0.5); world.sun.shadow.mapSize.set(1024, 1024); world.sun.shadow.map?.dispose(); world.sun.shadow.map = null; world.renderer.shadowMap.type = THREE.PCFShadowMap; }
   world.resize();
-  A.ev('quality_down', { level: qLevel, fps: Math.round(fps) });
+  A.ev('quality_down', { step: qLevel, fps: Math.round(fps) });
 }
 
 // ── main loop ──
