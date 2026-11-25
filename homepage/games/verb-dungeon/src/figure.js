@@ -63,8 +63,13 @@ export async function migrateHeroes() {
   } catch (_) { return null; /* not on the site: try again next time */ }
 }
 
+// The default figure for a child who never picked one: the Schülerin (DEFAULT_CHAR in
+// /lib/krabsy-me.js; also krabsy-figure.js's own default), game contract "Hero choice on
+// the start screen". Until 2026-11-25 (afternoon) it was the catalogue's Knight.
+export const DEFAULT_FIGURE = 'Protagonist_A';
+
 /**
- * The hero model: the child's figure, or the figure catalogue's Knight when there is none.
+ * The "your figure" hero: the child's figure, or the default Schülerin when there is none.
  * Throws when the site libs or assets are missing (main.js then uses the old Knight).
  * → { root, own, config, dispose }
  */
@@ -72,5 +77,5 @@ export async function loadHeroFigure() {
   const F = await import(FIGURE_LIB);
   // The Dungeon brings its own clips (anim_medium.glb with the swing, death and ranged
   // clips on the same skeleton), so the shared animation files are not needed.
-  return F.loadPlayerFigure({ fallback: 'Knight', lambert: true, clips: false, hide: HIDE });
+  return F.loadPlayerFigure({ fallback: DEFAULT_FIGURE, lambert: true, clips: false, hide: HIDE });
 }

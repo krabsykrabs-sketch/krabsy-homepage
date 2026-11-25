@@ -20,8 +20,8 @@ import { loadPairs, again, single } from './questions.js';
 import { makeLabel } from './labels.js';
 import * as Q from './questions.js';
 import { t, lang } from './i18n.js';
-import { HEROES, SWINGS, swingTimes, Save } from './heroes.js';
-import { migrateHeroes, loadHeroFigure } from './figure.js';
+import { PICKS, SWINGS, heroDef, swingTimes, Save, Choice } from './heroes.js';
+import { migrateHeroes, loadHeroFigure, DEFAULT_FIGURE } from './figure.js';
 import { sfx } from './audio.js';
 import { Track } from './analytics.js';
 import { initTouch, stick, holdStick, touchOn, resetTouch, swordIcon } from './touch.js';
@@ -201,27 +201,113 @@ function showMenu() {
   });
   const open = [...box.children].map((b) => !b.disabled).lastIndexOf(true);
   selectLevel(Math.max(0, open));
-  drawFigure();
+  G.menuRow = 'levels';
+  drawHeroes();
   $('menu').classList.add('on');
 }
-// "Your hero" in the menu: the hero is the child's figure from the site (it stands in the
-// room behind the menu). A link opens the figure page in the top window (the game runs in
-// an iframe on the site).
+// "Your hero" in the menu (owner decision 2026-11-25, game contract "Hero choice on the
+// start screen"): tiles for the child's figure (first, preselected) and the Dungeon's own
+// heroes (heroes.js PICKS), free; the pick is remembered for the Dungeon only (Choice). The
+// chosen hero stands in the room behind the menu. The link opens the figure page in the top
+// window (the game runs in an iframe on the site).
 const FIGURE_PAGE = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
-let heroSrc = 'loading'; // 'figure' (the child's own) | 'fallback' (catalogue Knight) | 'knight' (old model, no site)
-function drawFigure() {
+// What is built: 'figure' (the child's own) | 'fallback' (the default Schülerin) |
+// 'old-knight' (Knight.glb, no site) | a Dungeon hero id.
+let heroSrc = 'loading';
+// The first pick: &hero=<id> for QA (not stored), else the remembered one.
+let heroPick = PICKS.includes(params.get('hero')) ? params.get('hero') : Choice.get();
+// The figure tile's picture: the site's portrait of the character at once, then the
+// child's own figure rendered here (figurePortrait); a plain figure icon without the site.
+const FIG_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">'
+  + '<circle cx="36" cy="22" r="11" fill="#2ee6c0"/><path d="M17 62c0-14 8-24 19-24s19 10 19 24z" fill="#2ee6c0"/></svg>');
+let figPic = null; // data URL of the rendered figure
+let figChar = (() => { // the saved figure's character (the site's portrait), before the figure loads
+  try { const f = JSON.parse(localStorage.getItem('krabsy_figure_v2') || 'null'); if (f && /^[A-Za-z_]{1,40}$/.test(f.char)) return f.char; } catch (_) { /* none */ }
+  return DEFAULT_FIGURE;
+})();
+function heroPicSrc(id) {
+  if (id !== 'figure') return `assets/portraits/${id}.webp`;
+  return figPic || `/assets/figures/portraits/${figChar}.webp`;
+}
+function drawHeroes() {
   $('heroTitle').textContent = t('heroes');
   const box = $('heroes');
   box.innerHTML = '';
-  const line = document.createElement('span');
-  line.className = 'figLine';
-  line.textContent = t(heroSrc === 'figure' ? 'figureOwn' : 'figureNone');
+  const row = document.createElement('div');
+  row.id = 'heroRow';
+  row.classList.toggle('kb', G.menuRow === 'heroes');
+  PICKS.forEach((id) => {
+    const b = document.createElement('button');
+    b.className = `hero${heroPick === id ? ' sel' : ''}`;
+    b.dataset.hero = id;
+    const img = document.createElement('img');
+    img.alt = '';
+    img.src = heroPicSrc(id);
+    img.onerror = () => { img.onerror = null; img.src = FIG_ICON; };
+    const name = document.createElement('b');
+    name.textContent = t(`hero_${id}`);
+    b.append(img, name);
+    tap(b, () => { sfx.init(); G.menuRow = 'heroes'; pickHero(id); });
+    row.appendChild(b);
+  });
   const a = document.createElement('a');
   a.className = 'figLink';
   a.href = FIGURE_PAGE[lang] || FIGURE_PAGE.en;
   a.target = '_top';
   a.textContent = t('figureLink');
-  box.append(line, a);
+  box.append(row, a);
+}
+// The figure tile's picture, drawn once here in the look of assets/portraits (the hero alone
+// with its sword, idle, on a vertical navy gradient, warm key + cool rim light; 144 px), so
+// it shows the child's own colours and accessories. A small renderer of its own (rendering
+// into the game's canvas would show up for a frame); thrown away afterwards. On any error
+// the tile keeps the site's portrait (or the icon).
+async function figurePortrait(template) {
+  const S = 288;
+  let r = null, c = null;
+  try {
+    r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(1); r.setSize(S, S, false);
+    r.toneMapping = renderer.toneMapping; r.toneMappingExposure = renderer.toneMappingExposure;
+    const sc = new THREE.Scene();
+    c = new Char(template, Assets.clips);
+    attachGear(c, heroDef('knight'), true);
+    c.root.rotation.y = 0.35;
+    c.play('Idle_A'); c.mixer.update(0.5);
+    sc.add(c.root);
+    sc.add(new THREE.HemisphereLight(0x7f9cff, 0x1a1230, 0.9));
+    const keyL = new THREE.DirectionalLight(0xfff1dc, 1.6); keyL.position.set(-3, 6, 8); sc.add(keyL);
+    const rim = new THREE.DirectionalLight(0x9fe8ff, 1.2); rim.position.set(4, 5, -8); sc.add(rim);
+    const fill = new THREE.PointLight(0xff9a3c, 6, 12, 1.8); fill.position.set(2.5, 3, 3); sc.add(fill); // a torch's warmth
+    // Frame the whole figure (hats included), a little from above, as the Dungeon portraits.
+    c.root.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(c.root), size = box.getSize(new THREE.Vector3()), mid = box.getCenter(new THREE.Vector3());
+    const h = Math.max(size.y, size.x * 0.9) * 0.96;
+    const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+    const dist = h / 2 / Math.tan(THREE.MathUtils.degToRad(15));
+    cam.position.set(mid.x + 0.05 * dist, mid.y + 0.33 * dist, mid.z + 0.94 * dist);
+    cam.lookAt(mid.x, mid.y + h * 0.01, mid.z);
+    r.render(sc, cam);
+    const out = document.createElement('canvas'); out.width = out.height = 144;
+    const g = out.getContext('2d'), grad = g.createLinearGradient(0, 0, 0, 144);
+    grad.addColorStop(0, '#295286'); grad.addColorStop(0.55, '#1b3d6a'); grad.addColorStop(1, '#0c1f3f');
+    g.fillStyle = grad; g.fillRect(0, 0, 144, 144);
+    g.drawImage(r.domElement, 0, 0, 144, 144);
+    figPic = out.toDataURL('image/png');
+    const img = document.querySelector('#heroes .hero[data-hero="figure"] img');
+    if (img) img.src = figPic;
+  } catch (err) { console.warn('figure portrait', err); }
+  try { if (c) c.dispose(); } catch (_) { /* gone */ }
+  try { if (r) { r.dispose(); r.forceContextLoss(); } } catch (_) { /* gone */ }
+}
+function pickHero(id) {
+  if (!PICKS.includes(id)) return;
+  sfx.uiClick();
+  if (heroPick === id) { drawHeroes(); return; }
+  heroPick = id;
+  Choice.set(id);
+  drawHeroes();
+  setHero(id);
 }
 
 // ── Question card ──────────────────────────────────────────────────────────
@@ -389,7 +475,7 @@ async function startLevel(i) {
   try {
     const bossRoom = LEVELS[i].rooms.find((r) => r.type === 'boss');
     [G.pool] = await Promise.all([loadPairs({ count: 10, tiers: LEVELS[i].tiers }),
-      Assets.loadBoss(bossRoom && bossRoom.boss)]); // this level's boss model (golem: already there)
+      Assets.loadBoss(bossRoom && bossRoom.boss), heroReady]); // this level's boss model (golem: already there); a hero picked just before (never throws)
   } catch (err) {
     console.error(err);
     diag('error', { msg: `startLevel: ${err.message}` });
@@ -1586,8 +1672,22 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
+// Menu keys: two rows, the levels and the heroes. ↓ / ↑ move between them; in the level
+// row 1–3 or ←/→ pick a level, in the hero row 1–5 or ←/→ pick a hero; Enter/Space start.
 function menuKey(e) {
   const btns = G.mode === 'menu' ? [...$('levels').children] : [];
+  if (G.mode === 'menu' && (e.code === 'ArrowDown' || e.code === 'ArrowUp')) {
+    G.menuRow = e.code === 'ArrowDown' ? 'heroes' : 'levels';
+    $('levels').classList.toggle('kb', G.menuRow === 'levels');
+    const row = $('heroRow'); if (row) row.classList.toggle('kb', G.menuRow === 'heroes');
+    return;
+  }
+  if (G.mode === 'menu' && G.menuRow === 'heroes') {
+    const dig = e.code.match(/^(Digit|Numpad)([1-9])$/);
+    const k = dig ? Number(dig[2]) - 1
+      : e.code === 'ArrowRight' ? PICKS.indexOf(heroPick) + 1 : e.code === 'ArrowLeft' ? PICKS.indexOf(heroPick) - 1 : -2;
+    if (k !== -2) { if (k >= 0 && k < PICKS.length) { sfx.init(); pickHero(PICKS[k]); } return; }
+  }
   const n = ['Digit1', 'Digit2', 'Digit3', 'Numpad1', 'Numpad2', 'Numpad3'].indexOf(e.code) % 3;
   if (G.mode === 'menu' && e.code.match(/^(Digit|Numpad)[1-3]$/) && !btns[n].disabled) { selectLevel(n); return; }
   if (G.mode === 'menu' && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) {
@@ -1605,6 +1705,9 @@ function menuKey(e) {
 }
 function selectLevel(k) {
   G.menuSel = k;
+  G.menuRow = 'levels';
+  $('levels').classList.add('kb');
+  const row = $('heroRow'); if (row) row.classList.remove('kb');
   [...$('levels').children].forEach((b, i) => b.classList.toggle('sel', i === k));
 }
 function toggleMute() { sfx.setMuted(!sfx.muted); drawHud(); }
@@ -1753,27 +1856,34 @@ function updateGear(dt = 0) {
   }
 }
 
-// Builds the hero and swaps it in for the current one. src = { root, own } (the player's
-// figure, src/figure.js; used as it is) or { template } (the old Knight model, copied).
-// The Dungeon's own items (heroes.js gear: the sword, the shield only on a Knight that is
-// not the child's figure) go on the hand slots; the clips are the Dungeon's (same skeleton).
-function buildHero(src) {
-  const def = HEROES[0], old = hero;
-  const c = src.root ? new Char(src.root, Assets.clips, { own: true }) : new Char(src.template, Assets.clips);
+// The hero's game items (heroes.js gear) on the hand slots of a built Char. figure = the
+// child's figure (no shield). → { slots, held: [{ obj, slot, hold }] }
+function attachGear(c, def, figure) {
   // GLTFLoader strips the dot from bone names: 'handslot.r' arrives as 'handslotr'.
   const slots = { r: c.root.getObjectByName('handslotr'), l: c.root.getObjectByName('handslotl') };
-  heldGear = [];
+  const held = [];
   c.root.updateMatrixWorld(true);
   for (const g of def.gear) {
-    if (!slots[g.slot] || (src.own && g.figure === false)) continue;
+    if (!slots[g.slot] || (figure && g.figure === false)) continue;
     const obj = Assets.gear[g.model].clone(true);
     // Figures differ in their bones' rest scale: the item keeps the size it has on the Knight.
     const k = slots[g.slot].getWorldScale(_w).x / (c.root.scale.x || 1);
     obj.scale.setScalar((g.scale || 1) / (k > 0.2 && k < 5 ? k : 1));
     if (g.glow) { const gl = makeGlow(g.glow.color, g.glow.size); gl.position.y = g.glow.y; gl.material.opacity = 0.95; obj.add(gl); }
     slots[g.slot].add(obj);
-    if (g.hold && g.hold !== 'fixed') heldGear.push({ obj, slot: slots[g.slot], hold: g.hold });
+    if (g.hold && g.hold !== 'fixed') held.push({ obj, slot: slots[g.slot], hold: g.hold });
   }
+  return { slots, held };
+}
+// Builds the hero from a template and swaps it in for the current one. src = { template,
+// figure } (figure: the child's figure / default Schülerin, its root from src/figure.js is
+// the template and is copied, so the picker can switch back and forth). def = the heroes.js
+// entry (the figure plays with the knight's). The clips are the Dungeon's (same skeleton).
+function buildHero(src, def) {
+  const old = hero;
+  const c = new Char(src.template, Assets.clips);
+  const { slots, held } = attachGear(c, def, !!src.figure);
+  heldGear = held;
   for (const tr of trails) { tr.mesh.geometry.dispose(); tr.mesh.material.dispose(); }
   const sw = SWINGS[def.swing], act = c.actions[`Swing_${def.swing}`];
   // A reversed (forehand) swing sweeps the other way: flip each trail's direction.
@@ -1790,23 +1900,56 @@ function buildHero(src) {
   hero.mixer.update(0);
   updateGear();
 }
-// The hero model: the child's figure (or the catalogue Knight) from the site; without the
-// site (dev server, file://) or on any error the old Knight from this folder. Never throws.
-// The old hero shop's purchases move to the shells store first (figure.js), so a child who
-// played the Barbarian keeps that look as the figure.
-async function loadHero() {
+// The child's figure (or the default Schülerin) from the site, loaded once in parallel with
+// the room assets, whatever hero is picked (the figure tile, its portrait). null without the
+// site (dev server, file://) or on any error. Never throws. The old hero shop's purchases
+// move to the shells store first (figure.js), so a child who played the Barbarian keeps
+// that look as the figure.
+const figLoad = (async () => {
   try {
     await migrateHeroes();
     const fig = await loadHeroFigure();
-    heroSrc = fig.own ? 'figure' : 'fallback';
+    if (fig.config && fig.config.char) figChar = fig.config.char;
     return { root: fig.root, own: fig.own };
-  } catch (_) {
-    try { await Assets.loadHero(HEROES[0]); } catch (_) { /* the load error shows below */ }
-    heroSrc = 'knight';
-    return null;
+  } catch (_) { return null; }
+})();
+// What a pick builds → { src, def, label }. Throws when its files can't load.
+async function heroTemplate(id) {
+  if (id !== 'figure') {
+    const def = heroDef(id);
+    await Assets.loadHero(def);
+    return { src: { template: Assets.heroes[def.id] }, def, label: def.id };
   }
+  const fig = await figLoad;
+  if (fig) return { src: { template: fig.root, figure: true }, def: heroDef('knight'), label: fig.own ? 'figure' : 'fallback' };
+  return oldKnight();
 }
-const heroLoad = loadHero(); // in parallel with the room assets
+// The last resort, as before the picker: this folder's Knight with sword and shield.
+async function oldKnight() {
+  const def = heroDef('knight');
+  if (!Assets.heroes.knight) await Assets.loadHero(def);
+  return { src: { template: Assets.heroes.knight }, def, label: 'old-knight' };
+}
+// Builds the picked hero (a newer pick wins). A Dungeon hero that can't load gives the
+// figure; a figure that can't load or build gives the old Knight. Never throws.
+let heroSeq = 0;
+let heroReady = Promise.resolve();
+function setHero(id) {
+  const seq = ++heroSeq;
+  heroReady = (async () => {
+    let r = null;
+    try { r = await heroTemplate(id); } catch (_) { /* below */ }
+    if (!r && id !== 'figure') { try { r = await heroTemplate('figure'); } catch (_) { /* below */ } }
+    if (seq !== heroSeq) return;
+    try {
+      if (!r) throw new Error('no hero');
+      buildHero(r.src, r.def); heroSrc = r.label;
+    } catch (_) {
+      try { const k = await oldKnight(); if (seq === heroSeq) { buildHero(k.src, k.def); heroSrc = k.label; } } catch (err) { console.error(err); }
+    }
+  })();
+  return heroReady;
+}
 function cancelSwing() { // room change, dizzy
   heroSwing.act.stop();
   gearBlend = 0;
@@ -2126,11 +2269,7 @@ function applyStatic() {
 applyStatic();
 
 Assets.load().then(async () => {
-  const fig = await heroLoad;
-  try { buildHero(fig || { template: Assets.heroes.knight }); } catch (_) { // a broken figure: the old Knight
-    if (!Assets.heroes.knight) await Assets.loadHero(HEROES[0]);
-    heroSrc = 'knight'; hero = null; buildHero({ template: Assets.heroes.knight });
-  }
+  await setHero(heroPick);
   hero.pos.set(0, 0, 3);
   initKey();
   // The word plates in the rooms are drawn on canvases: the font must be there first.
@@ -2142,6 +2281,8 @@ Assets.load().then(async () => {
   hero.pos.set(0, 0, 3); hero.play('Idle_A');
   $('loading').remove();
   showMenu();
+  // The figure tile's picture (after the first menu frame; not for the portrait QA shot).
+  if (params.get('qa') !== 'portrait') figLoad.then((fig) => { if (fig) setTimeout(() => figurePortrait(fig.root), 200); });
 
   // QA hook: lets a script play without a keyboard (see CLAUDE.md).
   const run = (n) => { for (let i = 0; i < n; i++) step(1 / 30); };
@@ -2150,7 +2291,7 @@ Assets.load().then(async () => {
     get room() { return room; }, get hero() { return hero; }, get skeletons() { return skeletons; },
     info: () => ({ mode: G.mode, level: G.level, room: G.roomIdx, hearts: G.hearts, asked: G.asked,
       firstTry: G.firstTry, missed: G.missed.map((m) => m.base), card: G.card && `${G.card.gate}:${cardQ(G.card).ask}`,
-      type: room.type, phase: room.phase, door: room.doors[0].open, coins: Save.coins, coinsRun: G.coinsRun, hero: heroSrc, built: heroSwing && heroSwing.hero, lying: coins.length, arrows: arrows.length,
+      type: room.type, phase: room.phase, door: room.doors[0].open, coins: Save.coins, coinsRun: G.coinsRun, hero: heroSrc, pick: heroPick, built: heroSwing && heroSwing.hero, lying: coins.length, arrows: arrows.length,
       boss: room.boss ? `${room.boss.kind}:${room.boss.state}:${room.boss.hp}` : undefined, key: key.state,
       book: room.book ? (room.book.done ? 'done' : 'shut') : undefined, bookShut: room.book ? room.book.shut : undefined, wards: room.wards.length, rune: room.rune ? `${room.rune.step}:${hero.pos.z.toFixed(1)}` : undefined,
       minions: skeletons.filter((s) => s.minion).length, prompt: (usable() || {}).what,
@@ -2350,7 +2491,7 @@ Assets.load().then(async () => {
     try {
       await startLevel(Number(params.get('level') || 1) - 1);
       const stopAt = params.has('stop') ? Number(params.get('stop')) : 99;
-      // &hero=id: play as that hero (also in ?qa=play, so every hero's swing is tested)
+      // &hero=id (heroes.js PICKS): the run plays as that hero (picked at load, not stored)
       for (let i = 0; i < 9 && G.mode === 'play' && i < stopAt; i++) {
         out.push({ room: i, log: QA.playRoom(i === 0 || params.has('wrongall')), after: QA.info() });
       }
@@ -2358,7 +2499,7 @@ Assets.load().then(async () => {
       if (params.get('qa') === 'portrait') { // a hero close up, for the menu portraits (assets/portraits/)
         QA.teleport(0, 4, 0.35); run(20);
         camera.position.set(0.3, 2.3, 9.2); camera.lookAt(0, 1.45, 4); camBase.copy(camera.position);
-        const pt = params.has('pt') ? Number(params.get('pt')) : undefined;
+        const pt = params.has('pt') ? Number(params.get('pt')) : heroPick === 'figure' ? undefined : heroDef(heroPick).portraitT;
         if (pt != null) { // hold the swing clip at this time: the weapon shows beside the hero (heroes.js portraitT)
           const a = heroSwing.act; a.reset(); a.setEffectiveWeight(swingWeight(SWING.share)); a.play();
           a.time = heroSwing.def.reverse ? a.getClip().duration - pt : pt; a.paused = true; // portraitT is in original clip time
