@@ -26,7 +26,7 @@ function fromEngine(q) {
   if (!c || q.display.kind !== 'trio' || q.options.length < 3) return null;
   const ask = q.display.askIndex === 0 ? 'past' : 'pp';
   return { key: `${c.base}|${ask}`, base: c.base, past: c.past, pp: c.participle, ask,
-    answer: q.answer, options: q.options.slice(0, 3) };
+    answer: q.answer, options: q.options.slice(0, 3), accepts: q.accepts || [q.answer] };
 }
 function fromInline(v, ask) {
   const answer = ask === 'past' ? v.past : v.pp;

@@ -644,16 +644,45 @@ function showStep() {
   $('trio').innerHTML = trioHtml(q, {});
   $('feedback').innerHTML = card.steps.length > 1 ? `<div class="small">${t('step', card.i + 1, card.steps.length)}</div>` : '';
   $('goOn').classList.remove('on');
+  $('typeToggle').classList.toggle('on', !!st.typing);
+  $('typeToggle').textContent = `⌨️ ${t(st.typing ? 'typeOn' : 'typeOff')}`;
+  if (st.typing) {
+    // typewriter mode: type the form (alternates like burnt / burned count)
+    $('chips').innerHTML = `<input id="typeIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${t('typeHere')}"><button class="chip" id="typeOk">OK</button>`;
+    const inp = $('typeIn');
+    const go = () => { if (inp.value.trim()) answerTyped(inp.value); };
+    inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    $('typeOk').addEventListener('click', go);
+    setTimeout(() => inp.focus(), 50);
+    return;
+  }
   $('chips').innerHTML = q.options.map((o, k) => `<button class="chip" data-k="${k}"><span class="k">${k + 1}</span>${o}</button>`).join('');
   $('chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => answer(+b.dataset.k)));
 }
+const norm = (x) => String(x).trim().toLowerCase().replace(/\s+/g, ' ');
+function answerTyped(text) {
+  const q = card && card.steps[card.i];
+  if (!q || card.answered) return;
+  const ok = (q.accepts || [q.answer]).some((a) => norm(a) === norm(text));
+  card.typed = true;
+  judge(q, ok);
+  const inp = $('typeIn'); if (inp) { inp.disabled = true; inp.classList.add(ok ? 'right' : 'wrong'); }
+}
+$('typeToggle').addEventListener('click', () => {
+  if (!card || card.answered) return;
+  st.typing = !st.typing; save(); sfx.tap(); showStep();
+  A.ev('typing_mode', { on: !!st.typing });
+});
 function answer(k) {
-  if (!card || card.answered || !card.steps[card.i].options[k]) return;
+  if (!card || card.answered || st.typing || !card.steps[card.i].options[k]) return;
   const q = card.steps[card.i];
   const ok = q.options[k] === q.answer;
+  judge(q, ok);
+  $('chips').querySelectorAll('.chip').forEach((c, j) => c.classList.add(q.options[j] === q.answer ? 'right' : 'off'));
+}
+function judge(q, ok) {
   card.answered = true;
   S.recordAnswer(st, ok); Q.record(q, ok); S.trackWord(st, q, ok); A.countAnswer(ok);
-  $('chips').querySelectorAll('.chip').forEach((c, j) => c.classList.add(q.options[j] === q.answer ? 'right' : 'off'));
   const last = card.i === card.steps.length - 1;
   const showPp = q.ask === 'pp' || q.full; // never reveal a 3rd form the next step asks
   $('trio').innerHTML = trioHtml(q, { past: true, pp: showPp });
@@ -667,7 +696,7 @@ function answer(k) {
     Q.missed(card.pair);
     const chain = `<span class="base">${q.base}</span><span class="arrow">→</span><span class="past">${q.past}</span><span class="arrow">→</span>` +
       (showPp ? `<span class="pp">${q.pp}</span>` : '<span style="color:#42577f">___</span>');
-    const after = card.kind === 'thief' ? t('stolen') : t('eggRolled');
+    const after = card.kind === 'thief' ? t('stolenChase') : t('eggRolled');
     $('feedback').innerHTML = `<div class="bad">${t('wrong')}</div><div class="teach">${chain}</div><div class="small">${after}</div>`;
     $('goOn').classList.add('on');
   }
@@ -678,6 +707,7 @@ function closeCard(ok) {
   const c = card;
   card = null;
   $('card').classList.remove('on'); $('shade').classList.remove('on', 'light');
+  typedBonus = ok && c.kind === 'egg' && !!c.typed;
   if (c.kind === 'egg') { if (ok) pickedUp(c.egg); else eggRollsAway(c.egg); }
   else if (c.raid) raidResult(ok);
   else thiefResult(c.thief, ok);
@@ -691,6 +721,7 @@ function pickedUp(e) {
   A.ev('egg_grabbed', { rarity: e.rarity, zone: e.zone.id, streak: st.stats.streak, carry: st.carry.length });
   A.countVisit('grabbed');
   sfx.pop();
+  if (typedBonus) { S.addCoins(st, res.bonus); res.bonus *= 2; typedBonus = false; } // (typed answers: double coins)
   floatCenter(`+${fmt(res.bonus)}`);
   // the egg joins your line of eggs
   const from = e.obj.position.clone().add(new THREE.Vector3(0, 0.5, 0));
@@ -735,7 +766,8 @@ function eggRollsAway(e) {
 // A crab catches you: a short moment (the world stops, the camera turns to the crab,
 // it snaps at the last egg of your line), then a compact card at the bottom so the
 // scene stays visible. (owner: it was hard to see what happened)
-let grab = null; // { th, t, egg }
+let grab = null;
+let typedBonus = false; // { th, t, egg }
 function thiefCatch(th) {
   const top = st.carry[st.carry.length - 1].r;
   // put the crab a little in front of the player and look at it

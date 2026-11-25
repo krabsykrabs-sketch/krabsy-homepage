@@ -966,3 +966,19 @@ heartbeat volume, touch.
   level; a level-up during play pops "Level n!" over the pen; "back to the
   Book" resets it. The info panel shows the level with stars. Events
   `daily_egg {zone, rarity}` / `{result: grabbed}`. Checked headless.
+- 2026-11-25: **typed answers** (optional): a switch under the card's
+  answer buttons ("⌨️ Type it instead (×2 coins)", saved as `st.typing`);
+  in typing mode the card shows a text field + OK (Enter submits), checked
+  against the engine's `accepts` (alternates like burnt / burned) or the
+  answer; an egg picked up with typed answers pays its coin bonus twice.
+  Thief-card feedback after a wrong answer now says "catch it to get it
+  back". Event `typing_mode {on}`. Checked headless (right: ×2 coins;
+  wrong: red field, chain shown, word in the practise list).
+
+### Ideas list 2026-11-25 — all built (lead, Opus)
+Site engine + smart mix, first-minutes guidance, Hall of Fame + Book swap,
+minified Three.js, music + sound modes, words to practise, crab raids,
+daily egg + creature levels, typed answers. Not yet checked by a human:
+music / sounds, real Chromebook / tablet, the Hall's look on a real screen.
+Open for release (master session): wrapper pages, `games.json`, sitemap;
+write `RELEASE.md` when the owner says go.

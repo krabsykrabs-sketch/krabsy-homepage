@@ -94,6 +94,11 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .chip.right{background:var(--teal);color:var(--navy);}
 .chip.right .k{display:none;}
 .chip.off{opacity:.35;pointer-events:none;}
+#typeIn{font-family:'Fredoka One';font-size:26px;padding:10px 14px;border-radius:14px;border:3px solid #2a4a7a;background:#0a1a33;color:var(--ink);width:min(300px,60vw);outline:none;}
+#typeIn:focus{border-color:var(--teal);}
+#typeIn.right{border-color:var(--teal);color:var(--teal);} #typeIn.wrong{border-color:var(--coral);color:var(--coral);text-decoration:line-through;}
+#typeToggle{display:block;margin:10px auto 0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;}
+#typeToggle.on{color:var(--teal);}
 #feedback{min-height:28px;margin-top:16px;font-size:18px;}
 #feedback .ok{color:var(--teal);font-family:'Fredoka One';font-size:24px;}
 #feedback .bad{color:var(--coral);font-family:'Fredoka One';font-size:24px;}
@@ -257,6 +262,7 @@ body.touch #cross{display:none;}
   <div id="cardSub"></div>
   <div id="trio"></div>
   <div id="chips"></div>
+  <button id="typeToggle"></button>
   <div id="feedback"></div>
   <button id="goOn">Go on</button>
 </div>
