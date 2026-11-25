@@ -223,3 +223,33 @@ For Nora:
 - What do parents ask you about progress, and how do you answer now?
 - Which topics do your students need next (by level)?
 - Would a live mode next to Zoom work for you, or do you share your screen?
+
+## Phase 1 as built (2026-11-25)
+
+- **API** `api/tutors.py` (same SQLite as classes): `POST /api/tutor/create` →
+  tutor token · `GET /api/tutor/space` · `/rename` `/delete` · students:
+  `POST /api/tutor/student/add` (→ id + student key) · `GET /api/tutor/student?id=`
+  · `/update` `/stars` (null = back to measured) `/lesson` `/lesson-delete`
+  `/homework` `/homework-delete` `/new-link` `/remove` (header `X-Tutor-Token`) ·
+  `GET /api/tutor/me` (header `X-Student-Token`, the student's page).
+- **A student = a hidden class of one.** Its code is never shown and can't be
+  joined (`/api/class/join` refuses it). The student key in the personal link is
+  the student token itself, so the link works on several devices; "new link"
+  replaces it. Answers come in through `/api/class/answers` unchanged.
+- **Stars** `measure_stars` (tested): 0 none · 1 answered · 2 ≥ 5 answers, half of
+  the last 20 right · 3 ≥ 10 choice/typed answers, 80 % of the last 20, ≥ 4 words
+  right · 4 level 3 + ≥ 8 typed, 80 % of the last 10 · 5 only by the tutor.
+  Answer mode: new column `attempts.mode`; `recordAttempt(…, topic, mode)` sends it;
+  without it the server counts free-practice pages as typed, the rest as choice.
+  **No game sends `mode` yet**, so ★★★★ is only reachable via free practice
+  (English topics) until games with typed answers pass `'typed'`.
+- **Pages** (noindex, unlinked): `/en/spanish/tutors/`, `/en/spanish/tutors/space/`,
+  `/en/spanish/me/`; UI `lib/krabsy-tutor.js` + `.css`. The tutor's device
+  remembers spaces and student links (`krabsy_tutor_spaces`, `krabsy_tutor_keys`);
+  the server keeps only hashes, so a link made on another device can't be shown
+  again (→ "make a new link").
+- Homework links use `from=teacher` (banner "Practice from your teacher").
+- Retention: a tutor space idle 180 days is deleted with all students; opening
+  the space keeps its students' classes alive.
+- Not yet: other interface languages, rewards from the tutor, parent report,
+  live mode (phase 2).

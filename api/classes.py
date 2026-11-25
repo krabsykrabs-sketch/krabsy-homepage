@@ -111,6 +111,8 @@ def connect() -> sqlite3.Connection:
 def init_db() -> None:
     with _lock, connect() as con:
         con.executescript(SCHEMA)
+    import tutors          # tutor spaces live in the same database (tutors.py); adds attempts.mode
+    tutors.init_db()
 
 
 def purge_inactive(now: Optional[datetime] = None) -> int:
@@ -127,6 +129,10 @@ def _purger() -> None:
             n = purge_inactive()
             if n:
                 print(f"[krabsy] classes: deleted {n} inactive class(es)")
+            import tutors
+            n = tutors.purge_inactive()
+            if n:
+                print(f"[krabsy] tutors: deleted {n} inactive tutor space(s)")
         except Exception as exc:  # noqa: BLE001
             print(f"[krabsy] classes purge failed: {exc}")
         time.sleep(6 * 3600)
@@ -203,6 +209,7 @@ class Answer(BaseModel):
     correct: bool
     source: Optional[str] = Field(None, max_length=40)
     at: Optional[str] = Field(None, max_length=40)
+    mode: Optional[str] = Field(None, max_length=10)     # choice | typed | hint (tutor stars)
 
 
 class AnswersBody(BaseModel):
@@ -253,8 +260,8 @@ def join_class(body: JoinBody, request: Request) -> JSONResponse:
     token = secrets.token_urlsafe(24)
     with _lock, connect() as con:
         cls = con.execute("SELECT id, name FROM classes WHERE code = ?", (code,)).fetchone()
-        if not cls:
-            return _err(404, "unknown_code")
+        if not cls or con.execute("SELECT 1 FROM tutor_students WHERE class_id = ?", (cls["id"],)).fetchone():
+            return _err(404, "unknown_code")        # a tutor's student (hidden class of one) can't be joined by code
         existing = con.execute("SELECT id FROM students WHERE class_id = ? AND nickname = ? COLLATE NOCASE",
                                (cls["id"], nick)).fetchone()
         if existing and not body.same_person:
@@ -299,14 +306,15 @@ async def post_answers(request: Request, x_student_token: str = Header("", max_l
             continue
         src = a.source if a.source and _SLUG.fullmatch(a.source) else None
         at = a.at if a.at and re.fullmatch(r"\d{4}-\d\d-\d\dT[\d:.]+(Z|[+-]\d\d:\d\d)?", a.at) else now
-        rows.append((a.topic, a.item, a.form, 1 if a.correct else 0, src, at))
+        mode = a.mode if a.mode in ("choice", "typed", "hint") else None
+        rows.append((a.topic, a.item, a.form, 1 if a.correct else 0, src, at, mode))
     with _lock, connect() as con:
         st = con.execute("SELECT id, class_id FROM students WHERE token_hash = ?",
                          (_hash(token or "-"),)).fetchone()
         if not st:
             return _err(401, "not_in_class")     # class deleted or pupil removed
-        con.executemany("INSERT INTO attempts (student_id, topic, item, form, correct, source, at) "
-                        "VALUES (?,?,?,?,?,?,?)", [(st["id"],) + r for r in rows])
+        con.executemany("INSERT INTO attempts (student_id, topic, item, form, correct, source, at, mode) "
+                        "VALUES (?,?,?,?,?,?,?,?)", [(st["id"],) + r for r in rows])
         con.execute("UPDATE students SET last_active = ? WHERE id = ?", (now, st["id"]))
         con.execute("UPDATE classes SET last_active = ? WHERE id = ?", (now, st["class_id"]))
     return JSONResponse({"ok": True, "stored": len(rows)})

@@ -64,6 +64,16 @@ export async function join(code, nickname, samePerson = false) {
   }
 }
 
+/** Use a tutor's personal student link (#k=… on /en/spanish/me/): the key is
+    the student token itself, so every device with the link is the same
+    student. Keeps queued answers when it is the same key. */
+export function adopt(session) {
+  if (!session || !session.token) return;
+  const cur = getSession();
+  if (!cur || cur.token !== session.token) leave();
+  setSession(session);
+}
+
 /* ── answer queue ─────────────────────────────────────────────────────── */
 
 function readQueue() {
@@ -80,6 +90,7 @@ export function queueAnswer(evt) {
   q.push({
     topic: evt.topic, item: String(evt.itemId).toLowerCase().slice(0, 60), form: evt.form,
     correct: !!evt.correct, source: evt.source || null, at: evt.at || new Date().toISOString(),
+    mode: evt.mode || null,
   });
   writeQueue(q);
   scheduleFlush();

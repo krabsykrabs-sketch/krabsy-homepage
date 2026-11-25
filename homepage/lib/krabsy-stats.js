@@ -212,8 +212,11 @@ export function runDecay() {
  *   correct — boolean
  *   source  — module name, e.g. "sprint", "flashcards" (not stored)
  *   topic   — topic key; defaults to "irregular_verbs" for back-compat.
+ *   mode    — optional: how the answer was given, 'choice' | 'typed' | 'hint'.
+ *             Only sent to a tutor/class (stars in docs/tutor-platform.md);
+ *             without it the server guesses from the source.
  */
-export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOPIC) {
+export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOPIC, mode = null) {
   if (!itemId) return;
   // The `form` value is set by data adapters in krabsy-data.js, not by
   // user input. Each topic chooses its own form set: irregular_verbs uses
@@ -282,7 +285,8 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
 
   // Listeners (e.g. a class session that sends answers to the teacher,
   // docs/classroom-concept.md phase 2). Never let one break recording.
-  const evt = { topic, itemId, form, correct: !!correct, source: source || null, at: now, shells };
+  const evt = { topic, itemId, form, correct: !!correct, source: source || null, at: now, shells,
+    mode: (mode === 'choice' || mode === 'typed' || mode === 'hint') ? mode : null };
   for (const fn of _listeners) {
     try { fn(evt); } catch (err) { console.warn('krabsy-stats: listener failed', err); }
   }

@@ -1,0 +1,56 @@
+/* Tutor pages (docs/tutor-platform.md phase 1, 2026-11-25). On top of krabsy-class.css. */
+.kt-main { max-width: 960px; }
+.kt-pilot { display: inline-block; background: #fff6dd; border-radius: 999px; padding: 6px 14px; font-size: 0.85rem; font-weight: 700; margin: 0 0 16px; }
+.kt-how { list-style: none; counter-reset: how; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 0; margin: 0 0 18px; }
+.kt-how li { counter-increment: how; background: #eef3e2; border-radius: var(--radius-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.kt-how li::before { content: counter(how); font-family: var(--font-display); font-size: 1.6rem; color: #bf4a33; line-height: 1; }
+.kt-level { display: inline-block; font-family: var(--font-body, inherit); font-size: 0.75rem; font-weight: 700; background: var(--krabsy-lavender-soft, #eee8f8);
+  color: var(--krabsy-ink); border-radius: 999px; padding: 2px 9px; vertical-align: middle; }
+
+.kt-stars { white-space: nowrap; letter-spacing: 1px; }
+.kt-star { color: #d9d4c7; }
+.kt-star.is-on { color: #e0a100; }
+
+.kt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.kt-scard { display: flex; flex-direction: column; gap: 6px; background: var(--krabsy-white); border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+  padding: 14px 16px; text-decoration: none; color: var(--krabsy-ink); border: 2px solid transparent; }
+.kt-scard:hover, .kt-scard:focus-visible { border-color: #bf4a33; }
+.kt-scard-name { font-family: var(--font-display); font-size: 1.25rem; }
+.kt-mini { display: grid; gap: 2px; font-size: 0.82rem; }
+.kt-mini > span { display: flex; justify-content: space-between; gap: 8px; }
+.kt-mini-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.kt-form-row { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.kt-narrow { max-width: 140px; }
+.kt-wide { max-width: none; }
+.kc-field textarea, .kc-field select { font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px;
+  border: 2px solid var(--krabsy-lavender); background: #fff; min-height: 44px; }
+.kc-field textarea { resize: vertical; }
+
+.kt-map td { vertical-align: middle; }
+.kt-starcell { white-space: nowrap; }
+.kt-star-btn { background: none; border: 0; padding: 4px 2px; font-size: 1.35rem; line-height: 1; color: #d9d4c7; cursor: pointer; min-width: 28px; min-height: 36px; }
+.kt-star-btn.is-on { color: #e0a100; }
+.kt-star-set:hover .kt-star-btn { color: #e0a100; }
+.kt-star-set .kt-star-btn:hover ~ .kt-star-btn { color: #d9d4c7; }
+.kt-star-btn:focus-visible { outline: 3px solid var(--krabsy-ink); border-radius: 6px; }
+.kt-src { font-size: 0.75rem; white-space: normal; }
+.kt-note { font-size: 0.8rem; color: var(--krabsy-ink-mute); font-style: italic; margin-top: 2px; }
+.kt-scale td { vertical-align: middle; }
+
+.kt-hw, .kt-lessons, .kt-mehw { list-style: none; margin: 0 0 14px; padding: 0; }
+.kt-hw li, .kt-mehw li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 14px; padding: 10px 0; border-bottom: 1px solid #eee; }
+.kt-hw li > span:first-child, .kt-mehw li > span:first-child { flex: 1 1 260px; }
+.kt-hwform, .kt-lessonform { display: flex; flex-wrap: wrap; gap: 0 14px; align-items: flex-end; border-top: 1px solid #eee; padding-top: 14px; }
+.kt-hwform .kc-field, .kt-lessonform .kc-field { margin-bottom: 12px; }
+.kt-hwform .kt-wide, .kt-lessonform .kt-wide { flex: 1 1 260px; }
+.kt-hwform .kc-btn, .kt-lessonform .kc-btn { margin-bottom: 12px; }
+.kt-lessonform { border-top: 0; padding-top: 0; }
+.kt-lessons li { display: grid; grid-template-columns: 110px 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; align-items: start; }
+.kt-lday { font-weight: 700; font-size: 0.9rem; }
+.kt-lnote { white-space: pre-wrap; }
+@media (max-width: 560px) {
+  .kt-lessons li { grid-template-columns: 1fr auto; }
+  .kt-lday { grid-column: 1 / -1; }
+  .kt-narrow { max-width: none; }
+}

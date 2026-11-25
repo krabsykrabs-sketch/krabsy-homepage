@@ -1,7 +1,27 @@
 # Krabsy — status dashboard
 
 Living overview of every game and the project. Master session updates this
-at the end of each session. (Last update: 2026-11-22.)
+at the end of each session. (Last update: 2026-11-25.)
+
+## Tutor spaces, phase 1 (2026-11-25, not deployed; API + pages)
+
+Plan `docs/tutor-platform.md` (tutors = first paying audience; kids and teachers
+stay free). Phase 1 built for Nora (English interface, Spanish section):
+`/en/spanish/tutors/` (what it is + create a space, secret link `#t=`),
+`/en/spanish/tutors/space/` (students; `&s=<id>` = profile: level, goals, notes,
+star map per topic with tutor override + note, homework as game/drill links with
+progress, lesson notes, personal link), `/en/spanish/me/#k=` (the student's page:
+homework from the tutor). Students are hidden classes of one (`api/tutors.py`),
+so every answer from any game reaches the tutor through the class pipeline;
+`recordAttempt` takes an optional 6th arg `mode` (choice/typed/hint) for the
+stars. All noindex, **not linked from any page yet**. Tests: `api/tests/test_tutors.py`
+(54 API tests pass); headless browser check of all three pages + a game answer
+on the student's device reaching the tutor. Local preview with the API:
+`python3 tools/dev_api_server.py` → http://localhost:8010/.
+**Before Nora uses it:** deploy the API (Coolify app `/api`, new module in the
+Dockerfile) + site; update `/en/privacy/` (tutor spaces store first name, notes,
+answers). Before going public: link from the teacher pages, privacy DE/ES,
+AVV template.
 
 ## Lesson plans "Unterrichtsideen" (2026-11-25, DE, not deployed)
 

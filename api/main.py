@@ -494,7 +494,7 @@ app.add_middleware(
     allow_origin_regex=r"^https://(www\.)?krabsy\.com(:\d+)?$",
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token"],
+    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token", "X-Tutor-Token"],
     max_age=86400,
 )
 
@@ -503,6 +503,11 @@ import classes  # noqa: E402
 
 classes.start_background()
 app.include_router(classes.router)
+
+# Tutor spaces (docs/tutor-platform.md): students as hidden classes of one.
+import tutors  # noqa: E402
+
+app.include_router(tutors.router)
 
 # Quiz Room (games/quiz-show): live rooms over WebSocket, in memory only.
 import quiz_room  # noqa: E402
