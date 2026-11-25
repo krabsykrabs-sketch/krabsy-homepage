@@ -12,7 +12,7 @@ headless scenario (anonymous play → Lucas's link, Emma on the same device,
 private notes, homework progress) passed on krabsy.com; DE/ES pages for normal
 visitors load no sync code and make no tutor/profile requests. Test space deleted.
 Nora starts at https://krabsy.com/en/spanish/tutors/.
-**Lesson tools (built 2026-11-25, not deployed):** interactive worksheets (typed
+**Lesson tools (2026-11-25, LIVE, verified on krabsy.com: plan, live worksheet, answer seen by the tutor, gift; test space deleted):** interactive worksheets (typed
 answers count for ★★★★), live lesson (worksheet on the student's screen, answers
 live, stars and gifts), lesson builder (plan from the star map → lesson note).
 Details: `docs/tutor-platform.md` "Lesson tools as built".
