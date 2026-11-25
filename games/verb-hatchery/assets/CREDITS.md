@@ -14,6 +14,7 @@ Only the files in use are copied here.
 | `props/nature/*` (lily pads, canoe, the Volcano's stone heads) | Kenney Nature Kit (kenney.nl) — CC0 |
 | `props/pirate/*` (palms, shipwreck, pirate ship, rowing boats, barrels, crate, chest, flag, sand rocks, grey rocks `rocks-a/b/c`, `bottle`, `tool-shovel`, `hole`, tower = lighthouse) + `Textures/colormap.png` | Kenney Pirate Kit — CC0 |
 | `props/survival/*` (signpost, bedroll) | Kenney Survival Kit — CC0 |
+| `props/watercraft/*` (`boat-sail-a`, `boat-sail-b` = the two sailing boats out at sea, `buoy`, `buoy-flag`) + its own `Textures/colormap.png` (not the pirate kit's) | Kenney Watercraft Kit 2.1 — CC0, source `/home/janah/dev/_assets/kenney/watercraft-kit/Models/GLB format` |
 | `props/playground/*` | Tiny Treats – Fun Playground 1.0 FREE (Isa Lousberg) — CC0 |
 | `props/picnic/*` | Tiny Treats – Pleasant Picnic 1.0 FREE (Isa Lousberg) — CC0 |
 | `props/park/*` (fountain) | Tiny Treats – Pretty Park 1.0 FREE (Isa Lousberg) — CC0 |
@@ -61,5 +62,6 @@ releasing. Without these files the game uses the code-built creatures.
 Eggs, incubators, pens, the base deck, thief crabs, hats, the fallback
 creatures, the beach pier, parasols, towels and beach ball, the hatchery's
 wind wheel and sign board, the stone bridge, the scarecrow, the Forest camp's
-tent, stumps and logs, the lava are built from primitives in code. Three.js 0.169 (MIT) is in
+tent, stumps and logs, the lava, the beach's lookout tower, shells and starfish,
+the jumping fish and the splash rings are built from primitives in code. Three.js 0.169 (MIT) is in
 `vendor/three/`; fonts Fredoka One and Nunito (OFL) in `fonts/`.

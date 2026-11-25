@@ -1,13 +1,14 @@
 // Grass and small plants near the player (world proposal item 6): tufts of grass,
 // clover, small ferns, fallen petals and pebbles from the Quaternius pack, drawn as
 // five InstancedMeshes (five draw calls, no shadows cast) in a ring around the player.
+// Grass, clover and ferns sway in the wind (merge.js).
 // The island is cut into 4 m cells; what grows in a cell comes from a hash of the
 // cell, so it is the same every time you come back. Cells are worked out when they
 // come into range and dropped when they are far away.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { ZONES, HOME, ISLAND } from './balance.js';
-import { paintQ, paintMat } from './merge.js';
+import { paintQ, swayMat, setSway } from './merge.js';
 import { groundH, pathDist, pondD, POND, beachW, groundNoise, DECK, streamAt, CAMP, LAVA_ANGLES, lavaPoint } from './world.js';
 
 const CELL = 4, RADIUS = 23, PER_CELL = 11;
@@ -21,6 +22,7 @@ const KINDS = {
   petals: [40, [['Petal_1', 0, 0, 1], ['Petal_3', 0.5, 0.2, 0.8], ['Petal_2', -0.3, 0.45, 0.7]]],
   pebbles: [30, [['Pebble_Square_3', 0, 0, 1], ['Pebble_Round_2', 0.45, 0.25, 0.8], ['Pebble_Square_4', -0.2, 0.5, 1.1]]],
 };
+const SWAYS = { grass: 1, clover: 1, fern: 1 };
 const hash = (ix, iz) => { let h = (ix * 73856093) ^ (iz * 19349663) ^ 0x9e3779b9; h = Math.imul(h ^ (h >>> 15), 0x85ebca6b); h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35); return (h ^ (h >>> 16)) >>> 0; };
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
@@ -30,9 +32,10 @@ export class GroundCover {
     const M = world.q.models, m4 = new THREE.Matrix4();
     this.kinds = {};
     for (const [kind, [max, parts]] of Object.entries(KINDS)) {
-      const geos = parts.filter(([n]) => M[n]).map(([n, x, z, s]) => paintQ(M[n]).applyMatrix4(m4.makeScale(s, s, s).setPosition(x, -M[n].minY * s, z)));
+      // (wind: grass, clover and ferns sway, weights for a plant of scale 1; the shader scales them with the instance)
+      const geos = parts.filter(([n]) => M[n]).map(([n, x, z, s]) => setSway(paintQ(M[n]).applyMatrix4(m4.makeScale(s, s, s).setPosition(x, -M[n].minY * s, z)), SWAYS[kind] ? 'plant' : null, 0, M[n].h * s));
       if (!geos.length) continue;
-      const im = new THREE.InstancedMesh(geos.length > 1 ? mergeGeometries(geos) : geos[0], paintMat(), max);
+      const im = new THREE.InstancedMesh(geos.length > 1 ? mergeGeometries(geos) : geos[0], swayMat(), max);
       im.count = 0; im.frustumCulled = false; im.receiveShadow = true; im.castShadow = false;
       im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       im.setColorAt(0, new THREE.Color(1, 1, 1)); im.instanceColor.setUsage(THREE.DynamicDrawUsage);

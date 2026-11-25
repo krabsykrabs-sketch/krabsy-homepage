@@ -1,11 +1,11 @@
 # Verb Hatchery — world review and proposal (2026-11-23)
 
 The owner approved all 15 items (2026-11-23); they are built step by step.
-**Built: Step 1 = items 1–4, Step 2 = items 5–7 and Step 3 = items 8–12** (all
-2026-11-23, see the Log in `CLAUDE.md` for what was done and the measured draw
-calls). Step 2 also switched all trees, bushes, rocks, plants and flowers to the
-Quaternius *Stylized Nature MegaKit* (owner's wish). Not built yet: items 13–15
-(Step 4).
+**All 15 items are built: Step 1 = items 1–4, Step 2 = items 5–7, Step 3 = items
+8–12 and Step 4 = items 13–15** (all 2026-11-23, see the Log in `CLAUDE.md` for
+what was done and the measured draw calls). Step 2 also switched all trees,
+bushes, rocks, plants and flowers to the Quaternius *Stylized Nature MegaKit*
+(owner's wish).
 
 Pictures are in `_shots/` (not in git): `review-*.png` = the world today,
 `beach-before-*.png` / `beach-after-*.png` = the Beach rebuild.
@@ -55,13 +55,13 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 | 11 ✅ | **Meadow landmarks** | A hill with one huge tree (north-east); a stream from the pond to the sea with a walkable stone bridge (south-east); a wheat field with a scarecrow beyond the bridge; a ruin near the standing stones (south-west). All from Quaternius kits or built in code (no Kenney / KayKit: they clash). The stream and the bridge are on the minimap. | M | +0 draw calls (all in the static batch; the stream's water is part of the pond's mesh) |
 | 12 ✅ | **Coast all round** | The coast is no longer a circle (`coast()` in `world.js`): coves with wide sand, headlands with grey rock and boulders in the water; the lighthouse stands on a rocky knoll on the Beach's north headland; three tiny islands off the coast (pines / a rock stack / palms; not reachable). | S–M | +0 draw calls |
 
-### Step 4 — life
+### Step 4 — life — ✅ built 2026-11-23
 
 | # | What | How | Effort | Cost |
 |---|---|---|---|---|
-| 13 | **Wind** | Palms, trees and grass sway (a few lines in the vertex shader). | S | none |
-| 14 | **Water life** | Splash rings when wading, fish jumping in the bay, a sailing boat crossing the horizon. | S–M | +2 draw calls |
-| 15 | **Beach extras** | Beach hut or lookout tower, shells and starfish, buoys. | S | +2 draw calls |
+| 13 ✅ | **Wind** | Trees, palms, bushes, tall grass, ferns, flowers, the wheat field, banners and the grass near the player sway: gusts run over the island as slow waves, leaves and palm fronds also tremble. A weight per vertex (0 for rocks, buildings, props), a few lines in the vertex shader of the one shared material; the shadow pass sways too, so the shadows on the ground move. | S | +0 draw calls, +0 triangles |
+| 14 ✅ | **Water life** | Splash rings where you wade (sea, pond, stream) and a bigger splash when you jump into water; fish jump in the bay and wherever you are near deep water (sometimes two or three together); two sailing boats (Kenney *Watercraft Kit*) circle the island far out. | S–M | +0–2 draw calls in the standard views (a boat in view = 1; rings and fish = 1 each, only while one is there) |
+| 15 ✅ | **Beach extras** | A lookout tower on the sand (built in code), 46 shells and starfish along the waterline and on the islet, six buoys around the swimming water and two flag buoys at the bay's mouth (Watercraft Kit). | S | +0 draw calls (all in the static batch), +2.6k triangles |
 
 ## Asset packs
 
@@ -71,7 +71,7 @@ Effort: **S** = up to 1 hour, **M** = half a day, **L** = a day or more.
 - KayKit *Medieval Hexagon Pack*: buildings, fences. For #8, #11. (I have not opened the pack to confirm it has a windmill.)
 - Kenney *Nature Kit*: more rocks and plants; cliffs and bridges if it has them (not checked). For #11, #12.
 
-**New packs (not downloaded; owner decides):**
+**New packs (the owner downloaded the Watercraft Kit on 2026-11-23; it is used in Step 4):**
 
 | Pack | Author | Licence | Price | URL | What for |
 |---|---|---|---|---|---|

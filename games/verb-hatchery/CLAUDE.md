@@ -804,3 +804,23 @@ Not done yet / to check:
   `BLOCK=assets/animals`), commit. Crab steering was changed by the lead
   (committed). After that: wire the 60 creatures (`assets/creatures/`) into
   the game, plus the missing Ultimate Monsters from the owner's download.
+- 2026-11-25: **world step 4 (items 13–15) finished and committed** by the
+  lead (Opus) from the stopped Fable run; nothing new was needed beyond
+  testing. Built: wind (`merge.js`: per-vertex `aSway` = bend + flutter
+  written by `setSway()` per model kind — tree, bush, plant, palm, cloth,
+  buoy; same displacement in the shadow pass via `windDepthMat()` and
+  before the see-through test; near-player grass sways too), water life
+  (`src/waterlife.js`: splash rings when wading / landing in water, fish
+  jumping in the bay, pond and near the player; two InstancedMeshes),
+  two sailing boats circling far out + buoys (Kenney Watercraft Kit,
+  `assets/props/watercraft/`), a lookout tower, shells and starfish on the
+  beach, stream banks with more foam, a slimmer home beacon that fades
+  with height and widens with distance. Checked headless: walk tests
+  (walk2: only the pond's deep water; walk4: bridge both ways, stream 5/5,
+  hill, lighthouse, camp, field, ruin, crater rim reached, islets not;
+  2 stops flagged = waist-deep water at the wading limit), base flow
+  deliver → hatch → pen, game without `assets/animals/`, forced fish jumps
+  + splash rings, 46 shells, 2 boats; beach-ground view 35 calls / 126k
+  triangles (all incl. eggs/crabs). Not checked: a real Chromebook (wind
+  shader cost), touch beyond earlier steps. Owner note (same day): Fable
+  is expensive — use it only where it clearly improves quality.

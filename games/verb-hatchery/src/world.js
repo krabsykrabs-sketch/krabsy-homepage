@@ -8,7 +8,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RARITY, MAX_PENS, MAX_INCUBATORS, ISLAND, HOME, ZONES } from './balance.js';
 import { buildCreature, animateCreature, rng } from './creatures.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { StaticBatch, paint, paintMat, setAtlas, seeThrough } from './merge.js';
+import { StaticBatch, paint, paintMat, setAtlas, seeThrough, wind } from './merge.js';
 import { loadQ } from './qnature.js';
 import { GroundCover } from './ground.js';
 
@@ -667,23 +667,27 @@ export class World {
     // the stream to the sea: a ribbon along its centre line, sloping down with the bed
     // (same mesh and shader as the pond; y is relative to the pond's level)
     {
-      const { pts, len, L } = STREAM, W = [-5, -2.5, 0, 2.5, 5];
-      let prev = -1;
+      const { pts, len, L } = STREAM, W = [-5.2, -4.6, -3.6, 0, 3.6, 4.6, 5.2]; // (the waterline lies at about ±4.6 m)
+      let prev = -1; const i0 = idx.length;
       for (let i = 0; i < pts.length; i++) {
         const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dl = Math.hypot(b[0] - a[0], b[1] - a[1]), nx = -(b[1] - a[1]) / dl, nz = (b[0] - a[0]) / dl;
         const lv = streamLevel(len[i] / L), first = pos.length / 3;
-        // (distance to the bank, set by hand: a thin foam line where the water meets the banks, clear water in between)
-        W.forEach((w, j) => { pos.push(pts[i][0] + nx * w, lv - POND.water, pts[i][1] + nz * w); shore.push([-1.6, 2.4, 5, 2.4, -1.6][j]); });
+        // (distance to the bank, set by hand: a bright rim where the water meets the banks (uBank in the
+        // shader, world step 4: the stream read as a dull band before), light shallows, deeper blue in the middle)
+        W.forEach((w, j) => { pos.push(pts[i][0] + nx * w, lv - POND.water, pts[i][1] + nz * w); shore.push([-5, -1.2, 2, 8, 2, -1.2, -5][j]); });
         if (prev >= 0) for (let j = 0; j < W.length - 1; j++) idx.push(prev + j, first + j, prev + j + 1, prev + j + 1, first + j, first + j + 1);
         prev = first;
       }
+      // the ribbon must face up like the pond (world step 4: it faced down, so the stream's water was never drawn)
+      const [a, b, c] = [0, 1, 2].map((k) => idx[i0 + k] * 3);
+      if ((pos[b + 2] - pos[a + 2]) * (pos[c] - pos[a]) - (pos[b] - pos[a]) * (pos[c + 2] - pos[a + 2]) < 0) for (let k = i0; k < idx.length; k += 3) [idx[k + 1], idx[k + 2]] = [idx[k + 2], idx[k + 1]];
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('normal', new THREE.Float32BufferAttribute(pos.map((_, i) => (i % 3 === 1 ? 1 : 0)), 3));
     g.setAttribute('aShore', new THREE.Float32BufferAttribute(shore, 1));
     g.setIndex(idx);
-    const w = new THREE.Mesh(g, this._waterMat(0x3aa9dc, 0.07, 0.4));
+    const w = new THREE.Mesh(g, this._waterMat(0x3aa9dc, 0.07, 0.4, 0.6));
     w.position.y = POND.water; w.receiveShadow = true;
     this.scene.add(w); this.pond = w;
   }
@@ -709,17 +713,18 @@ export class World {
   }
   // Water with a shore: colour = deep water, wave = how strong the lines running in
   // are, edge = how strong the foam on the waterline is. Needs the aShore attribute.
-  _waterMat(color, wave, edge) {
+  // bank = a bright rim where aShore is far below 0 (only the stream's edges are).
+  _waterMat(color, wave, edge, bank = 0) {
     const mat = new THREE.MeshLambertMaterial({ color, transparent: true, opacity: 1 });
     this.waterTime = this.waterTime || { value: 0 };
-    const uni = { uTime: this.waterTime, uShallow: { value: new THREE.Color(0x6fe6e0) }, uWave: { value: wave }, uEdge: { value: edge } };
+    const uni = { uTime: this.waterTime, uShallow: { value: new THREE.Color(0x6fe6e0) }, uWave: { value: wave }, uEdge: { value: edge }, uBank: { value: bank } };
     mat.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, uni);
       sh.vertexShader = sh.vertexShader
         .replace('#include <common>', '#include <common>\nattribute float aShore;\nvarying float vShore;\nvarying vec2 vW;')
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvShore = aShore;\nvW = position.xz;');
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform float uTime, uWave, uEdge;\nuniform vec3 uShallow;\nvarying float vShore;\nvarying vec2 vW;')
+        .replace('#include <common>', '#include <common>\nuniform float uTime, uWave, uEdge, uBank;\nuniform vec3 uShallow;\nvarying float vShore;\nvarying vec2 vW;')
         .replace('#include <color_fragment>', `#include <color_fragment>
           float sd = vShore;
           float wob = sin(vW.x * 0.33 + uTime * 0.7) * sin(vW.y * 0.29 - uTime * 0.5);       // -1..1, breaks up straight lines
@@ -731,7 +736,7 @@ export class World {
           float l1 = (1.0 - smoothstep(0.0, 0.5, abs(sd - (1.0 - p1) * 10.0 + wob * 0.9))) * smoothstep(0.0, 0.25, p1);
           float l2 = (1.0 - smoothstep(0.0, 0.5, abs(sd - (1.0 - p2) * 10.0 - wob * 0.9))) * smoothstep(0.0, 0.25, p2);
           float edge = 1.0 - smoothstep(0.2, 1.1 + wob * 0.4, sd);
-          float foam = clamp(edge * uEdge + (l1 + l2) * uWave, 0.0, 1.0);
+          float foam = clamp(edge * uEdge + (l1 + l2) * uWave + uBank * (1.0 - smoothstep(-4.5, -1.5, sd)), 0.0, 1.0);
           diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), foam);
           diffuseColor.a = max(mix(0.62, 0.93, smoothstep(0.0, 7.0, sd)), foam * 0.95);`);
     };
@@ -781,8 +786,12 @@ export class World {
     const padSign = this._textSprite('⬇ 🥚 ⬇', '#0d2240', '#2ee6c0', 256);
     padSign.position.set(PAD.x, HY + 3.2, PAD.z); padSign.scale.set(2.6, 1.3, 1); s.add(padSign); this.padSign = padSign;
     // beacon over the base, visible from everywhere
-    const beacon = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 2.2, 120, 16, 1, true).translate(0, 60, 0),
-      new THREE.MeshBasicMaterial({ color: 0x2ee6c0, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false }));
+    // (world step 4: slimmer and fading out with the height, like the egg beams; it is
+    // widened with the distance in update(), so it still shows the way home from afar)
+    const bg = new THREE.CylinderGeometry(0.55, 0.95, 110, 14, 8, true).translate(0, 55, 0);
+    { const p = bg.attributes.position, c = new Float32Array(p.count * 3); for (let i = 0; i < p.count; i++) c.fill(Math.pow(1 - p.getY(i) / 110, 0.9), i * 3, i * 3 + 3); bg.setAttribute('color', new THREE.BufferAttribute(c, 3)); }
+    const beacon = new THREE.Mesh(bg,
+      new THREE.MeshBasicMaterial({ color: 0x2ee6c0, vertexColors: true, transparent: true, opacity: 0.42, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false }));
     beacon.position.set(PAD.x, HY, PAD.z); s.add(beacon); this.beacon = beacon;
     // Incubators and pens appear when bought. Their solid parts are kept as painted
     // geometry (relative to HOME) and merged into ONE mesh for all owned ones
@@ -1096,12 +1105,13 @@ export class World {
       c.bulb.material.color.setHex(c.egg ? 0xffd27a : 0x8a7a5a);
     }
     // the beacon would tint the whole view when you stand inside it
-    this.beacon.visible = this.camera.position.distanceTo(PAD) > 14;
+    { const d = this.camera.position.distanceTo(PAD), k = Math.min(3.2, Math.max(1, d / 45)); this.beacon.visible = d > 14; this.beacon.scale.set(k, 1, k); }
     this.padRing.scale.setScalar(1 + Math.sin(this.time * 3) * 0.04);
     this.padSign.position.y = HY + 3.2 + Math.sin(this.time * 2.5) * 0.2;
     // only while carrying eggs (set by main), and not right in front of the camera
     this.padSign.visible = !!this.wantPadSign && this.camera.position.distanceTo(this.padSign.position) > 7;
     this.waterTime.value = this.time;
+    wind.time.value = this.time; // leaves, grass and palms sway (merge.js)
     this.water.position.y = WATER_Y + Math.sin(this.time * 0.9) * 0.03; // the sea laps at the sand
     this.lava.material.map.offset.y = this.time * 0.22; // the lava creeps downhill
     { const k = 1 + Math.sin(this.time * 2) * 0.07; this.lava.material.color.setRGB(1.5 * k, 1.25 * k, 1.1 * k); }

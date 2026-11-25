@@ -10,10 +10,13 @@
 //   fire, fireflies.
 // Beach: a bay with a walkable pier, palms along the dunes, a shipwreck on the rocks,
 //   parasols and towels, sandcastles, boats, a treasure dig, an islet, seagulls, a
-//   pirate ship at anchor in the bay mouth, the lighthouse on the north headland.
+//   pirate ship at anchor in the bay mouth, the lighthouse on the north headland,
+//   a lookout tower, shells and starfish on the wet sand, buoys around the swimming
+//   water (world step 4).
 // Volcano: stone heads guarding it, glowing crystals, smoke from the crater, embers
 //   over the lava streams.
-// Sea: three tiny islands, a few rock stacks. Sky: drifting clouds.
+// Sea: three tiny islands, a few rock stacks, two sailing boats circling the island,
+//   jumping fish and splash rings (waterlife.js). Sky: drifting clouds.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { ZONES, ISLAND, HOME } from './balance.js';
@@ -21,6 +24,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { height, terrainH, groundH, zoneAt, pathDist, POND, pondPoint, PATHS, FORK, WATER_Y, glowTex, BAY, PIER, ISLET, bayPoint, beachW,
   HATCHERY, DECK, CAMP, HILL, FIELD, RUIN, BRIDGE, bridgeTop, LIGHT, ISLETS, LAVA_ANGLES, lavaPoint, LAVA_RIM, LAVA_END } from './world.js';
 import { paint, paintMat } from './merge.js';
+import { WaterLife } from './waterlife.js';
 import { rng } from './creatures.js';
 import { t } from './i18n.js';
 
@@ -32,6 +36,7 @@ add('pirate', 'glb', ['palm-detailed-bend', 'palm-detailed-straight', 'palm-bend
   'barrel', 'crate', 'chest', 'flag-pirate-high', 'rocks-sand-a', 'rocks-sand-b', 'tower-complete-small',
   'palm-straight', 'rocks-a', 'rocks-b', 'rocks-c', 'boat-row-large', 'bottle', 'tool-shovel', 'hole']);
 add('survival', 'glb', ['signpost', 'bedroll']);
+add('watercraft', 'glb', ['boat-sail-a', 'boat-sail-b', 'buoy', 'buoy-flag']); // (Kenney Watercraft Kit, world step 4)
 add('playground', 'gltf', ['swing_A_large', 'slide_A', 'seesaw_large', 'merry_go_round', 'sandbox_round_decorated', 'spring_horse_A',
   'sandcastle_A', 'sandcastle_B', 'sandcastle_C', 'picnic_table']);
 add('picnic', 'gltf', ['picnic_blanket_red', 'picnic_basket_round', 'teapot', 'apple', 'sandwich', 'pillow_large_blue']);
@@ -124,7 +129,7 @@ export async function buildDecor(world) {
       const s = p.h / c.h;
       if (p.ry === undefined) burn += c.parts - 1;
       m4.compose(v3.set(p.x, (p.y ?? height(p.x, p.z)) - c.minY * s, p.z), q.setFromAxisAngle(up, p.ry ?? R() * 6.28), sc.setScalar(s));
-      if (c.q) world.batch.addQ(c, m4, p.tint !== undefined ? { ...o, tint: p.tint } : o); else world.batch.addModel(c.scene, m4, o);
+      if (c.q) world.batch.addQ(c, m4, p.tint !== undefined ? { ...o, tint: p.tint } : o); else world.batch.addModel(c.scene, m4, o.sway ? { ...o, swayH: p.h } : o);
     }
     // (the old code drew one random number per model PART; use up the same amount, so
     // every later random placement stays exactly where it was)
@@ -309,7 +314,7 @@ export async function buildDecor(world) {
   }
   for (const [ang, s] of [[-0.6, 10.5], [0.56, 10], [1.0, 12.5]]) palm(...bayPoint(ang, s), 6.5 + R() * 2);
   palm(ISLET.x + 1.2, ISLET.z - 0.8, 7.5); palm(ISLET.x - 1.6, ISLET.z + 1.4, 5.5);
-  for (const [n, pts] of Object.entries(palms)) inst(n, pts);
+  for (const [n, pts] of Object.entries(palms)) inst(n, pts, { sway: 'palm' }); // (they sway in the wind, see merge.js)
   // dune grass where the sand ends, sand-coloured rocks between the palms
   const tufts = { Grass_Common_Short: [], Grass_Wispy_Short: [] };
   for (let i = 0; i < 60; i++) {
@@ -335,6 +340,25 @@ export async function buildDecor(world) {
   const ship = put('ship-pirate-large', BAY.x + 24, BAY.z - 26, { w: 22, ry: -1.0, y: WATER_Y - 2.2, live: true });
   if (ship) { const y0 = ship.position.y; life.push((dt, time) => { ship.position.y = y0 + Math.sin(time * 0.8) * 0.25; ship.rotation.z = Math.sin(time * 0.6) * 0.04; ship.rotation.x = Math.sin(time * 0.5 + 1) * 0.03; }); }
   life.push(seagulls(S, BAY.x - 16, BAY.z, R));
+  // ── world step 4: beach extras + water life (own random stream: nothing above moves) ──
+  {
+    const RB = rng('beach-extras');
+    // a lookout tower on the dry sand between the pier and the middle of the beach, looking out over the bay
+    const [lx, lz] = bayPoint(-0.17, 17.5);
+    lookout(world, lx, lz, Math.atan2(-(BAY.z - lz), BAY.x - lx));
+    shells(world, RB, clear, offPier);
+    // buoys: a line around the swimming water (just beyond where you can wade), two flag buoys at the bay's mouth
+    const buoy = (n, ang, s, h) => {
+      let [x, z] = s === null ? ang : bayPoint(ang, s);
+      for (let k = 0; k < 8 && terrainH(x, z) > WATER_Y - 0.5; k++) [x, z] = bayPoint(ang, s -= 1.5); // (deep enough to float: off the sandbar)
+      put(n, x, z, { h, ry: RB() * 6.28, y: WATER_Y - 0.3 * h / 1.84 - 0.02, sway: 'buoy', swayH: h }); world.addCollider(x, z, 0.6);
+    };
+    for (const ang of [-0.78, -0.56, -0.12, 0.1, 0.32, 0.54]) buoy('buoy', ang, -8.5 - RB() * 1.5, 1.5);
+    buoy('buoy-flag', [BAY.x + 8, BAY.z - 15], null, 3.2); buoy('buoy-flag', [BAY.x + 12, BAY.z + 15], null, 3.2);
+    const wl = world.waterLife = new WaterLife(world);
+    life.push((dt, time) => wl.update(dt, time));
+    life.push(sailboats(world, put));
+  }
 
   // ── volcano: stone heads guarding it, glowing crystals, smoke ──
   const V = Z.volcano;
@@ -373,8 +397,8 @@ export async function buildDecor(world) {
       for (const [dx, dz, s0, sy] of [[0, 0, 2.0, 1.5], [2.4, 1.0, 1.3, 1.0], [-2.0, -1.4, 1.1, 0.8]]) { const [x, y, z] = at(dx, dz); Qp(`Rock_Lo_${1 + Math.floor(R() * 3)}`, x, y - 0.5, z, R() * 6.28, [s0, s0 * sy, s0], { mul: 0xe6e2d8 }); }
       const [x, y, z] = at(-0.8, 2.6); Qp('DeadTree_2', x, y - 0.1, z, 0.5, 0.42, {});
     } else { // palms
-      inst('palm-detailed-bend', [{ x: I.x + 0.6, z: I.z - 0.4, h: 7.5 }, { x: I.x - 1.8, z: I.z + 1.2, h: 5.8 }], {});
-      inst('palm-straight', [{ x: I.x + 2.0, z: I.z + 1.6, h: 6.4 }], {});
+      inst('palm-detailed-bend', [{ x: I.x + 0.6, z: I.z - 0.4, h: 7.5 }, { x: I.x - 1.8, z: I.z + 1.2, h: 5.8 }], { sway: 'palm' });
+      inst('palm-straight', [{ x: I.x + 2.0, z: I.z + 1.6, h: 6.4 }], { sway: 'palm' });
       const [x, y, z] = at(-2.6, -1.8); Qp('Rock_Lo_3', x, y - 0.3, z, 2, 0.9, { mul: 0xe6e2d8 });
     }
   });
@@ -544,6 +568,92 @@ function buildPier(world, put) {
   return (dt, time) => {
     if (boat) { boat.position.y = WATER_Y - 0.28 + Math.sin(time * 1.1) * 0.05; boat.rotation.z = Math.sin(time * 0.9) * 0.05; }
     lamp.material.opacity = 0.6 + Math.sin(time * 5) * 0.08;
+  };
+}
+
+// ── world step 4 ──
+// A lookout tower on the beach (built in code, the parasols' colours): four legs, a
+// deck with a railing, a white cabin with a coral roof, a ladder, a flag, a life ring.
+// Front = local +x; ry turns it. One painted geometry in the static batch.
+function lookout(world, x, z, ry) {
+  const y = groundH(x, z), parts = [];
+  const WOOD = 0xc68a52, DARK = 0x9a6236, WHITE = 0xfff6e6, CORAL = 0xff8585, TEAL = 0x2ee6c0, AMBER = 0xffcf5e;
+  const b = (w, h, d, hex, px, py, pz, rz = 0, rx = 0) => parts.push(paint(new THREE.BoxGeometry(w, h, d), hex).rotateZ(rz).rotateX(rx).translate(px, py, pz));
+  const D = 2.6; // deck height
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) b(0.22, D + 0.9, 0.22, DARK, sx * 1.3, (D - 0.9) / 2 + 0.2, sz * 1.3, sx * 0.07, -sz * 0.07); // legs, a little splayed, sunk in the sand
+  for (const sz of [-1, 1]) { b(3.2, 0.1, 0.1, DARK, 0, 1.3, sz * 1.36, 0.62); b(3.2, 0.1, 0.1, DARK, 0, 1.3, sz * 1.36, -0.62); } // cross braces
+  b(3.5, 0.16, 3.5, WOOD, 0, D, 0);                                             // the deck
+  for (let i = 0; i < 6; i++) b(0.04, 0.17, 3.5, DARK, -1.75 + 0.5 + i * 0.5, D, 0); // gaps between the planks
+  // cabin at the back: white boards, a coral band, an open window to the sea
+  b(1.9, 1.7, 2.5, WHITE, -0.7, D + 0.93, 0); b(1.94, 0.3, 2.54, CORAL, -0.7, D + 0.55, 0);
+  b(0.06, 0.75, 1.5, 0x35506e, 0.26, D + 1.25, 0); b(0.1, 0.08, 1.7, WOOD, 0.3, D + 0.85, 0);
+  b(3.2, 0.12, 3.3, CORAL, -0.2, D + 2.0, 0, -0.16); b(3.24, 0.06, 0.5, WHITE, -0.2, D + 2.07, -0.8, -0.16); b(3.24, 0.06, 0.5, WHITE, -0.2, D + 2.07, 0.8, -0.16); // the roof slopes to the back, two white stripes
+  // railing round the front half
+  for (const [px, pz] of [[1.65, -1.65], [1.65, 1.65], [1.65, 0], [0.5, -1.65], [0.5, 1.65]]) b(0.1, 0.95, 0.1, DARK, px, D + 0.5, pz);
+  b(0.08, 0.08, 3.4, WOOD, 1.65, D + 0.95, 0); for (const sz of [-1, 1]) b(1.25, 0.08, 0.08, WOOD, 1.05, D + 0.95, sz * 1.65);
+  b(0.05, 0.05, 3.4, WOOD, 1.65, D + 0.5, 0);
+  // ladder up the south side
+  const L = Math.hypot(D, 1.1);
+  for (const dx of [-0.32, 0.32]) b(0.08, L + 0.5, 0.08, DARK, 0.9 + dx, D / 2 + 0.1, 2.3, 0, -Math.atan2(1.1, D));
+  for (let i = 1; i <= 6; i++) { const k = i / 7; b(0.6, 0.06, 0.1, WOOD, 0.9, D * k, 2.85 - 1.1 * k); }
+  // a flag on the roof, a life ring on the cabin's side
+  b(0.06, 1.5, 0.06, DARK, -1.3, D + 2.9, 0); b(0.8, 0.45, 0.03, AMBER, -0.88, D + 3.4, 0);
+  const ring = paint(new THREE.TorusGeometry(0.34, 0.11, 6, 12).rotateY(0), CORAL); { const c = ring.attributes.color, p = ring.attributes.position; for (let i = 0; i < c.count; i++) if (Math.abs(p.getX(i)) < 0.17 || Math.abs(p.getY(i)) < 0.17) c.setXYZ(i, 1, 1, 1); }
+  parts.push(ring.translate(-0.7, D + 1.2, 1.3));
+  b(0.5, 0.5, 0.5, TEAL, 1.2, D + 0.33, -1.2); // a crate to sit on
+  const m = new THREE.Matrix4().makeTranslation(x, y, z).multiply(new THREE.Matrix4().makeRotationY(ry));
+  world.batch.addPainted(mergeGeometries(parts).applyMatrix4(m), x, z);
+  world.addCollider(x, z, 2.1);
+}
+// Shells and starfish on the wet sand, the dry beach and the islet (painted, static batch).
+function shells(world, R, clear, offPier) {
+  const star = (r, hex) => { // five arms, a raised middle
+    const pos = [], c = new THREE.Color(hex), col = [];
+    const ring = Array.from({ length: 10 }, (_, i) => { const a = i / 10 * 6.283, d = i % 2 ? r * 0.42 : r; return [Math.cos(a) * d, i % 2 ? 0.03 : 0, Math.sin(a) * d]; });
+    for (let i = 0; i < 10; i++) { pos.push(0, r * 0.28, 0, ...ring[(i + 1) % 10], ...ring[i]); const k = i % 2 ? 0.85 : 1; col.push(c.r * 1.15, c.g * 1.15, c.b * 1.15, c.r * k, c.g * k, c.b * k, c.r * k, c.g * k, c.b * k); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals();
+    return g;
+  };
+  const scallop = (r, hex) => { // a ribbed fan, tilted up a little
+    const pos = [], c = new THREE.Color(hex), col = [], n = 7;
+    const rim = Array.from({ length: n + 1 }, (_, i) => { const a = -1.15 + i / n * 2.3; return [Math.sin(a) * r, 0.02 + (i % 2 ? r * 0.16 : r * 0.05), Math.cos(a) * r]; });
+    for (let i = 0; i < n; i++) { pos.push(0, r * 0.3, -r * 0.15, ...rim[i], ...rim[i + 1]); const k = i % 2 ? 0.8 : 1; col.push(c.r, c.g, c.b, c.r * k, c.g * k, c.b * k, c.r * k, c.g * k, c.b * k); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals();
+    return g;
+  };
+  const snail = (r, hex) => { const g = paint(new THREE.ConeGeometry(r * 0.55, r * 1.7, 6).rotateZ(1.25).translate(0, r * 0.45, 0), hex, true); return g; };
+  const STAR = [0xff8585, 0xff9d5c, 0xffcf5e, 0xf2748f], SHELL = [0xfff3e2, 0xffd9cc, 0xf6cfe2, 0xffe9b8];
+  const m4 = new THREE.Matrix4(), ry = new THREE.Matrix4();
+  let n = 0;
+  const place = (x, z) => {
+    const y = terrainH(x, z); if (y < WATER_Y - 0.22 || beachW(x, z) < 0.5 || !clear(x, z, 0.5) || !offPier(x, z) || pathDist(x, z) < 2) return;
+    const k = R(), g = k < 0.4 ? star(0.2 + R() * 0.12, STAR[Math.floor(R() * 4)]) : k < 0.8 ? scallop(0.15 + R() * 0.09, SHELL[Math.floor(R() * 4)]) : snail(0.13 + R() * 0.06, SHELL[Math.floor(R() * 4)]);
+    world.batch.addPainted(g.applyMatrix4(m4.makeTranslation(x, groundH(x, z) + 0.015, z).multiply(ry.makeRotationY(R() * 6.283))), x, z); n++;
+  };
+  for (let i = 0; i < 46; i++) place(...bayPoint(-1.05 + R() * 2.1, -1.5 + R() * R() * 16)); // most of them near the waterline
+  for (let i = 0; i < 6; i++) { const a = R() * 6.283, d = 1.5 + R() * 3.5; place(ISLET.x + Math.cos(a) * d, ISLET.z + Math.sin(a) * d); }
+  world.shellCount = n; // (for QA)
+}
+// Two sailing boats (Kenney Watercraft Kit) circle the island far out, one each way.
+// Each is one mesh (one draw call while in view, no shadow). From the nearest coast
+// they are 50–70 m away; from the far side of the island they fade into the horizon haze.
+function sailboats(world, put) {
+  const boats = [['boat-sail-a', 178, 2.6, 0.2, 3.2], ['boat-sail-b', 193, -2.0, 3.5, 2.9]].map(([n, r, v, a, s]) => {
+    const m = put(n, 0, 0, { s, ry: 0, y: WATER_Y - 0.2 * s, live: true }); if (!m) return null;
+    m.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+    m.rotation.order = 'YXZ';
+    return { m, r, w: v / r, a, y: m.position.y };
+  }).filter(Boolean);
+  world.sailboats = boats; // (for QA: set .a to move one)
+  return (dt, time) => {
+    for (const b of boats) {
+      b.a += b.w * dt;
+      const r = b.r * (1 + 0.035 * Math.sin(b.a * 3 + b.r)), s = Math.sign(b.w);
+      b.m.position.set(ISLAND.cx + Math.cos(b.a) * r, b.y + Math.sin(time * 0.9 + b.r) * 0.14, ISLAND.cz + Math.sin(b.a) * r);
+      b.m.rotation.y = Math.atan2(-Math.sin(b.a) * s, Math.cos(b.a) * s); // bow (+z) along the course
+      b.m.visible = b.m.position.distanceTo(world.camera.position) < world.scene.fog.far + 12; // (further away it is lost in the haze anyway)
+      b.m.rotation.z = 0.07 + Math.sin(time * 0.7 + b.r) * 0.04; b.m.rotation.x = Math.sin(time * 1.1 + b.r) * 0.03; // heeling in the wind, pitching on the swell
+    }
   };
 }
 
