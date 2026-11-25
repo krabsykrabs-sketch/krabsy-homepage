@@ -90,6 +90,20 @@ Technical notes:
 5. Classes (phase 2): store the figure with the pupil, so it follows them
    to another device.
 
+Owner idea (2026-11-25): the figure becomes the main character in **all**
+3D games (Quiz-Raum, Verb Hatchery, Verb Platformer, Verb Valley, Verb
+Kitchen, Verb Dungeon — all already on Rig_Medium), plus points across all
+games to unlock characters and accessories. **Verb Towers** gets a main
+character too: the child's figure as the builder who walks over and builds
+the towers. **Written up: `docs/figures-shells-world.md`** (figure in all 3D games, shells, Krabsy world).
+
+Owner idea (2026-11-25, "eventually"): the landing page as a **3D world**
+where the child walks with their figure to the different games. Notes for
+the brief: keep the normal HTML pages as they are (teachers, search engines,
+slow devices, screen readers) and make the 3D world an extra entrance
+("Krabsy-Welt"), loaded only on demand; it's the natural home for the
+figure and the points (shop, unlocks).
+
 ## Owner feedback
 
 Batch 1 (2026-11-25) — **done** in v2: rotation button; "not all
