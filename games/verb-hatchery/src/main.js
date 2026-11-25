@@ -216,7 +216,7 @@ function updateTutorial(dt) {
   if (tut.step === 5) {
     tutArrow.visible = false; tutSay('tut6');
     if (tut.t > 8) {
-      tut = null; st.tutDone = true; evtTimer = EVENTS.first; save();
+      tut = null; st.tutDone = true; evtTimer = EVENTS.first; save(); setTimeout(startDaily, 4000);
       $('coach').classList.remove('on'); world.scene.remove(tutArrow);
       A.ev('tutorial', { step: 6 });
     }
@@ -262,6 +262,41 @@ function endEvent(result) {
   evtTimer = EVENTS.gap[0] + Math.random() * (EVENTS.gap[1] - EVENTS.gap[0]);
   $('evBanner').classList.remove('on');
 }
+// ── the daily egg: once a day a special egg that hatches a creature you haven't found ──
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+function spawnDaily(id) {
+  const c = ENTRY(id), zone = ZONES.find((z) => z.id === c.zone);
+  const spot = randomSpot(zone); if (!spot) return null;
+  const obj = world.makeWildEgg(c.rarity, spot[0], spot[1], { event: true });
+  const e = { obj, rarity: c.rarity, zone, x: spot[0], z: spot[1], id: eggId++, event: true, daily: id };
+  wild.push(e);
+  return e;
+}
+function startDaily() {
+  if (!st.tutDone || st.dailyDay === today() || wild.some((e) => e.daily)) return;
+  const missing = ROSTER.filter((c) => !st.book[c.id] && isOpen(ZONES.find((z) => z.id === c.zone)) && c.rarity !== 'legendary');
+  if (!missing.length) return;
+  const pick = missing[Math.floor(Math.random() * missing.length)];
+  if (spawnDaily(pick.id)) {
+    setTimeout(() => { toast(`🎁 ${t('dailyEgg', zName(ZONES.find((z) => z.id === pick.zone)))}`, 'star'); sfx.star(); }, 1500);
+    A.ev('daily_egg', { zone: pick.zone, rarity: pick.rarity });
+  }
+}
+// creatures grow with their level; a level-up pops a message over them
+function applyLevels() {
+  const now = Date.now();
+  const one = (c, cr, at) => {
+    if (!c || !cr) return;
+    const lv = S.creatureLevel(c, now);
+    if (cr.userData.base === undefined) cr.userData.base = cr.scale.x;
+    cr.scale.setScalar(cr.userData.base * (1 + 0.06 * (lv - 1)));
+    if (cr.userData.lv && lv > cr.userData.lv && at) { floatAt(at, `⬆ ${t('levelUp', lv)}`, true); sfx.ding(); }
+    cr.userData.lv = lv;
+  };
+  st.pens.forEach((c, i) => one(c, world.pens[i].creature, PEN_POS[i].clone().setY(PEN_POS[i].y + 3)));
+  st.hall.forEach((c, i) => one(c, hall.slots[i] && hall.slots[i].creature, null));
+}
+
 // ── crab raids on the base (raid.js) ──
 function updateRaid(dt, paused) {
   const ev = raids.update(dt, { st, px: player.pos.x, pz: player.pos.z, indoor: !!player.indoor, tutorial: !!tut, paused });
@@ -649,7 +684,8 @@ function closeCard(ok) {
   renderHud();
 }
 function pickedUp(e) {
-  const res = S.pickUp(st, e.rarity, e.zone.id);
+  const res = S.pickUp(st, e.rarity, e.zone.id, e.daily);
+  if (res && e.daily) { st.dailyDay = today(); A.ev('daily_egg', { result: 'grabbed' }); }
   preload(creaturesOf(e.zone.id).map((c) => c.id)); // (their models load while the player walks home)
   if (!res) { eggRollsAway(e); return; }
   A.ev('egg_grabbed', { rarity: e.rarity, zone: e.zone.id, streak: st.stats.streak, carry: st.carry.length });
@@ -688,6 +724,7 @@ function eggRollsAway(e) {
     if (k > 0.7) egg.scale.setScalar(1.25 * (1 - (k - 0.7) / 0.3));
   }, () => world.scene.remove(e.obj));
   // a special egg is not lost: it rolls off and waits somewhere else in its zone
+  if (e.daily) { spawnDaily(e.daily); return; }
   if (e.event && evt && evt.egg === e) {
     const again = spawnEventEgg(e.zone);
     if (again) { evt.egg = again; toast(t('evMoved', zName(e.zone))); } else endEvent('lost');
@@ -863,7 +900,8 @@ function showCreature(where, i) {
   $('ciImg').src = portrait(c.sp);
   $('ciName').textContent = speciesName(c.sp);
   $('ciR').textContent = rName(r); $('ciR').style.background = RARITY[r].css;
-  $('ciEarn').textContent = t('earns', fmtRate(S.speciesIncome(c.sp) * (where === 'hall' ? 1.5 : 1)));
+  const lv = S.creatureLevel(c);
+  $('ciEarn').textContent = `${t('levelShort', lv)} ${'★'.repeat(lv)}${'☆'.repeat(5 - lv)} · ${t('earns', fmtRate(S.creatureIncome(c) * (where === 'hall' ? 1.5 : 1)))}`;
   $('ciRelease').textContent = t('toBook');
   $('ciAsk').textContent = t('toBookAsk');
   openPanel('creatureInfo');
@@ -992,7 +1030,7 @@ function frame(now) {
       if (p.nextCoin <= 0) {
         p.nextCoin = 3 + Math.random() * 1.5;
         if (player.pos.distanceTo(PEN_POS[i]) < 25) {
-          floatAt(PEN_POS[i].clone().setY(PEN_POS[i].y + 2.6), `+${fmt(S.speciesIncome(st.pens[i].sp) * 3)}`);
+          floatAt(PEN_POS[i].clone().setY(PEN_POS[i].y + 2.6), `+${fmt(S.creatureIncome(st.pens[i]) * 3)}`);
           sfx.plink();
         }
       }
@@ -1068,7 +1106,7 @@ function frame(now) {
     $('jumpBtn').classList.toggle('on', !paused);
     // timers
     saveT += dt; if (saveT > 5) { saveT = 0; save(); }
-    goalT += dt; if (goalT > 0.4) { goalT = 0; checkGoals(); renderHud(); }
+    goalT += dt; if (goalT > 0.4) { goalT = 0; checkGoals(); renderHud(); applyLevels(); }
     mapT += dt; if (mapT > 0.1) {
       mapT = 0;
       map.draw({ player: player.pos, yaw: player.yaw, eggs: wild, thieves: thieves.list, isOpen, carrying: st.carry.length > 0, raid: raids.info() });
@@ -1153,6 +1191,7 @@ $('playBtn').addEventListener('click', () => {
   if (away.coins >= 1) floatCenter(`+${fmt(away.coins)}`);
   renderHud(); renderGoals(true);
   startTutorial();
+  startDaily();
   A.levelStart(st.goals.stars + 1);
   A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
     away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st) });
@@ -1186,6 +1225,7 @@ if (DEBUG) {
     act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
     raids, startRaid() { raids.timer = 0; },
     skipTut() { if (tut) { tut = null; st.tutDone = true; $('coach').classList.remove('on'); world.scene.remove(tutArrow); evtTimer = EVENTS.first; } },
+    startDaily, get daily() { return wild.find((e) => e.daily); },
     sync: syncWorld, open: openPanel, get evt() { return evt; }, startEvent, evtIn(sec) { evtTimer = sec; },
     toEvent() { if (!evt) return null; this.tp(evt.egg.x, evt.egg.z + 3); player.lookAtPoint(evt.egg.x, evt.egg.z); return evt.zone.id; }, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
   };

@@ -1,7 +1,7 @@
 // Game state and rules: pure data, no drawing. Saved to localStorage.
 // Every number comes from balance.js.
 import {
-  RARITIES, RARITY, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, GOLDEN, HALL, MAX_HALL,
+  RARITIES, RARITY, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, GOLDEN, HALL, MAX_HALL, LEVEL,
   START, UPGRADES, MAX_PENS, MAX_INCUBATORS, price, GOALS, GOALS_SHOWN, endlessGoal,
 } from './balance.js';
 
@@ -16,8 +16,9 @@ export function newState(now = Date.now()) {
     v: VERSION, coins: 0, earned: 0, lastSave: now, created: now,
     up: { pen: 0, incubator: 0, hatchSpeed: 0, shoes: 0, backpack: 0 },
     carry: [],                                  // eggs in the backpack: { r: rarity, z: zone id }
-    look: 'A',
-    tutDone: false,                             // the first-minutes guidance was done                                  // which character (player.js LOOKS)
+    look: 'A',                                  // which character (player.js LOOKS)
+    tutDone: false,                             // the first-minutes guidance was done
+    dailyDay: '',                               // the day the daily egg was taken
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
     hall: Array(MAX_HALL).fill(null),          // Hall of Fame pedestals: { sp } or null
     incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, zone, start, dur, sp? }
@@ -65,10 +66,16 @@ export function speciesIncome(sp) {
 }
 export function cps(s) {
   let c = 0;
-  for (let i = 0; i < pensOwned(s); i++) if (s.pens[i]) c += speciesIncome(s.pens[i].sp);
-  for (let i = 0; i < hallOwned(s); i++) if (s.hall[i]) c += speciesIncome(s.hall[i].sp) * HALL.bonus;
+  for (let i = 0; i < pensOwned(s); i++) if (s.pens[i]) c += creatureIncome(s.pens[i]);
+  for (let i = 0; i < hallOwned(s); i++) if (s.hall[i]) c += creatureIncome(s.hall[i]) * HALL.bonus;
   return c;
 }
+// a placed creature { sp, since }: its level (1–LEVEL.max) and income with the level bonus
+export function creatureLevel(c, now = Date.now()) {
+  if (!c) return 1;
+  return Math.min(LEVEL.max, 1 + Math.floor((now - (c.since || now)) / (LEVEL.minutes * 60e3)));
+}
+export const creatureIncome = (c, now) => speciesIncome(c.sp) * (1 + LEVEL.bonus * (creatureLevel(c, now) - 1));
 export function addCoins(s, n) { s.coins += n; s.earned += n; }
 
 // Income for dt seconds of play.
@@ -99,9 +106,9 @@ export const backpackSize = (s) => START.backpack + s.up.backpack;
 export const speedFactor = (s) => Math.pow(UPGRADES.shoes.factor, s.up.shoes);
 
 // A right answer: the egg goes into the backpack. Returns the bonus, or null if full.
-export function pickUp(s, rarity, zone) {
+export function pickUp(s, rarity, zone, pick) {
   if (s.carry.length >= backpackSize(s)) return null;
-  s.carry.push({ r: rarity, z: zone });
+  s.carry.push(pick ? { r: rarity, z: zone, pick } : { r: rarity, z: zone });
   s.stats.grabbed++; s.stats.grabbedR[rarity]++;
   const bonus = Math.round(Math.max(RARITY[rarity].grabBonus, GRAB_BONUS_SECONDS * cps(s)));
   addCoins(s, bonus);
@@ -127,8 +134,8 @@ export function deliver(s, now = Date.now()) {
   while (s.carry.length) {
     const i = freeIncubator(s);
     if (i < 0) break;
-    const { r: rarity, z: zone } = s.carry.pop();
-    s.incubators[i] = { rarity, zone, start: now, dur: hatchDuration(s, rarity) * 1000 };
+    const { r: rarity, z: zone, pick } = s.carry.pop();
+    s.incubators[i] = { rarity, zone, pick, start: now, dur: hatchDuration(s, rarity) * 1000 };
     s.stats.home++;
     out.push({ index: i, rarity });
   }
@@ -155,10 +162,11 @@ export function hatch(s, i, rnd = Math.random) {
     // a creature of the egg's zone with the egg's rarity (if the zone has none of that
     // rarity: the nearest one below, then above); now and then a golden one
     const zone = inc.zone || 'meadow', ri = RARITIES.indexOf(inc.rarity);
+    // (the daily egg hatches a fixed creature you haven't found yet)
     let pool = [];
     for (const d of [0, -1, -2, -3, -4, 1, 2, 3, 4]) { const r = RARITIES[ri + d]; if (r && (pool = creaturesOf(zone, r)).length) break; }
     if (!pool.length) pool = creaturesOf(zone);
-    const pick = pool[Math.floor(rnd() * pool.length)];
+    const pick = (inc.pick && BY_ID[inc.pick]) || pool[Math.floor(rnd() * pool.length)];
     const golden = rnd() < GOLDEN.chance;
     sp = pick.id + (golden ? '*' : '');
     isNew = golden ? !(s.gold || {})[pick.id] : !s.book[pick.id];
@@ -168,7 +176,7 @@ export function hatch(s, i, rnd = Math.random) {
   }
   const pen = freePen(s);
   if (pen < 0) { inc.sp = sp; return { sp, isNew, pen: -1, rarity: inc.rarity, waiting: true }; }
-  s.pens[pen] = { sp };
+  s.pens[pen] = { sp, since: Date.now() };
   s.incubators[i] = null;
   return { sp, isNew, pen, rarity: inc.rarity, waiting: false };
 }
@@ -195,7 +203,7 @@ export function available(s) {
 export function place(s, where, i, sp) {
   const list = where === 'hall' ? s.hall : s.pens;
   if (list[i] || placedSet(s).has(sp) || !s.book[baseId(sp)]) return false;
-  list[i] = { sp };
+  list[i] = { sp, since: Date.now() };
   return true;
 }
 export function toBook(s, where, i) {

@@ -2,6 +2,8 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    dailyEgg: (z) => `Daily egg! Find it in the ${z}: it hatches a creature you haven't found yet.`,
+    levelUp: (n) => `Level ${n}!`, levelShort: (n) => `Level ${n}`,
     raidStart: 'A crab is sneaking into your hatchery! Hurry home!', raidOn: 'Crab in your hatchery!', raidRun: 'The crab runs off with your egg! Catch it!',
     raidStolen: 'The crab grabbed an egg from your incubator! Catch it!', raidDefended: 'Hatchery defended!',
     wordsTitle: 'Words to practise', wordsHow: 'answer each one right twice and it leaves the list', wordsNone: 'No words to practise right now. Great!',
@@ -91,6 +93,8 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    dailyEgg: (z) => `Ei des Tages! Es liegt hier: ${z}. Daraus schlüpft ein Wesen, das du noch nicht hast.`,
+    levelUp: (n) => `Stufe ${n}!`, levelShort: (n) => `Stufe ${n}`,
     raidStart: 'Eine Krabbe schleicht in deine Brüterei! Schnell nach Hause!', raidOn: 'Krabbe in deiner Brüterei!', raidRun: 'Die Krabbe läuft mit deinem Ei weg! Fang sie!',
     raidStolen: 'Die Krabbe hat ein Ei aus dem Brutkasten geschnappt! Fang sie!', raidDefended: 'Brüterei verteidigt!',
     wordsTitle: 'Wörter zum Üben', wordsHow: 'zweimal richtig beantwortet – dann verschwindet es', wordsNone: 'Gerade keine Wörter zum Üben. Super!',
@@ -180,6 +184,8 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    dailyEgg: (z) => `¡Huevo del día! Está en: ${z}. De él nace una criatura que aún no tienes.`,
+    levelUp: (n) => `¡Nivel ${n}!`, levelShort: (n) => `Nivel ${n}`,
     raidStart: '¡Un cangrejo se cuela en tu criadero! ¡Corre a casa!', raidOn: '¡Cangrejo en tu criadero!', raidRun: '¡El cangrejo huye con tu huevo! ¡Atrápalo!',
     raidStolen: '¡El cangrejo robó un huevo de tu incubadora! ¡Atrápalo!', raidDefended: '¡Criadero defendido!',
     wordsTitle: 'Palabras para practicar', wordsHow: 'respóndela bien dos veces y sale de la lista', wordsNone: '¡Ahora no hay palabras para practicar. Genial!',

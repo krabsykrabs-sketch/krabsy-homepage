@@ -70,6 +70,10 @@ export const THIEF = {
   fleeTime: 10,        // seconds a crab runs with a stolen egg before it gets away
 };
 
+// Creatures level up while they stay in a pen or on a pedestal (real time, also while
+// away): one level per `minutes`, up to `max`; each level adds `bonus` to the income.
+export const LEVEL = { minutes: 15, max: 5, bonus: 0.25 };
+
 // Crab raids on the base: while the player is more than homeDist m from home and an
 // egg lies in an incubator, a crab sneaks in now and then (from minStars stars on).
 export const RAID = { minStars: 2, first: 180, gap: [240, 420], homeDist: 45, speed: 0.75, grabTime: 4, fleeSpeed: 2.4, fleeTime: 22 };

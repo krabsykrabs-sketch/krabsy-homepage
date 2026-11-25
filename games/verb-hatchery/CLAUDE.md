@@ -955,3 +955,14 @@ heartbeat volume, touch.
   the incubator. Events `raid {result: start|bonk|stolen|recovered|escaped}`.
   QA: `hatchery.startRaid()`, `hatchery.skipTut()`. Checked headless:
   start + banner, defend, stolen, recovered.
+- 2026-11-25: **daily egg + creature levels.** Daily egg: once per calendar
+  day (after the guidance) a special egg (big beam, minimap ring) appears
+  in an open zone; it hatches a fixed creature the player hasn't found yet
+  (not legendary); the carry / incubator entry has `pick`; if it rolls
+  away it reappears elsewhere in its zone; `st.dailyDay` = the day it was
+  taken. Levels (`LEVEL` in balance.js): a placed creature `{ sp, since }`
+  gains a level per 15 min real time (also while away), up to 5; +25 %
+  income per level (`creatureLevel`, `creatureIncome`); it grows 6 % per
+  level; a level-up during play pops "Level n!" over the pen; "back to the
+  Book" resets it. The info panel shows the level with stars. Events
+  `daily_egg {zone, rarity}` / `{result: grabbed}`. Checked headless.
