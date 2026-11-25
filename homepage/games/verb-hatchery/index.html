@@ -99,6 +99,15 @@ body.hunted::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 #typeIn.right{border-color:var(--teal);color:var(--teal);} #typeIn.wrong{border-color:var(--coral);color:var(--coral);text-decoration:line-through;}
 #typeToggle{display:block;margin:10px auto 0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;}
 #typeToggle.on{color:var(--teal);}
+#trio.gap{white-space:normal;font-size:clamp(20px,3.4vw,30px);line-height:1.35;max-width:100%;}
+#trio.gap.long{font-size:clamp(17px,2.7vw,24px);}
+.gapBlank{min-width:3em;color:transparent;display:inline-block;}
+.gapFill{color:var(--teal);border-bottom:4px solid var(--teal);}
+.gapHint{color:var(--muted);font-size:.7em;}
+.gapTeach{font-size:22px;line-height:1.35;}
+.teachLine{max-width:460px;margin:6px auto 0;}
+.chip{max-width:100%;}
+.wGap{font-family:'Nunito';font-weight:800;font-size:15px;}
 #feedback{min-height:28px;margin-top:16px;font-size:18px;}
 #feedback .ok{color:var(--teal);font-family:'Fredoka One';font-size:24px;}
 #feedback .bad{color:var(--coral);font-family:'Fredoka One';font-size:24px;}
@@ -233,28 +242,28 @@ body.touch #cross{display:none;}
   "imports": {
     "three": "./vendor/three/three.module.min.js",
     "three/addons/": "./vendor/three/addons/",
-    "./src/analytics.js": "./src/analytics.js?v=d4e4a5fb45",
-    "./src/animals.js": "./src/animals.js?v=d4e4a5fb45",
-    "./src/audio.js": "./src/audio.js?v=d4e4a5fb45",
-    "./src/balance.js": "./src/balance.js?v=d4e4a5fb45",
-    "./src/creatures.js": "./src/creatures.js?v=d4e4a5fb45",
-    "./src/decor.js": "./src/decor.js?v=d4e4a5fb45",
-    "./src/ground.js": "./src/ground.js?v=d4e4a5fb45",
-    "./src/hall.js": "./src/hall.js?v=d4e4a5fb45",
-    "./src/i18n.js": "./src/i18n.js?v=d4e4a5fb45",
-    "./src/main.js": "./src/main.js?v=d4e4a5fb45",
-    "./src/merge.js": "./src/merge.js?v=d4e4a5fb45",
-    "./src/minimap.js": "./src/minimap.js?v=d4e4a5fb45",
-    "./src/player.js": "./src/player.js?v=d4e4a5fb45",
-    "./src/qnature.js": "./src/qnature.js?v=d4e4a5fb45",
-    "./src/questions.js": "./src/questions.js?v=d4e4a5fb45",
-    "./src/raid.js": "./src/raid.js?v=d4e4a5fb45",
-    "./src/roster.js": "./src/roster.js?v=d4e4a5fb45",
-    "./src/state.js": "./src/state.js?v=d4e4a5fb45",
-    "./src/thieves.js": "./src/thieves.js?v=d4e4a5fb45",
-    "./src/verbs.js": "./src/verbs.js?v=d4e4a5fb45",
-    "./src/waterlife.js": "./src/waterlife.js?v=d4e4a5fb45",
-    "./src/world.js": "./src/world.js?v=d4e4a5fb45"
+    "./src/analytics.js": "./src/analytics.js?v=d22b02000c",
+    "./src/animals.js": "./src/animals.js?v=d22b02000c",
+    "./src/audio.js": "./src/audio.js?v=d22b02000c",
+    "./src/balance.js": "./src/balance.js?v=d22b02000c",
+    "./src/creatures.js": "./src/creatures.js?v=d22b02000c",
+    "./src/decor.js": "./src/decor.js?v=d22b02000c",
+    "./src/ground.js": "./src/ground.js?v=d22b02000c",
+    "./src/hall.js": "./src/hall.js?v=d22b02000c",
+    "./src/i18n.js": "./src/i18n.js?v=d22b02000c",
+    "./src/main.js": "./src/main.js?v=d22b02000c",
+    "./src/merge.js": "./src/merge.js?v=d22b02000c",
+    "./src/minimap.js": "./src/minimap.js?v=d22b02000c",
+    "./src/player.js": "./src/player.js?v=d22b02000c",
+    "./src/qnature.js": "./src/qnature.js?v=d22b02000c",
+    "./src/questions.js": "./src/questions.js?v=d22b02000c",
+    "./src/raid.js": "./src/raid.js?v=d22b02000c",
+    "./src/roster.js": "./src/roster.js?v=d22b02000c",
+    "./src/state.js": "./src/state.js?v=d22b02000c",
+    "./src/thieves.js": "./src/thieves.js?v=d22b02000c",
+    "./src/verbs.js": "./src/verbs.js?v=d22b02000c",
+    "./src/waterlife.js": "./src/waterlife.js?v=d22b02000c",
+    "./src/world.js": "./src/world.js?v=d22b02000c"
   }
 }
 </script>
@@ -316,6 +325,6 @@ body.touch #cross{display:none;}
 </div></div>
 <div id="rotate"></div>
 
-<script type="module" src="src/main.js?v=d4e4a5fb45"></script>
+<script type="module" src="src/main.js?v=d22b02000c"></script>
 </body>
 </html>

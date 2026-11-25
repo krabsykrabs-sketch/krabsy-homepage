@@ -12,7 +12,15 @@
 // follows, so the feedback may show the whole chain). Rare and above ask both steps:
 // chain order (owner decision 2026-11-21): the 3rd form only right after the 2nd,
 // with the 2nd filled in (go → went → ___).
+// Any topic (docs/game-contract.md): the topic comes from ?topic= (default
+// irregular_verbs). Verbs keep the pairs above. Other topics ask sentences with one
+// gap (display.kind 'gap'): a step is then { kind: 'gap', item, form, topic,
+// sentence, plain, hint, answer, accepts, options, teach }; the egg's tier picks the
+// sentence's difficulty (1–3), and rare+ eggs ask two different sentences instead of
+// the 2nd → 3rd form pair. ?difficulty=N (difficultyFromUrl) overrides the tiers:
+// every egg then draws from the engine's filtered set.
 import { VERBS } from './verbs.js';
+import { lang } from './i18n.js';
 
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
@@ -26,7 +34,15 @@ function fromEngine(q) {
   if (!c || q.display.kind !== 'trio' || q.options.length < 3) return null;
   const ask = q.display.askIndex === 0 ? 'past' : 'pp';
   return { key: `${c.base}|${ask}`, base: c.base, past: c.past, pp: c.participle, ask,
-    answer: q.answer, options: q.options.slice(0, 3), accepts: q.accepts || [q.answer] };
+    answer: q.answer, options: q.options.slice(0, 3), accepts: q.accepts || [q.answer],
+    item: q.item || c.base, form: q.form || (ask === 'past' ? 'past' : 'participle'), topic: q.topic || 'irregular_verbs' };
+}
+function fromEngineGap(q) {
+  if (!q || !q.display || q.display.kind !== 'gap' || !q.options || q.options.length < 2) return null;
+  const d = q.display;
+  return { kind: 'gap', key: q.id || q.item, base: q.item || q.id, item: q.item || q.id, form: q.form || 'default', topic: q.topic,
+    sentence: d.sentence, plain: d.plain || d.sentence, hint: d.hint || '', answer: q.answer, accepts: q.accepts || [q.answer],
+    options: q.options.slice(0, 3), teach: (q.teach && q.teach.line) || '', difficulty: q.difficulty || 1 };
 }
 function fromInline(v, ask) {
   const answer = ask === 'past' ? v.past : v.pp;
@@ -37,6 +53,9 @@ function fromInline(v, ask) {
 const pairOf = (q2, q3, tier) => ({ base: q2.base, past: q2.past, pp: q2.pp, tier, steps: [q2, q3] });
 
 export let source = 'inline';
+export let topic = 'irregular_verbs'; // the topic actually played
+export let isVerbs = true;           // verb pairs (trio) or gap sentences
+let linkDiff = null;                 // ?difficulty=N from a teacher link: overrides the egg tiers
 let KQ = null;               // the engine module, if loaded
 const pools = { 1: [], 2: [], 3: [] };
 const queue = { 1: [], 2: [], 3: [] }; // missed verbs, asked again soon
@@ -46,10 +65,11 @@ let recent = [];             // last few bases, to avoid repeats
 // answers from the last eggs count for the next ones.
 const smart = { 1: [], 2: [], 3: [] }, smartBusy = {};
 function refillSmart(t) {
-  if (!KQ || smartBusy[t]) return;
+  if (!KQ || smartBusy[t] || linkDiff) return;
   smartBusy[t] = true;
-  KQ.getChainSet({ topic: 'irregular_verbs', tiers: [t], count: 6, smart: true })
-    .then((set) => { smart[t] = set.map((r) => r.verb).filter((v) => pools[t].some((p) => p.base === v)); })
+  const req = isVerbs ? KQ.getChainSet({ topic: 'irregular_verbs', tiers: [t], count: 6, smart: true }).then((set) => set.map((r) => r.verb))
+    : KQ.getQuizSet({ topic, count: 8, withOptions: 3, lang, smart: true }).then((set) => set.map((q) => q.item || q.id));
+  req.then((ids) => { smart[t] = ids.filter((v) => pools[t].some((p) => p.base === v)); })
     .catch(() => {})
     .finally(() => { smartBusy[t] = false; });
 }
@@ -57,9 +77,22 @@ function refillSmart(t) {
 export async function init() {
   try {
     KQ = await import('/lib/krabsy-questions.js');
-    const topic = KQ.topicFromUrl();
-    if (topic !== 'irregular_verbs') throw new Error('only verbs so far');
-    const set = await KQ.getQuizSet({ topic, count: 1000, withOptions: 3 });
+    topic = KQ.topicFromUrl();
+    linkDiff = (KQ.difficultyFromUrl && KQ.difficultyFromUrl()) || null;
+    if (topic !== 'irregular_verbs') {
+      // a sentence topic: pools by difficulty (or all in every pool for a teacher's ?difficulty)
+      const gaps = (await KQ.getQuizSet({ topic, count: 1000, withOptions: 3, lang })).map(fromEngineGap).filter(Boolean);
+      if (gaps.length < 4) throw new Error('too few questions for ' + topic);
+      for (const g of gaps) {
+        const t = Math.min(3, Math.max(1, g.difficulty));
+        if (linkDiff) for (const k of [1, 2, 3]) pools[k].push({ base: g.item, tier: k, gap: true, steps: [g] });
+        else pools[t].push({ base: g.item, tier: t, gap: true, steps: [g] });
+      }
+      isVerbs = false; source = 'engine';
+      for (const k of [1, 2, 3]) refillSmart(k);
+      return;
+    }
+    const set = await KQ.getQuizSet({ topic, count: 1000, withOptions: 3, lang });
     const tierOf = new Map((await KQ.getChainSet({ topic, shuffle: false })).map((r) => [r.verb, r.tier]));
     let n = 0;
     for (let i = 1; i < set.length; i++) {
@@ -67,13 +100,15 @@ export async function init() {
       const q2 = fromEngine(set[i - 1]), q3 = fromEngine(set[i]);
       if (q2 && q3 && q2.ask === 'past' && q3.ask === 'pp' && q2.base === q3.base) {
         const t = Math.min(3, Math.max(1, tierOf.get(q2.base) || 1));
-        pools[t].push(pairOf(q2, q3, t)); n++;
+        if (linkDiff) for (const k of [1, 2, 3]) pools[k].push(pairOf(q2, q3, k)); // (a teacher's ?difficulty: the engine already filtered)
+        else pools[t].push(pairOf(q2, q3, t));
+        n++;
       }
     }
     if (n >= 20 && pools[1].length) { source = 'engine'; for (const t of [1, 2, 3]) refillSmart(t); return; }
   } catch (_) { /* local dev or offline */ }
   KQ = null;
-  source = 'inline';
+  source = 'inline'; topic = 'irregular_verbs'; isVerbs = true; linkDiff = null;
   for (const t of [1, 2, 3]) pools[t].length = 0;
   // The inline list has no tiers: the first 30 verbs (most common) are tier 1,
   // the rest tier 2 and 3.
@@ -87,9 +122,10 @@ const fresh = (q) => ({ ...q, options: shuffle(q.options.slice()) });
 
 // The pair for an egg of the given tier. Missed verbs of that tier come first
 // (after at least one other egg), then random ones not asked recently.
-export function nextPair(tier) {
+export function nextPair(tier, avoid = null) {
   let t = tier;
   while (t > 1 && !pools[t].length) t--;
+  if (!pools[t].length) t = [1, 2, 3].find((k) => pools[k].length) || 1; // (a topic without easy sentences)
   const q = queue[t];
   if (q.length && q[0].wait <= 0) return withFresh(q.shift().pair);
   q.forEach((e) => e.wait--);
@@ -104,7 +140,7 @@ export function nextPair(tier) {
   if (pick) { recent = [pick.base, ...recent].slice(0, Math.min(8, Math.floor(pool.length / 2))); return withFresh(pick); }
   for (let tries = 0; tries < 8; tries++) {
     pick = pool[Math.floor(Math.random() * pool.length)];
-    if (!recent.includes(pick.base)) break;
+    if (!recent.includes(pick.base) && pick.base !== avoid) break;
   }
   recent = [pick.base, ...recent].slice(0, Math.min(8, Math.floor(pool.length / 2)));
   return withFresh(pick);
@@ -118,7 +154,14 @@ export function missed(pair) {
 }
 
 // Steps to ask for an egg: one 2nd-form step (common/uncommon) or the pair.
+// For sentence topics a rare+ egg asks two different sentences of its tier (a
+// topic-neutral version of the 2nd → 3rd form pair).
 export function stepsFor(pair, isPair) {
+  if (pair.gap) {
+    if (!isPair) return [pair.steps[0]];
+    const other = nextPair(pair.tier, pair.base);
+    return [pair.steps[0], other.steps[0]];
+  }
   return isPair ? pair.steps : [{ ...pair.steps[0], full: true }];
 }
 
@@ -127,7 +170,7 @@ let statsMod = null;
 import('/lib/krabsy-stats.js').then((m) => { statsMod = m; }).catch(() => {});
 export function record(step, correct) {
   try {
-    if (statsMod) statsMod.recordAttempt(step.base, step.ask === 'past' ? 'past' : 'participle',
-      correct, 'verb-hatchery', 'irregular_verbs');
+    if (statsMod) statsMod.recordAttempt(step.item || step.base, step.form || (step.ask === 'past' ? 'past' : 'participle'),
+      correct, 'verb-hatchery', step.topic || topic);
   } catch (_) { /* never break the game */ }
 }

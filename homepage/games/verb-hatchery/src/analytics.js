@@ -10,7 +10,10 @@ let send = null;
 const debug = /[?&]debug/.test(location.search);
 import('/lib/krabsy-game-events.js').then((m) => { send = m.gameEvent; }).catch(() => {});
 
+// every event carries the topic (docs/game-contract.md 9)
+const TOPIC = (() => { try { return (new URLSearchParams(location.search).get('topic') || 'irregular_verbs').replace(/[^a-z0-9_-]/g, '').slice(0, 32); } catch (_) { return 'irregular_verbs'; } })();
 export function ev(name, data = {}) {
+  data = { topic: TOPIC, ...data };
   try {
     if (debug) console.log('[event]', name, data);
     if (send) send(GAME, name, data);
