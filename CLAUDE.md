@@ -8,6 +8,8 @@ session; keep it accurate.
 in any learning language (Spanish pilot next), games that play any
 topic (new games must take the `quiz` shape, rules in
 `docs/game-contract.md`), teacher tools around them.
+**Tutors (2026-11-25): `docs/tutor-platform.md`** — tutors are the first
+paying audience (Pro tools); kids and teachers stay free.
 
 ## Repository layout
 

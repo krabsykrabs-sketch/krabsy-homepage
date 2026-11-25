@@ -112,6 +112,14 @@ signal the June plan was waiting for, but from teachers, not from search.
 The June warnings still hold: one person, a growing maintenance surface,
 content before games.
 
+## Tutors (added 2026-11-25)
+
+Tutors (1:1 lessons, like Nora) are the first audience that pays: a Pro
+toolbox for running lessons on Krabsy (student profiles with a skill map,
+live lesson mode, tasks and worksheets, lesson builder, parent reports).
+Kids keep playing free and teachers keep their tools free. Plan:
+**`docs/tutor-platform.md`**.
+
 ## Guard rails
 
 - **Expand by teacher demand**, in level order (A1 → A2), not "all
