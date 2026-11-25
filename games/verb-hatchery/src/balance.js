@@ -74,16 +74,21 @@ export const THIEF = {
 export const AWAY = { capSeconds: 8 * 3600, rate: 0.2, minSeconds: 60 };
 
 // Start values and upgrades. price(level) = base × growth^level.
-export const START = { pens: 3, incubators: 2, backpack: 1 };
+export const START = { pens: 3, incubators: 2, backpack: 1, hall: 3 };
+// The Hall of Fame inside the barn: pedestals for your best creatures (from the Book);
+// creatures there earn `bonus` × their income.
+export const HALL = { bonus: 1.5 };
 export const UPGRADES = {
   pen:        { base: 15, growth: 3.0, max: 9 },                 // +1 pen, up to 12
   incubator:  { base: 30, growth: 4.0, max: 4 },                 // +1 incubator, up to 6
   hatchSpeed: { base: 50, growth: 3.0, max: 8, factor: 0.85 },   // hatch time × factor^level
   shoes:      { base: 40, growth: 3.5, max: 5, factor: 1.1 },    // speed × factor^level
   backpack:   { base: 60, growth: 6.0, max: 3 },                 // +1 egg carried
+  hall:       { base: 400, growth: 4.0, max: 5 },                // +1 Hall of Fame pedestal, up to 8
 };
 export const MAX_PENS = START.pens + UPGRADES.pen.max;
 export const MAX_INCUBATORS = START.incubators + UPGRADES.incubator.max;
+export const MAX_HALL = START.hall + UPGRADES.hall.max;
 
 export function price(kind, level) {
   const u = UPGRADES[kind];

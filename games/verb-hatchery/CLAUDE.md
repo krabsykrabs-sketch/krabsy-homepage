@@ -913,3 +913,20 @@ heartbeat volume, touch.
   pad → it hatches in 8 s → hatch it → "earns coins, find more eggs, buy
   upgrades" (8 s) → done. Touch texts use ✋ / ⬆️. No event egg during
   the guidance. Event `tutorial {step}` 1–6. Checked headless (all steps).
+- 2026-11-25: **Hall of Fame + Book swap** (owner idea: a second area for
+  the most valuable pets, "inside the barn"). `src/hall.js`: its own room
+  far out at sea (`ROOM` x 0, z 420; 22 × 16 m, 7.5 m tall; the fog hides
+  the island): planks, red carpet, plaster walls with a timber frame, warm
+  windows and lanterns, a "Hall of Fame" banner, 8 pedestals (U shape).
+  In / out: E at the barn's front door (`BARN_DOOR`) / at the hall's door,
+  a 0.35 s fade (`goHall`). `player.indoor` = room bounds: no island
+  checks, the floor is the room's, the camera stays inside the walls.
+  Pedestals: 3 at the start, `UPGRADES.hall` (+1 each, up to 8); creatures
+  there earn `HALL.bonus` ×1.5. **Book swap:** every found creature (and its
+  golden version, if found) can stand in one place at a time; E at an empty
+  pen or pedestal opens a picker (`#pickPanel`, sorted by income); "Release
+  for coins" became **"Back to the Book"** (no coins: placing again is
+  free, so coins would be an endless money trick). State: `s.hall`,
+  `place()`, `toBook()`, `available()`, `placedSet()`; cps includes the
+  hall. Events `hall_enter`, `creature_placed`. Checked headless: enter,
+  target pedestal, place, leave, income.

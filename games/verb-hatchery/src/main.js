@@ -8,7 +8,8 @@ import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from '.
 import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
-import { buildCreature, speciesName } from './creatures.js';
+import { buildCreature, speciesName, animateCreature } from './creatures.js';
+import { Hall, ROOM, HALL_DOOR, HALL_SPAWN, BARN_DOOR, BARN_OUT, PEDESTALS } from './hall.js';
 import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload } from './roster.js';
 import { reserveSpots, buildDecor } from './decor.js';
 import * as Q from './questions.js';
@@ -23,6 +24,7 @@ if (touchMode) document.body.classList.add('touch');
 const world = new World($('c'));
 const player = new Player(world, $('c'));
 const thieves = new Thieves(world);
+const hall = new Hall(world);
 const map = new Minimap($('map'));
 let st = S.load() || S.newState();
 let away = { seconds: 0, coins: 0 };
@@ -85,6 +87,8 @@ const portrait = (() => {
 // ── sync the base with the state ──
 function syncWorld() {
   world.setOwned(S.pensOwned(st), S.incubatorsOwned(st));
+  hall.setOwned(S.hallOwned(st));
+  st.hall.forEach((c, i) => { if (i < hall.slots.length) hall.setCreature(i, c ? c.sp : null); });
   for (let i = 0; i < MAX_PENS; i++) {
     const sp = st.pens[i] ? st.pens[i].sp : null;
     if (world.pens[i].sp !== sp) world.setPenCreature(i, sp);
@@ -417,7 +421,14 @@ function findTarget() {
   for (const e of wild) if (isOpen(e.zone)) consider('egg', e, e.x, e.z, PLAYER.reach);
   if (Math.hypot(p.x - HOME.x, p.z - HOME.z) < 30) {
     st.incubators.forEach((inc, i) => { if (inc && world.incubators[i].owned) consider('inc', i, INC_POS[i].x, INC_POS[i].z, PLAYER.reach); });
-    st.pens.forEach((c, i) => { if (c && i < S.pensOwned(st)) consider('pen', i, PEN_POS[i].x, PEN_POS[i].z, PLAYER.reach + 1.4); });
+    const canPlace = S.available(st).length > 0;
+    st.pens.forEach((c, i) => { if (i < S.pensOwned(st) && (c || canPlace)) consider(c ? 'pen' : 'penEmpty', i, PEN_POS[i].x, PEN_POS[i].z, PLAYER.reach + 1.4); });
+    consider('hallDoor', 0, BARN_DOOR.x, BARN_DOOR.z, 2.8);
+  }
+  if (player.indoor) {
+    consider('hallExit', 0, HALL_DOOR.x, HALL_DOOR.z, 2.8);
+    const canPlace = S.available(st).length > 0;
+    hall.slots.forEach((s, i) => { if (s.owned && (st.hall[i] || canPlace)) consider('pedestal', i, s.p.x, s.p.z, PLAYER.reach + 1.4); });
   }
   return best;
 }
@@ -430,6 +441,10 @@ function promptFor(tg) {
     return S.isReady(inc) ? t('p_hatch') : `${t('p_wait')} ${Math.ceil(S.hatchLeft(inc))}s`;
   }
   if (tg.kind === 'pen') return `${t('p_pen')} · ${speciesName(st.pens[tg.ref].sp)}`;
+  if (tg.kind === 'penEmpty') return t('p_place');
+  if (tg.kind === 'hallDoor') return `🏛️ ${t('p_enterHall')}`;
+  if (tg.kind === 'hallExit') return t('p_leaveHall');
+  if (tg.kind === 'pedestal') return st.hall[tg.ref] ? `${t('p_pen')} · ${speciesName(st.hall[tg.ref].sp)}` : t('p_place');
   return null;
 }
 function act() {
@@ -437,7 +452,54 @@ function act() {
   sfx.init();
   if (target.kind === 'egg') tryPickUp(target.ref);
   else if (target.kind === 'inc') tapIncubator(target.ref);
-  else if (target.kind === 'pen') showCreature(target.ref);
+  else if (target.kind === 'pen') showCreature('pen', target.ref);
+  else if (target.kind === 'penEmpty') openPicker('pen', target.ref);
+  else if (target.kind === 'hallDoor') goHall(true);
+  else if (target.kind === 'hallExit') goHall(false);
+  else if (target.kind === 'pedestal') { if (st.hall[target.ref]) showCreature('hall', target.ref); else openPicker('hall', target.ref); }
+}
+// ── the Hall of Fame (hall.js): in and out through a quick fade ──
+let fading = false;
+function goHall(enter) {
+  if (fading) return;
+  fading = true; sfx.whoosh();
+  $('fade').classList.add('on');
+  setTimeout(() => {
+    if (enter) {
+      player.indoor = { x0: ROOM.x0 + 0.3, x1: ROOM.x1 - 0.3, z0: ROOM.z0 + 0.4, z1: ROOM.z1 - 0.3, y: ROOM.y, h: ROOM.h };
+      player.spawn(HALL_SPAWN, Math.PI); player.camDist = Math.min(player.camDist, 4.5); player.pitch = -0.12; // (a flatter view: you see the pedestals and the banner)
+      toast(`🏛️ ${t('hallWelcome')}`);
+      A.ev('hall_enter', { placed: st.hall.filter(Boolean).length });
+    } else {
+      player.indoor = null;
+      player.spawn(BARN_OUT, 0);
+    }
+    document.body.classList.toggle('indoor', enter);
+    player.update(0);
+    $('fade').classList.remove('on');
+    setTimeout(() => { fading = false; }, 400);
+  }, 380);
+}
+// Pick a creature from the Book for an empty pen or pedestal.
+let pickFor = null;
+function openPicker(where, i) {
+  const list = S.available(st);
+  if (!list.length) { sfx.denied(); toast(t('pickNone'), 'warn'); return; }
+  pickFor = { where, i };
+  sfx.tap();
+  list.sort((a, b) => S.speciesIncome(b) - S.speciesIncome(a));
+  $('pickTitle').textContent = where === 'hall' ? t('pickHall') : t('pickPen');
+  $('pickList').innerHTML = list.map((sp) => {
+    const r = S.speciesRarity(sp);
+    return `<button class="bookCell pick" data-sp="${sp}" style="border-color:${RARITY[r].css}">${isGolden(sp) ? '<span class="goldMark">✨</span>' : ''}
+      <img src="${portrait(sp)}" alt=""><div class="n">${speciesName(sp)}</div><div class="earnS">+${fmtRate(S.speciesIncome(sp) * (where === 'hall' ? 1.5 : 1))}/s</div></button>`;
+  }).join('');
+  $('pickList').querySelectorAll('.pick').forEach((b) => b.addEventListener('click', () => {
+    if (!pickFor || !S.place(st, pickFor.where, pickFor.i, b.dataset.sp)) return;
+    sfx.pop(); A.ev('creature_placed', { where: pickFor.where, rarity: S.speciesRarity(b.dataset.sp), golden: isGolden(b.dataset.sp) });
+    pickFor = null; closePanel(); syncWorld(); renderHud(); save(); checkGoals();
+  }));
+  openPanel('pickPanel');
 }
 addEventListener('keydown', (e) => {
   if (card) {
@@ -735,26 +797,25 @@ function showReveal(res) {
   clearTimeout(revealTimer);
   revealTimer = setTimeout(() => el.classList.remove('on'), res.waiting ? 4200 : 3000);
 }
-let infoPen = -1;
-function showCreature(i) {
-  const c = st.pens[i];
+let infoPen = -1, infoWhere = 'pen';
+function showCreature(where, i) {
+  const c = (where === 'hall' ? st.hall : st.pens)[i];
   if (!c) return;
   sfx.tap();
-  infoPen = i;
+  infoPen = i; infoWhere = where;
   const r = S.speciesRarity(c.sp);
   $('ciImg').src = portrait(c.sp);
   $('ciName').textContent = speciesName(c.sp);
   $('ciR').textContent = rName(r); $('ciR').style.background = RARITY[r].css;
-  $('ciEarn').textContent = t('earns', fmtRate(S.speciesIncome(c.sp)));
-  $('ciRelease').textContent = t('release', fmt(Math.round(S.speciesIncome(c.sp) * 60)));
-  $('ciAsk').textContent = t('releaseAsk');
+  $('ciEarn').textContent = t('earns', fmtRate(S.speciesIncome(c.sp) * (where === 'hall' ? 1.5 : 1)));
+  $('ciRelease').textContent = t('toBook');
+  $('ciAsk').textContent = t('toBookAsk');
   openPanel('creatureInfo');
 }
 $('ciRelease').addEventListener('click', () => {
   if (infoPen < 0) return;
-  const coins = S.release(st, infoPen);
-  floatCenter(`+${fmt(coins)}`);
-  sfx.ding();
+  S.toBook(st, infoWhere, infoPen);
+  sfx.tap();
   infoPen = -1;
   closePanel(); syncWorld(); renderHud(); save();
 });
@@ -778,7 +839,7 @@ $('shade').addEventListener('click', () => { if (panel) closePanel(); });
 $('upBtn').addEventListener('click', () => { sfx.init(); sfx.tap(); openPanel('upPanel'); });
 $('bookBtn').addEventListener('click', () => { sfx.init(); sfx.tap(); openPanel('bookPanel'); });
 
-const UP_ICON = { pen: '🏡', incubator: '🥚', hatchSpeed: '💡', shoes: '👟', backpack: '🎒' };
+const UP_ICON = { pen: '🏡', incubator: '🥚', hatchSpeed: '💡', shoes: '👟', backpack: '🎒', hall: '🏛️' };
 function renderUpgrades() {
   $('upList').innerHTML = Object.keys(UPGRADES).map((k) => `
     <div class="upRow"><div class="ico">${UP_ICON[k]}</div>
@@ -955,6 +1016,7 @@ function frame(now) {
     player.yaw += dt * 0.08;
     player.update(0);
   }
+  hall.update(dt, animateCreature);
   world.update(dt);
   updateLabels();
   requestAnimationFrame(frame);

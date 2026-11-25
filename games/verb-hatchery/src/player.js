@@ -270,7 +270,7 @@ export class Player {
       } else this.speed = 0;
     } else this.speed = 0;
     // gravity / ground
-    const g = height(this.pos.x, this.pos.z);
+    const g = this.indoor ? this.indoor.y : height(this.pos.x, this.pos.z);
     const wasAir = !this.onGround;
     this.vy -= 22 * dt;
     this.pos.y += this.vy * dt;
@@ -330,6 +330,11 @@ export class Player {
       dist *= 0.8; p = at(dist);
       if (i === 5) p[1] = Math.max(p[1], gh);
     }
+    if (this.indoor) { // (inside a room: the camera stays inside its walls)
+      const I = this.indoor, m = 0.35;
+      p[0] = Math.max(I.x0 + m, Math.min(I.x1 - m, p[0])); p[2] = Math.max(I.z0 + m, Math.min(I.z1 - m, p[2]));
+      p[1] = Math.max(I.y + 0.6, Math.min(I.y + I.h - 0.4, p[1]));
+    }
     cam.position.set(p[0], p[1], p[2]);
     cam.lookAt(tx, ty + 0.3, tz);
   }
@@ -347,6 +352,11 @@ export class Player {
       if (!z.r || !this.isLocked(z)) continue;
       const ddx = nx - z.x, ddz = nz - z.z, d = Math.hypot(ddx, ddz), min = z.r + r + 0.2;
       if (d < min) { nx = z.x + (ddx / d) * min; nz = z.z + (ddz / d) * min; }
+    }
+    if (this.indoor) { // a room: stay inside its walls, nothing else to check
+      const I = this.indoor;
+      this.pos.x = Math.max(I.x0 + r, Math.min(I.x1 - r, nx)); this.pos.z = Math.max(I.z0 + r, Math.min(I.z1 - r, nz));
+      return;
     }
     if (!onIsland(nx, nz)) return;
     const climb = height(nx, nz) - height(this.pos.x, this.pos.z);

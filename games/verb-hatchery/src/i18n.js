@@ -2,6 +2,12 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    hallTitle: 'Hall of Fame', hallWelcome: 'Welcome to your Hall of Fame! Creatures here earn ×1.5',
+    p_enterHall: 'Enter the Hall of Fame', p_leaveHall: 'Go outside', p_place: 'Place a creature from your Book',
+    pickPen: 'Which creature goes into this pen?', pickHall: 'Which creature gets this pedestal?',
+    pickNone: 'All your creatures already have a place. Hatch more eggs!',
+    toBook: 'Back to the Book', toBookAsk: 'It stays in your Book. You can place it again any time.',
+    up_hall: 'Hall of Fame pedestal', up_hall_d: 'One more place in the barn (earns ×1.5)',
     tut1: 'Walk to the glowing egg (W A S D)', tut1_touch: 'Walk to the glowing egg (left thumb)',
     tut2: 'Press E to pick it up – answer the question!', tut2_touch: 'Tap ✋ to pick it up – answer the question!',
     tut3: 'Bring it home: follow the arrow to the green pad',
@@ -81,6 +87,12 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    hallTitle: 'Ruhmeshalle', hallWelcome: 'Willkommen in deiner Ruhmeshalle! Wesen hier verdienen ×1,5',
+    p_enterHall: 'In die Ruhmeshalle', p_leaveHall: 'Nach draußen', p_place: 'Ein Wesen aus deinem Buch hinstellen',
+    pickPen: 'Welches Wesen kommt in dieses Gehege?', pickHall: 'Welches Wesen bekommt diesen Sockel?',
+    pickNone: 'Alle deine Wesen haben schon einen Platz. Brüte mehr Eier aus!',
+    toBook: 'Zurück ins Buch', toBookAsk: 'Es bleibt in deinem Buch. Du kannst es jederzeit wieder hinstellen.',
+    up_hall: 'Sockel in der Ruhmeshalle', up_hall_d: 'Ein Platz mehr in der Scheune (verdient ×1,5)',
     tut1: 'Lauf zum leuchtenden Ei (W A S D)', tut1_touch: 'Lauf zum leuchtenden Ei (linker Daumen)',
     tut2: 'Drück E zum Aufheben – beantworte die Frage!', tut2_touch: 'Tippe ✋ zum Aufheben – beantworte die Frage!',
     tut3: 'Bring es nach Hause: folge dem Pfeil zur grünen Platte',
@@ -160,6 +172,12 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    hallTitle: 'Salón de la Fama', hallWelcome: '¡Bienvenido a tu Salón de la Fama! Aquí las criaturas ganan ×1,5',
+    p_enterHall: 'Entrar al Salón de la Fama', p_leaveHall: 'Salir', p_place: 'Colocar una criatura de tu libro',
+    pickPen: '¿Qué criatura va a este corral?', pickHall: '¿Qué criatura recibe este pedestal?',
+    pickNone: 'Todas tus criaturas ya tienen sitio. ¡Haz nacer más huevos!',
+    toBook: 'Volver al libro', toBookAsk: 'Se queda en tu libro. Puedes colocarla de nuevo cuando quieras.',
+    up_hall: 'Pedestal del Salón de la Fama', up_hall_d: 'Un sitio más en el granero (gana ×1,5)',
     tut1: 'Camina hasta el huevo brillante (W A S D)', tut1_touch: 'Camina hasta el huevo brillante (pulgar izquierdo)',
     tut2: 'Pulsa E para recogerlo: ¡responde la pregunta!', tut2_touch: 'Toca ✋ para recogerlo: ¡responde la pregunta!',
     tut3: 'Llévalo a casa: sigue la flecha hasta la plataforma verde',

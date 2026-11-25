@@ -1,7 +1,7 @@
 // Game state and rules: pure data, no drawing. Saved to localStorage.
 // Every number comes from balance.js.
 import {
-  RARITIES, RARITY, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, GOLDEN,
+  RARITIES, RARITY, GRAB_BONUS_SECONDS, RELEASE_SECONDS, AWAY, ZONES, GOLDEN, HALL, MAX_HALL,
   START, UPGRADES, MAX_PENS, MAX_INCUBATORS, price, GOALS, GOALS_SHOWN, endlessGoal,
 } from './balance.js';
 
@@ -19,6 +19,7 @@ export function newState(now = Date.now()) {
     look: 'A',
     tutDone: false,                             // the first-minutes guidance was done                                  // which character (player.js LOOKS)
     pens: Array(MAX_PENS).fill(null),          // { sp } or null
+    hall: Array(MAX_HALL).fill(null),          // Hall of Fame pedestals: { sp } or null
     incubators: Array(MAX_INCUBATORS).fill(null), // { rarity, zone, start, dur, sp? }
     book: {},                                   // creature id → times hatched
     gold: {},                                   // creature id → found as a golden version
@@ -42,6 +43,8 @@ export function load() {
     while (s.incubators.length < MAX_INCUBATORS) s.incubators.push(null);
     const fresh = newState();
     s.up = { ...fresh.up, ...s.up };
+    if (!s.hall) s.hall = fresh.hall;
+    while (s.hall.length < MAX_HALL) s.hall.push(null);
     s.stats = { ...fresh.stats, ...s.stats };
     s.carry = s.carry || [];
     return s;
@@ -63,6 +66,7 @@ export function speciesIncome(sp) {
 export function cps(s) {
   let c = 0;
   for (let i = 0; i < pensOwned(s); i++) if (s.pens[i]) c += speciesIncome(s.pens[i].sp);
+  for (let i = 0; i < hallOwned(s); i++) if (s.hall[i]) c += speciesIncome(s.hall[i].sp) * HALL.bonus;
   return c;
 }
 export function addCoins(s, n) { s.coins += n; s.earned += n; }
@@ -168,14 +172,38 @@ export function hatch(s, i, rnd = Math.random) {
   s.incubators[i] = null;
   return { sp, isNew, pen, rarity: inc.rarity, waiting: false };
 }
-export function release(s, pen) {
-  const c = s.pens[pen];
-  if (!c) return 0;
-  const coins = Math.round(speciesIncome(c.sp) * RELEASE_SECONDS);
-  s.pens[pen] = null;
-  addCoins(s, coins);
-  return coins;
+// ── the collection: creatures in pens and in the Hall of Fame come from the Book.
+// Every found creature (and its golden version, if found) can stand in one place at a
+// time; "back to the Book" frees the place (it stays in the Book).
+export const hallOwned = (s) => START.hall + (s.up.hall || 0);
+export function placedSet(s) {
+  const out = new Set();
+  for (const p of [...s.pens, ...s.hall]) if (p) out.add(p.sp);
+  for (const inc of s.incubators) if (inc && inc.sp) out.add(inc.sp);
+  return out;
 }
+// Found creatures that are not standing anywhere now (sp ids, golden ones too).
+export function available(s) {
+  const placed = placedSet(s), out = [];
+  for (const id of Object.keys(s.book)) {
+    if (!BY_ID[id]) continue;
+    if (!placed.has(id)) out.push(id);
+    if ((s.gold || {})[id] && !placed.has(id + '*')) out.push(id + '*');
+  }
+  return out;
+}
+export function place(s, where, i, sp) {
+  const list = where === 'hall' ? s.hall : s.pens;
+  if (list[i] || placedSet(s).has(sp) || !s.book[baseId(sp)]) return false;
+  list[i] = { sp };
+  return true;
+}
+export function toBook(s, where, i) {
+  const list = where === 'hall' ? s.hall : s.pens;
+  const c = list[i]; list[i] = null;
+  return c ? c.sp : null;
+}
+export function release(s, pen) { return toBook(s, 'pen', pen); }
 
 // ── upgrades ──
 export function upgradePrice(s, kind) { return price(kind, s.up[kind]); }
