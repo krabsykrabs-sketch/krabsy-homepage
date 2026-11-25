@@ -159,7 +159,7 @@ def font_css():
 
 
 CSS = """
-@page{size:A4;margin:14mm 14mm 16mm}
+@page{size:A4;margin:14mm 14mm 22mm}
 *{box-sizing:border-box}
 body{font-family:'Nunito',Arial,sans-serif;color:#2c2a3a;font-size:10.5pt;margin:0}
 h1{font-family:'Fredoka One',Arial,sans-serif;font-weight:normal;font-size:19pt;margin:0 0 2mm}
@@ -171,7 +171,7 @@ h2{font-family:'Fredoka One',Arial,sans-serif;font-weight:normal;font-size:12pt;
 .fields span.s{flex:.5}
 .sub{color:#6e6c80;margin:0 0 3mm}
 .caption{color:#6e6c80;font-size:8.5pt;margin:-1mm 0 2mm}
-.foot{position:fixed;bottom:-10mm;left:0;right:0;font-size:8pt;color:#6e6c80;border-top:.5pt solid #d9d7e0;padding-top:1.5mm;display:flex;justify-content:space-between}
+.foot{position:fixed;bottom:0;left:0;right:0;font-size:8pt;color:#6e6c80;border-top:.5pt solid #d9d7e0;padding-top:1.5mm;display:flex;justify-content:space-between}
 .page{page-break-after:always}
 .page:last-child{page-break-after:auto}
 /* verb list */
@@ -428,7 +428,7 @@ def download_page(lang, LL, PP, kinds):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="{'de_DE' if lang == 'de' else 'es_ES'}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-05-24">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <style>{PAGE_CSS}</style>
   <script type="application/ld+json">{json.dumps(crumbs_ld, ensure_ascii=False)}</script>
 </head><body>
