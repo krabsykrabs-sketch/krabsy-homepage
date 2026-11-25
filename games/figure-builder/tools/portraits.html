@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Renders one portrait per character (node tools/portraits.cjs → assets/portraits/<name>.png). -->
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }</script>
+</head><body style="margin:0">
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const names = new URLSearchParams(location.search).get('names').split(',');
+const S = 192;
+const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+r.setSize(S, S); r.setClearColor(0x000000, 0); document.body.appendChild(r.domElement);
+const L = new GLTFLoader(), out = {};
+const extraTex = { OrcRaider: '../assets/chars/OrcRaider_texture.png' };
+for (const n of names) {
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight('#ffffff', '#5a4a7a', 1.7));
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(2, 4, 5); scene.add(d);
+  const m = (await L.loadAsync(`../assets/chars/${n}.glb`)).scene;
+  if (extraTex[n]) {
+    const t = await new THREE.TextureLoader().loadAsync(extraTex[n]); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace;
+    m.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ map: t, roughness: 0.8 }); });
+  }
+  // Leave out weapon-like extras in the picture too.
+  m.traverse((o) => { if (/Quiver|Cigar|Sword/.test(o.name)) o.visible = false; });
+  m.rotation.y = 0.35; scene.add(m);
+  const box = new THREE.Box3().setFromObject(m), h = box.max.y - box.min.y, cy = box.min.y + h * 0.5;
+  const cam = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+  const dist = Math.max(h, box.max.x - box.min.x) * 2.3;
+  cam.position.set(0, cy + h * 0.08, dist); cam.lookAt(0, cy, 0);
+  r.render(scene, cam);
+  out[n] = r.domElement.toDataURL('image/png');
+}
+window.__out = out;
+</script></body></html>

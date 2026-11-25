@@ -10,74 +10,71 @@ Quiz-Raum and the class system is master / Quiz-Raum session work, listed
 below as later steps. Stage only this folder:
 `git add games/figure-builder && git commit …`. Don't push.
 
-Status: **prototype (2026-11-25)**, local only, not on the site.
+Status: **prototype v2 (2026-11-25)**, local only, not on the site.
 
 ## How to run it
 
 `python3 -m http.server 8145` in this folder → http://localhost:8145/
 (port 8145; 8140–8144 are other game dev servers, 8142 the Quiz-Raum).
-`?lang=es` for Spanish. QA: `node tools/qa.cjs <outDir>` (7 checks);
-contact sheets: `node tools/sheet.cjs heads|hats|outfits <out.png>`.
+`?lang=es` for Spanish. QA: `node tools/qa.cjs <outDir>` (13 checks);
+contact sheets: `node tools/sheet.cjs hats|glasses|backs <group> <out.png>`;
+portraits: `node tools/portraits.cjs [sheet.png]` (renders `assets/portraits/`).
 
 | File | Job |
 |---|---|
-| `src/figure.js` | catalogue (`OUTFITS`, `HEADS`, `HATS`, `GLASSES`, `BACKS`, palettes), `normalize`, `randomConfig`, `buildFigure(config)` (parts onto one skeleton + recoloured palettes), `loadClips`, `inspectFigure` |
-| `src/builder.js` + `index.html` | the page: turning preview (drag), ‹ › per slot, colour swatches (★ = original), 🎲, reset, save; DE/ES |
-| `tools/sheet.html/.cjs` | contact sheets for checking combinations |
+| `src/figure.js` | catalogue (`CHARS`, `HATS`, `GLASSES`, `BACKS`, `NO_HAT`, palettes), `normalize`, `randomConfig`, `charInfo`, `buildFigure(config)`, `loadClips`, `inspectFigure` |
+| `src/builder.js` + `index.html` | the page: ① gallery with tabs, ② ‹ › per slot + colour swatches (★ = original), preview (drag, 🔄 toggle, animations), 🎲 (keeps the character), reset, save; DE/ES |
+| `tools/sheet.*`, `tools/portraits.*`, `tools/qa.cjs` | contact sheets, gallery portraits, QA |
 
-## What KayKit allows (checked in the files, 2026-11-25)
+## How it works now (v2, after the owner's first feedback)
 
-- All 14 figures we have (Quiz-Raum: Protagonist A/B, Hiker, Witch,
-  Superhero, Helper A/B, Caveman; Adventurers 2.0: Knight, Ranger, Rogue,
-  Rogue_Hooded, Barbarian, Mage) use the **same skeleton** (Rig_Medium) and
-  are built from separate **skinned** parts: Head, Body, ArmLeft/Right,
-  LegLeft/Right, plus extras (Hat, Glasses, Backpack, Cape, BearHat,
-  Helmet + Visor, Mask, Quiver). So a part from one figure can be bound to
-  another figure's skeleton by bone name: heads, hats, glasses, backpacks
-  and capes mix freely; the shared walk/run/jump/emote animations work.
-- Colours: every figure has its own 1024² palette texture (8 × 4 swatch
-  cells, vertical gradients). Parts keep their own texture when mixed.
-  Recolouring = rewriting swatch cells in a canvas copy of a texture:
-  - skin: cell (0,0) on every figure → skin-tone choice,
-  - hair: the head's other non-dark cells,
-  - outfit: the most-used saturated cell of the body (main colour) and of
-    the legs (trousers), detected from the UVs.
-- **Weapons:** separate files (swords, bows, staffs …), never copied. The
-  Ranger's quiver (arrows) is left out too. The Mage is reserved for the
-  teacher in the Quiz-Raum (not offered here).
+**One main decision, then customising** (owner, 2026-11-25): step 1, pick a
+character from a picture gallery (tabs Menschen / Fantasy / Monster &
+Roboter); step 2, customise it: hat, glasses, back item (each: "★ Original"
+= what the character comes with, "nichts", or a catalogue item) and colours
+(skin + hair only for human characters; main colour, trousers, accessory
+colour for all). Characters are never mixed with each other's heads or
+bodies any more (that's what broke combinations in v1).
 
-## Slots (prototype)
+- **42 characters** (all KayKit, CC0, same skeleton Rig_Medium):
+  - people (20): Protagonist A/B, Hiker, Witch, Superhero, MagicalGirl, Helper A/B,
+    Caveman, Farmer A/B, Driver, Survivalist, Werewolf_Man, Clown, ToySoldier,
+    SpaceRanger, Ninja, Engineer, Lorekeeper;
+  - fantasy (12): Knight, Paladin, Ranger, Rogue, Rogue_Hooded, Barbarian, Druid,
+    Cleric, Vampire, Tiefling, PlantWarrior, AvianSwordsman;
+  - monsters & robots (10): OrcRaider, Werewolf_Wolf, MonsterCostume, Robot One/Two,
+    Skeleton Minion/Warrior/Rogue/Mage, Necromancer.
+  Source: `/home/janah/dev/_assets/kaykit` (Mystery Monthly Series 4/5/6,
+  Adventurers 2.0, Skeletons 1.1). `SpaceRanger_FlightMode.glb` is only an
+  accessory source (jetpack, space helmet). Licences in `assets/chars/`.
+- **Left out:** Mage (Quiz-Raum teacher), Hoarder (sword in a pouch),
+  ActionFigure (cigar), Marksman (sniper look), Dummy (target), mannequins,
+  very big/wide ones that would tower over the others (4GTN, Clanker,
+  CombatMech, FrostGolem, Monstrosity, Skeleton_Golem, OrcBrute,
+  BlackKnight), duplicates (Monster, Barbarian_Large, Paladin_with_Helmet).
+  Dropped parts: Ranger's quiver, Rogue_Hooded's mask.
+- **Accessories:** 13 hats, 5 glasses, 15 back items (6 backpacks, orc pack,
+  jetpack, wind-up key, bat wings, 5 capes) — taken from the characters.
+- **Hats off** (`NO_HAT`) for heads they don't fit: Protagonist A/B (cap in
+  the head), robots, werewolf, dino costume, space ranger. Checked with
+  `tools/sheet.cjs hats|glasses|backs <group>` (every character × every item).
+- **Turning:** off by default, "🔄 Drehen" button; dragging always works.
+- Saved as `krabsy_figure_v2`: `{v:2, char, hat, glasses, back, skin, hair,
+  main, legs, acc}` (ids and palette indices only; `normalize()` cleans
+  anything else).
 
-| Slot | Options |
-|---|---|
-| Outfit (body, arms, legs) | 11 (13 figures minus Rogue_Hooded and Helper_B: same clothes as Rogue / Helper_A) |
-| Head (face + hair) | 13 heads |
-| Headwear | none, cap (Hiker), witch hat, Helper A hat, Helper B hat, bear hat (Barbarian), helmet (Knight, without its visor: it covered the face) |
-| Glasses | none, Protagonist A, Witch |
-| Back | none, 3 backpacks (Hiker, Protagonist A/B), 4 capes (Superhero, Knight, Ranger, Rogue) |
-| Colours | skin tone (6), hair (8), main colour (10), trousers (10) |
-
-Not offered: Rogue_Hooded's mask (looks like a robber), the quiver, any
-weapon. Hat/head check (`tools/sheet.cjs hats`, every head × every hat):
-everything sits well except the Protagonist_A head, which has a cap built in
-(`HEAD_NO_HAT`: the hat row is switched off for it). Many heads carry their
-own hair accessories (bow, hood, mask) — that's part of the head.
-
-Technical notes found while building:
-- Superhero's cape is not skinned but hangs on the `chest` bone (the only
-  such part): `prepare` keeps the bone name and the builder hangs it on the
-  same bone of the new skeleton.
-- Parts with two materials (glasses: frame + lenses) arrive as
-  `…_Glasses_1/_2`; lenses have no palette texture and keep their material.
-- three.js keeps glTF textures unflipped (`flipY = false`): UV v = 0 is the
-  top row of the palette image, so cell row r = image row r from the top.
-- Main colour cell = most-covered body cell weighted by saturation
-  (`n · (0.35 + s)`): a yellow jacket beats grey trousers, but the Knight's
-  big grey armour still wins over his belt. Trousers never take the main cell.
-
-The choice is a small JSON (`krabsy_figure_v1` in localStorage):
-`{ v:1, outfit, head, hat, glasses, back, skin, hair, main, legs }` (names
-and palette indices, no free text).
+Technical notes:
+- Parts move between characters by bone name. Skinned parts get the source
+  bone inverses scaled by (source bone scale / target bone scale); rigid
+  parts (hats/capes on the `head`/`chest` bone) hang on the same bone.
+  Rigid parts on another part (jetpack wings, helmet visor) come along with
+  their parent's copy. Multi-material parts arrive as `…_1/_2` (glasses).
+- The toy soldier's hat really is that tall (1.8 m bearskin).
+- OrcRaider's texture is a separate file (`OrcRaider_texture.png`).
+- Colours rewrite palette cells (8 × 4) in a 256 px canvas copy per source
+  character; skin = cell 0 when it looks like skin; main colour = most
+  covered body cell weighted by saturation. Weak spot: on mostly brown /
+  leather outfits (orc) the main colour hits a small trim only.
 
 ## Later steps (not in the prototype)
 
@@ -93,6 +90,12 @@ and palette indices, no free text).
 5. Classes (phase 2): store the figure with the pupil, so it follows them
    to another device.
 
+## Owner feedback
+
+Batch 1 (2026-11-25) — **done** in v2: rotation button; "not all
+combinations work" → one character + accessories; more characters (orc,
+skeletons and others); main decision first, then accessories + colours.
+
 ## Log
 
 - 2026-11-25: brief + first prototype (owner: "work on the character builder").
@@ -100,3 +103,8 @@ and palette indices, no free text).
   glasses, 8 back items, 4 colour slots; saved in `krabsy_figure_v1`.
   Fixed on the way: Superhero's rigid cape, two-material glasses, main
   colour choice. qa 7/7. Next: owner looks at it; then the later steps.
+- 2026-11-25: v2 after owner feedback batch 1: character gallery (42 KayKit
+  characters in 3 groups) + accessories (13 hats, 5 glasses, 15 back items) +
+  colours; turning off by default with a 🔄 button. Fixed: jetpack wings /
+  visor copied twice, bone-scale compensation. qa 13/13 (all characters,
+  72 accessory combinations). Next: owner looks at it.

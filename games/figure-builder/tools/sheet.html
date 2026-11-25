@@ -1,29 +1,31 @@
 <!doctype html>
-<!-- Contact sheets for checking parts (node tools/sheet.cjs): ?sheet=heads|hats|outfits -->
+<!-- Contact sheets for checking accessories (node tools/sheet.cjs):
+     ?sheet=hats|glasses|backs&group=people|fantasy|monsters -> rows = characters of the group,
+     columns = 'own' + every option of that slot. -->
 <html><head><meta charset="utf-8">
 <script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }</script>
 </head><body style="margin:0;background:#13204a">
 <script type="module">
 import * as THREE from 'three';
-import { FIGURES, HATS, buildFigure } from '../src/figure.js';
-const sheet = new URLSearchParams(location.search).get('sheet') || 'heads';
-const hats = Object.keys(HATS);
-let grid = [];   // rows of configs
-if (sheet === 'heads') grid = [FIGURES.map((h) => ({ outfit: 'Protagonist_B', head: h }))];
-if (sheet === 'outfits') grid = [FIGURES.map((f) => ({ outfit: f, head: f }))];
-if (sheet === 'hats') grid = FIGURES.map((h) => hats.map((hat) => ({ outfit: 'Protagonist_B', head: h, hat })));
-const cols = Math.max(...grid.map((r) => r.length)), rows = grid.length;
-const W = 150 * cols, H = (sheet === 'hats' ? 150 : 300) * rows;
+import { CHARS, HATS, GLASSES, BACKS, buildFigure } from '../src/figure.js';
+const q = new URLSearchParams(location.search);
+const sheet = q.get('sheet') || 'hats', group = q.get('group') || 'people';
+const slot = { hats: 'hat', glasses: 'glasses', backs: 'back' }[sheet];
+const opts = ['own', ...Object.keys({ hats: HATS, glasses: GLASSES, backs: BACKS }[sheet])];
+const chars = CHARS.filter((c) => c.group === group).map((c) => c.id);
+const head = sheet !== 'backs';                    // heads close up; backs: whole figure from behind
+const cw = 1.5, rh = head ? 1.5 : 2.6;
+const W = 110 * opts.length, H = (head ? 110 : 190) * chars.length;
 const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setSize(W, H); document.body.appendChild(r.domElement);
 const scene = new THREE.Scene(); scene.background = new THREE.Color('#13204a');
 scene.add(new THREE.HemisphereLight('#ffffff', '#5a4a7a', 1.7));
 const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(2, 4, 6); scene.add(d);
-const sx = 1.5, sy = sheet === 'hats' ? 1.5 : 3;
-for (let j = 0; j < rows; j++) for (let i = 0; i < grid[j].length; i++) {
-  const f = await buildFigure(grid[j][i], { base: '../assets/' });
-  f.root.position.set(i * sx, -j * sy - (sheet === 'hats' ? 1.65 : 0), 0); f.root.rotation.y = 0.35; scene.add(f.root);
+const d2 = new THREE.DirectionalLight('#ffffff', 0.8); d2.position.set(-2, 3, -6); scene.add(d2);
+for (let j = 0; j < chars.length; j++) for (let i = 0; i < opts.length; i++) {
+  const f = await buildFigure({ char: chars[j], [slot]: opts[i] }, { base: '../assets/' });
+  f.root.position.set(i * cw, -j * rh - (head ? 1.7 : 0), 0); f.root.rotation.y = head ? 0.45 : Math.PI + 0.5; scene.add(f.root);
 }
-const top = sheet === 'hats' ? 0.75 : 2.9;
-const cam = new THREE.OrthographicCamera(-sx / 2, cols * sx - sx / 2, top, top - rows * sy, 0.1, 50); cam.position.set(0, 0, 20);
-r.render(scene, cam); window.__done = true;
+const top = head ? 0.75 : 2.4;
+const cam = new THREE.OrthographicCamera(-cw / 2, opts.length * cw - cw / 2, top, top - chars.length * rh, 0.1, 50); cam.position.set(0, 0, 20);
+r.render(scene, cam); window.__done = { chars, opts };
 </script></body></html>

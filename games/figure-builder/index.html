@@ -12,16 +12,29 @@
 :root{--teal:#2ee6c0;--coral:#ff8585;--amber:#ffcf5e;--panel:#101a3d;--line:#2d4180;--muted:#c4d3f2;}
 *{box-sizing:border-box;}
 html,body{margin:0;height:100%;background:#0b1430;color:#fff;font-family:Nunito,system-ui,sans-serif;}
-#app{display:grid;grid-template-columns:minmax(0,1fr) 420px;height:100vh;}
+button{font-family:inherit;}
+#app{display:grid;grid-template-columns:minmax(0,1fr) 460px;height:100vh;}
 #stage{position:relative;min-height:0;}
 #c{display:block;width:100%;height:100%;cursor:grab;touch-action:none;}
 #c:active{cursor:grabbing;}
 #title{position:absolute;top:16px;left:20px;font-family:'Fredoka One';font-size:30px;color:var(--amber);}
-#anims{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;}
-#anims button,#actions button{font:800 16px Nunito,sans-serif;color:#fff;background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;}
-#anims button.on{border-color:var(--teal);}
+#charName{position:absolute;top:56px;left:20px;font-weight:900;font-size:20px;color:#fff;}
+#bar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:96%;}
+#bar button,#actions button{font-weight:800;font-size:16px;color:#fff;background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;}
+#bar button.on{border-color:var(--teal);}
+#bar .sep{width:10px;}
 #loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:18px;pointer-events:none;}
-#panel{background:var(--panel);border-left:3px solid var(--line);overflow:auto;padding:16px 18px 24px;}
+#panel{background:var(--panel);border-left:3px solid var(--line);overflow:auto;padding:14px 18px 24px;}
+#panel h2{font-family:'Fredoka One';font-weight:400;font-size:22px;color:var(--amber);margin:4px 0 10px;}
+#panel h2 .step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--amber);color:#3a2600;font-size:17px;margin-right:6px;}
+.tabs{display:flex;gap:6px;margin-bottom:10px;}
+.tabs button{flex:1;font-weight:800;font-size:15px;color:var(--muted);background:#0d1735;border:2px solid var(--line);border-radius:12px;padding:7px 6px;cursor:pointer;}
+.tabs button.on{color:#fff;border-color:var(--teal);}
+#gallery{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:18px;}
+.pic{aspect-ratio:1;border-radius:14px;border:3px solid var(--line);background:#16245a;cursor:pointer;padding:0;overflow:hidden;position:relative;}
+.pic img{width:100%;height:100%;object-fit:cover;display:block;}
+.pic.on{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber);}
+.pic:hover{border-color:#5b74c4;}
 .slot{margin:0 0 14px;}
 .slot h3{margin:0 0 6px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
 .cycle{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;background:#0d1735;border-radius:14px;border:2px solid var(--line);}
@@ -30,13 +43,15 @@ html,body{margin:0;height:100%;background:#0b1430;color:#fff;font-family:Nunito,
 .slot.off .cycle{opacity:.45;}.slot.off .cycle button{cursor:default;}
 .cycle span{text-align:center;font-weight:900;font-size:18px;}
 .swatches{display:flex;flex-wrap:wrap;gap:7px;}
-.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 0 0 2px #0b1430 inset;}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 0 0 2px #0b1430 inset;padding:0;}
 .sw.on{border-color:#fff;}
-.sw.orig{background:conic-gradient(#2ee6c0,#ff8585,#ffcf5e,#3f7cff,#2ee6c0);display:grid;place-items:center;font-size:12px;font-weight:900;color:#0b1430;}
+.sw.orig{background:conic-gradient(#2ee6c0,#ff8585,#ffcf5e,#3f7cff,#2ee6c0);font-size:13px;font-weight:900;color:#0b1430;}
+.hidden{display:none!important;}
 #actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
 #actions .save{background:var(--amber);color:#3a2600;border-color:var(--amber);}
 #saved{color:var(--teal);font-weight:800;min-height:1.4em;margin-top:8px;}
-@media (max-width:820px){#app{grid-template-columns:1fr;grid-template-rows:46vh 1fr;}#panel{border-left:0;border-top:3px solid var(--line);}#title{font-size:22px;}}
+@media (max-width:860px){#app{grid-template-columns:1fr;grid-template-rows:44vh 1fr;}#panel{border-left:0;border-top:3px solid var(--line);}#title{font-size:22px;}#charName{top:44px;font-size:16px;}#gallery{grid-template-columns:repeat(6,1fr);}}
+@media (max-width:480px){#gallery{grid-template-columns:repeat(4,1fr);}}
 </style>
 </head>
 <body>
@@ -44,10 +59,15 @@ html,body{margin:0;height:100%;background:#0b1430;color:#fff;font-family:Nunito,
   <div id="stage">
     <canvas id="c"></canvas>
     <div id="title"></div>
+    <div id="charName"></div>
     <div id="loading"></div>
-    <div id="anims"></div>
+    <div id="bar"></div>
   </div>
   <div id="panel">
+    <h2><span class="step">1</span><span id="h1"></span></h2>
+    <div class="tabs" id="tabs"></div>
+    <div id="gallery"></div>
+    <h2><span class="step">2</span><span id="h2"></span></h2>
     <div id="slots"></div>
     <div id="actions">
       <button id="randBtn"></button><button id="resetBtn"></button><button id="saveBtn" class="save"></button>
