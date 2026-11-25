@@ -70,6 +70,10 @@ export const THIEF = {
   fleeTime: 10,        // seconds a crab runs with a stolen egg before it gets away
 };
 
+// Crab raids on the base: while the player is more than homeDist m from home and an
+// egg lies in an incubator, a crab sneaks in now and then (from minStars stars on).
+export const RAID = { minStars: 2, first: 180, gap: [240, 420], homeDist: 45, speed: 0.75, grabTime: 4, fleeSpeed: 2.4, fleeTime: 22 };
+
 // Coins earned while away: capped, and at a reduced rate.
 export const AWAY = { capSeconds: 8 * 3600, rate: 0.2, minSeconds: 60 };
 

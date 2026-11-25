@@ -204,6 +204,9 @@ body.touch #cross{display:none;}
 .lk img{width:90px;height:108px;display:block;}
 #controls{color:var(--muted);font-size:14px;margin:0 0 16px;line-height:1.5;}
 #controls b{color:var(--ink);}
+#raidBanner{position:relative;background:#c0392b;color:#fff;border-radius:14px;padding:6px 16px;font-size:16px;display:none;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.25);}
+#raidBanner.on{display:block;animation:toastIn .3s;}
+#raidBanner b{font-family:'Fredoka One';font-weight:400;margin:0 4px;}
 #evBanner{position:relative;background:var(--amber);color:var(--navy);border-radius:14px;
   padding:6px 16px;font-size:16px;display:none;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.25);}
 #evBanner.on{display:block;animation:toastIn .3s;}
@@ -268,7 +271,7 @@ body.touch #cross{display:none;}
   <button id="ciRelease"></button><div id="ciAsk"></div></div>
 
 <!-- one column under the coins: event banner, hatch banner, toasts stack instead of overlapping -->
-<div id="topStack"><div id="evBanner"></div>
+<div id="topStack"><div id="raidBanner"></div><div id="evBanner"></div>
 <div id="reveal"><img id="revImg" alt=""><div><div id="revTitle"></div><div><span id="revName"></span><span id="revNew"></span></div><div id="revInfo"></div></div></div>
 <div id="toasts"></div></div>
 

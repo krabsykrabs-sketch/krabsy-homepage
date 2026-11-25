@@ -32,7 +32,7 @@ export class Minimap {
     return c;
   }
   px(x, z) { return [this.size / 2 + (x - ISLAND.cx) * this.scale, this.size / 2 + (z - ISLAND.cz) * this.scale]; }
-  draw({ player, yaw, eggs, thieves, isOpen, carrying }) {
+  draw({ player, yaw, eggs, thieves, isOpen, carrying, raid }) {
     const x = this.x, S = this.size;
     x.clearRect(0, 0, S, S);
     x.save();
@@ -57,6 +57,11 @@ export class Minimap {
     const [hx, hy] = this.px(HOME.x, HOME.z);
     x.fillStyle = '#2ee6c0'; x.strokeStyle = '#0d2240'; x.lineWidth = 2;
     x.beginPath(); x.arc(hx, hy, carrying ? 7 + Math.sin(performance.now() / 150) * 1.5 : 6, 0, Math.PI * 2); x.fill(); x.stroke();
+    if (raid && raid.state !== 'dizzy') { // a raid on the base: home blinks red, the raider is a red square
+      x.strokeStyle = `rgba(255,59,59,${0.5 + 0.5 * Math.sin(performance.now() / 120)})`; x.lineWidth = 3;
+      x.beginPath(); x.arc(hx, hy, 12, 0, Math.PI * 2); x.stroke();
+      const [rx, ry] = this.px(raid.x, raid.z); x.fillStyle = '#ff3b3b'; x.fillRect(rx - 3, ry - 3, 6, 6);
+    }
     // eggs
     for (const e of eggs) {
       const [ex, ey] = this.px(e.x, e.z);

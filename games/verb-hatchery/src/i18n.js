@@ -2,6 +2,8 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    raidStart: 'A crab is sneaking into your hatchery! Hurry home!', raidOn: 'Crab in your hatchery!', raidRun: 'The crab runs off with your egg! Catch it!',
+    raidStolen: 'The crab grabbed an egg from your incubator! Catch it!', raidDefended: 'Hatchery defended!',
     wordsTitle: 'Words to practise', wordsHow: 'answer each one right twice and it leaves the list', wordsNone: 'No words to practise right now. Great!',
     sound_all: 'Music and sounds on', sound_fx: 'Sounds only', sound_off: 'Sound off',
     hallTitle: 'Hall of Fame', hallWelcome: 'Welcome to your Hall of Fame! Creatures here earn ×1.5',
@@ -89,6 +91,8 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    raidStart: 'Eine Krabbe schleicht in deine Brüterei! Schnell nach Hause!', raidOn: 'Krabbe in deiner Brüterei!', raidRun: 'Die Krabbe läuft mit deinem Ei weg! Fang sie!',
+    raidStolen: 'Die Krabbe hat ein Ei aus dem Brutkasten geschnappt! Fang sie!', raidDefended: 'Brüterei verteidigt!',
     wordsTitle: 'Wörter zum Üben', wordsHow: 'zweimal richtig beantwortet – dann verschwindet es', wordsNone: 'Gerade keine Wörter zum Üben. Super!',
     sound_all: 'Musik und Töne an', sound_fx: 'Nur Töne', sound_off: 'Ton aus',
     hallTitle: 'Ruhmeshalle', hallWelcome: 'Willkommen in deiner Ruhmeshalle! Wesen hier verdienen ×1,5',
@@ -176,6 +180,8 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    raidStart: '¡Un cangrejo se cuela en tu criadero! ¡Corre a casa!', raidOn: '¡Cangrejo en tu criadero!', raidRun: '¡El cangrejo huye con tu huevo! ¡Atrápalo!',
+    raidStolen: '¡El cangrejo robó un huevo de tu incubadora! ¡Atrápalo!', raidDefended: '¡Criadero defendido!',
     wordsTitle: 'Palabras para practicar', wordsHow: 'respóndela bien dos veces y sale de la lista', wordsNone: '¡Ahora no hay palabras para practicar. Genial!',
     sound_all: 'Música y sonidos', sound_fx: 'Solo sonidos', sound_off: 'Sin sonido',
     hallTitle: 'Salón de la Fama', hallWelcome: '¡Bienvenido a tu Salón de la Fama! Aquí las criaturas ganan ×1,5',

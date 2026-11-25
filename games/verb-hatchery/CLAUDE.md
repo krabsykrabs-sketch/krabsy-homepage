@@ -943,3 +943,15 @@ heartbeat volume, touch.
   as a full chain (newest first, max 12); it leaves the list after two
   later right answers (a ✓ after the first). Checked headless (two wrong
   answers → two chains in the Book).
+- 2026-11-25: **crab raids on the base** (`src/raid.js`, `RAID` in
+  balance.js): from 2 ★, while the player is > 45 m from home (not in the
+  hall, not during the guidance) and an incubator holds an egg, a crab
+  sneaks in now and then (first after 180 s, then every 240–420 s): red
+  banner with countdown / arrow / distance (`#raidBanner`), home blinks red
+  on the minimap. It walks slowly (0.75 m/s) to the incubator, grabs for
+  4 s. Reach it first → question card (compact): right = it spins away,
+  "Hatchery defended!"; wrong or too late = it runs towards the sea with
+  the egg for 22 s (1.5 s head start); catch it = the egg goes back into
+  the incubator. Events `raid {result: start|bonk|stolen|recovered|escaped}`.
+  QA: `hatchery.startRaid()`, `hatchery.skipTut()`. Checked headless:
+  start + banner, defend, stolen, recovered.

@@ -9,6 +9,7 @@ import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName, animateCreature } from './creatures.js';
+import { Raids } from './raid.js';
 import { Hall, ROOM, HALL_DOOR, HALL_SPAWN, BARN_DOOR, BARN_OUT, PEDESTALS } from './hall.js';
 import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload, entry as ENTRY } from './roster.js';
 import { reserveSpots, buildDecor } from './decor.js';
@@ -25,6 +26,7 @@ const world = new World($('c'));
 const player = new Player(world, $('c'));
 const thieves = new Thieves(world);
 const hall = new Hall(world);
+const raids = new Raids(world);
 const map = new Minimap($('map'));
 let st = S.load() || S.newState();
 let away = { seconds: 0, coins: 0 };
@@ -259,6 +261,57 @@ function endEvent(result) {
   evt = null;
   evtTimer = EVENTS.gap[0] + Math.random() * (EVENTS.gap[1] - EVENTS.gap[0]);
   $('evBanner').classList.remove('on');
+}
+// ── crab raids on the base (raid.js) ──
+function updateRaid(dt, paused) {
+  const ev = raids.update(dt, { st, px: player.pos.x, pz: player.pos.z, indoor: !!player.indoor, tutorial: !!tut, paused });
+  if (ev === 'start') {
+    sfx.alarm(); setTimeout(() => sfx.alarm(), 350);
+    toast(`🚨 ${t('raidStart')}`, 'warn');
+    A.ev('raid', { result: 'start', rarity: raids.r.rarity });
+  } else if (ev === 'caught') {
+    // you got there in time: the question decides
+    const r = raids.r;
+    player.lookAtPoint(r.x, r.z); player.enabled = false;
+    openCard({ kind: 'thief', thief: null, raid: true, rarity: r.rarity });
+  } else if (ev === 'stolen') {
+    st.incubators[raids.r.inc] = null; world.clearIncubator(raids.r.inc);
+    raids.takeEgg(); sfx.steal();
+    toast(`🚨 ${t('raidStolen')}`, 'warn');
+    A.ev('raid', { result: 'stolen', rarity: raids.r.rarity });
+    save();
+  } else if (ev === 'recovered') {
+    const r = raids.r;
+    if (!st.incubators[r.inc]) { st.incubators[r.inc] = { rarity: r.rarity, zone: r.zone, start: Date.now(), dur: S.hatchDuration(st, r.rarity) * 1000 }; syncWorld(); }
+    else st.carry.push({ r: r.rarity, z: r.zone }), player.showCarry(st.carry);
+    raids.bonk(); sfx.bonk(); sfx.ding();
+    floatCenter(`🥚 ${t('gotBack')}`);
+    A.ev('raid', { result: 'recovered', rarity: r.rarity }); save();
+  } else if (ev === 'escaped') {
+    toast(t('crabEscaped'), 'warn'); A.ev('raid', { result: 'escaped', rarity: raids.r.rarity });
+    raids.end();
+  }
+  // the banner while a raid is on
+  const info = raids.info(), el = $('raidBanner');
+  if (!info || info.state === 'dizzy') { el.classList.remove('on'); return; }
+  const s = Math.ceil(info.left), dx = info.x - player.pos.x, dz = info.z - player.pos.z;
+  const fwd = dx * -Math.sin(player.yaw) + dz * -Math.cos(player.yaw), right = dx * Math.cos(player.yaw) + dz * -Math.sin(player.yaw);
+  const txt = info.state === 'flee' ? t('raidRun') : t('raidOn');
+  el.innerHTML = `🚨 ${txt} <b>${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}</b> <span class="evArrow" style="transform:rotate(${Math.atan2(right, fwd)}rad)">➤</span> ${Math.round(Math.hypot(dx, dz))} m`;
+  el.classList.add('on');
+}
+function raidResult(ok) {
+  const r = raids.r; if (!r) return;
+  if (ok) {
+    raids.bonk(); sfx.bonk(); S.bonked(st);
+    floatCenter(`💥 ${t('raidDefended')}`);
+    A.ev('raid', { result: 'bonk', rarity: r.rarity });
+  } else {
+    if (r.state !== 'flee') { st.incubators[r.inc] = null; world.clearIncubator(r.inc); raids.takeEgg(); }
+    sfx.steal(); toast(t('stolenChase'), 'warn');
+    A.ev('raid', { result: 'stolen', rarity: r.rarity });
+  }
+  save(); checkGoals();
 }
 function updateEvent(dt, paused) {
   if (!evt) {
@@ -591,6 +644,7 @@ function closeCard(ok) {
   card = null;
   $('card').classList.remove('on'); $('shade').classList.remove('on', 'light');
   if (c.kind === 'egg') { if (ok) pickedUp(c.egg); else eggRollsAway(c.egg); }
+  else if (c.raid) raidResult(ok);
   else thiefResult(c.thief, ok);
   renderHud();
 }
@@ -959,6 +1013,7 @@ function frame(now) {
     respawn = respawn.filter((r) => r.t > 0);
     for (const r of due) spawnWild(r.zone);
     updateEvent(dt, paused);
+    updateRaid(dt, paused);
     if (!paused) updateTutorial(dt);
     // thieves
     const caught = thieves.update(dt, { x: player.pos.x, z: player.pos.z, carrying: st.carry.length > 0 }, isOpen, paused);
@@ -1016,7 +1071,7 @@ function frame(now) {
     goalT += dt; if (goalT > 0.4) { goalT = 0; checkGoals(); renderHud(); }
     mapT += dt; if (mapT > 0.1) {
       mapT = 0;
-      map.draw({ player: player.pos, yaw: player.yaw, eggs: wild, thieves: thieves.list, isOpen, carrying: st.carry.length > 0 });
+      map.draw({ player: player.pos, yaw: player.yaw, eggs: wild, thieves: thieves.list, isOpen, carrying: st.carry.length > 0, raid: raids.info() });
     }
   } else {
     // before Play: a slow look around from the hatchery
@@ -1129,6 +1184,8 @@ if (DEBUG) {
     },
     home() { this.tp(PAD.x, PAD.z - 1); player.lookAtPoint(PAD.x, PAD.z + 6); },
     act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
+    raids, startRaid() { raids.timer = 0; },
+    skipTut() { if (tut) { tut = null; st.tutDone = true; $('coach').classList.remove('on'); world.scene.remove(tutArrow); evtTimer = EVENTS.first; } },
     sync: syncWorld, open: openPanel, get evt() { return evt; }, startEvent, evtIn(sec) { evtTimer = sec; },
     toEvent() { if (!evt) return null; this.tp(evt.egg.x, evt.egg.z + 3); player.lookAtPoint(evt.egg.x, evt.egg.z); return evt.zone.id; }, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },
   };
