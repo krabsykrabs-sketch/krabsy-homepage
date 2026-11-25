@@ -3,6 +3,17 @@
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-22.)
 
+## Teacher practice links (2026-11-25, not deployed)
+
+Owner idea: a teacher picks topic, game, difficulty and game language and gets a
+permanent link for the class (no account, nothing stored); pupils land on the
+normal Krabsy with a "Practice from your teacher" banner. Built for DE, ES and the
+Spanish section (CLAUDE.md "Teacher practice links"). Tested headless: the three
+builders, links followed into Towers (DE/ES/EN), the games apply difficulty
+(Kitchen sentences, Air Control tiers, Fill the Gap, Sprint) and language, pages
+without a link unchanged (10 DE/ES pages live vs local identical).
+Later: the class code in the link (answers to the class dashboard).
+
 ## Spanish pilot + question format v2 (2026-11-24, LIVE)
 
 Direction: `docs/vision.md` (curated grammar in any learning language,

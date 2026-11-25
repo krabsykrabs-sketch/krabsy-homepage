@@ -26,7 +26,12 @@
     "devices": "phone_ok",
     "featured": true,
     "new_until": "2027-02-28",
-    "hero": "/thumbnails/hero/verb-towers.jpg"
+    "hero": "/thumbnails/hero/verb-towers.jpg",
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ]
   },
   {
     "id": "quiz-room",
@@ -49,7 +54,12 @@
     "kind": "3d",
     "devices": "phone_ok",
     "new_until": "2027-02-28",
-    "hero": "/thumbnails/hero/quiz-room.jpg"
+    "hero": "/thumbnails/hero/quiz-room.jpg",
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ]
   },
   {
     "id": "verb-kitchen",
@@ -78,6 +88,11 @@
     "hero": "/thumbnails/hero/verb-kitchen.jpg",
     "featured_langs": [
       "en"
+    ],
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
     ]
   },
   {
@@ -104,7 +119,12 @@
     "kind": "3d",
     "devices": "large_screen",
     "thumb_small": "/thumbnails/sm/verb-platformer.jpg",
-    "hero": "/thumbnails/hero/verb-platformer.jpg"
+    "hero": "/thumbnails/hero/verb-platformer.jpg",
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ]
   },
   {
     "id": "verb-dungeon",
@@ -125,7 +145,12 @@
     "status": "ready",
     "kind": "3d",
     "devices": "phone_ok",
-    "new_until": "2027-03-31"
+    "new_until": "2027-03-31",
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ]
   },
   {
     "id": "verb-snake",
@@ -145,7 +170,12 @@
     "kind": "arcade",
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-snake-v2.jpg",
-    "hero": "/thumbnails/hero/verb-snake-v2.jpg"
+    "hero": "/thumbnails/hero/verb-snake-v2.jpg",
+    "ui_langs": [
+      "de",
+      "es",
+      "en"
+    ]
   },
   {
     "id": "air-control",
@@ -164,7 +194,11 @@
     "status": "ready",
     "kind": "arcade",
     "devices": "large_screen",
-    "thumb_small": "/thumbnails/sm/air-control.jpg"
+    "thumb_small": "/thumbnails/sm/air-control.jpg",
+    "ui_langs": [
+      "de",
+      "es"
+    ]
   },
   {
     "id": "verb-flow",
@@ -183,6 +217,10 @@
     "status": "ready",
     "kind": "arcade",
     "devices": "phone_ok",
-    "thumb_small": "/thumbnails/sm/verb-flow.jpg"
+    "thumb_small": "/thumbnails/sm/verb-flow.jpg",
+    "ui_langs": [
+      "de",
+      "es"
+    ]
   }
 ]

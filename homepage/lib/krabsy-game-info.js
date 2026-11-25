@@ -44,6 +44,38 @@
     } catch (_) { /* ignore */ }
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  /* Teacher practice link (from=teacher, built on the teacher pages): say so in the
+     slim bar under the game — "📌 Practice from your teacher: Estoy (estar) · easy". */
+  var BANNER = {
+    de: { lead: 'Übung von deiner Lehrkraft', lv: ['leicht', 'leicht + mittel', 'alles'] },
+    es: { lead: 'Práctica de tu docente', lv: ['fácil', 'fácil + media', 'todo'] },
+    en: { lead: 'Practice from your teacher', lv: ['easy', 'easy + medium', 'everything'] }
+  };
+  function banner() {
+    var p;
+    try { p = new URLSearchParams(location.search); } catch (_) { return; }
+    if (p.get('from') !== 'teacher') return;
+    var hint = document.querySelector('.kg-scroll-hint');
+    if (!hint) return;
+    var lang = BANNER[document.documentElement.lang] ? document.documentElement.lang : 'en';
+    var T = BANNER[lang];
+    var lvl = parseInt(p.get('difficulty'), 10);
+    var topic = p.get('topic');
+    function show(topicName) {
+      var bits = [topicName, lvl >= 1 && lvl <= 3 ? T.lv[lvl - 1] : ''].filter(Boolean);
+      var b = document.createElement('span');
+      b.className = 'kg-teacher-set';
+      b.textContent = '📌 ' + T.lead + (bits.length ? ': ' + bits.join(' · ') : '');
+      hint.insertBefore(b, hint.firstChild);
+      hint.classList.add('has-teacher-set');
+    }
+    if (!topic) return show('');
+    fetch('/data/topics.json').then(function (r) { return r.json(); }).then(function (t) {
+      var d = t[topic] && t[topic].display_name;
+      show(d ? (d[lang] || d.en || d.de || '') : '');
+    }).catch(function () { show(''); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); banner(); });
+  else { init(); banner(); }
 })();

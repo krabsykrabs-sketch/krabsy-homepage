@@ -70,7 +70,9 @@ async function buildSentenceQueue(level, gates) {
   const set = await KQ.getQuizSet({ topic: TOPIC, count: 1000, withOptions: 3, uniqueBy: 'id', lang: getLang() });
   let all = set.filter(q => q.display && q.display.kind === 'gap').map(sentenceQuestion).filter(Boolean);
   if (!all.length) throw new Error('no sentences');
-  const cap = Array.isArray(level.tiers) && level.tiers.length ? Math.max(...level.tiers) : 3;
+  // A teacher link (?difficulty=) already filtered the set in the engine: keep it as is.
+  const linked = typeof KQ.difficultyFromUrl === 'function' && KQ.difficultyFromUrl();
+  const cap = linked ? 3 : Array.isArray(level.tiers) && level.tiers.length ? Math.max(...level.tiers) : 3;
   const easy = all.filter(q => q.difficulty <= cap);
   if (easy.length >= Math.min(6, gates.length)) all = easy;
   // one sentence per gate, different items first, then any unused sentence

@@ -48,7 +48,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-12">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-25">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -178,6 +178,7 @@
     allow="autoplay; fullscreen; gamepad"
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
+  <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
   <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Snake</a>
   <main class="kg-info" id="instrucciones" lang="es">
     <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Snake</span></nav>
@@ -227,7 +228,7 @@
     </div>
     <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-12" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-25" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">

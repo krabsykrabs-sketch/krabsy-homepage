@@ -32,6 +32,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
 </head>
 <body class="tc-page">
@@ -145,6 +146,16 @@
       </section>
 
       <!-- ── Sala de quiz (live quiz, every child on their own device) ── -->
+      <!-- ── Practice link builder (lib/krabsy-link-builder.js, 2026-11-25) ── -->
+      <section class="tc-sec tc-band" id="enlace-de-practica">
+        <div class="tc-wrap">
+          <p class="tc-kicker">Nuevo · Enlace de práctica</p>
+          <h2 class="tc-h2">Crea un enlace de práctica para tu clase</h2>
+          <p class="tc-sub">Elige tema, juego, dificultad e idioma del juego. Comparte el enlace en Moodle, Teams o con un código QR; funciona siempre y no se guarda nada.</p>
+          <div id="link-builder" data-lang="es"></div>
+        </div>
+      </section>
+
       <section class="tc-sec" id="sala-de-quiz">
         <div class="tc-wrap">
           <div class="tc-quiz">
@@ -569,6 +580,7 @@
       });
     })();
   </script>
+  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-25"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

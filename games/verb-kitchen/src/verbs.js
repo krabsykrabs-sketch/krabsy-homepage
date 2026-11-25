@@ -250,8 +250,10 @@ export function makePair(missed = [], recentlyAsked = new Set()) {
     if (VERBS.some((x) => x.v === base)) { verb = base; fromMissed = true; }
   }
   if (!verb) {
-    const fresh = VERBS.filter((x) => !recentlyAsked.has(x.v));
-    verb = pick(fresh.length ? fresh : VERBS).v;
+    // engine loaded: only its verbs (a teacher link may have narrowed them to easy ones)
+    const pool = enginePairs ? VERBS.filter((x) => enginePairs.has(x.v)) : VERBS;
+    const fresh = pool.filter((x) => !recentlyAsked.has(x.v));
+    verb = pick(fresh.length ? fresh : pool).v;
   }
   const src = enginePairs && enginePairs.get(verb);
   const pair = src

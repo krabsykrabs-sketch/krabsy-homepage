@@ -1016,6 +1016,7 @@ async function loadSentences() {
           alts: ans.slice(1),
           sentence: h ? ex.sentence + ' (' + h + ')' : ex.sentence,
           hintLabel: 'pattern_hint',
+          level: ex.difficulty || 1,
         });
       }
     }
@@ -1033,6 +1034,7 @@ async function loadSentences() {
           alts: valid.slice(1),
           sentence: ex.sentence,
           hintLabel: 'pattern_hint',
+          level: ex.difficulty || 1,
         });
       }
     }
@@ -1051,8 +1053,18 @@ async function loadSentences() {
         alts:    Array.isArray(x.correct_alt) ? x.correct_alt : [],
         sentence: x.context_sentence,
         hintLabel: 'verb_hint',
+        level: x.tier || 1,
       }));
   }
+  // Teacher practice link (?difficulty=N): level ≤ N (verbs: tier, sentences: difficulty);
+  // too few left → keep all (same rule as the site question engine).
+  try {
+    const lvl = parseInt(new URLSearchParams(location.search).get('difficulty'), 10);
+    if (lvl >= 1 && lvl <= 3) {
+      const keep = SENTENCES.filter(s => (s.level || 1) <= lvl);
+      if (keep.length >= 6) SENTENCES = keep;
+    }
+  } catch (_) {}
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

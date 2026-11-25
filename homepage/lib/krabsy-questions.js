@@ -57,6 +57,8 @@ import {
   getLang as _getLang,
   pickLang as _pickLang,
   TOPIC_IDS as _TOPIC_IDS,
+  linkLevel as _linkLevel,
+  LINK_LEVEL_MIN as _LINK_LEVEL_MIN,
   topicInfo as _topicInfo,
   registerTopic,
 } from '/lib/krabsy-data.js';
@@ -69,6 +71,12 @@ import { rankItems as _rankItems } from '/lib/krabsy-smart.js';
     krabsy-data.js; a topic's `learn` says which language it teaches. */
 export const TOPICS = _TOPIC_IDS;
 export { registerTopic };
+
+/** Level from a teacher practice link (?difficulty=1–3) or null. getQuizSet and
+    getChainSet apply it on their own; games only need it to skip their own caps. */
+export function difficultyFromUrl() {
+  return _linkLevel();
+}
 
 /** { learn, level, shapes, file? } or null. */
 export function topicInfo(topic) {
@@ -156,9 +164,18 @@ export async function getChainSet(opts = {}) {
     if (!w) { w = { past: [], participle: [] }; wrong.set(q.verb, w); }
     if (Array.isArray(q.wrong_answers)) w[q.form] = q.wrong_answers.slice();
   }
+  // Teacher practice link (?difficulty=N): verb tiers 1…N replace the caller's tiers
+  // (unless that leaves too few verbs).
+  const lvl = _linkLevel();
+  let useTiers = tiers;
+  if (lvl) {
+    const linked = [1, 2, 3].filter((t) => t <= lvl);
+    const n = rows.filter((r) => r.past && r.participle && linked.includes(r.tier)).length;
+    if (n >= _LINK_LEVEL_MIN) useTiers = linked;
+  }
   let out = rows
     .filter((r) => r.past && r.participle)
-    .filter((r) => (tiers ? tiers.includes(r.tier) : true))
+    .filter((r) => (useTiers ? useTiers.includes(r.tier) : true))
     .filter((r) => (ids ? ids.includes(r.verb) : true))
     .filter((r) => (maxLen
       ? Math.max(r.verb.length, r.past.length, r.participle.length) <= maxLen

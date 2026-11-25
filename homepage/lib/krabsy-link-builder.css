@@ -1,0 +1,25 @@
+/* Teacher practice link builder (krabsy-link-builder.js), on the teacher pages. */
+#link-builder { display: grid; gap: 22px; }
+.lb-step h3 { margin: 0 0 10px; font-family: var(--tc-display, 'Fredoka One', sans-serif); font-size: 1.1rem; }
+.lb-group { margin: 6px 0 8px; font-size: .85rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--tc-mute, #5b6478); }
+.lb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lb-chip input, .lb-target input { position: absolute; opacity: 0; pointer-events: none; }
+.lb-chip span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 2px solid #d6dbe6; background: #fff; font-weight: 700; cursor: pointer; }
+.lb-chip input:checked + span { border-color: #2ee6c0; background: #e3fbf5; }
+.lb-chip input:focus-visible + span, .lb-target input:focus-visible + .lb-target-box { outline: 3px solid #ff8585; outline-offset: 2px; }
+.lb-targets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.lb-target { position: relative; cursor: pointer; }
+.lb-target-box { display: flex; flex-direction: column; border: 2px solid #d6dbe6; border-radius: 14px; background: #fff; overflow: hidden; height: 100%; }
+.lb-target-box img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.lb-target-ico { display: grid; place-items: center; aspect-ratio: 16 / 9; font-size: 28px; background: #f3f6ec; }
+.lb-target-name { padding: 8px 10px; font-weight: 800; font-size: .95rem; }
+.lb-target input:checked + .lb-target-box { border-color: #2ee6c0; box-shadow: 0 0 0 3px #2ee6c055; }
+.lb-note { margin: 8px 0 0; font-size: .9rem; color: var(--tc-mute, #5b6478); max-width: 640px; }
+.lb-result { display: grid; gap: 18px; align-items: start; background: #fff; border: 2px solid #2ee6c0; border-radius: 18px; padding: 18px; }
+@media (min-width: 720px) { .lb-result { grid-template-columns: 1fr 180px; } }
+.lb-link-label { display: block; font-weight: 800; margin-bottom: 6px; }
+.lb-link { width: 100%; box-sizing: border-box; font: 600 .95rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 10px 12px; border: 2px solid #d6dbe6; border-radius: 10px; background: #f8f9fb; }
+.lb-actions { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-top: 12px; }
+.lb-qr { margin: 0; text-align: center; }
+.lb-qr svg { width: 160px; height: 160px; display: block; margin: 0 auto 6px; }
+.lb-qr figcaption { font-size: .8rem; color: var(--tc-mute, #5b6478); }

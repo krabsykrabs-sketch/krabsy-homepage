@@ -43,7 +43,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "homepage"
 SITE = "https://krabsy.com"
-ASSET_VER = "2026-11-12"
+ASSET_VER = "2026-11-25"   # bump when krabsy-game-info.js/.css change
 
 HEAD_START = "<!-- GAME-HEAD:START (tools/render_game_info.py) -->"
 HEAD_END = "<!-- GAME-HEAD:END -->"
@@ -105,7 +105,7 @@ L = {
         "hint": "▼ How to play {name}",
         "crumbs_label": "Breadcrumbs", "home": "Krabsy Spanish", "games": "Games",
         "howto": "How to play {name}", "learn": "What you practise",
-        "teach": "Using it in lessons", "teach_more": 'For live lessons: <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">open the Quiz Room</a>',
+        "teach": "Using it in lessons", "teach_more": '<a href="/en/spanish/teachers/#practice-link">Make a practice link</a> · <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Quiz Room for live lessons</a>',
         "faq": "Questions and answers", "more": "Keep practising", "related": "More Spanish games",
         "verbs_intro": "",
         "top": "▲ Back to the game", "play": "Play →",
@@ -147,6 +147,14 @@ def render_body(gid, lang, games, inline_game):
     name = game_name(gmap[gid], lang)
     url_games = f"/{lang}/{t['folder']}/"
     out = [BODY_START]
+    if not inline_game:
+        # Teacher practice links (2026-11-25): pass ?lang= ?topic= ?difficulty= of this page
+        # on to the game frame (right after the iframe, so the game loads with them).
+        out.append('<script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");'
+                   'if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;'
+                   '["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);'
+                   'if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});'
+                   'if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>')
     if inline_game:
         # Inlined games are absolutely positioned; this spacer reserves their
         # height in the page flow (height set from resizeWorld()).

@@ -77,6 +77,37 @@ export function loadPrepositions() {
   return _prepositionsPromise;
 }
 
+/* ── Teacher practice links (2026-11-25) ────────────────────────────────────
+   ?difficulty=N in the page URL (a game frame gets it from its wrapper page)
+   limits every question source to level ≤ N: sentence topics by the question's
+   difficulty (1–3), irregular verbs by the verb's tier (1 = everyday verbs).
+   If fewer than LINK_LEVEL_MIN questions remain, the filter is dropped rather
+   than leaving a game without questions. */
+export const LINK_LEVEL_MIN = 6;
+
+/** Level from the link (1–3) or null. */
+export function linkLevel() {
+  try {
+    const v = parseInt(new URLSearchParams(window.location.search).get('difficulty'), 10);
+    return v >= 1 && v <= 3 ? v : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function _applyLinkLevel(topic, list) {
+  const lvl = linkLevel();
+  if (!lvl || !list.length) return list;
+  let keep;
+  if (topic === 'irregular_verbs') {
+    const tier = new Map((await loadVerbTable()).map((r) => [r.verb, r.tier || 1]));
+    keep = list.filter((q) => (tier.get(q.verb) || 1) <= lvl);
+  } else {
+    keep = list.filter((q) => (q.difficulty || 1) <= lvl);
+  }
+  return keep.length >= LINK_LEVEL_MIN ? keep : list;
+}
+
 /* ── Question topics: registry (format v2, docs/vision.md) ──────────────────
    Every topic a game or drill can ask. `learn` = the language being
    learned (the sentences); the interface language is getLang().
@@ -640,6 +671,8 @@ export async function getQuestions(opts = {}) {
   } else {
     throw new Error(`getQuestions: unknown topic "${topic}"`);
   }
+
+  out = await _applyLinkLevel(topic, out);   // teacher practice link (?difficulty=)
 
   if (smart) {
     const perItem = chainOrder && topic === 'irregular_verbs' && !form ? 2 : 1;

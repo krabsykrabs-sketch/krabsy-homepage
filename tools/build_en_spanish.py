@@ -202,6 +202,8 @@ def build_fill(t):
     s = sub(s, 'src="/games/fill-the-gap.html?lang=de&topic=prepositions"',
             f'src="/games/fill-the-gap.html?lang=en&topic={t["topic"]}"')
     s = sub(s, 'title="Lückentext — Präpositionen"', f'title="Fill the Gap — Spanish {t["name"]}"')
+    s = sub(s, '<!-- teacher practice link: pass ?difficulty= ?lang= on to the game frame -->',
+            '<!-- teacher practice link: pass ?difficulty= ?lang= on to the game frame -->')
     s = re.sub(r'(<p class="fg-narrow-note">).*?(</p>)',
                r'\1Fill the Gap needs a wider screen. Open this page on a device at least 900&nbsp;px wide, in landscape.\2',
                s, count=1, flags=re.S)
@@ -288,7 +290,7 @@ def build_topic_hub(t):
   <h2 id="ka-title">What you practise here</h2>
   <p>Every question is a short Spanish sentence with one gap. After a wrong answer you see the right sentence and a short rule in English, so you learn why, not only what. No grammar terms needed.</p>
   <h3>For teachers</h3>
-  <p>Run a live <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Quiz Room</a> with your class or with one pupil in an online lesson: you see every question first and can swap or remove any. No accounts, first names only.</p>
+  <p>Make a <a href="/en/spanish/teachers/#practice-link">practice link</a> with this topic, a game and a difficulty, or run a live <a href="/games/quiz-room/teacher.html?topic={t["topic"]}&amp;lang=en">Quiz Room</a> with your class or one pupil online. No accounts, first names only.</p>
   <ul class="k-article-links">
     <li><a href="{url}sprint/">Sprint</a>: 20 sentences against the clock.</li>
     <li><a href="{url}fill-the-gap/">Fill the Gap</a>: type the missing word.</li>
@@ -298,6 +300,60 @@ def build_topic_hub(t):
 
 {FOOTER}'''
     s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
+    return url, s
+
+
+def build_teachers():
+    """Teacher page: practice link builder + Quiz Room (teacher-page styles of /de/lehrkraefte/)."""
+    url = '/en/spanish/teachers/'
+    s = head('Krabsy for Spanish teachers',
+             'Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.', url) + \
+        f'''  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
+</head>
+<body>
+  <div class="k-page">
+
+{HEADER}
+
+    <main>
+      <section class="tc-sec">
+        <div class="tc-wrap">
+          <p class="tc-kicker">For teachers</p>
+          <h1 class="tc-h2">Spanish practice your pupils actually want to do</h1>
+          <p class="tc-sub">Free games and drills for Spanish grammar at beginner level. Send a practice link for homework or between lessons, or run a live Quiz Room in class or in an online lesson. No accounts, no names stored.</p>
+        </div>
+      </section>
+
+      <section class="tc-sec tc-band" id="practice-link">
+        <div class="tc-wrap">
+          <p class="tc-kicker">Practice link</p>
+          <h2 class="tc-h2">Make a practice link for your pupils</h2>
+          <p class="tc-sub">Choose a topic, a game or drill, the difficulty and the language of the game's menus. Share the link in your learning platform, by message or as a QR code. It works for good, and nothing is saved.</p>
+          <div id="link-builder" data-lang="en"></div>
+        </div>
+      </section>
+
+      <section class="tc-sec" id="quiz-room">
+        <div class="tc-wrap">
+          <p class="tc-kicker">Live</p>
+          <h2 class="tc-h2">The Quiz Room: live with your class or one pupil</h2>
+          <p class="tc-sub">Every pupil walks through a 3D room as a little character and answers on their own screen. You choose the topic, see every question first (swap or remove any) and, at the end, the sentences to practise again. Works in class and over Zoom.</p>
+          <div class="tc-ctas"><a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room</a></div>
+        </div>
+      </section>
+
+      <section class="tc-sec tc-band" id="privacy">
+        <div class="tc-wrap">
+          <h2 class="tc-h2">Privacy</h2>
+          <p class="tc-sub">No accounts, no e-mail addresses, no cookies. Progress stays in the pupil's browser. Details in the <a href="/en/privacy/">privacy policy</a>.</p>
+        </div>
+      </section>
+    </main>
+
+{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-25"></script>\n  <script src="/lib/krabsy-footer.js', 1)}'''
     return url, s
 
 
@@ -377,7 +433,7 @@ def build_game_page(gid):
 
 
 def main():
-    pages = [build_games_hub()] + [build_game_page(g) for g in GAMES]
+    pages = [build_games_hub(), build_teachers()] + [build_game_page(g) for g in GAMES]
     for t in TOPICS:
         pages.append(build_topic_hub(t))
     for url, html in pages:

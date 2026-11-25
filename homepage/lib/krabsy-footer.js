@@ -106,7 +106,7 @@
   var SECTION = {
     de: { games: '/de/spiele/', teacher: { label: 'Für Lehrkräfte', href: '/de/lehrkraefte/' } },
     es: { games: '/es/juegos/', teacher: { label: 'Para docentes', href: '/es/docentes/' } },
-    en: { games: '/en/spanish/games/', teacher: { label: 'For teachers: Quiz Room', href: '/games/quiz-room/teacher.html?topic=es_ser&lang=en' } }
+    en: { games: '/en/spanish/games/', teacher: { label: 'For teachers', href: '/en/spanish/teachers/' } }
   };
 
   function fetchJSON(url) {
