@@ -2,9 +2,11 @@
 import { t, getLang, setLang, LANGS } from './i18n.js';
 import { getBest, formatTime } from './progress.js';
 import { starsHtml, helpHtml, esc, CLOCK_SVG } from './shell-bits.js';
-import { playerFigureInfo } from './player-character.js';
+import { HEROES, mineInfo } from './player-character.js';
+import { getHero, saveHero } from './hero.js';
 
-export function createMenu({ levels, onPick }) {
+// onHero(hero): a hero was picked (main.js swaps the player's mesh in the background).
+export function createMenu({ levels, onPick, onHero }) {
   const root = document.getElementById('menu');
   const list = document.getElementById('menu-list');
   const playBtn = document.getElementById('play-btn');
@@ -13,21 +15,78 @@ export function createMenu({ levels, onPick }) {
   const starsTotal = document.getElementById('stars-total');
   const help = document.getElementById('menu-help');
   const langSwitch = document.getElementById('lang-switch');
+  const heroPick = document.getElementById('hero-pick');
+  const heroTiles = document.getElementById('hero-tiles');
   const figLink = document.getElementById('figure-link');
-  const figPic = document.getElementById('figure-pic');
-  figPic.addEventListener('error', () => { figPic.hidden = true; });
 
-  // "You play your figure" + the link to the site's figure page. Hidden when the figure
-  // module isn't there (file://, a bare dev server): the link would lead nowhere.
-  function renderFigure() {
-    const info = playerFigureInfo();
-    figLink.hidden = !info || !!info.local;
-    if (figLink.hidden) return;
-    figLink.href = t('figureUrl');
-    figPic.src = `/assets/figures/portraits/${encodeURIComponent(info.char)}.webp`;
-    document.getElementById('figure-mine').textContent = info.own ? t('figureMine') : '';
-    document.getElementById('figure-text').textContent = t('figureLink');
+  // ---- Hero picker (docs/game-contract.md "Hero choice on the start screen") ----
+  // Tile 1 = the child's figure (or the Schülerin), preselected; then the free heroes.
+  // Hidden when the figure module is missing (file://, bare dev server): the old Ranger
+  // plays then and the link would lead nowhere. Never throws.
+  let mine = null;                  // { char, own } from the figure module, or null
+  const mineP = mineInfo().then(m => { mine = m; }).catch(() => { mine = null; });
+
+  function heroTile(hero) {
+    const isMine = hero === 'mine';
+    const char = isMine ? mine.char : hero;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hero-tile';
+    btn.dataset.hero = hero;
+    btn.setAttribute('role', 'radio');
+    const name = isMine ? t('heroMine') : (t(`hero.${hero}`) || hero);
+    btn.title = name;
+    btn.innerHTML =
+      `<span class="hero-pic"><img alt="" width="64" height="64" decoding="async" src="/assets/figures/portraits/${encodeURIComponent(char)}.webp"></span>` +
+      `<span class="hero-name">${esc(name)}</span>` +
+      `<span class="hero-mine">${isMine && mine.own ? esc(t('figureMine')) : ''}</span>`;
+    // no portrait → the first letter in the circle
+    btn.querySelector('img').addEventListener('error', (e) => {
+      const pic = e.target.parentElement;
+      e.target.remove();
+      pic.textContent = name.slice(0, 1);
+    });
+    btn.addEventListener('click', () => choose(hero, false));
+    return btn;
   }
+
+  function markChosen(focus) {
+    const cur = getHero();
+    for (const b of heroTiles.children) {
+      const on = b.dataset.hero === cur;
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+      b.tabIndex = on ? 0 : -1;               // roving tab stop: Tab reaches the chosen tile
+      if (on && focus) b.focus();
+    }
+  }
+
+  function choose(hero, focus) {
+    if (!HEROES.includes(hero)) return;
+    saveHero(hero);
+    markChosen(focus);
+    try { onHero?.(hero); } catch (_) { /* ignore */ }
+  }
+
+  // Arrow keys move the choice (radio group).
+  heroTiles.addEventListener('keydown', (e) => {
+    const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!d) return;
+    e.preventDefault();
+    const i = HEROES.indexOf(getHero());
+    choose(HEROES[(i + d + HEROES.length) % HEROES.length], true);
+  });
+
+  function renderHeroes() {
+    heroPick.hidden = !mine;
+    if (!mine) return;
+    heroTiles.innerHTML = '';
+    for (const h of HEROES) heroTiles.appendChild(heroTile(h));
+    markChosen(false);
+    heroTiles.setAttribute('aria-label', t('heroPick'));
+    figLink.href = t('figureUrl');
+    figLink.textContent = t('figureLink');
+  }
+  mineP.then(() => { if (!root.hidden) renderHeroes(); });
 
   let nextLevel = null;
 
@@ -68,7 +127,7 @@ export function createMenu({ levels, onPick }) {
       : '';
 
     help.innerHTML = helpHtml();
-    renderFigure();
+    renderHeroes();
 
     // level cards
     list.innerHTML = '';

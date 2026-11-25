@@ -2,6 +2,7 @@ import { createGame } from './src/game.js';
 import { Track } from './src/analytics.js';
 import { toggleMuted } from './src/sound.js';
 import { fontsReady } from './src/shell-bits.js';
+import { getHero } from './src/hero.js';
 import { createMenu } from './src/menu.js';
 import { createUI } from './src/ui.js';
 import { applyStatic, t } from './src/i18n.js';
@@ -88,9 +89,18 @@ const ui = createUI({
   },
 });
 
+// Hero switches run one after the other; each makes the player match the saved choice
+// (a no-op when it already does). Started on a pick, awaited at the next level start.
+let heroSwitch = Promise.resolve();
+function applyHero() {
+  heroSwitch = heroSwitch.then(() => game.setHero(getHero())).catch(e => console.warn('[krabsy3d] hero switch failed', e));
+  return heroSwitch;
+}
+
 const menu = createMenu({
   levels: LEVELS,
   onPick: (lvl) => startLevel(lvl),
+  onHero: () => { applyHero(); },
 });
 
 // Desktop only: tell the player how to get mouse look when the mouse is not captured.
@@ -119,6 +129,7 @@ async function startLevel(lvl) {
   if (!wantHint) game.lockPointer();
   try {
     await fontsReady();      // the signs are drawn with the site font
+    if (!editorMode) await applyHero();   // the hero picked on the title screen
     await game.startLevel(lvl);
   } finally {
     ui.hideLoader();

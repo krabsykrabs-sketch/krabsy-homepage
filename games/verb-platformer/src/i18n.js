@@ -81,6 +81,9 @@ const EN = {
 
   figureLink: 'Play with your figure\u00a0→',
   figureMine: 'That’s you!',
+  heroPick: 'Choose your hero',
+  heroMine: 'Your figure',
+  'hero.Ranger': 'Ranger',
   figureUrl: '/en/my-figure/',
 };
 
@@ -157,6 +160,9 @@ const DE = {
 
   figureLink: 'Spiel mit deiner Figur\u00a0→',
   figureMine: 'Das bist du!',
+  heroPick: 'Wähle deine Spielfigur',
+  heroMine: 'Deine Figur',
+  'hero.Ranger': 'Waldläufer',
   figureUrl: '/de/meine-figur/',
 };
 
@@ -234,6 +240,9 @@ const ES = {
 
   figureLink: 'Juega con tu personaje\u00a0→',
   figureMine: '¡Este eres tú!',
+  heroPick: 'Elige tu héroe',
+  heroMine: 'Tu personaje',
+  'hero.Ranger': 'Guardabosques',
   figureUrl: '/es/mi-personaje/',
 };
 

@@ -69,11 +69,13 @@
           <span class="btn-sub" id="play-sub"></span>
         </button>
         <div class="stars-total" id="stars-total"></div>
-        <!-- The child's figure (site: Meine Figur); the game runs in an iframe → _top -->
-        <a class="figure-link" id="figure-link" target="_top" hidden>
-          <img id="figure-pic" alt="" width="48" height="48" decoding="async">
-          <span><b id="figure-mine"></b><span id="figure-text"></span></span>
-        </a>
+        <!-- Hero picker (docs/game-contract.md "Hero choice on the start screen"): the child's
+             figure first, then this game's free heroes. Filled by src/menu.js; hidden when the
+             site's figure module is missing. The game runs in an iframe → the link uses _top. -->
+        <div class="hero-pick" id="hero-pick" hidden>
+          <div class="hero-tiles" id="hero-tiles" role="radiogroup" data-i18n-aria="heroPick"></div>
+          <a class="figure-link" id="figure-link" target="_top"></a>
+        </div>
         <div class="help" id="menu-help"></div>
       </section>
       <section class="menu-levels">

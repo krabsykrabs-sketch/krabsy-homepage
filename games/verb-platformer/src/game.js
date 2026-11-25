@@ -3,6 +3,7 @@ import { initPhysics } from './physics.js';
 import { createControls } from './controls.js';
 import { createFollowCamera } from './camera.js';
 import { createPlayer } from './player.js';
+import { getHero } from './hero.js';
 import { loadLevel } from './level-loader.js';
 import { ParticleSystem, preloadParticles } from './particles.js';
 import { loadAudio, loadTexture, playSfx } from './assets.js';
@@ -224,7 +225,7 @@ export async function createGame(canvas) {
   const { RAPIER, world } = await initPhysics();
 
   // ---- Player (created once, teleported between levels and on respawn) ----
-  const player = await createPlayer(scene, world, RAPIER, { x: 0, y: 50, z: 0 });
+  const player = await createPlayer(scene, world, RAPIER, { x: 0, y: 50, z: 0 }, getHero());
 
   // ---- Blob shadow ----
   const shadowTex = loadTexture('./assets/sprites/blob_shadow.png');
@@ -515,6 +516,9 @@ export async function createGame(canvas) {
     startLevel,
     stopGame,
     // Pause hook for the shell. Resuming drops a jump pressed while the game stood still.
+    // Title-screen hero picker: swap the player's mesh ('mine' | 'Ranger'). Resolves when done.
+    setHero: (h) => player.setHero(h),
+    getHero: () => player.hero,
     setPaused(p) {
       paused = !!p;
       if (!paused) { input.consumeJump(); input.consumeLook(); acc = 0; }

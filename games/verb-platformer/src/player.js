@@ -9,10 +9,11 @@ const GRAVITY      = 28.0;    // m/s^2  (Rapier world gravity is separate; this 
 const MAX_FALL     = 35.0;    // terminal velocity clamp
 const COYOTE_TIME  = 0.12;    // grace window (s) to still jump just after leaving the ground (walk/slide off a ledge)
 
-export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z: 0 }) {
+// hero: 'mine' | 'Ranger' (player-character.js HEROES); setHero() swaps it later.
+export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z: 0 }, hero = 'mine') {
   // Visual + animation are owned by player-character.js. Future character swaps touch only
   // that module — capsule, controller, gravity, jumps, rider-delta, teleport all stay here.
-  const character = await createPlayerCharacter(scene);
+  let character = await createPlayerCharacter(scene, hero);
 
   // Capsule-ish: half-height 0.4, radius 0.3. Translation = capsule center. DO NOT CHANGE THIS
   // without re-tuning gap distances + jump arcs in every level. The visual mesh is scaled to
@@ -148,5 +149,30 @@ export async function createPlayer(scene, world, RAPIER, spawn = { x: 0, y: 5, z
     if (dy > 0 && state.vy < 0) state.vy = 0;
   }
 
-  return { mesh: character.root, body, collider, update, getPosition, teleport, applyPush, state };
+  // Another hero (title-screen picker): build it, then swap meshes in place (position,
+  // facing, visibility carry over). The capsule and everything physical stay. A newer call
+  // wins; a failed build keeps the current hero.
+  let heroToken = 0;
+  async function setHero(next) {
+    if (next === character.hero) return;
+    const token = ++heroToken;
+    let fresh;
+    try { fresh = await createPlayerCharacter(scene, next); } catch (e) {
+      console.warn('[player] hero switch failed, keeping the current one', e);
+      return;
+    }
+    if (token !== heroToken) { fresh.dispose(); return; }
+    const old = character;
+    fresh.root.position.copy(old.root.position);
+    fresh.root.quaternion.copy(old.root.quaternion);
+    fresh.root.visible = old.root.visible;
+    character = fresh;
+    old.dispose();
+  }
+
+  return {
+    get mesh() { return character.root; },
+    get hero() { return character.hero; },
+    setHero, body, collider, update, getPosition, teleport, applyPush, state,
+  };
 }

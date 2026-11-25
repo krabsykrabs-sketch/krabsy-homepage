@@ -226,7 +226,7 @@ What a level-design session should do:
 
 (The old "to bring it back" steps were done on 2026-11-22, see Status.)
 
-## The player's figure (2026-11-25; source only, served copy NOT rebuilt yet)
+## The player's figure (2026-11-25; built 041d726. Fallback and pill changed since: see "Hero picker")
 
 The child's own figure (site page "Meine Figur", `docs/game-contract.md` "The player's
 figure") is the player character. **Master session: rebuild the served copy** with
@@ -264,6 +264,44 @@ figure") is the player character. **Master session: rebuild the served copy** wi
   renders), bot reaches the flag (first-steps with no figure / Protagonist_A / Witch,
   all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
   and on file:// the old Ranger loads and the link is hidden.
+
+## Hero picker on the title screen (2026-11-25; source only, served copy NOT rebuilt)
+
+Master-session job (docs/game-contract.md "Hero choice on the start screen"). **Master
+session: rebuild the served copy** (`tools/build-release.cjs`, server with `/lib`, `/data`
+and `/assets/figures/`) and stamp.
+
+- **Heroes** (`HEROES` in `src/player-character.js`): `'mine'` = the child's figure via
+  `loadPlayerFigure({ fallback: 'Protagonist_A' })`, i.e. the **Schülerin** for a child
+  without one (was the Ranger); `'Ranger'` = this game's free hero, the original
+  `./assets/character/Ranger.glb` **with its quiver** (a game item here). The Ranger is
+  never written to the child's figure. When the figure module is missing or a figure
+  fails to load, `'mine'` falls back to the local Ranger the old way (unchanged).
+- **Choice:** `src/hero.js`, localStorage `krabsy_vp_hero` (`mine` | `Ranger`), default
+  `mine`. The game is created with it; `player.setHero()` (src/player.js) swaps the mesh
+  in place (position/facing/visibility carry over, old one disposed, newest call wins, a
+  failed build keeps the current hero). `main.js` starts the swap on a pick and awaits it
+  before each level start (not in `?level=editor`).
+- **Title screen** (`src/menu.js`, `index.html` `#hero-pick`, replaces the figure pill):
+  portrait tiles (`/assets/figures/portraits/<char>.webp`; tile 1 shows the child's
+  character, "Das bist du!" under it when it is their own saved figure), a radio group:
+  click/tap, Tab reaches the chosen tile, arrow keys move the choice, teal ring + tick on
+  the chosen one. Under it the link "Spiel mit deiner Figur →" (`_top`). A missing
+  portrait shows the name's first letter. Hidden when the figure module is missing.
+  Phones (height ≤ 520): portrait circles only (names for screen readers + tooltip), link
+  beside them: 44 px, the old pill was 40 (the German phone menu was already 408 px tall
+  in 390 and scrolls; now 412). Strings `heroPick`, `heroMine`, `hero.Ranger`
+  (Waldläufer / Guardabosques / Ranger) in `src/i18n.js`.
+- More heroes: add the id to `HEROES`, a branch in `loadCharacterRoot()`, a
+  `hero.<id>` string and a portrait. Only the Ranger for now (the game's old hero); other
+  catalogue characters cost shells on the figure page, so they are not given away here.
+- Checked (local server with `/lib`, `/data`, `/assets/figures/`): no figure → Schülerin
+  preselected and played; saved Witch → Witch, "Das bist du!"; Ranger click → saved,
+  played with quiver; after reload still Ranger; ArrowLeft → back to the figure; phone
+  landscape tap; one player mesh in the scene after every switch; without the figure
+  module the picker is hidden and the old Ranger plays; bot: first-steps with the
+  Schülerin and with the Ranger, hammer-works with the Ranger (218 s, machine load 23);
+  shell test ALL OK (de/es/en × 3 sizes); 0 console errors.
 
 ## Tracking and polish (2026-11-22, after the release)
 
