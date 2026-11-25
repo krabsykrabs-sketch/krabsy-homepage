@@ -1031,3 +1031,26 @@ write `RELEASE.md` when the owner says go.
   carried daily eggs). GLBs 7.71 MB (was 7.68). Checked: `check.cjs` 120
   loads, no errors; an old save with chicken in a pen loads as Birb; smoke
   test clean. The homepage copy needs a re-copy + re-stamp (master session).
+- 2026-11-25: **the child's own figure plays** (master session's job, owner
+  go-ahead; `docs/game-contract.md` "The player's figure"). `player.js`
+  `loadCharacters(look)` first imports `/lib/krabsy-figure.js` and calls
+  `loadPlayerFigure({ fallback: 'Protagonist_' + st.look, lambert: true })`
+  (a child without a figure keeps the Protagonist they picked before); the
+  shared clips cover every clip the game plays (Idle_A, Walking_A, Running_A,
+  Jump_Start / Idle / Land, PickUp, Hit_A, Interact). Same scale as before
+  (0.78: all KayKit characters share the rig, hats are on top), collisions
+  unchanged. If the import or load fails (local dev, file://), the two
+  Protagonists + `anim_player.glb` load the old way and the start screen keeps
+  the A/B choice. With a figure the start screen shows its portrait and
+  "Spiel mit deiner Figur →" / "Juega con tu personaje →" / "Play with your
+  figure →" to `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/`
+  (`target="_top"`, event `figure_link`); `game_open` carries `figure:
+  own|fallback|old`. Coins stay coins. Checked on a site-like server
+  (`/lib` + `/assets/figures/` from homepage): no saved figure → Protagonist_A
+  (own false), free Knight → Knight, Hiker + soldier hat + wings (unlocked) →
+  loads Hiker + ToySoldier + Vampire files, locked Vampire → fallback; all
+  pick up an egg, 0 errors; the 4 topic URLs pass. First load on the site:
+  old 1.18 MB (both Protagonists + game clips) → 1.98 MB for a fallback
+  (one character 0.5 MB + the shared clips 1.48 MB, cached across games);
+  each accessory from another character adds 0.3–0.5 MB. Not checked: a
+  real device, the iframe link on the live site.
