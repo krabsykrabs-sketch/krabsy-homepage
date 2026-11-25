@@ -292,7 +292,9 @@ function recolor(fig, map) {
   if (map.size) {
     const img = g.getImageData(0, 0, S, S), d = img.data, cw = S / 8, ch = S / 4;
     for (const [k, hex] of map) {
-      const t = new THREE.Color(hex), mean = fig.cellColor[k];
+      // The canvas holds sRGB values (like cellColor, measured from it). THREE.Color(hex)
+      // converts to linear, which painted every chosen colour too dark (fixed 2026-11-25).
+      const t = new THREE.Color(hex).convertLinearToSRGB(), mean = fig.cellColor[k];
       const ml = Math.max(0.05, 0.299 * mean.r + 0.587 * mean.g + 0.114 * mean.b);
       const x0 = (k % 8) * cw, y0 = Math.floor(k / 8) * ch;
       for (let y = y0; y < y0 + ch; y++) for (let x = x0; x < x0 + cw; x++) {

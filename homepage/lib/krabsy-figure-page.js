@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { CHARS, GROUPS, HATS, GLASSES, BACKS, SKIN, HAIR, COLORS, DEFAULT, ASSET_BASE, normalize,
   buildFigure, loadClips, charInfo, priceOf, isUnlocked, lockedParts, unlockId,
-  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25b';
+  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25c';
 import { getShells, unlock, onShellsChange } from './krabsy-shells.js';
 
 const LANG = (location.pathname.match(/^\/(de|es|en)\//) || [])[1] || 'de';
@@ -22,7 +22,7 @@ const T = {
     noSkin: 'Bei dieser Figur gibt es keine Haut- und Haarfarbe zum Ändern. Schau bei „Kleidung“ vorbei!',
     groups: { people: 'Menschen', fantasy: 'Fantasy', monsters: 'Monster & Roboter' },
     hat: 'Kopfbedeckung', glasses: 'Brille', back: 'Rücken', skin: 'Hautfarbe', hair: 'Haarfarbe',
-    main: 'Hauptfarbe', legs: 'Hosenfarbe', acc: 'Farbe vom Zubehör',
+    main: 'Hauptfarbe', legs: 'Zweite Farbe', acc: 'Farbe vom Zubehör',
     own: '★ Original', none: 'nichts', noHat: 'Eine andere Kopfbedeckung passt bei dieser Figur nicht.', orig: 'Original',
     rand: '🎲 Zufall', reset: 'Zurücksetzen', save: 'Speichern',
     saved: 'Gespeichert ✓ Deine Figur ist auf diesem Gerät.', unsaved: 'Noch nicht gespeichert.',
@@ -57,7 +57,7 @@ const T = {
     noSkin: 'Este personaje no tiene color de piel ni de pelo para cambiar. ¡Mira en «Ropa»!',
     groups: { people: 'Personas', fantasy: 'Fantasía', monsters: 'Monstruos y robots' },
     hat: 'Gorro', glasses: 'Gafas', back: 'Espalda', skin: 'Piel', hair: 'Pelo', main: 'Color principal',
-    legs: 'Pantalón', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
+    legs: 'Segundo color', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
     rand: '🎲 Al azar', reset: 'Reiniciar', save: 'Guardar',
     saved: 'Guardado ✓ Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',
     lockedSave: 'Primero desbloquea 🔒, luego guarda.',
@@ -93,7 +93,7 @@ const T = {
     noSkin: 'This figure has no skin or hair colour to change. Have a look at “Clothes”!',
     groups: { people: 'People', fantasy: 'Fantasy', monsters: 'Monsters & robots' },
     hat: 'Hat', glasses: 'Glasses', back: 'Back', skin: 'Skin', hair: 'Hair', main: 'Main colour',
-    legs: 'Trousers', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
+    legs: 'Second colour', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
     rand: '🎲 Random', reset: 'Reset', save: 'Save',
     saved: 'Saved ✓ Your figure is on this device.', unsaved: 'Not saved yet.',
     lockedSave: 'Unlock 🔒 first, then save.',
