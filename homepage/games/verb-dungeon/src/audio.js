@@ -186,6 +186,10 @@ class SFX {
     [1047, 1319, 1568].forEach((f) => this.tone({ f, type: 'triangle', t: 0.65, dur: 0.9, g: 0.09 }));
     this.sparkle();
   }
+  gift() { // a gift pops out of the boss chest: a bright rising arpeggio and a shimmer
+    [784, 988, 1175, 1568, 1976].forEach((f, i) => this.tone({ f, type: 'triangle', t: i * 0.07, dur: 0.35, g: 0.11 }));
+    [2349, 2637].forEach((f, i) => this.tone({ f, type: 'sine', t: 0.4 + i * 0.12, dur: 0.6, g: 0.06, vib: 12, vibF: 9 }));
+  }
   sting() {
     // ambush! short spooky-goofy sting
     [[196, 0], [185, 0.16], [175, 0.32]].forEach(([f, t]) =>

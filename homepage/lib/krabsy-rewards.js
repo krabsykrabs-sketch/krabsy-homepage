@@ -101,10 +101,13 @@ function read() {
 function write(s) {
   try { localStorage.setItem(KEY, JSON.stringify(s)); return true; } catch (_) { return false; }
 }
+// The starter accessories every child owns (keep in sync with STARTER_ITEMS in
+// krabsy-shells.js; copied, not imported, so an older cached krabsy-shells.js can't break this).
+const STARTER_ITEMS = ['hat:cap', 'glasses:round', 'back:pack', 'back:capeKnight'];
 function readShells() {
   const o = readJson(SHELLS_KEY) || {};
   const owned = Array.isArray(o.owned) ? o.owned.filter((x) => typeof x === 'string' && ID_RE.test(x)) : [];
-  return { raw: o, earned: Math.max(int(o.earned), int(o.balance)), owned: [...new Set(owned)] };
+  return { raw: o, earned: Math.max(int(o.earned), int(o.balance)), owned: [...new Set([...STARTER_ITEMS, ...owned])] };
 }
 /** Add ids to krabsy_shells_v1.owned, keeping every other field as it is. */
 function addOwned(ids) {

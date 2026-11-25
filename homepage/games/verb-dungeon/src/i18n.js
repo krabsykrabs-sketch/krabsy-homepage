@@ -4,6 +4,9 @@
 import { touchOn } from './touch.js';
 const T = {
   en: {
+    hintGiftChest: 'A golden chest! Something glows above it. Open it!', hintGoldChest: 'A golden chest appeared! Open it!',
+    giftTitle: 'Gift found!', giftLine: 'It is yours now. You will find it with your figure.', giftNext: 'Continue',
+    hintGiftDone: 'The door is open. Off you go!', endGift: (name) => `Found: ${name}`, endGiftLink: 'See it on your figure →',
     tagline: 'Find the hidden key, read the verb book, and the door opens. Bonk the skeletons!',
     level: (n) => `Level ${n}`, play: 'Play', loading: 'Loading …',
     howMove: 'move', howBonk: 'bonk and open', howAnswer: 'answer',
@@ -53,6 +56,9 @@ const T = {
     clickToPlay_touch: 'Tap here to play',
   },
   de: {
+    hintGiftChest: 'Eine goldene Truhe! Darüber leuchtet etwas. Öffne sie!', hintGoldChest: 'Eine goldene Truhe ist erschienen! Öffne sie!',
+    giftTitle: 'Geschenk gefunden!', giftLine: 'Das gehört jetzt dir. Du findest es bei deiner Figur.', giftNext: 'Weiter',
+    hintGiftDone: 'Die Tür ist offen. Auf geht’s!', endGift: (name) => `Gefunden: ${name}`, endGiftLink: 'Zu deiner Figur →',
     tagline: 'Finde den versteckten Schlüssel, lies das Verb-Buch, und die Tür geht auf. Hau die Skelette um!',
     level: (n) => `Level ${n}`, play: 'Spielen', loading: 'Lädt …',
     howMove: 'laufen', howBonk: 'hauen und öffnen', howAnswer: 'antworten',
@@ -101,6 +107,9 @@ const T = {
     clickToPlay_touch: 'Tipp hier zum Spielen',
   },
   es: {
+    hintGiftChest: '¡Un cofre dorado! Algo brilla encima. ¡Ábrelo!', hintGoldChest: '¡Ha aparecido un cofre dorado! ¡Ábrelo!',
+    giftTitle: '¡Regalo encontrado!', giftLine: 'Ahora es tuyo. Lo encontrarás en tu personaje.', giftNext: 'Seguir',
+    hintGiftDone: 'La puerta está abierta. ¡Adelante!', endGift: (name) => `Encontrado: ${name}`, endGiftLink: 'Míralo en tu personaje →',
     tagline: 'Encuentra la llave escondida, lee el libro de verbos y la puerta se abre. ¡Dale a los esqueletos!',
     level: (n) => `Nivel ${n}`, play: 'Jugar', loading: 'Cargando …',
     howMove: 'moverse', howBonk: 'golpear y abrir', howAnswer: 'responder',

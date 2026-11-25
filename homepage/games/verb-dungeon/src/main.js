@@ -5,7 +5,8 @@
 //   answer both forms → the door opens by itself → next room. Rune doors and the word
 //   bridge are the verb question themselves and open the exit. The last room is the boss
 //   (a different one per level): answer on the glowing stone to stun it, then bonk it.
-//   Coins (chests, boss, treasure room) buy other heroes. Chests are optional bonus
+//   Coins (chests, boss, treasure room) are this run's treasure; after the boss a golden
+//   chest holds a figure gift (gifts.js) or coins. Chests are optional bonus
 //   questions. Questions open only when the player presses Space (book, chest, boss
 //   stone); the question card pauses the whole room.
 import { VW, VH, centreOf } from './rotate.js'; // first: sets the turned layout before anything measures
@@ -24,6 +25,7 @@ import { PICKS, SWINGS, heroDef, swingTimes, Save, Choice } from './heroes.js';
 import { migrateHeroes, loadHeroFigure, DEFAULT_FIGURE } from './figure.js';
 import { sfx } from './audio.js';
 import { Track } from './analytics.js';
+import { giftFor, takeGift } from './gifts.js';
 import { initTouch, stick, holdStick, touchOn, resetTouch, swordIcon } from './touch.js';
 
 const $ = (id) => document.getElementById(id);
@@ -123,6 +125,8 @@ const G = {
   locked: false,        // hero cannot act (room change, defeat)
   invuln: 0, kbx: 0, kbz: 0, attackT: 0, attackLen: 0, swingOut: 0, hitDone: true,
   card: null,           // the open question card (openCard); the room is paused meanwhile
+  reveal: null,         // the gift reveal card (openReveal): { gift, t0 }; pauses the room too
+  giftFound: null,      // the figure gift found in this level run (gifts.js), for the end screen
   sign: null,           // rune doors / bridge: { pair, q, caption } for the line at the bottom
   time: 0,              // game clock (stops while the card is open)
   wall: 0,              // runs always (torch flicker)
@@ -465,13 +469,149 @@ function openChest() {
   drawHud();
 }
 
+// ── The boss chest: a figure gift or coins (gifts.js, docs/game-contract.md "Gifts") ──
+// When the boss falls, a golden chest rises from the floor at the back of the arena. If
+// this level's gift can be given (pickGift: not owned, today's limit not reached, site libs
+// there), the gift's picture floats over the chest in a warm glow (shown before it is
+// given). Space opens it without a question; grantGift() gives exactly that entry and the
+// reveal card shows it. Otherwise (or if the grant fails) the chest holds 3 coin stacks.
+const GIFT_SPOTS = [[-4.4, -3.4], [4.4, -3.4]];
+// The gift's picture on a round badge (navy disc, amber ring, soft halo), so a thin item
+// (a cape) still reads as "a thing to win" over the chest. Drawn on a canvas; the item's
+// 192 px WebP is drawn in when it has loaded (without it: the empty badge).
+function giftBadge(src) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  const g = cv.getContext('2d');
+  const halo = g.createRadialGradient(128, 128, 60, 128, 128, 128);
+  halo.addColorStop(0, 'rgba(255,207,94,0.55)'); halo.addColorStop(1, 'rgba(255,207,94,0)');
+  g.fillStyle = halo; g.fillRect(0, 0, 256, 256);
+  g.beginPath(); g.arc(128, 128, 92, 0, Math.PI * 2);
+  const disc = g.createRadialGradient(128, 110, 10, 128, 128, 92);
+  disc.addColorStop(0, '#3f65ad'); disc.addColorStop(1, '#16245a');
+  g.fillStyle = disc; g.fill();
+  g.lineWidth = 10; g.strokeStyle = '#ffcf5e'; g.stroke();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const img = new Image();
+  img.onload = () => {
+    g.save(); g.beginPath(); g.arc(128, 128, 86, 0, Math.PI * 2); g.clip();
+    const k = 150 / Math.max(img.width, img.height);
+    g.drawImage(img, 128 - img.width * k / 2, 128 - img.height * k / 2, img.width * k, img.height * k);
+    g.restore();
+    tex.needsUpdate = true;
+  };
+  img.src = src;
+  return tex;
+}
+function spawnGiftChest() {
+  if (!room || room.type !== 'boss' || room.chest) return;
+  // the spot farther from the hero and the fallen boss
+  const score = ([x, z]) => Math.min(Math.hypot(x - hero.pos.x, z - hero.pos.z), foe ? Math.hypot(x - foe.pos.x, z - foe.pos.z) : 99);
+  const [x, z] = score(GIFT_SPOTS[0]) >= score(GIFT_SPOTS[1]) ? GIFT_SPOTS[0] : GIFT_SPOTS[1];
+  const obj = Assets.clone('chest_gold');
+  obj.position.set(x, -1.3, z);
+  obj.rotation.y = THREE.MathUtils.degToRad(x < 0 ? 20 : -20);
+  room.group.add(obj);
+  room.obstacles.push({ x, z, r: 1.2 });
+  const c = room.chest = { x, z, obj, lid: obj.getObjectByName('chest_gold_lid'), open: false, q: null,
+    reward: true, rise: 0, gift: giftFor(G.level, lang), sprite: null, glow: null, fly: -1, mark: null };
+  if (c.gift) {
+    const tex = giftBadge(c.gift.image);
+    c.sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false }));
+    c.sprite.scale.setScalar(2.3);
+    c.sprite.renderOrder = 3;
+    c.glow = makeGlow(0xffcf5e, 3.2);
+    c.glow.material.opacity = 0;
+    c.sprite.position.set(x, 2.8, z); c.glow.position.set(x, 2.75, z - 0.05);
+    room.group.add(c.glow, c.sprite);
+    c.free = () => { tex.dispose(); c.sprite.material.dispose(); c.glow.material.dispose(); };
+  }
+  puff(x, z);
+  sfx.rumble(0.5); after(0.5, () => sfx.sparkle());
+}
+function updateGiftChest(dt) {
+  const c = room.chest;
+  if (c.rise < 1) {
+    c.rise = Math.min(1, c.rise + dt / 0.9);
+    const k = 1 - (1 - c.rise) ** 3;
+    c.obj.position.y = -1.3 + 1.47 * k;
+    if (c.rise >= 1 && !c.open) c.mark = markUsable(c.obj, { radius: 1.35, top: 1.1 });
+  }
+  if (!c.sprite) return;
+  const shown = Math.min(1, c.rise * 1.4);
+  if (c.fly < 0) { // closed: the gift floats over the chest, gently bobbing and pulsing
+    c.sprite.position.y = 2.8 + 0.12 * Math.sin(G.time * 2.2);
+    c.sprite.scale.setScalar(2.3 * shown * (1 + 0.04 * Math.sin(G.time * 3.1)));
+    c.glow.material.opacity = 0.7 * shown * (0.8 + 0.2 * Math.sin(G.time * 3.1));
+  } else if (c.sprite.visible) { // opened: it rises and grows, then the card takes over
+    c.fly = Math.min(1, c.fly + dt / 0.45);
+    c.sprite.position.y = 2.8 + 1.6 * c.fly;
+    c.sprite.scale.setScalar(2.3 + 1.1 * c.fly);
+    c.glow.position.y = c.sprite.position.y;
+    c.glow.material.opacity = 0.9;
+  }
+}
+function openRewardChest() {
+  const c = room.chest;
+  c.open = true;
+  c.mark = unmark(c.mark);
+  G.treasures += 1;
+  sfx.chestCreak();
+  const got = c.gift ? takeGift(c.gift, lang) : null;
+  if (got && got.ok) {
+    G.giftFound = got;
+    Track.giftFound(got.slot, got.key);
+    c.fly = 0;
+    sfx.gift();
+    puff(c.x, c.z);
+    after(0.45, () => openReveal(got));
+    return;
+  }
+  if (c.sprite) { c.sprite.visible = false; c.glow.visible = false; } // not given after all (limit, storage): coins
+  sfx.coin(0); after(0.12, () => sfx.coin(1)); after(0.24, () => sfx.coin(2));
+  burstCoins(c.x, c.z, 3);
+  pop(t('treasure'), c.x, 2.2, c.z);
+  drawHud();
+}
+// The reveal card: the gift pops out and spins (CSS), its name, "it is yours now", "Weiter".
+// The room is paused (step()) like under the question card. No link to the figure page here
+// (contract: not in the middle of a level); the end screen has it.
+function openReveal(g) {
+  if (G.mode !== 'play') return;
+  G.reveal = { gift: g, t0: G.wall };
+  $('prompt').classList.remove('on'); promptAt = '';
+  keys.clear(); holdStick();
+  $('giftTitle').textContent = t('giftTitle');
+  const img = $('giftImg');
+  img.style.display = '';
+  img.onerror = () => { img.style.display = 'none'; };
+  img.src = g.image;
+  $('giftName').textContent = g.name;
+  $('giftLine').textContent = t('giftLine');
+  $('giftNext').textContent = t('giftNext');
+  $('gift').classList.remove('on'); void $('gift').offsetWidth; // restart the pop animation
+  $('gift').classList.add('on');
+  document.body.classList.add('carding');
+}
+function closeReveal(force) {
+  if (!G.reveal || (!force && G.wall - G.reveal.t0 < 0.6)) return; // a hammered Space doesn't skip it
+  G.reveal = null;
+  $('gift').classList.remove('on');
+  document.body.classList.remove('carding');
+  const c = room && room.chest;
+  if (c && c.sprite) { c.sprite.visible = false; c.glow.visible = false; }
+  sfx.uiClick();
+  hint(t('hintGiftDone'), 4);
+}
+tap($('giftNext'), () => closeReveal());
+
 // ── Levels and rooms ───────────────────────────────────────────────────────
 async function startLevel(i) {
   G.locked = true;
   $('menu').classList.remove('on');
   $('end').classList.remove('on');
   Object.assign(G, { level: i, roomIdx: 0, hearts: MAX_HEARTS, asked: 0, firstTry: 0, treasures: 0, coinsRun: 0,
-    missed: [], poolIdx: 0, retry: [] });
+    missed: [], poolIdx: 0, retry: [], giftFound: null });
   try {
     const bossRoom = LEVELS[i].rooms.find((r) => r.type === 'boss');
     [G.pool] = await Promise.all([loadPairs({ count: 10, tiers: LEVELS[i].tiers }),
@@ -695,8 +835,9 @@ const GOALS = {
       sfx.rumble(0.9); after(0.5, () => sfx.boneRattle()); after(0.8, () => sfx.boneRattle());
       FX.shake = 1;
       hint(t(`down_${k.id}`), 5);
-      after(0.9, () => burstCoins(g.x, g.z, 5));
+      after(0.9, () => { spawnGiftChest(); burstCoins(g.x, g.z, 5); }); // the chest first: the coins land clear of it
       after(1.4, () => { sfx.fanfare(); openExit(room.doors[0]); });
+      after(3.2, () => { if (room.chest && room.chest.reward && !room.chest.open) hint(t(room.chest.gift ? 'hintGiftChest' : 'hintGoldChest'), 5); });
     },
     update(dt) { updateBoss(dt); },
   },
@@ -803,10 +944,10 @@ function updateBook(dt) {
 // verb book, a chest, or the boss card on the glowing stone. A floating prompt shows it.
 const CHEST_REACH = 2.4;
 function usable() {
-  if (!room || G.card || G.locked || G.mode !== 'play') return null;
+  if (!room || G.card || G.reveal || G.locked || G.mode !== 'play') return null;
   const p = hero.pos, c = room.chest, b = room.boss;
   if (inBook(p)) return { what: 'book', x: room.book.x, y: 2.35, z: room.book.z };
-  if (c && !c.open && near(p, c.x, c.z, CHEST_REACH)) return { what: 'chest', x: c.x, y: 2.1, z: c.z };
+  if (c && !c.open && !(c.rise < 1) && near(p, c.x, c.z, CHEST_REACH)) return { what: 'chest', x: c.x, y: c.sprite ? 1.25 : 2.1, z: c.z }; // under the gift badge
   if (b && b.stone && near(p, b.stone.x, b.stone.z, 1.5) && bossCanAsk()) return { what: 'stone', x: b.stone.x, y: 1.4, z: b.stone.z };
   return null;
 }
@@ -816,6 +957,7 @@ function useHere() {
   if (u.what === 'book') useBook();
   else if (u.what === 'chest') {
     const c = room.chest;
+    if (c.reward) { openRewardChest(); return true; } // the boss chest asks nothing: the fight was the questions
     if (!c.q) { c.pair = nextPair(false); c.q = single(c.pair); }
     openCard({ gate: 'chest', pair: c.pair, q: c.q });
   } else openCard({ gate: 'boss', pair: room.boss.pair, step: room.boss.step });
@@ -1542,6 +1684,8 @@ function flyToHud(x, y, z, target = 'keySlot', html = '🔑') {
 
 // keep = { phase, goal, chest } saved before a dizzy restart of the same room.
 function enterRoom(idx, keep = null) {
+  if (room && room.chest && room.chest.free) room.chest.free();
+  if (G.reveal) closeReveal(true);
   if (room) room.dispose();
   for (const el of document.querySelectorAll('.pop')) el.remove();
   const defs = LEVELS[G.level].rooms;
@@ -1598,12 +1742,14 @@ function finishLevel() {
   Track.levelEnd({ stars, clock: G.wall, firstTry: G.firstTry, questions: G.asked, coins: G.coinsRun });
   sfx.fanfare();
   $('hud').classList.remove('on');
+  $('hint').classList.remove('on');
   showSign(null);
   $('endTitle').textContent = t('done');
   $('stars').innerHTML = starsHtml(stars);
   sweepCoins();
   $('endLine').textContent = t('firstTry', G.firstTry, G.asked);
   $('endCoins').innerHTML = G.coinsRun ? `<i class="coin"></i> ${t('coinsWon', G.coinsRun)}` : '';
+  drawEndGift();
   $('missed').innerHTML = G.missed.length
     ? `<p>${t('practise')}</p>${G.missed.map((m) => `<div>${chainHtml(m)}</div>`).join('')}`
     : `<p>${t('perfect')}</p>`;
@@ -1614,6 +1760,25 @@ function finishLevel() {
   hero.pos.set(0, 0, 3); hero.root.rotation.y = 0; hero.play('Idle_A');
   clearSkeletons();
   resetKey();
+}
+
+// The gift found in this run, with the link to the figure page (top window: the game runs in
+// an iframe); the figure page opens the gift's tab and tries it on (#neu=<id>).
+function drawEndGift() {
+  const box = $('endGift'), g = G.giftFound;
+  box.innerHTML = '';
+  box.style.display = g ? '' : 'none';
+  if (!g) return;
+  const img = document.createElement('img');
+  img.alt = ''; img.src = g.image; img.onerror = () => img.remove();
+  const txt = document.createElement('span');
+  txt.textContent = `🎁 ${t('endGift', g.name)}`;
+  const a = document.createElement('a');
+  a.className = 'figLink';
+  a.href = `${FIGURE_PAGE[lang] || FIGURE_PAGE.en}#neu=${encodeURIComponent(g.id)}`;
+  a.target = '_top';
+  a.textContent = t('endGiftLink');
+  box.append(img, txt, a);
 }
 
 function defeat() {
@@ -1663,6 +1828,10 @@ window.addEventListener('keydown', (e) => {
   if (G.mode === 'menu' || G.mode === 'end') { menuKey(e); return; }
   if (G.mode !== 'play') return;
   if (e.code === 'KeyM') toggleMute();
+  if (G.reveal) { // the gift card: Enter / Space / Esc = "Weiter"
+    if (['Enter', 'NumpadEnter', 'Space', 'Escape'].includes(e.code)) closeReveal();
+    return;
+  }
   if (G.card) { // the question card: 1–3 answer, Esc = later (chest only)
     if (/^(Digit|Numpad)[1-3]$/.test(e.code)) answer(Number(e.code.slice(-1)) - 1);
     if (e.code === 'Escape') later();
@@ -1738,7 +1907,7 @@ const SWING = { hitAfter: 0.11, share: 0.97, out: 0.16, cadence: 0.38 };
 function swingWeight(share) { return share / (1 - share); } // mixer weights are relative; base clips sum to 1
 let heroSwing = null; // { hero, key, def (SWINGS entry), act (the hero's action) } — set in buildHero
 function bonk() {
-  if (G.locked || G.card) return;
+  if (G.locked || G.card || G.reveal) return;
   if (useHere()) return; // Space at the book, a chest or the boss stone opens it instead
   if (G.attackT > 0) return;
   const { def: sw, act: a } = heroSwing;
@@ -2184,6 +2353,7 @@ function updateWorld(dt) {
     }
     if (room.slam && room.doors[0].leaf.rotation.y < 0.02) room.slam = false;
     if (room.chest) room.chest.lid.rotation.x += ((room.chest.open ? -1.15 : 0) - room.chest.lid.rotation.x) * Math.min(1, dt * 6);
+    if (room.chest && room.chest.reward) updateGiftChest(dt);
     // The lock glows once the key is yours (and at the treasure room's door).
     const lit = room.phase === 'door' && G.mode === 'play' ? 0.75 + 0.25 * Math.sin(time * 4) : 0;
     const lg = room.lockGlow.material;
@@ -2215,7 +2385,7 @@ function step(dt) {
   if (playing !== playingShown) { playingShown = playing; document.body.classList.toggle('playing', playing); if (!playing) resetTouch(); }
   updateTorches();
   // The question card pauses everything (skeletons, boss, arrows, timers, animations).
-  if (G.card) return;
+  if (G.card || G.reveal) return;
   if (FX.stop > 0) { FX.stop -= dt; dt *= 0.1; } // hit-stop: the world nearly freezes for 50 ms
   G.time += dt;
   for (let i = timers.length - 1; i >= 0; i--) {
@@ -2263,7 +2433,7 @@ function applyStatic() {
   $('btnAgain').textContent = t('again');
   $('btnMenu').textContent = t('menu');
   $('rotate').textContent = t('rotate');
-  $('loading').textContent = t('loading');
+  if ($('loading')) $('loading').textContent = t('loading'); // gone after boot (a key press in touch mode calls this again)
   $('focusText').textContent = t('clickToPlay');
 }
 applyStatic();
@@ -2295,6 +2465,8 @@ Assets.load().then(async () => {
       boss: room.boss ? `${room.boss.kind}:${room.boss.state}:${room.boss.hp}` : undefined, key: key.state,
       book: room.book ? (room.book.done ? 'done' : 'shut') : undefined, bookShut: room.book ? room.book.shut : undefined, wards: room.wards.length, rune: room.rune ? `${room.rune.step}:${hero.pos.z.toFixed(1)}` : undefined,
       minions: skeletons.filter((s) => s.minion).length, prompt: (usable() || {}).what,
+      giftChest: room.chest && room.chest.reward ? `${room.chest.gift ? room.chest.gift.id : 'coins'}:${room.chest.open ? 'open' : room.chest.rise < 1 ? 'rising' : 'shut'}` : undefined,
+      reveal: G.reveal ? G.reveal.gift.id : null, giftFound: G.giftFound ? G.giftFound.id : null,
       hide: room.hide ? `${room.hide.where}:${room.hide.keyIn}:${room.hide.checked.join('')}` : undefined,
       bridge: room.bridge ? `${room.bridge.step}:${room.bridge.fall > 0 ? 'fall' : pitAt(hero.pos.z) >= 0 ? 'stone' : 'floor'}:${room.stones.filter((x) => x.gone).length}` : undefined,
       retry: G.retry.map((r) => r.base), skeletons: skeletons.map((s) => s.mode),
@@ -2431,6 +2603,24 @@ Assets.load().then(async () => {
       },
     },
     doGoal: (wrong, bookFirst) => QA.solve[room.type](wrong, bookFirst),
+    closeReveal: () => { closeReveal(true); run(2); },
+    // The boss chest: wait until it has risen; walking up opens nothing, Space opens it; a
+    // gift shows the reveal card (paused room), "Weiter" closes it; coins are picked up.
+    giftChest: (log) => {
+      for (let i = 0; i < 120 && !(room.chest && room.chest.reward && room.chest.rise >= 1); i++) run(1);
+      const ch = room.chest;
+      if (!ch || !ch.reward) { log.push('giftChest:none'); return; }
+      QA.teleport(ch.x + (ch.x < 0 ? 1.3 : -1.3), ch.z + 1.3); run(2);
+      log.push(`giftWalk:${ch.open}:${!!G.reveal}:${(usable() || {}).what}`);
+      QA.space(); run(20);
+      const t0 = G.time; run(30);
+      log.push(`giftChest:${ch.gift ? ch.gift.id : 'coins'}:${ch.open}:reveal ${G.reveal ? G.reveal.gift.id : '-'}:paused ${G.reveal ? G.time === t0 : '-'}`);
+      if (G.reveal) {
+        closeReveal(); run(2); log.push(`revealClosed:${!G.reveal}`);
+      }
+      for (let i = 0; i < 40 && coins.some((c) => c.state === 'fly'); i++) run(1);
+      for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); }
+    },
     answerRight: () => { if (!G.card) return; const q = cardQ(G.card); answer(q.options.indexOf(q.answer)); },
     answerWrong: () => { if (!G.card) return; const q = cardQ(G.card); answer(q.options.findIndex((o, k) => o !== q.answer && !(q.tried && q.tried.includes(k)))); },
     // Plays the current room to the next one. wrongFirst = make one mistake (at the key,
@@ -2457,6 +2647,7 @@ Assets.load().then(async () => {
         for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); }
       }
       QA.doGoal(wrongFirst, bookFirst); run(20);
+      if (room.type === 'boss') QA.giftChest(log);
       log.push(keyRoom ? `key:${key.state}:${room.hide.where}:book ${room.book.done}` : `${room.type}:${room.phase}`);
       for (let i = 0; i < 60 && coins.some((c) => c.state === 'fly'); i++) run(1);
       for (const c of coins.slice()) { QA.teleport(c.to.x, c.to.z + 0.5); run(2); } // pick up what dropped
