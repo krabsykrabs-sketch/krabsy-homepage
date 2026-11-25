@@ -1098,8 +1098,13 @@ export class World {
     for (const f of this.fx.slice()) {
       f.t += dt;
       const k = Math.min(1, f.t / f.dur);
-      f.fn(k, dt);
-      if (k >= 1) { this.fx.splice(this.fx.indexOf(f), 1); if (f.end) f.end(); }
+      try {
+        f.fn(k, dt);
+        if (k >= 1) { this.fx.splice(this.fx.indexOf(f), 1); if (f.end) f.end(); }
+      } catch (err) { // (a broken animation is dropped, the game goes on)
+        const i = this.fx.indexOf(f); if (i >= 0) this.fx.splice(i, 1);
+        console.error('[hatchery] animation error', err);
+      }
     }
     for (const p of this.pens) if (p.creature) animateCreature(p.creature, this.time, dt);
     for (const c of this.extra) animateCreature(c, this.time, dt, 1);

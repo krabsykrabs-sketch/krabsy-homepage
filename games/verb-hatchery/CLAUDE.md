@@ -982,3 +982,11 @@ daily egg + creature levels, typed answers. Not yet checked by a human:
 music / sounds, real Chromebook / tablet, the Hall's look on a real screen.
 Open for release (master session): wrapper pages, `games.json`, sitemap;
 write `RELEASE.md` when the owner says go.
+- 2026-11-25: owner: **"the game just froze"** (while hatching, rich save).
+  Not reproducible headless (12 full pens, 6 hatches, waiting creatures,
+  hall: no error, time runs). Made it robust instead: the frame books the
+  next frame first and catches errors (`frame` → `frameBody`, console +
+  event `frame_error {n}`, a toast with `?debug`); a failing animation in
+  `world.fx` is dropped; `webglcontextlost` (weak GPU drops the 3D context
+  = a silent freeze) saves and shows "graphics stopped, reload". If it
+  happens again: F12 console → the red `[hatchery]` line tells the cause.

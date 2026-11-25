@@ -2,6 +2,7 @@
 // Language: ?lang=de|es|en, else the browser language, else English.
 const T = {
   en: {
+    glLost: 'Oops, the graphics stopped. Your game is saved: reload the page.',
     typeOff: 'Type it instead (×2 coins)', typeOn: 'Typing mode on (×2 coins) – switch to buttons', typeHere: 'type the word',
     dailyEgg: (z) => `Daily egg! Find it in the ${z}: it hatches a creature you haven't found yet.`,
     levelUp: (n) => `Level ${n}!`, levelShort: (n) => `Level ${n}`,
@@ -94,6 +95,7 @@ const T = {
     time_m: (n) => `${n} min`, time_h: (n) => `${n} h`,
   },
   de: {
+    glLost: 'Hoppla, die Grafik ist stehen geblieben. Dein Spiel ist gespeichert: lade die Seite neu.',
     typeOff: 'Lieber tippen (×2 Münzen)', typeOn: 'Tipp-Modus an (×2 Münzen) – zurück zu Knöpfen', typeHere: 'Wort eintippen',
     dailyEgg: (z) => `Ei des Tages! Es liegt hier: ${z}. Daraus schlüpft ein Wesen, das du noch nicht hast.`,
     levelUp: (n) => `Stufe ${n}!`, levelShort: (n) => `Stufe ${n}`,
@@ -186,6 +188,7 @@ const T = {
     time_m: (n) => `${n} Min.`, time_h: (n) => `${n} Std.`,
   },
   es: {
+    glLost: 'Uy, los gráficos se detuvieron. Tu partida está guardada: recarga la página.',
     typeOff: 'Escribirla (×2 monedas)', typeOn: 'Modo escribir (×2 monedas) – volver a botones', typeHere: 'escribe la palabra',
     dailyEgg: (z) => `¡Huevo del día! Está en: ${z}. De él nace una criatura que aún no tienes.`,
     levelUp: (n) => `¡Nivel ${n}!`, levelShort: (n) => `Nivel ${n}`,

@@ -1045,7 +1045,21 @@ function adaptQuality(dt) {
 let last = performance.now();
 const chasing = new Set();
 let heartT = 0;
+// One frame. An error in a frame must never freeze the game (owner: "the game just
+// froze"): the next frame is booked first, the error is noted once and play goes on.
+let frameErrors = 0;
 function frame(now) {
+  requestAnimationFrame(frame);
+  try { frameBody(now); } catch (err) {
+    frameErrors++;
+    if (frameErrors <= 3) {
+      console.error('[hatchery] frame error', err);
+      A.ev('frame_error', { n: frameErrors });
+      if (DEBUG) toast(`⚠️ ${String(err && err.message || err).slice(0, 120)}`, 'warn');
+    }
+  }
+}
+function frameBody(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   adaptQuality(dt);
@@ -1151,7 +1165,6 @@ function frame(now) {
   hall.update(dt, animateCreature);
   world.update(dt);
   updateLabels();
-  requestAnimationFrame(frame);
 }
 
 // ── character choice (start screen) ──
@@ -1183,6 +1196,16 @@ const charPortrait = (() => {
     return cache[look];
   };
 })();
+
+// The graphics chip can drop the 3D picture (too many things at once on a weak device):
+// then nothing moves any more. Tell the player to reload instead of a silent freeze.
+$('c').addEventListener('webglcontextlost', (e) => {
+  e.preventDefault(); save();
+  A.ev('webgl_lost', {});
+  const el = document.createElement('div'); el.className = 'toast warn'; el.style.pointerEvents = 'auto';
+  el.innerHTML = `${t('glLost')} <button class="chip" style="margin-left:10px" onclick="location.reload()">↻</button>`;
+  $('toasts').appendChild(el);
+});
 
 // ── start ──
 async function boot() {
