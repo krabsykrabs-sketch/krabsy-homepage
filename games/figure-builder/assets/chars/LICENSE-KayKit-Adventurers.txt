@@ -1,0 +1,10 @@
+Knight.glb, Ranger.glb, Rogue.glb, Rogue_Hooded.glb, Barbarian.glb (no weapons copied)
+
+KayKit : Adventurers 2.0
+Created/distributed by Kay Lousberg (www.kaylousberg.com)
+
+License: (Creative Commons Zero, CC0)
+http://creativecommons.org/publicdomain/zero/1.0/
+
+You may use these assets in personal and commercial projects.
+Credit (Kay Lousberg, www.kaylousberg.com) is not mandatory but appreciated.
