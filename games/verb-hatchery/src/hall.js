@@ -57,7 +57,8 @@ export class Hall {
     box(g, 2.4, 0.03, d - 1.5, M({ color: 0xc0392b }), ROOM.x, y + 0.02, ROOM.z - 0.2, false);
     box(g, 2.0, 0.035, d - 1.9, M({ color: 0xe0574a }), ROOM.x, y + 0.025, ROOM.z - 0.2, false);
     // walls (no shadows: the sun shines "through" the roof so the room stays bright)
-    const wall = M({ color: 0xfff1d6, emissive: 0x8a7a5e }), // (lit from inside: the sun can't reach every wall) beam = M({ color: 0x7a4a26 }), dark = M({ color: 0x5e3a1f });
+    // (walls are lit from inside: the sun can't reach every wall)
+    const wall = M({ color: 0xfff1d6, emissive: 0x8a7a5e }), beam = M({ color: 0x7a4a26 }), dark = M({ color: 0x5e3a1f });
     box(g, w, h, 0.3, wall, ROOM.x, y + h / 2, z1, false);
     box(g, 0.3, h, d, wall, x0, y + h / 2, ROOM.z, false);
     box(g, 0.3, h, d, wall, x1, y + h / 2, ROOM.z, false);
