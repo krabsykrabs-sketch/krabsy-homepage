@@ -1379,3 +1379,27 @@ Critic pass of 2026-11-25, 25 points. Accepted unless noted.
 - **25 (priorities):** accepted; the plan recommends 3 sessions a week instead
   of the suggested 2, because the must tier at 2 a week would take about 4
   months before any other tutor sees it. Both paces are shown.
+
+## Prototype findings (work package D, 2026-11-25)
+
+The clickable prototype is in `docs/prototype/tutor-v2/` (open: `python3 -m http.server
+8090` in that folder; tour and review checklist in its README). Building it showed
+eight places where this plan should change; to decide in the review with the owner
+and Nora:
+
+1. **Two star systems collide**: ⭐ per first-try answer in a worksheet vs ★1–5 per
+   topic in the star map. One needs another name or shape.
+2. **"No scrolling at 360×640" does not hold for drag-to-gap**: cap at 4 sentences
+   on phones or page them.
+3. **Live in three columns needs ~1280 px**, but the tutor has Zoom beside it: a
+   compact mode for ~700 px (run sheet + answers, mirror optional).
+4. **"Lesson within 24 h without a plan" floods Needs attention**: only today's
+   lessons, or one grouped row, or leave it to the lessons card.
+5. **Book spread from 900 px window is too late** (portrait tablets never get it):
+   use 680 px of book width.
+6. **The editor's third column has little to do**: two columns, settings inside
+   the open block.
+7. **"Assigned" is not a library shelf**: it is material × students and belongs
+   under homework/students.
+8. **"I know it / again" on picture cards** makes young children rate themselves:
+   watch in the child play-test.
