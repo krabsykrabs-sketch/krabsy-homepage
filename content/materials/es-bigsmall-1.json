@@ -1,0 +1,193 @@
+{
+  "id": "m_es_bigsmall_1",
+  "kind": "worksheet",
+  "title": "Big animals, small animals",
+  "topic": "es_animals",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 9,
+  "blurb": "An elephant, a giraffe, a mouse and a chick: who is big, who is small?",
+  "steps": [
+    {
+      "type": "text",
+      "title": "Big animals, small animals",
+      "body": "Some animals are very big. Some animals are very small. Let’s look at them!",
+      "pic": "🐘"
+    },
+    {
+      "type": "cards",
+      "title": "Meet the animals",
+      "words": [
+        "elefante",
+        "jirafa",
+        "oso",
+        "raton",
+        "pollito",
+        "conejo"
+      ]
+    },
+    {
+      "type": "match",
+      "title": "Match the pairs",
+      "words": [
+        "elefante",
+        "jirafa",
+        "oso",
+        "raton",
+        "conejo"
+      ],
+      "right": [
+        "jirafa",
+        "oso",
+        "conejo",
+        "elefante",
+        "raton"
+      ]
+    },
+    {
+      "type": "sort",
+      "title": "Big or small?",
+      "baskets": [
+        {
+          "id": "big",
+          "label": "Es grande",
+          "sub": "big",
+          "pic": "🧺"
+        },
+        {
+          "id": "small",
+          "label": "Es pequeño",
+          "sub": "small",
+          "pic": "🧺"
+        }
+      ],
+      "cards": [
+        {
+          "w": "elefante",
+          "b": "big"
+        },
+        {
+          "w": "oso",
+          "b": "big"
+        },
+        {
+          "w": "pollito",
+          "b": "small"
+        },
+        {
+          "w": "raton",
+          "b": "small"
+        },
+        {
+          "w": "jirafa",
+          "b": "big"
+        },
+        {
+          "w": "conejo",
+          "b": "small"
+        }
+      ],
+      "hint": "Would it fit in your hand?"
+    },
+    {
+      "type": "gap",
+      "title": "Drag the word into the gap",
+      "mode": "drag",
+      "sentences": [
+        {
+          "text": "El elefante ___ muy grande.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "es",
+            "está",
+            "son"
+          ],
+          "hint": "",
+          "en": "The elephant is very big.",
+          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Los ratones ___ pequeños.",
+          "answer": "son",
+          "accepts": [
+            "son"
+          ],
+          "options": [
+            "es",
+            "son",
+            "están"
+          ],
+          "hint": "",
+          "en": "The mice are small.",
+          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "El oso ___ en el bosque.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "estoy",
+            "está"
+          ],
+          "hint": "",
+          "en": "The bear is in the forest.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        },
+        {
+          "text": "La jirafa ___ un cuello muy largo.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tiene",
+            "es",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "The giraffe has a very long neck.",
+          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "El conejo ___ en su casita.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "está",
+            "están"
+          ],
+          "hint": "",
+          "en": "The rabbit is in its little house.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        }
+      ],
+      "bank": [
+        "es",
+        "tengo",
+        "tiene",
+        "está",
+        "está",
+        "son"
+      ]
+    }
+  ]
+}

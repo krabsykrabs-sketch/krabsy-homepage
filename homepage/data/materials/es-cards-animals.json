@@ -1,0 +1,30 @@
+{
+  "id": "m_es_cards_animals",
+  "kind": "cards",
+  "title": "Animal picture cards",
+  "topic": "es_animals",
+  "level": "Pre-A1",
+  "learn": "es",
+  "minutes": 5,
+  "blurb": "Twelve animals to turn over and say: farm animals and pets.",
+  "steps": [
+    {
+      "type": "cards",
+      "title": "Meet the animals",
+      "words": [
+        "vaca",
+        "caballo",
+        "cerdo",
+        "gallina",
+        "pato",
+        "oveja",
+        "perro",
+        "gato",
+        "conejo",
+        "pollito",
+        "cabra",
+        "raton"
+      ]
+    }
+  ]
+}

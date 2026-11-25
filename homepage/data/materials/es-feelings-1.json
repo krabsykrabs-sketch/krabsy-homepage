@@ -1,0 +1,276 @@
+{
+  "id": "m_es_feelings_1",
+  "kind": "worksheet",
+  "title": "How is Lía today?",
+  "topic": "es_feelings",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 9,
+  "blurb": "Happy, sad, tired, angry: six faces, then say how you are.",
+  "steps": [
+    {
+      "type": "text",
+      "title": "How is Lía today?",
+      "body": "Lía has a busy day. Sometimes she is happy, sometimes she is tired. How is she now?",
+      "pic": "😊"
+    },
+    {
+      "type": "cards",
+      "title": "Meet the faces",
+      "words": [
+        "contento",
+        "triste",
+        "cansado",
+        "enojado",
+        "asustado",
+        "sorprendido"
+      ]
+    },
+    {
+      "type": "tap",
+      "title": "Tap the face",
+      "items": [
+        {
+          "word": "contento",
+          "options": [
+            "asustado",
+            "contento",
+            "enojado",
+            "triste"
+          ]
+        },
+        {
+          "word": "triste",
+          "options": [
+            "triste",
+            "sorprendido",
+            "asustado",
+            "enojado"
+          ]
+        },
+        {
+          "word": "cansado",
+          "options": [
+            "sorprendido",
+            "enojado",
+            "cansado",
+            "triste"
+          ]
+        },
+        {
+          "word": "enojado",
+          "options": [
+            "triste",
+            "contento",
+            "sorprendido",
+            "enojado"
+          ]
+        },
+        {
+          "word": "asustado",
+          "options": [
+            "contento",
+            "asustado",
+            "sorprendido",
+            "enojado"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "title": "Good or not so good?",
+      "baskets": [
+        {
+          "id": "good",
+          "label": "Estoy bien",
+          "sub": "I feel good",
+          "pic": "👍"
+        },
+        {
+          "id": "bad",
+          "label": "Estoy mal",
+          "sub": "I don’t feel good",
+          "pic": "👎"
+        }
+      ],
+      "cards": [
+        {
+          "w": "tranquilo",
+          "b": "good"
+        },
+        {
+          "w": "asustado",
+          "b": "bad"
+        },
+        {
+          "w": "contento",
+          "b": "good"
+        },
+        {
+          "w": "triste",
+          "b": "bad"
+        },
+        {
+          "w": "enojado",
+          "b": "bad"
+        },
+        {
+          "w": "enfermo",
+          "b": "bad"
+        }
+      ],
+      "hint": "Would you smile?"
+    },
+    {
+      "type": "gap",
+      "title": "Choose the right word",
+      "mode": "choice",
+      "sentences": [
+        {
+          "text": "Hoy ___ cansado.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "estoy",
+            "soy",
+            "está"
+          ],
+          "hint": "",
+          "en": "Today I am tired.",
+          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Yo ___ muy contenta.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "está",
+            "soy",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "I am very happy.",
+          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "___ un poco triste.",
+          "answer": "Estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "Soy",
+            "Está",
+            "Estoy"
+          ],
+          "hint": "",
+          "en": "I am a little sad.",
+          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Lía ___ enojada.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "estoy",
+            "está"
+          ],
+          "hint": "",
+          "en": "Lía is angry.",
+          "teach": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "¿Cómo estás? ___ bien, gracias.",
+          "answer": "Estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "Es",
+            "Estoy",
+            "Soy"
+          ],
+          "hint": "",
+          "en": "How are you? I am well, thank you.",
+          "teach": "¿Cómo estás? (How are you?) → Estoy bien. Bien, not bueno: Estoy bien.",
+          "item": "estar_bien",
+          "topic": "es_estar"
+        }
+      ]
+    },
+    {
+      "type": "gap",
+      "title": "Type the missing word",
+      "mode": "typed",
+      "sentences": [
+        {
+          "text": "Me llamo Pablo. Estoy ___.",
+          "answer": "cansado",
+          "accepts": [
+            "cansado"
+          ],
+          "options": [
+            "cansada",
+            "cansados",
+            "cansado"
+          ],
+          "hint": "tired",
+          "en": "My name is Pablo. I am tired.",
+          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Me llamo Marta. Estoy ___.",
+          "answer": "contenta",
+          "accepts": [
+            "contenta"
+          ],
+          "options": [
+            "contentas",
+            "contento",
+            "contenta"
+          ],
+          "hint": "happy",
+          "en": "My name is Marta. I am happy.",
+          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Me llamo Leo. Estoy ___.",
+          "answer": "triste",
+          "accepts": [
+            "triste"
+          ],
+          "options": [
+            "triste",
+            "contento",
+            "tristes"
+          ],
+          "hint": "sad",
+          "en": "My name is Leo. I am sad.",
+          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        }
+      ]
+    }
+  ]
+}

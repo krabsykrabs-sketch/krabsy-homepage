@@ -1,0 +1,30 @@
+{
+  "id": "m_es_cards_food",
+  "kind": "cards",
+  "title": "Food picture cards",
+  "topic": "es_food",
+  "level": "Pre-A1",
+  "learn": "es",
+  "minutes": 5,
+  "blurb": "Twelve things to eat and drink, from bread to ice cream.",
+  "steps": [
+    {
+      "type": "cards",
+      "title": "Let’s eat!",
+      "words": [
+        "manzana",
+        "pan",
+        "queso",
+        "leche",
+        "huevo",
+        "banana",
+        "agua",
+        "torta",
+        "naranja",
+        "jugo",
+        "frutilla",
+        "helado"
+      ]
+    }
+  ]
+}

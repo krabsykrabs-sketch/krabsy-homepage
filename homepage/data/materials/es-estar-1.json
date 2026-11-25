@@ -1,0 +1,303 @@
+{
+  "id": "m_es_estar_1",
+  "kind": "worksheet",
+  "title": "Where is my backpack?",
+  "topic": "es_estar",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 10,
+  "blurb": "Lucas looks for his things all over the house, and says how he feels.",
+  "steps": [
+    {
+      "type": "text",
+      "title": "Where is my backpack?",
+      "body": "Lucas cannot find his things. Where are they? And how is Lucas today?",
+      "pic": "🎒"
+    },
+    {
+      "type": "gap",
+      "title": "Choose the right word",
+      "mode": "choice",
+      "sentences": [
+        {
+          "text": "El libro ___ en la mesa.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "estoy",
+            "está",
+            "es"
+          ],
+          "hint": "",
+          "en": "The book is on the table.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Mi perro ___ en el jardín.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "estoy",
+            "es"
+          ],
+          "hint": "",
+          "en": "My dog is in the garden.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        },
+        {
+          "text": "¿Dónde ___ el baño?",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "es",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "Where is the bathroom?",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        },
+        {
+          "text": "La pelota ___ debajo de la cama.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "estoy",
+            "está"
+          ],
+          "hint": "",
+          "en": "The ball is under the bed.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Mi mochila ___ en la clase.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "estoy",
+            "es"
+          ],
+          "hint": "",
+          "en": "My backpack is in the classroom.",
+          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
+        }
+      ]
+    },
+    {
+      "type": "gap",
+      "title": "Drag the word into the gap",
+      "mode": "drag",
+      "sentences": [
+        {
+          "text": "Ahora ___ en casa.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "está",
+            "soy",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "Now I am at home.",
+          "teach": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+          "item": "estar_place_yo",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Estoy ___ casa.",
+          "answer": "en",
+          "accepts": [
+            "en"
+          ],
+          "options": [
+            "en",
+            "a",
+            "de"
+          ],
+          "hint": "",
+          "en": "I am at home.",
+          "teach": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+          "item": "estar_place_yo",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Estoy ___ Madrid.",
+          "answer": "en",
+          "accepts": [
+            "en"
+          ],
+          "options": [
+            "en",
+            "de",
+            "a"
+          ],
+          "hint": "",
+          "en": "I am in Madrid.",
+          "teach": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+          "item": "estar_place_yo",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Hoy no estoy ___.",
+          "answer": "bien",
+          "accepts": [
+            "bien"
+          ],
+          "options": [
+            "bien",
+            "buena",
+            "bueno"
+          ],
+          "hint": "well",
+          "en": "Today I am not well.",
+          "teach": "¿Cómo estás? (How are you?) → Estoy bien. Bien, not bueno: Estoy bien.",
+          "item": "estar_bien",
+          "topic": "es_estar"
+        },
+        {
+          "text": "¿Cómo estás? Estoy ___, gracias.",
+          "answer": "bien",
+          "accepts": [
+            "bien"
+          ],
+          "options": [
+            "buena",
+            "bueno",
+            "bien"
+          ],
+          "hint": "well",
+          "en": "How are you? I am well, thank you.",
+          "teach": "¿Cómo estás? (How are you?) → Estoy bien. Bien, not bueno: Estoy bien.",
+          "item": "estar_bien",
+          "topic": "es_estar"
+        }
+      ],
+      "bank": [
+        "en",
+        "estoy",
+        "soy",
+        "de",
+        "bien",
+        "en",
+        "bien"
+      ]
+    },
+    {
+      "type": "gap",
+      "title": "Type the missing word",
+      "mode": "typed",
+      "sentences": [
+        {
+          "text": "___ en el parque con mi perro.",
+          "answer": "Estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "Estoy",
+            "Soy",
+            "Está"
+          ],
+          "hint": "",
+          "en": "I am in the park with my dog.",
+          "teach": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+          "item": "estar_place_yo",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Yo ___ en el colegio.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "está",
+            "soy",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "I am at school.",
+          "teach": "Where you are: Estoy en + place. Estoy en casa. Estoy en el colegio.",
+          "item": "estar_place_yo",
+          "topic": "es_estar"
+        },
+        {
+          "text": "No ___ nerviosa.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "soy",
+            "estoy",
+            "está"
+          ],
+          "hint": "",
+          "en": "I am not nervous.",
+          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Mamá, ___ enfermo.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "estoy",
+            "está",
+            "soy"
+          ],
+          "hint": "",
+          "en": "Mum, I am ill.",
+          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Me llamo Hugo. Estoy ___.",
+          "answer": "enfermo",
+          "accepts": [
+            "enfermo"
+          ],
+          "options": [
+            "enfermos",
+            "enferma",
+            "enfermo"
+          ],
+          "hint": "ill",
+          "en": "My name is Hugo. I am ill.",
+          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        }
+      ]
+    }
+  ]
+}

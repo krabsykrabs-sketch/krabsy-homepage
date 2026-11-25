@@ -1,0 +1,142 @@
+[
+  {
+    "id": "m_es_farm_1",
+    "kind": "worksheet",
+    "title": "Lucas visits the farm",
+    "topic": "es_animals",
+    "level": "A1",
+    "minutes": 10,
+    "blurb": "Meet six farm animals, then tap, match, sort and fill the gaps.",
+    "file": "es-farm-1.json"
+  },
+  {
+    "id": "m_es_pond_1",
+    "kind": "worksheet",
+    "title": "Who lives in the pond?",
+    "topic": "es_animals",
+    "level": "A1",
+    "minutes": 8,
+    "blurb": "Lía finds a frog, a fish, a turtle and a swan behind the farm.",
+    "file": "es-pond-1.json"
+  },
+  {
+    "id": "m_es_bigsmall_1",
+    "kind": "worksheet",
+    "title": "Big animals, small animals",
+    "topic": "es_animals",
+    "level": "A1",
+    "minutes": 9,
+    "blurb": "An elephant, a giraffe, a mouse and a chick: who is big, who is small?",
+    "file": "es-bigsmall-1.json"
+  },
+  {
+    "id": "m_es_pets_1",
+    "kind": "worksheet",
+    "title": "Pets at home",
+    "topic": "es_animals",
+    "level": "A1",
+    "minutes": 8,
+    "blurb": "Lucas has a dog. Who has a cat, a rabbit or a hamster?",
+    "file": "es-pets-1.json"
+  },
+  {
+    "id": "m_es_feelings_1",
+    "kind": "worksheet",
+    "title": "How is Lía today?",
+    "topic": "es_feelings",
+    "level": "A1",
+    "minutes": 9,
+    "blurb": "Happy, sad, tired, angry: six faces, then say how you are.",
+    "file": "es-feelings-1.json"
+  },
+  {
+    "id": "m_es_picnic_1",
+    "kind": "worksheet",
+    "title": "The picnic basket",
+    "topic": "es_food",
+    "level": "A1",
+    "minutes": 10,
+    "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice.",
+    "file": "es-picnic-1.json"
+  },
+  {
+    "id": "m_es_ser_1",
+    "kind": "worksheet",
+    "title": "Hello, I am Lucas!",
+    "topic": "es_ser",
+    "level": "A1",
+    "minutes": 10,
+    "blurb": "New friends at school say their names, where they are from and what they are like.",
+    "file": "es-ser-1.json"
+  },
+  {
+    "id": "m_es_estar_1",
+    "kind": "worksheet",
+    "title": "Where is my backpack?",
+    "topic": "es_estar",
+    "level": "A1",
+    "minutes": 10,
+    "blurb": "Lucas looks for his things all over the house, and says how he feels.",
+    "file": "es-estar-1.json"
+  },
+  {
+    "id": "m_es_ser_estar_1",
+    "kind": "worksheet",
+    "title": "Lía is tall, Lía is tired",
+    "topic": "es_ser_estar",
+    "level": "A1",
+    "minutes": 11,
+    "blurb": "Who you are and where you are; what something is like and where it is.",
+    "file": "es-ser-estar-1.json"
+  },
+  {
+    "id": "m_es_tener_1",
+    "kind": "worksheet",
+    "title": "How old are you?",
+    "topic": "es_tener",
+    "level": "A1",
+    "minutes": 10,
+    "blurb": "Ana and her new friend ask about age, pets, brothers and sisters, and how they feel.",
+    "file": "es-tener-1.json"
+  },
+  {
+    "id": "m_es_cards_animals",
+    "kind": "cards",
+    "title": "Animal picture cards",
+    "topic": "es_animals",
+    "level": "Pre-A1",
+    "minutes": 5,
+    "blurb": "Twelve animals to turn over and say: farm animals and pets.",
+    "file": "es-cards-animals.json"
+  },
+  {
+    "id": "m_es_cards_feelings",
+    "kind": "cards",
+    "title": "Feelings picture cards",
+    "topic": "es_feelings",
+    "level": "Pre-A1",
+    "minutes": 5,
+    "blurb": "Ten faces: happy, sad, tired, angry, scared and more.",
+    "file": "es-cards-feelings.json"
+  },
+  {
+    "id": "m_es_cards_food",
+    "kind": "cards",
+    "title": "Food picture cards",
+    "topic": "es_food",
+    "level": "Pre-A1",
+    "minutes": 5,
+    "blurb": "Twelve things to eat and drink, from bread to ice cream.",
+    "file": "es-cards-food.json"
+  },
+  {
+    "id": "m_es_book_granja",
+    "kind": "book",
+    "title": "La granja",
+    "topic": "es_animals",
+    "level": "A1",
+    "minutes": 6,
+    "blurb": "Lía visits her grandmother’s farm and meets eight animals.",
+    "file": "es-book-granja.json"
+  }
+]

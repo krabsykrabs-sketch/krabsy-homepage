@@ -1,0 +1,244 @@
+{
+  "id": "m_es_farm_1",
+  "kind": "worksheet",
+  "title": "Lucas visits the farm",
+  "topic": "es_animals",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 10,
+  "blurb": "Meet six farm animals, then tap, match, sort and fill the gaps.",
+  "steps": [
+    {
+      "type": "text",
+      "title": "Lucas visits the farm",
+      "body": "Lucas is at his grandmother’s farm today. Come along and meet the animals!",
+      "pic": "🚜"
+    },
+    {
+      "type": "cards",
+      "title": "Meet the animals",
+      "words": [
+        "vaca",
+        "caballo",
+        "cerdo",
+        "gallina",
+        "pato",
+        "oveja"
+      ]
+    },
+    {
+      "type": "tap",
+      "title": "Tap the picture",
+      "items": [
+        {
+          "word": "vaca",
+          "options": [
+            "cerdo",
+            "pato",
+            "oveja",
+            "vaca"
+          ]
+        },
+        {
+          "word": "gallina",
+          "options": [
+            "oveja",
+            "cerdo",
+            "gallina",
+            "vaca"
+          ]
+        },
+        {
+          "word": "cerdo",
+          "options": [
+            "gallina",
+            "cerdo",
+            "caballo",
+            "pato"
+          ]
+        },
+        {
+          "word": "pato",
+          "options": [
+            "pato",
+            "gallina",
+            "oveja",
+            "vaca"
+          ]
+        },
+        {
+          "word": "caballo",
+          "options": [
+            "caballo",
+            "cerdo",
+            "pato",
+            "vaca"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "match",
+      "title": "Match the pairs",
+      "words": [
+        "oveja",
+        "pato",
+        "caballo",
+        "cerdo",
+        "gallina"
+      ],
+      "right": [
+        "pato",
+        "caballo",
+        "gallina",
+        "cerdo",
+        "oveja"
+      ]
+    },
+    {
+      "type": "sort",
+      "title": "Sort into baskets",
+      "baskets": [
+        {
+          "id": "two",
+          "label": "Tiene 2 patas",
+          "sub": "two legs",
+          "pic": "🧺"
+        },
+        {
+          "id": "four",
+          "label": "Tiene 4 patas",
+          "sub": "four legs",
+          "pic": "🧺"
+        }
+      ],
+      "cards": [
+        {
+          "w": "gallina",
+          "b": "two"
+        },
+        {
+          "w": "pollito",
+          "b": "two"
+        },
+        {
+          "w": "pato",
+          "b": "two"
+        },
+        {
+          "w": "vaca",
+          "b": "four"
+        },
+        {
+          "w": "oveja",
+          "b": "four"
+        },
+        {
+          "w": "caballo",
+          "b": "four"
+        }
+      ],
+      "hint": "Count the legs."
+    },
+    {
+      "type": "gap",
+      "title": "Drag the word into the gap",
+      "mode": "drag",
+      "sentences": [
+        {
+          "text": "La vaca ___ grande.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "está",
+            "son",
+            "es"
+          ],
+          "hint": "",
+          "en": "The cow is big.",
+          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "El cerdo ___ en el barro.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "están",
+            "es"
+          ],
+          "hint": "",
+          "en": "The pig is in the mud.",
+          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "La gallina ___ tres pollitos.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tengo",
+            "es",
+            "tiene"
+          ],
+          "hint": "",
+          "en": "The hen has three chicks.",
+          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Yo ___ un perro.",
+          "answer": "tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "soy",
+            "tiene",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "I have a dog.",
+          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Los patos ___ en el agua.",
+          "answer": "están",
+          "accepts": [
+            "están"
+          ],
+          "options": [
+            "son",
+            "están",
+            "está"
+          ],
+          "hint": "",
+          "en": "The ducks are in the water.",
+          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        }
+      ],
+      "bank": [
+        "son",
+        "está",
+        "es",
+        "tengo",
+        "tiene",
+        "están"
+      ]
+    }
+  ]
+}

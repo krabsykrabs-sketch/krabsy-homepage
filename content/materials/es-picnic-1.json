@@ -1,0 +1,218 @@
+{
+  "id": "m_es_picnic_1",
+  "kind": "worksheet",
+  "title": "The picnic basket",
+  "topic": "es_food",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 10,
+  "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice.",
+  "steps": [
+    {
+      "type": "text",
+      "title": "The picnic basket",
+      "body": "Lía and her grandmother pack a basket for a picnic in the park. What goes in?",
+      "pic": "🧺"
+    },
+    {
+      "type": "cards",
+      "title": "What is in the basket?",
+      "words": [
+        "manzana",
+        "pan",
+        "queso",
+        "banana",
+        "agua",
+        "torta"
+      ]
+    },
+    {
+      "type": "tap",
+      "title": "Tap the picture",
+      "items": [
+        {
+          "word": "manzana",
+          "options": [
+            "manzana",
+            "torta",
+            "banana",
+            "queso"
+          ]
+        },
+        {
+          "word": "queso",
+          "options": [
+            "queso",
+            "banana",
+            "manzana",
+            "torta"
+          ]
+        },
+        {
+          "word": "banana",
+          "options": [
+            "manzana",
+            "naranja",
+            "queso",
+            "banana"
+          ]
+        },
+        {
+          "word": "torta",
+          "options": [
+            "manzana",
+            "banana",
+            "torta",
+            "queso"
+          ]
+        },
+        {
+          "word": "pan",
+          "options": [
+            "queso",
+            "pan",
+            "torta",
+            "naranja"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "title": "To eat or to drink?",
+      "baskets": [
+        {
+          "id": "eat",
+          "label": "Para comer",
+          "sub": "to eat",
+          "pic": "🍽️"
+        },
+        {
+          "id": "drink",
+          "label": "Para beber",
+          "sub": "to drink",
+          "pic": "🥤"
+        }
+      ],
+      "cards": [
+        {
+          "w": "queso",
+          "b": "eat"
+        },
+        {
+          "w": "leche",
+          "b": "drink"
+        },
+        {
+          "w": "jugo",
+          "b": "drink"
+        },
+        {
+          "w": "pan",
+          "b": "eat"
+        },
+        {
+          "w": "agua",
+          "b": "drink"
+        },
+        {
+          "w": "banana",
+          "b": "eat"
+        }
+      ],
+      "hint": "Do you need a cup for it?"
+    },
+    {
+      "type": "gap",
+      "title": "Choose the right word",
+      "mode": "choice",
+      "sentences": [
+        {
+          "text": "___ hambre.",
+          "answer": "Tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "Tengo",
+            "Estoy",
+            "Soy"
+          ],
+          "hint": "",
+          "en": "I am hungry.",
+          "teach": "Hungry, thirsty, cold, hot, sleepy use tener: tengo hambre (= I have hunger). Not estoy.",
+          "item": "tener_feel",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Quiero agua. Tengo ___.",
+          "answer": "sed",
+          "accepts": [
+            "sed"
+          ],
+          "options": [
+            "hambre",
+            "sed",
+            "calor"
+          ],
+          "hint": "thirsty",
+          "en": "I want water. I am thirsty.",
+          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "item": "tener_feel_word",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Es la hora de comer. Tengo ___.",
+          "answer": "hambre",
+          "accepts": [
+            "hambre"
+          ],
+          "options": [
+            "sed",
+            "hambre",
+            "frío"
+          ],
+          "hint": "hungry",
+          "en": "It is time to eat. I am hungry.",
+          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "item": "tener_feel_word",
+          "topic": "es_tener"
+        },
+        {
+          "text": "La abuela ___ una torta.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tiene",
+            "tengo",
+            "es"
+          ],
+          "hint": "",
+          "en": "Grandma has a cake.",
+          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Yo ___ una manzana y un sándwich.",
+          "answer": "tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "soy",
+            "tiene",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "I have an apple and a sandwich.",
+          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "vaca": {
+    "es": "la vaca",
+    "en": "cow",
+    "de": "die Kuh",
+    "emoji": "🐄",
+    "set": "animals"
+  },
+  "caballo": {
+    "es": "el caballo",
+    "en": "horse",
+    "de": "das Pferd",
+    "emoji": "🐴",
+    "set": "animals"
+  },
+  "cerdo": {
+    "es": "el cerdo",
+    "en": "pig",
+    "de": "das Schwein",
+    "emoji": "🐷",
+    "set": "animals"
+  },
+  "gallina": {
+    "es": "la gallina",
+    "en": "hen",
+    "de": "das Huhn",
+    "emoji": "🐔",
+    "set": "animals"
+  },
+  "pato": {
+    "es": "el pato",
+    "en": "duck",
+    "de": "die Ente",
+    "emoji": "🦆",
+    "set": "animals"
+  },
+  "oveja": {
+    "es": "la oveja",
+    "en": "sheep",
+    "de": "das Schaf",
+    "emoji": "🐑",
+    "set": "animals"
+  },
+  "perro": {
+    "es": "el perro",
+    "en": "dog",
+    "de": "der Hund",
+    "emoji": "🐶",
+    "set": "animals"
+  },
+  "gato": {
+    "es": "el gato",
+    "en": "cat",
+    "de": "die Katze",
+    "emoji": "🐱",
+    "set": "animals"
+  },
+  "conejo": {
+    "es": "el conejo",
+    "en": "rabbit",
+    "de": "das Kaninchen",
+    "emoji": "🐰",
+    "set": "animals"
+  },
+  "pollito": {
+    "es": "el pollito",
+    "en": "chick",
+    "de": "das Küken",
+    "emoji": "🐥",
+    "set": "animals"
+  },
+  "cabra": {
+    "es": "la cabra",
+    "en": "goat",
+    "de": "die Ziege",
+    "emoji": "🐐",
+    "set": "animals"
+  },
+  "raton": {
+    "es": "el ratón",
+    "en": "mouse",
+    "de": "die Maus",
+    "emoji": "🐭",
+    "set": "animals"
+  },
+  "rana": {
+    "es": "la rana",
+    "en": "frog",
+    "de": "der Frosch",
+    "emoji": "🐸",
+    "set": "animals"
+  },
+  "pez": {
+    "es": "el pez",
+    "en": "fish",
+    "de": "der Fisch",
+    "emoji": "🐟",
+    "set": "animals"
+  },
+  "tortuga": {
+    "es": "la tortuga",
+    "en": "turtle",
+    "de": "die Schildkröte",
+    "emoji": "🐢",
+    "set": "animals"
+  },
+  "pajaro": {
+    "es": "el pájaro",
+    "en": "bird",
+    "de": "der Vogel",
+    "emoji": "🐦",
+    "set": "animals"
+  },
+  "cisne": {
+    "es": "el cisne",
+    "en": "swan",
+    "de": "der Schwan",
+    "emoji": "🦢",
+    "set": "animals"
+  },
+  "elefante": {
+    "es": "el elefante",
+    "en": "elephant",
+    "de": "der Elefant",
+    "emoji": "🐘",
+    "set": "animals"
+  },
+  "jirafa": {
+    "es": "la jirafa",
+    "en": "giraffe",
+    "de": "die Giraffe",
+    "emoji": "🦒",
+    "set": "animals"
+  },
+  "leon": {
+    "es": "el león",
+    "en": "lion",
+    "de": "der Löwe",
+    "emoji": "🦁",
+    "set": "animals"
+  },
+  "oso": {
+    "es": "el oso",
+    "en": "bear",
+    "de": "der Bär",
+    "emoji": "🐻",
+    "set": "animals"
+  },
+  "mono": {
+    "es": "el mono",
+    "en": "monkey",
+    "de": "der Affe",
+    "emoji": "🐒",
+    "set": "animals"
+  },
+  "mariposa": {
+    "es": "la mariposa",
+    "en": "butterfly",
+    "de": "der Schmetterling",
+    "emoji": "🦋",
+    "set": "animals"
+  },
+  "hamster": {
+    "es": "el hámster",
+    "en": "hamster",
+    "de": "der Hamster",
+    "emoji": "🐹",
+    "set": "animals"
+  },
+  "contento": {
+    "es": "contento",
+    "en": "happy",
+    "de": "froh",
+    "emoji": "😊",
+    "set": "feelings",
+    "f": "contenta"
+  },
+  "triste": {
+    "es": "triste",
+    "en": "sad",
+    "de": "traurig",
+    "emoji": "😢",
+    "set": "feelings"
+  },
+  "cansado": {
+    "es": "cansado",
+    "en": "tired",
+    "de": "müde",
+    "emoji": "😴",
+    "set": "feelings",
+    "f": "cansada"
+  },
+  "enojado": {
+    "es": "enojado",
+    "en": "angry",
+    "de": "wütend",
+    "emoji": "😠",
+    "set": "feelings",
+    "f": "enojada"
+  },
+  "asustado": {
+    "es": "asustado",
+    "en": "scared",
+    "de": "erschrocken",
+    "emoji": "😨",
+    "set": "feelings",
+    "f": "asustada"
+  },
+  "sorprendido": {
+    "es": "sorprendido",
+    "en": "surprised",
+    "de": "überrascht",
+    "emoji": "😮",
+    "set": "feelings",
+    "f": "sorprendida"
+  },
+  "enfermo": {
+    "es": "enfermo",
+    "en": "ill",
+    "de": "krank",
+    "emoji": "🤒",
+    "set": "feelings",
+    "f": "enferma"
+  },
+  "tranquilo": {
+    "es": "tranquilo",
+    "en": "calm",
+    "de": "ruhig",
+    "emoji": "😌",
+    "set": "feelings",
+    "f": "tranquila"
+  },
+  "nervioso": {
+    "es": "nervioso",
+    "en": "nervous",
+    "de": "nervös",
+    "emoji": "😬",
+    "set": "feelings",
+    "f": "nerviosa"
+  },
+  "aburrido": {
+    "es": "aburrido",
+    "en": "bored",
+    "de": "gelangweilt",
+    "emoji": "🥱",
+    "set": "feelings",
+    "f": "aburrida"
+  },
+  "manzana": {
+    "es": "la manzana",
+    "en": "apple",
+    "de": "der Apfel",
+    "emoji": "🍎",
+    "set": "food"
+  },
+  "pan": {
+    "es": "el pan",
+    "en": "bread",
+    "de": "das Brot",
+    "emoji": "🍞",
+    "set": "food"
+  },
+  "queso": {
+    "es": "el queso",
+    "en": "cheese",
+    "de": "der Käse",
+    "emoji": "🧀",
+    "set": "food"
+  },
+  "leche": {
+    "es": "la leche",
+    "en": "milk",
+    "de": "die Milch",
+    "emoji": "🥛",
+    "set": "food"
+  },
+  "huevo": {
+    "es": "el huevo",
+    "en": "egg",
+    "de": "das Ei",
+    "emoji": "🥚",
+    "set": "food"
+  },
+  "banana": {
+    "es": "la banana",
+    "en": "banana",
+    "de": "die Banane",
+    "emoji": "🍌",
+    "set": "food"
+  },
+  "agua": {
+    "es": "el agua",
+    "en": "water",
+    "de": "das Wasser",
+    "emoji": "💧",
+    "set": "food"
+  },
+  "torta": {
+    "es": "la torta",
+    "en": "cake",
+    "de": "der Kuchen",
+    "emoji": "🍰",
+    "set": "food"
+  },
+  "naranja": {
+    "es": "la naranja",
+    "en": "orange",
+    "de": "die Orange",
+    "emoji": "🍊",
+    "set": "food"
+  },
+  "tomate": {
+    "es": "el tomate",
+    "en": "tomato",
+    "de": "die Tomate",
+    "emoji": "🍅",
+    "set": "food"
+  },
+  "jugo": {
+    "es": "el jugo",
+    "en": "juice",
+    "de": "der Saft",
+    "emoji": "🧃",
+    "set": "food"
+  },
+  "frutilla": {
+    "es": "la frutilla",
+    "en": "strawberry",
+    "de": "die Erdbeere",
+    "emoji": "🍓",
+    "set": "food"
+  },
+  "uvas": {
+    "es": "las uvas",
+    "en": "grapes",
+    "de": "die Trauben",
+    "emoji": "🍇",
+    "set": "food"
+  },
+  "zanahoria": {
+    "es": "la zanahoria",
+    "en": "carrot",
+    "de": "die Karotte",
+    "emoji": "🥕",
+    "set": "food"
+  },
+  "helado": {
+    "es": "el helado",
+    "en": "ice cream",
+    "de": "das Eis",
+    "emoji": "🍦",
+    "set": "food"
+  },
+  "galletita": {
+    "es": "la galletita",
+    "en": "biscuit",
+    "de": "der Keks",
+    "emoji": "🍪",
+    "set": "food"
+  },
+  "sandwich": {
+    "es": "el sándwich",
+    "en": "sandwich",
+    "de": "das Sandwich",
+    "emoji": "🥪",
+    "set": "food"
+  },
+  "mama": {
+    "es": "la mamá",
+    "en": "mum",
+    "de": "die Mama",
+    "emoji": "👩",
+    "set": "family"
+  },
+  "papa": {
+    "es": "el papá",
+    "en": "dad",
+    "de": "der Papa",
+    "emoji": "👨",
+    "set": "family"
+  },
+  "abuela": {
+    "es": "la abuela",
+    "en": "grandmother",
+    "de": "die Oma",
+    "emoji": "👵",
+    "set": "family"
+  },
+  "abuelo": {
+    "es": "el abuelo",
+    "en": "grandfather",
+    "de": "der Opa",
+    "emoji": "👴",
+    "set": "family"
+  },
+  "hermano": {
+    "es": "el hermano",
+    "en": "brother",
+    "de": "der Bruder",
+    "emoji": "👦",
+    "set": "family"
+  },
+  "hermana": {
+    "es": "la hermana",
+    "en": "sister",
+    "de": "die Schwester",
+    "emoji": "👧",
+    "set": "family"
+  },
+  "bebe": {
+    "es": "el bebé",
+    "en": "baby",
+    "de": "das Baby",
+    "emoji": "👶",
+    "set": "family"
+  },
+  "familia": {
+    "es": "la familia",
+    "en": "family",
+    "de": "die Familie",
+    "emoji": "👨‍👩‍👧",
+    "set": "family"
+  }
+}

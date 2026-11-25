@@ -1,0 +1,317 @@
+{
+  "id": "m_es_book_granja",
+  "kind": "book",
+  "title": "La granja",
+  "topic": "es_animals",
+  "level": "A1",
+  "learn": "es",
+  "minutes": 6,
+  "blurb": "Lía visits her grandmother’s farm and meets eight animals.",
+  "author": "A Krabsy storybook",
+  "pages": [
+    {
+      "scene": "farm",
+      "cast": [
+        [
+          "🏡",
+          62,
+          30,
+          5.2
+        ],
+        [
+          "👧",
+          26,
+          62,
+          4
+        ],
+        [
+          "👵",
+          44,
+          60,
+          4
+        ],
+        [
+          "🌻",
+          80,
+          70,
+          2.4
+        ],
+        [
+          "🌻",
+          88,
+          74,
+          2
+        ]
+      ],
+      "es": "Hola, soy Lía. Hoy estoy en la {granja|la granja|the farm|🏡} de mi {abuela|la abuela|the grandmother|👵|abuela}.",
+      "en": "Hello, I am Lía. Today I am at my grandmother’s farm."
+    },
+    {
+      "scene": "field",
+      "cast": [
+        [
+          "🐄",
+          58,
+          54,
+          6.5
+        ],
+        [
+          "👧",
+          22,
+          64,
+          3.6
+        ],
+        [
+          "🌼",
+          80,
+          80,
+          1.8
+        ],
+        [
+          "🌼",
+          40,
+          84,
+          1.6
+        ]
+      ],
+      "es": "En la granja hay una {vaca|la vaca|the cow|🐄|vaca}. La vaca es {grande|grande|big|🐘}.",
+      "en": "On the farm there is a cow. The cow is big."
+    },
+    {
+      "scene": "field",
+      "cast": [
+        [
+          "🐴",
+          60,
+          52,
+          6
+        ],
+        [
+          "👧",
+          24,
+          66,
+          3.6
+        ],
+        [
+          "💨",
+          82,
+          50,
+          2.4
+        ]
+      ],
+      "es": "Aquí está el {caballo|el caballo|the horse|🐴|caballo}. El caballo es {rápido|rápido|fast|💨}.",
+      "en": "Here is the horse. The horse is fast."
+    },
+    {
+      "scene": "mud",
+      "cast": [
+        [
+          "🐷",
+          54,
+          62,
+          5.6
+        ],
+        [
+          "💦",
+          72,
+          48,
+          2
+        ],
+        [
+          "👧",
+          20,
+          60,
+          3.6
+        ]
+      ],
+      "es": "El {cerdo|el cerdo|the pig|🐷|cerdo} está en el {barro|el barro|the mud|🟤}. ¡Está muy {contento|contento|happy|😊|contento}!",
+      "en": "The pig is in the mud. He is very happy!"
+    },
+    {
+      "check": true
+    },
+    {
+      "scene": "barn",
+      "cast": [
+        [
+          "🐔",
+          40,
+          58,
+          5
+        ],
+        [
+          "🐥",
+          62,
+          72,
+          2.4
+        ],
+        [
+          "🐥",
+          72,
+          68,
+          2.2
+        ],
+        [
+          "🐥",
+          82,
+          74,
+          2.4
+        ]
+      ],
+      "es": "La {gallina|la gallina|the hen|🐔|gallina} tiene tres {pollitos|el pollito|the chick|🐥|pollito}. Los pollitos son {pequeños|pequeño|small|🤏}.",
+      "en": "The hen has three chicks. The chicks are small."
+    },
+    {
+      "scene": "pond",
+      "cast": [
+        [
+          "🦆",
+          40,
+          62,
+          4.4
+        ],
+        [
+          "🦆",
+          66,
+          70,
+          3.4
+        ],
+        [
+          "🌿",
+          14,
+          74,
+          2.6
+        ],
+        [
+          "🌿",
+          90,
+          60,
+          2.4
+        ]
+      ],
+      "es": "Los {patos|el pato|the duck|🦆|pato} están en el {agua|el agua|the water|💧|agua}. El pato dice: ¡cuac!",
+      "en": "The ducks are in the water. The duck says: quack!"
+    },
+    {
+      "scene": "field",
+      "cast": [
+        [
+          "🐑",
+          56,
+          56,
+          6
+        ],
+        [
+          "☁️",
+          30,
+          20,
+          3
+        ],
+        [
+          "👧",
+          22,
+          66,
+          3.6
+        ]
+      ],
+      "es": "La {oveja|la oveja|the sheep|🐑|oveja} tiene mucha {lana|la lana|the wool|🧶}. La lana es blanca.",
+      "en": "The sheep has a lot of wool. The wool is white."
+    },
+    {
+      "scene": "evening",
+      "cast": [
+        [
+          "🐶",
+          52,
+          64,
+          5
+        ],
+        [
+          "👧",
+          28,
+          62,
+          4
+        ],
+        [
+          "🏡",
+          78,
+          34,
+          4
+        ],
+        [
+          "⭐",
+          18,
+          16,
+          1.6
+        ],
+        [
+          "⭐",
+          46,
+          10,
+          1.3
+        ]
+      ],
+      "es": "Yo tengo un {amigo|el amigo|the friend|🤝} nuevo: el {perro|el perro|the dog|🐶|perro} Tito. ¡Adiós, granja!",
+      "en": "I have a new friend: Tito the dog. Goodbye, farm!"
+    },
+    {
+      "end": true
+    }
+  ],
+  "check": {
+    "q": "¿Quién es grande?",
+    "en": "Who is big?",
+    "options": [
+      "vaca",
+      "pollito",
+      "gato"
+    ],
+    "answer": "vaca",
+    "teach": "La vaca es grande."
+  },
+  "endChecks": [
+    {
+      "q": "¿Quién está en el barro?",
+      "en": "Who is in the mud?",
+      "options": [
+        "pato",
+        "cerdo",
+        "oveja"
+      ],
+      "answer": "cerdo",
+      "teach": "El cerdo está en el barro."
+    },
+    {
+      "q": "¿Quién tiene tres pollitos?",
+      "en": "Who has three chicks?",
+      "options": [
+        "gallina",
+        "caballo",
+        "perro"
+      ],
+      "answer": "gallina",
+      "teach": "La gallina tiene tres pollitos."
+    },
+    {
+      "q": "¿Quién dice «cuac»?",
+      "en": "Who says “quack”?",
+      "options": [
+        "vaca",
+        "oveja",
+        "pato"
+      ],
+      "answer": "pato",
+      "teach": "El pato dice: ¡cuac!"
+    }
+  ],
+  "words": [
+    "vaca",
+    "caballo",
+    "cerdo",
+    "gallina",
+    "pollito",
+    "pato",
+    "oveja",
+    "perro"
+  ]
+}

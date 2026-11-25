@@ -1,0 +1,28 @@
+{
+  "id": "m_es_cards_feelings",
+  "kind": "cards",
+  "title": "Feelings picture cards",
+  "topic": "es_feelings",
+  "level": "Pre-A1",
+  "learn": "es",
+  "minutes": 5,
+  "blurb": "Ten faces: happy, sad, tired, angry, scared and more.",
+  "steps": [
+    {
+      "type": "cards",
+      "title": "How do they feel?",
+      "words": [
+        "contento",
+        "triste",
+        "cansado",
+        "enojado",
+        "asustado",
+        "sorprendido",
+        "enfermo",
+        "tranquilo",
+        "nervioso",
+        "aburrido"
+      ]
+    }
+  ]
+}
