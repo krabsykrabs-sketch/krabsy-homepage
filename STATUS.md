@@ -24,10 +24,13 @@ gifts, stats, game saves) saved to the student's key and restored on other
 devices, "Who's playing?" for siblings on one device, adult flag (calm page, no
 shells), read-only parents' report link `/en/spanish/report/#r=`. Details:
 `docs/tutor-platform.md` "Accounts round as built".
-**Before Nora uses it:** deploy the API (Coolify app `/api`, new module in the
-Dockerfile) + site; update `/en/privacy/` (tutor spaces store first name, notes,
-answers, and the saved profile of students with a link). Before going public: link from the teacher pages, privacy DE/ES,
-AVV template.
+Privacy (2026-11-25): EN/DE/ES privacy pages have a tutor-space section and a
+"saved profile" bullet under Classes (class pupils' profiles are saved too);
+the "your rights" placeholder now says what is true. Not read by a lawyer.
+**Before Nora uses it:** deploy the API first (Coolify app `/api`, new module in
+the Dockerfile), then the site (shared `krabsy-analytics.js` / `krabsy-shells.js`
+changed). Before going public: link from the teacher pages, AVV template, lawyer
+check of the privacy texts.
 
 ## Lesson plans "Unterrichtsideen" (2026-11-25, DE, not deployed)
 

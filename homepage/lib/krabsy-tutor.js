@@ -48,7 +48,7 @@ const T = {
     ['★★★★★', 'Uses it freely in their own sentences', 'only you set this'],
   ],
   privacyH: 'Privacy',
-  privacy: 'Krabsy stores the first name you type, the level and notes you write, and the answers the student gives in games (word, right or wrong, when). No email, no surname, nothing about the device. Ask the parents before you send the link. A space that nobody uses for 6 months is deleted with everything in it, and you can delete it any time.',
+  privacy: 'Krabsy stores the first name you type, the level and notes you write, the answers the student gives in games (word, right or wrong, when), and, so they can continue on another device, their figure, shells and game progress. No email, no surname, nothing about the device. Ask the parents before you send the link. A space that nobody uses for 6 months is deleted with everything in it, and you can delete it any time. Details in the <a href="/en/privacy/">privacy policy</a>.',
   noSpace: 'This space doesn’t exist (any more). The link is incomplete or the space was deleted.',
   errNet: 'No connection. Try again in a moment.', errName: 'Letters only, at most 20 characters.',
   errMany: 'Too many tries. Wait a moment.', errFull: 'This space is full.',
