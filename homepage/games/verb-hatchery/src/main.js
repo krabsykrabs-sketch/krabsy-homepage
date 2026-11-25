@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import * as S from './state.js';
 import { RARITIES, RARITY, UPGRADES, MAX_PENS, MAX_INCUBATORS, ZONES, HOME, ISLAND, EGG_RESPAWN, PLAYER, EVENTS, zoneRarities } from './balance.js';
 import { World, INC_POS, PEN_POS, PAD, SPAWN, height, zoneAt, onIsland } from './world.js';
-import { Player, touchMode, loadCharacters, LOOKS } from './player.js';
+import { Player, touchMode, loadCharacters, LOOKS, figure } from './player.js';
 import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName, animateCreature } from './creatures.js';
@@ -1184,7 +1184,18 @@ function frameBody(now) {
 }
 
 // ── character choice (start screen) ──
+// With the site's figure (docs/game-contract.md): show who plays + a link to the figure
+// page (in the top window: the game runs in an iframe). Without it (local dev): the
+// old choice between the two Protagonists.
+const FIG_PAGE = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
 function renderLooks() {
+  if (figure) {
+    $('looks').innerHTML = `<div class="lkTitle">${t('chooseChar')}</div>`
+      + `<div class="lk on lkFig"><img src="${charPortrait('F')}" alt=""></div>`
+      + `<a class="figLink" href="${FIG_PAGE[lang] || FIG_PAGE.en}" target="_top">${t('figLink')}</a>`;
+    $('looks').querySelector('.figLink').addEventListener('click', () => { save(); A.ev('figure_link', {}); });
+    return;
+  }
   $('looks').innerHTML = `<div class="lkTitle">${t('chooseChar')}</div>` + LOOKS.map((l) =>
     `<button class="lk ${(st.look || 'A') === l ? 'on' : ''}" data-look="${l}"><img src="${charPortrait(l)}" alt=""></button>`).join('');
   $('looks').querySelectorAll('.lk').forEach((b) => b.addEventListener('click', () => {
@@ -1233,7 +1244,7 @@ async function boot() {
     .then(() => world.batch.build(true)); // merge all static props into a few meshes
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
-  await Promise.all([Q.init(), decor, loadCharacters().catch((e) => console.error('characters', e)),
+  await Promise.all([Q.init(), decor, loadCharacters(st.look || 'A').catch((e) => console.error('characters', e)),
   ]);
   // creatures built before the animals were loaded: build them again
   world.pens.forEach((p) => { if (p.sp) p.sp = '#reload'; });
@@ -1265,7 +1276,8 @@ $('playBtn').addEventListener('click', () => {
   startDaily();
   A.levelStart(st.goals.stars + 1);
   A.ev('game_open', { lang, source: Q.source, touch: touchMode, returning: st.stats.answers > 0,
-    away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st) });
+    away_min: Math.round(away.seconds / 60), stars: st.goals.stars, creatures: S.bookCount(st),
+    figure: figure ? (figure.own ? 'own' : 'fallback') : 'old' });
   save();
 });
 $('resetBtn').addEventListener('click', () => {

@@ -19,7 +19,24 @@ const SCALE = 0.78;              // about 1.8 m tall
 const CAM = { dist: 6.2, min: 3.2, max: 11, height: 1.55 };
 
 let template = {}, clips = null;
-export async function loadCharacters() {
+// The child's own figure from the site (docs/game-contract.md "The player's figure"):
+// null until loaded, then { own, config, portrait }. Not available in local dev
+// (no /lib, no /assets/figures/): then the two Protagonists load the old way.
+export let figure = null;
+export async function loadCharacters(look = 'A') {
+  try {
+    const F = await import('/lib/krabsy-figure.js');
+    const fig = await F.loadPlayerFigure({ fallback: `Protagonist_${LOOKS.includes(look) ? look : 'A'}`, lambert: true });
+    if (!fig || !fig.root || !fig.clips || !fig.clips.Idle_A) throw new Error('figure without clips');
+    mergeSkinned(fig.root);
+    template = { F: fig.root };
+    clips = fig.clips;
+    figure = { own: fig.own, config: fig.config }; // (same rig size as the Protagonists: same SCALE)
+    return;
+  } catch (e) {
+    if (!/Failed to fetch|import|module/i.test(String(e && e.message))) console.warn('[hatchery] figure: using the old character', e);
+  }
+  figure = null;
   const loader = new GLTFLoader();
   const [a, b, anim] = await Promise.all([
     loader.loadAsync('assets/characters/Protagonist_A.glb'),
@@ -87,9 +104,10 @@ export class Player {
 
   // ── character ──
   setLook(look) {
-    if (!template.A) return;
+    const src = template.F || template[look] || template.A;
+    if (!src) return;
     if (this.char) { this.root.remove(this.char); this.mixer.stopAllAction(); }
-    const c = cloneSkinned(template[look] || template.A);
+    const c = cloneSkinned(src);
     c.scale.setScalar(SCALE);
     c.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
     this.root.add(c);
