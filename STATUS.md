@@ -231,6 +231,14 @@ Files: `thumbnails/hero/<id>.jpg` 1200×675 + `thumbnails/sm/<id>.jpg`
 640×360; originals in `_incoming/<id>-art/`. 2D games (Snake, Flow) keep
 flat title cards; Slash and Air Control are already illustrated.
 
+## My figure + shells (figures plan part 1, steps 2–4, built 2026-11-25)
+
+Plan + owner decisions: `docs/figures-shells-world.md`. Pushed 2026-11-25 (060dc7e … 65e43e4), deploy pending.
+- **Shells** 🐚 (Muscheln / caracolas / shells): counted in `krabsy-stats.js` `recordAttempt` via `lib/krabsy-shells.js` (`localStorage krabsy_shells_v1`): +1 per right answer, +1 for a new/weak item (mastery ≤ 2), never taken away, after 200/day 1 per 3 right. Header counter (krabsy-nav / footer), hidden until the first shell.
+- **Figure page** `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/` (EN noindex): builder with locks/prices/unlock. 12 free characters (`FREE_CHARS` in `lib/krabsy-figure.js`; owner swap before launch: Wichtel Helper_A free, Superhero 200). Never move a free id into `PRICES`.
+- **For games:** `loadPlayerFigure({ fallback })` in `lib/krabsy-figure.js`, rules in `docs/game-contract.md` ("The player's figure"). Assets `homepage/assets/figures/` (17 MB, one character per game). No game uses it yet; next: Verb Hatchery, then Platformer, Quiz-Raum (after the Chromebook check), Kitchen, Dungeon (sword stays a Dungeon item), Valley; Verb Towers builder figure.
+- Not verified: real devices, a real in-game answer, Spanish wording by a native speaker.
+
 ## Teacher pages + teacher-only games (2026-11-23, live)
 
 - `/de/lehrkraefte/` + `/es/docentes/` redesigned (ef2918b, Fable subagent): image hero, three ways (share link / Quiz-Raum / create class), Quiz-Raum block, drawn class-dashboard example, starting-point cards, condensed why/share/ideas/privacy, FAQ unchanged. Shared CSS `lib/krabsy-teachers.css`. Spanish body copy uses tú; two FAQ answers still usted (kept equal to JSON-LD).
