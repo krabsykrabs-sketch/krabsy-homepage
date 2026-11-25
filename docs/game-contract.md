@@ -161,6 +161,25 @@ a tall hat and a back item, and
 `localStorage.krabsy_figure_v2 = '{"v":2,"char":"Vampire"}'` without owning
 it (must show the fallback).
 
+### Hero choice on the start screen (owner decision 2026-11-25)
+
+Every 3D game with a hero shows a small hero picker on its start screen:
+
+1. **"Deine Figur" / "Tu personaje" / "Your figure" comes first and is preselected**:
+   the child's saved figure (`loadPlayerFigure`), or the default figure for a child
+   who never picked one: the **Schülerin** (`Protagonist_A`, `DEFAULT_CHAR` in
+   `homepage/lib/krabsy-me.js`). On the landing page children pick their figure with
+   ‹ › arrows; that pick is their figure in every game.
+2. **Then 1–3 heroes that fit the game**: its old heroes (Dungeon: the Knight with
+   sword and shield; Kitchen: the chefs; Platformer: the Ranger; Egg Island: the
+   explorer kids …). They are **free**, need no shells, and are **not** saved as
+   the child's figure. The game remembers the last choice for itself
+   (`localStorage krabsy_<game>_hero`), so a child who likes the Knight in the
+   Dungeon keeps it there.
+3. Tiles with portraits, the same look in every game; keyboard and touch. Keep
+   the "Spiel mit deiner Figur →" link to the figure page.
+4. The game's fallback when the figure can't load is unchanged.
+
 ## Status (2026-11-25)
 
 | Game | Any topic | Notes |
@@ -172,4 +191,4 @@ it (must show the fallback).
 | Verb Hatchery | ✅ | 2026-11-25 (cc61034): gap cards, rare eggs ask two sentences, `TOPIC_TEXT`; tester release only |
 | Verb Golf, Catapult | planned | their CLAUDE.md files carry this checklist |
 | Verb Dungeon, Snake, Air Control, Flow | verbs only | Snake / Air Control are candidates; Air Control + Flow have no English menus |
-| **Player's figure** (`loadPlayerFigure`, section above) | none yet | order: Verb Hatchery → Verb Platformer → Quiz Room (after the performance check) → Verb Kitchen → Verb Dungeon → Verb Valley → Verb Towers (the builder) |
+| **Player's figure** (`loadPlayerFigure`, section above) | Dungeon, Platformer, Egg Island (2026-11-25); hero picker next | order: Verb Hatchery → Verb Platformer → Quiz Room (after the performance check) → Verb Kitchen → Verb Dungeon → Verb Valley → Verb Towers (the builder) |
