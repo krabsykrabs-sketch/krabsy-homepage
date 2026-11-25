@@ -5,7 +5,7 @@
 //   PLAYWRIGHT=<path to playwright module> node tools/build-release.cjs <base-url> [--dry]
 //   e.g. node tools/build-release.cjs http://localhost:8902/games/verb-platformer/
 //
-// <base-url> must serve THIS folder with the site's /lib and /data next to it (see CLAUDE.md,
+// <base-url> must serve THIS folder with the site's /lib, /data and /assets/figures next to it (see CLAUDE.md,
 // "local server"). How it works: every level in assets/levels/index.json is opened in a headless
 // browser and every request under the game folder is recorded; those files plus the code
 // (index.html, main.js, styles.css, src/, vendor/, fonts/) and all sounds are copied.
@@ -20,7 +20,9 @@ const base = process.argv[2];
 const dry = process.argv.includes('--dry');
 if (!base) { console.error('usage: node tools/build-release.cjs <base-url> [--dry]'); process.exit(2); }
 
-const ALWAYS = ['index.html', 'main.js', 'styles.css', 'src', 'vendor', 'fonts', 'assets/sounds'];
+// assets/character: the Ranger + clips loaded only when the site's figure module is missing
+// (src/player-character.js), so the record pass below never sees them.
+const ALWAYS = ['index.html', 'main.js', 'styles.css', 'src', 'vendor', 'fonts', 'assets/sounds', 'assets/character'];
 
 function walk(rel, out) {
   const abs = path.join(SRC, rel);

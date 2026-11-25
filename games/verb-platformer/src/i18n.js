@@ -78,6 +78,10 @@ const EN = {
   next: 'Next level',
 
   rotate: 'Turn your phone sideways',
+
+  figureLink: 'Play with your figure\u00a0→',
+  figureMine: 'That’s you!',
+  figureUrl: '/en/my-figure/',
 };
 
 const DE = {
@@ -150,6 +154,10 @@ const DE = {
   next: 'Nächstes Level',
 
   rotate: 'Dreh dein Handy quer',
+
+  figureLink: 'Spiel mit deiner Figur\u00a0→',
+  figureMine: 'Das bist du!',
+  figureUrl: '/de/meine-figur/',
 };
 
 const ES = {
@@ -223,6 +231,10 @@ const ES = {
   next: 'Siguiente nivel',
 
   rotate: 'Gira el teléfono',
+
+  figureLink: 'Juega con tu personaje\u00a0→',
+  figureMine: '¡Este eres tú!',
+  figureUrl: '/es/mi-personaje/',
 };
 
 const STRINGS = { en: EN, de: DE, es: ES };

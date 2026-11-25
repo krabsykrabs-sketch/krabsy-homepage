@@ -1,6 +1,6 @@
 // Automated play-test: a bot walks a level from spawn to flag in a headless browser.
 //
-//   node tools/bot-test.cjs <base-url> <level.json> [more levels…] [--shots <dir>] [--timeout <s>]
+//   node tools/bot-test.cjs <base-url> <level.json> [more levels…] [--shots <dir>] [--timeout <s>] [--storage <json>]
 //   e.g. node tools/bot-test.cjs http://localhost:8902/games/verb-platformer/ assets/levels/zigzag.json
 //
 // The level is loaded through ?level=editor (same path as the editor's Playtest button).
@@ -11,7 +11,8 @@
 //            { …, reach: 4 }             only leave the ground when the target is this close
 //            { …, hammer: 'hammer_1' }   wait until that hammer has swung clear
 // It jumps when the floor ends or a step is in the way (ray casts into the physics world).
-// Needs Playwright; set PLAYWRIGHT to its module path if it is not installed here.
+// Needs Playwright; set PLAYWRIGHT to its module path if it is not installed here (and CHROME
+// to a browser binary if Playwright's bundled one is missing).
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
@@ -19,6 +20,9 @@ const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); if (i < 0) return dflt; const v = args[i + 1]; args.splice(i, 2); return v; };
 const shots = opt('--shots', null);
+// --storage '{"krabsy_figure_v2":"{…}"}': localStorage entries set before the level loads
+// (e.g. to play-test with a saved figure).
+const storage = JSON.parse(opt('--storage', '{}'));
 const timeoutS = parseFloat(opt('--timeout', '240'));
 const [base, ...files] = args;
 
@@ -117,7 +121,7 @@ function botMain(wps) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });  // CHROME: a browser binary when Playwright's own doesn't match
   let failed = 0;
   for (const file of files) {
     const lvl = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -125,8 +129,12 @@ function botMain(wps) {
     const page = await (await browser.newContext({ viewport: { width: 1100, height: 620 } })).newPage();
     const errs = [];
     page.on('pageerror', e => errs.push(e.message));
+    page.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
     await page.goto(base + 'index.html');
-    await page.evaluate(l => localStorage.setItem('krabsy_3d_editor_level', JSON.stringify(l)), lvl);
+    await page.evaluate(([l, st]) => {
+      localStorage.setItem('krabsy_3d_editor_level', JSON.stringify(l));
+      for (const [k, v] of Object.entries(st)) localStorage.setItem(k, v);
+    }, [lvl, storage]);
     await page.goto(base + 'index.html?level=editor');
     await page.waitForFunction(() => window.__krabsyDebug?.level() && window.__krabsyDebug.alive(), null, { timeout: 60000 });
     await page.waitForTimeout(1500);

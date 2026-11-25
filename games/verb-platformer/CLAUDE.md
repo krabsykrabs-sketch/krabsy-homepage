@@ -226,6 +226,45 @@ What a level-design session should do:
 
 (The old "to bring it back" steps were done on 2026-11-22, see Status.)
 
+## The player's figure (2026-11-25; source only, served copy NOT rebuilt yet)
+
+The child's own figure (site page "Meine Figur", `docs/game-contract.md` "The player's
+figure") is the player character. **Master session: rebuild the served copy** with
+`tools/build-release.cjs` from a server that has `/lib`, `/data` AND `/assets/figures/`.
+
+- `src/player-character.js`: imports `/lib/krabsy-figure.js` dynamically and calls
+  `loadPlayerFigure({ fallback: 'Ranger', lambert: false, clips: false })` (the game
+  used the GLB's standard material, so no Lambert). Same `CHARACTER_SCALE` (0.617) for
+  every figure: same skeleton, same body height; hats stick out above the capsule
+  (rule 7), capsule/jump untouched. Shadows stay off on the player, as before.
+- **Clips:** `loadRigClips()` (player + spectators) takes them from the figure module's
+  `loadClips()` = `/assets/figures/anim/` (byte-identical to `assets/character/`), so the
+  1.5 MB load once and are shared with the other 3D games' cache.
+- **Never throws:** no `http(s)` (file://), a failed import, or a failed figure/clip load →
+  the old way (`./assets/character/Ranger.glb` + local clips). `build-release.cjs` now
+  always copies `assets/character/` (the record pass never requests it any more).
+- `vendor/three/addons/utils/SkeletonUtils.js` added (r169; the figure module needs it).
+- **Title screen:** a pill under the stars with the figure's portrait
+  (`/assets/figures/portraits/<char>.webp`), "Das bist du!" when it is the child's own
+  figure, and the link "Spiel mit deiner Figur →" / "Juega con tu personaje →" / "Play
+  with your figure →" to `/de/meine-figur/` / `/es/mi-personaje/` / `/en/my-figure/`
+  (`target="_top"`, the game is iframed; language = the game's language). Hidden when
+  the figure module is missing. Strings `figureLink`, `figureMine`, `figureUrl` in i18n.js.
+- The fallback Ranger now comes without its quiver (the figure catalogue drops it as
+  weapon-like); otherwise it looks as before.
+- `tools/bot-test.cjs`: `--storage '<json>'` (localStorage entries, e.g. a saved figure),
+  `CHROME=<browser binary>`, console errors count as failures.
+- First load: no saved figure = the same 2.0 MB of GLBs as before (other URLs) + about
+  15 KB gzipped JS (figure module, shells module, SkeletonUtils) + a 4 KB portrait. A saved
+  figure: its character file (0.2–0.6 MB) instead of the Ranger (0.48 MB), plus one file
+  per accessory borrowed from another character (Witch + wizard hat + wings: 0.94 MB).
+- Checked headless (served-copy layout): no figure → Ranger; Protagonist_A; Witch with
+  wizard hat + wings (unlocked); ToySoldier (tall own hat); Vampire not owned → Ranger;
+  `?topic=es_ser&lang=en` with the Knight. Walk/jump/idle animate on every figure (side
+  renders), bot reaches the flag (first-steps with no figure / Protagonist_A / Witch,
+  all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
+  and on file:// the old Ranger loads and the link is hidden.
+
 ## Tracking and polish (2026-11-22, after the release)
 
 - **Game events** for the site dashboard (`src/analytics.js`, docs/game-analytics.md):

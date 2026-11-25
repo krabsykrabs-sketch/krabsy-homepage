@@ -235,6 +235,19 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
 
 .stars-total { display: inline-flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 800; text-shadow: 0 2px 0 rgba(15, 24, 48, 0.6); }
 .stars-total .star { width: 24px; height: 24px; }
+.figure-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 5px 14px 5px 5px; border-radius: 999px;
+  background: rgba(15, 24, 48, 0.55); color: var(--text);
+  font-weight: 800; font-size: 15px; text-decoration: none;
+}
+.figure-link:hover { background: rgba(15, 24, 48, 0.75); }
+.figure-link:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.figure-link img { width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); flex: none; }
+.figure-link img[hidden] { display: none; }
+.figure-link > span { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+.figure-link b { color: var(--amber); font-weight: 900; }
+.figure-link b:empty { display: none; }
 
 #menu .help { color: var(--text); background: rgba(15, 24, 48, 0.55); border-radius: 18px; padding: 14px 16px; box-sizing: border-box; max-width: 100%; }
 
@@ -560,6 +573,8 @@ body:not([data-state="playing"]) #touch-jump { visibility: hidden; pointer-event
   .btn-big .btn-label { font-size: 23px; }
   .btn-big .btn-sub { font-size: 13px; }
   .stars-total { font-size: 15px; }
+  .figure-link { font-size: 13px; gap: 8px; padding: 3px 12px 3px 3px; }
+  .figure-link img { width: 34px; height: 34px; }
   #menu .help { padding: 8px 12px; font-size: 13px; border-radius: 14px; }
   .help-rows { gap: 6px 12px; }
   .help-goal { margin-top: 6px; }
