@@ -98,6 +98,69 @@ teach line after a miss, 0 console errors.
   `topics.json` + `api/classes.py` `TOPICS` (checklist in `content/FORMAT.md`),
   and its id goes into each game's `topics` in `games.json`.
 
+## The player's figure (3D games, added 2026-11-25)
+
+Every child builds one figure on the site ("Meine Figur" / "Mi personaje" /
+"My figure": `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/`) and
+plays it in every 3D game. Background: `docs/figures-shells-world.md`. All
+KayKit characters share one skeleton (Rig_Medium), so the figure drops into
+any game that uses a KayKit hero.
+
+```js
+import { loadPlayerFigure } from '/lib/krabsy-figure.js';
+
+const fig = await loadPlayerFigure({ fallback: 'Ranger', lambert: true });
+scene.add(fig.root);     // THREE.Group, feet at y = 0, same skeleton as before
+fig.clips                 // { Idle_A, Walking_A, Running_A, Jump_Full_Short, Interact, … }
+fig.own                   // true = the child's saved figure, false = the fallback
+fig.dispose()             // when the game throws the figure away
+```
+
+1. **`fallback` = the game's current hero.** A catalogue id (`CHARS` in
+   `homepage/lib/krabsy-figure.js`, e.g. `'Ranger'`, `'Knight'`,
+   `'Protagonist_A'`) or a full figure config. A child without a saved figure
+   plays the fallback, so nothing changes for them. The fallback needs no
+   unlocking. A saved figure with a locked character also gives the fallback;
+   a locked accessory is replaced by the character's own.
+2. **three.js comes from the game.** `krabsy-figure.js` imports `three`,
+   `three/addons/loaders/GLTFLoader.js` and
+   `three/addons/utils/SkeletonUtils.js` by name, so the game's import map
+   must provide `three` and `three/addons/` (r169, as in all current games).
+   The figure is then built with the game's own three.js copy.
+3. **Load:** one character file (0.2–0.6 MB, one more for each accessory
+   taken from another character) plus the two shared animation files
+   (1.5 MB, the same URL for every game, so cached). Everything is under
+   `/assets/figures/`. Don't copy these files into the game.
+4. **Extra animation packs are fine.** The game's own clips (Kitchen, Tools,
+   combat …) are on the same skeleton and play on every figure:
+   `new THREE.AnimationMixer(fig.root)`. Pass `clips: false` if the game
+   needs none of the shared clips.
+5. **Options:** `lambert: true` (cheaper material), `hide: ['back']` (also
+   `'hat'`, `'glasses'`) for accessories that don't fit the game, e.g. long
+   capes in a tight dungeon.
+6. **Game items are the game's, not the figure's.** A game may attach its
+   own item to a bone of `fig.root` (a ladle in the kitchen, a hammer in Verb
+   Towers, the sword in Verb Dungeon). The figure catalogue itself stays
+   weapon-free.
+7. **Hats don't count for collisions.** Keep the game's existing hit and jump
+   boxes; figures differ in height (a toy soldier's hat is tall).
+8. **Optional link on the start screen:** "Spiel mit deiner Figur →" /
+   "Juega con tu personaje →" / "Play with your figure →" to the figure page
+   (open it in the top window: the game runs in an iframe).
+9. **Never throw into the game:** wrap the call, and on an error load the
+   old hero the old way. On `file://` and dev servers without `/lib` and
+   `/assets/figures/` the import fails, like the question engine (rule 11).
+10. **Shells need no game code.** `recordAttempt()` counts them
+    (`homepage/lib/krabsy-shells.js`): +1 per right answer, +1 extra for a
+    new or weak item, never taken away, after 200 a day 1 per 3 right
+    answers. In-level currencies (coins, stars) stay the game's own; don't
+    call them shells / Muscheln / caracolas (never "conchas").
+
+Test: no saved figure (fallback), a saved free figure, a saved figure with
+a tall hat and a back item, and
+`localStorage.krabsy_figure_v2 = '{"v":2,"char":"Vampire"}'` without owning
+it (must show the fallback).
+
 ## Status (2026-11-25)
 
 | Game | Any topic | Notes |
@@ -109,3 +172,4 @@ teach line after a miss, 0 console errors.
 | Verb Hatchery | ✅ | 2026-11-25 (cc61034): gap cards, rare eggs ask two sentences, `TOPIC_TEXT`; tester release only |
 | Verb Golf, Catapult | planned | their CLAUDE.md files carry this checklist |
 | Verb Dungeon, Snake, Air Control, Flow | verbs only | Snake / Air Control are candidates; Air Control + Flow have no English menus |
+| **Player's figure** (`loadPlayerFigure`, section above) | none yet | order: Verb Hatchery → Verb Platformer → Quiz Room (after the performance check) → Verb Kitchen → Verb Dungeon → Verb Valley → Verb Towers (the builder) |

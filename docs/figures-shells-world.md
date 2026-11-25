@@ -276,6 +276,24 @@ start once the figure page is live? Recommendation: after part 1's steps
 5. Teacher switch-off: not now.
 6. First build: **steps 2–4** (shared code + assets, shells counting + header counter, figure page DE/ES/EN with locks and prices, game-contract addition). Games follow one session each, Verb Hatchery first. The Krabsy world waits until part 1 is done.
 
+## Built 2026-11-25 (steps 2–4)
+
+| What | Where |
+|---|---|
+| Shells: balance, daily counter, unlocks (`localStorage krabsy_shells_v1`) | `homepage/lib/krabsy-shells.js` |
+| Earning, in `recordAttempt()`: "new or weak" = the item's form was never answered or had mastery ≤ 2 **before** this answer | `homepage/lib/krabsy-stats.js` |
+| Header counter "🐚 240" (hidden until the first shell was ever earned; links to the figure page) | mounted by `krabsy-footer.js` (site header) and `krabsy-nav.js` (game header) |
+| Figure code, free set, **price table** (`FREE_CHARS`, `PRICES`), `loadPlayerFigure` | `homepage/lib/krabsy-figure.js` |
+| Figure page DE / ES / EN (builder, locks, unlock dialog) | `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/` (noindex); script `homepage/lib/krabsy-figure-page.js` + `.css` |
+| Assets (42 characters + the jetpack source, 2 animation files, 42 portraits as WebP) | `homepage/assets/figures/`; three.js r169 for the page in `homepage/lib/vendor/three/` |
+| For games | `docs/game-contract.md`, "The player's figure" |
+
+Free characters (ids): Protagonist_A (Schülerin), Protagonist_B (Schüler), Hiker
+(Wanderer), Witch (Hexe), Superhero (Superheld), Helper_B (Elf), Knight (Ritter),
+Rogue (Abenteurerin), Druid (Druidin), OrcRaider (Ork), Skeleton_Minion (Skelett),
+Robot_One (Roboter Eins). Locked things can be tried on in the builder but not
+saved. Next: step 5, Verb Hatchery first.
+
 ## Open decisions (summary)
 
 1. Shell name (recommended: Muscheln / caracolas / shells; never "conchas").
