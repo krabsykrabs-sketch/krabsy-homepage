@@ -247,3 +247,24 @@ Final shapes: `content/materials/README.md`. Against the example above:
 - Vocabulary topics (`es_animals`, `es_feelings`, `es_food`) are not registered question
   topics, so tap/match/sort answers have no star-map target yet; gap sentences in every
   worksheet do carry a real `item` + `topic` (es_ser … es_tener).
+
+### L2 player (`homepage/lib/activities/`)
+
+API as in the contract; details in `homepage/lib/activities/README.md`. Additions:
+- `onCursor` sends `{a:'off', x:0, y:0}` when the pointer leaves the player (the relay
+  only forwards `{a: string, x, y}`); the mirror hides the hand on `a:'off'`.
+- `onAnswer` also carries `shown` (answer was given), `mode` (`choice|typed|hint`) and
+  `a` (anchor of the item); `ref` = the whole right sentence/word. It fires for every
+  decisive attempt; `first` = first attempt on that item.
+- Recording only when the sentence/vocab entry itself has `item` + `topic` (material
+  `topic` is the library filter, per L3), so vocabulary activities are not recorded yet.
+- A student can be mounted with `opts.state` or get `apply(state)` (resume after a
+  reload, running timers restart). `cmd` also takes `{type:'lock', on}` for books;
+  extra `p.reward({kind:'star'|'gift', g})` plays the celebration on the student and,
+  via the state, on the mirror (a tutor star adds one ⭐). `p.ready` = a promise
+  (vocab loads by itself when `opts.vocab` is missing; calls before it are queued).
+- Book `cmd({type:'goto'})` takes `page` (or `step`). Book state also stores the open word
+  card, so a tapped word's card shows on both screens.
+- The mirror is a real small layout (container queries), not a scaled copy; on a very
+  narrow mirror long content scrolls inside the mirror (the student's scroll position is
+  mirrored when the student scrolls).
