@@ -1054,3 +1054,13 @@ write `RELEASE.md` when the owner says go.
   (one character 0.5 MB + the shared clips 1.48 MB, cached across games);
   each accessory from another character adds 0.3–0.5 MB. Not checked: a
   real device, the iframe link on the live site.
+- 2026-11-25: **renamed to "Egg Island"** (owner decision via the master
+  session: "Hatchery" isn't a word learners know, "Brüterei" sounds awful).
+  Visible texts only: title, `<title>`, the rotate notice; the base is now
+  **Hof** (der Hof: "in deinem Hof", "deinen Hof aus") / **granja** (la
+  granja: "¡Granja defendida!") / **farm** in the raid texts, the tagline and
+  the tutorial's "bring it to your farm"; the sign on the building says
+  "🥚 Krabsy Farm" (one text for all languages, as before). Brutkasten /
+  incubadora / incubator stay. Unchanged on purpose: folder, ids, the
+  analytics game id `verb-hatchery`, localStorage keys (`krabsy_hatchery_*`),
+  code names (`HATCHERY`, `buildHatchery`). The 4 topic URLs pass, 0 errors.
