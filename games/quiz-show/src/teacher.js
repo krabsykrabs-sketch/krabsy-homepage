@@ -4,7 +4,7 @@
 import { t, lang } from './i18n.js';
 import { $, esc, LETTERS, questionHTML, teachHTML, reviewHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, showCode } from './net.js';
-import { Room, COLORS } from './room.js';
+import { Room, Controller, COLORS } from './room.js';
 import * as QS from './questions.js';
 import { sfx } from './audio.js';
 import { analytics } from './analytics.js';
@@ -16,7 +16,7 @@ document.title = `${t('title')} — ${t('setupTitle')}`;
 applyTexts(t);
 
 const cfg = { topic: QS.TOPICS.includes(new URLSearchParams(location.search).get('topic')) ? new URLSearchParams(location.search).get('topic') : 'irregular_verbs',
-  levels: [1, 2], count: 10, time: 20, bonus: 3 };
+  levels: [1, 2], count: 10, time: 20, bonus: 3, host: '' };
 const S = { code: '', phase: 'setup', players: [], answered: new Set(), q: null, qi: -1, n: 0, time: 20,
   deadline: 0, reveal: null, end: null, locked: false, questions: [], t0: 0 };
 
@@ -43,6 +43,10 @@ function renderSetup() {
   optRow('optBonus', [0, 3, 5].map((v) => ({ v, html: v ? String(v) : esc(t('bonusOff')) })), (v) => cfg.bonus === v, (v) => { cfg.bonus = v; });
 }
 renderSetup();
+// The teacher's name in the room, remembered on this device.
+try { $('hostIn').value = localStorage.getItem('krabsy_quiz_host') || ''; } catch (_) {}
+$('hostIn').placeholder = t('hostPh');
+$('hostIn').addEventListener('change', () => { try { localStorage.setItem('krabsy_quiz_host', $('hostIn').value.trim()); } catch (_) {} });
 
 // ------------------------------------------------------------------ question list
 const editor = new QuestionEditor($('editor'), { onChange: (n) => { $('openBtn').disabled = n < 1; } });
@@ -53,6 +57,7 @@ function settingsChanged() { editor.bonusCount = cfg.bonus; editor.load(cfg.topi
 function setEditMode(on) {
   editMode = on;
   $('timeRow').classList.toggle('hidden', on);
+  $('hostRow').classList.toggle('hidden', on);
   $('hintA').classList.toggle('hidden', !on);
   $('cancelBtn').classList.toggle('hidden', !on);
   $('openBtn').textContent = on ? t('save') : t('open');
@@ -76,9 +81,21 @@ $('cancelBtn').addEventListener('click', () => {
 // ------------------------------------------------------------------ room view
 const room = new Room($('c'), { mode: 'teacher' });
 const roomReady = room.load().catch((e) => console.error('room load failed', e));
-let last = performance.now();
+// The teacher's own figure (the wizard): walks with WASD / arrows like the children.
+const ctl = new Controller(room);
+let last = performance.now(), sendT = 0, lastSent = '';
 function frame(now) {
   const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;  // rAF time can be older than "last" on the first frame
+  ctl.enabled = !!room.me && S.phase !== 'setup' && !editMode;
+  if (room.me) {
+    ctl.update(dt);
+    sendT += dt;
+    if (sendT >= 0.1) {
+      const st = ctl.state(), key = st && JSON.stringify(st);
+      if (st && (key !== lastSent || sendT >= 2)) { net.send({ t: 'move', ...st }); lastSent = key; sendT = 0; }
+      else if (sendT >= 2) sendT = 0;
+    }
+  }
   room.update(dt);
   tickTimer();
   requestAnimationFrame(frame);
@@ -98,7 +115,8 @@ $('openBtn').addEventListener('click', async () => {
   try {
     if (!questions.length) throw new Error('noQuestions');
     await ensureNet();
-    net.send({ t: 'create', questions, bonus, time: cfg.time, lang: lang() });
+    cfg.host = $('hostIn').value.trim();
+    net.send({ t: 'create', questions, bonus, time: cfg.time, lang: lang(), host: cfg.host });
   } catch (e) {
     $('setupErr').textContent = e.message === 'noQuestions' ? t('noQuestions') : t('err_net');
     $('openBtn').disabled = false; $('openBtn').textContent = t('open');
@@ -156,6 +174,8 @@ async function enterRoom(m) {
   S.code = m.code; S.n = m.n; S.time = m.time; S.locked = m.locked; S.questions = m.questions || [];
   S.players = m.players; S.phase = m.phase; S.qi = m.qi;
   room.setSize(m.size);
+  room.setHost(m.host, t('hostDefault'));
+  $('hostHint').classList.remove('hidden');
   room.syncPlayers(m.players, null);
   $('setup').classList.add('hidden');
   for (const id of ['top', 'players', 'controls']) $(id).classList.remove('hidden');
@@ -173,7 +193,11 @@ async function enterRoom(m) {
   render();
 }
 
-net.on('players', (m) => { S.players = m.list; S.locked = m.locked; room.syncPlayers(m.list, null); render(); });
+net.on('players', (m) => {
+  if (m.list.length > S.players.length && S.phase === 'lobby') autoEmote(0);   // a child arrived: wave
+  S.players = m.list; S.locked = m.locked; room.syncPlayers(m.list, null); render();
+});
+net.on('host', (m) => room.setHost(m, t('hostDefault')));
 net.on('size', (m) => room.setSize(m.s));   // the room grows with the group
 net.on('pos', (m) => room.applyPositions(m.s));
 net.on('answered', (m) => { S.answered.add(m.pid); sfx.locked(); render(); });
@@ -184,7 +208,13 @@ net.on('end', onEnd);
 room.play.onSound = () => {};
 net.on('ball', (m) => room.play.applyBall(m.b, m.p, m.v));
 net.on('boom', () => { room.play.burst(); });
-net.on('emote', (m) => room.avatars.get(m.pid)?.emote(m.e));
+net.on('emote', (m) => { if (m.pid !== 0) room.avatarOf(m.pid)?.emote(m.e); });   // own ones play at once
+// The teacher's figure: emotes by key (1–4) and a few by itself (wave, cheer, dance).
+function autoEmote(e) {
+  const h = room.host;
+  if (!h || h.emoteT > 0 || ctl.anim > 0) return;
+  h.emote(e); net.send({ t: 'emote', e });
+}
 net.on('middle', (m) => { S.middle = m.on; render(); });
 $('midBtn').addEventListener('click', () => net.send({ t: 'middle', on: !S.middle }));
 
@@ -213,6 +243,7 @@ function onReveal(m) {
   S.phase = 'reveal'; S.reveal = m;
   if (S.bonus) room.play.sinkPads(m.correct);
   sfx.drumroll(0.6); setTimeout(() => sfx.right(), 600);
+  setTimeout(() => autoEmote(2), 700);                 // cheer
   render();
 }
 function onEnd(m) {
@@ -222,6 +253,7 @@ function onEnd(m) {
       answers: m.answers, correct: m.right, players: m.ranking.length });
   }
   sfx.applause(3); sfx.jingle();
+  autoEmote(1);                                        // dance
   render();
 }
 function showMsg(text) { $('msgCard').textContent = text; $('msg').classList.remove('hidden'); }
@@ -233,6 +265,8 @@ $('endBtn').addEventListener('click', () => net.send({ t: 'end' }));
 window.addEventListener('keydown', (e) => {
   if (S.phase === 'setup' || e.target.tagName === 'INPUT') return;
   if (e.key === 'Enter') { e.preventDefault(); if (S.phase !== 'end') net.send({ t: 'next' }); }
+  const k = ['1', '2', '3', '4'].indexOf(e.key);
+  if (k >= 0 && room.host && !editMode) { room.host.emote(k); net.send({ t: 'emote', e: k }); }
 });
 
 // ------------------------------------------------------------------ render

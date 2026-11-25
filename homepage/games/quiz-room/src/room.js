@@ -52,18 +52,22 @@ async function loadClips() {
   return clips;
 }
 
+// The teacher's figure: a KayKit character the children can't pick, 1.4× their size.
+export const HOST_MODEL = 'Mage', HOST_SCALE = 1.4, HOST_COLOR = '#ffcf5e';
+
 // Avatar models are loaded when first needed (a room rarely uses all eight).
 function loadModel(i) {
-  const name = AVATARS[((i % AVATARS.length) + AVATARS.length) % AVATARS.length];
+  const name = typeof i === 'string' ? i : AVATARS[((i % AVATARS.length) + AVATARS.length) % AVATARS.length];
   if (!modelCache.has(name)) {
     modelCache.set(name, loader.loadAsync(`assets/chars/${name}.glb`).then((g) => lambert(g.scene)));
   }
   return modelCache.get(name);
 }
 
-function tagTexture(name, color) {
+function tagTexture(name, color, crown = false) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 128;
   const g = c.getContext('2d');
+  if (crown) name = `👑 ${name}`;
   g.font = '700 64px "Fredoka One", sans-serif';
   const w = Math.min(500, g.measureText(name).width + 60);
   g.fillStyle = 'rgba(8,14,36,.82)';
@@ -108,16 +112,19 @@ const BLOB_GEO = new THREE.CircleGeometry(0.55, 20);
 const BLOB_MAT = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
 
 export class Avatar {
+  // info.host: the teacher's figure (own model, bigger, crown, gold ring).
   constructor(room, info) {
     this.room = room;
     this.pid = info.pid;
+    this.host = !!info.host;
+    const k = this.host ? HOST_SCALE : 1;
     this.root = new THREE.Group();
     this.target = new THREE.Vector3();
     this.targetRot = 0;
     this.anim = 0;
     this.mixer = null; this.actions = {}; this.current = null;
     // Coloured ring under the feet: the player's colour, easy to spot from above.
-    this.ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.78, 32),
+    this.ring = new THREE.Mesh(new THREE.RingGeometry(0.55 * k, 0.78 * k, 32),
       new THREE.MeshBasicMaterial({ color: COLORS[info.color % COLORS.length], transparent: true, opacity: 0.9 }));
     this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.03;
     this.root.add(this.ring);
@@ -127,10 +134,10 @@ export class Avatar {
     this.blob.rotation.x = -Math.PI / 2; this.blob.position.y = 0.02; this.blob.renderOrder = 1;
     this.root.add(this.blob);
     this.tag = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
-    this.tag.scale.set(2.6, 0.65, 1); this.tag.position.y = 3.05; this.tag.renderOrder = 10;
+    this.tag.scale.set(2.6, 0.65, 1); this.tag.position.y = this.host ? 3.85 : 3.05; this.tag.renderOrder = 10;
     this.root.add(this.tag);
     this.emo = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
-    this.emo.scale.set(1.1, 1.1, 1); this.emo.position.y = 4.1; this.emo.renderOrder = 12; this.emo.visible = false;
+    this.emo.scale.set(1.1, 1.1, 1); this.emo.position.y = this.host ? 4.9 : 4.1; this.emo.renderOrder = 12; this.emo.visible = false;
     this.root.add(this.emo);
     this.emoteT = 0; this.emote_ = null; this.speed = 0;
     this.mark = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true }));
@@ -138,13 +145,13 @@ export class Avatar {
     this.root.add(this.mark);
     this.setInfo(info);
     room.scene.add(this.root);
-    this.ready = loadModel(info.avatar).then((tpl) => {
+    this.ready = loadModel(this.host ? HOST_MODEL : info.avatar).then((tpl) => {
       if (this.disposed) return;
       this.model = cloneSkinned(tpl);
-      const real = room.mode === 'child' && info.pid === room.myPid;   // only your own avatar
+      const real = (room.mode === 'child' && info.pid === room.myPid && !this.host) || (room.mode === 'teacher' && this.host);   // only your own avatar
       this.model.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = real; o.receiveShadow = false; } });
       this.blob.visible = !real;
-      this.model.scale.setScalar(1.0);
+      this.model.scale.setScalar(k);
       this.root.add(this.model);
       this.mixer = new THREE.AnimationMixer(this.model);
       for (const n of [...CLIP, ...EMOTES.map((e) => e.clip)]) if (clips[n]) this.actions[n] = this.mixer.clipAction(clips[n]);
@@ -155,13 +162,14 @@ export class Avatar {
 
   setInfo(info) {
     this.info = info;
-    const key = `${info.name}|${info.color}`;
+    const col = this.host ? HOST_COLOR : COLORS[info.color % COLORS.length];
+    const key = `${info.name}|${col}`;
     if (this.tagKey !== key) {
       this.tagKey = key;
       this.tag.material.map?.dispose();
-      this.tag.material.map = tagTexture(info.name, COLORS[info.color % COLORS.length]);
+      this.tag.material.map = tagTexture(info.name, col, this.host);
       this.tag.material.needsUpdate = true;
-      this.ring.material.color.set(COLORS[info.color % COLORS.length]);
+      this.ring.material.color.set(col);
     }
     this.root.visible = info.online !== false;
   }
@@ -224,7 +232,7 @@ export class Avatar {
       this.emoteT -= dt;
       const k = Math.min(1, (this.emote_.dur - this.emoteT) * 6);
       this.emo.scale.setScalar(1.1 * k);
-      this.emo.position.y = (this.mark.visible ? 4.7 : 4.0) + Math.sin(this.emoteT * 6) * 0.06;
+      this.emo.position.y = (this.mark.visible ? 4.7 : this.host ? 4.8 : 4.0) + Math.sin(this.emoteT * 6) * 0.06;
       if (this.emote_.spin && this.model) this.model.rotation.y += dt * 9;
       if (this.emoteT <= 0) this.endEmote();
     }
@@ -452,7 +460,7 @@ export class Room {
 
   applyPositions(s) {
     for (const [pid, x, y, z, r, an] of s) {
-      const a = this.avatars.get(pid);
+      const a = this.avatarOf(pid);
       if (!a || a === this.me) continue;
       const first = a.target.lengthSq() === 0 && a.root.position.lengthSq() === 0;
       a.target.set(x, y, z); a.targetRot = r;
@@ -460,6 +468,22 @@ export class Room {
       if (a.anim !== an) a.setAnim(an);
     }
   }
+
+  // The teacher's figure (pid 0): info {name, online, p, r}. On the teacher page it is the
+  // figure the teacher walks (room.me); on the children's pages it moves like the others.
+  setHost(info, label) {
+    if (!info) return;
+    const data = { pid: 0, host: true, name: info.name || label, online: info.online !== false, color: 0 };
+    if (!this.host) {
+      this.host = new Avatar(this, data);
+      const p = info.p || [0, 0, -7];
+      this.host.root.position.set(...p); this.host.target.set(...p);
+      this.host.root.rotation.y = info.r || 0; this.host.targetRot = info.r || 0;
+    } else this.host.setInfo(data);
+    if (this.mode === 'teacher') { this.host.root.visible = true; this.me = this.host; }
+  }
+
+  avatarOf(pid) { return pid === 0 ? this.host : this.avatars.get(pid); }
 
   // marks: Map pid → 'dot' | 'think' | null
   setMarks(fn) { for (const [pid, a] of this.avatars) a.setMark(fn(pid)); }
@@ -493,6 +517,7 @@ export class Room {
     this.adapt(dt);
     this.bulbs.forEach((b, i) => { b.material.color.setHSL(0.12, 1, (Math.sin(this.time * 4 - i * 0.7) > 0.2) ? 0.72 : 0.32); });
     for (const a of this.avatars.values()) a.update(dt, a !== this.me);
+    if (this.host) this.host.update(dt, this.host !== this.me);
     this.play.update(dt, this.avatars.values(), this.mode === 'child' ? this.me : null, this.frozen);
     // Camera: child = follows its own avatar from behind and above; teacher = overview.
     let pos, look;

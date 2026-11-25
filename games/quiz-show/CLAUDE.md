@@ -129,6 +129,21 @@ counts per pad (`pads` message every 0.5 s). Reveal: the wrong pads sink
 into the foam pit (the floor has holes there) for 3.5 s and come back up;
 children inside can't walk out meanwhile; the right pad gets confetti.
 
+Teacher figure (owner, 2026-11-25: own avatar, taller, a character children
+can't pick, a KayKit character, and the teacher can walk): the **Mage**
+(KayKit Adventurers 2.0, CC0, `assets/chars/Mage.glb`, same rig as the
+children's figures) at 1.4×, gold ring, "👑 name" tag. Name from the setup
+("Dein Name im Raum", remembered in localStorage `krabsy_quiz_host`; empty
+= "Lehrkraft"/"Profe"/"Teacher"; server `clean_name` filter). Server: the
+host is pid 0 (never a player, never scored); `create {host}`, teacher
+`move` / `emote` / `host {name}` messages; `host` info in snapshots and a
+`host` message when the name or the teacher's connection changes (the
+figure hides while the teacher page is gone). Teacher page: WASD / arrows,
+Shift, Space like the children (`Controller` on `room.me = room.host`),
+keys 1–4 = emotes, and it waves when a child arrives (lobby), cheers at
+each reveal, dances at the end. The projector keeps the overview camera.
+`tools/qa-host.cjs` checks it (8 checks).
+
 Crowded pads (owner, 2026-11-22: "you can't see the answers anymore when people
 are standing on the fields"): every pad has a sign floating above it
 (letter + word, pad colour, drawn over everything, `play.js` `_drawPad`); at
@@ -473,3 +488,7 @@ question loading, texts, sounds, character loading and the QA approach.
   fallback for newer topics. Editor `unused()`: unused items first, then other
   sentences of used items (es_ser has 8 items, 38 sentences). qa-editor 14/14,
   qa-room passes with `lang=en&topic=es_ser` (2 children) and prepositions DE.
+- 2026-11-25: teacher figure (Mage, 1.4×, crown, walks with the keyboard,
+  emotes, name from the setup). Server test `test_teacher_figure`, API 51
+  passed; qa-host 8/8, qa-editor, qa-room (3 children) pass. Needs the API
+  and the site deploy.

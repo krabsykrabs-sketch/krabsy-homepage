@@ -126,6 +126,7 @@ net.on('joined', async (m) => {
   $('meName').textContent = m.name; $('meDot').style.background = COLORS[m.you.color];
   S.players = m.players; S.n = m.n; S.time = m.time;
   room.setSize(m.size);
+  room.setHost(m.host, t('hostDefault'));
   room.syncPlayers(m.players, m.pid);
   setPhase(m.phase);
   setMiddle(!!m.middle, false);
@@ -137,6 +138,7 @@ net.on('joined', async (m) => {
 
 net.on('players', (m) => { S.players = m.list; room.syncPlayers(m.list, S.pid); render(); });
 net.on('size', (m) => room.setSize(m.s));   // the room grows with the group
+net.on('host', (m) => room.setHost(m, t('hostDefault')));   // the teacher's figure (name, online)
 net.on('pos', (m) => room.applyPositions(m.s));
 net.on('answered', (m) => { S.answered.add(m.pid); render(); });
 net.on('question', onQuestion);
@@ -151,7 +153,7 @@ room.play.onBoom = () => net.send({ t: 'boom' });
 room.play.onSound = (n) => sfx[n]?.();
 net.on('ball', (m) => room.play.applyBall(m.b, m.p, m.v));
 net.on('boom', () => { room.play.burst(); sfx.boom(); });
-net.on('emote', (m) => { if (m.pid !== S.pid) room.avatars.get(m.pid)?.emote(m.e); });
+net.on('emote', (m) => { if (m.pid !== S.pid) room.avatarOf(m.pid)?.emote(m.e); });
 net.on('middle', (m) => setMiddle(m.on, true));
 
 function setMiddle(on, move) {

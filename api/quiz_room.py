@@ -324,6 +324,14 @@ class Room:
         self.created = time.monotonic()
         self.next_pid = 1
         self.size = 1.0                  # floor-plan scale, grows with the group
+        # The teacher's own figure (a character children can't pick): name shown on its tag
+        # ("" = the default "Lehrkraft"/"Profe" on the clients), position like a player's.
+        self.host_name = ""
+        self.host_pos = [0.0, 0.0, -7.0]
+        self.host_rot = 0.0
+        self.host_anim = 0
+        self.host_moved = False
+        self.host_emote_at = 0.0
         self.missed: dict[str, dict] = {}   # topic|item → {q, n}
         self.task: Optional[asyncio.Task] = None
         self.closed = False
@@ -343,6 +351,13 @@ class Room:
 
     async def to_all(self, msg: dict) -> None:
         await asyncio.gather(self.to_teacher(msg), self.to_players(msg))
+
+    def host_info(self) -> dict:
+        return {"name": self.host_name, "online": self.teacher is not None,
+                "p": [round(v, 2) for v in self.host_pos], "r": round(self.host_rot, 2)}
+
+    async def send_host(self) -> None:
+        await self.to_players({"t": "host", **self.host_info()})
 
     async def grow(self) -> None:
         """Make the room bigger when the group has outgrown it (never smaller). Not while a
@@ -382,7 +397,7 @@ class Room:
 
     def snapshot(self, for_teacher: bool, player: Optional[Player] = None) -> dict:
         snap = {"phase": self.phase, "code": self.code, "n": len(self.questions), "qi": self.qi,
-                "time": self.time, "size": self.size, "locked": self.locked, "middle": self.middle,
+                "time": self.time, "size": self.size, "host": self.host_info(), "locked": self.locked, "middle": self.middle,
                 "players": [p.public() for p in self.players.values()]}
         if self.phase == "question":
             snap["question"] = self.question_msg(for_teacher)
@@ -536,11 +551,14 @@ class Room:
                 await asyncio.sleep(TICK_S)
                 now = time.monotonic()
                 moved = [p for p in self.players.values() if p.moved]
-                if moved:
+                if moved or self.host_moved:
                     s = [[p.pid, round(p.pos[0], 2), round(p.pos[1], 2), round(p.pos[2], 2),
                           round(p.rot, 2), p.anim] for p in moved]
                     for p in moved:
                         p.moved = False
+                    if self.host_moved:            # the teacher's figure is pid 0
+                        self.host_moved = False
+                        s.append([0, *[round(v, 2) for v in self.host_pos], round(self.host_rot, 2), self.host_anim])
                     await self.to_all({"t": "pos", "s": s})
                 if self.phase == "question" and self.questions[self.qi].get("bonus") and now - self.pads_sent >= PAD_SEND_S:
                     self.pads_sent = now
@@ -660,6 +678,7 @@ async def quiz_ws(ws: WebSocket):
                         time_s = 20
                     lang = msg.get("lang") if msg.get("lang") in ("de", "es", "en") else "de"
                     room = Room(_new_code(), secrets.token_urlsafe(24), qs, time_s, lang)
+                    room.host_name = clean_name(msg.get("host"))
                     ROOMS[room.code] = room
                     room.teacher, role = ws, "teacher"
                     room.task = asyncio.create_task(room.run())
@@ -674,6 +693,7 @@ async def quiz_ws(ws: WebSocket):
                     room, role = r, "teacher"
                     room.teacher = ws
                     send_to(ws, ({"t": "resumed", "code": room.code, **room.snapshot(True)}))
+                    await room.send_host()                 # the teacher's figure is back
                 elif t == "join":
                     r = ROOMS.get(_norm_code(msg.get("code")))
                     if not r:
@@ -756,6 +776,24 @@ async def quiz_ws(ws: WebSocket):
                     await room.to_all({"t": "middle", "on": room.middle})
                 elif t == "close":
                     await room.close()
+                elif t == "move":
+                    pos = msg.get("p")
+                    if _vec3(pos):
+                        room.host_pos = [max(-60.0, min(60.0, float(v))) for v in pos]
+                        r = msg.get("r")
+                        room.host_rot = float(r) if isinstance(r, (int, float)) else 0.0
+                        a = msg.get("a")
+                        room.host_anim = a if isinstance(a, int) and 0 <= a < 32 else 0
+                        room.host_moved = True
+                elif t == "emote":
+                    e = msg.get("e")
+                    if isinstance(e, int) and 0 <= e < 8 and now - room.host_emote_at >= EMOTE_GAP_S:
+                        room.host_emote_at = now
+                        await room.to_all({"t": "emote", "pid": 0, "e": e})
+                elif t == "host":
+                    room.host_name = clean_name(msg.get("name"))
+                    await room.send_host()
+                    send_to(ws, {"t": "host", **room.host_info()})
 
             # ---------------- player
             elif role == "player" and me is not None:
@@ -803,6 +841,10 @@ async def quiz_ws(ws: WebSocket):
             if role == "teacher" and room.teacher is ws:
                 room.teacher = None
                 room.teacher_left = time.monotonic()
+                try:
+                    await room.send_host()         # the teacher's figure disappears meanwhile
+                except Exception:
+                    pass
             elif role == "player" and me is not None and me.ws is ws:
                 me.ws = None
                 try:

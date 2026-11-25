@@ -13,6 +13,8 @@
 .settings>.row{justify-content:flex-start;}
 .settings .row>label{min-width:0;font-size:16px;}
 .settings .opt{font-size:16px;padding:.3em .75em;}
+#hostIn{font-size:16px;padding:.3em .6em;border-radius:10px;border:2px solid #2d4180;background:#0d1735;color:#fff;font-weight:800;width:12em;}
+#hostHint{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);color:var(--muted);font-size:14px;white-space:nowrap;text-shadow:0 1px 3px #000;pointer-events:none;}
 #setup .sub{margin-bottom:6px;font-size:15px;}
 #setup h1{font-size:30px!important;}
 .hint{color:var(--amber);font-size:15px;margin:4px 0;}
@@ -114,6 +116,7 @@
     <div class="row"><label data-t="count"></label><div id="optCount" class="row" style="margin:0"></div></div>
     <div class="row" id="timeRow"><label data-t="timePer"></label><div id="optTime" class="row" style="margin:0"></div></div>
     <div class="row" id="bonusRow"><label data-t="bonus"></label><div id="optBonus" class="row" style="margin:0"></div></div>
+    <div class="row" id="hostRow"><label data-t="hostName"></label><input id="hostIn" maxlength="16" autocomplete="off"></div>
     </div>
     <div id="hintA" class="hint hidden" data-t="answersHint"></div>
     <div id="editor"></div>
@@ -128,6 +131,7 @@
 <div id="players" class="hidden"></div>
 <div id="qpanel" class="hidden"><div class="card" id="qcardT"></div></div>
 <div id="tTop5" class="card hidden"></div>
+<div id="hostHint" class="hidden" data-t="hostHint"></div>
 <div id="controls" class="hidden">
   <button id="mainBtn" class="btn"></button>
   <button id="editBtn" class="btn ghost" data-t="editQuestions"></button>

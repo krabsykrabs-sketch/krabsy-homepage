@@ -274,6 +274,45 @@ def test_room_grows_with_the_group():
     assert quiz_room.size_for(1) == 1.0 and quiz_room.size_for(16) == 1.25 and quiz_room.size_for(40) == 1.5
 
 
+def test_teacher_figure():
+    """The teacher has a figure: name from create (filtered), position relayed as pid 0,
+    emotes, online/offline for the children; it is never a player."""
+    c = _client()
+    if c is None:
+        return
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(1), "time": 30, "host": "Frau Ahrens"})
+        created = recv(teacher, "created")
+        assert created["host"]["name"] == "Frau Ahrens" and created["host"]["online"]
+        token = created["token"]
+        with c.websocket_connect(WS) as a:
+            a.send_json({"t": "join", "code": created["code"], "name": "Ana"})
+            ja = recv(a, "joined")
+            assert ja["host"]["name"] == "Frau Ahrens" and ja["host"]["online"]
+            assert all(p["pid"] != 0 for p in ja["players"])
+            teacher.send_json({"t": "move", "p": [3, 0, -4], "r": 1.5, "a": 1})
+            for _ in range(20):
+                m = recv(a, "pos")
+                hp = [e for e in m["s"] if e[0] == 0]
+                if hp:
+                    break
+            assert hp and hp[0][1:4] == [3, 0, -4] and hp[0][5] == 1
+            teacher.send_json({"t": "emote", "e": 2})
+            assert recv(a, "emote") == {"t": "emote", "pid": 0, "e": 2}
+            teacher.send_json({"t": "host", "name": "Mr K"})
+            assert recv(a, "host")["name"] == "Mr K"
+            a.send_json({"t": "host", "name": "Hacker"})           # children can't rename the teacher
+        with c.websocket_connect(WS) as b:
+            b.send_json({"t": "join", "code": created["code"], "name": "Ben"})
+            assert recv(b, "joined")["host"]["name"] == "Mr K"
+            teacher.close()
+            assert recv(b, "host")["online"] is False
+            with c.websocket_connect(WS) as t2:
+                t2.send_json({"t": "resume", "code": created["code"], "token": token})
+                assert recv(t2, "resumed")["host"]["online"]
+                assert recv(b, "host")["online"] is True
+
+
 def test_outbox_slow_device():
     """A slow device gets every important message, in order; old positions are dropped."""
     try:
