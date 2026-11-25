@@ -769,8 +769,8 @@ export class World {
       x.fillStyle = '#ffcf5e'; x.beginPath(); x.roundRect(14, 14, 996, 228, 18); x.fill();
       x.strokeStyle = 'rgba(122,74,38,.35)'; x.lineWidth = 3; for (const y of [90, 168]) { x.beginPath(); x.moveTo(14, y); x.lineTo(1010, y); x.stroke(); }
       const text = () => { x.fillStyle = '#0d2240'; x.textAlign = 'center'; x.textBaseline = 'middle';
-        let px = 124; do { px -= 4; x.font = `${px}px 'Fredoka One', sans-serif`; } while (x.measureText('🥚 Krabsy Hatchery').width > 930 && px > 40);
-        x.fillText('🥚 Krabsy Hatchery', 512, 134); };
+        let px = 124; do { px -= 4; x.font = `${px}px 'Fredoka One', sans-serif`; } while (x.measureText('🥚 Krabsy Farm').width > 930 && px > 40);
+        x.fillText('🥚 Krabsy Farm', 512, 134); };
       text();
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
       const sign = new THREE.Mesh(new THREE.PlaneGeometry(HATCHERY.sign.w, HATCHERY.sign.w / 4), new THREE.MeshLambertMaterial({ map: t }));
