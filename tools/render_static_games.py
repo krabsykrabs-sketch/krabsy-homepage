@@ -173,14 +173,14 @@ def landing_tile(g, lang):
                 f'aria-labelledby="n-{gid}" aria-describedby="d-{gid}">'
                 f'<div class="gt-thumb">{thumb}{flags_html}<span class="gt-play" aria-hidden="true">{L["play"]}</span></div>'
                 f'<div class="gt-body"><h3 class="gt-name" id="n-{gid}">{esc(name)}</h3>'
-                f'<div id="d-{gid}" style="display:contents"><p class="gt-tag">{tagline}</p>'
+                f'<div id="d-{gid}" class="vh"><p class="gt-tag">{tagline}</p>'   # owner 2026-11-25: picture + name only; text for screen readers
                 f'<div class="gt-meta">{_sr(g, lang)}{_pills(g, lang)}</div></div></div></a>')
     sr_kind = L["sr_3d"] if g.get("kind") == "3d" else L["sr_game"]
     return (f'<div class="gt is-soon" data-game-id="{esc(gid)}" data-tags="{tags}">'
             f'<div class="gt-thumb">{thumb}{flags_html}'
             f'<span class="bdg bdg-soon gt-soon" aria-hidden="true">{L["soon"]}</span></div>'
             f'<div class="gt-body"><h3 class="gt-name">{esc(name)} <span class="vh">({sr_kind}, {L["sr_soon"]})</span></h3>'
-            f'<p class="gt-tag">{tagline}</p><div class="gt-meta">{_pills(g, lang)}</div></div></div>')
+            f'<div class="vh"><p class="gt-tag">{tagline}</p></div></div></div>')
 
 
 def landing_featured(g, lang):
@@ -204,7 +204,7 @@ def landing_featured(g, lang):
             f'<div class="gt-thumb"><img src="{esc(img)}" alt="" width="1200" height="675" decoding="async" fetchpriority="high">'
             + (f'<div class="gt-flags" aria-hidden="true">{flags}</div>' if flags else "") +
             f'</div><div class="gt-body"><h2 class="gt-name" id="feat-name">{esc(name)}</h2>'
-            f'<div id="feat-desc" style="display:contents">'
+            f'<div id="feat-desc" class="vh">'   # owner 2026-11-25: picture, name, play button only
             f'<p class="gt-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
             f'<div class="gt-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang)}</div></div>'
             f'<span class="gt-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
