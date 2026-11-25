@@ -41,9 +41,15 @@ a.pf-class:hover { background: #cdefe5; color: #0d4d3f; }
 .pf-wallet { display: inline-flex; align-items: baseline; gap: 10px; align-self: flex-start; padding: 8px 22px 10px 16px; border-radius: 999px; background: #fff4d6; box-shadow: inset 0 0 0 2px var(--pf-amber); color: #2c2a3a; font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
 .pf-wallet b { font-family: var(--pf-display); font-weight: 400; font-size: 2.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
 .pf-wallet-icon { font-size: 1.6rem; line-height: 1; align-self: center; }
-.pf-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
-.pf-facts dt { font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pf-muted); font-weight: 800; }
-.pf-facts dd { margin: 0; font-family: var(--pf-display); font-size: 1.35rem; line-height: 1.2; color: #fff; font-variant-numeric: tabular-nums; }
+.pf-wallet-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
+.pf-today { font-weight: 800; font-size: 1rem; color: var(--pf-teal); white-space: nowrap; }
+/* The way to the next surprise (every 150 shells) */
+.pf-next { max-width: 460px; font-weight: 800; font-size: 1rem; line-height: 1.25; color: #fff; }
+.pf-next-top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.pf-next-left { color: var(--pf-amber); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pf-next-bar { position: relative; height: 14px; margin-top: 6px; border-radius: 999px; background: #0b1430; box-shadow: inset 0 0 0 2px var(--pf-line); overflow: hidden; }
+.pf-next-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, #ffcf5e, #ff8585); }
+.pf-collected { margin: 0; font-size: 0.98rem; line-height: 1.35; font-weight: 700; color: var(--pf-muted); }
 .pf-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .pf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 8px 22px; border-radius: 999px; border: 2px solid var(--pf-line); background: var(--pf-panel); color: #fff; font-weight: 800; font-size: 1.05rem; text-decoration: none; text-align: center; }
 .pf-btn:hover { background: #1b2a5c; color: #fff; }
@@ -117,6 +123,24 @@ a.pf-chip:hover { background: var(--pf-coral-aa); color: #fff; }
 .pf-note h2 { font-family: var(--pf-display); font-weight: 400; font-size: 1.15rem; margin: 0 0 6px; }
 .pf-note p { font-size: 0.98rem; line-height: 1.45; margin: 0; }
 
+/* ── Gifts: the last ones + what brings the next ─────────────────────── */
+.pf-gifts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px 32px; }
+.pf-gifts-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; align-items: flex-start; }
+.pf-gift-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.pf-gift a { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--krabsy-ink); text-align: center; }
+.pf-gift-pic { position: relative; display: block; aspect-ratio: 1; border-radius: 14px; border: 3px solid var(--pf-line); background: #16245a; overflow: hidden; }
+.pf-gift-pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pf-gift.is-item .pf-gift-pic img { object-fit: contain; padding: 3px; }
+.pf-gift a:hover .pf-gift-pic { border-color: var(--pf-amber); }
+.pf-gift-new { position: absolute; top: 3px; right: 3px; padding: 1px 6px 2px; border-radius: 999px; background: var(--pf-coral); color: #3a0d0d; font-weight: 800; font-size: 0.68rem; line-height: 1.1; }
+.pf-gift-name { font-weight: 800; font-size: 0.78rem; line-height: 1.15; overflow-wrap: anywhere; hyphens: auto; }
+.pf-goals { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; width: 100%; }
+.pf-goal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-weight: 800; font-size: 0.98rem; line-height: 1.25; margin-bottom: 4px; }
+.pf-goal-n { color: var(--krabsy-ink-mute); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pf-goal-bar { height: 10px; }
+.pf-bar-gift { background: linear-gradient(90deg, #ffb52e, #ff8585); }
+.pf-goal-note { margin: 0; font-size: 0.9rem; line-height: 1.4; }
+
 /* ── Tablets ─────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .pf-hero { grid-template-columns: 260px minmax(0, 1fr); }
@@ -137,6 +161,8 @@ a.pf-chip:hover { background: var(--pf-coral-aa); color: #fff; }
   .pf-hero-title { font-size: 1.35rem; }
   .pf-hero-text { font-size: 1rem; }
   .pf-wallet b { font-size: 2rem; }
+  .pf-gifts { grid-template-columns: 1fr; }
+  .pf-gift-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pf-actions .pf-btn { flex: 1 1 auto; }
   .pf-section { margin-top: 22px; }
   .pf-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

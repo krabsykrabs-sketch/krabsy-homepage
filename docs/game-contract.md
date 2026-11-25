@@ -153,7 +153,8 @@ fig.dispose()             // when the game throws the figure away
 10. **Shells need no game code.** `recordAttempt()` counts them
     (`homepage/lib/krabsy-shells.js`): +1 per right answer, +1 extra for a
     new or weak item, never taken away, after 200 a day 1 per 3 right
-    answers. In-level currencies (coins, stars) stay the game's own; don't
+    answers. Shells are not spent: every 150 are a surprise gift
+    (`homepage/lib/krabsy-rewards.js`, also counted in `recordAttempt()`). In-level currencies (coins, stars) stay the game's own; don't
     call them shells / Muscheln / caracolas (never "conchas").
 
 Test: no saved figure (fallback), a saved free figure, a saved figure with
@@ -172,13 +173,69 @@ Every 3D game with a hero shows a small hero picker on its start screen:
    ‹ › arrows; that pick is their figure in every game.
 2. **Then 1–3 heroes that fit the game**: its old heroes (Dungeon: the Knight with
    sword and shield; Kitchen: the chefs; Platformer: the Ranger; Egg Island: the
-   explorer kids …). They are **free**, need no shells, and are **not** saved as
+   explorer kids …). They are **free**, need not be owned, and are **not** saved as
    the child's figure. The game remembers the last choice for itself
    (`localStorage krabsy_<game>_hero`), so a child who likes the Knight in the
    Dungeon keeps it there.
 3. Tiles with portraits, the same look in every game; keyboard and touch. Keep
    the "Spiel mit deiner Figur →" link to the figure page.
 4. The game's fallback when the figure can't load is unchanged.
+
+## Gifts found in a game (added 2026-11-25)
+
+Figures and accessories can't be bought any more: children get them as
+gifts (`docs/figures-shells-world.md`, "Rewards instead of a shop"). Most
+gifts come by themselves (shells, milestones, practice days, weeks; counted
+in `recordAttempt()`, no game code). A 3D game can also **hide a gift in its
+world**:
+
+```js
+import { pickGift, grantGift } from '/lib/krabsy-rewards.js';   // no three.js, ~15 KB with the catalogue
+
+// 1. What could be found here? null = nothing to give (the child owns it, or
+//    this game gave its 2 gifts for today): then show no chest.
+const gift = pickGift({ source: 'verb-dungeon', id: 'hat:wizard' });   // this entry
+const gift = pickGift({ source: 'verb-dungeon' });                     // a random one ({ kind: 'char' | 'item' } optional)
+// → { id: 'hat:wizard', slot: 'hat', key: 'wizard', name: 'Zauberhut', image: '/assets/figures/items/hat-wizard.webp' }
+
+// 2. Show it in the world, let the child reach it, then give exactly that entry:
+const got = grantGift({ source: 'verb-dungeon', id: gift.id });
+// → { ok: true, id, slot, key, name, image, source: 'game:verb-dungeon' }
+//   { ok: false, reason: 'owned' | 'limit' | 'nothing' | 'unknown' | 'storage' }
+```
+
+`grantGift({ source })` without `id` gives a random entry in one step (a
+surprise chest whose content is shown only after opening). `ownsGift(id)`
+says whether the child has an entry. Ids are `char:<id>`, `hat:<key>`,
+`glasses:<key>`, `back:<key>` from `homepage/lib/krabsy-figure-catalog.js`.
+
+Rules:
+
+1. **Show it before you give it.** The gift is a thing in the world the child
+   sees and reaches: a chest, an egg, a flag at the end of a hard path, the
+   hat on a statue. Use `pickGift()` first and show its `image` or the 3D part
+   itself; a gift is never handed out by a silent timer or on level load.
+2. **It is earned by playing and answering**, not by a purchase and not by
+   luck alone (no gacha, no in-level currency price). Good places: a first
+   level completion, three stars, a secret room behind a question gate.
+3. **At most 2 gifts per game and calendar day** (the lib enforces it and
+   answers `reason: 'limit'`; `pickGift` then returns null). Plan for few and
+   memorable gifts: the catalogue has 30 figures and 33 accessories in total.
+4. **Tell the child in the game** what it found (`name` is in the page
+   language, `image` is a 192 px WebP). The site shows its own "Neues
+   Geschenk! 🎁" card on the next site page and a "Neu" badge on the figure
+   page; the game doesn't link there in the middle of a level.
+5. **Never throw into the game:** the functions never throw, but the import
+   fails on `file://` and on dev servers without `/lib`; wrap it and show no
+   chest then.
+6. **No weapons, no game items:** only catalogue entries can be given. A
+   game's own items (Dungeon sword, coins, stars) stay inside the game.
+7. Say what a game hides in its `CLAUDE.md`, so the master session can list
+   "found in the 3D games" correctly on the figure page.
+
+Test: `pickGift` → chest shown → `grantGift` → `ok: true`; a second call for
+the same id → `reason: 'owned'` and no chest on the next visit; third gift on
+one day → `reason: 'limit'`; then open a site page: the gift card appears once.
 
 ## Status (2026-11-25)
 
@@ -191,4 +248,5 @@ Every 3D game with a hero shows a small hero picker on its start screen:
 | Verb Hatchery | ✅ | 2026-11-25 (cc61034): gap cards, rare eggs ask two sentences, `TOPIC_TEXT`; tester release only |
 | Verb Golf, Catapult | planned | their CLAUDE.md files carry this checklist |
 | Verb Dungeon, Snake, Air Control, Flow | verbs only | Snake / Air Control are candidates; Air Control + Flow have no English menus |
+| **Gifts in games** (`grantGift`, section above) | no game yet | the lib is live; each game adds its hidden gifts in its own session |
 | **Player's figure** (`loadPlayerFigure`, section above) | Dungeon, Platformer, Egg Island (2026-11-25); hero picker next | order: Verb Hatchery → Verb Platformer → Quiz Room (after the performance check) → Verb Kitchen → Verb Dungeon → Verb Valley → Verb Towers (the builder) |

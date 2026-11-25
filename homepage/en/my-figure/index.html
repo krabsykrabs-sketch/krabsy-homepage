@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
   <title>My figure — Krabsy</title>
-  <meta name="description" content="Build your own Krabsy figure: pick a character, a hat, glasses, a backpack and colours. Unlock more with the shells you earn in games and exercises. Free, no sign-up.">
+  <meta name="description" content="Build your own Krabsy figure: pick a character, a hat, glasses, a backpack and colours. The shells you earn in games and exercises bring you new figures and accessories as gifts. Free, no sign-up.">
   <!-- /en/ is the Spanish pilot section (noindex), so this page is too. -->
   <meta name="robots" content="noindex">
   <link rel="canonical" href="https://krabsy.com/en/my-figure/">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="My figure — Krabsy">
-  <meta property="og:description" content="Build your own Krabsy figure: pick a character, a hat, glasses, a backpack and colours. Unlock more with the shells you earn in games and exercises. Free, no sign-up.">
+  <meta property="og:description" content="Build your own Krabsy figure: pick a character, a hat, glasses, a backpack and colours. The shells you earn in games and exercises bring you new figures and accessories as gifts. Free, no sign-up.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/en/my-figure/">
   <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
-  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25b">
+  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25d">
   <!-- The figure builder (lib/krabsy-figure-page.js) and the shared figure code
        (lib/krabsy-figure.js) import three.js by name. -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -34,8 +34,8 @@
     <main class="mf-main">
       <div class="mf-head">
         <h1 class="mf-title">My figure</h1>
-        <p class="mf-sub">Build your own figure. Unlock more figures and accessories with the shells 🐚 you earn in games and exercises.</p>
-        <div class="mf-wallet" id="mfWallet"><span aria-hidden="true">🐚</span><b id="mfBalance">0</b><span>shells</span></div>
+        <p class="mf-sub">Build your own figure. Practise and you get gifts 🎁: new figures and things to wear.</p>
+        <div class="mf-next" id="mfWallet"></div>
       </div>
 
       <div class="mf-app" id="mfApp">
@@ -43,7 +43,6 @@
           <canvas id="mfCanvas"></canvas>
           <div class="mf-char-name" id="mfCharName"></div>
           <div class="mf-loading" id="mfLoading"><noscript>Krabsy needs JavaScript for the figure.</noscript></div>
-          <div class="mf-locks" id="mfLocks"></div>
           <div class="mf-bar" id="mfBar"></div>
         </div>
         <div class="mf-panel">
@@ -70,9 +69,14 @@
           <p style="margin-top:8px"><a href="/en/spanish/games/">To the games →</a></p>
         </div>
         <div class="mf-card">
-          <h2>What you can unlock</h2>
-        <p>12 figures are free from the start, and so are all colours. Other figures cost 150 to 400 shells; hats, glasses and backpacks cost 40 to 150. What you unlock stays yours.</p>
-        <p>The 3D games will get your figure one by one.</p>
+          <h2>How to get gifts 🎁</h2>
+          <ul>
+          <li>Every 150 shells bring a surprise: a new figure or something to wear.</li>
+          <li>There are gifts for practising on 3, 7, 14 and 30 days (a day counts from 10 answers), and for every new week in which you practise again.</li>
+          <li>And for what you achieve: for example 50 right answers, 10 words you know well, or a verb diploma.</li>
+          <li>Soon there will be gifts hidden in the 3D games too.</li>
+          </ul>
+          <p style="margin-top:8px">You have 12 figures and all colours from the start. What you get stays yours.</p>
         </div>
         <div class="mf-card note">
           <h2>Only on this device</h2>
@@ -87,7 +91,7 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25c"></script>
+  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25d"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

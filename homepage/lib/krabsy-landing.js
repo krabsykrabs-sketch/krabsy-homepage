@@ -14,7 +14,7 @@
    chips appear on their own once a second topic has a live game. The
    featured game is left out of "all" (it is right above the grid). */
 import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
-import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-22';
+import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-25';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
 import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang, figurePicks, savePick, isCustomFigure } from '/lib/krabsy-me.js?v=2026-11-25c';
 
@@ -169,7 +169,7 @@ function initFigure() {
       if (!savedChar() && !(s.earned > 0) && !answered) return;
       link.href = link.dataset.profileHref;
       document.getElementById('lf-cta').textContent = link.dataset.profileCta;
-      document.getElementById('lf-shells-n').textContent = String(s.balance);
+      document.getElementById('lf-shells-n').textContent = String(s.earned);    // collected so far (nothing is spent)
       document.getElementById('lf-shells').hidden = !(s.earned > 0);
       root.classList.add('is-mine');
     };

@@ -9,18 +9,25 @@
 .mf-main { width: 100%; max-width: 1400px; margin: 0 auto; padding: 14px 20px 28px; font-family: Nunito, system-ui, sans-serif; flex: 1 0 auto; }
 .mf-main button { font-family: inherit; }
 
-/* ── Title row: h1 + the child's shells ─────────────────────────────── */
+/* ── Title row: h1 + the way to the next surprise ─────────────────────────────── */
 .mf-head { display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; margin: 0 4px 12px; }
 .mf-title { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.9rem; line-height: 1.1; margin: 0; color: var(--krabsy-ink); }
-.mf-sub { flex: 1 1 320px; margin: 0; font-size: 0.98rem; line-height: 1.35; color: var(--krabsy-ink-mute); font-weight: 600; }
-.mf-wallet {
-  display: inline-flex; align-items: center; gap: 7px; margin-left: auto; padding: 7px 16px; border-radius: 999px;
-  background: #fff4d6; box-shadow: inset 0 0 0 2px var(--mf-amber); color: var(--krabsy-ink);
-  font-weight: 800; font-size: 1rem; white-space: nowrap;
+.mf-sub { flex: 1 1 300px; margin: 0; font-size: 0.98rem; line-height: 1.35; color: var(--krabsy-ink-mute); font-weight: 600; }
+/* The way to the next surprise: shells collected + a bar (every 150 shells = a gift). */
+.mf-next {
+  flex: 0 1 400px; min-width: 300px; margin-left: auto; padding: 8px 14px 10px; border-radius: 16px;
+  background: #fff4d6; box-shadow: inset 0 0 0 2px var(--mf-amber); color: var(--krabsy-ink); font-weight: 800; font-size: 0.92rem; line-height: 1.2;
 }
-.mf-wallet b { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.35rem; line-height: 1; font-variant-numeric: tabular-nums; }
-.mf-wallet.is-pop { animation: mf-pop 0.5s ease-out; }
-@keyframes mf-pop { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
+.mf-next:empty { display: none; }
+.mf-next-top { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; }
+.mf-next-shells { display: inline-flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.mf-next-shells b { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.mf-next-label { flex: 1 1 auto; }
+.mf-next-left { white-space: nowrap; color: #6a4a00; font-variant-numeric: tabular-nums; }
+.mf-next-bar { position: relative; height: 12px; margin-top: 6px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 1.5px #e9c768; overflow: hidden; }
+.mf-next-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, #ffb52e, #ff8585); }
+.mf-next.is-pop { animation: mf-pop 0.5s ease-out; }
+@keyframes mf-pop { 0% { transform: scale(1); } 40% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
 /* ── The builder card ───────────────────────────────────────────────── */
 .mf-app {
@@ -41,18 +48,6 @@
 .mf-bar button.on { border-color: var(--mf-teal); }
 .mf-bar .mf-spin { margin-left: 8px; }
 
-/* Lock pills on the stage: what still has to be unlocked in this figure. */
-.mf-locks { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 50%; }
-.mf-lock {
-  display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-height: 40px; padding: 6px 8px 6px 12px;
-  border-radius: 999px; border: 2px solid var(--mf-amber); background: #1b2450; color: #fff; cursor: pointer;
-  font-weight: 800; font-size: 0.95rem; line-height: 1.15; text-align: left;
-}
-.mf-lock-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.mf-lock-price { flex: 0 0 auto; padding: 4px 10px; border-radius: 999px; background: #33407a; color: var(--mf-amber); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.mf-lock.can .mf-lock-price { background: var(--mf-amber); color: #3a2600; }
-.mf-lock:hover { background: #26327a; }
-
 /* ── The panel: tabs on top, the open tab scrolls, Save & co. stay at the bottom ── */
 .mf-panel { background: var(--mf-panel); border-left: 3px solid var(--mf-line); min-height: 0; min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
 .mf-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 12px 14px 0; background: var(--mf-panel); border-bottom: 3px solid var(--mf-line); }
@@ -66,6 +61,8 @@
 .mf-tab-label { max-width: 100%; overflow-wrap: anywhere; }
 .mf-tab:hover { color: #fff; }
 .mf-tab.on { color: #3a2600; background: var(--mf-amber); border-color: var(--mf-amber); }
+.mf-tab { position: relative; }
+.mf-tab.has-new::after { content: ''; position: absolute; top: 5px; right: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--mf-coral); box-shadow: 0 0 0 2px var(--mf-deep); }
 .mf-panes { overflow: auto; min-height: 0; padding: 14px 16px 16px; overscroll-behavior: contain; }
 .mf-pane:focus-visible { outline-offset: -3px; }
 .mf-pane[hidden] { display: none; }
@@ -74,26 +71,35 @@
 .mf-sec:last-child { margin-bottom: 0; }
 .mf-sec h3 { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.12rem; line-height: 1.2; color: var(--mf-amber); margin: 0 0 8px; }
 .mf-note { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--mf-deep); border: 2px dashed var(--mf-line); color: var(--mf-muted); font-weight: 700; font-size: 0.98rem; line-height: 1.4; }
+.mf-count { margin: 0 0 10px; font-weight: 800; font-size: 0.95rem; line-height: 1.3; color: var(--mf-muted); }
+.mf-pane > .mf-count { margin-bottom: 14px; }
+.mf-more { margin-top: 10px; border-style: solid; border-color: var(--mf-amber); color: #fff; }
+.mf-more[hidden] { display: none; }
 .mf-grid { display: grid; gap: 8px; }
 .mf-grid.chars { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .mf-grid.items { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 8px; }
 
-/* A tile: picture (character portrait or the accessory itself), lock + price, name. */
+/* A tile: picture (character portrait or the accessory itself), name, "Neu" on a new gift. */
 .mf-tile { display: flex; flex-direction: column; align-items: stretch; gap: 4px; min-width: 0; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; text-align: center; }
 .mf-tile-pic { position: relative; display: block; aspect-ratio: 1; border-radius: 14px; border: 3px solid var(--mf-line); background: #16245a; overflow: hidden; }
 .mf-tile-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mf-grid.items .mf-tile-pic img { object-fit: contain; padding: 4px; }
 .mf-tile:hover .mf-tile-pic { border-color: #5b74c4; }
 .mf-tile.on .mf-tile-pic, .mf-tile.on:hover .mf-tile-pic { border-color: var(--mf-amber); box-shadow: 0 0 0 2px var(--mf-amber); background: #223173; }
-.mf-tile.locked img { opacity: 0.8; }
 .mf-tile-sign { position: absolute; inset: 0; display: grid; place-items: center; font-size: 2.1rem; line-height: 1; font-weight: 800; color: #6f86cf; }
 .mf-tile[data-id="own"] .mf-tile-sign { color: var(--mf-amber); }
 .mf-tile-star { position: absolute; top: 3px; left: 5px; font-size: 1rem; line-height: 1; color: var(--mf-amber); text-shadow: 0 1px 2px #0b1430; }
-.mf-tile-lock { position: absolute; top: 3px; right: 4px; font-size: 0.82rem; line-height: 1; }
-.mf-tile-price {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 0 3px; background: rgba(11, 20, 48, 0.86);
-  color: var(--mf-amber); font-weight: 800; font-size: 0.76rem; line-height: 1.1; text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums;
+.mf-tile-new {
+  position: absolute; top: 4px; right: 4px; padding: 2px 7px 3px; border-radius: 999px; background: var(--mf-coral); color: #3a0d0d;
+  font-weight: 800; font-size: 0.72rem; line-height: 1.1; letter-spacing: 0.02em;
 }
+.mf-tile.is-new .mf-tile-pic { border-color: var(--mf-coral); }
+.mf-tile.is-new.on .mf-tile-pic { border-color: var(--mf-amber); }
+/* The "?" tile: there is more to collect. */
+.mf-mystery .mf-tile-pic { border-style: dashed; border-color: #5b74c4; background: var(--mf-deep); }
+.mf-mystery .mf-tile-sign { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 2.4rem; color: var(--mf-amber); }
+.mf-mystery:hover .mf-tile-pic, .mf-mystery.open .mf-tile-pic { border-color: var(--mf-amber); }
+.mf-mystery .mf-tile-name { color: var(--mf-amber); }
 .mf-tile-name { font-weight: 800; font-size: 0.8rem; line-height: 1.15; color: var(--mf-muted); overflow-wrap: anywhere; hyphens: auto; }
 .mf-tile.on .mf-tile-name { color: #fff; }
 
@@ -111,7 +117,7 @@
 .mf-saved:not(:empty) { margin-bottom: 8px; }
 .mf-saved.ok { color: var(--mf-teal); }
 .mf-saved.warn { color: var(--mf-amber); }
-.mf-app :focus-visible, .mf-dialog :focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.mf-app :focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
 /* ── Below the builder: how shells work, the device note ─────────────── */
 .mf-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0 0; }
@@ -121,17 +127,6 @@
 .mf-card ul { margin: 0; padding-left: 1.2em; }
 .mf-card a { font-weight: 800; }
 .mf-card.note { background: #fff4d6; box-shadow: inset 0 0 0 2px var(--mf-amber); }
-
-/* ── Unlock dialog ───────────────────────────────────────────────────── */
-.mf-dialog { border: none; padding: 0; background: transparent; max-width: 92vw; font-family: Nunito, system-ui, sans-serif; }
-.mf-dialog::backdrop { background: rgba(11, 20, 48, 0.6); }
-.mf-dialog-card { background: #fff; color: #2c2a3a; border-radius: 20px; padding: 22px 22px 18px; width: 400px; max-width: 100%; box-shadow: 0 6px 20px rgba(44, 42, 58, 0.25); }
-.mf-dialog-card h3 { font-family: 'Fredoka One', Nunito, sans-serif; font-weight: 400; font-size: 1.35rem; line-height: 1.2; margin: 0 0 8px; }
-.mf-dialog-card p { margin: 0 0 18px; font-size: 1.05rem; line-height: 1.45; font-weight: 600; }
-.mf-dialog-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.mf-dialog-actions button { font-family: inherit; font-weight: 800; font-size: 1rem; min-height: 44px; padding: 8px 20px; border-radius: 999px; border: 2px solid #babfd8; background: #fff; color: #2c2a3a; cursor: pointer; }
-.mf-dialog-actions button.primary { background: var(--mf-amber); border-color: var(--mf-amber); color: #3a2600; }
-.mf-dialog :focus-visible { outline-color: #2c2a3a; }
 
 /* ── Tablets (1024 × 768): narrower panel ───────────────────────────── */
 @media (max-width: 1100px) {
@@ -146,8 +141,7 @@
   .mf-main { padding: 10px 10px 24px; }
   .mf-title { font-size: 1.5rem; }
   .mf-sub { flex-basis: 100%; order: 3; font-size: 0.92rem; }
-  .mf-wallet { padding: 5px 13px; font-size: 0.92rem; }
-  .mf-wallet b { font-size: 1.2rem; }
+  .mf-next { flex: 1 1 100%; order: 4; min-width: 0; margin: 4px 0 0; padding: 7px 12px 9px; }
   .mf-app { display: block; height: auto; overflow: visible; border-radius: 18px; }
   .mf-stage { height: var(--mf-stage-h); border-radius: 18px 18px 0 0; overflow: hidden; }
   .mf-panel { display: block; border-left: 0; border-radius: 0 0 18px 18px; }
@@ -159,9 +153,6 @@
   .mf-grid.items { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .mf-foot { border-radius: 0 0 18px 18px; padding: 8px 10px 10px; }
   .mf-char-name { top: 10px; left: 12px; font-size: 1.15rem; }
-  .mf-locks { top: 8px; right: 8px; max-width: 56%; gap: 4px; }
-  .mf-lock { min-height: 34px; padding: 3px 5px 3px 10px; font-size: 0.82rem; gap: 6px; }
-  .mf-lock-price { padding: 3px 8px; }
   .mf-bar { bottom: 8px; gap: 5px; flex-wrap: nowrap; }
   .mf-bar button { font-size: 0.84rem; padding: 5px 10px; min-height: 36px; }
   .mf-bar .mf-spin { margin-left: 2px; }
@@ -182,4 +173,4 @@
   .mf-actions button { padding: 8px 11px; font-size: 0.94rem; white-space: nowrap; }
   .mf-actions .mf-save { padding: 8px 20px; }
 }
-@media (prefers-reduced-motion: reduce) { .mf-wallet.is-pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .mf-next.is-pop { animation: none; } }

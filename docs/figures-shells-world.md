@@ -49,8 +49,9 @@ it and comes later. Decisions the owner still has to make are marked
   for them.
 - **Shells** for right answers in any game or drill, shown as a small
   counter in the site header ("🐚 240").
-- Unlocking: characters and accessories show a small lock and a price;
-  colours are always free.
+- Characters and accessories beyond the free set come as **gifts**
+  ("Rewards instead of a shop" below; first built with locks and prices,
+  changed the same day); colours are always free.
 
 ## The figure on the site (shared code)
 
@@ -118,23 +119,66 @@ game code. Proposal:
 
 Rough scale: a 10-minute session is 60–120 answers → **60–150 shells**.
 
-### Spending
+### Rewards instead of a shop (2026-11-25)
 
-| Item | Price (proposal) |
+**Owner decision 2026-11-25** (replaces the prices; the shop was live for a
+few hours): seeing 42 figures and 33 accessories with locks and prices was
+overwhelming. Nothing is bought any more. A child sees only what it owns and
+gets everything else as a **gift**: a random figure or accessory it doesn't
+have yet. Code: `homepage/lib/krabsy-rewards.js` (rules, no DOM),
+`krabsy-gifts-ui.js` (the gift card), `krabsy-figure-catalog.js` (the lists,
+no three.js).
+
+**Owned from the start:** 12 figures (list below), each figure's own
+accessories ("★ Original"), all colours.
+
+**Ways to get a gift**
+
+| Way | Rule |
 |---|---|
-| **Free from the start:** 12 characters (a mix of all three groups, including one skeleton and one animal), the default accessories, **all colours** | 0 |
-| other characters | 150–400 (rarer ones more) |
-| hats, glasses, back items | 40–150 |
-| new items added later (seasonal hats …) | the reason to keep coming back |
+| **Shells** | every **150 shells collected** (lifetime `earned`; shells are never spent, the header shows the lifetime number). A bar on the figure page and the profile shows the way to the next one. |
+| **Milestones** (once each) | 50 / 200 / 500 / 1000 right answers · 10 / 50 words that sit (every answered form at mastery ≥ 4; a verb needs both forms, as on the profile) · Verb-Diplom bronze / silver / gold · a second topic tried. 500 and 1000 answers, 50 words, silver and gold give a **figure**. |
+| **Practice days** | 3 / 7 / 14 / 30 practice days. A practice day = a calendar day with at least **10 answers** (right or wrong). The days **don't have to follow each other**: a missed day costs nothing (no "streak lost" for a child who has no say over when the class practises). 14 and 30 give a figure. |
+| **Weeks** | one gift for every **new calendar week (Mon–Sun) with a practice day, from the second such week on**. |
+| **Found in a 3D game** | `grantGift()` / `pickGift()`, `docs/game-contract.md` ("Gifts found in a game"); at most 2 per game and day. No game hides one yet, so the child-facing texts say "bald". |
 
-So a new character costs 2–4 practice sessions, an accessory about one.
-**Decide:** which 12 characters are free (recommendation: Schülerin,
-Schüler, Wanderer, Hexe, Superheld, Elf, Ritter, Abenteurerin, Druidin,
-Ork, Skelett, Roboter Eins).
+**Which gift:** random among what the child doesn't own. The old shop prices
+(`PRICES` in the catalogue) are now only the **rarity**: within the figures
+and within the accessories the chance is (cheapest ÷ price)², so a straw hat
+or the farmer comes early and the jetpack or the Necromancer late. Without a
+fixed kind it is a figure with 40 % and an accessory with 60 %. The very
+first gift is always a figure. A gift that comes alone prefers things the
+child's current figure can wear (others are 5 × less likely; every accessory
+fits at least one free figure, so nothing is ever useless). When a child
+owns everything, the bar says so and nothing more is given.
 
-Important: whatever is free at launch stays free. Locking something later
-that children already had would feel like taking it away. So the free set
-and the prices are decided **before** the figure page goes live.
+**The first run for children who already practised:** they get what their
+shells and milestones so far are worth, **at most 5 gifts at once**; the rest
+counts as given. Everything unlocked or bought before (`owned`, the Dungeon
+migration) stays, and shells spent in the shop still count (the gifts go by
+`earned`, not `balance`).
+
+**What the child sees**
+
+- **Gift card** "Neues Geschenk! 🎁" with the picture, the name and the
+  reason, and a button to the figure page ("Anziehen" / "Ansehen"). It
+  slides in at the bottom of the next site page, never blocks, shows each
+  gift once and several in one card. Not on game pages or in game iframes:
+  there the header counter gets a 🎁 dot and the card waits.
+- **Figure page:** only owned figures and accessories, "12 von 42 Figuren
+  gesammelt", one "?" tile per grid that explains how to get more, "Neu"
+  badges until the tab was opened. No prices, locks or dialogs.
+- **Profile:** shells collected, the bar to the next surprise, the collected
+  counts, the last gifts and the next goals.
+
+**Storage** (this device): `krabsy_shells_v1.owned` as before, plus
+`krabsy_rewards_v1` (`shellGifts`, `done` milestones, practice days and
+weeks, the gift log with shown / seen flags). Its own key, because older
+cached copies of `krabsy-shells.js` rewrite `krabsy_shells_v1` with only the
+fields they know.
+
+Important: whatever is free at launch stays free, and whatever a child owns
+stays owned.
 
 ### Where shells are stored
 
@@ -275,6 +319,7 @@ start once the figure page is live? Recommendation: after part 1's steps
 4. Verb Dungeon: **keep the sword as the Dungeon's game item**; the figure catalogue stays weapon-free.
 5. Teacher switch-off: not now.
 6. First build: **steps 2–4** (shared code + assets, shells counting + header counter, figure page DE/ES/EN with locks and prices, game-contract addition). Games follow one session each, Verb Hatchery first. The Krabsy world waits until part 1 is done.
+7. **Rewards instead of a shop** (same day, after seeing the shop live): no prices, no buying; see "Rewards instead of a shop" above. Decision 3's prices are now only the rarity.
 
 ## Built 2026-11-25 (steps 2–4)
 
@@ -283,16 +328,18 @@ start once the figure page is live? Recommendation: after part 1's steps
 | Shells: balance, daily counter, unlocks (`localStorage krabsy_shells_v1`) | `homepage/lib/krabsy-shells.js` |
 | Earning, in `recordAttempt()`: "new or weak" = the item's form was never answered or had mastery ≤ 2 **before** this answer | `homepage/lib/krabsy-stats.js` |
 | Header counter "🐚 240" (hidden until the first shell was ever earned; links to the figure page) | mounted by `krabsy-footer.js` (site header) and `krabsy-nav.js` (game header) |
-| Figure code, free set, **price table** (`FREE_CHARS`, `PRICES`), `loadPlayerFigure` | `homepage/lib/krabsy-figure.js` |
-| Figure page DE / ES / EN (builder, locks, unlock dialog) | `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/` (noindex); script `homepage/lib/krabsy-figure-page.js` + `.css` |
+| Figure code, `loadPlayerFigure` | `homepage/lib/krabsy-figure.js` |
+| Catalogue: characters, accessories, free set, rarity (`FREE_CHARS`, `PRICES`), names DE/ES/EN | `homepage/lib/krabsy-figure-catalog.js` |
+| Gifts: rules, `grantGift`, the gift card | `homepage/lib/krabsy-rewards.js`, `krabsy-gifts-ui.js` |
+| Figure page DE / ES / EN (builder; owned things only since "Rewards instead of a shop") | `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/` (noindex); script `homepage/lib/krabsy-figure-page.js` + `.css` |
 | Assets (42 characters + the jetpack source, 2 animation files, 42 portraits as WebP) | `homepage/assets/figures/`; three.js r169 for the page in `homepage/lib/vendor/three/` |
 | For games | `docs/game-contract.md`, "The player's figure" |
 
 Free characters (ids): Protagonist_A (Schülerin), Protagonist_B (Schüler), Hiker
 (Wanderer), Witch (Hexe), Helper_A (Wichtel), Helper_B (Elf), Knight (Ritter),
 Rogue (Abenteurerin), Druid (Druidin), OrcRaider (Ork), Skeleton_Minion (Skelett),
-Robot_One (Roboter Eins). Locked things can be tried on in the builder but not
-saved. Next: step 5, Verb Hatchery first.
+Robot_One (Roboter Eins). The builder shows only what the child owns. Next:
+games hide their first gifts (`grantGift`), one session each.
 
 ## Open decisions (summary)
 

@@ -4,15 +4,20 @@
 //   1 the character (all of them, in three sections), 2 accessories (hat, glasses, back
 //   item: a grid of pictures per slot, ★ = the character's own), 3 skin + hair colours,
 //   4 clothing colours.
-// Locked characters and accessories show a lock and a price in shells; they can be tried
-// on, and are unlocked with shells (krabsy-shells.js) before the figure can be saved.
-// Colours are always free. Accessory pictures: tools/render_accessory_thumbs.cjs.
+// Rewards instead of a shop (owner decision 2026-11-25): the page shows only what the
+// child OWNS: the 12 free figures, each figure's own accessories, all colours, and every
+// figure and accessory it was given (krabsy-rewards.js). Of the rest it shows a count
+// ("12 von 42 Figuren gesammelt") and one "?" tile per grid that explains how to get more.
+// No prices, no locks, no buying. New gifts carry a "Neu" badge until their tab was opened.
+// Accessory pictures: tools/render_accessory_thumbs.cjs.
 // From the prototype games/figure-builder/src/builder.js (2026-11-25).
 import * as THREE from 'three';
-import { CHARS, GROUPS, HATS, GLASSES, BACKS, SKIN, HAIR, COLORS, DEFAULT, ASSET_BASE, normalize,
-  buildFigure, loadClips, charInfo, priceOf, isUnlocked, lockedParts, unlockId,
-  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25c';
-import { getShells, unlock, onShellsChange } from './krabsy-shells.js';
+import { CHARS, HATS, GLASSES, BACKS, SKIN, HAIR, COLORS, DEFAULT, ASSET_BASE, normalize,
+  buildFigure, loadClips, charInfo, isUnlocked, lockedParts, unlockId,
+  readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25d';
+import { NAMES as ALL_NAMES, PRICES, parseId } from './krabsy-figure-catalog.js';
+import { getShells } from './krabsy-shells.js';
+import { getRewards, syncRewards, markSeen, unseenGifts, onRewardsChange, SHELLS_PER_GIFT } from './krabsy-rewards.js';
 
 const LANG = (location.pathname.match(/^\/(de|es|en)\//) || [])[1] || 'de';
 const T = {
@@ -26,30 +31,16 @@ const T = {
     own: '★ Original', none: 'nichts', noHat: 'Eine andere Kopfbedeckung passt bei dieser Figur nicht.', orig: 'Original',
     rand: '🎲 Zufall', reset: 'Zurücksetzen', save: 'Speichern',
     saved: 'Gespeichert ✓ Deine Figur ist auf diesem Gerät.', unsaved: 'Noch nicht gespeichert.',
-    lockedSave: 'Erst freischalten 🔒, dann speichern.',
     spin: 'Drehen', idle: 'Stehen', walk: 'Laufen', wave: 'Winken', jump: 'Jubeln',
-    shells: 'Muscheln', locked: 'gesperrt',
-    buyTitle: '{name} freischalten?', buyBody: 'Das kostet 🐚 {price}. Du hast 🐚 {balance}.',
-    buyYes: 'Freischalten', buyNo: 'Lieber nicht',
-    needTitle: 'Noch nicht genug Muscheln',
-    needBody: 'Für „{name}“ brauchst du 🐚 {price}. Dir fehlen noch 🐚 {missing}. Muscheln bekommst du für jede richtige Antwort, in allen Spielen und Übungen.',
-    needGo: 'Zu den Spielen', ok: 'OK', unlocked: 'Freigeschaltet: {name} 🎉',
-    gamesUrl: '/de/spiele/',
-    chars: { Protagonist_A: 'Schülerin', Protagonist_B: 'Schüler', Hiker: 'Wanderer', Witch: 'Hexe', Superhero: 'Superheld',
-      MagicalGirl: 'Zaubermädchen', Helper_A: 'Wichtel', Helper_B: 'Elf', Caveman: 'Steinzeitmensch', Farmer_A: 'Bauer',
-      Farmer_B: 'Bäuerin', Driver: 'Rennfahrer', Survivalist: 'Abenteurer', Werewolf_Man: 'Werwolf (als Mensch)', Clown: 'Clown',
-      ToySoldier: 'Spielzeugsoldat', SpaceRanger: 'Astronaut', Ninja: 'Ninja', Engineer: 'Tüftler', Lorekeeper: 'Gelehrter',
-      Knight: 'Ritter', Paladin: 'Paladin', Ranger: 'Waldläufer', Rogue: 'Abenteurerin', Rogue_Hooded: 'Kapuzen-Abenteurerin',
-      Barbarian: 'Barbar', Druid: 'Druidin', Cleric: 'Heiler', Vampire: 'Vampir', Tiefling: 'Teufelchen',
-      PlantWarrior: 'Pflanzenwesen', AvianSwordsman: 'Vogelwesen', OrcRaider: 'Ork', Werewolf_Wolf: 'Werwolf',
-      MonsterCostume: 'Dino-Kostüm', Robot_One: 'Roboter Eins', Robot_Two: 'Roboter Zwei', Skeleton_Minion: 'Skelett',
-      Skeleton_Warrior: 'Skelett mit Helm', Skeleton_Rogue: 'Skelett mit Kapuze', Skeleton_Mage: 'Skelett-Zauberer', Necromancer: 'Nekromant' },
-    hats: { cap: 'Wandermütze', witch: 'Hexenhut', pointy: 'Wichtelmütze', elf: 'Elfenmütze', bear: 'Bärenfell', helmet: 'Ritterhelm',
-      clown: 'Clownshut', straw: 'Strohhut', cowboy: 'Cowboyhut', soldier: 'Soldatenhut', wizard: 'Zauberhut', headband: 'Stirnband', space: 'Raumhelm' },
-    glassesN: { square: 'Eckige Brille', round: 'Runde Brille', reading: 'Lesebrille', sun: 'Sonnenbrille', goggles: 'Schutzbrille' },
-    backs: { pack: 'Wanderrucksack', packA: 'Schulrucksack', packB: 'Sportrucksack', satchel: 'Kräutertasche', tools: 'Werkzeugrucksack',
-      books: 'Bücherrucksack', warpack: 'Ork-Rucksack', jetpack: 'Jetpack', key: 'Aufziehschlüssel', wings: 'Flügel',
-      cape: 'Heldenumhang', capeKnight: 'Ritterumhang', capeRanger: 'Waldläufer-Umhang', capeRogue: 'Abenteuer-Umhang', capePaladin: 'Paladin-Umhang' },
+    shells: 'Muscheln', isNew: 'Neu', yourChars: 'Deine Figuren', yourItems: 'Dein Zubehör',
+    countChars: '{a} von {b} Figuren gesammelt', countItems: '{a} von {b} Zubehör gesammelt',
+    nextGift: 'Nächste Überraschung', toNext: 'noch 🐚 {n}', allDone: 'Du hast alles gesammelt! 🎉',
+    mystery: 'Mehr?', mysteryLabel: 'Wie bekomme ich mehr?',
+    moreChars: 'Es gibt noch {n} Figuren. Du bekommst sie als Geschenk 🎁: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
+    moreItems: 'Es gibt noch {n} Sachen zum Anziehen. Du bekommst sie als Geschenk 🎁: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
+    gotIt: 'Neu für dich: {name} 🎉',
+    hatsElsewhere: 'Deine Hüte und Mützen passen zu deinen anderen Figuren.',
+    hatNoFit: 'Neu für dich: {name} 🎉 Zu dieser Figur passt das nicht. Probier es mit einer anderen Figur!',
   },
   es: {
     loading: 'Creando personaje …', tabsLabel: 'Crear personaje',
@@ -60,32 +51,16 @@ const T = {
     legs: 'Segundo color', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
     rand: '🎲 Al azar', reset: 'Reiniciar', save: 'Guardar',
     saved: 'Guardado ✓ Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',
-    lockedSave: 'Primero desbloquea 🔒, luego guarda.',
     spin: 'Girar', idle: 'Quieto', walk: 'Caminar', wave: 'Saludar', jump: 'Celebrar',
-    shells: 'caracolas', locked: 'bloqueado',
-    buyTitle: '¿Desbloquear «{name}»?', buyBody: 'Cuesta 🐚 {price}. Tienes 🐚 {balance}.',
-    buyYes: 'Desbloquear', buyNo: 'Mejor no',
-    needTitle: 'Todavía te faltan caracolas',
-    needBody: 'Para «{name}» necesitas 🐚 {price}. Te faltan 🐚 {missing}. Ganas caracolas con cada respuesta correcta, en todos los juegos y ejercicios.',
-    needGo: 'Ir a los juegos', ok: 'OK', unlocked: 'Desbloqueado: {name} 🎉',
-    gamesUrl: '/es/juegos/',
-    chars: { Protagonist_A: 'Estudiante', Protagonist_B: 'Estudiante 2', Hiker: 'Excursionista', Witch: 'Bruja', Superhero: 'Superhéroe',
-      MagicalGirl: 'Chica mágica', Helper_A: 'Duende', Helper_B: 'Elfo', Caveman: 'Cavernícola', Farmer_A: 'Granjero',
-      Farmer_B: 'Granjera', Driver: 'Piloto', Survivalist: 'Aventurero', Werewolf_Man: 'Hombre lobo (humano)', Clown: 'Payaso',
-      ToySoldier: 'Soldadito de juguete', SpaceRanger: 'Astronauta', Ninja: 'Ninja', Engineer: 'Inventor', Lorekeeper: 'Sabio',
-      Knight: 'Caballero', Paladin: 'Paladín', Ranger: 'Explorador', Rogue: 'Aventurera', Rogue_Hooded: 'Aventurera con capucha',
-      Barbarian: 'Bárbaro', Druid: 'Druida', Cleric: 'Sanador', Vampire: 'Vampiro', Tiefling: 'Diablillo',
-      PlantWarrior: 'Ser planta', AvianSwordsman: 'Ser pájaro', OrcRaider: 'Orco', Werewolf_Wolf: 'Hombre lobo',
-      MonsterCostume: 'Disfraz de dino', Robot_One: 'Robot uno', Robot_Two: 'Robot dos', Skeleton_Minion: 'Esqueleto',
-      Skeleton_Warrior: 'Esqueleto con casco', Skeleton_Rogue: 'Esqueleto con capucha', Skeleton_Mage: 'Esqueleto mago', Necromancer: 'Nigromante' },
-    hats: { cap: 'Gorro de excursión', witch: 'Sombrero de bruja', pointy: 'Gorro de duende', elf: 'Gorro de elfo', bear: 'Piel de oso',
-      helmet: 'Casco', clown: 'Sombrero de payaso', straw: 'Sombrero de paja', cowboy: 'Sombrero vaquero', soldier: 'Gorro de soldado',
-      wizard: 'Sombrero de mago', headband: 'Cinta', space: 'Casco espacial' },
-    glassesN: { square: 'Gafas cuadradas', round: 'Gafas redondas', reading: 'Gafas de lectura', sun: 'Gafas de sol', goggles: 'Gafas protectoras' },
-    backs: { pack: 'Mochila de excursión', packA: 'Mochila escolar', packB: 'Mochila deportiva', satchel: 'Bolsa de hierbas',
-      tools: 'Mochila de herramientas', books: 'Mochila de libros', warpack: 'Mochila de orco', jetpack: 'Mochila cohete',
-      key: 'Llave de cuerda', wings: 'Alas', cape: 'Capa de héroe', capeKnight: 'Capa de caballero', capeRanger: 'Capa de explorador',
-      capeRogue: 'Capa de aventura', capePaladin: 'Capa de paladín' },
+    shells: 'caracolas', isNew: 'Nuevo', yourChars: 'Tus personajes', yourItems: 'Tus accesorios',
+    countChars: 'Tienes {a} de {b} personajes', countItems: 'Tienes {a} de {b} accesorios',
+    nextGift: 'Próxima sorpresa', toNext: 'faltan 🐚 {n}', allDone: '¡Ya lo tienes todo! 🎉',
+    mystery: '¿Más?', mysteryLabel: '¿Cómo consigo más?',
+    moreChars: 'Hay {n} personajes más. Te llegan como regalo 🎁: uno cada 150 caracolas, y también por practicar muchos días.',
+    moreItems: 'Hay {n} accesorios más. Te llegan como regalo 🎁: uno cada 150 caracolas, y también por practicar muchos días.',
+    gotIt: 'Nuevo para ti: {name} 🎉',
+    hatsElsewhere: 'Tus gorros les quedan a tus otros personajes.',
+    hatNoFit: 'Nuevo para ti: {name} 🎉 A este personaje no le queda. ¡Prueba con otro personaje!',
   },
   en: {
     loading: 'Building your figure …', tabsLabel: 'Build your figure',
@@ -96,42 +71,36 @@ const T = {
     legs: 'Second colour', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
     rand: '🎲 Random', reset: 'Reset', save: 'Save',
     saved: 'Saved ✓ Your figure is on this device.', unsaved: 'Not saved yet.',
-    lockedSave: 'Unlock 🔒 first, then save.',
     spin: 'Turn', idle: 'Stand', walk: 'Walk', wave: 'Wave', jump: 'Cheer',
-    shells: 'shells', locked: 'locked',
-    buyTitle: 'Unlock “{name}”?', buyBody: 'It costs 🐚 {price}. You have 🐚 {balance}.',
-    buyYes: 'Unlock', buyNo: 'Not now',
-    needTitle: 'Not enough shells yet',
-    needBody: 'You need 🐚 {price} for “{name}”. You are 🐚 {missing} short. You get shells for every right answer, in all games and exercises.',
-    needGo: 'To the games', ok: 'OK', unlocked: 'Unlocked: {name} 🎉',
-    gamesUrl: '/en/spanish/games/',
-    chars: { Protagonist_A: 'Schoolgirl', Protagonist_B: 'Schoolboy', Hiker: 'Hiker', Witch: 'Witch', Superhero: 'Superhero',
-      MagicalGirl: 'Magical girl', Helper_A: 'Gnome', Helper_B: 'Elf', Caveman: 'Caveman', Farmer_A: 'Farmer',
-      Farmer_B: 'Rancher', Driver: 'Racing driver', Survivalist: 'Adventurer', Werewolf_Man: 'Werewolf (human)', Clown: 'Clown',
-      ToySoldier: 'Toy soldier', SpaceRanger: 'Astronaut', Ninja: 'Ninja', Engineer: 'Inventor', Lorekeeper: 'Scholar',
-      Knight: 'Knight', Paladin: 'Paladin', Ranger: 'Ranger', Rogue: 'Explorer', Rogue_Hooded: 'Hooded explorer',
-      Barbarian: 'Barbarian', Druid: 'Druid', Cleric: 'Healer', Vampire: 'Vampire', Tiefling: 'Little devil',
-      PlantWarrior: 'Plant creature', AvianSwordsman: 'Bird creature', OrcRaider: 'Orc', Werewolf_Wolf: 'Werewolf',
-      MonsterCostume: 'Dino costume', Robot_One: 'Robot One', Robot_Two: 'Robot Two', Skeleton_Minion: 'Skeleton',
-      Skeleton_Warrior: 'Skeleton with helmet', Skeleton_Rogue: 'Hooded skeleton', Skeleton_Mage: 'Skeleton wizard', Necromancer: 'Necromancer' },
-    hats: { cap: 'Hiking cap', witch: 'Witch’s hat', pointy: 'Gnome hat', elf: 'Elf hat', bear: 'Bear fur', helmet: 'Knight’s helmet',
-      clown: 'Clown hat', straw: 'Straw hat', cowboy: 'Cowboy hat', soldier: 'Soldier’s hat', wizard: 'Wizard’s hat', headband: 'Headband', space: 'Space helmet' },
-    glassesN: { square: 'Square glasses', round: 'Round glasses', reading: 'Reading glasses', sun: 'Sunglasses', goggles: 'Goggles' },
-    backs: { pack: 'Hiking backpack', packA: 'School backpack', packB: 'Sports backpack', satchel: 'Herb bag', tools: 'Tool backpack',
-      books: 'Book backpack', warpack: 'Orc pack', jetpack: 'Jetpack', key: 'Wind-up key', wings: 'Wings',
-      cape: 'Hero’s cape', capeKnight: 'Knight’s cape', capeRanger: 'Ranger’s cape', capeRogue: 'Explorer’s cape', capePaladin: 'Paladin’s cape' },
+    shells: 'shells', isNew: 'New', yourChars: 'Your figures', yourItems: 'Your accessories',
+    countChars: '{a} of {b} figures collected', countItems: '{a} of {b} accessories collected',
+    nextGift: 'Next surprise', toNext: '🐚 {n} to go', allDone: 'You have collected everything! 🎉',
+    mystery: 'More?', mysteryLabel: 'How do I get more?',
+    moreChars: 'There are {n} more figures. You get them as gifts 🎁: one for every 150 shells, and for practising on many days.',
+    moreItems: 'There are {n} more things to wear. You get them as gifts 🎁: one for every 150 shells, and for practising on many days.',
+    gotIt: 'New for you: {name} 🎉',
+    hatsElsewhere: 'Your hats fit your other figures.',
+    hatNoFit: 'New for you: {name} 🎉 It doesn’t fit this figure. Try another figure!',
   },
 }[LANG];
-const NAMES = { char: T.chars, hat: T.hats, glasses: T.glassesN, back: T.backs };
+const N = ALL_NAMES[LANG];
+T.chars = N.chars;
+const NAMES = { char: N.chars, hat: N.hats, glasses: N.glassesN, back: N.backs };
 const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k]);
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
-// The saved figure; anything in it that is (no longer) unlocked falls back to the free version.
+// Give what is due before the page is drawn (a child who comes here first gets its gifts now).
+syncRewards();
+// The saved figure; anything in it the child doesn't own falls back to the figure's own.
 let cfg = normalize(playerConfig() || DEFAULT);
 let savedJson = readSavedFigure() ? JSON.stringify(cfg) : null;
 let info = null;          // what this character offers (charInfo)
 let shells = getShells();
+let rewards = getRewards();
+// "Neu" badges: what was new when the page opened (or arrived since) keeps its badge for
+// this visit; a tab that was opened marks its entries as seen for the next visit.
+const fresh = new Set(rewards.unseen);
 const unlocked = (slot, id) => isUnlocked(slot, id, shells.owned);
 
 // ------------------------------------------------------------------ layout helpers
@@ -228,68 +197,33 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 
-// ------------------------------------------------------------------ shells + locks
+// ------------------------------------------------------------------ shells: the way to the next surprise
 function renderWallet(pop) {
   const w = $('mfWallet');
-  $('mfBalance').textContent = String(shells.balance);
-  w.setAttribute('aria-label', `${shells.balance} ${T.shells}`);
+  w.textContent = '';
+  w.className = 'mf-next';
+  const top = el('div', 'mf-next-top');
+  const count = el('span', 'mf-next-shells'); count.append(el('span', '', '🐚'), el('b', '', String(rewards.earned)));
+  count.firstChild.setAttribute('aria-hidden', 'true');
+  count.setAttribute('aria-label', `${rewards.earned} ${T.shells}`);
+  top.append(count);
+  if (rewards.complete) { top.append(el('span', 'mf-next-label', T.allDone)); w.append(top); return; }
+  top.append(el('span', 'mf-next-label', `${T.nextGift} 🎁`), el('span', 'mf-next-left', fill(T.toNext, { n: rewards.toNext })));
+  const bar = el('div', 'mf-next-bar'); bar.setAttribute('role', 'img');
+  bar.setAttribute('aria-label', `${T.nextGift}: ${rewards.into} / ${SHELLS_PER_GIFT} ${T.shells}`);
+  const fillEl = el('span'); fillEl.style.width = `${Math.max(3, (rewards.into / SHELLS_PER_GIFT) * 100)}%`;
+  bar.append(fillEl);
+  w.append(top, bar);
   if (pop) { w.classList.remove('is-pop'); void w.offsetWidth; w.classList.add('is-pop'); }
 }
-// The lock pills on the stage: one per locked part of the figure being tried on.
-function renderLocks() {
-  const box = $('mfLocks'); box.innerHTML = '';
-  for (const p of lockedParts(cfg, shells.owned)) {
-    const b = el('button', 'mf-lock' + (shells.balance >= p.price ? ' can' : '')); b.type = 'button';
-    b.dataset.slot = p.slot;
-    b.setAttribute('aria-label', `${NAMES[p.slot][p.id]}: ${T.buyYes}, ${p.price} ${T.shells}`);
-    b.append(el('span', 'mf-lock-name', `🔒 ${NAMES[p.slot][p.id]}`), el('span', 'mf-lock-price', `🐚 ${p.price}`));
-    b.addEventListener('click', () => askUnlock(p.slot, p.id));
-    box.appendChild(b);
-  }
-}
-function dialog(title, body, buttons) {
-  return new Promise((resolve) => {
-    const dlg = el('dialog', 'mf-dialog');
-    const card = el('div', 'mf-dialog-card');
-    const actions = el('div', 'mf-dialog-actions');
-    buttons.forEach(([label, value, cls]) => {
-      const b = el('button', cls || '', label); b.type = 'button';
-      b.addEventListener('click', () => dlg.close(value)); actions.appendChild(b);
-    });
-    card.append(el('h3', '', title), el('p', '', body), actions);
-    dlg.appendChild(card); document.body.appendChild(dlg);
-    dlg.addEventListener('close', () => { const v = dlg.returnValue; dlg.remove(); resolve(v); });
-    if (typeof dlg.showModal === 'function') dlg.showModal();
-    else { dlg.remove(); resolve(window.confirm(`${title}\n\n${body}`) ? buttons[0][1] : ''); }   // very old browsers
-  });
-}
-// Tap on a lock: confirm, pay, own it for good.
-async function askUnlock(slot, id) {
-  shells = getShells();
-  if (unlocked(slot, id)) { refreshLocks(); return; }
-  const name = NAMES[slot][id], price = priceOf(slot, id);
-  if (shells.balance < price) {
-    const v = await dialog(T.needTitle, fill(T.needBody, { name, price, missing: price - shells.balance }),
-      [[T.needGo, 'go', 'primary'], [T.ok, '', '']]);
-    if (v === 'go') location.href = T.gamesUrl;
-    return;
-  }
-  const v = await dialog(fill(T.buyTitle, { name }), fill(T.buyBody, { price, balance: shells.balance }),
-    [[T.buyYes, 'yes', 'primary'], [T.buyNo, '', '']]);
-  if (v !== 'yes') return;
-  const r = unlock(unlockId(slot, id), price);
-  shells = getShells();
-  if (!r.ok) { refreshLocks(); return; }
-  renderWallet(true); refreshLocks();
-  status(fill(T.unlocked, { name }), 'ok');
-  // A short cheer, then back to what was playing.
-  const back = anim === 'jump' ? 'idle' : anim;
-  clearTimeout(cheer); play('jump'); cheer = setTimeout(() => play(back), 1900);
-}
-function refreshLocks() { renderLocks(); invalidate('char', 'items'); showAll(); }
-onShellsChange((s) => {                        // earned in another tab, or spent here
-  const grew = s.balance > shells.balance;
-  shells = s; renderWallet(grew); refreshLocks();
+// Shells earned or a gift arrived (in another tab, or just now): show it.
+onRewardsChange(() => {
+  const before = shells.owned.length, was = rewards.earned;
+  shells = getShells(); rewards = getRewards();
+  for (const id of rewards.unseen) fresh.add(id);
+  renderWallet(rewards.earned > was);
+  if (shells.owned.length !== before) { invalidate('char', 'items'); showAll(); }
+  tabDots();
 });
 
 // ------------------------------------------------------------------ the four tabs
@@ -335,6 +269,7 @@ function openTab(name) {
     panes[n].el.hidden = !on;
   }
   refresh();
+  seenTab(name);
   if (!moved) return;
   // Start the new tab at its top: the panel's own scroller on wide screens, the page on
   // phones (only when the old tab was scrolled past the sticky tab bar).
@@ -347,6 +282,21 @@ function openTab(name) {
     : tablist.getBoundingClientRect().top + scrollY - hdr;
   if (scrollY > top + 1) scrollTo({ top, behavior: 'instant' });
 }
+// A tab with something new gets a dot; opening it marks its gifts as seen (the badges
+// stay for this visit).
+const tabOf = (id) => (id.startsWith('char:') ? 'char' : 'items');
+function tabDots() {
+  const left = unseenGifts();
+  for (const n of ['char', 'items']) panes[n].btn.classList.toggle('has-new', n !== tab && left.some((id) => tabOf(id) === n));
+}
+// (A new hat is not shown while the figure is one no hat fits; the note there says that
+// the child's hats fit its other figures.)
+function seenTab(name) {
+  if (name !== 'char' && name !== 'items') return;
+  const ids = unseenGifts().filter((id) => tabOf(id) === name);
+  if (ids.length) markSeen(ids);
+  tabDots();
+}
 const invalidate = (...names) => names.forEach((n) => { panes[n].dirty = true; });
 function refresh() {
   const p = panes[tab];
@@ -356,49 +306,69 @@ function refresh() {
 const section = (title) => {
   const s = el('section', 'mf-sec'); s.appendChild(el('h3', '', title)); return s;
 };
-// One tile: a picture (or a sign), a lock with the price when it is locked, maybe a name.
+// One tile: a picture (or a sign), maybe a name, and "Neu" on a gift not yet looked at.
 function tile({ slot, id, name, img, sign, caption, star }) {
-  const price = priceOf(slot, id), open = unlocked(slot, id);
-  const b = el('button', 'mf-tile' + (open ? '' : ' locked')); b.type = 'button';
+  const isNew = fresh.has(unlockId(slot, id));
+  const b = el('button', 'mf-tile' + (isNew ? ' is-new' : '')); b.type = 'button';
   b.dataset.slot = slot; b.dataset.id = id; b.title = name;
-  b.setAttribute('aria-label', open ? name : `${name}, ${T.locked}, ${price} ${T.shells}`);
+  b.setAttribute('aria-label', isNew ? `${name}, ${T.isNew}` : name);
   const pic = el('span', 'mf-tile-pic');
   if (img) {
     const i = el('img'); i.src = img; i.alt = ''; i.loading = 'lazy'; i.decoding = 'async'; i.width = 192; i.height = 192;
     pic.appendChild(i);
   } else pic.appendChild(el('span', 'mf-tile-sign', sign));
   if (star) pic.appendChild(el('span', 'mf-tile-star', '★'));
-  if (!open) pic.append(el('span', 'mf-tile-lock', '🔒'), el('span', 'mf-tile-price', `🐚 ${price}`));
+  if (isNew) pic.appendChild(el('span', 'mf-tile-new', T.isNew));
   b.appendChild(pic);
   if (caption) b.appendChild(el('span', 'mf-tile-name', caption));
   return b;
 }
-const markTiles = (root, isOn) => root.querySelectorAll('.mf-tile').forEach((b) => {
+// The "?" tile at the end of a grid: there is more, and a tap says how to get it. The
+// explanation opens under the grid (and closes again).
+function mysteryTile(grid, text) {
+  const b = el('button', 'mf-tile mf-mystery'); b.type = 'button'; b.title = T.mysteryLabel;
+  b.setAttribute('aria-label', T.mysteryLabel); b.setAttribute('aria-expanded', 'false');
+  const pic = el('span', 'mf-tile-pic'); pic.appendChild(el('span', 'mf-tile-sign', '?'));
+  b.append(pic, el('span', 'mf-tile-name', T.mystery));
+  const note = el('p', 'mf-note mf-more', text); note.hidden = true;
+  b.addEventListener('click', () => {
+    note.hidden = !note.hidden; b.setAttribute('aria-expanded', String(!note.hidden)); b.classList.toggle('open', !note.hidden);
+    if (!note.hidden) note.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+  grid.appendChild(b);
+  return note;
+}
+const countLine = (text) => el('p', 'mf-count', text);
+const markTiles = (root, isOn) => root.querySelectorAll('.mf-tile:not(.mf-mystery)').forEach((b) => {
   const on = isOn(b.dataset.slot, b.dataset.id);
   b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
 });
-// Free and unlocked entries first, then the locked ones, cheapest first.
-const byPrice = (slot, ids) => ids.map((id, i) => [id, i, unlocked(slot, id) ? 0 : priceOf(slot, id)])
-  .sort((a, b) => a[2] - b[2] || a[1] - b[1]).map((x) => x[0]);
+// What the child owns of a list: its gifts first (newest first), then the free ones in catalogue order.
+const mine = (slot, ids) => {
+  const got = ids.filter((id) => unlocked(slot, id));
+  const order = (id) => { const i = shells.owned.indexOf(unlockId(slot, id)); return i < 0 ? -1 : shells.owned.length - i; };
+  return got.map((id, i) => [id, i, order(id)]).sort((a, b) => (a[2] < 0) - (b[2] < 0) || (a[2] < 0 ? a[1] - b[1] : a[2] - b[2])).map((x) => x[0]);
+};
 
-// ---- tab 1: the character (all of them, in three sections)
+// ---- tab 1: the child's figures (the free ones and the ones it was given)
 panes.char.render = () => {
   const box = panes.char.el; box.textContent = '';
-  for (const g of GROUPS) {
-    const sec = section(T.groups[g]), grid = el('div', 'mf-grid chars');
-    for (const id of byPrice('char', CHARS.filter((c) => c.group === g).map((c) => c.id))) {
-      const b = tile({ slot: 'char', id, name: T.chars[id], img: `${ASSET_BASE}portraits/${id}.webp` });
-      b.addEventListener('click', () => chooseChar(id));
-      grid.appendChild(b);
-    }
-    sec.appendChild(grid); box.appendChild(sec);
+  const all = CHARS.map((c) => c.id), got = mine('char', all);
+  const sec = section(T.yourChars), grid = el('div', 'mf-grid chars');
+  sec.appendChild(countLine(fill(T.countChars, { a: got.length, b: all.length })));
+  for (const id of got) {
+    const b = tile({ slot: 'char', id, name: T.chars[id], img: `${ASSET_BASE}portraits/${id}.webp`, caption: T.chars[id] });
+    b.addEventListener('click', () => chooseChar(id));
+    grid.appendChild(b);
   }
+  sec.appendChild(grid);
+  if (got.length < all.length) sec.appendChild(mysteryTile(grid, fill(T.moreChars, { n: all.length - got.length })));
+  box.appendChild(sec);
 };
 panes.char.sync = () => markTiles(panes.char.el, (_, id) => id === cfg.char);
-// A new character starts plain: its own accessories, its own colours. A second tap on a
-// locked character asks to unlock it.
+// A new character starts plain: its own accessories, its own colours.
 async function chooseChar(id, again) {
-  if (id === cfg.char && !again) { if (!unlocked('char', id)) askUnlock('char', id); return; }
+  if (id === cfg.char && !again) return;
   cfg = normalize({ ...DEFAULT, char: id });
   invalidate('items');
   panes.char.sync();
@@ -414,10 +384,14 @@ const ownKey = (list, char) => Object.keys(list).find((k) => list[k][0] === char
 panes.items.render = () => {
   const box = panes.items.el; box.textContent = '';
   if (!info) { panes.items.dirty = true; return; }
+  const total = ITEM_SLOTS.reduce((n, [slot]) => n + Object.keys(PRICES[slot]).length, 0);
+  const have = shells.owned.filter((id) => { const it = parseId(id); return it && it.slot !== 'char'; }).length;
+  box.appendChild(countLine(fill(T.countItems, { a: have, b: total })));
   for (const [slot, list, ownFlag] of ITEM_SLOTS) {
     const sec = section(T[slot]);
     if (slot === 'hat' && !info.hats) {                       // head shape no other hat fits
-      sec.appendChild(el('p', 'mf-note', T.noHat)); box.appendChild(sec); continue;
+      const n = mine('hat', Object.keys(list)).length;
+      sec.appendChild(el('p', 'mf-note', n ? `${T.noHat} ${T.hatsElsewhere}` : T.noHat)); box.appendChild(sec); continue;
     }
     const grid = el('div', 'mf-grid items');
     const twin = info[ownFlag] ? ownKey(list, cfg.char) : null;
@@ -430,10 +404,13 @@ panes.items.render = () => {
     // otherwise 'own' (which is nothing).
     if (info[ownFlag]) add({ id: 'own', name: T.own, caption: T.own, star: !!twin, img: twin && `${ASSET_BASE}items/${slot}-${twin}.webp`, sign: '★' });
     add({ id: info[ownFlag] ? 'none' : 'own', name: T.none, caption: T.none, sign: '∅' });
-    for (const id of byPrice(slot, Object.keys(list).filter((k) => k !== twin))) {
+    const all = Object.keys(list).filter((k) => k !== twin), got = mine(slot, all);
+    for (const id of got) {
       add({ id, name: NAMES[slot][id], caption: NAMES[slot][id], img: `${ASSET_BASE}items/${slot}-${id}.webp` });
     }
-    sec.appendChild(grid); box.appendChild(sec);
+    sec.appendChild(grid);
+    if (got.length < all.length) sec.appendChild(mysteryTile(grid, fill(T.moreItems, { n: total - have })));
+    box.appendChild(sec);
   }
 };
 panes.items.sync = () => {
@@ -447,7 +424,7 @@ panes.items.sync = () => {
   });
 };
 function chooseItem(slot, id) {
-  if (cfg[slot] === id) { if (!unlocked(slot, id)) askUnlock(slot, id); return; }
+  if (cfg[slot] === id) return;
   cfg = normalize({ ...cfg, [slot]: id });
   changed();
 }
@@ -485,9 +462,7 @@ function status(text, kind) { const s = $('mfSaved'); s.textContent = text; s.cl
 function showAll() {
   refresh();
   $('mfCharName').textContent = T.chars[cfg.char];
-  const locked = lockedParts(cfg, shells.owned).length > 0;
-  $('mfSave').disabled = locked;
-  $('mfSave').classList.toggle('dirty', !locked && JSON.stringify(cfg) !== savedJson);
+  $('mfSave').classList.toggle('dirty', JSON.stringify(cfg) !== savedJson);
 }
 let infoFor = null;
 async function refreshInfo() {
@@ -499,14 +474,13 @@ async function refreshInfo() {
 
 let timer = 0;
 function changed() {
-  showAll(); renderLocks();
-  const locked = lockedParts(cfg, shells.owned).length > 0;
-  status(locked ? T.lockedSave : JSON.stringify(cfg) === savedJson ? '' : T.unsaved, locked ? 'warn' : '');
+  showAll();
+  status(JSON.stringify(cfg) === savedJson ? '' : T.unsaved, '');
   clearTimeout(timer); timer = setTimeout(() => rebuild().catch(showError), 60);
 }
 function showError(e) { console.error(e); $('mfLoading').textContent = String(e?.message || e); }
 
-// Random: keeps the chosen character, shuffles its accessories (only unlocked ones) and colours.
+// Random: keeps the chosen character, shuffles its accessories (only the child's own) and colours.
 function randomOwned(char) {
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const rnd = (n) => Math.floor(Math.random() * n);
@@ -520,12 +494,40 @@ $('mfRand').addEventListener('click', () => { cfg = randomOwned(cfg.char); chang
 $('mfReset').addEventListener('click', () => chooseChar(cfg.char, true));
 $('mfSave').addEventListener('click', () => {
   shells = getShells();
-  if (lockedParts(cfg, shells.owned).length) { changed(); return; }      // a locked part is never saved
+  // Only what the child owns is saved (nothing else can be chosen here; a part that is
+  // not owned, e.g. from an edited save, goes back to the figure's own).
+  const foreign = lockedParts(cfg, shells.owned);
+  if (foreign.some((p) => p.slot === 'char')) { chooseChar(DEFAULT.char, true); return; }
+  if (foreign.length) { for (const p of foreign) cfg[p.slot] = 'own'; changed(); }
   if (saveFigure(cfg)) { savedJson = JSON.stringify(cfg); showAll(); status(T.saved, 'ok'); }
 });
 
-renderWallet(false); openTab('char'); renderLocks();
-refreshInfo().then(rebuild).catch(showError);
+// A gift from the popup ("Anziehen" / "Ansehen", link …#neu=hat:wizard) or the newest new
+// one: open its tab and try it on. A figure is picked; an accessory is put on when it fits
+// the current figure. Nothing is saved until the child taps Save.
+async function showGift(id) {
+  const it = parseId(id);
+  if (!it || !unlocked(it.slot, it.key)) return;
+  if (it.slot === 'char') { openTab('char'); await chooseChar(it.key); }
+  else {
+    openTab('items');
+    if (!info) await refreshInfo();
+    if (it.slot === 'hat' && info && !info.hats) { status(fill(T.hatNoFit, { name: NAMES.hat[it.key] }), 'warn'); return; }
+    chooseItem(it.slot, it.key);
+  }
+  status(fill(T.gotIt, { name: NAMES[it.slot][it.key] }), 'ok');
+  const back = anim === 'jump' ? 'idle' : anim;
+  clearTimeout(cheer); play('jump'); cheer = setTimeout(() => play(back), 1900);
+  panes[tab].el.querySelector(`.mf-tile[data-slot="${it.slot}"][data-id="${it.key}"]`)?.scrollIntoView({ block: 'nearest' });
+}
+addEventListener('krabsy:show-gift', (e) => { showGift(e.detail && e.detail.id); });
+
+renderWallet(false);
+const wanted = decodeURIComponent((location.hash.match(/^#neu=([^&]+)/) || [])[1] || '');
+const startGift = parseId(wanted) ? wanted : null;
+openTab(startGift ? tabOf(startGift) : 'char');
+refreshInfo().then(rebuild).then(() => { if (startGift) return showGift(startGift); }).catch(showError);
+if (startGift) { try { history.replaceState(null, '', location.pathname + location.search); } catch (_) { /* keep the hash */ } }
 
 // For QA scripts (tools / headless checks).
 window.__mf = {

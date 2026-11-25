@@ -11,9 +11,12 @@
      wrong answer: 0 — shells are never taken away
      after 200 shells in a calendar day: 1 shell per 3 right answers
 
-   Spending: unlock(id, price) for figures and accessories (the price table
-   lives with the catalogue in krabsy-figure.js). Whatever is unlocked stays
-   unlocked.
+   No spending (owner decision 2026-11-25, "rewards instead of a shop"):
+   shells are progress towards a surprise. Every 150 shells collected
+   (lifetime `earned`) is a gift, a random figure or accessory; the rules are
+   in krabsy-rewards.js. `balance` and unlock() are kept for older cached
+   pages and game builds; nothing on the site calls unlock() any more.
+   Whatever is in `owned` stays owned.
 
    Storage: localStorage["krabsy_shells_v1"], on this device only:
      { v:1, balance, earned, day:"YYYY-MM-DD", dayShells, slow, owned:[ids] }
@@ -33,6 +36,7 @@ export const SLOW_EVERY = 3;        // after that: 1 shell per 3 right answers
 // figure builder is one tap further (owner decision 2026-11-25).
 const PROFILE_URL = { de: '/de/profil/', es: '/es/perfil/', en: '/en/my-profile/' };
 const WORD = { de: 'Muscheln', es: 'caracolas', en: 'shells' };
+const GIFT_WORD = { de: 'neues Geschenk', es: 'regalo nuevo', en: 'new gift' };
 const PROFILE_WORD = { de: 'Mein Profil', es: 'Mi perfil', en: 'My profile' };
 
 function today() {
@@ -135,9 +139,12 @@ export function onShellsChange(fn) {
 /* ── Header counter "🐚 240" ─────────────────────────────────────────────
    Mounted into the site header (header.k-page-header, by krabsy-footer.js)
    and the game header (.k-game-nav, by krabsy-nav.js). Links to the profile
-   page "Mein Profil". Hidden until the first shell was ever earned, so first-time visitors
-   and teachers see the header as before; it appears with the first right
-   answer and stays (also at balance 0 after spending). */
+   page "Mein Profil". Shows the shells collected so far (lifetime; nothing is
+   spent any more). Hidden until the first shell was ever earned, so first-time
+   visitors and teachers see the header as before; it appears with the first
+   right answer and stays.
+   Gifts (krabsy-rewards.js, loaded on demand): a small dot on the counter while
+   a gift is new, and the gift popup (krabsy-gifts-ui.js) on site pages. */
 
 function pageLang() {
   try {
@@ -164,6 +171,13 @@ function injectCounterStyles() {
     }
     .k-shells:hover { background: #ffe9ad; color: #2c2a3a; }
     .k-shells[hidden] { display: none; }
+    .k-shells { position: relative; }
+    .k-shells-gift {
+      position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 11px; line-height: 1;
+      background: #ff8585; box-shadow: 0 0 0 2px #fff;
+    }
+    .k-shells-gift[hidden] { display: none; }
     .k-shells-icon { font-size: 1.05em; }
     .k-shells.is-pop { animation: k-shells-pop 0.45s ease-out; }
     @keyframes k-shells-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
@@ -196,8 +210,11 @@ export function mountShellCounter(header) {
     const a = document.createElement('a');
     a.className = 'k-shells';
     a.href = PROFILE_URL[lang] || PROFILE_URL.de;
-    a.innerHTML = '<span class="k-shells-icon" aria-hidden="true">🐚</span><span class="k-shells-n">0</span>';
+    a.innerHTML = '<span class="k-shells-icon" aria-hidden="true">🐚</span><span class="k-shells-n">0</span>'
+      + '<span class="k-shells-gift" aria-hidden="true" hidden>🎁</span>';
     const num = a.querySelector('.k-shells-n');
+    const dot = a.querySelector('.k-shells-gift');
+    let gifts = 0;                      // gifts that are new (not yet looked at on the figure page)
 
     // Site header: just before the language toggle / right-hand group; game
     // header: before the "← back" link. Other scripts insert their parts
@@ -213,17 +230,28 @@ export function mountShellCounter(header) {
 
     let shown = null;
     const render = (s) => {
-      a.hidden = !(s.earned > 0);
-      num.textContent = String(s.balance);
-      a.setAttribute('aria-label', `${s.balance} ${WORD[lang] || WORD.de} – ${PROFILE_WORD[lang] || PROFILE_WORD.de}`);
+      a.hidden = !(s.earned > 0 || gifts > 0);
+      num.textContent = String(s.earned);
+      dot.hidden = !(gifts > 0);
+      a.setAttribute('aria-label', `${s.earned} ${WORD[lang] || WORD.de}${gifts > 0 ? `, ${GIFT_WORD[lang] || GIFT_WORD.de}` : ''} – ${PROFILE_WORD[lang] || PROFILE_WORD.de}`);
       a.title = PROFILE_WORD[lang] || PROFILE_WORD.de;
-      if (shown !== null && s.balance > shown) {
+      if (shown !== null && s.earned > shown) {
         a.classList.remove('is-pop'); void a.offsetWidth; a.classList.add('is-pop');
       }
-      shown = s.balance;
+      shown = s.earned;
     };
     render(getShells());
     onShellsChange(render);
+    // Gifts: give what is due (a child who already has shells gets its first gifts here),
+    // show the dot, and let the popup tell about new ones. All optional: without the
+    // rewards module the counter works as before.
+    import('./krabsy-rewards.js').then((R) => {
+      const badge = () => { gifts = R.giftBadge().unseen; render(getShells()); };
+      R.syncRewards();
+      badge();
+      R.onRewardsChange(badge);
+      return import('./krabsy-gifts-ui.js').then((U) => U.mountGiftPopup({ lang }));
+    }).catch(() => {});
     return a;
   } catch (_) { return null; }
 }

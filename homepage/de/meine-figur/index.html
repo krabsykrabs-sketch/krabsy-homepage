@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
   <title>Meine Figur — Krabsy</title>
-  <meta name="description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Mit Muscheln aus Spielen und Übungen schaltest du mehr frei. Kostenlos, ohne Anmeldung.">
+  <meta name="description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Für Muscheln aus Spielen und Übungen bekommst du neue Figuren und Zubehör geschenkt. Kostenlos, ohne Anmeldung.">
   <link rel="canonical" href="https://krabsy.com/de/meine-figur/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/meine-figur/">
   <link rel="alternate" hreflang="es" href="https://krabsy.com/es/mi-personaje/">
@@ -12,7 +12,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <meta property="og:title" content="Meine Figur — Krabsy">
-  <meta property="og:description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Mit Muscheln aus Spielen und Übungen schaltest du mehr frei. Kostenlos, ohne Anmeldung.">
+  <meta property="og:description" content="Bau dir deine eigene Krabsy-Figur: Figur wählen, Hut, Brille, Rucksack und Farben aussuchen. Für Muscheln aus Spielen und Übungen bekommst du neue Figuren und Zubehör geschenkt. Kostenlos, ohne Anmeldung.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/de/meine-figur/">
   <meta property="og:type" content="website">
@@ -21,7 +21,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
-  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25b">
+  <link rel="stylesheet" href="/lib/krabsy-figure-page.css?v=2026-11-25d">
   <!-- The figure builder (lib/krabsy-figure-page.js) and the shared figure code
        (lib/krabsy-figure.js) import three.js by name. -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -39,8 +39,8 @@
     <main class="mf-main">
       <div class="mf-head">
         <h1 class="mf-title">Meine Figur</h1>
-        <p class="mf-sub">Bau dir deine eigene Figur. Mit Muscheln 🐚 aus Spielen und Übungen schaltest du neue Figuren und Zubehör frei.</p>
-        <div class="mf-wallet" id="mfWallet"><span aria-hidden="true">🐚</span><b id="mfBalance">0</b><span>Muscheln</span></div>
+        <p class="mf-sub">Bau dir deine eigene Figur. Wer übt, bekommt Geschenke 🎁: neue Figuren und Sachen zum Anziehen.</p>
+        <div class="mf-next" id="mfWallet"></div>
       </div>
 
       <div class="mf-app" id="mfApp">
@@ -48,7 +48,6 @@
           <canvas id="mfCanvas"></canvas>
           <div class="mf-char-name" id="mfCharName"></div>
           <div class="mf-loading" id="mfLoading"><noscript>Für die Figur braucht Krabsy JavaScript.</noscript></div>
-          <div class="mf-locks" id="mfLocks"></div>
           <div class="mf-bar" id="mfBar"></div>
         </div>
         <div class="mf-panel">
@@ -75,9 +74,14 @@
           <p style="margin-top:8px"><a href="/de/spiele/">Zu den Spielen →</a></p>
         </div>
         <div class="mf-card">
-          <h2>Was du freischalten kannst</h2>
-        <p>12 Figuren sind von Anfang an frei, alle Farben auch. Weitere Figuren kosten 150 bis 400 Muscheln, Hüte, Brillen und Rucksäcke 40 bis 150. Was du freischaltest, bleibt dir.</p>
-        <p>Die 3D-Spiele bekommen deine Figur nach und nach.</p>
+          <h2>So bekommst du Geschenke 🎁</h2>
+          <ul>
+          <li>Alle 150 Muscheln gibt es eine Überraschung: eine neue Figur oder etwas zum Anziehen.</li>
+          <li>Geschenke gibt es auch, wenn du an 3, 7, 14 und 30 Tagen übst (ein Tag zählt ab 10 Antworten), und für jede neue Woche, in der du wieder übst.</li>
+          <li>Und für das, was du schaffst: zum Beispiel 50 richtige Antworten, 10 Wörter, die sitzen, oder ein Verb-Diplom.</li>
+          <li>Bald findest du auch Geschenke in den 3D-Spielen.</li>
+          </ul>
+          <p style="margin-top:8px">12 Figuren und alle Farben hast du von Anfang an. Was du bekommst, bleibt dir.</p>
         </div>
         <div class="mf-card note">
           <h2>Nur auf diesem Gerät</h2>
@@ -92,7 +96,7 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25c"></script>
+  <script type="module" src="/lib/krabsy-figure-page.js?v=2026-11-25d"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-25c" defer></script>

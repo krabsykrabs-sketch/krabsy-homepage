@@ -275,6 +275,10 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
   // without game code. Never let it break recording.
   let shells = 0;
   try { shells = earnForAnswer(!!correct, weakOrNew) || 0; } catch (_) { /* no shells then */ }
+  // Gifts (krabsy-rewards.js): every answer counts towards the practice day, and the
+  // shells / milestones just reached may be worth a gift. Loaded on demand, so a missing
+  // or failing rewards module can never stop an answer from being recorded.
+  _toRewards();
 
   // Listeners (e.g. a class session that sends answers to the teacher,
   // docs/classroom-concept.md phase 2). Never let one break recording.
@@ -284,6 +288,12 @@ export function recordAttempt(itemId, form, correct, source, topic = DEFAULT_TOP
   }
   _announce(!!correct, source);
   _toClass(evt);
+}
+
+function _toRewards() {
+  try {
+    import('./krabsy-rewards.js').then((m) => { m.noteAnswer(); }).catch(() => {});
+  } catch (_) { /* no dynamic import */ }
 }
 
 /* Pupils who joined a class (krabsy-class.js, phase 2) also send each answer

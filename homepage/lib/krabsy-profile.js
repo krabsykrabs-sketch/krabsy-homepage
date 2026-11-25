@@ -5,7 +5,9 @@
 // What it shows and where each number comes from (all on this device, localStorage):
 //   figure          krabsy_figure_v2 (krabsy-figure.js). Picture first; the live 3D figure
 //                   is loaded afterwards, and only when the child has saved a figure.
-//   shells          krabsy_shells_v1 (krabsy-shells.js): balance, today, collected in total
+//   shells + gifts  krabsy_shells_v1 (krabsy-shells.js) and krabsy_rewards_v1 (krabsy-rewards.js):
+//                   shells collected, the bar to the next surprise (every 150 shells), how much
+//                   is collected, the last gifts, the next goals (milestones, practice days)
 //   answers         krabsy_stats_v2 (krabsy-stats.js): overall accuracy and streaks, and per
 //                   topic of this section: accuracy, words that are safe, words to practise
 //   Verb-Diplom     krabsy_verb_diplom (krabsy-verb-diplom.js): { bronze|silver|gold: result }
@@ -14,7 +16,10 @@
 // A section = the topics with a URL in this language (topics.json) and the games that
 // play them, like the landing pages.
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
-import { hasData, getOverall, readTopicItems } from '/lib/krabsy-stats.js?v=2026-11-22';
+import { getRewards, onRewardsChange, DAY_ANSWERS } from '/lib/krabsy-rewards.js';
+import { itemName, itemImage } from '/lib/krabsy-figure-catalog.js';
+import { reasonText } from '/lib/krabsy-gifts-ui.js';
+import { hasData, getOverall, readTopicItems } from '/lib/krabsy-stats.js?v=2026-11-25';
 import { FIGURE_URL, pageLang, savedChar, portraitUrl, DEFAULT_CHAR, classSession,
   itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25b';
 import { createLiveFigure, liveFigureBlocked, whenIdle } from '/lib/krabsy-figure-live.js?v=2026-11-25';
@@ -22,10 +27,17 @@ import { createLiveFigure, liveFigureBlocked, whenIdle } from '/lib/krabsy-figur
 const LANG = pageLang();
 const T = {
   de: {
-    shells: 'Muscheln', today: 'Heute', total: 'Insgesamt gesammelt', unlocked: 'Freigeschaltet',
+    shells: 'Muscheln', today: 'Heute', isNew: 'Neu',
+    nextGift: 'Nächste Überraschung', toNext: 'noch 🐚 {n}', allDone: 'Du hast alles gesammelt! 🎉',
+    collected: '{a} von {b} Figuren · {c} von {d} Zubehör gesammelt',
+    gifts: 'Deine Geschenke', recent: 'Zuletzt bekommen', noGifts: 'Noch keins. Dein erstes Geschenk kommt bei 150 Muscheln. 🎁',
+    goals: 'Dafür gibt es das nächste Geschenk', toFigure: 'Zu meiner Figur →',
+    goal: { right: '{n} richtige Antworten', safe: '{n} Wörter sitzen', days: 'An {n} Tagen üben', diplom: 'Verb-Diplom {level}', topics: 'Ein zweites Thema ausprobieren' },
+    dayNote: 'Ein Übungstag zählt ab {n} Antworten. Heute: {a} von {n}.', dayDone: 'Heute zählt schon als Übungstag. ✓',
+    weekNote: 'Für jede neue Woche, in der du wieder übst, gibt es auch ein Geschenk.',
     change: 'Figur ändern', build: 'Bau deine Figur', play: 'Spiel ein Spiel',
     newTitle: 'Bau dir deine eigene Figur',
-    newText: 'Such dir eine Figur aus und gib ihr Hut, Brille und deine Farben. Für jede richtige Antwort bekommst du Muscheln 🐚 und schaltest damit mehr frei.',
+    newText: 'Such dir eine Figur aus und gib ihr deine Farben. Für jede richtige Antwort bekommst du Muscheln 🐚, und alle 150 Muscheln ein Geschenk 🎁.',
     yourFigure: 'Deine Figur', turn: 'Zieh, um deine Figur zu drehen',
     emptyTitle: 'Hier sammelt sich, was du schaffst',
     emptyText: 'Spiel ein Spiel oder mach eine kurze Übung. Danach siehst du hier, was du schon kannst und was du noch üben kannst.',
@@ -44,10 +56,17 @@ const T = {
     gamesUrl: '/de/spiele/', gameFolder: 'spiele', classUrl: '/de/klasse/',
   },
   es: {
-    shells: 'caracolas', today: 'Hoy', total: 'Reunidas en total', unlocked: 'Desbloqueado',
+    shells: 'caracolas', today: 'Hoy', isNew: 'Nuevo',
+    nextGift: 'Próxima sorpresa', toNext: 'faltan 🐚 {n}', allDone: '¡Ya lo tienes todo! 🎉',
+    collected: 'Tienes {a} de {b} personajes · {c} de {d} accesorios',
+    gifts: 'Tus regalos', recent: 'Los últimos', noGifts: 'Todavía ninguno. Tu primer regalo llega con 150 caracolas. 🎁',
+    goals: 'Por esto llega el próximo regalo', toFigure: 'Ir a mi personaje →',
+    goal: { right: '{n} respuestas correctas', safe: '{n} palabras que ya te salen', days: 'Practicar {n} días', diplom: 'Diploma de verbos: {level}', topics: 'Probar un segundo tema' },
+    dayNote: 'Un día de práctica cuenta a partir de {n} respuestas. Hoy: {a} de {n}.', dayDone: 'Hoy ya cuenta como día de práctica. ✓',
+    weekNote: 'Por cada nueva semana en la que vuelves a practicar también hay un regalo.',
     change: 'Cambiar personaje', build: 'Crea tu personaje', play: 'Juega a un juego',
     newTitle: 'Crea tu propio personaje',
-    newText: 'Elige un personaje y ponle gorro, gafas y tus colores. Por cada respuesta correcta ganas caracolas 🐚 y con ellas desbloqueas más.',
+    newText: 'Elige un personaje y ponle tus colores. Por cada respuesta correcta ganas caracolas 🐚, y cada 150 caracolas te llega un regalo 🎁.',
     yourFigure: 'Tu personaje', turn: 'Arrastra para girar tu personaje',
     emptyTitle: 'Aquí se junta todo lo que consigues',
     emptyText: 'Juega a un juego o haz un ejercicio corto. Después verás aquí lo que ya sabes y lo que puedes practicar.',
@@ -66,10 +85,17 @@ const T = {
     gamesUrl: '/es/juegos/', gameFolder: 'juegos', classUrl: '/es/clase/',
   },
   en: {
-    shells: 'shells', today: 'Today', total: 'Collected in total', unlocked: 'Unlocked',
+    shells: 'shells', today: 'Today', isNew: 'New',
+    nextGift: 'Next surprise', toNext: '🐚 {n} to go', allDone: 'You have collected everything! 🎉',
+    collected: '{a} of {b} figures · {c} of {d} accessories collected',
+    gifts: 'Your gifts', recent: 'Latest', noGifts: 'None yet. Your first gift comes at 150 shells. 🎁',
+    goals: 'What brings the next gift', toFigure: 'To my figure →',
+    goal: { right: '{n} right answers', safe: '{n} words you know well', days: 'Practise on {n} days', diplom: 'Verb diploma {level}', topics: 'Try a second topic' },
+    dayNote: 'A practice day counts from {n} answers. Today: {a} of {n}.', dayDone: 'Today already counts as a practice day. ✓',
+    weekNote: 'Every new week in which you practise again brings a gift too.',
     change: 'Change figure', build: 'Build your figure', play: 'Play a game',
     newTitle: 'Build your own figure',
-    newText: 'Pick a figure and give it a hat, glasses and your colours. Every right answer earns you shells 🐚, and shells unlock more.',
+    newText: 'Pick a figure and give it your colours. Every right answer earns you shells 🐚, and every 150 shells bring a gift 🎁.',
     yourFigure: 'Your figure', turn: 'Drag to turn your figure',
     emptyTitle: 'Everything you achieve shows up here',
     emptyText: 'Play a game or do a quick exercise. After that you can see here what you already know and what you can still practise.',
@@ -114,32 +140,43 @@ const char = savedChar();
 function renderHero() {
   const body = $('pfHeroBody');
   const s = getShells();
+  const r = getRewards();
   const stage = $('pfStage');
   body.textContent = '';
 
+  // Shells are never spent: the number is everything collected so far, and the bar is
+  // the way to the next surprise (every 150 shells).
   const wallet = el('div', 'pf-wallet');
-  wallet.setAttribute('aria-label', `${s.balance} ${T.shells}`);
-  wallet.append(el('span', 'pf-wallet-icon', '🐚'), el('b', '', num(s.balance)), el('span', 'pf-wallet-word', T.shells));
+  wallet.setAttribute('aria-label', `${s.earned} ${T.shells}`);
+  wallet.append(el('span', 'pf-wallet-icon', '🐚'), el('b', '', num(s.earned)), el('span', 'pf-wallet-word', T.shells));
   wallet.firstChild.setAttribute('aria-hidden', 'true');
+  const next = el('div', 'pf-next');
+  if (r.complete) next.append(el('span', 'pf-next-label', T.allDone));
+  else {
+    const top = el('div', 'pf-next-top');
+    top.append(el('span', 'pf-next-label', `${T.nextGift} 🎁`), el('span', 'pf-next-left', fmt(T.toNext, { n: num(r.toNext) })));
+    const bar = el('div', 'pf-next-bar'); bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', `${T.nextGift}: ${r.into} / ${r.perGift} ${T.shells}`);
+    const f = el('span'); f.style.width = Math.max(3, (r.into / r.perGift) * 100) + '%';
+    bar.append(f); next.append(top, bar);
+  }
 
   if (!char) {
     // No figure yet: the invitation. Shells are shown once there are any.
     stage.classList.add('is-new');
     body.append(el('h2', 'pf-hero-title', T.newTitle), el('p', 'pf-hero-text', T.newText));
-    if (s.earned > 0) body.append(wallet);
+    if (s.earned > 0) body.append(wallet, next);
     const actions = el('div', 'pf-actions');
     actions.append(link('pf-btn pf-btn-main', T.build + ' →', FIGURE_URL[LANG]), link('pf-btn', T.play + ' →', T.gamesUrl));
     body.append(actions);
     return;
   }
   stage.classList.remove('is-new');
-  body.append(wallet);
-  const facts = el('dl', 'pf-facts');
-  const fact = (label, value) => { const d = el('div'); d.append(el('dt', '', label), el('dd', '', value)); facts.append(d); };
-  fact(T.today, '+' + num(s.today));
-  fact(T.total, num(s.earned));
-  if (s.owned.length) fact(T.unlocked, num(s.owned.length));
-  body.append(facts);
+  const row = el('div', 'pf-wallet-row');
+  row.append(wallet);
+  if (s.today > 0) row.append(el('span', 'pf-today', `${T.today} +${num(s.today)}`));
+  body.append(row, next,
+    el('p', 'pf-collected', fmt(T.collected, { a: r.chars.have, b: r.chars.total, c: r.items.have, d: r.items.total })));
   const actions = el('div', 'pf-actions');
   actions.append(link('pf-btn pf-btn-main', T.change, FIGURE_URL[LANG]), link('pf-btn', T.play + ' →', T.gamesUrl));
   body.append(actions);
@@ -298,6 +335,62 @@ async function topicCard(id, t) {
   return card;
 }
 
+// "Deine Geschenke": the last gifts (pictures) and what brings the next one.
+function giftsSection(withDiplom) {
+  const r = getRewards();
+  const sec = section(T.gifts + ' 🎁', 'pf-gifts-sec');
+  sec.id = 'pfGifts'; sec.dataset.diplom = withDiplom ? '1' : '0';
+  const card = el('article', 'pf-card pf-gifts');
+  const left = el('div', 'pf-gifts-col');
+  left.append(el('h3', 'pf-h3', T.recent));
+  if (r.recent.length) {
+    const row = el('ul', 'pf-gift-row');
+    const fresh = new Set(r.unseen);
+    for (const g of r.recent.slice(0, 6)) {
+      const li = el('li', 'pf-gift' + (g.slot === 'char' ? '' : ' is-item'));
+      const name = itemName(g.slot, g.key, LANG);
+      const a = link('', '', `${FIGURE_URL[LANG]}#neu=${encodeURIComponent(g.id)}`);
+      const why = reasonText(g.source, LANG);
+      a.title = why ? `${name} – ${why}` : name;
+      const pic = el('span', 'pf-gift-pic');
+      const img = el('img'); img.alt = ''; img.width = 192; img.height = 192; img.loading = 'lazy'; img.decoding = 'async';
+      img.onerror = () => { img.remove(); };
+      img.src = itemImage(g.slot, g.key);
+      pic.append(img);
+      if (fresh.has(g.id)) pic.append(el('span', 'pf-gift-new', T.isNew));
+      a.append(pic, el('span', 'pf-gift-name', name));
+      li.append(a); row.append(li);
+    }
+    left.append(row);
+  } else {
+    left.append(el('p', 'pf-muted', T.noGifts));
+  }
+  left.append(link('pf-link', T.toFigure, FIGURE_URL[LANG]));
+
+  const right = el('div', 'pf-gifts-col');
+  right.append(el('h3', 'pf-h3', T.goals));
+  const list = el('ul', 'pf-goals');
+  const goal = (label, have, n, showNumbers) => {
+    const li = el('li', 'pf-goal');
+    const head = el('div', 'pf-goal-head');
+    head.append(el('span', 'pf-goal-label', label));
+    if (showNumbers) head.append(el('span', 'pf-goal-n', `${num(have)} / ${num(n)}`));
+    const bar = el('div', 'pf-bar pf-goal-bar'); bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', `${label}: ${have} / ${n}`);
+    const f = el('span', 'pf-bar-gift'); f.style.width = Math.min(100, (have / n) * 100) + '%';
+    bar.append(f); li.append(head, bar); list.append(li);
+  };
+  if (!r.complete) goal(`150 ${T.shells} 🐚`, r.into, r.perGift, true);
+  for (const g of r.goals.filter((x) => withDiplom || x.type !== 'diplom').slice(0, 4)) {
+    goal(fmt(T.goal[g.type], { n: num(g.n), level: g.level ? T.levels[g.level] : '' }), g.have, g.n, g.type !== 'diplom');
+  }
+  right.append(list);
+  const day = r.dayAnswers >= DAY_ANSWERS ? T.dayDone : fmt(T.dayNote, { n: DAY_ANSWERS, a: r.dayAnswers });
+  right.append(el('p', 'pf-muted pf-goal-note', `${day} ${T.weekNote}`));
+  card.append(left, right);
+  sec.append(card);
+  return sec;
+}
+
 function diplomCard(t) {
   const url = `/${LANG}/${t[LANG]}/${t.pages['verb-diplom'][LANG]}/`;
   const store = readJson('krabsy_verb_diplom') || {};
@@ -418,6 +511,10 @@ async function renderBody() {
   }
 
   const verbs = mine.find(([id, t]) => id === 'irregular_verbs' && t.pages && t.pages['verb-diplom'] && t.pages['verb-diplom'][LANG]);
+  // Gifts: for every child who has answered something or already owns a gift.
+  let hasGifts = false;
+  try { const r = getRewards(); hasGifts = r.earned > 0 || r.recent.length > 0; } catch (_) { /* no rewards */ }
+  if (any || hasGifts) frag.append(giftsSection(!!verbs));
   if (any && mine.length) {
     const sec = section(T.topics);
     const grid = el('div', 'pf-topics');
@@ -453,6 +550,12 @@ renderPortraits();
 renderHero();
 renderClass();
 onShellsChange(renderHero);
+// A gift arrived (in another tab or a game): the gifts section and the counts follow.
+onRewardsChange(() => {
+  renderHero();
+  const old = $('pfGifts');
+  if (old) { try { old.replaceWith(giftsSection(old.dataset.diplom === '1')); } catch (_) { /* keep the old one */ } }
+});
 renderBody().catch((err) => { console.warn('profile: sections skipped', err); });
 
 if (char && !liveFigureBlocked({ motion: false })) whenIdle(start3D);

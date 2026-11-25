@@ -25,57 +25,19 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { ownedItems } from './krabsy-shells.js';
+import { ASSET_BASE, CHAR_IDS, NO_HAT, HATS, GLASSES, BACKS, SLOTS, priceOf, unlockId } from './krabsy-figure-catalog.js';
+export { ASSET_BASE, GROUPS, CHARS, CHAR_IDS, NO_HAT, HATS, GLASSES, BACKS, FREE_CHARS, PRICES, SLOTS,
+  priceOf, unlockId } from './krabsy-figure-catalog.js';
 
-export const ASSET_BASE = '/assets/figures/';
 export const STORAGE_KEY = 'krabsy_figure_v2';
 
 // ------------------------------------------------------------------ catalogue
-// The characters, in three groups. The Mage is the Quiz-Raum teacher's and not offered.
-export const GROUPS = ['people', 'fantasy', 'monsters'];
-export const CHARS = [
-  ['Protagonist_A', 'people'], ['Protagonist_B', 'people'], ['Hiker', 'people'], ['Witch', 'people'],
-  ['Superhero', 'people'], ['MagicalGirl', 'people'], ['Helper_A', 'people'], ['Helper_B', 'people'],
-  ['Caveman', 'people'], ['Farmer_A', 'people'], ['Farmer_B', 'people'], ['Driver', 'people'],
-  ['Survivalist', 'people'], ['Werewolf_Man', 'people'], ['Clown', 'people'], ['ToySoldier', 'people'],
-  ['SpaceRanger', 'people'], ['Ninja', 'people'], ['Engineer', 'people'], ['Lorekeeper', 'people'],
-  ['Knight', 'fantasy'], ['Paladin', 'fantasy'], ['Ranger', 'fantasy'], ['Rogue', 'fantasy'],
-  ['Rogue_Hooded', 'fantasy'], ['Barbarian', 'fantasy'], ['Druid', 'fantasy'], ['Cleric', 'fantasy'],
-  ['Vampire', 'fantasy'], ['Tiefling', 'fantasy'], ['PlantWarrior', 'fantasy'], ['AvianSwordsman', 'fantasy'],
-  ['OrcRaider', 'monsters'], ['Werewolf_Wolf', 'monsters'], ['MonsterCostume', 'monsters'], ['Robot_One', 'monsters'],
-  ['Robot_Two', 'monsters'], ['Skeleton_Minion', 'monsters'], ['Skeleton_Warrior', 'monsters'],
-  ['Skeleton_Rogue', 'monsters'], ['Skeleton_Mage', 'monsters'], ['Necromancer', 'monsters'],
-].map(([id, group]) => ({ id, group }));
-export const CHAR_IDS = CHARS.map((c) => c.id);
-
+// The lists (characters, accessories, the free set, rarity, names) live in
+// krabsy-figure-catalog.js (no three.js) and are re-exported here.
 // Parts never shown (weapon-like or not for children).
 const DROP = { Ranger: ['quiver'], Rogue_Hooded: ['mask'] };
-// Characters whose head can't take another hat (cap or helmet built into the head, or a
-// head shape hats don't fit). Checked with the contact sheet (tools/sheet.cjs hats).
-export const NO_HAT = ['Protagonist_A', 'Protagonist_B', 'Robot_One', 'Robot_Two', 'MonsterCostume',
-  'Werewolf_Wolf', 'SpaceRanger'];
 // Characters that keep their texture outside the model file.
 const TEXTURE_FILE = { OrcRaider: 'OrcRaider_texture.png' };
-
-// Accessories: [source character, part roles].
-export const HATS = {
-  cap: ['Hiker', ['hat']], witch: ['Witch', ['hat']], pointy: ['Helper_A', ['hat']], elf: ['Helper_B', ['hat']],
-  bear: ['Barbarian', ['bearhat']], helmet: ['Knight', ['helmet']], clown: ['Clown', ['hat']],
-  straw: ['Farmer_A', ['hat']], cowboy: ['Farmer_B', ['hat']], soldier: ['ToySoldier', ['hat']],
-  wizard: ['Skeleton_Mage', ['hat']], headband: ['Ninja', ['headband']],
-  space: ['SpaceRanger_FlightMode', ['helmet', 'helmet_visor']],
-};
-export const GLASSES = {
-  square: ['Protagonist_A', ['glasses']], round: ['Witch', ['glasses']], reading: ['Lorekeeper', ['glasses']],
-  sun: ['Driver', ['sunglasses']], goggles: ['Engineer', ['goggles']],
-};
-export const BACKS = {
-  pack: ['Hiker', ['backpack']], packA: ['Protagonist_A', ['backpack']], packB: ['Protagonist_B', ['backpack']],
-  satchel: ['Druid', ['backpack']], tools: ['Engineer', ['backpack']], books: ['Lorekeeper', ['backpack']],
-  warpack: ['OrcRaider', ['warpack']], jetpack: ['SpaceRanger_FlightMode', ['jetpack', 'jetpack_wingleft', 'jetpack_wingright']],
-  key: ['ToySoldier', ['windupkey']], wings: ['Vampire', ['wingleft', 'wingright']],
-  cape: ['Superhero', ['cape']], capeKnight: ['Knight', ['cape']], capeRanger: ['Ranger', ['cape']],
-  capeRogue: ['Rogue', ['cape']], capePaladin: ['Paladin', ['cape']],
-};
 // Which of a character's own parts belong to which slot.
 const SLOT_ROLES = {
   hat: ['hat', 'bearhat', 'helmet', 'helmetvisor', 'helmet_visor', 'crown', 'headband', 'hood'],
@@ -111,39 +73,7 @@ export function normalize(c) {
   return o;
 }
 
-// ------------------------------------------------------------------ shells: free set + prices
-// Owner decisions 2026-11-25 (docs/figures-shells-world.md): 12 characters are free from
-// the start, the others cost 150–400 shells (rarer = more), accessories 40–150, ALL
-// colours are free, and so are each character's own accessories ('own') and 'none'.
-// Whatever is free at launch stays free: never move an id from FREE_CHARS into PRICES.
-export const FREE_CHARS = ['Protagonist_A', 'Protagonist_B', 'Hiker', 'Witch', 'Helper_A', 'Helper_B',
-  'Knight', 'Rogue', 'Druid', 'OrcRaider', 'Skeleton_Minion', 'Robot_One'];
-export const PRICES = {
-  char: {
-    Farmer_A: 150, Farmer_B: 150,
-    Superhero: 200, Caveman: 200, Driver: 200, Survivalist: 200, Clown: 200, Engineer: 200, Lorekeeper: 200,
-    Ranger: 200, Rogue_Hooded: 200, Cleric: 200,
-    MagicalGirl: 250, Werewolf_Man: 250, ToySoldier: 250, Paladin: 250, Barbarian: 250,
-    Skeleton_Warrior: 250, Skeleton_Rogue: 250,
-    Ninja: 300, Vampire: 300, Tiefling: 300, Robot_Two: 300, Skeleton_Mage: 300,
-    SpaceRanger: 350, PlantWarrior: 350, AvianSwordsman: 350, Werewolf_Wolf: 350,
-    MonsterCostume: 400, Necromancer: 400,
-  },
-  hat: { cap: 40, straw: 40, pointy: 50, elf: 50, witch: 60, clown: 60, headband: 60, cowboy: 80,
-    wizard: 90, bear: 100, helmet: 100, soldier: 100, space: 150 },
-  glasses: { square: 40, round: 40, reading: 50, goggles: 70, sun: 80 },
-  back: { pack: 40, packA: 40, packB: 40, satchel: 50, books: 60, tools: 70, key: 80, capeRanger: 80,
-    capeRogue: 80, warpack: 90, capeKnight: 90, capePaladin: 90, cape: 120, jetpack: 150, wings: 150 },
-};
-export const SLOTS = ['char', 'hat', 'glasses', 'back'];
-/** Price in shells of one catalogue entry (0 = free). slot: 'char' | 'hat' | 'glasses' | 'back'. */
-export function priceOf(slot, id) {
-  if (id === 'own' || id === 'none') return 0;
-  if (slot === 'char' && FREE_CHARS.includes(id)) return 0;
-  return (PRICES[slot] && Object.hasOwn(PRICES[slot], id)) ? PRICES[slot][id] : 0;
-}
-/** The id under which an unlocked entry is stored in the shells module ("char:Ninja"). */
-export const unlockId = (slot, id) => `${slot}:${id}`;
+// ------------------------------------------------------------------ what this child owns
 export function isUnlocked(slot, id, owned = ownedItems()) {
   return priceOf(slot, id) === 0 || owned.includes(unlockId(slot, id));
 }
