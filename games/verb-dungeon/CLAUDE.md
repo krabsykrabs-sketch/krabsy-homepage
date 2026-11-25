@@ -1166,3 +1166,9 @@ geometry, at most one shadow light.
   (`homepage/lib/krabsy-game-info.css`), so landscape gets 354 px instead of 306.
   Checked headless (Linux Chromium): touch run at 390×844, `?qa=play&level=1` at
   1366×768, 844×390, 768×1024 (no turn there). **Not checked:** a real phone.
+- 2026-11-25 (later) — Module URLs are versioned now (import map entries
+  `./src/x.js` → `./src/x.js?v=<hash>`, `main.js?v=`): **after changing `src/`, run
+  `python3 tools/stamp_game_modules.py games/verb-dungeon homepage/games/verb-dungeon`**
+  (repo root). Reason: the owner's phone ran a cached old `main.js` with the new
+  `index.html` after the deploy. `#rotate` ("turn your device") shows again on an upright phone
+  whenever sideways mode is not running (`html:not(.rot)`).

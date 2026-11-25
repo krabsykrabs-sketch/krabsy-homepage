@@ -2373,3 +2373,8 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   after tapping Level 1 before, now 2.7 s (tapped at once) / 0.3 s (3 s on the
   menu). Checked headless: all 6 clips with original lengths, chef runs, no errors.
   Not checked: a real phone.
+- 2026-11-25 (later) — Module URLs are versioned now (import map entries
+  `./src/x.js` → `./src/x.js?v=<hash>`, `main.js?v=`): **after changing `src/`, run
+  `python3 tools/stamp_game_modules.py games/verb-kitchen homepage/games/verb-kitchen`**
+  (repo root). Reason: the owner's phone ran a cached old `main.js` with the new
+  `index.html` after the deploy.

@@ -183,6 +183,7 @@ kbd{font-family:inherit;color:var(--ink);background:rgba(255,255,255,.12);border
    plays in landscape even with rotation lock on. #rotate only shows if scripts fail. */
 html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overflow:hidden;
   transform-origin:top left;transform:rotate(90deg) translateY(-100%);}
+@media (max-width:640px) and (orientation:portrait){html:not(.rot) #rotate{display:flex;}}
 /* phones in landscape (and other short screens): the menu and end screen fit without scrolling */
 @media (max-height:500px){
   .screen{padding:8px;}
@@ -241,10 +242,28 @@ html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overf
 #qa{position:fixed;left:0;bottom:0;margin:0;font:12px monospace;color:#9db4dd;display:none;}
 </style>
 <script type="importmap">
-{ "imports": {
+{
+  "imports": {
     "three": "./vendor/three/three.module.js",
-    "three/addons/": "./vendor/three/addons/"
-} }
+    "three/addons/": "./vendor/three/addons/",
+    "./src/analytics.js": "./src/analytics.js?v=c796c90ef8",
+    "./src/assets.js": "./src/assets.js?v=c796c90ef8",
+    "./src/audio.js": "./src/audio.js?v=c796c90ef8",
+    "./src/chars.js": "./src/chars.js?v=c796c90ef8",
+    "./src/debris.js": "./src/debris.js?v=c796c90ef8",
+    "./src/heroes.js": "./src/heroes.js?v=c796c90ef8",
+    "./src/i18n.js": "./src/i18n.js?v=c796c90ef8",
+    "./src/labels.js": "./src/labels.js?v=c796c90ef8",
+    "./src/levels.js": "./src/levels.js?v=c796c90ef8",
+    "./src/main.js": "./src/main.js?v=c796c90ef8",
+    "./src/marker.js": "./src/marker.js?v=c796c90ef8",
+    "./src/questions.js": "./src/questions.js?v=c796c90ef8",
+    "./src/room.js": "./src/room.js?v=c796c90ef8",
+    "./src/rotate.js": "./src/rotate.js?v=c796c90ef8",
+    "./src/touch.js": "./src/touch.js?v=c796c90ef8",
+    "./src/verbs.js": "./src/verbs.js?v=c796c90ef8"
+  }
+}
 </script>
 </head>
 <body>
@@ -304,6 +323,6 @@ html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overf
 <div id="loading">…</div>
 <div id="rotate"></div>
 <pre id="qa"></pre>
-<script type="module" src="src/main.js"></script>
+<script type="module" src="src/main.js?v=c796c90ef8"></script>
 </body>
 </html>

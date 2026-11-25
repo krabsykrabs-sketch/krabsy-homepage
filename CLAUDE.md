@@ -58,6 +58,11 @@ krabsy-homepage/                 ← repo root (master session works here)
   output is copied into `homepage/games/<name>/` to release. Single-file
   canvas games are their own build — they live directly under `homepage/`
   at the path their wrapper iframes.
+- **3D games with `src/` modules (Verb Dungeon, Verb Kitchen) carry versioned
+  module URLs** (import map + `main.js?v=`). After changing a game's `src/`, run
+  `python3 tools/stamp_game_modules.py games/<name> homepage/games/<name>`;
+  otherwise returning players run cached old modules (`.js` is cached 1 h) with
+  the new `index.html` (happened 2026-11-25 on the owner's phone).
 - **`content/` is the canonical question catalogue.** The served copies in
   `homepage/data/` are synced from here at release; games inline their own
   copy. Edit `content/`, then propagate.
