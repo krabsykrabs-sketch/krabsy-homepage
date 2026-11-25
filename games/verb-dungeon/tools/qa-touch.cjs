@@ -336,7 +336,9 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   check(/^1:-/.test(inf.rune) && parseFloat(inf.rune.split(':')[1]) < -1.5, 'walked through the first wall into the antechamber', inf.rune);
   await shot('rune-round2');
   d = await runeDoor(true);
-  await wait(800);
+  inf = await info();
+  check(inf.phase === 'open', 'right door in the back wall opens (3rd form)', `${inf.rune} ${inf.phase}`);
+  await goThrough(d.x); // the opened exit still has to be walked through (runeDoor stops once it opens)
   inf = await info();
   check(inf.type === 'boss' || inf.room === 4, 'walked through the right rune doors to the boss', `${inf.type} room ${inf.room} ${inf.phase}`);
   await page.waitForFunction(() => !window.__VD.G.locked, null, { timeout: 20000 });
