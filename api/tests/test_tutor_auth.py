@@ -44,7 +44,10 @@ def test_signup_login_logout():
     assert c.post("/api/tutor/login", json={"email": "not-an-email"}).status_code == 400
     # unknown email without a name: ok, but the mail says there is no space (no link)
     assert c.post("/api/tutor/login", json={"email": "nora@example.com"}).json() == {"ok": True}
-    assert mailer.OUTBOX[-1]["subject"].startswith("Krabsy: no tutor space") and last_link() is None
+    assert mailer.OUTBOX[-1]["subject"] == "Create your Krabsy tutor space" and "no tutor space" in mailer.OUTBOX[-1]["text"]
+    v0 = c.post("/api/tutor/verify", json={"token": last_link()}).json()          # one click creates it
+    assert c.get("/api/tutor/space", headers={"X-Tutor-Token": v0["session_token"]}).json()["space"]["name"] == "Nora"
+    c.post("/api/tutor/delete", headers={"X-Tutor-Token": v0["session_token"]})
     # sign up
     c.post("/api/tutor/login", json={"email": "Nora@Example.com ", "name": "Nora"})
     tok = last_link()

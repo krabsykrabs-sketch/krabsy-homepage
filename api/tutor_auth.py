@@ -90,6 +90,12 @@ def session_tutor_id(con, token: str):
     return row["tutor_id"]
 
 
+def name_from_email(email: str) -> str:
+    """"nora.garcia@…" → "Nora" (a space created from the one-click link; the tutor can rename it)."""
+    part = re.split(r"[._+\-\d]", email.split("@")[0])[0]
+    return part[:20].capitalize() if len(part) >= 2 else "My students"
+
+
 def clean_email(raw: str):
     e = (raw or "").strip().lower()
     return e if len(e) <= 254 and _EMAIL.fullmatch(e) else None
@@ -129,9 +135,9 @@ def _mail(kind: str, to: str, lang: str, token: str | None = None, name: str = "
                                                           f"email from now on:\n\n{link}\n\nAfter that, your old private link stops "
                                                           f"working.\n\n{foot}")
     else:   # no space for this address
-        subject, text = "Krabsy: no tutor space for this email", (
-            f"Hi,\n\nsomeone asked to sign in to Krabsy with this email, but there is no tutor space for it.\n"
-            f"To create one, go to:\n\n{start}\n\nIf you didn't ask for this, you can ignore this email.\n\nKrabsy · krabsy.com")
+        subject, text = "Create your Krabsy tutor space", (
+            f"Hi,\n\nsomeone asked to sign in to Krabsy with this email, but there is no tutor space for it yet.\n"
+            f"To create one and sign in, click this link:\n\n{link}\n\n{foot}")
     mailer.send(to, subject, text)
 
 
@@ -172,8 +178,8 @@ def login(body: LoginBody, request: Request) -> JSONResponse:
             kind, token, who = "login", _new_link(con, "login", email, t["id"], "", lang), t["name"]
         elif name:
             kind, token, who = "signup", _new_link(con, "signup", email, None, name, lang), name
-        else:
-            kind, token, who = "unknown", None, ""
+        else:   # no space yet: the email offers to create one with one click
+            kind, token, who = "unknown", _new_link(con, "signup", email, None, "", lang), ""
     _mail(kind, email, lang, token, who)
     return JSONResponse({"ok": True})
 
@@ -214,7 +220,7 @@ def verify(body: VerifyBody, request: Request) -> JSONResponse:
                 tid = owner["id"]
             else:
                 cur = con.execute("INSERT INTO tutors (name, lang, tutor_hash, email, created, last_active) VALUES (?,?,?,?,?,?)",
-                                  (ln["name"] or "My students", ln["lang"], _hash(secrets.token_urlsafe(24)), ln["email"], now, now))
+                                  (ln["name"] or name_from_email(ln["email"]), ln["lang"], _hash(secrets.token_urlsafe(24)), ln["email"], now, now))
                 tid = cur.lastrowid
         else:                                   # add_email
             if owner and owner["id"] != ln["tutor_id"]:

@@ -333,7 +333,9 @@ def get_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
             summ = topic_summary(att)
             stars = {tp: v["measured"] for tp, v in summ.items()}
             stars.update({tp: v for tp, v in set_stars.items() if v is not None})   # the tutor's stars win
+            hw = con.execute("SELECT * FROM tutor_homework WHERE ts_id = ? ORDER BY created DESC LIMIT 1", (s["id"],)).fetchone()
             out.append({"id": s["id"], "name": s["name"], "level": s["level"], "adult": bool(s["adult"]),
+                        "homework": dict(topic=hw["topic"], goal=hw["goal"], **homework_progress(hw, att)) if hw else None,
                         "last_active": s["seen"] if att else None,
                         "answers_week": sum(1 for a in att if a["at"] >= week_ago),
                         "answers": len(att), "stars": stars})

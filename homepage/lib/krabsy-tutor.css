@@ -83,3 +83,10 @@
 .kt-auth { margin-bottom: 8px; }
 .kt-sent { margin: 0; font-size: 1.05rem; }
 .kt-addemail { border-left: 6px solid #ffcf5e; }
+
+/* feedback round 1: one sign-in form */
+.kt-signin { max-width: 520px; }
+.kt-noaccount { margin: 14px 0 4px; }
+.kt-cardhw { font-size: 0.82rem; }
+.kt-more summary { cursor: pointer; font-family: var(--font-display); font-size: 1.1rem; }
+.kt-more[open] summary { margin-bottom: 10px; }

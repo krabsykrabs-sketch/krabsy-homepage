@@ -207,6 +207,8 @@ function injectCounterStyles() {
 export function mountShellCounter(header) {
   // Adult learners (tutor's "adult" flag, docs/tutor-platform.md): no shells, no gifts.
   if ((() => { try { return localStorage.getItem('krabsy_adult') === '1'; } catch (_) { return false; } })()) return null;
+  // Tutor pages (space, sign-in, parents' report) are for adults: no shells there.
+  try { if (document.querySelector('[data-tutor-page]:not([data-tutor-page="student"])')) return null; } catch (_) {}
   try {
     const host = header || document.querySelector('header.k-page-header, header.k-game-nav');
     if (!host) return null;

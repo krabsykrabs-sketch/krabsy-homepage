@@ -40,6 +40,7 @@ const T = {
   ],
   createH: 'Create your tutor space', yourName: 'Your name (students see it)', yourNamePh: 'e.g. Nora',
   createBtn: 'Create my space', yourSpaces: 'Your spaces on this device',
+  noSpaceYet: 'No tutor space yet?', createOne: 'Create one', haveSpace: 'Already have a space?',
   email: 'Your email', emailPh: 'you@example.com', signInH: 'Sign in', signInBtn: 'Send me a sign-in link',
   noPassword: 'No password: we email you a link that signs you in. It works once and for 20 minutes.',
   checkMail: (e) => `Check your email: we sent a link to <strong>${e}</strong>. Open it on this device or any other. Nothing there? Look in the spam folder.`,
@@ -237,25 +238,18 @@ function renderStart(main) {
     <p class="kc-lead">${T.lead}</p>
     <p class="kt-pilot">${T.pilot}</p>
     ${ses ? `<p class="kc-row"><a class="kc-btn" href="${PATHS.space}">${T.signedIn}</a></p>` : ''}
-    <ol class="kt-how">${T.how.map(([h, p]) => `<li><strong>${h}</strong><span>${p}</span></li>`).join('')}</ol>
     ${list.length ? `<section class="kc-card"><h2>${T.yourSpaces}</h2><ul class="kc-list">${list.map((s) =>
       `<li><a href="${PATHS.space}#t=${esc(s.token)}">${esc(s.name)}</a></li>`).join('')}</ul></section>` : ''}
-    <div class="kt-auth">
-      <form class="kc-card" id="kt-create">
-        <h2>${T.createH}</h2>
-        <label class="kc-field"><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" autocomplete="name" required></label>
-        <label class="kc-field"><span>${T.email}</span><input id="kt-cemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
-        <p class="kc-error" role="alert" hidden></p>
-        <button class="kc-btn" type="submit">${T.createBtn}</button>
-      </form>
-      <form class="kc-card" id="kt-signin">
-        <h2>${T.signInH}</h2>
-        <label class="kc-field"><span>${T.email}</span><input id="kt-semail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
-        <p class="kc-error" role="alert" hidden></p>
-        <button class="kc-btn kc-btn-ghost" type="submit">${T.signInBtn}</button>
-      </form>
-    </div>
-    <p class="kc-muted">${T.noPassword}</p>
+    <form class="kc-card kt-signin" id="kt-signin">
+      <h2 id="kt-auth-h">${T.signInH}</h2>
+      <label class="kc-field" id="kt-name-row" hidden><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" autocomplete="name"></label>
+      <label class="kc-field"><span>${T.email}</span><input id="kt-semail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
+      <p class="kc-error" role="alert" hidden></p>
+      <button class="kc-btn" type="submit" id="kt-auth-btn">${T.signInBtn}</button>
+      <p class="kc-muted kt-noaccount"><span id="kt-switch-q">${T.noSpaceYet}</span> <button type="button" class="kc-link" id="kt-switch">${T.createOne}</button></p>
+      <p class="kc-muted">${T.noPassword}</p>
+    </form>
+    <ol class="kt-how">${T.how.map(([h, p]) => `<li><strong>${h}</strong><span>${p}</span></li>`).join('')}</ol>
     <section class="kc-card"><h2>${T.scaleH}</h2>${scaleTable()}</section>
     <section class="kc-card"><h2>${T.privacyH}</h2><p>${T.privacy}</p></section>`;
   const wire = (form, body) => form.addEventListener('submit', async (ev) => {
@@ -271,8 +265,19 @@ function renderStart(main) {
       err.textContent = errorText(e.message); err.hidden = false; btn.disabled = false;
     }
   });
-  wire($('#kt-create'), () => ({ name: $('#kt-name').value, email: $('#kt-cemail').value }));
-  wire($('#kt-signin'), () => ({ email: $('#kt-semail').value }));
+  let creating = false;
+  const mode = (c) => {
+    creating = c;
+    $('#kt-name-row').hidden = !c; $('#kt-name').required = c;
+    $('#kt-auth-h').textContent = c ? T.createH : T.signInH;
+    $('#kt-auth-btn').textContent = c ? T.createBtn : T.signInBtn;
+    $('#kt-switch-q').textContent = c ? T.haveSpace : T.noSpaceYet;
+    $('#kt-switch').textContent = c ? T.signInH : T.createOne;
+    (c ? $('#kt-name') : $('#kt-semail')).focus();
+  };
+  $('#kt-switch').addEventListener('click', () => mode(!creating));
+  if (new URLSearchParams(location.search).get('create') === '1') mode(true);
+  wire($('#kt-signin'), () => (creating ? { name: $('#kt-name').value, email: $('#kt-semail').value } : { email: $('#kt-semail').value }));
 }
 
 /* ── the link from the email ───────────────────────────────────────────── */
@@ -328,18 +333,18 @@ async function renderSpace(main) {
     return `<a class="kt-scard" href="${hrefTo(token, s.id)}">
       <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
       <span class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span>
+      ${s.homework ? `<span class="kt-hwprog kt-cardhw">${progressBar(s.homework)}<span class="kc-muted">${esc(topicName(cat, s.homework.topic))} · ${T.hwProgress(s.homework.answers, s.homework.goal, s.homework.correct_pct)}</span></span>` : ''}
       ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>` : ''}
     </a>`;
   }).join('');
   main.innerHTML = `
-    <div class="kc-head"><div><h1>${esc(d.space.name)}</h1><p class="kc-muted">${T.students}: ${d.students.length}${d.space.email ? ` · ${esc(T.signedInAs(d.space.email))}` : ''}</p></div>
-      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-rename">${T.rename}</button>
-        ${LEGACY ? '' : `<button class="kc-btn kc-btn-ghost" id="kt-signout">${T.signOut}</button>`}</p></div>
+    <div class="kc-head"><div><h1>${esc(d.space.name)}</h1>
+      <p class="kc-muted">${d.space.email ? `${esc(T.signedInAs(d.space.email))} · ` : ''}<button class="kc-link" id="kt-rename">${T.rename}</button>${LEGACY ? '' : ` · <button class="kc-link" id="kt-signout">${T.signOut}</button>`}</p></div>
+      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-addopen" aria-expanded="false">＋ ${T.addH}</button></p></div>
     ${d.space.email ? '' : `<form class="kc-card kt-addemail" id="kt-addemail"><h2>${T.addEmailH}</h2><p>${T.addEmailLead}</p>
       <label class="kc-field"><span>${T.email}</span><input id="kt-aemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
       <p class="kc-error" role="alert" hidden></p><button class="kc-btn" type="submit">${T.addEmailBtn}</button></form>`}
-    <section class="kt-grid">${cards || `<p class="kc-card kc-muted">${T.noStudents}</p>`}</section>
-    <form class="kc-card" id="kt-add">
+    <form class="kc-card" id="kt-add"${d.students.length ? ' hidden' : ''}>
       <h2>${T.addH}</h2>
       <div class="kt-form-row">
         <label class="kc-field"><span>${T.firstName}</span><input id="kt-sname" maxlength="20" autocomplete="off" required></label>
@@ -351,9 +356,13 @@ async function renderSpace(main) {
       <p class="kc-error" id="kt-err" role="alert" hidden></p>
       <button class="kc-btn" type="submit">${T.addBtn}</button>
     </form>
-    <section class="kc-card"><h2>${T.scaleH}</h2>${scaleTable()}</section>
-    <p class="kc-muted">${T.retention(d.space.delete_after_days)}</p>
-    <p><button class="kc-btn kc-btn-danger" id="kt-delspace">${T.delSpace}</button></p>`;
+    <section class="kt-grid">${cards || `<p class="kc-card kc-muted">${T.noStudents}</p>`}</section>
+    <details class="kc-card kt-more"><summary>${T.scaleH}</summary>${scaleTable()}</details>
+    <p class="kc-muted">${T.retention(d.space.delete_after_days)} <button class="kc-link" id="kt-delspace">${T.delSpace}</button></p>`;
+  $('#kt-addopen').addEventListener('click', () => {
+    const f = $('#kt-add'); f.hidden = !f.hidden; $('#kt-addopen').setAttribute('aria-expanded', String(!f.hidden));
+    if (!f.hidden) $('#kt-sname').focus();
+  });
   $('#kt-signout')?.addEventListener('click', async () => {
     try { await api('/api/tutor/logout', token, {}); } catch (_) {}
     write(SESSION, null); location.href = PATHS.start;
