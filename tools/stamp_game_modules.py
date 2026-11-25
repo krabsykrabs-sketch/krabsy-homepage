@@ -26,8 +26,9 @@ from pathlib import Path
 
 def stamp(game: Path) -> str:
     src = sorted((game / 'src').glob('*.js'))
+    root_main = (game / 'main.js').exists()   # Verb Platformer: entry at ./main.js
     h = hashlib.sha1()
-    for f in src:
+    for f in src + ([game / 'main.js'] if root_main else []):
         h.update(f.name.encode())
         h.update(f.read_bytes())
     v = h.hexdigest()[:10]
@@ -45,10 +46,11 @@ def stamp(game: Path) -> str:
     body = json.dumps(imap, indent=2, ensure_ascii=False)
     html = html[:m.start(2)] + body + html[m.end(2):]
 
-    html, n = re.subn(r'(<script type="module" src="src/main\.js)(\?v=[0-9a-f]+)?(")',
+    entry = r'(?:\./)?main\.js' if root_main else r'src/main\.js'
+    html, n = re.subn(r'(<script type="module" src="' + entry + r')(\?v=[0-9a-f]+)?(")',
                       rf'\g<1>?v={v}\3', html)
     if n != 1:
-        sys.exit(f'{page}: expected one <script type="module" src="src/main.js">, found {n}')
+        sys.exit(f'{page}: expected one <script type="module"> for the entry module, found {n}')
     page.write_text(html, encoding='utf-8')
     return v
 

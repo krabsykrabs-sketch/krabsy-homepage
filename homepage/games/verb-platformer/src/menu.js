@@ -2,6 +2,7 @@
 import { t, getLang, setLang, LANGS } from './i18n.js';
 import { getBest, formatTime } from './progress.js';
 import { starsHtml, helpHtml, esc, CLOCK_SVG } from './shell-bits.js';
+import { playerFigureInfo } from './player-character.js';
 
 export function createMenu({ levels, onPick }) {
   const root = document.getElementById('menu');
@@ -12,6 +13,21 @@ export function createMenu({ levels, onPick }) {
   const starsTotal = document.getElementById('stars-total');
   const help = document.getElementById('menu-help');
   const langSwitch = document.getElementById('lang-switch');
+  const figLink = document.getElementById('figure-link');
+  const figPic = document.getElementById('figure-pic');
+  figPic.addEventListener('error', () => { figPic.hidden = true; });
+
+  // "You play your figure" + the link to the site's figure page. Hidden when the figure
+  // module isn't there (file://, a bare dev server): the link would lead nowhere.
+  function renderFigure() {
+    const info = playerFigureInfo();
+    figLink.hidden = !info || !!info.local;
+    if (figLink.hidden) return;
+    figLink.href = t('figureUrl');
+    figPic.src = `/assets/figures/portraits/${encodeURIComponent(info.char)}.webp`;
+    document.getElementById('figure-mine').textContent = info.own ? t('figureMine') : '';
+    document.getElementById('figure-text').textContent = t('figureLink');
+  }
 
   let nextLevel = null;
 
@@ -52,6 +68,7 @@ export function createMenu({ levels, onPick }) {
       : '';
 
     help.innerHTML = helpHtml();
+    renderFigure();
 
     // level cards
     list.innerHTML = '';
