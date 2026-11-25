@@ -267,6 +267,15 @@ start once the figure page is live? Recommendation: after part 1's steps
 
 ---
 
+## Owner decisions 2026-11-25
+
+1. Name: **Muscheln / caracolas / shells** 🐚.
+2. Earning rules: **as in the table above** (+1 per right answer, +1 extra for a weak or new word, never taken away, after 200 a day 1 per 3 right answers).
+3. Free from the start: **the 12 proposed** (Schülerin, Schüler, Wanderer, Hexe, Superheld, Elf, Ritter, Abenteurerin, Druidin, Ork, Skelett, Roboter Eins); other characters 150–400, accessories 40–150, all colours free.
+4. Verb Dungeon: **keep the sword as the Dungeon's game item**; the figure catalogue stays weapon-free.
+5. Teacher switch-off: not now.
+6. First build: **steps 2–4** (shared code + assets, shells counting + header counter, figure page DE/ES/EN with locks and prices, game-contract addition). Games follow one session each, Verb Hatchery first. The Krabsy world waits until part 1 is done.
+
 ## Open decisions (summary)
 
 1. Shell name (recommended: Muscheln / caracolas / shells; never "conchas").
