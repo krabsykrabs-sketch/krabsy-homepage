@@ -147,8 +147,19 @@ h1,h2,.fredoka{font-family:'Fredoka One';font-weight:400;}
 .lvl span i{font-style:normal;color:#2b4370;}
 .lvl:disabled{opacity:.45;cursor:default;}
 #heroTitle{margin:0 0 8px;font-size:15px;color:var(--amber);}
-#heroes{display:flex;gap:6px 14px;justify-content:center;align-items:baseline;flex-wrap:wrap;margin:0 0 16px;font-size:15px;}
-.figLine{color:var(--muted);}
+#heroes{margin:0 0 16px;font-size:15px;}
+#heroRow{display:flex;gap:10px;justify-content:center;margin:0 0 8px;}
+.hero{position:relative;font:inherit;color:var(--ink);background:#17345f;border:0;border-bottom:4px solid #0a1b36;
+  border-radius:14px;padding:6px 6px 5px;cursor:pointer;width:96px;}
+.hero:hover{background:#1f437a;}
+.hero img{display:block;width:72px;height:72px;margin:0 auto 3px;border-radius:10px;object-fit:cover;
+  background:linear-gradient(#295286,#1b3d6a 55%,#0c1f3f);}
+.hero b{display:block;font-size:14px;line-height:1.15;white-space:nowrap;}
+.hero.sel{outline:3px solid var(--teal);outline-offset:2px;}
+.hero.sel::after{content:'✓';position:absolute;top:2px;right:6px;color:var(--teal);font-weight:900;font-size:15px;
+  text-shadow:0 1px 2px #0a1b36;}
+/* keyboard row (↓/↑ in the menu): the active row's choice glows, the level row dims while the heroes are active */
+#heroRow.kb .hero.sel{box-shadow:0 0 0 7px rgba(46,230,192,.28);} #levels:not(.kb) .lvl.sel{outline-color:rgba(46,230,192,.4);}
 .figLink{color:var(--teal);font-weight:800;text-decoration:none;border-bottom:2px solid rgba(46,230,192,.45);}
 .figLink:hover{border-bottom-color:var(--teal);}
 #endCoins{color:var(--amber);min-height:0;}
@@ -187,7 +198,8 @@ html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overf
   #levels{margin:8px 0 8px;gap:10px;} .lvl{padding:6px 16px 5px;min-width:118px;}
   .lvl b{font-size:19px;} .lvl span{font-size:16px;margin-top:0;}
   #heroTitle{margin:0 0 4px;font-size:13px;}
-  #heroes{margin:0 0 8px;font-size:13px;}
+  #heroes{margin:0 0 8px;font-size:13px;} #heroRow{gap:8px;margin-bottom:4px;}
+  .hero{width:80px;padding:4px 4px 3px;} .hero img{width:50px;height:50px;} .hero b{font-size:12px;}
   #howto{font-size:13px;gap:6px;} #howto div{padding:4px 9px;}
   #example{display:none;}
   #stars{font-size:38px;margin:2px 0 0;} #missed{font-size:17px;margin-top:6px;line-height:1.35;}
@@ -239,23 +251,23 @@ html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overf
   "imports": {
     "three": "./vendor/three/three.module.js",
     "three/addons/": "./vendor/three/addons/",
-    "./src/analytics.js": "./src/analytics.js?v=3b95407aaa",
-    "./src/assets.js": "./src/assets.js?v=3b95407aaa",
-    "./src/audio.js": "./src/audio.js?v=3b95407aaa",
-    "./src/chars.js": "./src/chars.js?v=3b95407aaa",
-    "./src/debris.js": "./src/debris.js?v=3b95407aaa",
-    "./src/figure.js": "./src/figure.js?v=3b95407aaa",
-    "./src/heroes.js": "./src/heroes.js?v=3b95407aaa",
-    "./src/i18n.js": "./src/i18n.js?v=3b95407aaa",
-    "./src/labels.js": "./src/labels.js?v=3b95407aaa",
-    "./src/levels.js": "./src/levels.js?v=3b95407aaa",
-    "./src/main.js": "./src/main.js?v=3b95407aaa",
-    "./src/marker.js": "./src/marker.js?v=3b95407aaa",
-    "./src/questions.js": "./src/questions.js?v=3b95407aaa",
-    "./src/room.js": "./src/room.js?v=3b95407aaa",
-    "./src/rotate.js": "./src/rotate.js?v=3b95407aaa",
-    "./src/touch.js": "./src/touch.js?v=3b95407aaa",
-    "./src/verbs.js": "./src/verbs.js?v=3b95407aaa"
+    "./src/analytics.js": "./src/analytics.js?v=5ecc483944",
+    "./src/assets.js": "./src/assets.js?v=5ecc483944",
+    "./src/audio.js": "./src/audio.js?v=5ecc483944",
+    "./src/chars.js": "./src/chars.js?v=5ecc483944",
+    "./src/debris.js": "./src/debris.js?v=5ecc483944",
+    "./src/figure.js": "./src/figure.js?v=5ecc483944",
+    "./src/heroes.js": "./src/heroes.js?v=5ecc483944",
+    "./src/i18n.js": "./src/i18n.js?v=5ecc483944",
+    "./src/labels.js": "./src/labels.js?v=5ecc483944",
+    "./src/levels.js": "./src/levels.js?v=5ecc483944",
+    "./src/main.js": "./src/main.js?v=5ecc483944",
+    "./src/marker.js": "./src/marker.js?v=5ecc483944",
+    "./src/questions.js": "./src/questions.js?v=5ecc483944",
+    "./src/room.js": "./src/room.js?v=5ecc483944",
+    "./src/rotate.js": "./src/rotate.js?v=5ecc483944",
+    "./src/touch.js": "./src/touch.js?v=5ecc483944",
+    "./src/verbs.js": "./src/verbs.js?v=5ecc483944"
   }
 }
 </script>
@@ -317,6 +329,6 @@ html.rot body{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);overf
 <div id="loading">…</div>
 <div id="rotate"></div>
 <pre id="qa"></pre>
-<script type="module" src="src/main.js?v=3b95407aaa"></script>
+<script type="module" src="src/main.js?v=5ecc483944"></script>
 </body>
 </html>

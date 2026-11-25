@@ -1,4 +1,4 @@
-// node tools/qa-engine.cjs port "[extra query]" — levels 1-3 (+ wrongall): source, tiers, end mode, chain-order check. See CLAUDE.md.
+// node tools/qa-engine.cjs port "[extra query]" — levels 1-3 (+ wrongall): source, tiers, end mode, chain-order check. See CLAUDE.md. BASE=/games/verb-dungeon/ = the game's path on the server.
 const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwright');
 (async () => {
   const [port, extra = ''] = process.argv.slice(2);
@@ -6,7 +6,7 @@ const { chromium } = require('/home/janah/dev/Worksheets/app/node_modules/playwr
   for (const lvl of [1, 2, 3]) for (const wa of ['', '&wrongall=1']) {
     const page = await (await browser.newContext({ viewport: { width: 1366, height: 768 } })).newPage();
     const errs = []; page.on('pageerror', (e) => errs.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
-    await page.goto(`http://localhost:${port}/?qa=play&level=${lvl}${wa}${extra}`);
+    await page.goto(`http://localhost:${port}${process.env.BASE || '/'}?qa=play&level=${lvl}${wa}${extra}`);
     await page.waitForFunction(() => document.getElementById('qa') && document.getElementById('qa').textContent, null, { timeout: 180000 });
     const r = await page.evaluate(() => {
       const out = JSON.parse(document.getElementById('qa').textContent);

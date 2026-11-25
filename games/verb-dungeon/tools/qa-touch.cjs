@@ -1,4 +1,4 @@
-// node tools/qa-touch.cjs port w h lang shotPrefix — plays level 1 by touch (stick drags via CDP, taps). See CLAUDE.md.
+// node tools/qa-touch.cjs port w h lang shotPrefix — plays level 1 by touch (stick drags via CDP, taps). See CLAUDE.md. BASE=/games/verb-dungeon/ = the game's path on the server.
 // Questions open only with the sword button (book, chest, boss stone); walking onto things asks nothing.
 const { chromium } = require(process.env.PW || '/home/janah/dev/Worksheets/app/node_modules/playwright');
 const [port = 8152, W = 1024, H = 768, LANG = 'de', PRE = 'T-tablet'] = process.argv.slice(2);
@@ -29,7 +29,7 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   const wait = (ms) => page.waitForTimeout(ms);
   const shot = (name) => page.screenshot({ path: `${SHOTS}/${PRE}-${name}.png` });
 
-  await page.goto(`http://localhost:${port}/?lang=${LANG}`);
+  await page.goto(`http://localhost:${port}${process.env.BASE || '/'}?lang=${LANG}`);
   await page.waitForFunction(() => window.__VD && document.getElementById('menu').classList.contains('on'), null, { timeout: 120000 });
   await wait(500);
   // The first touch switches the touch controls on (coarse pointer already does).
@@ -37,9 +37,24 @@ const check = (ok, what, extra = '') => { log(ok ? 'OK  ' : 'FAIL', what, extra)
   check(/Stick|stick|Joystick/.test(await ev(() => document.getElementById('howto').textContent)), 'menu how-to shows the stick', await ev(() => document.getElementById('howto').textContent));
   const box = async (sel, i = 0) => { const b = await page.locator(sel).nth(i).boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2]; };
   const tapAt = async ([x, y]) => { await page.touchscreen.tap(x, y); };
-  // The hero is the child's figure (no hero shop since 2026-11-25): the menu links to the figure page.
+  // Hero picker (2026-11-25): "your figure" first and preselected (no saved choice), the link
+  // to the figure page stays; tap the Barbarian, it is built and remembered; back to the figure.
   const fl = await ev(() => { const a = document.querySelector('#heroes .figLink'); return a && [a.getAttribute('href'), a.target]; });
   check(fl && /^\/(de|es|en)\/(meine-figur|mi-personaje|my-figure)\/$/.test(fl[0]) && fl[1] === '_top', 'menu links to the figure page (top window)', JSON.stringify(fl));
+  const tiles = await ev(() => [...document.querySelectorAll('#heroes .hero')].map((b) => b.dataset.hero + (b.classList.contains('sel') ? '*' : '')).join(' '));
+  check(/^figure\* knight barbarian rogue mage$/.test(tiles), 'hero tiles, the figure preselected', tiles);
+  await tapAt(await box('#heroes .hero', 2));
+  await page.waitForFunction(() => window.__VD.info().built === 'barbarian', null, { timeout: 30000 }).catch(() => {});
+  check((await ev(() => [window.__VD.info().built, localStorage.getItem('krabsy_vdungeon_hero')].join())) === 'barbarian,barbarian', 'tap picks + builds + remembers the barbarian');
+  if (process.env.HERO) { // play the level as this hero (tap its tile)
+    await tapAt(await box(`#heroes .hero[data-hero="${process.env.HERO}"]`));
+    await page.waitForFunction((h) => window.__VD.info().pick === h && window.__VD.info().built === (h === 'figure' ? 'knight' : h), process.env.HERO, { timeout: 30000 }).catch(() => {});
+    check((await ev(() => window.__VD.info().pick)) === process.env.HERO, `tap picks ${process.env.HERO}`);
+  } else {
+    await tapAt(await box('#heroes .hero', 0));
+    await page.waitForFunction(() => window.__VD.info().pick === 'figure' && window.__VD.info().built === 'knight', null, { timeout: 30000 }).catch(() => {});
+    check((await ev(() => window.__VD.info().pick)) === 'figure', 'tap back to the figure');
+  }
   await shot('menu');
   // Start level 1 by tapping it.
   await tapAt(await box('#levels .lvl', 0));

@@ -46,8 +46,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/main.js` | game loop and rules, input, interface, QA hook |
 | `src/room.js` | builds one room from data (shell + props, merged to one mesh; search props separate) |
 | `src/levels.js` | level data: 3 levels of 5 rooms, room templates, room types |
-| `src/heroes.js` | the hero's game items (sword; shield only on the fallback Knight), the swing clip (`SWINGS`) and the saved progress (`krabsy_vdungeon_save`) |
-| `src/figure.js` | the child's figure as the hero (`loadPlayerFigure`, fallback Knight) and the one-time move of old hero-shop purchases into the shells store |
+| `src/heroes.js` | the Dungeon heroes (Knight, Barbarian, Rogue, Mage: model, weapons, swing, swoosh), `SWINGS`, the hero picker's tiles (`PICKS`) and remembered choice (`Choice`, `krabsy_vdungeon_hero`), the saved progress (`krabsy_vdungeon_save`) |
+| `src/figure.js` | the child's figure for the "your figure" tile (`loadPlayerFigure`, fallback the Schülerin `Protagonist_A`) and the one-time move of old hero-shop purchases into the shells store |
 | `src/marker.js` | the one "you can use this" marker: `markUsable(obj, {radius, top})` / `unmark(m)` (all rings one InstancedMesh, all sparkles one Points: 2 draw calls) |
 | `src/labels.js` | word plates in the room (rune door signs, bridge stones), brick texture |
 | `src/assets.js` | model loading, shared material, static merge |
@@ -59,7 +59,7 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
 | `src/audio.js` | WebAudio synth (kept from the PoC) |
 | `src/touch.js` | touch controls: virtual stick + sword button (feeds `updateHero()` / `bonk()`) |
 | `src/debris.js` | smashed crates / barrels: a pool of plank, stave and hoop pieces (shared geometry, no lights) |
-| `assets/`, `vendor/three/`, `fonts/` | models (5.5 MB; about 3.4 MB in the first load, the extra heroes load when picked, the level 2 / 3 bosses when their level starts), Three.js 0.169, fonts; nothing from a CDN |
+| `assets/`, `vendor/three/`, `fonts/` | models (5.5 MB; about 3.4 MB in the first load, the Dungeon heroes load when picked, the level 2 / 3 bosses when their level starts), Three.js 0.169, fonts; nothing from a CDN |
 | `poc/` | the June PoC, kept for reference (follow camera, primitives) |
 
 **Rules as built**
@@ -256,24 +256,51 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   `krabsy_vdungeon_save` (`{ coins, owned, hero, migrated }`; `owned` /
   `hero` are the old shop's data, read once by the migration, never
   written again). Never call coins shells / Muscheln / caracolas.
-- **The hero is the child's figure (2026-11-25, owner decision; see
-  `docs/game-contract.md` "The player's figure").** `src/figure.js`
-  `loadHeroFigure()` = `loadPlayerFigure({ fallback: 'Knight', lambert:
-  true, clips: false })` from `/lib/krabsy-figure.js` (the Dungeon's own
-  clips from `anim_medium.glb` etc. play on it, same skeleton; nothing is
-  hidden: capes and back items fit). It loads in parallel with the room
-  assets; `buildHero({ root, own })` uses the figure as it is (`Char`
-  option `own`). The sword is the Dungeon's item on `handslot.r` (scaled
-  against the slot's world scale, so it keeps its size on every figure);
-  the shield only goes on the fallback Knight (no saved figure, or a
-  locked character). Without the site (dev server, `file://`) or on any
-  error the old `assets/characters/Knight.glb` with sword + shield is
-  built (`info().hero`: `figure` | `fallback` | `knight`). Collisions,
-  swing timing and hit rules are unchanged. Menu: "Dein Held" + "Du
-  spielst mit deiner eigenen Figur." / "Du spielst den Ritter. Bau dir
-  deine eigene Figur!" and the link "Spiel mit deiner Figur →" /
-  "Juega con tu personaje →" / "Play with your figure →" to `/de/meine-figur/`
-  / `/es/mi-personaje/` / `/en/my-figure/` (`target="_top"`).
+- **Hero picker on the start screen (owner decision 2026-11-25, via the master
+  session; `docs/game-contract.md` "Hero choice on the start screen").** Under
+  the levels: "Dein Held" / "Tu héroe" / "Your hero" with five tiles
+  (`PICKS` in `heroes.js`): **"Deine Figur" / "Tu personaje" / "Your figure"**
+  first, then the Dungeon's own heroes **Ritter, Barbar, Schurke, Magier**
+  (Caballero, Bárbaro, Pícaro, Mago). All free (no coins, no shop); a Dungeon
+  hero is never saved as the child's figure. The last pick is remembered in
+  localStorage `krabsy_vdungeon_hero` (`Choice`; missing, unknown or no
+  storage → the figure tile). Below the tiles the link "Spiel mit deiner
+  Figur →" / "Juega con tu personaje →" / "Play with your figure →" to
+  `/de/meine-figur/` / `/es/mi-personaje/` / `/en/my-figure/` (`target="_top"`).
+  - The figure tile = `src/figure.js` `loadHeroFigure()` =
+    `loadPlayerFigure({ fallback: 'Protagonist_A', lambert: true, clips:
+    false })`: the child's saved figure, or the **Schülerin** for a child
+    without one (or with a locked character). It loads once, in parallel with
+    the room assets, whatever is picked (`figLoad`). Without the site (dev
+    server, `file://`) or on any error the figure tile builds the old
+    `assets/characters/Knight.glb` with sword + shield, as before. A Dungeon
+    hero whose files fail gives the figure. Never throws (`setHero`).
+  - **Weapons ("the sword stays on every hero", master's point 5,
+    interpreted):** the child's figure (also the default Schülerin) and the
+    Knight carry the Dungeon sword on `handslot.r` (the figure without the
+    shield, the Knight with it); the Barbarian (big axe), Rogue (two daggers)
+    and Mage (staff, glowing gem) keep their own weapons, swings and swoosh
+    colours (play-test notes 7 + 13: the owner asked for weapons you can tell
+    apart). If the owner wants the sword on all five, set their `gear` to the
+    sword and `swing: 'slice'` in `heroes.js`.
+  - Every pick is built from a template copy (`buildHero(src, def)`, `Char`
+    clones it), so switching back and forth works; items are scaled against
+    the slot's world scale. A pick made in the menu is awaited by
+    `startLevel` (`heroReady`).
+  - Tiles: the old hero-card look (96 px, 72 px portrait, name, teal outline
+    + ✓ when chosen; 80 px / 50 px below 500 px height). Dungeon heroes use
+    `assets/portraits/<id>.webp`. The figure tile shows the site's portrait
+    of the character (`/assets/figures/portraits/<char>.webp`) at once, then
+    a picture of the child's own figure rendered at runtime (`figurePortrait`:
+    a small throw-away WebGL renderer, the figure idle with its sword on the
+    same navy gradient, 144 px PNG data URL); without the site a plain figure
+    icon (SVG).
+  - Keys: ↓ / ↑ switch between the level row and the hero row (the active
+    row's choice glows); in the hero row ←/→ or 1–5 pick, in the level row
+    ←/→ or 1–3 as before; Enter/Space start. Touch/mouse: `tap()` on a tile.
+  - `info().pick` = the picked tile, `info().hero` = what is built:
+    `figure` | `fallback` (Schülerin) | `old-knight` (no site) | a Dungeon
+    hero id; `info().built` = the gear/swing def (`knight` for the figure).
 - **Hero-shop migration (`migrateHeroes()`, before the figure loads).**
   Runs once (flag `migrated` in the save; unlocking an owned id is a no-op
   and a saved figure is never replaced, so it is safe to run again). Each
@@ -285,12 +312,13 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   them and who has no figure yet gets that look saved as the figure
   (Barbarian / Rogue_Hooded / the Witch in purple with the wizard hat).
   Without the site the import fails and the flag stays unset.
-- Heroes (until 2026-11-25): a coin shop with Knight, Barbarian, Rogue and
-  Mage, each with its own weapon, swing and swoosh (see git history before
-  this date). Now one hero, the child's figure, with the Knight's sword and
-  its 1H slice (forehand: the clip is mirrored in time, `reverse: true`,
-  `swingTimes()`, play-test note 13). `Assets` still builds `Swing_<key>`
-  for every `SWINGS` entry (now only `slice`).
+- Heroes: until 2026-11-25 (morning) a coin shop with Knight, Barbarian, Rogue and
+  Mage; then only the child's figure (7e4a9ec, files removed in 3e20bb5);
+  since 2026-11-25 (evening) the hero picker above: the four Dungeon heroes
+  are back, free, with their own weapons, swings (`slice`, `heavy`, `dual`)
+  and swooshes, all forehands (the clip is mirrored in time, `reverse:
+  true`, `swingTimes()`, play-test note 13). `Assets` builds `Swing_<key>`
+  for every `SWINGS` entry.
 - Archer skeleton (`archer(route)` in `levels.js`, from level 2): keeps 4.5
   to 10 units away, shows "!" and aims for 1 s (the last 0.3 s fixed), then
   shoots one slow arrow (speed 7, hero 6.2) straight at where the hero
@@ -310,8 +338,8 @@ Plain ES modules, no build step. Serve with `python3 tools/serve.py`
   from `SWINGS` in `heroes.js`, played as `Swing_<key>` = its upper body,
   built at load in `assets.js`; the hips' turn is folded into the spine so
   the legs keep running). Clip: `Melee_1H_Attack_Slice_Horizontal`
-  (`slice`; the shop heroes' `heavy` / `dual` swings went with the shop on
-  2026-11-25); the measured blade angles are in the comments there. Each starts inside its wind-up
+  (`slice`: knight, mage, the figure), `Melee_2H_Attack_Slice` (`heavy`:
+  barbarian), `Melee_Dualwield_Attack_Slice` (`dual`: rogue); the measured blade angles are in the comments there. Each starts inside its wind-up
   (`from`): strike begins within ~0.06 s of the key press, hit check at
   0.11 s (measured 0.117 s at 60 fps for every hero) when the blade is in
   front, next swing allowed after 0.38 s (`SWING` in `main.js`). Hit rules
@@ -475,7 +503,7 @@ book's circle), `readbook`, `beside:i` (next to search prop i, facing it),
 `minions:n` (wait for n necromancer minions), `cast:t` / `orbs:t` (the
 skeleton mage mid-cast / orbs t s in flight), `still` (enemies stop),
 `ans:right|wrong`, `foe` (next to the boss; `golem` works too), `bonk`,
-`menu`, `coins:n`; `&safe=1` = no bumps). `&hero=id` plays as that hero; `?qa=portrait&stop=0&hero=id`
+`menu`, `coins:n`; `&safe=1` = no bumps). `&hero=id` (`figure`, `knight`, `barbarian`, `rogue`, `mage`) plays as that hero (picked at load, not remembered); `?qa=portrait&stop=0&hero=id`
 is the close-up the menu portraits were cut from (only the hero and the lights, on a vertical navy gradient with a front key and a rim light, play-test note 15; 640 px square from y 120, x 380 / 420 / 370 / 290 for knight / barbarian / rogue / mage, scaled to 144; `&pt=` holds the swing clip at that time);
 `?qa=swing&stop=1&n=8&fps=60` (n = frames after the key press; `&stand=1`,
 `&face=deg`, `&skel=1`) freezes a swing. On localhost the result is also
@@ -489,10 +517,10 @@ bottom sign) for chain-order checks; `__VD.keyObj()` is where the key lies.
 the game files at `/` plus symlinks `lib` → `homepage/lib` and `data` →
 `homepage/data`; then `info().source === 'engine'`. `tools/qa-engine.cjs
 <port> [extra query]` plays levels 1–3 with and without `&wrongall=1` and
-prints source, tiers, the verb pool and chain-order violations.
+prints source, tiers, the verb pool and chain-order violations. Both tools take `BASE=/games/verb-dungeon/` when the game is not at `/` (a site-like folder with `assets/figures` too, so the figure loads).
 `tools/qa-touch.cjs <port> <w> <h> <lang> <prefix>` plays level 1 by touch
 in a `hasTouch`/`isMobile` context (stick drags via CDP
-`Input.dispatchTouchEvent`, taps on menu, hero cards, chips, "later", end
+`Input.dispatchTouchEvent`, taps on menu, hero tiles (`HERO=<id>` plays the level as that hero), chips, "later", end
 screen, sound; the sword button at the book (without and with the key), at
 the chest and on the boss stone; both rune walls; screenshots
 `_shots/<prefix>-*.png`; `SHOTS=dir` writes them elsewhere); `START=n` skips the
@@ -1225,3 +1253,54 @@ geometry, at most one shadow light.
   - **Release (master):** copy + stamp as usual; `RELEASE.md`'s "the other
     heroes load when picked" and the thumbnails' "three heroes" key art are
     out of date.
+- 2026-11-25 (evening) — **Hero picker on the start screen** (owner decision
+  2026-11-25 via the master session, `docs/game-contract.md` "Hero choice on
+  the start screen"; see "Hero picker on the start screen" in "Rules as built").
+  - Tiles "Deine Figur" (preselected) + Ritter, Barbar, Schurke, Magier, all
+    free, never saved as the child's figure; last pick in `krabsy_vdungeon_hero`
+    (unknown → figure). Figure fallback is now the Schülerin (`Protagonist_A`,
+    `DEFAULT_FIGURE` in `figure.js`) instead of the catalogue Knight; the old
+    `Knight.glb` stays the no-site / error fallback.
+  - Restored from `3e20bb5^`: `Barbarian.glb`, `Rogue_Hooded.glb`, `Mage.glb`,
+    `axe_2handed.*`, `dagger.*`, `staff.*`, their textures, `assets/portraits/`
+    (4 webp) and the `CREDITS.md` lines; `heroes.js` gets the four hero defs and
+    the `heavy` / `dual` swings back (identical to before 7e4a9ec; the gear code
+    in `main.js` (`faceCam`, `upright`, glow, magic sparks) had stayed).
+  - **"The sword stays on every hero" (master's point 5) — interpreted:** the
+    child's figure and the Knight carry the Dungeon sword on `handslot.r`; the
+    Barbarian, Rogue and Mage keep their own weapons (play-test notes 7 + 13).
+    Easy to change in `heroes.js` if the owner meant all five.
+  - ES tile label is "Tu personaje" (the contract and the site's figure page),
+    not "Tu figura".
+  - `main.js`: `drawHeroes` / `pickHero` / `setHero` / `heroTemplate` /
+    `attachGear` / `figurePortrait` (runtime picture of the figure tile),
+    `buildHero(src, def)` copies the template (switching back and forth),
+    `startLevel` waits for a pending pick, menu keys ↓/↑ + ←/→ / 1–5,
+    `info().pick`, `info().hero` values (`old-knight` instead of `knight`),
+    `&hero=` restored. `i18n.js`: `hero_*` labels; `figureOwn` / `figureNone`
+    gone. `index.html`: tile styles (phone sizes below 500 px), stamped.
+    `tools/qa-touch.cjs`: checks the tiles, taps the Barbarian, `HERO=<id>`;
+    both QA tools take `BASE=`.
+  - Size: `assets/` 4.27 → 5.49 MB (+1.22 MB hero models/weapons, loaded only
+    when picked; +10 KB portraits in the first load). The whole folder 7.26 MB.
+  - **Checked** (headless Linux Chromium, site-like folder: game at
+    `/games/verb-dungeon/` + `lib`, `data`, `assets/figures` symlinks;
+    `api.krabsy.com` blocked): no saved figure → "Deine Figur" preselected, the
+    Schülerin built with the sword, portrait rendered; saved Witch (purple) and
+    saved Knight figure → own figure + portrait; unknown saved choice → figure;
+    mouse pick of the Mage, reload → Mage; keys ↓ ←←← → Knight, 3 → Barbarian,
+    ↑ 1 → level 1 (hero kept), Enter → level 1 as the Barbarian;
+    `?qa=play&level=1&hero=<each>` → 'end', hearts 3; `tools/qa-engine.cjs`
+    levels 1–3 ± wrongall → 'end', engine, no chain-order violations;
+    `?qa=swing` hit at 0.117 s for all five (running and standing);
+    `tools/qa-touch.cjs` 1024×768 DE (HERO=mage) and 844×390 ES (HERO=rogue,
+    room 1); the phone menu fits 390 px height; 0 console errors besides the
+    localhost `diag` / `qa-report` 404s (and pre-existing `ERR_ABORTED` duplicate
+    model requests); `node --check` on all `src/*.js`. Screenshots
+    `_shots/H-menu-de-default.png`, `H-menu-de-witch.png`, `H-menu-es-phone.png`,
+    `H-tile-*.png`, `H-room-<hero>.png`, `H-tablet-*`, `H-phone-*`.
+  - **Not checked:** a real device; the figure portrait on a weak Chromebook GPU
+    (a second, short-lived WebGL context); the real wrapper iframe.
+  - **Release (master):** copy the restored `assets/characters/*` hero files and
+    `assets/portraits/` into the build again (they were removed from
+    `homepage/games/verb-dungeon/` in 3e20bb5); `RELEASE.md`'s hero lines.
