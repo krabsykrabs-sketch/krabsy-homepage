@@ -25,7 +25,7 @@
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-26';
 import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-26b';
-import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26b';
+import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26c';
 
 const LANG = 'en';
 const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',

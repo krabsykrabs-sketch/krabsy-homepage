@@ -34,6 +34,8 @@ Krabsy, the tutor sees it live.
 5. **End lesson** → summary → edit the note → **Save and end**. The note appears
    under the student's lesson notes.
 
+Read-aloud (🔊 on words): works best in **Chrome or Edge**, which always have Spanish voices. A browser without a Spanish voice stays silent instead of reading Spanish with an English voice.
+
 Tip for the tutor: put Krabsy and Zoom **side by side** on your screen; the live page
 works in a narrow window.
 

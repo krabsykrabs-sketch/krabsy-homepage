@@ -18,7 +18,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
-import { mountMaterial } from '/lib/activities/player.js?v=2026-11-26b';
+import { mountMaterial } from '/lib/activities/player.js?v=2026-11-26c';
 
 const LANG = 'en';
 const SPACE = '/en/spanish/tutors/space/';

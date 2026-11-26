@@ -14,12 +14,58 @@ export function shuffle(arr) {
 
 export const reducedMotion = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) { return false; } };
 
-const SPEECH_LANG = { es: 'es-ES', en: 'en-GB', de: 'de-DE' };
+// Speech in the LEARNING language (owner 2026-11-26: "Spanish words are pronounced English").
+// Browsers load their voice list late (Chrome: empty on the first call), and without an
+// explicit voice they read with the default voice (English on an English computer). So we
+// load the list early, wait for it (max 1.5 s) and pick a voice of that language:
+// Latin-American Spanish first (Uruguay/Argentina learners), then Spain; natural/online
+// voices ("Google", "Natural", "Online") before the robotic ones.
+const SPEECH_LANG = { es: 'es-419', en: 'en-GB', de: 'de-DE' };
+const PREFER = { es: ['es-419', 'es-us', 'es-mx', 'es-ar', 'es-uy', 'es-co', 'es-cl', 'es-es', 'es'], en: ['en-gb', 'en-us', 'en'], de: ['de-de', 'de'] };
+let voicesReady = null;
+function loadVoices() {
+  if (voicesReady) return voicesReady;
+  voicesReady = new Promise((resolve) => {
+    try {
+      const now = speechSynthesis.getVoices();
+      if (now.length) return resolve(now);
+      const done = () => resolve(speechSynthesis.getVoices());
+      speechSynthesis.addEventListener('voiceschanged', done, { once: true });
+      setTimeout(done, 1500);
+    } catch (_) { resolve([]); }
+  });
+  return voicesReady;
+}
+try { if (typeof speechSynthesis !== 'undefined') loadVoices(); } catch (_) {}
+export function pickVoice(voices, learn) {
+  const base = String(learn || 'es').toLowerCase().slice(0, 2);
+  const mine = voices.filter((v) => String(v.lang).toLowerCase().replace('_', '-').startsWith(base));
+  if (!mine.length) return null;
+  const order = PREFER[base] || [base];
+  const rank = (v) => {
+    const l = String(v.lang).toLowerCase().replace('_', '-');
+    let r = order.findIndex((p) => l.startsWith(p)); if (r < 0) r = order.length;
+    const good = /google|natural|online|neural|premium|enhanced/i.test(v.name) ? 0 : 1;
+    return r * 2 + good;
+  };
+  return mine.sort((a, b) => rank(a) - rank(b))[0];
+}
 export function speak(text, learn = 'es') {
   try {
-    const u = new SpeechSynthesisUtterance(text); u.lang = SPEECH_LANG[learn] || learn; u.rate = 0.85;
-    const v = speechSynthesis.getVoices().find(v => v.lang.startsWith(learn)); if (v) u.voice = v;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
+    if (typeof speechSynthesis === 'undefined' || !text) return;
+    const say = (voices) => {
+      const v = pickVoice(voices, learn);
+      // Voices known but none speaks this language: stay silent rather than read Spanish
+      // with an English voice (Chrome and Edge always have Spanish voices).
+      if (!v && voices.length) return;
+      const u = new SpeechSynthesisUtterance(text);
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = SPEECH_LANG[learn] || learn;
+      u.rate = 0.85;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    };
+    // Voices known: speak right now (Safari/iPad only allow speech directly after a tap).
+    const now = speechSynthesis.getVoices();
+    if (now.length) say(now); else loadVoices().then(say);
   } catch (_) { /* no speech in this browser */ }
 }
 
