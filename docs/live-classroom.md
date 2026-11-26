@@ -292,3 +292,18 @@ API as in the contract; details in `homepage/lib/activities/README.md`. Addition
   `krabsy-live.css`) is added by `krabsy-live-student.js`. `krabsy-live.css` also styles the entry
   buttons and is added by `krabsy-tutor.js` on the space pages.
 - Queue reorder is ▲ ▼ buttons (no drag); the prototype's pause button and run-sheet timings are not built.
+
+### Integration (acceptance run, 2026-11-26)
+
+- Acceptance run on port 8129 (8125 was held by another session's tower-defense dev server):
+  two Playwright contexts, real relay, player, materials; 98/98 checks. The run compares a state
+  signature of the student's player with the mirror after every action (cards, tap, match, sort,
+  drag gap, typed letter by letter, reveal, book).
+- Tutor gifts during a lesson: the gift is granted at once, but the site's gift card
+  (`krabsy-gifts-ui`, its "Have a look →" leads to the figure page) no longer pops up over the lesson.
+  `krabsy-live.css` hides `.k-gift` while `html.kl-locked`; the lesson's gifts are kept in
+  `sessionStorage` (`krabsy_live_gifts`) and shown when the lesson layer closes (also after a reload).
+- `player.js` show-answer line: a whole sentence is shown as it is ("→ El cerdo está en el barro."),
+  not "It is El cerdo está en el barro..".
+- `from-engine.js`: when the gap starts the sentence, the answer and every choice start with a capital
+  (topic items' own distractors are lower case; `check_materials.py` failed at random on this).

@@ -109,7 +109,9 @@ export function mountPlayer(root, material, opts = {}) {
     } else if (shown) {
       if (counts) st.total++;
       addPractise(wordId, label);
-      msg('shown', '→', '', `${L.itIs} ${label}. ${teach || ''}`.trim());
+      // a whole sentence is shown as it is; a word gets "It is …."
+      const lb = String(label ?? ''), sent = /\s/.test(lb) && /[.!?…]$/.test(lb);
+      msg('shown', '→', '', `${sent ? lb : `${L.itIs} ${lb.replace(/[.!?…]+$/, '')}.`} ${teach || ''}`.trim());
     } else msg('no', '✗', L.notQuite, L.tryAgain);
     if (mirror) return;
     const correct = !!ok;

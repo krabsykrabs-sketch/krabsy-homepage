@@ -30,6 +30,7 @@ const T = {
   replaced: 'The lesson is open in another tab or on another device.', useHere: 'Use it here',
 };
 const GIFTS = ['🎁', '🎈', '🍦', '🏆'];
+const GIFT_KEY = 'krabsy_live_gifts';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 let cssDone = false;
@@ -124,6 +125,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     if (view) view.remove();
     view = null;
     document.documentElement.classList.remove('kl-locked');
+    showGiftsLater();
   }
   const stage = () => view && view.querySelector('[data-stage]');
   function setBanner(kind) {
@@ -179,13 +181,34 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     const t = setTimeout(() => o.remove(), 2600);
     o.addEventListener('click', () => { clearTimeout(t); o.remove(); });
     if (gift) {
+      // The gift is owned at once; its card ("Have a look →" leads to the figure page)
+      // waits until the lesson view closes, so it never covers the lesson or leads away.
+      // (krabsy-live.css also hides the site's own gift popup while the lesson layer is open)
       try {
-        const ui = await import('/lib/krabsy-gifts-ui.js');
         const rw = await import('/lib/krabsy-rewards.js');
         const g = rw.grantGift({ source: 'tutor' });
-        if (g && g.ok) setTimeout(() => ui.showGifts([g], { lang: 'en' }), 1400);
+        if (g && g.ok) { const l = lessonGifts(); l.push(g); lessonGifts(l); }
       } catch (_) { /* the burst is enough */ }
     }
+  }
+  // this lesson's gifts, kept per tab so a reload in the lesson does not lose the card
+  function lessonGifts(set) {
+    try {
+      if (set) { if (set.length) sessionStorage.setItem(GIFT_KEY, JSON.stringify(set.slice(-10))); else sessionStorage.removeItem(GIFT_KEY); return set; }
+      const v = JSON.parse(sessionStorage.getItem(GIFT_KEY) || '[]'); return Array.isArray(v) ? v : [];
+    } catch (_) { return []; }
+  }
+  async function showGiftsLater() {
+    if (document.querySelector('.k-gift')) { lessonGifts([]); return; }   // the site's popup card is there: it shows now
+    try {
+      const rw = await import('/lib/krabsy-rewards.js');
+      const list = rw.takePending();
+      for (const g of lessonGifts()) if (!list.some((x) => x.id === g.id)) list.push(g);
+      lessonGifts([]);
+      if (!list.length) return;
+      const ui = await import('/lib/krabsy-gifts-ui.js');
+      setTimeout(() => ui.showGifts(list, { lang: 'en' }), 400);
+    } catch (_) { /* no card then; the gifts are owned anyway (header "new" badge) */ }
   }
 
   /* ── lesson over ──────────────────────────────────────────────────────── */

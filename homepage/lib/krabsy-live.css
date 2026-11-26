@@ -201,6 +201,8 @@ html.kl-locked, html.kl-locked body { overflow: hidden; }
 /* ── entry buttons on the v1 tutor pages (krabsy-tutor.js) ── */
 .kt-scard-wrap { display: flex; flex-direction: column; gap: 6px; }
 .kt-scard-wrap > .kt-scard { flex: 1; }
+/* the site's gift popup (krabsy-gifts-ui) waits under a running lesson: it shows again when the layer closes */
+html.kl-locked .k-gift { display: none !important; }
 .kt-livebtn { align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px;
   background: #3a2a35; color: #fff !important; font-weight: 700; font-size: 0.88rem; text-decoration: none; }
 .kt-livebtn:hover { background: #2c2a3a; }

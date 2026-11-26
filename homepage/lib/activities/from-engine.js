@@ -37,9 +37,14 @@ function oneGap(text) {
 }
 
 function sentence({ text, answer, accepts, options, hint, teach, item, topic, form }) {
+  // a gap that starts the sentence: every choice starts with a capital (a lower-case
+  // distractor would give the answer away), e.g. "___ cansado." → Estoy / Soy / Está
+  const atStart = /^[¿¡]?___/.test(String(text || '').trim());
+  const capF = (o) => (atStart && o ? o.charAt(0).toLocaleUpperCase('es') + o.slice(1) : o);
+  answer = capF(String(answer ?? ''));
   const acc = [...new Set([answer, ...(accepts || [])].map(norm).filter(Boolean))];
   const opts = [];
-  for (const o of options || []) if (o && !opts.some((x) => norm(x) === norm(o))) opts.push(String(o));
+  for (const o0 of options || []) { const o = capF(String(o0 || '')); if (o && !opts.some((x) => norm(x) === norm(o))) opts.push(o); }
   if (opts.length && !opts.includes(answer)) opts.splice(Math.floor(Math.random() * (opts.length + 1)), 0, answer);
   // a wrong option that is also accepted would be marked wrong when tapped: drop it
   const clean = opts.filter((o) => o === answer || !acc.includes(norm(o))).slice(0, 4);
