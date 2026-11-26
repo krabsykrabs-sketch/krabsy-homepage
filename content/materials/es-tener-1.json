@@ -5,8 +5,8 @@
   "topic": "es_tener",
   "level": "A1",
   "learn": "es",
-  "minutes": 10,
-  "blurb": "Ana and her new friend ask about age, pets, brothers and sisters, and how they feel.",
+  "minutes": 12,
+  "blurb": "Ana and her new friend ask about age, pets and brothers and sisters (tengo, tienes, tiene), and say when they are hungry or cold.",
   "steps": [
     {
       "type": "text",
@@ -32,7 +32,7 @@
           ],
           "hint": "",
           "en": "I am ten years old.",
-          "teach": "Your age: tengo … años (= I have … years). Not soy: Tengo diez años.",
+          "teach": "Your age: tengo … años (= I have … years).",
           "item": "tener_age",
           "topic": "es_tener"
         },
@@ -49,12 +49,12 @@
           ],
           "hint": "",
           "en": "My sister is five years old.",
-          "teach": "Your age: tengo … años (= I have … years). Not soy: Tengo diez años.",
+          "teach": "Another person’s age: tiene … años.",
           "item": "tener_age",
           "topic": "es_tener"
         },
         {
-          "text": "¿Cuántos años ___?",
+          "text": "¿Cuántos años ___ tú?",
           "answer": "tienes",
           "accepts": [
             "tienes"
@@ -66,24 +66,24 @@
           ],
           "hint": "",
           "en": "How old are you?",
-          "teach": "Your age: tengo … años (= I have … years). Not soy: Tengo diez años.",
+          "teach": "Asking a friend: ¿Cuántos años tienes?",
           "item": "tener_age",
           "topic": "es_tener"
         },
         {
-          "text": "___ un perro.",
-          "answer": "Tengo",
+          "text": "Yo ___ dos hermanos.",
+          "answer": "tengo",
           "accepts": [
             "tengo"
           ],
           "options": [
-            "Tengo",
-            "Estoy",
-            "Soy"
+            "tengo",
+            "soy",
+            "estoy"
           ],
           "hint": "",
-          "en": "I have a dog.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "en": "I have two brothers.",
+          "teach": "Things and people you have: tengo.",
           "item": "tener_have",
           "topic": "es_tener"
         },
@@ -100,7 +100,24 @@
           ],
           "hint": "",
           "en": "My friend has a new bike.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Another person has: tiene.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "¿Tú ___ un gato?",
+          "answer": "tienes",
+          "accepts": [
+            "tienes"
+          ],
+          "options": [
+            "eres",
+            "tienes",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Do you have a cat?",
+          "teach": "Asking a friend: ¿tú tienes …?",
           "item": "tener_have",
           "topic": "es_tener"
         }
@@ -108,8 +125,18 @@
     },
     {
       "type": "gap",
-      "title": "Drag the word into the gap",
+      "title": "Hungry, thirsty, cold? Drag the word",
       "mode": "drag",
+      "bank": [
+        "sed",
+        "cansado",
+        "sueño",
+        "hambre",
+        "miedo",
+        "calor",
+        "frío",
+        "contento"
+      ],
       "sentences": [
         {
           "text": "Es la hora de comer. Tengo ___.",
@@ -124,7 +151,7 @@
           ],
           "hint": "hungry",
           "en": "It is time to eat. I am hungry.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "teach": "Tengo hambre = I am hungry.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         },
@@ -141,24 +168,41 @@
           ],
           "hint": "thirsty",
           "en": "I want water. I am thirsty.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "teach": "Tengo sed = I am thirsty.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         },
         {
-          "text": "Hace mucho frío. Tengo ___.",
+          "text": "Está nevando. Tengo ___.",
           "answer": "frío",
           "accepts": [
             "frío"
           ],
           "options": [
-            "frío",
+            "calor",
             "sed",
-            "calor"
+            "frío"
           ],
           "hint": "cold",
-          "en": "It is very cold. I am cold.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "en": "It is snowing. I am cold.",
+          "teach": "Tengo frío = I am cold.",
+          "item": "tener_feel_word",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Tengo ___ de los perros grandes.",
+          "answer": "miedo",
+          "accepts": [
+            "miedo"
+          ],
+          "options": [
+            "miedo",
+            "frío",
+            "sueño"
+          ],
+          "hint": "scared",
+          "en": "I am scared of big dogs.",
+          "teach": "Tengo miedo = I am scared.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         },
@@ -175,7 +219,7 @@
           ],
           "hint": "hot",
           "en": "It is summer and I am hot.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "teach": "Tengo calor = I am hot.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         },
@@ -192,17 +236,10 @@
           ],
           "hint": "sleepy",
           "en": "It is eleven at night. I am sleepy.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
+          "teach": "Tengo sueño = I am sleepy.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         }
-      ],
-      "bank": [
-        "calor",
-        "hambre",
-        "sueño",
-        "sed",
-        "frío"
       ]
     },
     {
@@ -223,29 +260,63 @@
           ],
           "hint": "",
           "en": "My name is Ana and I am nine years old.",
-          "teach": "Your age: tengo … años (= I have … years). Not soy: Tengo diez años.",
+          "teach": "Your age: tengo … años.",
           "item": "tener_age",
           "topic": "es_tener"
         },
         {
-          "text": "Yo ___ dos hermanos.",
-          "answer": "tengo",
+          "text": "¿Tú ___ hermanos?",
+          "answer": "tienes",
           "accepts": [
-            "tengo"
+            "tienes"
           ],
           "options": [
+            "tienes",
             "tengo",
-            "soy",
-            "estoy"
+            "eres"
           ],
           "hint": "",
-          "en": "I have two brothers.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "en": "Do you have brothers and sisters?",
+          "teach": "Asking a friend: ¿tú tienes …?",
           "item": "tener_have",
           "topic": "es_tener"
         },
         {
-          "text": "No ___ gato.",
+          "text": "Lucas ___ ocho años.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tiene",
+            "es",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Lucas is eight years old.",
+          "teach": "Another person’s age: tiene … años.",
+          "item": "tener_age",
+          "topic": "es_tener"
+        },
+        {
+          "text": "¿Tú ___ frío?",
+          "answer": "tienes",
+          "accepts": [
+            "tienes"
+          ],
+          "options": [
+            "estás",
+            "tienes",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Are you cold?",
+          "teach": "Cold, hot, hungry: tener. ¿Tienes frío?",
+          "item": "tener_feel",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Yo ___ mucha sed.",
           "answer": "tengo",
           "accepts": [
             "tengo"
@@ -256,43 +327,26 @@
             "soy"
           ],
           "hint": "",
-          "en": "I don’t have a cat.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
-          "item": "tener_have",
-          "topic": "es_tener"
-        },
-        {
-          "text": "En mi mochila ___ un libro y un lápiz.",
-          "answer": "tengo",
-          "accepts": [
-            "tengo"
-          ],
-          "options": [
-            "tengo",
-            "soy",
-            "estoy"
-          ],
-          "hint": "",
-          "en": "In my backpack I have a book and a pencil.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
-          "item": "tener_have",
-          "topic": "es_tener"
-        },
-        {
-          "text": "En invierno ___ frío.",
-          "answer": "tengo",
-          "accepts": [
-            "tengo"
-          ],
-          "options": [
-            "es",
-            "tengo",
-            "estoy"
-          ],
-          "hint": "",
-          "en": "In winter I am cold.",
-          "teach": "Hungry, thirsty, cold, hot, sleepy use tener: tengo hambre (= I have hunger). Not estoy.",
+          "en": "I am very thirsty.",
+          "teach": "Thirsty: tengo sed (= I have thirst). Not estoy.",
           "item": "tener_feel",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Mi abuela ___ un gato negro.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tengo",
+            "es",
+            "tiene"
+          ],
+          "hint": "",
+          "en": "My grandmother has a black cat.",
+          "teach": "Another person has: tiene.",
+          "item": "tener_have",
           "topic": "es_tener"
         }
       ]

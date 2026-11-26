@@ -6,7 +6,7 @@
   "level": "A1",
   "learn": "es",
   "minutes": 8,
-  "blurb": "Lucas has a dog. Who has a cat, a rabbit or a hamster?",
+  "blurb": "Lucas has a dog. Who has a cat, a rabbit or a hamster? (tengo, tienes, tiene)",
   "steps": [
     {
       "type": "text",
@@ -79,7 +79,7 @@
     },
     {
       "type": "gap",
-      "title": "Choose the right word",
+      "title": "Who has a pet? Choose the word",
       "mode": "choice",
       "sentences": [
         {
@@ -95,7 +95,7 @@
           ],
           "hint": "",
           "en": "Lucas has a dog.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Another person has: tiene.",
           "item": "tener_have",
           "topic": "es_tener"
         },
@@ -108,11 +108,28 @@
           "options": [
             "tiene",
             "tengo",
-            "soy"
+            "estoy"
           ],
           "hint": "",
           "en": "I have a cat.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Things you have: tengo.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "¿Tú ___ un hámster?",
+          "answer": "tienes",
+          "accepts": [
+            "tienes"
+          ],
+          "options": [
+            "tienes",
+            "eres",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Do you have a hamster?",
+          "teach": "Asking a friend: ¿tú tienes …?",
           "item": "tener_have",
           "topic": "es_tener"
         },
@@ -129,41 +146,41 @@
           ],
           "hint": "",
           "en": "My friend has a rabbit.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Another person has: tiene.",
           "item": "tener_have",
           "topic": "es_tener"
         },
         {
-          "text": "Lucas ___ dos peces.",
-          "answer": "tiene",
+          "text": "El perro de Lucas se ___ Tito.",
+          "answer": "llama",
           "accepts": [
-            "tiene"
+            "llama"
           ],
           "options": [
+            "llamo",
+            "llama",
+            "llamas"
+          ],
+          "hint": "",
+          "en": "Lucas’s dog is called Tito.",
+          "teach": "A name: se llama … (= is called …).",
+          "item": "ser_me_llamo",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Yo no ___ peces.",
+          "answer": "tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "estoy",
             "tiene",
-            "tengo",
-            "es"
+            "tengo"
           ],
           "hint": "",
-          "en": "Lucas has two fish.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
-          "item": "tener_have",
-          "topic": "es_tener"
-        },
-        {
-          "text": "¿___ un hámster?",
-          "answer": "Tienes",
-          "accepts": [
-            "tienes"
-          ],
-          "options": [
-            "Tienes",
-            "Eres",
-            "Tengo"
-          ],
-          "hint": "",
-          "en": "Do you have a hamster?",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "en": "I don’t have any fish.",
+          "teach": "No tengo = I don’t have.",
           "item": "tener_have",
           "topic": "es_tener"
         }

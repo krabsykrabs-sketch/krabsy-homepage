@@ -53,17 +53,150 @@ function sentence({ text, answer, accepts, options, hint, teach, item, topic, fo
   return s;
 }
 
-function gapStep(mode, sentences, title) {
+/* ── Quality rules (the same as tools/check_materials.py) ──
+   All sentences of a gap step are on screen together, and the teach line of each answered
+   sentence shows before the next one. So within one set:
+   - no give-away: an answer (describing words / nouns: also their -o/-a/-os/-as form) is not
+     in another sentence's text or hint, and no teach line names another sentence's answer
+     word or contains another sentence filled in;
+   - variety: an answer at most twice in a row and for at most ~40 % of the set, and at
+     most half the set in one sentence pattern;
+   - drag: every answer once in the bank, no gap at the start (its capital gives it away). */
+const VERB_FORMS = new Set(('soy eres es somos sois son estoy estás está estamos estáis están tengo tienes '
+  + 'tiene tenemos tienen me llamo llamas llama hay').split(' '));
+const WORD_RE = /[a-záéíóúüñ]+/gi;
+function stem(w) {
+  w = w.toLowerCase();
+  if (VERB_FORMS.has(w) || w.length < 5) return w;
+  for (const end of ['os', 'as', 'es', 'o', 'a', 's']) {
+    if (w.endsWith(end) && w.length - end.length >= 4) return w.slice(0, -end.length);
+  }
+  return w;
+}
+const wordsOf = (t) => String(t || '').match(WORD_RE) || [];
+const wordKeys = (t, exact) => new Set(wordsOf(t).map((w) => (exact ? w.toLowerCase() : stem(w))));
+const bare = (t) => wordsOf(t).map((w) => w.toLowerCase()).join(' ');
+const isChain = (s) => String(s.text || '').includes('→');
+const shareCap = (n) => Math.max(2, Math.round(0.4 * n));
+
+function answerKey(s) {
+  const a = norm(s.answer);
+  const verb = a.split(' ').every((x) => VERB_FORMS.has(x));
+  return { verb, key: verb ? a : stem(a) };
+}
+/* Hard give-away: a's answer is in b's text or hint (cannot be mended: a and b never go
+   together; with b === a the sentence gives its own answer away). */
+function inText(a, b) {
+  if (isChain(a) || isChain(b)) return false; // verb chains (go → went → ___) show it on purpose
+  const { verb, key } = answerKey(a);
+  const seen = `${String(b.text || '').replace('___', ' ')} ${b.hint || ''}`;
+  return key.includes(' ') ? bare(seen).includes(key) : wordKeys(seen, verb).has(key);
+}
+/* Soft give-away: b's teach line names a's answer word or is a filled in (mended below). */
+function inTeach(a, b) {
+  if (isChain(a) || isChain(b)) return false;
+  const { verb, key } = answerKey(a);
+  const filled = bare(String(a.text || '').replace('___', a.answer));
+  if (filled && bare(b.teach).includes(filled)) return true;
+  // a word of b's own answer (the same answer, inglés / inglesa) is on screen anyway once b is filled in
+  return !verb && !key.includes(' ') && !wordKeys(b.answer, false).has(key) && wordKeys(b.teach, false).has(key);
+}
+const hardClash = (a, b) => inText(a, b) || inText(b, a);
+const startsWithGap = (s) => /^[¿¡]?___/.test(String(s.text || '').trim());
+// sentence pattern: names and other capitalised words as X ("Me llamo Sara. Estoy ___." ~ "… Pablo …")
+const frameOf = (s) => String(s.text || '').replace(/\p{Lu}\p{Ll}*/gu, 'X');
+
+/* One greedy pass over units in the given order. */
+function pickOnce(units, count, mode) {
+  const chosen = [];
+  const texts = new Set();
+  const tally = new Map();
+  const limit = mode === 'drag' ? 1 : shareCap(count);
+  const frames = new Map();
+  const frameCap = Math.max(2, Math.floor(count / 2)); // mix sentence patterns
+  let n = 0;
+  for (const u of units) {
+    if (n + u.length > count) continue;
+    if (u.some((s) => texts.has(norm(s.text)) || inText(s, s))) continue;
+    if (mode === 'drag' && u.some(startsWithGap)) continue;
+    if (u.some((s) => chosen.some((v) => v.some((o) => hardClash(s, o))))) continue;
+    if (!isChain(u[0]) && (frames.get(frameOf(u[0])) || 0) >= frameCap) continue;
+    const add = new Map();
+    u.forEach((s) => add.set(norm(s.answer), (add.get(norm(s.answer)) || 0) + 1));
+    if ([...add].some(([x, k]) => (tally.get(x) || 0) + k > limit)) continue;
+    add.forEach((k, x) => tally.set(x, (tally.get(x) || 0) + k));
+    u.forEach((s) => texts.add(norm(s.text)));
+    frames.set(frameOf(u[0]), (frames.get(frameOf(u[0])) || 0) + 1);
+    chosen.push(u);
+    n += u.length;
+    if (n >= count) break;
+  }
+  // the share cap holds for the set as it came out (it may be smaller than asked)
+  for (;;) {
+    const flat = chosen.flat();
+    const cnt = new Map();
+    flat.forEach((s) => cnt.set(norm(s.answer), (cnt.get(norm(s.answer)) || 0) + 1));
+    const over = [...cnt].find(([, k]) => k > shareCap(flat.length));
+    if (!over) break;
+    let i = chosen.length - 1;
+    while (i > 0 && !chosen[i].some((s) => norm(s.answer) === over[0])) i--;
+    chosen.splice(i, 1);
+  }
+  return chosen;
+}
+
+/* A teach line that names another sentence's answer gets a plain one: the sentence filled in. */
+function mendTeach(sentences) {
+  return sentences.map((s) => (sentences.some((o) => o !== s && inTeach(o, s))
+    ? { ...s, teach: String(s.text).replace('___', s.answer) + (s.hint ? ` (${s.hint})` : '') }
+    : s));
+}
+
+/* Up to `count` sentences from units (arrays: a verb pair stays together; the first nFirst
+   units are the focus items and stay first), keeping the quality rules. Several tries in
+   different orders, the fullest set wins. Then ordered so the same answer does not come
+   twice in a row where that can be avoided (never three times). */
+function pickSet(units, count, mode, nFirst = 0) {
+  const head = units.slice(0, nFirst);
+  const tail = units.slice(nFirst);
+  let best = [];
+  for (let t = 0; t < 40; t++) {
+    const got = pickOnce([...head, ...(t ? shuffle(tail) : tail)], count, mode);
+    if (got.flat().length > best.flat().length) best = got;
+    if (best.flat().length >= count) break;
+  }
+  const out = [];
+  const rest = best.slice();
+  while (rest.length) {
+    const last = out.length ? norm(out[out.length - 1].answer) : null;
+    const prev = out.length > 1 ? norm(out[out.length - 2].answer) : null;
+    // the answer that is left most often goes first (else it piles up at the end); the
+    // first unit (a focus item) opens the set
+    const left = new Map();
+    rest.forEach((u) => left.set(norm(u[0].answer), (left.get(norm(u[0].answer)) || 0) + 1));
+    let k = -1;
+    rest.forEach((u, j) => {
+      const a = norm(u[0].answer);
+      if (a !== last && (k < 0 || left.get(a) > left.get(norm(rest[k][0].answer)))) k = j;
+    });
+    if (k < 0) k = rest.findIndex((u) => !(norm(u[0].answer) === last && last === prev));
+    if (k < 0 || !out.length) k = 0;
+    out.push(...rest.splice(k, 1)[0]);
+  }
+  return mendTeach(out);
+}
+
+/* moreWords: further wrong words for the drag bank when the sentences' own wrong options
+   run short (every answer is in the bank once, plus at least 2 extras). */
+function gapStep(mode, sentences, title, moreWords = []) {
   const step = { type: 'gap', title: title || TITLES[mode], mode, sentences };
   if (mode === 'drag') {
     const answers = sentences.map((s) => s.answer);
-    const taken = new Set(answers.map(norm));
+    const taken = new Set(sentences.flatMap((s) => [s.answer, ...(s.accepts || [])]).map(norm));
     const extra = [];
-    for (const s of sentences) {
-      for (const o of s.options) {
-        if (extra.length >= 2) break;
-        if (!taken.has(norm(o))) { taken.add(norm(o)); extra.push(o); }
-      }
+    for (const o of [...sentences.flatMap((s) => s.options), ...moreWords]) {
+      if (extra.length >= 2) break;
+      if (o && !taken.has(norm(o))) { taken.add(norm(o)); extra.push(o); }
     }
     step.bank = shuffle([...answers, ...extra]);
   }
@@ -99,11 +232,16 @@ export async function quickPractice({ topic, count = 6, mode = 'choice', focus =
   if (focus && focus.length) {
     try { first = await getQuizSet({ ...base, count, ids: focus }); } catch (_) { first = []; }
   }
-  const pool = first.length >= count ? [] : await getQuizSet({ ...base, count: count * 2 });
+  // draw more than needed, then choose a set without give-aways or answer streaks
+  const pool = await getQuizSet({ ...base, count: Math.max(count * 5, 40) });
   const seen = new Set();
-  const sentences = [];
-  for (const q of [...first, ...pool]) {
-    if (sentences.length >= count) break;
+  const units = [];
+  let nFirst = 0; // units of focus items (asked first)
+  let open = null; // the unit a following 3rd-form question may join (its 2nd form was just added)
+  for (const [i, q] of [...first, ...pool].entries()) {
+    if (i === first.length) nFirst = units.length;
+    const joins = open;
+    open = null;
     if (seen.has(q.id)) continue;
     seen.add(q.id);
     const text = oneGap(textOf(q));
@@ -114,11 +252,29 @@ export async function quickPractice({ topic, count = 6, mode = 'choice', focus =
       item: q.item, topic: q.topic || topic, form: q.form,
     });
     if (mode !== 'typed' && s.options.length < 2) continue;
-    sentences.push(s);
+    // a verb's 3rd form follows its 2nd form (chain order): keep the pair as one unit
+    if (q.followUp) { if (joins) joins.push(s); continue; } // never a lone 3rd form
+    const u = [s];
+    units.push(u);
+    open = u;
   }
+  if (!pool.length) nFirst = units.length;
+  let sentences = pickSet(units, count, mode, nFirst);
   if (!sentences.length) throw new Error(`quickPractice: no questions for "${topic}"`);
   const m = baseMaterial(`qp_${topic}_${uid()}`, title || 'Quick practice', topic, sentences.length, { kind: 'quick', mode, focus: (focus || []).slice(0, 30) });
-  m.steps = [gapStep(mode, sentences)];
+  // wrong words of the sentences not chosen (lower case: drag gaps never start a sentence)
+  const more = units.flat().filter((s) => !sentences.includes(s)).flatMap((s) => {
+    const words = [s.answer, ...s.options];
+    return /^[¿¡]?___/.test(String(s.text).trim()) ? words.map((o) => o.charAt(0).toLocaleLowerCase('es') + o.slice(1)) : words;
+  });
+  let step = gapStep(mode, sentences, null, more);
+  // drag: too few wrong words left for the bank → the last sentence's answer becomes one
+  while (mode === 'drag' && sentences.length > 3 && step.bank.length - sentences.length < 2) {
+    const drop = sentences[sentences.length - 1];
+    sentences = mendTeach(sentences.slice(0, -1));
+    step = gapStep(mode, sentences, null, [drop.answer, ...more]);
+  }
+  m.steps = [step];
   return m;
 }
 

@@ -5,8 +5,8 @@
   "topic": "es_feelings",
   "level": "A1",
   "learn": "es",
-  "minutes": 9,
-  "blurb": "Happy, sad, tired, angry: six faces, then say how you are.",
+  "minutes": 11,
+  "blurb": "Happy, sad, tired, angry: six faces, then say how you and your friends are (estoy, estás, está).",
   "steps": [
     {
       "type": "text",
@@ -124,9 +124,26 @@
     },
     {
       "type": "gap",
-      "title": "Choose the right word",
+      "title": "How are they? Choose the word",
       "mode": "choice",
       "sentences": [
+        {
+          "text": "Lía ___ enojada.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "estoy",
+            "está"
+          ],
+          "hint": "",
+          "en": "Lía is angry.",
+          "teach": "How someone feels now: está.",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
+        },
         {
           "text": "Hoy ___ cansado.",
           "answer": "estoy",
@@ -136,13 +153,47 @@
           "options": [
             "estoy",
             "soy",
-            "está"
+            "tengo"
           ],
           "hint": "",
           "en": "Today I am tired.",
-          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "teach": "How you feel today: estoy.",
           "item": "estar_feel_estoy",
           "topic": "es_estar"
+        },
+        {
+          "text": "Mamá, ¿tú ___ triste?",
+          "answer": "estás",
+          "accepts": [
+            "estás"
+          ],
+          "options": [
+            "estás",
+            "está",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "Mum, are you sad?",
+          "teach": "Asking someone how they feel: ¿tú estás …?",
+          "item": "estar_feel_estoy",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Mi gato ___ asustado.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "es",
+            "estás"
+          ],
+          "hint": "",
+          "en": "My cat is scared.",
+          "teach": "How an animal feels now: está.",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
         },
         {
           "text": "Yo ___ muy contenta.",
@@ -157,66 +208,32 @@
           ],
           "hint": "",
           "en": "I am very happy.",
-          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "teach": "How you feel right now: estoy.",
           "item": "estar_feel_estoy",
           "topic": "es_estar"
         },
         {
-          "text": "___ un poco triste.",
-          "answer": "Estoy",
+          "text": "Lía y su abuela ___ tranquilas.",
+          "answer": "están",
           "accepts": [
-            "estoy"
+            "están"
           ],
           "options": [
-            "Soy",
-            "Está",
-            "Estoy"
+            "están",
+            "está",
+            "son"
           ],
           "hint": "",
-          "en": "I am a little sad.",
-          "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
+          "en": "Lía and her grandmother are calm.",
+          "teach": "Two people: están.",
           "item": "estar_feel_estoy",
-          "topic": "es_estar"
-        },
-        {
-          "text": "Lía ___ enojada.",
-          "answer": "está",
-          "accepts": [
-            "está"
-          ],
-          "options": [
-            "es",
-            "estoy",
-            "está"
-          ],
-          "hint": "",
-          "en": "Lía is angry.",
-          "teach": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
-          "item": "se_what_vs_how",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "¿Cómo estás? ___ bien, gracias.",
-          "answer": "Estoy",
-          "accepts": [
-            "estoy"
-          ],
-          "options": [
-            "Es",
-            "Estoy",
-            "Soy"
-          ],
-          "hint": "",
-          "en": "How are you? I am well, thank you.",
-          "teach": "¿Cómo estás? (How are you?) → Estoy bien. Bien, not bueno: Estoy bien.",
-          "item": "estar_bien",
           "topic": "es_estar"
         }
       ]
     },
     {
       "type": "gap",
-      "title": "Type the missing word",
+      "title": "Type how they feel",
       "mode": "typed",
       "sentences": [
         {
@@ -232,7 +249,24 @@
           ],
           "hint": "tired",
           "en": "My name is Pablo. I am tired.",
-          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "teach": "A boy says cansado, a girl says cansada.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Lía está ___ porque hay una araña.",
+          "answer": "asustada",
+          "accepts": [
+            "asustada"
+          ],
+          "options": [
+            "asustado",
+            "asustada",
+            "asustadas"
+          ],
+          "hint": "scared",
+          "en": "Lía is scared because there is a spider.",
+          "teach": "Lía is a girl: asustada. A boy: asustado.",
           "item": "estar_feel_word",
           "topic": "es_estar"
         },
@@ -249,7 +283,24 @@
           ],
           "hint": "happy",
           "en": "My name is Marta. I am happy.",
-          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "teach": "A girl says contenta, a boy says contento.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        },
+        {
+          "text": "Tito rompe la pelota de Lucas. Lucas está ___.",
+          "answer": "enojado",
+          "accepts": [
+            "enojado"
+          ],
+          "options": [
+            "enojado",
+            "enojada",
+            "enojados"
+          ],
+          "hint": "angry",
+          "en": "Tito breaks Lucas’s ball. Lucas is angry.",
+          "teach": "Lucas is a boy: enojado. A girl: enojada.",
           "item": "estar_feel_word",
           "topic": "es_estar"
         },
@@ -261,12 +312,29 @@
           ],
           "options": [
             "triste",
-            "contento",
-            "tristes"
+            "tristes",
+            "contento"
           ],
           "hint": "sad",
           "en": "My name is Leo. I am sad.",
-          "teach": "A boy says cansado, a girl says cansada (-o / -a). Triste stays the same for everyone.",
+          "teach": "Triste is the same for boys and girls.",
+          "item": "estar_feel_word",
+          "topic": "es_estar"
+        },
+        {
+          "text": "¡Una sorpresa para Lía! Está muy ___.",
+          "answer": "sorprendida",
+          "accepts": [
+            "sorprendida"
+          ],
+          "options": [
+            "sorprendido",
+            "sorprendida",
+            "sorprendidas"
+          ],
+          "hint": "surprised",
+          "en": "A surprise for Lía! She is very surprised.",
+          "teach": "Lía is a girl: sorprendida. A boy: sorprendido.",
           "item": "estar_feel_word",
           "topic": "es_estar"
         }

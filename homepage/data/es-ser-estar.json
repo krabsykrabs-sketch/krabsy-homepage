@@ -40,8 +40,8 @@
           "difficulty": 1,
           "distractors": [
             "soy",
-            "es",
-            "está"
+            "tengo",
+            "es"
           ]
         },
         {
@@ -64,8 +64,8 @@
           "difficulty": 1,
           "distractors": [
             "Estoy",
-            "Es",
-            "Está"
+            "Está",
+            "Tengo"
           ]
         },
         {
@@ -76,8 +76,8 @@
           "difficulty": 1,
           "distractors": [
             "Soy",
-            "Es",
-            "Está"
+            "Tengo",
+            "Es"
           ]
         }
       ]
@@ -100,7 +100,7 @@
           "difficulty": 1,
           "distractors": [
             "Estoy",
-            "Es",
+            "Tengo",
             "Está"
           ]
         },
@@ -112,8 +112,8 @@
           "difficulty": 1,
           "distractors": [
             "soy",
-            "es",
-            "está"
+            "tengo",
+            "es"
           ]
         },
         {
@@ -201,7 +201,7 @@
           ]
         },
         {
-          "sentence": "Hola, ___ Tom, el hermano de Lucía.",
+          "sentence": "Hola, yo ___ Tom, el hermano de Lucía.",
           "answers": [
             "soy"
           ],
@@ -261,7 +261,7 @@
           ]
         },
         {
-          "sentence": "Mi perro ___ muy pequeño.",
+          "sentence": "Mi perro ___ blanco y negro.",
           "answers": [
             "es"
           ],

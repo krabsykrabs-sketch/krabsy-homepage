@@ -183,3 +183,22 @@ A story context, an arc of 3–5 blocks (picture intro → recognise → choose 
 hint, wrong choices that really are wrong and look alike (capitalised together).
 Grammar worksheets use the topic file's real sentences (the checker reports which
 sentences are the worksheet's own). Every worksheet waits for Nora's review.
+
+**Gap steps (checked by `tools/check_materials.py`, kept by `from-engine.js`, 2026-11-26).**
+All sentences of a step are on screen together and each teach line shows before the next
+sentence, so within one step:
+- **No give-away:** an answer is not in another sentence's text or hint (verb forms as the
+  exact word; describing words and nouns also as -o/-a/-os/-as), and no teach line names
+  another sentence's answer or contains another sentence filled in. (Example of what went
+  wrong: `Mamá, ___ enfermo.` above `Me llamo Hugo. Estoy ___.` → *enfermo*.)
+- **Variety:** the same answer at most twice in a row and for at most ~40 % of the step
+  (6 sentences: each answer at most twice). Mix gap positions and sentence patterns.
+- **Drag:** every answer once in the bank plus at least 2 plausible wrong words; no gap at
+  the start of a sentence (its capital letter gives the chip away); every sentence must be
+  wrong with every other chip of the bank.
+- **One right answer:** a gap without a subject accepts other persons too (`___ un poco
+  triste.` → Estoy / Está / Estás; `___ de Irlanda.` → Soy / Es): add *yo / tú* or a name,
+  or give wrong choices that are wrong for every person (`Soy`, `Tengo`). Typed steps need
+  a subject in the sentence. Ser/estar: avoid pairs that both work (*soy / estoy aburrido*,
+  *es / está pequeño*).
+- 5–10 sentences per step; the same sentence never twice in one material.

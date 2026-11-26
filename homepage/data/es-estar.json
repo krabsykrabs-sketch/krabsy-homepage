@@ -30,7 +30,12 @@
           "answers": [
             "estoy"
           ],
-          "difficulty": 1
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "tengo",
+            "tiene"
+          ]
         },
         {
           "sentence": "Yo ___ muy contenta.",
@@ -40,15 +45,15 @@
           "difficulty": 1
         },
         {
-          "sentence": "___ un poco triste.",
+          "sentence": "Hoy ___ un poco triste.",
           "answers": [
-            "Estoy"
+            "estoy"
           ],
           "difficulty": 1,
           "distractors": [
-            "Soy",
-            "Está",
-            "Estás"
+            "soy",
+            "tengo",
+            "tiene"
           ]
         },
         {
@@ -56,14 +61,24 @@
           "answers": [
             "estoy"
           ],
-          "difficulty": 2
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "tengo",
+            "tiene"
+          ]
         },
         {
           "sentence": "Hoy no ___ nerviosa.",
           "answers": [
             "estoy"
           ],
-          "difficulty": 2
+          "difficulty": 2,
+          "distractors": [
+            "soy",
+            "tengo",
+            "tiene"
+          ]
         }
       ]
     },
@@ -128,12 +143,12 @@
         {
           "sentence": "Me llamo Sara. Estoy ___.",
           "answers": [
-            "enfadada"
+            "enojada"
           ],
           "difficulty": 3,
           "distractors": [
-            "enfadado",
-            "enfadadas",
+            "enojado",
+            "enojadas",
             "contenta"
           ],
           "hint": {
@@ -267,7 +282,12 @@
           "answers": [
             "estoy"
           ],
-          "difficulty": 1
+          "difficulty": 1,
+          "distractors": [
+            "soy",
+            "tengo",
+            "tiene"
+          ]
         },
         {
           "sentence": "Yo ___ en el colegio.",
@@ -284,8 +304,8 @@
           "difficulty": 1,
           "distractors": [
             "Soy",
-            "Está",
-            "Estás"
+            "Tengo",
+            "Tiene"
           ]
         },
         {
@@ -344,7 +364,7 @@
           "difficulty": 2
         },
         {
-          "sentence": "¿Dónde ___ el baño?",
+          "sentence": "¿Dónde ___ el gato?",
           "answers": [
             "está"
           ],

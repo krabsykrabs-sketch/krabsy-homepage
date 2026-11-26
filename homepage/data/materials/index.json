@@ -36,7 +36,7 @@
     "topic": "es_animals",
     "level": "A1",
     "minutes": 8,
-    "blurb": "Lucas has a dog. Who has a cat, a rabbit or a hamster?",
+    "blurb": "Lucas has a dog. Who has a cat, a rabbit or a hamster? (tengo, tienes, tiene)",
     "file": "es-pets-1.json"
   },
   {
@@ -45,8 +45,8 @@
     "title": "How is Lía today?",
     "topic": "es_feelings",
     "level": "A1",
-    "minutes": 9,
-    "blurb": "Happy, sad, tired, angry: six faces, then say how you are.",
+    "minutes": 11,
+    "blurb": "Happy, sad, tired, angry: six faces, then say how you and your friends are (estoy, estás, está).",
     "file": "es-feelings-1.json"
   },
   {
@@ -56,7 +56,7 @@
     "topic": "es_food",
     "level": "A1",
     "minutes": 10,
-    "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice.",
+    "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice, and who has what (tengo, tienes, tiene).",
     "file": "es-picnic-1.json"
   },
   {
@@ -65,8 +65,8 @@
     "title": "Hello, I am Lucas!",
     "topic": "es_ser",
     "level": "A1",
-    "minutes": 10,
-    "blurb": "New friends at school say their names, where they are from and what they are like.",
+    "minutes": 12,
+    "blurb": "New friends at school say who they are (soy, eres, es, me llamo), where they are from and what they are like.",
     "file": "es-ser-1.json"
   },
   {
@@ -75,8 +75,8 @@
     "title": "Where is my backpack?",
     "topic": "es_estar",
     "level": "A1",
-    "minutes": 10,
-    "blurb": "Lucas looks for his things all over the house, and says how he feels.",
+    "minutes": 12,
+    "blurb": "Lucas looks for his things all over the house: estoy, estás, está, están, and how he feels.",
     "file": "es-estar-1.json"
   },
   {
@@ -85,8 +85,8 @@
     "title": "Lía is tall, Lía is tired",
     "topic": "es_ser_estar",
     "level": "A1",
-    "minutes": 11,
-    "blurb": "Who you are and where you are; what something is like and where it is.",
+    "minutes": 12,
+    "blurb": "Soy or estoy, es or está: who you are and how you feel, what something is like and where it is.",
     "file": "es-ser-estar-1.json"
   },
   {
@@ -95,8 +95,8 @@
     "title": "How old are you?",
     "topic": "es_tener",
     "level": "A1",
-    "minutes": 10,
-    "blurb": "Ana and her new friend ask about age, pets, brothers and sisters, and how they feel.",
+    "minutes": 12,
+    "blurb": "Ana and her new friend ask about age, pets and brothers and sisters (tengo, tienes, tiene), and say when they are hungry or cold.",
     "file": "es-tener-1.json"
   },
   {

@@ -69,7 +69,7 @@
           ]
         },
         {
-          "sentence": "¿Cuántos años ___?",
+          "sentence": "¿Cuántos años ___ tú?",
           "answers": [
             "tienes"
           ],
@@ -196,7 +196,7 @@
           "difficulty": 2,
           "distractors": [
             "estoy",
-            "es",
+            "soy",
             "tiene"
           ]
         }
@@ -245,7 +245,7 @@
           }
         },
         {
-          "sentence": "Hace mucho frío. Tengo ___.",
+          "sentence": "Está nevando. Tengo ___.",
           "answers": [
             "frío"
           ],

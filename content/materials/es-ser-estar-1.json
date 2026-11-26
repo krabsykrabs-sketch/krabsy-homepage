@@ -5,8 +5,8 @@
   "topic": "es_ser_estar",
   "level": "A1",
   "learn": "es",
-  "minutes": 11,
-  "blurb": "Who you are and where you are; what something is like and where it is.",
+  "minutes": 12,
+  "blurb": "Soy or estoy, es or está: who you are and how you feel, what something is like and where it is.",
   "steps": [
     {
       "type": "text",
@@ -16,7 +16,7 @@
     },
     {
       "type": "gap",
-      "title": "Choose the right word",
+      "title": "Always or today? Choose the word",
       "mode": "choice",
       "sentences": [
         {
@@ -32,7 +32,7 @@
           ],
           "hint": "",
           "en": "I am from London.",
-          "teach": "Where you come from: soy de. Where you are now: estoy en. Soy de Londres, pero estoy en Madrid.",
+          "teach": "Where you come from: soy de.",
           "item": "se_from_vs_in",
           "topic": "es_ser_estar"
         },
@@ -44,73 +44,15 @@
           ],
           "options": [
             "soy",
-            "es",
-            "estoy"
+            "estoy",
+            "tengo"
           ],
           "hint": "",
           "en": "Now I am in Madrid.",
-          "teach": "Where you come from: soy de. Where you are now: estoy en. Soy de Londres, pero estoy en Madrid.",
+          "teach": "Where you are now: estoy en.",
           "item": "se_from_vs_in",
           "topic": "es_ser_estar"
         },
-        {
-          "text": "Hola, ___ Ana.",
-          "answer": "soy",
-          "accepts": [
-            "soy"
-          ],
-          "options": [
-            "es",
-            "estoy",
-            "soy"
-          ],
-          "hint": "",
-          "en": "Hello, I am Ana.",
-          "teach": "Your name: soy. How you are: estoy. Hola, soy Ana. Estoy bien, gracias.",
-          "item": "se_name_feel",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "¿Cómo estás? ___ bien, gracias.",
-          "answer": "Estoy",
-          "accepts": [
-            "estoy"
-          ],
-          "options": [
-            "Estoy",
-            "Es",
-            "Soy"
-          ],
-          "hint": "",
-          "en": "How are you? I am well, thank you.",
-          "teach": "Your name: soy. How you are: estoy. Hola, soy Ana. Estoy bien, gracias.",
-          "item": "se_name_feel",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "Hoy ___ cansado.",
-          "answer": "estoy",
-          "accepts": [
-            "estoy"
-          ],
-          "options": [
-            "estoy",
-            "soy",
-            "es"
-          ],
-          "hint": "",
-          "en": "Today I am tired.",
-          "teach": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
-          "item": "se_what_vs_how",
-          "topic": "es_ser_estar"
-        }
-      ]
-    },
-    {
-      "type": "gap",
-      "title": "Drag the word into the gap",
-      "mode": "drag",
-      "sentences": [
         {
           "text": "Mi casa ___ grande.",
           "answer": "es",
@@ -119,47 +61,30 @@
           ],
           "options": [
             "es",
-            "soy",
-            "está"
-          ],
-          "hint": "",
-          "en": "My house is big.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "Mi casa ___ en Madrid.",
-          "answer": "está",
-          "accepts": [
-            "está"
-          ],
-          "options": [
             "está",
-            "es",
             "soy"
           ],
           "hint": "",
-          "en": "My house is in Madrid.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "en": "My house is big.",
+          "teach": "What something is like: es.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         },
         {
-          "text": "Mi perro ___ muy pequeño.",
-          "answer": "es",
+          "text": "Yo ___ muy simpática.",
+          "answer": "soy",
           "accepts": [
-            "es"
+            "soy"
           ],
           "options": [
+            "estoy",
             "soy",
-            "es",
-            "está"
+            "es"
           ],
           "hint": "",
-          "en": "My dog is very small.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
+          "en": "I am very nice.",
+          "teach": "What you are like: soy.",
+          "item": "se_what_vs_how",
           "topic": "es_ser_estar"
         },
         {
@@ -175,18 +100,146 @@
           ],
           "hint": "",
           "en": "The table is in the kitchen.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "teach": "Where something is: está.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
+        },
+        {
+          "text": "Hoy ___ cansado.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "soy",
+            "tengo",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "Today I am tired.",
+          "teach": "How you feel today: estoy.",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
         }
-      ],
+      ]
+    },
+    {
+      "type": "gap",
+      "title": "Drag the word into the gap",
+      "mode": "drag",
       "bank": [
+        "es",
+        "están",
+        "estoy",
+        "eres",
         "soy",
         "está",
-        "está",
-        "es",
-        "estoy",
-        "es"
+        "son",
+        "estás"
+      ],
+      "sentences": [
+        {
+          "text": "Mi casa ___ en Madrid.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "está",
+            "es",
+            "soy"
+          ],
+          "hint": "",
+          "en": "My house is in Madrid.",
+          "teach": "Where something is: está.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Tú ___ mi mejor amiga.",
+          "answer": "eres",
+          "accepts": [
+            "eres"
+          ],
+          "options": [
+            "eres",
+            "estás",
+            "es"
+          ],
+          "hint": "",
+          "en": "You are my best friend.",
+          "teach": "Who someone is: tú eres.",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Yo ___ en el parque con Lía.",
+          "answer": "estoy",
+          "accepts": [
+            "estoy"
+          ],
+          "options": [
+            "estoy",
+            "soy",
+            "está"
+          ],
+          "hint": "",
+          "en": "I am in the park with Lía.",
+          "teach": "Where you are now: estoy.",
+          "item": "se_from_vs_in",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Mi perro ___ blanco y negro.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "soy",
+            "es",
+            "está"
+          ],
+          "hint": "",
+          "en": "My dog is black and white.",
+          "teach": "What something is like (always): es.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Lía, ¿tú ___ cansada?",
+          "answer": "estás",
+          "accepts": [
+            "estás"
+          ],
+          "options": [
+            "estás",
+            "eres",
+            "está"
+          ],
+          "hint": "",
+          "en": "Lía, are you tired?",
+          "teach": "How a friend feels now: ¿tú estás …?",
+          "item": "se_what_vs_how",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Hola, yo ___ Tom, el hermano de Lucía.",
+          "answer": "soy",
+          "accepts": [
+            "soy"
+          ],
+          "options": [
+            "estoy",
+            "es",
+            "soy"
+          ],
+          "hint": "",
+          "en": "Hello, I am Tom, Lucía’s brother.",
+          "teach": "Who you are: soy.",
+          "item": "se_name_feel",
+          "topic": "es_ser_estar"
+        }
       ]
     },
     {
@@ -207,7 +260,58 @@
           ],
           "hint": "",
           "en": "I am from Scotland, but today I am in Barcelona.",
-          "teach": "Where you come from: soy de. Where you are now: estoy en. Soy de Londres, pero estoy en Madrid.",
+          "teach": "Where you come from: soy de. Where you are now: estoy en.",
+          "item": "se_from_vs_in",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Mi hermano ___ de Barcelona.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "soy",
+            "es",
+            "está"
+          ],
+          "hint": "",
+          "en": "My brother is from Barcelona.",
+          "teach": "Where someone comes from: es de.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Madrid ___ en España.",
+          "answer": "está",
+          "accepts": [
+            "está"
+          ],
+          "options": [
+            "es",
+            "está",
+            "soy"
+          ],
+          "hint": "",
+          "en": "Madrid is in Spain.",
+          "teach": "Where a place is: está.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
+        },
+        {
+          "text": "Lía, ¿de dónde ___ tú?",
+          "answer": "eres",
+          "accepts": [
+            "eres"
+          ],
+          "options": [
+            "eres",
+            "estás",
+            "es"
+          ],
+          "hint": "",
+          "en": "Lía, where are you from?",
+          "teach": "¿De dónde eres? = Where are you from?",
           "item": "se_from_vs_in",
           "topic": "es_ser_estar"
         },
@@ -224,24 +328,7 @@
           ],
           "hint": "",
           "en": "I am a calm person, but today I am nervous.",
-          "teach": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
-          "item": "se_what_vs_how",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "Yo ___ muy simpática.",
-          "answer": "soy",
-          "accepts": [
-            "soy"
-          ],
-          "options": [
-            "es",
-            "estoy",
-            "soy"
-          ],
-          "hint": "",
-          "en": "I am very nice.",
-          "teach": "What you are like (always): soy. How you feel now: estoy. Soy alto. Hoy estoy cansado.",
+          "teach": "What you are like: soy. How you feel today: estoy.",
           "item": "se_what_vs_how",
           "topic": "es_ser_estar"
         },
@@ -258,24 +345,7 @@
           ],
           "hint": "",
           "en": "My brother is ill today.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
-          "topic": "es_ser_estar"
-        },
-        {
-          "text": "Mi hermano ___ de Barcelona.",
-          "answer": "es",
-          "accepts": [
-            "es"
-          ],
-          "options": [
-            "soy",
-            "es",
-            "está"
-          ],
-          "hint": "",
-          "en": "My brother is from Barcelona.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "teach": "How someone feels today: está.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         }

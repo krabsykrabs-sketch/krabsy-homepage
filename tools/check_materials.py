@@ -4,7 +4,19 @@
     python3 tools/check_materials.py               # content/materials + served copies
     python3 tools/check_materials.py a.json b.json # only these files (runtime materials)
 
-Exit code 1 on any error. Warnings (own sentences in grammar worksheets) are info only.
+Exit code 1 on any error. Warnings (own sentences in grammar worksheets, quality
+notes on curated worksheets) are info only.
+
+Quality rules for gap steps (all sentences of a step are on screen together, and the
+teach line of every answered sentence is shown before the next one):
+  - give-away: an answer (for describing words / nouns also its -o/-a/-os/-as form) must
+    not appear in the text or hint of any sentence of the same step; a teach line must
+    not name another sentence's answer word (unless it is also a word of its own answer,
+    which is on screen anyway once filled in) or contain another sentence filled in. Verb forms (soy, está, tengo …) count only as the exact word.
+  - variety: the same answer at most twice in a row and for at most ~40 % of the step.
+  - drag bank: no word twice, at least 2 wrong extras.
+  - duplicates: the same sentence text twice in one material, or in two topic files
+    with different answers.
 """
 import json
 import re
@@ -31,12 +43,37 @@ TERMS = re.compile(r'\b(verb|verbo|tense|participle|participio|infinitive|infini
 # Spanish words not safe or not natural in Uruguay/Argentina.
 REGIONAL = re.compile(r'\b(conchas?|zumos?|fresas?|enfadad[oa]s?|tartas?|coger|patatas?|melocot[oó]n)\b', re.I)
 NORM = lambda s: re.sub(r'\s+', ' ', s.strip().lower())
+WORDS = re.compile(r"[a-záéíóúüñ]+", re.I)
+# Verb forms are what grammar steps practise: they give away only as the exact word.
+VERB_FORMS = set('soy eres es somos sois son estoy estás está estamos estáis están tengo tienes '
+                 'tiene tenemos tienen me llamo llamas llama hay'.split())
+
+
+def stem(w):
+    """Word form key: contento / contenta / contentos → content."""
+    w = w.lower()
+    if w in VERB_FORMS or len(w) < 5:
+        return w
+    for end in ('os', 'as', 'es', 'o', 'a', 's'):
+        if w.endswith(end) and len(w) - len(end) >= 4:
+            return w[:-len(end)]
+    return w
+
+
+def word_keys(text, exact=False):
+    return {(w.lower() if exact else stem(w)) for w in WORDS.findall(text or '')}
+
+
+def bare(text):
+    """Sentence without punctuation, lower case, for 'is it inside that teach line'."""
+    return ' '.join(w.lower() for w in WORDS.findall(text or ''))
 TAPWORD = re.compile(r'\{([^{}]*)\}')
 
 
 class Checker:
     def __init__(self):
         self.errors, self.warnings = [], []
+        self.v1 = False
         self.vocab = json.loads((CONTENT / 'vocab' / 'es.json').read_text())
         self.topics = {}
         for f in SERVED.glob('es-*.json'):
@@ -84,6 +121,7 @@ class Checker:
     def check_material(self, m, where):
         if not isinstance(m, dict):
             return self.err(where, 'not an object')
+        self.v1 = (m.get('source') or {}).get('kind') == 'v1'
         size = len(json.dumps(m, ensure_ascii=False).encode())
         if size > MAX_BYTES:
             self.err(where, f'{size} bytes > 200 KB')
@@ -108,6 +146,31 @@ class Checker:
             return self.err(where, 'no steps')
         for i, st in enumerate(steps):
             self.check_step(st, f'{where}.steps[{i}]')
+        curated = not (m.get('source') or {}).get('kind')
+        seen_txt = {}
+        for i, st in enumerate(steps):
+            if st.get('type') != 'gap':
+                continue
+            ss = st.get('sentences') or []
+            for j, x in enumerate(ss):
+                t = NORM(x.get('text', ''))
+                if t in seen_txt and seen_txt[t][0] != i:
+                    pi, pa = seen_txt[t][1], seen_txt[t][2]
+                    kind = 'with another answer (ambiguous)' if NORM(pa) != NORM(x.get('answer', '')) else 'again'
+                    self.err(f'{where}.steps[{i}].sentences[{j}]', f'same sentence as steps[{pi}] {kind}: {x.get("text")}')
+                seen_txt.setdefault(t, (i, i, x.get('answer', '')))
+            if curated and ss:
+                sw = f'{where}.steps[{i}]'
+                if not 5 <= len(ss) <= 10:
+                    self.warn(sw, f'quality: {len(ss)} sentences (5–10 for children)')
+                starts = sum(1 for x in ss if x.get('text', '').lstrip('¿¡').startswith('___'))
+                ends = sum(1 for x in ss if re.search(r'___\W*$', x.get('text', '')))
+                if len(ss) >= 4 and (starts == len(ss) or ends == len(ss)):
+                    self.warn(sw, 'quality: the gap is in the same place in every sentence')
+                frames = [re.sub(r'(?<!^)\b[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+', 'X', x.get('text', '')) for x in ss]
+                top = max(frames.count(f) for f in frames)
+                if len(ss) >= 4 and top > len(ss) / 2:
+                    self.warn(sw, f'quality: {top} of {len(ss)} sentences have the same pattern')
         if m.get('kind') == 'cards' and any(s.get('type') != 'cards' for s in steps):
             self.err(where, 'kind "cards" may only have cards steps')
         if m.get('kind') == 'worksheet' and not (m.get('source') or {}).get('kind'):
@@ -192,6 +255,8 @@ class Checker:
                 continue
             self.shown(f'{sw}.text', txt)
             self.shown(f'{sw}.hint', s.get('hint', ''))
+            if s.get('hint') and NORM(s['hint']) == NORM(a):
+                self.err(sw, 'the hint is the answer')
             acc = s.get('accepts')
             if not isinstance(acc, list) or NORM(a) not in acc or any(x != NORM(x) for x in acc):
                 self.err(sw, 'accepts must hold the answer, lower case')
@@ -235,6 +300,64 @@ class Checker:
                     rest.remove(s['answer'])
                 else:
                     self.err(w, f'bank lacks {s.get("answer")!r}')
+            normed = [NORM(b) for b in bank]
+            dup = sorted({b for b in normed if normed.count(b) > 1})
+            if dup:
+                self.err(w, f'drag bank has a word twice: {", ".join(dup)} (every answer once)')
+            for j, x in enumerate(ss):
+                if re.match(r'^[¿¡]?___', x.get('text', '').strip()):
+                    self.err(f'{w}.sentences[{j}]', 'drag step: a gap at the start shows its answer by the capital letter (move the gap or use choice/typed)')
+            if len(rest) < 2 and len(ss) > 2:
+                self.err(w, f'drag bank needs at least 2 wrong extras (has {len(rest)}): the last gaps are solved by elimination')
+        self.check_gap_quality(st, w)
+
+    def check_gap_quality(self, st, w):
+        # A v1 worksheet is the tutor's own question list: report, never fail it.
+        err = self.warn if self.v1 else self.err
+        if self.v1:
+            w = f'{w} (tutor worksheet, quality)'
+        ss = [s for s in st.get('sentences') or [] if isinstance(s.get('answer'), str) and s.get('answer')]
+        n = len(ss)
+        ans = [NORM(s['answer']) for s in ss]
+        # give-aways
+        for j, s in enumerate(ss):
+            a = s['answer']
+            if '→' in s.get('text', ''):
+                continue  # verb chains (go → went → ___) show the earlier form on purpose
+            verb = all(x in VERB_FORMS for x in NORM(a).split())
+            key = NORM(a) if verb else stem(a)
+            exact = verb
+            for k, o in enumerate(ss):
+                if '→' in o.get('text', ''):
+                    continue
+                seen = (o.get('text', '').replace('___', ' ') + ' ' + (o.get('hint') or ''))
+                if ' ' in key:
+                    hit = key in bare(seen)
+                else:
+                    hit = key in word_keys(seen, exact)
+                if hit:
+                    where = 'its own sentence' if k == j else f'sentence {k + 1} ({o.get("text")})'
+                    err(f'{w}.sentences[{j}]', f'give-away: answer {a!r} is in {where}')
+                if k != j:
+                    t = o.get('teach') or ''
+                    filled = bare(s.get('text', '').replace('___', a))
+                    if filled and filled in bare(t):
+                        err(f'{w}.sentences[{j}]', f'give-away: the teach line of sentence {k + 1} is this sentence filled in')
+                    elif not verb and key not in word_keys(o['answer']) and key in word_keys(t):
+                        err(f'{w}.sentences[{j}]', f'give-away: answer {a!r} is in the teach line of sentence {k + 1}')
+        # variety
+        run = 1
+        for j in range(1, n):
+            run = run + 1 if ans[j] == ans[j - 1] else 1
+            if run == 3:
+                err(w, f'answer {ss[j]["answer"]!r} three times in a row (sentences {j - 1}–{j + 1})')
+        cap = max(2, round(0.4 * n))
+        for a in sorted(set(ans)):
+            if ans.count(a) > cap:
+                err(w, f'answer {a!r} is {ans.count(a)} of {n} sentences (max {cap})')
+        texts = [NORM(s.get('text', '')) for s in ss]
+        for t in sorted({t for t in texts if texts.count(t) > 1}):
+            err(w, f'sentence twice in the step: {t}')
 
     def check_book(self, m, w):
         pages = m.get('pages') or []
@@ -283,8 +406,28 @@ class Checker:
             self.word(w, x)
 
     # ── files ──
+    def check_topic_sentences(self):
+        """The same sentence in two topic files must have the same answer."""
+        seen = {}
+        for tid, items in sorted(self.topics.items()):
+            for iid, it in items.items():
+                for e in it.get('examples', []):
+                    t, a = NORM(e['sentence']), NORM(e['answers'][0])
+                    if t in seen and seen[t][1] != a:
+                        self.err(f'{tid}.{iid}', f'sentence also in {seen[t][0]} with answer {seen[t][1]!r}: {e["sentence"]}')
+                    seen.setdefault(t, (f'{tid}.{iid}', a))
+                    if REGIONAL.search(' '.join([e['sentence'], *e['answers'], *e.get('distractors', [])])):
+                        self.err(f'{tid}.{iid}', f'not safe for Uruguay/Argentina: {e["sentence"]} {e["answers"]}')
+                    if '→' not in e['sentence']:
+                        a0 = e['answers'][0]
+                        verb = all(x in VERB_FORMS for x in NORM(a0).split())
+                        key = NORM(a0) if verb else stem(a0)
+                        if ' ' not in key and key in word_keys(e['sentence'].replace('___', ' '), verb):
+                            self.err(f'{tid}.{iid}', f'give-away: answer {a0!r} is in the sentence: {e["sentence"]}')
+
     def check_repo(self):
         self.check_vocab()
+        self.check_topic_sentences()
         mdir = CONTENT / 'materials'
         try:
             index = json.loads((mdir / 'index.json').read_text())
@@ -336,7 +479,9 @@ def main(argv):
         print('info ', wmsg)
     for e in c.errors:
         print('ERROR', e)
-    print(f'{n} file(s), {len(c.vocab)} words: {len(c.errors)} error(s), {len(c.warnings)} own sentence(s)')
+    own = sum(1 for x in c.warnings if 'own sentence' in x)
+    print(f'{n} file(s), {len(c.vocab)} words: {len(c.errors)} error(s), {own} own sentence(s), '
+          f'{len(c.warnings) - own} quality note(s)')
     return 1 if c.errors else 0
 
 

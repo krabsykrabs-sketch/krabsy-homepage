@@ -139,7 +139,7 @@
           ],
           "hint": "",
           "en": "The fish is in the water.",
-          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "teach": "Where one animal is: está.",
           "item": "estar_place_thing",
           "topic": "es_estar"
         },
@@ -156,24 +156,24 @@
           ],
           "hint": "",
           "en": "The frog is green.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "teach": "What an animal is like (its colour): es.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         },
         {
-          "text": "La tortuga ___ en una piedra.",
-          "answer": "está",
+          "text": "Los patos ___ en el estanque.",
+          "answer": "están",
           "accepts": [
-            "está"
-          ],
-          "options": [
-            "es",
-            "está",
             "están"
           ],
+          "options": [
+            "son",
+            "están",
+            "está"
+          ],
           "hint": "",
-          "en": "The turtle is on a stone.",
-          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "en": "The ducks are in the pond.",
+          "teach": "Where two or more animals are: están.",
           "item": "estar_place_thing",
           "topic": "es_estar"
         },
@@ -190,9 +190,26 @@
           ],
           "hint": "",
           "en": "The swan is white.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "teach": "What an animal is like (its colour): es.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
+        },
+        {
+          "text": "La tortuga ___ cuatro patas.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tiene",
+            "es",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "The turtle has four legs.",
+          "teach": "An animal has: tiene.",
+          "item": "tener_have",
+          "topic": "es_tener"
         },
         {
           "text": "¿Dónde ___ la rana?",
@@ -207,26 +224,9 @@
           ],
           "hint": "",
           "en": "Where is the frog?",
-          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "teach": "Asking where something is: ¿Dónde está …?",
           "item": "estar_place_thing",
           "topic": "es_estar"
-        },
-        {
-          "text": "La tortuga ___ muy lenta.",
-          "answer": "es",
-          "accepts": [
-            "es"
-          ],
-          "options": [
-            "es",
-            "está",
-            "estoy"
-          ],
-          "hint": "",
-          "en": "The turtle is very slow.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
-          "topic": "es_ser_estar"
         }
       ]
     }

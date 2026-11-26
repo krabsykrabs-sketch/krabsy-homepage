@@ -93,9 +93,19 @@
       "type": "gap",
       "title": "Drag the word into the gap",
       "mode": "drag",
+      "bank": [
+        "es",
+        "tengo",
+        "eres",
+        "tiene",
+        "están",
+        "está",
+        "estoy",
+        "son"
+      ],
       "sentences": [
         {
-          "text": "El elefante ___ muy grande.",
+          "text": "El elefante ___ un animal muy grande.",
           "answer": "es",
           "accepts": [
             "es"
@@ -106,13 +116,13 @@
             "son"
           ],
           "hint": "",
-          "en": "The elephant is very big.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "en": "The elephant is a very big animal.",
+          "teach": "What an animal is: es.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         },
         {
-          "text": "Los ratones ___ pequeños.",
+          "text": "Los ratones ___ animales pequeños.",
           "answer": "son",
           "accepts": [
             "son"
@@ -123,8 +133,8 @@
             "están"
           ],
           "hint": "",
-          "en": "The mice are small.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "en": "Mice are small animals.",
+          "teach": "What two or more animals are: son.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         },
@@ -141,7 +151,7 @@
           ],
           "hint": "",
           "en": "The bear is in the forest.",
-          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "teach": "Where one animal is: está.",
           "item": "estar_place_thing",
           "topic": "es_estar"
         },
@@ -158,35 +168,44 @@
           ],
           "hint": "",
           "en": "The giraffe has a very long neck.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "An animal has: tiene.",
           "item": "tener_have",
           "topic": "es_tener"
         },
         {
-          "text": "El conejo ___ en su casita.",
-          "answer": "está",
+          "text": "Los pollitos ___ con la gallina.",
+          "answer": "están",
           "accepts": [
-            "está"
-          ],
-          "options": [
-            "es",
-            "está",
             "están"
           ],
+          "options": [
+            "están",
+            "son",
+            "está"
+          ],
           "hint": "",
-          "en": "The rabbit is in its little house.",
-          "teach": "Where something is: está. El libro está en la mesa. ¿Dónde está el baño?",
+          "en": "The chicks are with the hen.",
+          "teach": "Where two or more animals are: están.",
           "item": "estar_place_thing",
           "topic": "es_estar"
+        },
+        {
+          "text": "Yo ___ un conejo pequeño.",
+          "answer": "tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "tengo",
+            "tiene",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "I have a small rabbit.",
+          "teach": "Things you have: tengo.",
+          "item": "tener_have",
+          "topic": "es_tener"
         }
-      ],
-      "bank": [
-        "es",
-        "tengo",
-        "tiene",
-        "está",
-        "está",
-        "son"
       ]
     }
   ]

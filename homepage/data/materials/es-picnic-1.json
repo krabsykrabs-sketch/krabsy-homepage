@@ -6,7 +6,7 @@
   "level": "A1",
   "learn": "es",
   "minutes": 10,
-  "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice.",
+  "blurb": "Pack a picnic with Lía and her grandmother: bread, cheese, cake and juice, and who has what (tengo, tienes, tiene).",
   "steps": [
     {
       "type": "text",
@@ -22,8 +22,10 @@
         "pan",
         "queso",
         "banana",
+        "torta",
         "agua",
-        "torta"
+        "jugo",
+        "leche"
       ]
     },
     {
@@ -124,7 +126,7 @@
     },
     {
       "type": "gap",
-      "title": "Choose the right word",
+      "title": "Who has what? Choose the word",
       "mode": "choice",
       "sentences": [
         {
@@ -140,42 +142,8 @@
           ],
           "hint": "",
           "en": "I am hungry.",
-          "teach": "Hungry, thirsty, cold, hot, sleepy use tener: tengo hambre (= I have hunger). Not estoy.",
+          "teach": "Hungry: tengo hambre (= I have hunger). Not estoy.",
           "item": "tener_feel",
-          "topic": "es_tener"
-        },
-        {
-          "text": "Quiero agua. Tengo ___.",
-          "answer": "sed",
-          "accepts": [
-            "sed"
-          ],
-          "options": [
-            "hambre",
-            "sed",
-            "calor"
-          ],
-          "hint": "thirsty",
-          "en": "I want water. I am thirsty.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
-          "item": "tener_feel_word",
-          "topic": "es_tener"
-        },
-        {
-          "text": "Es la hora de comer. Tengo ___.",
-          "answer": "hambre",
-          "accepts": [
-            "hambre"
-          ],
-          "options": [
-            "sed",
-            "hambre",
-            "frío"
-          ],
-          "hint": "hungry",
-          "en": "It is time to eat. I am hungry.",
-          "teach": "hambre = hungry, sed = thirsty, frío = cold, calor = hot, sueño = sleepy.",
-          "item": "tener_feel_word",
           "topic": "es_tener"
         },
         {
@@ -191,8 +159,25 @@
           ],
           "hint": "",
           "en": "Grandma has a cake.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Another person has: tiene.",
           "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Lía, ¿tú ___ sed?",
+          "answer": "tienes",
+          "accepts": [
+            "tienes"
+          ],
+          "options": [
+            "estás",
+            "tienes",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Lía, are you thirsty?",
+          "teach": "Thirsty: tener sed. ¿Tienes sed?",
+          "item": "tener_feel",
           "topic": "es_tener"
         },
         {
@@ -202,13 +187,47 @@
             "tengo"
           ],
           "options": [
-            "soy",
+            "estoy",
             "tiene",
             "tengo"
           ],
           "hint": "",
           "en": "I have an apple and a sandwich.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Things you have: tengo.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "Lía ___ una banana.",
+          "answer": "tiene",
+          "accepts": [
+            "tiene"
+          ],
+          "options": [
+            "tengo",
+            "tiene",
+            "es"
+          ],
+          "hint": "",
+          "en": "Lía has a banana.",
+          "teach": "Another person has: tiene.",
+          "item": "tener_have",
+          "topic": "es_tener"
+        },
+        {
+          "text": "¿Tú ___ jugo de naranja?",
+          "answer": "tienes",
+          "accepts": [
+            "tienes"
+          ],
+          "options": [
+            "tienes",
+            "eres",
+            "tengo"
+          ],
+          "hint": "",
+          "en": "Do you have orange juice?",
+          "teach": "Asking a friend: ¿tú tienes …?",
           "item": "tener_have",
           "topic": "es_tener"
         }

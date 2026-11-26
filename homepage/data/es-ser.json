@@ -53,8 +53,8 @@
           ],
           "distractors": [
             "Estoy",
-            "Es",
-            "Eres"
+            "Tengo",
+            "Está"
           ],
           "difficulty": 1
         }
@@ -127,8 +127,8 @@
           ],
           "distractors": [
             "Estoy",
-            "Es",
-            "Eres"
+            "Está",
+            "Tengo"
           ],
           "difficulty": 1
         },
@@ -151,7 +151,12 @@
           "answers": [
             "soy"
           ],
-          "difficulty": 2
+          "difficulty": 2,
+          "distractors": [
+            "estoy",
+            "está",
+            "tengo"
+          ]
         }
       ]
     },
@@ -326,14 +331,9 @@
           "difficulty": 1
         },
         {
-          "sentence": "___ muy divertido.",
+          "sentence": "Yo ___ muy divertido.",
           "answers": [
-            "Soy"
-          ],
-          "distractors": [
-            "Estoy",
-            "Es",
-            "Eres"
+            "soy"
           ],
           "difficulty": 1
         },
@@ -345,7 +345,7 @@
           "difficulty": 2
         },
         {
-          "sentence": "Yo no ___ aburrida.",
+          "sentence": "Yo no ___ tímida.",
           "answers": [
             "soy"
           ],

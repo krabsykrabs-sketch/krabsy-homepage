@@ -5,8 +5,8 @@
   "topic": "es_ser",
   "level": "A1",
   "learn": "es",
-  "minutes": 10,
-  "blurb": "New friends at school say their names, where they are from and what they are like.",
+  "minutes": 12,
+  "blurb": "New friends at school say who they are (soy, eres, es, me llamo), where they are from and what they are like.",
   "steps": [
     {
       "type": "text",
@@ -16,7 +16,7 @@
     },
     {
       "type": "gap",
-      "title": "Choose the right word",
+      "title": "Who is who? Choose the word",
       "mode": "choice",
       "sentences": [
         {
@@ -32,24 +32,7 @@
           ],
           "hint": "",
           "en": "I am Lucas.",
-          "teach": "To say who you are: (Yo) soy + your name. You can leave out \"yo\": Soy Ana.",
-          "item": "ser_name",
-          "topic": "es_ser"
-        },
-        {
-          "text": "Hola, ___ Ana.",
-          "answer": "soy",
-          "accepts": [
-            "soy"
-          ],
-          "options": [
-            "es",
-            "soy",
-            "estoy"
-          ],
-          "hint": "",
-          "en": "Hello, I am Ana.",
-          "teach": "To say who you are: (Yo) soy + your name. You can leave out \"yo\": Soy Ana.",
+          "teach": "Who you are: soy + your name. Soy Pedro.",
           "item": "ser_name",
           "topic": "es_ser"
         },
@@ -66,8 +49,25 @@
           ],
           "hint": "",
           "en": "My name is Sofía.",
-          "teach": "Another way to say your name: Me llamo Ana. (= My name is Ana.)",
+          "teach": "Me llamo + your name = My name is …",
           "item": "ser_me_llamo",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Ella ___ Ana, mi amiga.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "soy",
+            "es",
+            "eres"
+          ],
+          "hint": "",
+          "en": "She is Ana, my friend.",
+          "teach": "Another person: es. Él es Pedro.",
+          "item": "ser_name",
           "topic": "es_ser"
         },
         {
@@ -83,154 +83,80 @@
           ],
           "hint": "",
           "en": "I am from England.",
-          "teach": "To say where you are from: Soy de + country or city. Soy de Inglaterra.",
+          "teach": "Where you are from: soy de + country.",
           "item": "ser_origin_soy",
           "topic": "es_ser"
         },
         {
-          "text": "¡Buenos días! ___ Marta.",
-          "answer": "Soy",
+          "text": "¿Tú ___ de Madrid?",
+          "answer": "eres",
           "accepts": [
-            "soy"
+            "eres"
           ],
           "options": [
-            "Es",
-            "Soy",
-            "Estoy"
+            "eres",
+            "soy",
+            "es"
           ],
           "hint": "",
-          "en": "Good morning! I am Marta.",
-          "teach": "To say who you are: (Yo) soy + your name. You can leave out \"yo\": Soy Ana.",
-          "item": "ser_name",
-          "topic": "es_ser"
-        }
-      ]
-    },
-    {
-      "type": "gap",
-      "title": "Drag the word into the gap",
-      "mode": "drag",
-      "sentences": [
-        {
-          "text": "Soy ___ Barcelona.",
-          "answer": "de",
-          "accepts": [
-            "de"
-          ],
-          "options": [
-            "a",
-            "en",
-            "de"
-          ],
-          "hint": "",
-          "en": "I am from Barcelona.",
-          "teach": "Where you are from always uses \"de\": Soy de Irlanda. Not \"en\" (en = in).",
-          "item": "ser_origin_de",
+          "en": "Are you from Madrid?",
+          "teach": "Asking a friend: ¿tú eres …?",
+          "item": "ser_origin_soy",
           "topic": "es_ser"
         },
         {
-          "text": "Hola, me ___ Tom.",
+          "text": "Yo me ___ Daniel.",
           "answer": "llamo",
           "accepts": [
             "llamo"
           ],
           "options": [
-            "llamo",
+            "llama",
             "soy",
-            "llama"
+            "llamo"
           ],
           "hint": "",
-          "en": "Hello, my name is Tom.",
-          "teach": "Another way to say your name: Me llamo Ana. (= My name is Ana.)",
+          "en": "My name is Daniel.",
+          "teach": "Me llamo + your name.",
           "item": "ser_me_llamo",
           "topic": "es_ser"
-        },
-        {
-          "text": "Yo soy ___ Irlanda.",
-          "answer": "de",
-          "accepts": [
-            "de"
-          ],
-          "options": [
-            "a",
-            "de",
-            "en"
-          ],
-          "hint": "",
-          "en": "I am from Ireland.",
-          "teach": "Where you are from always uses \"de\": Soy de Irlanda. Not \"en\" (en = in).",
-          "item": "ser_origin_de",
-          "topic": "es_ser"
-        },
-        {
-          "text": "Me llamo Ana y ___ de Madrid.",
-          "answer": "soy",
-          "accepts": [
-            "soy"
-          ],
-          "options": [
-            "es",
-            "estoy",
-            "soy"
-          ],
-          "hint": "",
-          "en": "My name is Ana and I am from Madrid.",
-          "teach": "To say where you are from: Soy de + country or city. Soy de Inglaterra.",
-          "item": "ser_origin_soy",
-          "topic": "es_ser"
-        },
-        {
-          "text": "Me llamo Leo y ___ un poco tímido.",
-          "answer": "soy",
-          "accepts": [
-            "soy"
-          ],
-          "options": [
-            "estoy",
-            "soy",
-            "es"
-          ],
-          "hint": "",
-          "en": "My name is Leo and I am a bit shy.",
-          "teach": "To say what you are like: Soy + describing word. Soy alto. Soy simpática.",
-          "item": "ser_describe_soy",
-          "topic": "es_ser"
         }
-      ],
-      "bank": [
-        "soy",
-        "llamo",
-        "estoy",
-        "en",
-        "de",
-        "de",
-        "soy"
       ]
     },
     {
       "type": "gap",
-      "title": "Type the missing word",
-      "mode": "typed",
+      "title": "Boy or girl? Drag the word",
+      "mode": "drag",
+      "bank": [
+        "española",
+        "alto",
+        "tímido",
+        "inglés",
+        "divertido",
+        "inglesa",
+        "alta",
+        "irlandés"
+      ],
       "sentences": [
         {
-          "text": "Me llamo Pablo. Soy ___.",
-          "answer": "alto",
+          "text": "Me llamo Tom. Soy de Inglaterra. Soy ___.",
+          "answer": "inglés",
           "accepts": [
-            "alto"
+            "inglés"
           ],
           "options": [
-            "altos",
-            "alta",
-            "alto"
+            "inglesa",
+            "Inglaterra",
+            "inglés"
           ],
-          "hint": "tall",
-          "en": "My name is Pablo. I am tall.",
-          "teach": "A boy says alto, a girl says alta: the ending changes (-o / -a). Words ending in -e stay the same: inteligente.",
-          "item": "ser_describe_word",
+          "hint": "English",
+          "en": "My name is Tom. I am from England. I am English.",
+          "teach": "A boy from England: inglés. A girl: inglesa.",
+          "item": "ser_nationality",
           "topic": "es_ser"
         },
         {
-          "text": "Me llamo Marta. Soy ___.",
+          "text": "Marta es ___ y rubia.",
           "answer": "alta",
           "accepts": [
             "alta"
@@ -241,8 +167,42 @@
             "alta"
           ],
           "hint": "tall",
-          "en": "My name is Marta. I am tall.",
-          "teach": "A boy says alto, a girl says alta: the ending changes (-o / -a). Words ending in -e stay the same: inteligente.",
+          "en": "Marta is tall and blonde.",
+          "teach": "A girl: alta. A boy: alto.",
+          "item": "ser_describe_word",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Me llamo Lucía. Soy de España. Soy ___.",
+          "answer": "española",
+          "accepts": [
+            "española"
+          ],
+          "options": [
+            "español",
+            "España",
+            "española"
+          ],
+          "hint": "Spanish",
+          "en": "My name is Lucía. I am from Spain. I am Spanish.",
+          "teach": "A girl from Spain: española. A boy: español.",
+          "item": "ser_nationality",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Me llamo Leo y soy un poco ___.",
+          "answer": "tímido",
+          "accepts": [
+            "tímido"
+          ],
+          "options": [
+            "tímida",
+            "tímido",
+            "tímidos"
+          ],
+          "hint": "shy",
+          "en": "My name is Leo and I am a bit shy.",
+          "teach": "A boy: tímido. A girl: tímida.",
           "item": "ser_describe_word",
           "topic": "es_ser"
         },
@@ -259,25 +219,134 @@
           ],
           "hint": "funny",
           "en": "My name is Mateo. I am funny.",
-          "teach": "A boy says alto, a girl says alta: the ending changes (-o / -a). Words ending in -e stay the same: inteligente.",
+          "teach": "A boy: divertido. A girl: divertida.",
           "item": "ser_describe_word",
           "topic": "es_ser"
         },
         {
-          "text": "Me llamo Hugo. Soy de España. Soy ___.",
-          "answer": "español",
+          "text": "Me llamo Liam. Soy de Irlanda. Soy ___.",
+          "answer": "irlandés",
           "accepts": [
-            "español"
+            "irlandés"
           ],
           "options": [
-            "español",
-            "España",
-            "española"
+            "irlandés",
+            "irlandesa",
+            "Irlanda"
+          ],
+          "hint": "Irish",
+          "en": "My name is Liam. I am from Ireland. I am Irish.",
+          "teach": "A boy from Ireland: irlandés. A girl: irlandesa.",
+          "item": "ser_nationality",
+          "topic": "es_ser"
+        }
+      ]
+    },
+    {
+      "type": "gap",
+      "title": "Type the missing word",
+      "mode": "typed",
+      "sentences": [
+        {
+          "text": "Hola, yo ___ Pablo.",
+          "answer": "soy",
+          "accepts": [
+            "soy"
+          ],
+          "options": [
+            "soy",
+            "estoy",
+            "es"
           ],
           "hint": "",
-          "en": "My name is Hugo. I am from Spain. I am Spanish.",
-          "teach": "Boys and girls say it differently: Tom is inglés, Emma is inglesa. Most nationality words end in -o for a boy and -a for a girl.",
-          "item": "ser_nationality",
+          "en": "Hello, I am Pablo.",
+          "teach": "Who you are: soy.",
+          "item": "ser_name",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Hola, me ___ Tom.",
+          "answer": "llamo",
+          "accepts": [
+            "llamo"
+          ],
+          "options": [
+            "llamo",
+            "soy",
+            "llama"
+          ],
+          "hint": "",
+          "en": "Hello, my name is Tom.",
+          "teach": "Me llamo = my name is.",
+          "item": "ser_me_llamo",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Mi amiga Emma ___ de Inglaterra.",
+          "answer": "es",
+          "accepts": [
+            "es"
+          ],
+          "options": [
+            "es",
+            "soy",
+            "está"
+          ],
+          "hint": "",
+          "en": "My friend Emma is from England.",
+          "teach": "Another person: es. Emma es inglesa.",
+          "item": "ser_origin_soy",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Yo ___ diez años.",
+          "answer": "tengo",
+          "accepts": [
+            "tengo"
+          ],
+          "options": [
+            "soy",
+            "tengo",
+            "estoy"
+          ],
+          "hint": "",
+          "en": "I am ten years old.",
+          "teach": "Your age: tengo … años (= I have … years).",
+          "item": "ser_age_tengo",
+          "topic": "es_ser"
+        },
+        {
+          "text": "¿De dónde ___ tú?",
+          "answer": "eres",
+          "accepts": [
+            "eres"
+          ],
+          "options": [
+            "eres",
+            "estás",
+            "es"
+          ],
+          "hint": "",
+          "en": "Where are you from?",
+          "teach": "¿De dónde eres? = Where are you from?",
+          "item": "ser_origin_soy",
+          "topic": "es_ser"
+        },
+        {
+          "text": "Yo ___ muy divertido.",
+          "answer": "soy",
+          "accepts": [
+            "soy"
+          ],
+          "options": [
+            "estoy",
+            "soy",
+            "es"
+          ],
+          "hint": "",
+          "en": "I am very funny.",
+          "teach": "What you are like: soy.",
+          "item": "ser_describe_soy",
           "topic": "es_ser"
         }
       ]

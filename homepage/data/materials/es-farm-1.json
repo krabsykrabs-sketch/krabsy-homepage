@@ -144,6 +144,16 @@
       "type": "gap",
       "title": "Drag the word into the gap",
       "mode": "drag",
+      "bank": [
+        "son",
+        "está",
+        "eres",
+        "es",
+        "tengo",
+        "estoy",
+        "tiene",
+        "están"
+      ],
       "sentences": [
         {
           "text": "La vaca ___ un animal grande.",
@@ -158,7 +168,7 @@
           ],
           "hint": "",
           "en": "The cow is a big animal.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
+          "teach": "What an animal is: es.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"
         },
@@ -175,9 +185,9 @@
           ],
           "hint": "",
           "en": "The pig is in the mud.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
-          "topic": "es_ser_estar"
+          "teach": "Where one animal is: está.",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
         },
         {
           "text": "La gallina ___ tres pollitos.",
@@ -192,9 +202,26 @@
           ],
           "hint": "",
           "en": "The hen has three chicks.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "An animal has: tiene.",
           "item": "tener_have",
           "topic": "es_tener"
+        },
+        {
+          "text": "Los caballos ___ muy rápidos.",
+          "answer": "son",
+          "accepts": [
+            "son"
+          ],
+          "options": [
+            "son",
+            "es",
+            "están"
+          ],
+          "hint": "",
+          "en": "The horses are very fast.",
+          "teach": "What two or more animals are like: son.",
+          "item": "se_es_esta",
+          "topic": "es_ser_estar"
         },
         {
           "text": "Yo ___ un perro.",
@@ -203,13 +230,13 @@
             "tengo"
           ],
           "options": [
-            "soy",
+            "estoy",
             "tiene",
             "tengo"
           ],
           "hint": "",
           "en": "I have a dog.",
-          "teach": "Things you have: tengo. Tengo un perro. No tengo gato.",
+          "teach": "Things you have: tengo.",
           "item": "tener_have",
           "topic": "es_tener"
         },
@@ -226,18 +253,10 @@
           ],
           "hint": "",
           "en": "The ducks are in the water.",
-          "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
-          "item": "se_es_esta",
-          "topic": "es_ser_estar"
+          "teach": "Where two or more animals are: están.",
+          "item": "estar_place_thing",
+          "topic": "es_estar"
         }
-      ],
-      "bank": [
-        "son",
-        "está",
-        "es",
-        "tengo",
-        "tiene",
-        "están"
       ]
     }
   ]
