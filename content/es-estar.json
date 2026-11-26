@@ -93,39 +93,31 @@
       },
       "examples": [
         {
-          "sentence": "Me llamo Pablo. Estoy ___.",
+          "sentence": "Soy Pablo. Mi madre está cansada y yo también estoy ___.",
           "answers": [
             "cansado"
           ],
           "difficulty": 2,
           "distractors": [
             "cansada",
-            "cansados",
-            "contento"
-          ],
-          "hint": {
-            "en": "tired",
-            "de": "müde"
-          }
+            "cansadas",
+            "cansados"
+          ]
         },
         {
-          "sentence": "Me llamo Marta. Estoy ___.",
+          "sentence": "Soy Marta. Mi hermano está contento y yo también estoy ___.",
           "answers": [
             "contenta"
           ],
           "difficulty": 2,
           "distractors": [
             "contento",
-            "contentas",
-            "triste"
-          ],
-          "hint": {
-            "en": "happy",
-            "de": "froh"
-          }
+            "contentos",
+            "contentas"
+          ]
         },
         {
-          "sentence": "Me llamo Leo. Estoy ___.",
+          "sentence": "Soy Leo. Mi amiga está triste y yo también estoy ___.",
           "answers": [
             "triste"
           ],
@@ -134,59 +126,43 @@
             "tristes",
             "contento",
             "cansado"
-          ],
-          "hint": {
-            "en": "sad",
-            "de": "traurig"
-          }
+          ]
         },
         {
-          "sentence": "Me llamo Sara. Estoy ___.",
+          "sentence": "Soy Sara. Mi padre está enojado y yo también estoy ___.",
           "answers": [
             "enojada"
           ],
           "difficulty": 3,
           "distractors": [
             "enojado",
-            "enojadas",
-            "contenta"
-          ],
-          "hint": {
-            "en": "angry",
-            "de": "wütend"
-          }
+            "enojados",
+            "enojadas"
+          ]
         },
         {
-          "sentence": "Me llamo Hugo. Estoy ___.",
+          "sentence": "Soy Hugo. Mi hermana está enferma y yo también estoy ___.",
           "answers": [
             "enfermo"
           ],
           "difficulty": 3,
           "distractors": [
             "enferma",
-            "enfermos",
-            "cansado"
-          ],
-          "hint": {
-            "en": "ill",
-            "de": "krank"
-          }
+            "enfermas",
+            "enfermos"
+          ]
         },
         {
-          "sentence": "Me llamo Lola. Estoy ___.",
+          "sentence": "Soy Lola. Mi hermano está nervioso y yo también estoy ___.",
           "answers": [
             "nerviosa"
           ],
           "difficulty": 3,
           "distractors": [
             "nervioso",
-            "nerviosas",
-            "tranquila"
-          ],
-          "hint": {
-            "en": "nervous",
-            "de": "nervös"
-          }
+            "nerviosos",
+            "nerviosas"
+          ]
         }
       ]
     },
@@ -213,23 +189,7 @@
           ]
         },
         {
-          "sentence": "¿Cómo estás? Estoy ___, gracias.",
-          "answers": [
-            "bien"
-          ],
-          "difficulty": 2,
-          "distractors": [
-            "bueno",
-            "buena",
-            "mal"
-          ],
-          "hint": {
-            "en": "well",
-            "de": "gut"
-          }
-        },
-        {
-          "sentence": "Hoy no estoy ___.",
+          "sentence": "¿Cómo estás? Estoy muy ___, gracias.",
           "answers": [
             "bien"
           ],
@@ -238,11 +198,19 @@
             "bueno",
             "buena",
             "buenos"
+          ]
+        },
+        {
+          "sentence": "Tengo fiebre. Hoy no estoy ___.",
+          "answers": [
+            "bien"
           ],
-          "hint": {
-            "en": "well",
-            "de": "gut"
-          }
+          "difficulty": 2,
+          "distractors": [
+            "bueno",
+            "buena",
+            "buenos"
+          ]
         },
         {
           "sentence": "Estoy ___, tengo fiebre.",
@@ -254,11 +222,7 @@
             "bien",
             "bueno",
             "buena"
-          ],
-          "hint": {
-            "en": "unwell",
-            "de": "schlecht"
-          }
+          ]
         }
       ]
     },

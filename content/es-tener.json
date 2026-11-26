@@ -222,11 +222,7 @@
             "sed",
             "frío",
             "sueño"
-          ],
-          "hint": {
-            "en": "hungry",
-            "de": "Hunger"
-          }
+          ]
         },
         {
           "sentence": "Quiero agua. Tengo ___.",
@@ -238,11 +234,7 @@
             "hambre",
             "calor",
             "frío"
-          ],
-          "hint": {
-            "en": "thirsty",
-            "de": "Durst"
-          }
+          ]
         },
         {
           "sentence": "Está nevando. Tengo ___.",
@@ -254,30 +246,22 @@
             "calor",
             "sed",
             "hambre"
-          ],
-          "hint": {
-            "en": "cold",
-            "de": "kalt"
-          }
+          ]
         },
         {
-          "sentence": "Es verano y tengo ___.",
+          "sentence": "Hace mucho sol. Tengo ___.",
           "answers": [
             "calor"
           ],
           "difficulty": 2,
           "distractors": [
             "frío",
-            "sed",
+            "hambre",
             "sueño"
-          ],
-          "hint": {
-            "en": "hot",
-            "de": "heiß"
-          }
+          ]
         },
         {
-          "sentence": "Son las once de la noche. Tengo ___.",
+          "sentence": "Quiero dormir. Tengo ___.",
           "answers": [
             "sueño"
           ],
@@ -286,11 +270,7 @@
             "frío",
             "hambre",
             "sed"
-          ],
-          "hint": {
-            "en": "sleepy",
-            "de": "müde"
-          }
+          ]
         }
       ]
     }

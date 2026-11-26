@@ -39,9 +39,9 @@ synced to `homepage/data/<file>.json` at release.
       "label": "soy + alto/alta",
       "explanation": { "en": "A boy is alto, a girl is alta." },
       "examples": [
-        { "sentence": "Me llamo Pablo. Soy ___.", "answers": ["alto"],
-          "hint": { "en": "tall", "de": "groß", "es": "" },
-          "distractors": ["alta", "altos", "bajo"], "difficulty": 2 }
+        { "sentence": "Soy Pablo. Mi hermana es alta y yo también soy ___.",
+          "answers": ["alto"],
+          "distractors": ["alta", "altas", "altos"], "difficulty": 2 }
       ]
     }
   ]
@@ -78,20 +78,27 @@ synced to `homepage/data/<file>.json` at release.
 |---|---|---|
 | `sentence` | yes | in the learning language, exactly one `___` |
 | `answers` | yes | first = canonical answer; more = also accepted when typed (`["soy", "Soy"]` is not needed: typing is case-insensitive) |
-| `hint` | no | per interface language; shown in brackets after the sentence: `Me llamo Pablo. Soy ___. (tall)`. Use it when the sentence alone doesn't tell the child *what* to say |
+| `hint` | no | **don't use** (owner decision 2026-11-26, see rules below). The engine still shows one in brackets after the sentence if present, for old data |
 | `distractors` | no | overrides the item's wrong choices for this question |
 | `difficulty` | no | 1–3 within the topic, default 1 |
 
 ## Rules for writing questions
 
-- **No grammar terms in the question** (site rule). The sentence and the
-  hint must be enough. "Simple Present", "1st person" etc. only in
+- **No grammar terms in the question** (site rule). The sentence must be
+  enough. "Simple Present", "1st person" etc. only in
   `explanation`.
+- **Only the learning language in the question** (owner decision
+  2026-11-26). No translation or clue in the interface language, no
+  `(tall)` after the gap. Write the sentence so that it alone settles
+  the answer, also when typed: put the word in the sentence in another
+  form (`Mi hermana es alta y yo también soy ___.` → alto) or give a
+  context with only one fit (`Quiero agua. Tengo ___.` → sed).
 - **Wrong choices must teach something.** For ser: `soy / estoy / es /
   eres` (same verb, other person, or the verb it gets confused with), not
   random words. At least 3 per question (games show 2–4 options).
-- **Wrong choices must really be wrong** in that sentence. `Soy ___ (tall)`
-  with `alta` as a wrong choice only works if the sentence says it's a boy.
+- **Wrong choices must really be wrong** in that sentence. `alta` is only
+  wrong if the sentence says it's a boy (`Soy Pablo …`); `sed` can't be a
+  wrong choice in `Es verano y tengo ___.` (summer makes you thirsty too).
 - **All options look alike.** When the gap starts a sentence, capitalise
   the answer *and* every wrong choice (`Soy / Estoy / Es / Eres`); a lone
   lowercase or uppercase option gives the answer away.

@@ -207,24 +207,24 @@
           "topic": "es_tener"
         },
         {
-          "text": "Es verano y tengo ___.",
+          "text": "Hace mucho sol. Tengo ___.",
           "answer": "calor",
           "accepts": [
             "calor"
           ],
           "options": [
-            "sed",
+            "hambre",
             "frío",
             "calor"
           ],
           "hint": "hot",
-          "en": "It is summer and I am hot.",
+          "en": "It is very sunny. I am hot.",
           "teach": "Tengo calor = I am hot.",
           "item": "tener_feel_word",
           "topic": "es_tener"
         },
         {
-          "text": "Son las once de la noche. Tengo ___.",
+          "text": "Quiero dormir. Tengo ___.",
           "answer": "sueño",
           "accepts": [
             "sueño"
@@ -235,7 +235,7 @@
             "hambre"
           ],
           "hint": "sleepy",
-          "en": "It is eleven at night. I am sleepy.",
+          "en": "I want to sleep. I am sleepy.",
           "teach": "Tengo sueño = I am sleepy.",
           "item": "tener_feel_word",
           "topic": "es_tener"

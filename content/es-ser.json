@@ -364,130 +364,98 @@
       },
       "examples": [
         {
-          "sentence": "Me llamo Pablo. Soy ___.",
+          "sentence": "Soy Pablo. Mi hermana es alta y yo también soy ___.",
           "answers": [
             "alto"
           ],
-          "hint": {
-            "en": "tall",
-            "de": "groß"
-          },
           "distractors": [
             "alta",
-            "altos",
-            "bajo"
+            "altas",
+            "altos"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Marta. Soy ___.",
+          "sentence": "Soy Marta. Mi hermano es alto y yo también soy ___.",
           "answers": [
             "alta"
           ],
-          "hint": {
-            "en": "tall",
-            "de": "groß"
-          },
           "distractors": [
             "alto",
-            "altas",
-            "baja"
+            "altos",
+            "altas"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Leo. Soy ___.",
+          "sentence": "Soy Leo. Mi madre es baja y yo también soy ___.",
           "answers": [
             "bajo"
           ],
-          "hint": {
-            "en": "short",
-            "de": "klein"
-          },
           "distractors": [
             "baja",
-            "bajos",
-            "alto"
+            "bajas",
+            "bajos"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Sara. Soy ___.",
+          "sentence": "Soy Sara. Mi padre es simpático y yo también soy ___.",
           "answers": [
             "simpática"
           ],
-          "hint": {
-            "en": "nice",
-            "de": "nett"
-          },
           "distractors": [
             "simpático",
-            "simpáticas",
-            "antipática"
+            "simpáticos",
+            "simpáticas"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Mateo. Soy ___.",
+          "sentence": "Soy Mateo. Mi abuela es divertida y yo también soy ___.",
           "answers": [
             "divertido"
           ],
-          "hint": {
-            "en": "funny",
-            "de": "lustig"
-          },
           "distractors": [
             "divertida",
-            "divertidos",
-            "aburrido"
+            "divertidas",
+            "divertidos"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Hugo. Soy ___.",
+          "sentence": "Soy Hugo. Mi hermana es tímida y yo también soy ___.",
           "answers": [
             "tímido"
           ],
-          "hint": {
-            "en": "shy",
-            "de": "schüchtern"
-          },
           "distractors": [
             "tímida",
-            "tímidos",
-            "simpático"
+            "tímidas",
+            "tímidos"
           ],
           "difficulty": 2
         },
         {
-          "sentence": "Me llamo Elena. Soy ___.",
+          "sentence": "Soy Elena. Mi padre es rubio y yo también soy ___.",
           "answers": [
             "rubia"
           ],
-          "hint": {
-            "en": "blonde",
-            "de": "blond"
-          },
           "distractors": [
             "rubio",
-            "rubias",
-            "morena"
+            "rubios",
+            "rubias"
           ],
           "difficulty": 3
         },
         {
-          "sentence": "Me llamo Lola. Soy ___.",
+          "sentence": "Soy Lola. Mi hermano es inteligente y yo también soy ___.",
           "answers": [
             "inteligente"
           ],
-          "hint": {
-            "en": "clever",
-            "de": "klug"
-          },
           "distractors": [
             "inteligentes",
             "divertida",
-            "aburrida"
+            "tímida"
           ],
           "difficulty": 3
         }
