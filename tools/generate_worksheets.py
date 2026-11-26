@@ -419,8 +419,8 @@ def download_page(lang, LL, PP, kinds):
   <link rel="alternate" hreflang="{lang}" href="{url(p['path'])}">
   <link rel="alternate" hreflang="{other}" href="{url(PP[other]['path'])}">
   <link rel="alternate" hreflang="x-default" href="{url(PP['de']['path'])}">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{desc}">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
@@ -437,7 +437,7 @@ def download_page(lang, LL, PP, kinds):
     <header class="k-page-header">
       <a href="/{lang}/" class="logo" aria-label="Krabsy">
         <span>kr</span>
-        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
       <div class="k-lang-toggle" role="group" aria-label="{'Sprache wählen' if lang == 'de' else 'Elegir idioma'}">

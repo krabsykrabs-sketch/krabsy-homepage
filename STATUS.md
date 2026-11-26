@@ -29,8 +29,13 @@ at the end of each session. (Last update: 2026-11-25.)
   shell fades on white → favicon needs an outline/darker shell), `E1-turnaround.jpg` (front view
   inconsistent: shell sits like a hood). Rejected along the way: coral toy (babyish), smug purple,
   Buddy, tech crab. Gemini prompt rounds: `_incoming/krabsy-crab/GEMINI-PROMPTS*.md`.
-  Next: image-to-3D from `E1a.jpg` (Tripo/Meshy, owner's account) → Blender cleanup (split body /
-  shell / claws / eye stalks / legs, small GLB) → site logo + favicon → games. Preview page
+  Site images (logo, favicon, greeting) switched to the generated 2D/3D pictures 2026-11-27.
+  **TODO (owner, later — "on the list"): the 3D model.** Owner uploads to Tripo (tripo3d.ai,
+  Image to 3D; multi-view if offered) the four views `_incoming/krabsy-crab/new/gen/turn3-{front,
+  side,back,threequarter}.png` (else `new/E1a.jpg`), saves the GLB into `new/gen/`. Then Claude:
+  Blender cleanup (split body / shell / claws / eye stalks / legs, small GLB), animated preview,
+  then the crab in games (Krabsy world host, Hatchery thief crabs?). Favicon source:
+  `new/gen/fav-1.png`; turnaround: `new/gen/turn-3.png`. Preview page
   `homepage/design-preview/` is local only (untracked).
 
 ## ⭐ BIG TODO: 4teachers route (owner, 2026-11-25: "I definitely need to go down this route", start in a few days)

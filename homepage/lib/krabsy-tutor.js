@@ -281,7 +281,7 @@ function renderStart(main) {
         </div>
         <span class="kt-demo-chip kt-demo-c1">⭐ new star</span>
         <span class="kt-demo-chip kt-demo-c2">🎮 plays at home</span>
-        <img class="kt-demo-crab" src="/favicon.png" alt="" decoding="async">
+        <img class="kt-demo-crab" src="/favicon.png?v=2026-11-27" alt="" decoding="async">
       </div>
     </section>
     <h2 class="kt-h2">${T.howH}</h2>
@@ -321,7 +321,7 @@ function renderStart(main) {
 /* ── the link from the email ───────────────────────────────────────────── */
 async function renderLogin(main) {
   const m = location.hash.match(/[#&]l=([A-Za-z0-9_-]{20,80})/);
-  main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card kt-working">${T.loginWorking}</p></div>`;
+  main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png?v=2026-11-27" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card kt-working">${T.loginWorking}</p></div>`;
   try { history.replaceState(null, '', location.pathname); } catch (_) {}
   try {
     if (!m) throw new Error('link_expired');
@@ -329,7 +329,7 @@ async function renderLogin(main) {
     write(SESSION, { token: d.session_token, name: d.name, id: d.space_id });
     location.replace(PATHS.space);
   } catch (e) {
-    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card">${e.message === 'link_expired' ? T.loginBad : T.errNet}</p>
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png?v=2026-11-27" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card">${e.message === 'link_expired' ? T.loginBad : T.errNet}</p>
       <p><a class="kc-btn" href="${PATHS.start}">${T.loginAgain}</a></p></div>`;
   }
 }
@@ -370,7 +370,7 @@ async function renderSpace(main) {
     [d, cat] = await Promise.all([api('/api/tutor/space', token), catalogue()]);
   } catch (e) {
     if (e.message === 'unknown_space' && token) { if (LEGACY) forgetSpace(token); else write(SESSION, null); }
-    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.students}</h1><p class="kc-card">${!token ? T.needSignIn : (e.message === 'unknown_space' ? T.noSpace : T.errNet)}</p>
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png?v=2026-11-27" alt="" decoding="async"><h1>${T.students}</h1><p class="kc-card">${!token ? T.needSignIn : (e.message === 'unknown_space' ? T.noSpace : T.errNet)}</p>
       <p><a class="kc-btn" href="${PATHS.start}">${T.signInH}</a></p></div>`;
     return;
   }
@@ -750,7 +750,7 @@ async function renderReport(main) {
     if (!m) throw new Error('unknown_report');
     [d, cat] = await Promise.all([api('/api/report', m[1], undefined, 'X-Report-Key'), catalogue()]);
   } catch (e) {
-    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>Krabsy</h1><p class="kc-card">${e.message === 'unknown_report' ? T.repBad : T.errNet}</p></div>`;
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png?v=2026-11-27" alt="" decoding="async"><h1>Krabsy</h1><p class="kc-card">${e.message === 'unknown_report' ? T.repBad : T.errNet}</p></div>`;
     return;
   }
   const tps = [...cat.ids.filter((t) => d.topics[t]), ...Object.keys(d.topics).filter((t) => !cat.ids.includes(t))];

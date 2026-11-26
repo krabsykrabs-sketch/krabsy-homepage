@@ -385,7 +385,7 @@ export function initVerbDiplom(root) {
     const cert = el('div', `vd-cert vd-cert--${L.key}`);
     const inner = el('div', 'vd-cert-inner');
     const logo = el('div', 'vd-cert-logo');
-    logo.innerHTML = '<span>kr</span><img src="/favicon.png" alt=""><span>bsy</span>';
+    logo.innerHTML = '<span>kr</span><img src="/favicon.png?v=2026-11-27" alt=""><span>bsy</span>';
     inner.appendChild(logo);
     inner.appendChild(el('div', 'vd-cert-title', S.certTitle));
     const medal = el('div', 'vd-cert-medal', levelName);

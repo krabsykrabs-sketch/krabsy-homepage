@@ -498,8 +498,8 @@ def head(lang, t, title, desc, path, other_path, googlebot_noindex=False):
   <link rel="alternate" hreflang="{lang}" href="https://krabsy.com{path}">
   <link rel="alternate" hreflang="{other}" href="https://krabsy.com{other_path}">
   <link rel="alternate" hreflang="x-default" href="https://krabsy.com{path if lang == 'de' else other_path}">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="{E(title)}">
   <meta property="og:description" content="{E(desc)}">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
@@ -521,7 +521,7 @@ def chrome_open(lang, t):
     <header class="k-page-header">
       <a href="/{lang}/" class="logo" aria-label="Krabsy">
         <span>kr</span>
-        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
       <div class="k-lang-toggle" role="group" aria-label="{t['footer_lang']}">

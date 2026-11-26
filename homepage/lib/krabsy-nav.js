@@ -430,7 +430,7 @@ async function buildGameHeader(currentKey, strings) {
   logo.setAttribute('aria-label', 'Krabsy');
   // Same brand logo as the site header: "kr" + crab + "bsy".
   logo.innerHTML = '<span>kr</span><span class="k-game-nav-crab" aria-hidden="true">'
-    + '<img src="/favicon.png" alt="" decoding="async"></span><span>bsy</span>';
+    + '<img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span>';
   logo.addEventListener('click', (ev) => guardedGameClick(ev, hubHref, strings));
 
   const chipWrap = document.createElement('div');

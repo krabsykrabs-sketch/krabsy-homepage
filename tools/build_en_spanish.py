@@ -92,8 +92,8 @@ def head(title, desc, url):
   <title>{title} — Krabsy</title>{robots}
   <meta name="description" content="{desc}">
   <link rel="canonical" href="https://krabsy.com{url}">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="{title} — Krabsy">
   <meta property="og:description" content="{desc}">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
@@ -226,7 +226,7 @@ HEADER = '''    <header class="k-page-header">
       <a href="/en/spanish/" class="logo" aria-label="Krabsy">
         <span>kr</span>
         <span class="logo-crab" aria-hidden="true">
-          <img src="/favicon.png" alt="" decoding="async">
+          <img src="/favicon.png?v=2026-11-27" alt="" decoding="async">
         </span>
         <span>bsy</span>
       </a>

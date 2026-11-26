@@ -334,8 +334,8 @@ def page(title, desc, path, crumbs, body, ld):
   <link rel="canonical" href="{url}">
   <link rel="alternate" hreflang="de" href="{url}">
   <link rel="alternate" hreflang="x-default" href="{url}">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="{html.escape(title)} — Krabsy">
   <meta property="og:description" content="{html.escape(desc)}">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
@@ -352,7 +352,7 @@ def page(title, desc, path, crumbs, body, ld):
     <header class="k-page-header">
       <a href="/de/" class="logo" aria-label="Krabsy">
         <span>kr</span>
-        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png" alt="" decoding="async"></span>
+        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
       <div class="k-lang-toggle" role="group" aria-label="Sprache wählen">

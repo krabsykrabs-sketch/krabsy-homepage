@@ -123,7 +123,7 @@ a:hover { color: var(--krabsy-coral); }
 .k-logo:hover { color: var(--krabsy-ink); }
 /* Brand logo "kr🦀bsy" (2026-11-22): the crab replaces the "a", like the
    landing pages. Markup: <a class="k-logo" aria-label="Krabsy"><span>kr</span>
-   <span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png" alt=""></span>
+   <span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt=""></span>
    <span>bsy</span></a> */
 .k-logo { gap: 0; line-height: 1; }
 .k-logo-crab {
