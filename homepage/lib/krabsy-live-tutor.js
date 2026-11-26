@@ -25,6 +25,7 @@ const SPACE = '/en/spanish/tutors/space/';
 const T = {
   live: 'LIVE', notLive: 'Ready',
   here: (n) => `${n} is here`, away: (n) => `${n} left the lesson tab`, notYet: (n) => `${n} is not here yet — send the link`,
+  gone: (n) => `${n} left the lesson — ask them to open their page again`,
   copyLink: 'Copy link', copied: 'Copied ✓', reconnecting: 'Reconnecting …',
   replaced: 'This lesson is open in another tab.', useHere: 'Use it here',
   start: 'Start lesson', end: 'End lesson', profile: '← Profile',
@@ -39,7 +40,7 @@ const T = {
   nextItem: (t) => `Next: ${t} ▸`, finished: 'Finished ✓',
   tabQueue: 'Lesson', tabAnswers: 'Answers', tabNotes: 'Notes',
   queueH: 'This lesson', queueNone: 'Nothing in the lesson yet. Add a worksheet, a book or a quick practice.',
-  add: '+ Add', up: 'Move up', down: 'Move down', remove: 'Remove', showNow: 'Show now', queueAdd: '+ Lesson',
+  add: '+ Add', up: 'Move up', down: 'Move down', remove: 'Remove', showNow: 'Show now', queueAdd: 'Add to list',
   answersH: 'Answers', answersNone: 'Answers appear here as they come.',
   firstTry: (r, n) => `<b>${r} of ${n}</b> right on the first try`, secondTry: 'later try', shownA: 'shown', rightIs: 'right:',
   notesH: 'Notes while teaching', notesPh: 'e.g. mixes up ser and estar with feelings',
@@ -54,16 +55,19 @@ const T = {
   savedMeta: (w) => `${w.count} questions · ${w.done ? `${w.done} done, ${w.right} right` : 'not started'}`,
   loadFail: 'Could not load this material.', tooBig: 'This material is too big to send.',
   offline: 'Not connected — it is sent when the connection is back.',
+  offlineNow: 'Not connected — not sent. Try again in a moment.',
   endH: (n) => `Lesson with ${n} finished`, endMeta: (m, n, s) => `${m} min · ${n} material${n === 1 ? '' : 's'} · ⭐ ${s}`,
   endRight: 'Right on the first try', endWords: 'Words to practise', endNote: 'Lesson note (saved on the profile, editable)',
   keep: 'Keep teaching', saveEnd: 'Save and end', saving: 'Saving …', saveFail: 'Could not save the note. Try again.',
   savedH: 'Lesson saved ✓', savedP: (n) => `The note is on ${n}’s profile under Lesson notes.`,
   backTo: (n) => `Back to ${n}`, newLesson: 'Start a new lesson',
+  notFinished: 'not finished',
   noteHead: (m) => `Live lesson · ${m} min`, noteWords: 'Words to practise', noteRight: (r, n) => `${r} of ${n} right on the first try`,
   needSignIn: 'Please sign in to open the live lesson.', signIn: 'Sign in', unknown: 'This student doesn’t exist (any more) in your space.',
   errNet: 'No connection. Try again in a moment.', noStudent: 'Open a student first.',
 };
 const KIND_ORDER = ['worksheet', 'book', 'cards'];
+const MIRROR_H = 600;            // below this height the mirror is drawn at this size and scaled down
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -178,6 +182,7 @@ class LivePage {
             ${this.adult ? '' : `<button type="button" class="kl-btn" data-reward="gift" aria-label="Send a gift" title="Send a gift">${T.gift}</button>`}
             <button type="button" class="kl-btn is-on" data-point aria-pressed="true" title="${T.pointTip}">${T.point}</button>
             <button type="button" class="kl-btn kl-btn-primary" data-nextitem hidden></button>
+            <button type="button" class="kl-btn kl-btn-add" data-add3 title="${T.drawerH}">${T.add}</button>
           </div>
         </section>
         <aside class="kl-side" data-tab="${this.tab}">
@@ -207,9 +212,10 @@ class LivePage {
     $('[data-start]', m).addEventListener('click', () => this.startLesson());
     $('[data-end]', m).addEventListener('click', () => this.endDialog());
     $('[data-add]', m).addEventListener('click', () => this.drawer());
-    m.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => this.live.cmd(b.dataset.c)));
+    $('[data-add3]', m).addEventListener('click', () => this.drawer());
+    m.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => { if (!this.live.cmd(b.dataset.c)) this.toast(T.offlineNow); }));
     m.querySelectorAll('[data-reward]').forEach((b) => b.addEventListener('click', () => {
-      if (this.live.reward(b.dataset.reward)) this.toast(b.dataset.reward === 'gift' ? T.giftSent : T.starSent); else this.toast(T.offline);
+      if (this.live.reward(b.dataset.reward)) this.toast(b.dataset.reward === 'gift' ? T.giftSent : T.starSent); else this.toast(T.offlineNow);
     }));
     $('[data-point]', m).addEventListener('click', (e) => {
       this.pointOn = !this.pointOn; e.currentTarget.classList.toggle('is-on', this.pointOn); e.currentTarget.setAttribute('aria-pressed', String(this.pointOn));
@@ -224,8 +230,10 @@ class LivePage {
       const pos = this.mirror.anchorAt(e.clientX, e.clientY);
       if (!pos) return;
       this.mirror.point(pos);
-      if (this.live.point(pos)) this.toast(T.pointed); else this.toast(T.offline);
+      if (this.live.point(pos)) this.toast(T.pointed); else this.toast(T.offlineNow);
     });
+    // the mirror is scaled down when there is less room than MIRROR_H (a laptop next to Zoom)
+    if (window.ResizeObserver) new ResizeObserver(() => this.fitMirror()).observe(mir);
     this.setTab(this.tab);
     this.header(); this.renderStage(); this.renderQueue(); this.renderAnswers();
   }
@@ -243,7 +251,8 @@ class LivePage {
     const m = this.main; if (!m.isConnected) return;
     const n = this.name, p = this.presence;
     const pres = $('[data-pres]', m);
-    let cls = 'is-away', txt = T.notYet(n);
+    if (p.student) this.seenStudent = true;
+    let cls = 'is-away', txt = this.seenStudent ? T.gone(n) : T.notYet(n);
     if (p.student && p.visible) { cls = 'is-here'; txt = T.here(n); }
     else if (p.student) { cls = 'is-left'; txt = T.away(n); }
     const key = (read('krabsy_tutor_keys', {}) || {})['id:' + this.P.sid];
@@ -312,9 +321,17 @@ class LivePage {
       host.innerHTML = '<div class="kl-mirror-in"></div>';
       this.mirror = mountMaterial(host.firstChild, this.material, { role: 'mirror', lang: LANG, adult: this.adult });
       this.mirrorSig = sig;
+      this.fitMirror();
     }
     if (this.state && this.state.kind === (this.mirror.kind || this.state.kind)) this.mirror.apply(this.state);
     this.nextButton();
+  }
+  fitMirror() {
+    const host = $('[data-mirror]', this.main), inn = host && host.querySelector('.kl-mirror-in'); if (!inn) return;
+    const W = host.clientWidth, H = host.clientHeight;
+    if (!W || !H || H >= MIRROR_H) { inn.style.cssText = ''; return; }
+    const s = H / MIRROR_H;
+    inn.style.cssText = `width:${(W / s).toFixed(1)}px;height:${MIRROR_H}px;transform:scale(${s.toFixed(4)});transform-origin:0 0`;
   }
   unmountMirror() { if (this.mirror) { try { this.mirror.destroy(); } catch (_) {} } this.mirror = null; this.mirrorSig = ''; }
 
@@ -324,6 +341,11 @@ class LivePage {
     const nxt = this.items[this.index + 1];
     b.hidden = !done;
     b.textContent = nxt ? T.nextItem(nxt.title) : T.addFirst;
+    $('[data-add3]', this.main).hidden = !b.hidden && !nxt;      // the bar's own "+ Add material" is there
+    // Hint / Show answer act on the item the student is on: say which one
+    let n = null; try { n = this.mirror && this.mirror.current ? this.mirror.current() : null; } catch (_) {}
+    $('[data-c="hint"]', this.main).textContent = n ? `${T.hint} · ${n}` : T.hint;
+    $('[data-c="reveal"]', this.main).textContent = n ? `${T.reveal} · ${n}` : T.reveal;
   }
 
   /* ── relay events ───────────────────────────────────────────────────────── */
@@ -331,10 +353,18 @@ class LivePage {
     this.setBanner(null);
     if (m.tutor) this.tutor = m.tutor;
     if (typeof m.adult === 'boolean') this.adult = m.adult;
-    const L = m.lesson;
+    let L = m.lesson;
     const first = this.firstReady; this.firstReady = false;
+    if (this.endPending) {
+      // "Save and end" happened while we were offline: the note is saved, now end it on the relay
+      const ep = this.endPending; this.endPending = null;
+      // (the relay's lesson started before "Save and end" was pressed: it is this one, not a newer one)
+      if (L && !L.ended && (L.started === ep.started || Date.parse(L.started) <= ep.at + 60000)) { this.live.end(ep.summary); L = Object.assign({}, L, { ended: new Date().toISOString() }); }
+      if (!this.active()) { this.header(); return; }
+    }
     if (L && !L.ended) {
-      const sameLesson = this.lesson && this.lesson.started === L.started;
+      // started here: our clock's time vs the relay's (a few ms apart): the same lesson
+      const sameLesson = this.lesson && (this.lesson.started === L.started || Math.abs(Date.parse(this.lesson.started) - Date.parse(L.started)) < 120000);
       this.lesson = { started: L.started, ended: null };
       if (first || !sameLesson) {
         this.items = Array.isArray(L.items) ? L.items : [];
@@ -383,9 +413,12 @@ class LivePage {
 
   onMessage(m) {
     if (m.t === 'state') {
+      // a state for the previous material (still on its way after a "show now") is dropped
+      if (m.state && m.state.id && this.material && this.material.id && m.state.id !== this.material.id) return;
       this.state = m.state;
       const cur = this.items[this.index];
       if (cur && m.state && typeof m.state.stars === 'number') cur.stars = m.state.stars;
+      if (cur && m.state && (m.state.kind === 'book' ? m.state.finished : m.state.done) && !cur.finished) { cur.finished = true; this.sync(); }
       if (this.mirror && m.state) this.mirror.apply(m.state);
       this.nextButton();
     } else if (m.t === 'cursor') {
@@ -448,9 +481,17 @@ class LivePage {
   }
 
   /* ── queue ──────────────────────────────────────────────────────────────── */
+  // first-try results: one per item (an item that comes back, "Play again" or a material
+  // shown twice never counts twice)
   results(mid) {
-    const firsts = this.answers.filter((a) => a.first && (!mid || a.mat === mid));
-    return { right: firsts.filter((a) => a.correct).length, total: firsts.length };
+    const seen = new Set(); let right = 0, total = 0;
+    for (const a of this.answers) {
+      if (!a.first || (mid && a.mat !== mid)) continue;
+      const k = `${a.mat}|${a.step}|${a.item ?? a.a ?? ''}|${a.ref ?? ''}`;
+      if (seen.has(k)) continue;
+      seen.add(k); total++; if (a.correct) right++;
+    }
+    return { right, total };
   }
 
   renderQueue() {
@@ -619,7 +660,7 @@ class LivePage {
   summary() {
     const minutes = Math.max(1, Math.round((Date.now() - Date.parse(this.lesson.started)) / 60000));
     const shown = this.items.filter((it, i) => it.done || i === this.index);
-    const mats = shown.map((it) => ({ title: it.title, ...(it.mid ? this.results(it.mid) : { right: 0, total: 0 }) }));
+    const mats = shown.map((it) => ({ title: it.title, finished: !!it.finished, ...(it.mid ? this.results(it.mid) : { right: 0, total: 0 }) }));
     const r = this.results(null);
     const words = [];
     for (const a of this.answers) {
@@ -634,7 +675,7 @@ class LivePage {
   noteText(s) {
     const notes = ($('[data-notes]', this.main) || {}).value || '';
     const lines = [T.noteHead(s.minutes)];
-    for (const m of s.mats) lines.push(`✓ ${m.title}${m.total ? ` — ${T.noteRight(m.right, m.total)}` : ''}`);
+    for (const m of s.mats) lines.push(`${m.finished ? '✓' : '·'} ${m.title}${m.finished ? '' : ` (${T.notFinished})`}${m.total ? ` — ${T.noteRight(m.right, m.total)}` : ''}`);
     if (s.words.length) lines.push(`${T.noteWords}: ${s.words.map(quoteWord).join('; ')}`);
     if (notes.trim()) lines.push('', notes.trim());
     return lines.join('\n').slice(0, 2000);
@@ -649,7 +690,7 @@ class LivePage {
       <header><h2 id="kl-endh">${esc(T.endH(this.name))}</h2></header>
       <div class="kl-modal-body">
         <p class="kl-mute">${esc(T.endMeta(s.minutes, s.mats.length, s.stars))}</p>
-        ${s.mats.length ? `<ul class="kl-end-mats">${s.mats.map((m) => `<li>✓ ${esc(m.title)}${m.total ? ` <b>${m.right} of ${m.total}</b>` : ''}</li>`).join('')}</ul>` : ''}
+        ${s.mats.length ? `<ul class="kl-end-mats">${s.mats.map((m) => `<li>${m.finished ? '✓' : '·'} ${esc(m.title)}${m.finished ? '' : ` <span class="kl-mute">(${T.notFinished})</span>`}${m.total ? ` <b class="${m.right === m.total ? 'is-all' : ''}">${m.right} of ${m.total}</b>` : ''}</li>`).join('')}</ul>` : ''}
         ${s.total ? `<p><strong>${T.endRight}:</strong> ${s.right} of ${s.total}</p>` : ''}
         ${s.words.length ? `<p><strong>${T.endWords}:</strong> ${esc(s.words.map(quoteWord).join('; '))}</p>` : ''}
         <label class="kl-lbl">${T.endNote}<textarea class="kl-input" rows="7" maxlength="2000" data-endnote>${esc(this.noteText(s))}</textarea></label>
@@ -670,7 +711,8 @@ class LivePage {
       } catch (_) {
         err.textContent = T.saveFail; err.hidden = false; btn.disabled = false; btn.textContent = T.saveEnd; return;
       }
-      this.live.end({ minutes: s.minutes, materials: s.mats.length, first: s.right, total: s.total });
+      const sum = { minutes: s.minutes, materials: s.mats.length, first: s.right, total: s.total };
+      if (!this.live.end(sum)) this.endPending = { at: Date.now(), started: this.lesson.started, summary: sum };   // sent on reconnect
       this.lesson = { started: this.lesson.started, ended: new Date().toISOString() };
       write(this.notesKey, null);
       close();

@@ -81,7 +81,7 @@
 .kp-chip { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 6px 16px; border-radius: 14px; border: 3px solid #f1e6cd; background: #fff; box-shadow: 0 4px 0 #efe2c6; font: 600 18px 'Fredoka', 'Nunito', sans-serif; color: #2c2a3a; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .kp-chip.pic-chip { flex-direction: column; gap: 0; padding: 6px 10px; min-width: 84px; font-size: 14px; } .kp-chip.pic-chip .pic { font-size: 38px; }
 .kp-chip.is-picked { border-color: #c9533b; transform: translateY(-5px); box-shadow: 0 9px 0 #8f3524; } .kp-chip.is-dragging { opacity: .25; } .kp-chip.is-out { opacity: .25; }
-.drag-ghost { position: fixed; z-index: 999; pointer-events: none; margin: 0; box-shadow: 0 14px 30px rgba(44,42,58,.3); border-color: #c9533b; cursor: grabbing; }
+.drag-ghost { position: fixed; z-index: 10060;   /* above the live lesson layer (10030) */ pointer-events: none; margin: 0; box-shadow: 0 14px 30px rgba(44,42,58,.3); border-color: #c9533b; cursor: grabbing; }
 .kp-tip { text-align: center; font-size: 13px; color: var(--mute); }
 .kp-baskets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .kp-basket { position: relative; min-height: 150px; border-radius: 18px 18px 46px 46px; border: 3px dashed #c9a868; background: repeating-linear-gradient(45deg, #f6dfae 0 10px, #f0d294 10px 20px); display: flex; flex-direction: column; justify-content: space-between; padding: 8px; transition: transform .12s; font-family: var(--f-fun); color: var(--ink); }

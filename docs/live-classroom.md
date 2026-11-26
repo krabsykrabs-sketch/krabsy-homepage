@@ -307,3 +307,67 @@ API as in the contract; details in `homepage/lib/activities/README.md`. Addition
   not "It is El cerdo está en el barro..".
 - `from-engine.js`: when the gap starts the sentence, the answer and every choice start with a capital
   (topic items' own distractors are lower case; `check_materials.py` failed at random on this).
+
+### FIX (review, 2026-11-26)
+
+Code and UX review applied (details in the commit). Changes against the protocol / the parts above:
+- Relay room life: a room is tied to the student row (id + tutor + class + created); a hello for a
+  reused id gets a new room (the old sockets get `error auth`). A room that never had a lesson is
+  deleted when the last socket leaves; an ended lesson keeps only its summary (**answers are dropped
+  at `end`**, they are in the lesson note). `sweep()` runs at most every 10 min from hellos and pings,
+  not only at the room limit. At the limit the longest-idle room nobody is connected to makes way;
+  `busy` only when every room has someone connected.
+- `tutors.py` (outside L1's files): remove student / delete space close both sockets (`error auth`)
+  and delete the room; a new student link closes the student socket. Every socket re-checks its
+  token / key every 60 s (logout, removed student).
+- Limits: student `state` ≤ 64 KB, `answer` ≤ 2 KB, all answers of a lesson ≤ 160 KB; only the newest
+  unsent `state` waits in a connection's outbox, more than 2 MB waiting cuts the connection; ≤ 60 live
+  sockets per IP; ≤ 3 running lessons per tutor (starting a 4th ends that tutor's longest-idle one).
+  A failed hello closes the socket (no second try); auth runs off the event loop.
+- A `state` whose `id` is not the current material's id is dropped (relay and tutor page).
+- Mirror: the state is sanitised before rendering (numbers, lists, known effect kinds), the end card
+  escapes its numbers; the mirror has no tab stops. Player state has a new field `last` (anchor of
+  the last answered item); the mirror is drawn at 600 px height and scaled down when it has less room
+  and scrolls to the item the student works on. `p.current()` (gap steps): the item number Hint /
+  Show answer act on; a tutor **point on a gap makes it the current item** on the student.
+- First-try counts on the tutor page: one per item (an item that comes back, "Play again" or a
+  material shown twice count once); a tap item that comes back is never `first`.
+- Offline: the student keeps up to 50 unsent answers and sends them after the reconnect; "Save and end"
+  while offline sends `end` after the reconnect; hint / show answer / point / rewards offline show a
+  "not sent" toast.
+- UX: drag ghost above the lesson layer; the site header is not sticky on the live page (the live bar
+  is); "+ Add" in the control bar; "… left the lesson" after the student closed the page; gift = one
+  message (the player's card); children see "You did N tasks!" instead of "x of y right at first try"
+  (player end card and "Lesson done"); second hint names the word ("It is not “son”."), a greyed bank
+  word can't be dragged; end summary marks unfinished materials "· … (not finished)"; drawer button
+  "Add to list".
+- Content: `es-estar` "Hoy no ___ nerviosa." (was "No ___ nerviosa.", where *soy* is also right);
+  farm worksheet "La vaca ___ un animal grande." (was "… grande.", where the bank word *está* also fits).
+
+## As built (2026-11-26, not deployed)
+
+**Use it:** the tutor opens the space (`/en/spanish/tutors/space/`), clicks **Start live lesson** on a
+student card (or on the student's profile). The student opens their bookmark (`/en/spanish/me/#k=…`;
+the tutor's "Copy link" in the live bar while they are not there). The student's page switches to the
+lesson by itself. **+ Add** → Krabsy materials / Quick practice (topic, 6 or 10, type / choose / drag) /
+saved worksheets → **Show now** (or "Add to list"). Click on the mirror to point; Hint / Show answer act
+on the item outlined on both screens (point at another gap to switch); ◀ ▶ steps and book pages;
+⭐ 🎁 (no gift for adults). Answers and Notes tabs; **End lesson** → summary → editable note → Save and
+end (saved under Lesson notes on the profile). Reload on either side continues at the same place.
+
+**Local test:** `KRABSY_DATA_DIR=<scratch> python3 tools/dev_api_server.py <port>`; API tests
+`cd api && python -m pytest -q tests`. Deploy needs both Coolify apps (static site and `api/`, the
+relay is in the API) and `wss://api.krabsy.com/api/live/ws` reachable.
+
+**Known limits:**
+- Memory only, one API process: an API restart ends running rooms (both pages reconnect; the tutor page
+  sends the material again, the student's last state is lost).
+- The relay does not check what a material or a state contains (only sizes and the material id); the
+  pages escape everything they show.
+- Vocabulary activities (cards, tap, match, sort) are not recorded in the star map (no question topic
+  for vocabulary yet); gap sentences are.
+- The answers column is a plain list (not grouped by material; sort answers show the basket id),
+  "Words to practise" lists whole sentences, the after-answer teach note is the topic's grammar note
+  (also for children), the hand can cover typed letters in the mirror, places in the materials are in
+  Spain / the UK, quick practice does not know the student's gender. (Review LATER items.)
+- No real tablet, Zoom window or slow network tested; touch only emulated.

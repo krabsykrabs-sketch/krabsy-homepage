@@ -1,5 +1,15 @@
 # Krabsy — status dashboard
 
+## Live classroom (2026-11-25, built, not deployed)
+
+Zoom for face and voice, Krabsy as the shared workspace: the tutor starts a live lesson from the
+space, the student's own page (`/en/spanish/me/#k=…`) switches to it, the tutor sees a mirror, points,
+gives hints, adds materials on the fly and ends with a lesson note. Built 2026-11-25/26 in packages
+L1–L4 plus integration and a review fix (relay `api/live.py`, player `homepage/lib/activities/`,
+14 curated materials + 59 vocab words, live pages `krabsy-live*.js`); acceptance passes (two browser
+contexts, API tests). **Not deployed**: needs the static site and the API deployed together.
+Contract, deviations, how to use it and known limits: `docs/live-classroom.md` ("As built").
+
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-25.)
 

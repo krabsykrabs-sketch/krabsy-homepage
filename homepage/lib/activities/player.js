@@ -13,7 +13,7 @@
 // effects (state.fx) and play once on each side.
 import { recordAttempt } from '/lib/krabsy-stats.js';
 import { dragTap } from './drag.js';
-import { esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone } from './util.js';
+import { esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js';
 import { mountBook } from './book.js';
 
 const PRAISE = ['¡Muy bien!', '¡Genial!', '¡Sí!', '¡Perfecto!', '¡Bravo!'];
@@ -101,6 +101,7 @@ export function mountPlayer(root, material, opts = {}) {
   // first: right at first try without hint (= a star). shown: the answer was given.
   function answer(a) {
     const { ok, first, shown, label, wordId, teach, counts = true, recKey, item, topic, form, given, mode, anchor, firstTry } = a;
+    if (anchor) st.last = anchor;
     if (ok) {
       if (counts) st.total++;
       if (first) { st.first++; st.stars++; fx('pop', 'stars'); }
@@ -163,7 +164,7 @@ export function mountPlayer(root, material, opts = {}) {
     </div>`;
     kp = root.firstElementChild;
     ov = overlay(kp);
-    if (mirror) { kp.setAttribute('aria-hidden', 'true'); return; }
+    if (mirror) { kp.setAttribute('aria-hidden', 'true'); noTabs(kp); return; }
     kp.addEventListener('click', e => {
       if (e.target.closest('[data-exit]')) return opts.onExit && opts.onExit(clone(st));
       if (e.target.closest('[data-again]')) { st = fresh(); rs.step = null; return goStep(0); }
@@ -209,21 +210,41 @@ export function mountPlayer(root, material, opts = {}) {
       if (!st.done && act && !mirror && act.bind) act.bind(stage, step, () => st.ss[st.step], { ...ctx, sIdx: i, step });
     }
     if (st.done) {
-      if (rs.sig !== 'end') { rs.sig = 'end'; stage.innerHTML = endHTML(); }
+      if (rs.sig !== 'end') { rs.sig = 'end'; stage.innerHTML = endHTML(); if (mirror) noTabs(stage); }
     } else if (act && ss) {
       const c = { ...ctx, sIdx: i, step };
       const sig = act.sig(step, ss);
-      if (sig !== rs.sig) { rs.sig = sig; stage.innerHTML = act.build(step, ss, c); if (act.mounted) act.mounted(stage, step, ss, c); }
+      if (sig !== rs.sig) { rs.sig = sig; stage.innerHTML = act.build(step, ss, c); if (act.mounted) act.mounted(stage, step, ss, c); if (mirror) noTabs(stage); }
       act.sync(stage, step, ss, c);
     }
     // scroll (mirror follows the student)
     if (mirror && rs.scroll !== st.scroll) { rs.scroll = st.scroll; stage.scrollTop = (st.scroll || 0) * Math.max(0, stage.scrollHeight - stage.clientHeight); }
+    // the mirror is smaller than the student's screen: keep what the student works on in view
+    if (mirror) follow(stage, ss);
     // effects: play the ones newer than what this side has played
     if (rs.fx === null) rs.fx = st.fxn;                 // first render (or a mirror's first apply): never replay old effects
-    else if (st.fxn > rs.fx) { st.fx.filter(f => f.n > rs.fx).forEach(playFx); rs.fx = st.fxn; }
+    else if (st.fxn > rs.fx) { const nw = st.fx.filter(f => f.n > rs.fx); rs.fx = st.fxn; nw.forEach(f => { try { playFx(f); } catch (_) {} }); }
     else if (st.fxn < rs.fx) rs.fx = st.fxn;            // state was reset (play again)
     // the piece being dragged rides under the mirror's ghost hand
     if (mirror) carry();
+  }
+  // Mirror: when the student moves on to another item (or answers one), scroll the mirror's
+  // stage so that item is visible (only if it is out of view; the student's scroll still wins
+  // when the student scrolls).
+  function follow(stage, ss) {
+    if (stage.scrollHeight <= stage.clientHeight + 2) return;
+    const curEl = st.done ? null : stage.querySelector('.is-cur, .is-focus, .is-picked, .is-target, .is-dragging');
+    const curA = curEl ? (curEl.closest('[data-anchor]') || curEl).dataset.anchor || '' : '';
+    const key = `${st.step}|${st.last || ''}|${curA}`;
+    if (rs.follow === key) return;
+    const lastChanged = !rs.follow || rs.follow.split('|')[1] !== (st.last || '');
+    rs.follow = key;
+    const el = (lastChanged && st.last && findAnchor(stage, st.last)) || curEl;
+    if (!el || el === stage || !stage.contains(el)) return;
+    const sr = stage.getBoundingClientRect(), er = el.getBoundingClientRect(), k = stage.offsetHeight ? sr.height / stage.offsetHeight || 1 : 1;
+    const top = (er.top - sr.top) / k, bottom = (er.bottom - sr.top) / k;
+    if (top < 0) stage.scrollTop += top - 8;
+    else if (bottom > stage.clientHeight) stage.scrollTop += Math.min(top - 8, bottom - stage.clientHeight + 8);
   }
   function carry() {
     if (!ov || !st) return; const ss = st.ss[st.step], d = !st.done && ss && ss.drag;
@@ -243,7 +264,7 @@ export function mountPlayer(root, material, opts = {}) {
     const pr = st.practise.map(p => { const w = p.id && word(p.id); return w ? `<span class="kp-pw"><i class="pic">${w.pic}</i>${esc(w.full)}</span>` : `<span class="kp-pw">${esc(p.label || p.id)}</span>`; }).join('');
     return `<div class="kp-end" data-anchor="end">
       <div class="kp-end-hero">${opts.adult ? '' : '<span class="crab">🦀</span>'}<h3>${esc(opts.adult ? L.finished : L.hooray)}</h3>
-        <p class="big">${esc(L.stars(st.stars))}</p><p>${L.firstTry(st.first, st.total)}</p></div>
+        <p class="big">${esc(L.stars(+st.stars || 0))}</p><p>${opts.adult ? L.firstTry(+st.first | 0, +st.total | 0) : esc(L.tasks(+st.total | 0))}</p></div>
       ${pr ? `<div class="kp-end-box" data-anchor="end.practise"><h4>${esc(L.practise)}</h4><div class="kp-pws">${pr}</div></div>` : `<div class="kp-end-box"><h4>${esc(L.allRight)}</h4></div>`}
       <div class="kp-end-btns"><button class="kp-btn ghost" data-again data-anchor="end.again">${esc(L.playAgain)}</button>${opts.onExit && !mirror ? `<button class="kp-btn" data-exit>${esc(opts.doneLabel || 'Done')}</button>` : ''}</div>
     </div>`;
@@ -296,7 +317,15 @@ export function mountPlayer(root, material, opts = {}) {
       if (!ready) { pending.push(['apply', state]); return; }
       if (!state || state.kind !== 'worksheet' || !Array.isArray(state.ss)) return;
       if (!mirror) { clearTimers(); st = clone(state); rs.step = null; rs.fx = null; render(); resume(); emitter.push(); return; }
-      st = clone(state); render();
+      const s2 = saneState(state); if (!s2) return;
+      st = s2;
+      try { render(); } catch (e) { rs.step = null; rs.sig = null; console.warn('mirror: state not shown', e && e.message); }
+    },
+    // which item the tutor's Hint / Show answer act on (for the button label), or null
+    current() {
+      if (!st || st.done) return null; const step = stepOf(st.step), ss = cur();
+      if (!step || !ss || ss.done || step.type !== 'gap') return null;
+      const i = ACTS.gap.current(step, ss); return i >= 0 ? i + 1 : null;
     },
     cmd(c) {
       if (!ready) { pending.push(['cmd', c]); return; }
@@ -307,7 +336,14 @@ export function mountPlayer(root, material, opts = {}) {
       else if (c.type === 'prev') goStep(st.done ? M.steps.length - 1 : st.step - 1);
       else if (c.type === 'goto' && Number.isInteger(c.step)) goStep(Math.min(c.step, M.steps.length));
     },
-    point(pos) { if (!ready) return pending.push(['point', pos]); if (ov && pos) ov.pulse(pos, 2000); },
+    point(pos) {
+      if (!ready) return pending.push(['point', pos]);
+      if (ov && pos) ov.pulse(pos, 2000);
+      if (!mirror && pos && st && !st.done) {
+        const step = stepOf(st.step), ss = cur(), m = /^s(\d+)\.(?:gap|slot)(\d+)(?:\.|$)/.exec(String(pos.a || ''));
+        if (step && ss && step.type === 'gap' && m && +m[1] === st.step && +m[2] < step.sentences.length && !ss.filled[+m[2]]) { ss.cur = +m[2]; ss.waiting = null; commit(); }
+      }
+    },
     cursor(pos) { if (!ready || !ov) return; ov.cursor(pos); carry(); },
     anchorAt: (x, y) => (kp ? anchorAtIn(kp, x, y) : null),
     // Extra (not in the contract, optional for L4): the tutor's star / gift celebration,
@@ -334,6 +370,7 @@ export function mountPlayer(root, material, opts = {}) {
    build(step, ss, c) → HTML · sync(stage, step, ss, c) → classes/values from ss
    bind(stage, step, getSS, c) → student input (delegated on the stage)
    hint / reveal(step, ss, c) · count / progress(step, ss)                     */
+const noTabs = el => el.querySelectorAll('button, input, a, [tabindex]').forEach(b => { b.tabIndex = -1; });   // the mirror takes no input
 const A = (c, s) => `s${c.sIdx}.${s}`;              // anchor names: s2.gap3, s1.card.vaca …
 const attrK = s => esc(s);
 const pickTiles = (step, it, c) => {
@@ -431,7 +468,7 @@ const ACTS = {
     reveal(step, ss, c) {
       if (ss.ok || ss.shown || ss.done) return;
       ss.shown = true; const back = ss.back.includes(ss.cur), r = ACTS.tap.rec(step, ss, c);
-      c.answer({ ...r, ok: false, shown: true, firstTry: ss.tries === 0, mode: ss.hinted ? 'hint' : 'choice', given: null, teach: back ? '' : c.L.comesBack, counts: back });
+      c.answer({ ...r, ok: false, shown: true, firstTry: ss.tries === 0 && !back, mode: ss.hinted ? 'hint' : 'choice', given: null, teach: back ? '' : c.L.comesBack, counts: back });
       if (!back) { ss.back.push(ss.cur); ss.queue.push(ss.cur); } else ss.n++;
       c.commit(); c.later(() => { ACTS.tap.round(step, ss, c); c.commit(); if (ss.done) c.finish(); }, 2200);
     },
@@ -447,7 +484,7 @@ const ACTS = {
         const it = step.items[ss.cur];
         if (e.target.closest('[data-say]')) { const w = c.word(it.word); return c.say(w ? w.full : it.word); }
         const t = e.target.closest('.kp-tile'); if (!t || ss.ok || ss.shown || t.disabled) return;
-        const back = ss.back.includes(ss.cur), r = ACTS.tap.rec(step, ss, c), firstTry = ss.tries === 0, mode = ss.hinted ? 'hint' : 'choice';
+        const back = ss.back.includes(ss.cur), r = ACTS.tap.rec(step, ss, c), firstTry = ss.tries === 0 && !back, mode = ss.hinted ? 'hint' : 'choice';
         if (t.dataset.w === it.word) {
           ss.ok = true; ss.n++;
           c.answer({ ...r, ok: true, first: firstTry && !ss.hinted && !back, firstTry, mode, given: t.dataset.w, counts: !back });
@@ -626,7 +663,7 @@ const ACTS = {
       step.sentences.forEach((x, i) => {
         const li = stage.querySelector(`li[data-i="${i}"]`); if (!li) return;
         const f = ss.filled[i], lv = ss.hintLv[i] || 0;
-        li.classList.toggle('done', !!f); li.classList.toggle('is-cur', !f && i === curI && step.mode !== 'drag');
+        li.classList.toggle('done', !!f); li.classList.toggle('is-cur', !f && i === curI);
         li.querySelector('.mk').textContent = f ? (f.shown ? '→' : '✓') : (ss.bad === i ? '✗' : '');
         const en = li.querySelector('.kp-en'); if (en) en.hidden = !(lv >= 1 || f);
         if (step.mode === 'typed') {
@@ -650,7 +687,7 @@ const ACTS = {
       });
       if (step.mode === 'drag') stage.querySelectorAll('.kp-bank .kp-chip').forEach(ch => {
         const k = ch.dataset.k; ch.hidden = used.has(k);
-        ch.classList.toggle('is-out', ss.out.includes(k)); ch.classList.toggle('is-picked', ss.picked === k); ch.classList.toggle('is-dragging', ss.drag === k);
+        ch.classList.toggle('is-out', ss.out.includes(k)); ch.disabled = ss.out.includes(k); ch.classList.toggle('is-picked', ss.picked === k); ch.classList.toggle('is-dragging', ss.drag === k);
       });
       const g = stage.querySelector('.kp-gap'); g.classList.toggle('has-pick', !!ss.picked);
       const acc = stage.querySelector('.kp-acc'); if (acc) acc.hidden = ss.done;
@@ -680,9 +717,10 @@ const ACTS = {
       c.fx('hinting', A(c, 'gap' + i));
       if (lv === 1) c.msg('hint', '💡', c.L.inEnglish(i + 1), x.en);
       else if (lv === 2 && step.mode !== 'typed') {
-        if (step.mode === 'drag') { const used = new Set(Object.values(ss.filled).map(f => f.k)); const w = ss.bank.find(b => !used.has(b.k) && !ss.out.includes(b.k) && normAnswer(b.w) !== normAnswer(x.answer)); if (w) ss.out.push(w.k); }
-        else { const w = (ss.opts[i] || []).find(o => normAnswer(o) !== normAnswer(x.answer) && !(ss.wrongOpt[i] || []).includes(o)); if (w) (ss.wrongOpt[i] = ss.wrongOpt[i] || []).push(w); }
-        c.msg('hint', '💡', '', c.L.notGrey(i + 1));
+        let gone = null;
+        if (step.mode === 'drag') { const used = new Set(Object.values(ss.filled).map(f => f.k)); const w = ss.bank.find(b => !used.has(b.k) && !ss.out.includes(b.k) && normAnswer(b.w) !== normAnswer(x.answer)); if (w) { ss.out.push(w.k); gone = w.w; } }
+        else { const w = (ss.opts[i] || []).find(o => normAnswer(o) !== normAnswer(x.answer) && !(ss.wrongOpt[i] || []).includes(o)); if (w) { (ss.wrongOpt[i] = ss.wrongOpt[i] || []).push(w); gone = w; } }
+        if (gone) c.msg('hint', '💡', '', c.L.notGrey(gone)); else c.msg('hint', '💡', '', `${c.L.startsWith} ${x.answer[0]}.`);
       } else c.msg('hint', '💡', '', `${c.L.startsWith} ${x.answer[0]}.`);
     },
     reveal(step, ss, c) { const i = ACTS.gap.current(step, ss); if (i >= 0) ACTS.gap.fill(step, ss, c, i, true, step.mode === 'typed' ? (ss.typed[i] || null) : null); },

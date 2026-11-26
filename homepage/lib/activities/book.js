@@ -10,7 +10,7 @@
 //   check page: { check: true } (uses material.check) or { check: { q, en, options, answer, teach } }
 //   end page:   { end: true } → "words you met" gallery + material.endChecks + "say it" card
 import { recordAttempt } from '/lib/krabsy-stats.js';
-import { esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone } from './util.js';
+import { esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone, saneState } from './util.js';
 
 const TOKEN = /\{([^}]+)\}([.,;:!?]*)/g;
 // Words of one page: [{k, shown, full, en, pic, id, punct}] in order; k is unique on the page.
@@ -154,7 +154,7 @@ export function mountBook(root, material, opts = {}) {
     }
     // effects
     if (rs.fx === null) rs.fx = st.fxn;
-    else if (st.fxn > rs.fx) { st.fx.filter(f => f.n > rs.fx).forEach(playFx); rs.fx = st.fxn; }
+    else if (st.fxn > rs.fx) { const nw = st.fx.filter(f => f.n > rs.fx); rs.fx = st.fxn; nw.forEach(f => { try { playFx(f); } catch (_) {} }); }
     else if (st.fxn < rs.fx) rs.fx = st.fxn;
     if (ov) ov.reflow();
   }
@@ -269,7 +269,9 @@ export function mountBook(root, material, opts = {}) {
       if (!ready) { pending.push(['apply', state]); return; }
       if (!state || state.kind !== 'book') return;
       if (!mirror) { timers.forEach(clearTimeout); timers.clear(); st = clone(state); rs.fx = null; render(); emitter.push(); return; }
-      st = clone(state); render();
+      const s2 = saneState(state); if (!s2) return;
+      st = s2;
+      try { render(); } catch (e) { rs.sig = null; console.warn('mirror: state not shown', e && e.message); }
     },
     cmd(c) { if (!ready) { pending.push(['cmd', c]); return; } if (c && !mirror) tutorCmd(c); },
     point(pos) { if (!ready) return pending.push(['point', pos]); if (ov && pos) ov.pulse(pos, 2000); },

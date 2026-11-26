@@ -155,7 +155,7 @@ def test_relay_and_presence():
     with c.websocket_connect(WS) as tu:
         r = hello_tutor(tu, tok, sid)
         assert r["lesson"]["ended"] and r["lesson"]["summary"] == {"done": 1}
-        assert len(r["lesson"]["answers"]) == 1
+        assert r["lesson"]["answers"] == []          # saved in the lesson note, not kept in memory
     with c.websocket_connect(WS) as st:
         assert hello_student(st, key)["lesson"] is None      # the lesson is over for the student
 
@@ -279,14 +279,161 @@ def test_sweep_and_busy():
         with c.websocket_connect(WS) as tu:
             hello_tutor(tu, tok, sid)            # the stale room is swept to make space
         assert 999999 not in live.ROOMS
-        live.ROOMS[123456] = live.Room(123456)   # fresh, full again
-        live.ROOMS.pop(sid)
+        assert sid not in live.ROOMS             # no lesson, nobody connected: gone at once
+        idle = live.ROOMS[123456] = live.Room(123456)   # full again, but nobody in it
+        with c.websocket_connect(WS) as tu:
+            hello_tutor(tu, tok, sid)            # the idle room makes way (no "busy")
+        assert 123456 not in live.ROOMS
+        busy = live.ROOMS[123457] = live.Room(123457)
+        busy.student = object()                  # someone is connected there
         with c.websocket_connect(WS) as tu:
             tu.send_json({"t": "hello", "role": "tutor", "token": tok, "student": sid})
             assert tu.receive_json() == {"t": "error", "code": "busy"}
+        del idle
     finally:
         live.MAX_ROOMS = real
         live.ROOMS.clear()
+
+
+def _closed(ws) -> bool:
+    from starlette.websockets import WebSocketDisconnect
+    try:
+        for _ in range(50):
+            ws.receive_json()
+    except WebSocketDisconnect:
+        return True
+    return False
+
+
+def test_failed_hello_closes_the_socket():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    with c.websocket_connect(WS) as ws:
+        ws.send_json({"t": "hello", "role": "student", "key": "nope"})
+        ws.send_json({"t": "hello", "role": "student", "key": key})     # no second try
+        assert ws.receive_json() == {"t": "error", "code": "auth"}
+        assert _closed(ws)
+
+
+def test_reused_student_id_gets_a_new_room():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    import live
+    with c.websocket_connect(WS) as tu:
+        hello_tutor(tu, tok, sid)
+        tu.send_json({"t": "load", "material": FARM})
+        tu.send_json({"t": "ping"})
+        recv(tu, "pong")
+    assert live.ROOMS[sid].active()
+    live.ROOMS[sid].ident = (0, 0, "an older student with the same id")
+    with c.websocket_connect(WS) as tu:
+        assert hello_tutor(tu, tok, sid)["lesson"] is None
+
+
+def test_remove_and_new_link_close_the_sockets():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    import live
+    H = {"X-Tutor-Token": tok}
+    with c.websocket_connect(WS) as tu, c.websocket_connect(WS) as st:
+        hello_tutor(tu, tok, sid)
+        hello_student(st, key)
+        tu.send_json({"t": "load", "material": FARM})
+        recv(st, "load")
+        assert c.post("/api/tutor/student/new-link", json={"id": sid}, headers=H).json()["ok"]
+        assert recv(st, "error") == {"t": "error", "code": "auth"} and _closed(st)
+        assert recv(tu, "presence")["student"] is False      # the tutor stays, the lesson too
+        assert live.ROOMS[sid].active()
+        assert c.post("/api/tutor/student/remove", json={"id": sid}, headers=H).json()["ok"]
+        assert recv(tu, "error") == {"t": "error", "code": "auth"} and _closed(tu)
+    assert sid not in live.ROOMS
+
+
+def test_open_socket_rechecks_its_key():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    import classes
+    import live
+    real = live.PING_S, live.RECHECK_S
+    live.PING_S, live.RECHECK_S = 0.05, 0.0
+    try:
+        with c.websocket_connect(WS) as st:
+            hello_student(st, key)
+            with classes.connect() as con:     # the key changes behind the relay's back
+                con.execute("UPDATE students SET token_hash = 'x' WHERE nickname = 'Lucas'")
+            assert recv(st, "error", limit=200) == {"t": "error", "code": "auth"}
+    finally:
+        live.PING_S, live.RECHECK_S = real
+
+
+def test_state_limits_and_stale_state():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    import live
+    with c.websocket_connect(WS) as tu, c.websocket_connect(WS) as st:
+        hello_tutor(tu, tok, sid)
+        hello_student(st, key)
+        tu.send_json({"t": "load", "material": FARM})
+        recv(st, "load")
+        st.send_json({"t": "state", "state": {"id": "m_es_farm_1", "x": "b" * live.MAX_STATE}})
+        assert recv(st, "error")["code"] == "too_big"
+        st.send_json({"t": "state", "state": {"id": "an_old_material", "step": 3}})   # dropped
+        st.send_json({"t": "state", "state": {"id": "m_es_farm_1", "step": 1}})
+        assert recv(tu, "state")["state"] == {"id": "m_es_farm_1", "step": 1}
+        assert live.ROOMS[sid].lesson["state"] == {"id": "m_es_farm_1", "step": 1}
+        st.send_json({"t": "answer", "given": "x" * live.MAX_ANSWER})                  # dropped
+        st.send_json({"t": "answer", "given": "vaca"})
+        assert recv(tu, "answer")["given"] == "vaca"
+
+
+def test_outbox_keeps_only_the_newest_state():
+    import json
+    from collections import deque
+    import live
+    ob = live._Outbox.__new__(live._Outbox)
+    ob.q, ob.dead = deque(), False
+    ob.ev = type("E", (), {"set": lambda self: None})()
+    ob.loop = type("L", (), {"call_soon_threadsafe": lambda self, f: f()})()
+    ob.put({"t": "state", "state": {"n": 1}})
+    ob.put({"t": "answer", "given": "a"})
+    ob.put({"t": "state", "state": {"n": 2}})
+    assert [json.loads(x)["t"] for x in ob.q] == ["answer", "state"]
+    assert json.loads(ob.q[-1])["state"] == {"n": 2}
+    real = live.OUTBOX_BYTES
+    live.OUTBOX_BYTES = 10
+    try:
+        ob.put({"t": "answer", "given": "b"})
+        assert list(ob.q) == [None]                 # too far behind: closed, it reconnects
+    finally:
+        live.OUTBOX_BYTES = real
+
+
+def test_lessons_per_tutor():
+    s = _setup()
+    if s is None:
+        return
+    c, tok, sid, key, _ = s
+    import live
+    H = {"X-Tutor-Token": tok}
+    ids = [sid] + [c.post("/api/tutor/student/add", json={"name": f"S{i}"}, headers=H).json()["id"] for i in range(live.MAX_LESSONS_PER_TUTOR)]
+    for i in ids:
+        with c.websocket_connect(WS) as tu:
+            hello_tutor(tu, tok, i)
+            tu.send_json({"t": "start"})
+            tu.send_json({"t": "ping"})
+            recv(tu, "pong")
+    running = [i for i in ids if live.ROOMS[i].active()]
+    assert running == ids[1:]                   # the first (longest idle) one was ended
 
 
 if __name__ == "__main__":

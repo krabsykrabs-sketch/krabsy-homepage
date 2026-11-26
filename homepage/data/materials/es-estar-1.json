@@ -247,7 +247,7 @@
           "topic": "es_estar"
         },
         {
-          "text": "No ___ nerviosa.",
+          "text": "Hoy no ___ nerviosa.",
           "answer": "estoy",
           "accepts": [
             "estoy"
@@ -258,7 +258,7 @@
             "está"
           ],
           "hint": "",
-          "en": "I am not nervous.",
+          "en": "I am not nervous today.",
           "teach": "How you feel right now: Estoy + feeling. Estoy cansado. Estoy contenta.",
           "item": "estar_feel_estoy",
           "topic": "es_estar"

@@ -50,7 +50,7 @@ textarea.kl-input { resize: vertical; }
 @keyframes kl-blink { 50% { opacity: .25; } }
 
 /* ── tutor page ── */
-.kl-body .k-page-header { padding-top: 8px; padding-bottom: 8px; }
+.kl-body .k-page-header { padding-top: 8px; padding-bottom: 8px; position: static; }   /* the live bar is the sticky one */
 .kl-main { width: 100%; max-width: 1480px; margin: 0 auto; padding: 0 16px 32px; font-family: var(--f-body); color: var(--ink); font-size: 15px; line-height: 1.45; }
 .kl-main h2, .kl-main h3 { margin: 0; }
 .kl-msg { max-width: 560px; margin: 30px auto; }
@@ -79,6 +79,7 @@ textarea.kl-input { resize: vertical; }
 .kl-mirror.kl-pointing .is-mirror, .kl-mirror.kl-pointing .is-mirror * { cursor: crosshair !important; }
 .kl-ctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; align-items: center; margin: 12px 0 0; }
 .kl-ctl.is-off button { opacity: .45; pointer-events: none; }
+.kl-ctl.is-off .kl-btn-add { opacity: 1; pointer-events: auto; }
 .kl-ctl-pair { display: inline-flex; gap: 4px; }
 .kl-ctl-pair .kl-btn { min-width: 46px; }
 
@@ -154,7 +155,7 @@ textarea.kl-input { resize: vertical; }
 .kl-modal header { padding: 16px 18px 4px; } .kl-modal h2 { font: 400 22px var(--f-fun); margin: 0; }
 .kl-modal-body { padding: 4px 18px 12px; overflow: auto; } .kl-modal-body p { margin: 8px 0; }
 .kl-modal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
-.kl-end-mats { list-style: none; padding: 0; margin: 8px 0; } .kl-end-mats li { padding: 3px 0; } .kl-end-mats b { color: var(--good); margin-left: 6px; }
+.kl-end-mats { list-style: none; padding: 0; margin: 8px 0; } .kl-end-mats li { padding: 3px 0; } .kl-end-mats b { margin-left: 6px; } .kl-end-mats b.is-all { color: var(--good); }
 
 /* compact: beside Zoom (≤ 1100 px): mirror on top, control bar, queue / answers / notes in tabs */
 @media (max-width: 1100px) {

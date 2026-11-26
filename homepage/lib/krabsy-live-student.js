@@ -55,6 +55,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
   let tutorName = tutor || 'Your tutor';
   let isAdult = !!adult;
   let endT = null;
+  let unsent = [];          // answers given while offline: sent after the reconnect (≤ 50)
 
   const live = connectLive({
     hello: { role: 'student', key },
@@ -65,7 +66,9 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
         setBanner(null);
         if (document.hidden) live.focus(false);
         const L = m.lesson;
+        const queued = unsent; unsent = [];
         if (!L) { if (view && !view.classList.contains('is-done')) closeView(); return; }
+        for (const a of queued) live.answer(a);
         openView();
         if (!L.material) { if (player) unmount(); waiting(); return; }
         if (player && sig(L.material) === matSig) {
@@ -158,7 +161,10 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
       state: state && state.kind ? state : undefined,
       onState: (s) => live.state(s),
       onCursor: (pos) => live.cursor(pos),
-      onAnswer: (a) => live.answer(Object.assign({}, a, { mat: material.id || null })),
+      onAnswer: (a) => {
+        const msg = Object.assign({}, a, { mat: material.id || null });
+        if (!live.answer(msg)) { unsent.push(msg); if (unsent.length > 50) unsent.shift(); }
+      },
       onEnd: () => {},
     });
     player = p;
@@ -173,11 +179,12 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
   /* ── star / gift: the player's own celebration (also on the mirror) plus the v1 burst ── */
   async function reward(kind) {
     const gift = kind === 'gift' && !isAdult;
-    if (player && player.reward) { try { player.reward({ kind: gift ? 'gift' : 'star', g: gift ? GIFTS[Math.floor(Math.random() * GIFTS.length)] : undefined }); } catch (_) {} }
+    let shown = false;
+    if (player && player.reward) { try { player.reward({ kind: gift ? 'gift' : 'star', g: gift ? GIFTS[Math.floor(Math.random() * GIFTS.length)] : undefined }); shown = gift; } catch (_) {} }
     const o = document.createElement('div');
     o.className = 'kt-burst kl-burst';
     o.innerHTML = `<div><span class="kt-burst-ico">${gift ? '🎁' : '⭐'}</span><p>${esc(gift ? T.gift(tutorName) : T.star(tutorName))}</p></div>`;
-    document.body.appendChild(o);
+    if (!shown) document.body.appendChild(o);       // a gift: the player's own card is the one message
     const t = setTimeout(() => o.remove(), 2600);
     o.addEventListener('click', () => { clearTimeout(t); o.remove(); });
     if (gift) {
@@ -220,7 +227,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     const el = stage();
     el.innerHTML = `<div class="kl-wait kl-done"><span class="kl-wait-pic" aria-hidden="true">${isAdult ? '✅' : '🎉'}</span>
       <h2>${esc(isAdult ? T.doneAdultH : T.doneH)}</h2><p>${esc(T.doneP(tutorName))}</p>
-      ${s.total ? `<p class="kl-done-score">${esc(T.doneRight(s.first || 0, s.total))}</p>` : ''}
+      ${s.total && isAdult ? `<p class="kl-done-score">${esc(T.doneRight(s.first || 0, s.total))}</p>` : ''}
       <button type="button" class="kl-btn kl-btn-primary" data-back>${esc(T.back)}</button></div>`;
     el.querySelector('[data-back]').addEventListener('click', closeView);
     el.querySelector('[data-back]').focus();

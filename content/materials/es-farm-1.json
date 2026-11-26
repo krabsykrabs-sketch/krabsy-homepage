@@ -146,7 +146,7 @@
       "mode": "drag",
       "sentences": [
         {
-          "text": "La vaca ___ grande.",
+          "text": "La vaca ___ un animal grande.",
           "answer": "es",
           "accepts": [
             "es"
@@ -157,7 +157,7 @@
             "es"
           ],
           "hint": "",
-          "en": "The cow is big.",
+          "en": "The cow is a big animal.",
           "teach": "What something is like: es. Where something is: está. Mi casa es grande. Mi casa está en Madrid.",
           "item": "se_es_esta",
           "topic": "es_ser_estar"

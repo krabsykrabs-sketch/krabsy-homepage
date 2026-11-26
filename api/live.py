@@ -18,9 +18,18 @@ Tutor → student      start {items?, index?} · end {summary?} · load {materia
 Student → tutor      state {state} · cursor {a, x, y} · answer {…} · focus {visible}
 Server → both        presence {tutor, student, visible} · ping (every PING_S)
 Either may send      ping → pong
-Non-fatal errors     error {code: too_big} (load material > MAX_MATERIAL or message > MAX_MSG)
+Non-fatal errors     error {code: too_big} (load material > MAX_MATERIAL, state > MAX_STATE
+                     or message > MAX_MSG)
 A second connection of the same role replaces the first: the old one gets
 error {code: replaced} and is closed (clients must not auto-reconnect after that).
+
+Room life (review 2026-11-26): a room belongs to one tutor_students row (id + tutor + class +
+created, so a reused id never sees an old lesson). It is deleted as soon as nobody is connected
+if it never had a lesson (an ended lesson keeps only its summary, no answers), swept 3 h after its last message (checked at most every SWEEP_S), and
+dropped at once when the student is removed / the space deleted (drop_room, from tutors.py).
+A new student link closes the open student socket; every socket re-checks its credential every
+RECHECK_S (logout, removed student). Per tutor at most MAX_LESSONS_PER_TUTOR running lessons
+(starting one more ends the tutor's longest-idle one), per IP at most CONNS_PER_IP sockets.
 """
 
 from __future__ import annotations
@@ -35,16 +44,24 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 import tutors
 from classes import _lock, connect
-from quiz_room import Outbox, OUTBOX_POS_LIMIT, _origin_ok
+from quiz_room import Outbox, OUTBOX_POS_LIMIT, _ip, _origin_ok
 
 router = APIRouter()
 
 MAX_MSG = 256 * 1024          # bytes of one message
 MAX_MATERIAL = 200 * 1024     # bytes of one material (load)
+MAX_STATE = 64 * 1024         # bytes of one student state (real ones are a few KB)
+MAX_ANSWER = 2000             # bytes of one answer
+MAX_ANSWERS_BYTES = 160 * 1024  # all answers kept in a lesson snapshot
+OUTBOX_BYTES = 2 * 1024 * 1024  # a connection this far behind is cut off (it reconnects)
 MSGS_PER_S = 60               # per connection; more are dropped
 CURSOR_PER_S = 20             # cursor/point per connection; more are dropped
 MAX_ROOMS = 500
+MAX_LESSONS_PER_TUTOR = 3     # running lessons at once
+CONNS_PER_IP = 60             # open live sockets per IP
 ROOM_TTL_S = 3 * 3600         # after the last message
+SWEEP_S = 600.0               # sweep at most this often (from hellos and pings)
+RECHECK_S = 60.0              # each socket re-checks its token / key this often
 PING_S = 25.0
 MAX_ANSWERS = 400             # answers kept in the lesson snapshot (tutor reload)
 MAX_ITEMS = 60                # lesson queue entries
@@ -52,18 +69,42 @@ CMD_TYPES = {"hint", "reveal", "next", "prev", "goto"}
 REWARDS = {"star", "gift"}
 
 
+_STATE_PREFIX = '{"t":"state",'
+
+
 class _Outbox(Outbox):
-    """Quiz Room outbox; cursor updates are dropped first when a device falls behind."""
+    """Quiz Room outbox; cursor updates are dropped first when a device falls behind, only
+    the newest unsent state is kept (each one is the full state), and a connection with more
+    than OUTBOX_BYTES waiting is cut off (it reconnects and gets the snapshot)."""
 
     def put(self, msg: Optional[dict]) -> None:
-        if msg is not None and msg.get("t") == "cursor" and len(self.q) > OUTBOX_POS_LIMIT:
+        if self.dead:
             return
+        if msg is not None:
+            if msg.get("t") == "cursor" and len(self.q) > OUTBOX_POS_LIMIT:
+                return
+            try:                                # the sender task may pop meanwhile (tests: other thread)
+                waiting = list(self.q)
+            except RuntimeError:
+                waiting = []
+            if msg.get("t") == "state":
+                for x in waiting:
+                    if isinstance(x, str) and x.startswith(_STATE_PREFIX):
+                        try:
+                            self.q.remove(x)
+                        except ValueError:
+                            pass
+            if sum(len(x) for x in waiting if isinstance(x, str)) > OUTBOX_BYTES:
+                self.q.clear()
+                msg = None                      # close it
         super().put(msg)
 
 
 class Room:
-    def __init__(self, ts_id: int):
+    def __init__(self, ts_id: int, ident: tuple = (), tutor_id: Optional[int] = None):
         self.ts_id = ts_id
+        self.ident = ident                     # (tutor_id, class_id, created) of the student row
+        self.tutor_id = tutor_id
         self.tutor: Optional[WebSocket] = None
         self.student: Optional[WebSocket] = None
         self.visible = True
@@ -81,7 +122,7 @@ class Room:
             if not self.active():
                 return None
             return {k: self.lesson[k] for k in ("started", "material", "state", "items", "index")}
-        return self.lesson
+        return {k: v for k, v in self.lesson.items() if k != "abytes"}
 
     def presence(self) -> dict:
         return {"t": "presence", "tutor": self.tutor is not None, "student": self.student is not None,
@@ -100,6 +141,8 @@ class Room:
 
 ROOMS: dict[int, Room] = {}
 OUTBOXES: dict[int, _Outbox] = {}
+_IPS: dict[str, int] = {}
+_last_sweep = [0.0]
 
 
 def send_to(ws: Optional[WebSocket], msg: Optional[dict]) -> None:
@@ -115,11 +158,103 @@ def _iso() -> str:
 def sweep(now: Optional[float] = None) -> int:
     """Drop rooms nobody is in whose last message is older than ROOM_TTL_S."""
     now = time.monotonic() if now is None else now
-    old = [k for k, r in ROOMS.items()
+    _last_sweep[0] = now
+    old = [k for k, r in list(ROOMS.items())
            if r.tutor is None and r.student is None and now - r.last > ROOM_TTL_S]
     for k in old:
-        del ROOMS[k]
+        ROOMS.pop(k, None)
     return len(old)
+
+
+def maybe_sweep(now: float) -> None:
+    if now - _last_sweep[0] >= SWEEP_S:
+        sweep(now)
+
+
+def _make_space() -> bool:
+    """Room limit reached: sweep, then drop the longest-idle room nobody is connected to."""
+    sweep()
+    if len(ROOMS) < MAX_ROOMS:
+        return True
+    idle = [r for r in ROOMS.values() if r.tutor is None and r.student is None]
+    if not idle:
+        return False
+    ROOMS.pop(min(idle, key=lambda r: r.last).ts_id, None)
+    return True
+
+
+def _forget_if_empty(room: Room) -> None:
+    """A room that never had a lesson is gone as soon as nobody is connected (an ended
+    lesson keeps its short snapshot, without the answers, until the sweep)."""
+    if room.tutor is None and room.student is None and room.lesson is None and ROOMS.get(room.ts_id) is room:
+        ROOMS.pop(room.ts_id, None)
+
+
+def _close(ws: Optional[WebSocket], code: str) -> None:
+    send_to(ws, {"t": "error", "code": code})
+    send_to(ws, None)
+
+
+def drop_room(ts_id: int, student_only: bool = False) -> None:
+    """The student row changed (removed, space deleted) or got a new key (student_only):
+    close the sockets with error auth; a removed student's room (and lesson) is deleted.
+    Called from the tutors endpoints (another thread): only queue messages and pop."""
+    room = ROOMS.get(ts_id)
+    if room is None:
+        return
+    st = room.student
+    room.student = None
+    _close(st, "auth")
+    if student_only:
+        room.send_presence()
+        return
+    tu = room.tutor
+    room.tutor = None
+    _close(tu, "auth")
+    ROOMS.pop(ts_id, None)
+
+
+def _end_lesson(room: Room, summary=None) -> None:
+    room.lesson["ended"], room.lesson["summary"] = _iso(), summary
+    room.lesson["material"], room.lesson["state"] = None, None
+    room.lesson["answers"], room.lesson["abytes"] = [], 0     # saved in the lesson note; not kept here
+    send_to(room.student, {"t": "end", "summary": summary})
+
+
+def _lesson_slot(room: Room) -> None:
+    """Before a new lesson: at most MAX_LESSONS_PER_TUTOR running per tutor; the tutor's
+    longest-idle other one is ended."""
+    mine = [r for r in ROOMS.values() if r is not room and r.tutor_id == room.tutor_id and r.active()]
+    while len(mine) >= MAX_LESSONS_PER_TUTOR:
+        old = min(mine, key=lambda r: r.last)
+        _end_lesson(old)
+        mine.remove(old)
+
+
+def _same_state_id(room: Room, st) -> bool:
+    """A state for the previous material (still on its way after a load) is dropped."""
+    mat = room.lesson and room.lesson.get("material")
+    mid = mat.get("id") if isinstance(mat, dict) else None
+    sid = st.get("id") if isinstance(st, dict) else None
+    return not (mid and sid and mid != sid)
+
+
+def _ident(ts) -> tuple:
+    return (ts["tutor_id"], ts["class_id"], ts["created"])
+
+
+def _still_ok(role: str, cred: str, ts_id: int, ident: tuple) -> bool:
+    """Re-check an open socket: the token / key still leads to the same student row."""
+    try:
+        with _lock, connect() as con:
+            if role == "tutor":
+                t = tutors._tutor(con, cred)
+                ts = t and tutors._student(con, t["id"], ts_id)
+            else:
+                ts = tutors._student_ts(con, cred)
+            return bool(ts) and ts["id"] == ts_id and _ident(ts) == ident
+    except Exception:
+        return True                            # a DB hiccup never throws a lesson out
 
 
 def _auth(msg: dict):
@@ -189,23 +324,49 @@ async def live_ws(ws: WebSocket):
     if not _origin_ok(ws):
         await ws.close(code=1008)
         return
+    ip = _ip(ws)
+    if _IPS.get(ip, 0) >= CONNS_PER_IP:
+        await ws.close(code=1013)
+        return
+    _IPS[ip] = _IPS.get(ip, 0) + 1
     await ws.accept()
     ob = _Outbox(ws)
     OUTBOXES[id(ws)] = ob
     role: Optional[str] = None
     room: Optional[Room] = None
+    cred = ""
     window, count, cwindow, ccount = time.monotonic(), 0, time.monotonic(), 0
 
     async def pinger():
+        checked = time.monotonic()
         while True:
             await asyncio.sleep(PING_S)
             ob.put({"t": "ping"})
+            now = time.monotonic()
+            maybe_sweep(now)
+            if role is not None and room is not None and now - checked >= RECHECK_S:
+                checked = now
+                ok = await asyncio.to_thread(_still_ok, role, cred, room.ts_id, room.ident)
+                if not ok:
+                    if (room.tutor if role == "tutor" else room.student) is ws:
+                        if role == "tutor":
+                            room.tutor = None
+                        else:
+                            room.student = None
+                        room.send_presence()
+                    _close(ws, "auth")
+                    return
 
     ping_task = asyncio.create_task(pinger())
 
-    def fail(code: str) -> None:
+    async def fail(code: str) -> None:
+        """Hello failed: send the error, close, and stop reading (no second hello)."""
         ob.put({"t": "error", "code": code})
         ob.put(None)
+        try:
+            await asyncio.wait_for(asyncio.shield(ob.task), 2.0)
+        except Exception:
+            pass
 
     try:
         while True:
@@ -225,7 +386,8 @@ async def live_ws(ws: WebSocket):
                 msg = None
             if not isinstance(msg, dict):
                 if role is None:
-                    fail("bad")
+                    await fail("bad")
+                    break
                 continue
             t = msg.get("t")
             if t == "ping":
@@ -237,18 +399,20 @@ async def live_ws(ws: WebSocket):
             # ---------------- hello
             if role is None:
                 if t != "hello" or msg.get("role") not in ("tutor", "student"):
-                    fail("bad"); continue
-                res = _auth(msg)
+                    await fail("bad"); break
+                res = await asyncio.to_thread(_auth, msg)
                 if res is None:
-                    fail("auth"); continue
+                    await fail("auth"); break
                 r_role, ts, tutor_name = res
+                maybe_sweep(now)
                 r = ROOMS.get(ts["id"])
+                if r is not None and r.ident != _ident(ts):
+                    drop_room(ts["id"])              # an old room of a deleted student with this id
+                    r = None
                 if r is None:
-                    if len(ROOMS) >= MAX_ROOMS:
-                        sweep()
-                    if len(ROOMS) >= MAX_ROOMS:
-                        fail("busy"); continue
-                    r = ROOMS[ts["id"]] = Room(ts["id"])
+                    if len(ROOMS) >= MAX_ROOMS and not _make_space():
+                        await fail("busy"); break
+                    r = ROOMS[ts["id"]] = Room(ts["id"], _ident(ts), ts["tutor_id"])
                 old = r.tutor if r_role == "tutor" else r.student
                 if old is not None and old is not ws:
                     send_to(old, {"t": "error", "code": "replaced"})
@@ -259,6 +423,7 @@ async def live_ws(ws: WebSocket):
                     r.student = ws
                     r.visible = True
                 room, role, room.last = r, r_role, now
+                cred = msg.get("token") if role == "tutor" else msg.get("key")
                 ob.put({"t": "ready", "role": role, "name": ts["name"], "tutor": tutor_name,
                         "adult": bool(ts["adult"]), "lesson": room.snapshot(role)})
                 room.send_presence(force_to=ws)
@@ -278,6 +443,7 @@ async def live_ws(ws: WebSocket):
             if role == "tutor":
                 if t == "start":
                     if not room.active():
+                        _lesson_slot(room)
                         room.lesson = _new_lesson()
                     _queue(room, msg)
                     send_to(room.student, {"t": "start", "lesson": room.snapshot("student")})
@@ -288,6 +454,7 @@ async def live_ws(ws: WebSocket):
                     if len(json.dumps(mat, separators=(",", ":"))) > MAX_MATERIAL:
                         ob.put({"t": "error", "code": "too_big"}); continue
                     if not room.active():
+                        _lesson_slot(room)
                         room.lesson = _new_lesson()
                         send_to(room.student, {"t": "start", "lesson": room.snapshot("student")})
                     room.lesson["material"], room.lesson["state"] = mat, None
@@ -301,9 +468,7 @@ async def live_ws(ws: WebSocket):
                         summary = msg.get("summary")
                         if summary is not None and len(json.dumps(summary)) > 20000:
                             summary = None
-                        room.lesson["ended"], room.lesson["summary"] = _iso(), summary
-                        room.lesson["material"], room.lesson["state"] = None, None
-                        send_to(room.student, {"t": "end", "summary": summary})
+                        _end_lesson(room, summary)
                 elif t == "cmd":
                     if msg.get("type") not in CMD_TYPES:
                         continue
@@ -322,8 +487,12 @@ async def live_ws(ws: WebSocket):
                         send_to(room.student, {"t": "reward", "kind": msg["kind"]})
             else:
                 if t == "state":
+                    if len(raw) > MAX_STATE:
+                        ob.put({"t": "error", "code": "too_big"}); continue
                     st = msg.get("state")
                     if room.active():
+                        if not _same_state_id(room, st):
+                            continue
                         room.lesson["state"] = st
                     send_to(room.tutor, {"t": "state", "state": st})
                 elif t == "cursor":
@@ -331,12 +500,16 @@ async def live_ws(ws: WebSocket):
                     if p:
                         send_to(room.tutor, {"t": "cursor", **p})
                 elif t == "answer":
-                    ans = {k: v for k, v in msg.items() if k != "t"}
-                    if len(json.dumps(ans)) > 4000:
+                    if len(raw) > MAX_ANSWER:
                         continue
+                    ans = {k: v for k, v in msg.items() if k != "t"}
                     ans["at"] = _iso()
                     if room.active():
-                        room.lesson["answers"] = (room.lesson["answers"] + [ans])[-MAX_ANSWERS:]
+                        L = room.lesson
+                        L["answers"].append(ans)
+                        L["abytes"] = L.get("abytes", 0) + len(json.dumps(ans))
+                        while len(L["answers"]) > 1 and (len(L["answers"]) > MAX_ANSWERS or L["abytes"] > MAX_ANSWERS_BYTES):
+                            L["abytes"] -= len(json.dumps(L["answers"].pop(0)))
                     send_to(room.tutor, {"t": "answer", **ans})
                 elif t == "focus":
                     v = msg.get("visible")
@@ -351,6 +524,11 @@ async def live_ws(ws: WebSocket):
         ping_task.cancel()
         OUTBOXES.pop(id(ws), None)
         ob.stop()
+        n = _IPS.get(ip, 1) - 1
+        if n > 0:
+            _IPS[ip] = n
+        else:
+            _IPS.pop(ip, None)
         if room is not None:
             if role == "tutor" and room.tutor is ws:
                 room.tutor = None
@@ -358,3 +536,4 @@ async def live_ws(ws: WebSocket):
                 room.student = None
             room.last = time.monotonic()
             room.send_presence()
+            _forget_if_empty(room)

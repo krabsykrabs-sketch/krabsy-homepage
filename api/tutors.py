@@ -182,6 +182,17 @@ def _student(con: sqlite3.Connection, tutor_id: int, sid: int):
     return con.execute("SELECT * FROM tutor_students WHERE id = ? AND tutor_id = ?", (sid, tutor_id)).fetchone()
 
 
+def _live_drop(ts_ids, student_only: bool = False) -> None:
+    """Close the live classroom sockets of these students (api/live.py): removed students,
+    deleted spaces, new student links (only the student socket)."""
+    try:
+        import live
+        for i in ts_ids:
+            live.drop_room(i, student_only=student_only)
+    except Exception:
+        pass
+
+
 def is_tutor_class(con: sqlite3.Connection, class_id: int) -> bool:
     return con.execute("SELECT 1 FROM tutor_students WHERE class_id = ?", (class_id,)).fetchone() is not None
 
@@ -378,8 +389,10 @@ def delete_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse
         t = _tutor(con, x_tutor_token)
         if not t:
             return _err(404, "unknown_space")
+        ids = [r["id"] for r in con.execute("SELECT id FROM tutor_students WHERE tutor_id = ?", (t["id"],))]
         con.execute("DELETE FROM classes WHERE id IN (SELECT class_id FROM tutor_students WHERE tutor_id = ?)", (t["id"],))
         con.execute("DELETE FROM tutors WHERE id = ?", (t["id"],))
+    _live_drop(ids)
     return JSONResponse({"ok": True})
 
 
@@ -581,6 +594,7 @@ def new_link(body: StudentRef, x_tutor_token: str = Header("", max_length=64)) -
         if not s:
             return _err(404, "unknown_student")
         key = _new_key(con, s["class_id"], s["name"])
+    _live_drop([s["id"]], student_only=True)
     return JSONResponse({"ok": True, "student_key": key})
 
 
@@ -592,6 +606,7 @@ def remove_student(body: StudentRef, x_tutor_token: str = Header("", max_length=
         if not s:
             return _err(404, "unknown_student")
         con.execute("DELETE FROM classes WHERE id = ?", (s["class_id"],))     # cascades to everything
+    _live_drop([s["id"]])
     return JSONResponse({"ok": True})
 
 
