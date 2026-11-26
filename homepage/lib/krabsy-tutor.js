@@ -24,7 +24,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-26';
-import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-26';
+import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-26b';
 import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26';
 
 const LANG = 'en';
@@ -33,7 +33,13 @@ const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/'
 
 const T = {
   title: 'Krabsy for tutors',
-  lead: 'Run your Spanish lessons on Krabsy. Every student gets a profile with a star map per topic. Their answers in the games fill it in by themselves, and you can always correct it. You give homework as a topic and a goal, they pick the game, and you keep a note for every lesson.',
+  promise: 'Run your Spanish lessons on Krabsy',
+  howH: 'How it works', welcome: (n) => (n ? `Welcome back, ${n}` : 'Welcome back'), openProfile: 'Open profile',
+  spaceEyebrow: 'Your tutor space', studentsOf: (n) => (/students$/i.test(n) ? n : `${n}’s students`),
+  noStars: 'No stars yet', noHw: 'No homework set', emptyH: 'Your first student',
+  stats: { answers: 'answers', topics: 'topics started', hw: 'homework set', lessons: 'lesson notes' },
+  repEyebrow: 'Progress report',
+  lead: 'Every student gets a profile with a star map per topic. Their answers in the games fill it in by themselves, and you can always correct it. You give homework as a topic and a goal, they pick the game, and you keep a note for every lesson.',
   pilot: 'Pilot: free while we build it with tutors. Tell us what is missing.',
   how: [
     ['Add a student', 'First name only. Krabsy makes a personal link for them: no email, no password.'],
@@ -231,29 +237,59 @@ function starsHtml(n, { max = 5, cls = '' } = {}) {
   return `<span class="kt-stars ${cls}" role="img" aria-label="${n} of ${max} stars">${s}</span>`;
 }
 
+// Avatar: the first letter on one of five soft Krabsy tints (the same name always gets the same tint).
+function avatarHtml(name, cls = '') {
+  const n = String(name || '?').trim() || '?';
+  let h = 0; for (const c of n) h = (h * 31 + c.codePointAt(0)) % 997;
+  return `<span class="kt-av kt-tint-${h % 5}${cls ? ' ' + cls : ''}" aria-hidden="true">${esc([...n][0].toUpperCase())}</span>`;
+}
+
 /* ── start page ─────────────────────────────────────────────────────────── */
 function renderStart(main) {
   const list = spaces();
   const ses = session();
+  const HOW_ICONS = ['👋', '🎮', '🗓️'];
   main.innerHTML = `
-    <h1>${T.title}</h1>
-    <p class="kc-lead">${T.lead}</p>
-    <p class="kt-pilot">${T.pilot}</p>
-    ${ses ? `<p class="kc-row"><a class="kc-btn" href="${PATHS.space}">${T.signedIn}</a></p>` : ''}
-    ${list.length ? `<section class="kc-card"><h2>${T.yourSpaces}</h2><ul class="kc-list">${list.map((s) =>
-      `<li><a href="${PATHS.space}#t=${esc(s.token)}">${esc(s.name)}</a></li>`).join('')}</ul></section>` : ''}
-    <form class="kc-card kt-signin" id="kt-signin">
-      <h2 id="kt-auth-h">${T.signInH}</h2>
-      <label class="kc-field" id="kt-name-row" hidden><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" autocomplete="name"></label>
-      <label class="kc-field"><span>${T.email}</span><input id="kt-semail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
-      <p class="kc-error" role="alert" hidden></p>
-      <button class="kc-btn" type="submit" id="kt-auth-btn">${T.signInBtn}</button>
-      <p class="kc-muted kt-noaccount"><span id="kt-switch-q">${T.noSpaceYet}</span> <button type="button" class="kc-link" id="kt-switch">${T.createOne}</button></p>
-      <p class="kc-muted">${T.noPassword}</p>
-    </form>
-    <ol class="kt-how">${T.how.map(([h, p]) => `<li><strong>${h}</strong><span>${p}</span></li>`).join('')}</ol>
-    <section class="kc-card"><h2>${T.scaleH}</h2>${scaleTable()}</section>
-    <section class="kc-card"><h2>${T.privacyH}</h2><p>${T.privacy}</p></section>`;
+    <section class="kt-hero">
+      <div class="kt-hero-text">
+        <p class="kt-eyebrow">${T.title}</p>
+        <h1>${T.promise}</h1>
+        <p class="kc-lead">${T.lead}</p>
+        <p class="kt-pilot">${T.pilot}</p>
+      </div>
+      <div class="kt-hero-side">
+        ${ses ? `<section class="kc-card kt-welcome"><h2>${esc(T.welcome(ses.name))}</h2><p class="kc-row"><a class="kc-btn" href="${PATHS.space}">${T.signedIn}</a></p></section>` : ''}
+        ${list.length ? `<section class="kc-card kt-spaces"><h2>${T.yourSpaces}</h2><ul class="kc-list">${list.map((s) =>
+          `<li><a href="${PATHS.space}#t=${esc(s.token)}">${esc(s.name)}</a></li>`).join('')}</ul></section>` : ''}
+        <form class="kc-card kt-signin" id="kt-signin">
+          <h2 id="kt-auth-h">${T.signInH}</h2>
+          <label class="kc-field" id="kt-name-row" hidden><span>${T.yourName}</span><input id="kt-name" maxlength="40" placeholder="${T.yourNamePh}" autocomplete="name"></label>
+          <label class="kc-field"><span>${T.email}</span><input id="kt-semail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
+          <p class="kc-error" role="alert" hidden></p>
+          <button class="kc-btn kt-block" type="submit" id="kt-auth-btn">${T.signInBtn}</button>
+          <p class="kc-muted kt-nopw">${T.noPassword}</p>
+          <p class="kc-muted kt-noaccount"><span id="kt-switch-q">${T.noSpaceYet}</span> <button type="button" class="kc-link" id="kt-switch">${T.createOne}</button></p>
+        </form>
+      </div>
+      <div class="kt-demo" aria-hidden="true">
+        <div class="kt-demo-card">
+          <div class="kt-demo-top">${avatarHtml('Lucas')}<b>Lucas</b><span class="kt-level">A1</span><span class="kt-demo-live">Live lesson</span></div>
+          <div class="kt-demo-row"><span>Yo soy … (ser)</span>${starsHtml(4)}</div>
+          <div class="kt-demo-row"><span>Estoy … (estar)</span>${starsHtml(2)}</div>
+          <div class="kt-demo-row"><span>Tengo … (tener)</span>${starsHtml(3)}</div>
+          <div class="kt-demo-hw"><span class="kt-bar"><span style="width:65%"></span></span><span>Homework · 26 of 40 answers</span></div>
+        </div>
+        <span class="kt-demo-chip kt-demo-c1">⭐ new star</span>
+        <span class="kt-demo-chip kt-demo-c2">🎮 plays at home</span>
+        <img class="kt-demo-crab" src="/favicon.png" alt="" decoding="async">
+      </div>
+    </section>
+    <h2 class="kt-h2">${T.howH}</h2>
+    <ol class="kt-how">${T.how.map(([h, p], i) => `<li><span class="kt-how-ico" aria-hidden="true">${HOW_ICONS[i] || ''}</span><strong>${h}</strong><span>${p}</span></li>`).join('')}</ol>
+    <div class="kt-two">
+      <section class="kc-card kt-sec kt-sec-scale"><h2>${T.scaleH}</h2>${scaleTable()}</section>
+      <section class="kc-card kt-sec kt-sec-privacy"><h2>${T.privacyH}</h2><p>${T.privacy}</p></section>
+    </div>`;
   const wire = (form, body) => form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const btn = form.querySelector('button'); const err = form.querySelector('.kc-error');
@@ -285,7 +321,7 @@ function renderStart(main) {
 /* ── the link from the email ───────────────────────────────────────────── */
 async function renderLogin(main) {
   const m = location.hash.match(/[#&]l=([A-Za-z0-9_-]{20,80})/);
-  main.innerHTML = `<h1>${T.title}</h1><p class="kc-card">${T.loginWorking}</p>`;
+  main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card kt-working">${T.loginWorking}</p></div>`;
   try { history.replaceState(null, '', location.pathname); } catch (_) {}
   try {
     if (!m) throw new Error('link_expired');
@@ -293,8 +329,8 @@ async function renderLogin(main) {
     write(SESSION, { token: d.session_token, name: d.name, id: d.space_id });
     location.replace(PATHS.space);
   } catch (e) {
-    main.innerHTML = `<h1>${T.title}</h1><p class="kc-card">${e.message === 'link_expired' ? T.loginBad : T.errNet}</p>
-      <p><a class="kc-btn" href="${PATHS.start}">${T.loginAgain}</a></p>`;
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.title}</h1><p class="kc-card">${e.message === 'link_expired' ? T.loginBad : T.errNet}</p>
+      <p><a class="kc-btn" href="${PATHS.start}">${T.loginAgain}</a></p></div>`;
   }
 }
 
@@ -334,8 +370,8 @@ async function renderSpace(main) {
     [d, cat] = await Promise.all([api('/api/tutor/space', token), catalogue()]);
   } catch (e) {
     if (e.message === 'unknown_space' && token) { if (LEGACY) forgetSpace(token); else write(SESSION, null); }
-    main.innerHTML = `<h1>${T.students}</h1><p class="kc-card">${!token ? T.needSignIn : (e.message === 'unknown_space' ? T.noSpace : T.errNet)}</p>
-      <p><a class="kc-btn" href="${PATHS.start}">${T.signInH}</a></p>`;
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>${T.students}</h1><p class="kc-card">${!token ? T.needSignIn : (e.message === 'unknown_space' ? T.noSpace : T.errNet)}</p>
+      <p><a class="kc-btn" href="${PATHS.start}">${T.signInH}</a></p></div>`;
     return;
   }
   if (LEGACY) rememberSpace({ name: d.space.name, token });
@@ -344,21 +380,27 @@ async function renderSpace(main) {
     const tps = Object.entries(s.stars).filter(([, n]) => n > 0)
       .sort((a, b) => cat.ids.indexOf(a[0]) - cat.ids.indexOf(b[0]));
     return `<div class="kt-scard-wrap"><a class="kt-scard" href="${hrefTo(token, s.id)}">
-      <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
-      <span class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span>
-      ${s.homework ? `<span class="kt-hwprog kt-cardhw">${progressBar(s.homework)}<span class="kc-muted">${esc(topicName(cat, s.homework.topic))} · ${T.hwProgress(s.homework.answers, s.homework.goal, s.homework.correct_pct)}</span></span>` : ''}
-      ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>` : ''}
-    </a><a class="kt-livebtn" href="${liveHref(token, s.id)}">Start live lesson</a></div>`;
+      <span class="kt-scard-top">${avatarHtml(s.name, 'is-lg')}<span class="kt-scard-id">
+        <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
+        <span class="kc-muted kt-scard-meta">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span></span></span>
+      ${s.homework ? `<span class="kt-hwprog kt-cardhw">${progressBar(s.homework)}<span class="kc-muted">${esc(topicName(cat, s.homework.topic))} · ${T.hwProgress(s.homework.answers, s.homework.goal, s.homework.correct_pct)}</span></span>`
+        : `<span class="kc-muted kt-cardhw kt-cardhw-none">${T.noHw}</span>`}
+      ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>`
+        : `<span class="kt-mini kt-mini-none"><span><span class="kt-mini-t kc-muted">${T.noStars}</span>${starsHtml(0)}</span></span>`}
+    </a><div class="kt-scard-foot"><a class="kt-scard-open" href="${hrefTo(token, s.id)}" tabindex="-1" aria-hidden="true">${T.openProfile} →</a><a class="kt-livebtn" href="${liveHref(token, s.id)}">Start live lesson</a></div></div>`;
   }).join('');
   main.innerHTML = `
-    <div class="kc-head"><div><h1>${esc(d.space.name)}</h1>
-      <p class="kc-muted">${d.space.email ? `${esc(T.signedInAs(d.space.email))} · ` : ''}<button class="kc-link" id="kt-rename">${T.rename}</button>${LEGACY ? '' : ` · <button class="kc-link" id="kt-signout">${T.signOut}</button>`}</p></div>
-      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kt-addopen" aria-expanded="false">+ ${T.addH}</button></p></div>
+    <div class="kt-pagehead">${avatarHtml(d.space.name, 'is-xl is-tutor')}
+      <div class="kt-pagehead-id"><p class="kt-eyebrow">${T.spaceEyebrow}</p>
+        <h1>${esc(T.studentsOf(d.space.name))}${d.students.length ? ` <span class="kt-count">${d.students.length}</span>` : ''}</h1>
+        <p class="kc-muted kt-pagehead-meta">${d.space.email ? `${esc(T.signedInAs(d.space.email))} · ` : ''}<button class="kc-link" id="kt-rename">${T.rename}</button>${LEGACY ? '' : ` · <button class="kc-link" id="kt-signout">${T.signOut}</button>`}</p></div>
+      <p class="kc-row kt-pagehead-act"><button class="kc-btn" id="kt-addopen" aria-expanded="false">+ ${T.addH}</button></p></div>
     ${d.space.email ? '' : `<form class="kc-card kt-addemail" id="kt-addemail"><h2>${T.addEmailH}</h2><p>${T.addEmailLead}</p>
       <label class="kc-field"><span>${T.email}</span><input id="kt-aemail" type="email" maxlength="254" placeholder="${T.emailPh}" autocomplete="email" required></label>
       <p class="kc-error" role="alert" hidden></p><button class="kc-btn" type="submit">${T.addEmailBtn}</button></form>`}
-    <form class="kc-card" id="kt-add"${d.students.length ? ' hidden' : ''}>
-      <h2>${T.addH}</h2>
+    ${d.students.length ? '' : `<div class="kt-empty"><span class="kt-empty-ico" aria-hidden="true">🦀</span><p>${T.noStudents}</p></div>`}
+    <form class="kc-card kt-sec kt-addform" id="kt-add"${d.students.length ? ' hidden' : ''}>
+      <h2>${d.students.length ? T.addH : T.emptyH}</h2>
       <div class="kt-form-row">
         <label class="kc-field"><span>${T.firstName}</span><input id="kt-sname" maxlength="20" autocomplete="off" required></label>
         <label class="kc-field kt-narrow"><span>${T.level}</span><input id="kt-slevel" maxlength="20" placeholder="${T.levelPh}"></label>
@@ -369,9 +411,9 @@ async function renderSpace(main) {
       <p class="kc-error" id="kt-err" role="alert" hidden></p>
       <p class="kc-row"><button class="kc-btn" type="submit">${T.addBtn}</button>${d.students.length ? `<button class="kc-btn kc-btn-ghost" type="button" id="kt-addcancel">${T.cancel}</button>` : ''}</p>
     </form>
-    <section class="kt-grid">${cards || `<p class="kc-card kc-muted">${T.noStudents}</p>`}</section>
+    ${cards ? `<section class="kt-grid">${cards}</section>` : ''}
     <details class="kc-card kt-more"><summary>${T.scaleH}</summary>${scaleTable()}</details>
-    <p class="kc-muted">${T.retention(d.space.delete_after_days)} <button class="kc-link" id="kt-delspace">${T.delSpace}</button></p>`;
+    <p class="kc-muted kt-foot">${T.retention(d.space.delete_after_days)} <button class="kc-link" id="kt-delspace">${T.delSpace}</button></p>`;
   $('#kt-addopen').addEventListener('click', () => {
     const f = $('#kt-add'); f.hidden = false; $('#kt-addopen').setAttribute('aria-expanded', 'true');
     f.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); $('#kt-sname').focus();
@@ -406,7 +448,7 @@ async function renderSpace(main) {
     if (!confirm(T.delSpaceQ)) return;
     await api('/api/tutor/delete', token, {});
     forgetSpace(token); write(SESSION, null);
-    main.innerHTML = `<h1>${T.students}</h1><p class="kc-card">${T.deleted}</p>`;
+    main.innerHTML = `<div class="kt-center"><h1>${T.students}</h1><p class="kc-card">${T.deleted}</p></div>`;
   });
 }
 
@@ -416,7 +458,7 @@ async function renderStudent(main, token, sid) {
   try {
     [d, cat] = await Promise.all([api(`/api/tutor/student?id=${sid}`, token), catalogue()]);
   } catch (e) {
-    main.innerHTML = `<p><a href="${hrefTo(token, null)}">${T.back}</a></p><p class="kc-card">${e.message === 'unknown_student' ? T.noSpace : T.errNet}</p>`;
+    main.innerHTML = `<p class="kt-back"><a href="${hrefTo(token, null)}">${T.back}</a></p><p class="kc-card">${e.message === 'unknown_student' ? T.noSpace : T.errNet}</p>`;
     return;
   }
   const s = d.student;
@@ -432,27 +474,37 @@ async function renderStudent(main, token, sid) {
     const x = d.topics[tp] || empty;
     const stars = [1, 2, 3, 4, 5].map((i) => `<button type="button" class="kt-star-btn${i <= x.stars ? ' is-on' : ''}" data-topic="${esc(tp)}" data-stars="${i}" title="${esc(T.scale[i - 1][1])}" aria-label="${i}: ${esc(T.scale[i - 1][1])}">★</button>`).join('');
     return `<tr>
-      <td><strong>${esc(topicName(cat, tp))}</strong>${x.note ? `<div class="kt-note">${esc(x.note)}</div>` : ''}</td>
+      <td class="kt-map-topic"><strong>${esc(topicName(cat, tp))}</strong>${x.note ? `<div class="kt-note">${esc(x.note)}</div>` : ''}</td>
       <td class="kt-starcell"><span class="kt-star-set">${stars}</span>
         <div class="kc-muted kt-src">${x.set != null ? `${T.set} · ${T.measured}: ${x.measured} <button type="button" class="kc-link" data-auto="${esc(tp)}">${T.auto}</button>` : (x.answers ? T.measured : '')}</div></td>
-      <td class="num">${x.answers || '–'}</td>
-      <td class="num">${x.correct_pct == null ? '–' : x.correct_pct + ' %'}</td>
-      <td>${x.practise.length ? x.practise.map((w) => esc(w.replace(/_/g, ' '))).join(', ') : '–'}</td>
-      <td><button type="button" class="kc-link" data-note="${esc(tp)}">${T.noteFor}</button></td></tr>`;
+      <td class="num" data-l="${T.answers}">${x.answers || '–'}</td>
+      <td class="num" data-l="${T.right}">${x.correct_pct == null ? '–' : x.correct_pct + ' %'}</td>
+      <td class="kt-map-pr" data-l="${T.practise}">${x.practise.length ? x.practise.map((w) => esc(w.replace(/_/g, ' '))).join(', ') : '–'}</td>
+      <td class="kt-map-note"><button type="button" class="kc-link" data-note="${esc(tp)}">${T.noteFor}</button></td></tr>`;
   }).join('');
 
   const hwTopic = topicIds.find((tp) => cat.ids.includes(tp)) || topicIds[0];
   const lctx = { d: Object.assign({}, d, { topics: d.topics, plan: d.plan }), cat, sid, name: s.name, topicName, linkFor,
     api: (path) => api(path, token), post, reload };
   main.innerHTML = `
-    <p><a href="${hrefTo(token, null)}">${T.back}</a></p>
-    <div class="kc-head"><div><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}</h1>
-      <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p></div>
-      <p class="kc-row"><a class="kt-livebtn is-big" href="${liveHref(token, sid)}">Start live lesson</a></p></div>
+    <p class="kt-back"><a href="${hrefTo(token, null)}">${T.back}</a></p>
+    <div class="kc-card kt-phead">${avatarHtml(s.name, 'is-xl')}
+      <div class="kt-phead-id"><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</h1>
+        <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p>
+        ${s.goals ? `<p class="kt-phead-goal"><span aria-hidden="true">🎯</span> ${esc(s.goals)}</p>` : ''}</div>
+      <p class="kc-row kt-phead-act"><a class="kt-livebtn is-big" href="${liveHref(token, sid)}">Start live lesson</a></p>
+      <ul class="kt-pstats">
+        <li><b>${s.answers}</b><span>${T.stats.answers}</span></li>
+        <li><b>${topicIds.filter((tp) => (d.topics[tp] || empty).stars > 0).length}<small> / ${topicIds.length}</small></b><span>${T.stats.topics}</span></li>
+        <li><b>${d.homework.length}</b><span>${T.stats.hw}</span></li>
+        <li><b>${d.lessons.length}</b><span>${T.stats.lessons}</span></li>
+      </ul></div>
+
+    <div class="kt-cols"><div class="kt-col-main">
 
 ${tutorTopHtml(lctx)}
 
-    <section class="kc-card">
+    <section class="kc-card kt-sec kt-sec-map">
       <h2>${T.mapH}</h2>
       <p class="kc-muted">${T.mapLead}</p>
       <div class="kc-table-wrap"><table class="kc-table kt-map"><thead><tr><th></th><th></th>
@@ -462,7 +514,7 @@ ${tutorTopHtml(lctx)}
 
 ${tutorHtml(lctx)}
 
-    <section class="kc-card">
+    <section class="kc-card kt-sec kt-sec-hw">
       <h2>${T.hwH}</h2>
       <p class="kc-muted">${T.hwLead}</p>
       ${d.homework.length ? `<ul class="kt-hw">${d.homework.map((h) => `<li>
@@ -479,7 +531,7 @@ ${tutorHtml(lctx)}
       </form>
     </section>
 
-    <section class="kc-card">
+    <section class="kc-card kt-sec kt-sec-lessons">
       <h2>${T.lessonsH}</h2>
       <form id="kt-lessonform" class="kt-lessonform">
         <label class="kc-field kt-narrow"><span>${T.lessonDay}</span><input type="date" id="kt-lday" value="${today()}" required></label>
@@ -490,10 +542,12 @@ ${tutorHtml(lctx)}
         <span class="kt-lnote">${esc(l.note)}</span><button type="button" class="kc-link" data-dellesson="${l.id}">${T.del}</button></li>`).join('')}</ul>` : `<p class="kc-muted">${T.lessonNone}</p>`}
     </section>
 
-    <section class="kc-card" id="kt-profile">
+    </div><aside class="kt-col-side">
+
+    <section class="kc-card kt-sec kt-sec-profile" id="kt-profile">
       <h2>${T.profileH}</h2>
       <div id="kt-prof-view"><p><strong>${T.goals}:</strong> ${esc(s.goals) || '–'}${s.adult ? ` · <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</p>
-        <button type="button" class="kc-btn kc-btn-ghost" id="kt-edit">${T.edit}</button></div>
+        <button type="button" class="kc-btn kc-btn-ghost kt-sm" id="kt-edit">${T.edit}</button></div>
       <form id="kt-prof-form" hidden>
         <div class="kt-form-row">
           <label class="kc-field"><span>${T.firstName}</span><input id="kt-pname" maxlength="20" value="${esc(s.name)}" required></label>
@@ -508,14 +562,14 @@ ${tutorHtml(lctx)}
         <small id="kt-notes-ok" hidden>${T.saved}</small></label>
     </section>
 
-    <section class="kc-card">
+    <section class="kc-card kt-sec kt-sec-link">
       <h2>${T.linkH}</h2>
-      <p>${T.linkLead(esc(s.name))}</p>
+      <p class="kc-muted">${T.linkLead(esc(s.name))}</p>
       ${key ? `<p class="kc-row"><code class="kc-url">${esc(studentUrl(key))}</code><span id="kt-lc"></span></p>` : `<p class="kc-muted">${T.linkUnknown}</p>`}
-      <p><button type="button" class="kc-btn kc-btn-ghost" id="kt-newlink">${T.newLink}</button></p>
+      <p><button type="button" class="kc-btn kc-btn-ghost kt-sm" id="kt-newlink">${T.newLink}</button></p>
     </section>
 
-    <section class="kc-card">
+    <section class="kc-card kt-sec kt-sec-report">
       <h2>${T.reportH}</h2>
       <p class="kc-muted">${T.reportLead}</p>
       <label class="kc-field kt-wide"><span>${T.reportNote}</span>
@@ -523,11 +577,12 @@ ${tutorHtml(lctx)}
         <small id="kt-rnote-ok" hidden>${T.saved}</small></label>
       ${rkey ? `<p class="kc-row"><code class="kc-url">${esc(reportUrl(rkey))}</code><span id="kt-rc"></span><a href="${esc(reportUrl(rkey))}" target="_blank" rel="noopener">${T.reportOpen} ↗</a></p>`
         : (s.has_report ? `<p class="kc-muted">${T.reportUnknown}</p>` : '')}
-      <p><button type="button" class="kc-btn kc-btn-ghost" id="kt-rlink">${rkey || s.has_report ? T.reportNew : T.reportMake}</button></p>
+      <p><button type="button" class="kc-btn kc-btn-ghost kt-sm" id="kt-rlink">${rkey || s.has_report ? T.reportNew : T.reportMake}</button></p>
     </section>
 
-    ${d.sources.length ? `<section class="kc-card"><h2>${T.where}</h2><p>${d.sources.map(([k, n]) => `${esc(T.sources[k] || k)} <span class="kc-muted">${n}</span>`).join(' · ')}</p></section>` : ''}
-    <p><button class="kc-btn kc-btn-danger" id="kt-remove">${T.remove}</button></p>`;
+    ${d.sources.length ? `<section class="kc-card kt-sec kt-sec-where"><h2>${T.where}</h2><p class="kt-srcs">${d.sources.map(([k, n]) => `<span class="kt-srcchip">${esc(T.sources[k] || k)} <b>${n}</b></span>`).join(' ')}</p></section>` : ''}
+    <p class="kt-danger"><button class="kc-btn kc-btn-danger kt-sm" id="kt-remove">${T.remove}</button></p>
+    </aside></div>`;
 
   if (key) $('#kt-lc').appendChild(copyButton(studentUrl(key)));
   tutorWire(main, lctx);
@@ -695,24 +750,25 @@ async function renderReport(main) {
     if (!m) throw new Error('unknown_report');
     [d, cat] = await Promise.all([api('/api/report', m[1], undefined, 'X-Report-Key'), catalogue()]);
   } catch (e) {
-    main.innerHTML = `<h1>Krabsy</h1><p class="kc-card">${e.message === 'unknown_report' ? T.repBad : T.errNet}</p>`;
+    main.innerHTML = `<div class="kt-center"><img class="kt-center-crab" src="/favicon.png" alt="" decoding="async"><h1>Krabsy</h1><p class="kc-card">${e.message === 'unknown_report' ? T.repBad : T.errNet}</p></div>`;
     return;
   }
   const tps = [...cat.ids.filter((t) => d.topics[t]), ...Object.keys(d.topics).filter((t) => !cat.ids.includes(t))];
   const maxW = Math.max(1, ...d.weeks);
   const fmt = (day) => new Date(day + 'T12:00:00').toLocaleDateString(LANG, { day: 'numeric', month: 'short' });
   main.innerHTML = `
-    <h1>${esc(T.repTitle(d.name))}</h1>
-    <p class="kc-muted">${esc(T.repFrom(d.tutor_name))} · ${esc(T.repLessons(d.lessons, d.last_lesson ? fmt(d.last_lesson) : ''))}</p>
-    ${d.note ? `<section class="kc-card kt-repnote"><h2>${T.repNote}</h2><p class="kt-lnote">${esc(d.note)}</p></section>` : ''}
-    <section class="kc-card"><h2>${T.repMap}</h2>
+    <div class="kc-card kt-phead kt-rephead">${avatarHtml(d.name, 'is-xl')}
+      <div class="kt-phead-id"><p class="kt-eyebrow">${T.repEyebrow}</p><h1>${esc(T.repTitle(d.name))}</h1>
+      <p class="kc-muted">${esc(T.repFrom(d.tutor_name))} · ${esc(T.repLessons(d.lessons, d.last_lesson ? fmt(d.last_lesson) : ''))}</p></div></div>
+    ${d.note ? `<section class="kc-card kt-sec kt-repnote"><h2>${T.repNote}</h2><p class="kt-lnote">${esc(d.note)}</p></section>` : ''}
+    <section class="kc-card kt-sec kt-sec-map"><h2>${T.repMap}</h2>
       ${tps.length ? `<table class="kc-table kt-scale"><tbody>${tps.map((tp) => `<tr><td><strong>${esc(topicName(cat, tp))}</strong></td>
         <td>${starsHtml(d.topics[tp].stars)}</td><td class="kc-muted">${esc(T.scale[Math.max(0, d.topics[tp].stars - 1)][1])}</td>
         <td class="num kc-muted">${d.topics[tp].answers} ${T.answers}</td></tr>`).join('')}</tbody></table>` : `<p class="kc-muted">–</p>`}
-      <p class="kc-muted">${T.scaleH}: ${T.scale.map((x, i) => `${i + 1} = ${x[1]}`).join(' · ')}</p></section>
-    <section class="kc-card"><h2>${T.repWeeks}</h2>
+      <p class="kc-muted kt-replegend">${T.scaleH}: ${T.scale.map((x, i) => `${i + 1} = ${x[1]}`).join(' · ')}</p></section>
+    <section class="kc-card kt-sec kt-sec-weeks"><h2>${T.repWeeks}</h2>
       <div class="kt-weeks">${d.weeks.map((n, i) => `<div><span class="kt-wbar" style="height:${Math.round((n / maxW) * 100)}%"></span><b>${n}</b><small>${T.repWeekNames[i]}</small></div>`).reverse().join('')}</div></section>
-    ${d.homework.length ? `<section class="kc-card"><h2>${T.repHw}</h2><ul class="kt-hw">${d.homework.map((h) => `<li>
+    ${d.homework.length ? `<section class="kc-card kt-sec kt-sec-hw"><h2>${T.repHw}</h2><ul class="kt-hw">${d.homework.map((h) => `<li>
       <span><strong>${esc(topicName(cat, h.topic))}</strong>${h.note ? `<br><span class="kc-muted">${esc(h.note)}</span>` : ''}</span>
       <span class="kt-hwprog">${progressBar(h)}<span class="kc-muted">${new Date(h.created).toLocaleDateString(LANG)} · ${T.hwProgress(h.answers, h.goal, h.correct_pct)}</span></span></li>`).join('')}</ul></section>` : ''}`;
 }
