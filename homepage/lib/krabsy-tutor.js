@@ -24,7 +24,8 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-25';
-import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet, meLive } from '/lib/krabsy-tutor-lesson.js?v=2026-11-25';
+import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-25';
+import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26';
 
 const LANG = 'en';
 const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',
@@ -313,6 +314,16 @@ function hashParams() {
 }
 // Links inside the space keep the private token only for old spaces.
 const hrefTo = (token, sid) => (LEGACY ? `#t=${esc(token)}${sid ? `&s=${sid}` : ''}` : (sid ? `#s=${sid}` : '#'));
+// The live classroom (docs/live-classroom.md): its own page; it replaces the v1 "Show live" (polling).
+const liveHref = (token, sid, extra = '') => `/en/spanish/tutors/live/#${LEGACY ? `t=${esc(token)}&` : ''}s=${sid}&start=1${extra}`;
+function liveCss() {
+  if (document.querySelector('link[data-live-css]')) return;
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/lib/krabsy-live.css?v=2026-11-26'; l.dataset.liveCss = '1'; document.head.appendChild(l);
+}
+function liveEntries(main, token, sid) {
+  main.querySelectorAll('[data-wslive]').forEach((b) => { const a = document.createElement('a'); a.className = b.className; a.textContent = b.textContent; a.href = liveHref(token, sid, `&w=${Number(b.dataset.wslive)}`); b.replaceWith(a); });
+  main.querySelectorAll('[data-blive]').forEach((b) => { const sel = b.closest('li') && b.closest('li').querySelector('select[data-topic]'); const a = document.createElement('a'); a.className = b.className; a.textContent = 'Live lesson ↗'; a.href = liveHref(token, sid, sel ? `&qp=${encodeURIComponent(sel.value)}` : ''); b.replaceWith(a); });
+}
 
 async function renderSpace(main) {
   const { token, sid } = hashParams();
@@ -328,15 +339,16 @@ async function renderSpace(main) {
     return;
   }
   if (LEGACY) rememberSpace({ name: d.space.name, token });
+  liveCss();
   const cards = d.students.map((s) => {
     const tps = Object.entries(s.stars).filter(([, n]) => n > 0)
       .sort((a, b) => cat.ids.indexOf(a[0]) - cat.ids.indexOf(b[0]));
-    return `<a class="kt-scard" href="${hrefTo(token, s.id)}">
+    return `<div class="kt-scard-wrap"><a class="kt-scard" href="${hrefTo(token, s.id)}">
       <span class="kt-scard-name">${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</span>
       <span class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers_week} ${T.thisWeek}</span>
       ${s.homework ? `<span class="kt-hwprog kt-cardhw">${progressBar(s.homework)}<span class="kc-muted">${esc(topicName(cat, s.homework.topic))} · ${T.hwProgress(s.homework.answers, s.homework.goal, s.homework.correct_pct)}</span></span>` : ''}
       ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>` : ''}
-    </a>`;
+    </a><a class="kt-livebtn" href="${liveHref(token, s.id)}">Start live lesson</a></div>`;
   }).join('');
   main.innerHTML = `
     <div class="kc-head"><div><h1>${esc(d.space.name)}</h1>
@@ -435,7 +447,8 @@ async function renderStudent(main, token, sid) {
   main.innerHTML = `
     <p><a href="${hrefTo(token, null)}">${T.back}</a></p>
     <div class="kc-head"><div><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}</h1>
-      <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p></div></div>
+      <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p></div>
+      <p class="kc-row"><a class="kt-livebtn is-big" href="${liveHref(token, sid)}">Start live lesson</a></p></div>
 
 ${tutorTopHtml(lctx)}
 
@@ -518,6 +531,7 @@ ${tutorHtml(lctx)}
 
   if (key) $('#kt-lc').appendChild(copyButton(studentUrl(key)));
   tutorWire(main, lctx);
+  liveCss(); liveEntries(main, token, sid);
   if (rkey) $('#kt-rc').appendChild(copyButton(reportUrl(rkey)));
   const rnote = $('#kt-rnote');
   rnote.addEventListener('change', async () => {
@@ -666,13 +680,11 @@ async function showWorksheet(main, wid) {
       onBack: () => { try { history.replaceState(null, '', location.pathname); } catch (_) {} renderMe(main); } });
   } catch (_) { try { history.replaceState(null, '', location.pathname); } catch (_) {} renderMe(main); }
 }
-function startMeLive(main) {
-  if (ME_TIMER) return;
-  ME_TIMER = meLive({ key: ME.key, api, tutor: ME.tutor, adult: ME.adult,
-    onWorksheet: (wid) => {
-      const cur = location.hash.match(/[#&]w=(\d+)/);
-      if (!cur || Number(cur[1]) !== wid) location.hash = 'w=' + wid;
-    } });
+function startMeLive() {
+  // the live classroom (krabsy-live-student.js) replaces the v1 polling (meLive)
+  if (ME_TIMER && ME_TIMER.key === ME.key) return;
+  if (ME_TIMER) ME_TIMER.live.close();
+  ME_TIMER = { key: ME.key, live: startLiveStudent({ key: ME.key, tutor: ME.tutor, adult: ME.adult }) };
 }
 
 /* ── the parents' report ───────────────────────────────────────────────── */

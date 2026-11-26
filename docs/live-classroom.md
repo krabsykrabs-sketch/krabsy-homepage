@@ -268,3 +268,27 @@ API as in the contract; details in `homepage/lib/activities/README.md`. Addition
 - The mirror is a real small layout (container queries), not a scaled copy; on a very
   narrow mirror long content scrolls inside the mirror (the student's scroll position is
   mirrored when the student scrolls).
+
+### L4 live UI (`krabsy-live*.js`, `krabsy-live.css`, `/en/spanish/tutors/live/`)
+
+- Tutor page hash: `#s=<id>` plus `&start=1` (the entry buttons: start at once), `&w=<v1 worksheet id>`
+  (show it first) and `&qp=<topic>` (open Quick practice for that topic); `&t=` for old spaces.
+  After the start the address bar keeps only `s` (and `t`), so a reload resumes and never restarts.
+- No "I turn the pages" lock: the relay only forwards `hint|reveal|next|prev|goto`, so ◀ ▶ turn the
+  book pages for both, but the student can still turn them too.
+- The student page adds `mat` (material id) to every `answer`, so the tutor groups first-try results
+  per material. Queue items (relay `items`) are `{key, k:'m'|'qp'|'v1', title, ico, sub, mid, done,
+  stars}` plus `file` (Krabsy material), `material` (quick practice, inline) or `wid` (v1 worksheet).
+- End lesson: the note is saved first (`POST /api/tutor/student/lesson`), then `end {summary}` goes to
+  the student with `{minutes, materials, first, total}`. Notes while teaching are kept in
+  localStorage (`krabsy_live_notes:<id>`) until saved.
+- v1 "Show live" entry points are replaced in `krabsy-tutor.js` by turning the buttons of
+  `krabsy-tutor-lesson.js` into links to the live page (worksheet "Show live" → `&w=`, plan block
+  "Make worksheet & show live" → `&qp=`); the student page uses the live room instead of the v1
+  `meLive` polling. v1 endpoints are unchanged; a v1 live panel saved earlier still shows on the profile.
+- Outside the L4 file list: `?v=` of `krabsy-tutor.js` bumped to `2026-11-26` in the five pages that
+  load it (me, space, tutors, login, report), so returning visitors get the new module.
+- The student lesson view is a full-screen layer over `/me/`; its CSS (fonts, `activities.css`,
+  `krabsy-live.css`) is added by `krabsy-live-student.js`. `krabsy-live.css` also styles the entry
+  buttons and is added by `krabsy-tutor.js` on the space pages.
+- Queue reorder is ▲ ▼ buttons (no drag); the prototype's pause button and run-sheet timings are not built.
