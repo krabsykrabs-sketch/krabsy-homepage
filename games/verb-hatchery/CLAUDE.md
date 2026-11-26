@@ -1095,3 +1095,38 @@ write `RELEASE.md` when the owner says go.
   questions, the closest repeat 7 questions apart; verbs 12 apart. Copied to
   `homepage/games/verb-hatchery/`, modules stamped. The shared engine deck
   (WP 0.3/0.9) replaces this later.
+
+## Play-test notes (owner, 2026-11-26) — built 2026-11-26 (see below)
+
+Owner: "collect before you implement anything".
+1. **Start position / first view**: the start should be chosen better, e.g.
+   a camera view that shows the farm and the player. After loading, maybe a
+   short "what to do" screen, or a dashed line / arrow to the first egg and,
+   after picking it up, back to the farm. Owner is unsure it's needed.
+   (Note: a first-minutes guidance with an arrow + coach box exists for new
+   saves only, `st.tutDone`; a player with an old save never sees it.)
+2. **Too many messages at the top**: coins, then the event banner ("epic
+   egg …"), then hatch banners / toasts all stack in one column under the
+   coins (`#topStack`). Needs a clearer UI layout: e.g. coins moved to a
+   corner/side, fewer messages at once.
+3. **The ⬇ 🥚 ⬇ sign over the egg pad is stretched**: `_textSprite` draws a
+   4:1 canvas, but `padSign.scale.set(2.6, 1.3, 1)` shows it 2:1 → twice as
+   tall (`world.js` ~787). Fix: scale 4:1 or draw a 2:1 canvas.
+
+Built (lead, Opus, 2026-11-26):
+- 1: **start view**: after Play the camera looks at the player from the front
+  with the farm behind (`INTRO` in `main.js`: 1.3 s hold, then a 2.4 s swing
+  round behind the player towards the island; keys / stick / drag end it at
+  once). **Dashed path** (`src/guide.js`, one InstancedMesh): amber dashes on
+  the ground from the player to where the guidance's arrow points (practice
+  egg → egg pad → incubator), crawling towards the target. Only during the
+  first-minutes guidance (new saves). No extra "what to do" screen: the coach
+  box already says it.
+- 2: **HUD layout**: left column = goals, then the lasting banners (event
+  egg, crab raid) under them, wrapping instead of one long line; right column
+  = coins, then backpack + stars; the middle (`#topStack`, now at the top)
+  holds only the hatch banner and one short message. Touch buttons moved to
+  `top:132px` (under the right column). Checked headless at 1280×720 and
+  900×500 touch: no overlaps.
+- 3: egg-pad sign 4:1 (`padSign.scale.set(3.2, 0.8, 1)`).
+Not checked by eye: the intro swing at real frame rates (headless is slow).

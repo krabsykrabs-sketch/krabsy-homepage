@@ -24,13 +24,18 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:5;}
 #hud.on{display:block;}
-#money{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--panel);border-radius:18px;padding:6px 20px 7px;text-align:center;min-width:170px;}
+/* layout (owner 2026-11-26: too much stacked at the top): left = goals + lasting banners (event egg,
+   raid), right = coins, backpack, stars; middle = only the hatch banner and one short message */
+#rightCol{position:absolute;top:12px;right:14px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+#rightRow{display:flex;gap:8px;align-items:center;}
+#leftCol{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;align-items:stretch;gap:8px;width:min(270px,30vw);}
+#money{background:var(--panel);border-radius:18px;padding:6px 20px 7px;text-align:center;min-width:150px;}
 #coins{font-family:'Fredoka One';font-size:30px;line-height:1.1;display:flex;align-items:center;justify-content:center;}
 #cps{font-size:14px;color:var(--teal);}
 #money.bump #coins{animation:bump .3s;}
 @keyframes bump{40%{transform:scale(1.12);}}
-#starsBox{position:absolute;top:12px;right:14px;z-index:1;background:var(--panel);border-radius:999px;padding:8px 16px;font-family:'Fredoka One';font-size:22px;}
-#goals{position:absolute;top:12px;left:12px;background:var(--panel);border-radius:16px;padding:10px 12px;width:min(270px,30vw);}
+#starsBox{background:var(--panel);border-radius:999px;padding:8px 16px;font-family:'Fredoka One';font-size:22px;}
+#goals{background:var(--panel);border-radius:16px;padding:10px 12px;}
 #goals h3{font-size:15px;color:var(--amber);margin-bottom:6px;}
 .goal{font-size:13.5px;margin:5px 0;line-height:1.25;}
 .goal .bar{height:6px;border-radius:3px;background:#24406e;margin-top:3px;overflow:hidden;}
@@ -54,7 +59,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;}
 .float{position:fixed;transform:translate(-50%,-50%);pointer-events:none;z-index:6;font-family:'Fredoka One';color:var(--amber);
   font-size:18px;text-shadow:0 2px 0 rgba(0,0,0,.35);transition:transform 1.1s ease-out,opacity 1.1s ease-in;}
 .float.big{font-size:28px;}
-#topStack{position:fixed;left:50%;top:86px;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:max-content;max-width:94vw;}
+#topStack{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:max-content;max-width:94vw;}
 .toast{position:relative;background:var(--panel);border-radius:14px;padding:10px 18px;z-index:9;
   font-size:17px;pointer-events:none;animation:toastIn .25s;max-width:90vw;text-align:center;}
 .toast.warn{background:#7a2a3a;}
@@ -199,7 +204,7 @@ button.bookCell:hover{background:#1d3a66;}
 #zoneName.on{opacity:1;}
 #mapWrap{position:absolute;left:12px;bottom:12px;width:170px;height:170px;}
 #map{width:170px;height:170px;display:block;}
-#carryBox{position:absolute;right:14px;top:66px;background:var(--panel);border-radius:999px;padding:6px 14px;font-size:16px;}
+#carryBox{background:var(--panel);border-radius:999px;padding:6px 14px;font-size:16px;}
 #c{cursor:grab;} #c.dragging{cursor:grabbing;}
 #stick{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.4);
   display:none;z-index:6;pointer-events:none;}
@@ -209,7 +214,7 @@ button.bookCell:hover{background:#1d3a66;}
 body.touch .tbtn.on{display:flex;}
 #jumpBtn{right:110px;bottom:24px;}
 #actBtn{right:24px;bottom:110px;background:var(--amber);border-color:#fff;}
-body.touch #buttons{bottom:auto;top:110px;}
+body.touch #buttons{bottom:auto;top:132px;}
 body.touch #cross{display:none;}
 #looks{display:flex;gap:12px;justify-content:center;align-items:center;margin:0 0 14px;flex-wrap:wrap;}
 .lkTitle{width:100%;color:var(--muted);font-size:14px;}
@@ -227,11 +232,11 @@ body.touch #cross{display:none;}
 .figLink:hover{border-bottom-color:var(--teal);}
 #controls{color:var(--muted);font-size:14px;margin:0 0 16px;line-height:1.5;}
 #controls b{color:var(--ink);}
-#raidBanner{position:relative;background:#c0392b;color:#fff;border-radius:14px;padding:6px 16px;font-size:16px;display:none;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.25);}
+#raidBanner{position:relative;background:#c0392b;color:#fff;border-radius:14px;padding:6px 12px;font-size:15px;display:none;line-height:1.35;box-shadow:0 3px 0 rgba(0,0,0,.25);}
 #raidBanner.on{display:block;animation:toastIn .3s;}
 #raidBanner b{font-family:'Fredoka One';font-weight:400;margin:0 4px;}
 #evBanner{position:relative;background:var(--amber);color:var(--navy);border-radius:14px;
-  padding:6px 16px;font-size:16px;display:none;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.25);}
+  padding:6px 12px;font-size:15px;display:none;line-height:1.35;box-shadow:0 3px 0 rgba(0,0,0,.25);}
 #evBanner.on{display:block;animation:toastIn .3s;}
 #evBanner.urgent b{color:#c0392b;animation:pulse .8s infinite;display:inline-block;}
 #evBanner b{font-family:'Fredoka One';font-weight:400;margin:0 4px;}
@@ -243,7 +248,7 @@ body.touch #cross{display:none;}
 @media (max-width:560px){.bookGrid3{grid-template-columns:repeat(3,1fr);} .bookGrid2{grid-template-columns:repeat(2,1fr);}}
 #rotate{position:fixed;inset:0;z-index:30;background:var(--navy);display:none;align-items:center;justify-content:center;padding:30px;text-align:center;font-size:20px;}
 @media (orientation:portrait) and (max-width:700px){#rotate{display:flex;}}
-@media (max-height:520px){#goals{width:220px;padding:7px 10px;} .goal{font-size:12px;} #money{padding:4px 14px;} #coins{font-size:24px;}
+@media (max-height:520px){#leftCol{width:220px;} #goals{padding:7px 10px;} .goal{font-size:12px;} #money{padding:4px 14px;} #coins{font-size:24px;}
   #card{padding:14px 18px;} #trio{margin:10px 0 12px;} .bigBtn{padding:7px 12px;font-size:14px;}}
 </style>
 <script type="importmap">
@@ -282,15 +287,19 @@ body.touch #cross{display:none;}
 
 <div id="cross"></div><div id="prompt"></div><div id="zoneName"></div>
 <div id="hud">
-  <div id="money"><div id="coins"><span class="coin"></span><span id="coinN">0</span></div><div id="cps">+0/s</div></div>
-  <div id="starsBox"><span class="starI">★</span> <span id="starN">0</span></div>
-  <div id="goals"><h3 id="goalsTitle">Goals</h3><div id="goalList"></div></div>
+  <div id="rightCol">
+    <div id="money"><div id="coins"><span class="coin"></span><span id="coinN">0</span></div><div id="cps">+0/s</div></div>
+    <div id="rightRow"><div id="carryBox">🎒 <span id="carryN">0/1</span></div><div id="starsBox"><span class="starI">★</span> <span id="starN">0</span></div></div>
+  </div>
+  <div id="leftCol">
+    <div id="goals"><h3 id="goalsTitle">Goals</h3><div id="goalList"></div></div>
+    <div id="raidBanner"></div><div id="evBanner"></div>
+  </div>
   <div id="buttons">
     <button class="bigBtn" id="upBtn"><span class="ico">⬆️</span><span id="upLbl">Upgrades</span><span class="badge" id="upBadge">!</span></button>
     <button class="bigBtn" id="bookBtn"><span class="ico">📖</span><span id="bookLbl">Book</span></button>
   </div>
   <div id="mapWrap"><canvas id="map" width="340" height="340"></canvas></div>
-  <div id="carryBox">🎒 <span id="carryN">0/1</span></div>
   <div id="hint"></div>
   <div id="coach"></div>
   <button class="bigBtn" id="soundBtn">🔊</button>
@@ -319,7 +328,7 @@ body.touch #cross{display:none;}
   <button id="ciRelease"></button><div id="ciAsk"></div></div>
 
 <!-- one column under the coins: event banner, hatch banner, toasts stack instead of overlapping -->
-<div id="topStack"><div id="raidBanner"></div><div id="evBanner"></div>
+<div id="topStack">
 <div id="reveal"><img id="revImg" alt=""><div><div id="revTitle"></div><div><span id="revName"></span><span id="revNew"></span></div><div id="revInfo"></div></div></div>
 <div id="toasts"></div></div>
 

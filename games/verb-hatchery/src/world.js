@@ -784,7 +784,7 @@ export class World {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.12, 8, 40).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     ring.position.set(PAD.x, HY + 0.2, PAD.z); s.add(ring); this.padRing = ring;
     const padSign = this._textSprite('⬇ 🥚 ⬇', '#0d2240', '#2ee6c0', 256);
-    padSign.position.set(PAD.x, HY + 3.2, PAD.z); padSign.scale.set(2.6, 1.3, 1); s.add(padSign); this.padSign = padSign;
+    padSign.position.set(PAD.x, HY + 3.0, PAD.z); padSign.scale.set(3.2, 0.8, 1); s.add(padSign); this.padSign = padSign; // (4:1 like its canvas)
     // beacon over the base, visible from everywhere
     // (world step 4: slimmer and fading out with the height, like the egg beams; it is
     // widened with the distance in update(), so it still shows the way home from afar)
