@@ -12,7 +12,7 @@
 // idempotent and typing never loses focus. One-off animations travel as numbered
 // effects (state.fx) and play once on each side.
 import { recordAttempt } from '/lib/krabsy-stats.js';
-import { dragTap } from './drag.js';
+import { dragTap } from './drag.js?v=2026-11-26b';
 import { esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js';
 import { mountBook } from './book.js';
 
