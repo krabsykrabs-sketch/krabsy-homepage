@@ -182,7 +182,7 @@ function renderJoin(main) {
     btn.disabled = false;
     if (r.ok) {
       // Register the pupil as this device's person (siblings, profile saved to the key: krabsy-sync.js).
-      try { await (await import('/lib/krabsy-sync.js?v=2026-11-25')).enter(r.session); } catch (_) {}
+      try { await (await import('/lib/krabsy-sync.js?v=2026-11-26')).enter(r.session); } catch (_) {}
       renderJoin(main); return;
     }
     if (r.error === 'name_taken') { askSameName(name); return; }

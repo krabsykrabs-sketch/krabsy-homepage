@@ -23,8 +23,8 @@
    English only for the pilot; texts in T for later languages.
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
-import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-25';
-import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-25';
+import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-26';
+import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-26';
 import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26';
 
 const LANG = 'en';

@@ -1403,3 +1403,12 @@ and Nora:
    under homework/students.
 8. **"I know it / again" on picture cards** makes young children rate themselves:
    watch in the child play-test.
+
+## Update 2026-11-26: live classroom first, video corner later
+
+Owner decision: the **live classroom** was moved ahead of the rest of this plan and is
+built (`docs/live-classroom.md`, tested with Nora from 2026-11-27). Lessons use Zoom for
+face and voice with Zoom minimized for now. **Wanted later:** a 1:1 WebRTC **video
+corner inside the live lesson** (no Zoom needed), spec in `docs/live-classroom.md`
+"Later: the video corner". It goes in after the first lessons with Nora, before
+Phase 7's remaining live work.

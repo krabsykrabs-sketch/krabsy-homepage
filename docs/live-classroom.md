@@ -371,3 +371,29 @@ relay is in the API) and `wss://api.krabsy.com/api/live/ws` reachable.
   (also for children), the hand can cover typed letters in the mirror, places in the materials are in
   Spain / the UK, quick practice does not know the student's gender. (Review LATER items.)
 - No real tablet, Zoom window or slow network tested; touch only emulated.
+
+## Later: the video corner (owner decision 2026-11-26)
+
+**Now:** Zoom (or any call) for face and voice; the student **minimizes Zoom**, which
+leaves Zoom's small floating video window on top while Krabsy fills the screen.
+Lesson setup note for tutors and students: `docs/live-lesson-guide.md`.
+
+**Later (wanted, to try after the first lessons):** a 1:1 **video corner inside the
+live lesson**, so the student never juggles two windows and Zoom is not needed at all:
+
+- Browser-native **WebRTC** between the two computers (camera + microphone): the
+  tutor's face in a corner of the student's lesson view, the student's face on the
+  tutor's live page. One tab.
+- **Signalling over the existing live WebSocket** (`api/live.py`: offer / answer / ICE
+  candidates relayed like the other messages); media goes peer-to-peer, not through
+  our server. Public STUN; a **TURN relay (coturn) on the Hetzner server** for
+  networks that block direct connections (school networks, some routers).
+- Mute / camera off / hide video on both sides; audio echo cancellation from the
+  browser; falls back to "use your call" when the camera is refused.
+- **Nothing recorded.** Privacy pages: one line (live video/audio goes directly between
+  the two devices, not stored); parents' consent text mentions the camera.
+- Size: about 1–2 sessions + the TURN setup. Test with Nora on a slow connection first.
+
+This turns the live classroom into a complete lesson tool (no Zoom), a strong point for
+tutors. It is NOT a general video platform: 1:1 (plus siblings on one device), no
+group calls, no recording.

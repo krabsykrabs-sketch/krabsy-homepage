@@ -49,7 +49,7 @@
     if (window.top === window && (localStorage.getItem('krabsy_people') || localStorage.getItem('krabsy_class'))) {
       var sm = document.createElement('script');
       sm.type = 'module';
-      sm.textContent = "import('/lib/krabsy-sync.js?v=2026-11-25').then(function (m) { m.start(); }).catch(function () {});";
+      sm.textContent = "import('/lib/krabsy-sync.js?v=2026-11-26').then(function (m) { m.start(); }).catch(function () {});";
       (document.head || document.documentElement).appendChild(sm);
     }
   } catch (_) { /* storage blocked / old browser */ }
