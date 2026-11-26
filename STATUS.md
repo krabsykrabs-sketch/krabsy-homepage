@@ -1,6 +1,6 @@
 # Krabsy — status dashboard
 
-## Live classroom (2026-11-25, built, not deployed)
+## Live classroom (2026-11-26, LIVE on hidden links; verified on krabsy.com: presence, material via + Add, ▶ to a typed step, typing mirrored in 0.37 s over the internet, ghost hand, star, End → note saved, 0 errors; test space deleted. First real lesson with Nora 2026-11-27; setup: docs/live-lesson-guide.md)
 
 Zoom for face and voice, Krabsy as the shared workspace: the tutor starts a live lesson from the
 space, the student's own page (`/en/spanish/me/#k=…`) switches to it, the tutor sees a mirror, points,
