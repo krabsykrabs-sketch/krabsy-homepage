@@ -344,7 +344,7 @@ def page(title, desc, path, crumbs, body, ld):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="de_DE">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <style>{WEB_CSS}</style>
 {lds}
 </head><body>

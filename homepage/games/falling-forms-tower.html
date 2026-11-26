@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=1024">
   <meta name="description" content="Falling Forms — an arcade-style speed drill for irregular English verbs.">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link href="/lib/fonts/krabsy-fonts.css" rel="stylesheet">
+  <link href="/lib/fonts/krabsy-fonts.css?v=2026-11-26f" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    FALLING FORMS (TOWER) — Krabsy speed drill
@@ -44,7 +44,7 @@
 html, body {
   margin: 0;
   height: 100vh;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
   overflow: hidden;
@@ -96,7 +96,7 @@ body::before {
   box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .ff-round {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.1rem;
   letter-spacing: 0.8px;
   color: var(--charcoal);
@@ -137,7 +137,7 @@ body::before {
   box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .ff-panel-label {
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 1.6px;
@@ -146,7 +146,7 @@ body::before {
   text-transform: uppercase;
 }
 .ff-panel-value {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.7rem;
   line-height: 1;
   color: var(--charcoal);
@@ -216,7 +216,7 @@ body::before {
   margin-top: 4px;
 }
 .ff-history-row {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 0.95rem;
   color: var(--charcoal);
   padding: 6px 10px;
@@ -231,7 +231,7 @@ body::before {
 .ff-history-row.is-fade-2 { opacity: 0.4; }
 
 .ff-next {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.6rem;
   color: var(--coral);
   opacity: 0.55;
@@ -332,7 +332,7 @@ body::before {
               border-color 0.25s ease, width 0.25s ease;
 }
 .ff-block.is-landed .ff-landed-verb {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.05rem;
   color: var(--off-white);
   letter-spacing: 0.6px;
@@ -348,19 +348,19 @@ body::before {
   flex-wrap: nowrap;
 }
 .ff-trio-base {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.9rem;
   color: var(--charcoal);
   letter-spacing: 0.5px;
 }
 .ff-trio-arrow {
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 1.1rem;
   color: var(--lavender-deep);
   opacity: 0.7;
 }
 .ff-trio-slot {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.6rem;
   min-width: 90px;
   padding: 6px 12px;
@@ -443,7 +443,7 @@ body::before {
 /* Floating score pop */
 .ff-score-pop {
   position: absolute;
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.7rem;
   color: var(--coral-deep);
   pointer-events: none;
@@ -485,7 +485,7 @@ body::before {
   color: var(--off-white);
   border: none;
   border-radius: var(--r-md);
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.25rem;
   letter-spacing: 0.6px;
   cursor: pointer;
@@ -501,7 +501,7 @@ body::before {
 .ff-answer .ff-answer-key {
   display: block;
   margin-top: 14px;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.62rem;
   letter-spacing: 1.5px;
   color: var(--lavender-deep);
@@ -541,7 +541,7 @@ body::before {
   justify-content: center;
   background: rgba(42, 36, 56, 0.55);
   border-radius: var(--r-lg);
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 3rem;
   color: var(--off-white);
   letter-spacing: 2px;
@@ -552,7 +552,7 @@ body::before {
 }
 .ff-pause-overlay small {
   font-size: 0.8rem;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   letter-spacing: 1.5px;
   margin-top: 16px;
   opacity: 0.8;
@@ -587,7 +587,7 @@ body::before {
   width: 100%;
 }
 .ff-title {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 3.6rem;
   color: var(--coral-deep);
   letter-spacing: 1.5px;
@@ -609,7 +609,7 @@ body::before {
   color: var(--off-white);
   border: none;
   border-radius: 999px;
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.15rem;
   letter-spacing: 1px;
   cursor: pointer;
@@ -651,7 +651,7 @@ body::before {
   text-transform: uppercase;
 }
 .ff-over-stat-value {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.7rem;
   color: var(--charcoal);
   margin-top: 4px;
@@ -659,7 +659,7 @@ body::before {
 .ff-over-stat-value.is-coral { color: var(--coral-deep); }
 .ff-over-reason {
   margin-top: 8px;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.72rem;
   color: var(--charcoal-soft);
   letter-spacing: 1.6px;
@@ -671,7 +671,7 @@ body::before {
   padding: 6px 18px;
   background: linear-gradient(90deg, var(--coral), var(--coral-deep));
   color: var(--off-white);
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 0.85rem;
   letter-spacing: 1.6px;
   border-radius: 999px;
@@ -687,7 +687,7 @@ body::before {
   overflow-y: auto;
 }
 .ff-chain-grid-row {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 0.78rem;
   color: var(--charcoal);
   background: rgba(205, 217, 180, 0.35);

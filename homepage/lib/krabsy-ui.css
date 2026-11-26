@@ -9,7 +9,7 @@
      • Animate transform: translate() only (GPU-composited).
    ────────────────────────────────────────────────────────────────────────── */
 
-@import url('/lib/fonts/krabsy-fonts.css');
+@import url('/lib/fonts/krabsy-fonts.css?v=2026-11-26f');
 
 :root {
   /* Palette — match exactly, do not invent new colors */
@@ -28,8 +28,8 @@
   --krabsy-white:         #ffffff;
 
   /* Typography */
-  --font-display: 'Limelight', cursive;
-  --font-body:    Verdana, Geneva, sans-serif;
+  --font-display: 'Fredoka Display', 'Nunito', sans-serif;
+  --font-body:    'Nunito', system-ui, sans-serif;
 
   /* Radii */
   --radius-sm: 8px;
@@ -67,7 +67,7 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Headings — Limelight, no defaults that break layout */
+/* Headings — Fredoka Display (Fredoka 600), no defaults that break layout */
 .k-h1, .k-h2, .k-h3 {
   font-family: var(--font-display);
   font-weight: normal;

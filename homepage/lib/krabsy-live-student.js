@@ -36,7 +36,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 let cssDone = false;
 function loadCss() {
   if (cssDone) return; cssDone = true;
-  for (const href of ['/lib/fonts/krabsy-fonts.css', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-26']) {
+  for (const href of ['/lib/fonts/krabsy-fonts.css?v=2026-11-26f', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-26']) {
     if (document.querySelector(`link[href="${href}"]`)) continue;
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l);
   }

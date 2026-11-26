@@ -143,7 +143,7 @@
    student page /en/spanish/me/ and the live classroom (they load this file too,
    without that class) keep the rules above unchanged.
    Look: the approved prototype docs/prototype/tutor-v2 (css/app.css) on the Krabsy
-   tokens: cream, Limelight titles, Nunito text, Fredoka One numbers, coral buttons.
+   tokens: cream, Fredoka titles, Nunito text, Fredoka One numbers, coral buttons.
    Performance rules of krabsy-ui.css apply (no blur, animate transform only).
    ══════════════════════════════════════════════════════════════════════════ */
 body.kt-pro {

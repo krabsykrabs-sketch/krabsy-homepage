@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
-FOOTER_V = '2026-11-25'
+FOOTER_V = '2026-11-26f'
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [
@@ -252,7 +252,7 @@ def build_topic_hub(t):
     title = f'Spanish: {t["title"]}'
     desc = f'Spanish games and drills for beginners: {t["short"]}. Free, no sign-up.'
     s = head(title, desc, url) + '''  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
 ''' + style_of('de/praepositionen/index.html') + f'''
 </head>
@@ -313,7 +313,7 @@ def build_teachers():
     s = head('Krabsy for Spanish teachers',
              'Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.', url) + \
         f'''  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-23">
   <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
 </head>
@@ -365,7 +365,7 @@ def build_games_hub():
     url = '/en/spanish/games/'
     s = head('Spanish games', 'Free 3D games for learning Spanish: cook, jump and build towers with Spanish sentences.', url) + \
         '''  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
 ''' + style_of('de/spiele/index.html') + f'''
 </head>
 <body>

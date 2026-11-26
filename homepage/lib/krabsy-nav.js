@@ -504,7 +504,7 @@ function guardedGameClick(ev, href, strings) {
 function injectGameNavStyles() {
   if (document.getElementById('k-game-nav-styles')) return;
   const css = `
-    @import url('/lib/fonts/krabsy-fonts.css');   /* Limelight for the logo — games don't load krabsy-ui.css */
+    @import url('/lib/fonts/krabsy-fonts.css?v=2026-11-26f');   /* Fredoka Display for the logo — games don't load krabsy-ui.css */
     .k-game-nav {
       position: fixed; top: 0; left: 0; right: 0; height: 48px;
       z-index: 9999;
@@ -512,12 +512,12 @@ function injectGameNavStyles() {
       padding: 0 14px; gap: 12px;
       background: #ffffff;
       color: #2c2a3a;
-      font-family: Verdana, Geneva, sans-serif;
+      font-family: 'Nunito', system-ui, sans-serif;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
       box-sizing: border-box;
     }
     .k-game-nav-logo {
-      font-family: 'Limelight', Georgia, serif;
+      font-family: 'Fredoka Display', 'Nunito', sans-serif;
       font-size: 1.35rem; color: #2c2a3a; line-height: 1;
       letter-spacing: -0.5px;
       display: inline-flex; align-items: center;
@@ -535,7 +535,7 @@ function injectGameNavStyles() {
     }
     .k-game-nav-chips::-webkit-scrollbar { display: none; }
     .k-game-nav-chip {
-      font-family: Verdana, Geneva, sans-serif;
+      font-family: 'Nunito', system-ui, sans-serif;
       font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px;
       padding: 4px 10px; border-radius: 999px;
       white-space: nowrap;
@@ -569,9 +569,9 @@ function injectGameNavStyles() {
       background: #ffffff; border-radius: 16px; padding: 24px;
       width: 380px; max-width: 100%;
       box-shadow: 0 6px 20px rgba(44,42,58,0.20);
-      font-family: Verdana, Geneva, sans-serif; color: #2c2a3a;
+      font-family: 'Nunito', system-ui, sans-serif; color: #2c2a3a;
     }
-    .k-nav-confirm-title { font-family: 'Limelight', Georgia, serif; font-size: 1.2rem; margin: 0 0 8px; color: #2c2a3a; }
+    .k-nav-confirm-title { font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 1.2rem; margin: 0 0 8px; color: #2c2a3a; }
     .k-nav-confirm-body { color: #6e6c80; margin: 0 0 18px; line-height: 1.45; font-size: 0.95rem; }
     .k-nav-confirm-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
     .k-nav-confirm-actions [data-action] {

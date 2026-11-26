@@ -171,7 +171,7 @@ function injectCounterStyles() {
       min-height: 32px; padding: 0 12px; margin: 0 10px 0 auto;
       border-radius: 999px; background: #fff4d6; box-shadow: inset 0 0 0 1.5px #ffcf5e;
       color: #2c2a3a; text-decoration: none; white-space: nowrap; line-height: 1;
-      font-family: Verdana, Geneva, sans-serif; font-size: 0.85rem; font-weight: 700;
+      font-family: 'Nunito', system-ui, sans-serif; font-size: 0.85rem; font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
     .k-shells:hover { background: #ffe9ad; color: #2c2a3a; }

@@ -429,7 +429,7 @@ def download_page(lang, LL, PP, kinds):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="{'de_DE' if lang == 'de' else 'es_ES'}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-23">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <style>{PAGE_CSS}</style>
   <script type="application/ld+json">{json.dumps(crumbs_ld, ensure_ascii=False)}</script>
 </head><body>

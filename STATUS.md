@@ -14,6 +14,21 @@ Contract, deviations, how to use it and known limits: `docs/live-classroom.md` (
 Living overview of every game and the project. Master session updates this
 at the end of each session. (Last update: 2026-11-25.)
 
+## Look: new site fonts + new crab (2026-11-26)
+
+- **Fonts switched (owner: "let's go with Fredoka"), committed, not deployed:** site headings
+  `'Fredoka Display'` = Fredoka 600 as one fixed-weight face (so the ~400 generated pages with
+  `font-weight: normal` headings need no edits), text = Nunito (variable, real bold now; before,
+  700–900 were faked from the 400 file). Limelight and Verdana are gone from site CSS/JS, the
+  drills and `style.css`; Limelight files deleted. Games keep their own Fredoka One. Versions
+  bumped to `2026-11-26f` (krabsy-ui/-nav/-class/-tutor, krabsy-fonts.css imports, generators).
+- **New crab (in progress):** owner wants the mascot in the chunky 3D style of the games, same
+  character. A primitive-built Three.js draft (`homepage/design-preview/`, local only, untracked)
+  was "not good enough". Next: Gemini reference images (made 2026-11-26, in
+  `_incoming/krabsy-crab/`: front-1..3, straight-1..2, turnaround-1..2) → image-to-3D (Tripo /
+  Meshy / Rodin / Hunyuan3D) → Blender cleanup (Blender 4.5 on Windows): fewer polygons, split
+  into body / claws / thumbs / legs / eyes for procedural animation, small GLB.
+
 ## ⭐ BIG TODO: 4teachers route (owner, 2026-11-25: "I definitely need to go down this route", start in a few days)
 
 The 4teachers English editor (liko, 4t-Eng-Red.) answered on 2026-11-25 and

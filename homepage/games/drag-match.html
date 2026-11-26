@@ -8,12 +8,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Drag Match — ziehe Simple Past und Past Participle zur richtigen Grundform.">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link href="/lib/fonts/krabsy-fonts.css" rel="stylesheet">
+  <link href="/lib/fonts/krabsy-fonts.css?v=2026-11-26f" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    DRAG MATCH — Krabsy drill, arcade-shell variant
    Shares the Falling Forms / Lückentext / Type Race visual system:
-   lavender gradient + dot pattern, frosted-glass panels, Limelight display.
+   lavender gradient + dot pattern, frosted-glass panels, Fredoka display.
    Semantic colors are LOCKED:
      · coral         → action / focus only
      · sage          → CORRECT only
@@ -67,7 +67,7 @@ html.is-embedded #dm-close-btn { display: none; }
 html, body {
   margin: 0;
   height: 100vh;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
   overflow: hidden;
@@ -118,7 +118,7 @@ body::before {
   box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .dm-round {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.1rem;
   letter-spacing: 0.8px;
   color: var(--charcoal);
@@ -159,7 +159,7 @@ body::before {
   box-shadow: var(--shadow-elev), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .dm-panel-label {
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 1.6px;
@@ -168,7 +168,7 @@ body::before {
   text-transform: uppercase;
 }
 .dm-panel-value {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.7rem;
   line-height: 1;
   color: var(--charcoal);
@@ -179,7 +179,7 @@ body::before {
 /* SCORE — coral, with "/ 16" max */
 .dm-panel-score .dm-panel-value { font-size: 2.1rem; color: var(--coral-deep); }
 .dm-score-max {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.0rem;
   color: var(--charcoal-soft);
   margin-left: 4px;
@@ -200,10 +200,10 @@ body::before {
 .dm-panel-streak.is-hot .dm-streak-fire { opacity: 1; }
 .dm-panel-streak.is-hot .dm-panel-value { color: var(--coral-deep); }
 
-/* TIME — Limelight number, neutral color, decimal seconds */
+/* TIME — Fredoka number, neutral color, decimal seconds */
 .dm-panel-time .dm-panel-value { font-size: 1.85rem; }
 .dm-time-unit {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.0rem;
   color: var(--charcoal-soft);
   margin-left: 3px;
@@ -211,7 +211,7 @@ body::before {
 
 .dm-sidebar-hint {
   margin: 4px 2px 0;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.72rem;
   font-style: italic;
   color: var(--lavender-deep);
@@ -247,7 +247,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.86rem;
   letter-spacing: 0.4px;
@@ -256,7 +256,7 @@ body::before {
 }
 /* Grammar term: small secondary caption only (presentation mandate) */
 .dm-term {
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 0.56rem;
   font-weight: 400;
   letter-spacing: 0.8px;
@@ -281,7 +281,7 @@ body::before {
   color: var(--off-white);
 }
 .dm-progress-text {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.0rem;
   color: var(--charcoal);
   letter-spacing: 0.5px;
@@ -299,7 +299,7 @@ body::before {
   background: var(--sage);
   color: #4a5a2c;
   border-radius: var(--r-md);
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.1rem;
   letter-spacing: 0.6px;
   opacity: 0;
@@ -342,7 +342,7 @@ body::before {
 }
 .dm-col-head-gap { width: 14px; }
 .dm-pos {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.05rem;
   line-height: 1;
   color: var(--lavender-deep);
@@ -409,7 +409,7 @@ body::before {
   background: var(--lavender);
   border: 2px solid transparent;
   border-radius: 999px;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--charcoal);
@@ -432,7 +432,7 @@ body::before {
   padding: 0 14px;
   background: var(--sage);
   color: var(--sage-correct);
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.92rem;
   border-radius: 999px;
@@ -503,7 +503,7 @@ body::before {
   padding: 0 28px 0 14px;
   background: var(--sage);
   color: var(--sage-correct);
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   border-radius: 999px;
@@ -543,7 +543,7 @@ body::before {
   background: var(--lavender);
   border: 2px solid transparent;
   border-radius: 999px;
-  font-family: Verdana, Geneva, sans-serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--charcoal);
@@ -611,7 +611,7 @@ body::before {
   width: 100%;
 }
 .dm-title {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 3.4rem;
   color: var(--coral-deep);
   letter-spacing: 1.5px;
@@ -633,7 +633,7 @@ body::before {
   color: var(--off-white);
   border: none;
   border-radius: 999px;
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.15rem;
   letter-spacing: 1px;
   cursor: pointer;
@@ -676,7 +676,7 @@ body::before {
   text-transform: uppercase;
 }
 .dm-done-stat-value {
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 1.55rem;
   color: var(--charcoal);
   margin-top: 4px;
@@ -689,7 +689,7 @@ body::before {
   padding: 6px 18px;
   background: linear-gradient(90deg, var(--coral), var(--coral-deep));
   color: var(--off-white);
-  font-family: 'Limelight', cursive;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
   font-size: 0.85rem;
   letter-spacing: 1.6px;
   border-radius: 999px;
