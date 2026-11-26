@@ -7,6 +7,8 @@
 //   onDrag(piece|null)      a drag started (piece) or ended (null)
 //   onDrop(piece, target)   the answer
 // The pieces and targets are found by selector; `.is-full` targets do not wait.
+const PAD = 40;   // px around a target that still counts as "on it"
+
 export function dragTap(root, { piece, target, onDrop, onPick, onWait, onDrag }) {
   let picked = null, waiting = null, suppress = false, dead = false;
   const clear = () => {
@@ -19,7 +21,30 @@ export function dragTap(root, { piece, target, onDrop, onPick, onWait, onDrag })
     const p = e.target.closest(piece);
     if (dead || !p || p.disabled || e.button > 0 || !root.contains(p)) return;
     const sx = e.clientX, sy = e.clientY; let ghost = null, over = null;
-    const hit = ev => { const el = document.elementFromPoint(ev.clientX, ev.clientY); const t = el && el.closest(target); return t && root.contains(t) ? t : null; };
+    // Forgiving drop (owner 2026-11-26: "you need to be super precise"): the target under the
+    // pointer wins; else the target the dragged word overlaps most; else the nearest target
+    // within PAD px of the pointer. The highlight while dragging uses the same rule.
+    const hit = ev => {
+      const el = document.elementFromPoint(ev.clientX, ev.clientY); const t0 = el && el.closest(target);
+      if (t0 && root.contains(t0)) return t0;
+      const all = [...root.querySelectorAll(target)].filter(t => t.getClientRects().length);
+      if (ghost) {
+        const g = ghost.getBoundingClientRect(); let best = null, most = 0;
+        for (const t of all) {
+          const r = t.getBoundingClientRect();
+          const a = Math.max(0, Math.min(r.right, g.right) - Math.max(r.left, g.left)) * Math.max(0, Math.min(r.bottom, g.bottom) - Math.max(r.top, g.top));
+          if (a > most) { most = a; best = t; }
+        }
+        if (best) return best;
+      }
+      let near = null, nd = PAD;
+      for (const t of all) {
+        const r = t.getBoundingClientRect();
+        const d = Math.hypot(Math.max(r.left - ev.clientX, 0, ev.clientX - r.right), Math.max(r.top - ev.clientY, 0, ev.clientY - r.bottom));
+        if (d < nd) { nd = d; near = t; }
+      }
+      return near;
+    };
     const move = ev => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy;
       if (!ghost && Math.hypot(dx, dy) > 8) {
