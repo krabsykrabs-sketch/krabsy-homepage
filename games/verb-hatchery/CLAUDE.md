@@ -1130,3 +1130,11 @@ Built (lead, Opus, 2026-11-26):
   900×500 touch: no overlaps.
 - 3: egg-pad sign 4:1 (`padSign.scale.set(3.2, 0.8, 1)`).
 Not checked by eye: the intro swing at real frame rates (headless is slow).
+
+- 2026-11-26 (play-test): "animals look the wrong way after hatching, they should
+  face me, not the farm building". Cause: creatures waiting in an incubator had no
+  rotation (looked +z, at the hall); pen creatures looked fixed at −z. Now
+  `world._faceViewer` turns pen and waiting creatures smoothly towards the player
+  within 14 m (`world.viewer = player.pos`, set each frame in main), else back to −z.
+  Checked headless: pen creature turns to the player from east, west, north; at 40 m
+  it looks at the path again. 0 errors.

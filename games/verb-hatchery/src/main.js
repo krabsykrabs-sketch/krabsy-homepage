@@ -1204,7 +1204,7 @@ function frameBody(now) {
     player.update(0);
   }
   hall.update(dt, animateCreature);
-  world.update(dt);
+  world.viewer = player.pos; world.update(dt);
   updateLabels();
 }
 
