@@ -452,7 +452,7 @@ class LivePage {
     else if (it.k === 'm') mat = await fetch('/data/materials/' + encodeURIComponent(it.file)).then((r) => { if (!r.ok) throw new Error('http'); return r.json(); });
     else if (it.k === 'v1') {
       const r = await api(`/api/tutor/student/worksheet?id=${this.P.sid}&worksheet_id=${it.wid}`, this.P.token);
-      const fe = await import('/lib/activities/from-engine.js?v=2026-11-26');
+      const fe = await import('/lib/activities/from-engine.js?v=2026-11-26b');
       mat = fe.fromV1Worksheet(r.worksheet);
     }
     if (!mat) throw new Error('no material');
@@ -632,7 +632,7 @@ class LivePage {
       const err = $('[data-err]', f); err.hidden = true;
       const old = btn.textContent; btn.disabled = true; btn.textContent = T.qpMake;
       try {
-        const fe = await import('/lib/activities/from-engine.js?v=2026-11-26');
+        const fe = await import('/lib/activities/from-engine.js?v=2026-11-26b');
         const name = (topics.find((t) => t.id === tp) || {}).name || tp;
         const mat = await fe.quickPractice({ topic: tp, count, mode, focus, lang: LANG, title: T.qpTitle(name) });
         const it = { key: uid(), k: 'qp', title: mat.title, ico: 'quick', sub: `${T.dQuick} · ${mat.steps[0].sentences.length} · ${(T.qpModes.find((x) => x[0] === mode) || ['', mode])[1]}`, material: mat, mid: mat.id };
