@@ -140,6 +140,7 @@ export const Level = {
       // Training level: fully guided (js/tutorial.js); answers per wave override.
       training: !!data.training,
       orePerWave: data.orePerWave,
+      trainingRightAnswers: data.trainingRightAnswers || 0,
     };
     return this.current;
   },

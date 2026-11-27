@@ -5,14 +5,14 @@ import { Level } from './level.js';
 // forced: one short line, a pulse on the one thing to press, and state.gate lets the
 // player do only that (input.js, ui.js, wave.js, forge.js and main.js check it).
 //
-//   1. arrows run along the road to the castle; tap the one glowing hex
-//   2. pick the archer tower
+//   1. arrows run along the road to the castle; pick the archer card
+//   2. place it on the one glowing hex next to the road
 //   3. its range circle: "it shoots by itself at anything in the circle"; start wave 1
 //   4. wave 1: watch
-//   5. the question card arrives: answer until the upgrade is paid
+//   5. the question card arrives: 2 right answers pay the upgrade, then it is empty
 //   6. tap the tower, 7. press upgrade
-//   8. start the last wave (answers allowed from now on)
-//   9. wave 2: "you can answer during a wave too"
+//   8. start the last wave (the card is empty after 2 right answers)
+//   9. wave 2: watch the stronger tower
 //      → won: training done (td3d_tutorial_done), level 1 opens
 //
 // Sets state.hint = { key, target, arg }, state.hintCells, state.hintRoad,
@@ -54,15 +54,16 @@ export const Tutorial = {
     const spots = Level.current.tutorialCells.map(([c, r]) => ({ cellX: c, cellY: r }));
 
     if (wave === 0) {
+      // Card first, then the map (owner's preferred way to build).
       if (!tower) {
         state.hintRoad = true;
-        gate.cells = spots;
-        if (state.buildCell) {
-          state.hint = { key: 'tutPickTower', target: 'tower:basic' };
-          gate.cards = ['basic'];
-        } else {
-          state.hint = { key: 'tutTapCell', target: null };
+        gate.cards = ['basic'];
+        if (state.placement.active && state.placement.towerType === 'basic') {
+          state.hint = { key: 'tutPlace', target: null };
           state.hintCells = spots.filter((s) => Grid.isAvailable(s.cellX, s.cellY));
+          gate.cells = spots;
+        } else {
+          state.hint = { key: 'tutPickArcher', target: 'tower:basic' };
         }
         return;
       }
@@ -101,9 +102,6 @@ export const Tutorial = {
       gate.answers = true;
       return;
     }
-    if (state.phase === 'BATTLE') {
-      state.hint = { key: 'tutAnswerAnytime', target: null };
-      gate.answers = true;
-    }
+    if (state.phase === 'BATTLE') state.hint = { key: 'tutWatchStrong', target: null };
   },
 };

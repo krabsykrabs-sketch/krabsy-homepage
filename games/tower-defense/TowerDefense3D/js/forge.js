@@ -91,6 +91,9 @@ export const Forge = {
     Questions.record(f.q, index === f.q.correctIndex);
     if (index === f.q.correctIndex) {
       state.stats.right += 1;
+      // Training: after enough right answers the card is empty (the upgrade is paid).
+      const need = Level.current.trainingRightAnswers;
+      if (need && state.stats.right >= need) f.ore = 0;
       f.lastGain = this.reward(f.streak);
       f.streak += 1;
       f.stage = 'right';

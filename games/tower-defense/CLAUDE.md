@@ -851,4 +851,19 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     ignored, every step, a wrong answer on the way, victory with 3 stars,
     level 1 opens without coach. Bot on level 1 unchanged. No errors.
 
+- 2026-11-27 — **Training follow-up** (owner): 2 questions, not 3, then the
+  card is empty; and the owner prefers building card first, then the map.
+  - `trainingRightAnswers: 2` in `levels/training.js`: after the 2nd right
+    answer the card's ore is set to 0 ("Leer! Starte die nächste Welle.");
+    wrong answers never empty it. Wave-1 bonus in training 3 → 12, so
+    12 + 2 × 9 = exactly the 30-coin upgrade.
+  - Training builds card first: "Pick the archer tower below" (only the
+    archer card works), then "Now tap the glowing hex next to the road"
+    (only that hex). Wave 2 line is now "Watch: your stronger tower hits
+    two skeletons at once" (the card is empty then). Unused tutorial
+    strings removed. Normal levels still accept both build orders.
+  - Checked in headless Chromium at 1366×768 (de) and 1024×768 touch (es):
+    hex before card ignored, wrong hex ignored, 1 wrong + 2 right answers →
+    card empty with 30 coins, upgrade, victory, level 1 opens. No errors.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.
