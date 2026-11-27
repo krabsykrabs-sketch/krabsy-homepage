@@ -16,6 +16,7 @@ all src/*.js. Run it after changing a game's src/ (on the source AND the served 
 or copy index.html over), e.g.:
 
   python3 tools/stamp_game_modules.py homepage/games/verb-dungeon games/verb-dungeon
+(modules in src/, or js/ for Verb Towers; a root ./main.js entry for the Platformer)
 """
 import hashlib
 import json
@@ -25,7 +26,8 @@ from pathlib import Path
 
 
 def stamp(game: Path) -> str:
-    src = sorted((game / 'src').glob('*.js'))
+    mdir = 'src' if (game / 'src').is_dir() else 'js'   # Verb Towers keeps its modules in js/
+    src = sorted((game / mdir).glob('*.js'))
     root_main = (game / 'main.js').exists()   # Verb Platformer: entry at ./main.js
     h = hashlib.sha1()
     for f in src + ([game / 'main.js'] if root_main else []):
@@ -39,14 +41,14 @@ def stamp(game: Path) -> str:
     if not m:
         sys.exit(f'{page}: no import map')
     imap = json.loads(m.group(2))
-    imports = {k: val for k, val in imap.get('imports', {}).items() if not k.startswith('./src/')}
+    imports = {k: val for k, val in imap.get('imports', {}).items() if not k.startswith(f'./{mdir}/')}
     for f in src:
-        imports[f'./src/{f.name}'] = f'./src/{f.name}?v={v}'
+        imports[f'./{mdir}/{f.name}'] = f'./{mdir}/{f.name}?v={v}'
     imap['imports'] = imports
     body = json.dumps(imap, indent=2, ensure_ascii=False)
     html = html[:m.start(2)] + body + html[m.end(2):]
 
-    entry = r'(?:\./)?main\.js' if root_main else r'src/main\.js'
+    entry = r'(?:\./)?main\.js' if root_main else mdir + r'/main\.js'
     html, n = re.subn(r'(<script type="module" src="' + entry + r')(\?v=[0-9a-f]+)?(")',
                       rf'\g<1>?v={v}\3', html)
     if n != 1:

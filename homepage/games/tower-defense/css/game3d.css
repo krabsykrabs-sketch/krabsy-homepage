@@ -954,3 +954,11 @@ body.game-inactive #bottom-dock { display: none; }
 }
 /* Tutorial: the upgrade button in the tower panel pulses. */
 #tower-info.hint-upgrade [data-action="upgrade"] { animation: hint-pulse 1s ease-in-out infinite; }
+
+/* Archer first: other cards carry a padlock until an archer stands. */
+.tower-lock { display: none; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)); }
+.tower-btn.locked .tower-lock { display: block; }
+.tower-btn.locked .tower-thumb { opacity: 0.45; }
+#tower-pop .pop-lock { color: var(--amber); font-family: var(--display); margin-top: 2px; }
+.tower-btn.locked.disabled { filter: none; }
+.tower-btn.locked .tower-btn-cost { opacity: 0.5; }

@@ -6,7 +6,7 @@ import { Tower } from './tower.js';
 import { Renderer } from './renderer.js';
 import { Grid } from './grid.js';
 import { Wave } from './wave.js';
-import { state, sellTower } from './main.js';
+import { state, sellTower, isTowerLocked } from './main.js';
 import { Track } from './analytics.js';
 
 // Mouse, touch, and keyboard handling. Placement is allowed during BUILD and BATTLE
@@ -194,6 +194,7 @@ export const Input = {
   _place(type, cellX, cellY) {
     const def = CONFIG.TOWERS[type];
     if (!def) return false;
+    if (isTowerLocked(type)) return false;
     if (!Grid.isAvailable(cellX, cellY)) return false;
     if (state.coins < def.cost) return false;
 
@@ -248,6 +249,7 @@ export const Input = {
   toggleTowerPlacement(type) {
     if (!CONFIG.TOWERS[type]) return;
     if (!this._gameAcceptsInput()) return;
+    if (isTowerLocked(type)) { Sound.play('nope'); return; }
     // A building spot is already chosen: build there straight away.
     if (state.buildCell) {
       if (!this._place(type, state.buildCell.cellX, state.buildCell.cellY)) {

@@ -238,6 +238,12 @@ export function isUnlocked(levelIndex) {
   return UNLOCK_ALL || levelIndex === 0 || getStars(levelIndex - 1) > 0;
 }
 
+// Archer first (owner, 2026-11-27): the other towers are weak openers, so they stay
+// locked until an archer tower stands on the board (again after selling the last one).
+export function isTowerLocked(type) {
+  return type !== 'basic' && !state.towers.some((t) => t.type === 'basic');
+}
+
 export function hasNextLevel() {
   return currentLevelIndex + 1 < LEVELS.length;
 }
