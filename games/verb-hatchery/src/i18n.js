@@ -304,7 +304,8 @@ function pickLang() {
 }
 export const lang = pickLang();
 // Topic-neutral texts (docs/game-contract.md 7): the default texts speak of verbs;
-// other topics override those few keys. One set covers every Spanish topic (es_*).
+// other topics override those few keys. One set covers every Spanish topic (es_*), one
+// every English sentence topic (en_*: simple past, present simple … ; 2026-11-27).
 const TOPIC = (() => { try { return new URLSearchParams(location.search).get('topic') || 'irregular_verbs'; } catch (_) { return 'irregular_verbs'; } })();
 const SENTENCES = {
   en: { bookHow: 'Each place on the island has its own creatures. Rarer eggs ask harder sentences.',
@@ -317,8 +318,8 @@ const SENTENCES = {
     eggRolled: 'El huevo se fue rodando. Esta frase volverá pronto.',
     wordsTitle: 'Frases para practicar', wordsNone: '¡Ahora no hay frases para practicar. Genial!' },
 };
-const TOPIC_TEXT = { prepositions: SENTENCES, es_ser: SENTENCES };
-const TOPIC_KEY = TOPIC_TEXT[TOPIC] ? TOPIC : (/^es_/.test(TOPIC) ? 'es_ser' : TOPIC);
+const TOPIC_TEXT = { prepositions: SENTENCES, es_ser: SENTENCES, en_sentences: SENTENCES };
+const TOPIC_KEY = TOPIC_TEXT[TOPIC] ? TOPIC : /^es_/.test(TOPIC) ? 'es_ser' : /^en_/.test(TOPIC) ? 'en_sentences' : TOPIC;
 export function t(key, ...args) {
   const TT = TOPIC_TEXT[TOPIC_KEY] && (TOPIC_TEXT[TOPIC_KEY][lang] || TOPIC_TEXT[TOPIC_KEY].en);
   const v = (TT && TT[key]) ?? (T[lang] && T[lang][key]) ?? T.en[key];

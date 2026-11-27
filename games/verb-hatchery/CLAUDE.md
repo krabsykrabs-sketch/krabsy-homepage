@@ -1147,3 +1147,10 @@ Not checked by eye: the intro swing at real frame rates (headless is slow).
   pages don't keep the old one. **For the master:** switch `games.json` (thumbnail,
   thumb_small, hero) + re-render the pages that reference `verb-hatchery.jpg`, commit
   the two images.
+
+- 2026-11-27 (master request): English sentence topics (en_simple_past,
+  en_present_simple, en_present_progressive, en_present_perfect) use the sentence
+  texts (`i18n.js` `/^en_/` → `en_sentences`: Book line, roll-away line, "Sentences to
+  practise" in EN/DE/ES). Checked on a site-like server: `?topic=en_present_perfect&lang=de`
+  asks "___ your brother finished school yet?" with German sentence texts; en_simple_past
+  (es), en_present_simple (en), es_ser and verbs unchanged; 0 errors, 0 404s.
