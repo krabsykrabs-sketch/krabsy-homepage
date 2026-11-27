@@ -488,7 +488,7 @@ def build_teachers():
       </div>
     </main>
 
-{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-25"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
+{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-27"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
     return url, s
 
 
