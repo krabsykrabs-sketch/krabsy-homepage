@@ -98,6 +98,12 @@ the ES equivalents and their subpages. `/de/` and `/es/` keep meaning
 (`/de/spanisch/…`, like `/en/spanish/…`). If a page must ever move, add a
 301 in `docs/nginx-krabsy.conf`, never just delete it.
 
+**Language independence is a contract (owner, 2026-11-27): `docs/i18n-scaling.md`.**
+Any taught language × any interface language, everything filled from
+catalogues: no visible text in code, no `de ? … : …`, content texts as
+language maps, sections = interface × subject, fallback never empty. All new
+and changed code follows its 10 rules; its status table lists what's left.
+
 ## Teacher practice links (2026-11-25)
 
 Teacher pages (`/de/lehrkraefte/#uebungslink`, `/es/docentes/#enlace-de-practica`,
