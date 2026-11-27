@@ -44,7 +44,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25e">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
 </head>
@@ -125,10 +126,13 @@
             </span>
               <button class="lf-arrow lf-next" type="button" data-pick="1" aria-label="Nächste Figur" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             </div>
-            <a class="lf-label" id="lf-link" href="/de/meine-figur/" data-profile-href="/de/profil/" data-profile-cta="Mein Profil">
-              <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> Muscheln</span></span>
-              <span class="lf-cta"><span id="lf-cta">Bau deine Figur</span> <span aria-hidden="true">→</span></span>
-            </a>
+            <div class="lf-acts">
+              <a class="lf-label" id="lf-link" href="/de/meine-figur/" data-profile-href="/de/profil/" data-profile-cta="Mein Profil">
+                <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> Muscheln</span></span>
+                <span class="lf-cta"><span id="lf-cta">Bau deine Figur</span> <span aria-hidden="true">→</span></span>
+              </a>
+              <a class="kp-go" href="/de/ueben/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Jetzt üben</span><span class="kp-go-sep"> · </span><span>5 Minuten</span></b><small data-kp-ring-text>0 von 3 diese Woche</small></span></a>
+            </div>
           </div>
         </div>
         <script>/* own figure's picture right away (no flash of the default one) */try{var f=JSON.parse(localStorage.getItem("krabsy_figure_v2")||"null");if(f&&/^[A-Za-z_]{1,40}$/.test(f.char))document.getElementById("lf-img").src="/assets/figures/portraits/"+f.char+".webp"}catch(_){}</script>
@@ -235,6 +239,7 @@
   </div>
 
   <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25j"></script>
+  <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

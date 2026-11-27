@@ -22,6 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-25d">
+  <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- The live figure (lib/krabsy-figure.js) imports three.js by name. It is loaded only
        after the page is up, and only for a child who saved a figure (lib/krabsy-profile.js). -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -41,6 +42,7 @@
         <h1 class="pf-title">Mi perfil</h1>
         <p class="pf-sub">Tu personaje, tus caracolas y todo lo que ya has conseguido.</p>
         <span class="pf-class-box" id="pfClass" hidden></span>
+        <a class="kp-go pf-go" href="/es/practicar/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practicar ahora</span><span class="kp-go-sep"> · </span><span>5 minutos</span></b><small data-kp-ring-text>0 de 3 esta semana</small></span></a>
       </div>
 
       <!-- Figure + shells. The static content is the new-visitor state; lib/krabsy-profile.js
@@ -80,6 +82,7 @@
     </footer>
   </div>
   <script type="module" src="/lib/krabsy-profile.js?v=2026-11-25d"></script>
+  <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-25d" defer></script>

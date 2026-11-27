@@ -64,6 +64,9 @@
     // Profile page "Mein Profil" (2026-11-25)
     '/de/profil/':                   '/es/perfil/',
     '/es/perfil/':                     '/de/profil/',
+    // Practice session "Jetzt üben" (2026-11-27)
+    '/de/ueben/':                      '/es/practicar/',
+    '/es/practicar/':                  '/de/ueben/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a

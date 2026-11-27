@@ -224,7 +224,15 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
 .lf-label:active .lf-cta { transform: translateY(2px); box-shadow: 0 1px 0 var(--coral-aa-deep); }
 .lf-label:focus-visible { outline: none; }
 .lf-label:focus-visible .lf-cta { outline: 3px solid var(--krabsy-ink); outline-offset: 2px; }
+/* "Jetzt üben · 5 Minuten" with the weekly ring (.kp-go in krabsy-practice.css), under the profile button */
+.lf-acts { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+@media (max-width: 559px) {      /* phones: figure + profile button in a row, the practice button full width below */
+  .lf-link { flex-wrap: wrap; row-gap: 8px; }
+  .lf-acts { display: contents; }
+  .lf-acts .kp-go { flex: 1 1 100%; justify-content: center; }
+}
 @media (min-width: 1000px) {
+  .lf-acts { align-items: center; gap: 12px; }
   .lf { margin-top: 0; }
   .lf-link { flex-direction: column; justify-content: flex-end; gap: 2px; padding-bottom: 4px; }
   .lf-stage { width: 180px; height: 186px; }
@@ -359,3 +367,7 @@ a.gt:hover .gt-play, a.gt:focus-visible .gt-play { opacity: 1; }
 .gl-join a:hover { text-decoration: underline; }
 .gl-join .gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
   background: #e6f7f2; color: #0d4d3f; font-weight: 700; }
+@media (min-width: 1000px) {     /* the narrow figure column: title on two lines, without the dot */
+  .lf-acts .kp-go-txt b > .kp-go-sep { display: none; }
+  .lf-acts .kp-go-txt b > span { display: block; }
+}

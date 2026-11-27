@@ -199,6 +199,54 @@ with the child.
 
 ---
 
+## P1 as built (2026-11-27)
+
+- **Pages** `/de/ueben/`, `/es/practicar/`, `/en/spanish/practise/` (EN noindex like all of
+  /en/spanish/; DE/ES in the sitemap with hreflang, `krabsy-lang-switch.js` PARALLEL). Static
+  head + header/footer like the profile page; the session is `lib/krabsy-practice.js` + `.css`.
+- **The child's topics** = topics of the section (topics.json has a URL in the page language,
+  quiz shape) answered at least once (`krabsy_stats_v2`) + homework topics + the starter topic
+  (`irregular_verbs` on /de/ and /es/, `es_ser` on /en/spanish/).
+- **Step 1, warm-up:** 8 questions (`getQuizSet({ topic, count, smart: true, lang })`, chain
+  order kept) split over the up to 3 topics with the most due items (mastery < 3, or known and
+  past its repeat gap from `krabsy-smart.js`), at least 2 each, one block per topic. Nothing due
+  (new child) → 8 from the starter topic. Choice chips (keys 1–3), Sprint look.
+- **Step 2, one topic:** `?topic=` (student page) → the newest unfinished homework of this
+  section (`GET /api/tutor/me` with the active person's / class session's token, 4 s timeout,
+  skipped without a token; class pupils get 404 and skip) → the weakest topic (largest share of
+  answered items with mastery < 3, at least 2 such items) → the topic not practised for the
+  longest (never answered = oldest). ~5 questions (a verb pair may make it 6), items from step 1
+  left out when enough remain; homework `difficulty` filters sentence topics. An item never
+  answered before shows a teach card first (the full sentence / `go → went → gone`, plus the
+  teach note on sentence topics), then is asked. **Typed first** (`checkTyped`), "Lieber
+  auswählen" switches that question to chips; Spanish topics get á é í ó ú ñ keys. Own decision:
+  a typed answer that only misses an accent counts as right and shows "Richtig! Mit Akzent:
+  está" (children type on keyboards without accents).
+- **Every answer:** `recordAttempt(item, form, correct, 'practice', topic, 'choice'|'typed')`.
+- **Counts** when steps 1 and 2 are done (`addSession()` before the reward screen).
+- **Step 3, play:** up to 3 games of `games.json` with the topic, not `audience: "teacher"`,
+  `ui_langs` incl. the page language, linking to `<section games>/<id>/?topic=…` (homework adds
+  `difficulty`, `lang` = homework game language, `from=teacher`). The list starts at a different
+  game each session (total sessions mod n). Prepositions have only Verb Towers → 1 tile.
+- **Weekly ring** `lib/krabsy-practice-week.js`: `localStorage krabsy_practice_v1 =
+  { v, weeks: { "2026-W48": n }, total, last }` (ISO weeks in local time, last 12 kept; synced by
+  `krabsy-sync.js`, conflict = this device wins). Any `[data-kp-ring]` element gets the ring and
+  the text on import: "1 von 3 diese Woche" / "1 de 3 esta semana" / "1 of 3 this week", at 3
+  "Woche geschafft ✓" / "Semana lograda ✓" / "Week done ✓", more: "… · 4×". No daily goal, no
+  day counter, nothing is lost.
+- **Entry points:** landing pages `/de/`, `/es/`, `/en/spanish/` (`.kp-go` under the "Mein
+  Profil" button; phones: full width under the figure row; ≥ 1000 px: title on two lines);
+  profile pages (head row, after the subtitle on phones); student page `/en/spanish/me/`
+  ("Practise now", `?topic=` = the open homework; `krabsy-tutor.js`).
+- **Checked headless** (390×844 touch, 1024×768 touch, 1366×768; DE/ES/EN; 0 console errors):
+  new child (verbs only), verbs + prepositions answered (step 2 = prepositions "Das übst du
+  noch"), /en/spanish/ with `es_ser`, homework (API mocked: student page → es_tener, "Homework
+  from Nora", game links with difficulty/from=teacher), sessions 1–4 → ring 1/3, 2/3, "Woche
+  geschafft ✓", "· 4×"; Monday of the next ISO week → 0 von 3 (Sunday still counts); typed
+  answers right and wrong; keyboard only (Tab to start, 1–3, Enter); language switch DE ↔ ES.
+- **Open:** real devices; Spanish wording by a native speaker; a real homework from the API;
+  the gift card can appear mid-session (existing behaviour of the gifts module).
+
 ## Phases
 
 | Phase | What | Size |

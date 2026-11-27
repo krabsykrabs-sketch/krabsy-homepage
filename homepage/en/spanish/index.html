@@ -22,7 +22,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-25e">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <style>
     /* Spanish landing: four topic cards in two equal columns (the /de/ grid has 2 cards + quick links) */
     .pr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -96,10 +97,13 @@
             </span>
               <button class="lf-arrow lf-next" type="button" data-pick="1" aria-label="Next figure" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             </div>
-            <a class="lf-label" id="lf-link" href="/en/my-figure/" data-profile-href="/en/my-profile/" data-profile-cta="My profile">
-              <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> shells</span></span>
-              <span class="lf-cta"><span id="lf-cta">Build your figure</span> <span aria-hidden="true">→</span></span>
-            </a>
+            <div class="lf-acts">
+              <a class="lf-label" id="lf-link" href="/en/my-figure/" data-profile-href="/en/my-profile/" data-profile-cta="My profile">
+                <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> shells</span></span>
+                <span class="lf-cta"><span id="lf-cta">Build your figure</span> <span aria-hidden="true">→</span></span>
+              </a>
+              <a class="kp-go" href="/en/spanish/practise/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practise now</span><span class="kp-go-sep"> · </span><span>5 minutes</span></b><small data-kp-ring-text>0 of 3 this week</small></span></a>
+            </div>
           </div>
         </div>
         <script>/* own figure's picture right away (no flash of the default one) */try{var f=JSON.parse(localStorage.getItem("krabsy_figure_v2")||"null");if(f&&/^[A-Za-z_]{1,40}$/.test(f.char))document.getElementById("lf-img").src="/assets/figures/portraits/"+f.char+".webp"}catch(_){}</script>
@@ -203,6 +207,7 @@
   </div>
 
   <script type="module" src="/lib/krabsy-landing.js?v=2026-11-25j"></script>
+  <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

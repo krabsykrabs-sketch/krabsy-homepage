@@ -27,10 +27,11 @@ import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2
 import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-27';
 import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-27d';
 import { runningLessons, isRunning, markEnded, runningBar } from '/lib/krabsy-live-running.js?v=2026-11-27';
+import { mountRings } from '/lib/krabsy-practice-week.js?v=2026-11-27';
 
 const LANG = 'en';
 const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',
-  games: '/en/spanish/games/', home: '/en/spanish/' };
+  games: '/en/spanish/games/', home: '/en/spanish/', practise: '/en/spanish/practise/' };
 
 const T = {
   title: 'Krabsy for tutors',
@@ -113,6 +114,7 @@ const T = {
   meCounts: 'Everything you answer on this device goes to your tutor, and your figure and shells are saved for your other devices.',
   meAdultCounts: 'Everything you answer on this device goes to your tutor.',
   meQuick: 'Quick practice', meQuickSub: 'fastest way to your goal', meGames: 'Games', meGamesSub: 'more fun, takes a bit longer',
+  mePractise: 'Practise now', meMinutes: '5 minutes',
   meProfile: 'My figure and shells →', meWho: 'Not you? Switch player', meDone: 'Goal reached! 🎉',
   repTitle: (n) => `${n}: progress report`, repFrom: (t) => `from ${t}`, repWeeks: 'Answers per week', repWeekNames: ['this week', 'last week', '2 weeks ago', '3 weeks ago'],
   repLessons: (n, d) => `${n} lesson${n === 1 ? '' : 's'} noted${d ? `, the last on ${d}` : ''}`, repMap: 'Star map', repHw: 'Homework', repBad: 'This report link doesn’t work any more. Ask the tutor for a new one.',
@@ -722,6 +724,7 @@ async function renderMe(main) {
   main.innerHTML = `
     <h1>${esc(adult ? T.meAdultHi(d.name) : T.meHi(d.name))}</h1>
     <p class="kc-muted">${esc(adult ? T.meAdultFrom(d.tutor_name) : T.meFrom(d.tutor_name))}</p>
+    ${practiseHtml(d.homework, cat)}
     ${meHtml(wsList, d.tutor_name, topicName, cat)}
     ${d.homework.length ? d.homework.map(card).join('') : `<p class="kc-card">${adult ? T.meAdultNone : T.meNone}</p>`}
     <p class="kc-row"><a class="kc-btn kc-btn-ghost" href="${PATHS.games}">${T.meAll}</a>
@@ -729,7 +732,16 @@ async function renderMe(main) {
     <p class="kc-muted">${adult ? T.meAdultCounts : T.meCounts}</p>
     ${others ? `<p><button type="button" class="kc-link" id="kt-who">${T.meWho}</button></p>` : ''}`;
   if (others) $('#kt-who').addEventListener('click', () => showPicker({ onDone: () => { location.href = PATHS.me; location.reload(); } }));
+  try { mountRings(main); } catch (_) { /* ring stays empty */ }
   startMeLive(main);
+}
+
+/* "Practise now" (docs/student-path.md §1): the practice session starts with this
+   student's open homework (krabsy-practice.js reads it again, ?topic= is the fallback). */
+function practiseHtml(homework, cat) {
+  const open = (homework || []).find((h) => cat.ids.includes(h.topic) && !(h.goal && h.answers >= h.goal));
+  const href = PATHS.practise + (open ? '?topic=' + encodeURIComponent(open.topic) : '');
+  return `<p class="kt-practise"><a class="kp-go" href="${esc(href)}" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>${T.mePractise}</span><span class="kp-go-sep"> · </span><span>${T.meMinutes}</span></b><small data-kp-ring-text></small></span></a></p>`;
 }
 
 /* the student's page: one worksheet, and the tutor's live state */
