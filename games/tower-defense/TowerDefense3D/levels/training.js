@@ -6,7 +6,7 @@ window.LEVEL_TRAINING = {
   name: "Training",
   training: true,
   cols: 11,
-  rows: 5,
+  rows: 7,                 // rows 4–6 on the left stay free for the question card
   seed: 3,
   paths: [
     {

@@ -899,4 +899,36 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   Checked headless at 1366×768, 1024×768 touch, 390×844: camera identical
   before and after the card appears, full training run, no errors.
 
+- 2026-11-27 — **Round 12: question card bottom left, map full screen**
+  (owner idea; owner chose: automatic check + level redesign; tower bar to
+  the right of the card).
+  - Wide screens (landscape ≥ 760 px): the card is fixed bottom left, wide
+    and short (chain side by side, answers in a row), 390 × 196 px
+    (316 × 150 on short landscape), fixed height so the camera never
+    re-fits; the dock sits to its right. Phones in portrait keep the strip.
+  - **Levels keep the corner free:** `cornerFree` (default 5 columns ×
+    3 rows, bottom left) turns every building spot there into forest
+    (`level.js`); `tools/check-turns.mjs` now also fails if a road runs
+    through it and checks `training.js`. Rerouted: level 4 (one U-turn cell
+    moved right), level 5 (second gate now enters from the west at row 6),
+    training (7 rows instead of 5).
+  - **Camera** (`renderer._frameCamera`): full screen behind the card; then
+    `_cardCovers()` projects every road / spawn / castle / free spot and,
+    only if one would sit under the card (+14 px), the map moves up or
+    right in quarter steps of the card size, whichever keeps it bigger.
+    Measured: no level needs to move at 1366×768, 1024×768, 844×390 or
+    1920×1080.
+  - Long answers get a smaller font (`.long` ≥ 9, `.xlong` ≥ 12 letters)
+    instead of breaking mid-word. Phones: card min-height 176 px so the map
+    does not jump when the training card appears.
+  - Training arrow at the card now comes from the right (pointing at the
+    answers); all others from above.
+  - Bot (levels 4–5 after the reroute, 2 runs each): about as before
+    (100 % = 3 stars archers, 70 % about half won, 0 % lost).
+  - Checked in headless Chromium: all 7 levels at 4 landscape sizes (no
+    spot under the card, card and dock never overlap), phone portrait
+    unchanged, full training at 1366×768 and 390×844. No errors.
+  - Found on the way (site data, reported to the master): `have` has the
+    wrong answer "haved" twice in the irregular-verbs list.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.

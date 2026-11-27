@@ -232,12 +232,13 @@ export const UI = {
     }
     if (!r || (r.width === 0 && r.height === 0 && !state.hintArrowAt)) { el.classList.remove('on'); return; }
     const ui = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
-    // Targets on the right side of the screen (the side panel) get the arrow from the left.
-    const side = r.left > window.innerWidth * 0.55;
+    // The question card (bottom left): from its right side, pointing left at the
+    // answers, so the question stays readable. Everything else: from above.
+    const fromRight = h.target === 'forge';
     el.classList.add('on');
-    el.classList.toggle('right', side);
+    el.classList.toggle('left', fromRight);
     el.style.setProperty('--s', ui);
-    if (side) { el.style.left = `${r.left - 6}px`; el.style.top = `${r.top + r.height / 2}px`; }
+    if (fromRight) { el.style.left = `${r.right + 6}px`; el.style.top = `${r.top + r.height / 2}px`; }
     else { el.style.left = `${r.left + r.width / 2}px`; el.style.top = `${r.top - 4}px`; }
   },
 
@@ -749,6 +750,9 @@ export const UI = {
     let answersHtml = '';
     q.options.forEach((opt, i) => {
       let cls = 'forge-answer';
+      // Long words get a smaller font instead of breaking in the middle.
+      if (String(opt).length >= 12) cls += ' xlong';
+      else if (String(opt).length >= 9) cls += ' long';
       if (answered) {
         cls += ' locked';
         if (i === q.correctIndex) cls += ' correct';

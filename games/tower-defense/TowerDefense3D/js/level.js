@@ -121,6 +121,18 @@ export const Level = {
       cell.rot = Math.floor(turn * 6) * Math.PI / 3;
     }
 
+    // The bottom-left corner stays free for the question card (owner, 2026-11-27): no
+    // building spots there, just forest. tools/check-turns.mjs checks that no road
+    // runs through it; the camera moves the map only if a spot would still be covered.
+    const cf = data.cornerFree || { cols: 5, rows: 3 };
+    const rndCorner = seededRandom((data.seed || 1) + 99);
+    for (const cell of cells.values()) {
+      if (cell.type !== 'ground' || cell.c >= cf.cols || cell.r < rows - cf.rows) continue;
+      cell.type = 'scenery';
+      cell.model = SCENERY_FAR[Math.floor(rndCorner() * SCENERY_FAR.length)];
+      cell.rot = Math.floor(rndCorner() * 6) * Math.PI / 3;
+    }
+
     this.current = {
       name: data.name,
       season: data.season || 'summer',
