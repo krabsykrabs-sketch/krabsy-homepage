@@ -221,7 +221,13 @@ def page_html(sec):
     s = T[ui]
     url = sec["topics"]
     cards = section_cards(sec)
-    names = [pick(R.topics()[c["id"]].get("in_sentence"), ui) or c["name"] for c in cards]
+    # The landing's in_sentence wording when it names this topic ("verbos
+    # irregulares", "ser"); the topic's own name when in_sentence is a group
+    # label for several topics ("erste Zeitformen" on simple_past).
+    def _list_name(c):
+        own = pick(R.topics()[c["id"]].get("in_sentence"), ui)
+        return own if own and own.casefold() in c["name"].casefold() else c["name"]
+    names = [_list_name(c) for c in cards]
     names = [n for n in names if n]
     lst = names[0] if len(names) == 1 else ", ".join(names[:-1]) + s["and"] + names[-1] if names else ""
     desc = s["desc"].format(list=lst)
