@@ -57,20 +57,85 @@ a.k-lang-btn { text-decoration: none; display: inline-flex; align-items: center;
 .wrap { max-width: var(--wrap); margin: 0 auto; width: 100%; padding: 0 24px; }
 @media (max-width: 559px) { .wrap { padding: 0 16px; } }
 
-/* ── Headline (replaces the banner, still the h1) ─────────────────── */
-.gl-head { display: flex; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 10px; }
+/* ── Intro band (tools/render_landing_intro.py, owner brief 2026-11-27) ──
+   h1 + one line (which grammar, for whom, free / no sign-up / no ads) + three
+   actions + a quiet teacher line. Returning visitors: html.k-intro-ret (set in
+   the page head before first paint) shows only the h1 and the toggle;
+   #gl-head.is-open expands it again. Without JS the band is full. */
+.gl-head { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; }
 .gl-head-crab { width: 44px; height: 44px; flex: 0 0 auto; object-fit: contain; }
+.gl-head-main { flex: 1 1 auto; min-width: 0; }
+.gl-intro-top { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
 .gl-head h1 {
   font-family: var(--font-display); font-weight: normal;
   font-size: 1.5rem; line-height: 1.2; margin: 0; color: var(--krabsy-ink);
 }
-.gl-head h1 span { color: var(--coral-aa); }
-.gl-head-sub { margin: 2px 0 0; font-size: 0.86rem; color: var(--krabsy-ink-mute); display: none; }
-@media (min-width: 760px) { .gl-head-sub { display: block; } }
+.gl-intro-line { margin: 3px 0 0; font-size: 0.95rem; line-height: 1.4; color: var(--krabsy-ink); }
+.gl-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.gl-act {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 40px; padding: 0 16px; border-radius: var(--radius-pill);
+  background: #fff; box-shadow: inset 0 0 0 1.5px var(--krabsy-lavender);
+  color: var(--krabsy-ink); font-weight: 800; font-size: 0.9rem; text-decoration: none; white-space: nowrap;
+}
+.gl-act:hover { background: var(--krabsy-lavender-soft); }
+.gl-act-play { background: var(--g-teal); box-shadow: none; color: var(--g-navy); }
+.gl-act-play:hover { background: #5cefd1; }
+.gl-act > span { font-size: 1.05em; line-height: 1; }
+.gl-act:focus-visible { border-radius: var(--radius-pill); }
+.gl-join { margin: 4px 0 0; font-size: 0.8rem; line-height: 1.5; color: var(--krabsy-ink-mute); }
+.gl-join a { color: var(--krabsy-ink-mute); font-weight: 700; text-decoration: none; }
+.gl-join a:hover { color: var(--coral-aa); text-decoration: underline; }
+.gl-join .gl-join-teach { color: var(--coral-aa); }
+.gl-join-sep { margin: 0 2px; }
+.gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  background: #e6f7f2; color: #0d4d3f; font-weight: 700; font-size: 0.86rem; text-decoration: none; }
+.gl-class-badge:hover { background: #cdeee4; }
+.gl-intro-toggle {
+  display: none; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px 0 12px;
+  border: 0; border-radius: var(--radius-pill); background: transparent; box-shadow: inset 0 0 0 1.5px var(--krabsy-lavender);
+  color: var(--krabsy-ink); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.gl-intro-toggle:hover { background: var(--krabsy-lavender-soft); }
+.gl-intro-toggle:focus-visible { border-radius: var(--radius-pill); }
+.gl-intro-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5;
+  stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
+.gl-head.is-open .gl-intro-toggle svg { transform: rotate(180deg); }
+.k-intro-ret .gl-intro-toggle { display: inline-flex; }
+.k-intro-ret .gl-head:not(.is-open) .gl-intro-more { display: none; }
+.k-intro-ret .gl-head:not(.is-open) { padding-bottom: 10px; }
+
+/* Wide screens: h1 left, the three actions right of it; line + teacher line below */
+@media (min-width: 900px) {
+  .gl-head-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: center; }
+  .gl-intro-top { grid-column: 1; grid-row: 1; }
+  .gl-intro-more { display: contents; }
+  .gl-acts { grid-column: 2; grid-row: 1; justify-content: flex-end; }
+  .gl-intro-line, .gl-join, .gl-prog { grid-column: 1 / -1; }
+  .gl-intro-line { margin-top: 0; }
+}
+@media (max-width: 899px) {
+  .gl-head-crab { align-self: flex-start; }
+  .gl-acts { margin-top: 8px; }
+  .gl-join { margin-top: 6px; }
+}
 @media (max-width: 559px) {
-  .gl-head { padding-top: 8px; padding-bottom: 8px; gap: 10px; }
+  .gl-head { padding-top: 10px; padding-bottom: 10px; gap: 10px; }
   .gl-head-crab { width: 36px; height: 36px; }
-  .gl-head h1 { font-size: 1.02rem; }
+  .gl-head h1 { font-size: 1.15rem; text-wrap: balance; }
+  .gl-intro-more { margin-left: -46px; }        /* under the crab too: full width */
+  .gl-intro-line { font-size: 0.86rem; margin-top: 6px; }
+  .gl-acts { gap: 6px; }
+  .gl-act { flex: 1 1 auto; padding: 0 10px; font-size: 0.84rem; gap: 4px; }
+  .gl-join { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 0.78rem; }
+  .gl-join a { white-space: nowrap; }
+  .gl-join-sep { display: none; }
+  /* collapsed: h1 + a round chevron button on one row (its text stays the accessible name) */
+  .gl-intro-top { justify-content: space-between; }
+  .gl-intro-top h1 { flex: 1 1 calc(100% - 52px); }
+  .gl-intro-toggle { width: 40px; min-height: 40px; padding: 0; justify-content: center; flex: 0 0 auto; }
+  .gl-intro-toggle-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .gl-intro-toggle svg { width: 20px; height: 20px; }
 }
 
 /* ── Progress row (returning players only; hidden by default) ─────── */
@@ -91,8 +156,6 @@ a.k-lang-btn { text-decoration: none; display: inline-flex; align-items: center;
 .gl-prog-chip:hover { background: var(--coral-aa); color: #fff; }
 .gl-prog-link { font-weight: 700; color: var(--coral-aa); text-decoration: none; white-space: nowrap; }
 .gl-prog-link:hover { color: var(--coral-aa-deep); }
-/* Desktop: the progress row takes the subtitle's place, so the grid does not move down */
-.gl-head.has-progress .gl-head-sub { display: none; }
 @media (max-width: 559px) {
   /* line 1: accuracy · streak · stats link; line 2: verbs to practise */
   .gl-head.has-progress { align-items: flex-start; }
@@ -361,12 +424,6 @@ a.gt:hover .gt-play, a.gt:focus-visible .gt-play { opacity: 1; }
 
 .ch-footer-tagline { display: block; margin-top: 6px; font-size: 0.7rem; opacity: 0.85; }
 
-/* Class join link / badge under the headline (phase 2, 2026-11-22) */
-.gl-join { margin: 4px 0 0; font-size: 0.86rem; }
-.gl-join a { color: var(--coral-aa); font-weight: 700; text-decoration: none; }
-.gl-join a:hover { text-decoration: underline; }
-.gl-join .gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
-  background: #e6f7f2; color: #0d4d3f; font-weight: 700; }
 @media (min-width: 1000px) {     /* the narrow figure column: title on two lines, without the dot */
   .lf-acts .kp-go-txt b > .kp-go-sep { display: none; }
   .lf-acts .kp-go-txt b > span { display: block; }

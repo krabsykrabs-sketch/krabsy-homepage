@@ -69,6 +69,21 @@
     "footer_more_topics": "More grammar topics coming soon.",
     "footer_copyright": "© {year} Krabsy"
   },
+  "landing": {
+    "_doc": "Intro band on the section landing pages, rendered by tools/render_landing_intro.py ({topics} = the section's topics, topics.json in_sentence).",
+    "h1": "Practise Spanish grammar – with games",
+    "toggle": "What is Krabsy?",
+    "intro_line": "{topics} for beginners (A1). Free, no sign-up, no ads.",
+    "list_sep": ", ",
+    "list_last": " and ",
+    "acts_label": "Get started",
+    "btn_play": "Play",
+    "btn_practice": "Practise",
+    "btn_diploma": "Verb diploma",
+    "teachers": "Teacher? Practice links and a live Quiz Room →",
+    "join_class": "Got a class code? Join here →",
+    "join_quiz": "Got a Quiz Room code? Join here →"
+  },
   "progress_widget": {
     "empty_hint": "Start a drill to track your progress.",
     "tile_accuracy": "Accuracy",

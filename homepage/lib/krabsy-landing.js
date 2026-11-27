@@ -7,6 +7,9 @@
    3. shows the child's figure next to the featured tile: picture first, then
       the live 3D figure (krabsy-landing-figure.js), with shells and the link
       to "Mein Profil" (krabsy-me.js).
+   4. runs the intro band (tools/render_landing_intro.py): marks the visitor as
+      seen, so the next visit starts collapsed (the page head adds
+      html.k-intro-ret before first paint), and wires the "What is Krabsy?" toggle.
 
    Filter rules: a tile matches when its data-tags contain the filter. Counts
    use PLAYABLE games only (<a> tiles, the featured game included). A chip is
@@ -129,20 +132,44 @@ function expireNew() {
   }
 }
 
-/* Class session (phase 2): show "Klasse 6b · Mia" instead of the join link. */
+/* Intro band: first visit = full, later visits = one line (h1 + toggle).
+   Without JS (or storage) the band stays full. */
+const INTRO_SEEN = 'krabsy_intro_seen';
+function initIntro() {
+  const head = document.getElementById('gl-head');
+  const btn = document.getElementById('gl-intro-toggle');
+  if (!head || !btn) return;
+  btn.addEventListener('click', () => {
+    const open = !head.classList.contains('is-open');
+    head.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  try { localStorage.setItem(INTRO_SEEN, new Date().toISOString().slice(0, 10)); } catch (_) { /* private mode */ }
+}
+
+/* Class session (phase 2): show "Klasse 6b · Mia" instead of the join link,
+   next to the h1 so it stays visible while the intro band is collapsed. */
 function initClassBadge() {
   const el = document.getElementById('gl-join');
   if (!el) return;
   let s = null;
   try { s = JSON.parse(localStorage.getItem('krabsy_class') || 'null'); } catch (_) {}
   if (!s || !s.name) return;
-  const a = el.querySelector('a:not(.gl-join-quiz)');   // the quiz-room link stays
+  const a = el.querySelector('a.gl-join-class');   // the teacher and quiz-room links stay
   if (!a) return;
   const badge = document.createElement('a');
   badge.href = a.getAttribute('href');
   badge.className = 'gl-class-badge';
   badge.textContent = '👥 ' + s.name + ' · ' + s.nickname;
-  a.replaceWith(badge);
+  const top = document.querySelector('#gl-head .gl-intro-top');
+  if (top) {
+    const sep = a.previousElementSibling;
+    if (sep && sep.classList.contains('gl-join-sep')) sep.remove();
+    a.remove();
+    top.appendChild(badge);
+  } else {
+    a.replaceWith(badge);
+  }
 }
 
 /* The child's figure next to the featured game (#gl-figure), standing freely on the page.
@@ -234,6 +261,7 @@ function initFigure() {
 }
 
 expireNew();
+initIntro();
 initFigure();
 initClassBadge();
 initFilters();

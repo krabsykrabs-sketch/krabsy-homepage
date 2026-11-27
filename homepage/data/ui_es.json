@@ -69,6 +69,21 @@
     "footer_more_topics": "Pronto llegarán más temas de gramática.",
     "footer_copyright": "© {year} Krabsy"
   },
+  "landing": {
+    "_doc": "Intro band on the section landing pages, rendered by tools/render_landing_intro.py ({topics} = the section's topics, topics.json in_sentence).",
+    "h1": "Practica gramática inglesa – con juegos",
+    "toggle": "¿Qué es Krabsy?",
+    "intro_line": "{topics} desde unos 10 años. Gratis, sin registro y sin publicidad.",
+    "list_sep": ", ",
+    "list_last": " y ",
+    "acts_label": "Empezar",
+    "btn_play": "Jugar",
+    "btn_practice": "Practicar",
+    "btn_diploma": "Diploma de verbos",
+    "teachers": "¿Docente? Código de clase, enlaces de práctica y fichas →",
+    "join_class": "¿Tienes un código de clase? Únete aquí →",
+    "join_quiz": "¿Código de sala de quiz? Entra aquí →"
+  },
   "progress_widget": {
     "empty_hint": "Haz un drill para empezar a ver tu progreso.",
     "tile_accuracy": "Precisión",

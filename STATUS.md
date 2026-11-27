@@ -2,6 +2,10 @@
 
 
 
+## Landing intro banner (2026-11-27), not deployed
+
+`/de/`, `/es/`, `/en/spanish/`: compact intro band above the featured game: h1 ("Englisch-Grammatik üben – mit Spielen" / "Practica gramática inglesa – con juegos" / "Practise Spanish grammar – with games"), one line (topics from `topics.json` `in_sentence`, audience, free / no sign-up / no ads), actions Spielen · Üben (→ section `practice`) · Verb-Diplom (only where a topic has that page; not EN), quiet teacher line with the class-code (DE/ES) and Quiz-Raum links (now `/quiz/?lang=<ui>`). Returning visitors (`localStorage.krabsy_intro_seen`, or existing `krabsy_stats_v2`) get h1 + "Was ist Krabsy?" toggle only, decided by a one-line head script (`html.k-intro-ret`); no JS = full band. Class badge moved next to the h1 (visible while collapsed). Texts `ui_<lang>.json` `landing.*`; markup from `tools/render_landing_intro.py` (re-run after text/topic changes; `check_catalogues.py` checks it). `krabsy-landing.js?v=2026-11-27o`, `.css?v=2026-11-27b`. Title/meta/JSON-LD unchanged.
+
 ## i18n foundation N1–N6 (2026-11-27), not deployed
 
 Sections as data (`data/sections.json`, `lib/krabsy-lang.js`, `tools/krabsy_registry.py` → `lib/krabsy-registry.js` + `api/catalog.json`), one `currentLang()`, engine keeps language maps, taught language from the registry, API from one catalogue, validator `tools/check_catalogues.py`. Deploy site + API together. Details, leftovers and cache notes: `docs/i18n-scaling.md` (N1–N6 rows, release notes).

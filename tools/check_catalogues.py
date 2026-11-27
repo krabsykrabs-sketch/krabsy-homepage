@@ -8,10 +8,12 @@ Checks
   sections.json   ids unique, ui/subject known, paths under /<ui>/, pages exist,
                   starter topic belongs to the section
   generated       lib/krabsy-registry.js, krabsy-lang.js stamp and api/catalog.json
-                  match the data (tools/krabsy_registry.py)
+                  match the data (tools/krabsy_registry.py); the landing intro
+                  bands match ui_*.json (tools/render_landing_intro.py)
   topics.json     subject known, shapes valid, file present, slugs only for ui
                   languages, unique per language, display/short name for every
-                  language that has a URL, page slugs unique
+                  language that has a URL, page slugs unique, in_sentence
+                  only for languages with a URL (text or null)
   ui_<lang>.json  one per interface language, same keys everywhere (topic_overrides
                   only where the topic is shown), same
                   {placeholders}, no HTML unless the key ends in _html
@@ -123,6 +125,11 @@ def check_sections(reg, topics):
 def check_generated():
     for p in R.stale():
         err(p.relative_to(ROOT), "out of date: run python3 tools/krabsy_registry.py")
+    import subprocess
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "render_landing_intro.py"), "--check"],
+                       capture_output=True, text=True)
+    for line in (r.stdout + r.stderr).splitlines():
+        err("landing intro", line + " (run python3 tools/render_landing_intro.py)")
 
 
 # ── topics.json ────────────────────────────────────────────────────────────
@@ -153,6 +160,11 @@ def check_topics(reg, topics):
             for field in ("display_name", "short_name"):
                 if not (t.get(field) or {}).get(u):
                     err(w, f"{field}.{u} missing (it has a {u} URL)")
+        for u, v in (t.get("in_sentence") or {}).items():
+            if u not in langs:
+                err(w, f"in_sentence.{u}: the topic has no {u} URL")
+            elif v is not None and (not isinstance(v, str) or not v.strip()):
+                err(w, f"in_sentence.{u}: text or null")
         for pid, p in (t.get("pages") or {}).items():
             for u, slug in p.items():
                 if u not in langs:

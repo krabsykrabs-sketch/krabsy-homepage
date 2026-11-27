@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
+  <script>/* intro band: collapsed for returning visitors, decided before first paint (lib/krabsy-landing.js sets the flag) */try{if(localStorage.getItem("krabsy_intro_seen")||localStorage.getItem("krabsy_stats_v2"))document.documentElement.classList.add("k-intro-ret")}catch(_){}</script>
   <!-- SEO-BLOCK (managed) -->
   <title>Krabsy — Englisch lernen mit Spielen</title>
   <meta name="description" content="Krabsy ist eine kostenlose Plattform zum spielerischen Englischlernen. Übe unregelmäßige Verben mit Spielen, Drills und Lernwerkzeugen. Für Schüler ab Klasse 5.">
@@ -44,7 +45,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27b">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -93,10 +94,15 @@
       <!-- ── Headline + progress row (returning players, krabsy-landing.js) -->
       <div class="wrap gl-head" id="gl-head">
         <img class="gl-head-crab" src="/thumbnails/sm/crab.png?v=2026-11-27" alt="" width="44" height="44" decoding="async">
-        <div>
-          <h1>Englisch lernen mit Spielen — <span>kostenlos, ohne Anmeldung.</span></h1>
-          <p class="gl-head-sub">Grammatik-Spiele und Übungen für Schülerinnen und Schüler ab Klasse 5 — direkt im Browser.</p>
-          <p class="gl-join" id="gl-join"><a href="/de/klasse/">Klassencode bekommen? Hier beitreten →</a> <span class="gl-join-sep" aria-hidden="true">·</span> <a class="gl-join-quiz" href="/quiz/">Quiz-Raum-Code? Hier rein →</a></p>
+        <div class="gl-head-main">
+          <!-- LANDING-INTRO:START (tools/render_landing_intro.py) -->
+          <div class="gl-intro-top"><h1>Englisch-Grammatik üben – mit Spielen</h1><button class="gl-intro-toggle" id="gl-intro-toggle" type="button" aria-expanded="false" aria-controls="gl-intro-more"><span class="gl-intro-toggle-txt">Was ist Krabsy?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
+          <div class="gl-intro-more" id="gl-intro-more">
+            <p class="gl-intro-line">Unregelmäßige Verben und Präpositionen ab Klasse 5. Kostenlos, ohne Anmeldung, ohne Werbung.</p>
+            <nav class="gl-acts" aria-label="Loslegen"><a class="gl-act gl-act-play" href="/de/spiele/"><span aria-hidden="true">🎮</span>Spielen</a><a class="gl-act gl-act-practice" href="/de/ueben/"><span aria-hidden="true">✍️</span>Üben</a><a class="gl-act gl-act-diploma" href="/de/unregelmaessige-verben/verb-diplom/"><span aria-hidden="true">🏆</span>Verb-Diplom</a></nav>
+            <p class="gl-join" id="gl-join"><a class="gl-join-teach" href="/de/lehrkraefte/">Lehrkraft? Klassencode, Übungslinks und Arbeitsblätter →</a> <span class="gl-join-sep" aria-hidden="true">·</span> <a class="gl-join-class" href="/de/klasse/">Klassencode bekommen? Hier beitreten →</a> <span class="gl-join-sep" aria-hidden="true">·</span> <a class="gl-join-quiz" href="/quiz/?lang=de">Quiz-Raum-Code? Hier rein →</a></p>
+          </div>
+          <!-- LANDING-INTRO:END -->
           <div class="gl-prog" id="gl-prog" hidden aria-label="Dein Fortschritt">
             <span class="gl-prog-stat">Genauigkeit <strong id="gl-prog-acc"></strong></span>
             <span class="gl-prog-stat"><svg aria-hidden="true"><use href="#i-flame"/></svg>Serie <strong id="gl-prog-streak"></strong></span>
@@ -238,7 +244,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27n"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27o"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

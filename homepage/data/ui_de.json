@@ -69,6 +69,21 @@
     "footer_more_topics": "Mehr Grammatik-Themen folgen bald.",
     "footer_copyright": "© {year} Krabsy"
   },
+  "landing": {
+    "_doc": "Intro band on the section landing pages, rendered by tools/render_landing_intro.py ({topics} = the section's topics, topics.json in_sentence).",
+    "h1": "Englisch-Grammatik üben – mit Spielen",
+    "toggle": "Was ist Krabsy?",
+    "intro_line": "{topics} ab Klasse 5. Kostenlos, ohne Anmeldung, ohne Werbung.",
+    "list_sep": ", ",
+    "list_last": " und ",
+    "acts_label": "Loslegen",
+    "btn_play": "Spielen",
+    "btn_practice": "Üben",
+    "btn_diploma": "Verb-Diplom",
+    "teachers": "Lehrkraft? Klassencode, Übungslinks und Arbeitsblätter →",
+    "join_class": "Klassencode bekommen? Hier beitreten →",
+    "join_quiz": "Quiz-Raum-Code? Hier rein →"
+  },
   "progress_widget": {
     "empty_hint": "Starte einen Drill, um deinen Fortschritt zu verfolgen.",
     "tile_accuracy": "Genauigkeit",
