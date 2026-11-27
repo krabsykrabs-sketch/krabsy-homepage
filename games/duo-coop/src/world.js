@@ -77,14 +77,20 @@ export function buildRoom(scene, room, world, models) {
   // ── bottomless gaps: a dark shaft fading into the depth ──────────────────────────
   const shaftTex = keep(canvasTex(8, 128, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, 0, h);
-    gr.addColorStop(0, 'rgba(10,10,22,0)'); gr.addColorStop(0.3, 'rgba(10,10,22,0.7)'); gr.addColorStop(0.75, 'rgba(6,6,14,1)'); gr.addColorStop(1, 'rgba(6,6,14,1)');
+    gr.addColorStop(0, 'rgba(10,10,22,0)'); gr.addColorStop(0.1, 'rgba(10,10,22,0.88)'); gr.addColorStop(0.3, 'rgba(6,6,14,1)'); gr.addColorStop(1, 'rgba(6,6,14,1)');
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
   }));
   const shaftM = keep(new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, depthWrite: false }));
   for (let x = 0; x < W; x++) {
     if (solid(x, 0)) continue;
+    // the floor height of the solid columns on both edges of this gap (not just the neighbours:
+    // a wide gap's middle columns have no solid neighbour)
     let top = 0;
-    for (const nx of [x - 1, x + 1]) for (let y = 0; y < H && solid(nx, y); y++) top = Math.max(top, y + 1);
+    for (const d of [-1, 1]) {
+      let nx = x;
+      while (nx >= 0 && nx < W && !solid(nx, 0)) nx += d;
+      for (let y = 0; y < H && solid(nx, y); y++) top = Math.max(top, y + 1);
+    }
     const h = top + 2;   // from just above the floor line down to below the room
     for (const z of [-0.98, 0.99]) {      // in front of the back wall, and over the open front
       const p = new THREE.Mesh(keep(new THREE.PlaneGeometry(1.02, h)), shaftM);
@@ -218,10 +224,14 @@ function objectView(o, models, keep) {
       } };
     }
     case 'door': case 'locked': {
-      // An iron double gate facing the camera (the leaves of the KayKit arch gate), in the
-      // wall's opening; both leaves swing back into the room when it opens.
-      node.position.set(o.x + 0.5, o.y, -0.35);
-      const half = 0.72;
+      // An iron double gate across the path (the two leaves of the KayKit arch gate, hinged
+      // at the front and the back of the opening); both leaves swing open in walking
+      // direction (+x), so they lie along the path when the door is open.
+      node.position.set(o.x + 0.5, o.y, 0);
+      const across = new THREE.Group();
+      across.rotation.y = -Math.PI / 2;          // the gate's width now runs along z (depth)
+      node.add(across);
+      const half = 0.78;
       const leaves = [];
       for (const [part, side] of [['arch_gate_right', -1], ['arch_gate_left', 1]]) {
         const hinge = new THREE.Group();
@@ -231,20 +241,20 @@ function objectView(o, models, keep) {
         holder.add(leaf);
         holder.scale.set(half / 1.5, o.h / 3, 1.3);
         hinge.add(holder);
-        node.add(hinge);
+        across.add(hinge);
         leaves.push({ hinge, side });
       }
       let lock = null;
-      if (o.type === 'locked') {
+      if (o.type === 'locked') {          // the key hangs on the side facing the camera
         lock = fit(models.clone('key'), 0.55, null, null);
-        lock.position.set(0, o.h / 2 - 0.2, 0.15);
+        lock.position.set(0, o.h / 2 - 0.2, 0.95);
         lock.rotation.z = Math.PI / 2;
         node.add(lock);
       }
       let open = 0;
       return { node, update(s, dt) {
         open += ((s.open ? 1 : 0) - open) * Math.min(1, dt * 4);
-        for (const l of leaves) l.hinge.rotation.y = l.side * open * 1.45;   // back, into the room
+        for (const l of leaves) l.hinge.rotation.y = -l.side * open * 1.5;
         if (lock) lock.visible = open < 0.05;
       } };
     }

@@ -134,7 +134,7 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
 | lever / heavy lever | Platformer lever_floor_base yellow / red (bigger); the handle node flips |
 | switch | Platformer lever_wall_base_A blue (handle turns) |
 | bridge post / bridge | Platformer signage_arrow_stand (turns round when built) / floor_wood_1x1 (amber ghost before) |
-| door / locked door | an iron double gate facing the camera: the two leaves of the Halloween arch_gate, which swing back into the room in 3D; the locked one has the Dungeon key across it |
+| door / locked door | an iron double gate **across the path** (owner: turned 90°, in walking direction): the two leaves of the Halloween arch_gate, hinged at the front and back of the opening, swing open towards +x and then lie along the path; closed it is seen nearly edge-on; the locked one has the Dungeon key on the side facing the camera |
 | cracked wall | 3 × 2 Block Bits stone_with_copper blocks; smashed, they burst away from the fist, shrink and vanish, a Dungeon rubble_large pile stays |
 | exit | Halloween arch_gate, both leaves swing open, teal light behind |
 | portal | Platformer hoop (grey when off, yellow + teal swirl when on) |
@@ -218,6 +218,8 @@ measure it.
   Answer cards now stay where they opened (they slid with the camera; the touch test
   could not tap a moving chip). Play-test ALL OK: desktop + touch, all 3 rooms, 15
   answers each, 0 errors.
+- 2026-11-27 — Door gates turned 90° (across the path, open along it). The gap's dark
+  shaft now covers the whole gap evenly (the middle columns used to stay bright).
 
 ## Open (owner)
 

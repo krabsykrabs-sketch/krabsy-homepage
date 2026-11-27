@@ -575,6 +575,7 @@ export async function createGame(canvas, opts) {
       // tests: run the simulation without drawing (headless software GL is ~4 fps)
       manual(b) { manual = !!b; },
       loadRoom(i) { loadRoom(i); },
+      activate(id) { activate(id); },   // screenshots: open a door / build a bridge without the question
       advance(seconds, dt = 1 / 60) { for (let s = 0; s < seconds; s += dt) frame(dt); },
       press: (pi, b) => input._press(pi, b),
       release: (pi, b) => input._release(pi, b),
