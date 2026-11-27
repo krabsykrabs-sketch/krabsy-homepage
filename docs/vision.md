@@ -123,6 +123,14 @@ English".
   learning language. Class code, practice links and quiz room are per
   topic already, so the tools are shared; only material is filtered.
 - Root `/` picks the interface language from Accept-Language (nginx map).
+- **`/de/` when German speakers get a second subject (proposal 2026-11-27,
+  not decided):** `/de/` stays the English home (it holds the traffic and the
+  promoted links; its banner says "Englisch-Grammatik"), and Spanish lives at
+  `/de/spanisch/` with its own home. The two are connected by a subject switch
+  in the nav/banner ("Englisch | Spanisch"), not by mixing Spanish topics into
+  the English pages. Anything that says "Englisch" today (banner, signatures,
+  outreach texts) stays true; only subject-neutral places (teacher page,
+  footer, mailbox signature) get "Englisch und Spanisch" when it goes live.
 - **Other subjects (not planned, possible in theory):** the segment is
   really a *subject*, and a learning language is one kind of subject. Math
   for German speakers would be `/de/mathe/…`, exactly like `/de/spanisch/…`.
