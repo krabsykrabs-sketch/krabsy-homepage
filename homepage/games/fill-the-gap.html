@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, indexifembedded">
   <title>Lückentext — Krabsy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Lückentext — eine Arcade-Übung für unregelmäßige englische Verben im Satzkontext.">
+  <meta name="description" content="Lückentext — Sätze mit einer Lücke: tippe das fehlende Wort.">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link href="/lib/fonts/krabsy-fonts.css?v=2026-11-26f" rel="stylesheet">
 <style>
@@ -46,7 +46,7 @@
 
 html, body {
   margin: 0;
-  height: 100vh;
+  height: 100%;
   font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
@@ -78,9 +78,9 @@ body::before {
   position: relative;
   z-index: 1;
   display: grid;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  min-width: 900px;
+  min-width: 0;
   max-width: 980px;
   margin: 0 auto;
   grid-template-columns: 170px 1fr 200px;
@@ -567,7 +567,7 @@ body::before {
   30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
   40%, 60% { transform: translate3d(5px, 0, 0); }
 }
-.ff-input:disabled { cursor: default; }
+.ff-input:disabled, .ff-input:read-only { cursor: default; }
 
 .ff-input-hint {
   font-family: 'Nunito', system-ui, sans-serif;
@@ -705,6 +705,7 @@ body::before {
   margin-top: 4px;
 }
 .ff-over-stat-value.is-coral { color: var(--coral-deep); }
+.ff-new-best[hidden] { display: none; }
 .ff-new-best {
   display: inline-block;
   margin: 0 0 20px;
@@ -738,13 +739,102 @@ body::before {
 }
 .ff-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
-/* Narrow / portrait fallback */
-.ff-screen-narrow .ff-title { font-size: 2.2rem; }
-@media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
-  .ff-app { display: none; }
+.ff-teacher {
+  margin: -14px 0 22px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--lavender-deep);
 }
-@media (min-width: 900px) {
-  #ff-narrow-screen { display: none !important; }
+.ff-teacher[hidden] { display: none; }
+
+/* ── Input row: OK button (touch / narrow) + accent keys (Spanish) ─────── */
+.ff-input-row { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; }
+.ff-go {
+  display: none;
+  flex: 0 0 auto;
+  height: 60px;
+  min-width: 64px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, var(--coral) 0%, var(--coral-deep) 100%);
+  color: var(--off-white);
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(201,104,90,0.35);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.ff-go:active { transform: translateY(1px); }
+.ff-keys { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.ff-keys[hidden] { display: none; }
+.ff-key {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 8px;
+  border: 1.5px solid var(--lavender);
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.85);
+  color: var(--charcoal);
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.ff-key:hover { background: var(--lavender-soft); }
+.ff-key:active { background: var(--lavender); color: #fff; }
+
+/* Touch screens and narrow frames: the input sits right under the sentence
+   card (top set from JS), so the on-screen keyboard can't cover it, with an
+   OK button instead of "press Enter". */
+body.ff-compact .ff-input-wrap { bottom: auto; }
+body.ff-compact .ff-go { display: inline-flex; align-items: center; justify-content: center; }
+body.ff-compact .ff-input-hint { display: none; }
+
+/* ── Phones and narrow frames (< 900 px): one column, stats in a strip ── */
+@media (max-width: 899px) {
+  .ff-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 44px auto 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .ff-topbar { padding: 0 8px 0 14px; }
+  .ff-round { font-size: 1rem; }
+  .ff-icon { width: 34px; height: 34px; }
+  .ff-sidebar-left { flex-direction: row; gap: 6px; }
+  .ff-sidebar-left .ff-panel { flex: 1 1 0; min-width: 0; padding: 6px 8px; }
+  .ff-panel-label { font-size: 0.55rem; letter-spacing: 0.8px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ff-panel-value { font-size: 1.15rem; }
+  .ff-panel-score .ff-panel-value { font-size: 1.3rem; }
+  .ff-panel-streak .ff-streak-fire { font-size: 0.9rem; margin-right: 2px; }
+  .ff-level-bar { margin-top: 4px; height: 4px; }
+  .ff-lives { font-size: 1.05rem; gap: 2px; }
+  .ff-sidebar-right { display: none; }
+  .ff-block { width: calc(100% - 16px); padding: 14px 14px 10px; }
+  .ff-sentence { font-size: 1.05rem; line-height: 1.45; }
+  .ff-blank { min-width: 64px; padding: 1px 8px; font-size: 1.05rem; }
+  .ff-sentence-hint, .ff-hint-btn { margin-top: 8px; }
+  .ff-input-wrap { padding: 0 8px; gap: 6px; }
+  .ff-input { width: auto; flex: 1 1 auto; min-width: 0; max-width: 280px; height: 52px; font-size: 1.3rem; }
+  .ff-go { height: 52px; }
+  .ff-key { min-width: 36px; height: 38px; }
+  /* Card near the top: on a phone the lower part of the frame may sit under
+     the site's tab bar or the keyboard. */
+  .ff-screen { padding: 16px 12px; align-items: flex-start; overflow-y: auto; }
+  .ff-screen-card { padding: 28px 20px; }
+  .ff-title { font-size: 2.4rem; }
+  .ff-tagline { margin-bottom: 22px; }
+  .ff-levelup-card { padding: 28px 36px 24px; }
+  .ff-levelup-num { font-size: 4.5rem; }
+}
+@media (max-width: 359px) {
+  .ff-panel-label { font-size: 0.5rem; letter-spacing: 0.4px; }
+  .ff-title { font-size: 2rem; }
 }
 
 /* ── Level-up overlay ─────────────────────────────────────────────────────
@@ -892,6 +982,7 @@ body::before {
   <main class="ff-play" id="ff-play" aria-label="Spielfeld" data-string-aria="aria_playarea">
     <div class="ff-block-layer" id="ff-block-layer" aria-live="polite"></div>
     <form class="ff-input-wrap" id="ff-input-wrap" autocomplete="off">
+      <div class="ff-input-row">
       <input
         class="ff-input"
         id="ff-input"
@@ -900,11 +991,15 @@ body::before {
         autocapitalize="off"
         autocorrect="off"
         spellcheck="false"
-        aria-label="Verbform eintippen"
+        enterkeyhint="go"
+        aria-label="Fehlendes Wort eintippen"
         data-string-aria="aria_input"
-        placeholder="Verbform eintippen…"
+        placeholder="Fehlendes Wort tippen…"
         data-string-attr="placeholder:input_placeholder"
       >
+      <button class="ff-go" id="ff-go" type="submit" aria-label="Prüfen" data-string-aria="aria_check" data-string="ok">OK</button>
+      </div>
+      <div class="ff-keys" id="ff-keys" hidden></div>
       <div class="ff-input-hint" data-string="enter_hint">DRÜCKE ENTER</div>
     </form>
     <div class="ff-pause-overlay" id="ff-pause-overlay"><span data-string="paused">PAUSE</span><small data-string="tap_resume">Tippen zum Fortsetzen</small></div>
@@ -923,12 +1018,13 @@ body::before {
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     SCREENS — start, game over, narrow warning
+     SCREENS — start, game over
      ═══════════════════════════════════════════════════════════════════ -->
 <div class="ff-screen" id="ff-start-screen">
   <div class="ff-screen-card">
     <h1 class="ff-title" data-string="title">Lückentext</h1>
-    <p class="ff-tagline" data-string="start_tagline">Lies den Satz, tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.</p>
+    <p class="ff-tagline" data-string="start_tagline">Lies den Satz und tippe, was in die Lücke gehört. Drei Leben pro Runde.</p>
+    <p class="ff-teacher" id="ff-teacher" hidden></p>
     <button class="ff-btn" id="ff-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="ff-best-row"><span data-string="best_label">Bestleistung</span>: <strong id="ff-best-start">0</strong></div>
   </div>
@@ -961,13 +1057,6 @@ body::before {
     <div class="ff-levelup-badge">LEVEL UP</div>
     <div class="ff-levelup-num" id="ff-levelup-num">2</div>
     <div class="ff-levelup-sub" id="ff-levelup-sub">Weiter so!</div>
-  </div>
-</div>
-
-<div class="ff-screen" id="ff-narrow-screen">
-  <div class="ff-screen-card">
-    <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="ff-tagline" data-string="narrow_sub">Öffne den Lückentext auf einem Bildschirm mit mindestens 1024 px Breite.</p>
   </div>
 </div>
 
@@ -1010,6 +1099,7 @@ async function loadSentences() {
         if (!ans[0]) continue;
         const h = ex.hint ? (typeof ex.hint === 'string' ? ex.hint : (ex.hint[LANG] || ex.hint.en || '')) : '';
         SENTENCES.push({
+          id: it.id,                         // item id (stats), as Sprint records it
           verb: it.label || it.id,
           form: 'default',
           correct: ans[0],
@@ -1028,6 +1118,7 @@ async function loadSentences() {
         const valid = Array.isArray(ex.valid_answers) ? ex.valid_answers : [];
         if (!valid[0]) continue;
         SENTENCES.push({
+          id: uc.id,                         // use-case id (stats)
           verb: uc.pattern,                  // shown in hint chip
           form: 'default',
           correct: valid[0],
@@ -1047,6 +1138,7 @@ async function loadSentences() {
         x.correct_answer.length > 0
       )
       .map(x => ({
+        id: x.verb,                          // verb base form (stats)
         verb: x.verb || x.hint || '',
         form: x.form || 'past',
         correct: x.correct_answer,
@@ -1101,15 +1193,15 @@ const STRINGS = {
     paused: 'PAUSE',
     tap_resume: 'Tippen zum Fortsetzen',
     enter_hint: 'DRÜCKE ENTER',
-    input_placeholder: 'Verbform eintippen…',
+    input_placeholder: 'Fehlendes Wort tippen…',
     verb_hint: 'Verb',
     pattern_hint: 'Muster',
     hint_show: 'Tipp',
-    aria_input: 'Verbform eintippen',
+    aria_input: 'Fehlendes Wort eintippen',
     loading: 'Sätze werden geladen…',
     load_failed: 'Sätze konnten nicht geladen werden.',
     title: 'Lückentext',
-    start_tagline: 'Lies den Satz, tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.',
+    start_tagline: 'Lies den Satz und tippe, was in die Lücke gehört. Drei Leben pro Runde.',
     start_btn: "Los geht's!",
     best_label: 'Bestleistung',
     new_best: 'Neue Bestleistung!',
@@ -1117,10 +1209,12 @@ const STRINGS = {
     final_score: 'Endpunktzahl',
     play_again: 'Nochmal spielen',
     menu: 'Menü',
-    no_chains: 'keine Ketten in dieser Runde',
+    no_chains: 'diesmal noch kein Satz geschafft',
     levelup_sub: 'Weiter so!',
-    narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne den Lückentext auf einem Bildschirm mit mindestens 1024 px Breite.',
+    ok: 'OK',
+    aria_check: 'Prüfen',
+    teacher_lead: 'Übung von deiner Lehrkraft',
+    teacher_levels: ['leicht', 'leicht + mittel', 'alles'],
     aria_sound: 'Ton an/aus',
     aria_pause: 'Pause',
     aria_close: 'Schließen',
@@ -1140,15 +1234,15 @@ const STRINGS = {
     paused: 'PAUSA',
     tap_resume: 'Toca para continuar',
     enter_hint: 'PULSA ENTER',
-    input_placeholder: 'Escribe la forma verbal…',
+    input_placeholder: 'Escribe lo que falta…',
     verb_hint: 'Verbo',
     pattern_hint: 'Patrón',
     hint_show: 'Pista',
-    aria_input: 'Escribe la forma verbal',
+    aria_input: 'Escribe lo que falta en el hueco',
     loading: 'Cargando frases…',
     load_failed: 'No se pudieron cargar las frases.',
-    title: 'Hueco',
-    start_tagline: 'Lee la frase, escribe la forma verbal correcta y pulsa Enter. Tres vidas por ronda.',
+    title: 'Rellena el hueco',
+    start_tagline: 'Lee la frase y escribe lo que falta en el hueco. Tres vidas por ronda.',
     start_btn: '¡Empezar!',
     best_label: 'Mejor',
     new_best: '¡Nuevo récord!',
@@ -1156,16 +1250,18 @@ const STRINGS = {
     final_score: 'Puntuación final',
     play_again: 'Jugar de nuevo',
     menu: 'Menú',
-    no_chains: 'sin cadenas en esta ronda',
+    no_chains: 'ninguna frase esta vez',
     levelup_sub: '¡Sigue así!',
-    narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre el Hueco en una pantalla de al menos 1024 px de ancho.',
+    ok: 'OK',
+    aria_check: 'Comprobar',
+    teacher_lead: 'Práctica de tu docente',
+    teacher_levels: ['fácil', 'fácil + media', 'todo'],
     aria_sound: 'Sonido on/off',
     aria_pause: 'Pausa',
     aria_close: 'Cerrar',
     aria_stats: 'Estadísticas',
     aria_playarea: 'Campo de juego',
-    aria_history: 'Verbos recientes y próximo',
+    aria_history: 'Recientes y próximo',
     aria_chain_grid: 'Cadenas completadas',
   },
   en: {
@@ -1187,7 +1283,7 @@ const STRINGS = {
     loading: 'Loading sentences…',
     load_failed: 'The sentences could not be loaded.',
     title: 'Fill the Gap',
-    start_tagline: 'Read the sentence, type the missing word and press Enter. Three lives per round.',
+    start_tagline: 'Read the sentence and type what goes in the gap. Three lives per round.',
     start_btn: "Let's go!",
     best_label: 'Best',
     new_best: 'New best score!',
@@ -1197,8 +1293,10 @@ const STRINGS = {
     menu: 'Menu',
     no_chains: 'nothing finished this round',
     levelup_sub: 'Keep going!',
-    narrow_title: 'Landscape only',
-    narrow_sub: 'Open Fill the Gap on a screen at least 1024 px wide.',
+    ok: 'OK',
+    aria_check: 'Check',
+    teacher_lead: 'Practice from your teacher',
+    teacher_levels: ['easy', 'easy + medium', 'everything'],
     aria_sound: 'Sound on/off',
     aria_pause: 'Pause',
     aria_close: 'Close',
@@ -1222,27 +1320,51 @@ function getLang() {
 }
 const LANG = getLang();
 
-// Topic-specific overrides for strings that differ between verbs (default) and
-// other topics. The base STRINGS table is verb-flavoured; this overlay swaps in
-// preposition-flavoured copy when ?topic=prepositions. New topics get their own
-// entry here without touching the base.
-const TOPIC_STRINGS = {
-  prepositions: {
+// Texts per topic kind. The base STRINGS table is neutral ("what goes in the
+// gap": every sentence-gap topic, in any learning language); irregular verbs
+// (the verb is shown, type its right form) and prepositions get their own
+// wording. "Enter" is shown under the input on desktop, touch screens get an
+// OK button, so the start text names neither.
+const TOPIC_KIND = TOPIC === 'irregular_verbs' ? 'verbs' : TOPIC === 'prepositions' ? 'preps' : 'gap';
+const KIND_STRINGS = {
+  verbs: {
+    de: {
+      input_placeholder: 'Verb in passender Form…',
+      aria_input: 'Verb in passender Form eintippen',
+      start_tagline: 'Lies den Satz und tippe das Verb so, wie es in die Lücke passt. Drei Leben pro Runde.',
+    },
+    es: {
+      input_placeholder: 'Escribe el verbo…',
+      aria_input: 'Escribe el verbo en la forma que encaja',
+      start_tagline: 'Lee la frase y escribe el verbo tal como encaja en el hueco. Tres vidas por ronda.',
+    },
+    en: {
+      input_placeholder: 'Type the verb…',
+      aria_input: 'Type the verb the way it fits the gap',
+      start_tagline: 'Read the sentence and type the verb the way it fits the gap. Three lives per round.',
+    },
+  },
+  preps: {
     de: {
       input_placeholder: 'Präposition eintippen…',
       aria_input: 'Präposition eintippen',
-      start_tagline: 'Lies den Satz, tippe die richtige Präposition und drücke Enter. Drei Leben pro Runde.',
+      start_tagline: 'Lies den Satz und tippe die richtige Präposition (in, on, at …). Drei Leben pro Runde.',
     },
     es: {
       input_placeholder: 'Escribe la preposición…',
       aria_input: 'Escribe la preposición',
-      start_tagline: 'Lee la frase, escribe la preposición correcta y pulsa Enter. Tres vidas por ronda.',
+      start_tagline: 'Lee la frase y escribe la preposición correcta (in, on, at …). Tres vidas por ronda.',
+    },
+    en: {
+      input_placeholder: 'Type the preposition…',
+      aria_input: 'Type the preposition',
+      start_tagline: 'Read the sentence and type the right preposition (in, on, at …). Three lives per round.',
     },
   },
 };
 
 function t(key) {
-  const topicTbl = TOPIC_STRINGS[TOPIC] && TOPIC_STRINGS[TOPIC][LANG];
+  const topicTbl = KIND_STRINGS[TOPIC_KIND] && KIND_STRINGS[TOPIC_KIND][LANG];
   if (topicTbl && topicTbl[key] != null) return topicTbl[key];
   const tbl = STRINGS[LANG];
   if (tbl && tbl[key] != null) return tbl[key];
@@ -1267,6 +1389,83 @@ function applyStrings(root) {
 }
 
 const $ = id => document.getElementById(id);
+
+// ─── Answers → shared word statistics ───────────────────────────────────────
+// Every answer goes to /lib/krabsy-stats.js (profile, shells and gifts, the
+// tutor's star map, a joined class). Loaded on demand; without it (file://,
+// blocked module) the drill plays the same, it just records nothing.
+let STATS = null;
+try {
+  import('/lib/krabsy-stats.js?v=2026-11-25')
+    .then((m) => { if (m && typeof m.recordAttempt === 'function') STATS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+function recordAnswer(item, correct) {
+  if (!STATS || !item || !item.id) return;
+  try { STATS.recordAttempt(item.id, item.form || 'default', !!correct, 'fill-the-gap', TOPIC, 'typed'); } catch (_) {}
+}
+
+// Tell the wrapper page when a round runs (it hides its intro and the phone
+// tab bar, and scrolls the frame into view on small screens).
+function tellPage(playing) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'krabsy:fill-gap', playing: !!playing }, window.location.origin);
+    }
+  } catch (_) { /* cross-origin parent */ }
+}
+
+// Touch screens and narrow frames put the input right under the sentence card
+// (the on-screen keyboard covers the lower half) and show an OK button.
+const TOUCH = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (_) { return false; } })();
+function isCompact() { return TOUCH || window.innerWidth < 900; }
+function blockY() { return !isCompact() ? BLOCK_FIXED_Y : window.innerWidth < 900 ? 10 : 40; }
+function syncLayout() {
+  document.body.classList.toggle('ff-compact', isCompact());
+  placeInput();
+}
+function placeInput() {
+  if (!isCompact()) { els.inputWrap.style.top = ''; return; }
+  const card = state.block && state.block.el;
+  const h = card ? card.offsetHeight : 120;
+  els.inputWrap.style.top = (blockY() + h + 14) + 'px';
+}
+
+// Spanish answers: á é í ó ú ñ ¿ ¡ keys under the input (accents are not
+// required, but kids on English keyboards can type them).
+const ES_KEYS = ['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'];
+function setupKeys() {
+  const box = $('ff-keys');
+  if (!box || LEARN_LANG !== 'es' || box.childElementCount) return;
+  box.innerHTML = ES_KEYS.map(c => `<button type="button" class="ff-key" tabindex="-1" data-key="${c}">${c}</button>`).join('');
+  box.hidden = false;
+  els.input.setAttribute('lang', 'es');
+  box.addEventListener('mousedown', (e) => { if (e.target.closest('.ff-key')) e.preventDefault(); });
+  box.addEventListener('click', (e) => {
+    const k = e.target.closest('.ff-key');
+    if (!k || els.input.readOnly) return;
+    const inp = els.input;
+    const a = inp.selectionStart != null ? inp.selectionStart : inp.value.length;
+    const b = inp.selectionEnd != null ? inp.selectionEnd : inp.value.length;
+    inp.value = inp.value.slice(0, a) + k.dataset.key + inp.value.slice(b);
+    try { inp.focus(); inp.setSelectionRange(a + 1, a + 1); } catch (_) {}
+  });
+}
+
+// Teacher practice link (?from=teacher, built on the teacher pages): say so on
+// the start screen, with the level when ?difficulty= is set.
+function showTeacherNote() {
+  const el = $('ff-teacher');
+  if (!el) return;
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get('from') !== 'teacher') return;
+    const lvl = parseInt(q.get('difficulty'), 10);
+    const levels = t('teacher_levels');
+    el.textContent = '📌 ' + t('teacher_lead') + (lvl >= 1 && lvl <= 3 && Array.isArray(levels) ? ': ' + levels[lvl - 1] : '');
+    el.hidden = false;
+  } catch (_) {}
+}
 
 const els = {
   app:           $('ff-app'),
@@ -1451,15 +1650,15 @@ function renderHistory() {
     const row = document.createElement('div');
     if (v) {
       row.className = 'ff-history-row';
+      // Label + answer. The verb's form name ("past", "participle") is not
+      // shown: no grammar terms (presentation mandate, 2026-06-12).
       row.innerHTML =
-        `<span class="ff-h-verb">${v.verb}</span>` +
-        `<span class="ff-h-past">${v.past}</span>` +
-        `<span class="ff-h-pp">${v.pp}</span>`;
+        `<span class="ff-h-verb">${escapeHtml(v.verb)}</span>` +
+        `<span class="ff-h-pp">${escapeHtml(v.pp)}</span>`;
     } else {
       row.className = 'ff-history-row is-empty';
       row.innerHTML =
         `<span class="ff-h-verb">&nbsp;</span>` +
-        `<span class="ff-h-past">&nbsp;</span>` +
         `<span class="ff-h-pp">&nbsp;</span>`;
     }
     els.history.appendChild(row);
@@ -1487,8 +1686,9 @@ function spawnBlock() {
   const [pre, post] = splitSentence(item.sentence);
   const blockEl = document.createElement('div');
   blockEl.className = 'ff-block';
-  blockEl.style.setProperty('--y', BLOCK_FIXED_Y + 'px');
-  blockEl.style.transform = `translate3d(-50%, ${BLOCK_FIXED_Y}px, 0)`;
+  const y = blockY();
+  blockEl.style.setProperty('--y', y + 'px');
+  blockEl.style.transform = `translate3d(-50%, ${y}px, 0)`;
   // Prep hints reveal the answer ("interested + in") — start collapsed
   // behind a "?" button. Verb hints show the base form, which IS the
   // question, so they stay always-visible.
@@ -1515,10 +1715,12 @@ function spawnBlock() {
     const btn = blockEl.querySelector('#ff-hint-btn');
     const hint = blockEl.querySelector('#ff-current-hint');
     if (btn && hint) {
+      btn.addEventListener('mousedown', (e) => e.preventDefault());
       btn.addEventListener('click', function () {
         hint.hidden = false;
         btn.hidden = true;
         btn.setAttribute('aria-expanded', 'true');
+        placeInput();   // the card grew
         // Keyboard focus stays in the input — don't yank it on hint reveal.
         if (els.input) els.input.focus();
       });
@@ -1529,6 +1731,7 @@ function spawnBlock() {
     el: blockEl,
     isDying: false,
   };
+  placeInput();
   prepareInput();
   renderNext();
 }
@@ -1546,11 +1749,15 @@ function escapeHtml(s) {
 
 function prepareInput() {
   els.input.value = '';
-  els.input.disabled = false;
+  els.input.readOnly = false;
   els.input.classList.remove('is-flash-correct', 'is-flash-wrong');
   els.inputWrap.classList.remove('is-hidden');
-  // Focus next tick so the spawn animation doesn't fight the focus call.
-  setTimeout(() => { try { els.input.focus(); } catch (_) {} }, 0);
+  // Focus now (still inside the Start tap, so a phone opens its keyboard) and
+  // again next tick so the spawn animation doesn't fight the focus call.
+  // readOnly (not disabled) between questions keeps the focus, so the phone
+  // keyboard stays open from one sentence to the next.
+  try { els.input.focus({ preventScroll: true }); } catch (_) {}
+  setTimeout(() => { try { els.input.focus({ preventScroll: true }); } catch (_) {} }, 0);
 }
 // ═══════════════════════════════════════════════════════════════════════════
 //  Answer resolution — typed input + Enter
@@ -1565,13 +1772,14 @@ function handleSubmit() {
   const target = normalizeAnswer(item.correct);
   const alts = (item.alts || []).map(normalizeAnswer);
   const isCorrect = typed === target || alts.includes(typed);
+  recordAnswer(item, isCorrect);
   if (isCorrect) onCorrect(item);
   else           onWrong(item);
 }
 
 function onCorrect(item) {
   sfxChainComplete();
-  els.input.disabled = true;
+  els.input.readOnly = true;
   els.input.classList.add('is-flash-correct');
 
   // Fill the inline blank with the canonical correct form.
@@ -1589,7 +1797,7 @@ function onCorrect(item) {
 
 function onWrong(item) {
   sfxWrong();
-  els.input.disabled = true;
+  els.input.readOnly = true;
   els.input.classList.add('is-flash-wrong');
 
   // Reveal the correct form in red so the player learns from the miss.
@@ -1772,8 +1980,8 @@ function togglePause() {
   els.pauseOverlay.classList.toggle('is-shown', state.paused);
   // Static cards: nothing to time-shift on resume. Disable the input while
   // paused so a stray Enter can't sneak in past the overlay.
-  if (state.paused) els.input.disabled = true;
-  else if (state.block && !state.block.isDying) els.input.disabled = false;
+  if (state.paused) els.input.readOnly = true;
+  else if (state.block && !state.block.isDying) els.input.readOnly = false;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1817,7 +2025,10 @@ async function startGame() {
   renderHud();
   renderHistory();
   renderNext();
+  setupKeys();
+  syncLayout();
   spawnBlock();
+  tellPage(true);
   try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
 }
 
@@ -1826,6 +2037,7 @@ function endGame() {
   state.paused = false;
   if (state.block && state.block.el) state.block.el.remove();
   state.block = null;
+  try { els.input.blur(); } catch (_) {}   // let the phone keyboard close
 
   const isNewBest = state.score > state.best;
   if (isNewBest) {
@@ -1847,12 +2059,8 @@ function endGame() {
     for (const c of state.completedThisRun) {
       const row = document.createElement('div');
       row.className = 'ff-chain-grid-row';
-      // c: { verb, past:form, pp:answer }. Prep rows carry form='default'
-      // and don't have a meaningful middle column — render two-part there;
-      // verb rows keep the three-column "verb (form) → answer" format.
-      row.textContent = (c.past === 'default')
-        ? `${c.verb} → ${c.pp}`
-        : `${c.verb} (${c.past}) → ${c.pp}`;
+      // c: { verb, past:form, pp:answer } → "label → answer" (no form names).
+      row.textContent = `${c.verb} → ${c.pp}`;
       els.chainGrid.appendChild(row);
     }
   }
@@ -1860,6 +2068,7 @@ function endGame() {
 }
 
 function backToMenu() {
+  tellPage(false);
   els.overScreen.hidden = true;
   els.startScreen.hidden = false;
   els.bestStart.textContent = String(state.best);
@@ -1871,7 +2080,11 @@ function backToMenu() {
 els.inputWrap.addEventListener('submit', (e) => {
   e.preventDefault();
   handleSubmit();
+  // Tapping OK must not close the phone keyboard: focus back in the same tap.
+  if (state.running) { try { els.input.focus({ preventScroll: true }); } catch (_) {} }
 });
+// Keep the focus in the input when OK is pressed with a mouse.
+$('ff-go').addEventListener('mousedown', (e) => e.preventDefault());
 
 els.startBtn.addEventListener('click', startGame);
 els.againBtn.addEventListener('click', startGame);
@@ -1917,10 +2130,11 @@ document.addEventListener('keydown', (e) => {
 (function boot() {
   // i18n: swap to ES only if user explicitly selected it. HTML default is DE
   // so there's no flash on the common path.
-  if (LANG !== 'de') {
-    document.documentElement.lang = LANG;
-    applyStrings(document);
-  }
+  document.documentElement.lang = LANG;
+  applyStrings(document);
+  showTeacherNote();
+  syncLayout();
+  window.addEventListener('resize', syncLayout);
   state.best = readBest();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
@@ -1931,7 +2145,7 @@ document.addEventListener('keydown', (e) => {
   renderNext();
   // Kick off sentence load in the background so it's ready when Start is hit.
   loadSentences()
-    .then(() => { state.dataLoaded = true; })
+    .then(() => { state.dataLoaded = true; setupKeys(); })
     .catch(err => { console.warn('[lueckentext] sentence load failed', err); });
 })();
 </script>

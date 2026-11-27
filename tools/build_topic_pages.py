@@ -360,7 +360,7 @@ def build_fill(tid, ui):
     s = sub(s, re.escape(f'src="/games/fill-the-gap.html?lang={ui}&topic=prepositions"'),
             f'src="/games/fill-the-gap.html?lang={ui}&amp;topic={tid}"')
     s = sub(s, r'title="[^"]*"\n(\s*)loading="eager"', f'title="{esc(S["drill_fill"] + " — " + short_name)}"\n        loading="eager"')
-    s = sub(s, r'\n      </p>\n    </main>', '\n      </p>' + links_block(tid, ui, 'fill') + '\n    </main>')
+    s = sub(s, r'</script>\n    </main>', '</script>' + links_block(tid, ui, 'fill') + '\n    </main>')
     return u['fill'], s
 
 

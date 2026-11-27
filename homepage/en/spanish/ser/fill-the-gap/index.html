@@ -46,16 +46,11 @@
       overflow: hidden;
     }
 
-    /* Fallback shown when the viewport is too narrow for the game grid */
-    .fg-narrow-note {
-      display: none;
-      text-align: center;
-      padding: var(--space-6) var(--space-5);
-      color: var(--krabsy-ink-mute);
-    }
+    /* Phones and tablets in portrait: the game has its own one-column layout
+       (games/fill-the-gap.html); the frame fills the screen under the header. */
     @media (max-width: 899px) {
-      .fg-game-frame  { display: none; }
-      .fg-narrow-note { display: block; }
+      .fg-wrap { padding: var(--space-4) var(--space-3); }
+      .fg-game-frame { height: 640px; height: max(480px, min(700px, calc(100svh - 76px))); }
     }
   </style>
   <script>try{localStorage.setItem('krabsy_es_topic','es_ser')}catch(_){}</script>
@@ -79,10 +74,11 @@
         loading="eager"
         allow="autoplay"
       ></iframe>
-      <!-- teacher practice link: pass ?difficulty= ?lang= on to the game frame -->
-      <script>(function(){try{var p=new URLSearchParams(location.search),f=document.querySelector("iframe");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
+      <!-- teacher practice link: pass ?difficulty= ?lang= ?from= on to the game frame -->
+      <script>(function(){try{var p=new URLSearchParams(location.search),f=document.querySelector("iframe");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","difficulty","from"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
 
-      <p class="fg-narrow-note">Fill the Gap needs a wider screen. Open this page on a device at least 900&nbsp;px wide, in landscape.</p>
+      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header, above the keyboard -->
+      <script>(function(){var f=document.querySelector(".fg-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:fill-gap")return;document.body.classList.toggle("k-is-playing",!!d.playing);if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
 
 
       <section class="k-article" aria-label="More practice">

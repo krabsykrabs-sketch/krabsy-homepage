@@ -210,11 +210,6 @@ def build_fill(t):
     s = sub(s, 'src="/games/fill-the-gap.html?lang=de&topic=prepositions"',
             f'src="/games/fill-the-gap.html?lang=en&topic={t["topic"]}"')
     s = sub(s, 'title="Lückentext — Präpositionen"', f'title="Fill the Gap — Spanish {t["name"]}"')
-    s = sub(s, '<!-- teacher practice link: pass ?difficulty= ?lang= on to the game frame -->',
-            '<!-- teacher practice link: pass ?difficulty= ?lang= on to the game frame -->')
-    s = re.sub(r'(<p class="fg-narrow-note">).*?(</p>)',
-               r'\1Fill the Gap needs a wider screen. Open this page on a device at least 900&nbsp;px wide, in landscape.\2',
-               s, count=1, flags=re.S)
     s = sub(s, '    </main>', links_block(t, 'fill-the-gap/') + '\n    </main>')
     s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s
