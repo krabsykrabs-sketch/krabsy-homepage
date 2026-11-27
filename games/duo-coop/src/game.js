@@ -12,7 +12,8 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'exit']);
+const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'exit', 'liftlever']);
+const LIFT_SPEED = 2.4;   // cells per second
 const KEY_FLIGHT = 1.3;   // s: a collected key flies to its locked door, which then opens
 const BLOCKING = new Set(['door', 'crack', 'locked']);   // solid until opened / smashed
 // The punch (Throw clip, 1.37 s): the wall breaks when the fist is furthest forward
@@ -126,6 +127,11 @@ export async function createGame(canvas, opts) {
     };
     for (const [x, y] of room.boxes) addBox(x, y);
     for (const o of room.objects) if (o.type === 'cage') objs.get(o.id).box = addBox(o.x, o.y, o.id);
+    for (const o of room.objects) if (o.type === 'lift') {
+      const s = objs.get(o.id);
+      s.body = world.addBody({ kind: 'lift', x: o.x, y: o.y0 - 0.5, w: o.w, h: 0.5, static: true });
+      s.top = o.y0; s.goal = o.y0;
+    }
     for (const p of players) {
       const role = ROLES[p.role];
       const [sx, sy] = room.spawn[p.role];
@@ -165,7 +171,7 @@ export async function createGame(canvas, opts) {
       case 'door': case 'crack': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
       case 'portal': return { x: o.x + 0.5, y: o.y, rx: 0.75, top: 2.2 };
       case 'switch': return { x: o.x + 0.5, y: o.y, rx: 0.95, top: 1.4 };
-      case 'cage': case 'bridge': return null;
+      case 'cage': case 'bridge': case 'lift': return null;
       default: return { x: o.x + 0.5, y: o.y, rx: 0.9, top: o.type === 'post' ? 1.85 : 1.35 };
     }
   }
@@ -179,6 +185,7 @@ export async function createGame(canvas, opts) {
     const o = s.def;
     switch (o.type) {
       case 'lever': case 'switch': case 'post': case 'heavylever': return !s.on;
+      case 'liftlever': return true;     // each pull moves the lift again
       case 'crack': return !s.open;
       case 'key': return !s.taken;
       case 'portal': return o.ask && !s.active;
@@ -269,6 +276,15 @@ export async function createGame(canvas, opts) {
       case 'lever': case 'switch': case 'post':
         ask(p, s, () => { s.on = true; o.targets.forEach(activate); });
         return;
+      case 'liftlever':   // up if it is down, down if it is up
+        ask(p, s, () => {
+          s.on = !s.on;
+          for (const id of o.targets) {
+            const l = objs.get(id);
+            if (l) { l.goal = l.goal === l.def.y1 ? l.def.y0 : l.def.y1; sfx('open'); }
+          }
+        });
+        return;
       case 'crack':   // the strong one punches the cracked wall to pieces
         if (p.role !== 'strong') { toast(p, t('needSmash')); return; }
         if (p.carrying) { toast(p, '✋'); return; }
@@ -300,6 +316,26 @@ export async function createGame(canvas, opts) {
     p.portalCd = 0.6; p.inZone.add(to.def.id);
     if (p.carrying) { /* the crate comes along */ }
     sfx('portal');
+  }
+
+  // Lifts move before each physics step; whoever stands on one rides along (riders follow
+  // their support's _dy in world.step). A lift going down stops while something is below it.
+  function moveLifts(dt) {
+    for (const s of objs.values()) {
+      if (s.def.type !== 'lift') continue;
+      const b = s.body;
+      b._dx = 0; b._dy = 0;
+      const d = s.goal - s.top;
+      if (Math.abs(d) < 1e-4) continue;
+      const dy = Math.sign(d) * Math.min(Math.abs(d), LIFT_SPEED * dt);
+      if (dy < 0) {
+        const ny = b.y + dy;
+        const blocked = world.bodies.some((o) => o !== b && !o.carried && o.support !== b
+          && o.x < b.x + b.w - 1e-4 && o.x + o.w > b.x + 1e-4 && o.y < ny + b.h && o.y + o.h > ny);
+        if (blocked) continue;
+      }
+      b.y += dy; b._dy = dy; s.top += dy;
+    }
   }
 
   function resetBox(box) {
@@ -376,6 +412,7 @@ export async function createGame(canvas, opts) {
 
     acc = Math.min(acc + dt, STEP * 8);
     while (acc >= STEP) {
+      moveLifts(STEP);
       world.step(STEP, inputs);
       for (const r of inputs.values()) r.jumpPressed = false;
       acc -= STEP;

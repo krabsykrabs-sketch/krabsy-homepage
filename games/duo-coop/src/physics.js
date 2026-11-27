@@ -74,8 +74,8 @@ export class World {
     return nx;
   }
 
-  _blockers(b) {   // crates block everything; players never block each other sideways
-    return this.bodies.filter((o) => o !== b && o.kind === 'box' && !o.carried && !o.hidden);
+  _blockers(b) {   // crates and lifts block everything; players never block each other sideways
+    return this.bodies.filter((o) => o !== b && (o.kind === 'box' || o.kind === 'lift') && !o.carried && !o.hidden);
   }
 
   /** Move sideways by dx; a pusher (the strong one) shoves crates. Returns the distance moved. */

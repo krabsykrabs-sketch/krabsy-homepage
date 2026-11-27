@@ -15,6 +15,16 @@ Read first: `docs/duo-games.md` (the brief, phases D1–D4), `docs/game-contract
   guide rooms, gifts.
 - **Owner: please play it with someone** (see "Run it"). Open questions are at the end.
 
+## Design rules for rooms (owner 2026-11-27)
+
+1. **Both players work at the same time wherever possible.** A room starts with a task
+   for each (the strong one smashes a wall while the climber climbs to a lever, a switch
+   or the key); waiting only where the room is about doing something together (the head
+   jump, the lift, the portal that brings the strong one over).
+2. Every interaction is a question, but few of them: about 4 per room (one fewer than the
+   first draft; exits are often open from the start).
+3. A fall costs time, never the room: gaps have no bottom, back to the room's start.
+
 ## Run it
 
 ```
@@ -75,19 +85,33 @@ camera frames both players and never shows more than the room.
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 1 Levers & doors | lever on a ledge (ladder) opens door A · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · strong one smashes the cracked wall · exit (open from the start) | lever C, post C, wall S = 3 |
+| 1 Levers & doors | at the same time: the strong one smashes the cracked wall, the climber climbs to lever a (opens door A) · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · exit (open from the start) | wall S, lever C, post C = 3 |
 | 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C, exit (first there) = 4 |
-| 3 Together | switch on a ledge only reachable from the strong one's head · strong one smashes the cracked wall · key at the end of a 1-high tunnel, flies to the locked door · exit | switch C, wall S, key C, exit = 4 |
+| 3 Together | switch on a ledge only reachable from the strong one's head · at the same time: the strong one smashes the cracked wall, the climber climbs to the key at the end of a 1-high tunnel (it flies to the locked door) · exit | switch C, wall S, key C, exit = 4 |
 
 ### Level 2 (owner 2026-11-27: "create more levels"; `LEVEL2` in `src/levels.js`)
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 2-1 Upstairs, downstairs | the climber takes the ladder to the upper floor: the switch there opens the strong one's door in the corridor below, the key flies to the gate before the exit; both paths end at the cracked wall | switch C, key C, wall S, exit = 4 |
+| 2-1 Upstairs, downstairs | at the same time (owner's idea): the strong one smashes the cracked wall at the start of the corridor, the climber takes the ladder to the upper floor, where the switch opens the strong one's door further along and the key flies to the gate before the exit | wall S, switch C, key C, exit = 4 |
 | 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and pulls the heavy lever (door); from the step the climber jumps onto the shelf with the key | portal C, heavy lever S, key C, exit = 4 |
-| 2-3 Stack it up | the climber's switch (ledge, ladder) opens the door to the crate hall; the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform and the cracked wall | switch C, key C, wall S, exit = 4 |
+| 2-3 Stack it up | at the same time: the strong one smashes the wall into the crate hall, the climber climbs to the switch (opens the door on the platform); the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform | wall S, switch C, key C, exit = 4 |
 
-`LEVELS` = [level 1 (`ROOMS`), level 2]. The HUD says "Level 2 · Room 1 / 3 · …"; the
+### Level 3 (owner 2026-11-27; `LEVEL3` in `src/levels.js`): the lift
+
+New piece: the **lift** (`lift` { x, w, y0, y1 }, a wooden platform on two chains) and
+its **lift lever** (`liftlever`: every pull is a question and sends the lift to the other
+end; its "?" stays). Whoever stands on the lift rides along; going down it stops while
+something is below it. Physics: a `kind: 'lift'` body that blocks like a crate but is
+never pushed; `moveLifts()` in `src/game.js` moves it before each physics step.
+
+| Room | Idea | Questions (who) |
+|---|---|---|
+| 3-1 Going up | at the same time: the strong one smashes the wall to the lift, the climber climbs to the ledge and takes the key · the climber jumps the lift shaft and pulls the lift lever: the strong one rides up and pulls the heavy lever (door) · exit open | wall S, key C, lift lever C, heavy lever S = 4 |
+| 3-2 Bridge and portal | at the same time: the strong one smashes the wall, the climber climbs to the portal on the ledge and switches it on · across the 6-wide gap (too wide for anyone) the climber builds the bridge · the strong one crosses and pulls the heavy lever (door) · exit open | wall S, portal C, post C, heavy lever S = 4 |
+| 3-3 All together | both ride the lift, the climber pulls its lever riding along · at the same time: the strong one smashes the wall, the climber takes the ladder to the switch (door) · the key lies in a slot too high to jump to: off the strong one's head · exit open | lift lever C, wall S, switch C, key C = 4 |
+
+`LEVELS` = [level 1 (`ROOMS`), level 2, level 3]. The HUD says "Level 2 · Room 1 / 3 · …"; the
 results screen of a level has "Next level" (focused) when there is one. Title screen:
 "Start in a room:" with one row per level, all rooms open. URL: `?level=2&room=3`.
 Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
@@ -225,7 +249,7 @@ node games/duo-coop/tools/play-test.cjs [base-url] [out-dir] [--only desktop|tou
 
 Plays level 1 at 1366×768 (keyboard, EN, answers with the 1 2 3 / 8 9 0 keys), then
 "Next level" and level 2, and level 1 at 1024×768 (touch, DE; taps the touch buttons and
-the chips for real); `--level2` plays only level 2 (desktop), with one wrong answer on purpose, and fails
+the chips for real); `--from 2` / `--from 3` start at that level (desktop), with one wrong answer on purpose, and fails
 on any console error or failed request. Headless software WebGL runs at ~4 fps, so
 the bot switches the game to manual stepping (`__duo.game.manual(true)`,
 `advance(seconds)`) and presses the same input pads as keys and buttons.
@@ -274,6 +298,13 @@ measure it.
 - 2026-11-27 — **Level 2** (3 rooms, 12 questions), level rows on the title screen, "Next
   level" on the results, `?level=`; portals need use. The bot plays level 1 → Next level →
   level 2 on desktop (`--level2` plays only level 2); every level-2 room is solved by it.
+- 2026-11-27 — **Level 3** with the lift (3 rooms, 12 questions). Design rule "both at the
+  same time" (owner): rooms 1-1, 1-3, 2-1 (owner's idea) and 2-3 reworked so each starts
+  with a task for both (the strong one's wall first). Bot: desktop plays levels 1 → 2 → 3
+  through "Next level"; `--from N` starts at level N.
+  Runs: desktop levels 1 → 2 → 3 OK (36 answers), touch level 1 OK, `--from 2` OK; 0
+  errors. One full run failed once on a card-close wait while the machine was heavily
+  loaded (the touch run then took 570 s instead of ~180 s); the re-run passed.
 
 ## Open (owner)
 

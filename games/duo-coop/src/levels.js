@@ -18,6 +18,9 @@
 //   portal { x, y, pair, active } active portals teleport whoever walks in; an inactive
 //                                 portal with `ask` is switched on by a question
 //   cage   { x, y }               a box hangs here until a heavy lever releases it
+//   lift   { x, w, y0, y1 }       a platform (top at y0 = down, y1 = up), moved by a liftlever;
+//                                 keep its shaft empty
+//   liftlever { targets }         question → the lift goes to the other end (each pull asks)
 //   exit   { x, y, open }         x = middle of the 2-wide door; question → open (or `open: true`:
 //                                 open from the start); the room is done when both stand in it
 // Spawns: spawn.climber / spawn.strong (cell x, feet y). Boxes: boxes [[x, y]].
@@ -48,9 +51,10 @@ function room(def) {
 
 export const ROOMS = [
   // ── Room 1: levers and doors ─────────────────────────────────────────────────────────
-  // Door A is opened by lever a on a ledge only the climber reaches (ladder). A pit too wide
-  // for the strong one: the climber jumps over and answers at the bridge post. The cracked
-  // wall only the strong one can smash.
+  // Both start at once (owner 2026-11-27, "both players solve at the same time"): the strong
+  // one smashes the cracked wall while the climber climbs to lever a on the ledge, which
+  // opens door A. A gap too wide for the strong one: the climber jumps over and answers at
+  // the bridge post.
   room({
     id: 'r1', name: 'room.1', goal: 'goal.1', theme: 0,
     spawn: { climber: [2.5, 3], strong: [4.5, 3] },
@@ -58,16 +62,16 @@ export const ROOMS = [
     draw(fill) {
       fill(1, 5, 6, 6);                    // ledge (top at y = 7)
       fill(6, 6, 3, 6, 'H');               // ladder up to it
-      fill(8, 8, 6, H - 2);                // wall above door A
+      fill(8, 8, 6, H - 2);                // wall above the cracked wall
+      fill(12, 12, 6, H - 2);              // wall above door A
       fill(15, 18, 0, 2, '.');             // the gap: no bottom (a fall = back to the start)
-      fill(25, 25, 6, H - 2);              // wall above the cracked wall
     },
     objects: [
+      { id: 'G', type: 'crack', x: 8, y: 3, h: 3 },
       { id: 'a', type: 'lever', x: 3, y: 7, targets: ['A'] },
-      { id: 'A', type: 'door', x: 8, y: 3, h: 3 },
+      { id: 'A', type: 'door', x: 12, y: 3, h: 3 },
       { id: 'p', type: 'post', x: 20, y: 3, targets: ['b'] },
       { id: 'b', type: 'bridge', x0: 15, x1: 18, y: 2 },
-      { id: 'G', type: 'crack', x: 25, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 3, open: true },   // fewer questions (owner): open from the start
     ],
   }),
@@ -102,8 +106,8 @@ export const ROOMS = [
 
   // ── Room 3: together ─────────────────────────────────────────────────────────────────
   // The switch sits on a ledge too high even for the climber: jump off the strong one's head.
-  // The cracked wall only the strong one can smash.
-  // The key waits at the end of a low tunnel (climber), the locked door guards the exit.
+  // Then at the same time: the strong one smashes the cracked wall while the climber climbs
+  // to the key at the end of a low tunnel; the key opens the gate before the exit.
   room({
     id: 'r3', name: 'room.3', goal: 'goal.3', theme: 2,
     spawn: { climber: [5, 3], strong: [6.5, 3] },
@@ -111,18 +115,18 @@ export const ROOMS = [
     draw(fill) {
       fill(1, 3, 6, 6);                    // high ledge (top at 7): only from the strong one's head
       fill(8, 8, 6, H - 2);                // wall above door D
-      fill(16, 16, 6, H - 2);              // wall above the cracked wall
       fill(17, 21, 8, 8);                  // tunnel floor (top at 9)
       fill(17, 21, 10, 10);                // tunnel roof: the tunnel is 1 high
       fill(22, 22, 3, 8, 'H');             // ladder up to the tunnel
-      fill(24, 24, 6, H - 2);              // wall above the locked door
+      fill(23, 23, 6, H - 2);              // wall above the cracked wall
+      fill(25, 25, 6, H - 2);              // wall above the locked door
     },
     objects: [
       { id: 's', type: 'switch', x: 2, y: 7, targets: ['D'] },
       { id: 'D', type: 'door', x: 8, y: 3, h: 3 },
-      { id: 'G', type: 'crack', x: 16, y: 3, h: 3 },
+      { id: 'G', type: 'crack', x: 23, y: 3, h: 3 },
       { id: 'k', type: 'key', x: 18, y: 9, opens: 'L' },
-      { id: 'L', type: 'locked', x: 24, y: 3, h: 3 },
+      { id: 'L', type: 'locked', x: 25, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 28.5, y: 3 },
     ],
   }),
@@ -134,9 +138,10 @@ export const ROOMS = [
 // head) and then becomes a step.
 export const LEVEL2 = [
   // ── 2-1 Upstairs, downstairs ────────────────────────────────────────────────────────
-  // The climber takes the ladder to the upper floor: the switch there opens the strong
-  // one's door below, the key opens the gate before the exit. Both paths end at the
-  // cracked wall, which only the strong one can smash.
+  // Both work at the same time (owner 2026-11-27): the strong one smashes the cracked wall
+  // at the start of the corridor while the climber takes the ladder to the upper floor.
+  // The switch up there opens the strong one's door further along the corridor, the key
+  // flies to the gate before the exit, where both meet.
   room({
     id: 'r4', name: 'room.4', goal: 'goal.4', theme: 2,
     spawn: { climber: [2.5, 3], strong: [4, 3] },
@@ -144,14 +149,13 @@ export const LEVEL2 = [
     draw(fill) {
       fill(7, 20, 6, 6);                   // upper floor (top 7), the corridor runs below it
       fill(6, 6, 3, 6, 'H');               // ladder up
-      fill(22, 22, 6, H - 2);              // wall above the cracked wall
       fill(26, 26, 6, H - 2);              // wall above the locked gate
     },
     objects: [
-      { id: 's', type: 'switch', x: 16, y: 7, targets: ['D'] },
-      { id: 'D', type: 'door', x: 12, y: 3, h: 3 },
+      { id: 'G', type: 'crack', x: 9, y: 3, h: 3 },
+      { id: 's', type: 'switch', x: 17, y: 7, targets: ['D'] },
+      { id: 'D', type: 'door', x: 15, y: 3, h: 3 },
       { id: 'k', type: 'key', x: 19, y: 7, opens: 'L' },
-      { id: 'G', type: 'crack', x: 22, y: 3, h: 3 },
       { id: 'L', type: 'locked', x: 26, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 3 },
     ],
@@ -184,10 +188,10 @@ export const LEVEL2 = [
   }),
 
   // ── 2-3 Stack it up ─────────────────────────────────────────────────────────────────
-  // The climber's switch (ledge, ladder) opens the door to the crate hall. The key lies on
-  // a shelf too high for anyone alone: the strong one stands on the crate, the climber
-  // jumps off the strong one's head. Then the crate becomes the strong one's step up to
-  // the platform, where the cracked wall waits.
+  // At the same time: the strong one smashes the cracked wall into the crate hall while the
+  // climber climbs to the switch, which opens the door on the platform. The key lies on a
+  // shelf too high for anyone alone: the strong one stands on the crate, the climber jumps
+  // off the strong one's head. Then the crate becomes the strong one's step to the platform.
   room({
     id: 'r6', name: 'room.6', goal: 'goal.6', theme: 1,
     spawn: { climber: [5.3, 3], strong: [6.3, 3] },
@@ -195,19 +199,106 @@ export const LEVEL2 = [
     draw(fill) {
       fill(1, 3, 6, 6);                    // ledge with the switch (top 7)
       fill(4, 4, 3, 6, 'H');               // ladder up to it
-      fill(7, 7, 6, H - 2);                // wall above the door
+      fill(7, 7, 6, H - 2);                // wall above the cracked wall
       fill(11, 13, 7, 7);                  // high key shelf (top 8)
       fill(20, W - 2, 3, 4);               // platform (top 5)
-      fill(24, 24, 8, H - 2);              // wall above the cracked wall
+      fill(24, 24, 8, H - 2);              // wall above the door
       fill(27, 27, 8, H - 2);              // wall above the locked gate
     },
     objects: [
+      { id: 'G', type: 'crack', x: 7, y: 3, h: 3 },
       { id: 's', type: 'switch', x: 2, y: 7, targets: ['D'] },
-      { id: 'D', type: 'door', x: 7, y: 3, h: 3 },
       { id: 'k', type: 'key', x: 12, y: 8, opens: 'L' },
-      { id: 'G', type: 'crack', x: 24, y: 5, h: 3 },
+      { id: 'D', type: 'door', x: 24, y: 5, h: 3 },
       { id: 'L', type: 'locked', x: 27, y: 5, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 5 },
+    ],
+  }),
+];
+
+// ══ Level 3 (owner 2026-11-27): the lift, and both players busy at the same time ════
+export const LEVEL3 = [
+  // ── 3-1 Going up ───────────────────────────────────────────────────────────────────
+  // At the same time: the strong one smashes the cracked wall to the lift while the climber
+  // climbs to the ledge and takes the key. Then the climber pulls the lift lever up top and
+  // the lift brings the strong one up, who pulls the heavy lever for the door.
+  room({
+    id: 'r7', name: 'room.7', goal: 'goal.7', theme: 0,
+    spawn: { climber: [2, 3], strong: [3.5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(5, 5, 3, 8, 'H');               // ladder up to the ledge
+      fill(6, 9, 8, 8);                    // ledge (top 9) with the key
+      fill(10, 11, 2, 2, '.');             // pocket for the lift (its top is flush with the floor)
+      fill(12, W - 2, 3, 8);               // the upper floor (top 9)
+    },
+    objects: [
+      { id: 'G', type: 'crack', x: 8, y: 3, h: 3 },
+      { id: 'k', type: 'key', x: 7, y: 9, opens: 'L' },
+      { id: 'Y', type: 'lift', x: 10, w: 2, y0: 3, y1: 9 },
+      { id: 'l', type: 'liftlever', x: 13, y: 9, targets: ['Y'] },
+      { id: 'h', type: 'heavylever', x: 18, y: 9, targets: ['D'] },
+      { id: 'D', type: 'door', x: 24, y: 9, h: 3 },
+      { id: 'L', type: 'locked', x: 27, y: 9, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 9, open: true },
+    ],
+  }),
+
+  // ── 3-2 Bridge and portal ──────────────────────────────────────────────────────────────
+  // At the same time: the strong one smashes the cracked wall while the climber climbs to
+  // the portal on the ledge and switches it on. Across the gap (too wide for anyone) the
+  // climber builds the bridge; the strong one comes over and pulls the heavy lever.
+  room({
+    id: 'r8', name: 'room.8', goal: 'goal.8', theme: 1,
+    spawn: { climber: [5.3, 3], strong: [6.6, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(1, 3, 6, 6);                    // ledge with the portal (top 7)
+      fill(4, 4, 3, 6, 'H');               // ladder up to it
+      fill(8, 8, 6, H - 2);                // wall above the cracked wall
+      fill(11, 16, 0, 2, '.');             // the gap: 6 wide, no bottom
+      fill(26, 26, 6, H - 2);              // wall above the door
+    },
+    objects: [
+      { id: 'o', type: 'portal', x: 2, y: 7, pair: 'O', ask: true },
+      { id: 'G', type: 'crack', x: 8, y: 3, h: 3 },
+      { id: 'b', type: 'bridge', x0: 11, x1: 16, y: 2 },
+      { id: 'p', type: 'post', x: 18, y: 3, targets: ['b'] },
+      { id: 'O', type: 'portal', x: 21, y: 3, pair: 'o' },
+      { id: 'h', type: 'heavylever', x: 23, y: 3, targets: ['D'] },
+      { id: 'D', type: 'door', x: 26, y: 3, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 3, open: true },
+    ],
+  }),
+
+  // ── 3-3 All together ───────────────────────────────────────────────────────────────────
+  // The lift lever stands beside the lift: the climber can pull it riding along. Up top at
+  // the same time: the strong one smashes the cracked wall while the climber takes the
+  // ladder to the switch (it opens the door). The key lies in a slot too high to jump to:
+  // the climber jumps off the strong one's head.
+  room({
+    id: 'r9', name: 'room.9', goal: 'goal.9', theme: 2,
+    spawn: { climber: [2.5, 3], strong: [4, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(8, 9, 2, 2, '.');               // pocket for the lift
+      fill(10, W - 2, 3, 5);               // upper floor (top 6)
+      fill(13, 13, 6, 9, 'H');             // ladder to the switch ledge
+      fill(11, 12, 9, 9);                  // switch ledge (top 10)
+      fill(16, 16, 9, H - 2);              // wall above the cracked wall
+      fill(19, 21, 9, 9);                  // key shelf (top 10): from the strong one's head
+      fill(24, 24, 9, H - 2);              // wall above the door
+      fill(27, 27, 9, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 'l', type: 'liftlever', x: 7, y: 3, targets: ['Y'] },
+      { id: 'Y', type: 'lift', x: 8, w: 2, y0: 3, y1: 6 },
+      { id: 's', type: 'switch', x: 11, y: 10, targets: ['D'] },
+      { id: 'G', type: 'crack', x: 16, y: 6, h: 3 },
+      { id: 'k', type: 'key', x: 20, y: 10, opens: 'L' },
+      { id: 'D', type: 'door', x: 24, y: 6, h: 3 },
+      { id: 'L', type: 'locked', x: 27, y: 6, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 6, open: true },
     ],
   }),
 ];
@@ -216,6 +307,7 @@ export const LEVEL2 = [
 export const LEVELS = [
   { id: 'l1', rooms: ROOMS },
   { id: 'l2', rooms: LEVEL2 },
+  { id: 'l3', rooms: LEVEL3 },
 ];
 
 /** Debug: the room as text, top row first. */

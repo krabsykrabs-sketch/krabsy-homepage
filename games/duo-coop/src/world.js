@@ -189,7 +189,7 @@ function objectView(o, models, keep, room) {
   const glowM = () => keep(new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
 
   switch (o.type) {
-    case 'lever': case 'heavylever': {
+    case 'lever': case 'heavylever': case 'liftlever': {
       const big = o.type === 'heavylever';
       const model = models.clone(big ? 'lever_floor_base_red' : 'lever_floor_base_yellow');
       const handle = findNode(model, big ? 'lever_floor_red' : 'lever_floor_yellow');
@@ -370,6 +370,28 @@ function objectView(o, models, keep, room) {
         discM.opacity = s.active ? 0.45 + Math.sin(t * 3) * 0.1 : 0;
         swirlM.opacity = s.active ? 0.5 : 0;
         swirl.rotation.z = -t * 3;
+      } };
+    }
+    case 'lift': {
+      // a wooden platform (two Platformer floor_wood pieces) hanging on two chains
+      const plat = new THREE.Group();
+      for (let i = 0; i < o.w; i++) {
+        const piece = fit(models.clone('floor_wood_1x1'), 1.0, 0.5, 2.0);
+        piece.position.set(i + 0.5, 0, 0);
+        plat.add(piece);
+      }
+      node.add(plat);
+      const chains = [];
+      for (const cxp of [0.25, o.w - 0.25]) {
+        const c = fit(models.clone('chain_full'), null, 1, null);
+        const holder = new THREE.Group(); holder.add(c); holder.position.set(cxp, 0.5, -0.6);
+        node.add(holder); chains.push(holder);
+      }
+      node.position.set(o.x, o.y0 - 0.5, 0);
+      return { node, update(s) {
+        node.position.y = s.top - 0.5;
+        const len = Math.max(0.1, (H - 1) - (s.top));   // up to the ceiling
+        for (const c of chains) c.scale.y = len;
       } };
     }
     case 'cage': {

@@ -24,9 +24,11 @@ const ONLY = process.argv.includes('--only') ? process.argv[process.argv.indexOf
 const EXTRA = process.env.QUERY || '';
 fs.mkdirSync(OUT, { recursive: true });
 
-// desktop plays level 1 and then level 2 ("Next level"); touch plays level 1.
-// --level2: only level 2, started with ?level=2 (desktop).
-const L2ONLY = process.argv.includes('--level2');
+// desktop plays level 1, then levels 2 and 3 ("Next level"); touch plays level 1.
+// --from N: start at level N (?level=N, desktop only) and play to the last level;
+// --level2 = --from 2.
+const FROM = process.argv.includes('--from') ? +process.argv[process.argv.indexOf('--from') + 1] : (process.argv.includes('--level2') ? 2 : 1);
+const L2ONLY = FROM > 1;
 const RUNS = [
   { name: 'desktop', viewport: { width: 1366, height: 768 }, touch: false, query: '?lang=en', level2: true },
   { name: 'touch', viewport: { width: 1024, height: 768 }, touch: true, query: '?lang=de&touch=1', level2: false },
@@ -54,7 +56,7 @@ async function run(browser, cfg) {
     if (!/api\.krabsy\.com/.test(r.url())) errors.push(`failed after ${Date.now() - t0} ms: ${r.url()} ${r.failure()?.errorText}`);
   });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
-  await page.goto(BASE + cfg.query + (L2ONLY ? '&level=2' : '') + EXTRA);
+  await page.goto(BASE + cfg.query + (L2ONLY ? `&level=${FROM}` : '') + EXTRA);
   if (!L2ONLY) {
     await page.waitForFunction(() => window.__duo && window.__duo.state() === 'menu', null, { timeout: 60000 });
     await page.waitForTimeout(500);
@@ -176,24 +178,21 @@ async function run(browser, cfg) {
   // ══ Level 2 ═══════════════════════════════════════════════════════════════════════
   async function level2() {
     const C = 0, S = 1;
-    // 2-1 Upstairs, downstairs
+    // 2-1 Upstairs, downstairs: wall below and switch above at the same time
     await shot('L2-1-start');
-    await walkTo(C, 6.5);
+    await walkTo(S, 8.5);
+    await answer(S, true, 'L2-1-crack');                 // the strong one smashes the wall …
+    await walkTo(C, 6.5);                                // … while the climber goes up
     await climb(C, 1, 7);
-    await walkTo(C, 16.5);
+    await step(0.5);
+    await expect(async () => (await objs()).G.open, '2-1: wall not smashed');
+    await walkTo(C, 17.5);
     await answer(C);
     await expect(async () => (await objs()).D.open, '2-1: door D did not open');
     await walkTo(C, 19.5);
     await answer(C);
     await step(1.6);
     await expect(async () => (await objs()).L.open, '2-1: the key did not open the gate');
-    await walkTo(S, 21.5);
-    await walkTo(C, 21.65, { jump: false });
-    if ((await P(C)).y > 4.7) fail('2-1: climber did not drop down to the cracked wall');   // floor or the strong one's head
-    await answer(S, true, 'L2-1-crack');
-    await step(1.1);
-    await expect(async () => (await objs()).G.open, '2-1: wall not smashed');
-    await walkTo(C, 25, { jump: false });               // off the strong one's head first
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
     await answer(C);
@@ -238,9 +237,12 @@ async function run(browser, cfg) {
     await shot('L2-3-start');
     await walkTo(C, 4.5);
     await climb(C, 1, 7);
-    await walkTo(C, 2.5);
+    await walkTo(S, 6.5);                               // at the same time: the wall …
+    await answer(S);
+    await walkTo(C, 2.5);                               // … and the switch
     await answer(C);
     await expect(async () => (await objs()).D.open, '2-3: door D did not open');
+    await expect(async () => (await objs()).G.open, '2-3: wall not smashed');
     await walkTo(S, 13.59, { jump: false });            // crate right beside the key shelf
     await shortHop(S, 'right', 0.12);
     await walkTo(S, 14.55, { jump: false, tol: 0.06 });  // the right half of the crate: beside the shelf
@@ -261,14 +263,96 @@ async function run(browser, cfg) {
     await walkTo(S, 18.59, { jump: false });             // crate to the platform
     await walkTo(S, 23.5);
     if ((await P(S)).y < 4.99) fail('2-3: strong one not on the platform');
-    await answer(S);
-    await step(1.1);
-    await expect(async () => (await objs()).G.open, '2-3: wall not smashed');
     await walkTo(C, 23.0);
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
     await answer(C);
     await walkTo(C, 29.9);
+    await page.waitForTimeout(2100);
+    await step(0.1);
+  }
+
+  // ══ Level 3 ═══════════════════════════════════════════════════════════════════════
+  async function level3() {
+    const C = 0, S = 1;
+    // 3-1 Going up
+    await shot('L3-1-start');
+    await walkTo(S, 7.5);                                // at the same time: the wall …
+    await answer(S);
+    await walkTo(C, 5.5, { jump: false });               // … and the climb to the key
+    await climb(C, 1, 9);
+    await walkTo(C, 7.5, { jump: false });
+    await answer(C);
+    await expect(async () => (await objs()).G.open, '3-1: wall not smashed');
+    await walkTo(S, 10.9, { jump: false });              // onto the lift
+    await walkTo(C, 8, { jump: false });
+    let p = await runJump(C, 'right', 9.6);              // over the lift shaft
+    if (p.y < 8.99) fail(`3-1: climber did not get onto the upper floor (y ${p.y.toFixed(2)})`);
+    await walkTo(C, 13.5);
+    await answer(C);
+    await step(3);
+    if (Math.abs((await P(S)).y - 9) > 0.05) fail(`3-1: the lift did not bring the strong one up (y ${(await P(S)).y.toFixed(2)})`);
+    await shot('L3-1-lift');
+    await walkTo(S, 18.5);
+    await answer(S);
+    await expect(async () => (await objs()).D.open, '3-1: heavy lever did not open the door');
+    await expect(async () => (await objs()).L.open, '3-1: the key did not open the gate');
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
+    await nextRoom(2);
+
+    // 3-2 Bridge and portal
+    await shot('L3-2-start');
+    await walkTo(S, 7.5);                                // the wall …
+    await answer(S);
+    await walkTo(C, 4.5, { jump: false });               // … and the portal on the ledge
+    await climb(C, 1, 7);
+    await walkTo(C, 2.5, { jump: false });
+    await answer(C);
+    await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false); await step(0.2);
+    if (Math.abs(cx(await P(C)) - 21.5) > 0.6) fail(`3-2: climber did not come out of the far portal (x ${cx(await P(C)).toFixed(2)})`);
+    await expect(async () => (await objs()).G.open, '3-2: wall not smashed');
+    await walkTo(C, 18.5, { jump: false });
+    await answer(C);
+    await step(0.5);
+    await expect(async () => (await objs()).b.solid, '3-2: bridge not built');
+    await walkTo(S, 23.5);
+    if (cx(await P(S)) < 22) fail('3-2: strong one did not cross the bridge');
+    await answer(S);
+    await expect(async () => (await objs()).D.open, '3-2: heavy lever did not open the door');
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
+    await nextRoom(3);
+
+    // 3-3 All together
+    await shot('L3-3-start');
+    await walkTo(S, 8.6, { jump: false });               // both onto the lift …
+    await walkTo(C, 8.05, { jump: false, tol: 0.06 });
+    await answer(C);                                     // … the climber pulls the lever riding along
+    await step(2);
+    if ((await P(S)).y < 5.99 || (await P(C)).y < 5.99) fail(`3-3: the lift did not bring both up (S ${(await P(S)).y.toFixed(2)}, C ${(await P(C)).y.toFixed(2)})`);
+    await shot('L3-3-lift');
+    await walkTo(S, 15.5);                               // the wall …
+    await answer(S);
+    await walkTo(C, 13.5, { jump: false });              // … and the climb to the switch
+    await climb(C, 1, 10);
+    await walkTo(C, 11.5, { jump: false });
+    await answer(C);
+    await expect(async () => (await objs()).D.open, '3-3: switch did not open the door');
+    await expect(async () => (await objs()).G.open, '3-3: wall not smashed');
+    await walkTo(S, 22.5, { jump: false });              // beside the key shelf
+    await walkTo(C, 21.5, { jump: false });
+    for (let i = 0; i < 3 && Math.abs((await P(C)).y - 7.6) > 0.05; i++) { await walkTo(C, 21.5, { jump: false }); await shortHop(C, 'right', 0.12 + i * 0.05); }
+    if (Math.abs((await P(C)).y - 7.6) > 0.05) fail(`3-3: climber not on the strong one's head (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 22.6, { jump: false, tol: 0.06 });
+    await shortHop(C, 'left', 0.35);
+    if ((await P(C)).y < 9.99) fail(`3-3: climber did not reach the key slot (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 20.5, { jump: false });
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).L.open, '3-3: the key did not open the gate');
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
     await page.waitForTimeout(2100);
     await step(0.1);
   }
@@ -289,8 +373,17 @@ async function run(browser, cfg) {
   // ── Room 1: levers and doors ────────────────────────────────────────────────────
   const C = 0, S = 1;   // climber = player 1, strong one = player 2 (default roles)
   await shot('1-start');
+  // at the same time: the strong one smashes the wall, the climber climbs to the lever
+  await walkTo(C, 7.4, { jump: false });             // the climber can't smash it (no card)
+  await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false);
+  if (await G('card', C)) fail('the climber got a question at the cracked wall');
+  await walkTo(S, 7.5);
+  await answer(S, true, '1-crack');
   await walkTo(C, 6.5);
   await climb(C, 1, 7);
+  await step(0.5);
+  await expect(async () => (await objs()).G.open && !(await objs()).G.solid, 'cracked wall not smashed');
+  await shot('1-smashed');
   await walkTo(C, 3.5);
   await answer(C, false, '1-card');               // a wrong answer first: the lever stays off
   await expect(async () => !(await objs()).a.on, 'lever a turned on after a wrong answer');
@@ -314,16 +407,6 @@ async function run(browser, cfg) {
   await walkTo(C, 20.5);
   await answer(C);
   await expect(async () => (await objs()).b.solid, 'bridge not built');
-  // the cracked wall: the climber can't smash it (no card), the strong one can
-  await walkTo(C, 24.4);
-  await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false);
-  if (await G('card', C)) fail('the climber got a question at the cracked wall');
-  await walkTo(C, 22.5);
-  await walkTo(S, 24.5);
-  await answer(S, true, '1-crack');
-  await step(1.1);   // the wall breaks when the fist lands (0.75 s into the punch)
-  await expect(async () => (await objs()).G.open && !(await objs()).G.solid, 'cracked wall not smashed');
-  await shot('1-smashed');
   await walkTo(S, 29.2);
   await expect(async () => (await objs()).E.open, 'room 1 exit should be open from the start');
   await walkTo(C, 29.8);
@@ -380,18 +463,18 @@ async function run(browser, cfg) {
   await walkTo(C, 2.5);
   await answer(C);
   await expect(async () => (await objs()).D.open, 'door D did not open');
-  await walkTo(C, 13.5);
-  await walkTo(S, 15.5);
+  // at the same time: the strong one smashes the wall, the climber climbs to the key
+  await walkTo(S, 22.5);
   await answer(S);
-  await step(1.1);
-  await expect(async () => (await objs()).G.open, 'cracked wall in room 3 not smashed');
-  await walkTo(S, 19.5);
   await walkTo(C, 22.5);
   await climb(C, 1, 9);
   await walkTo(C, 18.5);
   await answer(C);
   await step(1.6);
+  await expect(async () => (await objs()).G.open, 'cracked wall in room 3 not smashed');
   await expect(async () => (await objs()).L.open, 'room 3: locked door did not open with the key');
+  await walkTo(C, 22.5, { jump: false });
+  await climb(C, -1, 3);
   await walkTo(S, 28.1);
   await walkTo(C, 28.9);
   await answer(C, true);
@@ -404,16 +487,19 @@ async function run(browser, cfg) {
   } // level 1
 
   if (cfg.level2) {
-    if (!L2ONLY) {
-      if (await page.isHidden('#next-level-btn')) fail('no "Next level" button after level 1');
-      await page.click('#next-level-btn');
-      await page.waitForFunction(() => window.__duo.state() === 'playing' && window.__duo.game?.level() === 2, null, { timeout: 90000 });
-      await page.evaluate(() => window.__duo.game.manual(true));
+    for (const L of [2, 3]) {
+      if (L < FROM) continue;
+      if (L > FROM || FROM === 1) {
+        if (await page.isHidden('#next-level-btn')) fail(`no "Next level" button before level ${L}`);
+        await page.click('#next-level-btn');
+        await page.waitForFunction((n) => window.__duo.state() === 'playing' && window.__duo.game?.level() === n, L, { timeout: 90000 });
+        await page.evaluate(() => window.__duo.game.manual(true));
+      }
+      await (L === 2 ? level2() : level3());
+      await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: `${OUT}/${cfg.name}-L${L}-results.png` });
     }
-    await level2();
-    await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
-    await page.waitForTimeout(500);
-    await page.screenshot({ path: `${OUT}/${cfg.name}-L2-results.png` });
     if (!(await page.isHidden('#next-level-btn'))) fail('"Next level" shown after the last level');
   }
   const sum = await G('summary');
