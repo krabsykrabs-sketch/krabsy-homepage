@@ -301,6 +301,70 @@ function watchTyping() {
   document.addEventListener('focusout', () => { document.body.classList.remove('k-typing'); });
 }
 
+
+/* ── Wrong language? (owner 2026-11-27: "we will lose any child that lands on the
+   wrong language page"). The start page sends English-only browsers to the English
+   interface (Spanish course); a German or Spanish child on an English laptop then
+   lands in the wrong place. Guess the reader's language from the browser's
+   language list, else from the time zone (never leaves the browser), and offer
+   the English course in that language. Shown until closed or a language is chosen. */
+const HINT_KEY = 'krabsy_langhint';
+const HINT = {
+  de: { text: 'Sprichst du Deutsch? Hier lernst du Englisch – mit deutschen Menüs.', go: 'Zu Krabsy auf Deutsch', close: 'Schließen' },
+  es: { text: '¿Hablas español? Aquí aprendes inglés, con menús en español.', go: 'Ir a Krabsy en español', close: 'Cerrar' },
+};
+const TZ_DE = /^Europe\/(Berlin|Vienna|Zurich|Busingen|Vaduz|Luxembourg)$/;
+const TZ_ES = /^(Europe\/Madrid|Atlantic\/Canary|Africa\/Ceuta|Pacific\/Galapagos|America\/(Mexico_City|Cancun|Merida|Monterrey|Matamoros|Chihuahua|Ciudad_Juarez|Ojinaga|Tijuana|Hermosillo|Mazatlan|Bahia_Banderas|Bogota|Lima|Santiago|Punta_Arenas|Buenos_Aires|Argentina\/.+|Montevideo|Caracas|Guayaquil|La_Paz|Asuncion|Guatemala|El_Salvador|Tegucigalpa|Managua|Costa_Rica|Panama|Havana|Santo_Domingo|Puerto_Rico|Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus))$/;
+export function guessReaderLang(langs = navigator.languages || [navigator.language || ''], tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { return ''; } })()) {
+  for (const l of langs) {
+    const c = String(l || '').slice(0, 2).toLowerCase();
+    if (c === 'de') return 'de';
+    if (c === 'es' || c === 'pt') return 'es';
+  }
+  if (TZ_DE.test(tz)) return 'de';
+  if (TZ_ES.test(tz)) return 'es';
+  return null;
+}
+function mountLangHint(header, section) {
+  try {
+    if (localStorage.getItem(HINT_KEY)) return;
+    const guess = guessReaderLang();
+    if (!guess || guess === section.ui || !HINT[guess]) return;
+    const target = SECTIONS.find((s) => s.ui === guess && s.subject === 'english');
+    if (!target) return;
+    const done = () => { try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {} };
+    // choosing a language yourself also ends it
+    header.addEventListener('click', (e) => { if (e.target.closest('.k-lang-btn, .k-learn a')) done(); });
+    const t = HINT[guess];
+    const bar = document.createElement('div');
+    bar.className = 'k-langhint';
+    bar.lang = guess;
+    bar.setAttribute('role', 'note');
+    bar.innerHTML = `<span class="k-langhint-text"></span><a class="k-langhint-go"></a><button type="button" class="k-langhint-x">×</button>`;
+    bar.querySelector('.k-langhint-text').textContent = t.text;
+    const go = bar.querySelector('.k-langhint-go');
+    go.textContent = t.go + ' →'; go.href = target.home;
+    go.addEventListener('click', done);
+    const x = bar.querySelector('.k-langhint-x');
+    x.setAttribute('aria-label', t.close);
+    x.addEventListener('click', () => { done(); bar.remove(); });
+    if (!document.getElementById('k-langhint-css')) {
+      const st = document.createElement('style');
+      st.id = 'k-langhint-css';
+      st.textContent = `.k-langhint{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin:0;padding:10px 48px 10px 16px;position:relative;
+        background:#fff4d6;border-bottom:2px solid #ffcf5e;color:#2c2a3a;font:600 0.98rem/1.35 'Nunito',system-ui,sans-serif;justify-content:center;text-align:center}
+        .k-langhint-go{font-weight:800;color:#fff;background:#c0503a;padding:6px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
+        .k-langhint-go:hover{background:#a8432f;color:#fff}
+        .k-langhint-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:50%;
+        background:transparent;font-size:1.4rem;line-height:1;cursor:pointer;color:#2c2a3a}
+        .k-langhint-x:hover{background:rgba(0,0,0,.06)}
+        .k-langhint a:focus-visible,.k-langhint-x:focus-visible{outline:3px solid #2c2a3a;outline-offset:2px}`;
+      document.head.appendChild(st);
+    }
+    header.insertAdjacentElement('afterend', bar);
+  } catch (_) { /* never break the page */ }
+}
+
 export function mountHeader() {
   const header = document.querySelector('header.k-page-header');
   if (!header || header.classList.contains('k-hd')) return header;
@@ -354,6 +418,7 @@ export function mountHeader() {
   }
 
   markCurrent(header, section, lang);
+  mountLangHint(header, section);
   document.body.classList.add('k-has-tabbar');
   watchTyping();
   try { mountShellCounter(header); } catch (_) { /* counter is optional */ }
