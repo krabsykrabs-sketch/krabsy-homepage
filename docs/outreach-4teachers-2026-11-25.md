@@ -64,18 +64,60 @@ over the sheet.
 
 Skip: forums, paid advertorials (news4teachers), blog4schools.
 
-## Draft reply to liko (not sent yet)
+## Draft reply to liko (updated 2026-11-27, not sent yet)
 
 > Hallo liko,
 >
 > vielen Dank für die freundliche Rückmeldung und die gute Idee!
 >
-> Ich lade den Link in die Rubrik Grammar hoch und dazu zwei Arbeitsblätter zu den unregelmäßigen Verben: „Die drei Formen“ (go → ___ → ___) und „Lückensätze“, jeweils mit Lösungsblatt. In der Fußzeile steht der Hinweis auf Krabsy. Alles ist kostenlos und ohne Anmeldung.
+> Ich trage den Link in der Rubrik Grammar ein und lade zwei Arbeitsblätter zu den unregelmäßigen Verben hoch: „Die drei Formen“ (go → ___ → ___) und „Lückensätze“, jeweils mit Lösungsblatt. In der Fußzeile steht der Hinweis auf Krabsy. Alles ist kostenlos und ohne Anmeldung.
+>
+> Dazu habe ich noch einen einseitigen Ablauf für eine Vertretungsstunde (45 Minuten: Online-Übung, Arbeitsblatt, Verb-Diplom). Passt der unter „Interaktive Materialien / Arbeit mit dem Computer“? Und wäre es in Ordnung, wenn ich zwei oder drei Unterseiten (das Verb-Diplom und die Seite für Lehrkräfte) als eigene Links eintrage?
 >
 > Falls du für die Arbeitsblätter lieber Word als PDF hast, sag gern Bescheid.
 >
 > Viele Grüße
 > Jan Ahrens, Entwickler von Krabsy
+
+## Texts to paste (2026-11-27)
+
+Field names on 4teachers are unknown (forms behind login); adapt to what the
+form asks. Keep the tone factual, no superlatives.
+
+### Link (Linkportal Englisch › Grammar, `id=670453`)
+
+- **URL:** https://krabsy.com/de/unregelmaessige-verben/
+- **Titel:** Krabsy: unregelmäßige Verben üben (Liste, Übungen, Spiele, Verb-Diplom)
+- **Beschreibung:** Kostenlose Übungsseite für Klasse 5–8, ohne Anmeldung und ohne Werbung: alle 172 unregelmäßigen Verben als Liste mit deutscher Bedeutung, Tipp-Übungen (go → ___ → ___), kurze Lernspiele, ein Verb-Diplom (Bronze, Silber, Gold) mit Urkunde und Arbeitsblätter mit Lösungen als PDF. Lehrkräfte können ohne Konto einen Klassencode anlegen und sehen, welche Verben die Klasse noch übt.
+- **Schlagwörter:** irregular verbs, unregelmäßige Verben, simple past, past participle, online üben, Lernspiele, Klasse 5, Klasse 6
+
+### Worksheet 1 (Unterstufe › Irregular Verbs, `id=667113`)
+
+- **Datei:** `homepage/de/unregelmaessige-verben/arbeitsblaetter/arbeitsblatt-verbformen.pdf`
+- **Titel:** Irregular verbs: die drei Formen ergänzen (go → ___ → ___), mit Lösungsblatt
+- **Beschreibung:** 20 häufige unregelmäßige Verben. Teil 1: Zur Grundform die beiden anderen Formen ergänzen. Teil 2: Die mittlere Form ist gegeben, die anderen beiden werden ergänzt. Seite 2 ist das Lösungsblatt. In der Fußzeile steht der Link zu einer kostenlosen Online-Übung (ohne Anmeldung), mit der die Klasse danach weiterüben kann.
+- **Klasse:** 5–7 · **Schlagwörter:** irregular verbs, unregelmäßige Verben, simple past, past participle, Arbeitsblatt, Lösung
+
+### Worksheet 2 (same category)
+
+- **Datei:** `homepage/de/unregelmaessige-verben/arbeitsblaetter/arbeitsblatt-lueckentext.pdf`
+- **Titel:** Irregular verbs: Lückensätze mit Lösungsblatt
+- **Beschreibung:** 12 englische Sätze, in die das Verb (in Klammern angegeben) in der richtigen Form eingesetzt wird. Seite 2 ist das Lösungsblatt. In der Fußzeile steht der Link zu einer kostenlosen Online-Übung (ohne Anmeldung).
+- **Klasse:** 5–7 · **Schlagwörter:** irregular verbs, unregelmäßige Verben, simple past, Lückentext, Arbeitsblatt, Lösung
+
+### Teacher guide (Interaktive Materialien / Arbeit mit dem Computer, `id=4752`; after liko's OK and one test run)
+
+- **Datei:** `docs/4teachers/krabsy-vertretungsstunde-unregelmaessige-verben.pdf`
+- **Titel:** Unregelmäßige Verben in der Vertretungsstunde: 45 Minuten mit Online-Übung, Arbeitsblatt und Verb-Diplom
+- **Beschreibung:** Einseitiger Ablauf für Klasse 5–8 (Handy, Tablet oder Computerraum): Klasse beitreten per Code, Online-Übung, Arbeitsblatt mit Lösungen, Verb-Diplom mit Urkunde. Zum Schluss sieht die Lehrkraft, welche Verben die Klasse noch übt, und kann den Link an die Fachlehrkraft weitergeben. Kostenlos, ohne Konto und ohne Werbung; die Kinder geben nur ihren Vornamen ein.
+- **Klasse:** 5–8 · **Schlagwörter:** Vertretungsstunde, irregular verbs, unregelmäßige Verben, Computerraum, Tablet, Online-Übung
+
+### Deep links (only after liko's OK)
+
+- Verb-Diplom → Online Exercises (`id=666850`): https://krabsy.com/de/unregelmaessige-verben/verb-diplom/
+  "Online-Test zu den unregelmäßigen Verben in drei Stufen (Bronze 15, Silber 30, Gold 45 Verben). Wer besteht, druckt eine Urkunde aus. Kostenlos, ohne Anmeldung."
+- Für Lehrkräfte → Teachers' Resources (`id=668396`): https://krabsy.com/de/lehrkraefte/
+  "Klassencode ohne Konto anlegen und sehen, welche Verben die Klasse noch übt; Übungslinks für Hausaufgaben; Unterrichtsideen und Arbeitsblätter. Kostenlos, ohne Werbung."
 
 ## Status
 
