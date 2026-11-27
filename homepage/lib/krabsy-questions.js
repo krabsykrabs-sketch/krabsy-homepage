@@ -111,6 +111,33 @@ function _shuffle(arr) {
   return arr;
 }
 
+/* A game build opened on its own (/games/verb-kitchen/ without the game page around
+   it) has no header and no way back (navigation audit 2026-11-27). On krabsy.com,
+   send it to its game page, keeping ?topic / ?lang / ?difficulty (the page passes
+   them on to the game). Only top-level and only on the live host, so local test
+   servers and QA runs keep loading the bare build. The Quiz-Raum is meant to run
+   on its own (QR code) and is left alone. */
+(function frameGuard() {
+  try {
+    if (window.top !== window || !/(^|\.)krabsy\.com$/.test(location.hostname)) return;
+    const q = new URLSearchParams(location.search);
+    if (['qa', 'debug', 'standalone', 'seed', 'unlock'].some((k) => q.has(k))) return;
+    const BUILDS = { '/games/tower-defense/': 'verb-towers', '/games/verb-kitchen/': 'verb-kitchen',
+      '/games/verb-platformer/': 'verb-platformer', '/games/verb-dungeon/': 'verb-dungeon',
+      '/games/verb-hatchery/': 'verb-hatchery', '/games/verb-snake/': 'verb-snake',
+      '/krabsy-air-control.html': 'air-control', '/krabsy-verb-flow.html': 'verb-flow',
+      '/krabsy-verb-snake.html': 'verb-snake' };
+    const path = location.pathname.replace(/index\.html$/, '');
+    const id = BUILDS[path];
+    if (!id) return;
+    let lang = q.get('lang');
+    if (!lang) { try { lang = localStorage.getItem('krabsy_lang'); } catch (_) {} }
+    const EN = ['verb-towers', 'verb-kitchen', 'verb-platformer', 'verb-hatchery'];
+    const base = lang === 'es' ? '/es/juegos/' : (lang === 'en' && EN.includes(id)) ? '/en/spanish/games/' : '/de/spiele/';
+    location.replace(base + id + '/' + location.search + location.hash);
+  } catch (_) { /* never break a game */ }
+})();
+
 function _norm(s) {
   // curly apostrophes/quotes (phone keyboards type didn’t) count as straight ones
   return String(s || '').replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'").trim().toLowerCase().replace(/\s+/g, ' ');
