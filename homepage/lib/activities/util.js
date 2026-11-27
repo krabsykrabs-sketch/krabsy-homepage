@@ -69,6 +69,38 @@ export function speak(text, learn = 'es') {
   } catch (_) { /* no speech in this browser */ }
 }
 
+/* The tutor does it on the student's screen (live "act", 2026-11-27): click the element
+   with this anchor (pick a word, tap a picture, choose a basket, turn a page; a drag is
+   click word → click gap), or type into / press Enter in a typing gap. Answers that result
+   from it are the tutor's, not the student's (the player marks them). */
+export function actOn(root, c) {
+  if (!root || !c || typeof c.a !== 'string') return false;
+  let el = null;
+  try { el = root.querySelector(`[data-anchor="${CSS.escape(c.a)}"]`); } catch (_) { return false; }
+  if (!el) return false;
+  // forgiving: a click on a row/box that holds exactly ONE clickable thing (e.g. the gap in a
+  // sentence row) means that thing; typing into a row means its input
+  const clickable = (e) => e.matches('button, input, textarea, a[href], [role="button"]');
+  if (!clickable(el)) {
+    const inner = [...el.querySelectorAll('button:not(:disabled), input:not([readonly]), textarea')];
+    const inputs = inner.filter((e) => e.matches('input, textarea'));
+    if ((c.kind === 'type' || c.kind === 'enter') && inputs.length === 1) el = inputs[0];
+    else if (c.kind === 'click' && inner.length === 1) el = inner[0];
+  }
+  if (c.kind === 'type' && el.matches('input, textarea')) {
+    el.focus({ preventScroll: true }); el.value = String(c.text || '').slice(0, 80);
+    el.dispatchEvent(new Event('input', { bubbles: true })); return true;
+  }
+  if (c.kind === 'enter' && el.matches('input, textarea')) {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })); return true;
+  }
+  if (c.kind === 'click') {
+    if (el.matches('input, textarea')) { el.focus({ preventScroll: true }); el.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); return true; }
+    el.click(); return true;
+  }
+  return false;
+}
+
 /* ── Vocabulary ─────────────────────────────────────────────────────────────
    Served shape (homepage/data/vocab/<learn>.json):
      { "<wordId>": { "es": "la vaca", "en": "cow", "de": "Kuh", "emoji": "🐄", "img"?: "/…" } }

@@ -10,7 +10,7 @@
 //   check page: { check: true } (uses material.check) or { check: { q, en, options, answer, teach } }
 //   end page:   { end: true } → "words you met" gallery + material.endChecks + "say it" card
 import { recordAttempt } from '/lib/krabsy-stats.js';
-import { esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone, saneState } from './util.js?v=2026-11-26c';
+import { actOn, esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone, saneState } from './util.js?v=2026-11-27';
 
 const TOKEN = /\{([^}]+)\}([.,;:!?]*)/g;
 // Words of one page: [{k, shown, full, en, pic, id, punct}] in order; k is unique on the page.
@@ -47,6 +47,7 @@ export function mountBook(root, material, opts = {}) {
   const storyTotal = pages.filter(p => !p.check && !p.end).length;
 
   let st = null, bk = null, spread = null, ov = null, dead = false, ready = false, pending = [];
+  let tutorActAt = 0;            // when the tutor last did something on this screen (live "act")
   const rs = { page: null, sig: null, fx: null, card: null };
   const timers = new Set();
   const emitter = batcher(() => { if (!dead && opts.onState) opts.onState(clone(st)); }, 60);
@@ -189,9 +190,10 @@ export function mountBook(root, material, opts = {}) {
     commit();
   }
   function answered(c, key, given, ok, firstTry, hinted) {
+    const byTutor = Date.now() - tutorActAt < 600; if (byTutor) firstTry = false;   // the tutor's answer, not the student's
     const w = word(c.answer), item = c.item || (w ? w.item : null), topic = c.topic || (w && w.topic) || B.topic || null, mode = hinted ? 'hint' : 'choice';
     if (firstTry && item && topic && !st.rec[key]) { st.rec[key] = 1; try { recordAttempt(item, c.form || 'default', !!ok, 'live', topic, mode); } catch (e) { console.warn('book: recordAttempt failed', e); } }
-    if (opts.onAnswer) { try { opts.onAnswer({ step: st.page, item: item || c.answer, given, correct: !!ok, first: !!firstTry, shown: given == null, topic, mode, ref: c.q, a: 'book.q' }); } catch (e) { console.warn(e); } }
+    if (opts.onAnswer) { try { opts.onAnswer({ step: st.page, item: item || c.answer, given, correct: !!ok, first: !!firstTry, shown: given == null, byTutor, topic, mode, ref: c.q, a: 'book.q' }); } catch (e) { console.warn(e); } }
   }
   function afterEnd() {
     if (st.finished || !pages[st.page] || !pages[st.page].end || st.endStep < ends.length) return;
@@ -245,6 +247,7 @@ export function mountBook(root, material, opts = {}) {
     pending.forEach(([fn, arg]) => api[fn](arg)); pending = [];
   }
   const tutorCmd = c => {
+    if (c.type === 'act') { tutorActAt = Date.now(); actOn(root, c); return; }
     if (c.type === 'next') turn(st.page + 1);
     else if (c.type === 'prev') turn(st.page - 1);
     else if (c.type === 'goto' && Number.isInteger(c.page ?? c.step)) turn(Math.max(0, Math.min(pages.length - 1, c.page ?? c.step)));

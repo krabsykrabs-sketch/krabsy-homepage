@@ -124,6 +124,14 @@ def test_relay_and_presence():
             tu.send_json({"t": "cmd", "type": "goto", "step": 2, "evil": 1})
             assert recv(st, "cmd") == {"t": "cmd", "type": "goto", "step": 2}
             tu.send_json({"t": "cmd", "type": "rm -rf"})          # dropped
+            # the tutor does it on the student's screen (act): click / type / enter
+            tu.send_json({"t": "cmd", "type": "act", "kind": "click", "a": "s2.opt.vaca", "text": "x"})
+            assert recv(st, "cmd") == {"t": "cmd", "type": "act", "a": "s2.opt.vaca", "kind": "click", "text": ""}
+            tu.send_json({"t": "cmd", "type": "act", "kind": "type", "a": "s3.slot0", "text": "estoy"})
+            assert recv(st, "cmd") == {"t": "cmd", "type": "act", "a": "s3.slot0", "kind": "type", "text": "estoy"}
+            tu.send_json({"t": "cmd", "type": "act", "kind": "eval", "a": "s3.slot0"})            # dropped: bad kind
+            tu.send_json({"t": "cmd", "type": "act", "kind": "click", "a": "<img onerror=x>"})   # dropped: bad anchor
+            tu.send_json({"t": "cmd", "type": "act", "kind": "type", "a": "s3.slot0", "text": "x" * 200})  # dropped: too long
             tu.send_json({"t": "point", "a": "s2.gap3", "x": 0.5, "y": 1.7})
             assert recv(st, "point") == {"t": "point", "a": "s2.gap3", "x": 0.5, "y": 1.0}
             tu.send_json({"t": "reward", "kind": "gift"})

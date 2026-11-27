@@ -36,7 +36,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 let cssDone = false;
 function loadCss() {
   if (cssDone) return; cssDone = true;
-  for (const href of ['/lib/fonts/krabsy-fonts.css?v=2026-11-26f', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-26']) {
+  for (const href of ['/lib/fonts/krabsy-fonts.css?v=2026-11-26f', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-27']) {
     if (document.querySelector(`link[href="${href}"]`)) continue;
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l);
   }
@@ -93,7 +93,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
             break;
           }
           case 'load': openView(); mount(m.material, null); break;
-          case 'cmd': if (player) player.cmd({ type: m.type, step: m.step, page: m.page }); break;
+          case 'cmd': if (player) player.cmd({ type: m.type, step: m.step, page: m.page, a: m.a, kind: m.kind, text: m.text }); break;
           case 'point': if (player) player.point({ a: m.a, x: m.x, y: m.y }); break;
           case 'reward': reward(m.kind); break;
           case 'end': ended(m.summary); break;
@@ -154,7 +154,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     const host = el.firstChild;
     mat = material; matSig = sig(material);
     let mod;
-    try { mod = await import('/lib/activities/player.js?v=2026-11-26c'); } catch (e) { console.error('live: player', e); return; }
+    try { mod = await import('/lib/activities/player.js?v=2026-11-27'); } catch (e) { console.error('live: player', e); return; }
     if (mat !== material || !host.isConnected) return;
     const p = mod.mountMaterial(host, material, {
       role: 'student', lang, adult: isAdult,

@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
 from datetime import datetime, timezone
 from typing import Optional
@@ -65,7 +66,9 @@ RECHECK_S = 60.0              # each socket re-checks its token / key this often
 PING_S = 25.0
 MAX_ANSWERS = 400             # answers kept in the lesson snapshot (tutor reload)
 MAX_ITEMS = 60                # lesson queue entries
-CMD_TYPES = {"hint", "reveal", "next", "prev", "goto"}
+CMD_TYPES = {"hint", "reveal", "next", "prev", "goto", "act"}
+ACT_KINDS = {"click", "type", "enter"}   # the tutor does it on the student's screen (2026-11-27)
+_ANCHOR = re.compile(r"[\w.:\-]{1,120}", re.UNICODE)
 REWARDS = {"star", "gift"}
 
 
@@ -473,6 +476,11 @@ async def live_ws(ws: WebSocket):
                     if msg.get("type") not in CMD_TYPES:
                         continue
                     out = {"t": "cmd", "type": msg["type"]}
+                    if msg["type"] == "act":
+                        a, kind, text = msg.get("a"), msg.get("kind"), msg.get("text", "")
+                        if kind not in ACT_KINDS or not isinstance(a, str) or not _ANCHOR.fullmatch(a) or not isinstance(text, str) or len(text) > 80:
+                            continue
+                        out.update(a=a, kind=kind, text=text if kind == "type" else "")
                     for k in ("step", "page"):
                         v = _int(msg.get(k))
                         if v is not None:

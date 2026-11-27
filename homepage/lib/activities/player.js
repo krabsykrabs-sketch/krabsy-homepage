@@ -13,8 +13,8 @@
 // effects (state.fx) and play once on each side.
 import { recordAttempt } from '/lib/krabsy-stats.js';
 import { dragTap } from './drag.js?v=2026-11-26b';
-import { esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js?v=2026-11-26c';
-import { mountBook } from './book.js?v=2026-11-26c';
+import { actOn, esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js?v=2026-11-27';
+import { mountBook } from './book.js?v=2026-11-27';
 
 const PRAISE = ['¡Muy bien!', '¡Genial!', '¡Sí!', '¡Perfecto!', '¡Bravo!'];
 const ACCENTS = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡'];
@@ -80,6 +80,7 @@ export function mountPlayer(root, material, opts = {}) {
   let st = null;                // THE state
   let rs = { step: null, sig: null, fx: null, scroll: null };  // what is rendered now
   let kp = null, ov = null, dead = false, ready = false, pending = [];
+  let tutorActAt = 0;            // when the tutor last did something on this screen (live "act")
   const timers = new Set(); let stepTimer = null;
   const emitter = batcher(() => { if (!dead && opts.onState) opts.onState(clone(st)); }, 60);
   const q = s => kp.querySelector(s);
@@ -100,7 +101,10 @@ export function mountPlayer(root, material, opts = {}) {
   // One answer event. ok: right. firstTry: this is the first decisive attempt on the item.
   // first: right at first try without hint (= a star). shown: the answer was given.
   function answer(a) {
-    const { ok, first, shown, label, wordId, teach, counts = true, recKey, item, topic, form, given, mode, anchor, firstTry } = a;
+    const { ok, shown, label, wordId, teach, counts = true, recKey, item, topic, form, given, mode, anchor } = a;
+    // done by the tutor on this screen (live "act"): no star, not the student's answer for the star map
+    const byTutor = Date.now() - tutorActAt < 600;
+    const first = a.first && !byTutor, firstTry = a.firstTry && !byTutor;
     if (anchor) st.last = anchor;
     if (ok) {
       if (counts) st.total++;
@@ -116,12 +120,12 @@ export function mountPlayer(root, material, opts = {}) {
     } else msg('no', '✗', L.notQuite, L.tryAgain);
     if (mirror) return;
     const correct = !!ok;
-    if (firstTry && item && topic && !st.rec[recKey]) {
+    if (firstTry && item && topic && !st.rec[recKey]) {   // (byTutor: firstTry is false, nothing recorded)
       st.rec[recKey] = 1;
       try { recordAttempt(item, form || 'default', correct, 'live', topic, mode); } catch (e) { console.warn('player: recordAttempt failed', e); }
     }
     if (opts.onAnswer) {
-      try { opts.onAnswer({ step: st.step, item: item || wordId || null, given: given ?? null, correct, first: !!firstTry, shown: !!shown, topic: topic || null, mode: mode || null, ref: label, a: anchor || null }); } catch (e) { console.warn(e); }
+      try { opts.onAnswer({ step: st.step, item: item || wordId || null, given: given ?? null, correct, first: !!firstTry, shown: !!shown, byTutor, topic: topic || null, mode: mode || null, ref: label, a: anchor || null }); } catch (e) { console.warn(e); }
     }
   }
   function addPractise(id, label) { const key = id || label; if (key && !st.practise.some(p => (p.id || p.label) === key)) st.practise.push(id ? { id } : { label }); }
@@ -335,6 +339,7 @@ export function mountPlayer(root, material, opts = {}) {
       else if (c.type === 'next') { if (!st.done) goStep(st.step + 1); }
       else if (c.type === 'prev') goStep(st.done ? M.steps.length - 1 : st.step - 1);
       else if (c.type === 'goto' && Number.isInteger(c.step)) goStep(Math.min(c.step, M.steps.length));
+      else if (c.type === 'act') { tutorActAt = Date.now(); actOn(root, c); }
     },
     point(pos) {
       if (!ready) return pending.push(['point', pos]);

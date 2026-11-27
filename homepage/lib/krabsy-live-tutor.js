@@ -18,7 +18,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
-import { mountMaterial } from '/lib/activities/player.js?v=2026-11-26c';
+import { mountMaterial } from '/lib/activities/player.js?v=2026-11-27';
 import { runningLessons, markRunning, markEnded } from '/lib/krabsy-live-running.js?v=2026-11-27';
 
 const LANG = 'en';
@@ -38,7 +38,8 @@ const T = {
   startLead: (n) => `${n} opens their personal page (the bookmark). When you start, it switches to the lesson by itself. Keep Zoom for face and voice; nobody shares a screen.`,
   lastEnded: (t) => `The last lesson ended at ${t}.`,
   hint: '💡 Hint', reveal: 'Show answer', prev: '◀', next: '▶', prevL: 'Back', nextL: 'Next',
-  star: '⭐', gift: '🎁', point: '◎ Point', pointTip: 'Click on the screen to point at something',
+  star: '⭐', gift: '🎁', point: '◎ Point', pointTip: 'Left click on the screen: do it for the student. Right click: point. On a tablet switch Point on to point with a tap.',
+  did: 'Done on their screen ✓', typeFor: (n) => `Type for ${n}`, typeHint: 'Enter = check', mouseHelp: 'Left click: do it · Right click: point',
   pointed: 'Pointed ✓', starSent: '⭐ sent', giftSent: '🎁 sent',
   nextItem: (t) => `Next: ${t} ▸`, finished: 'Finished ✓',
   tabQueue: 'Lesson', tabAnswers: 'Answers', tabNotes: 'Notes',
@@ -138,7 +139,7 @@ class LivePage {
     this.presence = { tutor: true, student: false, visible: false };
     this.mats = new Map();         // item key → material
     this.mirror = null; this.mirrorSig = '';
-    this.pointOn = true; this.tab = 'queue'; this.firstReady = true; this.status = 'connecting';
+    this.pointOn = false; this.tab = 'queue'; this.firstReady = true; this.status = 'connecting';
     this.notesKey = `krabsy_live_notes:${P.sid}`;
     this.profileHref = SPACE + (P.legacy ? `#t=${P.token}&s=${P.sid}` : `#s=${P.sid}`);
     this.spaceHref = SPACE + (P.legacy ? `#t=${P.token}` : '');
@@ -180,7 +181,7 @@ class LivePage {
       <p class="kl-banner" data-banner hidden></p>
       <div class="kl-cols">
         <section class="kl-stagecol">
-          <div class="kl-mirror-h"><h2>${T.sees(n)}</h2><span class="kl-mat" data-mattitle></span></div>
+          <div class="kl-mirror-h"><h2>${T.sees(n)}</h2><span class="kl-mat" data-mattitle></span><span class="kl-mousehelp">${T.mouseHelp}</span></div>
           <div class="kl-mirror" data-mirror></div>
           <div class="kl-ctl" data-ctl role="toolbar" aria-label="Lesson controls">
             <button type="button" class="kl-btn" data-c="hint">${T.hint}</button>
@@ -188,7 +189,7 @@ class LivePage {
             <span class="kl-ctl-pair"><button type="button" class="kl-btn" data-c="prev" aria-label="${T.prevL}" title="${T.prevL}">${T.prev}</button><button type="button" class="kl-btn" data-c="next" aria-label="${T.nextL}" title="${T.nextL}">${T.next}</button></span>
             <button type="button" class="kl-btn" data-reward="star" aria-label="Send a star" title="Send a star">${T.star}</button>
             ${this.adult ? '' : `<button type="button" class="kl-btn" data-reward="gift" aria-label="Send a gift" title="Send a gift">${T.gift}</button>`}
-            <button type="button" class="kl-btn is-on" data-point aria-pressed="true" title="${T.pointTip}">${T.point}</button>
+            <button type="button" class="kl-btn" data-point aria-pressed="false" title="${T.pointTip}">${T.point}</button>
             <button type="button" class="kl-btn kl-btn-primary" data-nextitem hidden></button>
             <button type="button" class="kl-btn kl-btn-add" data-add3 title="${T.drawerH}">${T.add}</button>
           </div>
@@ -233,12 +234,25 @@ class LivePage {
     m.querySelectorAll('[data-tabbtn]').forEach((b) => b.addEventListener('click', () => this.setTab(b.dataset.tabbtn)));
     const mir = $('[data-mirror]', m);
     mir.classList.toggle('kl-pointing', this.pointOn);
-    mir.addEventListener('click', (e) => {
-      if (!this.pointOn || !this.mirror) return;
-      const pos = this.mirror.anchorAt(e.clientX, e.clientY);
+    // Left click: do it on the student's screen (live "act"). Right click (or Point switched
+    // on, for tablets): point. Owner 2026-11-27: "click and point side by side".
+    const pointAt = (e) => {
+      const pos = this.mirror && this.mirror.anchorAt(e.clientX, e.clientY);
       if (!pos) return;
       this.mirror.point(pos);
       if (this.live.point(pos)) this.toast(T.pointed); else this.toast(T.offlineNow);
+    };
+    mir.addEventListener('contextmenu', (e) => { if (!this.mirror) return; e.preventDefault(); pointAt(e); });
+    mir.addEventListener('click', (e) => {
+      if (!this.mirror) return;
+      if (this.pointOn) { pointAt(e); return; }
+      const el = e.target.closest('[data-anchor]');
+      if (!el || !mir.contains(el)) return;
+      const a = el.dataset.anchor;
+      const typed = el.matches('input.kp-type') ? el : (el.querySelectorAll('input.kp-type').length === 1 ? el.querySelector('input.kp-type') : null);
+      if (typed && !typed.closest('.is-ok')) { this.typeBox(typed, typed.dataset.anchor || a); return; }
+      if (!this.live.cmd('act', { kind: 'click', a })) { this.toast(T.offlineNow); return; }
+      this.flashAt(e.clientX, e.clientY);
     });
     // the mirror is scaled down when there is less room than MIRROR_H (a laptop next to Zoom)
     if (window.ResizeObserver) new ResizeObserver(() => this.fitMirror()).observe(mir);
@@ -254,6 +268,33 @@ class LivePage {
   }
 
   active() { return !!(this.lesson && !this.lesson.ended); }
+
+  // a small box over a typing gap in the mirror: the letters appear on the student's screen as you type
+  typeBox(inputEl, a) {
+    document.querySelector('.kl-typebox')?.remove();
+    const r = inputEl.getBoundingClientRect();
+    const box = document.createElement('div');
+    box.className = 'kl-typebox';
+    box.innerHTML = `<label>${esc(T.typeFor(this.name))}</label><input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80"><small>${esc(T.typeHint)}</small>`;
+    Object.assign(box.style, { left: Math.max(8, Math.min(innerWidth - 260, r.left)) + 'px', top: (r.bottom + 6) + 'px' });
+    document.body.appendChild(box);
+    const inp = box.querySelector('input'); inp.value = inputEl.value || ''; inp.focus();
+    this.live.cmd('act', { kind: 'click', a });
+    const close = () => { box.remove(); document.removeEventListener('pointerdown', outside, true); };
+    const outside = (ev) => { if (!box.contains(ev.target)) close(); };
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+    inp.addEventListener('input', () => this.live.cmd('act', { kind: 'type', a, text: inp.value }));
+    inp.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') { ev.preventDefault(); this.live.cmd('act', { kind: 'type', a, text: inp.value }); this.live.cmd('act', { kind: 'enter', a }); close(); this.toast(T.did); }
+      else if (ev.key === 'Escape') close();
+    });
+  }
+
+  flashAt(x, y) {
+    const f = document.createElement('span'); f.className = 'kl-clickfx';
+    Object.assign(f.style, { left: x + 'px', top: y + 'px' });
+    document.body.appendChild(f); setTimeout(() => f.remove(), 600);
+  }
 
   trackRunning() {
     if (this.active()) markRunning(this.P.sid, { name: this.name, started: this.lesson.started, href: this.selfHref });
@@ -557,7 +598,7 @@ class LivePage {
       const given = a.given != null && a.given !== '' ? `“${esc(a.given)}”` : '';
       const ref = a.ref ? esc(a.ref) : '';
       return `<li class="${cls}"><span class="kl-a-ico">${ico}</span><span class="kl-a-t">${a.correct ? (given || ref) : `${given}${given && ref ? ` <span class="kl-mute">${T.rightIs}</span> ` : ''}${ref}`}
-        ${a.correct && !a.first ? ` <em>${T.secondTry}</em>` : ''}${a.shown ? ` <em>${T.shownA}</em>` : ''}${a.mode === 'typed' ? ' <em>⌨</em>' : ''}</span></li>`;
+        ${a.correct && !a.first ? ` <em>${T.secondTry}</em>` : ''}${a.shown ? ` <em>${T.shownA}</em>` : ''}${a.mode === 'typed' ? ' <em>⌨</em>' : ''}${a.byTutor ? ' <em>by you</em>' : ''}</span></li>`;
     }).join('');
   }
 

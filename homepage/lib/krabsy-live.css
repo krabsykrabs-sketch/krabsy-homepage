@@ -213,3 +213,18 @@ html.kl-locked .k-gift { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .kl-dot, .kl-badge.is-live .kl-dot, .kl-wait-pic, .kl-wait-dots i, .kl-toast, .kl-drawer, .kl-modal, .kl-drawer-wrap, .kl-modal-wrap, .kl-lesson { animation: none; }
 }
+
+/* the tutor does it on the student's screen (2026-11-27): left click = do, right click = point */
+.kl-mousehelp { margin-left: auto; font-size: .78rem; color: #8a8494; white-space: nowrap; }
+.kl-mirror:not(.kl-pointing) .is-mirror :is(button, .kp-chip, .kp-type, [data-anchor*=".opt."], [data-anchor*=".card."], [data-anchor*="book.word"]),
+.kl-mirror:not(.kl-pointing) .is-mirror :is(button, .kp-chip, .kp-type) * { cursor: pointer !important; }
+.kl-typebox { position: fixed; z-index: 10070; width: 250px; padding: 10px 12px; border-radius: 12px; background: #fff;
+  border: 2px solid #c9533b; box-shadow: 0 14px 30px rgba(44, 42, 58, .25); display: grid; gap: 6px; font: inherit; }
+.kl-typebox label { font-weight: 800; font-size: .85rem; color: #2c2533; }
+.kl-typebox input { font: inherit; font-size: 1.1rem; font-weight: 700; padding: 8px 10px; border: 2px solid #e3dcf2; border-radius: 8px; }
+.kl-typebox input:focus { outline: 3px solid #2c2533; }
+.kl-typebox small { color: #8a8494; }
+.kl-clickfx { position: fixed; z-index: 10070; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+  border: 3px solid #2ec4a0; pointer-events: none; animation: kl-clickfx .55s ease-out forwards; }
+@keyframes kl-clickfx { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+@media (max-width: 760px) { .kl-mousehelp { display: none; } }

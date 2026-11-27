@@ -397,3 +397,19 @@ live lesson**, so the student never juggles two windows and Zoom is not needed a
 This turns the live classroom into a complete lesson tool (no Zoom), a strong point for
 tutors. It is NOT a general video platform: 1:1 (plus siblings on one device), no
 group calls, no recording.
+
+## Tutor does it on the student's screen (owner 2026-11-27)
+
+- **Left click** on the mirror = do it on the student's screen (relay `cmd {type:'act', kind:
+  'click'|'type'|'enter', a:<anchor>, text?}`; `util.actOn`): pick a word, tap a picture, choose a
+  basket, drag = click word → click gap, turn a page, tap a book word. A click on a row with exactly
+  one clickable thing (the gap in a sentence) means that thing. Clicking a typing gap opens a small
+  box: the letters appear on the student's screen as the tutor types, Enter checks.
+- **Right click** = point (as before). On a tablet: switch **◎ Point** on to point with a tap.
+- Answers that result from the tutor's action (within 600 ms) are the tutor's: no star, no
+  `recordAttempt` (not in the star map), `byTutor` on the answer → "by you" in the answers list.
+- **Leaving the live page never ends a lesson** (it always resumed on return): every tutor page now
+  shows a red "Live lesson with … is running · Back to the lesson" bar (`krabsy-live-running.js`,
+  device-local list) and "Back to live lesson" on the student's card/profile. Anything that ends a
+  lesson asks first: End lesson ("End the lesson with …?"), a 4th lesson at once (ends the oldest),
+  remove student, new link, delete space.
