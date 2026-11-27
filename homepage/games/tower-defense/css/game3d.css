@@ -588,58 +588,26 @@ button { font-family: inherit; color: inherit; border: none; cursor: pointer; }
 .forge-lock { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); margin-top: 4px; overflow: hidden; }
 #forge-lock-bar { height: 100%; width: 0; background: var(--coral); border-radius: 2px; }
 
-/* Wide landscape screens: a side panel on the right, answers stacked. */
+/* Wide landscape screens: the card sits in the bottom-left corner, wide and short
+   (chain side by side, answers in a row). The map uses the whole screen behind it;
+   the levels keep that corner free (js/level.js cornerFree) and the camera moves the
+   map only if a road or building spot would still be covered (renderer._frameCamera).
+   The tower dock sits to the right of the card. */
 @media (min-width: 760px) and (orientation: landscape) {
-  #forge-panel {
-    position: fixed;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 230px;
-    padding: 12px 12px 10px;
-  }
-  /* Everything centred on the board now centres on the space left of the panel. */
-  #bottom-dock { right: 248px; }
-  #coach, #wave-banner { left: calc((100% - 248px) / 2); }
-  .forge-title { font-size: 19px; }
-  /* The chain runs top to bottom here: long verbs would not fit side by side. */
-  .forge-question { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: 2px; font-size: 23px; margin: 8px 0 10px; min-height: 170px; justify-content: center; }
-  .q-arrow { transform: rotate(90deg); padding: 0; font-size: 17px; line-height: 1; }
-  .q-word { min-width: 120px; }
-  .forge-answers { flex-direction: column; gap: 9px; }
-  .forge-answer { flex: none; padding: 11px 8px; font-size: 20px; }
-  .forge-answer .key { display: block; top: 5px; left: 9px; font-size: 11px; }
-  .forge-feedback { min-height: 28px; margin-top: 10px; font-size: 16px; }
-  body #forge-panel.shake { animation: panel-shake-side 0.45s ease-out; }
-  body #forge-panel.celebrate { animation: panel-celebrate-side 0.45s ease-out; }
+  #forge-panel { position: fixed; left: 12px; bottom: 12px; width: 390px; padding: 9px 12px 9px; }
+  #bottom-dock { left: 410px; bottom: 12px; }
+  .forge-answer .key { display: block; top: 3px; left: 7px; font-size: 10px; }
 }
-@keyframes panel-shake-side {
-  0%, 100% { transform: translateY(-50%) translateX(0); }
-  20% { transform: translateY(-50%) translateX(-8px); }
-  40% { transform: translateY(-50%) translateX(7px); }
-  60% { transform: translateY(-50%) translateX(-4px); }
-  80% { transform: translateY(-50%) translateX(3px); }
-}
-@keyframes panel-celebrate-side {
-  0% { transform: translateY(-50%) scale(1); }
-  40% { transform: translateY(-50%) scale(1.035); }
-  100% { transform: translateY(-50%) scale(1); }
-}
-/* Short landscape windows (phone sideways, small iframe). */
+/* Short landscape windows (phone sideways, small iframe): a smaller card. */
 @media (min-width: 760px) and (orientation: landscape) and (max-height: 520px) {
-  /* Sits under the top bar instead of the middle, so it never covers the HUD. */
-  #forge-panel { width: 220px; padding: 9px 10px 8px; top: 60px; transform: none; }
-  body #forge-panel.shake, body #forge-panel.celebrate { animation: none; }
-  #bottom-dock { right: 238px; }
-  #coach, #wave-banner { left: calc((100% - 238px) / 2); }
+  #forge-panel { width: 316px; padding: 7px 9px 7px; left: 8px; bottom: 8px; }
+  #bottom-dock { left: 332px; bottom: 8px; }
   #coach { font-size: 15px; padding: 6px 12px; top: 60px; }
   .forge-sub { display: none; }
-  .forge-question { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 3px 5px; font-size: 18px; margin: 6px 0 7px; min-height: 60px; }
-  .q-arrow { transform: none; padding-top: 3px; font-size: 18px; }
-  .q-word { min-width: 46px; padding: 2px 7px; }
-  .forge-answer { padding: 8px 6px; font-size: 18px; }
-  .forge-answers { gap: 6px; }
-  .forge-feedback { min-height: 20px; margin-top: 5px; font-size: 14px; }
+  .forge-question { font-size: 17px; margin: 3px 0 5px; min-height: 42px; }
+  .q-word { min-width: 44px; padding: 2px 7px; }
+  .forge-answer { padding: 7px 6px; font-size: 17px; }
+  .forge-feedback { min-height: 18px; margin-top: 3px; font-size: 13px; }
 }
 
 #forge-panel.shake { animation: panel-shake 0.45s ease-out; }
@@ -980,3 +948,32 @@ body.game-inactive #bottom-dock { display: none; }
 /* NEW tag on the level's new tower card until it has been built once. */
 .tower-new { display: none; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); background: var(--amber); color: var(--navy); font-family: var(--display); font-size: 11px; line-height: 1; padding: 3px 7px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
 .tower-btn.is-new .tower-new { display: block; }
+#forge-panel.invisible { visibility: hidden; }
+
+/* Training: big bouncing arrow at the next thing to press. Anchored at its tip. */
+#tut-arrow { position: fixed; z-index: 30; pointer-events: none; display: none; transform: translate(-50%, -100%) scale(var(--s, 1)); transform-origin: 50% 100%; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)); }
+#tut-arrow.on { display: block; }
+#tut-arrow.left { transform: translate(-50%, -100%) rotate(90deg) scale(var(--s, 1)); }
+#tut-arrow .tut-arrow-bob { animation: tut-bob 0.8s ease-in-out infinite; }
+#tut-arrow svg { display: block; }
+@keyframes tut-bob {
+  0%, 100% { transform: translateY(-10px); }
+  50% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { #tut-arrow .tut-arrow-bob { animation: none; } }
+/* Corner card: a fixed height, so a longer answer never re-fits the camera. */
+@media (min-width: 760px) and (orientation: landscape) {
+  #forge-panel { height: 196px; }
+}
+@media (min-width: 760px) and (orientation: landscape) and (max-height: 520px) {
+  #forge-panel { height: 150px; }
+}
+.forge-answer.long { font-size: 16px; }
+.forge-answer.xlong { font-size: 13.5px; }
+.forge-answer.long, .forge-answer.xlong { overflow-wrap: normal; word-break: normal; }
+/* Phones (card above the dock): a steady height, so the map never jumps. */
+@media (max-width: 640px) { #forge-panel { min-height: 176px; } }
+@media (min-width: 760px) and (orientation: landscape) and (max-height: 520px) {
+  .forge-answer.long { font-size: 14px; padding-left: 3px; padding-right: 3px; }
+  .forge-answer.xlong { font-size: 12px; padding-left: 3px; padding-right: 3px; }
+}

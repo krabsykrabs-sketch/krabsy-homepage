@@ -6,7 +6,7 @@ window.LEVEL_TRAINING = {
   name: "Training",
   training: true,
   cols: 11,
-  rows: 5,
+  rows: 7,                 // rows 4–6 on the left stay free for the question card
   seed: 3,
   paths: [
     {
@@ -23,7 +23,6 @@ window.LEVEL_TRAINING = {
   bossWaves: [],
   orePerWave: 99,         // wrong answers never run the card out; it closes after
   trainingRightAnswers: 2, // this many right answers (12 bonus + 2 × 9 = the 30-coin upgrade)
-  tutorialCells: [[4, 1]], // the one hex the coach lets the player build on
   clear: [[4, 1], [3, 1], [5, 1], [3, 3], [4, 3], [5, 3]],
   enemyScaling: {
     baseEnemyHealth: 26,

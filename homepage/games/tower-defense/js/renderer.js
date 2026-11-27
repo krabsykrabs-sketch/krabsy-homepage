@@ -237,7 +237,7 @@ export const Renderer = {
     this._layoutTick = (this._layoutTick || 0) + 1;
     if (this._layoutTick % 6) return;
     const i = this._insets();
-    if (`${i.bottom}|${i.right}` !== this._fitSig && Level.current) this._frameCamera(Level.current);
+    if (this._insetSig(i) !== this._fitSig && Level.current) this._frameCamera(Level.current);
   },
 
   // Screen space the board must keep clear of (px). The map uses (almost) the full
@@ -255,14 +255,19 @@ export const Renderer = {
     const rowH = open && this._compactRowH != null ? this._compactRowH
       : (this._compactRowH = row ? row.getBoundingClientRect().height : 0);
     let bottom = Math.max(edge, Math.round(rowH * 0.4)), right = 6;
+    let card = null;
     const panel = document.getElementById('forge-panel');
     if (panel && panel.getBoundingClientRect().width > 0) {
-      const r = panel.getBoundingClientRect();
-      if (getComputedStyle(panel).position === 'fixed') right = Math.round(w - r.left + 8);
-      // Rounded: small height changes of the card must not re-fit the camera.
-      else bottom = Math.ceil((h - r.top + 8) / 12) * 12;
+      const r = panel.getBoundingClientRect(), c = this.canvas.getBoundingClientRect();
+      // Corner card (wide screens): the map may run behind it, as long as no road or
+      // building spot ends up under it (_frameCamera checks). Strip (phones): the map
+      // stays above it. Rounded: small size changes must not re-fit the camera.
+      const snap = (v) => Math.ceil(v / 12) * 12;
+      if (getComputedStyle(panel).position === 'fixed') {
+        card = { x0: 0, y0: h - snap(c.bottom - r.top), x1: snap(r.right - c.left), y1: h };
+      } else bottom = snap(h - r.top + 8);
     }
-    return { top: edge, bottom, right };
+    return { top: edge, bottom, right, left: 6, card };
   },
 
   // Shadow map: towers and scenery only (enemies use blob shadows). Redraw when the
@@ -510,13 +515,56 @@ export const Renderer = {
   // Fit the whole board into the screen area between the top HUD and the bottom
   // dock, at any window shape: find the closest camera distance at which the board's
   // outline fits, then slide the picture so it sits centred in the free area.
+  _insetSig(i) {
+    return `${i.bottom}|${i.right}|${i.card ? `${i.card.x1},${i.card.y0}` : ''}`;
+  },
+
+  // Fit the board to the screen. With the card in the bottom-left corner the map uses
+  // the whole screen; only if a road or building spot would end up under the card is
+  // the map moved — up (more bottom space) or right (more left space), whichever keeps
+  // it bigger, in steps of a quarter of the card's size.
   _frameCamera(level) {
+    const insets = this._insets();
+    this._fitSig = this._insetSig(insets);
+    const area = this._fitCamera(level, insets);
+    const card = insets.card;
+    if (!card || !this._cardCovers(level, card)) return;
+    const h = this.canvas.clientHeight || 768;
+    for (const t of [0.25, 0.5, 0.75, 1]) {
+      let pick = null;
+      const tries = [
+        { ...insets, bottom: insets.bottom + t * (h - card.y0 + 8 - insets.bottom) },
+        { ...insets, left: insets.left + t * (card.x1 + 8 - insets.left) },
+      ];
+      for (const ins of tries) {
+        const a = this._fitCamera(level, ins);
+        if (!this._cardCovers(level, card) && (!pick || a > pick.a)) pick = { ins, a };
+      }
+      if (pick) { this._fitCamera(level, pick.ins); return; }
+    }
+    void area;
+  },
+
+  // Does a road, spawn, castle or free building spot sit under the card (with a margin)?
+  _cardCovers(level, card) {
+    const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
+    const m = 14 * uiScale();
+    for (const cell of level.cells.values()) {
+      if (cell.type === 'scenery' || cell.type === 'water') continue;
+      const p = hexCenter(cell.c, cell.r);
+      _v1.set(p.x, 0, p.y).project(this.camera);
+      const x = (_v1.x * 0.5 + 0.5) * w, y = (-_v1.y * 0.5 + 0.5) * h;
+      if (x > card.x0 - m && x < card.x1 + m && y > card.y0 - m && y < card.y1 + m) return true;
+    }
+    return false;
+  },
+
+  // One fit for the given insets; returns the board's area on screen (px²).
+  _fitCamera(level, insets) {
     const cam = this.camera;
     const W = level.gridWidth, H = level.gridHeight;
     const w = this.canvas.clientWidth || 1366, h = this.canvas.clientHeight || 768;
-    const insets = this._insets();
-    this._fitSig = `${insets.bottom}|${insets.right}`;
-    const top = insets.top, bottom = insets.bottom, side = 6;
+    const top = insets.top, bottom = insets.bottom, side = insets.left ?? 6;
 
     // Free area in normalised device coordinates (-1..1, y up).
     const safe = {
@@ -591,7 +639,9 @@ export const Renderer = {
     cam.setViewOffset(w, h, -dx * w / 2, dy * h / 2, w, h);
     this._camBase = { pos: cam.position.clone(), target: target.clone() };
     cam.updateProjectionMatrix();
+    cam.updateMatrixWorld();
     if (this._sun) this._aimSun(level);
+    return best.size;
   },
 
   _buildBoard(level) {

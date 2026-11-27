@@ -66,7 +66,7 @@ export const Input = {
       if (gate.tower && gate.tower.cellX === cellX && gate.tower.cellY === cellY) {
         state.selectedTower = gate.tower; state.buildCell = null; return;
       }
-      if (!gate.cells.some((c) => c.cellX === cellX && c.cellY === cellY)) return;
+      if (gate.cells !== 'any' && !gate.cells.some((c) => c.cellX === cellX && c.cellY === cellY)) return;
       this._handleClick(w);
       return;
     }
