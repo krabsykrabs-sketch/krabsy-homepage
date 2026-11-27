@@ -47,6 +47,7 @@ const probe = flag('probe');
     viewport: scene.viewport, deviceScaleFactor: scene.scale || 2,
     locale: scene.locale ? scene.locale(section) : undefined,
   });
+  if (scene.initScript) await ctx.addInitScript(scene.initScript);   // runs before the game's code
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
@@ -59,7 +60,7 @@ const probe = flag('probe');
 
   // From here on time only moves when we say so.
   const now = await page.evaluate(() => Date.now());
-  await page.clock.pauseAt(now + 50);
+  await page.clock.pauseAt(now + 1500);   // margin: a busy machine lets the clock run on meanwhile
   await page.evaluate(() => {
     // CSS animations / transitions: pause each one and drive its currentTime
     const seen = new Map();
