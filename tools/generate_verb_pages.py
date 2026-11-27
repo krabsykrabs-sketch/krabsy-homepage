@@ -338,9 +338,9 @@ L = {
         "ex_h": "Beispielsätze mit Übersetzung", "ex_past": "Simple Past", "ex_pp": "Past Participle",
         "ex_extra": ("Frage (Simple Past)", "Verneinung (Simple Past)", "Präsens (-ing-Form)", "Präsens (he/she/it)"),
         "mx_h": "Typische Fehler", "note_h": "Gut zu wissen",
-        "quiz_h": "Mini-Quiz: kannst du es?", "quiz_past": lambda v: f"Was ist das Simple Past von <b>{E(v['verb'])}</b>?",
-        "quiz_pp": lambda v: f"Was ist das Past Participle von <b>{E(v['verb'])}</b>?",
-        "right": "Richtig! 🎉", "wrong_fb": "Leider nein — die richtige Antwort ist",
+        "quiz_h": "Mini-Quiz: kannst du es?", "quiz_past": lambda v: _chain_q(v, "past", "Simple Past"),
+        "quiz_pp": lambda v: _chain_q(v, "pp", "Past Participle"),
+        "right": "Richtig!", "wrong_fb": "Leider nein — die richtige Antwort ist",
         "pattern_h": "Muster", "rel_h": "Verben mit demselben Muster",
         "faq_h": "Häufige Fragen",
         "cta_h": "Jetzt üben", "cta_sub": "Festigen, was du gerade gelernt hast:",
@@ -376,9 +376,9 @@ L = {
         "ex_h": "Frases de ejemplo con traducción", "ex_past": "Pasado simple", "ex_pp": "Participio",
         "ex_extra": ("Pregunta (pasado simple)", "Negación (pasado simple)", "Presente continuo (-ing)", "Presente (he/she/it)"),
         "mx_h": "Errores típicos", "note_h": "Ojo",
-        "quiz_h": "Mini-quiz: ¿te lo sabes?", "quiz_past": lambda v: f"¿Cuál es el pasado simple de <b>{E(v['verb'])}</b>?",
-        "quiz_pp": lambda v: f"¿Cuál es el participio de <b>{E(v['verb'])}</b>?",
-        "right": "¡Correcto! 🎉", "wrong_fb": "No — la respuesta correcta es",
+        "quiz_h": "Mini-quiz: ¿te lo sabes?", "quiz_past": lambda v: _chain_q(v, "past", "pasado simple"),
+        "quiz_pp": lambda v: _chain_q(v, "pp", "participio"),
+        "right": "¡Correcto!", "wrong_fb": "No — la respuesta correcta es",
         "pattern_h": "Patrón", "rel_h": "Verbos con el mismo patrón",
         "faq_h": "Preguntas frecuentes",
         "cta_h": "Practica ahora", "cta_sub": "Refuerza lo que acabas de aprender:",
@@ -428,7 +428,11 @@ STYLE = """
     .vp-ex li.pp{border-left-color:#e05252;background:#fdf4f2}
     .vp-ex .lbl{display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--krabsy-ink-mute);margin-bottom:2px}
     .quiz-q{margin-bottom:14px}
-    .quiz-q p{font-size:0.98rem;color:var(--krabsy-ink);margin-bottom:8px}
+    .quiz-q p{font-size:0.98rem;color:var(--krabsy-ink);margin-bottom:8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .quiz-chain{font-family:var(--font-display);font-size:1.2rem;letter-spacing:.01em}
+    .quiz-gap{display:inline-block;min-width:3.2em;text-align:center;border-bottom:3px solid #e8a33d;color:#b06a00;background:#fff3d6;border-radius:6px 6px 0 0;padding:0 4px}
+    .quiz-blank{color:rgba(31,43,61,0.35)}
+    .quiz-cap{font-size:0.78rem;color:rgba(31,43,61,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
     .quiz-opts{display:flex;gap:8px;flex-wrap:wrap}
     .quiz-btn{font-family:var(--font-display);font-size:1rem;padding:8px 20px;border-radius:30px;border:2px solid rgba(31,43,61,0.15);background:#fff;cursor:pointer;transition:transform .12s}
     .quiz-btn:hover{transform:translateY(-1px)}
@@ -546,6 +550,17 @@ def chrome_close():
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>"""
+
+def _chain_q(v, form_key, caption):
+    """Mini-quiz question in positional notation (presentation mandate 2026-06-12):
+    `go → ___ → ___` asks the 2nd form; `go → went → ___` asks the 3rd form
+    directly after it, with the 2nd filled in (chain order 2026-11-21). The
+    grammar name is only a small caption."""
+    gap = '<span class="quiz-gap">___</span>'
+    mid = gap if form_key == "past" else f"<b>{E(_past_disp(v))}</b>"
+    end = gap if form_key == "pp" else '<span class="quiz-blank">___</span>'
+    return (f'<span class="quiz-chain" lang="en"><b>{E(v["verb"])}</b> → {mid} → {end}</span>'
+            f'<span class="quiz-cap">{E(caption)}</span>')
 
 def quiz_block(t, v, form_key, idx):
     correct = v[form_key]

@@ -46,7 +46,11 @@
     .vp-ex li.pp{border-left-color:#e05252;background:#fdf4f2}
     .vp-ex .lbl{display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--krabsy-ink-mute);margin-bottom:2px}
     .quiz-q{margin-bottom:14px}
-    .quiz-q p{font-size:0.98rem;color:var(--krabsy-ink);margin-bottom:8px}
+    .quiz-q p{font-size:0.98rem;color:var(--krabsy-ink);margin-bottom:8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .quiz-chain{font-family:var(--font-display);font-size:1.2rem;letter-spacing:.01em}
+    .quiz-gap{display:inline-block;min-width:3.2em;text-align:center;border-bottom:3px solid #e8a33d;color:#b06a00;background:#fff3d6;border-radius:6px 6px 0 0;padding:0 4px}
+    .quiz-blank{color:rgba(31,43,61,0.35)}
+    .quiz-cap{font-size:0.78rem;color:rgba(31,43,61,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
     .quiz-opts{display:flex;gap:8px;flex-wrap:wrap}
     .quiz-btn{font-family:var(--font-display);font-size:1rem;padding:8px 20px;border-radius:30px;border:2px solid rgba(31,43,61,0.15);background:#fff;cursor:pointer;transition:transform .12s}
     .quiz-btn:hover{transform:translateY(-1px)}
@@ -125,8 +129,8 @@
 
       <section class="vp-card">
         <h2>Mini-Quiz: kannst du es?</h2>
-        <div class="quiz-q"><p>Was ist das Simple Past von <b>burn</b>?</p><div class="quiz-opts"><button class="quiz-btn" onclick="vq(this,false,'qfb1','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">born</button><button class="quiz-btn" onclick="vq(this,false,'qfb1','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">burnded</button><button class="quiz-btn" onclick="vq(this,true,'qfb1','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">burnt</button></div><div class="quiz-fb" id="qfb1"></div></div>
-        <div class="quiz-q"><p>Was ist das Past Participle von <b>burn</b>?</p><div class="quiz-opts"><button class="quiz-btn" onclick="vq(this,true,'qfb2','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">burnt</button><button class="quiz-btn" onclick="vq(this,false,'qfb2','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">burnded</button><button class="quiz-btn" onclick="vq(this,false,'qfb2','burnt','Richtig! 🎉','Leider nein — die richtige Antwort ist')">born</button></div><div class="quiz-fb" id="qfb2"></div></div>
+        <div class="quiz-q"><p><span class="quiz-chain" lang="en"><b>burn</b> → <span class="quiz-gap">___</span> → <span class="quiz-blank">___</span></span><span class="quiz-cap">Simple Past</span></p><div class="quiz-opts"><button class="quiz-btn" onclick="vq(this,false,'qfb1','burnt','Richtig!','Leider nein — die richtige Antwort ist')">born</button><button class="quiz-btn" onclick="vq(this,false,'qfb1','burnt','Richtig!','Leider nein — die richtige Antwort ist')">burnded</button><button class="quiz-btn" onclick="vq(this,true,'qfb1','burnt','Richtig!','Leider nein — die richtige Antwort ist')">burnt</button></div><div class="quiz-fb" id="qfb1"></div></div>
+        <div class="quiz-q"><p><span class="quiz-chain" lang="en"><b>burn</b> → <b>burnt</b> → <span class="quiz-gap">___</span></span><span class="quiz-cap">Past Participle</span></p><div class="quiz-opts"><button class="quiz-btn" onclick="vq(this,true,'qfb2','burnt','Richtig!','Leider nein — die richtige Antwort ist')">burnt</button><button class="quiz-btn" onclick="vq(this,false,'qfb2','burnt','Richtig!','Leider nein — die richtige Antwort ist')">burnded</button><button class="quiz-btn" onclick="vq(this,false,'qfb2','burnt','Richtig!','Leider nein — die richtige Antwort ist')">born</button></div><div class="quiz-fb" id="qfb2"></div></div>
       </section>
 
       <section class="vp-card">
