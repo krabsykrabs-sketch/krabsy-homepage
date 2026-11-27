@@ -321,7 +321,8 @@ export async function getQuizSet(opts = {}) {
     if (forms && q.form && q.form !== 'default' && !forms.includes(q.form)) return null;
     if (!q.correct_answer) return null;
     const accepts = [q.correct_answer, ...(q.correct_alt || [])].map(_norm);
-    const wrongs = (q.wrong_answers || []).filter((w) => !accepts.includes(_norm(w)));
+    // never two equal buttons: drop wrong answers that repeat (data slips) or match a right one
+    const wrongs = (q.wrong_answers || []).filter((w, i, all) => !accepts.includes(_norm(w)) && all.findIndex((x) => _norm(x) === _norm(w)) === i);
     if (wrongs.length < withOptions - 1) return null;
     const options = _shuffle([q.correct_answer, ...wrongs.slice(0, withOptions - 1)]);
 

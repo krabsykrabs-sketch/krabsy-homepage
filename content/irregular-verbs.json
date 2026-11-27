@@ -165,11 +165,7 @@
     "prompt": "find → ___ → ___",
     "correct_answer": "found",
     "correct_alt": [],
-    "wrong_answers": [
-      "finded",
-      "fund",
-      "finded"
-    ],
+    "wrong_answers": ["finded","fund","fond"],
     "hint": "f__nd",
     "context_sentence": "They have ___ a new solution.",
     "meaning_de": "finden",
@@ -233,11 +229,7 @@
     "prompt": "have → ___",
     "correct_answer": "had",
     "correct_alt": [],
-    "wrong_answers": [
-      "haved",
-      "haved",
-      "hade"
-    ],
+    "wrong_answers": ["haved","has","hade"],
     "hint": "had",
     "context_sentence": "We ___ a great time at the party.",
     "meaning_de": "haben",
@@ -853,11 +845,7 @@
     "prompt": "understand → ___",
     "correct_answer": "understood",
     "correct_alt": [],
-    "wrong_answers": [
-      "understanded",
-      "understanded",
-      "understud"
-    ],
+    "wrong_answers": ["understanded","understands","understud"],
     "hint": "und_rst__d",
     "context_sentence": "She ___ the lesson immediately.",
     "meaning_de": "verstehen",
@@ -875,11 +863,7 @@
     "prompt": "understand → ___ → ___",
     "correct_answer": "understood",
     "correct_alt": [],
-    "wrong_answers": [
-      "understanded",
-      "understanded",
-      "understud"
-    ],
+    "wrong_answers": ["understanded","understanding","understud"],
     "hint": "und_rst__d",
     "context_sentence": "Have you ___ the instructions?",
     "meaning_de": "verstehen",
@@ -1119,11 +1103,7 @@
     "prompt": "drive → ___",
     "correct_answer": "drove",
     "correct_alt": [],
-    "wrong_answers": [
-      "drived",
-      "driven",
-      "drived"
-    ],
+    "wrong_answers": ["drived","driven","droved"],
     "hint": "dr_ve",
     "context_sentence": "She ___ to work this morning.",
     "meaning_de": "fahren",
@@ -2265,11 +2245,7 @@
     "prompt": "catch → ___",
     "correct_answer": "caught",
     "correct_alt": [],
-    "wrong_answers": [
-      "catched",
-      "cought",
-      "catched"
-    ],
+    "wrong_answers": ["catched","cought","catches"],
     "hint": "c__ght",
     "context_sentence": "He ___ the ball with one hand.",
     "meaning_de": "fangen, erwischen",
@@ -5679,11 +5655,7 @@
     "prompt": "bear → ___ → ___",
     "correct_answer": "borne",
     "correct_alt": [],
-    "wrong_answers": [
-      "beared",
-      "bore",
-      "beared"
-    ],
+    "wrong_answers": ["beared","bore","bored"],
     "hint": "b_rne",
     "context_sentence": "He has ___ this burden for years.",
     "meaning_de": "tragen, ertragen",
@@ -5943,11 +5915,7 @@
     "prompt": "tear → ___ → ___",
     "correct_answer": "torn",
     "correct_alt": [],
-    "wrong_answers": [
-      "teared",
-      "tore",
-      "teared"
-    ],
+    "wrong_answers": ["teared","tore","tored"],
     "hint": "t_rn",
     "context_sentence": "He has ___ his shirt on a nail.",
     "meaning_de": "zerreißen",
