@@ -797,3 +797,5 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   (menu, forge, wrong-answer rule in English), verbs/de unchanged.
   Served in the Spanish section: `/en/spanish/games/verb-towers/`.
 
+
+- 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.
