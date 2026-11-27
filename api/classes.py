@@ -38,6 +38,8 @@ from fastapi import APIRouter, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+import catalog
+
 DATA_DIR = Path(os.environ.get("KRABSY_DATA_DIR", "/data"))
 DB_FILE = DATA_DIR / "classes.sqlite3"
 
@@ -46,7 +48,7 @@ CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"   # no 0/O, 1/I/L
 CODE_LEN = 6
 MAX_STUDENTS = 60
 MAX_BATCH = 200                           # answers per request
-TOPICS = {"irregular_verbs", "prepositions", "es_ser", "es_estar", "es_ser_estar", "es_tener"}
+TOPICS = catalog.TOPICS                   # homepage/data/topics.json via api/catalog.json
 _SLUG = re.compile(r"[a-z0-9_-]{1,40}")
 _ITEM = re.compile(r"[a-z0-9 _'-]{1,60}")          # verb base forms ("wake up") / use-case ids
 _NICK = re.compile(r"[\w .'-]{1,20}", re.UNICODE)
@@ -227,7 +229,7 @@ class RenameBody(BaseModel):
 def create_class(body: CreateBody, request: Request) -> JSONResponse:
     if limited("create", _ip(request)):
         return _err(429, "too_many")
-    lang = body.lang if body.lang in ("de", "es") else "de"
+    lang = catalog.ui_lang(body.lang, catalog.CLASS_LANGS)   # languages with class pages
     token = secrets.token_urlsafe(24)
     now = _now()
     with _lock, connect() as con:

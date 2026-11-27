@@ -12,6 +12,8 @@ from html import escape
 from typing import Optional
 from urllib.parse import urlparse
 
+import catalog
+
 from classify import (
     CLASS_BOT, CLASS_BOUNCE, CLASS_ENGAGED, CLASS_LIKELY_BOT, CLASSES,
     HIDDEN_BY_DEFAULT, build_sessions,
@@ -306,8 +308,9 @@ def concurrent_peak(sessions: list[dict]) -> tuple[int, Optional[datetime]]:
 
 
 # --- Games, learning, landing flow (2026-11-22) -----------------------------
-_GAME_PAGE = re.compile(r"^/(?:de/spiele|es/juegos)/([a-z0-9-]+)/$")
-LANDING_PATHS = ("/de/", "/es/")
+# Every section's games folder and home (homepage/data/sections.json via api/catalog.json).
+_GAME_PAGE = catalog.GAME_PAGE
+LANDING_PATHS = catalog.LANDING_PATHS
 
 
 def game_id_for_path(path: Optional[str]) -> Optional[str]:
@@ -548,7 +551,7 @@ def aggregate(
     countries_u: dict[str, set] = defaultdict(set)
     devices_u: dict[str, set] = defaultdict(set)
     all_uniques: set = set()
-    landing_next: Counter = Counter()      # page views whose referrer is /de/ or /es/
+    landing_next: Counter = Counter()      # page views whose referrer is a landing page (LANDING_PATHS)
     game_events: list[tuple[str, dict]] = []
 
     # Classification bookkeeping (always over every class).
@@ -1611,7 +1614,7 @@ def render_dashboard(
   <section>
     <h2>From the landing page</h2>
     {_landing_table(data["landing_next"], data["landing_next_total"])}
-    <p class="muted" style="margin-top:8px;font-size:12px">Page views whose previous page was /de/ or /es/ — which games and pages visitors open from the landing page (featured game, grid, practice row, teacher link).</p>
+    <p class="muted" style="margin-top:8px;font-size:12px">Page views whose previous page was a landing page ({escape(' '.join(LANDING_PATHS))}) — which games and pages visitors open from the landing page (featured game, grid, practice row, teacher link).</p>
   </section>
 
   <section>

@@ -39,6 +39,7 @@ from fastapi import APIRouter, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+import catalog
 import classes
 from classes import _err, _hash, _ip, _lock, _now, connect, limited
 
@@ -332,7 +333,7 @@ class HomeworkBody(BaseModel):
 def create_space(body: CreateBody, request: Request) -> JSONResponse:
     if limited("create", _ip(request)):
         return _err(429, "too_many")
-    lang = body.lang if body.lang in ("de", "es", "en") else "en"
+    lang = catalog.ui_lang(body.lang, default=catalog.FALLBACK_UI)
     name = _clean(body.name, 40) or "My students"
     token = secrets.token_urlsafe(24)
     now = _now()
@@ -561,7 +562,7 @@ def delete_lesson(body: ItemRef, x_tutor_token: str = Header("", max_length=64))
 def add_homework(body: HomeworkBody, x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
     if body.topic not in classes.TOPICS or (body.target and not _TARGET.fullmatch(body.target)):
         return _err(400, "bad_homework")
-    glang = body.glang if body.glang in ("de", "es", "en") else None
+    glang = body.glang if body.glang in catalog.UI_LANGS else None
     with _lock, connect() as con:
         t = _tutor(con, x_tutor_token)
         s = t and _student(con, t["id"], body.id)

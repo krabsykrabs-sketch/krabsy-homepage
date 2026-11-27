@@ -46,6 +46,8 @@ from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+import catalog
+
 router = APIRouter()
 
 CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"   # same as class codes: no 0/O, 1/I/L
@@ -676,7 +678,7 @@ async def quiz_ws(ws: WebSocket):
                         time_s = min(TIME_MAX, max(TIME_MIN, int(msg.get("time", 20))))
                     except (TypeError, ValueError):
                         time_s = 20
-                    lang = msg.get("lang") if msg.get("lang") in ("de", "es", "en") else "de"
+                    lang = catalog.ui_lang(msg.get("lang"))
                     room = Room(_new_code(), secrets.token_urlsafe(24), qs, time_s, lang)
                     room.host_name = clean_name(msg.get("host"))
                     ROOMS[room.code] = room
