@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Krabsy icon set (style rules: lib/icons/README.md). Use:
+       <svg class="ki" aria-hidden="true"><use href="/lib/icons/krabsy-icons.svg?v=…#ki-play"/></svg> -->
+
+  <!-- games / play: a game pad -->
+  <symbol id="ki-play" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#2ee6c0" d="M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l1 5a2.8 2.8 0 0 1-4.8 2.4L15 16H9l-2.1 2a2.8 2.8 0 0 1-4.8-2.4l1-5A4.5 4.5 0 0 1 7.5 7z"/>
+    <path d="M7.5 10.5v3M6 12h3"/>
+    <circle fill="#2c2a3a" stroke="none" cx="15.5" cy="11" r="1.1"/>
+    <circle fill="#2c2a3a" stroke="none" cx="17.6" cy="13.2" r="1.1"/>
+  </symbol>
+
+  <!-- practise: a pencil -->
+  <symbol id="ki-practise" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M4 20l1-4.6L15.4 5a2.1 2.1 0 0 1 3 0l.6.6a2.1 2.1 0 0 1 0 3L8.6 19 4 20z"/>
+    <path fill="#ff8585" d="M15.4 5a2.1 2.1 0 0 1 3 0l.6.6a2.1 2.1 0 0 1 0 3l-1.4 1.4-3.6-3.6z"/>
+    <path d="M5 15.4l3.6 3.6"/>
+  </symbol>
+
+  <!-- diploma / certificate: a medal on two ribbons -->
+  <symbol id="ki-diploma" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ff8585" d="M6 2.5h4.2l2.3 6.2H8.3z"/>
+    <path fill="#ff8585" d="M18 2.5h-4.2l-2.3 6.2h4.2z"/>
+    <circle fill="#ffcf5e" cx="12" cy="15" r="6"/>
+    <path fill="#2c2a3a" stroke="none" d="M12 11.6l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z"/>
+  </symbol>
+
+  <!-- teacher: a graduation cap -->
+  <symbol id="ki-teacher" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 11.5V16c0 1.6 2.7 3 6 3s6-1.4 6-3v-4.5"/>
+    <path fill="#2ee6c0" d="M12 4.5 2.5 9.2 12 14l9.5-4.8z"/>
+    <path d="M21.5 9.2v5"/>
+  </symbol>
+
+  <!-- class: two pupils -->
+  <symbol id="ki-class" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle fill="#ff8585" cx="16.5" cy="8.5" r="2.6"/>
+    <path fill="#ff8585" d="M12.6 19.5a4.4 4.4 0 0 1 8.8 0z"/>
+    <circle fill="#2ee6c0" cx="9" cy="8" r="3.2"/>
+    <path fill="#2ee6c0" d="M3 19.5a6 6 0 0 1 12 0z"/>
+  </symbol>
+
+  <!-- quiz room: a speech bubble with a question mark -->
+  <symbol id="ki-quiz" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M5.5 4h13a3 3 0 0 1 3 3v7.5a3 3 0 0 1-3 3H12l-4.5 3.5v-3.5h-2a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/>
+    <path d="M9.8 9.2a2.3 2.3 0 1 1 3.1 2.1c-.6.3-.9.7-.9 1.3v.3"/>
+    <circle fill="#2c2a3a" stroke="none" cx="12" cy="15.4" r="1.1"/>
+  </symbol>
+</svg>

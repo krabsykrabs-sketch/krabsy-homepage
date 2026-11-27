@@ -72,7 +72,6 @@
   "landing": {
     "_doc": "Intro band on the section landing pages, rendered by tools/render_landing_intro.py ({topics} = the section's topics, topics.json in_sentence).",
     "h1": "Practise Spanish grammar – with games",
-    "toggle": "What is Krabsy?",
     "intro_line": "{topics} for beginners (A1). Free, no sign-up, no ads.",
     "list_sep": ", ",
     "list_last": " and ",

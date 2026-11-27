@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
-  <script>/* intro band: collapsed for returning visitors, decided before first paint (lib/krabsy-landing.js sets the flag) */try{if(localStorage.getItem("krabsy_intro_seen")||localStorage.getItem("krabsy_stats_v2"))document.documentElement.classList.add("k-intro-ret")}catch(_){}</script>
   <title>Krabsy — Learn Spanish with games</title>
   <!-- Pilot (2026-11-24): not public yet. To go public: remove noindex here and in
        tools/build_en_spanish.py (NOINDEX), add the URLs to the sitemap, IndexNow. -->
@@ -23,7 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27b">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27c">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <style>
     /* Spanish landing: four topic cards in two equal columns (the /de/ grid has 2 cards + quick links) */
@@ -70,15 +69,18 @@
 
     <main>
       <div class="wrap gl-head" id="gl-head">
-        <img class="gl-head-crab" src="/thumbnails/sm/crab.png?v=2026-11-27" alt="" width="44" height="44" decoding="async">
-        <div class="gl-head-main">
+        <div class="gl-intro">
           <!-- LANDING-INTRO:START (tools/render_landing_intro.py) -->
-          <div class="gl-intro-top"><h1>Practise Spanish grammar – with games</h1><button class="gl-intro-toggle" id="gl-intro-toggle" type="button" aria-expanded="false" aria-controls="gl-intro-more"><span class="gl-intro-toggle-txt">What is Krabsy?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
-          <div class="gl-intro-more" id="gl-intro-more">
+          <div class="gl-intro-txt">
+            <h1>Practise Spanish grammar – with games</h1>
             <p class="gl-intro-line">Ser, estar and tener for beginners (A1). Free, no sign-up, no ads.</p>
-            <nav class="gl-acts" aria-label="Get started"><a class="gl-act gl-act-play" href="/en/spanish/games/"><span aria-hidden="true">🎮</span>Play</a><a class="gl-act gl-act-practice" href="/en/spanish/practise/"><span aria-hidden="true">✍️</span>Practise</a></nav>
-            <p class="gl-join" id="gl-join"><a class="gl-join-teach" href="/en/spanish/teachers/">Teacher? Practice links and a live Quiz Room →</a> <span class="gl-join-sep" aria-hidden="true">·</span> <a class="gl-join-quiz" href="/quiz/?lang=en">Got a Quiz Room code? Join here →</a></p>
+            <nav class="gl-acts" aria-label="Get started">
+              <a class="gl-act gl-act-play" href="/en/spanish/games/"><span class="gl-act-ico"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-play"/></svg></span>Play</a>
+              <a class="gl-act gl-act-practice" href="/en/spanish/practise/"><span class="gl-act-ico"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-practise"/></svg></span>Practise</a>
+            </nav>
+            <p class="gl-join" id="gl-join"><a class="gl-join-teachers" href="/en/spanish/teachers/"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-teacher"/></svg><span>Teacher? Practice links and a live Quiz Room →</span></a><a class="gl-join-quiz" href="/quiz/?lang=en"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-quiz"/></svg><span>Got a Quiz Room code? Join here →</span></a></p>
           </div>
+          <img class="gl-intro-crab" src="/thumbnails/sm/crab-240.webp" alt="" width="240" height="240" decoding="async">
           <!-- LANDING-INTRO:END -->
         </div>
       </div>
@@ -212,7 +214,7 @@
     </footer>
   </div>
 
-  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27o"></script>
+  <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27p"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

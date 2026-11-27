@@ -57,85 +57,74 @@ a.k-lang-btn { text-decoration: none; display: inline-flex; align-items: center;
 .wrap { max-width: var(--wrap); margin: 0 auto; width: 100%; padding: 0 24px; }
 @media (max-width: 559px) { .wrap { padding: 0 16px; } }
 
-/* ── Intro band (tools/render_landing_intro.py, owner brief 2026-11-27) ──
-   h1 + one line (which grammar, for whom, free / no sign-up / no ads) + three
-   actions + a quiet teacher line. Returning visitors: html.k-intro-ret (set in
-   the page head before first paint) shows only the h1 and the toggle;
-   #gl-head.is-open expands it again. Without JS the band is full. */
-.gl-head { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; }
-.gl-head-crab { width: 44px; height: 44px; flex: 0 0 auto; object-fit: contain; }
-.gl-head-main { flex: 1 1 auto; min-width: 0; }
-.gl-intro-top { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
+/* ── Intro band (tools/render_landing_intro.py, owner 2026-11-27) ─────
+   A card above the featured game: h1, one line (which grammar, for whom,
+   free / no sign-up / no ads), three call-to-action buttons with Krabsy icons
+   (lib/icons/), a quiet teacher line; the crab on wide screens. Always full. */
+.gl-head { padding-top: 16px; padding-bottom: 16px; }
+.gl-intro {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 24px;
+  padding: 22px 28px 20px; border-radius: var(--radius-lg); background: #fff; box-shadow: var(--shadow-card);
+}
+.gl-intro-txt { min-width: 0; }
+.gl-intro-crab { width: 136px; height: 136px; object-fit: contain; margin: -8px -6px -8px 0; }
+.gl-intro .gl-prog { grid-column: 1 / -1; margin-top: 12px; }
 .gl-head h1 {
   font-family: var(--font-display); font-weight: normal;
-  font-size: 1.5rem; line-height: 1.2; margin: 0; color: var(--krabsy-ink);
+  font-size: 2.2rem; line-height: 1.15; margin: 0; color: var(--krabsy-ink); text-wrap: balance;
 }
-.gl-intro-line { margin: 3px 0 0; font-size: 0.95rem; line-height: 1.4; color: var(--krabsy-ink); }
-.gl-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.gl-intro-line { margin: 8px 0 0; font-size: 1.12rem; line-height: 1.45; color: var(--krabsy-ink); max-width: 46em; }
+.gl-acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .gl-act {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 40px; padding: 0 16px; border-radius: var(--radius-pill);
-  background: #fff; box-shadow: inset 0 0 0 1.5px var(--krabsy-lavender);
-  color: var(--krabsy-ink); font-weight: 800; font-size: 0.9rem; text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 52px; padding: 0 22px 0 8px; border-radius: var(--radius-pill);
+  background: #fff; box-shadow: inset 0 0 0 2px var(--krabsy-ink), 0 4px 0 var(--krabsy-ink);
+  color: var(--krabsy-ink); font-weight: 800; font-size: 1.05rem; text-decoration: none; white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.gl-act:hover { background: var(--krabsy-lavender-soft); }
-.gl-act-play { background: var(--g-teal); box-shadow: none; color: var(--g-navy); }
-.gl-act-play:hover { background: #5cefd1; }
-.gl-act > span { font-size: 1.05em; line-height: 1; }
-.gl-act:focus-visible { border-radius: var(--radius-pill); }
-.gl-join { margin: 4px 0 0; font-size: 0.8rem; line-height: 1.5; color: var(--krabsy-ink-mute); }
-.gl-join a { color: var(--krabsy-ink-mute); font-weight: 700; text-decoration: none; }
-.gl-join a:hover { color: var(--coral-aa); text-decoration: underline; }
-.gl-join .gl-join-teach { color: var(--coral-aa); }
-.gl-join-sep { margin: 0 2px; }
-.gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
-  background: #e6f7f2; color: #0d4d3f; font-weight: 700; font-size: 0.86rem; text-decoration: none; }
-.gl-class-badge:hover { background: #cdeee4; }
-.gl-intro-toggle {
-  display: none; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px 0 12px;
-  border: 0; border-radius: var(--radius-pill); background: transparent; box-shadow: inset 0 0 0 1.5px var(--krabsy-lavender);
-  color: var(--krabsy-ink); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+.gl-act:hover { background: var(--krabsy-cream); }
+.gl-act:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--krabsy-ink), 0 1px 0 var(--krabsy-ink); }
+.gl-act-ico {
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  width: 38px; height: 38px; border-radius: 50%; background: var(--krabsy-cream);
 }
-.gl-intro-toggle:hover { background: var(--krabsy-lavender-soft); }
-.gl-intro-toggle:focus-visible { border-radius: var(--radius-pill); }
-.gl-intro-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5;
-  stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
-.gl-head.is-open .gl-intro-toggle svg { transform: rotate(180deg); }
-.k-intro-ret .gl-intro-toggle { display: inline-flex; }
-.k-intro-ret .gl-head:not(.is-open) .gl-intro-more { display: none; }
-.k-intro-ret .gl-head:not(.is-open) { padding-bottom: 10px; }
+.gl-act .ki { width: 26px; height: 26px; }
+.gl-act-play { background: var(--coral-aa); color: #fff; box-shadow: 0 4px 0 var(--coral-aa-deep); }
+.gl-act-play:hover { background: #cf5a42; }
+.gl-act-play:active { box-shadow: 0 1px 0 var(--coral-aa-deep); }
+.gl-act-play .gl-act-ico { background: #fff; }
+.gl-act:focus-visible { border-radius: var(--radius-pill); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .gl-act { transition: none; } }
 
-/* Wide screens: h1 left, the three actions right of it; line + teacher line below */
-@media (min-width: 900px) {
-  .gl-head-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: center; }
-  .gl-intro-top { grid-column: 1; grid-row: 1; }
-  .gl-intro-more { display: contents; }
-  .gl-acts { grid-column: 2; grid-row: 1; justify-content: flex-end; }
-  .gl-intro-line, .gl-join, .gl-prog { grid-column: 1 / -1; }
-  .gl-intro-line { margin-top: 0; }
-}
+.gl-join { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 16px 0 0; font-size: 0.84rem; line-height: 1.4; }
+.gl-join a { display: inline-flex; align-items: center; gap: 6px; min-height: 28px;
+  color: var(--krabsy-ink-mute); font-weight: 700; text-decoration: none; }
+.gl-join a:hover span { color: var(--coral-aa); text-decoration: underline; }
+.gl-join .gl-join-teachers { color: var(--coral-aa); }
+.gl-join .ki { width: 20px; height: 20px; flex: 0 0 auto; }
+.gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 6px; border-radius: 999px;
+  background: #e6f7f2; color: #0d4d3f !important; font-weight: 700; text-decoration: none; }
+.gl-class-badge:hover { background: #cdeee4; }
+
 @media (max-width: 899px) {
-  .gl-head-crab { align-self: flex-start; }
-  .gl-acts { margin-top: 8px; }
-  .gl-join { margin-top: 6px; }
+  .gl-intro { padding: 20px 22px 18px; }
+  .gl-intro-crab { width: 110px; height: 110px; align-self: start; }
+  .gl-head h1 { font-size: 1.85rem; }
 }
 @media (max-width: 559px) {
-  .gl-head { padding-top: 10px; padding-bottom: 10px; gap: 10px; }
-  .gl-head-crab { width: 36px; height: 36px; }
-  .gl-head h1 { font-size: 1.15rem; text-wrap: balance; }
-  .gl-intro-more { margin-left: -46px; }        /* under the crab too: full width */
-  .gl-intro-line { font-size: 0.86rem; margin-top: 6px; }
-  .gl-acts { gap: 6px; }
-  .gl-act { flex: 1 1 auto; padding: 0 10px; font-size: 0.84rem; gap: 4px; }
-  .gl-join { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 0.78rem; }
-  .gl-join a { white-space: nowrap; }
-  .gl-join-sep { display: none; }
-  /* collapsed: h1 + a round chevron button on one row (its text stays the accessible name) */
-  .gl-intro-top { justify-content: space-between; }
-  .gl-intro-top h1 { flex: 1 1 calc(100% - 52px); }
-  .gl-intro-toggle { width: 40px; min-height: 40px; padding: 0; justify-content: center; flex: 0 0 auto; }
-  .gl-intro-toggle-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .gl-intro-toggle svg { width: 20px; height: 20px; }
+  .gl-head { padding-top: 12px; padding-bottom: 12px; }
+  .gl-intro { grid-template-columns: minmax(0, 1fr); padding: 18px 16px 14px; }
+  .gl-intro-crab { display: none; }
+  .gl-head h1 { font-size: 1.6rem; }
+  .gl-intro-line { font-size: 1rem; margin-top: 6px; }
+  .gl-acts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .gl-act { justify-content: flex-start; min-width: 0; min-height: 50px; padding: 4px 10px 4px 6px; font-size: 1rem; gap: 8px;
+    white-space: normal; line-height: 1.15; }
+  .gl-act-play { grid-column: 1 / -1; justify-content: center; }
+  .gl-acts > .gl-act:nth-child(2):last-child { grid-column: 1 / -1; justify-content: center; }  /* two actions: both full width */
+  .gl-act-ico { width: 36px; height: 36px; }
+  .gl-join { flex-direction: column; gap: 0; margin-top: 12px; font-size: 0.84rem; }
+  .gl-join a { min-height: 34px; }
 }
 
 /* ── Progress row (returning players only; hidden by default) ─────── */

@@ -21,10 +21,9 @@ The verb-diploma button appears when a topic of the section has a
 The markup goes between the markers
     <!-- LANDING-INTRO:START (tools/render_landing_intro.py) -->
     <!-- LANDING-INTRO:END -->
-in each section's home page. Behaviour (collapsed for returning visitors,
-the toggle, the class badge) lives in lib/krabsy-landing.js + .css; the
-collapsed state is decided before first paint by a one-line script in the
-page head (html.k-intro-ret).
+in each section's home page. Styles: lib/krabsy-landing.css; the class
+badge after joining: lib/krabsy-landing.js. Icons: lib/icons/krabsy-icons.svg
+(one per action, chosen here by action, never per language).
 
     python3 tools/render_landing_intro.py          # rewrite pages
     python3 tools/render_landing_intro.py --check  # exit 1 if out of date
@@ -44,7 +43,10 @@ DATA = HOME / "data"
 START = "<!-- LANDING-INTRO:START (tools/render_landing_intro.py) -->"
 END = "<!-- LANDING-INTRO:END -->"
 QUIZ_URL = "/quiz/?lang={ui}"          # short join link of the Quiz Room (forwards with ?lang)
-ICONS = {"play": "🎮", "practice": "✍️", "diploma": "🏆"}   # decoration, aria-hidden
+CRAB = "/thumbnails/sm/crab-240.webp"   # the mascot next to the text (wide screens)
+ICON_SPRITE = "/lib/icons/krabsy-icons.svg?v=2026-11-27"
+ICONS = {"play": "ki-play", "practice": "ki-practise", "diploma": "ki-diploma",
+         "teachers": "ki-teacher", "class": "ki-class", "quiz": "ki-quiz"}
 
 
 def esc(s):
@@ -86,6 +88,11 @@ def diploma_url(sec):
     return None
 
 
+def icon(kind, cls="ki"):
+    return (f'<svg class="{cls}" aria-hidden="true" focusable="false">'
+            f'<use href="{ICON_SPRITE}#{ICONS[kind]}"/></svg>')
+
+
 def render(sec):
     ui = sec["ui"]
     L = ui_texts(ui)
@@ -93,25 +100,26 @@ def render(sec):
     dip = diploma_url(sec)
     if dip:
         acts.append(("diploma", dip, L["btn_diploma"]))
-    joins = [f'<a class="gl-join-teach" href="{esc(sec["teachers"])}">{esc(L["teachers"])}</a>']
+    joins = [("teachers", sec["teachers"], L["teachers"])]
     cls = registry()["ui"][ui].get("class")
     if cls:
-        joins.append(f'<a class="gl-join-class" href="{esc(cls)}">{esc(L["join_class"])}</a>')
-    joins.append(f'<a class="gl-join-quiz" href="{esc(QUIZ_URL.format(ui=ui))}">{esc(L["join_quiz"])}</a>')
-    sep = ' <span class="gl-join-sep" aria-hidden="true">·</span> '
+        joins.append(("class", cls, L["join_class"]))
+    joins.append(("quiz", QUIZ_URL.format(ui=ui), L["join_quiz"]))
     i = "          "
     return "\n".join([
         START,
-        f'{i}<div class="gl-intro-top"><h1>{esc(L["h1"])}</h1>'
-        f'<button class="gl-intro-toggle" id="gl-intro-toggle" type="button" aria-expanded="false" aria-controls="gl-intro-more">'
-        f'<span class="gl-intro-toggle-txt">{esc(L["toggle"])}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>',
-        f'{i}<div class="gl-intro-more" id="gl-intro-more">',
+        f'{i}<div class="gl-intro-txt">',
+        f'{i}  <h1>{esc(L["h1"])}</h1>',
         f'{i}  <p class="gl-intro-line">{esc(intro_line(sec, L))}</p>',
-        f'{i}  <nav class="gl-acts" aria-label="{esc(L["acts_label"])}">'
-        + "".join(f'<a class="gl-act gl-act-{k}" href="{esc(u)}"><span aria-hidden="true">{ICONS[k]}</span>{esc(t)}</a>'
-                  for k, u, t in acts) + "</nav>",
-        f'{i}  <p class="gl-join" id="gl-join">{sep.join(joins)}</p>',
-        f"{i}</div>",
+        f'{i}  <nav class="gl-acts" aria-label="{esc(L["acts_label"])}">',
+        *(f'{i}    <a class="gl-act gl-act-{k}" href="{esc(u)}"><span class="gl-act-ico">{icon(k)}</span>{esc(t)}</a>'
+          for k, u, t in acts),
+        f'{i}  </nav>',
+        f'{i}  <p class="gl-join" id="gl-join">'
+        + "".join(f'<a class="gl-join-{k}" href="{esc(u)}">{icon(k)}<span>{esc(t)}</span></a>' for k, u, t in joins)
+        + "</p>",
+        f'{i}</div>',
+        f'{i}<img class="gl-intro-crab" src="{CRAB}" alt="" width="240" height="240" decoding="async">',
         f"{i}{END}",
     ])
 

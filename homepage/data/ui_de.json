@@ -72,7 +72,6 @@
   "landing": {
     "_doc": "Intro band on the section landing pages, rendered by tools/render_landing_intro.py ({topics} = the section's topics, topics.json in_sentence).",
     "h1": "Englisch-Grammatik üben – mit Spielen",
-    "toggle": "Was ist Krabsy?",
     "intro_line": "{topics} ab Klasse 5. Kostenlos, ohne Anmeldung, ohne Werbung.",
     "list_sep": ", ",
     "list_last": " und ",
