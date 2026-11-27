@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
-FOOTER_V = '2026-11-26f'
+FOOTER_V = '2026-11-27n'   # bump when krabsy-footer/-topic-nav/-nav change
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [
@@ -131,8 +131,8 @@ def common_body(s, hub, topic=None):
         s = sub(s, "initDrillPage('fill_gap', 'prepositions',", f"initDrillPage('fill_gap', '{topic}',") \
             if "initDrillPage('fill_gap'" in s else s
     s = re.sub(r'\s*<script src="/lib/krabsy-lang-switch.js[^"]*" defer></script>', '', s)
-    s = re.sub(r'/lib/krabsy-(footer|topic-nav)\.js\?v=[0-9-]+', lambda m: f'/lib/krabsy-{m.group(1)}.js?v={FOOTER_V}', s)
-    s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
+    s = re.sub(r'/lib/krabsy-(footer|topic-nav)\.js\?v=[0-9a-z-]+', lambda m: f'/lib/krabsy-{m.group(1)}.js?v={FOOTER_V}', s)
+    s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9a-z-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
     s = cut(s, '<!-- seo-article:start', '<!-- seo-article:end -->')
     return s
 
@@ -567,7 +567,7 @@ def build_game_page(gid):
     if '?lang=en&amp;topic=es_ser' not in s:
         sys.exit(f'{gid}: iframe src not found')
     s = re.sub(r'\s*<script src="/lib/krabsy-lang-switch.js[^"]*" defer></script>', '', s)
-    s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
+    s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9a-z-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
     # Topic: ?topic=es_… (topic pages, the topic bar below the game), else the last
     # Spanish topic chosen on a topic page or drill (localStorage), else es_ser.
     s = s.replace('  <!-- GAME-INFO:START', TOPIC_SCRIPT + '  <!-- GAME-INFO:START', 1)
