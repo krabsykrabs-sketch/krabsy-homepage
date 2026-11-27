@@ -61,6 +61,8 @@ Sections as data (`data/sections.json`, `lib/krabsy-lang.js`, `tools/krabsy_regi
 `krabsy.com/` → `/es/` (Spanish/Portuguese first), `/de/` (German first, or no header = crawlers), else `/en/spanish/` (English interface; owner: friend in Spain with an English laptop landed on /de/). Config `docs/nginx-krabsy.conf`, pasted in Coolify; rollback `docs/nginx-krabsy.previous.conf`. Note: after saving the nginx field it took several minutes / a second deploy until the new rule answered.
 ## Duo games concept (2026-11-27)
 
+**Release plan (owner, 2026-11-27, not done yet):** name **"Krabsy Duo"** (folder stays `games/duo-coop`). Release first on the players' side as a "2 Spieler" game (siblings, friends, parent + child; mention pair work on the teacher pages); tutors only after D2 (online, two devices). Before release: the owner plays it with a real second person. Site work then: wrapper pages DE/ES/EN with a clear 2-player label, games.json (all quiz topics, ui_langs de/es/en, 2-player marker), hub, sitemap; copy the build to `homepage/games/duo-coop/` (relative imports, no stamping yet). Known limit: only player 1's answers are recorded. Checklist: `games/duo-coop/CLAUDE.md` "Where it goes".
+
 `docs/duo-games.md`: tutor + student (live lesson) and two students at home (one device or a room code). First: a co-op puzzle platformer (side view on the Verb Platformer engine, two roles, every switch/door/portal/monster = a question, ~3 of 4 for the student, a question every 20–30 s). Then an answer race. Phase D1 = local prototype. Open: name, tutor answers or not. Nothing built yet.
 
 ## Student side concept (2026-11-27)
