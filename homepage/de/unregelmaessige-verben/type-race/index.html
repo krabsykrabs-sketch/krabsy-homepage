@@ -101,18 +101,11 @@
     }
 
     /* Fallback shown when the viewport is too narrow for the game grid */
-    .tr-narrow-note {
-      display: none;
-      text-align: center;
-      padding: var(--space-6) var(--space-5);
-      color: var(--krabsy-ink-mute);
-    }
-    /* Iframe needs the inner viewport to be ≥ the game's 900 px min-width.
-       Below that, hide the iframe and show a wrapper-level message so the
-       game's own "Landscape only" screen doesn't show inside a cramped frame. */
-    @media (max-width: 959px) {
-      .tr-game-frame  { display: none; }
-      .tr-narrow-note { display: block; }
+    /* Phones and tablets in portrait: the game has its own one-column layout
+       (games/type-race.html); the frame fills the screen under the header. */
+    @media (max-width: 899px) {
+      .tr-wrap { padding: var(--space-4) var(--space-3); }
+      .tr-game-frame { height: 600px; height: max(480px, min(640px, calc(100svh - 76px))); }
     }
   </style>
 </head>
@@ -130,15 +123,14 @@
 
       <iframe
         class="tr-game-frame"
-        src="/games/type-race.html"
+        src="/games/type-race.html?lang=de"
         title="Type Race"
         loading="eager"
         allow="autoplay"
       ></iframe>
 
-      <p class="tr-narrow-note">
-        Type Race braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
-      </p>
+      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header -->
+      <script>(function(){var f=document.querySelector(".tr-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:drill")return;document.body.classList.toggle("k-is-playing",!!d.playing);window.dispatchEvent(new Event("resize"));if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
 <!-- seo-article:start (static SEO learning text) -->
 <section class="k-article" aria-labelledby="ka-title">
   <h2 id="ka-title">Type Race: unregelmäßige Verben nicht nur erkennen, sondern schreiben</h2>

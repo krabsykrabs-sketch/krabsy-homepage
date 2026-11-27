@@ -105,8 +105,6 @@
       background: transparent;
       overflow: hidden;
     }
-    /* 932 px viewport = 900 px iframe (the game's own minimum width) once
-       the 16 px side padding is taken off. */
     @media (min-width: 932px) {
       /* Compact one-line heading while the game is on screen */
       .dm-wrap .k-page-h1 {
@@ -116,31 +114,6 @@
       }
     }
 
-    /* Fallback shown when the viewport is too narrow for the game grid */
-    .dm-narrow-note {
-      display: none;
-      text-align: center;
-      max-width: 720px;
-      margin: 0 auto var(--space-5);
-      padding: var(--space-5) var(--space-4);
-      background: var(--krabsy-white);
-      border: 1px solid rgba(44, 42, 58, 0.08);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      color: var(--krabsy-ink-mute);
-    }
-    .dm-narrow-note p { margin: 0 0 var(--space-3); }
-    .dm-narrow-note .dm-narrow-alt { color: var(--krabsy-ink); }
-    .dm-narrow-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-3);
-      justify-content: center;
-    }
-    @media (max-width: 931px) {
-      .dm-game-frame  { display: none; }
-      .dm-narrow-note { display: block; }
-    }
   </style>
 </head>
 <body>
@@ -158,17 +131,9 @@
         loading="eager"
         allow="autoplay"
       ></iframe>
+      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header -->
+      <script>(function(){var f=document.querySelector(".dm-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:drill")return;document.body.classList.toggle("k-is-playing",!!d.playing);window.dispatchEvent(new Event("resize"));if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
 
-      <div class="dm-narrow-note">
-        <p>
-          Drag Match braucht einen breiteren Bildschirm. Öffne die Seite auf einem Gerät mit mindestens 900&nbsp;px Breite im Querformat.
-        </p>
-        <p class="dm-narrow-alt">Auf dem Handy klappt der <strong>Sprint</strong> prima: 20&nbsp;Verben gegen die Uhr. Oder such dir ein Spiel aus.</p>
-        <div class="dm-narrow-actions">
-          <a class="k-btn-primary" href="/de/unregelmaessige-verben/sprint/">Zum Sprint</a>
-          <a class="k-btn-secondary" href="/de/spiele/">Alle Spiele</a>
-        </div>
-      </div>
 
       <aside class="k-intro-card" aria-label="Über diese Übung">
         <p>Beim Drag Match ziehst du acht englische Verben mit ihren richtigen Formen zusammen — erst alle Simple-Past-Formen, dann alle Past-Participle-Formen. Diese Übung schult das visuelle Erkennen zusammengehöriger Verbformen und ist eine entspannte Alternative zum Tippen.</p>
@@ -227,8 +192,17 @@
       if (!f) return;
       function fit() {
         if (getComputedStyle(f).display === 'none') { f.style.height = ''; return; }
+        /* Phones and tablets in portrait: the game has its own one-column
+           layout; the frame fills the screen under the header (it scrolls up
+           there and the tab bar steps aside while a round runs). */
+        if (window.matchMedia && matchMedia('(max-width: 899px)').matches) {
+          var hd = document.querySelector('body > .k-page > header, body > header');
+          var ho = hd && /sticky|fixed/.test(getComputedStyle(hd).position) ? hd.getBoundingClientRect().height : 64;
+          f.style.height = Math.max(480, Math.min(700, Math.round(window.innerHeight - ho - 12))) + 'px';
+          return;
+        }
         var top = f.getBoundingClientRect().top + window.scrollY;
-        /* Phones: leave room for the bottom tab bar (lib/krabsy-header.js). */
+        /* Leave room for the bottom tab bar (lib/krabsy-header.js). */
         var bar = document.querySelector('.k-mainnav'), tb = 0;
         if (bar && getComputedStyle(bar).position === 'fixed' && bar.getClientRects().length) tb = bar.getBoundingClientRect().height;
         var h = Math.round(window.innerHeight - top - tb - 12);

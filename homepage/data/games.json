@@ -73,9 +73,9 @@
   {
     "id": "verb-kitchen",
     "name": {
-      "de": "Verb Kitchen!",
-      "es": "Verb Kitchen!",
-      "en": "Verb Kitchen!"
+      "de": "Verb Kitchen",
+      "es": "Verb Kitchen",
+      "en": "Verb Kitchen"
     },
     "tagline": {
       "de": "Koch-Chaos — spüle Teller mit den richtigen Verben!",
@@ -114,9 +114,9 @@
   {
     "id": "verb-platformer",
     "name": {
-      "de": "Verb Platformer!",
-      "es": "Verb Platformer!",
-      "en": "Verb Platformer!"
+      "de": "Verb Platformer",
+      "es": "Verb Platformer",
+      "en": "Verb Platformer"
     },
     "tagline": {
       "de": "Spring über die Wolken und lande auf der richtigen Verbform!",
@@ -205,8 +205,8 @@
   {
     "id": "verb-snake",
     "name": {
-      "de": "Verb Snake!",
-      "es": "Verb Snake!"
+      "de": "Verb Snake",
+      "es": "Verb Snake"
     },
     "tagline": {
       "de": "Friss Verbformen in der richtigen Reihenfolge!",
@@ -230,8 +230,8 @@
   {
     "id": "air-control",
     "name": {
-      "de": "Air Control!",
-      "es": "Air Control!"
+      "de": "Air Control",
+      "es": "Air Control"
     },
     "tagline": {
       "de": "Lotse die Flugzeuge sicher mit Englisch!",
@@ -253,8 +253,8 @@
   {
     "id": "verb-flow",
     "name": {
-      "de": "Verb Flow!",
-      "es": "Verb Flow!"
+      "de": "Verb Flow",
+      "es": "Verb Flow"
     },
     "tagline": {
       "de": "Verbinde die drei Verbformen — in der richtigen Reihenfolge!",
