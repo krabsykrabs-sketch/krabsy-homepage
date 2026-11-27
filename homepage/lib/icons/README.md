@@ -33,3 +33,12 @@ no alt text). Bump `?v=` where they are used when you change the sprite.
 - Drawn by hand for Krabsy; no icon fonts, no third-party sets.
 - On a teal surface don't use a teal-filled icon; put it on a white chip
   (see `.gl-act-ico` in `lib/krabsy-landing.css`).
+
+## Backlog: emojis still in use (2026-11-27, replace over time)
+
+Owner rule: no emojis in the UI, only icons from this set. Still using
+emojis: landing (🐚 shells count, ✓ in "Handy ✓" badges), the DE/ES verb
+pages, game hub wrappers (/de/spiele/, /es/juegos/, /en/), lib scripts
+(figure-page, profile, tutor, live-tutor, live-student, tutor-lesson,
+activities/*, practice, shells, gifts-ui, nav, footer, game-info) and
+data/materials. Replace them when those files are touched anyway.
