@@ -125,3 +125,4 @@ form asks. Keep the tone factual, no superlatives.
 |---|---|---|
 | Editor reply received | 2026-11-25 | positive, invited link + worksheet |
 | **On hold** | 2026-11-27 | owner waits until the teacher-page tabs and the i18n foundation (docs/i18n-scaling.md N1–N6) are done and deployed; then reply to liko + links (texts above) |
+| Ready | 2026-11-27 | tabs, i18n foundation and landing banner are live; owner does the 4teachers steps later ("Later") |
