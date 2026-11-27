@@ -289,18 +289,21 @@ const SENTENCE_TEXT = {
   es: { verbs: 'Dificultad', verbsLevel: (n) => `Dificultad ${n} de 3`, resMissed: 'Practica estas frases' },
 };
 
+/* Help-card example per topic, else per taught language (the topic's subject in
+   data/topics.json, read through /lib/krabsy-lang.js; no /lib/ when served alone). */
+const EXAMPLES = {
+  irregular_verbs: { html: 'go → <b>___</b> → gone', blocks: ['goed', 'went', 'wented'] },
+  prepositions: { html: 'My birthday is <b>___</b> July.', blocks: ['on', 'in', 'at'] },
+  es: { html: 'Yo <b>___</b> Lucas.', blocks: ['es', 'soy', 'estoy'] },
+};
+const LEARN = await import('/lib/krabsy-lang.js')
+  .then((L) => L.topicLearnLang(TOPIC)).catch(() => null);
+const EXAMPLE = EXAMPLES[TOPIC] || EXAMPLES[LEARN] || EXAMPLES.irregular_verbs;
+
 /** The small example on the help card and the first-run hint ('<b>' marks the gap). */
-export function exampleHtml() {
-  if (/^es_/.test(TOPIC)) return 'Yo <b>___</b> Lucas.';   // any Spanish topic
-  if (TOPIC === 'prepositions') return 'My birthday is <b>___</b> July.';
-  return 'go → <b>___</b> → gone';
-}
+export function exampleHtml() { return EXAMPLE.html; }
 /** Three example answer blocks for the first-run hint: [wrong, right, wrong]. */
-export function exampleBlocks() {
-  if (/^es_/.test(TOPIC)) return ['es', 'soy', 'estoy'];
-  if (TOPIC === 'prepositions') return ['on', 'in', 'at'];
-  return ['goed', 'went', 'wented'];
-}
+export function exampleBlocks() { return EXAMPLE.blocks.slice(); }
 
 /** Translate a key; template keys take args. Falls back to English, then to `undefined`. */
 export function t(key, ...args) {
