@@ -1141,7 +1141,7 @@ Not checked by eye: the intro swing at real frame rates (headless is slow).
 
 - 2026-11-27: **New key art** in the style of the other 3D games (Gemini
   `gemini-3-pro-image`, Kitchen hero as style reference + Birb/Bunbun/Mushnub/Drako
-  icons). Originals `_incoming/verb-hatchery-art/v1–v3.jpg`; v1 chosen and saved as
+  icons). Originals `_incoming/verb-hatchery-art/v1–v3.jpg` (calm) and `run1–2.jpg` (action: running off with an egg, a crab chasing); owner chose **run2**, saved as
   `homepage/thumbnails/hero/verb-hatchery-v2.jpg` (1200×675) and
   `homepage/thumbnails/sm/verb-hatchery-v2.jpg` (640×360); new file name so cached
   pages don't keep the old one. **For the master:** switch `games.json` (thumbnail,
