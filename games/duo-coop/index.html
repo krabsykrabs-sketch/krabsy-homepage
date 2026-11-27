@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex">
+  <title>Krabsy Duo</title>
+  <link rel="preload" href="./fonts/fredoka-one-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./fonts/nunito-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/"
+    }
+  }
+  </script>
+</head>
+<body data-state="boot">
+  <canvas id="game"></canvas>
+
+  <!-- in-game -->
+  <div id="hud" hidden>
+    <div class="hud-pill"><span id="hud-room"></span><span id="hud-score">✓ 0 / 0</span><span id="hud-time">0:00</span></div>
+    <div class="hud-buttons">
+      <button id="mute-btn" type="button" tabindex="-1" data-i18n-aria="sound" aria-pressed="false">♪</button>
+      <button id="pause-btn" type="button" tabindex="-1" data-i18n-aria="pause">II</button>
+    </div>
+  </div>
+  <div id="banner" hidden></div>
+  <div id="play-overlay"></div>
+
+  <!-- touch: one zone per player -->
+  <div id="touch" hidden>
+    <div class="zone z1" aria-hidden="true">
+      <button data-pad="0" data-btn="left">◀</button><button data-pad="0" data-btn="right">▶</button>
+      <button data-pad="0" data-btn="down" class="small">▼</button><button data-pad="0" data-btn="up">▲</button>
+      <button data-pad="0" data-btn="action" class="act">✋</button>
+    </div>
+    <div class="zone z2" aria-hidden="true">
+      <button data-pad="1" data-btn="action" class="act">✋</button>
+      <button data-pad="1" data-btn="up">▲</button><button data-pad="1" data-btn="down" class="small">▼</button>
+      <button data-pad="1" data-btn="left">◀</button><button data-pad="1" data-btn="right">▶</button>
+    </div>
+  </div>
+
+  <!-- title screen -->
+  <section id="menu" hidden>
+    <div class="menu-card">
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="de">DE</button><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+      </div>
+      <h1><span data-i18n="title"></span> <small class="work" data-i18n="workTitle"></small></h1>
+      <p class="tagline" data-i18n="tagline"></p>
+      <p class="topic-line" id="topic-line"></p>
+      <div class="players">
+        <div class="pcard p1" id="pcard-1">
+          <div class="phead"><span class="pdot"></span><span class="pname"></span></div>
+          <div class="picker">
+            <button type="button" class="arrow prev" aria-label="‹">‹</button>
+            <div class="portrait"><img alt="" hidden><span class="initial"></span></div>
+            <button type="button" class="arrow next" aria-label="›">›</button>
+          </div>
+          <div class="fname"></div>
+          <div class="role"><b class="rname"></b><span class="rdo"></span></div>
+          <div class="keys"></div>
+        </div>
+        <button type="button" id="swap-roles" class="swap"><span aria-hidden="true">⇄</span> <span data-i18n="swapRoles"></span></button>
+        <div class="pcard p2" id="pcard-2">
+          <div class="phead"><span class="pdot"></span><span class="pname"></span></div>
+          <div class="picker">
+            <button type="button" class="arrow prev" aria-label="‹">‹</button>
+            <div class="portrait"><img alt="" hidden><span class="initial"></span></div>
+            <button type="button" class="arrow next" aria-label="›">›</button>
+          </div>
+          <div class="fname"></div>
+          <div class="role"><b class="rname"></b><span class="rdo"></span></div>
+          <div class="keys"></div>
+        </div>
+      </div>
+      <button type="button" id="play-btn" class="big-btn" data-i18n="play"></button>
+      <p class="small-note"><span data-i18n="recordedNote"></span> <a id="figure-link" target="_top" hidden></a></p>
+    </div>
+  </section>
+
+  <!-- pause -->
+  <section id="pause" hidden>
+    <div class="menu-card small">
+      <h2 data-i18n="paused"></h2>
+      <button type="button" id="resume-btn" class="big-btn" data-i18n="resume"></button>
+      <button type="button" id="restart-btn" class="plain-btn" data-i18n="restartRoom"></button>
+      <button type="button" id="menu-btn" class="plain-btn" data-i18n="menu"></button>
+    </div>
+  </section>
+
+  <!-- results -->
+  <section id="results" hidden>
+    <div class="menu-card">
+      <h2 data-i18n="done"></h2>
+      <p class="sum" id="sum-line"></p>
+      <ul class="per" id="sum-players"></ul>
+      <div id="sum-missed"></div>
+      <button type="button" id="again-btn" class="big-btn" data-i18n="playAgain"></button>
+      <button type="button" id="results-menu-btn" class="plain-btn" data-i18n="menu"></button>
+    </div>
+  </section>
+
+  <div id="loader" hidden><span data-i18n="loading"></span></div>
+  <div id="rotate" data-i18n="rotate"></div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
