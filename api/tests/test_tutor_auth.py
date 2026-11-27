@@ -25,7 +25,8 @@ def _client():
     with classes.connect() as con:
         con.execute("DELETE FROM classes")
         con.execute("DELETE FROM tutors")
-        con.execute("DELETE FROM tutor_links")
+        con.execute("DELETE FROM accounts")
+        con.execute("DELETE FROM account_links")
     classes._buckets.clear()
     tutor_auth._buckets.clear()
     mailer.OUTBOX.clear()

@@ -8,8 +8,14 @@ their browser. Every answer they give in a game or drill is sent here
 (topic, word id, form, right/wrong, game/drill id, time) so the teacher
 sees what the class — and each nickname — still gets wrong.
 
+Optional teacher sign-in (2026-11-27, api/accounts.py): a teacher MAY attach
+classes to an account (email + one-time link) to find them on any device.
+Attached classes open with the account session (X-Account-Token + ?class_id=)
+as well as with their secret link; anonymous classes work exactly as before.
+
 Privacy by design (owner decisions 2026-11-22):
-  • no email, no password, no real names required; nicknames only;
+  • no email (unless the teacher chooses to save classes), no password, no real
+    names required; first names only;
   • tokens are stored as SHA-256 hashes, never in plain text;
   • nothing about the IP or device is stored with class data;
   • classes are deleted 6 months after their last activity (with all
@@ -135,6 +141,10 @@ def _purger() -> None:
             n = tutors.purge_inactive()
             if n:
                 print(f"[krabsy] tutors: deleted {n} inactive tutor space(s)")
+            import accounts
+            n = accounts.purge_inactive()
+            if n:
+                print(f"[krabsy] accounts: deleted {n} unused account(s)")
         except Exception as exc:  # noqa: BLE001
             print(f"[krabsy] classes purge failed: {exc}")
         time.sleep(6 * 3600)
@@ -226,26 +236,31 @@ class RenameBody(BaseModel):
 # ── endpoints ────────────────────────────────────────────────────────────────
 
 @router.post("/api/class/create")
-def create_class(body: CreateBody, request: Request) -> JSONResponse:
+def create_class(body: CreateBody, request: Request, x_account_token: str = Header("", max_length=64)) -> JSONResponse:
     if limited("create", _ip(request)):
         return _err(429, "too_many")
     lang = catalog.ui_lang(body.lang, catalog.CLASS_LANGS)   # languages with class pages
     token = secrets.token_urlsafe(24)
     now = _now()
     with _lock, connect() as con:
+        acc = None
+        if x_account_token:                    # signed-in teacher: the class is saved to the account
+            import accounts
+            acc = accounts.session_account(con, x_account_token)
         for _ in range(20):
             code = "".join(secrets.choice(CODE_ALPHABET) for _ in range(CODE_LEN))
             try:
-                con.execute(
-                    "INSERT INTO classes (code, name, lang, teacher_hash, created, last_active) VALUES (?,?,?,?,?,?)",
-                    (code, clean_class_name(body.name), lang, _hash(token), now, now))
+                cur = con.execute(
+                    "INSERT INTO classes (code, name, lang, teacher_hash, created, last_active, account_id) VALUES (?,?,?,?,?,?,?)",
+                    (code, clean_class_name(body.name), lang, _hash(token), now, now, acc["id"] if acc else None))
                 break
             except sqlite3.IntegrityError:
                 continue
         else:
             return _err(500, "no_code")
     return JSONResponse({"ok": True, "code": format_code(code), "teacher_token": token,
-                         "name": clean_class_name(body.name)})
+                         "name": clean_class_name(body.name), "saved": bool(acc),
+                         "class_id": cur.lastrowid if acc else None})
 
 
 @router.post("/api/class/join")
@@ -322,14 +337,29 @@ async def post_answers(request: Request, x_student_token: str = Header("", max_l
     return JSONResponse({"ok": True, "stored": len(rows)})
 
 
-def _teacher_class(con: sqlite3.Connection, token: str):
-    return con.execute("SELECT * FROM classes WHERE teacher_hash = ?", (_hash(token or "-"),)).fetchone()
+def _teacher_class(con: sqlite3.Connection, token: str, account_token: str = "", class_id: Optional[int] = None):
+    """The class for its secret teacher token, or (signed-in teacher) for
+    class_id + an account session that owns it. Returns (class, account|None)."""
+    acc = None
+    if account_token:
+        import accounts
+        acc = accounts.session_account(con, account_token)
+    if class_id is not None:
+        if not acc:
+            return None, None
+        return con.execute("SELECT * FROM classes WHERE id = ? AND account_id = ?", (class_id, acc["id"])).fetchone(), acc
+    return con.execute("SELECT * FROM classes WHERE teacher_hash = ?", (_hash(token or "-"),)).fetchone(), acc
+
+
+def _owner(cls, acc) -> bool:
+    return bool(acc and cls and cls["account_id"] == acc["id"])
 
 
 @router.get("/api/class/dashboard")
-def class_dashboard(x_teacher_token: str = Header("", max_length=64)) -> JSONResponse:
+def class_dashboard(class_id: Optional[int] = None, x_teacher_token: str = Header("", max_length=64),
+                    x_account_token: str = Header("", max_length=64)) -> JSONResponse:
     with _lock, connect() as con:
-        cls = _teacher_class(con, x_teacher_token)
+        cls, acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
             return _err(404, "unknown_class")
         students = con.execute("SELECT id, nickname, last_active FROM students WHERE class_id = ? ORDER BY nickname COLLATE NOCASE",
@@ -338,7 +368,11 @@ def class_dashboard(x_teacher_token: str = Header("", max_length=64)) -> JSONRes
             "SELECT a.student_id, a.topic, a.item, a.form, a.correct, a.source, a.at "
             "FROM attempts a JOIN students s ON s.id = a.student_id WHERE s.class_id = ? ORDER BY a.at",
             (cls["id"],)).fetchall()
-    return JSONResponse(summarize(cls, students, attempts))
+    out = summarize(cls, students, attempts)
+    # Account state for the page: saved to an account at all, saved to the viewer's.
+    mine = _owner(cls, acc)
+    out["class"].update(saved=bool(cls["account_id"]), mine=mine, id=cls["id"] if mine else None)
+    return JSONResponse(out)
 
 
 def summarize(cls, students, attempts, now: Optional[datetime] = None) -> dict:
@@ -418,9 +452,10 @@ def summarize(cls, students, attempts, now: Optional[datetime] = None) -> dict:
 
 
 @router.post("/api/class/rename")
-def rename_class(body: RenameBody, x_teacher_token: str = Header("", max_length=64)) -> JSONResponse:
+def rename_class(body: RenameBody, class_id: Optional[int] = None, x_teacher_token: str = Header("", max_length=64),
+                 x_account_token: str = Header("", max_length=64)) -> JSONResponse:
     with _lock, connect() as con:
-        cls = _teacher_class(con, x_teacher_token)
+        cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
             return _err(404, "unknown_class")
         con.execute("UPDATE classes SET name = ? WHERE id = ?", (clean_class_name(body.name), cls["id"]))
@@ -432,9 +467,10 @@ class RemoveBody(BaseModel):
 
 
 @router.post("/api/class/remove-student")
-def remove_student(body: RemoveBody, x_teacher_token: str = Header("", max_length=64)) -> JSONResponse:
+def remove_student(body: RemoveBody, class_id: Optional[int] = None, x_teacher_token: str = Header("", max_length=64),
+                   x_account_token: str = Header("", max_length=64)) -> JSONResponse:
     with _lock, connect() as con:
-        cls = _teacher_class(con, x_teacher_token)
+        cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
             return _err(404, "unknown_class")
         con.execute("DELETE FROM students WHERE class_id = ? AND nickname = ?", (cls["id"], body.nickname))
@@ -442,10 +478,27 @@ def remove_student(body: RemoveBody, x_teacher_token: str = Header("", max_lengt
 
 
 @router.post("/api/class/delete")
-def delete_class(x_teacher_token: str = Header("", max_length=64)) -> JSONResponse:
+def delete_class(class_id: Optional[int] = None, x_teacher_token: str = Header("", max_length=64),
+                 x_account_token: str = Header("", max_length=64)) -> JSONResponse:
     with _lock, connect() as con:
-        cls = _teacher_class(con, x_teacher_token)
+        cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
             return _err(404, "unknown_class")
         con.execute("DELETE FROM classes WHERE id = ?", (cls["id"],))
     return JSONResponse({"ok": True})
+
+
+@router.post("/api/class/new-link")
+def new_teacher_link(class_id: Optional[int] = None, x_teacher_token: str = Header("", max_length=64),
+                     x_account_token: str = Header("", max_length=64)) -> JSONResponse:
+    """Replace the secret dashboard link (e.g. it was forwarded): only the
+    signed-in owner can, the old link stops working at once."""
+    with _lock, connect() as con:
+        cls, acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
+        if not cls:
+            return _err(404, "unknown_class")
+        if not _owner(cls, acc):
+            return _err(403, "not_owner")
+        token = secrets.token_urlsafe(24)
+        con.execute("UPDATE classes SET teacher_hash = ? WHERE id = ?", (_hash(token), cls["id"]))
+    return JSONResponse({"ok": True, "teacher_token": token})

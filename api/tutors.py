@@ -140,16 +140,14 @@ def init_db() -> None:
             cols = {r["name"] for r in con.execute(f"PRAGMA table_info({table})")}
             if col not in cols:
                 con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
-    import tutor_auth          # email sign-in (tutors.email, links, sessions)
-    tutor_auth.init_db()
+    import accounts            # email sign-in: one account identity for tutors and teachers
+    accounts.init_db()
 
 
 def purge_inactive(now: Optional[datetime] = None) -> int:
     """Delete tutor spaces idle for RETENTION_DAYS, with their students' classes."""
     cutoff = ((now or datetime.now(timezone.utc)) - timedelta(days=classes.RETENTION_DAYS)).isoformat(timespec="seconds")
     with _lock, connect() as con:
-        import tutor_auth
-        tutor_auth.purge(con)                  # expired sign-in links and sessions
         ids = [r["id"] for r in con.execute("SELECT id FROM tutors WHERE last_active < ?", (cutoff,))]
         for tid in ids:
             con.execute("DELETE FROM classes WHERE id IN (SELECT class_id FROM tutor_students WHERE tutor_id = ?)", (tid,))
@@ -169,6 +167,14 @@ def _tutor(con: sqlite3.Connection, token: str):
     import tutor_auth
     tid = tutor_auth.session_tutor_id(con, token)
     return con.execute("SELECT * FROM tutors WHERE id = ?", (tid,)).fetchone() if tid else None
+
+
+def _email(con: sqlite3.Connection, t):
+    """The sign-in email of a space (accounts.py), None for an old private-link space."""
+    if not t["account_id"]:
+        return None
+    r = con.execute("SELECT email FROM accounts WHERE id = ?", (t["account_id"],)).fetchone()
+    return r["email"] if r else None
 
 
 def _touch(con: sqlite3.Connection, tutor_id: int) -> None:
@@ -350,6 +356,7 @@ def get_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
         if not t:
             return _err(404, "unknown_space")
         _touch(con, t["id"])
+        email = _email(con, t)
         studs = con.execute("SELECT ts.*, s.last_active AS seen FROM tutor_students ts "
                             "LEFT JOIN students s ON s.class_id = ts.class_id WHERE ts.tutor_id = ? "
                             "ORDER BY ts.name COLLATE NOCASE", (t["id"],)).fetchall()
@@ -369,7 +376,7 @@ def get_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse:
                         "answers_week": sum(1 for a in att if a["at"] >= week_ago),
                         "answers": len(att), "stars": stars})
     return JSONResponse({"ok": True, "space": {"id": t["id"], "name": t["name"], "lang": t["lang"], "created": t["created"],
-                                               "email": t["email"],
+                                               "email": email,
                                                "delete_after_days": classes.RETENTION_DAYS},
                          "students": out})
 
@@ -393,6 +400,8 @@ def delete_space(x_tutor_token: str = Header("", max_length=64)) -> JSONResponse
         ids = [r["id"] for r in con.execute("SELECT id FROM tutor_students WHERE tutor_id = ?", (t["id"],))]
         con.execute("DELETE FROM classes WHERE id IN (SELECT class_id FROM tutor_students WHERE tutor_id = ?)", (t["id"],))
         con.execute("DELETE FROM tutors WHERE id = ?", (t["id"],))
+        import accounts
+        accounts.drop_if_unused(con, t["account_id"])      # the email goes too, unless the account has classes
     _live_drop(ids)
     return JSONResponse({"ok": True})
 

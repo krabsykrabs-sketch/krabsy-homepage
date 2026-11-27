@@ -7,6 +7,8 @@ If the file is missing or broken the API keeps running on a small built-in
 fallback (the two English topics, de/es/en) and logs a warning.
 
     from catalog import TOPICS, UI_LANGS, DEFAULT_UI, CLASS_LANGS, ui_lang
+    catalog.ui_page("de", "class_account")      → "/de/lehrkraefte/meine-klassen/"
+    catalog.mail_text("de", "teacher_login_subject", link=…)   (ui_<lang>.json "mail")
 """
 from __future__ import annotations
 
@@ -61,6 +63,29 @@ SECTIONS: tuple = tuple(_CAT["sections"])
 LANDING_PATHS: tuple = tuple(s["home"] for s in SECTIONS)
 _GAMES_PREFIXES = sorted((s["games"] for s in SECTIONS), key=len, reverse=True)
 GAME_PAGE = re.compile(r"^(?:%s)([a-z0-9-]+)/$" % "|".join(re.escape(p) for p in _GAMES_PREFIXES))
+
+
+UI_PAGES: dict = _CAT.get("ui_pages") or {}
+MAIL: dict = _CAT.get("mail") or {}
+
+
+def ui_page(lang: str, key: str) -> Optional[str]:
+    """A per-interface page path from sections.json (profile, class_account, …) or None."""
+    return (UI_PAGES.get(lang) or {}).get(key)
+
+
+def mail_text(lang: str, key: str, **values) -> str:
+    """An email text from data/ui_<lang>.json "mail" (via catalog.json), placeholders
+    {name} filled in. Fallback chain (i18n contract 5): lang → en → default → key."""
+    text = None
+    for code in (lang, FALLBACK_UI, DEFAULT_UI):
+        text = (MAIL.get(code) or {}).get(key)
+        if text:
+            break
+    if not text:
+        log.warning("catalog: no mail text %r", key)
+        return key
+    return re.sub(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", lambda m: str(values.get(m.group(1), m.group(0))), text)
 
 
 def ui_lang(value: Optional[str], allowed: tuple = UI_LANGS, default: Optional[str] = None) -> str:

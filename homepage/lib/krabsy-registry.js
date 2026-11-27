@@ -11,7 +11,8 @@ export const UI = {
     "figure": "/de/meine-figur/",
     "class": "/de/klasse/",
     "class_create": "/de/lehrkraefte/klasse-erstellen/",
-    "class_dashboard": "/de/lehrkraefte/klasse/"
+    "class_dashboard": "/de/lehrkraefte/klasse/",
+    "class_account": "/de/lehrkraefte/meine-klassen/"
   },
   "es": {
     "name": "Español",
@@ -19,7 +20,8 @@ export const UI = {
     "figure": "/es/mi-personaje/",
     "class": "/es/clase/",
     "class_create": "/es/docentes/crear-clase/",
-    "class_dashboard": "/es/docentes/clase/"
+    "class_dashboard": "/es/docentes/clase/",
+    "class_account": "/es/docentes/mis-clases/"
   },
   "en": {
     "name": "English",
@@ -27,7 +29,8 @@ export const UI = {
     "figure": "/en/my-figure/",
     "class": null,
     "class_create": null,
-    "class_dashboard": null
+    "class_dashboard": null,
+    "class_account": null
   }
 };
 export const SUBJECTS = {
@@ -77,7 +80,7 @@ export const SECTIONS = [
     "home": "/en/spanish/",
     "games": "/en/spanish/games/",
     "teachers": "/en/spanish/teachers/",
-    "practice": "/en/spanish/practise/",
+    "practice": "/en/spanish/practice/",
     "topics": "/en/spanish/topics/",
     "starter": "es_ser"
   }

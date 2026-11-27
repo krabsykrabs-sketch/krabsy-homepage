@@ -494,7 +494,7 @@ app.add_middleware(
     allow_origin_regex=r"^https://(www\.)?krabsy\.com(:\d+)?$",
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token", "X-Tutor-Token", "X-Report-Key"],
+    allow_headers=["Content-Type", "X-Teacher-Token", "X-Student-Token", "X-Tutor-Token", "X-Account-Token", "X-Report-Key"],
     max_age=86400,
 )
 
@@ -511,6 +511,9 @@ app.include_router(tutors.router)
 import tutor_auth  # noqa: E402  (email sign-in for tutors)
 
 app.include_router(tutor_auth.router)
+import accounts  # noqa: E402  (one account identity: teacher sign-in "Klasse sichern", shared with tutors)
+
+app.include_router(accounts.router)
 import live  # noqa: E402  (live classroom: WebSocket relay, docs/live-classroom.md)
 
 app.include_router(live.router)

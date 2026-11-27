@@ -58,6 +58,9 @@
     '/es/docentes/crear-clase/':          '/de/lehrkraefte/klasse-erstellen/',
     '/de/lehrkraefte/klasse/':            '/es/docentes/clase/',
     '/es/docentes/clase/':                '/de/lehrkraefte/klasse/',
+    // Optional teacher sign-in "Meine Klassen" (2026-11-27)
+    '/de/lehrkraefte/meine-klassen/':     '/es/docentes/mis-clases/',
+    '/es/docentes/mis-clases/':           '/de/lehrkraefte/meine-klassen/',
     // Figure builder + shells (2026-11-25)
     '/de/meine-figur/':                   '/es/mi-personaje/',
     '/es/mi-personaje/':                  '/de/meine-figur/',

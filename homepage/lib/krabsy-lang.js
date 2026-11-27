@@ -20,7 +20,7 @@
    exists in fewer languages (fallback: en → site default → first one).
    ────────────────────────────────────────────────────────────────────────── */
 
-import { DEFAULT_UI, FALLBACK_UI, UI, SUBJECTS, SECTIONS, TOPICS } from './krabsy-registry.js?v=5bd8f37587';
+import { DEFAULT_UI, FALLBACK_UI, UI, SUBJECTS, SECTIONS, TOPICS } from './krabsy-registry.js?v=e7aceee5f4';
 
 export { DEFAULT_UI, FALLBACK_UI, UI, SUBJECTS, SECTIONS, TOPICS };
 
