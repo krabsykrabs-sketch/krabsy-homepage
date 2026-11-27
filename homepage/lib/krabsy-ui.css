@@ -201,6 +201,53 @@ a:hover { color: var(--krabsy-coral); }
 }
 .k-hd .k-mainnav-item:focus-visible { border-radius: var(--radius-pill); }
 
+/* Learning-language pill + menu ("Ich lerne / Englisch ▾", krabsy-header.js
+   buildLearn). Distinct from DE|ES (menu language): flag + two-line label,
+   soft amber outline; the menu lists the sections from data/sections.json. */
+.k-learn { position: relative; flex: 0 0 auto; margin-right: 6px; }
+.k-learn-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 10px 0 9px; margin: 0;
+  border: 0; border-radius: 14px; background: #fff7e0;
+  box-shadow: inset 0 0 0 1.5px #f3d27a;
+  font: inherit; color: var(--krabsy-ink); cursor: pointer; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.k-learn-btn:hover, .k-learn.is-open .k-learn-btn { background: #ffefc2; }
+.k-flag {
+  display: block; flex: 0 0 auto; width: 27px; height: 18px; border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(44, 42, 58, 0.18); overflow: hidden;
+}
+.k-flag-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--krabsy-lavender-soft); font: 800 0.6rem/1 var(--font-body);
+}
+.k-learn-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.k-learn-cap { font-size: 0.66rem; font-weight: 700; color: var(--krabsy-ink-mute); white-space: nowrap; }
+.k-learn-name { font-size: 0.92rem; font-weight: 800; white-space: nowrap; }
+.k-learn-chev { width: 12px; height: 12px; flex: 0 0 auto; color: var(--krabsy-ink-mute); transition: transform 0.15s ease; }
+.k-learn.is-open .k-learn-chev { transform: rotate(180deg); }
+.k-learn-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 210;
+  width: max-content; min-width: 230px; max-width: min(320px, calc(100vw - 24px));
+  padding: 10px 8px 8px; background: var(--krabsy-white); border-radius: 16px;
+  box-shadow: 0 0 0 1px var(--krabsy-lavender-soft), 0 10px 28px rgba(44, 42, 58, 0.16);
+}
+.k-learn-menu[hidden] { display: none; }
+.k-learn-head { margin: 0 8px 6px; font-size: 0.78rem; font-weight: 800; color: var(--krabsy-ink-mute); }
+.k-learn-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.k-learn-item {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 10px;
+  border-radius: 12px; color: var(--krabsy-ink); text-decoration: none;
+}
+.k-learn-item:hover { background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); }
+.k-learn-item.is-current { background: #dcf7f0; }
+.k-learn-item-txt { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.k-learn-item-name { font-weight: 800; font-size: 0.95rem; line-height: 1.2; }
+.k-learn-item-note { font-size: 0.78rem; color: var(--krabsy-ink-mute); line-height: 1.25; }
+.k-learn-check { width: 18px; height: 18px; flex: 0 0 auto; color: #12a386; }
+.k-hd .k-learn-item:focus-visible { outline-offset: -3px; border-radius: 12px; }
+
 /* Tablets and small laptops: tighter, teacher link short. */
 @media (max-width: 1099px) {
   .k-hd { padding: 8px 16px; gap: 6px; }
@@ -208,6 +255,12 @@ a:hover { color: var(--krabsy-coral); }
   .k-mainnav-item { padding: 0 11px 0 9px; gap: 6px; font-size: 0.9rem; }
   .k-hd-teach-long { display: none; }
   .k-hd-teach-short { display: inline; }
+  .k-learn { margin-right: 2px; }
+}
+/* Learning pill: flag only below 1000 px (the button's aria-label keeps the words). */
+@media (max-width: 999px) {
+  .k-learn-txt { display: none; }
+  .k-learn-btn { padding: 0 7px 0 8px; gap: 4px; }
 }
 @media (max-width: 899px) {
   .k-hd > a.logo, .k-hd > a.k-logo { font-size: 1.4rem; margin-right: 2px; }
@@ -218,11 +271,22 @@ a:hover { color: var(--krabsy-coral); }
   .k-hd .k-lang-btn { padding: 0 10px; }
 }
 
+/* Small tablets: the teacher link shows only its icon (aria-label keeps the words). */
+@media (min-width: 760px) and (max-width: 859px) {
+  .k-hd-teach { padding: 0 9px; }
+  .k-hd-teach-short { display: none; }
+}
+
 /* Phones: bottom tab bar. */
 @media (max-width: 759px) {
   .k-hd { flex-wrap: nowrap; min-height: 56px; padding: 8px 16px; row-gap: 0; }
   .k-hd > a.logo, .k-hd > a.k-logo { margin-right: auto; }
   .k-hd-teach { display: none; }
+  /* Phones: flag only (the button keeps its aria-label); menu under it, right-aligned. */
+  .k-learn { margin-right: 2px; }
+  .k-learn-txt { display: none; }
+  .k-learn-btn { min-height: 40px; padding: 0 7px 0 8px; gap: 4px; border-radius: 12px; }
+  .k-learn-menu { position: fixed; top: 60px; left: auto; right: 12px; width: min(320px, calc(100vw - 24px)); }
   .k-mainnav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
     margin: 0;

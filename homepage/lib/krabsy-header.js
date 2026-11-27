@@ -20,6 +20,14 @@
      field has focus (the on-screen keyboard would lift it over the input).
    - Game pages (/de/spiele/<id>/ …) don't load this: they keep their compact
      game header (krabsy-nav.js initGamePage) and the game fills the screen.
+   - Learning-language pill (owner 2026-11-27: "a chance to see which language
+     we are currently learning and the possibility to switch"): right after
+     the logo, "[flag] Ich lerne / Englisch ▾". It opens a small menu built
+     from data/sections.json: the subjects this interface language has
+     (current one ✓) plus the subjects only other interface languages have,
+     with a note ("Menüs auf Englisch"). Separate from DE|ES on purpose: the
+     pill picks WHAT you learn (another section: other topics and games),
+     DE|ES picks the MENU language of the same page. Phones: flag only.
    - The shell counter is krabsy-shells.js (mounted before .hd-right); the
      language buttons are wired by krabsy-lang-switch.js.
 
@@ -29,7 +37,7 @@
    then only the current item is marked.
    ────────────────────────────────────────────────────────────────────────── */
 
-import { currentLang, currentSection, sectionTopics, topicUrl, uiPage, SECTIONS } from './krabsy-lang.js?v=2026-11-27';
+import { currentLang, currentSection, sectionTopics, topicUrl, uiPage, setLang, SECTIONS, SUBJECTS, FALLBACK_UI } from './krabsy-lang.js?v=2026-11-27';
 import { mountShellCounter } from '/lib/krabsy-shells.js';
 
 const LABELS = {
@@ -41,6 +49,64 @@ const LABELS = {
         teach: 'For teachers', teachShort: 'Teachers', nav: 'Main menu', lang: 'Choose language' },
 };
 const LANG_NAME = { de: 'Deutsch', es: 'Español', en: 'English' };
+
+/* Learning-language pill and menu. Language names fall back to
+   Intl.DisplayNames, so a new subject or interface language needs no code
+   here (only a flag, else a neutral badge with the language code). */
+const LEARN = {
+  de: { cap: 'Ich lerne', head: 'Ich lerne …', change: 'Lernsprache wechseln', current: 'gerade ausgewählt',
+        note: (ui) => `Menüs auf ${ui}`, uiGroup: 'Menüsprache' },
+  es: { cap: 'Aprendo', head: 'Estoy aprendiendo …', change: 'cambiar el idioma que aprendo', current: 'seleccionado',
+        note: (ui) => `Menús en ${ui}`, uiGroup: 'Idioma del menú' },
+  en: { cap: "I'm learning", head: "I'm learning …", change: 'change the language you learn', current: 'selected',
+        note: (ui, native) => `For ${ui} speakers (${native})`, uiGroup: 'Menu language' },
+};
+const LANG_IN = {   // LANG_IN[ui][lang] = name of `lang`, written in `ui`
+  de: { en: 'Englisch', es: 'Spanisch', de: 'Deutsch' },
+  es: { en: 'Inglés', es: 'Español', de: 'Alemán' },
+  en: { en: 'English', es: 'Spanish', de: 'German' },
+};
+/* Menu-language button titles, each in its own language. */
+const UI_TITLE = { de: 'Menüs auf Deutsch', es: 'Menús en español', en: 'Menus in English' };
+
+function langName(lang, ui) {
+  const known = LANG_IN[ui] && LANG_IN[ui][lang];
+  if (known) return known;
+  try {
+    const n = new Intl.DisplayNames([ui], { type: 'language' }).of(lang);
+    if (n && n !== lang) return n.charAt(0).toUpperCase() + n.slice(1);
+  } catch (_) { /* old browser */ }
+  return lang.toUpperCase();
+}
+/* Name inside a sentence ("Menús en inglés"): Spanish keeps language names lowercase. */
+const inSentence = (name, ui) => (ui === 'es' ? name.toLowerCase() : name);
+
+/* Flags as inline SVG (emoji flags don't render on Windows). 3:2 box; the UK
+   flag (2:1) is cropped at the sides. */
+let flagSeq = 0;
+const FLAGS = {
+  en: () => {
+    const id = `kfl${++flagSeq}`;
+    return `<svg class="k-flag" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">`
+      + `<clipPath id="${id}"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath>`
+      + '<rect width="60" height="30" fill="#012169"/>'
+      + '<path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/>'
+      + `<path d="M0,0L60,30M60,0L0,30" clip-path="url(#${id})" stroke="#c8102e" stroke-width="4"/>`
+      + '<path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/>'
+      + '<path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>';
+  },
+  es: () => '<svg class="k-flag" viewBox="0 0 3 2" aria-hidden="true" focusable="false">'
+    + '<rect width="3" height="2" fill="#c60b1e"/><rect y="0.5" width="3" height="1" fill="#ffc400"/></svg>',
+  de: () => '<svg class="k-flag" viewBox="0 0 5 3" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+    + '<rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#dd0000"/><rect y="2" width="5" height="1" fill="#ffce00"/></svg>',
+  fr: () => '<svg class="k-flag" viewBox="0 0 3 2" aria-hidden="true" focusable="false">'
+    + '<rect width="1" height="2" fill="#002654"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce1126"/></svg>',
+};
+const flagSvg = (lang) => (FLAGS[lang] ? FLAGS[lang]()
+  : `<span class="k-flag k-flag-code" aria-hidden="true">${String(lang).toUpperCase()}</span>`);
+const CHEVRON = '<svg class="k-learn-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHECK = '<svg class="k-learn-check" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SECTION_KEY = 'krabsy_section';
 
 /* Fallback for a cached krabsy-registry.js from before sections had `topics`. */
 const TOPICS_PAGE = { de: '/de/themen/', es: '/es/temas/', 'en/spanish': '/en/spanish/topics/' };
@@ -114,6 +180,98 @@ function buildLangToggle(section, lang) {
   return g;
 }
 
+const subjectLang = (s) => (SUBJECTS[s.subject] && SUBJECTS[s.subject].lang) || s.subject;
+
+/** Menu entries for the learning-language menu, from data/sections.json:
+    every subject this interface language has (its own section), then the
+    subjects only other interface languages have (one entry per section,
+    with a "menus in …" note). A subject in the reader's own interface
+    language is left out (a Spanish speaker on /es/ doesn't need "Español,
+    menús en inglés"), except on the fallback interface (English): German
+    or Spanish kids land there too (English laptop), so it lists everything. */
+export function learnEntries(section, lang) {
+  const t = LEARN[lang] || LEARN.en;
+  const seen = new Set();
+  const own = [];
+  const other = [];
+  for (const s of SECTIONS) {
+    if (s.ui !== lang || seen.has(s.subject)) continue;
+    seen.add(s.subject);
+    own.push({ section: s, lang: subjectLang(s), name: langName(subjectLang(s), lang), note: '', current: s.id === section.id });
+  }
+  for (const s of SECTIONS) {
+    if (seen.has(s.subject) || (subjectLang(s) === lang && lang !== FALLBACK_UI)) continue;
+    other.push({ section: s, lang: subjectLang(s), name: langName(subjectLang(s), lang),
+      note: t.note(inSentence(langName(s.ui, lang), lang), langName(s.ui, s.ui)), current: false });
+  }
+  return own.concat(other);
+}
+
+function buildLearn(section, lang) {
+  const t = LEARN[lang] || LEARN.en;
+  const entries = learnEntries(section, lang);
+  const mine = subjectLang(section);
+  const name = langName(mine, lang);
+  const wrap = document.createElement('div');
+  wrap.className = 'k-learn';
+  const menuId = 'k-learn-menu';
+  wrap.innerHTML =
+    `<button type="button" class="k-learn-btn" aria-expanded="false" aria-controls="${menuId}" aria-label="${t.cap} ${name} – ${t.change}">`
+    + `${flagSvg(mine)}<span class="k-learn-txt" aria-hidden="true"><span class="k-learn-cap">${t.cap}</span><span class="k-learn-name">${name}</span></span>${CHEVRON}</button>`
+    + `<div class="k-learn-menu" id="${menuId}" hidden><p class="k-learn-head" id="${menuId}-h">${t.head}</p>`
+    + `<ul class="k-learn-list" aria-labelledby="${menuId}-h">` + entries.map((e) =>
+      `<li><a class="k-learn-item${e.current ? ' is-current' : ''}" href="${e.section.home}" data-section="${e.section.id}" data-ui="${e.section.ui}"`
+      + `${e.section.ui !== lang ? ` hreflang="${e.section.ui}"` : ''}${e.current ? ' aria-current="true"' : ''}>`
+      + `${flagSvg(e.lang)}<span class="k-learn-item-txt"><span class="k-learn-item-name">${e.name}</span>`
+      + `${e.note ? `<span class="k-learn-item-note">${e.note}</span>` : ''}</span>`
+      + `${e.current ? `${CHECK}<span class="k-sr-only">${t.current}</span>` : ''}</a></li>`).join('')
+    + '</ul></div>';
+
+  const btn = wrap.querySelector('.k-learn-btn');
+  const menu = wrap.querySelector('.k-learn-menu');
+  const items = () => Array.from(menu.querySelectorAll('.k-learn-item'));
+  const isOpen = () => btn.getAttribute('aria-expanded') === 'true';
+  const open = (focusFirst) => {
+    menu.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    wrap.classList.add('is-open');
+    if (focusFirst) (items().find((a) => a.classList.contains('is-current')) || items()[0] || btn).focus();
+  };
+  const close = (refocus) => {
+    if (!isOpen()) return;
+    menu.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    wrap.classList.remove('is-open');
+    if (refocus) btn.focus();
+  };
+  btn.addEventListener('click', () => (isOpen() ? close(false) : open(btn.matches(':focus-visible'))));
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); open(true); }
+  });
+  wrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) { e.preventDefault(); e.stopPropagation(); close(true); return; }
+    if (!isOpen() || !menu.contains(document.activeElement)) return;
+    const list = items();
+    const i = list.indexOf(document.activeElement);
+    let next = null;
+    if (e.key === 'ArrowDown') next = list[(i + 1) % list.length];
+    else if (e.key === 'ArrowUp') next = list[(i - 1 + list.length) % list.length];
+    else if (e.key === 'Home') next = list[0];
+    else if (e.key === 'End') next = list[list.length - 1];
+    if (next) { e.preventDefault(); next.focus(); }
+  });
+  wrap.addEventListener('focusout', (e) => { if (isOpen() && !wrap.contains(e.relatedTarget)) close(false); });
+  document.addEventListener('pointerdown', (e) => { if (isOpen() && !wrap.contains(e.target)) close(false); });
+  // Remember the pick like the interface language (no automatic redirects anywhere).
+  menu.addEventListener('click', (e) => {
+    const a = e.target.closest('.k-learn-item');
+    if (!a) return;
+    try { localStorage.setItem(SECTION_KEY, a.dataset.section); } catch (_) { /* private mode */ }
+    setLang(a.dataset.ui);
+  });
+  return wrap;
+}
+
 function buildTeach(section, lang) {
   const t = LABELS[lang] || LABELS.en;
   const a = document.createElement('a');
@@ -165,6 +323,15 @@ export function mountHeader() {
     else header.insertBefore(nav, header.firstChild);
   }
 
+  if (!header.querySelector('.k-learn')) {
+    const learn = buildLearn(section, lang);
+    if (logo) logo.insertAdjacentElement('afterend', learn);
+    else header.insertBefore(learn, header.firstChild);
+  }
+  // Remember the section the reader is in, like krabsy_lang (nothing
+  // redirects on it; pages outside the section trees may read it later).
+  try { if (location.pathname.indexOf(section.home) === 0) localStorage.setItem(SECTION_KEY, section.id); } catch (_) {}
+
   let right = header.querySelector(':scope > .hd-right');
   if (!right) {
     right = document.createElement('div');
@@ -176,7 +343,15 @@ export function mountHeader() {
   let toggle = header.querySelector('.k-lang-toggle');
   if (!toggle) toggle = buildLangToggle(section, lang);
   if (toggle && toggle.parentNode !== right) right.appendChild(toggle);
-  if (toggle && !toggle.getAttribute('aria-label')) toggle.setAttribute('aria-label', (LABELS[lang] || LABELS.en).lang);
+  if (toggle) {
+    // "Menüsprache", not "Sprache": next to the learning-language pill the
+    // two must not read as the same thing.
+    toggle.setAttribute('aria-label', (LEARN[lang] || LEARN.en).uiGroup);
+    toggle.querySelectorAll('.k-lang-btn').forEach((b) => {
+      const l = b.dataset.lang;
+      if (UI_TITLE[l]) b.title = UI_TITLE[l];
+    });
+  }
 
   markCurrent(header, section, lang);
   document.body.classList.add('k-has-tabbar');
