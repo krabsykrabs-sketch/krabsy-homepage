@@ -1,6 +1,6 @@
 # Krabsy: Outreach- und Backlink-Liste
 
-Stand: 2026-11-16, Texte aktualisiert 2026-11-27 (Klassencode, Quiz-Raum, Verb-Diplom, Arbeitsblätter, Unterrichtsideen). Die Einreichung macht der Owner.
+Stand: 2026-11-16, Texte aktualisiert 2026-11-27 (Klassencode, Quiz-Raum, Verb-Diplom, Arbeitsblätter, Unterrichtsideen). Die Einreichung macht der Owner. **Achtung:** Die meisten Portale unten sind laut Zeile "Erledigt bisher" schon eingereicht (ca. 17.11.); die aktualisierten Texte dienen dort nur für Nachfass-Mails. Offen ist nur educ.ar (AR).
 "Verifiziert" heißt: Die Seite oder das Formular wurde am 2026-11-16 per Fetch geöffnet und der Einreichungsweg war sichtbar.
 Name: **Jan Ahrens**. E-Mail (nur wo ein Formular sie verlangt): **hallo@krabsy.com** (DE/AT), **hola@krabsy.com** (ES/LatAm); beide leiten seit 2026-11-17 per Namecheap ins Postfach des Owners weiter.
 
@@ -130,7 +130,7 @@ Seiten zum Einreichen:
 
 ## Deutschsprachige Portale
 
-### 1. schule.at, Englisch-Portal (AT)
+### 1. schule.at, Englisch-Portal (AT): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.; am 2026-11-27 noch nicht in der Rubrik gelistet)
 - **Einreichung:** E-Mail an office@edugroup.at (steht im Footer jeder Portalseite). Zielrubrik: https://e.schule.at/portale/englisch/grammar/verb/irregular-verbs.html
 - **Verifiziert:** ja (2026-11-16). Die Rubrik verlinkt externe Seiten mit Steckbrief (Anbieter, Datum, "Kostenpflichtig: nein"). Eine Mailadresse speziell für Vorschläge gibt es nicht, nur die allgemeine.
 - **Voraussetzungen:** keine erkennbar, die Redaktion entscheidet. Viele Einträge sind alt (2004), eine Aufnahme ist nicht sicher.
@@ -152,14 +152,14 @@ Seiten zum Einreichen:
   > Mit freundlichen Grüßen
   > Jan Ahrens, Entwickler von Krabsy
 
-### 2. WirLernenOnline (DE)
+### 2. WirLernenOnline (DE): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.)
 - **Einreichung:** https://wirlernenonline.de/fachportalinhalte-vorschlagen/?type=source&headline=Mitmachenformular (Button "Quellen vorschlagen" auf https://wirlernenonline.de/mitmachen/)
 - **Verifiziert:** teilweise (2026-11-16). Die Vorschlagsseite existiert, aber die Formularfelder werden per JavaScript geladen und waren für den Fetch nicht sichtbar. Ob ein Login nötig ist, ist unklar.
 - **Voraussetzungen:** Der Schwerpunkt liegt auf OER, eine CC-Pflicht für Quellen war aber nirgends angegeben. Die Suche bietet einen Filter "nicht-OER", freie Nicht-OER-Inhalte sind also möglich. Die Fachredaktion prüft rechtlich und inhaltlich. Bei einem Lizenzfeld "keine freie Lizenz / alle Rechte vorbehalten" wählen und nichts anderes behaupten.
 - **URL:** https://krabsy.com/de/unregelmaessige-verben/ (Quelle: https://krabsy.com/de/)
 - **Texte:** DE-Basis (Kurz- oder Langbeschreibung, je nach Feldlänge; aktualisiert 2026-11-27). Fach Englisch, Stufe Sekundarstufe I, Klasse 5–10. Inhaltstyp: Übung / Lernspiel / Web-Anwendung / Arbeitsblatt. Lizenz: keine freie Lizenz.
 
-### 3. fragFINN (DE)
+### 3. fragFINN (DE): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.)
 - **Einreichung:** https://www.fragfinn.de/seite-vorschlagen/
 - **Verifiziert:** ja (2026-11-16). Pflichtfeld ist nur die URL, dazu ein optionales Feld "Warum?". Kosten: keine.
 - **Voraussetzungen:** Prüfung nach dem fragFINN-Kriterienkatalog (Jugendschutz, kindgerecht, Impressum, Werbung). Es ist eine Whitelist-Suchmaschine für Kinder und kein klassischer Backlink, aber ein Vertrauenssignal mit Reichweite an Grundschulen und in Klasse 5/6.
@@ -221,7 +221,7 @@ Seiten zum Einreichen:
 
 ## Spanischsprachige Portale
 
-### 1. Ceibal en Inglés, Plan Ceibal (UY)
+### 1. Ceibal en Inglés, Plan Ceibal (UY): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.; alter Text enthielt noch den Uruguay-Satz)
 - **Einreichung:** Formular "Formulario de contacto web Ceibal en Inglés": https://machform.ceibal.edu.uy/formularios/view.php?id=1643367 (verlinkt unter "Quiero contactarme" auf https://ceibal.edu.uy/plataformas-y-programas/ceibal-en-ingles/). Allgemeine Adresse: ceibal@ceibal.edu.uy
 - **Verifiziert:** ja (2026-11-16). Felder: Asunto* (max. 120 Zeichen), Nombre, Apellidos, Email*, Motivo*.
 - **Voraussetzungen:** Es gibt keinen formalen Aufnahmeprozess für Drittangebote, das ist eine Anfrage an das Programmteam. Ziel: Erwähnung oder Empfehlung in der Docentes-/Comunidad-Kommunikation oder der "Biblioteca".
@@ -240,7 +240,7 @@ Seiten zum Einreichen:
   > Saludos cordiales,
   > Jan Ahrens, creador de Krabsy
 
-### 2. EDUCACIÓN 3.0 (ES)
+### 2. EDUCACIÓN 3.0 (ES): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.); Nachfass Anfang Dezember mit dem aktualisierten Text
 - **Einreichung:** redaccion@educaciontrespuntocero.com (Kontaktseite: https://www.educaciontrespuntocero.com/contacto/)
 - **Verifiziert:** ja (2026-11-16). Laut Redaktionsrichtlinie (https://www.educaciontrespuntocero.com/politica-editorial/) gelten Hinweise von Anbietern als "una fuente más", und bezahlte Inhalte werden getrennt gekennzeichnet. Nur einen redaktionellen Vorschlag schicken und **kein** Sponsoring-Angebot annehmen.
 - **Aufhänger:** Der Artikel https://www.educaciontrespuntocero.com/recursos/tiempos-verbales-en-ingles/ (zuletzt aktualisiert am 06.07.2021) verlinkt das "Irregular Verb Wheel Game" von macmillandictionary.com. Das Macmillan Dictionary wurde nach unserem Kenntnisstand 2023 eingestellt. **Vor dem Absenden den Link selbst prüfen.**
@@ -260,7 +260,7 @@ Seiten zum Einreichen:
   > Un saludo,
   > Jan Ahrens, creador de Krabsy
 
-### 3. EducarChile, Herramientas digitales (CL)
+### 3. EducarChile, Herramientas digitales (CL): **EINGEREICHT ca. 2026-11-17** (laut Owner-Notiz vom 18.11.; am 2026-11-27 noch nicht gefunden)
 - **Einreichung:** Kontaktformular https://www.educarchile.cl/contact (Su nombre, Correo, Asunto, Mensaje). Eine Mailadresse ist nicht angegeben.
 - **Verifiziert:** ja (2026-11-16). Die Werkzeugsteckbriefe verlinken extern, Beispiel: https://www.educarchile.cl/herramientas-digitales/planificacion-de-la-ensenanza/phet-interactive-simulations. Ein Vorschlagsprozess ist nicht dokumentiert.
 - **URL:** https://krabsy.com/es/docentes/
