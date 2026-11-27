@@ -26,6 +26,7 @@ import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-26';
 import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-26b';
 import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-26c';
+import { runningLessons, isRunning, markEnded, runningBar } from '/lib/krabsy-live-running.js?v=2026-11-27';
 
 const LANG = 'en';
 const PATHS = { start: '/en/spanish/tutors/', space: '/en/spanish/tutors/space/', me: '/en/spanish/me/', report: '/en/spanish/report/', profile: '/en/my-profile/',
@@ -249,7 +250,7 @@ function renderStart(main) {
   const list = spaces();
   const ses = session();
   const HOW_ICONS = ['👋', '🎮', '🗓️'];
-  main.innerHTML = `
+  main.innerHTML = `${ses ? runningBar(esc) : ''}
     <section class="kt-hero">
       <div class="kt-hero-text">
         <p class="kt-eyebrow">${T.title}</p>
@@ -387,9 +388,9 @@ async function renderSpace(main) {
         : `<span class="kc-muted kt-cardhw kt-cardhw-none">${T.noHw}</span>`}
       ${tps.length ? `<span class="kt-mini">${tps.slice(0, 4).map(([tp, n]) => `<span><span class="kt-mini-t">${esc(topicName(cat, tp))}</span>${starsHtml(n)}</span>`).join('')}</span>`
         : `<span class="kt-mini kt-mini-none"><span><span class="kt-mini-t kc-muted">${T.noStars}</span>${starsHtml(0)}</span></span>`}
-    </a><div class="kt-scard-foot"><a class="kt-scard-open" href="${hrefTo(token, s.id)}" tabindex="-1" aria-hidden="true">${T.openProfile} →</a><a class="kt-livebtn" href="${liveHref(token, s.id)}">Start live lesson</a></div></div>`;
+    </a><div class="kt-scard-foot"><a class="kt-scard-open" href="${hrefTo(token, s.id)}" tabindex="-1" aria-hidden="true">${T.openProfile} →</a><a class="kt-livebtn${isRunning(s.id) ? ' is-running' : ''}" href="${liveHref(token, s.id)}">${isRunning(s.id) ? 'Back to live lesson' : 'Start live lesson'}</a></div></div>`;
   }).join('');
-  main.innerHTML = `
+  main.innerHTML = `${runningBar(esc)}
     <div class="kt-pagehead">${avatarHtml(d.space.name, 'is-xl is-tutor')}
       <div class="kt-pagehead-id"><p class="kt-eyebrow">${T.spaceEyebrow}</p>
         <h1>${esc(T.studentsOf(d.space.name))}${d.students.length ? ` <span class="kt-count">${d.students.length}</span>` : ''}</h1>
@@ -445,7 +446,9 @@ async function renderSpace(main) {
     }
   });
   $('#kt-delspace').addEventListener('click', async () => {
-    if (!confirm(T.delSpaceQ)) return;
+    const running = runningLessons();
+    if (!confirm(T.delSpaceQ + (running.length ? `\n\nThe live lesson${running.length > 1 ? 's' : ''} running now (${running.map((r) => r.name).join(', ')}) will end.` : ''))) return;
+    running.forEach((r) => markEnded(r.sid));
     await api('/api/tutor/delete', token, {});
     forgetSpace(token); write(SESSION, null);
     main.innerHTML = `<div class="kt-center"><h1>${T.students}</h1><p class="kc-card">${T.deleted}</p></div>`;
@@ -486,13 +489,14 @@ async function renderStudent(main, token, sid) {
   const hwTopic = topicIds.find((tp) => cat.ids.includes(tp)) || topicIds[0];
   const lctx = { d: Object.assign({}, d, { topics: d.topics, plan: d.plan }), cat, sid, name: s.name, topicName, linkFor,
     api: (path) => api(path, token), post, reload };
-  main.innerHTML = `
+  const liveNow = isRunning(sid);
+  main.innerHTML = `${runningBar(esc, sid)}
     <p class="kt-back"><a href="${hrefTo(token, null)}">${T.back}</a></p>
     <div class="kc-card kt-phead">${avatarHtml(s.name, 'is-xl')}
       <div class="kt-phead-id"><h1>${esc(s.name)}${s.level ? ` <span class="kt-level">${esc(s.level)}</span>` : ''}${s.adult ? ` <span class="kt-level is-adult">${T.adultTag}</span>` : ''}</h1>
         <p class="kc-muted">${T.lastActive}: ${ago(s.last_active)} · ${s.answers} ${T.answers}</p>
         ${s.goals ? `<p class="kt-phead-goal"><span aria-hidden="true">🎯</span> ${esc(s.goals)}</p>` : ''}</div>
-      <p class="kc-row kt-phead-act"><a class="kt-livebtn is-big" href="${liveHref(token, sid)}">Start live lesson</a></p>
+      <p class="kc-row kt-phead-act"><a class="kt-livebtn is-big${liveNow ? ' is-running' : ''}" href="${liveHref(token, sid)}">${liveNow ? 'Back to live lesson' : 'Start live lesson'}</a></p>
       <ul class="kt-pstats">
         <li><b>${s.answers}</b><span>${T.stats.answers}</span></li>
         <li><b>${topicIds.filter((tp) => (d.topics[tp] || empty).stars > 0).length}<small> / ${topicIds.length}</small></b><span>${T.stats.topics}</span></li>
@@ -616,7 +620,7 @@ ${tutorHtml(lctx)}
 
   // link
   $('#kt-newlink').addEventListener('click', async () => {
-    if (key && !confirm(T.newLinkQ)) return;
+    if ((key || liveNow) && !confirm(T.newLinkQ + (liveNow ? `\n\n${s.name}'s live lesson running now ends for ${s.name} until they open the new link.` : ''))) return;
     const r = await post('/api/tutor/student/new-link', {});
     setKey(token, sid, r.student_key);
     reload();
@@ -666,7 +670,8 @@ ${tutorHtml(lctx)}
   }));
 
   $('#kt-remove').addEventListener('click', async () => {
-    if (!confirm(T.removeQ(s.name))) return;
+    if (!confirm(T.removeQ(s.name) + (liveNow ? `\n\nThe live lesson with ${s.name} running now will end.` : ''))) return;
+    markEnded(sid);
     await post('/api/tutor/student/remove', {});
     location.hash = hrefTo(token, null).slice(1);
   });

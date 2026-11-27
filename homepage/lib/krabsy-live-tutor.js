@@ -19,6 +19,7 @@
 import { apiBase } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
 import { mountMaterial } from '/lib/activities/player.js?v=2026-11-26c';
+import { runningLessons, markRunning, markEnded } from '/lib/krabsy-live-running.js?v=2026-11-27';
 
 const LANG = 'en';
 const SPACE = '/en/spanish/tutors/space/';
@@ -28,7 +29,9 @@ const T = {
   gone: (n) => `${n} left the lesson — ask them to open their page again`,
   copyLink: 'Copy link', copied: 'Copied ✓', reconnecting: 'Reconnecting …',
   replaced: 'This lesson is open in another tab.', useHere: 'Use it here',
-  start: 'Start lesson', end: 'End lesson', profile: '← Profile',
+  start: 'Start lesson', end: 'End lesson', profile: '← Profile', students: 'All students',
+  keepsRunning: 'The lesson keeps running while you look at other pages. Come back with “Back to the lesson”.',
+  tooMany: (names, oldest) => `You already have 3 live lessons running (${names}). Starting this one ends the lesson with ${oldest}.\n\nStart anyway?`,
   sees: (n) => `${n} sees`, nothing: 'Nothing on the screen yet',
   waitH: (t) => `${t} is getting the next thing ready`, waitP: 'This is what the student sees between materials.',
   addFirst: '+ Add material', startH: (n) => `Live lesson with ${n}`,
@@ -56,9 +59,9 @@ const T = {
   loadFail: 'Could not load this material.', tooBig: 'This material is too big to send.',
   offline: 'Not connected — it is sent when the connection is back.',
   offlineNow: 'Not connected — not sent. Try again in a moment.',
-  endH: (n) => `Lesson with ${n} finished`, endMeta: (m, n, s) => `${m} min · ${n} material${n === 1 ? '' : 's'} · ⭐ ${s}`,
+  endH: (n) => `End the lesson with ${n}?`, endMeta: (m, n, s) => `${m} min · ${n} material${n === 1 ? '' : 's'} · ⭐ ${s}`,
   endRight: 'Right on the first try', endWords: 'Words to practise', endNote: 'Lesson note (saved on the profile, editable)',
-  keep: 'Keep teaching', saveEnd: 'Save and end', saving: 'Saving …', saveFail: 'Could not save the note. Try again.',
+  keep: 'No, keep teaching', saveEnd: 'Yes, save and end', saving: 'Saving …', saveFail: 'Could not save the note. Try again.',
   savedH: 'Lesson saved ✓', savedP: (n) => `The note is on ${n}’s profile under Lesson notes.`,
   backTo: (n) => `Back to ${n}`, newLesson: 'Start a new lesson',
   notFinished: 'not finished',
@@ -138,10 +141,14 @@ class LivePage {
     this.pointOn = true; this.tab = 'queue'; this.firstReady = true; this.status = 'connecting';
     this.notesKey = `krabsy_live_notes:${P.sid}`;
     this.profileHref = SPACE + (P.legacy ? `#t=${P.token}&s=${P.sid}` : `#s=${P.sid}`);
+    this.spaceHref = SPACE + (P.legacy ? `#t=${P.token}` : '');
+    this.selfHref = location.pathname + (P.legacy ? `#t=${P.token}&s=${P.sid}` : `#s=${P.sid}`);
   }
 
   run() {
     this.shell();
+    // keep this lesson on the device's "running" list while the page is open (krabsy-live-running.js)
+    setInterval(() => this.trackRunning(), 60000);
     this.live = connectLive({
       hello: { role: 'tutor', token: this.P.token, student: this.P.sid },
       on: {
@@ -165,7 +172,8 @@ class LivePage {
         <span class="kl-pres" data-pres></span>
         <span class="kl-grow"></span>
         <span class="kl-clock" data-clock hidden>00:00</span>
-        <a class="kl-btn kl-btn-dark" href="${esc(this.profileHref)}">${T.profile}</a>
+        <a class="kl-btn kl-btn-dark" href="${esc(this.profileHref)}" title="${esc(T.keepsRunning)}">${T.profile}</a>
+        <a class="kl-btn kl-btn-dark" href="${esc(this.spaceHref)}" title="${esc(T.keepsRunning)}">${T.students}</a>
         <button type="button" class="kl-btn kl-btn-primary" data-start hidden>${T.start}</button>
         <button type="button" class="kl-btn kl-btn-primary" data-end hidden>${T.end}</button>
       </header>
@@ -247,7 +255,13 @@ class LivePage {
 
   active() { return !!(this.lesson && !this.lesson.ended); }
 
+  trackRunning() {
+    if (this.active()) markRunning(this.P.sid, { name: this.name, started: this.lesson.started, href: this.selfHref });
+    else markEnded(this.P.sid);
+  }
+
   header() {
+    this.trackRunning();
     const m = this.main; if (!m.isConnected) return;
     const n = this.name, p = this.presence;
     const pres = $('[data-pres]', m);
@@ -437,6 +451,12 @@ class LivePage {
   /* ── lesson ─────────────────────────────────────────────────────────────── */
   startLesson() {
     if (this.active()) return;
+    const others = runningLessons().filter((r) => r.sid !== Number(this.P.sid));
+    if (others.length >= 3) {
+      const oldest = others.slice().sort((a, b) => (a.seen || 0) - (b.seen || 0))[0];
+      if (!confirm(T.tooMany(others.map((r) => r.name).join(', '), oldest.name))) return;
+      markEnded(oldest.sid);
+    }
     this.lesson = { started: new Date().toISOString(), ended: null };
     this.items = []; this.index = -1; this.material = null; this.state = null; this.answers = [];
     if (!this.live.start(this.items, this.index)) this.toast(T.offline);
@@ -714,6 +734,7 @@ class LivePage {
       const sum = { minutes: s.minutes, materials: s.mats.length, first: s.right, total: s.total };
       if (!this.live.end(sum)) this.endPending = { at: Date.now(), started: this.lesson.started, summary: sum };   // sent on reconnect
       this.lesson = { started: this.lesson.started, ended: new Date().toISOString() };
+      this.trackRunning();
       write(this.notesKey, null);
       close();
       this.savedCard();
