@@ -1,6 +1,6 @@
 # Krabsy: Outreach- und Backlink-Liste
 
-Stand: 2026-11-16. Alles hier ist vorbereitet, aber noch nichts eingereicht. Die Einreichung macht der Owner.
+Stand: 2026-11-16, Texte aktualisiert 2026-11-27 (Klassencode, Quiz-Raum, Verb-Diplom, Arbeitsblätter, Unterrichtsideen). Die Einreichung macht der Owner.
 "Verifiziert" heißt: Die Seite oder das Formular wurde am 2026-11-16 per Fetch geöffnet und der Einreichungsweg war sichtbar.
 Name: **Jan Ahrens**. E-Mail (nur wo ein Formular sie verlangt): **hallo@krabsy.com** (DE/AT), **hola@krabsy.com** (ES/LatAm); beide leiten seit 2026-11-17 per Namecheap ins Postfach des Owners weiter.
 
@@ -86,11 +86,11 @@ Schwächer/abgelehnt: Orientación Andújar (nur bezahltes Sponsoring), TESOL-SP
 ### DE: Basis
 
 - **Titel:** Krabsy: Englische unregelmäßige Verben und Präpositionen üben
-- **Kurzbeschreibung (434 Zeichen):**
-  Krabsy ist eine kostenlose Übungsseite für englische Grammatik ab etwa Klasse 5 mit deutscher Oberfläche. Sie umfasst 172 unregelmäßige Verben mit eigener Seite je Verb (Formen, übersetzte Beispielsätze, typische Fehler, Mini-Quiz) sowie Präpositionen (in, on, at, for, since …). Geübt wird mit Speed-Drills, Karteikarten, Verb-Tabelle und Browserspielen. Keine Anmeldung, keine Werbung; der Lernstand wird nur im Browser gespeichert.
-- **Langbeschreibung (ca. 890 Zeichen):**
-  Krabsy ist ein kostenloses Online-Angebot zum Üben englischer Grammatik für Schülerinnen und Schüler ab etwa Klasse 5. Die Oberfläche ist deutsch, geübt wird Englisch. Schwerpunkt sind 172 unregelmäßige Verben: Zu jedem Verb gibt es eine eigene Seite mit allen Formen, Beispielsätzen mit Übersetzung, typischen Fehlern und einem kurzen Quiz. Dazu kommen Lernwerkzeuge (Karteikarten, Verb-Tabelle, A–Z-Liste, freies Üben), Speed-Drills (Sprint, Type Race, Lückentext, Drag Match, Falling Forms) und Browserspiele (u. a. Verb Snake, Verb Slash, Verb Kitchen). Ein zweiter Bereich behandelt Präpositionen mit Sprint, Lückentext und Karteikarten. Für die Nutzung ist kein Konto nötig; Lehrkräfte teilen einen Link oder betten Übungen per iframe ein. Es gibt keine Werbung und keine Cookies, Fortschritte werden nur lokal im Browser gespeichert. Klassenübersicht und Ergebnisexport gibt es nicht.
-- **Schlagwörter:** Englisch, unregelmäßige Verben, irregular verbs, Simple Past, Past Participle, Präpositionen, Grammatik, Online-Übung, Lernspiel, Wiederholung, Selbstlernen, Hausaufgabe, kostenlos, ohne Anmeldung
+- **Kurzbeschreibung (456 Zeichen, aktualisiert 2026-11-27):**
+  Krabsy ist eine kostenlose Übungsseite für englische Grammatik ab Klasse 5 mit deutscher Oberfläche: 172 unregelmäßige Verben (je Verb eine Seite mit Formen, Beispielsätzen und Mini-Quiz) und Präpositionen. Geübt wird mit Lernspielen, kurzen Drills, Karteikarten und dem Verb-Diplom mit Urkunde; dazu Arbeitsblätter mit Lösungen. Lehrkräfte legen ohne Konto einen Klassencode an und sehen, welche Wörter die Klasse noch übt. Keine Anmeldung, keine Werbung.
+- **Langbeschreibung (909 Zeichen, aktualisiert 2026-11-27):**
+  Krabsy ist ein kostenloses Online-Angebot zum Üben englischer Grammatik für Schülerinnen und Schüler ab Klasse 5. Die Oberfläche ist deutsch, geübt wird Englisch. Schwerpunkt sind 172 unregelmäßige Verben mit je einer eigenen Seite (alle Formen, Beispielsätze mit Übersetzung, typische Fehler, kurzes Quiz) sowie Präpositionen (in, on, at, for, since …). Geübt wird mit Browserspielen (u. a. Verb Towers, Verb Kitchen, Verb Snake), Speed-Drills, Karteikarten und dem Verb-Diplom in drei Stufen mit Urkunde zum Ausdrucken. Für den Unterricht gibt es Arbeitsblätter mit Lösungen, fertige Unterrichtsideen, Übungslinks für Hausaufgaben, einen Live-Quiz-Raum für die ganze Klasse und einen Klassencode: Die Kinder treten nur mit Vornamen bei, und die Lehrkraft sieht, welche Wörter die Klasse noch unsicher beherrscht. Kein Konto, keine E-Mail, keine Werbung. Ohne Klassencode bleibt der Lernstand nur im Browser.
+- **Schlagwörter:** Englisch, unregelmäßige Verben, irregular verbs, Simple Past, Past Participle, Präpositionen, Grammatik, Online-Übung, Lernspiel, Arbeitsblatt, Klassencode, Quiz, Wiederholung, Hausaufgabe, kostenlos, ohne Anmeldung
 - **Fach:** Englisch (Fremdsprache), Grammatik
 - **Stufe (DE):** Sekundarstufe I, Klasse 5–10
 - **Stufe (AT):** Sekundarstufe I (5.–8. Schulstufe: Mittelschule, AHS-Unterstufe)
@@ -101,11 +101,11 @@ Schwächer/abgelehnt: Orientación Andújar (nur bezahltes Sponsoring), TESOL-SP
 ### ES: Basis
 
 - **Título:** Krabsy: practicar verbos irregulares y preposiciones en inglés
-- **Descripción corta (444 caracteres):**
-  Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español. Incluye 172 verbos irregulares, cada uno con su propia página (formas, frases de ejemplo traducidas, errores típicos y mini-quiz), y preposiciones (in, on, at, for, since…). Se practica con ejercicios contrarreloj, tarjetas, tabla de verbos y juegos en el navegador. Sin registro ni publicidad; el progreso se guarda solo en el navegador.
-- **Descripción larga (881 caracteres):**
-  Krabsy es un recurso en línea gratuito para practicar gramática inglesa, pensado para estudiantes desde unos 10 años. La interfaz está en español y lo que se practica es inglés. El eje son 172 verbos irregulares: cada verbo tiene una página con todas sus formas, frases de ejemplo con traducción, errores típicos y un mini-quiz. Hay herramientas de estudio (tarjetas, tabla de verbos, lista A–Z, práctica libre), ejercicios de velocidad (Sprint, Type Race, Fill the Gap, Drag Match, Falling Forms) y juegos en el navegador (entre ellos Verb Snake, Verb Slash y Verb Kitchen). Otra sección trabaja las preposiciones con Sprint, frases con huecos y tarjetas. No hace falta crear cuenta: el docente comparte un enlace o inserta el ejercicio con un iframe. No hay publicidad ni cookies y el progreso se guarda solo en el navegador. No ofrece panel docente ni exportación de resultados.
-- **Palabras clave:** inglés, verbos irregulares, irregular verbs, pasado simple, participio, preposiciones, gramática inglesa, ejercicios en línea, juegos educativos, repaso, autoaprendizaje, gratis, sin registro
+- **Descripción corta (454 caracteres, actualizada 2026-11-27):**
+  Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español: 172 verbos irregulares (cada uno con su página de formas, frases de ejemplo y mini-quiz) y preposiciones. Se practica con juegos, ejercicios cortos, tarjetas y el Diploma de verbos con certificado; además hay fichas con soluciones. El docente crea un código de clase sin cuenta y ve qué palabras le cuestan aún al grupo. Sin registro ni publicidad.
+- **Descripción larga (908 caracteres, actualizada 2026-11-27):**
+  Krabsy es un recurso en línea gratuito para practicar gramática inglesa, pensado para estudiantes desde unos 10 años. La interfaz está en español y lo que se practica es inglés. El eje son 172 verbos irregulares, cada uno con su página (todas las formas, frases de ejemplo con traducción, errores típicos y un mini-quiz), y las preposiciones (in, on, at, for, since…). Se practica con juegos en el navegador (entre ellos Verb Towers, Verb Kitchen y Verb Snake), ejercicios de velocidad, tarjetas y el Diploma de verbos en tres niveles con certificado para imprimir. Para el aula hay fichas con soluciones, enlaces de práctica para tareas, una sala de quiz en vivo para todo el grupo y un código de clase: el alumnado entra solo con su nombre de pila y el docente ve qué palabras le cuestan aún al grupo. Sin cuenta, sin correo, sin publicidad. Sin código de clase, el progreso se guarda solo en el navegador.
+- **Palabras clave:** inglés, verbos irregulares, irregular verbs, pasado simple, participio, preposiciones, gramática inglesa, ejercicios en línea, juegos educativos, fichas, código de clase, quiz, repaso, gratis, sin registro
 - **Área/asignatura:** Inglés (lengua extranjera)
 - **Nivel por país** (der passende Wortlaut steht jeweils beim Portal):
   - UY: de 5.º de Educación Primaria a 9.º de Educación Básica Integrada (EBI)
@@ -143,19 +143,21 @@ Seiten zum Einreichen:
   >
   > für die Rubrik "Irregular Verbs" im Englisch-Portal von schule.at möchte ich ein kostenloses Übungsangebot vorschlagen: https://krabsy.com/de/unregelmaessige-verben/
   >
-  > [DE-Kurzbeschreibung einfügen]
+  > Krabsy ist eine kostenlose Übungsseite für englische Grammatik ab Klasse 5 mit deutscher Oberfläche: 172 unregelmäßige Verben (je Verb eine Seite mit Formen, Beispielsätzen und Mini-Quiz) und Präpositionen. Geübt wird mit Lernspielen, kurzen Drills, Karteikarten und dem Verb-Diplom mit Urkunde; dazu Arbeitsblätter mit Lösungen. Lehrkräfte legen ohne Konto einen Klassencode an und sehen, welche Wörter die Klasse noch übt. Keine Anmeldung, keine Werbung.
   >
-  > Sprache: Oberfläche Deutsch, Inhalt Englisch · Stufe: Sekundarstufe I (5.–8. Schulstufe) · Kostenpflichtig: nein · Anmeldung: keine · Werbung: keine. Hinweise für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
+  > Für Lehrkräfte (https://krabsy.com/de/lehrkraefte/): Klassencode ohne Konto, Übungslinks für Hausaufgaben, ein Live-Quiz-Raum, Arbeitsblätter mit Lösungen und fertige Unterrichtsideen.
+  >
+  > Sprache: Oberfläche Deutsch, Inhalt Englisch · Stufe: Sekundarstufe I (5.–8. Schulstufe) · Kostenpflichtig: nein · Anmeldung: keine · Werbung: keine.
   >
   > Mit freundlichen Grüßen
-  > Jan Ahrens, Krabsy · `<E-Mail aus dem Impressum>`
+  > Jan Ahrens, Entwickler von Krabsy
 
 ### 2. WirLernenOnline (DE)
 - **Einreichung:** https://wirlernenonline.de/fachportalinhalte-vorschlagen/?type=source&headline=Mitmachenformular (Button "Quellen vorschlagen" auf https://wirlernenonline.de/mitmachen/)
 - **Verifiziert:** teilweise (2026-11-16). Die Vorschlagsseite existiert, aber die Formularfelder werden per JavaScript geladen und waren für den Fetch nicht sichtbar. Ob ein Login nötig ist, ist unklar.
 - **Voraussetzungen:** Der Schwerpunkt liegt auf OER, eine CC-Pflicht für Quellen war aber nirgends angegeben. Die Suche bietet einen Filter "nicht-OER", freie Nicht-OER-Inhalte sind also möglich. Die Fachredaktion prüft rechtlich und inhaltlich. Bei einem Lizenzfeld "keine freie Lizenz / alle Rechte vorbehalten" wählen und nichts anderes behaupten.
 - **URL:** https://krabsy.com/de/unregelmaessige-verben/ (Quelle: https://krabsy.com/de/)
-- **Texte:** DE-Basis. Fach Englisch, Stufe Sekundarstufe I, Klasse 5–10. Inhaltstyp: Übung / Lernspiel / Web-Anwendung.
+- **Texte:** DE-Basis (Kurz- oder Langbeschreibung, je nach Feldlänge; aktualisiert 2026-11-27). Fach Englisch, Stufe Sekundarstufe I, Klasse 5–10. Inhaltstyp: Übung / Lernspiel / Web-Anwendung / Arbeitsblatt. Lizenz: keine freie Lizenz.
 
 ### 3. fragFINN (DE)
 - **Einreichung:** https://www.fragfinn.de/seite-vorschlagen/
@@ -163,7 +165,7 @@ Seiten zum Einreichen:
 - **Voraussetzungen:** Prüfung nach dem fragFINN-Kriterienkatalog (Jugendschutz, kindgerecht, Impressum, Werbung). Es ist eine Whitelist-Suchmaschine für Kinder und kein klassischer Backlink, aber ein Vertrauenssignal mit Reichweite an Grundschulen und in Klasse 5/6.
 - **URL:** https://krabsy.com/de/
 - **Begründung (copy-ready, ca. 300 Zeichen):**
-  Kostenlose Übungsseite für Kinder ab etwa 10 Jahren: englische unregelmäßige Verben und Präpositionen mit kurzen Drills, Karteikarten und Lernspielen. Ohne Anmeldung, ohne Werbung, ohne Cookies; der Lernstand bleibt im Browser. Deutsche Oberfläche, Impressum vorhanden.
+  Kostenlose Übungsseite für Kinder ab etwa 10 Jahren: englische unregelmäßige Verben und Präpositionen mit Lernspielen, kurzen Drills, Karteikarten und einem Verb-Diplom mit Urkunde. Ohne Anmeldung, ohne Werbung, ohne Cookies. Deutsche Oberfläche, Impressum vorhanden.
 
 ### 4. Eduthek (AT, Bundesministerium für Bildung)
 - **Einreichung:** E-Mail an eduthek@bildung.gv.at (steht auf https://www.bildung.gv.at/filter/eduthek/ als Adresse für Inhaltsfragen). "Eigene Inhalte veröffentlichen" führt zu https://www.bildung.gv.at/local/permalink/?r=eduthek/mitmachen, Inhalt **nicht geprüft** (Redirect-Kette).
@@ -229,14 +231,14 @@ Seiten zum Einreichen:
 - **Motivo (copy-ready):**
   > Hola, equipo de Ceibal en Inglés:
   >
-  > Les escribo para presentarles Krabsy (https://krabsy.com/es/docentes/), un sitio gratuito para practicar verbos irregulares y preposiciones en inglés, con interfaz en español. Ya hay grupos uruguayos que lo usan a través de enlaces publicados en CREA/Schoology.
+  > Les escribo para presentarles Krabsy (https://krabsy.com/es/docentes/), un sitio gratuito para practicar verbos irregulares y preposiciones en inglés, con interfaz en español.
   >
-  > [ES-Descripción corta]
+  > Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español: 172 verbos irregulares (cada uno con su página de formas, frases de ejemplo y mini-quiz) y preposiciones. Se practica con juegos, ejercicios cortos, tarjetas y el Diploma de verbos con certificado; además hay fichas con soluciones. El docente crea un código de clase sin cuenta y ve qué palabras le cuestan aún al grupo. Sin registro ni publicidad.
   >
-  > Para el aula: el docente comparte un enlace (no hay cuentas ni códigos de clase), o inserta un ejercicio con iframe. Funciona en laptops, Chromebooks, tabletas y celulares. No hay panel docente ni exportación de resultados. Si les parece útil para docentes de 5.º de Primaria a 9.º de EBI, me alegraría que lo tuvieran en cuenta como recurso complementario.
+  > Para el aula: el docente comparte un enlace de práctica en CREA o Schoology, o crea un código de clase sin cuenta ni correo; el alumnado entra solo con su nombre de pila y el docente ve qué palabras le cuestan aún al grupo. También hay una sala de quiz en vivo para toda la clase y fichas con soluciones. Funciona en laptops, Chromebooks, tabletas y celulares. Si les parece útil para docentes de 5.º de Primaria a 9.º de EBI, me alegraría que lo tuvieran en cuenta como recurso complementario.
   >
   > Saludos cordiales,
-  > Jan Ahrens, Krabsy
+  > Jan Ahrens, creador de Krabsy
 
 ### 2. EDUCACIÓN 3.0 (ES)
 - **Einreichung:** redaccion@educaciontrespuntocero.com (Kontaktseite: https://www.educaciontrespuntocero.com/contacto/)
@@ -251,12 +253,12 @@ Seiten zum Einreichen:
   >
   > Leo a menudo sus recopilaciones de recursos. En el artículo «25 recursos para practicar los tiempos verbales en inglés» el enlace al «Irregular Verb Wheel Game» de Macmillan Dictionary parece no funcionar ya. Como posible alternativa para la parte de verbos irregulares les propongo Krabsy: https://krabsy.com/es/verbos-irregulares/
   >
-  > [ES-Descripción corta]
+  > Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español: 172 verbos irregulares (cada uno con su página de formas, frases de ejemplo y mini-quiz) y preposiciones. Se practica con juegos, ejercicios cortos, tarjetas y el Diploma de verbos con certificado; además hay fichas con soluciones. El docente crea un código de clase sin cuenta y ve qué palabras le cuestan aún al grupo. Sin registro ni publicidad.
   >
-  > Es gratuito y sin registro, y no tiene publicidad. Está pensado para alumnado de 5.º de Primaria a ESO. Información para docentes: https://krabsy.com/es/docentes/
+  > Está pensado para alumnado de 5.º de Primaria a ESO. Para docentes (código de clase, enlaces de práctica, sala de quiz y fichas): https://krabsy.com/es/docentes/
   >
   > Un saludo,
-  > Jan Ahrens
+  > Jan Ahrens, creador de Krabsy
 
 ### 3. EducarChile, Herramientas digitales (CL)
 - **Einreichung:** Kontaktformular https://www.educarchile.cl/contact (Su nombre, Correo, Asunto, Mensaje). Eine Mailadresse ist nicht angegeben.
@@ -264,14 +266,32 @@ Seiten zum Einreichen:
 - **URL:** https://krabsy.com/es/docentes/
 - **Nivel:** de 5.º básico a 2.º medio · Asignatura: Inglés
 - **Asunto:** Propuesta para Herramientas digitales: práctica gratuita de verbos irregulares en inglés
-- **Mensaje:** ES-Descripción corta plus "Sugiero incluirlo en la sección Herramientas digitales como recurso para Inglés (5.º básico a 2.º medio). Es gratuito, sin registro ni publicidad."
+- **Mensaje (copy-ready, actualizado 2026-11-27):**
+  > Hola, equipo de EducarChile:
+  >
+  > Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español: 172 verbos irregulares (cada uno con su página de formas, frases de ejemplo y mini-quiz) y preposiciones. Se practica con juegos, ejercicios cortos, tarjetas y el Diploma de verbos con certificado; además hay fichas con soluciones. El docente crea un código de clase sin cuenta y ve qué palabras le cuestan aún al grupo. Sin registro ni publicidad.
+  >
+  > Para el aula: código de clase sin cuenta, enlaces de práctica para tareas, una sala de quiz en vivo y fichas con soluciones (https://krabsy.com/es/docentes/). Sugiero incluirlo en la sección Herramientas digitales como recurso para Inglés (5.º básico a 2.º medio).
+  >
+  > Saludos cordiales,
+  > Jan Ahrens, creador de Krabsy
 
 ### 4. educ.ar (AR)
 - **Einreichung:** info@educar.gob.ar (steht in den Términos y condiciones laut Suchindex). Die Website war von hier aus **nicht erreichbar**, Verbindung abgelehnt, vermutlich Geo-Block.
 - **Verifiziert:** **nein.** Vor dem Absenden aus Argentinien bzw. per VPN prüfen, ob es ein Kontaktformular gibt. Hinweis: Das Unternehmen heißt inzwischen EDUC.AR S.A.U.
 - **URL:** https://krabsy.com/es/verbos-irregulares/
 - **Nivel:** segundo ciclo de primaria (5.º a 7.º grado) y ciclo básico de secundaria
-- **Mail:** wie bei Educación 3.0 ohne den Macmillan-Aufhänger, Betreff "Sugerencia de recurso gratuito para Inglés: verbos irregulares y preposiciones".
+- **Mail (copy-ready, actualizado 2026-11-27):** Asunto: Sugerencia de recurso gratuito para Inglés: verbos irregulares y preposiciones
+  > Hola, equipo de educ.ar:
+  >
+  > Les propongo un recurso gratuito para Inglés: https://krabsy.com/es/verbos-irregulares/
+  >
+  > Krabsy es un sitio gratuito para practicar gramática inglesa desde unos 10 años, con interfaz en español: 172 verbos irregulares (cada uno con su página de formas, frases de ejemplo y mini-quiz) y preposiciones. Se practica con juegos, ejercicios cortos, tarjetas y el Diploma de verbos con certificado; además hay fichas con soluciones. El docente crea un código de clase sin cuenta y ve qué palabras le cuestan aún al grupo. Sin registro ni publicidad.
+  >
+  > Está pensado para el segundo ciclo de primaria (5.º a 7.º grado) y el ciclo básico de secundaria. Información para docentes: https://krabsy.com/es/docentes/
+  >
+  > Saludos cordiales,
+  > Jan Ahrens, creador de Krabsy
 
 ### 5. Uruguay Educa (ANEP, UY), niedrige Priorität
 - **Einreichung:** Kontaktformular https://uruguayeduca.anep.edu.uy/contacto (Nombre, Correo, Tema, Mensaje)
