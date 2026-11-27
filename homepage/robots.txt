@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /de/unregelmaessige-verben/statistik/
-Disallow: /es/verbos-irregulares/estadisticas/
 
 Sitemap: https://krabsy.com/sitemap.xml
