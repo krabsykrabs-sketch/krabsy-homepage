@@ -30,7 +30,7 @@ button { font: inherit; cursor: pointer; }
   font-size: 18px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.3); pointer-events: none; }
 
 /* ── overlays that follow the players ────────────────────────────────── */
-#play-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 4; }
+#play-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 7; }   /* above the banner and the touch buttons */
 #play-overlay > * { position: absolute; left: 0; top: 0; }
 .prompt { width: 36px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-family: 'Fredoka One', sans-serif;
   font-size: 14px; color: var(--ink); box-shadow: 0 3px 0 rgba(0,0,0,.25); animation: bob 1s ease-in-out infinite alternate; }
@@ -45,7 +45,7 @@ button { font: inherit; cursor: pointer; }
 .toast.p1 { border: 3px solid var(--p1); } .toast.p2 { border: 3px solid var(--p2); }
 
 /* ── answer cards ────────────────────────────────────────────────────── */
-.card { width: min(330px, 44vw); background: var(--paper); border-radius: 18px; padding: 10px 12px 10px; pointer-events: auto;
+.card { width: min(380px, 46vw); background: var(--paper); border-radius: 18px; padding: 10px 12px 10px; pointer-events: auto;
   box-shadow: 0 10px 28px rgba(0,0,0,.4); border: 4px solid var(--p1); transition: border-color .15s; }
 .card.p2 { border-color: var(--p2); }
 .card.right { border-color: #2ec27e; }
@@ -58,14 +58,33 @@ button { font: inherit; cursor: pointer; }
 .card-q .arrow { color: #9aa0b0; margin: 0 6px; }
 .card-q .blank { color: #9aa0b0; }
 .card-q .blank.ask { color: var(--ink); background: var(--amber); border-radius: 6px; padding: 0 6px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { flex: 1 1 auto; min-width: 70px; min-height: 42px; border-radius: 12px; border: 3px solid #e3dccb; background: #fff;
+.chips { display: flex; flex-wrap: nowrap; gap: 6px; }
+.chip { display: flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 4px 6px; }
+.chip .word { white-space: nowrap; }
+.chips[data-len="l"] .chip { font-size: 15px; }
+.chips[data-len="l"] .chip kbd { min-width: 16px; padding: 0 3px; margin-right: 0; }
+.chips[data-len="xl"] .chip { font-size: 13px; padding: 4px 3px; }
+.chips[data-len="xl"] .chip kbd, .chips[data-len="xxl"] .chip kbd { display: none; }
+.chips[data-len="xxl"] .chip { font-size: 11.5px; padding: 4px 2px; }
+/* verbs: three boxes, the asked one amber with "?" */
+.card-q .trio { display: flex; align-items: stretch; gap: 4px; }
+.card-q .slot { flex: 1 1 0; min-width: 0; text-align: center; border-radius: 10px; padding: 3px 4px 2px;
+  background: #f1ece0; border: 2px solid transparent; }
+.card-q .slot b { display: block; font-weight: 400; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-q .slot small { display: block; font: 700 11px Nunito, sans-serif; color: #6a7080; }
+.card-q .slot.ask { background: var(--amber); border-color: var(--ink); animation: askpulse 1s ease-in-out infinite alternate; }
+.card-q .slot.ask small { color: var(--ink); }
+.card-q .slot.later b { color: #b8bcc8; }
+.card-q .slot.later small { color: #b8bcc8; }
+.card-q .trio .arrow { align-self: center; margin: 0; }
+@keyframes askpulse { to { box-shadow: 0 0 0 3px rgba(255, 207, 94, .55); } }
+.chip { flex: 1 1 0; min-width: 0; min-height: 42px; border-radius: 12px; border: 3px solid #e3dccb; background: #fff;
   font-family: 'Fredoka One', sans-serif; font-size: 18px; color: var(--ink); padding: 4px 10px; }
 .chip.sel { border-color: var(--ink); background: #fff3cf; }
 .chip.is-right { background: #c9f5e2; border-color: #2ec27e; }
 .chip.is-wrong { background: #ffd9d9; border-color: var(--coral); text-decoration: line-through; }
 .chip:disabled { cursor: default; }
-.chip kbd { display: inline-block; min-width: 20px; margin-right: 6px; padding: 0 5px; border-radius: 6px; background: #efe8d8;
+.chip kbd { display: inline-block; min-width: 20px; margin-right: 0; padding: 0 5px; border-radius: 6px; background: #efe8d8;
   color: #5a6072; font: 13px/20px Nunito, sans-serif; font-weight: 700; vertical-align: 2px; }
 .card.p1 .chip kbd { background: #c8f5ea; } .card.p2 .chip kbd { background: #ffdede; }
 .card-foot { margin-top: 7px; font-size: 13px; color: #5a6072; min-height: 1em; }
@@ -149,7 +168,7 @@ h1 .work { font-family: Nunito, sans-serif; font-size: 12px; color: #8a8f9e; ver
 }
 @media (max-height: 560px) {
   #touch button { width: 52px; height: 52px; }
-  .card { width: min(300px, 44vw); padding: 8px 10px; }
+  .card { width: min(380px, 46vw); padding: 8px 10px; }
   .card-q { font-size: 18px; }
   .chip { min-height: 38px; font-size: 16px; }
 }

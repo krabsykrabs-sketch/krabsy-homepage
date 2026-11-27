@@ -1,7 +1,9 @@
 // Answer cards: one per player, shown near that player's character, with choice chips.
 // Keyboard: quick answer with 1 2 3 (player 1) or 8 9 0 (player 2); picking with the
-// move keys + E / Enter works too; tap or click works for both. Questions never use grammar terms: verbs show
-// `go → ___ → ___` with the asked blank highlighted, sentences show their gap.
+// move keys + E / Enter works too; tap or click works for both. Questions never use grammar
+// terms: verbs show three boxes `go → ? → …` (the asked one amber with "?", small captions
+// today / yesterday / already so it is clear which form is meant; owner 2026-11-27),
+// sentences show their gap. The chips always stay in one row.
 import { t } from './i18n.js';
 import { revealText } from './questions.js';
 import { sfx } from './sound.js';
@@ -11,13 +13,14 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 export function questionHtml(q) {
   const d = q.display;
   if (d.kind === 'trio') {
+    const box = (cls, word, caption) => `<span class="slot ${cls}"><b>${word}</b><small>${esc(caption)}</small></span>`;
     const slot = (i) => {
       const s = d.slots[i];
-      if (i === d.askIndex) return '<span class="blank ask">___</span>';
-      if (s && s.text != null) return `<span class="known">${esc(s.text)}</span>`;
-      return '<span class="blank">___</span>';
+      if (i === d.askIndex) return box('ask', '?', t(`slot.${i + 1}`));
+      if (s && s.text != null) return box('known', esc(s.text), t(`slot.${i + 1}`));
+      return box('later', '…', t(`slot.${i + 1}`));
     };
-    return `<span class="trio"><span class="known">${esc(d.base)}</span><span class="arrow">→</span>${slot(0)}<span class="arrow">→</span>${slot(1)}</span>`;
+    return `<span class="trio">${box('known', esc(d.base), t('slot.0'))}<span class="arrow">→</span>${slot(0)}<span class="arrow">→</span>${slot(1)}</span>`;
   }
   const sentence = d.sentence || d.plain || '';
   const parts = esc(sentence).split(/_{2,}/);
@@ -50,13 +53,19 @@ export function createCards(root, input, keyHints, digits = true) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'chip' + (i === c.sel ? ' sel' : '');
-      b.textContent = opt;
+      const word = document.createElement('span');
+      word.className = 'word';
+      word.textContent = opt;
+      b.appendChild(word);
       const k = ANSWER_KEYS[c.pi][i];
       if (digits && k) { const s = document.createElement('kbd'); s.textContent = keyLabel(k); b.prepend(s); }
       b.tabIndex = -1;
       b.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); if (!c.locked) { c.sel = i; choose(c); } });
       chips.appendChild(b);
     });
+    // long answers get smaller text instead of a second row
+    const longest = Math.max(...q.options.map((o) => String(o).length));
+    chips.dataset.len = longest > 13 ? 'xxl' : longest > 10 ? 'xl' : longest > 6 ? 'l' : '';
     el.querySelector('.card-foot').textContent = keyHints[c.pi];
     el.classList.remove('right', 'wrong');
   }

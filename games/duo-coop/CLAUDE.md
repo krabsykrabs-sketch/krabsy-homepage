@@ -107,9 +107,16 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
   player 2 plain), refilled in the background; chain pairs stay in order (a 3rd
   form is asked right after its 2nd form, by the same player). Fallback: 12 inline
   verb pairs.
-- Cards (`src/cards.js`): next to the player's character, colour of the player,
-  `go → ___ → ___` with the asked blank highlighted, sentence topics show their gap
-  (`display.sentence`, long ones smaller). After a miss: the right chip, the filled
+- Cards (`src/cards.js`): placed next to the player's character when they open (then
+  they stay put), colour of the player. **Verbs as three boxes** (owner 2026-11-27: "not
+  clear which form is asked"): `swim → ? → …`, the asked box amber with "?", boxes still
+  to come greyed out, and small captions under the boxes, today / yesterday / already
+  (heute / gestern / schon, hoy / ayer / ya; `slot.0–2` in `src/i18n.js`), no grammar
+  terms. Sentence topics show their gap (`display.sentence`, long ones smaller). **The
+  chips stay in one row** and each on one line ("the answers are split into two lines"):
+  longer words get smaller text (`data-len` l / xl / xxl in `cards.js`, the key badge
+  is dropped for xl+); checked with the longest verb answers (misunderstanded) at
+  1366, 1024 and 844 × 390. After a miss: the right chip, the filled
   sentence or the chain (`teach.line`, 3rd form hidden on the first of a pair) and
   for sentence topics the teach line in the interface language.
 - **Recording:** only player 1 (= the active person on this device) via
@@ -220,6 +227,9 @@ measure it.
   answers each, 0 errors.
 - 2026-11-27 — Door gates turned 90° (across the path, open along it). The gap's dark
   shaft now covers the whole gap evenly (the middle columns used to stay bright).
+- 2026-11-27 — Verb questions as three captioned boxes (today / yesterday / already), chips
+  always one row and one line, cards above the goal banner (owner: too many mistakes
+  because the asked form was unclear and answers wrapped).
 
 ## Open (owner)
 
