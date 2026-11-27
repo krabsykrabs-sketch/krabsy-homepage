@@ -208,6 +208,7 @@ export const Renderer = {
     this._syncGhost(state);
     this._syncCellMarks(state, now);
     this._syncSelection(state);
+    this._syncTutorialMarks(state, now);
     this._syncTowers(state, now);
     // Scene timing on wall-clock time, like the end-panel timer in main.js, so the
     // castle falls before the panel even on a slow device.
@@ -852,6 +853,72 @@ export const Renderer = {
       if (i < cells.length) place(m, cells[i], pulse);
       else m.visible = false;
     });
+  },
+
+  // Tutorial: arrows flowing along every road toward the castle, and the range
+  // circle of the first tower ("it shoots at what is in its circle").
+  _syncTutorialMarks(state, now) {
+    if (!this._roadArrows) {
+      const shape = new THREE.Shape();
+      shape.moveTo(0.32, 0); shape.lineTo(-0.2, 0.26); shape.lineTo(-0.08, 0); shape.lineTo(-0.2, -0.26);
+      shape.closePath();
+      const geo = new THREE.ShapeGeometry(shape);
+      geo.rotateX(-Math.PI / 2);
+      this._arrowMat = new THREE.MeshBasicMaterial({ color: 0xffcf5e, transparent: true, opacity: 0.9, depthWrite: false });
+      this._roadArrows = [];
+      this._roadArrowGeo = geo;
+      this._hintRangeDisc = this._makeRangeDisc(0.10, 0.6);
+      this._hintRangeDisc.visible = false;
+      this.scene.add(this._hintRangeDisc);
+    }
+    const lvl = Level.current;
+    // One polyline per road; rebuilt when the level changes.
+    if (this._arrowLevel !== lvl) {
+      this._arrowLevel = lvl;
+      this._arrowPaths = lvl.paths.map((p) => {
+        const pts = p.waypoints, segs = [];
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+          const len = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+          segs.push({ a: pts[i - 1], b: pts[i], start: total, len });
+          total += len;
+        }
+        return { segs, total };
+      });
+    }
+    const SPACING = 1.7;
+    let used = 0;
+    if (state.hintRoad) {
+      for (const path of this._arrowPaths) {
+        const shift = (now * 1.4) % SPACING;
+        for (let d = shift; d < path.total - 0.4; d += SPACING) {
+          let m = this._roadArrows[used];
+          if (!m) {
+            m = new THREE.Mesh(this._roadArrowGeo, this._arrowMat);
+            m.renderOrder = 5;
+            this._roadArrows.push(m);
+            this.scene.add(m);
+          }
+          used++;
+          const seg = path.segs.find((sg) => d <= sg.start + sg.len) || path.segs[path.segs.length - 1];
+          const k = Math.min(1, (d - seg.start) / seg.len);
+          m.position.set(seg.a.x + (seg.b.x - seg.a.x) * k, 0.16, seg.a.y + (seg.b.y - seg.a.y) * k);
+          m.rotation.y = -Math.atan2(seg.b.y - seg.a.y, seg.b.x - seg.a.x);
+          m.visible = true;
+        }
+      }
+      this._arrowMat.opacity = 0.65 + 0.25 * Math.sin(now * 4);
+    }
+    for (let i = used; i < this._roadArrows.length; i++) this._roadArrows[i].visible = false;
+
+    const t = state.hintRange;
+    const disc = this._hintRangeDisc;
+    disc.visible = !!t && state.selectedTower !== t;
+    if (disc.visible) {
+      disc.position.set(t.position.x, 0.05, t.position.y);
+      disc.scale.set(t.range, 1, t.range);
+      disc.userData.rim.material.opacity = 0.45 + 0.3 * Math.sin(now * 3);
+    }
   },
 
   _syncSelection(state) {

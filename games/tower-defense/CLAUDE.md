@@ -798,4 +798,30 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   Served in the Spanish section: `/en/spanish/games/verb-towers/`.
 
 
+- 2026-11-27 — **Round 10: guidance for first-time players, archer first**
+  (owner: players without tower-defense experience don't know what to do;
+  force the archer tower first, the others are weak openers).
+  - **Archer first, every level:** catapult, cannon and frost are locked
+    until an archer tower stands (`isTowerLocked()` in `main.js`; locked
+    again if the last archer is sold). Locked cards show an SVG padlock
+    (no emoji); a tap shakes the card and says "Bau zuerst einen
+    Bogenturm." above it; keys 1–4 and `Input._place` refuse too; hover /
+    long press shows the popup without a ghost model. Both bot strategies
+    open with an archer, so balance is unchanged.
+  - **Tutorial** (level 1, first time; `tutorial.js`), now 7 steps: amber
+    arrows flow along every road to the castle with "Skeletons walk this
+    road to your castle. Tap a glowing hex next to it!" → "Take the archer
+    tower: it shoots fast" (only the archer card pulses) → "Your tower
+    shoots by itself at anything in its circle. Start the first wave!"
+    with the tower's range circle pulsing → wave 1: "Watch: your tower
+    stops the skeletons" (circle stays) → question card → upgrade → new
+    last step "Build a second tower next to the road" (glowing hexes).
+    Finished after an upgrade plus a second tower, or when the level ends.
+  - Renderer: `_syncTutorialMarks()` (road arrows from `paths[].waypoints`,
+    `state.hintRoad`; range disc for `state.hintRange`).
+  - Checked in headless Chromium, full tutorial at 1366×768 (de), 1024×768
+    touch (es) and 390×844 touch (de): every step, locked-card message,
+    done flag. No errors. Under heavy machine load one tablet run missed
+    the first hex tap (camera and touch events were fine in 8 reruns).
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.

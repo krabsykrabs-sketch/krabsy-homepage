@@ -9,7 +9,7 @@ import { Wave } from './wave.js';
 import { t, towerText, levelText } from './i18n.js';
 import {
   LEVELS, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
-  getHighscore, getStars, isUnlocked, upgradeTower, sellTower,
+  getHighscore, getStars, isUnlocked, upgradeTower, sellTower, isTowerLocked,
 } from './main.js';
 
 // HUD, bottom dock (tower cards, forge, start wave), tower-info panel, the forge panel
@@ -18,6 +18,8 @@ import {
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const COIN = '<span class="coin-icon coin-icon-sm"></span>';
+// Small padlock drawn in SVG (no emoji), shown on locked tower cards.
+const LOCK_SVG = '<svg viewBox="0 0 24 24" width="22" height="22"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5" fill="#ffcf5e" stroke="#0d1b3a" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#ffcf5e" stroke-width="2.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#0d1b3a" stroke-width="0.9" opacity="0.5"/><circle cx="12" cy="15.3" r="1.7" fill="#0d1b3a"/></svg>';
 
 export const UI = {
   els: {},
@@ -79,6 +81,7 @@ export const UI = {
         <span class="tower-btn-name">${esc(towerText(type).name)}</span>
         ${this._statBarsHtml(type)}
         <span class="tower-btn-cost">${COIN}${def.cost}</span>
+        <span class="tower-lock" aria-hidden="true">${LOCK_SVG}</span>
       `;
       // Preview before buying: hover (mouse) or long press (touch) shows the
       // description and, when a hex is chosen, the tower's range on the board.
@@ -100,6 +103,14 @@ export const UI = {
         e.stopPropagation();
         // A long press only previews; it never buys.
         if (this._longPressed === btn) { this._longPressed = null; btn.blur(); return; }
+        // Locked until an archer stands: shake, and say so above the card.
+        if (isTowerLocked(type) && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
+          btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
+          Sound.play('nope');
+          this._flashPop(btn, t('archerFirst'));
+          btn.blur();
+          return;
+        }
         // Not enough coins: the card shakes and a dull tock plays (no text needed).
         if (state.coins < def.cost && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
           btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
@@ -148,14 +159,31 @@ export const UI = {
 
   // Show (or hide with null) the preview for a tower card: a popup with the name and
   // description above the card, and the range on the board at the chosen hex.
+  // A short message in the card popup (e.g. "build an archer first"), then it hides.
+  _flashPop(btn, text) {
+    const pop = document.getElementById('tower-pop');
+    pop.innerHTML = `<span>${esc(text)}</span>`;
+    pop.classList.remove('hidden');
+    const dock = document.getElementById('bottom-dock').getBoundingClientRect();
+    const b = btn.getBoundingClientRect();
+    const zoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
+    pop.style.left = `${(b.left + b.width / 2 - dock.left) / zoom}px`;
+    pop.style.top = `${(b.top - dock.top) / zoom - 8}px`;
+    clearTimeout(this._popTimer);
+    this._popTimer = setTimeout(() => { if (!state.previewType) pop.classList.add('hidden'); }, 1800);
+  },
+
   _preview(type, btn) {
-    state.previewType = type;
+    // A locked tower gets the popup but no see-through model on the board.
+    state.previewType = type && isTowerLocked(type) ? null : type;
     const pop = document.getElementById('tower-pop');
     if (!type) { pop.classList.add('hidden'); return; }
     const text = towerText(type);
     // The compact card shows no stats; the popup carries them (needed on touch).
     const open = document.getElementById('bottom-dock').classList.contains('open');
-    pop.innerHTML = `<b>${esc(text.name)}</b>${open ? '' : this._statBarsHtml(type)}<span>${esc(text.desc)}</span>`;
+    pop.innerHTML = `<b>${esc(text.name)}</b>${open ? '' : this._statBarsHtml(type)}<span>${esc(text.desc)}</span>`
+      + (isTowerLocked(type) ? `<span class="pop-lock">${esc(t('archerFirst'))}</span>` : '');
+    clearTimeout(this._popTimer);
     pop.classList.remove('hidden');
     const dock = document.getElementById('bottom-dock').getBoundingClientRect();
     const b = btn.getBoundingClientRect();
@@ -375,9 +403,12 @@ export const UI = {
 
     for (const btn of this.els.towerButtons.children) {
       const type = btn.dataset.tower;
-      btn.classList.toggle('disabled', state.coins < CONFIG.TOWERS[type].cost || !playing);
+      const locked = isTowerLocked(type);
+      btn.classList.toggle('locked', locked);
+      btn.classList.toggle('disabled', locked || state.coins < CONFIG.TOWERS[type].cost || !playing);
       btn.classList.toggle('active', state.placement.active && state.placement.towerType === type);
-      btn.classList.toggle('build-here', !!state.buildCell && state.coins >= CONFIG.TOWERS[type].cost);
+      btn.classList.toggle('build-here', !locked && !!state.buildCell && state.coins >= CONFIG.TOWERS[type].cost);
+      btn.classList.toggle('hint-pulse', !!state.hint && state.hint.target === `tower:${type}`);
     }
     document.getElementById('game-container').classList.toggle('placing', state.placement.active);
 
