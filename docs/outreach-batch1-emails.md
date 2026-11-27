@@ -3,6 +3,9 @@
 Targets and reasoning: `docs/outreach-schools-2026-11-22.md`. Send from
 **hallo@krabsy.com** (DE/AT) or **hola@krabsy.com** (ES), signed Jan Ahrens.
 Before sending, open the school's page once to check it still looks the same.
+**Mail setup checked 2026-11-27:** SPF, DKIM (`privateemail._domainkey`) and DMARC
+(`p=none`) live; mail-tester score 9.5/10. All 10 school pages re-checked
+2026-11-27: online and still listing the sites the emails name.
 After sending, put the date in the "Status" column of the target list.
 
 ---
