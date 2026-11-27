@@ -102,13 +102,40 @@ URLs keep both axes unambiguous, e.g. `/en/spanish/…` = Spanish content,
 English interface. `/es/` keeps meaning "Spanish-speaking learners of
 English".
 
-**Teachers of another subject (proposal 2026-11-27, not decided):** one
-teacher entry per interface language. `/de/lehrkraefte/` stays the single
-page for German-speaking teachers and later gets a subject switch
-(Englisch | Spanisch); the class code, practice links and quiz room already
-work per topic, so a Spanish teacher uses the same tools. Only the
-subject-specific material (lessons, worksheets) is filtered. The URL stays
-(it is promoted on 4teachers).
+**URL scheme for N learning × M interface languages (owner 2026-11-27:
+"be prepared for 5 taught and 10 native languages, without pain later"):**
+
+- `/<ui>/` = interface language (ISO code: `de`, `es`, `en`, later `fr`,
+  `it`, `pl`, `pt`, `nl`, `tr`, …).
+- **English is the implicit learning language** under every `/<ui>/` except
+  `/en/`: `/de/unregelmaessige-verben/`, `/es/verbos-irregulares/`, later
+  `/fr/verbes-irreguliers/`. This keeps all existing (promoted) URLs.
+- **Every other learning language gets one localized segment**:
+  `/de/spanisch/…`, `/en/spanish/…`, `/es/aleman/…`, `/fr/espagnol/…`.
+  The segment names live in one table (data), never in code.
+- Topic slugs are localized per interface language and mapped in
+  `data/topics.json` (one topic id, one URL per interface language).
+  hreflang groups = the same topic for the same learning language across
+  interface languages.
+- **One teacher page per interface language** (`/de/lehrkraefte/`,
+  `/es/docentes/`, `/en/teachers/` later; `/en/spanish/teachers/` is the
+  pilot), with a subject switch once that interface has more than one
+  learning language. Class code, practice links and quiz room are per
+  topic already, so the tools are shared; only material is filtered.
+- Root `/` picks the interface language from Accept-Language (nginx map).
+- **Other subjects (not planned, possible in theory):** the segment is
+  really a *subject*, and a learning language is one kind of subject. Math
+  for German speakers would be `/de/mathe/…`, exactly like `/de/spanisch/…`.
+  So in data, call the axis `subject` (today `learn` in `TOPIC_REGISTRY`)
+  and don't assume "subject = language" in new shared code (URLs, nav,
+  topics.json, classes, analytics). The question *shapes* (gap sentence,
+  verb chain, typed answer) are language-specific; another subject would
+  add shapes, while the games keep asking the engine for `quiz` questions.
+- Rule for all new code: interface strings come from `ui_<lang>.json` /
+  per-language data, not `de ? … : …` in code; content gives texts per
+  interface language as a map (`{"de": …, "es": …}`), so a new language is
+  data, not code. Audit of today's two-language assumptions: see
+  `docs/i18n-scaling.md` (2026-11-27).
 
 ## What this changes from the June strategy
 
