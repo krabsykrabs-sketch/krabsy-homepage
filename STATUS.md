@@ -1,6 +1,10 @@
 # Krabsy — status dashboard
 
 
+
+## Root language rule (live 2026-11-27)
+
+`krabsy.com/` → `/es/` (Spanish/Portuguese first), `/de/` (German first, or no header = crawlers), else `/en/spanish/` (English interface; owner: friend in Spain with an English laptop landed on /de/). Config `docs/nginx-krabsy.conf`, pasted in Coolify; rollback `docs/nginx-krabsy.previous.conf`. Note: after saving the nginx field it took several minutes / a second deploy until the new rule answered.
 ## Duo games concept (2026-11-27)
 
 `docs/duo-games.md`: tutor + student (live lesson) and two students at home (one device or a room code). First: a co-op puzzle platformer (side view on the Verb Platformer engine, two roles, every switch/door/portal/monster = a question, ~3 of 4 for the student, a question every 20–30 s). Then an answer race. Phase D1 = local prototype. Open: name, tutor answers or not. Nothing built yet.
