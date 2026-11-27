@@ -10,8 +10,8 @@
 //   post   { targets }            the same, a bridge post (builds a bridge)
 //   heavylever { targets }        STRONG only, question
 //   door   { x, y, h }            solid until a target of a lever/switch; no question of its own
-//   gate   { x, y, h }            heavy gate: STRONG lifts it (question) and holds it while
-//                                 standing still; a lever can prop it open for good
+//   crack  { x, y, h }            cracked rock wall: only the STRONG one smashes it (question);
+//                                 gone for good
 //   locked { x, y, h }            needs the key: the carrier answers a question
 //   bridge { x0, x1, y }          solid cells that appear when built
 //   key    { x, y }               question → the player carries it
@@ -49,8 +49,8 @@ function room(def) {
 export const ROOMS = [
   // ── Room 1: levers and doors ─────────────────────────────────────────────────────────
   // Door A is opened by lever a on a ledge only the climber reaches (ladder). A pit too wide
-  // for the strong one: the climber jumps over and answers at the bridge post. The heavy gate
-  // only the strong one can lift; the climber slips under and props it open with lever c.
+  // for the strong one: the climber jumps over and answers at the bridge post. The cracked
+  // wall only the strong one can smash.
   room({
     id: 'r1', name: 'room.1', goal: 'goal.1', theme: 0,
     spawn: { climber: [2.5, 3], strong: [4.5, 3] },
@@ -60,15 +60,14 @@ export const ROOMS = [
       fill(6, 6, 3, 6, 'H');               // ladder up to it
       fill(8, 8, 6, H - 2);                // wall above door A
       fill(15, 18, 0, 2, '.');             // the gap: no bottom (a fall = back to the start)
-      fill(25, 25, 6, H - 2);              // wall above the heavy gate
+      fill(25, 25, 6, H - 2);              // wall above the cracked wall
     },
     objects: [
       { id: 'a', type: 'lever', x: 3, y: 7, targets: ['A'] },
       { id: 'A', type: 'door', x: 8, y: 3, h: 3 },
       { id: 'p', type: 'post', x: 20, y: 3, targets: ['b'] },
       { id: 'b', type: 'bridge', x0: 15, x1: 18, y: 2 },
-      { id: 'G', type: 'gate', x: 25, y: 3, h: 3 },
-      { id: 'c', type: 'lever', x: 27, y: 3, targets: ['G'] },
+      { id: 'G', type: 'crack', x: 25, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 3 },
     ],
   }),
@@ -103,8 +102,7 @@ export const ROOMS = [
 
   // ── Room 3: together ─────────────────────────────────────────────────────────────────
   // The switch sits on a ledge too high even for the climber: jump off the strong one's head.
-  // The strong one lifts the heavy gate and holds it while the climber slips through and
-  // switches on the portal beyond; the strong one lets go and comes through the portal.
+  // The cracked wall only the strong one can smash.
   // The key waits at the end of a low tunnel (climber), the locked door guards the exit.
   room({
     id: 'r3', name: 'room.3', goal: 'goal.3', theme: 2,
@@ -113,7 +111,7 @@ export const ROOMS = [
     draw(fill) {
       fill(1, 3, 6, 6);                    // high ledge (top at 7): only from the strong one's head
       fill(8, 8, 6, H - 2);                // wall above door D
-      fill(16, 16, 6, H - 2);              // wall above the heavy gate
+      fill(16, 16, 6, H - 2);              // wall above the cracked wall
       fill(17, 21, 8, 8);                  // tunnel floor (top at 9)
       fill(17, 21, 10, 10);                // tunnel roof: the tunnel is 1 high
       fill(22, 22, 3, 8, 'H');             // ladder up to the tunnel
@@ -122,9 +120,7 @@ export const ROOMS = [
     objects: [
       { id: 's', type: 'switch', x: 2, y: 7, targets: ['D'] },
       { id: 'D', type: 'door', x: 8, y: 3, h: 3 },
-      { id: 'o', type: 'portal', x: 12, y: 3, pair: 'O' },
-      { id: 'G', type: 'gate', x: 16, y: 3, h: 3 },
-      { id: 'O', type: 'portal', x: 19, y: 3, pair: 'o', ask: true },
+      { id: 'G', type: 'crack', x: 16, y: 3, h: 3 },
       { id: 'k', type: 'key', x: 18, y: 9 },
       { id: 'L', type: 'locked', x: 24, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 28.5, y: 3 },

@@ -130,7 +130,7 @@ export function createCards(root, input, keyHints, digits = true) {
     /** Open a card for player pi. onAnswer(correct) right away, done(correct) once it closes. */
     open(pi, q, { who, what, onAnswer, done }) {
       const c = cards[pi];
-      c.q = q; c.sel = 0; c.open = true; c.locked = false; c.done = done; c.onAnswer = onAnswer;
+      c.q = q; c.sel = 0; c.open = true; c.locked = false; c.done = done; c.onAnswer = onAnswer; c.pos = null;
       c.el.querySelector('.who').textContent = who;
       c.el.querySelector('.what').textContent = what || '';
       render(c);
@@ -139,33 +139,35 @@ export function createCards(root, input, keyHints, digits = true) {
     },
     closeAll() { cards.forEach((c) => { if (c.open) { c.done = null; close(c, false); } }); },
     /** Place card pi with its lower middle at screen point (x, y), kept on screen. */
+    // Each card is placed once, when it opens, and then stays put (a card that slides with the
+    // camera is hard to tap); a second card is kept clear of the first.
     place(positions) {
       const vw = window.innerWidth, vh = window.innerHeight;
-      const rects = cards.map((c, i) => {
-        if (!c.open || !positions[i]) return null;
+      for (const c of cards) {
+        if (!c.open) { c.pos = null; continue; }
+        if (c.pos || !positions[c.pi]) continue;
+        const p = positions[c.pi];
         const w = c.el.offsetWidth, h = c.el.offsetHeight;
-        let x = positions[i].x - w / 2, y = positions[i].y - h - 14;
+        let x = p.x - w / 2, y = p.y - h - 14;
         if (y < 56) {   // no room above the head: beside the player, never over them
-          y = positions[i].y - 10;
-          x = positions[i].x + 34;
-          if (x + w > vw - 8) x = positions[i].x - 34 - w;
+          y = p.y - 10;
+          x = p.x + 34;
+          if (x + w > vw - 8) x = p.x - 34 - w;
         }
-        return { c, x, y, w, h };
-      });
-      const [a, b] = rects;
-      if (a && b && a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h) {
-        // overlap: push apart sideways around their middle
-        const left = a.x <= b.x ? a : b, right = left === a ? b : a;
-        const mid = (left.x + left.w + right.x) / 2;
-        left.x = mid - left.w - 6; right.x = mid + 6;
-      }
-      for (const r of rects) {
-        if (!r) continue;
-        r.x = Math.max(8, Math.min(vw - r.w - 8, r.x));
-        r.y = Math.max(8, Math.min(vh - r.h - 8, r.y));
-        r.c.el.style.transform = `translate(${Math.round(r.x)}px, ${Math.round(r.y)}px)`;
+        const other = cards.find((o) => o !== c && o.open && o.pos);
+        if (other) {
+          const o = other.pos;
+          if (x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h) {
+            x = p.x >= o.x + o.w / 2 ? o.x + o.w + 8 : o.x - w - 8;   // beside it, on this player's side
+          }
+        }
+        x = Math.max(8, Math.min(vw - w - 8, x));
+        y = Math.max(8, Math.min(vh - h - 8, y));
+        c.pos = { x, y, w, h };
+        c.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
       }
     },
+    replace() { cards.forEach((c) => { c.pos = null; }); },   // after a resize
     // tests: { options, correctIndex } of an open card
     peek(pi) { const c = cards[pi]; return c.open && !c.locked ? { options: c.q.options, correctIndex: c.q.correctIndex, q: c.q } : null; },
   };

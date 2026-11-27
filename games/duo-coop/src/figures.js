@@ -37,7 +37,7 @@ export async function figureChoices() {
 // State → clip (Rig_Medium shared clips).
 const CLIPS = {
   idle: 'Idle_A', walk: 'Walking_A', run: 'Running_A', jump: 'Jump_Idle', climb: 'Walking_B',
-  push: 'Walking_C', answer: 'Interact', hold: 'Idle_B', cheer: 'Spawn_Ground',
+  push: 'Walking_C', answer: 'Interact', smash: 'Throw', cheer: 'Spawn_Ground',
 };
 
 function builtFigure(color) {

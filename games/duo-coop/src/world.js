@@ -218,35 +218,76 @@ function objectView(o, models, keep) {
       } };
     }
     case 'door': case 'locked': {
-      node.position.set(o.x + 0.5, o.y, 0);
-      const slab = new THREE.Group(); node.add(slab);
-      const door = models.clone('Door_A');
-      if (o.type === 'locked') tint(door, 0xb0a090, keep);
-      slab.add(fit(door, 0.95, o.h, 0.5));
-      if (o.type === 'locked') {
-        const key = fit(models.clone('key'), 0.6, null, null);
-        key.position.set(0, o.h / 2 - 0.15, 0.3);
-        key.rotation.z = -0.3;
-        slab.add(key);
+      // An iron double gate facing the camera (the leaves of the KayKit arch gate), in the
+      // wall's opening; both leaves swing back into the room when it opens.
+      node.position.set(o.x + 0.5, o.y, -0.35);
+      const half = 0.72;
+      const leaves = [];
+      for (const [part, side] of [['arch_gate_right', -1], ['arch_gate_left', 1]]) {
+        const hinge = new THREE.Group();
+        hinge.position.x = side * half;
+        const leaf = models.part('arch_gate', part);      // hinge at its origin
+        const holder = new THREE.Group();
+        holder.add(leaf);
+        holder.scale.set(half / 1.5, o.h / 3, 1.3);
+        hinge.add(holder);
+        node.add(hinge);
+        leaves.push({ hinge, side });
       }
-      let lift = 0;
+      let lock = null;
+      if (o.type === 'locked') {
+        lock = fit(models.clone('key'), 0.55, null, null);
+        lock.position.set(0, o.h / 2 - 0.2, 0.15);
+        lock.rotation.z = Math.PI / 2;
+        node.add(lock);
+      }
+      let open = 0;
       return { node, update(s, dt) {
-        lift += ((s.open ? o.h - 0.05 : 0) - lift) * Math.min(1, dt * 6);
-        slab.position.y = lift;
+        open += ((s.open ? 1 : 0) - open) * Math.min(1, dt * 4);
+        for (const l of leaves) l.hinge.rotation.y = l.side * open * 1.45;   // back, into the room
+        if (lock) lock.visible = open < 0.05;
       } };
     }
-    case 'gate': {
+    case 'crack': {
+      // A cracked rock wall (Block Bits stone with copper seams); the strong one punches it:
+      // the blocks burst away from the fist and a rubble pile stays.
       node.position.set(o.x + 0.5, o.y, 0);
-      const bars = new THREE.Group(); node.add(bars);
-      for (const z of [-0.45, 0.45]) {
-        const leaf = fit(models.part('arch_gate', 'arch_gate_left'), 0.98, o.h, 0.18);
-        leaf.position.z = z;
-        bars.add(leaf);
+      const { geometry, material } = models.mesh('stone_with_copper');
+      const geo = keep(unitGeometry(geometry));
+      const pieces = [];
+      for (let i = 0; i < o.h; i++) for (const z of [-0.5, 0.5]) {
+        const m = new THREE.Mesh(geo, material);
+        m.castShadow = true; m.receiveShadow = true;
+        m.position.set(0, i + 0.5, z);
+        node.add(m);
+        pieces.push({ m, v: new THREE.Vector3(), spin: new THREE.Vector3() });
       }
-      let lift = 0;
+      const rubble = fit(models.clone('rubble_large'), 1.5, null, 1.6);
+      rubble.position.set(0, 0, -0.1);
+      rubble.visible = false;
+      node.add(rubble);
+      let since = -1;
       return { node, update(s, dt) {
-        lift += ((s.open ? o.h - 0.55 : 0) - lift) * Math.min(1, dt * (s.open ? 5 : 9));
-        bars.position.y = lift;
+        if (s.open && since < 0) {
+          since = 0;
+          const dir = s.brokeFrom || 1;
+          pieces.forEach((p, i) => {
+            p.v.set(dir * (2.5 + Math.random() * 3), 3 + Math.random() * 4 - i * 0.3, (Math.random() - 0.5) * 3);
+            p.spin.set(Math.random() * 8 - 4, Math.random() * 8 - 4, Math.random() * 8 - 4);
+          });
+          rubble.visible = true;
+        }
+        if (since < 0) return;
+        since += dt;
+        for (const p of pieces) {
+          if (!p.m.visible) continue;
+          p.v.y -= 22 * dt;
+          p.m.position.addScaledVector(p.v, dt);
+          p.m.rotation.x += p.spin.x * dt; p.m.rotation.y += p.spin.y * dt; p.m.rotation.z += p.spin.z * dt;
+          p.m.scale.setScalar(Math.max(0.01, 1 - since * 0.8));
+          if (since > 1.2) p.m.visible = false;
+        }
+        rubble.scale.setScalar(Math.min(1, since * 4));
       } };
     }
     case 'bridge': {

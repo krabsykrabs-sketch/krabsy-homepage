@@ -197,13 +197,16 @@ async function run(browser, cfg) {
   await walkTo(C, 20.5);
   await answer(C);
   await expect(async () => (await objs()).b.solid, 'bridge not built');
+  // the cracked wall: the climber can't smash it (no card), the strong one can
+  await walkTo(C, 24.4);
+  await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false);
+  if (await G('card', C)) fail('the climber got a question at the cracked wall');
+  await walkTo(C, 22.5);
   await walkTo(S, 24.5);
-  await answer(S, true, '1-gate');
-  await expect(async () => (await P(S)).holding === 'G', 'strong one is not holding the gate');
-  await walkTo(C, 27.5);
-  await shot('1-holding');
-  await answer(C);
-  await expect(async () => (await objs()).G.propped, 'gate not propped');
+  await answer(S, true, '1-crack');
+  await step(0.5);
+  await expect(async () => (await objs()).G.open && !(await objs()).G.solid, 'cracked wall not smashed');
+  await shot('1-smashed');
   await walkTo(S, 29.2);
   await walkTo(C, 29.8);
   await answer(C);
@@ -260,12 +263,9 @@ async function run(browser, cfg) {
   await walkTo(C, 13.5);
   await walkTo(S, 15.5);
   await answer(S);
-  await walkTo(C, 19.5);
-  await answer(C);
-  await expect(async () => (await objs()).O.active, 'portal O not active');
-  await walkTo(S, 12.5);                           // lets go of the gate, through the portal
-  if (cx(await P(S)) < 17) fail('strong one did not come through the portal');
-  await expect(async () => !(await objs()).G.open, 'gate stayed open after letting go');
+  await step(0.5);
+  await expect(async () => (await objs()).G.open, 'cracked wall in room 3 not smashed');
+  await walkTo(S, 19.5);
   await walkTo(C, 22.5);
   await climb(C, 1, 9);
   await walkTo(C, 18.5);

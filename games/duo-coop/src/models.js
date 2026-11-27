@@ -8,7 +8,8 @@ export const MODEL_NAMES = [
   'dirt_with_grass', 'stone', 'wood', 'bricks_A', 'bricks_B', 'stone_dark',
   'wall', 'wall_window_closed', 'wall_arched', 'wall_cracked',
   'torch_mounted', 'banner_patternA_red', 'banner_shield_blue', 'barrel_large', 'crates_stacked',
-  'box_small', 'key', 'ladder', 'Door_A', 'arch_gate', 'chain_full', 'floor_wood_1x1',
+  'box_small', 'key', 'ladder', 'arch_gate', 'chain_full', 'floor_wood_1x1',
+  'stone_with_copper', 'rubble_large',
   'lever_floor_base_yellow', 'lever_floor_base_red', 'lever_wall_base_A_blue',
   'signage_arrow_stand_yellow', 'hoop_yellow',
 ];

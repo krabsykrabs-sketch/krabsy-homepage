@@ -12,7 +12,8 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'gate', 'locked', 'key', 'portal', 'exit']);
+const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'locked', 'key', 'portal', 'exit']);
+const BLOCKING = new Set(['door', 'crack', 'locked']);   // solid until opened / smashed
 
 export async function createGame(canvas, opts) {
   const { input, players: cfg, touch, onEvent = () => {} } = opts;
@@ -74,7 +75,7 @@ export async function createGame(canvas, opts) {
     const fig = await makeFigure(c.choice, role.look, pi === 0 ? 0x2ee6c0 : 0xff8585);
     scene.add(fig.root);
     const key = carriedKey(models); key.visible = false; fig.root.add(key);
-    players.push({ pi, role: c.role, fig, key, cfg: c, body: null, hasKey: false, holding: null, carrying: null,
+    players.push({ pi, role: c.role, fig, key, cfg: c, body: null, hasKey: false, smashAt: -9, carrying: null,
       inZone: new Set(), portalCd: 0, card: false, near: null, answers: 0, right: 0, wasGround: true });
   }
 
@@ -90,7 +91,7 @@ export async function createGame(canvas, opts) {
 
   function cellsOf(o) {
     if (o.type === 'bridge') { const c = []; for (let x = o.x0; x <= o.x1; x++) c.push([x, o.y]); return c; }
-    if (o.type === 'door' || o.type === 'gate' || o.type === 'locked') {
+    if (BLOCKING.has(o.type)) {
       const c = []; for (let y = o.y; y < o.y + o.h; y++) c.push([o.x, y]); return c;
     }
     return [];
@@ -107,9 +108,9 @@ export async function createGame(canvas, opts) {
     scene.background = new THREE.Color(view.theme.sky);
     objs = new Map();
     for (const o of room.objects) {
-      const s = { def: o, on: false, open: false, held: false, propped: false, taken: false, active: !!o.active && !o.ask,
+      const s = { def: o, on: false, open: false, taken: false, active: !!o.active && !o.ask,
         cells: cellsOf(o), wantSolid: false, solid: false };
-      if (o.type === 'door' || o.type === 'gate' || o.type === 'locked') { s.wantSolid = true; }
+      if (BLOCKING.has(o.type)) s.wantSolid = true;
       objs.set(o.id, s);
     }
     // cage boxes hang still until released
@@ -125,7 +126,7 @@ export async function createGame(canvas, opts) {
       const role = ROLES[p.role];
       const [sx, sy] = room.spawn[p.role];
       p.body = world.addBody({ kind: 'player', role: p.role, x: sx - role.w / 2, y: sy, w: role.w, h: role.h, facing: 1, pi: p.pi });
-      p.hasKey = false; p.holding = null; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
+      p.hasKey = false; p.smashAt = -9; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
       p.key.visible = false;
     }
     syncSolids(true);
@@ -158,7 +159,7 @@ export async function createGame(canvas, opts) {
   function anchor(o) {
     switch (o.type) {
       case 'exit': return { x: o.x, y: o.y, rx: 1.15, top: 2.9 };
-      case 'door': case 'gate': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
+      case 'door': case 'crack': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
       case 'portal': return { x: o.x + 0.5, y: o.y, rx: 0.75, top: 2.2 };
       case 'switch': return { x: o.x + 0.5, y: o.y, rx: 0.95, top: 1.4 };
       case 'cage': case 'bridge': return null;
@@ -175,7 +176,7 @@ export async function createGame(canvas, opts) {
     const o = s.def;
     switch (o.type) {
       case 'lever': case 'switch': case 'post': case 'heavylever': return !s.on;
-      case 'gate': return !s.open;
+      case 'crack': return !s.open;
       case 'locked': return !s.open;
       case 'key': return !s.taken;
       case 'portal': return o.ask && !s.active;
@@ -215,7 +216,6 @@ export async function createGame(canvas, opts) {
     sfx('open');
     switch (o.type) {
       case 'door': s.open = true; s.wantSolid = false; break;
-      case 'gate': s.propped = true; s.open = true; s.wantSolid = false; break;
       case 'bridge': s.on = true; s.wantSolid = true; break;
       case 'cage': s.on = true; if (s.box) { s.box.static = false; s.box.onGround = false; } break;
       case 'portal': s.active = true; break;
@@ -248,7 +248,6 @@ export async function createGame(canvas, opts) {
   }
 
   function use(p) {
-    if (p.holding) { release(p); return; }
     const s = usable(p);
     if (!s) {
       const door = [...objs.values()].find((d) => d.def.type === 'door' && !d.open && inRange(p, d.def));
@@ -265,10 +264,14 @@ export async function createGame(canvas, opts) {
       case 'lever': case 'switch': case 'post':
         ask(p, s, () => { s.on = true; o.targets.forEach(activate); });
         return;
-      case 'gate':
-        if (p.role !== 'strong') { toast(p, t('needStrong')); return; }
-        if (p.carrying) { toast(p, t('needStrong')); return; }
-        ask(p, s, () => { s.open = true; s.held = true; s.wantSolid = false; p.holding = s; sfx('open'); toast(p, t('holding')); });
+      case 'crack':   // the strong one punches the cracked wall to pieces
+        if (p.role !== 'strong') { toast(p, t('needSmash')); return; }
+        if (p.carrying) { toast(p, '✋'); return; }
+        ask(p, s, () => {
+          p.smashAt = played;
+          p.body.facing = o.x + 0.5 > p.body.x + p.body.w / 2 ? 1 : -1;
+          s.breakAt = played + 0.28; s.brokeFrom = p.body.facing;   // the fist lands, then it breaks
+        });
         return;
       case 'locked':
         if (!p.hasKey) { toast(p, t('needKey')); return; }
@@ -285,12 +288,6 @@ export async function createGame(canvas, opts) {
         ask(p, s, () => { s.open = true; sfx('open'); showBanner(t('bothExit'), 3); });
         return;
     }
-  }
-
-  function release(p) {
-    const s = p.holding; if (!s) return;
-    p.holding = null; s.held = false;
-    if (!s.propped) { s.open = false; s.wantSolid = true; }
   }
 
   function teleport(p, from) {
@@ -369,12 +366,9 @@ export async function createGame(canvas, opts) {
     for (const p of players) {
       const r = input.read(p.pi);
       if (p.card || p.fallAt) continue;
-      if (p.holding) {
-        if (r.anyMovePressed || r.actionPressed) release(p);
-        continue;
-      }
+      if (played - p.smashAt < 0.55) continue;          // mid-punch
       if (r.actionPressed && state === 'playing') use(p);
-      if (p.card || p.holding) continue;
+      if (p.card) continue;
       inputs.set(p.body, r);
     }
 
@@ -384,6 +378,7 @@ export async function createGame(canvas, opts) {
       for (const r of inputs.values()) r.jumpPressed = false;
       acc -= STEP;
     }
+    for (const s of objs.values()) if (s.breakAt && played >= s.breakAt) { s.breakAt = 0; s.open = true; s.wantSolid = false; sfx('smash'); }
     syncSolids();
 
     // portals: walking into an active portal
@@ -412,7 +407,6 @@ export async function createGame(canvas, opts) {
       const b = p.body;
       if (!p.fallAt && b.y < -1) {
         p.fallAt = played;
-        if (p.holding) release(p);
         if (p.carrying) { const box = p.carrying; p.carrying = null; box.carried = false; resetBox(box); }
         toast(p, t('fell')); sfx('fall');
         onEvent('fell', { player: p.pi + 1 });
@@ -469,7 +463,7 @@ export async function createGame(canvas, opts) {
       f.root.position.set(b.x + b.w / 2, b.y, 0);
       let st = 'idle';
       if (p.card) { st = 'answer'; f.face(0, false, true); }
-      else if (p.holding) { st = 'hold'; f.face(p.holding.def.x + 0.5 > b.x ? 1 : -1); }
+      else if (played - p.smashAt < 0.6) { st = 'smash'; f.face(b.facing || 1); }
       else if (b.climbing) { st = 'climb'; f.face(0, true); }
       else {
         if (!b.onGround) st = 'jump';
@@ -515,7 +509,7 @@ export async function createGame(canvas, opts) {
       tg.hidden = p.card;
       // prompt over the object this player could use
       const pr = prompts[i];
-      const s = state === 'playing' && !p.card && !p.holding ? usable(p) : null;
+      const s = state === 'playing' && !p.card ? usable(p) : null;
       if (s) {
         const a = anchor(s.def);
         const sp = toScreen(a.x + (i ? 0.32 : -0.32), a.y + a.top + 0.45, 0.6);
@@ -533,6 +527,7 @@ export async function createGame(canvas, opts) {
 
   function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
+    cards.replace();
   }
   window.addEventListener('resize', resize);
   resize();
@@ -572,10 +567,10 @@ export async function createGame(canvas, opts) {
       room: () => roomIdx + 1,
       state: () => state,
       players: () => players.map((p) => ({ pi: p.pi, role: p.role, x: p.body.x, y: p.body.y, w: p.body.w, h: p.body.h, vx: p.body.vx,
-        onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card, hasKey: p.hasKey, holding: p.holding?.def.id || null,
+        onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card, hasKey: p.hasKey,
         carrying: !!p.carrying, near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
-      objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open, held: s.held,
-        propped: s.propped, taken: s.taken, active: s.active, solid: s.solid }])),
+      objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open,
+        taken: s.taken, active: s.active, solid: s.solid }])),
       boxes: () => boxes.map((b) => ({ x: b.x, y: b.y, carried: !!b.carried, static: !!b.static })),
       // tests: run the simulation without drawing (headless software GL is ~4 fps)
       manual(b) { manual = !!b; },

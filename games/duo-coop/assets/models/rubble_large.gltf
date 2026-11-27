@@ -15,24 +15,24 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Door_A"
+            "name" : "rubble_large"
         }
     ],
     "materials" : [
         {
-            "name" : "prototype_texture",
+            "name" : "texture",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0
                 },
                 "metallicFactor" : 0,
-                "roughnessFactor" : 0.4000000059604645
+                "roughnessFactor" : 0.44999998807907104
             }
         }
     ],
     "meshes" : [
         {
-            "name" : "Cube.16499",
+            "name" : "rubble_large",
             "primitives" : [
                 {
                     "attributes" : {
@@ -55,69 +55,69 @@
     "images" : [
         {
             "mimeType" : "image/png",
-            "name" : "prototypebits_texture",
-            "uri" : "prototypebits_texture.png"
+            "name" : "dungeon_texture",
+            "uri" : "dungeon_texture.png"
         }
     ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 406,
+            "count" : 1200,
             "max" : [
-                1.6000001430511475,
-                2.8000001907348633,
-                0.2730309069156647
+                4.060417175292969,
+                3.4960880279541016,
+                1.597455382347107
             ],
             "min" : [
-                -3.5762786865234375e-07,
+                -4.068856716156006,
                 0,
-                -0.27303093671798706
+                -1.5856541395187378
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 406,
+            "count" : 1200,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 406,
+            "count" : 1200,
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 888,
+            "count" : 2364,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 4872,
+            "byteLength" : 14400,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 3248,
-            "byteOffset" : 4872,
+            "byteLength" : 9600,
+            "byteOffset" : 14400,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 4872,
-            "byteOffset" : 8120,
+            "byteLength" : 14400,
+            "byteOffset" : 24000,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1776,
-            "byteOffset" : 12992,
+            "byteLength" : 4728,
+            "byteOffset" : 38400,
             "target" : 34963
         }
     ],
@@ -129,8 +129,8 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 14768,
-            "uri" : "Door_A.bin"
+            "byteLength" : 43128,
+            "uri" : "rubble_large.bin"
         }
     ]
 }

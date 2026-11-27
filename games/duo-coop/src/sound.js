@@ -20,6 +20,19 @@ function ac() {
   return ctx;
 }
 
+function noise(dur, vol = 0.3) {   // a short crash (smashed wall)
+  const a = ac(); if (!a) return;
+  const buf = a.createBuffer(1, Math.floor(a.sampleRate * dur), a.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+  const src = a.createBufferSource(), g = a.createGain(), f = a.createBiquadFilter();
+  f.type = 'lowpass'; f.frequency.value = 900;
+  g.gain.value = vol;
+  src.buffer = buf;
+  src.connect(f).connect(g).connect(a.destination);
+  src.start();
+}
+
 function tone(freq, dur, { type = 'sine', vol = 0.18, at = 0, slide = 0 } = {}) {
   const a = ac(); if (!a) return;
   const t0 = a.currentTime + at;
@@ -49,6 +62,7 @@ export function sfx(name) {
       case 'key': [880, 1175, 1568].forEach((f, i) => tone(f, 0.12, { type: 'triangle', vol: 0.1, at: i * 0.07 })); break;
       case 'room': [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, { type: 'triangle', vol: 0.12, at: i * 0.11 })); break;
       case 'fall': tone(520, 0.7, { type: 'triangle', vol: 0.1, slide: 0.25 }); break;
+      case 'smash': noise(0.6, 0.35); tone(70, 0.35, { type: 'sine', vol: 0.25, slide: 0.5 }); break;
       case 'thud': tone(90, 0.18, { type: 'sine', vol: 0.18, slide: 0.6 }); break;
     }
   } catch (_) { /* audio not available */ }
