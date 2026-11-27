@@ -148,7 +148,7 @@ function showResults(s) {
   }
   const m = $('sum-missed'); m.innerHTML = '';
   const h = document.createElement('h3');
-  h.textContent = s.missed.length ? t('practise') : t('nothingMissed');
+  h.textContent = s.missed.length ? t('practice') : t('nothingMissed');
   m.appendChild(h);
   if (s.missed.length) {
     const list = document.createElement('ul');
