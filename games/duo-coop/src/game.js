@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { ROOMS, W, H } from './levels.js';
 import { World, ROLES } from './physics.js';
-import { buildRoom, questionMarker, carriedKey } from './world.js';
+import { buildRoom, questionMarker } from './world.js';
 import { loadModels } from './models.js';
 import { makeFigure } from './figures.js';
 import { createCards } from './cards.js';
@@ -12,8 +12,12 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'locked', 'key', 'portal', 'exit']);
+const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'exit']);
+const KEY_FLIGHT = 1.3;   // s: a collected key flies to its locked door, which then opens
 const BLOCKING = new Set(['door', 'crack', 'locked']);   // solid until opened / smashed
+// The punch (Throw clip, 1.37 s): the wall breaks when the fist is furthest forward
+// (measured on the rig: hand furthest forward at 0.75–0.8 s); no control until the swing is over.
+const SMASH_HIT = 0.75, SMASH_LOCK = 1.05;
 
 export async function createGame(canvas, opts) {
   const { input, players: cfg, touch, onEvent = () => {} } = opts;
@@ -74,8 +78,7 @@ export async function createGame(canvas, opts) {
     const role = ROLES[c.role];
     const fig = await makeFigure(c.choice, role.look, pi === 0 ? 0x2ee6c0 : 0xff8585);
     scene.add(fig.root);
-    const key = carriedKey(models); key.visible = false; fig.root.add(key);
-    players.push({ pi, role: c.role, fig, key, cfg: c, body: null, hasKey: false, smashAt: -9, carrying: null,
+    players.push({ pi, role: c.role, fig, cfg: c, body: null, smashAt: -9, carrying: null,
       inZone: new Set(), portalCd: 0, card: false, near: null, answers: 0, right: 0, wasGround: true });
   }
 
@@ -108,7 +111,7 @@ export async function createGame(canvas, opts) {
     scene.background = new THREE.Color(view.theme.sky);
     objs = new Map();
     for (const o of room.objects) {
-      const s = { def: o, on: false, open: false, taken: false, active: !!o.active && !o.ask,
+      const s = { def: o, on: false, open: !!o.open, taken: false, active: !!o.active && !o.ask,
         cells: cellsOf(o), wantSolid: false, solid: false };
       if (BLOCKING.has(o.type)) s.wantSolid = true;
       objs.set(o.id, s);
@@ -126,8 +129,7 @@ export async function createGame(canvas, opts) {
       const role = ROLES[p.role];
       const [sx, sy] = room.spawn[p.role];
       p.body = world.addBody({ kind: 'player', role: p.role, x: sx - role.w / 2, y: sy, w: role.w, h: role.h, facing: 1, pi: p.pi });
-      p.hasKey = false; p.smashAt = -9; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
-      p.key.visible = false;
+      p.smashAt = -9; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
     }
     syncSolids(true);
     markers = [];
@@ -177,7 +179,6 @@ export async function createGame(canvas, opts) {
     switch (o.type) {
       case 'lever': case 'switch': case 'post': case 'heavylever': return !s.on;
       case 'crack': return !s.open;
-      case 'locked': return !s.open;
       case 'key': return !s.taken;
       case 'portal': return o.ask && !s.active;
       case 'exit': return !s.open;
@@ -250,8 +251,8 @@ export async function createGame(canvas, opts) {
   function use(p) {
     const s = usable(p);
     if (!s) {
-      const door = [...objs.values()].find((d) => d.def.type === 'door' && !d.open && inRange(p, d.def));
-      if (door && !p.carrying) { toast(p, t('needLever')); return; }
+      const door = [...objs.values()].find((d) => (d.def.type === 'door' || d.def.type === 'locked') && !d.open && inRange(p, d.def));
+      if (door && !p.carrying) { toast(p, t(door.def.type === 'locked' ? 'needKey' : 'needLever')); return; }
       if (p.role === 'strong') carryOrDrop(p);
       return;
     }
@@ -270,15 +271,12 @@ export async function createGame(canvas, opts) {
         ask(p, s, () => {
           p.smashAt = played;
           p.body.facing = o.x + 0.5 > p.body.x + p.body.w / 2 ? 1 : -1;
-          s.breakAt = played + 0.28; s.brokeFrom = p.body.facing;   // the fist lands, then it breaks
+          // Throw clip: wind-up until 0.55 s, the fist is furthest forward at ~0.75–0.8 s
+          s.breakAt = played + SMASH_HIT; s.brokeFrom = p.body.facing;
         });
         return;
-      case 'locked':
-        if (!p.hasKey) { toast(p, t('needKey')); return; }
-        ask(p, s, () => { s.open = true; s.wantSolid = false; p.hasKey = false; p.key.visible = false; sfx('open'); });
-        return;
-      case 'key':
-        ask(p, s, () => { s.taken = true; p.hasKey = true; p.key.visible = true; sfx('key'); });
+      case 'key':   // owner: the collected key flies to its locked door and opens it
+        ask(p, s, () => { s.taken = true; s.flyAt = played; sfx('key'); });
         return;
       case 'portal':
         if (s.active) { teleport(p, s); return; }
@@ -366,7 +364,7 @@ export async function createGame(canvas, opts) {
     for (const p of players) {
       const r = input.read(p.pi);
       if (p.card || p.fallAt) continue;
-      if (played - p.smashAt < 0.55) continue;          // mid-punch
+      if (played - p.smashAt < SMASH_LOCK) continue;     // mid-punch
       if (r.actionPressed && state === 'playing') use(p);
       if (p.card) continue;
       inputs.set(p.body, r);
@@ -377,6 +375,11 @@ export async function createGame(canvas, opts) {
       world.step(STEP, inputs);
       for (const r of inputs.values()) r.jumpPressed = false;
       acc -= STEP;
+    }
+    for (const s of objs.values()) if (s.flyAt && played - s.flyAt >= KEY_FLIGHT) {
+      s.flyAt = 0;
+      const door = objs.get(s.def.opens);
+      if (door) { door.open = true; door.wantSolid = false; sfx('open'); }
     }
     for (const s of objs.values()) if (s.breakAt && played >= s.breakAt) { s.breakAt = 0; s.open = true; s.wantSolid = false; sfx('smash'); }
     syncSolids();
@@ -463,7 +466,7 @@ export async function createGame(canvas, opts) {
       f.root.position.set(b.x + b.w / 2, b.y, 0);
       let st = 'idle';
       if (p.card) { st = 'answer'; f.face(0, false, true); }
-      else if (played - p.smashAt < 0.6) { st = 'smash'; f.face(b.facing || 1); }
+      else if (played - p.smashAt < SMASH_LOCK) { st = 'smash'; f.face(b.facing || 1); }
       else if (b.climbing) { st = 'climb'; f.face(0, true); }
       else {
         if (!b.onGround) st = 'jump';
@@ -474,7 +477,6 @@ export async function createGame(canvas, opts) {
       if (b.jumped) { b.jumped = false; sfx('jump'); }
       f.setState(st);
       f.update(dt);
-      p.key.position.set(0, (ROLES[p.role].look + 0.35) / f.root.scale.y, 0);
     }
     // camera: frame both players, never more than the room
     const aspect = window.innerWidth / Math.max(1, window.innerHeight);
@@ -567,7 +569,7 @@ export async function createGame(canvas, opts) {
       room: () => roomIdx + 1,
       state: () => state,
       players: () => players.map((p) => ({ pi: p.pi, role: p.role, x: p.body.x, y: p.body.y, w: p.body.w, h: p.body.h, vx: p.body.vx,
-        onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card, hasKey: p.hasKey,
+        onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card,
         carrying: !!p.carrying, near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
       objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open,
         taken: s.taken, active: s.active, solid: s.solid }])),

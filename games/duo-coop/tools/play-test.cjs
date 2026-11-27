@@ -204,12 +204,12 @@ async function run(browser, cfg) {
   await walkTo(C, 22.5);
   await walkTo(S, 24.5);
   await answer(S, true, '1-crack');
-  await step(0.5);
+  await step(1.1);   // the wall breaks when the fist lands (0.75 s into the punch)
   await expect(async () => (await objs()).G.open && !(await objs()).G.solid, 'cracked wall not smashed');
   await shot('1-smashed');
   await walkTo(S, 29.2);
+  await expect(async () => (await objs()).E.open, 'room 1 exit should be open from the start');
   await walkTo(C, 29.8);
-  await answer(C);
   await walkTo(C, 29.9);
   await nextRoom(2);
 
@@ -218,11 +218,12 @@ async function run(browser, cfg) {
   await walkTo(C, 4.5);
   await climb(C, 1, 7);
   await walkTo(C, 2.5);
-  await answer(C);
-  await expect(async () => (await P(C)).hasKey, 'climber has no key');
-  await walkTo(C, 11.6);
-  await answer(C);
-  await expect(async () => (await objs()).L.open, 'locked door still closed');
+  await answer(C, true, '2-key');                  // the key flies to the locked door
+  await expect(async () => !(await objs()).L.open, 'locked door opened before the key arrived');
+  await step(0.6);
+  await shot('2-key-flying');
+  await step(1.0);
+  await expect(async () => (await objs()).L.open, 'locked door did not open when the key arrived');
   await walkTo(S, 14.62, { jump: false, max: 8 }); // pushes the crate against the step
   let bx = (await G('boxes'))[0];
   if (Math.abs(bx.x - 15) > 0.1) fail(`crate not at the step (x ${bx.x.toFixed(2)})`);
@@ -263,16 +264,15 @@ async function run(browser, cfg) {
   await walkTo(C, 13.5);
   await walkTo(S, 15.5);
   await answer(S);
-  await step(0.5);
+  await step(1.1);
   await expect(async () => (await objs()).G.open, 'cracked wall in room 3 not smashed');
   await walkTo(S, 19.5);
   await walkTo(C, 22.5);
   await climb(C, 1, 9);
   await walkTo(C, 18.5);
   await answer(C);
-  await expect(async () => (await P(C)).hasKey, 'no key from the tunnel');
-  await walkTo(C, 23.6);
-  await answer(C);
+  await step(1.6);
+  await expect(async () => (await objs()).L.open, 'room 3: locked door did not open with the key');
   await walkTo(S, 28.1);
   await walkTo(C, 28.9);
   await answer(C, true);

@@ -149,7 +149,7 @@ export function buildRoom(scene, room, world, models) {
   // ── puzzle objects ─────────────────────────────────────────────────────────────────
   const views = new Map();
   for (const o of room.objects) {
-    const v = objectView(o, models, keep);
+    const v = objectView(o, models, keep, room);
     if (v) { group.add(v.node); views.set(o.id, v); }
   }
 
@@ -183,7 +183,7 @@ function tint(obj, color, keep, extra = {}) {
 function findNode(obj, name) { let f = null; obj.traverse((o) => { if (!f && o.name === name) f = o; }); return f; }
 
 // Each view: { node, update(state, dt) }; state is the game's object state.
-function objectView(o, models, keep) {
+function objectView(o, models, keep, room) {
   const node = new THREE.Group();
   let t = Math.random() * 6;
   const glowM = () => keep(new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
@@ -244,18 +244,10 @@ function objectView(o, models, keep) {
         across.add(hinge);
         leaves.push({ hinge, side });
       }
-      let lock = null;
-      if (o.type === 'locked') {          // the key hangs on the side facing the camera
-        lock = fit(models.clone('key'), 0.55, null, null);
-        lock.position.set(0, o.h / 2 - 0.2, 0.95);
-        lock.rotation.z = Math.PI / 2;
-        node.add(lock);
-      }
       let open = 0;
       return { node, update(s, dt) {
         open += ((s.open ? 1 : 0) - open) * Math.min(1, dt * 4);
         for (const l of leaves) l.hinge.rotation.y = -l.side * open * 1.5;
-        if (lock) lock.visible = open < 0.05;
       } };
     }
     case 'crack': {
@@ -323,14 +315,38 @@ function objectView(o, models, keep) {
       } };
     }
     case 'key': {
+      // Floats until collected; then it flies in an arc to its locked door (KEY_FLIGHT in
+      // game.js), spinning, and disappears into the lock as the door opens.
       node.position.set(o.x + 0.5, o.y + 0.35, 0.1);
-      const k = fit(models.clone('key'), 0.75, null, null);
-      const spin = new THREE.Group(); spin.add(k); node.add(spin);
+      // gold and glowing, so it stands out against the grey walls (and in flight)
+      const k = tint(fit(models.clone('key'), 0.75, null, null), 0xffd877, keep, { emissive: new THREE.Color(AMBER), emissiveIntensity: 0.35 });
+      const glowTex = keep(canvasTex(64, 64, (g, w, h) => {
+        const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+        gr.addColorStop(0, 'rgba(255,220,120,0.9)'); gr.addColorStop(1, 'rgba(255,207,94,0)');
+        g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      }));
+      const glow = new THREE.Sprite(keep(new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false })));
+      glow.scale.set(1.1, 1.1, 1);
+      glow.position.y = 0.1;
+      const spin = new THREE.Group(); spin.add(glow, k); node.add(spin);
+      const door = room.objects.find((d) => d.id === o.opens);
+      const to = door ? new THREE.Vector3(door.x + 0.5 - node.position.x, door.y + door.h / 2 - node.position.y, 0.6)
+        : new THREE.Vector3();
+      let fly = -1;
       return { node, update(s, dt) {
         t += dt;
-        spin.visible = !s.taken;
-        spin.rotation.y = t * 1.6;
-        spin.position.y = Math.sin(t * 2.4) * 0.08;
+        if (s.taken && fly < 0) fly = 0;
+        if (fly < 0) {
+          spin.rotation.y = t * 1.6;
+          spin.position.y = Math.sin(t * 2.4) * 0.08;
+          return;
+        }
+        fly = Math.min(1, fly + dt / 1.3);
+        const e = fly * fly * (3 - 2 * fly);                 // ease in-out
+        spin.position.set(to.x * e, to.y * e + Math.sin(Math.PI * e) * 2.5, to.z * e);
+        spin.rotation.y += dt * 14;
+        spin.scale.setScalar(fly > 0.85 ? Math.max(0.01, (1 - fly) / 0.15) : 1 + Math.sin(Math.PI * e) * 0.4);
+        spin.visible = fly < 1;
       } };
     }
     case 'portal': {
@@ -394,9 +410,4 @@ export function questionMarker(keep = (x) => x) {
   s.scale.set(0.55, 0.55, 1);
   s.renderOrder = 10;
   return s;
-}
-
-/** The key a player carries (the same Dungeon key, smaller). */
-export function carriedKey(models) {
-  return fit(models.clone('key'), 0.5, null, null);
 }

@@ -12,14 +12,14 @@
 //   door   { x, y, h }            solid until a target of a lever/switch; no question of its own
 //   crack  { x, y, h }            cracked rock wall: only the STRONG one smashes it (question);
 //                                 gone for good
-//   locked { x, y, h }            needs the key: the carrier answers a question
+//   locked { x, y, h }            opens when its key is collected (no question of its own)
 //   bridge { x0, x1, y }          solid cells that appear when built
-//   key    { x, y }               question → the player carries it
+//   key    { x, y, opens }        question → the key flies to the locked door `opens` and opens it
 //   portal { x, y, pair, active } active portals teleport whoever walks in; an inactive
 //                                 portal with `ask` is switched on by a question
 //   cage   { x, y }               a box hangs here until a heavy lever releases it
-//   exit   { x, y }               x = middle of the 2-wide door; question → open; the room
-//                                 is done when both stand in it
+//   exit   { x, y, open }         x = middle of the 2-wide door; question → open (or `open: true`:
+//                                 open from the start); the room is done when both stand in it
 // Spawns: spawn.climber / spawn.strong (cell x, feet y). Boxes: boxes [[x, y]].
 //
 // Role physics (src/physics.js): the climber jumps 3.5 cells high and ~5 far, climbs
@@ -68,7 +68,7 @@ export const ROOMS = [
       { id: 'p', type: 'post', x: 20, y: 3, targets: ['b'] },
       { id: 'b', type: 'bridge', x0: 15, x1: 18, y: 2 },
       { id: 'G', type: 'crack', x: 25, y: 3, h: 3 },
-      { id: 'E', type: 'exit', x: 29.5, y: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 3, open: true },   // fewer questions (owner): open from the start
     ],
   }),
 
@@ -90,7 +90,7 @@ export const ROOMS = [
       fill(26, 26, 7, H - 2);              // exit chamber wall
     },
     objects: [
-      { id: 'k', type: 'key', x: 2, y: 7 },
+      { id: 'k', type: 'key', x: 2, y: 7, opens: 'L' },
       { id: 'L', type: 'locked', x: 12, y: 3, h: 3 },
       { id: 'h', type: 'heavylever', x: 17, y: 5, targets: ['C'] },
       { id: 'C', type: 'cage', x: 20, y: 9 },
@@ -121,7 +121,7 @@ export const ROOMS = [
       { id: 's', type: 'switch', x: 2, y: 7, targets: ['D'] },
       { id: 'D', type: 'door', x: 8, y: 3, h: 3 },
       { id: 'G', type: 'crack', x: 16, y: 3, h: 3 },
-      { id: 'k', type: 'key', x: 18, y: 9 },
+      { id: 'k', type: 'key', x: 18, y: 9, opens: 'L' },
       { id: 'L', type: 'locked', x: 24, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 28.5, y: 3 },
     ],

@@ -71,22 +71,33 @@ camera frames both players and never shows more than the room.
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 1 Levers & doors | lever on a ledge (ladder) opens door A · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · strong one smashes the cracked wall · exit | lever C, post C, wall S, exit (first there) = 4 |
-| 2 Boxes | key on a shelf (ladder) · locked door · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, door C, heavy lever S, portal C, exit = 5 |
-| 3 Together | switch on a ledge only reachable from the strong one's head · strong one smashes the cracked wall · key at the end of a 1-high tunnel · locked door · exit | switch C, wall S, key C, door C, exit = 5 |
+| 1 Levers & doors | lever on a ledge (ladder) opens door A · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · strong one smashes the cracked wall · exit (open from the start) | lever C, post C, wall S = 3 |
+| 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C, exit (first there) = 4 |
+| 3 Together | switch on a ledge only reachable from the strong one's head · strong one smashes the cracked wall · key at the end of a 1-high tunnel, flies to the locked door · exit | switch C, wall S, key C, exit = 4 |
 
-14 objects with a question; about 3 of 4 are in the climber's reach (the brief's
+11 objects with a question (owner 2026-11-27: one fewer per room, the rooms are short
+enough to give plenty of questions); about 3 of 4 are in the climber's reach (the brief's
 "most questions go to the student" by level design). A wrong answer leaves the
 object as it was and shows the teach line on the card; pressing it again asks a
 new question. No lives, no game over; Pause → "Restart room" if a crate gets stuck
 (a carried crate can also be put down anywhere, so a crate in a corner can be
 fetched).
 
+### Key and locked door (owner 2026-11-27)
+
+The locked door shows no key. Answering at the key (`key` with `opens: '<door id>'`)
+sends it flying in an arc to that door (1.3 s, `KEY_FLIGHT`), where it vanishes into the
+lock and the door opens. Nobody carries a key and the door asks no question; pressing
+use at a locked door says "Locked. Find the key." The room 1 exit is open from the start
+(`open: true`).
+
 ### Smashing walls (owner 2026-11-27: replaces holding a heavy gate)
 
 The strong one's own puzzle object is a **cracked wall** (`crack` in `src/levels.js`): use
-key next to it → a question → right: the punch (Throw clip, 0.55 s without control), the
-wall bursts 0.28 s later and is gone for good. The climber gets "Only the strong one can
+key next to it → a question → right: the punch (Throw clip, 1.05 s without control), the
+wall bursts when the fist is furthest forward, 0.75 s into the swing (`SMASH_HIT`,
+measured on the rig; owner: "only explode when the fist hits it"), and is gone for good.
+The climber gets "Only the strong one can
 smash this." Wrong answer: the wall stays. (The old gate that had to be held up while the
 climber slipped through, its prop lever and room 3's portal pair are gone.)
 
@@ -95,9 +106,8 @@ climber slipped through, its prop lever and room 3's portal pair are gone.)
 Gaps have no bottom (a column empty down to y = 0; `physics.js` `solid()` is open below
 the room). Whoever falls in drops into a dark shaft, gets "Whoops! Back to the start." /
 "Hoppla! Zurück zum Start." / "¡Uy! Vuelves al inicio." and is back at **this room's
-spawn** after 1 s. No lives, no game over: what is already open stays open, a carried key
-stays with the player, a carried crate goes back to where it
-started (a crate that falls in does too). Before this, a player could get stuck under the
+spawn** after 1 s. No lives, no game over: what is already open stays open, a carried
+crate goes back to where it started (a crate that falls in does too). Before this, a player could get stuck under the
 bridge in the old pit (owner's test). Only room 1 has a gap so far.
 
 ## Questions and answers
@@ -146,7 +156,7 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
 | exit | Halloween arch_gate, both leaves swing open, teal light behind |
 | portal | Platformer hoop (grey when off, yellow + teal swirl when on) |
 | crate / caged crate | Dungeon box_small / hanging on Platformer chain_full |
-| key | Dungeon key (floating; carried above the head) |
+| key | Dungeon key (floating; flies to its door when collected) |
 
 Only the "?" markers, the bridge ghost and the portal / exit glow are drawn by the game.
 Swapping a model = change the name in `src/models.js` `MODEL_NAMES` and the `fit()` call
@@ -230,6 +240,9 @@ measure it.
 - 2026-11-27 — Verb questions as three captioned boxes (today / yesterday / already), chips
   always one row and one line, cards above the goal banner (owner: too many mistakes
   because the asked form was unclear and answers wrapped).
+- 2026-11-27 — The wall breaks when the fist lands (0.75 s into the Throw clip, checked
+  frame by frame). The key flies to the locked door and opens it (no key on the door, no
+  door question); room 1 exit open from the start: 11 questions instead of 14.
 
 ## Open (owner)
 
