@@ -1,6 +1,10 @@
 # Krabsy — status dashboard
 
 
+## Duo games concept (2026-11-27)
+
+`docs/duo-games.md`: tutor + student in one game through the live lesson. First: a co-op puzzle platformer (side view on the Verb Platformer engine, two roles, every switch/door/portal/monster = a question, ~3 of 4 for the student, a question every 20–30 s). Then an answer race. Phase D1 = local prototype. Open: who plays, name, tutor answers or not. Nothing built yet.
+
 ## Student side concept (2026-11-27)
 
 `docs/student-path.md`: practice session "Jetzt üben" with a weekly goal of 3 (P1; not daily, owner 2026-11-27), vocabulary as a topic kind (P2), personal word lists from tutors/teachers (P3), gradual interface language (P4). Open owner decisions listed there. Nothing built yet.
