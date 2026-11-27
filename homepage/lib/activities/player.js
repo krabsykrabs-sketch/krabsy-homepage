@@ -690,9 +690,11 @@ const ACTS = {
           row.querySelectorAll('.kp-opt').forEach(o => { const bad = (ss.wrongOpt[i] || []).includes(o.dataset.word); o.disabled = bad; o.classList.toggle('is-out', bad); });
         }
       });
+      const neededW = new Set(step.sentences.map((y, k) => (ss.filled[k] ? null : normAnswer(y.answer))).filter(Boolean));
       if (step.mode === 'drag') stage.querySelectorAll('.kp-bank .kp-chip').forEach(ch => {
         const k = ch.dataset.k; ch.hidden = used.has(k);
-        ch.classList.toggle('is-out', ss.out.includes(k)); ch.disabled = ss.out.includes(k); ch.classList.toggle('is-picked', ss.picked === k); ch.classList.toggle('is-dragging', ss.drag === k);
+        const b = (ss.bank || []).find(z => z.k === k), out = ss.out.includes(k) && !(b && neededW.has(normAnswer(b.w)));
+        ch.classList.toggle('is-out', out); ch.disabled = out; ch.classList.toggle('is-picked', ss.picked === k); ch.classList.toggle('is-dragging', ss.drag === k);
       });
       const g = stage.querySelector('.kp-gap'); g.classList.toggle('has-pick', !!ss.picked);
       const acc = stage.querySelector('.kp-acc'); if (acc) acc.hidden = ss.done;
@@ -723,7 +725,14 @@ const ACTS = {
       if (lv === 1) c.msg('hint', '💡', c.L.inEnglish(i + 1), x.en);
       else if (lv === 2 && step.mode !== 'typed') {
         let gone = null;
-        if (step.mode === 'drag') { const used = new Set(Object.values(ss.filled).map(f => f.k)); const w = ss.bank.find(b => !used.has(b.k) && !ss.out.includes(b.k) && normAnswer(b.w) !== normAnswer(x.answer)); if (w) { ss.out.push(w.k); gone = w.w; } }
+        if (step.mode === 'drag') {
+          // grey out only a real distractor: never a word another open gap still needs (owner 2026-11-27:
+          // a hint greyed out "tengo", the answer of the last sentence)
+          const used = new Set(Object.values(ss.filled).map(f => f.k));
+          const needed = new Set(step.sentences.map((y, k) => (ss.filled[k] ? null : normAnswer(y.answer))).filter(Boolean));
+          const w = ss.bank.find(b => !used.has(b.k) && !ss.out.includes(b.k) && !needed.has(normAnswer(b.w)));
+          if (w) { ss.out.push(w.k); gone = w.w; }
+        }
         else { const w = (ss.opts[i] || []).find(o => normAnswer(o) !== normAnswer(x.answer) && !(ss.wrongOpt[i] || []).includes(o)); if (w) { (ss.wrongOpt[i] = ss.wrongOpt[i] || []).push(w); gone = w; } }
         if (gone) c.msg('hint', '💡', '', c.L.notGrey(gone)); else c.msg('hint', '💡', '', `${c.L.startsWith} ${x.answer[0]}.`);
       } else c.msg('hint', '💡', '', `${c.L.startsWith} ${x.answer[0]}.`);

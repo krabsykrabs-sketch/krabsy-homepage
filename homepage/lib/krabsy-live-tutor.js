@@ -18,7 +18,7 @@
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
-import { mountMaterial } from '/lib/activities/player.js?v=2026-11-27b';
+import { mountMaterial } from '/lib/activities/player.js?v=2026-11-27c';
 import { runningLessons, markRunning, markEnded } from '/lib/krabsy-live-running.js?v=2026-11-27';
 
 const LANG = 'en';
