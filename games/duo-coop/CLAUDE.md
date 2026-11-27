@@ -15,6 +15,30 @@ Read first: `docs/duo-games.md` (the brief, phases D1–D4), `docs/game-contract
   guide rooms, gifts.
 - **Owner: please play it with someone** (see "Run it"). Open questions are at the end.
 
+## Where it goes (owner decision 2026-11-27)
+
+**Player side first, tutors after D2.** What exists is the local mode (two people, one
+keyboard or tablet) = the "two students" pair of `docs/duo-games.md`: siblings, friends,
+a parent with a child, and pair work in class (mention it on the teacher pages as a pair
+activity). Tutors work over a video call on two devices, which needs D2 (online, room
+code / live-lesson relay); until then tutors are not offered the game (at most "coming
+soon").
+
+Before the release (master session does the site side):
+
+1. **A name** (owner; still "Krabsy Duo, working title" on the title screen).
+2. **"2 players" everywhere:** game card, wrapper page, `games.json`. In the game: done
+   (badge "👥 2 Spieler / 2 jugadores / 2 players" + "Play with a sibling or a friend: you
+   share one keyboard or one tablet." on the title screen).
+3. **The owner plays it with a real second person** (fun? do the rooms explain
+   themselves? answers per minute?).
+4. Known limit: only player 1's answers are recorded (fine at home; in class pairs the
+   second child gets nothing until D2's "Who's playing?").
+5. Release build: copy to `homepage/games/duo-coop/` (no `src/` stamping needed yet: plain
+   relative imports; if modules get versioned like Kitchen/Dungeon, run
+   `tools/stamp_game_modules.py`), wrapper pages DE/ES/EN, `games.json` (topics: every
+   quiz topic; `ui_langs` de/es/en), sitemap. 2.9 MB of models + vendor.
+
 ## Design rules for rooms (owner 2026-11-27)
 
 1. **Both players work at the same time wherever possible.** A room starts with a task
@@ -203,6 +227,7 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
 | portal | Platformer hoop (grey when off, yellow + teal swirl when on) |
 | crate / caged crate | Dungeon box_small / hanging on Platformer chain_full |
 | key | Dungeon key (floating; flies to its door when collected) |
+| lift | two Platformer floor_wood pieces on **four chains** at the corners, built from single `chain_link`s (one InstancedMesh, alternately turned, never stretched: links come and go as the lift moves; owner) |
 
 Only the "?" markers, the bridge ghost and the portal / exit glow are drawn by the game.
 Swapping a model = change the name in `src/models.js` `MODEL_NAMES` and the `fit()` call
@@ -307,6 +332,10 @@ measure it.
   Questions now: level 1: 3 + 3 + 3, level 2: 3 + 3 + 3, level 3: 4 + 4 + 4.
 - 2026-11-27 — Crates can only be pushed, no more lifting and carrying (owner: no animation
   for it); a stuck crate → Pause → Restart room.
+- 2026-11-27 — Owner: release on the player side first ("2 players"), tutors after D2. Title
+  screen: "2 players" badge + "play with a sibling or a friend" line. Spanish texts now use
+  ustedes, not vosotros (Uruguay / Argentina): Busquen, Suban, ¡Lo lograron! Lift on four
+  link chains.
 
 ## Open (owner)
 

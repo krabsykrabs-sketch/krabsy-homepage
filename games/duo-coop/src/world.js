@@ -373,7 +373,9 @@ function objectView(o, models, keep, room) {
       } };
     }
     case 'lift': {
-      // a wooden platform (two Platformer floor_wood pieces) hanging on two chains
+      // A wooden platform (two Platformer floor_wood pieces) on four chains, one at each
+      // corner, up to the ceiling. The chains are single links (Platformer chain_link),
+      // alternately turned, never stretched: links come and go as the lift moves.
       const plat = new THREE.Group();
       for (let i = 0; i < o.w; i++) {
         const piece = fit(models.clone('floor_wood_1x1'), 1.0, 0.5, 2.0);
@@ -381,17 +383,38 @@ function objectView(o, models, keep, room) {
         plat.add(piece);
       }
       node.add(plat);
-      const chains = [];
-      for (const cxp of [0.25, o.w - 0.25]) {
-        const c = fit(models.clone('chain_full'), null, 1, null);
-        const holder = new THREE.Group(); holder.add(c); holder.position.set(cxp, 0.5, -0.6);
-        node.add(holder); chains.push(holder);
-      }
+      const { geometry, material } = models.mesh('chain_link');
+      const geo = keep(geometry.clone());
+      geo.computeBoundingBox();
+      const lh = geo.boundingBox.max.y - geo.boundingBox.min.y;     // one link, model units
+      const S = 0.2;                                                 // link scale
+      const pitch = lh * S * 0.72;                                   // interlocking links
+      const corners = [[0.12, 0.88], [0.12, -0.88], [o.w - 0.12, 0.88], [o.w - 0.12, -0.88]];
+      const perChain = Math.ceil((H + 1) / pitch);
+      const links = new THREE.InstancedMesh(geo, material, corners.length * perChain);
+      links.castShadow = true;
+      node.add(links);
+      const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), turn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+      const sc = new THREE.Vector3(S, S, S), pos = new THREE.Vector3(), none = new THREE.Quaternion();
       node.position.set(o.x, o.y0 - 0.5, 0);
+      let lastTop = null;
       return { node, update(s) {
         node.position.y = s.top - 0.5;
-        const len = Math.max(0.1, (H - 1) - (s.top));   // up to the ceiling
-        for (const c of chains) c.scale.y = len;
+        if (lastTop === s.top) return;
+        lastTop = s.top;
+        // from the platform (local y 0.5) up to the ceiling (world y H − 1)
+        const n = Math.max(0, Math.floor(((H - 1) - s.top) / pitch));
+        let i = 0;
+        for (const [cx, cz] of corners) {
+          for (let k = 0; k < n; k++) {
+            pos.set(cx, 0.5 + (k + 0.5) * pitch, cz);
+            q.copy(k % 2 ? turn : none);
+            m4.compose(pos, q, sc);
+            links.setMatrixAt(i++, m4);
+          }
+        }
+        links.count = i;
+        links.instanceMatrix.needsUpdate = true;
       } };
     }
     case 'cage': {
