@@ -1,6 +1,7 @@
 # Krabsy — status dashboard
 
 ## Live classroom (2026-11-26, LIVE on hidden links; verified on krabsy.com: presence, material via + Add, ▶ to a typed step, typing mirrored in 0.37 s over the internet, ghost hand, star, End → note saved, 0 errors; test space deleted. First real lesson with Nora 2026-11-27; setup: docs/live-lesson-guide.md)
+Next foundation (owner decision 2026-11-27): **one learner, many connections** — one profile/history per child across own play, classes and tutors (`docs/tutor-platform-v2.md` §4.10, WP 0.10), before the new tutor app.
 2026-11-26 evening, also LIVE and verified on krabsy.com: tutor pages redesigned (start, space, profile, report; `body.kt-pro`), forgiving drag and drop (overlap / 40 px), all 14 worksheets fixed by a quality pass (checker: 108 problems → 0; give-aways, answer streaks, banks, ambiguous gaps) and quick practice follows the same rules. Free Spanish curriculum research: `docs/spanish-curriculum-sources.md` (Oak National Academy, OGL; API key requested 2026-11-26).
 
 Zoom for face and voice, Krabsy as the shared workspace: the tutor starts a live lesson from the

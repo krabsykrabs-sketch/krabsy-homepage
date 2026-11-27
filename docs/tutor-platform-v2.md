@@ -968,6 +968,88 @@ After that, keys never change; the validator rejects duplicates or missing keys.
 
 ---
 
+### 4.10 One learner, many connections (owner decision 2026-11-27)
+
+**Problem today.** A child who plays Krabsy anonymously, is in a teacher's class and is Nora's
+student is up to three separate "people": each class or tutor creates its own `students` row
+with its own key, the device lists them separately in "Who's playing?", and figure, shells, game
+progress and answers are split between them. A tutor's star map also starts at zero, although the
+child practised before (only answers after the link was opened reach the server).
+
+**Rule.** There is exactly **one learner** per child. Classes, tutors and (later) parents are
+**connections** to that learner; a connection only decides who may see what. The learner's data
+(profile, figure, shells, gifts, game progress, every answer) exists once.
+
+**Data model (SQLite, additive):**
+
+```
+learners      id, created, last_active, adult (0/1), display_name (first name the child or
+              tutor typed), profile JSON (moves here from student_profiles), retention fields
+learner_keys  key_hash (unique), learner_id, created, last_used, label ("Lucas's link from Nora")
+              -- a learner may have several keys (each link/device route); keys are what
+              -- devices hold; revoking one key never deletes the learner
+connections   id, learner_id, kind ('class' | 'tutor' | later 'parent'), class_id / tutor_id,
+              name_in_connection (the name the class/tutor uses), created, ended
+attempts      + learner_id (answers belong to the learner; connection_id tells which
+              connection the answer was given under, NULL = on their own)
+```
+
+- `students` (classes) and `tutor_students` keep working; each row gets `learner_id` and becomes
+  the connection record. Existing tokens become `learner_keys`.
+- **Visibility:** a teacher/tutor sees the learner's answers **from the moment of connecting**,
+  plus (with the "bring my progress" step below) a summary of earlier practice for the topics they
+  teach: per item mastery from the learner's stats, not the raw history. A connection never sees
+  the learner's other connections, notes or names elsewhere.
+- **Children never have email or passwords** (unchanged). A learner is identified only by keys.
+
+**Flows:**
+
+1. **New link on a device without a learner** (anonymous player): the device's existing progress
+   becomes this learner's profile (as today's first-person takeover), and the learner is created.
+2. **New link on a device that already has a learner:** ask **"Are you Lucas? → Yes, it's me / No,
+   someone else"**.
+   - *Yes* → the server **attaches the new connection to the existing learner** (the new key is
+     added to that learner; the class/tutor row points to the same learner). One figure, one
+     shell count, one history.
+   - *No* → a new learner (siblings), as the sibling picker does today.
+   - If the device holds several learners, the question lists them ("Who are you?").
+3. **"Bring my progress":** on connecting, the learner's local/server stats for the connection's
+   topics are summarised into the tutor's star map (mastery per item → measured stars), marked
+   "practised before joining".
+4. **Two learners that turn out to be the same child** (e.g. two devices, two links before the
+   question existed): the tutor (or teacher) can **merge** two of their students: profiles merged
+   with the rules of `krabsy-sync.js` (shells: higher earned, owned united; stats: per item the
+   record with more attempts), answers re-pointed, keys kept.
+5. **Learner without any connection** (plays alone) can later get an optional **save code** to
+   carry progress to another device (same learner + key mechanism, no email).
+
+**Server/API changes:** `/api/class/join` and the tutor student link resolve to a learner
+(`learner_keys`); `/api/class/answers` and the live relay record `learner_id` +
+`connection_id`; `/api/profile` reads/writes the learner's profile; new
+`POST /api/learner/attach {key_existing, key_new}` (the "Yes, it's me" step, both keys proven),
+`POST /api/tutor/student/merge`, `POST /api/class/merge`. Retention: a learner is deleted when no
+connection and no key has been used for the retention period; deleting a connection never
+deletes another connection's view.
+
+**Client changes:** `krabsy-sync.js` people = learners (keyed by learner id, several keys per
+learner); the "Are you …?" question in the join/link flow (`krabsy-class-pages.js` join,
+`krabsy-tutor.js` student page); profile sync per learner; answers queue sends the learner key.
+
+**Migration (rehearsed on a copy of the production database first):** one learner per existing
+`students` row; tutor students and class pupils that a device already linked as the same person
+cannot be detected safely → stay separate and can be merged by the tutor/teacher (flow 4).
+`student_profiles` → `learners.profile`. No change visible to children; existing links keep
+working (their tokens become learner keys).
+
+**Privacy text:** one learner across connections; each teacher/tutor sees only what was practised
+in their topics, from connecting on, plus the summary of earlier practice; nothing about other
+classes or tutors.
+
+**Tests:** attach flow (both keys required, no attach with a guessed key), merge (profiles,
+answers, keys), visibility (connection A cannot read B's notes or answers given under B),
+star-map backfill, sibling case (two learners on one device stay separate), migration on a
+copy of the live DB, the live relay with learner ids.
+
 ## 5. Content plan
 
 ### 5.1 Size targets per topic (validator-enforced "content floor")
@@ -1194,7 +1276,7 @@ D   Design prototype ───────────────────�
 0.8 Word list + coverage + style guide (parallel; uses 0.5's concept shape when it lands)
 ```
 
-0.1, 0.2, 0.4, 0.8 and D start on day one. 0.4's key checks switch on after
+0.1, 0.2, 0.4, 0.8 and D start on day one. 0.10 (one learner, many connections) follows 0.7 and comes before Phase 2, while there are still few real students to migrate. 0.4's key checks switch on after
 0.2. 0.7 needs 0.2 (ref format) and 0.5 (`topics_gen.py`).
 
 | WP | Task | Owns | Model | Size |
@@ -1208,6 +1290,7 @@ D   Design prototype ───────────────────�
 | 0.6 | Spanish growth to the floor: AI drafts, validator, review sheet to Nora | `content/es-*.json`, `tools/es_review_sheet.py` | Opus | 2 + review |
 | 0.7 | Phase 0 tables (§4.4), `seen`, `progress_agg` on write, ref path in `classes.py`, `TOPICS` from `topics_gen.py`, retention fix + warning mails, Dockerfile, rehearsal on a prod copy, tests | `api/materials.py`, `api/tutors.py` (migrations, purge), `api/classes.py` (attempt model, purge), `api/mailer.py` (warning mail), `api/Dockerfile`, `api/tests/` | Opus | 2 |
 | 0.8 | Animals word list (concept file), coverage table, Fluent Emoji licence check, sample sheet, `render_vocab_cards.cjs`, `media.json` shape; then the style guide incl. book camera | `content/vocab/concepts/animals.json`, `tools/render_vocab_cards.cjs`, `homepage/media/`, `docs/picture-style.md` | Opus + **Fable** (guide 0.5) | 1 |
+| 0.10 | **One learner, many connections** (§4.10): `learners`, `learner_keys`, `connections`, `attempts.learner_id`; attach ("Are you Lucas?"), merge, progress backfill into the star map; migration of classes + tutor students + profiles, rehearsed on a prod copy; privacy text; tests | `api/learners.py` (new), `api/classes.py` + `api/tutors.py` + `api/live.py` (learner ids), `api/tests/`, `homepage/lib/krabsy-sync.js`, `krabsy-class.js`, `krabsy-class-pages.js` (join), `krabsy-tutor.js` (student page), privacy pages | Opus | 2.5 (before Phase 2; needs 0.7) |
 | 0.9 | Games adopt `createDeck`: Egg Island (replaces its hot fix), Kitchen, Tower Defense, Quiz Room, Platformer, Verb Dungeon | each game's own folder (one game session each) | Opus | 0.5 each, any time after 0.3 |
 
 **Phase 1 (Animals slice):**
