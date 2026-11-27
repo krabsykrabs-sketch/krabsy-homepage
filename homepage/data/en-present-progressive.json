@@ -1,0 +1,860 @@
+{
+  "format": 2,
+  "id": "en_present_progressive",
+  "learn_lang": "en",
+  "level": "A1",
+  "years": {
+    "de": "5",
+    "es": "1º ESO"
+  },
+  "title": {
+    "en": "Present progressive: I am playing",
+    "de": "Present Progressive: I am playing",
+    "es": "Present continuous: I am playing"
+  },
+  "status": "draft: written 2026-11-27, waiting for a native speaker's check",
+  "items": [
+    {
+      "id": "pp_be",
+      "group": "form",
+      "label": "am / is / are + -ing",
+      "explanation": {
+        "en": "For things happening right now: am/is/are + verb with -ing. I am reading, she is sleeping, they are playing.",
+        "de": "Für etwas, das gerade jetzt passiert: am/is/are + Verb mit -ing. I am reading, she is sleeping. Das ist das Present Progressive.",
+        "es": "Para algo que pasa ahora mismo: am/is/are + verbo con -ing. I am reading, she is sleeping. Es el present continuous."
+      },
+      "examples": [
+        {
+          "sentence": "Look! The baby ___ sleeping.",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "are",
+            "am",
+            "does"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I ___ doing my homework right now.",
+          "answers": [
+            "am"
+          ],
+          "distractors": [
+            "is",
+            "are",
+            "do"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My friends ___ waiting for me outside.",
+          "answers": [
+            "are"
+          ],
+          "distractors": [
+            "is",
+            "am",
+            "do"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We ___ having lunch at the moment.",
+          "answers": [
+            "are"
+          ],
+          "distractors": [
+            "is",
+            "am",
+            "do"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Listen! Somebody ___ singing in the bathroom.",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "are",
+            "am",
+            "does"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Hurry up! The bus ___ leaving!",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "are",
+            "does",
+            "has"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Look! Our teacher ___ dancing!",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "are",
+            "am",
+            "does"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Mum and Dad ___ painting the kitchen this week.",
+          "answers": [
+            "are"
+          ],
+          "distractors": [
+            "is",
+            "am",
+            "do"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "pp_ing",
+      "group": "form",
+      "label": "I am going (not 'I am go')",
+      "explanation": {
+        "en": "After am/is/are you need the -ing form: I am going, not 'I am go'.",
+        "de": "Nach am/is/are brauchst du die -ing-Form: I am going, nicht 'I am go'.",
+        "es": "Después de am/is/are va la forma -ing: I am going, no 'I am go'."
+      },
+      "examples": [
+        {
+          "sentence": "Shh! Dad is ___ on the phone.",
+          "answers": [
+            "talking",
+            "speaking"
+          ],
+          "distractors": [
+            "talk",
+            "talks",
+            "talked"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Mmm, that smells good! Mum is ___ dinner.",
+          "answers": [
+            "cooking",
+            "making"
+          ],
+          "distractors": [
+            "cook",
+            "cooks",
+            "cooked"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I go to the park every Sunday. Today is Sunday, and I am ___ there now.",
+          "answers": [
+            "going"
+          ],
+          "distractors": [
+            "go",
+            "goes",
+            "went"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Tom usually reads comics, but right now he is ___ a book.",
+          "answers": [
+            "reading"
+          ],
+          "distractors": [
+            "reads",
+            "read",
+            "readed"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I play this game every day. Look, I am ___ it again!",
+          "answers": [
+            "playing"
+          ],
+          "distractors": [
+            "play",
+            "plays",
+            "played"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We watch a film every Friday. Right now we are ___ one about dinosaurs.",
+          "answers": [
+            "watching"
+          ],
+          "distractors": [
+            "watch",
+            "watches",
+            "watched"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Max is ___ his room. It's very messy!",
+          "answers": [
+            "tidying",
+            "cleaning"
+          ],
+          "distractors": [
+            "tidy",
+            "tidies",
+            "tidyed"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "pp_spelling",
+      "group": "form",
+      "label": "swimming, making, sitting",
+      "explanation": {
+        "en": "Spelling: swim → swimming, sit → sitting (double letter); make → making, write → writing (the e goes).",
+        "de": "Schreibung: swim → swimming, sit → sitting (Buchstabe doppelt); make → making, write → writing (das e fällt weg).",
+        "es": "Ortografía: swim → swimming, sit → sitting (letra doble); make → making, write → writing (se quita la e)."
+      },
+      "examples": [
+        {
+          "sentence": "My sister swims every morning. Look, she is ___ now.",
+          "answers": [
+            "swimming"
+          ],
+          "distractors": [
+            "swiming",
+            "swims",
+            "swim"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Dad makes pizza on Fridays. Today is Friday, so he is ___ pizza right now.",
+          "answers": [
+            "making"
+          ],
+          "distractors": [
+            "makeing",
+            "makes",
+            "make"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Our dog runs everywhere. Look, he is ___ after the ball again!",
+          "answers": [
+            "running"
+          ],
+          "distractors": [
+            "runing",
+            "runs",
+            "run"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "The cat often sits on my bed. Look, she is ___ there now.",
+          "answers": [
+            "sitting"
+          ],
+          "distractors": [
+            "siting",
+            "sits",
+            "sit"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I write to Grandma every month, and I am ___ to her now.",
+          "answers": [
+            "writing"
+          ],
+          "distractors": [
+            "writeing",
+            "writes",
+            "write"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "We often dance in the living room. Look, Mum and Dad are ___ now!",
+          "answers": [
+            "dancing"
+          ],
+          "distractors": [
+            "danceing",
+            "dance",
+            "dances"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_negative",
+      "group": "negative",
+      "label": "isn't / aren't + -ing",
+      "explanation": {
+        "en": "No: am not, isn't, aren't + -ing. He isn't playing (not 'He doesn't playing').",
+        "de": "Verneinung: am not, isn't, aren't + -ing. He isn't playing (nicht 'He doesn't playing').",
+        "es": "Negación: am not, isn't, aren't + -ing. He isn't playing (no 'He doesn't playing')."
+      },
+      "examples": [
+        {
+          "sentence": "I'm ___ watching TV. I'm reading.",
+          "answers": [
+            "not"
+          ],
+          "distractors": [
+            "no",
+            "don't",
+            "isn't"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Tom ___ playing football now. He's ill in bed.",
+          "answers": [
+            "isn't",
+            "is not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "The children ___ sleeping. They are playing!",
+          "answers": [
+            "aren't",
+            "are not"
+          ],
+          "distractors": [
+            "isn't",
+            "don't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "It ___ raining now, so we can go outside.",
+          "answers": [
+            "isn't",
+            "is not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Dad ___ working today. He's at home with us.",
+          "answers": [
+            "isn't",
+            "is not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We ___ listening to music. We're doing our homework.",
+          "answers": [
+            "aren't",
+            "are not"
+          ],
+          "distractors": [
+            "isn't",
+            "don't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I ___ feeling well today. Can I stay at home?",
+          "answers": [
+            "am not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_questions",
+      "group": "question",
+      "label": "Are you …-ing?",
+      "explanation": {
+        "en": "Questions: Am/Is/Are + person + -ing? Are you listening? What is she doing? Short answers: Yes, I am. / No, she isn't.",
+        "de": "Fragen: Am/Is/Are + Person + -ing? Are you listening? What is she doing? Kurzantworten: Yes, I am. / No, she isn't.",
+        "es": "Preguntas: Am/Is/Are + persona + -ing? Are you listening? What is she doing? Respuestas cortas: Yes, I am. / No, she isn't."
+      },
+      "examples": [
+        {
+          "sentence": "___ you listening to me?",
+          "answers": [
+            "Are"
+          ],
+          "distractors": [
+            "Do",
+            "Is",
+            "Does"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ your brother playing a game right now?",
+          "answers": [
+            "Is"
+          ],
+          "distractors": [
+            "Does",
+            "Are",
+            "Do"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "What ___ you doing?",
+          "answers": [
+            "are"
+          ],
+          "distractors": [
+            "do",
+            "is",
+            "does"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Why ___ the baby crying?",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "does",
+            "are",
+            "do"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Is it raining? – Yes, it ___.",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "does",
+            "rains",
+            "are"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Are you having fun? – Yes, we ___.",
+          "answers": [
+            "are"
+          ],
+          "distractors": [
+            "do",
+            "is",
+            "have"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Is your mum working today? – No, she ___.",
+          "answers": [
+            "isn't",
+            "is not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_now",
+      "group": "contrast",
+      "label": "Look! / now → is …-ing",
+      "explanation": {
+        "en": "Words like now, right now, at the moment, Look! and Listen! say it's happening now: use am/is/are + -ing.",
+        "de": "Wörter wie now, right now, at the moment, Look! oder Listen! zeigen: Es passiert gerade. Dann am/is/are + -ing.",
+        "es": "Palabras como now, right now, at the moment, Look! o Listen! indican que pasa ahora: am/is/are + -ing."
+      },
+      "examples": [
+        {
+          "sentence": "Listen! The birds ___.",
+          "answers": [
+            "are singing"
+          ],
+          "distractors": [
+            "sing",
+            "sings",
+            "singing"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My dad often sings in the car. Listen! He ___ now.",
+          "answers": [
+            "is singing"
+          ],
+          "distractors": [
+            "sings",
+            "sing",
+            "singing"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Mia often plays in the garden, and right now she ___ there with her dog.",
+          "answers": [
+            "is playing"
+          ],
+          "distractors": [
+            "plays",
+            "play",
+            "playing"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Grandpa usually sleeps after lunch. Shh! He ___ at the moment.",
+          "answers": [
+            "is sleeping"
+          ],
+          "distractors": [
+            "sleeps",
+            "sleep",
+            "sleeping"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "It often rains in April. Look outside, it ___ now!",
+          "answers": [
+            "is raining"
+          ],
+          "distractors": [
+            "rains",
+            "rain",
+            "raining"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We usually eat at home, but at the moment we ___ at Grandma's.",
+          "answers": [
+            "are eating"
+          ],
+          "distractors": [
+            "eat",
+            "eats",
+            "eating"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Our cat never eats fish, but look! Now she ___ it!",
+          "answers": [
+            "is eating"
+          ],
+          "distractors": [
+            "eats",
+            "eat",
+            "eating"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_every_day",
+      "group": "contrast",
+      "label": "every day → she walks",
+      "explanation": {
+        "en": "Words like every day, usually, often and on Mondays say it's a habit: use the normal present (she walks), not -ing.",
+        "de": "Wörter wie every day, usually, often oder on Mondays zeigen eine Gewohnheit: Dann nimmst du das Simple Present (she walks), nicht -ing.",
+        "es": "Palabras como every day, usually, often u on Mondays indican una costumbre: present simple (she walks), sin -ing."
+      },
+      "examples": [
+        {
+          "sentence": "Paul is cooking today, but he doesn't cook very often. His dad usually ___.",
+          "answers": [
+            "cooks"
+          ],
+          "distractors": [
+            "is cooking",
+            "cook",
+            "cooking"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We are playing inside today because of the rain. We usually ___ outside.",
+          "answers": [
+            "play"
+          ],
+          "distractors": [
+            "are playing",
+            "plays",
+            "playing"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Lea is walking to school with her mum today. On other days she ___ alone.",
+          "answers": [
+            "walks"
+          ],
+          "distractors": [
+            "is walking",
+            "walk",
+            "walking"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Look, Ben is reading a comic! He ___ comics every evening.",
+          "answers": [
+            "reads"
+          ],
+          "distractors": [
+            "is reading",
+            "read",
+            "reading"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Tom is riding his bike now. He ___ it to school every day.",
+          "answers": [
+            "rides"
+          ],
+          "distractors": [
+            "is riding",
+            "ride",
+            "riding"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My sister is sleeping now. She ___ until ten every Saturday.",
+          "answers": [
+            "sleeps"
+          ],
+          "distractors": [
+            "is sleeping",
+            "sleep",
+            "sleeping"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I'm wearing a jacket today, but in summer I ___ T-shirts every day.",
+          "answers": [
+            "wear"
+          ],
+          "distractors": [
+            "am wearing",
+            "wears",
+            "wearing"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_contrast_questions",
+      "group": "contrast",
+      "label": "Do you …? or Are you …-ing?",
+      "explanation": {
+        "en": "A habit: Do/Does …? (Do you play tennis every week?). Right now: Am/Is/Are … -ing? (Are you watching TV now?).",
+        "de": "Gewohnheit: Do/Does …? (Do you play tennis every week?). Gerade jetzt: Am/Is/Are … -ing? (Are you watching TV now?).",
+        "es": "Costumbre: Do/Does …? (Do you play tennis every week?). Ahora mismo: Am/Is/Are … -ing? (Are you watching TV now?)."
+      },
+      "examples": [
+        {
+          "sentence": "___ you play tennis every week?",
+          "answers": [
+            "Do"
+          ],
+          "distractors": [
+            "Are",
+            "Does",
+            "Is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ you watching TV right now?",
+          "answers": [
+            "Are"
+          ],
+          "distractors": [
+            "Do",
+            "Is",
+            "Does"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "What ___ your brother doing at the moment?",
+          "answers": [
+            "is"
+          ],
+          "distractors": [
+            "does",
+            "are",
+            "do"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "What ___ your brother do after school every day?",
+          "answers": [
+            "does"
+          ],
+          "distractors": [
+            "is",
+            "do",
+            "are"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "___ it often rain here in autumn?",
+          "answers": [
+            "Does"
+          ],
+          "distractors": [
+            "Is",
+            "Do",
+            "Are"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "How often ___ you go swimming?",
+          "answers": [
+            "do"
+          ],
+          "distractors": [
+            "are",
+            "does",
+            "is"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pp_contrast_negative",
+      "group": "contrast",
+      "label": "doesn't … or isn't …-ing",
+      "explanation": {
+        "en": "A habit: don't/doesn't + verb (He doesn't play on Mondays). Right now: isn't/aren't + -ing (He isn't playing now).",
+        "de": "Gewohnheit: don't/doesn't + Grundform (He doesn't play on Mondays). Gerade jetzt: isn't/aren't + -ing (He isn't playing now).",
+        "es": "Costumbre: don't/doesn't + verbo (He doesn't play on Mondays). Ahora mismo: isn't/aren't + -ing (He isn't playing now)."
+      },
+      "examples": [
+        {
+          "sentence": "Sam ___ playing now. He's having a shower.",
+          "answers": [
+            "isn't",
+            "is not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Sam ___ play football on Mondays. He has piano lessons.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "isn't",
+            "don't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My parents ___ working today. It's Sunday.",
+          "answers": [
+            "aren't",
+            "are not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My parents ___ work on Sundays.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "aren't",
+            "doesn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Our cat ___ like water, so she never swims.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "isn't",
+            "don't",
+            "not"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

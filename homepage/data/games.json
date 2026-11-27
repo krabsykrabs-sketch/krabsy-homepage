@@ -19,7 +19,11 @@
       "es_ser",
       "es_estar",
       "es_ser_estar",
-      "es_tener"
+      "es_tener",
+      "en_simple_past",
+      "en_present_simple",
+      "en_present_progressive",
+      "en_present_perfect"
     ],
     "status": "ready",
     "kind": "3d",
@@ -79,7 +83,11 @@
       "es_ser",
       "es_estar",
       "es_ser_estar",
-      "es_tener"
+      "es_tener",
+      "en_simple_past",
+      "en_present_simple",
+      "en_present_progressive",
+      "en_present_perfect"
     ],
     "status": "ready",
     "kind": "3d",
@@ -111,7 +119,11 @@
       "es_ser",
       "es_estar",
       "es_ser_estar",
-      "es_tener"
+      "es_tener",
+      "en_simple_past",
+      "en_present_simple",
+      "en_present_progressive",
+      "en_present_perfect"
     ],
     "status": "ready",
     "kind": "3d",
@@ -143,7 +155,11 @@
       "es_ser",
       "es_estar",
       "es_ser_estar",
-      "es_tener"
+      "es_tener",
+      "en_simple_past",
+      "en_present_simple",
+      "en_present_progressive",
+      "en_present_perfect"
     ],
     "ui_langs": [
       "de",

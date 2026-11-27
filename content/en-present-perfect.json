@@ -1,0 +1,877 @@
+{
+  "format": 2,
+  "id": "en_present_perfect",
+  "learn_lang": "en",
+  "level": "A2",
+  "years": {
+    "de": "6",
+    "es": "1º–3º ESO"
+  },
+  "title": {
+    "en": "Present perfect: I have seen",
+    "de": "Present Perfect: I have seen",
+    "es": "Present perfect: I have seen"
+  },
+  "status": "draft: written 2026-11-27, waiting for a native speaker's check",
+  "items": [
+    {
+      "id": "pf_have_has",
+      "group": "form",
+      "label": "have / has + 3rd form",
+      "explanation": {
+        "en": "have/has + the 3rd form of the verb: I have finished, she has eaten. he/she/it → has, everyone else → have.",
+        "de": "have/has + 3. Form des Verbs: I have finished, she has eaten. Bei he/she/it has, sonst have. Das ist das Present Perfect.",
+        "es": "have/has + participio (la 3.ª forma): I have finished, she has eaten. Con he/she/it, has; con los demás, have. Es el present perfect."
+      },
+      "examples": [
+        {
+          "sentence": "She ___ just finished her homework.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "is",
+            "did"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I ___ already eaten my lunch.",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "am",
+            "did"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We ___ never been to Paris.",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "are",
+            "did"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My cat ___ eaten all its food.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "is",
+            "did"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My parents ___ bought a new car.",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "are",
+            "did"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Tom and Lisa ___ seen this film three times.",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "are",
+            "did"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Oh no! The dog ___ taken my shoe!",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "is",
+            "did"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "pf_short_forms",
+      "group": "form",
+      "label": "I've / she's / they've",
+      "explanation": {
+        "en": "Short forms: I have → I've, she has → she's, they have → they've. I've seen it (not 'I'm seen it').",
+        "de": "Kurzformen: I have → I've, she has → she's, they have → they've. I've seen it (nicht 'I'm seen it').",
+        "es": "Formas cortas: I have → I've, she has → she's, they have → they've. I've seen it (no 'I'm seen it')."
+      },
+      "examples": [
+        {
+          "sentence": "I want to see a whale one day. ___ never seen one.",
+          "answers": [
+            "I've",
+            "I have"
+          ],
+          "distractors": [
+            "I'm",
+            "I",
+            "I did"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Where's Mia? – ___ already gone home.",
+          "answers": [
+            "She's",
+            "She has"
+          ],
+          "distractors": [
+            "She have",
+            "She",
+            "She did"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Look at Tom and Sara! ___ painted the door blue.",
+          "answers": [
+            "They've",
+            "They have"
+          ],
+          "distractors": [
+            "They're",
+            "They",
+            "They has"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_regular",
+      "group": "participle",
+      "label": "have cleaned, has visited",
+      "explanation": {
+        "en": "For regular verbs, the 3rd form looks like the past: clean → cleaned → cleaned, visit → visited → visited.",
+        "de": "Bei regelmäßigen Verben sieht die 3. Form aus wie die Vergangenheit: clean → cleaned → cleaned, visit → visited → visited.",
+        "es": "En los verbos regulares, la 3.ª forma es igual que el pasado: clean → cleaned → cleaned, visit → visited → visited."
+      },
+      "examples": [
+        {
+          "sentence": "I clean my room every week, and today I have ___ it again.",
+          "answers": [
+            "cleaned"
+          ],
+          "distractors": [
+            "clean",
+            "cleans",
+            "cleaning"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We visit Grandma a lot. We have ___ her five times this month!",
+          "answers": [
+            "visited"
+          ],
+          "distractors": [
+            "visit",
+            "visits",
+            "visiting"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "It rains a lot here. It has ___ every day this week.",
+          "answers": [
+            "rained"
+          ],
+          "distractors": [
+            "rain",
+            "rains",
+            "raining"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Do you want to watch this film? – No, I've already ___ it.",
+          "answers": [
+            "watched",
+            "seen"
+          ],
+          "distractors": [
+            "watch",
+            "watches",
+            "watching"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My little brother has ___ to swim!",
+          "answers": [
+            "learned",
+            "learnt"
+          ],
+          "distractors": [
+            "learn",
+            "learns",
+            "learning"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Lily wants to go out, but she hasn't ___ her room yet. She must tidy it first.",
+          "answers": [
+            "tidied"
+          ],
+          "distractors": [
+            "tidy",
+            "tidyed",
+            "tidies"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Ben lives in Spain. He has ___ there since 2020.",
+          "answers": [
+            "lived",
+            "been"
+          ],
+          "distractors": [
+            "live",
+            "lives",
+            "living"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_irregular",
+      "group": "participle",
+      "label": "have seen, has broken",
+      "explanation": {
+        "en": "Many verbs have their own 3rd form: see → saw → seen, eat → ate → eaten, break → broke → broken. Not 'I have saw'!",
+        "de": "Viele Verben haben eine eigene 3. Form: see → saw → seen, eat → ate → eaten, break → broke → broken. Nicht 'I have saw'!",
+        "es": "Muchos verbos tienen su propia 3.ª forma: see → saw → seen, eat → ate → eaten, break → broke → broken. ¡No 'I have saw'!"
+      },
+      "examples": [
+        {
+          "sentence": "I see snakes on TV, but I have never ___ a real one.",
+          "answers": [
+            "seen"
+          ],
+          "distractors": [
+            "saw",
+            "see",
+            "seeing"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I love to eat new things. I have ___ sushi, tacos and paella!",
+          "answers": [
+            "eaten",
+            "tried",
+            "had"
+          ],
+          "distractors": [
+            "ate",
+            "eat",
+            "eated"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Tom always goes home at four. It's five now, so he has already ___ home.",
+          "answers": [
+            "gone"
+          ],
+          "distractors": [
+            "went",
+            "go",
+            "goed"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Be careful, you'll break it! – Too late. I've already ___ it.",
+          "answers": [
+            "broken"
+          ],
+          "distractors": [
+            "broke",
+            "break",
+            "breaked"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Anna writes a lot of stories. She has ___ ten this year!",
+          "answers": [
+            "written"
+          ],
+          "distractors": [
+            "wrote",
+            "writed",
+            "write"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Oh no! I have ___ my phone. I can't find it anywhere.",
+          "answers": [
+            "lost"
+          ],
+          "distractors": [
+            "lose",
+            "losed",
+            "losted"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Have you ever ___ a famous person?",
+          "answers": [
+            "met",
+            "seen"
+          ],
+          "distractors": [
+            "meet",
+            "meeted",
+            "meeting"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I have ___ my homework. Can I play now?",
+          "answers": [
+            "done",
+            "finished"
+          ],
+          "distractors": [
+            "did",
+            "made",
+            "do"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I'm not thirsty. I have ___ three glasses of water today.",
+          "answers": [
+            "drunk",
+            "had"
+          ],
+          "distractors": [
+            "drank",
+            "drinked",
+            "drink"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_ever_never",
+      "group": "ever_never",
+      "label": "ever / never",
+      "explanation": {
+        "en": "ever = at any time in your life (in questions): Have you ever …? never = not at any time: I have never …",
+        "de": "ever = jemals (in Fragen): Have you ever …? never = noch nie: I have never …",
+        "es": "ever = alguna vez (en preguntas): Have you ever …? never = nunca: I have never …"
+      },
+      "examples": [
+        {
+          "sentence": "I have ___ been to America. I'd love to go one day!",
+          "answers": [
+            "never"
+          ],
+          "distractors": [
+            "ever",
+            "yet",
+            "already"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My grandpa has ___ used a computer. He doesn't like them.",
+          "answers": [
+            "never"
+          ],
+          "distractors": [
+            "ever",
+            "yet",
+            "ago"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Have you ___ been to London?",
+          "answers": [
+            "ever"
+          ],
+          "distractors": [
+            "yet",
+            "ago",
+            "before"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Has your dog ___ bitten anyone? – No, never!",
+          "answers": [
+            "ever"
+          ],
+          "distractors": [
+            "yet",
+            "ago",
+            "before"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Have you ever ridden a horse? – No, I have ___ ridden one.",
+          "answers": [
+            "never"
+          ],
+          "distractors": [
+            "ever",
+            "yet",
+            "ago"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "This is the best pizza I have ___ eaten!",
+          "answers": [
+            "ever"
+          ],
+          "distractors": [
+            "never",
+            "yet",
+            "already"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_already_yet",
+      "group": "already_yet",
+      "label": "already / yet",
+      "explanation": {
+        "en": "already = sooner than you think (in yes-sentences): I've already finished. yet = until now (at the end of questions and no-sentences): Have you finished yet? I haven't finished yet.",
+        "de": "already = schon (in bejahten Sätzen): I've already finished. yet = schon / noch (am Satzende, in Fragen und verneinten Sätzen): Have you finished yet? I haven't finished yet.",
+        "es": "already = ya (en frases afirmativas): I've already finished. yet = ya / todavía (al final, en preguntas y negaciones): Have you finished yet? I haven't finished yet."
+      },
+      "examples": [
+        {
+          "sentence": "I haven't finished my book ___.",
+          "answers": [
+            "yet"
+          ],
+          "distractors": [
+            "ever",
+            "never",
+            "ago"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Have you done your homework ___?",
+          "answers": [
+            "yet"
+          ],
+          "distractors": [
+            "ever",
+            "never",
+            "ago"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Has the bus come ___?",
+          "answers": [
+            "yet"
+          ],
+          "distractors": [
+            "ever",
+            "never",
+            "ago"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Let's go! I've ___ packed my bag.",
+          "answers": [
+            "already"
+          ],
+          "distractors": [
+            "yet",
+            "ever",
+            "ago"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Is Sam still doing his homework? – No, he has ___ finished it.",
+          "answers": [
+            "already"
+          ],
+          "distractors": [
+            "yet",
+            "ever",
+            "still"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We can't eat. Dad hasn't cooked dinner ___.",
+          "answers": [
+            "yet"
+          ],
+          "distractors": [
+            "ever",
+            "ago",
+            "still"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Mia has ___ read this book twice. She loves it.",
+          "answers": [
+            "already"
+          ],
+          "distractors": [
+            "yet",
+            "ever",
+            "ago"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_negative",
+      "group": "negative",
+      "label": "haven't / hasn't",
+      "explanation": {
+        "en": "No: haven't / hasn't + 3rd form. I haven't seen it. She hasn't called (not 'didn't called').",
+        "de": "Verneinung: haven't / hasn't + 3. Form. I haven't seen it. She hasn't called (nicht 'didn't called').",
+        "es": "Negación: haven't / hasn't + participio. I haven't seen it. She hasn't called (no 'didn't called')."
+      },
+      "examples": [
+        {
+          "sentence": "She ___ called me yet.",
+          "answers": [
+            "hasn't",
+            "has not"
+          ],
+          "distractors": [
+            "haven't",
+            "didn't",
+            "doesn't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We ___ finished the game yet.",
+          "answers": [
+            "haven't",
+            "have not"
+          ],
+          "distractors": [
+            "hasn't",
+            "didn't",
+            "aren't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My friends ___ seen the new film yet.",
+          "answers": [
+            "haven't",
+            "have not"
+          ],
+          "distractors": [
+            "hasn't",
+            "didn't",
+            "don't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I'm hungry. I ___ eaten anything today.",
+          "answers": [
+            "haven't",
+            "have not"
+          ],
+          "distractors": [
+            "hasn't",
+            "didn't",
+            "don't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Max ___ done his homework, so he can't play.",
+          "answers": [
+            "hasn't",
+            "has not"
+          ],
+          "distractors": [
+            "haven't",
+            "didn't",
+            "doesn't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I ___ seen my cousin for a year.",
+          "answers": [
+            "haven't",
+            "have not"
+          ],
+          "distractors": [
+            "hasn't",
+            "didn't",
+            "don't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My brother ___ cleaned his room for weeks!",
+          "answers": [
+            "hasn't",
+            "has not"
+          ],
+          "distractors": [
+            "haven't",
+            "didn't",
+            "isn't"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_questions",
+      "group": "question",
+      "label": "Have you …? / Has she …?",
+      "explanation": {
+        "en": "Questions: Have/Has + person + 3rd form? Have you ever …? Has she finished? Short answers: Yes, I have. / No, she hasn't.",
+        "de": "Fragen: Have/Has + Person + 3. Form? Have you ever …? Has she finished? Kurzantworten: Yes, I have. / No, she hasn't.",
+        "es": "Preguntas: Have/Has + persona + participio? Have you ever …? Has she finished? Respuestas cortas: Yes, I have. / No, she hasn't."
+      },
+      "examples": [
+        {
+          "sentence": "___ you ever ridden a horse?",
+          "answers": [
+            "Have"
+          ],
+          "distractors": [
+            "Did",
+            "Has",
+            "Are"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ your brother finished school yet?",
+          "answers": [
+            "Has"
+          ],
+          "distractors": [
+            "Have",
+            "Did",
+            "Is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ they ever seen snow?",
+          "answers": [
+            "Have"
+          ],
+          "distractors": [
+            "Has",
+            "Did",
+            "Are"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "What ___ you done with my pen?",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "did",
+            "are"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Have you seen my keys? – Yes, I ___.",
+          "answers": [
+            "have"
+          ],
+          "distractors": [
+            "has",
+            "am",
+            "do"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Has the film started yet? – Yes, it ___.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "is",
+            "did"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Has Lisa ever been to Spain? – No, she ___.",
+          "answers": [
+            "hasn't",
+            "has not"
+          ],
+          "distractors": [
+            "haven't",
+            "isn't",
+            "doesn't"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "pf_been_to",
+      "group": "been",
+      "label": "have been to …",
+      "explanation": {
+        "en": "To say you have visited a place: have/has been to … I have been to Spain three times.",
+        "de": "Wenn du an einem Ort warst: have/has been to … I have been to Spain three times.",
+        "es": "Para decir que has visitado un lugar: have/has been to … I have been to Spain three times."
+      },
+      "examples": [
+        {
+          "sentence": "Have you ever ___ to London?",
+          "answers": [
+            "been"
+          ],
+          "distractors": [
+            "was",
+            "went",
+            "be"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I've ___ to Spain three times.",
+          "answers": [
+            "been"
+          ],
+          "distractors": [
+            "was",
+            "went",
+            "be"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ you ever been to a zoo?",
+          "answers": [
+            "Have"
+          ],
+          "distractors": [
+            "Did",
+            "Has",
+            "Are"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My best friend has ___ to Japan!",
+          "answers": [
+            "been"
+          ],
+          "distractors": [
+            "was",
+            "went",
+            "be"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "pf_since_for",
+      "group": "since_for",
+      "label": "since / for",
+      "explanation": {
+        "en": "since + a point in time (since 2019, since Monday); for + a length of time (for two years, for a week).",
+        "de": "since + Zeitpunkt (since 2019, since Monday); for + Zeitraum (for two years, for a week). Auf Deutsch heißt beides oft 'seit'.",
+        "es": "since + un momento (since 2019, since Monday); for + un período (for two years, for a week). En español suele ser 'desde' o 'desde hace'."
+      },
+      "examples": [
+        {
+          "sentence": "We have lived here ___ 2019.",
+          "answers": [
+            "since"
+          ],
+          "distractors": [
+            "for",
+            "ago",
+            "from"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I have had my bike ___ two years.",
+          "answers": [
+            "for"
+          ],
+          "distractors": [
+            "since",
+            "ago",
+            "from"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Lisa has been my friend ___ we were six.",
+          "answers": [
+            "since"
+          ],
+          "distractors": [
+            "for",
+            "ago",
+            "from"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

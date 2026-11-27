@@ -1,0 +1,861 @@
+{
+  "format": 2,
+  "id": "en_present_simple",
+  "learn_lang": "en",
+  "level": "A1",
+  "years": {
+    "de": "5",
+    "es": "Primaria–1º ESO"
+  },
+  "title": {
+    "en": "Simple present: he plays, does he play?",
+    "de": "Simple Present: he plays, does he play?",
+    "es": "Present simple: he plays, does he play?"
+  },
+  "status": "draft: written 2026-11-27, waiting for a native speaker's check",
+  "items": [
+    {
+      "id": "ps_he_s",
+      "group": "s",
+      "label": "I play → he plays",
+      "explanation": {
+        "en": "For he, she and it (one person or thing), add -s: I play → he plays, we like → she likes.",
+        "de": "Bei he, she und it (eine Person oder Sache) kommt ein -s dazu: I play → he plays. Merksatz: he, she, it – das s muss mit!",
+        "es": "Con he, she e it (una persona o cosa) se añade -s: I play → he plays, we like → she likes."
+      },
+      "examples": [
+        {
+          "sentence": "I play football. My brother ___ football too.",
+          "answers": [
+            "plays"
+          ],
+          "distractors": [
+            "play",
+            "is play",
+            "playing"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We like pizza. Our teacher ___ pizza too.",
+          "answers": [
+            "likes"
+          ],
+          "distractors": [
+            "like",
+            "is like",
+            "liking"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I speak German. My friend Lucía ___ Spanish.",
+          "answers": [
+            "speaks"
+          ],
+          "distractors": [
+            "speak",
+            "is speak",
+            "speaking"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My parents work in a hospital. My aunt ___ in a shop.",
+          "answers": [
+            "works"
+          ],
+          "distractors": [
+            "work",
+            "is work",
+            "working"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I run in the park every morning. My dog ___ with me.",
+          "answers": [
+            "runs"
+          ],
+          "distractors": [
+            "run",
+            "is run",
+            "running"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "You ride your bike to school. Emma ___ her bike to school too.",
+          "answers": [
+            "rides"
+          ],
+          "distractors": [
+            "ride",
+            "is ride",
+            "riding"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Most of my friends live in town, but Max ___ on a farm.",
+          "answers": [
+            "lives"
+          ],
+          "distractors": [
+            "live",
+            "is live",
+            "living"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Cats sleep a lot. My cat ___ about sixteen hours a day!",
+          "answers": [
+            "sleeps"
+          ],
+          "distractors": [
+            "sleep",
+            "is sleep",
+            "sleeping"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ps_spelling",
+      "group": "s",
+      "label": "watches, goes, flies",
+      "explanation": {
+        "en": "After -ch, -sh, -s, -x and -o, add -es: watch → watches, go → goes. A consonant + y becomes -ies: fly → flies.",
+        "de": "Nach -ch, -sh, -s, -x und -o kommt -es: watch → watches, go → goes. Mitlaut + y wird zu -ies: fly → flies.",
+        "es": "Después de -ch, -sh, -s, -x y -o se añade -es: watch → watches, go → goes. Consonante + y pasa a -ies: fly → flies."
+      },
+      "examples": [
+        {
+          "sentence": "I watch TV in the evening. My dad ___ the news.",
+          "answers": [
+            "watches"
+          ],
+          "distractors": [
+            "watchs",
+            "watch",
+            "watching"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I go to bed at nine. My sister ___ to bed at ten.",
+          "answers": [
+            "goes"
+          ],
+          "distractors": [
+            "gos",
+            "go",
+            "going"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "You do your homework at home. Sam ___ his homework in the library.",
+          "answers": [
+            "does"
+          ],
+          "distractors": [
+            "dos",
+            "do",
+            "doing"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I wash my hands before lunch. My little brother never ___ his hands!",
+          "answers": [
+            "washes"
+          ],
+          "distractors": [
+            "washs",
+            "wash",
+            "washing"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "We fly to Spain once a year. My uncle ___ there every month.",
+          "answers": [
+            "flies"
+          ],
+          "distractors": [
+            "flys",
+            "fly",
+            "flying"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I study in the afternoon. My brother ___ at night.",
+          "answers": [
+            "studies"
+          ],
+          "distractors": [
+            "studys",
+            "study",
+            "studying"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I fix my bike myself. My dad ___ cars.",
+          "answers": [
+            "fixes"
+          ],
+          "distractors": [
+            "fixs",
+            "fix",
+            "fixing"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I kiss my mum goodnight. My little sister ___ her goodnight too.",
+          "answers": [
+            "kisses"
+          ],
+          "distractors": [
+            "kisss",
+            "kiss",
+            "kissing"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ps_has",
+      "group": "s",
+      "label": "I have → she has",
+      "explanation": {
+        "en": "have changes for he, she and it: I have → she has (not 'haves').",
+        "de": "have wird bei he, she und it zu has: I have → she has (nicht 'haves').",
+        "es": "have cambia con he, she e it: I have → she has (no 'haves')."
+      },
+      "examples": [
+        {
+          "sentence": "I have a cat. My friend ___ a rabbit.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "haves",
+            "is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I have two brothers. Anna ___ one sister.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "haves",
+            "is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My grandparents have a big garden. My uncle ___ a small one.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "haves",
+            "is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Lions have big teeth. A mouse ___ very small teeth.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "haves",
+            "is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Spiders have eight legs. An ant ___ six.",
+          "answers": [
+            "has"
+          ],
+          "distractors": [
+            "have",
+            "haves",
+            "is"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ps_dont_doesnt",
+      "group": "negative",
+      "label": "don't / doesn't",
+      "explanation": {
+        "en": "No in the present: I/you/we/they don't, he/she/it doesn't. Then the normal verb: She doesn't like it.",
+        "de": "Verneinung: I/you/we/they don't, he/she/it doesn't. Danach die Grundform: She doesn't like it (nicht 'doesn't likes').",
+        "es": "Negación: I/you/we/they don't; he/she/it doesn't. Después, el verbo en forma base: She doesn't like it (no 'doesn't likes')."
+      },
+      "examples": [
+        {
+          "sentence": "I like spiders, but my mum ___ like them.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We ___ go to school on Sundays.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My cat ___ eat carrots.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Tom likes apples, but he ___ like bananas.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Tom and Ana ___ play the piano. They play the guitar.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "It ___ snow much here in winter.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I ___ know the answer. Can you help me?",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "doesn't",
+            "am not",
+            "not"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ps_doesnt_verb",
+      "group": "negative",
+      "label": "doesn't + verb",
+      "explanation": {
+        "en": "After doesn't, the verb has no -s: He doesn't like fish (not 'doesn't likes').",
+        "de": "Nach doesn't hat das Verb kein -s: He doesn't like fish (nicht 'doesn't likes'). Das -s steckt schon in does.",
+        "es": "Después de doesn't, el verbo va sin -s: He doesn't like fish (no 'doesn't likes')."
+      },
+      "examples": [
+        {
+          "sentence": "My brother doesn't ___ fish.",
+          "answers": [
+            "like"
+          ],
+          "distractors": [
+            "likes",
+            "liking",
+            "liked"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "She doesn't ___ to school by bus. She walks.",
+          "answers": [
+            "go"
+          ],
+          "distractors": [
+            "goes",
+            "going",
+            "went"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Dad doesn't ___ coffee. He drinks tea.",
+          "answers": [
+            "drink"
+          ],
+          "distractors": [
+            "drinks",
+            "drinking",
+            "drank"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Mia doesn't ___ TV in the morning. She reads.",
+          "answers": [
+            "watch"
+          ],
+          "distractors": [
+            "watches",
+            "watching",
+            "watched"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Our teacher doesn't ___ us homework on Fridays.",
+          "answers": [
+            "give",
+            "set"
+          ],
+          "distractors": [
+            "gives",
+            "giving",
+            "gave"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "My phone doesn't ___ any more. I need a new one.",
+          "answers": [
+            "work"
+          ],
+          "distractors": [
+            "works",
+            "working",
+            "worked"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ps_not_am",
+      "group": "negative",
+      "label": "I don't like (not 'I am not like')",
+      "explanation": {
+        "en": "With normal verbs, say no with don't/doesn't, not with am/is/are: I don't like it (not 'I am not like it').",
+        "de": "Bei normalen Verben verneinst du mit don't/doesn't, nicht mit am/is/are: I don't like it (nicht 'I am not like it').",
+        "es": "Con los verbos normales se niega con don't/doesn't, no con am/is/are: I don't like it (no 'I am not like it')."
+      },
+      "examples": [
+        {
+          "sentence": "I ___ like horror films. They are too scary.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "am not",
+            "doesn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My sister ___ eat meat.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "isn't",
+            "don't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We ___ live in a big city. We live in a small village.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "aren't",
+            "doesn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ you play an instrument?",
+          "answers": [
+            "Do"
+          ],
+          "distractors": [
+            "Are",
+            "Does",
+            "Is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ he go to your school?",
+          "answers": [
+            "Does"
+          ],
+          "distractors": [
+            "Is",
+            "Do",
+            "Has"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ps_do_does",
+      "group": "question",
+      "label": "Do … ? / Does … ?",
+      "explanation": {
+        "en": "Questions: Do I/you/we/they …? Does he/she/it …? Then the normal verb: Does she play? (not 'Does she plays?' or 'Is she play?').",
+        "de": "Fragen: Do I/you/we/they …? Does he/she/it …? Danach die Grundform: Does she play? (nicht 'Does she plays?' oder 'Is she play?').",
+        "es": "Preguntas: Do I/you/we/they …? Does he/she/it …? Después, el verbo en forma base: Does she play? (no 'Does she plays?' ni 'Is she play?')."
+      },
+      "examples": [
+        {
+          "sentence": "___ you like football?",
+          "answers": [
+            "Do"
+          ],
+          "distractors": [
+            "Does",
+            "Are",
+            "Is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ your mum work here?",
+          "answers": [
+            "Does"
+          ],
+          "distractors": [
+            "Do",
+            "Is",
+            "Has"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ Ben speak English?",
+          "answers": [
+            "Does"
+          ],
+          "distractors": [
+            "Do",
+            "Is",
+            "Has"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ your friends play video games?",
+          "answers": [
+            "Do"
+          ],
+          "distractors": [
+            "Does",
+            "Are",
+            "Is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ it rain a lot in Scotland?",
+          "answers": [
+            "Does"
+          ],
+          "distractors": [
+            "Do",
+            "Is",
+            "Has"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Where ___ your grandparents live?",
+          "answers": [
+            "do"
+          ],
+          "distractors": [
+            "does",
+            "are",
+            "is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "What time ___ the film start?",
+          "answers": [
+            "does"
+          ],
+          "distractors": [
+            "do",
+            "is",
+            "has"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "How ___ you get to school?",
+          "answers": [
+            "do"
+          ],
+          "distractors": [
+            "does",
+            "are",
+            "is"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "ps_question_verb",
+      "group": "question",
+      "label": "Does … + verb?",
+      "explanation": {
+        "en": "In a question with does, the verb has no -s: Does he live here? (not 'Does he lives here?').",
+        "de": "In einer Frage mit does hat das Verb kein -s: Does he live here? (nicht 'Does he lives here?').",
+        "es": "En una pregunta con does, el verbo va sin -s: Does he live here? (no 'Does he lives here?')."
+      },
+      "examples": [
+        {
+          "sentence": "Does your sister ___ the guitar?",
+          "answers": [
+            "play"
+          ],
+          "distractors": [
+            "plays",
+            "playing",
+            "played"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Does Leo ___ in Madrid?",
+          "answers": [
+            "live"
+          ],
+          "distractors": [
+            "lives",
+            "living",
+            "lived"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "What does Lisa ___ for breakfast?",
+          "answers": [
+            "eat",
+            "have"
+          ],
+          "distractors": [
+            "eats",
+            "eating",
+            "has"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Does the bus ___ near your house?",
+          "answers": [
+            "stop"
+          ],
+          "distractors": [
+            "stops",
+            "stopping",
+            "stopped"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Where does your dad ___? – In a bank.",
+          "answers": [
+            "work"
+          ],
+          "distractors": [
+            "works",
+            "working",
+            "worked"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Does it ___ a lot in London? – Yes, it rains a lot.",
+          "answers": [
+            "rain"
+          ],
+          "distractors": [
+            "rains",
+            "raining",
+            "rained"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "ps_short_answers",
+      "group": "question",
+      "label": "Yes, I do. / No, she doesn't.",
+      "explanation": {
+        "en": "Short answers use do/does again: Do you …? – Yes, I do. Does she …? – No, she doesn't.",
+        "de": "Kurzantworten nehmen wieder do/does: Do you …? – Yes, I do. Does she …? – No, she doesn't.",
+        "es": "Las respuestas cortas repiten do/does: Do you …? – Yes, I do. Does she …? – No, she doesn't."
+      },
+      "examples": [
+        {
+          "sentence": "Do you have a pet? – Yes, I ___.",
+          "answers": [
+            "do"
+          ],
+          "distractors": [
+            "does",
+            "am",
+            "is"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Does your dad cook? – No, he ___.",
+          "answers": [
+            "doesn't",
+            "does not"
+          ],
+          "distractors": [
+            "don't",
+            "isn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Does Emma like cats? – Yes, she ___.",
+          "answers": [
+            "does"
+          ],
+          "distractors": [
+            "do",
+            "is",
+            "likes"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Do you like broccoli? – No, I ___.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "doesn't",
+            "am not",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Do your cousins live near you? – No, they ___.",
+          "answers": [
+            "don't",
+            "do not"
+          ],
+          "distractors": [
+            "doesn't",
+            "aren't",
+            "not"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Do you and your sister play tennis? – Yes, we ___.",
+          "answers": [
+            "do"
+          ],
+          "distractors": [
+            "does",
+            "are",
+            "play"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Does this bus go to the station? – Yes, it ___.",
+          "answers": [
+            "does"
+          ],
+          "distractors": [
+            "do",
+            "is",
+            "goes"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

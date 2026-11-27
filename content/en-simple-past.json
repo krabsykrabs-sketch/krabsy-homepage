@@ -1,0 +1,915 @@
+{
+  "format": 2,
+  "id": "en_simple_past",
+  "learn_lang": "en",
+  "level": "A1",
+  "years": {
+    "de": "5-6",
+    "es": "1º ESO"
+  },
+  "title": {
+    "en": "Simple past: I walked, I went",
+    "de": "Simple Past: I walked, I went",
+    "es": "Past simple: I walked, I went"
+  },
+  "status": "draft: written 2026-11-27, waiting for a native speaker's check",
+  "items": [
+    {
+      "id": "sp_regular",
+      "group": "regular",
+      "label": "walk → walked",
+      "explanation": {
+        "en": "Yesterday, last week, two days ago: it's finished. Regular verbs add -ed: walk → walked, play → played. The same for I, you, he, we and they.",
+        "de": "Yesterday, last week, two days ago: Es ist vorbei. Regelmäßige Verben bekommen -ed: walk → walked, play → played. Das ist das Simple Past, für alle Personen gleich.",
+        "es": "Yesterday, last week, two days ago: ya pasó. Los verbos regulares añaden -ed: walk → walked, play → played. Es el past simple, igual para todas las personas."
+      },
+      "examples": [
+        {
+          "sentence": "I walk to school every day. Yesterday I ___ to school too.",
+          "answers": [
+            "walked"
+          ],
+          "distractors": [
+            "walk",
+            "walks",
+            "walking"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We play football every Saturday. Last Saturday we ___ in the rain.",
+          "answers": [
+            "played"
+          ],
+          "distractors": [
+            "play",
+            "plays",
+            "playing"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Mia watches TV after school. Yesterday she ___ a funny film.",
+          "answers": [
+            "watched"
+          ],
+          "distractors": [
+            "watches",
+            "watch",
+            "watching"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My dad cleans the car every Sunday. Last Sunday I ___ it with him.",
+          "answers": [
+            "cleaned"
+          ],
+          "distractors": [
+            "clean",
+            "cleans",
+            "cleaning"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I visit my grandma every month. Two weeks ago I ___ her again.",
+          "answers": [
+            "visited"
+          ],
+          "distractors": [
+            "visit",
+            "visitted",
+            "visits"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We often help our neighbour. Last week we ___ him in his garden.",
+          "answers": [
+            "helped"
+          ],
+          "distractors": [
+            "help",
+            "helps",
+            "helping"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "sp_spelling",
+      "group": "regular",
+      "label": "stop → stopped, study → studied",
+      "explanation": {
+        "en": "Some verbs change their spelling: stop → stopped (double letter), study → studied (y becomes ied), live → lived (only -d).",
+        "de": "Manche Verben ändern die Schreibung: stop → stopped (Buchstabe doppelt), study → studied (y wird zu ied), live → lived (nur -d).",
+        "es": "Algunos verbos cambian al escribirse: stop → stopped (letra doble), study → studied (la y pasa a ied), live → lived (solo -d)."
+      },
+      "examples": [
+        {
+          "sentence": "The bus stops at our school every morning. Yesterday it ___ at the wrong place.",
+          "answers": [
+            "stopped"
+          ],
+          "distractors": [
+            "stoped",
+            "stops",
+            "stop"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I study for tests every week. Last night I ___ for two hours.",
+          "answers": [
+            "studied"
+          ],
+          "distractors": [
+            "studyed",
+            "studies",
+            "study"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My family lives in Berlin now. Before that, we ___ in Hamburg.",
+          "answers": [
+            "lived"
+          ],
+          "distractors": [
+            "live",
+            "liveed",
+            "lives"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I always try my best. In the race yesterday I ___ really hard.",
+          "answers": [
+            "tried"
+          ],
+          "distractors": [
+            "tryed",
+            "tries",
+            "try"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Ben drops his pen all the time. In maths yesterday he ___ it three times!",
+          "answers": [
+            "dropped"
+          ],
+          "distractors": [
+            "droped",
+            "drops",
+            "drop"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "I carry my little brother's bag every day. Yesterday I ___ it all the way home.",
+          "answers": [
+            "carried"
+          ],
+          "distractors": [
+            "carryed",
+            "carries",
+            "carry"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_irregular_basic",
+      "group": "irregular",
+      "label": "go → went, see → saw",
+      "explanation": {
+        "en": "Some verbs have their own past form. Learn them by heart: go → went, see → saw, have → had, eat → ate. Never 'goed'!",
+        "de": "Unregelmäßige Verben haben eine eigene Vergangenheitsform. Die lernst du auswendig: go → went, see → saw, have → had, eat → ate. Nie 'goed'!",
+        "es": "Los verbos irregulares tienen su propia forma de pasado. Apréndela de memoria: go → went, see → saw, have → had, eat → ate. ¡Nunca 'goed'!"
+      },
+      "examples": [
+        {
+          "sentence": "We go to the beach every summer. Last summer we ___ to Spain.",
+          "answers": [
+            "went"
+          ],
+          "distractors": [
+            "goed",
+            "go",
+            "gone"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I see my cousins every Christmas. Last Christmas I ___ them at my aunt's house.",
+          "answers": [
+            "saw"
+          ],
+          "distractors": [
+            "seed",
+            "see",
+            "seen"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Tom has a dog now. Two years ago he ___ a cat.",
+          "answers": [
+            "had"
+          ],
+          "distractors": [
+            "haved",
+            "has",
+            "have"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I usually eat cereal for breakfast. Yesterday I ___ pancakes.",
+          "answers": [
+            "ate"
+          ],
+          "distractors": [
+            "eated",
+            "eat",
+            "eaten"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My sister drinks milk every morning. Yesterday she ___ orange juice.",
+          "answers": [
+            "drank"
+          ],
+          "distractors": [
+            "drinked",
+            "drinks",
+            "drunk"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I get up at seven on school days. Last Saturday I ___ up at ten!",
+          "answers": [
+            "got"
+          ],
+          "distractors": [
+            "getted",
+            "get",
+            "gets"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "sp_irregular_more",
+      "group": "irregular",
+      "label": "buy → bought, take → took",
+      "explanation": {
+        "en": "More verbs with their own past form: buy → bought, make → made, come → came, take → took, write → wrote, win → won.",
+        "de": "Noch mehr Verben mit eigener Vergangenheitsform: buy → bought, make → made, come → came, take → took, write → wrote, win → won.",
+        "es": "Más verbos con su propia forma de pasado: buy → bought, make → made, come → came, take → took, write → wrote, win → won."
+      },
+      "examples": [
+        {
+          "sentence": "My mum buys bread every day. Yesterday she ___ a cake too.",
+          "answers": [
+            "bought"
+          ],
+          "distractors": [
+            "buyed",
+            "buys",
+            "buy"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Grandpa makes pancakes on Sundays. Last Sunday he ___ twenty!",
+          "answers": [
+            "made"
+          ],
+          "distractors": [
+            "maked",
+            "makes",
+            "make"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Leo comes to my house on Fridays. Last Friday he ___ with his new bike.",
+          "answers": [
+            "came"
+          ],
+          "distractors": [
+            "comed",
+            "comes",
+            "come"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I take the bus to school. Yesterday I ___ the train.",
+          "answers": [
+            "took"
+          ],
+          "distractors": [
+            "taked",
+            "takes",
+            "taken"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Lucy writes to her pen friend every month. Last month she ___ a very long letter.",
+          "answers": [
+            "wrote"
+          ],
+          "distractors": [
+            "writed",
+            "writes",
+            "written"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Our team usually wins. But last week the other team ___.",
+          "answers": [
+            "won"
+          ],
+          "distractors": [
+            "winned",
+            "wins",
+            "win"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_irregular_tricky",
+      "group": "irregular",
+      "label": "run → ran, sit → sat",
+      "explanation": {
+        "en": "Careful with these: run → ran, swim → swam, sleep → slept, sit → sat, forget → forgot, find → found.",
+        "de": "Vorsicht bei diesen: run → ran, swim → swam, sleep → slept, sit → sat, forget → forgot, find → found.",
+        "es": "Cuidado con estos: run → ran, swim → swam, sleep → slept, sit → sat, forget → forgot, find → found."
+      },
+      "examples": [
+        {
+          "sentence": "I run in the park every morning. Yesterday I ___ five kilometres.",
+          "answers": [
+            "ran"
+          ],
+          "distractors": [
+            "runned",
+            "run",
+            "runs"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My dog sleeps a lot. Yesterday he ___ all afternoon.",
+          "answers": [
+            "slept"
+          ],
+          "distractors": [
+            "sleeped",
+            "sleeps",
+            "sleep"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I usually sit next to Ana. Yesterday I ___ next to Jonas.",
+          "answers": [
+            "sat"
+          ],
+          "distractors": [
+            "sitted",
+            "sit",
+            "sits"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We swim in the lake every summer. Last July we ___ there every day.",
+          "answers": [
+            "swam"
+          ],
+          "distractors": [
+            "swimmed",
+            "swum",
+            "swim"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Dad often forgets his keys. This morning he ___ them again!",
+          "answers": [
+            "forgot"
+          ],
+          "distractors": [
+            "forgetted",
+            "forgets",
+            "forget"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Sometimes I find money in my pockets. Last week I ___ five euros!",
+          "answers": [
+            "found"
+          ],
+          "distractors": [
+            "finded",
+            "find",
+            "finds"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_was_were",
+      "group": "be",
+      "label": "was / were",
+      "explanation": {
+        "en": "The past of am and is is was. The past of are is were: I was, he/she/it was; you/we/they were.",
+        "de": "Die Vergangenheit von am und is ist was, von are ist were: I was, he/she/it was; you/we/they were.",
+        "es": "El pasado de am e is es was; el de are es were: I was, he/she/it was; you/we/they were."
+      },
+      "examples": [
+        {
+          "sentence": "Today I am at home. Yesterday I ___ at school.",
+          "answers": [
+            "was"
+          ],
+          "distractors": [
+            "were",
+            "am",
+            "is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My friends are happy today. Yesterday they ___ sad.",
+          "answers": [
+            "were"
+          ],
+          "distractors": [
+            "was",
+            "are",
+            "is"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "It is warm today, but it ___ very cold last week.",
+          "answers": [
+            "was"
+          ],
+          "distractors": [
+            "were",
+            "is",
+            "be"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "We ___ in London last summer. It was great!",
+          "answers": [
+            "were"
+          ],
+          "distractors": [
+            "was",
+            "are",
+            "be"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My little brother is eight now. He ___ a baby in 2018.",
+          "answers": [
+            "was"
+          ],
+          "distractors": [
+            "were",
+            "is",
+            "be"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Tom and I ___ late for school yesterday.",
+          "answers": [
+            "were"
+          ],
+          "distractors": [
+            "was",
+            "are",
+            "is"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "sp_wasnt_werent",
+      "group": "be",
+      "label": "wasn't / weren't",
+      "explanation": {
+        "en": "No in the past with be: wasn't (was not) and weren't (were not). He wasn't at home. They weren't late.",
+        "de": "Verneinung mit be in der Vergangenheit: wasn't (was not) und weren't (were not). He wasn't at home. They weren't late.",
+        "es": "Negación de be en pasado: wasn't (was not) y weren't (were not). He wasn't at home. They weren't late."
+      },
+      "examples": [
+        {
+          "sentence": "My brother was ill, so he ___ at school yesterday.",
+          "answers": [
+            "wasn't",
+            "was not"
+          ],
+          "distractors": [
+            "weren't",
+            "isn't",
+            "didn't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My parents ___ at home last night. They were at the cinema.",
+          "answers": [
+            "weren't",
+            "were not"
+          ],
+          "distractors": [
+            "wasn't",
+            "aren't",
+            "didn't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "We saw a film last night, but it ___ very good.",
+          "answers": [
+            "wasn't",
+            "was not"
+          ],
+          "distractors": [
+            "weren't",
+            "didn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "It ___ sunny yesterday, so we stayed at home.",
+          "answers": [
+            "wasn't",
+            "was not"
+          ],
+          "distractors": [
+            "weren't",
+            "isn't",
+            "didn't"
+          ],
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "id": "sp_was_were_questions",
+      "group": "be",
+      "label": "Was … ? / Were … ?",
+      "explanation": {
+        "en": "Questions with be in the past: Was he …? Were you …? Short answers: Yes, I was. / No, they weren't.",
+        "de": "Fragen mit be in der Vergangenheit: Was he …? Were you …? Kurzantworten: Yes, I was. / No, they weren't.",
+        "es": "Preguntas con be en pasado: Was he …? Were you …? Respuestas cortas: Yes, I was. / No, they weren't."
+      },
+      "examples": [
+        {
+          "sentence": "___ you at the party last night?",
+          "answers": [
+            "Were"
+          ],
+          "distractors": [
+            "Was",
+            "Are",
+            "Did"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ your sister at school yesterday?",
+          "answers": [
+            "Was"
+          ],
+          "distractors": [
+            "Were",
+            "Is",
+            "Did"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Where ___ you last weekend?",
+          "answers": [
+            "were"
+          ],
+          "distractors": [
+            "was",
+            "are",
+            "did"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "___ the children tired after the school trip last Friday?",
+          "answers": [
+            "Were"
+          ],
+          "distractors": [
+            "Was",
+            "Did",
+            "Are"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Was the test hard? – Yes, it ___.",
+          "answers": [
+            "was"
+          ],
+          "distractors": [
+            "were",
+            "did",
+            "is"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_didnt",
+      "group": "negative",
+      "label": "didn't + verb",
+      "explanation": {
+        "en": "No in the past: didn't + the normal verb. I didn't go, she didn't play (not 'didn't went').",
+        "de": "Verneinung in der Vergangenheit: didn't + Grundform. I didn't go, she didn't play (nicht 'didn't went').",
+        "es": "Negación en pasado: didn't + verbo en forma base. I didn't go, she didn't play (no 'didn't went')."
+      },
+      "examples": [
+        {
+          "sentence": "We ___ go to school last Monday. It was a holiday.",
+          "answers": [
+            "didn't",
+            "did not"
+          ],
+          "distractors": [
+            "don't",
+            "weren't",
+            "not"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "I usually eat pizza on Fridays, but last Friday I ___ eat it.",
+          "answers": [
+            "didn't",
+            "did not"
+          ],
+          "distractors": [
+            "don't",
+            "wasn't",
+            "not"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Tom ___ come to my party last week. He was ill.",
+          "answers": [
+            "didn't",
+            "did not"
+          ],
+          "distractors": [
+            "doesn't",
+            "wasn't",
+            "don't"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Yesterday I played tennis, but I didn't ___ football.",
+          "answers": [
+            "play"
+          ],
+          "distractors": [
+            "played",
+            "plays",
+            "playing"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Sara went to the shop, but she didn't ___ any milk.",
+          "answers": [
+            "buy"
+          ],
+          "distractors": [
+            "bought",
+            "buys",
+            "buying"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "My brother didn't ___ his bike yesterday. He walked.",
+          "answers": [
+            "ride"
+          ],
+          "distractors": [
+            "rode",
+            "rides",
+            "ridden"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_did_questions",
+      "group": "question",
+      "label": "Did … + verb?",
+      "explanation": {
+        "en": "Questions in the past: Did + person + normal verb. Did you see …? Did she go …? (not 'Did she went?'). Short answers: Yes, I did. / No, he didn't.",
+        "de": "Fragen in der Vergangenheit: Did + Person + Grundform. Did you see …? Did she go …? (nicht 'Did she went?'). Kurzantworten: Yes, I did. / No, he didn't.",
+        "es": "Preguntas en pasado: Did + persona + verbo en forma base. Did you see …? Did she go …? (no 'Did she went?'). Respuestas cortas: Yes, I did. / No, he didn't."
+      },
+      "examples": [
+        {
+          "sentence": "___ you see the match last night?",
+          "answers": [
+            "Did"
+          ],
+          "distractors": [
+            "Do",
+            "Were",
+            "Was"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "___ your parents like the film yesterday?",
+          "answers": [
+            "Did"
+          ],
+          "distractors": [
+            "Do",
+            "Were",
+            "Was"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "Did you ___ your grandma last weekend?",
+          "answers": [
+            "visit"
+          ],
+          "distractors": [
+            "visited",
+            "visits",
+            "visiting"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Did she ___ the bus to school this morning?",
+          "answers": [
+            "take"
+          ],
+          "distractors": [
+            "took",
+            "takes",
+            "taken"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Where ___ you go on holiday last summer?",
+          "answers": [
+            "did"
+          ],
+          "distractors": [
+            "do",
+            "were",
+            "went"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "What ___ you eat for lunch yesterday?",
+          "answers": [
+            "did"
+          ],
+          "distractors": [
+            "do",
+            "were",
+            "have"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Did you like the film? – Yes, I ___.",
+          "answers": [
+            "did"
+          ],
+          "distractors": [
+            "do",
+            "was",
+            "liked"
+          ],
+          "difficulty": 3
+        },
+        {
+          "sentence": "Did Ben win the race? – No, he ___.",
+          "answers": [
+            "didn't",
+            "did not"
+          ],
+          "distractors": [
+            "doesn't",
+            "wasn't",
+            "don't"
+          ],
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "id": "sp_time_words",
+      "group": "time",
+      "label": "yesterday, last …, … ago",
+      "explanation": {
+        "en": "Time words for the past: yesterday, last night, last week, two days ago. 'ago' comes after the time: two days ago.",
+        "de": "Signalwörter für die Vergangenheit: yesterday, last night, last week, two days ago. 'ago' steht hinten: two days ago (auf Deutsch 'vor zwei Tagen', aber nicht 'before two days').",
+        "es": "Palabras de tiempo del pasado: yesterday, last night, last week, two days ago. 'ago' va detrás: two days ago (hace dos días)."
+      },
+      "examples": [
+        {
+          "sentence": "We went to Italy ___ summer.",
+          "answers": [
+            "last",
+            "this"
+          ],
+          "distractors": [
+            "ago",
+            "yesterday",
+            "since"
+          ],
+          "difficulty": 1
+        },
+        {
+          "sentence": "My brother was born ten years ___.",
+          "answers": [
+            "ago"
+          ],
+          "distractors": [
+            "last",
+            "since",
+            "past"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "I phoned Grandma ___ night.",
+          "answers": [
+            "last"
+          ],
+          "distractors": [
+            "yesterday",
+            "ago",
+            "since"
+          ],
+          "difficulty": 2
+        },
+        {
+          "sentence": "Today is Friday. I saw Tom on Wednesday, two days ___.",
+          "answers": [
+            "ago"
+          ],
+          "distractors": [
+            "last",
+            "since",
+            "past"
+          ],
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

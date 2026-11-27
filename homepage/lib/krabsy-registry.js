@@ -163,5 +163,49 @@ export const TOPICS = {
     "slug": {
       "en": "spanish/tener"
     }
+  },
+  "en_simple_past": {
+    "subject": "english",
+    "learn": "en",
+    "level": "A1",
+    "shapes": [
+      "quiz"
+    ],
+    "file": "en-simple-past.json",
+    "status": "draft",
+    "slug": {}
+  },
+  "en_present_simple": {
+    "subject": "english",
+    "learn": "en",
+    "level": "A1",
+    "shapes": [
+      "quiz"
+    ],
+    "file": "en-present-simple.json",
+    "status": "draft",
+    "slug": {}
+  },
+  "en_present_progressive": {
+    "subject": "english",
+    "learn": "en",
+    "level": "A1",
+    "shapes": [
+      "quiz"
+    ],
+    "file": "en-present-progressive.json",
+    "status": "draft",
+    "slug": {}
+  },
+  "en_present_perfect": {
+    "subject": "english",
+    "learn": "en",
+    "level": "A2",
+    "shapes": [
+      "quiz"
+    ],
+    "file": "en-present-perfect.json",
+    "status": "draft",
+    "slug": {}
   }
 };

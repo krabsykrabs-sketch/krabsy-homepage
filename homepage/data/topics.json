@@ -160,5 +160,89 @@
       "sprint":        { "en": "sprint" },
       "fill-the-gap":  { "en": "fill-the-gap" }
     }
+  },
+  "en_simple_past": {
+    "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-simple-past.json",
+    "display_name": {
+      "de": "Simple Past: I walked, I went",
+      "es": "Past simple: I walked, I went"
+    },
+    "short_name": {
+      "de": "Simple Past",
+      "es": "Past simple"
+    },
+    "status": "draft",
+    "description": {
+      "de": "Erzähl, was gestern passiert ist: I walked, I went, I didn't go, Did you see …? Dazu was / were und yesterday, last week, two days ago.",
+      "es": "Cuenta lo que pasó ayer: I walked, I went, I didn't go, Did you see …? Además was / were y yesterday, last week, two days ago."
+    },
+    "card_stats": {
+      "de": "11 Muster · 63 Sätze",
+      "es": "11 patrones · 63 frases"
+    },
+    "thumbnail": "/thumbnails/banner.png"
+  },
+  "en_present_simple": {
+    "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-simple.json",
+    "display_name": {
+      "de": "Simple Present: he plays, does he play?",
+      "es": "Present simple: he plays, does he play?"
+    },
+    "short_name": {
+      "de": "Simple Present",
+      "es": "Present simple"
+    },
+    "status": "draft",
+    "description": {
+      "de": "Was jemand immer oder oft tut: he plays, she doesn't like, Do you …? Does he …? Mit dem -s bei he, she, it.",
+      "es": "Lo que alguien hace siempre o a menudo: he plays, she doesn't like, Do you …? Does he …? Con la -s de he, she, it."
+    },
+    "card_stats": {
+      "de": "9 Muster · 60 Sätze",
+      "es": "9 patrones · 60 frases"
+    },
+    "thumbnail": "/thumbnails/banner.png"
+  },
+  "en_present_progressive": {
+    "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-progressive.json",
+    "display_name": {
+      "de": "Present Progressive: I am playing",
+      "es": "Present continuous: I am playing"
+    },
+    "short_name": {
+      "de": "Present Progressive",
+      "es": "Present continuous"
+    },
+    "status": "draft",
+    "description": {
+      "de": "Was gerade jetzt passiert: Look! She is sleeping. Und wann es he plays heißt: now oder every day?",
+      "es": "Lo que pasa ahora mismo: Look! She is sleeping. ¿Y cuándo es he plays? ¿now o every day?"
+    },
+    "card_stats": {
+      "de": "9 Muster · 60 Sätze",
+      "es": "9 patrones · 60 frases"
+    },
+    "thumbnail": "/thumbnails/banner.png"
+  },
+  "en_present_perfect": {
+    "subject": "english", "level": "A2", "shapes": ["quiz"], "file": "en-present-perfect.json",
+    "display_name": {
+      "de": "Present Perfect: I have seen",
+      "es": "Present perfect: I have seen"
+    },
+    "short_name": {
+      "de": "Present Perfect",
+      "es": "Present perfect"
+    },
+    "status": "draft",
+    "description": {
+      "de": "have / has + 3. Form: I have never seen a snake. Mit ever, never, already, yet und ein bisschen since / for.",
+      "es": "have / has + participio: I have never seen a snake. Con ever, never, already, yet y un poco de since / for."
+    },
+    "card_stats": {
+      "de": "10 Muster · 60 Sätze",
+      "es": "10 patrones · 60 frases"
+    },
+    "thumbnail": "/thumbnails/banner.png"
   }
 }
