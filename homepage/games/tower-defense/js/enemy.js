@@ -99,6 +99,22 @@ export class Enemy {
     else                              this.facing = dy < 0 ? 'up'   : 'down';
   }
 
+  // Where this enemy will be in t seconds if nothing changes: it waits out a freeze or
+  // stun, then walks on along its road at its current speed. Used by the catapult and
+  // the cannon to aim ahead (a boulder flies up to ~0.7 s).
+  predictPosition(t) {
+    const wait = this.isFrozen ? Math.max(0, this.freezeTimer) : Math.max(0, this.stunTimer || 0, this.spawnTimer || 0);
+    let travel = Math.max(0, t - wait) * this.moveSpeed;
+    let x = this.position.x, y = this.position.y;
+    const wps = this.path.waypoints;
+    for (let i = this.currentWaypointIndex; travel > 0 && i < wps.length; i++) {
+      const dx = wps[i].x - x, dy = wps[i].y - y, d = Math.hypot(dx, dy);
+      if (d >= travel) { x += dx / d * travel; y += dy / d * travel; travel = 0; }
+      else { x = wps[i].x; y = wps[i].y; travel -= d; }
+    }
+    return { x, y };
+  }
+
   applyFreeze(duration, applyPermanentSlow) {
     if (this.spawnTimer > 0) return; // still rising out of the ground
     this.isFrozen = true;

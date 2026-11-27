@@ -124,8 +124,15 @@ export class Tower {
   }
 
   _fireCannon(state) {
-    // Snapshot target position at fire time. Projectile never re-aims.
-    const tp = { x: this.currentTarget.position.x, y: this.currentTarget.position.y };
+    // Aim ahead: where the target will be when the shot lands (owner: the catapult
+    // used to miss walking skeletons). Three refinements of the flight time are plenty.
+    // The projectile itself still flies straight to that point and never re-aims.
+    const target = this.currentTarget;
+    let tp = { x: target.position.x, y: target.position.y };
+    for (let i = 0; i < 3; i++) {
+      const flight = Math.hypot(tp.x - this.position.x, tp.y - this.position.y) / this.projectileSpeed;
+      tp = target.predictPosition(flight);
+    }
     state.projectiles.push(new Projectile({
       type: this.type,
       position: this.position,
