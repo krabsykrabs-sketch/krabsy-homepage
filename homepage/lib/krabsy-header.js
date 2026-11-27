@@ -346,6 +346,10 @@ export function guessReaderLang(langs = navigator.languages || [navigator.langua
 function mountLangHint(header, section) {
   try {
     if (localStorage.getItem(HINT_KEY)) return;
+    // Only where the server guessed: after the krabsy.com/ redirect. Links from search
+    // engines and teachers carry the right language (owner 2026-11-27).
+    const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (!nav || !(nav.redirectCount > 0)) return;
     const guess = guessReaderLang();
     if (!guess || guess === section.ui || !HINT[guess]) return;
     const target = SECTIONS.find((s) => s.ui === guess && s.subject === 'english');
