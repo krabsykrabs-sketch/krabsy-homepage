@@ -33,6 +33,24 @@ the reason to keep going, not the content. So:
 - **Short.** Levels of 3–5 minutes, so a game fits in the last 10–15
   minutes of a lesson.
 
+## Two kinds of pairs (owner 2026-11-27)
+
+Duo games work for **tutor + student** and for **two students** (siblings,
+friends at home), so children can also make progress without a tutor.
+
+| | Tutor + student | Two students |
+|---|---|---|
+| Where | in the live lesson (tutor clicks "Play together") | at home, from the game's page |
+| Devices | two devices over the live-lesson relay | **one device** (shared keyboard: WASD / arrows; on a tablet two touch zones) **or two devices** with a short room code / link (like the Quiz-Raum join), no accounts |
+| Questions | ~3 of 4 to the student | **shared fairly**: each player answers at their own objects; roles swap every level, so both do the puzzle role |
+| Level of questions | the student's level | **each player at their own level** (own smart mix), so an older and a younger sibling can play together |
+| What counts | only the student's answers | **each player's answers count for that player**: on two devices simply each device; on one device for the active person and the second player's chosen person (`krabsy_people`, "Who's playing?"), else only the active person |
+| Topic | the lesson's topic | chosen together on the start screen (or a teacher/tutor homework link) |
+| After the game | summary into the lesson note | a short "you two answered 41 questions" card; each child's answers go to their own profile and, if linked, their tutor/class |
+
+Rules that stay for both: every interaction is a question, wrong answers teach
+and never cost lives, a question every 20–30 s.
+
 ## First game: a co-op puzzle platformer
 
 Inspired by the **genre** of 1990s co-op puzzle platformers (several
@@ -128,16 +146,15 @@ counts as speaking practice in the tutor's lesson note.
 
 | Phase | What |
 |---|---|
-| **D1** | Prototype on the Verb Platformer engine, **local only**: side view, two roles on one keyboard (WASD / arrows), switches, doors, boxes, answer cards, one level of 3 rooms. Proves the fun and the question density. |
-| **D2** | Online through the live-lesson relay: tutor hosts, student joins from the lesson; both figures; summary into the lesson note. |
+| **D1** | Prototype on the Verb Platformer engine, **local only** (= already the two-siblings-on-one-device mode): side view, two roles on one keyboard (WASD / arrows), switches, doors, boxes, answer cards, one level of 3 rooms. Proves the fun and the question density. |
+| **D2** | Online: through the live-lesson relay (tutor hosts, student joins from the lesson; summary into the lesson note) and with a room code for two students on two devices; both figures. |
 | **D3** | 3–4 levels, monsters with shield, guide rooms; DE/ES/EN. |
 | **D4** | First competition game (answer race, turn-based). |
 
 ## Open decisions (owner)
 
-1. **Who plays:** only tutor + student, or also two students (siblings, two
-   students in one lesson)? Recommendation: tutor + student first; the roles
-   work for two students too, later.
+1. ~~Who plays~~ **Decided 2026-11-27:** tutor + student **and** two students
+   (siblings / friends at home, one device or two).
 2. **Name** of the co-op game (Krabsy style, short, English words a learner
    knows).
 3. **Should the tutor answer questions at all?** Recommendation: yes, a few
