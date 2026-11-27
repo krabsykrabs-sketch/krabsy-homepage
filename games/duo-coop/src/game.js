@@ -1,7 +1,7 @@
 // The running game: three rooms, two players, every puzzle object behind a question.
 // createGame(canvas, opts) → { start(), pause(b), restartRoom(), dispose(), debug }
 import * as THREE from 'three';
-import { ROOMS, W, H } from './levels.js';
+import { LEVELS, W, H } from './levels.js';
 import { World, ROLES } from './physics.js';
 import { buildRoom, questionMarker } from './world.js';
 import { loadModels } from './models.js';
@@ -88,6 +88,7 @@ export async function createGame(canvas, opts) {
   let played = 0;          // seconds of play (no pause, no menus)
 
   // ── room state ──────────────────────────────────────────────────────────────────────
+  let levelIdx = 0, rooms = LEVELS[0].rooms;
   let roomIdx = 0, room = null, world = null, view = null, objs = null, boxes = [], markers = [];
   let state = 'loading', roomDoneAt = 0, bannerUntil = 0;
   const cam = { x: W / 2, y: H / 2, h: 14, init: false };
@@ -105,7 +106,7 @@ export async function createGame(canvas, opts) {
     for (const m of markers) m.sprite.parent?.remove(m.sprite);
     cards.closeAll();
     roomIdx = i;
-    room = ROOMS[i];
+    room = rooms[i];
     world = new World(room);
     view = buildRoom(scene, room, world, models);
     scene.background = new THREE.Color(view.theme.sky);
@@ -139,12 +140,12 @@ export async function createGame(canvas, opts) {
       view.group.add(sprite);
       markers.push({ id: o.id, sprite, base: anchor(o) });
     }
-    hudRoom.textContent = `${t('room', i + 1, ROOMS.length)} · ${t(room.name)}`;
+    hudRoom.textContent = `${t('levelN', levelIdx + 1)} · ${t('room', i + 1, rooms.length)} · ${t(room.name)}`;
     showBanner(t(room.goal), 6);
     cam.init = false;
     state = 'playing';
     roomStart = played;
-    onEvent('room', { room: i + 1 });
+    onEvent('room', { level: levelIdx + 1, room: i + 1 });
   }
   let roomStart = 0;
 
@@ -387,17 +388,9 @@ export async function createGame(canvas, opts) {
     for (const s of objs.values()) if (s.breakAt && played >= s.breakAt) { s.breakAt = 0; s.open = true; s.wantSolid = false; sfx('smash'); }
     syncSolids();
 
-    // portals: walking into an active portal
-    for (const p of players) {
-      p.portalCd = Math.max(0, p.portalCd - dt);
-      for (const s of objs.values()) {
-        if (s.def.type !== 'portal') continue;
-        const inside = inRange(p, s.def);
-        if (!inside) { p.inZone.delete(s.def.id); continue; }
-        if (s.active && !p.inZone.has(s.def.id) && p.portalCd <= 0 && !p.card) { teleport(p, s); break; }
-        p.inZone.add(s.def.id);
-      }
-    }
+    // portals: an active portal takes you through when you press use in it (owner's test
+    // 2026-11-27: walking in teleported players who only wanted to walk past)
+    for (const p of players) p.portalCd = Math.max(0, p.portalCd - dt);
 
     // carried crates ride on the strong one's head
     for (const p of players) {
@@ -439,11 +432,11 @@ export async function createGame(canvas, opts) {
       sfx('room'); showBanner(t('roomDone'), 1.8);
       const secs = played - roomStart;
       const rl = log.filter((a) => a.room === roomIdx + 1);
-      console.info(`[duo] room ${roomIdx + 1}: ${rl.length} answers in ${secs.toFixed(0)} s`);
+      console.info(`[duo] level ${levelIdx + 1} room ${roomIdx + 1}: ${rl.length} answers in ${secs.toFixed(0)} s`);
       onEvent('roomDone', { room: roomIdx + 1, seconds: secs, answers: rl.length });
     }
     if (state === 'roomDone' && performance.now() - roomDoneAt > 1900) {
-      if (roomIdx + 1 < ROOMS.length) loadRoom(roomIdx + 1);
+      if (roomIdx + 1 < rooms.length) loadRoom(roomIdx + 1);
       else { state = 'done'; onEvent('done', summary()); }
     }
   }
@@ -549,12 +542,12 @@ export async function createGame(canvas, opts) {
   function summary() {
     const n = log.length, r = log.filter((a) => a.correct).length;
     const per = players.map((p) => ({ name: p.cfg.name, role: p.role, answers: p.answers, right: p.right, recorded: !!p.cfg.recorded }));
-    return { answers: n, right: r, pct: n ? Math.round((r / n) * 100) : 0, seconds: played, minutes: played / 60,
+    return { level: levelIdx + 1, hasNext: levelIdx + 1 < LEVELS.length, answers: n, right: r, pct: n ? Math.round((r / n) * 100) : 0, seconds: played, minutes: played / 60,
       perAnswerSeconds: n ? played / n : 0, players: per, missed: [...missed.keys()] };
   }
 
   return {
-    start(first = 0) { played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(Math.max(0, Math.min(ROOMS.length - 1, first))); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
+    start(level = 0, first = 0) { levelIdx = Math.max(0, Math.min(LEVELS.length - 1, level)); rooms = LEVELS[levelIdx].rooms; played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(Math.max(0, Math.min(rooms.length - 1, first))); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
     pause(b) { paused = !!b; input.clear(); },
     restartRoom() { paused = false; loadRoom(roomIdx); },
     dispose() {
@@ -570,6 +563,7 @@ export async function createGame(canvas, opts) {
     summary,
     debug: {
       room: () => roomIdx + 1,
+      level: () => levelIdx + 1,
       state: () => state,
       players: () => players.map((p) => ({ pi: p.pi, role: p.role, x: p.body.x, y: p.body.y, w: p.body.w, h: p.body.h, vx: p.body.vx,
         onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card,

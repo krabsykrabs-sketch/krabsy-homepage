@@ -79,7 +79,24 @@ camera frames both players and never shows more than the room.
 | 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C, exit (first there) = 4 |
 | 3 Together | switch on a ledge only reachable from the strong one's head · strong one smashes the cracked wall · key at the end of a 1-high tunnel, flies to the locked door · exit | switch C, wall S, key C, exit = 4 |
 
-11 objects with a question (owner 2026-11-27: one fewer per room, the rooms are short
+### Level 2 (owner 2026-11-27: "create more levels"; `LEVEL2` in `src/levels.js`)
+
+| Room | Idea | Questions (who) |
+|---|---|---|
+| 2-1 Upstairs, downstairs | the climber takes the ladder to the upper floor: the switch there opens the strong one's door in the corridor below, the key flies to the gate before the exit; both paths end at the cracked wall | switch C, key C, wall S, exit = 4 |
+| 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and pulls the heavy lever (door); from the step the climber jumps onto the shelf with the key | portal C, heavy lever S, key C, exit = 4 |
+| 2-3 Stack it up | the climber's switch (ledge, ladder) opens the door to the crate hall; the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform and the cracked wall | switch C, key C, wall S, exit = 4 |
+
+`LEVELS` = [level 1 (`ROOMS`), level 2]. The HUD says "Level 2 · Room 1 / 3 · …"; the
+results screen of a level has "Next level" (focused) when there is one. Title screen:
+"Start in a room:" with one row per level, all rooms open. URL: `?level=2&room=3`.
+Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
+
+**Portals take you through only when you press use in them** (since level 2: in 2-2 the
+arrival portal is in the middle of the path, and walking in teleported a player who only
+wanted to walk past). An active portal shows the use prompt.
+
+Level 1: 11 objects with a question (owner 2026-11-27: one fewer per room, the rooms are short
 enough to give plenty of questions); about 3 of 4 are in the climber's reach (the brief's
 "most questions go to the student" by level design). A wrong answer leaves the
 object as it was and shows the teach line on the card; pressing it again asks a
@@ -206,8 +223,9 @@ python3 games/duo-coop/tools/serve.py &
 node games/duo-coop/tools/play-test.cjs [base-url] [out-dir] [--only desktop|touch]
 ```
 
-Plays all 3 rooms at 1366×768 (keyboard, EN, answers with the 1 2 3 / 8 9 0 keys)
-and 1024×768 (touch, DE; taps the touch buttons and the chips for real), with one wrong answer on purpose, and fails
+Plays level 1 at 1366×768 (keyboard, EN, answers with the 1 2 3 / 8 9 0 keys), then
+"Next level" and level 2, and level 1 at 1024×768 (touch, DE; taps the touch buttons and
+the chips for real); `--level2` plays only level 2 (desktop), with one wrong answer on purpose, and fails
 on any console error or failed request. Headless software WebGL runs at ~4 fps, so
 the bot switches the game to manual stepping (`__duo.game.manual(true)`,
 `advance(seconds)`) and presses the same input pads as keys and buttons.
@@ -253,6 +271,9 @@ measure it.
 - 2026-11-27 — Room picker on the title screen (all rooms open) + `?room=N`.
 - 2026-11-27 — Two answer cards never overlap; one object answers one player at a time
   (owner's screenshot: both cards on top of each other at the exit).
+- 2026-11-27 — **Level 2** (3 rooms, 12 questions), level rows on the title screen, "Next
+  level" on the results, `?level=`; portals need use. The bot plays level 1 → Next level →
+  level 2 on desktop (`--level2` plays only level 2); every level-2 room is solved by it.
 
 ## Open (owner)
 

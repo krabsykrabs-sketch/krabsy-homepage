@@ -24,10 +24,13 @@ const ONLY = process.argv.includes('--only') ? process.argv[process.argv.indexOf
 const EXTRA = process.env.QUERY || '';
 fs.mkdirSync(OUT, { recursive: true });
 
+// desktop plays level 1 and then level 2 ("Next level"); touch plays level 1.
+// --level2: only level 2, started with ?level=2 (desktop).
+const L2ONLY = process.argv.includes('--level2');
 const RUNS = [
-  { name: 'desktop', viewport: { width: 1366, height: 768 }, touch: false, query: '?lang=en' },
-  { name: 'touch', viewport: { width: 1024, height: 768 }, touch: true, query: '?lang=de&touch=1' },
-].filter((r) => !ONLY || r.name === ONLY);
+  { name: 'desktop', viewport: { width: 1366, height: 768 }, touch: false, query: '?lang=en', level2: true },
+  { name: 'touch', viewport: { width: 1024, height: 768 }, touch: true, query: '?lang=de&touch=1', level2: false },
+].filter((r) => !ONLY || r.name === ONLY).filter((r) => !L2ONLY || r.name === 'desktop');
 
 function fail(msg) { throw new Error(msg); }
 
@@ -51,11 +54,13 @@ async function run(browser, cfg) {
     if (!/api\.krabsy\.com/.test(r.url())) errors.push(`failed after ${Date.now() - t0} ms: ${r.url()} ${r.failure()?.errorText}`);
   });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
-  await page.goto(BASE + cfg.query + EXTRA);
-  await page.waitForFunction(() => window.__duo && window.__duo.state() === 'menu', null, { timeout: 60000 });
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${OUT}/${cfg.name}-0-menu.png` });
-  if (cfg.touch) await page.tap('#play-btn'); else await page.click('#play-btn');
+  await page.goto(BASE + cfg.query + (L2ONLY ? '&level=2' : '') + EXTRA);
+  if (!L2ONLY) {
+    await page.waitForFunction(() => window.__duo && window.__duo.state() === 'menu', null, { timeout: 60000 });
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${OUT}/${cfg.name}-0-menu.png` });
+    if (cfg.touch) await page.tap('#play-btn'); else await page.click('#play-btn');
+  }
   await page.waitForFunction(() => window.__duo.state() === 'playing' && window.__duo.game, null, { timeout: 90000 });
   await page.evaluate(() => window.__duo.game.manual(true));
   const figs = (await page.evaluate(() => window.__duo.game.players())).map((p) => `${p.figure}${p.built ? ' (built stand-in)' : ''}`);
@@ -157,6 +162,118 @@ async function run(browser, cfg) {
     if (n && (await G('room')) !== n) fail(`expected room ${n}, game state ${st}, room ${await G('room')}`);
   }
 
+  // hop with the direction held only briefly (short jumps onto a crate, a head, a shelf)
+  async function shortHop(pi, dir, hold = 0.2) {
+    await btn(pi, 'up', true); await step(1 / 30); await btn(pi, 'up', false);
+    await btn(pi, dir, true);
+    for (let t = 0; t < hold; t += 1 / 60) await step(1 / 60);
+    await btn(pi, dir, false);
+    for (let t = 0; t < 2 && !(await P(pi)).onGround; t += 1 / 30) await step(1 / 30);
+    await step(0.1);
+    return trace(`shortHop ${pi} ${dir} ${hold}`, await P(pi));
+  }
+
+  // ══ Level 2 ═══════════════════════════════════════════════════════════════════════
+  async function level2() {
+    const C = 0, S = 1;
+    // 2-1 Upstairs, downstairs
+    await shot('L2-1-start');
+    await walkTo(C, 6.5);
+    await climb(C, 1, 7);
+    await walkTo(C, 16.5);
+    await answer(C);
+    await expect(async () => (await objs()).D.open, '2-1: door D did not open');
+    await walkTo(C, 19.5);
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).L.open, '2-1: the key did not open the gate');
+    await walkTo(S, 21.5);
+    await walkTo(C, 21.65, { jump: false });
+    if ((await P(C)).y > 4.7) fail('2-1: climber did not drop down to the cracked wall');   // floor or the strong one's head
+    await answer(S, true, 'L2-1-crack');
+    await step(1.1);
+    await expect(async () => (await objs()).G.open, '2-1: wall not smashed');
+    await walkTo(C, 25, { jump: false });               // off the strong one's head first
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
+    await answer(C);
+    await walkTo(C, 29.9);
+    await nextRoom(2);
+
+    // 2-2 Across the gap
+    await shot('L2-2-start');
+    await walkTo(C, 5, { jump: false });
+    let p = await runJump(C, 'right', 9.6);
+    if (cx(p) < 13) fail(`2-2: climber did not clear the gap (x ${cx(p).toFixed(2)})`);
+    await walkTo(C, 15.5);
+    await answer(C);
+    await expect(async () => (await objs()).o.active, '2-2: portal not active');
+    await walkTo(S, 6.5);
+    await btn(S, 'action', true); await step(1 / 60); await btn(S, 'action', false); await step(0.1);
+    if (Math.abs(cx(await P(S)) - 15.5) > 0.6) fail('2-2: strong one did not come through the portal');
+    await walkTo(S, 14.5, { jump: false });
+    await walkTo(S, 19.62, { jump: false, tol: 0.05 }); // pushes the crate to the step
+    const bx = (await G('boxes'))[0];
+    if (Math.abs(bx.x - 20.04) > 0.15) fail(`2-2: crate not at the step (x ${bx.x.toFixed(2)})`);
+    await walkTo(S, 24.5);
+    if ((await P(S)).y < 4.99) fail('2-2: strong one not on the step');
+    await answer(S);
+    await expect(async () => (await objs()).D.open, '2-2: heavy lever did not open the door');
+    await walkTo(C, 24.9);
+    if ((await P(C)).y < 4.99) fail('2-2: climber not on the step');
+    for (let i = 0; i < 3 && (await P(C)).y < 7.99; i++) { await walkTo(C, 24.75, { jump: false }); await shortHop(C, 'left', 0.25 + i * 0.1); }
+    if ((await P(C)).y < 7.99) fail(`2-2: climber did not get onto the key shelf (y ${(await P(C)).y.toFixed(2)})`);
+    await shot('L2-2-shelf');
+    await walkTo(C, 22.6, { jump: false });
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).L.open, '2-2: the key did not open the gate');
+    await walkTo(S, 29.4);
+    await walkTo(C, 30.3);
+    await answer(C);
+    await walkTo(C, 30.3);
+    await nextRoom(3);
+
+    // 2-3 Stack it up
+    await shot('L2-3-start');
+    await walkTo(C, 4.5);
+    await climb(C, 1, 7);
+    await walkTo(C, 2.5);
+    await answer(C);
+    await expect(async () => (await objs()).D.open, '2-3: door D did not open');
+    await walkTo(S, 13.59, { jump: false });            // crate right beside the key shelf
+    await shortHop(S, 'right', 0.12);
+    await walkTo(S, 14.55, { jump: false, tol: 0.06 });  // the right half of the crate: beside the shelf
+    if (Math.abs((await P(S)).y - 3.96) > 0.02) fail(`2-3: strong one not on the crate (y ${(await P(S)).y.toFixed(2)})`);
+    const sx = cx(await P(S));
+    await walkTo(C, sx - 0.9, { jump: false });
+    for (let i = 0; i < 3 && Math.abs((await P(C)).y - 5.56) > 0.05; i++) { await walkTo(C, sx - 0.9, { jump: false }); await shortHop(C, 'right', 0.12 + i * 0.05); }
+    if (Math.abs((await P(C)).y - 5.56) > 0.05) fail(`2-3: climber not on the strong one's head (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 14.6, { jump: false, tol: 0.06 });  // on the head, clear of the shelf above
+    await shot('L2-3-on-head');
+    await shortHop(C, 'left', 0.35);
+    if ((await P(C)).y < 7.99) fail(`2-3: climber did not reach the key shelf (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 12.5, { jump: false });
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).L.open, '2-3: the key did not open the gate');
+    await walkTo(S, 12.5);                               // off the crate, round to its left side
+    await walkTo(S, 18.59, { jump: false });             // crate to the platform
+    await walkTo(S, 23.5);
+    if ((await P(S)).y < 4.99) fail('2-3: strong one not on the platform');
+    await answer(S);
+    await step(1.1);
+    await expect(async () => (await objs()).G.open, '2-3: wall not smashed');
+    await walkTo(C, 23.0);
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
+    await answer(C);
+    await walkTo(C, 29.9);
+    await page.waitForTimeout(2100);
+    await step(0.1);
+  }
+
+  if (!L2ONLY) {
   // touch buttons: one real tap each on player 2's jump and player 1's right
   if (cfg.touch) {
     const before = await P(1);
@@ -242,6 +359,8 @@ async function run(browser, cfg) {
   await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false); await step(0.1);
   if (cx(await P(C)) < 27) fail('climber did not go through the portal');
   await walkTo(S, 24.5);
+  if (cx(await P(S)) > 27) fail('the portal took the strong one through without pressing use');
+  await btn(S, 'action', true); await step(1 / 60); await btn(S, 'action', false); await step(0.1);
   if (cx(await P(S)) < 27) fail('strong one did not go through the portal');
   await walkTo(C, 30.2);
   await answer(C);
@@ -282,6 +401,21 @@ async function run(browser, cfg) {
   await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${OUT}/${cfg.name}-9-results.png` });
+  } // level 1
+
+  if (cfg.level2) {
+    if (!L2ONLY) {
+      if (await page.isHidden('#next-level-btn')) fail('no "Next level" button after level 1');
+      await page.click('#next-level-btn');
+      await page.waitForFunction(() => window.__duo.state() === 'playing' && window.__duo.game?.level() === 2, null, { timeout: 90000 });
+      await page.evaluate(() => window.__duo.game.manual(true));
+    }
+    await level2();
+    await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${OUT}/${cfg.name}-L2-results.png` });
+    if (!(await page.isHidden('#next-level-btn'))) fail('"Next level" shown after the last level');
+  }
   const sum = await G('summary');
   const resultLine = await page.textContent('#sum-line');
   await ctx.close();

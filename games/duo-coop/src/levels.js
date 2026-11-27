@@ -128,6 +128,96 @@ export const ROOMS = [
   }),
 ];
 
+// ══ Level 2 (owner 2026-11-27: "create more levels") ════════════════════════════════
+// The same pieces, combined: two routes that need each other, a gap with a portal and a
+// crate step, a crate that first lifts the strong one (so the climber can jump off the
+// head) and then becomes a step.
+export const LEVEL2 = [
+  // ── 2-1 Upstairs, downstairs ────────────────────────────────────────────────────────
+  // The climber takes the ladder to the upper floor: the switch there opens the strong
+  // one's door below, the key opens the gate before the exit. Both paths end at the
+  // cracked wall, which only the strong one can smash.
+  room({
+    id: 'r4', name: 'room.4', goal: 'goal.4', theme: 2,
+    spawn: { climber: [2.5, 3], strong: [4, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(7, 20, 6, 6);                   // upper floor (top 7), the corridor runs below it
+      fill(6, 6, 3, 6, 'H');               // ladder up
+      fill(22, 22, 6, H - 2);              // wall above the cracked wall
+      fill(26, 26, 6, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 's', type: 'switch', x: 16, y: 7, targets: ['D'] },
+      { id: 'D', type: 'door', x: 12, y: 3, h: 3 },
+      { id: 'k', type: 'key', x: 19, y: 7, opens: 'L' },
+      { id: 'G', type: 'crack', x: 22, y: 3, h: 3 },
+      { id: 'L', type: 'locked', x: 26, y: 3, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 3 },
+    ],
+  }),
+
+  // ── 2-2 Across the gap ──────────────────────────────────────────────────────────────
+  // Only the climber can jump the gap; the portal it switches on brings the strong one
+  // over. The strong one pushes the crate to the step and pulls the heavy lever (door);
+  // from the step the climber jumps up to the shelf with the key.
+  room({
+    id: 'r5', name: 'room.5', goal: 'goal.5', theme: 0,
+    spawn: { climber: [3, 3], strong: [4.5, 3] },
+    boxes: [[18, 3]],
+    draw(fill) {
+      fill(10, 12, 0, 2, '.');             // the gap (no bottom)
+      fill(21, W - 2, 3, 4);               // step (top 5)
+      fill(22, 23, 7, 7);                  // key shelf (top 8), only from the step
+      fill(26, 26, 8, H - 2);              // wall above the door
+      fill(28, 28, 8, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 'o', type: 'portal', x: 6, y: 3, pair: 'O' },
+      { id: 'O', type: 'portal', x: 15, y: 3, pair: 'o', ask: true },
+      { id: 'h', type: 'heavylever', x: 24, y: 5, targets: ['D'] },
+      { id: 'D', type: 'door', x: 26, y: 5, h: 3 },
+      { id: 'k', type: 'key', x: 22, y: 8, opens: 'L' },
+      { id: 'L', type: 'locked', x: 28, y: 5, h: 3 },
+      { id: 'E', type: 'exit', x: 30, y: 5 },
+    ],
+  }),
+
+  // ── 2-3 Stack it up ─────────────────────────────────────────────────────────────────
+  // The climber's switch (ledge, ladder) opens the door to the crate hall. The key lies on
+  // a shelf too high for anyone alone: the strong one stands on the crate, the climber
+  // jumps off the strong one's head. Then the crate becomes the strong one's step up to
+  // the platform, where the cracked wall waits.
+  room({
+    id: 'r6', name: 'room.6', goal: 'goal.6', theme: 1,
+    spawn: { climber: [5.3, 3], strong: [6.3, 3] },
+    boxes: [[9, 3]],
+    draw(fill) {
+      fill(1, 3, 6, 6);                    // ledge with the switch (top 7)
+      fill(4, 4, 3, 6, 'H');               // ladder up to it
+      fill(7, 7, 6, H - 2);                // wall above the door
+      fill(11, 13, 7, 7);                  // high key shelf (top 8)
+      fill(20, W - 2, 3, 4);               // platform (top 5)
+      fill(24, 24, 8, H - 2);              // wall above the cracked wall
+      fill(27, 27, 8, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 's', type: 'switch', x: 2, y: 7, targets: ['D'] },
+      { id: 'D', type: 'door', x: 7, y: 3, h: 3 },
+      { id: 'k', type: 'key', x: 12, y: 8, opens: 'L' },
+      { id: 'G', type: 'crack', x: 24, y: 5, h: 3 },
+      { id: 'L', type: 'locked', x: 27, y: 5, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 5 },
+    ],
+  }),
+];
+
+/** Levels: each a list of rooms, played in order. */
+export const LEVELS = [
+  { id: 'l1', rooms: ROOMS },
+  { id: 'l2', rooms: LEVEL2 },
+];
+
 /** Debug: the room as text, top row first. */
 export function ascii(r) {
   return r.grid.slice().reverse().map((row) => row.join('')).join('\n');

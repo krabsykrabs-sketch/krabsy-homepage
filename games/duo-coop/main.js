@@ -5,6 +5,7 @@ import { createInput, isTouchDevice } from './src/input.js';
 import { createGame } from './src/game.js';
 import { currentTopic, makeQueue } from './src/questions.js';
 import { figureChoices } from './src/figures.js';
+import { LEVELS } from './src/levels.js';
 import { isMuted, setMuted } from './src/sound.js';
 import { fmtTime } from './src/game.js';
 
@@ -70,7 +71,22 @@ function renderMenu() {
   applyStatic();
   document.querySelectorAll('.lang-switch button').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
   $('topic-line').textContent = topicLine(topic);
-  document.querySelectorAll('.room-pick [data-room]').forEach((b) => { const n = +b.dataset.room + 1; b.textContent = `${n} · ${t('room.' + n)}`; });
+  // all levels and rooms open (owner, for testing): one row per level
+  const pick = $('room-pick');
+  pick.innerHTML = '';
+  const head = document.createElement('div'); head.className = 'rp-head'; head.textContent = t('startRoom'); pick.appendChild(head);
+  LEVELS.forEach((lv, li) => {
+    const row = document.createElement('div'); row.className = 'rp-row';
+    const lab = document.createElement('span'); lab.textContent = t('levelN', li + 1); row.appendChild(lab);
+    lv.rooms.forEach((r, ri) => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.dataset.level = li; b.dataset.room = ri;
+      b.textContent = `${ri + 1} · ${t(r.name)}`;
+      b.addEventListener('click', () => play(li, ri));
+      row.appendChild(b);
+    });
+    pick.appendChild(row);
+  });
   renderPicker(0); renderPicker(1);
   const link = $('figure-link');
   link.hidden = !choices.available;
@@ -89,7 +105,9 @@ async function showMenu() {
 }
 
 // ── play ─────────────────────────────────────────────────────────────────────────────
-async function play(room = 0) {
+let curLevel = 0;
+async function play(level = 0, room = 0) {
+  curLevel = level;
   if (state === 'loading') return;
   setState('loading');
   $('menu').hidden = true; $('results').hidden = true;
@@ -109,7 +127,7 @@ async function play(room = 0) {
   $('hud').hidden = false;
   $('touch').hidden = !touch;
   setState('playing');
-  game.start(room);
+  game.start(level, room);
   window.__duo.game = game.debug;
 }
 
@@ -139,8 +157,9 @@ function showResults(s) {
   }
   // density log (docs/duo-games.md: "38 answers in 12 minutes, 81 % right")
   console.info(`[duo] ${s.answers} answers in ${(s.seconds / 60).toFixed(1)} minutes (${fmtTime(s.seconds)}), ${s.pct} % right, one every ${s.perAnswerSeconds.toFixed(1)} s`);
+  $('next-level-btn').hidden = !s.hasNext;
   $('results').hidden = false;
-  $('again-btn').focus();
+  (s.hasNext ? $('next-level-btn') : $('again-btn')).focus();
 }
 
 function pause(on) {
@@ -161,10 +180,9 @@ for (const pi of [0, 1]) {
   card.querySelector('.next').addEventListener('click', () => step(pi, 1));
 }
 $('swap-roles').addEventListener('click', () => { pick.swap = !pick.swap; store.set(K_SWAP, pick.swap ? '1' : '0'); renderPicker(0); renderPicker(1); });
-$('play-btn').addEventListener('click', () => play(0));
-// all rooms are open: start directly in any of them (testing, or to play one again)
-document.querySelectorAll('.room-pick [data-room]').forEach((b) => b.addEventListener('click', () => play(+b.dataset.room)));
-$('again-btn').addEventListener('click', () => play(0));
+$('play-btn').addEventListener('click', () => play(0, 0));
+$('again-btn').addEventListener('click', () => play(curLevel, 0));
+$('next-level-btn').addEventListener('click', () => play(curLevel + 1, 0));
 $('results-menu-btn').addEventListener('click', showMenu);
 $('menu-btn').addEventListener('click', showMenu);
 $('resume-btn').addEventListener('click', () => pause(false));
@@ -190,7 +208,8 @@ window.__duo = { state: () => state, play, menu: showMenu, game: null, input };
   if (pick.p1 !== 'mine' && !choices.free.includes(pick.p1)) pick.p1 = 'mine';
   $('loader').hidden = true;
   const q = new URLSearchParams(location.search);
-  const room = Math.max(0, (parseInt(q.get('room'), 10) || 1) - 1);   // ?room=2 → room 2
-  if (q.get('autostart') === '1' || q.has('room')) play(room);
+  const room = Math.max(0, (parseInt(q.get('room'), 10) || 1) - 1);     // ?room=2 → room 2
+  const level = Math.max(0, (parseInt(q.get('level'), 10) || 1) - 1);  // ?level=2 → level 2
+  if (q.get('autostart') === '1' || q.has('room') || q.has('level')) play(level, room);
   else showMenu();
 })();
