@@ -15,7 +15,7 @@ const errs = [];
 p.on('pageerror', e => errs.push('pageerror: ' + e.message));
 const strategy = process.argv[4] || 'mix';
 await p.goto('http://127.0.0.1:8125/?lang=en&unlock=all'); await p.waitForSelector('.level-card', { timeout: 30000 });
-await p.evaluate(() => { localStorage.setItem('td3d_tutorial_done', '1'); });
+await p.evaluate(() => { localStorage.setItem('td3d_tutorial_done', '1'); for (const t of ['catapult', 'cannon', 'freeze']) localStorage.setItem('td3d_tower_seen_' + t, '1'); });
 const run = (level, acc) => p.evaluate(([level, acc, strategy]) => {
   const T = __td, st = T.state;
   T.startGame(level);
@@ -38,7 +38,8 @@ const run = (level, acc) => p.evaluate(([level, acc, strategy]) => {
   const spend = () => {
     for (;;) {
       if (bought < order.length) {
-        const type = order[bought];
+        // Towers the level does not have yet are replaced by archers.
+        const type = T.Level.current.towers.includes(order[bought]) ? order[bought] : 'basic';
         if (st.coins < cost[type]) return;
         const s = spots.find(s => T.Grid.isAvailable(s.c, s.r));
         if (!s || !T.Input._place(type, s.c, s.r)) return;

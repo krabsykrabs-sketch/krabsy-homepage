@@ -83,6 +83,7 @@ export const Forge = {
     const f = state.forge;
     if (!this.active(state) || f.stage !== 'ask' || !f.q) return;
     if (state.gate && !state.gate.answers) return; // training: not yet
+    if (state.intro) return;
     if (index < 0 || index >= f.q.options.length) return;
     f.picked = index;
     f.ore -= 1;

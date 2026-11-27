@@ -866,4 +866,26 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     hex before card ignored, wrong hex ignored, 1 wrong + 2 right answers →
     card empty with 30 coins, upgrade, victory, level 1 opens. No errors.
 
+- 2026-11-27 — **Towers arrive level by level** (owner idea; owner chose the
+  order): training + level 1 = archer only, level 2 adds the catapult,
+  level 3 the cannon, level 4 frost; levels 5–6 have all four.
+  - Level files: `towers: [...]` (dock list; all when missing) and
+    `newTower` (levels 2–4). `main.js`: `availableTowers()`,
+    `towerAvailable()`; `Input._place` / `toggleTowerPlacement` refuse
+    others; keys 1–4 follow the visible order; hidden cards in the dock.
+  - **Intro card** (`#tower-intro`): at the start of a level with a new
+    tower, the first time only (`td3d_tower_seen_<type>`): "New tower!",
+    the tower picture, name, description, stat bars, "Let's go". While it
+    shows, no wave start, no answers, no building (`state.intro`). The new
+    card then carries an amber "NEW" tag until it has been built once.
+    Archer-first lock still applies.
+  - `tools/balance-sim.mjs`: towers a level lacks become archers; marks
+    intros seen. Bot (2 runs, levels 1–4): archers as before (0 % lost,
+    40 % wins 1–2, 70 % wins 1–3 and level 4 about half, 100 % 3 stars);
+    mix bot level 1 and 2 now win at 40 % (only archers / catapults),
+    level 3–4 lost at 70 % as before.
+  - Checked in headless Chromium at 1366×768 (de) and 390×844 (es): dock
+    per level, intro shows once, Space blocked while it shows, "Let's go"
+    closes it at once, NEW tag. No errors.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.

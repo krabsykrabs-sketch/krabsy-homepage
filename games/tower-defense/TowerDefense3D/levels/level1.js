@@ -18,6 +18,7 @@ window.LEVEL1 = {
   startingLives: 10,
   startingCoins: 40,
   totalWaves: 8,
+  towers: ['basic'],
   bossWaves: [4, 8],
   tutorialCells: [[2, 3], [4, 3], [3, 1]],
   enemyScaling: {

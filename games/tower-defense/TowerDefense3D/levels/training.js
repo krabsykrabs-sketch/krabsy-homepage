@@ -19,6 +19,7 @@ window.LEVEL_TRAINING = {
   startingLives: 10,
   startingCoins: 30,      // exactly one archer tower
   totalWaves: 2,
+  towers: ['basic'],      // towers in the dock (the rest arrive in later levels)
   bossWaves: [],
   orePerWave: 99,         // wrong answers never run the card out; it closes after
   trainingRightAnswers: 2, // this many right answers (12 bonus + 2 × 9 = the 30-coin upgrade)

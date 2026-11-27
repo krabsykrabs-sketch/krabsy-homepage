@@ -26,6 +26,8 @@ window.LEVEL2 = {
   startingLives: 10,
   startingCoins: 60,
   totalWaves: 9,
+  towers: ['basic', 'catapult'],
+  newTower: 'catapult',   // introduced with a card at the start of this level
   bossWaves: [5, 9],
   enemyScaling: {
     baseEnemyHealth: 36,
