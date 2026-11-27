@@ -20,7 +20,7 @@ const T = {
   wsH: 'Worksheets', wsLead: 'Interactive: the student types or picks each answer and sees at once if it’s right. The first try counts for the star map.',
   wsMake: 'Make a worksheet', wsTopic: 'Topic', wsCount: 'Questions', wsMode: 'Answers',
   modes: [['typed', 'Type the answer'], ['choice', 'Choose'], ['mixed', 'Mixed']],
-  wsFocus: 'Focus on the words to practise', wsTitle: 'Title', wsPreview: 'Make it', wsSend: 'Save worksheet',
+  wsFocus: (n) => `Start with what ${n || 'the student'} still gets wrong`, wsTitle: 'Title', wsPreview: 'Make it', wsSend: 'Save worksheet',
   wsSwap: 'Swap', wsRemove: 'Remove', wsNone: 'No worksheets yet.', wsDone: (d, n, r) => (d ? `${d} of ${n} done · ${r} right` : `${n} questions · not started`),
   wsResults: 'Results', wsLive: 'Show live', wsDel: 'Delete', wsDelQ: 'Delete this worksheet and its results?',
   wsCancel: 'Cancel', wsNotAnswered: 'not answered yet',
@@ -146,7 +146,7 @@ function openMaker(main, ctx, preset = {}) {
       <label class="kc-field"><span>${T.wsTopic}</span><select id="kt-wstopic">${cat.ids.map((tp) => `<option value="${esc(tp)}"${tp === topic ? ' selected' : ''}>${esc(topicName(cat, tp))}</option>`).join('')}</select></label>
       <label class="kc-field"><span>${T.wsCount}</span><select id="kt-wscount">${[6, 10, 15].map((n) => `<option${n === 10 ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label class="kc-field"><span>${T.wsMode}</span><select id="kt-wsmode">${T.modes.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
-      <label class="kt-check kt-wide"><input type="checkbox" id="kt-wsfocus" checked> <span>${T.wsFocus}</span></label>
+      <label class="kt-check kt-wide"><input type="checkbox" id="kt-wsfocus" checked> <span>${esc(T.wsFocus(ctx.name))}</span></label>
       <p class="kc-row"><button class="kc-btn" type="submit">${T.wsPreview}</button><button class="kc-btn kc-btn-ghost" type="button" id="kt-wscancel">${T.wsCancel}</button></p>
     </form><div id="kt-wsprev"></div>`;
   $('#kt-wscancel').addEventListener('click', () => { box.hidden = true; box.innerHTML = ''; $('#kt-wsnew').hidden = false; });

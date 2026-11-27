@@ -114,6 +114,8 @@ class Room:
         self.lesson: Optional[dict] = None
         self.last = time.monotonic()
         self.presence_sent: Optional[tuple] = None
+        self.dirty = False                     # lesson changed since the last save
+        self.saved_at = 0.0
 
     def active(self) -> bool:
         return self.lesson is not None and not self.lesson.get("ended")
@@ -124,7 +126,7 @@ class Room:
         if role == "student":
             if not self.active():
                 return None
-            return {k: self.lesson[k] for k in ("started", "material", "state", "items", "index")}
+            return {k: self.lesson.get(k) for k in ("started", "material", "state", "items", "index", "state_at")}
         return {k: v for k, v in self.lesson.items() if k != "abytes"}
 
     def presence(self) -> dict:
@@ -215,6 +217,8 @@ def drop_room(ts_id: int, student_only: bool = False) -> None:
     room.tutor = None
     _close(tu, "auth")
     ROOMS.pop(ts_id, None)
+    # (its saved copy in live_lessons is ignored later: the identity no longer matches.
+    #  No database call here: the caller holds classes._lock.)
 
 
 def _end_lesson(room: Room, summary=None) -> None:
@@ -322,6 +326,70 @@ def _new_lesson() -> dict:
             "answers": [], "ended": None, "summary": None}
 
 
+# ── a running lesson survives a server restart (owner 2026-11-27: "save the progress of an
+# ongoing live session regularly"): the lesson (material, the student's state, queue, answers)
+# is written to SQLite at most every SAVE_EVERY_S while it changes, and at once on end /
+# disconnect; a new room for that student loads it back (if not older than ROOM_TTL_S).
+SAVE_EVERY_S = 2.0
+_db_ready = [False]
+
+
+def _db():
+    import classes
+    con = classes.connect()
+    if not _db_ready[0]:
+        con.execute("CREATE TABLE IF NOT EXISTS live_lessons (ts_id INTEGER PRIMARY KEY, ident TEXT NOT NULL, "
+                    "tutor_id INTEGER, lesson TEXT NOT NULL, updated REAL NOT NULL)")
+        _db_ready[0] = True
+    return con
+
+
+def save_lesson(room: "Room", force: bool = False) -> None:
+    if not force and (not room.dirty or time.time() - room.saved_at < SAVE_EVERY_S):
+        return
+    room.dirty, room.saved_at = False, time.time()
+    try:
+        import classes
+        with classes._lock, _db() as con:
+            if room.active():
+                con.execute("INSERT INTO live_lessons (ts_id, ident, tutor_id, lesson, updated) VALUES (?,?,?,?,?) "
+                            "ON CONFLICT (ts_id) DO UPDATE SET ident = excluded.ident, tutor_id = excluded.tutor_id, "
+                            "lesson = excluded.lesson, updated = excluded.updated",
+                            (room.ts_id, json.dumps(list(room.ident)), room.tutor_id,
+                             json.dumps(room.lesson, separators=(",", ":")), time.time()))
+            else:
+                con.execute("DELETE FROM live_lessons WHERE ts_id = ?", (room.ts_id,))
+    except Exception as exc:  # noqa: BLE001  (never break a lesson because of the backup)
+        print(f"[krabsy] live: save failed: {exc}", flush=True)
+
+
+def restore_lesson(room: "Room") -> None:
+    try:
+        import classes
+        with classes._lock, _db() as con:
+            row = con.execute("SELECT ident, lesson, updated FROM live_lessons WHERE ts_id = ?", (room.ts_id,)).fetchone()
+            if row is None:
+                return
+            if time.time() - row["updated"] > ROOM_TTL_S or json.loads(row["ident"]) != list(room.ident):
+                con.execute("DELETE FROM live_lessons WHERE ts_id = ?", (room.ts_id,))
+                return
+        lesson = json.loads(row["lesson"])
+        if isinstance(lesson, dict) and not lesson.get("ended"):
+            room.lesson = lesson
+    except Exception as exc:  # noqa: BLE001
+        print(f"[krabsy] live: restore failed: {exc}", flush=True)
+
+
+def _forget_saved(ts_id: int) -> None:
+    """Delete a saved lesson (never call this while holding classes._lock)."""
+    try:
+        import classes
+        with classes._lock, _db() as con:
+            con.execute("DELETE FROM live_lessons WHERE ts_id = ?", (ts_id,))
+    except Exception:  # noqa: BLE001
+        pass
+
+
 @router.websocket("/api/live/ws")
 async def live_ws(ws: WebSocket):
     if not _origin_ok(ws):
@@ -411,11 +479,13 @@ async def live_ws(ws: WebSocket):
                 r = ROOMS.get(ts["id"])
                 if r is not None and r.ident != _ident(ts):
                     drop_room(ts["id"])              # an old room of a deleted student with this id
+                    await asyncio.to_thread(_forget_saved, ts["id"])   # and its saved lesson
                     r = None
                 if r is None:
                     if len(ROOMS) >= MAX_ROOMS and not _make_space():
                         await fail("busy"); break
                     r = ROOMS[ts["id"]] = Room(ts["id"], _ident(ts), ts["tutor_id"])
+                    await asyncio.to_thread(restore_lesson, r)
                 old = r.tutor if r_role == "tutor" else r.student
                 if old is not None and old is not ws:
                     send_to(old, {"t": "error", "code": "replaced"})
@@ -460,9 +530,15 @@ async def live_ws(ws: WebSocket):
                         _lesson_slot(room)
                         room.lesson = _new_lesson()
                         send_to(room.student, {"t": "start", "lesson": room.snapshot("student")})
-                    room.lesson["material"], room.lesson["state"] = mat, None
+                    fresh = msg.get("fresh") is True
+                    prev = room.lesson.get("material")
+                    same = isinstance(prev, dict) and prev.get("id") is not None and prev.get("id") == mat.get("id")
+                    # the same material again keeps the student's progress; "Start again" (fresh) resets it
+                    room.lesson["material"] = mat
+                    if fresh or not same:
+                        room.lesson["state"] = None
                     _queue(room, msg)
-                    send_to(room.student, {"t": "load", "material": mat})
+                    send_to(room.student, {"t": "load", "material": mat, "fresh": fresh})
                 elif t == "queue":
                     if room.active():
                         _queue(room, msg)
@@ -502,6 +578,7 @@ async def live_ws(ws: WebSocket):
                         if not _same_state_id(room, st):
                             continue
                         room.lesson["state"] = st
+                        room.lesson["state_at"] = time.time()
                     send_to(room.tutor, {"t": "state", "state": st})
                 elif t == "cursor":
                     p = _pos(msg)
@@ -524,6 +601,10 @@ async def live_ws(ws: WebSocket):
                     if isinstance(v, bool):
                         room.visible = v
                         room.send_presence()
+            # keep a copy of the running lesson in the database (a restart must not lose it)
+            if t in ("start", "load", "queue", "end", "state", "answer") and room is not None and room.lesson is not None:
+                room.dirty = True
+                await asyncio.to_thread(save_lesson, room, t in ("end", "load", "start"))
     except WebSocketDisconnect:
         pass
     except Exception:
@@ -537,6 +618,8 @@ async def live_ws(ws: WebSocket):
             _IPS[ip] = n
         else:
             _IPS.pop(ip, None)
+        if room is not None and room.dirty:
+            save_lesson(room, True)
         if room is not None:
             if role == "tutor" and room.tutor is ws:
                 room.tutor = None

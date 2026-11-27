@@ -413,3 +413,19 @@ group calls, no recording.
   device-local list) and "Back to live lesson" on the student's card/profile. Anything that ends a
   lesson asks first: End lesson ("End the lesson with …?"), a 4th lesson at once (ends the oldest),
   remove student, new link, delete space.
+
+## Progress is never lost (owner 2026-11-27)
+
+- The relay saves the running lesson (material, the student's state, queue, answers) to SQLite
+  (`live_lessons`) at most every 2 s while it changes and at once on load/start/end/disconnect;
+  a new room loads it back (same student identity, not older than 3 h). A server restart or
+  deploy in the middle of a lesson continues where it was.
+- The student page keeps a local backup per material (`krabsy_live_states`, ~1 s) and uses the
+  newer of the relay's copy and its own; backups are cleared when the lesson ends.
+- Showing the material that is already on screen does nothing ("already on their screen"); an
+  earlier material continues where it was. **↺ Start again** in the lesson list (with a
+  confirmation) resets it (`load {fresh: true}`).
+- Quick practice fills the requested number: the quality rules relax step by step (answer
+  share, sentence patterns, drag bank extras for sets of 6+) but never allow give-aways, a
+  sentence twice, or the same answer three times in a row. "Focus on the words to practise" is
+  now "Start with what <name> still gets wrong".

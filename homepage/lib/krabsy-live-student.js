@@ -14,7 +14,7 @@
    Page hidden → focus {visible:false}. A reload resumes from the relay's
    snapshot (material + last state).
    ────────────────────────────────────────────────────────────────────────── */
-import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
+import { connectLive } from '/lib/krabsy-live.js?v=2026-11-27';
 
 const T = {
   bar: (t) => `Lesson with ${t}`,
@@ -76,7 +76,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
           const s = player.getState(); if (s) live.state(s);
           return;
         }
-        mount(L.material, L.state);
+        mount(L.material, bestState(L.material, L.state, L.state_at));
       },
       status(s) { if (view) view.classList.toggle('is-retry', s === 'retry'); },
       fatal(code) {
@@ -88,11 +88,18 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
           case 'start': {
             openView();
             const L = m.lesson || {};
-            if (L.material && sig(L.material) !== matSig) mount(L.material, L.state);
+            if (L.material && sig(L.material) !== matSig) mount(L.material, bestState(L.material, L.state, L.state_at));
             else if (!player) waiting();
             break;
           }
-          case 'load': openView(); mount(m.material, null); break;
+          case 'load': {
+            openView();
+            if (m.fresh) { dropBackup(m.material); mount(m.material, null); break; }       // "Start again"
+            if (player && sig(m.material) === matSig) { const s = player.getState(); if (s) live.state(s); break; }  // same material: keep the progress
+            const b = backupFor(m.material);
+            mount(m.material, b ? b.state : null);
+            break;
+          }
           case 'cmd': if (player) player.cmd({ type: m.type, step: m.step, page: m.page, a: m.a, kind: m.kind, text: m.text }); break;
           case 'point': if (player) player.point({ a: m.a, x: m.x, y: m.y }); break;
           case 'reward': reward(m.kind); break;
@@ -147,6 +154,35 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
       <span class="kl-wait-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`;
   }
 
+  // Local backup of the progress per material (owner 2026-11-27: progress must survive a
+  // connection error or a server restart). The relay saves it too; whichever is newer wins.
+  const BK = 'krabsy_live_states';
+  const readBk = () => { try { return JSON.parse(localStorage.getItem(BK) || '{}') || {}; } catch (_) { return {}; } };
+  const writeBk = (o) => { try { localStorage.setItem(BK, JSON.stringify(o)); } catch (_) {} };
+  let bkTimer = null, bkPending = null;
+  function saveBackup(material, state) {
+    bkPending = [sig(material), state];
+    if (bkTimer) return;
+    bkTimer = setTimeout(() => {
+      bkTimer = null; if (!bkPending) return;
+      const [k, st] = bkPending; bkPending = null;
+      const o = readBk(); o[k] = { at: Date.now(), state: st };
+      const keys = Object.keys(o).sort((a, b) => o[b].at - o[a].at); keys.slice(12).forEach((x) => delete o[x]);
+      writeBk(o);
+    }, 800);
+  }
+  function backupFor(material) {
+    const e = readBk()[sig(material)];
+    return e && Date.now() - e.at < 3 * 3600 * 1000 ? e : null;
+  }
+  function dropBackup(material) { const o = readBk(); delete o[sig(material)]; writeBk(o); }
+  // the newer of the relay's copy (state_at, seconds) and the local backup (at, ms)
+  function bestState(material, relayState, relayAt) {
+    const b = backupFor(material);
+    if (relayState && relayState.kind && (!b || (relayAt || 0) * 1000 >= b.at)) return relayState;
+    return b ? b.state : (relayState || null);
+  }
+
   async function mount(material, state) {
     unmount();
     const el = stage(); if (!el || !material) return;
@@ -159,7 +195,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     const p = mod.mountMaterial(host, material, {
       role: 'student', lang, adult: isAdult,
       state: state && state.kind ? state : undefined,
-      onState: (s) => live.state(s),
+      onState: (s) => { live.state(s); saveBackup(material, s); },
       onCursor: (pos) => live.cursor(pos),
       onAnswer: (a) => {
         const msg = Object.assign({}, a, { mat: material.id || null });
@@ -220,6 +256,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
 
   /* ── lesson over ──────────────────────────────────────────────────────── */
   function ended(summary) {
+    writeBk({});                       // a new lesson starts its materials fresh
     if (!view) return;
     unmount();
     view.classList.add('is-done');

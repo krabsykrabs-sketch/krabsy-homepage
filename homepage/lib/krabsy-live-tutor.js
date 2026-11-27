@@ -17,7 +17,7 @@
    Reload resumes: the relay keeps material, state, queue and answers.
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase } from '/lib/krabsy-class.js?v=2026-11-25b';
-import { connectLive } from '/lib/krabsy-live.js?v=2026-11-26';
+import { connectLive } from '/lib/krabsy-live.js?v=2026-11-27';
 import { mountMaterial } from '/lib/activities/player.js?v=2026-11-27c';
 import { runningLessons, markRunning, markEnded } from '/lib/krabsy-live-running.js?v=2026-11-27';
 
@@ -39,7 +39,8 @@ const T = {
   lastEnded: (t) => `The last lesson ended at ${t}.`,
   hint: '💡 Hint', reveal: 'Show answer', prev: '◀', next: '▶', prevL: 'Back', nextL: 'Next',
   star: '⭐', gift: '🎁', point: '◎ Point', pointTip: 'Left click on the screen: do it for the student. Right click: point. On a tablet switch Point on to point with a tap.',
-  did: 'Done on their screen ✓', typeFor: (n) => `Type for ${n}`, typeHint: 'Enter = check', mouseHelp: 'Left click: do it · Right click: point',
+  did: 'Done on their screen ✓', alreadyShown: 'This is already on their screen.', restart: 'Start again from the beginning',
+  restartQ: (t, n) => `Start “${t}” again from the beginning for ${n}? Their progress in it is reset.`, typeFor: (n) => `Type for ${n}`, typeHint: 'Enter = check', mouseHelp: 'Left click: do it · Right click: point',
   pointed: 'Pointed ✓', starSent: '⭐ sent', giftSent: '🎁 sent',
   nextItem: (t) => `Next: ${t} ▸`, finished: 'Finished ✓',
   tabQueue: 'Lesson', tabAnswers: 'Answers', tabNotes: 'Notes',
@@ -53,7 +54,7 @@ const T = {
   kindIco: { worksheet: '📄', book: '📖', cards: '🃏', quick: '⚡', v1: '📝' },
   min: (n) => `${n} min`,
   qpTopic: 'Topic', qpCount: 'Questions', qpMode: 'Answers', qpModes: [['typed', 'Type'], ['choice', 'Choose'], ['drag', 'Drag']],
-  qpFocus: (n) => `Focus on the words to practise${n ? ` (${n})` : ''}`, qpMake: 'Making it …', qpFail: 'No questions for this topic.',
+  qpFocus: (n, name) => (n ? `Start with what ${name} still gets wrong (${n})` : `Start with what ${name} still gets wrong (nothing yet)`), qpMake: 'Making it …', qpFail: 'No questions for this topic.',
   qpTitle: (t) => `Quick practice: ${t}`,
   savedNone: 'No saved worksheets for this student yet (make them on the profile page).',
   savedMeta: (w) => `${w.count} questions · ${w.done ? `${w.done} done, ${w.right} right` : 'not started'}`,
@@ -513,7 +514,7 @@ class LivePage {
     else if (it.k === 'm') mat = await fetch('/data/materials/' + encodeURIComponent(it.file)).then((r) => { if (!r.ok) throw new Error('http'); return r.json(); });
     else if (it.k === 'v1') {
       const r = await api(`/api/tutor/student/worksheet?id=${this.P.sid}&worksheet_id=${it.wid}`, this.P.token);
-      const fe = await import('/lib/activities/from-engine.js?v=2026-11-26b');
+      const fe = await import('/lib/activities/from-engine.js?v=2026-11-27');
       mat = fe.fromV1Worksheet(r.worksheet);
     }
     if (!mat) throw new Error('no material');
@@ -522,15 +523,18 @@ class LivePage {
     return mat;
   }
 
-  async show(i) {
+  // fresh: "Start again" (the student's progress in it is reset). Without it, showing the
+  // material that is already on screen does nothing, and an earlier one continues where it was.
+  async show(i, fresh = false) {
     const it = this.items[i]; if (!it) return;
+    if (i === this.index && this.material && !fresh) { this.toast(T.alreadyShown); return; }
     if (!this.active()) this.startLesson();
     let mat;
     try { mat = await this.resolve(it); } catch (e) { console.warn('live: material', e); this.toast(T.loadFail); return; }
     if (this.index >= 0 && this.items[this.index] && this.index !== i) this.items[this.index].done = true;
     this.index = i; it.done = false;
     this.material = mat; this.state = null;
-    if (!this.live.load(mat, this.items, this.index)) this.toast(T.offline);
+    if (!this.live.load(mat, this.items, this.index, fresh)) this.toast(T.offline);
     this.renderStage(); this.renderQueue();
   }
 
@@ -564,9 +568,13 @@ class LivePage {
       return `<li class="${now ? 'is-now' : it.done ? 'is-done' : ''}">
         <button type="button" class="kl-q-main" data-show="${i}" title="${T.showNow}"><span class="kl-q-mark">${mark}</span>
           <span class="kl-q-t"><small>${esc(T.kindIco[it.ico] || '')} ${esc(it.sub || '')}</small><b>${esc(it.title)}</b>${r.total ? `<span class="kl-q-res">${r.right} of ${r.total} first try</span>` : ''}</span></button>
-        <span class="kl-q-act"><button type="button" class="kl-icon" data-up="${i}" aria-label="${T.up}" title="${T.up}"${i ? '' : ' disabled'}>▲</button><button type="button" class="kl-icon" data-down="${i}" aria-label="${T.down}" title="${T.down}"${i < this.items.length - 1 ? '' : ' disabled'}>▼</button><button type="button" class="kl-icon" data-rm="${i}" aria-label="${T.remove}" title="${T.remove}">✕</button></span></li>`;
+        <span class="kl-q-act"><button type="button" class="kl-icon" data-up="${i}" aria-label="${T.up}" title="${T.up}"${i ? '' : ' disabled'}>▲</button><button type="button" class="kl-icon" data-down="${i}" aria-label="${T.down}" title="${T.down}"${i < this.items.length - 1 ? '' : ' disabled'}>▼</button>${now || it.done ? `<button type="button" class="kl-icon" data-restart="${i}" aria-label="${T.restart}" title="${T.restart}">↺</button>` : ''}<button type="button" class="kl-icon" data-rm="${i}" aria-label="${T.remove}" title="${T.remove}">✕</button></span></li>`;
     }).join('');
     ol.querySelectorAll('[data-show]').forEach((b) => b.addEventListener('click', () => this.show(Number(b.dataset.show))));
+    ol.querySelectorAll('[data-restart]').forEach((b) => b.addEventListener('click', () => {
+      const i = Number(b.dataset.restart), it = this.items[i]; if (!it) return;
+      if (confirm(T.restartQ(it.title, this.name))) this.show(i, true);
+    }));
     const move = (i, j) => {
       if (j < 0 || j >= this.items.length) return;
       const [x] = this.items.splice(i, 1); this.items.splice(j, 0, x);
@@ -677,7 +685,7 @@ class LivePage {
       <p class="kl-err" data-err hidden></p>
       <p class="kl-row-act"><button type="button" class="kl-btn kl-btn-primary" data-qnow>${T.showNow}</button><button type="button" class="kl-btn" data-qadd>${T.queueAdd}</button></p></form>`;
     const f = $('[data-qp]', body);
-    const focusL = () => { $('[data-focusl]', f).textContent = T.qpFocus(practise($('[data-tp]', f).value).length); };
+    const focusL = () => { $('[data-focusl]', f).textContent = T.qpFocus(practise($('[data-tp]', f).value).length, this.name); };
     focusL();
     $('[data-tp]', f).addEventListener('change', focusL);
     f.querySelectorAll('.kl-seg').forEach((seg) => seg.addEventListener('click', (e) => {
@@ -693,7 +701,7 @@ class LivePage {
       const err = $('[data-err]', f); err.hidden = true;
       const old = btn.textContent; btn.disabled = true; btn.textContent = T.qpMake;
       try {
-        const fe = await import('/lib/activities/from-engine.js?v=2026-11-26b');
+        const fe = await import('/lib/activities/from-engine.js?v=2026-11-27');
         const name = (topics.find((t) => t.id === tp) || {}).name || tp;
         const mat = await fe.quickPractice({ topic: tp, count, mode, focus, lang: LANG, title: T.qpTitle(name) });
         const it = { key: uid(), k: 'qp', title: mat.title, ico: 'quick', sub: `${T.dQuick} · ${mat.steps[0].sentences.length} · ${(T.qpModes.find((x) => x[0] === mode) || ['', mode])[1]}`, material: mat, mid: mat.id };

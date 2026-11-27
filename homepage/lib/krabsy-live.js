@@ -106,7 +106,7 @@ export function connectLive({ hello, on = {} } = {}) {
     close() { closed = true; clearTimeout(retryT); clearInterval(pingT); window.removeEventListener('online', wake); document.removeEventListener('visibilitychange', onVis); if (ws) { try { ws.close(); } catch (_) {} ws = null; } },
     // tutor
     start: (items, index) => send('start', { items, index }),
-    load: (material, items, index) => send('load', { material, items, index }),
+    load: (material, items, index, fresh = false) => send('load', { material, items, index, fresh: !!fresh }),
     queue: (items, index) => send('queue', { items, index }),
     cmd: (type, extra) => send('cmd', Object.assign({ type }, extra)),
     point: (pos) => send('point', pos),

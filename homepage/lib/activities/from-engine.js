@@ -107,13 +107,17 @@ const startsWithGap = (s) => /^[¿¡]?___/.test(String(s.text || '').trim());
 const frameOf = (s) => String(s.text || '').replace(/\p{Lu}\p{Ll}*/gu, 'X');
 
 /* One greedy pass over units in the given order. */
-function pickOnce(units, count, mode) {
+// relax: 0 = strict rules; 1 = an answer may come twice in drag and in up to half of the gaps,
+// any sentence pattern; 2 = any answer as often as needed (still no give-aways, no sentence
+// twice, never three in a row). Owner 2026-11-27: "10 questions" must give 10 when the topic has them.
+function pickOnce(units, count, mode, relax = 0) {
   const chosen = [];
   const texts = new Set();
   const tally = new Map();
-  const limit = mode === 'drag' ? 1 : shareCap(count);
+  const cap = (n) => (relax >= 2 ? Math.max(2, Math.floor((2 * n + 2) / 3)) : relax === 1 ? Math.max(2, Math.ceil(n / 2)) : shareCap(n));
+  const limit = relax >= 2 ? cap(count) : mode === 'drag' ? (relax ? 2 : 1) : cap(count);
   const frames = new Map();
-  const frameCap = Math.max(2, Math.floor(count / 2)); // mix sentence patterns
+  const frameCap = relax ? count : Math.max(2, Math.floor(count / 2)); // mix sentence patterns
   let n = 0;
   for (const u of units) {
     if (n + u.length > count) continue;
@@ -136,7 +140,7 @@ function pickOnce(units, count, mode) {
     const flat = chosen.flat();
     const cnt = new Map();
     flat.forEach((s) => cnt.set(norm(s.answer), (cnt.get(norm(s.answer)) || 0) + 1));
-    const over = [...cnt].find(([, k]) => k > shareCap(flat.length));
+    const over = [...cnt].find(([, k]) => k > (mode === 'drag' && !relax ? 1 : cap(flat.length)));
     if (!over) break;
     let i = chosen.length - 1;
     while (i > 0 && !chosen[i].some((s) => norm(s.answer) === over[0])) i--;
@@ -160,27 +164,40 @@ function pickSet(units, count, mode, nFirst = 0) {
   const head = units.slice(0, nFirst);
   const tail = units.slice(nFirst);
   let best = [];
-  for (let t = 0; t < 40; t++) {
-    const got = pickOnce([...head, ...(t ? shuffle(tail) : tail)], count, mode);
-    if (got.flat().length > best.flat().length) best = got;
-    if (best.flat().length >= count) break;
+  for (let relax = 0; relax <= 2 && best.flat().length < count; relax++) {
+    for (let t = 0; t < 40; t++) {
+      const got = pickOnce([...head, ...(t ? shuffle(tail) : tail)], count, mode, relax);
+      if (got.flat().length > best.flat().length) best = got;
+      if (best.flat().length >= count) break;
+    }
   }
+  // Order: the focus unit opens the set; then always the answer that is left most often,
+  // unless it would make three in a row (two in a row is fine: that is what keeps the rarer
+  // answers for later and avoids a run at the end).
   const out = [];
   const rest = best.slice();
   while (rest.length) {
     const last = out.length ? norm(out[out.length - 1].answer) : null;
     const prev = out.length > 1 ? norm(out[out.length - 2].answer) : null;
-    // the answer that is left most often goes first (else it piles up at the end); the
-    // first unit (a focus item) opens the set
     const left = new Map();
     rest.forEach((u) => left.set(norm(u[0].answer), (left.get(norm(u[0].answer)) || 0) + 1));
+    const ok = (u) => !(norm(u[0].answer) === last && last === prev);
     let k = -1;
-    rest.forEach((u, j) => {
-      const a = norm(u[0].answer);
-      if (a !== last && (k < 0 || left.get(a) > left.get(norm(rest[k][0].answer)))) k = j;
-    });
-    if (k < 0) k = rest.findIndex((u) => !(norm(u[0].answer) === last && last === prev));
-    if (k < 0 || !out.length) k = 0;
+    // the focus unit opens the set only if the rest can still be ordered without a run of three
+    const feasibleAfter = (u) => {
+      const cnt = new Map(left); const a = norm(u[0].answer); cnt.set(a, cnt.get(a) - 1);
+      const vals = [...cnt.values()]; const total = vals.reduce((x, y) => x + y, 0); const max = Math.max(0, ...vals);
+      return max <= 2 * (total - max + 1);
+    };
+    if (!out.length && nFirst > 0 && feasibleAfter(rest[0])) k = 0;
+    else {
+      rest.forEach((u, j) => {
+        if (!ok(u)) return;
+        const a = norm(u[0].answer), b = k >= 0 ? norm(rest[k][0].answer) : null;
+        if (k < 0 || left.get(a) > left.get(b) || (left.get(a) === left.get(b) && b === last && a !== last)) k = j;
+      });
+    }
+    if (k < 0) k = 0;
     out.push(...rest.splice(k, 1)[0]);
   }
   return mendTeach(out);
@@ -269,7 +286,8 @@ export async function quickPractice({ topic, count = 6, mode = 'choice', focus =
   });
   let step = gapStep(mode, sentences, null, more);
   // drag: too few wrong words left for the bank → the last sentence's answer becomes one
-  while (mode === 'drag' && sentences.length > 3 && step.bank.length - sentences.length < 2) {
+  // (long sets repeat words in the bank anyway, so the last gap is not solved by elimination)
+  while (mode === 'drag' && sentences.length > 3 && sentences.length < 6 && step.bank.length - sentences.length < 2) {
     const drop = sentences[sentences.length - 1];
     sentences = mendTeach(sentences.slice(0, -1));
     step = gapStep(mode, sentences, null, [drop.answer, ...more]);

@@ -31,6 +31,10 @@ def _setup():
         con.execute("DELETE FROM tutors")
     classes._buckets.clear()
     live.ROOMS.clear()
+    with classes.connect() as con:                      # saved lessons from earlier tests
+        con.execute("CREATE TABLE IF NOT EXISTS live_lessons (ts_id INTEGER PRIMARY KEY, ident TEXT NOT NULL, "
+                    "tutor_id INTEGER, lesson TEXT NOT NULL, updated REAL NOT NULL)")
+        con.execute("DELETE FROM live_lessons")
     c = TestClient(main.app)
     tok = c.post("/api/tutor/create", json={"name": "Nora"}).json()["tutor_token"]
     s = c.post("/api/tutor/student/add", json={"name": "Lucas"}, headers={"X-Tutor-Token": tok}).json()
@@ -120,7 +124,7 @@ def test_relay_and_presence():
             m = recv(st, "start")
             assert m["lesson"]["material"] is None and m["lesson"]["items"] == [{"id": "m_es_farm_1"}]
             tu.send_json({"t": "load", "material": FARM})
-            assert recv(st, "load") == {"t": "load", "material": FARM}
+            assert recv(st, "load") == {"t": "load", "material": FARM, "fresh": False}
             tu.send_json({"t": "cmd", "type": "goto", "step": 2, "evil": 1})
             assert recv(st, "cmd") == {"t": "cmd", "type": "goto", "step": 2}
             tu.send_json({"t": "cmd", "type": "rm -rf"})          # dropped
@@ -449,3 +453,44 @@ if __name__ == "__main__":
         if name.startswith("test_") and callable(fn):
             fn()
     print("ok")
+
+
+def test_lesson_survives_restart_and_reload_keeps_progress():
+    """Owner 2026-11-27: progress of a running lesson must not go back to the start
+    (server restart, the same material shown again); "Start again" (fresh) resets it."""
+    r = _setup()
+    if r is None:
+        return
+    c, tok, sid, key, _ = r
+    import live
+    st1 = {"v": 1, "kind": "worksheet", "id": "m_es_farm_1", "step": 3, "first": 2}
+    with c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as tu, \
+            c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as st:
+        hello_tutor(tu, tok, sid); hello_student(st, key)
+        tu.send_json({"t": "load", "material": FARM, "items": [{"k": "m", "id": "m_es_farm_1"}], "index": 0})
+        recv(st, "load")
+        st.send_json({"t": "state", "state": st1})
+        assert recv(tu, "state")["state"]["step"] == 3
+        # the same material again: progress kept, the student is told it is not fresh
+        tu.send_json({"t": "load", "material": FARM, "items": [], "index": 0})
+        m = recv(st, "load"); assert m["fresh"] is False
+        assert live.ROOMS[sid].lesson["state"]["step"] == 3
+    # both left: the lesson is in the database; the server "restarts" (memory gone)
+    live.ROOMS.clear()
+    with c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as st:
+        rd = hello_student(st, key)
+        L = rd["lesson"]
+        assert L and L["material"]["id"] == "m_es_farm_1" and L["state"]["step"] == 3 and L.get("state_at")
+    # "Start again": fresh resets the progress
+    with c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as tu, \
+            c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as st:
+        hello_tutor(tu, tok, sid); hello_student(st, key)
+        tu.send_json({"t": "load", "material": FARM, "items": [], "index": 0, "fresh": True})
+        m = recv(st, "load"); assert m["fresh"] is True
+        assert live.ROOMS[sid].lesson["state"] is None
+        tu.send_json({"t": "end"})
+        recv(st, "end")
+    # an ended lesson is not restored after a restart
+    live.ROOMS.clear()
+    with c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as st:
+        assert hello_student(st, key)["lesson"] is None
