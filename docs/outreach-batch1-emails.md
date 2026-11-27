@@ -20,7 +20,7 @@ signature (its ad link counted as a broken link on mail-tester):
   ```
   Jan Ahrens
   Creador de Krabsy
-  Gramática con juegos – gratis para el alumnado, sin registro ni publicidad
+  Gramática con juegos – gratis para estudiantes, sin registro ni publicidad
   https://krabsy.com/es/
   ```
 - hello@krabsy.com (EN):
