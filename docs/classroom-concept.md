@@ -268,7 +268,47 @@ tools are introduced.
 **Next feature:** optional teacher sign-in ("Klasse sichern") on the class
 pages DE/ES/EN, reusing the tutor email sign-in; existing classes can be
 attached to the account via their secret link. The "ohne Konto" promises
-stay true.
+stay true. **Built 2026-11-27**, see "Teacher sign-in as built" below.
+
+## Teacher sign-in as built (2026-11-27)
+
+Built to the decision above; not deployed yet (deploy the API first).
+
+- **Account model:** one account identity for teachers and tutors
+  (`api/accounts.py`, tables `accounts`, `account_links`, `account_sessions`).
+  An account is only an email; the teacher role = classes with
+  `classes.account_id`, the tutor role = a tutor space with `tutors.account_id`.
+  One sign-in flow (email → one-time link → session per device); the link
+  lands on the page of its context (teachers: "Meine Klassen" in their
+  language, tutors: `/en/spanish/tutors/login/`). `tutor_auth.py` keeps the
+  tutor endpoints on top of it; the 2026-11-25 tutor tables migrate on start.
+- **Sessions:** like the tutor sign-in: token in `localStorage`
+  (`krabsy_account` on class pages), sent as `X-Account-Token`
+  (`X-Tutor-Token` on tutor pages, same session), stored as SHA-256, 60 days
+  after last use, sign-out per device. Links: 20 minutes, single use, hashed.
+- **Security:** rate limits 30 link requests per IP and 5 per address per hour
+  (shared with tutors), 60 verifies per IP per 10 min, 60 attaches per IP per
+  hour; `/login` answers the same for known and unknown addresses and the
+  teacher email text doesn't depend on whether an account exists. A class
+  attached to one account can't be attached to another (409) until detached.
+  Saved classes open with the account (`#c=<id>`), so the secret link is no
+  longer the only key; owners can replace it ("Neuen geheimen Link
+  erstellen", the old one stops at once). The secret link keeps working for
+  every class: it is the way back in after "delete account".
+- **Purge:** classes as before (180 days without activity). Accounts with no
+  class and no tutor space: deleted 180 days after the last sign-in or use.
+  Deleting a tutor space deletes an otherwise empty account. "Konto löschen"
+  removes email, sessions, open links and the account→class links at once;
+  refused (409) while the account also has a tutor space.
+- **Pages:** create (card "Klasse sichern", recommended, "Später"), dashboard
+  (quiet card / "Zu meinem Konto hinzufügen" / "Gesichert in Ihrem Konto"),
+  "Meine Klassen" `/de/lehrkraefte/meine-klassen/`, `/es/docentes/mis-clases/`.
+  EN has no class pages (sections.json `class: null`), so nothing there.
+- **Texts:** `ui_<lang>.json` `classes` (page) and `mail` (emails, de/es/en,
+  copied into `api/catalog.json`). Privacy pages DE/ES/EN and the teacher
+  pages updated; "Klasse erstellen ohne Konto und ohne E-Mail" stays true.
+- **Open for the owner:** name the email provider in the privacy pages?
+  Per-language senders (`MAIL_FROM_DE/_ES/_EN`, needs aliases); lawyer review.
 
 ## Phase 2 as built (2026-11-22)
 

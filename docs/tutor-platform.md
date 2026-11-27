@@ -339,8 +339,15 @@ reveal whether an email has a space; the email says what happened. Only hashes a
 stored. Pages: `/en/spanish/tutors/` (create + sign in), `/en/spanish/tutors/login/#l=`
 (the link from the email), space links are now `#s=<id>` (old spaces keep `#t=`).
 
+**Since 2026-11-27** the sign-in is shared with teachers: one account identity
+(`api/accounts.py`, an account = an email; the tutor space hangs on it via
+`tutors.account_id`), `tutor_auth.py` keeps the endpoints above on top of it, email
+texts per language in `homepage/data/ui_<lang>.json` `mail`. See
+`docs/classroom-concept.md` "Teacher sign-in as built".
+
 Sending: `api/mailer.py`, SMTP from the environment (`SMTP_HOST`, `SMTP_PORT`,
-`SMTP_USER`, `SMTP_PASSWORD`, optional `MAIL_FROM`, `SITE_URL`). Mailbox:
+`SMTP_USER`, `SMTP_PASSWORD`, optional `MAIL_FROM`, `MAIL_FROM_DE/_ES/_EN` per
+interface language, `SITE_URL`). Mailbox:
 **hello@krabsy.com at Namecheap Private Email** (`mail.privateemail.com`, port 465).
 Without `SMTP_HOST` the mail is printed to the log (local preview prints links there).
 
