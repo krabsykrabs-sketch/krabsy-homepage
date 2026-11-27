@@ -302,6 +302,24 @@ function watchTyping() {
 }
 
 
+
+/* Returning visitors who type krabsy.com (owner 2026-11-27): the server picks a
+   section from the browser language (it can't see storage, and we use no cookies).
+   If this section home was reached through that redirect and the child used
+   another section last time, go there. A page opened directly or by a link is
+   never redirected. */
+(function returnToLastSection() {
+  try {
+    const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (!nav || !(nav.redirectCount > 0)) return;           // only after the krabsy.com/ redirect
+    const here = SECTIONS.find((s) => location.pathname === s.home);
+    if (!here) return;
+    const last = localStorage.getItem(SECTION_KEY);
+    const to = SECTIONS.find((s) => s.id === last);
+    if (to && to.id !== here.id) location.replace(to.home + location.search + location.hash);
+  } catch (_) { /* never break the page */ }
+})();
+
 /* ── Wrong language? (owner 2026-11-27: "we will lose any child that lands on the
    wrong language page"). The start page sends English-only browsers to the English
    interface (Spanish course); a German or Spanish child on an English laptop then
