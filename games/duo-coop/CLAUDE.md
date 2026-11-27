@@ -102,6 +102,31 @@ fetched).
   "N answers in M min · X % right"; each room logs its count
   (`[duo] room 1: 6 answers in 20 s`).
 
+## Look: KayKit models (owner 2026-11-27: "use actual assets")
+
+`assets/models/` (1.4 MB, glTF + texture atlases, CC0; sources and credits in its
+`README.md`), all KayKit so they match the figures:
+
+| Part | Model |
+|---|---|
+| ground | Block Bits blocks, two deep; per room top / body: dirt_with_grass / stone, wood / bricks_B, bricks_A / stone_dark |
+| back wall | Dungeon wall, wall_window_closed, wall_arched, wall_cracked (4 × 4.5 pieces, seeded per room) |
+| decoration | Dungeon torch_mounted (+ a warm point light), banners, barrel_large, crates_stacked; placed by a seeded pass along the floors, never next to puzzle objects |
+| ladder | Medieval Hexagon ladder |
+| lever / heavy lever | Platformer lever_floor_base yellow / red (bigger); the handle node flips |
+| switch | Platformer lever_wall_base_A blue (handle turns) |
+| bridge post / bridge | Platformer signage_arrow_stand (turns round when built) / floor_wood_1x1 (amber ghost before) |
+| door / locked door | Prototype Bits Door_A (slides up); the locked one darker with the Dungeon key on it |
+| heavy gate | two iron leaves of the Halloween arch_gate, lifted |
+| exit | Halloween arch_gate, both leaves swing open, teal light behind |
+| portal | Platformer hoop (grey when off, yellow + teal swirl when on) |
+| crate / caged crate | Dungeon box_small / hanging on Platformer chain_full |
+| key | Dungeon key (floating; carried above the head) |
+
+Only the "?" markers, the bridge ghost and the portal / exit glow are drawn by the game.
+Swapping a model = change the name in `src/models.js` `MODEL_NAMES` and the `fit()` call
+in `src/world.js`, copy its .gltf/.bin/texture into `assets/models/`.
+
 ## Figures
 
 Player 1: tile 1 is "Your figure" (`loadPlayerFigure`, the Schülerin without a
@@ -119,7 +144,8 @@ camera), Walking_C (pushing), Interact (answering, facing the camera), Idle_B
   `body[data-state]`, `window.__duo`)
 - `src/game.js` (rooms, objects, interactions, camera, overlays, debug API),
   `src/physics.js` (cell grid + box bodies, no physics library), `src/levels.js`,
-  `src/world.js` (3D room from primitives: no model files at all),
+  `src/world.js` (the 3D room from KayKit models), `src/models.js` (loads
+  `assets/models/`, `fit()` to size a model to cells),
   `src/figures.js`, `src/cards.js`, `src/input.js`, `src/questions.js`,
   `src/i18n.js`, `src/sound.js` (WebAudio synth)
 - `vendor/three` (r169, copied from the Platformer: three, GLTFLoader,
@@ -155,11 +181,16 @@ measure it.
   Hiker), 0 console errors. Also checked: `?topic=es_ser&lang=en`,
   `?topic=prepositions&lang=de`, `?topic=es_ser_estar&lang=es&difficulty=1`, phone
   844×390 with touch: cards fit, teach line after a miss, 0 errors; without `/lib`:
-  stand-in figures + inline verbs. Headless Chromium sometimes reports 1–2 figure
-  `.glb` requests as ERR_ABORTED although they load (the bot lists them as warnings;
-  a plain page load shows none). Not tested on a real tablet or by two real players.
+  stand-in figures + inline verbs. (Aborted-request reports in these runs:
+  see the next entry.) Not tested on a real tablet or by two real players.
   Committed on the session's worktree branch `claude/nervous-golick-d26e0f`, not
   pushed; master session: merge it into `main`.
+- 2026-11-27 — Cherry-picked onto main (640001ea); work continues on main. Fewer keys
+  (3bbe690d). **KayKit models instead of drawn shapes** (owner: "use actual assets"):
+  see "Look". Play-test ALL OK (desktop + touch, all 3 rooms, 0 errors, 0 failed
+  requests). The ERR_ABORTED reports from earlier runs came from `tools/serve.py`
+  sending `Cache-Control: no-store`; it sends `no-cache` now and the bot counts every
+  failed request as an error again.
 
 ## Open (owner)
 

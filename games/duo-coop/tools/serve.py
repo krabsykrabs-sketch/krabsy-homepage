@@ -7,7 +7,7 @@
 /games/duo-coop/… is served from this source folder, everything else
 (/lib, /data, /assets/figures …) from homepage/, so the game finds the
 question engine, the stats and the figures exactly as it would on the site.
-No caching, so a reload always runs the current source.
+The browser revalidates every file, so a reload always runs the current source.
 """
 import http.server, os, sys
 from functools import partial
@@ -30,7 +30,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return full if full.startswith(root) else root
 
     def end_headers(self):
-        self.send_header('Cache-Control', 'no-store')
+        # no-cache (revalidate) rather than no-store: with no-store headless Chromium reports
+        # parallel fetches as ERR_ABORTED although the files arrive
+        self.send_header('Cache-Control', 'no-cache')
         super().end_headers()
 
     def log_message(self, *a):

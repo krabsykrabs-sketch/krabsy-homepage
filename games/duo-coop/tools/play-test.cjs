@@ -48,13 +48,7 @@ async function run(browser, cfg) {
   }
   const warnings = [];
   page.on('requestfailed', (r) => {
-    if (/api\.krabsy\.com/.test(r.url())) return;
-    const msg = `failed after ${Date.now() - t0} ms: ${r.url()} ${r.failure()?.errorText}`;
-    // Headless Chromium sometimes reports a figure .glb as ERR_ABORTED a few ms after the
-    // request starts although the file arrives and the figure is built (no second request).
-    // Counted as a warning; a figure that really fails shows up as a built stand-in below.
-    if (/\/assets\/figures\/.*\.glb$/.test(r.url()) && /ERR_ABORTED/.test(r.failure()?.errorText || '')) warnings.push(msg);
-    else errors.push(msg);
+    if (!/api\.krabsy\.com/.test(r.url())) errors.push(`failed after ${Date.now() - t0} ms: ${r.url()} ${r.failure()?.errorText}`);
   });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
   await page.goto(BASE + cfg.query + EXTRA);

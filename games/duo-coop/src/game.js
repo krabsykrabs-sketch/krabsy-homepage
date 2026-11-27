@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { ROOMS, W, H } from './levels.js';
 import { World, ROLES } from './physics.js';
 import { buildRoom, questionMarker, carriedKey } from './world.js';
+import { loadModels } from './models.js';
 import { makeFigure } from './figures.js';
 import { createCards } from './cards.js';
 import { KEY_LABEL } from './input.js';
@@ -62,6 +63,9 @@ export async function createGame(canvas, opts) {
   const hudScore = document.getElementById('hud-score');
   const hudTime = document.getElementById('hud-time');
 
+  // ── room models (KayKit, assets/models/) ─────────────────────────────────────────────
+  const models = await loadModels();
+
   // ── players ─────────────────────────────────────────────────────────────────────────
   const players = [];
   for (let pi = 0; pi < 2; pi++) {
@@ -69,7 +73,7 @@ export async function createGame(canvas, opts) {
     const role = ROLES[c.role];
     const fig = await makeFigure(c.choice, role.look, pi === 0 ? 0x2ee6c0 : 0xff8585);
     scene.add(fig.root);
-    const key = carriedKey(); key.visible = false; fig.root.add(key);
+    const key = carriedKey(models); key.visible = false; fig.root.add(key);
     players.push({ pi, role: c.role, fig, key, cfg: c, body: null, hasKey: false, holding: null, carrying: null,
       inZone: new Set(), portalCd: 0, card: false, near: null, answers: 0, right: 0, wasGround: true });
   }
@@ -99,7 +103,7 @@ export async function createGame(canvas, opts) {
     roomIdx = i;
     room = ROOMS[i];
     world = new World(room);
-    view = buildRoom(scene, room, world);
+    view = buildRoom(scene, room, world, models);
     scene.background = new THREE.Color(view.theme.sky);
     objs = new Map();
     for (const o of room.objects) {
@@ -516,7 +520,7 @@ export async function createGame(canvas, opts) {
   let raf = 0, last = performance.now();
   function loop(now) {
     raf = requestAnimationFrame(loop);
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));   // rAF time can be older than the start
     last = now;
     if (!manual) frame(dt);
     render(paused ? 0 : dt);
@@ -555,6 +559,7 @@ export async function createGame(canvas, opts) {
       boxes: () => boxes.map((b) => ({ x: b.x, y: b.y, carried: !!b.carried, static: !!b.static })),
       // tests: run the simulation without drawing (headless software GL is ~4 fps)
       manual(b) { manual = !!b; },
+      loadRoom(i) { loadRoom(i); },
       advance(seconds, dt = 1 / 60) { for (let s = 0; s < seconds; s += dt) frame(dt); },
       press: (pi, b) => input._press(pi, b),
       release: (pi, b) => input._release(pi, b),
