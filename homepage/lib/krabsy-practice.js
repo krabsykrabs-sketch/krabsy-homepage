@@ -15,7 +15,8 @@
 
    "The child's topics" = topics of this section answered at least once
    (krabsy-stats.js) + homework topics + the section's starter topic.
-   A topic belongs to the section when topics.json has a URL for its language.
+   A topic belongs to the section when its subject matches and it has a URL in
+   the section's interface language (krabsy-lang.js, sections.json).
 
    Every answer: recordAttempt(item, form, correct, 'practice', topic, mode),
    mode 'choice' | 'typed' (shells, gifts and the tutor's map follow).
@@ -28,18 +29,15 @@ import { loadTopics, loadGames } from '/lib/krabsy-data.js';
 import { recordAttempt, readTopicItems } from '/lib/krabsy-stats.js';
 import { itemState, KNOWN, INTERVAL_DAYS } from '/lib/krabsy-smart.js';
 import { getShells } from '/lib/krabsy-shells.js';
+import { currentLang, currentSection, sectionTopics as sectionTopicIds, topicLearnLang, subjectKeys, gameUrl, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 import { thisWeek, addSession, ringSvg, ringText, totalSessions } from '/lib/krabsy-practice-week.js?v=2026-11-27';
 
 const WARM = 8;          // questions in step 1
 const FOCUS = 5;         // questions in step 2
 const DAY = 86400000;
 
-const LANG = (() => { const m = location.pathname.match(/^\/(de|es|en)\//); return m ? m[1] : 'de'; })();
-const SECTION = {
-  de: { starter: 'irregular_verbs', games: '/de/spiele/', home: '/de/', profile: '/de/profil/' },
-  es: { starter: 'irregular_verbs', games: '/es/juegos/', home: '/es/', profile: '/es/perfil/' },
-  en: { starter: 'es_ser', games: '/en/spanish/games/', home: '/en/spanish/', profile: '/en/my-profile/' },
-}[LANG];
+const LANG = currentLang();
+const SECTION = currentSection();   // { home, games, starter, … } from sections.json
 
 const TXT = {
   de: {
@@ -103,14 +101,14 @@ const TXT = {
     noGames: 'All games →', typeLabel: 'Your answer', blank: 'gap',
   },
 };
-const T = TXT[LANG];
+const T = TXT[LANG] || TXT.en;
 
 /* ── small helpers ─────────────────────────────────────────────────────── */
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const main = document.getElementById('kp');
 const $ = (sel) => main.querySelector(sel);
 const stripAccents = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
-const learnAttr = (topic) => (/^es_/.test(topic) ? 'es' : 'en');
+const learnAttr = (topic) => topicLearnLang(topic) || 'en';   // lang attribute of learning-language text
 let lastKeyboard = false;
 window.addEventListener('keydown', () => { lastKeyboard = true; }, true);
 window.addEventListener('pointerdown', () => { lastKeyboard = false; }, true);
@@ -119,12 +117,12 @@ function focusSoft(el, force = false) { if (el && (lastKeyboard || force)) try {
 /* ── which topics ──────────────────────────────────────────────────────── */
 let topicsJson = {};
 function sectionTopics() {
-  return Object.keys(topicsJson).filter((id) => topicsJson[id][LANG] && topicsJson[id].status !== 'coming_soon'
+  return sectionTopicIds(SECTION).filter((id) => topicsJson[id] && topicsJson[id].status !== 'coming_soon'
     && TOPICS.includes(id) && topicSupports(id, 'quiz'));
 }
 function topicName(id) {
   const t = topicsJson[id] || {};
-  return (t.short_name && t.short_name[LANG]) || (t.display_name && t.display_name[LANG]) || id;
+  return pickLang(t.short_name, LANG) || pickLang(t.display_name, LANG) || id;
 }
 
 /** Per topic: { seen, weak, due, share, last } from the child's stats. */
@@ -381,8 +379,9 @@ function runQuestions(list, { step, typed, title }) {
     function ask(q, asTyped) {
       if (asTyped) {
         const input = `<input class="kp-input" id="kp-in" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" lang="${learnAttr(q.topic)}" aria-label="${esc(T.typeLabel)}" placeholder="${esc(T.typePh)}">`;
-        const accents = learnAttr(q.topic) === 'es'
-          ? `<div class="kp-keys" aria-hidden="false">${['á', 'é', 'í', 'ó', 'ú', 'ñ'].map((c) => `<button type="button" class="kp-key" data-key="${c}" tabindex="-1">${c}</button>`).join('')}</div>` : '';
+        const keys = subjectKeys(q.topic);
+        const accents = keys.length
+          ? `<div class="kp-keys" aria-hidden="false">${keys.map((c) => `<button type="button" class="kp-key" data-key="${c}" tabindex="-1">${c}</button>`).join('')}</div>` : '';
         frame(`${promptHtml(q)}
           <form class="kp-type" id="kp-form" autocomplete="off">${input}<button type="submit" class="kp-btn kp-btn-main">${esc(T.check)}</button></form>
           ${accents}
@@ -518,7 +517,7 @@ async function suggestGames(plan) {
       if (plan.hw.glang && plan.hw.glang !== LANG) q.set('lang', plan.hw.glang);
       q.set('from', 'teacher');
     }
-    return { href: `${SECTION.games}${g.id}/?${q}`, name: (g.name && (g.name[LANG] || g.name.en)) || g.id,
+    return { href: `${gameUrl(SECTION, g.id)}?${q}`, name: pickLang(g.name, LANG) || g.id,
       thumb: g.thumb_small || g.thumbnail || '' };
   });
 }

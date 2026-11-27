@@ -793,7 +793,8 @@ EN_SPANISH = {
         "meta": "A 3D island game for Spanish: find eggs, answer Spanish sentences to pick them up and hatch creatures. Free in the browser, no sign-up.",
     },
 }
+# Keys of CONTENT / TEACHES / TEACHER are section ids (homepage/data/sections.json).
 for _gid, _c in EN_SPANISH.items():
-    CONTENT.setdefault(_gid, {})["en"] = _c
+    CONTENT.setdefault(_gid, {})["en/spanish"] = _c
 
-TEACHES["en"] = {"default": "Spanish grammar for beginners: ser, estar, ser or estar, tener"}
+TEACHES["en/spanish"] = {"default": "Spanish grammar for beginners: ser, estar, ser or estar, tener"}

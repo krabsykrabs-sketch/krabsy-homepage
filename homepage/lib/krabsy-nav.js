@@ -27,8 +27,9 @@
    the end-actions block by class and inserts itself after them.
    ────────────────────────────────────────────────────────────────────────── */
 
-import { loadStrings, buildPageUrl, getTopicSlug, getAllGames, getGamesForTopic, loadTopics } from './krabsy-data.js';
+import { loadStrings, buildPageUrl, getTopicSlug, getAllGames, getGamesForTopic } from './krabsy-data.js';
 import { mountShellCounter } from './krabsy-shells.js';
+import { currentLang, currentSection, sectionGames, gameUrl, uiPage } from './krabsy-lang.js?v=2026-11-27';
 
 /* For the chip bar we need a key (i18n lookup) and a pageId understood by
    buildPageUrl(). Slugs themselves now come from /data/topics.json — see
@@ -47,47 +48,15 @@ const TOOLS = [
   { key: 'free_practice', pageId: 'free-practice' },
 ];
 
-/* Arcade games live outside the topic tree, under /<lang>/<spiele|juegos>/.
-   The folder name is language-specific but the game slug itself isn't.
-   The actual game catalogue (names, taglines, thumbnails, topic affinity,
-   status) lives in /data/games.json and is loaded via getAllGames() /
-   getGamesForTopic() — see buildGameStrip() and buildGameHeader() below. */
-const GAMES_FOLDER = { de: 'spiele', es: 'juegos', en: 'spanish/games' };
-
-/* Section home per interface language. /en/ is the Spanish section for English
-   speakers (2026-11-24): its pages live under /en/spanish/. */
-const SECTION_HOME = { de: '/de/', es: '/es/', en: '/en/spanish/' };
-
-/* A section shows only the games that play one of its topics (topics with a URL
-   in that language, topics.json). For /de/ and /es/ that is every game. */
-async function sectionGames(games, lang) {
-  let topics = {};
-  try { topics = await loadTopics(); } catch (_) { return games; }
-  const own = new Set(Object.keys(topics).filter((id) => topics[id] && topics[id][lang]));
-  return games.filter((g) => (g.topics || []).some((t) => own.has(t)));
-}
+/* Arcade games live outside the topic tree, under the section's games folder
+   (sections.json: /de/spiele/, /es/juegos/, /en/spanish/games/). A section
+   shows only the games that play one of its topics (krabsy-lang.js). The game
+   catalogue lives in /data/games.json (getAllGames / getGamesForTopic). */
 
 /* Default topic when a caller doesn't specify one. Drill/tool pages that
    pre-date the topic chooser (every verb-side page) omit the topic arg and
    inherit this. Prep pages pass `'prepositions'` explicitly. */
 const DEFAULT_TOPIC = 'irregular_verbs';
-
-function gameUrl(lang, slug) {
-  const folder = GAMES_FOLDER[lang] || GAMES_FOLDER.de;
-  return `/${lang}/${folder}/${slug}/`;
-}
-
-/* Detect the active language tree from the URL (/de/… vs /es/…). The
-   homepage redirect bounces visitors to one or the other, so by the
-   time any chip bar renders the path is always prefixed. Falls back
-   to DE for any path that doesn't match either tree. */
-function currentLang() {
-  if (typeof window !== 'undefined' && window.location) {
-    const m = window.location.pathname.match(/^\/(de|es|en)(\/|$)/);
-    if (m) return m[1];
-  }
-  return 'de';
-}
 
 const END_ACTIONS_SELECTORS = [
   '.sprint-end-actions',
@@ -289,10 +258,11 @@ async function buildGameStrip(strings, count, topic) {
 
   const picked = shuffle(games).slice(0, Math.min(count, games.length));
   const lang = currentLang();
+  const section = currentSection();
   for (const g of picked) {
     const a = document.createElement('a');
     a.className = 'k-game-tile';
-    a.href = gameUrl(lang, g.id);
+    a.href = gameUrl(section, g.id);
 
     const thumb = document.createElement('div');
     thumb.className = 'k-game-tile-thumb';
@@ -419,10 +389,11 @@ async function buildGameHeader(currentKey, strings) {
   header.className = 'k-game-nav';
 
   const lang = currentLang();
-  // Arcade pages live OUTSIDE the topic tree, under /<lang>/<spiele|juegos>/.
-  // The logo and back link go to the brand home (the topic chooser at
-  // /<lang>/), which is the canonical entry point of the site.
-  const hubHref = SECTION_HOME[lang] || `/${lang}/`;
+  const section = currentSection();
+  // Arcade pages live OUTSIDE the topic tree, under the section's games folder.
+  // The logo and back link go to the section home (the topic chooser), which
+  // is the canonical entry point of the site.
+  const hubHref = section.home;
 
   const logo = document.createElement('a');
   logo.className = 'k-game-nav-logo';
@@ -439,7 +410,7 @@ async function buildGameHeader(currentKey, strings) {
   // Load chip list from games.json. The chip bar is platform-level navigation
   // (not topic-filtered) — every page shows every game.
   let games = [];
-  try { games = await sectionGames(await getAllGames(), lang); }
+  try { games = sectionGames(await getAllGames(), section); }
   catch (err) { console.error('krabsy-nav: games.json fetch failed', err); }
 
   // Normalize the page-supplied currentKey ("verb_slash") to the games.json
@@ -458,7 +429,7 @@ async function buildGameHeader(currentKey, strings) {
       a.href = '#';
       a.addEventListener('click', (ev) => ev.preventDefault());
     } else {
-      const href = gameUrl(lang, g.id);
+      const href = gameUrl(section, g.id);
       a.href = href;
       a.addEventListener('click', (ev) => guardedGameClick(ev, href, strings));
     }
@@ -475,10 +446,11 @@ async function buildGameHeader(currentKey, strings) {
   let classBadge = null;
   try {
     const cs = JSON.parse(localStorage.getItem('krabsy_class') || 'null');
-    if (cs && cs.name && lang !== 'en') {          // classes exist on /de/ and /es/ only
+    const classUrl = uiPage('class', lang);         // not every interface language has classes
+    if (cs && cs.name && classUrl) {
       classBadge = document.createElement('a');
       classBadge.className = 'k-game-nav-class';
-      classBadge.href = lang === 'es' ? '/es/clase/' : '/de/klasse/';
+      classBadge.href = classUrl;
       classBadge.textContent = '👥 ' + cs.name + ' · ' + cs.nickname;
       classBadge.addEventListener('click', (ev) => guardedGameClick(ev, classBadge.href, strings));
     }

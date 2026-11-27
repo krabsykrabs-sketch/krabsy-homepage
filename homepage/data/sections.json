@@ -1,0 +1,33 @@
+{
+  "_doc": "Section registry (docs/i18n-scaling.md N1). A section = interface language (ui) x subject. A topic belongs to a section when its subject (topics.json) matches and it has a URL slug for the section's ui. Edit here, then run python3 tools/krabsy_registry.py (writes lib/krabsy-registry.js) and tools/check_catalogues.py.",
+  "default_ui": "de",
+  "fallback_ui": "en",
+  "ui": {
+    "de": { "name": "Deutsch", "profile": "/de/profil/", "figure": "/de/meine-figur/", "class": "/de/klasse/",
+            "class_create": "/de/lehrkraefte/klasse-erstellen/", "class_dashboard": "/de/lehrkraefte/klasse/" },
+    "es": { "name": "Español", "profile": "/es/perfil/", "figure": "/es/mi-personaje/", "class": "/es/clase/",
+            "class_create": "/es/docentes/crear-clase/", "class_dashboard": "/es/docentes/clase/" },
+    "en": { "name": "English", "profile": "/en/my-profile/", "figure": "/en/my-figure/", "class": null, "class_create": null, "class_dashboard": null }
+  },
+  "subjects": {
+    "english": { "lang": "en", "keys": [] },
+    "spanish": { "lang": "es", "keys": ["á", "é", "í", "ó", "ú", "ñ"] }
+  },
+  "sections": [
+    {
+      "id": "de", "ui": "de", "subject": "english",
+      "home": "/de/", "games": "/de/spiele/", "teachers": "/de/lehrkraefte/", "practice": "/de/ueben/",
+      "starter": "irregular_verbs"
+    },
+    {
+      "id": "es", "ui": "es", "subject": "english",
+      "home": "/es/", "games": "/es/juegos/", "teachers": "/es/docentes/", "practice": "/es/practicar/",
+      "starter": "irregular_verbs"
+    },
+    {
+      "id": "en/spanish", "ui": "en", "subject": "spanish",
+      "home": "/en/spanish/", "games": "/en/spanish/games/", "teachers": "/en/spanish/teachers/", "practice": "/en/spanish/practise/",
+      "starter": "es_ser"
+    }
+  ]
+}

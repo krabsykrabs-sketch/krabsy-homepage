@@ -16,6 +16,7 @@
 
 import { getOverall, readTopicItems } from './krabsy-stats.js';
 import { rankItems } from './krabsy-smart.js';
+import { TOPICS as REGISTRY_TOPICS } from './krabsy-lang.js?v=2026-11-27';
 
 const DATA_BASE = new URL('/data/', import.meta.url);
 const LANG_KEY = 'krabsy_lang';
@@ -109,29 +110,22 @@ async function _applyLinkLevel(topic, list) {
 }
 
 /* ── Question topics: registry (format v2, docs/vision.md) ──────────────────
-   Every topic a game or drill can ask. `learn` = the language being
-   learned (the sentences); the interface language is getLang().
-   `file` = a gap-topic file in /data/ (format v2, see content/FORMAT.md);
-   the two original topics keep their own loaders and formats.
-   Topic ids: the original English topics are unprefixed; new topics start
-   with their learning language (es_ser, en_…). Ids must also be in the
-   API's TOPICS set (api/classes.py) or class stats drop them. */
+   Every topic a game or drill can ask, from data/topics.json via the
+   generated lib/krabsy-registry.js (tools/krabsy_registry.py): `subject`
+   (sections.json subjects), `learn` = the language being learned (the
+   sentences), `level`, `shapes`, and `file` = a gap-topic file in /data/
+   (format v2, content/FORMAT.md); the two original topics keep their own
+   loaders and formats. The interface language is currentLang().
+   The API reads the same topics.json (api/catalog.py). */
 
-const TOPIC_REGISTRY = {
-  irregular_verbs: { learn: 'en', level: null, shapes: ['chain', 'quiz'] },
-  prepositions:    { learn: 'en', level: null, shapes: ['quiz'] },
-  // Spanish pilot (2026-11-24, for a teacher's 1:1 lessons): no public page yet
-  es_ser:          { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser.json' },
-  es_estar:        { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-estar.json' },
-  es_ser_estar:    { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser-estar.json' },
-  es_tener:        { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-tener.json' },
-};
+const TOPIC_REGISTRY = Object.fromEntries(Object.entries(REGISTRY_TOPICS).map(([id, t]) => [id,
+  { subject: t.subject, learn: t.learn, level: t.level, shapes: t.shapes, ...(t.file ? { file: t.file } : {}) }]));
 
 /** Live list of topic ids (the same array object stays valid after
     registerTopic, so importers may keep a reference). */
 export const TOPIC_IDS = Object.keys(TOPIC_REGISTRY);
 
-/** { learn, level, shapes, file? } for a topic id, or null. */
+/** { subject, learn, level, shapes, file? } for a topic id, or null. */
 export function topicInfo(id) {
   return TOPIC_REGISTRY[id] || null;
 }

@@ -24,15 +24,9 @@
 
   /* ── shared helpers ─────────────────────────────────────────────────── */
 
-  function currentLang() {
-    var m = location.pathname.match(/^\/(de|es|en)\//);
-    if (m) return m[1];
-    try {
-      var ls = localStorage.getItem('krabsy_lang');
-      if (ls === 'de' || ls === 'es') return ls;
-    } catch (_) {}
-    return 'de';
-  }
+  /* Language and section come from lib/krabsy-lang.js (sections.json),
+     loaded in init(). */
+  var L = null;
 
   function escapeHtml(s) {
     return String(s == null ? '' : s)
@@ -63,7 +57,7 @@
   function renderLegalMount() {
     var mounts = document.querySelectorAll('.k-footer-legal-mount');
     if (!mounts.length) return;
-    var pairs = LEGAL_LINKS[currentLang()] || LEGAL_LINKS.de;
+    var pairs = LEGAL_LINKS[L.currentLang()] || LEGAL_LINKS[L.DEFAULT_UI];
     var html = pairs.map(function (p, i) {
       var sep = i === 0
         ? ''
@@ -103,13 +97,9 @@
     }
   };
 
-  /* Section home + games folder per interface language; /en/ is the Spanish
-     section for English speakers (2026-11-24). */
-  var SECTION = {
-    de: { games: '/de/spiele/', teacher: { label: 'Für Lehrkräfte', href: '/de/lehrkraefte/' } },
-    es: { games: '/es/juegos/', teacher: { label: 'Para docentes', href: '/es/docentes/' } },
-    en: { games: '/en/spanish/games/', teacher: { label: 'For teachers', href: '/en/spanish/teachers/' } }
-  };
+  /* Teacher-page label per interface language; the link is the section's
+     teachers page (sections.json). */
+  var TEACHER_LABEL = { de: 'Für Lehrkräfte', es: 'Para docentes', en: 'For teachers' };
 
   function fetchJSON(url) {
     return fetch(url, { cache: 'force-cache' }).then(function (r) {
@@ -147,12 +137,11 @@
     return col;
   }
 
-  function topicLinksFor(topics, lang, s) {
+  function topicLinksFor(topics, lang, s, section) {
     var out = [];
-    for (var id in topics) {
-      if (!Object.prototype.hasOwnProperty.call(topics, id)) continue;
+    L.sectionTopics(section).forEach(function (id) {
       var t = topics[id];
-      if (!t[lang]) continue;   // topic of another section (only topics with a URL here)
+      if (!t) return;
       var label = (t.short_name && t.short_name[lang])
         || (t.display_name && t.display_name[lang])
         || id;
@@ -163,46 +152,43 @@
         href: '/' + lang + '/' + t[lang] + '/',
         disabled: disabled
       });
-    }
+    });
     return out;
   }
 
-  function gameLinksFor(gamesArr, lang, s, topics) {
-    var base = (SECTION[lang] || SECTION.de).games;
-    var own = {};
-    for (var id in topics) if (topics[id] && topics[id][lang]) own[id] = true;
+  function gameLinksFor(gamesArr, lang, s, section) {
+    var base = section.games;
     var out = [];
-    (gamesArr || []).forEach(function (g) {
+    L.sectionGames(gamesArr, section).forEach(function (g) {
       if (g.status === 'coming_soon') return;
       if (g.audience === 'teacher') return;   // teacher-led (Quiz-Raum): on the teacher pages
-      if (!(g.topics || []).some(function (t) { return own[t]; })) return;   // other section's game
-      var label = (g.name && g.name[lang]) || (g.name && (g.name.de || g.name.es)) || g.id;
-      out.push({ label: label, href: base + g.id + '/' });
+      out.push({ label: L.pickLang(g.name, lang) || g.id, href: L.gameUrl(section, g.id) });
     });
     if (out.length > 5) out = out.slice(0, 5);
     out.push({ label: s.alle_spiele + ' →', href: base });
     return out;
   }
 
-  function aboutLinksFor(lang) {
-    var teacher = (SECTION[lang] || SECTION.de).teacher;
-    return [teacher].concat((LEGAL_LINKS[lang] || LEGAL_LINKS.de).map(function (p) {
+  function aboutLinksFor(lang, section) {
+    var teacher = { label: TEACHER_LABEL[lang] || TEACHER_LABEL.en, href: section.teachers };
+    return [teacher].concat((LEGAL_LINKS[lang] || LEGAL_LINKS[L.DEFAULT_UI]).map(function (p) {
       return { label: p[0], href: p[1] };
     }));
   }
 
   function buildGrid(topics, games, lang) {
-    var s = GRID_STRINGS[lang] || GRID_STRINGS.de;
+    var s = GRID_STRINGS[lang] || GRID_STRINGS.en;
+    var section = L.currentSection();
     var grid = document.createElement('div');
     grid.className = 'k-footer-grid';
-    grid.appendChild(buildColumn(s.themen, topicLinksFor(topics, lang, s)));
-    grid.appendChild(buildColumn(s.spiele, gameLinksFor(games, lang, s, topics)));
-    grid.appendChild(buildColumn(s.ueber, aboutLinksFor(lang)));
+    grid.appendChild(buildColumn(s.themen, topicLinksFor(topics, lang, s, section)));
+    grid.appendChild(buildColumn(s.spiele, gameLinksFor(games, lang, s, section)));
+    grid.appendChild(buildColumn(s.ueber, aboutLinksFor(lang, section)));
     return grid;
   }
 
   function renderGrid(topics, games) {
-    var lang = currentLang();
+    var lang = L.currentLang();
     // Match both class names because the topic hubs still use class="footer"
     // (a normalization sweep will unify these to k-footer separately).
     var footers = document.querySelectorAll('footer.k-footer, footer.footer');
@@ -226,12 +212,15 @@
   }
 
   function init() {
-    renderLegalMount();
     mountShells();
-    Promise.all([
-      fetchJSON('/data/topics.json'),
-      fetchJSON('/data/games.json')
-    ]).then(function (results) {
+    import('/lib/krabsy-lang.js?v=2026-11-27').then(function (mod) {
+      L = mod;
+      renderLegalMount();
+      return Promise.all([
+        fetchJSON('/data/topics.json'),
+        fetchJSON('/data/games.json')
+      ]);
+    }).then(function (results) {
       renderGrid(results[0], results[1]);
     }).catch(function (err) {
       // Grid is enhancement-only; legal-mount has already run.

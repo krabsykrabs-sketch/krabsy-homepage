@@ -31,6 +31,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from game_info_content import CONTENT, GENRE, TEACHES, v as verb_link  # noqa: E402
+from krabsy_registry import sections, section_topics, subject_lang, topics as load_topics, game_url  # noqa: E402
 try:
     from game_info_content import TEACHER  # noqa: E402
 except ImportError:  # older content file
@@ -50,9 +51,10 @@ HEAD_END = "<!-- GAME-HEAD:END -->"
 BODY_START = "<!-- GAME-INFO:START (tools/render_game_info.py) -->"
 BODY_END = "<!-- GAME-INFO:END -->"
 
+# Visible text per section (sections.json id); paths come from the section.
+# CONTENT / TEACHES / TEACHER in game_info_content.py use the same keys.
 L = {
     "de": {
-        "folder": "spiele", "hub": "/de/unregelmaessige-verben",
         "anchor": "anleitung",
         "hint": "▼ Anleitung &amp; Infos zu {name}",
         "crumbs_label": "Brotkrümelnavigation", "home": "Krabsy", "games": "Spiele",
@@ -75,7 +77,6 @@ L = {
         "page_suffix": " — Krabsy",
     },
     "es": {
-        "folder": "juegos", "hub": "/es/verbos-irregulares",
         "anchor": "instrucciones",
         "hint": "▼ Instrucciones e información de {name}",
         "crumbs_label": "Ruta de navegación", "home": "Krabsy", "games": "Juegos",
@@ -97,11 +98,10 @@ L = {
         "resource": "Juego educativo",
         "page_suffix": " — Krabsy",
     },
-    # English interface = the Spanish section for English speakers (2026-11-24)
-    "en": {
-        "folder": "spanish/games", "hub": "/en/spanish/ser", "home_href": "/en/spanish/",
-        "game_lang": "es",
+    # Spanish for English speakers (2026-11-24)
+    "en/spanish": {
         "anchor": "how-to-play",
+        "topic_label": "Topic:",   # games here play several topics: chips with ?topic=
         "hint": "▼ How to play {name}",
         "crumbs_label": "Breadcrumbs", "home": "Krabsy Spanish", "games": "Games",
         "howto": "How to play {name}", "learn": "What you practise",
@@ -140,12 +140,13 @@ def game_name(g, lang):
     return re.sub(r"!$", "", (g.get("name") or {}).get(lang) or g["id"])
 
 
-def render_body(gid, lang, games, inline_game):
-    t = L[lang]
-    c = CONTENT[gid][lang]
+def render_body(gid, sec, games, inline_game):
+    lang = sec["ui"]
+    t = L[sec["id"]]
+    c = CONTENT[gid][sec["id"]]
     gmap = {g["id"]: g for g in games}
     name = game_name(gmap[gid], lang)
-    url_games = f"/{lang}/{t['folder']}/"
+    url_games = sec["games"]
     out = [BODY_START]
     if not inline_game:
         # Teacher practice links (2026-11-25): pass ?lang= ?topic= ?difficulty= of this page
@@ -161,14 +162,14 @@ def render_body(gid, lang, games, inline_game):
         out.append('<div class="kg-stage-spacer" aria-hidden="true"></div>')
     out.append(f'<a class="kg-scroll-hint" href="#{t["anchor"]}">{t["hint"].format(name=esc(name))}</a>')
     out.append(f'<main class="kg-info" id="{t["anchor"]}" lang="{lang}">')
-    out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="{t.get("home_href", f"/{lang}/")}">{t["home"]}</a> › '
+    out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="{sec["home"]}">{t["home"]}</a> › '
                f'<a href="{url_games}">{t["games"]}</a> › <span aria-current="page">{esc(name)}</span></nav>')
     out.append(f'  <h1>{c["h1"]}</h1>')
-    if lang == "en":   # Spanish section: which topic the game asks (game page script marks the current one)
-        topics = json.loads((HOME / "data/topics.json").read_text(encoding="utf-8"))
-        chips = " · ".join(f'<a class="kg-topic" data-es-topic="{tid}" href="?topic={tid}">{esc(t["display_name"]["en"])}</a>'
-                           for tid, t in topics.items() if t.get("en"))
-        out.append(f'  <p class="kg-topics"><strong>Topic:</strong> {chips}</p>')
+    if t.get("topic_label"):   # which topic the game asks (game page script marks the current one)
+        topics = load_topics()
+        chips = " · ".join(f'<a class="kg-topic" data-es-topic="{tid}" href="?topic={tid}">{esc(topics[tid]["display_name"][lang])}</a>'
+                           for tid in section_topics(sec))
+        out.append(f'  <p class="kg-topics"><strong>{t["topic_label"]}</strong> {chips}</p>')
     for p in c["lead"]:
         out.append(f"  <p>{fill_verbs(p, lang)}</p>")
     out.append(f'  <h2>{t["howto"].format(name=esc(name))}</h2>')
@@ -179,10 +180,10 @@ def render_body(gid, lang, games, inline_game):
     out.append(f'  <h2>{t["learn"]}</h2>')
     for p in c["learn"]:
         out.append(f"  <p>{fill_verbs(p, lang)}</p>")
-    if gid in TEACHER and lang in TEACHER[gid]:
+    if gid in TEACHER and sec["id"] in TEACHER[gid]:
         out.append(f'  <h2>{t["teach"]}</h2>')
         out.append('  <ul class="kg-steps">')
-        for li in TEACHER[gid][lang]:
+        for li in TEACHER[gid][sec["id"]]:
             out.append(f"    <li>{li}</li>")
         out.append("  </ul>")
         out.append(f'  <p>{t["teach_more"]}</p>')
@@ -207,7 +208,7 @@ def render_body(gid, lang, games, inline_game):
                      f'loading="lazy" decoding="async" width="320" height="180">')
         else:
             thumb = '<span class="kg-related-emoji" aria-hidden="true">✏️</span>'
-        out.append(f'    <a class="kg-related-card" href="{url_games}{rid}/">'
+        out.append(f'    <a class="kg-related-card" href="{game_url(sec, rid)}">'
                    f'<span class="kg-related-thumb">{thumb}</span>'
                    f'<span class="kg-related-name">{esc(rname)}</span>'
                    f'<span class="kg-related-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</span></a>')
@@ -220,14 +221,15 @@ def render_body(gid, lang, games, inline_game):
     return "\n".join("  " + line if line else line for line in out)
 
 
-def render_head(gid, lang, games, title, description):
-    t = L[lang]
-    c = CONTENT[gid][lang]
+def render_head(gid, sec, games, title, description):
+    lang = sec["ui"]
+    t = L[sec["id"]]
+    c = CONTENT[gid][sec["id"]]
     g = {x["id"]: x for x in games}[gid]
     name = game_name(g, lang)
-    page = f"{SITE}/{lang}/{t['folder']}/{gid}/"
+    page = SITE + game_url(sec, gid)
     image = f"{SITE}{g['thumbnail']}" if g.get("thumbnail") else f"{SITE}/og-image.png"
-    teaches = TEACHES[lang].get(gid, TEACHES[lang]["default"])
+    teaches = TEACHES[sec["id"]].get(gid, TEACHES[sec["id"]]["default"])
     graph = [
         {
             "@type": "WebPage",
@@ -248,7 +250,7 @@ def render_head(gid, lang, games, title, description):
             "url": page,
             "description": description,
             "image": image,
-            "inLanguage": t.get("game_lang", "en"),
+            "inLanguage": subject_lang(sec["subject"]),   # the questions' language
             "genre": GENRE[gid],
             "gamePlatform": "Web browser",
             "applicationCategory": "EducationalApplication",
@@ -267,8 +269,8 @@ def render_head(gid, lang, games, title, description):
             "@type": "BreadcrumbList",
             "@id": page + "#breadcrumb",
             "itemListElement": [
-                {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": SITE + t.get("home_href", f"/{lang}/")},
-                {"@type": "ListItem", "position": 2, "name": t["games"], "item": f"{SITE}/{lang}/{t['folder']}/"},
+                {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": SITE + sec["home"]},
+                {"@type": "ListItem", "position": 2, "name": t["games"], "item": SITE + sec["games"]},
                 {"@type": "ListItem", "position": 3, "name": name, "item": page},
             ],
         },
@@ -311,17 +313,18 @@ def set_meta(text, name_attr, value):
     return pat.sub(lambda m: m.group(1) + esc(value) + m.group(2), text, count=1)
 
 
-def process(path, gid, lang, games):
+def process(path, gid, sec, games):
+    lang = sec["ui"]
     text = path.read_text(encoding="utf-8")
-    c = CONTENT[gid][lang]
+    c = CONTENT[gid][sec["id"]]
     if c.get("meta"):
         for n in ("description", "og:description", "twitter:description"):
             text = set_meta(text, n, c["meta"])
     title = html.unescape(re.search(r"<title>([^<]*)</title>", text).group(1))
     description = html.unescape(re.search(r'<meta name="description" content="([^"]*)"', text).group(1))
     inline_game = 'id="game-world"' in text
-    head = render_head(gid, lang, games, title, description)
-    body = render_body(gid, lang, games, inline_game)
+    head = render_head(gid, sec, games, title, description)
+    body = render_body(gid, sec, games, inline_game)
     if HEAD_START in text:
         text = replace_between(text, HEAD_START, HEAD_END, head)
     else:
@@ -348,18 +351,18 @@ def main():
     games = json.loads((HOME / "data/games.json").read_text(encoding="utf-8"))
     stale, missing = [], []
     for g in games:
-        for lang in ("de", "es", "en"):
-            path = HOME / lang / L[lang]["folder"] / g["id"] / "index.html"
+        for sec in sections():
+            path = HOME / game_url(sec, g["id"]).strip("/") / "index.html"
             if not path.exists():
                 continue
             head = path.read_text(encoding="utf-8")
             if "GAME-INFO:START" not in head and 'content="noindex' in head:
                 continue   # lean tester page (Verb Hatchery's DE/ES pages), no info section
-            if g["id"] not in CONTENT or lang not in CONTENT[g["id"]]:
+            if g["id"] not in CONTENT or sec["id"] not in CONTENT[g["id"]]:
                 missing.append(str(path.relative_to(ROOT)))
                 continue
             old = path.read_text(encoding="utf-8")
-            new = process(path, g["id"], lang, games)
+            new = process(path, g["id"], sec, games)
             if new != old:
                 stale.append(str(path.relative_to(ROOT)))
                 if not check:

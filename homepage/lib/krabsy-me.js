@@ -5,24 +5,14 @@
    Small on purpose: no three.js, no stats module. Everything is read from
    localStorage on this device; nothing here may throw.
 
-     PROFILE_URL / FIGURE_URL   the profile page and the figure builder per language
-     pageLang()                 'de' | 'es' | 'en' from the URL
+     (language, profile/figure URLs and a topic's taught language: krabsy-lang.js)
      savedChar()                the character id of the saved figure, or null
      portraitUrl(char)          its picture (192 × 192 webp, 3–4 KB)
      classSession()             { name, nickname } when the child joined a class
      itemLabel(topic, id)       what a child reads for a stored item id
    ────────────────────────────────────────────────────────────────────────── */
 
-export const PROFILE_URL = { de: '/de/profil/', es: '/es/perfil/', en: '/en/my-profile/' };
-export const FIGURE_URL = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
-
-export function pageLang() {
-  try {
-    const m = location.pathname.match(/^\/(de|es|en)(\/|$)/);
-    if (m) return m[1];
-  } catch (_) { /* no location */ }
-  return 'de';
-}
+import { TOPICS } from '/lib/krabsy-lang.js?v=2026-11-27';
 
 /** Character id of the figure saved on this device (krabsy-figure.js, krabsy_figure_v2), or null.
     Only the shape is checked here; the picture falls back when the id is unknown. */
@@ -95,7 +85,7 @@ export function classSession() {
      irregular_verbs  the base word                              "bring"
      prepositions     the answer in its first example sentence    "at the bus stop"
                       ("I'll meet you ___ the bus stop.")
-     es_* (gap files) the item's short pattern                    "estoy en + place"
+     gap topics       the item's short pattern (topic file from the registry)                    "estoy en + place"
                       (else its first example, filled in: "Yo soy Lucas")
    Unknown topic or id → null (the caller shows nothing). */
 const _files = new Map();
@@ -125,8 +115,9 @@ export async function itemLabel(topic, id) {
         : '';
       return (it.correct + ' ' + after).trim();
     }
-    if (/^es_[a-z_]{1,30}$/.test(topic)) {                // gap topics: /data/es-ser.json …
-      const it = (await loadItems(topic.replace(/_/g, '-') + '.json')).get(id);
+    const info = TOPICS[topic];
+    if (info && info.file) {                              // gap topics: /data/es-ser.json …
+      const it = (await loadItems(info.file)).get(id);
       if (!it) return null;
       if (typeof it.label === 'string' && it.label) return it.label;       // "estoy en + place"
       const ex = (it.examples || [])[0];
@@ -139,5 +130,3 @@ export async function itemLabel(topic, id) {
   return null;
 }
 
-/** 'en' for the English topics, 'es' for the Spanish ones (lang attribute of a label). */
-export const labelLang = (topic) => (/^es_/.test(topic) ? 'es' : 'en');

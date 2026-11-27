@@ -13,17 +13,19 @@
    shown only if it narrows the list (count > 0 and < "all"), so the topic
    chips appear on their own once a second topic has a live game. The
    featured game is left out of "all" (it is right above the grid). */
-import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-21';
+import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-27n';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-25';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
-import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, labelLang, figurePicks, savePick, isCustomFigure } from '/lib/krabsy-me.js?v=2026-11-25c';
+import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, figurePicks, savePick, isCustomFigure } from '/lib/krabsy-me.js?v=2026-11-27';
+import { currentLang, currentSection, topicInSection, topicLearnLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 
-const LANG = ['es', 'en'].includes(document.documentElement.lang) ? document.documentElement.lang : 'de';
+const LANG = currentLang();
+const SECTION = currentSection();
 const T = {
   de: { one: 'Spiel', many: 'Spiele', soon: 'bald verfügbar' },
   es: { one: 'juego', many: 'juegos', soon: 'disponibles pronto' },
   en: { one: 'game', many: 'games', soon: 'coming soon' },   // /en/spanish/ (2026-11-24)
-}[LANG];
+}[LANG] || { one: 'game', many: 'games', soon: 'coming soon' };
 
 function initFilters() {
   const chips = [...document.querySelectorAll('#gl-chips .gl-chip')];
@@ -94,7 +96,7 @@ async function initProgress() {
     let added = 0;
     for (const r of getStrugglers(12)) {
       if (added >= 3) break;
-      if (!r.verb || seen.has(r.topic + '/' + r.verb)) continue;
+      if (!r.verb || seen.has(r.topic + '/' + r.verb) || !topicInSection(r.topic, SECTION)) continue;
       seen.add(r.topic + '/' + r.verb);
       const href = await buildPageUrl(r.topic, 'free-practice', LANG).catch(() => null);
       if (!href) continue;
@@ -102,7 +104,7 @@ async function initProgress() {
       if (!label) continue;
       const a = document.createElement('a');
       a.className = 'gl-prog-chip';
-      a.lang = labelLang(r.topic);
+      a.lang = topicLearnLang(r.topic) || 'en';
       a.href = href + '?verbs=' + encodeURIComponent(r.verb);
       a.textContent = label;
       chipsEl.appendChild(a);

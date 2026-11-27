@@ -21,12 +21,9 @@
 
   var TOPICS_URL = '/data/topics.json';
 
-  var SPIELE = {
-    de: { label: 'Spiele', href: '/de/spiele/', urlSegment: 'spiele' },
-    es: { label: 'Juegos', href: '/es/juegos/', urlSegment: 'juegos' },
-    // /en/ = the Spanish section for English speakers (2026-11-24)
-    en: { label: 'Games', href: '/en/spanish/games/', urlSegment: 'spanish/games' }
-  };
+  /* "Games" chip label per interface language; the link is the section's
+     games page (sections.json via lib/krabsy-lang.js). */
+  var GAMES_LABEL = { de: 'Spiele', es: 'Juegos', en: 'Games' };
 
   var NAV_LABEL = {
     de: 'Themen und Spiele',
@@ -34,32 +31,20 @@
     en: 'Topics and games'
   };
 
-  function currentLang() {
-    var m = location.pathname.match(/^\/(de|es|en)\//);
-    if (m) return m[1];
-    try {
-      var ls = localStorage.getItem('krabsy_lang');
-      if (ls === 'de' || ls === 'es' || ls === 'en') return ls;
-    } catch (_) {}
-    return 'de';
-  }
+  var L = null;   // lib/krabsy-lang.js, loaded in render()
 
   /* Identify the active "destination" for this URL.
        - returns a topic id (e.g. "irregular_verbs") if the URL is under
-         /<lang>/<topic-slug>/...
-       - returns "_games" if the URL is under /<lang>/spiele/ or /<lang>/juegos/
-       - returns null on the language hub or unrelated pages (legal, 404) */
-  function detectActive(topics, lang) {
+         one of the section's topic URLs
+       - returns "_games" if the URL is under the section's games page
+       - returns null on the section home or unrelated pages (legal, 404) */
+  function detectActive(section) {
     var path = location.pathname;
-    var rest = path.replace(/^\/(de|es|en)\/?/, '');
-    if (!rest) return null; // lang hub
-    // Slugs may span two segments on /en/ ("spanish/games", "spanish/ser"): prefix match.
-    var under = function (slug) { return !!slug && (rest === slug || rest.indexOf(slug + '/') === 0); };
-    if (SPIELE[lang] && under(SPIELE[lang].urlSegment)) return '_games';
-    for (var id in topics) {
-      if (Object.prototype.hasOwnProperty.call(topics, id) && under(topics[id][lang])) {
-        return id;
-      }
+    var under = function (url) { return !!url && path.indexOf(url) === 0; };
+    if (under(section.games)) return '_games';
+    var ids = L.sectionTopics(section);
+    for (var i = 0; i < ids.length; i++) {
+      if (under(L.topicUrl(ids[i], section.ui))) return ids[i];
     }
     return null;
   }
@@ -91,29 +76,21 @@
     return s;
   }
 
-  function buildNav(topics, lang, activeId) {
+  function buildNav(topics, lang, section, activeId) {
     var nav = document.createElement('nav');
     nav.className = 'k-topic-nav';
-    nav.setAttribute('aria-label', NAV_LABEL[lang] || NAV_LABEL.de);
+    nav.setAttribute('aria-label', NAV_LABEL[lang] || NAV_LABEL.en);
 
-    for (var id in topics) {
-      if (!Object.prototype.hasOwnProperty.call(topics, id)) continue;
+    L.sectionTopics(section).forEach(function (id) {
       var t = topics[id];
-      if (!t[lang]) continue;   // topic of another section (e.g. es_ser has only an /en/ URL)
-      var label = (t.short_name && t.short_name[lang])
-        || (t.display_name && t.display_name[lang])
-        || id;
-      var slug = t[lang];
-      var href = '/' + lang + '/' + slug + '/';
-      var isActive = (id === activeId);
+      if (!t) return;
+      var label = L.pickLang(t.short_name, lang) || L.pickLang(t.display_name, lang) || id;
       var isDisabled = (t.status === 'coming_soon');
-      nav.appendChild(buildChip(label, href, isActive, isDisabled));
-    }
+      nav.appendChild(buildChip(label, L.topicUrl(id, section.ui), id === activeId, isDisabled));
+    });
 
     nav.appendChild(buildSeparator());
-
-    var s = SPIELE[lang] || SPIELE.de;
-    nav.appendChild(buildChip(s.label, s.href, activeId === '_games', false));
+    nav.appendChild(buildChip(GAMES_LABEL[lang] || GAMES_LABEL.en, section.games, activeId === '_games', false));
 
     return nav;
   }
@@ -121,12 +98,13 @@
   function mount(topics) {
     var headers = document.querySelectorAll('header.k-page-header');
     if (!headers.length) return;
-    var lang = currentLang();
-    var activeId = detectActive(topics, lang);
+    var lang = L.currentLang();
+    var section = L.currentSection();
+    var activeId = detectActive(section);
 
     headers.forEach(function (header) {
       if (header.querySelector('.k-topic-nav')) return; // idempotent
-      var nav = buildNav(topics, lang, activeId);
+      var nav = buildNav(topics, lang, section, activeId);
       var langToggle = header.querySelector('.k-lang-toggle');
       if (langToggle) {
         header.insertBefore(nav, langToggle);
@@ -153,7 +131,10 @@
   }
 
   function render() {
-    loadTopics().then(mount).catch(function (err) {
+    import('/lib/krabsy-lang.js?v=2026-11-27').then(function (mod) {
+      L = mod;
+      return loadTopics();
+    }).then(mount).catch(function (err) {
       console.warn('krabsy-topic-nav: render failed', err);
     });
   }

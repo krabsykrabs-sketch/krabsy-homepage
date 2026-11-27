@@ -1,6 +1,8 @@
 /* Krabsy — teacher practice link builder (2026-11-25).
 
-   Mounts into <div id="link-builder" data-lang="de|es|en">. The teacher picks
+   Mounts into <div id="link-builder"> on a teacher page; the section (interface
+   language × subject, sections.json) comes from the page URL, or from
+   data-section="en/spanish" when the page sits outside the section tree. The teacher picks
    a topic, a game or drill, a difficulty and (for games) the game language; the
    result is a permanent link to the normal student page with the settings in
    its query — nothing is stored anywhere:
@@ -12,16 +14,12 @@
    linkLevel), and from=teacher shows "Practice from your teacher" under the game
    (krabsy-game-info.js).
 
-   Options come from the catalogue: the section's topics (topics.json entries with
-   a URL in this language), the games that play the chosen topic (games.json
+   Options come from the catalogue: the section's topics (krabsy-lang.js
+   sectionTopics: subject + URL in this interface language), the games that play the chosen topic (games.json
    topics, ui_langs), the drills Sprint and Fill the Gap if the topic has them. */
 import qrcode from '/games/quiz-room/vendor/qrcode/qrcode.js';
+import { currentSection, sectionById, sectionTopics, gameUrl, topicUrl, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 
-const SECTION = {
-  de: { games: '/de/spiele/', site: 'de' },
-  es: { games: '/es/juegos/', site: 'es' },
-  en: { games: '/en/spanish/games/', site: 'en' },
-};
 const DRILLS = [   // drill pages that take ?difficulty= (and pass it to the game frame)
   { id: 'sprint', thumb: '/thumbnails/Sprint.png', name: { de: 'Sprint', es: 'Sprint', en: 'Sprint' } },
   { id: 'fill-the-gap', thumb: '/thumbnails/FillGap.png', name: { de: 'Lückentext', es: 'Rellena el hueco', en: 'Fill the Gap' } },
@@ -75,9 +73,9 @@ function qrSvg(text) {
 }
 
 async function mount(el) {
-  const lang = SECTION[el.dataset.lang] ? el.dataset.lang : 'de';
-  const S = T[lang];
-  const sec = SECTION[lang];
+  const section = sectionById(el.dataset.section) || currentSection();
+  const lang = section.ui;
+  const S = T[lang] || T.en;
   let topics, games;
   try {
     [topics, games] = await Promise.all([
@@ -85,18 +83,18 @@ async function mount(el) {
       fetch('/data/games.json').then((r) => r.json()),
     ]);
   } catch (_) { return; }
-  const topicIds = Object.keys(topics).filter((id) => topics[id][lang] && topics[id].status !== 'coming_soon');
+  const topicIds = sectionTopics(section).filter((id) => topics[id] && topics[id].status !== 'coming_soon');
   if (!topicIds.length) return;
-  const st = { topic: topicIds[0], target: null, diff: '', glang: sec.site };
+  const st = { topic: topicIds[0], target: null, diff: '', glang: lang };
 
   function targets() {
     const t = topics[st.topic];
     const g = games.filter((x) => (x.topics || []).includes(st.topic) && x.status !== 'coming_soon' && x.audience !== 'teacher')
-      .map((x) => ({ kind: 'game', id: x.id, name: (x.name && (x.name[lang] || x.name.en || x.name.de)) || x.id,
-        thumb: x.thumb_small || x.thumbnail || '', langs: x.ui_langs || [sec.site], path: sec.games + x.id + '/' }));
+      .map((x) => ({ kind: 'game', id: x.id, name: pickLang(x.name, lang) || x.id,
+        thumb: x.thumb_small || x.thumbnail || '', langs: x.ui_langs || [lang], path: gameUrl(section, x.id) }));
     const d = DRILLS.filter((x) => t.pages && t.pages[x.id] && t.pages[x.id][lang])
-      .map((x) => ({ kind: 'drill', id: 'drill:' + x.id, name: x.name[lang], thumb: x.thumb, langs: [],
-        path: `/${lang}/${t[lang]}/${t.pages[x.id][lang]}/` }));
+      .map((x) => ({ kind: 'drill', id: 'drill:' + x.id, name: pickLang(x.name, lang), thumb: x.thumb, langs: [],
+        path: topicUrl(st.topic, lang, t.pages[x.id][lang]) }));
     return { g, d };
   }
 
@@ -107,7 +105,7 @@ async function mount(el) {
     const q = new URLSearchParams();
     if (tg.kind === 'game') q.set('topic', st.topic);
     if (st.diff) q.set('difficulty', st.diff);
-    if (tg.kind === 'game' && st.glang && st.glang !== sec.site && tg.langs.includes(st.glang)) q.set('lang', st.glang);
+    if (tg.kind === 'game' && st.glang && st.glang !== lang && tg.langs.includes(st.glang)) q.set('lang', st.glang);
     q.set('from', 'teacher');
     return location.origin + tg.path + '?' + q.toString();
   }
@@ -121,13 +119,13 @@ async function mount(el) {
     const all = [...g, ...d];
     if (!all.some((x) => x.id === st.target)) st.target = all.length ? all[0].id : null;
     const tg = all.find((x) => x.id === st.target);
-    if (tg && tg.kind === 'game' && !tg.langs.includes(st.glang)) st.glang = tg.langs.includes(sec.site) ? sec.site : tg.langs[0];
+    if (tg && tg.kind === 'game' && !tg.langs.includes(st.glang)) st.glang = tg.langs.includes(lang) ? lang : tg.langs[0];
     const link = url();
     const card = (x) => `<label class="lb-target"><input type="radio" name="lb-target" value="${esc(x.id)}"${x.id === st.target ? ' checked' : ''}>`
       + `<span class="lb-target-box">${x.thumb ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" decoding="async">` : '<span class="lb-target-ico" aria-hidden="true">✏️</span>'}`
       + `<span class="lb-target-name">${esc(x.name)}</span></span></label>`;
     el.innerHTML = `
-      <div class="lb-step"><h3>${S.topic}</h3><div class="lb-chips">${chips('lb-topic', topicIds.map((id) => [id, (topics[id].display_name && topics[id].display_name[lang]) || id]), st.topic)}</div></div>
+      <div class="lb-step"><h3>${S.topic}</h3><div class="lb-chips">${chips('lb-topic', topicIds.map((id) => [id, pickLang(topics[id].display_name, lang) || id]), st.topic)}</div></div>
       <div class="lb-step"><h3>${S.game}</h3>
         ${g.length ? `<p class="lb-group">${S.games}</p><div class="lb-targets">${g.map(card).join('')}</div>` : ''}
         ${d.length ? `<p class="lb-group">${S.drills}</p><div class="lb-targets">${d.map(card).join('')}</div>` : ''}</div>

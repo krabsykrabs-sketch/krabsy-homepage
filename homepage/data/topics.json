@@ -1,5 +1,6 @@
 {
   "irregular_verbs": {
+    "subject": "english", "level": null, "shapes": ["chain", "quiz"],
     "de": "unregelmaessige-verben",
     "es": "verbos-irregulares",
     "display_name": {
@@ -36,6 +37,7 @@
     }
   },
   "prepositions": {
+    "subject": "english", "level": null, "shapes": ["quiz"],
     "de": "praepositionen",
     "es": "preposiciones",
     "display_name": {
@@ -66,8 +68,8 @@
     }
   },
   "es_ser": {
+    "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-ser.json",
     "en": "spanish/ser",
-    "learn": "es",
     "display_name": {
       "en": "Yo soy … (ser)"
     },
@@ -88,8 +90,8 @@
     }
   },
   "es_estar": {
+    "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-estar.json",
     "en": "spanish/estar",
-    "learn": "es",
     "display_name": {
       "en": "Estoy … (estar)"
     },
@@ -110,8 +112,8 @@
     }
   },
   "es_ser_estar": {
+    "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-ser-estar.json",
     "en": "spanish/ser-or-estar",
-    "learn": "es",
     "display_name": {
       "en": "Ser or estar?"
     },
@@ -132,8 +134,8 @@
     }
   },
   "es_tener": {
+    "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-tener.json",
     "en": "spanish/tener",
-    "learn": "es",
     "display_name": {
       "en": "Tengo … (tener)"
     },

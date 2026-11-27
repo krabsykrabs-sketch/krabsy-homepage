@@ -24,7 +24,7 @@
     "status": "ready",
     "kind": "3d",
     "devices": "phone_ok",
-    "featured": true,
+    "featured_in": ["de", "es"],
     "new_until": "2027-02-28",
     "hero": "/thumbnails/hero/verb-towers.jpg",
     "ui_langs": [
@@ -86,9 +86,7 @@
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-kitchen.jpg",
     "hero": "/thumbnails/hero/verb-kitchen.jpg",
-    "featured_langs": [
-      "en"
-    ],
+    "featured_in": ["en/spanish"],
     "ui_langs": [
       "de",
       "es",

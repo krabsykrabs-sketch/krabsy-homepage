@@ -20,11 +20,15 @@ import { getRewards, onRewardsChange, DAY_ANSWERS } from '/lib/krabsy-rewards.js
 import { itemName, itemImage } from '/lib/krabsy-figure-catalog.js';
 import { reasonText } from '/lib/krabsy-gifts-ui.js';
 import { hasData, getOverall, readTopicItems } from '/lib/krabsy-stats.js?v=2026-11-25';
-import { FIGURE_URL, pageLang, savedChar, portraitUrl, DEFAULT_CHAR, classSession,
-  itemLabel, labelLang } from '/lib/krabsy-me.js?v=2026-11-25b';
+import { savedChar, portraitUrl, DEFAULT_CHAR, classSession, itemLabel } from '/lib/krabsy-me.js?v=2026-11-27';
+import { currentLang, defaultSection, sectionsOfLang, sectionTopics, sectionOfGame, gameUrl, topicUrl,
+  topicLearnLang, uiPage, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 import { createLiveFigure, liveFigureBlocked, whenIdle } from '/lib/krabsy-figure-live.js?v=2026-11-25';
 
-const LANG = pageLang();
+const LANG = currentLang();
+const HOME_SECTION = defaultSection(LANG);   // "Play" / "All games" go to its games page
+const FIGURE = uiPage('figure', LANG);
+const CLASS_URL = uiPage('class', LANG);
 const T = {
   de: {
     shells: 'Muscheln', today: 'Heute', isNew: 'Neu',
@@ -53,7 +57,6 @@ const T = {
     stars: '{n} Sterne', oneStar: '1 Stern', levelsDone: '{n} Level geschafft', oneLevelDone: '1 Level geschafft',
     playGame: 'Spielen →', allGames: 'Alle Spiele →',
     more: 'Mehr Zahlen zu den Verben →', classLabel: 'Deine Klasse',
-    gamesUrl: '/de/spiele/', gameFolder: 'spiele', classUrl: '/de/klasse/',
   },
   es: {
     shells: 'caracolas', today: 'Hoy', isNew: 'Nuevo',
@@ -82,7 +85,6 @@ const T = {
     stars: '{n} estrellas', oneStar: '1 estrella', levelsDone: '{n} niveles superados', oneLevelDone: '1 nivel superado',
     playGame: 'Jugar →', allGames: 'Todos los juegos →',
     more: 'Más números de los verbos →', classLabel: 'Tu clase',
-    gamesUrl: '/es/juegos/', gameFolder: 'juegos', classUrl: '/es/clase/',
   },
   en: {
     shells: 'shells', today: 'Today', isNew: 'New',
@@ -111,7 +113,6 @@ const T = {
     stars: '{n} stars', oneStar: '1 star', levelsDone: '{n} levels done', oneLevelDone: '1 level done',
     playGame: 'Play →', allGames: 'All games →',
     more: 'More numbers →', classLabel: 'Your class',
-    gamesUrl: '/en/spanish/games/', gameFolder: 'spanish/games', classUrl: null,
   },
 }[LANG];
 
@@ -167,7 +168,7 @@ function renderHero() {
     body.append(el('h2', 'pf-hero-title', T.newTitle), el('p', 'pf-hero-text', T.newText));
     if (s.earned > 0) body.append(wallet, next);
     const actions = el('div', 'pf-actions');
-    actions.append(link('pf-btn pf-btn-main', T.build + ' →', FIGURE_URL[LANG]), link('pf-btn', T.play + ' →', T.gamesUrl));
+    actions.append(link('pf-btn pf-btn-main', T.build + ' →', FIGURE), link('pf-btn', T.play + ' →', HOME_SECTION.games));
     body.append(actions);
     return;
   }
@@ -178,7 +179,7 @@ function renderHero() {
   body.append(row, next,
     el('p', 'pf-collected', fmt(T.collected, { a: r.chars.have, b: r.chars.total, c: r.items.have, d: r.items.total })));
   const actions = el('div', 'pf-actions');
-  actions.append(link('pf-btn pf-btn-main', T.change, FIGURE_URL[LANG]), link('pf-btn', T.play + ' →', T.gamesUrl));
+  actions.append(link('pf-btn pf-btn-main', T.change, FIGURE), link('pf-btn', T.play + ' →', HOME_SECTION.games));
   body.append(actions);
 }
 
@@ -279,11 +280,11 @@ function section(title, cls) {
 }
 
 async function topicCard(id, t) {
-  const hub = `/${LANG}/${t[LANG]}/`;
+  const hub = topicUrl(id, LANG);
   const page = (p) => (t.pages && t.pages[p] && t.pages[p][LANG] ? `${hub}${t.pages[p][LANG]}/` : null);
   const card = el('article', 'pf-card pf-topic');
   const head = el('div', 'pf-topic-head');
-  const name = (t.short_name && t.short_name[LANG]) || (t.display_name && t.display_name[LANG]) || id;
+  const name = pickLang(t.short_name, LANG) || pickLang(t.display_name, LANG) || id;
   const h = el('h3', 'pf-h3'); h.append(link('', name, hub)); head.append(h);
   card.append(head);
 
@@ -320,7 +321,7 @@ async function topicCard(id, t) {
     const label = await itemLabel(id, w.id);
     if (!label) continue;
     const c = free ? link('pf-chip', label, `${free}?verbs=${encodeURIComponent(w.id)}`) : el('span', 'pf-chip', label);
-    c.lang = labelLang(id);
+    c.lang = topicLearnLang(id) || 'en';
     chips.append(c);
     ids.push(w.id);
   }
@@ -349,7 +350,7 @@ function giftsSection(withDiplom) {
     for (const g of r.recent.slice(0, 6)) {
       const li = el('li', 'pf-gift' + (g.slot === 'char' ? '' : ' is-item'));
       const name = itemName(g.slot, g.key, LANG);
-      const a = link('', '', `${FIGURE_URL[LANG]}#neu=${encodeURIComponent(g.id)}`);
+      const a = link('', '', `${FIGURE}#neu=${encodeURIComponent(g.id)}`);
       const why = reasonText(g.source, LANG);
       a.title = why ? `${name} – ${why}` : name;
       const pic = el('span', 'pf-gift-pic');
@@ -365,7 +366,7 @@ function giftsSection(withDiplom) {
   } else {
     left.append(el('p', 'pf-muted', T.noGifts));
   }
-  left.append(link('pf-link', T.toFigure, FIGURE_URL[LANG]));
+  left.append(link('pf-link', T.toFigure, FIGURE));
 
   const right = el('div', 'pf-gifts-col');
   right.append(el('h3', 'pf-h3', T.goals));
@@ -392,7 +393,7 @@ function giftsSection(withDiplom) {
 }
 
 function diplomCard(t) {
-  const url = `/${LANG}/${t[LANG]}/${t.pages['verb-diplom'][LANG]}/`;
+  const url = topicUrl('irregular_verbs', LANG, t.pages['verb-diplom'][LANG]);
   const store = readJson('krabsy_verb_diplom') || {};
   const card = el('article', 'pf-card pf-diplom');
   const head = el('div', 'pf-topic-head');
@@ -465,12 +466,12 @@ function gameLine(id) {
   return bits.length ? bits.join(' · ') : null;
 }
 function gameCard(g) {
-  const a = link('pf-game', '', `/${LANG}/${T.gameFolder}/${g.id}/`);
+  const a = link('pf-game', '', gameUrl(sectionOfGame(g, LANG), g.id));
   const img = el('img'); img.src = g.thumb_small || g.thumbnail || ''; img.alt = ''; img.width = 640; img.height = 360;
   img.loading = 'lazy'; img.decoding = 'async';
   const txt = el('div', 'pf-game-txt');
   const line = gameLine(g.id);
-  txt.append(el('strong', '', (g.name && g.name[LANG]) || g.id), el('span', line ? 'pf-game-stat' : 'pf-game-none', line || T.notPlayed));
+  txt.append(el('strong', '', pickLang(g.name, LANG) || g.id), el('span', line ? 'pf-game-stat' : 'pf-game-none', line || T.notPlayed));
   a.append(img, txt);
   if (line) a.classList.add('is-played');
   return a;
@@ -482,7 +483,7 @@ function renderClass() {
   const box = $('pfClass');
   if (!s || !box) return;
   const text = '👥 ' + s.name + (s.nickname ? ' · ' + s.nickname : '');
-  const badge = T.classUrl ? link('pf-class', text, T.classUrl) : el('span', 'pf-class', text);
+  const badge = CLASS_URL ? link('pf-class', text, CLASS_URL) : el('span', 'pf-class', text);
   badge.setAttribute('aria-label', `${T.classLabel}: ${s.name}${s.nickname ? ', ' + s.nickname : ''}`);
   box.replaceChildren(badge);
   box.hidden = false;
@@ -491,14 +492,16 @@ function renderClass() {
 async function renderBody() {
   const body = $('pfBody');
   const [topics, games] = await Promise.all([fetchJson('/data/topics.json'), fetchJson('/data/games.json')]);
-  const mine = Object.entries(topics || {}).filter(([, t]) => t && t[LANG] && t.status !== 'coming_soon');
+  // The profile is per interface language: the topics of all its sections.
+  const own = sectionsOfLang(LANG).flatMap((sec) => sectionTopics(sec));
+  const mine = own.map((id) => [id, (topics || {})[id]]).filter(([, t]) => t && t.status !== 'coming_soon');
   const frag = document.createDocumentFragment();
   let any = false;
   try { any = hasData(); } catch (_) { any = false; }
 
   if (!any) {
     const empty = el('section', 'pf-card pf-empty');
-    empty.append(el('h2', 'pf-h2', T.emptyTitle), el('p', '', T.emptyText), link('pf-btn pf-btn-coral', T.play + ' →', T.gamesUrl));
+    empty.append(el('h2', 'pf-h2', T.emptyTitle), el('p', '', T.emptyText), link('pf-btn pf-btn-coral', T.play + ' →', HOME_SECTION.games));
     frag.append(empty);
   } else {
     const o = getOverall();
@@ -521,7 +524,7 @@ async function renderBody() {
     for (const [id, t] of mine) grid.append(await topicCard(id, t));
     sec.append(grid);
     const stats = verbs && verbs[1].pages.stats && verbs[1].pages.stats[LANG];
-    if (stats) sec.append(link('pf-link pf-more', T.more, `/${LANG}/${verbs[1][LANG]}/${stats}/`));
+    if (stats) sec.append(link('pf-link pf-more', T.more, topicUrl('irregular_verbs', LANG, stats)));
     frag.append(sec);
   }
   if (verbs) {
@@ -539,7 +542,7 @@ async function renderBody() {
     const cards = list.map(gameCard);
     cards.sort((a, b) => b.classList.contains('is-played') - a.classList.contains('is-played'));   // played first
     grid.append(...cards);
-    sec.append(grid, link('pf-link pf-more', T.allGames, T.gamesUrl));
+    sec.append(grid, link('pf-link pf-more', T.allGames, HOME_SECTION.games));
     frag.append(sec);
   }
   body.replaceChildren(frag);
