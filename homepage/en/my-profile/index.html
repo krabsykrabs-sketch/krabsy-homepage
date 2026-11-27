@@ -20,10 +20,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
-  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-25d">
+  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-27r">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- The live figure (lib/krabsy-figure.js) imports three.js by name. It is loaded only
-       after the page is up, and only for a child who saved a figure (lib/krabsy-profile.js). -->
+       after the page is up and idle, with the landing pages' rules (lib/krabsy-profile.js). -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
 </head>
 <body>
@@ -33,41 +33,39 @@
     </header>
 
     <main class="pf-main">
-      <div class="pf-head">
-        <h1 class="pf-title">My profile</h1>
-        <p class="pf-sub">Your figure, your shells and everything you have achieved so far.</p>
-        <span class="pf-class-box" id="pfClass" hidden></span>
-        <a class="kp-go pf-go" href="/en/spanish/practise/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practise now</span><span class="kp-go-sep"> · </span><span>5 minutes</span></b><small data-kp-ring-text>0 of 3 this week</small></span></a>
-      </div>
-
-      <!-- Figure + shells. The static content is the new-visitor state; lib/krabsy-profile.js
-           replaces it for a child who has a figure or shells. -->
-      <section class="pf-hero">
-        <div class="pf-stage is-new" id="pfStage">
-          <div class="pf-portraits" id="pfPortraits">
-            <img src="/assets/figures/portraits/Hiker.webp" alt="" width="192" height="192" decoding="async">
-            <img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
-            <img src="/assets/figures/portraits/Robot_One.webp" alt="" width="192" height="192" decoding="async">
+      <!-- 1 Me and my figure. The static content is the new-visitor state; lib/krabsy-profile.js
+           fills in the child's figure, shells and class. -->
+      <section class="pf-me">
+        <div class="pf-fig" id="pfFig">
+          <div class="pf-stage" id="pfStage" aria-hidden="true">
+            <img class="pf-img" id="pfImg" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
+            <canvas class="pf-canvas" id="pfCanvas" hidden></canvas>
           </div>
-          <canvas id="pfCanvas" hidden></canvas>
+          <p class="pf-fig-hint">Drag to spin · tap to jump</p>
         </div>
-        <div class="pf-hero-body" id="pfHeroBody">
-          <h2 class="pf-hero-title">Build your own figure</h2>
-          <p class="pf-hero-text">Pick a figure and give it your colours. Every right answer earns you shells 🐚, and every 150 shells bring a gift 🎁.</p>
+        <div class="pf-me-body">
+          <div class="pf-me-head">
+            <h1 class="pf-title">My profile</h1>
+            <span class="pf-class-box" id="pfClass" hidden></span>
+          </div>
+          <div class="pf-shells" id="pfShells">
+            <p class="pf-count"><svg class="ki pf-count-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27b#ki-shell"/></svg><b>0</b><span>shells</span></p>
+            <div class="pf-next">
+              <div class="pf-next-bar"><span class="pf-next-track"><span class="pf-next-fill" style="width:0%"></span></span><span class="pf-next-gift"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27b#ki-gift"/></svg></span></div>
+              <p class="pf-next-text">150 more shells to the next surprise</p>
+            </div>
+          </div>
           <div class="pf-actions">
-            <a class="pf-btn pf-btn-main" href="/en/my-figure/">Build your figure →</a>
-            <a class="pf-btn" href="/en/spanish/games/">Play a game →</a>
+            <a class="kp-go pf-go" href="/en/spanish/practise/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="32" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practise now</span><span class="kp-go-sep"> · </span><span>5 minutes</span></b><small data-kp-ring-text>0 of 3 this week</small></span></a>
+            <a class="pf-btn" id="pfFigureBtn" href="/en/my-figure/">Build your figure</a>
           </div>
         </div>
       </section>
 
-      <!-- Progress, Verb-Diplom and games: rendered by lib/krabsy-profile.js -->
-      <div class="pf-body" id="pfBody"><noscript><p class="pf-muted" style="margin-top:18px">Krabsy needs JavaScript for this page.</p></noscript></div>
+      <!-- 2 collection, 3 topics, 4 trophies: rendered by lib/krabsy-profile.js -->
+      <div class="pf-body" id="pfBody"><noscript><p class="pf-note">Krabsy needs JavaScript for this page.</p></noscript></div>
 
-      <section class="pf-card pf-note">
-        <h2>On this device only</h2>
-        <p>Your figure, your shells and your progress are saved in this browser on this device, without an account. If you clear the browser data or use another device, they are gone.</p>
-      </section>
+      <p class="pf-note">Everything here is saved on this device only, without an account. If you clear the browser data, it is gone.</p>
     </main>
 
     <footer class="k-footer">
@@ -76,7 +74,7 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-27n"></script>
+  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-27r"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
   <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-learn"></script>

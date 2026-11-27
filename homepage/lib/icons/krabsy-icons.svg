@@ -59,4 +59,26 @@
     <circle fill="#ffcf5e" cx="12" cy="8.2" r="4"/>
     <path fill="#ff8585" d="M4.5 20.5a7.5 7.5 0 0 1 15 0z"/>
   </symbol>
+
+  <!-- shell (Muschel / caracola): what a right answer earns -->
+  <symbol id="ki-shell" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ff8585" d="M12 20.5c-1.6 0-2.8-.7-3.3-1.9L3.4 12.3a8.6 8.6 0 1 1 17.2 0l-5.3 6.3c-.5 1.2-1.7 1.9-3.3 1.9z"/>
+    <path d="M12 17V5.5M9.8 17 6.6 8M14.2 17l3.2-9"/>
+  </symbol>
+
+  <!-- gift / surprise: a box with a bow -->
+  <symbol id="ki-gift" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ff8585" d="M12 7.5C10.2 3.6 6.4 3.8 6.6 6c.1 1.3 2.6 1.6 5.4 1.5zM12 7.5c1.8-3.9 5.6-3.7 5.4-1.5-.1 1.3-2.6 1.6-5.4 1.5z"/>
+    <rect fill="#ffcf5e" x="4.5" y="11.5" width="15" height="9" rx="2"/>
+    <rect fill="#ffcf5e" x="3" y="7.5" width="18" height="4" rx="1.5"/>
+    <path d="M12 7.5v13"/>
+  </symbol>
+
+  <!-- star (earned) and its empty twin: topic stars. The empty one is grey on purpose. -->
+  <symbol id="ki-star" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9-4.3-4.1 5.9-.8z"/>
+  </symbol>
+  <symbol id="ki-star-off" viewBox="0 0 24 24" fill="none" stroke="#babfd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#f3f3f8" d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9-4.3-4.1 5.9-.8z"/>
+  </symbol>
 </svg>

@@ -19,6 +19,9 @@ no alt text). Bump `?v=` where they are used when you change the sprite.
 | `ki-quiz` | speech bubble with ? | Quiz Room |
 | `ki-topics` | four tiles | Themen / topics page (main menu) |
 | `ki-profile` | a child (head + shoulders) | Profil (main menu) |
+| `ki-shell` | a coral scallop shell | shells (Muscheln / caracolas) |
+| `ki-gift` | a box with a bow | gifts, the next surprise |
+| `ki-star` / `ki-star-off` | a star, amber / empty grey | topic stars ★★☆☆☆ (profile) |
 
 The main menu (`lib/krabsy-header.js`) and the topics page
 (`tools/render_topics_page.py`) inline copies of `ki-play`, `ki-practise`,
@@ -45,6 +48,6 @@ The main menu (`lib/krabsy-header.js`) and the topics page
 Owner rule: no emojis in the UI, only icons from this set. Still using
 emojis: landing (🐚 shells count, ✓ in "Handy ✓" badges), the DE/ES verb
 pages, game hub wrappers (/de/spiele/, /es/juegos/, /en/), lib scripts
-(figure-page, profile, tutor, live-tutor, live-student, tutor-lesson,
+(figure-page, tutor, live-tutor, live-student, tutor-lesson,
 activities/*, practice, shells, gifts-ui, nav, footer, game-info) and
 data/materials. Replace them when those files are touched anyway.
