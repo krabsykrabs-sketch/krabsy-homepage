@@ -104,9 +104,9 @@ L = {
         "topic_label": "Topic:",   # games here play several topics: chips with ?topic=
         "hint": "▼ How to play {name}",
         "crumbs_label": "Breadcrumbs", "home": "Krabsy Spanish", "games": "Games",
-        "howto": "How to play {name}", "learn": "What you practise",
+        "howto": "How to play {name}", "learn": "What you practice",
         "teach": "Using it in lessons", "teach_more": '<a href="/en/spanish/teachers/#practice-link">Make a practice link</a> · <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Quiz Room for live lessons</a>',
-        "faq": "Questions and answers", "more": "Keep practising", "related": "More Spanish games",
+        "faq": "Questions and answers", "more": "Keep practicing", "related": "More Spanish games",
         "verbs_intro": "",
         "top": "▲ Back to the game", "play": "Play →",
         "alt": "Scene from {name}",

@@ -65,12 +65,12 @@ T = {
         "noscript": "", "locale": "es_ES", "and": " y ",
     },
     "en": {
-        "title": "Topics – practise Spanish grammar | Krabsy",
+        "title": "Topics – practice Spanish grammar | Krabsy",
         "h1": "Topics",
-        "lead": "All the grammar topics on Krabsy. Pick one: practise it or play a game.",
+        "lead": "All the grammar topics on Krabsy. Pick one: practice it or play a game.",
         "desc": "All the grammar topics on Krabsy: {list}. With practice and games, free and without sign-up.",
         "all_years": "All years",
-        "practise": "Practise", "games": ("{n} game", "{n} games"), "no_games": "No game yet",
+        "practise": "Practice", "games": ("{n} game", "{n} games"), "no_games": "No game yet",
         "crumbs": "Breadcrumb", "home": "Krabsy",
         "noscript": "", "locale": "en_GB", "and": " and ",
     },
@@ -166,7 +166,7 @@ def section_cards(sec):
         if t.get("status") == "coming_soon":
             continue
         hub = R.topic_url(tid, sec)
-        practise = R.topic_url(tid, sec, "sprint") if "sprint" in (t.get("pages") or {}) else hub
+        practice = R.topic_url(tid, sec, "sprint") if "sprint" in (t.get("pages") or {}) else hub
         out.append({
             "id": tid,
             # "Simple Present: he plays, does he play?" → "Simple Present" (the example has its own line)
@@ -176,7 +176,7 @@ def section_cards(sec):
             "learn": "es" if tid.startswith("es_") else "en",
             "stats": pick(t.get("card_stats"), ui),
             "hub": hub,
-            "practise": practise,
+            "practise": practice,
             "games": len(games_of(tid)),
             "group": R.year_group(tid, ui),
             "range": R.year_range(tid, ui) or (99, 99),

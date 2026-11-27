@@ -236,7 +236,7 @@ function baseMaterial(id, title, topic, n, source) {
  *   topic  question topic id (es_ser_estar, irregular_verbs …)
  *   count  sentences (default 6)
  *   mode   'drag' | 'typed' | 'choice' (default 'choice')
- *   focus  item ids to ask first (the student's words to practise)
+ *   focus  item ids to ask first (the student's words to practice)
  *   lang   interface language for hints and teach lines (default 'en')
  *   title  optional material title
  * Throws when the topic has no quiz shape or no question could be built.

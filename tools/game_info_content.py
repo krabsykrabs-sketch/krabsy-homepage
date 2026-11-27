@@ -759,7 +759,7 @@ EN_SPANISH = {
             "Spend your coins on more towers and upgrades. Protect the castle to win stars and unlock the next level.",
         ],
         "learn": [
-            "The forge asks Spanish sentences with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Right answers give coins, so practising is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.",
+            "The forge asks Spanish sentences with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Right answers give coins, so practicing is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.",
         ],
         "faq": [
             ("Does it work on a phone?", "Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map."),
@@ -782,7 +782,7 @@ EN_SPANISH = {
             "Watch out for thief crabs: answer right and you keep your egg. Spend the coins your creatures earn on upgrades (<kbd>U</kbd>) and look at your creatures in the Creature Book (<kbd>B</kbd>).",
         ],
         "learn": [
-            "Each egg asks a Spanish sentence with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Rare eggs ask two. After a mistake the egg rolls away, and you see the whole sentence and a short rule in English. The sentence comes back soon, and the Creature Book lists the sentences you still need to practise.",
+            "Each egg asks a Spanish sentence with a gap, like <em lang=\"es\">Me ___ Sofía.</em> Rare eggs ask two. After a mistake the egg rolls away, and you see the whole sentence and a short rule in English. The sentence comes back soon, and the Creature Book lists the sentences you still need to practice.",
         ],
         "faq": [
             ("Does it work on a phone?", "It needs a wide screen: a computer, a Chromebook or a tablet held sideways. Phones are not tested yet."),

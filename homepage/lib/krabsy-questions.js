@@ -454,8 +454,29 @@ export async function getQuizSet(opts = {}) {
 
 /** Typed-input ("typewriter") validation: trims, lowercases, collapses
     whitespace, and accepts alternates (burnt/burned). */
+/* British and American spellings count the same when typing (owner 2026-11-27):
+   word by word, British → American, applied to both sides. Only plain spelling
+   pairs, no grammar (gotten / got stays a real difference). */
+const AE = {
+  colour: 'color', colours: 'colors', favourite: 'favorite', favourites: 'favorites', neighbour: 'neighbor',
+  neighbours: 'neighbors', behaviour: 'behavior', honour: 'honor', flavour: 'flavor', harbour: 'harbor',
+  humour: 'humor', labour: 'labor', rumour: 'rumor', centre: 'center', theatre: 'theater', metre: 'meter',
+  metres: 'meters', litre: 'liter', grey: 'gray', practise: 'practice', practised: 'practiced',
+  practising: 'practicing', travelled: 'traveled', travelling: 'traveling', traveller: 'traveler',
+  cancelled: 'canceled', cancelling: 'canceling', labelled: 'labeled', modelled: 'modeled',
+  learnt: 'learned', burnt: 'burned', dreamt: 'dreamed', spelt: 'spelled', spilt: 'spilled', smelt: 'smelled',
+  leapt: 'leaped', knelt: 'kneeled', spoilt: 'spoiled', realise: 'realize', realised: 'realized',
+  organise: 'organize', organised: 'organized', apologise: 'apologize', apologised: 'apologized',
+  recognise: 'recognize', recognised: 'recognized', programme: 'program', mum: 'mom', mums: 'moms',
+  aeroplane: 'airplane', jewellery: 'jewelry', tyre: 'tire', tyres: 'tires', pyjamas: 'pajamas',
+  catalogue: 'catalog', dialogue: 'dialog', cosy: 'cozy', defence: 'defense', licence: 'license',
+};
+const _toAE = (s) => s.replace(/[a-z]+/g, (w) => AE[w] || w);
 export function checkTyped(q, input) {
-  return q.accepts.includes(_norm(input));
+  const t = _norm(input);
+  if (q.accepts.includes(t)) return true;
+  const ae = _toAE(t);
+  return q.accepts.some((a) => _toAE(a) === ae);
 }
 
 /** Render helper for the trio display as plain text, e.g. for HUDs/logs:

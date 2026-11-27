@@ -3,7 +3,7 @@
 (/de/, /es/, /en/spanish/ ...), owner brief 2026-11-27.
 
 What it says: what Krabsy is (h1), which grammar for whom, free / no sign-up /
-no ads (one line), three actions (play / practise / verb diploma), and a quiet
+no ads (one line), three actions (play / practice / verb diploma), and a quiet
 line for teachers with the class-code and Quiz Room join links.
 
 Sources (docs/i18n-scaling.md: no visible text in code):

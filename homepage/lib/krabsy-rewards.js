@@ -42,7 +42,7 @@ const DIPLOM_KEY = 'krabsy_verb_diplom';
 const FIGURE_KEY = 'krabsy_figure_v2';
 
 export const SHELLS_PER_GIFT = 150;     // lifetime shells per surprise gift
-export const FIRST_RUN_MAX = 5;         // gifts at most when the rewards start for a child who already practised
+export const FIRST_RUN_MAX = 5;         // gifts at most when the rewards start for a child who already practiced
 export const DAY_ANSWERS = 10;          // answers that make a calendar day a practice day
 export const GAME_GIFTS_PER_DAY = 2;    // gifts one game may give per calendar day
 const UNFIT_WEIGHT = 0.2;               // a lone gift that doesn't fit the current figure: 5 × less likely
@@ -231,7 +231,7 @@ function settle(s, full) {
   if (!s.init && !sh.earned && !sh.owned.length && !readJson(STATS_KEY)) {
     // A visitor who never answered anything: nothing to give, nothing is stored.
   } else if (!s.init) {
-    // First run. A child who already practised gets what the shells and milestones so far
+    // First run. A child who already practiced gets what the shells and milestones so far
     // are worth, but at most FIRST_RUN_MAX gifts at once; all of it then counts as given.
     s.init = true;
     const p = progress();
@@ -293,7 +293,7 @@ function run(full, answered) {
 export function syncRewards() { return run(true, false); }
 
 /** One answer was recorded (called by recordAttempt in krabsy-stats.js, right or wrong:
-    practising counts). Returns the gifts this answer earned. */
+    practicing counts). Returns the gifts this answer earned. */
 export function noteAnswer() { return run(false, true); }
 
 /**

@@ -238,6 +238,14 @@ order, flashcards and Air Control ask no single form.
 
 ## Conventions
 
+- **British vs American English (owner 2026-11-27).** English *interface* text
+  (the /en/ section, English game menus) uses words that are the same in both, and
+  American spelling where they differ: "Practice" (never "Practise"), "color",
+  "favorite". The English *being learned* on /de/ and /es/ stays British (German and
+  Spanish schools teach it). Typed answers accept both spellings: `checkTyped`
+  maps British → American word by word (`AE` table in `lib/krabsy-questions.js`;
+  add pairs there). Avoid questions whose grammar differs (have eaten / did eat yet).
+
 - Single-file games: `krabsy-<name>.html`, everything drawn in canvas/CSS,
   zero external assets, WebAudio synth for sound. Palette teal `#2ee6c0` /
   coral `#ff8585` / amber `#ffcf5e`, fonts Fredoka One + Nunito.

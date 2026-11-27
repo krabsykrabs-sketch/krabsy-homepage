@@ -1,12 +1,12 @@
 /* ──────────────────────────────────────────────────────────────────────────
    Krabsy — the practice session "Jetzt üben" (docs/student-path.md §1, P1)
-   Pages: /de/ueben/, /es/practicar/, /en/spanish/practise/ (<main id="kp">).
+   Pages: /de/ueben/, /es/practicar/, /en/spanish/practice/ (<main id="kp">).
 
    Three steps, about 5 minutes:
      1. Warm-up       WARM questions the smart mix says are due, across the
                       child's topics (choice chips, the Sprint look).
      2. New or weak   one topic: homework first, else the weakest topic, else
-                      the one not practised for the longest time. NEW
+                      the one not practiced for the longest time. NEW
                       questions; a new item shows its teach line first.
                       Typed answers (checkTyped), "show choices" as fallback.
      3. Play          2–3 games of this section that play that topic.
@@ -81,7 +81,7 @@ const TXT = {
     noGames: 'Todos los juegos →', typeLabel: 'Tu respuesta', blank: 'hueco',
   },
   en: {
-    title: 'Practise now', lead: '3 short steps, about 5 minutes.',
+    title: 'Practice now', lead: '3 short steps, about 5 minutes.',
     s1: 'Warm-up', s1sub: (n) => `${n} quick questions`,
     s2: 'Something new or tricky', s3: 'Play', s3sub: 'A game for your topic',
     start: 'Let’s go', back: 'Back to the start page', quit: 'Finish later',
@@ -91,11 +91,11 @@ const TXT = {
     accent: (w) => `Right! With the accent: ${w}`,
     newBadge: 'New', teachGo: 'Got it, ask me!', teachLead: 'Have a quick look:',
     rHw: (t) => `Homework from ${t}`, rHwPlain: 'Your homework', rWeak: 'Still a bit tricky',
-    rOld: 'Not practised for a while', rNew: 'New for you',
+    rOld: 'Not practiced for a while', rNew: 'New for you',
     s2go: 'On to step 2',
     doneTitle: 'Done! 🎉', doneSub: 'This round counts for your week.',
     shells: (n) => `+${n} shells 🐚`, score: (r, n) => `${r} of ${n} right`,
-    playH: 'Step 3: Now play', playSub: (t) => `These games practise ${t}:`,
+    playH: 'Step 3: Now play', playSub: (t) => `These games practice ${t}:`,
     finish: 'Done for today', again: 'One more round',
     loading: 'One moment …', error: 'Something went wrong. Please reload the page.',
     noGames: 'All games →', typeLabel: 'Your answer', blank: 'gap',
@@ -197,7 +197,7 @@ function makePlan(hw) {
     if (weak.length) { focus = weak[0][0]; reason = 'weak'; }
   }
   if (!focus) {
-    // longest not practised (a topic never answered counts as the oldest)
+    // longest not practiced (a topic never answered counts as the oldest)
     const old = [...mine].sort((a, b) => state.get(a).last - state.get(b).last);
     focus = old[0] || SECTION.starter;
     reason = state.get(focus) && state.get(focus).seen ? 'old' : 'new';

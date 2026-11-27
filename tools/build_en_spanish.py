@@ -42,28 +42,28 @@ TOPICS = [
         'level': 'Beginners (A1)',
         'intro': 'Say who you are, where you are from and what you are like: '
                  '<em lang="es">Yo soy Lucas. Soy de Inglaterra. Soy alto.</em> '
-                 'Play one of the games, or practise with the two quick drills.',
+                 'Play one of the games, or practice with the two quick drills.',
     },
     {
         'topic': 'es_estar', 'slug': 'estar', 'name': 'I am … (estar)', 'title': 'Estoy … (estar)',
         'short': 'how you feel and where things are', 'level': 'Beginners (A1)',
         'intro': 'Say how you feel and where you or things are: '
                  '<em lang="es">Estoy cansado. Estoy en casa. El libro está en la mesa.</em> '
-                 'Play one of the games, or practise with the two quick drills.',
+                 'Play one of the games, or practice with the two quick drills.',
     },
     {
         'topic': 'es_ser_estar', 'slug': 'ser-or-estar', 'name': 'ser or estar?', 'title': 'Ser or estar?',
         'short': 'soy or estoy, es or está', 'level': 'Beginners (A1)',
         'intro': '<em lang="es">Soy</em> for what you are like and where you come from, '
                  '<em lang="es">estoy</em> for how you feel and where you are: '
-                 '<em lang="es">Soy de Londres, pero estoy en Madrid.</em> Play, or practise with the drills.',
+                 '<em lang="es">Soy de Londres, pero estoy en Madrid.</em> Play, or practice with the drills.',
     },
     {
         'topic': 'es_tener', 'slug': 'tener', 'name': 'I have … (tener)', 'title': 'Tengo … (tener)',
         'short': 'age, things you have, hungry and cold', 'level': 'Beginners (A1)',
         'intro': 'Your age, what you have, and how hungry or cold you are: '
                  '<em lang="es">Tengo diez años. Tengo un perro. Tengo hambre.</em> '
-                 'Play one of the games, or practise with the two quick drills.',
+                 'Play one of the games, or practice with the two quick drills.',
     },
 ]
 
@@ -290,7 +290,7 @@ def build_topic_hub(t):
     </section>
 
 <section class="k-article" aria-labelledby="ka-title">
-  <h2 id="ka-title">What you practise here</h2>
+  <h2 id="ka-title">What you practice here</h2>
   <p>Every question is a short Spanish sentence with one gap. After a wrong answer you see the right sentence and a short rule in English, so you learn why, not only what. No grammar terms needed.</p>
   <h3>For teachers</h3>
   <p>Make a <a href="/en/spanish/teachers/#practice-link">practice link</a> with this topic, a game and a difficulty, or run a live <a href="/games/quiz-room/teacher.html?topic={t["topic"]}&amp;lang=en">Quiz Room</a> with your class or one pupil online. No accounts, first names only.</p>
@@ -339,7 +339,7 @@ def build_teachers():
           <div>
             <p class="tc-eyebrow"><svg aria-hidden="true"><use href="#i-teach"/></svg>For teachers</p>
             <h1>Krabsy in your Spanish lessons: grammar <span>that feels like playing.</span></h1>
-            <p class="tc-lead">Ser, estar, tener and more as arcade games, quick drills and a live quiz. Share a link, and your pupils start practising straight away.</p>
+            <p class="tc-lead">Ser, estar, tener and more as arcade games, quick drills and a live quiz. Share a link, and your pupils start practicing straight away.</p>
             <ul class="tc-chips" aria-label="At a glance"><li>Free</li><li>No sign-up</li><li>Runs in the browser</li><li>Beginners (A1)</li></ul>
             <div class="tc-ctas">
               <a class="tc-btn" href="/en/spanish/games/">See the games <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
@@ -378,7 +378,7 @@ def build_teachers():
                   <h3><a href="#practice-link">Share a link</a></h3>
                   <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-link"/></svg></span>
                 </div>
-                <p>Pick a topic, a game or drill and the difficulty. Your pupils click the link and practise — no account, no code.</p>
+                <p>Pick a topic, a game or drill and the difficulty. Your pupils click the link and practice — no account, no code.</p>
                 <ul class="tc-way-tags"><li>No account</li><li>Homework</li><li>QR code</li></ul>
                 <div class="tc-way-foot">
                   <a class="tc-btn is-teal" href="#practice-link">Make a link</a>
@@ -505,7 +505,7 @@ def build_games_hub():
 
     <section class="gh-hero">
       <h1 class="gh-hero-title">Krabsy Spanish games</h1>
-      <p class="gh-hero-sub">Every game here asks Spanish sentences. Play, and practise Spanish on the way.</p>
+      <p class="gh-hero-sub">Every game here asks Spanish sentences. Play, and practice Spanish on the way.</p>
       <p class="gh-figure"><a class="gh-figure-link" href="/en/my-figure/"><img src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="44" height="44" loading="lazy" decoding="async"><span>My figure →<small>Build your figure and collect shells 🐚</small></span></a></p>
     </section>
 

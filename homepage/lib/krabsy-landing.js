@@ -90,7 +90,7 @@ async function initProgress() {
     document.getElementById('gl-prog-acc').textContent = Math.round((o.accuracy || 0) * 100) + ' %';
     document.getElementById('gl-prog-streak').textContent = String(streak);
 
-    // Up to 3 distinct words to practise — base word only, no grammar terms.
+    // Up to 3 distinct words to practice — base word only, no grammar terms.
     const chipsEl = document.getElementById('gl-prog-chips');
     const seen = new Set();
     let added = 0;

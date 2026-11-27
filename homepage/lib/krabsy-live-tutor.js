@@ -62,12 +62,12 @@ const T = {
   offline: 'Not connected — it is sent when the connection is back.',
   offlineNow: 'Not connected — not sent. Try again in a moment.',
   endH: (n) => `End the lesson with ${n}?`, endMeta: (m, n, s) => `${m} min · ${n} material${n === 1 ? '' : 's'} · ⭐ ${s}`,
-  endRight: 'Right on the first try', endWords: 'Words to practise', endNote: 'Lesson note (saved on the profile, editable)',
+  endRight: 'Right on the first try', endWords: 'Words to practice', endNote: 'Lesson note (saved on the profile, editable)',
   keep: 'No, keep teaching', saveEnd: 'Yes, save and end', saving: 'Saving …', saveFail: 'Could not save the note. Try again.',
   savedH: 'Lesson saved ✓', savedP: (n) => `The note is on ${n}’s profile under Lesson notes.`,
   backTo: (n) => `Back to ${n}`, newLesson: 'Start a new lesson',
   notFinished: 'not finished',
-  noteHead: (m) => `Live lesson · ${m} min`, noteWords: 'Words to practise', noteRight: (r, n) => `${r} of ${n} right on the first try`,
+  noteHead: (m) => `Live lesson · ${m} min`, noteWords: 'Words to practice', noteRight: (r, n) => `${r} of ${n} right on the first try`,
   needSignIn: 'Please sign in to open the live lesson.', signIn: 'Sign in', unknown: 'This student doesn’t exist (any more) in your space.',
   errNet: 'No connection. Try again in a moment.', noStudent: 'Open a student first.',
 };
@@ -676,7 +676,7 @@ class LivePage {
     const topics = await topicList();
     const st = read('krabsy_live_qp', { count: 6, mode: 'typed', focus: true }) || {};
     const sel = preset && topics.some((t) => t.id === preset) ? preset : (st.topic && topics.some((t) => t.id === st.topic) ? st.topic : (topics[0] || {}).id);
-    const practise = (tp) => ((this.d.topics || {})[tp] || {}).practise || [];
+    const practice = (tp) => ((this.d.topics || {})[tp] || {}).practise || [];
     body.innerHTML = `<form class="kl-qp" data-qp>
       <label class="kl-lbl">${T.qpTopic}<select class="kl-input" data-tp>${topics.map((t) => `<option value="${esc(t.id)}"${t.id === sel ? ' selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
       <div class="kl-lbl">${T.qpCount}<span class="kl-seg" data-count>${[6, 10].map((n) => `<button type="button" data-v="${n}" class="${n === st.count ? 'is-on' : ''}">${n}</button>`).join('')}</span></div>
@@ -685,7 +685,7 @@ class LivePage {
       <p class="kl-err" data-err hidden></p>
       <p class="kl-row-act"><button type="button" class="kl-btn kl-btn-primary" data-qnow>${T.showNow}</button><button type="button" class="kl-btn" data-qadd>${T.queueAdd}</button></p></form>`;
     const f = $('[data-qp]', body);
-    const focusL = () => { $('[data-focusl]', f).textContent = T.qpFocus(practise($('[data-tp]', f).value).length, this.name); };
+    const focusL = () => { $('[data-focusl]', f).textContent = T.qpFocus(practice($('[data-tp]', f).value).length, this.name); };
     focusL();
     $('[data-tp]', f).addEventListener('change', focusL);
     f.querySelectorAll('.kl-seg').forEach((seg) => seg.addEventListener('click', (e) => {
@@ -696,7 +696,7 @@ class LivePage {
       const tp = $('[data-tp]', f).value;
       const count = Number(($('[data-count] .is-on', f) || {}).dataset?.v || 6);
       const mode = ($('[data-mode] .is-on', f) || {}).dataset?.v || 'typed';
-      const focus = $('[data-focus]', f).checked ? practise(tp) : [];
+      const focus = $('[data-focus]', f).checked ? practice(tp) : [];
       write('krabsy_live_qp', { topic: tp, count, mode, focus: $('[data-focus]', f).checked });
       const err = $('[data-err]', f); err.hidden = true;
       const old = btn.textContent; btn.disabled = true; btn.textContent = T.qpMake;

@@ -142,7 +142,7 @@ const L = {
     lookPic: 'Look at the picture.', dragTip: 'Drag a card into a basket. Or tap the card, then the basket.', bank: 'Word bank', inEnglish: n => `Sentence ${n} in English:`,
     notGrey: w => `It is not “${w}”.`, startsWith: 'It starts with', check: 'Check', typeHere: 'type…', choose: 'Choose the word',
     finished: 'Finished', hooray: '¡Lo lograste!', stars: n => `⭐ ${n} star${n === 1 ? '' : 's'}`, firstTry: (a, b) => `<b>${a} of ${b}</b> right at first try`, tasks: n => `You did ${n} task${n === 1 ? '' : 's'}!`,
-    practise: 'Words to practise', allRight: 'Nothing to practise. Everything right!', playAgain: '↺ Play again', gift: 'A gift from your tutor!',
+    practise: 'Words to practice', allRight: 'Nothing to practice. Everything right!', playAgain: '↺ Play again', gift: 'A gift from your tutor!',
     showEn: 'Show in English', hideEn: 'Hide English', tapDotted: 'Tap the dotted words!', question: '¡Una pregunta!', tapRight: 'Tap the right picture.',
     lookAgain: '✗ Not quite. Look again.', inAlbum: '★ in your word album', wordsMet: 'Words you met', quick: (a, b) => `Three quick questions · ${a} of ${b}`,
     theEnd: '¡Fin!', read: '¡Leído!', sayIt: '🗣 Say it to your tutor', sayItText: t => `¿Cuál es tu animal favorito? Tell ${t} in your next lesson.`,

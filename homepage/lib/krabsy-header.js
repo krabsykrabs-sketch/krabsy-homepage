@@ -45,7 +45,7 @@ const LABELS = {
         teach: 'Für Lehrkräfte', teachShort: 'Lehrkräfte', nav: 'Hauptmenü', lang: 'Sprache wählen' },
   es: { play: 'Jugar', practise: 'Practicar', topics: 'Temas', profile: 'Perfil',
         teach: 'Docentes', teachShort: 'Docentes', nav: 'Menú principal', lang: 'Elegir idioma' },
-  en: { play: 'Play', practise: 'Practise', topics: 'Topics', profile: 'Profile',
+  en: { play: 'Play', practise: 'Practice', topics: 'Topics', profile: 'Profile',
         teach: 'For teachers', teachShort: 'Teachers', nav: 'Main menu', lang: 'Choose language' },
 };
 const LANG_NAME = { de: 'Deutsch', es: 'Español', en: 'English' };
@@ -124,7 +124,7 @@ const TEACH_ICON = '<svg class="k-hd-teach-ico" viewBox="0 0 24 24" aria-hidden=
 
 function under(path, url) { return !!url && path.indexOf(url) === 0; }
 
-/** Which main item is this page? 'play' | 'practise' | 'topics' | 'profile' | null. */
+/** Which main item is this page? 'play' | 'practice' | 'topics' | 'profile' | null. */
 export function activeItem(section, lang, path = location.pathname) {
   if (under(path, section.games)) return 'play';
   if (under(path, section.practice)) return 'practise';
