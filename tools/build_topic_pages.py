@@ -41,7 +41,7 @@ ORIGIN = 'https://krabsy.com'
 UIS = ('de', 'es')
 HEADER_V = '2026-11-27h'    # krabsy-footer.js, -lang-switch.js (site-wide bump)
 UI_V = '2026-11-27-learn'   # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
-NAV_V = '2026-11-27n'       # krabsy-nav.js (drill chip bar)
+NAV_V = '2026-11-27o'       # krabsy-nav.js (drill chip bar)
 LINK_BUILDER_ANCHOR = {'de': '/de/lehrkraefte/?topic={tid}#uebungslink',
                        'es': '/es/docentes/?topic={tid}#enlace-de-practica'}
 

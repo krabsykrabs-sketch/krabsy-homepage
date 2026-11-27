@@ -404,43 +404,31 @@ async function buildGameHeader(currentKey, strings) {
     + '<img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span>';
   logo.addEventListener('click', (ev) => guardedGameClick(ev, hubHref, strings));
 
-  const chipWrap = document.createElement('div');
-  chipWrap.className = 'k-game-nav-chips';
-
-  // Load chip list from games.json. The chip bar is platform-level navigation
-  // (not topic-filtered) — every page shows every game.
+  // Owner 2026-11-27: the game header follows the site's top bar style. Instead of a row
+  // of every game: one "Alle Spiele" pill (back to the games), the current game's name,
+  // and the shells. Switching games happens on the games page.
   let games = [];
   try { games = sectionGames(await getAllGames(), section); }
   catch (err) { console.error('krabsy-nav: games.json fetch failed', err); }
-
-  // Normalize the page-supplied currentKey ("verb_slash") to the games.json
-  // id format ("verb-slash") so legacy call sites keep working without edits.
+  // Normalize the page-supplied currentKey ("verb_slash") to the games.json id ("verb-slash").
   const currentId = String(currentKey || '').replace(/_/g, '-');
-
-  for (const g of games) {
-    if (g.status === 'coming_soon') continue;   // no page yet
-    if (g.audience === 'teacher' && g.id !== currentId) continue;   // teacher-led (Quiz-Raum)
-    const a = document.createElement('a');
-    a.className = 'k-game-nav-chip';
-    const isCurrent = (g.id === currentId);
-    a.textContent = (g.name && g.name[lang]) || g.id;
-    if (isCurrent) {
-      a.setAttribute('aria-current', 'page');
-      a.href = '#';
-      a.addEventListener('click', (ev) => ev.preventDefault());
-    } else {
-      const href = gameUrl(section, g.id);
-      a.href = href;
-      a.addEventListener('click', (ev) => guardedGameClick(ev, href, strings));
-    }
-    chipWrap.appendChild(a);
-  }
+  const cur = games.find((g) => g.id === currentId);
+  const gamesHref = section.games || hubHref;
+  const ALL = { de: 'Alle Spiele', es: 'Todos los juegos', en: 'All games' };
 
   const back = document.createElement('a');
   back.className = 'k-game-nav-back';
-  back.href = hubHref;
-  back.textContent = '← ' + (lookup(strings, 'common.back_to_hub_short') || 'Zurück');
-  back.addEventListener('click', (ev) => guardedGameClick(ev, hubHref, strings));
+  back.href = gamesHref;
+  back.innerHTML = '<svg class="k-game-nav-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path fill="#2ee6c0" d="M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l1 5a2.8 2.8 0 0 1-4.8 2.4L15 16H9l-2.1 2a2.8 2.8 0 0 1-4.8-2.4l1-5A4.5 4.5 0 0 1 7.5 7z"/>'
+    + '<path d="M7.5 10.5v3M6 12h3"/><circle fill="#2c2a3a" stroke="none" cx="15.5" cy="11" r="1.1"/><circle fill="#2c2a3a" stroke="none" cx="17.6" cy="13.2" r="1.1"/></svg>'
+    + '<span>' + (ALL[lang] || ALL.en) + '</span>';
+  back.setAttribute('aria-label', ALL[lang] || ALL.en);
+  back.addEventListener('click', (ev) => guardedGameClick(ev, gamesHref, strings));
+
+  const title = document.createElement('span');
+  title.className = 'k-game-nav-title';
+  title.textContent = (cur && cur.name && (cur.name[lang] || cur.name.en)) || '';
 
   // Class session (phase 2): "👥 6b · Mia" so pupils see their answers go to the class.
   let classBadge = null;
@@ -456,10 +444,15 @@ async function buildGameHeader(currentKey, strings) {
     }
   } catch (_) { /* no storage */ }
 
-  header.append(...[logo, chipWrap, classBadge, back].filter(Boolean));
+  const grow = document.createElement('span');
+  grow.className = 'k-game-nav-grow';
+  header.append(...[logo, back, title, grow, classBadge].filter(Boolean));
   // Shell counter "🐚 240" (krabsy-shells.js): links to the figure page.
   const shells = mountShellCounter(header);
-  if (shells) shells.addEventListener('click', (ev) => guardedGameClick(ev, shells.href, strings));
+  if (shells) {
+    header.appendChild(shells);   // right edge, like the site header
+    shells.addEventListener('click', (ev) => guardedGameClick(ev, shells.href, strings));
+  }
   return header;
 }
 
@@ -500,39 +493,33 @@ function injectGameNavStyles() {
       align-items: center; justify-content: center; margin: 0 -0.04em;
     }
     .k-game-nav-crab img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-    .k-game-nav-chips {
-      display: flex; gap: 4px;
-      flex: 1; justify-content: center;
-      overflow-x: auto; scrollbar-width: none;
+    .k-game-nav-ico { width: 20px; height: 20px; flex: 0 0 auto; }
+    .k-game-nav-back {
+      display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+      height: 34px; padding: 0 14px 0 10px; border-radius: 999px;
+      font-family: 'Nunito', system-ui, sans-serif; font-size: 0.9rem; font-weight: 800;
+      color: #2c2a3a; text-decoration: none; background: #f4f2ea;
+      transition: background-color 0.15s;
     }
-    .k-game-nav-chips::-webkit-scrollbar { display: none; }
-    .k-game-nav-chip {
-      font-family: 'Nunito', system-ui, sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px;
-      padding: 4px 10px; border-radius: 999px;
-      white-space: nowrap;
-      color: #6e6c80; text-decoration: none;
-      flex: 0 0 auto;
-      transition: color 0.15s, background-color 0.15s;
+    .k-game-nav-back:hover { background: #d9f8f0; color: #2c2a3a; }
+    .k-game-nav-back:focus-visible, .k-game-nav-logo:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
+    .k-game-nav-title {
+      font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 1.15rem; color: #2c2a3a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
     }
-    .k-game-nav-chip:hover {
-      color: #2c2a3a;
-      background: rgba(186, 191, 216, 0.20);
+    .k-game-nav-grow { flex: 1; min-width: 0; }
+    @media (max-width: 560px) {
+      .k-game-nav { gap: 8px; padding: 0 10px; }
+      .k-game-nav-logo > span:not(.k-game-nav-crab) { display: none; }   /* crab only */
+      .k-game-nav-back span { display: none; }
+      .k-game-nav-back { padding: 0 8px; }
+      .k-game-nav-title { font-size: 1rem; }
     }
-    .k-game-nav-chip[aria-current="page"] {
-      background: #f2937e; color: #ffffff;
-    }
-    .k-game-nav-chip[aria-current="page"]:hover { background: #e07a64; color: #ffffff; }
     .k-game-nav-class {
       font-size: 0.74rem; font-weight: 700; color: #0d4d3f; background: #e6f7f2;
       padding: 4px 10px; border-radius: 999px; text-decoration: none; white-space: nowrap;
       flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; max-width: 30vw;
     }
-    .k-game-nav-back {
-      font-size: 0.78rem; font-weight: 700;
-      color: #e07a64; text-decoration: none; flex-shrink: 0;
-    }
-    .k-game-nav-back:hover { color: #f2937e; }
 
     /* Standalone confirm-dialog styling (so it looks right even without krabsy-ui.css) */
     .k-nav-confirm { border: none; padding: 0; background: transparent; max-width: 90vw; }

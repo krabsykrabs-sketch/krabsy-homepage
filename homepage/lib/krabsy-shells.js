@@ -213,7 +213,8 @@ export function mountShellCounter(header) {
     // Site header: just before the language toggle / right-hand group; game
     // header: before the "← back" link. Other scripts insert their parts
     // later (topic chips), so the place is kept with an observer.
-    const anchor = () => host.querySelector(':scope > .k-lang-toggle, :scope > .hd-right, :scope > .k-game-nav-back');
+    // (game header: at the right edge, after the title — owner 2026-11-27 redesign)
+    const anchor = () => host.querySelector(':scope > .k-lang-toggle, :scope > .hd-right');
     const place = () => {
       const ref = anchor();
       if (ref) { if (a.nextElementSibling !== ref) host.insertBefore(a, ref); }
