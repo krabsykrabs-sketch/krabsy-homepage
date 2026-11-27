@@ -8,7 +8,8 @@
 //
 // Software WebGL runs at ~4 fps, so the bot switches the game to manual stepping
 // (debug.manual) and moves the simulation with debug.advance(); it presses the same input
-// pads the keyboard and touch buttons use and answers by clicking the chips in the cards.
+// pads the keyboard and touch buttons use; it answers with the quick-answer keys (1 2 3 /
+// 8 9 0) on desktop and by tapping the chips on touch.
 // Runs: desktop 1366×768 (keyboard) and tablet 1024×768 (touch: ?touch=1, hasTouch, the
 // touch buttons are tapped once for real). Fails on any console error or failed request.
 const path = require('path');
@@ -145,7 +146,8 @@ async function run(browser, cfg) {
     if (shot) { await page.waitForTimeout(400); await page.screenshot({ path: `${OUT}/${cfg.name}-${shot}.png` }); }
     const i = right ? card.correctIndex : (card.correctIndex + 1) % card.options.length;
     const sel = `.card.p${pi + 1} .chip >> nth=${i}`;
-    if (cfg.touch) await page.tap(sel); else await page.click(sel);
+    if (cfg.touch) await page.tap(sel);
+    else await page.keyboard.press([['1', '2', '3'], ['8', '9', '0']][pi][i]);   // quick-answer keys
     answers++; if (!right) wrongs++;
     if (!right && shot) { await page.waitForTimeout(300); await page.screenshot({ path: `${OUT}/${cfg.name}-${shot}-wrong.png` }); }
     await page.waitForFunction((n) => !document.querySelector(`.card.p${n}`) || document.querySelector(`.card.p${n}`).hidden, pi + 1, { timeout: 6000 });

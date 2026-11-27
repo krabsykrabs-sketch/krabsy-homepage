@@ -65,6 +65,9 @@ button { font: inherit; cursor: pointer; }
 .chip.is-right { background: #c9f5e2; border-color: #2ec27e; }
 .chip.is-wrong { background: #ffd9d9; border-color: var(--coral); text-decoration: line-through; }
 .chip:disabled { cursor: default; }
+.chip kbd { display: inline-block; min-width: 20px; margin-right: 6px; padding: 0 5px; border-radius: 6px; background: #efe8d8;
+  color: #5a6072; font: 13px/20px Nunito, sans-serif; font-weight: 700; vertical-align: 2px; }
+.card.p1 .chip kbd { background: #c8f5ea; } .card.p2 .chip kbd { background: #ffdede; }
 .card-foot { margin-top: 7px; font-size: 13px; color: #5a6072; min-height: 1em; }
 .card-foot b { color: var(--ink); }
 .card-foot .reveal { display: block; font-family: 'Fredoka One', sans-serif; font-size: 17px; color: var(--ink); margin: 3px 0; }

@@ -38,8 +38,8 @@ export async function createGame(canvas, opts) {
 
   // ── DOM overlays ────────────────────────────────────────────────────────────────────
   const overlay = document.getElementById('play-overlay');
-  const keyHints = [0, 1].map((pi) => (touch ? '✋' : t('chooseKeys', pi === 0 ? 'A D · E' : '← → · Enter')));
-  const cards = createCards(overlay, input, keyHints);
+  const keyHints = [0, 1].map((pi) => (touch ? '' : t('chooseKeys', pi === 0 ? '1 2 3' : '8 9 0')));
+  const cards = createCards(overlay, input, keyHints, !touch);
   const prompts = [0, 1].map((pi) => {
     const el = document.createElement('div');
     el.className = `prompt p${pi + 1}`; el.hidden = true;

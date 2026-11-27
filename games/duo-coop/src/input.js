@@ -1,8 +1,9 @@
-// Two players on one device. Keyboard: player 1 = WASD + E, player 2 = arrows + Enter.
+// Two players on one device. Keyboard: player 1 = WASD + E, player 2 = arrows + Enter;
+// answer cards also take 1 2 3 (player 1) and 8 9 0 (player 2), see cards.js.
 // Touch: two button zones at the bottom (left = player 1, right = player 2), multi-touch.
 // Each player's pad: { left, right, up, down, action } held flags + edge events.
 export const KEYS = [
-  { left: ['KeyA'], right: ['KeyD'], up: ['KeyW', 'Space'], down: ['KeyS'], action: ['KeyE'] },
+  { left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'], action: ['KeyE'] },
   { left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'], action: ['Enter', 'NumpadEnter'] },
 ];
 export const KEY_LABEL = ['E', 'Enter'];

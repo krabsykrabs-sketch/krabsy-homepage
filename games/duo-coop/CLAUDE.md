@@ -38,10 +38,15 @@ folder, or file://): built stand-in figures and 12 inline verbs, no stats.
 | | Player 1 (left) | Player 2 (right) |
 |---|---|---|
 | move | A D | ← → |
-| jump / climb up | W (or Space) | ↑ |
+| jump / climb up | W | ↑ |
 | climb down | S | ↓ |
 | use (lever, door, key …) | E | Enter |
-| answer card | A/D or W/S to pick, E to choose, or 1 2 3 | ← → to pick, Enter |
+| answer card | **1 2 3** (quick answer) | **8 9 0** |
+
+Owner 2026-11-27: few keys per player (W / ↑ jump, E / Enter use, 1 2 3 and 8 9 0 to
+answer; Space removed). The chips show their key. Picking a chip with the move keys +
+E / Enter still works as a fallback but isn't advertised. S / ↓ are only for climbing
+down a ladder (one can also step off the top).
 
 Touch (`pointer: coarse` or `?touch=1`): two button zones at the bottom, teal =
 player 1 (left), coral = player 2 (right): ◀ ▶ ▼ ▲ ✋. Chips are tapped.
@@ -133,8 +138,8 @@ python3 games/duo-coop/tools/serve.py &
 node games/duo-coop/tools/play-test.cjs [base-url] [out-dir] [--only desktop|touch]
 ```
 
-Plays all 3 rooms at 1366×768 (keyboard, EN) and 1024×768 (touch, DE; taps the
-touch buttons and the chips for real), with one wrong answer on purpose, and fails
+Plays all 3 rooms at 1366×768 (keyboard, EN, answers with the 1 2 3 / 8 9 0 keys)
+and 1024×768 (touch, DE; taps the touch buttons and the chips for real), with one wrong answer on purpose, and fails
 on any console error or failed request. Headless software WebGL runs at ~4 fps, so
 the bot switches the game to manual stepping (`__duo.game.manual(true)`,
 `advance(seconds)`) and presses the same input pads as keys and buttons.

@@ -1,6 +1,6 @@
 // Answer cards: one per player, shown near that player's character, with choice chips.
-// Keyboard: player 1 A/D (or W/S) to pick + E, player 2 ←/→ + Enter; digits 1–3 for
-// player 1; tap or click works for both. Questions never use grammar terms: verbs show
+// Keyboard: quick answer with 1 2 3 (player 1) or 8 9 0 (player 2); picking with the
+// move keys + E / Enter works too; tap or click works for both. Questions never use grammar terms: verbs show
 // `go → ___ → ___` with the asked blank highlighted, sentences show their gap.
 import { t } from './i18n.js';
 import { revealText } from './questions.js';
@@ -25,7 +25,11 @@ export function questionHtml(q) {
   return `<span class="gap${sentence.length > 46 ? ' long' : ''}">${html}</span>`;
 }
 
-export function createCards(root, input, keyHints) {
+export const ANSWER_KEYS = [['Digit1', 'Digit2', 'Digit3'], ['Digit8', 'Digit9', 'Digit0']];
+const keyLabel = (code) => code.replace('Digit', '');
+
+// digits: show the answer key on each chip (keyboard); false on touch screens.
+export function createCards(root, input, keyHints, digits = true) {
   const cards = [0, 1].map((pi) => {
     const el = document.createElement('div');
     el.className = `card p${pi + 1}`;
@@ -47,6 +51,8 @@ export function createCards(root, input, keyHints) {
       b.type = 'button';
       b.className = 'chip' + (i === c.sel ? ' sel' : '');
       b.textContent = opt;
+      const k = ANSWER_KEYS[c.pi][i];
+      if (digits && k) { const s = document.createElement('kbd'); s.textContent = keyLabel(k); b.prepend(s); }
       b.tabIndex = -1;
       b.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); if (!c.locked) { c.sel = i; choose(c); } });
       chips.appendChild(b);
@@ -110,10 +116,13 @@ export function createCards(root, input, keyHints) {
     else if (b === 'action') choose(c);
   });
   window.addEventListener('keydown', (e) => {
-    const c = cards[0];
-    if (!c.open || c.locked) return;
-    const k = { Digit1: 0, Digit2: 1, Digit3: 2 }[e.code];
-    if (k !== undefined && k < c.q.options.length) { c.sel = k; choose(c); }
+    if (e.repeat || document.body.dataset.state !== 'playing') return;
+    for (const c of cards) {
+      const k = ANSWER_KEYS[c.pi].indexOf(e.code);
+      if (k < 0) continue;
+      e.preventDefault();
+      if (c.open && !c.locked && k < c.q.options.length) { c.sel = k; choose(c); }
+    }
   });
 
   return {
