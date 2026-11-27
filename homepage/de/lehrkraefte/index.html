@@ -31,7 +31,7 @@
   <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
-  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-25">
+  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-27">
   <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
 </head>
@@ -76,16 +76,11 @@
           <div>
             <p class="tc-eyebrow"><svg aria-hidden="true"><use href="#i-teach"/></svg>Für Lehrkräfte</p>
             <h1>Krabsy im Unterricht: Englisch-Grammatik, <span>die sich wie Spielen anfühlt.</span></h1>
-            <p class="tc-lead">Unregelmäßige Verben und Präpositionen als Arcade-Spiel, Speed-Drill oder Live-Quiz für die ganze Klasse. Link teilen, und die Kinder üben sofort los.</p>
-            <ul class="tc-facts">
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Kostenlos</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Keine Anmeldung</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Läuft im Browser</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Ab ca. 10 Jahren</li>
-            </ul>
+            <p class="tc-lead">Unregelmäßige Verben und Präpositionen als Arcade-Spiel, Speed-Drill oder Live-Quiz für die ganze Klasse.</p>
+            <ul class="tc-chips" aria-label="Auf einen Blick"><li>Kostenlos</li><li>Ohne Konto</li><li>Ohne Werbung</li><li>Ab Klasse 5</li></ul>
             <div class="tc-ctas">
               <a class="tc-btn" href="/de/spiele/">Zu den Spielen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-              <a class="tc-link" href="#teilen">So teilen Sie einen Link</a>
+              <a class="tc-link" href="#uebungslink">Übungslink erstellen</a>
             </div>
           </div>
           <figure class="tc-hero-art">
@@ -97,416 +92,467 @@
             <figcaption class="tc-hero-cap">So sehen die Aufgaben aus — ohne Grammatik-Fachbegriffe.</figcaption>
           </figure>
         </div>
-
-        <!-- ── Three ways ── -->
-        <div class="tc-wrap tc-ways-sec" id="wege">
-          <h2 class="tc-ways-h">Drei Wege, Krabsy in der Klasse einzusetzen</h2>
-          <div class="tc-ways">
-            <article class="tc-way is-teal">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">1</span>
-                <h3>Link teilen</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-link"/></svg></span>
-              </div>
-              <p>Spiel oder Übung aussuchen und den Link in Ihre Lernplattform stellen. Die Kinder klicken und üben — ohne Konto und ohne Code.</p>
-              <ul class="tc-way-tags"><li>Ohne Konto</li><li>Moodle, Teams &amp; Co.</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn is-teal" href="#startpunkte">Startpunkte ansehen</a>
-                <a class="tc-link" href="#teilen">So geht’s</a>
-              </div>
-            </article>
-            <article class="tc-way is-amber">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">2</span>
-                <h3>Quiz-Raum starten</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-live"/></svg></span>
-              </div>
-              <p>Ein Live-Quiz, das Sie leiten: Jedes Kind spielt am eigenen Gerät und kommt über <strong>krabsy.com/quiz</strong> dazu.</p>
-              <ul class="tc-way-tags"><li>Neu</li><li>Bis zu 40 Kinder</li><li>Ohne Konto</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum öffnen</a>
-                <a class="tc-link" href="#quiz-raum">Mehr dazu</a>
-              </div>
-            </article>
-            <article class="tc-way is-coral">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">3</span>
-                <h3>Klasse erstellen</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-group"/></svg></span>
-              </div>
-              <p>Die Kinder treten mit Vornamen und Klassencode bei. Sie sehen, welche Wörter Ihre Klasse noch übt.</p>
-              <ul class="tc-way-tags"><li>Neu</li><li>Nur Vornamen</li><li>Ohne E-Mail</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn" href="/de/lehrkraefte/klasse-erstellen/">Klasse erstellen</a>
-                <a class="tc-link" href="#klasse">Mehr dazu</a>
-              </div>
-            </article>
-          </div>
-        </div>
       </section>
 
-      <!-- ── Quiz-Raum (live quiz, every child on their own device) ── -->
-      <!-- ── Practice link builder (lib/krabsy-link-builder.js, 2026-11-25) ── -->
-      <section class="tc-sec tc-band" id="uebungslink">
+      <!-- ── Tabs (lib/krabsy-teacher-tabs.js; without JS a jump menu, all panels visible) ── -->
+      <nav class="tc-tabs-nav" aria-label="Bereiche dieser Seite">
         <div class="tc-wrap">
-          <p class="tc-kicker">Neu · Übungslink</p>
-          <h2 class="tc-h2">Einen Übungslink für Ihre Klasse erstellen</h2>
-          <p class="tc-sub">Thema, Spiel, Schwierigkeit und Sprache im Spiel wählen. Den Link teilen Sie in Moodle, Teams oder per QR-Code; er gilt dauerhaft, und es wird nichts gespeichert.</p>
-          <div id="link-builder" data-lang="de"></div>
-        </div>
-      </section>
-
-      <section class="tc-sec" id="quiz-raum">
-        <div class="tc-wrap">
-          <div class="tc-quiz">
-            <div class="tc-quiz-shot">
-              <img src="/thumbnails/hero/quiz-room.jpg" alt="Der Quiz-Raum: Spielfiguren mit Vornamen laufen durch einen 3D-Raum mit den Antwortfeldern B, C und D." width="1200" height="675" loading="lazy" decoding="async">
-              <p class="tc-quiz-join"><svg aria-hidden="true"><use href="#i-phone"/></svg><span>Die Kinder kommen dazu über<b>krabsy.com/quiz</b></span></p>
-            </div>
-            <div class="tc-quiz-body">
-              <p class="tc-kicker">Neu · Live-Quiz</p>
-              <h2 class="tc-h2">Der Quiz-Raum für die ganze Klasse</h2>
-              <p class="tc-quiz-lead">Jedes Kind läuft am eigenen Gerät als Figur durch einen 3D-Raum. Sie leiten den Raum, die Klasse spielt.</p>
-              <ol class="tc-steps">
-                <li><b>Raum öffnen</b>Thema, Schwierigkeit, Anzahl der Fragen und Zeit wählen. Alle Fragen sehen Sie vorher und können sie tauschen oder entfernen.</li>
-                <li><b>Kinder kommen dazu</b>Mit Raum-Code oder QR-Code und ihrem Vornamen. Kein Konto, bis zu 40 Kinder.</li>
-                <li><b>Quiz starten</b>Nach jeder Frage: Lösung und Top 5. Am Ende: die Wörter, die die Klasse am häufigsten falsch hatte.</li>
-              </ol>
-              <div class="tc-ctas">
-                <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum öffnen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-                <a class="tc-link" href="/de/spiele/quiz-room/">Mehr zum Quiz-Raum</a>
-              </div>
-            </div>
+          <div class="tc-tabs" data-tc-tabs>
+            <a class="tc-tab" href="#loslegen" data-tab="loslegen"><svg aria-hidden="true"><use href="#i-bolt"/></svg>Loslegen</a>
+            <a class="tc-tab" href="#uebungslink" data-tab="uebungslink"><svg aria-hidden="true"><use href="#i-link"/></svg>Übungslink</a>
+            <a class="tc-tab" href="#klasse" data-tab="klasse"><svg aria-hidden="true"><use href="#i-group"/></svg>Klasse &amp; Quiz-Raum</a>
+            <a class="tc-tab" href="#material" data-tab="material"><svg aria-hidden="true"><use href="#i-book"/></svg>Unterricht &amp; Material</a>
+            <a class="tc-tab" href="#datenschutz" data-tab="datenschutz"><svg aria-hidden="true"><use href="#i-shield"/></svg>Datenschutz &amp; FAQ</a>
           </div>
         </div>
-      </section>
+      </nav>
 
-      <!-- ── Class + dashboard (drawn illustration, not a screenshot) ── -->
-      <section class="tc-sec tc-band" id="klasse">
-        <div class="tc-wrap tc-class">
-          <div>
-            <p class="tc-kicker">Neu · Klassen</p>
-            <h2 class="tc-h2">Sehen, welche Wörter Ihre Klasse noch übt</h2>
-            <p class="tc-class-lead">Erstellen Sie eine Klasse — ohne Konto und ohne E-Mail. Ab dann zählen die Antworten der Kinder in Ihre Übersicht.</p>
-            <ol class="tc-steps">
-              <li><b>Klasse erstellen</b>Sie bekommen einen Klassencode und einen privaten Link zu Ihrer Übersicht.</li>
-              <li><b>Code weitergeben</b>Die Kinder geben einmal den Code und ihren Vornamen ein.</li>
-              <li><b>Übersicht öffnen</b>Welche Wörter sind noch schwer, und wer hat wie viel geübt?</li>
-            </ol>
-            <p class="tc-class-note"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>Gespeichert werden nur Vornamen und Antworten. Inaktive Klassen werden nach 6 Monaten automatisch gelöscht.</span></p>
-            <div class="tc-ctas">
-              <a class="tc-btn" href="/de/lehrkraefte/klasse-erstellen/">Klasse erstellen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-            </div>
-          </div>
-          <figure class="tc-dash-fig">
-            <div class="tc-dash" role="img" aria-label="Gezeichnetes Beispiel der Klassenübersicht: eine Liste schwieriger Wörter mit Balken und eine Tabelle mit Vornamen und der Zahl der Antworten.">
-              <div class="tc-dash-bar" aria-hidden="true"><b>Klassenübersicht</b><span>6b Englisch</span><span class="tc-dash-code">K7M4PX</span></div>
-              <div class="tc-dash-body" aria-hidden="true">
-                <div>
-                  <p class="tc-dash-h">Diese Wörter sind für die Klasse noch schwer</p>
-                  <div class="tc-dash-words">
-                    <div class="tc-dash-word"><span>teach</span><span class="tc-dash-track"><i style="width:82%"></i></span><span class="tc-dash-n">9 unsicher</span></div>
-                    <div class="tc-dash-word"><span>lie</span><span class="tc-dash-track"><i style="width:64%"></i></span><span class="tc-dash-n">7 unsicher</span></div>
-                    <div class="tc-dash-word"><span>catch</span><span class="tc-dash-track"><i style="width:46%"></i></span><span class="tc-dash-n">5 unsicher</span></div>
-                    <div class="tc-dash-word"><span>bring</span><span class="tc-dash-track"><i style="width:36%"></i></span><span class="tc-dash-n">4 unsicher</span></div>
+      <!-- ── Tab 1: three ways, why it works, starter games ── -->
+      <div class="tc-panel" id="loslegen">
+        <section class="tc-sec">
+          <div class="tc-wrap">
+            <div class="tc-block" id="wege">
+              <h2 class="tc-h2">Drei Wege, Krabsy in der Klasse einzusetzen</h2>
+              <div class="tc-ways">
+                <article class="tc-way is-teal">
+                  <div class="tc-way-top">
+                    <span class="tc-way-num" aria-hidden="true">1</span>
+                    <h3><a href="#uebungslink">Link teilen</a></h3>
+                    <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-link"/></svg></span>
                   </div>
-                </div>
-                <div class="tc-dash-solid">Das sitzt schon: <span>go</span><span>be</span><span>have</span><span>see</span></div>
-                <table class="tc-dash-table">
-                  <tr><th>Vorname</th><th>diese Woche</th><th>gesamt</th><th class="tc-dash-hide-s">noch üben</th></tr>
-                  <tr><td><span class="tc-dash-name"><i>M</i>Mia</span></td><td>64</td><td>310</td><td class="tc-dash-hide-s">6</td></tr>
-                  <tr><td><span class="tc-dash-name"><i>B</i>Ben</span></td><td>40</td><td>255</td><td class="tc-dash-hide-s">11</td></tr>
-                  <tr><td><span class="tc-dash-name"><i>L</i>Lena</span></td><td>38</td><td>198</td><td class="tc-dash-hide-s">9</td></tr>
-                  <tr><td><span class="tc-dash-name"><i>N</i>Noa S.</span></td><td>12</td><td>87</td><td class="tc-dash-hide-s">14</td></tr>
-                </table>
+                  <p>Spiel oder Übung aussuchen und den Link in Ihre Lernplattform stellen. Die Kinder klicken und üben — ohne Konto und ohne Code.</p>
+                  <ul class="tc-way-tags"><li>Ohne Konto</li><li>Moodle, Teams &amp; Co.</li></ul>
+                  <div class="tc-way-foot">
+                    <a class="tc-btn is-teal" href="#uebungslink">Übungslink erstellen</a>
+                  </div>
+                </article>
+                <article class="tc-way is-amber">
+                  <div class="tc-way-top">
+                    <span class="tc-way-num" aria-hidden="true">2</span>
+                    <h3><a href="#quiz-raum">Quiz-Raum starten</a></h3>
+                    <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-live"/></svg></span>
+                  </div>
+                  <p>Ein Live-Quiz, das Sie leiten: Jedes Kind spielt am eigenen Gerät und kommt über <strong>krabsy.com/quiz</strong> dazu.</p>
+                  <ul class="tc-way-tags"><li>Neu</li><li>Bis zu 40 Kinder</li><li>Ohne Konto</li></ul>
+                  <div class="tc-way-foot">
+                    <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum öffnen</a>
+                    <a class="tc-link" href="#quiz-raum">Mehr dazu</a>
+                  </div>
+                </article>
+                <article class="tc-way is-coral">
+                  <div class="tc-way-top">
+                    <span class="tc-way-num" aria-hidden="true">3</span>
+                    <h3><a href="#klasse">Klasse erstellen</a></h3>
+                    <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-group"/></svg></span>
+                  </div>
+                  <p>Die Kinder treten mit Vornamen und Klassencode bei. Sie sehen, welche Wörter Ihre Klasse noch übt.</p>
+                  <ul class="tc-way-tags"><li>Neu</li><li>Nur Vornamen</li><li>Ohne E-Mail</li></ul>
+                  <div class="tc-way-foot">
+                    <a class="tc-btn" href="/de/lehrkraefte/klasse-erstellen/">Klasse erstellen</a>
+                    <a class="tc-link" href="#klasse">Mehr dazu</a>
+                  </div>
+                </article>
               </div>
             </div>
-            <figcaption class="tc-dash-cap">Gezeichnetes Beispiel mit erfundenen Namen und Zahlen — kein Screenshot.</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <!-- ── Why it works ── -->
-      <section class="tc-sec" id="warum">
-        <div class="tc-wrap">
-          <h2 class="tc-h2">Warum Krabsy im Unterricht funktioniert</h2>
-          <p class="tc-sub">Kurze Runden, die in jede Stunde passen.</p>
-          <div class="tc-why">
-            <div class="tc-why-item">
-              <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-game"/></svg></span>
-              <h3>Spielerisch üben</h3>
-              <p>172 unregelmäßige Verben und Präpositionen wie <em>in</em>, <em>on</em>, <em>at</em>.</p>
-            </div>
-            <div class="tc-why-item">
-              <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-bolt"/></svg></span>
-              <h3>Sofortiges Feedback</h3>
-              <p>Was danebenging, kommt am Ende der Runde noch einmal: <span class="tc-chain">go → went → gone</span>.</p>
-            </div>
-            <div class="tc-why-item">
-              <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-clock"/></svg></span>
-              <h3>Kurze Runden</h3>
-              <p>Ein Sprint hat 20 Fragen und ist in wenigen Minuten gespielt.</p>
-            </div>
-            <div class="tc-why-item">
-              <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-chat"/></svg></span>
-              <h3>Ohne Fachbegriffe</h3>
-              <p>Statt „Simple Past“: das Muster <span class="tc-chain">go → ___ → ___</span> oder ein Lückensatz.</p>
-            </div>
-            <div class="tc-why-item">
-              <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-laptop"/></svg></span>
-              <h3>Läuft auf Schulgeräten</h3>
-              <p>Laptops, Chromebooks und Tablets — im Browser, ohne Installation.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Recommended starting points ── -->
-      <section class="tc-sec tc-band" id="startpunkte">
-        <div class="tc-wrap">
-          <h2 class="tc-h2">Gute Startpunkte</h2>
-          <p class="tc-sub">Eine kleine Auswahl zum Ausprobieren und Teilen — alle weiteren Spiele finden Sie unter <a href="/de/spiele/">Spiele</a>.</p>
-          <div class="tc-picks">
-            <article class="tc-pick">
-              <a class="tc-pick-thumb" href="/de/spiele/verb-kitchen/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="tc-badges"><span class="tc-badge">3D</span></span></a>
-              <div class="tc-pick-body">
-                <p class="tc-kind">3D-Spiel · Unregelmäßige Verben</p>
-                <h3><a href="/de/spiele/verb-kitchen/">Verb Kitchen</a></h3>
-                <p>Kochen und servieren — saubere Teller gibt es nur mit der richtigen Verbform an der Spüle. Level 1 mit Anleitung, Menüs auf Englisch.</p>
-                <div class="tc-pick-actions">
-                  <a class="tc-btn is-small" href="/de/spiele/verb-kitchen/">Öffnen</a>
-                  <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-kitchen/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+            <div class="tc-block" id="warum">
+              <h3 class="tc-h3">Warum Krabsy im Unterricht funktioniert</h3>
+              <div class="tc-why is-compact">
+                <div class="tc-why-item">
+                  <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-game"/></svg></span>
+                  <h3>Spielerisch üben</h3>
+                  <p>172 unregelmäßige Verben und Präpositionen wie <em>in</em>, <em>on</em>, <em>at</em>.</p>
+                </div>
+                <div class="tc-why-item">
+                  <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-bolt"/></svg></span>
+                  <h3>Sofortiges Feedback</h3>
+                  <p>Was danebenging, kommt am Ende der Runde noch einmal: <span class="tc-chain">go → went → gone</span>.</p>
+                </div>
+                <div class="tc-why-item">
+                  <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-clock"/></svg></span>
+                  <h3>Kurze Runden</h3>
+                  <p>Ein Sprint hat 20 Fragen und ist in wenigen Minuten gespielt.</p>
+                </div>
+                <div class="tc-why-item">
+                  <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-chat"/></svg></span>
+                  <h3>Ohne Fachbegriffe</h3>
+                  <p>Statt „Simple Past“: das Muster <span class="tc-chain">go → ___ → ___</span> oder ein Lückensatz.</p>
+                </div>
+                <div class="tc-why-item">
+                  <span class="tc-why-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-laptop"/></svg></span>
+                  <h3>Läuft auf Schulgeräten</h3>
+                  <p>Laptops, Chromebooks und Tablets — im Browser, ohne Installation.</p>
                 </div>
               </div>
-            </article>
-            <article class="tc-pick">
-              <a class="tc-pick-thumb" href="/de/spiele/verb-snake/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></a>
-              <div class="tc-pick-body">
-                <p class="tc-kind">Spiel · Unregelmäßige Verben</p>
-                <h3><a href="/de/spiele/verb-snake/">Verb Snake</a></h3>
-                <p>Klassisches Snake: Die Schlange frisst die Verbformen in der richtigen Reihenfolge — erst go, dann went, dann gone. Menüs auf Deutsch.</p>
-                <div class="tc-pick-actions">
-                  <a class="tc-btn is-small" href="/de/spiele/verb-snake/">Öffnen</a>
-                  <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-snake/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-                </div>
-              </div>
-            </article>
-            <article class="tc-pick">
-              <a class="tc-pick-thumb" href="/de/spiele/verb-towers/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-towers.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="tc-badges"><span class="tc-badge">3D</span><span class="tc-badge is-new">Neu</span></span></a>
-              <div class="tc-pick-body">
-                <p class="tc-kind">3D-Spiel · Verben und Präpositionen</p>
-                <h3><a href="/de/spiele/verb-towers/">Verb Towers</a></h3>
-                <p>Türme bauen — die Münzen dafür werden mit englischen Verben geschmiedet. Das neueste Spiel auf Krabsy.</p>
-                <div class="tc-pick-actions">
-                  <a class="tc-btn is-small" href="/de/spiele/verb-towers/">Öffnen</a>
-                  <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-towers/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <h3 class="tc-minis-h">Drills, Tests und Material</h3>
-          <div class="tc-minis">
-            <article class="tc-mini">
-              <a class="tc-mini-img" href="/de/unregelmaessige-verben/sprint/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/sprint.jpg" alt="" width="320" height="320" loading="lazy" decoding="async"></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Drill · Verben</p>
-                <h3><a href="/de/unregelmaessige-verben/sprint/">Sprint</a></h3>
-                <p>20 Verben gegen die Uhr, jeder Fehler kostet Zeit. Ideal als Warm-up.</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/sprint/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-            <article class="tc-mini">
-              <a class="tc-mini-img" href="/de/unregelmaessige-verben/fill-the-gap/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/fill-the-gap.jpg" alt="" width="320" height="320" loading="lazy" decoding="async"></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Drill · Verben</p>
-                <h3><a href="/de/unregelmaessige-verben/fill-the-gap/">Fill the Gap</a></h3>
-                <p>Zehn englische Sätze mit Lücke — die passende Verbform wird eingetippt.</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-            <article class="tc-mini">
-              <a class="tc-mini-img" href="/de/unregelmaessige-verben/verb-diplom/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/VerbDiplom.svg" alt="" width="400" height="400" loading="lazy" decoding="async"></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Test · Verben</p>
-                <h3><a href="/de/unregelmaessige-verben/verb-diplom/">Verb-Diplom</a></h3>
-                <p>Test mit Urkunde in Bronze, Silber und Gold. Gut als Hausaufgabe: „Bis Freitag macht ihr alle Bronze.“</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/verb-diplom/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-            <article class="tc-mini">
-              <a class="tc-mini-img" href="/de/praepositionen/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/topic-prepositions.jpg" alt="" width="288" height="216" loading="lazy" decoding="async"></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Thema</p>
-                <h3><a href="/de/praepositionen/">Präpositionen</a></h3>
-                <p><em>in</em>, <em>on</em>, <em>at</em>, <em>for</em>, <em>since</em> … mit Sprint, Lückentext, Karteikarten und Regelübersicht.</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/praepositionen/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-            <article class="tc-mini">
-              <a class="tc-mini-img is-teal" href="/de/unregelmaessige-verben/a-z/" tabindex="-1" aria-hidden="true"><svg><use href="#i-book"/></svg></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Nachschlagen</p>
-                <h3><a href="/de/unregelmaessige-verben/a-z/">Verben A–Z</a></h3>
-                <p>Alle 172 unregelmäßigen Verben mit Formen, Beispielsätzen und Mini-Quiz.</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/a-z/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-            <article class="tc-mini">
-              <a class="tc-mini-img" href="/de/unregelmaessige-verben/arbeitsblaetter/" tabindex="-1" aria-hidden="true"><svg><use href="#i-print"/></svg></a>
-              <div class="tc-mini-txt">
-                <p class="tc-kind">Zum Ausdrucken</p>
-                <h3><a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></h3>
-                <p>Unregelmäßige Verben und <a href="/de/praepositionen/arbeitsblaetter/">Präpositionen</a> — kostenlos, mit Lösungen.</p>
-              </div>
-              <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── How to share ── -->
-      <section class="tc-sec" id="teilen">
-        <div class="tc-wrap">
-          <h2 class="tc-h2">So teilen Sie Krabsy mit Ihrer Klasse</h2>
-          <p class="tc-sub">In drei Schritten — mit jeder Lernplattform, die Links erlaubt.</p>
-          <ol class="tc-share">
-            <li><b>Übung auswählen</b>Spiel oder Übung öffnen und den Link kopieren — per „Link kopieren“ oder aus der Adresszeile.</li>
-            <li><b>In die Lernplattform einfügen</b>Als Link, Material oder Aufgabe.
-              <ul class="tc-platforms" aria-label="Zum Beispiel in"><li>Moodle</li><li>IServ</li><li>itslearning</li><li>Microsoft Teams</li><li>Google Classroom</li><li>Schoology</li></ul>
-            </li>
-            <li><b>Die Kinder spielen los</b>Ein Klick genügt: kein Konto, kein Klassencode, keine App.</li>
-          </ol>
-          <div class="tc-share-more">
-            <p class="tc-tip"><svg aria-hidden="true"><use href="#i-bulb"/></svg><span><strong>Tipp:</strong> Jedes Thema hat eigene Seiten. Sind Präpositionen dran, teilen Sie direkt den <a href="/de/praepositionen/sprint/">Präpositionen-Sprint</a> — dann landet niemand im falschen Thema.</span></p>
-            <details class="tc-embed">
-              <summary>Direkt einbetten (HTML-Code)</summary>
-              <div class="tc-embed-body">
-                <p>Viele Plattformen erlauben es, eine Seite per HTML-Code einzubetten. Krabsy-Seiten funktionieren auch eingebettet, zum Beispiel Verb Snake:</p>
-                <div class="tc-code">
-                  <pre id="embed-code">&lt;iframe src="https://krabsy.com/de/spiele/verb-snake/" width="100%" height="640" style="border:0" allow="autoplay; fullscreen; gamepad" allowfullscreen title="Verb Snake – Krabsy"&gt;&lt;/iframe&gt;</pre>
-                  <button class="tp-copy" type="button" data-copy-from="#embed-code" data-done="Kopiert ✓" data-fail="Bitte markieren und kopieren">Code kopieren</button>
-                </div>
-                <p>Für andere Spiele tauschen Sie die Adresse aus. Das 3D-Spiel Verb Kitchen lassen Sie auf schwächeren Geräten besser per Link in einem neuen Tab öffnen — dort hat es den ganzen Bildschirm und läuft meist flüssiger.</p>
-              </div>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Lesson ideas ── -->
-      <section class="tc-sec tc-band" id="ideen">
-        <div class="tc-wrap">
-          <h2 class="tc-h2">Ideen für die Stunde</h2>
-          <p class="tc-sub">Zwei schnelle Ideen ohne Vorbereitung — und fertige Stunden zum Ausdrucken.</p>
-          <div class="tc-ideas">
-            <div class="tc-idea">
-              <img class="tc-idea-img" src="/thumbnails/sm/sprint.jpg" alt="" width="320" height="320" loading="lazy" decoding="async">
-              <div>
-                <span class="tc-idea-time"><svg aria-hidden="true"><use href="#i-clock"/></svg>10 Minuten · im Unterricht</span>
-                <h3>Sprint-Warm-up</h3>
-              </div>
-              <ol>
-                <li>Alle öffnen den <a href="/de/unregelmaessige-verben/sprint/">Sprint</a> und spielen eine Runde.</li>
-                <li>Zweite Runde: Wer verbessert die eigene Zeit am meisten?</li>
-                <li>Die Liste „Diese hast du verpasst“ am Ende ist der Einstieg ins Gespräch: Welche Verben waren schwierig?</li>
-              </ol>
             </div>
-            <div class="tc-idea">
-              <img class="tc-idea-img" src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async">
-              <div>
-                <span class="tc-idea-time"><svg aria-hidden="true"><use href="#i-clock"/></svg>Hausaufgabe · ca. 10–15 Minuten</span>
-                <h3>Schicht in der Verb Kitchen</h3>
+            <div class="tc-block" id="startpunkte">
+              <h3 class="tc-h3">Gute Startpunkte</h3>
+              <p class="tc-sub">Alle weiteren Spiele finden Sie unter <a href="/de/spiele/">Spiele</a>.</p>
+              <div class="tc-picks">
+                <article class="tc-pick">
+                  <a class="tc-pick-thumb" href="/de/spiele/verb-kitchen/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="tc-badges"><span class="tc-badge">3D</span></span></a>
+                  <div class="tc-pick-body">
+                    <p class="tc-kind">3D-Spiel · Unregelmäßige Verben</p>
+                    <h3><a href="/de/spiele/verb-kitchen/">Verb Kitchen</a></h3>
+                    <p>Kochen und servieren — saubere Teller gibt es nur mit der richtigen Verbform an der Spüle. Level 1 mit Anleitung, Menüs auf Englisch.</p>
+                    <div class="tc-pick-actions">
+                      <a class="tc-btn is-small" href="/de/spiele/verb-kitchen/">Öffnen</a>
+                    </div>
+                  </div>
+                </article>
+                <article class="tc-pick">
+                  <a class="tc-pick-thumb" href="/de/spiele/verb-snake/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></a>
+                  <div class="tc-pick-body">
+                    <p class="tc-kind">Spiel · Unregelmäßige Verben</p>
+                    <h3><a href="/de/spiele/verb-snake/">Verb Snake</a></h3>
+                    <p>Klassisches Snake: Die Schlange frisst die Verbformen in der richtigen Reihenfolge — erst go, dann went, dann gone. Menüs auf Deutsch.</p>
+                    <div class="tc-pick-actions">
+                      <a class="tc-btn is-small" href="/de/spiele/verb-snake/">Öffnen</a>
+                    </div>
+                  </div>
+                </article>
+                <article class="tc-pick">
+                  <a class="tc-pick-thumb" href="/de/spiele/verb-towers/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-towers.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="tc-badges"><span class="tc-badge">3D</span><span class="tc-badge is-new">Neu</span></span></a>
+                  <div class="tc-pick-body">
+                    <p class="tc-kind">3D-Spiel · Verben und Präpositionen</p>
+                    <h3><a href="/de/spiele/verb-towers/">Verb Towers</a></h3>
+                    <p>Türme bauen — die Münzen dafür werden mit englischen Verben geschmiedet. Das neueste Spiel auf Krabsy.</p>
+                    <div class="tc-pick-actions">
+                      <a class="tc-btn is-small" href="/de/spiele/verb-towers/">Öffnen</a>
+                    </div>
+                  </div>
+                </article>
               </div>
-              <ol>
-                <li>Level 1 und 2 von <a href="/de/spiele/verb-kitchen/">Verb Kitchen</a> spielen (Salat und Burger).</li>
-                <li>Am Ende jeder Schicht zeigt das Spiel die Verben, die noch geübt werden sollten.</li>
-                <li>Drei davon notieren und in der nächsten Stunde mitbringen.</li>
-              </ol>
             </div>
           </div>
-          <div class="tc-plans">
-            <h3>Fertige Stunden mit Zeitplan und PDF</h3>
-            <ul>
-              <li><a href="/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/">Unregelmäßige Verben in der Vertretungsstunde</a> · 45 Min.</li>
-              <li><a href="/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/">in, on, at: Präpositionen der Zeit und des Ortes</a> · 45 Min.</li>
-              <li><a href="/de/lehrkraefte/unterrichtsideen/quiz-raum-stundenabschluss/">Der Quiz-Raum als Stundenabschluss</a> · 10–15 Min.</li>
-            </ul>
-            <a class="tc-btn" href="/de/lehrkraefte/unterrichtsideen/">Alle Unterrichtsideen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <!-- ── Privacy ── -->
-      <section class="tc-sec" id="datenschutz">
-        <div class="tc-wrap">
-          <div class="tc-priv-head">
-            <span class="tc-priv-shield" aria-hidden="true"><svg><use href="#i-shield"/></svg></span>
+      <!-- ── Tab 2: practice link builder (lib/krabsy-link-builder.js) + sharing ── -->
+      <div class="tc-panel" id="uebungslink">
+        <section class="tc-sec tc-band">
+          <div class="tc-wrap">
+            <p class="tc-kicker">Neu</p>
+            <h2 class="tc-h2">Einen Übungslink für Ihre Klasse erstellen</h2>
+            <p class="tc-sub">Thema, Spiel, Schwierigkeit und Sprache im Spiel wählen. Der Link gilt dauerhaft, auch als QR-Code, und es wird nichts gespeichert.</p>
+            <div id="link-builder" data-lang="de"></div>
+          </div>
+        </section>
+
+        <section class="tc-sec" id="teilen">
+          <div class="tc-wrap">
+            <h2 class="tc-h2">So teilen Sie den Link mit Ihrer Klasse</h2>
+            <ol class="tc-share">
+              <li><b>Link erstellen</b>Mit dem Baukasten oben, per „Link kopieren“ unten oder aus der Adresszeile eines Spiels.</li>
+              <li><b>In die Lernplattform einfügen</b>Als Link, Material oder Aufgabe.
+                <ul class="tc-platforms" aria-label="Zum Beispiel in"><li>Moodle</li><li>IServ</li><li>itslearning</li><li>Microsoft Teams</li><li>Google Classroom</li><li>Schoology</li></ul>
+              </li>
+              <li><b>Die Kinder spielen los</b>Ein Klick genügt: kein Konto, kein Klassencode, keine App.</li>
+            </ol>
+            <div class="tc-share-more">
+              <p class="tc-tip"><svg aria-hidden="true"><use href="#i-bulb"/></svg><span><strong>Tipp:</strong> Jedes Thema hat eigene Seiten. Sind Präpositionen dran, teilen Sie direkt den <a href="/de/praepositionen/sprint/">Präpositionen-Sprint</a> — dann landet niemand im falschen Thema.</span></p>
+              <details class="tc-embed">
+                <summary>Direkt einbetten (HTML-Code)</summary>
+                <div class="tc-embed-body">
+                  <p>Viele Plattformen erlauben es, eine Seite per HTML-Code einzubetten. Krabsy-Seiten funktionieren auch eingebettet, zum Beispiel Verb Snake:</p>
+                  <div class="tc-code">
+                    <pre id="embed-code">&lt;iframe src="https://krabsy.com/de/spiele/verb-snake/" width="100%" height="640" style="border:0" allow="autoplay; fullscreen; gamepad" allowfullscreen title="Verb Snake – Krabsy"&gt;&lt;/iframe&gt;</pre>
+                    <button class="tp-copy" type="button" data-copy-from="#embed-code" data-done="Kopiert ✓" data-fail="Bitte markieren und kopieren">Code kopieren</button>
+                  </div>
+                  <p>Für andere Spiele tauschen Sie die Adresse aus. Das 3D-Spiel Verb Kitchen lassen Sie auf schwächeren Geräten besser per Link in einem neuen Tab öffnen — dort hat es den ganzen Bildschirm und läuft meist flüssiger.</p>
+                </div>
+              </details>
+            </div>
+            <h3 class="tc-minis-h">Oder einen fertigen Link kopieren</h3>
+            <div class="tc-minis">
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/spiele/verb-kitchen/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <h3><a href="/de/spiele/verb-kitchen/">Verb Kitchen</a></h3>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-kitchen/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/spiele/verb-snake/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <h3><a href="/de/spiele/verb-snake/">Verb Snake</a></h3>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-snake/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/spiele/verb-towers/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/verb-towers.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <h3><a href="/de/spiele/verb-towers/">Verb Towers</a></h3>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/spiele/verb-towers/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/unregelmaessige-verben/sprint/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/sprint.jpg" alt="" width="320" height="320" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Drill · Verben</p>
+                  <h3><a href="/de/unregelmaessige-verben/sprint/">Sprint</a></h3>
+                  <p>20 Verben gegen die Uhr, jeder Fehler kostet Zeit. Ideal als Warm-up.</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/sprint/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/unregelmaessige-verben/fill-the-gap/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/fill-the-gap.jpg" alt="" width="320" height="320" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Drill · Verben</p>
+                  <h3><a href="/de/unregelmaessige-verben/fill-the-gap/">Fill the Gap</a></h3>
+                  <p>Zehn englische Sätze mit Lücke — die passende Verbform wird eingetippt.</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/praepositionen/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/sm/topic-prepositions.jpg" alt="" width="288" height="216" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Thema</p>
+                  <h3><a href="/de/praepositionen/">Präpositionen</a></h3>
+                  <p><em>in</em>, <em>on</em>, <em>at</em>, <em>for</em>, <em>since</em> … mit Sprint, Lückentext, Karteikarten und Regelübersicht.</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/praepositionen/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── Tab 3: class + dashboard (drawn illustration, not a screenshot), Quiz-Raum ── -->
+      <div class="tc-panel" id="klasse">
+        <section class="tc-sec tc-band">
+          <div class="tc-wrap tc-class">
             <div>
-              <h2 class="tc-h2">Datenschutz: was Krabsy speichert — und was nicht</h2>
-              <p class="tc-sub">Kurz zusammengefasst. Verbindlich ist unsere <a href="/de/datenschutz/">Datenschutzerklärung</a>.</p>
+              <p class="tc-kicker">Neu · Klassen</p>
+              <h2 class="tc-h2">Sehen, welche Wörter Ihre Klasse noch übt</h2>
+              <p class="tc-class-lead">Erstellen Sie eine Klasse — ohne Konto und ohne E-Mail. Ab dann zählen die Antworten der Kinder in Ihre Übersicht.</p>
+              <ol class="tc-steps">
+                <li><b>Klasse erstellen</b>Sie bekommen einen Klassencode und einen privaten Link zu Ihrer Übersicht.</li>
+                <li><b>Code weitergeben</b>Die Kinder geben einmal den Code und ihren Vornamen ein.</li>
+                <li><b>Übersicht öffnen</b>Welche Wörter sind noch schwer, und wer hat wie viel geübt?</li>
+              </ol>
+              <p class="tc-class-note"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>Gespeichert werden nur Vornamen und Antworten. Inaktive Klassen werden nach 6 Monaten automatisch gelöscht.</span></p>
+              <div class="tc-ctas">
+                <a class="tc-btn" href="/de/lehrkraefte/klasse-erstellen/">Klasse erstellen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+              </div>
             </div>
+            <figure class="tc-dash-fig">
+              <div class="tc-dash" role="img" aria-label="Gezeichnetes Beispiel der Klassenübersicht: eine Liste schwieriger Wörter mit Balken und eine Tabelle mit Vornamen und der Zahl der Antworten.">
+                <div class="tc-dash-bar" aria-hidden="true"><b>Klassenübersicht</b><span>6b Englisch</span><span class="tc-dash-code">K7M4PX</span></div>
+                <div class="tc-dash-body" aria-hidden="true">
+                  <div>
+                    <p class="tc-dash-h">Diese Wörter sind für die Klasse noch schwer</p>
+                    <div class="tc-dash-words">
+                      <div class="tc-dash-word"><span>teach</span><span class="tc-dash-track"><i style="width:82%"></i></span><span class="tc-dash-n">9 unsicher</span></div>
+                      <div class="tc-dash-word"><span>lie</span><span class="tc-dash-track"><i style="width:64%"></i></span><span class="tc-dash-n">7 unsicher</span></div>
+                      <div class="tc-dash-word"><span>catch</span><span class="tc-dash-track"><i style="width:46%"></i></span><span class="tc-dash-n">5 unsicher</span></div>
+                      <div class="tc-dash-word"><span>bring</span><span class="tc-dash-track"><i style="width:36%"></i></span><span class="tc-dash-n">4 unsicher</span></div>
+                    </div>
+                  </div>
+                  <div class="tc-dash-solid">Das sitzt schon: <span>go</span><span>be</span><span>have</span><span>see</span></div>
+                  <table class="tc-dash-table">
+                    <tr><th>Vorname</th><th>diese Woche</th><th>gesamt</th><th class="tc-dash-hide-s">noch üben</th></tr>
+                    <tr><td><span class="tc-dash-name"><i>M</i>Mia</span></td><td>64</td><td>310</td><td class="tc-dash-hide-s">6</td></tr>
+                    <tr><td><span class="tc-dash-name"><i>B</i>Ben</span></td><td>40</td><td>255</td><td class="tc-dash-hide-s">11</td></tr>
+                    <tr><td><span class="tc-dash-name"><i>L</i>Lena</span></td><td>38</td><td>198</td><td class="tc-dash-hide-s">9</td></tr>
+                    <tr><td><span class="tc-dash-name"><i>N</i>Noa S.</span></td><td>12</td><td>87</td><td class="tc-dash-hide-s">14</td></tr>
+                  </table>
+                </div>
+              </div>
+              <figcaption class="tc-dash-cap">Gezeichnetes Beispiel mit erfundenen Namen und Zahlen — kein Screenshot.</figcaption>
+            </figure>
           </div>
-          <ul class="tc-priv">
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Keine Konten, keine Anmeldung</b>Die Kinder geben weder Namen noch E-Mail-Adresse ein. Der Link genügt.</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Keine Cookies, keine Werbung</b>Keine Tracking-Dienste wie Google Analytics oder Meta Pixel.</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Fortschritt bleibt auf dem Gerät</b>Lernstand und Bestzeiten liegen nur im Browser (localStorage) und werden nicht an uns übertragen.</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Klassen: nur Vornamen und Antworten</b>Nur wenn Sie eine Klasse erstellen (bei gleichen Namen mit dem ersten Buchstaben des Nachnamens). Inaktive Klassen werden nach 6 Monaten automatisch gelöscht.</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Quiz-Raum: nichts bleibt gespeichert</b>Vornamen und Punkte liegen nur im Arbeitsspeicher unseres Servers, solange der Raum offen ist. Die Antworten zählen in die Lernstatistik auf dem Gerät des Kindes und, wenn es Ihrer Klasse beigetreten ist, in die Klasse.</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg><b>Anonyme Statistik ohne IP-Adresse</b>Erfasst werden u. a. aufgerufene Seite, Herkunftsseite, Browsersprache, Bildschirmbreite, Verweildauer und das Land.</li>
-          </ul>
-          <div class="tc-priv-note tc-text">
-            <p><strong>Gut zu wissen:</strong> Weil der Fortschritt im Browser liegt, teilen sich Kinder an einem gemeinsam genutzten Gerät auch denselben Stand. Zurücksetzen lässt er sich auf der <a href="/de/unregelmaessige-verben/statistik/">Statistik-Seite</a>.</p>
-            <p>Ob ein Online-Angebot eingesetzt wird, entscheidet Ihre Schule — die Datenschutzerklärung können Sie dafür gern weitergeben.</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ── FAQ + contact ── -->
-      <section class="tc-sec tc-band" id="faq">
-        <div class="tc-wrap tc-faq-grid">
-          <div>
-            <h2 class="tc-h2">Häufige Fragen</h2>
-            <p class="tc-sub">Das Wichtigste für Lehrkräfte auf einen Blick.</p>
-            <div class="tc-contact" id="kontakt">
-              <img src="/thumbnails/sm/crab.png?v=2026-11-27" alt="" width="96" height="82" loading="lazy" decoding="async">
-              <h3>Sie nutzen Krabsy mit Ihrer Klasse?</h3>
-              <p>Wir freuen uns über Rückmeldungen, Fehlerhinweise und Themenwünsche — schreiben Sie uns an <a href="mailto:hallo@krabsy.com">hallo@krabsy.com</a>.</p>
-              <a class="tc-btn is-amber is-small" href="mailto:hallo@krabsy.com"><svg aria-hidden="true"><use href="#i-mail"/></svg>E-Mail schreiben</a>
+        <section class="tc-sec" id="quiz-raum">
+          <div class="tc-wrap">
+            <div class="tc-quiz">
+              <div class="tc-quiz-shot">
+                <img src="/thumbnails/hero/quiz-room.jpg" alt="Der Quiz-Raum: Spielfiguren mit Vornamen laufen durch einen 3D-Raum mit den Antwortfeldern B, C und D." width="1200" height="675" loading="lazy" decoding="async">
+                <p class="tc-quiz-join"><svg aria-hidden="true"><use href="#i-phone"/></svg><span>Die Kinder kommen dazu über<b>krabsy.com/quiz</b></span></p>
+              </div>
+              <div class="tc-quiz-body">
+                <p class="tc-kicker">Neu · Live-Quiz</p>
+                <h2 class="tc-h2">Der Quiz-Raum für die ganze Klasse</h2>
+                <p class="tc-quiz-lead">Jedes Kind läuft am eigenen Gerät als Figur durch einen 3D-Raum. Sie leiten den Raum, die Klasse spielt.</p>
+                <ol class="tc-steps">
+                  <li><b>Raum öffnen</b>Thema, Schwierigkeit, Anzahl der Fragen und Zeit wählen. Alle Fragen sehen Sie vorher und können sie tauschen oder entfernen.</li>
+                  <li><b>Kinder kommen dazu</b>Mit Raum-Code oder QR-Code und ihrem Vornamen. Kein Konto, bis zu 40 Kinder.</li>
+                  <li><b>Quiz starten</b>Nach jeder Frage: Lösung und Top 5. Am Ende: die Wörter, die die Klasse am häufigsten falsch hatte.</li>
+                </ol>
+                <div class="tc-ctas">
+                  <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum öffnen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                  <a class="tc-link" href="/de/spiele/quiz-room/">Mehr zum Quiz-Raum</a>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="tc-faq">
-            <details open>
-              <summary>Was kostet Krabsy?</summary>
-              <p>Nichts. Alle Spiele und Übungen sind kostenlos, und derzeit gibt es keine Werbung.</p>
-            </details>
-            <details>
-              <summary>Müssen sich die Kinder anmelden?</summary>
-              <p>Nein. Der Link genügt — keine Konten, keine E-Mail-Adressen. Wenn Sie die Ergebnisse sehen möchten, erstellen Sie eine Klasse: Dann geben die Kinder einmal einen Klassencode und ihren Vornamen ein.</p>
-            </details>
-            <details>
-              <summary>Welche Daten werden erhoben?</summary>
-              <p>Keine Namen, keine E-Mail-Adressen, keine Cookies. Der Lernfortschritt bleibt im Browser des Geräts, und die anonyme Nutzungsstatistik speichert keine IP-Adressen. Details in der <a href="/de/datenschutz/">Datenschutzerklärung</a>.</p>
-            </details>
-            <details>
-              <summary>Auf welchen Geräten läuft Krabsy?</summary>
-              <p>In aktuellen Browsern auf Laptops, Chromebooks, Tablets und Smartphones, ohne Installation. Die 3D-Spiele brauchen mehr Rechenleistung als die Drills.</p>
-            </details>
-            <details>
-              <summary>In welchen Sprachen gibt es Krabsy?</summary>
-              <p>Die Seiten gibt es auf Deutsch und Spanisch, geübt wird Englisch. Einige Spiele haben englische Menüs.</p>
-            </details>
-            <details>
-              <summary>Für welches Alter ist Krabsy gedacht?</summary>
-              <p>Für Schülerinnen und Schüler ab etwa 10 Jahren, also ab Klasse 5.</p>
-            </details>
-            <details>
-              <summary>Kann ich die Ergebnisse meiner Klasse sehen?</summary>
-              <p>Ja, wenn Sie eine Klasse erstellen (ohne Konto und ohne E-Mail): Sie sehen, welche Wörter Ihre Klasse noch übt und wer wie viel geübt hat. Ohne Klasse bleiben Fortschritt und Bestzeiten nur auf dem Gerät der Kinder.</p>
-            </details>
+        </section>
+      </div>
+
+      <!-- ── Tab 4: lessons, material, quick ideas ── -->
+      <div class="tc-panel" id="material">
+        <section class="tc-sec" id="ideen">
+          <div class="tc-wrap">
+            <h2 class="tc-h2">Unterricht &amp; Material</h2>
+
+            <div class="tc-plans">
+              <h3>Fertige Stunden mit Zeitplan und PDF</h3>
+              <ul>
+                <li><a href="/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/">Unregelmäßige Verben in der Vertretungsstunde</a> · 45 Min.</li>
+                <li><a href="/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/">in, on, at: Präpositionen der Zeit und des Ortes</a> · 45 Min.</li>
+                <li><a href="/de/lehrkraefte/unterrichtsideen/quiz-raum-stundenabschluss/">Der Quiz-Raum als Stundenabschluss</a> · 10–15 Min.</li>
+              </ul>
+              <a class="tc-btn" href="/de/lehrkraefte/unterrichtsideen/">Alle Unterrichtsideen <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+            <h3 class="tc-minis-h">Tests, Nachschlagen und Arbeitsblätter</h3>
+            <div class="tc-minis">
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/unregelmaessige-verben/arbeitsblaetter/" tabindex="-1" aria-hidden="true"><svg><use href="#i-print"/></svg></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Zum Ausdrucken</p>
+                  <h3><a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></h3>
+                  <p>Unregelmäßige Verben und <a href="/de/praepositionen/arbeitsblaetter/">Präpositionen</a> — kostenlos, mit Lösungen.</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img" href="/de/unregelmaessige-verben/verb-diplom/" tabindex="-1" aria-hidden="true"><img src="/thumbnails/VerbDiplom.svg" alt="" width="400" height="400" loading="lazy" decoding="async"></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Test · Verben</p>
+                  <h3><a href="/de/unregelmaessige-verben/verb-diplom/">Verb-Diplom</a></h3>
+                  <p>Test mit Urkunde in Bronze, Silber und Gold. Gut als Hausaufgabe: „Bis Freitag macht ihr alle Bronze.“</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/verb-diplom/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+              <article class="tc-mini">
+                <a class="tc-mini-img is-teal" href="/de/unregelmaessige-verben/a-z/" tabindex="-1" aria-hidden="true"><svg><use href="#i-book"/></svg></a>
+                <div class="tc-mini-txt">
+                  <p class="tc-kind">Nachschlagen</p>
+                  <h3><a href="/de/unregelmaessige-verben/a-z/">Verben A–Z</a></h3>
+                  <p>Alle 172 unregelmäßigen Verben mit Formen, Beispielsätzen und Mini-Quiz.</p>
+                </div>
+                <button class="tp-copy" type="button" data-copy="https://krabsy.com/de/unregelmaessige-verben/a-z/" data-done="Kopiert ✓" data-fail="Kopieren fehlgeschlagen">Link kopieren</button>
+              </article>
+            </div>
+            <h3 class="tc-minis-h">Zwei schnelle Ideen ohne Vorbereitung</h3>
+            <div class="tc-ideas">
+              <div class="tc-idea">
+                <img class="tc-idea-img" src="/thumbnails/sm/sprint.jpg" alt="" width="320" height="320" loading="lazy" decoding="async">
+                <div>
+                  <span class="tc-idea-time"><svg aria-hidden="true"><use href="#i-clock"/></svg>10 Minuten · im Unterricht</span>
+                  <h3>Sprint-Warm-up</h3>
+                </div>
+                <ol>
+                  <li>Alle öffnen den <a href="/de/unregelmaessige-verben/sprint/">Sprint</a> und spielen eine Runde.</li>
+                  <li>Zweite Runde: Wer verbessert die eigene Zeit am meisten?</li>
+                  <li>Die Liste „Diese hast du verpasst“ am Ende ist der Einstieg ins Gespräch: Welche Verben waren schwierig?</li>
+                </ol>
+              </div>
+              <div class="tc-idea">
+                <img class="tc-idea-img" src="/thumbnails/sm/verb-kitchen.jpg" alt="" width="640" height="360" loading="lazy" decoding="async">
+                <div>
+                  <span class="tc-idea-time"><svg aria-hidden="true"><use href="#i-clock"/></svg>Hausaufgabe · ca. 10–15 Minuten</span>
+                  <h3>Schicht in der Verb Kitchen</h3>
+                </div>
+                <ol>
+                  <li>Level 1 und 2 von <a href="/de/spiele/verb-kitchen/">Verb Kitchen</a> spielen (Salat und Burger).</li>
+                  <li>Am Ende jeder Schicht zeigt das Spiel die Verben, die noch geübt werden sollten.</li>
+                  <li>Drei davon notieren und in der nächsten Stunde mitbringen.</li>
+                </ol>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
+      <!-- ── Tab 5: privacy + FAQ + contact ── -->
+      <div class="tc-panel" id="datenschutz">
+        <section class="tc-sec">
+          <div class="tc-wrap">
+            <div class="tc-priv-head">
+              <span class="tc-priv-shield" aria-hidden="true"><svg><use href="#i-shield"/></svg></span>
+              <div>
+                <h2 class="tc-h2">Datenschutz: was Krabsy speichert — und was nicht</h2>
+                <p class="tc-sub">Kurz zusammengefasst. Verbindlich ist unsere <a href="/de/datenschutz/">Datenschutzerklärung</a>.</p>
+              </div>
+            </div>
+            <div class="tc-priv-acc">
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Keine Konten, keine Anmeldung</summary>
+                <p>Die Kinder geben weder Namen noch E-Mail-Adresse ein. Der Link genügt.</p>
+              </details>
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Keine Cookies, keine Werbung</summary>
+                <p>Keine Tracking-Dienste wie Google Analytics oder Meta Pixel.</p>
+              </details>
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Fortschritt bleibt auf dem Gerät</summary>
+                <p>Lernstand und Bestzeiten liegen nur im Browser (localStorage) und werden nicht an uns übertragen.</p>
+              </details>
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Klassen: nur Vornamen und Antworten</summary>
+                <p>Nur wenn Sie eine Klasse erstellen (bei gleichen Namen mit dem ersten Buchstaben des Nachnamens). Inaktive Klassen werden nach 6 Monaten automatisch gelöscht.</p>
+              </details>
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Quiz-Raum: nichts bleibt gespeichert</summary>
+                <p>Vornamen und Punkte liegen nur im Arbeitsspeicher unseres Servers, solange der Raum offen ist. Die Antworten zählen in die Lernstatistik auf dem Gerät des Kindes und, wenn es Ihrer Klasse beigetreten ist, in die Klasse.</p>
+              </details>
+              <details>
+                <summary><svg aria-hidden="true"><use href="#i-check"/></svg>Anonyme Statistik ohne IP-Adresse</summary>
+                <p>Erfasst werden u. a. aufgerufene Seite, Herkunftsseite, Browsersprache, Bildschirmbreite, Verweildauer und das Land.</p>
+              </details>
+            </div>
+            <div class="tc-priv-note tc-text">
+              <p><strong>Gut zu wissen:</strong> Weil der Fortschritt im Browser liegt, teilen sich Kinder an einem gemeinsam genutzten Gerät auch denselben Stand. Zurücksetzen lässt er sich auf der <a href="/de/unregelmaessige-verben/statistik/">Statistik-Seite</a>.</p>
+              <p>Ob ein Online-Angebot eingesetzt wird, entscheidet Ihre Schule — die Datenschutzerklärung können Sie dafür gern weitergeben.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tc-sec tc-band" id="faq">
+          <div class="tc-wrap tc-faq-grid">
+            <div>
+              <h2 class="tc-h2">Häufige Fragen</h2>
+              <div class="tc-contact" id="kontakt">
+                <img src="/thumbnails/sm/crab.png?v=2026-11-27" alt="" width="96" height="82" loading="lazy" decoding="async">
+                <h3>Sie nutzen Krabsy mit Ihrer Klasse?</h3>
+                <p>Wir freuen uns über Rückmeldungen, Fehlerhinweise und Themenwünsche — schreiben Sie uns an <a href="mailto:hallo@krabsy.com">hallo@krabsy.com</a>.</p>
+                <a class="tc-btn is-amber is-small" href="mailto:hallo@krabsy.com"><svg aria-hidden="true"><use href="#i-mail"/></svg>E-Mail schreiben</a>
+              </div>
+            </div>
+            <div class="tc-faq">
+              <details open>
+                <summary>Was kostet Krabsy?</summary>
+                <p>Nichts. Alle Spiele und Übungen sind kostenlos, und derzeit gibt es keine Werbung.</p>
+              </details>
+              <details>
+                <summary>Müssen sich die Kinder anmelden?</summary>
+                <p>Nein. Der Link genügt — keine Konten, keine E-Mail-Adressen. Wenn Sie die Ergebnisse sehen möchten, erstellen Sie eine Klasse: Dann geben die Kinder einmal einen Klassencode und ihren Vornamen ein.</p>
+              </details>
+              <details>
+                <summary>Welche Daten werden erhoben?</summary>
+                <p>Keine Namen, keine E-Mail-Adressen, keine Cookies. Der Lernfortschritt bleibt im Browser des Geräts, und die anonyme Nutzungsstatistik speichert keine IP-Adressen. Details in der <a href="/de/datenschutz/">Datenschutzerklärung</a>.</p>
+              </details>
+              <details>
+                <summary>Auf welchen Geräten läuft Krabsy?</summary>
+                <p>In aktuellen Browsern auf Laptops, Chromebooks, Tablets und Smartphones, ohne Installation. Die 3D-Spiele brauchen mehr Rechenleistung als die Drills.</p>
+              </details>
+              <details>
+                <summary>In welchen Sprachen gibt es Krabsy?</summary>
+                <p>Die Seiten gibt es auf Deutsch und Spanisch, geübt wird Englisch. Einige Spiele haben englische Menüs.</p>
+              </details>
+              <details>
+                <summary>Für welches Alter ist Krabsy gedacht?</summary>
+                <p>Für Schülerinnen und Schüler ab etwa 10 Jahren, also ab Klasse 5.</p>
+              </details>
+              <details>
+                <summary>Kann ich die Ergebnisse meiner Klasse sehen?</summary>
+                <p>Ja, wenn Sie eine Klasse erstellen (ohne Konto und ohne E-Mail): Sie sehen, welche Wörter Ihre Klasse noch übt und wer wie viel geübt hat. Ohne Klasse bleiben Fortschritt und Bestzeiten nur auf dem Gerät der Kinder.</p>
+              </details>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
 
     <footer class="k-footer">
@@ -589,6 +635,7 @@
       });
     })();
   </script>
+  <script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>
   <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-25"></script>
   <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>

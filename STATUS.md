@@ -2,6 +2,10 @@
 
 
 
+## Teacher page tabs (2026-11-27), not deployed
+
+`/de/lehrkraefte/`, `/es/docentes/`, `/en/spanish/teachers/`: short hero with chips, then tabs (DE: Loslegen · Übungslink · Klasse & Quiz-Raum · Unterricht & Material · Datenschutz & FAQ; ES the same; EN: Get started · Practice link · Quiz Room & tutors · Privacy). `lib/krabsy-teacher-tabs.js` (hash per tab, old anchors like #uebungslink/#quiz-raum/#enlace-de-practica/#sala-de-quiz/#practice-link open the right tab and scroll; back/forward; arrow keys) + tab/compact styles in `krabsy-teachers.css?v=2026-11-27`. Without JS every panel is visible in order. Starter games keep "Öffnen", their "Link kopieren" moved to the Übungslink tab; privacy points are accordions; JSON-LD/meta unchanged. DE/ES HTML hand-written; EN from `tools/build_en_spanish.py` `build_teachers()` (was stale vs. the hand-edited page, now in sync). Phones hide the hero key art.
+
 ## Root language rule (live 2026-11-27)
 
 `krabsy.com/` → `/es/` (Spanish/Portuguese first), `/de/` (German first, or no header = crawlers), else `/en/spanish/` (English interface; owner: friend in Spain with an English laptop landed on /de/). Config `docs/nginx-krabsy.conf`, pasted in Coolify; rollback `docs/nginx-krabsy.previous.conf`. Note: after saving the nginx field it took several minutes / a second deploy until the new rule answered.

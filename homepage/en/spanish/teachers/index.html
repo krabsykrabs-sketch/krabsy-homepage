@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
-  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-25">
+  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-27">
   <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
 </head>
@@ -50,7 +50,9 @@
     <header class="k-page-header">
       <a href="/en/spanish/" class="logo" aria-label="Krabsy">
         <span>kr</span>
-        <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
+        <span class="logo-crab" aria-hidden="true">
+          <img src="/favicon.png?v=2026-11-27" alt="" decoding="async">
+        </span>
         <span>bsy</span>
       </a>
     </header>
@@ -63,12 +65,7 @@
             <p class="tc-eyebrow"><svg aria-hidden="true"><use href="#i-teach"/></svg>For teachers</p>
             <h1>Krabsy in your Spanish lessons: grammar <span>that feels like playing.</span></h1>
             <p class="tc-lead">Ser, estar, tener and more as arcade games, quick drills and a live quiz. Share a link, and your pupils start practising straight away.</p>
-            <ul class="tc-facts">
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Free</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>No sign-up</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Runs in the browser</li>
-              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Beginners (A1)</li>
-            </ul>
+            <ul class="tc-chips" aria-label="At a glance"><li>Free</li><li>No sign-up</li><li>Runs in the browser</li><li>Beginners (A1)</li></ul>
             <div class="tc-ctas">
               <a class="tc-btn" href="/en/spanish/games/">See the games <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
               <a class="tc-link" href="#practice-link">Make a practice link</a>
@@ -83,118 +80,139 @@
             <figcaption class="tc-hero-cap">This is what the questions look like — no grammar terms.</figcaption>
           </figure>
         </div>
+      </section>
 
-        <!-- ── Three ways ── -->
-        <div class="tc-wrap tc-ways-sec" id="ways">
-          <h2 class="tc-ways-h">Three ways to use Krabsy</h2>
-          <div class="tc-ways">
-            <article class="tc-way is-teal">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">1</span>
-                <h3>Share a link</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-link"/></svg></span>
-              </div>
-              <p>Pick a topic, a game or drill and the difficulty. Your pupils click the link and practise — no account, no code.</p>
-              <ul class="tc-way-tags"><li>No account</li><li>Homework</li><li>QR code</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn is-teal" href="#practice-link">Make a link</a>
-              </div>
-            </article>
-            <article class="tc-way is-amber">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">2</span>
-                <h3>Start a Quiz Room</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-live"/></svg></span>
-              </div>
-              <p>A live quiz you lead: every pupil plays on their own device and joins at <strong>krabsy.com/quiz</strong>.</p>
-              <ul class="tc-way-tags"><li>Up to 40 pupils</li><li>In class or on Zoom</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room</a>
-                <a class="tc-link" href="#quiz-room">More</a>
-              </div>
-            </article>
-            <article class="tc-way is-coral">
-              <div class="tc-way-top">
-                <span class="tc-way-num" aria-hidden="true">3</span>
-                <h3>Teach 1:1 live</h3>
-                <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-group"/></svg></span>
-              </div>
-              <p>For private tutors: a profile per student, homework, and live lessons where you see what your student does — no screen sharing.</p>
-              <ul class="tc-way-tags"><li>New</li><li>Pilot</li><li>No passwords</li></ul>
-              <div class="tc-way-foot">
-                <a class="tc-btn" href="/en/spanish/tutors/">Krabsy for tutors</a>
-                <a class="tc-link" href="#tutors">More</a>
-              </div>
-            </article>
+      <!-- ── Tabs (lib/krabsy-teacher-tabs.js; without JS a jump menu, all panels visible) ── -->
+      <nav class="tc-tabs-nav" aria-label="Sections of this page">
+        <div class="tc-wrap">
+          <div class="tc-tabs" data-tc-tabs>
+            <a class="tc-tab" href="#get-started" data-tab="get-started"><svg aria-hidden="true"><use href="#i-bolt"/></svg>Get started</a>
+            <a class="tc-tab" href="#practice-link" data-tab="practice-link"><svg aria-hidden="true"><use href="#i-link"/></svg>Practice link</a>
+            <a class="tc-tab" href="#live" data-tab="live"><svg aria-hidden="true"><use href="#i-live"/></svg>Quiz Room &amp; tutors</a>
+            <a class="tc-tab" href="#privacy" data-tab="privacy"><svg aria-hidden="true"><use href="#i-shield"/></svg>Privacy</a>
           </div>
         </div>
-      </section>
+      </nav>
 
-      <!-- ── Practice link builder (lib/krabsy-link-builder.js) ── -->
-      <section class="tc-sec tc-band" id="practice-link">
-        <div class="tc-wrap">
-          <p class="tc-kicker">Practice link</p>
-          <h2 class="tc-h2">Make a practice link for your pupils</h2>
-          <p class="tc-sub">Choose a topic, a game or drill, the difficulty and the language of the game's menus. Share the link in your learning platform, by message or as a QR code. It works for good, and nothing is saved.</p>
-          <div id="link-builder" data-lang="en"></div>
-        </div>
-      </section>
-
-      <!-- ── Quiz Room ── -->
-      <section class="tc-sec" id="quiz-room">
-        <div class="tc-wrap">
-          <div class="tc-quiz">
-            <div class="tc-quiz-shot">
-              <img src="/thumbnails/hero/quiz-room.jpg" alt="The Quiz Room: characters with first names walk through a 3D room with the answer pads." width="1200" height="675" loading="lazy" decoding="async">
-              <p class="tc-quiz-join"><svg aria-hidden="true"><use href="#i-phone"/></svg><span>Pupils join at<b>krabsy.com/quiz</b></span></p>
-            </div>
-            <div class="tc-quiz-body">
-              <p class="tc-kicker">Live quiz</p>
-              <h2 class="tc-h2">The Quiz Room: live with your class or one pupil</h2>
-              <p class="tc-quiz-lead">Every pupil walks through a 3D room as a little character and answers on their own screen. You lead the room, they play.</p>
-              <ol class="tc-steps">
-                <li><b>Open a room</b>Choose the topic, difficulty, number of questions and time. You see every question first and can swap or remove any.</li>
-                <li><b>Pupils join</b>With the room code or QR code and their first name. No account, up to 40 pupils.</li>
-                <li><b>Start the quiz</b>After each question: the answer and the top 5. At the end: the sentences the class got wrong most often.</li>
-              </ol>
-              <div class="tc-ctas">
-                <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-              </div>
+      <!-- ── Tab 1: three ways ── -->
+      <div class="tc-panel" id="get-started">
+        <section class="tc-sec">
+          <div class="tc-wrap" id="ways">
+            <h2 class="tc-h2">Three ways to use Krabsy</h2>
+            <div class="tc-ways">
+              <article class="tc-way is-teal">
+                <div class="tc-way-top">
+                  <span class="tc-way-num" aria-hidden="true">1</span>
+                  <h3><a href="#practice-link">Share a link</a></h3>
+                  <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-link"/></svg></span>
+                </div>
+                <p>Pick a topic, a game or drill and the difficulty. Your pupils click the link and practise — no account, no code.</p>
+                <ul class="tc-way-tags"><li>No account</li><li>Homework</li><li>QR code</li></ul>
+                <div class="tc-way-foot">
+                  <a class="tc-btn is-teal" href="#practice-link">Make a link</a>
+                </div>
+              </article>
+              <article class="tc-way is-amber">
+                <div class="tc-way-top">
+                  <span class="tc-way-num" aria-hidden="true">2</span>
+                  <h3><a href="#quiz-room">Start a Quiz Room</a></h3>
+                  <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-live"/></svg></span>
+                </div>
+                <p>A live quiz you lead: every pupil plays on their own device and joins at <strong>krabsy.com/quiz</strong>.</p>
+                <ul class="tc-way-tags"><li>Up to 40 pupils</li><li>In class or on Zoom</li></ul>
+                <div class="tc-way-foot">
+                  <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room</a>
+                  <a class="tc-link" href="#quiz-room">More</a>
+                </div>
+              </article>
+              <article class="tc-way is-coral">
+                <div class="tc-way-top">
+                  <span class="tc-way-num" aria-hidden="true">3</span>
+                  <h3><a href="#tutors">Teach 1:1 live</a></h3>
+                  <span class="tc-way-ico" aria-hidden="true"><svg class="tc-ico"><use href="#i-group"/></svg></span>
+                </div>
+                <p>For private tutors: a profile per student, homework, and live lessons where you see what your student does — no screen sharing.</p>
+                <ul class="tc-way-tags"><li>New</li><li>Pilot</li><li>No passwords</li></ul>
+                <div class="tc-way-foot">
+                  <a class="tc-btn" href="/en/spanish/tutors/">Krabsy for tutors</a>
+                  <a class="tc-link" href="#tutors">More</a>
+                </div>
+              </article>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <!-- ── Tutors (live 1:1 lessons) ── -->
-      <section class="tc-sec tc-band" id="tutors">
-        <div class="tc-wrap">
-          <p class="tc-kicker">New · For private tutors</p>
-          <h2 class="tc-h2">Live 1:1 lessons without screen sharing</h2>
-          <p class="tc-sub">Keep your video call for face and voice. Your student opens their own Krabsy link, and you see on your screen what they do: every answer, the letters as they type, even their pointer. Add material during the lesson, point at things, give a hint or a star.</p>
-          <ol class="tc-steps">
-            <li><b>Create your space</b>With your email — no password; we send you a sign-in link.</li>
-            <li><b>Add your students</b>First names only. Each student gets a personal link that stays the same.</li>
-            <li><b>Teach live</b>Start the lesson, show worksheets, quick practice or a picture book, and keep a note for every lesson.</li>
-          </ol>
-          <div class="tc-ctas">
-            <a class="tc-btn" href="/en/spanish/tutors/">Krabsy for tutors <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <!-- ── Tab 2: practice link builder (lib/krabsy-link-builder.js) ── -->
+      <div class="tc-panel" id="practice-link">
+        <section class="tc-sec tc-band">
+          <div class="tc-wrap">
+            <p class="tc-kicker">Practice link</p>
+            <h2 class="tc-h2">Make a practice link for your pupils</h2>
+            <p class="tc-sub">Choose a topic, a game or drill, the difficulty and the language of the game's menus. Share the link in your learning platform, by message or as a QR code. It works for good, and nothing is saved.</p>
+            <div id="link-builder" data-lang="en"></div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <!-- ── Privacy ── -->
-      <section class="tc-sec" id="privacy">
-        <div class="tc-wrap">
-          <p class="tc-kicker">Privacy</p>
-          <h2 class="tc-h2">No accounts for pupils</h2>
-          <ul class="tc-facts">
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg>No e-mail addresses from pupils</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg>No cookies</li>
-            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Progress stays in the pupil's browser</li>
-          </ul>
-          <p class="tc-sub">Tutors' spaces store first names and answers so tutors can follow their students. Details in the <a href="/en/privacy/">privacy policy</a>.</p>
-        </div>
-      </section>
+      <!-- ── Tab 3: Quiz Room + tutors (live 1:1 lessons) ── -->
+      <div class="tc-panel" id="live">
+        <section class="tc-sec" id="quiz-room">
+          <div class="tc-wrap">
+            <div class="tc-quiz">
+              <div class="tc-quiz-shot">
+                <img src="/thumbnails/hero/quiz-room.jpg" alt="The Quiz Room: characters with first names walk through a 3D room with the answer pads." width="1200" height="675" loading="lazy" decoding="async">
+                <p class="tc-quiz-join"><svg aria-hidden="true"><use href="#i-phone"/></svg><span>Pupils join at<b>krabsy.com/quiz</b></span></p>
+              </div>
+              <div class="tc-quiz-body">
+                <p class="tc-kicker">Live quiz</p>
+                <h2 class="tc-h2">The Quiz Room: live with your class or one pupil</h2>
+                <p class="tc-quiz-lead">Every pupil walks through a 3D room as a little character and answers on their own screen. You lead the room, they play.</p>
+                <ol class="tc-steps">
+                  <li><b>Open a room</b>Choose the topic, difficulty, number of questions and time. You see every question first and can swap or remove any.</li>
+                  <li><b>Pupils join</b>With the room code or QR code and their first name. No account, up to 40 pupils.</li>
+                  <li><b>Start the quiz</b>After each question: the answer and the top 5. At the end: the sentences the class got wrong most often.</li>
+                </ol>
+                <div class="tc-ctas">
+                  <a class="tc-btn is-amber" href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Open the Quiz Room <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tc-sec tc-band" id="tutors">
+          <div class="tc-wrap">
+            <p class="tc-kicker">New · For private tutors</p>
+            <h2 class="tc-h2">Live 1:1 lessons without screen sharing</h2>
+            <p class="tc-sub">Keep your video call for face and voice. Your student opens their own Krabsy link, and you see on your screen what they do: every answer, the letters as they type, even their pointer. Add material during the lesson, point at things, give a hint or a star.</p>
+            <ol class="tc-steps">
+              <li><b>Create your space</b>With your email — no password; we send you a sign-in link.</li>
+              <li><b>Add your students</b>First names only. Each student gets a personal link that stays the same.</li>
+              <li><b>Teach live</b>Start the lesson, show worksheets, quick practice or a picture book, and keep a note for every lesson.</li>
+            </ol>
+            <div class="tc-ctas">
+              <a class="tc-btn" href="/en/spanish/tutors/">Krabsy for tutors <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── Tab 4: privacy ── -->
+      <div class="tc-panel" id="privacy">
+        <section class="tc-sec">
+          <div class="tc-wrap">
+            <p class="tc-kicker">Privacy</p>
+            <h2 class="tc-h2">No accounts for pupils</h2>
+            <ul class="tc-facts">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>No e-mail addresses from pupils</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>No cookies</li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg>Progress stays in the pupil's browser</li>
+            </ul>
+            <p class="tc-sub">Tutors' spaces store first names and answers so tutors can follow their students. Details in the <a href="/en/privacy/">privacy policy</a>.</p>
+          </div>
+        </section>
+      </div>
     </main>
 
     <footer class="k-footer">
@@ -203,9 +221,10 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
+  <script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>
   <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-25"></script>
-  <script src="/lib/krabsy-footer.js?v=2026-11-25" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v=2026-11-25" defer></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-26f" defer></script>
+  <script src="/lib/krabsy-topic-nav.js?v=2026-11-26f" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>
