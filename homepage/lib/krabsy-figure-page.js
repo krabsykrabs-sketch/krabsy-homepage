@@ -2,7 +2,7 @@
 // (/de/meine-figur/, /es/mi-personaje/, /en/my-figure/).
 // The live 3D figure on one side, four tabs on the other (owner request 2026-11-25):
 //   1 the character (all of them, in three sections), 2 accessories (hat, glasses, back
-//   item: a grid of pictures per slot, ★ = the character's own), 3 skin + hair colours,
+//   item: a grid of pictures per slot, a star = the character's own), 3 skin + hair colours,
 //   4 clothing colours.
 // Rewards instead of a shop (owner decision 2026-11-25): the page shows only what the
 // child OWNS: the 12 free figures, each figure's own accessories, all colours, and every
@@ -29,19 +29,19 @@ const T = {
     groups: { people: 'Menschen', fantasy: 'Fantasy', monsters: 'Monster & Roboter' },
     hat: 'Kopfbedeckung', glasses: 'Brille', back: 'Rücken', skin: 'Hautfarbe', hair: 'Haarfarbe',
     main: 'Hauptfarbe', legs: 'Zweite Farbe', acc: 'Farbe vom Zubehör',
-    own: '★ Original', none: 'nichts', noHat: 'Eine andere Kopfbedeckung passt bei dieser Figur nicht.', orig: 'Original',
-    rand: '🎲 Zufall', reset: 'Zurücksetzen', save: 'Speichern',
-    saved: 'Gespeichert ✓ Deine Figur ist auf diesem Gerät.', unsaved: 'Noch nicht gespeichert.',
+    own: 'Original', none: 'nichts', noHat: 'Eine andere Kopfbedeckung passt bei dieser Figur nicht.', orig: 'Original',
+    rand: 'Zufall', reset: 'Zurücksetzen', save: 'Speichern',
+    saved: 'Gespeichert! Deine Figur ist auf diesem Gerät.', unsaved: 'Noch nicht gespeichert.',
     spin: 'Drehen', idle: 'Stehen', walk: 'Laufen', wave: 'Winken', jump: 'Jubeln',
     shells: 'Muscheln', isNew: 'Neu', yourChars: 'Deine Figuren', yourItems: 'Dein Zubehör',
     countChars: '{a} von {b} Figuren gesammelt', countItems: '{a} von {b} Zubehör gesammelt',
-    nextGift: 'Nächste Überraschung', toNext: 'noch 🐚 {n}', allDone: 'Du hast alles gesammelt! 🎉',
+    nextGift: 'Nächste Überraschung', toNext: 'noch {n} Muscheln', toNext1: 'noch 1 Muschel', allDone: 'Du hast alles gesammelt!',
     mystery: 'Mehr?', mysteryLabel: 'Wie bekomme ich mehr?',
-    moreChars: 'Es gibt noch {n} Figuren. Du bekommst sie als Geschenk 🎁: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
-    moreItems: 'Es gibt noch {n} Sachen zum Anziehen. Du bekommst sie als Geschenk 🎁: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
-    gotIt: 'Neu für dich: {name} 🎉',
+    moreChars: 'Es gibt noch {n} Figuren. Du bekommst sie als Geschenk: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
+    moreItems: 'Es gibt noch {n} Sachen zum Anziehen. Du bekommst sie als Geschenk: alle 150 Muscheln eins, dazu fürs Üben an vielen Tagen.',
+    gotIt: 'Neu für dich: {name}!',
     hatsElsewhere: 'Deine Hüte und Mützen passen zu deinen anderen Figuren.',
-    hatNoFit: 'Neu für dich: {name} 🎉 Zu dieser Figur passt das nicht. Probier es mit einer anderen Figur!',
+    hatNoFit: 'Neu für dich: {name}! Zu dieser Figur passt das nicht. Probier es mit einer anderen Figur!',
   },
   es: {
     loading: 'Creando personaje …', tabsLabel: 'Crear personaje',
@@ -49,19 +49,19 @@ const T = {
     noSkin: 'Este personaje no tiene color de piel ni de pelo para cambiar. ¡Mira en «Ropa»!',
     groups: { people: 'Personas', fantasy: 'Fantasía', monsters: 'Monstruos y robots' },
     hat: 'Gorro', glasses: 'Gafas', back: 'Espalda', skin: 'Piel', hair: 'Pelo', main: 'Color principal',
-    legs: 'Segundo color', acc: 'Color de accesorios', own: '★ Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
-    rand: '🎲 Al azar', reset: 'Reiniciar', save: 'Guardar',
-    saved: 'Guardado ✓ Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',
+    legs: 'Segundo color', acc: 'Color de accesorios', own: 'Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
+    rand: 'Al azar', reset: 'Reiniciar', save: 'Guardar',
+    saved: '¡Guardado! Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',
     spin: 'Girar', idle: 'Quieto', walk: 'Caminar', wave: 'Saludar', jump: 'Celebrar',
     shells: 'caracolas', isNew: 'Nuevo', yourChars: 'Tus personajes', yourItems: 'Tus accesorios',
     countChars: 'Tienes {a} de {b} personajes', countItems: 'Tienes {a} de {b} accesorios',
-    nextGift: 'Próxima sorpresa', toNext: 'faltan 🐚 {n}', allDone: '¡Ya lo tienes todo! 🎉',
+    nextGift: 'Próxima sorpresa', toNext: 'faltan {n} caracolas', toNext1: 'falta 1 caracola', allDone: '¡Ya lo tienes todo!',
     mystery: '¿Más?', mysteryLabel: '¿Cómo consigo más?',
-    moreChars: 'Hay {n} personajes más. Te llegan como regalo 🎁: uno cada 150 caracolas, y también por practicar muchos días.',
-    moreItems: 'Hay {n} accesorios más. Te llegan como regalo 🎁: uno cada 150 caracolas, y también por practicar muchos días.',
-    gotIt: 'Nuevo para ti: {name} 🎉',
+    moreChars: 'Hay {n} personajes más. Te llegan como regalo: uno cada 150 caracolas, y también por practicar muchos días.',
+    moreItems: 'Hay {n} accesorios más. Te llegan como regalo: uno cada 150 caracolas, y también por practicar muchos días.',
+    gotIt: 'Nuevo para ti: {name}.',
     hatsElsewhere: 'Tus gorros les quedan a tus otros personajes.',
-    hatNoFit: 'Nuevo para ti: {name} 🎉 A este personaje no le queda. ¡Prueba con otro personaje!',
+    hatNoFit: 'Nuevo para ti: {name}. A este personaje no le queda. ¡Prueba con otro personaje!',
   },
   en: {
     loading: 'Building your figure …', tabsLabel: 'Build your figure',
@@ -69,19 +69,19 @@ const T = {
     noSkin: 'This figure has no skin or hair colour to change. Have a look at “Clothes”!',
     groups: { people: 'People', fantasy: 'Fantasy', monsters: 'Monsters & robots' },
     hat: 'Hat', glasses: 'Glasses', back: 'Back', skin: 'Skin', hair: 'Hair', main: 'Main colour',
-    legs: 'Second colour', acc: 'Accessory colour', own: '★ Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
-    rand: '🎲 Random', reset: 'Reset', save: 'Save',
-    saved: 'Saved ✓ Your figure is on this device.', unsaved: 'Not saved yet.',
+    legs: 'Second colour', acc: 'Accessory colour', own: 'Original', none: 'nothing', noHat: 'Another hat doesn’t fit this figure.', orig: 'Original',
+    rand: 'Random', reset: 'Reset', save: 'Save',
+    saved: 'Saved! Your figure is on this device.', unsaved: 'Not saved yet.',
     spin: 'Turn', idle: 'Stand', walk: 'Walk', wave: 'Wave', jump: 'Cheer',
     shells: 'shells', isNew: 'New', yourChars: 'Your figures', yourItems: 'Your accessories',
     countChars: '{a} of {b} figures collected', countItems: '{a} of {b} accessories collected',
-    nextGift: 'Next surprise', toNext: '🐚 {n} to go', allDone: 'You have collected everything! 🎉',
+    nextGift: 'Next surprise', toNext: '{n} shells to go', toNext1: '1 shell to go', allDone: 'You have collected everything!',
     mystery: 'More?', mysteryLabel: 'How do I get more?',
-    moreChars: 'There are {n} more figures. You get them as gifts 🎁: one for every 150 shells, and for practising on many days.',
-    moreItems: 'There are {n} more things to wear. You get them as gifts 🎁: one for every 150 shells, and for practising on many days.',
-    gotIt: 'New for you: {name} 🎉',
+    moreChars: 'There are {n} more figures. You get them as gifts: one for every 150 shells, and for practicing on many days.',
+    moreItems: 'There are {n} more things to wear. You get them as gifts: one for every 150 shells, and for practicing on many days.',
+    gotIt: 'New for you: {name}!',
     hatsElsewhere: 'Your hats fit your other figures.',
-    hatNoFit: 'New for you: {name} 🎉 It doesn’t fit this figure. Try another figure!',
+    hatNoFit: 'New for you: {name}! It doesn’t fit this figure. Try another figure!',
   },
 }[LANG];
 const N = ALL_NAMES[LANG];
@@ -90,6 +90,23 @@ const NAMES = { char: N.chars, hat: N.hats, glasses: N.glassesN, back: N.backs }
 const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k]);
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+// No emojis (owner rule): icons of the Krabsy set (lib/icons/krabsy-icons.svg), decorative.
+const ICONS = '/lib/icons/krabsy-icons.svg?v=2026-11-27c';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function icon(name, cls) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'ki' + (cls ? ' ' + cls : ''));
+  svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS(SVG_NS, 'use'); use.setAttribute('href', `${ICONS}#ki-${name}`);
+  svg.append(use);
+  return svg;
+}
+// "nothing": a circle with a line through it (drawn here: it takes the text colour).
+function noneSign() {
+  const t = document.createElement('template');
+  t.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M6.4 17.6 17.6 6.4"/></svg>';
+  return t.content.firstChild;
+}
 
 // Give what is due before the page is drawn (a child who comes here first gets its gifts now).
 syncRewards();
@@ -118,17 +135,23 @@ function layout() {
 
 // ------------------------------------------------------------------ 3D preview
 const canvas = $('mfCanvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });   // the stage's light card shows through
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#13204a');
-scene.add(new THREE.HemisphereLight('#dfe9ff', '#3a2d58', 1.5));
-const sun = new THREE.DirectionalLight('#ffffff', 1.6); sun.position.set(3, 6, 5); sun.castShadow = true; scene.add(sun);
-const floor = new THREE.Mesh(new THREE.CircleGeometry(1.6, 48), new THREE.MeshLambertMaterial({ color: '#2b3b74' }));
-floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
-const ring = new THREE.Mesh(new THREE.RingGeometry(1.6, 1.72, 48), new THREE.MeshBasicMaterial({ color: '#2ee6c0' }));
-ring.rotation.x = -Math.PI / 2; ring.position.y = 0.005; scene.add(ring);
+// Light as on the landing and profile pages (krabsy-landing-figure.js), so the figure has
+// the same colours everywhere.
+scene.add(new THREE.HemisphereLight('#ffffff', '#c9b8a0', 1.9));
+const sun = new THREE.DirectionalLight('#ffffff', 1.5); sun.position.set(3, 6, 5); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024); sun.shadow.radius = 4; scene.add(sun);
+// The platform: a flat sand island (the profile page's colours, unlit so they stay exact)
+// and an invisible disc on top that only takes the figure's shadow.
+const PLATFORM_R = 1.45;
+const island = new THREE.Mesh(new THREE.CylinderGeometry(PLATFORM_R, PLATFORM_R, 0.16, 64),
+  [new THREE.MeshBasicMaterial({ color: '#f6cf7c' }), new THREE.MeshBasicMaterial({ color: '#ffe2a0' }), new THREE.MeshBasicMaterial({ color: '#f6cf7c' })]);
+island.position.y = -0.08; scene.add(island);
+const floor = new THREE.Mesh(new THREE.CircleGeometry(PLATFORM_R, 64), new THREE.ShadowMaterial({ color: '#26243c', opacity: 0.24 }));
+floor.rotation.x = -Math.PI / 2; floor.position.y = 0.004; floor.receiveShadow = true; scene.add(floor);
 const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
 camera.position.set(0, 1.5, 6.2); camera.lookAt(0, 1.05, 0);
 const turn = new THREE.Group(); scene.add(turn);
@@ -139,14 +162,14 @@ function resize() {
   if (!r.width || !r.height) return;
   renderer.setSize(r.width, r.height, false);
   camera.aspect = r.width / r.height;
-  camera.position.z = 6.2 * Math.max(1, 1.08 / camera.aspect);       // narrow stage: step back, keep the ring in view
+  camera.position.z = 6.2 * Math.max(1, 1.08 / camera.aspect);       // narrow stage: step back, keep the platform in view
   camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize);
 try { new ResizeObserver(resize).observe(stage); new ResizeObserver(layout).observe(document.querySelector('header.k-page-header')); } catch (_) { /* old browser */ }
 resize();
 
-// Turning: off by default (owner: the constant turning was annoying); the 🔄 button turns
+// Turning: off by default (owner: the constant turning was annoying); the turn button turns
 // it on and off, dragging always works (horizontal drags only, so the page still scrolls).
 let drag = null, spinning = false, yaw = 0.4;
 canvas.addEventListener('pointerdown', (e) => { drag = e.clientX; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} });
@@ -181,7 +204,7 @@ for (const k of Object.keys(CLIPS)) {
   b.addEventListener('click', () => { clearTimeout(cheer); play(k); }); $('mfBar').appendChild(b);
 }
 const spinBtn = el('button', 'mf-spin'); spinBtn.type = 'button';
-spinBtn.innerHTML = `🔄<span> ${T.spin}</span>`; spinBtn.setAttribute('aria-label', T.spin); spinBtn.setAttribute('aria-pressed', 'false');
+spinBtn.append(icon('turn'), el('span', '', T.spin)); spinBtn.setAttribute('aria-label', T.spin); spinBtn.setAttribute('aria-pressed', 'false');
 spinBtn.addEventListener('click', () => {
   spinning = !spinning; spinBtn.classList.toggle('on', spinning); spinBtn.setAttribute('aria-pressed', String(spinning));
 });
@@ -204,16 +227,19 @@ function renderWallet(pop) {
   w.textContent = '';
   w.className = 'mf-next';
   const top = el('div', 'mf-next-top');
-  const count = el('span', 'mf-next-shells'); count.append(el('span', '', '🐚'), el('b', '', String(rewards.earned)));
-  count.firstChild.setAttribute('aria-hidden', 'true');
-  count.setAttribute('aria-label', `${rewards.earned} ${T.shells}`);
+  const count = el('span', 'mf-next-shells'); count.append(icon('shell'), el('b', '', String(rewards.earned)));
+  count.setAttribute('role', 'img'); count.setAttribute('aria-label', `${rewards.earned} ${T.shells}`);
   top.append(count);
   if (rewards.complete) { top.append(el('span', 'mf-next-label', T.allDone)); w.append(top); return; }
-  top.append(el('span', 'mf-next-label', `${T.nextGift} 🎁`), el('span', 'mf-next-left', fill(T.toNext, { n: rewards.toNext })));
+  top.append(el('span', 'mf-next-label', T.nextGift),
+    el('span', 'mf-next-left', rewards.toNext === 1 ? T.toNext1 : fill(T.toNext, { n: rewards.toNext })));
   const bar = el('div', 'mf-next-bar'); bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', `${T.nextGift}: ${rewards.into} / ${SHELLS_PER_GIFT} ${T.shells}`);
-  const fillEl = el('span'); fillEl.style.width = `${Math.max(3, (rewards.into / SHELLS_PER_GIFT) * 100)}%`;
-  bar.append(fillEl);
+  const track = el('span', 'mf-next-track');
+  const fillEl = el('span'); fillEl.style.width = `${rewards.into > 0 ? Math.max(6, (rewards.into / SHELLS_PER_GIFT) * 100) : 0}%`;
+  track.append(fillEl);
+  const gift = el('span', 'mf-next-gift'); gift.append(icon('gift'));
+  bar.append(track, gift);
   w.append(top, bar);
   if (pop) { w.classList.remove('is-pop'); void w.offsetWidth; w.classList.add('is-pop'); }
 }
@@ -232,7 +258,7 @@ onRewardsChange(() => {
 // accessory pictures load only when they are looked at) and again when what it shows has
 // changed (another character, something unlocked). sync() only moves the selection marks.
 const TABS = ['char', 'items', 'skin', 'clothes'];
-const TAB_ICON = { char: '🧑', items: '🎩', skin: '🎨', clothes: '👕' };
+const TAB_ICON = { char: 'profile', items: 'hat', skin: 'palette', clothes: 'shirt' };
 const tablist = $('mfTabs'), panesBox = $('mfPanes');
 tablist.setAttribute('aria-label', T.tabsLabel);
 let tab = 'char';
@@ -240,8 +266,7 @@ const panes = {};
 for (const name of TABS) {
   const b = el('button', 'mf-tab'); b.type = 'button'; b.id = `mfTab-${name}`; b.dataset.tab = name;
   b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', `mfPane-${name}`);
-  const ic = el('span', 'mf-tab-ic', TAB_ICON[name]); ic.setAttribute('aria-hidden', 'true');
-  b.append(ic, el('span', 'mf-tab-label', T.tabs[name]));
+  b.append(icon(TAB_ICON[name], 'mf-tab-ic'), el('span', 'mf-tab-label', T.tabs[name]));
   b.addEventListener('click', () => openTab(name));
   tablist.appendChild(b);
   const p = el('div', 'mf-pane'); p.id = `mfPane-${name}`; p.setAttribute('role', 'tabpanel');
@@ -317,8 +342,8 @@ function tile({ slot, id, name, img, sign, caption, star }) {
   if (img) {
     const i = el('img'); i.src = img; i.alt = ''; i.loading = 'lazy'; i.decoding = 'async'; i.width = 192; i.height = 192;
     pic.appendChild(i);
-  } else pic.appendChild(el('span', 'mf-tile-sign', sign));
-  if (star) pic.appendChild(el('span', 'mf-tile-star', '★'));
+  } else { const sg = el('span', 'mf-tile-sign'); sg.append(sign); pic.appendChild(sg); }
+  if (star) pic.appendChild(icon('star', 'mf-tile-star'));
   if (isNew) pic.appendChild(el('span', 'mf-tile-new', T.isNew));
   b.appendChild(pic);
   if (caption) b.appendChild(el('span', 'mf-tile-name', caption));
@@ -380,7 +405,7 @@ async function chooseChar(id, again) {
 // ---- tab 2: accessories (hat, glasses, back), a grid of pictures per slot
 const ITEM_SLOTS = [['hat', HATS, 'ownHat'], ['glasses', GLASSES, 'ownGlasses'], ['back', BACKS, 'ownBack']];
 // The catalogue entry that is this character's own accessory (the Hiker's cap), if any:
-// it gives "★ Original" its picture, and is not offered a second time with a price.
+// it gives "Original" (with a star) its picture, and is not offered a second time with a price.
 const ownKey = (list, char) => Object.keys(list).find((k) => list[k][0] === char) || null;
 panes.items.render = () => {
   const box = panes.items.el; box.textContent = '';
@@ -401,10 +426,10 @@ panes.items.render = () => {
       b.addEventListener('click', () => chooseItem(slot, o.id));
       grid.appendChild(b);
     };
-    // "★ Original" only when the character brings something; "nichts" is then 'none',
+    // "Original" (with a star) only when the character brings something; "nichts" is then 'none',
     // otherwise 'own' (which is nothing).
-    if (info[ownFlag]) add({ id: 'own', name: T.own, caption: T.own, star: !!twin, img: twin && `${ASSET_BASE}items/${slot}-${twin}.webp`, sign: '★' });
-    add({ id: info[ownFlag] ? 'none' : 'own', name: T.none, caption: T.none, sign: '∅' });
+    if (info[ownFlag]) add({ id: 'own', name: T.own, caption: T.own, star: !!twin, img: twin && `${ASSET_BASE}items/${slot}-${twin}.webp`, sign: icon('star') });
+    add({ id: info[ownFlag] ? 'none' : 'own', name: T.none, caption: T.none, sign: noneSign() });
     const all = Object.keys(list).filter((k) => k !== twin), got = mine(slot, all);
     for (const id of got) {
       add({ id, name: NAMES[slot][id], caption: NAMES[slot][id], img: `${ASSET_BASE}items/${slot}-${id}.webp` });
@@ -436,7 +461,7 @@ function swatches(key, label, palette) {
   for (const i of [-1, ...palette.keys()]) {
     const b = el('button', 'mf-sw' + (i < 0 ? ' orig' : '')); b.type = 'button'; b.dataset.key = key; b.dataset.i = String(i);
     b.title = i < 0 ? T.orig : `${label} ${i + 1}`; b.setAttribute('aria-label', b.title);
-    if (i >= 0) b.style.background = palette[i]; else b.textContent = '★';
+    if (i >= 0) b.style.background = palette[i]; else b.append(icon('star'));
     b.addEventListener('click', () => { cfg = normalize({ ...cfg, [key]: i }); changed(); });
     box.appendChild(b);
   }
@@ -490,7 +515,7 @@ function randomOwned(char) {
     skin: rnd(SKIN.length), hair: rnd(HAIR.length), main: rnd(COLORS.length),
     legs: Math.random() < 0.5 ? -1 : rnd(COLORS.length), acc: Math.random() < 0.5 ? -1 : rnd(COLORS.length) });
 }
-$('mfRand').textContent = T.rand; $('mfReset').textContent = T.reset; $('mfSave').textContent = T.save;
+$('mfRand').append(icon('dice'), el('span', '', T.rand)); $('mfReset').textContent = T.reset; $('mfSave').textContent = T.save;
 $('mfRand').addEventListener('click', () => { cfg = randomOwned(cfg.char); changed(); });
 $('mfReset').addEventListener('click', () => chooseChar(cfg.char, true));
 $('mfSave').addEventListener('click', () => {

@@ -22,7 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27h">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27m">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <style>
     /* Spanish landing: four topic cards in two equal columns (the /de/ grid has 2 cards + quick links) */
@@ -60,11 +60,11 @@
         <div class="gl-intro">
           <!-- LANDING-INTRO:START (tools/render_landing_intro.py) -->
           <div class="gl-intro-txt">
-            <h1>Practise Spanish grammar – with games</h1>
+            <h1>Practice Spanish grammar – with games</h1>
             <p class="gl-intro-line">Ser, estar and tener for beginners (A1). Free, no sign-up, no ads.</p>
             <nav class="gl-acts" aria-label="Get started">
               <a class="gl-act gl-act-play" href="/en/spanish/games/"><span class="gl-act-ico"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-play"/></svg></span>Play</a>
-              <a class="gl-act gl-act-practice" href="/en/spanish/practise/"><span class="gl-act-ico"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-practise"/></svg></span>Practise</a>
+              <a class="gl-act gl-act-practice" href="/en/spanish/practice/"><span class="gl-act-ico"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-practise"/></svg></span>Practice</a>
             </nav>
             <p class="gl-join" id="gl-join"><a class="gl-join-teachers" href="/en/spanish/teachers/"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-teacher"/></svg><span>Teacher? Practice links and a live Quiz Room →</span></a><a class="gl-join-quiz" href="/quiz/?lang=en"><svg class="ki" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27#ki-quiz"/></svg><span>Got a Quiz Room code? Join here →</span></a></p>
           </div>
@@ -87,18 +87,24 @@
           <div class="lf-link">
             <div class="lf-pick">
               <button class="lf-arrow lf-prev" type="button" data-pick="-1" aria-label="Previous figure" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <span class="lf-stage-wrap">
               <span class="lf-stage" id="lf-stage" aria-hidden="true">
               <img class="lf-img" id="lf-img" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
               <canvas class="lf-canvas" id="lf-canvas" hidden></canvas>
             </span>
+                <a class="lf-pencil" id="lf-pencil" href="/en/my-figure/" aria-label="Change figure" title="Change figure"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-practise"/></svg></a>
+              </span>
               <button class="lf-arrow lf-next" type="button" data-pick="1" aria-label="Next figure" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             </div>
             <div class="lf-acts">
-              <a class="lf-label" id="lf-link" href="/en/my-figure/" data-profile-href="/en/my-profile/" data-profile-cta="My profile">
-                <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> shells</span></span>
-                <span class="lf-cta"><span id="lf-cta">Build your figure</span> <span aria-hidden="true">→</span></span>
-              </a>
-              <a class="kp-go" href="/en/spanish/practise/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practise now</span><span class="kp-go-sep"> · </span><span>5 minutes</span></b><small data-kp-ring-text>0 of 3 this week</small></span></a>
+              <div class="lf-btns">
+                <a class="lf-label" id="lf-link" href="/en/my-figure/" data-profile-href="/en/my-profile/" data-profile-cta="My profile">
+                  <span class="lf-shells" id="lf-shells" hidden><svg class="ki lf-shells-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><b id="lf-shells-n">0</b><span class="vh"> shells</span></span>
+                  <span class="lf-cta"><span id="lf-cta">Build your figure</span> <span aria-hidden="true">→</span></span>
+                </a>
+                <a class="lf-edit" id="lf-edit" href="/en/my-figure/"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-practise"/></svg><span>Change figure</span></a>
+              </div>
+              <a class="kp-go" href="/en/spanish/practice/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practice now</span><span class="kp-go-sep"> · </span><span>5 minutes</span></b><small data-kp-ring-text>0 of 3 this week</small></span></a>
             </div>
           </div>
         </div>
@@ -135,7 +141,7 @@
       <!-- ── Practice without a game ─────────────────────────────────── -->
       <section class="gl-band" aria-labelledby="gl-practice-h">
         <div class="wrap">
-          <h2 class="gl-h2" id="gl-practice-h">Practise without a game</h2>
+          <h2 class="gl-h2" id="gl-practice-h">Practice without a game</h2>
           <p class="gl-sub">Pick a topic: its page has the games and two quick drills.</p>
           <div class="pr-grid">
             <a class="pr-card" href="/en/spanish/ser/">
@@ -181,7 +187,7 @@
 
       <section class="k-article gl-about" aria-labelledby="ka-title">
         <h2 id="ka-title">Spanish grammar practice on Krabsy</h2>
-        <p>Krabsy is a free learning site with real browser games. In the Spanish section, children practise Spanish grammar while they cook in a busy kitchen, jump across the clouds or build towers. Every game asks short Spanish sentences with a gap, and after a mistake it shows the right sentence and a short rule.</p>
+        <p>Krabsy is a free learning site with real browser games. In the Spanish section, children practice Spanish grammar while they cook in a busy kitchen, jump across the clouds or build towers. Every game asks short Spanish sentences with a gap, and after a mistake it shows the right sentence and a short rule.</p>
         <div class="gl-about-cols">
           <div>
             <h3>Four beginner topics</h3>

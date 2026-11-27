@@ -21,7 +21,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
-  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-27r">
+  <link rel="stylesheet" href="/lib/krabsy-profile.css?v=2026-11-27s">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- The live figure (lib/krabsy-figure.js) imports three.js by name. It is loaded only
        after the page is up and idle, with the landing pages' rules (lib/krabsy-profile.js). -->
@@ -42,9 +42,12 @@
            fills in the child's figure, shells and class. -->
       <section class="pf-me">
         <div class="pf-fig" id="pfFig">
-          <div class="pf-stage" id="pfStage" aria-hidden="true">
-            <img class="pf-img" id="pfImg" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
-            <canvas class="pf-canvas" id="pfCanvas" hidden></canvas>
+          <div class="pf-stage-wrap">
+            <div class="pf-stage" id="pfStage" aria-hidden="true">
+              <img class="pf-img" id="pfImg" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
+              <canvas class="pf-canvas" id="pfCanvas" hidden></canvas>
+            </div>
+            <a class="pf-pencil" id="pfPencil" href="/es/mi-personaje/" aria-label="Cambiar personaje" title="Cambiar personaje"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-practise"/></svg></a>
           </div>
           <p class="pf-fig-hint">Arrastra para girar · toca para saltar</p>
         </div>
@@ -54,9 +57,9 @@
             <span class="pf-class-box" id="pfClass" hidden></span>
           </div>
           <div class="pf-shells" id="pfShells">
-            <p class="pf-count"><svg class="ki pf-count-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27b#ki-shell"/></svg><b>0</b><span>caracolas</span></p>
+            <p class="pf-count"><svg class="ki pf-count-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><b>0</b><span>caracolas</span></p>
             <div class="pf-next">
-              <div class="pf-next-bar"><span class="pf-next-track"><span class="pf-next-fill" style="width:0%"></span></span><span class="pf-next-gift"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27b#ki-gift"/></svg></span></div>
+              <div class="pf-next-bar"><span class="pf-next-track"><span class="pf-next-fill" style="width:0%"></span></span><span class="pf-next-gift"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-gift"/></svg></span></div>
               <p class="pf-next-text">Te faltan 150 caracolas para la próxima sorpresa</p>
             </div>
           </div>
@@ -79,7 +82,7 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-27r"></script>
+  <script type="module" src="/lib/krabsy-profile.js?v=2026-11-27s"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
   <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-learn"></script>

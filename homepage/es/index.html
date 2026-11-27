@@ -44,7 +44,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27h">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27m">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -118,17 +118,23 @@
           <div class="lf-link">
             <div class="lf-pick">
               <button class="lf-arrow lf-prev" type="button" data-pick="-1" aria-label="Personaje anterior" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <span class="lf-stage-wrap">
               <span class="lf-stage" id="lf-stage" aria-hidden="true">
               <img class="lf-img" id="lf-img" draggable="false" src="/assets/figures/portraits/Protagonist_A.webp" alt="" width="192" height="192" decoding="async">
               <canvas class="lf-canvas" id="lf-canvas" hidden></canvas>
             </span>
+                <a class="lf-pencil" id="lf-pencil" href="/es/mi-personaje/" aria-label="Cambiar personaje" title="Cambiar personaje"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-practise"/></svg></a>
+              </span>
               <button class="lf-arrow lf-next" type="button" data-pick="1" aria-label="Siguiente personaje" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             </div>
             <div class="lf-acts">
-              <a class="lf-label" id="lf-link" href="/es/mi-personaje/" data-profile-href="/es/perfil/" data-profile-cta="Mi perfil">
-                <span class="lf-shells" id="lf-shells" hidden><span aria-hidden="true">🐚</span> <b id="lf-shells-n">0</b><span class="vh"> caracolas</span></span>
-                <span class="lf-cta"><span id="lf-cta">Crea tu personaje</span> <span aria-hidden="true">→</span></span>
-              </a>
+              <div class="lf-btns">
+                <a class="lf-label" id="lf-link" href="/es/mi-personaje/" data-profile-href="/es/perfil/" data-profile-cta="Mi perfil">
+                  <span class="lf-shells" id="lf-shells" hidden><svg class="ki lf-shells-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><b id="lf-shells-n">0</b><span class="vh"> caracolas</span></span>
+                  <span class="lf-cta"><span id="lf-cta">Crea tu personaje</span> <span aria-hidden="true">→</span></span>
+                </a>
+                <a class="lf-edit" id="lf-edit" href="/es/mi-personaje/"><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-practise"/></svg><span>Cambiar personaje</span></a>
+              </div>
               <a class="kp-go" href="/es/practicar/" data-kp-ring><span class="kp-go-ico" data-kp-ring-ico="28" aria-hidden="true"></span><span class="kp-go-txt"><b><span>Practicar ahora</span><span class="kp-go-sep"> · </span><span>5 minutos</span></b><small data-kp-ring-text>0 de 3 esta semana</small></span></a>
             </div>
           </div>

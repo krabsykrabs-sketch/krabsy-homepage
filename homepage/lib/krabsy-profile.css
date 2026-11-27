@@ -45,6 +45,17 @@
 .is-live .pf-img, .is-live .pf-stage::before { opacity: 0; }
 .is-live .pf-stage { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 .is-live .pf-stage:active { cursor: grabbing; }
+/* the pencil on the figure: the short way to the figure editor (owner 2026-11-27) */
+.pf-stage-wrap { position: relative; }
+.pf-pencil {
+  position: absolute; z-index: 3; right: -10px; bottom: 4px; width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; background: #fff; -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 0 0 2px rgba(44, 42, 58, 0.16), 0 3px 0 rgba(44, 42, 58, 0.14);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.pf-main .pf-pencil .ki { width: 26px; height: 26px; }
+.pf-pencil:hover { background: var(--pf-amber-soft); transform: rotate(-8deg) scale(1.06); }
+.pf-pencil:active { transform: translateY(2px); }
 .pf-fig-hint { display: none; margin: 18px 0 0; font-size: 0.82rem; font-weight: 700; color: var(--pf-teal-deep); text-align: center; }
 .is-live .pf-fig-hint { display: block; }
 
@@ -96,6 +107,9 @@ a.pf-class:hover { background: var(--pf-amber-soft); color: var(--krabsy-ink); }
 /* ── 2 My collection ─────────────────────────────────────────────────── */
 .pf-coll { background: var(--krabsy-white); border-radius: 24px; padding: 16px 20px 18px; box-shadow: var(--shadow-card); }
 .pf-sec-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 16px; margin: 0 2px 12px; }
+/* what a tap on a picture does: it opens the figure editor with that figure or thing on */
+.pf-coll-hint { display: flex; align-items: center; gap: 6px; margin: -6px 2px 12px; font-size: 0.95rem; line-height: 1.3; font-weight: 700; color: var(--pf-teal-deep); }
+.pf-main .pf-coll-hint .ki { width: 20px; height: 20px; }
 .pf-coll-count { margin: 0; font-size: 0.98rem; font-weight: 800; color: var(--krabsy-ink-mute); }
 .pf-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
 .pf-thing { min-width: 0; }
@@ -103,7 +117,8 @@ a.pf-class:hover { background: var(--pf-amber-soft); color: var(--krabsy-ink); }
 .pf-thing.is-item .pf-thing-a { background: var(--pf-amber-soft); }
 .pf-thing-a img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
 .pf-thing.is-item .pf-thing-a img { padding: 8%; }
-a.pf-thing-a:hover { transform: translateY(-3px) rotate(-2deg); }
+a.pf-thing-a:hover { transform: translateY(-3px) rotate(-2deg); box-shadow: 0 0 0 3px rgba(44, 42, 58, 0.16); }
+.pf-thing.is-mine a.pf-thing-a:hover { box-shadow: 0 0 0 3px var(--pf-teal); }
 .pf-thing.is-mine .pf-thing-a { box-shadow: 0 0 0 3px var(--pf-teal); }
 .pf-new { position: absolute; top: -5px; right: -5px; padding: 2px 8px 3px; border-radius: 999px; background: var(--pf-coral); color: #3a0d0d; font-weight: 800; font-size: 0.72rem; line-height: 1.1; box-shadow: 0 0 0 2px #fff; }
 .pf-mystery .pf-thing-a { display: grid; place-items: center; background: none; border: 2.5px dashed var(--krabsy-lavender); color: var(--krabsy-lavender); font-family: var(--font-display); font-size: 1.9rem; line-height: 1; }
@@ -179,6 +194,6 @@ a.pf-chip:hover { background: var(--pf-coral-aa); color: #fff; }
   .pf-empty-acts .pf-btn { flex: 1 1 auto; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pf-thing-a, .pf-btn, .pf-canvas, .pf-img, .pf-stage::before { transition: none; }
-  a.pf-thing-a:hover { transform: none; }
+  .pf-thing-a, .pf-btn, .pf-canvas, .pf-img, .pf-stage::before, .pf-pencil { transition: none; }
+  a.pf-thing-a:hover, .pf-pencil:hover { transform: none; }
 }

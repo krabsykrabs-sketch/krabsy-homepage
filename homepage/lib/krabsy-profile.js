@@ -12,7 +12,7 @@
 //   2 collection    every figure and thing the child owns (krabsy_shells_v1.owned + the free
 //                   figures), newest gift first, "Neu" on unseen gifts, "?" tiles for what is
 //                   still to come, the counts, and the one next goal (getRewards().goals).
-//   3 topics        only practised topics: stars (see topicStars), up to 4 words to practise.
+//   3 topics        only practiced topics: stars (see topicStars), up to 4 words to practice.
 //   4 trophies      Verb-Diplom medals earned (krabsy_verb_diplom) and weeks with 3 practice
 //                   sessions (krabsy_practice_v1). No row when there is nothing.
 //   class           krabsy_class (krabsy-class.js): the badge next to the title.
@@ -32,7 +32,7 @@ const LANG = currentLang();
 const HOME_SECTION = defaultSection(LANG);
 const FIGURE = uiPage('figure', LANG);
 const CLASS_URL = uiPage('class', LANG);
-const ICONS = '/lib/icons/krabsy-icons.svg?v=2026-11-27b';
+const ICONS = '/lib/icons/krabsy-icons.svg?v=2026-11-27c';
 
 const T = {
   de: {
@@ -40,7 +40,7 @@ const T = {
     toNext: 'Noch {n} Muscheln bis zur nächsten Überraschung', toNextOne: 'Noch 1 Muschel bis zur nächsten Überraschung',
     allDone: 'Du hast alles gesammelt!',
     change: 'Figur ändern', build: 'Bau deine Figur',
-    collection: 'Meine Sammlung', count: '{a} von {b} Figuren · {c} von {d} Sachen', isNew: 'Neu',
+    collection: 'Meine Sammlung', tapHint: 'Tipp auf ein Bild und probier es an deiner Figur an.', tryOn: 'anprobieren', count: '{a} von {b} Figuren · {c} von {d} Sachen', isNew: 'Neu',
     secret: 'Noch geheim: das gibt es als Geschenk',
     goalLead: 'Nächstes Geschenk:',
     goal: {
@@ -64,7 +64,7 @@ const T = {
     toNext: 'Te faltan {n} caracolas para la próxima sorpresa', toNextOne: 'Te falta 1 caracola para la próxima sorpresa',
     allDone: '¡Ya lo tienes todo!',
     change: 'Cambiar personaje', build: 'Crea tu personaje',
-    collection: 'Mi colección', count: '{a} de {b} personajes · {c} de {d} cosas', isNew: 'Nuevo',
+    collection: 'Mi colección', tapHint: 'Toca una imagen para probarla en tu personaje.', tryOn: 'probar', count: '{a} de {b} personajes · {c} de {d} cosas', isNew: 'Nuevo',
     secret: 'Todavía es secreto: llega como regalo',
     goalLead: 'Próximo regalo:',
     goal: {
@@ -88,20 +88,20 @@ const T = {
     toNext: '{n} more shells to the next surprise', toNextOne: '1 more shell to the next surprise',
     allDone: 'You have collected everything!',
     change: 'Change figure', build: 'Build your figure',
-    collection: 'My collection', count: '{a} of {b} figures · {c} of {d} things', isNew: 'New',
+    collection: 'My collection', tapHint: 'Tap a picture to try it on your figure.', tryOn: 'try it on', count: '{a} of {b} figures · {c} of {d} things', isNew: 'New',
     secret: 'Still a secret: it comes as a gift',
     goalLead: 'Next gift:',
     goal: {
       right: '{n} more right answers', right1: '1 more right answer',
       safe: 'when you know {n} more words well', safe1: 'when you know 1 more word well',
-      days: 'practise on {n} more days', days1: 'practise on 1 more day',
+      days: 'practice on {n} more days', days1: 'practice on 1 more day',
       diplom: 'for the verb diploma in {level}', topics: 'when you try a second topic',
       shells: '{n} more shells', shells1: '1 more shell',
     },
-    topics: 'My topics', stars: '{n} of 5 stars', practise: 'Still to practise:', go: 'Practise', allGood: 'Right now you know them all!',
+    topics: 'My topics', stars: '{n} of 5 stars', practise: 'Still to practice:', go: 'Practice', allGood: 'Right now you know them all!',
     newTopic: 'Try a new topic',
     emptyTitle: 'Your stars will grow here',
-    emptyText: 'Practise for 5 minutes or play a game. You collect stars here for every topic you practise.',
+    emptyText: 'Practice for 5 minutes or play a game. You collect stars here for every topic you practice.',
     play: 'Play a game', seeTopics: 'See the topics',
     trophies: 'My trophies', diplom: 'Verb diploma: {level}', levels: { bronze: 'bronze', silver: 'silver', gold: 'gold' },
     weeks: '{n} weeks done', week1: '1 week done',
@@ -261,6 +261,10 @@ function collectionSection(withDiplom) {
   head.append(el('h2', 'pf-h2', T.collection),
     el('p', 'pf-coll-count', fmt(T.count, { a: r.chars.have, b: r.chars.total, c: r.items.have, d: r.items.total })));
   sec.append(head);
+  if (FIGURE) {                                     // a tap on a picture opens the figure editor with it
+    const hint = el('p', 'pf-coll-hint'); hint.append(icon('practise'), el('span', '', T.tapHint));
+    sec.append(hint);
+  }
 
   const grid = el('ul', 'pf-grid');
   const fresh = new Set(r.unseen);
@@ -268,8 +272,8 @@ function collectionSection(withDiplom) {
     const li = el('li', 'pf-thing' + (e.slot === 'char' ? ' is-char' : ' is-item') + (e.slot === 'char' && e.key === char ? ' is-mine' : ''));
     const name = itemName(e.slot, e.key, LANG);
     const a = FIGURE ? link('pf-thing-a', '', `${FIGURE}#neu=${encodeURIComponent(e.id)}`) : el('span', 'pf-thing-a');
-    a.title = name;
-    a.setAttribute('aria-label', fresh.has(e.id) ? `${name} (${T.isNew})` : name);
+    a.title = FIGURE ? `${name}: ${T.tryOn}` : name;
+    a.setAttribute('aria-label', (fresh.has(e.id) ? `${name} (${T.isNew})` : name) + (FIGURE ? `: ${T.tryOn}` : ''));
     a.append(picture(itemImage(e.slot, e.key)));
     if (fresh.has(e.id)) a.append(el('span', 'pf-new', T.isNew));
     li.append(a); grid.append(li);
@@ -323,12 +327,12 @@ function fitMystery() {
    weak = items with a form at mastery ≤ 2, weakest first, then the most recent. */
 function topicNumbers(topicId, total) {
   const items = readTopicItems(topicId);
-  let attempts = 0, correct = 0, practised = 0, safe = 0;
+  let attempts = 0, correct = 0, practiced = 0, safe = 0;
   const weak = [];
   for (const id of Object.keys(items)) {
     const forms = Object.values(items[id] || {}).filter((f) => f && f.attempts > 0);
     if (!forms.length) continue;
-    practised++;
+    practiced++;
     let min = 5, seen = '';
     for (const f of forms) {
       attempts += f.attempts || 0; correct += f.correct || 0;
@@ -340,7 +344,7 @@ function topicNumbers(topicId, total) {
     else if (min <= 2) weak.push({ id, min, seen });
   }
   weak.sort((a, b) => a.min - b.min || (a.seen < b.seen ? 1 : a.seen > b.seen ? -1 : 0));
-  const all = Math.max(total || 0, practised, 1);
+  const all = Math.max(total || 0, practiced, 1);
   let stars = 0;
   if (attempts > 0) stars = 1;
   if (attempts >= 5 && correct * 2 >= attempts) stars = 2;
@@ -444,22 +448,22 @@ async function renderBody() {
 
   let any = false;
   try { any = hasData(); } catch (_) { any = false; }
-  const practised = [];
+  const practiced = [];
   if (any) {
     for (const [id, t] of mine) {
       // "172 Verben · …": the first number of the topic's card_stats is its item count.
       const total = parseInt(((t.card_stats && t.card_stats[LANG]) || '').replace(/[.,\s]/g, '') || '', 10) || 0;
       const n = topicNumbers(id, total);
-      if (n.attempts > 0) practised.push([id, t, n]);
+      if (n.attempts > 0) practiced.push([id, t, n]);
     }
   }
   const sec = el('section', 'pf-section pf-topics-sec');
   sec.append(el('h2', 'pf-h2', T.topics));
-  if (practised.length) {
+  if (practiced.length) {
     const grid = el('div', 'pf-topics');
-    for (const [id, t, n] of practised) grid.append(await topicCard(id, t, n));
+    for (const [id, t, n] of practiced) grid.append(await topicCard(id, t, n));
     sec.append(grid);
-    if (practised.length < mine.length && HOME_SECTION.topics) sec.append(arrowLink('pf-link pf-more', T.newTopic, HOME_SECTION.topics));
+    if (practiced.length < mine.length && HOME_SECTION.topics) sec.append(arrowLink('pf-link pf-more', T.newTopic, HOME_SECTION.topics));
   } else {
     // A brand-new child: an invitation, not an empty list.
     const empty = el('div', 'pf-empty');

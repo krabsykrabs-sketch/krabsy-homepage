@@ -1,5 +1,15 @@
 # Krabsy — status dashboard
 
+## Figure editor light + easier to find (2026-11-27), not pushed
+
+Owner: "The character editor is too hidden" and "its style with the dark blue does not fit".
+- **Editor light, like the profile** (`lib/krabsy-figure-page.css` / `.js`, pages `/de/meine-figur/`, `/es/mi-personaje/`, `/en/my-figure/`): the figure stands on a sand platform in the profile's teal-to-sand card (transparent canvas, lights as on the landing/profile figure); tabs, tiles and buttons in a white card. Tabs = icon over label in pills (open one teal like the top bar's current item). Tiles: figures on soft teal, things on soft amber; chosen = teal ring + tick; "Neu" badge; "?" = dashed tile. Colour dots on white (chosen = ink ring). Save = coral main button; on phones Save/Random/Reset are a floating white bar above the tab bar. The shell bar on top has the profile's parts (shell icon, bar, gift at its end). **This replaces "the builder is a dark game card" in the sections below.**
+- **No emojis in the editor:** icons from `lib/icons/krabsy-icons.svg`, new `ki-hat`, `ki-palette`, `ki-shirt`, `ki-dice`, `ki-turn` (README table updated); "nothing" and the tick are drawn in the editor's JS/CSS. The landing's shell chip uses `ki-shell` now.
+- **Landing** (`/de/`, `/es/`, `/en/spanish/`, markup by hand + `krabsy-landing.css`): a pencil badge on the figure (`#lf-pencil`, always) and a button "Figur ändern / Cambiar personaje / Change figure" (`#lf-edit`, only for a child who sees "Mein Profil"; a new visitor's main button already says "Bau deine Figur →"). From 1000 px the shell count sits at the figure's feet and the two buttons are stacked; the figure column is about 40 px taller than before, so the featured tile and the games grid start that much lower.
+- **Profile:** pencil badge on the figure (`#pfPencil`), and a line over the collection "Tipp auf ein Bild und probier es an deiner Figur an." (tiles' labels end with ": anprobieren").
+- `?v=`: figure-page JS/CSS `2026-11-27m`, landing CSS `2026-11-27m`, profile JS/CSS `2026-11-27s`, icon sprite `2026-11-27c` on these pages.
+- Checked headless (390×844 touch, 1024×768 touch, 1366×768; DE / ES / EN; new child and a child with a saved figure, 412 shells, 5 gifts, two of them new): all four tabs, 0 console errors, no horizontal overflow, no external requests apart from blocked api.krabsy.com; arrow keys / End move the tabs, Save writes the figure, pencil and button open the editor, profile tile opens it. Not verified: real devices, Spanish wording by a native speaker.
+
 ## Profile page rebuilt as the child's corner (2026-11-27), not pushed
 
 Owner verdict on the first profile page: "I don't like it" (a statistics dashboard for adults: 8 sections, three screens, many numbers and empty boxes, the collection hidden). `/de/profil/`, `/es/perfil/`, `/en/my-profile/` now have four parts, about 1.5 laptop screens with footer excluded, mostly pictures. **This replaces the page described under "Profile page 'Mein Profil'" further down** (number tiles, gift-goal list, "Deine Spiele" with `GAME_SAVES`, "Mehr Zahlen zu den Verben", the dark figure card are gone).

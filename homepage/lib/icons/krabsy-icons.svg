@@ -81,4 +81,34 @@
   <symbol id="ki-star-off" viewBox="0 0 24 24" fill="none" stroke="#babfd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path fill="#f3f3f8" d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9-4.3-4.1 5.9-.8z"/>
   </symbol>
+
+  <!-- figure editor (2026-11-27): accessories, colours, clothes, random, turn, edit -->
+  <!-- hat: a top hat with a band -->
+  <symbol id="ki-hat" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#2ee6c0" d="M7.5 15V6.5A1.5 1.5 0 0 1 9 5h6a1.5 1.5 0 0 1 1.5 1.5V15z"/>
+    <path fill="#ff8585" d="M7.5 11.5h9V15h-9z"/>
+    <rect fill="#2ee6c0" x="3.5" y="15" width="17" height="4" rx="2"/>
+  </symbol>
+  <!-- palette: colours (skin, hair) -->
+  <symbol id="ki-palette" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2.1-.9 2.1-1.9 0-1.5-1-1.7-1-2.9 0-1 .8-1.7 2-1.7h2.1c1.9 0 3.3-1.4 3.3-3.4 0-4-3.8-7.1-8.5-7.1z"/>
+    <circle fill="#ff8585" stroke-width="1.5" cx="8" cy="10" r="1.5"/>
+    <circle fill="#2c2a3a" stroke="none" cx="12" cy="7.6" r="1.3"/>
+    <circle fill="#ff8585" stroke-width="1.5" cx="16" cy="9.6" r="1.5"/>
+    <circle fill="#2c2a3a" stroke="none" cx="8.4" cy="14.6" r="1.3"/>
+  </symbol>
+  <!-- shirt: clothes -->
+  <symbol id="ki-shirt" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#2ee6c0" d="M8.5 4 3 7l2 4 2.5-1.2V20h9V9.8L19 11l2-4-5.5-3a3.5 3.5 0 0 1-7 0z"/>
+  </symbol>
+  <!-- dice: random -->
+  <symbol id="ki-dice" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect fill="#ffcf5e" x="4" y="4" width="16" height="16" rx="3.5"/>
+    <g fill="#2c2a3a" stroke="none"><circle cx="8.6" cy="8.6" r="1.3"/><circle cx="15.4" cy="8.6" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="8.6" cy="15.4" r="1.3"/><circle cx="15.4" cy="15.4" r="1.3"/></g>
+  </symbol>
+  <!-- turn: a round arrow -->
+  <symbol id="ki-turn" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12a7 7 0 1 1-2.2-5.1"/>
+    <path d="M17.4 3.4v3.9h-3.9"/>
+  </symbol>
 </svg>

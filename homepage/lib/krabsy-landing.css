@@ -205,7 +205,7 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
   color: var(--krabsy-ink); text-decoration: none; border-radius: var(--radius-md);
   -webkit-tap-highlight-color: transparent;
 }
-.lf-stage { position: relative; flex: 0 0 auto; width: 122px; height: 126px; }
+.lf-stage { position: relative; display: block; width: 122px; height: 126px; }
 /* arrows to switch figures right here (owner 2026-11-25) */
 .lf-pick { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
 .lf-arrow {
@@ -243,11 +243,12 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
   color: var(--krabsy-ink); text-decoration: none; -webkit-tap-highlight-color: transparent;
 }
 .lf-shells {
-  display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 12px; border-radius: var(--radius-pill);
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 12px 2px 8px; border-radius: var(--radius-pill);
   background: #fff4d6; box-shadow: inset 0 0 0 1.5px var(--g-amber);
   font-weight: 700; font-size: 0.85rem; white-space: nowrap;
 }
 .lf-shells[hidden] { display: none; }
+.lf-shells-ico { width: 20px; height: 20px; flex: 0 0 auto; }
 .lf-shells b { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
 .lf-cta {                       /* the button: the only way to the profile / figure page */
   display: inline-block; padding: 7px 16px; border-radius: var(--radius-pill);
@@ -258,21 +259,57 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
 .lf-label:active .lf-cta { transform: translateY(2px); box-shadow: 0 1px 0 var(--coral-aa-deep); }
 .lf-label:focus-visible { outline: none; }
 .lf-label:focus-visible .lf-cta { outline: 3px solid var(--krabsy-ink); outline-offset: 2px; }
+/* The way to the figure editor (owner 2026-11-27: "the character editor is too hidden"):
+   a pencil badge on the figure and, for a child who has the profile button, a second
+   button "Figur ändern". (A new visitor's main button already says "Bau deine Figur".) */
+.lf-stage-wrap { position: relative; display: block; flex: 0 0 auto; }
+.lf-pencil {
+  position: absolute; z-index: 3; right: -8px; bottom: -4px; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; background: #fff; -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 0 0 2px rgba(38, 36, 60, 0.16), 0 3px 0 rgba(38, 36, 60, 0.16);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.lf-pencil .ki { width: 24px; height: 24px; display: block; }
+.lf-pencil:hover { background: #fff4d6; transform: rotate(-8deg) scale(1.06); }
+.lf-pencil:active { transform: translateY(2px); }
+.lf-pencil:focus-visible, .lf-edit:focus-visible { outline: 3px solid var(--krabsy-ink); outline-offset: 2px; }
+.lf-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.lf-edit {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 16px 4px 10px; border-radius: var(--radius-pill);
+  background: #fff; color: var(--krabsy-ink); font-weight: 700; font-size: 0.95rem; white-space: nowrap; text-decoration: none;
+  box-shadow: inset 0 0 0 2px rgba(38, 36, 60, 0.16), 0 3px 0 rgba(38, 36, 60, 0.12);
+  transition: transform 0.12s ease, box-shadow 0.12s ease; -webkit-tap-highlight-color: transparent;
+}
+.lf-edit .ki { width: 22px; height: 22px; flex: 0 0 auto; display: block; }
+.lf-edit:hover { background: #fff4d6; color: var(--krabsy-ink); }
+.lf-edit:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px rgba(38, 36, 60, 0.16), 0 1px 0 rgba(38, 36, 60, 0.12); }
+.lf:not(.is-mine) .lf-edit { display: none; }
 /* "Jetzt üben · 5 Minuten" with the weekly ring (.kp-go in krabsy-practice.css), under the profile button */
 .lf-acts { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
-@media (max-width: 559px) {      /* phones: figure + profile button in a row, the practice button full width below */
-  .lf-link { flex-wrap: wrap; row-gap: 8px; }
+@media (max-width: 559px) {      /* phones: figure + its buttons in a row, the practice button full width below */
+  .lf-link { flex-wrap: wrap; row-gap: 10px; }
   .lf-acts { display: contents; }
   .lf-acts .kp-go { flex: 1 1 100%; justify-content: center; }
 }
+@media (min-width: 560px) and (max-width: 999px) {   /* small tablets: figure, its buttons, the practice button in one row */
+  .lf-acts { flex-direction: row; align-items: center; gap: 18px; }
+}
 @media (min-width: 1000px) {
-  .lf-acts { align-items: center; gap: 12px; }
+  .lf-acts { align-items: center; gap: 8px; }
+  .lf-btns { gap: 6px; }
+  /* the narrow column: the two buttons stacked at one width; the shell count moves up to
+     the figure's feet (left; the pencil is on the right), so the column stays as tall as
+     the featured tile */
+  .lf-btns { position: relative; align-items: stretch; }
+  .lf-edit { justify-content: center; }
+  .lf-label .lf-cta { flex: 1 1 auto; text-align: center; }
+  .lf-shells { position: absolute; z-index: 3; right: calc(50% + 34px); bottom: calc(100% + 4px); background: #fff; }
   .lf { margin-top: 0; }
   .lf-link { flex-direction: column; justify-content: flex-end; gap: 2px; padding-bottom: 4px; }
   .lf-stage { width: 180px; height: 186px; }
   .lf-label { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 10px; }
 }
-@media (prefers-reduced-motion: reduce) { .lf-canvas, .lf-img, .lf-stage::before { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .lf-canvas, .lf-img, .lf-stage::before, .lf-pencil, .lf-edit { transition: none; } .lf-pencil:hover { transform: none; } }
 
 /* ── Games grid ───────────────────────────────────────────────────── */
 .gl-games { padding-top: 16px; padding-bottom: 28px; }
