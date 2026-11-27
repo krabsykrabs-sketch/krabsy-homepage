@@ -1,3 +1,4 @@
+import { TOWER_ORDER } from './config.js';
 // Level loading for hex maps.
 //
 // A level file (levels/levelN.js, classic script → window.LEVELN) describes a board of
@@ -140,6 +141,10 @@ export const Level = {
       // Training level: fully guided (js/tutorial.js); answers per wave override.
       training: !!data.training,
       orePerWave: data.orePerWave,
+      trainingRightAnswers: data.trainingRightAnswers || 0,
+      // Towers in the dock (levels introduce them one by one); all when not given.
+      towers: data.towers || TOWER_ORDER.slice(),
+      newTower: data.newTower || null,
     };
     return this.current;
   },

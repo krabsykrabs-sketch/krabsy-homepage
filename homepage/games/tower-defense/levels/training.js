@@ -19,8 +19,10 @@ window.LEVEL_TRAINING = {
   startingLives: 10,
   startingCoins: 30,      // exactly one archer tower
   totalWaves: 2,
+  towers: ['basic'],      // towers in the dock (the rest arrive in later levels)
   bossWaves: [],
-  orePerWave: 99,         // answers never run out here: the player answers until the upgrade is paid
+  orePerWave: 99,         // wrong answers never run the card out; it closes after
+  trainingRightAnswers: 2, // this many right answers (12 bonus + 2 × 9 = the 30-coin upgrade)
   tutorialCells: [[4, 1]], // the one hex the coach lets the player build on
   clear: [[4, 1], [3, 1], [5, 1], [3, 3], [4, 3], [5, 3]],
   enemyScaling: {
@@ -31,5 +33,5 @@ window.LEVEL_TRAINING = {
     baseEnemySpeed: 1.4,
     speedPerWave: 0,
   },
-  economy: { baseCoinsPerKill: 0, waveCompletionBonus: 3 },
+  economy: { baseCoinsPerKill: 0, waveCompletionBonus: 12 },
 };

@@ -24,6 +24,8 @@ window.LEVEL4 = {
   startingLives: 10,
   startingCoins: 60,
   totalWaves: 10,
+  towers: ['basic', 'catapult', 'cannon', 'freeze'],
+  newTower: 'freeze',
   bossWaves: [5, 10],
   enemyScaling: {
     baseEnemyHealth: 63,

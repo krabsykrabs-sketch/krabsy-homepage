@@ -8,7 +8,7 @@ import { Questions } from './questions.js';
 import { Wave } from './wave.js';
 import { t, towerText, levelText } from './i18n.js';
 import {
-  LEVELS, TRAINING, TRAINING_INDEX, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
+  LEVELS, TRAINING, TRAINING_INDEX, availableTowers, markIntroSeen, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
   getHighscore, getStars, isUnlocked, upgradeTower, sellTower, isTowerLocked,
 } from './main.js';
 
@@ -42,10 +42,11 @@ export const UI = {
       gameOverOv: $('game-over-overlay'), goSub: $('go-sub'), goBest: $('go-best'), goRecap: $('go-recap'),
       victoryOv: $('victory-overlay'), vcSub: $('vc-sub'), vcBest: $('vc-best'), vcRecap: $('vc-recap'),
       quitOv: $('quit-overlay'), quitYes: $('quit-yes'), quitNo: $('quit-no'),
+      introOv: $('tower-intro'), introGo: $('intro-go'),
     });
 
-    this.onLevelChanged();
     this._buildTowerButtons();
+    this.onLevelChanged();
     this._buildLevelCards();
     this._wireActions();
 
@@ -82,6 +83,7 @@ export const UI = {
         ${this._statBarsHtml(type)}
         <span class="tower-btn-cost">${COIN}${def.cost}</span>
         <span class="tower-lock" aria-hidden="true">${LOCK_SVG}</span>
+        <span class="tower-new" aria-hidden="true">${esc(t('newTag'))}</span>
       `;
       // Preview before buying: hover (mouse) or long press (touch) shows the
       // description and, when a hex is chosen, the tower's range on the board.
@@ -199,9 +201,32 @@ export const UI = {
     pop.style.top = `${(b.top - dock.top) / zoom - 8}px`;
   },
 
+  // New tower card (state.intro): picture, name, what it does, its stat bars.
+  _renderIntro(state) {
+    const type = (state.phase === 'BUILD' && state.intro) || null;
+    if (type === this._introShown) return;
+    this._introShown = type;
+    this.els.introOv.classList.toggle('hidden', !type);
+    if (!type) return;
+    const text = towerText(type);
+    document.getElementById('intro-thumb').src = this._thumbs[type];
+    document.getElementById('intro-name').textContent = text.name;
+    document.getElementById('intro-desc').textContent = text.desc;
+    document.getElementById('intro-stats').innerHTML = this._statBarsHtml(type);
+    Sound.play('upgrade');
+  },
+
   // Re-sync everything that depends on the loaded level (totals, hearts cap).
   onLevelChanged() {
     this.els.waveTotal.textContent = Level.current.totalWaves;
+    // Only the towers this level has; keys 1–4 follow the visible order.
+    const list = availableTowers();
+    for (const btn of this.els.towerButtons.children) {
+      const i = list.indexOf(btn.dataset.tower);
+      btn.classList.toggle('hidden', i < 0);
+      const key = btn.querySelector('.tower-btn-hotkey');
+      if (key && i >= 0) key.textContent = i + 1;
+    }
     this._livesSig = null;
   },
 
@@ -336,6 +361,7 @@ export const UI = {
 
     // Leaving a run asks first, in the page (native dialogs are awkward in an iframe).
     this.els.fitBtn.addEventListener('click', () => { Renderer.resetView(true); this.els.fitBtn.blur(); });
+    this.els.introGo.addEventListener('click', () => { markIntroSeen(); Sound.play('click'); this._renderIntro(state); });
     this.els.speedBtn.addEventListener('click', () => {
       state.speed = state.speed === 1 ? 2 : 1;
       this.els.speedBtn.blur();
@@ -419,6 +445,8 @@ export const UI = {
       btn.classList.toggle('active', state.placement.active && state.placement.towerType === type);
       btn.classList.toggle('build-here', !locked && !!state.buildCell && state.coins >= CONFIG.TOWERS[type].cost);
       btn.classList.toggle('hint-pulse', !!state.hint && state.hint.target === `tower:${type}`);
+      // The level's new tower carries a NEW tag until it has been built once.
+      btn.classList.toggle('is-new', Level.current.newTower === type && !state.towers.some((tw) => tw.type === type));
     }
     document.getElementById('game-container').classList.toggle('placing', state.placement.active);
 
@@ -441,6 +469,7 @@ export const UI = {
 
     this._renderEndScreens(state);
     this.els.quitOv.classList.toggle('hidden', !this._quitOpen);
+    this._renderIntro(state);
 
     this._renderForge(state);
     this._renderTowerInfo(state);

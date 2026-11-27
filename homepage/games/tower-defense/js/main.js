@@ -165,6 +165,7 @@ function clearRun() {
   state.hintCells = [];
   state.starsEarned = 0;
   state.endT = 0;
+  state.intro = introFor(Level.current);
   Renderer.onRunReset();
   Questions.resetRun();
   state.highscoreSaved = false;
@@ -254,6 +255,28 @@ export function isUnlocked(levelIndex) {
 // locked until an archer tower stands on the board (again after selling the last one).
 export function isTowerLocked(type) {
   return type !== 'basic' && !state.towers.some((t) => t.type === 'basic');
+}
+
+// Towers arrive level by level (owner, 2026-11-27): training and level 1 = archer,
+// level 2 adds the catapult, 3 the cannon, 4 frost. A new tower is introduced with a
+// card at the start of its level, the first time only (state.intro).
+export function availableTowers() {
+  return Level.current ? Level.current.towers : [];
+}
+export function towerAvailable(type) {
+  return availableTowers().includes(type);
+}
+function introKey(type) { return `td3d_tower_seen_${type}`; }
+export function markIntroSeen() {
+  if (!state.intro) return;
+  try { localStorage.setItem(introKey(state.intro), '1'); } catch { /* storage blocked */ }
+  state.intro = null;
+}
+function introFor(level) {
+  const type = level.newTower;
+  if (!type) return null;
+  try { if (localStorage.getItem(introKey(type)) === '1') return null; } catch { /* show it */ }
+  return type;
 }
 
 export function hasNextLevel() {

@@ -6,7 +6,7 @@ import { Tower } from './tower.js';
 import { Renderer } from './renderer.js';
 import { Grid } from './grid.js';
 import { Wave } from './wave.js';
-import { state, sellTower, isTowerLocked } from './main.js';
+import { state, sellTower, isTowerLocked, availableTowers, towerAvailable } from './main.js';
 import { Track } from './analytics.js';
 
 // Mouse, touch, and keyboard handling. Placement is allowed during BUILD and BATTLE
@@ -40,7 +40,7 @@ export const Input = {
   _gameAcceptsInput() {
     // Placement / selection are live during BUILD and BATTLE. WAVE_COMPLETE shows a
     // modal overlay; GAME_OVER and VICTORY are terminal.
-    return state.phase === 'BUILD' || state.phase === 'BATTLE';
+    return !state.intro && (state.phase === 'BUILD' || state.phase === 'BATTLE');
   },
 
   _onMouseMove(e) {
@@ -208,7 +208,7 @@ export const Input = {
   // Build a tower on a cell if it is free and affordable. Returns true when built.
   _place(type, cellX, cellY) {
     const def = CONFIG.TOWERS[type];
-    if (!def) return false;
+    if (!def || !towerAvailable(type)) return false;
     if (isTowerLocked(type)) return false;
     if (!Grid.isAvailable(cellX, cellY)) return false;
     if (state.coins < def.cost) return false;
@@ -256,13 +256,12 @@ export const Input = {
     }
 
     const n = parseInt(e.key, 10);
-    if (n >= 1 && n <= TOWER_ORDER.length) {
-      this.toggleTowerPlacement(TOWER_ORDER[n - 1]);
-    }
+    const list = availableTowers();
+    if (n >= 1 && n <= list.length) this.toggleTowerPlacement(list[n - 1]);
   },
 
   toggleTowerPlacement(type) {
-    if (!CONFIG.TOWERS[type]) return;
+    if (!CONFIG.TOWERS[type] || !towerAvailable(type)) return;
     if (!this._gameAcceptsInput()) return;
     if (isTowerLocked(type) || (state.gate && !state.gate.cards.includes(type))) { Sound.play('nope'); return; }
     // A building spot is already chosen: build there straight away.

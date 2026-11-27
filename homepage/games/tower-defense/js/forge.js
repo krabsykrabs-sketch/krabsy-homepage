@@ -83,6 +83,7 @@ export const Forge = {
     const f = state.forge;
     if (!this.active(state) || f.stage !== 'ask' || !f.q) return;
     if (state.gate && !state.gate.answers) return; // training: not yet
+    if (state.intro) return;
     if (index < 0 || index >= f.q.options.length) return;
     f.picked = index;
     f.ore -= 1;
@@ -91,6 +92,9 @@ export const Forge = {
     Questions.record(f.q, index === f.q.correctIndex);
     if (index === f.q.correctIndex) {
       state.stats.right += 1;
+      // Training: after enough right answers the card is empty (the upgrade is paid).
+      const need = Level.current.trainingRightAnswers;
+      if (need && state.stats.right >= need) f.ore = 0;
       f.lastGain = this.reward(f.streak);
       f.streak += 1;
       f.stage = 'right';

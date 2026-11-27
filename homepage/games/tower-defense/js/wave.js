@@ -19,6 +19,7 @@ export const Wave = {
   // Begin the next wave. Assumes state.phase === 'BUILD'.
   startNext(state) {
     if (state.gate && !state.gate.start) return; // training: not yet
+    if (state.intro) return;                     // a new tower is being introduced
     const lvl = Level.current;
     state.currentWave += 1;
     state.phase = 'BATTLE';
