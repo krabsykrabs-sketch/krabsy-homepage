@@ -446,7 +446,34 @@ async function buildGameHeader(currentKey, strings) {
 
   const grow = document.createElement('span');
   grow.className = 'k-game-nav-grow';
-  header.append(...[logo, back, title, grow, classBadge].filter(Boolean));
+  // DE|ES like the site header (owner 2026-11-27: "I don't see the switch anymore");
+  // only where the same games exist in another interface language (not /en/spanish/).
+  let toggle = null;
+  if (lang === 'de' || lang === 'es') {
+    toggle = document.createElement('div');
+    toggle.className = 'k-lang-toggle k-game-nav-lang';
+    toggle.setAttribute('role', 'group');
+    toggle.setAttribute('aria-label', lang === 'es' ? 'Idioma del menú' : 'Menüsprache');
+    for (const l of ['de', 'es']) {
+      const bt = document.createElement('button');
+      bt.type = 'button';
+      bt.className = 'k-lang-btn' + (l === lang ? ' is-active' : '');
+      bt.dataset.lang = l;
+      bt.textContent = l.toUpperCase();
+      bt.setAttribute('aria-label', l === 'de' ? 'Deutsch' : 'Español');
+      if (l === lang) bt.setAttribute('aria-current', 'true');
+      else bt.addEventListener('click', (ev) => {
+        // the same game in the other interface language: /de/spiele/x/ <-> /es/juegos/x/
+        const to = location.pathname.replace(/^\/(de\/spiele|es\/juegos)\//, l === 'es' ? '/es/juegos/' : '/de/spiele/');
+        try { localStorage.setItem('krabsy_lang', l); } catch (_) { /* private mode */ }
+        guardedGameClick(ev, to + location.search + location.hash, strings);
+        if (!ev.defaultPrevented) location.href = to + location.search + location.hash;
+      });
+      toggle.appendChild(bt);
+    }
+  }
+  header.append(...[logo, back, title, grow, classBadge, toggle].filter(Boolean));
+
   // Shell counter "🐚 240" (krabsy-shells.js): links to the figure page.
   const shells = mountShellCounter(header);
   if (shells) {
@@ -508,6 +535,13 @@ function injectGameNavStyles() {
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
     }
     .k-game-nav-grow { flex: 1; min-width: 0; }
+    .k-game-nav-lang { display: inline-flex; flex-shrink: 0; padding: 3px; border-radius: 999px; background: #eceaf2; }
+    .k-game-nav-lang .k-lang-btn {
+      border: 0; cursor: pointer; font: 800 0.78rem 'Nunito', system-ui, sans-serif; letter-spacing: 0.5px;
+      padding: 5px 10px; border-radius: 999px; background: transparent; color: #6e6c80;
+    }
+    .k-game-nav-lang .k-lang-btn.is-active { background: #2c2a3a; color: #ffffff; }
+    .k-game-nav-lang .k-lang-btn:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
     @media (max-width: 560px) {
       .k-game-nav { gap: 8px; padding: 0 10px; }
       .k-game-nav-logo > span:not(.k-game-nav-crab) { display: none; }   /* crab only */
