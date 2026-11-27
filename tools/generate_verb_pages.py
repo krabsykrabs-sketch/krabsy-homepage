@@ -25,7 +25,8 @@ import json, re, hashlib, html, pathlib, sys, difflib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HP = ROOT / "homepage"
 LASTMOD = "2026-11-12"
-CSSV = "2026-11-27h"   # krabsy-ui.css, -footer, -header, -lang-switch (site-wide bump 2026-11-27)
+CSSV = "2026-11-27h"   # krabsy-footer, -lang-switch (site-wide bump 2026-11-27)
+HEADER_V = "2026-11-27-learn"   # krabsy-ui.css, -header (learning-language pill 2026-11-27)
 
 DE_TOPIC = "unregelmaessige-verben"
 ES_TOPIC = "verbos-irregulares"
@@ -511,7 +512,7 @@ def head(lang, t, title, desc, path, other_path, googlebot_noindex=False):
   <meta name="twitter:title" content="{E(title)}">
   <meta name="twitter:description" content="{E(desc)}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={CSSV}">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={HEADER_V}">
   <style>{STYLE}</style>
 </head>"""
 
@@ -540,7 +541,7 @@ def chrome_close():
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v={CSSV}" defer></script>
-  <script type="module" src="/lib/krabsy-header.js?v={CSSV}"></script>
+  <script type="module" src="/lib/krabsy-header.js?v={HEADER_V}"></script>
   <script src="/lib/krabsy-lang-switch.js?v={CSSV}" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

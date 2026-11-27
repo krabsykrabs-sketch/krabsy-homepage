@@ -4,5 +4,5 @@
    an old generator run): it loads the new header instead. */
 (function () {
   'use strict';
-  try { import('/lib/krabsy-header.js?v=2026-11-27h').catch(function () {}); } catch (_) { /* old browser */ }
+  try { import('/lib/krabsy-header.js?v=2026-11-27-learn').catch(function () {}); } catch (_) { /* old browser */ }
 })();
