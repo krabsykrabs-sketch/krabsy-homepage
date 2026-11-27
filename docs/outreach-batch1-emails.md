@@ -5,7 +5,7 @@ Targets and reasoning: `docs/outreach-schools-2026-11-22.md`. Send from
 Before sending, open the school's page once to check it still looks the same.
 **Signatures (2026-11-27):** the mailbox adds the name, so the email texts
 below end with the greeting only (exception: #7 is a web form, it keeps the
-name line). Plain text, no images, no email address in the text; wording is language-agnostic (no "Englisch"), so it stays true when more taught languages come. Set one per
+name line). Plain text, no images, no email address in the text; wording is language-agnostic (no "Englisch"), so it stays true when more taught languages come. Claims are scoped to children (docs/tutor-platform.md: nothing is sold to children, ever; teachers' tools free today but "maybe Pro later"; tutors pay and sign in by email). hello@ is also the tutor sign-in sender, so its signature makes no free/no-sign-up claim. Set one per
 sender in Private Email (Settings → Signatures), and delete Namecheap's default
 signature (its ad link counted as a broken link on mail-tester):
 
@@ -13,21 +13,21 @@ signature (its ad link counted as a broken link on mail-tester):
   ```
   Jan Ahrens
   Entwickler von Krabsy
-  Grammatik üben mit Spielen: kostenlos, ohne Anmeldung, ohne Werbung
+  Grammatik üben mit Spielen – für Kinder kostenlos, ohne Anmeldung, ohne Werbung
   https://krabsy.com/de/
   ```
 - hola@krabsy.com (ES):
   ```
   Jan Ahrens
   Creador de Krabsy
-  Gramática con juegos: gratis, sin registro, sin publicidad
+  Gramática con juegos – gratis para el alumnado, sin registro ni publicidad
   https://krabsy.com/es/
   ```
 - hello@krabsy.com (EN):
   ```
   Jan Ahrens
   Creator of Krabsy
-  Grammar practice with games: free, no sign-up, no ads
+  Grammar practice with games
   https://krabsy.com/
   ```
 
