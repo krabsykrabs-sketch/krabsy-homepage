@@ -25,7 +25,7 @@
 import { apiBase, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
 import { enter, people, activePerson, showPicker } from '/lib/krabsy-sync.js?v=2026-11-27l';
 import { tutorTopHtml, tutorHtml, tutorWire, meHtml, renderWorksheet } from '/lib/krabsy-tutor-lesson.js?v=2026-11-27';
-import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-27d';
+import { startLiveStudent } from '/lib/krabsy-live-student.js?v=2026-11-27e';
 import { runningLessons, isRunning, markEnded, runningBar } from '/lib/krabsy-live-running.js?v=2026-11-27';
 import { mountRings } from '/lib/krabsy-practice-week.js?v=2026-11-27l';
 
@@ -357,7 +357,7 @@ const hrefTo = (token, sid) => (LEGACY ? `#t=${esc(token)}${sid ? `&s=${sid}` : 
 const liveHref = (token, sid, extra = '') => `/en/spanish/tutors/live/#${LEGACY ? `t=${esc(token)}&` : ''}s=${sid}&start=1${extra}`;
 function liveCss() {
   if (document.querySelector('link[data-live-css]')) return;
-  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/lib/krabsy-live.css?v=2026-11-27'; l.dataset.liveCss = '1'; document.head.appendChild(l);
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/lib/krabsy-live.css?v=2026-11-27b'; l.dataset.liveCss = '1'; document.head.appendChild(l);
 }
 function liveEntries(main, token, sid) {
   main.querySelectorAll('[data-wslive]').forEach((b) => { const a = document.createElement('a'); a.className = b.className; a.textContent = b.textContent; a.href = liveHref(token, sid, `&w=${Number(b.dataset.wslive)}`); b.replaceWith(a); });

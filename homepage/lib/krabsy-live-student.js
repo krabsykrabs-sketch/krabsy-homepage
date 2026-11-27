@@ -25,6 +25,7 @@ const T = {
   doneP: (t) => `Thank you for learning with ${t}.`,
   doneRight: (r, n) => `${r} of ${n} right on the first try`,
   back: 'Back to my page',
+  leave: 'Leave lesson', running: (t) => `Lesson with ${t} is running`, rejoin: 'Back to the lesson',
   star: (t) => `${t} sent you a star!`, gift: (t) => `${t} sent you a gift!`,
   retry: 'Connecting again …',
   replaced: 'The lesson is open in another tab or on another device.', useHere: 'Use it here',
@@ -36,7 +37,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 let cssDone = false;
 function loadCss() {
   if (cssDone) return; cssDone = true;
-  for (const href of ['/lib/fonts/krabsy-fonts.css?v=2026-11-26f', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-27']) {
+  for (const href of ['/lib/fonts/krabsy-fonts.css?v=2026-11-26f', '/lib/activities/activities.css?v=2026-11-26', '/lib/krabsy-live.css?v=2026-11-27b']) {
     if (document.querySelector(`link[href="${href}"]`)) continue;
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l);
   }
@@ -56,6 +57,12 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
   let isAdult = !!adult;
   let endT = null;
   let unsent = [];          // answers given while offline: sent after the reconnect (≤ 50)
+  // Leaving (owner 2026-11-27: a child was stuck in a lesson layer with no way out). Remembered
+  // for this tab; the tutor's next start/load brings the lesson back.
+  const LEFT_KEY = 'krabsy_live_left';
+  let left = (() => { try { return sessionStorage.getItem(LEFT_KEY) === key; } catch (_) { return false; } })();
+  let lastLesson = null;    // { material, state, state_at } for 'Back to the lesson'
+  let rejoinEl = null;
 
   const live = connectLive({
     hello: { role: 'student', key },
@@ -67,8 +74,10 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
         if (document.hidden) live.focus(false);
         const L = m.lesson;
         const queued = unsent; unsent = [];
-        if (!L) { if (view && !view.classList.contains('is-done')) closeView(); return; }
+        if (!L) { setLeft(false); if (view && !view.classList.contains('is-done')) closeView(); return; }
         for (const a of queued) live.answer(a);
+        lastLesson = { material: L.material || null, state: L.state, state_at: L.state_at };
+        if (left) { showRejoin(); return; }
         openView();
         if (!L.material) { if (player) unmount(); waiting(); return; }
         if (player && sig(L.material) === matSig) {
@@ -86,13 +95,17 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
       message(m) {
         switch (m.t) {
           case 'start': {
+            setLeft(false);
             openView();
             const L = m.lesson || {};
+            lastLesson = { material: L.material || null, state: L.state, state_at: L.state_at };
             if (L.material && sig(L.material) !== matSig) mount(L.material, bestState(L.material, L.state, L.state_at));
             else if (!player) waiting();
             break;
           }
           case 'load': {
+            setLeft(false);
+            lastLesson = { material: m.material, state: null, state_at: null };
             openView();
             if (m.fresh) { dropBackup(m.material); mount(m.material, null); break; }       // "Start again"
             if (player && sig(m.material) === matSig) { const s = player.getState(); if (s) live.state(s); break; }  // same material: keep the progress
@@ -103,7 +116,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
           case 'cmd': if (player) player.cmd({ type: m.type, step: m.step, page: m.page, a: m.a, kind: m.kind, text: m.text }); break;
           case 'point': if (player) player.point({ a: m.a, x: m.x, y: m.y }); break;
           case 'reward': reward(m.kind); break;
-          case 'end': ended(m.summary); break;
+          case 'end': setLeft(false); lastLesson = null; ended(m.summary); break;
           default: break;
         }
       },
@@ -124,11 +137,43 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     view.className = 'kl-lesson';
     view.setAttribute('role', 'dialog'); view.setAttribute('aria-modal', 'true'); view.setAttribute('aria-label', T.bar(tutorName));
     view.innerHTML = `<header class="kl-lesson-bar"><span class="kl-dot" aria-hidden="true"></span><b>${esc(T.bar(tutorName))}</b>
-        <span class="kl-lesson-retry">${esc(T.retry)}</span><span class="kl-grow"></span><span class="kl-lesson-banner" hidden></span></header>
+        <span class="kl-lesson-retry">${esc(T.retry)}</span><span class="kl-grow"></span><span class="kl-lesson-banner" hidden></span>
+        <button type="button" class="kl-btn kl-lesson-leave" data-leave>${esc(T.leave)}</button></header>
       <div class="kl-lesson-stage" data-stage></div>`;
     document.body.appendChild(view);
     document.documentElement.classList.add('kl-locked');
+    view.querySelector('[data-leave]').addEventListener('click', leaveLesson);
+    hideRejoin();
   }
+  function onKey(e) { if (e.key === 'Escape' && view && !view.classList.contains('is-done') && !document.querySelector('.kl-modal-wrap')) leaveLesson(); }
+  document.addEventListener('keydown', onKey);
+  function setLeft(v) {
+    left = v;
+    try { if (v) sessionStorage.setItem(LEFT_KEY, key); else sessionStorage.removeItem(LEFT_KEY); } catch (_) { /* private mode */ }
+    if (!v) hideRejoin();
+  }
+  /** The child leaves the lesson layer; a small bar lets them go back while it runs. */
+  function leaveLesson() {
+    if (player) { const st = player.getState && player.getState(); if (st && lastLesson) { lastLesson.state = st; lastLesson.state_at = Date.now(); } }
+    setLeft(true);
+    closeView();
+    showRejoin();
+  }
+  function showRejoin() {
+    if (rejoinEl) return;
+    rejoinEl = document.createElement('div');
+    rejoinEl.className = 'kl-rejoin';
+    rejoinEl.innerHTML = `<span class="kl-dot" aria-hidden="true"></span><span>${esc(T.running(tutorName))}</span>
+      <button type="button" class="kl-btn kl-btn-primary">${esc(T.rejoin)}</button>`;
+    rejoinEl.querySelector('button').addEventListener('click', () => {
+      setLeft(false);
+      openView();
+      const L = lastLesson;
+      if (L && L.material) mount(L.material, bestState(L.material, L.state, L.state_at)); else waiting();
+    });
+    document.body.appendChild(rejoinEl);
+  }
+  function hideRejoin() { if (rejoinEl) { rejoinEl.remove(); rejoinEl = null; } }
   function closeView() {
     clearTimeout(endT);
     unmount();

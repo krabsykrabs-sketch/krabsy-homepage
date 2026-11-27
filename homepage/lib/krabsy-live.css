@@ -183,6 +183,16 @@ html.kl-locked, html.kl-locked body { overflow: hidden; }
 .kl-lesson { position: fixed; inset: 0; z-index: 10030; display: flex; flex-direction: column; background: #f6efdf; font-family: var(--f-body); color: var(--ink); animation: kl-fade .25s; }
 .kl-lesson-bar { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #3a2a35; color: #fff; flex-wrap: wrap; }
 .kl-lesson-bar b { font: 400 18px var(--f-fun); }
+.kl-lesson-leave { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.45); }
+.kl-lesson-leave:hover { background: rgba(255,255,255,.24); }
+/* shown after leaving while the lesson still runs */
+.kl-rejoin { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 10020;
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 16px; border-radius: 999px; background: #3a2a35; color: #fff;
+  font: 600 15px var(--f-body); box-shadow: 0 6px 20px rgba(0,0,0,.25); max-width: calc(100vw - 24px); }
+.kl-rejoin > span:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.kl-rejoin .kl-btn { flex: none; white-space: nowrap; }
+@media (max-width: 420px) { .kl-rejoin { font-size: 13.5px; gap: 8px; padding: 6px 6px 6px 12px; } .kl-rejoin .kl-btn { padding: 6px 12px; } }
+@media (min-width: 760px) { .kl-rejoin { bottom: 24px; } }
 .kl-lesson-retry { display: none; color: #ffd2c6; font-size: 13.5px; font-weight: 700; }
 .kl-lesson.is-retry .kl-lesson-retry { display: inline; }
 .kl-lesson-banner { display: inline-flex; gap: 8px; align-items: center; background: var(--amber-soft); color: var(--ink); border-radius: 10px; padding: 4px 10px; font-weight: 700; font-size: 13.5px; }
