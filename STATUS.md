@@ -59,7 +59,8 @@ at the end of each session. (Last update: 2026-11-25.)
 
 The 4teachers English editor (liko, 4t-Eng-Red.) answered on 2026-11-25 and
 **invited** us to add the Krabsy link and to upload worksheets with a Krabsy
-footnote. **Not answered yet, nothing uploaded yet.** 4teachers has 1.78 M
+footnote. **Not answered yet, nothing uploaded yet. ON HOLD (owner 2026-11-27)
+until the teacher-page tabs and the i18n foundation N1–N6 are live.** 4teachers has 1.78 M
 members; its 148 irregular-verb materials are mostly 2004–2012 Word files
 without answer keys, the Grammar link list is from 2020, the "Interaktive
 Materialien" section has nothing newer than 2014. A competitor
