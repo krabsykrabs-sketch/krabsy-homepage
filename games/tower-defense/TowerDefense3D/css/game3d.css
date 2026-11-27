@@ -980,3 +980,16 @@ body.game-inactive #bottom-dock { display: none; }
 /* NEW tag on the level's new tower card until it has been built once. */
 .tower-new { display: none; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); background: var(--amber); color: var(--navy); font-family: var(--display); font-size: 11px; line-height: 1; padding: 3px 7px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
 .tower-btn.is-new .tower-new { display: block; }
+#forge-panel.invisible { visibility: hidden; }
+
+/* Training: big bouncing arrow at the next thing to press. Anchored at its tip. */
+#tut-arrow { position: fixed; z-index: 30; pointer-events: none; display: none; transform: translate(-50%, -100%) scale(var(--s, 1)); transform-origin: 50% 100%; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)); }
+#tut-arrow.on { display: block; }
+#tut-arrow.right { transform: translate(-50%, -100%) rotate(-90deg) scale(var(--s, 1)); }
+#tut-arrow .tut-arrow-bob { animation: tut-bob 0.8s ease-in-out infinite; }
+#tut-arrow svg { display: block; }
+@keyframes tut-bob {
+  0%, 100% { transform: translateY(-10px); }
+  50% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { #tut-arrow .tut-arrow-bob { animation: none; } }

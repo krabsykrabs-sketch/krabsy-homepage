@@ -888,4 +888,15 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     per level, intro shows once, Space blocked while it shows, "Let's go"
     closes it at once, NEW tag. No errors.
 
+- 2026-11-27 — **Training polish** (owner): any free field works for the
+  first tower (`gate.cells = 'any'`; road taps still ignored); the map no
+  longer changes size when the card arrives (the hidden card keeps its
+  space: `#forge-panel.invisible` = visibility hidden, the camera fit counts
+  it); a big bouncing SVG arrow (`#tut-arrow`, `ui._renderArrow`) points at
+  the next thing to press: the archer card, a suggested field next to the
+  road, the start button, the answers (from the left on the side panel),
+  the tower, the upgrade button. Training only; respects reduced motion.
+  Checked headless at 1366×768, 1024×768 touch, 390×844: camera identical
+  before and after the card appears, full training run, no errors.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.

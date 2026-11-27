@@ -6,7 +6,7 @@ import { Level } from './level.js';
 // player do only that (input.js, ui.js, wave.js, forge.js and main.js check it).
 //
 //   1. arrows run along the road to the castle; pick the archer card
-//   2. place it on the one glowing hex next to the road
+//   2. place it on any free field
 //   3. its range circle: "it shoots by itself at anything in the circle"; start wave 1
 //   4. wave 1: watch
 //   5. the question card arrives: 2 right answers pay the upgrade, then it is empty
@@ -43,6 +43,7 @@ export const Tutorial = {
     state.hintRoad = false;
     state.hintRange = null;
     state.gate = null;
+    state.hintArrowAt = null;
     if (!Level.current || !Level.current.training) return;
     if (state.phase === 'VICTORY') { this._finish(); return; }
     if (state.phase !== 'BUILD' && state.phase !== 'BATTLE') return;
@@ -51,7 +52,6 @@ export const Tutorial = {
     state.gate = gate;
     const wave = state.currentWave;
     const tower = state.towers[0] || null;
-    const spots = Level.current.tutorialCells.map(([c, r]) => ({ cellX: c, cellY: r }));
 
     if (wave === 0) {
       // Card first, then the map (owner's preferred way to build).
@@ -59,9 +59,12 @@ export const Tutorial = {
         state.hintRoad = true;
         gate.cards = ['basic'];
         if (state.placement.active && state.placement.towerType === 'basic') {
+          // Any free field works (all are in reach of the straight road).
           state.hint = { key: 'tutPlace', target: null };
-          state.hintCells = spots.filter((s) => Grid.isAvailable(s.cellX, s.cellY));
-          gate.cells = spots;
+          gate.cells = 'any';
+          // The big arrow suggests a field right next to the road.
+          const [c, r] = Level.current.suggestCell || [4, 1];
+          state.hintArrowAt = { cellX: c, cellY: r, height: 0.2 };
         } else {
           state.hint = { key: 'tutPickArcher', target: 'tower:basic' };
         }
@@ -89,6 +92,7 @@ export const Tutorial = {
         } else if (state.selectedTower !== tower) {
           state.hint = { key: 'tutUpgradeTap', target: null };
           state.hintCells = [{ cellX: tower.cellX, cellY: tower.cellY }];
+          state.hintArrowAt = { cellX: tower.cellX, cellY: tower.cellY, height: 2.6 };
           gate.tower = tower;
         } else {
           state.hint = { key: 'tutUpgradeBtn', target: 'upgrade' };

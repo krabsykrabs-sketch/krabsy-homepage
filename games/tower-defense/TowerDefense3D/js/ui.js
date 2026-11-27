@@ -2,6 +2,7 @@ import { Sound } from './audio.js';
 import { CONFIG, TOWER_ORDER } from './config.js';
 import { Level, HEX, hexCenter } from './level.js';
 import { Renderer } from './renderer.js';
+import { Grid } from './grid.js';
 import { Input } from './input.js';
 import { Forge } from './forge.js';
 import { Questions } from './questions.js';
@@ -18,6 +19,8 @@ import {
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const COIN = '<span class="coin-icon coin-icon-sm"></span>';
+// Big tutorial arrow (pointing down; rotated for other directions).
+const ARROW_SVG = '<svg viewBox="0 0 64 80" width="64" height="80"><path d="M20 4h24v34h16L32 76 4 38h16z" fill="#ffcf5e" stroke="#0d1b3a" stroke-width="4" stroke-linejoin="round"/></svg>';
 // Small padlock drawn in SVG (no emoji), shown on locked tower cards.
 const LOCK_SVG = '<svg viewBox="0 0 24 24" width="22" height="22"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5" fill="#ffcf5e" stroke="#0d1b3a" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#ffcf5e" stroke-width="2.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#0d1b3a" stroke-width="0.9" opacity="0.5"/><circle cx="12" cy="15.3" r="1.7" fill="#0d1b3a"/></svg>';
 
@@ -199,6 +202,43 @@ export const UI = {
     const zoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
     pop.style.left = `${(b.left + b.width / 2 - dock.left) / zoom}px`;
     pop.style.top = `${(b.top - dock.top) / zoom - 8}px`;
+  },
+
+  // Training: a big bouncing arrow at the one thing to press next. Above the target
+  // pointing down; left of a side panel pointing right.
+  _renderArrow(state) {
+    if (!this._arrowEl) {
+      const el = document.createElement('div');
+      el.id = 'tut-arrow';
+      el.innerHTML = `<div class="tut-arrow-bob">${ARROW_SVG}</div>`;
+      document.body.appendChild(el);
+      this._arrowEl = el;
+    }
+    const el = this._arrowEl, h = state.hint;
+    let r = null;
+    if (h && !state.intro && Level.current && Level.current.training) {
+      const pick = (sel) => { const e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; };
+      if (h.target && h.target.startsWith('tower:')) r = pick(`.tower-btn[data-tower="${h.target.slice(6)}"]`);
+      else if (h.target === 'start') r = pick('#start-wave-btn');
+      else if (h.target === 'forge') r = pick('#forge-answers');
+      else if (h.target === 'upgrade') r = pick('#tower-info [data-action="upgrade"]');
+      else if (state.hintArrowAt) {
+        const a = state.hintArrowAt;
+        const q = Grid.placementCellToWorld(a.cellX, a.cellY);
+        const f = Renderer._worldToFrame(q.centerX, q.centerY, a.height);
+        const c = Renderer.canvas.getBoundingClientRect();
+        if (f) r = { left: f.x + c.left, right: f.x + c.left, top: f.y + c.top, bottom: f.y + c.top, width: 0, height: 0 };
+      }
+    }
+    if (!r || (r.width === 0 && r.height === 0 && !state.hintArrowAt)) { el.classList.remove('on'); return; }
+    const ui = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
+    // Targets on the right side of the screen (the side panel) get the arrow from the left.
+    const side = r.left > window.innerWidth * 0.55;
+    el.classList.add('on');
+    el.classList.toggle('right', side);
+    el.style.setProperty('--s', ui);
+    if (side) { el.style.left = `${r.left - 6}px`; el.style.top = `${r.top + r.height / 2}px`; }
+    else { el.style.left = `${r.left + r.width / 2}px`; el.style.top = `${r.top - 4}px`; }
   },
 
   // New tower card (state.intro): picture, name, what it does, its stat bars.
@@ -470,6 +510,7 @@ export const UI = {
     this._renderEndScreens(state);
     this.els.quitOv.classList.toggle('hidden', !this._quitOpen);
     this._renderIntro(state);
+    this._renderArrow(state);
 
     this._renderForge(state);
     this._renderTowerInfo(state);
@@ -646,15 +687,22 @@ export const UI = {
   _renderForge(state) {
     const f = state.forge;
     const panel = this.els.forgePanel;
-    if (!Forge.active(state)) {
+    const inLevel = state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE';
+    if (!inLevel) {
       panel.classList.add('hidden');
       this._forgeSig = null;
       this._forgeHeadSig = null;
       return;
     }
-    if (panel.classList.contains('hidden')) {
-      // Slides in (first time in level 1, or a new run).
-      panel.classList.remove('hidden', 'reveal'); void panel.offsetWidth; panel.classList.add('reveal');
+    // Training: the card waits invisible but keeps its space, so the map does not
+    // change size when it arrives (owner, 2026-11-27).
+    const invisible = !!f.hidden;
+    const appear = panel.classList.contains('hidden') || (this._forgeInvisible && !invisible);
+    this._forgeInvisible = invisible;
+    panel.classList.toggle('invisible', invisible);
+    panel.classList.remove('hidden');
+    if (appear && !invisible) {
+      panel.classList.remove('reveal'); void panel.offsetWidth; panel.classList.add('reveal');
     }
 
     // Head: questions left this wave, what the next right answer pays, the streak.
