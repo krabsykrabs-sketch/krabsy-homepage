@@ -5,7 +5,7 @@ Targets and reasoning: `docs/outreach-schools-2026-11-22.md`. Send from
 Before sending, open the school's page once to check it still looks the same.
 **Signatures (2026-11-27):** the mailbox adds the name, so the email texts
 below end with the greeting only (exception: #7 is a web form, it keeps the
-name line). Plain text, no images, no email address in the text. Set one per
+name line). Plain text, no images, no email address in the text; wording is language-agnostic (no "Englisch"), so it stays true when more taught languages come. Set one per
 sender in Private Email (Settings → Signatures), and delete Namecheap's default
 signature (its ad link counted as a broken link on mail-tester):
 
@@ -13,14 +13,14 @@ signature (its ad link counted as a broken link on mail-tester):
   ```
   Jan Ahrens
   Entwickler von Krabsy
-  Englisch-Grammatik üben mit Spielen: kostenlos, ohne Anmeldung, ohne Werbung
+  Grammatik üben mit Spielen: kostenlos, ohne Anmeldung, ohne Werbung
   https://krabsy.com/de/
   ```
 - hola@krabsy.com (ES):
   ```
   Jan Ahrens
   Creador de Krabsy
-  Gramática inglesa con juegos: gratis, sin registro, sin publicidad
+  Gramática con juegos: gratis, sin registro, sin publicidad
   https://krabsy.com/es/
   ```
 - hello@krabsy.com (EN):

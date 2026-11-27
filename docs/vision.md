@@ -126,9 +126,10 @@ English".
 - **`/de/` when German speakers get a second subject (proposal 2026-11-27,
   not decided):** `/de/` stays the English home (it holds the traffic and the
   promoted links; its banner says "Englisch-Grammatik"), and Spanish lives at
-  `/de/spanisch/` with its own home. The two are connected by a subject switch
-  in the nav/banner ("Englisch | Spanisch"), not by mixing Spanish topics into
-  the English pages. Anything that says "Englisch" today (banner, signatures,
+  `/de/spanisch/` with its own home. The two are connected by **one button at
+  the top right of the header that switches the learning language** (owner
+  2026-11-27), next to the interface-language switch; Spanish topics are not
+  mixed into the English pages. Anything that says "Englisch" today (banner, signatures,
   outreach texts) stays true; only subject-neutral places (teacher page,
   footer, mailbox signature) get "Englisch und Spanisch" when it goes live.
 - **Other subjects (not planned, possible in theory):** the segment is
