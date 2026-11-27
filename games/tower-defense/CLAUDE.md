@@ -931,4 +931,16 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
   - Found on the way (site data, reported to the master): `have` has the
     wrong answer "haved" twice in the irregular-verbs list.
 
+- 2026-11-27 — **Catapult and cannon aim ahead** (owner: the catapult
+  mostly misses, the skeletons are too fast). Cause: the shot aimed at the
+  enemy's position at fire time; a boulder flies up to ~0.7 s (speed 9,
+  range 6) while the splash is only 0.7. Now `tower._fireCannon` aims where
+  the target will be on landing (`Enemy.predictPosition(t)`: waits out
+  freeze / stun, then follows its road at its current speed; 3 refinements
+  of the flight time). Measured hit rate (an enemy inside the splash on
+  landing): catapult 41–57 % → 72–100 % with other towers around, 90–100 %
+  with catapults alone (the rest: target already killed in flight); cannon
+  100 % before and after. Mix bot a little stronger on levels 3 and 6 at
+  70 %; 0 % answers still loses every level.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.
