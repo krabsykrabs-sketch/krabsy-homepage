@@ -612,6 +612,12 @@ flashcards and Air Control ask no single form. **Deployed 2026-11-21**: Sprint l
 
 ## Next steps / open items
 
+- **Optional teacher sign-in "Klasse sichern" (decided 2026-11-27, not built):**
+  no account for links/Quiz Room/material; classes work without an account,
+  with an optional passwordless email sign-in (reuse tutor sign-in) to keep
+  classes across devices and recover lost links. Decision + reasons:
+  `docs/classroom-concept.md` "Decision: teacher accounts".
+
 ### Parked 2026-11-25: staged rollout for new games (owner: "not needed now")
 
 Idea for when there is a real player base, so a weak game doesn't reach everyone at once (like einmaleins.de testing in a small country, but with one domain):

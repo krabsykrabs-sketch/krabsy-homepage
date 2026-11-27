@@ -237,6 +237,39 @@ device and the server always agree.
    ES, Uruguay)?
 6. Who does the legal review (privacy policy, AVV template)?
 
+## Decision: teacher accounts (owner, 2026-11-27)
+
+**Rule: no account for anything that stores no children's data; an
+optional sign-in for classes, which do.**
+
+| Teacher feature | Account |
+|---|---|
+| Practice links, Quiz Room, worksheets, lesson ideas | never (nothing about the children is stored) |
+| Create a class | optional: works at once without an account; right after creating, offer "Klasse sichern" with an email link (no password, the tutor sign-in in `api/tutor_auth.py`) so the teacher finds all classes on any device |
+| Paid teacher tools (if ever) | required |
+
+**Why no required account:** teachers are the main channel and a sign-up
+form loses the teacher who "just wants to try it" in a free period; without
+an account Krabsy stores nothing about the teacher, which helps with school
+data-protection officers; "ohne Konto, ohne E-Mail" is promised in the
+outreach texts and is a selling point against comparable sites.
+
+**Why not account-free forever:** the secret dashboard link is the weakest
+point for children's data (whoever has it sees first names and results;
+lost link = lost class, no recovery; a forwarded link exposes the class);
+several devices and classes are awkward without an account; Krabsy can't
+reach or learn from its teachers; the passwordless email sign-in already
+exists for tutors.
+
+**Revisit when:** teachers report lost class links; a school asks for a
+data-processing agreement (AVV, needs a contracting party); paid teacher
+tools are introduced.
+
+**Next feature:** optional teacher sign-in ("Klasse sichern") on the class
+pages DE/ES/EN, reusing the tutor email sign-in; existing classes can be
+attached to the account via their secret link. The "ohne Konto" promises
+stay true.
+
 ## Phase 2 as built (2026-11-22)
 
 Owner decisions 2026-11-22: server is in the EU (Hetzner DE) · teachers get a
