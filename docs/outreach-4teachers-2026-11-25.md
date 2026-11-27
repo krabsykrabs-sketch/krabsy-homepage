@@ -124,3 +124,4 @@ form asks. Keep the tone factual, no superlatives.
 | Step | Date | Notes |
 |---|---|---|
 | Editor reply received | 2026-11-25 | positive, invited link + worksheet |
+| **On hold** | 2026-11-27 | owner waits until the teacher-page tabs and the i18n foundation (docs/i18n-scaling.md N1–N6) are done and deployed; then reply to liko + links (texts above) |
