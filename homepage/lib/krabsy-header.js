@@ -401,7 +401,17 @@ export function mountHeader() {
   header.querySelectorAll(':scope > .k-topic-nav').forEach((n) => n.remove());
   header.querySelectorAll('.hd-teach').forEach((n) => n.remove());
 
-  const logo = header.querySelector(':scope > a.logo, :scope > a.k-logo');
+  // The logo always comes first. An old skeleton that wraps it in a div (the
+  // flashcard pages until 2026-11-27) would otherwise get the nav before it.
+  let logo = header.querySelector(':scope > a.logo, :scope > a.k-logo');
+  if (!logo) {
+    logo = header.querySelector('a.logo, a.k-logo');
+    if (logo) {
+      const wrap = logo.parentElement;
+      header.insertBefore(logo, header.firstChild);
+      if (wrap && wrap !== header && !wrap.children.length && !wrap.textContent.trim()) wrap.remove();
+    }
+  }
   let nav = header.querySelector(':scope > .k-mainnav');
   if (!nav) {
     nav = buildNav(section, lang);

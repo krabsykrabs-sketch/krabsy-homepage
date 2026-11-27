@@ -58,6 +58,10 @@
 
 html { scroll-behavior: smooth; }
 
+/* Form controls take the page font (they fall back to the UA font, often Arial,
+   otherwise). Size and weight stay with each component's own rules. */
+button, input, select, textarea { font-family: inherit; }
+
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -954,6 +958,24 @@ body.k-is-playing .k-intro-card { display: none; }
   opacity: 0.5;
   font-size: 0.78rem;
   margin: 0 4px;
+}
+
+/* Touch screens: footer links get a 44 px tap height (site review L10). */
+@media (pointer: coarse) {
+  .k-footer-col ul { gap: 0; }
+  .k-footer-col a,
+  .k-footer-legal-link { display: inline-block; padding: 13px 4px; }
+}
+
+/* Topic hub hero on phones: show the whole picture (the word tags at the top
+   were cut in half by the bottom-anchored crop). Overrides the page styles. */
+@media (max-width: 559px) {
+  .hero-banner > img.hero-banner-bg {
+    height: auto;
+    max-height: 220px;
+    object-fit: contain;
+    object-position: center bottom;
+  }
 }
 
 /* ── Feedback flash (full-screen overlay on correct/wrong) ──────────────── */
