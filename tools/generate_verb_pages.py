@@ -25,7 +25,7 @@ import json, re, hashlib, html, pathlib, sys, difflib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HP = ROOT / "homepage"
 LASTMOD = "2026-11-12"
-CSSV = "2026-05-24"
+CSSV = "2026-11-27h"   # krabsy-ui.css, -footer, -header, -lang-switch (site-wide bump 2026-11-27)
 
 DE_TOPIC = "unregelmaessige-verben"
 ES_TOPIC = "verbos-irregulares"
@@ -540,7 +540,7 @@ def chrome_close():
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v={CSSV}" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v={CSSV}" defer></script>
+  <script type="module" src="/lib/krabsy-header.js?v={CSSV}"></script>
   <script src="/lib/krabsy-lang-switch.js?v={CSSV}" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

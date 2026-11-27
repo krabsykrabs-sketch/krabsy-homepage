@@ -161,7 +161,7 @@
 @media (max-width: 860px) and (min-height: 600px) {
   .mf-stage { position: sticky; top: var(--mf-hdr); z-index: 5; }
   .mf-tabs { position: sticky; top: calc(var(--mf-hdr) + var(--mf-stage-h)); z-index: 5; }
-  .mf-foot { position: sticky; bottom: 0; z-index: 5; }
+  .mf-foot { position: sticky; bottom: var(--k-tabbar-h, 0px); z-index: 5; }   /* above the phone tab bar (krabsy-ui.css) */
   /* Keyboard focus must not land under the sticky figure or the sticky buttons. */
   .mf-tile, .mf-sw { scroll-margin: calc(var(--mf-hdr) + var(--mf-stage-h) + 76px) 0 96px; }
 }

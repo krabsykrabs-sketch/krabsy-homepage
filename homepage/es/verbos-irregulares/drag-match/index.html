@@ -74,7 +74,7 @@
   }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27h">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Drag Match wrapper layout ────────────────────────────────────────
@@ -231,12 +231,16 @@
       function fit() {
         if (getComputedStyle(f).display === 'none') { f.style.height = ''; return; }
         var top = f.getBoundingClientRect().top + window.scrollY;
-        var h = Math.round(window.innerHeight - top - 12);
+        /* Phones: leave room for the bottom tab bar (lib/krabsy-header.js). */
+        var bar = document.querySelector('.k-mainnav'), tb = 0;
+        if (bar && getComputedStyle(bar).position === 'fixed' && bar.getClientRects().length) tb = bar.getBoundingClientRect().height;
+        var h = Math.round(window.innerHeight - top - tb - 12);
         f.style.height = Math.max(440, Math.min(700, h)) + 'px';
       }
       fit();
       window.addEventListener('resize', fit);
       window.addEventListener('load', fit);
+      window.addEventListener('krabsy:header', fit);
       /* The drill chip-bar is injected above the game after load. */
       var page = document.querySelector('.k-page');
       if (page && window.MutationObserver) new MutationObserver(fit).observe(page, { childList: true });
@@ -254,10 +258,10 @@
     import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-27n';
     initDrillPage('drag_match');
   </script>
-  <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27h"></script>
   <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
-  <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

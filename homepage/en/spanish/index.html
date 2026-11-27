@@ -20,9 +20,9 @@
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="en_GB">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27h">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27c">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27h">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <style>
     /* Spanish landing: four topic cards in two equal columns (the /de/ grid has 2 cards + quick links) */
@@ -44,26 +44,14 @@
 
   <div class="k-page">
 
-    <!-- ── Header (same as /de/: static nav, games first) ───────────── -->
+    <!-- ── Header: main menu, shells and teacher link come from lib/krabsy-header.js. -->
     <header class="k-page-header">
       <a href="/en/spanish/" class="logo" aria-label="Krabsy">
         <span>kr</span>
         <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
-      <nav class="k-topic-nav" aria-label="Topics and games">
-        <a class="k-nav-chip" href="/en/spanish/games/">Games</a>
-        <span class="k-topic-nav-sep" aria-hidden="true">·</span>
-        <a class="k-nav-chip" href="/en/spanish/ser/">Yo soy (ser)</a>
-        <a class="k-nav-chip" href="/en/spanish/estar/">Estoy (estar)</a>
-        <a class="k-nav-chip" href="/en/spanish/ser-or-estar/">Ser or estar?</a>
-        <a class="k-nav-chip" href="/en/spanish/tener/">Tengo (tener)</a>
-      </nav>
       <div class="hd-right">
-        <a class="hd-teach" href="/en/spanish/teachers/">
-          <svg aria-hidden="true"><use href="#i-teach"/></svg>
-          <span class="hd-teach-long">For teachers</span><span class="hd-teach-short">Teachers</span>
-        </a>
       </div>
     </header>
 
@@ -216,7 +204,8 @@
 
   <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27p"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
-  <script src="/lib/krabsy-footer.js?v=2026-11-24" defer></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27h"></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

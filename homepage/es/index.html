@@ -42,9 +42,9 @@
   </script>
   <!-- /SEO-BLOCK -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-26f">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27h">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27c">
+  <link rel="stylesheet" href="/lib/krabsy-landing.css?v=2026-11-27h">
   <link rel="stylesheet" href="/lib/krabsy-practice.css?v=2026-11-27">
   <!-- three.js is loaded only for the live figure, after the page is up (lib/krabsy-landing.js) -->
   <script type="importmap">{ "imports": { "three": "/lib/vendor/three/three.module.min.js", "three/addons/": "/lib/vendor/three/addons/" } }</script>
@@ -63,25 +63,14 @@
   <div class="k-page">
 
     <!-- ── Header ─────────────────────────────────────────────────────
-         Static nav (Spiele first on the landing page); krabsy-topic-nav.js
-         is not loaded here. -->
+         Main menu, shells and teacher link come from lib/krabsy-header.js. -->
     <header class="k-page-header">
       <a href="/es/" class="logo" aria-label="Krabsy">
         <span>kr</span>
         <span class="logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span>
         <span>bsy</span>
       </a>
-      <nav class="k-topic-nav" aria-label="Temas y juegos">
-        <a class="k-nav-chip" href="/es/juegos/">Juegos</a>
-        <span class="k-topic-nav-sep" aria-hidden="true">·</span>
-        <a class="k-nav-chip" href="/es/verbos-irregulares/">Verbos</a>
-        <a class="k-nav-chip" href="/es/preposiciones/">Preposiciones</a>
-      </nav>
       <div class="hd-right">
-        <a class="hd-teach" href="/es/docentes/">
-          <svg aria-hidden="true"><use href="#i-teach"/></svg>
-          <span class="hd-teach-long">Para docentes</span><span class="hd-teach-short">Docentes</span>
-        </a>
         <div class="k-lang-toggle" role="group" aria-label="Elegir idioma">
           <a class="k-lang-btn" href="/de/" data-lang="de" lang="de" aria-label="Deutsch">DE</a>
           <a class="k-lang-btn is-active" href="/es/" data-lang="es" lang="es" aria-label="Español" aria-current="true">ES</a>
@@ -249,8 +238,9 @@
 
   <script type="module" src="/lib/krabsy-landing.js?v=2026-11-27p"></script>
   <script type="module" src="/lib/krabsy-practice-week.js?v=2026-11-27l"></script>
-  <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27h"></script>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-lang-switch.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

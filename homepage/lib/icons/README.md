@@ -17,6 +17,12 @@ no alt text). Bump `?v=` where they are used when you change the sprite.
 | `ki-teacher` | graduation cap | teacher links |
 | `ki-class` | two pupils | class code, class badge |
 | `ki-quiz` | speech bubble with ? | Quiz Room |
+| `ki-topics` | four tiles | Themen / topics page (main menu) |
+| `ki-profile` | a child (head + shoulders) | Profil (main menu) |
+
+The main menu (`lib/krabsy-header.js`) and the topics page
+(`tools/render_topics_page.py`) inline copies of `ki-play`, `ki-practise`,
+`ki-topics`, `ki-profile`, `ki-teacher` (no extra request); change them there too.
 
 ## Style rules (keep every new icon to them)
 

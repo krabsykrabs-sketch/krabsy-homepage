@@ -38,7 +38,7 @@ body.tc-page {
 }
 .logo-crab img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .tc-page .k-lang-btn.is-active { background: var(--krabsy-ink); color: #fff; }
-.tc-page .k-topic-nav .k-nav-chip { color: var(--krabsy-ink); }
+
 
 /* ── Building blocks ──────────────────────────────────────────────── */
 .tc-wrap { max-width: var(--tc-wrap); margin: 0 auto; width: 100%; padding: 0 16px; }

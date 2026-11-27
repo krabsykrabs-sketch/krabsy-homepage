@@ -104,7 +104,7 @@ def check_sections(reg, topics):
             continue
         if s.get("subject") not in subjects:
             err(w, f"subject {s.get('subject')!r} not in subjects")
-        for k in ("home", "games", "teachers", "practice"):
+        for k in ("home", "games", "teachers", "practice", "topics"):
             url = s.get(k)
             if not url:
                 err(w, f"{k} missing")

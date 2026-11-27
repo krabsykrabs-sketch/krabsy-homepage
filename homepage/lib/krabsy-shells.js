@@ -143,7 +143,8 @@ export function onShellsChange(fn) {
 }
 
 /* ── Header counter "🐚 240" ─────────────────────────────────────────────
-   Mounted into the site header (header.k-page-header, by krabsy-footer.js)
+   Mounted into the site header (header.k-page-header, by krabsy-header.js and
+   krabsy-footer.js)
    and the game header (.k-game-nav, by krabsy-nav.js). Links to the profile
    page "Mein Profil". Shows the shells collected so far (lifetime; nothing is
    spent any more). Hidden until the first shell was ever earned, so first-time
@@ -179,14 +180,7 @@ function injectCounterStyles() {
     @keyframes k-shells-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
     @media (prefers-reduced-motion: reduce) { .k-shells.is-pop { animation: none; } }
     .k-game-nav .k-shells { min-height: 28px; padding: 0 10px; margin: 0; font-size: 0.78rem; }
-    @media (max-width: 559px) { .k-page-header .k-shells { min-height: 36px; } }
-    /* Landing pages on phones (logo + teacher link + language toggle fill the first
-       row): the counter sits at the end of the chip row instead of adding a third row. */
-    @media (max-width: 559px) {
-      .k-page-header:has(> .hd-right .k-lang-btn) > .k-shells { position: absolute; right: 14px; bottom: 10px; margin: 0; padding: 0 8px; gap: 3px; font-size: 0.78rem; }
-      .k-page-header:has(> .hd-right .k-lang-btn):has(> .k-shells:not([hidden])) > .k-topic-nav { padding-right: 70px; gap: 0; }
-      .k-page-header:has(> .hd-right .k-lang-btn):has(> .k-shells:not([hidden])) > .k-topic-nav .k-nav-chip { padding: 0 7px; }
-    }
+    /* Site header placement: krabsy-ui.css "Site header" (.k-hd > .k-shells). */
   `;
   document.head.appendChild(st);
 }

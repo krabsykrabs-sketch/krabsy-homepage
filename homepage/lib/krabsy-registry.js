@@ -56,6 +56,7 @@ export const SECTIONS = [
     "games": "/de/spiele/",
     "teachers": "/de/lehrkraefte/",
     "practice": "/de/ueben/",
+    "topics": "/de/themen/",
     "starter": "irregular_verbs"
   },
   {
@@ -66,6 +67,7 @@ export const SECTIONS = [
     "games": "/es/juegos/",
     "teachers": "/es/docentes/",
     "practice": "/es/practicar/",
+    "topics": "/es/temas/",
     "starter": "irregular_verbs"
   },
   {
@@ -76,6 +78,7 @@ export const SECTIONS = [
     "games": "/en/spanish/games/",
     "teachers": "/en/spanish/teachers/",
     "practice": "/en/spanish/practise/",
+    "topics": "/en/spanish/topics/",
     "starter": "es_ser"
   }
 ];

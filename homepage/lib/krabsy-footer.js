@@ -76,6 +76,7 @@
       spiele: 'Spiele',
       ueber: 'Über',
       alle_spiele: 'Alle Spiele',
+      alle_themen: 'Alle Themen',
       bald: 'bald',
       kontakt: null  /* no Kontakt page yet; omit from grid */
     },
@@ -84,6 +85,7 @@
       spiele: 'Juegos',
       ueber: 'Sobre Krabsy',
       alle_spiele: 'Todos los juegos',
+      alle_themen: 'Todos los temas',
       bald: 'pronto',
       kontakt: null
     },
@@ -92,6 +94,7 @@
       spiele: 'Games',
       ueber: 'About',
       alle_spiele: 'All games',
+      alle_themen: 'All topics',
       bald: 'soon',
       kontakt: null
     }
@@ -99,6 +102,9 @@
 
   /* Teacher-page label per interface language; the link is the section's
      teachers page (sections.json). */
+  /* Fallback for a cached krabsy-registry.js without sections[].topics. */
+  var TOPICS_PAGE = { de: '/de/themen/', es: '/es/temas/', 'en/spanish': '/en/spanish/topics/' };
+
   var TEACHER_LABEL = { de: 'Für Lehrkräfte', es: 'Para docentes', en: 'For teachers' };
 
   function fetchJSON(url) {
@@ -153,6 +159,9 @@
         disabled: disabled
       });
     });
+    // Topics page "Themen" (2026-11-27); section.topics from sections.json.
+    var all = section.topics || TOPICS_PAGE[section.id];
+    if (all) out.push({ label: s.alle_themen + ' →', href: all });
     return out;
   }
 

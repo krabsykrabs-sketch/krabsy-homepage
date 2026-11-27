@@ -67,6 +67,9 @@
     // Practice session "Jetzt üben" (2026-11-27)
     '/de/ueben/':                      '/es/practicar/',
     '/es/practicar/':                  '/de/ueben/',
+    // Topics page "Themen" (2026-11-27)
+    '/de/themen/':                     '/es/temas/',
+    '/es/temas/':                      '/de/themen/',
   };
 
   /* Cache topics.json so each click doesn't re-fetch. Resolved to a
@@ -187,6 +190,9 @@
 
   // Kick off the topics-load eagerly so the first click feels instant.
   loadTopicsLookup();
+
+  // The site header (krabsy-header.js) may build the buttons after this ran.
+  window.krabsyLangSwitch = { wire: wire };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', wire);

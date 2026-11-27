@@ -46,4 +46,17 @@
     <path d="M9.8 9.2a2.3 2.3 0 1 1 3.1 2.1c-.6.3-.9.7-.9 1.3v.3"/>
     <circle fill="#2c2a3a" stroke="none" cx="12" cy="15.4" r="1.1"/>
   </symbol>
+  <!-- topics: four tiles -->
+  <symbol id="ki-topics" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect fill="#2ee6c0" x="3.5" y="3.5" width="7" height="7" rx="2"/>
+    <rect fill="#ffcf5e" x="13.5" y="3.5" width="7" height="7" rx="2"/>
+    <rect fill="#ffcf5e" x="3.5" y="13.5" width="7" height="7" rx="2"/>
+    <rect fill="#2ee6c0" x="13.5" y="13.5" width="7" height="7" rx="2"/>
+  </symbol>
+
+  <!-- profile: a child -->
+  <symbol id="ki-profile" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle fill="#ffcf5e" cx="12" cy="8.2" r="4"/>
+    <path fill="#ff8585" d="M4.5 20.5a7.5 7.5 0 0 1 15 0z"/>
+  </symbol>
 </svg>

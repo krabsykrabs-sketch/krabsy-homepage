@@ -89,7 +89,7 @@ function styles() {
     .k-gift-go:hover { background: #ffc233; color: #3a2600; }
     .k-gift :focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
     @media (max-width: 559px) {
-      .k-gift { left: 10px; right: 10px; bottom: 10px; width: auto; max-width: none; }
+      .k-gift { left: 10px; right: 10px; bottom: calc(10px + var(--k-tabbar-h, 0px)); width: auto; max-width: none; }
     }
     @media (prefers-reduced-motion: reduce) { .k-gift { animation: none; } }
   `;
