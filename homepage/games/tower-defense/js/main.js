@@ -24,9 +24,15 @@ import { Track } from './analytics.js';
 
 // Level catalogue — resolved in init() once the level scripts have run.
 export let LEVELS = [];
+// The guided training level sits before level 1 as index -1, so the real levels keep
+// their numbers (stars, records and analytics stay as they were).
+export let TRAINING = null;
+export const TRAINING_INDEX = -1;
+export function levelAt(i) { return i === TRAINING_INDEX ? TRAINING : LEVELS[i]; }
 export let currentLevelIndex = 0;
 
 function highscoreKey(levelIndex) {
+  if (levelIndex === TRAINING_INDEX) return 'td3d_highscore_training';
   return `td3d_highscore_level_${levelIndex}`;
 }
 
@@ -88,6 +94,7 @@ async function init() {
   applyStatic();
   Sound.init();
 
+  TRAINING = window.LEVEL_TRAINING || null;
   LEVELS = [window.LEVEL1, window.LEVEL2, window.LEVEL3, window.LEVEL4, window.LEVEL5, window.LEVEL6].filter(Boolean);
   if (LEVELS.length === 0) {
     console.error('Level data missing — make sure levels/*.js are loaded.');
@@ -149,8 +156,8 @@ function clearRun() {
   state.selectedTower = null;
   state.wave = null;
   state.waveCompleteTimer = 0;
-  // Level 1 the first time: the question card comes in when the money runs out.
-  state.forge = Forge.newState(currentLevelIndex === 0 && !Tutorial.isDone());
+  // Training: the question card comes in after the first wave.
+  state.forge = Forge.newState(currentLevelIndex === TRAINING_INDEX);
   state.stats = { asked: 0, right: 0 };
   state.timeScale = 1;
   state.buildCell = null;
@@ -165,9 +172,9 @@ function clearRun() {
 }
 
 export function startGame(levelIndex) {
-  if (typeof levelIndex === 'number' && LEVELS[levelIndex]) {
+  if (typeof levelIndex === 'number' && levelAt(levelIndex)) {
     currentLevelIndex = levelIndex;
-    Level.load(LEVELS[levelIndex]);
+    Level.load(levelAt(levelIndex));
     Grid.init(Level.current);
     Renderer.setLevel();
     UI.onLevelChanged();
@@ -213,6 +220,7 @@ function saveHighscore() {
 // 2 = at least half left, 1 = won. One star on a level unlocks the next one.
 
 function starsKey(levelIndex) {
+  if (levelIndex === TRAINING_INDEX) return 'td3d_stars_training';
   return `td3d_stars_level_${levelIndex}`;
 }
 
@@ -234,8 +242,12 @@ const UNLOCK_ALL = (() => {
   catch { return false; }
 })();
 
+// Training is always open. Level 1 opens after the training — or at once for players
+// who finished the old level-1 tutorial or already have stars there.
 export function isUnlocked(levelIndex) {
-  return UNLOCK_ALL || levelIndex === 0 || getStars(levelIndex - 1) > 0;
+  if (UNLOCK_ALL || levelIndex === TRAINING_INDEX) return true;
+  if (levelIndex === 0) return getStars(TRAINING_INDEX) > 0 || Tutorial.isDone() || getStars(0) > 0;
+  return getStars(levelIndex - 1) > 0;
 }
 
 // Archer first (owner, 2026-11-27): the other towers are weak openers, so they stay
@@ -252,6 +264,7 @@ export function hasNextLevel() {
 
 export function upgradeTower(tower) {
   if (!tower) return;
+  if (state.gate && !state.gate.upgrade) return; // training: not yet
   const up = tower.nextUpgrade();
   if (!up) return;
   if (state.coins < up.cost) { Forge.noCoins(state, tower.type); return; }
@@ -265,6 +278,7 @@ export function upgradeTower(tower) {
 
 export function sellTower(tower) {
   if (!tower) return;
+  if (state.gate) return; // no selling in the training
   const refund = tower.sellValue();
   state.coins += refund;
   Track.sold(state, tower, refund);
@@ -285,7 +299,7 @@ function update(dt, realDt = dt) {
   if (state.phase === 'BUILD' || state.phase === 'BATTLE' || state.phase === 'WAVE_COMPLETE') Track.tick(realDt);
   state.timeScale = state.phase === 'BATTLE' ? state.speed : 1;
   dt *= state.timeScale;
-  Tutorial.update(state, currentLevelIndex);
+  Tutorial.update(state);
 
   if (state.phase === 'MENU') {
     UI.update(state);

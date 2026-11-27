@@ -55,6 +55,21 @@ export const Input = {
   // A tap / click on the board: select a tower, choose a hex, or build.
   _tap(clientX, clientY) {
     if (!this._gameAcceptsInput()) return;
+    const gate = state.gate;
+    if (gate) {
+      // Training: only the tower and the hexes the coach points at react.
+      const tower = Renderer.pickTower(clientX, clientY);
+      if (tower) { if (tower === gate.tower) { state.selectedTower = tower; state.buildCell = null; } return; }
+      const w = this._screenToWorld(clientX, clientY);
+      if (!w) return;
+      const { cellX, cellY } = Grid.worldToPlacementCell(w.x, w.y);
+      if (gate.tower && gate.tower.cellX === cellX && gate.tower.cellY === cellY) {
+        state.selectedTower = gate.tower; state.buildCell = null; return;
+      }
+      if (!gate.cells.some((c) => c.cellX === cellX && c.cellY === cellY)) return;
+      this._handleClick(w);
+      return;
+    }
     if (this._selectTowerAt(clientX, clientY)) return;
     const w = this._screenToWorld(clientX, clientY);
     if (!w) return;
@@ -218,7 +233,7 @@ export const Input = {
       return;
     }
 
-    if (e.key === 'Escape') { this.cancelPlacement(); state.selectedTower = null; state.buildCell = null; return; }
+    if (e.key === 'Escape') { if (state.gate) return; this.cancelPlacement(); state.selectedTower = null; state.buildCell = null; return; }
 
     if (e.key === ' ') {
       if (state.phase === 'BUILD') { Wave.startNext(state); e.preventDefault(); }
@@ -227,7 +242,7 @@ export const Input = {
 
     if (!this._gameAcceptsInput()) return;
 
-    if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedTower) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedTower && !state.gate) {
       sellTower(state.selectedTower);
       e.preventDefault();
       return;
@@ -249,7 +264,7 @@ export const Input = {
   toggleTowerPlacement(type) {
     if (!CONFIG.TOWERS[type]) return;
     if (!this._gameAcceptsInput()) return;
-    if (isTowerLocked(type)) { Sound.play('nope'); return; }
+    if (isTowerLocked(type) || (state.gate && !state.gate.cards.includes(type))) { Sound.play('nope'); return; }
     // A building spot is already chosen: build there straight away.
     if (state.buildCell) {
       if (!this._place(type, state.buildCell.cellX, state.buildCell.cellY)) {

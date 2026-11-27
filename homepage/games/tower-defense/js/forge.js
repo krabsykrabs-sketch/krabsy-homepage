@@ -21,8 +21,7 @@ import { Track } from './analytics.js';
 // one, right or wrong. That keeps the untimed build phase from being an endless coin
 // farm and makes accuracy matter.
 //
-// Level 1, first time (tutorial): the card starts hidden and slides in the first time
-// the player cannot afford something, or after wave 1 at the latest (reveal()).
+// Training level: the card starts hidden and slides in after wave 1 (reveal()).
 //
 // state.forge = { ore, q, stage: 'ask'|'right'|'wrong'|'empty', picked, timer, lock,
 //                 streak, lastGain, hidden }
@@ -31,9 +30,13 @@ import { Track } from './analytics.js';
 export const Forge = {
   newState(hidden = false) {
     return {
-      ore: CONFIG.forge.orePerWave, q: null, stage: 'empty', picked: -1,
+      ore: this._orePerWave(), q: null, stage: 'empty', picked: -1,
       timer: 0, lock: 0, streak: 0, lastGain: 0, hidden,
     };
+  },
+
+  _orePerWave() {
+    return (Level.current && Level.current.orePerWave) || CONFIG.forge.orePerWave;
   },
 
   reveal(state) {
@@ -51,7 +54,7 @@ export const Forge = {
   // New wave cycle: fresh ore, and a question if the card was empty.
   refill(state) {
     const f = state.forge;
-    f.ore = CONFIG.forge.orePerWave;
+    f.ore = this._orePerWave();
     this.reveal(state);
     if (f.stage === 'empty') this._ask(state);
   },
@@ -79,6 +82,7 @@ export const Forge = {
   answer(state, index) {
     const f = state.forge;
     if (!this.active(state) || f.stage !== 'ask' || !f.q) return;
+    if (state.gate && !state.gate.answers) return; // training: not yet
     if (index < 0 || index >= f.q.options.length) return;
     f.picked = index;
     f.ore -= 1;
