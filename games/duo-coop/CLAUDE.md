@@ -1,8 +1,8 @@
-# Krabsy Duo (working title): co-op puzzle platformer, phase D1
+# Krabsy Duo: co-op puzzle platformer, phase D1
 
 The first **duo game** (`docs/duo-games.md`): two players on one device, a side
 view, two roles that need each other, and **every interaction is a question**.
-The owner has not chosen a name yet ("Krabsy Duo" is shown as a working title).
+Name: **Krabsy Duo** (owner, 2026-11-27). The folder stays `games/duo-coop`.
 
 Read first: `docs/duo-games.md` (the brief, phases D1–D4), `docs/game-contract.md`
 (any topic through `getQuizSet`, the player's figure, hero choice).
@@ -26,7 +26,7 @@ soon").
 
 Before the release (master session does the site side):
 
-1. **A name** (owner; still "Krabsy Duo, working title" on the title screen).
+1. ~~A name~~ **Krabsy Duo** (owner 2026-11-27; "working title" tag removed).
 2. **"2 players" everywhere:** game card, wrapper page, `games.json`. In the game: done
    (badge "👥 2 Spieler / 2 jugadores / 2 players" + "Play with a sibling or a friend: you
    share one keyboard or one tablet." on the title screen).
@@ -336,10 +336,11 @@ measure it.
   screen: "2 players" badge + "play with a sibling or a friend" line. Spanish texts now use
   ustedes, not vosotros (Uruguay / Argentina): Busquen, Suban, ¡Lo lograron! Lift on four
   link chains.
+- 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)
 
-1. **Name** of the game (brief, open decision 2).
+1. ~~Name~~ Krabsy Duo (decided 2026-11-27).
 2. **Play it with a second person**: is it fun, do the rooms explain themselves
    (the goal line at the start of each room), how many answers in how many minutes?
 3. Room 1 is the easiest; for 3–5 minute levels each room may need one more idea.

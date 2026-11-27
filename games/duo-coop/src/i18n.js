@@ -10,7 +10,6 @@ const LANGS = ['de', 'es', 'en'];
 
 const EN = {
   title: 'Krabsy Duo',
-  workTitle: 'working title',
   tagline: 'Two players, one way out. Every lever asks a question.',
   twoPlayers: '2 players',
   findPartner: 'Play with a sibling or a friend: you share one keyboard or one tablet.',
@@ -89,7 +88,6 @@ const EN = {
 
 const DE = {
   title: 'Krabsy Duo',
-  workTitle: 'Arbeitstitel',
   tagline: 'Zwei Spieler, ein Ausgang. Jeder Hebel stellt eine Frage.',
   twoPlayers: '2 Spieler',
   findPartner: 'Spiel mit Geschwistern oder Freunden: ihr teilt euch eine Tastatur oder ein Tablet.',
@@ -168,7 +166,6 @@ const DE = {
 
 const ES = {
   title: 'Krabsy Duo',
-  workTitle: 'título provisional',
   tagline: 'Dos jugadores, una salida. Cada palanca hace una pregunta.',
   twoPlayers: '2 jugadores',
   findPartner: 'Juega con tu hermano, tu hermana o un amigo: comparten un teclado o una tablet.',

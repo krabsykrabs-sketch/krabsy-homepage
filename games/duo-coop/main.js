@@ -1,4 +1,4 @@
-// Krabsy Duo (working title): shell around the game. States boot → menu → loading →
+// Krabsy Duo: shell around the game. States boot → menu → loading →
 // playing ⇄ paused → results, mirrored on <body data-state>; window.__duo for tests.
 import { t, lang, setLang, applyStatic, topicLine } from './src/i18n.js';
 import { createInput, isTouchDevice } from './src/input.js';
