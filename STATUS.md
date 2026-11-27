@@ -2,6 +2,10 @@
 
 
 
+## i18n foundation N1–N6 (2026-11-27), not deployed
+
+Sections as data (`data/sections.json`, `lib/krabsy-lang.js`, `tools/krabsy_registry.py` → `lib/krabsy-registry.js` + `api/catalog.json`), one `currentLang()`, engine keeps language maps, taught language from the registry, API from one catalogue, validator `tools/check_catalogues.py`. Deploy site + API together. Details, leftovers and cache notes: `docs/i18n-scaling.md` (N1–N6 rows, release notes).
+
 ## Teacher page tabs (2026-11-27), not deployed
 
 `/de/lehrkraefte/`, `/es/docentes/`, `/en/spanish/teachers/`: short hero with chips, then tabs (DE: Loslegen · Übungslink · Klasse & Quiz-Raum · Unterricht & Material · Datenschutz & FAQ; ES the same; EN: Get started · Practice link · Quiz Room & tutors · Privacy). `lib/krabsy-teacher-tabs.js` (hash per tab, old anchors like #uebungslink/#quiz-raum/#enlace-de-practica/#sala-de-quiz/#practice-link open the right tab and scroll; back/forward; arrow keys) + tab/compact styles in `krabsy-teachers.css?v=2026-11-27`. Without JS every panel is visible in order. Starter games keep "Öffnen", their "Link kopieren" moved to the Übungslink tab; privacy points are accordions; JSON-LD/meta unchanged. DE/ES HTML hand-written; EN from `tools/build_en_spanish.py` `build_teachers()` (was stale vs. the hand-edited page, now in sync). Phones hide the hero key art.
