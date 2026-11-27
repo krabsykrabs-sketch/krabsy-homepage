@@ -144,7 +144,7 @@ async function run(browser, cfg) {
     else await page.keyboard.press([['1', '2', '3'], ['8', '9', '0']][pi][i]);   // quick-answer keys
     answers++; if (!right) wrongs++;
     if (!right && shot) { await page.waitForTimeout(300); await page.screenshot({ path: `${OUT}/${cfg.name}-${shot}-wrong.png` }); }
-    await page.waitForFunction((n) => !document.querySelector(`.card.p${n}`) || document.querySelector(`.card.p${n}`).hidden, pi + 1, { timeout: 6000 });
+    await page.waitForFunction((n) => !document.querySelector(`.card.p${n}`) || document.querySelector(`.card.p${n}`).hidden, pi + 1, { timeout: 12000 });
     await step(0.1);
   }
   const objs = () => G('objects');

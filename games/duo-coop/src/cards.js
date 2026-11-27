@@ -151,29 +151,36 @@ export function createCards(root, input, keyHints, digits = true) {
     // Each card is placed once, when it opens, and then stays put (a card that slides with the
     // camera is hard to tap); a second card is kept clear of the first.
     place(positions) {
-      const vw = window.innerWidth, vh = window.innerHeight;
+      const vw = window.innerWidth, vh = window.innerHeight, M = 8;
+      const fits = (r) => r.x >= M && r.y >= M && r.x + r.w <= vw - M && r.y + r.h <= vh - M;
+      const hits = (a, b) => a.x < b.x + b.w + 6 && b.x < a.x + a.w + 6 && a.y < b.y + b.h + 6 && b.y < a.y + a.h + 6;
+      const clamp = (r) => ({ ...r, x: Math.max(M, Math.min(vw - r.w - M, r.x)), y: Math.max(M, Math.min(vh - r.h - M, r.y)) });
       for (const c of cards) {
         if (!c.open) { c.pos = null; continue; }
         if (c.pos || !positions[c.pi]) continue;
         const p = positions[c.pi];
         const w = c.el.offsetWidth, h = c.el.offsetHeight;
-        let x = p.x - w / 2, y = p.y - h - 14;
-        if (y < 56) {   // no room above the head: beside the player, never over them
-          y = p.y - 10;
-          x = p.x + 34;
-          if (x + w > vw - 8) x = p.x - 34 - w;
+        // where it would like to be: above the head, else beside the player
+        const want = [
+          { x: p.x - w / 2, y: p.y - h - 14 },
+          { x: p.x + 34, y: p.y - 10 },
+          { x: p.x - 34 - w, y: p.y - 10 },
+        ].map((r) => ({ ...r, w, h }));
+        const other = cards.find((o) => o !== c && o.open && o.pos)?.pos;
+        if (other) {   // never on top of the other player's card: beside, above or below it
+          const g = 10;
+          want.push(
+            { x: other.x + other.w + g, y: other.y, w, h }, { x: other.x - w - g, y: other.y, w, h },
+            { x: other.x, y: other.y - h - g, w, h }, { x: other.x, y: other.y + other.h + g, w, h },
+          );
         }
-        const other = cards.find((o) => o !== c && o.open && o.pos);
-        if (other) {
-          const o = other.pos;
-          if (x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h) {
-            x = p.x >= o.x + o.w / 2 ? o.x + o.w + 8 : o.x - w - 8;   // beside it, on this player's side
-          }
+        let pick = want.find((r) => fits(r) && !(other && hits(r, other)));
+        if (!pick) pick = want.map(clamp).find((r) => !(other && hits(r, other)));
+        if (!pick) {   // tiny screen: the two cards side by side across the screen
+          pick = clamp({ x: other && other.x > vw / 2 ? M : vw - w - M, y: M, w, h });
         }
-        x = Math.max(8, Math.min(vw - w - 8, x));
-        y = Math.max(8, Math.min(vh - h - 8, y));
-        c.pos = { x, y, w, h };
-        c.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+        c.pos = pick;
+        c.el.style.transform = `translate(${Math.round(pick.x)}px, ${Math.round(pick.y)}px)`;
       }
     },
     replace() { cards.forEach((c) => { c.pos = null; }); },   // after a resize

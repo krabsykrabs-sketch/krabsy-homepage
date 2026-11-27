@@ -195,6 +195,7 @@ export async function createGame(canvas, opts) {
       if (o.type === 'portal' && !o.ask && !s.active) continue;
       if (!inRange(p, o)) continue;
       if (!needsAnswer(s) && !(o.type === 'portal' && s.active)) continue;
+      if (s.busy != null && s.busy !== p.pi) continue;   // the other player is answering here
       const d = Math.abs(p.body.x + p.body.w / 2 - anchor(o).x);
       if (d < bd) { bd = d; best = s; }
     }
@@ -226,6 +227,7 @@ export async function createGame(canvas, opts) {
   function ask(p, s, onRight) {
     const q = p.cfg.queue.next();
     p.card = true;
+    s.busy = p.pi;            // the other player can't open a card at this object meanwhile
     p.body.vx = 0;
     const who = `${p.cfg.name} · ${t('role.' + p.role)}`;
     cards.open(p.pi, q, {
@@ -243,6 +245,7 @@ export async function createGame(canvas, opts) {
       },
       done(correct) {
         p.card = false;
+        s.busy = null;
         if (correct) onRight();
       },
     });

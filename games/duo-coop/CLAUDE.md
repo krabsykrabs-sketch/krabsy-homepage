@@ -122,7 +122,10 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
   form is asked right after its 2nd form, by the same player). Fallback: 12 inline
   verb pairs.
 - Cards (`src/cards.js`): placed next to the player's character when they open (then
-  they stay put), colour of the player. **Verbs as three boxes** (owner 2026-11-27: "not
+  they stay put), colour of the player. **Two cards never overlap**: the second tries
+  above the head, beside the player, then beside / above / below the other card, always
+  on screen (checked at 1366, 1024, 844 × 390). While one player answers at an object,
+  the other can't open a card there (`busy`; both pressing at one exit gave two cards). **Verbs as three boxes** (owner 2026-11-27: "not
   clear which form is asked"): `swim → ? → …`, the asked box amber with "?", boxes still
   to come greyed out, and small captions under the boxes, today / yesterday / already
   (heute / gestern / schon, hoy / ayer / ya; `slot.0–2` in `src/i18n.js`), no grammar
@@ -248,6 +251,8 @@ measure it.
   frame by frame). The key flies to the locked door and opens it (no key on the door, no
   door question); room 1 exit open from the start: 11 questions instead of 14.
 - 2026-11-27 — Room picker on the title screen (all rooms open) + `?room=N`.
+- 2026-11-27 — Two answer cards never overlap; one object answers one player at a time
+  (owner's screenshot: both cards on top of each other at the exit).
 
 ## Open (owner)
 
