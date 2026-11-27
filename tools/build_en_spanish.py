@@ -29,7 +29,7 @@ HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
 FOOTER_V = '2026-11-27p'   # bump when krabsy-nav changes
 HEADER_V = '2026-11-27h'   # krabsy-footer.js (site header, 2026-11-27)
-UI_V = '2026-11-27-learn'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
+UI_V = '2026-11-27-rv'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [

@@ -26,7 +26,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 HP = ROOT / "homepage"
 LASTMOD = "2026-11-12"
 CSSV = "2026-11-27h"   # krabsy-footer, -lang-switch (site-wide bump 2026-11-27)
-HEADER_V = "2026-11-27-learn"   # krabsy-ui.css, -header (learning-language pill 2026-11-27)
+HEADER_V = "2026-11-27-rv"   # krabsy-ui.css, -header (learning-language pill 2026-11-27)
 
 DE_TOPIC = "unregelmaessige-verben"
 ES_TOPIC = "verbos-irregulares"

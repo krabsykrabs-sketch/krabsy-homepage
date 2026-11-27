@@ -41,7 +41,7 @@ ROOT = R.ROOT
 HP = R.HOME
 ORIGIN = "https://krabsy.com"
 ASSET_V = "2026-11-27h"   # krabsy-footer.js / lang-switch.js, same as the site-wide bump
-UI_V = "2026-11-27-learn"   # krabsy-ui.css / header.js (learning-language pill)
+UI_V = "2026-11-27-rv"   # krabsy-ui.css / header.js (learning-language pill)
 
 T = {
     "de": {

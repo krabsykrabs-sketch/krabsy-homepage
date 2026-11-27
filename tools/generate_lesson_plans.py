@@ -344,7 +344,7 @@ def page(title, desc, path, crumbs, body, ld):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="de_DE">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
   <style>{WEB_CSS}</style>
 {lds}
 </head><body>
@@ -371,7 +371,7 @@ def page(title, desc, path, crumbs, body, ld):
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
-  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-learn"></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-rv"></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
