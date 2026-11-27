@@ -106,16 +106,20 @@ synced to `homepage/data/<file>.json` at release.
 - One gap per sentence. Keep sentences short (games have small cards).
 - Interface languages: write `en` first (pilot interface), add `es`/`de`
   when that interface goes live. Missing languages fall back
-  en → de → es.
+  requested → en → site default → any (`pickLang`, lib/krabsy-lang.js).
+  `tools/check_catalogues.py` requires the explanation in every interface
+  language of a section that shows the topic.
 - Accents count when typed (`está` ≠ `esta`); choice games are unaffected.
 
 ## Registering a topic
 
 1. Add the file here and copy it to `homepage/data/` (file name = topic id with
    `-` for `_`, e.g. `es_ser_estar` → `es-ser-estar.json`; Fill the Gap finds it by that rule).
-2. `TOPIC_REGISTRY` in `homepage/lib/krabsy-data.js`:
-   `es_ser: { learn: 'es', level: 'A1', shapes: ['quiz'], file: 'es-ser.json' }`.
-3. `TOPICS` in `api/classes.py` (else class stats drop the answers) → deploy the API.
+2. The topic's entry in `homepage/data/topics.json`:
+   `"subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-ser.json"`
+   (+ its URL slug per interface language, below), then
+   `python3 tools/krabsy_registry.py` (browser registry + `api/catalog.json`).
+3. Deploy the API too (it reads `api/catalog.json`; else class stats drop the answers).
 4. Quiz Room: `TOPICS` in `games/quiz-show/src/questions.js`, `topic_<id>` and
    `diff_<id>` in `src/i18n.js` (EN/DE/ES); copy `src/` to `homepage/games/quiz-room/`.
 5. Section pages (Spanish for English speakers, CLAUDE.md "Sections"):
@@ -125,6 +129,8 @@ synced to `homepage/data/<file>.json` at release.
    then `python3 tools/build_en_spanish.py && python3 tools/render_static_games.py &&
    python3 tools/render_game_info.py`.
 6. Review sheet for a teacher: `python3 tools/es_review_sheet.py content/<file>.json > docs/<name>.md`.
+7. `python3 tools/check_catalogues.py` (required fields, unique ids, language maps,
+   topics.json / sections.json / games.json / ui_*.json consistency; exit 1 on errors).
 
 Games need no change: they pick their menu texts by learning language (`es_…` →
 Spanish), and the game pages choose the topic via `?topic=` or the last topic visited.
