@@ -1,8 +1,36 @@
 # Outreach batch 1: ready-to-send emails (written 2026-11-22)
 
 Targets and reasoning: `docs/outreach-schools-2026-11-22.md`. Send from
-**hallo@krabsy.com** (DE/AT) or **hola@krabsy.com** (ES), signed Jan Ahrens.
+**hallo@krabsy.com** (DE/AT) or **hola@krabsy.com** (ES); the name comes from the mailbox signature (see below).
 Before sending, open the school's page once to check it still looks the same.
+**Signatures (2026-11-27):** the mailbox adds the name, so the email texts
+below end with the greeting only (exception: #7 is a web form, it keeps the
+name line). Plain text, no images, no email address in the text. Set one per
+sender in Private Email (Settings → Signatures), and delete Namecheap's default
+signature (its ad link counted as a broken link on mail-tester):
+
+- hallo@krabsy.com (DE):
+  ```
+  Jan Ahrens
+  Entwickler von Krabsy
+  Englisch-Grammatik üben mit Spielen: kostenlos, ohne Anmeldung, ohne Werbung
+  https://krabsy.com/de/
+  ```
+- hola@krabsy.com (ES):
+  ```
+  Jan Ahrens
+  Creador de Krabsy
+  Gramática inglesa con juegos: gratis, sin registro, sin publicidad
+  https://krabsy.com/es/
+  ```
+- hello@krabsy.com (EN):
+  ```
+  Jan Ahrens
+  Creator of Krabsy
+  Grammar practice with games: free, no sign-up, no ads
+  https://krabsy.com/
+  ```
+
 **Mail setup checked 2026-11-27:** SPF, DKIM (`privateemail._domainkey`) and DMARC
 (`p=none`) live; mail-tester score 9.5/10. All 10 school pages re-checked
 2026-11-27: online and still listing the sites the emails name.
@@ -27,7 +55,6 @@ https://krabsy.com/de/unregelmaessige-verben/
 Falls Sie die Mail an die Fachschaft Englisch weitergeben mögen, freue ich mich. Wenn es nicht passt, ist das völlig in Ordnung.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 2. Werner-von-Siemens-Gymnasium Regensburg (DE)
@@ -48,7 +75,6 @@ Für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
 Ich würde mich freuen, wenn Sie die Mail an die Fachschaft Englisch weitergeben. Wenn es nicht passt, ist das völlig in Ordnung.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 3. Sophie La Roche-Realschule Bönnigheim (DE)
@@ -68,7 +94,6 @@ https://krabsy.com/de/unregelmaessige-verben/
 Ich würde mich freuen, wenn Sie die Mail an die Fachschaft Englisch weitergeben. Wenn es nicht passt, ist das völlig in Ordnung.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 4. Schule am See, Hard (AT)
@@ -88,7 +113,6 @@ https://krabsy.com/de/unregelmaessige-verben/
 Falls Sie die Mail an die Englisch-Lehrkräfte weitergeben mögen, freue ich mich. Wenn es nicht passt, ist das völlig in Ordnung.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 5. Mittelschule Kematen in Tirol (AT)
@@ -109,7 +133,6 @@ https://krabsy.com/de/unregelmaessige-verben/
 Falls Sie die Mail an die Englisch-Lehrkräfte weitergeben mögen, freue ich mich. Wenn es nicht passt, ist das völlig in Ordnung.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 6. Bildungsserver Berlin-Brandenburg
@@ -132,7 +155,6 @@ Informationen für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
 Für Rückfragen bin ich gern erreichbar.
 
 Freundliche Grüße
-Jan Ahrens, Entwickler von Krabsy
 ```
 
 ## 7. Bayerisches Realschulnetz, „Lerntipps“
@@ -171,7 +193,6 @@ https://krabsy.com/es/verbos-irregulares/
 Os agradecería que la hicierais llegar al departamento de inglés. Si no encaja, no pasa nada.
 
 Un saludo,
-Jan Ahrens, creador de Krabsy
 ```
 
 ## 9. IES Suárez de Figueroa, Zafra (ES)
@@ -192,7 +213,6 @@ Para docentes: https://krabsy.com/es/docentes/
 Si no encaja, no pasa nada.
 
 Un saludo,
-Jan Ahrens, creador de Krabsy
 ```
 
 ## 10. INS Joan Guinjoan i Gispert, Riudoms (ES)
@@ -213,5 +233,4 @@ https://krabsy.com/es/juegos/
 Os agradecería que la hicierais llegar al departamento de inglés. Si no encaja, no pasa nada.
 
 Un saludo,
-Jan Ahrens, creador de Krabsy
 ```
