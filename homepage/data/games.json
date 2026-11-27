@@ -155,11 +155,7 @@
       "es_ser",
       "es_estar",
       "es_ser_estar",
-      "es_tener",
-      "en_simple_past",
-      "en_present_simple",
-      "en_present_progressive",
-      "en_present_perfect"
+      "es_tener"
     ],
     "ui_langs": [
       "de",

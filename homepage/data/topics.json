@@ -2,6 +2,7 @@
   "irregular_verbs": {
     "subject": "english", "level": null, "shapes": ["chain", "quiz"],
     "in_sentence": {"de": "Unregelmäßige Verben", "es": "verbos irregulares"},
+    "years": {"de": [5, 7], "es": [7, 8]},
     "de": "unregelmaessige-verben",
     "es": "verbos-irregulares",
     "display_name": {
@@ -40,6 +41,7 @@
   "prepositions": {
     "subject": "english", "level": null, "shapes": ["quiz"],
     "in_sentence": {"de": "Präpositionen", "es": "preposiciones"},
+    "years": {"de": [5, 6], "es": [7, 8]},
     "de": "praepositionen",
     "es": "preposiciones",
     "display_name": {
@@ -163,6 +165,10 @@
   },
   "en_simple_past": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-simple-past.json",
+    "in_sentence": {"de": "die wichtigsten Zeitformen", "es": "los tiempos verbales más importantes"},
+    "years": {"de": [5, 6], "es": [7, 7]},
+    "de": "simple-past",
+    "es": "pasado-simple",
     "display_name": {
       "de": "Simple Past: I walked, I went",
       "es": "Past simple: I walked, I went"
@@ -177,13 +183,21 @@
       "es": "Cuenta lo que pasó ayer: I walked, I went, I didn't go, Did you see …? Además was / were y yesterday, last week, two days ago."
     },
     "card_stats": {
-      "de": "11 Muster · 63 Sätze",
-      "es": "11 patrones · 63 frases"
+      "de": "11 Muster · 63 Sätze · 2 Drills",
+      "es": "11 patrones · 63 frases · 2 drills"
     },
-    "thumbnail": "/thumbnails/banner.png"
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" }
+    }
   },
   "en_present_simple": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-simple.json",
+    "in_sentence": {"de": null, "es": null},
+    "years": {"de": [5, 5], "es": [5, 7]},
+    "de": "simple-present",
+    "es": "presente-simple",
     "display_name": {
       "de": "Simple Present: he plays, does he play?",
       "es": "Present simple: he plays, does he play?"
@@ -198,13 +212,21 @@
       "es": "Lo que alguien hace siempre o a menudo: he plays, she doesn't like, Do you …? Does he …? Con la -s de he, she, it."
     },
     "card_stats": {
-      "de": "9 Muster · 60 Sätze",
-      "es": "9 patrones · 60 frases"
+      "de": "9 Muster · 60 Sätze · 2 Drills",
+      "es": "9 patrones · 60 frases · 2 drills"
     },
-    "thumbnail": "/thumbnails/banner.png"
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" }
+    }
   },
   "en_present_progressive": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-progressive.json",
+    "in_sentence": {"de": null, "es": null},
+    "years": {"de": [5, 5], "es": [7, 7]},
+    "de": "present-progressive",
+    "es": "presente-continuo",
     "display_name": {
       "de": "Present Progressive: I am playing",
       "es": "Present continuous: I am playing"
@@ -219,13 +241,21 @@
       "es": "Lo que pasa ahora mismo: Look! She is sleeping. ¿Y cuándo es he plays? ¿now o every day?"
     },
     "card_stats": {
-      "de": "9 Muster · 60 Sätze",
-      "es": "9 patrones · 60 frases"
+      "de": "9 Muster · 60 Sätze · 2 Drills",
+      "es": "9 patrones · 60 frases · 2 drills"
     },
-    "thumbnail": "/thumbnails/banner.png"
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" }
+    }
   },
   "en_present_perfect": {
     "subject": "english", "level": "A2", "shapes": ["quiz"], "file": "en-present-perfect.json",
+    "in_sentence": {"de": null, "es": null},
+    "years": {"de": [6, 6], "es": [7, 9]},
+    "de": "present-perfect",
+    "es": "presente-perfecto",
     "display_name": {
       "de": "Present Perfect: I have seen",
       "es": "Present perfect: I have seen"
@@ -240,9 +270,13 @@
       "es": "have / has + participio: I have never seen a snake. Con ever, never, already, yet y un poco de since / for."
     },
     "card_stats": {
-      "de": "10 Muster · 60 Sätze",
-      "es": "10 patrones · 60 frases"
+      "de": "10 Muster · 60 Sätze · 2 Drills",
+      "es": "10 patrones · 60 frases · 2 drills"
     },
-    "thumbnail": "/thumbnails/banner.png"
+    "thumbnail": "/thumbnails/banner.png",
+    "pages": {
+      "sprint":        { "de": "sprint",        "es": "sprint" },
+      "fill-the-gap":  { "de": "fill-the-gap",  "es": "fill-the-gap" }
+    }
   }
 }

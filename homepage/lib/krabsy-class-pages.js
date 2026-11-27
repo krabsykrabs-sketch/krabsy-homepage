@@ -15,7 +15,8 @@
    classes" list — nothing else.
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession, join, leave } from '/lib/krabsy-class.js?v=2026-11-22b';
-import { currentLang, defaultSection, uiPage, topicUrl, UI_LANGS } from '/lib/krabsy-lang.js?v=2026-11-27';
+import { currentLang, defaultSection, uiPage, topicUrl, UI_LANGS, TOPICS, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
+import { itemLabel } from '/lib/krabsy-me.js?v=2026-11-27';
 
 // Classes exist in the interface languages whose sections.json entry has a class page.
 const LANG = currentLang({ supported: UI_LANGS.filter((l) => uiPage('class', l)) });
@@ -139,9 +140,33 @@ function ago(iso) {
   return days <= 0 ? T.today : T.daysAgo(days);
 }
 
+// Sentence topics (format v2: en_simple_past …) store item ids like "sp_regular";
+// the dashboard shows the item's label ("walk → walked") and the topic's short name.
+// Filled by loadWordLabels() before the dashboard renders.
+const gapLabels = new Map();   // "topic/item" → label
+let topicNames = {};
+
+async function loadWordLabels(d) {
+  const all = [...(d.hard_words || []), ...(d.solid_words || []), ...(d.students || []).flatMap((s) => s.hard_words || [])];
+  const gap = all.filter((w) => TOPICS[w.topic] && TOPICS[w.topic].file && !gapLabels.has(w.topic + '/' + w.item));
+  if (!gap.length) return;
+  try { topicNames = await fetch('/data/topics.json').then((r) => r.json()); } catch (_) { topicNames = {}; }
+  await Promise.all(gap.map(async (w) => {
+    const label = await itemLabel(w.topic, w.item).catch(() => null);
+    gapLabels.set(w.topic + '/' + w.item, label || w.item);
+  }));
+}
+
 function wordLabel(w) {
   // Verbs: the base form; prepositions: the use-case id is shown readable.
   if (w.topic === 'prepositions') return `${esc(w.item.replace(/^prep_/, '').replace(/_/g, ' '))} <span class="kc-muted">(${T.topicPrep})</span>`;
+  const key = w.topic + '/' + w.item;
+  if (gapLabels.has(key)) {
+    const t = topicNames[w.topic] || {};
+    const name = pickLang(t.short_name, LANG) || pickLang(t.display_name, LANG) || '';
+    const learn = (TOPICS[w.topic] && TOPICS[w.topic].learn) || 'en';
+    return `<span lang="${esc(learn)}">${esc(gapLabels.get(key))}</span>${name ? ` <span class="kc-muted">(${esc(name)})</span>` : ''}`;
+  }
   return `<span lang="en">${esc(w.item)}</span>`;
 }
 
@@ -314,6 +339,7 @@ async function renderDashboard(main) {
   }
   const c = d.class, w = d.week;
   remember({ name: c.name, code: c.code, token });
+  await loadWordLabels(d);
   const pct = (v) => (v == null ? '–' : `${v} %`);
   const words = (list) => list.map((x) => `<li><span class="kc-word">${wordLabel(x)}</span>
       <span class="kc-muted">${pct(x.correct_pct)} ${T.right}${x.unsure.length ? ` · ${T.unsure}: ${x.unsure.map(esc).join(', ')}` : ''}</span></li>`).join('');

@@ -16,7 +16,8 @@
 
    Options come from the catalogue: the section's topics (krabsy-lang.js
    sectionTopics: subject + URL in this interface language), the games that play the chosen topic (games.json
-   topics, ui_langs), the drills Sprint and Fill the Gap if the topic has them. */
+   topics, ui_langs), the drills Sprint and Fill the Gap if the topic has them.
+   ?topic=<id> in the page URL preselects that topic (links from the topic hubs). */
 import qrcode from '/games/quiz-room/vendor/qrcode/qrcode.js';
 import { currentSection, sectionById, sectionTopics, gameUrl, topicUrl, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 
@@ -85,7 +86,10 @@ async function mount(el) {
   } catch (_) { return; }
   const topicIds = sectionTopics(section).filter((id) => topics[id] && topics[id].status !== 'coming_soon');
   if (!topicIds.length) return;
-  const st = { topic: topicIds[0], target: null, diff: '', glang: lang };
+  // ?topic=<id> on the teacher page preselects a topic (the topic hubs link here with it).
+  let pre = null;
+  try { pre = new URLSearchParams(location.search).get('topic'); } catch (_) { /* no location */ }
+  const st = { topic: topicIds.includes(pre) ? pre : topicIds[0], target: null, diff: '', glang: lang };
 
   function targets() {
     const t = topics[st.topic];

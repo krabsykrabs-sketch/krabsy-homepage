@@ -97,6 +97,62 @@ def topic_url(tid, sec, page_id=None):
     return url
 
 
+def is_draft(tid):
+    """topics.json `"status": "draft"`: content not yet checked by a native speaker.
+    Its pages are live and linked but carry noindex (so they stay out of the
+    sitemap). Deleting the field (and re-running the page generators) releases it."""
+    return (topics().get(tid) or {}).get("status") == "draft"
+
+
+# ── class years (topics.json "years") ──────────────────────────────────────
+# "years": {"de": [5, 6], "es": [7, 7]} = first and last school year in which the
+# topic is usually taught, per interface language's school system (source:
+# docs/curriculum-map.md). Numbers count school years from the first year of
+# primary school: de = Klasse (5 = Klasse 5); es = curso, 1-6 = 1º-6º Primaria,
+# 7-10 = 1º-4º ESO. Pages group topics by the first year (Themen page).
+
+def year_range(tid, ui):
+    y = ((topics().get(tid) or {}).get("years") or {}).get(ui)
+    if not y:
+        return None
+    return (y[0], y[-1])
+
+
+def _es_year(n):
+    return f"{n}º Primaria" if n <= 6 else f"{n - 6}º ESO"
+
+
+def year_label(tid, ui):
+    """'Klasse 5–6' / '1º–3º ESO' / '5º Primaria – 1º ESO'; None without years."""
+    r = year_range(tid, ui)
+    if not r:
+        return None
+    a, b = r
+    if ui == "es":
+        if a == b:
+            return _es_year(a)
+        if (a <= 6) == (b <= 6):
+            return f"{a - 6}º–{b - 6}º ESO" if a > 6 else f"{a}º–{b}º Primaria"
+        return f"{_es_year(a)} – {_es_year(b)}"
+    if ui == "de":
+        return f"Klasse {a}" if a == b else f"Klasse {a}–{b}"
+    return f"Year {a}" if a == b else f"Years {a}–{b}"
+
+
+def year_group(tid, ui):
+    """(sort key, heading) of the Themen page group, or None. es: 5º and 6º
+    Primaria share one group (Krabsy's youngest Spanish audience)."""
+    r = year_range(tid, ui)
+    if not r:
+        return None
+    a = r[0]
+    if ui == "es":
+        return (6, "5º/6º Primaria") if a <= 6 else (a, _es_year(a))
+    if ui == "de":
+        return (a, f"Klasse {a}")
+    return (a, f"Year {a}")
+
+
 def game_url(sec, gid):
     return f"{sec['games']}{gid}/"
 

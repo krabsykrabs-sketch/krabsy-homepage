@@ -173,7 +173,10 @@ export const TOPICS = {
     ],
     "file": "en-simple-past.json",
     "status": "draft",
-    "slug": {}
+    "slug": {
+      "de": "simple-past",
+      "es": "pasado-simple"
+    }
   },
   "en_present_simple": {
     "subject": "english",
@@ -184,7 +187,10 @@ export const TOPICS = {
     ],
     "file": "en-present-simple.json",
     "status": "draft",
-    "slug": {}
+    "slug": {
+      "de": "simple-present",
+      "es": "presente-simple"
+    }
   },
   "en_present_progressive": {
     "subject": "english",
@@ -195,7 +201,10 @@ export const TOPICS = {
     ],
     "file": "en-present-progressive.json",
     "status": "draft",
-    "slug": {}
+    "slug": {
+      "de": "present-progressive",
+      "es": "presente-continuo"
+    }
   },
   "en_present_perfect": {
     "subject": "english",
@@ -206,6 +215,9 @@ export const TOPICS = {
     ],
     "file": "en-present-perfect.json",
     "status": "draft",
-    "slug": {}
+    "slug": {
+      "de": "present-perfect",
+      "es": "presente-perfecto"
+    }
   }
 };

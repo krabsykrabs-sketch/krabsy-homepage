@@ -329,6 +329,50 @@
           "fixed_deck_continue_all": "Weiter mit allen Regeln"
         }
       }
+    },
+    "en_simple_past": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 Lückensätze, so schnell wie möglich.",
+          "intro": "Tippe bei 20 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+        },
+        "fill_gap": {
+          "tagline": "Tippe das Wort, das in die Lücke passt."
+        }
+      }
+    },
+    "en_present_simple": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 Lückensätze, so schnell wie möglich.",
+          "intro": "Tippe bei 20 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+        },
+        "fill_gap": {
+          "tagline": "Tippe das Wort, das in die Lücke passt."
+        }
+      }
+    },
+    "en_present_progressive": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 Lückensätze, so schnell wie möglich.",
+          "intro": "Tippe bei 20 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+        },
+        "fill_gap": {
+          "tagline": "Tippe das Wort, das in die Lücke passt."
+        }
+      }
+    },
+    "en_present_perfect": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 Lückensätze, so schnell wie möglich.",
+          "intro": "Tippe bei 20 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+        },
+        "fill_gap": {
+          "tagline": "Tippe das Wort, das in die Lücke passt."
+        }
+      }
     }
   }
 }

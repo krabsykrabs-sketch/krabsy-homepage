@@ -18,10 +18,15 @@ whose `topics` include the topic, without `audience: "teacher"` and
 sentence of `description`), `card_stats`, "Üben" (the topic's Sprint page, else
 the hub) and the number of games (→ the hub's games section).
 
-Class years: a topic may carry an optional `"year"` (a number, e.g. 5) in
-topics.json. Topics are grouped by it, lowest first; topics without a year go
-into "Alle Klassen" / "Todos los cursos" / "All years" (all of them today).
-Re-run after changing topics.json, games.json or sections.json.
+Class years: topics.json `"years": {"de": [5, 6], "es": [7, 7]}` = first and last
+school year per interface language's school system (krabsy_registry.year_range:
+de = Klasse, es = curso counted from 1º Primaria, so 7 = 1º ESO). Cards are
+grouped by the first year ("Klasse 5", "5º/6º Primaria", "1º ESO" …, lowest
+first, inside a group by range, then topics.json order); the card shows the
+whole range. Topics without years go into "Alle Klassen" / "Todos los cursos" /
+"All years" (the Spanish section for English speakers today). Draft topics
+(status "draft") are listed but left out of the ItemList JSON-LD (their pages
+are noindex). Re-run after changing topics.json, games.json or sections.json.
 """
 import html
 import json
@@ -35,7 +40,8 @@ import krabsy_registry as R  # noqa: E402
 ROOT = R.ROOT
 HP = R.HOME
 ORIGIN = "https://krabsy.com"
-ASSET_V = "2026-11-27h"   # krabsy-ui.css / header / footer / lang-switch, same as the site-wide bump
+ASSET_V = "2026-11-27h"   # krabsy-footer.js / lang-switch.js, same as the site-wide bump
+UI_V = "2026-11-27-learn"   # krabsy-ui.css / header.js (learning-language pill)
 
 T = {
     "de": {
@@ -43,7 +49,7 @@ T = {
         "h1": "Themen",
         "lead": "Alle Grammatik-Themen auf Krabsy. Such dir eins aus: üben oder gleich spielen.",
         "desc": "Alle Grammatik-Themen auf Krabsy: {list}. Mit Übungen und Spielen, kostenlos und ohne Anmeldung.",
-        "all_years": "Alle Klassen", "year": "Klasse {n}",
+        "all_years": "Alle Klassen",
         "practise": "Üben", "games": ("{n} Spiel", "{n} Spiele"), "no_games": "Noch kein Spiel",
         "crumbs": "Brotkrümelnavigation", "home": "Krabsy",
         "noscript": "", "locale": "de_DE", "and": " und ",
@@ -53,7 +59,7 @@ T = {
         "h1": "Temas",
         "lead": "Todos los temas de gramática en Krabsy. Elige uno: practica o juega directamente.",
         "desc": "Todos los temas de gramática en Krabsy: {list}. Con ejercicios y juegos, gratis y sin registro.",
-        "all_years": "Todos los cursos", "year": "Curso {n}",
+        "all_years": "Todos los cursos",
         "practise": "Practicar", "games": ("{n} juego", "{n} juegos"), "no_games": "Aún sin juego",
         "crumbs": "Ruta de navegación", "home": "Krabsy",
         "noscript": "", "locale": "es_ES", "and": " y ",
@@ -63,7 +69,7 @@ T = {
         "h1": "Topics",
         "lead": "All the grammar topics on Krabsy. Pick one: practise it or play a game.",
         "desc": "All the grammar topics on Krabsy: {list}. With practice and games, free and without sign-up.",
-        "all_years": "All years", "year": "Year {n}",
+        "all_years": "All years",
         "practise": "Practise", "games": ("{n} game", "{n} games"), "no_games": "No game yet",
         "crumbs": "Breadcrumb", "home": "Krabsy",
         "noscript": "", "locale": "en_GB", "and": " and ",
@@ -169,15 +175,19 @@ def section_cards(sec):
             "hub": hub,
             "practise": practise,
             "games": len(games_of(tid)),
-            "year": t.get("year"),
+            "group": R.year_group(tid, ui),
+            "range": R.year_range(tid, ui) or (99, 99),
+            "year_label": R.year_label(tid, ui),
+            "draft": R.is_draft(tid),
         })
     return out
 
 
 def groups(cards, s):
-    years = sorted({c["year"] for c in cards if isinstance(c["year"], int)})
-    out = [(s["year"].format(n=y), [c for c in cards if c["year"] == y]) for y in years]
-    rest = [c for c in cards if not isinstance(c["year"], int)]
+    keys = sorted({c["group"] for c in cards if c["group"]})
+    out = [(head, sorted([c for c in cards if c["group"] == (k, head)], key=lambda c: c["range"]))
+           for k, head in keys]
+    rest = [c for c in cards if not c["group"]]
     if rest:
         out.append((s["all_years"], rest))
     return out
@@ -194,7 +204,7 @@ def card_html(c, s, i):
             <article class="tp-card" style="--tp-accent: {ACCENTS[i % len(ACCENTS)]}" aria-labelledby="tp-{c['id']}">
               <h3 class="tp-name" id="tp-{c['id']}"><a href="{esc(c['hub'])}">{esc(c['name'])}</a></h3>
               <p class="tp-line">{esc(c['line'])}</p>
-              <p class="tp-stats">{esc(c['stats'])}</p>
+              <p class="tp-stats">{esc(" · ".join(x for x in (c["year_label"], c["stats"]) if x))}</p>
               <div class="tp-acts">
                 <a class="tp-practise" href="{esc(c['practise'])}" aria-label="{esc(s['practise'] + ': ' + c['name'])}">{ICON_PRACTISE}<span>{esc(s['practise'])}</span></a>
                 {games}
@@ -222,7 +232,7 @@ def page_html(sec):
     robots = ('  <!-- /en/spanish/ is the Spanish pilot section (noindex), so this page is too. -->\n'
               '  <meta name="robots" content="noindex">\n') if noindex else ""
     ld_items = [{"@type": "ListItem", "position": i + 1, "name": c["name"], "url": ORIGIN + c["hub"]}
-                for i, c in enumerate(cards)]
+                for i, c in enumerate([c for c in cards if not c["draft"]])]
     ld = [
         {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Krabsy", "item": ORIGIN + sec["home"]},
@@ -259,7 +269,7 @@ def page_html(sec):
   <meta property="og:locale" content="{s['locale']}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={ASSET_V}">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
   <style>{CSS}  </style>
 {ld_html}</head>
 <body>
@@ -282,7 +292,7 @@ def page_html(sec):
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v={ASSET_V}" defer></script>
-  <script type="module" src="/lib/krabsy-header.js?v={ASSET_V}"></script>
+  <script type="module" src="/lib/krabsy-header.js?v={UI_V}"></script>
 {lang_switch}  <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>

@@ -28,7 +28,8 @@ ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
 FOOTER_V = '2026-11-27n'   # bump when krabsy-nav changes
-HEADER_V = '2026-11-27h'   # krabsy-ui.css, -footer, -header (site header, 2026-11-27)
+HEADER_V = '2026-11-27h'   # krabsy-footer.js (site header, 2026-11-27)
+UI_V = '2026-11-27-learn'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [
@@ -132,7 +133,9 @@ def common_body(s, hub, topic=None):
         s = sub(s, "initDrillPage('fill_gap', 'prepositions',", f"initDrillPage('fill_gap', '{topic}',") \
             if "initDrillPage('fill_gap'" in s else s
     s = re.sub(r'\s*<script src="/lib/krabsy-lang-switch.js[^"]*" defer></script>', '', s)
-    s = re.sub(r'/lib/krabsy-(footer|header)\.js\?v=[0-9a-z-]+', lambda m: f'/lib/krabsy-{m.group(1)}.js?v={HEADER_V}', s)
+    s = re.sub(r'/lib/krabsy-(footer|header)\.js\?v=[0-9a-z-]+',
+               lambda m: f'/lib/krabsy-{m.group(1)}.js?v={UI_V if m.group(1) == "header" else HEADER_V}', s)
+    s = re.sub(r'/lib/krabsy-ui\.css\?v=[0-9a-z-]+', f'/lib/krabsy-ui.css?v={UI_V}', s)
     s = re.sub(r"/lib/krabsy-nav\.js\?v=[0-9a-z-]+", f"/lib/krabsy-nav.js?v={FOOTER_V}", s)
     s = cut(s, '<!-- seo-article:start', '<!-- seo-article:end -->')
     return s
@@ -240,7 +243,7 @@ FOOTER = f'''    <footer class="k-footer">
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v={HEADER_V}" defer></script>
-  <script type="module" src="/lib/krabsy-header.js?v={HEADER_V}"></script>
+  <script type="module" src="/lib/krabsy-header.js?v={UI_V}"></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
 </html>
@@ -252,8 +255,8 @@ def build_topic_hub(t):
     url = f'/en/spanish/{t["slug"]}/'
     title = f'Spanish: {t["title"]}'
     desc = f'Spanish games and drills for beginners: {t["short"]}. Free, no sign-up.'
-    s = head(title, desc, url) + '''  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27h">
+    s = head(title, desc, url) + f'''  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
 ''' + style_of('de/praepositionen/index.html') + f'''
 </head>
@@ -324,7 +327,7 @@ def build_teachers():
     s = head('Krabsy for Spanish teachers',
              'Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.', url) + \
         f"""  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={HEADER_V}">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
   <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-27">
   <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
@@ -489,15 +492,15 @@ def build_teachers():
       </div>
     </main>
 
-{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-27"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
+{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-27t"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
     return url, s
 
 
 def build_games_hub():
     url = '/en/spanish/games/'
     s = head('Spanish games', 'Free 3D games for learning Spanish: cook, jump and build towers with Spanish sentences.', url) + \
-        '''  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27h">
+        f'''  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
 ''' + style_of('de/spiele/index.html') + f'''
 </head>
 <body>

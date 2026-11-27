@@ -329,6 +329,50 @@
           "fixed_deck_continue_all": "Seguir con todas las reglas"
         }
       }
+    },
+    "en_simple_past": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+        },
+        "fill_gap": {
+          "tagline": "Escribe la palabra que falta."
+        }
+      }
+    },
+    "en_present_simple": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+        },
+        "fill_gap": {
+          "tagline": "Escribe la palabra que falta."
+        }
+      }
+    },
+    "en_present_progressive": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+        },
+        "fill_gap": {
+          "tagline": "Escribe la palabra que falta."
+        }
+      }
+    },
+    "en_present_perfect": {
+      "drills": {
+        "sprint": {
+          "tagline": "20 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+        },
+        "fill_gap": {
+          "tagline": "Escribe la palabra que falta."
+        }
+      }
     }
   }
 }
