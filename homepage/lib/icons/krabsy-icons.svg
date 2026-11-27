@@ -111,4 +111,16 @@
     <path d="M19 12a7 7 0 1 1-2.2-5.1"/>
     <path d="M17.4 3.4v3.9h-3.9"/>
   </symbol>
+
+  <!-- envelope: sign-in link by email ("Klasse sichern", Meine Klassen) -->
+  <symbol id="ki-mail" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect fill="#ffcf5e" x="3" y="5.5" width="18" height="13" rx="2.5"/>
+    <path d="M3.8 7.2l8.2 6 8.2-6"/>
+  </symbol>
+
+  <!-- shield with a tick: a class saved to the teacher's account -->
+  <symbol id="ki-saved" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#2ee6c0" d="M12 3l7 2.8v5.4c0 4.4-3 7.8-7 9.3-4-1.5-7-4.9-7-9.3V5.8z"/>
+    <path d="M8.6 12.2l2.4 2.4 4.4-4.6"/>
+  </symbol>
 </svg>

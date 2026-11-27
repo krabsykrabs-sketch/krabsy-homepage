@@ -54,3 +54,37 @@
 /* Class badge in headers (landing, game header) */
 .kc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
   background: #e6f7f2; color: #0d4d3f; font-size: 0.78rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+
+/* Optional teacher sign-in "Klasse sichern" / Meine Klassen (2026-11-27) */
+.kc-main .ki { width: 22px; height: 22px; flex: 0 0 auto; display: block; }
+.kc-btn .ki { margin-right: 8px; width: 20px; height: 20px; }
+.kc-save { border: 2px solid #2ec4a0; }
+.kc-save-quiet { border: 0; background: #f2fbf8; box-shadow: none; padding: 12px 16px; }
+.kc-save-head { display: flex; gap: 12px; align-items: flex-start; }
+.kc-save-head .ki { width: 32px; height: 32px; margin-top: 2px; }
+.kc-save-quiet .kc-save-head .ki { width: 26px; height: 26px; }
+.kc-save-head h2 { margin: 0 0 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.kc-save-quiet .kc-save-head h2 { font-size: 1.05rem; }
+.kc-save-lead { margin: 0 0 12px; }
+.kc-save-quiet .kc-save-lead { margin-bottom: 8px; color: var(--krabsy-ink-mute); }
+.kc-save-form .kc-field input { width: 100%; box-sizing: border-box; }
+.kc-save-note { margin: 4px 0 0; }
+.kc-pill { display: inline-block; font-family: 'Nunito', system-ui, sans-serif; font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px; background: #2ec4a0; color: #0b3a30; border-radius: 999px; padding: 2px 9px; }
+.kc-sent, .kc-account-line { display: flex; gap: 10px; align-items: flex-start; margin: 6px 0 12px; }
+.kc-sent { background: #fff6dd; border-radius: 10px; padding: 10px 12px; }
+.kc-sent span, .kc-account-line span { min-width: 0; overflow-wrap: anywhere; }
+.kc-attach { gap: 10px 12px; margin: 0; }
+.kc-attach span { flex: 1 1 220px; }
+.kc-details { margin: 10px 0; }
+.kc-details summary { cursor: pointer; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.kc-classes { list-style: none; margin: 0; padding: 0; }
+.kc-classes li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px;
+  padding: 10px 0; border-bottom: 1px solid #eee; }
+.kc-classes li:last-child { border-bottom: 0; }
+.kc-class-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kc-class-name { font-weight: 800; font-size: 1.08rem; overflow-wrap: anywhere; }
+.kc-h3 { font-family: var(--font-display); font-weight: normal; font-size: 1.05rem; margin: 18px 0 6px; }
+.kc-addlink { align-items: flex-end; }
+.kc-addlink .kc-field { flex: 1 1 260px; max-width: 520px; margin: 0; }
+.kc-addlink .kc-field input { width: 100%; box-sizing: border-box; }

@@ -77,7 +77,7 @@ def test_claim_on_sign_in_then_my_classes():
     d2 = c.get("/api/class/dashboard", headers=T).json()["class"]
     assert d2["saved"] is True and d2["mine"] is False and d2["id"] is None
     # class_id alone (no session) or a stranger's session opens nothing
-    assert c.get(f"/api/class/dashboard?class_id={cid}").status_code == 404
+    assert c.get(f"/api/class/dashboard?class_id={cid}").status_code == 401      # "sign in again"
     B, _ = sign_in(c, "other@schule.de")
     assert c.get(f"/api/class/dashboard?class_id={cid}", headers=B).status_code == 404
     assert c.post(f"/api/class/rename?class_id={cid}", json={"name": "x"}, headers=B).status_code == 404

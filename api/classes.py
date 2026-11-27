@@ -351,6 +351,12 @@ def _teacher_class(con: sqlite3.Connection, token: str, account_token: str = "",
     return con.execute("SELECT * FROM classes WHERE teacher_hash = ?", (_hash(token or "-"),)).fetchone(), acc
 
 
+def _missing(class_id, acc) -> JSONResponse:
+    """No class: 401 when an account path was used without a valid session (the
+    page asks to sign in again), else 404."""
+    return _err(401, "signed_out") if class_id is not None and not acc else _err(404, "unknown_class")
+
+
 def _owner(cls, acc) -> bool:
     return bool(acc and cls and cls["account_id"] == acc["id"])
 
@@ -361,7 +367,7 @@ def class_dashboard(class_id: Optional[int] = None, x_teacher_token: str = Heade
     with _lock, connect() as con:
         cls, acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
-            return _err(404, "unknown_class")
+            return _missing(class_id, acc)
         students = con.execute("SELECT id, nickname, last_active FROM students WHERE class_id = ? ORDER BY nickname COLLATE NOCASE",
                                (cls["id"],)).fetchall()
         attempts = con.execute(
@@ -457,7 +463,7 @@ def rename_class(body: RenameBody, class_id: Optional[int] = None, x_teacher_tok
     with _lock, connect() as con:
         cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
-            return _err(404, "unknown_class")
+            return _missing(class_id, _acc)
         con.execute("UPDATE classes SET name = ? WHERE id = ?", (clean_class_name(body.name), cls["id"]))
     return JSONResponse({"ok": True})
 
@@ -472,7 +478,7 @@ def remove_student(body: RemoveBody, class_id: Optional[int] = None, x_teacher_t
     with _lock, connect() as con:
         cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
-            return _err(404, "unknown_class")
+            return _missing(class_id, _acc)
         con.execute("DELETE FROM students WHERE class_id = ? AND nickname = ?", (cls["id"], body.nickname))
     return JSONResponse({"ok": True})
 
@@ -483,7 +489,7 @@ def delete_class(class_id: Optional[int] = None, x_teacher_token: str = Header("
     with _lock, connect() as con:
         cls, _acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
-            return _err(404, "unknown_class")
+            return _missing(class_id, _acc)
         con.execute("DELETE FROM classes WHERE id = ?", (cls["id"],))
     return JSONResponse({"ok": True})
 
@@ -496,7 +502,7 @@ def new_teacher_link(class_id: Optional[int] = None, x_teacher_token: str = Head
     with _lock, connect() as con:
         cls, acc = _teacher_class(con, x_teacher_token, x_account_token, class_id)
         if not cls:
-            return _err(404, "unknown_class")
+            return _missing(class_id, acc)
         if not _owner(cls, acc):
             return _err(403, "not_owner")
         token = secrets.token_urlsafe(24)

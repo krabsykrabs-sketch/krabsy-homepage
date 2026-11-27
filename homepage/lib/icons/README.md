@@ -27,6 +27,8 @@ no alt text). Bump `?v=` where they are used when you change the sprite.
 | `ki-shirt` | a T-shirt | clothes tab (figure editor) |
 | `ki-dice` | a die | random (figure editor) |
 | `ki-turn` | a round arrow | turn the figure (figure editor) |
+| `ki-mail` | an envelope | sign-in link by email ("Klasse sichern", Meine Klassen) |
+| `ki-saved` | a teal shield with a tick | a class saved to the teacher's account |
 
 The main menu (`lib/krabsy-header.js`) and the topics page
 (`tools/render_topics_page.py`) inline copies of `ki-play`, `ki-practise`,
