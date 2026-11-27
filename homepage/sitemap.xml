@@ -215,6 +215,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
   </url>
   <url>
+    <loc>https://krabsy.com/de/themen/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/themen/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/temas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/themen/"/>
+  </url>
+  <url>
     <loc>https://krabsy.com/de/ueben/</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
@@ -1877,6 +1885,14 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/karteikarten/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/tarjetas/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/karteikarten/"/>
+  </url>
+  <url>
+    <loc>https://krabsy.com/es/temas/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/themen/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/temas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/themen/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/</loc>

@@ -93,6 +93,7 @@ def url_path(index_file):
 LASTMOD_IGNORE_COMMITS = {
     "534f83c8aa12762dacecbc270887b5edb89f2f3a",  # 2026-11-17 analytics.js ?v= bump (timezone)
     "84c3e9ecbd42490052b6f29b29797bc7b1dafae0",  # 2026-11-25 krabsy-nav.js ?v= bump (shell counter)
+    "9be033b993f8aacf91e9f347fcde9bbe404dafa1",  # 2026-11-27 krabsy-header.js swap + ui/footer/lang-switch ?v= bump
 }
 
 
