@@ -102,6 +102,14 @@ URLs keep both axes unambiguous, e.g. `/en/spanish/…` = Spanish content,
 English interface. `/es/` keeps meaning "Spanish-speaking learners of
 English".
 
+**Teachers of another subject (proposal 2026-11-27, not decided):** one
+teacher entry per interface language. `/de/lehrkraefte/` stays the single
+page for German-speaking teachers and later gets a subject switch
+(Englisch | Spanisch); the class code, practice links and quiz room already
+work per topic, so a Spanish teacher uses the same tools. Only the
+subject-specific material (lessons, worksheets) is filtered. The URL stays
+(it is promoted on 4teachers).
+
 ## What this changes from the June strategy
 
 `docs/strategy-2026-06.html` said "more topics, not more languages (yet)
