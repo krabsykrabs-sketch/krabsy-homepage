@@ -3,7 +3,7 @@
 
 ## Student side concept (2026-11-27)
 
-`docs/student-path.md`: daily path "Heute üben" (P1), vocabulary as a topic kind (P2), personal word lists from tutors/teachers (P3), gradual interface language (P4). Open owner decisions listed there. Nothing built yet.
+`docs/student-path.md`: practice session "Jetzt üben" with a weekly goal of 3 (P1; not daily, owner 2026-11-27), vocabulary as a topic kind (P2), personal word lists from tutors/teachers (P3), gradual interface language (P4). Open owner decisions listed there. Nothing built yet.
 ## Live classroom (2026-11-26, LIVE on hidden links; verified on krabsy.com: presence, material via + Add, ▶ to a typed step, typing mirrored in 0.37 s over the internet, ghost hand, star, End → note saved, 0 errors; test space deleted. First real lesson with Nora 2026-11-27; setup: docs/live-lesson-guide.md)
 2026-11-27, LIVE and verified on krabsy.com: the tutor does it on the student's screen (left click = do, typing box, right click = point; tutor answers 'by you', not in the star map), lessons keep running while the tutor navigates (red bar, 'Back to live lesson'), confirmations before ending.
 Next foundation (owner decision 2026-11-27): **one learner, many connections** — one profile/history per child across own play, classes and tutors (`docs/tutor-platform-v2.md` §4.10, WP 0.10), before the new tutor app.

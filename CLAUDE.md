@@ -10,8 +10,8 @@ topic (new games must take the `quiz` shape, rules in
 `docs/game-contract.md`), teacher tools around them.
 **Tutors (2026-11-25): `docs/tutor-platform.md`** — tutors are the first
 paying audience (Pro tools); kids and teachers stay free.
-**Students (2026-11-27): `docs/student-path.md`** — games are the USP; a daily
-path, vocabulary and a gradually switching interface language are built around
+**Students (2026-11-27): `docs/student-path.md`** — games are the USP; a practice
+session (weekly goal), vocabulary and a gradually switching interface language are built around
 them to feed the tutor's skill map.
 
 ## Repository layout
