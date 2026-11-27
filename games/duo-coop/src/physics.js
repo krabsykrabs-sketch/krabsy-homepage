@@ -30,7 +30,8 @@ export class World {
 
   inside(cx, cy) { return cx >= 0 && cx < W && cy >= 0 && cy < H; }
   solid(cx, cy) {
-    if (!this.inside(cx, cy)) return true;
+    if (cy < 0) return false;                   // below the room: open (bottomless gaps)
+    if (!this.inside(cx, cy)) return true;      // side walls and ceiling
     return this.grid[cy][cx] === '#' || this.extra[cy * W + cx] > 0;
   }
   ladder(cx, cy) { return this.inside(cx, cy) && this.grid[cy][cx] === 'H'; }

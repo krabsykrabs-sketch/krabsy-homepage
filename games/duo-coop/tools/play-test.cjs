@@ -184,6 +184,16 @@ async function run(browser, cfg) {
   await walkTo(C, 12, { jump: false });
   let p = await runJump(C, 'right', 14.6);
   if (cx(p) < 19) fail(`climber did not clear the pit (x ${cx(p).toFixed(2)})`);
+  // the strong one tries the gap: falls, and is back at the room's start a moment later
+  await btn(S, 'right', true);
+  for (let t = 0; t < 3 && (await P(S)).y > -1; t += 1 / 30) await step();
+  await btn(S, 'right', false);
+  if ((await P(S)).y > -1) fail('strong one did not fall into the gap');
+  await shot('1-fall');
+  await step(1.3);
+  p = await P(S);
+  if (Math.abs(cx(p) - 4.5) > 0.3 || p.y !== 3) fail(`strong one not back at the start after the fall (x ${cx(p).toFixed(2)} y ${p.y.toFixed(2)})`);
+  await walkTo(S, 13.5);
   await walkTo(C, 20.5);
   await answer(C);
   await expect(async () => (await objs()).b.solid, 'bridge not built');

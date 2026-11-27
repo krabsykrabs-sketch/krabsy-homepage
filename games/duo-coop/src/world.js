@@ -74,6 +74,26 @@ export function buildRoom(scene, room, world, models) {
     group.add(w);
   }
 
+  // ── bottomless gaps: a dark shaft fading into the depth ──────────────────────────
+  const shaftTex = keep(canvasTex(8, 128, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, 0, h);
+    gr.addColorStop(0, 'rgba(10,10,22,0)'); gr.addColorStop(0.3, 'rgba(10,10,22,0.7)'); gr.addColorStop(0.75, 'rgba(6,6,14,1)'); gr.addColorStop(1, 'rgba(6,6,14,1)');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  }));
+  const shaftM = keep(new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, depthWrite: false }));
+  for (let x = 0; x < W; x++) {
+    if (solid(x, 0)) continue;
+    let top = 0;
+    for (const nx of [x - 1, x + 1]) for (let y = 0; y < H && solid(nx, y); y++) top = Math.max(top, y + 1);
+    const h = top + 2;   // from just above the floor line down to below the room
+    for (const z of [-0.98, 0.99]) {      // in front of the back wall, and over the open front
+      const p = new THREE.Mesh(keep(new THREE.PlaneGeometry(1.02, h)), shaftM);
+      p.position.set(x + 0.5, top - h / 2, z);
+      p.renderOrder = 2;
+      group.add(p);
+    }
+  }
+
   // ── ladders ───────────────────────────────────────────────────────────────────────
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     if (room.grid[y][x] !== 'H') continue;

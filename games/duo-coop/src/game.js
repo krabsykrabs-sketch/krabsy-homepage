@@ -116,7 +116,7 @@ export async function createGame(canvas, opts) {
     boxes = [];
     const addBox = (x, y, hanging = null) => {
       const b = world.addBody({ kind: 'box', x: x + 0.02, y, w: 0.96, h: 0.96, static: !!hanging });
-      b.mesh = view.crateView(); b.cage = hanging;
+      b.mesh = view.crateView(); b.cage = hanging; b.home = [x + 0.02, y];
       boxes.push(b); return b;
     };
     for (const [x, y] of room.boxes) addBox(x, y);
@@ -125,7 +125,7 @@ export async function createGame(canvas, opts) {
       const role = ROLES[p.role];
       const [sx, sy] = room.spawn[p.role];
       p.body = world.addBody({ kind: 'player', role: p.role, x: sx - role.w / 2, y: sy, w: role.w, h: role.h, facing: 1, pi: p.pi });
-      p.hasKey = false; p.holding = null; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0;
+      p.hasKey = false; p.holding = null; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
       p.key.visible = false;
     }
     syncSolids(true);
@@ -303,6 +303,10 @@ export async function createGame(canvas, opts) {
     sfx('portal');
   }
 
+  function resetBox(box) {
+    box.x = box.home[0]; box.y = box.home[1]; box.vy = 0; box.onGround = false; box.support = null;
+  }
+
   function carryOrDrop(p) {
     const b = p.body;
     if (p.carrying) {
@@ -364,7 +368,7 @@ export async function createGame(canvas, opts) {
     const inputs = new Map();
     for (const p of players) {
       const r = input.read(p.pi);
-      if (p.card) continue;
+      if (p.card || p.fallAt) continue;
       if (p.holding) {
         if (r.anyMovePressed || r.actionPressed) release(p);
         continue;
@@ -402,10 +406,26 @@ export async function createGame(canvas, opts) {
       p.carrying.y = b.y + b.h + 0.05;
     }
 
-    // fell out of the room somehow → back to the spawn
-    for (const p of players) if (p.body.y < -3) {
-      const [sx, sy] = room.spawn[p.role]; p.body.x = sx - p.body.w / 2; p.body.y = sy; p.body.vy = 0;
+    // fell into a bottomless gap → a moment later back at this room's start (no lives lost;
+    // what the room already has open stays open, a carried key stays with the player)
+    for (const p of players) {
+      const b = p.body;
+      if (!p.fallAt && b.y < -1) {
+        p.fallAt = played;
+        if (p.holding) release(p);
+        if (p.carrying) { const box = p.carrying; p.carrying = null; box.carried = false; resetBox(box); }
+        toast(p, t('fell')); sfx('fall');
+        onEvent('fell', { player: p.pi + 1 });
+      }
+      if (p.fallAt && played - p.fallAt > 1.0) {
+        const [sx, sy] = room.spawn[p.role];
+        b.x = sx - b.w / 2; b.y = sy; b.vx = 0; b.vy = 0; b.support = null; b.climbing = false;
+        p.fallAt = 0; p.inZone.clear(); p.portalCd = 0.5;
+        sfx('portal');
+      }
     }
+    // a crate that falls in comes back where it started
+    for (const box of boxes) if (!box.carried && box.y < -2) resetBox(box);
 
     // room done when both stand in the open exit
     const ex = room.objects.find((o) => o.type === 'exit');

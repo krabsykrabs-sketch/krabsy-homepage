@@ -48,6 +48,7 @@ export function sfx(name) {
       case 'portal': tone(300, 0.4, { type: 'sine', vol: 0.12, slide: 3 }); break;
       case 'key': [880, 1175, 1568].forEach((f, i) => tone(f, 0.12, { type: 'triangle', vol: 0.1, at: i * 0.07 })); break;
       case 'room': [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, { type: 'triangle', vol: 0.12, at: i * 0.11 })); break;
+      case 'fall': tone(520, 0.7, { type: 'triangle', vol: 0.1, slide: 0.25 }); break;
       case 'thud': tone(90, 0.18, { type: 'sine', vol: 0.18, slide: 0.6 }); break;
     }
   } catch (_) { /* audio not available */ }

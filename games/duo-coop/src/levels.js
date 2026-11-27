@@ -2,7 +2,8 @@
 // bottom row). Each room is built from a few drawing steps instead of hand-typed ASCII,
 // so a room stays easy to change. `ascii(room)` prints it for checking.
 //
-// Cell kinds in `grid`: '#' solid, 'H' ladder, '.' empty.
+// Cell kinds in `grid`: '#' solid, 'H' ladder, '.' empty. A column left empty down to
+// y = 0 is a bottomless gap: whoever falls in starts again at the room's spawn (game.js).
 // Objects (all with an id):
 //   lever  { targets }            any player, question → its targets turn on (one way)
 //   switch { targets }            the same, a button on a wall
@@ -58,8 +59,7 @@ export const ROOMS = [
       fill(1, 5, 6, 6);                    // ledge (top at y = 7)
       fill(6, 6, 3, 6, 'H');               // ladder up to it
       fill(8, 8, 6, H - 2);                // wall above door A
-      fill(15, 18, 1, 2, '.');             // the pit
-      fill(15, 15, 1, 1);                  // step to climb out of the pit (back to the left)
+      fill(15, 18, 0, 2, '.');             // the gap: no bottom (a fall = back to the start)
       fill(25, 25, 6, H - 2);              // wall above the heavy gate
     },
     objects: [

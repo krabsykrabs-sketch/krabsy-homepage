@@ -71,7 +71,7 @@ camera frames both players and never shows more than the room.
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 1 Levers & doors | lever on a ledge (ladder) opens door A · climber jumps a pit too wide for the strong one, bridge post builds a bridge · strong one lifts the heavy gate and holds it, climber slips under and props it with a lever · exit | lever C, post C, gate S, lever C, exit (first there) = 5 |
+| 1 Levers & doors | lever on a ledge (ladder) opens door A · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · strong one lifts the heavy gate and holds it, climber slips under and props it with a lever · exit | lever C, post C, gate S, lever C, exit (first there) = 5 |
 | 2 Boxes | key on a shelf (ladder) · locked door · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, door C, heavy lever S, portal C, exit = 5 |
 | 3 Together | switch on a ledge only reachable from the strong one's head · strong one holds the heavy gate, climber switches on the portal beyond it, strong one lets go and comes through the portal · key at the end of a 1-high tunnel · locked door · exit | switch C, gate S, portal C, key C, door C, exit = 6 |
 
@@ -81,6 +81,16 @@ object as it was and shows the teach line on the card; pressing it again asks a
 new question. No lives, no game over; Pause → "Restart room" if a crate gets stuck
 (a carried crate can also be put down anywhere, so a crate in a corner can be
 fetched).
+
+### Falling (owner 2026-11-27)
+
+Gaps have no bottom (a column empty down to y = 0; `physics.js` `solid()` is open below
+the room). Whoever falls in drops into a dark shaft, gets "Whoops! Back to the start." /
+"Hoppla! Zurück zum Start." / "¡Uy! Vuelves al inicio." and is back at **this room's
+spawn** after 1 s. No lives, no game over: what is already open stays open, a carried key
+stays with the player, a held gate is let go, a carried crate goes back to where it
+started (a crate that falls in does too). Before this, a player could get stuck under the
+bridge in the old pit (owner's test). Only room 1 has a gap so far.
 
 ## Questions and answers
 
@@ -191,6 +201,8 @@ measure it.
   requests). The ERR_ABORTED reports from earlier runs came from `tools/serve.py`
   sending `Cache-Control: no-store`; it sends `no-cache` now and the bot counts every
   failed request as an error again.
+- 2026-11-27 — Bottomless gap + falling back to the room start (owner); the bot now
+  walks the strong one into the gap and checks the respawn.
 
 ## Open (owner)
 
