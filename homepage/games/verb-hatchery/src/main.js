@@ -10,6 +10,7 @@ import { Thieves } from './thieves.js';
 import { Minimap } from './minimap.js';
 import { buildCreature, speciesName, animateCreature } from './creatures.js';
 import { Raids } from './raid.js';
+import { Guide } from './guide.js';
 import { Hall, ROOM, HALL_DOOR, HALL_SPAWN, BARN_DOOR, BARN_OUT, PEDESTALS } from './hall.js';
 import { ROSTER, isRosterId, isGolden, iconUrl, rosterTrick, creaturesOf, preload, entry as ENTRY } from './roster.js';
 import { reserveSpots, buildDecor } from './decor.js';
@@ -157,6 +158,7 @@ const entryHeight = (sp) => { const c = ENTRY(sp); return c ? c.scale : 1; };
 // 1 walk to the egg → 2 pick it up → 3 bring it home to the pad → 4 it hatches (fast)
 // → 5 hatch it → 6 "it earns coins" → done. A bouncing arrow shows where to go.
 let tut = null; // { step, egg, t }
+let guide = null; // the dashed line on the ground (made in boot)
 const tutArrow = (() => {
   const c = document.createElement('canvas'); c.width = c.height = 64;
   const x = c.getContext('2d');
@@ -193,7 +195,7 @@ function updateTutorial(dt) {
   if (!tut) return;
   tut.t += dt;
   const bob = Math.abs(Math.sin(world.time * 3)) * 0.4;
-  const point = (x, y, z) => { tutArrow.visible = true; tutArrow.position.set(x, y + bob, z); };
+  const point = (x, y, z) => { tutArrow.visible = true; tutArrow.position.set(x, y + bob, z); guide.set(x, z); };
   if (tut.step === 1 || tut.step === 2) {
     if (!wild.includes(tut.egg) && !st.carry.length) tut.egg = tutEgg(); // (it rolled away: a new one)
     if (st.carry.length) tutStep(3);
@@ -214,10 +216,10 @@ function updateTutorial(dt) {
     else if (inc) { point(INC_POS[tut.inc].x, INC_POS[tut.inc].y + 3.2, INC_POS[tut.inc].z); tutSay(S.isReady(inc) ? 'tut5' : 'tut4'); }
   }
   if (tut.step === 5) {
-    tutArrow.visible = false; tutSay('tut6');
+    tutArrow.visible = false; guide.set(null); tutSay('tut6');
     if (tut.t > 8) {
       tut = null; st.tutDone = true; evtTimer = EVENTS.first; save(); setTimeout(startDaily, 4000);
-      $('coach').classList.remove('on'); world.scene.remove(tutArrow);
+      $('coach').classList.remove('on'); world.scene.remove(tutArrow); guide.set(null);
       A.ev('tutorial', { step: 6 });
     }
   }
@@ -1075,6 +1077,27 @@ function frame(now) {
     }
   }
 }
+// Start view (owner 2026-11-26): after Play the camera first looks at the player from the
+// front, with the farm behind, then swings round behind the player towards the island.
+// Any input (keys, stick, drag) ends it at once.
+const INTRO = { hold: 1.3, swing: 2.4, yaw: Math.PI * 0.9, dist: 8.5, pitch: -0.18 };
+let intro = null;
+function startIntro() {
+  intro = { t: 0, dist0: player.camDist, pitch0: player.pitch };
+  player.yaw = INTRO.yaw; player.camDist = INTRO.dist; player.pitch = INTRO.pitch;
+}
+function updateIntro(dt) {
+  if (!intro) return;
+  intro.t += dt;
+  const busy = player.keys.size || player.drag || player.stick.id !== null || player.look.id !== null || card || panel;
+  const k = Math.min(1, Math.max(0, (intro.t - INTRO.hold) / INTRO.swing)), e = k * k * (3 - 2 * k);
+  if (!busy) {
+    player.yaw = INTRO.yaw * (1 - e);
+    player.camDist = INTRO.dist + (intro.dist0 - INTRO.dist) * e;
+    player.pitch = INTRO.pitch + (intro.pitch0 - INTRO.pitch) * e;
+  }
+  if (busy || k >= 1) { player.camIdle = 0; intro = null; }
+}
 function frameBody(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
@@ -1083,6 +1106,8 @@ function frameBody(now) {
     const paused = !!card || !!panel || !!grab;
     player.enabled = !paused;
     player.update(dt);
+    updateIntro(dt);
+    if (guide) guide.update(paused ? 0 : dt, player.pos);
     world.followSun(player.pos);
     S.tick(st, dt);
     // coins floating from pens (visual; the real income is continuous)
@@ -1179,7 +1204,7 @@ function frameBody(now) {
     player.update(0);
   }
   hall.update(dt, animateCreature);
-  world.update(dt);
+  world.viewer = player.pos; world.update(dt);
   updateLabels();
 }
 
@@ -1267,6 +1292,7 @@ async function boot() {
   reserveSpots(world);
   const decor = world.loadDecor().then(() => buildDecor(world)).catch((e) => console.error('decor', e))
     .then(() => world.batch.build(true)); // merge all static props into a few meshes
+  guide = new Guide(world.scene);
   requestAnimationFrame(frame);
   $('playBtn').textContent = t('loading');
   await Promise.all([Q.init(), decor, loadCharacters(st.look || 'A').catch((e) => console.error('characters', e)),
@@ -1294,6 +1320,7 @@ $('playBtn').addEventListener('click', () => {
   $('start').classList.add('off');
   $('hud').classList.add('on');
   player.spawn(SPAWN, 0);
+  startIntro();
   running = true;
   if (away.coins >= 1) floatCenter(`+${fmt(away.coins)}`);
   renderHud(); renderGoals(true);
@@ -1332,7 +1359,7 @@ if (DEBUG) {
     home() { this.tp(PAD.x, PAD.z - 1); player.lookAtPoint(PAD.x, PAD.z + 6); },
     act, answer(right = true) { const q = card.steps[card.i]; answer(q.options.findIndex((o) => (o === q.answer) === right)); },
     raids, startRaid() { raids.timer = 0; },
-    skipTut() { if (tut) { tut = null; st.tutDone = true; $('coach').classList.remove('on'); world.scene.remove(tutArrow); evtTimer = EVENTS.first; } },
+    skipTut() { if (tut) { tut = null; st.tutDone = true; guide.set(null); $('coach').classList.remove('on'); world.scene.remove(tutArrow); evtTimer = EVENTS.first; } },
     startDaily, get daily() { return wild.find((e) => e.daily); },
     sync: syncWorld, open: openPanel, get evt() { return evt; }, startEvent, evtIn(sec) { evtTimer = sec; },
     toEvent() { if (!evt) return null; this.tp(evt.egg.x, evt.egg.z + 3); player.lookAtPoint(evt.egg.x, evt.egg.z); return evt.zone.id; }, catchMe() { const th = thieves.list[0]; if (st.carry.length) thiefCatch(th); },

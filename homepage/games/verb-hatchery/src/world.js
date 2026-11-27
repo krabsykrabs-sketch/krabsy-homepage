@@ -375,6 +375,7 @@ const pbox = (w, h, d, hex, x, y, z) => paint(new THREE.BoxGeometry(w, h, d), he
 const pcyl = (rt, rb, h, hex, x, y, z, seg = 20) => paint(new THREE.CylinderGeometry(rt, rb, h, seg), hex).translate(x, y, z);
 const COL = { wood: 0xc68a52, woodDark: 0x9a6236, metalDark: 0x55657f, teal: 0x2ee6c0, coral: 0xff8585, amber: 0xffcf5e, pen: 0xa8e08f, wall: 0xfff1d6 };
 
+const _fv = new THREE.Vector3(), _fd = new THREE.Vector3(), _fq = new THREE.Quaternion();
 // Base layout (world coordinates). The player arrives from the north (−z).
 const HY = 0.4; // base floor height
 export const PAD = new THREE.Vector3(HOME.x, HY, HOME.z - 9);
@@ -784,7 +785,7 @@ export class World {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.12, 8, 40).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     ring.position.set(PAD.x, HY + 0.2, PAD.z); s.add(ring); this.padRing = ring;
     const padSign = this._textSprite('⬇ 🥚 ⬇', '#0d2240', '#2ee6c0', 256);
-    padSign.position.set(PAD.x, HY + 3.2, PAD.z); padSign.scale.set(2.6, 1.3, 1); s.add(padSign); this.padSign = padSign;
+    padSign.position.set(PAD.x, HY + 3.0, PAD.z); padSign.scale.set(3.2, 0.8, 1); s.add(padSign); this.padSign = padSign; // (4:1 like its canvas)
     // beacon over the base, visible from everywhere
     // (world step 4: slimmer and fading out with the height, like the egg beams; it is
     // widened with the distance in update(), so it still shows the way home from afar)
@@ -1042,7 +1043,7 @@ export class World {
   showWaiting(i, sp) {
     const c = this.incubators[i];
     this.clearIncubator(i);
-    const cr = buildCreature(sp); cr.position.y = 0.55; cr.scale.setScalar(cr.userData.real ? Math.min(1.5, 1.4 / cr.userData.height) : 0.9);
+    const cr = buildCreature(sp); cr.position.y = 0.55; cr.scale.setScalar(cr.userData.real ? Math.min(1.5, 1.4 / cr.userData.height) : 0.9); cr.rotation.y = Math.PI;
     c.group.add(cr); c.waiting = cr;
   }
   setPenCreature(i, sp) {
@@ -1093,6 +1094,22 @@ export class World {
     this.camera.updateProjectionMatrix();
   }
 
+  // Creatures in pens and incubators turn to look at the player when they are close
+  // (owner 2026-11-26: "they should face me, not the farm building"); otherwise they
+  // look at the path (−z). `this.viewer` = the player's position, set by main.
+  _faceViewer(cr, dt) {
+    let want = Math.PI;
+    if (this.viewer) {
+      cr.getWorldPosition(_fv);
+      const dx = this.viewer.x - _fv.x, dz = this.viewer.z - _fv.z;
+      if (dx * dx + dz * dz < 14 * 14) {
+        cr.parent.getWorldQuaternion(_fq); _fd.set(dx, 0, dz).applyQuaternion(_fq.invert());
+        want = Math.atan2(_fd.x, _fd.z);
+      }
+    }
+    let d = want - cr.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d));
+    cr.rotation.y += d * Math.min(1, dt * 4);
+  }
   update(dt) {
     this.time += dt;
     for (const f of this.fx.slice()) {
@@ -1106,10 +1123,10 @@ export class World {
         console.error('[hatchery] animation error', err);
       }
     }
-    for (const p of this.pens) if (p.creature) animateCreature(p.creature, this.time, dt);
+    for (const p of this.pens) if (p.creature) { animateCreature(p.creature, this.time, dt); this._faceViewer(p.creature, dt); }
     for (const c of this.extra) animateCreature(c, this.time, dt, 1);
     for (const c of this.incubators) {
-      if (c.waiting) animateCreature(c.waiting, this.time, dt, 1);
+      if (c.waiting) { animateCreature(c.waiting, this.time, dt, 1); this._faceViewer(c.waiting, dt); }
       if (c.egg) c.egg.rotation.z = c.ready ? Math.sin(this.time * 14) * 0.12 * (Math.sin(this.time * 2.2) > 0.2 ? 1 : 0.2) : 0;
       c.bulb.material.color.setHex(c.egg ? 0xffd27a : 0x8a7a5a);
     }

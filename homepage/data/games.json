@@ -138,9 +138,9 @@
       "es": "¡Encuentra huevos en la isla, responde preguntas y haz nacer criaturas!",
       "en": "Find eggs on the island, answer Spanish sentences and hatch creatures!"
     },
-    "thumbnail": "/thumbnails/sm/verb-hatchery.jpg",
-    "thumb_small": "/thumbnails/sm/verb-hatchery.jpg",
-    "hero": "/thumbnails/hero/verb-hatchery.jpg",
+    "thumbnail": "/thumbnails/sm/verb-hatchery-v2.jpg",
+    "thumb_small": "/thumbnails/sm/verb-hatchery-v2.jpg",
+    "hero": "/thumbnails/hero/verb-hatchery-v2.jpg",
     "topics": [
       "es_ser",
       "es_estar",
