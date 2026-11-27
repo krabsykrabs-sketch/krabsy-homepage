@@ -94,6 +94,11 @@
     "devices": "phone_ok",
     "thumb_small": "/thumbnails/sm/verb-kitchen.jpg",
     "hero": "/thumbnails/hero/verb-kitchen.jpg",
+    "clip": {
+      "de": "/clips/verb-kitchen-de.mp4?v=1",
+      "es": "/clips/verb-kitchen-es.mp4?v=1",
+      "en/spanish": "/clips/verb-kitchen-en-spanish.mp4?v=1"
+    },
     "featured_in": ["en/spanish"],
     "ui_langs": [
       "de",

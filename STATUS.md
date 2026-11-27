@@ -1,5 +1,13 @@
 # Krabsy — status dashboard
 
+## Game clips on card hover (2026-11-27), pilot: Verb Kitchen, not deployed
+
+Owner chose real gameplay over animated thumbnails, "a bit more exciting, not everything exactly as in the game". A ~8.6 s silent loop plays over the card picture: mouse on hover (140 ms delay), keyboard on focus, phones when the card is fully in view (one at a time); nothing with reduce-motion or Save-Data; nothing downloads before a card asks.
+- **Player:** `lib/krabsy-clips.js` (module) on the landing pages and games hubs of all three sections (`/de/`, `/es/`, `/en/spanish/`, `/de/spiele/`, `/es/juegos/`, `/en/spanish/games/`). It finds cards by `data-game-id` or their `/…/<id>/` link, so static and JS-built cards both work. Clip per section: `games.json` `"clip": {"<section id>": url}`.
+- **Clips:** `homepage/clips/verb-kitchen-{de,es,en-spanish}.mp4` (640×360 H.264, ~390 KB each). DE/ES: take → took → taken; EN/Spanish: "Yo ___ de Inglaterra" → soy.
+- **Recorder:** `node tools/game-clips/record.cjs verb-kitchen --section de|es|en/spanish` (site on :8000, ~7 min per clip, run the three in parallel). Frame-exact: fake page clock + stepped CSS animations, captured at 2× and scaled down. Scene file `tools/game-clips/verb-kitchen.cjs`: real play through the game's QA hook (`window.__VK`) + a movie camera rig (shots, slow motion, shake); HUD, tickets, progress bars and target square hidden. `--seed N` picks the question, `--probe` finds seeds fast. **When a game changes visibly, re-record and bump `?v=` in games.json.** A new game needs its own scene file (QA hook required).
+- Checked headless: hover plays and stops on all 6 pages, touch emulation plays in view and stops when scrolled away, 0 console errors. Not checked: real Safari/iOS.
+
 ## English tense topics: own pages + Themen by class year (2026-11-27), not deployed
 
 The four gap topics en_simple_past, en_present_simple, en_present_progressive, en_present_perfect now belong to the DE/ES sections (topics.json `de`/`es` slugs + `pages` sprint/fill-the-gap).
