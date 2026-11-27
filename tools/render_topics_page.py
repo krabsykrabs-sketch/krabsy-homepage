@@ -102,7 +102,7 @@ CSS = """
     .tp-name { font-family: var(--font-display); font-weight: normal; font-size: 1.3rem; line-height: 1.2; margin: 4px 0 0; }
     .tp-name a { color: var(--krabsy-ink); text-decoration: none; }
     .tp-name a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    .tp-line { margin: 0; line-height: 1.45; }
+    .tp-line { margin: 0; line-height: 1.4; font-size: 1.05rem; font-style: italic; color: #3d3a52; }
     .tp-stats { margin: 0; font-size: 0.85rem; color: var(--krabsy-ink-mute); }
     .tp-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: auto; padding-top: 10px; }
     .tp-practise {
@@ -169,8 +169,11 @@ def section_cards(sec):
         practise = R.topic_url(tid, sec, "sprint") if "sprint" in (t.get("pages") or {}) else hub
         out.append({
             "id": tid,
-            "name": pick(t.get("display_name"), ui) or tid,
-            "line": first_sentence(pick(t.get("description"), ui)),
+            # "Simple Present: he plays, does he play?" → "Simple Present" (the example has its own line)
+            "name": (pick(t.get("display_name"), ui) or tid).split(":")[0].strip(),
+            # owner 2026-11-27: "too much text" → one example line instead of the description
+            "line": t.get("card_example") or first_sentence(pick(t.get("description"), ui)),
+            "learn": "es" if tid.startswith("es_") else "en",
             "stats": pick(t.get("card_stats"), ui),
             "hub": hub,
             "practise": practise,
@@ -203,8 +206,8 @@ def card_html(c, s, i):
     return f"""          <li>
             <article class="tp-card" style="--tp-accent: {ACCENTS[i % len(ACCENTS)]}" aria-labelledby="tp-{c['id']}">
               <h3 class="tp-name" id="tp-{c['id']}"><a href="{esc(c['hub'])}">{esc(c['name'])}</a></h3>
-              <p class="tp-line">{esc(c['line'])}</p>
-              <p class="tp-stats">{esc(" · ".join(x for x in (c["year_label"], c["stats"]) if x))}</p>
+              <p class="tp-line" lang="{c['learn']}">{esc(c['line'])}</p>
+              {f'<p class="tp-stats">{esc(c["year_label"])}</p>' if c["year_label"] else ''}
               <div class="tp-acts">
                 <a class="tp-practise" href="{esc(c['practise'])}" aria-label="{esc(s['practise'] + ': ' + c['name'])}">{ICON_PRACTISE}<span>{esc(s['practise'])}</span></a>
                 {games}

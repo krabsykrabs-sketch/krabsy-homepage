@@ -1,6 +1,7 @@
 {
   "irregular_verbs": {
     "subject": "english", "level": null, "shapes": ["chain", "quiz"],
+    "card_example": "go → went → gone",
     "in_sentence": {"de": "Unregelmäßige Verben", "es": "verbos irregulares"},
     "years": {"de": [5, 7], "es": [7, 8]},
     "de": "unregelmaessige-verben",
@@ -40,6 +41,7 @@
   },
   "prepositions": {
     "subject": "english", "level": null, "shapes": ["quiz"],
+    "card_example": "at school · on Monday · in July",
     "in_sentence": {"de": "Präpositionen", "es": "preposiciones"},
     "years": {"de": [5, 6], "es": [7, 8]},
     "de": "praepositionen",
@@ -73,6 +75,7 @@
   },
   "es_ser": {
     "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-ser.json",
+    "card_example": "Soy Lucas. Soy de Madrid.",
     "in_sentence": {"en": "ser"},
     "en": "spanish/ser",
     "display_name": {
@@ -96,6 +99,7 @@
   },
   "es_estar": {
     "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-estar.json",
+    "card_example": "Estoy cansado. Estoy en casa.",
     "in_sentence": {"en": "estar"},
     "en": "spanish/estar",
     "display_name": {
@@ -119,6 +123,7 @@
   },
   "es_ser_estar": {
     "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-ser-estar.json",
+    "card_example": "Soy alto, pero estoy cansado.",
     "in_sentence": {"en": null},
     "en": "spanish/ser-or-estar",
     "display_name": {
@@ -142,6 +147,7 @@
   },
   "es_tener": {
     "subject": "spanish", "level": "A1", "shapes": ["quiz"], "file": "es-tener.json",
+    "card_example": "Tengo diez años.",
     "in_sentence": {"en": "tener"},
     "en": "spanish/tener",
     "display_name": {
@@ -165,6 +171,7 @@
   },
   "en_simple_past": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-simple-past.json",
+    "card_example": "Yesterday I walked home.",
     "in_sentence": {"de": "die wichtigsten Zeitformen", "es": "los tiempos verbales más importantes"},
     "years": {"de": [5, 6], "es": [7, 7]},
     "de": "simple-past",
@@ -194,6 +201,7 @@
   },
   "en_present_simple": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-simple.json",
+    "card_example": "He plays. Does he play?",
     "in_sentence": {"de": null, "es": null},
     "years": {"de": [5, 5], "es": [5, 7]},
     "de": "simple-present",
@@ -223,6 +231,7 @@
   },
   "en_present_progressive": {
     "subject": "english", "level": "A1", "shapes": ["quiz"], "file": "en-present-progressive.json",
+    "card_example": "Look! She is running.",
     "in_sentence": {"de": null, "es": null},
     "years": {"de": [5, 5], "es": [7, 7]},
     "de": "present-progressive",
@@ -252,6 +261,7 @@
   },
   "en_present_perfect": {
     "subject": "english", "level": "A2", "shapes": ["quiz"], "file": "en-present-perfect.json",
+    "card_example": "I have never seen a whale.",
     "in_sentence": {"de": null, "es": null},
     "years": {"de": [6, 6], "es": [7, 9]},
     "de": "present-perfect",
