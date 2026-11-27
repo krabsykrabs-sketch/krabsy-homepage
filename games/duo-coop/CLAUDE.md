@@ -26,7 +26,11 @@ python3 games/duo-coop/tools/serve.py          # port 8930
 for everything else, so `/lib` (question engine, stats, figures), `/data` and
 `/assets/figures/` are there like on the site. Nothing is copied.
 
-URL options: `?lang=de|es|en`, `?topic=<id>` (any quiz topic, e.g. `es_ser`,
+**All rooms open** (owner 2026-11-27, for testing): the title screen has "Start in room: 1 · 2 · 3"
+under the Play button; `?room=N` in the URL starts straight in room N. "Play together"
+and "Play again" start in room 1.
+
+URL options: `?room=1|2|3`, `?lang=de|es|en`, `?topic=<id>` (any quiz topic, e.g. `es_ser`,
 `prepositions`), `?touch=1|0` (force the touch buttons on/off), `?autostart=1`
 (skip the title screen), `?shadows=0`.
 
@@ -243,6 +247,7 @@ measure it.
 - 2026-11-27 — The wall breaks when the fist lands (0.75 s into the Throw clip, checked
   frame by frame). The key flies to the locked door and opens it (no key on the door, no
   door question); room 1 exit open from the start: 11 questions instead of 14.
+- 2026-11-27 — Room picker on the title screen (all rooms open) + `?room=N`.
 
 ## Open (owner)
 

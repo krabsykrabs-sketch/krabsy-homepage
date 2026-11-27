@@ -70,6 +70,7 @@ function renderMenu() {
   applyStatic();
   document.querySelectorAll('.lang-switch button').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
   $('topic-line').textContent = topicLine(topic);
+  document.querySelectorAll('.room-pick [data-room]').forEach((b) => { const n = +b.dataset.room + 1; b.textContent = `${n} · ${t('room.' + n)}`; });
   renderPicker(0); renderPicker(1);
   const link = $('figure-link');
   link.hidden = !choices.available;
@@ -88,7 +89,7 @@ async function showMenu() {
 }
 
 // ── play ─────────────────────────────────────────────────────────────────────────────
-async function play() {
+async function play(room = 0) {
   if (state === 'loading') return;
   setState('loading');
   $('menu').hidden = true; $('results').hidden = true;
@@ -108,7 +109,7 @@ async function play() {
   $('hud').hidden = false;
   $('touch').hidden = !touch;
   setState('playing');
-  game.start();
+  game.start(room);
   window.__duo.game = game.debug;
 }
 
@@ -160,8 +161,10 @@ for (const pi of [0, 1]) {
   card.querySelector('.next').addEventListener('click', () => step(pi, 1));
 }
 $('swap-roles').addEventListener('click', () => { pick.swap = !pick.swap; store.set(K_SWAP, pick.swap ? '1' : '0'); renderPicker(0); renderPicker(1); });
-$('play-btn').addEventListener('click', play);
-$('again-btn').addEventListener('click', play);
+$('play-btn').addEventListener('click', () => play(0));
+// all rooms are open: start directly in any of them (testing, or to play one again)
+document.querySelectorAll('.room-pick [data-room]').forEach((b) => b.addEventListener('click', () => play(+b.dataset.room)));
+$('again-btn').addEventListener('click', () => play(0));
 $('results-menu-btn').addEventListener('click', showMenu);
 $('menu-btn').addEventListener('click', showMenu);
 $('resume-btn').addEventListener('click', () => pause(false));
@@ -187,6 +190,7 @@ window.__duo = { state: () => state, play, menu: showMenu, game: null, input };
   if (pick.p1 !== 'mine' && !choices.free.includes(pick.p1)) pick.p1 = 'mine';
   $('loader').hidden = true;
   const q = new URLSearchParams(location.search);
-  if (q.get('autostart') === '1') play();
+  const room = Math.max(0, (parseInt(q.get('room'), 10) || 1) - 1);   // ?room=2 → room 2
+  if (q.get('autostart') === '1' || q.has('room')) play(room);
   else showMenu();
 })();

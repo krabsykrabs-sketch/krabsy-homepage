@@ -551,7 +551,7 @@ export async function createGame(canvas, opts) {
   }
 
   return {
-    start() { played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(0); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
+    start(first = 0) { played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(Math.max(0, Math.min(ROOMS.length - 1, first))); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
     pause(b) { paused = !!b; input.clear(); },
     restartRoom() { paused = false; loadRoom(roomIdx); },
     dispose() {

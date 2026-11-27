@@ -145,6 +145,11 @@ h1 .work { font-family: Nunito, sans-serif; font-size: 12px; color: #8a8f9e; ver
   font-family: 'Fredoka One', sans-serif; font-size: 22px; color: var(--ink); box-shadow: 0 4px 0 #d9a93a; }
 .big-btn:focus-visible, .plain-btn:focus-visible, .arrow:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .plain-btn { display: block; margin: 6px auto; border: 2px solid #e3dccb; background: #fff; border-radius: 14px; padding: 8px 22px; font-weight: 700; }
+.room-pick { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin: 4px 0 2px;
+  font-size: 13px; font-weight: 700; color: #5a6072; }
+.room-pick button { border: 2px solid #e3dccb; background: #fff; border-radius: 12px; padding: 5px 10px; font-weight: 700;
+  font-size: 13px; color: var(--ink); }
+.room-pick button:hover, .room-pick button:focus-visible { border-color: var(--ink); background: #fff3cf; outline: none; }
 .small-note { font-size: 12px; color: #6a7080; margin: 8px 0 0; }
 .small-note a { color: #2a9d84; font-weight: 700; margin-left: 6px; }
 .sum { font-family: 'Fredoka One', sans-serif; font-size: 22px; margin: 4px 0 6px; }
