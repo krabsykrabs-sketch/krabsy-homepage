@@ -1138,3 +1138,12 @@ Not checked by eye: the intro swing at real frame rates (headless is slow).
   within 14 m (`world.viewer = player.pos`, set each frame in main), else back to −z.
   Checked headless: pen creature turns to the player from east, west, north; at 40 m
   it looks at the path again. 0 errors.
+
+- 2026-11-27: **New key art** in the style of the other 3D games (Gemini
+  `gemini-3-pro-image`, Kitchen hero as style reference + Birb/Bunbun/Mushnub/Drako
+  icons). Originals `_incoming/verb-hatchery-art/v1–v3.jpg`; v1 chosen and saved as
+  `homepage/thumbnails/hero/verb-hatchery-v2.jpg` (1200×675) and
+  `homepage/thumbnails/sm/verb-hatchery-v2.jpg` (640×360); new file name so cached
+  pages don't keep the old one. **For the master:** switch `games.json` (thumbnail,
+  thumb_small, hero) + re-render the pages that reference `verb-hatchery.jpg`, commit
+  the two images.
