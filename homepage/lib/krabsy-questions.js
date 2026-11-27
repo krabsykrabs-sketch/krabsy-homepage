@@ -112,7 +112,8 @@ function _shuffle(arr) {
 }
 
 function _norm(s) {
-  return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  // curly apostrophes/quotes (phone keyboards type didn’t) count as straight ones
+  return String(s || '').replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'").trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 /* Smart order: ids ranked by krabsy-smart.js for a round of `count` items.
