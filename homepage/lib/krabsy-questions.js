@@ -54,7 +54,7 @@
 import {
   getQuestions as _rawQuestions,
   loadVerbTable as _loadVerbTable,
-  getLang as _getLang,
+  currentLang as _currentLang,
   pickLang as _pickLang,
   TOPIC_IDS as _TOPIC_IDS,
   linkLevel as _linkLevel,
@@ -276,7 +276,7 @@ export async function getQuizSet(opts = {}) {
   const allowPast = !forms || forms.includes('past');
   const chainOrder = topic === 'irregular_verbs' && allowPast
     && (opts.chainOrder !== undefined ? !!opts.chainOrder : true);
-  const lang = opts.lang || _getLang();
+  const lang = opts.lang || _currentLang();
   const learnLang = _topicInfo(topic).learn;
   const raw = await _rawQuestions({ topic, difficulty, ids, shuffle: true, lang });
   const itemOf = (q) => q.useCaseId || q.verb;

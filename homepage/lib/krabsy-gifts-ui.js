@@ -14,8 +14,7 @@
    the card comes on the next site page.
    ────────────────────────────────────────────────────────────────────────── */
 import { takePending, giftBadge, giftFits } from './krabsy-rewards.js';
-
-const FIGURE_URL = { de: '/de/meine-figur/', es: '/es/mi-personaje/', en: '/en/my-figure/' };
+import { currentLang, uiPage } from './krabsy-lang.js?v=2026-11-27';
 const T = {
   de: {
     title: 'Neues Geschenk!', titleMany: '{n} neue Geschenke!', intro: 'Du hast etwas Neues bekommen:',
@@ -42,8 +41,8 @@ const T = {
 const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
 
 /** Why a gift was given, for a child: reasonText('days:7', 'de') → "Für 7 Übungstage". */
-export function reasonText(source, lang = 'de') {
-  const t = (T[lang] || T.de).why;
+export function reasonText(source, lang = currentLang()) {
+  const t = (T[lang] || T.en).why;
   const [type, arg] = String(source || '').split(':');
   if (type === 'game' && arg === 'tutor' && t.tutor) return t.tutor;      // sent live by a tutor
   if (!Object.hasOwn(t, type)) return '';
@@ -101,13 +100,13 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const MAX_ROWS = 3;
 
 /** Show the card for these gifts ([{ id, slot, key, name, image, source }]). Returns the element. */
-export function showGifts(gifts, { lang = 'de' } = {}) {
+export function showGifts(gifts, { lang = currentLang() } = {}) {
   if (!gifts || !gifts.length) return null;
   // Adult learners (tutor's "adult" flag): no gift cards; the gifts stay owned quietly.
   try { if (localStorage.getItem('krabsy_adult') === '1') return null; } catch (_) {}
   styles();
   document.querySelector('.k-gift')?.remove();
-  const t = T[lang] || T.de;
+  const t = T[lang] || T.en;
   const card = el('section', 'k-gift');
   card.setAttribute('role', 'status'); card.setAttribute('aria-live', 'polite');
   const head = el('div', 'k-gift-head');
@@ -134,11 +133,12 @@ export function showGifts(gifts, { lang = 'de' } = {}) {
   const first = gifts[0];
   const one = gifts.length === 1 && first.slot !== 'char' && giftFits(first.id);     // "Anziehen" only when it can be put on
   const go = el('a', 'k-gift-go', (one ? t.wear : t.look) + ' →');
-  go.href = `${FIGURE_URL[lang] || FIGURE_URL.de}#neu=${encodeURIComponent(first.id)}`;
+  const figure = uiPage('figure', lang) || uiPage('figure', 'en');
+  go.href = `${figure}#neu=${encodeURIComponent(first.id)}`;
   const close = () => { card.remove(); document.removeEventListener('keydown', onKey); };
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   go.addEventListener('click', (e) => {
-    if (location.pathname === (FIGURE_URL[lang] || FIGURE_URL.de)) {
+    if (location.pathname === figure) {
       e.preventDefault(); close();
       try { window.dispatchEvent(new CustomEvent('krabsy:show-gift', { detail: { id: first.id } })); } catch (_) { /* old browser */ }
     }
@@ -154,7 +154,7 @@ export function showGifts(gifts, { lang = 'de' } = {}) {
  * Called once per page by the header counter. Shows the waiting gifts when this is a
  * normal site page (not a game page, not an iframe). Never throws.
  */
-export function mountGiftPopup({ lang = 'de' } = {}) {
+export function mountGiftPopup({ lang = currentLang() } = {}) {
   try {
     if (window.top !== window) return;
     if (document.querySelector('header.k-game-nav')) return;

@@ -311,7 +311,7 @@
   </div>
 
   <script type="module">
-    import { loadStrings, loadPrepositions, getLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27n';
+    import { loadStrings, loadPrepositions, currentLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { recordAttempt, getStrugglers, getMastered, prepositionMastery } from '/lib/krabsy-stats.js?v=2026-11-25';
 
     const CURRENT_TOPIC = 'prepositions';
@@ -351,7 +351,7 @@
       const footerCopy = document.getElementById('fc-footer-copy');
       const tmpl = tGet('homepage.footer_copyright') || '© {year} Krabsy';
       footerCopy.textContent = tmpl.replace('{year}', new Date().getFullYear());
-      const lang = getLang();
+      const lang = currentLang();
       document.querySelectorAll('.k-lang-btn').forEach((btn) => {
         btn.classList.toggle('is-active', btn.dataset.lang === lang);
       });
@@ -510,7 +510,7 @@
 
     async function init() {
       try {
-        state.lang = getLang();
+        state.lang = currentLang();
         const [ui, useCases] = await Promise.all([
           loadStrings(undefined, CURRENT_TOPIC),
           loadPrepositions(),
@@ -536,7 +536,7 @@
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

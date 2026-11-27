@@ -469,7 +469,7 @@
   </dialog>
 
   <script type="module">
-    import { loadVerbTable, loadStrings, getLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27n';
+    import { loadVerbTable, loadStrings, currentLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27l';
     import {
       getOverall,
       getStrugglers,
@@ -821,7 +821,7 @@
     // ── Language toggle ─────────────────────────────────────────────────
     function wireLangToggle() {
       const buttons = document.querySelectorAll('.k-lang-btn');
-      const current = getLang();
+      const current = currentLang();
       buttons.forEach((b) => {
         b.classList.toggle('is-active', b.dataset.lang === current);
       });
@@ -880,7 +880,7 @@
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

@@ -542,7 +542,7 @@
   </div>
 
   <script type="module">
-    import { loadStrings, getLang, setLang, getGamesForTopic } from '/lib/krabsy-data.js?v=2026-11-27n';
+    import { loadStrings, currentLang, setLang, getGamesForTopic } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-25';
 
     const CURRENT_TOPIC = 'prepositions';
@@ -588,7 +588,7 @@
     }
 
     function applyI18n() {
-      document.documentElement.lang = getLang();
+      document.documentElement.lang = currentLang();
       document.querySelectorAll('[data-i18n]').forEach((el) => {
         const v = lookup(el.dataset.i18n);
         if (typeof v === 'string') el.textContent = v;
@@ -824,7 +824,7 @@
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

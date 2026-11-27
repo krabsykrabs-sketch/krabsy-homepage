@@ -17,6 +17,8 @@
      <script type="module" src="/lib/krabsy-practice-week.js?v=…"></script>
    ────────────────────────────────────────────────────────────────────────── */
 
+import { currentLang } from './krabsy-lang.js?v=2026-11-27';
+
 export const KEY = 'krabsy_practice_v1';
 export const GOAL = 3;
 const KEEP_WEEKS = 12;
@@ -65,7 +67,7 @@ export function addSession(now = new Date()) {
 
 /* ── ring ─────────────────────────────────────────────────────────────── */
 
-const LANG = (document.documentElement.lang || 'en').slice(0, 2);
+const LANG = currentLang();
 const TXT = {
   de: { of: (n) => `${n} von ${GOAL} diese Woche`, done: 'Woche geschafft ✓', more: (n) => `Woche geschafft ✓ · ${n}×` },
   es: { of: (n) => `${n} de ${GOAL} esta semana`, done: 'Semana lograda ✓', more: (n) => `Semana lograda ✓ · ${n}×` },

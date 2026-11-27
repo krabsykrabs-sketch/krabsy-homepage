@@ -57,8 +57,7 @@
     if (p.get('from') !== 'teacher') return;
     var hint = document.querySelector('.kg-scroll-hint');
     if (!hint) return;
-    var lang = BANNER[document.documentElement.lang] ? document.documentElement.lang : 'en';
-    var T = BANNER[lang];
+    var lang, T;
     var lvl = parseInt(p.get('difficulty'), 10);
     var topic = p.get('topic');
     function show(topicName) {
@@ -69,11 +68,14 @@
       hint.insertBefore(b, hint.firstChild);
       hint.classList.add('has-teacher-set');
     }
-    if (!topic) return show('');
-    fetch('/data/topics.json').then(function (r) { return r.json(); }).then(function (t) {
-      var d = t[topic] && t[topic].display_name;
-      show(d ? (d[lang] || d.en || d.de || '') : '');
-    }).catch(function () { show(''); });
+    import('/lib/krabsy-lang.js?v=2026-11-27').then(function (L) {
+      lang = L.currentLang();
+      T = BANNER[lang] || BANNER.en;
+      if (!topic) return show('');
+      return fetch('/data/topics.json').then(function (r) { return r.json(); }).then(function (t) {
+        show(L.pickLang(t[topic] && t[topic].display_name, lang));
+      });
+    }).catch(function () { if (T) show(''); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); banner(); });

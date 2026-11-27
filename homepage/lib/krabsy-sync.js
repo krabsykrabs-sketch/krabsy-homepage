@@ -21,6 +21,7 @@
    session exists; never inside game iframes (the wrapper page syncs).
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, adopt, leave, flush, getSession } from '/lib/krabsy-class.js?v=2026-11-25b';
+import { currentLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 
 const PEOPLE = 'krabsy_people';
 const STASH = 'krabsy_stash_';
@@ -28,7 +29,7 @@ const SNAP = 'krabsy_sync_';
 const PUSH_MS = 20000;
 const DEVICE = /^(krabsy_(lang|class|class_queue|teacher_classes|tutor_.+|people|stash_.+|sync_.+|notrack|quiz_host|3d_editor_level|vclimb_author|es_topic|audio|who)|.+_(sound|muted|mute))$/;
 
-const LANG = (document.documentElement.lang || 'en').slice(0, 2);
+const LANG = currentLang();
 const T = {
   en: { who: 'Who’s playing?', guest: 'Someone else (guest)', guestName: 'Guest', switching: 'One moment …' },
   de: { who: 'Wer spielt?', guest: 'Jemand anderes (Gast)', guestName: 'Gast', switching: 'Einen Moment …' },

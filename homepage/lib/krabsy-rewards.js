@@ -31,6 +31,7 @@
    Nothing here may throw into a game or a drill: every public function is
    safe without storage (private mode) and outside a browser.
    ────────────────────────────────────────────────────────────────────────── */
+import { currentLang } from './krabsy-lang.js?v=2026-11-27';
 import { FREE_CHARS, PRICES, NO_HAT, GIFT_IDS, parseId, sourceChar, itemName, itemImage,
   CHAR_IDS } from './krabsy-figure-catalog.js';
 
@@ -200,15 +201,6 @@ function pickRandom(owned, { kind, fit, first, rng = Math.random } = {}) {
   return pool[pool.length - 1];
 }
 
-function pageLang() {
-  try {
-    const m = location.pathname.match(/^\/(de|es|en)(\/|$)/);
-    if (m) return m[1];
-    const ls = localStorage.getItem('krabsy_lang');
-    if (ls === 'de' || ls === 'es' || ls === 'en') return ls;
-  } catch (_) { /* fall through */ }
-  return 'de';
-}
 /** true when the child's current figure can wear this entry (a figure always fits). */
 export function giftFits(id) {
   try { return fits(id, currentChar()); } catch (_) { return false; }
@@ -217,7 +209,7 @@ export function giftFits(id) {
 export function giftInfo(id, lang) {
   const it = parseId(id);
   if (!it) return null;
-  return { id, slot: it.slot, key: it.key, name: itemName(it.slot, it.key, lang || pageLang()), image: itemImage(it.slot, it.key) };
+  return { id, slot: it.slot, key: it.key, name: itemName(it.slot, it.key, lang || currentLang()), image: itemImage(it.slot, it.key) };
 }
 
 /* ── the rules ──────────────────────────────────────────────────────────── */

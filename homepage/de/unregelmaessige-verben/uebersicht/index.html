@@ -396,7 +396,7 @@
   </div>
 
   <script type="module">
-    import { loadVerbTable, loadStrings, getLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27n';
+    import { loadVerbTable, loadStrings, currentLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { verbAggregateMastery } from '/lib/krabsy-stats.js?v=2026-11-25';
 
     // ── State ────────────────────────────────────────────────────────────
@@ -585,7 +585,7 @@
 
     // ── Init ─────────────────────────────────────────────────────────────
     function activeLangBtn() {
-      const lang = getLang();
+      const lang = currentLang();
       document.querySelectorAll('.k-lang-btn').forEach((btn) => {
         btn.classList.toggle('is-active', btn.getAttribute('data-lang') === lang);
       });
@@ -629,7 +629,7 @@
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

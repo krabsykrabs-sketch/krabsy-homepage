@@ -5,7 +5,8 @@
      join       /de/klasse/                       /es/clase/
      create     /de/lehrkraefte/klasse-erstellen/ /es/docentes/crear-clase/
      dashboard  /de/lehrkraefte/klasse/#t=…       /es/docentes/clase/#t=…
-   Language = <html lang>. All text is in T below.
+   Language = currentLang() (krabsy-lang.js), paths from data/sections.json.
+   All text is in T below.
 
    The teacher token travels only in the URL fragment (#t=…), which the
    browser never sends to a server, and in the X-Teacher-Token header to
@@ -14,14 +15,15 @@
    classes" list — nothing else.
    ────────────────────────────────────────────────────────────────────────── */
 import { apiBase, getSession, join, leave } from '/lib/krabsy-class.js?v=2026-11-22b';
+import { currentLang, defaultSection, uiPage, topicUrl, UI_LANGS } from '/lib/krabsy-lang.js?v=2026-11-27';
 
-const LANG = document.documentElement.lang === 'es' ? 'es' : 'de';
+// Classes exist in the interface languages whose sections.json entry has a class page.
+const LANG = currentLang({ supported: UI_LANGS.filter((l) => uiPage('class', l)) });
+const SECTION = defaultSection(LANG);
 const PATHS = {
-  de: { join: '/de/klasse/', create: '/de/lehrkraefte/klasse-erstellen/', dash: '/de/lehrkraefte/klasse/',
-        games: '/de/spiele/', verbs: '/de/unregelmaessige-verben/', home: '/de/' },
-  es: { join: '/es/clase/', create: '/es/docentes/crear-clase/', dash: '/es/docentes/clase/',
-        games: '/es/juegos/', verbs: '/es/verbos-irregulares/', home: '/es/' },
-}[LANG];
+  join: uiPage('class', LANG), create: uiPage('class_create', LANG), dash: uiPage('class_dashboard', LANG),
+  games: SECTION.games, verbs: topicUrl(SECTION.starter, LANG), home: SECTION.home,
+};
 
 const T = {
   de: {
@@ -182,7 +184,7 @@ function renderJoin(main) {
     btn.disabled = false;
     if (r.ok) {
       // Register the pupil as this device's person (siblings, profile saved to the key: krabsy-sync.js).
-      try { await (await import('/lib/krabsy-sync.js?v=2026-11-26')).enter(r.session); } catch (_) {}
+      try { await (await import('/lib/krabsy-sync.js?v=2026-11-27l')).enter(r.session); } catch (_) {}
       renderJoin(main); return;
     }
     if (r.error === 'name_taken') { askSameName(name); return; }

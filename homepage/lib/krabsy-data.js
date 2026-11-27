@@ -9,34 +9,21 @@
 
    Usage:
      import { loadVerbs, loadStrings, loadVerbTable, getQuestions,
-              getLang, setLang } from '/lib/krabsy-data.js';
+              currentLang, setLang } from '/lib/krabsy-data.js';
      const verbs = await loadVerbs();
      const ui = await loadStrings();
    ────────────────────────────────────────────────────────────────────────── */
 
 import { getOverall, readTopicItems } from './krabsy-stats.js';
 import { rankItems } from './krabsy-smart.js';
-import { TOPICS as REGISTRY_TOPICS } from './krabsy-lang.js?v=2026-11-27';
+import { TOPICS as REGISTRY_TOPICS, FALLBACK_UI, currentLang } from './krabsy-lang.js?v=2026-11-27';
 
 const DATA_BASE = new URL('/data/', import.meta.url);
-const LANG_KEY = 'krabsy_lang';
-const DEFAULT_LANG = 'de';
 
 /* ── Language ───────────────────────────────────────────────────────────── */
-
-export function getLang() {
-  try {
-    return localStorage.getItem(LANG_KEY) || DEFAULT_LANG;
-  } catch (_) {
-    return DEFAULT_LANG;
-  }
-}
-
-export function setLang(lang) {
-  try {
-    localStorage.setItem(LANG_KEY, lang);
-  } catch (_) { /* private mode, etc. */ }
-}
+/* One helper for the whole site (krabsy-lang.js); re-exported here because the
+   drill pages read everything from this module. */
+export { currentLang, setLang } from './krabsy-lang.js?v=2026-11-27';
 
 /* ── Verb questions ─────────────────────────────────────────────────────── */
 
@@ -368,7 +355,7 @@ function _loadStringsBase(lang) {
     const p = fetch(url, { cache: 'no-cache' })
       .then((r) => {
         if (!r.ok) {
-          if (lang !== DEFAULT_LANG) return _loadStringsBase(DEFAULT_LANG);
+          if (lang !== FALLBACK_UI) return _loadStringsBase(FALLBACK_UI);   // contract rule 5: → en
           throw new Error(`Failed to load strings (${lang}): ${r.status}`);
         }
         return r.json();
@@ -394,7 +381,7 @@ function _loadStringsBase(lang) {
  * as before (minus the `topic_overrides` key).
  */
 export function loadStrings(lang, topic) {
-  const effectiveLang = lang || getLang();
+  const effectiveLang = lang || currentLang();
   const cacheKey = `${effectiveLang}::${topic || '_base'}`;
   if (!_stringsPromises.has(cacheKey)) {
     const p = _loadStringsBase(effectiveLang).then((base) => {
@@ -452,7 +439,7 @@ export function loadVerbTable() {
       // Resolve `meaning` to the current-language string. The verb table is
       // cached per page load and the lang toggle reloads the page, so this
       // stays consistent with whatever loadStrings() will fetch.
-      const lang = getLang();
+      const lang = currentLang();
       const rows = Array.from(byVerb.values()).map((r) => ({
         ...r,
         meaning: lang === 'es' ? (r.meaning_es || r.meaning_de || '')
@@ -481,7 +468,7 @@ export function loadPrepositionReference() {
   if (!_prepositionReferencePromise) {
     _prepositionReferencePromise = loadPrepositions()
       .then((useCases) => {
-        const lang = getLang();
+        const lang = currentLang();
         const byGroup = new Map();
         const order = [];
         for (const uc of useCases) {
@@ -655,7 +642,7 @@ export async function getQuestions(opts = {}) {
     });
   } else if (TOPIC_REGISTRY[topic] && TOPIC_REGISTRY[topic].file) {
     const def = await loadGapTopic(topic);
-    const records = _adaptGapTopic(topic, def, type, opts.lang || getLang());
+    const records = _adaptGapTopic(topic, def, type, opts.lang || currentLang());
     out = records.filter((q) => {
       if (diffSet && !diffSet.has(q.difficulty)) return false;
       if (idSet && !idSet.has(q.useCaseId)) return false;

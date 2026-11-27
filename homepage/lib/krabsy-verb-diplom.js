@@ -20,6 +20,7 @@
 import { getQuizSet, checkTyped } from '/lib/krabsy-questions.js';
 import { recordAttempt } from '/lib/krabsy-stats.js';
 import { gameEvent } from '/lib/krabsy-game-events.js';
+import { currentLang } from '/lib/krabsy-lang.js?v=2026-11-27';
 
 const GAME = 'verb-diplom';
 const STORE_KEY = 'krabsy_verb_diplom';
@@ -166,7 +167,7 @@ async function loadTiers() {
 /* ── app ─────────────────────────────────────────────────────────────── */
 
 export function initVerbDiplom(root) {
-  const lang = (document.documentElement.lang || 'de').slice(0, 2) === 'es' ? 'es' : 'de';
+  const lang = currentLang({ supported: Object.keys(STR) });
   const S = STR[lang];
   let run = null; // current test
 

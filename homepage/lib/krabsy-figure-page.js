@@ -17,9 +17,10 @@ import { CHARS, HATS, GLASSES, BACKS, SKIN, HAIR, COLORS, DEFAULT, ASSET_BASE, n
   readSavedFigure, saveFigure, playerConfig } from './krabsy-figure.js?v=2026-11-25d';
 import { NAMES as ALL_NAMES, PRICES, parseId } from './krabsy-figure-catalog.js';
 import { getShells } from './krabsy-shells.js';
+import { currentLang } from './krabsy-lang.js?v=2026-11-27';
 import { getRewards, syncRewards, markSeen, unseenGifts, onRewardsChange, SHELLS_PER_GIFT } from './krabsy-rewards.js';
 
-const LANG = (location.pathname.match(/^\/(de|es|en)\//) || [])[1] || 'de';
+const LANG = currentLang({ supported: Object.keys(ALL_NAMES) });
 const T = {
   de: {
     loading: 'Figur wird gebaut …', tabsLabel: 'Figur gestalten',

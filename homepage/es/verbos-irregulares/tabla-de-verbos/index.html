@@ -358,7 +358,7 @@
   </div>
 
   <script type="module">
-    import { loadVerbTable, loadStrings, getLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27n';
+    import { loadVerbTable, loadStrings, currentLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27l';
 
     const STORAGE_KEY = 'krabsy_verb_table_hidden';
     const HIDDEN_CELL_FALLBACK = '•••';
@@ -588,7 +588,7 @@
     }
 
     function wireLangToggle() {
-      const current = getLang();
+      const current = currentLang();
       const btns = document.querySelectorAll('.k-lang-btn');
       btns.forEach((b) => {
         if (b.dataset.lang === current) b.classList.add('is-active');
@@ -652,7 +652,7 @@
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-05-24" defer></script>
     <script src="/lib/krabsy-topic-nav.js?v=2026-05-24" defer></script>
-  <script src="/lib/krabsy-i18n-attr.js?v=2026-05-24" defer></script>
+  <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

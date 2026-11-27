@@ -28,13 +28,14 @@
    without storage (private mode) and outside a browser.
    ────────────────────────────────────────────────────────────────────────── */
 
+import { currentLang, uiPage } from './krabsy-lang.js?v=2026-11-27';
+
 const KEY = 'krabsy_shells_v1';
 export const DAILY_FULL = 200;      // shells per calendar day at the full rate
 export const SLOW_EVERY = 3;        // after that: 1 shell per 3 right answers
 
 // The counter opens the child's overview page "Mein Profil" (krabsy-profile.js); the
 // figure builder is one tap further (owner decision 2026-11-25).
-const PROFILE_URL = { de: '/de/profil/', es: '/es/perfil/', en: '/en/my-profile/' };
 const WORD = { de: 'Muscheln', es: 'caracolas', en: 'shells' };
 const GIFT_WORD = { de: 'neues Geschenk', es: 'regalo nuevo', en: 'new gift' };
 const PROFILE_WORD = { de: 'Mein Profil', es: 'Mi perfil', en: 'My profile' };
@@ -151,16 +152,6 @@ export function onShellsChange(fn) {
    Gifts (krabsy-rewards.js, loaded on demand): a small dot on the counter while
    a gift is new, and the gift popup (krabsy-gifts-ui.js) on site pages. */
 
-function pageLang() {
-  try {
-    const m = location.pathname.match(/^\/(de|es|en)(\/|$)/);
-    if (m) return m[1];
-    const ls = localStorage.getItem('krabsy_lang');
-    if (ls === 'de' || ls === 'es' || ls === 'en') return ls;
-  } catch (_) { /* fall through */ }
-  return 'de';
-}
-
 function injectCounterStyles() {
   if (document.getElementById('k-shells-styles')) return;
   const st = document.createElement('style');
@@ -215,10 +206,10 @@ export function mountShellCounter(header) {
     const had = host.querySelector('.k-shells');
     if (had) return had;
     injectCounterStyles();
-    const lang = pageLang();
+    const lang = currentLang();
     const a = document.createElement('a');
     a.className = 'k-shells';
-    a.href = PROFILE_URL[lang] || PROFILE_URL.de;
+    a.href = uiPage('profile', lang) || uiPage('profile', 'en');
     a.innerHTML = '<span class="k-shells-icon" aria-hidden="true">🐚</span><span class="k-shells-n">0</span>'
       + '<span class="k-shells-gift" aria-hidden="true" hidden>🎁</span>';
     const num = a.querySelector('.k-shells-n');

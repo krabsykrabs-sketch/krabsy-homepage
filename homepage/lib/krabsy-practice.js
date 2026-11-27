@@ -30,7 +30,7 @@ import { recordAttempt, readTopicItems } from '/lib/krabsy-stats.js';
 import { itemState, KNOWN, INTERVAL_DAYS } from '/lib/krabsy-smart.js';
 import { getShells } from '/lib/krabsy-shells.js';
 import { currentLang, currentSection, sectionTopics as sectionTopicIds, topicLearnLang, subjectKeys, gameUrl, pickLang } from '/lib/krabsy-lang.js?v=2026-11-27';
-import { thisWeek, addSession, ringSvg, ringText, totalSessions } from '/lib/krabsy-practice-week.js?v=2026-11-27';
+import { thisWeek, addSession, ringSvg, ringText, totalSessions } from '/lib/krabsy-practice-week.js?v=2026-11-27l';
 
 const WARM = 8;          // questions in step 1
 const FOCUS = 5;         // questions in step 2

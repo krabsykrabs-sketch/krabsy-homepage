@@ -44,7 +44,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "homepage"
 SITE = "https://krabsy.com"
-ASSET_VER = "2026-11-25"   # bump when krabsy-game-info.js/.css change
+ASSET_VER = "2026-11-27"   # bump when krabsy-game-info.js/.css change
 
 HEAD_START = "<!-- GAME-HEAD:START (tools/render_game_info.py) -->"
 HEAD_END = "<!-- GAME-HEAD:END -->"

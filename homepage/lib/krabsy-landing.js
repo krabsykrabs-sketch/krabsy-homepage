@@ -13,7 +13,7 @@
    shown only if it narrows the list (count > 0 and < "all"), so the topic
    chips appear on their own once a second topic has a live game. The
    featured game is left out of "all" (it is right above the grid). */
-import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-27n';
+import { buildPageUrl } from '/lib/krabsy-data.js?v=2026-11-27l';
 import { hasData, getOverall, getStrugglers } from '/lib/krabsy-stats.js?v=2026-11-25';
 import { getShells, onShellsChange } from '/lib/krabsy-shells.js';
 import { savedChar, portraitUrl, DEFAULT_CHAR, itemLabel, figurePicks, savePick, isCustomFigure } from '/lib/krabsy-me.js?v=2026-11-27';
