@@ -824,4 +824,31 @@ Record every answer with `recordAttempt()` and take rounds with `smart: true`. R
     done flag. No errors. Under heavy machine load one tablet run missed
     the first hex tap (camera and touch events were fine in 8 reruns).
 
+- 2026-11-27 — **Round 11: training level** (owner: a pure tutorial level,
+  very short, straight road, 1–2 waves, every step forced). Owner chose:
+  new players must finish it before level 1; the level-1 tutorial goes.
+  - `levels/training.js` (`window.LEVEL_TRAINING`, `training: true`): 11×5,
+    one straight road, 2 waves (2 then 3 slow skeletons), 30 start coins
+    (one archer), `orePerWave: 99` so answers never run out there.
+  - It is level index **-1** (`TRAINING_INDEX`, `levelAt()` in `main.js`),
+    so levels 1–6 keep their indices, stars, records and analytics
+    numbers; training reports `level: 0`. Storage: `td3d_stars_training`,
+    `td3d_highscore_training`. Menu: "Training" card first (teal border).
+  - Unlock: level 1 opens after the training, or at once for players with
+    `td3d_tutorial_done` (old tutorial) or stars on level 1. Winning the
+    training sets `td3d_tutorial_done`.
+  - **Forced steps** (`tutorial.js`, training only): `state.gate` = what is
+    allowed (`cells`, `cards`, `tower`, `start`, `upgrade`, `answers`),
+    checked in `input.js` (taps, keys), `wave.js` (start), `forge.js`
+    (answers), `main.js` (upgrade; no selling), `ui.js` (cards, dimmed start
+    button, no sell button). Steps: road arrows + tap the one glowing hex →
+    archer → range circle + start wave 1 → watch → card appears: "answer,
+    collect 30" → tap tower → upgrade → start the last wave → "you can
+    answer during a wave too" → victory.
+  - Level 1 has no coach and no hidden card any more.
+  - Checked in headless Chromium at 1366×768 (de), 1024×768 touch (es),
+    390×844 touch (de): locked level 1, wrong hex / early start / catapult
+    ignored, every step, a wrong answer on the way, victory with 3 stars,
+    level 1 opens without coach. Bot on level 1 unchanged. No errors.
+
 - 2026-11-27 — **Open task from the master session:** four new English sentence topics (en_simple_past, en_present_simple, en_present_progressive, en_present_perfect; `content/en-*.json`, in games.json for this game) fall back to the irregular-verbs menu texts (go → went). Add one shared English-sentences entry to the topic text table, like the es_* fallback (e.g. `/^en_/` → `en_sentences`), with subtitle/example/"Sätze zum Üben" in DE/ES/EN. Test `?topic=en_simple_past&lang=de`, commit, don't push, tell the master.

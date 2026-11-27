@@ -1,34 +1,29 @@
 import { Grid } from './grid.js';
 import { Level } from './level.js';
 
-// First-time coach for level 1. No text wall: one short line at a time, tied to what
-// the player should do next, plus a pulse on the thing to press. Each step reacts to
-// the game state, so doing things in another order never gets the player stuck.
-// Written for players who have never played a tower defense (owner, 2026-11-27).
+// The training level's coach (level index -1, see levels/training.js). Every step is
+// forced: one short line, a pulse on the one thing to press, and state.gate lets the
+// player do only that (input.js, ui.js, wave.js, forge.js and main.js check it).
 //
-//   1. arrows run along the road to the castle: "skeletons walk this road to your
-//      castle"; tap a glowing hex next to it          (state.hintRoad, hintCells)
-//   2. pick the archer tower (the others are locked until one stands)
-//                                                      (pulse: archer card)
-//   3. "your tower shoots by itself at anything in its circle" — start the wave
-//                                                      (pulse: start; range circle)
-//   4. wave 1: watch the tower shoot                   (range circle)
-//   5. the question card arrives the first time the money runs out (or after
-//      wave 1): answer it for coins                    (pulse: forge card)
-//   6. once an upgrade is affordable: tap the tower with the badge, then press
-//      the upgrade button                              (pulse: upgrade button)
-//   7. build a second tower next to the road           (hintCells)
-//      → tutorial finished, never shown again (also when the level ends)
+//   1. arrows run along the road to the castle; tap the one glowing hex
+//   2. pick the archer tower
+//   3. its range circle: "it shoots by itself at anything in the circle"; start wave 1
+//   4. wave 1: watch
+//   5. the question card arrives: answer until the upgrade is paid
+//   6. tap the tower, 7. press upgrade
+//   8. start the last wave (answers allowed from now on)
+//   9. wave 2: "you can answer during a wave too"
+//      → won: training done (td3d_tutorial_done), level 1 opens
 //
-// Sets state.hint = { key, target } (key = i18n string, target = what pulses),
-// state.hintCells = [{ cellX, cellY }], state.hintRoad (road arrows) and
-// state.hintRange (a tower whose range circle is shown).
+// Sets state.hint = { key, target, arg }, state.hintCells, state.hintRoad,
+// state.hintRange and state.gate = { cells, cards, tower, start, upgrade, answers }.
 
 const DONE_KEY = 'td3d_tutorial_done';
 
 export const Tutorial = {
   _done: null,
 
+  // True once the training (or the old level-1 tutorial) has been finished.
   isDone() {
     if (this._done === null) {
       try { this._done = localStorage.getItem(DONE_KEY) === '1'; }
@@ -42,76 +37,73 @@ export const Tutorial = {
     try { localStorage.setItem(DONE_KEY, '1'); } catch { /* storage blocked */ }
   },
 
-  update(state, levelIndex) {
+  update(state) {
     state.hint = null;
     state.hintCells = [];
     state.hintRoad = false;
     state.hintRange = null;
-    if (levelIndex !== 0 || this.isDone()) return;
-
-    const upgraded = state.towers.some((t) => t.upgradeLevel > 0);
-    const ended = state.phase === 'VICTORY' || state.phase === 'GAME_OVER';
-    if (state.stats.asked > 0 && ((upgraded && state.towers.length >= 2) || ended)) {
-      this._finish();
-      return;
-    }
+    state.gate = null;
+    if (!Level.current || !Level.current.training) return;
+    if (state.phase === 'VICTORY') { this._finish(); return; }
     if (state.phase !== 'BUILD' && state.phase !== 'BATTLE') return;
 
+    const gate = { cells: [], cards: [], tower: null, start: false, upgrade: false, answers: false };
+    state.gate = gate;
     const wave = state.currentWave;
-    const freeNearRoad = () => Level.current.tutorialCells
-      .filter(([c, r]) => Grid.isAvailable(c, r))
-      .map(([c, r]) => ({ cellX: c, cellY: r }));
+    const tower = state.towers[0] || null;
+    const spots = Level.current.tutorialCells.map(([c, r]) => ({ cellX: c, cellY: r }));
 
-    // 1–2: the goal, then the first tower (an archer).
-    if (state.phase === 'BUILD' && wave === 0 && state.towers.length === 0) {
-      state.hintRoad = true;
-      if (state.buildCell) {
-        state.hint = { key: 'tutPickTower', target: 'tower:basic' };
-      } else {
-        state.hint = { key: 'tutTapCell', target: null };
-        state.hintCells = freeNearRoad();
-      }
-      return;
-    }
-
-    // 5: the card has just arrived: answer it.
-    if (!state.forge.hidden && state.stats.asked === 0) {
-      if (state.forge.stage === 'ask') state.hint = { key: 'tutForge', target: 'forge' };
-      return;
-    }
-
-    // 6: upgrades, as soon as one is affordable (comes before "start the wave").
-    if (state.stats.asked > 0) {
-      const sel = state.selectedTower;
-      const canUp = (t) => { const up = t.nextUpgrade(); return up && state.coins >= up.cost; };
-      if (!upgraded && sel && canUp(sel)) {
-        state.hint = { key: 'tutUpgradeBtn', target: 'upgrade' };
+    if (wave === 0) {
+      if (!tower) {
+        state.hintRoad = true;
+        gate.cells = spots;
+        if (state.buildCell) {
+          state.hint = { key: 'tutPickTower', target: 'tower:basic' };
+          gate.cards = ['basic'];
+        } else {
+          state.hint = { key: 'tutTapCell', target: null };
+          state.hintCells = spots.filter((s) => Grid.isAvailable(s.cellX, s.cellY));
+        }
         return;
       }
-      const ready = upgraded ? [] : state.towers.filter(canUp);
-      if (ready.length) {
-        state.hint = { key: 'tutUpgradeTap', target: null };
-        state.hintCells = ready.map((t) => ({ cellX: t.cellX, cellY: t.cellY }));
-        return;
-      }
-      // 7: a second tower once there is money for it.
-      if (upgraded && state.towers.length < 2 && state.coins >= 30) {
-        state.hint = { key: state.buildCell ? 'tutPickTower2' : 'tutMoreTowers', target: state.buildCell ? 'towers' : null };
-        if (!state.buildCell) state.hintCells = freeNearRoad();
+      if (state.phase === 'BUILD') {
+        state.hint = { key: 'tutStart', target: 'start' };
+        state.hintRange = tower;
+        gate.start = true;
         return;
       }
     }
-
-    // 3–4: the first tower stands; it shoots by itself at what is in its circle.
-    const first = state.towers[0];
-    if (state.phase === 'BUILD' && wave === 0) {
-      state.hint = { key: 'tutStart', target: 'start' };
-      state.hintRange = first || null;
-      return;
-    }
-    if (state.phase === 'BATTLE' && wave === 1 && state.stats.asked === 0) {
+    if (state.phase === 'BATTLE' && wave === 1) {
       state.hint = { key: 'tutWatch', target: null };
-      state.hintRange = first || null;
+      state.hintRange = tower;
+      return;
+    }
+
+    if (state.phase === 'BUILD' && wave === 1 && tower) {
+      const up = tower.nextUpgrade();
+      if (tower.upgradeLevel === 0 && up) {
+        if (state.coins < up.cost) {
+          state.hint = { key: 'tutAnswer', target: 'forge', arg: up.cost };
+          gate.answers = true;
+        } else if (state.selectedTower !== tower) {
+          state.hint = { key: 'tutUpgradeTap', target: null };
+          state.hintCells = [{ cellX: tower.cellX, cellY: tower.cellY }];
+          gate.tower = tower;
+        } else {
+          state.hint = { key: 'tutUpgradeBtn', target: 'upgrade' };
+          gate.tower = tower;
+          gate.upgrade = true;
+        }
+        return;
+      }
+      state.hint = { key: 'tutLastWave', target: 'start' };
+      gate.start = true;
+      gate.answers = true;
+      return;
+    }
+    if (state.phase === 'BATTLE') {
+      state.hint = { key: 'tutAnswerAnytime', target: null };
+      gate.answers = true;
     }
   },
 };

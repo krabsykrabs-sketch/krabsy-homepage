@@ -8,7 +8,7 @@ import { Questions } from './questions.js';
 import { Wave } from './wave.js';
 import { t, towerText, levelText } from './i18n.js';
 import {
-  LEVELS, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
+  LEVELS, TRAINING, TRAINING_INDEX, state, startGame, endGame, resetRun, nextLevel, hasNextLevel, dangerLives,
   getHighscore, getStars, isUnlocked, upgradeTower, sellTower, isTowerLocked,
 } from './main.js';
 
@@ -104,6 +104,13 @@ export const UI = {
         // A long press only previews; it never buys.
         if (this._longPressed === btn) { this._longPressed = null; btn.blur(); return; }
         // Locked until an archer stands: shake, and say so above the card.
+        // Training: only the card the coach asks for.
+        if (state.gate && !state.gate.cards.includes(type) && !isTowerLocked(type)) {
+          btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
+          Sound.play('nope');
+          btn.blur();
+          return;
+        }
         if (isTowerLocked(type) && (state.phase === 'BUILD' || state.phase === 'BATTLE')) {
           btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
           Sound.play('nope');
@@ -204,14 +211,17 @@ export const UI = {
     const container = this.els.levelCards;
     container.innerHTML = '';
     this._levelCards = [];
-    LEVELS.forEach((lvl, i) => {
-      const text = levelText(i);
+    // The training card comes first (index -1), then the real levels.
+    const list = LEVELS.map((lvl, i) => [lvl, i]);
+    if (TRAINING) list.unshift([TRAINING, TRAINING_INDEX]);
+    list.forEach(([lvl, i]) => {
+      const text = i === TRAINING_INDEX ? { name: t('trainingName'), tag: t('trainingTag') } : levelText(i);
       const card = document.createElement('button');
-      card.className = 'level-card';
+      card.className = 'level-card' + (i === TRAINING_INDEX ? ' training' : '');
       card.appendChild(this._paintMinimap(lvl, text.name));
       const name = document.createElement('span');
       name.className = 'level-name';
-      name.textContent = `${i + 1}. ${text.name}`;
+      name.textContent = i === TRAINING_INDEX ? text.name : `${i + 1}. ${text.name}`;
       const tag = document.createElement('span');
       tag.className = 'level-tag';
       tag.textContent = text.tag;
@@ -220,7 +230,7 @@ export const UI = {
       const best = document.createElement('span');
       best.className = 'level-best';
       card.append(name, tag, stars, best);
-      this._levelCards.push({ card, stars, best });
+      this._levelCards.push({ card, stars, best, i });
       card.addEventListener('click', () => {
         if (!isUnlocked(i)) return;
         Sound.play('click');
@@ -234,13 +244,13 @@ export const UI = {
   // Stars, best wave and the lock on each level card (re-read when the menu shows).
   _refreshLevelCards() {
     if (!this._levelCards) return;
-    this._levelCards.forEach(({ card, stars, best }, i) => {
+    this._levelCards.forEach(({ card, stars, best, i }) => {
       const open = isUnlocked(i);
       const got = getStars(i);
       card.classList.toggle('locked', !open);
       stars.innerHTML = open ? this._starsHtml(got) : '🔒';
       const wave = getHighscore(i);
-      if (!open) best.textContent = t('locked', i);
+      if (!open) best.textContent = i === 0 ? t('lockedTraining') : t('locked', i);
       else if (got > 0) best.textContent = '';
       else best.textContent = wave > 0 ? t('levelBest', wave) : t('notPlayed');
     });
@@ -414,6 +424,7 @@ export const UI = {
 
     this.els.startWaveBtn.classList.toggle('hidden', state.phase !== 'BUILD');
     this.els.startWaveBtn.disabled = state.phase !== 'BUILD';
+    this.els.startWaveBtn.classList.toggle('gated', !!state.gate && !state.gate.start);
 
     // Overlays
     this.els.menuOv.classList.toggle('hidden', state.phase !== 'MENU');
@@ -438,11 +449,11 @@ export const UI = {
   // Tutorial coach line + a pulse on the thing to press.
   _renderHint(state) {
     const h = state.hint;
-    const sig = h ? `${h.key}|${h.target}` : '';
+    const sig = h ? `${h.key}|${h.target}|${h.arg ?? ''}` : '';
     if (sig === this._hintSig) return;
     this._hintSig = sig;
     this.els.coach.classList.toggle('hidden', !h);
-    if (h) this.els.coach.textContent = t(h.key);
+    if (h) this.els.coach.textContent = t(h.key, h.arg);
     this.els.startWaveBtn.classList.toggle('hint-pulse', !!h && h.target === 'start');
     this.els.forgePanel.classList.toggle('hint-pulse', !!h && h.target === 'forge');
     this.els.towerButtons.classList.toggle('hint-pulse', !!h && h.target === 'towers');
@@ -575,10 +586,10 @@ export const UI = {
       </div>
       <div class="ti-actions">
         ${upgradeBlock}
-        <button class="btn btn-ghost ti-btn" data-action="sell">
+        ${state.gate ? '' : `<button class="btn btn-ghost ti-btn" data-action="sell">
           <span>${esc(t('sell'))}</span>
           <span class="ti-btn-cost">+${COIN}${tw.sellValue()}</span>
-        </button>
+        </button>`}
       </div>
     `;
   },

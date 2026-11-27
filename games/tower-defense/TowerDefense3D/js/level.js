@@ -133,10 +133,13 @@ export const Level = {
       startingCoins: data.startingCoins,
       totalWaves: data.totalWaves,
       bossWaves: data.bossWaves || [data.totalWaves],
-      // Good first building spots, highlighted by the tutorial (level 1 only).
+      // Building spots the training coach highlights.
       tutorialCells: data.tutorialCells || [],
       enemyScaling: data.enemyScaling,
       economy: data.economy,
+      // Training level: fully guided (js/tutorial.js); answers per wave override.
+      training: !!data.training,
+      orePerWave: data.orePerWave,
     };
     return this.current;
   },

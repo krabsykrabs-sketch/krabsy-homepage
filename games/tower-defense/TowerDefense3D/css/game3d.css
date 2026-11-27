@@ -962,3 +962,7 @@ body.game-inactive #bottom-dock { display: none; }
 #tower-pop .pop-lock { color: var(--amber); font-family: var(--display); margin-top: 2px; }
 .tower-btn.locked.disabled { filter: none; }
 .tower-btn.locked .tower-btn-cost { opacity: 0.5; }
+
+/* Training: its menu card stands out; buttons the coach is not asking for are dimmed. */
+.level-card.training { border-color: var(--teal); }
+#start-wave-btn.gated { opacity: 0.4; filter: grayscale(0.6); cursor: not-allowed; }
