@@ -195,7 +195,6 @@ async function run(browser, cfg) {
     await expect(async () => (await objs()).L.open, '2-1: the key did not open the gate');
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
-    await answer(C);
     await walkTo(C, 29.9);
     await nextRoom(2);
 
@@ -229,7 +228,6 @@ async function run(browser, cfg) {
     await expect(async () => (await objs()).L.open, '2-2: the key did not open the gate');
     await walkTo(S, 29.4);
     await walkTo(C, 30.3);
-    await answer(C);
     await walkTo(C, 30.3);
     await nextRoom(3);
 
@@ -266,7 +264,6 @@ async function run(browser, cfg) {
     await walkTo(C, 23.0);
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
-    await answer(C);
     await walkTo(C, 29.9);
     await page.waitForTimeout(2100);
     await step(0.1);
@@ -408,7 +405,7 @@ async function run(browser, cfg) {
   await answer(C);
   await expect(async () => (await objs()).b.solid, 'bridge not built');
   await walkTo(S, 29.2);
-  await expect(async () => (await objs()).E.open, 'room 1 exit should be open from the start');
+  await expect(async () => (await objs()).E.open, 'the exit should be open from the start');
   await walkTo(C, 29.8);
   await walkTo(C, 29.9);
   await nextRoom(2);
@@ -446,7 +443,8 @@ async function run(browser, cfg) {
   await btn(S, 'action', true); await step(1 / 60); await btn(S, 'action', false); await step(0.1);
   if (cx(await P(S)) < 27) fail('strong one did not go through the portal');
   await walkTo(C, 30.2);
-  await answer(C);
+  await btn(C, 'action', true); await step(1 / 60); await btn(C, 'action', false);   // exits never ask
+  if (await G('card', C)) fail('the exit asked a question');
   await walkTo(S, 29.6);
   await walkTo(C, 30.2);
   await nextRoom(3);
@@ -477,7 +475,6 @@ async function run(browser, cfg) {
   await climb(C, -1, 3);
   await walkTo(S, 28.1);
   await walkTo(C, 28.9);
-  await answer(C, true);
   await walkTo(C, 28.9);
   await page.waitForTimeout(2100);
   await step(0.1);

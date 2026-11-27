@@ -2,7 +2,7 @@
 // Bodies: players and crates. x/y are the lower-left corner, w/h the size, in cells.
 //   - tiles ('#') and dynamic solids (closed doors, gates, built bridges) block everything
 //   - ladder tops are one-way floors (stand on them, climb down through them)
-//   - crates block everyone; the strong one pushes them (and can carry one, see game.js)
+//   - crates block everyone; the strong one pushes them (never lifts them)
 //   - players stand on crates and on each other (one-way from above); a rider moves with
 //     whatever it stands on
 import { W, H } from './levels.js';

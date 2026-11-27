@@ -21,8 +21,9 @@ Read first: `docs/duo-games.md` (the brief, phases D1–D4), `docs/game-contract
    for each (the strong one smashes a wall while the climber climbs to a lever, a switch
    or the key); waiting only where the room is about doing something together (the head
    jump, the lift, the portal that brings the strong one over).
-2. Every interaction is a question, but few of them: about 4 per room (one fewer than the
-   first draft; exits are often open from the start).
+2. Every interaction is a question, but few of them: 3–4 per room. **Exits never ask**
+   (owner 2026-11-27): they are open from the start, and the room is done the moment
+   both players stand in the exit, without pressing anything.
 3. A fall costs time, never the room: gaps have no bottom, back to the room's start.
 
 ## Run it
@@ -72,7 +73,7 @@ earlier with the use key.
 | Role | Size | Can |
 |---|---|---|
 | **Climber** (DE Kletterass, ES Ágil) | 0.9 tall, small figure | jumps 3.5 high and ~5 far (with a run-up), climbs ladders, fits through 1-high tunnels |
-| **Strong one** (DE Kraftpaket, ES Fuerte) | 1.6 tall, big figure | pushes crates, carries one (use key next to a crate, again to put it down), **smashes cracked walls**, pulls heavy levers; jumps only 1.4 high |
+| **Strong one** (DE Kraftpaket, ES Fuerte) | 1.6 tall, big figure | pushes crates (never lifts them: owner, no animation for it), **smashes cracked walls**, pulls heavy levers; jumps only 1.4 high |
 
 Player 1 is the climber by default; "Swap roles" on the title screen
 (`krabsy_duo_swap`). Players can stand on each other: the climber jumps off the
@@ -85,17 +86,17 @@ camera frames both players and never shows more than the room.
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 1 Levers & doors | at the same time: the strong one smashes the cracked wall, the climber climbs to lever a (opens door A) · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · exit (open from the start) | wall S, lever C, post C = 3 |
-| 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C, exit (first there) = 4 |
-| 3 Together | switch on a ledge only reachable from the strong one's head · at the same time: the strong one smashes the cracked wall, the climber climbs to the key at the end of a 1-high tunnel (it flies to the locked door) · exit | switch C, wall S, key C, exit = 4 |
+| 1 Levers & doors | at the same time: the strong one smashes the cracked wall, the climber climbs to lever a (opens door A) · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · exit | wall S, lever C, post C = 3 |
+| 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C = 3 |
+| 3 Together | switch on a ledge only reachable from the strong one's head · at the same time: the strong one smashes the cracked wall, the climber climbs to the key at the end of a 1-high tunnel (it flies to the locked door) · exit | switch C, wall S, key C = 3 |
 
 ### Level 2 (owner 2026-11-27: "create more levels"; `LEVEL2` in `src/levels.js`)
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 2-1 Upstairs, downstairs | at the same time (owner's idea): the strong one smashes the cracked wall at the start of the corridor, the climber takes the ladder to the upper floor, where the switch opens the strong one's door further along and the key flies to the gate before the exit | wall S, switch C, key C, exit = 4 |
-| 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and pulls the heavy lever (door); from the step the climber jumps onto the shelf with the key | portal C, heavy lever S, key C, exit = 4 |
-| 2-3 Stack it up | at the same time: the strong one smashes the wall into the crate hall, the climber climbs to the switch (opens the door on the platform); the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform | wall S, switch C, key C, exit = 4 |
+| 2-1 Upstairs, downstairs | at the same time (owner's idea): the strong one smashes the cracked wall at the start of the corridor, the climber takes the ladder to the upper floor, where the switch opens the strong one's door further along and the key flies to the gate before the exit | wall S, switch C, key C = 3 |
+| 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and pulls the heavy lever (door); from the step the climber jumps onto the shelf with the key | portal C, heavy lever S, key C = 3 |
+| 2-3 Stack it up | at the same time: the strong one smashes the wall into the crate hall, the climber climbs to the switch (opens the door on the platform); the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform | wall S, switch C, key C = 3 |
 
 ### Level 3 (owner 2026-11-27; `LEVEL3` in `src/levels.js`): the lift
 
@@ -120,21 +121,19 @@ Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
 arrival portal is in the middle of the path, and walking in teleported a player who only
 wanted to walk past). An active portal shows the use prompt.
 
-Level 1: 11 objects with a question (owner 2026-11-27: one fewer per room, the rooms are short
-enough to give plenty of questions); about 3 of 4 are in the climber's reach (the brief's
+Level 1: 9 objects with a question (owner 2026-11-27: fewer questions, the rooms are short enough;
+exits never ask); about 3 of 4 are in the climber's reach (the brief's
 "most questions go to the student" by level design). A wrong answer leaves the
 object as it was and shows the teach line on the card; pressing it again asks a
-new question. No lives, no game over; Pause → "Restart room" if a crate gets stuck
-(a carried crate can also be put down anywhere, so a crate in a corner can be
-fetched).
+new question. No lives, no game over; Pause → "Restart room" if a crate gets stuck in a corner
+(crates can only be pushed).
 
 ### Key and locked door (owner 2026-11-27)
 
 The locked door shows no key. Answering at the key (`key` with `opens: '<door id>'`)
 sends it flying in an arc to that door (1.3 s, `KEY_FLIGHT`), where it vanishes into the
 lock and the door opens. Nobody carries a key and the door asks no question; pressing
-use at a locked door says "Locked. Find the key." The room 1 exit is open from the start
-(`open: true`).
+use at a locked door says "Locked. Find the key." Exits are always open (no question).
 
 ### Smashing walls (owner 2026-11-27: replaces holding a heavy gate)
 
@@ -151,8 +150,7 @@ climber slipped through, its prop lever and room 3's portal pair are gone.)
 Gaps have no bottom (a column empty down to y = 0; `physics.js` `solid()` is open below
 the room). Whoever falls in drops into a dark shaft, gets "Whoops! Back to the start." /
 "Hoppla! Zurück zum Start." / "¡Uy! Vuelves al inicio." and is back at **this room's
-spawn** after 1 s. No lives, no game over: what is already open stays open, a carried
-crate goes back to where it started (a crate that falls in does too). Before this, a player could get stuck under the
+spawn** after 1 s. No lives, no game over: what is already open stays open; a crate that falls in goes back to where it started. Before this, a player could get stuck under the
 bridge in the old pit (owner's test). Only room 1 has a gap so far.
 
 ## Questions and answers
@@ -305,6 +303,10 @@ measure it.
   Runs: desktop levels 1 → 2 → 3 OK (36 answers), touch level 1 OK, `--from 2` OK; 0
   errors. One full run failed once on a card-close wait while the machine was heavily
   loaded (the touch run then took 570 s instead of ~180 s); the re-run passed.
+- 2026-11-27 — Exits never ask (owner): open from the start, both in it = room done.
+  Questions now: level 1: 3 + 3 + 3, level 2: 3 + 3 + 3, level 3: 4 + 4 + 4.
+- 2026-11-27 — Crates can only be pushed, no more lifting and carrying (owner: no animation
+  for it); a stuck crate → Pause → Restart room.
 
 ## Open (owner)
 

@@ -12,7 +12,7 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'exit', 'liftlever']);
+const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'liftlever']);
 const LIFT_SPEED = 2.4;   // cells per second
 const KEY_FLIGHT = 1.3;   // s: a collected key flies to its locked door, which then opens
 const BLOCKING = new Set(['door', 'crack', 'locked']);   // solid until opened / smashed
@@ -79,7 +79,7 @@ export async function createGame(canvas, opts) {
     const role = ROLES[c.role];
     const fig = await makeFigure(c.choice, role.look, pi === 0 ? 0x2ee6c0 : 0xff8585);
     scene.add(fig.root);
-    players.push({ pi, role: c.role, fig, cfg: c, body: null, smashAt: -9, carrying: null,
+    players.push({ pi, role: c.role, fig, cfg: c, body: null, smashAt: -9,
       inZone: new Set(), portalCd: 0, card: false, near: null, answers: 0, right: 0, wasGround: true });
   }
 
@@ -113,7 +113,8 @@ export async function createGame(canvas, opts) {
     scene.background = new THREE.Color(view.theme.sky);
     objs = new Map();
     for (const o of room.objects) {
-      const s = { def: o, on: false, open: !!o.open, taken: false, active: !!o.active && !o.ask,
+      // exits never ask (owner 2026-11-27): open from the start, both in it = room done
+      const s = { def: o, on: false, open: o.type === 'exit' || !!o.open, taken: false, active: !!o.active && !o.ask,
         cells: cellsOf(o), wantSolid: false, solid: false };
       if (BLOCKING.has(o.type)) s.wantSolid = true;
       objs.set(o.id, s);
@@ -136,7 +137,7 @@ export async function createGame(canvas, opts) {
       const role = ROLES[p.role];
       const [sx, sy] = room.spawn[p.role];
       p.body = world.addBody({ kind: 'player', role: p.role, x: sx - role.w / 2, y: sy, w: role.w, h: role.h, facing: 1, pi: p.pi });
-      p.smashAt = -9; p.carrying = null; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
+      p.smashAt = -9; p.inZone.clear(); p.card = false; p.portalCd = 0; p.fallAt = 0;
     }
     syncSolids(true);
     markers = [];
@@ -189,7 +190,6 @@ export async function createGame(canvas, opts) {
       case 'crack': return !s.open;
       case 'key': return !s.taken;
       case 'portal': return o.ask && !s.active;
-      case 'exit': return !s.open;
       default: return false;
     }
   }
@@ -263,8 +263,8 @@ export async function createGame(canvas, opts) {
     const s = usable(p);
     if (!s) {
       const door = [...objs.values()].find((d) => (d.def.type === 'door' || d.def.type === 'locked') && !d.open && inRange(p, d.def));
-      if (door && !p.carrying) { toast(p, t(door.def.type === 'locked' ? 'needKey' : 'needLever')); return; }
-      if (p.role === 'strong') carryOrDrop(p);
+      // crates are only pushed, never lifted (owner 2026-11-27: no animation for carrying)
+      if (door) { toast(p, t(door.def.type === 'locked' ? 'needKey' : 'needLever')); return; }
       return;
     }
     const o = s.def;
@@ -287,7 +287,6 @@ export async function createGame(canvas, opts) {
         return;
       case 'crack':   // the strong one punches the cracked wall to pieces
         if (p.role !== 'strong') { toast(p, t('needSmash')); return; }
-        if (p.carrying) { toast(p, '✋'); return; }
         ask(p, s, () => {
           p.smashAt = played;
           p.body.facing = o.x + 0.5 > p.body.x + p.body.w / 2 ? 1 : -1;
@@ -302,9 +301,6 @@ export async function createGame(canvas, opts) {
         if (s.active) { teleport(p, s); return; }
         ask(p, s, () => { s.active = true; const pair = objs.get(o.pair); if (pair) pair.active = true; sfx('portal'); });
         return;
-      case 'exit':
-        ask(p, s, () => { s.open = true; sfx('open'); showBanner(t('bothExit'), 3); });
-        return;
     }
   }
 
@@ -314,7 +310,6 @@ export async function createGame(canvas, opts) {
     b.x = to.def.x + 0.5 - b.w / 2; b.y = to.def.y + 0.02; b.vx = 0; b.vy = 0;
     b.support = null;
     p.portalCd = 0.6; p.inZone.add(to.def.id);
-    if (p.carrying) { /* the crate comes along */ }
     sfx('portal');
   }
 
@@ -342,39 +337,6 @@ export async function createGame(canvas, opts) {
     box.x = box.home[0]; box.y = box.home[1]; box.vy = 0; box.onGround = false; box.support = null;
   }
 
-  function carryOrDrop(p) {
-    const b = p.body;
-    if (p.carrying) {
-      const box = p.carrying;
-      const tryAt = (x, y) => {
-        const cells = [];
-        for (let cy = Math.floor(y + 0.01); cy <= Math.floor(y + box.h - 0.01); cy++)
-          for (let cx = Math.floor(x + 0.01); cx <= Math.floor(x + box.w - 0.01); cx++) cells.push([cx, cy]);
-        if (cells.some(([cx, cy]) => world.solid(cx, cy))) return false;
-        for (const o of world.bodies) {
-          if (o === box || o.carried || o === b) continue;
-          if (x < o.x + o.w && x + box.w > o.x && y < o.y + o.h && y + box.h > o.y) return false;
-        }
-        box.x = x; box.y = y; return true;
-      };
-      const fx = b.facing > 0 ? b.x + b.w + 0.04 : b.x - box.w - 0.04;
-      if (tryAt(fx, b.y + 0.02) || tryAt(fx, b.y + 1.02) || tryAt(fx, b.y + 2.02)) {
-        box.carried = false; box.vy = 0; box.onGround = false; p.carrying = null; sfx('thud');
-      } else toast(p, '✋');
-      return;
-    }
-    // pick up a crate right in front, at foot level
-    for (const box of boxes) {
-      if (box.static || box.carried) continue;
-      const front = b.facing > 0 ? box.x - (b.x + b.w) : b.x - (box.x + box.w);
-      if (front > -0.05 && front < 0.35 && Math.abs(box.y - b.y) < 0.3) {
-        // nothing standing on it
-        if (world.bodies.some((o) => o.support === box && o.onGround)) continue;
-        box.carried = true; p.carrying = box; sfx('select');
-        return;
-      }
-    }
-  }
 
   // ── per frame ───────────────────────────────────────────────────────────────────────
   const tmp = new THREE.Vector3();
@@ -429,21 +391,13 @@ export async function createGame(canvas, opts) {
     // 2026-11-27: walking in teleported players who only wanted to walk past)
     for (const p of players) p.portalCd = Math.max(0, p.portalCd - dt);
 
-    // carried crates ride on the strong one's head
-    for (const p of players) {
-      if (!p.carrying) continue;
-      const b = p.body;
-      p.carrying.x = b.x + b.w / 2 - p.carrying.w / 2;
-      p.carrying.y = b.y + b.h + 0.05;
-    }
 
     // fell into a bottomless gap → a moment later back at this room's start (no lives lost;
-    // what the room already has open stays open, a carried key stays with the player)
+    // what the room already has open stays open)
     for (const p of players) {
       const b = p.body;
       if (!p.fallAt && b.y < -1) {
         p.fallAt = played;
-        if (p.carrying) { const box = p.carrying; p.carrying = null; box.carried = false; resetBox(box); }
         toast(p, t('fell')); sfx('fall');
         onEvent('fell', { player: p.pi + 1 });
       }
@@ -604,7 +558,7 @@ export async function createGame(canvas, opts) {
       state: () => state,
       players: () => players.map((p) => ({ pi: p.pi, role: p.role, x: p.body.x, y: p.body.y, w: p.body.w, h: p.body.h, vx: p.body.vx,
         onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card,
-        carrying: !!p.carrying, near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
+        near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
       objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open,
         taken: s.taken, active: s.active, solid: s.solid }])),
       boxes: () => boxes.map((b) => ({ x: b.x, y: b.y, carried: !!b.carried, static: !!b.static })),

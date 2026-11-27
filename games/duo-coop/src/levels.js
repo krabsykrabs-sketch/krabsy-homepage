@@ -21,8 +21,8 @@
 //   lift   { x, w, y0, y1 }       a platform (top at y0 = down, y1 = up), moved by a liftlever;
 //                                 keep its shaft empty
 //   liftlever { targets }         question → the lift goes to the other end (each pull asks)
-//   exit   { x, y, open }         x = middle of the 2-wide door; question → open (or `open: true`:
-//                                 open from the start); the room is done when both stand in it
+//   exit   { x, y }               x = middle of the 2-wide door; always open, no question
+//                                 (owner): the room is done when both stand in it
 // Spawns: spawn.climber / spawn.strong (cell x, feet y). Boxes: boxes [[x, y]].
 //
 // Role physics (src/physics.js): the climber jumps 3.5 cells high and ~5 far, climbs
@@ -72,7 +72,7 @@ export const ROOMS = [
       { id: 'A', type: 'door', x: 12, y: 3, h: 3 },
       { id: 'p', type: 'post', x: 20, y: 3, targets: ['b'] },
       { id: 'b', type: 'bridge', x0: 15, x1: 18, y: 2 },
-      { id: 'E', type: 'exit', x: 29.5, y: 3, open: true },   // fewer questions (owner): open from the start
+      { id: 'E', type: 'exit', x: 29.5, y: 3 },
     ],
   }),
 
@@ -240,7 +240,7 @@ export const LEVEL3 = [
       { id: 'h', type: 'heavylever', x: 18, y: 9, targets: ['D'] },
       { id: 'D', type: 'door', x: 24, y: 9, h: 3 },
       { id: 'L', type: 'locked', x: 27, y: 9, h: 3 },
-      { id: 'E', type: 'exit', x: 29.5, y: 9, open: true },
+      { id: 'E', type: 'exit', x: 29.5, y: 9 },
     ],
   }),
 
@@ -267,7 +267,7 @@ export const LEVEL3 = [
       { id: 'O', type: 'portal', x: 21, y: 3, pair: 'o' },
       { id: 'h', type: 'heavylever', x: 23, y: 3, targets: ['D'] },
       { id: 'D', type: 'door', x: 26, y: 3, h: 3 },
-      { id: 'E', type: 'exit', x: 29.5, y: 3, open: true },
+      { id: 'E', type: 'exit', x: 29.5, y: 3 },
     ],
   }),
 
@@ -298,7 +298,7 @@ export const LEVEL3 = [
       { id: 'k', type: 'key', x: 20, y: 10, opens: 'L' },
       { id: 'D', type: 'door', x: 24, y: 6, h: 3 },
       { id: 'L', type: 'locked', x: 27, y: 6, h: 3 },
-      { id: 'E', type: 'exit', x: 29.5, y: 6, open: true },
+      { id: 'E', type: 'exit', x: 29.5, y: 6 },
     ],
   }),
 ];
