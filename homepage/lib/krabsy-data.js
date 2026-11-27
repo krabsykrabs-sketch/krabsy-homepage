@@ -16,14 +16,14 @@
 
 import { getOverall, readTopicItems } from './krabsy-stats.js';
 import { rankItems } from './krabsy-smart.js';
-import { TOPICS as REGISTRY_TOPICS, FALLBACK_UI, currentLang } from './krabsy-lang.js?v=2026-11-27';
+import { TOPICS as REGISTRY_TOPICS, FALLBACK_UI, currentLang, pickLang } from './krabsy-lang.js?v=2026-11-27';
 
 const DATA_BASE = new URL('/data/', import.meta.url);
 
 /* ── Language ───────────────────────────────────────────────────────────── */
 /* One helper for the whole site (krabsy-lang.js); re-exported here because the
    drill pages read everything from this module. */
-export { currentLang, setLang } from './krabsy-lang.js?v=2026-11-27';
+export { currentLang, setLang, pickLang } from './krabsy-lang.js?v=2026-11-27';
 
 /* ── Verb questions ─────────────────────────────────────────────────────── */
 
@@ -127,17 +127,6 @@ export function registerTopic(id, info) {
   _gapTopicPromises.delete(id);
 }
 
-/** Pick the text for the interface language from a per-language object
-    ({ en, de, es }) or a plain string. Fallback: lang → en → de → es →
-    whatever is there. */
-export function pickLang(obj, lang) {
-  if (obj == null) return '';
-  if (typeof obj === 'string') return obj;
-  for (const l of [lang, 'en', 'de', 'es']) if (l && obj[l]) return obj[l];
-  const any = Object.values(obj).find((v) => typeof v === 'string' && v);
-  return any || '';
-}
-
 const _gapTopicPromises = new Map();
 
 /** Load a gap topic file (format v2). Returns the parsed object. */
@@ -169,7 +158,9 @@ export function loadGapTopic(id) {
    The hint (in the interface language) is appended to the sentence in
    brackets ("Yo soy ___. (tall)") so every renderer shows it; the parts
    are also kept apart (sentence_plain, hint_text) for renderers that want
-   to style the hint. */
+   to style the hint. Texts per interface language stay maps (`hints`,
+   `meanings`: { de, es, en, … }, contract rule 4); `hint_text` / `meaning`
+   are the resolved strings for `lang`. */
 function _adaptGapTopic(topicId, def, type, lang) {
   const effectiveType = type || 'fill_gap';
   const out = [];
@@ -199,10 +190,9 @@ function _adaptGapTopic(topicId, def, type, lang) {
         context_sentence: sentence,
         sentence_plain:   ex.sentence,
         hint_text:        hint,
+        hints:            ex.hint && typeof ex.hint === 'object' ? { ...ex.hint } : {},
         meaning:          pickLang(expl, lang),
-        meaning_en:       expl.en || '',
-        meaning_de:       expl.de || '',
-        meaning_es:       expl.es || '',
+        meanings:         { ...expl },
         learn_lang:       def.learn_lang,
         useCaseId:        it.id,                  // item id (stats, smart mix)
         group:            it.group,
@@ -416,7 +406,7 @@ export function loadVerbTable() {
             participle: null,
             past_alt: [],
             participle_alt: [],
-            meaning_de: q.meaning_de || '',
+            meaning_de: q.meaning_de || '',   // source fields (content/irregular-verbs.json, N8)
             meaning_es: q.meaning_es || '',
             tier: q.tier == null ? null : q.tier,
             morph_type: q.morph_type == null ? null : q.morph_type,
@@ -439,12 +429,17 @@ export function loadVerbTable() {
       // Resolve `meaning` to the current-language string. The verb table is
       // cached per page load and the lang toggle reloads the page, so this
       // stays consistent with whatever loadStrings() will fetch.
+      // `meanings` is the per-language map (contract rule 4), built here from the
+      // source's meaning_<lang> fields until the verb file carries a map (N8).
       const lang = currentLang();
-      const rows = Array.from(byVerb.values()).map((r) => ({
-        ...r,
-        meaning: lang === 'es' ? (r.meaning_es || r.meaning_de || '')
-                               : (r.meaning_de || r.meaning_es || ''),
-      }));
+      const rows = Array.from(byVerb.values()).map((r) => {
+        const meanings = {};
+        for (const [k, v] of Object.entries(r)) {
+          const m = /^meaning_([a-z]{2,3})$/.exec(k);
+          if (m && v) meanings[m[1]] = v;
+        }
+        return { ...r, meanings, meaning: pickLang(meanings, lang) };
+      });
       // Sort alphabetically by base form for stable iteration.
       return rows.sort((a, b) => a.verb.localeCompare(b.verb));
     });
@@ -461,8 +456,8 @@ let _prepositionReferencePromise = null;
  * Returns an array of groups in the order each group first appears in the
  * source file, with the use cases inside each group preserved in source
  * order. Group labels are NOT resolved here — the reference page reads
- * them from /data/ui_<lang>.json. `explanation` resolves to the current
- * language at call time (same pattern as loadVerbTable's `meaning`).
+ * them from /data/ui_<lang>.json. `explanations` is the per-language map,
+ * `explanation` the text for the current language.
  */
 export function loadPrepositionReference() {
   if (!_prepositionReferencePromise) {
@@ -476,19 +471,14 @@ export function loadPrepositionReference() {
             byGroup.set(uc.group, []);
             order.push(uc.group);
           }
-          const explanation_de = (uc.explanation && uc.explanation.de) || '';
-          const explanation_es = (uc.explanation && uc.explanation.es) || '';
           const examples = Array.isArray(uc.examples) ? uc.examples : [];
           byGroup.get(uc.group).push({
             id: uc.id,
             pattern: uc.pattern,
             correct: uc.correct,
             level: typeof uc.level === 'number' ? uc.level : null,
-            explanation_de,
-            explanation_es,
-            explanation: lang === 'es'
-              ? (explanation_es || explanation_de)
-              : (explanation_de || explanation_es),
+            explanations: { ...(uc.explanation || {}) },
+            explanation: pickLang(uc.explanation, lang),
             example_sentences: examples.map((ex) => ex.sentence),
             example_count: examples.length,
           });
@@ -568,8 +558,7 @@ function _adaptPrepositionToQuestions(useCases, type) {
         wrong_answers:    Array.isArray(uc.distractors) ? uc.distractors.slice() : [],
         hint:             uc.pattern,
         context_sentence: ex.sentence,
-        meaning_de:       (uc.explanation && uc.explanation.de) || '',
-        meaning_es:       (uc.explanation && uc.explanation.es) || '',
+        meanings:         { ...(uc.explanation || {}) },   // { de, es, … } (resolve with pickLang)
 
         // Preposition-only extras (drills ignore today, available for later):
         useCaseId:        uc.id,

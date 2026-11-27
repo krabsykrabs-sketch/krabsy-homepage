@@ -128,7 +128,7 @@ function _smartRank(topic, candidates, count) {
  * One record per verb, all forms + per-form distractors.
  *   { verb, past, participle, past_alt[], participle_alt[],
  *     distractors: { past[], participle[] },
- *     meaning, meaning_de, meaning_es, tier, morph_type }
+ *     meaning, meanings: { de, es, … }, tier, morph_type }
  *
  * Options:
  *   topic    default 'irregular_verbs' (the only chain topic today;
@@ -318,10 +318,11 @@ export async function getQuizSet(opts = {}) {
         sentence,
         plain: q.sentence_plain || sentence,
         hint: q.hint_text || '',
+        hints: q.hints || {},          // { lang: text } — for games that switch language
       };
       teach = {
-        line: _pickLang({ en: q.meaning_en, de: q.meaning_de, es: q.meaning_es }, lang)
-          || q.pattern || null,
+        line: _pickLang(q.meanings, lang) || q.pattern || null,
+        lines: q.meanings || {},       // { lang: text } — same, unresolved
         chain: null,
       };
     }
