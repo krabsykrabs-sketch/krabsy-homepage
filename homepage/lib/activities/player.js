@@ -13,8 +13,8 @@
 // effects (state.fx) and play once on each side.
 import { recordAttempt } from '/lib/krabsy-stats.js';
 import { dragTap } from './drag.js?v=2026-11-26b';
-import { actOn, esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js?v=2026-11-27';
-import { mountBook } from './book.js?v=2026-11-27';
+import { actOn, esc, keyOf, shuffle, speak, loadVocab, makeWords, labels, anchorAt as anchorAtIn, findAnchor, overlay, batcher, throttle, normAnswer, cap, clone, saneState } from './util.js?v=2026-11-27b';
+import { mountBook } from './book.js?v=2026-11-27b';
 
 const PRAISE = ['¡Muy bien!', '¡Genial!', '¡Sí!', '¡Perfecto!', '¡Bravo!'];
 const ACCENTS = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡'];

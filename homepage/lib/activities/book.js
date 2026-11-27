@@ -10,7 +10,7 @@
 //   check page: { check: true } (uses material.check) or { check: { q, en, options, answer, teach } }
 //   end page:   { end: true } → "words you met" gallery + material.endChecks + "say it" card
 import { recordAttempt } from '/lib/krabsy-stats.js';
-import { actOn, esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone, saneState } from './util.js?v=2026-11-27';
+import { actOn, esc, keyOf, speak, reducedMotion, loadVocab, makeWords, labels, anchorAt as anchorAtIn, overlay, batcher, throttle, clone, saneState } from './util.js?v=2026-11-27b';
 
 const TOKEN = /\{([^}]+)\}([.,;:!?]*)/g;
 // Words of one page: [{k, shown, full, en, pic, id, punct}] in order; k is unique on the page.

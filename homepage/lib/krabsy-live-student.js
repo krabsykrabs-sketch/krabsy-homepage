@@ -154,7 +154,7 @@ export function startLiveStudent({ key, tutor = '', adult = false, lang = 'en' }
     const host = el.firstChild;
     mat = material; matSig = sig(material);
     let mod;
-    try { mod = await import('/lib/activities/player.js?v=2026-11-27'); } catch (e) { console.error('live: player', e); return; }
+    try { mod = await import('/lib/activities/player.js?v=2026-11-27b'); } catch (e) { console.error('live: player', e); return; }
     if (mat !== material || !host.isConnected) return;
     const p = mod.mountMaterial(host, material, {
       role: 'student', lang, adult: isAdult,

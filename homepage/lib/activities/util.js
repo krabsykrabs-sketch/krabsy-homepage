@@ -210,12 +210,16 @@ export function overlay(host) {
     return t;
   };
   return {
+    // Only a pulsing circle at exactly that spot (owner 2026-11-27: no frames around whole
+    // elements/panels when pointing). Scroll only if the spot is out of view.
     pulse(pos, ms = 2000) {
       const t = findAnchor(host, pos && pos.a); if (!t) return;
-      try { t.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (_) {}
       const p = document.createElement('div'); p.className = 'ka-pulse'; p.innerHTML = '<i></i><i></i>';
       layer.appendChild(p); place(p, pos);
-      t.classList.add('kp-ring'); clearTimeout(t._ringT); t._ringT = setTimeout(() => t.classList.remove('kp-ring'), ms);
+      try {
+        const r = p.getBoundingClientRect();
+        if (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) p.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+      } catch (_) {}
       setTimeout(() => p.remove(), ms);
     },
     cursor(pos) {
