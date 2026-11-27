@@ -406,20 +406,20 @@
 
       /* h1 stays as authored (SEO) */
       setStr('introText', t.intro || '');
-      setStr('backLabel', common.back_to_hub_short || common.back_to_hub || 'Zurück');
+      setStr('backLabel', common.back_to_hub_short || common.back_to_hub || 'Volver');
 
       document.getElementById('searchInput').placeholder =
-        t.search_placeholder || 'Verb suchen…';
+        t.search_placeholder || 'Buscar verbo…';
 
-      setStr('thBaseLabel', common.verb_base || 'Grundform');
+      setStr('thBaseLabel', common.verb_base || 'Forma base');
       setStr('thPastLabel', common.verb_past || 'Simple Past');
       setStr('thPpLabel', common.verb_pp || 'Past Participle');
-      setStr('thMeaningLabel', reference.col_meaning || 'Bedeutung');
+      setStr('thMeaningLabel', reference.col_meaning || 'Significado');
 
-      setStr('labelBase', t.toggle_hide_base || 'Grundform verstecken');
-      setStr('labelPast', t.toggle_hide_past || 'Past verstecken');
-      setStr('labelPp', t.toggle_hide_pp || 'Participle verstecken');
-      setStr('labelMeaning', t.toggle_hide_meaning || 'Bedeutung verstecken');
+      setStr('labelBase', t.toggle_hide_base || 'Ocultar forma base');
+      setStr('labelPast', t.toggle_hide_past || 'Ocultar pasado');
+      setStr('labelPp', t.toggle_hide_pp || 'Ocultar participio');
+      setStr('labelMeaning', t.toggle_hide_meaning || 'Ocultar significado');
     }
 
     function hiddenCellText() {
@@ -429,7 +429,7 @@
 
     function noResultsText() {
       const t = state.strings && state.strings.tools && state.strings.tools.verb_table;
-      return (t && t.no_results) || 'Kein Verb gefunden.';
+      return (t && t.no_results) || 'No se encontró ningún verbo.';
     }
 
     function filteredRows() {
@@ -437,7 +437,7 @@
       if (!q) return state.rows;
       return state.rows.filter((r) => {
         const verb = (r.verb || '').toLowerCase();
-        const meaning = (r.meaning_de || '').toLowerCase();
+        const meaning = (r.meaning || r.meaning_de || '').toLowerCase();
         return verb.includes(q) || meaning.includes(q);
       });
     }
@@ -521,7 +521,7 @@
           : escapeHtml(r.participle || '');
         const meaning = hide.meaning
           ? `<span class="vt-hidden-cell" aria-hidden="true">${dot}</span>`
-          : escapeHtml(r.meaning_de || '');
+          : escapeHtml(r.meaning || r.meaning_de || '');
         return `<tr>
           <td class="vt-cell-base">${base}</td>
           <td>${past}</td>

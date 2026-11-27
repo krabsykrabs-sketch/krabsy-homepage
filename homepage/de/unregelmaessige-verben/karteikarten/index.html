@@ -578,8 +578,8 @@
       document.getElementById('fc-back-past').textContent = entry.past || '—';
       document.getElementById('fc-back-pp').textContent = entry.participle || '—';
       const meaningEl = document.getElementById('fc-back-meaning');
-      if (entry.meaning_de) {
-        meaningEl.textContent = entry.meaning_de;
+      if (entry.meaning || entry.meaning_de) {
+        meaningEl.textContent = entry.meaning || entry.meaning_de;
         meaningEl.style.display = '';
       } else {
         meaningEl.textContent = '';

@@ -432,7 +432,7 @@
       if (!q) return state.rows;
       return state.rows.filter((r) => {
         const verb = (r.verb || '').toLowerCase();
-        const meaning = (r.meaning_de || '').toLowerCase();
+        const meaning = (r.meaning || r.meaning_de || '').toLowerCase();
         return verb.includes(q) || meaning.includes(q);
       });
     }
@@ -516,7 +516,7 @@
           : escapeHtml(r.participle || '');
         const meaning = hide.meaning
           ? `<span class="vt-hidden-cell" aria-hidden="true">${dot}</span>`
-          : escapeHtml(r.meaning_de || '');
+          : escapeHtml(r.meaning || r.meaning_de || '');
         return `<tr>
           <td class="vt-cell-base">${base}</td>
           <td>${past}</td>

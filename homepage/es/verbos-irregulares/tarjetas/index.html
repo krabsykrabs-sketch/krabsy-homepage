@@ -582,15 +582,15 @@
       document.getElementById('fc-back-past').textContent = entry.past || '—';
       document.getElementById('fc-back-pp').textContent = entry.participle || '—';
       const meaningEl = document.getElementById('fc-back-meaning');
-      if (entry.meaning_de) {
-        meaningEl.textContent = entry.meaning_de;
+      if (entry.meaning || entry.meaning_de) {
+        meaningEl.textContent = entry.meaning || entry.meaning_de;
         meaningEl.style.display = '';
       } else {
         meaningEl.textContent = '';
         meaningEl.style.display = 'none';
       }
 
-      const posTmpl = tGet('tools.flashcards.deck_position') || 'Karte {n} von {total}';
+      const posTmpl = tGet('tools.flashcards.deck_position') || 'Tarjeta {n} de {total}';
       document.getElementById('fc-deck-position').textContent = posTmpl
         .replace('{n}', String(state.index + 1))
         .replace('{total}', String(total));
