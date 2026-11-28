@@ -310,6 +310,47 @@ Built to the decision above; not deployed yet (deploy the API first).
 - **Open for the owner:** name the email provider in the privacy pages?
   Per-language senders (`MAIL_FROM_DE/_ES/_EN`, needs aliases); lawyer review.
 
+## Live invites (owner decisions 2026-11-28)
+
+**Idea:** pupils of a class and students of a tutor just use krabsy.com. When
+their teacher or tutor starts something live (Quiz Room, live lesson, later a
+live worksheet for a class), an overlay appears on whatever Krabsy page they
+are on, games included: "Deine Klasse startet ein Quiz – jetzt beitreten?" →
+**Beitreten** or **Jetzt nicht**. Joining needs no code and no name: Krabsy
+already knows the pupil, so live answers count towards the class overview and
+the skill map.
+
+**Decisions:**
+- One mechanism for teachers and tutors: a tutor's student is a class of one,
+  so an invite always targets a class.
+- **Website only.** No OS push notifications (permissions, children). The
+  invite shows only while a Krabsy tab is open; the code/QR stays as fallback.
+- **No pause function in games.** Games already save progress and levels are
+  short; losing the current level when joining is fine. The overlay simply
+  sits on top; "Beitreten" navigates away.
+- **No fullscreen games** exist (checked 2026-11-28: no `requestFullscreen` in
+  the site), so the overlay is always visible. Don't add fullscreen games
+  without handling the overlay.
+- **"Jetzt nicht"** always available; the teacher/tutor sees who joined and who
+  declined/didn't respond. A declined invite doesn't come back for that session.
+- Shown only while the session is actually live (expires when it ends or after
+  a maximum time), so nothing appears in a pupil's free time unless the
+  teacher/tutor really started something.
+- Shared devices: the overlay names the pupil it is for ("Bist du Mia?") with
+  "Nein, jemand anderes" (uses "Who's playing?" where available).
+- Privacy: no new data; uses the existing class/student tokens. The server
+  only answers whether there is a live invite for this device's classes.
+
+**Mechanism:** a shared script on every page (only on devices that hold a
+class or student key) asks the API every ~15–20 s while the tab is visible
+(Page Visibility API) "any live invite for my tokens?". Starting a live
+session creates an invite for the class with an expiry; ending it removes it.
+Polling matches the existing live-lesson approach (no extra server parts).
+
+**Steps:** (1) invite + overlay for the tutor live lesson (exists); (2) Quiz
+Room started for a class → invite, pupils join with their identity, answers
+recorded; (3) teacher-side live view of who joined/declined.
+
 ## Phase 2 as built (2026-11-22)
 
 Owner decisions 2026-11-22: server is in the EU (Hetzner DE) · teachers get a
