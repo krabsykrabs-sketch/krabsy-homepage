@@ -253,6 +253,15 @@ hub grouped by it; new plan 4 `vertretungsstunde-unregelmaessige-verben-ohne-ger
 now titled "… – mit Geräten". /en/spanish/teachers/ has no paper material yet,
 so no fork there.
 
+**Worksheets, new look (2026-11-28, prototype, not served):** owner wants a larger,
+more fun worksheet collection with better branding; must work on a B/W copier;
+current crab for now (mascot may change). `tools/worksheet_kit.py` = shared look
+(greys only, mascot from ONE file `MASCOT`, line icons that can be coloured in,
+QR footer); `tools/generate_worksheets_v2.py` builds the first sheet "Die drei
+Formen" (picture cards, crab tip, middle-form rows, word search, bonus, shell
+self-check, answer key) into `_incoming/worksheets/`. Next: owner feedback, then
+roll out to the other sheets + ES, replace the served PDFs.
+
 ## Teacher practice links (2026-11-25, not deployed)
 
 Owner idea: a teacher picks topic, game, difficulty and game language and gets a
