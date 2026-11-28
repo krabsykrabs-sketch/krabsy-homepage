@@ -536,3 +536,33 @@ def test_lesson_invite():
     assert len(invites.INVITES) == 1
     c.post("/api/tutor/student/new-link", json={"id": sid}, headers={"X-Tutor-Token": tok})
     assert not invites.INVITES
+
+
+def test_lesson_left_reinvited():
+    s = _setup()
+    if s is None:
+        return
+    import invites
+    invites.INVITES.clear()
+    c, tok, sid, key, _o = s
+    poll = lambda: c.post("/api/invites", json={"tokens": [key]}).json()["invites"]
+    old = invites.REJOIN_S
+    invites.REJOIN_S = 0.15
+    try:
+        with c.websocket_connect(WS) as tu:
+            hello_tutor(tu, tok, sid)
+            with c.websocket_connect(WS) as stu:
+                hello_student(stu, key)
+                tu.send_json({"t": "start"})
+                assert recv(tu, "invite")["list"] == [{"name": "Lucas", "s": "joined"}]
+            m = recv(tu, "invite")
+            while m["list"][0]["s"] == "joined":         # the start sends the joined state twice
+                m = recv(tu, "invite")
+            assert m["list"] == [{"name": "Lucas", "s": "left"}]
+            assert poll() == []
+            import time as _t
+            _t.sleep(0.2)
+            assert len(poll()) == 1                     # left the lesson page: invited again
+            tu.send_json({"t": "end"})
+    finally:
+        invites.REJOIN_S = old

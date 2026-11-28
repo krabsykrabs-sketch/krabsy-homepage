@@ -951,6 +951,8 @@ async def quiz_ws(ws: WebSocket):
                     pass
             elif role == "player" and me is not None and me.ws is ws:
                 me.ws = None
+                if me.student_id is not None:          # left: invited again (after a short wait)
+                    invites.mark(room.invite, me.student_id, "left")
                 try:
                     await room.send_players_list()
                     # A child leaving can make "everyone answered" true.

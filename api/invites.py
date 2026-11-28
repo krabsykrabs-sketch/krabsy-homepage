@@ -14,8 +14,12 @@ asks every ~15–20 s while the tab is visible (lib/krabsy-invite.js):
     POST /api/invites/respond  {token, invite, answer: join | decline}
 
 "Jetzt nicht" (decline) is kept per pupil and invite, so that invite doesn't come
-back for that pupil; joining is recorded too (and by the room itself when the pupil
-arrives). The teacher / tutor sees joined / declined / waiting (status()).
+back for that pupil: only "Jetzt nicht" stops it (owner 2026-11-28, "yes, re-invite").
+States per pupil: joined (in the room / on the lesson page right now) · joining (pressed
+Beitreten, not arrived yet: not invited again for JOINING_S) · left (was in, now
+offline: invited again after REJOIN_S, so a reload or a short network drop doesn't pop
+the overlay) · declined · removed (by the teacher) · no entry = waiting. The room sets
+joined / left from its sockets. The teacher / tutor sees them (status()).
 
 Privacy: everything here lives in memory only (single uvicorn process, like the
 Quiz Room). Nothing is written to disk. An invite and all its answers are gone when
@@ -48,7 +52,9 @@ POLL_S = 18                    # the clients' polling interval (sent along, so i
 LIMITS.update({"invites": (1200, 60.0),    # per IP: a school behind one address polls a lot
                "invite_respond": (300, 60.0)})
 
-STATUSES = ("joined", "declined", "removed")
+STATUSES = ("joined", "joining", "left", "declined", "removed")
+REJOIN_S = 20.0                # left the room: invited again after about one poll
+JOINING_S = 60.0               # pressed Beitreten but never arrived: invited again after this
 
 
 @dataclass
@@ -61,7 +67,8 @@ class Invite:
     target: str
     expires: float
     roster: dict = field(default_factory=dict)       # student id → first name (the class)
-    responses: dict = field(default_factory=dict)    # student id → joined | declined | removed
+    responses: dict = field(default_factory=dict)    # student id → joined | joining | left | declined | removed
+    since: dict = field(default_factory=dict)        # student id → time of the last state change (monotonic)
     paused: bool = False                              # e.g. the Quiz Room is locked
     on_change: Optional[Callable[["Invite"], None]] = None
 
@@ -77,7 +84,7 @@ class Invite:
             s = answers.get(sid, "waiting")
             if s != "removed":
                 rows.append({"name": name, "s": s})
-        count = {k: sum(1 for r in rows if r["s"] == k) for k in ("joined", "declined", "waiting")}
+        count = {k: sum(1 for r in rows if r["s"] == k) for k in ("joined", "joining", "left", "declined", "waiting")}
         return {"t": "invite", "class": self.class_name, "list": rows, **count}
 
 
@@ -150,10 +157,26 @@ def mark(inv: Optional[Invite], student_id: int, status: str, name: Optional[str
             inv.roster[student_id] = name
         if inv.responses.get(student_id) == status:
             return
-        if inv.responses.get(student_id) == "removed":    # removed by the teacher: stays removed
+        cur = inv.responses.get(student_id)
+        if cur == "removed":                               # removed by the teacher: stays removed
+            return
+        if status == "left" and cur not in ("joined", "joining"):
+            return                                         # only someone who was in can leave
+        if status == "joining" and cur == "joined":
             return
         inv.responses[student_id] = status
+        inv.since[student_id] = time.monotonic()
     _notify(inv)
+
+
+def wants(inv: Invite, student_id: int, now: float) -> bool:
+    """Does this pupil get the overlay now? Waiting: yes · left: after REJOIN_S ·
+    pressed Beitreten but not arrived: after JOINING_S · in the room, declined, removed: no."""
+    s = inv.responses.get(student_id)
+    if s is None:
+        return True
+    waited = now - inv.since.get(student_id, now)
+    return (s == "left" and waited >= REJOIN_S) or (s == "joining" and waited >= JOINING_S)
 
 
 # ── endpoints ────────────────────────────────────────────────────────────────
@@ -193,7 +216,7 @@ def poll(body: PollBody, request: Request) -> JSONResponse:
         if live:
             for who, st in _students(body.tokens):
                 for inv in live:
-                    if inv.class_id == st["class_id"] and st["id"] not in inv.responses:
+                    if inv.class_id == st["class_id"] and wants(inv, st["id"], now):
                         out.append({"id": inv.id, "kind": inv.kind, "class": inv.class_name, "host": inv.host,
                                     "target": inv.target, "name": st["nickname"], "who": who})
     return JSONResponse({"ok": True, "poll": POLL_S, "invites": out})
@@ -212,5 +235,5 @@ def respond(body: RespondBody, request: Request) -> JSONResponse:
     st = found[0][1] if found else None
     if st is None or st["class_id"] != inv.class_id:
         return _err(404, "no_invite")
-    mark(inv, st["id"], "joined" if body.answer == "join" else "declined", st["nickname"])
+    mark(inv, st["id"], "joining" if body.answer == "join" else "declined", st["nickname"])
     return JSONResponse({"ok": True})

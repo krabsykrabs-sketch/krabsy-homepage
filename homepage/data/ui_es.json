@@ -528,7 +528,7 @@
     "s_declined": "ahora no",
     "s_waiting": "esperando",
     "list_h": "Invitación a {class}",
-    "summary": "{joined} dentro · {declined} ahora no · {waiting} esperando",
+    "summary": "{joined} dentro · {left} desconectados · {declined} ahora no · {waiting} esperando",
     "lesson_joined": "{name} aceptó la invitación.",
     "lesson_declined": "{name} eligió «Ahora no».",
     "lesson_waiting": "{name} recibe una invitación en cualquier página de Krabsy.",
@@ -538,7 +538,11 @@
     "room_open_for": "Sala de quiz con esta clase",
     "joining_as": "Entras como {name} …",
     "err_not_in_class": "Ya no estás en esta clase. Únete con el código.",
-    "err_no_class": "Esta clase no se puede abrir aquí. Ábrela una vez con su enlace en este dispositivo."
+    "err_no_class": "Esta clase no se puede abrir aquí. Ábrela una vez con su enlace en este dispositivo.",
+    "s_left": "estuvo · desconectado",
+    "s_joining": "entrando",
+    "lesson_left": "{name} salió de la clase y vuelve a recibir la invitación.",
+    "lesson_joining": "{name} está entrando …"
   },
   "mail": {
     "greeting": "Hola:",

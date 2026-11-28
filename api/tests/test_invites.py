@@ -73,7 +73,7 @@ def test_poll_respond_status():
     # join
     assert c.post("/api/invites/respond", json={"token": toks["Leo"], "invite": inv.id, "answer": "join"}).json()["ok"]
     assert c.post("/api/invites", json={"tokens": [toks["Leo"]]}).json()["invites"] == []
-    assert inv.status()["joined"] == 1
+    assert inv.status()["joining"] == 1                  # pressed Beitreten, not in the room yet
     # a pupil of another class can't answer this invite; bad answers are refused
     assert c.post("/api/invites/respond", json={"token": other["Ana"], "invite": inv.id, "answer": "join"}).status_code == 404
     assert c.post("/api/invites/respond", json={"token": toks["Leo"], "invite": inv.id, "answer": "maybe"}).status_code == 400
@@ -134,6 +134,47 @@ def test_removed_stays_removed():
     assert inv.responses[sid] == "removed"
     assert [x["name"] for x in inv.status()["list"]] == ["Leo"]
     assert c.post("/api/invites", json={"tokens": [toks["Mia"]]}).json()["invites"] == []
+
+
+def test_left_is_invited_again():
+    """Owner 2026-11-28 "yes, re-invite": only Jetzt nicht stops the invite. Left (was in,
+    now offline) comes back after REJOIN_S; Beitreten without arriving after JOINING_S."""
+    c = _client()
+    if c is None:
+        return
+    import invites
+    cid, _t, toks = _class(c)
+    inv = invites.open_invite(cid, "quiz", class_name="6b", target="/x", pupils=invites.roster(cid))
+    mia = next(k for k, v in inv.roster.items() if v == "Mia")
+    leo = next(k for k, v in inv.roster.items() if v == "Leo")
+    poll = lambda t: [x["name"] for x in c.post("/api/invites", json={"tokens": [t]}).json()["invites"]]
+    old = invites.REJOIN_S, invites.JOINING_S
+    invites.REJOIN_S, invites.JOINING_S = 0.15, 0.15
+    try:
+        invites.mark(inv, mia, "left")                   # never in: "left" is ignored
+        assert mia not in inv.responses
+        invites.mark(inv, mia, "joined")
+        assert poll(toks["Mia"]) == []                   # in the room: no overlay
+        invites.mark(inv, mia, "left")
+        assert poll(toks["Mia"]) == []                   # just left (reload, network): wait
+        st = inv.status()
+        assert st["left"] == 1 and {"name": "Mia", "s": "left"} in st["list"]
+        time.sleep(0.2)
+        assert poll(toks["Mia"]) == ["Mia"]              # gone for a while: invited again
+        invites.mark(inv, mia, "joined")                 # back in the room
+        assert poll(toks["Mia"]) == []
+        # Beitreten pressed but never arrived: back after JOINING_S
+        r = c.post("/api/invites/respond", json={"token": toks["Leo"], "invite": inv.id, "answer": "join"}).json()
+        assert r["ok"] and inv.responses[leo] == "joining" and poll(toks["Leo"]) == []
+        time.sleep(0.2)
+        assert poll(toks["Leo"]) == ["Leo"]
+        # Jetzt nicht sticks, also after leaving
+        c.post("/api/invites/respond", json={"token": toks["Leo"], "invite": inv.id, "answer": "decline"})
+        invites.mark(inv, leo, "left")
+        time.sleep(0.2)
+        assert poll(toks["Leo"]) == [] and inv.responses[leo] == "declined"
+    finally:
+        invites.REJOIN_S, invites.JOINING_S = old
 
 
 if __name__ == "__main__":

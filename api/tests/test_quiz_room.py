@@ -489,3 +489,50 @@ def test_class_room_remove_and_close():
         teacher.send_json({"t": "close"})
         recv(teacher, "closed")
     assert not invites.INVITES
+
+
+def test_class_room_left_rejoin():
+    """Owner 2026-11-28: a pupil who left the room is invited again while the quiz runs,
+    and rejoining uses the same player (score kept), not a second one."""
+    c = _client()
+    if c is None:
+        return
+    import classes
+    import invites
+    classes.init_db()
+    classes._buckets.clear()
+    invites.INVITES.clear()
+    cr = c.post("/api/class/create", json={"name": "6c"}).json()
+    tok = c.post("/api/class/join", json={"code": cr["code"], "nickname": "Mia"}).json()["student_token"]
+    poll = lambda: c.post("/api/invites", json={"tokens": [tok]}).json()["invites"]
+    old = invites.REJOIN_S
+    invites.REJOIN_S = 0.15
+    try:
+        with c.websocket_connect(WS) as teacher:
+            teacher.send_json({"t": "create", "questions": Q(2), "class": {"teacher_token": cr["teacher_token"]}})
+            code = recv(teacher, "created")["code"]
+            recv(teacher, "invite")
+            with c.websocket_connect(WS) as mia:
+                mia.send_json({"t": "join", "code": code, "student": tok})
+                pid = recv(mia, "joined")["pid"]
+                assert recv(teacher, "invite")["joined"] == 1
+                assert poll() == []                                 # in the room: no overlay
+                teacher.send_json({"t": "start"})
+                q = recv(mia, "question")
+                mia.send_json({"t": "answer", "qi": q["qi"], "opt": 0})
+                score = recv(mia, "reveal")["you"]["score"]
+            st = recv(teacher, "invite")                           # tab closed
+            assert st["left"] == 1 and st["list"] == [{"name": "Mia", "s": "left"}]
+            assert poll() == []                                     # a reload / short drop: no flicker
+            import time as _t
+            _t.sleep(0.2)
+            assert len(poll()) == 1                                 # playing elsewhere: invited again
+            with c.websocket_connect(WS) as mia2:                   # back via the invite (no room token)
+                mia2.send_json({"t": "join", "code": code, "student": tok})
+                j = recv(mia2, "joined")
+                assert j["pid"] == pid and j["you"]["score"] == score
+                assert len([p for p in j["players"] if p["name"].startswith("Mia")]) == 1
+                assert recv(teacher, "invite")["joined"] == 1
+                assert poll() == []
+    finally:
+        invites.REJOIN_S = old

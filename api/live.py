@@ -682,6 +682,9 @@ async def live_ws(ws: WebSocket):
                 room.tutor = None
             elif role == "student" and room.student is ws:
                 room.student = None
+                if invites.is_open(room.invite):       # left the lesson page: invited again
+                    for sid in list(room.invite.roster):
+                        invites.mark(room.invite, sid, "left")
             room.last = time.monotonic()
             room.send_presence()
             _forget_if_empty(room)

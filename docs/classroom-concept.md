@@ -407,11 +407,19 @@ Built to the decisions above; not deployed (deploy the API first).
   asks about every 20 s with the class key it already has, that the teacher/tutor sees
   joined / "Jetzt nicht" / no answer, and that this lives only in memory and is gone when
   the quiz / lesson ends, at the latest after 2 h / 3 h.
+- **Re-invite (owner 2026-11-28, "yes, re-invite"):** only "Jetzt nicht" stops the
+  invite for a session. States per pupil: `joined` (socket in the room / on the lesson
+  page now), `joining` (pressed Beitreten, not arrived: not invited again for 60 s),
+  `left` (was in, socket gone: invited again after `REJOIN_S` = 20 s, so a reload or a
+  short network drop doesn't pop the overlay), `declined`, `removed`, none = waiting.
+  Rejoining uses the same player (score kept). Teacher list: "dabei · war dabei ·
+  offline · kommt gleich · jetzt nicht · wartet"; tutor line "Lucas left the lesson and
+  gets the invitation again." Tests: `test_invites.py::test_left_is_invited_again`,
+  `test_quiz_room.py::test_class_room_left_rejoin`, `test_live.py::test_lesson_left_reinvited`.
 - **Limits / open:** `krabsy-analytics.js` is still referenced as `?v=2026-11-22` on
   ~500 pages (not bumped: shared checkout with other sessions' uncommitted pages); the
   1 h cache means returning visitors get the overlay at the latest an hour after the
-  deploy. A pupil who joined and then left the room is not invited again for that quiz
-  (the code still works). Live worksheets for a class (kind `worksheet`) are not built.
+  deploy. Live worksheets for a class (kind `worksheet`) are not built.
 
 ## Phase 2 as built (2026-11-22)
 
