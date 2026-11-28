@@ -243,6 +243,16 @@ regenerated. ES toggle on these pages goes to `/es/docentes/`.
 Next: plans 4–5 (review before a test, a homework week), then ES; owner
 decisions open: winter/Christmas lesson this year? Klasse ranges only?
 
+**Devices or paper first (2026-11-28, owner):** the first decision a teacher
+takes is whether every pupil has a device. Teacher pages (DE, ES) open the
+Loslegen/Empezar tab with "Hat jedes Kind ein Gerät?" — A: devices → the three
+ways; B: normal classroom → worksheets + paper lesson + projector tip. Material
+tab split into "Auf Papier" / "Am Gerät". Plans carry `mode` (devices|paper),
+hub grouped by it; new plan 4 `vertretungsstunde-unregelmaessige-verben-ohne-geraete`
+(two worksheets + partner quiz, slips for the English teacher); the device plan is
+now titled "… – mit Geräten". /en/spanish/teachers/ has no paper material yet,
+so no fork there.
+
 ## Teacher practice links (2026-11-25, not deployed)
 
 Owner idea: a teacher picks topic, game, difficulty and game language and gets a

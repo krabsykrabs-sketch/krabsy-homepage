@@ -60,7 +60,10 @@
     .lp-hub{display:grid;gap:14px}
     .lp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
     .lp-chip{font-size:0.78rem;background:#f3fbf9;border:1px solid #bfe9df;border-radius:20px;padding:2px 10px;color:var(--krabsy-ink)}
-    .lp-card h2 a{text-decoration:none}
+    .lp-card h2 a,.lp-card h3 a{text-decoration:none}
+    .lp-hub .lp-card h3{font-family:var(--font-display);font-weight:normal;font-size:1.2rem;color:var(--krabsy-ink);margin:0 0 10px}
+    .lp-group{font-family:var(--font-display);font-weight:normal;font-size:1.45rem;color:var(--krabsy-ink);margin:26px 0 2px}
+    .lp-group-note{color:var(--krabsy-ink-mute);margin:0 0 12px;line-height:1.5}
     @media (max-width:600px){
       .lp-cols{grid-template-columns:1fr}
       .lp-prep{flex-direction:column}
@@ -102,7 +105,7 @@
       <section class="lp-card"><h2>Ohne Geräte oder ohne WLAN</h2><p>Der Quiz-Raum braucht für jedes Kind (oder jedes Paar) ein Gerät mit Internet. Ohne Geräte: die Fragen aus der Fragenliste vorlesen und auf Papier beantworten lassen, oder ein Arbeitsblatt (<a href="/de/unregelmaessige-verben/arbeitsblaetter/">Verben</a>, <a href="/de/praepositionen/arbeitsblaetter/">Präpositionen</a>).</p></section>
       <section class="lp-card"><h2>Danach</h2><p>Haben die Kinder vorher einer Klasse beigetreten (<a href="/de/lehrkraefte/klasse-erstellen/">Klasse erstellen</a>), zählen ihre Quiz-Antworten in Ihre Übersicht. Zum Weiterüben zu Hause: der <a href="/de/unregelmaessige-verben/sprint/">Sprint</a> mit denselben Wörtern.</p></section>
       <section class="lp-card lp-note"><h2>Datenschutz in Kürze</h2><ul><li>Die Kinder tippen nur ihren Vornamen. Der Raum läuft über unseren Server; nach dem Quiz wird nichts gespeichert.</li><li>Kein Konto, keine E-Mail, keine Werbung, keine Cookies.</li><li>Mit Klassencode zählen die Antworten in Ihre Übersicht (nur Vorname und Antworten).</li></ul></section>
-      <p class="lp-small">Weitere Stunden: <a href="/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/">Unregelmäßige Verben in der Vertretungsstunde</a> · <a href="/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/">in, on, at: Präpositionen der Zeit und des Ortes</a>. Alle Ideen: <a href="/de/lehrkraefte/unterrichtsideen/">Unterrichtsideen</a> · <a href="/de/lehrkraefte/">Für Lehrkräfte</a>. Stand: November 2026.</p>
+      <p class="lp-small">Weitere Stunden: <a href="/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/">Unregelmäßige Verben in der Vertretungsstunde – mit Geräten</a> · <a href="/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben-ohne-geraete/">Unregelmäßige Verben in der Vertretungsstunde – ohne Geräte</a> · <a href="/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/">in, on, at: Präpositionen der Zeit und des Ortes</a>. Alle Ideen: <a href="/de/lehrkraefte/unterrichtsideen/">Unterrichtsideen</a> · <a href="/de/lehrkraefte/">Für Lehrkräfte</a>. Stand: November 2026.</p>
     </main>
     <footer class="k-footer">
       <span id="footer-copyright">© 2026 Krabsy</span>
@@ -110,8 +113,8 @@
       <span class="k-footer-legal-mount"></span>
     </footer>
   </div>
-  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-rv"></script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-rv"></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

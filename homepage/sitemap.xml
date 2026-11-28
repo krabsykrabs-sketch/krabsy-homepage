@@ -4,7 +4,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://krabsy.com/de/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/"/>
@@ -20,7 +20,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/datenschutz/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/datenschutz/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/politica-privacidad/"/>
@@ -36,7 +36,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/lehrkraefte/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
@@ -44,35 +44,42 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/lehrkraefte/unterrichtsideen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/praepositionen-in-on-at/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/lehrkraefte/unterrichtsideen/quiz-raum-stundenabschluss/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/quiz-raum-stundenabschluss/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/quiz-raum-stundenabschluss/"/>
   </url>
   <url>
+    <loc>https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben-ohne-geraete/</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben-ohne-geraete/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben-ohne-geraete/"/>
+  </url>
+  <url>
     <loc>https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
@@ -88,7 +95,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/fill-the-gap/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/fill-the-gap/"/>
@@ -96,7 +103,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/freies-ueben/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/practica-libre/"/>
@@ -104,7 +111,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/karteikarten/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/karteikarten/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/tarjetas/"/>
@@ -112,7 +119,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/sprint/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/sprint/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/sprint/"/>
@@ -120,7 +127,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/praepositionen/uebersicht/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/uebersicht/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/resumen/"/>
@@ -136,7 +143,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/air-control/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/air-control/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/air-control/"/>
@@ -144,7 +151,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/quiz-room/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/quiz-room/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/quiz-room/"/>
@@ -152,7 +159,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-dungeon/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-dungeon/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-dungeon/"/>
@@ -160,7 +167,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-flow/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-flow/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-flow/"/>
@@ -168,7 +175,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-kitchen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-kitchen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-kitchen/"/>
@@ -176,7 +183,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-platformer/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-platformer/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-platformer/"/>
@@ -184,7 +191,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-snake/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-snake/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-snake/"/>
@@ -192,7 +199,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/verb-towers/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
@@ -496,7 +503,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/drag-match/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/drag-match/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/drag-match/"/>
@@ -552,7 +559,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/falling-forms/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/falling-forms/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/falling-forms/"/>
@@ -584,7 +591,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/fill-the-gap/"/>
@@ -672,7 +679,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/freies-ueben/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/practica-libre/"/>
@@ -776,7 +783,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/karteikarten/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/karteikarten/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/tarjetas/"/>
@@ -1352,7 +1359,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/sprint/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/sprint/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/sprint/"/>
@@ -1552,7 +1559,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/uebersicht/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/uebersicht/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/resumen/"/>
@@ -1576,7 +1583,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/verb-diplom/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/verb-diplom/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/diploma/"/>
@@ -1584,7 +1591,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/verb-tabelle/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/verb-tabelle/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/tabla-de-verbos/"/>
@@ -1696,7 +1703,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/docentes/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/lehrkraefte/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/docentes/"/>
@@ -1712,7 +1719,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/air-control/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/air-control/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/air-control/"/>
@@ -1720,7 +1727,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/quiz-room/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/quiz-room/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/quiz-room/"/>
@@ -1728,7 +1735,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-dungeon/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-dungeon/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-dungeon/"/>
@@ -1736,7 +1743,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-flow/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-flow/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-flow/"/>
@@ -1744,7 +1751,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-kitchen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-kitchen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-kitchen/"/>
@@ -1752,7 +1759,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-platformer/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-platformer/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-platformer/"/>
@@ -1760,7 +1767,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-snake/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-snake/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-snake/"/>
@@ -1768,7 +1775,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/juegos/verb-towers/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/spiele/verb-towers/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/juegos/verb-towers/"/>
@@ -1776,7 +1783,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/politica-privacidad/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/datenschutz/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/politica-privacidad/"/>
@@ -1784,7 +1791,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/"/>
@@ -1792,7 +1799,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/fichas/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/arbeitsblaetter/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/fichas/"/>
@@ -1800,7 +1807,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/fill-the-gap/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/fill-the-gap/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/fill-the-gap/"/>
@@ -1808,7 +1815,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/practica-libre/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/freies-ueben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/practica-libre/"/>
@@ -1816,7 +1823,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/resumen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/uebersicht/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/resumen/"/>
@@ -1824,7 +1831,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/sprint/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/sprint/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/sprint/"/>
@@ -1832,7 +1839,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/tarjetas/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/karteikarten/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/tarjetas/"/>
@@ -1840,7 +1847,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/temas/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/themen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/temas/"/>
@@ -1848,7 +1855,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/"/>
@@ -1856,7 +1863,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/a-z/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/a-z/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/a-z/"/>
@@ -1904,7 +1911,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/become/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/become/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/become/"/>
@@ -1976,7 +1983,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/break/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/break/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/break/"/>
@@ -2000,7 +2007,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/broadcast/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/broadcast/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/broadcast/"/>
@@ -2048,7 +2055,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/catch/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/catch/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/catch/"/>
@@ -2056,7 +2063,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/choose/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/choose/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/choose/"/>
@@ -2088,7 +2095,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/creep/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/creep/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/creep/"/>
@@ -2096,7 +2103,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/cut/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/cut/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/cut/"/>
@@ -2120,7 +2127,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/diploma/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/verb-diplom/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/diploma/"/>
@@ -2136,7 +2143,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/drag-match/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/drag-match/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/drag-match/"/>
@@ -2160,7 +2167,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/drink/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/drink/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/drink/"/>
@@ -2168,7 +2175,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/drive/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/drive/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/drive/"/>
@@ -2192,7 +2199,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/falling-forms/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/falling-forms/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/falling-forms/"/>
@@ -2216,7 +2223,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/fichas/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/arbeitsblaetter/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/fichas/"/>
@@ -2232,7 +2239,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/fill-the-gap/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/fill-the-gap/"/>
@@ -2272,7 +2279,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/forbid/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/forbid/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/forbid/"/>
@@ -2296,7 +2303,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/forgive/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/forgive/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/forgive/"/>
@@ -2312,7 +2319,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/freeze/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/freeze/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/freeze/"/>
@@ -2392,7 +2399,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/hit/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/hit/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/hit/"/>
@@ -2440,7 +2447,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/lay/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/lay/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/lay/"/>
@@ -2448,7 +2455,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/lead/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/lead/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/lead/"/>
@@ -2488,7 +2495,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/lend/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/lend/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/lend/"/>
@@ -2496,7 +2503,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/let/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/let/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/let/"/>
@@ -2504,7 +2511,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/lie/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/lie/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/lie/"/>
@@ -2512,7 +2519,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/light/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/light/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/light/"/>
@@ -2520,7 +2527,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/lose/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/lose/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/lose/"/>
@@ -2528,7 +2535,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/make/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/make/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/make/"/>
@@ -2576,7 +2583,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/overtake/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/overtake/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/overtake/"/>
@@ -2600,7 +2607,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/practica-libre/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/freies-ueben/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/practica-libre/"/>
@@ -2616,7 +2623,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/put/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/put/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/put/"/>
@@ -2640,7 +2647,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/resumen/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/uebersicht/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/resumen/"/>
@@ -2656,7 +2663,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/ride/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/ride/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/ride/"/>
@@ -2680,7 +2687,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/run/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/run/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/run/"/>
@@ -2712,7 +2719,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/seek/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/seek/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/seek/"/>
@@ -2744,7 +2751,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/sew/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/sew/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/sew/"/>
@@ -2792,7 +2799,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/shoot/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/shoot/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/shoot/"/>
@@ -2816,7 +2823,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/shrink/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/shrink/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/shrink/"/>
@@ -2824,7 +2831,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/shut/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/shut/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/shut/"/>
@@ -2864,7 +2871,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/slide/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/slide/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/slide/"/>
@@ -2920,7 +2927,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/speed/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/speed/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/speed/"/>
@@ -2944,7 +2951,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/spill/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/spill/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/spill/"/>
@@ -2976,7 +2983,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/spoil/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/spoil/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/spoil/"/>
@@ -3000,7 +3007,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/sprint/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/sprint/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/sprint/"/>
@@ -3016,7 +3023,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/steal/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/steal/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/steal/"/>
@@ -3024,7 +3031,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/stick/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/stick/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/stick/"/>
@@ -3128,7 +3135,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/tabla-de-verbos/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/verb-tabelle/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/tabla-de-verbos/"/>
@@ -3136,7 +3143,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/take/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/take/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/take/"/>
@@ -3144,7 +3151,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/tarjetas/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/karteikarten/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/tarjetas/"/>
@@ -3160,7 +3167,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/tear/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/tear/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/tear/"/>
@@ -3184,7 +3191,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/throw/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/throw/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/throw/"/>
@@ -3208,7 +3215,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/type-race/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/type-race/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/type-race/"/>
@@ -3248,7 +3255,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/wear/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/wear/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/wear/"/>
@@ -3256,7 +3263,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/es/verbos-irregulares/weave/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/weave/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/weave/"/>

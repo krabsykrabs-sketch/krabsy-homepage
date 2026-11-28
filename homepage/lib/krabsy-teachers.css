@@ -593,3 +593,17 @@ body.tc-page {
   .tc-hero-grid { gap: 0; }
   .tc-hero .tc-ctas { margin-bottom: 4px; }
 }
+
+/* ── First question: devices or paper (2026-11-28) ────────────────── */
+.tc-fork { margin-bottom: 44px; }
+@media (min-width: 760px) { .tc-ways.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; } }
+.tc-way.is-paper { --way: var(--g-navy); --way-soft: #e6ebf5; }
+.tc-way.is-paper .tc-way-num { color: #fff; }
+.tc-way-list { margin: 0 0 18px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.tc-way-list li { display: flex; gap: 8px; align-items: baseline; line-height: 1.4; }
+.tc-way-list li::before { content: ""; flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--way); transform: translateY(-2px); }
+.tc-way-list a { color: var(--k-link); font-weight: 800; }
+.tc-way-list small { color: var(--tc-mute); font-weight: 600; }
+.tc-way-note { font-size: 0.92rem !important; color: var(--tc-mute); }
+.tc-mode { display: inline-block; margin-left: 6px; padding: 1px 9px; border-radius: var(--radius-pill); font-size: 0.76rem; font-weight: 800; vertical-align: 2px; background: var(--teal-soft); color: var(--g-navy); }
+.tc-mode.is-paper { background: #e6ebf5; }

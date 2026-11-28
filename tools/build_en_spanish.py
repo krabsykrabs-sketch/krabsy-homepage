@@ -299,7 +299,7 @@ def build_teachers():
              'Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.', url) + \
         f"""  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
-  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-28-btn">
+  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-28-fork">
   <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-28-btn">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
 </head>

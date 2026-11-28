@@ -53,8 +53,9 @@ P = "/de/praepositionen/"
 PLANS = [
     {
         "slug": "vertretungsstunde-unregelmaessige-verben",
-        "title": "Unregelmäßige Verben in der Vertretungsstunde",
-        "seo_title": "Vertretungsstunde Englisch: unregelmäßige Verben (45 Min., Klasse 5–8)",
+        "title": "Unregelmäßige Verben in der Vertretungsstunde – mit Geräten",
+        "mode": "devices",
+        "seo_title": "Vertretungsstunde Englisch: unregelmäßige Verben am Tablet oder PC (45 Min., Klasse 5–8)",
         "desc": "Fertiger Stundenablauf für 45 Minuten: unregelmäßige Verben mit Online-Sprint, "
                 "Arbeitsblatt mit Lösung und Verb-Diplom. Kostenlos, ohne Anmeldung, mit Klassenübersicht.",
         "teaser": "Sprint, Arbeitsblatt und Verb-Diplom. Danach sieht die Fachlehrkraft, welche Verben die Klasse noch übt.",
@@ -98,8 +99,8 @@ PLANS = [
         "easier": f"Sprint nur mit den häufigsten Verben: [[{V}sprint/?difficulty=1|Sprint, Stufe 1]]. "
                   "Beim Arbeitsblatt zu zweit arbeiten.",
         "harder": f"Silber oder Gold im Verb-Diplom. Wer fertig ist: [[{V}type-race/|Type Race]] gegen die Uhr.",
-        "offline": f"Arbeitsblätter „Die drei Formen“ und „Lückensätze“ ([[{V}arbeitsblaetter/|Arbeitsblätter]]). "
-                   "Partnerquiz: Eine Person nennt das Verb, die andere die beiden Formen; nach zehn Verben tauschen.",
+        "offline": f"Dann die [[{HUB}vertretungsstunde-unregelmaessige-verben-ohne-geraete/|Vertretungsstunde ohne Geräte]]: "
+                   "zwei Arbeitsblätter mit Lösung und ein Partnerquiz, alles auf Papier.",
         "after": "Geben Sie den privaten Link an die Englischlehrkraft weiter. Sie sieht pro Klasse und pro Kind, "
                  "wer geübt hat, wie viele Antworten richtig waren und welche Verben noch unsicher sind. Die Klasse "
                  "kann mit demselben Code weiterüben, auch zu Hause.",
@@ -111,8 +112,67 @@ PLANS = [
         "copy_to": ROOT / "docs" / "4teachers" / "krabsy-vertretungsstunde-unregelmaessige-verben.pdf",
     },
     {
+        "slug": "vertretungsstunde-unregelmaessige-verben-ohne-geraete",
+        "title": "Unregelmäßige Verben in der Vertretungsstunde – ohne Geräte",
+        "mode": "paper",
+        "seo_title": "Vertretungsstunde Englisch ohne Geräte: unregelmäßige Verben (45 Min., Klasse 5–8)",
+        "desc": "Fertiger Stundenablauf für 45 Minuten im normalen Klassenraum: unregelmäßige Verben mit zwei "
+                "Arbeitsblättern, Lösungsblättern und Partnerquiz. Ohne Geräte und ohne WLAN, auch fachfremd.",
+        "teaser": "Zwei Arbeitsblätter mit Lösung und ein Partnerquiz. Nur Kopien, keine Geräte, kein WLAN.",
+        "lead": "Wiederholung von <em lang=\"en\">go – went – gone</em> &amp; Co. im normalen Klassenraum: "
+                "nur Kopien, keine Geräte, kein WLAN. Mit Lösungsblättern, deshalb auch fachfremd machbar.",
+        "glance": {
+            "Klasse": "5–8", "Niveau": "A1–A2", "Dauer": "45 Minuten",
+            "Geräte": "keine",
+            "Material": "Arbeitsblätter „Die drei Formen“ und „Lückensätze“, je eine Kopie pro Kind",
+            "Lösungen": "ja, Lösungsblatt in jedem PDF",
+        },
+        "minutes": 45,
+        "level": "Klasse 5–8",
+        "teaches": "Englische unregelmäßige Verben: die drei Formen",
+        "qr": f"{V}sprint/",
+        "qr_label": "Zu Hause üben",
+        "prep": [
+            f"Von den [[{V}arbeitsblaetter/|Arbeitsblättern]] „Die drei Formen“ und „Lückensätze“ je eine Kopie "
+            "pro Kind machen. Die Lösungsblätter (letzte Seite jedes PDFs) einmal für sich ausdrucken.",
+            "Für Kinder, die früher fertig sind: ein paar Kopien von „Nach Mustern sortieren“ (gleiche Seite).",
+            "Kleine Zettel für den Abschluss bereitlegen (ein halbes Blatt pro Kind reicht).",
+        ],
+        "steps": [
+            ("0–5", "Einstieg an der Tafel",
+             "<em lang=\"en\">go, see, buy</em> anschreiben. Die Klasse nennt die beiden anderen Formen, Sie "
+             "schreiben mit: <em lang=\"en\">go → went → gone</em>. So sieht jedes Kind die Schreibweise der Aufgaben."),
+            ("5–17", "Die drei Formen",
+             "20 Verben allein ausfüllen, dann mit dem Nachbarn vergleichen. Zum Schluss die Lösungen vorlesen; "
+             "jedes Kind verbessert das eigene Blatt."),
+            ("17–27", "Partnerquiz",
+             "Zu zweit mit dem verbesserten Blatt: Eine Person nennt die Grundform, die andere sagt die beiden "
+             "anderen Formen, ohne hinzusehen. Nach zehn Verben tauschen."),
+            ("27–40", "Lückensätze",
+             "12 Sätze, das Verb steht in Klammern. Allein ausfüllen, vergleichen, Lösungen vorlesen. Wer fertig "
+             "ist, nimmt „Nach Mustern sortieren“."),
+            ("40–45", "Abschluss",
+             "Jedes Kind schreibt drei Verben, die noch schwer sind, auf einen Zettel. Zettel einsammeln: "
+             "Das ist die Rückmeldung für die Englischlehrkraft."),
+        ],
+        "easier": f"Die [[{V}arbeitsblaetter/|Verbliste nach Mustern]] als Hilfe auslegen. Beide Arbeitsblätter zu zweit bearbeiten.",
+        "harder": "Beim Partnerquiz die Reihenfolge der Verben mischen. Nach den Lückensätzen eigene Sätze mit "
+                  "drei Verben vom Zettel schreiben.",
+        "alt_title": "Wenn doch Geräte da sind",
+        "offline": f"Dann die [[{HUB}vertretungsstunde-unregelmaessige-verben/|Vertretungsstunde mit Geräten]]: "
+                   "Sprint und Verb-Diplom am Tablet oder PC, und die Englischlehrkraft sieht danach, welche Verben "
+                   "die Klasse noch übt.",
+        "after": "Zettel und Arbeitsblätter an die Englischlehrkraft geben. Zum Weiterüben zu Hause: der "
+                 f"[[{V}sprint/|Sprint]] (QR-Code oben), ohne Anmeldung.",
+        "privacy": [
+            "Im Unterricht wird kein Gerät benutzt und nichts gespeichert.",
+            "Der Sprint zu Hause läuft ohne Konto, ohne Werbung und ohne Cookies.",
+        ],
+    },
+    {
         "slug": "praepositionen-in-on-at",
         "title": "in, on, at: Präpositionen der Zeit und des Ortes",
+        "mode": "devices",
         "seo_title": "Englisch Präpositionen in, on, at: Unterrichtsstunde (45 Min., Klasse 5–6)",
         "desc": "Fertiger Stundenablauf für 45 Minuten zu in, on, at (Zeit und Ort): Einstieg an der Tafel, "
                 "Arbeitsblatt mit Lösung, Online-Sprint und Live-Quiz. Kostenlos, ohne Anmeldung.",
@@ -172,6 +232,7 @@ PLANS = [
     {
         "slug": "quiz-raum-stundenabschluss",
         "title": "Der Quiz-Raum als Stundenabschluss",
+        "mode": "devices",
         "seo_title": "Live-Quiz Englisch zum Stundenende: unregelmäßige Verben und Präpositionen (15 Min.)",
         "desc": "Zehn bis fünfzehn Minuten Live-Quiz am Ende der Englischstunde: Jedes Kind spielt am eigenen Gerät, "
                 "am Ende stehen die Wörter, die die Klasse wiederholen sollte. Kostenlos, ohne Anmeldung.",
@@ -223,6 +284,12 @@ PLANS = [
         ],
     },
 ]
+
+OFFLINE_H = "Ohne Geräte oder ohne WLAN"
+MODES = {  # hub groups, in this order
+    "devices": ("Mit Geräten", "Jedes Kind (oder jedes Paar) hat ein Tablet, einen Laptop oder ein Handy mit Internet, oder Sie sind im Computerraum."),
+    "paper": ("Ohne Geräte", "Ein normaler Klassenraum: Tafel, Kopien, kein WLAN nötig."),
+}
 
 # ── link markup ──────────────────────────────────────────────────────────────
 
@@ -310,7 +377,10 @@ WEB_CSS = """
     .lp-hub{display:grid;gap:14px}
     .lp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
     .lp-chip{font-size:0.78rem;background:#f3fbf9;border:1px solid #bfe9df;border-radius:20px;padding:2px 10px;color:var(--krabsy-ink)}
-    .lp-card h2 a{text-decoration:none}
+    .lp-card h2 a,.lp-card h3 a{text-decoration:none}
+    .lp-hub .lp-card h3{font-family:var(--font-display);font-weight:normal;font-size:1.2rem;color:var(--krabsy-ink);margin:0 0 10px}
+    .lp-group{font-family:var(--font-display);font-weight:normal;font-size:1.45rem;color:var(--krabsy-ink);margin:26px 0 2px}
+    .lp-group-note{color:var(--krabsy-ink-mute);margin:0 0 12px;line-height:1.5}
     @media (max-width:600px){
       .lp-cols{grid-template-columns:1fr}
       .lp-prep{flex-direction:column}
@@ -414,7 +484,7 @@ def plan_page(p, kb):
         <section class="lp-card"><h2>Leichter</h2><p>{web(p['easier'])}</p></section>
         <section class="lp-card"><h2>Schwerer</h2><p>{web(p['harder'])}</p></section>
       </div>
-      <section class="lp-card"><h2>Ohne Geräte oder ohne WLAN</h2><p>{web(p['offline'])}</p></section>
+      <section class="lp-card"><h2>{p.get('alt_title', OFFLINE_H)}</h2><p>{web(p['offline'])}</p></section>
       <section class="lp-card"><h2>Danach</h2><p>{web(p['after'])}</p></section>
       <section class="lp-card lp-note"><h2>Datenschutz in Kürze</h2><ul>{priv}</ul></section>
       <p class="lp-small">Weitere Stunden: {others}. Alle Ideen: <a href="{HUB}">Unterrichtsideen</a> · <a href="/de/lehrkraefte/">Für Lehrkräfte</a>. Stand: {STAND}.</p>"""
@@ -433,25 +503,30 @@ def plan_page(p, kb):
 
 
 def hub_page():
-    cards = ""
-    for p in PLANS:
-        g = p["glance"]
-        chips = "".join(f'<span class="lp-chip">{x}</span>' for x in
-                        (f"Klasse {g['Klasse']}", g["Niveau"], g["Dauer"]))
-        u = f"{HUB}{p['slug']}/"
-        cards += f"""        <section class="lp-card"><h2><a href="{u}">{p['title']}</a></h2>
+    groups = ""
+    for mode, (label, note) in MODES.items():
+        cards = ""
+        for p in (q for q in PLANS if q["mode"] == mode):
+            g = p["glance"]
+            chips = "".join(f'<span class="lp-chip">{x}</span>' for x in
+                            (label, f"Klasse {g['Klasse']}", g["Niveau"], g["Dauer"]))
+            u = f"{HUB}{p['slug']}/"
+            cards += f"""        <section class="lp-card"><h3><a href="{u}">{p['title']}</a></h3>
           <div class="lp-chips">{chips}</div>
           <p>{p['teaser']}</p>
           <div class="lp-actions" style="margin-top:12px"><a class="lp-dl" href="{u}">Ablauf ansehen</a><a href="{u}{p['slug']}.pdf" download>PDF (1 Seite)</a></div>
         </section>
 """
-    body = f"""      <h1 class="lp-h1">Unterrichtsideen für Englisch: fertige Stunden mit Krabsy</h1>
-      <p class="lp-lead">Stundenabläufe mit Zeitplan, Material und Plan B ohne Geräte. Jede Stunde gibt es als Seite
-        und als einseitiges PDF zum Ausdrucken oder Weitergeben, zum Beispiel für die Vertretung. Alles kostenlos
-        und ohne Anmeldung.</p>
+        groups += f"""      <h2 class="lp-group" id="{mode}">{label}</h2>
+      <p class="lp-group-note">{note}</p>
       <div class="lp-hub">
 {cards}      </div>
-      <p class="lp-small">Mehr Material: <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter unregelmäßige Verben</a> ·
+"""
+    body = f"""      <h1 class="lp-h1">Unterrichtsideen für Englisch: fertige Stunden mit Krabsy</h1>
+      <p class="lp-lead">Stundenabläufe mit Zeitplan und Material, für Klassen mit Geräten und für den normalen Klassenraum ohne Geräte. Jede Stunde gibt es als Seite
+        und als einseitiges PDF zum Ausdrucken oder Weitergeben, zum Beispiel für die Vertretung. Alles kostenlos
+        und ohne Anmeldung.</p>
+{groups}      <p class="lp-small">Mehr Material: <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter unregelmäßige Verben</a> ·
         <a href="/de/praepositionen/arbeitsblaetter/">Arbeitsblätter Präpositionen</a> · <a href="/de/lehrkraefte/">Für Lehrkräfte</a>.
         Sie wünschen sich eine Stunde zu einem anderen Thema? Schreiben Sie uns an <a href="mailto:hallo@krabsy.com">hallo@krabsy.com</a>.</p>"""
     crumbs = '<a href="/de/lehrkraefte/">Für Lehrkräfte</a> › Unterrichtsideen'
@@ -461,7 +536,7 @@ def hub_page():
                                 "url": f"https://krabsy.com{HUB}{p['slug']}/"} for i, p in enumerate(PLANS)]}]
     return page("Unterrichtsideen Englisch: fertige Stunden zu Verben und Präpositionen",
                 "Kostenlose Stundenabläufe für den Englischunterricht (Klasse 5–9): unregelmäßige Verben, "
-                "in/on/at und Live-Quiz. Mit Zeitplan, Arbeitsblatt, Plan B ohne Geräte und PDF zum Ausdrucken.",
+                "in/on/at und Live-Quiz. Mit Geräten oder ganz auf Papier, mit Zeitplan, Arbeitsblatt und PDF zum Ausdrucken.",
                 HUB, crumbs, body, ld)
 
 
@@ -524,7 +599,7 @@ def plan_pdf_html(p):
 <table class="plan">{steps}</table>
 <div class="cols"><div class="box"><h2>Leichter</h2><p>{pdf(p['easier'])}</p></div>
 <div class="box"><h2>Schwerer</h2><p>{pdf(p['harder'])}</p></div></div>
-<div class="cols"><div class="box"><h2>Ohne Geräte oder ohne WLAN</h2><p>{pdf(p['offline'])}</p></div>
+<div class="cols"><div class="box"><h2>{p.get('alt_title', OFFLINE_H)}</h2><p>{pdf(p['offline'])}</p></div>
 <div class="box"><h2>Danach</h2><p>{pdf(p['after'])}</p></div></div>
 <div class="box"><h2>Datenschutz in Kürze</h2><ul>{priv}</ul></div>
 """
