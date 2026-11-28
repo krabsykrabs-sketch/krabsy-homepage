@@ -71,6 +71,11 @@ const T = {
   needSignIn: 'Please sign in to open the live lesson.', signIn: 'Sign in', unknown: 'This student doesn’t exist (any more) in your space.',
   errNet: 'No connection. Try again in a moment.', noStudent: 'Open a student first.',
 };
+// Live invites (api/invites.py): the student gets an invite on any Krabsy page while the
+// lesson runs; the relay sends {t:'invite', list:[{name, s}]}. Texts: data/ui_<lang>.json "invites".
+let INV_T = null;
+fetch(`/data/ui_${LANG}.json`).then((r) => (r.ok ? r.json() : {})).then((d) => { INV_T = d.invites || {}; }).catch(() => { INV_T = {}; });
+const invTx = (key, vars = {}) => String((INV_T && INV_T[key]) || '').replace(/\{([a-zA-Z_]\w*)\}/g, (m, k) => (k in vars ? vars[k] : m));
 const KIND_ORDER = ['worksheet', 'book', 'cards'];
 const MIRROR_H = 600;            // below this height the mirror is drawn at this size and scaled down
 
@@ -309,6 +314,12 @@ class LivePage {
     const pres = $('[data-pres]', m);
     if (p.student) this.seenStudent = true;
     let cls = 'is-away', txt = this.seenStudent ? T.gone(n) : T.notYet(n);
+    // not here: what the invite on the student's other Krabsy pages says (waiting / "Not now")
+    const inv = this.active() && this.invite && this.invite.list && this.invite.list[0];
+    if (!p.student && inv && inv.s !== 'joined' && invTx('lesson_' + inv.s)) {
+      txt = invTx('lesson_' + inv.s, { name: n });
+      if (inv.s === 'declined') cls = 'is-left';
+    }
     if (p.student && p.visible) { cls = 'is-here'; txt = T.here(n); }
     else if (p.student) { cls = 'is-left'; txt = T.away(n); }
     const key = (read('krabsy_tutor_keys', {}) || {})['id:' + this.P.sid];
@@ -468,6 +479,7 @@ class LivePage {
   }
 
   onMessage(m) {
+    if (m.t === 'invite') { this.invite = m; this.header(); return; }
     if (m.t === 'state') {
       // a state for the previous material (still on its way after a "show now") is dropped
       if (m.state && m.state.id && this.material && this.material.id && m.state.id !== this.material.id) return;

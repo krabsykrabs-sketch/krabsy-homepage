@@ -23,6 +23,11 @@ Non-fatal errors     error {code: too_big} (load material > MAX_MATERIAL, state 
 A second connection of the same role replaces the first: the old one gets
 error {code: replaced} and is closed (clients must not auto-reconnect after that).
 
+Live invites (2026-11-28, api/invites.py): while a lesson runs, the student gets an invite on
+any Krabsy page ("Nora is starting your lesson – join now?") that opens their page
+(STUDENT_PAGE), where the lesson opens by itself. The tutor gets invite {list:[{name, s}]}
+(joined / declined / waiting). The invite ends with the lesson.
+
 Room life (review 2026-11-26): a room belongs to one tutor_students row (id + tutor + class +
 created, so a reused id never sees an old lesson). It is deleted as soon as nobody is connected
 if it never had a lesson (an ended lesson keeps only its summary, no answers), swept 3 h after its last message (checked at most every SWEEP_S), and
@@ -43,6 +48,7 @@ from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+import invites
 import tutors
 from classes import _lock, connect
 from quiz_room import Outbox, OUTBOX_POS_LIMIT, _ip, _origin_ok
@@ -70,6 +76,7 @@ CMD_TYPES = {"hint", "reveal", "next", "prev", "goto", "act"}
 ACT_KINDS = {"click", "type", "enter"}   # the tutor does it on the student's screen (2026-11-27)
 _ANCHOR = re.compile(r"[\w.:\-]{1,120}", re.UNICODE)
 REWARDS = {"star", "gift"}
+STUDENT_PAGE = "/en/spanish/me/"   # the student's page (lib/krabsy-tutor.js PATHS.me): the lesson opens there
 
 
 _STATE_PREFIX = '{"t":"state",'
@@ -116,6 +123,8 @@ class Room:
         self.presence_sent: Optional[tuple] = None
         self.dirty = False                     # lesson changed since the last save
         self.saved_at = 0.0
+        self.tutor_name = ""
+        self.invite: Optional[invites.Invite] = None   # live invite while a lesson runs
 
     def active(self) -> bool:
         return self.lesson is not None and not self.lesson.get("ended")
@@ -167,7 +176,9 @@ def sweep(now: Optional[float] = None) -> int:
     old = [k for k, r in list(ROOMS.items())
            if r.tutor is None and r.student is None and now - r.last > ROOM_TTL_S]
     for k in old:
-        ROOMS.pop(k, None)
+        r = ROOMS.pop(k, None)
+        if r is not None:
+            _end_invite(r)
     return len(old)
 
 
@@ -184,7 +195,9 @@ def _make_space() -> bool:
     idle = [r for r in ROOMS.values() if r.tutor is None and r.student is None]
     if not idle:
         return False
-    ROOMS.pop(min(idle, key=lambda r: r.last).ts_id, None)
+    gone = ROOMS.pop(min(idle, key=lambda r: r.last).ts_id, None)
+    if gone is not None:
+        _end_invite(gone)
     return True
 
 
@@ -210,6 +223,7 @@ def drop_room(ts_id: int, student_only: bool = False) -> None:
     st = room.student
     room.student = None
     _close(st, "auth")
+    _end_invite(room)            # removed student / new link: the invite goes too (a new one comes with the next start)
     if student_only:
         room.send_presence()
         return
@@ -221,7 +235,42 @@ def drop_room(ts_id: int, student_only: bool = False) -> None:
     #  No database call here: the caller holds classes._lock.)
 
 
+def _invite_status(room: Room) -> None:
+    if room.invite is not None:
+        send_to(room.tutor, room.invite.status())
+
+
+async def _ensure_invite(room: Room) -> None:
+    """A running lesson invites the student from any page (live invites)."""
+    if not room.active() or invites.is_open(room.invite):
+        return
+    class_id = room.ident[1] if len(room.ident) > 1 else None
+    if class_id is None:
+        return
+    pupils = await asyncio.to_thread(invites.roster, class_id)
+    if not room.active() or invites.is_open(room.invite):
+        return
+    room.invite = invites.open_invite(class_id, "lesson", host=room.tutor_name, target=STUDENT_PAGE, pupils=pupils,
+                                      on_change=lambda inv: send_to(room.tutor, inv.status()))
+    if room.student is not None:                       # already on their page: in the lesson
+        for sid in pupils:
+            invites.mark(room.invite, sid, "joined")
+    _invite_status(room)
+
+
+def _student_here(room: Room) -> None:
+    if invites.is_open(room.invite):
+        for sid in list(room.invite.roster):
+            invites.mark(room.invite, sid, "joined")
+
+
+def _end_invite(room: Room) -> None:
+    invites.close_invite(room.invite)
+    room.invite = None
+
+
 def _end_lesson(room: Room, summary=None) -> None:
+    _end_invite(room)
     room.lesson["ended"], room.lesson["summary"] = _iso(), summary
     room.lesson["material"], room.lesson["state"] = None, None
     room.lesson["answers"], room.lesson["abytes"] = [], 0     # saved in the lesson note; not kept here
@@ -496,10 +545,16 @@ async def live_ws(ws: WebSocket):
                     r.student = ws
                     r.visible = True
                 room, role, room.last = r, r_role, now
+                room.tutor_name = tutor_name or room.tutor_name
                 cred = msg.get("token") if role == "tutor" else msg.get("key")
                 ob.put({"t": "ready", "role": role, "name": ts["name"], "tutor": tutor_name,
                         "adult": bool(ts["adult"]), "lesson": room.snapshot(role)})
                 room.send_presence(force_to=ws)
+                if role == "student":
+                    _student_here(room)
+                elif room.active():
+                    await _ensure_invite(room)          # e.g. after a server restart
+                    _invite_status(room)
                 continue
 
             # ---------------- in a room: a replaced connection is ignored
@@ -520,6 +575,7 @@ async def live_ws(ws: WebSocket):
                         room.lesson = _new_lesson()
                     _queue(room, msg)
                     send_to(room.student, {"t": "start", "lesson": room.snapshot("student")})
+                    await _ensure_invite(room)
                 elif t == "load":
                     mat = msg.get("material")
                     if not isinstance(mat, dict):
@@ -530,6 +586,7 @@ async def live_ws(ws: WebSocket):
                         _lesson_slot(room)
                         room.lesson = _new_lesson()
                         send_to(room.student, {"t": "start", "lesson": room.snapshot("student")})
+                        await _ensure_invite(room)
                     fresh = msg.get("fresh") is True
                     prev = room.lesson.get("material")
                     same = isinstance(prev, dict) and prev.get("id") is not None and prev.get("id") == mat.get("id")

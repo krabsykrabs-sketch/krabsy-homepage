@@ -494,3 +494,45 @@ def test_lesson_survives_restart_and_reload_keeps_progress():
     live.ROOMS.clear()
     with c.websocket_connect("/api/live/ws", headers={"origin": "https://krabsy.com"}) as st:
         assert hello_student(st, key)["lesson"] is None
+
+
+def test_lesson_invite():
+    """Live invites: a started lesson invites the student from any page; the tutor sees
+    waiting → declined / joined; the invite ends with the lesson."""
+    s = _setup()
+    if s is None:
+        return
+    import invites
+    invites.INVITES.clear()
+    c, tok, sid, key, _o = s
+    poll = lambda: c.post("/api/invites", json={"tokens": [key]}).json()["invites"]
+    with c.websocket_connect(WS) as tu:
+        hello_tutor(tu, tok, sid)
+        assert poll() == []                                    # no lesson, no invite
+        tu.send_json({"t": "start"})
+        st = recv(tu, "invite")
+        assert st["list"] == [{"name": "Lucas", "s": "waiting"}]
+        inv = poll()
+        assert len(inv) == 1 and inv[0]["kind"] == "lesson" and inv[0]["host"] == "Nora"
+        assert inv[0]["target"] == "/en/spanish/me/" and inv[0]["name"] == "Lucas"
+        # "Not now": the tutor sees it, the invite doesn't come back
+        c.post("/api/invites/respond", json={"token": key, "invite": inv[0]["id"], "answer": "decline"})
+        assert recv(tu, "invite")["list"] == [{"name": "Lucas", "s": "declined"}]
+        assert poll() == []
+        # the student opens their page anyway: joined
+        with c.websocket_connect(WS) as stu:
+            hello_student(stu, key)
+            assert recv(tu, "invite")["list"] == [{"name": "Lucas", "s": "joined"}]
+        tu.send_json({"t": "end"})
+        tu.send_json({"t": "ping"}); recv(tu, "pong")
+        assert not invites.INVITES                              # lesson over: invite and answers gone
+        # a new lesson: a new invite; the student already on the page counts as joined
+        with c.websocket_connect(WS) as stu:
+            hello_student(stu, key)
+            tu.send_json({"t": "start"})
+            assert recv(tu, "invite")["list"] == [{"name": "Lucas", "s": "joined"}]
+            assert poll() == []
+    # tutor page closed: the lesson keeps running, so does the invite; a new link ends it
+    assert len(invites.INVITES) == 1
+    c.post("/api/tutor/student/new-link", json={"id": sid}, headers={"X-Tutor-Token": tok})
+    assert not invites.INVITES
