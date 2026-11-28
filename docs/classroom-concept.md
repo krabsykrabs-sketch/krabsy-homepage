@@ -351,6 +351,68 @@ Polling matches the existing live-lesson approach (no extra server parts).
 Room started for a class → invite, pupils join with their identity, answers
 recorded; (3) teacher-side live view of who joined/declined.
 
+## Live invites as built (2026-11-28)
+
+Built to the decisions above; not deployed (deploy the API first).
+
+- **API** `api/invites.py`, **in memory only** (single uvicorn process, like the Quiz
+  Room). An invite = class id, kind (`quiz` | `lesson`), class name, who started it,
+  target page, expiry (quiz 2 h, lesson 3 h), the class roster and the pupils' answers.
+  `POST /api/invites {tokens: [...]}` (all class/student tokens of the device, ≤ 8, in the
+  body, never in a URL) → `{poll: 18, invites: [{id, kind, class, host, target, name, who}]}`
+  (`name` = the pupil it is for, `who` = index of that token); with nothing live
+  anywhere it answers without touching the database. `POST /api/invites/respond
+  {token, invite, answer: join | decline}`: "Jetzt nicht" is kept per pupil and invite
+  and that invite doesn't come back for that pupil. The host gets `{t: 'invite', class,
+  list: [{name, s: joined | declined | waiting}], joined, declined, waiting}` on its
+  socket whenever it changes. Rate limits per IP: 1200 polls / min (a school behind one
+  address), 300 answers / min. Ending the session (quiz over, room closed, lesson ended,
+  student removed / new link) deletes the invite with all answers. Tests:
+  `api/tests/test_invites.py`, `test_quiz_room.py::test_class_room_*`,
+  `test_live.py::test_lesson_invite`.
+- **Quiz Room for a class** (`api/quiz_room.py`, `games/quiz-show/`, copied to
+  `homepage/games/quiz-room/`): the teacher page has "Für Klasse" (classes opened on
+  this device via their secret link, `krabsy_teacher_classes`, plus the account's
+  classes when signed in); the class dashboard links "Quiz-Raum mit dieser Klasse"
+  (`teacher.html?class=<code>` preselects it). `create {…, class: {teacher_token} |
+  {account_token, class_id}}` is checked on the server (`no_class` otherwise). Pupils
+  arrive at `index.html?code=…&lang=…&class=1` and send `join {code, student: <class
+  token>}`: no code typed, no name, the name from the class (`joined.cls` = class name in
+  the HUD); the same pupil on another device = the same player; removed = can't come
+  back; a locked room pauses the invite. Joining by code works as before for everyone.
+  Their answers reach the class exactly like any game answer (the reveal's word →
+  `recordAttempt` on the pupil's device → `/api/class/answers`). Teacher view: a list
+  "Einladung an 6b · 1 dabei · 1 jetzt nicht · 1 warten" with names above the players.
+  Quiz-room modules now carry `?v=` (`tools/stamp_game_modules.py` handles games with
+  several pages: `python3 tools/stamp_game_modules.py games/quiz-show homepage/games/quiz-room`).
+- **Live lesson** (`api/live.py`): starting a lesson (start / first load, also after a
+  restart when the tutor reconnects) opens a `lesson` invite to `/en/spanish/me/`, where
+  the lesson opens by itself; a student already on that page counts as joined. The tutor
+  live page shows "Lucas gets an invitation on any Krabsy page" / "Lucas chose “Not
+  now”" in the presence line until the student is there.
+- **Overlay** `lib/krabsy-invite.js`, started by `krabsy-analytics.js` next to
+  `krabsy-sync.js` (same condition: top window, device holds `krabsy_people` or
+  `krabsy_class`), so every page with the analytics script has it, including the game
+  and drill wrapper pages (the overlay covers their iframes) — no page needed a new
+  script tag. Polls every 18 s (+ up to 3 s jitter; the server sends the interval) only
+  while `document.visibilityState === 'visible'`; the last poll time is kept in
+  `sessionStorage`, so page changes don't add polls; errors back off (×2 up to 5 min);
+  no tokens → no request. Not on teacher / tutor / report pages, not on the invite's own
+  target page. Modal dialog (role dialog, aria-modal, focus trap, Esc = Jetzt nicht),
+  icon `ki-quiz` / `ki-teacher`, "Für Mia" (shared device: "Bist du Mia?" + "Nein, jemand
+  anderes" → "Who's playing?"), **Beitreten** (records join, switches to that person if
+  needed, opens the target), **Jetzt nicht** (recorded). Texts `ui_<lang>.json`
+  `invites` (de/es/en), loaded only when an invite shows.
+- **Privacy:** DE/ES/EN privacy pages (Quiz-Raum + live lessons) say that the browser
+  asks about every 20 s with the class key it already has, that the teacher/tutor sees
+  joined / "Jetzt nicht" / no answer, and that this lives only in memory and is gone when
+  the quiz / lesson ends, at the latest after 2 h / 3 h.
+- **Limits / open:** `krabsy-analytics.js` is still referenced as `?v=2026-11-22` on
+  ~500 pages (not bumped: shared checkout with other sessions' uncommitted pages); the
+  1 h cache means returning visitors get the overlay at the latest an hour after the
+  deploy. A pupil who joined and then left the room is not invited again for that quiz
+  (the code still works). Live worksheets for a class (kind `worksheet`) are not built.
+
 ## Phase 2 as built (2026-11-22)
 
 Owner decisions 2026-11-22: server is in the EU (Hetzner DE) · teachers get a

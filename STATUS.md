@@ -1,5 +1,16 @@
 # Krabsy — status dashboard
 
+## Live invites (2026-11-28), not deployed
+
+Owner spec: `docs/classroom-concept.md` "Live invites (owner decisions 2026-11-28)"; as built in "Live invites as built".
+- **API** `api/invites.py` (in memory only): `POST /api/invites {tokens}` → active invites for the device's pupils (kind, class, who started it, target, pupil name); `POST /api/invites/respond {token, invite, join|decline}`; "Jetzt nicht" per pupil and session; host sees joined / declined / waiting; gone when the session ends (max 2 h quiz / 3 h lesson); rate limits.
+- **Quiz Room for a class:** teacher page "Für Klasse" (device + account classes), dashboard button "Quiz-Raum mit dieser Klasse"; pupils join from the invite with their class identity (no code, no name), answers count in the class overview; code joins unchanged; teacher list "Einladung an 6b · 1 dabei · 1 jetzt nicht · 1 warten". Quiz-room modules now `?v=`-stamped (`tools/stamp_game_modules.py` handles multi-page games).
+- **Tutor live lesson:** starting a lesson invites the student from any page to `/en/spanish/me/`; the live page shows "Lucas gets an invitation …" / "chose “Not now”".
+- **Overlay** `lib/krabsy-invite.js`, started from `krabsy-analytics.js` (only devices with class/student keys, top window): polls ~18 s while visible, backoff, no requests without tokens; dialog with focus trap, Esc = Jetzt nicht, "Nein, jemand anderes" → "Who's playing?". Texts `ui_<lang>.json` `invites`.
+- **Privacy pages DE/ES/EN** updated (Quiz Room + live lessons): polling with the existing key, status in memory only, deleted at session end / 2 h / 3 h.
+- Tests: 96 API tests pass; E2E headless DE + ES + tutor (390 px pupils): overlay on game and drill pages within 3–19 s, above the iframe, Beitreten → in the room as "Mia · 6b", Jetzt nicht/Esc → declined on the teacher list and no new overlay, answer in the class overview (source quiz-room), no overlay after the quiz, 0 polls without tokens, no console errors, no overflow.
+- **Open / owner:** `krabsy-analytics.js?v=2026-11-22` not bumped on ~500 pages (1 h cache delay for returning visitors); lawyer review of the new privacy lines. **Deploy order: API first**, then the site. Try locally: `python3 tools/dev_api_server.py` → http://localhost:8010/de/lehrkraefte/klasse-erstellen/ → dashboard → "Quiz-Raum mit dieser Klasse"; pupil in another browser profile via /de/klasse/.
+
 ## Site review fixes, batch A (2026-11-27/28), not pushed
 
 From `docs/site-review-2026-11-27.md`: T1 (ES verb table + flashcards show/search the page-language meaning), O1 (Verb Kitchen self-hosted fonts; no external request left on the site), T3 (no "concha"), L1 (10 pages: standard header skeleton; `mountHeader` also hoists a nested logo), T2 (verb-page mini-quiz `go → ___ → ___` / `go → went → ___`, grammar name as caption), N2 (`/en/404.html`; **owner: paste the `~^/en/ /en/404.html;` line from `docs/nginx-krabsy.conf` into the server config**), T7, T8, T9, T10, T14, S3, S4 ("erste Zeitformen" on the landing), S5, C12, L5, L10, T6 (`ui_en.json`). `krabsy-ui.css` / `-header.js` `?v=2026-11-27-rv` (not on the six Type Race / Drag Match / Falling Forms wrappers, edited by the drill batch). Open: quiz-room "Your colour" / "practise" (`games/quiz-show` source).
