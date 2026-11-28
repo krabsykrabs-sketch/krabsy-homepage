@@ -239,6 +239,8 @@ a:hover { color: var(--krabsy-coral-deep); }
   -webkit-tap-highlight-color: transparent;
 }
 .k-learn-btn:hover, .k-learn.is-open .k-learn-btn { background: #ffefc2; }
+.k-learn.is-single .k-learn-btn { cursor: default; }
+.k-learn.is-single .k-learn-btn:hover { background: #fff7e0; }
 .k-flag {
   display: block; flex: 0 0 auto; width: 27px; height: 18px; border-radius: 3px;
   box-shadow: 0 0 0 1px rgba(44, 42, 58, 0.18); overflow: hidden;

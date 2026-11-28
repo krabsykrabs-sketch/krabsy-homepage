@@ -37,7 +37,7 @@
    then only the current item is marked.
    ────────────────────────────────────────────────────────────────────────── */
 
-import { currentLang, currentSection, sectionTopics, topicUrl, uiPage, setLang, SECTIONS, SUBJECTS, FALLBACK_UI } from './krabsy-lang.js?v=2026-11-27';
+import { currentLang, currentSection, sectionTopics, topicUrl, uiPage, setLang, SECTIONS, SUBJECTS } from './krabsy-lang.js?v=2026-11-27';
 import { mountShellCounter } from '/lib/krabsy-shells.js';
 
 const LABELS = {
@@ -195,8 +195,8 @@ export function learnEntries(section, lang) {
   // goes to the section for that subject in this interface language if there is one,
   // else the one that fits the reader's own language (browser / time zone), else the
   // first. A subject in the reader's own interface language is left out (a Spanish
-  // speaker on /es/ doesn't learn Spanish here), except on the English fallback
-  // interface, where German or Spanish children can land too.
+  // speaker on /es/ doesn't learn Spanish here, an English reader on /en/ doesn't
+  // learn English here; owner 2026-11-28). With one entry the menu is a plain label.
   const out = [];
   const subjects = [...new Set(SECTIONS.map((s) => s.subject))];
   const guess = guessReaderLang();
@@ -205,7 +205,7 @@ export function learnEntries(section, lang) {
     const pick = all.find((s) => s.id === section.id) || all.find((s) => s.ui === lang)
       || all.find((s) => s.ui === guess) || all[0];
     const l = subjectLang(pick);
-    if (pick.id !== section.id && l === lang && lang !== FALLBACK_UI) continue;
+    if (pick.id !== section.id && l === lang) continue;
     out.push({ section: pick, lang: l, name: langName(l, lang), note: '', current: pick.id === section.id });
   }
   return out.sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0));
@@ -218,6 +218,12 @@ function buildLearn(section, lang) {
   const name = langName(mine, lang);
   const wrap = document.createElement('div');
   wrap.className = 'k-learn';
+  // Only one language to learn from this interface: a plain label, no menu.
+  if (entries.length < 2) {
+    wrap.classList.add('is-single');
+    wrap.innerHTML = `<span class="k-learn-btn">${flagSvg(mine)}<span class="k-learn-txt"><span class="k-learn-cap">${t.cap}</span><span class="k-learn-name">${name}</span></span></span>`;
+    return wrap;
+  }
   const menuId = 'k-learn-menu';
   wrap.innerHTML =
     `<button type="button" class="k-learn-btn" aria-expanded="false" aria-controls="${menuId}" aria-label="${t.cap} ${name} – ${t.change}">`
