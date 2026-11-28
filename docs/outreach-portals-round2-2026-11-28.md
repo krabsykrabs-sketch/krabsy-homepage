@@ -8,12 +8,12 @@ Send these before the school emails, one or two per day. Put the date in the Sta
 
 | # | Target | Lang | Way | Status |
 |---|---|---|---|---|
-| 1 | Thüringer Schulportal, external sources by subject | DE | form https://www.schulportal-thueringen.de/request || sent 2026-11-28 |
+| 1 | Thüringer Schulportal, external sources by subject | DE | form https://www.schulportal-thueringen.de/request | sent 2026-11-28 |
 | 2 | Ayuda para maestros (Manu Velasco) | ES | manuvelasco@hotmail.es | |
-| 3 | lehrerweb.wien, Lern-Apps | DE (AT) | form https://lehrerweb.wien/footer-nav/kontakt || sent 2026-11-28 |
-| 4 | Asociación Enseñanza Bilingüe, Recursos | ES | info@ebspain.es || sent 2026-11-28 |
-| 5 | Hessen Lernarchiv Englisch, Internetportale | DE | support@schulportal.hessen.de || sent 2026-11-28 |
-| 6 | IQSH Schleswig-Holstein, Landesfachberaterin Englisch | DE | christine.schramm@iqsh.de || sent 2026-11-28 |
+| 3 | lehrerweb.wien, Lern-Apps | DE (AT) | form https://lehrerweb.wien/footer-nav/kontakt | sent 2026-11-28 |
+| 4 | Asociación Enseñanza Bilingüe, Recursos | ES | info@ebspain.es | sent 2026-11-28 |
+| 5 | Hessen Lernarchiv Englisch, Internetportale | DE | support@schulportal.hessen.de | sent 2026-11-28 |
+| 6 | IQSH Schleswig-Holstein, Landesfachberaterin Englisch | DE | christine.schramm@iqsh.de | sent 2026-11-28 |
 | 7 | TESOL-SPAIN Reviews | EN | form https://www.tesol-spain.org/en/contact.html | |
 | 8 | Uni Oldenburg, Prof. Gehring, "Portale für den Englischunterricht" | DE | email from https://uol.de/suche/person/WGehring | |
 
