@@ -21,9 +21,10 @@
 //   cage   { x, y }               a box hangs here until a button releases it
 //   plate  { x, y, targets }      HOLD plate: its targets are on only while weight is on it
 //                                 (the strong one or a crate; no question)
+//                                 a lever targeting a plate fixes it (stays on for good)
 //   toggle { x, y, targets }      question → every target door swaps open/shut (each pull asks)
 //   door   …, open: true          starts open (for toggles)
-//   lift   { x, w, y0, y1 }       a platform (top at y0 = down, y1 = up), moved by a liftlever;
+//   lift   { x, w, y0, y1, start } a platform (top at y0 = down, y1 = up; start: 'up'), moved by a liftlever;
 //                                 keep its shaft empty
 //   liftlever { targets }         question → the lift goes to the other end (each pull asks)
 //   exit   { x, y }               x = middle of the 2-wide door; always open, no question
@@ -400,12 +401,96 @@ export const LEVEL4 = [
   }),
 ];
 
+// ══ Level 5 (owner 2026-11-28): hold-and-act and a crate carried a long way ══════════
+export const LEVEL5 = [
+  // ── 5-1 Hold the bridge ──────────────────────────────────────────────────────────────
+  // At the same time: the strong one smashes the wall to the plate, the climber climbs to
+  // the key. Then: the bridge stands only while the strong one stands on the plate, and
+  // the gap is too wide for anyone. In that time the climber crosses and pulls the lever
+  // that fixes the bridge; now the strong one can follow.
+  room({
+    id: 'r13', name: 'room.13', goal: 'goal.13', theme: 1,
+    spawn: { climber: [2, 3], strong: [3.5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(1, 3, 6, 6);                    // key ledge (top 7) …
+      fill(4, 4, 3, 6, 'H');               // … and its ladder (left of the wall)
+      fill(13, 18, 0, 2, '.');             // the gap: 6 wide, nobody jumps it
+      fill(26, 26, 6, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 'W', type: 'crack', x: 6, y: 3, h: 2 },
+      { id: 'k', type: 'key', x: 2, y: 7, opens: 'G' },
+      { id: 'P', type: 'plate', x: 10, y: 3, targets: ['b'] },
+      { id: 'b', type: 'bridge', x0: 13, x1: 18, y: 2 },
+      { id: 'l', type: 'lever', x: 21, y: 3, targets: ['P'] },
+      { id: 'G', type: 'locked', x: 26, y: 3, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 3 },
+    ],
+  }),
+
+  // ── 5-2 Crate on the lift ─────────────────────────────────────────────────────────────
+  // At the same time: the strong one smashes the wall and pushes the crate onto the lift,
+  // the climber climbs and crosses the shaft to the lift lever. The lift brings the strong
+  // one and the crate up; the crate goes a long way along the upper floor to the step
+  // before the exit. The climber jumps up the step and opens the exit door.
+  room({
+    id: 'r14', name: 'room.14', goal: 'goal.14', theme: 0,
+    spawn: { climber: [2, 3], strong: [3.5, 3] },
+    boxes: [[7, 3]],
+    draw(fill) {
+      fill(9, 9, 3, 6, 'H');               // ladder to a small landing …
+      fill(10, 11, 6, 6);                  // … (top 7) beside the lift shaft
+      fill(12, 14, 2, 2, '.');             // pocket for the lift
+      fill(15, W - 2, 3, 6);               // the upper floor (top 7); its face stops the crate on the lift
+      fill(25, W - 2, 7, 8);               // step before the exit (top 9): 2 high, needs the crate
+    },
+    objects: [
+      { id: 'W', type: 'crack', x: 5, y: 3, h: 2 },
+      { id: 'Y', type: 'lift', x: 12, w: 3, y0: 3, y1: 7 },
+      { id: 'T', type: 'liftlever', x: 16, y: 7, targets: ['Y'] },
+      { id: 's', type: 'switch', x: 26, y: 9, targets: ['D'] },
+      { id: 'D', type: 'door', x: 28, y: 9, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 9 },
+    ],
+  }),
+
+  // ── 5-3 Relay ─────────────────────────────────────────────────────────────────────────
+  // Taking turns. The strong one holds plate A (far left), which keeps the door on the
+  // upper floor open; the climber goes through and sends the lift down, with a crate on it.
+  // The crate lands right of the strong one, who pushes it onto plate B (it stops against
+  // the step): now plate B keeps the door open. The strong one rides the lift, and the
+  // climber calls it up again. (The crate always moves right, never into a corner.)
+  room({
+    id: 'r15', name: 'room.15', goal: 'goal.15', theme: 2,
+    spawn: { climber: [28.3, 3], strong: [29.5, 3] },
+    boxes: [[6, 9]],                       // on the lift, which starts up
+    draw(fill) {
+      fill(5, 7, 2, 2, '.');               // pocket for the lift
+      fill(8, 25, 8, 8);                   // upper floor (top 9) over the hall …
+      fill(27, W - 2, 8, 8);               // … with a hole for the ladder
+      fill(26, 26, 3, 8, 'H');             // ladder up
+      fill(17, 17, 3, 3);                  // a 1-high step right after plate B
+    },
+    objects: [
+      { id: 'W', type: 'crack', x: 20, y: 3, h: 2 },
+      { id: 'A', type: 'plate', x: 2, y: 3, targets: ['D'] },
+      { id: 'B', type: 'plate', x: 16, y: 3, targets: ['D'] },
+      { id: 'D', type: 'door', x: 14, y: 9, h: 3 },
+      { id: 'T', type: 'liftlever', x: 10, y: 9, targets: ['Y'] },
+      { id: 'Y', type: 'lift', x: 5, w: 3, y0: 3, y1: 9, start: 'up' },
+      { id: 'E', type: 'exit', x: 29.5, y: 9 },
+    ],
+  }),
+];
+
 /** Levels: each a list of rooms, played in order. */
 export const LEVELS = [
   { id: 'l1', rooms: ROOMS },
   { id: 'l2', rooms: LEVEL2 },
   { id: 'l3', rooms: LEVEL3 },
   { id: 'l4', rooms: LEVEL4 },
+  { id: 'l5', rooms: LEVEL5 },
 ];
 
 /** Debug: the room as text, top row first. */

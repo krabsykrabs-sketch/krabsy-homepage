@@ -138,8 +138,9 @@ export async function createGame(canvas, opts) {
     }
     for (const o of room.objects) if (o.type === 'lift') {
       const s = objs.get(o.id);
-      s.body = world.addBody({ kind: 'lift', x: o.x, y: o.y0 - 0.5, w: o.w, h: 0.5, static: true });
-      s.top = o.y0; s.goal = o.y0;
+      const top = o.start === 'up' ? o.y1 : o.y0;            // a lift may start up (level 5)
+      s.body = world.addBody({ kind: 'lift', x: o.x, y: top - 0.5, w: o.w, h: 0.5, static: true });
+      s.top = top; s.goal = top;
     }
     for (const p of players) {
       const role = ROLES[p.role];
@@ -237,6 +238,7 @@ export async function createGame(canvas, opts) {
       case 'bridge': s.on = true; s.wantSolid = true; break;
       case 'cage': s.on = true; if (s.box) { s.box.static = false; s.box.onGround = false; } break;
       case 'portal': s.active = true; break;
+      case 'plate': s.latched = true; break;   // a lever can fix a hold plate for good (level 5)
     }
   }
 
@@ -351,7 +353,11 @@ export async function createGame(canvas, opts) {
   function setOn(id, on) {
     const s = objs.get(id); if (!s) return;
     if (s.def.type === 'bridge') { s.on = on; s.wantSolid = on; }
-    else if (BLOCKING.has(s.def.type)) { s.open = on; s.wantSolid = !on; }
+    else if (BLOCKING.has(s.def.type)) {
+      // a door opened by several plates stays open while any of them is held
+      if (!on && [...objs.values()].some((o) => o.def.type === 'plate' && o.on && o.def.targets.includes(id))) return;
+      s.open = on; s.wantSolid = !on;
+    }
     else if (on) activate(id);
   }
 
@@ -406,7 +412,7 @@ export async function createGame(canvas, opts) {
       if (s.def.type !== 'plate') continue;
       const cx0 = s.def.x + 0.5 - BUTTON_W / 2, cx1 = s.def.x + 0.5 + BUTTON_W / 2;
       const weighs = (b) => b.onGround && Math.abs(b.y - s.def.y) < 0.06 && b.x + b.w / 2 > cx0 && b.x + b.w / 2 < cx1;
-      const held = players.some((p) => p.role === 'strong' && weighs(p.body)) || boxes.some((b) => !b.static && weighs(b));
+      const held = !!s.latched || players.some((p) => p.role === 'strong' && weighs(p.body)) || boxes.some((b) => !b.static && weighs(b));
       s.press = Math.max(0, Math.min(1, (s.press || 0) + (held ? dt : -dt) / 0.25));
       const on = s.press >= 1 ? true : s.press <= 0 ? false : s.on;
       if (on !== s.on) {

@@ -424,7 +424,7 @@ function objectView(o, models, keep, room) {
       node.add(links);
       const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), turn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
       const sc = new THREE.Vector3(S, S, S), pos = new THREE.Vector3(), none = new THREE.Quaternion();
-      node.position.set(o.x, o.y0 - 0.5, 0);
+      node.position.set(o.x, (o.start === 'up' ? o.y1 : o.y0) - 0.5, 0);
       let lastTop = null;
       return { node, update(s) {
         node.position.y = s.top - 0.5;

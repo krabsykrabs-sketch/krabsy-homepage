@@ -39,6 +39,24 @@ Before the release (master session does the site side):
    `tools/stamp_game_modules.py`), wrapper pages DE/ES/EN, `games.json` (topics: every
    quiz topic; `ui_langs` de/es/en), sitemap. 2.9 MB of models + vendor.
 
+## Next characters (owner 2026-11-28)
+
+Two roles per level today (climber, strong one). New roles, each opening new puzzles, so a
+level can pick a pair:
+
+- **Shield bearer: yes (first).** Raises a shield: arrows from wall traps or archers bounce
+  off; the partner walks safely behind it. Slow while shielding, can't reach levers then.
+  Goes together with the first danger: arrow traps in walls.
+- **Lantern carrier: yes.** Lights dark rooms; only it sees hidden paths and symbols, so it
+  has to explain the way in English ("the key is *under* the table"), the brief's guide
+  rooms, with speaking practice.
+- **Glider: yes.** Floats far and slowly (umbrella / cape), can't climb or push; wide gaps.
+- Builder (plank / short ladder for a while): maybe.
+- Grabber (pulls crates): not chosen.
+
+Enemies, child-friendly: no dying; a hit knocks you back, an enemy is driven off by
+answering (brief: "each hit is a question"); slow patrolling guards, arrow traps.
+
 ## Design rules for rooms (owner 2026-11-27)
 
 1. **Both players work at the same time wherever possible.** A room starts with a task
@@ -155,7 +173,7 @@ tuned to our jump heights and play-tested here. Two small rule variants:
 | 4-3 Who calls the lift? | the only lift lever is on a high block: crate + strong one + climber to get up there; the raised lift is also the climber's step to the plateau; the key (gate up top) is in a low tunnel below, so fetch it first | wall S, key C, lift lever C = 3 |
 
 Lessons from building it (keep for new rooms):
-- **A crate must never be pushable into a corner it can't come back from** (crates are
+- **A crate must never be pushable into a corner it can't come back from** (hit again in 5-3's first draft) (crates are
   only pushed): place it so the natural push goes towards its goal, and give the goal
   something to stop it (a step, a wall), or the strong one shoves it on past.
 - **Under a low ceiling jumps get short** (3 cells headroom ≈ 2.6 cells far); gaps there
@@ -165,7 +183,23 @@ Lessons from building it (keep for new rooms):
 - Not yet: a colour symbol linking the toggle lever with its two doors (the Fable agent's
   suggestion), so kids can plan by looking.
 
-`LEVELS` = [level 1 (`ROOMS`), level 2, level 3, level 4]. The HUD says "Level 2 · Room 1 / 3 · …"; the
+### Level 5 (2026-11-28; `LEVEL5`): hold-and-act, a crate carried a long way
+
+Owner: "the big guy stands on a button, and only while he stands there the other one can
+do something", and "bring a box a long way, via the elevator". New bits: a lever can **fix
+a hold plate** for good (`lever` targeting a `plate`); a **lift may start up**
+(`start: 'up'`); a door opened by **several plates** stays open while any of them is held.
+
+| Room | The puzzle | Questions |
+|---|---|---|
+| 5-1 Hold the bridge | the strong one smashes the wall to the plate while the climber climbs to the key; the bridge over the 6-wide gap stands only while the strong one stands on the plate; in that time the climber crosses and pulls the lever that fixes it; then the strong one follows | wall S, key C, lever C = 3 |
+| 5-2 Crate on the lift | the strong one smashes the wall and pushes the crate onto the lift while the climber climbs and crosses the shaft to the lift lever; lift up with crate and strong one; the crate goes a long way along the upper floor to the step; the climber opens the exit door from the step | wall S, lift lever C, switch C = 3 |
+| 5-3 Relay | the strong one holds plate A (left), which keeps the door up top open; the climber goes through and sends the lift down with a crate; the crate lands right of the strong one, who pushes it onto plate B (stops at the step); plate B keeps the door open; the strong one rides the lift, the climber calls it up | wall S, lift lever C × 2 = 3 |
+
+(5-3's first draft had the lift bring the crate down on the strong one's left: the
+natural push sent it into the corner. Rebuilt so it always goes right.)
+
+`LEVELS` = [level 1 (`ROOMS`), level 2, level 3, level 4, level 5]. The HUD says "Level 2 · Room 1 / 3 · …"; the
 results screen of a level has "Next level" (focused) when there is one. Title screen:
 "Start in a room:" with one row per level, all rooms open. URL: `?level=2&room=3`.
 Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
@@ -388,6 +422,9 @@ measure it.
   (`STEP_UP` in `physics.js`: crate top 3.96 vs floor 4 stopped the strong one); the big
   button (0.3) still needs a hop; (3) long verbs in the three boxes get smaller text
   (len-l / xl / xxl) instead of being cut to "unders…".
+- 2026-11-28 — **Level 5** (hold-and-act, crate on the lift, relay): plate fixed by a lever,
+  lift starting up, doors held by several plates. Bot solves all three (`--from 5`). Owner
+  picked the next characters: shield bearer, lantern carrier, glider (builder maybe).
 - 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)
