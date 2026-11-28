@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #112233;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #112233;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -179,60 +180,80 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Air Control</a>
+  <a class="kg-scroll-hint" href="#instrucciones"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Instrucciones e información de Air Control</span></a>
   <main class="kg-info" id="instrucciones" lang="es">
     <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Air Control</span></nav>
-    <h1>Air Control: aterriza aviones con los verbos irregulares</h1>
-    <p>En Air Control eres controlador aéreo. Cada avión lleva una forma verbal en inglés y tu trabajo es aterrizar las tres formas de un mismo verbo – por ejemplo <em>fly</em>, <em>flew</em> y <em>flown</em> – <strong>en la misma pista</strong>. Al mismo tiempo tienes que evitar que los aviones choquen. Ideal para practicar los <strong>verbos irregulares en inglés</strong> mientras pones a prueba tus reflejos.</p>
-    <p>Se juega gratis en el navegador. Los textos del juego están en español; solo los verbos siguen en inglés. La primera vez, un pequeño tutorial te enseña lo básico.</p>
-    <h2>Cómo se juega Air Control</h2>
-    <ul class="kg-steps">
-      <li>Arrastra el ratón o el dedo desde un avión hasta una pista para trazar su ruta.</li>
-      <li>Aterriza las tres formas de un verbo en la misma pista. Si aterrizan en el orden correcto – primero <em>go</em>, luego <em>went</em> y después <em>gone</em> – ganas un gran bonus. Lee bien: los aviones no te dicen qué forma llevan.</li>
-      <li>Los helicópteros 🚁 van al helipuerto marcado con una H.</li>
-      <li>¡Cuidado! Si dos aviones chocan, se acaba la partida.</li>
-      <li>Con <kbd>P</kbd> o la barra espaciadora pausas el juego; con <kbd>M</kbd> quitas el sonido.</li>
-    </ul>
-    <h2>Qué aprendes</h2>
-    <p>El juego incluye 30 verbos irregulares muy usados, entre ellos <a href="/es/verbos-irregulares/fly/"><em>fly</em></a>, <a href="/es/verbos-irregulares/take/"><em>take</em></a>, <a href="/es/verbos-irregulares/begin/"><em>begin</em></a>, <a href="/es/verbos-irregulares/speak/"><em>speak</em></a> y <a href="/es/verbos-irregulares/drive/"><em>drive</em></a>. No basta con reconocer cada forma: tienes que pensar qué tres palabras forman un verbo completo. Hay tres niveles que se desbloquean uno tras otro: «First Flight», «Heli School» y «Endless Skies», con dos pistas y cada vez más tráfico. Al terminar ves todas las cadenas de verbos que lograste aterrizar.</p>
-    <h2>En clase: ideas para docentes</h2>
-    <ul class="kg-steps">
-      <li>Mejor en ordenador o portátil: el juego necesita algo de espacio y visión de conjunto.</li>
-      <li>Hay que encontrar juntas las tres formas de un verbo. Así se practica pensar en series completas.</li>
-      <li>Idea: jugar por parejas; una persona busca las formas y la otra guía los aviones.</li>
-    </ul>
-    <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a></p>
-    <h2>Preguntas frecuentes</h2>
-    <div class="kg-faq">
-      <h3>¿Qué pasa si mando un avión a la pista equivocada?</h3>
-      <p>Aparece «Wrong runway!» y el avión no sigue esa ruta; solo tienes que trazar otra. La partida termina únicamente si dos aviones chocan.</p>
-      <h3>¿Cómo se desbloquean los niveles?</h3>
-      <p>Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo.</p>
-      <h3>¿El juego está en español?</h3>
-      <p>Sí. Todos los textos del juego están en español (en la página alemana, en alemán). Solo las formas verbales siguen en inglés, que es justo lo que practicas.</p>
-    </div>
-    <h2>Sigue practicando</h2>
-    <ul class="kg-links">
-      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
-      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
-      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
-      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
-      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
-      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
-    </ul>
-    <h2>Más juegos de verbos</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
-      <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
-      <a class="kg-related-card" href="/es/juegos/verb-dungeon/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-dungeon.jpg" alt="Escena del juego Verb Dungeon" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Dungeon</span><span class="kg-related-tag">¡Encuentra la llave, abre las puertas de verbos y marea al gólem!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+    <header class="kg-hero">
+      <h1>Air Control: aterriza aviones con los verbos irregulares</h1>
+      <p>En Air Control eres controlador aéreo. Cada avión lleva una forma verbal en inglés y tu trabajo es aterrizar las tres formas de un mismo verbo – por ejemplo <em>fly</em>, <em>flew</em> y <em>flown</em> – <strong>en la misma pista</strong>. Al mismo tiempo tienes que evitar que los aviones choquen. Ideal para practicar los <strong>verbos irregulares en inglés</strong> mientras pones a prueba tus reflejos.</p>
+      <p>Se juega gratis en el navegador. Los textos del juego están en español; solo los verbos siguen en inglés. La primera vez, un pequeño tutorial te enseña lo básico.</p>
+    </header>
+    <section class="kg-card">
+      <h2>Cómo se juega Air Control</h2>
+      <ul class="kg-steps">
+        <li>Arrastra el ratón o el dedo desde un avión hasta una pista para trazar su ruta.</li>
+        <li>Aterriza las tres formas de un verbo en la misma pista. Si aterrizan en el orden correcto – primero <em>go</em>, luego <em>went</em> y después <em>gone</em> – ganas un gran bonus. Lee bien: los aviones no te dicen qué forma llevan.</li>
+        <li>Los helicópteros van al helipuerto marcado con una H.</li>
+        <li>¡Cuidado! Si dos aviones chocan, se acaba la partida.</li>
+        <li>Con <kbd>P</kbd> o la barra espaciadora pausas el juego; con <kbd>M</kbd> quitas el sonido.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Qué aprendes</h2>
+      <p>El juego incluye 30 verbos irregulares muy usados, entre ellos <a href="/es/verbos-irregulares/fly/"><em>fly</em></a>, <a href="/es/verbos-irregulares/take/"><em>take</em></a>, <a href="/es/verbos-irregulares/begin/"><em>begin</em></a>, <a href="/es/verbos-irregulares/speak/"><em>speak</em></a> y <a href="/es/verbos-irregulares/drive/"><em>drive</em></a>. No basta con reconocer cada forma: tienes que pensar qué tres palabras forman un verbo completo. Hay tres niveles que se desbloquean uno tras otro: «First Flight», «Heli School» y «Endless Skies», con dos pistas y cada vez más tráfico. Al terminar ves todas las cadenas de verbos que lograste aterrizar.</p>
+    </section>
+    <section class="kg-card">
+      <h2>En clase: ideas para docentes</h2>
+      <ul class="kg-steps">
+        <li>Mejor en ordenador o portátil: el juego necesita algo de espacio y visión de conjunto.</li>
+        <li>Hay que encontrar juntas las tres formas de un verbo. Así se practica pensar en series completas.</li>
+        <li>Idea: jugar por parejas; una persona busca las formas y la otra guía los aviones.</li>
+      </ul>
+      <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a></p>
+    </section>
+    <section class="kg-card">
+      <h2>Preguntas frecuentes</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>¿Qué pasa si mando un avión a la pista equivocada?</h3>
+        <p>Aparece «Wrong runway!» y el avión no sigue esa ruta; solo tienes que trazar otra. La partida termina únicamente si dos aviones chocan.</p></div>
+        <div class="kg-faq-item"><h3>¿Cómo se desbloquean los niveles?</h3>
+        <p>Los tres niveles se abren en orden. Tu progreso y tu mejor puntuación se guardan en tu dispositivo.</p></div>
+        <div class="kg-faq-item"><h3>¿El juego está en español?</h3>
+        <p>Sí. Todos los textos del juego están en español (en la página alemana, en alemán). Solo las formas verbales siguen en inglés, que es justo lo que practicas.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Sigue practicando</h2>
+      <ul class="kg-links">
+        <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+        <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+        <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+        <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+        <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+        <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Más juegos de verbos</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
+        <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
+        <a class="kg-related-card" href="/es/juegos/verb-dungeon/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-dungeon.jpg" alt="Escena del juego Verb Dungeon" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Dungeon</span><span class="kg-related-tag">¡Encuentra la llave, abre las puertas de verbos y marea al gólem!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Volver al juego</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('air_control');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

@@ -19,7 +19,7 @@
   <iframe id="game-frame" src="/games/verb-hatchery/?lang=es" title="Egg Island" loading="eager" allow="autoplay; fullscreen; gamepad"></iframe>
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_hatchery');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

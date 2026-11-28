@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #87ceeb;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #87ceeb;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -187,62 +188,82 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#anleitung">▼ Anleitung &amp; Infos zu Verb Platformer</a>
+  <a class="kg-scroll-hint" href="#anleitung"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Anleitung &amp; Infos zu Verb Platformer</span></a>
   <main class="kg-info" id="anleitung" lang="de">
     <nav class="kg-crumbs" aria-label="Brotkrümelnavigation"><a href="/de/">Krabsy</a> › <a href="/de/spiele/">Spiele</a> › <span aria-current="page">Verb Platformer</span></nav>
-    <h1>Verb Platformer – 3D-Jump-’n’-Run mit englischen Verben</h1>
-    <p>Im Verb Platformer läufst und springst du mit deiner Figur über schwebende Plattformen hoch über den Wolken. Immer wieder kommst du an ein Tor mit einer Verbreihe, zum Beispiel <em>go → ___ → gone</em>. Davor liegen drei rote Plattformen mit verschiedenen Wörtern – aber nur eine trägt dich: die mit der Form, die in die Lücke passt.</p>
-    <p>Landest du auf der falschen Plattform, bröckelt sie weg, du fällst und siehst sofort die ganze Reihe richtig. Dann versuchst du es direkt vor dem Tor noch einmal. Das Spiel ist kostenlos, läuft im Browser ohne Anmeldung und ist auf Deutsch, Spanisch und Englisch spielbar.</p>
-    <h2>So spielst du Verb Platformer</h2>
-    <ul class="kg-steps">
-      <li>Am Computer: Klicke ins Spielbild – dann steuert die Maus die Blickrichtung. Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, springen mit der <kbd>Leertaste</kbd>, Pause mit <kbd>Esc</kbd>.</li>
-      <li>Auf Tablet und Handy (quer halten): links der Joystick zum Laufen, rechts der Sprung-Knopf, mit dem Finger über das Bild wischen zum Umsehen.</li>
-      <li>Lies die Verbreihe am Tor und spring auf die Plattform mit dem Wort, das in die Lücke passt.</li>
-      <li>Erreichst du die Flagge am Ende, ist das Level geschafft. Je weniger Fehler, desto mehr Sterne (bis zu drei pro Level).</li>
-    </ul>
-    <h2>Was du dabei lernst</h2>
-    <p>Geübt werden die <strong>zweite und dritte Form</strong> von rund 150 unregelmäßigen Verben, zum Beispiel <a href="/de/unregelmaessige-verben/go/"><em>go</em></a>, <a href="/de/unregelmaessige-verben/eat/"><em>eat</em></a>, <a href="/de/unregelmaessige-verben/swim/"><em>swim</em></a>, <a href="/de/unregelmaessige-verben/fly/"><em>fly</em></a> und <a href="/de/unregelmaessige-verben/think/"><em>think</em></a>. Erst fragt ein Tor die zweite Form (<em>go → ___</em>), am nächsten Tor folgt die dritte Form desselben Verbs (<em>go → went → ___</em>). Die falschen Plattformen zeigen typische Verwechslungen wie <em>goed</em> oder die andere Vergangenheitsform.</p>
-    <p>Es gibt sechs Level, die nacheinander schwieriger werden – beim Springen und bei den Verben: vom geraden Weg in <em>First Steps</em> über Kurven, Rampen, fahrende Plattformen, Hämmer und Fließbänder bis zum <em>Sky Finale</em>. Alle Level sind von Anfang an frei wählbar. Sterne und Bestzeiten werden auf deinem Gerät gespeichert, am Ende jedes Levels siehst du die Verben, die du noch üben solltest.</p>
-    <h2>Im Unterricht einsetzen</h2>
-    <ul class="kg-steps">
-      <li>Am besten am PC oder Laptop mit Tastatur.</li>
-      <li>Jedes Tor zeigt eine Verbreihe mit Lücke. Ein Fehler kostet keinen Neustart: Die richtige Reihe erscheint sofort, dann geht es weiter.</li>
-      <li>Idee: am Whiteboard gemeinsam spielen, die Klasse ruft, auf welche Plattform gesprungen wird.</li>
-    </ul>
-    <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
-    <h2>Häufige Fragen</h2>
-    <div class="kg-faq">
-      <h3>Kann ich den Verb Platformer auf dem Handy oder Tablet spielen?</h3>
-      <p>Ja. Auf Touch-Geräten erscheinen ein Joystick und ein Sprung-Knopf; das Handy hältst du quer. Am bequemsten ist es am Computer mit Maus und Tastatur oder auf einem Tablet.</p>
-      <h3>Was passiert, wenn ich auf der falschen Plattform lande?</h3>
-      <p>Die Plattform zerbröselt, du fällst und siehst die richtige Verbreihe. Danach startest du direkt vor dem Tor neu – ohne Leben oder Zeitdruck. Fehler kosten nur Sterne.</p>
-      <h3>Welche Verbformen werden geübt?</h3>
-      <p>Die zweite und die dritte Form (Simple Past und Past Participle), zum Beispiel <em>go → went → gone</em>. Die dritte Form wird immer direkt nach der zweiten Form desselben Verbs gefragt.</p>
-      <h3>Kann ich mit meiner Klasse ein bestimmtes Level spielen?</h3>
-      <p>Ja. Alle sechs Level sind sofort auswählbar; die Punkte neben dem Levelnamen zeigen, wie schwer die Verben sind.</p>
-    </div>
-    <h2>Weiter üben</h2>
-    <ul class="kg-links">
-      <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
-      <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
-      <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
-      <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
-      <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
-      <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
-    </ul>
-    <h2>Mehr Spiele mit Verben</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
-      <a class="kg-related-card" href="/de/spiele/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Spielszene aus Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">Lotse die Flugzeuge sicher mit Englisch!</span></a>
-      <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Zurück zum Spiel</a></p>
+    <header class="kg-hero">
+      <h1>Verb Platformer – 3D-Jump-’n’-Run mit englischen Verben</h1>
+      <p>Im Verb Platformer läufst und springst du mit deiner Figur über schwebende Plattformen hoch über den Wolken. Immer wieder kommst du an ein Tor mit einer Verbreihe, zum Beispiel <em>go → ___ → gone</em>. Davor liegen drei rote Plattformen mit verschiedenen Wörtern – aber nur eine trägt dich: die mit der Form, die in die Lücke passt.</p>
+      <p>Landest du auf der falschen Plattform, bröckelt sie weg, du fällst und siehst sofort die ganze Reihe richtig. Dann versuchst du es direkt vor dem Tor noch einmal. Das Spiel ist kostenlos, läuft im Browser ohne Anmeldung und ist auf Deutsch, Spanisch und Englisch spielbar.</p>
+    </header>
+    <section class="kg-card">
+      <h2>So spielst du Verb Platformer</h2>
+      <ul class="kg-steps">
+        <li>Am Computer: Klicke ins Spielbild – dann steuert die Maus die Blickrichtung. Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, springen mit der <kbd>Leertaste</kbd>, Pause mit <kbd>Esc</kbd>.</li>
+        <li>Auf Tablet und Handy (quer halten): links der Joystick zum Laufen, rechts der Sprung-Knopf, mit dem Finger über das Bild wischen zum Umsehen.</li>
+        <li>Lies die Verbreihe am Tor und spring auf die Plattform mit dem Wort, das in die Lücke passt.</li>
+        <li>Erreichst du die Flagge am Ende, ist das Level geschafft. Je weniger Fehler, desto mehr Sterne (bis zu drei pro Level).</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Was du dabei lernst</h2>
+      <p>Geübt werden die <strong>zweite und dritte Form</strong> von rund 150 unregelmäßigen Verben, zum Beispiel <a href="/de/unregelmaessige-verben/go/"><em>go</em></a>, <a href="/de/unregelmaessige-verben/eat/"><em>eat</em></a>, <a href="/de/unregelmaessige-verben/swim/"><em>swim</em></a>, <a href="/de/unregelmaessige-verben/fly/"><em>fly</em></a> und <a href="/de/unregelmaessige-verben/think/"><em>think</em></a>. Erst fragt ein Tor die zweite Form (<em>go → ___</em>), am nächsten Tor folgt die dritte Form desselben Verbs (<em>go → went → ___</em>). Die falschen Plattformen zeigen typische Verwechslungen wie <em>goed</em> oder die andere Vergangenheitsform.</p>
+      <p>Es gibt sechs Level, die nacheinander schwieriger werden – beim Springen und bei den Verben: vom geraden Weg in <em>First Steps</em> über Kurven, Rampen, fahrende Plattformen, Hämmer und Fließbänder bis zum <em>Sky Finale</em>. Alle Level sind von Anfang an frei wählbar. Sterne und Bestzeiten werden auf deinem Gerät gespeichert, am Ende jedes Levels siehst du die Verben, die du noch üben solltest.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Im Unterricht einsetzen</h2>
+      <ul class="kg-steps">
+        <li>Am besten am PC oder Laptop mit Tastatur.</li>
+        <li>Jedes Tor zeigt eine Verbreihe mit Lücke. Ein Fehler kostet keinen Neustart: Die richtige Reihe erscheint sofort, dann geht es weiter.</li>
+        <li>Idee: am Whiteboard gemeinsam spielen, die Klasse ruft, auf welche Plattform gesprungen wird.</li>
+      </ul>
+      <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
+    </section>
+    <section class="kg-card">
+      <h2>Häufige Fragen</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>Kann ich den Verb Platformer auf dem Handy oder Tablet spielen?</h3>
+        <p>Ja. Auf Touch-Geräten erscheinen ein Joystick und ein Sprung-Knopf; das Handy hältst du quer. Am bequemsten ist es am Computer mit Maus und Tastatur oder auf einem Tablet.</p></div>
+        <div class="kg-faq-item"><h3>Was passiert, wenn ich auf der falschen Plattform lande?</h3>
+        <p>Die Plattform zerbröselt, du fällst und siehst die richtige Verbreihe. Danach startest du direkt vor dem Tor neu – ohne Leben oder Zeitdruck. Fehler kosten nur Sterne.</p></div>
+        <div class="kg-faq-item"><h3>Welche Verbformen werden geübt?</h3>
+        <p>Die zweite und die dritte Form (Simple Past und Past Participle), zum Beispiel <em>go → went → gone</em>. Die dritte Form wird immer direkt nach der zweiten Form desselben Verbs gefragt.</p></div>
+        <div class="kg-faq-item"><h3>Kann ich mit meiner Klasse ein bestimmtes Level spielen?</h3>
+        <p>Ja. Alle sechs Level sind sofort auswählbar; die Punkte neben dem Levelnamen zeigen, wie schwer die Verben sind.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Weiter üben</h2>
+      <ul class="kg-links">
+        <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
+        <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
+        <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
+        <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
+        <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
+        <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Mehr Spiele mit Verben</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
+        <a class="kg-related-card" href="/de/spiele/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Spielszene aus Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">Lotse die Flugzeuge sicher mit Englisch!</span></a>
+        <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Zurück zum Spiel</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_platformer');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

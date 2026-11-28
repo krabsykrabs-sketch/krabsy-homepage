@@ -45,7 +45,7 @@
   }
 
   /* Teacher practice link (from=teacher, built on the teacher pages): say so in the
-     slim bar under the game — "📌 Practice from your teacher: Estoy (estar) · easy". */
+     slim bar under the game — teacher icon + "Practice from your teacher: Estoy (estar) · easy". */
   var BANNER = {
     de: { lead: 'Übung von deiner Lehrkraft', lv: ['leicht', 'leicht + mittel', 'alles'] },
     es: { lead: 'Práctica de tu docente', lv: ['fácil', 'fácil + media', 'todo'] },
@@ -64,7 +64,9 @@
       var bits = [topicName, lvl >= 1 && lvl <= 3 ? T.lv[lvl - 1] : ''].filter(Boolean);
       var b = document.createElement('span');
       b.className = 'kg-teacher-set';
-      b.textContent = '📌 ' + T.lead + (bits.length ? ': ' + bits.join(' · ') : '');
+      b.innerHTML = '<svg class="kg-teacher-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+        + '<use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-teacher"/></svg><span></span>';
+      b.lastChild.textContent = T.lead + (bits.length ? ': ' + bits.join(' · ') : '');
       hint.insertBefore(b, hint.firstChild);
       hint.classList.add('has-teacher-set');
     }

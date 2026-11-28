@@ -56,5 +56,5 @@ Owner rule: no emojis in the UI, only icons from this set. Still using
 emojis: landing (🐚 shells count, ✓ in "Handy ✓" badges), the DE/ES verb
 pages, game hub wrappers (/de/spiele/, /es/juegos/, /en/), lib scripts
 (tutor, live-tutor, live-student, tutor-lesson,
-activities/*, practice, shells, gifts-ui, nav, footer, game-info) and
+activities/*, practice, shells, gifts-ui, footer) and
 data/materials. Replace them when those files are touched anyway.

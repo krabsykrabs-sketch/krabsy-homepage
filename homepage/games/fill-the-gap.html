@@ -746,6 +746,10 @@ body::before {
   color: var(--lavender-deep);
 }
 .ff-teacher[hidden] { display: none; }
+/* Icons drawn inline (no emoji glyphs): streak flame, pause bars, teacher cap */
+.ff-ico { width: 1em; height: 1em; vertical-align: -0.12em; }
+.ff-icon .ff-ico { width: 16px; height: 16px; }
+.ff-teacher .ff-ico { width: 1.25em; height: 1.25em; margin-right: 5px; vertical-align: -0.25em; }
 
 /* ── Input row: OK button (touch / narrow) + accent keys (Spanish) ─────── */
 .ff-input-row { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; }
@@ -950,7 +954,7 @@ body.ff-compact .ff-input-hint { display: none; }
     <div class="ff-round"><span data-string="round">Runde</span> <span id="ff-round-num">1</span></div>
     <div class="ff-topbar-actions">
       <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
-      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause">⏸</button>
+      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg></button>
       <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
     </div>
   </header>
@@ -967,7 +971,7 @@ body.ff-compact .ff-input-hint { display: none; }
     </div>
     <div class="ff-panel ff-panel-streak" id="ff-streak-panel">
       <div class="ff-panel-label" data-string="streak">Serie</div>
-      <div class="ff-panel-value"><span class="ff-streak-fire">🔥</span><span id="ff-streak">0</span></div>
+      <div class="ff-panel-value"><span class="ff-streak-fire"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3c1 3.5 5.5 5.5 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.3 2.8-5.6.3 1.7 1 2.8 2.2 3.4C11 8.9 11 5.8 12 3z" fill="#ff8585" stroke="#2c2a3a" stroke-width="2" stroke-linejoin="round"/><path d="M12 14c1.2 1 2 2 2 3.2a2 2 0 0 1-4 0c0-1.2.8-2.2 2-3.2z" fill="#ffcf5e"/></svg></span><span id="ff-streak">0</span></div>
     </div>
     <div class="ff-panel ff-panel-lives">
       <div class="ff-panel-label" data-string="lives">Leben</div>
@@ -1462,7 +1466,8 @@ function showTeacherNote() {
     if (q.get('from') !== 'teacher') return;
     const lvl = parseInt(q.get('difficulty'), 10);
     const levels = t('teacher_levels');
-    el.textContent = '📌 ' + t('teacher_lead') + (lvl >= 1 && lvl <= 3 && Array.isArray(levels) ? ': ' + levels[lvl - 1] : '');
+    el.innerHTML = '<svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.5V16c0 1.6 2.7 3 6 3s6-1.4 6-3v-4.5"/><path fill="#2ee6c0" d="M12 4.5 2.5 9.2 12 14l9.5-4.8z"/><path d="M21.5 9.2v5"/></svg><span></span>';
+    el.lastChild.textContent = t('teacher_lead') + (lvl >= 1 && lvl <= 3 && Array.isArray(levels) ? ': ' + levels[lvl - 1] : '');
     el.hidden = false;
   } catch (_) {}
 }

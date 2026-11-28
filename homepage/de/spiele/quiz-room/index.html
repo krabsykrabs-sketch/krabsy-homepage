@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -187,63 +188,83 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#anleitung">▼ Anleitung &amp; Infos zu Quiz-Raum</a>
+  <a class="kg-scroll-hint" href="#anleitung"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Anleitung &amp; Infos zu Quiz-Raum</span></a>
   <main class="kg-info" id="anleitung" lang="de">
     <nav class="kg-crumbs" aria-label="Brotkrümelnavigation"><a href="/de/">Krabsy</a> › <a href="/de/spiele/">Spiele</a> › <span aria-current="page">Quiz-Raum</span></nav>
-    <h1>Quiz-Raum – das Live-Quiz für die ganze Klasse</h1>
-    <p>Im Quiz-Raum spielt die ganze Klasse gleichzeitig. Jedes Kind öffnet den Raum am eigenen Gerät, gibt den <strong>Raum-Code</strong> und seinen Vornamen ein und läuft als kleine Figur durch einen bunten 3D-Raum. Die Fragen kommen auf einer privaten Antwortkarte – wer geantwortet hat, darf bis zur Auflösung herumlaufen, Trampolin springen, rutschen und Bälle in den Korb werfen.</p>
-    <p>Die Lehrkraft spielt nicht mit, sie leitet den Raum: <a href="/games/quiz-room/teacher.html?lang=de"><strong>Quiz-Raum öffnen</strong></a>, Thema und Schwierigkeit wählen, die Fragen ansehen und tauschen, starten. Kostenlos im Browser, ohne Konto und ohne Download.</p>
-    <h2>So spielst du Quiz-Raum</h2>
-    <ul class="kg-steps">
-      <li>Lehrkraft: Öffnen Sie den <a href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum</a>, wählen Sie Thema, Schwierigkeit, Anzahl der Fragen und die Zeit pro Frage. Die Fragenliste lässt sich vorher durchsehen: Fragen entfernen, tauschen oder neue dazunehmen.</li>
-      <li>Kinder: <strong>krabsy.com/quiz</strong> öffnen oder den QR-Code scannen, den Code und den Vornamen eingeben, eine Figur und eine Farbe wählen – schon steht man im Raum.</li>
-      <li>Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, <kbd>Umschalt</kbd> zum Rennen, <kbd>Leertaste</kbd> zum Springen. Auf Tablets erscheinen ein Joystick und ein Sprung-Knopf.</li>
-      <li>Zu jeder Frage gibt es vier Antworten (Klick oder Tasten <kbd>1</kbd>–<kbd>4</kbd>). Schnelle richtige Antworten bringen mehr Punkte. Über dem Kopf zeigt ein Punkt, <em>dass</em> jemand geantwortet hat – nie, <em>was</em>.</li>
-      <li>Nach jeder Frage sehen alle die Lösung und die Top 5. Zum Schluss gibt es optional eine Bonusrunde: Die Antworten liegen auf vier Feldern am Boden, und alle rennen zum richtigen Feld.</li>
-    </ul>
-    <h2>Was du dabei lernst</h2>
-    <p>Geübt werden die <strong>unregelmäßigen Verben</strong> und die <strong>Präpositionen</strong>, jeweils in drei Schwierigkeitsstufen. Bei den Verben fragt das Quiz erst die zweite Form (<em>go → ___</em>) und gleich danach die dritte (<em>go → went → ___</em>), zum Beispiel bei <a href="/de/unregelmaessige-verben/go/"><em>go</em></a>, <a href="/de/unregelmaessige-verben/think/"><em>think</em></a> oder <a href="/de/unregelmaessige-verben/bring/"><em>bring</em></a> – ohne Grammatik-Fachbegriffe. Präpositionen kommen als Lückensatz wie <em>My birthday is ___ July.</em></p>
-    <p>Nach jeder Frage zeigt der Raum die ganze Verbreihe oder die Regel zur Präposition. Am Ende sieht die Lehrkraft, welche Wörter die Klasse am häufigsten falsch hatte.</p>
-    <h2>Im Unterricht einsetzen</h2>
-    <ul class="kg-steps">
-      <li>Für Klassen, in denen jedes Kind ein Gerät hat (Chromebook, Laptop, Tablet). Ein Beamer ist hilfreich, aber nicht nötig.</li>
-      <li>Ein Quiz mit 10 Fragen dauert etwa 10 Minuten. Wer schon geantwortet hat, darf im Raum spielen; mit „Alle in die Mitte“ holen Sie alle zurück.</li>
-      <li>Die Antworten zählen in die Lernstatistik jedes Kindes auf seinem Gerät und, wenn die Kinder Ihrer <a href="/de/lehrkraefte/">Krabsy-Klasse</a> beigetreten sind, ins Klassen-Dashboard.</li>
-    </ul>
-    <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
-    <h2>Häufige Fragen</h2>
-    <div class="kg-faq">
-      <h3>Brauchen die Kinder ein Konto?</h3>
-      <p>Nein. Die Kinder geben nur den Raum-Code und einen Vornamen ein. Namen und Punkte gibt es nur, solange der Raum offen ist; danach wird nichts gespeichert.</p>
-      <h3>Wie viele Kinder können mitspielen?</h3>
-      <p>Bis zu 40 Kinder pro Raum, jedes an seinem eigenen Gerät: Chromebook, Laptop, Tablet oder Handy.</p>
-      <h3>Kann ich die Fragen selbst auswählen?</h3>
-      <p>Ja. Vor dem Start sehen Sie alle Fragen und können einzelne entfernen, gegen andere tauschen oder neue hinzufügen. Beim Projektor-Bild sind die Antworten verdeckt.</p>
-      <h3>Was passiert, wenn ein Kind die Verbindung verliert?</h3>
-      <p>Es kommt automatisch zurück und behält Namen und Punkte. Die Lehrkraft kann Namen ändern, Kinder entfernen und den Raum sperren.</p>
-    </div>
-    <h2>Weiter üben</h2>
-    <ul class="kg-links">
-      <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
-      <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
-      <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
-      <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
-      <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
-      <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
-    </ul>
-    <h2>Mehr Spiele mit Verben</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/de/spiele/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Spielszene aus Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Baue Türme. Schmiede Münzen mit englischen Verben.</span></a>
-      <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
-      <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Zurück zum Spiel</a></p>
+    <header class="kg-hero">
+      <h1>Quiz-Raum – das Live-Quiz für die ganze Klasse</h1>
+      <p>Im Quiz-Raum spielt die ganze Klasse gleichzeitig. Jedes Kind öffnet den Raum am eigenen Gerät, gibt den <strong>Raum-Code</strong> und seinen Vornamen ein und läuft als kleine Figur durch einen bunten 3D-Raum. Die Fragen kommen auf einer privaten Antwortkarte – wer geantwortet hat, darf bis zur Auflösung herumlaufen, Trampolin springen, rutschen und Bälle in den Korb werfen.</p>
+      <p>Die Lehrkraft spielt nicht mit, sie leitet den Raum: <a href="/games/quiz-room/teacher.html?lang=de"><strong>Quiz-Raum öffnen</strong></a>, Thema und Schwierigkeit wählen, die Fragen ansehen und tauschen, starten. Kostenlos im Browser, ohne Konto und ohne Download.</p>
+    </header>
+    <section class="kg-card">
+      <h2>So spielst du Quiz-Raum</h2>
+      <ul class="kg-steps">
+        <li>Lehrkraft: Öffnen Sie den <a href="/games/quiz-room/teacher.html?lang=de">Quiz-Raum</a>, wählen Sie Thema, Schwierigkeit, Anzahl der Fragen und die Zeit pro Frage. Die Fragenliste lässt sich vorher durchsehen: Fragen entfernen, tauschen oder neue dazunehmen.</li>
+        <li>Kinder: <strong>krabsy.com/quiz</strong> öffnen oder den QR-Code scannen, den Code und den Vornamen eingeben, eine Figur und eine Farbe wählen – schon steht man im Raum.</li>
+        <li>Laufen mit <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> oder den Pfeiltasten, <kbd>Umschalt</kbd> zum Rennen, <kbd>Leertaste</kbd> zum Springen. Auf Tablets erscheinen ein Joystick und ein Sprung-Knopf.</li>
+        <li>Zu jeder Frage gibt es vier Antworten (Klick oder Tasten <kbd>1</kbd>–<kbd>4</kbd>). Schnelle richtige Antworten bringen mehr Punkte. Über dem Kopf zeigt ein Punkt, <em>dass</em> jemand geantwortet hat – nie, <em>was</em>.</li>
+        <li>Nach jeder Frage sehen alle die Lösung und die Top 5. Zum Schluss gibt es optional eine Bonusrunde: Die Antworten liegen auf vier Feldern am Boden, und alle rennen zum richtigen Feld.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Was du dabei lernst</h2>
+      <p>Geübt werden die <strong>unregelmäßigen Verben</strong> und die <strong>Präpositionen</strong>, jeweils in drei Schwierigkeitsstufen. Bei den Verben fragt das Quiz erst die zweite Form (<em>go → ___</em>) und gleich danach die dritte (<em>go → went → ___</em>), zum Beispiel bei <a href="/de/unregelmaessige-verben/go/"><em>go</em></a>, <a href="/de/unregelmaessige-verben/think/"><em>think</em></a> oder <a href="/de/unregelmaessige-verben/bring/"><em>bring</em></a> – ohne Grammatik-Fachbegriffe. Präpositionen kommen als Lückensatz wie <em>My birthday is ___ July.</em></p>
+      <p>Nach jeder Frage zeigt der Raum die ganze Verbreihe oder die Regel zur Präposition. Am Ende sieht die Lehrkraft, welche Wörter die Klasse am häufigsten falsch hatte.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Im Unterricht einsetzen</h2>
+      <ul class="kg-steps">
+        <li>Für Klassen, in denen jedes Kind ein Gerät hat (Chromebook, Laptop, Tablet). Ein Beamer ist hilfreich, aber nicht nötig.</li>
+        <li>Ein Quiz mit 10 Fragen dauert etwa 10 Minuten. Wer schon geantwortet hat, darf im Raum spielen; mit „Alle in die Mitte“ holen Sie alle zurück.</li>
+        <li>Die Antworten zählen in die Lernstatistik jedes Kindes auf seinem Gerät und, wenn die Kinder Ihrer <a href="/de/lehrkraefte/">Krabsy-Klasse</a> beigetreten sind, ins Klassen-Dashboard.</li>
+      </ul>
+      <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
+    </section>
+    <section class="kg-card">
+      <h2>Häufige Fragen</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>Brauchen die Kinder ein Konto?</h3>
+        <p>Nein. Die Kinder geben nur den Raum-Code und einen Vornamen ein. Namen und Punkte gibt es nur, solange der Raum offen ist; danach wird nichts gespeichert.</p></div>
+        <div class="kg-faq-item"><h3>Wie viele Kinder können mitspielen?</h3>
+        <p>Bis zu 40 Kinder pro Raum, jedes an seinem eigenen Gerät: Chromebook, Laptop, Tablet oder Handy.</p></div>
+        <div class="kg-faq-item"><h3>Kann ich die Fragen selbst auswählen?</h3>
+        <p>Ja. Vor dem Start sehen Sie alle Fragen und können einzelne entfernen, gegen andere tauschen oder neue hinzufügen. Beim Projektor-Bild sind die Antworten verdeckt.</p></div>
+        <div class="kg-faq-item"><h3>Was passiert, wenn ein Kind die Verbindung verliert?</h3>
+        <p>Es kommt automatisch zurück und behält Namen und Punkte. Die Lehrkraft kann Namen ändern, Kinder entfernen und den Raum sperren.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Weiter üben</h2>
+      <ul class="kg-links">
+        <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
+        <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
+        <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
+        <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
+        <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
+        <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Mehr Spiele mit Verben</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/de/spiele/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Spielszene aus Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Baue Türme. Schmiede Münzen mit englischen Verben.</span></a>
+        <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
+        <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Zurück zum Spiel</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('quiz_room');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

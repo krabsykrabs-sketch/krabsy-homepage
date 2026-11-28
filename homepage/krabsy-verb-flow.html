@@ -61,7 +61,10 @@
 
   .howto{display:flex;flex-direction:column;gap:8px;max-width:430px;width:100%}
   .howto-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);padding:9px 14px;border-radius:14px;font-size:13px;color:rgba(255,255,255,0.85);text-align:left;line-height:1.4}
-  .howto-ico{font-size:22px;flex-shrink:0}
+  .howto-ico{font-size:22px;flex-shrink:0;display:flex}
+  .ic{width:1em;height:1em;flex:0 0 auto;display:inline-block;vertical-align:-0.14em;color:#fff}
+  .howto-ico .ic{width:26px;height:26px}
+  .hud-btn .ic{width:21px;height:21px}
   .howto-row b{color:var(--amber)}
   .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
   .legend-chip{padding:4px 13px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:13px;border:2px solid transparent;background:rgba(255,255,255,0.06)}
@@ -98,6 +101,18 @@
 </style>
 </head>
 <body>
+<!-- Icons drawn inline (owner rule: no emoji glyphs in the UI); same line style as lib/icons/krabsy-icons.svg, white outline for the dark screens -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="ic-drag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle fill="#ffcf5e" cx="6" cy="18" r="2.8"/><path d="M9.5 14.5l8-8M12.5 6h5.5v5.5"/></symbol>
+  <symbol id="ic-chain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 17.5L12 6.5l6.5 11"/><circle fill="#ffcf5e" cx="5.5" cy="17.5" r="3"/><circle fill="#2ee6c0" cx="12" cy="6.5" r="3"/><circle fill="#ff8585" cx="18.5" cy="17.5" r="3"/></symbol>
+  <symbol id="ic-nocross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.7" stroke="#ff8585"/><path stroke="#ff8585" d="M5.9 5.9l12.2 12.2"/></symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M11 3c.9 5 2.6 6.700 7.500 7.500-4.900.900-6.600 2.600-7.500 7.500-.900-4.900-2.600-6.600-7.500-7.500C8.400 9.700 10.100 8 11 3z"/><path fill="#ffcf5e" d="M19 15.500c.3 1.600.9 2.200 2.500 2.500-1.600.3-2.200.9-2.500 2.500-.300-1.600-.900-2.200-2.500-2.500 1.600-.300 2.200-.900 2.500-2.500z"/></symbol>
+  <symbol id="ic-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M12 3a6 6 0 0 0-3.500 10.900c.6.5 1 1.100 1 1.900v.700h5v-.700c0-.800.4-1.400 1-1.900A6 6 0 0 0 12 3z"/><path d="M10 20h4"/></symbol>
+  <symbol id="ic-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#2ee6c0" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/></symbol>
+  <symbol id="ic-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#2ee6c0" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9-4.3-4.1 5.9-.8z"/></symbol>
+</defs></svg>
+
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
@@ -110,9 +125,9 @@
     <div class="hud-stat"><div class="hud-label" data-i18n="hud_best">Best</div><div class="hud-value" id="hud-best">0</div></div>
   </div>
   <div class="hud-group" style="gap:8px">
-    <button class="hud-btn" id="btn-hint" data-i18n-title="t_hint" title="Hint">💡<span class="pip" id="hint-pip">3</span></button>
+    <button class="hud-btn" id="btn-hint" data-i18n-title="t_hint" title="Hint"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-bulb"/></svg><span class="pip" id="hint-pip">3</span></button>
     <button class="hud-btn" id="btn-clear" data-i18n-title="t_clear" title="Clear board">⟲</button>
-    <button class="hud-btn" id="btn-sound" data-i18n-title="t_sound" title="Sound">🔊</button>
+    <button class="hud-btn" id="btn-sound" data-i18n-title="t_sound" title="Sound"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-sound"/></svg></button>
   </div>
 </div>
 
@@ -121,30 +136,30 @@
 <div id="toast"></div>
 
 <div class="screen" id="start-screen">
-  <div class="screen-emoji">🦀</div>
+  <div class="screen-emoji"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-chain"/></svg></div>
   <div class="screen-title">Verb <span>Flow!</span></div>
   <div class="screen-sub" data-i18n="sub">Connect each verb's three forms with one unbroken pipe — in the right order.</div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">👆</div><div data-i18n="how1">Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
-    <div class="howto-row"><div class="howto-ico">🔗</div><div data-i18n="how2">Connect the forms <b>in order</b>: first the middle one, then the last — like <b>go → went → gone</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">🚫</div><div data-i18n="how3">Pipes can't cross — and other verbs' words block your way!</div></div>
-    <div class="howto-row"><div class="howto-ico">✨</div><div data-i18n="how4">Fill <b>every square</b> for a PERFECT bonus.</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-drag"/></svg></div><div data-i18n="how1">Drag from a <b>base verb</b> to draw a pipe across the board.</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-chain"/></svg></div><div data-i18n="how2">Connect the forms <b>in order</b>: first the middle one, then the last — like <b>go → went → gone</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-nocross"/></svg></div><div data-i18n="how3">Pipes can't cross — and other verbs' words block your way!</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-spark"/></svg></div><div data-i18n="how4">Fill <b>every square</b> for a PERFECT bonus.</div></div>
   </div>
   <div class="legend">
     <div class="legend-chip lc-base">go</div>
     <div class="legend-chip lc-past">went</div>
     <div class="legend-chip lc-pp">gone</div>
   </div>
-  <button class="btn btn-primary" id="start-btn">Let it Flow! 🌊</button>
-  <button class="btn btn-ghost hidden" id="howto-btn" data-i18n="howto_btn">❓ How to play</button>
+  <button class="btn btn-primary" id="start-btn">Let it Flow!</button>
+  <button class="btn btn-ghost hidden" id="howto-btn" data-i18n="howto_btn">How to play</button>
   <button class="btn btn-ghost hidden" id="newgame-btn" data-i18n="restart">Restart at Level 1</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
 
 <div class="screen hidden" id="win-screen">
-  <div class="screen-emoji" id="win-emoji">🎉</div>
+  <div class="screen-emoji" id="win-emoji"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-star"/></svg></div>
   <div class="screen-title" style="font-size:clamp(28px,6vw,42px)" id="win-title">Level <span>1</span> Complete!</div>
-  <div class="perfect-badge hidden" id="perfect-badge">✨ PERFECT FLOW +100</div>
+  <div class="perfect-badge hidden" id="perfect-badge">PERFECT FLOW +100</div>
   <div id="win-chains"></div>
   <div class="win-tip hidden" id="win-tip"></div>
   <div class="screen-stat" id="win-score"></div>
@@ -169,6 +184,7 @@ function getLang(){
   return 'de';
 }
 const LANG=getLang();
+const ICON=id=>'<svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-'+id+'"/></svg>';
 const STR={
   de:{
     hud_level:'Level',hud_score:'Punkte',hud_best:'Rekord',
@@ -179,12 +195,12 @@ const STR={
     how2:'Verbinde die Formen <b>der Reihe nach</b>: erst die mittlere, dann die letzte — wie <b>go → went → gone</b>.',
     how3:'Leitungen dürfen sich nicht kreuzen — und Wörter anderer Verben versperren dir den Weg!',
     how4:'Füll <b>jedes Feld</b> für den <b>PERFECT</b>-Bonus.',
-    play:'Leg los! 🌊',cont:'Weiter – Level {n} 🌊',
-    howto_btn:'❓ So geht\'s',restart:'Neu starten ab Level 1',menu:'Menü',
+    play:'Leg los!',cont:'Weiter – Level {n}',
+    howto_btn:'So geht\'s',restart:'Neu starten ab Level 1',menu:'Menü',
     win_title:'Level <span>{n}</span> geschafft!',
-    badge:'✨ PERFECT FLOW +100',score:'Punkte: {n}',next:'Nächstes Level →',
+    badge:'PERFECT FLOW +100',score:'Punkte: {n}',next:'Nächstes Level →',
     tut_title:'Du hast\'s drauf!',
-    tut_badge:'✨ PERFECT — jedes Feld gefüllt!',
+    tut_badge:'PERFECT — jedes Feld gefüllt!',
     tut_tip_perfect:'In den richtigen Levels gibt es <b>+100</b> Bonus, wenn du <b>jedes Feld</b> füllst.',
     tut_tip:'Tipp: Füll <b>jedes Feld</b> mit Leitungen — das gibt <b>PERFECT +100</b>.',
     tut_next:'Level {n} starten →',
@@ -205,12 +221,12 @@ const STR={
     how2:'Conecta las formas <b>en orden</b>: primero la del medio, luego la última — como <b>go → went → gone</b>.',
     how3:'Las tuberías no se pueden cruzar — ¡y las palabras de otros verbos te bloquean el paso!',
     how4:'Llena <b>todas las casillas</b> para el bonus <b>PERFECT</b>.',
-    play:'¡A jugar! 🌊',cont:'Continuar – Nivel {n} 🌊',
-    howto_btn:'❓ Cómo se juega',restart:'Empezar de nuevo en el nivel 1',menu:'Menú',
+    play:'¡A jugar!',cont:'Continuar – Nivel {n}',
+    howto_btn:'Cómo se juega',restart:'Empezar de nuevo en el nivel 1',menu:'Menú',
     win_title:'¡Nivel <span>{n}</span> superado!',
-    badge:'✨ PERFECT FLOW +100',score:'Puntos: {n}',next:'Siguiente nivel →',
+    badge:'PERFECT FLOW +100',score:'Puntos: {n}',next:'Siguiente nivel →',
     tut_title:'¡Ya lo tienes!',
-    tut_badge:'✨ PERFECT — ¡todas las casillas llenas!',
+    tut_badge:'PERFECT — ¡todas las casillas llenas!',
     tut_tip_perfect:'En los niveles de verdad, llenar <b>todas las casillas</b> da un bonus de <b>+100</b>.',
     tut_tip:'Consejo: llena <b>todas las casillas</b> con tuberías para un <b>PERFECT +100</b>.',
     tut_next:'Empezar nivel {n} →',
@@ -662,7 +678,7 @@ function showWinScreen(o){
   const badge=document.getElementById('perfect-badge');
   badge.textContent=o.badge;
   badge.classList.toggle('hidden',!o.perfect);
-  document.getElementById('win-emoji').textContent=o.perfect?'🌟':'🎉';
+  document.getElementById('win-emoji').innerHTML=ICON(o.perfect?'spark':'star');
   document.getElementById('win-score').textContent=o.score;
   document.getElementById('win-score').classList.toggle('hidden',!o.score);
   const tip=document.getElementById('win-tip');
@@ -1149,7 +1165,7 @@ function updateHUD(){
   document.getElementById('hud-best').textContent=G.best;
   document.getElementById('hint-pip').textContent=G.hints;
   document.getElementById('btn-hint').style.opacity=G.hints>0?'1':'0.4';
-  document.getElementById('btn-sound').textContent=G.sound?'🔊':'🔇';
+  document.getElementById('btn-sound').innerHTML=ICON(G.sound?'sound':'mute');
   document.getElementById('btn-sound').classList.toggle('muted',!G.sound);
 }
 

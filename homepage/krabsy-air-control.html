@@ -32,7 +32,11 @@
 
   .howto{display:flex;flex-direction:column;gap:8px;max-width:430px;width:100%}
   .howto-row{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);padding:9px 14px;border-radius:14px;font-size:13px;color:rgba(255,255,255,0.85);text-align:left;line-height:1.4}
-  .howto-ico{font-size:24px;flex-shrink:0}
+  .howto-ico{font-size:24px;flex-shrink:0;display:flex}
+  .ic{width:1em;height:1em;flex:0 0 auto;display:inline-block;vertical-align:-0.14em;color:#fff}
+  .howto-ico .ic{width:28px;height:28px}
+  .icon-btn .ic{width:20px;height:20px}
+  .lvl-btn.locked span::before{content:"";display:inline-block;width:11px;height:11px;margin-right:4px;vertical-align:-1px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect fill='%23ffcf5e' x='5' y='10.5' width='14' height='10' rx='2.5'/%3E%3Cpath d='M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5'/%3E%3C/svg%3E")}
   .howto-row b{color:var(--amber)}
   .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
   .legend-chip{padding:4px 12px;border-radius:20px;font-weight:900;font-size:12px;border:2px solid transparent}
@@ -110,6 +114,18 @@
 </style>
 </head>
 <body>
+<!-- Icons drawn inline (owner rule: no emoji glyphs in the UI); same line style as lib/icons/krabsy-icons.svg, white outline for the dark screens -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="ic-plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#2ee6c0" d="M12 2.5c1.1 0 1.8 1.2 1.8 2.8v3.4l7.2 4.6v2.2l-7.2-2.2v4l2.2 1.7v1.5L12 19.6l-4 .9V19l2.2-1.7v-4L3 15.5v-2.2l7.2-4.6V5.3c0-1.6.7-2.8 1.8-2.8z"/></symbol>
+  <symbol id="ic-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 20l1-4.6L15.4 5a2.1 2.1 0 0 1 3 0l.6.6a2.1 2.1 0 0 1 0 3L8.6 19 4 20z"/><path fill="#ff8585" d="M15.4 5a2.1 2.1 0 0 1 3 0l.6.6a2.1 2.1 0 0 1 0 3l-1.4 1.4-3.6-3.6z"/><path d="M5 15.4l3.6 3.6"/></symbol>
+  <symbol id="ic-runway" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect fill="#ffcf5e" x="7.5" y="2.5" width="9" height="19" rx="2.5"/><path stroke="#2c2a3a" d="M12 6.5v2M12 11v2M12 15.5v2"/></symbol>
+  <symbol id="ic-crash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ff8585" d="M12 2.2l2.2 4.6 4.9-1.6-1.6 4.9 4.6 2.2-4.6 2.2 1.6 4.9-4.9-1.6-2.2 4.6-2.2-4.6-4.9 1.6 1.6-4.9-4.6-2.2 4.6-2.2-1.6-4.9 4.9 1.6z"/></symbol>
+  <symbol id="ic-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect fill="#ffcf5e" x="5.5" y="4" width="4.5" height="16" rx="1.5"/><rect fill="#ffcf5e" x="14" y="4" width="4.5" height="16" rx="1.5"/></symbol>
+  <symbol id="ic-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#2ee6c0" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/></symbol>
+  <symbol id="ic-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#2ee6c0" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9-4.3-4.1 5.9-.8z"/></symbol>
+</defs></svg>
+
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
@@ -121,29 +137,29 @@
     <div class="hud-stat" id="hud-best-wrap"><div class="hud-label" data-i18n="hud_best">Best</div><div class="hud-value hud-best" id="hud-best">0</div></div>
   </div>
   <div class="hud-section" style="gap:8px">
-    <button class="icon-btn" id="btn-mute">🔊</button>
-    <button class="icon-btn" id="btn-pause">⏸</button>
+    <button class="icon-btn" id="btn-mute" aria-label="Sound"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-sound"/></svg></button>
+    <button class="icon-btn" id="btn-pause" aria-label="Pause"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-pause"/></svg></button>
   </div>
 </div>
 
 <div id="strip-panels" class="hidden">
   <div class="strip-panel" id="strip-panel-0">
-    <div class="strip-panel-title" data-i18n="rw1">🛬 Runway 1</div>
+    <div class="strip-panel-title" data-i18n="rw1">Runway 1</div>
     <div class="strip-panel-chain" id="strip-chain-0"><span class="strip-panel-label" data-i18n="free">— free —</span></div>
   </div>
   <div class="strip-panel" id="strip-panel-1">
-    <div class="strip-panel-title" data-i18n="rw2">🛬 Runway 2</div>
+    <div class="strip-panel-title" data-i18n="rw2">Runway 2</div>
     <div class="strip-panel-chain" id="strip-chain-1"><span class="strip-panel-label" data-i18n="free">— free —</span></div>
   </div>
 </div>
 
 <div class="screen" id="start-screen">
-  <div class="screen-emoji">✈️</div>
+  <div class="screen-emoji"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-plane"/></svg></div>
   <div class="screen-title">Air <span>Control!</span></div>
   <div class="howto">
-    <div class="howto-row"><div class="howto-ico">✏️</div><div data-i18n="how1"><b>Drag a path</b> from a plane to a runway to make it land. Helicopters 🚁 go to the <b>H pad</b>.</div></div>
-    <div class="howto-row"><div class="howto-ico">🛬</div><div data-i18n="how2">Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in the right order (go → went → gone) for a <b>big bonus!</b></div></div>
-    <div class="howto-row"><div class="howto-ico">💥</div><div data-i18n="how3"><b>Don't let aircraft crash</b> into each other — one crash and it's game over!</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-pencil"/></svg></div><div data-i18n="how1"><b>Drag a path</b> from a plane to a runway to make it land. Helicopters go to the <b>H pad</b>.</div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-runway"/></svg></div><div data-i18n="how2">Every plane carries a verb form. Land <b>all 3 forms on the same runway</b> — in the right order (go → went → gone) for a <b>big bonus!</b></div></div>
+    <div class="howto-row"><div class="howto-ico"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-crash"/></svg></div><div data-i18n="how3"><b>Don't let aircraft crash</b> into each other — one crash and it's game over!</div></div>
   </div>
   <div class="legend">
     <span class="legend-chip lc-base">go</span><span class="legend-arrow">→</span>
@@ -159,7 +175,7 @@
 </div>
 
 <div class="screen hidden" id="level-screen">
-  <div class="screen-emoji">🎉</div>
+  <div class="screen-emoji"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-star"/></svg></div>
   <div class="screen-title" data-i18n="lvl_title">Level <span id="lvl-num">1</span> Complete!</div>
   <div id="lvl-score" class="screen-stat"></div>
   <div id="lvl-msg" class="screen-sub"></div>
@@ -170,20 +186,20 @@
 </div>
 
 <div class="screen hidden" id="pause-screen">
-  <div class="screen-emoji" style="animation:none">⏸️</div>
+  <div class="screen-emoji" style="animation:none"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-pause"/></svg></div>
   <div class="screen-title" data-i18n="paused">Paused</div>
   <button class="btn btn-primary" id="resume-btn" data-i18n="resume">Resume ▶</button>
   <button class="btn btn-ghost" id="pause-menu-btn" data-i18n="back_menu">Back to Menu</button>
 </div>
 
 <div class="screen hidden" id="gameover-screen">
-  <div class="screen-emoji" style="animation:none">💥</div>
+  <div class="screen-emoji" style="animation:none"><svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-crash"/></svg></div>
   <div class="screen-title">Game <span>Over!</span></div>
-  <div id="go-newbest" class="newbest" style="display:none" data-i18n="newbest">🏆 NEW BEST!</div>
+  <div id="go-newbest" class="newbest" style="display:none" data-i18n="newbest">NEW BEST!</div>
   <div id="go-score" class="screen-stat"></div>
   <div id="go-msg" class="screen-sub"></div>
   <div id="go-review" class="review-wrap"></div>
-  <button class="btn btn-primary" id="restart-btn" data-i18n="retry">Try Again ✈️</button>
+  <button class="btn btn-primary" id="restart-btn" data-i18n="retry">Try Again</button>
   <button class="btn btn-ghost" id="menu-btn" data-i18n="menu">Menu</button>
   <div class="logo-text">Krab<em>sy</em></div>
 </div>
@@ -198,74 +214,75 @@ function getLang(){
   return 'de';
 }
 const LANG=getLang();
+const SND_ICON=m=>'<svg class="ic" aria-hidden="true" focusable="false"><use href="#ic-'+(m?'mute':'sound')+'"/></svg>';
 const STR={
   de:{
     hud_level:'Level',hud_score:'Punkte',hud_verbs:'Verben',hud_best:'Rekord',
-    rw1:'🛬 Bahn 1',rw2:'🛬 Bahn 2',free:'— frei —',
-    how1:'<b>Zieh eine Linie</b> von einem Flugzeug zu einer Landebahn, damit es landet. Hubschrauber 🚁 fliegen zum <b>H-Platz</b>.',
+    rw1:'Bahn 1',rw2:'Bahn 2',free:'— frei —',
+    how1:'<b>Zieh eine Linie</b> von einem Flugzeug zu einer Landebahn, damit es landet. Hubschrauber fliegen zum <b>H-Platz</b>.',
     how2:'Jedes Flugzeug trägt eine Verbform. Lande <b>alle 3 Formen auf derselben Bahn</b> — in der richtigen Reihenfolge (go → went → gone) gibt\'s einen <b>Riesenbonus!</b>',
     how3:'<b>Lass keine Flugzeuge zusammenstoßen</b> — ein Crash und das Spiel ist vorbei!',
     lv1:'Erster Flug',lv2:'Heli-Schule',lv3:'Endloser Himmel',
     lvl_title:'Level <span id="lvl-num">1</span> geschafft!',
     menu:'Menü',paused:'Pause',resume:'Weiter ▶',back_menu:'Zurück zum Menü',
-    newbest:'🏆 NEUER REKORD!',retry:'Nochmal ✈️',
+    newbest:'NEUER REKORD!',retry:'Nochmal',
     next2:'Level 2: Heli-Schule ▶',next3:'Level 3: Endloser Himmel ▶',
     p_lands:'{v} landet auf Bahn {n}!',p_wrong:'Falsche Bahn!',p_helis:'Hubschrauber landen auf dem H!',
-    p_around:'Durchstarten! Bahn besetzt',p_pad:'H-Platz besetzt!',p_streak:'🔥 SERIE x{n}!',
-    p_perfect:'✨ PERFECT +{n}!',
-    tut_heli:'🚁 Hubschrauber landen auf dem H!',tut_first:'Da kommt dein erstes Flugzeug! ✈️',
-    tut_almost:'Fast! Tipp das Flugzeug an und zieh zur Landebahn',tut_touch:'Tipp das Flugzeug an und halte fest! 👆',
-    tut_draw:'Jetzt zieh eine Linie zur Landebahn! ✏️',tut_watch:'Perfekt! Schau zu, wie es landet 🛬',
+    p_around:'Durchstarten! Bahn besetzt',p_pad:'H-Platz besetzt!',p_streak:'SERIE x{n}!',
+    p_perfect:'PERFECT +{n}!',
+    tut_heli:'Hubschrauber landen auf dem H!',tut_first:'Da kommt dein erstes Flugzeug!',
+    tut_almost:'Fast! Tipp das Flugzeug an und zieh zur Landebahn',tut_touch:'Tipp das Flugzeug an und halte fest!',
+    tut_draw:'Jetzt zieh eine Linie zur Landebahn!',tut_watch:'Perfekt! Schau zu, wie es landet',
     tut_other:'Lande jetzt die anderen 2 Formen auf DERSELBEN Bahn!',tut_miss:'Lande jetzt {m} auf DERSELBEN Bahn!',and:' und ',
-    tut_order:'In der richtigen Reihenfolge (wie go → went → gone) = Riesenbonus! ✨',
-    h2a:'Lande alle 3 Formen — in der richtigen Reihenfolge (wie go → went → gone) gibt\'s einen RIESENBONUS! ✨',
-    h2b:'Jetzt lande den Hubschrauber auf dem H! 🚁',
-    h3a:'👆 Zieh von einem Flugzeug eine Linie zu einer Landebahn!',
+    tut_order:'In der richtigen Reihenfolge (wie go → went → gone) = Riesenbonus!',
+    h2a:'Lande alle 3 Formen — in der richtigen Reihenfolge (wie go → went → gone) gibt\'s einen RIESENBONUS!',
+    h2b:'Jetzt lande den Hubschrauber auf dem H!',
+    h3a:'Zieh von einem Flugzeug eine Linie zu einer Landebahn!',
     h3b:'Lande alle 3 Formen eines Verbs auf EINER Bahn — in der richtigen Reihenfolge (wie go → went → gone) = Riesenbonus!',
-    l1:'Du hast dein erstes Flugzeug gelandet und GO → WENT → GONE geschafft! ✈️',
-    l2o:'Verbkette in perfekter Reihenfolge UND der Hubschrauber — super! 🏆',
+    l1:'Du hast dein erstes Flugzeug gelandet und GO → WENT → GONE geschafft!',
+    l2o:'Verbkette in perfekter Reihenfolge UND der Hubschrauber — super!',
     l2:'Verbkette und Hubschrauber geschafft! Tipp: In der richtigen Reihenfolge landen (wie go → went → gone) verdoppelt die Punkte.',
     auto_next:'Weiter in {n} …',
     score:'Punkte: {n}',score_best:'Punkte: {n}  ·  Rekord: {b}',
-    go0:'Zwei Flugzeuge sind zusammengestoßen! Zieh Linien, damit sie sich nicht treffen — du schaffst das! 💪',
+    go0:'Zwei Flugzeuge sind zusammengestoßen! Zieh Linien, damit sie sich nicht treffen — du schaffst das!',
     go1:'Du hast 1 Verb geschafft — guter Anfang! Schaffst du mehr?',
     go2:'Du hast {n} Verben geschafft — guter Anfang! Schaffst du mehr?',
-    go3:'{n} Verben geschafft — starke Flugsicherung! ✈️',
-    go6:'{n} Verben geschafft — du bist eine Verb-Lande-Legende! 🏆',
+    go3:'{n} Verben geschafft — starke Flugsicherung!',
+    go6:'{n} Verben geschafft — du bist eine Verb-Lande-Legende!',
   },
   es:{
     hud_level:'Nivel',hud_score:'Puntos',hud_verbs:'Verbos',hud_best:'Récord',
-    rw1:'🛬 Pista 1',rw2:'🛬 Pista 2',free:'— libre —',
-    how1:'<b>Dibuja una ruta</b> desde un avión hasta una pista para que aterrice. Los helicópteros 🚁 van al <b>helipuerto H</b>.',
+    rw1:'Pista 1',rw2:'Pista 2',free:'— libre —',
+    how1:'<b>Dibuja una ruta</b> desde un avión hasta una pista para que aterrice. Los helicópteros van al <b>helipuerto H</b>.',
     how2:'Cada avión lleva una forma verbal. Aterriza <b>las 3 formas en la misma pista</b> — ¡en el orden correcto (go → went → gone) para un <b>gran bonus!</b>',
     how3:'<b>Que no choquen los aviones</b> — ¡un choque y se acabó la partida!',
     lv1:'Primer vuelo',lv2:'Escuela de helis',lv3:'Cielo sin fin',
     lvl_title:'¡Nivel <span id="lvl-num">1</span> superado!',
     menu:'Menú',paused:'Pausa',resume:'Seguir ▶',back_menu:'Volver al menú',
-    newbest:'🏆 ¡NUEVO RÉCORD!',retry:'Otra vez ✈️',
+    newbest:'¡NUEVO RÉCORD!',retry:'Otra vez',
     next2:'Nivel 2: Escuela de helis ▶',next3:'Nivel 3: Cielo sin fin ▶',
     p_lands:'¡{v} aterriza en la pista {n}!',p_wrong:'¡Pista equivocada!',p_helis:'¡Los helis van a la H!',
-    p_around:'¡Da la vuelta! Pista ocupada',p_pad:'¡Helipuerto ocupado!',p_streak:'🔥 ¡RACHA x{n}!',
-    p_perfect:'✨ PERFECT +{n}!',
-    tut_heli:'🚁 ¡Los helicópteros aterrizan en la H!',tut_first:'¡Aquí llega tu primer avión! ✈️',
-    tut_almost:'¡Casi! Toca el avión y dibuja hasta la pista',tut_touch:'¡Toca el avión y mantén pulsado! 👆',
-    tut_draw:'¡Ahora dibuja una línea hasta la pista! ✏️',tut_watch:'¡Perfecto! Mira cómo aterriza 🛬',
+    p_around:'¡Da la vuelta! Pista ocupada',p_pad:'¡Helipuerto ocupado!',p_streak:'¡RACHA x{n}!',
+    p_perfect:'PERFECT +{n}!',
+    tut_heli:'¡Los helicópteros aterrizan en la H!',tut_first:'¡Aquí llega tu primer avión!',
+    tut_almost:'¡Casi! Toca el avión y dibuja hasta la pista',tut_touch:'¡Toca el avión y mantén pulsado!',
+    tut_draw:'¡Ahora dibuja una línea hasta la pista!',tut_watch:'¡Perfecto! Mira cómo aterriza',
     tut_other:'¡Ahora aterriza las otras 2 formas en la MISMA pista!',tut_miss:'¡Ahora aterriza {m} en la MISMA pista!',and:' y ',
-    tut_order:'En el orden correcto (como go → went → gone) = ¡gran bonus! ✨',
-    h2a:'Aterriza las 3 formas — ¡en el orden correcto (como go → went → gone) para un GRAN bonus! ✨',
-    h2b:'¡Ahora aterriza el helicóptero en la H! 🚁',
-    h3a:'👆 ¡Dibuja una ruta desde un avión hasta una pista!',
+    tut_order:'En el orden correcto (como go → went → gone) = ¡gran bonus!',
+    h2a:'Aterriza las 3 formas — ¡en el orden correcto (como go → went → gone) para un GRAN bonus!',
+    h2b:'¡Ahora aterriza el helicóptero en la H!',
+    h3a:'¡Dibuja una ruta desde un avión hasta una pista!',
     h3b:'Aterriza las 3 formas de un verbo en UNA pista — ¡en el orden correcto (como go → went → gone) = gran bonus!',
-    l1:'¡Aterrizaste tu primer avión y completaste GO → WENT → GONE! ✈️',
-    l2o:'¡Cadena en orden perfecto Y el helicóptero — increíble! 🏆',
+    l1:'¡Aterrizaste tu primer avión y completaste GO → WENT → GONE!',
+    l2o:'¡Cadena en orden perfecto Y el helicóptero — increíble!',
     l2:'¡Cadena y helicóptero superados! Consejo: aterrizar en el orden correcto (como go → went → gone) duplica los puntos.',
     auto_next:'Continúa en {n} …',
     score:'Puntos: {n}',score_best:'Puntos: {n}  ·  Récord: {b}',
-    go0:'¡Dos aviones chocaron! Dibuja rutas para mantenerlos separados — ¡tú puedes! 💪',
+    go0:'¡Dos aviones chocaron! Dibuja rutas para mantenerlos separados — ¡tú puedes!',
     go1:'¡Completaste 1 verbo — buen comienzo! ¿Puedes superarlo?',
     go2:'¡Completaste {n} verbos — buen comienzo! ¿Puedes superarlo?',
-    go3:'¡{n} verbos completados — gran control aéreo! ✈️',
-    go6:'¡{n} verbos completados — eres una leyenda del aterrizaje! 🏆',
+    go3:'¡{n} verbos completados — gran control aéreo!',
+    go6:'¡{n} verbos completados — eres una leyenda del aterrizaje!',
   },
 };
 function L10N(key,vars){
@@ -391,7 +408,7 @@ const SFX={
   resume(){if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume();},
   setMuted(m){this.muted=m;localStorage.setItem('krabsy_ac_muted',m?'1':'0');
     if(this.master)this.master.gain.value=m?0:0.9;
-    document.getElementById('btn-mute').textContent=m?'🔇':'🔊';},
+    document.getElementById('btn-mute').innerHTML=SND_ICON(m);},
   tone(f,dur,type,vol,delay,slideTo){
     if(!this.ctx||this.muted)return;
     type=type||'sine';vol=vol===undefined?0.2:vol;delay=delay||0;
@@ -2297,10 +2314,7 @@ function updateLevelButtons(){
     const l=parseInt(b.dataset.lvl);
     b.classList.toggle('locked',l>G.unlocked);
     b.disabled=l>G.unlocked;
-    if(l>G.unlocked&&!b.querySelector('span').textContent.startsWith('🔒'))
-      b.querySelector('span').textContent='🔒 '+b.querySelector('span').textContent;
-    else if(l<=G.unlocked)
-      b.querySelector('span').textContent=b.querySelector('span').textContent.replace('🔒 ','');
+    // the lock is drawn by CSS (.lvl-btn.locked span::before)
   });
 }
 
@@ -2339,7 +2353,7 @@ function gameOver(pA,pB){
     document.getElementById('go-msg').textContent=msg;
     const rev=document.getElementById('go-review');
     rev.innerHTML=G.completedChains.map(c=>
-      `<span class="review-chip${c.ordered?' gold':''}">${c.v.verb} → ${c.v.past} → ${c.v.pp}${c.ordered?' ✨':''}</span>`
+      `<span class="review-chip${c.ordered?' gold':''}">${c.v.verb} → ${c.v.past} → ${c.v.pp}</span>`
     ).join('');
     document.getElementById('gameover-screen').classList.remove('hidden');
   }
@@ -2383,7 +2397,7 @@ document.getElementById('menu-btn').addEventListener('click',()=>{SFX.click();ba
 document.getElementById('pause-menu-btn').addEventListener('click',()=>{SFX.click();backToMenu();});
 document.getElementById('btn-pause').addEventListener('click',togglePause);
 document.getElementById('btn-mute').addEventListener('click',()=>{SFX.init();SFX.setMuted(!SFX.muted);});
-document.getElementById('btn-mute').textContent=SFX.muted?'🔇':'🔊';
+document.getElementById('btn-mute').innerHTML=SND_ICON(SFX.muted);
 document.addEventListener('keydown',e=>{
   if(e.key==='p'||e.key==='P'||e.key===' '){if(G.running){e.preventDefault();togglePause();}}
   if(e.key==='m'||e.key==='M'){SFX.init();SFX.setMuted(!SFX.muted);}

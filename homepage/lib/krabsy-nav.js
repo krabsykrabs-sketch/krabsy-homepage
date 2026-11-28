@@ -58,6 +58,9 @@ const TOOLS = [
    inherit this. Prep pages pass `'prepositions'` explicitly. */
 const DEFAULT_TOPIC = 'irregular_verbs';
 
+const ICONS = '/lib/icons/krabsy-icons.svg?v=2026-11-27c';
+const icon = (id, cls, size) => `<svg class="${cls}" viewBox="0 0 24 24"${size ? ` width="${size}" height="${size}"` : ''} aria-hidden="true" focusable="false"><use href="${ICONS}#${id}"/></svg>`;
+
 const END_ACTIONS_SELECTORS = [
   '.sprint-end-actions',
   '.tr-end-actions',
@@ -274,12 +277,12 @@ async function buildGameStrip(strings, count, topic) {
       img.addEventListener('error', () => {
         img.remove();
         thumb.classList.add('has-emoji');
-        thumb.textContent = '✏️';
+        thumb.innerHTML = icon('ki-play', 'k-game-tile-ico', 40);
       });
       thumb.appendChild(img);
     } else {
       thumb.classList.add('has-emoji');
-      thumb.textContent = '✏️';
+      thumb.innerHTML = icon('ki-play', 'k-game-tile-ico', 40);
     }
 
     const name = document.createElement('div');
@@ -430,7 +433,7 @@ async function buildGameHeader(currentKey, strings) {
   title.className = 'k-game-nav-title';
   title.textContent = (cur && cur.name && (cur.name[lang] || cur.name.en)) || '';
 
-  // Class session (phase 2): "👥 6b · Mia" so pupils see their answers go to the class.
+  // Class session (phase 2): "6b · Mia" with the class icon, so pupils see their answers go to the class.
   let classBadge = null;
   try {
     const cs = JSON.parse(localStorage.getItem('krabsy_class') || 'null');
@@ -439,7 +442,8 @@ async function buildGameHeader(currentKey, strings) {
       classBadge = document.createElement('a');
       classBadge.className = 'k-game-nav-class';
       classBadge.href = classUrl;
-      classBadge.textContent = '👥 ' + cs.name + ' · ' + cs.nickname;
+      classBadge.innerHTML = icon('ki-class', 'k-game-nav-ico') + '<span></span>';
+      classBadge.lastChild.textContent = cs.name + ' · ' + cs.nickname;
       classBadge.addEventListener('click', (ev) => guardedGameClick(ev, classBadge.href, strings));
     }
   } catch (_) { /* no storage */ }
@@ -474,7 +478,7 @@ async function buildGameHeader(currentKey, strings) {
   }
   header.append(...[logo, back, title, grow, classBadge, toggle].filter(Boolean));
 
-  // Shell counter "🐚 240" (krabsy-shells.js): links to the figure page.
+  // Shell counter (krabsy-shells.js): links to the profile page.
   const shells = mountShellCounter(header);
   if (shells) {
     header.appendChild(shells);   // right edge, like the site header
@@ -491,8 +495,12 @@ function guardedGameClick(ev, href, strings) {
 }
 
 /* Inject a self-contained <style> at runtime so games don't need to load
-   krabsy-ui.css (which would override their dark themes). All selectors
-   are scoped to .k-game-nav-* and .k-nav-confirm. */
+   krabsy-ui.css (which would restyle the inlined games). All selectors are
+   scoped to .k-game-nav-* and .k-nav-confirm.
+   One family with the site header (krabsy-ui.css ".k-hd", 2026-11-28): the same
+   white bar and shadow, logo, pill shapes, shell counter and DE|ES switch, only
+   48 px high instead of 60 so the game gets the screen. "Alle Spiele" looks like
+   the site menu's current item (the player is in "Spielen"). */
 function injectGameNavStyles() {
   if (document.getElementById('k-game-nav-styles')) return;
   const css = `
@@ -501,58 +509,77 @@ function injectGameNavStyles() {
       position: fixed; top: 0; left: 0; right: 0; height: 48px;
       z-index: 9999;
       display: flex; align-items: center;
-      padding: 0 14px; gap: 12px;
+      padding: 0 24px; gap: 10px;
       background: #ffffff;
       color: #2c2a3a;
-      font-family: 'Nunito', system-ui, sans-serif;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-family: 'Nunito', system-ui, sans-serif; line-height: 1;
+      box-shadow: 0 1px 6px rgba(44,42,58,0.05), 0 1px 0 #e8e9f0;
       box-sizing: border-box;
+      -webkit-user-select: none; user-select: none;
     }
+    .k-game-nav *, .k-game-nav *::before, .k-game-nav *::after { box-sizing: border-box; }
     .k-game-nav-logo {
       font-family: 'Fredoka Display', 'Nunito', sans-serif;
-      font-size: 1.35rem; color: #2c2a3a; line-height: 1;
-      letter-spacing: -0.5px;
+      font-size: 1.5rem; color: #2c2a3a; line-height: 1;
+      letter-spacing: -0.5px; margin-right: 6px;
       display: inline-flex; align-items: center;
       text-decoration: none; flex-shrink: 0;
     }
+    .k-game-nav-logo:hover { color: #2c2a3a; }
     .k-game-nav-crab {
       display: inline-flex; width: 1.15em; height: 1.15em;
       align-items: center; justify-content: center; margin: 0 -0.04em;
     }
     .k-game-nav-crab img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-    .k-game-nav-ico { width: 20px; height: 20px; flex: 0 0 auto; }
+    .k-game-nav-ico { width: 22px; height: 22px; flex: 0 0 auto; display: block; }
     .k-game-nav-back {
       display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
-      height: 34px; padding: 0 14px 0 10px; border-radius: 999px;
-      font-family: 'Nunito', system-ui, sans-serif; font-size: 0.9rem; font-weight: 800;
-      color: #2c2a3a; text-decoration: none; background: #f4f2ea;
-      transition: background-color 0.15s;
+      height: 36px; padding: 0 14px 0 11px; border-radius: 999px;
+      font-family: 'Nunito', system-ui, sans-serif; font-size: 0.92rem; font-weight: 800; line-height: 1;
+      color: #2c2a3a; text-decoration: none; white-space: nowrap;
+      background: #dcf7f0; box-shadow: inset 0 0 0 2px #2ee6c0;
+      transition: background-color 0.15s ease;
     }
-    .k-game-nav-back:hover { background: #d9f8f0; color: #2c2a3a; }
-    .k-game-nav-back:focus-visible, .k-game-nav-logo:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
+    .k-game-nav-back:hover { background: #c9f2e8; color: #2c2a3a; }
+    .k-game-nav a:focus-visible, .k-game-nav button:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
     .k-game-nav-title {
-      font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 1.15rem; color: #2c2a3a;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+      font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 1.2rem; color: #2c2a3a; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin-left: 2px;
     }
     .k-game-nav-grow { flex: 1; min-width: 0; }
-    .k-game-nav-lang { display: inline-flex; flex-shrink: 0; padding: 3px; border-radius: 999px; background: #eceaf2; }
+    .k-game-nav-lang { display: inline-flex; flex-shrink: 0; border-radius: 999px; background: #e8e9f0; overflow: hidden; }
     .k-game-nav-lang .k-lang-btn {
-      border: 0; cursor: pointer; font: 800 0.78rem 'Nunito', system-ui, sans-serif; letter-spacing: 0.5px;
-      padding: 5px 10px; border-radius: 999px; background: transparent; color: #6e6c80;
+      display: inline-flex; align-items: center; min-height: 34px; padding: 0 13px; margin: 0;
+      border: 0; border-radius: 999px; cursor: pointer; background: transparent; color: #6e6c80;
+      font: 700 0.78rem/1 'Nunito', system-ui, sans-serif; letter-spacing: 0.5px;
+      transition: color 0.15s ease, background-color 0.15s ease;
     }
+    .k-game-nav-lang .k-lang-btn:hover:not(.is-active) { color: #2c2a3a; }
     .k-game-nav-lang .k-lang-btn.is-active { background: #2c2a3a; color: #ffffff; }
-    .k-game-nav-lang .k-lang-btn:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
+    .k-game-nav-lang .k-lang-btn:focus-visible { outline-offset: -3px; }
+    /* the site header's shell pill (krabsy-shells.js draws it), a little lower */
+    .k-game-nav .k-shells { min-height: 34px; padding: 0 12px; margin: 0; font-size: 0.85rem; }
+    .k-game-nav-class {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px 0 9px;
+      font-size: 0.8rem; font-weight: 700; color: #2c2a3a; background: #ffffff;
+      box-shadow: inset 0 0 0 1.5px #babfd8;
+      border-radius: 999px; text-decoration: none; white-space: nowrap;
+      flex-shrink: 1; min-width: 0; max-width: 30vw;
+    }
+    .k-game-nav-class:hover { background: #e8e9f0; color: #2c2a3a; }
+    .k-game-nav-class .k-game-nav-ico { width: 18px; height: 18px; }
+    .k-game-nav-class span { overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 1099px) { .k-game-nav { padding: 0 16px; gap: 8px; } }
     @media (max-width: 560px) {
-      .k-game-nav { gap: 8px; padding: 0 10px; }
+      .k-game-nav { gap: 6px; padding: 0 10px; }
+      .k-game-nav-logo { margin-right: 0; }
       .k-game-nav-logo > span:not(.k-game-nav-crab) { display: none; }   /* crab only */
       .k-game-nav-back span { display: none; }
-      .k-game-nav-back { padding: 0 8px; }
-      .k-game-nav-title { font-size: 1rem; }
-    }
-    .k-game-nav-class {
-      font-size: 0.74rem; font-weight: 700; color: #0d4d3f; background: #e6f7f2;
-      padding: 4px 10px; border-radius: 999px; text-decoration: none; white-space: nowrap;
-      flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; max-width: 30vw;
+      .k-game-nav-back { width: 40px; padding: 0; justify-content: center; }
+      .k-game-nav-title { font-size: 1.05rem; }
+      .k-game-nav-lang .k-lang-btn { padding: 0 9px; }
+      .k-game-nav .k-shells { padding: 0 9px; }
+      .k-game-nav-class { max-width: 22vw; padding: 0 9px 0 7px; }
     }
 
     /* Standalone confirm-dialog styling (so it looks right even without krabsy-ui.css) */
@@ -574,11 +601,12 @@ function injectGameNavStyles() {
       font-size: 0.95rem;
     }
     .k-nav-confirm-actions [data-action="cancel"] {
-      background: transparent; color: #2c2a3a; border-color: #cdd9b4;
+      background: #ffffff; color: #2c2a3a; border-color: rgba(44,42,58,0.2);
     }
     .k-nav-confirm-actions [data-action="confirm"] {
-      background: #f2937e; color: #ffffff; border-color: #f2937e;
+      background: #bf4a33; color: #ffffff; border-color: #bf4a33;   /* white on the old salmon was 2.3:1 */
     }
+    .k-nav-confirm-actions [data-action]:focus-visible { outline: 3px solid #2c2a3a; outline-offset: 2px; }
   `;
   const style = document.createElement('style');
   style.id = 'k-game-nav-styles';

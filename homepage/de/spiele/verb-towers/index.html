@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -179,60 +180,80 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#anleitung">▼ Anleitung &amp; Infos zu Verb Towers</a>
+  <a class="kg-scroll-hint" href="#anleitung"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Anleitung &amp; Infos zu Verb Towers</span></a>
   <main class="kg-info" id="anleitung" lang="de">
     <nav class="kg-crumbs" aria-label="Brotkrümelnavigation"><a href="/de/">Krabsy</a> › <a href="/de/spiele/">Spiele</a> › <span aria-current="page">Verb Towers</span></nav>
-    <h1>Verb Towers – Tower Defense mit unregelmäßigen Verben</h1>
-    <p>In Verb Towers verteidigst du deine Burg gegen Wellen von Skelett-Kriegern. Baue Bogentürme, Katapulte, Kanonen und Frosttürme an den Weg – aber Münzen gibt es nur in der <strong>Schmiede</strong>: Jede richtige Antwort auf eine Verbfrage bringt dir Münzen für neue Türme.</p>
-    <p>So trainierst du die <strong>unregelmäßigen Verben</strong> ganz nebenbei, während du deine Verteidigung planst. Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung.</p>
-    <h2>So spielst du Verb Towers</h2>
-    <ul class="kg-steps">
-      <li>Wähle ein Feld neben dem Weg und einen Turm aus der Leiste unten – oder zuerst den Turm (Tasten <kbd>1</kbd>–<kbd>4</kbd>) und dann das Feld.</li>
-      <li>In der Schmiede rechts beantwortest du Verbfragen per Klick oder mit <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Richtig = Münzen, eine Serie bringt einen Bonus.</li>
-      <li>Mit <kbd>Leertaste</kbd> oder „Welle starten“ geht es los. Tippe einen Turm an, um ihn auszubauen oder zu verkaufen.</li>
-      <li>Auf Tablet und Handy spielst du mit Tippen; auf dem Handy am besten im Querformat.</li>
-      <li>Kommt kein Gegner bis zur Burg durch, bekommst du drei Sterne – und Sterne schalten neue Level frei.</li>
-    </ul>
-    <h2>Was du dabei lernst</h2>
-    <p>Die Schmiede fragt die zweite und dritte Form, zum Beispiel <em>go → ___</em> und gleich danach <em>go → went → ___</em> – ohne Grammatik-Fachbegriffe. Nach einem Fehler siehst du die ganze Reihe, und verpasste Verben kommen kurz darauf wieder, etwa <a href="/de/unregelmaessige-verben/think/"><em>think</em></a>, <a href="/de/unregelmaessige-verben/bring/"><em>bring</em></a> oder <a href="/de/unregelmaessige-verben/catch/"><em>catch</em></a>. Es gibt sechs Level von der Wiese bis zum Winterpass, mit Herbst, Seen und Schnee.</p>
-    <h2>Im Unterricht einsetzen</h2>
-    <ul class="kg-steps">
-      <li>Läuft auf Handy, Tablet und PC, ohne Konto. Sie teilen einfach den Link.</li>
-      <li>Münzen gibt es nur für richtige Antworten: Wer genau arbeitet, baut mehr Türme. So zahlt sich Sorgfalt sichtbar aus.</li>
-      <li>Idee: als Belohnung nach einer Übungsphase oder als Hausaufgabe mit einem gemeinsamen Ziel, etwa einer bestimmten Welle.</li>
-    </ul>
-    <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
-    <h2>Häufige Fragen</h2>
-    <div class="kg-faq">
-      <h3>Kann ich Verb Towers ohne Antworten gewinnen?</h3>
-      <p>Nein. Gegner bringen kaum Münzen – fast alles Geld kommt aus der Schmiede. Wer die Verben kann, baut die stärkere Verteidigung.</p>
-      <h3>Läuft das Spiel auf dem Handy?</h3>
-      <p>Ja, mit Tippen. Am besten hältst du das Handy quer; auf Tablet, Chromebook und Computer ist das Spielfeld größer.</p>
-      <h3>Wird mein Fortschritt gespeichert?</h3>
-      <p>Ja, Sterne, Bestwerte und freigeschaltete Level werden nur auf deinem Gerät gespeichert. Es gibt kein Konto.</p>
-    </div>
-    <h2>Weiter üben</h2>
-    <ul class="kg-links">
-      <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
-      <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
-      <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
-      <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
-      <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
-      <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
-    </ul>
-    <h2>Mehr Spiele mit Verben</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
-      <a class="kg-related-card" href="/de/spiele/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Spielszene aus Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">Lotse die Flugzeuge sicher mit Englisch!</span></a>
-      <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Zurück zum Spiel</a></p>
+    <header class="kg-hero">
+      <h1>Verb Towers – Tower Defense mit unregelmäßigen Verben</h1>
+      <p>In Verb Towers verteidigst du deine Burg gegen Wellen von Skelett-Kriegern. Baue Bogentürme, Katapulte, Kanonen und Frosttürme an den Weg – aber Münzen gibt es nur in der <strong>Schmiede</strong>: Jede richtige Antwort auf eine Verbfrage bringt dir Münzen für neue Türme.</p>
+      <p>So trainierst du die <strong>unregelmäßigen Verben</strong> ganz nebenbei, während du deine Verteidigung planst. Das Spiel läuft kostenlos im Browser, ohne Download und ohne Anmeldung.</p>
+    </header>
+    <section class="kg-card">
+      <h2>So spielst du Verb Towers</h2>
+      <ul class="kg-steps">
+        <li>Wähle ein Feld neben dem Weg und einen Turm aus der Leiste unten – oder zuerst den Turm (Tasten <kbd>1</kbd>–<kbd>4</kbd>) und dann das Feld.</li>
+        <li>In der Schmiede rechts beantwortest du Verbfragen per Klick oder mit <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>. Richtig = Münzen, eine Serie bringt einen Bonus.</li>
+        <li>Mit <kbd>Leertaste</kbd> oder „Welle starten“ geht es los. Tippe einen Turm an, um ihn auszubauen oder zu verkaufen.</li>
+        <li>Auf Tablet und Handy spielst du mit Tippen; auf dem Handy am besten im Querformat.</li>
+        <li>Kommt kein Gegner bis zur Burg durch, bekommst du drei Sterne – und Sterne schalten neue Level frei.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Was du dabei lernst</h2>
+      <p>Die Schmiede fragt die zweite und dritte Form, zum Beispiel <em>go → ___</em> und gleich danach <em>go → went → ___</em> – ohne Grammatik-Fachbegriffe. Nach einem Fehler siehst du die ganze Reihe, und verpasste Verben kommen kurz darauf wieder, etwa <a href="/de/unregelmaessige-verben/think/"><em>think</em></a>, <a href="/de/unregelmaessige-verben/bring/"><em>bring</em></a> oder <a href="/de/unregelmaessige-verben/catch/"><em>catch</em></a>. Es gibt sechs Level von der Wiese bis zum Winterpass, mit Herbst, Seen und Schnee.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Im Unterricht einsetzen</h2>
+      <ul class="kg-steps">
+        <li>Läuft auf Handy, Tablet und PC, ohne Konto. Sie teilen einfach den Link.</li>
+        <li>Münzen gibt es nur für richtige Antworten: Wer genau arbeitet, baut mehr Türme. So zahlt sich Sorgfalt sichtbar aus.</li>
+        <li>Idee: als Belohnung nach einer Übungsphase oder als Hausaufgabe mit einem gemeinsamen Ziel, etwa einer bestimmten Welle.</li>
+      </ul>
+      <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
+    </section>
+    <section class="kg-card">
+      <h2>Häufige Fragen</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>Kann ich Verb Towers ohne Antworten gewinnen?</h3>
+        <p>Nein. Gegner bringen kaum Münzen – fast alles Geld kommt aus der Schmiede. Wer die Verben kann, baut die stärkere Verteidigung.</p></div>
+        <div class="kg-faq-item"><h3>Läuft das Spiel auf dem Handy?</h3>
+        <p>Ja, mit Tippen. Am besten hältst du das Handy quer; auf Tablet, Chromebook und Computer ist das Spielfeld größer.</p></div>
+        <div class="kg-faq-item"><h3>Wird mein Fortschritt gespeichert?</h3>
+        <p>Ja, Sterne, Bestwerte und freigeschaltete Level werden nur auf deinem Gerät gespeichert. Es gibt kein Konto.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Weiter üben</h2>
+      <ul class="kg-links">
+        <li><a href="/de/unregelmaessige-verben/">Unregelmäßige Verben – Übersicht und Übungen</a></li>
+        <li><a href="/de/unregelmaessige-verben/a-z/">Alle unregelmäßigen Verben von A bis Z</a></li>
+        <li><a href="/de/unregelmaessige-verben/verb-tabelle/">Verb-Tabelle mit allen drei Formen</a></li>
+        <li><a href="/de/unregelmaessige-verben/sprint/">Sprint: Verbformen ohne Spiel trainieren</a></li>
+        <li><a href="/de/praepositionen/">Englische Präpositionen üben</a></li>
+        <li><a href="/de/spiele/">Alle Krabsy-Spiele</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Mehr Spiele mit Verben</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/de/spiele/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Spielszene aus Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Koch-Chaos — spüle Teller mit den richtigen Verben!</span></a>
+        <a class="kg-related-card" href="/de/spiele/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Spielszene aus Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">Lotse die Flugzeuge sicher mit Englisch!</span></a>
+        <a class="kg-related-card" href="/de/spiele/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Spielszene aus Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">Friss Verbformen in der richtigen Reihenfolge!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Zurück zum Spiel</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_towers');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

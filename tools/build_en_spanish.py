@@ -27,7 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
-FOOTER_V = '2026-11-27p'   # bump when krabsy-nav changes
+FOOTER_V = '2026-11-28'   # bump when krabsy-nav changes
+CLIPS_V = '2026-11-27'    # krabsy-clips.js (hover clips on the game cards), as on /de/spiele/
 HEADER_V = '2026-11-27h'   # krabsy-footer.js (site header, 2026-11-27)
 UI_V = '2026-11-28-btn'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
 
@@ -519,7 +520,10 @@ def build_games_hub():
       <p>Prefer a quick drill? Try the <a href="/en/spanish/ser/sprint/">Sprint</a> or <a href="/en/spanish/ser/fill-the-gap/">Fill the Gap</a>.</p>
     </section>
 
-{FOOTER}'''
+''' + FOOTER.replace('  <script src="/lib/krabsy-footer.js',
+                     f'  <script type="module" src="/lib/krabsy-clips.js?v={CLIPS_V}"></script>\n  <script src="/lib/krabsy-footer.js', 1)
+    if 'krabsy-clips.js' not in s:
+        sys.exit('games hub: krabsy-clips.js tag not placed')
     return url, s
 
 

@@ -25,16 +25,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -42,7 +43,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -191,52 +192,70 @@
   </script>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#how-to-play">▼ How to play Verb Kitchen</a>
+  <a class="kg-scroll-hint" href="#how-to-play"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>How to play Verb Kitchen</span></a>
   <main class="kg-info" id="how-to-play" lang="en">
     <nav class="kg-crumbs" aria-label="Breadcrumbs"><a href="/en/spanish/">Krabsy Spanish</a> › <a href="/en/spanish/games/">Games</a> › <span aria-current="page">Verb Kitchen</span></nav>
-    <h1>Verb Kitchen: a Spanish cooking game</h1>
-    <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> · <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> · <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> · <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
-    <p>Welcome to Verb Kitchen! In this 3D cooking game you take orders, chop ingredients, fry and bake, and serve the dishes through the hatch. But the plates come back dirty, and they only get clean with Spanish: <strong>two right answers</strong> at the sink wash one plate.</p>
-    <p>That turns kitchen chaos into Spanish practice. The game is free in the browser, with English menus and Spanish sentences.</p>
-    <h2>How to play Verb Kitchen</h2>
-    <ul class="kg-steps">
-      <li>Move with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, pick up and put down with <kbd>E</kbd>, chop by holding <kbd>Space</kbd>.</li>
-      <li>On a tablet or phone, tap where your chef should go and tap a station to use it.</li>
-      <li>Take ingredients from the crates, chop and cook them, put them on a plate and serve. Don't let anything burn!</li>
-      <li>At the sink you answer Spanish sentences with one of three buttons: click them or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
-      <li>The faster you finish all orders, the more stars you get.</li>
-    </ul>
-    <h2>What you practice</h2>
-    <p>Each plate asks two Spanish sentences with a gap, usually of the same kind: <em lang="es">Yo ___ de Londres.</em> After a mistake you see the whole sentence and a short rule in English. Sentences you missed come back a few plates later and land in the <strong>Sentence Cookbook</strong>, so the sink asks them first next time. There are eight kitchens, from a salad bistro with a tutorial to burgers, pizza, soup, ice cream and a sandwich bar.</p>
-    <h2>Questions and answers</h2>
-    <div class="kg-faq">
-      <h3>Do I need a keyboard?</h3>
-      <p>On a computer you play with the keyboard. On tablets and phones tapping works: your chef walks to the place you tap.</p>
-      <h3>Can I lose in Verb Kitchen?</h3>
-      <p>No. Orders never run out. The clock only measures your time, and faster cooks get more stars.</p>
-      <h3>What is the Sentence Cookbook?</h3>
-      <p>It lists the Spanish sentences of the topic. The ones you missed are at the top, and the sink asks them first in your next round.</p>
-    </div>
-    <h2>Keep practicing</h2>
-    <ul class="kg-links">
-      <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
-      <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
-      <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
-      <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
-      <li><a href="/en/spanish/games/">All Spanish games</a></li>
-    </ul>
-    <h2>More Spanish games</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/en/spanish/games/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Scene from Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer</span><span class="kg-related-tag">Jump over the clouds and land on the right word!</span></a>
-      <a class="kg-related-card" href="/en/spanish/games/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Scene from Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Build towers. Forge coins with the right words.</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Back to the game</a></p>
+    <header class="kg-hero">
+      <h1>Verb Kitchen: a Spanish cooking game</h1>
+      <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
+      <p>Welcome to Verb Kitchen! In this 3D cooking game you take orders, chop ingredients, fry and bake, and serve the dishes through the hatch. But the plates come back dirty, and they only get clean with Spanish: <strong>two right answers</strong> at the sink wash one plate.</p>
+      <p>That turns kitchen chaos into Spanish practice. The game is free in the browser, with English menus and Spanish sentences.</p>
+    </header>
+    <section class="kg-card">
+      <h2>How to play Verb Kitchen</h2>
+      <ul class="kg-steps">
+        <li>Move with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, pick up and put down with <kbd>E</kbd>, chop by holding <kbd>Space</kbd>.</li>
+        <li>On a tablet or phone, tap where your chef should go and tap a station to use it.</li>
+        <li>Take ingredients from the crates, chop and cook them, put them on a plate and serve. Don't let anything burn!</li>
+        <li>At the sink you answer Spanish sentences with one of three buttons: click them or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
+        <li>The faster you finish all orders, the more stars you get.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>What you practice</h2>
+      <p>Each plate asks two Spanish sentences with a gap, usually of the same kind: <em lang="es">Yo ___ de Londres.</em> After a mistake you see the whole sentence and a short rule in English. Sentences you missed come back a few plates later and land in the <strong>Sentence Cookbook</strong>, so the sink asks them first next time. There are eight kitchens, from a salad bistro with a tutorial to burgers, pizza, soup, ice cream and a sandwich bar.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Questions and answers</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>Do I need a keyboard?</h3>
+        <p>On a computer you play with the keyboard. On tablets and phones tapping works: your chef walks to the place you tap.</p></div>
+        <div class="kg-faq-item"><h3>Can I lose in Verb Kitchen?</h3>
+        <p>No. Orders never run out. The clock only measures your time, and faster cooks get more stars.</p></div>
+        <div class="kg-faq-item"><h3>What is the Sentence Cookbook?</h3>
+        <p>It lists the Spanish sentences of the topic. The ones you missed are at the top, and the sink asks them first in your next round.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Keep practicing</h2>
+      <ul class="kg-links">
+        <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
+        <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
+        <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
+        <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
+        <li><a href="/en/spanish/games/">All Spanish games</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>More Spanish games</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/en/spanish/games/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Scene from Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer</span><span class="kg-related-tag">Jump over the clouds and land on the right word!</span></a>
+        <a class="kg-related-card" href="/en/spanish/games/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Scene from Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Build towers. Forge coins with the right words.</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back to the game</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_kitchen');
   </script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

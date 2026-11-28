@@ -32,8 +32,9 @@
   :root{--ocean-deep:#0288d1;--coral:#ff6b6b;--teal:#00c49a;--teal-dark:#00a882;--sand-gold:#ffd166;--white:#fff;--wood:#8B6914;--wood-light:#C4A24E}
   *{margin:0;padding:0;box-sizing:border-box}
   /* SEO info section below the game (tools/render_game_info.py): page scrolls vertically; the game
-     keeps the first screen minus the slim .kg-scroll-hint bar (HINT in resizeWorld). */
-  html,body{overflow-x:hidden;width:100%;background:#1a1a2e;font-family:'Nunito',sans-serif;user-select:none;-webkit-user-select:none}
+     keeps the first screen minus the slim .kg-scroll-hint bar (HINT in resizeWorld). The page is light;
+     the dark stage behind the game is .kg-stage-spacer (krabsy-game-info.css). */
+  html,body{overflow-x:hidden;width:100%;background:#fdfaf3;font-family:'Nunito',sans-serif;user-select:none;-webkit-user-select:none}
 
   #game-world{position:absolute;width:1280px;height:720px;transform-origin:top left;overflow:hidden}
 
@@ -378,7 +379,7 @@
 const GW=1280,GH=720;
 const gameWorld=document.getElementById('game-world');
 function resizeWorld(){
-  const NAV=48,HINT=36; // HINT = "▼ info" bar under the game (--kg-hint-h)
+  const NAV=48,HINT=36; // HINT = the info bar under the game (--kg-hint-h)
   const vw=document.documentElement.clientWidth||window.innerWidth,vh=window.innerHeight-NAV-HINT;
   document.documentElement.style.setProperty('--kg-stage-h',(window.innerHeight-HINT)+'px');
   const scale=Math.min(vw/GW,vh/GH);
@@ -796,7 +797,7 @@ gameArea.addEventListener('mousemove',e=>{if(e.buttons===1)onMove(e)});
 gameArea.addEventListener('mouseup',onEnd);
 </script>
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('crab_slash');
   </script>
     <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

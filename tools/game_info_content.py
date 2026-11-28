@@ -140,7 +140,7 @@ CONTENT = {
             "howto": [
                 "Ziehe mit der Maus oder dem Finger eine Linie von einem Flugzeug zu einer Landebahn – das Flugzeug fliegt die Route ab.",
                 "Lande alle drei Formen eines Verbs auf derselben Bahn. Landen sie in der richtigen Reihenfolge – erst <em>go</em>, dann <em>went</em>, dann <em>gone</em> –, gibt es einen großen Bonus. Lies genau: Die Flugzeuge verraten nicht, welche Form sie tragen.",
-                "Hubschrauber 🚁 gehören auf den H-Landeplatz.",
+                "Hubschrauber gehören auf den H-Landeplatz.",
                 "Achtung: Stoßen zwei Flugzeuge zusammen, ist das Spiel vorbei.",
                 "Mit <kbd>P</kbd> oder der Leertaste pausierst du, mit <kbd>M</kbd> schaltest du den Ton aus.",
             ],
@@ -165,7 +165,7 @@ CONTENT = {
             "howto": [
                 "Arrastra el ratón o el dedo desde un avión hasta una pista para trazar su ruta.",
                 "Aterriza las tres formas de un verbo en la misma pista. Si aterrizan en el orden correcto – primero <em>go</em>, luego <em>went</em> y después <em>gone</em> – ganas un gran bonus. Lee bien: los aviones no te dicen qué forma llevan.",
-                "Los helicópteros 🚁 van al helipuerto marcado con una H.",
+                "Los helicópteros van al helipuerto marcado con una H.",
                 "¡Cuidado! Si dos aviones chocan, se acaba la partida.",
                 "Con <kbd>P</kbd> o la barra espaciadora pausas el juego; con <kbd>M</kbd> quitas el sonido.",
             ],

@@ -7,7 +7,8 @@ first thing a player sees):
 
   * a slim "scroll for instructions" bar right under the game frame,
   * <main> with h1, intro, how-to-play, what-you-learn, FAQ, links to the
-    topic hub / verb pages / related games,
+    topic hub / verb pages / related games (white cards on the cream page),
+  * the site footer (filled by /lib/krabsy-footer.js),
   * in <head>: the shared stylesheet and a JSON-LD @graph
     (WebPage + VideoGame + BreadcrumbList + FAQPage built from the same
     visible FAQ),
@@ -20,8 +21,14 @@ script is safe to re-run:
     python3 tools/render_game_info.py          # rewrite pages
     python3 tools/render_game_info.py --check  # exit 1 if out of date
 
-Page layout (overflow, frame height) is NOT managed here; see the comment
-block "SEO info section below the game" in each wrapper's <style>.
+Page layout (overflow, frame height, the game frame's dark colour) is NOT
+managed here; see the comment block "SEO info section below the game" in each
+wrapper's <style>. The look of everything rendered here is in
+homepage/lib/krabsy-game-info.css (light, like the rest of the site).
+
+The English pages (/en/spanish/games/<id>/) are built from the German wrappers
+by tools/build_en_spanish.py; after it, run tools/render_static_games.py and
+then this script.
 """
 import html
 import json
@@ -44,7 +51,13 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "homepage"
 SITE = "https://krabsy.com"
-ASSET_VER = "2026-11-27"   # bump when krabsy-game-info.js/.css change
+ASSET_VER = "2026-11-28"   # bump when krabsy-game-info.js/.css change
+FOOTER_VER = "2026-11-27h"  # krabsy-footer.js, the version the site pages load
+ICONS = "/lib/icons/krabsy-icons.svg?v=2026-11-27c"
+# Small arrow for the bar under the game and "back to the game" (no ▼ ▲ characters).
+CHEV = ('<svg class="kg-chev{cls}" viewBox="0 0 12 12" aria-hidden="true" focusable="false">'
+        '<path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" '
+        'stroke-linecap="round" stroke-linejoin="round"/></svg>')
 
 HEAD_START = "<!-- GAME-HEAD:START (tools/render_game_info.py) -->"
 HEAD_END = "<!-- GAME-HEAD:END -->"
@@ -56,13 +69,13 @@ BODY_END = "<!-- GAME-INFO:END -->"
 L = {
     "de": {
         "anchor": "anleitung",
-        "hint": "▼ Anleitung &amp; Infos zu {name}",
+        "hint": "Anleitung &amp; Infos zu {name}",
         "crumbs_label": "Brotkrümelnavigation", "home": "Krabsy", "games": "Spiele",
         "howto": "So spielst du {name}", "learn": "Was du dabei lernst",
         "teach": "Im Unterricht einsetzen", "teach_more": 'Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a>',
         "faq": "Häufige Fragen", "more": "Weiter üben", "related": "Mehr Spiele mit Verben",
         "verbs_intro": "Verbformen nachschlagen:",
-        "top": "▲ Zurück zum Spiel", "play": "Spielen →",
+        "top": "Zurück zum Spiel", "play": "Spielen →",
         "alt": "Spielszene aus {name}",
         "links": [
             ("/de/unregelmaessige-verben/", "Unregelmäßige Verben – Übersicht und Übungen"),
@@ -78,13 +91,13 @@ L = {
     },
     "es": {
         "anchor": "instrucciones",
-        "hint": "▼ Instrucciones e información de {name}",
+        "hint": "Instrucciones e información de {name}",
         "crumbs_label": "Ruta de navegación", "home": "Krabsy", "games": "Juegos",
         "howto": "Cómo se juega {name}", "learn": "Qué aprendes",
         "teach": "En clase: ideas para docentes", "teach_more": 'Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a>',
         "faq": "Preguntas frecuentes", "more": "Sigue practicando", "related": "Más juegos de verbos",
         "verbs_intro": "Consulta las formas de:",
-        "top": "▲ Volver al juego", "play": "Jugar →",
+        "top": "Volver al juego", "play": "Jugar →",
         "alt": "Escena del juego {name}",
         "links": [
             ("/es/verbos-irregulares/", "Verbos irregulares en inglés: resumen y ejercicios"),
@@ -102,13 +115,13 @@ L = {
     "en/spanish": {
         "anchor": "how-to-play",
         "topic_label": "Topic:",   # games here play several topics: chips with ?topic=
-        "hint": "▼ How to play {name}",
+        "hint": "How to play {name}",
         "crumbs_label": "Breadcrumbs", "home": "Krabsy Spanish", "games": "Games",
         "howto": "How to play {name}", "learn": "What you practice",
         "teach": "Using it in lessons", "teach_more": '<a href="/en/spanish/teachers/#practice-link">Make a practice link</a> · <a href="/games/quiz-room/teacher.html?topic=es_ser&amp;lang=en">Quiz Room for live lessons</a>',
         "faq": "Questions and answers", "more": "Keep practicing", "related": "More Spanish games",
         "verbs_intro": "",
-        "top": "▲ Back to the game", "play": "Play →",
+        "top": "Back to the game", "play": "Play →",
         "alt": "Scene from {name}",
         "links": [
             ("/en/spanish/ser/", "Yo soy … (ser): games and drills"),
@@ -160,46 +173,60 @@ def render_body(gid, sec, games, inline_game):
         # Inlined games are absolutely positioned; this spacer reserves their
         # height in the page flow (height set from resizeWorld()).
         out.append('<div class="kg-stage-spacer" aria-hidden="true"></div>')
-    out.append(f'<a class="kg-scroll-hint" href="#{t["anchor"]}">{t["hint"].format(name=esc(name))}</a>')
+    out.append(f'<a class="kg-scroll-hint" href="#{t["anchor"]}">{CHEV.format(cls="")}'
+               f'<span>{t["hint"].format(name=esc(name))}</span></a>')
     out.append(f'<main class="kg-info" id="{t["anchor"]}" lang="{lang}">')
     out.append(f'  <nav class="kg-crumbs" aria-label="{t["crumbs_label"]}"><a href="{sec["home"]}">{t["home"]}</a> › '
                f'<a href="{url_games}">{t["games"]}</a> › <span aria-current="page">{esc(name)}</span></nav>')
-    out.append(f'  <h1>{c["h1"]}</h1>')
+    out.append('  <header class="kg-hero">')
+    out.append(f'    <h1>{c["h1"]}</h1>')
     if t.get("topic_label"):   # which topic the game asks (game page script marks the current one)
         topics = load_topics()
-        chips = " · ".join(f'<a class="kg-topic" data-es-topic="{tid}" href="?topic={tid}">{esc(topics[tid]["display_name"][lang])}</a>'
-                           for tid in section_topics(sec))
-        out.append(f'  <p class="kg-topics"><strong>{t["topic_label"]}</strong> {chips}</p>')
+        chips = " ".join(f'<a class="kg-topic" data-es-topic="{tid}" href="?topic={tid}">{esc(topics[tid]["display_name"][lang])}</a>'
+                         for tid in section_topics(sec))
+        out.append(f'    <p class="kg-topics"><strong>{t["topic_label"]}</strong> {chips}</p>')
     for p in c["lead"]:
-        out.append(f"  <p>{fill_verbs(p, lang)}</p>")
-    out.append(f'  <h2>{t["howto"].format(name=esc(name))}</h2>')
-    out.append('  <ul class="kg-steps">')
+        out.append(f"    <p>{fill_verbs(p, lang)}</p>")
+    out.append("  </header>")
+    out.append('  <section class="kg-card">')
+    out.append(f'    <h2>{t["howto"].format(name=esc(name))}</h2>')
+    out.append('    <ul class="kg-steps">')
     for li in c["howto"]:
-        out.append(f"    <li>{fill_verbs(li, lang)}</li>")
-    out.append("  </ul>")
-    out.append(f'  <h2>{t["learn"]}</h2>')
+        out.append(f"      <li>{fill_verbs(li, lang)}</li>")
+    out.append("    </ul>")
+    out.append("  </section>")
+    out.append('  <section class="kg-card">')
+    out.append(f'    <h2>{t["learn"]}</h2>')
     for p in c["learn"]:
-        out.append(f"  <p>{fill_verbs(p, lang)}</p>")
+        out.append(f"    <p>{fill_verbs(p, lang)}</p>")
+    out.append("  </section>")
     if gid in TEACHER and sec["id"] in TEACHER[gid]:
-        out.append(f'  <h2>{t["teach"]}</h2>')
-        out.append('  <ul class="kg-steps">')
+        out.append('  <section class="kg-card">')
+        out.append(f'    <h2>{t["teach"]}</h2>')
+        out.append('    <ul class="kg-steps">')
         for li in TEACHER[gid][sec["id"]]:
-            out.append(f"    <li>{li}</li>")
-        out.append("  </ul>")
-        out.append(f'  <p>{t["teach_more"]}</p>')
-    out.append(f'  <h2>{t["faq"]}</h2>')
-    out.append('  <div class="kg-faq">')
+            out.append(f"      <li>{li}</li>")
+        out.append("    </ul>")
+        out.append(f'    <p>{t["teach_more"]}</p>')
+        out.append("  </section>")
+    out.append('  <section class="kg-card">')
+    out.append(f'    <h2>{t["faq"]}</h2>')
+    out.append('    <div class="kg-faq">')
     for q, a in c["faq"]:
-        out.append(f"    <h3>{q}</h3>")
-        out.append(f"    <p>{fill_verbs(a, lang)}</p>")
-    out.append("  </div>")
-    out.append(f'  <h2>{t["more"]}</h2>')
-    out.append('  <ul class="kg-links">')
+        out.append(f'      <div class="kg-faq-item"><h3>{q}</h3>')
+        out.append(f"      <p>{fill_verbs(a, lang)}</p></div>")
+    out.append("    </div>")
+    out.append("  </section>")
+    out.append('  <section class="kg-card">')
+    out.append(f'    <h2>{t["more"]}</h2>')
+    out.append('    <ul class="kg-links">')
     for href, label in t["links"]:
-        out.append(f'    <li><a href="{href}">{label}</a></li>')
-    out.append("  </ul>")
-    out.append(f'  <h2>{t["related"]}</h2>')
-    out.append('  <div class="kg-related">')
+        out.append(f'      <li><a href="{href}">{label}</a></li>')
+    out.append("    </ul>")
+    out.append("  </section>")
+    out.append('  <section class="kg-more">')
+    out.append(f'    <h2>{t["related"]}</h2>')
+    out.append('    <div class="kg-related">')
     for rid in c["related"]:
         g = gmap[rid]
         rname = (g.get("name") or {}).get(lang) or rid
@@ -207,14 +234,23 @@ def render_body(gid, sec, games, inline_game):
             thumb = (f'<img src="{esc(g["thumbnail"])}" alt="{esc(t["alt"].format(name=game_name(g, lang)))}" '
                      f'loading="lazy" decoding="async" width="320" height="180">')
         else:
-            thumb = '<span class="kg-related-emoji" aria-hidden="true">✏️</span>'
-        out.append(f'    <a class="kg-related-card" href="{game_url(sec, rid)}">'
+            thumb = (f'<svg class="kg-related-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+                     f'<use href="{ICONS}#ki-play"/></svg>')
+        out.append(f'      <a class="kg-related-card" href="{game_url(sec, rid)}">'
                    f'<span class="kg-related-thumb">{thumb}</span>'
                    f'<span class="kg-related-name">{esc(rname)}</span>'
                    f'<span class="kg-related-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</span></a>')
-    out.append("  </div>")
-    out.append(f'  <p class="kg-top"><a href="#">{t["top"]}</a></p>')
+    out.append("    </div>")
+    out.append("  </section>")
+    out.append(f'  <p class="kg-top"><a href="#">{CHEV.format(cls=" kg-chev-up")}<span>{t["top"]}</span></a></p>')
     out.append("</main>")
+    # Site footer: krabsy-footer.js fills the legal links and the Themen / Spiele / Über columns.
+    out.append('<footer class="k-footer kg-footer">')
+    out.append('  <span>© 2026 Krabsy</span>')
+    out.append('  <span class="k-footer-legal-sep" aria-hidden="true">·</span>')
+    out.append('  <span class="k-footer-legal-mount"></span>')
+    out.append('</footer>')
+    out.append(f'<script src="/lib/krabsy-footer.js?v={FOOTER_VER}" defer></script>')
     if not inline_game:
         out.append(f'<script src="/lib/krabsy-game-info.js?v={ASSET_VER}" defer></script>')
     out.append(BODY_END)

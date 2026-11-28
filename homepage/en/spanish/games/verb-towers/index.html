@@ -25,16 +25,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -42,7 +43,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -191,51 +192,69 @@
   </script>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#how-to-play">▼ How to play Verb Towers</a>
+  <a class="kg-scroll-hint" href="#how-to-play"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>How to play Verb Towers</span></a>
   <main class="kg-info" id="how-to-play" lang="en">
     <nav class="kg-crumbs" aria-label="Breadcrumbs"><a href="/en/spanish/">Krabsy Spanish</a> › <a href="/en/spanish/games/">Games</a> › <span aria-current="page">Verb Towers</span></nav>
-    <h1>Verb Towers: a Spanish tower-defence game</h1>
-    <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> · <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> · <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> · <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
-    <p>Enemies march along the road to your castle, and your towers stop them. Towers cost coins, and you earn coins in the <strong>forge</strong>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.</p>
-    <p>The game is free in the browser, with English menus and Spanish sentences.</p>
-    <h2>How to play Verb Towers</h2>
-    <ul class="kg-steps">
-      <li>Tap or click a glowing field next to the road to build a tower.</li>
-      <li>Start the wave. While the enemies walk, answer the sentences in the forge: tap an answer or press <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>.</li>
-      <li>A wrong answer locks the forge for a moment and shows you the right word and a short rule.</li>
-      <li>Spend your coins on more towers and upgrades. Protect the castle to win stars and unlock the next level.</li>
-    </ul>
-    <h2>What you practice</h2>
-    <p>The forge asks Spanish sentences with a gap, like <em lang="es">Me ___ Sofía.</em> Right answers give coins, so practicing is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.</p>
-    <h2>Questions and answers</h2>
-    <div class="kg-faq">
-      <h3>Does it work on a phone?</h3>
-      <p>Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map.</p>
-      <h3>What happens if I answer wrong?</h3>
-      <p>The forge locks for a moment and shows the right word and a short rule. Then the next sentence comes.</p>
-      <h3>Is my progress saved?</h3>
-      <p>Yes, stars and unlocked levels are saved on your device only. There is no account.</p>
-    </div>
-    <h2>Keep practicing</h2>
-    <ul class="kg-links">
-      <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
-      <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
-      <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
-      <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
-      <li><a href="/en/spanish/games/">All Spanish games</a></li>
-    </ul>
-    <h2>More Spanish games</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/en/spanish/games/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Scene from Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Cooking chaos: wash the plates with the right words!</span></a>
-      <a class="kg-related-card" href="/en/spanish/games/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Scene from Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer</span><span class="kg-related-tag">Jump over the clouds and land on the right word!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Back to the game</a></p>
+    <header class="kg-hero">
+      <h1>Verb Towers: a Spanish tower-defence game</h1>
+      <p class="kg-topics"><strong>Topic:</strong> <a class="kg-topic" data-es-topic="es_ser" href="?topic=es_ser">Yo soy … (ser)</a> <a class="kg-topic" data-es-topic="es_estar" href="?topic=es_estar">Estoy … (estar)</a> <a class="kg-topic" data-es-topic="es_ser_estar" href="?topic=es_ser_estar">Ser or estar?</a> <a class="kg-topic" data-es-topic="es_tener" href="?topic=es_tener">Tengo … (tener)</a></p>
+      <p>Enemies march along the road to your castle, and your towers stop them. Towers cost coins, and you earn coins in the <strong>forge</strong>: answer the Spanish sentence, and every right answer forges coins. A streak of right answers pays more.</p>
+      <p>The game is free in the browser, with English menus and Spanish sentences.</p>
+    </header>
+    <section class="kg-card">
+      <h2>How to play Verb Towers</h2>
+      <ul class="kg-steps">
+        <li>Tap or click a glowing field next to the road to build a tower.</li>
+        <li>Start the wave. While the enemies walk, answer the sentences in the forge: tap an answer or press <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd>.</li>
+        <li>A wrong answer locks the forge for a moment and shows you the right word and a short rule.</li>
+        <li>Spend your coins on more towers and upgrades. Protect the castle to win stars and unlock the next level.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>What you practice</h2>
+      <p>The forge asks Spanish sentences with a gap, like <em lang="es">Me ___ Sofía.</em> Right answers give coins, so practicing is how you defend the castle. After a mistake you see the right word and why. There are six levels, from the Meadow to the Winter Pass.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Questions and answers</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>Does it work on a phone?</h3>
+        <p>Yes, by tapping; turn the phone sideways. Tablets and computers show a bigger map.</p></div>
+        <div class="kg-faq-item"><h3>What happens if I answer wrong?</h3>
+        <p>The forge locks for a moment and shows the right word and a short rule. Then the next sentence comes.</p></div>
+        <div class="kg-faq-item"><h3>Is my progress saved?</h3>
+        <p>Yes, stars and unlocked levels are saved on your device only. There is no account.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Keep practicing</h2>
+      <ul class="kg-links">
+        <li><a href="/en/spanish/ser/">Yo soy … (ser): games and drills</a></li>
+        <li><a href="/en/spanish/estar/">Estoy … (estar): games and drills</a></li>
+        <li><a href="/en/spanish/ser-or-estar/">Ser or estar? games and drills</a></li>
+        <li><a href="/en/spanish/tener/">Tengo … (tener): games and drills</a></li>
+        <li><a href="/en/spanish/games/">All Spanish games</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>More Spanish games</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/en/spanish/games/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Scene from Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">Cooking chaos: wash the plates with the right words!</span></a>
+        <a class="kg-related-card" href="/en/spanish/games/verb-platformer/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-platformer.jpg" alt="Scene from Verb Platformer" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Platformer</span><span class="kg-related-tag">Jump over the clouds and land on the right word!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back to the game</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_towers');
   </script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>

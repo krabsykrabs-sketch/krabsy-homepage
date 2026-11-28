@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -179,60 +180,80 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Kitchen</a>
+  <a class="kg-scroll-hint" href="#instrucciones"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Instrucciones e información de Verb Kitchen</span></a>
   <main class="kg-info" id="instrucciones" lang="es">
     <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Kitchen</span></nav>
-    <h1>Verb Kitchen: juego de cocina con verbos irregulares</h1>
-    <p>¡Bienvenido a Verb Kitchen! En este juego de cocina en 3D recibes pedidos, cortas ingredientes, cocinas en la estufa o en el horno y sirves los platos por la ventanilla. Pero los platos vuelven sucios, y solo se limpian con inglés: cada <strong>dos respuestas correctas</strong> en el fregadero te dan un plato limpio.</p>
-    <p>Así el caos de la cocina se convierte en práctica de los <strong>verbos irregulares en inglés</strong>. Se juega gratis en el navegador y los textos del juego están en español.</p>
-    <h2>Cómo se juega Verb Kitchen</h2>
-    <ul class="kg-steps">
-      <li>Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas, toma y deja cosas con <kbd>E</kbd> y corta manteniendo pulsada la <kbd>barra espaciadora</kbd>.</li>
-      <li>En tablet o celular tocas el lugar al que quieres ir y tocas una estación para usarla.</li>
-      <li>Saca ingredientes de las cajas, córtalos y cocínalos, ponlos en un plato y sírvelo. ¡Que no se queme nada!</li>
-      <li>En el fregadero respondes preguntas de verbos con uno de tres botones: con un clic o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
-      <li>Cuanto más rápido entregues todos los pedidos, más estrellas consigues.</li>
-    </ul>
-    <h2>Qué aprendes</h2>
-    <p>Cada plato es un verbo: primero el juego te pide la segunda forma (<em>go → ___</em>) y luego la tercera (<em>go → went → ___</em>). Hay 46 verbos, entre ellos verbos de cocina como <a href="/es/verbos-irregulares/cut/"><em>cut</em></a>, <a href="/es/verbos-irregulares/burn/"><em>burn</em></a>, <a href="/es/verbos-irregulares/break/"><em>break</em></a> y <a href="/es/verbos-irregulares/eat/"><em>eat</em></a>. Si fallas, ves la secuencia completa; los verbos que fallaste vuelven a salir y al final el juego te muestra cuáles debes repasar. Hay ocho niveles: desde la ensalada del Garden Bistro, con tutorial, pasando por hamburguesas, pizza, sopa y copas de helado, hasta el Sandwich Bar; en dos niveles cocinas con un ayudante.</p>
-    <h2>En clase: ideas para docentes</h2>
-    <ul class="kg-steps">
-      <li>Juego en 3D para móvil, tablet y ordenador, sin cuenta. Cada nivel dura unos minutos.</li>
-      <li>Las preguntas de verbos llegan en el fregadero: sin respuestas correctas no hay platos limpios. Así el alumnado repasa muchas formas sin sentir que está estudiando.</li>
-      <li>Idea: al final de una unidad de gramática, jugar 10 o 15 minutos y después comentar los verbos que más se fallaron.</li>
-    </ul>
-    <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a></p>
-    <h2>Preguntas frecuentes</h2>
-    <div class="kg-faq">
-      <h3>¿Necesito teclado?</h3>
-      <p>En la computadora se juega con teclado. En tablet y celular basta con tocar la pantalla: tu cocinero camina solo hasta el lugar que tocaste.</p>
-      <h3>¿Se puede perder en Verb Kitchen?</h3>
-      <p>No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas.</p>
-      <h3>¿Para qué sirven las estrellas?</h3>
-      <p>Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo.</p>
-    </div>
-    <h2>Sigue practicando</h2>
-    <ul class="kg-links">
-      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
-      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
-      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
-      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
-      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
-      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
-    </ul>
-    <h2>Más juegos de verbos</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/es/juegos/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Construye torres. Forja monedas con verbos en inglés.</span></a>
-      <a class="kg-related-card" href="/es/juegos/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">¡Guía los aviones de forma segura con inglés!</span></a>
-      <a class="kg-related-card" href="/es/juegos/verb-flow/"><span class="kg-related-thumb"><img src="/thumbnails/verb-flow.png" alt="Escena del juego Verb Flow" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Flow</span><span class="kg-related-tag">¡Conecta las tres formas verbales en el orden correcto!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+    <header class="kg-hero">
+      <h1>Verb Kitchen: juego de cocina con verbos irregulares</h1>
+      <p>¡Bienvenido a Verb Kitchen! En este juego de cocina en 3D recibes pedidos, cortas ingredientes, cocinas en la estufa o en el horno y sirves los platos por la ventanilla. Pero los platos vuelven sucios, y solo se limpian con inglés: cada <strong>dos respuestas correctas</strong> en el fregadero te dan un plato limpio.</p>
+      <p>Así el caos de la cocina se convierte en práctica de los <strong>verbos irregulares en inglés</strong>. Se juega gratis en el navegador y los textos del juego están en español.</p>
+    </header>
+    <section class="kg-card">
+      <h2>Cómo se juega Verb Kitchen</h2>
+      <ul class="kg-steps">
+        <li>Muévete con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas, toma y deja cosas con <kbd>E</kbd> y corta manteniendo pulsada la <kbd>barra espaciadora</kbd>.</li>
+        <li>En tablet o celular tocas el lugar al que quieres ir y tocas una estación para usarla.</li>
+        <li>Saca ingredientes de las cajas, córtalos y cocínalos, ponlos en un plato y sírvelo. ¡Que no se queme nada!</li>
+        <li>En el fregadero respondes preguntas de verbos con uno de tres botones: con un clic o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</li>
+        <li>Cuanto más rápido entregues todos los pedidos, más estrellas consigues.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Qué aprendes</h2>
+      <p>Cada plato es un verbo: primero el juego te pide la segunda forma (<em>go → ___</em>) y luego la tercera (<em>go → went → ___</em>). Hay 46 verbos, entre ellos verbos de cocina como <a href="/es/verbos-irregulares/cut/"><em>cut</em></a>, <a href="/es/verbos-irregulares/burn/"><em>burn</em></a>, <a href="/es/verbos-irregulares/break/"><em>break</em></a> y <a href="/es/verbos-irregulares/eat/"><em>eat</em></a>. Si fallas, ves la secuencia completa; los verbos que fallaste vuelven a salir y al final el juego te muestra cuáles debes repasar. Hay ocho niveles: desde la ensalada del Garden Bistro, con tutorial, pasando por hamburguesas, pizza, sopa y copas de helado, hasta el Sandwich Bar; en dos niveles cocinas con un ayudante.</p>
+    </section>
+    <section class="kg-card">
+      <h2>En clase: ideas para docentes</h2>
+      <ul class="kg-steps">
+        <li>Juego en 3D para móvil, tablet y ordenador, sin cuenta. Cada nivel dura unos minutos.</li>
+        <li>Las preguntas de verbos llegan en el fregadero: sin respuestas correctas no hay platos limpios. Así el alumnado repasa muchas formas sin sentir que está estudiando.</li>
+        <li>Idea: al final de una unidad de gramática, jugar 10 o 15 minutos y después comentar los verbos que más se fallaron.</li>
+      </ul>
+      <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a></p>
+    </section>
+    <section class="kg-card">
+      <h2>Preguntas frecuentes</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>¿Necesito teclado?</h3>
+        <p>En la computadora se juega con teclado. En tablet y celular basta con tocar la pantalla: tu cocinero camina solo hasta el lugar que tocaste.</p></div>
+        <div class="kg-faq-item"><h3>¿Se puede perder en Verb Kitchen?</h3>
+        <p>No. Los pedidos no caducan. El reloj solo mide tu tiempo, y si eres rápido ganas más estrellas.</p></div>
+        <div class="kg-faq-item"><h3>¿Para qué sirven las estrellas?</h3>
+        <p>Con las estrellas desbloqueas nuevos personajes. Tus estrellas, mejores tiempos y progreso se guardan en tu dispositivo.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Sigue practicando</h2>
+      <ul class="kg-links">
+        <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+        <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+        <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+        <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+        <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+        <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Más juegos de verbos</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/es/juegos/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Construye torres. Forja monedas con verbos en inglés.</span></a>
+        <a class="kg-related-card" href="/es/juegos/air-control/"><span class="kg-related-thumb"><img src="/thumbnails/aircontrol.png" alt="Escena del juego Air Control" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Air Control</span><span class="kg-related-tag">¡Guía los aviones de forma segura con inglés!</span></a>
+        <a class="kg-related-card" href="/es/juegos/verb-flow/"><span class="kg-related-thumb"><img src="/thumbnails/verb-flow.png" alt="Escena del juego Verb Flow" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Flow</span><span class="kg-related-tag">¡Conecta las tres formas verbales en el orden correcto!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Volver al juego</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_kitchen');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>

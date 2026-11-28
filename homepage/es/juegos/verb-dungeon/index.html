@@ -31,16 +31,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0c1430;
+      background: #fdfaf3;   /* the page is light (krabsy-game-info.css) */
     }
     /* SEO info section below the game (tools/render_game_info.py): the page
        scrolls vertically, but the game still fills the first screen minus a
-       slim "▼ instructions" bar (--kg-hint-h, /lib/krabsy-game-info.css). */
+       slim instructions bar (--kg-hint-h, /lib/krabsy-game-info.css). */
     html { overflow-x: hidden; }
     /* The krabsy chip-bar header is injected by initGamePage() and is 48 px tall. */
     #game-frame {
       display: block;
       border: 0;
+      background: #0c1430;   /* the stage: the game's own colour while it loads */
       width: 100%;
       height: calc(100vh - 48px - var(--kg-hint-h, 36px));
       height: calc(100svh - 48px - var(--kg-hint-h, 36px));
@@ -48,7 +49,7 @@
     }
   </style>
   <!-- GAME-HEAD:START (tools/render_game_info.py) -->
-  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-27">
+  <link rel="stylesheet" href="/lib/krabsy-game-info.css?v=2026-11-28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -179,54 +180,72 @@
   ></iframe>
   <!-- GAME-INFO:START (tools/render_game_info.py) -->
   <script>(function(){try{var p=new URLSearchParams(location.search),f=document.getElementById("game-frame");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","topic","difficulty"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-  <a class="kg-scroll-hint" href="#instrucciones">▼ Instrucciones e información de Verb Dungeon</a>
+  <a class="kg-scroll-hint" href="#instrucciones"><svg class="kg-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Instrucciones e información de Verb Dungeon</span></a>
   <main class="kg-info" id="instrucciones" lang="es">
     <nav class="kg-crumbs" aria-label="Ruta de navegación"><a href="/es/">Krabsy</a> › <a href="/es/juegos/">Juegos</a> › <span aria-current="page">Verb Dungeon</span></nav>
-    <h1>Verb Dungeon: aventura en la mazmorra con verbos irregulares</h1>
-    <p>En Verb Dungeon tu pequeño héroe con espada recorre una mazmorra llena de antorchas, barriles y esqueletos traviesos. En cada sala la puerta está cerrada con llave, y primero tienes que encontrarla: está escondida en un barril, una caja o la lleva un esqueleto. Para abrir la puerta necesitas inglés: junto a ella hay un libro de verbos en un círculo de runas brillante, y con <strong>dos formas verbales correctas</strong> la puerta se abre.</p>
-    <p>Da un poquito de miedo, pero nada de terror: los esqueletos que derribas se desarman en un montoncito de huesos y se levantan otra vez, algo avergonzados. Se juega gratis en el navegador, sin descargas y sin registro. Los textos del juego están en español; solo los verbos siguen en inglés.</p>
-    <h2>Cómo se juega Verb Dungeon</h2>
-    <ul class="kg-steps">
-      <li>En la computadora te mueves con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas. La <kbd>barra espaciadora</kbd> golpea, rompe cajas y barriles y abre cofres y el libro de verbos. En tableta y celular aparecen un joystick (apoya el pulgar a la izquierda de la pantalla y deslízalo) y un botón de espada abajo a la derecha que hace lo mismo.</li>
-      <li>Todo lo que puedes usar tiene un anillo brillante en el suelo. Rompe barriles y cajas o derriba a los esqueletos hasta que aparezca la llave, y pasa por encima de ella.</li>
-      <li>Con la llave vas al libro de verbos junto a la puerta: en su círculo de runas no entran esqueletos ni flechas. Pulsa la <kbd>barra espaciadora</kbd> o el botón de espada y aparece una pregunta como <em>go → ___ → ___</em>. Responde con un clic, tocando la respuesta o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. Una pregunta solo aparece cuando tú la abres, y mientras está abierta, toda la mazmorra se queda quieta.</li>
-      <li>Algunas salas tienen su propio reto: dos paredes con puertas de runas, una detrás de otra (solo se abre la puerta con la palabra correcta), un puente de palabras donde solo aguantan las piedras con la forma correcta, o una emboscada en la que la puerta se cierra detrás de ti.</li>
-      <li>Al final de cada nivel te espera un jefe distinto: un gólem enorme, un nigromante que no para de levantar esqueletos y un mago esqueleto con bolas mágicas. Párate sobre la piedra brillante, pulsa la <kbd>barra espaciadora</kbd> y responde la pregunta: el jefe se marea un momento y puedes golpearlo.</li>
-    </ul>
-    <h2>Qué aprendes</h2>
-    <p>Practicas la <strong>segunda y la tercera forma</strong> de los verbos irregulares, por ejemplo <a href="/es/verbos-irregulares/go/"><em>go</em></a>, <a href="/es/verbos-irregulares/see/"><em>see</em></a>, <a href="/es/verbos-irregulares/fly/"><em>fly</em></a>, <a href="/es/verbos-irregulares/find/"><em>find</em></a> y <a href="/es/verbos-irregulares/drive/"><em>drive</em></a>. Primero el juego pregunta la segunda forma (<em>go → ___</em>) y justo después la tercera, con la segunda ya escrita (<em>go → went → ___</em>), sin términos gramaticales. Si fallas, ves la secuencia y el verbo vuelve a salir en una puerta más adelante.</p>
-    <p>Hay tres niveles con cinco o seis salas, desde verbos fáciles en el nivel 1 hasta otros más difíciles en el nivel 3. Si aciertas todo al primer intento, consigues tres estrellas. Con las monedas de los cofres, la sala del tesoro y los jefes desbloqueas nuevos héroes: bárbaro, pícaro y mago.</p>
-    <h2>Preguntas frecuentes</h2>
-    <div class="kg-faq">
-      <h3>¿Puedo jugar Verb Dungeon en el celular o la tablet?</h3>
-      <p>Sí. En pantallas táctiles aparecen un joystick para moverte y un botón de espada para golpear y abrir; las respuestas solo se tocan. El celular se sostiene en horizontal. Lo más cómodo es una tableta o la computadora con teclado.</p>
-      <h3>¿Da miedo el juego?</h3>
-      <p>Solo un poquito. Hay antorchas, esqueletos y tres jefes muy tontos, pero nada de sangre ni de terror. Si pierdes todos los corazones, te mareas un momento y la sala empieza de nuevo; lo que ya lograste se queda.</p>
-      <h3>¿Se guarda mi progreso?</h3>
-      <p>Sí. Las estrellas, las monedas y los héroes desbloqueados se guardan solo en tu dispositivo. No hace falta cuenta.</p>
-    </div>
-    <h2>Sigue practicando</h2>
-    <ul class="kg-links">
-      <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
-      <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
-      <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
-      <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
-      <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
-      <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
-    </ul>
-    <h2>Más juegos de verbos</h2>
-    <div class="kg-related">
-      <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
-      <a class="kg-related-card" href="/es/juegos/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Construye torres. Forja monedas con verbos en inglés.</span></a>
-      <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
-    </div>
-    <p class="kg-top"><a href="#">▲ Volver al juego</a></p>
+    <header class="kg-hero">
+      <h1>Verb Dungeon: aventura en la mazmorra con verbos irregulares</h1>
+      <p>En Verb Dungeon tu pequeño héroe con espada recorre una mazmorra llena de antorchas, barriles y esqueletos traviesos. En cada sala la puerta está cerrada con llave, y primero tienes que encontrarla: está escondida en un barril, una caja o la lleva un esqueleto. Para abrir la puerta necesitas inglés: junto a ella hay un libro de verbos en un círculo de runas brillante, y con <strong>dos formas verbales correctas</strong> la puerta se abre.</p>
+      <p>Da un poquito de miedo, pero nada de terror: los esqueletos que derribas se desarman en un montoncito de huesos y se levantan otra vez, algo avergonzados. Se juega gratis en el navegador, sin descargas y sin registro. Los textos del juego están en español; solo los verbos siguen en inglés.</p>
+    </header>
+    <section class="kg-card">
+      <h2>Cómo se juega Verb Dungeon</h2>
+      <ul class="kg-steps">
+        <li>En la computadora te mueves con <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o con las flechas. La <kbd>barra espaciadora</kbd> golpea, rompe cajas y barriles y abre cofres y el libro de verbos. En tableta y celular aparecen un joystick (apoya el pulgar a la izquierda de la pantalla y deslízalo) y un botón de espada abajo a la derecha que hace lo mismo.</li>
+        <li>Todo lo que puedes usar tiene un anillo brillante en el suelo. Rompe barriles y cajas o derriba a los esqueletos hasta que aparezca la llave, y pasa por encima de ella.</li>
+        <li>Con la llave vas al libro de verbos junto a la puerta: en su círculo de runas no entran esqueletos ni flechas. Pulsa la <kbd>barra espaciadora</kbd> o el botón de espada y aparece una pregunta como <em>go → ___ → ___</em>. Responde con un clic, tocando la respuesta o con las teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. Una pregunta solo aparece cuando tú la abres, y mientras está abierta, toda la mazmorra se queda quieta.</li>
+        <li>Algunas salas tienen su propio reto: dos paredes con puertas de runas, una detrás de otra (solo se abre la puerta con la palabra correcta), un puente de palabras donde solo aguantan las piedras con la forma correcta, o una emboscada en la que la puerta se cierra detrás de ti.</li>
+        <li>Al final de cada nivel te espera un jefe distinto: un gólem enorme, un nigromante que no para de levantar esqueletos y un mago esqueleto con bolas mágicas. Párate sobre la piedra brillante, pulsa la <kbd>barra espaciadora</kbd> y responde la pregunta: el jefe se marea un momento y puedes golpearlo.</li>
+      </ul>
+    </section>
+    <section class="kg-card">
+      <h2>Qué aprendes</h2>
+      <p>Practicas la <strong>segunda y la tercera forma</strong> de los verbos irregulares, por ejemplo <a href="/es/verbos-irregulares/go/"><em>go</em></a>, <a href="/es/verbos-irregulares/see/"><em>see</em></a>, <a href="/es/verbos-irregulares/fly/"><em>fly</em></a>, <a href="/es/verbos-irregulares/find/"><em>find</em></a> y <a href="/es/verbos-irregulares/drive/"><em>drive</em></a>. Primero el juego pregunta la segunda forma (<em>go → ___</em>) y justo después la tercera, con la segunda ya escrita (<em>go → went → ___</em>), sin términos gramaticales. Si fallas, ves la secuencia y el verbo vuelve a salir en una puerta más adelante.</p>
+      <p>Hay tres niveles con cinco o seis salas, desde verbos fáciles en el nivel 1 hasta otros más difíciles en el nivel 3. Si aciertas todo al primer intento, consigues tres estrellas. Con las monedas de los cofres, la sala del tesoro y los jefes desbloqueas nuevos héroes: bárbaro, pícaro y mago.</p>
+    </section>
+    <section class="kg-card">
+      <h2>Preguntas frecuentes</h2>
+      <div class="kg-faq">
+        <div class="kg-faq-item"><h3>¿Puedo jugar Verb Dungeon en el celular o la tablet?</h3>
+        <p>Sí. En pantallas táctiles aparecen un joystick para moverte y un botón de espada para golpear y abrir; las respuestas solo se tocan. El celular se sostiene en horizontal. Lo más cómodo es una tableta o la computadora con teclado.</p></div>
+        <div class="kg-faq-item"><h3>¿Da miedo el juego?</h3>
+        <p>Solo un poquito. Hay antorchas, esqueletos y tres jefes muy tontos, pero nada de sangre ni de terror. Si pierdes todos los corazones, te mareas un momento y la sala empieza de nuevo; lo que ya lograste se queda.</p></div>
+        <div class="kg-faq-item"><h3>¿Se guarda mi progreso?</h3>
+        <p>Sí. Las estrellas, las monedas y los héroes desbloqueados se guardan solo en tu dispositivo. No hace falta cuenta.</p></div>
+      </div>
+    </section>
+    <section class="kg-card">
+      <h2>Sigue practicando</h2>
+      <ul class="kg-links">
+        <li><a href="/es/verbos-irregulares/">Verbos irregulares en inglés: resumen y ejercicios</a></li>
+        <li><a href="/es/verbos-irregulares/a-z/">Todos los verbos irregulares de la A a la Z</a></li>
+        <li><a href="/es/verbos-irregulares/tabla-de-verbos/">Tabla de verbos irregulares con las tres formas</a></li>
+        <li><a href="/es/verbos-irregulares/sprint/">Sprint: practica las formas sin juego</a></li>
+        <li><a href="/es/preposiciones/">Practica las preposiciones en inglés</a></li>
+        <li><a href="/es/juegos/">Todos los juegos de Krabsy</a></li>
+      </ul>
+    </section>
+    <section class="kg-more">
+      <h2>Más juegos de verbos</h2>
+      <div class="kg-related">
+        <a class="kg-related-card" href="/es/juegos/verb-kitchen/"><span class="kg-related-thumb"><img src="/thumbnails/verb-kitchen.png" alt="Escena del juego Verb Kitchen" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Kitchen</span><span class="kg-related-tag">¡Caos de cocina — lava platos con los verbos correctos!</span></a>
+        <a class="kg-related-card" href="/es/juegos/verb-towers/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-towers.jpg" alt="Escena del juego Verb Towers" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Towers</span><span class="kg-related-tag">Construye torres. Forja monedas con verbos en inglés.</span></a>
+        <a class="kg-related-card" href="/es/juegos/verb-snake/"><span class="kg-related-thumb"><img src="/thumbnails/sm/verb-snake-v2.jpg" alt="Escena del juego Verb Snake" loading="lazy" decoding="async" width="320" height="180"></span><span class="kg-related-name">Verb Snake</span><span class="kg-related-tag">¡Come las formas verbales en el orden correcto!</span></a>
+      </div>
+    </section>
+    <p class="kg-top"><a href="#"><svg class="kg-chev kg-chev-up" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Volver al juego</span></a></p>
   </main>
-  <script src="/lib/krabsy-game-info.js?v=2026-11-27" defer></script>
+  <footer class="k-footer kg-footer">
+    <span>© 2026 Krabsy</span>
+    <span class="k-footer-legal-sep" aria-hidden="true">·</span>
+    <span class="k-footer-legal-mount"></span>
+  </footer>
+  <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
+  <script src="/lib/krabsy-game-info.js?v=2026-11-28" defer></script>
   <!-- GAME-INFO:END -->
 
   <script type="module">
-    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initGamePage } from '/lib/krabsy-nav.js?v=2026-11-28';
     initGamePage('verb_dungeon');
   </script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-05-24" defer></script>
