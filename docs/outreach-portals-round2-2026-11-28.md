@@ -15,7 +15,7 @@ Send these before the school emails, one or two per day. Put the date in the Sta
 | 5 | Hessen Lernarchiv Englisch, Internetportale | DE | support@schulportal.hessen.de | sent 2026-11-28 |
 | 6 | IQSH Schleswig-Holstein, Landesfachberaterin Englisch | DE | christine.schramm@iqsh.de | sent 2026-11-28 |
 | 7 | TESOL-SPAIN Reviews | EN | form https://www.tesol-spain.org/en/contact.html | sent 2026-11-28 |
-| 8 | Uni Oldenburg, Prof. Gehring, "Portale für den Englischunterricht" | DE | email from https://uol.de/suche/person/WGehring | |
+| 8 | Uni Oldenburg, Prof. Gehring, "Portale für den Englischunterricht" | DE | email from https://uol.de/suche/person/WGehring | skipped 2026-11-28 (owner: weak list, first two links dead) |
 
 Later / low: LI Hamburg "Material – Grammar" (find the subject advisor first,
 https://li.hamburg.de/fortbildung/faecher-lernbereiche/sprachen/englisch/material-grammar-650830),
