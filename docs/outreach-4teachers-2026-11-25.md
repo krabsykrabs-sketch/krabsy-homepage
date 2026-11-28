@@ -86,9 +86,10 @@ form asks. Keep the tone factual, no superlatives.
 
 ### Link (Linkportal Englisch › Grammar, `id=670453`)
 
-- **URL:** https://krabsy.com/de/unregelmaessige-verben/
-- **Titel:** Krabsy: unregelmäßige Verben üben (Liste, Übungen, Spiele, Verb-Diplom)
-- **Beschreibung:** Kostenlose Übungsseite für Klasse 5–8, ohne Anmeldung und ohne Werbung: alle 172 unregelmäßigen Verben als Liste mit deutscher Bedeutung, Tipp-Übungen (go → ___ → ___), kurze Lernspiele, ein Verb-Diplom (Bronze, Silber, Gold) mit Urkunde und Arbeitsblätter mit Lösungen als PDF. Lehrkräfte können ohne Konto einen Klassencode anlegen und sehen, welche Verben die Klasse noch übt.
+- **URL:** https://krabsy.com/de/ (home, not the verb page: Krabsy covers six grammar topics now)
+- **Titel:** Krabsy: Englisch-Grammatik üben mit Lernspielen (Klasse 5–8)
+- **Beschreibung:** Kostenlose Übungsseite für Englisch-Grammatik in Klasse 5–8, ohne Anmeldung und ohne Werbung: unregelmäßige Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect – jeweils mit kurzen Übungen, Lernspielen und Erklärungen. Dazu ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen als PDF. Lehrkräfte können ohne Konto einen Klassencode anlegen und sehen, was die Klasse noch übt, oder ein Live-Quiz mit der Klasse spielen.
+- **Hinweis für den Redakteur:** Rubrik Grammar, Vorschlag nach Rückmeldung von liko vom 25.11.
 - **Schlagwörter:** irregular verbs, unregelmäßige Verben, simple past, past participle, online üben, Lernspiele, Klasse 5, Klasse 6
 
 ### Worksheet 1 (Unterstufe › Irregular Verbs, `id=667113`)
@@ -97,6 +98,14 @@ form asks. Keep the tone factual, no superlatives.
 - **Titel:** Irregular verbs: die drei Formen ergänzen (go → ___ → ___), mit Lösungsblatt
 - **Beschreibung:** 20 häufige unregelmäßige Verben. Teil 1: Zur Grundform die beiden anderen Formen ergänzen. Teil 2: Die mittlere Form ist gegeben, die anderen beiden werden ergänzt. Seite 2 ist das Lösungsblatt. In der Fußzeile steht der Link zu einer kostenlosen Online-Übung (ohne Anmeldung), mit der die Klasse danach weiterüben kann.
 - **Klasse:** 5–7 · **Schlagwörter:** irregular verbs, unregelmäßige Verben, simple past, past participle, Arbeitsblatt, Lösung
+
+### Worksheet 3: sort by pattern (same category)
+
+- **Datei:** `homepage/de/unregelmaessige-verben/arbeitsblaetter/arbeitsblatt-verben-nach-mustern.pdf`, uploaded as `krabsy-unregelmaessige-verben-nach-mustern-sortieren.pdf`
+- **Titel:** Irregular verbs nach Mustern sortieren (cut – buy – come – go), mit Lösungsblatt
+- **Klasse:** 6 · Schulform: Realschule (or all types if offered)
+
+**Upload file names:** prefix `krabsy-unregelmaessige-verben-…` (the site keeps its own names; the folder gives context there).
 
 ### Worksheet 2 (same category)
 
@@ -126,3 +135,4 @@ form asks. Keep the tone factual, no superlatives.
 | Editor reply received | 2026-11-25 | positive, invited link + worksheet |
 | **On hold** | 2026-11-27 | owner waits until the teacher-page tabs and the i18n foundation (docs/i18n-scaling.md N1–N6) are done and deployed; then reply to liko + links (texts above) |
 | Ready | 2026-11-27 | tabs, i18n foundation and landing banner are live; owner does the 4teachers steps later ("Later") |
+| Link + 1 worksheet | 2026-11-28 | owner submitted the link (to https://krabsy.com/de/, Grammar, editor note naming liko) and uploaded "Verben nach Mustern sortieren". Rest paused: wait and see. Reply to liko: owner did not say. |

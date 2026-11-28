@@ -32,7 +32,8 @@ signature (its ad link counted as a broken link on mail-tester):
   ```
 
 **Mail setup checked 2026-11-27:** SPF, DKIM (`privateemail._domainkey`) and DMARC
-(`p=none`) live; mail-tester score 9.5/10. All 10 school pages re-checked
+(`p=none`) live; mail-tester score 10/10 after removing Namecheap's default signature.
+**Texts updated 2026-11-28:** Krabsy covers six grammar topics now; general link lists get https://krabsy.com/de/ (or /es/), lists with an irregular-verbs hook keep the verb page. All 10 school pages re-checked
 2026-11-27: online and still listing the sites the emails name.
 After sending, put the date in the "Status" column of the target list.
 
@@ -48,9 +49,9 @@ Guten Tag,
 
 auf der Seite „Linkliste zu Online-Übungen“ der Fachschaft Englisch empfehlen Sie Seiten wie ego4u und englisch-hilfen. Vielleicht passt dort auch Krabsy dazu.
 
-Krabsy ist kostenlos und ohne Anmeldung: alle 172 unregelmäßigen Verben als Liste, kurze Übungen und Spiele, Präpositionen und Arbeitsblätter mit Lösungen zum Ausdrucken. Es gibt keine Werbung und keine Cookies. Gedacht ist es für Klasse 5 bis 8.
+Krabsy ist kostenlos und ohne Anmeldung: Englisch-Grammatik für Klasse 5 bis 8 mit kurzen Übungen und Lernspielen, zu den unregelmäßigen Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect. Dazu gibt es ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen zum Ausdrucken. Es gibt keine Werbung und keine Cookies.
 
-https://krabsy.com/de/unregelmaessige-verben/
+https://krabsy.com/de/
 
 Falls Sie die Mail an die Fachschaft Englisch weitergeben mögen, freue ich mich. Wenn es nicht passt, ist das völlig in Ordnung.
 
@@ -67,7 +68,7 @@ Guten Tag,
 
 auf Ihrer Englisch-Seite stehen Linktipps zum Üben, zum Beispiel ego4u „ab Ende Kl. 5“ und englisch-hilfen. Vielleicht passt dort auch Krabsy dazu.
 
-Krabsy ist kostenlos und ohne Anmeldung und genau für diesen Einstieg gedacht: die unregelmäßigen Verben mit kurzen Übungen und Spielen, dazu ein Verb-Diplom mit Urkunde zum Ausdrucken und Arbeitsblätter mit Lösungen. Es gibt keine Werbung und keine Cookies.
+Krabsy ist kostenlos und ohne Anmeldung und genau für diesen Einstieg gedacht: die unregelmäßigen Verben mit kurzen Übungen und Spielen, dazu ein Verb-Diplom mit Urkunde zum Ausdrucken und Arbeitsblätter mit Lösungen. Später geht es mit Simple Past, Present Perfect und Präpositionen weiter. Es gibt keine Werbung und keine Cookies.
 
 https://krabsy.com/de/unregelmaessige-verben/
 Für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
@@ -87,9 +88,9 @@ Guten Tag,
 
 auf Ihrer Seite „Englischlinks für Schüler“ empfehlen Sie kostenlose Übungsseiten wie kico4u und ego4u. Vielleicht passt dort auch Krabsy dazu.
 
-Krabsy ist kostenlos, ohne Anmeldung, ohne Werbung und ohne Cookies: die unregelmäßigen Verben als Liste, mit Übungen, kurzen Spielen und einem Verb-Diplom, dazu Präpositionen und Arbeitsblätter mit Lösungen. Gedacht ist es für Klasse 5 bis 8.
+Krabsy ist kostenlos, ohne Anmeldung, ohne Werbung und ohne Cookies: Englisch-Grammatik für Klasse 5 bis 8 mit Übungen und kurzen Lernspielen, zu den unregelmäßigen Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect, dazu ein Verb-Diplom und Arbeitsblätter mit Lösungen.
 
-https://krabsy.com/de/unregelmaessige-verben/
+https://krabsy.com/de/
 
 Ich würde mich freuen, wenn Sie die Mail an die Fachschaft Englisch weitergeben. Wenn es nicht passt, ist das völlig in Ordnung.
 
@@ -125,7 +126,7 @@ Guten Tag,
 
 auf Ihrer Seite mit den Englisch-Links gibt es neben Übungsseiten wie ego4u und englisch-hilfen auch einen Bereich mit Spielen. Vielleicht passt dort Krabsy dazu.
 
-Krabsy ist kostenlos und ohne Anmeldung, ohne Werbung und ohne Cookies: Lernspiele und kurze Übungen zu den unregelmäßigen Verben und Präpositionen, dazu ein Verb-Diplom und Arbeitsblätter zum Ausdrucken. Gedacht ist es für die 1. bis 4. Klasse der Mittelschule.
+Krabsy ist kostenlos und ohne Anmeldung, ohne Werbung und ohne Cookies: Lernspiele und kurze Übungen zur Englisch-Grammatik (unregelmäßige Verben, Präpositionen, Simple Present und Past, Present Progressive und Perfect), dazu ein Verb-Diplom und Arbeitsblätter zum Ausdrucken. Gedacht ist es für die 1. bis 4. Klasse der Mittelschule.
 
 https://krabsy.com/de/spiele/
 https://krabsy.com/de/unregelmaessige-verben/
@@ -148,7 +149,7 @@ Sehr geehrte Redaktion,
 
 auf der Seite „Portale / Onlinequellen“ für Englisch stehen unter „Selbstlernmaterialien für Schülerinnen und Schüler“ Angebote wie ego4u, englisch-hilfen und LearningApps. Ich möchte Krabsy für diesen Abschnitt vorschlagen.
 
-Krabsy (https://krabsy.com/de/unregelmaessige-verben/) ist ein kostenloses Übungsangebot für Klasse 5 bis 8: alle 172 unregelmäßigen Verben als Liste und mit Übungen, kurze Lernspiele, ein Verb-Diplom mit Urkunde sowie Präpositionen und Arbeitsblätter mit Lösungen. Es ist keine Anmeldung nötig, es gibt keine Werbung und keine Cookies, und die Seite erhebt keine personenbezogenen Daten. Seit November ist Krabsy auch beim Deutschen Bildungsserver gelistet.
+Krabsy (https://krabsy.com/de/) ist ein kostenloses Übungsangebot zur Englisch-Grammatik für Klasse 5 bis 8: unregelmäßige Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect, jeweils mit Übungen und kurzen Lernspielen, dazu ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen. Es ist keine Anmeldung nötig, es gibt keine Werbung und keine Cookies, und die Seite erhebt keine personenbezogenen Daten. Seit November ist Krabsy auch beim Deutschen Bildungsserver gelistet.
 
 Informationen für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
 
@@ -168,7 +169,7 @@ Sehr geehrtes BRN-Team,
 
 auf der Seite „Lerntipps“ empfehlen Sie für Englisch unter anderem englisch-hilfen, ego4u und schlaukopf. Ich möchte Krabsy als weiteren Tipp vorschlagen.
 
-Krabsy (https://krabsy.com/de/unregelmaessige-verben/) ist kostenlos und ohne Anmeldung: die unregelmäßigen Verben als Liste, mit Übungen, kurzen Lernspielen und einem Verb-Diplom mit Urkunde, dazu Präpositionen und Arbeitsblätter mit Lösungen. Es gibt keine Werbung und keine Cookies. Gedacht ist es für die Jahrgangsstufen 5 bis 8.
+Krabsy (https://krabsy.com/de/) ist kostenlos und ohne Anmeldung: Englisch-Grammatik mit Übungen und kurzen Lernspielen, zu den unregelmäßigen Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect, dazu ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen. Es gibt keine Werbung und keine Cookies. Gedacht ist es für die Jahrgangsstufen 5 bis 8.
 
 Wenn es nicht passt, ist das völlig in Ordnung.
 
@@ -186,9 +187,9 @@ Hola:
 
 En vuestra página «Links interés inglés» recomendáis webs para practicar gramática como Agenda Web, ego4u y Perfect English Grammar. Os escribo por si Krabsy también os encaja.
 
-Krabsy es gratis y sin registro: los verbos irregulares en lista, con ejercicios, juegos cortos y un diploma imprimible, además de preposiciones y fichas con soluciones. No tiene publicidad ni cookies, y la interfaz está en español. Está pensada para alumnado de 1.º a 3.º de ESO.
+Krabsy es gratis y sin registro: gramática inglesa con ejercicios cortos y juegos, sobre verbos irregulares, preposiciones, present simple, present continuous, past simple y present perfect, además de un diploma imprimible y fichas con soluciones. No tiene publicidad ni cookies, y la interfaz está en español. Está pensada para estudiantes de 1.º a 3.º de ESO.
 
-https://krabsy.com/es/verbos-irregulares/
+https://krabsy.com/es/
 
 Os agradecería que la hicierais llegar al departamento de inglés. Si no encaja, no pasa nada.
 
@@ -205,9 +206,9 @@ Hola:
 
 En la página del departamento de inglés recomendáis webs como Perfect English Grammar, Agenda Web y LearnEnglish Teens. Te escribo por si Krabsy también os encaja.
 
-Krabsy es gratis y sin registro: los verbos irregulares en lista, con ejercicios, juegos cortos y un diploma imprimible, además de preposiciones y fichas con soluciones para imprimir. No tiene publicidad ni cookies, y la interfaz está en español. Está pensada para la ESO.
+Krabsy es gratis y sin registro: gramática inglesa con ejercicios cortos y juegos, sobre verbos irregulares, preposiciones, present simple, present continuous, past simple y present perfect, además de un diploma imprimible y fichas con soluciones para imprimir. No tiene publicidad ni cookies, y la interfaz está en español. Está pensada para la ESO.
 
-https://krabsy.com/es/verbos-irregulares/
+https://krabsy.com/es/
 Para docentes: https://krabsy.com/es/docentes/
 
 Si no encaja, no pasa nada.
@@ -225,7 +226,7 @@ Hola:
 
 En vuestra página «Interesting websites» tenéis una sección de juegos y recursos para los verbos irregulares. Os escribo por si Krabsy también os encaja.
 
-Krabsy es gratis y sin registro: los verbos irregulares en lista, con ejercicios, juegos cortos y un diploma imprimible, además de preposiciones y fichas con soluciones. No tiene publicidad ni cookies. La interfaz está en español (todavía no en catalán).
+Krabsy es gratis y sin registro: los verbos irregulares en lista, con ejercicios, juegos cortos y un diploma imprimible, además de preposiciones, tiempos verbales (present simple, past simple, present perfect…) y fichas con soluciones. No tiene publicidad ni cookies. La interfaz está en español (todavía no en catalán).
 
 https://krabsy.com/es/verbos-irregulares/
 https://krabsy.com/es/juegos/
