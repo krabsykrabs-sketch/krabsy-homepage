@@ -32,9 +32,9 @@
     "new_until": "2027-02-28",
     "hero": "/thumbnails/hero/verb-towers.jpg",
     "clip": {
-      "de": "/clips/verb-towers-de.mp4?v=1",
-      "es": "/clips/verb-towers-es.mp4?v=1",
-      "en/spanish": "/clips/verb-towers-en-spanish.mp4?v=1"
+      "de": "/clips/verb-towers-de.mp4?v=2",
+      "es": "/clips/verb-towers-es.mp4?v=2",
+      "en/spanish": "/clips/verb-towers-en-spanish.mp4?v=2"
     },
     "ui_langs": [
       "de",

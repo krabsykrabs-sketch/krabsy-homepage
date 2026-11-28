@@ -1,5 +1,5 @@
-// Verb Towers clip: level "Two Gates" (summer). A skeleton column marches past
-// firing towers (low tracking shot); the question card slides in and a right
+// Verb Towers clip: level "Two Gates" (summer), the game's real wave 4. The
+// camera walks with one skeleton into the towers' fire; the question card slides in and a right
 // answer sends coins into the purse, 31 → 40, exactly a frost tower; the camera
 // swoops to an empty hex, the tower goes up and freezes the column (slow
 // motion); pull back to the castle. ~9 s, loops.
@@ -80,17 +80,14 @@ function installDirector() {
   S.coins = 31;
   R._upMat.visible = false;    // the "can upgrade" badges are huge in close-ups
 
-  // a dense wave, already marching when the clip starts
-  S.currentWave = 5;
+  // the game's own wave 4 of this level (count, spacing, health, speed as in play;
+  // owner 2026-11-28: one by one with gaps, not a crowd), a few more of the same
+  // so it doesn't run dry during the clip; already marching when the clip starts
+  S.currentWave = 3;
   T.Wave.startNext(S);
-  const paths = T.Level.current.paths;
-  S.wave.queue = [];
-  for (let i = 0; i < 46; i++) {
-    S.wave.queue.push({ hp: 70 + Math.random() * 130, speed: 1.6, path: paths[i % 2], isBoss: false });
-  }
-  S.wave.interval = 0.28;
-  S.wave.isSpawning = true;
-  for (let i = 0; i < 255; i++) T.step(1 / 30, 1 / 30);   // 8.5 s pre-roll (no frames): the column reaches the crossroads
+  const q = S.wave.queue;
+  for (let i = 0, n = q.length; i < 6; i++) q.push({ ...q[i % n], path: T.Level.current.paths[i % 2] });
+  for (let i = 0; i < 300; i++) T.step(1 / 30, 1 / 30);   // 10 s pre-roll (no frames)
 
   const road = [W(5, 4), W(9, 4)];
   // ---- camera rig: orbit (yaw, pitch, dist, fov) around a target, smoothed.
@@ -102,25 +99,26 @@ function installDirector() {
   const YAW0 = Math.atan2(bdx, bdz) * 180 / Math.PI;
   const FOV0 = cam.fov;
   const rig = { tx: b.target.x, ty: 0, tz: b.target.z, yaw: 0, pitch: P0, dist: D0, fov: FOV0 };
-  let goal = { ...rig }, stiff = 3, shake = 0, shakeT = 0, track = null, horde = false;
-  // the skeletons on the shared road: their centre (camera target while following)
-  const hordeCentre = () => {
-    const a = road[0], b2 = road[1];
-    let sx = 0, sz = 0, n = 0;
+  let goal = { ...rig }, stiff = 3, shake = 0, shakeT = 0, track = null, follow = false, hero = null;
+  // one skeleton the camera walks with: the one closest to the crossroads that has
+  // not passed it yet; when it falls, the next one nearest the camera's aim
+  const alive = (e) => e && e.isAlive && !e.isDying && !(e.spawnTimer > 0);
+  const pickHero = (near) => {
+    let best = null, bd = Infinity;
     for (const e of S.enemies) {
-      if (!e.isAlive || e.isDying) continue;
-      const x = e.position.x, z = e.position.y;
-      if (x < a.x - 3 || x > b2.x + 2 || Math.abs(z - a.z) > 4) continue;
-      sx += x; sz += z; n++;
+      if (!alive(e)) continue;
+      const d = Math.hypot(e.position.x - near.x, e.position.y - near.z);
+      if (d < bd) { bd = d; best = e; }
     }
-    return n ? { x: sx / n, z: sz / n } : null;
+    return best;
   };
   const shot = (o) => () => {
     const t = o.at;
     goal = { tx: t.x, ty: t.y ?? 0.4, tz: t.z, yaw: o.yaw ?? 0, pitch: o.pitch ?? P0, dist: (o.dist ?? 1) * D0, fov: o.fov ?? FOV0 };
     stiff = o.stiff ?? 3;
     track = o.track || null;       // { to:{x,z}, secs } — the target glides there (dolly)
-    horde = !!o.horde;             // follow the skeletons on the shared road
+    follow = !!o.follow;           // walk with one skeleton (hero)
+    if (follow && !alive(hero)) hero = pickHero(t);
     if (track) track.t = 0, track.from = { x: t.x, z: t.z };
     if (o.cut) Object.assign(rig, goal);
     log.push(`shot ${o.name}`);
@@ -135,7 +133,10 @@ function installDirector() {
       goal.tx = track.from.x + (track.to.x - track.from.x) * e;
       goal.tz = track.from.z + (track.to.z - track.from.z) * e;
     }
-    if (horde) { const h = hordeCentre(); if (h) { goal.tx = h.x; goal.tz = h.z; } }
+    if (follow) {
+      if (!alive(hero)) hero = pickHero({ x: rig.tx, z: rig.tz });
+      if (hero) { goal.tx = hero.position.x + 1.2; goal.tz = hero.position.y; }   // a little room ahead
+    }
     const a = 1 - Math.exp(-rdt * stiff);
     for (const key of Object.keys(rig)) rig[key] += (goal[key] - rig[key]) * a;
     shakeT += rdt; shake *= Math.exp(-rdt * 7);
@@ -173,8 +174,8 @@ function installDirector() {
   const mid = W(7, 4), castle = W(13, 8);
   const script = [
     // 1 — low along the road, the column marching into the arrows
-    shot({ name: 'horde', at: hordeCentre() ? { ...hordeCentre(), y: 0.4 } : road[0], dist: 0.38, pitch: 25, yaw: -26, stiff: 1.8, cut: true, horde: true }),
-    wait(2.4),
+    shot({ name: 'follow', at: W(4, 3), dist: 0.34, pitch: 26, yaw: -24, stiff: 2.4, cut: true, follow: true }),
+    wait(2.6),
     // 2 — card in, answer, coins into the purse
     shot({ name: 'rise', at: mid, dist: 0.55, pitch: 38, yaw: -16, stiff: 1.6 }),
     card(true),
@@ -184,7 +185,9 @@ function installDirector() {
     card(false),
     // 3 — swoop to the free hex, the frost tower goes up, freeze in slow motion
     shot({ name: 'swoop', at: frostAt ? W(frostAt[0], frostAt[1]) : mid, dist: 0.3, pitch: 30, yaw: 24, stiff: 4 }),
-    wait(0.45),
+    // build when a skeleton is coming into the frost tower's reach
+    until(() => S.enemies.some((e) => alive(e) && frostAt &&
+      Math.hypot(e.position.x - W(frostAt[0], frostAt[1]).x, e.position.y - W(frostAt[0], frostAt[1]).z) < 4.5), 2.5),
     buildFrost(),
     kick(0.18),
     until(anyFrozen, 2.5),
@@ -199,7 +202,7 @@ function installDirector() {
   let k = 0;
   window.__clip = {
     log,
-    start() { log.push(`start: towers ${S.towers.length}, enemies ${S.enemies.length}, coins ${S.coins}, frost spot ${frostAt}`); },
+    start() { log.push(`start: towers ${S.towers.length}, enemies ${S.enemies.length} (+${S.wave ? S.wave.queue.length : 0} to come), coins ${S.coins}, frost spot ${frostAt}`); },
     step(dt) {
       const gdt = dt * speed;
       while (k < script.length && script[k](gdt)) k++;
