@@ -133,6 +133,7 @@
       .stats-overall-value { font-size: 2.5rem; }
     }
 
+    svg.stats-streak-fire { width: 0.85em; height: 0.85em; vertical-align: -0.08em; }
     .stats-streak-fire {
       color: var(--krabsy-coral-dark);
       margin-right: 4px;
@@ -571,7 +572,7 @@
 
       const cs = o.current_streak || 0;
       const fire = cs >= 3
-        ? `<span class="stats-streak-fire" aria-hidden="true">🔥</span>`
+        ? `<svg class="ki stats-streak-fire" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-28q#ki-flame"/></svg>`
         : '';
       document.getElementById('stats-val-current-streak').innerHTML = `${fire}${cs}`;
       document.getElementById('stats-val-best-streak').textContent = String(o.best_streak || 0);

@@ -25,7 +25,8 @@
 .vd-level-name { font-family: var(--font-display); font-size: 1.4rem; margin: 0 0 var(--space-2); }
 .vd-level-note { margin: 0 0 var(--space-2); }
 .vd-level-info { margin: 0 0 var(--space-3); font-size: .9rem; color: var(--krabsy-ink-mute); }
-.vd-level-passed { margin: 0 0 var(--space-3); font-weight: 700; color: var(--krabsy-success); }
+.vd-level-passed { margin: 0 0 var(--space-3); font-weight: 700; color: var(--krabsy-success); display: inline-flex; align-items: center; gap: 6px; }
+.vd-check { width: 20px; height: 20px; flex: 0 0 auto; }
 .vd-level-actions { margin-top: auto; display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
 
 /* play */

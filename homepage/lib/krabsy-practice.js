@@ -53,7 +53,7 @@ const TXT = {
     rHw: (t) => `Hausaufgabe von ${t}`, rHwPlain: 'Deine Hausaufgabe', rWeak: 'Das übst du noch',
     rOld: 'Lange nicht geübt', rNew: 'Neu für dich',
     s2go: 'Weiter zu Schritt 2',
-    doneTitle: 'Geschafft! 🎉', doneSub: 'Diese Übungsrunde zählt für deine Woche.',
+    doneTitle: 'Geschafft!', doneSub: 'Diese Übungsrunde zählt für deine Woche.',
     shells: (n) => `+${n} Muscheln`, score: (r, n) => `${r} von ${n} richtig`,
     playH: 'Schritt 3: Jetzt spielen', playSub: (t) => `Diese Spiele üben ${t}:`,
     finish: 'Fertig für heute', again: 'Noch eine Runde',
@@ -73,7 +73,7 @@ const TXT = {
     rHw: (t) => `Tarea de ${t}`, rHwPlain: 'Tu tarea', rWeak: 'Esto todavía lo practicas',
     rOld: 'Hace tiempo que no lo practicas', rNew: 'Nuevo para ti',
     s2go: 'Al paso 2',
-    doneTitle: '¡Lo lograste! 🎉', doneSub: 'Esta ronda cuenta para tu semana.',
+    doneTitle: '¡Lo lograste!', doneSub: 'Esta ronda cuenta para tu semana.',
     shells: (n) => `+${n} caracolas`, score: (r, n) => `${r} de ${n} correctas`,
     playH: 'Paso 3: A jugar', playSub: (t) => `Estos juegos practican ${t}:`,
     finish: 'Listo por hoy', again: 'Otra ronda',
@@ -93,7 +93,7 @@ const TXT = {
     rHw: (t) => `Homework from ${t}`, rHwPlain: 'Your homework', rWeak: 'Still a bit tricky',
     rOld: 'Not practiced for a while', rNew: 'New for you',
     s2go: 'On to step 2',
-    doneTitle: 'Done! 🎉', doneSub: 'This round counts for your week.',
+    doneTitle: 'Done!', doneSub: 'This round counts for your week.',
     shells: (n) => `+${n} shells`, score: (r, n) => `${r} of ${n} right`,
     playH: 'Step 3: Now play', playSub: (t) => `These games practice ${t}:`,
     finish: 'Done for today', again: 'One more round',
@@ -480,7 +480,7 @@ async function renderDone(plan, res, shells) {
   main.innerHTML = `
     <div class="kp-bar">${stepsHtml(3)}</div>
     <section class="kp-card kp-done">
-      <h1 class="kp-title">${esc(T.doneTitle)}</h1>
+      <h1 class="kp-title"><svg class="ki" width="34" height="34" style="vertical-align:-0.18em;margin-right:8px" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-star"/></svg>${esc(T.doneTitle)}</h1>
       <p class="kp-lead">${esc(T.doneSub)}</p>
       <div class="kp-done-row">
         ${weekHtml(true)}

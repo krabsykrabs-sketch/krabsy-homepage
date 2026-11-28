@@ -199,8 +199,10 @@ export function initVerbDiplom(root) {
       startBtn.addEventListener('click', () => startLevel(L));
       actions.appendChild(startBtn);
       if (done && done.passed) {
-        card.appendChild(el('p', 'vd-level-passed',
-          '✓ ' + fmt(S.passedOn, { date: new Date(done.date).toLocaleDateString(S.locale) })));
+        const passed = el('p', 'vd-level-passed',
+          fmt(S.passedOn, { date: new Date(done.date).toLocaleDateString(S.locale) }));
+        passed.insertAdjacentHTML('afterbegin', '<svg class="ki vd-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-28q#ki-check"/></svg>');
+        card.appendChild(passed);
         const cert = el('button', 'k-btn-ghost', S.showCert);
         cert.type = 'button';
         cert.addEventListener('click', () => showPass(L, done, false));

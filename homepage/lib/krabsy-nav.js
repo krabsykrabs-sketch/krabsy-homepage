@@ -14,7 +14,7 @@
      initDrillPage('sprint');   // or 'type_race' | 'drag_match' | …
 
      import { initToolPage } from '/lib/krabsy-nav.js';
-     initToolPage('flashcards'); // or 'verb_table' | 'free_practice'
+     initToolPage('flashcards'); // or 'verb_table' | 'free_practice' | 'verb_diplom'
 
    Cache-busting: every page imports this module via `?v=YYYY-MM-DD`
    (see any moved HTML for the pattern). Bump that marker across all HTML
@@ -46,6 +46,9 @@ const TOOLS = [
   { key: 'flashcards',    pageId: 'flashcards' },
   { key: 'verb_table',    pageId: 'verb-table' },
   { key: 'free_practice', pageId: 'free-practice' },
+  // The Verb-Diplom sits with the tools (its name lives under drills.verb_diplom).
+  // Topics without a diplom pass an explicit tool list (prepositions).
+  { key: 'verb_diplom',   pageId: 'verb-diplom', ns: 'drills' },
 ];
 
 /* Arcade games live outside the topic tree, under the section's games folder
@@ -155,7 +158,7 @@ async function buildTabBar(items, currentKey, namespace, strings, ariaLabel, gua
         }
       }
     }
-    a.textContent = lookup(strings, `${namespace}.${item.key}.name`) || item.key;
+    a.textContent = lookup(strings, `${item.ns || namespace}.${item.key}.name`) || item.key;
     inner.appendChild(a);
   }
   nav.appendChild(inner);
