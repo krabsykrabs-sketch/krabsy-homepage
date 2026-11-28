@@ -14,7 +14,7 @@ const T = {
   en: {
     title: 'Krabsy Quiz Room',
     // child
-    joinTitle: 'Join the quiz room', teacherLink: 'Teacher? Open a quiz room →', code: 'Room code', name: 'Your first name', color: 'Your colour',
+    joinTitle: 'Join the quiz room', teacherLink: 'Teacher? Open a quiz room →', code: 'Room code', name: 'Your first name', color: 'Your color',
     join: 'Join', joining: 'Joining …',
     err_no_room: 'No room with this code. Check the code on the board.', err_locked: 'The room is closed for new players.',
     err_full: 'The room is full.', err_removed: 'You were removed from this room.', err_bad_name: 'Please type your first name.',
@@ -33,7 +33,7 @@ const T = {
     joinAt: 'Join at', inRoom: (n) => `${n} in the room`, start: 'Start the quiz', next: 'Next', reveal: 'Show answer',
     end: 'End quiz', lock: 'Lock room', unlock: 'Unlock room', remove: 'Remove', rename: 'Rename', renameTo: 'New name:',
     answeredOf: (a, b) => `${a} / ${b} answered`, waitingPlayers: 'Waiting for players …',
-    review: 'Words to practise again', reviewNone: 'The class got everything right!', missed: (n) => `missed ${n}×`,
+    review: 'Words to practice again', reviewNone: 'The class got everything right!', missed: (n) => `missed ${n}×`,
     ranking: 'Ranking', classRight: (p) => `The class answered ${p} % right.`, newQuiz: 'New quiz', results: 'Results',
     closeRoom: 'Close room', teacherOnly: 'The teacher runs the room and does not play.',
     noQuestions: 'Not enough questions for this choice.',
