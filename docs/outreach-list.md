@@ -278,7 +278,8 @@ Seiten zum Einreichen:
 
 ### 4. educ.ar (AR)
 - **Einreichung:** info@educar.gob.ar (steht in den Términos y condiciones laut Suchindex). Die Website war von hier aus **nicht erreichbar**, Verbindung abgelehnt, vermutlich Geo-Block.
-- **Verifiziert:** **nein.** Vor dem Absenden aus Argentinien bzw. per VPN prüfen, ob es ein Kontaktformular gibt. Hinweis: Das Unternehmen heißt inzwischen EDUC.AR S.A.U.
+- **Geprüft per VPN 2026-11-28 (Owner):** Suche Secundario + Inglés zeigt nur eine eigene Sammlung (Audios "Lenguas extranjeras - Inglés"). educ.ar veröffentlicht eigene Inhalte, keine externen Links: ein Eintrag ist unwahrscheinlich. Höchstens die Mail unten als Hinweis schicken (2 Minuten, keine Erwartung).
+- **Alt:** Vor dem Absenden aus Argentinien bzw. per VPN prüfen, ob es ein Kontaktformular gibt. Hinweis: Das Unternehmen heißt inzwischen EDUC.AR S.A.U.
 - **URL:** https://krabsy.com/es/verbos-irregulares/
 - **Nivel:** segundo ciclo de primaria (5.º a 7.º grado) y ciclo básico de secundaria
 - **Mail (copy-ready, actualizado 2026-11-27):** Asunto: Sugerencia de recurso gratuito para Inglés: verbos irregulares y preposiciones
