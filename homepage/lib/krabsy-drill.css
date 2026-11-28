@@ -157,6 +157,7 @@
 
 /* feedback */
 .kd-fb { display: flex; flex-direction: column; align-items: center; margin-top: 14px; min-height: 30px; }
+.kd-fb:empty { min-height: 0; margin-top: 4px; }
 .kd-fb-main { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; font-weight: 800; font-size: 1.1rem; margin: 0 0 4px; color: var(--krabsy-ink); }
 .kd-fb.is-right .kd-fb-main { color: var(--kd-teal-deep); }
 .kd-fb-filled { font-weight: 700; margin: 2px 0; color: var(--krabsy-ink); }

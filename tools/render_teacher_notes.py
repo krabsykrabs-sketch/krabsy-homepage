@@ -48,12 +48,12 @@ NOTES = {
     f"{V_DE}/fill-the-gap": [
         "Übt die Formen im ganzen Satz, nicht nur einzeln: passend nach der Einführung von Simple Past und Present Perfect.",
         'Passt zum Arbeitsblatt „Lückensätze“ (<a href="/de/unregelmaessige-verben/arbeitsblaetter/">PDF</a>): erst auf Papier, dann online.',
-        "Drei Leben pro Runde halten die Runden kurz, gut für die letzten Minuten der Stunde.",
+        "Zehn Sätze pro Runde, von leicht zu schwer: gut für die letzten Minuten der Stunde.",
     ],
     f"{V_ES}/fill-the-gap": [
         "Practica las formas dentro de la frase, no sueltas: ideal después de introducir el Simple Past y el Present Perfect.",
         'Combina con la ficha «Completa las frases» (<a href="/es/verbos-irregulares/fichas/">PDF</a>): primero en papel, luego online.',
-        "Con tres vidas por ronda, las rondas son cortas: perfectas para los últimos minutos de la clase.",
+        "Diez frases por ronda, de fácil a difícil: perfectas para los últimos minutos de la clase.",
     ],
     f"{V_DE}/drag-match": [
         "Ohne Tippen und ohne Zeitdruck: geeignet für den Einstieg und für Lernende, denen das Schreiben noch schwerfällt.",

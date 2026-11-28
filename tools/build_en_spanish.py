@@ -142,14 +142,6 @@ def common_body(s, hub, topic=None):
     return s
 
 
-def intro(s, text):
-    """Replace the intro card's aria-label and paragraph (function replacement:
-    a text starting with a digit would otherwise merge into the group ref)."""
-    return re.sub(r'(<aside class="k-intro-card" aria-label=")[^"]*(">\s*<p>).*?(</p>)',
-                  lambda m: m.group(1) + 'About this drill' + m.group(2) + text + m.group(3),
-                  s, count=1, flags=re.S)
-
-
 def links_block(t, here):
     base = f'/en/spanish/{t["slug"]}/'
     items = [('sprint/', 'Sprint', 'tap the right word, as fast as you can'),
@@ -188,17 +180,12 @@ def build_fill(t):
     src = (HOME / 'de/praepositionen/fill-the-gap/index.html').read_text()
     url = f'/en/spanish/{t["slug"]}/fill-the-gap/'
     title = f'Fill the Gap: Spanish {t["name"]}'
-    desc = f'Type the missing Spanish word: {t["short"]}. Three lives. Free, no sign-up.'
+    desc = f'Type the missing Spanish word: {t["short"]}. 10 sentences, easy first. Free, no sign-up.'
     s = head(title, desc, url) + src[src.index('  <meta name="viewport"'):]
     s = common_body(s, '/en/spanish/', t['topic'])
     s = sub(s, '<h1 class="k-page-h1">Lückentext: englische Präpositionen richtig einsetzen</h1>',
             f'<h1 class="k-page-h1">Fill the Gap: Spanish {t["title"]}</h1>')
-    s = intro(s, 'Spanish sentences with a gap. Type the missing word and press Enter. '
-                 'You have three lives: a wrong answer costs one. You don\'t need to type accents '
-                 '(ingles counts as inglés), but look at how it\'s spelled when the answer appears.')
-    s = sub(s, 'src="/games/fill-the-gap.html?lang=de&topic=prepositions"',
-            f'src="/games/fill-the-gap.html?lang=en&topic={t["topic"]}"')
-    s = sub(s, 'title="Lückentext — Präpositionen"', f'title="Fill the Gap — Spanish {t["name"]}"')
+    s = sub(s, 'data-drill="fill_gap" data-topic="prepositions"', f'data-drill="fill_gap" data-topic="{t["topic"]}"')
     s = sub(s, '    </main>', links_block(t, 'fill-the-gap/') + '\n    </main>')
     s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s
@@ -274,7 +261,7 @@ def build_topic_hub(t):
       <p class="section-sub">Short challenges. Beat your best time.</p>
       <div class="card-grid" id="drills-grid">
         <a class="module-card drill-card" href="{url}sprint/"><div class="drill-card-thumb"><img src="/thumbnails/Sprint.png" alt="Sprint" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Sprint</div><div class="module-card-tagline">12 sentences, as fast as you can.</div><span class="module-card-cta">Play →</span></div></a>
-        <a class="module-card drill-card" href="{url}fill-the-gap/"><div class="drill-card-thumb"><img src="/thumbnails/FillGap.png" alt="Fill the Gap" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Fill the Gap</div><div class="module-card-tagline">Type the missing word. Three lives.</div><span class="module-card-cta">Play →</span></div></a>
+        <a class="module-card drill-card" href="{url}fill-the-gap/"><div class="drill-card-thumb"><img src="/thumbnails/FillGap.png" alt="Fill the Gap" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Fill the Gap</div><div class="module-card-tagline">Type the missing word, 10 sentences.</div><span class="module-card-cta">Play →</span></div></a>
       </div>
     </section>
 

@@ -136,7 +136,7 @@ UI = {
         'locale': 'de_DE', 'home': 'Krabsy', 'topics': 'Themen',
         'skeleton': 'praepositionen', 'drill_fill': 'Lückentext',
         'drills_h': 'Speed-Drills', 'drills_sub': 'Kurze Challenges. Schlag deine Bestzeit.',
-        'sprint_tag': '12 Sätze, so schnell wie möglich.', 'fill_tag': 'Tippe das fehlende Wort. Drei Leben.',
+        'sprint_tag': '12 Sätze, so schnell wie möglich.', 'fill_tag': 'Tippe das fehlende Wort, 10 Sätze.',
         'play': 'Los →',
         'games_h': 'Spiele', 'games_sub': 'Diese Spiele fragen Sätze zu diesem Thema.',
         'all_games': 'Alle Spiele ansehen →',
@@ -151,15 +151,13 @@ UI = {
                  'Muttersprachler geprüft.',
         'more_h': 'Mehr üben', 'all_topics': 'Alle Themen',
         'li_sprint': 'Sprint', 'li_sprint_d': 'das richtige Wort antippen, so schnell du kannst',
-        'li_fill_d': 'das fehlende Wort selbst tippen, mit drei Leben',
+        'li_fill_d': 'das fehlende Wort selbst tippen, von leicht bis schwer',
         'li_hub': '{name}: alle Spiele und Übungen',
         'sprint_h1': 'Sprint: {short_name} üben',
         'sprint_desc': '12 englische Lückensätze zum {short_name}, so schnell wie möglich: {short}. '
                        'Kostenlos, ohne Anmeldung.',
         'fill_h1': 'Lückentext: {short_name} üben',
-        'fill_intro': 'Englische Sätze mit einer Lücke. Tippe das fehlende Wort und drücke Enter. '
-                      'Du hast drei Leben: Jede falsche Antwort kostet eines.',
-        'fill_desc': 'Lückentext zum {short_name}: Tippe das fehlende englische Wort. Drei Leben. '
+        'fill_desc': 'Lückentext zum {short_name}: Tippe das fehlende englische Wort. '
                      'Kostenlos, ohne Anmeldung.',
         'hub_desc': '{short_name} üben mit Lückensätzen, Speed-Drills und Spielen: {short}. Für {year}. '
                     'Kostenlos, ohne Anmeldung.',
@@ -169,7 +167,7 @@ UI = {
         'locale': 'es_ES', 'home': 'Krabsy', 'topics': 'Temas',
         'skeleton': 'preposiciones', 'drill_fill': 'Rellena el hueco',
         'drills_h': 'Speed Drills', 'drills_sub': 'Retos cortos. Supera tu mejor tiempo.',
-        'sprint_tag': '12 frases, lo más rápido posible.', 'fill_tag': 'Escribe la palabra que falta. Tres vidas.',
+        'sprint_tag': '12 frases, lo más rápido posible.', 'fill_tag': 'Escribe la palabra que falta, 10 frases.',
         'play': 'Jugar →',
         'games_h': 'Juegos', 'games_sub': 'Estos juegos preguntan frases de este tema.',
         'all_games': 'Ver todos los juegos →',
@@ -183,15 +181,13 @@ UI = {
         'draft': 'Tema nuevo: una persona nativa de inglés todavía está revisando las frases.',
         'more_h': 'Más práctica', 'all_topics': 'Todos los temas',
         'li_sprint': 'Sprint', 'li_sprint_d': 'toca la palabra correcta lo más rápido que puedas',
-        'li_fill_d': 'escribe tú la palabra que falta, con tres vidas',
+        'li_fill_d': 'escribe tú la palabra que falta, de fácil a difícil',
         'li_hub': '{name}: todos los juegos y ejercicios',
         'sprint_h1': 'Sprint: practica el {short_name}',
         'sprint_desc': '12 frases en inglés con hueco para practicar el {short_name}, lo más rápido posible: '
                        '{short}. Gratis, sin registro.',
         'fill_h1': 'Rellena el hueco: practica el {short_name}',
-        'fill_intro': 'Frases en inglés con un hueco. Escribe la palabra que falta y pulsa Enter. '
-                      'Tienes tres vidas: cada respuesta incorrecta cuesta una.',
-        'fill_desc': 'Rellena el hueco con el {short_name}: escribe la palabra que falta en inglés. Tres vidas. '
+        'fill_desc': 'Rellena el hueco con el {short_name}: escribe la palabra que falta en inglés. '
                      'Gratis, sin registro.',
         'hub_desc': 'Ejercicios de {short_name} en inglés: frases con hueco, speed drills y juegos ({short}). '
                     'Para estudiantes de {year}. Gratis, sin registro.',
@@ -314,11 +310,6 @@ def common(s, tid, ui, drill_key):
     return s
 
 
-def intro_card(s, text):
-    return re.sub(r'(<aside class="k-intro-card" aria-label="[^"]*">\s*<p>).*?(</p>)',
-                  lambda m: m.group(1) + text + m.group(2), s, count=1, flags=re.S)
-
-
 def build_sprint(tid, ui):
     S = UI[ui]
     name, short_name = names(tid, ui)
@@ -348,11 +339,8 @@ def build_fill(tid, ui):
              f'{S["drill_fill"]} — {short_name}') + body_from(src)
     s = common(s, tid, ui, 'fill_gap')
     s = sub(s, r'<h1 class="k-page-h1">[^<]*</h1>', f'<h1 class="k-page-h1">{esc(title)}</h1>')
-    s = intro_card(s, S['fill_intro'])
-    s = sub(s, re.escape(f'src="/games/fill-the-gap.html?lang={ui}&topic=prepositions"'),
-            f'src="/games/fill-the-gap.html?lang={ui}&amp;topic={tid}"')
-    s = sub(s, r'title="[^"]*"\n(\s*)loading="eager"', f'title="{esc(S["drill_fill"] + " — " + short_name)}"\n        loading="eager"')
-    s = sub(s, r'</script>\n    </main>', '</script>' + links_block(tid, ui, 'fill') + '\n    </main>')
+    s = sub(s, re.escape('data-drill="fill_gap" data-topic="prepositions"'), f'data-drill="fill_gap" data-topic="{tid}"')
+    s = sub(s, r'></div>\n    </main>', '></div>' + links_block(tid, ui, 'fill') + '\n    </main>')
     return u['fill'], s
 
 

@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Fill the Gap: Unregelmäßige Verben — Krabsy</title>
-  <meta name="description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.">
+  <meta name="description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. 10 Sätze pro Runde, zuerst die leichten.">
   <meta name="keywords" content="lückentext, fill the gap, sätze, englisch grammatik üben">
   <link rel="canonical" href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="Fill the Gap: Unregelmäßige Verben — Krabsy">
-  <meta property="og:description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.">
+  <meta property="og:description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. 10 Sätze pro Runde, zuerst die leichten.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Fill the Gap: Unregelmäßige Verben — Krabsy">
-  <meta name="twitter:description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.">
+  <meta name="twitter:description" content="Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. 10 Sätze pro Runde, zuerst die leichten.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <script type="application/ld+json">
     {
@@ -30,7 +30,7 @@
       "@type": "LearningResource",
       "name": "Lückentext",
       "url": "https://krabsy.com/de/unregelmaessige-verben/fill-the-gap/",
-      "description": "Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. Drei Leben pro Runde.",
+      "description": "Englische Sätze mit einer Lücke — tippe die richtige Verbform und drücke Enter. 10 Sätze pro Runde, zuerst die leichten.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
@@ -76,37 +76,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <style>
-    /* ── Lückentext wrapper layout ────────────────────────────────────────
-       The game itself lives at /games/fill-the-gap.html and is dropped in
-       via an iframe. The wrapper provides: page header, drill-nav tabs
-       (injected by krabsy-nav.js), intro card, footer.
-       ─────────────────────────────────────────────────────────────────── */
-    .fg-wrap {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: var(--space-5) var(--space-4);
-      width: 100%;
-    }
-
-    .fg-game-frame {
-      display: block;
-      width: 100%;
-      height: 700px;
-      border: 0;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      background: transparent;
-      overflow: hidden;
-    }
-
-    /* Phones and tablets in portrait: the game has its own one-column layout
-       (games/fill-the-gap.html); the frame fills the screen under the header. */
-    @media (max-width: 899px) {
-      .fg-wrap { padding: var(--space-4) var(--space-3); }
-      .fg-game-frame { height: 640px; height: max(480px, min(700px, calc(100svh - 76px))); }
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-drill.css?v=2026-11-28d">
 </head>
 <body>
   <div class="k-page">
@@ -114,28 +84,13 @@
       <a class="k-logo" href="/de/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span></a>
     </header>
 
-    <main class="fg-wrap">
+    <main class="kd-wrap">
       <h1 class="k-page-h1">Lückentext: unregelmäßige Verben im Satz üben</h1>
-      <aside class="k-intro-card" aria-label="Über diese Übung">
-        <p>Englische Sätze mit einer Lücke. Tippe die fehlende Verbform und drücke Enter. Du hast drei Leben — eine falsche Antwort kostet eines. Lies den Satz genau, damit du die richtige Zeitform wählst — Tippen und Verstehen in einem.</p>
-      </aside>
-
-      <iframe
-        class="fg-game-frame"
-        src="/games/fill-the-gap.html?lang=de"
-        title="Lückentext"
-        loading="eager"
-        allow="autoplay"
-      ></iframe>
-      <!-- teacher practice link: pass ?difficulty= ?lang= ?from= on to the game frame -->
-      <script>(function(){try{var p=new URLSearchParams(location.search),f=document.querySelector("iframe");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","difficulty","from"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-
-      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header, above the keyboard -->
-      <script>(function(){var f=document.querySelector(".fg-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:fill-gap")return;document.body.classList.toggle("k-is-playing",!!d.playing);if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
+      <div id="kd" class="kd" data-drill="fill_gap" data-topic="irregular_verbs" data-answer="typed" data-clock="0" data-count="10" data-ramp="1" data-sentences="1"></div>
 <!-- seo-article:start (static SEO learning text) -->
 <section class="k-article" aria-labelledby="ka-title">
   <h2 id="ka-title">Lückentext: Simple Past oder Past Participle?</h2>
-  <p>Im Lückentext steht jedes Verb in einem echten englischen Satz. Du liest den Satz, tippst die fehlende Verbform ein und drückst Enter. Du hast drei Leben, jeder Fehler kostet eines. Das Besondere: Hier reicht es nicht, die drei Formen auswendig zu können. Du musst am Satz erkennen, <strong>welche</strong> Form gebraucht wird.</p>
+  <p>Im Lückentext steht jedes Verb in einem echten englischen Satz. Du liest den Satz, tippst die fehlende Verbform ein und drückst Enter. Eine Runde hat zehn Sätze und fängt mit leichten Verben an; nach einem Fehler siehst du sofort die richtige Form. Das Besondere: Hier reicht es nicht, die drei Formen auswendig zu können. Du musst am Satz erkennen, <strong>welche</strong> Form gebraucht wird.</p>
   <h3>Signalwörter für das Simple Past</h3>
   <p>Das Simple Past beschreibt eine abgeschlossene Handlung zu einem bestimmten Zeitpunkt in der Vergangenheit. Typische Signalwörter sind <em lang="en">yesterday</em>, <em lang="en">last week</em>, <em lang="en">two days ago</em>, <em lang="en">in 2019</em> oder <em lang="en">when I was little</em>:</p>
   <ul>
@@ -157,7 +112,7 @@
   <ul>
     <li>Übt die Formen im ganzen Satz, nicht nur einzeln: passend nach der Einführung von Simple Past und Present Perfect.</li>
     <li>Passt zum Arbeitsblatt „Lückensätze“ (<a href="/de/unregelmaessige-verben/arbeitsblaetter/">PDF</a>): erst auf Papier, dann online.</li>
-    <li>Drei Leben pro Runde halten die Runden kurz, gut für die letzten Minuten der Stunde.</li>
+    <li>Zehn Sätze pro Runde, von leicht zu schwer: gut für die letzten Minuten der Stunde.</li>
   </ul>
   <p>Mehr Ideen und Arbeitsblätter: <a href="/de/lehrkraefte/">Für Lehrkräfte</a> · <a href="/de/unregelmaessige-verben/arbeitsblaetter/">Arbeitsblätter (PDF)</a></p>
   <!-- teacher-notes:end -->
@@ -178,8 +133,9 @@
     </footer>
   </div>
 
+  <script type="module" src="/lib/krabsy-drill.js?v=2026-11-28d"></script>
   <script type="module">
-    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-28d';
     initDrillPage('fill_gap');
   </script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>

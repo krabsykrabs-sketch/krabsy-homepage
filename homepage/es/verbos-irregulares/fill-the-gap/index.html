@@ -76,35 +76,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <style>
-    /* ── Lückentext wrapper layout ────────────────────────────────────────
-       Same as the DE wrapper; iframe sends ?lang=es to the game.
-       ─────────────────────────────────────────────────────────────────── */
-    .fg-wrap {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: var(--space-5) var(--space-4);
-      width: 100%;
-    }
-
-    .fg-game-frame {
-      display: block;
-      width: 100%;
-      height: 700px;
-      border: 0;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      background: transparent;
-      overflow: hidden;
-    }
-
-    /* Phones and tablets in portrait: the game has its own one-column layout
-       (games/fill-the-gap.html); the frame fills the screen under the header. */
-    @media (max-width: 899px) {
-      .fg-wrap { padding: var(--space-4) var(--space-3); }
-      .fg-game-frame { height: 640px; height: max(480px, min(700px, calc(100svh - 76px))); }
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-drill.css?v=2026-11-28d">
 </head>
 <body>
   <div class="k-page">
@@ -112,28 +84,13 @@
       <a class="k-logo" href="/es/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span></a>
     </header>
 
-    <main class="fg-wrap">
+    <main class="kd-wrap">
       <h1 class="k-page-h1">Fill the Gap: completa frases con verbos irregulares en inglés</h1>
-      <aside class="k-intro-card" aria-label="Sobre este ejercicio">
-        <p>Frases en inglés con un hueco. Escribe la forma verbal correcta y pulsa Enter. Tienes tres vidas — una respuesta incorrecta cuesta una. Lee la frase con atención para elegir el tiempo verbal adecuado — escribir y comprender al mismo tiempo.</p>
-      </aside>
-
-      <iframe
-        class="fg-game-frame"
-        src="/games/fill-the-gap.html?lang=es"
-        title="Lückentext"
-        loading="eager"
-        allow="autoplay"
-      ></iframe>
-      <!-- teacher practice link: pass ?difficulty= ?lang= ?from= on to the game frame -->
-      <script>(function(){try{var p=new URLSearchParams(location.search),f=document.querySelector("iframe");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","difficulty","from"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-
-      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header, above the keyboard -->
-      <script>(function(){var f=document.querySelector(".fg-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:fill-gap")return;document.body.classList.toggle("k-is-playing",!!d.playing);if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
+      <div id="kd" class="kd" data-drill="fill_gap" data-topic="irregular_verbs" data-answer="typed" data-clock="0" data-count="10" data-ramp="1" data-sentences="1"></div>
 <!-- seo-article:start (static SEO learning text) -->
 <section class="k-article" aria-labelledby="ka-title">
   <h2 id="ka-title">¿Simple Past o Past Participle? El contexto te lo dice</h2>
-  <p>Saber que <em lang="en">see</em> se convierte en <em lang="en">saw</em> y <em lang="en">seen</em> no basta: en una frase tienes que decidir cuál de las dos formas toca. En Fill the Gap lees frases en inglés con un hueco, escribes la forma que falta y pulsas Enter. Tienes tres vidas y cada respuesta incorrecta te quita una, así que lee la frase entera antes de escribir.</p>
+  <p>Saber que <em lang="en">see</em> se convierte en <em lang="en">saw</em> y <em lang="en">seen</em> no basta: en una frase tienes que decidir cuál de las dos formas toca. En Fill the Gap lees frases en inglés con un hueco, escribes la forma que falta y pulsas Enter. Cada ronda tiene diez frases y empieza con verbos fáciles; si fallas, ves enseguida la forma correcta. Lee la frase entera antes de escribir.</p>
   <h3>Palabras señal para el Simple Past</h3>
   <p>El Simple Past habla de algo terminado en un momento concreto del pasado. Lo reconoces por palabras como <em lang="en">yesterday</em>, <em lang="en">ago</em>, <em lang="en">last week</em>, <em lang="en">in 2019</em> o <em lang="en">when I was ten</em>:</p>
   <ul>
@@ -159,7 +116,7 @@
   <ul>
     <li>Practica las formas dentro de la frase, no sueltas: ideal después de introducir el Simple Past y el Present Perfect.</li>
     <li>Combina con la ficha «Completa las frases» (<a href="/es/verbos-irregulares/fichas/">PDF</a>): primero en papel, luego online.</li>
-    <li>Con tres vidas por ronda, las rondas son cortas: perfectas para los últimos minutos de la clase.</li>
+    <li>Diez frases por ronda, de fácil a difícil: perfectas para los últimos minutos de la clase.</li>
   </ul>
   <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/verbos-irregulares/fichas/">Fichas para imprimir (PDF)</a></p>
   <!-- teacher-notes:end -->
@@ -180,8 +137,9 @@
     </footer>
   </div>
 
+  <script type="module" src="/lib/krabsy-drill.js?v=2026-11-28d"></script>
   <script type="module">
-    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-28d';
     initDrillPage('fill_gap');
   </script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>

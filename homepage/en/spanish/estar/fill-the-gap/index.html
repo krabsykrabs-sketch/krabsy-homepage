@@ -5,12 +5,12 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
   <title>Fill the Gap: Spanish I am … (estar) — Krabsy</title>
   <meta name="robots" content="noindex">
-  <meta name="description" content="Type the missing Spanish word: how you feel and where things are. Three lives. Free, no sign-up.">
+  <meta name="description" content="Type the missing Spanish word: how you feel and where things are. 10 sentences, easy first. Free, no sign-up.">
   <link rel="canonical" href="https://krabsy.com/en/spanish/estar/fill-the-gap/">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="Fill the Gap: Spanish I am … (estar) — Krabsy">
-  <meta property="og:description" content="Type the missing Spanish word: how you feel and where things are. Three lives. Free, no sign-up.">
+  <meta property="og:description" content="Type the missing Spanish word: how you feel and where things are. 10 sentences, easy first. Free, no sign-up.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/en/spanish/estar/fill-the-gap/">
   <meta property="og:type" content="website">
@@ -18,41 +18,11 @@
   <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Fill the Gap: Spanish I am … (estar) — Krabsy">
-  <meta name="twitter:description" content="Type the missing Spanish word: how you feel and where things are. Three lives. Free, no sign-up.">
+  <meta name="twitter:description" content="Type the missing Spanish word: how you feel and where things are. 10 sentences, easy first. Free, no sign-up.">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <style>
-    /* ── Lückentext wrapper layout ────────────────────────────────────────
-       The game itself lives at /games/fill-the-gap.html and is dropped in
-       via an iframe. The wrapper provides: page header, intro card, footer.
-       The iframe is told to load preposition content via ?topic=prepositions.
-       ─────────────────────────────────────────────────────────────────── */
-    .fg-wrap {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: var(--space-5) var(--space-4);
-      width: 100%;
-    }
-
-    .fg-game-frame {
-      display: block;
-      width: 100%;
-      height: 700px;
-      border: 0;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      background: transparent;
-      overflow: hidden;
-    }
-
-    /* Phones and tablets in portrait: the game has its own one-column layout
-       (games/fill-the-gap.html); the frame fills the screen under the header. */
-    @media (max-width: 899px) {
-      .fg-wrap { padding: var(--space-4) var(--space-3); }
-      .fg-game-frame { height: 640px; height: max(480px, min(700px, calc(100svh - 76px))); }
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-drill.css?v=2026-11-28d">
   <script>try{localStorage.setItem('krabsy_es_topic','es_estar')}catch(_){}</script>
 </head>
 <body>
@@ -61,24 +31,9 @@
       <a class="k-logo" href="/en/spanish/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span></a>
     </header>
 
-    <main class="fg-wrap">
+    <main class="kd-wrap">
       <h1 class="k-page-h1">Fill the Gap: Spanish Estoy … (estar)</h1>
-      <aside class="k-intro-card" aria-label="About this drill">
-        <p>Spanish sentences with a gap. Type the missing word and press Enter. You have three lives: a wrong answer costs one. You don't need to type accents (ingles counts as inglés), but look at how it's spelled when the answer appears.</p>
-      </aside>
-
-      <iframe
-        class="fg-game-frame"
-        src="/games/fill-the-gap.html?lang=en&topic=es_estar"
-        title="Fill the Gap — Spanish I am … (estar)"
-        loading="eager"
-        allow="autoplay"
-      ></iframe>
-      <!-- teacher practice link: pass ?difficulty= ?lang= ?from= on to the game frame -->
-      <script>(function(){try{var p=new URLSearchParams(location.search),f=document.querySelector("iframe");if(!f)return;var u=new URL(f.getAttribute("src"),location.href),ch=0;["lang","difficulty","from"].forEach(function(k){var v=p.get(k);if(v&&/^[a-z0-9_,]{1,40}$/.test(v)&&u.searchParams.get(k)!==v){u.searchParams.set(k,v);ch=1;}});if(ch)f.src=u.pathname+u.search;}catch(_){}})();</script>
-
-      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header, above the keyboard -->
-      <script>(function(){var f=document.querySelector(".fg-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:fill-gap")return;document.body.classList.toggle("k-is-playing",!!d.playing);if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
+      <div id="kd" class="kd" data-drill="fill_gap" data-topic="es_estar" data-answer="typed" data-clock="0" data-count="10" data-ramp="1"></div>
 
 
       <section class="k-article" aria-label="More practice">
@@ -98,6 +53,7 @@
     </footer>
   </div>
 
+  <script type="module" src="/lib/krabsy-drill.js?v=2026-11-28d"></script>
   <script type="module">
     import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-28';
     // Prep ships only 2 drill pages today; pass an explicit allow-list so
