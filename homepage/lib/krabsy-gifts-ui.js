@@ -64,6 +64,7 @@ function styles() {
     @keyframes k-gift-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
     .k-gift * { box-sizing: border-box; }
     .k-gift-head { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; }
+    .k-gift-title-ico { width: 26px; height: 26px; vertical-align: -5px; }
     .k-gift-title { flex: 1 1 auto; margin: 0; font-family: 'Fredoka One', Nunito, system-ui, sans-serif; font-weight: 400; font-size: 1.3rem; line-height: 1.15; color: #2c2a3a; }
     .k-gift-x {
       flex: 0 0 auto; width: 40px; height: 40px; margin: -6px -8px -6px 0; border: 0; border-radius: 50%; background: none;
@@ -110,7 +111,8 @@ export function showGifts(gifts, { lang = currentLang() } = {}) {
   const card = el('section', 'k-gift');
   card.setAttribute('role', 'status'); card.setAttribute('aria-live', 'polite');
   const head = el('div', 'k-gift-head');
-  const title = el('h2', 'k-gift-title', (gifts.length > 1 ? fill(t.titleMany, { n: gifts.length }) : t.title) + ' 🎁');
+  const title = el('h2', 'k-gift-title', gifts.length > 1 ? fill(t.titleMany, { n: gifts.length }) : t.title);
+  title.insertAdjacentHTML('beforeend', ' <svg class="k-gift-title-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-gift"/></svg>');
   const x = el('button', 'k-gift-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', t.close);
   head.append(title, x);
   const list = el('ul', 'k-gift-list' + (gifts.length === 1 ? ' is-one' : ''));

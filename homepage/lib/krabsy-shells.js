@@ -142,7 +142,7 @@ export function onShellsChange(fn) {
   };
 }
 
-/* ── Header counter "🐚 240" ─────────────────────────────────────────────
+/* ── Header counter "[shell] 240" ─────────────────────────────────────────────
    Mounted into the site header (header.k-page-header, by krabsy-header.js and
    krabsy-footer.js)
    and the game header (.k-game-nav, by krabsy-nav.js). Links to the profile
@@ -172,10 +172,11 @@ function injectCounterStyles() {
     .k-shells-gift {
       position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%;
       display: grid; place-items: center; font-size: 11px; line-height: 1;
-      background: #ff8585; box-shadow: 0 0 0 2px #fff;
+      background: #fff; box-shadow: 0 0 0 2px #bf4a33;
     }
     .k-shells-gift[hidden] { display: none; }
-    .k-shells-icon { font-size: 1.05em; }
+    .k-shells-icon { width: 20px; height: 20px; flex: 0 0 auto; }
+    .k-shells-gift-ico { width: 14px; height: 14px; }
     .k-shells.is-pop { animation: k-shells-pop 0.45s ease-out; }
     @keyframes k-shells-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
     @media (prefers-reduced-motion: reduce) { .k-shells.is-pop { animation: none; } }
@@ -204,8 +205,8 @@ export function mountShellCounter(header) {
     const a = document.createElement('a');
     a.className = 'k-shells';
     a.href = uiPage('profile', lang) || uiPage('profile', 'en');
-    a.innerHTML = '<span class="k-shells-icon" aria-hidden="true">🐚</span><span class="k-shells-n">0</span>'
-      + '<span class="k-shells-gift" aria-hidden="true" hidden>🎁</span>';
+    a.innerHTML = '<svg class="k-shells-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><span class="k-shells-n">0</span>'
+      + '<span class="k-shells-gift" aria-hidden="true" hidden><svg class="k-shells-gift-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-gift"/></svg></span>';
     const num = a.querySelector('.k-shells-n');
     const dot = a.querySelector('.k-shells-gift');
     let gifts = 0;                      // gifts that are new (not yet looked at on the figure page)

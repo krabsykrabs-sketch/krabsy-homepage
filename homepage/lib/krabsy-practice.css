@@ -196,7 +196,8 @@
 .kp-done { text-align: center; }
 .kp-done-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 26px; }
 .kp-done-facts { display: flex; flex-direction: column; gap: 4px; font-weight: 700; color: var(--krabsy-ink-mute); }
-.kp-shells { color: var(--krabsy-ink); }
+.kp-shells { color: var(--krabsy-ink); display: inline-flex; align-items: center; gap: 4px; }
+.kp-shells-ico { width: 18px; height: 18px; flex: 0 0 auto; }
 .kp-games { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 480px) { .kp-games { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 700px) { .kp-games { grid-template-columns: repeat(3, 1fr); } }

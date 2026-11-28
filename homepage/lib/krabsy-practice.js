@@ -54,7 +54,7 @@ const TXT = {
     rOld: 'Lange nicht geübt', rNew: 'Neu für dich',
     s2go: 'Weiter zu Schritt 2',
     doneTitle: 'Geschafft! 🎉', doneSub: 'Diese Übungsrunde zählt für deine Woche.',
-    shells: (n) => `+${n} Muscheln 🐚`, score: (r, n) => `${r} von ${n} richtig`,
+    shells: (n) => `+${n} Muscheln`, score: (r, n) => `${r} von ${n} richtig`,
     playH: 'Schritt 3: Jetzt spielen', playSub: (t) => `Diese Spiele üben ${t}:`,
     finish: 'Fertig für heute', again: 'Noch eine Runde',
     loading: 'Einen Moment …', error: 'Das hat nicht geklappt. Lade die Seite neu.',
@@ -74,7 +74,7 @@ const TXT = {
     rOld: 'Hace tiempo que no lo practicas', rNew: 'Nuevo para ti',
     s2go: 'Al paso 2',
     doneTitle: '¡Lo lograste! 🎉', doneSub: 'Esta ronda cuenta para tu semana.',
-    shells: (n) => `+${n} caracolas 🐚`, score: (r, n) => `${r} de ${n} correctas`,
+    shells: (n) => `+${n} caracolas`, score: (r, n) => `${r} de ${n} correctas`,
     playH: 'Paso 3: A jugar', playSub: (t) => `Estos juegos practican ${t}:`,
     finish: 'Listo por hoy', again: 'Otra ronda',
     loading: 'Un momento …', error: 'Algo salió mal. Vuelve a cargar la página.',
@@ -94,7 +94,7 @@ const TXT = {
     rOld: 'Not practiced for a while', rNew: 'New for you',
     s2go: 'On to step 2',
     doneTitle: 'Done! 🎉', doneSub: 'This round counts for your week.',
-    shells: (n) => `+${n} shells 🐚`, score: (r, n) => `${r} of ${n} right`,
+    shells: (n) => `+${n} shells`, score: (r, n) => `${r} of ${n} right`,
     playH: 'Step 3: Now play', playSub: (t) => `These games practice ${t}:`,
     finish: 'Done for today', again: 'One more round',
     loading: 'One moment …', error: 'Something went wrong. Please reload the page.',
@@ -484,7 +484,7 @@ async function renderDone(plan, res, shells) {
       <p class="kp-lead">${esc(T.doneSub)}</p>
       <div class="kp-done-row">
         ${weekHtml(true)}
-        <span class="kp-done-facts"><span>${esc(T.score(res.right, res.total))}</span>${shells > 0 ? `<span class="kp-shells">${esc(T.shells(shells))}</span>` : ''}</span>
+        <span class="kp-done-facts"><span>${esc(T.score(res.right, res.total))}</span>${shells > 0 ? `<span class="kp-shells"><svg class="kp-shells-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg>${esc(T.shells(shells))}</span>` : ''}</span>
       </div>
     </section>
     <section class="kp-card kp-play">
