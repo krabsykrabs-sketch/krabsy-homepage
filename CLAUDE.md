@@ -116,12 +116,13 @@ Teacher pages (`/de/lehrkraefte/#uebungslink`, `/es/docentes/#enlace-de-practica
 topic → game or drill → difficulty → game language. The result is a permanent
 link to the normal page, nothing stored: `…/verb-kitchen/?topic=…&difficulty=1&lang=en&from=teacher`.
 - **Game pages** pass `lang`/`topic`/`difficulty` to the game frame (script right
-  after the iframe, from `render_game_info.py`; Fill the Gap pages have the same).
+  after the iframe, from `render_game_info.py`). Drill pages read the params
+  themselves (drill shell, see Question engine).
 - **`?difficulty=N`** is applied by the question engine itself (`krabsy-data.js`
   `linkLevel`): sentence topics by question difficulty ≤ N, irregular verbs by tier
   ≤ N, ignored if fewer than 6 questions remain. Games need no code for it
   (exceptions: Kitchen picks verbs from the engine set, the Platformer skips its
-  level cap, Fill the Gap filters its own data).
+  level cap).
 - `from=teacher` shows "Practice from your teacher: <topic> · <level>" in the bar
   under the game (`krabsy-game-info.js`; bump `ASSET_VER` in `render_game_info.py`
   when that file changes).
@@ -246,6 +247,13 @@ order, flashcards and Air Control ask no single form.
   maps British → American word by word (`AE` table in `lib/krabsy-questions.js`;
   add pairs there). Avoid questions whose grammar differs (have eaten / did eat yet).
 
+- **Drills run on one shell (2026-11-28):** `lib/krabsy-drill.js` + `.css`. A page
+  holds `<div id="kd" class="kd" data-drill data-topic data-answer data-clock
+  data-count …>`; questions from `getQuizSet`, typed answers via `checkTyped`,
+  one end screen (shells earned, new best only when beaten, missed items, again,
+  a game of the topic), texts in the `drill` block of `ui_*.json`. Sprint, Free
+  Practice, Type Race and Fill the Gap use it; Drag Match and Falling Forms are
+  own games with the same end screen. Review: `docs/drill-review-2026-11-28.md`.
 - Single-file games: `krabsy-<name>.html`, everything drawn in canvas/CSS,
   zero external assets, WebAudio synth for sound. Palette teal `#2ee6c0` /
   coral `#ff8585` / amber `#ffcf5e`, fonts Fredoka One + Nunito.

@@ -1,5 +1,15 @@
 # Krabsy — status dashboard
 
+## Drills renewed (2026-11-28), not pushed
+Review `docs/drill-review-2026-11-28.md`. Quick wins (041a2823, d7487429, b041e489,
+011fc4e2): Sprint 12 questions, shells on end screens, Flashcards rounds of 10 without
+shells for self-rating, Drag Match tap on the empty slot, Verb-Diplom tab, emojis → icons.
+Drill shell (0e2a5a05 … a64b7ee6): `lib/krabsy-drill.js` runs Sprint (16 pages), Free
+Practice, Type Race (typed + clock; old game retired, /games/type-race.html redirects) and
+Fill the Gap (all topics, 10 per round, no lives; /games/fill-the-gap.html redirects);
+intro cards gone, articles below the drill. Open: Statistik → Profile; unused strings
+(`tools.free_practice` filter, `drills.type_race.input_*`); "Auswahl von 1 Verben".
+
 ## Live invites (2026-11-28), not deployed
 
 Owner spec: `docs/classroom-concept.md` "Live invites (owner decisions 2026-11-28)"; as built in "Live invites as built".
