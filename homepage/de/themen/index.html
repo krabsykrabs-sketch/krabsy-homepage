@@ -21,7 +21,7 @@
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <style>
     .tp-main { width: 100%; max-width: 1080px; margin: 0 auto; padding: 20px 24px 48px; flex: 1 0 auto; }
     .tp-crumbs { font-size: 0.85rem; color: var(--krabsy-ink-mute); margin: 0 0 10px; }
@@ -44,10 +44,11 @@
     .tp-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: auto; padding-top: 10px; }
     .tp-practise {
       display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 18px 0 14px;
-      border-radius: var(--radius-pill); background: var(--krabsy-ink); color: #fff;
-      font-weight: 800; text-decoration: none;
+      border-radius: var(--radius-pill); background: var(--k-btn-bg); color: var(--k-btn-fg);
+      box-shadow: 0 3px 0 var(--k-btn-edge); font-weight: 800; text-decoration: none;
     }
-    .tp-practise:hover { background: #45425a; color: #fff; }
+    .tp-practise:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+    .tp-practise:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
     .tp-practise .tp-ico { background: #fff; border-radius: 50%; padding: 2px; width: 24px; height: 24px; }
     .tp-games {
       display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px;
@@ -162,7 +163,7 @@
     </footer>
   </div>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
-  <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-rv"></script>
+  <script type="module" src="/lib/krabsy-header.js?v=2026-11-28-btn"></script>
   <script src="/lib/krabsy-lang-switch.js?v=2026-11-27h" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>

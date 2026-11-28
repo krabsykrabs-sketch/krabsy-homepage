@@ -60,7 +60,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Homepage-specific layout (uses tokens from krabsy-ui.css) ── */
@@ -212,7 +212,7 @@
       text-decoration: none;
       white-space: nowrap;
     }
-    .progress-row-link:hover { color: var(--krabsy-coral); }
+    .progress-row-link:hover { color: var(--krabsy-coral-deep); }
     @media (max-width: 559px) {
       .progress-row { padding: 6px 16px 8px; gap: 10px; font-size: 0.8rem; }
     }
@@ -305,7 +305,7 @@
       color: var(--krabsy-coral-dark);
       letter-spacing: 0.3px;
     }
-    .module-card:hover .module-card-cta { color: var(--krabsy-coral); }
+    .module-card:hover .module-card-cta { color: var(--krabsy-coral-deep); }
 
     /* Drill cards: 16:9 thumb on top, body below */
     .drill-card {
@@ -346,7 +346,7 @@
       color: var(--krabsy-coral-dark);
       text-decoration: none;
     }
-    .games-all-link:hover { color: var(--krabsy-coral); }
+    .games-all-link:hover { color: var(--krabsy-coral-deep); }
 
     /* (Game card styles now live in /lib/krabsy-ui.css as .k-game-card and
        are shared between the games hub, this topic hub, and the drill end strip.) */
@@ -424,8 +424,8 @@
   .hvt-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
   .hvt-tools input{flex:1 1 220px;min-width:0;font:inherit;font-size:16px;padding:8px 12px;border:1.5px solid rgba(44,42,58,0.18);border-radius:10px;background:#fff;color:var(--krabsy-ink)}
   .hvt-tools[hidden]{display:none}
-  .hvt-tools button{font:inherit;font-size:0.9rem;padding:8px 14px;border:1.5px solid rgba(44,42,58,0.18);border-radius:10px;background:#fff;color:var(--krabsy-ink);cursor:pointer}
-  .hvt-tools button:hover{border-color:var(--krabsy-coral)}
+  .hvt-tools button{font:inherit;font-size:0.9rem;font-weight:800;padding:8px 16px;border:2px solid var(--k-btn2-line);border-radius:999px;background:var(--k-btn2-bg);color:var(--k-btn2-fg);cursor:pointer}
+  .hvt-tools button:hover{background:var(--k-btn2-bg-hover)}
   .hvt-scroll{max-height:min(62vh,30rem);overflow:auto;background:#fff;border:1px solid rgba(44,42,58,0.10);border-radius:12px;-webkit-overflow-scrolling:touch}
   table.hvt-table{width:100%;border-collapse:collapse;font-size:0.95rem}
   .hvt-table th{position:sticky;top:0;background:var(--krabsy-cream,#fdfaf3);font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--krabsy-ink-mute);text-align:left;padding:8px;z-index:1}

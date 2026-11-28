@@ -20,7 +20,7 @@
   <meta name="twitter:title" content="Sprint: Spanish I have … (tener) — Krabsy">
   <meta name="twitter:description" content="20 Spanish sentences with a gap, as fast as you can: age, things you have, hungry and cold. Free, no sign-up.">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
   <style>
     /* ── Sprint-specific layout (prep variant) ─────────────────────────── */
@@ -64,7 +64,7 @@
       position: absolute;
       right: -10px;
       top: -10px;
-      background: var(--krabsy-coral);
+      background: var(--krabsy-coral-aa);
       color: var(--krabsy-white);
       font-family: var(--font-body);
       font-size: 0.75rem;
@@ -258,8 +258,8 @@
       color: var(--krabsy-ink);
     }
     .sprint-choice.is-wrong {
-      background: var(--krabsy-coral);
-      border-color: var(--krabsy-coral);
+      background: var(--krabsy-coral-aa);
+      border-color: var(--krabsy-coral-aa);
       color: var(--krabsy-white);
     }
 
@@ -293,7 +293,7 @@
 
     .sprint-new-best-flag {
       display: inline-block;
-      background: var(--krabsy-coral);
+      background: var(--krabsy-coral-aa);
       color: var(--krabsy-white);
       font-weight: 700;
       font-size: 0.8rem;
@@ -849,13 +849,13 @@
     })();
   </script>
   <script type="module">
-    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-28';
     // Prep ships only 2 drill pages today; pass an explicit allow-list so
     // the chip-bar doesn't render dead chips for verb-only drills.
     initDrillPage('sprint', 'es_tener', ['sprint', 'fill_gap']);
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>
-    <script type="module" src="/lib/krabsy-header.js?v=2026-11-27-rv"></script>
+    <script type="module" src="/lib/krabsy-header.js?v=2026-11-28-btn"></script>
   <script src="/lib/krabsy-i18n-attr.js?v=2026-11-27l" defer></script>
   <script src="/lib/krabsy-analytics.js?v=2026-11-22" defer></script>
 </body>
