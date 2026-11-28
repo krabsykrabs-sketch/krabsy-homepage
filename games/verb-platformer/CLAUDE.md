@@ -265,7 +265,13 @@ figure") is the player character. **Master session: rebuild the served copy** wi
   all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
   and on file:// the old Ranger loads and the link is hidden.
 
-## Easy start: tutorial + walking level (2026-11-28; built + stamped v=0d9f38fd90, pushed)
+## Easy start: tutorial + walking level (2026-11-28; built + stamped v=0d9f38fd90, LIVE)
+
+Live check 2026-11-28 (owner deployed): the DE and ES game pages show the 11 levels in their
+language, "Spielen" starts So geht’s with the controls card, 0 errors, 0 failed requests.
+Note: opening `/games/verb-platformer/?level=N` on its own now redirects the top page to the
+wrapper (another session's game-page change), and the wrapper does not pass `level` on, so
+direct level links no longer reach a level.
 
 Owner: "the levels are a bit one-sided and tricky, so many jumps you need to stick — build
 1 or 2 easy levels at the beginning, more walking, walk onto the platforms or a tiny jump,
