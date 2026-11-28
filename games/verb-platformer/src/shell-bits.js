@@ -57,3 +57,40 @@ export function fontsReady(ms = 2000) {
     new Promise(r => setTimeout(r, ms)),
   ]);
 }
+
+// ---- Tutorial (level "How to Play", owner 2026-11-28) ----------------------------------
+// The big controls card on the start platform (drawn like game key caps, owner's reference
+// screenshot) and the small hint banners further on. Level JSON `tips`: [{ id, p, r }].
+
+const ARROW = (dir) => `<svg class="arr arr-${dir}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 11l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const capKey = (letter, dir, cls = '') => `<span class="cap ${cls}">${letter ? `<b>${esc(letter)}</b>` : ''}${dir ? ARROW(dir) : ''}</span>`;
+const MOUSE_SVG = '<svg class="mouse" viewBox="0 0 64 96" aria-hidden="true"><rect x="5" y="5" width="54" height="86" rx="27" class="body"/><path d="M32 5v34M5 39h54" class="line"/><rect x="28" y="16" width="8" height="14" rx="4" class="wheel"/></svg>';
+const HAND_SVG = '<svg class="hand" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 22h40M40 14l8 8-8 8M56 42H16M24 34l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/** The controls card: every control of this device, big, around the screen edges. */
+export function controlsCardHtml() {
+  if (IS_TOUCH) {
+    return `<div class="cc cc-stick"><span class="cc-label">${esc(t('ctrl.move'))}</span>${ARROW('down')}</div>` +
+      `<div class="cc cc-swipe">${HAND_SVG}<span class="cc-label">${esc(t('ctrl.swipe'))}: ${esc(t('ctrl.look'))}</span></div>` +
+      `<div class="cc cc-jumpbtn"><span class="cc-label">${esc(t('ctrl.jump'))}</span>${ARROW('down')}</div>`;
+  }
+  return `<div class="cc cc-wasd"><div class="caps">${capKey('W', 'up')}</div>` +
+    `<div class="caps">${capKey('A', 'left')}${capKey('S', 'down')}${capKey('D', 'right')}</div>` +
+    `<span class="cc-label">${esc(t('ctrl.move'))}</span></div>` +
+    `<div class="cc cc-mouse">${MOUSE_SVG}<span class="cc-label">${esc(t('ctrl.look'))}</span></div>` +
+    `<div class="cc cc-space">${capKey(t('keySpace'), null, 'wide')}<span class="cc-label">${esc(t('ctrl.jump'))}</span></div>` +
+    `<div class="cc cc-arrows"><div class="caps">${capKey('', 'up')}</div>` +
+    `<div class="caps">${capKey('', 'left', 'hi')}${capKey('', 'down')}${capKey('', 'right', 'hi')}</div>` +
+    `<span class="cc-label"><small>${esc(t('ctrl.or'))}</small> ${esc(t('ctrl.move'))}</span></div>` +
+    `<div class="cc cc-go">${esc(t('ctrl.go'))}</div>`;
+}
+
+/** A small hint banner for a tutorial tip (`tip.<id>`), with the key it needs. */
+export function tipHtml(id) {
+  if (id === 'flag') return esc(t('tip.flag'));
+  let k = '';
+  if (id === 'jump' || id === 'step') k = IS_TOUCH ? key(t('jump'), true) : key(t('keySpace'), true);
+  let html = `${k ? `<span class="keys">${k}</span>` : ''}<span>${esc(t(`tip.${id}`) || '')}</span>`;
+  if (id === 'goal') html += ` <span class="chain">${exampleHtml()}</span>`;
+  return html;
+}

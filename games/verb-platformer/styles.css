@@ -376,6 +376,68 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
   pointer-events: none; z-index: 4;
 }
 
+/* ---------- Tutorial: controls card + hint banners ---------- */
+#controls-card {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  transition: opacity 0.5s ease-out;
+}
+#controls-card.out { opacity: 0; }
+#controls-card .cc { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+#controls-card .cc-label, #controls-card .cc-go {
+  font-family: var(--font-head); font-size: 30px; letter-spacing: 0.5px; text-transform: uppercase;
+  color: #fff; text-shadow: 0 3px 0 var(--ink), 0 0 10px rgba(15, 24, 48, 0.6);
+  -webkit-text-stroke: 1px rgba(15, 24, 48, 0.35);
+}
+#controls-card .cc-label small { font-size: 0.6em; opacity: 0.85; }
+#controls-card .caps { display: flex; gap: 6px; }
+#controls-card .cap {
+  position: relative; width: 52px; height: 52px; box-sizing: border-box;
+  border-radius: 12px; border: 3px solid rgba(255, 255, 255, 0.9);
+  background: rgba(23, 35, 63, 0.88); box-shadow: 0 4px 0 var(--ink);
+  color: #fff;
+}
+#controls-card .cap b { position: absolute; left: 7px; top: 3px; font-family: var(--font-head); font-weight: 400; font-size: 21px; }
+#controls-card .cap .arr { position: absolute; right: 5px; bottom: 5px; width: 22px; height: 22px; color: var(--amber); }
+#controls-card .cap:not(:has(b)) .arr { inset: 0; margin: auto; width: 28px; height: 28px; }
+#controls-card .cap.hi { background: rgba(255, 133, 133, 0.92); }
+#controls-card .cap.hi .arr { color: #fff; }
+#controls-card .cap.wide { width: 210px; display: flex; align-items: center; justify-content: center; }
+#controls-card .cap.wide b { position: static; font-family: var(--font-body); font-weight: 800; font-size: 20px; }
+.arr-down { transform: rotate(180deg); }
+.arr-left { transform: rotate(-90deg); }
+.arr-right { transform: rotate(90deg); }
+#controls-card .mouse { width: 74px; height: 110px; filter: drop-shadow(0 4px 0 var(--ink)); }
+#controls-card .mouse .body { fill: rgba(23, 35, 63, 0.88); stroke: #fff; stroke-width: 4; }
+#controls-card .mouse .line { fill: none; stroke: #fff; stroke-width: 4; }
+#controls-card .mouse .wheel { fill: var(--teal); }
+#controls-card .hand { width: 90px; height: 90px; color: #fff; filter: drop-shadow(0 3px 0 var(--ink)); }
+#controls-card > .cc > .arr { width: 46px; height: 46px; color: var(--amber); filter: drop-shadow(0 3px 0 var(--ink)); animation: cc-bob 1s ease-in-out infinite; }
+@keyframes cc-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 8px; } }
+/* desktop: four corners below the HUD, "start walking" in the middle */
+#controls-card .cc-wasd { left: 7%; top: 92px; }
+#controls-card .cc-mouse { right: 8%; top: 92px; }
+#controls-card .cc-space { left: 7%; bottom: 40px; }
+#controls-card .cc-arrows { right: 7%; bottom: 40px; }
+#controls-card .cc-go { left: 50%; bottom: 46px; transform: translateX(-50%); font-size: 26px; animation: cc-pulse 1.4s ease-in-out infinite; }
+@keyframes cc-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.08; } }
+/* touch: labels pointing at the stick and the jump button, the swipe in the middle */
+#controls-card .cc-stick { left: 24px; width: 140px; bottom: 172px; }
+#controls-card .cc-jumpbtn { right: 32px; width: 100px; bottom: 164px; }
+#controls-card .cc-swipe { left: 50%; top: 38%; transform: translateX(-50%); }
+
+#tip-banner {
+  position: fixed; left: 50%; top: 78px; transform: translateX(-50%);
+  max-width: min(680px, calc(100vw - 32px)); box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 12px;
+  padding: 12px 22px; border-radius: 20px;
+  background: rgba(23, 35, 63, 0.9); border: 3px solid var(--teal);
+  font-size: 20px; font-weight: 800; text-align: center; line-height: 1.3;
+  pointer-events: none; z-index: 4;
+  animation: tip-in 0.35s ease-out;
+}
+#tip-banner .chain { white-space: nowrap; }
+@keyframes tip-in { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
+
 /* The question again, in the HUD (small screens) */
 #hud-question {
   position: fixed;
@@ -628,6 +690,22 @@ body:not([data-state="playing"]) #touch-jump { visibility: hidden; pointer-event
   #touch-jump { right: 24px; bottom: 28px; width: 88px; height: 88px; }
   #answer-reveal { font-size: 26px; padding: 10px 22px; top: 17%; border-radius: 16px; }
   #hud-question { top: 8px; bottom: auto; font-size: 19px; padding: 6px 16px; }
+  #tip-banner { top: auto; bottom: 120px; font-size: 15px; padding: 7px 14px; border-radius: 14px; max-width: calc(100vw - 280px); }
+  #controls-card .cc-label, #controls-card .cc-go { font-size: 20px; }
+  #controls-card .cap { width: 38px; height: 38px; border-radius: 9px; }
+  #controls-card .cap b { font-size: 15px; left: 5px; top: 1px; }
+  #controls-card .cap .arr { width: 15px; height: 15px; right: 3px; bottom: 3px; }
+  #controls-card .cap:not(:has(b)) .arr { width: 20px; height: 20px; }
+  #controls-card .cap.wide { width: 150px; }
+  #controls-card .cap.wide b { font-size: 15px; }
+  #controls-card .mouse { width: 48px; height: 72px; }
+  #controls-card .hand { width: 60px; height: 60px; }
+  #controls-card > .cc > .arr { width: 32px; height: 32px; }
+  #controls-card .cc-wasd, #controls-card .cc-mouse { top: 66px; }
+  #controls-card .cc-space, #controls-card .cc-arrows { bottom: 16px; }
+  #controls-card .cc-go { bottom: 20px; font-size: 18px; }
+  #controls-card .cc-stick { bottom: 118px; left: 16px; }
+  #controls-card .cc-jumpbtn { bottom: 122px; right: 24px; width: 88px; }
 
   .card { padding: 14px 20px 16px; border-radius: 20px; }
   .card h2 { font-size: 26px; }

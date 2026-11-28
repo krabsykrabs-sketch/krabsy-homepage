@@ -369,6 +369,26 @@ export async function createGame(canvas) {
     }).catch(e => console.warn('[krabsy3d] scenery failed', e));
   }
 
+  // Owner 2026-11-28: "you can just skip the question by jumping over the gap". The next
+  // gate to answer is gates[gatesCleared]; standing on the ground more than 1.6 units past
+  // its row of blocks (along the direction it is read in, within 6 units of its centre line
+  // and 3 of its height) without having cleared it counts as skipping it.
+  function skippedGate(p) {
+    if (!player.state.grounded) return false;
+    const e = currentLevel?.gates?.[gatesCleared];
+    const g = e?.gate || e;
+    if (!g || g.cleared || !Array.isArray(g.options) || g.options.length === 0) return false;
+    const o = g.options;
+    const cx = o.reduce((a, b) => a + b.pos.x, 0) / o.length;
+    const cz = o.reduce((a, b) => a + b.pos.z, 0) / o.length;
+    const top = o[0].top, r = o[0].rotY || 0;
+    if (Math.abs(p.y - top) > 3) return false;
+    const dx = p.x - cx, dz = p.z - cz;
+    const ahead = -Math.sin(r) * dx - Math.cos(r) * dz;      // read from +Z → the way on is −Z
+    const side = Math.cos(r) * dx - Math.sin(r) * dz;
+    return ahead > 1.6 && Math.abs(side) < 6;
+  }
+
   function respawn() {
     alive = false;
     lockedOut = true;
@@ -500,6 +520,12 @@ export async function createGame(canvas) {
         playSfx(sfx.fall);
         onFall(controlsLocked ? 'wrong' : 'gap');
         respawn();
+      } else if (skippedGate(playerPos)) {
+        // Landed past the next gate without stepping on a word: back before it.
+        alive = false;
+        playSfx(sfx.fall);
+        onFall('skip');
+        respawn();
       } else if (currentLevel.flagReached(playerPos)) {
         alive = false;
         lockedOut = true;
@@ -525,6 +551,8 @@ export async function createGame(canvas) {
     },
     isPaused: () => paused,
     getTime: () => levelTime,
+    // Feet position of the player (tutorial hint zones in main.js).
+    getPlayerPos: () => player.getPosition(),
     // Every gate's question of the running level (the results screen builds full chains from them).
     getGateQuestions: () => (currentLevel?.gates || []).map(g => g.question || g.gate?.question).filter(Boolean),
     input,

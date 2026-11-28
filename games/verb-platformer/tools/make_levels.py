@@ -32,6 +32,7 @@ class Level:
         self.half = (3, 3)     # its half size (x, z)
         self._leaving_mover = False
         self._far = None       # far end of the ferry we stand on
+        self.tips = []         # tutorial hints shown when the player stands in their zone
 
     # ---- helpers ----
     def _id(self, prefix):
@@ -188,6 +189,13 @@ class Level:
         self._platform(f'platform_{size}x{size}x1', x, z, t - 1, color or self.accent)
         return self
 
+    def tip(self, id, r=None):
+        """Tutorial hint `id` (i18n `tip.<id>`), shown while the player is on this piece
+        (zone radius r, default: the piece's half size + 0.5) until the next hint."""
+        self.tips.append({'id': id, 'p': [self.c[0], self.top, self.c[1]],
+                          'r': r if r is not None else max(self.half) + 0.5})
+        return self
+
     def star(self, up=1.2, color='yellow'):
         self.objs.append({'id': self._id('star'), 'type': 'star', 'position': [self.c[0], self.top + up, self.c[1]],
                           'rotation': 0, 'scale': 1, 'color': color})
@@ -210,7 +218,8 @@ class Level:
         return {'id': self.id, 'name': self.name, 'topic': 'irregular_verbs', 'tiers': self.tiers,
                 **({'sky': {'preset': self.sky}} if self.sky else {}),
                 'spawn': {'id': 'spawn_1', 'position': [0, 2, 0]}, 'objects': self.objs,
-                'flag': self.flag, 'prefabs': [], 'botPath': self.path}
+                'flag': self.flag, 'prefabs': [], 'botPath': self.path,
+                **({'tips': self.tips} if self.tips else {})}
 
 
 # =====================================================================================
@@ -234,6 +243,40 @@ def sandbox():
 def rest(L):
     """The wide platform after a gate."""
     return L.plat(6, gap=2.5)
+
+
+def learn_to_play():
+    """Level 1 (owner 2026-11-28: easy start, a controls tutorial). Mostly walking: two short
+    straight jumps, one corner, one step up; hint banners explain each move where it is
+    needed (`tips`; 'controls' = the big card with every key on the start platform).
+    Answer blocks sit right at the edge (gate gap 0): walk onto them. Behind them a small
+    gap (owner: else you jump past the words), so the way on is a short hop from a block."""
+    L = Level('learn-to-play', 'How to Play', [1], color='green', accent='yellow', sky='morning').start()
+    L.tip('controls', r=4)
+    L.walkway(2).plat(6, gap=0).tip('jump').plat(4, gap=2)
+    L.plat(6, gap=2).tip('goal').gate(gap=0)
+    L.plat(6, gap=2)
+    L.turn('E').plat(4, gap=0).tip('turn').plat(4, gap=0, color='yellow')
+    L.turn('N').plat(6, gap=0).plat(4, gap=0, dy=1).tip('step').plat(6, gap=0)
+    L.tip('wrong').gate(gap=0)
+    L.plat(6, gap=2).tip('flag')
+    L.finish(6, gap=0)
+    return L
+
+
+def easy_walk():
+    """Level 2. A walk with five gates: corners at right angles, a ramp, a step down, one
+    short straight jump. Answer blocks at the edge (gap 0), a small gap behind them."""
+    L = Level('easy-walk', 'Sky Stroll', [1], color='blue', accent='green', sky='noon').start()
+    L.walkway(2).plat(6, gap=0).gate(gap=0).plat(6, gap=2)
+    L.turn('E').walkway(2).plat(4, gap=0, color='green')
+    L.turn('N').plat(6, gap=0).gate(gap=0).plat(6, gap=2)
+    L.slope(color='green').plat(gap=0).plat(6, gap=0).gate(gap=0).plat(6, gap=2)
+    L.plat(6, gap=2).gate(gap=0).plat(6, gap=2)
+    L.turn('W').walkway(2).plat(4, gap=0, dy=-1, color='green')
+    L.turn('N').plat(6, gap=0).gate(gap=0)
+    L.finish(6, gap=2)
+    return L
 
 
 def first_steps():
@@ -322,7 +365,7 @@ def finale():
     return L
 
 
-LEVELS = [sandbox, first_steps, zigzag, climb, ferries, hammer_works, finale]
+LEVELS = [sandbox, learn_to_play, easy_walk, first_steps, zigzag, climb, ferries, hammer_works, finale]
 
 
 def main():

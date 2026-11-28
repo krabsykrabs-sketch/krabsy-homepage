@@ -265,6 +265,47 @@ figure") is the player character. **Master session: rebuild the served copy** wi
   all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
   and on file:// the old Ranger loads and the link is hidden.
 
+## Easy start: tutorial + walking level (2026-11-28; source only, served copy NOT rebuilt)
+
+Owner: "the levels are a bit one-sided and tricky, so many jumps you need to stick — build
+1 or 2 easy levels at the beginning, more walking, walk onto the platforms or a tiny jump,
+no diagonal jumps; and a controls tutorial", with a reference screenshot of a big controls
+overlay (WASD / mouse / space / arrows with labels).
+
+- **Two new levels first** (`assets/levels/index.json`; both from `tools/make_levels.py`):
+  1. `learn-to-play` "How to Play" / "So geht’s" / "Cómo se juega": 2 gates, walkway, one
+     short straight jump (with the jump tip) before the first gate, one corner, one step up.
+  2. `easy-walk` "Sky Stroll" / "Himmelsspaziergang" / "Paseo por el cielo": 5 gates,
+     attached corners, a ramp, a step down, one short straight jump.
+  Gates use **`gate(gap=0)`**: the answer blocks touch the platform, so you walk onto them
+  (the side blocks overlap the 6-wide platform by 0.5). **Behind the blocks a gap of 2**
+  (owner, same day: attached, you could jump past the words), so the way on is a short hop
+  from a block. First Steps … Sky Finale follow unchanged (now levels 3–8).
+- **Skipping a gate is not possible any more (all levels):** a running jump through the
+  1.5-wide hole between two blocks still clears 2 (hole) + 2 (gap) — tested — so
+  `skippedGate()` in `src/game.js` sends the player back: standing on the ground more than
+  1.6 past the next uncleared gate's block row (within 6 of its centre line, 3 of its
+  height) = respawn before it, `fell` with cause `skip`, banner "Erst ein Wort wählen!"
+  (`skipBack`, `ui.showNote()`, 3 s).
+- **Tutorial hints** = level field `tips: [{ id, p: [x, y, z], r }]` (`L.tip(id)` in the
+  generator: zone = the current piece). `main.js` checks the zone every 150 ms; entering
+  one shows it until the next. `'controls'` = the **big controls card** over the game
+  (`controlsCardHtml()` in `src/shell-bits.js`, `#controls-card`): desktop W A S D keys with
+  arrows "Laufen", mouse "Umsehen", space bar "Springen", arrow keys "oder Laufen", "Lauf
+  los!"; touch: labels with bobbing arrows over the stick and the jump button, "Wischen:
+  Umsehen" in the middle. It fades when the player leaves the start platform. Other ids
+  (`goal`, `jump`, `turn`, `step`, `wrong`, `flag`) = a banner under the HUD (`#tip-banner`,
+  `tipHtml()`, with the jump key where it fits and the example chain for `goal`). Strings
+  `tip.*`, `ctrl.*`, `idea.`/`name.` for both levels in all three languages.
+- A level with tips replaces the first-run hint card (marked as seen).
+- HUD level name is now translated too (`name.<id>`; it showed the English JSON name).
+- **Analytics:** `level` is the menu number, so First Steps is now level 3 on the dashboard
+  (was 1). Few users so far; compare by date.
+- Checked: skip test (teleport past gate 1 → sent back; real running jump through the hole
+  lands behind the gate → sent back; right answer then hop → no false skip); bot passes both
+  (first version: learn-to-play 72 s, easy-walk 123 s, 0 deaths, machine load 22);
+  controls card + goal banner screenshots desktop 1280×760 and phone 844×390 (de), 0 errors.
+
 ## Hero picker on the title screen (2026-11-25; built + stamped by the master session, v=11f2c2a9bf)
 
 Master-session job (docs/game-contract.md "Hero choice on the start screen"). **Master
@@ -311,7 +352,7 @@ and `/assets/figures/`) and stamp.
 
 - **Game events** for the site dashboard (`src/analytics.js`, docs/game-analytics.md):
   `level_start`, `gate_passed {gate, first_try, seconds}`, `wrong_answer {gate}`,
-  `fell {gate, cause: gap|wrong|hazard}`, `level_end {stars, seconds, answers,
+  `fell {gate, cause: gap|wrong|hazard|skip}`, `level_end {stars, seconds, answers,
   correct, gates, falls}`; `level` = menu number. A restart or the menu mid-level
   sends nothing (= "left"). Editor playtests send nothing.
 - **Word statistics + smart mix** (docs/phase1-game-wiring.md): the first answer at

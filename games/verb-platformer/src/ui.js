@@ -2,7 +2,7 @@
 // results screen, loader. All text comes from src/i18n.js; main.js owns the flow.
 import { t, exampleHtml, exampleBlocks } from './i18n.js';
 import { formatTime } from './progress.js';
-import { starsHtml, helpHtml, esc, IS_TOUCH } from './shell-bits.js';
+import { starsHtml, helpHtml, esc, IS_TOUCH, controlsCardHtml, tipHtml } from './shell-bits.js';
 import { startConfetti, stopConfetti, playJingle } from './celebrate.js';
 import { toggleMuted, onMuteChange } from './sound.js';
 
@@ -28,6 +28,7 @@ export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onR
   const confetti = $('confetti');
   const loader = $('loader');
 
+  let tipTimer = null;
   let revealHideTimer = null;
   let revealClearTimer = null;
   let shownTime = '';
@@ -84,6 +85,38 @@ export function createUI({ onPause, onResume, onRestart, onLevels, onHintGo, onR
     },
 
     setLookTip(show) { lookTip.hidden = !show; },
+
+    // A short message in the hint banner (e.g. "Pick a word first!"), gone after 3 s.
+    showNote(text) {
+      const card = $('controls-card'), banner = $('tip-banner');
+      clearTimeout(tipTimer);
+      card.hidden = true;
+      banner.textContent = text;
+      banner.hidden = false;
+      banner.style.animation = 'none'; void banner.offsetWidth; banner.style.animation = '';
+      tipTimer = setTimeout(() => { banner.hidden = true; }, 3000);
+    },
+
+    hideTips() { clearTimeout(tipTimer); $('controls-card').hidden = true; $('tip-banner').hidden = true; },
+
+    // Tutorial (level `tips`): the big controls card and the small hint banner. Showing one
+    // hides the other; null hides both.
+    showTip(id) {
+      const card = $('controls-card'), banner = $('tip-banner');
+      clearTimeout(tipTimer);
+      if (id === 'controls') {
+        banner.hidden = true;
+        card.innerHTML = controlsCardHtml();
+        card.classList.remove('out');
+        card.hidden = false;
+        return;
+      }
+      if (!card.hidden) { card.classList.add('out'); tipTimer = setTimeout(() => { card.hidden = true; }, 500); }
+      if (!id) { banner.hidden = true; return; }
+      banner.innerHTML = tipHtml(id);
+      banner.hidden = false;
+      banner.style.animation = 'none'; void banner.offsetWidth; banner.style.animation = '';
+    },
 
     deathFlash() {
       flash.hidden = false;

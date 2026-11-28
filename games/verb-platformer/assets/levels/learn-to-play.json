@@ -1,0 +1,416 @@
+{
+ "id": "learn-to-play",
+ "name": "How to Play",
+ "topic": "irregular_verbs",
+ "tiers": [
+  1
+ ],
+ "sky": {
+  "preset": "morning"
+ },
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -5.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -9.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -14.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -21.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -28.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -28.0
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -32.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -38.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_4x4x1",
+   "position": [
+    5.0,
+    0,
+    -38.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_4x4x1",
+   "position": [
+    9.0,
+    0,
+    -38.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_6x6x1",
+   "position": [
+    9.0,
+    0,
+    -43.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_4x4x1",
+   "position": [
+    9.0,
+    1,
+    -48.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_6x6x1",
+   "position": [
+    9.0,
+    1,
+    -53.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    9.0,
+    3,
+    -53.0
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    9.0,
+    1,
+    -57.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_6x6x1",
+   "position": [
+    9.0,
+    1,
+    -63.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_6x6x1",
+   "position": [
+    9.0,
+    1,
+    -69.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "yellow",
+  "position": [
+   9.0,
+   2,
+   -69.0
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -5.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -9.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -14.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -21.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -28.0
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -38.0
+   ]
+  },
+  {
+   "p": [
+    5.0,
+    1,
+    -38.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    1,
+    -38.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    1,
+    -43.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    2,
+    -48.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    2,
+    -53.0
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    9.0,
+    2,
+    -63.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    2,
+    -69.0
+   ]
+  }
+ ],
+ "tips": [
+  {
+   "id": "controls",
+   "p": [
+    0,
+    1,
+    0
+   ],
+   "r": 4
+  },
+  {
+   "id": "jump",
+   "p": [
+    0.0,
+    1,
+    -14.0
+   ],
+   "r": 3.5
+  },
+  {
+   "id": "goal",
+   "p": [
+    0.0,
+    1,
+    -28.0
+   ],
+   "r": 3.5
+  },
+  {
+   "id": "turn",
+   "p": [
+    5.0,
+    1,
+    -38.0
+   ],
+   "r": 2.5
+  },
+  {
+   "id": "step",
+   "p": [
+    9.0,
+    2,
+    -48.0
+   ],
+   "r": 2.5
+  },
+  {
+   "id": "wrong",
+   "p": [
+    9.0,
+    2,
+    -53.0
+   ],
+   "r": 3.5
+  },
+  {
+   "id": "flag",
+   "p": [
+    9.0,
+    2,
+    -63.0
+   ],
+   "r": 3.5
+  }
+ ]
+}
