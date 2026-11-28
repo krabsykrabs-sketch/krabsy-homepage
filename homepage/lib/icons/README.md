@@ -29,6 +29,11 @@ no alt text). Bump `?v=` where they are used when you change the sprite.
 | `ki-turn` | a round arrow | turn the figure (figure editor) |
 | `ki-mail` | an envelope | sign-in link by email ("Klasse sichern", Meine Klassen) |
 | `ki-saved` | a teal shield with a tick | a class saved to the teacher's account |
+| `ki-heart` | a coral heart | lives in the drill games (lost life: greyed by CSS) |
+| `ki-sound` / `ki-sound-off` | a speaker with waves / with a cross | sound on/off in the drill games |
+| `ki-close` | a cross | close button in the drill games |
+| `ki-check` | a teal badge with a tick | right / done (Drag Match, Verb-Diplom) |
+| `ki-flame` | a flame | streak (Statistik) |
 
 The main menu (`lib/krabsy-header.js`) and the topics page
 (`tools/render_topics_page.py`) inline copies of `ki-play`, `ki-practise`,

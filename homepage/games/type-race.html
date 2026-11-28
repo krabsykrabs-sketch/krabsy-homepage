@@ -857,6 +857,10 @@ body.tr-compact .ff-input-hint { display: none; }
   35%  { transform: scale(1.14); }
   100% { transform: scale(1); }
 }
+/* Krabsy icons (inline copies of lib/icons/krabsy-icons.svg; no emojis or ♥ ♪ ✕) */
+.ff-ki { width: 20px; height: 20px; display: block; flex: 0 0 auto; }
+.ff-heart .ff-ki { width: 1em; height: 1em; }
+.ff-heart.is-lost .ff-ki { filter: grayscale(1); }
 </style>
 </head>
 <body>
@@ -868,9 +872,9 @@ body.tr-compact .ff-input-hint { display: none; }
   <header class="ff-topbar">
     <div class="ff-round"><span data-string="round">Runde</span> <span id="ff-round-num">1</span></div>
     <div class="ff-topbar-actions">
-      <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
+      <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg></button>
       <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg></button>
-      <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
+      <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke-width="2.4"/></svg></button>
     </div>
   </header>
 
@@ -891,9 +895,9 @@ body.tr-compact .ff-input-hint { display: none; }
     <div class="ff-panel ff-panel-lives">
       <div class="ff-panel-label" data-string="lives">Leben</div>
       <div class="ff-lives" id="ff-lives" aria-live="polite">
-        <span class="ff-heart" data-i="0">♥</span>
-        <span class="ff-heart" data-i="1">♥</span>
-        <span class="ff-heart" data-i="2">♥</span>
+        <span class="ff-heart" data-i="0"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ff8585" d="M12 20 4.7 12.9a4.6 4.6 0 0 1 0-6.6 4.7 4.7 0 0 1 6.6 0l.7.7.7-.7a4.7 4.7 0 0 1 6.6 0 4.6 4.6 0 0 1 0 6.6z"/></svg></span>
+        <span class="ff-heart" data-i="1"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ff8585" d="M12 20 4.7 12.9a4.6 4.6 0 0 1 0-6.6 4.7 4.7 0 0 1 6.6 0l.7.7.7-.7a4.7 4.7 0 0 1 6.6 0 4.6 4.6 0 0 1 0 6.6z"/></svg></span>
+        <span class="ff-heart" data-i="2"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ff8585" d="M12 20 4.7 12.9a4.6 4.6 0 0 1 0-6.6 4.7 4.7 0 0 1 6.6 0l.7.7.7-.7a4.7 4.7 0 0 1 6.6 0 4.6 4.6 0 0 1 0 6.6z"/></svg></span>
       </div>
     </div>
   </aside>
@@ -996,6 +1000,8 @@ body.tr-compact .ff-input-hint { display: none; }
 </div>
 
 <script>
+const ICON_SOUND = '<svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>';
+const ICON_MUTE = '<svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></svg>';
 // ═══════════════════════════════════════════════════════════════════════════
 //  VERBS — 30-verb dataset, same as Falling Forms (Chain).
 //  Each entry: { verb, past, pp, pw?, ppw? } — pw/ppw distractors are kept
@@ -1847,7 +1853,7 @@ els.audioBtn.addEventListener('click', () => {
   state.audioOn = !state.audioOn;
   writeAudio(state.audioOn);
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
-  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.audioBtn.innerHTML = state.audioOn ? ICON_SOUND : ICON_MUTE;
 });
 
 document.addEventListener('keydown', (e) => {
@@ -1882,7 +1888,7 @@ document.addEventListener('keydown', (e) => {
   state.best = readBest();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
-  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.audioBtn.innerHTML = state.audioOn ? ICON_SOUND : ICON_MUTE;
   els.bestStart.textContent = String(state.best);
   renderHud();
   renderHistory();

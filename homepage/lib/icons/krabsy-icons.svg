@@ -123,4 +123,34 @@
     <path fill="#2ee6c0" d="M12 3l7 2.8v5.4c0 4.4-3 7.8-7 9.3-4-1.5-7-4.9-7-9.3V5.8z"/>
     <path d="M8.6 12.2l2.4 2.4 4.4-4.6"/>
   </symbol>
+
+  <!-- drills (2026-11-28): lives, sound on/off, close, right answer, streak -->
+  <!-- heart: a life (lost life = the same heart greyed out by CSS) -->
+  <symbol id="ki-heart" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ff8585" d="M12 20 4.7 12.9a4.6 4.6 0 0 1 0-6.6 4.7 4.7 0 0 1 6.6 0l.7.7.7-.7a4.7 4.7 0 0 1 6.6 0 4.6 4.6 0 0 1 0 6.6z"/>
+  </symbol>
+  <!-- sound on: a speaker with two waves -->
+  <symbol id="ki-sound" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/>
+    <path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/>
+  </symbol>
+  <!-- sound off: the speaker with a cross -->
+  <symbol id="ki-sound-off" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/>
+    <path d="M15.5 9.5l5 5M20.5 9.5l-5 5"/>
+  </symbol>
+  <!-- close: a cross -->
+  <symbol id="ki-close" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke-width="2.4"/>
+  </symbol>
+  <!-- check: a teal badge with a tick (right / done) -->
+  <symbol id="ki-check" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle fill="#2ee6c0" cx="12" cy="12" r="9"/>
+    <path d="M7.8 12.3l2.8 2.8 5.6-5.8"/>
+  </symbol>
+  <!-- flame: a streak of days -->
+  <symbol id="ki-flame" viewBox="0 0 24 24" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ff8585" d="M12 21c-3.9 0-6.5-2.6-6.5-6.1 0-3.2 2.2-5.1 3.6-7.3.4 1.6 1.2 2.6 2.2 3.1C11 7.4 12.3 5 14.6 3c-.2 2.9 1.2 4.8 2.6 6.6 1 1.3 1.8 2.9 1.8 5.1C19 18.3 16 21 12 21z"/>
+    <path fill="#ffcf5e" d="M12 21c-1.8 0-3-1.2-3-2.9 0-1.9 1.6-3 3-4.8 1.4 1.8 3 2.9 3 4.8 0 1.7-1.2 2.9-3 2.9z"/>
+  </symbol>
 </svg>

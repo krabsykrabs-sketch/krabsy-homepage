@@ -520,6 +520,7 @@ body::before {
   font-size: 0.9rem;
   font-weight: 700;
 }
+.dm-check-ico { width: 1.2em; height: 1.2em; display: block; }
 
 /* ── Draggable form chips (right column) ────────────────────────────────── */
 .dm-pile-slot {
@@ -789,6 +790,10 @@ body::before {
   .dm-panel-label { font-size: 0.5rem; letter-spacing: 0.4px; }
   .dm-title { font-size: 2rem; }
 }
+/* Krabsy icons (inline copies of lib/icons/krabsy-icons.svg; no emojis or ♥ ♪ ✕) */
+.ff-ki { width: 20px; height: 20px; display: block; flex: 0 0 auto; }
+.ff-heart .ff-ki { width: 1em; height: 1em; }
+.ff-heart.is-lost .ff-ki { filter: grayscale(1); }
 </style>
 </head>
 <body>
@@ -800,8 +805,8 @@ body::before {
   <header class="dm-topbar">
     <div class="dm-round"><span data-string="round">Runde</span> <span id="dm-round-num">1</span></div>
     <div class="dm-topbar-actions">
-      <button class="dm-icon" id="dm-audio-btn" type="button" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
-      <button class="dm-icon" id="dm-close-btn" type="button" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
+      <button class="dm-icon" id="dm-audio-btn" type="button" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg></button>
+      <button class="dm-icon" id="dm-close-btn" type="button" aria-label="Schließen" data-string-aria="aria_close" title="Close"><svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke-width="2.4"/></svg></button>
     </div>
   </header>
 
@@ -897,6 +902,8 @@ body::before {
 </div>
 
 <script>
+const ICON_SOUND = '<svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>';
+const ICON_MUTE = '<svg class="ff-ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="#ffcf5e" d="M4 9h3l4.5-3.8v13.6L7 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></svg>';
 // ═══════════════════════════════════════════════════════════════════════════
 //  VERBS — 30-verb dataset, same as Falling Forms / Type Race
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1290,6 +1297,12 @@ function renderBoard() {
     row.appendChild(slot);
     row.appendChild(makeArrow());
     row.appendChild(later);
+    // Tap mode: a tap anywhere on the row (the dashed empty slot is the obvious
+    // target) counts as a tap on its verb. The verb itself has its own handler.
+    row.addEventListener('click', ev => {
+      if (ev.target.closest('.dm-base')) return;
+      base.click();
+    });
     els.rows.appendChild(row);
   });
   renderPile();
@@ -1537,7 +1550,7 @@ function lockPair(verb, chipEl) {
     const check = document.createElement('span');
     check.className = 'dm-check';
     check.setAttribute('aria-hidden', 'true');
-    check.textContent = '✓';
+    check.innerHTML = '<svg class="dm-check-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#2c2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle fill="#2ee6c0" cx="12" cy="12" r="9"/><path d="M7.8 12.3l2.8 2.8 5.6-5.8"/></svg>';
     pill.appendChild(check);
     slot.appendChild(pill);
   }
@@ -1707,7 +1720,7 @@ els.audioBtn.addEventListener('click', () => {
   state.audioOn = !state.audioOn;
   writeAudio(state.audioOn);
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
-  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.audioBtn.innerHTML = state.audioOn ? ICON_SOUND : ICON_MUTE;
   if (state.audioOn) {
     const ctx = ensureAudio();
     if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch (_) {} }
@@ -1755,7 +1768,7 @@ window.addEventListener('blur', () => {
   applyStrings();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
-  els.audioBtn.textContent = state.audioOn ? '♪' : '∅';
+  els.audioBtn.innerHTML = state.audioOn ? ICON_SOUND : ICON_MUTE;
   paintStartBest();
   renderHud();
 })();
