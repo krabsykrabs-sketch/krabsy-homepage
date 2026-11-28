@@ -365,6 +365,113 @@ async function run(browser, cfg) {
     await step(0.1);
   }
 
+  // ══ Level 4 "Think first" ═══════════════════════════════════════════════════════════
+  async function level4() {
+    const C = 0, S = 1;
+    // 4-1 The stand-in: the crate holds the plate for the bridge
+    await shot('L4-1-start');
+    await walkTo(S, 4.45, { jump: false });             // the wall … (the climber meanwhile jumps the gap)
+    await answer(S);
+    await walkTo(C, 12.4);
+    let p = await runJump(C, 'right', 12.8);
+    if (cx(p) < 16) fail(`4-1: climber did not clear the gap (x ${cx(p).toFixed(2)})`);
+    await walkTo(C, 18.5, { jump: false });
+    await climb(C, 1, 8);
+    await walkTo(C, 16.5, { jump: false });
+    await answer(C);                                     // the key flies to gate G
+    await expect(async () => (await objs()).W.open, '4-1: wall not smashed');
+    await walkTo(S, 6.3, { jump: false });
+    await expect(async () => !(await objs()).b.on, '4-1: bridge there before anything stands on the plate');
+    await walkTo(S, 10.62, { jump: false, tol: 0.05 });  // push the crate onto the plate, against the step
+    const bx = (await G('boxes'))[0];
+    if (bx.x < 10.9 || bx.x > 11.1) fail(`4-1: crate not on the plate (x ${bx.x.toFixed(2)})`);
+    await step(0.6);
+    await expect(async () => (await objs()).b.solid, '4-1: the crate on the plate did not hold the bridge');
+    await shot('L4-1-crate');
+    await walkTo(S, 24.4);                               // over the crate, across the bridge
+    if (cx(await P(S)) < 24) fail('4-1: strong one did not cross');
+    await walkTo(C, 23.2, { jump: false });
+    for (let i = 0; i < 3 && Math.abs((await P(C)).y - 5.6) > 0.05; i++) { await walkTo(C, 23.2, { jump: false }); await shortHop(C, 'right', 0.15 + i * 0.05); }
+    if (Math.abs((await P(C)).y - 5.6) > 0.05) fail(`4-1: climber not on the head (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 24.6, { jump: false, tol: 0.06 });
+    await shortHop(C, 'right', 0.3);
+    if ((await P(C)).y < 7.99) fail(`4-1: climber did not reach the lever shelf (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 25.5, { jump: false });
+    await answer(C);
+    await expect(async () => (await objs()).D.open && (await objs()).G.open, '4-1: door or gate still shut');
+    await walkTo(C, 22.6, { jump: false });             // down off the shelf (the wall is on its right), beside the strong one
+    await walkTo(S, 29.2);
+    await walkTo(C, 29.8);
+    await nextRoom(2);
+
+    // 4-2 Either / or: the climber goes through b first, then the toggle
+    await shot('L4-2-start');
+    await walkTo(C, 6.5, { jump: false });
+    await climb(C, 1, 8);
+    await walkTo(C, 13.5, { jump: false });
+    if (cx(await P(C)) < 13) fail('4-2: climber did not get through door b');
+    await walkTo(S, 9.5);
+    await answer(S);                                     // the toggle: a opens, b shuts
+    await step(0.3);
+    await expect(async () => (await objs()).a.open && !(await objs()).b.open, '4-2: the toggle did not swap the doors');
+    await walkTo(C, 15.5, { jump: false });
+    await answer(C);                                     // release lever: the crate drops
+    await step(1.2);
+    if ((await G('boxes'))[0].static) fail('4-2: caged crate did not drop');
+    await walkTo(S, 16.4, { jump: false });
+    await walkTo(S, 21.59, { jump: false, tol: 0.05 });  // crate to the plateau
+    if (Math.abs((await G('boxes'))[0].x - 22.04) > 0.15) fail(`4-2: crate not at the plateau (x ${(await G('boxes'))[0].x.toFixed(2)})`);
+    await walkTo(S, 25.4);
+    if ((await P(S)).y < 4.99) fail('4-2: strong one not on the plateau');
+    await walkTo(C, 17.5, { jump: false });              // down through the hole
+    await walkTo(C, 24.3);
+    for (let i = 0; i < 3 && Math.abs((await P(C)).y - 6.6) > 0.05; i++) { await walkTo(C, 24.4, { jump: false }); await shortHop(C, 'right', 0.15 + i * 0.05); }
+    if (Math.abs((await P(C)).y - 6.6) > 0.05) fail(`4-2: climber not on the head (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 25.6, { jump: false, tol: 0.06 });
+    await shortHop(C, 'right', 0.3);
+    if ((await P(C)).y < 8.99) fail(`4-2: climber did not reach the key shelf (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 26.5, { jump: false });
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).G.open, '4-2: the key did not open the gate');
+    await walkTo(C, 23.8, { jump: false });             // down off the shelf, beside the strong one
+    await walkTo(S, 29.2);
+    await walkTo(C, 29.8);
+    await nextRoom(3);
+
+    // 4-3 Who calls the lift? crate + strong one + climber up the block, then the lift
+    await shot('L4-3-start');
+    await walkTo(S, 20.45, { jump: false });
+    await answer(S);                                     // the wall …
+    await walkTo(C, 29.4);                               // … and the climber to the key in the tunnel
+    await answer(C);
+    await step(0.5);
+    await expect(async () => (await objs()).W.open, '4-3: wall not smashed');
+    await walkTo(S, 9.39, { jump: false, tol: 0.05 });   // push the crate left against the block
+    if (Math.abs((await G('boxes'))[0].x - 8) > 0.15) fail(`4-3: crate not at the block (x ${(await G('boxes'))[0].x.toFixed(2)})`);
+    await shortHop(S, 'left', 0.12);
+    if (Math.abs((await P(S)).y - 3.96) > 0.02) fail(`4-3: strong one not on the crate (y ${(await P(S)).y.toFixed(2)})`);
+    await walkTo(C, 10.2, { jump: false });
+    for (let i = 0; i < 3 && Math.abs((await P(C)).y - 5.56) > 0.05; i++) { await walkTo(C, 10.2, { jump: false }); await shortHop(C, 'left', 0.15 + i * 0.05); }
+    if (Math.abs((await P(C)).y - 5.56) > 0.05) fail(`4-3: climber not on the head (y ${(await P(C)).y.toFixed(2)})`);
+    await shortHop(C, 'left', 0.5);                      // along the block face, over the top
+    if ((await P(C)).y < 8.99) fail(`4-3: climber did not get onto the block (y ${(await P(C)).y.toFixed(2)})`);
+    await shot('L4-3-block');
+    await walkTo(S, 10.5, { jump: false });              // onto the lift
+    await walkTo(C, 3.5, { jump: false });
+    await answer(C);                                     // the lift goes up
+    await step(3);
+    if (Math.abs((await P(S)).y - 9) > 0.05) fail(`4-3: the lift did not bring the strong one up (y ${(await P(S)).y.toFixed(2)})`);
+    await walkTo(C, 4, { jump: false });
+    p = await runJump(C, 'right', 7.2);                  // block → raised lift (one cell)
+    if (p.y < 8.99 || cx(p) < 9) fail(`4-3: climber did not reach the raised lift (x ${cx(p).toFixed(2)} y ${p.y.toFixed(2)}; lift top ${(await objs()).Y.top}, strong ${JSON.stringify(await P(S))})`);
+    await expect(async () => (await objs()).G.open, '4-3: the key did not open the gate');
+    await walkTo(S, 29.1);
+    await walkTo(C, 29.8);
+    await page.waitForTimeout(2100);
+    await step(0.1);
+  }
+
   if (!L2ONLY) {
   // touch buttons: one real tap each on player 2's jump and player 1's right
   if (cfg.touch) {
@@ -500,7 +607,7 @@ async function run(browser, cfg) {
   } // level 1
 
   if (cfg.level2) {
-    for (const L of [2, 3]) {
+    for (const L of [2, 3, 4]) {
       if (L < FROM) continue;
       if (L > FROM || FROM === 1) {
         if (await page.isHidden('#next-level-btn')) fail(`no "Next level" button before level ${L}`);
@@ -508,7 +615,7 @@ async function run(browser, cfg) {
         await page.waitForFunction((n) => window.__duo.state() === 'playing' && window.__duo.game?.level() === n, L, { timeout: 90000 });
         await page.evaluate(() => window.__duo.game.manual(true));
       }
-      await (L === 2 ? level2() : level3());
+      await (L === 2 ? level2() : L === 3 ? level3() : level4());
       await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/${cfg.name}-L${L}-results.png` });

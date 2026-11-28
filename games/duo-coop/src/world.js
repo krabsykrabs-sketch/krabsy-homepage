@@ -190,7 +190,7 @@ function objectView(o, models, keep, room) {
   const glowM = () => keep(new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
 
   switch (o.type) {
-    case 'lever': case 'liftlever': {
+    case 'lever': case 'liftlever': case 'toggle': {
       const model = models.clone('lever_floor_base_yellow');
       const handle = findNode(model, 'lever_floor_yellow');
       node.add(fit(model, null, 1.0, null));
@@ -200,6 +200,15 @@ function objectView(o, models, keep, room) {
         a += ((s.on ? 0.7 : -0.7) - a) * Math.min(1, dt * 10);
         if (handle) handle.rotation.z = a;
       } };
+    }
+    case 'plate': {
+      // the hold plate (level 4): a yellow floor button sunk flush with the floor; its cap
+      // goes down while weight is on it and comes back up without
+      const model = models.clone('button_base_yellow');
+      const cap = findNode(model, 'button_yellow');
+      node.add(fit(model, BUTTON_W, null, BUTTON_W));
+      node.position.set(o.x + 0.5, o.y - 0.17, 0);
+      return { node, update(s) { if (cap) cap.position.y = -0.2 * (s.press || 0); } };
     }
     case 'button': {
       // The big red floor button (Platformer button_base_red, ~0.3 high): the strong one's

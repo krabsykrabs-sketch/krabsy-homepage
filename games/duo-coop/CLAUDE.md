@@ -136,7 +136,36 @@ never pushed; `moveLifts()` in `src/game.js` moves it before each physics step.
 | 3-2 Bridge and portal | at the same time: the strong one smashes the wall, the climber climbs to the portal on the ledge and switches it on · across the 6-wide gap (too wide for anyone) the climber builds the bridge · the strong one crosses and jumps on the big button (door) · exit open | wall S, portal C, post C = 3 (+ the button) |
 | 3-3 All together | both ride the lift, the climber pulls its lever riding along · at the same time: the strong one smashes the wall, the climber takes the ladder to the switch (door) · the key lies in a slot too high to jump to: off the strong one's head · exit open | lift lever C, wall S, switch C, key C = 4 |
 
-`LEVELS` = [level 1 (`ROOMS`), level 2, level 3]. The HUD says "Level 2 · Room 1 / 3 · …"; the
+### Level 4 "Think first" (2026-11-28; `LEVEL4`): real puzzles
+
+Owner: the rooms were too obvious ("you walk forward and press every button you see").
+Idea and rough layout came from a Fable design agent (ideas only, to save tokens); built,
+tuned to our jump heights and play-tested here. Two small rule variants:
+
+- **Hold plate** (`plate`): its targets are on only while weight is on it: the strong
+  one or a crate (no question; the climber is too light). A yellow button sunk into the
+  floor.
+- **Toggle lever** (`toggle`): every pull is a question and swaps its doors (open ↔
+  shut); a door may start open (`open: true`).
+
+| Room | The puzzle | Questions |
+|---|---|---|
+| 4-1 The stand-in | the bridge stands only while the plate is held; if the strong one holds it, it can't cross. Aha: the crate behind the cracked wall stands in (pushed against a step it stops exactly on the plate). Meanwhile the climber jumps the gap for the key; then off the strong one's head to the lever | wall S, key C, lever C = 3 |
+| 4-2 Either / or | one lever, two doors (corridor shut, gallery open). Aha: "don't pull yet, I have to get through first". The climber drops the caged crate through the gallery hole; it is the strong one's step onto the plateau; the key is on a shelf only the head reaches | toggle S (more if pulled too early), lever C, key C = 3 |
+| 4-3 Who calls the lift? | the only lift lever is on a high block: crate + strong one + climber to get up there; the raised lift is also the climber's step to the plateau; the key (gate up top) is in a low tunnel below, so fetch it first | wall S, key C, lift lever C = 3 |
+
+Lessons from building it (keep for new rooms):
+- **A crate must never be pushable into a corner it can't come back from** (crates are
+  only pushed): place it so the natural push goes towards its goal, and give the goal
+  something to stop it (a step, a wall), or the strong one shoves it on past.
+- **Under a low ceiling jumps get short** (3 cells headroom ≈ 2.6 cells far); gaps there
+  must be small.
+- Shelves next to a wall can only be left on one side; the bot (and kids) must step off
+  there.
+- Not yet: a colour symbol linking the toggle lever with its two doors (the Fable agent's
+  suggestion), so kids can plan by looking.
+
+`LEVELS` = [level 1 (`ROOMS`), level 2, level 3, level 4]. The HUD says "Level 2 · Room 1 / 3 · …"; the
 results screen of a level has "Next level" (focused) when there is one. Title screen:
 "Start in a room:" with one row per level, all rooms open. URL: `?level=2&room=3`.
 Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
@@ -349,6 +378,10 @@ measure it.
 - 2026-11-28 — Heavy levers (strong one, question) replaced by a **big floor button** (strong
   one's weight, no question) in 1-2, 2-2, 3-1, 3-2. Questions now: L1 3 + 2 + 3, L2 3 + 2 + 3,
   L3 3 + 3 + 4.
+- 2026-11-28 — **Level 4 "Think first"** (Fable idea, built here): hold plate + toggle lever;
+  bot solves all three rooms (`--from 4`). Design flaws found while building and fixed:
+  crates that could only be pushed into a corner (4-1, 4-3), a crate shoved off the plate
+  into the gap (step added), a jump too short under the low ceiling (4-3).
 - 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)

@@ -19,6 +19,10 @@
 //   portal { x, y, pair, active } active portals teleport whoever walks in; an inactive
 //                                 portal with `ask` is switched on by a question
 //   cage   { x, y }               a box hangs here until a button releases it
+//   plate  { x, y, targets }      HOLD plate: its targets are on only while weight is on it
+//                                 (the strong one or a crate; no question)
+//   toggle { x, y, targets }      question → every target door swaps open/shut (each pull asks)
+//   door   …, open: true          starts open (for toggles)
 //   lift   { x, w, y0, y1 }       a platform (top at y0 = down, y1 = up), moved by a liftlever;
 //                                 keep its shaft empty
 //   liftlever { targets }         question → the lift goes to the other end (each pull asks)
@@ -304,11 +308,104 @@ export const LEVEL3 = [
   }),
 ];
 
+// ══ Level 4 "Think first" (owner 2026-11-28: real puzzles; idea and rough layout by a
+// Fable design agent, built and tuned to our jump heights here). Two small rule variants:
+// the hold plate (works only while weight is on it: the strong one or a crate) and the
+// toggle lever (swaps two doors, every pull asks).
+export const LEVEL4 = [
+  // ── 4-1 The stand-in ─────────────────────────────────────────────────────────────────
+  // The bridge is there only while the plate is held down. The strong one can hold it, but
+  // then never crosses, and the climber needs the strong one's head on the far side. Aha:
+  // something else has to stand there: the crate behind the cracked wall. (The crate sits
+  // to the right of the wall, so it is pushed towards the plate, never into a corner:
+  // crates can't be pulled; pushed against the step it stops on the plate.)
+  room({
+    id: 'r10', name: 'room.10', goal: 'goal.10', theme: 0,
+    spawn: { climber: [2, 3], strong: [3.5, 3] },
+    boxes: [[7, 3]],                       // behind the cracked wall, on the way to the plate
+    draw(fill) {
+      fill(12, W - 2, 3, 3);               // a 1-high step right after the plate: the crate stops ON the plate
+      fill(13, 15, 0, 3, '.');             // the gap (no bottom), 3 wide: too far for the strong one
+      fill(16, 17, 7, 7);                  // key ledge (top 8) …
+      fill(18, 18, 4, 7, 'H');             // … and its ladder
+      fill(25, 26, 7, 7);                  // lever shelf (top 8): 6 cells from the ladder, only from the head
+      fill(27, 27, 7, H - 2);              // wall above the locked gate
+      fill(28, 28, 7, H - 2);              // wall above the door
+    },
+    objects: [
+      { id: 'W', type: 'crack', x: 5, y: 3, h: 2 },
+      { id: 'P', type: 'plate', x: 11, y: 3, targets: ['b'] },
+      { id: 'b', type: 'bridge', x0: 13, x1: 15, y: 3 },
+      { id: 'k', type: 'key', x: 16, y: 8, opens: 'G' },
+      { id: 'l', type: 'lever', x: 25, y: 8, targets: ['D'] },
+      { id: 'G', type: 'locked', x: 27, y: 4, h: 3 },
+      { id: 'D', type: 'door', x: 28, y: 4, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 4 },
+    ],
+  }),
+
+  // ── 4-2 Either / or ──────────────────────────────────────────────────────────────────
+  // One lever, two doors: door a (corridor below) is shut, door b (gallery above) is open;
+  // every pull swaps them. Aha: "Don't pull yet, I have to get through first!" Up in the
+  // gallery the climber drops the caged crate through the hole; it becomes the strong
+  // one's step onto the plateau, where the key waits on a shelf only the head reaches.
+  room({
+    id: 'r11', name: 'room.11', goal: 'goal.11', theme: 1,
+    spawn: { climber: [2, 3], strong: [3.5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(6, 6, 3, 7, 'H');               // ladder up to the gallery
+      fill(7, 16, 7, 7);                   // gallery floor (top 8) …
+      fill(18, 19, 7, 7);                  // … with a hole at x 17 (the cage plugs it)
+      fill(23, W - 2, 3, 4);               // plateau (top 5)
+      fill(26, 27, 8, 8);                  // key shelf (top 9): 6 cells from the gallery end
+      fill(28, 28, 8, H - 2);              // wall above the locked gate
+    },
+    objects: [
+      { id: 'T', type: 'toggle', x: 9, y: 3, targets: ['a', 'b'] },
+      { id: 'a', type: 'door', x: 12, y: 3, h: 4 },
+      { id: 'b', type: 'door', x: 12, y: 8, h: 4, open: true },
+      { id: 'R', type: 'lever', x: 15, y: 8, targets: ['C'] },
+      { id: 'C', type: 'cage', x: 17, y: 7 },
+      { id: 'k', type: 'key', x: 26, y: 9, opens: 'G' },
+      { id: 'G', type: 'locked', x: 28, y: 5, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 5 },
+    ],
+  }),
+
+  // ── 4-3 Who calls the lift? ────────────────────────────────────────────────────────────
+  // The only lift lever stands on top of a high block on the left; there is none below.
+  // Too high even from the strong one's head: crate, strong one, climber. And the raised
+  // lift is also the climber's stepping stone from the block to the plateau. Plan ahead:
+  // the key (it opens the gate up top) lies in a low tunnel down below.
+  room({
+    id: 'r12', name: 'room.12', goal: 'goal.12', theme: 2,
+    spawn: { climber: [21.5, 3], strong: [22.6, 3] },  // right of the wall: the crate goes left
+    boxes: [[17, 3]],
+    draw(fill) {
+      fill(1, 7, 3, 8);                    // the high block (top 9): the lift lever stands on it
+      fill(9, 11, 2, 2, '.');              // pocket for the lift (1 cell from the block: an easy hop up
+                                           // there under the low ceiling; 4 cells to the plateau without it)
+      fill(12, W - 2, 8, 8);               // plateau up top (top 9), a hall below it
+      fill(24, W - 2, 4, 4);               // low roof: a 1-high tunnel to the key
+    },
+    objects: [
+      { id: 'T', type: 'liftlever', x: 3, y: 9, targets: ['Y'] },
+      { id: 'Y', type: 'lift', x: 9, w: 3, y0: 3, y1: 9 },
+      { id: 'W', type: 'crack', x: 19, y: 3, h: 2 },
+      { id: 'k', type: 'key', x: 29, y: 3, opens: 'G' },
+      { id: 'G', type: 'locked', x: 27, y: 9, h: 3 },
+      { id: 'E', type: 'exit', x: 29.5, y: 9 },
+    ],
+  }),
+];
+
 /** Levels: each a list of rooms, played in order. */
 export const LEVELS = [
   { id: 'l1', rooms: ROOMS },
   { id: 'l2', rooms: LEVEL2 },
   { id: 'l3', rooms: LEVEL3 },
+  { id: 'l4', rooms: LEVEL4 },
 ];
 
 /** Debug: the room as text, top row first. */

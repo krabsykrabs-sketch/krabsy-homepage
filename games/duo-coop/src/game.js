@@ -12,7 +12,7 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'crack', 'key', 'portal', 'liftlever']);
+const ASKS = new Set(['lever', 'switch', 'post', 'crack', 'key', 'portal', 'liftlever', 'toggle']);
 const BUTTON_TIME = 0.8;   // s of the strong one's weight until the button is down
 const LIFT_SPEED = 2.4;   // cells per second
 const KEY_FLIGHT = 1.3;   // s: a collected key flies to its locked door, which then opens
@@ -117,7 +117,7 @@ export async function createGame(canvas, opts) {
       // exits never ask (owner 2026-11-27): open from the start, both in it = room done
       const s = { def: o, on: false, open: o.type === 'exit' || !!o.open, taken: false, active: !!o.active && !o.ask,
         cells: cellsOf(o), wantSolid: false, solid: false };
-      if (BLOCKING.has(o.type)) s.wantSolid = true;
+      if (BLOCKING.has(o.type)) s.wantSolid = !s.open;   // a door may start open (toggles)
       objs.set(o.id, s);
     }
     // cage boxes hang still until released
@@ -180,7 +180,7 @@ export async function createGame(canvas, opts) {
       case 'door': case 'crack': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
       case 'portal': return { x: o.x + 0.5, y: o.y, rx: 0.75, top: 2.2 };
       case 'switch': return { x: o.x + 0.5, y: o.y, rx: 0.95, top: 1.4 };
-      case 'cage': case 'bridge': case 'lift': case 'button': return null;
+      case 'cage': case 'bridge': case 'lift': case 'button': case 'plate': return null;
       default: return { x: o.x + 0.5, y: o.y, rx: 0.9, top: o.type === 'post' ? 1.85 : 1.35 };
     }
   }
@@ -194,7 +194,7 @@ export async function createGame(canvas, opts) {
     const o = s.def;
     switch (o.type) {
       case 'lever': case 'switch': case 'post': return !s.on;
-      case 'liftlever': return true;     // each pull moves the lift again
+      case 'liftlever': case 'toggle': return true;     // each pull does something again
       case 'crack': return !s.open;
       case 'key': return !s.taken;
       case 'portal': return o.ask && !s.active;
@@ -280,6 +280,16 @@ export async function createGame(canvas, opts) {
       case 'lever': case 'switch': case 'post':
         ask(p, s, () => { s.on = true; o.targets.forEach(activate); });
         return;
+      case 'toggle':      // owner's level 4: one lever swaps its doors (open ↔ shut)
+        ask(p, s, () => {
+          s.on = !s.on;
+          for (const id of o.targets) {
+            const d = objs.get(id);
+            if (d) { d.open = !d.open; d.wantSolid = !d.open; }
+          }
+          sfx('open');
+        });
+        return;
       case 'liftlever':   // up if it is down, down if it is up
         ask(p, s, () => {
           s.on = !s.on;
@@ -337,6 +347,14 @@ export async function createGame(canvas, opts) {
     }
   }
 
+  // switch a target on or off (hold plates): bridges appear / vanish, doors open / shut
+  function setOn(id, on) {
+    const s = objs.get(id); if (!s) return;
+    if (s.def.type === 'bridge') { s.on = on; s.wantSolid = on; }
+    else if (BLOCKING.has(s.def.type)) { s.open = on; s.wantSolid = !on; }
+    else if (on) activate(id);
+  }
+
   function resetBox(box) {
     box.x = box.home[0]; box.y = box.home[1]; box.vy = 0; box.onGround = false; box.support = null;
   }
@@ -382,6 +400,25 @@ export async function createGame(canvas, opts) {
       world.step(STEP, inputs);
       for (const r of inputs.values()) r.jumpPressed = false;
       acc -= STEP;
+    }
+    // Hold plates (level 4): on only while the strong one or a crate stands on them
+    for (const s of objs.values()) {
+      if (s.def.type !== 'plate') continue;
+      const cx0 = s.def.x + 0.5 - BUTTON_W / 2, cx1 = s.def.x + 0.5 + BUTTON_W / 2;
+      const weighs = (b) => b.onGround && Math.abs(b.y - s.def.y) < 0.06 && b.x + b.w / 2 > cx0 && b.x + b.w / 2 < cx1;
+      const held = players.some((p) => p.role === 'strong' && weighs(p.body)) || boxes.some((b) => !b.static && weighs(b));
+      s.press = Math.max(0, Math.min(1, (s.press || 0) + (held ? dt : -dt) / 0.25));
+      const on = s.press >= 1 ? true : s.press <= 0 ? false : s.on;
+      if (on !== s.on) {
+        s.on = on;
+        for (const id of s.def.targets) setOn(id, on);
+        sfx(on ? 'open' : 'thud');
+      }
+      for (const p of players) {
+        const here = p.role !== 'strong' && weighs(p.body);
+        if (here && !s.hinted?.[p.pi]) toast(p, t('needHeavy'));
+        s.hinted = { ...(s.hinted || {}), [p.pi]: here };
+      }
     }
     // Big floor buttons (owner 2026-11-27: instead of a heavy lever, no question — it is just
     // weight): only the strong one presses one, slowly; the climber gets a hint once per visit.
@@ -583,7 +620,7 @@ export async function createGame(canvas, opts) {
         onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card,
         near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
       objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open,
-        taken: s.taken, active: s.active, solid: s.solid }])),
+        taken: s.taken, active: s.active, solid: s.solid, top: s.top }])),
       boxes: () => boxes.map((b) => ({ x: b.x, y: b.y, carried: !!b.carried, static: !!b.static })),
       // tests: run the simulation without drawing (headless software GL is ~4 fps)
       manual(b) { manual = !!b; },
