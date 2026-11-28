@@ -1483,6 +1483,10 @@ function snapBack(chipEl) {
 // ═══════════════════════════════════════════════════════════════════════════
 function resolvePair(targetVerb, chipVerb, chipEl) {
   if (state.phase !== 'playing') return;
+  // A word dropped on a row that is already solved is a slip, not a mistake (owner
+  // 2026-11-28): it just goes back, no sound, no penalty, nothing recorded.
+  const doneRow = els.rows.querySelector(`.dm-row[data-verb="${cssEscape(targetVerb)}"] .dm-pill-locked`);
+  if (doneRow) { if (chipEl) snapBack(chipEl); return; }
   ensureTimerStarted();
   state.attempts += 1;
   const correct = (targetVerb === chipVerb);
