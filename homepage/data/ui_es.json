@@ -162,6 +162,8 @@
       "deck_position": "Tarjeta {n} de {total}",
       "deck_empty": "No hay tarjetas en este grupo — prueba otro filtro.",
       "deck_finished": "¡Mazo completado! ¿Otra vez?",
+      "round_done": "¡{n} tarjetas hechas!",
+      "btn_next_round": "{n} más",
       "aria_flip_card": "Girar tarjeta"
     },
     "verb_table": {
@@ -192,7 +194,7 @@
       "session_stats": "Sesión: {attempts} intentos · {accuracy}% correcto · Racha: {streak}",
       "fixed_deck_note": "Estás practicando una selección fija de {n} verbos.",
       "fixed_deck_remaining": "Te quedan {n} por practicar.",
-      "fixed_deck_done_title": "¡Todos los verbos dominados! 🦀",
+      "fixed_deck_done_title": "¡Todos los verbos dominados!",
       "fixed_deck_done_body": "Has acertado todos los verbos de tu lista de práctica.",
       "fixed_deck_continue_all": "Seguir con todos los verbos",
       "weak_empty_note": "Practica unos minutos — y aparecerán aquí tus verbos flojos."
@@ -326,7 +328,7 @@
           "filter_weak": "Solo reglas flojas",
           "fixed_deck_note": "Estás practicando una selección fija de {n} reglas.",
           "fixed_deck_remaining": "Quedan {n} por practicar.",
-          "fixed_deck_done_title": "¡Todas las reglas conseguidas! 🦀",
+          "fixed_deck_done_title": "¡Todas las reglas conseguidas!",
           "fixed_deck_done_body": "Has respondido correctamente a todas las reglas de tu lista.",
           "fixed_deck_continue_all": "Seguir con todas las reglas"
         }

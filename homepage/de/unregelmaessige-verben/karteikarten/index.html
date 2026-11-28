@@ -318,7 +318,7 @@
       </div>
 
       <aside class="k-intro-card" aria-label="Über dieses Werkzeug">
-        <p>Klassische Karteikarten zum Lernen unregelmäßiger Verben. Vorne siehst du die Grundform, hinten Simple Past und Past Participle. Entscheide selbst, ob du das Verb schon kannst oder es nochmal üben möchtest. Dein Fortschritt wird gespeichert.</p>
+        <p>Klassische Karteikarten zum Lernen unregelmäßiger Verben. Vorne siehst du die Grundform, hinten Simple Past und Past Participle. Entscheide selbst, ob du das Verb schon kannst oder es nochmal üben möchtest. Was du noch nicht wusstest, kommt am Ende der Runde nochmal. Eine Runde hat 10 Karten.</p>
       </aside>
 
       <!-- Filter toolbar -->
@@ -372,9 +372,9 @@
       </div>
 
       <div class="fc-state-message fc-hidden" id="fc-state-finished">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">Stapel durch!</p>
+        <p class="fc-state-text" id="fc-state-finished-text">Stapel durch!</p>
         <div class="fc-state-actions">
-          <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Nochmal</button>
+          <button class="k-btn-primary" type="button" id="fc-btn-restart"></button>
           <a class="k-btn-secondary" href="/de/unregelmaessige-verben/" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
       </div>
@@ -421,12 +421,12 @@
       setLang,
     } from '/lib/krabsy-data.js?v=2026-11-27l';
     import {
-      recordAttempt,
       getStrugglers,
       getMastered,
       verbAggregateMastery,
     } from '/lib/krabsy-stats.js?v=2026-11-25';
 
+    const ROUND_SIZE = 10;   // cards per round
     const FILTER_KEY = 'krabsy_flashcards_filter';
     const VALID_FILTERS = new Set(['all', 'review', 'mastered']);
 
@@ -439,6 +439,8 @@
       flipped: false,
       filter: 'all',
       finished: false,
+      pool: [],         // the whole filtered deck; rounds are dealt from it
+      poolPos: 0,
     };
 
     // ─── i18n helpers ───────────────────────────────────────────────────
@@ -562,10 +564,7 @@
         showSection({ empty: true });
         return;
       }
-      if (state.finished || state.index >= total) {
-        showSection({ finished: true });
-        return;
-      }
+      if (state.finished || state.index >= total) { renderRoundEnd(); showSection({ finished: true }); return; }
 
       const entry = state.deck[state.index];
       document.getElementById('fc-front-verb').textContent = entry.verb;
@@ -589,10 +588,9 @@
     }
 
     function rebuildAndRender() {
-      state.deck = buildDeck(state.filter);
-      state.index = 0;
-      state.finished = false;
-      renderCurrentCard();
+      state.pool = buildDeck(state.filter);
+      state.poolPos = 0;
+      nextRound();
     }
 
     // ─── Interaction ────────────────────────────────────────────────────
@@ -605,23 +603,41 @@
       document.getElementById('fc-judgment').classList.toggle('is-pre-flip', !state.flipped);
     }
 
-    function judge(correct) {
+    function judge(knewIt) {
+      // Self-rating is not an answer: nothing is recorded and no shells are paid
+      // (drill review 2026-11-28). "Nochmal" only brings the card back once at
+      // the end of this round.
       if (state.deck.length === 0 || state.finished) return;
       const entry = state.deck[state.index];
       if (!entry) return;
-      recordAttempt(entry.verb, 'past', correct, 'flashcards', 'irregular_verbs');
-      recordAttempt(entry.verb, 'participle', correct, 'flashcards', 'irregular_verbs');
+      if (!knewIt && !entry.__again) state.deck.push(Object.assign({}, entry, { __again: true }));
 
-      // Advance
       state.index += 1;
-      if (state.index >= state.deck.length) {
-        state.finished = true;
-        renderCurrentCard();
-      } else {
-        // Flip back then advance — using a transitionend would feel laggy if
-        // the user is going fast; just snap to next card.
-        renderCurrentCard();
+      if (state.index >= state.deck.length) state.finished = true;
+      renderCurrentCard();
+    }
+
+    // ─── Rounds of 10 cards ─────────────────────────────────────────────
+    function nextRound() {
+      if (state.poolPos >= state.pool.length) {
+        state.pool = buildDeck(state.filter);   // whole deck done: start again
+        state.poolPos = 0;
       }
+      state.deck = state.pool.slice(state.poolPos, state.poolPos + ROUND_SIZE);
+      state.poolPos += state.deck.length;
+      state.index = 0;
+      state.finished = false;
+      renderCurrentCard();
+    }
+
+    function renderRoundEnd() {
+      const done = state.deck.filter((c) => !c.__again).length;
+      const left = state.pool.length - state.poolPos;
+      document.getElementById('fc-state-finished-text').textContent =
+        (tGet('tools.flashcards.round_done') || '{n} Karten geschafft!').replace('{n}', String(done));
+      const more = left > 0 ? Math.min(ROUND_SIZE, left) : Math.min(ROUND_SIZE, state.pool.length);
+      document.getElementById('fc-btn-restart').textContent =
+        (tGet('tools.flashcards.btn_next_round') || 'Noch {n}').replace('{n}', String(more));
     }
 
     // ─── Init ───────────────────────────────────────────────────────────
@@ -662,9 +678,7 @@
       });
 
       // Restart from finished state
-      document.getElementById('fc-btn-restart').addEventListener('click', () => {
-        rebuildAndRender();
-      });
+      document.getElementById('fc-btn-restart').addEventListener('click', nextRound);
 
       // Filter pills
       document.querySelectorAll('.fc-filter-pill').forEach((btn) => {
@@ -713,7 +727,7 @@
     init();
   </script>
   <script type="module">
-    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-11-28q';
     initToolPage('flashcards');
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>

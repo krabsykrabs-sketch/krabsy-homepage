@@ -209,6 +209,28 @@
       .fp-verb { font-size: 3.4rem; }
     }
 
+    /* The question is the row  go → ___ → ___  (no grammar term as the question):
+       the blank of the focused field is highlighted, after an answer both blanks
+       show the right forms. */
+    .fp-verb { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 10px; }
+    .fp-arrow { font-family: var(--font-body); font-size: 0.5em; color: var(--krabsy-ink-mute); }
+    .fp-blank {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 2.6em; padding: 2px 10px; border-radius: var(--radius-md);
+      border: 2px solid var(--krabsy-sage-soft); color: var(--krabsy-ink-mute);
+      font-family: var(--font-body); font-weight: 800; font-size: 0.5em; letter-spacing: 1px;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .fp-blank.is-asked { border-color: var(--krabsy-coral); background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); }
+    .fp-blank.is-right { border-color: var(--krabsy-sage); background: var(--krabsy-sage-soft); color: var(--krabsy-ink); letter-spacing: 0; }
+    .fp-blank.is-wrong { border-color: var(--krabsy-coral); background: var(--krabsy-coral-soft); color: var(--krabsy-ink); letter-spacing: 0; }
+    @media (max-width: 480px) {
+      .fp-verb { font-size: 2.1rem; gap: 4px 6px; }
+      .fp-blank { padding: 2px 6px; }
+    }
+    .fp-input-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; }
+    .fp-done-ico { width: 40px; height: 40px; display: block; margin: 0 auto 6px; }
+
     /* Input row */
     .fp-inputs {
       display: grid;
@@ -333,7 +355,7 @@
 
       <!-- Stage -->
       <section class="fp-stage" id="fp-stage" aria-live="polite">
-        <h2 class="fp-verb" id="fp-verb">—</h2>
+        <h2 class="fp-verb" id="fp-verb"><span id="fp-verb-base">—</span><span class="fp-arrow" aria-hidden="true">→</span><span class="fp-blank" id="fp-blank-past">___</span><span class="fp-arrow" aria-hidden="true">→</span><span class="fp-blank" id="fp-blank-pp">___</span></h2>
 
         <div class="fp-inputs">
           <div class="fp-input-group">
@@ -418,6 +440,7 @@
     const FILTER_KEY = 'krabsy_free_practice_filter';
     const VALID_FILTERS = new Set(['all', 'weak']);
     const FEEDBACK_MS = 800;
+    const FEEDBACK_WRONG_MS = 2600;   // long enough to read the right form
 
     // ─── State ──────────────────────────────────────────────────────────
     const state = {
@@ -572,7 +595,8 @@
 
     function renderCurrentVerb() {
       const verbId = state.deck[state.index];
-      document.getElementById('fp-verb').textContent = verbId || '—';
+      document.getElementById('fp-verb-base').textContent = verbId || '—';
+      resetBlanks();
 
       const pastEl = document.getElementById('fp-input-past');
       const ppEl = document.getElementById('fp-input-pp');
@@ -590,6 +614,27 @@
 
       // Auto-focus past field
       setTimeout(() => { pastEl.focus(); }, 0);
+    }
+
+    function resetBlanks() {
+      for (const [id, inputId] of [['fp-blank-past', 'fp-input-past'], ['fp-blank-pp', 'fp-input-pp']]) {
+        const el = document.getElementById(id);
+        el.textContent = '___';
+        el.classList.remove('is-right', 'is-wrong');
+        el.classList.toggle('is-asked', document.activeElement && document.activeElement.id === inputId);
+      }
+    }
+
+    function markAsked(which) {
+      document.getElementById('fp-blank-past').classList.toggle('is-asked', which === 'past');
+      document.getElementById('fp-blank-pp').classList.toggle('is-asked', which === 'pp');
+    }
+
+    function revealBlank(id, form, ok) {
+      const el = document.getElementById(id);
+      el.textContent = form;
+      el.classList.remove('is-asked');
+      el.classList.add(ok ? 'is-right' : 'is-wrong');
     }
 
     function advance() {
@@ -611,7 +656,7 @@
       return (s || '').trim().toLowerCase();
     }
 
-    function showFormFeedback(id, correct) {
+    function showFormFeedback(id, correct, rightForm) {
       const el = document.getElementById(id);
       el.classList.add('is-shown');
       if (correct) {
@@ -619,7 +664,7 @@
         el.textContent = tGet('common.correct') || 'Richtig!';
       } else {
         el.classList.add('k-pill-wrong');
-        el.textContent = tGet('common.wrong') || 'Falsch';
+        el.textContent = '→ ' + rightForm;
       }
     }
 
@@ -656,8 +701,11 @@
       if (ppOk) state.sessionFormsCorrect += 1;
 
       // Show feedback pills
-      showFormFeedback('fp-feedback-past', pastOk);
-      showFormFeedback('fp-feedback-pp', ppOk);
+      showFormFeedback('fp-feedback-past', pastOk, row.past);
+      showFormFeedback('fp-feedback-pp', ppOk, row.participle);
+      // The row above shows the whole chain: go → went → gone
+      revealBlank('fp-blank-past', row.past, pastOk);
+      revealBlank('fp-blank-pp', row.participle, ppOk);
 
       // Lock inputs during feedback window
       pastEl.disabled = true;
@@ -688,7 +736,7 @@
         } else {
           advance();
         }
-      }, FEEDBACK_MS);
+      }, bothCorrect ? FEEDBACK_MS : FEEDBACK_WRONG_MS);
     }
 
     function updateFixedDeckNote() {
@@ -705,7 +753,7 @@
       const stage = document.getElementById('fp-stage');
       if (!stage) return;
       const title = tGet('tools.free_practice.fixed_deck_done_title')
-        || 'Alle Verben geschafft! 🦀';
+        || 'Alle Verben geschafft!';
       const body = tGet('tools.free_practice.fixed_deck_done_body')
         || 'Du hast alle Verben aus deiner Übungs-Liste richtig beantwortet.';
       const backLbl = tGet('common.back_to_hub') || 'Zurück zur Übersicht';
@@ -713,6 +761,7 @@
         || 'Weiter mit allen Verben';
       stage.innerHTML =
         '<div class="fp-done">' +
+          '<svg class="ki fp-done-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-star"/></svg>' +
           '<h2 class="fp-done-title"></h2>' +
           '<p class="fp-done-body"></p>' +
           '<div class="fp-done-actions">' +
@@ -793,6 +842,8 @@
       document.getElementById('fp-btn-hint').addEventListener('click', handleHintToggle);
 
       // Enter in past → advance focus to participle; Enter in participle → submit.
+      document.getElementById('fp-input-past').addEventListener('focus', () => { if (!state.busy) markAsked('past'); });
+      document.getElementById('fp-input-pp').addEventListener('focus', () => { if (!state.busy) markAsked('pp'); });
       wireTwoFieldForm({
         pastInput: document.getElementById('fp-input-past'),
         ppInput: document.getElementById('fp-input-pp'),
@@ -853,7 +904,7 @@
     init();
   </script>
   <script type="module">
-    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initToolPage } from '/lib/krabsy-nav.js?v=2026-11-28q';
     initToolPage('free_practice');
   </script>
     <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>

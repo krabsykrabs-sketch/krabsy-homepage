@@ -162,6 +162,8 @@
       "deck_position": "Karte {n} von {total}",
       "deck_empty": "Keine Karten in diesem Stapel — wähle einen anderen Filter.",
       "deck_finished": "Stapel durch! Möchtest du nochmal?",
+      "round_done": "{n} Karten geschafft!",
+      "btn_next_round": "Noch {n}",
       "aria_flip_card": "Karte umdrehen"
     },
     "verb_table": {
@@ -192,7 +194,7 @@
       "session_stats": "Session: {attempts} Versuche · {accuracy}% richtig · Serie: {streak}",
       "fixed_deck_note": "Du übst eine vorgegebene Auswahl von {n} Verben.",
       "fixed_deck_remaining": "Noch {n} zu üben.",
-      "fixed_deck_done_title": "Alle Verben geschafft! 🦀",
+      "fixed_deck_done_title": "Alle Verben geschafft!",
       "fixed_deck_done_body": "Du hast alle Verben aus deiner Übungs-Liste richtig beantwortet.",
       "fixed_deck_continue_all": "Weiter mit allen Verben",
       "weak_empty_note": "Übe ein paar Minuten — dann erscheinen hier deine schwachen Verben."
@@ -326,7 +328,7 @@
           "filter_weak": "Nur schwache Regeln",
           "fixed_deck_note": "Du übst eine vorgegebene Auswahl von {n} Regeln.",
           "fixed_deck_remaining": "Noch {n} zu üben.",
-          "fixed_deck_done_title": "Alle Regeln geschafft! 🦀",
+          "fixed_deck_done_title": "Alle Regeln geschafft!",
           "fixed_deck_done_body": "Du hast alle Regeln aus deiner Übungs-Liste richtig beantwortet.",
           "fixed_deck_continue_all": "Weiter mit allen Regeln"
         }

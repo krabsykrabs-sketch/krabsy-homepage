@@ -249,9 +249,9 @@
       </div>
 
       <div class="fc-state-message fc-hidden" id="fc-state-finished">
-        <p class="fc-state-text" data-i18n="tools.flashcards.deck_finished">Stapel durch!</p>
+        <p class="fc-state-text" id="fc-state-finished-text">Stapel durch!</p>
         <div class="fc-state-actions">
-          <button class="k-btn-primary" type="button" id="fc-btn-restart" data-i18n="tools.flashcards.btn_again">Nochmal</button>
+          <button class="k-btn-primary" type="button" id="fc-btn-restart"></button>
           <a class="k-btn-secondary" href="/de/praepositionen/" data-i18n="common.back_to_hub">Zurück zur Übersicht</a>
         </div>
       </div>
@@ -311,9 +311,11 @@
 
   <script type="module">
     import { loadStrings, loadPrepositions, currentLang, setLang } from '/lib/krabsy-data.js?v=2026-11-27l';
-    import { recordAttempt, getStrugglers, getMastered, prepositionMastery } from '/lib/krabsy-stats.js?v=2026-11-25';
+    import {
+      getStrugglers, getMastered, prepositionMastery } from '/lib/krabsy-stats.js?v=2026-11-25';
 
     const CURRENT_TOPIC = 'prepositions';
+    const ROUND_SIZE = 10;   // cards per round
     const FILTER_KEY = 'krabsy_flashcards_filter_prepositions';
     const VALID_FILTERS = new Set(['all', 'review', 'mastered']);
     // Mirror the verb side: aggregate mastery >= 3 counts as "mastered" for filter purposes.
@@ -331,6 +333,8 @@
       flipped: false,
       filter: 'all',
       finished: false,
+      pool: [],         // the whole filtered deck; rounds are dealt from it
+      poolPos: 0,
     };
 
     function tGet(path) {
@@ -443,7 +447,7 @@
 
       const total = state.deck.length;
       if (total === 0) { showSection({ empty: true }); return; }
-      if (state.finished || state.index >= total) { showSection({ finished: true }); return; }
+      if (state.finished || state.index >= total) { renderRoundEnd(); showSection({ finished: true }); return; }
 
       const entry = state.deck[state.index];
       const [pre, post] = splitSentence(entry.sentence);
@@ -466,10 +470,9 @@
     }
 
     function rebuildAndRender() {
-      state.deck = buildDeck(state.filter);
-      state.index = 0;
-      state.finished = false;
-      renderCurrentCard();
+      state.pool = buildDeck(state.filter);
+      state.poolPos = 0;
+      nextRound();
     }
 
     function flipCard() {
@@ -480,19 +483,41 @@
       document.getElementById('fc-judgment').classList.toggle('is-pre-flip', !state.flipped);
     }
 
-    function judge(correct) {
+    function judge(knewIt) {
+      // Self-rating is not an answer: nothing is recorded and no shells are paid
+      // (drill review 2026-11-28). "Nochmal" only brings the card back once at
+      // the end of this round.
       if (state.deck.length === 0 || state.finished) return;
       const entry = state.deck[state.index];
       if (!entry) return;
-      recordAttempt(entry.useCaseId, 'default', correct, 'flashcards', CURRENT_TOPIC);
+      if (!knewIt && !entry.__again) state.deck.push(Object.assign({}, entry, { __again: true }));
 
       state.index += 1;
-      if (state.index >= state.deck.length) {
-        state.finished = true;
-        renderCurrentCard();
-      } else {
-        renderCurrentCard();
+      if (state.index >= state.deck.length) state.finished = true;
+      renderCurrentCard();
+    }
+
+    // ─── Rounds of 10 cards ─────────────────────────────────────────────
+    function nextRound() {
+      if (state.poolPos >= state.pool.length) {
+        state.pool = buildDeck(state.filter);   // whole deck done: start again
+        state.poolPos = 0;
       }
+      state.deck = state.pool.slice(state.poolPos, state.poolPos + ROUND_SIZE);
+      state.poolPos += state.deck.length;
+      state.index = 0;
+      state.finished = false;
+      renderCurrentCard();
+    }
+
+    function renderRoundEnd() {
+      const done = state.deck.filter((c) => !c.__again).length;
+      const left = state.pool.length - state.poolPos;
+      document.getElementById('fc-state-finished-text').textContent =
+        (tGet('tools.flashcards.round_done') || '{n} Karten geschafft!').replace('{n}', String(done));
+      const more = left > 0 ? Math.min(ROUND_SIZE, left) : Math.min(ROUND_SIZE, state.pool.length);
+      document.getElementById('fc-btn-restart').textContent =
+        (tGet('tools.flashcards.btn_next_round') || 'Noch {n}').replace('{n}', String(more));
     }
 
     function loadSavedFilter() {
@@ -512,7 +537,7 @@
       });
       document.getElementById('fc-btn-got-it').addEventListener('click', (e) => { e.stopPropagation(); judge(true); });
       document.getElementById('fc-btn-again').addEventListener('click', (e) => { e.stopPropagation(); judge(false); });
-      document.getElementById('fc-btn-restart').addEventListener('click', rebuildAndRender);
+      document.getElementById('fc-btn-restart').addEventListener('click', nextRound);
       document.querySelectorAll('.fc-filter-pill').forEach((btn) => {
         btn.addEventListener('click', () => {
           const f = btn.dataset.filter;

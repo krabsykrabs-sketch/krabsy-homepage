@@ -162,6 +162,8 @@
       "deck_position": "Card {n} of {total}",
       "deck_empty": "No cards in this deck — choose a different filter.",
       "deck_finished": "Deck done! Want to go again?",
+      "round_done": "{n} cards done!",
+      "btn_next_round": "{n} more",
       "aria_flip_card": "Flip card"
     },
     "verb_table": {
@@ -192,7 +194,7 @@
       "session_stats": "Session: {attempts} attempts · {accuracy}% correct · Streak: {streak}",
       "fixed_deck_note": "You're practicing a set selection of {n} verbs.",
       "fixed_deck_remaining": "{n} left to practice.",
-      "fixed_deck_done_title": "All verbs done! 🦀",
+      "fixed_deck_done_title": "All verbs done!",
       "fixed_deck_done_body": "You got every verb on your practice list right.",
       "fixed_deck_continue_all": "Continue with all verbs",
       "weak_empty_note": "Practice for a few minutes — then your weak verbs will show up here."
@@ -367,7 +369,7 @@
           "filter_weak": "Only weak rules",
           "fixed_deck_note": "You're practicing a set selection of {n} rules.",
           "fixed_deck_remaining": "{n} left to practice.",
-          "fixed_deck_done_title": "All rules done! 🦀",
+          "fixed_deck_done_title": "All rules done!",
           "fixed_deck_done_body": "You got every rule on your practice list right.",
           "fixed_deck_continue_all": "Continue with all rules"
         }
