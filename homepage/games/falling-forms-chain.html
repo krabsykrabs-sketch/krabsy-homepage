@@ -699,6 +699,11 @@ body::before {
   border-radius: 999px;
   box-shadow: 0 0 22px rgba(242,147,126,0.55);
 }
+/* Shells earned in this round (end screen), like the drill shell (lib/krabsy-drill.css) */
+.k-shells-won { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 10px;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 2rem; color: #2c2a3a; line-height: 1.1; }
+.k-shells-won[hidden] { display: none; }
+.k-shells-won svg { width: 38px; height: 38px; flex: 0 0 auto; }
 .ff-chain-grid {
   margin: 18px 0 26px;
   display: flex;
@@ -1011,8 +1016,9 @@ body.ff-compact .ff-danger-line { top: auto; bottom: 88px; }
 
 <div class="ff-screen" id="ff-over-screen" hidden>
   <div class="ff-screen-card">
-    <div class="ff-new-best" id="ff-new-best" hidden data-string="new_best">Neue Bestleistung!</div>
     <h1 class="ff-title" data-string="game_over">Spiel vorbei</h1>
+    <p class="k-shells-won" id="ff-shells" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-28q#ki-shell"/></svg><span id="ff-shells-text"></span></p>
+    <div class="ff-new-best" id="ff-new-best" hidden data-string="new_best">Neue Bestleistung!</div>
     <div class="ff-over-grid">
       <div class="ff-over-stat">
         <div class="ff-over-stat-label" data-string="final_score">Endpunktzahl</div>
@@ -1130,6 +1136,7 @@ const STRINGS = {
     game_over: 'Spiel vorbei',
     final_score: 'Endpunktzahl',
     play_again: 'Nochmal spielen',
+    shells_earned: '+{n} Muscheln',
     menu: 'Menü',
     no_chains: 'diesmal noch kein Verb geschafft',
     levelup_sub: 'Blöcke fallen schneller',
@@ -1163,6 +1170,7 @@ const STRINGS = {
     game_over: 'Fin del juego',
     final_score: 'Puntuación final',
     play_again: 'Jugar de nuevo',
+    shells_earned: '+{n} caracolas',
     menu: 'Menú',
     no_chains: 'ningún verbo esta vez',
     levelup_sub: 'Los bloques caen más rápido',
@@ -1196,6 +1204,7 @@ const STRINGS = {
     game_over: 'Game over',
     final_score: 'Final score',
     play_again: 'Play again',
+    shells_earned: '+{n} shells',
     menu: 'Menu',
     no_chains: 'nothing finished this round',
     levelup_sub: 'Blocks fall faster',
@@ -1254,6 +1263,22 @@ try {
 function recordAnswer(verb, form, correct) {
   if (!STATS || !verb) return;
   try { STATS.recordAttempt(verb, form, !!correct, 'falling-forms', TOPIC, 'choice'); } catch (_) {}
+}
+// Shells earned this round (paid by recordAttempt, krabsy-shells.js): shown on the end screen.
+let SHELLS = null;
+try {
+  import('/lib/krabsy-shells.js')
+    .then((m) => { if (m && typeof m.getShells === 'function') SHELLS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+let shellsAtStart = 0;
+function shellsEarned() { try { return SHELLS ? (SHELLS.getShells().earned || 0) : 0; } catch (_) { return 0; } }
+function showShellsWon(prefix) {
+  const won = Math.max(0, shellsEarned() - shellsAtStart);
+  const el = document.getElementById(prefix + '-shells');
+  if (!el) return;
+  el.hidden = won <= 0;
+  document.getElementById(prefix + '-shells-text').textContent = t('shells_earned').replace('{n}', String(won));
 }
 
 // Tell the wrapper page when a round runs (it hides its intro and the phone
@@ -1926,6 +1951,7 @@ function startGame() {
   renderNext();
   syncLayout();
   // Spawn first block
+  shellsAtStart = shellsEarned();
   spawnBlock();
   tellPage(true);
   // Try to unlock audio on a user gesture
@@ -1939,14 +1965,16 @@ function endGame() {
   if (state.block && state.block.el) state.block.el.remove();
   state.block = null;
 
-  const isNewBest = state.score > state.best;
-  if (isNewBest) {
+  // "Neue Bestleistung!" only when an older best is beaten; a first round just sets it.
+  const isNewBest = state.best > 0 && state.score > state.best;
+  if (state.score > state.best) {
     state.best = state.score;
     writeBest(state.best);
   }
   els.finalScore.textContent = String(state.score);
   els.finalBest.textContent = String(state.best);
   els.newBest.hidden = !isNewBest;
+  showShellsWon('ff');
 
   els.chainGrid.innerHTML = '';
   if (state.completedThisRun.length === 0) {

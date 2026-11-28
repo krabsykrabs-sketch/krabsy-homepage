@@ -700,6 +700,12 @@ body::before {
 .dm-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
 .dm-new-best[hidden] { display: none; }
+/* Shells earned in this round (end screen), like the drill shell (lib/krabsy-drill.css) */
+.k-shells-won { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 10px;
+  font-family: 'Fredoka Display', 'Nunito', sans-serif; font-size: 2rem; color: #2c2a3a; line-height: 1.1; }
+.k-shells-won[hidden] { display: none; }
+.k-shells-won svg { width: 38px; height: 38px; flex: 0 0 auto; }
+
 .dm-how {
   margin: -14px 0 24px;
   font-size: 0.85rem;
@@ -878,8 +884,9 @@ body::before {
 
 <div class="dm-screen" id="dm-done-screen" hidden>
   <div class="dm-screen-card">
-    <div class="dm-new-best" id="dm-new-best" hidden data-string="new_best">Neue Bestzeit!</div>
     <h1 class="dm-title" id="dm-done-title" data-string="done_title">Alle Formen gefunden!</h1>
+    <p class="k-shells-won" id="dm-shells" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-28q#ki-shell"/></svg><span id="dm-shells-text"></span></p>
+    <div class="dm-new-best" id="dm-new-best" hidden data-string="new_best">Neue Bestzeit!</div>
     <div class="dm-done-grid">
       <div class="dm-done-stat">
         <div class="dm-done-stat-label" data-string="final_time">Zeit</div>
@@ -973,6 +980,7 @@ const STRINGS = {
     final_time: 'Zeit',
     attempts: 'Versuche',
     play_again: 'Nochmal spielen',
+    shells_earned: '+{n} Muscheln',
     menu: 'Menü',
     aria_sound: 'Ton an/aus',
     aria_close: 'Schließen',
@@ -998,6 +1006,7 @@ const STRINGS = {
     final_time: 'Tiempo',
     attempts: 'Intentos',
     play_again: 'Jugar de nuevo',
+    shells_earned: '+{n} caracolas',
     menu: 'Menú',
     aria_sound: 'Sonido on/off',
     aria_close: 'Cerrar',
@@ -1023,6 +1032,7 @@ const STRINGS = {
     final_time: 'Time',
     attempts: 'Attempts',
     play_again: 'Play again',
+    shells_earned: '+{n} shells',
     menu: 'Menu',
     aria_sound: 'Sound on/off',
     aria_close: 'Close',
@@ -1083,6 +1093,23 @@ function recordAnswer(verb, form, correct) {
   if (!STATS || !verb) return;
   try { STATS.recordAttempt(verb, form, !!correct, 'drag-match', TOPIC, 'choice'); } catch (_) {}
 }
+// Shells earned this round (paid by recordAttempt, krabsy-shells.js): shown on the end screen.
+let SHELLS = null;
+try {
+  import('/lib/krabsy-shells.js')
+    .then((m) => { if (m && typeof m.getShells === 'function') SHELLS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+let shellsAtStart = 0;
+function shellsEarned() { try { return SHELLS ? (SHELLS.getShells().earned || 0) : 0; } catch (_) { return 0; } }
+function showShellsWon(prefix) {
+  const won = Math.max(0, shellsEarned() - shellsAtStart);
+  const el = document.getElementById(prefix + '-shells');
+  if (!el) return;
+  el.hidden = won <= 0;
+  document.getElementById(prefix + '-shells-text').textContent = S('shells_earned').replace('{n}', String(won));
+}
+
 
 // Tell the wrapper page when a round runs (it hides its intro and the phone
 // tab bar, and scrolls the frame into view on small screens).
@@ -1672,6 +1699,7 @@ function startRound() {
   renderHud();
   updateStageUi();
   state.phase = 'playing';
+  shellsAtStart = shellsEarned();
   els.startScreen.hidden = true;
   els.doneScreen.hidden = true;
   tellPage(true);
@@ -1682,13 +1710,15 @@ function finishRound() {
   stopTimer();
   const totalMs = (performance.now() - state.startTs) + state.penaltyMs;
   const prevBest = readBest();
-  const isBest = prevBest == null || totalMs < prevBest;
-  if (isBest) writeBest(Math.round(totalMs));
+  // "Neue Bestzeit!" only when an older best is beaten; a first round just sets it.
+  const isBest = prevBest != null && totalMs < prevBest;
+  if (prevBest == null || isBest) writeBest(Math.round(totalMs));
   const best = readBest();
   els.doneTime.textContent      = fmtSec(totalMs) + ' s';
   els.doneAttempts.textContent  = String(state.attempts);
   els.doneBest.textContent      = best != null ? (fmtSec(best) + ' s') : '—';
   els.newBestBadge.hidden       = !isBest;
+  showShellsWon('dm');
   els.doneScreen.hidden         = false;
   state.round += 1;
 }
