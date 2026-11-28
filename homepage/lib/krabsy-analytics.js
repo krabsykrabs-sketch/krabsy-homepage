@@ -49,7 +49,10 @@
     if (window.top === window && (localStorage.getItem('krabsy_people') || localStorage.getItem('krabsy_class'))) {
       var sm = document.createElement('script');
       sm.type = 'module';
-      sm.textContent = "import('/lib/krabsy-sync.js?v=2026-11-27l').then(function (m) { m.start(); }).catch(function () {});";
+      // + live invites (krabsy-invite.js): "Deine Klasse startet ein Quiz – jetzt beitreten?"
+      // over any page, games included, while the teacher/tutor runs something live.
+      sm.textContent = "import('/lib/krabsy-sync.js?v=2026-11-27l').then(function (m) { m.start(); }).catch(function () {});" +
+        "import('/lib/krabsy-invite.js?v=2026-11-28').then(function (m) { m.start(); }).catch(function () {});";
       (document.head || document.documentElement).appendChild(sm);
     }
   } catch (_) { /* storage blocked / old browser */ }
