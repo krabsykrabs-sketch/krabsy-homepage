@@ -11,3 +11,4 @@ texture atlas). Loaded by `src/models.js`.
 | Platformer Pack 1.0 | lever_floor_base_yellow (lever), button_base_red (big floor button), lever_wall_base_A_blue (switch), signage_arrow_stand_yellow (bridge post), hoop_yellow (portal), floor_wood_1x1 (bridge, lift), chain_full (cage), chain_link (the lift's four chains) |
 | Halloween Bits 1.0 | arch_gate (exit; its two leaves are also every door) |
 | Medieval Hexagon Pack 1.0 | ladder |
+| Adventurers 2.0 (free) | shield_badge_color (the shield bearer's shield), arrow_crossbow (trap bolts) |

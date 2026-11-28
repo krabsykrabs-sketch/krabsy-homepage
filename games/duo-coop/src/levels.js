@@ -24,6 +24,8 @@
 //                                 a lever targeting a plate fixes it (stays on for good)
 //   toggle { x, y, targets }      question → every target door swaps open/shut (each pull asks)
 //   door   …, open: true          starts open (for toggles)
+//   trap   { x, y, dir, period, delay } arrow trap in the wall cell (x, y) (keep it solid), firing
+//                                 bolts in dir (±1) at y + 0.6; a lever targeting it switches it off
 //   lift   { x, w, y0, y1, start } a platform (top at y0 = down, y1 = up; start: 'up'), moved by a liftlever;
 //                                 keep its shaft empty
 //   liftlever { targets }         question → the lift goes to the other end (each pull asks)
@@ -484,6 +486,85 @@ export const LEVEL5 = [
   }),
 ];
 
+// ══ Level 6 (owner 2026-11-28): the shield bearer and arrow traps ═══════════════════
+// Roles: climber + shield bearer (holds ▼ to raise the shield; bolts from the front bounce
+// off; the partner walks in its cover). A hit only knocks you back.
+export const LEVEL6 = [
+  // ── 6-1 Behind the shield ─────────────────────────────────────────────────────────────
+  // At the same time: the shield bearer pulls the switch (door), the climber climbs to the
+  // key (gate). Then the trap at the end fires down the corridor: the shield goes first,
+  // the climber walks behind it and switches the trap off from there.
+  room({
+    id: 'r16', name: 'room.16', goal: 'goal.16', theme: 0,
+    spawn: { climber: [2, 3], shield: [5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(1, 3, 6, 6);                    // key ledge (top 7) …
+      fill(4, 4, 3, 6, 'H');               // … and its ladder
+      fill(9, 9, 6, H - 2);                // wall above the door
+      fill(13, 13, 6, H - 2);              // wall above the gate
+      fill(30, 30, 3, 3);                  // the trap block
+    },
+    objects: [
+      { id: 's', type: 'switch', x: 7, y: 3, targets: ['D'] },
+      { id: 'D', type: 'door', x: 9, y: 3, h: 3 },
+      { id: 'k', type: 'key', x: 2, y: 7, opens: 'G' },
+      { id: 'G', type: 'locked', x: 13, y: 3, h: 3 },
+      { id: 'l', type: 'lever', x: 24, y: 3, targets: ['X'] },
+      { id: 'X', type: 'trap', x: 30, y: 3, dir: -1, period: 1.1 },
+      { id: 'E', type: 'exit', x: 28, y: 3 },
+    ],
+  }),
+
+  // ── 6-2 On my head ────────────────────────────────────────────────────────────────────
+  // The trap fires from behind (left), from the start. The shield faces back while both
+  // move on; the climber stays in front. The key lies on a ledge only reachable from the
+  // shield bearer's head (and the head is above the bolts).
+  room({
+    id: 'r17', name: 'room.17', goal: 'goal.17', theme: 1,
+    spawn: { climber: [7, 3], shield: [5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(1, 1, 3, 3);                    // the trap block
+      fill(11, 11, 6, H - 2);              // wall above the door
+      fill(15, 16, 6, 6);                  // key ledge (top 7): only from the shield bearer's head
+      fill(24, 24, 6, H - 2);              // wall above the gate
+    },
+    objects: [
+      { id: 'X', type: 'trap', x: 1, y: 3, dir: 1, period: 1.2, delay: 3 },
+      { id: 's', type: 'switch', x: 9, y: 3, targets: ['D'] },
+      { id: 'D', type: 'door', x: 11, y: 3, h: 3 },
+      { id: 'k', type: 'key', x: 15, y: 7, opens: 'G' },
+      { id: 'l', type: 'lever', x: 21, y: 3, targets: ['X'] },
+      { id: 'G', type: 'locked', x: 24, y: 3, h: 3 },
+      { id: 'E', type: 'exit', x: 28.5, y: 3 },
+    ],
+  }),
+
+  // ── 6-3 Bridge under fire ─────────────────────────────────────────────────────────────
+  // The shield bearer opens the door; now bolts fly. Shield up at the gap: the climber,
+  // behind it, builds the bridge; both cross in cover; the climber switches the trap off.
+  room({
+    id: 'r18', name: 'room.18', goal: 'goal.18', theme: 2,
+    spawn: { climber: [2, 3], shield: [3.5, 3] },
+    boxes: [],
+    draw(fill) {
+      fill(9, 9, 6, H - 2);                // wall above the door
+      fill(14, 17, 0, 2, '.');             // the gap (no bottom), 4 wide: too far for the shield bearer
+      fill(30, 30, 3, 3);                  // the trap block
+    },
+    objects: [
+      { id: 's', type: 'switch', x: 6, y: 3, targets: ['D'] },
+      { id: 'D', type: 'door', x: 9, y: 3, h: 3 },
+      { id: 'p', type: 'post', x: 12, y: 3, targets: ['b'] },
+      { id: 'b', type: 'bridge', x0: 14, x1: 17, y: 2 },
+      { id: 'l', type: 'lever', x: 24, y: 3, targets: ['X'] },
+      { id: 'X', type: 'trap', x: 30, y: 3, dir: -1, period: 1.1 },
+      { id: 'E', type: 'exit', x: 28, y: 3 },
+    ],
+  }),
+];
+
 /** Levels: each a list of rooms, played in order. */
 export const LEVELS = [
   { id: 'l1', rooms: ROOMS },
@@ -491,6 +572,7 @@ export const LEVELS = [
   { id: 'l3', rooms: LEVEL3 },
   { id: 'l4', rooms: LEVEL4 },
   { id: 'l5', rooms: LEVEL5 },
+  { id: 'l6', rooms: LEVEL6, roles: ['climber', 'shield'] },
 ];
 
 /** Debug: the room as text, top row first. */

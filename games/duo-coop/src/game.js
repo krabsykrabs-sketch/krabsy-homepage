@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { LEVELS, W, H } from './levels.js';
 import { World, ROLES } from './physics.js';
 import { buildRoom, questionMarker, BUTTON_W, BUTTON_H } from './world.js';
-import { loadModels } from './models.js';
+import { loadModels, fit } from './models.js';
 import { makeFigure } from './figures.js';
 import { createCards } from './cards.js';
 import { KEY_LABEL } from './input.js';
@@ -80,7 +80,12 @@ export async function createGame(canvas, opts) {
     const role = ROLES[c.role];
     const fig = await makeFigure(c.choice, role.look, pi === 0 ? 0x2ee6c0 : 0xff8585);
     scene.add(fig.root);
-    players.push({ pi, role: c.role, fig, cfg: c, body: null, smashAt: -9,
+    // the shield (KayKit shield_badge_color), shown only for the shield bearer: raised in
+    // front while shielding, on the back otherwise (it lives in the figure's turning group)
+    const shield = fit(models.clone('shield_badge_color'), 1.05, null, null);
+    shield.visible = false;
+    fig.root.children[0].add(shield);
+    players.push({ pi, slot: c.role === 'climber' ? 0 : 1, role: c.role, fig, shield, cfg: c, body: null, smashAt: -9,
       inZone: new Set(), portalCd: 0, card: false, near: null, answers: 0, right: 0, wasGround: true });
   }
 
@@ -91,6 +96,10 @@ export async function createGame(canvas, opts) {
 
   // ── room state ──────────────────────────────────────────────────────────────────────
   let levelIdx = 0, rooms = LEVELS[0].rooms;
+  const arrows = [];        // flying bolts (level 6)
+  let hits = 0, blocked = 0;
+  const hitLog = [];
+  const ARROW_SPEED = 8;
   let roomIdx = 0, room = null, world = null, view = null, objs = null, boxes = [], markers = [];
   let state = 'loading', roomDoneAt = 0, bannerUntil = 0;
   const cam = { x: W / 2, y: H / 2, h: 14, init: false };
@@ -110,6 +119,8 @@ export async function createGame(canvas, opts) {
     roomIdx = i;
     room = rooms[i];
     world = new World(room);
+    for (const a of arrows) a.mesh.parent?.remove(a.mesh);
+    arrows.length = 0;
     view = buildRoom(scene, room, world, models);
     scene.background = new THREE.Color(view.theme.sky);
     objs = new Map();
@@ -181,7 +192,7 @@ export async function createGame(canvas, opts) {
       case 'door': case 'crack': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
       case 'portal': return { x: o.x + 0.5, y: o.y, rx: 0.75, top: 2.2 };
       case 'switch': return { x: o.x + 0.5, y: o.y, rx: 0.95, top: 1.4 };
-      case 'cage': case 'bridge': case 'lift': case 'button': case 'plate': return null;
+      case 'cage': case 'bridge': case 'lift': case 'button': case 'plate': case 'trap': return null;
       default: return { x: o.x + 0.5, y: o.y, rx: 0.9, top: o.type === 'post' ? 1.85 : 1.35 };
     }
   }
@@ -239,6 +250,7 @@ export async function createGame(canvas, opts) {
       case 'cage': s.on = true; if (s.box) { s.box.static = false; s.box.onGround = false; } break;
       case 'portal': s.active = true; break;
       case 'plate': s.latched = true; break;   // a lever can fix a hold plate for good (level 5)
+      case 'trap': s.off = true; break;          // a lever switches an arrow trap off (level 6)
     }
   }
 
@@ -458,6 +470,40 @@ export async function createGame(canvas, opts) {
     for (const p of players) p.portalCd = Math.max(0, p.portalCd - dt);
 
 
+    // arrow traps (level 6): bolts fly until a wall, a raised shield or a player stops them
+    for (const s of objs.values()) {
+      if (s.def.type !== 'trap' || s.off) continue;
+      s.t = (s.t ?? -(s.def.delay ?? 1.5)) + dt;
+      if (s.t >= (s.def.period ?? 1.2)) {
+        s.t = 0;
+        const d = s.def.dir;
+        const mesh = view.arrowView(d);
+        arrows.push({ x: s.def.x + 0.5 + d * 0.6, y: s.def.y + 0.6, dir: d, mesh });
+      }
+    }
+    for (const a of arrows) {
+      if (a.dead) continue;
+      a.x += a.dir * ARROW_SPEED * dt;
+      if (world.solid(Math.floor(a.x), Math.floor(a.y))) { a.dead = true; continue; }
+      for (const p of players) {
+        const b = p.body;
+        if (a.y < b.y - 0.05 || a.y > b.y + Math.max(b.h, b.shielding ? 1.9 : 0)) continue;
+        // a raised shield facing the bolt stops it at the front of the bearer
+        if (b.shielding && b.facing === -a.dir) {
+          const front = b.facing > 0 ? b.x + b.w + 0.25 : b.x - 0.25;
+          if (Math.abs(a.x - front) < 0.3) { a.dead = true; sfx('select'); blocked++; break; }
+        }
+        if (a.y <= b.y + b.h && a.x > b.x && a.x < b.x + b.w) {
+          a.dead = true; hits++; hitLog.push({ pi: p.pi, ax: +a.x.toFixed(2), x: +(b.x + b.w / 2).toFixed(2), y: +b.y.toFixed(2), shielding: !!b.shielding, facing: b.facing, at: +played.toFixed(1), others: players.filter((q) => q !== p).map((q) => ({ x: +(q.body.x + q.body.w / 2).toFixed(2), y: +q.body.y.toFixed(2), sh: !!q.body.shielding, f: q.body.facing, card: q.card })) });
+          b.vx = a.dir * 7; b.vy = 4; b.onGround = false; b.support = null; b.stun = 0.4; b.climbing = false;
+          if (played - (p.ouchAt || -9) > 2.5) { toast(p, t('ouch')); p.ouchAt = played; }
+          sfx('nope');
+          break;
+        }
+      }
+    }
+    for (let k = arrows.length - 1; k >= 0; k--) if (arrows[k].dead) { arrows[k].mesh.parent?.remove(arrows[k].mesh); arrows.splice(k, 1); }
+
     // fell into a bottomless gap → a moment later back at this room's start (no lives lost;
     // what the room already has open stays open)
     for (const p of players) {
@@ -502,6 +548,7 @@ export async function createGame(canvas, opts) {
     if (!room) return;
     // views
     for (const [id, v] of view.views) v.update(objs.get(id), dt);
+    for (const a of arrows) a.mesh.position.set(a.x, a.y, 0.05);
     for (const b of boxes) {
       b.mesh.position.set(b.x + b.w / 2, b.y + b.h / 2, 0);
       if (b.landed) { b.landed = false; sfx('thud'); }
@@ -526,6 +573,12 @@ export async function createGame(canvas, opts) {
         else if (b.pushing && Math.abs(b.vx) > 0.2) st = 'push';
         else if (Math.abs(b.vx) > 0.4) st = p.role === 'climber' ? 'run' : 'walk';
         f.face(b.facing || 1);
+      }
+      if (p.shield.visible) {     // raised in front (local +z) or slung on the back
+        // turned half towards the camera so the badge shows in the side view
+        const tilt = (b.facing || 1) > 0 ? -0.85 : 0.85;
+        if (b.shielding) { p.shield.position.set(tilt > 0 ? -0.18 : 0.18, 0.12, 0.5); p.shield.rotation.set(0, tilt, 0); }
+        else { p.shield.position.set(0, 0.45, -0.38); p.shield.rotation.set(0, Math.PI, 0); }
       }
       if (b.jumped) { b.jumped = false; sfx('jump'); }
       f.setState(st);
@@ -604,7 +657,11 @@ export async function createGame(canvas, opts) {
   }
 
   return {
-    start(level = 0, first = 0) { levelIdx = Math.max(0, Math.min(LEVELS.length - 1, level)); rooms = LEVELS[levelIdx].rooms; played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(Math.max(0, Math.min(rooms.length - 1, first))); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
+    start(level = 0, first = 0) { levelIdx = Math.max(0, Math.min(LEVELS.length - 1, level)); rooms = LEVELS[levelIdx].rooms;
+      // each level sets its two roles (level 6: climber + shield bearer); player slot 0 is
+      // the one who chose the climber on the title screen
+      const roles = LEVELS[levelIdx].roles || ['climber', 'strong'];
+      for (const p of players) { p.role = roles[p.slot]; p.fig.setLook(ROLES[p.role].look); p.shield.visible = !!ROLES[p.role].shield; } played = 0; log.length = 0; missed.clear(); players.forEach((p) => { p.answers = 0; p.right = 0; }); updateHud(); loadRoom(Math.max(0, Math.min(rooms.length - 1, first))); last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); },
     pause(b) { paused = !!b; input.clear(); },
     restartRoom() { paused = false; loadRoom(roomIdx); },
     dispose() {
@@ -621,12 +678,16 @@ export async function createGame(canvas, opts) {
     debug: {
       room: () => roomIdx + 1,
       level: () => levelIdx + 1,
+      hits: () => hits,
+      hitLog: () => hitLog.slice(-5),
+      blocked: () => blocked,
+      arrows: () => arrows.length,
       state: () => state,
       players: () => players.map((p) => ({ pi: p.pi, role: p.role, x: p.body.x, y: p.body.y, w: p.body.w, h: p.body.h, vx: p.body.vx,
         onGround: p.body.onGround, climbing: !!p.body.climbing, card: p.card,
         near: usable(p)?.def.id || null, figure: p.fig.char, built: p.fig.built })),
       objects: () => Object.fromEntries([...objs].map(([id, s]) => [id, { type: s.def.type, on: s.on, open: s.open,
-        taken: s.taken, active: s.active, solid: s.solid, top: s.top }])),
+        taken: s.taken, active: s.active, solid: s.solid, top: s.top, off: s.off }])),
       boxes: () => boxes.map((b) => ({ x: b.x, y: b.y, carried: !!b.carried, static: !!b.static })),
       // tests: run the simulation without drawing (headless software GL is ~4 fps)
       manual(b) { manual = !!b; },

@@ -85,7 +85,8 @@ export async function makeFigure(choice, look, color) {
   const inner = new THREE.Group();          // turns to face left/right
   inner.add(fig.root);
   holder.add(inner);
-  fig.root.scale.setScalar(look / (built ? 1.24 : FIG_HEIGHT));   // the stand-in is 1.24 tall
+  const setLook = (l) => fig.root.scale.setScalar(l / (built ? 1.24 : FIG_HEIGHT));   // the stand-in is 1.24 tall
+  setLook(look);
   fig.root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
 
   const mixer = new THREE.AnimationMixer(fig.root);
@@ -127,7 +128,7 @@ export async function makeFigure(choice, look, color) {
   }
   setState('idle');
   return {
-    root: holder, setState, face, update, char, own: !!fig.own, built,
+    root: holder, setState, face, update, setLook, char, own: !!fig.own, built,
     dispose() { mixer.stopAllAction(); holder.parent?.remove(holder); try { fig.dispose?.(); } catch (_) { /* ignore */ } },
   };
 }

@@ -44,7 +44,7 @@ Before the release (master session does the site side):
 Two roles per level today (climber, strong one). New roles, each opening new puzzles, so a
 level can pick a pair:
 
-- **Shield bearer: yes (first).** Raises a shield: arrows from wall traps or archers bounce
+- **Shield bearer: built (level 6).** Raises a shield: arrows from wall traps or archers bounce
   off; the partner walks safely behind it. Slow while shielding, can't reach levers then.
   Goes together with the first danger: arrow traps in walls.
 - **Lantern carrier: yes.** Lights dark rooms; only it sees hidden paths and symbols, so it
@@ -199,7 +199,35 @@ a hold plate** for good (`lever` targeting a `plate`); a **lift may start up**
 (5-3's first draft had the lift bring the crate down on the strong one's left: the
 natural push sent it into the corner. Rebuilt so it always goes right.)
 
-`LEVELS` = [level 1 (`ROOMS`), level 2, level 3, level 4, level 5]. The HUD says "Level 2 · Room 1 / 3 · …"; the
+### Level 6 (2026-11-28; `LEVEL6`): the shield bearer and arrow traps
+
+**Roles per level:** a level may set `roles` (default `['climber', 'strong']`); level 6 is
+`['climber', 'shield']`. The player who has the climber on the title screen stays the
+climber; the other player's figure becomes the shield bearer (rescaled: `setLook`).
+
+**Shield bearer** (`ROLES.shield`): 1.3 tall, jumps 2.0, 4.4 fast; can't climb, push crates,
+smash walls or press the big button. **Holds ▼ (S / ↓) to raise the shield** (on the ground
+only): slow (1.8), no jumping, facing stays as it was (walk backwards with the shield to
+the trap). A card (answering) lowers it, so the partner has to pull the levers under fire.
+The shield (KayKit Adventurers `shield_badge_color`) is raised in front, turned half
+towards the camera, or slung on the back.
+
+**Arrow trap** (`trap` { x, y, dir, period, delay }): a glowing slot in a wall cell; bolts
+(KayKit `arrow_crossbow`) fly at 8 cells/s at y + 0.6 until a wall, a closed door, a raised
+shield facing them or a player stops them. A hit knocks the player back (no lives): "Ouch!
+Stay behind the shield." A lever targeting the trap switches it off.
+
+| Room | The puzzle | Questions |
+|---|---|---|
+| 6-1 Behind the shield | at the same time: the shield bearer pulls the switch (door), the climber climbs to the key (gate); then the shield goes first down the corridor, the climber walks behind it and switches the trap off from there | switch B, key C, lever C = 3 |
+| 6-2 On my head | the trap fires from behind; the shield faces back while both move on (the climber stays in front); the key ledge is reachable only from the shield bearer's head (above the bolts) | switch C, key C, lever C = 3 |
+| 6-3 Bridge under fire | the shield bearer opens the door, bolts come; shield up at the gap, the climber builds the bridge behind it; both cross in cover; the climber switches the trap off | switch B, post C, lever C = 3 |
+
+The bot checks: no bolt gets through while the partner is behind the raised shield, and
+an unshielded bolt does hit. The title screen still shows player 2 as the strong one
+(the role of level 1).
+
+`LEVELS` = [level 1 (`ROOMS`), level 2, level 3, level 4, level 5, level 6]. The HUD says "Level 2 · Room 1 / 3 · …"; the
 results screen of a level has "Next level" (focused) when there is one. Title screen:
 "Start in a room:" with one row per level, all rooms open. URL: `?level=2&room=3`.
 Room names / goals: `room.4–6`, `goal.4–6` in `src/i18n.js`.
@@ -425,6 +453,8 @@ measure it.
 - 2026-11-28 — **Level 5** (hold-and-act, crate on the lift, relay): plate fixed by a lever,
   lift starting up, doors held by several plates. Bot solves all three (`--from 5`). Owner
   picked the next characters: shield bearer, lantern carrier, glider (builder maybe).
+- 2026-11-28 — **Shield bearer + arrow traps, level 6** (3 rooms); roles per level. Bot solves
+  all three (`--from 6`) and checks shield cover and knockback.
 - 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)

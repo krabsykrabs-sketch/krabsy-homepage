@@ -555,6 +555,92 @@ async function run(browser, cfg) {
     await step(0.1);
   }
 
+  // ══ Level 6 (shield bearer + arrow traps) ══════════════════════════════════════════
+  async function level6() {
+    const C = 0, B = 1;                                  // climber, shield bearer
+    const shieldUp = (on) => btn(B, 'down', on);
+    // 6-1 Behind the shield
+    await shot('L6-1-start');
+    if ((await P(B)).role !== 'shield') fail(`6: player 2 is not the shield bearer (${(await P(B)).role})`);
+    await walkTo(B, 7.5, { jump: false });               // switch (door) …
+    await answer(B);
+    await walkTo(C, 4.5, { jump: false });               // … while the climber gets the key (gate)
+    await climb(C, 1, 7);
+    await walkTo(C, 2.5, { jump: false });
+    await answer(C);
+    await step(1.6);
+    await expect(async () => (await objs()).D.open && (await objs()).G.open, '6-1: door or gate shut');
+    await walkTo(C, 5.5, { jump: false });
+    await walkTo(B, 10.5, { jump: false });              // facing right, towards the trap
+    await shieldUp(true);
+    const h0 = await G('hits');
+    await walkTo(B, 25.9, { jump: false, max: 40 });     // slowly, shield up
+    await walkTo(C, 24.9, { jump: false, max: 40 });     // behind it
+    await shot('L6-1-cover');
+    await answer(C);                                     // the trap off, from behind the shield
+    await shieldUp(false);
+    if ((await G('hits')) !== h0) fail(`6-1: a bolt got through the shield (${(await G('hits')) - h0} hits)`);
+    if ((await G('blocked')) < 1) fail('6-1: the shield never blocked a bolt');
+    await expect(async () => (await objs()).X.off, '6-1: trap still on');
+    await walkTo(B, 27.6, { jump: false });
+    await walkTo(C, 28.4, { jump: false });
+    await nextRoom(2);
+
+    // 6-2 On my head: the trap fires from behind
+    await shot('L6-2-start');
+    await btn(B, 'left', true); await step(1 / 30); await btn(B, 'left', false);   // face the trap
+    await shieldUp(true);
+    const h1 = await G('hits');
+    await walkTo(C, 9.5, { jump: false });               // the climber, in front, opens the door
+    await answer(C);
+    await walkTo(C, 14.3, { jump: false });              // the climber goes ahead first …
+    await walkTo(B, 13.6, { jump: false, max: 40 });     // … the shield bearer follows backwards, shield towards the trap
+    await walkTo(C, 13.9, { jump: false, tol: 0.06 });
+    await hop(C);
+    if ((await P(C)).y < 4.2) fail(`6-2: climber not on the shield bearer's head (y ${(await P(C)).y.toFixed(2)})`);
+    await shortHop(C, 'right', 0.35);
+    if ((await P(C)).y < 6.99) fail(`6-2: climber did not reach the key ledge (y ${(await P(C)).y.toFixed(2)})`);
+    await walkTo(C, 15.5, { jump: false });
+    await answer(C);
+    await walkTo(B, 20.3, { jump: false, max: 40 });
+    await walkTo(C, 21.5, { jump: false });              // down in front of the shield, to the lever
+    await answer(C);
+    await shieldUp(false);
+    if ((await G('hits')) !== h1) fail(`6-2: a bolt got through (${(await G('hits')) - h1} hits: ${JSON.stringify(await G('hitLog'))})`);
+    await step(1.6);
+    await expect(async () => (await objs()).X.off && (await objs()).G.open, '6-2: trap on or gate shut');
+    await walkTo(B, 28.1, { jump: false });
+    await walkTo(C, 28.9, { jump: false });
+    await nextRoom(3);
+
+    // 6-3 Bridge under fire
+    await shot('L6-3-start');
+    await walkTo(B, 6.5, { jump: false });
+    await answer(B);                                     // the door opens: bolts come through
+    await walkTo(B, 8.4, { jump: false });
+    const h2 = await G('hits');
+    await step(4.5);                                     // no shield yet: a bolt knocks him back (the room is long)
+    if ((await G('hits')) <= h2) fail('6-3: an unshielded bolt did not hit');
+    await walkTo(B, 10.5, { jump: false });
+    await shieldUp(true);
+    const h3 = await G('hits');
+    await walkTo(B, 13.6, { jump: false, max: 40 });     // at the gap edge
+    await walkTo(C, 12.8, { jump: false });              // behind, at the bridge post
+    await answer(C);
+    await step(0.5);
+    await expect(async () => (await objs()).b.solid, '6-3: bridge not built');
+    await walkTo(B, 25.9, { jump: false, max: 60 });
+    await walkTo(C, 24.9, { jump: false, max: 40 });
+    await answer(C);
+    await shieldUp(false);
+    if ((await G('hits')) !== h3) fail(`6-3: a bolt got through (${(await G('hits')) - h3} hits)`);
+    await expect(async () => (await objs()).X.off, '6-3: trap still on');
+    await walkTo(B, 27.6, { jump: false });
+    await walkTo(C, 28.4, { jump: false });
+    await page.waitForTimeout(2100);
+    await step(0.1);
+  }
+
   if (!L2ONLY) {
   // touch buttons: one real tap each on player 2's jump and player 1's right
   if (cfg.touch) {
@@ -690,7 +776,7 @@ async function run(browser, cfg) {
   } // level 1
 
   if (cfg.level2) {
-    for (const L of [2, 3, 4, 5]) {
+    for (const L of [2, 3, 4, 5, 6]) {
       if (L < FROM) continue;
       if (L > FROM || FROM === 1) {
         if (await page.isHidden('#next-level-btn')) fail(`no "Next level" button before level ${L}`);
@@ -698,7 +784,7 @@ async function run(browser, cfg) {
         await page.waitForFunction((n) => window.__duo.state() === 'playing' && window.__duo.game?.level() === n, L, { timeout: 90000 });
         await page.evaluate(() => window.__duo.game.manual(true));
       }
-      await (L === 2 ? level2() : L === 3 ? level3() : L === 4 ? level4() : level5());
+      await ([null, null, level2, level3, level4, level5, level6][L])();
       await page.waitForFunction(() => window.__duo.state() === 'results', null, { timeout: 8000 });
       await page.waitForTimeout(500);
       await page.screenshot({ path: `${OUT}/${cfg.name}-L${L}-results.png` });

@@ -112,7 +112,7 @@ export function buildRoom(scene, room, world, models) {
   // ── decoration: torches and banners on the wall, barrels and crates on the floor ──
   const busy = new Set();
   for (const o of room.objects) for (let dx = -2; dx <= 2; dx++) busy.add(Math.floor(o.x ?? o.x0) + dx);
-  for (const k of ['climber', 'strong']) busy.add(Math.floor(room.spawn[k][0]));
+  for (const sp of Object.values(room.spawn)) busy.add(Math.floor(sp[0]));   // whatever roles the level has
   const floorAt = (x) => { for (let y = H - 2; y > 0; y--) if (solid(x, y) && !solid(x, y + 1) && !solid(x, y + 2) && !solid(x, y + 3)) return y + 1; return -1; };
   let lastTorch = -9;
   for (let x = 2; x < W - 2; x++) {
@@ -156,6 +156,16 @@ export function buildRoom(scene, room, world, models) {
 
   return {
     group, views, theme,
+    /** A flying bolt (KayKit arrow_crossbow), pointing in direction dir (±1). */
+    arrowView(dir) {
+      const a = fit(models.clone('arrow_crossbow'), null, null, 0.8);
+      const holder = new THREE.Group();
+      holder.add(a);
+      a.rotation.y = dir > 0 ? Math.PI / 2 : -Math.PI / 2;    // the model points along z
+      a.position.y = -0.05;
+      group.add(holder);
+      return holder;
+    },
     crateView() {
       const c = fit(models.clone('box_small'), 0.98, 0.98, 0.98);
       const holder = new THREE.Group();
@@ -228,6 +238,18 @@ function objectView(o, models, keep, room) {
           m.material.emissiveIntensity = s.on ? 0.6 : 0;
         });
       } };
+    }
+    case 'trap': {
+      // an arrow trap in the wall: a dark slot on the wall block's face, glowing while live
+      node.position.set(o.x + 0.5 + o.dir * 0.52, o.y + 0.6, 0);
+      const slotM = keep(new THREE.MeshLambertMaterial({ color: 0x1a1a22, emissive: 0xff5a3c, emissiveIntensity: 0.6 }));
+      const slot = new THREE.Mesh(keep(new THREE.BoxGeometry(0.06, 0.3, 1.2)), slotM);
+      node.add(slot);
+      const rim = new THREE.Mesh(keep(new THREE.BoxGeometry(0.08, 0.5, 1.4)), keep(new THREE.MeshLambertMaterial({ color: 0x6b6f7a })));
+      rim.position.x = -o.dir * 0.02;
+      node.add(rim);
+      slot.position.x = o.dir * 0.02;
+      return { node, update(s) { slotM.emissiveIntensity = s.off ? 0 : 0.6; } };
     }
     case 'switch': {
       const model = models.clone('lever_wall_base_A_blue');

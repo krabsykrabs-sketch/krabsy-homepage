@@ -14,7 +14,11 @@ const EPS = 1e-4;
 export const ROLES = {
   climber: { w: 0.56, h: 0.9, speed: 5.2, jumpV: Math.sqrt(2 * GRAV * 3.55), climb: true, push: false, look: 1.15 },
   strong: { w: 0.86, h: 1.6, speed: 3.9, jumpV: Math.sqrt(2 * GRAV * 1.45), climb: false, push: true, look: 1.85 },
+  // the shield bearer (owner 2026-11-28): holds ▼ to raise the shield (arrows from the front
+  // bounce off); slow while shielding, no jumping then; can't climb, push or press buttons
+  shield: { w: 0.72, h: 1.3, speed: 4.4, jumpV: Math.sqrt(2 * GRAV * 2.0), climb: false, push: false, look: 1.5, shield: true },
 };
+const SHIELD_SPEED = 1.8;
 const CLIMB_SPEED = 3.6;
 const PUSH_SPEED = 2.3;
 const STEP_UP = 0.25;     // players walk up lips this high without jumping
@@ -214,9 +218,14 @@ export class World {
       if (vy < 0 && p.onGround) p.climbing = false;
       if (!this._onLadder(p)) p.climbing = false;
     } else {
-      const target = i.x * role.speed;
-      const accel = p.onGround ? 40 : 22;
+      // shield up while ▼ is held on the ground (shield bearer); facing stays as it was
+      p.shielding = !!(role.shield && i.down && p.onGround);
+      // knocked back by an arrow: no control for a moment
+      if (p.stun > 0) p.stun -= dt;
+      const target = p.stun > 0 ? 0 : i.x * (p.shielding ? SHIELD_SPEED : role.speed);
+      const accel = p.stun > 0 ? 8 : p.onGround ? 40 : 22;
       p.vx += Math.max(-accel * dt, Math.min(accel * dt, target - p.vx));
+      if (p.shielding || p.stun > 0) p.jumpBuf = 0;
       if (p.jumpBuf > 0 && p.coyote > 0) {
         p.vy = role.jumpV; p.jumpBuf = 0; p.coyote = 0; p.onGround = false; p.support = null; p.jumped = true;
       }
@@ -228,6 +237,6 @@ export class World {
       p._dx += moved;
       p._dy += this.moveY(p, p.vy * dt);
     }
-    if (i.x) p.facing = i.x > 0 ? 1 : -1;
+    if (i.x && !p.shielding && !(p.stun > 0)) p.facing = i.x > 0 ? 1 : -1;
   }
 }
