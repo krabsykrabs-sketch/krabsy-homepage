@@ -153,14 +153,11 @@
 .mf-tile:focus-visible .mf-tile-pic { outline: 3px solid var(--krabsy-ink); outline-offset: 3px; }
 
 /* ── Below the builder: how shells work, the device note ─────────────── */
-.mf-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0 0; }
-.mf-card { background: var(--krabsy-white); border-radius: 22px; padding: 16px 18px; box-shadow: var(--shadow-card); color: var(--krabsy-ink); }
-.mf-card h2 { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; margin: 0 0 6px; }
-.mf-main .mf-card h2 .ki { width: 28px; height: 28px; }
-.mf-card p, .mf-card li { font-size: 0.98rem; line-height: 1.45; margin: 0 0 6px; }
-.mf-card ul { margin: 0; padding-left: 1.2em; }
-.mf-card a { font-weight: 800; }
-.mf-card.note { background: var(--mf-amber-soft); box-shadow: inset 0 0 0 2px var(--mf-amber); }
+.mf-info { margin: 18px 0 0; text-align: center; }
+.mf-how { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 0; font-weight: 800; font-size: 1rem; color: var(--krabsy-ink); }
+.mf-how span { display: inline-flex; align-items: center; gap: 6px; }
+.mf-main .mf-how .ki { width: 24px; height: 24px; }
+.mf-local { margin: 6px 0 0; font-size: 0.85rem; color: var(--krabsy-ink-mute); }
 
 /* ── Tablets (1024 × 768): narrower panel ───────────────────────────── */
 @media (max-width: 1100px) {
