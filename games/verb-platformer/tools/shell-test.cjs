@@ -85,7 +85,7 @@ const only = process.env.VP ? process.env.VP.split(',') : Object.keys(VPS);
     if (vp === 'desktop') await page.click('#res-next'); else await page.tap('#res-next');
     await page.waitForFunction(() => window.__krabsyShell.state() === 'playing', null, { timeout: 60000 });
     const lv = await page.evaluate(() => window.__krabsyShell.level().id);
-    if (lv !== 'zigzag') { console.log('  next level is', lv); problems++; }
+    if (lv !== 'stepping-stones') { console.log('  next level is', lv); problems++; }
     await page.waitForTimeout(800);
     if (vp === 'desktop') await page.keyboard.press('KeyP'); else await page.tap('#pause-btn');
     await page.waitForTimeout(300);

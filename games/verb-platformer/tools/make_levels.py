@@ -287,6 +287,46 @@ def first_steps():
     return L
 
 
+def stepping_stones():
+    """Easy level before Zigzag (owner 2026-11-28: "Zigzag is already too hard"). Straight
+    ahead only: short jumps (gap 2) over stones that get smaller, down to the 2x2 stones
+    Zigzag uses. Gates as in First Steps."""
+    L = Level('stepping-stones', 'Stepping Stones', [1], color='blue', accent='yellow', sky='afternoon').start()
+    L.plat(4, gap=2).plat(4, gap=2).gate().plat(6, gap=2)
+    L.plat(4, gap=2).plat(2, gap=2, color='yellow').plat(4, gap=2).gate().plat(6, gap=2)
+    L.plat(2, gap=2, color='yellow').plat(2, gap=2, color='yellow').plat(4, gap=2).gate().plat(6, gap=2)
+    L.plat(4, gap=2).plat(2, gap=2, color='yellow').plat(2, gap=2, color='yellow').plat(6, gap=2).gate()
+    L.finish(6, gap=2)
+    return L
+
+
+def gentle_turns():
+    """Easy level before Zigzag: the path turns, with big pieces and short jumps only, so the
+    first jumps to the side (after a corner) are easy. Corner platforms are yellow."""
+    L = Level('gentle-turns', 'Gentle Turns', [1], color='green', accent='yellow', sky='golden').start()
+    L.walkway(1).plat(6, gap=0).gate().plat(6, gap=2)
+    L.turn('E').walkway(2).plat(6, gap=0, color='yellow')
+    L.turn('N').plat(4, gap=2).gate().plat(6, gap=2)
+    L.turn('W').plat(4, gap=0).plat(4, gap=2).plat(6, gap=2, color='yellow')
+    L.turn('N').plat(4, gap=0).gate().plat(6, gap=2)
+    L.turn('E').plat(4, gap=2).plat(4, gap=2).plat(6, gap=2, color='yellow')
+    L.turn('N').plat(4, gap=2).gate()
+    L.finish(6, gap=2)
+    return L
+
+
+def up_and_down():
+    """Easy level before Zigzag: a little height. Steps up (one hop), a ramp, short hops up
+    and down, a drop. Everything straight ahead."""
+    L = Level('up-and-down', 'Up and Down', [1], color='yellow', accent='green', sky='morning').start()
+    L.plat(4, gap=0).plat(4, gap=0, dy=1).plat(6, gap=0).gate().plat(6, gap=2)
+    L.slope(color='green').plat(gap=0).plat(6, gap=0).gate().plat(6, gap=2)
+    L.plat(4, gap=2, dy=1).plat(4, gap=2).plat(6, gap=2, dy=-1).gate().plat(6, gap=2)
+    L.plat(4, gap=0, dy=-2).plat(4, gap=2, dy=-1).plat(6, gap=0).gate()
+    L.finish(6, gap=2)
+    return L
+
+
 def zigzag():
     """Level 2. New idea: the path turns. Corner platforms are yellow."""
     L = Level('zigzag', 'Zigzag', [1], color='green', accent='yellow', sky='noon').start()
@@ -365,7 +405,7 @@ def finale():
     return L
 
 
-LEVELS = [sandbox, learn_to_play, easy_walk, first_steps, zigzag, climb, ferries, hammer_works, finale]
+LEVELS = [sandbox, learn_to_play, easy_walk, first_steps, stepping_stones, gentle_turns, up_and_down, zigzag, climb, ferries, hammer_works, finale]
 
 
 def main():

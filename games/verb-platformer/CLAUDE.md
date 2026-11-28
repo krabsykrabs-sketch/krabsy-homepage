@@ -275,7 +275,7 @@ overlay (WASD / mouse / space / arrows with labels).
 - **Two new levels first** (`assets/levels/index.json`; both from `tools/make_levels.py`):
   1. `learn-to-play` "How to Play" / "So geht’s" / "Cómo se juega": 2 gates, walkway, one
      short straight jump (with the jump tip) before the first gate, one corner, one step up.
-  2. `easy-walk` "Sky Stroll" / "Himmelsspaziergang" / "Paseo por el cielo": 5 gates,
+  2. `easy-walk` "Sky Stroll" / "Spaziergang" / "Paseo por el cielo": 5 gates,
      attached corners, a ramp, a step down, one short straight jump.
   Gates use **`gate(gap=0)`**: the answer blocks touch the platform, so you walk onto them
   (the side blocks overlap the 6-wide platform by 0.5). **Behind the blocks a gap of 2**
@@ -287,6 +287,14 @@ overlay (WASD / mouse / space / arrows with labels).
   1.6 past the next uncleared gate's block row (within 6 of its centre line, 3 of its
   height) = respawn before it, `fell` with cause `skip`, banner "Erst ein Wort wählen!"
   (`skipBack`, `ui.showNote()`, 3 s).
+- **Three more easy levels before Zigzag** (owner, same day: "already the zigzag level is
+  too hard"), after First Steps, all tier 1, short (bot ≈ 50 s each), 4 gates, gaps 2:
+  `stepping-stones` "Trittsteine" (straight ahead, stones shrink to Zigzag's 2×2),
+  `gentle-turns` "Sanfte Kurven" (turns with big pieces; the first sideways hops),
+  `up-and-down` "Auf und ab" (steps, a ramp, hops up and down, a drop). Menu order now:
+  So geht’s, Spaziergang, Erste Schritte, Trittsteine, Sanfte Kurven, Auf und ab, Zickzack,
+  Der Aufstieg, Fähren, Hammerwerk, Himmelsfinale (11; the desktop menu list scrolls a
+  little). `tools/shell-test.cjs` expects Trittsteine after Erste Schritte.
 - **Tutorial hints** = level field `tips: [{ id, p: [x, y, z], r }]` (`L.tip(id)` in the
   generator: zone = the current piece). `main.js` checks the zone every 150 ms; entering
   one shows it until the next. `'controls'` = the **big controls card** over the game
@@ -300,7 +308,7 @@ overlay (WASD / mouse / space / arrows with labels).
 - A level with tips replaces the first-run hint card (marked as seen).
 - HUD level name is now translated too (`name.<id>`; it showed the English JSON name).
 - **Analytics:** `level` is the menu number, so First Steps is now level 3 on the dashboard
-  (was 1). Few users so far; compare by date.
+  (was 1) and Zigzag level 7 (was 2). Few users so far; compare by date.
 - Checked: skip test (teleport past gate 1 → sent back; real running jump through the hole
   lands behind the gate → sent back; right answer then hop → no false skip); bot passes both
   (first version: learn-to-play 72 s, easy-walk 123 s, 0 deaths, machine load 22);
