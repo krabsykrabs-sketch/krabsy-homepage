@@ -76,37 +76,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-learn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
-  <style>
-    /* ── Type Race wrapper layout ─────────────────────────────────────────
-       The game itself lives at /games/type-race.html and is dropped in via
-       an iframe. The wrapper provides: page header, drill-nav tabs (injected
-       by krabsy-nav.js), intro card, footer.
-       ─────────────────────────────────────────────────────────────────── */
-    .tr-wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: var(--space-5) var(--space-4);
-      width: 100%;
-    }
-
-    .tr-game-frame {
-      display: block;
-      width: 100%;
-      height: 640px;
-      border: 0;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      background: transparent;
-      overflow: hidden;
-    }
-
-    /* Phones and tablets in portrait: the game has its own one-column layout
-       (games/type-race.html); the frame fills the screen under the header. */
-    @media (max-width: 899px) {
-      .tr-wrap { padding: var(--space-4) var(--space-3); }
-      .tr-game-frame { height: 600px; height: max(480px, min(640px, calc(100svh - 76px))); }
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/krabsy-drill.css?v=2026-11-28d">
 </head>
 <body>
   <div class="k-page">
@@ -114,26 +84,13 @@
       <a class="k-logo" href="/de/" aria-label="Krabsy"><span>kr</span><span class="k-logo-crab" aria-hidden="true"><img src="/favicon.png?v=2026-11-27" alt="" decoding="async"></span><span>bsy</span></a>
     </header>
 
-    <main class="tr-wrap">
+    <main class="kd-wrap">
       <h1 class="k-page-h1">Type Race: unregelmäßige Verben richtig schreiben</h1>
-      <aside class="k-intro-card" aria-label="Über diese Übung">
-        <p>Beim Type Race tippst du für jedes Verb das Simple Past und das Past Participle. Sammle Punkte, baue eine Serie auf und steige Level um Level auf. Diese Übung trainiert dein aktives Schreiben der unregelmäßigen Formen, nicht nur das Wiedererkennen — ideal für Klassenarbeiten und Tests.</p>
-      </aside>
-
-      <iframe
-        class="tr-game-frame"
-        src="/games/type-race.html?lang=de"
-        title="Type Race"
-        loading="eager"
-        allow="autoplay"
-      ></iframe>
-
-      <!-- frame glue: while a round runs the intro and the phone tab bar step aside (body.k-is-playing); on small or touch screens the frame scrolls up under the header -->
-      <script>(function(){var f=document.querySelector(".tr-game-frame");if(!f)return;window.addEventListener("message",function(e){var d=e.data;if(e.origin!==location.origin||e.source!==f.contentWindow||!d||d.type!=="krabsy:drill")return;document.body.classList.toggle("k-is-playing",!!d.playing);window.dispatchEvent(new Event("resize"));if(!d.playing||!matchMedia("(max-width: 899px), (pointer: coarse)").matches)return;setTimeout(function(){var h=document.querySelector("body > .k-page > header, body > header"),o=h&&/sticky|fixed/.test(getComputedStyle(h).position)?h.getBoundingClientRect().height:0;window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+window.scrollY-o-6),behavior:"smooth"});},60);});})();</script>
+      <div id="kd" class="kd" data-drill="type_race" data-topic="irregular_verbs" data-answer="typed" data-clock="1" data-count="10"></div>
 <!-- seo-article:start (static SEO learning text) -->
 <section class="k-article" aria-labelledby="ka-title">
   <h2 id="ka-title">Type Race: unregelmäßige Verben nicht nur erkennen, sondern schreiben</h2>
-  <p>Ein Verb wiederzuerkennen ist das eine. In der Klassenarbeit musst du die Form aber selbst hinschreiben, und zwar ohne Rechtschreibfehler. Beim Type Race tippst du deshalb zu jedem Verb das Simple Past und das Past Participle selbst ein. Für richtige Antworten bekommst du Punkte, mehrere Treffer hintereinander bauen eine Serie auf, und mit der Zeit steigst du Level um Level auf. Bei Fehlern verlierst du ein Leben, nach drei Fehlern ist die Runde vorbei.</p>
+  <p>Ein Verb wiederzuerkennen ist das eine. In der Klassenarbeit musst du die Form aber selbst hinschreiben, und zwar ohne Rechtschreibfehler. Beim Type Race tippst du deshalb zu jedem Verb das Simple Past und das Past Participle selbst ein. Zehn Formen pro Runde, gegen die Uhr: Ein Fehler kostet eine Sekunde, und du siehst sofort die richtige Form. Am Ende jagst du deine Bestzeit.</p>
   <h3>Die häufigsten Rechtschreibfallen</h3>
   <ul>
     <li><strong>Die -ought/-aught-Familie:</strong> Hier klingen alle Formen gleich, werden aber unterschiedlich geschrieben: <em lang="en">bring – brought</em>, <em lang="en">think – thought</em>, <em lang="en">buy – bought</em>, aber <em lang="en">catch – caught</em> und <em lang="en">teach – taught</em>. Merke: Steht in der Grundform ein <em lang="en">a</em> oder <em lang="en">ea</em>, schreibst du meist <em lang="en">-aught</em>.</li>
@@ -144,7 +101,7 @@
   <h3>Past Participles mit -en</h3>
   <p>Viele unregelmäßige Verben bilden das Past Participle mit <em lang="en">-en</em> oder <em lang="en">-n</em>: <em lang="en">take – took – taken</em>, <em lang="en">give – gave – given</em>, <em lang="en">speak – spoke – spoken</em>, <em lang="en">break – broke – broken</em>, <em lang="en">eat – ate – eaten</em>. Wenn du unsicher bist, hilft die Frage: Klingt die dritte Form länger als die zweite? Dann endet sie oft auf <em lang="en">-en</em>.</p>
   <h3>So übst du am besten</h3>
-  <p>Tippe zuerst langsam und sauber, Tempo kommt von allein. Sprich die Formen beim Tippen leise mit, so verknüpfst du Klang und Schreibweise. Verben, bei denen du Leben verlierst, schreibst du dir auf und wiederholst sie gezielt.</p>
+  <p>Tippe zuerst langsam und sauber, Tempo kommt von allein. Sprich die Formen beim Tippen leise mit, so verknüpfst du Klang und Schreibweise. Verben, die du verpasst, übst du am Ende mit „Diese nochmal üben“ gleich noch einmal.</p>
   <h3>Passt gut dazu</h3>
   <!-- teacher-notes:start (tools/render_teacher_notes.py) -->
   <h3>Im Unterricht einsetzen</h3>
@@ -172,8 +129,9 @@
     </footer>
   </div>
 
+  <script type="module" src="/lib/krabsy-drill.js?v=2026-11-28d"></script>
   <script type="module">
-    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-27p';
+    import { initDrillPage } from '/lib/krabsy-nav.js?v=2026-11-28d';
     initDrillPage('type_race');
   </script>
   <script src="/lib/krabsy-footer.js?v=2026-11-27h" defer></script>

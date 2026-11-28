@@ -178,8 +178,8 @@
 .kd-shells { display: inline-flex; align-items: center; gap: 8px; margin: 4px 0 6px; font-family: var(--font-display); font-size: 2.2rem; color: var(--krabsy-ink); line-height: 1.1; }
 .kd-shells-ico { width: 42px; height: 42px; flex: 0 0 auto; }
 .kd-flag { display: flex; justify-content: center; margin: 4px 0 8px; }
-.kd-flag span { padding: 4px 14px; border-radius: var(--radius-pill); background: var(--krabsy-coral-aa); color: #fff; font-weight: 800; font-size: 0.9rem; }
-.kd-flag-ico { width: 26px; height: 26px; margin-right: 6px; }
+.kd-flag span { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px 4px 6px; border-radius: var(--radius-pill); background: var(--krabsy-coral-aa); color: #fff; font-weight: 800; font-size: 0.9rem; }
+.kd-flag-ico { width: 22px; height: 22px; }
 .kd-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 34px; margin: 12px 0 6px; }
 .kd-stat { display: flex; flex-direction: column; align-items: center; min-width: 96px; }
 .kd-stat-v { font-family: var(--font-display); font-weight: 400; font-size: 1.8rem; color: var(--krabsy-ink); font-variant-numeric: tabular-nums; line-height: 1.1; }

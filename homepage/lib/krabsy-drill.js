@@ -577,7 +577,7 @@ async function mount(root) {
       <section class="kd-card kd-end">
         <h2 class="kd-end-h">${esc(title)}</h2>
         ${won > 0 ? `<p class="kd-shells">${icon('ki-shell', 'kd-shells-ico')}<span>${esc(fmt(C.shells_earned || '+{n}', { n: won }))}</span></p>` : ''}
-        ${flag ? `<p class="kd-flag">${icon('ki-star', 'kd-flag-ico')}<span>${esc(flag)}</span></p>` : ''}
+        ${flag ? `<p class="kd-flag"><span>${icon('ki-star', 'kd-flag-ico')}${esc(flag)}</span></p>` : ''}
         <div class="kd-stats">
           <div class="kd-stat"><b class="kd-stat-v" aria-label="${esc(t('score', { right, total }))}">${right} / ${total}</b><span class="kd-stat-l">${esc(t('right_label'))}</span></div>
           ${clock ? bestHtml : ''}
