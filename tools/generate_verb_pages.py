@@ -26,7 +26,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 HP = ROOT / "homepage"
 LASTMOD = "2026-11-12"
 CSSV = "2026-11-27h"   # krabsy-footer, -lang-switch (site-wide bump 2026-11-27)
-HEADER_V = "2026-11-27-rv"   # krabsy-ui.css, -header (learning-language pill 2026-11-27)
+HEADER_V = "2026-11-28-btn"   # krabsy-ui.css, -header (learning-language pill 2026-11-27)
 
 DE_TOPIC = "unregelmaessige-verben"
 ES_TOPIC = "verbos-irregulares"
@@ -421,7 +421,7 @@ STYLE = """
     table.vforms{width:100%;border-collapse:collapse;font-size:1.05rem}
     .vforms th{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--krabsy-ink-mute);text-align:left;padding:4px 10px}
     .vforms td{padding:8px 10px;font-family:var(--font-display);font-size:1.25rem;border-radius:10px}
-    .vforms .f-base{color:#b8860b}.vforms .f-past{color:#0d9c7c}.vforms .f-pp{color:#e05252}
+    .vforms .f-base{color:#8a6400}.vforms .f-past{color:#0b7a61}.vforms .f-pp{color:#c0392b}
     .valts{font-size:0.82rem;color:var(--krabsy-ink-mute);margin-top:6px}
     .vp-ex{margin:0;padding:0;list-style:none}
     .vp-ex li{padding:9px 12px;border-left:3px solid var(--krabsy-teal,#2ec4a0);background:#f6faf8;border-radius:0 10px 10px 0;margin-bottom:8px;font-size:0.98rem;color:var(--krabsy-ink)}
@@ -434,12 +434,12 @@ STYLE = """
     .quiz-blank{color:rgba(31,43,61,0.35)}
     .quiz-cap{font-size:0.78rem;color:rgba(31,43,61,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
     .quiz-opts{display:flex;gap:8px;flex-wrap:wrap}
-    .quiz-btn{font-family:var(--font-display);font-size:1rem;padding:8px 20px;border-radius:30px;border:2px solid rgba(31,43,61,0.15);background:#fff;cursor:pointer;transition:transform .12s}
+    .quiz-btn{font-family:var(--font-display);font-size:1rem;padding:8px 20px;border-radius:30px;border:1.5px solid var(--k-chip-line);background:var(--k-chip-bg);color:var(--k-chip-fg);cursor:pointer;transition:transform .12s}
     .quiz-btn:hover{transform:translateY(-1px)}
     .quiz-btn.ok{background:#d9f4ec;border-color:#0d9c7c;color:#0d6e58}
     .quiz-btn.no{background:#fde3e3;border-color:#e05252;color:#a33}
     .quiz-fb{font-size:0.88rem;margin-top:6px;min-height:1.2em;font-weight:700}
-    .quiz-fb.ok{color:#0d9c7c}.quiz-fb.no{color:#e05252}
+    .quiz-fb.ok{color:#0b7a61}.quiz-fb.no{color:#c0392b}
     .vp-pattern{font-size:0.95rem;color:var(--krabsy-ink)}
     .rel-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
     .rel-list a{font-family:var(--font-display);font-size:0.9rem;color:var(--krabsy-ink);background:#fff;border:1.5px solid rgba(31,43,61,0.14);padding:5px 14px;border-radius:30px;text-decoration:none;transition:transform .12s}
@@ -447,8 +447,10 @@ STYLE = """
     .faq dt{font-weight:800;color:var(--krabsy-ink);margin-top:10px;font-size:0.95rem}
     .faq dd{color:var(--krabsy-ink-mute);font-size:0.93rem;margin:2px 0 0}
     .cta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .cta-row a{font-family:var(--font-display);font-size:0.92rem;color:#fff;background:linear-gradient(135deg,#2ec4a0,#0d9c7c);padding:8px 18px;border-radius:30px;text-decoration:none;box-shadow:0 3px 10px rgba(0,196,154,0.25)}
-    .cta-row a.alt{background:linear-gradient(135deg,#ff8a70,#e05252);box-shadow:0 3px 10px rgba(224,82,82,0.22)}
+    .cta-row a{font-family:var(--font-body);font-weight:800;font-size:0.92rem;color:var(--k-btn2-fg);background:var(--k-btn2-bg);border:2px solid var(--k-btn2-line);padding:6px 18px;border-radius:30px;text-decoration:none;box-shadow:0 3px 0 var(--k-btn2-edge)}
+    .cta-row a:hover{background:var(--k-btn2-bg-hover);color:var(--k-btn2-fg)}
+    .cta-row a:first-child{color:var(--k-btn-fg);background:var(--k-btn-bg);border-color:transparent;box-shadow:0 3px 0 var(--k-btn-edge)}
+    .cta-row a:first-child:hover{background:var(--k-btn-bg-hover);color:var(--k-btn-fg)}
     .vp-nav{display:flex;justify-content:space-between;gap:10px;font-size:0.9rem;margin:18px 0 0}
     .vp-nav a{color:var(--krabsy-ink);text-decoration:none;font-weight:800}
     .vp-nav a:hover{text-decoration:underline}

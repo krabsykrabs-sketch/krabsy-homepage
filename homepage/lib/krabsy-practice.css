@@ -6,25 +6,25 @@
   --kp-teal-deep: #17a98b;
   --kp-teal-soft: #dcfbf3;
   --kp-coral: #ff8585;
-  --kp-coral-aa: #bf4a33;
+  --kp-coral-aa: var(--krabsy-coral-dark);
   --kp-amber: #ffcf5e;
 }
 
 /* ── the button with the ring (entry points) ─────────────────────────── */
 .kp-go {
   display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 10px;
-  border-radius: var(--radius-pill); background: var(--kp-teal); color: var(--krabsy-ink);
-  text-decoration: none; box-shadow: 0 3px 0 var(--kp-teal-deep); line-height: 1.15;
+  border-radius: var(--radius-pill); background: var(--k-btn-bg); color: var(--k-btn-fg);
+  text-decoration: none; box-shadow: 0 3px 0 var(--k-btn-edge); line-height: 1.15;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
   -webkit-tap-highlight-color: transparent; max-width: 100%;
 }
-.kp-go:hover { background: #4cf0cf; color: var(--krabsy-ink); }
-.kp-go:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--kp-teal-deep); }
+.kp-go:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.kp-go:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
 .kp-go:focus-visible { outline: 3px solid var(--krabsy-ink); outline-offset: 3px; }
 .kp-go-ico { flex: 0 0 auto; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #fff; }
 .kp-go-txt { display: flex; flex-direction: column; min-width: 0; }
 .kp-go-txt b { font-family: var(--font-display); font-weight: 400; font-size: 1.02rem; letter-spacing: 0.2px; }
-.kp-go-txt small { font-size: 0.78rem; font-weight: 700; opacity: 0.8; white-space: nowrap; }
+.kp-go-txt small { font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
 
 .kp-ring { display: block; }
 .kp-ring circle { stroke: currentColor; }
@@ -50,14 +50,14 @@
 .kp-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px;
   padding: 0 22px; border-radius: var(--radius-pill); border: 0; cursor: pointer;
-  font: 700 1.02rem var(--font-body); text-decoration: none; -webkit-tap-highlight-color: transparent;
+  font: 800 1.02rem var(--font-body); text-decoration: none; -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
-.kp-btn-main { background: var(--kp-teal); color: var(--krabsy-ink); box-shadow: 0 3px 0 var(--kp-teal-deep); }
-.kp-btn-main:hover { background: #4cf0cf; color: var(--krabsy-ink); }
-.kp-btn-main:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--kp-teal-deep); }
+.kp-btn-main { background: var(--k-btn-bg); color: var(--k-btn-fg); box-shadow: 0 3px 0 var(--k-btn-edge); }
+.kp-btn-main:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.kp-btn-main:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
 .kp-btn-main:disabled { opacity: 0.55; cursor: default; transform: none; }
-.kp-btn-ghost { background: #fff; color: var(--krabsy-ink); box-shadow: inset 0 0 0 2px var(--krabsy-lavender); }
+.kp-btn-ghost { background: var(--k-btn2-bg); color: var(--k-btn2-fg); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge); }
 .kp-btn-ghost:hover { background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); }
 .kp-btn:focus-visible, .kp-link:focus-visible, .kp-choice:focus-visible, .kp-game:focus-visible, .kp-quit:focus-visible {
   outline: 3px solid var(--krabsy-ink); outline-offset: 3px;

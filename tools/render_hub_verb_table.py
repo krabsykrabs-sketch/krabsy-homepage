@@ -185,8 +185,8 @@ STYLE = """<style>
   .hvt-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
   .hvt-tools input{flex:1 1 220px;min-width:0;font:inherit;font-size:16px;padding:8px 12px;border:1.5px solid rgba(44,42,58,0.18);border-radius:10px;background:#fff;color:var(--krabsy-ink)}
   .hvt-tools[hidden]{display:none}
-  .hvt-tools button{font:inherit;font-size:0.9rem;padding:8px 14px;border:1.5px solid rgba(44,42,58,0.18);border-radius:10px;background:#fff;color:var(--krabsy-ink);cursor:pointer}
-  .hvt-tools button:hover{border-color:var(--krabsy-coral)}
+  .hvt-tools button{font:inherit;font-size:0.9rem;font-weight:800;padding:8px 16px;border:2px solid var(--k-btn2-line);border-radius:999px;background:var(--k-btn2-bg);color:var(--k-btn2-fg);cursor:pointer}
+  .hvt-tools button:hover{background:var(--k-btn2-bg-hover)}
   .hvt-scroll{max-height:min(62vh,30rem);overflow:auto;background:#fff;border:1px solid rgba(44,42,58,0.10);border-radius:12px;-webkit-overflow-scrolling:touch}
   table.hvt-table{width:100%;border-collapse:collapse;font-size:0.95rem}
   .hvt-table th{position:sticky;top:0;background:var(--krabsy-cream,#fdfaf3);font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--krabsy-ink-mute);text-align:left;padding:8px;z-index:1}

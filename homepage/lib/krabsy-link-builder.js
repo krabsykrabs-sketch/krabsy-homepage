@@ -28,7 +28,7 @@ const DRILLS = [   // drill pages that take ?difficulty= (and pass it to the gam
 const T = {
   de: {
     topic: '1. Thema', game: '2. Spiel oder Übung', diff: '3. Schwierigkeit', lang: '4. Sprache im Spiel',
-    games: 'Spiele', drills: 'Übungen',
+    games: 'Spiele', drills: 'Übungen', year: 'Passt zu {year}.',
     levels: [['', 'Alles'], ['1', 'Leicht'], ['2', 'Leicht + mittel']],
     langNote: 'Menüs, Anleitung und Erklärungen im Spiel. Geübt wird immer das Thema.',
     drillLang: 'Übungen laufen in der Sprache der Seite.',
@@ -39,7 +39,7 @@ const T = {
   },
   es: {
     topic: '1. Tema', game: '2. Juego o ejercicio', diff: '3. Dificultad', lang: '4. Idioma del juego',
-    games: 'Juegos', drills: 'Ejercicios',
+    games: 'Juegos', drills: 'Ejercicios', year: 'Para estudiantes de {year}.',
     levels: [['', 'Todo'], ['1', 'Fácil'], ['2', 'Fácil + media']],
     langNote: 'Menús, instrucciones y explicaciones del juego. Se practica siempre el tema.',
     drillLang: 'Los ejercicios usan el idioma de la página.',
@@ -60,6 +60,22 @@ const T = {
     qr: 'QR code for the projector',
   },
 };
+
+// Class year of a topic as the Themen page and the topic hubs show it (same rule as
+// tools/krabsy_registry.py year_label): de "Klasse 5–6"; es with the age first, for
+// Latin America, "12–13 años (1º ESO)" (curso n = age n+5 to n+6, 7 = 1º ESO).
+function yearLabel(topic, lang) {
+  const y = topic && topic.years && topic.years[lang];
+  if (!y || !y.length) return '';
+  const a = y[0], b = y[y.length - 1];
+  if (lang === 'de') return a === b ? `Klasse ${a}` : `Klasse ${a}–${b}`;
+  if (lang !== 'es') return '';
+  const one = (n) => (n <= 6 ? `${n}º Primaria` : `${n - 6}º ESO`);
+  const school = a === b ? one(a)
+    : (a <= 6) === (b <= 6) ? (a > 6 ? `${a - 6}º–${b - 6}º ESO` : `${a}º–${b}º Primaria`)
+      : `${one(a)} – ${one(b)}`;
+  return `${a + 5}–${b + 6} años (${school})`;
+}
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -125,11 +141,12 @@ async function mount(el) {
     const tg = all.find((x) => x.id === st.target);
     if (tg && tg.kind === 'game' && !tg.langs.includes(st.glang)) st.glang = tg.langs.includes(lang) ? lang : tg.langs[0];
     const link = url();
+    const year = yearLabel(topics[st.topic], lang);
     const card = (x) => `<label class="lb-target"><input type="radio" name="lb-target" value="${esc(x.id)}"${x.id === st.target ? ' checked' : ''}>`
-      + `<span class="lb-target-box">${x.thumb ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" decoding="async">` : '<span class="lb-target-ico" aria-hidden="true">✏️</span>'}`
+      + `<span class="lb-target-box">${x.thumb ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" decoding="async">` : '<span class="lb-target-ico" aria-hidden="true"></span>'}`
       + `<span class="lb-target-name">${esc(x.name)}</span></span></label>`;
     el.innerHTML = `
-      <div class="lb-step"><h3>${S.topic}</h3><div class="lb-chips">${chips('lb-topic', topicIds.map((id) => [id, pickLang(topics[id].display_name, lang) || id]), st.topic)}</div></div>
+      <div class="lb-step"><h3>${S.topic}</h3><div class="lb-chips">${chips('lb-topic', topicIds.map((id) => [id, pickLang(topics[id].display_name, lang) || id]), st.topic)}</div>${year && S.year ? `<p class="lb-note">${esc(S.year.replace('{year}', year))}</p>` : ''}</div>
       <div class="lb-step"><h3>${S.game}</h3>
         ${g.length ? `<p class="lb-group">${S.games}</p><div class="lb-targets">${g.map(card).join('')}</div>` : ''}
         ${d.length ? `<p class="lb-group">${S.drills}</p><div class="lb-targets">${d.map(card).join('')}</div>` : ''}</div>

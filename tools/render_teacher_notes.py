@@ -31,7 +31,7 @@ NOTES = {
         "Die Liste „Diese hast du verpasst“ am Ende ist eine persönliche Lernliste für die Hausaufgabe.",
     ],
     f"{V_ES}/sprint": [
-        "Una ronda dura pocos minutos, en móvil, tablet u ordenador. No hace falta cuenta: basta con compartir el enlace.",
+        "Una ronda dura pocos minutos, en celular, tablet o computadora. No hace falta cuenta: basta con compartir el enlace.",
         "Como calentamiento: todos juegan una ronda, apuntan su tiempo e intentan mejorarlo en la segunda.",
         "La lista de verbos fallados al final sirve como lista personal de repaso para casa.",
     ],

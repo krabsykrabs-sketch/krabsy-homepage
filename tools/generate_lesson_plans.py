@@ -290,8 +290,8 @@ WEB_CSS = """
     .lp-glance dt{color:var(--krabsy-ink-mute)}
     .lp-glance dd{margin:0;color:var(--krabsy-ink)}
     .lp-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .lp-dl{font-family:var(--font-display);font-size:0.95rem;color:#fff!important;background:var(--krabsy-coral-dark,#e07a64);padding:9px 18px;border-radius:30px;text-decoration:none}
-    .lp-dl:hover{filter:brightness(1.05)}
+    .lp-dl{font-family:var(--font-body);font-weight:800;font-size:0.95rem;color:var(--k-btn-fg,#fff)!important;background:var(--k-btn-bg,#bf4a33);box-shadow:0 3px 0 var(--k-btn-edge,#8f3a28);padding:9px 18px;border-radius:30px;text-decoration:none}
+    .lp-dl:hover{background:var(--k-btn-bg-hover,#a63f2b)}
     .lp-meta{font-size:0.82rem;color:var(--krabsy-ink-mute)}
     .lp-prep{display:flex;gap:18px;align-items:flex-start}
     .lp-prep ol{flex:1}
@@ -300,7 +300,7 @@ WEB_CSS = """
     .lp-steps{list-style:none;padding:0!important;margin:0}
     .lp-steps li{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:12px 0;border-top:1px solid #eeecf2;margin:0!important}
     .lp-steps li:first-child{border-top:none;padding-top:0}
-    .lp-t{font-family:var(--font-display);color:var(--krabsy-coral-dark,#e07a64);white-space:nowrap}
+    .lp-t{font-family:var(--font-display);color:var(--krabsy-coral-dark,#a63f2b);white-space:nowrap}
     .lp-t small{display:block;font-family:var(--font-body,inherit);font-size:0.75rem;color:var(--krabsy-ink-mute)}
     .lp-steps b{display:block;margin-bottom:2px}
     .lp-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -344,7 +344,7 @@ def page(title, desc, path, crumbs, body, ld):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="de_DE">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <style>{WEB_CSS}</style>
 {lds}
 </head><body>

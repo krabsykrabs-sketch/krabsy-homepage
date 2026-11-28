@@ -9,8 +9,8 @@
   --teal-soft:  #dff8f1;
   --amber-soft: #fff3d1;
   --teal-ink:   #0b5c4c;          /* text on cream / teal-soft, ≥ 4.5:1 */
-  --coral-aa:   #bf4a33;          /* white text on it and as text on cream, ≥ 4.5:1 */
-  --coral-aa-deep: #8f3a28;
+  --coral-aa:   var(--krabsy-coral-aa);          /* white text on it and as text on cream, ≥ 4.5:1 */
+  --coral-aa-deep: var(--krabsy-coral-deep);
   --tc-mute: #5d5b70;             /* muted text, ≥ 4.5:1 on cream and on the sage band */
   --tc-display: 'Fredoka One', 'Nunito', system-ui, sans-serif;
   --tc-wrap: 1120px;
@@ -55,7 +55,7 @@ body.tc-page {
 }
 @media (min-width: 800px) { .tc-h2 { font-size: 2.05rem; } }
 .tc-sub { margin: 0 0 26px; max-width: 640px; color: var(--tc-mute); font-size: 1rem; line-height: 1.5; }
-.tc-sub a, .tc-text a { color: var(--coral-aa); font-weight: 700; }
+.tc-sub a, .tc-text a { color: var(--k-link); font-weight: 700; }
 .tc-sub a:hover, .tc-text a:hover { color: var(--coral-aa-deep); }
 .tc-kicker {
   display: inline-flex; align-items: center; gap: 6px; margin: 0 0 12px;
@@ -69,30 +69,25 @@ body.tc-page {
   min-height: 46px; padding: 10px 22px; border-radius: var(--radius-pill); border: 0;
   font-family: var(--font-body); font-weight: 800; font-size: 1rem; line-height: 1.2;
   text-decoration: none; cursor: pointer; text-align: center;
-  background: var(--coral-aa); color: #fff; box-shadow: 0 4px 0 var(--coral-aa-deep);
+  background: var(--k-btn-bg); color: var(--k-btn-fg); box-shadow: 0 3px 0 var(--k-btn-edge);
   transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 }
-.tc-btn:hover { background: #cb553d; color: #fff; }
-.tc-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--coral-aa-deep); }
+.tc-btn:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.tc-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
 .tc-btn svg { width: 16px; height: 16px; }
-.tc-btn.is-amber { background: var(--g-amber); color: var(--g-navy); box-shadow: 0 4px 0 #c99a2b; }
-.tc-btn.is-amber:hover { background: #ffd874; color: var(--g-navy); }
-.tc-btn.is-amber:active { box-shadow: 0 1px 0 #c99a2b; }
-.tc-btn.is-teal { background: var(--g-teal); color: var(--g-navy); box-shadow: 0 4px 0 #17b594; }
-.tc-btn.is-teal:hover { background: #55efd0; color: var(--g-navy); }
-.tc-btn.is-teal:active { box-shadow: 0 1px 0 #17b594; }
+/* .is-amber / .is-teal in older markup: same primary button (one button system, krabsy-ui.css) */
 .tc-btn.is-ghost {
-  background: var(--krabsy-white); color: var(--krabsy-ink);
-  box-shadow: inset 0 0 0 2px var(--krabsy-lavender), 0 4px 0 var(--krabsy-lavender);
+  background: var(--k-btn2-bg); color: var(--k-btn2-fg);
+  box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge);
 }
-.tc-btn.is-ghost:hover { background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); }
-.tc-btn.is-ghost:active { box-shadow: inset 0 0 0 2px var(--krabsy-lavender), 0 1px 0 var(--krabsy-lavender); }
+.tc-btn.is-ghost:hover { background: var(--k-btn2-bg-hover); color: var(--k-btn2-fg); }
+.tc-btn.is-ghost:active { box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 1px 0 var(--k-btn2-edge); }
 .tc-btn.is-small { min-height: 40px; padding: 8px 18px; font-size: 0.92rem; }
 .tc-link {
   display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
-  font-weight: 800; color: var(--coral-aa); text-decoration: none;
+  font-weight: 800; color: var(--k-link); text-decoration: none;
 }
-.tc-link:hover { color: var(--coral-aa-deep); text-decoration: underline; }
+.tc-link:hover { color: var(--k-link-hover); text-decoration: underline; }
 .tc-link svg { width: 16px; height: 16px; }
 .tc-ctas { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; }
 
@@ -540,7 +535,7 @@ body.tc-page {
 }
 .tc-tab svg { width: 18px; height: 18px; flex: 0 0 auto; }
 .tc-tab:hover { box-shadow: inset 0 0 0 2px var(--krabsy-lavender), 0 2px 0 rgba(44, 42, 58, 0.06); color: var(--krabsy-ink); }
-.tc-tab.is-active, .tc-tab[aria-selected="true"] { background: var(--krabsy-ink); color: #fff; box-shadow: 0 3px 0 rgba(44, 42, 58, 0.25); }
+.tc-tab.is-active, .tc-tab[aria-selected="true"] { background: var(--k-chip-on-bg); color: var(--k-chip-on-fg); box-shadow: 0 3px 0 rgba(44, 42, 58, 0.25); }
 @media (min-width: 800px) { .tc-tab { font-size: 1rem; padding: 9px 20px; } }
 .tc-panel[hidden] { display: none !important; }
 .tc-panel:focus { outline: none; }

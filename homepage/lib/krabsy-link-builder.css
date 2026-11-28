@@ -4,16 +4,17 @@
 .lb-group { margin: 6px 0 8px; font-size: .85rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--tc-mute, #5b6478); }
 .lb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .lb-chip input, .lb-target input { position: absolute; opacity: 0; pointer-events: none; }
-.lb-chip span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 2px solid #d6dbe6; background: #fff; font-weight: 700; cursor: pointer; }
-.lb-chip input:checked + span { border-color: #2ee6c0; background: #e3fbf5; }
-.lb-chip input:focus-visible + span, .lb-target input:focus-visible + .lb-target-box { outline: 3px solid #ff8585; outline-offset: 2px; }
+.lb-chip span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--k-chip-line, #babfd8); background: var(--k-chip-bg, #fff); color: var(--k-chip-fg, #2c2a3a); font-weight: 700; cursor: pointer; }
+.lb-chip span:hover { background: var(--krabsy-lavender-soft, #e8e9f0); }
+.lb-chip input:checked + span { border-color: var(--k-chip-on-bg, #2c2a3a); background: var(--k-chip-on-bg, #2c2a3a); color: var(--k-chip-on-fg, #fff); }
+.lb-chip input:focus-visible + span, .lb-target input:focus-visible + .lb-target-box { outline: 3px solid var(--krabsy-ink, #2c2a3a); outline-offset: 2px; }
 .lb-targets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .lb-target { position: relative; cursor: pointer; }
 .lb-target-box { display: flex; flex-direction: column; border: 2px solid #d6dbe6; border-radius: 14px; background: #fff; overflow: hidden; height: 100%; }
 .lb-target-box img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
 .lb-target-ico { display: grid; place-items: center; aspect-ratio: 16 / 9; font-size: 28px; background: #f3f6ec; }
 .lb-target-name { padding: 8px 10px; font-weight: 800; font-size: .95rem; }
-.lb-target input:checked + .lb-target-box { border-color: #2ee6c0; box-shadow: 0 0 0 3px #2ee6c055; }
+.lb-target input:checked + .lb-target-box { border-color: var(--krabsy-ink, #2c2a3a); box-shadow: 0 0 0 3px #2ee6c0; }
 .lb-note { margin: 8px 0 0; font-size: .9rem; color: var(--tc-mute, #5b6478); max-width: 640px; }
 .lb-result { display: grid; gap: 18px; align-items: start; background: #fff; border: 2px solid #2ee6c0; border-radius: 18px; padding: 18px; }
 @media (min-width: 720px) { .lb-result { grid-template-columns: 1fr 180px; } }

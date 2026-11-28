@@ -132,7 +132,7 @@ export const NAMES = {
     hats: { cap: 'Gorro de excursión', witch: 'Sombrero de bruja', pointy: 'Gorro de duende', elf: 'Gorro de elfo', bear: 'Piel de oso',
       helmet: 'Casco', clown: 'Sombrero de payaso', straw: 'Sombrero de paja', cowboy: 'Sombrero vaquero', soldier: 'Gorro de soldado',
       wizard: 'Sombrero de mago', headband: 'Cinta', space: 'Casco espacial' },
-    glassesN: { square: 'Gafas cuadradas', round: 'Gafas redondas', reading: 'Gafas de lectura', sun: 'Gafas de sol', goggles: 'Gafas protectoras' },
+    glassesN: { square: 'Lentes cuadrados', round: 'Lentes redondos', reading: 'Lentes de lectura', sun: 'Lentes de sol', goggles: 'Lentes protectores' },
     backs: { pack: 'Mochila de excursión', packA: 'Mochila escolar', packB: 'Mochila deportiva', satchel: 'Bolsa de hierbas',
       tools: 'Mochila de herramientas', books: 'Mochila de libros', warpack: 'Mochila de orco', jetpack: 'Mochila cohete',
       key: 'Llave de cuerda', wings: 'Alas', cape: 'Capa de héroe', capeKnight: 'Capa de caballero', capeRanger: 'Capa de explorador',

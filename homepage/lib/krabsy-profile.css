@@ -5,7 +5,7 @@
 :root {
   --pf-teal: #2ee6c0; --pf-coral: #ff8585; --pf-amber: #ffcf5e;
   --pf-teal-soft: #dcfbf3; --pf-amber-soft: #fff4d6; --pf-teal-deep: #0d6b5a;
-  --pf-coral-aa: #bf4a33; --pf-coral-aa-deep: #8f3a28;
+  --pf-coral-aa: var(--krabsy-coral-aa); --pf-coral-aa-deep: var(--krabsy-coral-deep);
 }
 .pf-main { width: 100%; max-width: 1080px; margin: 0 auto; padding: 14px 24px 28px; font-family: var(--font-body, Nunito, system-ui, sans-serif); flex: 1 0 auto; color: var(--krabsy-ink); }
 .pf-main a:focus-visible { outline: 3px solid var(--krabsy-ink); outline-offset: 3px; border-radius: 10px; }
@@ -86,12 +86,12 @@ a.pf-class:hover { background: var(--pf-amber-soft); color: var(--krabsy-ink); }
 .pf-go .kp-go-ico { width: 40px; height: 40px; }
 .pf-go .kp-go-txt b { font-size: 1.2rem; }
 .pf-go .kp-go-txt small { font-size: 0.85rem; }
-.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 50px; padding: 8px 22px; border-radius: 999px; background: #fff; color: var(--krabsy-ink); font-weight: 800; font-size: 1.05rem; text-decoration: none; text-align: center; box-shadow: inset 0 0 0 2px rgba(44, 42, 58, 0.16), 0 3px 0 rgba(44, 42, 58, 0.12); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-.pf-btn:hover { background: var(--pf-amber-soft); color: var(--krabsy-ink); }
-.pf-btn:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px rgba(44, 42, 58, 0.16), 0 1px 0 rgba(44, 42, 58, 0.12); }
-.pf-btn-coral { background: var(--pf-coral-aa); color: #fff; box-shadow: 0 3px 0 var(--pf-coral-aa-deep); }
-.pf-btn-coral:hover { background: #cf5a42; color: #fff; }
-.pf-btn-coral:active { box-shadow: 0 1px 0 var(--pf-coral-aa-deep); }
+.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 50px; padding: 8px 22px; border-radius: 999px; background: var(--k-btn2-bg); color: var(--k-btn2-fg); font-weight: 800; font-size: 1.05rem; text-decoration: none; text-align: center; box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.pf-btn:hover { background: var(--k-btn2-bg-hover); color: var(--k-btn2-fg); }
+.pf-btn:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 1px 0 var(--k-btn2-edge); }
+.pf-btn-coral { background: var(--k-btn-bg); color: var(--k-btn-fg); box-shadow: 0 3px 0 var(--k-btn-edge); }
+.pf-btn-coral:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.pf-btn-coral:active { box-shadow: 0 1px 0 var(--k-btn-edge); }
 
 /* ── Sections ────────────────────────────────────────────────────────── */
 .pf-body { min-height: 300px; }
@@ -99,9 +99,9 @@ a.pf-class:hover { background: var(--pf-amber-soft); color: var(--krabsy-ink); }
 .pf-h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.45rem; line-height: 1.2; margin: 0; }
 .pf-h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; line-height: 1.2; margin: 0; }
 .pf-h3 a { color: inherit; text-decoration: none; }
-.pf-h3 a:hover { color: var(--pf-coral-aa); }
-.pf-link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: var(--pf-coral-aa); font-weight: 800; font-size: 1.02rem; text-decoration: none; }
-.pf-link:hover { color: var(--pf-coral-aa-deep); text-decoration: underline; }
+.pf-h3 a:hover { color: var(--k-link); }
+.pf-link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: var(--k-link); font-weight: 800; font-size: 1.02rem; text-decoration: none; }
+.pf-link:hover { color: var(--k-link-hover); text-decoration: underline; }
 .pf-more { margin: 6px 4px 0; }
 
 /* ── 2 My collection ─────────────────────────────────────────────────── */
@@ -136,12 +136,12 @@ a.pf-thing-a:hover { transform: translateY(-3px) rotate(-2deg); box-shadow: 0 0 
 .pf-practise { display: flex; flex-direction: column; gap: 6px; min-width: 0; max-width: 100%; }
 .pf-practise-label { font-size: 0.9rem; font-weight: 800; color: var(--krabsy-ink-mute); }
 .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.pf-chip { display: inline-flex; align-items: center; min-height: 38px; padding: 4px 14px; border-radius: 999px; background: var(--krabsy-coral-soft); color: var(--pf-coral-aa-deep); font-weight: 800; font-size: 0.98rem; line-height: 1.2; text-decoration: none; }
-a.pf-chip:hover { background: var(--pf-coral-aa); color: #fff; }
+.pf-chip { display: inline-flex; align-items: center; min-height: 38px; padding: 4px 14px; border-radius: 999px; background: var(--k-chip-bg); color: var(--k-chip-fg); box-shadow: inset 0 0 0 1.5px var(--k-chip-line); font-weight: 700; font-size: 0.98rem; line-height: 1.2; text-decoration: none; }
+a.pf-chip:hover { background: var(--krabsy-lavender-soft); color: var(--k-chip-fg); }
 .pf-topic-good { margin: 0; font-size: 0.98rem; font-weight: 800; color: var(--pf-teal-deep); }
-.pf-topic-go { margin-top: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 18px; border-radius: 999px; background: var(--pf-teal); color: var(--krabsy-ink); font-weight: 800; font-size: 1rem; text-decoration: none; box-shadow: 0 3px 0 #17a98b; }
-.pf-topic-go:hover { background: #4cf0cf; color: var(--krabsy-ink); }
-.pf-topic-go:active { transform: translateY(2px); box-shadow: 0 1px 0 #17a98b; }
+.pf-topic-go { margin-top: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 18px; border-radius: 999px; background: var(--k-btn-bg); color: var(--k-btn-fg); font-weight: 800; font-size: 1rem; text-decoration: none; box-shadow: 0 3px 0 var(--k-btn-edge); }
+.pf-topic-go:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.pf-topic-go:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
 
 /* a brand-new child: the invitation */
 .pf-empty { display: flex; align-items: center; gap: 8px 22px; background: var(--krabsy-white); border-radius: 24px; padding: 16px 24px 18px 16px; box-shadow: var(--shadow-card); }

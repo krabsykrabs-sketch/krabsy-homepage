@@ -21,9 +21,10 @@ the hub) and the number of games (→ the hub's games section).
 Class years: topics.json `"years": {"de": [5, 6], "es": [7, 7]}` = first and last
 school year per interface language's school system (krabsy_registry.year_range:
 de = Klasse, es = curso counted from 1º Primaria, so 7 = 1º ESO). Cards are
-grouped by the first year ("Klasse 5", "5º/6º Primaria", "1º ESO" …, lowest
+grouped by the first year ("Klasse 5"; Spanish with the age first, for Latin
+America: "10–12 años (5º/6º Primaria)", "12–13 años (1º ESO)" …, lowest
 first, inside a group by range, then topics.json order); the card shows the
-whole range. Topics without years go into "Alle Klassen" / "Todos los cursos" /
+whole range. Topics without years go into "Alle Klassen" / "Todas las edades" /
 "All years" (the Spanish section for English speakers today). Draft topics
 (status "draft") are listed but left out of the ItemList JSON-LD (their pages
 are noindex). Re-run after changing topics.json, games.json or sections.json.
@@ -41,7 +42,7 @@ ROOT = R.ROOT
 HP = R.HOME
 ORIGIN = "https://krabsy.com"
 ASSET_V = "2026-11-27h"   # krabsy-footer.js / lang-switch.js, same as the site-wide bump
-UI_V = "2026-11-27-rv"   # krabsy-ui.css / header.js (learning-language pill)
+UI_V = "2026-11-28-btn"   # krabsy-ui.css / header.js (learning-language pill)
 
 T = {
     "de": {
@@ -59,7 +60,7 @@ T = {
         "h1": "Temas",
         "lead": "Todos los temas de gramática en Krabsy. Elige uno: practica o juega directamente.",
         "desc": "Todos los temas de gramática en Krabsy: {list}. Con ejercicios y juegos, gratis y sin registro.",
-        "all_years": "Todos los cursos",
+        "all_years": "Todas las edades",
         "practise": "Practicar", "games": ("{n} juego", "{n} juegos"), "no_games": "Aún sin juego",
         "crumbs": "Ruta de navegación", "home": "Krabsy",
         "noscript": "", "locale": "es_ES", "and": " y ",
@@ -107,10 +108,11 @@ CSS = """
     .tp-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: auto; padding-top: 10px; }
     .tp-practise {
       display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 18px 0 14px;
-      border-radius: var(--radius-pill); background: var(--krabsy-ink); color: #fff;
-      font-weight: 800; text-decoration: none;
+      border-radius: var(--radius-pill); background: var(--k-btn-bg); color: var(--k-btn-fg);
+      box-shadow: 0 3px 0 var(--k-btn-edge); font-weight: 800; text-decoration: none;
     }
-    .tp-practise:hover { background: #45425a; color: #fff; }
+    .tp-practise:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+    .tp-practise:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--k-btn-edge); }
     .tp-practise .tp-ico { background: #fff; border-radius: 50%; padding: 2px; width: 24px; height: 24px; }
     .tp-games {
       display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px;

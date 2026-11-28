@@ -61,7 +61,8 @@
 /* result */
 .vd-result-text { margin: 0 0 var(--space-4); }
 .vd-practice { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0 0 var(--space-5); }
-.vd-practice a { display: inline-block; padding: .3em .8em; border-radius: var(--radius-pill); background: var(--krabsy-coral-soft); color: var(--krabsy-coral-dark); text-decoration: none; font-weight: 700; }
+.vd-practice a { display: inline-block; padding: .3em .8em; border-radius: var(--radius-pill); background: var(--k-chip-bg); color: var(--k-chip-fg); box-shadow: inset 0 0 0 1.5px var(--k-chip-line); text-decoration: none; font-weight: 700; }
+.vd-practice a:hover { background: var(--krabsy-lavender-soft); color: var(--k-chip-fg); }
 .vd-result-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); }
 .vd-name { margin-bottom: var(--space-4); }
 .vd-name label { display: block; font-weight: 700; margin-bottom: var(--space-2); }

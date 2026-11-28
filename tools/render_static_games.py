@@ -102,7 +102,7 @@ LANDING = {
            "phone_ok": "Handy ✓", "large_screen": "Großer Bildschirm", "beta": "Beta",
            "sr_3d": "3D-Spiel", "sr_new": "neu", "sr_soon": "bald verfügbar", "sr_game": "Spiel"},
     "es": {"play_now": "Jugar ahora", "play": "Jugar", "new": "NUEVO", "soon": "Pronto",
-           "phone_ok": "Móvil ✓", "large_screen": "Pantalla grande", "beta": "Beta",
+           "phone_ok": "Celular ✓", "large_screen": "Pantalla grande", "beta": "Beta",
            "sr_3d": "juego 3D", "sr_new": "nuevo", "sr_soon": "disponible pronto", "sr_game": "juego"},
     "en": {"play_now": "Play now", "play": "Play", "new": "NEW", "soon": "Soon",
            "phone_ok": "Phone ✓", "large_screen": "Big screen", "beta": "Beta",
@@ -181,7 +181,8 @@ def landing_tile(g, sec):
 
 def landing_featured(g, sec):
     """The featured game on the landing page: a tile like the grid's (.gt), only
-    wider (.gt-wide), with the picture beside the text and a visible play button.
+    wider (.gt-wide), with the picture (16:9, like the small tiles) beside the name,
+    the tagline and a visible play button.
     Owner 2026-11-25: the old dark banner (.feat) was too big and looked like an
     unclickable banner. The profile card next to it is hand-written in the pages."""
     lang = sec["ui"]
@@ -197,13 +198,14 @@ def landing_featured(g, sec):
     img = g.get("hero") or g.get("thumb_small") or g.get("thumbnail") or ""
     flags = _flags(g, lang)
     return (f'<a class="gt gt-wide" href="{game_url(sec, g["id"])}" data-game-id="{esc(g["id"])}" '
-            f'aria-labelledby="feat-name" aria-describedby="feat-desc">'
+            f'aria-labelledby="feat-name" aria-describedby="feat-desc feat-meta">'
             f'<div class="gt-thumb"><img src="{esc(img)}" alt="" width="1200" height="675" decoding="async" fetchpriority="high">'
             + (f'<div class="gt-flags" aria-hidden="true">{flags}</div>' if flags else "") +
             f'</div><div class="gt-body"><h2 class="gt-name" id="feat-name">{esc(name)}</h2>'
-            f'<div id="feat-desc" class="vh">'   # owner 2026-11-25: picture, name, play button only
-            f'<p class="gt-tag">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
-            f'<div class="gt-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang)}</div></div>'
+            # owner 2026-11-28: one sentence about the game (tagline) is visible in the
+            # featured tile; the topic/device badges stay hidden (screen readers only)
+            f'<p class="gt-tag" id="feat-desc">{esc((g.get("tagline") or {}).get(lang, ""))}</p>'
+            f'<div id="feat-meta" class="vh"><div class="gt-meta">{_sr(g, lang)}{topic_pills}{_pills(g, lang)}</div></div>'
             f'<span class="gt-cta" aria-hidden="true">{PLAY_SVG}{L["play_now"]}</span></div></a>')
 
 

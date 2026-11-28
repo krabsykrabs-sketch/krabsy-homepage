@@ -331,7 +331,7 @@ P = {
                  "de formas y frases para completar, todas con soluciones."),
         "h1": "Verbos irregulares en inglés: fichas para imprimir",
         "crumb": "Fichas",
-        "sub": ("Gratis, en PDF y con soluciones. Para la clase de inglés desde 5.º de Primaria, "
+        "sub": ("Gratis, en PDF y con soluciones. Para la clase de inglés a partir de los 10 años, "
                 "para deberes o para practicar en casa."),
         "download": "Descargar PDF", "online": "Practicar online",
         "pages": lambda n: f"{n} páginas" if n != 1 else "1 página",
@@ -352,7 +352,7 @@ P = {
         },
         "tip_h": "Papel y pantalla, juntos",
         "tip": ("Una idea: primero la ficha con calma y la corrección en grupo; después, diez minutos de "
-                "<a href=\"/es/verbos-irregulares/sprint/\">Sprint</a> en la tablet o el móvil. Quien ya domina "
+                "<a href=\"/es/verbos-irregulares/sprint/\">Sprint</a> en la tablet o el celular. Quien ya domina "
                 "las formas en papel, bate su récord enseguida. Para terminar: el <a href=\"/es/verbos-irregulares/diploma/\">diploma de verbos</a> con certificado."),
         "use": ("Puedes imprimir, fotocopiar y repartir las fichas en tu clase. Encontrarás más ideas en la "
                 "página <a href=\"/es/docentes/\">Para docentes</a>."),
@@ -374,8 +374,8 @@ PAGE_CSS = """
     .ws-card p{margin:0 0 10px;color:var(--krabsy-ink);line-height:1.55;font-size:0.97rem}
     .ws-meta{font-size:0.82rem;color:var(--krabsy-ink-mute)}
     .ws-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .ws-dl{font-family:var(--font-display);font-size:0.95rem;color:#fff;background:var(--krabsy-coral-dark,#e07a64);padding:9px 18px;border-radius:30px;text-decoration:none}
-    .ws-dl:hover{filter:brightness(1.05)}
+    .ws-dl{font-family:var(--font-body);font-weight:800;font-size:0.95rem;color:var(--k-btn-fg,#fff);background:var(--k-btn-bg,#bf4a33);box-shadow:0 3px 0 var(--k-btn-edge,#8f3a28);padding:9px 18px;border-radius:30px;text-decoration:none}
+    .ws-dl:hover{background:var(--k-btn-bg-hover,#a63f2b);color:var(--k-btn-fg,#fff)}
     .ws-on{font-size:0.92rem;color:var(--krabsy-ink);text-decoration-color:var(--krabsy-coral);text-underline-offset:2px}
     .ws-note{background:#fff8e6;border:1px solid #f5d98a;border-radius:12px;padding:12px 16px;margin:18px 0 10px;color:var(--krabsy-ink);line-height:1.55;font-size:0.95rem}
     .ws-note h2{font-family:var(--font-display);font-weight:normal;font-size:1.05rem;margin:0 0 4px}
@@ -429,7 +429,7 @@ def download_page(lang, LL, PP, kinds):
   <meta property="og:site_name" content="Krabsy">
   <meta property="og:locale" content="{'de_DE' if lang == 'de' else 'es_ES'}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-27-rv">
+  <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <style>{PAGE_CSS}</style>
   <script type="application/ld+json">{json.dumps(crumbs_ld, ensure_ascii=False)}</script>
 </head><body>
@@ -685,7 +685,7 @@ PPP = {
         },
         "tip_h": P["es"]["tip_h"],
         "tip": ("Una idea: primero la ficha con calma y la corrección en grupo; después, diez minutos de "
-                "<a href=\"/es/preposiciones/sprint/\">Sprint</a> en la tablet o el móvil."),
+                "<a href=\"/es/preposiciones/sprint/\">Sprint</a> en la tablet o el celular."),
         "use": P["es"]["use"],
     },
 }

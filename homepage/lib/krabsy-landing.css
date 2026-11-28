@@ -6,8 +6,8 @@
   --g-amber: #ffcf5e;
   --g-navy:  #0d2240;
   /* Coral dark enough for white text and for text on cream (≥ 4.5:1) */
-  --coral-aa: #bf4a33;
-  --coral-aa-deep: #8f3a28;
+  --coral-aa: var(--krabsy-coral-aa);
+  --coral-aa-deep: var(--krabsy-coral-deep);
   --wrap: 1180px;
 }
 body { background: var(--krabsy-cream); }
@@ -60,20 +60,20 @@ a:focus-visible, button:focus-visible {
 .gl-act {
   display: inline-flex; align-items: center; gap: 10px;
   min-height: 52px; padding: 0 22px 0 8px; border-radius: var(--radius-pill);
-  background: #fff; box-shadow: inset 0 0 0 2px var(--krabsy-ink), 0 4px 0 var(--krabsy-ink);
-  color: var(--krabsy-ink); font-weight: 800; font-size: 1.05rem; text-decoration: none; white-space: nowrap;
+  background: var(--k-btn2-bg); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge);
+  color: var(--k-btn2-fg); font-weight: 800; font-size: 1.05rem; text-decoration: none; white-space: nowrap;
   transition: transform 0.08s, box-shadow 0.08s;
 }
-.gl-act:hover { background: var(--krabsy-cream); }
-.gl-act:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--krabsy-ink), 0 1px 0 var(--krabsy-ink); }
+.gl-act:hover { background: var(--k-btn2-bg-hover); color: var(--k-btn2-fg); }
+.gl-act:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 1px 0 var(--k-btn2-edge); }
 .gl-act-ico {
   display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
   width: 38px; height: 38px; border-radius: 50%; background: var(--krabsy-cream);
 }
 .gl-act .ki { width: 26px; height: 26px; }
-.gl-act-play { background: var(--coral-aa); color: #fff; box-shadow: 0 4px 0 var(--coral-aa-deep); }
-.gl-act-play:hover { background: #cf5a42; }
-.gl-act-play:active { box-shadow: 0 1px 0 var(--coral-aa-deep); }
+.gl-act-play { background: var(--k-btn-bg); color: var(--k-btn-fg); box-shadow: 0 3px 0 var(--k-btn-edge); }
+.gl-act-play:hover { background: var(--k-btn-bg-hover); color: var(--k-btn-fg); }
+.gl-act-play:active { box-shadow: 0 1px 0 var(--k-btn-edge); }
 .gl-act-play .gl-act-ico { background: #fff; }
 .gl-act:focus-visible { border-radius: var(--radius-pill); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { .gl-act { transition: none; } }
@@ -81,8 +81,8 @@ a:focus-visible, button:focus-visible {
 .gl-join { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 16px 0 0; font-size: 0.84rem; line-height: 1.4; }
 .gl-join a { display: inline-flex; align-items: center; gap: 6px; min-height: 28px;
   color: var(--krabsy-ink-mute); font-weight: 700; text-decoration: none; }
-.gl-join a:hover span { color: var(--coral-aa); text-decoration: underline; }
-.gl-join .gl-join-teachers { color: var(--coral-aa); }
+.gl-join a:hover span { color: var(--k-link-hover); text-decoration: underline; }
+.gl-join .gl-join-teachers { color: var(--k-link); }
 .gl-join .ki { width: 20px; height: 20px; flex: 0 0 auto; }
 .gl-class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 6px; border-radius: 999px;
   background: #e6f7f2; color: #0d4d3f !important; font-weight: 700; text-decoration: none; }
@@ -121,12 +121,13 @@ a:focus-visible, button:focus-visible {
 .gl-prog-chips { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .gl-prog-chip {
   display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px;
-  border-radius: var(--radius-pill); background: var(--krabsy-coral-soft); color: var(--coral-aa-deep);
+  border-radius: var(--radius-pill); background: var(--k-chip-bg); color: var(--k-chip-fg);
+  box-shadow: inset 0 0 0 1.5px var(--k-chip-line);
   font-weight: 700; font-size: 0.8rem; text-decoration: none;
 }
-.gl-prog-chip:hover { background: var(--coral-aa); color: #fff; }
-.gl-prog-link { font-weight: 700; color: var(--coral-aa); text-decoration: none; white-space: nowrap; }
-.gl-prog-link:hover { color: var(--coral-aa-deep); }
+.gl-prog-chip:hover { background: var(--krabsy-lavender-soft); color: var(--k-chip-fg); }
+.gl-prog-link { font-weight: 700; color: var(--k-link); text-decoration: none; white-space: nowrap; }
+.gl-prog-link:hover { color: var(--k-link-hover); text-decoration: underline; }
 @media (max-width: 559px) {
   /* line 1: accuracy · streak · stats link; line 2: verbs to practise */
   .gl-head.has-progress { align-items: flex-start; }
@@ -160,30 +161,31 @@ a:focus-visible, button:focus-visible {
    columns: tile = three columns, figure = one. */
 .gl-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .gl-top-feat { display: grid; min-width: 0; }
-.gt-wide .gt-thumb { aspect-ratio: 2 / 1; }
+.gt-wide .gt-thumb { aspect-ratio: 16 / 9; }   /* always 16:9, like the small tiles (owner 2026-11-28) */
 .gt-wide .gt-thumb img { object-position: 50% 60%; }
 .gt-wide .gt-flags { top: 10px; left: 10px; gap: 6px; }
 .gt-wide .gt-flags .bdg { font-size: 0.8rem; padding: 3px 11px; }
 .gt-wide .gt-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 12px 14px 14px; flex: 0 0 auto; }
 .gt-wide .gt-name { font-size: 1.25rem; grid-column: 1; }
-.gt-wide .gt-tag { grid-column: 1; flex: none; }
+.gt-wide .gt-tag { grid-column: 1; flex: none; font-size: 0.9rem; color: var(--krabsy-ink-mute); }
 .gt-wide .gt-meta { grid-column: 1; }
 .gt-wide .bdg-topic { display: none; }
 .gt-cta {
   grid-column: 2; grid-row: 1 / span 3; display: inline-flex; align-items: center; gap: 8px;
   padding: 11px 16px; border-radius: var(--radius-pill);
-  background: var(--coral-aa); color: #fff; font-weight: 700; font-size: 0.9rem;
-  box-shadow: 0 4px 0 var(--coral-aa-deep); white-space: nowrap;
+  background: var(--k-btn-bg); color: var(--k-btn-fg); font-weight: 800; font-size: 0.9rem;
+  box-shadow: 0 3px 0 var(--k-btn-edge); white-space: nowrap;
 }
 .gt-cta svg { width: 14px; height: 14px; }
-a.gt-wide:hover .gt-cta { background: #cf5a42; }
+a.gt-wide:hover .gt-cta { background: var(--k-btn-bg-hover); }
 @media (min-width: 560px) {
   .gl-top { gap: 16px; }
   .gt.gt-wide { flex-direction: row; }
-  .gt-wide .gt-thumb { flex: 0 0 46%; aspect-ratio: 16 / 9; }
+  /* the picture keeps 16:9 and is never stretched to the card height */
+  .gt-wide .gt-thumb { flex: 0 0 58%; aspect-ratio: 16 / 9; align-self: center; }
   .gt-wide .gt-body { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; padding: 14px 22px 16px; flex: 1 1 auto; min-width: 0; }
   .gt-wide .gt-name { font-size: 1.6rem; }
-  .gt-wide .gt-tag { font-size: 0.95rem; line-height: 1.4; }
+  .gt-wide .gt-tag { font-size: 1rem; line-height: 1.4; }
   .gt-wide .bdg-topic { display: inline-flex; }
   .gt-cta { margin-top: 4px; padding: 10px 22px; font-size: 0.95rem; }
 }
@@ -250,13 +252,13 @@ a.gt-wide:hover .gt-cta { background: #cf5a42; }
 .lf-shells[hidden] { display: none; }
 .lf-shells-ico { width: 20px; height: 20px; flex: 0 0 auto; }
 .lf-shells b { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
-.lf-cta {                       /* the button: the only way to the profile / figure page */
+.lf-cta {                       /* secondary button (the tile's 'Jetzt spielen' is the primary): the way to the profile / figure page */
   display: inline-block; padding: 7px 16px; border-radius: var(--radius-pill);
-  background: var(--coral-aa); color: #fff; font-weight: 700; font-size: 0.95rem; white-space: nowrap;
-  box-shadow: 0 3px 0 var(--coral-aa-deep); transition: transform 0.12s ease, box-shadow 0.12s ease;
+  background: var(--k-btn2-bg); color: var(--k-btn2-fg); font-weight: 800; font-size: 0.95rem; white-space: nowrap;
+  box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge); transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.lf-label:hover .lf-cta { background: var(--coral-aa-deep); }
-.lf-label:active .lf-cta { transform: translateY(2px); box-shadow: 0 1px 0 var(--coral-aa-deep); }
+.lf-label:hover .lf-cta { background: var(--k-btn2-bg-hover); }
+.lf-label:active .lf-cta { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 1px 0 var(--k-btn2-edge); }
 .lf-label:focus-visible { outline: none; }
 .lf-label:focus-visible .lf-cta { outline: 3px solid var(--krabsy-ink); outline-offset: 2px; }
 /* The way to the figure editor (owner 2026-11-27: "the character editor is too hidden"):
@@ -356,7 +358,7 @@ a.gt:hover { transform: translateY(-3px); color: var(--krabsy-ink); }
 .gt-soon { position: absolute; top: 8px; right: 8px; }
 .gt-play {
   position: absolute; right: 8px; bottom: 8px; padding: 5px 12px; border-radius: var(--radius-pill);
-  background: var(--coral-aa); color: #fff; font-size: 0.8rem; font-weight: 700;
+  background: var(--k-btn-bg); color: var(--k-btn-fg); font-size: 0.8rem; font-weight: 800;
   opacity: 0; transition: opacity 0.15s ease;
 }
 a.gt:hover .gt-play, a.gt:focus-visible .gt-play { opacity: 1; }
@@ -410,15 +412,16 @@ a.gt:hover .gt-play, a.gt:focus-visible .gt-play { opacity: 1; }
 .gl-teach {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   padding: 14px 18px; border-radius: var(--radius-md);
-  background: var(--krabsy-ink); color: #fff; text-decoration: none;
+  background: var(--krabsy-white); color: var(--krabsy-ink); text-decoration: none; box-shadow: var(--shadow-card);
   border-left: 8px solid var(--g-amber); transition: transform 0.18s ease;
 }
-.gl-teach:hover { transform: translateY(-2px); color: #fff; }
-.gl-teach > svg { width: 30px; height: 30px; flex: 0 0 auto; color: var(--g-amber); }
+.gl-teach:hover { transform: translateY(-2px); color: var(--krabsy-ink); }
+.gl-teach > svg { width: 30px; height: 30px; flex: 0 0 auto; color: var(--krabsy-ink); }
 .gl-teach-txt { flex: 1 1 220px; min-width: 0; }
 .gl-teach-txt b { display: block; font-family: var(--font-display); font-weight: normal; font-size: 1.15rem; line-height: 1.2; }
-.gl-teach-txt span { font-size: 0.85rem; color: #d6d9e8; }
-.gl-teach-cta { padding: 9px 18px; border-radius: var(--radius-pill); background: var(--g-amber); color: var(--g-navy); font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
+.gl-teach-txt span { font-size: 0.85rem; color: var(--krabsy-ink-mute); }
+.gl-teach-cta { padding: 9px 18px; border-radius: var(--radius-pill); background: var(--k-btn2-bg); color: var(--k-btn2-fg); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge); font-weight: 800; font-size: 0.88rem; white-space: nowrap; }
+.gl-teach:hover .gl-teach-cta { background: var(--k-btn2-bg-hover); }
 
 /* ── Merged SEO text ──────────────────────────────────────────────── */
 .k-article.gl-about { max-width: 860px; margin-top: var(--space-6); }

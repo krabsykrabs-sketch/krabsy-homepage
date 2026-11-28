@@ -58,7 +58,7 @@ synced to `homepage/data/<file>.json` at release.
 | `id` | yes | topic id, `[a-z0-9_]`, starts with the learning language (`es_ser`). Same id as in the registry |
 | `learn_lang` | yes | language being learned (`es`, `en`, …) |
 | `level` | no | CEFR level `A1`, `A2`, `B1` … (sorting topics, not filtering questions) |
-| `years` | no | school year in which the topic is usually first taught, per school system, as shown to teachers: `{ "de": "5-6", "es": "1º ESO" }` (`de` = German Klasse, `es` = Spanish curso; source: `docs/curriculum-map.md`). Informational, no filtering |
+| `years` | no | school year in which the topic is usually first taught, per school system, as shown to teachers: `{ "de": "5-6", "es": "12–13 años (1º ESO)" }` (`de` = German Klasse, `es` = age first, then Spain's curso, so Latin American teachers can place it; source: `docs/curriculum-map.md`). Informational, no filtering |
 | `status` | no | free note on the review state (`"draft: … waiting for a native speaker's check"`) |
 | `title` | yes | per interface language |
 | `items` | yes | the units a child learns (stats + smart mix count per item) |

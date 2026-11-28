@@ -110,6 +110,9 @@ def is_draft(tid):
 # docs/curriculum-map.md). Numbers count school years from the first year of
 # primary school: de = Klasse (5 = Klasse 5); es = curso, 1-6 = 1º-6º Primaria,
 # 7-10 = 1º-4º ESO. Pages group topics by the first year (Themen page).
+# Spanish pages are read in Latin America too (first class: Uruguay), where
+# "ESO" means nothing: they show the AGE first and Spain's school year in
+# brackets, "12–13 años (1º ESO)" (owner 2026-11-28). Age of curso n = n+5 to n+6.
 
 def year_range(tid, ui):
     y = ((topics().get(tid) or {}).get("years") or {}).get(ui)
@@ -122,18 +125,27 @@ def _es_year(n):
     return f"{n}º Primaria" if n <= 6 else f"{n - 6}º ESO"
 
 
+def _es_school(a, b):
+    if a == b:
+        return _es_year(a)
+    if (a <= 6) == (b <= 6):
+        return f"{a - 6}º–{b - 6}º ESO" if a > 6 else f"{a}º–{b}º Primaria"
+    return f"{_es_year(a)} – {_es_year(b)}"
+
+
+def _es_ages(a, b):
+    return f"{a + 5}–{b + 6} años"
+
+
 def year_label(tid, ui):
-    """'Klasse 5–6' / '1º–3º ESO' / '5º Primaria – 1º ESO'; None without years."""
+    """'Klasse 5–6' / '12–15 años (1º–3º ESO)' / '10–13 años (5º Primaria – 1º ESO)';
+    None without years."""
     r = year_range(tid, ui)
     if not r:
         return None
     a, b = r
     if ui == "es":
-        if a == b:
-            return _es_year(a)
-        if (a <= 6) == (b <= 6):
-            return f"{a - 6}º–{b - 6}º ESO" if a > 6 else f"{a}º–{b}º Primaria"
-        return f"{_es_year(a)} – {_es_year(b)}"
+        return f"{_es_ages(a, b)} ({_es_school(a, b)})"
     if ui == "de":
         return f"Klasse {a}" if a == b else f"Klasse {a}–{b}"
     return f"Year {a}" if a == b else f"Years {a}–{b}"
@@ -147,7 +159,7 @@ def year_group(tid, ui):
         return None
     a = r[0]
     if ui == "es":
-        return (6, "5º/6º Primaria") if a <= 6 else (a, _es_year(a))
+        return (6, f"{_es_ages(5, 6)} (5º/6º Primaria)") if a <= 6 else (a, f"{_es_ages(a, a)} ({_es_year(a)})")
     if ui == "de":
         return (a, f"Klasse {a}")
     return (a, f"Year {a}")

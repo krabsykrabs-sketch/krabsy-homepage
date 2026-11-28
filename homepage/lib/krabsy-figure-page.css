@@ -7,7 +7,7 @@
 :root {
   --mf-teal: #2ee6c0; --mf-coral: #ff8585; --mf-amber: #ffcf5e;
   --mf-teal-soft: #dcfbf3; --mf-amber-soft: #fff4d6; --mf-teal-deep: #0d6b5a;
-  --mf-coral-aa: #bf4a33; --mf-coral-aa-deep: #8f3a28;
+  --mf-coral-aa: var(--krabsy-coral-aa); --mf-coral-aa-deep: var(--krabsy-coral-deep);
   --mf-line: rgba(44, 42, 58, 0.12); --mf-ring: rgba(44, 42, 58, 0.16);
   --mf-hdr: 58px; --mf-app-h: 600px; --mf-stage-h: 300px;
 }
@@ -57,11 +57,11 @@
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   font-weight: 800; font-size: 1rem; color: var(--krabsy-ink); background: #fff; border: 0;
   border-radius: 999px; padding: 8px 16px; cursor: pointer; min-height: 42px;
-  box-shadow: inset 0 0 0 2px var(--mf-ring), 0 3px 0 rgba(44, 42, 58, 0.12);
+  box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 3px 0 var(--k-btn2-edge);
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
-.mf-bar button:hover, .mf-actions button:hover { background: var(--mf-amber-soft); }
-.mf-bar button:active, .mf-actions button:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--mf-ring), 0 1px 0 rgba(44, 42, 58, 0.12); }
+.mf-bar button:hover, .mf-actions button:hover { background: var(--k-btn2-bg-hover); }
+.mf-bar button:active, .mf-actions button:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--k-btn2-line), 0 1px 0 var(--k-btn2-edge); }
 .mf-bar button.on { background: #dcf7f0; box-shadow: inset 0 0 0 2px var(--mf-teal), 0 3px 0 rgba(13, 107, 90, 0.22); }
 .mf-bar .mf-spin { margin-left: 8px; }
 .mf-main .mf-bar .ki, .mf-main .mf-actions .ki { width: 22px; height: 22px; }
@@ -139,10 +139,10 @@
 .mf-foot { padding: 10px 14px 13px; background: var(--krabsy-white); border-top: 2px solid var(--krabsy-lavender-soft); }
 .mf-actions { display: flex; gap: 8px; align-items: center; }
 /* Save: the site's main button */
-.mf-actions .mf-save { margin-left: auto; background: var(--mf-coral-aa); color: #fff; padding: 8px 28px; font-size: 1.05rem; box-shadow: 0 3px 0 var(--mf-coral-aa-deep); }
-.mf-actions .mf-save:hover { background: #cf5a42; }
-.mf-actions .mf-save:active { box-shadow: 0 1px 0 var(--mf-coral-aa-deep); }
-.mf-actions .mf-save.dirty { box-shadow: 0 3px 0 var(--mf-coral-aa-deep), 0 0 0 4px rgba(255, 133, 133, 0.4); }
+.mf-actions .mf-save { margin-left: auto; background: var(--k-btn-bg); color: var(--k-btn-fg); padding: 8px 28px; font-size: 1.05rem; box-shadow: 0 3px 0 var(--k-btn-edge); }
+.mf-actions .mf-save:hover { background: var(--k-btn-bg-hover); }
+.mf-actions .mf-save:active { box-shadow: 0 1px 0 var(--k-btn-edge); }
+.mf-actions .mf-save.dirty { box-shadow: 0 3px 0 var(--k-btn-edge), 0 0 0 4px rgba(255, 133, 133, 0.4); }
 .mf-actions .mf-save:disabled { background: var(--krabsy-lavender-soft); color: var(--krabsy-ink-mute); box-shadow: none; cursor: not-allowed; }
 .mf-saved { font-weight: 800; font-size: 0.95rem; line-height: 1.3; color: var(--krabsy-ink-mute); }
 .mf-saved:not(:empty) { margin-bottom: 8px; }

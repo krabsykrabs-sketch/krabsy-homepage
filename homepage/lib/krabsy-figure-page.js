@@ -48,7 +48,7 @@ const T = {
     tabs: { char: 'Elige personaje', items: 'Accesorios', skin: 'Piel y pelo', clothes: 'Ropa' },
     noSkin: 'Este personaje no tiene color de piel ni de pelo para cambiar. ¡Mira en «Ropa»!',
     groups: { people: 'Personas', fantasy: 'Fantasía', monsters: 'Monstruos y robots' },
-    hat: 'Gorro', glasses: 'Gafas', back: 'Espalda', skin: 'Piel', hair: 'Pelo', main: 'Color principal',
+    hat: 'Gorro', glasses: 'Lentes', back: 'Espalda', skin: 'Piel', hair: 'Pelo', main: 'Color principal',
     legs: 'Segundo color', acc: 'Color de accesorios', own: 'Original', none: 'nada', noHat: 'A este personaje no le queda otro gorro.', orig: 'Original',
     rand: 'Al azar', reset: 'Reiniciar', save: 'Guardar',
     saved: '¡Guardado! Tu personaje está en este dispositivo.', unsaved: 'Todavía sin guardar.',

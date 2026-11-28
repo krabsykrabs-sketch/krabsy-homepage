@@ -4469,7 +4469,7 @@
     "hint": "lay",
     "context_sentence": "The cat ___ in the sun all afternoon.",
     "meaning_de": "liegen",
-    "meaning_es": "estar tumbado, yacer"
+    "meaning_es": "estar acostado, yacer"
   },
   {
     "id": "iv_lie_pp",
@@ -4491,7 +4491,7 @@
     "hint": "l__n",
     "context_sentence": "The letter has ___ on my desk for a week.",
     "meaning_de": "liegen",
-    "meaning_es": "estar tumbado, yacer"
+    "meaning_es": "estar acostado, yacer"
   },
   {
     "id": "iv_set_past",

@@ -252,7 +252,7 @@
       }
     ],
     "note_de": "Falscher Freund: become heißt werden, nicht bekommen. Etwas bekommen heißt get oder receive: I got a letter. When I become rich … = Wenn ich reich werde …",
-    "note_es": "become sirve para hacerse, volverse o convertirse en: She became a doctor (se hizo médica), He became famous (se hizo famoso). Para ponerse se usa más get: get angry (enfadarse)."
+    "note_es": "become sirve para hacerse, volverse o convertirse en: She became a doctor (se hizo médica), He became famous (se hizo famoso). Para ponerse se usa más get: get angry (enojarse)."
   },
   "begin": {
     "ex_past": {
@@ -600,7 +600,7 @@
       {
         "en": "I didn't break your mobile phone, I promise!",
         "de": "Ich habe dein Handy nicht kaputt gemacht, ehrlich!",
-        "es": "¡Yo no te rompí el móvil, te lo prometo!"
+        "es": "¡Yo no te rompí el celular, te lo prometo!"
       },
       {
         "en": "My little brother breaks everything he touches.",
@@ -715,7 +715,7 @@
     },
     "ex_pp": {
       "de": "Sie haben das Spiel live übertragen.",
-      "es": "Han retransmitido el partido en directo."
+      "es": "Han transmitido el partido en vivo."
     },
     "extra": [
       {
@@ -953,11 +953,11 @@
   "catch": {
     "ex_past": {
       "de": "Er hat den Ball mit einer Hand gefangen.",
-      "es": "Cogió la pelota con una mano."
+      "es": "Atrapó la pelota con una mano."
     },
     "ex_pp": {
       "de": "Sie hat sich diese Woche erkältet.",
-      "es": "Esta semana ha cogido un resfriado."
+      "es": "Esta semana se ha resfriado."
     },
     "extra": [
       {
@@ -968,7 +968,7 @@
       {
         "en": "We didn't catch the last train home.",
         "de": "Wir haben den letzten Zug nach Hause nicht mehr erwischt.",
-        "es": "No llegamos a coger el último tren a casa."
+        "es": "No alcanzamos a tomar el último tren a casa."
       },
       {
         "en": "Our cat catches mice in the garden.",
@@ -997,7 +997,7 @@
     },
     "ex_pp": {
       "de": "Habt ihr schon einen Namen für das Baby ausgesucht?",
-      "es": "¿Habéis elegido ya un nombre para el bebé?"
+      "es": "¿Ya han elegido un nombre para el bebé?"
     },
     "extra": [
       {
@@ -1013,7 +1013,7 @@
       {
         "en": "My sister always chooses the biggest piece of cake.",
         "de": "Meine Schwester nimmt sich immer das größte Stück Kuchen.",
-        "es": "Mi hermana siempre elige el trozo de tarta más grande."
+        "es": "Mi hermana siempre elige el trozo de torta más grande."
       }
     ],
     "mistakes": [
@@ -1167,7 +1167,7 @@
       {
         "en": "Did you creep downstairs to get a biscuit?",
         "de": "Hast du dich nach unten geschlichen, um einen Keks zu holen?",
-        "es": "¿Bajaste a hurtadillas a coger una galleta?"
+        "es": "¿Bajaste a escondidas a tomar una galleta?"
       },
       {
         "en": "The fox didn't creep into the garden last night.",
@@ -1202,7 +1202,7 @@
     },
     "ex_pp": {
       "de": "Sie hat den Kuchen in acht Stücke geschnitten.",
-      "es": "Ha cortado la tarta en ocho trozos."
+      "es": "Ha cortado la torta en ocho trozos."
     },
     "extra": [
       {
@@ -1452,7 +1452,7 @@
     },
     "ex_pp": {
       "de": "Er hat den ganzen Saft ausgetrunken.",
-      "es": "Se ha bebido todo el zumo."
+      "es": "Se ha bebido todo el jugo."
     },
     "extra": [
       {
@@ -1489,17 +1489,17 @@
   "drive": {
     "ex_past": {
       "de": "Sie ist heute Morgen zur Arbeit gefahren.",
-      "es": "Esta mañana fue en coche al trabajo."
+      "es": "Esta mañana fue en auto al trabajo."
     },
     "ex_pp": {
       "de": "Er fährt dieses Auto schon seit Jahren.",
-      "es": "Hace años que conduce ese coche."
+      "es": "Hace años que conduce ese auto."
     },
     "extra": [
       {
         "en": "Who did you drive to the station?",
         "de": "Wen hast du zum Bahnhof gefahren?",
-        "es": "¿A quién llevaste en coche a la estación?"
+        "es": "¿A quién llevaste en auto a la estación?"
       },
       {
         "en": "Mum didn't drive because of the snow.",
@@ -1523,11 +1523,11 @@
         "wrong": "I drove my bike to school.",
         "right": "I rode my bike to school.",
         "why_de": "Fahrrad, Pferd oder Motorrad fährt man mit ride (rode, ridden). drive benutzt man für Auto, Bus oder Lkw.",
-        "why_es": "Para la bici, el caballo o la moto se usa ride (rode, ridden); drive es para coches, autobuses o camiones."
+        "why_es": "Para la bici, el caballo o la moto se usa ride (rode, ridden); drive es para autos, autobuses o camiones."
       }
     ],
     "note_de": "„Fahren“ heißt nicht immer drive: am Steuer eines Autos = drive, auf dem Fahrrad oder Pferd = ride, als Fahrgast im Bus oder Zug = go by bus/train oder take the bus.",
-    "note_es": "En España se dice conducir y en Latinoamérica manejar, pero en inglés siempre es drive. Ojo: «llevar a alguien en coche» también es drive: Mum drove me to school."
+    "note_es": "En España se dice conducir y en Latinoamérica manejar, pero en inglés siempre es drive. Ojo: «llevar a alguien en auto» también es drive: Mum drove me to school."
   },
   "eat": {
     "ex_past": {
@@ -1913,7 +1913,7 @@
     },
     "ex_pp": {
       "de": "Die Schule hat Handys im Unterricht verboten.",
-      "es": "El colegio ha prohibido los móviles en clase."
+      "es": "La escuela ha prohibido los celulares en clase."
     },
     "extra": [
       {
@@ -2031,7 +2031,7 @@
   "forgive": {
     "ex_past": {
       "de": "Sie hat ihrem Bruder verziehen, dass er ihr Handy kaputt gemacht hat.",
-      "es": "Perdonó a su hermano por romperle el móvil."
+      "es": "Perdonó a su hermano por romperle el celular."
     },
     "ex_pp": {
       "de": "Hast du ihm schon verziehen?",
@@ -2127,7 +2127,7 @@
       {
         "en": "We didn't freeze the rest of the cake.",
         "de": "Wir haben den Rest vom Kuchen nicht eingefroren.",
-        "es": "No congelamos el resto de la tarta."
+        "es": "No congelamos el resto de la torta."
       },
       {
         "en": "I'm freezing without my coat!",
@@ -2538,12 +2538,12 @@
       {
         "en": "Luckily, the car didn't hit the cat.",
         "de": "Zum Glück hat das Auto die Katze nicht angefahren.",
-        "es": "Por suerte, el coche no atropelló al gato."
+        "es": "Por suerte, el auto no atropelló al gato."
       },
       {
         "en": "My little sister hits me when she's angry.",
         "de": "Meine kleine Schwester haut mich, wenn sie wütend ist.",
-        "es": "Mi hermana pequeña me pega cuando se enfada."
+        "es": "Mi hermana pequeña me pega cuando se enoja."
       }
     ],
     "mistakes": [
@@ -2797,7 +2797,7 @@
         "wrong": "I laid in bed all morning.",
         "right": "I lay in bed all morning.",
         "why_de": "laid kommt von lay (etwas hinlegen). Für „liegen“ (lie) heißt die Vergangenheit lay.",
-        "why_es": "laid viene de lay (poner algo). Para «estar tumbado» (lie), el pasado es lay."
+        "why_es": "laid viene de lay (poner algo). Para «estar acostado» (lie), el pasado es lay."
       },
       {
         "kind": "regularised",
@@ -2807,7 +2807,7 @@
       }
     ],
     "note_de": "Die große Falle: lay – laid – laid heißt „(etwas) legen“, lie – lay – lain heißt „liegen“. lay ist also auch die Vergangenheit von lie! Und lie – lied – lied heißt „lügen“.",
-    "note_es": "La gran trampa: lay – laid – laid es «poner, colocar algo»; lie – lay – lain es «estar tumbado». ¡lay también es el pasado de lie! Y lie – lied – lied significa «mentir»."
+    "note_es": "La gran trampa: lay – laid – laid es «poner, colocar algo»; lie – lay – lain es «estar acostado». ¡lay también es el pasado de lie! Y lie – lied – lied significa «mentir»."
   },
   "lead": {
     "ex_past": {
@@ -2822,7 +2822,7 @@
       {
         "en": "Did the guide lead you through the cave?",
         "de": "Hat euch der Führer durch die Höhle geführt?",
-        "es": "¿El guía os llevó por la cueva?"
+        "es": "¿El guía los llevó por la cueva?"
       },
       {
         "en": "Our captain didn't lead the team on Saturday.",
@@ -3027,7 +3027,7 @@
     },
     "ex_pp": {
       "de": "Er hat mir schon oft sein Auto geliehen.",
-      "es": "Me ha prestado su coche muchas veces."
+      "es": "Me ha prestado su auto muchas veces."
     },
     "extra": [
       {
@@ -3082,7 +3082,7 @@
       {
         "en": "The teacher didn't let us use our phones.",
         "de": "Die Lehrerin hat uns nicht erlaubt, unsere Handys zu benutzen.",
-        "es": "La profesora no nos dejó usar el móvil."
+        "es": "La profesora no nos dejó usar el celular."
       },
       {
         "en": "Mum lets me choose the film on Fridays.",
@@ -3108,7 +3108,7 @@
   "lie": {
     "ex_past": {
       "de": "Die Katze lag den ganzen Nachmittag in der Sonne.",
-      "es": "El gato estuvo tumbado al sol toda la tarde."
+      "es": "El gato estuvo acostado al sol toda la tarde."
     },
     "ex_pp": {
       "de": "Der Brief liegt seit einer Woche auf meinem Schreibtisch.",
@@ -3118,17 +3118,17 @@
       {
         "en": "Where did the dog lie all day?",
         "de": "Wo hat der Hund den ganzen Tag gelegen?",
-        "es": "¿Dónde estuvo tumbado el perro todo el día?"
+        "es": "¿Dónde estuvo acostado el perro todo el día?"
       },
       {
         "en": "I didn't lie in bed all morning.",
         "de": "Ich habe nicht den ganzen Vormittag im Bett gelegen.",
-        "es": "No estuve toda la mañana tumbado en la cama."
+        "es": "No estuve toda la mañana acostado en la cama."
       },
       {
         "en": "The baby is lying on a blanket.",
         "de": "Das Baby liegt auf einer Decke.",
-        "es": "El bebé está tumbado sobre una manta."
+        "es": "El bebé está acostado sobre una manta."
       }
     ],
     "mistakes": [
@@ -3137,7 +3137,7 @@
         "wrong": "I laid in bed until ten o'clock.",
         "right": "I lay in bed until ten o'clock.",
         "why_de": "laid kommt von lay (etwas legen). Für „liegen“ brauchst du lie: lie – lay – lain.",
-        "why_es": "laid viene de lay (poner, colocar algo). Para «estar tumbado» se usa lie: lie – lay – lain."
+        "why_es": "laid viene de lay (poner, colocar algo). Para «estar acostado» se usa lie: lie – lay – lain."
       },
       {
         "kind": "did_past",
@@ -3146,7 +3146,7 @@
       }
     ],
     "note_de": "Drei Verben nicht verwechseln: lie (lay, lain, lying) = liegen; lay (laid, laid) = etwas legen: lay the book on the table; lie (lied, lied) = lügen. Also: I lay in bed (Ich lag im Bett), aber: He lied to me (Er hat mich angelogen).",
-    "note_es": "No confundas tres verbos: lie (lay, lain, lying) = estar tumbado; lay (laid, laid) = poner o colocar algo: lay the book on the table; lie (lied, lied) = mentir. Por eso: I lay in bed (Estuve tumbado en la cama), pero: He lied to me (Me mintió)."
+    "note_es": "No confundas tres verbos: lie (lay, lain, lying) = estar acostado; lay (laid, laid) = poner o colocar algo: lay the book on the table; lie (lied, lied) = mentir. Por eso: I lay in bed (Estuve acostado en la cama), pero: He lied to me (Me mintió)."
   },
   "light": {
     "ex_past": {
@@ -3171,7 +3171,7 @@
       {
         "en": "Grandpa is lighting the candles on the birthday cake.",
         "de": "Opa zündet gerade die Kerzen auf dem Geburtstagskuchen an.",
-        "es": "El abuelo está encendiendo las velas de la tarta de cumpleaños."
+        "es": "El abuelo está encendiendo las velas de la torta de cumpleaños."
       }
     ],
     "mistakes": [
@@ -3194,7 +3194,7 @@
     },
     "ex_pp": {
       "de": "Sie hat schon wieder ihr Handy verloren.",
-      "es": "Ha vuelto a perder el móvil."
+      "es": "Ha vuelto a perder el celular."
     },
     "extra": [
       {
@@ -3234,7 +3234,7 @@
   "make": {
     "ex_past": {
       "de": "Sie hat einen Kuchen für die Party gebacken.",
-      "es": "Hizo una tarta para la fiesta."
+      "es": "Hizo una torta para la fiesta."
     },
     "ex_pp": {
       "de": "Wir haben einen großen Fehler gemacht.",
@@ -3483,11 +3483,11 @@
   "overtake": {
     "ex_past": {
       "de": "Das rote Auto hat uns auf der Autobahn überholt.",
-      "es": "El coche rojo nos adelantó en la autopista."
+      "es": "El auto rojo nos adelantó en la autopista."
     },
     "ex_pp": {
       "de": "In manchen Ländern haben Elektroautos die Benziner überholt.",
-      "es": "En algunos países, los coches eléctricos han superado a los de gasolina."
+      "es": "En algunos países, los autos eléctricos han superado a los de gasolina."
     },
     "extra": [
       {
@@ -3503,7 +3503,7 @@
       {
         "en": "Look, the blue car is overtaking the lorry!",
         "de": "Schau, das blaue Auto überholt gerade den Lkw!",
-        "es": "¡Mira, el coche azul está adelantando al camión!"
+        "es": "¡Mira, el auto azul está adelantando al camión!"
       }
     ],
     "mistakes": [
@@ -3655,7 +3655,7 @@
       {
         "en": "Where did you put my phone?",
         "de": "Wo hast du mein Handy hingelegt?",
-        "es": "¿Dónde pusiste mi móvil?"
+        "es": "¿Dónde pusiste mi celular?"
       },
       {
         "en": "He didn't put any sugar in his tea.",
@@ -3848,7 +3848,7 @@
       }
     ],
     "note_de": "„Fahren“ ist nicht immer ride: ride = reiten oder Fahrrad bzw. Motorrad fahren; drive = ein Auto selbst fahren. Mum drives the car, I ride my bike.",
-    "note_es": "ride se usa para montar en bici, en moto o a caballo; para conducir un coche se dice drive: My mum drives the car and I ride my bike."
+    "note_es": "ride se usa para montar en bici, en moto o a caballo; para conducir un auto se dice drive: My mum drives the car and I ride my bike."
   },
   "ring": {
     "ex_past": {
@@ -3950,7 +3950,7 @@
       {
         "en": "I didn't run fast enough to catch the bus.",
         "de": "Ich bin nicht schnell genug gerannt, um den Bus zu erwischen.",
-        "es": "No corrí lo bastante rápido para coger el autobús."
+        "es": "No corrí lo bastante rápido para alcanzar el autobús."
       },
       {
         "en": "My little brother is running around the garden.",
@@ -4116,7 +4116,7 @@
       {
         "en": "He didn't seek advice before buying the phone.",
         "de": "Er hat sich vor dem Handykauf nicht beraten lassen.",
-        "es": "No pidió consejo antes de comprarse el móvil."
+        "es": "No pidió consejo antes de comprarse el celular."
       },
       {
         "en": "In hide-and-seek, one player seeks and the others hide.",
@@ -4283,7 +4283,7 @@
       {
         "en": "Mum is sewing a patch on my jeans.",
         "de": "Mama näht gerade einen Flicken auf meine Jeans.",
-        "es": "Mamá me está cosiendo un parche en los vaqueros."
+        "es": "Mamá me está cosiendo un parche en los jeans."
       }
     ],
     "mistakes": [
@@ -4547,7 +4547,7 @@
       }
     ],
     "note_de": "shoot heißt nicht nur schießen: shoot a film oder shoot a video bedeutet einen Film oder ein Video drehen.",
-    "note_es": "shoot no solo significa disparar o chutar: shoot a film o shoot a video significa rodar una película o grabar un vídeo."
+    "note_es": "shoot no solo significa disparar o chutar: shoot a film o shoot a video significa rodar una película o grabar un video."
   },
   "show": {
     "ex_past": {
@@ -4645,12 +4645,12 @@
       {
         "en": "Did your jumper shrink in the dryer?",
         "de": "Ist dein Pullover im Trockner eingelaufen?",
-        "es": "¿Se encogió tu jersey en la secadora?"
+        "es": "¿Se encogió tu suéter en la secadora?"
       },
       {
         "en": "Luckily, my jeans didn't shrink.",
         "de": "Zum Glück ist meine Jeans nicht eingelaufen.",
-        "es": "Por suerte, mis vaqueros no se encogieron."
+        "es": "Por suerte, mis jeans no se encogieron."
       },
       {
         "en": "The puddle is shrinking in the sun.",
@@ -4689,7 +4689,7 @@
       {
         "en": "Tom didn't shut the fridge properly.",
         "de": "Tom hat den Kühlschrank nicht richtig zugemacht.",
-        "es": "Tom no cerró bien la nevera."
+        "es": "Tom no cerró bien el refrigerador."
       },
       {
         "en": "The shop shuts at six on Saturdays.",
@@ -4895,7 +4895,7 @@
       {
         "en": "The car didn't slide on the wet road.",
         "de": "Das Auto ist auf der nassen Straße nicht gerutscht.",
-        "es": "El coche no derrapó en la carretera mojada."
+        "es": "El auto no derrapó en la carretera mojada."
       },
       {
         "en": "The penguins are sliding on their bellies.",
@@ -5165,7 +5165,7 @@
   "speed": {
     "ex_past": {
       "de": "Das Auto ist über die Autobahn gerast.",
-      "es": "El coche pasó a toda velocidad por la autopista."
+      "es": "El auto pasó a toda velocidad por la autopista."
     },
     "ex_pp": {
       "de": "Er hat den Vorgang beschleunigt.",
@@ -5287,7 +5287,7 @@
   "spill": {
     "ex_past": {
       "de": "Ich habe Orangensaft über meine Hausaufgaben verschüttet.",
-      "es": "Derramé zumo de naranja sobre los deberes."
+      "es": "Derramé jugo de naranja sobre los deberes."
     },
     "ex_pp": {
       "de": "Jemand hat Milch auf dem Boden verschüttet.",
@@ -5472,7 +5472,7 @@
       {
         "en": "Grandma is spoiling us with cake again.",
         "de": "Oma verwöhnt uns schon wieder mit Kuchen.",
-        "es": "La abuela nos está mimando otra vez con tarta."
+        "es": "La abuela nos está mimando otra vez con torta."
       }
     ],
     "mistakes": [
@@ -5626,12 +5626,12 @@
       {
         "en": "Did the seagull steal your chips?",
         "de": "Hat die Möwe deine Pommes geklaut?",
-        "es": "¿Te robó la gaviota las patatas fritas?"
+        "es": "¿Te robó la gaviota las papas fritas?"
       },
       {
         "en": "I didn't steal your pencil, I borrowed it.",
         "de": "Ich habe deinen Bleistift nicht geklaut, ich habe ihn mir nur geliehen.",
-        "es": "No te robé el lápiz, solo te lo cogí prestado."
+        "es": "No te robé el lápiz, solo lo tomé prestado."
       },
       {
         "en": "The monkey is stealing bananas from the tourists.",
@@ -5657,7 +5657,7 @@
   "stick": {
     "ex_past": {
       "de": "Der Zettel hat am Kühlschrank geklebt.",
-      "es": "La nota se quedó pegada a la nevera."
+      "es": "La nota se quedó pegada al refrigerador."
     },
     "ex_pp": {
       "de": "Er ist bei seiner Entscheidung geblieben.",
@@ -6186,7 +6186,7 @@
     },
     "ex_pp": {
       "de": "Sie hat schon wieder meinen Bleistift genommen.",
-      "es": "Me ha vuelto a coger el lápiz."
+      "es": "Ha vuelto a tomar mi lápiz."
     },
     "extra": [
       {
@@ -6277,7 +6277,7 @@
       {
         "en": "How did you tear your jeans?",
         "de": "Wie hast du dir die Jeans zerrissen?",
-        "es": "¿Cómo te rompiste los vaqueros?"
+        "es": "¿Cómo te rompiste los jeans?"
       },
       {
         "en": "Luckily, the paper didn't tear.",
@@ -6404,7 +6404,7 @@
       {
         "en": "Why did you throw your sandwich in the bin?",
         "de": "Warum hast du dein Sandwich in den Mülleimer geworfen?",
-        "es": "¿Por qué tiraste el bocadillo a la basura?"
+        "es": "¿Por qué tiraste el sándwich a la basura?"
       },
       {
         "en": "The goalkeeper didn't throw the ball far enough.",
@@ -6716,7 +6716,7 @@
         "wrong": "She is wearing a heavy bag to school.",
         "right": "She is carrying a heavy bag to school.",
         "why_de": "Für tragen gibt es im Englischen zwei Verben: wear für Kleidung, Schmuck und Brille, carry für Dinge in der Hand oder auf dem Rücken.",
-        "why_es": "wear es llevar puesto (ropa, gafas, joyas); carry es llevar algo en las manos o a la espalda, como una mochila."
+        "why_es": "wear es llevar puesto (ropa, lentes, joyas); carry es llevar algo en las manos o a la espalda, como una mochila."
       }
     ],
     "note_de": "wear heißt nur am Körper tragen (Kleidung, Brille, Uhr). Etwas in der Hand tragen heißt carry. Achtung Aussprache: wear klingt genau wie where (wo).",
@@ -6761,7 +6761,7 @@
       }
     ],
     "note_de": "Die Form weaved gibt es auch – aber nur im Sinn von sich durchschlängeln: The cyclist weaved through the traffic.",
-    "note_es": "También existe weaved, pero solo con el sentido de zigzaguear: The cyclist weaved through the traffic (el ciclista zigzagueó entre los coches)."
+    "note_es": "También existe weaved, pero solo con el sentido de zigzaguear: The cyclist weaved through the traffic (el ciclista zigzagueó entre los autos)."
   },
   "wed": {
     "ex_past": {

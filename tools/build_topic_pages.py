@@ -40,7 +40,7 @@ HOME = R.HOME
 ORIGIN = 'https://krabsy.com'
 UIS = ('de', 'es')
 HEADER_V = '2026-11-27h'    # krabsy-footer.js, -lang-switch.js (site-wide bump)
-UI_V = '2026-11-27-rv'   # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
+UI_V = '2026-11-28-btn'   # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
 NAV_V = '2026-11-27p'       # krabsy-nav.js (drill chip bar)
 LINK_BUILDER_ANCHOR = {'de': '/de/lehrkraefte/?topic={tid}#uebungslink',
                        'es': '/es/docentes/?topic={tid}#enlace-de-practica'}
@@ -180,7 +180,7 @@ UI = {
         'about': 'Cada pregunta es una frase corta en inglés con un hueco. No necesitas términos gramaticales. '
                  'Después de una respuesta incorrecta ves la frase correcta y una explicación corta en español.',
         'teach_h': 'Para docentes',
-        'year_line': 'Encaja en {year} (según la comunidad y el libro de texto).',
+        'year_line': 'Pensado para estudiantes de {year}; el momento exacto depende del país y del libro de texto.',
         'teach': 'Con el <a href="{lb}">enlace de práctica</a> envías a tu clase este tema con un juego o un '
                  'ejercicio y una dificultad, sin cuentas ni registro.',
         'draft': 'Tema nuevo: una persona nativa de inglés todavía está revisando las frases.',
@@ -199,7 +199,7 @@ UI = {
         'fill_desc': 'Rellena el hueco con el {short_name}: escribe la palabra que falta en inglés. Tres vidas. '
                      'Gratis, sin registro.',
         'hub_desc': 'Ejercicios de {short_name} en inglés: frases con hueco, speed drills y juegos ({short}). '
-                    'Para {year}. Gratis, sin registro.',
+                    'Para estudiantes de {year}. Gratis, sin registro.',
         'error': 'Error al cargar.',
     },
 }

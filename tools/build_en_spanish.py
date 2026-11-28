@@ -29,7 +29,7 @@ HOME = ROOT / 'homepage'
 NOINDEX = True          # flip to False when the section goes public
 FOOTER_V = '2026-11-27p'   # bump when krabsy-nav changes
 HEADER_V = '2026-11-27h'   # krabsy-footer.js (site header, 2026-11-27)
-UI_V = '2026-11-27-rv'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
+UI_V = '2026-11-28-btn'  # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
 
 # One row per Spanish topic. slug = URL folder; topic = engine id.
 TOPICS = [
@@ -323,8 +323,8 @@ def build_teachers():
              'Free Spanish grammar games for your pupils: make a practice link with topic, game and difficulty, or run a live Quiz Room. No accounts.', url) + \
         f"""  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v={UI_V}">
-  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-27">
-  <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-25">
+  <link rel="stylesheet" href="/lib/krabsy-teachers.css?v=2026-11-28-btn">
+  <link rel="stylesheet" href="/lib/krabsy-link-builder.css?v=2026-11-28-btn">
   <link rel="preload" as="image" href="/thumbnails/hero/verb-kitchen.jpg" fetchpriority="high">
 </head>
 <body class="tc-page">
@@ -487,7 +487,7 @@ def build_teachers():
       </div>
     </main>
 
-{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-27t"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
+{FOOTER.replace('<script src="/lib/krabsy-footer.js', '<script src="/lib/krabsy-teacher-tabs.js?v=2026-11-27"></script>\n  <script type="module" src="/lib/krabsy-link-builder.js?v=2026-11-28-btn"></script>\n  <script src="/lib/krabsy-footer.js', 1)}"""
     return url, s
 
 
