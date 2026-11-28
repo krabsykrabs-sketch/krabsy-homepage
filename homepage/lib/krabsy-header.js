@@ -190,21 +190,25 @@ const subjectLang = (s) => (SUBJECTS[s.subject] && SUBJECTS[s.subject].lang) || 
     menús en inglés"), except on the fallback interface (English): German
     or Spanish kids land there too (English laptop), so it lists everything. */
 export function learnEntries(section, lang) {
-  const t = LEARN[lang] || LEARN.en;
-  const seen = new Set();
-  const own = [];
-  const other = [];
-  for (const s of SECTIONS) {
-    if (s.ui !== lang || seen.has(s.subject)) continue;
-    seen.add(s.subject);
-    own.push({ section: s, lang: subjectLang(s), name: langName(subjectLang(s), lang), note: '', current: s.id === section.id });
+  // Owner 2026-11-28: the menu lists only the languages you can LEARN, once each
+  // ("English", "Spanish"), no "English for German speakers" variants. Picking one
+  // goes to the section for that subject in this interface language if there is one,
+  // else the one that fits the reader's own language (browser / time zone), else the
+  // first. A subject in the reader's own interface language is left out (a Spanish
+  // speaker on /es/ doesn't learn Spanish here), except on the English fallback
+  // interface, where German or Spanish children can land too.
+  const out = [];
+  const subjects = [...new Set(SECTIONS.map((s) => s.subject))];
+  const guess = guessReaderLang();
+  for (const subj of subjects) {
+    const all = SECTIONS.filter((s) => s.subject === subj);
+    const pick = all.find((s) => s.id === section.id) || all.find((s) => s.ui === lang)
+      || all.find((s) => s.ui === guess) || all[0];
+    const l = subjectLang(pick);
+    if (pick.id !== section.id && l === lang && lang !== FALLBACK_UI) continue;
+    out.push({ section: pick, lang: l, name: langName(l, lang), note: '', current: pick.id === section.id });
   }
-  for (const s of SECTIONS) {
-    if (seen.has(s.subject) || (subjectLang(s) === lang && lang !== FALLBACK_UI)) continue;
-    other.push({ section: s, lang: subjectLang(s), name: langName(subjectLang(s), lang),
-      note: t.note(inSentence(langName(s.ui, lang), lang), langName(s.ui, s.ui)), current: false });
-  }
-  return own.concat(other);
+  return out.sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0));
 }
 
 function buildLearn(section, lang) {
@@ -320,17 +324,10 @@ function watchTyping() {
   } catch (_) { /* never break the page */ }
 })();
 
-/* ── Wrong language? (owner 2026-11-27: "we will lose any child that lands on the
-   wrong language page"). The start page sends English-only browsers to the English
-   interface (Spanish course); a German or Spanish child on an English laptop then
-   lands in the wrong place. Guess the reader's language from the browser's
-   language list, else from the time zone (never leaves the browser), and offer
-   the English course in that language. Shown until closed or a language is chosen. */
-const HINT_KEY = 'krabsy_langhint';
-const HINT = {
-  de: { text: 'Sprichst du Deutsch? Hier lernst du Englisch – mit deutschen Menüs.', go: 'Zu Krabsy auf Deutsch', close: 'Schließen' },
-  es: { text: '¿Hablas español? Aquí aprendes inglés, con menús en español.', go: 'Ir a Krabsy en español', close: 'Cerrar' },
-};
+/* The reader's own language, guessed from the browser's language list, else the time
+   zone (never leaves the browser). Used by the learning-language menu to pick which
+   English section to offer. (The "wrong language?" hint bar was removed, owner
+   2026-11-28: children arrive through links that already carry the language.) */
 const TZ_DE = /^Europe\/(Berlin|Vienna|Zurich|Busingen|Vaduz|Luxembourg)$/;
 const TZ_ES = /^(Europe\/Madrid|Atlantic\/Canary|Africa\/Ceuta|Pacific\/Galapagos|America\/(Mexico_City|Cancun|Merida|Monterrey|Matamoros|Chihuahua|Ciudad_Juarez|Ojinaga|Tijuana|Hermosillo|Mazatlan|Bahia_Banderas|Bogota|Lima|Santiago|Punta_Arenas|Buenos_Aires|Argentina\/.+|Montevideo|Caracas|Guayaquil|La_Paz|Asuncion|Guatemala|El_Salvador|Tegucigalpa|Managua|Costa_Rica|Panama|Havana|Santo_Domingo|Puerto_Rico|Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus))$/;
 export function guessReaderLang(langs = navigator.languages || [navigator.language || ''], tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { return ''; } })()) {
@@ -342,49 +339,6 @@ export function guessReaderLang(langs = navigator.languages || [navigator.langua
   if (TZ_DE.test(tz)) return 'de';
   if (TZ_ES.test(tz)) return 'es';
   return null;
-}
-function mountLangHint(header, section) {
-  try {
-    if (localStorage.getItem(HINT_KEY)) return;
-    // Only where the server guessed: after the krabsy.com/ redirect. Links from search
-    // engines and teachers carry the right language (owner 2026-11-27).
-    const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-    if (!nav || !(nav.redirectCount > 0)) return;
-    const guess = guessReaderLang();
-    if (!guess || guess === section.ui || !HINT[guess]) return;
-    const target = SECTIONS.find((s) => s.ui === guess && s.subject === 'english');
-    if (!target) return;
-    const done = () => { try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {} };
-    // choosing a language yourself also ends it
-    header.addEventListener('click', (e) => { if (e.target.closest('.k-lang-btn, .k-learn a')) done(); });
-    const t = HINT[guess];
-    const bar = document.createElement('div');
-    bar.className = 'k-langhint';
-    bar.lang = guess;
-    bar.setAttribute('role', 'note');
-    bar.innerHTML = `<span class="k-langhint-text"></span><a class="k-langhint-go"></a><button type="button" class="k-langhint-x">×</button>`;
-    bar.querySelector('.k-langhint-text').textContent = t.text;
-    const go = bar.querySelector('.k-langhint-go');
-    go.textContent = t.go + ' →'; go.href = target.home;
-    go.addEventListener('click', done);
-    const x = bar.querySelector('.k-langhint-x');
-    x.setAttribute('aria-label', t.close);
-    x.addEventListener('click', () => { done(); bar.remove(); });
-    if (!document.getElementById('k-langhint-css')) {
-      const st = document.createElement('style');
-      st.id = 'k-langhint-css';
-      st.textContent = `.k-langhint{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin:0;padding:10px 48px 10px 16px;position:relative;
-        background:#fff4d6;border-bottom:2px solid #ffcf5e;color:#2c2a3a;font:600 0.98rem/1.35 'Nunito',system-ui,sans-serif;justify-content:center;text-align:center}
-        .k-langhint-go{font-weight:800;color:#fff;background:#c0503a;padding:6px 14px;border-radius:999px;text-decoration:none;white-space:nowrap}
-        .k-langhint-go:hover{background:#a8432f;color:#fff}
-        .k-langhint-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:50%;
-        background:transparent;font-size:1.4rem;line-height:1;cursor:pointer;color:#2c2a3a}
-        .k-langhint-x:hover{background:rgba(0,0,0,.06)}
-        .k-langhint a:focus-visible,.k-langhint-x:focus-visible{outline:3px solid #2c2a3a;outline-offset:2px}`;
-      document.head.appendChild(st);
-    }
-    header.insertAdjacentElement('afterend', bar);
-  } catch (_) { /* never break the page */ }
 }
 
 export function mountHeader() {
@@ -450,7 +404,6 @@ export function mountHeader() {
   }
 
   markCurrent(header, section, lang);
-  mountLangHint(header, section);
   document.body.classList.add('k-has-tabbar');
   watchTyping();
   try { mountShellCounter(header); } catch (_) { /* counter is optional */ }
