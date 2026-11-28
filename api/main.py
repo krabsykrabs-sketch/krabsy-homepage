@@ -522,6 +522,9 @@ app.include_router(live.router)
 import quiz_room  # noqa: E402
 
 app.include_router(quiz_room.router)
+import invites  # noqa: E402  (live invites: overlay "Deine Klasse startet ein Quiz", in memory only)
+
+app.include_router(invites.router)
 
 security = HTTPBasic()
 
