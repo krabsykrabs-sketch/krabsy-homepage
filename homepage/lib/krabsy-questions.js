@@ -140,7 +140,7 @@ function _shuffle(arr) {
 
 function _norm(s) {
   // curly apostrophes/quotes (phone keyboards type didn’t) count as straight ones
-  return String(s || '').replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'").trim().toLowerCase().replace(/\s+/g, ' ');
+  return String(s || '').normalize('NFC').replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'").trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 /* Smart order: ids ranked by krabsy-smart.js for a round of `count` items.
@@ -282,6 +282,14 @@ export async function getChainSet(opts = {}) {
  *   lang         interface language for hints and teach lines ('en' | 'de'
  *                | 'es'); default: the stored site language. Games with
  *                their own ?lang= pass it here.
+ *   sentences    irregular verbs only: ask each form in its example sentence
+ *                ("She ___ her keys on the table." + hint "put") instead of the
+ *                trio, display.kind 'gap' (Fill the Gap). Chain order is off
+ *                (the sentence itself says which form), teach.line is the chain.
+ *
+ * Gap displays also carry `pattern` (the item's rule label, e.g. "wait + for",
+ * "soy + name"). It often contains the answer: show it only on request (a hint
+ * button), never with the question. Verb records carry `tier` (1 = everyday).
  *
  * Every record also carries `item` (verb base form or use-case id) — the
  * id to pass to recordAttempt(item, form, correct, source, topic).
@@ -302,7 +310,8 @@ export async function getQuizSet(opts = {}) {
     throw new Error(`krabsy-questions: topic "${topic}" has no quiz shape`);
   }
   const allowPast = !forms || forms.includes('past');
-  const chainOrder = topic === 'irregular_verbs' && allowPast
+  const sentences = topic === 'irregular_verbs' && !!opts.sentences;
+  const chainOrder = topic === 'irregular_verbs' && allowPast && !sentences
     && (opts.chainOrder !== undefined ? !!opts.chainOrder : true);
   const lang = opts.lang || _currentLang();
   const learnLang = _topicInfo(topic).learn;
@@ -326,9 +335,20 @@ export async function getQuizSet(opts = {}) {
     if (wrongs.length < withOptions - 1) return null;
     const options = _shuffle([q.correct_answer, ...wrongs.slice(0, withOptions - 1)]);
 
-    let display, teach;
-    if (topic === 'irregular_verbs') {
+    let display, teach, tier;
+    if (topic === 'irregular_verbs' && sentences) {
       const row = table.get(q.verb);
+      const plain = q.context_sentence || '';
+      if (!plain.includes('___')) return null;
+      tier = row ? row.tier : undefined;
+      display = { kind: 'gap', sentence: `${plain} (${q.verb})`, plain, hint: q.verb, hints: {}, pattern: '' };
+      teach = {
+        line: row ? `${row.verb} → ${row.past} → ${row.participle}` : null,
+        chain: row ? { base: row.verb, past: row.past, participle: row.participle } : null,
+      };
+    } else if (topic === 'irregular_verbs') {
+      const row = table.get(q.verb);
+      tier = row ? row.tier : undefined;
       const askIndex = q.form === 'past' ? 0 : 1;
       display = {
         kind: 'trio',
@@ -348,6 +368,7 @@ export async function getQuizSet(opts = {}) {
         plain: q.sentence_plain || sentence,
         hint: q.hint_text || '',
         hints: q.hints || {},          // { lang: text } — for games that switch language
+        pattern: q.pattern || '',      // rule label; may contain the answer (hint button only)
       };
       teach = {
         line: _pickLang(q.meanings, lang) || q.pattern || null,
@@ -361,6 +382,7 @@ export async function getQuizSet(opts = {}) {
       topic,
       learnLang,
       difficulty: q.difficulty,
+      ...(tier ? { tier } : {}),
       form: q.form || 'default',
       display,
       answer: q.correct_answer,

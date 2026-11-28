@@ -175,22 +175,10 @@ def build_sprint(t):
     s = common_body(s, '/en/spanish/', t['topic'])
     s = sub(s, '<h1 class="k-page-h1">Sprint: englische Präpositionen auf Zeit üben</h1>',
             f'<h1 class="k-page-h1">Sprint: Spanish {t["title"]}</h1>')
-    s = intro(s, '12 Spanish sentences with a gap. Tap the right word as fast as you can; '
-                 'a wrong answer adds 3 seconds. Stuck? The <b>?</b> button shows a small hint.')
-    s = sub(s, 'data-string="common.loading">Lädt…', 'data-string="common.loading">Loading…')
-    s = sub(s, '<span>Tipp</span>', '<span>Hint</span>')
-    s = sub(s, '<span class="sprint-pattern-hint-label">Muster</span>',
-            '<span class="sprint-pattern-hint-label">Pattern</span>')
-    s = sub(s, 'aria-label="Antworten"', 'aria-label="Answers"')
-    s = sub(s, '<a href="/de/praepositionen/" class="k-btn-secondary"', f'<a href="/en/spanish/{t["slug"]}/" class="k-btn-secondary"')
-    s = sub(s, "const CURRENT_TOPIC = 'prepositions';", f"const CURRENT_TOPIC = '{t['topic']}';")
-    s = sub(s, "const BEST_KEY = 'krabsy_best_sprint_prepositions';",
-            f"const BEST_KEY = 'krabsy_best_sprint_{t['topic']}';")
-    s = sub(s, "const HUB_URL = '/de/praepositionen/';", f"const HUB_URL = '/en/spanish/{t['slug']}/';")
-    # Spanish topics are small: use every difficulty, not only level 2.
-    s = sub(s, "          difficulty: 2,\n", '')
-    s = sub(s, "loadingEl.textContent = 'Fehler beim Laden.';",
-            "loadingEl.textContent = 'Could not load.';")
+    # The drill shell (lib/krabsy-drill.js) reads its settings from the mount point;
+    # Spanish topics are small: every difficulty, not only level 2.
+    s = sub(s, 'data-topic="prepositions" data-answer="choice" data-clock="1" data-count="12" data-difficulty="2"',
+            f'data-topic="{t["topic"]}" data-answer="choice" data-clock="1" data-count="12"')
     s = sub(s, '    </main>', links_block(t, 'sprint/') + '\n    </main>')
     s = s.replace('</head>', remember_topic(t['topic']) + '</head>', 1)
     return url, s

@@ -98,8 +98,8 @@
     "sprint": {
       "name": "Sprint",
       "tagline": "12 verbos lo más rápido posible.",
-      "intro": "Elige la forma correcta en 12 verbos. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?",
-      "penalty_hint": "Respuesta incorrecta: +3 segundos",
+      "intro": "Elige la forma correcta en 12 verbos. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?",
+      "penalty_hint": "Respuesta incorrecta: +1 segundo",
       "end_title": "¡Sprint terminado!",
       "aria_choices": "Respuestas"
     },
@@ -146,6 +146,37 @@
       "end_title": "Ronda terminada",
       "aria_lives": "Vidas"
     }
+  },
+  "drill": {
+    "round_clock": "{n} preguntas contra el reloj",
+    "round": "{n} preguntas",
+    "aria_choices": "Respuestas",
+    "aria_progress": "Pregunta {n} de {total}",
+    "aria_blank": "hueco",
+    "type_label": "Tu respuesta",
+    "type_placeholder": "Escribe la respuesta …",
+    "check": "Comprobar",
+    "dont_know": "No lo sé",
+    "hint": "Pista",
+    "right": "¡Correcto!",
+    "wrong_lead": "La respuesta es:",
+    "accent_note": "¡Correcto! Con tilde: {word}",
+    "penalty": "+1 s",
+    "streak_aria": "Racha: {n} seguidas",
+    "sound_on": "Sonido activado",
+    "sound_off": "Sonido desactivado",
+    "end_title": "¡Lo lograste!",
+    "right_label": "correctas",
+    "score": "{right} de {total} correctas",
+    "best_score": "Mejor resultado: {right} de {total}",
+    "new_record": "¡Nuevo récord!",
+    "retry_missed": "Practicar estas otra vez",
+    "play_game": "A jugar: {name}",
+    "teacher_lead": "Práctica de tu docente",
+    "teacher_level_1": "fácil",
+    "teacher_level_2": "fácil + media",
+    "teacher_level_3": "todo",
+    "error": "Algo salió mal. Vuelve a cargar la página."
   },
   "tools": {
     "flashcards": {
@@ -278,7 +309,7 @@
         "section_reference_sub": "Todas las reglas importantes, agrupadas por categoría."
       },
       "drills": {
-        "sprint":     { "tagline": "12 frases con huecos lo más rápido posible.", "intro": "Toca la preposición correcta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?" },
+        "sprint":     { "tagline": "12 frases con huecos lo más rápido posible.", "intro": "Toca la preposición correcta en 12 frases. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?" },
         "type_race":  { "tagline": "Escribe la preposición correcta. Vence al reloj." },
         "drag_match": { "tagline": "Une cada preposición con la frase correcta." },
         "fill_gap":   { "tagline": "Pon la preposición correcta." }
@@ -338,7 +369,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -349,7 +380,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -360,7 +391,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -371,7 +402,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 1 segundo más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."

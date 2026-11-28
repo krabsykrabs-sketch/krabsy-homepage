@@ -41,7 +41,7 @@ ORIGIN = 'https://krabsy.com'
 UIS = ('de', 'es')
 HEADER_V = '2026-11-27h'    # krabsy-footer.js, -lang-switch.js (site-wide bump)
 UI_V = '2026-11-28-btn'   # krabsy-ui.css, -header.js (learning-language pill, 2026-11-27)
-NAV_V = '2026-11-27p'       # krabsy-nav.js (drill chip bar)
+NAV_V = '2026-11-28d'       # krabsy-nav.js (drill chip bar)
 LINK_BUILDER_ANCHOR = {'de': '/de/lehrkraefte/?topic={tid}#uebungslink',
                        'es': '/es/docentes/?topic={tid}#enlace-de-practica'}
 
@@ -154,9 +154,6 @@ UI = {
         'li_fill_d': 'das fehlende Wort selbst tippen, mit drei Leben',
         'li_hub': '{name}: alle Spiele und Übungen',
         'sprint_h1': 'Sprint: {short_name} üben',
-        'sprint_intro': '12 englische Sätze mit einer Lücke. Tippe so schnell wie möglich das richtige Wort an; '
-                        'ein Fehler kostet 3 Sekunden. Kommst du nicht weiter? Der Knopf <b>Tipp</b> zeigt dir '
-                        'ein kleines Muster.',
         'sprint_desc': '12 englische Lückensätze zum {short_name}, so schnell wie möglich: {short}. '
                        'Kostenlos, ohne Anmeldung.',
         'fill_h1': 'Lückentext: {short_name} üben',
@@ -189,8 +186,6 @@ UI = {
         'li_fill_d': 'escribe tú la palabra que falta, con tres vidas',
         'li_hub': '{name}: todos los juegos y ejercicios',
         'sprint_h1': 'Sprint: practica el {short_name}',
-        'sprint_intro': '12 frases en inglés con un hueco. Toca la palabra correcta lo más rápido que puedas; '
-                        'cada fallo suma 3 segundos. ¿Te atascas? El botón <b>Pista</b> te muestra un pequeño patrón.',
         'sprint_desc': '12 frases en inglés con hueco para practicar el {short_name}, lo más rápido posible: '
                        '{short}. Gratis, sin registro.',
         'fill_h1': 'Rellena el hueco: practica el {short_name}',
@@ -334,14 +329,11 @@ def build_sprint(tid, ui):
     s = head(tid, ui, 'sprint', title, desc, crumbs(tid, ui, ('Sprint', u['sprint'])), f'Sprint — {short_name}') + body_from(src)
     s = common(s, tid, ui, 'sprint')
     s = sub(s, r'<h1 class="k-page-h1">[^<]*</h1>', f'<h1 class="k-page-h1">{esc(title)}</h1>')
-    s = intro_card(s, S['sprint_intro'])
-    s = sub(s, r'<a href="/' + ui + r'/[a-z-]+/" class="k-btn-secondary"', f'<a href="{u["hub"]}" class="k-btn-secondary"')
-    s = sub(s, re.escape("const CURRENT_TOPIC = 'prepositions';"), f"const CURRENT_TOPIC = '{tid}';")
-    s = sub(s, re.escape("const BEST_KEY = 'krabsy_best_sprint_prepositions';"), f"const BEST_KEY = 'krabsy_best_sprint_{tid}';")
-    s = sub(s, r"const HUB_URL = '[^']*';", f"const HUB_URL = '{u['hub']}';")
+    # The drill shell (lib/krabsy-drill.js) reads its settings from the mount point.
     # Gap topics use every difficulty (prepositions' Sprint asks only level 2).
-    s = sub(s, r"\n          difficulty: 2,", '')
-    s = sub(s, r'\n      </section>\n    </main>', '\n      </section>' + links_block(tid, ui, 'sprint') + '\n    </main>')
+    s = sub(s, re.escape('data-topic="prepositions" data-answer="choice" data-clock="1" data-count="12" data-difficulty="2"'),
+            f'data-topic="{tid}" data-answer="choice" data-clock="1" data-count="12"')
+    s = sub(s, r'></div>\n    </main>', '></div>' + links_block(tid, ui, 'sprint') + '\n    </main>')
     return u['sprint'], s
 
 

@@ -98,8 +98,8 @@
     "sprint": {
       "name": "Sprint",
       "tagline": "12 Verben, so schnell wie möglich.",
-      "intro": "Wähle bei 12 Verben die richtige Form. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?",
-      "penalty_hint": "Falsche Antwort: +3 Sekunden",
+      "intro": "Wähle bei 12 Verben die richtige Form. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?",
+      "penalty_hint": "Falsche Antwort: +1 Sekunde",
       "end_title": "Sprint geschafft!",
       "aria_choices": "Antworten"
     },
@@ -146,6 +146,37 @@
       "end_title": "Runde vorbei",
       "aria_lives": "Leben"
     }
+  },
+  "drill": {
+    "round_clock": "{n} Fragen gegen die Uhr",
+    "round": "{n} Fragen",
+    "aria_choices": "Antworten",
+    "aria_progress": "Frage {n} von {total}",
+    "aria_blank": "Lücke",
+    "type_label": "Deine Antwort",
+    "type_placeholder": "Antwort tippen …",
+    "check": "Prüfen",
+    "dont_know": "Weiß ich nicht",
+    "hint": "Tipp",
+    "right": "Richtig!",
+    "wrong_lead": "Richtig ist:",
+    "accent_note": "Richtig! Mit Akzent: {word}",
+    "penalty": "+1 s",
+    "streak_aria": "Serie: {n} richtig hintereinander",
+    "sound_on": "Ton an",
+    "sound_off": "Ton aus",
+    "end_title": "Geschafft!",
+    "right_label": "richtig",
+    "score": "{right} von {total} richtig",
+    "best_score": "Bestleistung: {right} von {total}",
+    "new_record": "Neuer Rekord!",
+    "retry_missed": "Diese nochmal üben",
+    "play_game": "Jetzt spielen: {name}",
+    "teacher_lead": "Übung von deiner Lehrkraft",
+    "teacher_level_1": "leicht",
+    "teacher_level_2": "leicht + mittel",
+    "teacher_level_3": "alles",
+    "error": "Das hat nicht geklappt. Lade die Seite neu."
   },
   "tools": {
     "flashcards": {
@@ -278,7 +309,7 @@
         "section_reference_sub": "Alle wichtigen Präpositions-Regeln nach Kategorie."
       },
       "drills": {
-        "sprint":     { "tagline": "12 Lückensätze, so schnell wie möglich.", "intro": "Tippe bei 12 Sätzen die richtige Präposition an. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?" },
+        "sprint":     { "tagline": "12 Lückensätze, so schnell wie möglich.", "intro": "Tippe bei 12 Sätzen die richtige Präposition an. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?" },
         "type_race":  { "tagline": "Tippe die richtige Präposition. Schlag die Uhr." },
         "drag_match": { "tagline": "Ordne jede Präposition dem passenden Satz zu." },
         "fill_gap":   { "tagline": "Setze die richtige Präposition ein." }
@@ -338,7 +369,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 Lückensätze, so schnell wie möglich.",
-          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?"
         },
         "fill_gap": {
           "tagline": "Tippe das Wort, das in die Lücke passt."
@@ -349,7 +380,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 Lückensätze, so schnell wie möglich.",
-          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?"
         },
         "fill_gap": {
           "tagline": "Tippe das Wort, das in die Lücke passt."
@@ -360,7 +391,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 Lückensätze, so schnell wie möglich.",
-          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?"
         },
         "fill_gap": {
           "tagline": "Tippe das Wort, das in die Lücke passt."
@@ -371,7 +402,7 @@
       "drills": {
         "sprint": {
           "tagline": "12 Lückensätze, so schnell wie möglich.",
-          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 3 Sekunden Strafe. Schaffst du eine neue Bestzeit?"
+          "intro": "Tippe bei 12 Sätzen das Wort an, das in die Lücke passt. Falsche Antwort = 1 Sekunde Strafe. Schaffst du eine neue Bestzeit?"
         },
         "fill_gap": {
           "tagline": "Tippe das Wort, das in die Lücke passt."

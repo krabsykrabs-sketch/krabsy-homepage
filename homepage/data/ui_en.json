@@ -98,8 +98,8 @@
     "sprint": {
       "name": "Sprint",
       "tagline": "12 verbs, as fast as you can.",
-      "intro": "Pick the right form for 12 verbs. Wrong answer = 3-second penalty. Can you set a new best time?",
-      "penalty_hint": "Wrong answer: +3 seconds",
+      "intro": "Pick the right form for 12 verbs. Wrong answer = 1-second penalty. Can you set a new best time?",
+      "penalty_hint": "Wrong answer: +1 second",
       "end_title": "Sprint complete!",
       "aria_choices": "Answers"
     },
@@ -146,6 +146,37 @@
       "end_title": "Round over",
       "aria_lives": "Lives"
     }
+  },
+  "drill": {
+    "round_clock": "{n} questions against the clock",
+    "round": "{n} questions",
+    "aria_choices": "Answers",
+    "aria_progress": "Question {n} of {total}",
+    "aria_blank": "gap",
+    "type_label": "Your answer",
+    "type_placeholder": "Type the answer …",
+    "check": "Check",
+    "dont_know": "I don't know",
+    "hint": "Hint",
+    "right": "Right!",
+    "wrong_lead": "The answer is:",
+    "accent_note": "Right! With the accent: {word}",
+    "penalty": "+1 s",
+    "streak_aria": "Streak: {n} in a row",
+    "sound_on": "Sound on",
+    "sound_off": "Sound off",
+    "end_title": "Done!",
+    "right_label": "right",
+    "score": "{right} of {total} right",
+    "best_score": "Best: {right} of {total}",
+    "new_record": "New record!",
+    "retry_missed": "Practice these again",
+    "play_game": "Play now: {name}",
+    "teacher_lead": "Practice from your teacher",
+    "teacher_level_1": "easy",
+    "teacher_level_2": "easy + medium",
+    "teacher_level_3": "everything",
+    "error": "Something went wrong. Please reload the page."
   },
   "tools": {
     "flashcards": {

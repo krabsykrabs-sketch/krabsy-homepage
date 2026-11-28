@@ -169,6 +169,8 @@ async function buildTabBar(items, currentKey, namespace, strings, ariaLabel, gua
    is null whenever the element or an ancestor is display:none, which is
    how every drill hides screens via its *-hidden class). */
 function isDrillActive() {
+  // the drill shell (krabsy-drill.js) marks a running round with body.k-is-playing
+  if (document.querySelector('.kd-play') && document.body.classList.contains('k-is-playing')) return true;
   const playEls = document.querySelectorAll('[id$="-play"]');
   for (const el of playEls) {
     if (el.offsetParent !== null) return true;
