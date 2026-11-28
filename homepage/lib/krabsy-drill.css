@@ -84,7 +84,7 @@
 .kd-slot {
   display: inline-flex; align-items: center; justify-content: center; min-width: 3.6em; min-height: 2.3em; padding: 2px 10px;
   border-radius: var(--radius-md); border: 2px solid var(--krabsy-sage-soft); font-weight: 800; color: var(--krabsy-ink-mute);
-  white-space: nowrap; flex: 0 1 auto;
+  white-space: nowrap; flex: 0 0 auto;
 }
 .kd-slot.is-filled { color: var(--krabsy-ink); background: var(--krabsy-sage-soft); }
 .kd-slot.is-asked { min-width: 4.6em; border-color: var(--krabsy-coral); background: var(--krabsy-lavender-soft); color: var(--krabsy-ink); font-size: 1.12em; }

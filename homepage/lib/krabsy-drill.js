@@ -241,6 +241,18 @@ async function mount(root) {
     return line;
   }
 
+  /* the verb row stays on one line: shrink it until it fits (understand → understood → understood on a phone) */
+  function fitTrio() {
+    const row = root.querySelector('.kd-trio');
+    if (!row) return;
+    row.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(row).fontSize) || 16;
+    for (let k = 0; k < 12 && row.scrollWidth > row.clientWidth + 1 && size > 10; k++) {
+      size -= 1;
+      row.style.fontSize = size + 'px';
+    }
+  }
+
   function statusBar() {
     return `<div class="kd-top">
         <span class="kd-count" id="kd-count"></span>
@@ -314,6 +326,7 @@ async function mount(root) {
     advance = null;
     q._hinted = false;
     root.querySelector('#kd-ask').innerHTML = promptHtml(q);
+    fitTrio();
     const help = root.querySelector('#kd-help');
     const h = hintText(q);
     const dontKnow = typed ? `<button type="button" class="kd-link" id="kd-skip">${esc(t('dont_know'))}</button>` : '';
@@ -417,7 +430,7 @@ async function mount(root) {
 
     // fill the slot / gap with the answer
     const slot = root.querySelector('.kd-slot.is-asked, .kd-gap');
-    if (slot) { slot.textContent = q.answer; slot.classList.add(ok ? 'is-right' : 'is-wrong'); }
+    if (slot) { slot.textContent = q.answer; slot.classList.add(ok ? 'is-right' : 'is-wrong'); fitTrio(); }
     const help = root.querySelector('#kd-help'); if (help) help.innerHTML = '';
 
     const fb = root.querySelector('#kd-fb');
