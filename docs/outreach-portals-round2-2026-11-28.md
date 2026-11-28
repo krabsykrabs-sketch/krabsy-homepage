@@ -14,7 +14,7 @@ Send these before the school emails, one or two per day. Put the date in the Sta
 | 4 | Asociación Enseñanza Bilingüe, Recursos | ES | info@ebspain.es | sent 2026-11-28 |
 | 5 | Hessen Lernarchiv Englisch, Internetportale | DE | support@schulportal.hessen.de | sent 2026-11-28 |
 | 6 | IQSH Schleswig-Holstein, Landesfachberaterin Englisch | DE | christine.schramm@iqsh.de | sent 2026-11-28 |
-| 7 | TESOL-SPAIN Reviews | EN | form https://www.tesol-spain.org/en/contact.html | |
+| 7 | TESOL-SPAIN Reviews | EN | form https://www.tesol-spain.org/en/contact.html | sent 2026-11-28 |
 | 8 | Uni Oldenburg, Prof. Gehring, "Portale für den Englischunterricht" | DE | email from https://uol.de/suche/person/WGehring | |
 
 Later / low: LI Hamburg "Material – Grammar" (find the subject advisor first,
