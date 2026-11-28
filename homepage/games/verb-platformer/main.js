@@ -73,6 +73,7 @@ function setState(next) { state = next; document.body.dataset.state = next; }
 let current = null;        // the level being played
 let run = null;            // this attempt's score sheet
 let lockLostAt = 0;
+let tipNow = null;          // the tutorial hint showing (see "Tutorial hints" below)
 
 const newRun = () => ({ wrong: 0, firstTry: 0, cleared: 0, gates: 0, missFlag: false, missed: new Map() });
 
@@ -111,7 +112,12 @@ function updateLookTip() {
 // Call from a click / key handler: the mouse is captured right away (except when the
 // first-run hint comes up, which needs the cursor).
 async function startLevel(lvl) {
+  // A level with its own hints (the tutorial) replaces the first-run hint card.
+  const hasTips = Array.isArray(lvl.tips) && lvl.tips.length > 0;
+  if (hasTips && !editorMode && !hintSeen()) markHintSeen();
   const wantHint = !editorMode && params.get('hint') !== '0' && !hintSeen();
+  tipNow = null;
+  ui.hideTips();
   Track.abandon();           // a restart mid-level counts as "left" (no event)
   setState('loading');
   current = lvl;
@@ -123,7 +129,7 @@ async function startLevel(lvl) {
   ui.hideHint();
   ui.hideAnswerReveal();
   ui.setLookTip(false);
-  ui.setLevel(lvl.name);
+  ui.setLevel(t(`name.${lvl.id}`) || lvl.name);
   ui.setTime(0);
   ui.showLoader();
   if (!wantHint) game.lockPointer();
@@ -177,6 +183,7 @@ function resumeGame() {
 
 function returnToMenu() {
   Track.abandon();
+  ui.hideTips();
   setState('menu');
   current = null;
   game.stopGame();
@@ -213,6 +220,7 @@ function missedChains() {
 
 function finishLevel() {
   if (!current || state === 'results') return;
+  ui.hideTips();
   setState('results');
   if (document.pointerLockElement) document.exitPointerLock();
   const time = game.getTime();
@@ -248,6 +256,7 @@ function finishLevel() {
 game.setHandlers({
   onFall: (cause) => {
     ui.deathFlash();
+    if (cause === 'skip') { tipNow = null; ui.showNote(t('skipBack')); }
     if (run) Track.fell(run.cleared + 1, cause || 'gap');
   },
   onGateCleared: (cleared, total, question) => {
@@ -280,6 +289,20 @@ game.setHandlers({
 
 // ---- Clock ----
 setInterval(() => { if (state === 'playing') ui.setTime(game.getTime()); }, 200);
+
+// ---- Tutorial hints (level `tips`: [{ id, p: [x, y, z], r }], tools/make_levels.py) ----
+// Entering a zone shows its hint until the next zone. The big controls card ('controls')
+// fades as soon as the player leaves its zone (and comes back after a respawn there).
+setInterval(() => {
+  if (state !== 'playing' || !Array.isArray(current?.tips)) return;
+  const p = game.getPlayerPos();
+  let hit = null;
+  for (const tip of current.tips) {
+    if (Math.hypot(p.x - tip.p[0], p.z - tip.p[2]) <= tip.r && Math.abs(p.y - tip.p[1]) < 2.5) hit = tip;
+  }
+  if (hit && hit.id !== tipNow) { tipNow = hit.id; ui.showTip(hit.id); }
+  else if (!hit && tipNow === 'controls') { tipNow = null; ui.showTip(null); }
+}, 150);
 
 // ---- Pause triggers ----
 // Esc while the mouse is captured never reaches the page: the browser releases the mouse,

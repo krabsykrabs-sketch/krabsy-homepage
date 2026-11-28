@@ -1,0 +1,495 @@
+{
+ "id": "gentle-turns",
+ "name": "Gentle Turns",
+ "topic": "irregular_verbs",
+ "tiers": [
+  1
+ ],
+ "sky": {
+  "preset": "golden"
+ },
+ "spawn": {
+  "id": "spawn_1",
+  "position": [
+   0,
+   2,
+   0
+  ]
+ },
+ "objects": [
+  {
+   "id": "platform_1",
+   "type": "platform_6x6x1",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_2",
+   "type": "platform_4x4x1",
+   "position": [
+    0.0,
+    0,
+    -5.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_3",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -10.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_1",
+   "type": "checkpoint",
+   "position": [
+    0.0,
+    2,
+    -10.0
+   ]
+  },
+  {
+   "id": "gate_1",
+   "type": "gate",
+   "position": [
+    0.0,
+    0,
+    -16.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_4",
+   "type": "platform_6x6x1",
+   "position": [
+    0.0,
+    0,
+    -22.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_5",
+   "type": "platform_4x4x1",
+   "position": [
+    5.0,
+    0,
+    -22.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_6",
+   "type": "platform_4x4x1",
+   "position": [
+    9.0,
+    0,
+    -22.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_7",
+   "type": "platform_6x6x1",
+   "position": [
+    14.0,
+    0,
+    -22.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_8",
+   "type": "platform_4x4x1",
+   "position": [
+    14.0,
+    0,
+    -29.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_2",
+   "type": "checkpoint",
+   "position": [
+    14.0,
+    2,
+    -29.0
+   ]
+  },
+  {
+   "id": "gate_2",
+   "type": "gate",
+   "position": [
+    14.0,
+    0,
+    -34.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_9",
+   "type": "platform_6x6x1",
+   "position": [
+    14.0,
+    0,
+    -40.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_10",
+   "type": "platform_4x4x1",
+   "position": [
+    9.0,
+    0,
+    -40.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_11",
+   "type": "platform_4x4x1",
+   "position": [
+    3.0,
+    0,
+    -40.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_12",
+   "type": "platform_6x6x1",
+   "position": [
+    -4.0,
+    0,
+    -40.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_13",
+   "type": "platform_4x4x1",
+   "position": [
+    -4.0,
+    0,
+    -45.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_3",
+   "type": "checkpoint",
+   "position": [
+    -4.0,
+    2,
+    -45.0
+   ]
+  },
+  {
+   "id": "gate_3",
+   "type": "gate",
+   "position": [
+    -4.0,
+    0,
+    -50.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_14",
+   "type": "platform_6x6x1",
+   "position": [
+    -4.0,
+    0,
+    -56.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_15",
+   "type": "platform_4x4x1",
+   "position": [
+    3.0,
+    0,
+    -56.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_16",
+   "type": "platform_4x4x1",
+   "position": [
+    9.0,
+    0,
+    -56.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_17",
+   "type": "platform_6x6x1",
+   "position": [
+    16.0,
+    0,
+    -56.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "yellow",
+   "correctAnswer": false
+  },
+  {
+   "id": "platform_18",
+   "type": "platform_4x4x1",
+   "position": [
+    16.0,
+    0,
+    -63.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  },
+  {
+   "id": "checkpoint_4",
+   "type": "checkpoint",
+   "position": [
+    16.0,
+    2,
+    -63.0
+   ]
+  },
+  {
+   "id": "gate_4",
+   "type": "gate",
+   "position": [
+    16.0,
+    0,
+    -68.0
+   ],
+   "rotation": 0
+  },
+  {
+   "id": "platform_19",
+   "type": "platform_6x6x1",
+   "position": [
+    16.0,
+    0,
+    -74.0
+   ],
+   "rotation": 0,
+   "scale": 1,
+   "color": "green",
+   "correctAnswer": false
+  }
+ ],
+ "flag": {
+  "id": "flag_1",
+  "type": "flag_C",
+  "color": "yellow",
+  "position": [
+   16.0,
+   1,
+   -74.0
+  ]
+ },
+ "prefabs": [],
+ "botPath": [
+  {
+   "p": [
+    0.0,
+    1,
+    -5.0
+   ]
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -10.0
+   ]
+  },
+  {
+   "gate": "gate_1"
+  },
+  {
+   "p": [
+    0.0,
+    1,
+    -22.0
+   ]
+  },
+  {
+   "p": [
+    5.0,
+    1,
+    -22.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    1,
+    -22.0
+   ]
+  },
+  {
+   "p": [
+    14.0,
+    1,
+    -22.0
+   ]
+  },
+  {
+   "p": [
+    14.0,
+    1,
+    -29.0
+   ]
+  },
+  {
+   "gate": "gate_2"
+  },
+  {
+   "p": [
+    14.0,
+    1,
+    -40.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    1,
+    -40.0
+   ]
+  },
+  {
+   "p": [
+    3.0,
+    1,
+    -40.0
+   ]
+  },
+  {
+   "p": [
+    -4.0,
+    1,
+    -40.0
+   ]
+  },
+  {
+   "p": [
+    -4.0,
+    1,
+    -45.0
+   ]
+  },
+  {
+   "gate": "gate_3"
+  },
+  {
+   "p": [
+    -4.0,
+    1,
+    -56.0
+   ]
+  },
+  {
+   "p": [
+    3.0,
+    1,
+    -56.0
+   ]
+  },
+  {
+   "p": [
+    9.0,
+    1,
+    -56.0
+   ]
+  },
+  {
+   "p": [
+    16.0,
+    1,
+    -56.0
+   ]
+  },
+  {
+   "p": [
+    16.0,
+    1,
+    -63.0
+   ]
+  },
+  {
+   "gate": "gate_4"
+  },
+  {
+   "p": [
+    16.0,
+    1,
+    -74.0
+   ]
+  }
+ ]
+}

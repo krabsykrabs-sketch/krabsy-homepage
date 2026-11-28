@@ -265,7 +265,7 @@ figure") is the player character. **Master session: rebuild the served copy** wi
   all levels with the Witch), 0 console errors; without `/lib` or `/assets/figures/`
   and on file:// the old Ranger loads and the link is hidden.
 
-## Easy start: tutorial + walking level (2026-11-28; source only, served copy NOT rebuilt)
+## Easy start: tutorial + walking level (2026-11-28; built + stamped v=0d9f38fd90, pushed)
 
 Owner: "the levels are a bit one-sided and tricky, so many jumps you need to stick — build
 1 or 2 easy levels at the beginning, more walking, walk onto the platforms or a tiny jump,
