@@ -47,14 +47,41 @@ HIDDEN = ["come", "find", "make", "tell", "hear", "leave", "feel", "say"]   # th
 N = 10
 
 
+# Every form of every catalogue verb (go, went, gone, be, was …). Apart from the hidden
+# words themselves, none of them may be readable in the grid in ANY direction
+# (→ ↓ ← ↑ and diagonals), or pupils find "GO" or "BE" in the filler (owner, 2026-11-28).
+FORBIDDEN = sorted({f.upper() for v in V.values()
+                    for f in [v["verb"], v.get("past", ""), v.get("pp", ""), *v.get("past_alts", []), *v.get("pp_alts", [])]
+                    if f and f.isalpha() and len(f) >= 2})
+
+
+def stray_words(g, placed):
+    """Forms readable in g (any of 8 directions) other than inside the placed hidden words."""
+    lines = [[(y, x) for x in range(N)] for y in range(N)] + [[(y, x) for y in range(N)] for x in range(N)]
+    for k in range(-N + 1, N):
+        lines.append([(y, y - k) for y in range(N) if 0 <= y - k < N])
+        lines.append([(y, k + N - 1 - y) for y in range(N) if 0 <= k + N - 1 - y < N])
+    lines += [l[::-1] for l in lines]
+    found = []
+    for cells in lines:
+        text = "".join(g[y][x] for y, x in cells)
+        for f in FORBIDDEN:
+            i = text.find(f)
+            while i != -1:
+                seg = set(cells[i:i + len(f)])
+                if not any(seg <= set(p) for p in placed):   # inside a hidden word (HEAR in HEARD) is fine
+                    found.append(f)
+                i = text.find(f, i + 1)
+    return found
+
+
 def word_search(words, seed=11):
     rnd = random.Random(seed)
-    for _ in range(500):
+    for _ in range(5000):
         g = [[None] * N for _ in range(N)]
-        hits = set()
+        hits, placed = set(), set()
         ok = True
         for w in sorted(words, key=len, reverse=True):
-            placed = False
             for _ in range(300):
                 d = rnd.choice([(0, 1), (1, 0)])
                 r = rnd.randrange(N - (len(w) - 1) * d[0])
@@ -64,19 +91,21 @@ def word_search(words, seed=11):
                     for (y, x), ch in zip(cells, w):
                         g[y][x] = ch
                     hits.update(cells)
-                    placed = True
+                    placed.add(tuple(cells))
                     break
-            if not placed:
+            else:
                 ok = False
                 break
-        if ok:
-            fill = "ABCDEFGHIKLMNOPRSTUW"
-            for y in range(N):
-                for x in range(N):
-                    if g[y][x] is None:
-                        g[y][x] = rnd.choice(fill)
+        if not ok:
+            continue
+        fill = "BCDFGHKLMNPRSTVWXZ" * 2 + "AEIOU"   # few vowels → few accidental words
+        for y in range(N):
+            for x in range(N):
+                if g[y][x] is None:
+                    g[y][x] = rnd.choice(fill)
+        if not stray_words(g, placed):
             return g, hits
-    raise SystemExit("word search: could not place words")
+    raise SystemExit("word search: no clean grid found")
 
 
 def grid_html(g, hits=None):
