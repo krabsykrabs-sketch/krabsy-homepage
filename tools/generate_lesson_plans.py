@@ -86,7 +86,7 @@ PLANS = [
              f"[[{V}sprint/|Sprint]]: Zu jedem Verb die fehlenden Formen tippen, z.&nbsp;B. "
              "<em lang=\"en\">go → ___ → ___</em>. Jede Runde ist kurz; Ziel ist die eigene Bestzeit."),
             ("17–29", "Arbeitsblatt",
-             "Geräte zur Seite. „Die drei Formen“ (20 Verben) allein ausfüllen, dann mit dem Nachbarn vergleichen "
+             "Geräte zur Seite. „Die drei Formen“, Seite 1 (12 Verben mit Bildern), allein ausfüllen, dann mit dem Nachbarn vergleichen "
              "und mit dem Lösungsblatt prüfen. Ohne Kopien: fünf Verben aus dem Sprint gemeinsam an der Tafel ergänzen."),
             ("29–41", "Verb-Diplom",
              f"[[{V}verb-diplom/|Verb-Diplom]]: Bronze = 15 häufige Verben, zu jedem die 2. und 3. Form, höchstens "
@@ -135,7 +135,7 @@ PLANS = [
         "prep": [
             f"Von den [[{V}arbeitsblaetter/|Arbeitsblättern]] „Die drei Formen“ und „Lückensätze“ je eine Kopie "
             "pro Kind machen. Die Lösungsblätter (letzte Seite jedes PDFs) einmal für sich ausdrucken.",
-            "Für Kinder, die früher fertig sind: ein paar Kopien von „Nach Mustern sortieren“ (gleiche Seite).",
+            "Für Schnelle: ein paar Kopien von „Nach Mustern sortieren“ (gleiche Seite).",
             "Kleine Zettel für den Abschluss bereitlegen (ein halbes Blatt pro Kind reicht).",
         ],
         "steps": [
@@ -143,14 +143,14 @@ PLANS = [
              "<em lang=\"en\">go, see, buy</em> anschreiben. Die Klasse nennt die beiden anderen Formen, Sie "
              "schreiben mit: <em lang=\"en\">go → went → gone</em>. So sieht jedes Kind die Schreibweise der Aufgaben."),
             ("5–17", "Die drei Formen",
-             "20 Verben allein ausfüllen, dann mit dem Nachbarn vergleichen. Zum Schluss die Lösungen vorlesen; "
-             "jedes Kind verbessert das eigene Blatt."),
+             "Aufgaben 1 und 2 (18 Verben) allein ausfüllen, mit dem Nachbarn vergleichen. "
+             "Lösungen vorlesen; jedes Kind verbessert sein Blatt."),
             ("17–27", "Partnerquiz",
              "Zu zweit mit dem verbesserten Blatt: Eine Person nennt die Grundform, die andere sagt die beiden "
              "anderen Formen, ohne hinzusehen. Nach zehn Verben tauschen."),
             ("27–40", "Lückensätze",
              "12 Sätze, das Verb steht in Klammern. Allein ausfüllen, vergleichen, Lösungen vorlesen. Wer fertig "
-             "ist, nimmt „Nach Mustern sortieren“."),
+             "ist: Verb-Detektiv (Blatt 1, Seite 2)."),
             ("40–45", "Abschluss",
              "Jedes Kind schreibt drei Verben, die noch schwer sind, auf einen Zettel. Zettel einsammeln: "
              "Das ist die Rückmeldung für die Englischlehrkraft."),

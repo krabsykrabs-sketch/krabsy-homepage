@@ -1,4 +1,4 @@
-"""Shared look for Krabsy worksheets (2026-11-28 redesign, prototype).
+"""Shared look for Krabsy worksheets (2026-11-28 redesign).
 
 Rules (owner, 2026-11-28):
   * Must work on a black-and-white school copier: black lines, light greys,
@@ -8,7 +8,7 @@ Rules (owner, 2026-11-28):
   * Pictures are line drawings (ICONS) so they copy cleanly and can be
     coloured in.
 
-Used by tools/generate_worksheets_v2.py.
+Used by tools/generate_worksheets.py (all verb + preposition sheets, DE + ES).
 """
 import base64
 import glob
@@ -192,3 +192,50 @@ def to_pdf(doc_html, out):
                         "--virtual-time-budget=3000", f"--print-to-pdf={out}", src.as_uri()],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return out
+
+
+# ── flowing reference sheets (verb list, preposition overview) + gap sheets ──
+CSS += """
+.flowp{display:block}
+.flowp .ft{margin-top:5mm}
+.sub{color:#555;margin:0 0 3mm;font-size:10pt}
+.cols{column-count:2;column-gap:7mm}
+.grp{break-inside:avoid-column}
+.grp h2{break-after:avoid;margin:3mm 0 1mm;font-family:'Fredoka One',Arial,sans-serif;font-weight:normal;font-size:11pt}
+.grp h2 small{font-family:'Nunito',Arial,sans-serif;color:#555;font-size:8pt}
+table.vl{width:100%;border-collapse:collapse;font-size:8.2pt;margin-bottom:2mm}
+.vl th{text-align:left;font-size:6.5pt;text-transform:uppercase;letter-spacing:.4px;color:#555;font-weight:normal;padding:0 1mm 1mm}
+.vl td{padding:.75mm 1mm;border-top:.4pt solid #ccc;vertical-align:top}
+.vl td:first-child{font-weight:bold}
+.vl td.m{color:#444}
+.vl tr{break-inside:avoid}
+ol.sent{padding-left:7mm;margin:1mm 0 3mm}
+ol.sent li{font-size:11.5pt;margin:0 0 4.6mm;line-height:1.5;padding-left:1mm}
+ol.sent .gap{width:30mm;height:5mm;vertical-align:-1mm}
+.hint{color:#555}
+.wbox{border:1pt dashed #555;border-radius:4mm;padding:2.5mm 4mm;font-size:11.5pt;line-height:1.7;margin:0 0 3mm}
+.wbox span{color:#555;font-size:9.5pt;margin-right:2mm}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:5mm 8mm}
+.scol{border:.9pt solid #111;border-radius:4mm;padding:3mm 4mm 2mm}
+.scol h3{margin:0 0 1mm;font-family:'Fredoka One',Arial,sans-serif;font-weight:normal;font-size:11pt}
+.sex{color:#555;margin:0 0 1mm;font-style:italic;font-size:10pt}
+.sline{border-bottom:.8pt solid #999;height:9mm}
+.key ol.sent li{font-size:10.5pt;margin-bottom:2.2mm}
+.stack{display:flex;flex-direction:column;gap:3mm;margin-top:auto}
+.stack .tip,.stack .rate{margin-top:0}
+"""
+
+
+def rate(t):
+    return f'<div class="rate"><p>{E(t["rate"])}</p>{"".join(icon("shell", 10) for _ in range(5))}</div>'
+
+
+def tip(text_html):
+    return f'<div class="tip">{mascot_img()}<div class="bub">{text_html}</div></div>'
+
+
+def cheer(t):
+    return f'<div class="cheer">{mascot_img()}<span>{E(t["cheer"])}</span></div>'
+CSS += """
+ol.sent.tight li{margin-bottom:3.1mm;line-height:1.4}
+"""
