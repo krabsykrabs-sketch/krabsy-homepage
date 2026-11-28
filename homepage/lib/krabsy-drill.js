@@ -292,7 +292,7 @@ async function mount(root) {
       }));
       root.querySelector('#kd-form').addEventListener('submit', (ev) => {
         ev.preventDefault();
-        if (locked) { if (advance) advance(); return; }
+        if (locked) { if (advance) advance(false, lastKeyboard); return; }
         const val = inp.value.trim();
         if (!val) { inp.focus(); return; }
         answerTyped(val);
@@ -445,9 +445,9 @@ async function mount(root) {
         + (typed ? '' : `<button type="button" class="k-btn-primary kd-next" id="kd-next">${esc(C.next || 'OK')} <span aria-hidden="true">→</span></button>`);
     }
     let moved = false;
-    advance = (auto) => {
+    advance = (auto, byKey) => {
       if (moved) return;
-      if (!auto && now() - answeredAt < 350) return;   // a double Enter must not skip the right answer
+      if (byKey && now() - answeredAt < 350) return;   // a double Enter must not skip the right answer
       moved = true;
       clearTimeout(autoTimer);
       i += 1;
@@ -471,7 +471,7 @@ async function mount(root) {
     if (ev.target && ev.target.tagName === 'INPUT') return;   // the form handles Enter
     if (locked && advance && (ev.key === 'Enter' || ev.key === ' ')) {
       if (ev.target && ev.target.tagName === 'BUTTON' && ev.target.id !== 'kd-next') return;
-      ev.preventDefault(); advance(); return;
+      ev.preventDefault(); advance(false, true); return;
     }
     if (!typed && !locked) {
       const k = Number(ev.key) - 1;
