@@ -47,7 +47,7 @@
 
 html, body {
   margin: 0;
-  height: 100vh;
+  height: 100%;
   font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
@@ -79,9 +79,9 @@ body::before {
   position: relative;
   z-index: 1;
   display: grid;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  min-width: 900px;
+  min-width: 0;
   max-width: 980px;
   margin: 0 auto;
   grid-template-columns: 170px 1fr 200px;
@@ -511,7 +511,7 @@ body::before {
   30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
   40%, 60% { transform: translate3d(5px, 0, 0); }
 }
-.ff-input:disabled { cursor: default; }
+.ff-input:disabled, .ff-input:read-only { cursor: default; }
 
 .ff-input-hint {
   font-family: 'Nunito', system-ui, sans-serif;
@@ -682,13 +682,78 @@ body::before {
 }
 .ff-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
-/* Narrow / portrait fallback */
-.ff-screen-narrow .ff-title { font-size: 2.2rem; }
-@media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
-  .ff-app { display: none; }
+.ff-new-best[hidden] { display: none; }
+
+/* Inside the wrapper page's iframe there is nothing to "close" (the ✕ would
+   call history.back() on the whole tab). */
+html.is-embedded #ff-close-btn { display: none; }
+
+/* Icons drawn inline (no emoji glyphs): streak flame, pause bars */
+.ff-ico { width: 1em; height: 1em; vertical-align: -0.12em; }
+.ff-icon .ff-ico { width: 16px; height: 16px; }
+
+/* ── OK button (touch / narrow) ───────────────────────────────────────── */
+.tr-go {
+  display: none;
+  height: 52px;
+  min-width: 120px;
+  padding: 0 28px;
+  border: none;
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, var(--coral) 0%, var(--coral-deep) 100%);
+  color: var(--off-white);
+  font-family: 'Fredoka Display', 'Nunito', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(201,104,90,0.35);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
-@media (min-width: 900px) {
-  #ff-narrow-screen { display: none !important; }
+.tr-go:active { transform: translateY(1px); }
+
+/* Touch screens and narrow frames: verb card and inputs at the top of the
+   play area (the on-screen keyboard covers the lower half), OK button
+   instead of "press Enter". */
+body.tr-compact .ff-block { top: 12px; }
+body.tr-compact .ff-input-wrap { top: 82px; }
+body.tr-compact .tr-go { display: inline-flex; align-items: center; justify-content: center; }
+body.tr-compact .ff-input-hint { display: none; }
+
+/* ── Phones and narrow frames (< 900 px): one column, stats in a strip ── */
+@media (max-width: 899px) {
+  .ff-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 44px auto 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .ff-topbar { padding: 0 8px 0 14px; }
+  .ff-round { font-size: 1rem; }
+  .ff-icon { width: 34px; height: 34px; }
+  .ff-sidebar-left { flex-direction: row; gap: 6px; }
+  .ff-sidebar-left .ff-panel { flex: 1 1 0; min-width: 0; padding: 6px 8px; }
+  .ff-panel-label { font-size: 0.55rem; letter-spacing: 0.8px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ff-panel-value { font-size: 1.15rem; }
+  .ff-panel-score .ff-panel-value { font-size: 1.3rem; }
+  .ff-panel-streak .ff-streak-fire { font-size: 0.9rem; margin-right: 2px; }
+  .ff-level-bar { margin-top: 4px; height: 4px; }
+  .ff-lives { font-size: 1.05rem; gap: 2px; }
+  .ff-sidebar-right { display: none; }
+  .ff-input-wrap { padding: 0 10px; }
+  .ff-input-row { gap: 10px; width: 100%; max-width: 420px; }
+  .ff-input-field { flex: 1 1 0; min-width: 0; }
+  .ff-input { width: 100%; height: 52px; padding: 0 8px; font-size: 1.25rem; }
+  .ff-screen { padding: 16px 12px; align-items: flex-start; overflow-y: auto; }
+  .ff-screen-card { padding: 28px 20px; }
+  .ff-title { font-size: 2.4rem; }
+  .ff-tagline { margin-bottom: 22px; }
+  .ff-levelup-card { padding: 28px 36px 24px; }
+  .ff-levelup-num { font-size: 4.5rem; }
+}
+@media (max-width: 359px) {
+  .ff-panel-label { font-size: 0.5rem; letter-spacing: 0.4px; }
+  .ff-title { font-size: 2rem; }
 }
 
 /* ── Level-up overlay ─────────────────────────────────────────────────────
@@ -804,7 +869,7 @@ body::before {
     <div class="ff-round"><span data-string="round">Runde</span> <span id="ff-round-num">1</span></div>
     <div class="ff-topbar-actions">
       <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
-      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause">⏸</button>
+      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg></button>
       <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
     </div>
   </header>
@@ -821,7 +886,7 @@ body::before {
     </div>
     <div class="ff-panel ff-panel-streak" id="ff-streak-panel">
       <div class="ff-panel-label" data-string="streak">Serie</div>
-      <div class="ff-panel-value"><span class="ff-streak-fire">🔥</span><span id="ff-streak">0</span></div>
+      <div class="ff-panel-value"><span class="ff-streak-fire"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3c1 3.5 5.5 5.5 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.3 2.8-5.6.3 1.7 1 2.8 2.2 3.4C11 8.9 11 5.8 12 3z" fill="#ff8585" stroke="#2c2a3a" stroke-width="2" stroke-linejoin="round"/><path d="M12 14c1.2 1 2 2 2 3.2a2 2 0 0 1-4 0c0-1.2.8-2.2 2-3.2z" fill="#ffcf5e"/></svg></span><span id="ff-streak">0</span></div>
     </div>
     <div class="ff-panel ff-panel-lives">
       <div class="ff-panel-label" data-string="lives">Leben</div>
@@ -838,7 +903,7 @@ body::before {
     <form class="ff-input-wrap" id="ff-input-wrap" autocomplete="off">
       <div class="ff-input-row">
         <label class="ff-input-field">
-          <span class="ff-input-label" data-string="label_past">Simple Past</span>
+          <span class="ff-input-label" data-string="label_past">2. Form</span>
           <input
             class="ff-input"
             id="ff-input-past"
@@ -847,13 +912,14 @@ body::before {
             autocapitalize="off"
             autocorrect="off"
             spellcheck="false"
-            aria-label="Simple Past eintippen"
+            enterkeyhint="next"
+            aria-label="2. Form eintippen"
             data-string-aria="aria_input_past"
             placeholder="…"
           >
         </label>
         <label class="ff-input-field">
-          <span class="ff-input-label" data-string="label_pp">Past Participle</span>
+          <span class="ff-input-label" data-string="label_pp">3. Form</span>
           <input
             class="ff-input"
             id="ff-input-pp"
@@ -862,12 +928,14 @@ body::before {
             autocapitalize="off"
             autocorrect="off"
             spellcheck="false"
-            aria-label="Past Participle eintippen"
+            enterkeyhint="go"
+            aria-label="3. Form eintippen"
             data-string-aria="aria_input_pp"
             placeholder="…"
           >
         </label>
       </div>
+      <button class="tr-go" id="tr-go" type="submit" aria-label="Prüfen" data-string-aria="aria_check" data-string="ok">OK</button>
       <div class="ff-input-hint" data-string="enter_hint">DRÜCKE ENTER</div>
     </form>
     <div class="ff-pause-overlay" id="ff-pause-overlay"><span data-string="paused">PAUSE</span><small data-string="tap_resume">Tippen zum Fortsetzen</small></div>
@@ -886,12 +954,12 @@ body::before {
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     SCREENS — start, game over, narrow warning
+     SCREENS — start, game over
      ═══════════════════════════════════════════════════════════════════ -->
 <div class="ff-screen" id="ff-start-screen">
   <div class="ff-screen-card">
     <h1 class="ff-title" data-string="game_title">Type Race</h1>
-    <p class="ff-tagline" data-string="start_tagline">Tippe Simple Past und Past Participle. Sammle Punkte, halt deine Serie.</p>
+    <p class="ff-tagline" data-string="start_tagline">Tippe zu jedem Verb die zwei Formen, die danach kommen: go → went → gone. Sammle Punkte, halt deine Serie.</p>
     <button class="ff-btn" id="ff-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="ff-best-row"><span data-string="best_label">Bestleistung</span>: <strong id="ff-best-start">0</strong></div>
   </div>
@@ -924,13 +992,6 @@ body::before {
     <div class="ff-levelup-badge">LEVEL UP</div>
     <div class="ff-levelup-num" id="ff-levelup-num">2</div>
     <div class="ff-levelup-sub" id="ff-levelup-sub">Blöcke fallen schneller</div>
-  </div>
-</div>
-
-<div class="ff-screen" id="ff-narrow-screen">
-  <div class="ff-screen-card">
-    <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="ff-tagline" data-string="narrow_sub">Öffne Type Race auf einem Bildschirm mit mindestens 900 px Breite.</p>
   </div>
 </div>
 
@@ -988,7 +1049,7 @@ const BASE_POINTS = 20;
 const PARTICLE_COUNT = 12;
 const BLOCK_FIXED_Y = 0;         // CSS positions the verb card via `bottom`; translateY stays at 0
                                  // so shake/dissolve animations don't fight the layout.
-const BEST_KEY = 'krabsy_fill_gap_best';
+const BEST_KEY = 'krabsy_type_race_best';   // was 'krabsy_fill_gap_best' (shared with Fill the Gap by mistake)
 const AUDIO_KEY = 'krabsy_audio';
 const LANG_KEY = 'krabsy_lang';
 
@@ -1009,12 +1070,16 @@ const STRINGS = {
     paused: 'PAUSE',
     tap_resume: 'Tippen zum Fortsetzen',
     enter_hint: 'ENTER zum Bestätigen · TAB für nächstes Feld',
-    label_past: 'Simple Past',
-    label_pp:   'Past Participle',
-    aria_input_past: 'Simple Past eintippen',
-    aria_input_pp:   'Past Participle eintippen',
+    // Presentation mandate: the positions are the labels (go → ___ → ___),
+    // no grammar terms.
+    label_past: '2. Form',
+    label_pp:   '3. Form',
+    aria_input_past: '2. Form eintippen',
+    aria_input_pp:   '3. Form eintippen',
     game_title: 'Type Race',
-    start_tagline: 'Tippe Simple Past und Past Participle. Sammle Punkte, halt deine Serie.',
+    start_tagline: 'Tippe zu jedem Verb die zwei Formen, die danach kommen: go → went → gone. Sammle Punkte, halt deine Serie.',
+    ok: 'OK',
+    aria_check: 'Prüfen',
     start_btn: "Los geht's!",
     best_label: 'Bestleistung',
     new_best: 'Neue Bestleistung!',
@@ -1022,17 +1087,15 @@ const STRINGS = {
     final_score: 'Endpunktzahl',
     play_again: 'Nochmal spielen',
     menu: 'Menü',
-    no_chains: 'keine Ketten in dieser Runde',
+    no_chains: 'diesmal noch kein Verb geschafft',
     levelup_sub: 'Weiter so!',
-    narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne Type Race auf einem Bildschirm mit mindestens 900 px Breite.',
     aria_sound: 'Ton an/aus',
     aria_pause: 'Pause',
     aria_close: 'Schließen',
     aria_stats: 'Statistik',
     aria_playarea: 'Spielfeld',
     aria_history: 'Zuletzt und Nächstes',
-    aria_chain_grid: 'Abgeschlossene Ketten',
+    aria_chain_grid: 'Geschaffte Verben',
   },
   es: {
     round: 'Ronda',
@@ -1045,12 +1108,14 @@ const STRINGS = {
     paused: 'PAUSA',
     tap_resume: 'Toca para continuar',
     enter_hint: 'ENTER para confirmar · TAB para el siguiente campo',
-    label_past: 'Simple Past',
-    label_pp:   'Past Participle',
-    aria_input_past: 'Escribe el Simple Past',
-    aria_input_pp:   'Escribe el Past Participle',
+    label_past: '2.ª forma',
+    label_pp:   '3.ª forma',
+    aria_input_past: 'Escribe la 2.ª forma',
+    aria_input_pp:   'Escribe la 3.ª forma',
     game_title: 'Type Race',
-    start_tagline: 'Escribe Simple Past y Past Participle. Consigue puntos, mantén tu racha.',
+    start_tagline: 'Escribe para cada verbo las dos formas que siguen: go → went → gone. Consigue puntos, mantén tu racha.',
+    ok: 'OK',
+    aria_check: 'Comprobar',
     start_btn: '¡Empezar!',
     best_label: 'Mejor',
     new_best: '¡Nuevo récord!',
@@ -1058,28 +1123,62 @@ const STRINGS = {
     final_score: 'Puntuación final',
     play_again: 'Jugar de nuevo',
     menu: 'Menú',
-    no_chains: 'sin cadenas en esta ronda',
+    no_chains: 'ningún verbo esta vez',
     levelup_sub: '¡Sigue así!',
-    narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre Type Race en una pantalla de al menos 900 px de ancho.',
     aria_sound: 'Sonido on/off',
     aria_pause: 'Pausa',
     aria_close: 'Cerrar',
     aria_stats: 'Estadísticas',
     aria_playarea: 'Campo de juego',
     aria_history: 'Verbos recientes y próximo',
-    aria_chain_grid: 'Cadenas completadas',
+    aria_chain_grid: 'Verbos logrados',
+  },
+  en: {
+    round: 'Round',
+    score: 'Score',
+    level: 'Level',
+    streak: 'Streak',
+    lives: 'Lives',
+    quick_guide: 'Overview',
+    coming_up: 'Coming up',
+    paused: 'PAUSED',
+    tap_resume: 'Tap to resume',
+    enter_hint: 'ENTER to check · TAB for the next field',
+    label_past: '2nd form',
+    label_pp:   '3rd form',
+    aria_input_past: 'Type the 2nd form',
+    aria_input_pp:   'Type the 3rd form',
+    game_title: 'Type Race',
+    start_tagline: 'For each verb, type the two forms that come next: go → went → gone. Score points, keep your streak.',
+    ok: 'OK',
+    aria_check: 'Check',
+    start_btn: "Let's go!",
+    best_label: 'Best',
+    new_best: 'New best score!',
+    game_over: 'Game over',
+    final_score: 'Final score',
+    play_again: 'Play again',
+    menu: 'Menu',
+    no_chains: 'nothing finished this round',
+    levelup_sub: 'Keep going!',
+    aria_sound: 'Sound on/off',
+    aria_pause: 'Pause',
+    aria_close: 'Close',
+    aria_stats: 'Stats',
+    aria_playarea: 'Play area',
+    aria_history: 'Recent and next',
+    aria_chain_grid: 'Verbs done',
   },
 };
 
 function getLang() {
   try {
     const q = new URLSearchParams(window.location.search).get('lang');
-    if (q === 'es' || q === 'de') return q;
+    if (q === 'es' || q === 'de' || q === 'en') return q;
   } catch (_) {}
   try {
     const ls = localStorage.getItem(LANG_KEY);
-    if (ls === 'es' || ls === 'de') return ls;
+    if (ls === 'es' || ls === 'de' || ls === 'en') return ls;
   } catch (_) {}
   return 'de';
 }
@@ -1108,6 +1207,43 @@ function applyStrings(root) {
 }
 
 const $ = id => document.getElementById(id);
+
+let IS_EMBEDDED = false;
+try { IS_EMBEDDED = window.self !== window.top; } catch (_) { IS_EMBEDDED = true; }
+if (IS_EMBEDDED) document.documentElement.classList.add('is-embedded');
+
+// ─── Answers → shared word statistics ───────────────────────────────────────
+// Every answer goes to /lib/krabsy-stats.js (profile, shells and gifts, the
+// tutor's star map, a joined class). Loaded on demand; without it (file://,
+// blocked module) the drill plays the same, it just records nothing.
+const TOPIC = 'irregular_verbs';
+let STATS = null;
+try {
+  import('/lib/krabsy-stats.js?v=2026-11-25')
+    .then((m) => { if (m && typeof m.recordAttempt === 'function') STATS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+function recordAnswer(verb, form, correct) {
+  if (!STATS || !verb) return;
+  try { STATS.recordAttempt(verb, form, !!correct, 'type-race', TOPIC, 'typed'); } catch (_) {}
+}
+
+// Tell the wrapper page when a round runs (it hides its intro and the phone
+// tab bar, and scrolls the frame into view on small screens).
+function tellPage(playing) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'krabsy:drill', game: 'type-race', playing: !!playing }, window.location.origin);
+    }
+  } catch (_) { /* cross-origin parent */ }
+}
+
+// Touch screens and narrow frames put the inputs right under the verb card
+// (the on-screen keyboard covers the lower half) and show an OK button.
+const TOUCH = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (_) { return false; } })();
+function syncLayout() {
+  document.body.classList.toggle('tr-compact', TOUCH || window.innerWidth < 900);
+}
 
 const els = {
   app:           $('ff-app'),
@@ -1336,15 +1472,23 @@ function escapeHtml(s) {
   ));
 }
 
+function setInputsLocked(locked) {
+  // readOnly (not disabled) keeps the focus in a field, so a phone keyboard
+  // stays open from one verb to the next.
+  els.inputPast.readOnly = locked;
+  els.inputPp.readOnly = locked;
+}
 function prepareInput() {
   for (const el of [els.inputPast, els.inputPp]) {
     el.value = '';
-    el.disabled = false;
     el.classList.remove('is-flash-correct', 'is-flash-wrong');
   }
+  setInputsLocked(false);
   els.inputWrap.classList.remove('is-hidden');
-  // Focus past field next tick so spawn doesn't fight the focus.
-  setTimeout(() => { try { els.inputPast.focus(); } catch (_) {} }, 0);
+  // Focus now (still inside the Start tap, so a phone opens its keyboard) and
+  // again next tick so the spawn animation doesn't fight the focus call.
+  try { els.inputPast.focus({ preventScroll: true }); } catch (_) {}
+  setTimeout(() => { try { els.inputPast.focus({ preventScroll: true }); } catch (_) {} }, 0);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1364,6 +1508,8 @@ function handleSubmit() {
 
   const pastOk = typedPast === normalizeAnswer(v.past);
   const ppOk   = typedPp   === normalizeAnswer(v.pp);
+  recordAnswer(v.verb, 'past', pastOk);
+  recordAnswer(v.verb, 'participle', ppOk);
 
   if (pastOk && ppOk) onCorrect(v);
   else                onWrong(v, pastOk, ppOk);
@@ -1371,8 +1517,7 @@ function handleSubmit() {
 
 function onCorrect(v) {
   sfxChainComplete();
-  els.inputPast.disabled = true;
-  els.inputPp.disabled = true;
+  setInputsLocked(true);
   els.inputPast.classList.add('is-flash-correct');
   els.inputPp.classList.add('is-flash-correct');
   flashBurst(state.block.el);
@@ -1382,8 +1527,7 @@ function onCorrect(v) {
 
 function onWrong(v, pastOk, ppOk) {
   sfxWrong();
-  els.inputPast.disabled = true;
-  els.inputPp.disabled = true;
+  setInputsLocked(true);
   // Flash correct/wrong per field, then reveal the correct answer in the
   // wrong field(s) so the player sees what they should have typed.
   if (pastOk) {
@@ -1571,13 +1715,8 @@ function togglePause() {
   els.pauseOverlay.classList.toggle('is-shown', state.paused);
   // Static cards: nothing to time-shift on resume. Disable the input while
   // paused so a stray Enter can't sneak in past the overlay.
-  if (state.paused) {
-    els.inputPast.disabled = true;
-    els.inputPp.disabled = true;
-  } else if (state.block && !state.block.isDying) {
-    els.inputPast.disabled = false;
-    els.inputPp.disabled = false;
-  }
+  if (state.paused) setInputsLocked(true);
+  else if (state.block && !state.block.isDying) setInputsLocked(false);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1605,7 +1744,9 @@ function startGame() {
   renderHud();
   renderHistory();
   renderNext();
+  syncLayout();
   spawnBlock();
+  tellPage(true);
   try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
 }
 
@@ -1614,6 +1755,7 @@ function endGame() {
   state.paused = false;
   if (state.block && state.block.el) state.block.el.remove();
   state.block = null;
+  try { document.activeElement && document.activeElement.blur(); } catch (_) {}   // let the phone keyboard close
 
   const isNewBest = state.score > state.best;
   if (isNewBest) {
@@ -1635,7 +1777,7 @@ function endGame() {
     for (const c of state.completedThisRun) {
       const row = document.createElement('div');
       row.className = 'ff-chain-grid-row';
-      // c: { verb, past:form, pp:answer } — display as "verb (form) → answer"
+      // c: { verb, past, pp } → "go → went → gone"
       row.textContent = `${c.verb} → ${c.past} → ${c.pp}`;
       els.chainGrid.appendChild(row);
     }
@@ -1644,6 +1786,7 @@ function endGame() {
 }
 
 function backToMenu() {
+  tellPage(false);
   els.overScreen.hidden = true;
   els.startScreen.hidden = false;
   els.bestStart.textContent = String(state.best);
@@ -1673,10 +1816,19 @@ els.inputPp.addEventListener('keydown', (e) => {
 });
 // Safety net: if anything ever dispatches a form-submit event programmatically,
 // route it through handleSubmit too.
+// The OK button (touch / narrow) submits the form.
 els.inputWrap.addEventListener('submit', (e) => {
   e.preventDefault();
+  const focusPp = document.activeElement === els.inputPp;
   handleSubmit();
+  // Tapping OK must not close the phone keyboard: focus back in the same tap
+  // (handleSubmit may already have moved it to an empty field).
+  if (state.running && (document.activeElement === document.body || document.activeElement === $('tr-go'))) {
+    try { (focusPp ? els.inputPp : els.inputPast).focus({ preventScroll: true }); } catch (_) {}
+  }
 });
+// Keep the focus in the input when OK is pressed with a mouse.
+$('tr-go').addEventListener('mousedown', (e) => e.preventDefault());
 
 els.startBtn.addEventListener('click', startGame);
 els.againBtn.addEventListener('click', startGame);
@@ -1685,6 +1837,7 @@ els.menuBtn.addEventListener('click', backToMenu);
 els.pauseBtn.addEventListener('click', togglePause);
 els.pauseOverlay.addEventListener('click', () => { if (state.paused) togglePause(); });
 els.closeBtn.addEventListener('click', () => {
+  if (IS_EMBEDDED) return;   // hidden there anyway (html.is-embedded)
   // Hub fallback — leave the game.
   if (document.referrer) history.back();
   else window.location.href = '/';
@@ -1722,10 +1875,10 @@ document.addEventListener('keydown', (e) => {
 (function boot() {
   // i18n: swap to ES only if user explicitly selected it. HTML default is DE
   // so there's no flash on the common path.
-  if (LANG !== 'de') {
-    document.documentElement.lang = LANG;
-    applyStrings(document);
-  }
+  document.documentElement.lang = LANG;
+  applyStrings(document);
+  syncLayout();
+  window.addEventListener('resize', syncLayout);
   state.best = readBest();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);

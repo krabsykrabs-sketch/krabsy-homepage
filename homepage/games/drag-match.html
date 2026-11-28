@@ -66,7 +66,7 @@ html.is-embedded #dm-close-btn { display: none; }
 
 html, body {
   margin: 0;
-  height: 100vh;
+  height: 100%;
   font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
@@ -96,9 +96,9 @@ body::before {
   position: relative;
   z-index: 1;
   display: grid;
-  height: 100vh;
-  width: 100vw;
-  min-width: 900px;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
   grid-template-columns: 170px 1fr;
   grid-template-rows: 52px 1fr;
   gap: 12px;
@@ -698,16 +698,13 @@ body::before {
 
 .dm-actions { display: flex; gap: 14px; justify-content: center; align-items: center; }
 
-/* Narrow-screen card: links to a drill that works on phones */
-.dm-narrow-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  justify-content: center;
-  margin: 0;
-  font-size: 0.95rem;
+.dm-new-best[hidden] { display: none; }
+.dm-how {
+  margin: -14px 0 24px;
+  font-size: 0.85rem;
+  color: var(--charcoal-soft);
 }
-.dm-narrow-links a { color: var(--coral-deep); font-weight: 700; }
+.dm-ico { width: 1em; height: 1em; vertical-align: -0.12em; }
 
 /* Short frames (laptop viewport): tighter chrome so the board keeps its room */
 @media (max-height: 600px) {
@@ -728,12 +725,69 @@ body::before {
   .dm-done-stat { padding: 9px 10px; }
 }
 
-/* Narrow / portrait fallback */
-@media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
-  .dm-app { display: none; }
+/* ── Phones and narrow frames (< 900 px) ──────────────────────────────────
+   One column: top bar, stats strip, then the play area with the rows
+   (go → ___ → ___) on top and the form cards to place in a wrapping tray
+   underneath. Pills share one width that fits three per row. */
+@media (max-width: 899px) {
+  :root {
+    --dm-pill-w: clamp(78px, calc((100vw - 92px) / 3), 140px);
+    --dm-row-h: clamp(32px, calc((100vh - 380px) / 8), 44px);
+    --dm-row-gap: 3px;
+  }
+  .dm-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 44px auto 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .dm-topbar { padding: 0 8px 0 14px; }
+  .dm-round { font-size: 1rem; }
+  .dm-icon { width: 34px; height: 34px; }
+  .dm-sidebar { flex-direction: row; gap: 6px; align-items: stretch; }
+  .dm-sidebar .dm-panel { flex: 1 1 0; min-width: 0; padding: 6px 8px; }
+  .dm-panel-label { font-size: 0.55rem; letter-spacing: 0.8px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dm-panel-value { font-size: 1.15rem; }
+  .dm-panel-score .dm-panel-value, .dm-panel-time .dm-panel-value { font-size: 1.3rem; }
+  .dm-score-max, .dm-time-unit { font-size: 0.75rem; }
+  .dm-panel-streak .dm-streak-fire { font-size: 0.9rem; margin-right: 2px; }
+  .dm-sidebar-hint { display: none; }
+  .dm-play { padding: 8px 10px 10px; gap: 6px; overflow-y: auto; }
+  .dm-play-header { min-height: 24px; }
+  .dm-stage-pill { gap: 6px; font-size: 0.8rem; }
+  .dm-board { flex-direction: column; gap: 10px; flex: 0 0 auto; }
+  .dm-row { gap: 4px; padding: 1px 2px; }
+  .dm-arrow { width: 12px; font-size: 0.8rem; }
+  .dm-col-heads { gap: 4px; padding: 0 2px; height: 26px; }
+  .dm-col-head-gap { width: 12px; }
+  .dm-base, .dm-chip, .dm-pill-locked, .dm-past-locked { font-size: 0.85rem; padding: 0 6px; }
+  .dm-pill-locked { padding: 0 13px 0 4px; }
+  .dm-pill-locked .dm-check { right: 5px; font-size: 0.72rem; }
+  .dm-slot.is-empty { padding: 0 6px; }
+  /* Tray of cards to place: wraps, three per row */
+  .dm-col-pile .dm-col-heads { display: none; }
+  .dm-pile {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 6px;
+    border-radius: var(--r-md);
+    background: rgba(255,255,255,0.35);
+    border: 1px dashed rgba(109,117,166,0.35);
+  }
+  .dm-pile-slot { min-height: 0; padding: 0; }
+  .dm-pile-slot.is-empty { display: none; }
+  .dm-chip { height: 40px; }
+  .dm-stage-banner { top: 36px; font-size: 1rem; white-space: nowrap; }
+  .dm-screen { padding: 16px 12px; align-items: flex-start; overflow-y: auto; }
+  .dm-screen-card { padding: 28px 20px; }
+  .dm-title { font-size: 2.4rem; }
+  .dm-tagline { margin-bottom: 22px; }
+  .dm-done-grid { gap: 8px; }
 }
-@media (min-width: 900px) {
-  #dm-narrow-screen { display: none !important; }
+@media (max-width: 359px) {
+  .dm-panel-label { font-size: 0.5rem; letter-spacing: 0.4px; }
+  .dm-title { font-size: 2rem; }
 }
 </style>
 </head>
@@ -759,7 +813,7 @@ body::before {
     </div>
     <div class="dm-panel dm-panel-streak" id="dm-streak-panel">
       <div class="dm-panel-label" data-string="streak">Serie</div>
-      <div class="dm-panel-value"><span class="dm-streak-fire">🔥</span><span id="dm-streak">0</span></div>
+      <div class="dm-panel-value"><span class="dm-streak-fire"><svg class="dm-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3c1 3.5 5.5 5.5 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.3 2.8-5.6.3 1.7 1 2.8 2.2 3.4C11 8.9 11 5.8 12 3z" fill="#ff8585" stroke="#2c2a3a" stroke-width="2" stroke-linejoin="round"/><path d="M12 14c1.2 1 2 2 2 3.2a2 2 0 0 1-4 0c0-1.2.8-2.2 2-3.2z" fill="#ffcf5e"/></svg></span><span id="dm-streak">0</span></div>
     </div>
     <div class="dm-panel dm-panel-time">
       <div class="dm-panel-label" data-string="time">Zeit</div>
@@ -792,7 +846,7 @@ body::before {
         </div>
         <div class="dm-rows" id="dm-rows"></div>
       </div>
-      <div class="dm-col">
+      <div class="dm-col dm-col-pile">
         <div class="dm-col-heads">
           <div class="dm-col-head is-asked"><span class="dm-pos" id="dm-pile-pos">2.</span><span class="dm-term" id="dm-pile-term">Simple Past</span></div>
         </div>
@@ -809,6 +863,7 @@ body::before {
   <div class="dm-screen-card">
     <h1 class="dm-title">Drag Match</h1>
     <p class="dm-tagline" data-string="start_tagline">Zieh jede Form zu ihrem Verb: go → went → gone.</p>
+    <p class="dm-how" data-string="start_how">Ziehen oder antippen: erst die Form, dann ihr Verb.</p>
     <button class="dm-btn" id="dm-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="dm-best-row" id="dm-best-row" hidden>
       <span data-string="best_label">Bestzeit</span>: <strong id="dm-best-start">—</strong>
@@ -838,17 +893,6 @@ body::before {
       <button class="dm-btn" id="dm-again-btn" type="button" data-string="play_again">Nochmal spielen</button>
       <button class="dm-btn dm-btn-ghost" id="dm-menu-btn" type="button" data-string="menu">Menü</button>
     </div>
-  </div>
-</div>
-
-<div class="dm-screen" id="dm-narrow-screen">
-  <div class="dm-screen-card">
-    <h1 class="dm-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="dm-tagline" data-string="narrow_sub">Öffne Drag Match auf einem Bildschirm mit mindestens 900 px Breite.</p>
-    <p class="dm-narrow-links">
-      <a id="dm-narrow-sprint" href="/de/unregelmaessige-verben/sprint/" target="_top" data-string="narrow_sprint">Zum Sprint (läuft auf dem Handy)</a>
-      <a id="dm-narrow-hub" href="/de/spiele/" target="_top" data-string="narrow_hub">Alle Spiele</a>
-    </p>
   </div>
 </div>
 
@@ -914,8 +958,7 @@ const STRINGS = {
     stage_complete_past: 'Top! Jetzt die 3. Form.',
     penalty_hint: 'Falsch zugeordnet: +2 s',
     start_tagline: 'Zieh jede Form zu ihrem Verb: go → went → gone.',
-    narrow_sprint: 'Zum Sprint (läuft auf dem Handy)',
-    narrow_hub: 'Alle Spiele',
+    start_how: 'Ziehen oder antippen: erst die Form, dann ihr Verb.',
     start_btn: "Los geht's!",
     best_label: 'Bestzeit',
     new_best: 'Neue Bestzeit!',
@@ -924,8 +967,6 @@ const STRINGS = {
     attempts: 'Versuche',
     play_again: 'Nochmal spielen',
     menu: 'Menü',
-    narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne Drag Match auf einem Bildschirm mit mindestens 900 px Breite.',
     aria_sound: 'Ton an/aus',
     aria_close: 'Schließen',
     aria_stats: 'Statistik',
@@ -942,8 +983,7 @@ const STRINGS = {
     stage_complete_past: '¡Bien! Ahora la 3.ª forma.',
     penalty_hint: 'Mal emparejado: +2 s',
     start_tagline: 'Arrastra cada forma hasta su verbo: go → went → gone.',
-    narrow_sprint: 'Ir al Sprint (funciona en el móvil)',
-    narrow_hub: 'Todos los juegos',
+    start_how: 'Arrastra o toca: primero la forma, luego su verbo.',
     start_btn: '¡Empezar!',
     best_label: 'Mejor tiempo',
     new_best: '¡Nuevo récord!',
@@ -952,12 +992,35 @@ const STRINGS = {
     attempts: 'Intentos',
     play_again: 'Jugar de nuevo',
     menu: 'Menú',
-    narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre Drag Match en una pantalla de al menos 900 px de ancho.',
     aria_sound: 'Sonido on/off',
     aria_close: 'Cerrar',
     aria_stats: 'Estadísticas',
     aria_playarea: 'Campo de juego',
+  },
+  en: {
+    round: 'Round',
+    score: 'Score',
+    streak: 'Streak',
+    time: 'Time',
+    stage_past: '2nd form',
+    stage_pp: '3rd form',
+    col_base: 'Base form',
+    stage_complete_past: 'Great! Now the 3rd form.',
+    penalty_hint: 'Wrong match: +2 s',
+    start_tagline: 'Drag each form to its verb: go → went → gone.',
+    start_how: 'Drag or tap: first the form, then its verb.',
+    start_btn: "Let's go!",
+    best_label: 'Best time',
+    new_best: 'New best time!',
+    done_title: 'All forms found!',
+    final_time: 'Time',
+    attempts: 'Attempts',
+    play_again: 'Play again',
+    menu: 'Menu',
+    aria_sound: 'Sound on/off',
+    aria_close: 'Close',
+    aria_stats: 'Stats',
+    aria_playarea: 'Play area',
   },
 };
 
@@ -965,19 +1028,15 @@ const STRINGS = {
 const TERM_PAST = 'Simple Past';
 const TERM_PP = 'Past Participle';
 const BLANK = '___';
-const NARROW_LINKS = {
-  de: { sprint: '/de/unregelmaessige-verben/sprint/', hub: '/de/spiele/' },
-  es: { sprint: '/es/verbos-irregulares/sprint/',     hub: '/es/juegos/' },
-};
 
 function getLang() {
   try {
     const q = new URLSearchParams(window.location.search).get('lang');
-    if (q === 'es' || q === 'de') return q;
+    if (q === 'es' || q === 'de' || q === 'en') return q;
   } catch (_) {}
   try {
     const v = localStorage.getItem(LANG_KEY);
-    if (v === 'es' || v === 'de') return v;
+    if (v === 'es' || v === 'de' || v === 'en') return v;
   } catch (_) {}
   return 'de';
 }
@@ -1001,6 +1060,32 @@ function applyStrings() {
 let IS_EMBEDDED = false;
 try { IS_EMBEDDED = window.self !== window.top; } catch (_) { IS_EMBEDDED = true; }
 if (IS_EMBEDDED) document.documentElement.classList.add('is-embedded');
+
+// ─── Answers → shared word statistics ───────────────────────────────────────
+// Every placed card goes to /lib/krabsy-stats.js (profile, shells and gifts,
+// the tutor's star map, a joined class) for the verb whose blank was filled.
+// Loaded on demand; without it (file://, blocked module) nothing is recorded.
+const TOPIC = 'irregular_verbs';
+let STATS = null;
+try {
+  import('/lib/krabsy-stats.js?v=2026-11-25')
+    .then((m) => { if (m && typeof m.recordAttempt === 'function') STATS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+function recordAnswer(verb, form, correct) {
+  if (!STATS || !verb) return;
+  try { STATS.recordAttempt(verb, form, !!correct, 'drag-match', TOPIC, 'choice'); } catch (_) {}
+}
+
+// Tell the wrapper page when a round runs (it hides its intro and the phone
+// tab bar, and scrolls the frame into view on small screens).
+function tellPage(playing) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'krabsy:drill', game: 'drag-match', playing: !!playing }, window.location.origin);
+    }
+  } catch (_) { /* cross-origin parent */ }
+}
 
 const $ = id => document.getElementById(id);
 const els = {
@@ -1401,6 +1486,7 @@ function resolvePair(targetVerb, chipVerb, chipEl) {
   ensureTimerStarted();
   state.attempts += 1;
   const correct = (targetVerb === chipVerb);
+  recordAnswer(targetVerb, state.stage === 'past' ? 'past' : 'participle', correct);
   if (correct) {
     lockPair(targetVerb, chipEl);
     state.resolvedInStage += 1;
@@ -1571,6 +1657,7 @@ function startRound() {
   state.phase = 'playing';
   els.startScreen.hidden = true;
   els.doneScreen.hidden = true;
+  tellPage(true);
   try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
 }
 function finishRound() {
@@ -1589,6 +1676,7 @@ function finishRound() {
   state.round += 1;
 }
 function backToMenu() {
+  tellPage(false);
   state.phase = 'idle';
   stopTimer();
   els.doneScreen.hidden = true;
@@ -1661,9 +1749,6 @@ window.addEventListener('blur', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 (function boot() {
   applyStrings();
-  const nl = NARROW_LINKS[LANG] || NARROW_LINKS.de;
-  $('dm-narrow-sprint').href = nl.sprint;
-  $('dm-narrow-hub').href = nl.hub;
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
   els.audioBtn.textContent = state.audioOn ? '♪' : '∅';

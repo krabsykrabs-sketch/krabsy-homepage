@@ -44,7 +44,7 @@
 
 html, body {
   margin: 0;
-  height: 100vh;
+  height: 100%;
   font-family: 'Nunito', system-ui, sans-serif;
   color: var(--charcoal);
   -webkit-text-size-adjust: 100%;
@@ -76,9 +76,9 @@ body::before {
   position: relative;
   z-index: 1;
   display: grid;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  min-width: 900px;
+  min-width: 0;
   max-width: 980px;
   margin: 0 auto;
   grid-template-columns: 170px 1fr 200px;
@@ -724,16 +724,15 @@ body::before {
    used to call history.back() on the whole tab and threw kids off the site. */
 html.is-embedded #ff-close-btn { display: none; }
 
-/* Narrow-screen card: links to a drill that works on phones */
-.ff-narrow-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  justify-content: center;
-  margin: 0;
-  font-size: 0.95rem;
+.ff-new-best[hidden] { display: none; }
+.ff-how {
+  margin: -16px 0 24px;
+  font-size: 0.85rem;
+  color: var(--charcoal-soft);
 }
-.ff-narrow-links a { color: var(--coral-deep); font-weight: 700; }
+/* Icons drawn inline (no emoji glyphs): streak flame, pause bars */
+.ff-ico { width: 1em; height: 1em; vertical-align: -0.12em; }
+.ff-icon .ff-ico { width: 16px; height: 16px; }
 
 /* Short frames (laptop viewport): tighter chrome so both sidebars and the
    end screens fit when the wrapper gives the iframe less than 700 px. */
@@ -765,13 +764,58 @@ html.is-embedded #ff-close-btn { display: none; }
   .ff-levelup-num { font-size: 4.5rem; }
 }
 
-/* Narrow / portrait fallback */
-.ff-screen-narrow .ff-title { font-size: 2.2rem; }
-@media (max-width: 899px), (orientation: portrait) and (max-height: 700px) {
-  .ff-app { display: none; }
+/* ── Touch screens and narrow frames ──────────────────────────────────────
+   The three answer buttons stay put at the bottom of the play area (a
+   moving target is hard to hit with a finger); the block falls from the top
+   to the line just above them. Key hints ("1 2 3") only with a keyboard. */
+body.ff-compact .ff-buttons {
+  top: auto;
+  bottom: 14px;
+  transform: none !important;
+  transition: opacity 0.15s ease;
+  gap: 10px;
+  padding: 0 10px;
 }
-@media (min-width: 900px) {
-  #ff-narrow-screen { display: none !important; }
+body.ff-compact .ff-answer { flex: 0 1 170px; min-width: 0; height: 60px; touch-action: manipulation; }
+body.ff-compact .ff-answer .ff-answer-key { display: none; }
+body.ff-compact .ff-danger-line { top: auto; bottom: 88px; }
+
+/* ── Phones and narrow frames (< 900 px): one column, stats in a strip ── */
+@media (max-width: 899px) {
+  .ff-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 44px auto 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .ff-topbar { padding: 0 8px 0 14px; }
+  .ff-round { font-size: 1rem; }
+  .ff-icon { width: 34px; height: 34px; }
+  .ff-sidebar-left { flex-direction: row; gap: 6px; }
+  .ff-sidebar-left .ff-panel { flex: 1 1 0; min-width: 0; padding: 6px 8px; }
+  .ff-panel-label { font-size: 0.55rem; letter-spacing: 0.8px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ff-panel-value { font-size: 1.15rem; }
+  .ff-panel-score .ff-panel-value { font-size: 1.3rem; }
+  .ff-panel-streak .ff-streak-fire { font-size: 0.9rem; margin-right: 2px; }
+  .ff-level-bar { margin-top: 4px; height: 4px; }
+  .ff-lives { font-size: 1.05rem; gap: 2px; }
+  .ff-sidebar-right { display: none; }
+  .ff-block { width: calc(100% - 16px); max-width: 420px; padding: 14px 10px; }
+  .ff-block-trio { gap: 6px; }
+  .ff-trio-base { font-size: 1.3rem; }
+  .ff-trio-arrow { font-size: 0.9rem; }
+  .ff-trio-slot { min-width: 0; flex: 0 1 96px; padding: 5px 6px; font-size: 1.05rem; white-space: nowrap; }
+  .ff-answer { font-size: 1.1rem; }
+  .ff-screen { padding: 16px 12px; align-items: flex-start; overflow-y: auto; }
+  .ff-screen-card { padding: 28px 20px; }
+  .ff-title { font-size: 2.4rem; }
+  .ff-tagline { margin-bottom: 22px; }
+  .ff-levelup-card { padding: 28px 36px 24px; }
+  .ff-levelup-num { font-size: 4.5rem; }
+}
+@media (max-width: 359px) {
+  .ff-panel-label { font-size: 0.5rem; letter-spacing: 0.4px; }
+  .ff-title { font-size: 2rem; }
 }
 
 /* ── Level-up overlay ─────────────────────────────────────────────────────
@@ -887,7 +931,7 @@ html.is-embedded #ff-close-btn { display: none; }
     <div class="ff-round"><span data-string="round">Runde</span> <span id="ff-round-num">1</span></div>
     <div class="ff-topbar-actions">
       <button class="ff-icon" id="ff-audio-btn" aria-label="Ton an/aus" data-string-aria="aria_sound" title="Sound">♪</button>
-      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause">⏸</button>
+      <button class="ff-icon" id="ff-pause-btn" aria-label="Pause" data-string-aria="aria_pause" title="Pause"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg></button>
       <button class="ff-icon" id="ff-close-btn" aria-label="Schließen" data-string-aria="aria_close" title="Close">✕</button>
     </div>
   </header>
@@ -904,7 +948,7 @@ html.is-embedded #ff-close-btn { display: none; }
     </div>
     <div class="ff-panel ff-panel-streak" id="ff-streak-panel">
       <div class="ff-panel-label" data-string="streak">Serie</div>
-      <div class="ff-panel-value"><span class="ff-streak-fire">🔥</span><span id="ff-streak">0</span></div>
+      <div class="ff-panel-value"><span class="ff-streak-fire"><svg class="ff-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3c1 3.5 5.5 5.5 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.3 2.8-5.6.3 1.7 1 2.8 2.2 3.4C11 8.9 11 5.8 12 3z" fill="#ff8585" stroke="#2c2a3a" stroke-width="2" stroke-linejoin="round"/><path d="M12 14c1.2 1 2 2 2 3.2a2 2 0 0 1-4 0c0-1.2.8-2.2 2-3.2z" fill="#ffcf5e"/></svg></span><span id="ff-streak">0</span></div>
     </div>
     <div class="ff-panel ff-panel-lives">
       <div class="ff-panel-label" data-string="lives">Leben</div>
@@ -949,12 +993,13 @@ html.is-embedded #ff-close-btn { display: none; }
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     SCREENS — start, game over, narrow warning
+     SCREENS — start, game over
      ═══════════════════════════════════════════════════════════════════ -->
 <div class="ff-screen" id="ff-start-screen">
   <div class="ff-screen-card">
     <h1 class="ff-title">Falling Forms</h1>
-    <p class="ff-tagline" data-string="start_tagline">Fülle beide Lücken, bevor der Block unten ankommt.</p>
+    <p class="ff-tagline" data-string="start_tagline">Fülle beide Lücken, bevor der Block unten ankommt: go → went → gone.</p>
+    <p class="ff-how" id="ff-how" data-string="start_how">Antippen oder die Tasten 1, 2, 3.</p>
     <button class="ff-btn" id="ff-start-btn" type="button" data-string="start_btn">Los geht's!</button>
     <div class="ff-best-row"><span data-string="best_label">Bestleistung</span>: <strong id="ff-best-start">0</strong></div>
   </div>
@@ -987,17 +1032,6 @@ html.is-embedded #ff-close-btn { display: none; }
     <div class="ff-levelup-badge">LEVEL UP</div>
     <div class="ff-levelup-num" id="ff-levelup-num">2</div>
     <div class="ff-levelup-sub" id="ff-levelup-sub">Blöcke fallen schneller</div>
-  </div>
-</div>
-
-<div class="ff-screen" id="ff-narrow-screen">
-  <div class="ff-screen-card">
-    <h1 class="ff-title" data-string="narrow_title">Nur Querformat</h1>
-    <p class="ff-tagline" data-string="narrow_sub">Öffne Falling Forms auf einem Bildschirm mit mindestens 900 px Breite.</p>
-    <p class="ff-narrow-links">
-      <a id="ff-narrow-sprint" href="/de/unregelmaessige-verben/sprint/" target="_top" data-string="narrow_sprint">Zum Sprint (läuft auf dem Handy)</a>
-      <a id="ff-narrow-hub" href="/de/spiele/" target="_top" data-string="narrow_hub">Alle Spiele</a>
-    </p>
   </div>
 </div>
 
@@ -1081,7 +1115,9 @@ const STRINGS = {
     key_1: 'TASTE 1',
     key_2: 'TASTE 2',
     key_3: 'TASTE 3',
-    start_tagline: 'Fülle beide Lücken, bevor der Block unten ankommt.',
+    start_tagline: 'Fülle beide Lücken, bevor der Block unten ankommt: go → went → gone.',
+    start_how: 'Antippen oder die Tasten 1, 2, 3.',
+    start_how_touch: 'Tippe die richtige Antwort an.',
     start_btn: "Los geht's!",
     best_label: 'Bestleistung',
     new_best: 'Neue Bestleistung!',
@@ -1089,19 +1125,15 @@ const STRINGS = {
     final_score: 'Endpunktzahl',
     play_again: 'Nochmal spielen',
     menu: 'Menü',
-    no_chains: 'keine Ketten in dieser Runde',
+    no_chains: 'diesmal noch kein Verb geschafft',
     levelup_sub: 'Blöcke fallen schneller',
-    narrow_title: 'Nur Querformat',
-    narrow_sub: 'Öffne Falling Forms auf einem Bildschirm mit mindestens 900 px Breite.',
-    narrow_sprint: 'Zum Sprint (läuft auf dem Handy)',
-    narrow_hub: 'Alle Spiele',
     aria_sound: 'Ton an/aus',
     aria_pause: 'Pause',
     aria_close: 'Schließen',
     aria_stats: 'Statistik',
     aria_playarea: 'Spielfeld',
     aria_history: 'Zuletzt und Nächstes',
-    aria_chain_grid: 'Abgeschlossene Ketten',
+    aria_chain_grid: 'Geschaffte Verben',
   },
   es: {
     round: 'Ronda',
@@ -1116,7 +1148,9 @@ const STRINGS = {
     key_1: 'TECLA 1',
     key_2: 'TECLA 2',
     key_3: 'TECLA 3',
-    start_tagline: 'Rellena ambos huecos antes de que el bloque aterrice.',
+    start_tagline: 'Rellena los dos huecos antes de que el bloque llegue abajo: go → went → gone.',
+    start_how: 'Toca o usa las teclas 1, 2, 3.',
+    start_how_touch: 'Toca la respuesta correcta.',
     start_btn: '¡Empezar!',
     best_label: 'Mejor',
     new_best: '¡Nuevo récord!',
@@ -1124,25 +1158,49 @@ const STRINGS = {
     final_score: 'Puntuación final',
     play_again: 'Jugar de nuevo',
     menu: 'Menú',
-    no_chains: 'sin cadenas en esta ronda',
+    no_chains: 'ningún verbo esta vez',
     levelup_sub: 'Los bloques caen más rápido',
-    narrow_title: 'Solo apaisado',
-    narrow_sub: 'Abre Falling Forms en una pantalla de al menos 900 px de ancho.',
-    narrow_sprint: 'Ir al Sprint (funciona en el móvil)',
-    narrow_hub: 'Todos los juegos',
     aria_sound: 'Sonido on/off',
     aria_pause: 'Pausa',
     aria_close: 'Cerrar',
     aria_stats: 'Estadísticas',
     aria_playarea: 'Campo de juego',
     aria_history: 'Verbos recientes y próximo',
-    aria_chain_grid: 'Cadenas completadas',
+    aria_chain_grid: 'Verbos logrados',
   },
-};
-
-const NARROW_LINKS = {
-  de: { sprint: '/de/unregelmaessige-verben/sprint/', hub: '/de/spiele/' },
-  es: { sprint: '/es/verbos-irregulares/sprint/',     hub: '/es/juegos/' },
+  en: {
+    round: 'Round',
+    score: 'Score',
+    level: 'Level',
+    streak: 'Streak',
+    lives: 'Lives',
+    quick_guide: 'Overview',
+    coming_up: 'Coming up',
+    paused: 'PAUSED',
+    tap_resume: 'Tap to resume',
+    key_1: 'KEY 1',
+    key_2: 'KEY 2',
+    key_3: 'KEY 3',
+    start_tagline: 'Fill both gaps before the block reaches the bottom: go → went → gone.',
+    start_how: 'Tap, or use the keys 1, 2, 3.',
+    start_how_touch: 'Tap the right answer.',
+    start_btn: "Let's go!",
+    best_label: 'Best',
+    new_best: 'New best score!',
+    game_over: 'Game over',
+    final_score: 'Final score',
+    play_again: 'Play again',
+    menu: 'Menu',
+    no_chains: 'nothing finished this round',
+    levelup_sub: 'Blocks fall faster',
+    aria_sound: 'Sound on/off',
+    aria_pause: 'Pause',
+    aria_close: 'Close',
+    aria_stats: 'Stats',
+    aria_playarea: 'Play area',
+    aria_history: 'Recent and next',
+    aria_chain_grid: 'Verbs done',
+  },
 };
 let IS_EMBEDDED = false;
 try { IS_EMBEDDED = window.self !== window.top; } catch (_) { IS_EMBEDDED = true; }
@@ -1151,11 +1209,11 @@ if (IS_EMBEDDED) document.documentElement.classList.add('is-embedded');
 function getLang() {
   try {
     const q = new URLSearchParams(window.location.search).get('lang');
-    if (q === 'es' || q === 'de') return q;
+    if (q === 'es' || q === 'de' || q === 'en') return q;
   } catch (_) {}
   try {
     const ls = localStorage.getItem(LANG_KEY);
-    if (ls === 'es' || ls === 'de') return ls;
+    if (ls === 'es' || ls === 'de' || ls === 'en') return ls;
   } catch (_) {}
   return 'de';
 }
@@ -1175,6 +1233,39 @@ function applyStrings(root) {
 }
 
 const $ = id => document.getElementById(id);
+
+// ─── Answers → shared word statistics ───────────────────────────────────────
+// Every tapped answer goes to /lib/krabsy-stats.js (profile, shells and
+// gifts, the tutor's star map, a joined class). Loaded on demand; without it
+// (file://, blocked module) the drill plays the same, it just records nothing.
+const TOPIC = 'irregular_verbs';
+let STATS = null;
+try {
+  import('/lib/krabsy-stats.js?v=2026-11-25')
+    .then((m) => { if (m && typeof m.recordAttempt === 'function') STATS = m; })
+    .catch(() => {});
+} catch (_) { /* no dynamic import */ }
+function recordAnswer(verb, form, correct) {
+  if (!STATS || !verb) return;
+  try { STATS.recordAttempt(verb, form, !!correct, 'falling-forms', TOPIC, 'choice'); } catch (_) {}
+}
+
+// Tell the wrapper page when a round runs (it hides its intro and the phone
+// tab bar, and scrolls the frame into view on small screens).
+function tellPage(playing) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'krabsy:drill', game: 'falling-forms', playing: !!playing }, window.location.origin);
+    }
+  } catch (_) { /* cross-origin parent */ }
+}
+
+// Touch screens and narrow frames: answer buttons fixed at the bottom of the
+// play area, the block falls from the top down to them (body.ff-compact).
+const TOUCH = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (_) { return false; } })();
+function isCompact() { return TOUCH || window.innerWidth < 900; }
+function syncLayout() { document.body.classList.toggle('ff-compact', isCompact()); }
+function spawnY() { return isCompact() ? 12 : BLOCK_SPAWN_Y; }
 
 const els = {
   app:           $('ff-app'),
@@ -1402,8 +1493,9 @@ function spawnBlock() {
 
   const blockEl = document.createElement('div');
   blockEl.className = 'ff-block';
-  blockEl.style.setProperty('--y', BLOCK_SPAWN_Y + 'px');
-  blockEl.style.transform = `translate3d(-50%, ${BLOCK_SPAWN_Y}px, 0)`;
+  const y0 = spawnY();
+  blockEl.style.setProperty('--y', y0 + 'px');
+  blockEl.style.transform = `translate3d(-50%, ${y0}px, 0)`;
   blockEl.innerHTML = `
     <div class="ff-block-trio">
       <span class="ff-trio-base">${v.verb}</span>
@@ -1416,8 +1508,8 @@ function spawnBlock() {
   els.blockLayer.appendChild(blockEl);
 
   // Slot the buttons just above the new block's spawn point.
-  const initButtonsY = Math.max(0, BLOCK_SPAWN_Y - BUTTONS_OFFSET_FROM_BLOCK);
-  els.buttons.style.transform = `translate3d(0, ${initButtonsY}px, 0)`;
+  const initButtonsY = Math.max(0, y0 - BUTTONS_OFFSET_FROM_BLOCK);
+  els.buttons.style.transform = isCompact() ? '' : `translate3d(0, ${initButtonsY}px, 0)`;
 
   state.block = {
     el: blockEl,
@@ -1426,7 +1518,8 @@ function spawnBlock() {
     distractorsPast: pickDistractors(v.pw, v.past, 2),
     distractorsPp:   pickDistractors(v.ppw, v.pp, 2),
     isDying: false,
-    currentY: BLOCK_SPAWN_Y,
+    spawnY: y0,
+    currentY: y0,
   };
   renderAnswers();
   renderNext();
@@ -1435,10 +1528,12 @@ function spawnBlock() {
 
 function getFallExtent() {
   // Maximum translateY the block top can reach before crossing the danger line.
+  // Compact: the line sits just above the fixed answer buttons (CSS
+  // .ff-danger-line bottom: 88px).
   const playH = els.play.clientHeight;
   const blockH = state.block.el.offsetHeight || 110;
-  const dangerY = playH * DANGER_LINE_FRAC;
-  return Math.max(BLOCK_SPAWN_Y + 40, dangerY - blockH - 8);
+  const dangerY = isCompact() ? playH - 88 : playH * DANGER_LINE_FRAC;
+  return Math.max(state.block.spawnY + 40, dangerY - blockH - 8);
 }
 
 function tick(now) {
@@ -1457,15 +1552,18 @@ function tick(now) {
   const elapsed = now - state.block.startTs;
   const progress = Math.min(1, elapsed / state.block.fallMs);
   const maxY = getFallExtent();
-  const y = BLOCK_SPAWN_Y + progress * (maxY - BLOCK_SPAWN_Y);
+  const y0 = state.block.spawnY;
+  const y = y0 + progress * (maxY - y0);
   state.block.currentY = y;
   state.block.el.style.setProperty('--y', y.toFixed(1) + 'px');
   state.block.el.style.transform = `translate3d(-50%, ${y.toFixed(1)}px, 0)`;
 
   // Buttons ride above the block — clamp to 0 so they never escape the
   // top of the play area.
-  const buttonsY = Math.max(0, y - BUTTONS_OFFSET_FROM_BLOCK);
-  els.buttons.style.transform = `translate3d(0, ${buttonsY.toFixed(1)}px, 0)`;
+  if (!isCompact()) {
+    const buttonsY = Math.max(0, y - BUTTONS_OFFSET_FROM_BLOCK);
+    els.buttons.style.transform = `translate3d(0, ${buttonsY.toFixed(1)}px, 0)`;
+  }
 
   if (progress >= 1) {
     handleMissedBlock();
@@ -1497,6 +1595,7 @@ function handleAnswer(btnEl) {
   if (!state.running || state.paused) return;
   if (!state.block || state.block.isDying) return;
   const correct = btnEl.dataset.correct === '1';
+  if (state.currentVerb) recordAnswer(state.currentVerb.verb, state.phase === 'past' ? 'past' : 'participle', correct);
   if (correct) {
     onCorrect(btnEl);
   } else {
@@ -1819,8 +1918,10 @@ function startGame() {
   renderHud();
   renderHistory();
   renderNext();
+  syncLayout();
   // Spawn first block
   spawnBlock();
+  tellPage(true);
   // Try to unlock audio on a user gesture
   try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (_) {}
 }
@@ -1860,6 +1961,7 @@ function endGame() {
 }
 
 function backToMenu() {
+  tellPage(false);
   els.overScreen.hidden = true;
   els.startScreen.hidden = false;
   els.bestStart.textContent = String(state.best);
@@ -1921,13 +2023,11 @@ document.addEventListener('keydown', (e) => {
 (function boot() {
   // i18n: swap to ES only if user explicitly selected it. HTML default is DE
   // so there's no flash on the common path.
-  if (LANG !== 'de') {
-    document.documentElement.lang = LANG;
-    applyStrings(document);
-  }
-  const nl = NARROW_LINKS[LANG] || NARROW_LINKS.de;
-  document.getElementById('ff-narrow-sprint').href = nl.sprint;
-  document.getElementById('ff-narrow-hub').href = nl.hub;
+  document.documentElement.lang = LANG;
+  applyStrings(document);
+  if (TOUCH) $('ff-how').textContent = t('start_how_touch');
+  syncLayout();
+  window.addEventListener('resize', syncLayout);
   state.best = readBest();
   state.audioOn = readAudio();
   els.audioBtn.classList.toggle('is-muted', !state.audioOn);
