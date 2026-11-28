@@ -96,6 +96,7 @@ LASTMOD_IGNORE_COMMITS = {
     "9be033b993f8aacf91e9f347fcde9bbe404dafa1",  # 2026-11-27 krabsy-header.js swap + ui/footer/lang-switch ?v= bump
     "23afa6bb6f386ef2b942a3d7dba12260ca064fef",  # 2026-11-27 krabsy-header.js / ui.css ?v= bump (learning-language pill)
     "1740707ccb1788a53280658facebb36f721872d1",  # 2026-11-27 krabsy-ui.css / header.js ?v= bump (site review fixes)
+    "269d5568eec467d03be6cd2a61d2f8f9f7265e7b",  # 2026-11-28 krabsy-ui.css ?v= bump + inline button styles on the tokens (no text change)
 }
 
 
