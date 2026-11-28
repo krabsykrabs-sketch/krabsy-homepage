@@ -136,7 +136,7 @@ UI = {
         'locale': 'de_DE', 'home': 'Krabsy', 'topics': 'Themen',
         'skeleton': 'praepositionen', 'drill_fill': 'Lückentext',
         'drills_h': 'Speed-Drills', 'drills_sub': 'Kurze Challenges. Schlag deine Bestzeit.',
-        'sprint_tag': '20 Sätze, so schnell wie möglich.', 'fill_tag': 'Tippe das fehlende Wort. Drei Leben.',
+        'sprint_tag': '12 Sätze, so schnell wie möglich.', 'fill_tag': 'Tippe das fehlende Wort. Drei Leben.',
         'play': 'Los →',
         'games_h': 'Spiele', 'games_sub': 'Diese Spiele fragen Sätze zu diesem Thema.',
         'all_games': 'Alle Spiele ansehen →',
@@ -154,10 +154,10 @@ UI = {
         'li_fill_d': 'das fehlende Wort selbst tippen, mit drei Leben',
         'li_hub': '{name}: alle Spiele und Übungen',
         'sprint_h1': 'Sprint: {short_name} üben',
-        'sprint_intro': '20 englische Sätze mit einer Lücke. Tippe so schnell wie möglich das richtige Wort an; '
+        'sprint_intro': '12 englische Sätze mit einer Lücke. Tippe so schnell wie möglich das richtige Wort an; '
                         'ein Fehler kostet 3 Sekunden. Kommst du nicht weiter? Der Knopf <b>Tipp</b> zeigt dir '
                         'ein kleines Muster.',
-        'sprint_desc': '20 englische Lückensätze zum {short_name}, so schnell wie möglich: {short}. '
+        'sprint_desc': '12 englische Lückensätze zum {short_name}, so schnell wie möglich: {short}. '
                        'Kostenlos, ohne Anmeldung.',
         'fill_h1': 'Lückentext: {short_name} üben',
         'fill_intro': 'Englische Sätze mit einer Lücke. Tippe das fehlende Wort und drücke Enter. '
@@ -172,7 +172,7 @@ UI = {
         'locale': 'es_ES', 'home': 'Krabsy', 'topics': 'Temas',
         'skeleton': 'preposiciones', 'drill_fill': 'Rellena el hueco',
         'drills_h': 'Speed Drills', 'drills_sub': 'Retos cortos. Supera tu mejor tiempo.',
-        'sprint_tag': '20 frases, lo más rápido posible.', 'fill_tag': 'Escribe la palabra que falta. Tres vidas.',
+        'sprint_tag': '12 frases, lo más rápido posible.', 'fill_tag': 'Escribe la palabra que falta. Tres vidas.',
         'play': 'Jugar →',
         'games_h': 'Juegos', 'games_sub': 'Estos juegos preguntan frases de este tema.',
         'all_games': 'Ver todos los juegos →',
@@ -189,9 +189,9 @@ UI = {
         'li_fill_d': 'escribe tú la palabra que falta, con tres vidas',
         'li_hub': '{name}: todos los juegos y ejercicios',
         'sprint_h1': 'Sprint: practica el {short_name}',
-        'sprint_intro': '20 frases en inglés con un hueco. Toca la palabra correcta lo más rápido que puedas; '
+        'sprint_intro': '12 frases en inglés con un hueco. Toca la palabra correcta lo más rápido que puedas; '
                         'cada fallo suma 3 segundos. ¿Te atascas? El botón <b>Pista</b> te muestra un pequeño patrón.',
-        'sprint_desc': '20 frases en inglés con hueco para practicar el {short_name}, lo más rápido posible: '
+        'sprint_desc': '12 frases en inglés con hueco para practicar el {short_name}, lo más rápido posible: '
                        '{short}. Gratis, sin registro.',
         'fill_h1': 'Rellena el hueco: practica el {short_name}',
         'fill_intro': 'Frases en inglés con un hueco. Escribe la palabra que falta y pulsa Enter. '

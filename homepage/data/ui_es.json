@@ -19,6 +19,8 @@
     "best_score": "Mejor puntuación",
     "best_time": "Mejor tiempo",
     "no_best_yet": "aún sin récord",
+    "new_best": "¡Nuevo récord!",
+    "shells_earned": "+{n} caracolas",
     "time": "Tiempo",
     "accuracy": "Precisión",
     "attempts": "Intentos",
@@ -95,8 +97,8 @@
   "drills": {
     "sprint": {
       "name": "Sprint",
-      "tagline": "20 verbos lo más rápido posible.",
-      "intro": "Veinte verbos. Toca la forma correcta antes que se acabe el tiempo.",
+      "tagline": "12 verbos lo más rápido posible.",
+      "intro": "Elige la forma correcta en 12 verbos. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?",
       "penalty_hint": "Respuesta incorrecta: +3 segundos",
       "end_title": "¡Sprint terminado!",
       "aria_choices": "Respuestas"
@@ -274,7 +276,7 @@
         "section_reference_sub": "Todas las reglas importantes, agrupadas por categoría."
       },
       "drills": {
-        "sprint":     { "tagline": "20 frases con huecos lo más rápido posible." },
+        "sprint":     { "tagline": "12 frases con huecos lo más rápido posible.", "intro": "Toca la preposición correcta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?" },
         "type_race":  { "tagline": "Escribe la preposición correcta. Vence al reloj." },
         "drag_match": { "tagline": "Une cada preposición con la frase correcta." },
         "fill_gap":   { "tagline": "Pon la preposición correcta." }
@@ -333,8 +335,8 @@
     "en_simple_past": {
       "drills": {
         "sprint": {
-          "tagline": "20 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "tagline": "12 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -344,8 +346,8 @@
     "en_present_simple": {
       "drills": {
         "sprint": {
-          "tagline": "20 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "tagline": "12 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -355,8 +357,8 @@
     "en_present_progressive": {
       "drills": {
         "sprint": {
-          "tagline": "20 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "tagline": "12 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."
@@ -366,8 +368,8 @@
     "en_present_perfect": {
       "drills": {
         "sprint": {
-          "tagline": "20 frases con hueco, lo más rápido posible.",
-          "intro": "Toca la palabra que falta en 20 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
+          "tagline": "12 frases con hueco, lo más rápido posible.",
+          "intro": "Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?"
         },
         "fill_gap": {
           "tagline": "Escribe la palabra que falta."

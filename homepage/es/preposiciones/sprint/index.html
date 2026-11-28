@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","es");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Sprint: Preposiciones en inglés — Krabsy</title>
-  <meta name="description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta name="description" content="12 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
   <meta name="keywords" content="sprint, preposiciones inglés, in on at, gramática inglesa practicar">
   <link rel="canonical" href="https://krabsy.com/es/preposiciones/sprint/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/praepositionen/sprint/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="Sprint: Preposiciones en inglés — Krabsy">
-  <meta property="og:description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta property="og:description" content="12 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/es/preposiciones/sprint/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="es_ES">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Sprint: Preposiciones en inglés — Krabsy">
-  <meta name="twitter:description" content="20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
+  <meta name="twitter:description" content="12 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <script type="application/ld+json">
     {
@@ -30,7 +30,7 @@
       "@type": "LearningResource",
       "name": "Sprint — Preposiciones",
       "url": "https://krabsy.com/es/preposiciones/sprint/",
-      "description": "20 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.",
+      "description": "12 frases con preposiciones en inglés lo más rápido posible. Elige la preposición correcta, vence tu mejor tiempo. Gratis, sin registro.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
@@ -208,7 +208,13 @@
       gap: 5px;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .sprint-hint-btn:hover,
+    @media (hover: hover) {
+      .sprint-hint-btn:hover {
+        background: var(--krabsy-lavender-soft);
+        color: var(--krabsy-ink);
+        border-color: var(--krabsy-lavender-soft);
+      }
+    }
     .sprint-hint-btn:focus-visible {
       background: var(--krabsy-lavender-soft);
       color: var(--krabsy-ink);
@@ -295,8 +301,10 @@
       -webkit-tap-highlight-color: transparent;
       will-change: transform;
     }
-    .sprint-choice:hover:not(:disabled) {
-      background: var(--krabsy-sage-soft);
+    @media (hover: hover) {
+      .sprint-choice:hover:not(:disabled) {
+        background: var(--krabsy-sage-soft);
+      }
     }
     .sprint-choice:active:not(:disabled) {
       transform: translateY(1px);
@@ -402,6 +410,21 @@
       margin-top: var(--space-5);
     }
 
+    /* Shells earned in this run (end screen) */
+    .sprint-shells {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      line-height: 1.1;
+    }
+    .sprint-shells[hidden] { display: none; }
+    .sprint-shells .ki { width: 36px; height: 36px; flex: 0 0 auto; }
+    .sprint-end-top { display: flex; flex-direction: column; align-items: center; }
+
     .sprint-hidden { display: none !important; }
 
     .sprint-loading {
@@ -420,7 +443,7 @@
     <main class="sprint-wrap">
       <h1 class="k-page-h1">Sprint: practica las preposiciones en inglés contra el reloj</h1>
       <aside class="k-intro-card" aria-label="Sobre este ejercicio">
-        <p>En el Sprint de preposiciones practicas 20 frases con huecos lo más rápido posible. Elige la preposición correcta antes de que se acabe el tiempo. El pequeño patrón sobre la frase te indica qué regla estás practicando — perfecto para distinguir in/on/at/for/since al instante.</p>
+        <p>En el Sprint de preposiciones practicas 12 frases con huecos lo más rápido posible. Elige la preposición correcta; cada error suma 3 segundos. El pequeño patrón sobre la frase te indica qué regla estás practicando — perfecto para distinguir in/on/at/for/since al instante.</p>
       </aside>
 
       <!-- Loading shim until JS swaps in real content -->
@@ -429,8 +452,8 @@
       <!-- START SCREEN -->
       <section id="sprint-start" class="k-card sprint-start-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.name">Sprint</h2>
-        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 frases con huecos lo más rápido posible.</p>
-        <p class="sprint-intro" data-string="drills.sprint.intro">Veinte verbos. Toca la forma correcta antes que se acabe el tiempo.</p>
+        <p class="sprint-tagline" data-string="drills.sprint.tagline">12 frases con huecos lo más rápido posible.</p>
+        <p class="sprint-intro" data-string="drills.sprint.intro">Toca la palabra que falta en 12 frases. Respuesta incorrecta = 3 segundos más. ¿Consigues un nuevo récord?</p>
         <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">¡Vamos!</button>
         <p id="sprint-best-line" class="sprint-best-line" hidden>
           <span data-string="common.best_time">Mejor tiempo</span>:
@@ -470,7 +493,10 @@
       <section id="sprint-end" class="k-card sprint-end-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.end_title">¡Sprint terminado!</h2>
 
-        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Mejor tiempo</div>
+        <div class="sprint-end-top">
+          <p id="sprint-shells" class="sprint-shells" hidden><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><span id="sprint-shells-text"></span></p>
+          <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.new_best"></div>
+        </div>
 
         <div class="sprint-end-stats">
           <div class="sprint-end-stat">
@@ -504,7 +530,7 @@
   <p>En español casi todo se resuelve con «en»: en julio, en verano, en Navidad. El inglés, en cambio, reparte el trabajo entre tres preposiciones: <em lang="en">in</em>, <em lang="en">on</em> y <em lang="en">at</em>. Por eso son las que más errores provocan entre hispanohablantes. En este Sprint entrenas justo eso: elegir la correcta sin pensártelo dos veces.</p>
   <h3>Cómo funciona el Sprint</h3>
   <ol>
-    <li>Ves 20 frases con un hueco, por ejemplo <em lang="en">The film starts ___ 8 o'clock.</em></li>
+    <li>Ves 12 frases con un hueco, por ejemplo <em lang="en">The film starts ___ 8 o'clock.</em></li>
     <li>Encima de la frase, un pequeño patrón te indica qué regla se está practicando.</li>
     <li>Elige la preposición correcta entre las opciones. Cada fallo suma tres segundos de penalización.</li>
     <li>Al final ves tu tiempo y la lista de frases que has fallado.</li>
@@ -534,7 +560,7 @@
   <!-- teacher-notes:start (tools/render_teacher_notes.py) -->
   <h3>En clase: ideas para docentes</h3>
   <ul>
-    <li>20 frases por ronda, en pocos minutos. El pequeño patrón sobre la frase muestra la regla.</li>
+    <li>12 frases por ronda, en pocos minutos. El pequeño patrón sobre la frase muestra la regla.</li>
     <li>Idea: después de introducir in, on y at, primero juntos en la pizarra digital y luego cada uno solo.</li>
   </ul>
   <p>Más ideas y fichas: <a href="/es/docentes/">Para docentes</a> · <a href="/es/preposiciones/fichas/">Fichas para imprimir (PDF)</a></p>
@@ -563,10 +589,11 @@
   <script type="module">
     import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-11-25';
+    import { getShells } from '/lib/krabsy-shells.js';
 
     /* ── State ──────────────────────────────────────────────────────── */
     const CURRENT_TOPIC = 'prepositions';
-    const QUESTIONS_PER_RUN = 20;
+    const QUESTIONS_PER_RUN = 12;
     const WRONG_PENALTY_MS = 3000;
     // Topic-specific best key so verb and prep Sprint best times don't
     // overwrite each other — the drills feel different and a unified slot
@@ -584,6 +611,7 @@
     let missed = [];      // [{ verb, useCaseId, form, correct_answer }]
     let totalAttempts = 0;
     let totalCorrect = 0;
+    let shellsAtStart = 0;  // getShells().earned when the run started
 
     /* ── DOM ────────────────────────────────────────────────────────── */
     const $ = (id) => document.getElementById(id);
@@ -621,6 +649,8 @@
     const endAccEl    = $('sprint-end-accuracy');
     const endBestEl   = $('sprint-end-best');
     const newBestEl   = $('sprint-new-best');
+    const shellsEl    = $('sprint-shells');
+    const shellsTextEl= $('sprint-shells-text');
     const missedWrap  = $('sprint-missed-wrap');
     const missedListEl= $('sprint-missed-list');
     const flashCorrect= $('sprint-flash-correct');
@@ -681,6 +711,10 @@
         bestLineEl.hidden = false;
         bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
       }
+    }
+
+    function earnedShells() {
+      try { return getShells().earned || 0; } catch (_) { return 0; }
     }
 
     function flash(kind) {
@@ -850,6 +884,7 @@
         return;
       }
 
+      shellsAtStart = earnedShells();
       showScreen('play');
       renderQuestion();
       startTimer();
@@ -860,8 +895,9 @@
       const finalMs = elapsedMs();
 
       const previousBest = readBest();
-      const isNewBest = previousBest == null || finalMs < previousBest;
-      if (isNewBest) writeBest(finalMs);
+      // "Neue Bestzeit!" only when an older best was beaten; a first run just sets it.
+      const isNewBest = previousBest != null && finalMs < previousBest;
+      if (previousBest == null || isNewBest) writeBest(finalMs);
 
       endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
       endTimeEl.classList.toggle('is-new-best', isNewBest);
@@ -875,6 +911,14 @@
         : strings.common.no_best_yet;
 
       newBestEl.hidden = !isNewBest;
+
+      // Shells earned in this run (recordAttempt pays them, krabsy-shells.js).
+      const won = Math.max(0, earnedShells() - shellsAtStart);
+      shellsEl.hidden = won <= 0;
+      shellsTextEl.textContent = (strings.common.shells_earned || '+{n}').replace('{n}', String(won));
+      // The intro card stays away from the end screen: "Nochmal" must be in view.
+      const introCard = document.querySelector('.k-intro-card');
+      if (introCard) introCard.classList.add('sprint-hidden');
 
       // Missed list — render as "pattern → preposition" (prep records have
       // form='default'; no "Simple Past"/"Past Participle" label applies).

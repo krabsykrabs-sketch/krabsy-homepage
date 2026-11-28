@@ -5,7 +5,7 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","de");}catch(_){}</script>
   <!-- SEO-BLOCK (managed; regenerate via _seo_sweep.py) -->
   <title>Sprint: Unregelmäßige Verben Englisch — Krabsy</title>
-  <meta name="description" content="20 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
+  <meta name="description" content="12 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
   <meta name="keywords" content="sprint, unregelmäßige verben, simple past, past participle, englisch üben">
   <link rel="canonical" href="https://krabsy.com/de/unregelmaessige-verben/sprint/">
   <link rel="alternate" hreflang="de" href="https://krabsy.com/de/unregelmaessige-verben/sprint/">
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="Sprint: Unregelmäßige Verben Englisch — Krabsy">
-  <meta property="og:description" content="20 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
+  <meta property="og:description" content="12 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/de/unregelmaessige-verben/sprint/">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Sprint: Unregelmäßige Verben Englisch — Krabsy">
-  <meta name="twitter:description" content="20 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
+  <meta name="twitter:description" content="12 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.">
   <meta name="twitter:image" content="https://krabsy.com/og-image.png">
   <script type="application/ld+json">
     {
@@ -30,7 +30,7 @@
       "@type": "LearningResource",
       "name": "Sprint",
       "url": "https://krabsy.com/de/unregelmaessige-verben/sprint/",
-      "description": "20 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.",
+      "description": "12 unregelmäßige Verben so schnell wie möglich. Wähle die richtige Form, schlag deine Bestzeit. Kostenlos, ohne Anmeldung.",
       "learningResourceType": "Game",
       "interactivityType": "active",
       "educationalLevel": "Klasse 5–8",
@@ -273,8 +273,10 @@
       -webkit-tap-highlight-color: transparent;
       will-change: transform;
     }
-    .sprint-choice:hover:not(:disabled) {
-      background: var(--krabsy-sage-soft);
+    @media (hover: hover) {
+      .sprint-choice:hover:not(:disabled) {
+        background: var(--krabsy-sage-soft);
+      }
     }
     .sprint-choice:active:not(:disabled) {
       transform: translateY(1px);
@@ -385,6 +387,34 @@
       margin-top: var(--space-5);
     }
 
+    /* Shells earned in this run (end screen) */
+    .sprint-shells {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      line-height: 1.1;
+    }
+    .sprint-shells[hidden] { display: none; }
+    .sprint-shells .ki { width: 36px; height: 36px; flex: 0 0 auto; }
+    .sprint-end-top { display: flex; flex-direction: column; align-items: center; }
+    /* Phone: base → blank → blank stays on one line (compact row as in
+       Jetzt üben, lib/krabsy-practice.css .kp-trio). */
+    @media (max-width: 480px) {
+      .sprint-play-card { padding: var(--space-5) var(--space-3); }
+      .sprint-trio { flex-wrap: nowrap; gap: 6px; }
+      .sprint-trio-base { font-size: 1.45rem; padding: 4px 0; }
+      .sprint-trio-arrow { font-size: 1.1rem; }
+      .sprint-trio-slot { min-width: 64px; padding: 4px 8px; }
+      .sprint-trio-slot.is-asked { min-width: 88px; padding: 6px 10px; }
+      .sprint-trio-slot-blank { font-size: 1.1rem; letter-spacing: 1px; }
+      .sprint-trio-slot.is-asked .sprint-trio-slot-blank { font-size: 1.3rem; }
+      .sprint-trio-slot-label { font-size: 0.6rem; letter-spacing: 0.2px; white-space: nowrap; }
+    }
+
     .sprint-hidden { display: none !important; }
 
     .sprint-loading {
@@ -403,7 +433,7 @@
     <main class="sprint-wrap">
       <h1 class="k-page-h1">Sprint: unregelmäßige Verben auf Zeit üben</h1>
       <aside class="k-intro-card" aria-label="Über diese Übung">
-        <p>Beim Sprint übst du 20 unregelmäßige Verben so schnell wie möglich. Tippe die richtige Verbform (Simple Past oder Past Participle) an, bevor die Zeit abläuft. Diese Übung trainiert die schnelle Wiedererkennung der wichtigsten unregelmäßigen Verben — perfekt für Klasse 5 bis 8 und alle, die ihr Englisch festigen wollen.</p>
+        <p>Beim Sprint übst du 12 unregelmäßige Verben so schnell wie möglich. Tippe die richtige Verbform (Simple Past oder Past Participle) an. Jeder Fehler kostet 3 Sekunden. Diese Übung trainiert die schnelle Wiedererkennung der wichtigsten unregelmäßigen Verben — perfekt für Klasse 5 bis 8 und alle, die ihr Englisch festigen wollen.</p>
       </aside>
 
       <!-- Loading shim until JS swaps in real content -->
@@ -412,7 +442,7 @@
       <!-- START SCREEN -->
       <section id="sprint-start" class="k-card sprint-start-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.name">Sprint</h2>
-        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 Verben, so schnell wie möglich.</p>
+        <p class="sprint-tagline" data-string="drills.sprint.tagline">12 Verben, so schnell wie möglich.</p>
         <p class="sprint-intro" data-string="drills.sprint.intro"></p>
         <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
         <p id="sprint-best-line" class="sprint-best-line" hidden>
@@ -453,7 +483,10 @@
       <section id="sprint-end" class="k-card sprint-end-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.end_title">Sprint geschafft!</h2>
 
-        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Bestzeit</div>
+        <div class="sprint-end-top">
+          <p id="sprint-shells" class="sprint-shells" hidden><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><span id="sprint-shells-text"></span></p>
+          <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.new_best"></div>
+        </div>
 
         <div class="sprint-end-stats">
           <div class="sprint-end-stat">
@@ -489,7 +522,7 @@
   <ol>
     <li>Du siehst ein Verb in der Grundform und zwei leere Felder, zum Beispiel <em lang="en">go → ___ → ___</em>. Das gesuchte Feld ist farbig markiert.</li>
     <li>Tippe auf die richtige von drei Antworten. Jede falsche Antwort kostet dich drei Strafsekunden.</li>
-    <li>Nach 20 Verben siehst du deine Zeit, deine Trefferquote und alle Verben, die du verpasst hast.</li>
+    <li>Nach 12 Verben siehst du deine Zeit, deine Trefferquote und alle Verben, die du verpasst hast.</li>
   </ol>
   <p>Weil der Sprint auf Tempo setzt, trainiert er das schnelle Wiedererkennen. Das hilft dir vor allem beim Lesen und Hören: Dort musst du <em lang="en">went</em> oder <em lang="en">taught</em> sofort dem richtigen Verb zuordnen.</p>
   <h3>Die zehn wichtigsten unregelmäßigen Verben</h3>
@@ -552,9 +585,10 @@
   <script type="module">
     import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-11-25';
+    import { getShells } from '/lib/krabsy-shells.js';
 
     /* ── State ──────────────────────────────────────────────────────── */
-    const QUESTIONS_PER_RUN = 20;
+    const QUESTIONS_PER_RUN = 12;
     const WRONG_PENALTY_MS = 3000;
     const BEST_KEY = 'krabsy_best_sprint';
     const HUB_URL = '/de/unregelmaessige-verben/';
@@ -569,6 +603,7 @@
     let missed = [];      // [{ verb, form, correct_answer }]
     let totalAttempts = 0;
     let totalCorrect = 0;
+    let shellsAtStart = 0;  // getShells().earned when the run started
 
     /* ── DOM ────────────────────────────────────────────────────────── */
     const $ = (id) => document.getElementById(id);
@@ -591,6 +626,8 @@
     const endAccEl    = $('sprint-end-accuracy');
     const endBestEl   = $('sprint-end-best');
     const newBestEl   = $('sprint-new-best');
+    const shellsEl    = $('sprint-shells');
+    const shellsTextEl= $('sprint-shells-text');
     const missedWrap  = $('sprint-missed-wrap');
     const missedListEl= $('sprint-missed-list');
     const flashCorrect= $('sprint-flash-correct');
@@ -658,6 +695,10 @@
         bestLineEl.hidden = false;
         bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
       }
+    }
+
+    function earnedShells() {
+      try { return getShells().earned || 0; } catch (_) { return 0; }
     }
 
     function flash(kind) {
@@ -813,6 +854,7 @@
         return;
       }
 
+      shellsAtStart = earnedShells();
       showScreen('play');
       renderQuestion();
       // Start stopwatch once the first question is visible (this tick).
@@ -824,8 +866,9 @@
       const finalMs = elapsedMs();
 
       const previousBest = readBest();
-      const isNewBest = previousBest == null || finalMs < previousBest;
-      if (isNewBest) writeBest(finalMs);
+      // "Neue Bestzeit!" only when an older best was beaten; a first run just sets it.
+      const isNewBest = previousBest != null && finalMs < previousBest;
+      if (previousBest == null || isNewBest) writeBest(finalMs);
 
       // Populate end screen
       endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
@@ -840,6 +883,14 @@
         : strings.common.no_best_yet;
 
       newBestEl.hidden = !isNewBest;
+
+      // Shells earned in this run (recordAttempt pays them, krabsy-shells.js).
+      const won = Math.max(0, earnedShells() - shellsAtStart);
+      shellsEl.hidden = won <= 0;
+      shellsTextEl.textContent = (strings.common.shells_earned || '+{n}').replace('{n}', String(won));
+      // The intro card stays away from the end screen: "Nochmal" must be in view.
+      const introCard = document.querySelector('.k-intro-card');
+      if (introCard) introCard.classList.add('sprint-hidden');
 
       // Missed list
       if (missed.length) {

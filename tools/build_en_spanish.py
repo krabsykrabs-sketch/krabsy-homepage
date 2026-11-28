@@ -170,12 +170,12 @@ def build_sprint(t):
     src = (HOME / 'de/praepositionen/sprint/index.html').read_text()
     url = f'/en/spanish/{t["slug"]}/sprint/'
     title = f'Sprint: Spanish {t["name"]}'
-    desc = f'20 Spanish sentences with a gap, as fast as you can: {t["short"]}. Free, no sign-up.'
+    desc = f'12 Spanish sentences with a gap, as fast as you can: {t["short"]}. Free, no sign-up.'
     s = head(title, desc, url) + src[src.index('  <meta name="viewport"'):]
     s = common_body(s, '/en/spanish/', t['topic'])
     s = sub(s, '<h1 class="k-page-h1">Sprint: englische Präpositionen auf Zeit üben</h1>',
             f'<h1 class="k-page-h1">Sprint: Spanish {t["title"]}</h1>')
-    s = intro(s, '20 Spanish sentences with a gap. Tap the right word as fast as you can; '
+    s = intro(s, '12 Spanish sentences with a gap. Tap the right word as fast as you can; '
                  'a wrong answer adds 3 seconds. Stuck? The <b>?</b> button shows a small hint.')
     s = sub(s, 'data-string="common.loading">Lädt…', 'data-string="common.loading">Loading…')
     s = sub(s, '<span>Tipp</span>', '<span>Hint</span>')
@@ -285,7 +285,7 @@ def build_topic_hub(t):
       <h2 class="section-heading">Speed drills</h2>
       <p class="section-sub">Short challenges. Beat your best time.</p>
       <div class="card-grid" id="drills-grid">
-        <a class="module-card drill-card" href="{url}sprint/"><div class="drill-card-thumb"><img src="/thumbnails/Sprint.png" alt="Sprint" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Sprint</div><div class="module-card-tagline">20 sentences, as fast as you can.</div><span class="module-card-cta">Play →</span></div></a>
+        <a class="module-card drill-card" href="{url}sprint/"><div class="drill-card-thumb"><img src="/thumbnails/Sprint.png" alt="Sprint" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Sprint</div><div class="module-card-tagline">12 sentences, as fast as you can.</div><span class="module-card-cta">Play →</span></div></a>
         <a class="module-card drill-card" href="{url}fill-the-gap/"><div class="drill-card-thumb"><img src="/thumbnails/FillGap.png" alt="Fill the Gap" loading="lazy"></div><div class="drill-card-body"><div class="module-card-title">Fill the Gap</div><div class="module-card-tagline">Type the missing word. Three lives.</div><span class="module-card-cta">Play →</span></div></a>
       </div>
     </section>
@@ -296,7 +296,7 @@ def build_topic_hub(t):
   <h3>For teachers</h3>
   <p>Make a <a href="/en/spanish/teachers/#practice-link">practice link</a> with this topic, a game and a difficulty, or run a live <a href="/games/quiz-room/teacher.html?topic={t["topic"]}&amp;lang=en">Quiz Room</a> with your class or one pupil online. No accounts, first names only.</p>
   <ul class="k-article-links">
-    <li><a href="{url}sprint/">Sprint</a>: 20 sentences against the clock.</li>
+    <li><a href="{url}sprint/">Sprint</a>: 12 sentences against the clock.</li>
     <li><a href="{url}fill-the-gap/">Fill the Gap</a>: type the missing word.</li>
     <li><a href="/en/spanish/games/">All Spanish games</a></li>
   </ul>

@@ -73,11 +73,11 @@ NOTES = {
     ],
     # ── prepositions ──
     f"{P_DE}/sprint": [
-        "20 Lückensätze pro Runde, in wenigen Minuten. Das kleine Muster über dem Satz macht die Regel sichtbar.",
+        "12 Lückensätze pro Runde, in wenigen Minuten. Das kleine Muster über dem Satz macht die Regel sichtbar.",
         "Idee: nach der Einführung von in, on und at erst gemeinsam am Whiteboard, dann alle allein.",
     ],
     f"{P_ES}/sprint": [
-        "20 frases por ronda, en pocos minutos. El pequeño patrón sobre la frase muestra la regla.",
+        "12 frases por ronda, en pocos minutos. El pequeño patrón sobre la frase muestra la regla.",
         "Idea: después de introducir in, on y at, primero juntos en la pizarra digital y luego cada uno solo.",
     ],
     f"{P_DE}/fill-the-gap": [

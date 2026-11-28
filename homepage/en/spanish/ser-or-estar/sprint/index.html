@@ -5,12 +5,12 @@
   <script>/* krabsy_lang-from-url */try{localStorage.setItem("krabsy_lang","en");}catch(_){}</script>
   <title>Sprint: Spanish ser or estar? — Krabsy</title>
   <meta name="robots" content="noindex">
-  <meta name="description" content="20 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
+  <meta name="description" content="12 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
   <link rel="canonical" href="https://krabsy.com/en/spanish/ser-or-estar/sprint/">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2026-11-27">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=2026-11-27">
   <meta property="og:title" content="Sprint: Spanish ser or estar? — Krabsy">
-  <meta property="og:description" content="20 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
+  <meta property="og:description" content="12 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
   <meta property="og:image" content="https://krabsy.com/og-image.png">
   <meta property="og:url" content="https://krabsy.com/en/spanish/ser-or-estar/sprint/">
   <meta property="og:type" content="website">
@@ -18,7 +18,7 @@
   <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Sprint: Spanish ser or estar? — Krabsy">
-  <meta name="twitter:description" content="20 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
+  <meta name="twitter:description" content="12 Spanish sentences with a gap, as fast as you can: soy or estoy, es or está. Free, no sign-up.">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="stylesheet" href="/lib/krabsy-ui.css?v=2026-11-28-btn">
   <link rel="stylesheet" href="/lib/krabsy-article.css?v=2026-11-12">
@@ -155,7 +155,13 @@
       gap: 5px;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .sprint-hint-btn:hover,
+    @media (hover: hover) {
+      .sprint-hint-btn:hover {
+        background: var(--krabsy-lavender-soft);
+        color: var(--krabsy-ink);
+        border-color: var(--krabsy-lavender-soft);
+      }
+    }
     .sprint-hint-btn:focus-visible {
       background: var(--krabsy-lavender-soft);
       color: var(--krabsy-ink);
@@ -242,8 +248,10 @@
       -webkit-tap-highlight-color: transparent;
       will-change: transform;
     }
-    .sprint-choice:hover:not(:disabled) {
-      background: var(--krabsy-sage-soft);
+    @media (hover: hover) {
+      .sprint-choice:hover:not(:disabled) {
+        background: var(--krabsy-sage-soft);
+      }
     }
     .sprint-choice:active:not(:disabled) {
       transform: translateY(1px);
@@ -349,6 +357,21 @@
       margin-top: var(--space-5);
     }
 
+    /* Shells earned in this run (end screen) */
+    .sprint-shells {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--krabsy-ink);
+      line-height: 1.1;
+    }
+    .sprint-shells[hidden] { display: none; }
+    .sprint-shells .ki { width: 36px; height: 36px; flex: 0 0 auto; }
+    .sprint-end-top { display: flex; flex-direction: column; align-items: center; }
+
     .sprint-hidden { display: none !important; }
 
     .sprint-loading {
@@ -368,7 +391,7 @@
     <main class="sprint-wrap">
       <h1 class="k-page-h1">Sprint: Spanish Ser or estar?</h1>
       <aside class="k-intro-card" aria-label="About this drill">
-        <p>20 Spanish sentences with a gap. Tap the right word as fast as you can; a wrong answer adds 3 seconds. Stuck? The <b>?</b> button shows a small hint.</p>
+        <p>12 Spanish sentences with a gap. Tap the right word as fast as you can; a wrong answer adds 3 seconds. Stuck? The <b>?</b> button shows a small hint.</p>
       </aside>
 
       <!-- Loading shim until JS swaps in real content -->
@@ -377,7 +400,7 @@
       <!-- START SCREEN -->
       <section id="sprint-start" class="k-card sprint-start-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.name">Sprint</h2>
-        <p class="sprint-tagline" data-string="drills.sprint.tagline">20 Lückensätze, so schnell wie möglich.</p>
+        <p class="sprint-tagline" data-string="drills.sprint.tagline">12 Lückensätze, so schnell wie möglich.</p>
         <p class="sprint-intro" data-string="drills.sprint.intro"></p>
         <button id="sprint-start-btn" type="button" class="k-btn-primary" data-string="common.start">Los geht's!</button>
         <p id="sprint-best-line" class="sprint-best-line" hidden>
@@ -418,7 +441,10 @@
       <section id="sprint-end" class="k-card sprint-end-card sprint-hidden" aria-hidden="true">
         <h2 class="k-h1" data-string="drills.sprint.end_title">Sprint geschafft!</h2>
 
-        <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.best_time">Bestzeit</div>
+        <div class="sprint-end-top">
+          <p id="sprint-shells" class="sprint-shells" hidden><svg class="ki" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/lib/icons/krabsy-icons.svg?v=2026-11-27c#ki-shell"/></svg><span id="sprint-shells-text"></span></p>
+          <div id="sprint-new-best" class="sprint-new-best-flag" hidden data-string="common.new_best"></div>
+        </div>
 
         <div class="sprint-end-stats">
           <div class="sprint-end-stat">
@@ -472,10 +498,11 @@
   <script type="module">
     import { loadStrings, getQuestions } from '/lib/krabsy-data.js?v=2026-11-27l';
     import { recordAttempt } from '/lib/krabsy-stats.js?v=2026-11-25';
+    import { getShells } from '/lib/krabsy-shells.js';
 
     /* ── State ──────────────────────────────────────────────────────── */
     const CURRENT_TOPIC = 'es_ser_estar';
-    const QUESTIONS_PER_RUN = 20;
+    const QUESTIONS_PER_RUN = 12;
     const WRONG_PENALTY_MS = 3000;
     // Topic-specific best key so verb and prep Sprint best times don't
     // overwrite each other — the drills feel different and a unified slot
@@ -493,6 +520,7 @@
     let missed = [];      // [{ verb, useCaseId, form, correct_answer }]
     let totalAttempts = 0;
     let totalCorrect = 0;
+    let shellsAtStart = 0;  // getShells().earned when the run started
 
     /* ── DOM ────────────────────────────────────────────────────────── */
     const $ = (id) => document.getElementById(id);
@@ -533,6 +561,8 @@
     const endAccEl    = $('sprint-end-accuracy');
     const endBestEl   = $('sprint-end-best');
     const newBestEl   = $('sprint-new-best');
+    const shellsEl    = $('sprint-shells');
+    const shellsTextEl= $('sprint-shells-text');
     const missedWrap  = $('sprint-missed-wrap');
     const missedListEl= $('sprint-missed-list');
     const flashCorrect= $('sprint-flash-correct');
@@ -593,6 +623,10 @@
         bestLineEl.hidden = false;
         bestValStart.textContent = `${formatSeconds(best)}${strings.common.seconds_short}`;
       }
+    }
+
+    function earnedShells() {
+      try { return getShells().earned || 0; } catch (_) { return 0; }
     }
 
     function flash(kind) {
@@ -765,6 +799,7 @@
         return;
       }
 
+      shellsAtStart = earnedShells();
       showScreen('play');
       renderQuestion();
       startTimer();
@@ -775,8 +810,9 @@
       const finalMs = elapsedMs();
 
       const previousBest = readBest();
-      const isNewBest = previousBest == null || finalMs < previousBest;
-      if (isNewBest) writeBest(finalMs);
+      // "Neue Bestzeit!" only when an older best was beaten; a first run just sets it.
+      const isNewBest = previousBest != null && finalMs < previousBest;
+      if (previousBest == null || isNewBest) writeBest(finalMs);
 
       // Populate end screen
       endTimeEl.textContent = `${formatSeconds(finalMs)}${strings.common.seconds_short}`;
@@ -791,6 +827,14 @@
         : strings.common.no_best_yet;
 
       newBestEl.hidden = !isNewBest;
+
+      // Shells earned in this run (recordAttempt pays them, krabsy-shells.js).
+      const won = Math.max(0, earnedShells() - shellsAtStart);
+      shellsEl.hidden = won <= 0;
+      shellsTextEl.textContent = (strings.common.shells_earned || '+{n}').replace('{n}', String(won));
+      // The intro card stays away from the end screen: "Nochmal" must be in view.
+      const introCard = document.querySelector('.k-intro-card');
+      if (introCard) introCard.classList.add('sprint-hidden');
 
       // Missed list — render as "pattern → preposition" (prep records have
       // form='default'; no "Simple Past"/"Past Participle" label applies).

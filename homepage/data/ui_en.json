@@ -19,6 +19,8 @@
     "best_score": "Best score",
     "best_time": "Best time",
     "no_best_yet": "no best time yet",
+    "new_best": "New best time!",
+    "shells_earned": "+{n} shells",
     "time": "Time",
     "accuracy": "Accuracy",
     "attempts": "Attempts",
@@ -95,8 +97,8 @@
   "drills": {
     "sprint": {
       "name": "Sprint",
-      "tagline": "20 verbs, as fast as you can.",
-      "intro": "Pick the right form for 20 verbs. Wrong answer = 3-second penalty. Can you set a new best time?",
+      "tagline": "12 verbs, as fast as you can.",
+      "intro": "Pick the right form for 12 verbs. Wrong answer = 3-second penalty. Can you set a new best time?",
       "penalty_hint": "Wrong answer: +3 seconds",
       "end_title": "Sprint complete!",
       "aria_choices": "Answers"
@@ -307,7 +309,8 @@
       },
       "drills": {
         "sprint": {
-          "tagline": "20 gap sentences, as fast as you can."
+          "tagline": "12 gap sentences, as fast as you can.",
+          "intro": "Tap the right preposition in 12 sentences. Wrong answer = 3 extra seconds. Can you set a new best time?"
         },
         "type_race": {
           "tagline": "Type the right preposition. Beat the clock."
@@ -373,8 +376,8 @@
     "es_ser": {
       "drills": {
         "sprint": {
-          "tagline": "20 Spanish sentences, as fast as you can.",
-          "intro": "Pick the right word for 20 sentences. Wrong answer = 3 extra seconds. Can you set a new best time?"
+          "tagline": "12 Spanish sentences, as fast as you can.",
+          "intro": "Pick the right word for 12 sentences. Wrong answer = 3 extra seconds. Can you set a new best time?"
         },
         "fill_gap": {
           "tagline": "Type the missing Spanish word."
