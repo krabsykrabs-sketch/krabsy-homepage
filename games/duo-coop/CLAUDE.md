@@ -382,6 +382,12 @@ measure it.
   bot solves all three rooms (`--from 4`). Design flaws found while building and fixed:
   crates that could only be pushed into a corner (4-1, 4-3), a crate shoved off the plate
   into the gap (step added), a jump too short under the low ceiling (4-3).
+- 2026-11-28 — Owner's test of level 4: (1) a crate that lands on a player's head now stays
+  only while the player stands still and falls off when it walks (only players ride what
+  they stand on; crates ride lifts); (2) players walk up lips of up to 0.25 without jumping
+  (`STEP_UP` in `physics.js`: crate top 3.96 vs floor 4 stopped the strong one); the big
+  button (0.3) still needs a hop; (3) long verbs in the three boxes get smaller text
+  (len-l / xl / xxl) instead of being cut to "unders…".
 - 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)

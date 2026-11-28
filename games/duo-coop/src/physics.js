@@ -17,6 +17,7 @@ export const ROLES = {
 };
 const CLIMB_SPEED = 3.6;
 const PUSH_SPEED = 2.3;
+const STEP_UP = 0.25;     // players walk up lips this high without jumping
 const COYOTE = 0.09;
 const JUMP_BUFFER = 0.12;
 
@@ -94,9 +95,29 @@ export class World {
         b.pushing = pusher;
       }
     }
+    // Walk over small edges (owner 2026-11-28): a player blocked by a lip of at most
+    // STEP_UP (the crate top is 0.04 below the floor, a lift may stop a hair off) steps up
+    // onto it instead of having to jump. The big floor button (0.3) still needs a hop.
+    const want = b.x + dx;
+    if (b.kind === 'player' && depth === 0 && !b.pushing && b.onGround && !b.climbing && Math.abs(nx - want) > 1e-6) {
+      for (let up = 0.05; up <= STEP_UP + 1e-9; up += 0.05) {
+        if (this._free(b, b.x, b.y + up) && this._free(b, want, b.y + up)) { b.y += up; nx = want; break; }
+      }
+    }
     const moved = nx - b.x;
     b.x = nx;
     return moved;
+  }
+
+  /** Is the box b would fill at (x, y) free of tiles and crates/lifts? */
+  _free(b, x, y) {
+    const x0 = Math.floor(x + EPS), x1 = Math.floor(x + b.w - EPS);
+    const y0 = Math.floor(y + EPS), y1 = Math.floor(y + b.h - EPS);
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) if (this.solid(cx, cy)) return false;
+    for (const o of this._blockers(b)) {
+      if (x < o.x + o.w - EPS && x + b.w > o.x + EPS && y < o.y + o.h - EPS && y + b.h > o.y + EPS) return false;
+    }
+    return true;
   }
 
   /** Move up/down by dy, landing on tiles, ladder tops, crates and players. */
@@ -146,7 +167,10 @@ export class World {
     for (const b of order) { b._dx = 0; b._dy = 0; }
     for (const b of order) {
       const sup = b.support;
-      if (sup && (sup._dx || sup._dy) && b.onGround) {
+      // players ride whatever they stand on; a crate rides only a lift: a crate on a
+      // player's head stays while the player stands still and falls off when it walks
+      // (owner 2026-11-28: no carrying crates on the head)
+      if (sup && (sup._dx || sup._dy) && b.onGround && (b.kind === 'player' || sup.kind === 'lift')) {
         b._dx += this.moveX(b, sup._dx);
         if (sup._dy > 0) b._dy += this.moveY(b, sup._dy);
       }

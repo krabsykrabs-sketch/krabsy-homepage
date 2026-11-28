@@ -70,7 +70,11 @@ button { font: inherit; cursor: pointer; }
 .card-q .trio { display: flex; align-items: stretch; gap: 4px; }
 .card-q .slot { flex: 1 1 0; min-width: 0; text-align: center; border-radius: 10px; padding: 3px 4px 2px;
   background: #f1ece0; border: 2px solid transparent; }
-.card-q .slot b { display: block; font-weight: 400; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-q .slot b { display: block; font-weight: 400; font-size: 19px; white-space: nowrap; overflow: hidden; }
+.card-q .trio.len-l .slot b { font-size: 15px; line-height: 23px; }
+.card-q .trio.len-xl .slot b { font-size: 12.5px; line-height: 23px; }
+.card-q .trio.len-xxl .slot b { font-size: 11px; line-height: 23px; }
+.card-q .trio.len-xxl .slot { padding: 3px 2px 2px; }
 .card-q .slot small { display: block; font: 700 11px Nunito, sans-serif; color: #6a7080; }
 .card-q .slot.ask { background: var(--amber); border-color: var(--ink); animation: askpulse 1s ease-in-out infinite alternate; }
 .card-q .slot.ask small { color: var(--ink); }

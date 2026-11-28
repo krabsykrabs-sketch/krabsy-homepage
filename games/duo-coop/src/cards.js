@@ -20,7 +20,10 @@ export function questionHtml(q) {
       if (s && s.text != null) return box('known', esc(s.text), t(`slot.${i + 1}`));
       return box('later', '…', t(`slot.${i + 1}`));
     };
-    return `<span class="trio">${box('known', esc(d.base), t('slot.0'))}<span class="arrow">→</span>${slot(0)}<span class="arrow">→</span>${slot(1)}</span>`;
+    // long verbs get smaller text instead of being cut ("unders…", owner 2026-11-28)
+    const longest = Math.max(String(d.base).length, ...d.slots.map((x) => (x && x.text != null ? String(x.text).length : 1)));
+    const len = longest > 12 ? ' len-xxl' : longest > 10 ? ' len-xl' : longest > 7 ? ' len-l' : '';
+    return `<span class="trio${len}">${box('known', esc(d.base), t('slot.0'))}<span class="arrow">→</span>${slot(0)}<span class="arrow">→</span>${slot(1)}</span>`;
   }
   const sentence = d.sentence || d.plain || '';
   const parts = esc(sentence).split(/_{2,}/);
