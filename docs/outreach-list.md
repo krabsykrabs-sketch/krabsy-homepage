@@ -317,6 +317,19 @@ Seiten zum Einreichen:
 
 ---
 
+## Runde 2, Spanisch (Recherche 2026-11-28)
+
+Ergebnis: Lehrkräfte-Verbände (APIBA, FAAPI, TESOL-SPAIN, MEXTESOL, ARTESOL) führen keine Übungsseiten-Listen, die Regional-/Ministeriumsportale nur eigenes Material. Lohnend sind zwei, ein dritter als Versuch.
+
+| # | Ziel | Land | Seite | Weg | Status |
+|---|---|---|---|---|---|
+| 1 | Ayuda para maestros (Manu Velasco) | ES/LatAm | https://www.ayudaparamaestros.com/search/label/Ingl%C3%A9s | manuvelasco@hotmail.es (steht auf /p/sobre-mi.html) | offen |
+| 2 | Asociación Enseñanza Bilingüe, "Recursos" | ES | https://www.ebspain.es/index.php/recursos | info@ebspain.es (Seite bittet um Links) | offen |
+| 3 | TESOL-SPAIN Reviews (monatlich) | ES | https://www.tesol-spain.org/en/news/8/reviews.html | Formular https://www.tesol-spain.org/en/contact.html, an den Media Officer, auf Englisch | offen, Versuch |
+| 4 | Actividades de Infantil y Primaria (Blog) | ES | https://www.actividadesdeinfantilyprimaria.com/tag/ingles/ | adeinfantilyprimaria@gmail.com | niedrig (eher Infantil) |
+
+Verworfen: APIBA, FAAPI, ARTESOL, MEXTESOL (nur Events/Sponsoring), Fundación Didáctica XXI (seit 2014 tot), APAC (Domain jetzt Spam, nicht anfassen), GRETA/URUTESOL/TESOL Chile (nicht erreichbar), webdelmaestro, El blog de Espe, Imágenes Educativas, Educapeques, Mundo Primaria, Educrea, MEP CR, CROL, EducaMadrid. Manuell prüfen: appleheart.co (AR, Zertifikatsfehler).
+
 ## Ausgeschlossen / nicht geeignet
 
 | Portal | Grund |
