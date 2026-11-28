@@ -1,5 +1,9 @@
 # Krabsy — status dashboard
 
+## Site review fixes, batch A (2026-11-27/28), not pushed
+
+From `docs/site-review-2026-11-27.md`: T1 (ES verb table + flashcards show/search the page-language meaning), O1 (Verb Kitchen self-hosted fonts; no external request left on the site), T3 (no "concha"), L1 (10 pages: standard header skeleton; `mountHeader` also hoists a nested logo), T2 (verb-page mini-quiz `go → ___ → ___` / `go → went → ___`, grammar name as caption), N2 (`/en/404.html`; **owner: paste the `~^/en/ /en/404.html;` line from `docs/nginx-krabsy.conf` into the server config**), T7, T8, T9, T10, T14, S3, S4 ("erste Zeitformen" on the landing), S5, C12, L5, L10, T6 (`ui_en.json`). `krabsy-ui.css` / `-header.js` `?v=2026-11-27-rv` (not on the six Type Race / Drag Match / Falling Forms wrappers, edited by the drill batch). Open: quiz-room "Your colour" / "practise" (`games/quiz-show` source).
+
 ## Figure editor light + easier to find (2026-11-27), not pushed
 
 Owner: "The character editor is too hidden" and "its style with the dark blue does not fit".

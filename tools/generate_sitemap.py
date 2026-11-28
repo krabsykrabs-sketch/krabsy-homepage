@@ -95,6 +95,7 @@ LASTMOD_IGNORE_COMMITS = {
     "84c3e9ecbd42490052b6f29b29797bc7b1dafae0",  # 2026-11-25 krabsy-nav.js ?v= bump (shell counter)
     "9be033b993f8aacf91e9f347fcde9bbe404dafa1",  # 2026-11-27 krabsy-header.js swap + ui/footer/lang-switch ?v= bump
     "23afa6bb6f386ef2b942a3d7dba12260ca064fef",  # 2026-11-27 krabsy-header.js / ui.css ?v= bump (learning-language pill)
+    "1740707ccb1788a53280658facebb36f721872d1",  # 2026-11-27 krabsy-ui.css / header.js ?v= bump (site review fixes)
 }
 
 

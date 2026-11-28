@@ -71,14 +71,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/lehrkraefte/unterrichtsideen/vertretungsstunde-unregelmaessige-verben/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/de/meine-figur/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/meine-figur/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-personaje/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/meine-figur/"/>
-  </url>
-  <url>
     <loc>https://krabsy.com/de/praepositionen/</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
@@ -133,14 +125,6 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/praepositionen/uebersicht/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/preposiciones/resumen/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/praepositionen/uebersicht/"/>
-  </url>
-  <url>
-    <loc>https://krabsy.com/de/profil/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/profil/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/perfil/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/profil/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/spiele/</loc>
@@ -221,14 +205,6 @@
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/themen/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/temas/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/themen/"/>
-  </url>
-  <url>
-    <loc>https://krabsy.com/de/ueben/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/ueben/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/practicar/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/ueben/"/>
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/</loc>
@@ -1568,7 +1544,7 @@
   </url>
   <url>
     <loc>https://krabsy.com/de/unregelmaessige-verben/type-race/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/unregelmaessige-verben/type-race/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/verbos-irregulares/type-race/"/>
@@ -1799,36 +1775,12 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/spiele/verb-towers/"/>
   </url>
   <url>
-    <loc>https://krabsy.com/es/mi-personaje/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/meine-figur/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/mi-personaje/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/meine-figur/"/>
-  </url>
-  <url>
-    <loc>https://krabsy.com/es/perfil/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/profil/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/perfil/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/profil/"/>
-  </url>
-  <url>
     <loc>https://krabsy.com/es/politica-privacidad/</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/datenschutz/"/>
     <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/politica-privacidad/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/datenschutz/"/>
-  </url>
-  <url>
-    <loc>https://krabsy.com/es/practicar/</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <xhtml:link rel="alternate" hreflang="de"        href="https://krabsy.com/de/ueben/"/>
-    <xhtml:link rel="alternate" hreflang="es"        href="https://krabsy.com/es/practicar/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://krabsy.com/de/ueben/"/>
   </url>
   <url>
     <loc>https://krabsy.com/es/preposiciones/</loc>
