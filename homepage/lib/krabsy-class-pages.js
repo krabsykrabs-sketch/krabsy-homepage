@@ -38,7 +38,7 @@ async function loadTexts() {
   const get = (l) => fetch(`/data/ui_${l}.json`, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   let d = await get(LANG);
   if (!d.classes && LANG !== FALLBACK_UI) d = await get(FALLBACK_UI);     // contract rule 5: → en
-  S = d.classes || {};
+  S = Object.assign({}, d.classes || {}, { invites: d.invites || {} });   // + the live-invite texts (Quiz Room for this class)
 }
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function raw(key) {
@@ -368,7 +368,8 @@ async function renderDashboard(main) {
     <div class="kc-head">
       <div><h1>${esc(c.name)}</h1>
         <p class="kc-muted">${t('code')}: <strong class="kc-code-inline">${esc(c.code)}</strong> · <a href="${PATHS.join}?code=${encodeURIComponent(c.code)}">${esc(location.host + PATHS.join)}</a></p></div>
-      <p class="kc-row"><button class="kc-btn kc-btn-ghost" id="kc-big">${t('show_code')}</button>
+      <p class="kc-row"><a class="kc-btn kc-btn-ghost" href="/games/quiz-room/teacher.html?lang=${encodeURIComponent(LANG)}&amp;class=${encodeURIComponent(c.code.replace(/[^A-Za-z0-9]/g, ''))}">${icon('ki-quiz')} ${t('invites.room_open_for')}</a>
+        <button class="kc-btn kc-btn-ghost" id="kc-big">${t('show_code')}</button>
         <button class="kc-btn kc-btn-ghost" id="kc-rename">${t('rename')}</button></p>
     </div>
     <div id="kc-acct"></div>

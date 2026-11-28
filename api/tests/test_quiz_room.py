@@ -374,3 +374,118 @@ if __name__ == "__main__":
         if name.startswith("test_"):
             fn()
             print("ok", name)
+
+
+def test_class_room_invite():
+    """A room "for class X": invite on any page, pupils join with their class identity
+    (no code typed, no name), the teacher sees joined / declined / waiting; code joins
+    still work; the invite ends with the quiz (live invites, api/invites.py)."""
+    c = _client()
+    if c is None:
+        return
+    import classes
+    import invites
+    classes.init_db()
+    classes._buckets.clear()
+    invites.INVITES.clear()
+    cr = c.post("/api/class/create", json={"name": "6b", "lang": "de"}).json()
+    toks = {n: c.post("/api/class/join", json={"code": cr["code"], "nickname": n}).json()["student_token"]
+            for n in ("Mia", "Leo", "Ida")}
+    other = c.post("/api/class/create", json={"name": "7a"}).json()
+    ana = c.post("/api/class/join", json={"code": other["code"], "nickname": "Ana"}).json()["student_token"]
+    with c.websocket_connect(WS) as teacher:
+        # a class the teacher doesn't own: refused, no room
+        teacher.send_json({"t": "create", "questions": Q(1), "class": {"teacher_token": "x" * 30}})
+        assert recv(teacher, "error")["code"] == "no_class"
+        teacher.send_json({"t": "create", "questions": Q(1), "time": 30, "lang": "es", "host": "Profe Ana",
+                           "class": {"teacher_token": cr["teacher_token"]}})
+        code = recv(teacher, "created")["code"]
+        st = recv(teacher, "invite")
+        assert st["class"] == "6b" and st["waiting"] == 3 and st["joined"] == 0
+        # every pupil of the class gets the invite, the other class nothing
+        inv = c.post("/api/invites", json={"tokens": [toks["Mia"]]}).json()["invites"]
+        assert len(inv) == 1 and inv[0]["kind"] == "quiz" and inv[0]["host"] == "Profe Ana"
+        assert inv[0]["target"] == f"/games/quiz-room/index.html?code={code}&lang=es&class=1"
+        assert c.post("/api/invites", json={"tokens": [ana]}).json()["invites"] == []
+        iid = inv[0]["id"]
+        # Leo: Jetzt nicht → the teacher sees it, no invite again
+        c.post("/api/invites/respond", json={"token": toks["Leo"], "invite": iid, "answer": "decline"})
+        st = recv(teacher, "invite")
+        assert st["declined"] == 1 and {"name": "Leo", "s": "declined"} in st["list"]
+        assert c.post("/api/invites", json={"tokens": [toks["Leo"]]}).json()["invites"] == []
+        with c.websocket_connect(WS) as mia, c.websocket_connect(WS) as kid, c.websocket_connect(WS) as bad:
+            # Mia joins with her class identity: no name typed, the class name is used
+            mia.send_json({"t": "join", "code": code, "student": toks["Mia"], "avatar": 3})
+            jm = recv(mia, "joined")
+            assert jm["name"] == "Mia" and jm["cls"] == "6b" and jm["you"]["avatar"] == 3
+            st = recv(teacher, "invite")
+            assert st["joined"] == 1 and {"name": "Mia", "s": "joined"} in st["list"]
+            assert c.post("/api/invites", json={"tokens": [toks["Mia"]]}).json()["invites"] == []
+            # a pupil of another class can't use the identity path
+            bad.send_json({"t": "join", "code": code, "student": ana})
+            assert recv(bad, "error")["code"] == "not_in_class"
+            # joining by code still works for everyone else
+            kid.send_json({"t": "join", "code": code, "name": "Gast"})
+            assert recv(kid, "joined")["name"] == "Gast"
+            # Mia on a second device = the same player
+            with c.websocket_connect(WS) as mia2:
+                mia2.send_json({"t": "join", "code": code, "student": toks["Mia"]})
+                assert recv(mia2, "joined")["pid"] == jm["pid"]
+                # locked: the invite pauses
+                teacher.send_json({"t": "lock", "on": True})
+                recv(teacher, "players")
+                assert c.post("/api/invites", json={"tokens": [toks["Ida"]]}).json()["invites"] == []
+                teacher.send_json({"t": "lock", "on": False})
+                recv(teacher, "players")
+                assert len(c.post("/api/invites", json={"tokens": [toks["Ida"]]}).json()["invites"]) == 1
+                # the answers: the reveal gives the word, which the pupil's device records
+                # for the class (krabsy-stats recordAttempt → /api/class/answers)
+                teacher.send_json({"t": "start"})
+                q = recv(mia2, "question")
+                mia2.send_json({"t": "answer", "qi": q["qi"], "opt": 0})
+                kid.send_json({"t": "answer", "qi": q["qi"], "opt": 1})
+                rv = recv(mia2, "reveal")
+                assert rv["you"]["right"] and rv["word"]["item"] == "go0"
+                teacher.send_json({"t": "next"})                 # after the last question → end
+                recv(teacher, "end")
+                # quiz over: nobody is invited any more, nothing kept
+                assert c.post("/api/invites", json={"tokens": [toks["Ida"]]}).json()["invites"] == []
+                assert not invites.INVITES
+
+
+def test_class_room_remove_and_close():
+    c = _client()
+    if c is None:
+        return
+    import classes
+    import invites
+    classes.init_db()
+    classes._buckets.clear()
+    invites.INVITES.clear()
+    cr = c.post("/api/class/create", json={"name": "5c"}).json()
+    tok = c.post("/api/class/join", json={"code": cr["code"], "nickname": "Tom"}).json()["student_token"]
+    with c.websocket_connect(WS) as teacher:
+        teacher.send_json({"t": "create", "questions": Q(1), "class": {"teacher_token": cr["teacher_token"]}})
+        code = recv(teacher, "created")["code"]
+        recv(teacher, "invite")
+        with c.websocket_connect(WS) as tom:
+            tom.send_json({"t": "join", "code": code, "student": tok})
+            pid = recv(tom, "joined")["pid"]
+            teacher.send_json({"t": "remove", "pid": pid})
+            recv(tom, "kicked")
+        with c.websocket_connect(WS) as tom2:                      # removed stays removed
+            tom2.send_json({"t": "join", "code": code, "student": tok})
+            assert recv(tom2, "error")["code"] == "removed"
+        assert recv(teacher, "invite")["joined"] == 1
+        st = recv(teacher, "invite")                              # removed: off the list
+        assert st["list"] == [] and st["waiting"] == 0
+        # a code room (no class) refuses the identity path
+        with c.websocket_connect(WS) as t2:
+            t2.send_json({"t": "create", "questions": Q(1)})
+            code2 = recv(t2, "created")["code"]
+            with c.websocket_connect(WS) as k:
+                k.send_json({"t": "join", "code": code2, "student": tok})
+                assert recv(k, "error")["code"] == "no_class"
+        teacher.send_json({"t": "close"})
+        recv(teacher, "closed")
+    assert not invites.INVITES

@@ -1,5 +1,5 @@
 // Child page: join a room, walk around as an avatar, answer on a private card.
-import { t, lang } from './i18n.js';
+import { t, lang, loadSiteTexts, st } from './i18n.js';
 import { $, esc, LETTERS, questionHTML, teachHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, normCode, showCode } from './net.js';
 import { Room, Controller, COLORS, AVATARS, EMOTES } from './room.js';
@@ -49,6 +49,32 @@ renderAvatars();
 $('codeIn').addEventListener('input', (e) => { e.target.value = showCode(normCode(e.target.value)); });
 for (const id of ['codeIn', 'nameIn']) $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') join(); });
 $('joinBtn').addEventListener('click', join);
+
+// A room "for the class" (live invites): the pupil comes from the invite overlay
+// (?class=1) and joins with the class identity on this device: no code, no name.
+function classSession() {
+  try { const s = JSON.parse(localStorage.getItem('krabsy_class') || 'null'); return s && s.token ? s : null; } catch (_) { return null; }
+}
+function showJoinForm(on) {
+  for (const el of $('join').querySelectorAll('.card > :not(#joinErr):not(#classMsg)')) el.classList.toggle('hidden', !on);
+  $('classMsg').classList.toggle('hidden', on);
+}
+async function joinAsClass() {
+  const s = classSession();
+  await loadSiteTexts();
+  S.code = normCode(params.get('code'));
+  S.viaClass = true;
+  $('classMsg').textContent = st('joining_as', { name: s.nickname || '' });
+  showJoinForm(false);
+  let token = null;
+  try { token = sessionStorage.getItem(`krabsy_quiz_${S.code}`); } catch (_) {}
+  try {
+    if (!connected) { await net.connect(); connected = true; }
+    net.enter({ t: 'join', code: S.code, student: s.token, avatar: S.avatar, color: S.color, token });
+  } catch (_) { S.viaClass = false; showJoinForm(true); $('joinErr').textContent = t('err_net'); }
+}
+// Sound needs a first tap or key (the page opened without one).
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => sfx.init(), { once: true });
 
 // ------------------------------------------------------------------ room
 const room = new Room($('c'), { mode: 'child' });
@@ -108,6 +134,13 @@ async function join() {
 }
 
 net.on('error', (m) => {
+  if (S.pid == null && S.viaClass) {
+    // The class way didn't work (left the class, room locked …): the normal form, code filled in.
+    S.viaClass = false; net.hello = null;
+    showJoinForm(true);
+    $('joinErr').textContent = m.code === 'not_in_class' || m.code === 'no_class' ? st('err_not_in_class') : (t('err_' + m.code) || m.code);
+    return;
+  }
   if (S.pid == null) {
     $('joinErr').textContent = t('err_' + m.code) || m.code;
     $('joinBtn').disabled = false; $('joinBtn').textContent = t('join');
@@ -121,9 +154,10 @@ net.on('joined', async (m) => {
   S.pid = m.pid; S.name = m.name; S.score = m.you.score; S.color = m.you.color;
   // The join message stays the "hello" for reconnects, now with the token.
   net.hello = { t: 'join', code: S.code, token: m.token, name: m.name, avatar: m.you.avatar, color: m.you.color };
+  if (S.viaClass) net.hello.student = (classSession() || {}).token;
   try { sessionStorage.setItem(`krabsy_quiz_${S.code}`, m.token); } catch (_) {}
   $('join').classList.add('hidden'); $('hud').classList.remove('hidden');
-  $('meName').textContent = m.name; $('meDot').style.background = COLORS[m.you.color];
+  $('meName').textContent = m.cls ? `${m.name} · ${m.cls}` : m.name; $('meDot').style.background = COLORS[m.you.color];
   S.players = m.players; S.n = m.n; S.time = m.time;
   room.setSize(m.size);
   room.setHost(m.host, t('hostDefault'));
@@ -338,5 +372,7 @@ function tickTimer() {
     if (sec <= 5 && sec > 0 && (S.mine == null || S.bonus)) sfx.tick(sec === 1);
   }
 }
+
+if (params.get('class') === '1' && classSession() && normCode(params.get('code')).length === 6) joinAsClass();
 
 window.__qr = { S, room, net, ctl }; // QA hook

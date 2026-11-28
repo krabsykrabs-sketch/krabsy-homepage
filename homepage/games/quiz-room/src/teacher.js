@@ -1,7 +1,7 @@
 // Teacher page: set up the quiz, open the room, run it, see the results.
 // The teacher doesn't play. The screen may be on the projector, so the right answer
 // is shown only at the reveal.
-import { t, lang } from './i18n.js';
+import { t, lang, loadSiteTexts, st } from './i18n.js';
 import { $, esc, LETTERS, questionHTML, teachHTML, reviewHTML, applyTexts, plainQuestion } from './ui.js';
 import { Net, showCode } from './net.js';
 import { Room, Controller, COLORS } from './room.js';
@@ -48,6 +48,56 @@ try { $('hostIn').value = localStorage.getItem('krabsy_quiz_host') || ''; } catc
 $('hostIn').placeholder = t('hostPh');
 $('hostIn').addEventListener('change', () => { try { localStorage.setItem('krabsy_quiz_host', $('hostIn').value.trim()); } catch (_) {} });
 
+// ------------------------------------------------------------------ for a class (live invites)
+// The teacher's classes on this device (opened once via their secret link: localStorage
+// krabsy_teacher_classes) and, when signed in ("Klasse sichern"), the account's classes.
+// A room "for class X" invites the class on any Krabsy page (api/invites.py); its pupils
+// come in without code and name, and their answers count for the class.
+const CLS = { list: [], acc: null };
+function apiBase() {
+  try { if (window.KRABSY_API) return String(window.KRABSY_API).replace(/\/$/, ''); } catch (_) {}
+  return 'https://api.krabsy.com';
+}
+const plain = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+async function loadClasses() {
+  const list = [];
+  try {
+    for (const c of JSON.parse(localStorage.getItem('krabsy_teacher_classes') || '[]') || []) {
+      if (c && c.token && c.code) list.push({ name: c.name, code: plain(c.code), token: c.token });
+    }
+  } catch (_) {}
+  try { const a = JSON.parse(localStorage.getItem('krabsy_account') || 'null'); CLS.acc = a && a.token ? a.token : null; } catch (_) {}
+  if (CLS.acc) {
+    try {
+      const r = await fetch(apiBase() + '/api/account/me', { headers: { 'X-Account-Token': CLS.acc }, credentials: 'omit' });
+      const d = await r.json();
+      for (const c of (d.ok && d.classes) || []) {
+        const have = list.find((x) => x.code === plain(c.code));
+        if (have) have.id = c.id; else list.push({ name: c.name, code: plain(c.code), id: c.id });
+      }
+    } catch (_) {}
+  }
+  CLS.list = list;
+  if (!list.length) return;
+  await loadSiteTexts();
+  const want = plain(new URLSearchParams(location.search).get('class'));
+  const sel = $('classSel');
+  sel.innerHTML = `<option value="">${esc(st('room_for_none'))}</option>` +
+    list.map((c, i) => `<option value="${i}"${c.code === want ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
+  $('classLbl').textContent = st('room_for');
+  $('classLead').textContent = st('room_for_lead');
+  $('classRow').classList.remove('hidden');
+  const lead = () => $('classLead').classList.toggle('hidden', sel.value === '');
+  sel.addEventListener('change', lead); lead();
+}
+function chosenClass() {
+  const sel = $('classSel');
+  const c = sel && sel.value !== '' ? CLS.list[Number(sel.value)] : null;
+  if (!c) return null;
+  return c.token ? { teacher_token: c.token } : { account_token: CLS.acc, class_id: c.id };
+}
+loadClasses();
+
 // ------------------------------------------------------------------ question list
 const editor = new QuestionEditor($('editor'), { onChange: (n) => { $('openBtn').disabled = n < 1; } });
 editor.onMix = () => editor.load(cfg.topic, cfg.levels, cfg.count, { fresh: true });
@@ -58,6 +108,8 @@ function setEditMode(on) {
   editMode = on;
   $('timeRow').classList.toggle('hidden', on);
   $('hostRow').classList.toggle('hidden', on);
+  $('classRow').classList.toggle('hidden', on || !CLS.list.length);   // the class is chosen when the room opens
+  $('classLead').classList.toggle('hidden', on || !$('classSel').value);
   $('hintA').classList.toggle('hidden', !on);
   $('cancelBtn').classList.toggle('hidden', !on);
   $('openBtn').textContent = on ? t('save') : t('open');
@@ -116,7 +168,8 @@ $('openBtn').addEventListener('click', async () => {
     if (!questions.length) throw new Error('noQuestions');
     await ensureNet();
     cfg.host = $('hostIn').value.trim();
-    net.send({ t: 'create', questions, bonus, time: cfg.time, lang: lang(), host: cfg.host });
+    const cls = chosenClass();
+    net.send({ t: 'create', questions, bonus, time: cfg.time, lang: lang(), host: cfg.host, ...(cls ? { class: cls } : {}) });
   } catch (e) {
     $('setupErr').textContent = e.message === 'noQuestions' ? t('noQuestions') : t('err_net');
     $('openBtn').disabled = false; $('openBtn').textContent = t('open');
@@ -150,6 +203,8 @@ net.on('error', (m) => {
     try { sessionStorage.removeItem('krabsy_quiz_teacher'); } catch (_) {}
     net.hello = null;
     settingsChanged();
+  } else if (m.code === 'no_class' && S.phase === 'setup') {
+    loadSiteTexts().then(() => { $('setupErr').textContent = st('err_no_class'); });
   } else if (S.phase === 'setup' || editMode) {
     $('setupErr').textContent = m.code;
   }
@@ -218,6 +273,9 @@ function autoEmote(e) {
 net.on('middle', (m) => { S.middle = m.on; render(); });
 $('midBtn').addEventListener('click', () => net.send({ t: 'middle', on: !S.middle }));
 
+// Live invites: who of the class joined, chose "Jetzt nicht", or hasn't answered yet.
+net.on('invite', (m) => { S.invite = m; loadSiteTexts().then(render); });
+
 net.on('closed', () => { showMsg(t('closed')); try { sessionStorage.removeItem('krabsy_quiz_teacher'); } catch (_) {} });
 
 function onQuestion(m) {
@@ -283,7 +341,9 @@ function render() {
 
   // player list
   const pl = $('players');
-  pl.innerHTML = `<h3>${esc(t('inRoom', online.length))}</h3>`;
+  pl.innerHTML = (S.invite && ph !== 'end' ? `<div class="inv" aria-live="polite"><h3>${esc(st('list_h', { class: S.invite.class }))}</h3>
+      <p>${esc(st('summary', S.invite))}</p><ul>${S.invite.list.map((x) => `<li class="iv-${esc(x.s)}"><span class="nm">${esc(x.name)}</span><span class="st">${esc(st('s_' + x.s))}</span></li>`).join('')}</ul></div>` : '')
+    + `<h3>${esc(t('inRoom', online.length))}</h3>`;
   for (const p of S.players) {
     const d = document.createElement('div');
     d.className = 'pl' + (p.online ? '' : ' off');

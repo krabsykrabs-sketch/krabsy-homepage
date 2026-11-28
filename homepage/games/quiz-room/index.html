@@ -43,6 +43,7 @@
 #join.hidden #teacherLink{display:none;}
 @media (max-width:700px){#teacherLink{display:none;}} /* phones: the page info below links the teacher page */
 #joinErr{color:var(--coral);min-height:1.4em;margin-top:10px;font-size:17px;}
+#classMsg{font-family:'Fredoka One';font-size:26px;margin:6px 0;}
 
 #hud{position:fixed;top:10px;left:10px;right:10px;z-index:8;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-size:18px;}
 #hud .me{display:flex;gap:.6em;align-items:center;}
@@ -103,10 +104,26 @@
 @media (max-width:700px){#join,#setup,#endc{flex-direction:column;}.kq-home{position:relative;top:auto;left:auto;align-self:flex-start;margin:0 0 8px;padding:5px 12px;font-size:14px;white-space:nowrap;}}
 </style>
 <script type="importmap">
-{ "imports": {
+{
+  "imports": {
     "three": "./vendor/three/three.module.js",
-    "three/addons/": "./vendor/three/addons/"
-} }
+    "three/addons/": "./vendor/three/addons/",
+    "./src/analytics.js": "./src/analytics.js?v=d0611396d9",
+    "./src/audio.js": "./src/audio.js?v=d0611396d9",
+    "./src/child.js": "./src/child.js?v=d0611396d9",
+    "./src/editor.js": "./src/editor.js?v=d0611396d9",
+    "./src/i18n.js": "./src/i18n.js?v=d0611396d9",
+    "./src/net.js": "./src/net.js?v=d0611396d9",
+    "./src/play.js": "./src/play.js?v=d0611396d9",
+    "./src/preps.js": "./src/preps.js?v=d0611396d9",
+    "./src/questions.js": "./src/questions.js?v=d0611396d9",
+    "./src/room.js": "./src/room.js?v=d0611396d9",
+    "./src/teacher.js": "./src/teacher.js?v=d0611396d9",
+    "./src/touch.js": "./src/touch.js?v=d0611396d9",
+    "./src/ui.js": "./src/ui.js?v=d0611396d9",
+    "./src/verbs.js": "./src/verbs.js?v=d0611396d9"
+  }
+}
 </script>
 </head>
 <body>
@@ -127,6 +144,7 @@
     <div id="colors"></div>
     <button id="joinBtn" class="btn" data-t="join"></button>
     <div id="joinErr"></div>
+    <p id="classMsg" class="hidden"></p>
   </div>
 </div>
 
@@ -154,7 +172,7 @@
 <div id="endc" class="overlay hidden"><a class="kq-home" data-to="home" target="_top" href="/de/">← Krabsy</a><div class="card" id="endCard"></div></div>
 <div id="msg" class="overlay hidden"><div class="card" id="msgCard"></div></div>
 
-<script type="module" src="src/child.js"></script>
+<script type="module" src="src/child.js?v=d0611396d9"></script>
 <script>/* "← Krabsy": a way back to the site (navigation audit 2026-11-27; children arrive in a fresh tab via the QR code) */
 (function(){try{var q=new URLSearchParams(location.search).get('lang')||localStorage.getItem('krabsy_lang')||'de';
 var home={de:'/de/',es:'/es/',en:'/en/spanish/'}, teach={de:'/de/lehrkraefte/',es:'/es/docentes/',en:'/en/spanish/teachers/'};

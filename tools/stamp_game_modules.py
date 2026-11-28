@@ -16,7 +16,12 @@ all src/*.js. Run it after changing a game's src/ (on the source AND the served 
 or copy index.html over), e.g.:
 
   python3 tools/stamp_game_modules.py homepage/games/verb-dungeon games/verb-dungeon
-(modules in src/, or js/ for Verb Towers; a root ./main.js entry for the Platformer)
+(modules in src/, or js/ for Verb Towers; a root ./main.js entry for the Platformer).
+A game without a main.js (Quiz Room: index.html → src/child.js, teacher.html →
+src/teacher.js) gets every root page with an import map stamped, entry = its one
+<script type="module" src="src/….js">:
+
+  python3 tools/stamp_game_modules.py games/quiz-show homepage/games/quiz-room
 """
 import hashlib
 import json
@@ -35,7 +40,18 @@ def stamp(game: Path) -> str:
         h.update(f.read_bytes())
     v = h.hexdigest()[:10]
 
-    page = game / 'index.html'
+    if root_main or (game / mdir / 'main.js').exists():
+        stamp_page(game / 'index.html', mdir, src, v, r'(?:\./)?main\.js' if root_main else mdir + r'/main\.js')
+    else:                                     # several pages, each with its own entry module
+        pages = [p for p in sorted(game.glob('*.html')) if '<script type="importmap">' in p.read_text(encoding='utf-8')]
+        if not pages:
+            sys.exit(f'{game}: no page with an import map')
+        for page in pages:
+            stamp_page(page, mdir, src, v, mdir + r'/[A-Za-z0-9_-]+\.js')
+    return v
+
+
+def stamp_page(page: Path, mdir: str, src: list, v: str, entry: str) -> None:
     html = page.read_text(encoding='utf-8')
     m = re.search(r'(<script type="importmap">\s*)(\{.*?\})(\s*</script>)', html, re.S)
     if not m:
@@ -48,13 +64,11 @@ def stamp(game: Path) -> str:
     body = json.dumps(imap, indent=2, ensure_ascii=False)
     html = html[:m.start(2)] + body + html[m.end(2):]
 
-    entry = r'(?:\./)?main\.js' if root_main else mdir + r'/main\.js'
     html, n = re.subn(r'(<script type="module" src="' + entry + r')(\?v=[0-9a-f]+)?(")',
                       rf'\g<1>?v={v}\3', html)
     if n != 1:
         sys.exit(f'{page}: expected one <script type="module"> for the entry module, found {n}')
     page.write_text(html, encoding='utf-8')
-    return v
 
 
 if __name__ == '__main__':

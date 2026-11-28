@@ -7,6 +7,8 @@ export function serverUrl() {
   const o = new URLSearchParams(location.search).get('server');
   if (o) return o;
   if (/(^|\.)krabsy\.com$/.test(location.hostname)) return 'wss://api.krabsy.com/api/quiz/ws';
+  // Local preview with the API on the same origin (tools/dev_api_server.py sets KRABSY_API).
+  try { if (window.KRABSY_API) return String(window.KRABSY_API).replace(/\/$/, '').replace(/^http/, 'ws') + '/api/quiz/ws'; } catch (_) {}
   return `ws://${location.hostname || 'localhost'}:8150/api/quiz/ws`;  // local API: uvicorn --port 8150 (8000 = homepage preview)
 }
 

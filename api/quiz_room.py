@@ -13,15 +13,21 @@ after the teacher left).
 One endpoint:  WS /api/quiz/ws   (JSON messages, field "t" = type)
 
 Teacher → server
-  create  {questions:[…], bonus:[…], time:s, lang} → created {code, token}
+  create  {questions:[…], bonus:[…], time:s, lang, class?} → created {code, token}
           bonus = the "run to the answer" round at the end: the answer is the pad a
           child stands on when the time runs out (pad_at), no answer messages.
+          class = {teacher_token} or {account_token, class_id}: the room is "for class X"
+          (live invites, api/invites.py): the class's pupils get an invite on any Krabsy
+          page and join with their class identity; the teacher gets invite {…} updates
+          (joined / declined / waiting) until the quiz is over.
   resume  {code, token}                            → snapshot of the room
   start | next | end | lock {on} | remove {pid} | rename {pid, name} | close
   middle {on}                                      (everyone to the middle, until the next question)
   questions {questions:[…]}                       (lobby only: replace the list)
 Child → server
   join    {code, name, avatar, color, token?}      → joined {pid, token, name, …}
+  join    {code, student, avatar, color, token?}   (class room: student = the pupil's class
+                                                   token; no name typed, the class name is used)
   move    {p:[x,y,z], r, a}                        (about 10× per second)
   answer  {qi, opt}
   emote   {e}  ball {b, p, v}  boom                (play area: relayed / rate-limited)
@@ -47,6 +53,7 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 import catalog
+import invites
 
 router = APIRouter()
 
@@ -300,6 +307,7 @@ class Player:
     answers: dict = field(default_factory=dict)   # qi → {opt, ms, right, pts}
     emote_at: float = 0.0
     ball_at: float = 0.0
+    student_id: Optional[int] = None              # joined with the class identity (class room)
 
     def public(self) -> dict:
         return {"pid": self.pid, "name": self.name, "avatar": self.avatar, "color": self.color,
@@ -340,6 +348,18 @@ class Room:
         self.middle = False             # "everyone to the middle": avatars frozen until the next question
         self.boom_at = 0.0              # last confetti-button blast (room-wide cooldown)
         self.pads_sent = 0.0
+        # A room "for class X" (live invites): the class, its invite, pupils the teacher removed.
+        self.class_id: Optional[int] = None
+        self.class_name = ""
+        self.invite: Optional[invites.Invite] = None
+        self.banned_students: set[int] = set()
+
+    def invite_status(self) -> Optional[dict]:
+        return self.invite.status() if self.invite is not None else None
+
+    def end_invite(self) -> None:
+        """The quiz is over or the room closed: nobody is invited any more."""
+        invites.close_invite(self.invite)
 
     # ---- sending
     async def _send(self, ws: Optional[WebSocket], msg: dict) -> None:
@@ -508,6 +528,7 @@ class Room:
         if self.phase == "question":
             await self.reveal()
         self.phase = "end"
+        self.end_invite()
         await self.to_teacher(self.end_msg(True))
         await asyncio.gather(*(self._send(p.ws, self.end_msg(False, p))
                                for p in self.players.values() if p.ws))
@@ -582,6 +603,7 @@ class Room:
         if self.closed:
             return
         self.closed = True
+        self.end_invite()
         await self.to_all({"t": "closed"})
         for ws in [self.teacher, *(p.ws for p in self.players.values())]:
             await close_ws(ws)
@@ -632,6 +654,44 @@ def _unique_name(room: Room, name: str, me: Optional[int] = None) -> str:
     return name
 
 
+def _teacher_class(spec) -> Optional[tuple]:
+    """(class id, name, pupils) for the teacher's credential, else None (blocking)."""
+    if not isinstance(spec, dict):
+        return None
+    tok, acc, cid = spec.get("teacher_token"), spec.get("account_token"), spec.get("class_id")
+    tok = tok if isinstance(tok, str) and 0 < len(tok) <= 64 else ""
+    acc = acc if isinstance(acc, str) and 0 < len(acc) <= 64 else ""
+    cid = cid if isinstance(cid, int) and not isinstance(cid, bool) else None
+    if not tok and not (acc and cid is not None):
+        return None
+    import classes
+    with classes._lock, classes.connect() as con:
+        cls, _acc = classes._teacher_class(con, tok, acc, cid if not tok else None)
+        if not cls:
+            return None
+        cls = (cls["id"], cls["name"])
+    return cls[0], cls[1], invites.roster(cls[0])
+
+
+def _class_student(token) -> Optional[dict]:
+    """The pupil (id, class_id, nickname) for a class token, else None (blocking)."""
+    if not isinstance(token, str) or not 0 < len(token) <= 64:
+        return None
+    import classes
+    with classes._lock, classes.connect() as con:
+        r = con.execute("SELECT id, class_id, nickname FROM students WHERE token_hash = ?",
+                        (classes._hash(token),)).fetchone()
+    return dict(r) if r else None
+
+
+def _open_class_invite(room: Room, cls: tuple) -> None:
+    room.class_id, room.class_name, pupils = cls
+    room.invite = invites.open_invite(
+        room.class_id, "quiz", class_name=room.class_name, host=room.host_name, pupils=pupils,
+        target=f"/games/quiz-room/index.html?code={room.code}&lang={room.lang}&class=1",
+        ttl=ROOM_TTL_S, on_change=lambda inv: send_to(room.teacher, inv.status()))
+
+
 @router.websocket("/api/quiz/ws")
 async def quiz_ws(ws: WebSocket):
     if not _origin_ok(ws):
@@ -679,13 +739,22 @@ async def quiz_ws(ws: WebSocket):
                     except (TypeError, ValueError):
                         time_s = 20
                     lang = catalog.ui_lang(msg.get("lang"))
+                    cls = None
+                    if msg.get("class") is not None:        # "for class X": the teacher must own it
+                        cls = await asyncio.to_thread(_teacher_class, msg.get("class"))
+                        if cls is None:
+                            await err("no_class"); continue
                     room = Room(_new_code(), secrets.token_urlsafe(24), qs, time_s, lang)
                     room.host_name = clean_name(msg.get("host"))
+                    if cls is not None:
+                        _open_class_invite(room, cls)
                     ROOMS[room.code] = room
                     room.teacher, role = ws, "teacher"
                     room.task = asyncio.create_task(room.run())
                     send_to(ws, ({"t": "created", "code": room.code, "token": room.token,
                                                    **room.snapshot(True)}))
+                    if room.invite is not None:
+                        send_to(ws, room.invite_status())
                 elif t == "resume":
                     r = ROOMS.get(_norm_code(msg.get("code")))
                     if not r or not secrets.compare_digest(str(msg.get("token") or ""), r.token):
@@ -695,6 +764,8 @@ async def quiz_ws(ws: WebSocket):
                     room, role = r, "teacher"
                     room.teacher = ws
                     send_to(ws, ({"t": "resumed", "code": room.code, **room.snapshot(True)}))
+                    if invites.is_open(room.invite):
+                        send_to(ws, room.invite_status())
                     await room.send_host()                 # the teacher's figure is back
                 elif t == "join":
                     r = ROOMS.get(_norm_code(msg.get("code")))
@@ -704,7 +775,29 @@ async def quiz_ws(ws: WebSocket):
                     if token and token in r.banned:
                         await err("removed"); continue
                     p = next((x for x in r.players.values() if token and secrets.compare_digest(x.token, token)), None)
-                    if p is None:
+                    student = None
+                    if msg.get("student") is not None:
+                        # Class room: the pupil comes with their class identity (no code typed,
+                        # no name: the name from the class). Same pupil again = same player.
+                        if r.class_id is None:
+                            await err("no_class"); continue
+                        student = await asyncio.to_thread(_class_student, msg.get("student"))
+                        if student is None or student["class_id"] != r.class_id:
+                            await err("not_in_class"); continue
+                        if student["id"] in r.banned_students:
+                            await err("removed"); continue
+                        p = next((x for x in r.players.values() if x.student_id == student["id"]), None)
+                    if p is None and student is not None:
+                        if r.locked:
+                            await err("locked"); continue
+                        if len(r.players) >= MAX_PLAYERS:
+                            await err("full"); continue
+                        name = clean_name(student["nickname"]) or f"#{r.next_pid}"
+                        p = Player(pid=r.next_pid, name=_unique_name(r, name), token=secrets.token_urlsafe(18),
+                                   student_id=student["id"])
+                        r.next_pid += 1
+                        r.players[p.pid] = p
+                    elif p is None:
                         if r.locked:
                             await err("locked"); continue
                         if len(r.players) >= MAX_PLAYERS:
@@ -725,8 +818,11 @@ async def quiz_ws(ws: WebSocket):
                             setattr(p, k, v)
                     p.ws = ws
                     room, me, role = r, p, "player"
+                    if p.student_id is not None:
+                        invites.mark(room.invite, p.student_id, "joined", p.name)
                     send_to(ws, ({"t": "joined", "pid": p.pid, "token": p.token, "name": p.name,
                                                    "you": {"score": p.score, "avatar": p.avatar, "color": p.color},
+                                                   **({"cls": room.class_name} if p.student_id is not None else {}),
                                                    **room.snapshot(False, p)}))
                     await room.send_players_list()
                     await room.grow()
@@ -748,11 +844,15 @@ async def quiz_ws(ws: WebSocket):
                     await room.end()
                 elif t == "lock":
                     room.locked = bool(msg.get("on"))
+                    invites.set_paused(room.invite, room.locked)   # a locked room invites nobody
                     await room.send_players_list()
                 elif t == "remove":
                     p = room.players.pop(msg.get("pid"), None) if isinstance(msg.get("pid"), int) else None
                     if p:
                         room.banned.add(p.token)
+                        if p.student_id is not None:
+                            room.banned_students.add(p.student_id)
+                            invites.mark(room.invite, p.student_id, "removed")
                         if p.ws:
                             await room._send(p.ws, {"t": "kicked"})
                             await close_ws(p.ws)
@@ -794,6 +894,8 @@ async def quiz_ws(ws: WebSocket):
                         await room.to_all({"t": "emote", "pid": 0, "e": e})
                 elif t == "host":
                     room.host_name = clean_name(msg.get("name"))
+                    if room.invite is not None:
+                        room.invite.host = room.host_name
                     await room.send_host()
                     send_to(ws, {"t": "host", **room.host_info()})
 

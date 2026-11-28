@@ -124,3 +124,19 @@ export function t(key, ...args) {
   const v = T[lang()][key] ?? T.en[key] ?? key;
   return typeof v === 'function' ? v(...args) : v;
 }
+
+// Texts shared with the site (live invites, rooms "for a class"): data/ui_<lang>.json
+// "invites", loaded once (i18n contract: no visible text in code; fallback → en → key).
+let SITE = null;
+export async function loadSiteTexts() {
+  if (SITE) return SITE;
+  const get = (l) => fetch(`/data/ui_${l}.json`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  let d = (await get(lang())).invites;
+  if (!d && lang() !== 'en') d = (await get('en')).invites;
+  SITE = d || {};
+  return SITE;
+}
+export function st(key, vars = {}) {
+  const v = (SITE && SITE[key]) || key;
+  return String(v).replace(/\{([a-zA-Z_]\w*)\}/g, (m, k) => (k in vars ? vars[k] : m));
+}
