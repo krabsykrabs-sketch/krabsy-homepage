@@ -7,6 +7,7 @@ import { W, H } from './levels.js';
 import { fit, unitGeometry } from './models.js';
 
 export const TEAL = 0x2ee6c0, CORAL = 0xff8585, AMBER = 0xffcf5e;
+export const BUTTON_W = 1.6, BUTTON_H = 0.3;   // the big floor button (game.js uses the same box)
 
 // Per room: top block (has free space above), body block, sky colour.
 const THEMES = [
@@ -189,16 +190,34 @@ function objectView(o, models, keep, room) {
   const glowM = () => keep(new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
 
   switch (o.type) {
-    case 'lever': case 'heavylever': case 'liftlever': {
-      const big = o.type === 'heavylever';
-      const model = models.clone(big ? 'lever_floor_base_red' : 'lever_floor_base_yellow');
-      const handle = findNode(model, big ? 'lever_floor_red' : 'lever_floor_yellow');
-      node.add(fit(model, null, big ? 1.35 : 1.0, null));
+    case 'lever': case 'liftlever': {
+      const model = models.clone('lever_floor_base_yellow');
+      const handle = findNode(model, 'lever_floor_yellow');
+      node.add(fit(model, null, 1.0, null));
       node.position.set(o.x + 0.5, o.y, -0.35);
       let a = -0.7;
       return { node, update(s, dt) {
         a += ((s.on ? 0.7 : -0.7) - a) * Math.min(1, dt * 10);
         if (handle) handle.rotation.z = a;
+      } };
+    }
+    case 'button': {
+      // The big red floor button (Platformer button_base_red, ~0.3 high): the strong one's
+      // weight presses its cap down slowly; when it is down it turns teal (game.js 'button').
+      const model = models.clone('button_base_red');
+      const cap = findNode(model, 'button_red');
+      if (cap) cap.traverse((m) => { if (m.isMesh) m.material = keep(m.material.clone()); });
+      node.add(fit(model, BUTTON_W, null, BUTTON_W));
+      node.position.set(o.x + 0.5, o.y, 0);
+      const teal = new THREE.Color(TEAL);
+      return { node, update(s) {
+        if (!cap) return;
+        cap.position.y = -0.2 * (s.press || 0);            // model units: the cap sinks 0.2
+        cap.traverse((m) => {
+          if (!m.isMesh) return;
+          m.material.emissive = s.on ? teal : new THREE.Color(0);
+          m.material.emissiveIntensity = s.on ? 0.6 : 0;
+        });
       } };
     }
     case 'switch': {

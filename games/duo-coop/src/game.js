@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { LEVELS, W, H } from './levels.js';
 import { World, ROLES } from './physics.js';
-import { buildRoom, questionMarker } from './world.js';
+import { buildRoom, questionMarker, BUTTON_W, BUTTON_H } from './world.js';
 import { loadModels } from './models.js';
 import { makeFigure } from './figures.js';
 import { createCards } from './cards.js';
@@ -12,7 +12,8 @@ import { t } from './i18n.js';
 import { sfx } from './sound.js';
 
 const COLORS = ['#2ee6c0', '#ff8585'];
-const ASKS = new Set(['lever', 'switch', 'post', 'heavylever', 'crack', 'key', 'portal', 'liftlever']);
+const ASKS = new Set(['lever', 'switch', 'post', 'crack', 'key', 'portal', 'liftlever']);
+const BUTTON_TIME = 0.8;   // s of the strong one's weight until the button is down
 const LIFT_SPEED = 2.4;   // cells per second
 const KEY_FLIGHT = 1.3;   // s: a collected key flies to its locked door, which then opens
 const BLOCKING = new Set(['door', 'crack', 'locked']);   // solid until opened / smashed
@@ -128,6 +129,13 @@ export async function createGame(canvas, opts) {
     };
     for (const [x, y] of room.boxes) addBox(x, y);
     for (const o of room.objects) if (o.type === 'cage') objs.get(o.id).box = addBox(o.x, o.y, o.id);
+    // big floor buttons: a low solid block you jump onto (kind 'lift': blocks, is stood on,
+    // is never pushed); it gets lower as it is pressed and disappears once it is down
+    for (const o of room.objects) if (o.type === 'button') {
+      const s = objs.get(o.id);
+      s.body = world.addBody({ kind: 'lift', x: o.x + 0.5 - BUTTON_W / 2, y: o.y, w: BUTTON_W, h: BUTTON_H, static: true });
+      s.press = 0;
+    }
     for (const o of room.objects) if (o.type === 'lift') {
       const s = objs.get(o.id);
       s.body = world.addBody({ kind: 'lift', x: o.x, y: o.y0 - 0.5, w: o.w, h: 0.5, static: true });
@@ -172,7 +180,7 @@ export async function createGame(canvas, opts) {
       case 'door': case 'crack': case 'locked': return { x: o.x + 0.5, y: o.y, rx: 1.25, top: o.h + 0.6 };
       case 'portal': return { x: o.x + 0.5, y: o.y, rx: 0.75, top: 2.2 };
       case 'switch': return { x: o.x + 0.5, y: o.y, rx: 0.95, top: 1.4 };
-      case 'cage': case 'bridge': case 'lift': return null;
+      case 'cage': case 'bridge': case 'lift': case 'button': return null;
       default: return { x: o.x + 0.5, y: o.y, rx: 0.9, top: o.type === 'post' ? 1.85 : 1.35 };
     }
   }
@@ -185,7 +193,7 @@ export async function createGame(canvas, opts) {
   function needsAnswer(s) {
     const o = s.def;
     switch (o.type) {
-      case 'lever': case 'switch': case 'post': case 'heavylever': return !s.on;
+      case 'lever': case 'switch': case 'post': return !s.on;
       case 'liftlever': return true;     // each pull moves the lift again
       case 'crack': return !s.open;
       case 'key': return !s.taken;
@@ -269,10 +277,6 @@ export async function createGame(canvas, opts) {
     }
     const o = s.def;
     switch (o.type) {
-      case 'heavylever':
-        if (p.role !== 'strong') { toast(p, t('needStrong')); return; }
-        ask(p, s, () => { s.on = true; o.targets.forEach(activate); });
-        return;
       case 'lever': case 'switch': case 'post':
         ask(p, s, () => { s.on = true; o.targets.forEach(activate); });
         return;
@@ -378,6 +382,25 @@ export async function createGame(canvas, opts) {
       world.step(STEP, inputs);
       for (const r of inputs.values()) r.jumpPressed = false;
       acc -= STEP;
+    }
+    // Big floor buttons (owner 2026-11-27: instead of a heavy lever, no question — it is just
+    // weight): only the strong one presses one, slowly; the climber gets a hint once per visit.
+    for (const s of objs.values()) {
+      if (s.def.type !== 'button' || s.on) continue;
+      const on = players.filter((p) => p.body.onGround && p.body.support === s.body);
+      const heavy = on.some((p) => p.role === 'strong');
+      s.press = Math.max(0, Math.min(1, s.press + (heavy ? dt : -dt * 1.5) / BUTTON_TIME));
+      s.body.h = BUTTON_H * (1 - s.press);
+      for (const p of players) {
+        const here = on.includes(p) && p.role !== 'strong';
+        if (here && !s.hinted?.[p.pi]) toast(p, t('needHeavy'));
+        s.hinted = { ...(s.hinted || {}), [p.pi]: here };
+      }
+      if (s.press >= 1) {
+        s.on = true; s.body.hidden = true;
+        s.def.targets.forEach(activate);
+        sfx('thud');
+      }
     }
     for (const s of objs.values()) if (s.flyAt && played - s.flyAt >= KEY_FLIGHT) {
       s.flyAt = 0;

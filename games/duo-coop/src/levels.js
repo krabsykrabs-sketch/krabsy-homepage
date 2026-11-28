@@ -8,7 +8,8 @@
 //   lever  { targets }            any player, question → its targets turn on (one way)
 //   switch { targets }            the same, a button on a wall
 //   post   { targets }            the same, a bridge post (builds a bridge)
-//   heavylever { targets }        STRONG only, question
+//   button { x, y, targets }      big floor button: only the STRONG one's weight presses it
+//                                 (no question: owner 2026-11-27); the climber's does nothing
 //   door   { x, y, h }            solid until a target of a lever/switch; no question of its own
 //   crack  { x, y, h }            cracked rock wall: only the STRONG one smashes it (question);
 //                                 gone for good
@@ -17,7 +18,7 @@
 //   key    { x, y, opens }        question → the key flies to the locked door `opens` and opens it
 //   portal { x, y, pair, active } active portals teleport whoever walks in; an inactive
 //                                 portal with `ask` is switched on by a question
-//   cage   { x, y }               a box hangs here until a heavy lever releases it
+//   cage   { x, y }               a box hangs here until a button releases it
 //   lift   { x, w, y0, y1 }       a platform (top at y0 = down, y1 = up), moved by a liftlever;
 //                                 keep its shaft empty
 //   liftlever { targets }         question → the lift goes to the other end (each pull asks)
@@ -79,7 +80,7 @@ export const ROOMS = [
   // ── Room 2: boxes ────────────────────────────────────────────────────────────────────
   // The key lies on a shelf (ladder: climber). The locked door needs the key. Behind it two
   // steps the strong one can only climb with a box: the crate from the start, then a crate
-  // that hangs in a cage until the strong one pulls the heavy lever. On top a portal (the
+  // that hangs in a cage until the strong one presses the big button. On top a portal (the
   // climber switches it on) leads into the closed exit chamber.
   room({
     id: 'r2', name: 'room.2', goal: 'goal.2', theme: 1,
@@ -96,7 +97,7 @@ export const ROOMS = [
     objects: [
       { id: 'k', type: 'key', x: 2, y: 7, opens: 'L' },
       { id: 'L', type: 'locked', x: 12, y: 3, h: 3 },
-      { id: 'h', type: 'heavylever', x: 17, y: 5, targets: ['C'] },
+      { id: 'h', type: 'button', x: 17, y: 5, targets: ['C'] },
       { id: 'C', type: 'cage', x: 20, y: 9 },
       { id: 'O', type: 'portal', x: 24, y: 7, pair: 'o', ask: true },
       { id: 'o', type: 'portal', x: 27.2, y: 7, pair: 'O' },
@@ -163,7 +164,7 @@ export const LEVEL2 = [
 
   // ── 2-2 Across the gap ──────────────────────────────────────────────────────────────
   // Only the climber can jump the gap; the portal it switches on brings the strong one
-  // over. The strong one pushes the crate to the step and pulls the heavy lever (door);
+  // over. The strong one pushes the crate to the step and presses the big button (door);
   // from the step the climber jumps up to the shelf with the key.
   room({
     id: 'r5', name: 'room.5', goal: 'goal.5', theme: 0,
@@ -179,7 +180,7 @@ export const LEVEL2 = [
     objects: [
       { id: 'o', type: 'portal', x: 6, y: 3, pair: 'O' },
       { id: 'O', type: 'portal', x: 15, y: 3, pair: 'o', ask: true },
-      { id: 'h', type: 'heavylever', x: 24, y: 5, targets: ['D'] },
+      { id: 'h', type: 'button', x: 24, y: 5, targets: ['D'] },
       { id: 'D', type: 'door', x: 26, y: 5, h: 3 },
       { id: 'k', type: 'key', x: 22, y: 8, opens: 'L' },
       { id: 'L', type: 'locked', x: 28, y: 5, h: 3 },
@@ -221,7 +222,7 @@ export const LEVEL3 = [
   // ── 3-1 Going up ───────────────────────────────────────────────────────────────────
   // At the same time: the strong one smashes the cracked wall to the lift while the climber
   // climbs to the ledge and takes the key. Then the climber pulls the lift lever up top and
-  // the lift brings the strong one up, who pulls the heavy lever for the door.
+  // the lift brings the strong one up, who presses the big button for the door.
   room({
     id: 'r7', name: 'room.7', goal: 'goal.7', theme: 0,
     spawn: { climber: [2, 3], strong: [3.5, 3] },
@@ -237,7 +238,7 @@ export const LEVEL3 = [
       { id: 'k', type: 'key', x: 7, y: 9, opens: 'L' },
       { id: 'Y', type: 'lift', x: 10, w: 2, y0: 3, y1: 9 },
       { id: 'l', type: 'liftlever', x: 13, y: 9, targets: ['Y'] },
-      { id: 'h', type: 'heavylever', x: 18, y: 9, targets: ['D'] },
+      { id: 'h', type: 'button', x: 18, y: 9, targets: ['D'] },
       { id: 'D', type: 'door', x: 24, y: 9, h: 3 },
       { id: 'L', type: 'locked', x: 27, y: 9, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 9 },
@@ -247,7 +248,7 @@ export const LEVEL3 = [
   // ── 3-2 Bridge and portal ──────────────────────────────────────────────────────────────
   // At the same time: the strong one smashes the cracked wall while the climber climbs to
   // the portal on the ledge and switches it on. Across the gap (too wide for anyone) the
-  // climber builds the bridge; the strong one comes over and pulls the heavy lever.
+  // climber builds the bridge; the strong one comes over and presses the big button.
   room({
     id: 'r8', name: 'room.8', goal: 'goal.8', theme: 1,
     spawn: { climber: [5.3, 3], strong: [6.6, 3] },
@@ -265,7 +266,7 @@ export const LEVEL3 = [
       { id: 'b', type: 'bridge', x0: 11, x1: 16, y: 2 },
       { id: 'p', type: 'post', x: 18, y: 3, targets: ['b'] },
       { id: 'O', type: 'portal', x: 21, y: 3, pair: 'o' },
-      { id: 'h', type: 'heavylever', x: 23, y: 3, targets: ['D'] },
+      { id: 'h', type: 'button', x: 23, y: 3, targets: ['D'] },
       { id: 'D', type: 'door', x: 26, y: 3, h: 3 },
       { id: 'E', type: 'exit', x: 29.5, y: 3 },
     ],

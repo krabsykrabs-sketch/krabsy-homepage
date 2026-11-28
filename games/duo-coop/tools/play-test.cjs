@@ -164,6 +164,17 @@ async function run(browser, cfg) {
     if (n && (await G('room')) !== n) fail(`expected room ${n}, game state ${st}, room ${await G('room')}`);
   }
 
+  // the strong one on a big floor button: it must be standing on it, then it sinks (no card)
+  async function pressButton(pi, id) {
+    const before = (await objs())[id].on;
+    if (before) fail(`button ${id} was already down`);
+    for (let t = 0; t < 2.5 && !(await objs())[id].on; t += 0.1) await step(0.1);
+    if (!(await objs())[id].on) fail(`button ${id} did not go down under the strong one (${JSON.stringify(await P(pi))})`);
+    if (await G('card', pi)) fail('the big button asked a question');
+    await shot(`button-${id}-${(await G('room'))}`);
+    return trace(`pressButton ${pi} ${id}`, await P(pi));
+  }
+
   // hop with the direction held only briefly (short jumps onto a crate, a head, a shelf)
   async function shortHop(pi, dir, hold = 0.2) {
     await btn(pi, 'up', true); await step(1 / 30); await btn(pi, 'up', false);
@@ -215,8 +226,8 @@ async function run(browser, cfg) {
     if (Math.abs(bx.x - 20.04) > 0.15) fail(`2-2: crate not at the step (x ${bx.x.toFixed(2)})`);
     await walkTo(S, 24.5);
     if ((await P(S)).y < 4.99) fail('2-2: strong one not on the step');
-    await answer(S);
-    await expect(async () => (await objs()).D.open, '2-2: heavy lever did not open the door');
+    await pressButton(S, 'h');
+    await expect(async () => (await objs()).D.open, '2-2: the button did not open the door');
     await walkTo(C, 24.9);
     if ((await P(C)).y < 4.99) fail('2-2: climber not on the step');
     for (let i = 0; i < 3 && (await P(C)).y < 7.99; i++) { await walkTo(C, 24.75, { jump: false }); await shortHop(C, 'left', 0.25 + i * 0.1); }
@@ -291,8 +302,8 @@ async function run(browser, cfg) {
     if (Math.abs((await P(S)).y - 9) > 0.05) fail(`3-1: the lift did not bring the strong one up (y ${(await P(S)).y.toFixed(2)})`);
     await shot('L3-1-lift');
     await walkTo(S, 18.5);
-    await answer(S);
-    await expect(async () => (await objs()).D.open, '3-1: heavy lever did not open the door');
+    await pressButton(S, 'h');
+    await expect(async () => (await objs()).D.open, '3-1: the button did not open the door');
     await expect(async () => (await objs()).L.open, '3-1: the key did not open the gate');
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
@@ -315,8 +326,8 @@ async function run(browser, cfg) {
     await expect(async () => (await objs()).b.solid, '3-2: bridge not built');
     await walkTo(S, 23.5);
     if (cx(await P(S)) < 22) fail('3-2: strong one did not cross the bridge');
-    await answer(S);
-    await expect(async () => (await objs()).D.open, '3-2: heavy lever did not open the door');
+    await pressButton(S, 'h');
+    await expect(async () => (await objs()).D.open, '3-2: the button did not open the door');
     await walkTo(S, 29.1);
     await walkTo(C, 29.8);
     await nextRoom(3);
@@ -424,10 +435,15 @@ async function run(browser, cfg) {
   await walkTo(S, 14.62, { jump: false, max: 8 }); // pushes the crate against the step
   let bx = (await G('boxes'))[0];
   if (Math.abs(bx.x - 15) > 0.1) fail(`crate not at the step (x ${bx.x.toFixed(2)})`);
-  await walkTo(S, 17.5);                           // climbs crate + step
-  if ((await P(S)).y < 4.99) fail('strong one did not get onto the step');
-  await answer(S);                                 // heavy lever: the cage opens
+  // the big button: the climber is too light, the strong one presses it (no question)
+  await walkTo(C, 17.5);
   await step(1.2);
+  if ((await objs()).h.on || !(await G('boxes'))[1].static) fail('the climber pressed the big button');
+  await walkTo(C, 19.4, { jump: false });
+  await walkTo(S, 17.5);                           // climbs crate + step, jumps onto the button
+  if ((await P(S)).y < 4.99) fail('strong one did not get onto the step');
+  await pressButton(S, 'h');                       // the cage opens
+  await step(1.2);                                 // the crate drops
   bx = (await G('boxes'))[1];
   if (bx.static || bx.y > 5.05) fail('caged crate did not fall');
   await walkTo(S, 23.5);                           // pushes it to the upper wall and climbs

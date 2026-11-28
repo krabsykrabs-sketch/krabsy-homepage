@@ -97,7 +97,7 @@ earlier with the use key.
 | Role | Size | Can |
 |---|---|---|
 | **Climber** (DE Kletterass, ES Ágil) | 0.9 tall, small figure | jumps 3.5 high and ~5 far (with a run-up), climbs ladders, fits through 1-high tunnels |
-| **Strong one** (DE Kraftpaket, ES Fuerte) | 1.6 tall, big figure | pushes crates (never lifts them: owner, no animation for it), **smashes cracked walls**, pulls heavy levers; jumps only 1.4 high |
+| **Strong one** (DE Kraftpaket, ES Fuerte) | 1.6 tall, big figure | pushes crates (never lifts them: owner, no animation for it), **smashes cracked walls**, presses big floor buttons with its weight; jumps only 1.4 high |
 
 Player 1 is the climber by default; "Swap roles" on the title screen
 (`krabsy_duo_swap`). Players can stand on each other: the climber jumps off the
@@ -111,7 +111,7 @@ camera frames both players and never shows more than the room.
 | Room | Idea | Questions (who) |
 |---|---|---|
 | 1 Levers & doors | at the same time: the strong one smashes the cracked wall, the climber climbs to lever a (opens door A) · climber jumps a bottomless gap too wide for the strong one, bridge post builds a bridge · exit | wall S, lever C, post C = 3 |
-| 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · heavy lever drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, heavy lever S, portal C = 3 |
+| 2 Boxes | key on a shelf (ladder): collected, it flies to the locked door and opens it · strong one pushes the crate to the 2-high step and climbs it · the big button (strong one's weight) drops a caged crate, pushed to the next step · portal (climber switches it on) into the closed exit chamber · exit | key C, portal C = 2 (+ the button) |
 | 3 Together | switch on a ledge only reachable from the strong one's head · at the same time: the strong one smashes the cracked wall, the climber climbs to the key at the end of a 1-high tunnel (it flies to the locked door) · exit | switch C, wall S, key C = 3 |
 
 ### Level 2 (owner 2026-11-27: "create more levels"; `LEVEL2` in `src/levels.js`)
@@ -119,7 +119,7 @@ camera frames both players and never shows more than the room.
 | Room | Idea | Questions (who) |
 |---|---|---|
 | 2-1 Upstairs, downstairs | at the same time (owner's idea): the strong one smashes the cracked wall at the start of the corridor, the climber takes the ladder to the upper floor, where the switch opens the strong one's door further along and the key flies to the gate before the exit | wall S, switch C, key C = 3 |
-| 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and pulls the heavy lever (door); from the step the climber jumps onto the shelf with the key | portal C, heavy lever S, key C = 3 |
+| 2-2 Across the gap | only the climber can jump the bottomless gap; it switches on the portal that brings the strong one over (press use in the portal); the strong one pushes the crate to the step and jumps on the big button (door); from the step the climber jumps onto the shelf with the key | portal C, key C = 2 (+ the button) |
 | 2-3 Stack it up | at the same time: the strong one smashes the wall into the crate hall, the climber climbs to the switch (opens the door on the platform); the key shelf is too high for anyone alone: the strong one stands on the crate (right half), the climber jumps off its head; then the crate becomes the strong one's step to the platform | wall S, switch C, key C = 3 |
 
 ### Level 3 (owner 2026-11-27; `LEVEL3` in `src/levels.js`): the lift
@@ -132,8 +132,8 @@ never pushed; `moveLifts()` in `src/game.js` moves it before each physics step.
 
 | Room | Idea | Questions (who) |
 |---|---|---|
-| 3-1 Going up | at the same time: the strong one smashes the wall to the lift, the climber climbs to the ledge and takes the key · the climber jumps the lift shaft and pulls the lift lever: the strong one rides up and pulls the heavy lever (door) · exit open | wall S, key C, lift lever C, heavy lever S = 4 |
-| 3-2 Bridge and portal | at the same time: the strong one smashes the wall, the climber climbs to the portal on the ledge and switches it on · across the 6-wide gap (too wide for anyone) the climber builds the bridge · the strong one crosses and pulls the heavy lever (door) · exit open | wall S, portal C, post C, heavy lever S = 4 |
+| 3-1 Going up | at the same time: the strong one smashes the wall to the lift, the climber climbs to the ledge and takes the key · the climber jumps the lift shaft and pulls the lift lever: the strong one rides up and jumps on the big button (door) · exit open | wall S, key C, lift lever C = 3 (+ the button) |
+| 3-2 Bridge and portal | at the same time: the strong one smashes the wall, the climber climbs to the portal on the ledge and switches it on · across the 6-wide gap (too wide for anyone) the climber builds the bridge · the strong one crosses and jumps on the big button (door) · exit open | wall S, portal C, post C = 3 (+ the button) |
 | 3-3 All together | both ride the lift, the climber pulls its lever riding along · at the same time: the strong one smashes the wall, the climber takes the ladder to the switch (door) · the key lies in a slot too high to jump to: off the strong one's head · exit open | lift lever C, wall S, switch C, key C = 4 |
 
 `LEVELS` = [level 1 (`ROOMS`), level 2, level 3]. The HUD says "Level 2 · Room 1 / 3 · …"; the
@@ -158,6 +158,15 @@ The locked door shows no key. Answering at the key (`key` with `opens: '<door id
 sends it flying in an arc to that door (1.3 s, `KEY_FLIGHT`), where it vanishes into the
 lock and the door opens. Nobody carries a key and the door asks no question; pressing
 use at a locked door says "Locked. Find the key." Exits are always open (no question).
+
+### Big floor button (owner 2026-11-27: replaces the heavy lever)
+
+`button` { x, y, targets }: the Platformer `button_base_red`, 1.6 wide, a low solid block
+(0.3) you jump onto. **No question** (it is weight, not an interaction): while the strong
+one stands on it the red cap sinks (0.8 s, `BUTTON_TIME`), then it turns teal, its targets
+open (door, cage) and it stays down. The climber's weight does nothing ("Too light! The
+strong one has to stand on it."). If the strong one steps off early it slowly comes back.
+Physics: a static `kind: 'lift'` body whose height shrinks; removed once it is down.
 
 ### Smashing walls (owner 2026-11-27: replaces holding a heavy gate)
 
@@ -218,7 +227,8 @@ bridge in the old pit (owner's test). Only room 1 has a gap so far.
 | back wall | Dungeon wall, wall_window_closed, wall_arched, wall_cracked (4 × 4.5 pieces, seeded per room) |
 | decoration | Dungeon torch_mounted (+ a warm point light), banners, barrel_large, crates_stacked; placed by a seeded pass along the floors, never next to puzzle objects |
 | ladder | Medieval Hexagon ladder |
-| lever / heavy lever | Platformer lever_floor_base yellow / red (bigger); the handle node flips |
+| lever / lift lever | Platformer lever_floor_base_yellow; the handle node flips |
+| big floor button | Platformer button_base_red, its cap sinks under the strong one, then teal |
 | switch | Platformer lever_wall_base_A blue (handle turns) |
 | bridge post / bridge | Platformer signage_arrow_stand (turns round when built) / floor_wood_1x1 (amber ghost before) |
 | door / locked door | an iron double gate **across the path** (owner: turned 90°, in walking direction): the two leaves of the Halloween arch_gate, hinged at the front and back of the opening, swing open towards +x and then lie along the path; closed it is seen nearly edge-on; the locked one has the Dungeon key on the side facing the camera |
@@ -336,6 +346,9 @@ measure it.
   screen: "2 players" badge + "play with a sibling or a friend" line. Spanish texts now use
   ustedes, not vosotros (Uruguay / Argentina): Busquen, Suban, ¡Lo lograron! Lift on four
   link chains.
+- 2026-11-28 — Heavy levers (strong one, question) replaced by a **big floor button** (strong
+  one's weight, no question) in 1-2, 2-2, 3-1, 3-2. Questions now: L1 3 + 2 + 3, L2 3 + 2 + 3,
+  L3 3 + 3 + 4.
 - 2026-11-27 — Name decided: **Krabsy Duo** ("working title" tag removed from the title screen).
 
 ## Open (owner)
