@@ -39,7 +39,7 @@ Guten Tag,
 
 in der Übersicht „Materialangebot externer Quellen – fächerspezifisch“ möchte ich für Englisch Krabsy vorschlagen. Mir ist aufgefallen, dass dort für Englisch-Grammatik noch kein Übungsangebot steht.
 
-Krabsy (https://krabsy.com/de/) ist ein kostenloses, privates und nicht-kommerzielles Übungsangebot für Klasse 5 bis 8: unregelmäßige Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect, jeweils mit kurzen Übungen und Lernspielen, dazu ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen. Es gibt keine Werbung, keine Cookies und keine Anmeldung für Schülerinnen und Schüler. Lehrkräfte können ohne Konto einen Klassencode anlegen und sehen, was die Klasse noch übt.
+Krabsy (https://krabsy.com/de/) ist ein kostenloses Übungsangebot (ein privates Projekt) für Klasse 5 bis 8: unregelmäßige Verben, Präpositionen, Simple Present, Present Progressive, Simple Past und Present Perfect, jeweils mit kurzen Übungen und Lernspielen, dazu ein Verb-Diplom mit Urkunde und Arbeitsblätter mit Lösungen. Es gibt keine Werbung, keine Cookies und keine Anmeldung für Schülerinnen und Schüler. Lehrkräfte können ohne Konto einen Klassencode anlegen und sehen, was die Klasse noch übt.
 
 Informationen für Lehrkräfte: https://krabsy.com/de/lehrkraefte/
 
@@ -56,7 +56,7 @@ Jan Ahrens, Entwickler von Krabsy
 ```
 Hola, Manu:
 
-Sigo tu blog y he visto que de vez en cuando presentas recursos gratuitos para el aula, también de inglés. Te escribo por si Krabsy te parece interesante para tus lectores.
+He visto que en tu blog presentas de vez en cuando recursos gratuitos para el aula, también de inglés. Te escribo por si Krabsy te parece interesante para tus lectores.
 
 Krabsy es una web gratuita para practicar gramática inglesa con juegos, pensada para estudiantes de unos 10 a 14 años, con la interfaz en español: verbos irregulares, preposiciones, present simple, present continuous, past simple y present perfect. Hay ejercicios cortos, juegos, un diploma de verbos irregulares con certificado y fichas imprimibles con soluciones. No tiene publicidad ni cookies, y los estudiantes no necesitan registrarse.
 
@@ -158,7 +158,7 @@ Freundliche Grüße
 ```
 Dear Media Officer,
 
-I enjoy the monthly reviews on the TESOL-SPAIN site and would like to suggest a free web tool that a reviewer might want to look at.
+I saw the monthly reviews on the TESOL-SPAIN site and would like to suggest a free web tool that a reviewer might want to look at.
 
 Krabsy (https://krabsy.com/es/) is free English grammar practice for learners aged about 10 to 14, with a Spanish interface: irregular verbs, prepositions, present simple, present continuous, past simple and present perfect. It has short exercises, learning games, an irregular-verbs diploma with a certificate and printable worksheets with answer keys. There are no ads, no cookies and no sign-up for students. Teachers can create a class code without an account to see what the class still finds hard, and run a live quiz with the whole class.
 
